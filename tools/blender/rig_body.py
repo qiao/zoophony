@@ -402,7 +402,7 @@ def collapse(ob, budget):
         raise SystemExit(f'The collapse left {len(ob.data.polygons)} faces, above {budget}.')
 
 
-def add_plates(ob, eyes):
+def add_plates(ob, eyes, margin=PLATE_MARGIN):
     """Adds a plate in front of each eye: a fan through an inner and an outer ring on the surface
     of the head, and a band from the outer ring back into the head. The plate follows the curve of
     the head, so that its facets take the light as the head does. The vertices of a plate are in
@@ -428,10 +428,15 @@ def add_plates(ob, eyes):
             angles = [2 * math.pi * i / PLATE_CORNERS for i in range(PLATE_CORNERS)]
             return [on_surface(math.cos(a) * scale, math.sin(a) * scale) for a in angles]
 
-        middle = bm.verts.new(on_surface(0, 0))
-        inner = [bm.verts.new(p) for p in ring(PLATE_INNER * PLATE_MARGIN)]
-        outer_points = ring(PLATE_MARGIN)
-        outer = [bm.verts.new(p) for p in outer_points]
+        middle_point = on_surface(0, 0)
+        inner_points = ring(PLATE_INNER * margin)
+        outer_points = ring(margin)
+        # The head bulges between the corners of the plate. The front of the plate moves out by the
+        # largest bulge under its triangles, so that the head does not show through it.
+        lift = normal * plate_bulge(tree, middle_point, inner_points, outer_points, normal)
+        middle = bm.verts.new(middle_point + lift)
+        inner = [bm.verts.new(p + lift) for p in inner_points]
+        outer = [bm.verts.new(p + lift) for p in outer_points]
         depth = normal * (PLATE_BACK * eye['halfHeight'] + PLATE_GAP)
         base = [bm.verts.new(p - depth) for p in outer_points]
         for vert in [middle, *inner, *outer, *base]:
@@ -484,6 +489,25 @@ def add_tail(ob, tail):
     bm.free()
 
 
+def plate_bulge(tree, middle, inner, outer, normal):
+    """Gives the largest height of the head in front of the triangles of a plate, plus the gap, or
+    0 when the head stays behind the plate."""
+    triangles = []
+    for i in range(PLATE_CORNERS):
+        j = (i + 1) % PLATE_CORNERS
+        triangles += [(middle, inner[i], inner[j]), (inner[i], outer[i], outer[j]), (inner[i], outer[j], inner[j])]
+    steps = 4
+    weights = [(a / steps, b / steps, 1 - (a + b) / steps) for a in range(steps + 1) for b in range(steps + 1 - a)]
+    bulge = 0.0
+    for a, b, c in triangles:
+        for wa, wb, wc in weights:
+            point = a * wa + b * wb + c * wc
+            hit, _, _, _ = tree.ray_cast(Vector(point - normal * 0.01), Vector(normal), 0.02)
+            if hit:
+                bulge = max(bulge, float((np.array(hit[:]) - point) @ normal))
+    return bulge + PLATE_GAP if bulge > 0 else 0.0
+
+
 def edit_mode(ob, faces):
     """Enters the edit mode of an object with some faces selected."""
     bpy.ops.object.mode_set(mode='OBJECT')
@@ -492,17 +516,19 @@ def edit_mode(ob, faces):
     bpy.ops.object.mode_set(mode='EDIT')
 
 
-def unwrap(ob, face_faces):
+def unwrap(ob, face_faces, fronts):
     """Unwraps the mesh into a new UV layout `skin`, with more texels on the islands of the face,
-    and adds a pinned face at the corner (0, 1) of the layout for the white texels. Gives the index
-    of the pinned face."""
+    and adds a pinned face at the corner (0, 1) of the layout for the white texels. The front of
+    each eye plate (`fronts`: a face and the middle and the axes of its eye) gets one island by a
+    flat projection on its eye plane, so that the margins of the bake make no seams in the eye.
+    Gives the index of the pinned face."""
     layer = ob.data.uv_layers.new(name='skin')
     ob.data.uv_layers.active = layer
     for other in bpy.context.view_layer.objects:
         other.select_set(other == ob)
     bpy.context.view_layer.objects.active = ob
     every = set(range(len(ob.data.polygons)))
-    edit_mode(ob, every)
+    edit_mode(ob, every - set(fronts))
     bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0, area_weight=0)
     bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -510,6 +536,14 @@ def unwrap(ob, face_faces):
     bm.from_mesh(ob.data)
     uv = bm.loops.layers.uv['skin']
     bm.faces.ensure_lookup_table()
+    # The projection takes the texels of each square meter of the other islands.
+    uv_area = sum(uv_triangle_area(f, uv) for f in bm.faces if f.index not in fronts)
+    area = sum(f.calc_area() for f in bm.faces if f.index not in fronts)
+    density = math.sqrt(uv_area / area)
+    for index, (middle, across, up) in fronts.items():
+        for loop in bm.faces[index].loops:
+            offset = np.array(loop.vert.co[:]) - middle
+            loop[uv].uv = Vector((offset @ across, offset @ up)) * density
     for island in uv_islands(bm, uv):
         if sum(f.index in face_faces for f in island) * 2 > len(island):
             loops = [loop for f in island for loop in f.loops]
@@ -543,6 +577,12 @@ def unwrap(ob, face_faces):
     )
     bpy.ops.object.mode_set(mode='OBJECT')
     return white_index
+
+
+def uv_triangle_area(face, uv):
+    """Gives the UV area of a triangle."""
+    a, b, c = (loop[uv].uv for loop in face.loops)
+    return abs((b - a).cross(c - a)) / 2
 
 
 def uv_islands(bm, uv):
@@ -692,9 +732,42 @@ def bake_pass(target, source, texture, fill):
     return image, pixels.reshape(SKIN_SIZE, SKIN_SIZE, 4)[:, :, :3].copy()
 
 
-def bake(target, source, eyes, fill):
-    """Bakes the skin: the body from the texture with no eyes, and the plates from the texture.
-    Gives the image and its texels."""
+def paint_eyes(target, texels, eyes, look):
+    """Paints an eye of a reference image onto the front of each plate (`eyeLook` of the config):
+    an oval of the measured eye at `scale`, with a ring, a pupil, and lights. Each light is
+    (across, up, radius) in parts of the oval. +across points to the right of a viewer in front of
+    the animal for both eyes, so that the lights of the two eyes come from one side."""
+    uv = target.data.uv_layers['skin'].data
+    groups = {bone: target.vertex_groups[bone].index for bone in eyes}
+    ring, pupil, light = (srgb(look[k]) for k in ('ring', 'pupil', 'light'))
+    for bone, eye in eyes.items():
+        normal = eye['normal']
+        right = np.array([1.0, 0.0, 0.0]) - normal * normal[0]
+        right /= np.linalg.norm(right)
+        up = np.cross(normal, right)
+        width = eye['halfWidth'] * look['scale']
+        height = eye['halfHeight'] * look['scale']
+        for poly in target.data.polygons:
+            members = {g.group for i in poly.vertices for g in target.data.vertices[i].groups}
+            if members != {groups[bone]} or Vector(normal).dot(poly.normal) < 0.5:
+                continue
+            corners = np.array([target.data.vertices[i].co[:] for i in poly.vertices])
+            cells, bary = triangle_texels([uv[i].uv[:] for i in poly.loop_indices], SKIN_SIZE)
+            offsets = bary @ corners - eye['middle']
+            across = (offsets @ right) / width
+            rise = (offsets @ up) / height
+            radius = np.hypot(across, rise)
+            colors = texels[cells[:, 1], cells[:, 0]]
+            colors[radius <= 1] = ring
+            colors[radius <= look['pupilSize']] = pupil
+            for at_across, at_rise, size in look['lights']:
+                colors[np.hypot(across - at_across, rise - at_rise) <= size] = light
+            texels[cells[:, 1], cells[:, 0]] = colors
+
+
+def bake(target, source, eyes, fill, look=None):
+    """Bakes the skin: the body from the texture with no eyes, and the plates from the texture, or
+    with the painted eye of `look`. Gives the image and its texels."""
     scene = bpy.context.scene
     scene.render.engine = 'CYCLES'
     scene.cycles.device = 'CPU'
@@ -714,6 +787,8 @@ def bake(target, source, eyes, fill):
         if groups and groups <= eye_groups:
             cells, _ = triangle_texels([uv[i].uv[:] for i in poly.loop_indices], SKIN_SIZE)
             texels[cells[:, 1], cells[:, 0]] = with_eyes[cells[:, 1], cells[:, 0]]
+    if look:
+        paint_eyes(target, texels, eyes, look)
     return image, texels
 
 
@@ -885,7 +960,8 @@ def main():
         np.linalg.norm(eyes['eyeL']['middle'] - face_middle),
         np.linalg.norm(np.array(nose[:]) - face_middle),
     )
-    plates = set(add_plates(ob, eyes))
+    look = config.get('eyeLook')
+    plates = set(add_plates(ob, eyes, max(PLATE_MARGIN, look['scale'] * 1.2 if look else 0)))
     if 'tail' in config:
         add_tail(ob, config['tail'])
     face_faces = {
@@ -893,8 +969,16 @@ def main():
         for p in ob.data.polygons
         if p.index in plates or np.linalg.norm(np.array(p.center[:]) - face_middle) < face_reach
     }
-    white = unwrap(ob, face_faces)
-    skin_image, texels = bake(ob, source, eyes, palette['fur'])
+    fronts = {}
+    for bone, eye in eyes.items():
+        group = ob.vertex_groups[bone].index
+        across, up = eye_frame(eye['normal'])
+        for p in ob.data.polygons:
+            members = {g.group for i in p.vertices for g in ob.data.vertices[i].groups}
+            if members == {group} and Vector(eye['normal']).dot(p.normal) > 0.5:
+                fronts[p.index] = (eye['middle'], across, up)
+    white = unwrap(ob, face_faces, fronts)
+    skin_image, texels = bake(ob, source, eyes, palette['fur'], config.get('eyeLook'))
     shift_colors(texels, palette, config.get('targets', {}))
     skin_path = os.path.join(os.path.dirname(os.path.abspath(out_path)), 'skin.webp')
     save_skin(skin_image, texels, skin_path)
