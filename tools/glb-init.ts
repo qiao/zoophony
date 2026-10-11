@@ -114,8 +114,11 @@ const MIXAMO_JOINTS: readonly (readonly [string, RiggedBone])[] = [
 /** The finger joints of a Mixamo hand. They join the hand, and the extra fingers bone takes them. */
 const MIXAMO_FINGER = /^(Left|Right)Hand(Thumb|Index|Middle|Ring|Pinky)\d$/;
 
-/** The triangle budget of a rigged body before its eye plates: 2,600 less the plates. */
-const TRIANGLES = 2440;
+/**
+ * The triangle budget of a rigged body before its eye plates and a tail ball: 2,600 less the
+ * plates (120 triangles) and the ball (80 triangles).
+ */
+const TRIANGLES = 2400;
 
 /**
  * Gives the name of a Mixamo joint after its prefix: `mixamorig:Hips` and `mixamorig1:Hips` give
@@ -568,7 +571,7 @@ function run(command: string, args: readonly string[]): void {
  * Starts the GLB body of a species: `node tools/glb-init.ts <species> <glb> [--force]
  * [--preview <dir>]`. It copies the file into `assets/models/<species>/` with its README, inspects
  * it with Blender, and writes the proposed config into `tools/glb-bodies/<species>.json`. With
- * `--preview`, it also writes images of the color regions and of the main bones into the folder.
+ * `--preview`, it also writes images of the skin and of the main bones into the folder.
  * Blender comes from the environment variable `BLENDER`, or `blender` on the path.
  */
 async function main(): Promise<void> {
