@@ -136,3 +136,50 @@ The silhouette difference after this work (red: the sheet only, blue: the page o
 The rabbits of the first violins on the stage, from the snapshot of commit `91524340`:
 
 ![The rabbits on the stage](2026-10-10-rabbit-sheet/play-rabbits.webp)
+
+## The second round
+
+The user then asked: "make it more lookalike", and "its ok to relax existing constraints". The
+rounds of the page gave these values:
+
+| Change | Front | Side | Back |
+|---|---|---|---|
+| Start of the round (the merged rabbit) | 0.554 | 0.569 | 0.612 |
+| Knees out 15°, 1,500 triangles with no smooth | 0.643 | 0.436 | 0.575 |
+| Knees out 15°, a smooth of 0.3 two times, 1,500 triangles | 0.571 | 0.573 | 0.577 |
+| The shoulder hold with the scroll down 15° | 0.580 | 0.586 | 0.588 |
+| The scroll down 8°, the violin 0.05 H higher | 0.575 | 0.583 | 0.586 |
+| The spine 10° forward, the fill light 1.5 | 0.550 | 0.650 | 0.594 |
+| The bow slant 5°, the bow at rest across the lap, the tail ball back | 0.551 | 0.651 | 0.591 |
+
+A Laplacian smooth that keeps the volume (factor 0.5, three times) turned the head and the limbs
+into spikes and thin sheets. The simple smooth toward the mean of the neighbors keeps the form.
+
+With 1,500 triangles, the stick of the bow lay 0.002 H from the palm, below the 0.015 H of the
+grip test. The paws and the forearms now keep their detail in the collapse, and the grip test
+passes.
+
+The shoulder hold of the rabbit gave two faults:
+
+- With the bow slant of the chin hold (20°), the bow went 0.13 m into the right paw at 255.5 s of
+  the default demo, at the end of a long stroke. Elbow directions of (1, -0.5, -1), (1, 0, -1),
+  (1, -1, -0.3), and (1.5, -1, -1), and shoulder turns of 15° and 45°, did not change it. A slant
+  of 5° to 8° passes.
+- With a slant of 8° or less, the bow paw turned 16,565° a second in the lift of the default
+  demo: 16.6° in 1 ms at 0.328 s. The rest elbow and the play elbow did not change it, and a
+  slant of 15° or more removed it. The bow at rest across the lap (tip (-1, 0, 0)) removes it
+  with the slant of 5°.
+
+The fill light of 1.5 brings the 20th percentile of the value to 174, 185, and 194 in the three
+views, against 185, 187, and 170 on the sheet (144 on the page before).
+
+The stages grow from their sides of 2026-10-08: `mozart-k525.mid` to 7.07 m (5.1%) and
+`bach-bwv1048.mid` to 10.92 m (4.6%). The other stages grow by 0.2% to 1.5%.
+
+`rabbit-views.png`, the rabbit of the first round, and the rabbit of the second round:
+
+![The sheet and the two rounds](2026-10-10-rabbit-sheet/sheet-round-2.webp)
+
+The rabbits of the first violins on the stage, from the snapshot of commit `938c52c7`:
+
+![The rabbits on the stage after the second round](2026-10-10-rabbit-sheet/play-rabbits-round-2.webp)
