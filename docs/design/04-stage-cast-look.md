@@ -316,7 +316,7 @@ The files and the tools stay for a later body. `pnpm rig-body <species>` still p
 `src/models/rigged/<species>.ts`, in the format of `models/rigged-format.ts` and
 `models/packed-mesh.ts`, and its skin `<species>-skin.webp` (tools, below). The app reads no such
 module. To show a rigged body again, bring back the code of 2026-10-10 with
-`git show 196c1014:<path>`: `models/rigged-body.ts` (the pose of the T-pose for each stance on the
+`git show 773e0a69:<path>`: `models/rigged-body.ts` (the pose of the T-pose for each stance on the
 CPU, with the seated thighs a little down and apart), the dispatch in `buildBiped()` and
 `SpeciesParams.rigged`, the seat fit of `models/props.ts`, and the skin materials of
 `scene/player-materials.ts`. The packer works as follows:
