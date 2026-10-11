@@ -49,13 +49,14 @@ export function buildChoirFolder(): InstrumentModel {
       toVec3(new Vector3(side * (f.width - 0.03), -f.height / 4, -0.02).applyQuaternion(turn)),
     );
   }
-  // The folder is 1.0 H below the head center and 0.75 H in front of it. It leans back 35°, so
-  // that the pages face the eyes.
+  // The folder is 0.85 H below the head center and 0.75 H in front of it, at the height of the
+  // folders of the penguins of `orchestra-latest.png` and `orchestra-side.png`. It leans back
+  // 35°, so that the pages face the eyes.
   const instrument = piece.build(
     'instrument',
     hold(
       'head',
-      [0, -1.0, -0.75],
+      [0, -0.85, -0.75],
       toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -35 * MathUtils.DEG2RAD)),
     ),
   );

@@ -614,9 +614,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     torso.
   - The penguins have the egg body of 4.4. The palm is a point near the tip of each flipper, so
     the flipper reaches from the shoulder to the grip with a small bend at the elbow. The
-    `fingers` bone has no part, so the curl shows nothing. The folder hold and `CHOIR_HOLD` fit
-    the flippers with no change. A test keeps the folder and the flippers out of the body in the
-    singing pose and in the rest pose (`pose/choir.test.ts`).
+    `fingers` bone has no part, so the curl shows nothing. `CHOIR_HOLD` fits the flippers with no
+    change. The folder hold of 4.6 is a little higher than for the parametric penguin, so that
+    the folder shows at the height of the folders of the two newest reference images. A test
+    keeps the folder and the flippers out of the body in the singing pose and in the rest pose
+    (`pose/choir.test.ts`).
   - In the rest pose, the jaw closes and the chest stops its turn. The singer keeps the folder in
     its hands.
 - The motion starts 100 to 400 ms before the note, by the action. This is possible because the
