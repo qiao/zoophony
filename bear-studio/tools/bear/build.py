@@ -187,7 +187,36 @@ def check_contacts(skel, verts, tris, weights, items, samples, morphs, driver):
               f'{frame / motion.FPS:5.2f} s), turned past 90 deg {turned}, '
               f'folded past 120 deg {folded}  {"pass" if ok else "FAIL"}')
     print(f'contact check: limit {contacts.LIMIT * 100:.1f} cm, {time.time() - t0:.1f} s')
-    return {'limit': contacts.LIMIT, 'clips': report}
+    return {'limit': contacts.LIMIT, 'clips': report}, check.folded
+
+
+# The rounds of the fold repair: after each check, the weights around the folded faces get
+# smoothed (rig.repair_folds), and the check runs again.
+REPAIR_ROUNDS = 4
+
+
+def write_body_weights(obj, bone_names, w, n):
+    """Writes the weights of the body vertices (the first n) of the joined mesh, and keeps the
+    weights of the details."""
+    body_idx = list(range(n))
+    for j, name in enumerate(bone_names):
+        g = obj.vertex_groups.get(name) or obj.vertex_groups.new(name=name)
+        g.remove(body_idx)
+        for i in np.nonzero(w[:, j] > 1e-4)[0]:
+            g.add([int(i)], float(w[i, j]), 'REPLACE')
+
+
+def set_shape_keys(obj, body_verts, deltas):
+    """Replaces the offsets of the body vertices in existing shape keys."""
+    n = len(body_verts)
+    keys = obj.data.shape_keys.key_blocks
+    basis = np.zeros(len(obj.data.vertices) * 3)
+    keys['Basis'].data.foreach_get('co', basis)
+    basis = basis.reshape(-1, 3)
+    for name, delta in deltas.items():
+        moved = basis.copy()
+        moved[:n] += mesh.to_blender(delta)
+        keys[name].data.foreach_set('co', moved.ravel().astype(np.float32))
 
 
 def export_glb(path):
@@ -237,6 +266,13 @@ def main():
     median_px, rms_px = paint.facet_stats(verts, tris)
     q1, q3 = paint.edge_quartiles(verts, tris)
     folds = folded_faces(parts, centers, normals)
+    if os.environ.get('BEAR_DEBUG') and folds:
+        eps = 0.002
+        grad = np.stack([body.field_at(parts, centers + eps * e) - body.field_at(parts, centers - eps * e)
+                         for e in np.eye(3)], axis=1)
+        grad /= np.maximum(np.linalg.norm(grad, axis=1, keepdims=True), 1e-9)
+        for f in np.nonzero(np.sum(grad * normals, axis=1) < -0.5)[0]:
+            print('RESTFOLD', f, np.round(centers[f], 3), round(float(np.sum(grad[f] * normals[f])), 2))
     slivers, min_angle = retopo.triangle_quality(verts, tris)
     print(f'body: {len(tris)} triangles, median edge {median_px:.1f} px of the sheet '
           f'(quartiles {q1:.1f} to {q3:.1f}), slivers {slivers * 100:.1f}%, median smallest angle '
@@ -273,12 +309,15 @@ def main():
         w = rig.weight_table(obj, names)
         w = rig.trunk_weights(verts, w, names)
         w = rig.trunk_owned(verts, parts, w, names)
+        w = rig.arm_owned(verts, parts, w, names)
         neighbors = rig.vertex_neighbors(obj)
         w = rig.smooth_weights(w, neighbors, rounds=2, amount=0.5)
         w = rig.smooth_weights(w, neighbors, rounds=10, amount=0.7 * rig.armpit_mask(verts))
         w = rig.smooth_weights(w, neighbors, rounds=10, amount=0.7 * rig.joint_mask(verts))
         w = rig.chain_limits(verts, w, names, bones)
+        w = rig.throat_to_neck(verts, w, names)
         w = rig.force_bone(w, names, 'head', rig.head_rigidity(verts), keep=('ear_L', 'ear_R'))
+        w = rig.ears_to_head(w, names)
         w = rig.force_bone(w, names, 'hips', rig.crotch_mask(verts))
         w = rig.limit_and_normalize(w)
         rig.write_weights(obj, names, w)
@@ -292,6 +331,7 @@ def main():
             skel, verts, tris, w, pose_ref, parts_ref, retopo.project)
         print(f'corrective: {creport}')
         driver = corrective.ArmDriver(skel, pose_bind, pose_ref)
+        skel_rig = skel
         n_body = len(verts)
 
         detail_objs = add_detail_objects(items, mats)
@@ -314,8 +354,51 @@ def main():
         stats['bones'] = len(arm.data.bones)
         stats['clips'] = list(samples)
         stats['corrective'] = creport
-        stats['contacts'] = check_contacts(skel, verts, tris, w, items, samples,
-                                           {'L': dL, 'R': dR}, driver)
+        report, folded = check_contacts(skel, verts, tris, w, items, samples,
+                                        {'L': dL, 'R': dR}, driver)
+        repairs = []
+        for _ in range(REPAIR_ROUNDS):
+            if not folded:
+                break
+            print(f'fold repair: smoothing the weights around {len(folded)} folded faces')
+            if os.environ.get('BEAR_DEBUG'):
+                for f in sorted(folded):
+                    ws = w[tris[f]].mean(axis=0)
+                    top = np.argsort(ws)[::-1][:3]
+                    print('REPAIR', f, np.round(verts[tris[f]].mean(axis=0), 3),
+                          [(names[k], round(float(ws[k]), 2)) for k in top])
+            repairs.append(len(folded))
+            w = rig.repair_folds(w, tris, folded, neighbors)
+            write_body_weights(final, names, w, n_body)
+            dL, dR, creport = corrective.arm_down_shapes(
+                skel_rig, verts, tris, w, pose_ref, parts_ref, retopo.project)
+            set_shape_keys(final, verts, {'arm_down_L': dL, 'arm_down_R': dR})
+            report, folded = check_contacts(skel, verts, tris, w, items, samples,
+                                            {'L': dL, 'R': dR}, driver)
+        if os.environ.get('BEAR_DEBUG') and folded:
+            fc = verts[tris].mean(axis=1)
+            fn = np.cross(verts[tris[:, 1]] - verts[tris[:, 0]], verts[tris[:, 2]] - verts[tris[:, 0]])
+            area = 0.5 * np.linalg.norm(fn, axis=1)
+            fn /= np.maximum(2 * area[:, None], 1e-12)
+            eps = 0.002
+            grad = np.stack([body.field_at(surface_parts, fc + eps * e)
+                             - body.field_at(surface_parts, fc - eps * e) for e in np.eye(3)], axis=1)
+            grad /= np.maximum(np.linalg.norm(grad, axis=1, keepdims=True), 1e-9)
+            _, minang = retopo.triangle_quality(verts, tris[sorted(folded)])
+            for f in sorted(folded):
+                ws = w[tris[f]].mean(axis=0)
+                top = np.argsort(ws)[::-1][:3]
+                a_, b_, c_ = verts[tris[f]]
+                ang = []
+                for p0, p1, p2 in ((a_, b_, c_), (b_, c_, a_), (c_, a_, b_)):
+                    u, v = p1 - p0, p2 - p0
+                    ang.append(np.degrees(np.arccos(np.clip(u @ v / (np.linalg.norm(u) * np.linalg.norm(v)), -1, 1))))
+                print('PERSIST', f, np.round(fc[f], 3), 'area', round(float(area[f]) * 1e4, 2),
+                      'min angle', round(min(ang), 1), 'rest dot', round(float(grad[f] @ fn[f]), 2),
+                      [(names[k], round(float(ws[k]), 2)) for k in top])
+        stats['fold_repairs'] = repairs
+        stats['corrective'] = creport
+        stats['contacts'] = report
         assert n_body == len(verts)
     for poly in final.data.polygons:
         poly.use_smooth = False

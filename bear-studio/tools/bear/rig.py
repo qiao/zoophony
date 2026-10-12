@@ -181,10 +181,49 @@ def trunk_owned(points, parts, w, names):
     return w / np.maximum(s, 1e-9)
 
 
+def arm_owned(points, parts, w, names):
+    """Keeps the paw and the twist weights on their own parts of the arm.
+
+    In the bind pose the raised paw lies near the end of the upper arm, so bone heat gives the
+    upper arm skin there some paw and twist weight, and a face with upper arm, twist, and paw
+    weight folds over when the wrist turns. A vertex nearer to the upper arm or the forearm part
+    than to the paw part loses its paw and finger weight, and a vertex nearer to the upper arm
+    part than to the forearm part loses its twist weight (fully at 0.02).
+    """
+    p = np.asarray(points, float)
+    w = w.copy()
+    col = {n: i for i, n in enumerate(names)}
+    for side, sign in (('L', 1.0), ('R', -1.0)):
+        def dist(kinds):
+            own = [q for q in parts if q.name in kinds
+                   and np.sign(0.5 * (q.lo[0] + q.hi[0])) == sign]
+            return np.min([q.fn(p) for q in own], axis=0)
+
+        d_up = dist(('upper_arm', 'deltoid'))
+        d_fore = dist(('forearm', 'forearm_bulge'))
+        d_paw = dist(('paw',))
+        drop = np.clip((d_paw - np.minimum(d_up, d_fore)) / 0.02, 0.0, 1.0)
+        for bone in ('hand', 'fingers'):
+            w[:, col[f'{bone}_{side}']] *= 1.0 - drop
+        drop = np.clip((d_fore - d_up) / 0.02, 0.0, 1.0)
+        w[:, col[f'forearm_twist_{side}']] *= 1.0 - drop
+    s = w.sum(axis=1, keepdims=True)
+    return w / np.maximum(s, 1e-9)
+
+
 # The limb chains: each child bone loses its weight above the middle of its parent bone.
 CHAINS = (('upper_arm', 'forearm'), ('forearm', 'forearm_twist'), ('forearm_twist', 'hand'),
           ('hand', 'fingers'),
+          # In the bind pose the raised paw lies near the upper arm, so bone heat gives the skin
+          # of the upper arm some twist, paw, and finger weight.
+          ('upper_arm', 'forearm_twist'), ('upper_arm', 'hand'), ('upper_arm', 'fingers'),
           ('thigh', 'shin'), ('shin', 'foot'), ('foot', 'toes'))
+
+
+# The parent limits: a parent bone loses its weight beyond the middle of its child bone. On the
+# twist chain no face of the wrist then mixes the forearm (no twist), the twist bone (half), and
+# the paw (all of it), and no stray upper arm weight from the smoothing reaches the wrist.
+PARENT_LIMITS = (('upper_arm', 'forearm'), ('forearm', 'forearm_twist'))
 
 
 def chain_limits(points, w, names, bones):
@@ -204,12 +243,87 @@ def chain_limits(points, w, names, bones):
             seg = tail - head
             t = (p - head) @ seg / (seg @ seg)
             near = np.linalg.norm(p - (head + np.clip(t, 0, 1)[:, None] * seg), axis=1) < 0.13
-            keep = np.clip((t - 0.45) / 0.4, 0.0, 1.0)
+            # The twist weight starts later on the short forearm: a face of the inner elbow with
+            # upper arm and twist weight folds over when the paw turns.
+            start = 0.7 if child == 'forearm_twist' else 0.45
+            keep = np.clip((t - start) / (0.85 - start), 0.0, 1.0)
             keep = keep * keep * (3 - 2 * keep)
             factor = np.where(near, keep, 1.0)
             w[:, col[f'{child}_{side}']] *= factor
+        for parent, child in PARENT_LIMITS:
+            head, tail = bones[f'{child}_{side}'][0], bones[f'{child}_{side}'][1]
+            seg = tail - head
+            t = (p - head) @ seg / (seg @ seg)
+            near = np.linalg.norm(p - (head + np.clip(t, 0, 1)[:, None] * seg), axis=1) < 0.13
+            fade = np.clip((0.55 - t) / 0.4, 0.0, 1.0)
+            fade = fade * fade * (3 - 2 * fade)
+            w[:, col[f'{parent}_{side}']] *= np.where(near, fade, 1.0)
     s = w.sum(axis=1, keepdims=True)
     return w / np.maximum(s, 1e-9)
+
+
+def throat_to_neck(points, w, names):
+    """Moves the clavicle weight of the front of the neck, and the head weight of the shoulder
+    tops, to the neck bone.
+
+    Bone heat gives the throat under the chin some weight of both clavicles. A face there with
+    clavicle and head weight folds over when the head turns and a shoulder lifts (the cue).
+    The clavicle weight fades in from 0.06 to 0.12 out from the center line, above height 0.68.
+    """
+    p = np.asarray(points, float)
+    w = w.copy()
+    col = {n: i for i, n in enumerate(names)}
+    keep = 1.0 - (1.0 - np.clip((np.abs(p[:, 0]) - 0.06) / 0.06, 0.0, 1.0)) \
+        * np.clip((p[:, 1] - 0.68) / 0.03, 0.0, 1.0)
+    for side in 'LR':
+        j = col[f'clavicle_{side}']
+        moved = w[:, j] * (1.0 - keep)
+        w[:, j] -= moved
+        w[:, col['neck']] += moved
+    # Below the chin and out from the neck (the tops of the shoulders), the head weight of bone
+    # heat moves to the neck too: the round head sits close above them.
+    away = np.clip((0.78 - p[:, 1]) / 0.03, 0.0, 1.0) * np.clip((np.abs(p[:, 0]) - 0.09) / 0.04, 0.0, 1.0)
+    moved = w[:, col['head']] * away
+    w[:, col['head']] -= moved
+    w[:, col['neck']] += moved
+    return w
+
+
+def ears_to_head(w, names):
+    """Gives the ear weight of the body skin to the head.
+
+    The ears are separate rigid pieces on the ear bones. Bone heat still gives the crown of the
+    body some weight of both ears, and a crown face with head and ear weight folds over when an
+    ear moves.
+    """
+    w = w.copy()
+    col = {n: i for i, n in enumerate(names)}
+    for side in 'LR':
+        j = col[f'ear_{side}']
+        w[:, col['head']] += w[:, j]
+        w[:, j] = 0.0
+    return w
+
+
+def repair_folds(w, tris, folded, neighbors, rings=1, rounds=4, amount=0.6):
+    """Smooths the weights around the faces that fold over in a clip.
+
+    A face folds when its corners take weights of bones that turn far apart, with a sharp step
+    between them. Smoothing over the corners of each folded face and their neighbors (rings deep)
+    spreads that step over more faces, so each face turns less. The repair stays small (one ring),
+    because a wide smoothing near the elbow moves the forearm skin into the body.
+    """
+    mask = np.zeros(len(w))
+    front = set(int(v) for f in folded for v in tris[f])
+    seen = set(front)
+    for _ in range(rings):
+        nxt = set()
+        for v in front:
+            nxt.update(n for n in neighbors[v] if n not in seen)
+        seen |= nxt
+        front = nxt
+    mask[list(seen)] = amount
+    return limit_and_normalize(smooth_weights(w, neighbors, rounds, mask))
 
 
 def joint_mask(points):
@@ -316,16 +430,21 @@ def trunk_weights(points, w_heat, names):
     keep_arm = np.clip((arm - 0.35) / 0.3, 0, 1)
     keep_tail = np.clip((heat(['tail']) - 0.2) / 0.3, 0, 1)
     keep_head = np.clip((y - 0.74) / 0.05, 0, 1)
+    # The legs keep bone heat inside the thigh and the shin, and below the trunk. The low belly
+    # hangs over the knees in front of the legs: it takes the trunk bands, because a face with
+    # hips, thigh, and shin weight there folds over when the knee bends.
     keep_leg = np.zeros(len(p))
     for side in (1, -1):
         hip = np.array(body.LEG['hip']) * np.array([side, 1, 1])
         knee = np.array(body.LEG['knee']) * np.array([side, 1, 1])
-        seg = knee - hip
-        t = np.clip((p - hip) @ seg / (seg @ seg), 0, 1)
-        d = np.linalg.norm(p - (hip + t[:, None] * seg), axis=1)
-        inside = np.clip((0.118 - d) / 0.04, 0, 1) * np.clip((0.29 - y) / 0.05, 0, 1)
-        keep_leg = np.maximum(keep_leg, inside)
-    keep_leg = np.maximum(keep_leg, np.clip((0.19 - y) / 0.03, 0, 1))
+        ankle = np.array(body.LEG['ankle']) * np.array([side, 1, 1])
+        for a, b, top in ((hip, knee, 0.29), (knee, ankle, 0.2)):
+            seg = b - a
+            t = np.clip((p - a) @ seg / (seg @ seg), 0, 1)
+            d = np.linalg.norm(p - (a + t[:, None] * seg), axis=1)
+            inside = np.clip((0.118 - d) / 0.04, 0, 1) * np.clip((top - y) / 0.05, 0, 1)
+            keep_leg = np.maximum(keep_leg, inside)
+    keep_leg = np.maximum(keep_leg, np.clip((0.15 - y) / 0.02, 0, 1))
     # The crotch between the legs follows the hips: it takes weight from both legs otherwise,
     # and its faces turn over when one knee bends.
     crotch = np.clip((0.07 - np.abs(p[:, 0])) / 0.04, 0, 1) * np.clip((0.24 - y) / 0.04, 0, 1)

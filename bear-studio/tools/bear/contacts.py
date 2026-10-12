@@ -132,6 +132,8 @@ class ContactCheck:
         self.verts = np.asarray(body_verts, float)
         self.tris = np.asarray(body_tris, np.int64)
         self.w = np.asarray(weights, float)
+        # The faces that folded over in any frame (indices into body_tris).
+        self.folded = set()
         col = {n: i for i, n in enumerate(self.names)}
 
         def wsum(bones):
@@ -197,6 +199,7 @@ class ContactCheck:
         rotations = np.stack([D[n] for n in self.names])
         dots = dominant_dots(rest, self.tris, body, self.w, rotations)
         turned = (int(np.sum(dots < 0.0)), int(np.sum(dots < FOLD_DOT)))
+        self.folded.update(np.nonzero(dots < FOLD_DOT)[0].tolist())
         result = {}
         for side in ('L', 'R'):
             tri = self.obstacles[side]
