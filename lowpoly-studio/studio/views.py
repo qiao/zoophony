@@ -76,21 +76,27 @@ def align_and_score(u, v, ref_mask, view_meta, voxel, search=40):
     radius = max(1, int(round(voxel * scale / 2)))
     x_center = (left + right) / 2
     u_mid = (u.max() + u.min()) / 2
-    best = (-1.0, None, 0)
     col0, col1 = view_meta['column']
     ref = ref_mask[:, col0:col1]
+    # Splat once into a wider canvas, then slide the column window: each x offset is a slice.
+    pad = search + 2
+    h, w = ref_mask.shape
+    base = splat(u, v, scale, x_center - u_mid * scale + pad, y_bottom, (h, w + 2 * pad),
+                 radius)
+
+    def score(dx):
+        m = base[:, col0 + pad - dx:col1 + pad - dx]
+        return np.logical_and(m, ref).sum() / max(np.logical_or(m, ref).sum(), 1), m
+
+    best = (-1.0, None, 0)
     for dx in range(-search, search + 1, 2):
-        x0 = x_center - u_mid * scale + dx
-        m = splat(u, v, scale, x0, y_bottom, ref_mask.shape, radius)[:, col0:col1]
-        iou = np.logical_and(m, ref).sum() / max(np.logical_or(m, ref).sum(), 1)
+        iou, m = score(dx)
         if iou > best[0]:
             best = (iou, m, dx)
     # Refine to one pixel.
-    iou0, _, dx0 = best
+    _, _, dx0 = best
     for dx in (dx0 - 1, dx0 + 1):
-        x0 = x_center - u_mid * scale + dx
-        m = splat(u, v, scale, x0, y_bottom, ref_mask.shape, radius)[:, col0:col1]
-        iou = np.logical_and(m, ref).sum() / max(np.logical_or(m, ref).sum(), 1)
+        iou, m = score(dx)
         if iou > best[0]:
             best = (iou, m, dx)
     return best
