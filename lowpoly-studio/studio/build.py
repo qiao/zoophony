@@ -3,7 +3,7 @@
 Run with Blender (the CLI `python3 studio build <animal>` does it):
 
     blender -b --factory-startup --python studio/build.py -- <animal> --seed 3
-        [--out DIR] [--until STAGE] [--clips a,b]
+        [--out DIR] [--until STAGE] [--clips a,b] [--cache DIR | --no-cache] [--no-gate]
 
 The stages (each one writes its outputs into <out>/stages/, see studio/stages.py):
 
@@ -21,6 +21,16 @@ The stages (each one writes its outputs into <out>/stages/, see studio/stages.py
     diagnostics  the located contacts and folds, and the fold debug list
 
 The model stages (field to details) take one input from the role: the bind pose.
+
+The stage cache (studio/cache.py, studio/stages.py): field, remesh, organic, clips, contacts, and
+export keep their outputs in the cache of the animal, keyed by their inputs, the config values
+that they read, and their code. A cache hit makes the Blender state again with the restore
+function of the stage, with the same calls as the run that made the entry. The cheap stages that
+change the scene (paint to assemble) always run.
+
+The remesh gate (studio/remesh.py): after the remesh, the quad count; after the organic pass,
+the inward faces, the slivers, and the slits. A failed gate stops the build: <out>/stages/
+remesh-gate.json has the checks, and run.json has "stopped" (the seed search tries the next seed).
 """
 
 import argparse
@@ -37,8 +47,8 @@ import numpy as np  # noqa: E402
 from mathutils import Vector  # noqa: E402
 from mathutils.bvhtree import BVHTree  # noqa: E402
 
-from studio import (bake, config, contacts, details, export, mesh, paint, props, remesh,  # noqa: E402
-                    roles, stages)
+from studio import (bake, cache, config, contacts, details, export, mesh, paint, props,  # noqa: E402
+                    remesh, roles, stages)
 from studio import weights as skin  # noqa: E402
 from studio.field import field_at, field_on_grid, load_profiles  # noqa: E402
 from studio.sdf import surface_nets  # noqa: E402
@@ -59,6 +69,9 @@ def parse_args():
     ap.add_argument('--out', default=None, help='the output folder (default: <animal>/out)')
     ap.add_argument('--until', default=None, help='stop after this stage (no GLB)')
     ap.add_argument('--clips', default='', help='only these clips (a,b)')
+    ap.add_argument('--cache', default=None, help='the cache folder (default: <animal>/cache)')
+    ap.add_argument('--no-cache', action='store_true', help='no cache reads and no cache writes')
+    ap.add_argument('--no-gate', action='store_true', help='report the remesh gate, never stop')
     return ap.parse_args(argv)
 
 
@@ -90,17 +103,24 @@ def stage_remesh(cfg, body, surface_parts, dense_verts, dense_quads, seed, heigh
 
 def stage_organic(cfg, body, surface_parts, quad_verts, quad_tris, quad_pairs, seed,
                   remesh_info):
-    """Makes the triangles organic, cleans them, and creates the body object."""
+    """Makes the triangles organic and cleans them (restore_organic creates the body object)."""
     t0 = time.time()
     v, tris, pairs, counts = remesh.organic_pass(cfg, body, surface_parts, quad_verts, quad_tris,
                                                  quad_pairs, seed)
-    obj = remesh.body_object(cfg.animal.name, surface_parts, v, tris)
     info = dict(remesh_info)
     info.update(counts)
+    return {'_restore': {'verts': v, 'tris': tris, 'info': info,
+                         'seconds': round(time.time() - t0, 1)}}
+
+
+def restore_organic(saved, cfg, surface_parts):
+    """Creates the body object from the organic mesh, and reads its face arrays."""
+    info = saved['info']
+    obj = remesh.body_object(cfg.animal.name, surface_parts, saved['verts'], saved['tris'])
     print(f'remeshed: {info["quads"]} quads -> {mesh.triangle_count(obj)} triangles, '
           f'quad edge {info["quad_edge_px"]} px, unpaired vertices {info["unpaired_vertices"]}, '
           f'collapsed pairs {info["collapsed_pairs"]}, flipped pairs {info["flipped_pairs"]}, '
-          f'organic pass {time.time() - t0:.1f} s')
+          f'organic pass {saved["seconds"]:.1f} s')
     centers, normals, verts, tris = export.face_arrays(obj)
     return {'body_obj': obj, 'verts': verts, 'tris': tris, 'centers': centers, 'normals': normals,
             'organic_info': info}
@@ -206,10 +226,18 @@ def stage_assemble(cfg, body, body_obj, body_items, materials, arm, verts, shape
     return {'final': final, 'items': items}
 
 
-def stage_clips(pack, arm, skel, final, drivers, clips_only):
-    """Bakes the clips of the role into actions (with the weights of the corrective shapes)."""
-    samples = bake.bake_all(arm, skel, pack, clips_only, (final, drivers))
-    return {'samples': samples, 'sample_arrays': bake.sample_arrays(samples, skel.names)}
+def stage_clips(pack, skel, drivers, clips_only):
+    """Solves the clips of the role and the weights of the corrective shapes in each frame
+    (restore_clips writes them into actions)."""
+    samples, shape_weights = bake.sample_all(skel, pack, clips_only, drivers)
+    return {'samples': samples, 'sample_arrays': bake.sample_arrays(samples, skel.names),
+            '_restore': {'shape_weights': shape_weights}}
+
+
+def restore_clips(saved, samples, arm, skel, final, pack):
+    """Writes the solved clips into actions of the armature and of the shape keys."""
+    bake.write_all(arm, skel.props, pack.fps, samples, final, saved['shape_weights'])
+    return {}
 
 
 def check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes, weights_of, fps):
@@ -262,18 +290,20 @@ def _debug_persisting(verts, tris, w, names, folded, surface_parts):
 
 
 def stage_contacts(cfg, template, skel, verts, tris, weights, items, samples, shapes,
-                   weights_of, final, bone_names, neighbors, pose_ref, parts_ref, project,
+                   weights_of, bone_names, neighbors, pose_ref, parts_ref, project,
                    corrective_report, surface_parts, pack):
     """Checks the contacts and the folds of each clip, and repairs the folds.
 
     A fold means that the weights step sharply across one face between bones that turn far
     apart. After the check, the weights around each folded face get smoothed, the corrective
-    shapes are made again, and the check runs again, for up to REPAIR_ROUNDS rounds.
+    shapes are made again, and the check runs again, for up to REPAIR_ROUNDS rounds. The
+    weights and the shapes of each round go to restore_contacts, which writes them into the mesh.
     """
     w = weights
     report, folded = check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes,
                                  weights_of, pack.fps)
     repairs = []
+    writes = []
     for _ in range(REPAIR_ROUNDS):
         if not folded:
             break
@@ -286,16 +316,25 @@ def stage_contacts(cfg, template, skel, verts, tris, weights, items, samples, sh
                       [(bone_names[k], round(float(ws[k]), 2)) for k in top])
         repairs.append(len(folded))
         w = skin.repair_folds(w, tris, folded, neighbors)
-        skin.write_first_weights(final, bone_names, w, len(verts))
         shapes, _, weights_of, corrective_report = template.correctives(
             cfg.role.bind.correctives, skel, verts, tris, w, pose_ref, parts_ref, project)
-        export.set_shape_keys(final, verts, shapes)
+        writes.append((w, shapes))
         report, folded = check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes,
                                      weights_of, pack.fps)
     if DEBUG and folded:
         _debug_persisting(verts, tris, w, bone_names, folded, surface_parts)
     return {'contact_report': report, 'fold_repairs': repairs, 'final_weights': w,
-            'final_shapes': shapes, 'final_corrective_report': corrective_report}
+            'final_shapes': shapes, 'final_corrective_report': corrective_report,
+            '_restore': {'writes': writes}}
+
+
+def restore_contacts(saved, final, bone_names, verts):
+    """Writes the repaired weights and the corrective shapes of each repair round into the
+    joined mesh, in the order of the rounds."""
+    for w, shapes in saved['writes']:
+        skin.write_first_weights(final, bone_names, w, len(verts))
+        export.set_shape_keys(final, verts, shapes)
+    return {}
 
 
 
@@ -312,10 +351,20 @@ def stage_export(cfg, final, arm, body_stats, samples, final_corrective_report, 
     stats['contacts'] = contact_report
     stats['total_triangles'] = mesh.triangle_count(final)
     export.export_glb(cfg.paths.glb)
+    with open(cfg.paths.glb, 'rb') as f:
+        glb = f.read()
+    print('stats', json.dumps(stats))
+    return {'stats': stats, '_restore': {'glb': glb}}
+
+
+def restore_export(saved, cfg, stats):
+    """Writes the GLB and the stats file."""
+    os.makedirs(os.path.dirname(cfg.paths.glb), exist_ok=True)
+    with open(cfg.paths.glb, 'wb') as f:
+        f.write(saved['glb'])
     with open(cfg.paths.stats, 'w') as f:
         json.dump(stats, f, indent=2)
-    print('stats', json.dumps(stats))
-    return {'stats': stats}
+    return {}
 
 
 STAGES = [
@@ -332,76 +381,153 @@ STAGES = [
                   'remesh_info'),
                  {'body_obj': 'live', 'verts': 'array', 'tris': 'array', 'centers': 'array',
                   'normals': 'array', 'organic_info': 'json'},
-                 'Organic pass, relax, jitter, no slivers, no inward faces -> the body object.'),
+                 'Organic pass, relax, jitter, no slivers, no inward faces -> the body object.',
+                 keep=(), restore=restore_organic, restore_inputs=('cfg', 'surface_parts')),
     stages.Stage('paint', stage_paint,
                  ('cfg', 'body', 'parts', 'body_obj', 'centers', 'normals', 'verts', 'tris',
                   'height_px', 'seed'),
                  {'colors': 'array', 'occlusion': 'array', 'materials': 'live',
                   'body_stats': 'json'},
-                 'Face colors, baked occlusion, materials, and facet measures.'),
+                 'Face colors, baked occlusion, materials, and facet measures.', cache='run'),
     stages.Stage('details', stage_details, ('cfg', 'body', 'parts', 'verts', 'tris'),
                  {'body_items': 'json'},
-                 'Eyes, brows, nose, mouth, ears, tail, and claws on the facets.'),
+                 'Eyes, brows, nose, mouth, ears, tail, and claws on the facets.', cache='run'),
     stages.Stage('rig', stage_rig, ('cfg', 'body', 'template', 'body_obj', 'verts', 'parts'),
                  {'arm': 'live', 'bones': 'json', 'bone_names': 'json', 'heat_weights': 'array',
                   'weights': 'array', 'neighbors': 'json'},
-                 'The armature of the template, bone heat, and the weight rules.'),
+                 'The armature of the template, bone heat, and the weight rules.', cache='run'),
     stages.Stage('correctives', stage_correctives,
                  ('cfg', 'body', 'template', 'pack', 'arm', 'bones', 'verts', 'tris', 'weights'),
                  {'skel': 'live', 'pose_ref': 'live', 'parts_ref': 'live', 'project': 'live',
                   'shapes': 'array', 'drivers': 'live', 'weights_of': 'live',
                   'corrective_report': 'json'},
-                 'The corrective shapes that the role names.'),
+                 'The corrective shapes that the role names.', cache='run'),
     stages.Stage('assemble', stage_assemble,
                  ('cfg', 'body', 'body_obj', 'body_items', 'materials', 'arm', 'verts', 'shapes'),
                  {'final': 'live', 'items': 'json'},
-                 'Detail and role prop objects, the join, the shape keys, and the markers.'),
-    stages.Stage('clips', stage_clips, ('pack', 'arm', 'skel', 'final', 'drivers', 'clips_only'),
+                 'Detail and role prop objects, the join, the shape keys, and the markers.',
+                 cache='run'),
+    stages.Stage('clips', stage_clips, ('pack', 'skel', 'drivers', 'clips_only'),
                  {'samples': 'live', 'sample_arrays': 'array'},
-                 'The clips of the role -> actions.'),
+                 'The clips of the role -> actions.',
+                 keep=('samples', 'sample_arrays'), restore=restore_clips,
+                 restore_inputs=('samples', 'arm', 'skel', 'final', 'pack')),
     stages.Stage('contacts', stage_contacts,
                  ('cfg', 'template', 'skel', 'verts', 'tris', 'weights', 'items', 'samples',
-                  'shapes', 'weights_of', 'final', 'bone_names', 'neighbors', 'pose_ref',
-                  'parts_ref', 'project', 'corrective_report', 'surface_parts', 'pack'),
+                  'shapes', 'weights_of', 'bone_names', 'neighbors', 'pose_ref', 'parts_ref',
+                  'project', 'corrective_report', 'surface_parts', 'pack'),
                  {'contact_report': 'json', 'fold_repairs': 'json', 'final_weights': 'array',
                   'final_shapes': 'array', 'final_corrective_report': 'json'},
-                 'The contact and fold check of each clip, and the fold repair.'),
+                 'The contact and fold check of each clip, and the fold repair.',
+                 restore=restore_contacts, restore_inputs=('final', 'bone_names', 'verts'),
+                 track=('items',)),
     stages.Stage('export', stage_export,
                  ('cfg', 'final', 'arm', 'body_stats', 'samples', 'final_corrective_report',
                   'fold_repairs', 'contact_report', 'pack'),
                  {'stats': 'json'},
-                 'The GLB and the stats.'),
+                 'The GLB and the stats.', restore=restore_export, restore_inputs=('cfg', 'stats'),
+                 scene=True),
     # studio-diag: the located contacts and folds and the fold debug list (studio/contacts.py).
     # studio/locate.py reads its data.json for checks.json and the look report.
     stages.Stage('diagnostics', contacts.stage_diagnostics,
                  ('template', 'parts', 'surface_parts', 'samples', 'pack', 'contact_report',
                   'final_weights'),
                  {'diagnostics': 'json'},
-                 'The located contacts and folds, and the fold debug list.'),
+                 'The located contacts and folds, and the fold debug list.', cache='run'),
 ]
+
+
+class Gate:
+    """The remesh gate of one build: the checks after the remesh and after the organic pass."""
+
+    def __init__(self, ctx, stage_dir, stop):
+        """Stores the build context, the stage folder, and whether a failure stops the build."""
+        self.ctx = ctx
+        self.path = os.path.join(stage_dir, 'remesh-gate.json')
+        self.stop = stop
+        self.checks = []
+        if os.path.exists(self.path):
+            os.remove(self.path)
+
+    def after(self, name, ctx):
+        """Runs the part of the gate that follows a stage. Returns False to stop the build."""
+        cfg = ctx['cfg']
+        if name == 'remesh':
+            self.checks = remesh.gate_quads(cfg, ctx['remesh_info'])
+        elif name == 'organic':
+            self.checks += remesh.gate_mesh(cfg, ctx['surface_parts'], ctx['verts'], ctx['tris'],
+                                            ctx['height_px'])
+        else:
+            return True
+        ok = all(c['pass'] for c in self.checks)
+        failed = [c['name'] for c in self.checks if not c['pass']]
+        with open(self.path, 'w') as f:
+            json.dump({'seed': ctx['seed'], 'after': name, 'pass': ok, 'failed': failed,
+                       'checks': self.checks}, f, indent=2)
+        values = ', '.join(f'{c["name"]} {c["value"]}' for c in self.checks)
+        print(f'remesh gate after {name}: {"pass" if ok else "FAIL " + ", ".join(failed)} '
+              f'({values})')
+        return ok or not self.stop
+
+
+def setup(cfg_raw, args):
+    """Makes the setup values of the build context (the body, its parts, the role pack) and
+    their fingerprints for the stage cache. Returns (ctx, fingerprints or None)."""
+    template = importlib.import_module(f'templates.{cfg_raw.animal.template}')
+    views = load_profiles(cfg_raw.paths.measure)
+    plain = {
+        'seed': args.seed, 'template': cfg_raw.animal.template,
+        'height_px': views['front']['height_px'],
+        'clips_only': [c for c in args.clips.split(',') if c] or None,
+    }
+    ctx = dict(plain, template=template)
+    if args.no_cache:
+        ctx['cfg'] = cfg_raw
+        body = template.Body(cfg_raw, views, cfg_raw.role.bind)
+        ctx.update(body=body, parts=body.parts('bind'),
+                   surface_parts=body.parts('bind', small=False),
+                   pack=roles.make_pack(cfg_raw, body, template))
+        return ctx, None
+    cfg = cache.track(cfg_raw, 'cfg')
+    roots = {'cfg': cfg_raw}
+    fps = {k: cache.digest(v) for k, v in plain.items()}
+    with open(cfg_raw.paths.measure, 'rb') as f:
+        views_fp = cache.digest(f.read())
+    body, fps['body'] = cache.setup_value(
+        'body', lambda: template.Body(cfg, views, cfg.role.bind), roots, [views_fp])
+    for name, fn in (('parts', lambda: body.parts('bind')),
+                     ('surface_parts', lambda: body.parts('bind', small=False)),
+                     ('pack', lambda: roles.make_pack(cfg, body, template))):
+        ctx[name], fps[name] = cache.setup_value(name, fn, roots, [fps['body']])
+    ctx.update(cfg=cfg, body=body)
+    return ctx, fps
 
 
 def main():
     """Runs the stages of the build."""
     args = parse_args()
     t0 = time.time()
-    cfg = config.load(args.animal, args.out)
-    template = importlib.import_module(f'templates.{cfg.animal.template}')
+    cfg_raw = config.load(args.animal, args.out)
+    cache.register_functions('studio/build.py', globals())
     mesh.clear_scene()
-    views = load_profiles(cfg.paths.measure)
-    body = template.Body(cfg, views, cfg.role.bind)
-    ctx = {
-        'cfg': cfg, 'seed': args.seed, 'template': template, 'body': body,
-        'parts': body.parts('bind'), 'surface_parts': body.parts('bind', small=False),
-        'height_px': views['front']['height_px'],
-        'pack': roles.make_pack(cfg, body, template),
-        'clips_only': [c for c in args.clips.split(',') if c] or None,
-    }
-    os.makedirs(cfg.paths.stages, exist_ok=True)
-    times = stages.run(STAGES, ctx, cfg.paths.stages, args.until)
-    print('stage seconds', json.dumps(times))
-    if 'stats' in ctx:
-        print(f'wrote {cfg.paths.glb} in {time.time() - t0:.1f} s')
+    ctx, fps = setup(cfg_raw, args)
+    cached = None
+    if fps is not None:
+        root = args.cache or os.path.join(cfg_raw.paths.root, 'cache')
+        cached = stages.Cache(cache.Store(root), cfg_raw, fps)
+    os.makedirs(cfg_raw.paths.stages, exist_ok=True)
+    gate = Gate(ctx, cfg_raw.paths.stages, not args.no_gate)
+    setup_s = time.time() - t0
+    record = stages.run(STAGES, ctx, cfg_raw.paths.stages, args.until, cached, gate.after)
+    record['setup_seconds'] = round(setup_s, 2)
+    with open(os.path.join(cfg_raw.paths.stages, 'run.json'), 'w') as f:
+        json.dump(record, f, indent=2)
+    print('stage seconds', json.dumps(record['seconds']))
+    print('stage source', json.dumps(record['source']))
+    if record['stopped']:
+        print(f'stopped after {record["stopped"]}: the remesh gate fails')
+    elif 'stats' in ctx:
+        print(f'wrote {cfg_raw.paths.glb} in {time.time() - t0:.1f} s')
 
 
 if __name__ == '__main__':

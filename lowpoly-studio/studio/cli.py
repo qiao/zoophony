@@ -147,7 +147,7 @@ def step_intake(cfg):
     intake.intake(cfg)
 
 
-def step_blender_build(cfg, seed, until=None, clips=None):
+def step_blender_build(cfg, seed, until=None, clips=None, use_cache=True):
     """Stages "field" to "export" in one Blender run. Returns True when the gate checks of all
     clips pass (or when the run stops early with --until)."""
     os.makedirs(cfg.paths.stages, exist_ok=True)
@@ -156,6 +156,8 @@ def step_blender_build(cfg, seed, until=None, clips=None):
         args += ['--until', until]
     if clips:
         args += ['--clips', clips]
+    if not use_cache:
+        args += ['--no-cache']
     log_path = os.path.join(cfg.paths.stages, f'blender-seed{seed}.log')
     code, lines = blender('studio/build.py', args, log_path)
     for line in lines:
@@ -165,6 +167,10 @@ def step_blender_build(cfg, seed, until=None, clips=None):
         fail(f'the Blender build of seed {seed} failed (log: {log_path})')
     if until:
         return True
+    with open(os.path.join(cfg.paths.stages, 'run.json')) as f:
+        if json.load(f).get('stopped'):
+            log(f'  seed {seed}: the remesh gate fails')
+            return False
     with open(cfg.paths.stats) as f:
         clips_report = json.load(f)['contacts']['clips']
     bad = [k for k, v in clips_report.items() if not v['pass']]
@@ -224,7 +230,7 @@ def step_checks(cfg):
     return report
 
 
-def run_build(cfg, seed=None, shots=True, until=None, clips=None):
+def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True):
     """Runs the whole build of an animal. Returns the checks report (None with --until)."""
     timer = Timer()
     timer.run('intake', step_intake, cfg)
@@ -233,7 +239,7 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None):
     kept = None
     for s in seeds:
         log(f'[build] seed {s}')
-        ok = timer.run('blender build', step_blender_build, cfg, s, until, clips)
+        ok = timer.run('blender build', step_blender_build, cfg, s, until, clips, use_cache)
         if ok:
             kept = s
             break
@@ -263,7 +269,7 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None):
 def cmd_build(a):
     """studio build: builds the GLB of an animal, then the shots, the measures, and the checks."""
     cfg = load(a.animal, a.out)
-    report = run_build(cfg, a.seed, not a.no_shots, a.until, a.clips)
+    report = run_build(cfg, a.seed, not a.no_shots, a.until, a.clips, not a.no_cache)
     if report and not report['gate_pass']:
         sys.exit(1)
 
@@ -658,6 +664,7 @@ def main(argv=None):
     p.add_argument('--out', default=None, help='output folder (default: animals/<id>/out)')
     p.add_argument('--until', default=None, help='stop the Blender build after this stage')
     p.add_argument('--clips', default=None, help='bake only these clips (a,b)')
+    p.add_argument('--no-cache', action='store_true', help='no stage cache reads or writes')
     p.set_defaults(fn=cmd_build)
     p = sub.add_parser('compare', help='render the views beside the sheet, measure, and check')
     p.add_argument('animal')

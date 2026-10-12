@@ -5,3 +5,6 @@ animals/*/out/fit.log
 animals/*/out/stages/
 animals/*/out/regress/
 __pycache__/
+animals/*/out/seeds/
+# The stage cache of each animal (python3 studio cache clean deletes it).
+animals/*/cache/
