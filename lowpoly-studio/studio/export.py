@@ -68,6 +68,37 @@ def add_detail_objects(items, mats):
     return objs
 
 
+def add_prop_nodes(nodes, mats):
+    """Creates one object for each prop node (studio/props.py): its mesh around its origin, one
+    color for each face, the material of its prop, and its parent node. The objects are not
+    joined and have no bone: each one is a node of its own in the GLB.
+
+    Returns {name: object}.
+    """
+    objs = {}
+    for n in nodes:
+        origin = np.asarray(n['origin'], float)
+        obj = mesh.new_mesh_object(n['name'], mesh.to_blender(n['verts'] - origin), n['faces'])
+        set_face_colors(obj, np.asarray(n['colors'], float) / 255.0)
+        obj.data.materials.append(mats[n['material']])
+        for poly in obj.data.polygons:
+            poly.use_smooth = False
+        if n['parent']:
+            parent = objs[n['parent']]
+            obj.parent = parent
+            obj.location = tuple(mesh.to_blender(origin - parent_origin(nodes, n['parent'])))
+        else:
+            obj.location = tuple(mesh.to_blender(origin))
+        obj.rotation_mode = 'QUATERNION'
+        objs[n['name']] = obj
+    return objs
+
+
+def parent_origin(nodes, name):
+    """Returns the origin of the node of a name."""
+    return np.asarray(next(n['origin'] for n in nodes if n['name'] == name), float)
+
+
 def join(objs, name):
     """Joins objects into the first one and renames it."""
     target = objs[0]

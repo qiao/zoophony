@@ -214,8 +214,10 @@ def stage_correctives(cfg, body, template, pack, arm, bones, verts, tris, weight
             'corrective_report': report}
 
 
-def stage_assemble(cfg, body, body_obj, body_items, materials, arm, verts, shapes):
-    """Adds the details and the role props to the body, the shape keys, and the markers."""
+def stage_assemble(cfg, body, body_obj, body_items, materials, arm, verts, shapes, pack):
+    """Adds the details and the hand props to the body, the shape keys, and the markers, and
+    makes the scene props as nodes of their own (the keys that the clips press as nodes under
+    the piano)."""
     role = cfg.role
     mats = dict(materials)
     for pr in role.props:
@@ -231,20 +233,26 @@ def stage_assemble(cfg, body, body_obj, body_items, materials, arm, verts, shape
     for pr in props.hand_props(role):
         if pr.tip_marker:
             export.add_marker(arm, pr.tip_marker, pr.name)
-    return {'final': final, 'items': items}
+    nodes, _ = props.scene_nodes(body, role, props.moving_keys(role, pack))
+    scene_objs = export.add_prop_nodes(nodes, mats)
+    return {'final': final, 'items': items, 'scene_objs': scene_objs}
 
 
-def stage_clips(pack, skel, drivers, clips_only):
-    """Solves the clips of the role and the weights of the corrective shapes in each frame
-    (restore_clips writes them into actions)."""
-    samples, shape_weights = bake.sample_all(skel, pack, clips_only, drivers)
+def stage_clips(cfg, body, pack, skel, drivers, clips_only):
+    """Solves the clips of the role, the weights of the corrective shapes, and the transforms of
+    the scene nodes in each frame (restore_clips writes them into actions)."""
+    scene = None
+    if props.scene_props(cfg.role):
+        scene = props.ScenePose(body, cfg.role, props.moving_keys(cfg.role, pack))
+    samples, shape_weights = bake.sample_all(skel, pack, clips_only, drivers, scene)
     return {'samples': samples, 'sample_arrays': bake.sample_arrays(samples, skel.names),
             '_restore': {'shape_weights': shape_weights}}
 
 
-def restore_clips(saved, samples, arm, skel, final, pack):
-    """Writes the solved clips into actions of the armature and of the shape keys."""
-    bake.write_all(arm, skel.props, pack.fps, samples, final, saved['shape_weights'])
+def restore_clips(saved, samples, arm, skel, final, pack, scene_objs):
+    """Writes the solved clips into actions of the armature, of the shape keys, and of the scene
+    nodes."""
+    bake.write_all(arm, skel.props, pack.fps, samples, final, saved['shape_weights'], scene_objs)
     return {}
 
 
@@ -261,19 +269,37 @@ def check_scene(cfg, body, pack, check, name, poses, fps):
     targets = getattr(pack, 'hand_targets', None)
     if not boxes and targets is None:
         return None
-    bench = next((pr for pr in props.scene_props(role) if pr.kind == 'bench'), None)
+    bench = next((pr for pr in props.scene_props(role) if pr.kind in ('bench', 'chair')), None)
     seat_top = props.scene_layout(body, role)['seat_top'] if bench else None
+    if bench is not None:
+        size = (props.bench_sizes if bench.kind == 'bench' else props.chair_sizes)(body, bench,
+                                                                                   role)
     out = {}
     names = check.names
-    # The skin that sits: the trunk and the thighs (the shins and the feet hang in front).
+    # The skin that sits: the trunk and the thighs (the shins and the feet hang in front). Each
+    # one rests on the seat: the rump does not float, and the thighs do not float. The seated
+    # thighs take trunk weights where they meet the seat, so their skin is the sitting skin out
+    # from the hip joints (in the bind pose).
     col = {n: k for k, n in enumerate(names)}
-    sit = [col[n] for n in names if n in ('root', 'hips', 'spine', 'tail')
-           or n.startswith('thigh_')]
-    seated = check.w[:, sit].sum(axis=1) > 0.5
+    sit = check.w[:, [col[n] for n in names if n in ('root', 'hips', 'spine', 'tail')
+                      or n.startswith('thigh_')]].sum(axis=1) > 0.5
+    hip_x = abs(float(body.leg_pose('bind')[0]['hip'][0]))
+    trunk = sit & (np.abs(check.verts[:, 0]) < hip_x)
+    thighs = sit & (np.abs(check.verts[:, 0]) >= hip_x)
+
+    def shown(pose, prop):
+        return pose[prop][2] >= 0.05 if prop in pose else True
+
+    # The rest tips of the claws of the digits, the points that strike the keys.
+    tips = {}
+    if body.fingers > 1:
+        for side, m in (('L', np.array([1.0, 1.0, 1.0])), ('R', np.array([-1.0, 1.0, 1.0]))):
+            tips[side] = [d['tail'] * m for d in body.digits('bind')]
+
     for i, pose in enumerate(poses):
         D, H, S, _, posed = check.pose_body(pose)
         for prop, piece, center, half in boxes:
-            if S[prop] < 0.05:
+            if not shown(pose, prop):
                 continue
             q = np.abs(posed - center) - half
             sdf = np.linalg.norm(np.maximum(q, 0.0), axis=1) + np.minimum(q.max(axis=1), 0.0)
@@ -284,22 +310,39 @@ def check_scene(cfg, body, pack, check, name, poses, fps):
                                 'frame': i, 'time_s': round(i / fps, 3),
                                 'position': [round(float(v), 4) for v in posed[k]],
                                 'bone': names[int(np.argmax(check.w[k]))]}
-        if bench and S[bench.name] >= 0.05:
-            c = bench.bench
-            over = ((np.abs(posed[:, 0]) <= 0.5 * c.width)
-                    & (np.abs(posed[:, 2] - c.center_z) <= 0.5 * c.depth) & seated)
-            if over.any():
-                gap = float(posed[over, 1].min()) - seat_top
+        if bench and shown(pose, bench.name):
+            over = ((np.abs(posed[:, 0]) <= 0.5 * size['width'])
+                    & (np.abs(posed[:, 2] - size['center_z']) <= 0.5 * size['depth']))
+            gaps = {}
+            for part, member in (('trunk', trunk), ('thighs', thighs)):
+                if (over & member).any():
+                    gaps[part] = float(posed[over & member, 1].min()) - seat_top
+            if gaps:
+                part = max(gaps, key=lambda k: abs(gaps[k]))
+                gap = gaps[part]
                 if 'seat' not in out or abs(gap) > abs(out['seat']['gap']):
-                    out['seat'] = {'gap': round(gap, 4), 'frame': i, 'time_s': round(i / fps, 3)}
+                    out['seat'] = {'gap': round(gap, 4), 'part': part, 'frame': i,
+                                   'time_s': round(i / fps, 3),
+                                   **{k: round(v, 4) for k, v in gaps.items()}}
         if targets is not None:
             for side, goal in (targets(name, i / fps) or {}).items():
                 if goal is None:
                     continue
-                dist = float(np.linalg.norm(H[f'fingers_{side}'] - np.asarray(goal, float)))
-                if 'hands' not in out or dist > out['hands']['distance']:
-                    out['hands'] = {'distance': round(dist, 4), 'side': side, 'frame': i,
-                                    'time_s': round(i / fps, 3)}
+                # A point: the knuckle of the paw. A dict {digit: point}: the claw tip of each
+                # digit that presses a key ([rig] fingers > 1).
+                goals = goal.items() if isinstance(goal, dict) else [(None, goal)]
+                for finger, g in goals:
+                    if finger is None:
+                        at = H[f'fingers_{side}']
+                    else:
+                        bone = f'finger{finger}_{side}'
+                        at = H[bone] + D[bone] @ (tips[side][finger - 1] - check.skel.heads[bone])
+                    dist = float(np.linalg.norm(at - np.asarray(g, float)))
+                    if 'hands' not in out or dist > out['hands']['distance']:
+                        out['hands'] = {'distance': round(dist, 4), 'side': side, 'frame': i,
+                                        'time_s': round(i / fps, 3)}
+                        if finger is not None:
+                            out['hands']['finger'] = int(finger)
     return out
 
 
@@ -333,7 +376,10 @@ def check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes, wei
                 extra += f', scene {scene["scene"]["depth"] * 100:.2f} cm ({scene["scene"]["piece"]})'
             if 'seat' in scene:
                 ok &= abs(scene['seat']['gap']) <= rc.seat_gap
-                extra += f', seat gap {scene["seat"]["gap"] * 100:.2f} cm'
+                st = scene['seat']
+                extra += (f', seat gap {st["gap"] * 100:.2f} cm ({st["part"]}; trunk '
+                          f'{st.get("trunk", float("nan")) * 100:.2f}, thighs '
+                          f'{st.get("thighs", float("nan")) * 100:.2f})')
             if 'hands' in scene:
                 ok &= scene['hands']['distance'] <= rc.hand_targets
                 extra += f', hands {scene["hands"]["distance"] * 100:.2f} cm'
@@ -484,15 +530,16 @@ STAGES = [
                   'corrective_report': 'json'},
                  'The corrective shapes that the role names.', cache='run'),
     stages.Stage('assemble', stage_assemble,
-                 ('cfg', 'body', 'body_obj', 'body_items', 'materials', 'arm', 'verts', 'shapes'),
-                 {'final': 'live', 'items': 'json'},
-                 'Detail and role prop objects, the join, the shape keys, and the markers.',
-                 cache='run'),
-    stages.Stage('clips', stage_clips, ('pack', 'skel', 'drivers', 'clips_only'),
+                 ('cfg', 'body', 'body_obj', 'body_items', 'materials', 'arm', 'verts', 'shapes',
+                  'pack'),
+                 {'final': 'live', 'items': 'json', 'scene_objs': 'live'},
+                 'Detail and hand prop objects, the join, the shape keys, the markers, and the '
+                 'scene prop nodes.', cache='run'),
+    stages.Stage('clips', stage_clips, ('cfg', 'body', 'pack', 'skel', 'drivers', 'clips_only'),
                  {'samples': 'live', 'sample_arrays': 'array'},
                  'The clips of the role -> actions.',
                  keep=('samples', 'sample_arrays'), restore=restore_clips,
-                 restore_inputs=('samples', 'arm', 'skel', 'final', 'pack')),
+                 restore_inputs=('samples', 'arm', 'skel', 'final', 'pack', 'scene_objs')),
     stages.Stage('contacts', stage_contacts,
                  ('cfg', 'template', 'skel', 'verts', 'tris', 'weights', 'items', 'samples',
                   'shapes', 'weights_of', 'bone_names', 'neighbors', 'pose_ref', 'parts_ref',

@@ -1,19 +1,41 @@
-"""The props of a role: rigid pieces on a bone of their own (role.toml).
+"""The props of a role (role.toml [[props]]): sized from the body, built by the prop library.
 
-numpy only. A hand prop (attach.bone = "hand") sits on a bone that is a child of a hand: the kind
-"stick" is a handle and a long tapered shaft (a baton). Each one gives detail dicts (as
-studio/details.py), the grip point, and the tip point, in a pose of the arms.
+numpy only. The library (props/ beside studio/) builds the meshes; this module reads the config of
+each prop, takes its sizes from the body, and gives the build what it needs.
 
-A scene prop (attach.bone = "scene") sits on a bone that is a child of the root, which does not
-move: the kind "piano" (a low-poly grand piano) and the kind "bench" (a piano bench). Both are
-sized to the seated body (scene_layout): the seat top is under the trunk of the seated pose, and
-the keyboard is in front of the belly. Each one gives detail dicts and the boxes that the scene
-check of the build tests the body against. The sheet pose hides them (scale 0).
+A hand prop (attach.bone = "hand") sits on a bone of its own, a child of a hand, and its mesh is
+joined into the mesh of the animal, rigid on that bone. The kinds: "stick" (a handle and a
+tapered shaft: a baton) and "bow" (the bow of a violin or a cello). Each one gives detail dicts
+(as studio/details.py), the grip point, and the tip point, in a pose of the arms.
+
+A scene prop (attach.bone = "scene") is a mesh node of its own in the GLB, with no bone: the
+kinds "piano", "bench", "chair", "music_stand", "violin", and "cello". Each one is sized to the
+seated body (scene_layout): the seat top is the seat of the body, and the keyboard is at the
+height of the forearms. The keys of the piano that the clips press are nodes of their own under
+the piano node, and turn down when a finger presses them (scene_pose). Each scene prop gives the
+boxes that the scene check of the build tests the body against. The sheet pose hides it (scale
+0 of its node).
+
+    PropNode = {name, verts (n, 3) in model space, faces (m, 3), colors (m, 3) sRGB 0..255,
+                material (the name of the prop), parent (a node name or None), origin (the
+                pivot of the node in model space)}
 """
+
+import math
 
 import numpy as np
 
+from props import bench as bench_kind
+from props import chair as chair_kind
+from props import piano as piano_kind
+from props import stand as stand_kind
+from props import strings as strings_kind
+from props.shapes import basis
 from studio.details import detail, tube
+
+# The kinds of each attachment.
+HAND_KINDS = ('stick', 'bow')
+SCENE_KINDS = ('piano', 'bench', 'chair', 'music_stand', 'violin', 'cello')
 
 
 def hand_props(role):
@@ -26,194 +48,250 @@ def scene_props(role):
     return [pr for pr in role.props if pr.attach.bone == 'scene']
 
 
-def box(center, half):
-    """Makes a box: 8 corners and 12 outward triangles."""
-    c = np.asarray(center, float)
-    h = np.asarray(half, float)
-    signs = np.array([[x, y, z] for x in (-1, 1) for y in (-1, 1) for z in (-1, 1)], float)
-    verts = c + signs * h
-    faces = [[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1],
-             [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]]
-    return verts, np.array(faces)
-
-
-def prism(outline, y0, y1):
-    """Makes a prism from an outline in x-z (counterclockwise seen from above) between two
-    heights. The caps are fans from the mean point, so the outline must be star-shaped from it."""
-    pts = np.asarray(outline, float)
-    n = len(pts)
-    mid = pts.mean(axis=0)
-    verts = [[x, y0, z] for x, z in pts] + [[x, y1, z] for x, z in pts]
-    verts += [[mid[0], y0, mid[1]], [mid[0], y1, mid[1]]]
-    b, t = 2 * n, 2 * n + 1
-    faces = []
-    for i in range(n):
-        j = (i + 1) % n
-        faces += [[i, j, n + j], [i, n + j, n + i], [b, j, i], [t, n + i, n + j]]
-    return np.array(verts, float), np.array(faces)
+def claw_spacing(body):
+    """Returns the mean spacing of the claw tips of a paw across the paw (details.hand_claws):
+    the white key width that puts each digit on its own key."""
+    claws = body.claws('bind')
+    if len(claws) < 2:
+        return 0.03
+    _, frames = body.arm_pose('bind')
+    across = sorted(float(c['tip'] @ frames['hand'][:, 0]) for c in claws)
+    return float(np.mean(np.diff(across)))
 
 
 def scene_layout(body, role):
     """Calculates the places of the seated pose that size the scene props.
 
     Returns {'drop': the hips offset down that puts the feet of the bind pose on the floor,
-    'seat_top': the height of the seat top under the trunk, 'keys_top', 'keys_front'}.
+    'seat_top': the height of the seat top under the trunk and the thighs, 'seat': the seat of
+    the body (templates/biped Body.seat, before the drop) or None, 'elbow_y': the height of the
+    elbows of the seated bind pose, 'keys_top', 'keys_front' (with a piano)}.
     """
     drop = body.seated_drop()
     # The vertices of the low-poly skin sit facets.offset outside the field.
-    seat_top = body.trunk_bottom() - body.cfg.facets.offset - drop
-    out = {'drop': drop, 'seat_top': seat_top}
+    seat = body.seat() if hasattr(body, 'seat') else None
+    bottom = body.seat_bottom() if seat is not None else body.trunk_bottom()
+    seat_top = bottom - body.cfg.facets.offset - drop
+    joints, _ = body.arm_pose('bind')
+    out = {'drop': drop, 'seat_top': seat_top, 'seat': seat,
+           'elbow_y': float(joints['elbow'][1]) - drop}
     for pr in scene_props(role):
         if pr.kind == 'piano':
-            out['keys_top'] = seat_top + pr.piano.keys_top
+            out['keys_top'] = out['elbow_y'] - pr.piano.keys_below_elbow
             out['keys_front'] = pr.piano.keys_front
     return out
 
 
-BLACK_PATTERN = (1, 1, 0, 1, 1, 1, 0)
-
-
-def piano_keys(body, role):
-    """Lists the keys of the piano of a role: (index, x, top y, z of the press point, black).
-
-    The white keys run from C on the left of the animal (x > 0 is the animal's left) to the right.
-    The press point of a white key is a third of its depth from the front edge, of a black key
-    the middle of the black key.
-    """
-    pr = next(p for p in scene_props(role) if p.kind == 'piano')
+def piano_sizes(body, pr, role):
+    """Resolves the sizes of a piano: the config, and the values that come from the body."""
     c = pr.piano
     lay = scene_layout(body, role)
-    top, front, w = lay['keys_top'], c.keys_front, c.key_width
+    w = c.key_width if c.key_width is not None else claw_spacing(body)
+    key_scale = w / piano_kind.REAL_KEY
     n = c.white_keys
-    keys = []
-    for i in range(n):
-        x = (0.5 * (n - 1) - i) * w
-        keys.append((i, x, top, front + c.keys_depth / 3.0, False))
-        if BLACK_PATTERN[i % 7] and i < n - 1:
-            keys.append((i + 0.5, x - 0.5 * w, top + 0.014, front + 0.72 * c.keys_depth, True))
-    return keys
+    s = n * w / piano_kind.REAL_KEYBOARD
+    depth = c.keys_depth if c.keys_depth is not None else 0.15 * key_scale
+    return {
+        'name': pr.name, 'keys_top': lay['keys_top'], 'keys_front': c.keys_front,
+        'key_width': w, 'keys_depth': depth, 'white_keys': n, 'lowest_octave': c.lowest_octave,
+        'key_height': 0.75 * w, 'black_height': 0.5 * w, 'black_depth': 0.62 * depth,
+        'key_dip': c.key_dip if c.key_dip is not None else 0.42 * w,
+        'case_scale': s,
+        'case_width': c.case_width if c.case_width is not None else 1.4 * s,
+        'case_length': c.case_length if c.case_length is not None else 1.85 * s,
+        'rim_below_keys': 0.08 * s, 'rim_above_keys': 0.25 * s, 'lid_open': c.lid_open,
+        'colors': dict(c.colors),
+    }
 
 
-def piano(body, pr, role):
-    """Makes a grand piano: the keyboard, the key bed, the cheeks, the case with a bentside, the
-    open lid, the music desk, three legs, and the lyre with two pedals.
-
-    Returns (details, boxes): boxes are (name, center, half sizes) for the scene check.
-    """
-    c = pr.piano
-    col = c.colors
-    lay = scene_layout(body, role)
-    top, front, depth, w = lay['keys_top'], c.keys_front, c.keys_depth, c.key_width
-    width = c.white_keys * w
-    pieces, boxes = [], []
-
-    def add(name, verts, faces, color):
-        pieces.append(detail(f'{pr.name}_{name}', verts, faces, color, pr.name, pr.name))
-
-    def add_box(name, center, half, color, test=True):
-        v, f = box(center, half)
-        add(name, v, f, color)
-        if test:
-            boxes.append((name, np.asarray(center, float), np.asarray(half, float)))
-
-    # The white keys (a small gap between them), the black keys, the key bed, the cheeks, the
-    # fallboard behind the keys.
-    for i, x, ky, kz, black in piano_keys(body, role):
-        if black:
-            add_box(f'key{i}', [x, ky - 0.007, front + 0.72 * depth], [0.28 * w, 0.011, 0.3 * depth],
-                    col.black, test=False)
-        else:
-            add_box(f'key{i}', [x, top - 0.01, front + 0.5 * depth], [0.46 * w, 0.01, 0.5 * depth],
-                    col.white, test=False)
-    boxes.append(('keys', np.array([0.0, top - 0.004, front + 0.5 * depth]),
-                  np.array([0.5 * width, 0.017, 0.5 * depth])))
-    bed_y = top - 0.045
-    add_box('keybed', [0.0, bed_y, front + 0.5 * depth], [0.5 * width + 0.03, 0.025, 0.5 * depth + 0.01],
-            col.case)
-    for side in (1.0, -1.0):
-        add_box(f'cheek{int(side)}', [side * (0.5 * width + 0.02), top + 0.005, front + 0.5 * depth],
-                [0.02, 0.03, 0.5 * depth + 0.01], col.case)
-    back = front + depth
-    add_box('fallboard', [0.0, top + 0.03, back + 0.012], [0.5 * width + 0.04, 0.045, 0.012],
-            col.case)
-
-    # The case: the straight spine on the player's left (the bass side, x > 0), the bentside on
-    # the right (x < 0) that curves in to the tail. The outline runs counterclockwise seen from
-    # above.
-    half_w = 0.5 * c.case_width
-    z0, z1 = back, back + c.case_length
-    outline = [(half_w, z0), (-half_w, z0), (-half_w, z0 + 0.3 * c.case_length),
-               (-half_w + 0.1 * c.case_width, z0 + 0.55 * c.case_length),
-               (-half_w + 0.35 * c.case_width, z0 + 0.75 * c.case_length),
-               (half_w - 0.3 * c.case_width, z1), (half_w, z1)]
-    y0 = bed_y - 0.02
-    y1 = y0 + c.case_height
-    v, f = prism(outline, y0, y1)
-    add('case', v, f, col.case)
-    boxes.append(('case', np.array([0.0, 0.5 * (y0 + y1), 0.5 * (z0 + z1)]),
-                  np.array([half_w, 0.5 * (y1 - y0), 0.5 * (z1 - z0)])))
-    # The lid: the outline, thin, hinged on the spine and turned up by lid_open, so it opens
-    # toward the right of the player (the audience side).
-    lv, lf = prism(outline, y1, y1 + 0.008)
-    a = np.radians(c.lid_open)
-    rel = lv - np.array([half_w, y1, 0.0])
-    turn = np.array([[np.cos(a), np.sin(a), 0.0], [-np.sin(a), np.cos(a), 0.0], [0.0, 0.0, 1.0]])
-    lv = rel @ turn.T + np.array([half_w, y1, 0.0])
-    add('lid', lv, lf, col.case)
-    add_box('desk', [0.0, y1 + 0.035, z0 + 0.07], [0.25 * half_w, 0.035, 0.005], col.case,
-            test=False)
-
-    # Three legs, the lyre, and two pedals.
-    leg_h = 0.5 * y0
-    for name, x, z in (('leg_left', half_w - 0.04, z0 + 0.05), ('leg_right', -half_w + 0.04, z0 + 0.05),
-                       ('leg_tail', half_w - 0.12, z1 - 0.08)):
-        add_box(name, [x, leg_h, z], [0.025, leg_h, 0.025], col.case)
-    add_box('lyre', [0.0, leg_h, z0 + 0.08], [0.035, leg_h, 0.012], col.case)
-    for name, x in (('pedal_left', 0.022), ('pedal_right', -0.022)):
-        add_box(name, [x, 0.012, z0 + 0.04], [0.012, 0.006, 0.04], col.metal)
-    return pieces, boxes
-
-
-def bench(body, pr, role):
-    """Makes a piano bench: a padded top at the seat height of the layout, a frame, four legs.
-
-    Returns (details, boxes)."""
+def bench_sizes(body, pr, role):
+    """Resolves the sizes of a bench: the top at the seat of the body, from behind the rump to
+    the backs of the shins (with a seat), or the config extent."""
     c = pr.bench
     lay = scene_layout(body, role)
-    top = lay['seat_top']
-    t = c.top_thickness
-    hw, hd = 0.5 * c.width, 0.5 * c.depth
-    pieces, boxes = [], []
-
-    def add_box(name, center, half, color):
-        v, f = box(center, half)
-        pieces.append(detail(f'{pr.name}_{name}', v, f, color, pr.name, pr.name))
-        boxes.append((name, np.asarray(center, float), np.asarray(half, float)))
-
-    add_box('top', [0.0, top - 0.5 * t, c.center_z], [hw, 0.5 * t, hd], c.colors.top)
-    leg = 0.5 * (top - t)
-    for i, (x, z) in enumerate(((1, 1), (1, -1), (-1, 1), (-1, -1))):
-        add_box(f'leg{i}', [x * (hw - 0.025), leg, c.center_z + z * (hd - 0.025)],
-                [0.018, leg, 0.018], c.colors.legs)
-    return pieces, boxes
+    seat = lay['seat']
+    off = body.cfg.facets.offset
+    depth, center_z, width = c.depth, c.center_z, c.width
+    if seat is not None:
+        back = seat['back'] - c.margin
+        front = seat['front'] - off
+        depth = depth if depth is not None else front - back
+        center_z = center_z if center_z is not None else front - 0.5 * depth
+        width = width if width is not None else 2.0 * (seat['half_x'] + c.margin)
+    if depth is None or center_z is None or width is None:
+        raise ValueError(f'prop {pr.name!r}: a bench with no seat in the bind pose needs width, '
+                         'depth, and center_z')
+    return {'name': pr.name, 'seat_top': lay['seat_top'], 'width': width, 'depth': depth,
+            'center_z': center_z, 'top_thickness': c.top_thickness, 'colors': dict(c.colors)}
 
 
-def scene_prop(body, pr, role):
-    """Makes one scene prop of any kind. Returns (details, boxes)."""
-    if pr.kind == 'piano':
-        return piano(body, pr, role)
-    if pr.kind == 'bench':
-        return bench(body, pr, role)
-    raise ValueError(f'prop {pr.name!r}: the scene kind {pr.kind!r} is not built yet')
+def chair_sizes(body, pr, role):
+    """Resolves the sizes of a chair: the seat as a bench, the back from the trunk height."""
+    c = pr.chair
+    lay = scene_layout(body, role)
+    seat = lay['seat']
+    joints, _ = body.arm_pose('bind')
+    shoulder_y = float(joints['shoulder'][1]) - lay['drop']
+    depth, center_z, width = c.depth, c.center_z, c.width
+    if seat is not None:
+        back = seat['back'] - c.margin
+        front = seat['front'] - body.cfg.facets.offset
+        depth = depth if depth is not None else front - back
+        center_z = center_z if center_z is not None else front - 0.5 * depth
+        width = width if width is not None else 2.0 * (seat['half_x'] + c.margin)
+    if depth is None or center_z is None or width is None:
+        raise ValueError(f'prop {pr.name!r}: a chair with no seat in the bind pose needs width, '
+                         'depth, and center_z')
+    back_h = c.back_height if c.back_height is not None else 0.55 * (shoulder_y - lay['seat_top'])
+    return {'name': pr.name, 'seat_top': lay['seat_top'], 'width': width, 'depth': depth,
+            'center_z': center_z, 'back_height': back_h, 'colors': dict(c.colors)}
+
+
+def stand_sizes(body, pr, role):
+    """Resolves the sizes of a music stand: the desk below the eyes of the seated animal."""
+    c = pr.stand
+    lay = scene_layout(body, role)
+    eye_y = body.cfg.details.eyes.center[1] - lay['drop']
+    center = c.desk_center if c.desk_center is not None else eye_y - c.below_eyes
+    s = center / 1.05
+    return {'name': pr.name, 'at': tuple(c.at), 'desk_center': center,
+            'desk_width': c.desk_width if c.desk_width is not None else 0.5 * s,
+            'desk_height': c.desk_height if c.desk_height is not None else 0.35 * s,
+            'tilt': c.tilt, 'colors': dict(c.colors)}
+
+
+def arm_reach(body):
+    """Returns the arm reach of the body: shoulder to elbow plus elbow to wrist (sheet pose)."""
+    j, _ = body.arm_pose('reference')
+    return float(np.linalg.norm(j['elbow'] - j['shoulder']) + np.linalg.norm(j['wrist'] - j['elbow']))
+
+
+def string_length(body, pr):
+    """Resolves the length of a violin, a cello, or a bow from the body.
+
+    A violin is 1.1 arm reaches long (a person: an arm of 0.55 m, a violin of 0.6 m). A cello
+    with its end pin reaches from the floor to the eyes of the seated animal. A bow is 1.25
+    violins or 0.62 cellos long, after its config strings.bow_for.
+    """
+    c = pr.strings
+    if c.length is not None:
+        return c.length
+    violin = 1.1 * arm_reach(body)
+    eye_y = body.cfg.details.eyes.center[1] - body.seated_drop()
+    cello = 0.85 * eye_y / math.cos(math.radians(c.lean))
+    if pr.kind == 'violin':
+        return violin
+    if pr.kind == 'cello':
+        return cello
+    return 1.25 * violin if c.bow_for == 'violin' else 0.62 * cello
+
+
+def string_colors(c):
+    """Returns the colors of a string instrument from its config."""
+    return dict(c.colors)
+
+
+def node(name, mesh, material, parent=None, origin=(0.0, 0.0, 0.0)):
+    """Bundles one prop node (see the module doc)."""
+    v, f, fc = mesh
+    return {'name': name, 'verts': v, 'faces': f, 'colors': fc, 'material': material,
+            'parent': parent, 'origin': np.asarray(origin, float)}
+
+
+def string_node(body, pr):
+    """Builds a violin or a cello as a scene node: standing on its end pin (a cello) or on the
+    floor on its tail end (a violin in the gallery), at strings.at (x, z), leaned back toward the
+    player."""
+    c = pr.strings
+    length = string_length(body, pr)
+    pin = 0.17 * length if pr.kind == 'cello' else 0.0
+    v, f, fc = strings_kind.violin_mesh(length, string_colors(c), pr.kind == 'cello', pin)
+    rot = strings_kind.upright(c.lean, c.side_lean)
+    x, z = c.at
+    v = (v + np.array([pin, 0.0, 0.0])) @ rot.T + np.array([x, 0.0, z])
+    return [node(pr.name, (v, f, fc), pr.name)], [('body', 0.5 * (v.min(0) + v.max(0)),
+                                                    0.5 * (v.max(0) - v.min(0)))]
+
+
+def scene_nodes(body, role, moving=()):
+    """Builds the nodes of all scene props of a role.
+
+    moving: the names of the piano keys that get a node of their own (moving_keys).
+    Returns (nodes, boxes): boxes are (prop, piece, center, half sizes) for the scene check.
+    """
+    nodes, boxes = [], []
+    for pr in scene_props(role):
+        if pr.kind == 'piano':
+            made, made_boxes, _ = piano_kind.build(piano_sizes(body, pr, role), moving)
+        elif pr.kind == 'bench':
+            made, made_boxes = bench_kind.build(bench_sizes(body, pr, role))
+        elif pr.kind == 'chair':
+            made, made_boxes = chair_kind.build(chair_sizes(body, pr, role))
+        elif pr.kind == 'music_stand':
+            made, made_boxes = stand_kind.build(stand_sizes(body, pr, role))
+        elif pr.kind in ('violin', 'cello'):
+            made, made_boxes = string_node(body, pr)
+        else:
+            raise ValueError(f'prop {pr.name!r}: the scene kind {pr.kind!r} is not built yet')
+        for n in made:
+            n.setdefault('material', pr.name)
+        nodes += made
+        boxes += [(pr.name, piece, c, h) for piece, c, h in made_boxes]
+    return nodes, boxes
 
 
 def scene_boxes(role, body):
     """Lists the test boxes of all scene props: [(prop, piece, center, half sizes)]."""
-    out = []
-    for pr in scene_props(role):
-        for name, center, half in scene_prop(body, pr, role)[1]:
-            out.append((pr.name, name, center, half))
-    return out
+    return scene_nodes(body, role)[1]
+
+
+def piano_keys(body, role):
+    """Lists the keys of the piano of a role (props/piano.py keyboard): name, index, black,
+    press point, pivot, the angle of a full press, and the box."""
+    pr = next(p for p in scene_props(role) if p.kind == 'piano')
+    return piano_kind.keyboard(piano_sizes(body, pr, role))
+
+
+def moving_keys(role, pack):
+    """Lists the names of the piano keys that the clips of a pack press (pack.pressed_keys),
+    the keys that get a node of their own. No piano, or a pack with no presses: none."""
+    if not any(pr.kind == 'piano' for pr in scene_props(role)):
+        return ()
+    return tuple(sorted(getattr(pack, 'pressed_keys', ()) or ()))
+
+
+class ScenePose:
+    """The transforms of the scene nodes in a pose spec: the scale of each scene prop (0 hides
+    it), and the turn of each moving key from the press share in spec['keys'].
+
+    Calling it with a spec returns {node name: (quaternion w, x, y, z, location, scale)}, the
+    form of the solved bones (templates/biped/solver.py): the bake writes them as the actions
+    of the nodes, and the scene check reads the scale.
+    """
+
+    def __init__(self, body, role, moving=()):
+        """Stores the scene props and the keys that move."""
+        self.props = [pr.name for pr in scene_props(role)]
+        self.keys = {}
+        piano = next((pr for pr in scene_props(role) if pr.kind == 'piano'), None)
+        if piano and moving:
+            for k in piano_keys(body, role):
+                if k['name'] in moving:
+                    self.keys[k['name']] = (f'{piano.name}_key_{k["name"]}', k['angle'])
+
+    def __call__(self, spec):
+        """Calculates the node transforms of one pose spec."""
+        out = {}
+        for name in self.props:
+            out[name] = (np.array([1.0, 0.0, 0.0, 0.0]), np.zeros(3),
+                         float(spec.get(f'{name}_scale', 1.0)))
+        presses = spec.get('keys', {})
+        for key, (node_name, angle) in self.keys.items():
+            # A press turns the front of the key down about its pivot (about -x).
+            a = -math.radians(angle) * min(max(float(presses.get(key, 0.0)), 0.0), 1.0)
+            out[node_name] = (np.array([math.cos(0.5 * a), math.sin(0.5 * a), 0.0, 0.0]),
+                              np.zeros(3), 1.0)
+        return out
 
 
 def stick(body, pr, pose):
@@ -244,18 +322,46 @@ def stick(body, pr, pose):
     return details, grip, tip
 
 
+def bow(body, pr, pose):
+    """Makes a bow in its hand: the stick along the direction from the grip (in the hand frame),
+    the hair on the side of strings.hair (in the hand frame).
+
+    Returns (details, grip point, tip point).
+    """
+    joints, frames = body.arm_pose(pose)
+    sx = np.diag([1.0 if pr.attach.side == 'L' else -1.0, 1.0, 1.0])
+    W = sx @ joints['wrist']
+    K = sx @ joints['knuckle']
+    fh = sx @ frames['hand']
+    grip = 0.5 * (W + K) + fh @ np.array(pr.grip)
+    direction = fh @ np.array(pr.direction)
+    direction /= np.linalg.norm(direction)
+    hair = fh @ np.array(pr.strings.hair)
+    length = string_length(body, pr)
+    v, f, fc = strings_kind.bow_mesh(length, string_colors(pr.strings))
+    # The bow axes: x along the bow, -y to the hair. The grip is 0.03 of 0.45 from the frog.
+    frame = basis(direction, -hair)
+    rot = np.stack([frame[:, 1], frame[:, 2], frame[:, 0]], axis=1)
+    back = length * 0.03 / strings_kind.BOW_LENGTH
+    v = (v - np.array([back, 0.0, 0.0])) @ rot.T + grip
+    d = detail(f'{pr.name}_bow', v, f, fc[0], pr.name, pr.name)
+    d['colors'] = fc
+    return [d], grip, grip + direction * (length - back)
+
+
 def make(body, pr, pose):
     """Makes one hand prop of any kind. Returns (details, grip point, tip point)."""
     if pr.kind == 'stick':
         return stick(body, pr, pose)
+    if pr.kind == 'bow':
+        return bow(body, pr, pose)
     raise ValueError(f'prop {pr.name!r}: the kind {pr.kind!r} is not built yet')
 
 
 def role_details(role, body, pose='bind'):
-    """Lists the details of all props of a role: the hand props, then the scene props."""
+    """Lists the details of the hand props of a role (joined into the mesh of the animal). The
+    scene props are nodes of their own (scene_nodes)."""
     items = []
     for pr in hand_props(role):
         items += make(body, pr, pose)[0]
-    for pr in scene_props(role):
-        items += scene_prop(body, pr, role)[0]
     return items

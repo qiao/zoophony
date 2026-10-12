@@ -199,7 +199,10 @@ def _role_checks(role, errors):
         if prop.attach.side not in ('L', 'R'):
             errors.append(f'props[{i}].attach.side: expected "L" or "R"')
         kinds = {'stick': ('hand', ('grip', 'direction', 'length', 'handle', 'shaft')),
-                 'piano': ('scene', ('piano',)), 'bench': ('scene', ('bench',))}
+                 'bow': ('hand', ('grip', 'direction', 'strings')),
+                 'piano': ('scene', ('piano',)), 'bench': ('scene', ('bench',)),
+                 'chair': ('scene', ('chair',)), 'music_stand': ('scene', ('stand',)),
+                 'violin': ('scene', ('strings',)), 'cello': ('scene', ('strings',))}
         if prop.kind not in kinds:
             errors.append(f'props[{i}].kind: expected one of {", ".join(kinds)}')
             continue
@@ -285,6 +288,23 @@ def load(animal, out_dir=None, role=None):
                            compare=os.path.join(out, 'compare'),
                            frames=os.path.join(out, 'frames'))
     return cfg
+
+
+def load_props(path):
+    """Loads a list of props ([[props]] tables with the fields of a prop of a role pack), for
+    example the gallery of the prop library (props/gallery.toml). Raises ConfigError."""
+    with open(path, 'rb') as f:
+        try:
+            raw = tomllib.load(f)
+        except tomllib.TOMLDecodeError as e:
+            raise ConfigError(f'{path}: {e}') from None
+    errors = []
+    items = _resolve(ROLE.fields['props'], raw.get('props', []), 'props', errors)
+    if not errors:
+        _role_checks(Section(role=Section(stance='seated'), props=items), errors)
+    if errors:
+        raise ConfigError(f'{path}: {len(errors)} problem(s)\n  ' + '\n  '.join(errors))
+    return items
 
 
 def to_plain(value):

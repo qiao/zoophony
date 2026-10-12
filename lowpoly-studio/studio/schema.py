@@ -728,6 +728,11 @@ BIND = T('The bind pose of the role: joint turns from the pose of the sheet. The
     'knee_flex': F('num', 'Bend of the knees (about 90 for a seated player).', default=0.0),
     'hip_abduct': F('num', 'Outward turn of the legs about the vertical axis at the hips (the '
                            'knees apart, for a seated player).', default=0.0),
+    'seat': F('str', 'The seat of a seated bind pose. "thighs": the seat plane is at the lowest '
+                     'point of the bent thighs in front of the trunk, and the trunk flattens on '
+                     'it, so the rump and the thighs rest on the seat (templates/biped '
+                     'Body.seat). "none": no seat in the field; a seat goes under the trunk '
+                     'bottom.', default='none'),
     'correctives': F('strs', 'Corrective shapes of the template between the bind pose and the '
                              'sheet pose. The biped template has "arm_down" (arms raised in the '
                              'bind pose) and "legs_straight" (legs bent in the bind pose).',
@@ -736,18 +741,22 @@ BIND = T('The bind pose of the role: joint turns from the pose of the sheet. The
 
 ROLE_PROP = T('One prop of the role.', {
     'name': F('str', 'Name of the prop, of its bone, and of its material.'),
-    'kind': F('str', 'Geometry kind: "stick" (a handle and a tapered shaft, in a hand), "piano" (a '
-                     'low-poly grand piano in the scene), "bench" (a piano bench in the scene). '
-                     'Later kinds: a mesh file of an instrument, a stand.', default='stick'),
+    'kind': F('str', 'Kind of the prop (the prop library props/, studio/props.py). In a hand: '
+                     '"stick" (a handle and a tapered shaft: a baton), "bow" (the bow of a violin '
+                     'or a cello). In the scene, a node of its own: "piano" (a grand piano), '
+                     '"bench" (a piano bench), "chair" (an orchestra chair), "music_stand", '
+                     '"violin", "cello".', default='stick'),
     'attach': T('Where the prop attaches.', {
-        'bone': F('str', '"hand": a bone of its own, a child of the hand of "side". "scene": a '
-                         'bone of its own, a child of the root (a piano, a bench). The prop is '
-                         'rigid on its bone, and the root does not move, so it stays in place.'),
+        'bone': F('str', '"hand": a bone of its own, a child of the hand of "side", and the '
+                         'mesh joined into the mesh of the animal, rigid on that bone. "scene": a '
+                         'mesh node of its own in the GLB with no bone (a piano, a bench); it '
+                         'stays in place, and the keys of a piano are nodes under it.'),
         'side': F('str', '"L" or "R" (for a hand prop).', default='R'),
-        'seat_height': F('str', 'For a seat in the scene: "legs" puts the seat top under the '
-                                'trunk bottom of the seated pose, where the feet of the bent legs '
-                                'stand on the floor (templates/biped Body.seated_drop).',
-                         default=None),
+        'seat_height': F('str', 'For a seat in the scene: "legs" puts the seat top at the seat of '
+                                'the seated body (the bind pose with [bind] seat = "thighs": the '
+                                'plane of the thighs; else the trunk bottom), where the feet of '
+                                'the bent legs stand on the floor (templates/biped Body.seat, '
+                                'Body.seated_drop).', default=None),
     }),
     'tip_marker': F('str', 'Name of the empty node at the tip (the viewer draws its path).',
                     default=None),
@@ -769,31 +778,107 @@ ROLE_PROP = T('One prop of the role.', {
         'color': F('rgb', 'Color.'),
     }, optional=True),
     'piano': T('A grand piano (kind "piano"), sized to the seated animal: the keyboard runs '
-               'across the front of the belly, at the height of the forearms.', {
-        'keys_top': F('num', 'Height of the top of the white keys above the seat top.'),
+               'across the front of the belly, at the height of the forearms. The keys that the '
+               'clips press (pack.pressed_keys) are nodes of their own and go down with the '
+               'fingers. The case, the lid, the desk, the legs, and the pedals scale with the '
+               'keyboard width (a real keyboard is 1.24 m).', {
+        'keys_below_elbow': F('num', 'Height of the elbows of the seated bind pose above the '
+                                     'top of the white keys.', default=0.06),
         'keys_front': F('num', 'z of the front edge of the keyboard.'),
-        'keys_depth': F('num', 'Depth of a white key.', default=0.11),
-        'white_keys': F('int', 'Number of white keys (from C, centered on x = 0).', default=17),
-        'key_width': F('num', 'Width of a white key.'),
-        'case_length': F('num', 'Length of the case behind the keyboard.'),
-        'case_width': F('num', 'Width of the case.'),
-        'case_height': F('num', 'Height of the case side.', default=0.1),
+        'keys_depth': F('num', 'Visible length of a white key (default: a real key at the '
+                               'scale of the key width).', default=None),
+        'white_keys': F('int', 'Number of white keys (from C, centered on x = 0).', default=29),
+        'lowest_octave': F('int', 'Octave of the lowest C (the key names: C2, Cs2, D2, ...).',
+                           default=2),
+        'key_width': F('num', 'Width of a white key (default: the spacing of the claw tips of a '
+                              'paw, so each digit sits on its own key).', default=None),
+        'key_dip': F('num', 'How far the front of a key goes down when it is pressed (default: '
+                            '0.42 of the key width, as on a real piano).', default=None),
+        'case_width': F('num', 'Width of the case (default: 1.4 m at the case scale).',
+                        default=None),
+        'case_length': F('num', 'Length of the case behind the keys (default: 1.85 m at the case '
+                                'scale).', default=None),
         'lid_open': F('num', 'Angle of the open lid in degrees.', default=30.0),
         'colors': T('The colors.', {
-            'case': F('rgb', 'The case, the legs, and the lid.'),
-            'white': F('rgb', 'The white keys.'),
-            'black': F('rgb', 'The black keys.'),
-            'metal': F('rgb', 'The pedals.'),
+            'case': F('rgb', 'The case, the lid, the legs, the desk.', default=(24, 22, 26)),
+            'white': F('rgb', 'The white keys.', default=(240, 236, 226)),
+            'black': F('rgb', 'The black keys.', default=(20, 18, 20)),
+            'metal': F('rgb', 'The iron plate and the pedals.', default=(200, 170, 90)),
+            'inside': F('rgb', 'The soundboard.', default=(122, 84, 52)),
+            'strings': F('rgb', 'The strings.', default=(168, 144, 100)),
+            'sheet': F('rgb', 'The sheet of music on the desk.', default=(236, 230, 214)),
         }),
     }, optional=True),
-    'bench': T('A piano bench (kind "bench"): a padded top on four legs.', {
-        'width': F('num', 'Width (x).'),
-        'depth': F('num', 'Depth (z).'),
-        'center_z': F('num', 'z of the middle of the top.'),
+    'bench': T('A piano bench (kind "bench"): a padded top on an apron and four legs. With a seat '
+               'in the bind pose, the top reaches from behind the rump to the backs of the '
+               'shins.', {
+        'width': F('num', 'Width (x). Default: the thighs on the seat and the margin.',
+                   default=None),
+        'depth': F('num', 'Depth (z). Default: from the seat of the body.', default=None),
+        'center_z': F('num', 'z of the middle of the top. Default: from the seat of the body.',
+                      default=None),
+        'margin': F('num', 'Margin of the top behind the rump and beside the thighs.',
+                    default=0.03),
         'top_thickness': F('num', 'Thickness of the padded top.', default=0.025),
         'colors': T('The colors.', {
-            'top': F('rgb', 'The padded top.'),
-            'legs': F('rgb', 'The legs and the frame.'),
+            'top': F('rgb', 'The padded top.', default=(52, 40, 36)),
+            'legs': F('rgb', 'The legs and the apron.', default=(30, 24, 22)),
+        }),
+    }, optional=True),
+    'chair': T('An orchestra chair (kind "chair"): a seat, four legs, the back posts, and a top '
+               'rail. The seat is sized as a bench.', {
+        'width': F('num', 'Width (x). Default: from the seat of the body.', default=None),
+        'depth': F('num', 'Depth (z). Default: from the seat of the body.', default=None),
+        'center_z': F('num', 'z of the middle of the seat.', default=None),
+        'margin': F('num', 'Margin of the seat behind the rump and beside the thighs.',
+                    default=0.03),
+        'back_height': F('num', 'Height of the back above the seat. Default: 0.55 of the '
+                                'shoulders above the seat.', default=None),
+        'colors': T('The colors.', {
+            'wood': F('rgb', 'The wood.', default=(205, 178, 122)),
+        }),
+    }, optional=True),
+    'stand': T('A music stand (kind "music_stand"): a tripod, a post, and a tilted desk with a '
+               'sheet that faces the player.', {
+        'at': F('vec2', 'x and z of the post on the floor.', default=(0.0, 0.55)),
+        'desk_center': F('num', 'Height of the middle of the desk. Default: below the eyes of the '
+                                'seated animal.', default=None),
+        'below_eyes': F('num', 'Distance of the middle of the desk below the eyes.',
+                        default=0.2),
+        'desk_width': F('num', 'Width of the desk.', default=None),
+        'desk_height': F('num', 'Height of the desk plate.', default=None),
+        'tilt': F('num', 'Lean of the desk away from the player, in degrees.', default=30.0),
+        'colors': T('The colors.', {
+            'stand': F('rgb', 'The tripod and the post.', default=(30, 26, 22)),
+            'desk': F('rgb', 'The face of the desk.', default=(84, 72, 64)),
+            'edge': F('rgb', 'The edges and the lip of the desk.', default=(160, 139, 122)),
+            'sheet': F('rgb', 'The sheet of music.', default=(236, 230, 214)),
+        }),
+    }, optional=True),
+    'strings': T('A violin, a cello, or a bow (kinds "violin", "cello", "bow"): the models of '
+                 'the app, sized from the body.', {
+        'length': F('num', 'Length (the tail end to the scroll, or the bow). Default: a violin of '
+                           '1.1 arm reaches, a cello to the eyes of the seated animal, a bow of '
+                           '1.25 violins or 0.62 cellos.', default=None),
+        'at': F('vec2', 'x and z of the end pin (or the tail end) on the floor (a scene prop).',
+                default=(0.0, 0.25)),
+        'lean': F('num', 'Lean of an upright instrument back toward the player, in degrees.',
+                  default=25.0),
+        'side_lean': F('num', 'Lean of an upright instrument to the left of the player, in '
+                              'degrees.', default=0.0),
+        'hair': F('vec3', 'Direction of the hair of a bow in the hand frame (a bow).',
+                  default=(0.0, 0.0, 1.0)),
+        'bow_for': F('str', 'The instrument of a bow: "violin" or "cello".', default='violin'),
+        'colors': T('The colors.', {
+            'wood': F('rgb', 'The ribs, the back edge, the neck.', default=(122, 58, 32)),
+            'top': F('rgb', 'The arched top plate and the scroll.', default=(176, 86, 44)),
+            'dark': F('rgb', 'The fingerboard, the pegs, the tailpiece, the f-holes.',
+                      default=(27, 23, 20)),
+            'bridge': F('rgb', 'The bridge.', default=(227, 201, 154)),
+            'strings': F('rgb', 'The strings.', default=(154, 144, 128)),
+            'stick': F('rgb', 'The stick of a bow.', default=(59, 42, 32)),
+            'hair': F('rgb', 'The hair of a bow.', default=(232, 226, 212)),
+            'frog': F('rgb', 'The frog of a bow.', default=(27, 23, 20)),
         }),
     }, optional=True),
     'material': T('The material of the prop.', {
@@ -815,6 +900,11 @@ ROLE = T('A role pack (roles/<name>/role.toml).', {
         'doc': F('str', 'One line on what the role does.'),
     }),
     'bind': BIND,
+    'rig': T('The rig options of the role.', {
+        'fingers': F('int', 'Finger bones of each paw: 1 (one finger bone past the knuckles), or '
+                            'one digit bone for each hand claw (details.hand_claws.offsets, 4 on '
+                            'the bears): the digits of a pianist strike single keys.', default=1),
+    }),
     'props': A('The props of the role, in the order of the joined mesh.', ROLE_PROP, default=()),
     'clips': T('The clips.', {
         'fps': F('int', 'Frames per second of the baked clips.', default=30),
