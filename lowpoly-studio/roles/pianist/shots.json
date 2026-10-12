@@ -3,41 +3,41 @@
     {
       "clip": "ready",
       "t": 1.0,
-      "az": 0,
-      "el": 6,
+      "az": -30,
+      "el": 14,
       "d": 3.6,
-      "ty": 0.4,
-      "tz": 0.25,
+      "ty": 0.42,
+      "tz": 0.3,
       "label": "ready, front"
     },
     {
       "clip": "ready",
       "t": 1.0,
       "az": 90,
-      "el": 6,
+      "el": 8,
       "d": 3.6,
-      "ty": 0.4,
-      "tz": 0.25,
-      "label": "ready, side"
+      "ty": 0.42,
+      "tz": 0.3,
+      "label": "ready, side (the open lid)"
     },
     {
       "clip": "ready",
       "t": 1.0,
-      "az": 35,
-      "el": 12,
+      "az": 40,
+      "el": 14,
       "d": 3.6,
-      "ty": 0.4,
-      "tz": 0.25,
+      "ty": 0.42,
+      "tz": 0.3,
       "label": "ready, 3/4"
     },
     {
       "clip": "ready",
       "t": 1.0,
-      "az": 35,
-      "el": 12,
+      "az": 40,
+      "el": 14,
       "d": 3.6,
-      "ty": 0.4,
-      "tz": 0.25,
+      "ty": 0.42,
+      "tz": 0.3,
       "bones": true,
       "label": "ready, bones"
     }
@@ -45,37 +45,27 @@
   "play": [
     {
       "clip": "play",
-      "t": 0.6,
-      "az": 0,
-      "el": 8,
-      "d": 3.6,
-      "ty": 0.4,
-      "tz": 0.25,
-      "label": "play: melody E, chord C"
-    },
-    {
-      "clip": "play",
-      "t": 1.6,
+      "t": 0.25,
       "az": -30,
       "el": 14,
       "d": 3.6,
-      "ty": 0.4,
-      "tz": 0.25,
-      "label": "play: melody, chord G"
+      "ty": 0.42,
+      "tz": 0.3,
+      "label": "play: front (E5, chord C3 E3)"
     },
     {
       "clip": "play",
-      "t": 2.6,
+      "t": 1.25,
       "az": 90,
       "el": 8,
       "d": 3.6,
-      "ty": 0.4,
-      "tz": 0.25,
-      "label": "play: side"
+      "ty": 0.42,
+      "tz": 0.3,
+      "label": "play: side (G5, chord B2 D3)"
     },
     {
       "clip": "play",
-      "t": 3.1,
+      "t": 2.75,
       "az": 180,
       "el": 25,
       "d": 2.2,
@@ -83,27 +73,87 @@
       "tz": 0.3,
       "fov": 30,
       "label": "play: over the shoulder"
+    },
+    {
+      "clip": "play",
+      "t": 3.25,
+      "az": 35,
+      "el": 14,
+      "d": 3.6,
+      "ty": 0.42,
+      "tz": 0.3,
+      "label": "play: 3/4 (D5, chord B2 D3)"
+    }
+  ],
+  "hands": [
+    {
+      "clip": "play",
+      "t": 0.25,
+      "az": 75,
+      "el": 22,
+      "d": 0.75,
+      "tx": -0.17,
+      "ty": 0.4,
+      "tz": 0.32,
+      "fov": 30,
+      "label": "right paw: digit 2 on E5"
+    },
+    {
+      "clip": "play",
+      "t": 0.25,
+      "az": -75,
+      "el": 22,
+      "d": 0.75,
+      "tx": 0.14,
+      "ty": 0.4,
+      "tz": 0.32,
+      "fov": 30,
+      "label": "left paw: digits 1 and 3 on E3, C3"
+    },
+    {
+      "clip": "play",
+      "t": 1.25,
+      "az": 155,
+      "el": 55,
+      "d": 1.1,
+      "tx": 0.0,
+      "ty": 0.4,
+      "tz": 0.34,
+      "fov": 30,
+      "label": "over the shoulder: G5, chord B2 D3"
+    },
+    {
+      "clip": "chord",
+      "t": 1.5,
+      "az": 155,
+      "el": 55,
+      "d": 1.1,
+      "tx": 0.0,
+      "ty": 0.4,
+      "tz": 0.34,
+      "fov": 30,
+      "label": "big chord: three digits of each paw"
     }
   ],
   "chord": [
     {
       "clip": "chord",
       "t": 0.95,
-      "az": 0,
-      "el": 8,
+      "az": -30,
+      "el": 14,
       "d": 3.6,
       "ty": 0.45,
-      "tz": 0.25,
+      "tz": 0.3,
       "label": "chord: paws up"
     },
     {
       "clip": "chord",
       "t": 1.5,
-      "az": 0,
-      "el": 8,
+      "az": -30,
+      "el": 14,
       "d": 3.6,
-      "ty": 0.4,
-      "tz": 0.25,
+      "ty": 0.42,
+      "tz": 0.3,
       "label": "chord: strike"
     },
     {
@@ -112,18 +162,18 @@
       "az": 90,
       "el": 8,
       "d": 3.6,
-      "ty": 0.4,
-      "tz": 0.25,
+      "ty": 0.42,
+      "tz": 0.3,
       "label": "chord: strike, side"
     },
     {
       "clip": "chord",
       "t": 2.9,
-      "az": 35,
-      "el": 12,
+      "az": 40,
+      "el": 14,
       "d": 3.6,
       "ty": 0.45,
-      "tz": 0.25,
+      "tz": 0.3,
       "label": "chord: lift"
     }
   ],
@@ -131,22 +181,22 @@
     {
       "clip": "rest",
       "t": 0.5,
-      "az": 0,
-      "el": 8,
+      "az": -30,
+      "el": 14,
       "d": 3.6,
       "ty": 0.4,
-      "tz": 0.25,
+      "tz": 0.3,
       "label": "rest: off the keys"
     },
     {
       "clip": "rest",
       "t": 2.9,
-      "az": 0,
-      "el": 8,
+      "az": -30,
+      "el": 14,
       "d": 3.6,
       "ty": 0.4,
-      "tz": 0.25,
-      "label": "rest: paws on the thighs"
+      "tz": 0.3,
+      "label": "rest: paws on the knees"
     },
     {
       "clip": "rest",
@@ -155,17 +205,17 @@
       "el": 8,
       "d": 3.6,
       "ty": 0.4,
-      "tz": 0.25,
+      "tz": 0.3,
       "label": "rest: side"
     },
     {
       "clip": "rest",
       "t": 2.9,
-      "az": 35,
-      "el": 12,
+      "az": 40,
+      "el": 14,
       "d": 3.6,
       "ty": 0.4,
-      "tz": 0.25,
+      "tz": 0.3,
       "label": "rest: 3/4"
     }
   ],
@@ -179,7 +229,7 @@
       "ty": 0.2,
       "tz": 0.05,
       "fov": 28,
-      "label": "seated hips and knees, side"
+      "label": "seated: rump and thighs on the bench, side"
     },
     {
       "clip": "play",
