@@ -61,7 +61,7 @@
     "**/dist",
     "**/node_modules",
     "docs/**",
-    "bear-studio/**",
+    "lowpoly-studio/**",
     "tools/oxlint/anti-slop/**",
     ".agent/**",
     ".agents/**",
