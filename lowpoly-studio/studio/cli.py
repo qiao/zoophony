@@ -1144,6 +1144,11 @@ NEW_METHODS = [
 ]
 
 
+# The head turn range of the 3/4 compare of a new animal: the turn that the sheet check
+# measures, plus or minus this many degrees.
+HEAD_TURN_SPAN = 6
+
+
 def sheet_rows(rows, height):
     """Calculates the sheet rows of the compare tiles: the rows of all figures with a margin of
     8 px, on steps of 5 px."""
@@ -1239,7 +1244,8 @@ def cmd_new(a):
                 f'\n\n')
         text = head + scaffold(SCHEMA, config.to_plain(start), filled, '', a.like) + '\n'
         kind = 'the scaffold of every field'
-    with open(os.path.join(root, 'animal.toml'), 'w') as f:
+    path = os.path.join(root, 'animal.toml')
+    with open(path, 'w') as f:
         f.write(text)
     todo = text.count('"TODO"') + text.count('# TODO: measure')
     lines = text.count('\n')
@@ -1249,6 +1255,26 @@ def cmd_new(a):
         f'{len(cols)} view column(s) found: {cols}')
     if len(cols) != 4:
         log('  the sheet does not show four views apart: set sheet.views.*.columns by hand')
+    try:
+        cfg = config.load(a.animal)
+    except ConfigError:
+        cfg = None
+    if cfg:
+        # The intake and its sheet check, and the head turn range of the 3/4 compare around the
+        # turn that the sheet check measures (studio/consistency.py).
+        step_intake(cfg)
+        found = _read_json(os.path.join(cfg.paths.out, 'sheet-check.json')) or {}
+        turn = next((c['value'] for c in found.get('checks', [])
+                     if c['name'] == 'head_turn.three_quarter'), None)
+        if turn is not None and 'three_quarter' in cfg.sheet.views:
+            lo, hi = round(turn) - HEAD_TURN_SPAN, round(turn) + HEAD_TURN_SPAN
+            doc = like.ConfigText(text)
+            doc.set('compare', 'head_turn', {'three_quarter': [float(lo), float(hi)]},
+                    f'the sheet check measures a 3/4 head turn of {turn} deg')
+            with open(path, 'w') as f:
+                f.write(doc.text)
+            log(f'compare.head_turn: three_quarter = [{lo}, {hi}] (the sheet check measures '
+                f'{turn} deg)')
     log('')
     log(INTAKE_CHECKLIST)
 

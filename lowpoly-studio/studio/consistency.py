@@ -36,6 +36,17 @@ NOSE_OFFSET_PX = 2.0
 HEAD_TURN = 4.0
 SYMMETRY = 0.97
 
+# The blobs of the eyes feature that the head checks read (a dark inner ear can be a larger
+# blob than a far eye, so the check reads more blobs than the feature keeps).
+EYE_BLOBS = 6
+
+# The smallest spacing of the 3/4 eyes as a share of the front spacing (a head azimuth of 66
+# degrees at most).
+EYE_SPACING = 0.4
+
+# The largest height difference of the two eyes of a view, in animal heights.
+EYE_HEIGHT = 0.02
+
 # The bump of an ear when the config has no ears feature of the method "bump".
 EAR_REGION = [-1.0, 0.7, 1.0, 1.1]
 
@@ -139,36 +150,60 @@ def arm_checks(pictures):
                    'the front and the back view disagree' if spread > 0.3 else '')]
 
 
-def blobs(cfg, pictures, name, view, classes):
-    """Measures the blobs of a feature of the config in one view of the sheet, or None."""
+def blobs(cfg, pictures, name, view, classes, count=None):
+    """Measures the blobs of a feature of the config in one view of the sheet, or None.
+    count: the number of blobs to keep (default: the count of the feature)."""
     feature = cfg.measure.features.get(name)
     if not feature or feature.method != 'blobs' or view not in feature.regions:
         return None
     if view not in pictures:
         return None
+    if count:
+        from studio.config import Section  # noqa: PLC0415
+        feature = Section(feature, count=count)
     found = measure_features.measure_picture(pictures[view], feature, view, name, classes)
     return next(iter(found.values()))['items']
+
+
+def eye_pair(items, front=None):
+    """Finds the two eyes among the blobs of a view, left to right, or None: of the pairs whose
+    heights differ by EYE_HEIGHT at most, the pair whose smaller blob is largest. With no front
+    pair (the front view), the eyes are on both sides of the axis. With the front pair, the
+    eyes are at least EYE_SPACING of its spacing apart."""
+    def apart(a, b):
+        if front is None:
+            return a['x'] * b['x'] < 0
+        return abs(a['x'] - b['x']) >= EYE_SPACING * abs(front[1]['x'] - front[0]['x'])
+
+    pairs = [(min(a['area'], b['area']), a, b) for i, a in enumerate(items or [])
+             for b in (items or [])[i + 1:]
+             if apart(a, b) and abs(a['y'] - b['y']) <= EYE_HEIGHT]
+    if not pairs:
+        return None
+    _, a, b = max(pairs, key=lambda p: p[0])
+    return sorted([a, b], key=lambda item: item['x'])
 
 
 def head_checks(cfg, pictures, classes):
     """Checks the head turn of the front view (the nose offset from the middle of the eyes) and
     of the 3/4 view (the head azimuth from the eye spacing)."""
     out = []
-    eyes_front = blobs(cfg, pictures, 'eyes', 'front', classes)
+    eyes_front = eye_pair(blobs(cfg, pictures, 'eyes', 'front', classes, EYE_BLOBS))
     nose_front = blobs(cfg, pictures, 'nose', 'front', classes)
-    if eyes_front and len(eyes_front) == 2 and nose_front:
+    if eyes_front and nose_front:
         middle = (eyes_front[0]['x'] + eyes_front[1]['x']) / 2
         offset = (nose_front[0]['x'] - middle) * pictures['front'].height
         out.append(_check('head_turn.front', round(offset, 1), NOSE_OFFSET_PX,
                           abs(offset) <= NOSE_OFFSET_PX,
                           {'eyes_middle_x': round(middle, 4), 'nose_x': nose_front[0]['x']},
                           'eye_x.front, nose_x.front: the front view turns the head'))
-    eyes_34 = blobs(cfg, pictures, 'eyes', 'three_quarter', classes)
+    eyes_34 = eye_pair(blobs(cfg, pictures, 'eyes', 'three_quarter', classes, EYE_BLOBS),
+                       eyes_front)
     view = cfg.sheet.views.get('three_quarter')
-    if eyes_front and len(eyes_front) == 2 and eyes_34 and len(eyes_34) == 2 and view:
-        front = abs(eyes_front[1]['x'] - eyes_front[0]['x'])
-        side = abs(eyes_34[1]['x'] - eyes_34[0]['x'])
-        head = math.degrees(math.acos(min(1.0, side / front)))
+    front = abs(eyes_front[1]['x'] - eyes_front[0]['x']) if eyes_front else 0.0
+    side = abs(eyes_34[1]['x'] - eyes_34[0]['x']) if eyes_34 else 0.0
+    if view and 0.0 < side < front:
+        head = math.degrees(math.acos(side / front))
         turn = view.azimuth - head
         px = side * pictures['three_quarter'].height
         error = math.degrees(1.0 / max(px * math.tan(math.radians(max(head, 5.0))), 1e-6))
