@@ -55,7 +55,9 @@ class Body:
                               and bind.hip_abduct == 0.0)
         self._seat = None
         # The finger bones of each paw (role.toml [rig] fingers): 1, or one digit for each claw.
-        self.fingers = cfg.role.rig.fingers if cfg.role else 1
+        # Read the one field: a read of the whole role table goes into the cache key, and the
+        # table holds the role name and the folder of the pack.
+        self.fingers = cfg.role.rig.fingers
         if self.fingers not in (1, len(cfg.details.hand_claws.offsets)):
             raise ValueError(f'[rig] fingers = {self.fingers}: expected 1 or the number of hand '
                              f'claws ({len(cfg.details.hand_claws.offsets)})')
