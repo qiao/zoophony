@@ -1,44 +1,36 @@
-"""Makes the silhouette masks of the four reference views and measures them.
+"""Stage "intake": makes the silhouette masks of the sheet views and measures them.
 
-Run with the system python3 (Pillow only):
+Run with the system python3 (Pillow only); the CLI runs it:
 
-    python3 tools/measure.py
+    python3 studio/intake.py <animal> [--out DIR]
 
-Writes:
-    out/masks/<view>.png   one mask per view, 255 = bear, on the full sheet size
-    out/masks/<view>.raw   the same mask as raw bytes (one byte per pixel, rows from the top)
-    out/measure.json       the box, the ground row, the axis column, and the row runs of
-                           each view in model units
+The config gives the sheet, the columns of each view, and the foreground rule. Writes:
+    <out>/masks/<view>.png   one mask per view, 255 = animal, on the full sheet size
+    <out>/masks/<view>.raw   the same mask as raw bytes (one byte per pixel, rows from the top)
+    <out>/measure.json       the box, the ground row, the axis column, and the row runs of each
+                             view in model units
 """
 
+import argparse
 import json
 import os
 import sys
 
 from PIL import Image, ImageFilter
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.join(os.path.dirname(HERE), 'animals', 'bear')
-SHEET = os.path.join(ROOT, 'reference', 'bear-views.png')
-OUT = os.path.join(ROOT, 'out')
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# The columns of the sheet that hold each view (x from, x to).
-VIEWS = {
-    'front': (0, 470),
-    'side': (470, 735),
-    'back': (735, 1150),
-    'three_quarter': (1150, 1536),
-}
+from studio import config  # noqa: E402
 
 
-def is_bear(rgb):
-    """Tells if a pixel is on the bear: brown, or dark (nose, eyes, claws)."""
+def is_animal(rgb, fg):
+    """Tells if a pixel is on the animal: colored, or dark (nose, eyes, claws)."""
     r, g, b = rgb
     sat = max(r, g, b) - min(r, g, b)
-    return sat >= 14 or (r + g + b) < 390
+    return sat >= fg.min_saturation or (r + g + b) < fg.max_dark_sum
 
 
-def make_mask(im, x0, x1):
+def make_mask(im, x0, x1, fg):
     """Makes the mask of one view column, with holes filled and specks removed."""
     w, h = im.size
     px = im.load()
@@ -46,7 +38,7 @@ def make_mask(im, x0, x1):
     mp = mask.load()
     for y in range(h):
         for x in range(x0, x1):
-            if is_bear(px[x, y]):
+            if is_animal(px[x, y], fg):
                 mp[x, y] = 255
     # Close small gaps, then remove specks.
     mask = mask.filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.MinFilter(3))
@@ -119,7 +111,7 @@ def box(mask, x0, x1):
 
 
 def runs_of_row(mp, y, x0, x1):
-    """Lists the runs of bear pixels in one row: [(first x, last x), ...]."""
+    """Lists the runs of animal pixels in one row: [(first x, last x), ...]."""
     runs = []
     start = None
     for x in range(x0, x1):
@@ -142,19 +134,22 @@ def central_run(runs, axis):
     return None
 
 
-def main():
+def intake(cfg):
     """Writes the masks, the boxes, and the row profiles in model units.
 
-    Model units: the height of the bear (sole to ear top) is 1. x is the left of the bear,
+    Model units: the height of the animal (sole to ear top) is 1. x is the left of the animal,
     y is up, z is forward (the axes of three.js and glTF).
     """
-    im = Image.open(SHEET).convert('RGB')
-    os.makedirs(os.path.join(OUT, 'masks'), exist_ok=True)
+    sh = cfg.sheet
+    im = Image.open(cfg.paths.sheet).convert('RGB')
+    masks = cfg.paths.masks
+    os.makedirs(masks, exist_ok=True)
     result = {'sheet': list(im.size), 'views': {}}
-    for name, (x0, x1) in VIEWS.items():
-        mask = make_mask(im, x0, x1)
-        mask.save(os.path.join(OUT, 'masks', f'{name}.png'))
-        with open(os.path.join(OUT, 'masks', f'{name}.raw'), 'wb') as f:
+    for name, view in sh.views.items():
+        x0, x1 = view.columns
+        mask = make_mask(im, x0, x1, sh.foreground)
+        mask.save(os.path.join(masks, f'{name}.png'))
+        with open(os.path.join(masks, f'{name}.raw'), 'wb') as f:
             f.write(mask.tobytes())
         left, top, right, bottom = box(mask, x0, x1)
         mp = mask.load()
@@ -162,19 +157,24 @@ def main():
         ground = bottom + 0.5
         rows = {y: runs_of_row(mp, y, x0, x1) for y in range(top, bottom + 1)}
 
-        # The axis: the mean center of the single run in the hip rows (y 0.2 to 0.3).
+        # The axis: the mean center of the single run in the hip rows.
+        a0, a1 = sh.axis_rows
         centers = []
         for y, runs in rows.items():
             h = (ground - y) / height
-            if 0.2 <= h <= 0.3 and len(runs) == 1:
+            if a0 <= h <= a1 and len(runs) == 1:
                 centers.append((runs[0][0] + runs[0][1] + 1) / 2)
+        if not centers:
+            raise SystemExit(f'view {name}: no row between heights {a0} and {a1} has a single '
+                             f'run (check sheet.views.{name}.columns and sheet.axis_rows)')
         axis = sum(centers) / len(centers)
-        if name == 'side':
-            # The z origin of the side view: the center of the shin at y 0.1.
-            shin = [r for y, r in rows.items() if abs((ground - y) / height - 0.1) < 0.004]
+        if view.axis == 'shin':
+            # The z origin of a side view: the center of the shin at side_axis_height.
+            shin = [r for y, r in rows.items()
+                    if abs((ground - y) / height - sh.side_axis_height) < sh.side_axis_halfband]
             axis = sum((r[0][0] + r[0][1] + 1) / 2 for r in shin) / len(shin)
 
-        sign = -1 if name == 'back' else 1
+        sign = -1 if view.flip else 1
         profile = []
         for y, runs in rows.items():
             h = (ground - y) / height
@@ -202,8 +202,17 @@ def main():
             'profile': profile,
         }
         print(name, {k: v for k, v in result['views'][name].items() if k != 'profile'})
-    with open(os.path.join(OUT, 'measure.json'), 'w') as f:
+    with open(cfg.paths.measure, 'w') as f:
         json.dump(result, f)
+
+
+def main():
+    """Reads the arguments and runs the intake of one animal."""
+    ap = argparse.ArgumentParser(prog='studio/intake.py')
+    ap.add_argument('animal')
+    ap.add_argument('--out', default=None)
+    args = ap.parse_args()
+    intake(config.load(args.animal, args.out))
 
 
 if __name__ == '__main__':
