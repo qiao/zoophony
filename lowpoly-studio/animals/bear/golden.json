@@ -591,6 +591,10 @@
     },
     "total_triangles": 2834
   },
+  "model_glb": {
+    "sha256": "785130e1b18c9a715d13887c57894600598af6c83f0cfa6d0dc794a997a4bc00",
+    "bytes": 503460
+  },
   "iou": {
     "front": 0.9468,
     "side": 0.9596,
@@ -1043,12 +1047,12 @@
                 "count": 1,
                 "items": [
                   {
-                    "x": -0.0211,
-                    "y": 0.5176,
-                    "width": 0.214,
-                    "height": 0.1667,
-                    "area": 0.036774,
-                    "box_px": [173, 440, 286, 528]
+                    "x": -0.0182,
+                    "y": 0.5114,
+                    "width": 0.2235,
+                    "height": 0.1761,
+                    "area": 0.039522,
+                    "box_px": [174, 441, 292, 534]
                   }
                 ]
               }
@@ -1190,19 +1194,19 @@
       },
       "render_front.png": {
         "belly_contrast": {
-          "luma_std": 17.44,
-          "fine_std": 4.06,
-          "luma_mean": 96.6
+          "luma_std": 17.19,
+          "fine_std": 3.99,
+          "luma_mean": 96.4
         },
-        "mean_chord_px": 33.0,
-        "chord_quartiles_px": [6.5, 26.5, 49.5],
-        "edge_length_estimate_px": 72.7,
-        "facets_across_belly": 5.4,
+        "mean_chord_px": 34.5,
+        "chord_quartiles_px": [10.5, 27.0, 39.0],
+        "edge_length_estimate_px": 76.2,
+        "facets_across_belly": 4.8,
         "facets_along_arm": 6,
         "edge_directions_0_30_60_90_120_150": {
-          "belly": [0.309, 0.088, 0.107, 0.188, 0.084, 0.224],
-          "chest": [0.266, 0.053, 0.182, 0.236, 0.033, 0.229],
-          "arm": [0.016, 0.005, 0.054, 0.302, 0.615, 0.009]
+          "belly": [0.308, 0.084, 0.107, 0.173, 0.082, 0.245],
+          "chest": [0.283, 0.051, 0.174, 0.235, 0.037, 0.219],
+          "arm": [0.013, 0.025, 0.083, 0.283, 0.561, 0.035]
         }
       }
     },
@@ -1246,6 +1250,11 @@
     "body_triangles": true,
     "slivers": true,
     "unpaired_vertices": true,
+    "remesh_gate.quads": true,
+    "remesh_gate.inward_faces": true,
+    "remesh_gate.slivers": true,
+    "remesh_gate.open_edges": true,
+    "remesh_gate.slit_faces": true,
     "iou.front": true,
     "fur_hue.front": true,
     "fur_saturation.front": true,
@@ -1303,5 +1312,5 @@
     "claw_count.front.right_in_image": false,
     "facet_contrast": true
   },
-  "source": "main c528ca2e (bear-studio/build.sh --seed 3), measured with the tools of this branch; features and checks of studio-diag (the same GLB)"
+  "source": "main c528ca2e (bear-studio/build.sh --seed 3), measured with the tools of this branch; features and checks of studio-diag (the same GLB); look checks and measures of the model build (studio-runtime, model seed 3)"
 }
