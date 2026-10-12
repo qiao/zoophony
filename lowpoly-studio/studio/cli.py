@@ -1402,7 +1402,7 @@ def cmd_calibrate(a):
                               os.path.join(cfg.paths.out, 'calibrate', 'quads.log'))
         timer.step('quads', time.time() - t)
         for line in lines:
-            if line.startswith(('target', 'ratio', 'wrote', 'Error', 'Traceback')):
+            if line.startswith(('target', 'ratio', 'the band', 'wrote', 'Error', 'Traceback')):
                 log(f'  {line}')
         if code != 0:
             fail('studio/quads.py failed')
