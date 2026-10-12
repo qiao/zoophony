@@ -737,11 +737,15 @@
     },
     "total_triangles": 3284
   },
+  "model_glb": {
+    "sha256": "41a16640291a81e8f870c6913a45d1bd5518dd7205f954dcb6ae51c430b730ea",
+    "bytes": 532836
+  },
   "iou": {
-    "front": 0.9409,
-    "side": 0.912,
-    "back": 0.9405,
-    "three_quarter": 0.9047
+    "front": 0.9465,
+    "side": 0.9543,
+    "back": 0.9452,
+    "three_quarter": 0.927
   },
   "measures": {
     "features": {
@@ -776,20 +780,20 @@
                 "count": 2,
                 "items": [
                   {
-                    "x": -0.039,
-                    "y": 0.9258,
-                    "width": 0.0161,
-                    "height": 0.0233,
-                    "area": 0.000266,
-                    "box_px": [209, 271, 218, 284]
+                    "x": -0.0399,
+                    "y": 0.9249,
+                    "width": 0.0143,
+                    "height": 0.0215,
+                    "area": 0.000243,
+                    "box_px": [209, 272, 217, 284]
                   },
                   {
-                    "x": 0.0379,
-                    "y": 0.9258,
-                    "width": 0.0161,
-                    "height": 0.0197,
-                    "area": 0.00025,
-                    "box_px": [252, 272, 261, 283]
+                    "x": 0.0388,
+                    "y": 0.9249,
+                    "width": 0.0143,
+                    "height": 0.0215,
+                    "area": 0.000234,
+                    "box_px": [253, 272, 261, 284]
                   }
                 ]
               }
@@ -823,20 +827,20 @@
                 "count": 3,
                 "items": [
                   {
-                    "x": 0.0964,
-                    "y": 0.9243,
+                    "x": 0.1017,
+                    "y": 0.9234,
                     "width": 0.0141,
-                    "height": 0.0211,
-                    "area": 0.000208,
-                    "box_px": [214, 268, 222, 280]
+                    "height": 0.0194,
+                    "area": 0.000189,
+                    "box_px": [217, 269, 225, 280]
                   },
                   {
-                    "x": 0.1518,
-                    "y": 0.9217,
+                    "x": 0.1589,
+                    "y": 0.9225,
                     "width": 0.0088,
-                    "height": 0.0194,
-                    "area": 0.000146,
-                    "box_px": [247, 270, 252, 281]
+                    "height": 0.0176,
+                    "area": 0.000108,
+                    "box_px": [251, 270, 256, 280]
                   }
                 ]
               }
@@ -870,15 +874,15 @@
                 "count": 1,
                 "items": [
                   {
-                    "width": 0.0394,
+                    "width": 0.0411,
                     "height": 0.0769,
-                    "center_x": 0.0721,
+                    "center_x": 0.073,
                     "top": 0.9991,
                     "top_row": 236,
-                    "merge_row": 243,
+                    "merge_row": 244,
                     "notch_row": 279,
-                    "box_px": [184, 236, 206, 279],
-                    "dark": 0.105
+                    "box_px": [183, 236, 206, 279],
+                    "dark": 0.104
                   }
                 ]
               }
@@ -905,15 +909,15 @@
                 "count": 1,
                 "items": [
                   {
-                    "width": 0.0394,
-                    "height": 0.0769,
-                    "center_x": 0.071,
-                    "top": 0.9991,
-                    "top_row": 236,
-                    "merge_row": 243,
-                    "notch_row": 279,
-                    "box_px": [264, 236, 286, 279],
-                    "dark": 0.117
+                    "width": 0.0411,
+                    "height": 0.0733,
+                    "center_x": 0.0719,
+                    "top": 1.0009,
+                    "top_row": 235,
+                    "merge_row": 244,
+                    "notch_row": 276,
+                    "box_px": [264, 235, 287, 276],
+                    "dark": 0.107
                   }
                 ]
               }
@@ -941,14 +945,14 @@
                 "count": 1,
                 "items": [
                   {
-                    "width": 0.026,
-                    "height": 0.0156,
-                    "center_x": 0.0803,
+                    "width": 0.0277,
+                    "height": 0.019,
+                    "center_x": 0.0811,
                     "top": 0.9991,
                     "top_row": 220,
                     "merge_row": 224,
-                    "notch_row": 229,
-                    "box_px": [154, 220, 169, 229]
+                    "notch_row": 231,
+                    "box_px": [154, 220, 170, 231]
                   }
                 ]
               }
@@ -977,13 +981,13 @@
                 "items": [
                   {
                     "width": 0.0416,
-                    "height": 0.0778,
-                    "center_x": 0.0693,
+                    "height": 0.0759,
+                    "center_x": 0.0711,
                     "top": 0.9991,
                     "top_row": 243,
-                    "merge_row": 251,
-                    "notch_row": 286,
-                    "box_px": [158, 243, 181, 286]
+                    "merge_row": 252,
+                    "notch_row": 285,
+                    "box_px": [157, 243, 180, 285]
                   }
                 ]
               }
@@ -1009,14 +1013,14 @@
                 "count": 1,
                 "items": [
                   {
-                    "width": 0.0416,
-                    "height": 0.0778,
-                    "center_x": 0.0754,
+                    "width": 0.0434,
+                    "height": 0.0759,
+                    "center_x": 0.0727,
                     "top": 0.9991,
                     "top_row": 243,
-                    "merge_row": 251,
-                    "notch_row": 286,
-                    "box_px": [238, 243, 261, 286]
+                    "merge_row": 252,
+                    "notch_row": 285,
+                    "box_px": [236, 243, 260, 285]
                   }
                 ]
               }
@@ -1051,7 +1055,7 @@
                     "y": 0.8703,
                     "width": 0.0751,
                     "height": 0.0447,
-                    "area": 0.002378,
+                    "area": 0.002384,
                     "box_px": [214, 296, 256, 321]
                   }
                 ]
@@ -1078,12 +1082,12 @@
                 "count": 8,
                 "items": [
                   {
-                    "x": 0.2715,
-                    "y": 0.8607,
-                    "width": 0.0277,
-                    "height": 0.0433,
-                    "area": 0.00085,
-                    "box_px": [264, 288, 280, 313]
+                    "x": 0.2706,
+                    "y": 0.8616,
+                    "width": 0.0294,
+                    "height": 0.0415,
+                    "area": 0.000904,
+                    "box_px": [263, 288, 280, 312]
                   }
                 ]
               }
@@ -1111,17 +1115,8 @@
                 ]
               },
               "render": {
-                "count": 1,
-                "items": [
-                  {
-                    "x": 0.0007,
-                    "y": 0.5492,
-                    "width": 0.1199,
-                    "height": 0.0376,
-                    "area": 0.003082,
-                    "box_px": [202, 476, 269, 497]
-                  }
-                ]
+                "count": 0,
+                "items": []
               }
             }
           }
@@ -1150,12 +1145,12 @@
                 "count": 1,
                 "items": [
                   {
-                    "x": -0.3244,
-                    "y": 0.3184,
-                    "width": 0.0572,
-                    "height": 0.0644,
-                    "area": 0.002109,
-                    "box_px": [38, 599, 70, 635]
+                    "x": -0.3226,
+                    "y": 0.314,
+                    "width": 0.0537,
+                    "height": 0.059,
+                    "area": 0.001392,
+                    "box_px": [40, 603, 70, 636]
                   }
                 ]
               }
@@ -1179,12 +1174,12 @@
                 "count": 1,
                 "items": [
                   {
-                    "x": 0.3232,
-                    "y": 0.3184,
-                    "width": 0.0572,
-                    "height": 0.0644,
-                    "area": 0.002115,
-                    "box_px": [400, 599, 432, 635]
+                    "x": 0.3214,
+                    "y": 0.3148,
+                    "width": 0.0537,
+                    "height": 0.0572,
+                    "area": 0.001398,
+                    "box_px": [400, 603, 430, 635]
                   }
                 ]
               }
@@ -1213,33 +1208,33 @@
       },
       "render_front.png": {
         "belly_contrast": {
-          "luma_std": 11.97,
-          "fine_std": 2.37,
-          "luma_mean": 201.1
+          "luma_std": 12.22,
+          "fine_std": 2.82,
+          "luma_mean": 201.0
         },
-        "mean_chord_px": 37.6,
-        "chord_quartiles_px": [20.0, 29.0, 45.0],
-        "edge_length_estimate_px": 82.9,
-        "facets_across_belly": 3.8,
-        "facets_along_arm": 4.3,
+        "mean_chord_px": 38.5,
+        "chord_quartiles_px": [23.5, 33.0, 51.5],
+        "edge_length_estimate_px": 85.0,
+        "facets_across_belly": 4.2,
+        "facets_along_arm": 2.3,
         "edge_directions_0_30_60_90_120_150": {
-          "belly": [0.351, 0.107, 0.109, 0.162, 0.084, 0.186],
-          "chest": [0.18, 0.218, 0.096, 0.199, 0.167, 0.141],
-          "arm": [0.139, 0.174, 0.024, 0.166, 0.27, 0.227]
+          "belly": [0.264, 0.165, 0.128, 0.107, 0.11, 0.226],
+          "chest": [0.063, 0.281, 0.243, 0.165, 0.215, 0.033],
+          "arm": [0.021, 0.048, 0.018, 0.469, 0.333, 0.112]
         }
       }
     },
     "mesh": {
-      "valence_6_share": 0.464,
-      "valence_std": 1.1,
-      "belly_edge_direction_entropy": 0.969,
-      "triangles": 1120,
-      "edge_median_px": 31.0,
-      "edge_quartiles_px": [21.1, 39.8],
-      "edge_spread_iqr_over_median": 0.6,
-      "slivers_share_min_angle_under_15": 0.009,
-      "median_smallest_angle_deg": 38.0,
-      "mirrored_vertex_share": 1.0
+      "valence_6_share": 0.406,
+      "valence_std": 1.22,
+      "belly_edge_direction_entropy": 0.91,
+      "triangles": 1340,
+      "edge_median_px": 27.9,
+      "edge_quartiles_px": [20.2, 37.7],
+      "edge_spread_iqr_over_median": 0.63,
+      "slivers_share_min_angle_under_15": 0.007,
+      "median_smallest_angle_deg": 37.5,
+      "mirrored_vertex_share": 0.999
     }
   },
   "checks": {
@@ -1280,7 +1275,7 @@
     "fur_hue.front": true,
     "fur_saturation.front": true,
     "fur_value.front": true,
-    "iou.side": false,
+    "iou.side": true,
     "fur_hue.side": true,
     "fur_saturation.side": true,
     "fur_value.side": true,
@@ -1292,18 +1287,18 @@
     "fur_hue.three_quarter": true,
     "fur_saturation.three_quarter": true,
     "fur_value.three_quarter": true,
-    "eye_outline.front.0": true,
-    "eye_outline.front.1": true,
+    "eye_outline.front.0": false,
+    "eye_outline.front.1": false,
     "eye_y.front.0": true,
     "eye_y.front.1": true,
     "eye_outline.three_quarter.0": false,
     "eye_outline.three_quarter.1": false,
     "eye_y.three_quarter.0": true,
     "eye_y.three_quarter.1": true,
-    "ear_width.front.left_in_image": false,
+    "ear_width.front.left_in_image": true,
     "ear_height.front.left_in_image": true,
     "ear_dark.front.left_in_image": true,
-    "ear_width.front.right_in_image": false,
+    "ear_width.front.right_in_image": true,
     "ear_height.front.right_in_image": true,
     "ear_dark.front.right_in_image": true,
     "ear_width.side.ear": false,
@@ -1320,12 +1315,12 @@
     "nose_y.side.0": true,
     "nose_width.side.0": false,
     "nose_height.side.0": true,
-    "belly_y.front.belly": true,
-    "belly_width.front.belly": true,
+    "belly_y.front.belly": false,
+    "belly_width.front.belly": false,
     "belly_height.front.belly": false,
     "claw_count.front.left_in_image": true,
     "claw_count.front.right_in_image": true,
     "facet_contrast": true
   },
-  "source": "studio-pilot build of the polar bear pianist, seed 1 (2026-10-12)"
+  "source": "studio-pilot build of the polar bear pianist, seed 1 (2026-10-12); look checks and measures of the model build (studio-runtime, model seed 3)"
 }
