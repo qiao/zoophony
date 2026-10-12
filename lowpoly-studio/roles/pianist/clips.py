@@ -240,7 +240,7 @@ class Pianist:
         the bind pose, and the elbows turn out, so the forearms pass outside the hips."""
         back = smooth(t / 0.8)
         down = smooth((t - 0.6) / 1.3)
-        rot, hips = self.body(t, lean=1.0 + 0.2 * down, head=3.0 * down)
+        rot, hips = self.body(t, lean=1.0 + 0.6 * down, head=3.0 * down)
         knuckles, fingers, palms, poles = {}, {}, {}, {}
         for side, start in (('R', self.key(MELODY[0], PRESS)), ('L', self.key(CHORDS[0], PRESS))):
             out = 1.0 if side == 'L' else -1.0
@@ -250,7 +250,7 @@ class Pianist:
             knuckles[side] = p
             fingers[side] = unit(FINGERS * (1 - down) + unit([0.3 * out, -0.35, 1.0]) * down)
             palms[side] = unit(PALM * (1 - down) + unit([0.0, -1.0, -0.25]) * down)
-            poles[side] = unit(POLE[side] * (1 - down) + unit([out, 0.1, -0.5]) * down)
+            poles[side] = unit(POLE[side] * (1 - down) + unit([out, 0.0, -0.25]) * down)
             rot[f'fingers_{side}'] = self.curl(side, 4.0 * (1.0 - down))
         return {'rot': rot, 'hips': hips,
                 'arms': self.arms(rot, hips, knuckles, fingers, palms, poles)}

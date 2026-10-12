@@ -25,7 +25,7 @@ elbow_flex = 40.0
 hip_flex = 70.0
 knee_flex = 70.0
 hip_abduct = 14.0
-correctives = ["arm_down"]
+correctives = ["arm_down", "legs_straight"]
 
 # The bench: its top is under the trunk of the seated pose (seat_height = "legs").
 [[props]]
@@ -41,7 +41,7 @@ material = { roughness = 0.6, specular = 0.3 }
 name = "piano"
 kind = "piano"
 attach = { bone = "scene" }
-piano = { keys_top = 0.34, keys_front = 0.30, keys_depth = 0.11, white_keys = 17, key_width = 0.04, case_length = 0.85, case_width = 0.8, case_height = 0.11, lid_open = 30.0, colors = { case = [24, 22, 26], white = [240, 236, 226], black = [20, 18, 20], metal = [200, 170, 90] } }
+piano = { keys_top = 0.34, keys_front = 0.30, keys_depth = 0.11, white_keys = 17, key_width = 0.04, case_length = 0.85, case_width = 0.8, case_height = 0.11, lid_open = 12.0, colors = { case = [24, 22, 26], white = [240, 236, 226], black = [20, 18, 20], metal = [200, 170, 90] } }
 material = { roughness = 0.3, specular = 0.6 }
 
 [clips]
