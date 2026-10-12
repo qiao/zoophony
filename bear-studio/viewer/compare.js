@@ -34,6 +34,60 @@ function loadImage(url) {
   });
 }
 
+/** Converts sRGB 0..255 to hue (degrees), saturation, and value (0..1). */
+function hsv(r, g, b) {
+  const mx = Math.max(r, g, b);
+  const mn = Math.min(r, g, b);
+  const d = mx - mn;
+  let h = 0;
+  if (d > 0) {
+    if (mx === r) {
+      h = ((g - b) / d) % 6;
+    } else if (mx === g) {
+      h = (b - r) / d + 2;
+    } else {
+      h = (r - g) / d + 4;
+    }
+  }
+  return [(h * 60 + 360) % 360, mx > 0 ? d / mx : 0, mx / 255];
+}
+
+/** Calculates the median hue, saturation, and value of fur pixels (rgba data, mask, rows). */
+function furStats(data, stride, mask, maskStride, maskOffset, rows, width) {
+  const hs = [];
+  const ss = [];
+  const vs = [];
+  for (const y of rows) {
+    for (let x = 0; x < width; x++) {
+      if (!mask[y * maskStride + maskOffset + x]) {
+        continue;
+      }
+      const o = (y * stride + x) * 4;
+      const [h, s, v] = hsv(data[o], data[o + 1], data[o + 2]);
+      // Fur only: no dark claws, no white baton, no gray background at the edges.
+      if (v < 0.18 || s < 0.2) {
+        continue;
+      }
+      hs.push(h);
+      ss.push(s);
+      vs.push(v);
+    }
+  }
+  const med = (a) => Float32Array.from(a).sort()[Math.floor(a.length / 2)];
+  // The lit quarter: the pixels with the highest value.
+  const vCut = Float32Array.from(vs).sort()[Math.floor(vs.length * 0.75)];
+  const litH = hs.filter((_, i) => vs[i] >= vCut);
+  const litS = ss.filter((_, i) => vs[i] >= vCut);
+  return {
+    hue: Number(med(hs).toFixed(1)),
+    sat: Number(med(ss).toFixed(3)),
+    val: Number(med(vs).toFixed(3)),
+    litHue: Number(med(litH).toFixed(1)),
+    litSat: Number(med(litS).toFixed(3)),
+    n: hs.length,
+  };
+}
+
 function canvas2d(w, h) {
   const c = document.createElement('canvas');
   c.width = w;
@@ -58,6 +112,8 @@ const posed = poseAt(bear, clipName, clipTime);
 
 const results = {};
 const tiles = [];
+const faces = {};
+const renders = {};
 for (const [name, view] of Object.entries(VIEWS)) {
   const vm = meta.views[name];
   const [col0, col1] = vm.column;
@@ -158,6 +214,59 @@ for (const [name, view] of Object.entries(VIEWS)) {
   tctx.putImageData(ov, colW * 2, 0);
   tiles.push(tc);
 
+  // A close crop of the head: the sheet and the render side by side, both at 3x.
+  const top = vm.box[1];
+  const headH = Math.round(vm.height_px * 0.3);
+  let hx0 = colW;
+  let hx1 = 0;
+  for (let y = top; y < top + headH; y++) {
+    for (let x = 0; x < colW; x++) {
+      if (ref[y * colW + x]) {
+        hx0 = Math.min(hx0, x);
+        hx1 = Math.max(hx1, x);
+      }
+    }
+  }
+  hx0 = Math.max(0, hx0 - 10);
+  hx1 = Math.min(colW - 1, hx1 + 10);
+  const cw = hx1 - hx0 + 1;
+  const ch = headH + 16;
+  const cy = top - 8 - ROW0;
+  const Z = 3;
+  const [fc, fctx] = canvas2d(cw * Z * 2 + 8, ch * Z);
+  fctx.fillStyle = '#fff';
+  fctx.fillRect(0, 0, fc.width, fc.height);
+  fctx.imageSmoothingQuality = 'high';
+  fctx.drawImage(tc, hx0, cy, cw, ch, 0, 0, cw * Z, ch * Z);
+  fctx.drawImage(tc, colW + hx0, cy, cw, ch, cw * Z + 8, 0, cw * Z, ch * Z);
+  faces[name] = fc.toDataURL('image/png');
+
+  // Close crops of the facets in the front view: the sheet beside the render at 2x.
+  if (name === 'front') {
+    const regions = {
+      chest_belly: [-0.22, 0.3, 0.22, 0.76],
+      shoulder_arm: [-0.43, 0.35, -0.1, 0.76],
+      head: [-0.19, 0.74, 0.19, 1.01],
+    };
+    for (const [rname, [mx0, my0, mx1, my1]] of Object.entries(regions)) {
+      const ax = vm.axis_px - col0;
+      const px0 = Math.round(ax + mx0 * vm.height_px);
+      const px1 = Math.round(ax + mx1 * vm.height_px);
+      const py0 = Math.round(vm.ground_px - my1 * vm.height_px) - ROW0;
+      const py1 = Math.round(vm.ground_px - my0 * vm.height_px) - ROW0;
+      const w = px1 - px0;
+      const h = py1 - py0;
+      const Zf = 2;
+      const [cc, cctx] = canvas2d(w * Zf * 2 + 8, h * Zf);
+      cctx.fillStyle = '#fff';
+      cctx.fillRect(0, 0, cc.width, cc.height);
+      cctx.imageSmoothingQuality = 'high';
+      cctx.drawImage(tc, px0, py0, w, h, 0, 0, w * Zf, h * Zf);
+      cctx.drawImage(tc, colW + px0, py0, w, h, w * Zf + 8, 0, w * Zf, h * Zf);
+      faces[`facets_${rname}`] = cc.toDataURL('image/png');
+    }
+  }
+
   // The mean color of the bear pixels of the reference.
   const [, sctx] = canvas2d(colW, H);
   sctx.drawImage(sheet, col0, 0, colW, H, 0, 0, colW, H);
@@ -176,7 +285,22 @@ for (const [name, view] of Object.entries(VIEWS)) {
     const s = Float32Array.from(arr).sort();
     return [0.1, 0.5, 0.9].map((q) => Math.round(s[Math.floor(q * (s.length - 1))]));
   };
+  // The fur band: heights 0.25 to 0.70 of the bear (the trunk and the arms, no head, no feet).
+  const furRows = [];
+  for (let k = 0.25; k <= 0.7; k += 1 / vm.height_px) {
+    furRows.push(Math.round(vm.ground_px - k * vm.height_px));
+  }
+  const refFur = furStats(sdata, colW, ref, colW, 0, furRows, colW);
+  const [, mfctx] = canvas2d(colW, H);
+  mfctx.fillStyle = `#${SHEET_BACKGROUND.toString(16)}`;
+  mfctx.fillRect(0, 0, colW, H);
+  mfctx.drawImage(rc, ox + best.dx, oy, RENDER * scale, RENDER * scale);
+  const mdat = mfctx.getImageData(0, 0, colW, H).data;
+  const modelFur = furStats(mdat, colW, model, W2, SEARCH - best.dx, furRows, colW);
+  renders[name] = mfctx.canvas.toDataURL('image/png');
   results[name] = {
+    refFurHSV: refFur,
+    modelFurHSV: modelFur,
     iou: Number(best.iou.toFixed(4)),
     dx: best.dx,
     scale: Number(scale.toFixed(4)),
@@ -203,4 +327,4 @@ Object.entries(results).forEach(([name, r], i) => {
   octx.fillText(`${name}  IoU ${r.iou.toFixed(3)}`, (i % 2) * totalW + 8, Math.floor(i / 2) * tileH + 20);
 });
 document.body.append(out);
-window.__compare = { clip: clipName, posed, results, png: out.toDataURL('image/png') };
+window.__compare = { clip: clipName, posed, results, faces, renders, png: out.toDataURL('image/png') };

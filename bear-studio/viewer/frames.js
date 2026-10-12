@@ -28,6 +28,23 @@ const ground = new THREE.Mesh(
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground, bear.root);
+// The wire copies share the geometry and the skeleton of each mesh, so they draw the edges of
+// the posed triangles in the same pass, with a depth test against the faces.
+const wireMaterial = new THREE.MeshBasicMaterial({ color: 0x1a1410, wireframe: true });
+const wires = [];
+for (const m of bear.meshes) {
+  for (const mat of [m.material].flat()) {
+    mat.polygonOffset = true;
+    mat.polygonOffsetFactor = 1;
+    mat.polygonOffsetUnits = 1;
+  }
+  const w = new THREE.SkinnedMesh(m.geometry, wireMaterial);
+  w.bind(m.skeleton, m.bindMatrix);
+  w.frustumCulled = false;
+  w.visible = false;
+  m.parent.add(w);
+  wires.push(w);
+}
 const skeleton = new THREE.SkeletonHelper(bear.root);
 scene.add(skeleton);
 
@@ -51,14 +68,15 @@ function placeCamera(shot) {
   const d = shot.d ?? 3.2;
   const ty = shot.ty ?? 0.52;
   const tz = shot.tz ?? 0;
+  const tx = shot.tx ?? 0;
   camera.fov = shot.fov ?? 22;
   camera.aspect = shot.aspect;
   camera.position.set(
-    -d * Math.sin(az) * Math.cos(el),
+    tx - d * Math.sin(az) * Math.cos(el),
     ty + d * Math.sin(el),
     tz + d * Math.cos(az) * Math.cos(el),
   );
-  camera.lookAt(0, ty, tz);
+  camera.lookAt(tx, ty, tz);
   camera.updateProjectionMatrix();
 }
 
@@ -103,6 +121,9 @@ window.renderSheet = (shots, { cols = 4, w = 360, h = 420 } = {}) => {
     }
     poseAt(bear, shot.clip, shot.t);
     lights.aim(camera);
+    for (const w of wires) {
+      w.visible = Boolean(shot.wire);
+    }
     renderer.render(scene, camera);
     const x = (i % cols) * w;
     const y = Math.floor(i / cols) * h;

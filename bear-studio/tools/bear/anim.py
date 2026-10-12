@@ -104,16 +104,19 @@ def write_action(arm, name, poses):
 
 
 def bake_all(arm, layout_bones, only=None):
-    """Bakes every clip and the performance into actions."""
+    """Bakes every clip and the performance into actions.
+
+    Returns ({clip: list of sampled poses}, skeleton). The samples are the keys of the actions.
+    """
     skel = skeleton_of(arm, layout_bones)
-    names = []
+    samples = {}
     for name, (fn, duration) in motion.CLIPS.items():
         if only and name not in only:
             continue
-        write_action(arm, name, sample_clip(skel, fn, duration))
-        names.append(name)
+        samples[name] = sample_clip(skel, fn, duration)
     if not only or 'performance' in only:
-        write_action(arm, 'performance', sample_performance(skel))
-        names.append('performance')
+        samples['performance'] = sample_performance(skel)
+    for name, poses in samples.items():
+        write_action(arm, name, poses)
     bpy.context.scene.render.fps = motion.FPS
-    return names, skel
+    return samples, skel
