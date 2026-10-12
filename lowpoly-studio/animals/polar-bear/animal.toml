@@ -13,7 +13,7 @@
 id = "polar-bear"
 name = "Polar Bear"
 template = "biped"
-role = "conductor"
+role = "pianist"
 
 # The reference sheet: four views of one pose on one plain background.
 [sheet]
