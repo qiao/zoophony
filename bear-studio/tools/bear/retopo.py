@@ -45,7 +45,7 @@ WARPS = [
 
 def joint_skin(points):
     """Marks the skin around the joints that bend far: the shoulders, the elbows, the wrists
-    (bind pose), and the crotch. The organic pass leaves it alone."""
+    (bind pose), and the crotch, and the snout. The organic pass leaves it alone."""
     p = np.asarray(points, float)
     joints, _ = body.arm_pose('bind')
     out = np.zeros(len(p), bool)
@@ -54,6 +54,8 @@ def joint_skin(points):
             c = joints[name] * np.array([side, 1.0, 1.0])
             out |= np.linalg.norm(p - c, axis=1) < radius
     out |= (np.abs(p[:, 0]) < 0.09) & (p[:, 1] < 0.21) & (p[:, 1] > 0.06)
+    # The snout keeps the rings of the remesh, so it reads round and smooth, as on the sheet.
+    out |= body.snout(p) < 0.012
     return out
 
 
@@ -270,6 +272,48 @@ def chevron_triangles(v, polys):
     return np.array(tris, np.int64)
 
 
+def inward_faces(parts, v, tris, limit=-0.3):
+    """Lists the faces whose normal points into the body (the field grows the other way)."""
+    a, b, c = v[tris[:, 0]], v[tris[:, 1]], v[tris[:, 2]]
+    n = np.cross(b - a, c - a)
+    n /= np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)
+    centers = (a + b + c) / 3.0
+    eps = 0.002
+    grad = np.stack([body.field_at(parts, centers + eps * e) - body.field_at(parts, centers - eps * e)
+                     for e in np.eye(3)], axis=1)
+    grad /= np.maximum(np.linalg.norm(grad, axis=1, keepdims=True), 1e-9)
+    return np.nonzero(np.sum(n * grad, axis=1) < limit)[0]
+
+
+def untangle(parts, v, tris, pairs, rounds=5, amount=0.6):
+    """Moves the corners of each face that points into the body toward the middle of their
+    neighbors, on the surface, with the mirror kept.
+
+    The snap onto the surface, the relaxation, and the jitter can turn a face inside out where
+    the surface curves hard: the crown of the dome, the crotch, and the groove under the head.
+    Returns (verts, the inward faces before, the inward faces after).
+    """
+    v = np.array(v, float)
+    nb = [set() for _ in range(len(v))]
+    for a, b, c in tris:
+        nb[a].update((b, c))
+        nb[b].update((a, c))
+        nb[c].update((a, b))
+    before = len(inward_faces(parts, v, tris))
+    for _ in range(rounds):
+        bad = inward_faces(parts, v, tris)
+        if len(bad) == 0:
+            break
+        idx = set(int(i) for i in np.unique(tris[bad]))
+        idx |= {int(pairs[i]) for i in list(idx) if pairs[i] >= 0}
+        idx = sorted(idx)
+        mid = np.array([v[list(nb[i])].mean(axis=0) for i in idx])
+        v[idx] = project(parts, v[idx] + amount * (mid - v[idx]))
+        v = symmetrize(v, pairs)
+    after = len(inward_faces(parts, v, tris))
+    return v, before, after
+
+
 def remesh(parts, verts, quads, target_quads, seed=1, jitter_amount=0.005, jitter_depth=0.0):
     """Makes the aligned low-poly body from the dense field mesh. Returns the object."""
     # 1. Warp, so that the head gets more quads.
@@ -337,11 +381,31 @@ def remesh(parts, verts, quads, target_quads, seed=1, jitter_amount=0.005, jitte
         local = np.clip(sums / np.maximum(counts_v, 1) / edge_t, 0.3, 1.5)
         v = jitter(parts, v, pairs, jitter_amount, jitter_depth, local)
 
+    # 5. No slivers: they turn over at the first bend of a joint (organic.clean_slivers).
+    v, tris, pairs, slivers_before, slivers_after = organic.clean_slivers(v, tris, pairs, onto)
+    counts['slivers_cleaned'] = [slivers_before, slivers_after]
+
+    # 6. No face that points into the body (untangle).
+    v, inward_before, inward_after = untangle(parts, v, tris, pairs)
+    counts['inward_faces'] = [inward_before, inward_after]
+
     out = mesh.new_mesh_object('Bear', mesh.to_blender(v), tris)
     out.data.validate()
     bm = bmesh.new()
     bm.from_mesh(out.data)
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    # recalc_face_normals can turn a whole mesh inward. The field says where outside is: when
+    # most faces point into the body, all of them turn over.
+    bm.faces.ensure_lookup_table()
+    centers = np.array([tuple(f.calc_center_median()) for f in bm.faces])
+    normals = np.array([tuple(f.normal) for f in bm.faces])
+    centers = mesh.from_blender(centers)
+    normals = mesh.from_blender(normals)
+    eps = 0.002
+    grad = np.stack([body.field_at(parts, centers + eps * e) - body.field_at(parts, centers - eps * e)
+                     for e in np.eye(3)], axis=1)
+    if np.mean(np.sum(grad * normals, axis=1) < 0) > 0.5:
+        bmesh.ops.reverse_faces(bm, faces=bm.faces)
     bm.to_mesh(out.data)
     bm.free()
     info = {'quads': n_quads, 'unpaired_vertices': unpaired,

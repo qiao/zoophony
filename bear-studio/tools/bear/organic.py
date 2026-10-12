@@ -235,6 +235,43 @@ def organize(verts, tris, mirror, project, rng, collapse_share=0.12, flip_share=
     return v, t, m, {'collapsed_pairs': collapsed, 'flipped_pairs': flipped}
 
 
+def clean_slivers(verts, tris, mirror, project, limit=15.0, rounds=3):
+    """Removes the slivers: faces with an angle under limit (degrees), mirrored.
+
+    The snap onto the surface and the jitter can squeeze a face in a deep crease (under the
+    raised arm) into a sliver. Its normal is unstable, so it turns over at the first bend of a
+    joint, and no weight smoothing helps. Each sliver flips its longest edge when that gives
+    better faces, or else collapses its shortest edge.
+    Returns (verts, tris, mirror, the slivers before, the slivers after).
+    """
+    mesh = Mesh(verts, tris, mirror)
+
+    def slivers():
+        out = []
+        for i, t in enumerate(mesh.f):
+            if mesh.alive[i] and _min_angle(*mesh.v[t]) < limit:
+                out.append(i)
+        return out
+
+    before = len(slivers())
+    for _ in range(rounds):
+        for i in slivers():
+            if not mesh.alive[i]:
+                continue
+            t = mesh.f[i]
+            if _min_angle(*mesh.v[t]) >= limit:
+                continue
+            edges = sorted(((t[k], t[(k + 1) % 3]) for k in range(3)),
+                           key=lambda e: np.linalg.norm(mesh.v[e[0]] - mesh.v[e[1]]))
+            longest, shortest = edges[-1], edges[0]
+            if mesh.flip(*longest, min_angle=limit, max_turn=0.5):
+                continue
+            mesh.collapse(*shortest, project, min_angle=limit, max_turn=0.5)
+    after = len(slivers())
+    v, t, m = mesh.compact()
+    return v, t, m, before, after
+
+
 def relax(verts, tris, mirror, project, amount=0.25, rounds=2):
     """Moves each vertex part of the way to the middle of its neighbors, along the surface."""
     v = np.array(verts, float)
