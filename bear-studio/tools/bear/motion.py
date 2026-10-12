@@ -179,7 +179,7 @@ def clip_ready(t):
     lift = 0.004 * b
     arms = {
         'R': {'wrist': np.array([-0.205, 0.655 + lift, 0.275]), 'pole': POLE_R,
-              'hand': ('baton', unit([0.12, 1.0, 0.75]), unit([1.0, -0.15, 0.1])), 'twist': 0.5},
+              'hand': ('baton', unit([-0.15, 0.85, 0.9]), unit([1.0, -0.15, 0.1])), 'twist': 0.5},
         'L': {'wrist': np.array([0.21, 0.645 + lift, 0.27]), 'pole': POLE_L,
               'hand': ('fingers', unit([-0.2, 0.5, 1.0]), unit([-1.0, -0.1, 0.25])),
               'twist': 0.5},

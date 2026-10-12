@@ -40,6 +40,16 @@ function motionShots() {
       { clip: 'ready', t: 1, ...Q, label: 'ready, 3/4' },
       { clip: 'ready', t: 1, ...Q, bones: true, label: 'ready, bones' },
     ],
+    deform: [
+      { clip: 'crescendo', t: 3.9, az: -35, el: 15, d: 1.3, ty: 0.68, tz: 0.1, fov: 28, label: 'crescendo high: left shoulder' },
+      { clip: 'cue_left', t: 2.1, az: -110, el: 15, d: 1.3, ty: 0.66, fov: 28, label: 'cue: left shoulder, behind' },
+      { clip: 'cutoff', t: 0.5, az: 0, el: 30, d: 1.4, ty: 0.68, tz: 0.1, fov: 28, label: 'cutoff lift: shoulders' },
+      { clip: 'cutoff', t: 2.5, az: -40, el: 5, d: 1.0, ty: 0.62, tz: 0.25, fov: 28, label: 'cutoff hold: closed left paw' },
+      { clip: 'hush', t: 3.8, az: -70, el: 10, d: 1.3, ty: 0.6, tz: 0.1, fov: 28, label: 'hush: left elbow' },
+      { clip: 'beat_4_4', t: 2.0, az: 110, el: 10, d: 1.3, ty: 0.62, tz: 0.1, fov: 28, label: 'beat 3: right elbow' },
+      { clip: 'bow', t: 2.0, az: 60, el: 10, d: 1.6, ty: 0.45, fov: 28, label: 'bow: belly and hips' },
+      { clip: 'reference', t: 0, az: 150, el: 15, d: 1.6, ty: 0.55, fov: 28, label: 'sheet pose: back (bound with arms up)' },
+    ],
     pattern: [
       { clip: 'beat_4_4', t: 3.99, az: 165, el: 45, d: 1.7, ty: 0.75, tz: 0.25, fov: 30, trail: [0, 3.99], ictus: [0, 1, 2, 3], label: '4/4 tip path, over the shoulder' },
       { clip: 'beat_4_4', t: 3.99, az: 0, el: 0, d: 2.2, ty: 0.62, tz: 0.2, fov: 24, trail: [0, 3.99], ictus: [0, 1, 2, 3], label: '4/4 tip path, orchestra view' },

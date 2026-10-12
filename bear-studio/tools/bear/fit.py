@@ -51,7 +51,11 @@ def main():
     ap.add_argument('--pose', default='reference')
     ap.add_argument('--azimuths', default='')
     ap.add_argument('--rows', action='store_true', help='print the edges of each row')
-    argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else sys.argv[1:]
+    if '--' in sys.argv:
+        argv = sys.argv[sys.argv.index('--') + 1:]
+    else:
+        # Inside Blender, the arguments before '--' belong to Blender.
+        argv = [] if hasattr(sys.modules.get('bpy'), 'app') else sys.argv[1:]
     args = ap.parse_args(argv)
 
     t0 = time.time()

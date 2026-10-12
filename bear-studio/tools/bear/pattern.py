@@ -89,7 +89,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--clip', default='beat_4_4')
     ap.add_argument('--bars', type=int, default=1)
-    argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else sys.argv[1:]
+    if '--' in sys.argv:
+        argv = sys.argv[sys.argv.index('--') + 1:]
+    else:
+        # Inside Blender, the arguments before '--' belong to Blender.
+        argv = [] if hasattr(sys.modules.get('bpy'), 'app') else sys.argv[1:]
     args = ap.parse_args(argv)
     skel, bones = skeleton_from_layout()
     fn = motion.CLIPS[args.clip][0]

@@ -27,4 +27,5 @@ node tools/shoot.mjs compare
 
 echo '[4/4] motion frames and the 4/4 path of the baton tip'
 node tools/shoot.mjs frames
-"$BLENDER" -b --factory-startup --python tools/bear/pattern.py 2>&1 | grep -E '^(beat|wrote)|Error' || true
+node tools/shoot.mjs viewer
+"$BLENDER" -b --factory-startup --python tools/bear/pattern.py -- 2>&1 | grep -E '^(beat|wrote)|Error' || true
