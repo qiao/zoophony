@@ -288,6 +288,19 @@ FACETS = T('The low-poly facets: QuadriFlow remesh with mirror, then the organic
     'jitter_seed': F('int', 'Seed of the jitter.', default=11),
     'dense_faces': F('int', 'The dense mesh is decimated to this face count before QuadriFlow.',
                      default=60000),
+    'gate': T('The remesh gate (studio/remesh.py): a seed that fails it stops at once, and the '
+              'seed search tries the next seed.', {
+        'quads': F('num', 'Largest share by which the QuadriFlow quad count may differ from '
+                          'facets.quads.', default=0.15),
+        'inward_faces': F('int', 'Most faces of the body mesh that point into the body.',
+                          default=0),
+        'slivers': F('num', 'Largest share of slivers (smallest angle under 15 degrees) in the '
+                            'body mesh.', default=0.01),
+        'slit_gap': F('num', 'A face whose outward ray meets the body within this share of the '
+                             'median edge, across a gap whose middle is inside the field, is in '
+                             'a slit.', default=1.0),
+        'slit_faces': F('int', 'Most faces in a slit.', default=0),
+    }),
     'protect': T('The skin that the organic pass leaves alone (it bends far, or it must stay '
                  'round).', {
         'joints': M('Radius of the protected ball around each named joint of the bind pose '

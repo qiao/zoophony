@@ -855,6 +855,18 @@ The radial warps, applied in this order after the squeeze.
 | `factor` | num | required | Scale at the center. |
 | `mirror` | bool | `false` | Also add the mirrored warp (x -> -x) right after this one. |
 
+#### `[facets.gate]`
+
+The remesh gate (studio/remesh.py): a seed that fails it stops at once, and the seed search tries the next seed.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `quads` | num | `0.15` | Largest share by which the QuadriFlow quad count may differ from facets.quads. |
+| `inward_faces` | int | `0` | Most faces of the body mesh that point into the body. |
+| `slivers` | num | `0.01` | Largest share of slivers (smallest angle under 15 degrees) in the body mesh. |
+| `slit_gap` | num | `1.0` | A face whose outward ray meets the body within this share of the median edge, across a gap whose middle is inside the field, is in a slit. |
+| `slit_faces` | int | `0` | Most faces in a slit. |
+
 #### `[facets.protect]`
 
 The skin that the organic pass leaves alone (it bends far, or it must stay round).

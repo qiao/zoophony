@@ -21,6 +21,8 @@ Steps (Blender and numpy):
 import bmesh
 import bpy
 import numpy as np
+from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 
 from studio import mesh, organic
 from studio.field import field_at, field_gradient
@@ -394,3 +396,80 @@ def triangle_quality(v, tris):
         angles.append(np.degrees(np.arccos(np.clip(cos, -1, 1))))
     smallest = np.min(np.stack(angles, axis=1), axis=1)
     return float(np.mean(smallest < 15.0)), float(np.median(smallest))
+
+
+def open_edges(tris):
+    """Counts the edges that do not have exactly two faces (a hole, a crack, or a fin)."""
+    edges = np.sort(np.concatenate([tris[:, [0, 1]], tris[:, [1, 2]], tris[:, [2, 0]]]), axis=1)
+    _, counts = np.unique(edges, axis=0, return_counts=True)
+    return int(np.sum(counts != 2))
+
+
+def slit_faces(parts, v, tris, gap):
+    """Lists the faces that look onto the body across a gap that the field does not have.
+
+    A ray goes out from the center of each face along its normal (the faces point out). When it
+    meets another face of the body within gap, and the middle of that gap is inside the field,
+    the mesh folds into the body there: a slit, or an undercut that the remesh could not follow.
+    A gap between two parts (an arm and the trunk) is outside the field, so it is no slit.
+    Returns (faces, the smallest gap of a slit face, or None).
+    """
+    tree = BVHTree.FromPolygons([Vector(p) for p in v], tris.tolist(), all_triangles=True)
+    a, b, c = v[tris[:, 0]], v[tris[:, 1]], v[tris[:, 2]]
+    n = np.cross(b - a, c - a)
+    n /= np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)
+    centers = (a + b + c) / 3.0
+    start = 1e-3 * gap
+    hits = []
+    for f, (p, d) in enumerate(zip(centers, n)):
+        hit = tree.ray_cast(Vector(p + start * d), Vector(d), gap)
+        if hit[0] is not None and hit[2] != f:
+            hits.append((f, start + hit[3]))
+    if not hits:
+        return [], None
+    faces = np.array([f for f, _ in hits])
+    dist = np.array([t for _, t in hits])
+    middle = centers[faces] + 0.5 * dist[:, None] * n[faces]
+    inside = field_at(parts, middle) < 0.0
+    return [int(f) for f in faces[inside]], (float(dist[inside].min()) if inside.any() else None)
+
+
+def gate_quads(cfg, info):
+    """The first part of the remesh gate, right after QuadriFlow: the quad count must be within
+    facets.gate.quads of facets.quads. Returns the list of gate checks."""
+    g = cfg.facets.gate
+    target = cfg.facets.quads
+    limit = [round(target * (1.0 - g.quads)), round(target * (1.0 + g.quads))]
+    q = info['quads']
+    return [{'name': 'quads', 'value': q, 'op': 'in', 'limit': limit,
+             'pass': limit[0] <= q <= limit[1]}]
+
+
+def gate_mesh(cfg, parts, v, tris, height_px):
+    """The second part of the remesh gate, on the body mesh after the organic pass and the
+    cleanup: no face that points into the body, few slivers, no hole, and no slit.
+
+    parts: the parts of the surface field. Returns the list of gate checks; a slit check has
+    the faces of the slit and the smallest gap (in pixels of the sheet).
+    """
+    g = cfg.facets.gate
+    inward = inward_faces(parts, v, tris)
+    slivers, _ = triangle_quality(v, tris)
+    edge = float(np.median(np.linalg.norm(v[tris[:, 0]] - v[tris[:, 1]], axis=1)))
+    slits, smallest = slit_faces(parts, v, tris, g.slit_gap * edge)
+    out = [
+        {'name': 'inward_faces', 'value': len(inward), 'op': '<=', 'limit': g.inward_faces,
+         'pass': len(inward) <= g.inward_faces},
+        {'name': 'slivers', 'value': round(slivers, 4), 'op': '<=', 'limit': g.slivers,
+         'pass': slivers <= g.slivers},
+        {'name': 'open_edges', 'value': open_edges(tris), 'op': '<=', 'limit': 0},
+        {'name': 'slit_faces', 'value': len(slits), 'op': '<=', 'limit': g.slit_faces},
+    ]
+    out[2]['pass'] = out[2]['value'] <= 0
+    out[3]['pass'] = len(slits) <= g.slit_faces
+    if inward.size:
+        out[0]['where'] = {'faces': [int(f) for f in inward[:20]]}
+    if slits:
+        out[3]['where'] = {'faces': slits[:20],
+                           'smallest_gap_px': round(smallest * height_px, 2)}
+    return out
