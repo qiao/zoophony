@@ -1,0 +1,72 @@
+# The pianist role: a seated animal plays a grand piano. The right paw plays a melody along the
+# keys, the left paw plays chords.
+#
+# A role pack is one folder under roles/: this file (the data, checked against the schema "ROLE"
+# of studio/schema.py) and __init__.py (the clips as functions of time). See the section "Role
+# packs" of README.md.
+
+[role]
+name = "pianist"
+template = "biped"
+stance = "seated"
+doc = "Sits on a bench at a grand piano, plays a melody and chords, strikes a big chord, and rests."
+
+# The bind pose: the legs bent for the seat, the arms forward between the keys (about 62 degrees)
+# and the rest on the knees (about 22 degrees). The mesh is built and bound in this pose, so the
+# seated clips stay near it. The thighs slope down 20 degrees: a short
+# leg with a low trunk needs it to put the feet on the floor and the trunk on a seat above it
+# (studio/props.py scene_layout). The clips lean the trunk forward 12 degrees, so the angle
+# between the trunk and the thighs is about 90 degrees. The knees turn out 14 degrees: with the
+# thighs side by side, the field leaves a slit between them, which the remesh gate stops.
+[bind]
+shoulder_flex = 42.0
+shoulder_abduct = 8.0
+elbow_flex = 40.0
+hip_flex = 70.0
+knee_flex = 70.0
+hip_abduct = 14.0
+correctives = ["arm_down"]
+
+# The bench: its top is under the trunk of the seated pose (seat_height = "legs").
+[[props]]
+name = "bench"
+kind = "bench"
+attach = { bone = "scene", seat_height = "legs" }
+bench = { width = 0.42, depth = 0.17, center_z = -0.065, top_thickness = 0.025, colors = { top = [52, 40, 36], legs = [30, 24, 22] } }
+material = { roughness = 0.6, specular = 0.3 }
+
+# The grand piano: the keyboard runs across the front of the belly at the height of the
+# forearms of the seated pose, 17 white keys from C (about 2.5 octaves).
+[[props]]
+name = "piano"
+kind = "piano"
+attach = { bone = "scene" }
+piano = { keys_top = 0.34, keys_front = 0.30, keys_depth = 0.11, white_keys = 17, key_width = 0.04, case_length = 0.85, case_width = 0.8, case_height = 0.11, lid_open = 30.0, colors = { case = [24, 22, 26], white = [240, 236, 226], black = [20, 18, 20], metal = [200, 170, 90] } }
+material = { roughness = 0.3, specular = 0.6 }
+
+[clips]
+fps = 30
+
+[clips.notes]
+performance = "All clips in order: ready, play two times, the big chord, rest."
+reference = "The pose of the reference sheet (standing, arms down). The compare tool uses it."
+ready = "Seated at the piano, both paws above the keys."
+play = "Two bars at 120 bpm: the right paw plays a melody, the left paw plays chords (a loop)."
+chord = "Both paws rise, strike a big chord, and lift with the head."
+rest = "The paws come down from the keys to the thighs."
+
+# The pianist makes its targets on the body of the animal (from the scene layout), so the body of
+# the targets is not used. These are the values of the polar bear.
+[targets]
+shoulder = [0.155, 0.662, 0.015]
+reach = 0.3138
+
+[checks]
+contact_depth = 0.01
+contact_tests = ["paw", "forearm", "claws"]
+scene_depth = 0.01
+seat_gap = 0.015
+hand_targets = 0.01
+
+[review]
+shots = "shots.json"
