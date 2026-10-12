@@ -43,43 +43,43 @@
   },
   "render_front.png": {
     "belly_contrast": {
-      "luma_std": 17.44,
-      "fine_std": 4.06,
-      "luma_mean": 96.6
+      "luma_std": 17.19,
+      "fine_std": 3.99,
+      "luma_mean": 96.4
     },
-    "mean_chord_px": 33.0,
+    "mean_chord_px": 34.5,
     "chord_quartiles_px": [
-      6.5,
-      26.5,
-      49.5
+      10.5,
+      27.0,
+      39.0
     ],
-    "edge_length_estimate_px": 72.7,
-    "facets_across_belly": 5.4,
+    "edge_length_estimate_px": 76.2,
+    "facets_across_belly": 4.8,
     "facets_along_arm": 6,
     "edge_directions_0_30_60_90_120_150": {
       "belly": [
-        0.309,
-        0.088,
-        0.107,
-        0.188,
+        0.308,
         0.084,
-        0.224
+        0.107,
+        0.173,
+        0.082,
+        0.245
       ],
       "chest": [
-        0.266,
-        0.053,
-        0.182,
-        0.236,
-        0.033,
-        0.229
+        0.283,
+        0.051,
+        0.174,
+        0.235,
+        0.037,
+        0.219
       ],
       "arm": [
-        0.016,
-        0.005,
-        0.054,
-        0.302,
-        0.615,
-        0.009
+        0.013,
+        0.025,
+        0.083,
+        0.283,
+        0.561,
+        0.035
       ]
     }
   }

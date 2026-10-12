@@ -74,6 +74,7 @@
       0.7
     ],
     "headShare": 0.3,
+    "furMinSaturation": 0.2,
     "facetCrops": {
       "chest_belly": [
         -0.22,

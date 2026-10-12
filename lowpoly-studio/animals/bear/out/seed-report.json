@@ -1,0 +1,146 @@
+{
+  "animal": "bear",
+  "role": "conductor",
+  "run": "20261012-080210-66246",
+  "made": "2026-10-12T08:03:24-0700",
+  "role_key": "08aa2288fe55721a",
+  "reason": "--all-seeds",
+  "require": "kept",
+  "kept": 3,
+  "robust": true,
+  "rule_pass": true,
+  "meshes": 5,
+  "robust_seeds": 5,
+  "seeds": [
+    {
+      "seed": 3,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "beat_4_4": [],
+        "cue_left": [],
+        "crescendo": [],
+        "hush": [],
+        "cutoff": [],
+        "nod_turn": [],
+        "sway_dip": [],
+        "bow": [],
+        "performance": []
+      }
+    },
+    {
+      "seed": 1,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "beat_4_4": [],
+        "cue_left": [],
+        "crescendo": [],
+        "hush": [],
+        "cutoff": [],
+        "nod_turn": [],
+        "sway_dip": [],
+        "bow": [],
+        "performance": []
+      }
+    },
+    {
+      "seed": 5,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "beat_4_4": [],
+        "cue_left": [],
+        "crescendo": [],
+        "hush": [],
+        "cutoff": [],
+        "nod_turn": [],
+        "sway_dip": [],
+        "bow": [],
+        "performance": []
+      }
+    },
+    {
+      "seed": 6,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "beat_4_4": [],
+        "cue_left": [],
+        "crescendo": [],
+        "hush": [],
+        "cutoff": [],
+        "nod_turn": [],
+        "sway_dip": [],
+        "bow": [],
+        "performance": []
+      }
+    },
+    {
+      "seed": 2,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "quads 1036"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 4,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slit_faces 1"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 7,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "beat_4_4": [],
+        "cue_left": [],
+        "crescendo": [],
+        "hush": [],
+        "cutoff": [],
+        "nod_turn": [],
+        "sway_dip": [],
+        "bow": [],
+        "performance": []
+      }
+    },
+    {
+      "seed": 8,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slit_faces 4"
+      ],
+      "clips": {}
+    }
+  ]
+}
