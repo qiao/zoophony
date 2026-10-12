@@ -50,7 +50,9 @@ for (const m of model.meshes) {
   }
   w.frustumCulled = false;
   w.visible = false;
-  m.parent.add(w);
+  // A skinned copy follows the skeleton beside the mesh. A plain mesh (a prop node, a piano key)
+  // carries its copy, so the copy moves with the node.
+  (m.isSkinnedMesh ? m.parent : m).add(w);
   wires.push(w);
 }
 const skeleton = new THREE.SkeletonHelper(model.root);
