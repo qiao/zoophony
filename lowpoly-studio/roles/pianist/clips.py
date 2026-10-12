@@ -163,7 +163,7 @@ class Paw:
         return point - (self.tip(Dh, np.zeros(3), k, curl))
 
     def curl_for(self, Dh, wrist, k, y):
-        """Solves the curl of digit k that puts its claw tip at the height y (bisection; the tip
+        """Solves the curl of digit k that puts its claw tip at the height y, by bisection (the tip
         goes down as the curl grows)."""
         lo, hi = -40.0, 80.0
         for _ in range(30):

@@ -92,7 +92,7 @@ def case_outline(c):
     def at(x, z):
         return (-x * sx, back + (-z - CASE_FRONT) * sz)
 
-    # The outline of the app runs counterclockwise from above in its axes; the mirror in both x
+    # The outline of the app runs counterclockwise from above in its axes. The mirror in both x
     # and z is a half turn about y, so it stays counterclockwise.
     return np.array([at(x, z) for x, z in CASE_OUTLINE]), np.array(at(*CASE_CENTER)), at
 

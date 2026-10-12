@@ -1,6 +1,6 @@
 """The props of a role (role.toml [[props]]): sized from the body, built by the prop library.
 
-numpy only. The library (props/ beside studio/) builds the meshes; this module reads the config of
+numpy only. The library (props/ beside studio/) builds the meshes. This module reads the config of
 each prop, takes its sizes from the body, and gives the build what it needs.
 
 A hand prop (attach.bone = "hand") sits on a bone of its own, a child of a hand, and its mesh is
