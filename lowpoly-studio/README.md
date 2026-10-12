@@ -33,6 +33,8 @@ python3 studio calibrate fox --from bear   # light, palette, dark classes from t
 python3 studio calibrate fox --quads --no-look   # the QuadriFlow target (about 30 s)
 python3 studio regress polar-bear    # the polar bear pianist: build and compare
 python3 -m unittest tests.test_intake   # the tests of the foreground rules (about 13 s)
+python3 -m unittest tests.test_cache    # the cache keys hold no worktree folder (about 8 s)
+python3 -m unittest tests.test_consistency   # the sheet check reads no config class (about 2 s)
 ```
 
 All worktrees of the repository share the stage cache and the run files in
@@ -101,7 +103,9 @@ lowpoly-studio/
 ├── animals/bear/        animal.toml, golden.json, README.md, reference/, out/ (out/model/,
 │                        out/seeds/, and out/stages/ are ignored by git)
 ├── animals/polar-bear/  animal.toml, golden.json, reference/, out/ (the pianist)
-├── tests/               test_intake.py: the foreground rules (python3 -m unittest)
+├── tests/               test_intake.py: the foreground rules; test_cache.py and
+│                        setup_keys.py: the cache keys; test_consistency.py: the sheet
+│                        check (python3 -m unittest)
 ├── docs/                handoff.md, handoff-diag.md, handoff-speed.md, handoff-pilot.md,
 │                        handoff-runtime.md, handoff-intake.md (the state of the work),
 │                        sheet-spec.md (the rules of a reference sheet), brief-template.md
@@ -865,6 +869,11 @@ Rules for new stage code (`studio/cache.py` has the details):
   the two run together or come from the cache together.
 - A live object that keeps config values from one stage for another stage hides those reads
   from the cache. Make such a memo in the setup or inside one stage.
+- Read the single fields that a stage or a setup value needs. A key holds no path of the studio
+  folder, because such a path differs in each worktree. A read of a whole table records the
+  whole table, but its digest leaves out the untracked tables (`cfg.paths`, `cfg.role.paths`).
+  A truth test (`if cfg.role:`) records only whether the table has a key. The manifest refuses a
+  read whose value holds a path in the studio folder, with an error that names the read.
 
 An edit of a studio file runs again each stage that ran code of that file. For example, an edit
 of `studio/remesh.py` runs the remesh and the organic pass again (about 18 s). An animal holds
@@ -894,6 +903,19 @@ The shared cache in a new worktree (2026-10-12, another worktree filled the cach
 |---|---|---|
 | `build bear --seed 3 --no-shots` | 55.1 s | 4.0 s (the same GLB bytes) |
 | `build bear --all-seeds --no-shots` (8 seeds) | 76.1 s | 8.9 s |
+
+From 5d796dc7 to the fix of 2026-10-12, a new worktree missed the shared cache. The body setup
+tested the role table for truth, and the key recorded the whole table with its absolute folders.
+The same read kept the model build from the stages of the conductor build. `tests/test_cache.py`
+guards the keys: two studio folders give the same setup keys, and the conductor build and the
+model build share the keys of the model stages. The times of the fix (2026-10-12, from
+`python3 studio log`):
+
+| Case | Before (main fda4d55f) | After |
+|---|---|---|
+| `build bear --seed 3 --no-shots`, first build in a new worktree | 52.2 s, 1 of 13 steps from the cache | 3.9 s, 8 of 13 |
+| `build polar-bear --seed 1 --no-shots`, first build in a new worktree | 49.6 s, 1 of 13 | 7.3 s, 8 of 13 |
+| the model build of `compare bear` after a conductor build | 20.6 s | 1.8 s (field, remesh, and organic from the conductor build) |
 
 ### The seed pool
 
