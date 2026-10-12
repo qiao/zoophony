@@ -6,7 +6,7 @@
     python3 studio view <animal> [--port N]
     python3 studio new <animal> --sheet <png> [--role R] [--like A] [--force]
     python3 studio regress <animal> [--no-build] [--no-cache] [--write --from DIR]
-    python3 studio fit <animal> [--rows]
+    python3 studio fit <animal> [--rows] [--azimuths a,b,c] [--pose bind]
     python3 studio report <animal> [--out DIR] [--measure] [--no-serve] [--port N]
     python3 studio schema [--role] [--readme]
     python3 studio cache info|clean [<animal>]
@@ -733,8 +733,8 @@ def start_animal(new_id):
 def cmd_new(a):
     """studio new: scaffolds animals/<animal>/ with a config of TODO fields and the sheet."""
     from studio.schema import SCHEMA  # noqa: PLC0415
-    if not re.fullmatch(r'[a-z][a-z0-9_]*', a.animal):
-        fail('the animal id is lower case letters, digits, and underscores')
+    if not re.fullmatch(r'[a-z][a-z0-9_-]*', a.animal):
+        fail('the animal id is lower case letters, digits, hyphens, and underscores')
     root = config.animal_dir(a.animal)
     if os.path.exists(os.path.join(root, 'animal.toml')) and not a.force:
         fail(f'{root}/animal.toml exists (use --force to write over it)')
@@ -759,7 +759,7 @@ def cmd_new(a):
         views[n] = v
     src = a.like or start_animal(a.animal)
     start = config.load(src)
-    filled = {'animal.id': a.animal, 'animal.name': a.animal.replace('_', ' ').title(),
+    filled = {'animal.id': a.animal, 'animal.name': re.sub('[_-]', ' ', a.animal).title(),
               'animal.role': a.role, 'sheet.image': f'reference/{name}', 'sheet.background': bg,
               'sheet.views': views, '_start': src}
     for n, v in views.items():
@@ -829,6 +829,10 @@ def cmd_fit(a):
     t = time.time()
     timer.step('intake', time.time() - t, step_intake(cfg))
     args = [cfg.paths.root, '--out', cfg.paths.out] + (['--rows'] if a.rows else [])
+    if a.azimuths:
+        args += ['--azimuths', a.azimuths]
+    if a.pose != 'reference':
+        args += ['--pose', a.pose]
     t = time.time()
     code, lines = blender('studio/fit.py', args, os.path.join(cfg.paths.out, 'fit.log'))
     timer.step('fit', time.time() - t)
@@ -1005,6 +1009,9 @@ def main(argv=None):
     p.add_argument('animal')
     p.add_argument('--out', default=None)
     p.add_argument('--rows', action='store_true')
+    p.add_argument('--azimuths', default='',
+                   help='try these azimuths of the 3/4 view (a,b,c) and keep the best')
+    p.add_argument('--pose', default='reference', help='the pose of the field: reference or bind')
     p.set_defaults(fn=cmd_fit)
     p = sub.add_parser('report', help='write the look report of the last build and serve it')
     p.add_argument('animal')
