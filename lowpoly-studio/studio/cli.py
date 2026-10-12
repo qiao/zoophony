@@ -66,13 +66,18 @@ needs a crop of the sheet):
     inner ear, claws), the eye style (outline, white rim, iris, highlight), the head shape, the
     snout, the ears, symmetry, and "no folds at any seed".
  4. The role and its stance (role packs under roles/), and the props.
- 5. Measure the sheet in animal heights (the soles to the ear tops = 1) and fill each "TODO"
-    of animal.toml: the trunk and the head lofts, the snout, the ears, the tail, the arm and
-    the leg joints, the spine, the eyes, the nose, the mouth, the palette, and the rig places.
+ 5. Read the sheet check above (out/sheet-check.json): each warning names the build checks that
+    the sheet can fail. Ask the user about a fault of the sheet before the work starts.
+ 6. Calibrate the look from the sheet: python3 studio calibrate <animal> --from <like animal>
+    (the light, the palette, the dark classes; about 6 s), and the QuadriFlow target:
+    python3 studio calibrate <animal> --quads --no-look (about 30 s).
+ 7. Measure the sheet in animal heights and replace each value of the like animal (or each
+    "TODO"): the trunk and the head lofts, the snout, the ears, the tail, the arm and the leg
+    joints, the spine, the eyes, the nose, the mouth, and the rig places.
     `python3 studio schema` explains each field.
- 6. Check the field without a mesh: python3 studio fit <animal> --rows (about 2 s).
- 7. Build one seed: python3 studio build <animal> --seed 3, then look at out/compare/ and
-    out/frames/, and read out/checks.json.
+ 8. Check the field without a mesh: python3 studio fit <animal> --rows (about 2 s).
+ 9. Build one seed: python3 studio build <animal> --seed 3, then look at out/report/ and
+    out/frames/, and read out/checks.json. Then calibrate again on the own GLB.
 '''
 
 
