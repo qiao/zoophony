@@ -31,14 +31,38 @@ import numpy as np
 
 from studio.ik import align, quat_from_matrix, rot_axis, twist_angle, two_bone, unit
 
-# The body bones of the template in parent order (each parent comes before its children). The
-# other bones are props.
+# The body bones of the template in parent order (each parent comes before its children), with
+# one finger bone for each paw. The other bones are props.
 BODY_BONES = [
     'root', 'hips', 'spine', 'spine1', 'chest', 'neck', 'head', 'ear_L', 'ear_R',
     'clavicle_L', 'upper_arm_L', 'forearm_L', 'forearm_twist_L', 'hand_L', 'fingers_L',
     'clavicle_R', 'upper_arm_R', 'forearm_R', 'forearm_twist_R', 'hand_R', 'fingers_R',
     'thigh_L', 'shin_L', 'foot_L', 'toes_L', 'thigh_R', 'shin_R', 'foot_R', 'toes_R', 'tail',
 ]
+
+
+def finger_bones(side, count=1):
+    """Lists the finger bones of one paw: 'fingers_L' for one finger bone (role.toml [rig]
+    fingers = 1), or one digit bone for each claw, 'finger1_L' (the inner digit) to
+    'finger4_L', all children of the hand."""
+    if count == 1:
+        return [f'fingers_{side}']
+    return [f'finger{k}_{side}' for k in range(1, count + 1)]
+
+
+def body_bones(count=1):
+    """Lists the body bones in parent order with count finger bones for each paw."""
+    out = []
+    for name in BODY_BONES:
+        out += finger_bones(name[-1], count) if name.startswith('fingers_') else [name]
+    return out
+
+
+def is_finger(name):
+    """Tells if a bone is a finger bone of a paw (one finger bone or a digit)."""
+    base = name[:-2]
+    return name[-2:] in ('_L', '_R') and (base == 'fingers' or (
+        base.startswith('finger') and base[6:].isdigit()))
 
 
 class Skeleton:
@@ -57,7 +81,7 @@ class Skeleton:
         self.extras = extras
         self.clavicle = rig.clavicle
         self.leg_pole = rig.leg_pole
-        self.props = [n for n in self.names if n not in BODY_BONES]
+        self.props = [n for n in self.names if n not in BODY_BONES and not is_finger(n)]
 
     def _auto_clavicle(self, name, arm):
         """Turns the clavicle by a share of the swing of the arm toward the wrist target.

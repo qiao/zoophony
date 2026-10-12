@@ -17,12 +17,21 @@ import math
 
 import numpy as np
 
-from studio.field import Part, box_of_points, head_table, trunk_table
+from studio.field import Part, box_of_points, field_at, head_table, trunk_table
 from studio.sdf import ellipsoid, frame_from, loft, rot_axis, round_cone, smax
 
 # The field parts of each arm: they move with the arm, so the occlusion and the correctives
 # treat them apart from the rest.
 ARM_PARTS = ('upper_arm', 'deltoid', 'forearm', 'forearm_bulge', 'paw')
+
+# The seat of a seated bind pose (Body.seat): its front edge stays this far behind the backs of
+# the shins, and the trunk leaves it with this blend width.
+SEAT_MARGIN = 0.01
+SEAT_BLEND = 0.02
+
+# A digit bone (role.toml [rig] fingers > 1) starts this far behind the base of its claw, along
+# the paw: the front of the paw bends with the digit.
+DIGIT_BACK = 0.025
 
 
 def _local(frame, origin, v):
@@ -42,6 +51,12 @@ class Body:
         self.bind = bind
         self.legs_straight = (bind.hip_flex == 0.0 and bind.knee_flex == 0.0
                               and bind.hip_abduct == 0.0)
+        self._seat = None
+        # The finger bones of each paw (role.toml [rig] fingers): 1, or one digit for each claw.
+        self.fingers = cfg.role.rig.fingers if cfg.role else 1
+        if self.fingers not in (1, len(cfg.details.hand_claws.offsets)):
+            raise ValueError(f'[rig] fingers = {self.fingers}: expected 1 or the number of hand '
+                             f'claws ({len(cfg.details.hand_claws.offsets)})')
 
     def arm_pose(self, pose):
         """Calculates the joints and the bone frames of the left arm in a pose.
@@ -139,6 +154,58 @@ class Body:
         inside = trunk.fn(pts) < 0.0
         return float(pts[inside, 1].min()) if inside.any() else float(self.f.trunk.heights[0])
 
+    def seat(self):
+        """Calculates the seat of a seated bind pose (role.toml [bind] seat = "thighs"), or None.
+
+        A soft body flattens where it sits, and the thighs rest on the seat with the rump. The
+        seat is the region under the plane of the lowest point of the bent thighs, from the
+        backs of the shins (minus a margin) back: the body of the bind pose leaves it (the cut
+        part 'seat' of parts), so the trunk and the thighs sit on one plane, and the belly in front of the seat still
+        hangs between the knees. Returns {'top': the height of the plane, 'front': the z of the
+        front edge, 'back': the z of the back of the rump on the plane, 'half_x': the half
+        width of the thighs on the plane} in the bind pose (before the seated drop).
+        """
+        if self.bind.seat != 'thighs' or self.legs_straight:
+            return None
+        if self._seat is None:
+            raw = self.parts('bind', small=False, cut=False)
+
+            def inside(names, step=0.003):
+                pts = []
+                for q in raw:
+                    if q.name in names:
+                        axes = [np.arange(q.lo[i], q.hi[i], step) for i in range(3)]
+                        P = np.stack(np.meshgrid(*axes, indexing='ij'), -1).reshape(-1, 3)
+                        pts.append(P[q.fn(P) < 0.0])
+                return np.concatenate(pts)
+
+            legs = inside(('shin', 'foot'))
+            front = float(legs[:, 2].min()) - SEAT_MARGIN
+            thighs = inside(('thigh',))
+            over = thighs[thighs[:, 2] <= front]
+            top = float(over[:, 1].min())
+            trunk = inside(('trunk',))
+            back = float(trunk[trunk[:, 1] < top + 0.04, 2].min())
+            on = over[over[:, 1] < top + 0.02]
+            self._seat = {'top': top, 'front': front, 'back': back,
+                          'half_x': float(np.abs(on[:, 0]).max())}
+        return self._seat
+
+    def seat_bottom(self):
+        """Calculates the height of the lowest point that sits on a seat in the bind pose: the
+        lowest point of the body field over the seat (seat), or the lowest point of the trunk
+        loft (trunk_bottom) with no seat."""
+        seat = self.seat()
+        if seat is None:
+            return self.trunk_bottom()
+        parts = self.parts('bind', small=False)
+        x = np.arange(-seat['half_x'], seat['half_x'] + 1e-9, 0.003)
+        z = np.arange(seat['back'], seat['front'] + 1e-9, 0.003)
+        y = np.arange(seat['top'] - 0.03, seat['top'] + 0.03, 0.001)
+        P = np.stack(np.meshgrid(x, y, z, indexing='ij'), -1).reshape(-1, 3)
+        inside = field_at(parts, P) < 0.0
+        return float(P[inside, 1].min())
+
     def reference_spec(self, props):
         """Makes the pose spec of the sheet: the arms (and the legs) turn from the bind pose back
         to the pose of the sheet, and the props are hidden (scale 0). The compare and the
@@ -166,6 +233,51 @@ class Body:
         for name in props:
             spec[f'{name}_scale'] = 0.0
         return spec
+
+    def claws(self, pose):
+        """Calculates each claw of the left paw in a pose (details.hand_claws): its base, its
+        unit direction, its curl direction, and its tip, in the order of the offsets."""
+        h = self.cfg.details.hand_claws
+        joints, frames = self.arm_pose(pose)
+        fh = frames['hand']
+        paw_c = 0.5 * (joints['wrist'] + joints['knuckle'])
+        out = []
+        for off in h.offsets:
+            base = paw_c + fh @ np.array([off, h.base_y - abs(off) * h.base_drop, h.base_z])
+            d = fh @ np.array([off * h.direction[0], h.direction[1], h.direction[2]])
+            d = d / np.linalg.norm(d)
+            c = fh @ np.array([0.0, 0.0, 1.0])
+            c = c - d * np.dot(c, d)
+            c = c / np.linalg.norm(c)
+            out.append({'base': base, 'direction': d, 'curl': c,
+                        'tip': base + d * h.length + c * h.length * 0.35})
+        return out
+
+    def digits(self, pose):
+        """Calculates the digit bones of the left paw in a pose ([rig] fingers > 1), from the
+        inner digit (nearest to the middle of the body in the bind pose) to the outer one.
+
+        A digit starts inside the paw, DIGIT_BACK behind the base of its claw along the paw, so
+        the front of the paw bends with it, and it ends at the tip of its claw (the point that
+        strikes a key). Returns [{'claw': index of the claw, 'head', 'tail'}].
+        """
+        joints, frames = self.arm_pose(pose)
+        fh = frames['hand']
+        claws = self.claws(pose)
+        bind = self.claws('bind')
+        order = sorted(range(len(claws)), key=lambda i: abs(bind[i]['base'][0]))
+        out = []
+        for i in order:
+            head = claws[i]['base'] - fh[:, 1] * DIGIT_BACK
+            out.append({'claw': i, 'head': head, 'tail': claws[i]['tip']})
+        return out
+
+    def claw_bone(self, suffix, i):
+        """Names the bone that carries claw i of a paw: the one finger bone, or its digit."""
+        if self.fingers == 1:
+            return f'fingers_{suffix}'
+        rank = [d['claw'] for d in self.digits('bind')].index(i)
+        return f'finger{rank + 1}_{suffix}'
 
     def anchor(self, name):
         """Returns a named point of the body: 'paw' is the middle of the left paw (bind pose)."""
@@ -326,11 +438,12 @@ class Body:
         """Calculates the tilt of the tail about x."""
         return rot_axis((1, 0, 0), math.radians(self.f.tail.tilt))
 
-    def parts(self, pose, small=True):
+    def parts(self, pose, small=True, cut=True):
         """Lists every part of the body in a pose, the trunk first.
 
         small: also the ears and the tail. The low-poly surface leaves them out, because quads of
         the facet size cannot hold them; the details make them as separate low-poly pieces.
+        cut: with a seat (seat), the bind pose gets the cut part 'seat': the body leaves it.
         """
         tr = self.f.trunk
         table = trunk_table(tr, self.views)
@@ -339,6 +452,13 @@ class Body:
         for side in (1, -1):
             parts += self.arm_parts(pose, side)
             parts += self.leg_parts(pose, side)
+        seat = self.seat() if cut and pose == 'bind' else None
+        if seat is not None:
+            top, front = seat['top'], seat['front']
+            lo = np.array([-1.0, tr.box[0][1], tr.box[0][2]])
+            hi = np.array([1.0, top, front])
+            parts.append(Part('seat', lambda p: np.maximum(p[..., 1] - top, p[..., 2] - front),
+                              lo, hi, SEAT_BLEND, cut=True))
         if small:
             t = self.f.tail
             lo, hi = box_of_points([t.center], t.box_pad)

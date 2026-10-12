@@ -1,7 +1,7 @@
 """The skeleton of the biped template: the bone names, their order, and their layout.
 
-numpy only. 30 body bones plus one bone for each prop (a child of its hand). Bone names use '_L'
-and '_R' so that three.js keeps them. The layout comes from the joints of the config in the bind
+numpy only. 30 body bones plus one bone for each hand prop (a child of its hand). The scene props
+have no bone (studio/props.py). Bone names use '_L' and '_R' so that three.js keeps them. The layout comes from the joints of the config in the bind
 pose (the arms raised to the middle of the motion range).
 
     root
@@ -14,32 +14,35 @@ pose (the arms raised to the middle of the motion range).
              ├─ thigh_L ─ shin_L ─ foot_L ─ toes_L
              ├─ thigh_R ─ shin_R ─ foot_R ─ toes_R
              └─ tail
+
+With role.toml [rig] fingers = 4, each paw has the digits finger1 (inner) to finger4 (outer) in
+place of fingers, all children of the hand: each one from inside the paw to the tip of its claw.
 """
 
 import numpy as np
 
 from studio import props
 from studio.ik import frame, unit
-from templates.biped.solver import BODY_BONES, Skeleton
+from templates.biped.solver import Skeleton, body_bones, finger_bones
 
 # Bones that get no weights from bone heat: they own only the meshes that are given to them.
 RIGID_ONLY = ('root',)
 
 
 def bone_order(role):
-    """Lists all bones in parent order: each hand prop of the role comes right after the fingers
-    of its hand, and the scene props come last (children of the root)."""
-    order = list(BODY_BONES)
+    """Lists all bones in parent order: the finger bones of role.toml [rig] fingers, and each
+    hand prop of the role right after the fingers of its hand. The scene props are nodes of
+    their own with no bone (studio/props.py)."""
+    count = role.rig.fingers
+    order = body_bones(count)
     for pr in props.hand_props(role):
-        order.insert(order.index(f'fingers_{pr.attach.side}') + 1, pr.name)
-    order += [pr.name for pr in props.scene_props(role)]
+        order.insert(order.index(finger_bones(pr.attach.side, count)[-1]) + 1, pr.name)
     return order
 
 
 def rigid_only(role):
-    """Lists the bones that bone heat leaves out (the root and the props)."""
-    return RIGID_ONLY + tuple(pr.name for pr in props.hand_props(role)) + tuple(
-        pr.name for pr in props.scene_props(role))
+    """Lists the bones that bone heat leaves out (the root and the hand props)."""
+    return RIGID_ONLY + tuple(pr.name for pr in props.hand_props(role))
 
 
 def layout(cfg, body, role, pose='bind'):
@@ -72,8 +75,13 @@ def layout(cfg, body, role, pose='bind'):
         b[f'forearm_{s}'] = (J['elbow'], mid, f'upper_arm_{s}', F['fore'][:, 2])
         b[f'forearm_twist_{s}'] = (mid, J['wrist'], f'forearm_{s}', F['fore'][:, 2])
         b[f'hand_{s}'] = (J['wrist'], J['knuckle'], f'forearm_twist_{s}', F['hand'][:, 2])
-        b[f'fingers_{s}'] = (J['knuckle'], J['knuckle'] + hand_dir * r.fingers_length,
-                             f'hand_{s}', F['hand'][:, 2])
+        if role.rig.fingers == 1:
+            b[f'fingers_{s}'] = (J['knuckle'], J['knuckle'] + hand_dir * r.fingers_length,
+                                 f'hand_{s}', F['hand'][:, 2])
+        else:
+            for k, d in enumerate(body.digits(pose)):
+                b[f'finger{k + 1}_{s}'] = (d['head'] * m, d['tail'] * m, f'hand_{s}',
+                                           F['hand'][:, 2])
         L = {k: v * m for k, v in body.leg_pose(pose)[0].items()}
         b[f'thigh_{s}'] = (L['hip'], L['knee'], 'hips', fwd)
         b[f'shin_{s}'] = (L['knee'], L['ankle'], f'thigh_{s}', fwd)
@@ -86,10 +94,6 @@ def layout(cfg, body, role, pose='bind'):
     for pr in props.hand_props(role):
         _, grip, tip = props.make(body, pr, pose)
         b[pr.name] = (grip, tip, f'hand_{pr.attach.side}', up)
-    for i, pr in enumerate(props.scene_props(role)):
-        # A short bone on the floor under the middle of the animal: the prop is rigid on it.
-        head = np.array([0.0, 0.0, -0.05 - 0.02 * i])
-        b[pr.name] = (head, head + np.array([0.0, 0.1, 0.0]), 'root', fwd)
     return b
 
 

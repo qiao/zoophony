@@ -11,12 +11,14 @@ numpy only (the bone heat itself is in studio/weights.py). The rules, in the ord
 5. throat_to_neck: no clavicle weight on the throat, no head weight on the shoulder tops.
 6. The face and the muzzle move only with the head, the ears give their body weight to the head,
    and the crotch moves only with the hips.
-7. At most 4 influences for each vertex.
+7. digit_weights: with digits ([rig] fingers > 1), the front of each paw goes to its digits.
+8. At most 4 influences for each vertex.
 """
 
 import numpy as np
 
 from studio.weights import force_bone, limit_and_normalize, smooth_weights
+from templates.biped.solver import is_finger
 
 # The limb chains: each child bone loses its weight above the middle of its parent bone.
 CHAINS = (('upper_arm', 'forearm'), ('forearm', 'forearm_twist'), ('forearm_twist', 'hand'),
@@ -33,6 +35,17 @@ PARENT_LIMITS = (('upper_arm', 'forearm'), ('forearm', 'forearm_twist'))
 
 # The spine bones that carry the trunk.
 SPINE_BANDS = ('hips', 'spine', 'spine1', 'chest')
+
+# The digits of a paw ([rig] fingers > 1) take its weight from this far behind their heads.
+DIGIT_RAMP = 0.02
+
+
+def cols_of(base, side, names):
+    """Lists the columns of a bone kind of one side: 'fingers' is every finger bone of the paw
+    (one, or the digits of role.toml [rig] fingers)."""
+    if base == 'fingers':
+        return [i for i, n in enumerate(names) if is_finger(n) and n.endswith('_' + side)]
+    return [names.index(f'{base}_{side}')]
 
 
 def trunk_owned(points, parts, w, names):
@@ -52,7 +65,7 @@ def trunk_owned(points, parts, w, names):
         d_low = np.min([q.fn(p) for q in low], axis=0)
         drop = np.clip((d_low - trunk) / 0.02, 0.0, 1.0)
         for bone in ('forearm', 'forearm_twist', 'hand', 'fingers'):
-            w[:, col[f'{bone}_{side}']] *= 1.0 - drop
+            w[:, cols_of(bone, side, names)] *= (1.0 - drop)[:, None]
     s = w.sum(axis=1, keepdims=True)
     return w / np.maximum(s, 1e-9)
 
@@ -80,7 +93,7 @@ def arm_owned(points, parts, w, names):
         d_paw = dist(('paw',))
         drop = np.clip((d_paw - np.minimum(d_up, d_fore)) / 0.02, 0.0, 1.0)
         for bone in ('hand', 'fingers'):
-            w[:, col[f'{bone}_{side}']] *= 1.0 - drop
+            w[:, cols_of(bone, side, names)] *= (1.0 - drop)[:, None]
         drop = np.clip((d_fore - d_up) / 0.02, 0.0, 1.0)
         w[:, col[f'forearm_twist_{side}']] *= 1.0 - drop
     s = w.sum(axis=1, keepdims=True)
@@ -109,7 +122,7 @@ def chain_limits(points, w, names, bones):
             keep = np.clip((t - start) / (0.85 - start), 0.0, 1.0)
             keep = keep * keep * (3 - 2 * keep)
             factor = np.where(near, keep, 1.0)
-            w[:, col[f'{child}_{side}']] *= factor
+            w[:, cols_of(child, side, names)] *= factor[:, None]
         for parent, child in PARENT_LIMITS:
             head, tail = bones[f'{child}_{side}'][0], bones[f'{child}_{side}'][1]
             seg = tail - head
@@ -258,8 +271,10 @@ def trunk_weights(cfg, body, points, w_heat, names):
     def heat(bones):
         return w_heat[:, [col[b] for b in bones]].sum(axis=1)
 
-    arm = heat([f'{b}_{s}' for s in 'LR' for b in ('clavicle', 'upper_arm', 'forearm',
-                                                    'forearm_twist', 'hand', 'fingers')])
+    arm = heat([n for s in 'LR' for b in ('clavicle', 'upper_arm', 'forearm', 'forearm_twist',
+                                          'hand', 'fingers')
+                for n in ([names[i] for i in cols_of(b, s, names)] if b == 'fingers'
+                          else [f'{b}_{s}'])])
     keep_arm = np.clip((arm - 0.35) / 0.3, 0, 1)
     keep_tail = np.clip((heat(['tail']) - 0.2) / 0.3, 0, 1)
     keep_head = np.clip((y - tc.head_from_y[0]) / tc.head_from_y[1], 0, 1)
@@ -298,6 +313,50 @@ def trunk_weights(cfg, body, points, w_heat, names):
     return w_heat * keep[:, None] + band * (1 - keep)[:, None]
 
 
+def digit_weights(body, points, w, names):
+    """Splits the paw weight between the hand and the digits ([rig] fingers > 1) by the place on
+    the paw.
+
+    Bone heat spreads the weight of four parallel digit bones over the whole front of the paw.
+    Here the weight of the hand and the digits of each skin point stays, and it goes to the
+    digits from DIGIT_RAMP behind the digit heads (none) to their heads (all), and across the
+    paw to the two nearest digits by the distance to each (a linear blend), so one digit moves
+    the front of the paw over its claw, and its neighbors bend a little with it.
+    """
+    p = np.asarray(points, float)
+    w = w.copy()
+    joints, frames = body.arm_pose('bind')
+    digits = body.digits('bind')
+    for side, sign in (('L', 1.0), ('R', -1.0)):
+        m = np.array([sign, 1.0, 1.0])
+        fh = np.diag(m) @ frames['hand']
+        hand = names.index(f'hand_{side}')
+        cols = [names.index(f'finger{k + 1}_{side}') for k in range(len(digits))]
+        total = w[:, hand] + w[:, cols].sum(axis=1)
+        heads = np.array([d['head'] * m for d in digits])
+        along = (p - heads.mean(axis=0)) @ fh[:, 1]
+        share = np.clip((along + DIGIT_RAMP) / DIGIT_RAMP, 0.0, 1.0)
+        share = share * share * (3 - 2 * share)
+        across = p @ fh[:, 0]
+        at = heads @ fh[:, 0]
+        order = np.argsort(at)
+        at_sorted = at[order]
+        u = np.clip(across, at_sorted[0], at_sorted[-1])
+        split = np.zeros((len(p), len(cols)))
+        for j in range(len(order) - 1):
+            a, b = at_sorted[j], at_sorted[j + 1]
+            inside = (u >= a) & (u <= b)
+            t = (u[inside] - a) / (b - a)
+            split[inside, order[j]] = 1.0 - t
+            split[inside, order[j + 1]] = t
+        split /= np.maximum(split.sum(axis=1, keepdims=True), 1e-9)
+        paw = total > 0
+        w[paw, hand] = total[paw] * (1.0 - share[paw])
+        for k, c in enumerate(cols):
+            w[paw, c] = total[paw] * share[paw] * split[paw, k]
+    return w
+
+
 def weights(cfg, body, w_heat, verts, parts, bones, names, neighbors):
     """Runs the weight rules on the bone heat weights of the body vertices (see the module doc).
 
@@ -315,4 +374,6 @@ def weights(cfg, body, w_heat, verts, parts, bones, names, neighbors):
     w = force_bone(w, names, 'head', head_rigidity(cfg, verts), keep=('ear_L', 'ear_R'))
     w = ears_to_head(w, names)
     w = force_bone(w, names, 'hips', crotch_mask(c, verts))
+    if body.fingers > 1:
+        w = digit_weights(body, verts, w, names)
     return limit_and_normalize(w)

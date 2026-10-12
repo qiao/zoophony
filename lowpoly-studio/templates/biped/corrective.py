@@ -25,6 +25,7 @@ import numpy as np
 
 from studio.field import field_at
 from studio.skinning import blend_matrices, face_normals, forward_kinematics, inverted_faces, skin
+from templates.biped.solver import is_finger
 
 # The corrective kinds that this template can make.
 KINDS = ('arm_down', 'legs_straight')
@@ -33,6 +34,19 @@ DEBUG = False
 
 ARM_ROOT = ('clavicle', 'upper_arm')
 ARM_LOW = ('forearm', 'forearm_twist', 'hand', 'fingers')
+
+
+def _columns(names):
+    """Makes a function (bone kind, side) -> the weight columns: 'fingers' is every finger bone
+    of the paw (one, or the digits of role.toml [rig] fingers)."""
+    col = {name: i for i, name in enumerate(names)}
+
+    def cols(prefix, side):
+        if prefix == 'fingers':
+            return [col[n] for n in names if is_finger(n) and n.endswith('_' + side)]
+        return [col[f'{prefix}_{side}']]
+
+    return cols
 
 
 def _neighbors(n, tris):
@@ -71,9 +85,10 @@ def arm_down_shapes(skel, rest, tris, weights, pose_ref, parts_ref, project, rou
     """
     names = list(skel.names)
     col = {name: i for i, name in enumerate(names)}
+    cols = _columns(names)
 
     def wsum(prefixes, sides='LR'):
-        return weights[:, [col[f'{p}_{s}'] for p in prefixes for s in sides]].sum(axis=1)
+        return weights[:, [c for p in prefixes for s in sides for c in cols(p, s)]].sum(axis=1)
 
     A, t = blend_matrices(skel, weights, pose_ref)
     posed = skin(A, t, rest)
@@ -173,9 +188,10 @@ def legs_straight_shapes(skel, rest, tris, weights, pose_ref, parts_ref, project
     """
     names = list(skel.names)
     col = {name: i for i, name in enumerate(names)}
+    cols = _columns(names)
 
     def wsum(prefixes, sides='LR'):
-        return weights[:, [col[f'{p}_{s}'] for p in prefixes for s in sides]].sum(axis=1)
+        return weights[:, [c for p in prefixes for s in sides for c in cols(p, s)]].sum(axis=1)
 
     A, t = blend_matrices(skel, weights, pose_ref)
     posed = skin(A, t, rest)

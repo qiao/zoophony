@@ -265,7 +265,7 @@ def hand_claws(cfg, body, pose):
             direction = fh @ np.array([off * h.direction[0], h.direction[1], h.direction[2]])
             cv, cf = claw(base, direction, fh @ np.array([0, 0, 1.0]), h.length, h.radius)
             out.append(detail(f'claw_hand_{suffix}{i}', cv, cf, pal['claw'], 'gloss',
-                               f'fingers_{suffix}'))
+                               body.claw_bone(suffix, i)))
     return out
 
 

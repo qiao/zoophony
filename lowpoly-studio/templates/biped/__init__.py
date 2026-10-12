@@ -16,7 +16,7 @@ from templates.biped.body import Body
 from templates.biped.corrective import make as correctives
 from templates.biped.layout import bone_order, layout, rest_skeleton, rigid_only, skeleton_extras
 from templates.biped.rig import weights
-from templates.biped.solver import Skeleton
+from templates.biped.solver import Skeleton, finger_bones
 
 __all__ = ['Body', 'Skeleton', 'bone_order', 'contact_spec', 'correctives', 'layout',
            'region_name', 'rest_skeleton', 'rigid_only', 'skeleton_extras', 'weights']
@@ -38,6 +38,11 @@ REGIONS = {
     'forearm_twist': ('forearm', 'forearm', 'forearm'),
     'hand': ('paw', 'paw', 'paw'),
     'fingers': ('paw', 'paw', 'paw'),
+    'finger1': ('paw', 'paw', 'paw'),
+    'finger2': ('paw', 'paw', 'paw'),
+    'finger3': ('paw', 'paw', 'paw'),
+    'finger4': ('paw', 'paw', 'paw'),
+    'finger5': ('paw', 'paw', 'paw'),
     'thigh': ('thigh', 'thigh', 'thigh'),
     'shin': ('shin', 'shin', 'shin'),
     'foot': ('foot', 'foot', 'foot'),
@@ -52,9 +57,10 @@ def contact_spec(role):
     tests = role.checks.contact_tests
     spec = {}
     for side in ('L', 'R'):
+        fingers = finger_bones(side, role.rig.fingers)
         groups = []
         if 'paw' in tests:
-            groups.append(('paw', 'skin', [f'hand_{side}', f'fingers_{side}']))
+            groups.append(('paw', 'skin', [f'hand_{side}'] + fingers))
         if 'forearm' in tests:
             groups.append(('forearm', 'skin', [f'forearm_{side}', f'forearm_twist_{side}']))
         if 'claws' in tests:
@@ -64,7 +70,7 @@ def contact_spec(role):
                 if pr.attach.bone == 'hand' and pr.attach.side == side and pr.contact != 'none':
                     groups.append((pr.name, 'prop', f'{pr.name}_{pr.contact}'))
         spec[side] = {'arm': [f'upper_arm_{side}', f'forearm_{side}', f'forearm_twist_{side}',
-                              f'hand_{side}', f'fingers_{side}'], 'tests': groups}
+                              f'hand_{side}'] + fingers, 'tests': groups}
     return spec
 
 
