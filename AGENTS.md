@@ -59,8 +59,8 @@ Open these files for these kinds of work:
   2026-10-11 (first as `bear-studio/`). It builds rigged low-poly animals from a reference sheet,
   with one config for each animal and one role pack for each role, such as the bear conductor.
   It is outside the rules of this file. Run its CLI in that folder:
-  `python3 studio build|compare|report|view|new|regress <animal>`. The app does not use it, and the
-  lint skips it. Its `README.md` gives the layout, the commands, the config, and the role packs.
+  `python3 studio build|compare|report|view|new|regress <animal>`, and
+  `python3 studio cache info|clean`. The app does not use it, and the lint skips it. Its `README.md` gives the layout, the commands, the config, and the role packs.
 
 `docs/research/` holds the facts behind the decisions, with sources. Keep these reports as the
 record of their date. Put new research in a new report.
