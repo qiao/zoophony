@@ -266,14 +266,21 @@ def trunk_weights(cfg, body, points, w_heat, names):
     # The legs keep bone heat inside the thigh and the shin, and below the trunk. A low belly
     # can hang over the knees in front of the legs: it takes the trunk bands, because a face with
     # hips, thigh, and shin weight there folds over when the knee bends.
+    # The tops are heights of a standing leg. A seated bind pose (bent legs) lays the thigh at the
+    # height of the hip, so its top is the top of the thigh there, and the shin hangs from the
+    # raised knee.
     lg = tc.legs
     leg, _ = body.leg_pose('bind')
+    thigh_top, shin_top = lg.thigh_top, lg.shin_top
+    if not body.legs_straight:
+        thigh_top = max(thigh_top, leg['hip'][1] + lg.radius)
+        shin_top = max(shin_top, leg['knee'][1])
     keep_leg = np.zeros(len(p))
     for side in (1, -1):
         hip = leg['hip'] * np.array([side, 1, 1])
         knee = leg['knee'] * np.array([side, 1, 1])
         ankle = leg['ankle'] * np.array([side, 1, 1])
-        for a, b, top in ((hip, knee, lg.thigh_top), (knee, ankle, lg.shin_top)):
+        for a, b, top in ((hip, knee, thigh_top), (knee, ankle, shin_top)):
             seg = b - a
             t = np.clip((p - a) @ seg / (seg @ seg), 0, 1)
             d = np.linalg.norm(p - (a + t[:, None] * seg), axis=1)
