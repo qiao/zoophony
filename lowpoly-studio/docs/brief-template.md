@@ -66,21 +66,27 @@ each item.
 | Claws, paws, tail | <claw count and length, claws apart, tail size and views> | <#> |
 | Folds at any seed | <"each seed that passes the remesh gate passes the fold and contact gates"> | |
 | Other markings | <each marking and its paint rule, or "none"> | <#> |
+| Measures fit this animal | <"agent confirms the fur saturation floor, the color classes, and the pixel size of each feature limit before it trusts a check"> | |
 
 ## Role
 
 - Role pack: `roles/<role>/` (<exists, or "new in this round">). Stance: <standing or seated>.
-- Bind pose: <shoulder_flex, shoulder_abduct, elbow_flex, hip_flex, knee_flex>, and the reason
-  (the middle of the motion range).
-- Props: <each prop, its kind, its attachment, its size>.
+- Bind pose: <shoulder_flex, shoulder_abduct, elbow_flex, hip_flex, knee_flex, hip_abduct>,
+  and the reason (the middle of the motion range). (The pianist: 42, 8, 40, 70, 70, 14.)
+- Props: <each prop, its kind (stick, piano, bench), its attachment (hand or scene), its
+  size>. (A new kind or a new attachment is studio code: say who writes it.)
 - Clips: <each clip with the size and the place of its gesture, the tempo base, the length>.
 - IK target body: <the body of `[targets]`>.
-- Role checks: <contact depth, contact tests, other checks of the role>.
+- Role checks: <contact depth, contact tests, and for a scene: scene depth, seat gap, hand
+  targets>.
+- Seed check: <the clips that must pass on every seed that passes the remesh gate, or "the
+  kept seed only, with the other seeds listed">.
 
 ## Values to keep
 
 <Each value that must not get worse, with its current number: the IoU of each view, the checks
-that pass now, the gates, the triangle budget, the GLB size, `python3 studio regress bear`.>
+that pass now, the gates, the triangle budget, the GLB size, `python3 studio regress bear`
+and `python3 studio regress polar-bear`.>
 
 ## Limits
 
@@ -112,10 +118,14 @@ that pass now, the gates, the triangle budget, the GLB size, `python3 studio reg
 - Stop each server, browser, and Blender process that you start. Never stop a process that
   you did not start. End with a clean tree.
 - Shell: zsh (no word splitting of `$var`), no `timeout` on macOS, no foreground `sleep`. Run
-  long builds in the background. Read the exit code of the command itself: a pipe gives the code of its last part.
+  long builds in the background. Read the exit code of the command itself: a pipe gives the
+  code of its last part.
 - Put numbers in `animal.toml` or `role.toml`. A change of studio code runs
-  `python3 studio regress bear`, and it must pass.
-- Update the handoff file after each finished step.
+  `python3 studio regress bear` and `python3 studio regress polar-bear`, and both must pass.
+- Run `python3 studio build <id> --all-seeds --no-shots` before you call a model or a clip
+  done, and list each failed seed with its place.
+- Commit after each part. Update the handoff file after each finished step. Read each time of
+  a log or a handoff from `date`.
 - Write in ASD-STE100 Simplified Technical English, with no em dashes.
 
 ## Report format
@@ -135,7 +145,8 @@ Reply with these parts, in this order, and nothing else:
 ## Failing checks
 | Check | Value | Limit | Place and crop | Verdict: fixed, open, or limit of the sheet |
 
-## Times
+## Times (from `date`)
+| Part | Start | End | Minutes |
 | Step | Count | Typical seconds |
 
 ## Commits
