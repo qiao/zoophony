@@ -236,6 +236,8 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None):
         timer.write(cfg)
         return None
     if kept is None:
+        # studio-diag: the checks of the last seed, so that its located failures are there.
+        timer.run('checks', step_checks, cfg)
         timer.write(cfg)
         fail(f'no seed of {seeds} passes the contact and fold check')
     if seed is None:
