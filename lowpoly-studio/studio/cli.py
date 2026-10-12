@@ -1,13 +1,15 @@
 """The command line of the low-poly studio. Run it from lowpoly-studio/:
 
-    python3 studio build <animal> [--seed N] [--no-shots] [--out DIR] [--until STAGE] [--clips a,b]
+    python3 studio build <animal> [--seed N] [--no-shots] [--out DIR] [--until STAGE]
+                          [--clips a,b] [--no-cache] [--no-gate]
     python3 studio compare <animal> [--out DIR]
     python3 studio view <animal> [--port N]
     python3 studio new <animal> --sheet <png> [--role R] [--like A] [--force]
-    python3 studio regress <animal> [--no-build] [--write --from DIR]
+    python3 studio regress <animal> [--no-build] [--no-cache] [--write --from DIR]
     python3 studio fit <animal> [--rows]
     python3 studio report <animal> [--out DIR] [--measure] [--no-serve] [--port N]
     python3 studio schema [--role] [--readme]
+    python3 studio cache info|clean [<animal>]
 
 Needs python3 3.11 or later with Pillow, Blender 5.2 or later (BLENDER or `blender` on the
 path), Node 24, and the packages of the repository (three, vite, @playwright/test).
@@ -30,10 +32,14 @@ BLENDER = os.environ.get('BLENDER', 'blender')
 
 # The lines of the Blender log that the CLI shows.
 SHOW = ('surface nets', 'remeshed', 'body:', 'bone heat', 'corrective', 'contact check',
-        'fold repair', 'stage seconds', 'wrote', 'Error', 'Traceback')
+        'fold repair', 'remesh gate', 'stopped after', 'wrote', 'Error', 'Traceback')
 
 # The ports of the user's own servers, which the studio never takes.
 RESERVED_PORTS = (5173, 5190)
+
+# The largest size of the stage cache of one animal; a build deletes the least recently used
+# entries above it.
+CACHE_LIMIT = 2 * 2**30
 
 INTAKE_CHECKLIST = '''Intake checklist (settle these with the user before the first build; each visual claim
 needs a crop of the sheet):
@@ -101,27 +107,45 @@ def free_port():
             return port
 
 
+def blender_cmd(script, args):
+    """Makes the command line of a Blender script in the background mode."""
+    return [BLENDER, '-b', '--factory-startup', '--python-exit-code', '1', '--python',
+            os.path.join(STUDIO, script), '--', *args]
+
+
 def blender(script, args, log_path):
     """Runs a Blender script in the background mode. Returns (exit code, the log lines)."""
-    cmd = [BLENDER, '-b', '--factory-startup', '--python-exit-code', '1', '--python',
-           os.path.join(STUDIO, script), '--', *args]
     with open(log_path, 'w') as f:
-        code = subprocess.call(cmd, stdout=f, stderr=subprocess.STDOUT, cwd=STUDIO)
+        code = subprocess.call(blender_cmd(script, args), stdout=f, stderr=subprocess.STDOUT,
+                               cwd=STUDIO)
     with open(log_path) as f:
         return code, f.read().splitlines()
 
 
+def _read_json(path):
+    """Reads a JSON file, or returns None."""
+    if not os.path.exists(path):
+        return None
+    with open(path) as f:
+        return json.load(f)
+
+
 class Timer:
-    """Times the steps of a CLI command and writes them to <out>/stages/pipeline.json."""
+    """Times the steps of a CLI command, with the source of each one (a run or the cache), and
+    writes them to <out>/stages/pipeline.json."""
 
     def __init__(self):
         """Starts the clock."""
         self.t0 = time.time()
         self.steps = {}
+        self.sources = {}
+        self.stages = None
 
-    def step(self, name, seconds):
+    def step(self, name, seconds, source=None):
         """Records the time of one step."""
         self.steps[name] = round(self.steps.get(name, 0.0) + seconds, 2)
+        if source:
+            self.sources[name] = source
 
     def run(self, name, fn, *args):
         """Runs fn(*args) and records its time."""
@@ -130,27 +154,90 @@ class Timer:
         self.step(name, time.time() - t)
         return result
 
+    def blender(self, run):
+        """Keeps the stage times of a Blender run (run.json) for the table."""
+        self.stages = run
+
+    def table(self, total):
+        """Formats the times as a table: each step, the Blender stages inside the build, and the
+        source of each one."""
+        rows = []
+        for name, seconds in self.steps.items():
+            rows.append((name, seconds, self.sources.get(name, '')))
+            if name == 'blender build' and self.stages:
+                run = self.stages
+                inside = sum(run['seconds'].values())
+                for stage, sec in run['seconds'].items():
+                    src = run['source'].get(stage, 'run')
+                    if stage in run.get('ran_seconds', {}):
+                        src += f' (the run took {run["ran_seconds"][stage]:.1f} s)'
+                    rows.append((f'  {stage}', sec, src))
+                rows.append(('  start and setup', round(max(seconds - inside, 0.0), 2), ''))
+        rows.append(('total', total, ''))
+        width = max(len(r[0]) for r in rows)
+        out = [f'  {"step":{width}s}  {"seconds":>7s}  source']
+        out += [f'  {n:{width}s}  {sec:7.2f}  {src}'.rstrip() for n, sec, src in rows]
+        return '\n'.join(out)
+
     def write(self, cfg):
-        """Writes the times, and prints them."""
+        """Writes the times, and prints the table."""
         total = round(time.time() - self.t0, 2)
         os.makedirs(cfg.paths.stages, exist_ok=True)
         with open(os.path.join(cfg.paths.stages, 'pipeline.json'), 'w') as f:
-            json.dump({'steps': self.steps, 'total': total}, f, indent=2)
-        log('time: ' + ', '.join(f'{k} {v:.1f} s' for k, v in self.steps.items())
-            + f', total {total:.1f} s')
+            json.dump({'steps': self.steps, 'sources': self.sources, 'total': total,
+                       'blender_stages': self.stages}, f, indent=2)
+        log('time:')
+        log(self.table(total))
 
 
-def step_intake(cfg):
-    """Stage "intake": the masks and the row profiles of the sheet."""
-    from studio import intake  # noqa: PLC0415 (Pillow is needed only here)
+def cache_root(cfg):
+    """Returns the cache folder of an animal."""
+    return os.path.join(cfg.paths.root, 'cache')
+
+
+def step_intake(cfg, use_cache=True):
+    """Stage "intake": the masks and the row profiles of the sheet. With the cache, a sheet, a
+    [sheet] config, and an intake code that did not change give the files of the cache.
+    Returns the source ('run' or 'cache')."""
+    from PIL import Image  # noqa: PLC0415 (Pillow is needed only here)
+
+    from studio import cache, intake  # noqa: PLC0415
     log('[intake] masks and row profiles of the sheet views')
-    intake.intake(cfg)
+    if not use_cache:
+        intake.intake(cfg)
+        return 'run'
+    store = cache.Store(cache_root(cfg))
+    with open(cfg.paths.sheet, 'rb') as f:
+        base = cache.digest(['intake', f.read(), sys.version, Image.__version__])
+    hit = store.lookup('intake', base, {'cfg': cfg})
+    if hit:
+        meta, data = hit
+        for rel, content in data['files'].items():
+            path = os.path.join(cfg.paths.out, rel)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, 'wb') as f:
+                f.write(content)
+        log(f'  from the cache (the run took {meta["seconds"]:.1f} s)')
+        return 'cache'
+    rec = cache.Recorder('intake')
+    t0 = time.time()
+    with cache.recording(rec):
+        intake.intake(cache.track(cfg, 'cfg'))
+    seconds = time.time() - t0
+    files = {}
+    for rel in ['measure.json'] + [f'masks/{v}.{ext}' for v in cfg.sheet.views
+                                   for ext in ('png', 'raw')]:
+        with open(os.path.join(cfg.paths.out, rel), 'rb') as f:
+            files[rel] = f.read()
+    manifest = rec.manifest({'cfg': cfg})
+    store.save('intake', base, cache.digest([base, manifest]),
+               {'manifest': manifest, 'outputs': {}, 'seconds': round(seconds, 3), 'log': []},
+               {'files': files})
+    return 'run'
 
 
-def step_blender_build(cfg, seed, until=None, clips=None, use_cache=True):
-    """Stages "field" to "export" in one Blender run. Returns True when the gate checks of all
-    clips pass (or when the run stops early with --until)."""
-    os.makedirs(cfg.paths.stages, exist_ok=True)
+def build_args(cfg, seed, until=None, clips=None, use_cache=True, gate=True):
+    """Makes the arguments of studio/build.py for one seed."""
     args = [cfg.paths.root, '--seed', str(seed), '--out', cfg.paths.out]
     if until:
         args += ['--until', until]
@@ -158,25 +245,77 @@ def step_blender_build(cfg, seed, until=None, clips=None, use_cache=True):
         args += ['--clips', clips]
     if not use_cache:
         args += ['--no-cache']
+    if not gate:
+        args += ['--no-gate']
+    return args
+
+
+def seed_result(cfg, seed, code, seconds, log_path):
+    """Reads the outcome of the Blender build of one seed from its output folder.
+
+    status: 'pass', 'gate' (the remesh gate stopped it), 'contacts' (a clip fails the contact or
+    fold gate), or 'error' (Blender failed). The stats checks of the seed run here too.
+    """
+    run = _read_json(os.path.join(cfg.paths.stages, 'run.json'))
+    gate = _read_json(os.path.join(cfg.paths.stages, 'remesh-gate.json'))
+    out = {'seed': seed, 'status': 'error', 'pass': False, 'seconds': round(seconds, 1),
+           'log': os.path.relpath(log_path, STUDIO), 'gate': gate, 'clips_failed': [],
+           'checks_failed': [], 'stages': run and run['seconds'],
+           'source': run and run['source'], 'stats': None}
+    if code != 0 or not run:
+        return out
+    if run.get('stopped'):
+        out['status'] = 'gate'
+        return out
+    stats = _read_json(cfg.paths.stats)
+    if not stats:
+        return out
+    out['clips_failed'] = [k for k, v in stats['contacts']['clips'].items() if not v['pass']]
+    out['stats'] = {k: stats[k] for k in ('body_triangles', 'median_edge_px', 'sliver_share',
+                                          'folded_faces', 'fold_repairs') if k in stats}
+    report = checks.run(cfg)
+    out['checks_failed'] = report['failed']
+    out['status'] = 'contacts' if out['clips_failed'] else 'pass'
+    out['pass'] = not out['clips_failed']
+    return out
+
+
+def describe(result):
+    """Formats the outcome of one seed in one line."""
+    s = result['status']
+    gate = result.get('gate') or {}
+    if s == 'gate':
+        bad = [c for c in gate.get('checks', []) if not c['pass']]
+        why = ', '.join(f'{c["name"]} {c["value"]} (limit {c["limit"]})' for c in bad)
+        return f'the remesh gate fails after {gate.get("after")}: {why}'
+    if s == 'contacts':
+        return f'the contact and fold check fails in {", ".join(result["clips_failed"])}'
+    if s == 'error':
+        return f'Blender failed (log: {result["log"]})'
+    if s == 'cancelled':
+        return 'cancelled (an earlier seed passed)'
+    other = [c for c in result.get('checks_failed', []) if not c.startswith(('contact.',
+                                                                              'folds.'))]
+    return 'pass' + (f' (report checks that fail: {", ".join(other)})' if other else '')
+
+
+def step_blender_build(cfg, seed, until=None, clips=None, use_cache=True, gate=True):
+    """Stages "field" to "export" of one seed in one Blender run, in cfg.paths.out. Returns the
+    outcome of the seed (seed_result)."""
+    os.makedirs(cfg.paths.stages, exist_ok=True)
+    for stale in (cfg.paths.glb, cfg.paths.stats):
+        if os.path.exists(stale):
+            os.remove(stale)
     log_path = os.path.join(cfg.paths.stages, f'blender-seed{seed}.log')
-    code, lines = blender('studio/build.py', args, log_path)
+    t0 = time.time()
+    code, lines = blender('studio/build.py', build_args(cfg, seed, until, clips, use_cache, gate),
+                          log_path)
     for line in lines:
         if line.startswith(SHOW) or ' FAIL' in line:
             log(f'  {line}')
     if code != 0:
         fail(f'the Blender build of seed {seed} failed (log: {log_path})')
-    if until:
-        return True
-    with open(os.path.join(cfg.paths.stages, 'run.json')) as f:
-        if json.load(f).get('stopped'):
-            log(f'  seed {seed}: the remesh gate fails')
-            return False
-    with open(cfg.paths.stats) as f:
-        clips_report = json.load(f)['contacts']['clips']
-    bad = [k for k, v in clips_report.items() if not v['pass']]
-    if bad:
-        log(f'  seed {seed}: the contact and fold check fails in {", ".join(bad)}')
-    return not bad
+    return seed_result(cfg, seed, code, time.time() - t0, log_path)
 
 
 def step_shots(cfg):
@@ -230,46 +369,78 @@ def step_checks(cfg):
     return report
 
 
-def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True):
-    """Runs the whole build of an animal. Returns the checks report (None with --until)."""
+def prune_cache(cfg):
+    """Deletes the least recently used cache entries of the animal above CACHE_LIMIT."""
+    from studio import cache  # noqa: PLC0415
+    root = cache_root(cfg)
+    if os.path.isdir(root):
+        n = cache.prune(root, CACHE_LIMIT)
+        if n:
+            log(f'cache: deleted {n} old entries (limit {CACHE_LIMIT / 2**30:.0f} GB)')
+
+
+def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True, gate=True):
+    """Runs the whole build of an animal. Returns the checks report (None with --until).
+
+    One seed (seed, or until): one Blender build. Else the seed search builds the seeds of
+    facets.seeds in order and keeps the first seed that passes.
+    """
     timer = Timer()
-    timer.run('intake', step_intake, cfg)
+    os.makedirs(cfg.paths.out, exist_ok=True)
+    t = time.time()
+    source = step_intake(cfg, use_cache)
+    timer.step('intake', time.time() - t, source)
     viewer_config.write(cfg)
-    seeds = [seed] if seed is not None else list(cfg.facets.seeds)
-    kept = None
-    for s in seeds:
+    if seed is not None or until:
+        s = seed if seed is not None else cfg.facets.seeds[0]
         log(f'[build] seed {s}')
-        ok = timer.run('blender build', step_blender_build, cfg, s, until, clips, use_cache)
-        if ok:
-            kept = s
-            break
-    if until:
-        timer.write(cfg)
-        return None
-    if kept is None:
-        # studio-diag: the checks of the last seed, so that its located failures are there.
-        timer.run('checks', step_checks, cfg)
-        timer.write(cfg)
-        fail(f'no seed of {seeds} passes the contact and fold check')
-    if seed is None:
+        t = time.time()
+        result = step_blender_build(cfg, s, until, clips, use_cache, gate)
+        timer.step('blender build', time.time() - t)
+        timer.blender(_read_json(os.path.join(cfg.paths.stages, 'run.json')))
+        if until:
+            timer.write(cfg)
+            return None
+        if not result['pass']:
+            # studio-diag: the checks of the seed, so that its located failures are there.
+            timer.run('checks', step_checks, cfg)
+            timer.write(cfg)
+            fail(f'seed {s}: {describe(result)}')
+        log(f'  seed {s}: {describe(result)}')
+    else:
+        seeds = list(cfg.facets.seeds)
+        kept = None
+        for s in seeds:
+            log(f'[build] seed {s}')
+            t = time.time()
+            result = step_blender_build(cfg, s, None, clips, use_cache, gate)
+            timer.step('blender build', time.time() - t)
+            log(f'  seed {s}: {describe(result)}')
+            if result['pass']:
+                kept = s
+                break
+        if kept is None:
+            # studio-diag: the checks of the last seed, so that its located failures are there.
+            timer.run('checks', step_checks, cfg)
+            timer.write(cfg)
+            fail(f'no seed of {seeds} passes the remesh gate and the contact and fold check')
         log(f'  kept seed {kept}')
-    run = os.path.join(cfg.paths.stages, 'run.json')
-    if os.path.exists(run):
-        with open(run) as f:
-            log('  blender stages: ' + ', '.join(f'{k} {v:.1f} s' for k, v
-                                                  in json.load(f)['seconds'].items()))
+        timer.blender(_read_json(os.path.join(cfg.paths.stages, 'run.json')))
     if shots:
         timer.run('shots', step_shots, cfg)
         timer.run('measures', step_measures, cfg)
     report = timer.run('checks', step_checks, cfg)
     timer.write(cfg)
+    if use_cache:
+        prune_cache(cfg)
     return report
 
 
 def cmd_build(a):
     """studio build: builds the GLB of an animal, then the shots, the measures, and the checks."""
     cfg = load(a.animal, a.out)
-    report = run_build(cfg, a.seed, not a.no_shots, a.until, a.clips, not a.no_cache)
+    report = run_build(cfg, a.seed, not a.no_shots, a.until, a.clips, not a.no_cache,
+                       not a.no_gate)
     if report and not report['gate_pass']:
         sys.exit(1)
 
@@ -530,8 +701,9 @@ def cmd_regress(a):
     if not a.no_build:
         if os.path.exists(out):
             shutil.rmtree(out)
-        log(f'[regress] build with the golden seed {golden["stats"]["seed"]} into {out}')
-        run_build(cfg, golden['stats']['seed'])
+        log(f'[regress] build with the golden seed {golden["stats"]["seed"]} into {out}'
+            f'{" (no cache)" if a.no_cache else ""}')
+        run_build(cfg, golden['stats']['seed'], use_cache=not a.no_cache)
     rows, ok = regress.compare(golden, regress.collect(cfg))
     log('')
     log(f'regression of {a.animal} against {golden.get("source", "golden.json")}:')
@@ -546,14 +718,40 @@ def cmd_regress(a):
 def cmd_fit(a):
     """studio fit: scores the field against the sheet masks with no mesh (about 2 s)."""
     cfg = load(a.animal, a.out)
-    step_intake(cfg)
+    timer = Timer()
+    t = time.time()
+    timer.step('intake', time.time() - t, step_intake(cfg))
     args = [cfg.paths.root, '--out', cfg.paths.out] + (['--rows'] if a.rows else [])
+    t = time.time()
     code, lines = blender('studio/fit.py', args, os.path.join(cfg.paths.out, 'fit.log'))
+    timer.step('fit', time.time() - t)
     for line in lines:
         if not line.startswith(('Blender', 'Read', 'Blender quit')) and line.strip():
             log(line)
     if code != 0:
         fail('studio/fit.py failed')
+    log('time: ' + ', '.join(f'{k} {v:.1f} s ({timer.sources.get(k, "run")})'
+                             for k, v in timer.steps.items()))
+
+
+def cmd_cache(a):
+    """studio cache: prints the size of the stage cache, or deletes it (clean)."""
+    from studio import cache  # noqa: PLC0415
+    names = [a.animal] if a.animal else sorted(
+        n for n in os.listdir(config.ANIMALS) if os.path.isdir(os.path.join(config.ANIMALS, n)))
+    for name in names:
+        root = os.path.join(config.animal_dir(name), 'cache')
+        size, entries = cache.size(root) if os.path.isdir(root) else (0, 0)
+        if a.action == 'clean':
+            if os.path.isdir(root):
+                shutil.rmtree(root)
+            log(f'{name}: deleted the cache ({entries} entries, {size / 2**20:.1f} MB)')
+            continue
+        log(f'{name}: {entries} entries, {size / 2**20:.1f} MB in {os.path.relpath(root, STUDIO)}')
+        if os.path.isdir(root):
+            for step in sorted(os.listdir(root)):
+                n_step = cache.size(os.path.join(root, step))
+                log(f'  {step:12s} {n_step[1]:4d} entries {n_step[0] / 2**20:8.1f} MB')
 
 
 def serve(folder, port, page):
@@ -665,6 +863,8 @@ def main(argv=None):
     p.add_argument('--until', default=None, help='stop the Blender build after this stage')
     p.add_argument('--clips', default=None, help='bake only these clips (a,b)')
     p.add_argument('--no-cache', action='store_true', help='no stage cache reads or writes')
+    p.add_argument('--no-gate', action='store_true',
+                   help='report the remesh gate, but build on when it fails')
     p.set_defaults(fn=cmd_build)
     p = sub.add_parser('compare', help='render the views beside the sheet, measure, and check')
     p.add_argument('animal')
@@ -688,6 +888,7 @@ def main(argv=None):
     p.add_argument('--write', action='store_true', help='write golden.json from --from')
     p.add_argument('--from', dest='source', default=None)
     p.add_argument('--note', default=None, help='the source line of a new golden file')
+    p.add_argument('--no-cache', action='store_true', help='a cold build: no stage cache')
     p.set_defaults(fn=cmd_regress)
     p = sub.add_parser('fit', help='score the field against the masks (no mesh)')
     p.add_argument('animal')
@@ -702,6 +903,10 @@ def main(argv=None):
     p.add_argument('--no-serve', action='store_true', help='write the report, start no server')
     p.add_argument('--port', type=int, default=None)
     p.set_defaults(fn=cmd_report)
+    p = sub.add_parser('cache', help='print the size of the stage cache, or delete it')
+    p.add_argument('action', choices=('info', 'clean'))
+    p.add_argument('animal', nargs='?', default=None, help='one animal (default: all)')
+    p.set_defaults(fn=cmd_cache)
     p = sub.add_parser('schema', help='print the config reference as Markdown')
     p.add_argument('--role', action='store_true', help='the reference of role.toml')
     p.add_argument('--readme', action='store_true', help='write both references into README.md')
