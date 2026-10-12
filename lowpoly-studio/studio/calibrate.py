@@ -8,7 +8,10 @@ The light and the palette:
    the GLB and with a white material (the light alone). Each render is aligned to the sheet as
    in the compare. The renders are linear in the light levels, so any light is a sum of them.
 2. The sheet gives the targets: the fur medians (hue, saturation, value) of the front view in
-   compare.fur_band, and the facet contrast of the belly crop (measure.shading.belly_box).
+   compare.fur_band, and the facet contrast of the belly crop (measure.shading.belly_box). The
+   fur pixels need a saturation of compare.fur_min_saturation; calibrate sets it to 0.4 of the
+   5th percentile of the fur saturation, at most 0.2 and at least the background saturation
+   plus 0.03 (the bear 0.2, the polar bear 0.06: their hand values).
 3. A palette that is k times brighter under a light that is k times darker gives the same
    render. The rule that fixes the level: the median light on a white surface over the fur
    pixels is LEVEL. The hand-tuned light of the bear gives 1.07 and the light of the polar bear
@@ -17,7 +20,8 @@ The light and the palette:
    the fur medians of the sheet (a scale of each channel of the palette of the GLB). The key
    level whose belly contrast equals the contrast of the sheet wins (bisection).
 5. The fur family (belly, muzzle, ear, inner ear, brow) takes the same scale, so it keeps its
-   ratios to the fur. (A belly from the "light" class of the sheet takes the brightest facets:
+   ratios to the fur. A family color that the scale clips (a channel of 250 or more: the tan
+   muzzle of the bear on a cream fur) takes the fur color, with a note. (A belly from the "light" class of the sheet takes the brightest facets:
    on the polar bear it made the belly 13 levels too light, and the facet contrast failed.)
    The dark pieces take the colors of the dark pixels of their blobs on the sheet: the nose
    and the claw the median, the eye outline the median, and the iris (eye) the median of the
@@ -53,6 +57,15 @@ BASIS = (2.0, 2.0, 1.0)
 
 # A class that takes more than this share of the fur pixels overlaps the fur.
 OVERLAP = 0.02
+
+# The saturation floor of the fur pixels: SATURATION_SHARE of the 5th percentile of the fur
+# saturation, at most SATURATION_MAX, at least the background saturation plus SATURATION_PAD.
+SATURATION_SHARE = 0.4
+SATURATION_MAX = 0.2
+SATURATION_PAD = 0.03
+
+# A scaled family color with a channel of this or more clips.
+CLIP = 250
 
 # The colors of the palette that scale with the fur, and those that come from dark blobs.
 FUR_FAMILY = ('fur', 'belly', 'muzzle', 'ear', 'ear_inner', 'brow')
@@ -207,7 +220,8 @@ class Sheet:
         mask = Image.open(os.path.join(cfg.paths.masks, 'front.png')).convert('L')
         self.mask = mask.crop((c0, 0, c1, mask.size[1]))
         self.rows = fur_rows(self.meta, cfg.compare.fur_band)
-        self.fur = fur_pixels(self.rgb, self.mask, self.rows, cfg.compare.fur_min_saturation)
+        self.min_sat = self._saturation_floor(cfg)
+        self.fur = fur_pixels(self.rgb, self.mask, self.rows, self.min_sat)
         self.hsv = hsv_medians(self.fur)
         self.median = channel_medians(self.fur)
         self.contrast = belly_contrast(cfg, self.meta, self.rgb, 0)
@@ -216,6 +230,19 @@ class Sheet:
         px, mp = self.rgb.load(), self.mask.load()
         self.fur_max = sorted(max(px[x, y]) for y in self.rows for x in range(self.rgb.size[0])
                               if mp[x, y])
+
+    def _saturation_floor(self, cfg):
+        """Finds the saturation floor of the fur pixels (compare.fur_min_saturation)."""
+        px, mp = self.rgb.load(), self.mask.load()
+        sats = sorted((max(c) - min(c)) / max(c) for y in self.rows
+                      for x in range(self.rgb.size[0]) if mp[x, y]
+                      for c in [px[x, y]] if max(c) / 255 >= 0.18)
+        bg = cfg.sheet.background
+        floor = (max(bg) - min(bg)) / max(max(bg), 1) + SATURATION_PAD
+        if not sats:
+            return cfg.compare.fur_min_saturation
+        return round(min(SATURATION_MAX, max(floor, SATURATION_SHARE * sats[len(sats) // 20])),
+                     2)
 
     @staticmethod
     def _blobs(cfg, sheet, meta, dark_pieces):
@@ -287,11 +314,11 @@ def fit_scale(cfg, basis, sheet, mask, hemi, key):
     target = [LIN[int(round(v))] for v in sheet.median]
     for _ in range(4):
         rgb = basis.image(hemi, key, scale)
-        fur = fur_pixels(rgb, mask, sheet.rows, cfg.compare.fur_min_saturation)
+        fur = fur_pixels(rgb, mask, sheet.rows, sheet.min_sat)
         got = channel_medians(fur)
         scale = [s * target[c] / max(LIN[int(round(got[c]))], 1e-6) for c, s in enumerate(scale)]
     rgb = basis.image(hemi, key, scale)
-    return scale, rgb, fur_pixels(rgb, mask, sheet.rows, cfg.compare.fur_min_saturation)
+    return scale, rgb, fur_pixels(rgb, mask, sheet.rows, sheet.min_sat)
 
 
 def scaled(rgb, scale):
@@ -340,16 +367,22 @@ def fit_light(cfg, basis, sheet, contrast=None):
                 break
         best = min(trail, key=lambda r: abs(r['contrast'] - target))
     best['trail'] = [(round(r['key'], 3), round(r['hemi'], 3), r['contrast']) for r in trail]
+    best['range'] = [trail[0]['contrast'], trail[1]['contrast']]
     return best
 
 
-def palette(cfg, source_palette, sheet, scale):
+def palette(cfg, source_palette, sheet, scale, notes):
     """Makes the new palette: the fur family scaled from the palette of the GLB, and the dark
-    pieces from the sheet."""
+    pieces from the sheet. Adds a note for each family color that the scale clips."""
     out = {name: list(rgb) for name, rgb in cfg.paint.palette.items()}
+    fur = scaled(source_palette['fur'], scale)
     for name in FUR_FAMILY:
         if name in source_palette:
             out[name] = scaled(source_palette[name], scale)
+            if max(out[name]) >= CLIP and name != 'fur':
+                notes.append(f'palette.{name}: the ratio of {name} to the fur of the GLB clips '
+                             f'({out[name]}), so it takes the fur color: measure it')
+                out[name] = list(fur)
     for name, feature in DARK.items():
         key = f'{feature}.darkest' if name == 'eye' else f'{feature}.dark'
         if key in sheet.blobs and name in out:
@@ -396,7 +429,7 @@ def deciding_classes(cfg):
         if len(f.classes) == 1:
             names.append(f.classes[0])
         for c in names:
-            if c:
+            if c and name not in out.get(c, []):
                 out.setdefault(c, []).append(name)
     return out
 
@@ -410,7 +443,8 @@ def calibrate(cfg, source_cfg, folder, contrast=None):
     sheet = Sheet(cfg, meta)
     basis = Basis(folder, cfg.look.light.fill)
     best = fit_light(cfg, basis, sheet, contrast)
-    new_palette = palette(cfg, source_cfg.paint.palette, sheet, best['scale'])
+    notes = []
+    new_palette = palette(cfg, source_cfg.paint.palette, sheet, best['scale'], notes)
     overlaps = class_overlaps(cfg, sheet)
     deciding = deciding_classes(cfg)
     warnings = [f'class {name} takes {share:.1%} of the fur pixels of the sheet: it overlaps '
@@ -420,6 +454,17 @@ def calibrate(cfg, source_cfg, folder, contrast=None):
     if gap is None and sheet.dark_pieces:
         warnings.append('the dark pieces and the darkest fur of the sheet overlap: no dark class '
                         'threshold separates them')
+    target = sheet.contrast if contrast is None else contrast
+    low, high = best['range']
+    if target < low - 0.05:
+        warnings.append(f'the belly contrast target {target} is under the contrast of the GLB '
+                        f'of {source_cfg.animal.id} with no key light ({low}): its paint (the '
+                        f'belly patch, paint.occlusion) gives more contrast than the sheet. '
+                        f'Lower them, build, and calibrate again on the own GLB')
+    elif target > high + 0.05:
+        warnings.append(f'the belly contrast target {target} is over the contrast of the GLB '
+                        f'with the largest key light ({high})')
+    warnings += notes
     light = cfg.look.light
     return {
         'animal': cfg.animal.id, 'glb_of': source_cfg.animal.id, 'level': LEVEL,
@@ -436,6 +481,8 @@ def calibrate(cfg, source_cfg, folder, contrast=None):
         'palette_before': {k: list(v) for k, v in cfg.paint.palette.items()},
         'scale': [round(s, 4) for s in best['scale']],
         'trail': best['trail'],
+        'fur_min_saturation': sheet.min_sat,
+        'fur_min_saturation_before': cfg.compare.fur_min_saturation,
         'class_overlaps': overlaps,
         'dark_classes': thresholds,
         'class_specs': {k: {a: b for a, b in cfg.measure.classes[k].items() if b is not None}
@@ -461,6 +508,9 @@ def summary(res):
              f'  light: hemi {before["hemi"]} -> {light["hemi"]}, key {before["key"]} -> '
              f'{light["key"]} (fill {light["fill"]}; the median light on white is {res["level"]})',
              f'  render: fur HSV {r["fur_hsv"]}, belly contrast {r["belly_contrast"]}']
+    if res['fur_min_saturation'] != res['fur_min_saturation_before']:
+        lines.append(f'  compare.fur_min_saturation: {res["fur_min_saturation_before"]} -> '
+                     f'{res["fur_min_saturation"]}')
     for name, rgb in res['palette'].items():
         if rgb != res['palette_before'].get(name):
             lines.append(f'  palette.{name}: {res["palette_before"].get(name)} -> {rgb}')
@@ -483,6 +533,8 @@ def write(path, res):
     note = f'python3 studio calibrate ({res["glb_of"]} GLB)'
     doc.set('look.light', 'hemi', res['light']['hemi'], note)
     doc.set('look.light', 'key', res['light']['key'], note)
+    if res['fur_min_saturation'] != res['fur_min_saturation_before']:
+        doc.set('compare', 'fur_min_saturation', res['fur_min_saturation'], note)
     for name, rgb in res['palette'].items():
         if rgb != res['palette_before'].get(name):
             doc.set('paint.palette', name, rgb, note)
