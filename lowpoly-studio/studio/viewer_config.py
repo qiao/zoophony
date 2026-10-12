@@ -53,6 +53,7 @@ def settings(cfg):
         'tipMarkers': [p.tip_marker for p in hand_props if p.tip_marker],
         'compare': {'rows': list(cfg.compare.rows), 'furBand': list(cfg.compare.fur_band),
                     'headShare': cfg.compare.head_share,
+                    'furMinSaturation': cfg.compare.fur_min_saturation,
                     'facetCrops': to_plain(cfg.compare.facet_crops)},
         'clipNotes': to_plain(role.clips.notes),
         'shots': shots,

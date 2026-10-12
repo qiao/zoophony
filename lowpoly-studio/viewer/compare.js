@@ -64,8 +64,9 @@ function furStats(data, stride, mask, maskStride, maskOffset, rows, width) {
       }
       const o = (y * stride + x) * 4;
       const [h, s, v] = hsv(data[o], data[o + 1], data[o + 2]);
-      // Fur only: no dark claws, no white props, no gray background at the edges.
-      if (v < 0.18 || s < 0.2) {
+      // Fur only: no dark claws, no white props, no gray background at the edges (config
+      // compare.fur_min_saturation, 0.2 by default).
+      if (v < 0.18 || s < (SETTINGS.compare.furMinSaturation ?? 0.2)) {
         continue;
       }
       hs.push(h);

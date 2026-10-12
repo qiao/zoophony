@@ -542,6 +542,9 @@ COMPARE = T('The compare of the renders with the sheet (viewer/compare.js).', {
     'rows': F('ivec2', 'Sheet rows of the compare tiles: [from, to).', todo=True),
     'fur_band': F('vec2', 'Heights of the fur color measure (no head, no feet).',
                   default=(0.25, 0.70)),
+    'fur_min_saturation': F('num', 'Smallest saturation of a fur pixel in the fur color measure: '
+                            'it leaves out the gray background, white props, and gray shadows. '
+                            'Lower it for a light, low-saturation fur (cream).', default=0.2),
     'head_share': F('num', 'Height of the head crop as a share of the view height.', default=0.3),
     'facet_crops': M('Crops of the front view [x0, y0, x1, y1] in model units, the sheet beside '
                      'the render.', F('rect', 'Crop.'), default={}),
