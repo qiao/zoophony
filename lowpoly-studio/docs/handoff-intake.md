@@ -1,8 +1,8 @@
 # Handoff: the intake and the look checks (round A)
 
-Branch `studio-intake`, worktree `.claude/worktrees/studio-intake`, from main 9b2f5465. Another
-agent works on round B (runtime: build.py, stages.py, the cache, the run orchestration of
-build, regress, and view) in another worktree.
+Branch `studio-intake`, worktree `.claude/worktrees/studio-intake`, from main 9b2f5465, rebased
+onto main 1274c780 (round B, studio-runtime: the shared cache, the model build, stale outputs,
+the seed rule, `studio log`, `view --stop`).
 
 Rule of the user (2026-10-12): a pure refactor keeps the GLBs byte-identical. An improvement may
 change an existing animal when it is measurably closer to its sheet and no gate gets worse. Then
@@ -10,21 +10,38 @@ the golden file changes in a commit of its own.
 
 ## Last finished step
 
-All six items are done and committed. The branch is ready for `tools/merge-branch.sh
-studio-intake`. The README describes each command, config field, and method.
+All six items are done and committed, and the branch is rebased onto main 1274c780. The branch
+is ready for `tools/merge-branch.sh studio-intake`. The README describes each command, config
+field, and method.
+
+The rebase (2026-10-12):
+
+- Conflicts, each resolved with both meanings: the docstring of `cli.py` (round B `view --stop`
+  and `log`, round A `new --full`), `build_args` with its `role` argument beside the new
+  `print_sheet_check`, `checks.py` (round B `outputs` and `mark_look` and the stale lines, then
+  the sheet marks and the sheet warning line), `.gitignore` (round B `out/model/` and
+  `view-server.json`, round A `out/calibrate/`, no per-animal cache), and the README (round B
+  sections and numbers, round A modules, rows, and sections).
+- Left out on purpose: the old golden commit of the polar bear and the old output refresh. They
+  were made with the pianist compare. The golden file and the outputs are made again on the
+  model build (1c2bbd30, e0ed2a00).
+- The model build remeshes the standing field with the same QuadriFlow target. Its counts (792
+  to 940 at 780) did not fit the default band, so the polar bear keeps its band of 30%
+  (b9e20c3b), and `calibrate --quads` measures both fields (4d30222d).
 
 | # | Item | Commits | Existing animals |
 |---|---|---|---|
-| 2 | Foreground by the background difference (`intake.foreground`) | 2db71c8b | both keep "colored" |
-| 3 | `studio calibrate`: light, palette, dark classes, overlap warnings | 2cc8d68e, 9631a9b0, 91f73c1a | both keep the hand light and palette |
-| 4 | Sheet check at intake, head turn of a view in the compare | 7dee5a24, 30bfdb9c, eae53c88, e0e56698 | polar bear: 3/4 head turn [0, 12] (2896396c) |
-| 6 | Pixel floor of the feature limits (`checks.feature_pixels`) | 07df1dd8 | both 1.0 (03737882, fd2bf166) |
-| 7 | Compact `new --like`, `--full` for the scaffold | 4554e5f7 | - |
-| 8 | Quad calibration (`calibrate --quads`, `facets.quadriflow_target`) | 51243f2a | polar bear: default band again (380a84fb) |
+| 2 | Foreground by the background difference (`intake.foreground`) | d829b3e3 | both keep "colored" |
+| 3 | `studio calibrate`: light, palette, dark classes, overlap warnings | c921583b, e7afa7d1, cc559405 | both keep the hand light and palette |
+| 4 | Sheet check at intake, head turn of a view in the compare | 9338ae88, 73187838, b5277d69, 7a78d9be | polar bear: 3/4 head turn [0, 12] (452504c6) |
+| 6 | Pixel floor of the feature limits (`checks.feature_pixels`) | 90b92586 | both 1.0 (cd311839, 74e08f22) |
+| 7 | Compact `new --like`, `--full` for the scaffold | 136de958 | - |
+| 8 | Quad calibration (`calibrate --quads`, `facets.quadriflow_target`) | 334fe269, 4d30222d | polar bear keeps 30% (the model field, b9e20c3b) |
 
-Golden: the polar bear (db080f47): the same GLB, 3/4 IoU 0.9047 -> 0.9073, the 3/4 eye
-measures, the new check head_turn.three_quarter. The bear golden does not change. The outputs of
-both animals are refreshed (1d5cb19f, the GLBs have the same bytes).
+Golden: the polar bear (1c2bbd30): the role GLB and the model GLB of main, the 3/4 compare of
+the model build with the head turned +9 deg (IoU 0.927 -> 0.9332), the 3/4 eye measures, and the
+new check head_turn.three_quarter. The bear golden is the one of main. The outputs of both
+animals are refreshed (e0ed2a00, the GLBs have the same bytes).
 
 ## Measures
 
@@ -47,22 +64,28 @@ both animals are refreshed (1d5cb19f, the GLBs have the same bytes).
 - Item 6: with 1 px the polar bear passes its 10 px front eyes at the bear limit 0.08 (the hand
   value was 0.11). The bear verdicts do not change.
 - Item 7: 477 lines on the polar bear sheet like the bear (the scaffold had 1534).
-- Item 8: polar bear 760 to 850 quads at 780 (ratio 1.03), 8 of 8 seeds in the default band.
-  Bear 836 to 1036 at 900 (7 of 8), 858 to 978 at 886 (8 of 8). The bear keeps 900.
+- Item 8: polar bear at 780: the pianist field 760 to 850 quads (ratio 1.03), the model field
+  792 to 940 (ratio 1.09), 13 of 16 pairs in the default band (736 would put 16 of 16 in, but
+  it changes both GLBs). Bear (role field only) 836 to 1036 at 900 (7 of 8), 858 to 978 at 886
+  (8 of 8). The bear keeps 900.
 - Demo (polar-bear-2 like the bear, deleted again): new 5 s, calibrate 5 s, calibrate --quads
   31 s, fit 1.7 s (IoU 0.946, 0.963, 0.938, 0.915).
 
 ## Regressions
 
-At the end: `python3 studio regress bear` PASS (GLB identical, sha256 5eecaa19adb9) and
-`python3 studio regress polar-bear` PASS (GLB identical, sha256 ecd970cf44d8, against the new
-golden file).
+After the rebase: `python3 studio regress bear` PASS (the GLB 5eecaa19adb9 and the model GLB
+785130e1b18c of main, every value identical) and `python3 studio regress polar-bear` PASS against
+the new golden file (the GLB ecd970cf44d8 and the model GLB 41a16640291a of main). A check on a
+new animal (the polar bear sheet like the bear) ran new, calibrate --from bear, fit, a pool
+build with the model build (seed 2 kept, head turn +4 deg), calibrate on its own model GLB, and
+report.
 
 ## Files of round B that this round touched (marked)
 
 - `studio/cli.py` `step_intake`: the intake cache keeps `sheet-check.json`, and a cache hit
   prints its warnings (comment "studio-intake").
-- `studio/checks.py`: the sheet marks (comment "studio-intake").
+- `studio/checks.py`: the sheet marks (comment "studio-intake"), after the `mark_look` of round
+  B.
 
 ## Open problems
 
