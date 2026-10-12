@@ -1,7 +1,7 @@
 {
-  "run": "20261012-080948-47362",
-  "command": "build polar-bear",
-  "started": "2026-10-12T08:09:48-0700",
+  "run": "20261012-083312-8376",
+  "command": "build polar-bear --seed 1",
+  "started": "2026-10-12T08:33:12-0700",
   "seed": 1,
   "shots": true,
   "until": null,

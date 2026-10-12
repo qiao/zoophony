@@ -529,7 +529,10 @@
         "view": "front",
         "crop": "report/views/front.jpg"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "arm_gap"
+      ]
     },
     {
       "name": "fur_hue.front",
@@ -635,7 +638,10 @@
         "view": "back",
         "crop": "report/views/back.jpg"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "arm_gap"
+      ]
     },
     {
       "name": "fur_hue.back",
@@ -682,9 +688,22 @@
     },
     {
       "name": "iou.three_quarter",
-      "value": 0.927,
+      "value": 0.9332,
       "op": ">=",
       "limit": 0.9,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "head_turn.three_quarter",
+      "value": 9,
+      "op": "in",
+      "limit": [
+        0.0,
+        12.0
+      ],
       "pass": true,
       "near": false,
       "gate": false,
@@ -736,10 +755,11 @@
         0.0179
       ],
       "op": "rel<=",
-      "limit": 0.11,
+      "limit": 0.08,
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00189,
       "where": {
         "feature": "eyes",
         "view": "front",
@@ -756,10 +776,11 @@
         0.0179
       ],
       "op": "rel<=",
-      "limit": 0.11,
+      "limit": 0.08,
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00189,
       "where": {
         "feature": "eyes",
         "view": "front",
@@ -780,6 +801,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00189,
       "look": true
     },
     {
@@ -793,19 +815,21 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00189,
       "look": true
     },
     {
       "name": "eye_outline.three_quarter.0",
       "value": [
-        0.0141,
+        0.0158,
         0.0194
       ],
       "op": "rel<=",
-      "limit": 0.11,
+      "limit": 0.08,
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00186,
       "where": {
         "feature": "eyes",
         "view": "three_quarter",
@@ -813,19 +837,23 @@
         "item": 0,
         "crop": "report/features/eyes_three_quarter_eye.png"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "head_turn.three_quarter"
+      ]
     },
     {
       "name": "eye_outline.three_quarter.1",
       "value": [
-        0.0088,
+        0.0106,
         0.007
       ],
       "op": "rel<=",
-      "limit": 0.11,
+      "limit": 0.08,
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00186,
       "where": {
         "feature": "eyes",
         "view": "three_quarter",
@@ -833,12 +861,15 @@
         "item": 1,
         "crop": "report/features/eyes_three_quarter_eye.png"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "head_turn.three_quarter"
+      ]
     },
     {
       "name": "eye_y.three_quarter.0",
       "value": [
-        0.9234,
+        0.9243,
         0.9243
       ],
       "op": "abs<=",
@@ -846,6 +877,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00186,
       "look": true
     },
     {
@@ -859,6 +891,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00186,
       "look": true
     },
     {
@@ -872,6 +905,7 @@
       "pass": true,
       "near": true,
       "gate": false,
+      "floor": 0.00189,
       "where": {
         "feature": "ears",
         "view": "front",
@@ -879,7 +913,10 @@
         "item": 0,
         "crop": "report/features/ears_front_left_in_image.png"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "ear_height"
+      ]
     },
     {
       "name": "ear_height.front.left_in_image",
@@ -892,6 +929,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00189,
       "look": true
     },
     {
@@ -918,6 +956,7 @@
       "pass": true,
       "near": true,
       "gate": false,
+      "floor": 0.00189,
       "where": {
         "feature": "ears",
         "view": "front",
@@ -925,7 +964,10 @@
         "item": 0,
         "crop": "report/features/ears_front_right_in_image.png"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "ear_height"
+      ]
     },
     {
       "name": "ear_height.front.right_in_image",
@@ -938,6 +980,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00189,
       "look": true
     },
     {
@@ -964,6 +1007,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00183,
       "where": {
         "feature": "ears",
         "view": "side",
@@ -971,7 +1015,10 @@
         "item": 0,
         "crop": "report/features/ears_side_ear.png"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "ear_height"
+      ]
     },
     {
       "name": "ear_height.side.ear",
@@ -984,6 +1031,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00183,
       "where": {
         "feature": "ears",
         "view": "side",
@@ -991,7 +1039,10 @@
         "item": 0,
         "crop": "report/features/ears_side_ear.png"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "ear_height"
+      ]
     },
     {
       "name": "ear_width.back.left_in_image",
@@ -1004,6 +1055,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00191,
       "look": true
     },
     {
@@ -1017,6 +1069,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00191,
       "where": {
         "feature": "ears",
         "view": "back",
@@ -1024,7 +1077,10 @@
         "item": 0,
         "crop": "report/features/ears_back_left_in_image.png"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "ear_height"
+      ]
     },
     {
       "name": "ear_width.back.right_in_image",
@@ -1037,6 +1093,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00191,
       "where": {
         "feature": "ears",
         "view": "back",
@@ -1044,7 +1101,10 @@
         "item": 0,
         "crop": "report/features/ears_back_right_in_image.png"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "ear_height"
+      ]
     },
     {
       "name": "ear_height.back.right_in_image",
@@ -1057,6 +1117,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00191,
       "where": {
         "feature": "ears",
         "view": "back",
@@ -1064,7 +1125,10 @@
         "item": 0,
         "crop": "report/features/ears_back_right_in_image.png"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "ear_height"
+      ]
     },
     {
       "name": "nose_x.front.0",
@@ -1077,6 +1141,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00189,
       "look": true
     },
     {
@@ -1090,6 +1155,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00189,
       "look": true
     },
     {
@@ -1103,6 +1169,7 @@
       "pass": true,
       "near": true,
       "gate": false,
+      "floor": 0.00189,
       "where": {
         "feature": "nose",
         "view": "front",
@@ -1123,6 +1190,7 @@
       "pass": true,
       "near": true,
       "gate": false,
+      "floor": 0.00189,
       "where": {
         "feature": "nose",
         "view": "front",
@@ -1143,6 +1211,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00183,
       "look": true
     },
     {
@@ -1156,6 +1225,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00183,
       "look": true
     },
     {
@@ -1169,6 +1239,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00183,
       "where": {
         "feature": "nose",
         "view": "side",
@@ -1189,6 +1260,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00183,
       "look": true
     },
     {
@@ -1202,6 +1274,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00189,
       "where": {
         "feature": "belly",
         "view": "front",
@@ -1222,6 +1295,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00189,
       "where": {
         "feature": "belly",
         "view": "front",
@@ -1242,6 +1316,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00189,
       "where": {
         "feature": "belly",
         "view": "front",
@@ -1295,11 +1370,20 @@
   "look": {
     "current": true,
     "reason": null,
-    "run": "20261012-080948-47362",
-    "look_run": "20261012-080948-47362",
-    "made": "2026-10-12T08:10:14-0700",
+    "run": "20261012-083312-8376",
+    "look_run": "20261012-083312-8376",
+    "made": "2026-10-12T08:33:25-0700",
     "compare": "model",
     "model_seed": 3
+  },
+  "sheet": {
+    "warnings": [
+      "figure_height",
+      "ground_line",
+      "ear_height",
+      "arm_gap",
+      "head_turn.three_quarter"
+    ]
   },
   "diagnostics": {
     "folds": "diag/folds.json",

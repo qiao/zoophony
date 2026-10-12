@@ -450,7 +450,10 @@
         "view": "front",
         "crop": "report/views/front.jpg"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "arm_gap"
+      ]
     },
     {
       "name": "fur_hue.front",
@@ -556,7 +559,10 @@
         "view": "back",
         "crop": "report/views/back.jpg"
       },
-      "look": true
+      "look": true,
+      "sheet": [
+        "arm_gap"
+      ]
     },
     {
       "name": "fur_hue.back",
@@ -669,6 +675,7 @@
       "pass": true,
       "near": true,
       "gate": false,
+      "floor": 0.00199,
       "where": {
         "feature": "eyes",
         "view": "front",
@@ -689,6 +696,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -728,6 +736,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00197,
       "look": true
     },
     {
@@ -741,6 +750,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00197,
       "where": {
         "feature": "eyes",
         "view": "three_quarter",
@@ -794,6 +804,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -807,6 +818,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -833,6 +845,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -846,6 +859,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -872,6 +886,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00196,
       "look": true
     },
     {
@@ -885,6 +900,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00196,
       "look": true
     },
     {
@@ -898,6 +914,7 @@
       "pass": true,
       "near": true,
       "gate": false,
+      "floor": 0.00199,
       "where": {
         "feature": "ears",
         "view": "back",
@@ -918,6 +935,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -931,6 +949,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -944,6 +963,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -957,6 +977,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -970,6 +991,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "where": {
         "feature": "nose",
         "view": "front",
@@ -990,6 +1012,7 @@
       "pass": true,
       "near": true,
       "gate": false,
+      "floor": 0.00199,
       "where": {
         "feature": "nose",
         "view": "front",
@@ -1010,6 +1033,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -1023,6 +1047,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00196,
       "where": {
         "feature": "nose",
         "view": "side",
@@ -1043,6 +1068,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00196,
       "look": true
     },
     {
@@ -1056,6 +1082,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00196,
       "where": {
         "feature": "nose",
         "view": "side",
@@ -1076,6 +1103,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00196,
       "look": true
     },
     {
@@ -1089,6 +1117,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "where": {
         "feature": "muzzle",
         "view": "front",
@@ -1109,6 +1138,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -1122,6 +1152,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "where": {
         "feature": "muzzle",
         "view": "front",
@@ -1142,6 +1173,7 @@
       "pass": false,
       "near": false,
       "gate": false,
+      "floor": 0.00196,
       "where": {
         "feature": "muzzle",
         "view": "side",
@@ -1162,6 +1194,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00196,
       "look": true
     },
     {
@@ -1175,6 +1208,7 @@
       "pass": true,
       "near": true,
       "gate": false,
+      "floor": 0.00196,
       "where": {
         "feature": "muzzle",
         "view": "side",
@@ -1195,6 +1229,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -1208,6 +1243,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -1221,6 +1257,7 @@
       "pass": true,
       "near": false,
       "gate": false,
+      "floor": 0.00199,
       "look": true
     },
     {
@@ -1279,11 +1316,18 @@
   "look": {
     "current": true,
     "reason": null,
-    "run": "20261012-080930-43798",
-    "look_run": "20261012-080930-43798",
-    "made": "2026-10-12T08:09:46-0700",
+    "run": "20261012-083328-12134",
+    "look_run": "20261012-083328-12134",
+    "made": "2026-10-12T08:33:42-0700",
     "compare": "model",
     "model_seed": 3
+  },
+  "sheet": {
+    "warnings": [
+      "figure_height",
+      "ground_line",
+      "arm_gap"
+    ]
   },
   "diagnostics": {
     "folds": "diag/folds.json",

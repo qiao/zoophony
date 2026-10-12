@@ -94,7 +94,8 @@
         0.19,
         1.01
       ]
-    }
+    },
+    "headTurn": {}
   },
   "clipNotes": {
     "performance": "All gestures in order: ready, beats, cue, crescendo, hush, cutoff, bow.",
