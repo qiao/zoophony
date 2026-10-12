@@ -6,14 +6,15 @@ numpy only, three.js axes. The player sits at the seat and faces +z, so the back
 
 import numpy as np
 
-from props.bench import leg, pad
+from props.bench import fitted_pad, leg, pad
 from props.shapes import Builder, box
 
 
 def build(c):
     """Builds the chair.
 
-    c: {name, seat_top, width, depth, center_z, back_height, colors {wood}}.
+    c: {name, seat_top (the top at the sides), width, depth, center_z, back_height, colors
+    {wood}}, and map: the top of a seat that fits the body (props/bench.py), or None.
     Returns (nodes, boxes).
     """
     top, w, d, cz = c['seat_top'], c['width'], c['depth'], c['center_z']
@@ -22,7 +23,10 @@ def build(c):
     wood = c['colors']['wood']
     b = Builder()
     boxes = []
-    b.add(pad(w, d, top, t, 0.0, cz), wood)
+    if c.get('map'):
+        b.add(fitted_pad(c['map'], float(np.min(c['map']['heights'])) - t)[0], wood)
+    else:
+        b.add(pad(w, d, top, t, 0.0, cz), wood)
     boxes.append(('seat', np.array([0.0, top - 0.5 * t, cz]), np.array([0.5 * w, 0.5 * t, 0.5 * d])))
     under = top - t
     x = 0.5 * w - r

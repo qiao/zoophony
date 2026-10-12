@@ -728,11 +728,6 @@ BIND = T('The bind pose of the role: joint turns from the pose of the sheet. The
     'knee_flex': F('num', 'Bend of the knees (about 90 for a seated player).', default=0.0),
     'hip_abduct': F('num', 'Outward turn of the legs about the vertical axis at the hips (the '
                            'knees apart, for a seated player).', default=0.0),
-    'seat': F('str', 'The seat of a seated bind pose. "thighs": the seat plane is at the lowest '
-                     'point of the bent thighs in front of the trunk, and the trunk flattens on '
-                     'it, so the rump and the thighs rest on the seat (templates/biped '
-                     'Body.seat). "none": no seat in the field; a seat goes under the trunk '
-                     'bottom.', default='none'),
     'correctives': F('strs', 'Corrective shapes of the template between the bind pose and the '
                              'sheet pose. The biped template has "arm_down" (arms raised in the '
                              'bind pose) and "legs_straight" (legs bent in the bind pose).',
@@ -752,11 +747,9 @@ ROLE_PROP = T('One prop of the role.', {
                          'mesh node of its own in the GLB with no bone (a piano, a bench); it '
                          'stays in place, and the keys of a piano are nodes under it.'),
         'side': F('str', '"L" or "R" (for a hand prop).', default='R'),
-        'seat_height': F('str', 'For a seat in the scene: "legs" puts the seat top at the seat of '
-                                'the seated body (the bind pose with [bind] seat = "thighs": the '
-                                'plane of the thighs; else the trunk bottom), where the feet of '
-                                'the bent legs stand on the floor (templates/biped Body.seat, '
-                                'Body.seated_drop).', default=None),
+        'seat_height': F('str', 'For a seat in the scene: "legs" puts the seat under the seated '
+                                'body, where the feet of the bent legs stand on the floor '
+                                '(templates/biped Body.seat, Body.seated_drop).', default=None),
     }),
     'tip_marker': F('str', 'Name of the empty node at the tip (the viewer draws its path).',
                     default=None),
@@ -809,9 +802,8 @@ ROLE_PROP = T('One prop of the role.', {
             'sheet': F('rgb', 'The sheet of music on the desk.', default=(236, 230, 214)),
         }),
     }, optional=True),
-    'bench': T('A piano bench (kind "bench"): a padded top on an apron and four legs. With a seat '
-               'in the bind pose, the top reaches from behind the rump to the backs of the '
-               'shins.', {
+    'bench': T('A piano bench (kind "bench"): a padded top on an apron and four legs. With a seated '
+               'bind pose, the top reaches from behind the rump to the backs of the shins.', {
         'width': F('num', 'Width (x). Default: the thighs on the seat and the margin.',
                    default=None),
         'depth': F('num', 'Depth (z). Default: from the seat of the body.', default=None),
@@ -819,7 +811,12 @@ ROLE_PROP = T('One prop of the role.', {
                       default=None),
         'margin': F('num', 'Margin of the top behind the rump and beside the thighs.',
                     default=0.03),
-        'top_thickness': F('num', 'Thickness of the padded top.', default=0.025),
+        'fit': F('bool', 'The top of the pad follows the lowest points of the seated body over '
+                         'it (templates/biped Body.seat): the rump sinks into the middle of the '
+                         'pad, and the thighs rest on its sides. False: a flat pad at the trunk '
+                         'bottom.', default=True),
+        'top_thickness': F('num', 'Thickness of the padded top under its lowest point.',
+                           default=0.025),
         'colors': T('The colors.', {
             'top': F('rgb', 'The padded top.', default=(52, 40, 36)),
             'legs': F('rgb', 'The legs and the apron.', default=(30, 24, 22)),
@@ -832,6 +829,8 @@ ROLE_PROP = T('One prop of the role.', {
         'center_z': F('num', 'z of the middle of the seat.', default=None),
         'margin': F('num', 'Margin of the seat behind the rump and beside the thighs.',
                     default=0.03),
+        'fit': F('bool', 'The top of the seat follows the seated body (as a bench).',
+                 default=True),
         'back_height': F('num', 'Height of the back above the seat. Default: 0.55 of the '
                                 'shoulders above the seat.', default=None),
         'colors': T('The colors.', {

@@ -258,8 +258,10 @@ def restore_clips(saved, samples, arm, skel, final, pack, scene_objs):
 
 def check_scene(cfg, body, pack, check, name, poses, fps):
     """Measures one clip against the scene props of the role: the deepest body point inside a
-    prop, the rest of the body on the seat, and the distance of the knuckles from the targets
-    that the pack gives (pack.hand_targets). A role with no scene prop and no targets gets None.
+    prop, the rest of the rump and of the thighs on the seat (the gap to the top of the seat
+    under each skin point), and the distance of the knuckles or the claw tips of the digits from
+    the targets that the pack gives (pack.hand_targets). A role with no scene prop and no
+    targets gets None.
 
     Returns {'scene': {depth, prop, piece, frame, position, bone}, 'seat': {gap, frame}, 'hands':
     {distance, side, frame}} (each part only when it applies), or None.
@@ -270,7 +272,6 @@ def check_scene(cfg, body, pack, check, name, poses, fps):
     if not boxes and targets is None:
         return None
     bench = next((pr for pr in props.scene_props(role) if pr.kind in ('bench', 'chair')), None)
-    seat_top = props.scene_layout(body, role)['seat_top'] if bench else None
     if bench is not None:
         size = (props.bench_sizes if bench.kind == 'bench' else props.chair_sizes)(body, bench,
                                                                                    role)
@@ -316,7 +317,9 @@ def check_scene(cfg, body, pack, check, name, poses, fps):
             gaps = {}
             for part, member in (('trunk', trunk), ('thighs', thighs)):
                 if (over & member).any():
-                    gaps[part] = float(posed[over & member, 1].min()) - seat_top
+                    at = posed[over & member]
+                    gaps[part] = float((at[:, 1] - props.seat_top_at(size, at[:, 0],
+                                                                     at[:, 2])).min())
             if gaps:
                 part = max(gaps, key=lambda k: abs(gaps[k]))
                 gap = gaps[part]

@@ -138,6 +138,37 @@ def rim(outline, scale, y0, y1, center=None):
     return verts, np.array(faces)
 
 
+def heightfield(xs, zs, heights, bottom):
+    """Makes a closed solid under a height map: the top through heights[i][j] at (xs[i], zs[j])
+    (both ascending), flat at the bottom, with walls on the four sides."""
+    nx, nz = len(xs), len(zs)
+    verts = [[x, heights[i][j], z] for i, x in enumerate(xs) for j, z in enumerate(zs)]
+    verts += [[x, bottom, z] for x in xs for z in zs]
+
+    def top(i, j):
+        return i * nz + j
+
+    def low(i, j):
+        return nx * nz + i * nz + j
+
+    faces = []
+    for i in range(nx - 1):
+        for j in range(nz - 1):
+            a, b, c, d = top(i, j), top(i + 1, j), top(i + 1, j + 1), top(i, j + 1)
+            faces += [[a, d, c], [a, c, b]]
+            a, b, c, d = low(i, j), low(i + 1, j), low(i + 1, j + 1), low(i, j + 1)
+            faces += [[a, b, c], [a, c, d]]
+    for i in range(nx - 1):
+        for j, first in ((0, True), (nz - 1, False)):
+            a, b, c, d = low(i, j), low(i + 1, j), top(i + 1, j), top(i, j)
+            faces += [[a, c, b], [a, d, c]] if first else [[a, b, c], [a, c, d]]
+    for j in range(nz - 1):
+        for i, first in ((0, True), (nx - 1, False)):
+            a, b, c, d = low(i, j), low(i, j + 1), top(i, j + 1), top(i, j)
+            faces += [[a, b, c], [a, c, d]] if first else [[a, c, b], [a, d, c]]
+    return np.array(verts, float), np.array(faces)
+
+
 def circle(center, axis, radius, sides, phase=0.0):
     """Lists the points of a polygon around an axis."""
     f = basis(axis, [0.0, 0.0, 1.0] if abs(np.dot(axis, [0, 0, 1])) < 0.9 * np.linalg.norm(axis)

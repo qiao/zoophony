@@ -25,9 +25,11 @@ from studio.sdf import ellipsoid, frame_from, loft, rot_axis, round_cone, smax
 ARM_PARTS = ('upper_arm', 'deltoid', 'forearm', 'forearm_bulge', 'paw')
 
 # The seat of a seated bind pose (Body.seat): its front edge stays this far behind the backs of
-# the shins, and the trunk leaves it with this blend width.
+# the shins, and its height map has this many columns from the middle to the side, and this many
+# rows from the back to the front.
 SEAT_MARGIN = 0.01
-SEAT_BLEND = 0.02
+SEAT_COLUMNS = 7
+SEAT_ROWS = 6
 
 # A digit bone (role.toml [rig] fingers > 1) starts this far behind the base of its claw, along
 # the paw: the front of the paw bends with the digit.
@@ -155,24 +157,24 @@ class Body:
         return float(pts[inside, 1].min()) if inside.any() else float(self.f.trunk.heights[0])
 
     def seat(self):
-        """Calculates the seat of a seated bind pose (role.toml [bind] seat = "thighs"), or None.
+        """Calculates the seat of a seated bind pose, or None for straight legs.
 
-        A soft body flattens where it sits, and the thighs rest on the seat with the rump. The
-        seat is the region under the plane of the lowest point of the bent thighs, from the
-        backs of the shins (minus a margin) back: the body of the bind pose leaves it (the cut
-        part 'seat' of parts), so the trunk and the thighs sit on one plane, and the belly in front of the seat still
-        hangs between the knees. Returns {'top': the height of the plane, 'front': the z of the
-        front edge, 'back': the z of the back of the rump on the plane, 'half_x': the half
-        width of the thighs on the plane} in the bind pose (before the seated drop).
+        The seat reaches from behind the rump to the backs of the shins (less SEAT_MARGIN): a
+        seat that reaches further hits the shins. Its height map is the lowest point of the body
+        over each spot of it: a soft pad under a heavy body takes this form, so the rump and the
+        thighs rest on it (studio/props.py, the bench and the chair). Returns {'front', 'back':
+        the z of the front and the back edge, 'half_x': the half width of the thighs, 'xs' (from
+        0 to half_x, the map is the same at -x), 'zs', 'heights' [x][z]} in the bind pose
+        (before the seated drop).
         """
-        if self.bind.seat != 'thighs' or self.legs_straight:
+        if self.legs_straight:
             return None
         if self._seat is None:
-            raw = self.parts('bind', small=False, cut=False)
+            parts = self.parts('bind', small=False)
 
             def inside(names, step=0.003):
                 pts = []
-                for q in raw:
+                for q in parts:
                     if q.name in names:
                         axes = [np.arange(q.lo[i], q.hi[i], step) for i in range(3)]
                         P = np.stack(np.meshgrid(*axes, indexing='ij'), -1).reshape(-1, 3)
@@ -183,28 +185,26 @@ class Body:
             front = float(legs[:, 2].min()) - SEAT_MARGIN
             thighs = inside(('thigh',))
             over = thighs[thighs[:, 2] <= front]
-            top = float(over[:, 1].min())
             trunk = inside(('trunk',))
+            top = float(over[:, 1].min())
             back = float(trunk[trunk[:, 1] < top + 0.04, 2].min())
-            on = over[over[:, 1] < top + 0.02]
-            self._seat = {'top': top, 'front': front, 'back': back,
-                          'half_x': float(np.abs(on[:, 0]).max())}
+            half_x = float(np.abs(over[over[:, 1] < top + 0.02, 0]).max())
+            # The lowest point of the whole field over each spot of the seat (a height map), up
+            # to the plane of the thighs: the pad rests there, and the body pushes it down where
+            # the body is lower.
+            xs = np.linspace(0.0, half_x, SEAT_COLUMNS)
+            zs = np.linspace(back, front, SEAT_ROWS)
+            y = np.arange(float(trunk[:, 1].min()) - 0.01, top + 1e-9, 0.001)
+            heights = np.full((len(xs), len(zs)), top)
+            for i, x in enumerate(xs):
+                for j, z in enumerate(zs):
+                    P = np.stack([np.full(len(y), x), y, np.full(len(y), z)], axis=1)
+                    ins = field_at(parts, P) < 0.0
+                    if ins.any():
+                        heights[i, j] = float(y[ins].min())
+            self._seat = {'front': front, 'back': back, 'half_x': half_x,
+                          'xs': xs.tolist(), 'zs': zs.tolist(), 'heights': heights.tolist()}
         return self._seat
-
-    def seat_bottom(self):
-        """Calculates the height of the lowest point that sits on a seat in the bind pose: the
-        lowest point of the body field over the seat (seat), or the lowest point of the trunk
-        loft (trunk_bottom) with no seat."""
-        seat = self.seat()
-        if seat is None:
-            return self.trunk_bottom()
-        parts = self.parts('bind', small=False)
-        x = np.arange(-seat['half_x'], seat['half_x'] + 1e-9, 0.003)
-        z = np.arange(seat['back'], seat['front'] + 1e-9, 0.003)
-        y = np.arange(seat['top'] - 0.03, seat['top'] + 0.03, 0.001)
-        P = np.stack(np.meshgrid(x, y, z, indexing='ij'), -1).reshape(-1, 3)
-        inside = field_at(parts, P) < 0.0
-        return float(P[inside, 1].min())
 
     def reference_spec(self, props):
         """Makes the pose spec of the sheet: the arms (and the legs) turn from the bind pose back
@@ -438,12 +438,11 @@ class Body:
         """Calculates the tilt of the tail about x."""
         return rot_axis((1, 0, 0), math.radians(self.f.tail.tilt))
 
-    def parts(self, pose, small=True, cut=True):
+    def parts(self, pose, small=True):
         """Lists every part of the body in a pose, the trunk first.
 
         small: also the ears and the tail. The low-poly surface leaves them out, because quads of
         the facet size cannot hold them; the details make them as separate low-poly pieces.
-        cut: with a seat (seat), the bind pose gets the cut part 'seat': the body leaves it.
         """
         tr = self.f.trunk
         table = trunk_table(tr, self.views)
@@ -452,13 +451,6 @@ class Body:
         for side in (1, -1):
             parts += self.arm_parts(pose, side)
             parts += self.leg_parts(pose, side)
-        seat = self.seat() if cut and pose == 'bind' else None
-        if seat is not None:
-            top, front = seat['top'], seat['front']
-            lo = np.array([-1.0, tr.box[0][1], tr.box[0][2]])
-            hi = np.array([1.0, top, front])
-            parts.append(Part('seat', lambda p: np.maximum(p[..., 1] - top, p[..., 2] - front),
-                              lo, hi, SEAT_BLEND, cut=True))
         if small:
             t = self.f.tail
             lo, hi = box_of_points([t.center], t.box_pad)

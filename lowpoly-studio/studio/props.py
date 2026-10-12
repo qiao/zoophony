@@ -63,15 +63,18 @@ def scene_layout(body, role):
     """Calculates the places of the seated pose that size the scene props.
 
     Returns {'drop': the hips offset down that puts the feet of the bind pose on the floor,
-    'seat_top': the height of the seat top under the trunk and the thighs, 'seat': the seat of
-    the body (templates/biped Body.seat, before the drop) or None, 'elbow_y': the height of the
-    elbows of the seated bind pose, 'keys_top', 'keys_front' (with a piano)}.
+    'seat': the seat of the body (templates/biped Body.seat) after the drop, or None for
+    straight legs, 'seat_top': the top of a flat seat under the trunk, 'elbow_y': the height of
+    the elbows of the seated bind pose, 'keys_top', 'keys_front' (with a piano)}. The height map
+    of the seat is the lowest body point over each spot, less facets.offset: the vertices of the
+    low-poly skin sit facets.offset outside the field.
     """
     drop = body.seated_drop()
-    # The vertices of the low-poly skin sit facets.offset outside the field.
-    seat = body.seat() if hasattr(body, 'seat') else None
-    bottom = body.seat_bottom() if seat is not None else body.trunk_bottom()
-    seat_top = bottom - body.cfg.facets.offset - drop
+    off = body.cfg.facets.offset
+    seat = body.seat()
+    if seat is not None:
+        seat = dict(seat, heights=(np.asarray(seat['heights']) - off - drop).tolist())
+    seat_top = body.trunk_bottom() - off - drop
     joints, _ = body.arm_pose('bind')
     out = {'drop': drop, 'seat_top': seat_top, 'seat': seat,
            'elbow_y': float(joints['elbow'][1]) - drop}
@@ -80,6 +83,45 @@ def scene_layout(body, role):
             out['keys_top'] = out['elbow_y'] - pr.piano.keys_below_elbow
             out['keys_front'] = pr.piano.keys_front
     return out
+
+
+def seat_extent(body, lay, c):
+    """Resolves the width, the depth, the middle z, and the top of a seat (a bench or a chair,
+    config c): from the seat of the body (behind the rump to the backs of the shins, the thighs
+    and a margin wide, the top on the rump and the thighs), or from the config with a flat top
+    at the trunk bottom.
+
+    Returns (width, depth, center z, map or None): the map {'xs', 'zs', 'heights' [x][z]} of the
+    top of the pad over the whole seat (mirrored to -x, flat out to the margins).
+    """
+    seat = lay['seat']
+    depth, center_z, width = c.depth, c.center_z, c.width
+    top = None
+    if seat is not None:
+        back = seat['back'] - c.margin
+        front = seat['front'] - body.cfg.facets.offset
+        depth = depth if depth is not None else front - back
+        center_z = center_z if center_z is not None else front - 0.5 * depth
+        width = width if width is not None else 2.0 * (seat['half_x'] + c.margin)
+        if c.fit:
+            H = np.asarray(seat['heights'])
+            xs = list(seat['xs'])
+            half = 0.5 * width
+            if half > xs[-1] + 1e-6:
+                xs.append(half)
+                H = np.vstack([H, H[-1:]])
+            zs = list(seat['zs'])
+            z0, z1 = center_z - 0.5 * depth, center_z + 0.5 * depth
+            if z0 < zs[0] - 1e-6:
+                zs.insert(0, z0)
+                H = np.hstack([H[:, :1], H])
+            zs[-1] = min(zs[-1], z1)
+            full_x = [-x for x in reversed(xs[1:])] + xs
+            full_h = np.vstack([H[:0:-1], H])
+            top = {'xs': full_x, 'zs': zs, 'heights': full_h.tolist()}
+    if depth is None or center_z is None or width is None:
+        raise ValueError('a seat with no seated bind pose needs width, depth, and center_z')
+    return width, depth, center_z, top
 
 
 def piano_sizes(body, pr, role):
@@ -105,46 +147,36 @@ def piano_sizes(body, pr, role):
 
 
 def bench_sizes(body, pr, role):
-    """Resolves the sizes of a bench: the top at the seat of the body, from behind the rump to
-    the backs of the shins (with a seat), or the config extent."""
+    """Resolves the sizes of a bench: the pad on the seat of the body (seat_extent)."""
     c = pr.bench
     lay = scene_layout(body, role)
-    seat = lay['seat']
-    off = body.cfg.facets.offset
-    depth, center_z, width = c.depth, c.center_z, c.width
-    if seat is not None:
-        back = seat['back'] - c.margin
-        front = seat['front'] - off
-        depth = depth if depth is not None else front - back
-        center_z = center_z if center_z is not None else front - 0.5 * depth
-        width = width if width is not None else 2.0 * (seat['half_x'] + c.margin)
-    if depth is None or center_z is None or width is None:
-        raise ValueError(f'prop {pr.name!r}: a bench with no seat in the bind pose needs width, '
-                         'depth, and center_z')
+    width, depth, center_z, top = seat_extent(body, lay, c)
     return {'name': pr.name, 'seat_top': lay['seat_top'], 'width': width, 'depth': depth,
-            'center_z': center_z, 'top_thickness': c.top_thickness, 'colors': dict(c.colors)}
+            'center_z': center_z, 'map': top, 'top_thickness': c.top_thickness,
+            'colors': dict(c.colors)}
 
 
 def chair_sizes(body, pr, role):
     """Resolves the sizes of a chair: the seat as a bench, the back from the trunk height."""
     c = pr.chair
     lay = scene_layout(body, role)
-    seat = lay['seat']
+    width, depth, center_z, top_map = seat_extent(body, lay, c)
     joints, _ = body.arm_pose('bind')
     shoulder_y = float(joints['shoulder'][1]) - lay['drop']
-    depth, center_z, width = c.depth, c.center_z, c.width
-    if seat is not None:
-        back = seat['back'] - c.margin
-        front = seat['front'] - body.cfg.facets.offset
-        depth = depth if depth is not None else front - back
-        center_z = center_z if center_z is not None else front - 0.5 * depth
-        width = width if width is not None else 2.0 * (seat['half_x'] + c.margin)
-    if depth is None or center_z is None or width is None:
-        raise ValueError(f'prop {pr.name!r}: a chair with no seat in the bind pose needs width, '
-                         'depth, and center_z')
-    back_h = c.back_height if c.back_height is not None else 0.55 * (shoulder_y - lay['seat_top'])
-    return {'name': pr.name, 'seat_top': lay['seat_top'], 'width': width, 'depth': depth,
-            'center_z': center_z, 'back_height': back_h, 'colors': dict(c.colors)}
+    top = float(np.max(top_map['heights'])) if top_map else lay['seat_top']
+    back_h = c.back_height if c.back_height is not None else 0.55 * (shoulder_y - top)
+    return {'name': pr.name, 'seat_top': top, 'width': width, 'depth': depth,
+            'center_z': center_z, 'map': top_map, 'back_height': back_h,
+            'colors': dict(c.colors)}
+
+
+def seat_top_at(sizes, x, z):
+    """Returns the height of the top of a seat (bench_sizes, chair_sizes) at points (x, z)."""
+    m = sizes.get('map')
+    if not m:
+        return np.full(np.shape(x), sizes['seat_top'])
+    from props.bench import top_at
+    return top_at(m, x, z)
 
 
 def stand_sizes(body, pr, role):
