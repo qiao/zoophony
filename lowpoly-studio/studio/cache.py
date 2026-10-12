@@ -32,6 +32,11 @@ Two rules keep a cache hit correct:
   not an input. The output paths (cfg.paths) are not inputs, so they are not recorded.
 - A live object that remembers config values across steps hides those reads from the later
   step. Make such a memo inside one step, or in the setup (its reads go to its value).
+
+One rule keeps a key the same in each worktree: a key holds no path of the studio folder. The
+digest of a whole-table read leaves out the untracked tables below it (UNTRACKED), so a read of
+the whole cfg or of cfg.role holds no folder. A truth test of a table records only whether the
+table is empty.
 """
 
 import ast
@@ -63,6 +68,9 @@ UNTRACKED = (('paths',), ('role', 'paths'))
 
 # The marker of a length read in a path (the length of a tracked list).
 LEN = '#len'
+
+# The marker of a truth test in a path (whether a tracked table has a key).
+TRUTH = '#bool'
 
 _MISSING = object()
 
@@ -154,8 +162,9 @@ class Tracked(Section):
 
     Each read goes into the recorder of the running step as (root, path). A read of a table
     returns a Tracked view of it; a read of any other value records that value, whole. Iteration,
-    length, and equality record the whole table. The storage holds the raw values, so the C code
-    of dict (repr, a compare with a plain dict) sees the same content.
+    length, and equality record the whole table. A truth test (`if cfg.role:`) records only
+    whether the table has a key. The storage holds the raw values, so the C code of dict (repr,
+    a compare with a plain dict) sees the same content.
 
     Speed: an attribute read keeps its result in the instance dict, so the next read of the same
     attribute skips the hooks. A table view stays there. A value stays there until the next step
@@ -171,6 +180,12 @@ class Tracked(Section):
         """Records a read of the whole table."""
         _, root, path, _ = self._tk
         note(root, path)
+
+    def __bool__(self):
+        """Tells if the table has a key (records only that fact, not the whole table)."""
+        raw, root, path, _ = self._tk
+        note(root, path + (TRUTH,))
+        return dict.__len__(raw) > 0
 
     def __getitem__(self, key):
         """Reads one key: a Tracked view of a table, or the value (recorded)."""
@@ -320,6 +335,8 @@ def value_at(root, path):
             v = v._tk[0]
         if k == LEN:
             return len(v)
+        if k == TRUTH:
+            return bool(len(v))
         if isinstance(v, dict):
             if not dict.__contains__(v, k):
                 return _MISSING
@@ -331,6 +348,32 @@ def value_at(root, path):
         else:
             return _MISSING
     return v
+
+
+def _drop(value, rest):
+    """Returns a table without the value at the key path rest. Copies only the tables on the
+    way, as plain dicts (the digest of a dict does not depend on its class)."""
+    if isinstance(value, Tracked):
+        value = value._tk[0]
+    if not isinstance(value, dict) or not dict.__contains__(value, rest[0]):
+        return value
+    out = dict(dict.items(value))
+    if len(rest) == 1:
+        del out[rest[0]]
+    else:
+        out[rest[0]] = _drop(dict.__getitem__(value, rest[0]), rest[1:])
+    return out
+
+
+def recorded_value(roots, root, path):
+    """Returns the value of a read for its digest: the raw value at the path, without the
+    untracked tables below the path. Thus a read of the whole cfg or of cfg.role holds no
+    output path and no folder of a role pack."""
+    value = value_at(roots[root], path)
+    for r, u in _UNTRACKED_KEYS:
+        if r == root and len(u) > len(path) and u[:len(path)] == path:
+            value = _drop(value, u[len(path):])
+    return value
 
 
 class _Files:
@@ -495,7 +538,7 @@ class Recorder:
         for root, path in self.reads:
             if root not in roots:
                 raise KeyError(f'step {self.name}: no root {root!r} for the read {path}')
-            reads.append([root, list(path), digest(value_at(roots[root], path))])
+            reads.append([root, list(path), digest(recorded_value(roots, root, path))])
         reads.sort(key=lambda r: json.dumps(r[:2]))
         keys = set(self.code) if _monitor['tool'] is not None else set(_all_code())
         for rel in [k for k in keys if '::' not in k]:
@@ -525,7 +568,7 @@ def recording(rec):
 def matches(manifest, roots):
     """Tells if each recorded read and each code key still has the digest of the manifest."""
     for root, path, d in manifest['reads']:
-        if root not in roots or digest(value_at(roots[root], tuple(path))) != d:
+        if root not in roots or digest(recorded_value(roots, root, tuple(path))) != d:
             return False
     return all(_code_digest(key) == d for key, d in manifest['code'])
 
