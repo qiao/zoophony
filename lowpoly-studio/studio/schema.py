@@ -112,6 +112,21 @@ SHEET = T('The reference sheet: four views of one pose on one plain background.'
     }),
 })
 
+INTAKE = T('The masks of the sheet views (studio/intake.py).', {
+    'foreground': F('str', 'The rule that tells an animal pixel from the background: "colored" (a '
+                           'colored or dark pixel, sheet.foreground) or "difference" (a pixel that '
+                           'differs from the measured background color at its place). "difference" '
+                           'also works for a neutral white or gray fur.', default='colored'),
+    'difference': F('num', 'difference: the summed channel difference of a lighter pixel (or the '
+                           'spread of the channel differences of a colored pixel) at the edge of '
+                           'the figure.', default=30.0),
+    'dark_difference': F('num', 'difference: the summed channel difference of a darker pixel at '
+                                'the edge of the figure. It is larger, so a soft ground shadow '
+                                'stays out.', default=120.0),
+    'soft': F('num', 'difference: the half width of the soft edge, as a share of the threshold.',
+              default=0.3),
+})
+
 TRUNK = T('The trunk: a vertical loft of egg-shaped sections. The width comes from the front and '
           'back masks, the depth from the side mask.', {
     'heights': F('range3', 'Heights of the loft sections: [from, to, step]. "from" is also the '
@@ -666,6 +681,7 @@ SCHEMA = T('An animal config.', {
                          'takes only the bind pose from it.', todo=True),
     }),
     'sheet': SHEET,
+    'intake': INTAKE,
     'field': FIELD,
     'facets': FACETS,
     'paint': PAINT,
