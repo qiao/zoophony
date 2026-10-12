@@ -23,22 +23,28 @@ FPS = 30
 LEAN = 3.0
 
 # Rest positions of the wrists (in the rest frame of the chest) and the elbow poles.
-HOME_R = np.array([-0.19, 0.635, 0.28])
-HOME_L = np.array([0.21, 0.605, 0.27])
-POLE_R = unit([-1.0, -0.7, -0.35])
+# The beat plane is at the chest, in front of the right shoulder (x -0.16, y 0.662).
+HOME_R = np.array([-0.18, 0.665, 0.285])
+HOME_L = np.array([0.215, 0.62, 0.27])
+POLE_R = unit([-1.0, -0.35, -0.25])
 POLE_L = unit([1.0, -0.7, -0.35])
 
 # The 4/4 path of the right wrist: ictus points (offsets from HOME_R) and rebound heights.
+# The wrist stays 0.26 to 0.32 from the shoulder: the arm reaches 0.336 when it is straight,
+# so the elbow stays bent by 35 degrees or more. The tip of the baton spans 0.29 wide and 0.23
+# tall (tools/bear/pattern.py).
 ICTUS = np.array([
-    [0.00, -0.070, 0.012],
-    [0.10, -0.050, 0.010],
-    [-0.115, -0.050, -0.035],
-    [-0.010, -0.005, 0.000],
+    [0.000, -0.080, 0.005],
+    [0.09, -0.055, 0.025],
+    [-0.140, -0.055, -0.045],
+    [-0.005, -0.005, 0.000],
 ])
-REBOUND = [0.036, 0.026, 0.03, 0.07]
+REBOUND = [0.06, 0.05, 0.055, 0.125]
 REBOUND_SHAPE = (0.7, 0.85)
 
-BATON_DIR = unit([0.30, 0.40, 1.0])
+# The baton points up, in, and forward from the paw. Its projection on the frontal plane is 0.67
+# of its length, so it reads from the front and from the back.
+BATON_DIR = unit([0.3, 0.6, 0.75])
 PALM_R = unit([0.35, -1.0, 0.05])
 FINGERS_L = unit([-0.3, 0.1, 1.0])
 PALM_L = unit([-0.55, -0.8, 0.0])
@@ -115,15 +121,17 @@ def beat_body(t, amount=1.0):
     for n in range(5):
         strength = 0.009 if n % 4 == 0 else 0.004
         dip += strength * pulse(k, n - 0.03, 0.16)
+    # The torso turns a little with the right paw (+ yaw turns to the bear's left), and the
+    # head stays on the players.
     wrist, _, _, _ = beat_right(t)
     lateral = (wrist[0] - HOME_R[0]) / 0.1
     roll = 1.8 * math.sin(math.pi * (t - 0.5))
     rot = {
         'hips': euler(roll=0.5 * roll * amount),
-        'spine1': euler(pitch=LEAN + 1.0 * amount, yaw=-2.0 * lateral * amount),
-        'chest': euler(pitch=LEAN, roll=0.6 * roll * amount, yaw=-2.0 * lateral * amount),
+        'spine1': euler(pitch=LEAN + 1.0 * amount, yaw=1.5 * lateral * amount),
+        'chest': euler(pitch=LEAN, roll=0.6 * roll * amount, yaw=1.5 * lateral * amount),
         'neck': euler(pitch=2.0 * pulse(k, 0.05, 0.25) * amount),
-        'head': euler(pitch=4.0 * pulse(k, 0.0, 0.22) * amount, yaw=3.0 * lateral * amount,
+        'head': euler(pitch=4.0 * pulse(k, 0.0, 0.22) * amount, yaw=-1.0 * lateral * amount,
                       roll=-0.5 * roll * amount),
     }
     return rot, np.array([0.0, -dip * amount, 0.0])
@@ -179,7 +187,7 @@ def clip_ready(t):
     lift = 0.004 * b
     arms = {
         'R': {'wrist': np.array([-0.205, 0.655 + lift, 0.275]), 'pole': POLE_R,
-              'hand': ('baton', unit([-0.15, 0.85, 0.9]), unit([1.0, -0.15, 0.1])), 'twist': 0.5},
+              'hand': ('baton', unit([0.1, 0.62, 1.0]), unit([1.0, -0.15, 0.1])), 'twist': 0.5},
         'L': {'wrist': np.array([0.21, 0.645 + lift, 0.27]), 'pole': POLE_L,
               'hand': ('fingers', unit([-0.2, 0.5, 1.0]), unit([-1.0, -0.1, 0.25])),
               'twist': 0.5},
@@ -256,10 +264,11 @@ def clip_hush(t):
 
 def clip_cutoff(t):
     """Makes a release: both paws lift, loop, cut off with a click, and hold."""
-    up_r = np.array([-0.24, 0.72, 0.25])
-    up_l = np.array([0.24, 0.72, 0.25])
-    end_r = np.array([-0.12, 0.615, 0.30])
-    end_l = np.array([0.125, 0.615, 0.295])
+    # The paws close the cutoff in front of the shoulders, and they stay 0.35 apart.
+    up_r = np.array([-0.25, 0.74, 0.25])
+    up_l = np.array([0.25, 0.74, 0.25])
+    end_r = np.array([-0.17, 0.635, 0.30])
+    end_l = np.array([0.18, 0.625, 0.29])
     if t < 0.5:
         u = smooth(t / 0.5)
         wr = HOME_R + (up_r - HOME_R) * u
@@ -345,10 +354,10 @@ def clip_bow(t):
     down = smooth(t / 0.6)
     bend = window(t, 0.5, 1.7, 2.3, 3.5)
     rot = {
-        'hips': euler(pitch=20.0 * bend),
-        'spine': euler(pitch=5.0 * bend),
-        'spine1': euler(pitch=5.0 * bend),
-        'chest': euler(pitch=4.0 * bend),
+        'hips': euler(pitch=15.0 * bend),
+        'spine': euler(pitch=8.0 * bend),
+        'spine1': euler(pitch=7.0 * bend),
+        'chest': euler(pitch=5.0 * bend),
         'neck': euler(pitch=6.0 * bend),
         'head': euler(pitch=10.0 * bend),
         'tail': euler(pitch=-20.0 * bend),
@@ -357,18 +366,22 @@ def clip_bow(t):
     rot.update(ears(t, flick=0.5 * bend))
     hips = np.array([0.0, -0.012 * bend, -0.03 * bend])
     # Right paw: from the beat home to the side of the thigh, the baton points down.
-    side_r = np.array([-0.255, 0.375, 0.06])
-    wr = HOME_R + (side_r - HOME_R) * down
-    tip = unit(BATON_DIR * (1 - down) + unit([-0.3, -0.65, -0.75]) * down)
-    # Left paw: on the belly.
-    belly = np.array([0.075, 0.52, 0.265])
+    side_r = np.array([-0.31, 0.42, 0.09])
+    # The paw swings out on its way down, so the forearm passes clear of the belly.
+    wr = HOME_R + (side_r - HOME_R) * down + np.array([-0.06, 0.0, 0.03]) * math.sin(math.pi * down)
+    # The baton turns out to the side on its way down, so it stays clear of the belly.
+    tip = unit(BATON_DIR * (1 - down) + unit([-0.3, -0.65, -0.75]) * down
+               + np.array([-1.2, 0.0, 0.2]) * math.sin(math.pi * down))
+    # Left paw: on the chest, the elbow out to the side, so the forearm passes above the belly.
+    belly = np.array([0.08, 0.60, 0.29])
     wl = HOME_L + (belly - HOME_L) * down
-    fingers = unit(FINGERS_L * (1 - down) + unit([-1.0, -0.15, 0.25]) * down)
-    palm = unit(PALM_L * (1 - down) + unit([-0.15, 0.0, -1.0]) * down)
+    fingers = unit(FINGERS_L * (1 - down) + unit([-1.0, 0.05, 0.1]) * down)
+    palm = unit(PALM_L * (1 - down) + unit([-0.1, 0.0, -1.0]) * down)
     arms = {
-        'R': {'wrist': wr, 'pole': unit([-0.6, 0.0, -1.0]),
+        'R': {'wrist': wr, 'pole': unit([-1.0, 0.0, -0.6]),
               'hand': ('baton', tip, unit([0.9, -0.2, -0.3])), 'twist': 0.5},
-        'L': {'wrist': wl, 'pole': unit([1.0, -0.6, -0.5]), 'hand': ('fingers', fingers, palm), 'twist': 0.5},
+        'L': {'wrist': wl, 'pole': unit([1.0, -0.15, -0.35]), 'hand': ('fingers', fingers, palm),
+              'twist': 0.5},
     }
     return spec(rot, hips, arms)
 

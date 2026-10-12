@@ -4,3 +4,6 @@ out/fit/
 out/test-*
 out/frames/face.png
 __pycache__/
+out/frames/dbg*.png
+out/frames/wire.png
+out/frames/qf.png

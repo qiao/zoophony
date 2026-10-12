@@ -42,13 +42,14 @@ function motionShots() {
     ],
     deform: [
       { clip: 'crescendo', t: 3.9, az: -35, el: 15, d: 1.3, ty: 0.68, tz: 0.1, fov: 28, label: 'crescendo high: left shoulder' },
+      { clip: 'crescendo', t: 3.9, az: -20, el: 55, d: 1.4, ty: 0.68, tz: 0.15, fov: 28, label: 'crescendo high, from above: paws clear' },
       { clip: 'cue_left', t: 2.1, az: -110, el: 15, d: 1.3, ty: 0.66, fov: 28, label: 'cue: left shoulder, behind' },
       { clip: 'cutoff', t: 0.5, az: 0, el: 30, d: 1.4, ty: 0.68, tz: 0.1, fov: 28, label: 'cutoff lift: shoulders' },
       { clip: 'cutoff', t: 2.5, az: -40, el: 5, d: 1.0, ty: 0.62, tz: 0.25, fov: 28, label: 'cutoff hold: closed left paw' },
       { clip: 'hush', t: 3.8, az: -70, el: 10, d: 1.3, ty: 0.6, tz: 0.1, fov: 28, label: 'hush: left elbow' },
       { clip: 'beat_4_4', t: 2.0, az: 110, el: 10, d: 1.3, ty: 0.62, tz: 0.1, fov: 28, label: 'beat 3: right elbow' },
       { clip: 'bow', t: 2.0, az: 60, el: 10, d: 1.6, ty: 0.45, fov: 28, label: 'bow: belly and hips' },
-      { clip: 'reference', t: 0, az: 150, el: 15, d: 1.6, ty: 0.55, fov: 28, label: 'sheet pose: back (bound with arms up)' },
+
     ],
     pattern: [
       { clip: 'beat_4_4', t: 3.99, az: 165, el: 45, d: 1.7, ty: 0.75, tz: 0.25, fov: 30, trail: [0, 3.99], ictus: [0, 1, 2, 3], label: '4/4 tip path, over the shoulder' },
@@ -142,12 +143,21 @@ async function main() {
       const dir = path.join(ROOT, 'out', 'compare');
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, 'compare.png'), Buffer.from(res.png.split(',')[1], 'base64'));
+      for (const [name, url] of Object.entries(res.renders)) {
+        fs.writeFileSync(path.join(dir, `render_${name}.png`), Buffer.from(url.split(',')[1], 'base64'));
+      }
+      for (const [name, url] of Object.entries(res.faces)) {
+        const file = name.startsWith('facets_') ? `${name}.png` : `face_${name}.png`;
+        fs.writeFileSync(path.join(dir, file), Buffer.from(url.split(',')[1], 'base64'));
+      }
       fs.writeFileSync(path.join(dir, 'iou.json'), `${JSON.stringify({ clip: res.clip, posed: res.posed, views: res.results }, null, 2)}\n`);
       if (!res.posed) {
         console.log(`(no clip "${clip}": the rest pose was rendered)`);
       }
       for (const [name, r] of Object.entries(res.results)) {
         console.log(`${name.padEnd(14)} IoU ${r.iou.toFixed(4)}  x shift ${String(r.dx).padStart(3)} px  mean RGB ref ${r.refMeanRGB} model ${r.modelMeanRGB}  luma p10/50/90 ref ${r.refLuma10_50_90} model ${r.modelLuma10_50_90}`);
+        const f = (c) => `H ${c.hue} S ${c.sat} V ${c.val} (lit quarter H ${c.litHue} S ${c.litSat})`;
+        console.log(`${''.padEnd(14)} fur median ref ${f(r.refFurHSV)}  model ${f(r.modelFurHSV)}`);
       }
       console.log(`wrote ${path.join(dir, 'compare.png')}`);
     } else if (cmd === 'frames') {
@@ -166,6 +176,9 @@ async function main() {
           continue;
         }
         const png = await page.evaluate(([s]) => window.renderSheet(s, { cols: 4, w: 340, h: 400 }), [shots]);
+        if (shots.length % 4 !== 0) {
+          console.log(`note: ${name} has ${shots.length} shots, the grid has empty cells`);
+        }
         const file = path.join(dir, `${name}.png`);
         fs.writeFileSync(file, Buffer.from(png.split(',')[1], 'base64'));
         console.log(`wrote ${file}`);

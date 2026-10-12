@@ -5,8 +5,9 @@ Run with Blender, or with any Python that has numpy:
     blender -b --factory-startup --python tools/bear/pattern.py -- [--clip beat_4_4]
 
 Writes out/frames/pattern_plot.png: the frontal plane seen from behind the bear (the right of
-the bear is on the right). The tip path is dark, the wrist path is light, and the dots are the
-ictus points of the beats (1 to 4). It also prints the speed of the tip at each ictus and the
+the bear is on the right). The tip path is dark, the wrist path is light, the squares are the
+ictus points (beat 1 red, 2 blue, 3 green, 4 orange), and the bar at the bottom left is 0.1
+bear heights long. It also prints the speed of the tip at each ictus and the
 lowest point of each beat, which shows the click of the ictus: the vertical speed turns over.
 """
 
@@ -81,6 +82,11 @@ def draw(paths, marks, size=(720, 560)):
     for p, color in marks:
         x, y = to_px(p[None])[0].astype(int)
         img[y - 6:y + 7, x - 6:x + 7] = color
+    # A scale bar of 0.1 bear heights (10 cm on the 1 m bear) at the bottom left.
+    bar = int(round(0.1 * scale))
+    img[h - 30:h - 26, 20:20 + bar] = (60, 60, 60)
+    img[h - 38:h - 18, 20:22] = (60, 60, 60)
+    img[h - 38:h - 18, 18 + bar:20 + bar] = (60, 60, 60)
     return img
 
 

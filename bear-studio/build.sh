@@ -15,8 +15,10 @@ python3 tools/measure.py
 
 echo '[2/4] body field, low-poly mesh, colors, rig, weights, clips -> out/bear.glb'
 "$BLENDER" -b --factory-startup --python tools/bear/build.py -- "$@" 2>&1 \
-  | grep -E '^(surface nets|decimated|body:|bone heat|stats|wrote)|Error|Traceback' || true
+  | grep -E '^(surface nets|remeshed|body:|bone heat|contact|wrote)|Error|Traceback' || true
 test -s out/bear.glb
+# Each clip must pass the contact check (tools/bear/contacts.py).
+python3 -c "import json, sys; c = json.load(open('out/bear.stats.json'))['contacts']['clips']; bad = [k for k, v in c.items() if not v['pass']]; sys.exit('contact check failed: ' + ', '.join(bad) if bad else 0)"
 
 if [[ " $* " == *" --no-shots "* ]]; then
   exit 0
