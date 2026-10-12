@@ -467,9 +467,12 @@ def gate_mesh(cfg, parts, v, tris, height_px):
     ]
     out[2]['pass'] = out[2]['value'] <= 0
     out[3]['pass'] = len(slits) <= g.slit_faces
+    centers = v[tris].mean(axis=1)
     if inward.size:
-        out[0]['where'] = {'faces': [int(f) for f in inward[:20]]}
+        out[0]['where'] = {'face': int(inward[0]), 'faces': [int(f) for f in inward[:20]],
+                           'position': [round(float(x), 4) for x in centers[inward[0]]]}
     if slits:
-        out[3]['where'] = {'faces': slits[:20],
+        out[3]['where'] = {'face': slits[0], 'faces': slits[:20],
+                           'position': [round(float(x), 4) for x in centers[slits[0]]],
                            'smallest_gap_px': round(smallest * height_px, 2)}
     return out
