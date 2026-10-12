@@ -55,6 +55,10 @@ Open these files for these kinds of work:
 - SoundFont: `assets/soundfont/README.md` gives its source and checksum.
 - Hall reverb: `assets/hall/README.md` gives the source, the license, the checksums, and the
   steps that made the impulse response.
+- Standalone bear conductor: `bear-studio/` is a separate project that the user asked for on
+  2026-10-11. It builds a rigged low-poly bear with conducting clips from its own reference
+  image, outside the rules of this file. The app does not use it, and the lint skips it. Its
+  `README.md` gives the method and the commands.
 
 `docs/research/` holds the facts behind the decisions, with sources. Keep these reports as the
 record of their date. Put new research in a new report.
