@@ -379,6 +379,10 @@ shadow = 0.2
 # The compare of the renders with the sheet.
 [compare]
 rows = [200, 805]
+# The 3/4 view of the sheet turns the head about 6 degrees toward the camera (the sheet check of
+# the intake measures +6.3 from the eye spacing). The compare render turns the head in this
+# range and keeps the best IoU (+6).
+head_turn = { three_quarter = [0.0, 12.0] }
 fur_band = [0.25, 0.70]
 head_share = 0.3
 fur_min_saturation = 0.06
