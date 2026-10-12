@@ -1,0 +1,164 @@
+{
+  "animal": "polar-bear",
+  "role": "pianist",
+  "run": "20261012-080948-47362",
+  "made": "2026-10-12T08:10:03-0700",
+  "role_key": "58f0fac860f26513",
+  "reason": "a role check: the role pack, the template, or the clips changed since the last seed report",
+  "require": "kept",
+  "kept": 1,
+  "robust": false,
+  "rule_pass": true,
+  "meshes": 7,
+  "robust_seeds": 1,
+  "seeds": [
+    {
+      "seed": 3,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [
+          "contact 1.92 cm forearm R"
+        ],
+        "performance": [
+          "contact 1.92 cm forearm R"
+        ]
+      }
+    },
+    {
+      "seed": 1,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [],
+        "performance": []
+      }
+    },
+    {
+      "seed": 5,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [
+          "folds 1"
+        ],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [
+          "contact 1.66 cm forearm L",
+          "folds 4"
+        ],
+        "performance": [
+          "contact 1.66 cm forearm L",
+          "folds 4"
+        ]
+      }
+    },
+    {
+      "seed": 6,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slivers 0.0118",
+        "slit_faces 6"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 2,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [
+          "contact 1.01 cm forearm R"
+        ],
+        "performance": [
+          "contact 1.01 cm forearm R"
+        ]
+      }
+    },
+    {
+      "seed": 4,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [
+          "contact 1.55 cm forearm R"
+        ],
+        "performance": [
+          "contact 1.55 cm forearm R"
+        ]
+      }
+    },
+    {
+      "seed": 7,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [
+          "contact 1.51 cm forearm R",
+          "folds 4"
+        ],
+        "performance": [
+          "contact 1.51 cm forearm R",
+          "folds 4"
+        ]
+      }
+    },
+    {
+      "seed": 8,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [
+          "contact 1.46 cm forearm R",
+          "folds 6"
+        ],
+        "performance": [
+          "contact 1.46 cm forearm R",
+          "folds 6"
+        ]
+      }
+    }
+  ]
+}
