@@ -18,6 +18,7 @@ The stages (each one writes its outputs into <out>/stages/, see studio/stages.py
     clips        the clips of the role -> actions
     contacts     the contact and fold check of each clip, and the fold repair
     export       GLB, stats, and the viewer config
+    diagnostics  the located contacts and folds, and the fold debug list
 
 The model stages (field to details) take one input from the role: the bind pose.
 """
@@ -370,6 +371,13 @@ STAGES = [
                   'fold_repairs', 'contact_report', 'pack'),
                  {'stats': 'json'},
                  'The GLB and the stats.'),
+    # studio-diag: the located contacts and folds and the fold debug list (studio/contacts.py).
+    # studio/locate.py reads its data.json for checks.json and the look report.
+    stages.Stage('diagnostics', contacts.stage_diagnostics,
+                 ('template', 'parts', 'surface_parts', 'samples', 'pack', 'contact_report',
+                  'final_weights'),
+                 {'diagnostics': 'json'},
+                 'The located contacts and folds, and the fold debug list.'),
 ]
 
 

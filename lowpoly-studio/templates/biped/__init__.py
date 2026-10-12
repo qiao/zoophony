@@ -9,6 +9,7 @@ The template is the interface between the studio and a body plan:
     weights(cfg, body, ...)      the weight rules after bone heat
     correctives(kinds, ...)      the corrective shapes that a role names
     contact_spec(role, details)  the test groups of the contact check
+    region_name(bone, point, normal)   the body region of a place (the located failures)
 """
 
 from templates.biped.body import Body
@@ -18,7 +19,31 @@ from templates.biped.rig import weights
 from templates.biped.solver import Skeleton
 
 __all__ = ['Body', 'Skeleton', 'bone_order', 'contact_spec', 'correctives', 'layout',
-           'rest_skeleton', 'rigid_only', 'skeleton_extras', 'weights']
+           'region_name', 'rest_skeleton', 'rigid_only', 'skeleton_extras', 'weights']
+
+# The body region of each bone (without its side): the name on the side of the body, on the
+# front, and on the back.
+REGIONS = {
+    'root': ('hips', 'lower belly', 'rump'),
+    'hips': ('hips', 'lower belly', 'rump'),
+    'spine': ('flank', 'belly', 'lower back'),
+    'spine1': ('flank', 'belly', 'back'),
+    'chest': ('ribs', 'chest', 'upper back'),
+    'neck': ('neck', 'throat', 'nape'),
+    'head': ('head', 'face', 'back of the head'),
+    'ear': ('ear', 'ear', 'ear'),
+    'clavicle': ('shoulder', 'shoulder', 'shoulder'),
+    'upper_arm': ('upper arm', 'upper arm', 'upper arm'),
+    'forearm': ('forearm', 'forearm', 'forearm'),
+    'forearm_twist': ('forearm', 'forearm', 'forearm'),
+    'hand': ('paw', 'paw', 'paw'),
+    'fingers': ('paw', 'paw', 'paw'),
+    'thigh': ('thigh', 'thigh', 'thigh'),
+    'shin': ('shin', 'shin', 'shin'),
+    'foot': ('foot', 'foot', 'foot'),
+    'toes': ('toes', 'toes', 'toes'),
+    'tail': ('tail', 'tail', 'tail'),
+}
 
 
 def contact_spec(role):
@@ -41,3 +66,29 @@ def contact_spec(role):
         spec[side] = {'arm': [f'upper_arm_{side}', f'forearm_{side}', f'forearm_twist_{side}',
                               f'hand_{side}', f'fingers_{side}'], 'tests': groups}
     return spec
+
+
+def region_name(bone, point, normal):
+    """Names the body region of a place in the bind pose: the region of its dominant bone, the
+    way the surface faces, and the side of the animal (x > 0 is its left).
+
+    For example "belly, front, left". A bone with no region (a prop) gives its own name.
+    """
+    base, side = bone, None
+    if bone.endswith(('_L', '_R')):
+        base, side = bone[:-2], 'left' if bone.endswith('_L') else 'right'
+    names = REGIONS.get(base)
+    if names is None:
+        return bone
+    nx, ny, nz = (float(v) for v in normal)
+    if nz > 0.5:
+        name, facing = names[1], 'front'
+    elif nz < -0.5:
+        name, facing = names[2], 'back'
+    elif abs(ny) > abs(nx):
+        name, facing = names[0], 'top' if ny > 0 else 'under'
+    else:
+        name, facing = names[0], 'side'
+    if side is None:
+        side = 'left' if point[0] > 0.01 else 'right' if point[0] < -0.01 else 'middle'
+    return f'{name}, {facing}, {side}'
