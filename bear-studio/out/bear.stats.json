@@ -1,13 +1,13 @@
 {
-  "body_triangles": 1220,
-  "median_edge_px": 29.1,
+  "body_triangles": 1356,
+  "median_edge_px": 27.5,
   "edge_quartiles_px": [
-    23.1,
-    35.8
+    21.6,
+    34.8
   ],
-  "sliver_share": 0.0066,
+  "sliver_share": 0.0059,
   "folded_faces": 0,
-  "bones": 29,
+  "bones": 31,
   "clips": [
     "reference",
     "ready",
@@ -21,6 +21,13 @@
     "bow",
     "performance"
   ],
+  "corrective": {
+    "region_vertices": 442,
+    "inverted_before": 0,
+    "inverted_after": 0,
+    "inward_after": 6,
+    "max_delta": 0.0182
+  },
   "contacts": {
     "limit": 0.01,
     "clips": {
@@ -29,6 +36,8 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
         "pass": true
       },
       "ready": {
@@ -36,13 +45,17 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
         "pass": true
       },
       "beat_4_4": {
-        "depth": 0.0002,
-        "side": "R",
-        "part": "forearm",
-        "time_s": 1.0,
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
         "pass": true
       },
       "cue_left": {
@@ -50,6 +63,8 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
+        "turned_faces": 1,
+        "folded_faces": 0,
         "pass": true
       },
       "crescendo": {
@@ -57,6 +72,8 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
         "pass": true
       },
       "hush": {
@@ -64,6 +81,8 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
         "pass": true
       },
       "cutoff": {
@@ -71,6 +90,8 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
+        "turned_faces": 1,
+        "folded_faces": 0,
         "pass": true
       },
       "nod_turn": {
@@ -78,6 +99,8 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
         "pass": true
       },
       "sway_dip": {
@@ -85,6 +108,8 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
         "pass": true
       },
       "bow": {
@@ -92,16 +117,20 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
+        "turned_faces": 3,
+        "folded_faces": 0,
         "pass": true
       },
       "performance": {
-        "depth": 0.0002,
-        "side": "R",
-        "part": "forearm",
-        "time_s": 3.0,
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 3,
+        "folded_faces": 0,
         "pass": true
       }
     }
   },
-  "total_triangles": 2422
+  "total_triangles": 2558
 }

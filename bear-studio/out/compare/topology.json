@@ -1,5 +1,10 @@
 {
   "reference": {
+    "belly_contrast": {
+      "luma_std": 16.57,
+      "fine_std": 3.6,
+      "luma_mean": 102.2
+    },
     "mean_chord_px": 22.4,
     "chord_quartiles_px": [
       6.0,
@@ -37,6 +42,11 @@
     }
   },
   "render_front_old.png": {
+    "belly_contrast": {
+      "luma_std": 12.18,
+      "fine_std": 4.36,
+      "luma_mean": 122.7
+    },
     "mean_chord_px": 23.4,
     "chord_quartiles_px": [
       8.2,
@@ -74,39 +84,44 @@
     }
   },
   "render_front.png": {
-    "mean_chord_px": 22.8,
+    "belly_contrast": {
+      "luma_std": 15.43,
+      "fine_std": 3.51,
+      "luma_mean": 96.9
+    },
+    "mean_chord_px": 30.0,
     "chord_quartiles_px": [
-      8.0,
-      20.0,
-      33.0
+      17.0,
+      22.0,
+      32.0
     ],
-    "edge_length_estimate_px": 50.3,
-    "facets_across_belly": 9,
-    "facets_along_arm": 7,
+    "edge_length_estimate_px": 66.1,
+    "facets_across_belly": 5.4,
+    "facets_along_arm": 6,
     "edge_directions_0_30_60_90_120_150": {
       "belly": [
-        0.18,
-        0.11,
-        0.149,
-        0.263,
-        0.167,
-        0.131
+        0.336,
+        0.093,
+        0.125,
+        0.176,
+        0.09,
+        0.181
       ],
       "chest": [
         0.076,
-        0.1,
-        0.314,
-        0.327,
-        0.124,
+        0.112,
+        0.286,
+        0.328,
+        0.139,
         0.06
       ],
       "arm": [
-        0.007,
-        0.005,
-        0.062,
-        0.323,
-        0.57,
-        0.034
+        0.009,
+        0.057,
+        0.015,
+        0.266,
+        0.62,
+        0.033
       ]
     }
   }
