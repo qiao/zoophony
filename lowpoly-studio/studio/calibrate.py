@@ -16,11 +16,12 @@ The light and the palette:
 4. For each key level, the hemisphere level follows from the rule, and the fur palette from
    the fur medians of the sheet (a scale of each channel of the palette of the GLB). The key
    level whose belly contrast equals the contrast of the sheet wins (bisection).
-5. The fur family (belly, muzzle, ear, inner ear, brow) takes the same scale. The belly and the
-   muzzle take the ratio to the fur on the sheet when the config has such a feature. The dark
-   pieces take the colors of the dark pixels of their blobs on the sheet: the nose and the claw
-   the median, the eye outline the median, and the iris (eye) the median of the darkest
-   quarter.
+5. The fur family (belly, muzzle, ear, inner ear, brow) takes the same scale, so it keeps its
+   ratios to the fur. (A belly from the "light" class of the sheet takes the brightest facets:
+   on the polar bear it made the belly 13 levels too light, and the facet contrast failed.)
+   The dark pieces take the colors of the dark pixels of their blobs on the sheet: the nose
+   and the claw the median, the eye outline the median, and the iris (eye) the median of the
+   darkest quarter.
 
 The color classes: the share of the fur pixels of the sheet that each class of measure.classes
 with a fixed threshold takes (a class relative to the median of a region is left out). A class
@@ -343,19 +344,12 @@ def fit_light(cfg, basis, sheet, contrast=None):
 
 
 def palette(cfg, source_palette, sheet, scale):
-    """Makes the new palette: the fur family scaled from the palette of the GLB, the belly and
-    the muzzle from their ratio to the fur on the sheet, the dark pieces from the sheet."""
+    """Makes the new palette: the fur family scaled from the palette of the GLB, and the dark
+    pieces from the sheet."""
     out = {name: list(rgb) for name, rgb in cfg.paint.palette.items()}
     for name in FUR_FAMILY:
         if name in source_palette:
             out[name] = scaled(source_palette[name], scale)
-    fur_lin = [LIN[v] for v in out['fur']]
-    for name in ('belly', 'muzzle'):
-        if name in sheet.blobs and name in out:
-            ratio = [LIN[sheet.blobs[name][c]] / max(LIN[int(round(sheet.median[c]))], 1e-6)
-                     for c in range(3)]
-            out[name] = [ENCODE[int(round(min(fur_lin[c] * ratio[c], 1.0) * 65535))]
-                         for c in range(3)]
     for name, feature in DARK.items():
         key = f'{feature}.darkest' if name == 'eye' else f'{feature}.dark'
         if key in sheet.blobs and name in out:
