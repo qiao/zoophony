@@ -11,7 +11,7 @@ the results, and the open limits. `animal.toml` holds all constants of the bear,
 Build it from `lowpoly-studio/`:
 
 ```bash
-python3 studio build bear          # the seed search; seed 3 passes first (about 65 s)
+python3 studio build bear          # the seed pool: seed 3 passes first (about 70 s cold)
 python3 studio build bear --seed 5 # one seed
 python3 studio view bear           # the viewer on a free port
 ```
@@ -287,7 +287,7 @@ All numbers come from `python3 studio build bear` on the last commit (byte-ident
 | Bones | 31 |
 | Morph targets | 2 (`arm_down_L`, `arm_down_R`) |
 | Clips | 11 |
-| Remesh seed | 3 (the first seed of `SEEDS`; all 8 seeds pass, see "Seed") |
+| Remesh seed | 3 (the first seed of `facets.seeds`. 7 of 8 seeds pass: the remesh gate stops seed 2, see "Seed") |
 | Fold repair | 1 round, 1 face |
 | GLB size | 1.4 MB |
 | Folded faces in the rest mesh | 0 |
@@ -520,8 +520,10 @@ The tip of the baton at each ictus of `beat_4_4` (`roles/conductor/pattern.py`, 
   camera than the body, and its arms hang further forward than the side view shows. One rigid
   pose cannot match all four views, so the 3/4 IoU stays near 0.91. The front view of the
   sheet is not symmetric, and the model is.
-- **The remesh seed matters for the look.** All 8 seeds pass the check, but the facets, the
-  facet contrast, and the shape of the tan edge change with the seed. Seed 3 is the default.
+- **The remesh seed matters for the look.** All 8 seeds pass the contact and fold check, but
+  the facets, the facet contrast, and the shape of the tan edge change with the seed. Seed 3 is
+  the default. The remesh gate (2026-10-12) stops seed 2: 1036 quads (the band is 765 to 1035),
+  1.08% slivers, and 4 open edges.
 - **Snout from the front.** The snout reads round from the side and the 3/4 view. From the
   front, the tan edge follows the facets, so it reads as a rounded block, not as the smooth
   disk of the sheet.
