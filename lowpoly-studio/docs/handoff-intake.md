@@ -15,8 +15,8 @@ the golden file changes in a commit of its own.
 | 2 | Foreground by the background difference | done (2db71c8b) |
 | 3 | `studio calibrate`: light, palette, color classes | open |
 | 4 | Sheet consistency at intake, head turn of a view in the compare | open |
-| 6 | Pixel floor of the feature limits | open |
-| 7 | Compact `new --like` | open |
+| 6 | Pixel floor of the feature limits | code done (07df1dd8), off for the bear and the polar bear |
+| 7 | Compact `new --like` | done (4554e5f7) |
 | 8 | Quad calibration of QuadriFlow | open |
 
 ## Measures
@@ -29,6 +29,15 @@ tests.test_intake` (about 13 s).
 
 The bear and the polar bear keep the colored rule: the masks are the reference of the IoU, so a
 new mask changes the measure and does not bring the model closer to the sheet.
+
+Item 6: with a floor of 1 px on the last builds, the bear keeps its 11 failures (its eye
+differences are 7 px and more). The polar bear passes the far 3/4 eye outline (sheet 4 px,
+render 5 px), and with the bear eye limit 0.08 in place of its hand value 0.11, the front eyes
+pass too.
+
+Item 7: `new polar-bear-2 --like bear` on the polar bear sheet writes 477 lines (the scaffold
+had 1534). The writer parses the result again and compares it with the like config plus the
+changes.
 
 ## Regressions
 
