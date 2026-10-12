@@ -28,16 +28,18 @@ RIGID_ONLY = ('root',)
 
 def bone_order(role):
     """Lists all bones in parent order: each hand prop of the role comes right after the fingers
-    of its hand."""
+    of its hand, and the scene props come last (children of the root)."""
     order = list(BODY_BONES)
     for pr in props.hand_props(role):
         order.insert(order.index(f'fingers_{pr.attach.side}') + 1, pr.name)
+    order += [pr.name for pr in props.scene_props(role)]
     return order
 
 
 def rigid_only(role):
-    """Lists the bones that bone heat leaves out (the root and the hand props)."""
-    return RIGID_ONLY + tuple(pr.name for pr in props.hand_props(role))
+    """Lists the bones that bone heat leaves out (the root and the props)."""
+    return RIGID_ONLY + tuple(pr.name for pr in props.hand_props(role)) + tuple(
+        pr.name for pr in props.scene_props(role))
 
 
 def layout(cfg, body, role, pose='bind'):
@@ -84,6 +86,10 @@ def layout(cfg, body, role, pose='bind'):
     for pr in props.hand_props(role):
         _, grip, tip = props.make(body, pr, pose)
         b[pr.name] = (grip, tip, f'hand_{pr.attach.side}', up)
+    for i, pr in enumerate(props.scene_props(role)):
+        # A short bone on the floor under the middle of the animal: the prop is rigid on it.
+        head = np.array([0.0, 0.0, -0.05 - 0.02 * i])
+        b[pr.name] = (head, head + np.array([0.0, 0.1, 0.0]), 'root', fwd)
     return b
 
 

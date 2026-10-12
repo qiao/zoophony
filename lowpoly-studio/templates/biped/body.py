@@ -40,7 +40,8 @@ class Body:
         self.views = views
         self.f = cfg.field
         self.bind = bind
-        self.legs_straight = bind.hip_flex == 0.0 and bind.knee_flex == 0.0
+        self.legs_straight = (bind.hip_flex == 0.0 and bind.knee_flex == 0.0
+                              and bind.hip_abduct == 0.0)
 
     def arm_pose(self, pose):
         """Calculates the joints and the bone frames of the left arm in a pose.
@@ -86,20 +87,57 @@ class Body:
         Returns ({hip, knee, ankle, ball, toe}, (R, t) or None). The legs of the sheet are
         straight. A bind pose with hip_flex and knee_flex (a seated player) raises the thigh
         forward at the hip and bends the shin back at the knee; the foot moves with the shin,
-        p -> R @ p + t. (The seated bind pose is a seam for a seated role: no role uses it yet.)
+        p -> R @ p + t. The pianist role uses the seated bind pose.
         """
         j = self.f.leg.joints
         joints = {k: np.array(j[k]) for k in ('hip', 'knee', 'ankle', 'ball', 'toe')}
         if pose != 'bind' or self.legs_straight:
             return joints, None
         H = joints['hip']
-        r1 = rot_axis((1, 0, 0), -math.radians(self.bind.hip_flex))
+        r1, r2 = self.leg_rotations()
         K = H + r1 @ (joints['knee'] - H)
-        r2 = rot_axis((1, 0, 0), math.radians(self.bind.knee_flex)) @ r1
         out = {'hip': H, 'knee': K}
         for k in ('ankle', 'ball', 'toe'):
             out[k] = K + r2 @ (joints[k] - joints['knee'])
         return out, (r2, K - r2 @ joints['knee'])
+
+    def leg_rotations(self):
+        """Calculates the turns of the left thigh (r1) and of the left shin and foot (r2) from the
+        sheet pose to the bind pose: the thigh rises forward by hip_flex, the knee bends back by
+        knee_flex, and the whole leg turns out about the vertical axis by hip_abduct (the knees
+        apart, so the thighs of a seated pose leave no slit between them)."""
+        b = self.bind
+        out = rot_axis((0, 1, 0), math.radians(b.hip_abduct))
+        r1 = out @ rot_axis((1, 0, 0), -math.radians(b.hip_flex))
+        r2 = out @ rot_axis((1, 0, 0), math.radians(b.knee_flex)) @ rot_axis(
+            (1, 0, 0), -math.radians(b.hip_flex))
+        return r1, r2
+
+    def seated_drop(self):
+        """Calculates how far the body drops in a seated pose so that the feet of the bind pose
+        stand on the floor: the height of the lowest point of the moved soles (0 for straight
+        legs)."""
+        _, move = self.leg_pose('bind')
+        if move is None:
+            return 0.0
+        ft = self.f.leg.foot
+        rot, t = move
+        corners = [np.array([ft.center[0] + dx * ft.radii[0], 0.0, ft.center[2] + dz * ft.radii[2]])
+                   for dx in (-1.0, 1.0) for dz in (-1.0, 1.0)]
+        corners += [np.array([c[0], 0.0, c[2]]) for c in self.toe_centers(1, 'reference')]
+        return float(min((rot @ c + t)[1] for c in corners))
+
+    def trunk_bottom(self):
+        """Calculates the height of the lowest point of the trunk loft in the bind pose (the
+        point that sits on a seat), on a grid of 2 mm steps under the hips."""
+        trunk = next(p for p in self.parts('bind', small=False) if p.name == 'trunk')
+        x = np.linspace(-0.12, 0.12, 13)
+        z = np.linspace(trunk.lo[2], trunk.hi[2], 25)
+        y = np.arange(trunk.lo[1], self.f.leg.joints.hip[1], 0.002)
+        X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
+        pts = np.stack([X.ravel(), Y.ravel(), Z.ravel()], axis=1)
+        inside = trunk.fn(pts) < 0.0
+        return float(pts[inside, 1].min()) if inside.any() else float(self.f.trunk.heights[0])
 
     def reference_spec(self, props):
         """Makes the pose spec of the sheet: the arms (and the legs) turn from the bind pose back
@@ -119,9 +157,7 @@ class Body:
         _, move = self.leg_pose('bind')
         if move is not None:
             # A seated bind pose: the legs turn back to straight with forward kinematics.
-            b = self.bind
-            r1 = rot_axis((1, 0, 0), -math.radians(b.hip_flex))
-            r2 = rot_axis((1, 0, 0), math.radians(b.knee_flex)) @ r1
+            r1, r2 = self.leg_rotations()
             spec['leg_fk'] = {}
             for side, m in (('L', np.diag([1.0, 1.0, 1.0])), ('R', np.diag([-1.0, 1.0, 1.0]))):
                 spec['leg_fk'][side] = {'thigh': m @ r1.T @ m, 'shin': m @ r2.T @ m,
