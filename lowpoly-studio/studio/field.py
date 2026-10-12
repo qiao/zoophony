@@ -17,20 +17,15 @@ from studio.sdf import smin
 
 
 class Part:
-    """One blended part of the field: a distance function, its box, and its blend width.
+    """One blended part of the field: a distance function, its box, and its blend width."""
 
-    A cut part (cut=True) is a region that the body leaves: after the union of the other parts,
-    the field becomes the smooth difference with it (the seat of a seated pose).
-    """
-
-    def __init__(self, name, fn, lo, hi, k, cut=False):
-        """Stores the distance function, the box corners, the blend width, and the kind."""
+    def __init__(self, name, fn, lo, hi, k):
+        """Stores the distance function, the box corners, and the blend width."""
         self.name = name
         self.fn = fn
         self.lo = np.asarray(lo, float)
         self.hi = np.asarray(hi, float)
         self.k = k
-        self.cut = cut
 
 
 def box_of_points(points, pad):
@@ -228,8 +223,7 @@ def field_on_grid(parts, step):
     ny = int(math.ceil((hi[1] - origin[1]) / step)) + 2
     nz = int(math.ceil((hi[2] - origin[2]) / step)) + 2
     field = np.full((nx, ny, nz), 1.0, np.float32)
-    # studio-props: the cut parts come after the union (Part).
-    for part in [q for q in parts if not q.cut] + [q for q in parts if q.cut]:
+    for part in parts:
         pad = part.k + 2 * step
         i0 = np.maximum(np.floor((part.lo - pad - origin) / step).astype(int), 0)
         i1 = np.minimum(np.ceil((part.hi + pad - origin) / step).astype(int) + 1, [nx, ny, nz])
@@ -239,9 +233,6 @@ def field_on_grid(parts, step):
         P = np.stack(np.meshgrid(xs, ys, zs, indexing='ij'), axis=-1)
         d = part.fn(P).astype(np.float32)
         sub = (slice(i0[0], i1[0]), slice(i0[1], i1[1]), slice(i0[2], i1[2]))
-        if part.cut:
-            field[sub] = -smin(-field[sub], d, part.k)
-            continue
         field[sub] = smin(field[sub], d, part.k) if part.k > 0 else np.minimum(field[sub], d)
     return field, origin, step
 
@@ -251,14 +242,8 @@ def field_at(parts, points):
     pts = np.asarray(points, float)
     out = np.full(pts.shape[:-1], 1.0)
     for part in parts:
-        if part.cut:
-            continue
         d = part.fn(pts)
         out = smin(out, d, part.k) if part.k > 0 else np.minimum(out, d)
-    # studio-props: a cut part leaves the union (Part).
-    for part in parts:
-        if part.cut:
-            out = -smin(-out, part.fn(pts), part.k)
     return out
 
 
