@@ -87,9 +87,10 @@ colors.
   A neutral mid gray (the bear: RGB 202, 202, 203, the polar bear: 205, 205, 208) works for a
   colored animal and for a cream fur: the cream fur of the polar bear has a max minus min of
   30 to 35. A neutral white or gray fur (under 14) does not separate from a gray background,
-  and a colored background counts as animal. For such an animal, tell the manager before the
-  sheet is made: the studio then needs a foreground rule by the distance from the background
-  color.
+  and a colored background counts as animal. Such an animal uses the rule by the distance from
+  the measured background color (`intake.foreground = "difference"`, the default of `studio
+  new`). That rule keeps a thin ground shadow out, but a dark cast shadow on the ground still
+  costs a cleanup, so keep the ground free of shadows.
 - A soft, even studio light, the same in all views: a key light from the upper left, a bright
   fill, soft shadows on the body, no hard cast shadows, no rim glow, no shine on the fur. The
   back view must have the same brightness as the front view.
@@ -170,9 +171,11 @@ background, the head <n> px tall."
 
 ## A checker for `studio new`
 
-`python3 studio new` already finds the background and the four view columns. It can test
-more of this spec at once, before any measure work, from the sheet and the intake masks. The
-values of the two sheets come from test scripts on 2026-10-12.
+`python3 studio new` finds the background and the four view columns, and the sheet check of
+the intake (`studio/consistency.py`, `out/sheet-check.json`) tests the scale, the ground line,
+the A-pose (the arm gap), the symmetry, the ears of the front and the back view, and the head
+turn of the front and the 3/4 view (see the README, "The intake"). The other rows of this table
+are not in the tool yet. The values of the two sheets come from test scripts on 2026-10-12.
 
 | Check | Method | Pass | Bear sheet | Polar bear sheet |
 |---|---|---|---|---|
