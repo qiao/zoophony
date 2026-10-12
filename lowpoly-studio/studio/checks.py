@@ -20,7 +20,7 @@ import glob
 import json
 import os
 
-from studio import measure_features
+from studio import locate, measure_features
 
 # A passing check is near its limit when it uses this share of its allowance.
 NEAR = 0.75
@@ -113,19 +113,29 @@ def run(cfg):
     r = Report()
     stats = _load(cfg.paths.stats) or {}
     seed = stats.get('seed')
+    diag = locate.load(cfg, stage_data)
+    if diag:
+        diag.write()
+
+    def where(fn):
+        return fn() if diag else None
 
     # The gates: the contacts and the folds of each clip, after the fold repair.
     contacts = (stats.get('contacts') or {}).get('clips', {})
     for clip, c in contacts.items():
-        r.add(f'contact.{clip}', c['depth'], '<=', cfg.role.checks.contact_depth, True)
+        r.add(f'contact.{clip}', c['depth'], '<=', cfg.role.checks.contact_depth, True,
+              where(lambda: diag.where_contact(clip)))
         r.add(f'folds.{clip}', c['folded_faces'], '<=', lim.folded_faces, True,
+              where(lambda: diag.where_fold(clip, ('folded', 'turned'))),
               near=c.get('turned_faces', 0) > 0)
 
     # The rest mesh.
     if stats:
-        r.add('rest_inward_faces', stats['folded_faces'], '<=', lim.rest_inward_faces)
+        r.add('rest_inward_faces', stats['folded_faces'], '<=', lim.rest_inward_faces,
+              where=where(lambda: diag.where_mesh('inward')))
         r.add('body_triangles', stats['body_triangles'], 'in', list(lim.body_triangles))
-        r.add('slivers', stats['sliver_share'], '<=', lim.slivers)
+        r.add('slivers', stats['sliver_share'], '<=', lim.slivers,
+              where=where(lambda: diag.where_mesh('sliver')))
     remesh = stage_data(cfg, 'remesh')
     if remesh:
         r.add('unpaired_vertices', remesh['remesh_info']['unpaired_vertices'], '<=',
@@ -157,6 +167,9 @@ def run(cfg):
               'rel<=', lim.facet_contrast)
 
     report = r.result(cfg, seed)
+    if diag:
+        report['diagnostics'] = {'folds': 'diag/folds.json', 'contacts': 'diag/contacts.json',
+                                 'faces': len(diag.faces), 'contacts_found': len(diag.contacts)}
     with open(os.path.join(cfg.paths.out, 'checks.json'), 'w') as f:
         json.dump(report, f, indent=2)
         f.write('\n')
@@ -165,13 +178,10 @@ def run(cfg):
 
 def _where_text(where):
     """Formats the place of a failure in one line."""
-    keys = ('clip', 'time_s', 'side', 'part', 'bone', 'region', 'position', 'depth', 'angle_deg',
-            'view', 'region', 'crop')
-    parts = []
-    for k in keys:
-        if k in where and f'{k}=' not in ' '.join(parts):
-            parts.append(f'{k}={where[k]}')
-    return ' '.join(parts)
+    keys = ('clip', 'time_s', 'frame', 'side', 'part', 'bone', 'into_bone', 'face', 'region',
+            'position', 'rest_position', 'depth', 'angle_deg', 'smallest_angle_deg', 'rest_dot',
+            'view', 'crop')
+    return ' '.join(f'{k}={where[k]}' for k in keys if k in where)
 
 
 def summary(report):
