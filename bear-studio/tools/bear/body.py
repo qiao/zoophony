@@ -60,13 +60,13 @@ SPINE = {
 
 HEAD = {
     'cranium': ((0.0, 0.878, 0.10), (0.112, 0.09, 0.105)),
-    'jowls': ((0.0, 0.822, 0.075), (0.152, 0.07, 0.115)),
-    'muzzle': ((0.0, 0.83, 0.2), (0.068, 0.06, 0.08)),
+    'jowls': ((0.0, 0.822, 0.07), (0.152, 0.07, 0.105)),
+    'muzzle': ((0.0, 0.823, 0.19), (0.06, 0.053, 0.076)),
     'ear': ((0.087, 0.962, 0.06), (0.035, 0.035, 0.017)),
     'ear_yaw': 25.0,
-    'eye': (0.043, 0.889),
-    'eye_radius': 0.0155,
-    'nose': (0.0, 0.842),
+    'eye': (0.043, 0.882),
+    'eye_radius': 0.0118,
+    'nose': (0.0, 0.826),
 }
 
 TAIL = ((0.0, 0.255, -0.14), (0.032, 0.036, 0.026))
@@ -306,16 +306,27 @@ def ear_frame(side):
     return frame_from((0.0, 1.0, 0.0), normal)
 
 
+# The snout: a short capsule along z from its base to the center of its round front, with an
+# oval section (0.06 wide, 0.053 tall). On the sheet the tan snout has steep sides: from the
+# front it is a round disk, and from the side it is tan from z 0.18 to the nose tip at 0.265.
+SNOUT = ((0.0, 0.825, 0.165), (0.0, 0.822, 0.212))
+
+
+def snout(p):
+    """Calculates the distance to the snout capsule."""
+    _, r = HEAD['muzzle']
+    a, b = SNOUT
+    return round_cone(p, a, b, r[0], r[0] * 0.94, ((0.0, 1.0, 0.0), r[1] / r[0]))
+
+
 def head_parts():
     """Makes the parts of the head: the cranium, the jowls, the muzzle, and the ears."""
     parts = []
-    for name, k in (('cranium', 0.04), ('jowls', 0.05), ('muzzle', 0.03)):
+    for name, k in (('cranium', 0.04), ('jowls', 0.04), ('muzzle', 0.022)):
         c, r = HEAD[name]
         lo, hi = _box_of_points([c], max(r) + 0.06)
         if name == 'muzzle':
-            rot = rot_axis((1, 0, 0), math.radians(-10))
-            parts.append(Part(name, lambda p, c=c, r=r, rot=rot: ellipsoid(p, c, r, rot),
-                              lo, hi, k))
+            parts.append(Part(name, snout, lo, hi, k))
         else:
             parts.append(Part(name, lambda p, c=c, r=r: ellipsoid(p, c, r), lo, hi, k))
     for side in (1, -1):
@@ -334,35 +345,30 @@ def head_parts():
     return parts
 
 
-def all_parts(pose, views):
-    """Lists every part of the body in a pose, the trunk first."""
+def all_parts(pose, views, small=True):
+    """Lists every part of the body in a pose, the trunk first.
+
+    small: also the ears and the tail. The low-poly surface leaves them out, because quads of
+    the facet size cannot hold them; details.py makes them as separate low-poly pieces.
+    """
     table = trunk_table(views)
     lo = np.array([-0.26, 0.14, -0.22])
     hi = np.array([0.26, 0.89, 0.30])
     parts = [Part('trunk', lambda p: loft(p, table), lo, hi, 0.0)]
-    parts += head_parts()
+    parts += [p for p in head_parts() if small or not p.name.startswith('ear')]
     for side in (1, -1):
         parts += arm_parts(pose, side)
         parts += leg_parts(side)
-    c, r = TAIL
-    lo, hi = _box_of_points([c], 0.06)
-    tilt = rot_axis((1, 0, 0), math.radians(-15))
-    parts.append(Part('tail', lambda p: ellipsoid(p, c, r, tilt), lo, hi, 0.008))
+    if small:
+        c, r = TAIL
+        lo, hi = _box_of_points([c], 0.06)
+        parts.append(Part('tail', lambda p: ellipsoid(p, c, r, tail_rotation()), lo, hi, 0.008))
     return parts
 
 
-def detail_weights(points):
-    """Weights the places that keep small facets: the face around the muzzle and the eyes."""
-    p = np.asarray(points, float)
-    w = np.zeros(len(p))
-
-    def bump(center, radius):
-        d = np.linalg.norm(p - np.asarray(center, float), axis=1) / radius
-        return np.clip(1.5 - d, 0.0, 1.0)
-
-    c, r = HEAD['muzzle']
-    w = np.maximum(w, bump(np.array(c) + np.array([0, 0.03, -0.02]), 0.11) * (p[:, 2] > 0.08))
-    return w
+def tail_rotation():
+    """Calculates the tilt of the tail: it points a little down."""
+    return rot_axis((1, 0, 0), math.radians(-15))
 
 
 def field_on_grid(parts, step):

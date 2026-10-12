@@ -34,7 +34,7 @@ export function createRenderer(canvas, { alpha = false, preserve = false } = {})
 }
 
 /** The light levels. A page can change them with ?light=hemi,key,fill for tuning. */
-export const LIGHT = { hemi: 0.8, key: 4.4, fill: 0.3 };
+export const LIGHT = { hemi: 0.6, key: 5.2, fill: 0.3 };
 
 const lightParam = new URLSearchParams(globalThis.location?.search ?? '').get('light');
 if (lightParam) {
@@ -46,7 +46,7 @@ if (lightParam) {
  * light also casts the shadows, on the bear and on the ground. Call lights.aim(camera) before
  * each render. */
 export function addLights(scene, camera) {
-  const hemi = new THREE.HemisphereLight(0xfff2e6, 0x2e2620, LIGHT.hemi);
+  const hemi = new THREE.HemisphereLight(0xfbfaf8, 0x2c2826, LIGHT.hemi);
   scene.add(hemi);
 
   const center = new THREE.Vector3(0, 0.55, 0);
@@ -57,8 +57,8 @@ export function addLights(scene, camera) {
     scene.add(light, light.target);
     return light;
   };
-  const key = make(0xfff0de, LIGHT.key, [-1.4, 2.0, 4.5]);
-  const fill = make(0xffe9d6, LIGHT.fill, [3, 0.5, 4]);
+  const key = make(0xfffbf4, LIGHT.key, [-1.4, 2.0, 4.5]);
+  const fill = make(0xf6f6f8, LIGHT.fill, [3, 0.5, 4]);
   const rim = make(0xe8eeff, 0.35, [4, 2.5, -6]);
 
   key.castShadow = true;

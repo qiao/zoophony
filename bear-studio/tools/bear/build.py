@@ -14,24 +14,27 @@ import time
 
 import bpy
 import numpy as np
+from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import anim  # noqa: E402
 import body  # noqa: E402
+import contacts  # noqa: E402
+import motion  # noqa: E402
 import details  # noqa: E402
 import mesh  # noqa: E402
 import paint  # noqa: E402
+import retopo  # noqa: E402
 import rig  # noqa: E402
 from sdf import surface_nets  # noqa: E402
 
 ROOT = body.ROOT
 
-# How strongly the face keeps small facets in the decimation (see mesh.decimate).
-DETAIL_STRENGTH = 0.02
 
 MATERIALS = {
-    'fur': {'roughness': 0.88, 'specular': 0.25},
+    'fur': {'roughness': 0.7, 'specular': 0.35},
     'gloss': {'roughness': 0.42, 'specular': 0.5},
     'baton': {'roughness': 0.45, 'specular': 0.4},
 }
@@ -41,7 +44,8 @@ def parse_args():
     """Reads the arguments after the '--' of the Blender command line."""
     argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
     ap = argparse.ArgumentParser()
-    ap.add_argument('--tris', type=int, default=2400)
+    ap.add_argument('--quads', type=int, default=760)
+    ap.add_argument('--seed', type=int, default=2, help='the seed of the QuadriFlow remesh')
     ap.add_argument('--step', type=float, default=0.004)
     ap.add_argument('--pose', default='bind')
     ap.add_argument('--no-rig', action='store_true')
@@ -51,16 +55,16 @@ def parse_args():
     return ap.parse_args(argv)
 
 
-def build_body(parts, step, tris):
-    """Meshes the field with surface nets and decimates it to the low-poly body."""
+def build_body(parts, step, target_quads, seed):
+    """Meshes the field with surface nets, then remeshes it into aligned, mirrored facets."""
     t0 = time.time()
     field, origin, step = body.field_on_grid(parts, step)
     verts, quads = surface_nets(field, origin, step)
     print(f'surface nets: {len(verts)} vertices, {len(quads)} quads, {time.time() - t0:.1f} s')
-    obj = mesh.new_mesh_object('Bear', mesh.to_blender(verts), quads)
-    mesh.decimate(obj, tris, detail=body.detail_weights(verts), detail_strength=DETAIL_STRENGTH)
-    obj.data.validate()
-    print(f'decimated: {mesh.triangle_count(obj)} triangles, {time.time() - t0:.1f} s')
+    obj, info = retopo.remesh(parts, verts, quads, target_quads, seed)
+    print(f'remeshed: {info["quads"]} quads -> {mesh.triangle_count(obj)} triangles, '
+          f'quad edge {info["quad_edge_px"]} px, unpaired vertices {info["unpaired_vertices"]}, '
+          f'{time.time() - t0:.1f} s')
     return obj
 
 
@@ -122,6 +126,8 @@ def add_detail_objects(items, mats):
     for d in items:
         obj = mesh.new_mesh_object(d['name'], mesh.to_blender(d['verts']), d['faces'])
         col = np.tile(np.array(d['color'], float) / 255.0, (len(obj.data.polygons), 1))
+        if 'colors' in d:
+            col = np.asarray(d['colors'], float) / 255.0
         set_face_colors(obj, col)
         obj.data.materials.append(mats[d['material']])
         rig.rigid_group(obj, d['bone'])
@@ -141,6 +147,22 @@ def join(objs, name):
     target.name = name
     target.data.name = name
     return target
+
+
+def check_contacts(skel, verts, tris, weights, items, samples):
+    """Measures the deepest contact of paws, claws, forearms, and the baton in each clip."""
+    t0 = time.time()
+    check = contacts.ContactCheck(skel, verts, tris, weights, items)
+    report = {}
+    for name, poses in samples.items():
+        depth, side, part, frame = check.clip(poses)
+        ok = depth <= contacts.LIMIT
+        report[name] = {'depth': round(depth, 4), 'side': side, 'part': part,
+                        'time_s': round(frame / motion.FPS, 3), 'pass': ok}
+        print(f'contact {name:12s} worst {depth * 100:5.2f} cm ({part} {side} at '
+              f'{frame / motion.FPS:5.2f} s)  {"pass" if ok else "FAIL"}')
+    print(f'contact check: limit {contacts.LIMIT * 100:.1f} cm, {time.time() - t0:.1f} s')
+    return {'limit': contacts.LIMIT, 'clips': report}
 
 
 def export_glb(path):
@@ -175,25 +197,39 @@ def main():
     mesh.clear_scene()
     views = body.load_profiles()
     parts = body.all_parts(args.pose, views)
+    surface_parts = body.all_parts(args.pose, views, small=False)
 
-    obj = build_body(parts, args.step, args.tris)
+    obj = build_body(surface_parts, args.step, args.quads, args.seed)
     centers, normals, verts, tris = face_arrays(obj)
-    colors, ao = paint.face_colors(parts, centers, normals)
+    colors, ao = paint.face_colors(parts, centers, normals, verts[tris])
     mats = {name: make_material(name, props) for name, props in MATERIALS.items()}
     obj.data.materials.append(mats['fur'])
     set_face_colors(obj, colors)
     median_px, rms_px = paint.facet_stats(verts, tris)
+    q1, q3 = paint.edge_quartiles(verts, tris)
     folds = folded_faces(parts, centers, normals)
+    slivers, min_angle = retopo.triangle_quality(verts, tris)
     print(f'body: {len(tris)} triangles, median edge {median_px:.1f} px of the sheet '
-          f'(rms {rms_px:.1f}), folded faces {folds}, mean occlusion {ao.mean():.2f}, '
+          f'(quartiles {q1:.1f} to {q3:.1f}), slivers {slivers * 100:.1f}%, median smallest angle '
+          f'{min_angle:.0f} deg, folded faces {folds}, mean occlusion {ao.mean():.2f}, '
           f'{time.time() - t0:.1f} s')
 
-    items = details.face_details(parts) + details.hand_claws(args.pose) + details.foot_claws()
+    tree = BVHTree.FromPolygons([Vector(p) for p in verts], tris.tolist(), all_triangles=True)
+
+    def ray(start, direction):
+        hit = tree.ray_cast(Vector(start), Vector(direction).normalized())
+        if hit[0] is None:
+            raise ValueError(f'the ray from {start} meets no face')
+        return np.array(hit[0])
+
+    items = (details.face_details(parts, ray) + details.ears_and_tail()
+             + details.hand_claws(args.pose) + details.foot_claws())
     if args.pose == 'bind':
         baton_items, _, _ = details.baton(args.pose)
         items += baton_items
     stats = {'body_triangles': len(tris), 'median_edge_px': round(median_px, 1),
-             'folded_faces': folds}
+             'edge_quartiles_px': [round(q1, 1), round(q3, 1)],
+             'sliver_share': round(slivers, 4), 'folded_faces': folds}
     if args.no_rig:
         detail_objs = add_detail_objects(items, mats)
         final = join([obj] + detail_objs, 'Bear')
@@ -205,7 +241,10 @@ def main():
             print(f'bone heat gave no weights to: {missing}')
         names = [b.name for b in arm.data.bones]
         w = rig.weight_table(obj, names)
-        w = rig.smooth_weights(w, rig.vertex_neighbors(obj), rounds=2, amount=0.5)
+        w = rig.trunk_weights(verts, w, names)
+        neighbors = rig.vertex_neighbors(obj)
+        w = rig.smooth_weights(w, neighbors, rounds=2, amount=0.5)
+        w = rig.smooth_weights(w, neighbors, rounds=10, amount=0.7 * rig.armpit_mask(verts))
         w = rig.force_bone(w, names, 'head', rig.head_rigidity(verts), keep=('ear_L', 'ear_R'))
         w = rig.limit_and_normalize(w)
         rig.write_weights(obj, names, w)
@@ -222,9 +261,10 @@ def main():
         tip.parent_bone = 'baton'
         tip.location = (0.0, 0.0, 0.0)
         only = [c for c in args.clips.split(',') if c] or None
-        clip_names, _ = anim.bake_all(arm, bones, only)
+        samples, skel = anim.bake_all(arm, bones, only)
         stats['bones'] = len(arm.data.bones)
-        stats['clips'] = clip_names
+        stats['clips'] = list(samples)
+        stats['contacts'] = check_contacts(skel, verts, tris, w, items, samples)
     for poly in final.data.polygons:
         poly.use_smooth = False
     stats['total_triangles'] = mesh.triangle_count(final)

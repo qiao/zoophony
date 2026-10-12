@@ -43,6 +43,12 @@ def icosphere(subdiv):
     return np.array(verts), np.array(faces, np.int64)
 
 
+def unit_vec(v):
+    """Normalizes a vector."""
+    v = np.asarray(v, float)
+    return v / np.linalg.norm(v)
+
+
 def tube(points, radii, sides, closed_tip=True):
     """Makes a tube along points with a radius per point; the ends are capped.
 
@@ -117,65 +123,104 @@ def _detail(name, verts, faces, color, material, bone):
             'color': color, 'material': material, 'bone': bone}
 
 
-BATON_LENGTH = 0.30
+BATON_LENGTH = 0.36
 
 COLORS = {
+    'ear': (104, 64, 36),
+    'ear_inner': (72, 42, 26),
     'eye': (22, 17, 15),
     'sclera': (236, 230, 220),
     'catchlight': (255, 255, 255),
     'nose': (46, 38, 35),
-    'mouth': (82, 50, 32),
+    'mouth': (70, 44, 30),
     'claw': (52, 44, 40),
     'baton': (244, 240, 230),
     'grip': (120, 84, 52),
 }
 
 
-def face_details(parts):
-    """Makes the eyes, the nose, and the mouth line on the head surface."""
+def face_details(parts, ray=None):
+    """Makes the eyes, the nose, and the mouth line on the head surface.
+
+    ray: a function (start, direction) -> the first point on the surface. The build passes a
+    ray cast on the low-poly mesh, so the details sit on the facets and not on the smooth field.
+    """
+    if ray is None:
+        def ray(start, direction):
+            return body.surface_along(parts, start, direction)
     out = []
     ex, ey = body.HEAD['eye']
     r = body.HEAD['eye_radius']
     sv, sf = icosphere(1)
     cv, cf = icosphere(0)
     for side, suffix in ((1, 'L'), (-1, 'R')):
+        # A small dark eye with a calm look: no white ring, only a tiny highlight.
         look = np.array([0.18 * side, 0.02, 1.0])
         look /= np.linalg.norm(look)
-        surf = body.surface_along(parts, (ex * side, ey, 0.4), (0, 0, -1))
-        center = surf - look * (r * 0.55)
-        out.append(_detail(f'sclera_{suffix}', center - look * 0.003 + sv * (r * 1.14), sf,
-                           COLORS['sclera'], 'gloss', 'head'))
+        surf = ray((ex * side, ey, 0.4), (0, 0, -1))
+        center = surf - look * (r * 0.45)
         out.append(_detail(f'eye_{suffix}', center + sv * r, sf, COLORS['eye'], 'gloss', 'head'))
-        hl = center + r * 0.82 * np.array([-0.35 * side + 0.1, 0.45, 0.82])
-        out.append(_detail(f'catchlight_{suffix}', hl + cv * (r * 0.28), cf,
+        hl = center + r * 0.85 * unit_vec([-0.3 * side + 0.15, 0.5, 0.82])
+        out.append(_detail(f'catchlight_{suffix}', hl + cv * (r * 0.22), cf,
                            COLORS['catchlight'], 'gloss', 'head'))
 
     # The nose: a rounded triangle, wide at the top.
     nx, ny = body.HEAD['nose']
-    surf = body.surface_along(parts, (nx, ny, 0.45), (0, 0, -1))
+    surf = ray((nx, ny, 0.45), (0, 0, -1))
     nv, nf = icosphere(1)
-    nv = nv * np.array([0.033, 0.023, 0.022])
-    taper = np.clip(1.0 + 0.55 * nv[:, 1] / 0.023, 0.5, 1.3)
+    nv = nv * np.array([0.036, 0.025, 0.024])
+    taper = np.clip(1.0 + 0.5 * nv[:, 1] / 0.025, 0.55, 1.3)
     nv[:, 0] *= taper
-    nv[:, 2] += 0.006 * (nv[:, 1] / 0.023)
-    center = surf + np.array([0.0, 0.002, -0.008])
+    nv[:, 2] += 0.006 * (nv[:, 1] / 0.025)
+    center = surf + np.array([0.0, 0.0, -0.009])
     out.append(_detail('nose', center + nv, nf, COLORS['nose'], 'gloss', 'head'))
 
     # The mouth: a short philtrum and a smile, pressed onto the muzzle.
     def on_surface(x, y):
-        return body.surface_along(parts, (x, y, 0.45), (0, 0, -1)) + np.array([0, 0, 0.0012])
+        return ray((x, y, 0.45), (0, 0, -1)) + np.array([0, 0, 0.0012])
 
-    philtrum = [on_surface(0.0, y) for y in np.linspace(ny - 0.027, ny - 0.046, 4)]
-    pv, pf = tube(philtrum, [0.0026] * 4, 4, closed_tip=False)
+    # A short philtrum and a soft closed smile, as on the sheet (the mouth is at height 0.80).
+    philtrum = [on_surface(0.0, y) for y in np.linspace(ny - 0.024, ny - 0.034, 3)]
+    pv, pf = tube(philtrum, [0.0022] * 3, 4, closed_tip=False)
     out.append(_detail('mouth_0', pv, pf, COLORS['mouth'], 'fur', 'head'))
     for side in (1, -1):
-        # A smile: dense points along the curve, each one pressed onto the muzzle.
-        xs = np.linspace(0.0, 0.034, 7)
-        dys = -0.0062 * np.sin(np.pi * xs / 0.034 * 0.85) + 0.0035 * (xs / 0.034) ** 3
-        smile = [on_surface(side * x, ny - 0.046 + dy) for x, dy in zip(xs, dys)]
-        radii = np.linspace(0.0026, 0.0015, len(smile))
+        xs = np.linspace(0.0, 0.032, 7)
+        dys = -0.0045 * np.sin(np.pi * xs / 0.032 * 0.8) + 0.004 * (xs / 0.032) ** 2
+        smile = [on_surface(side * x, ny - 0.034 + dy) for x, dy in zip(xs, dys)]
+        radii = np.linspace(0.0021, 0.0012, len(smile))
         mv, mf = tube(smile, radii, 4, closed_tip=False)
         out.append(_detail(f'mouth_{side}', mv, mf, COLORS['mouth'], 'fur', 'head'))
+    return out
+
+
+def ears_and_tail():
+    """Makes the ears and the tail as low-poly pieces that sink into the head and the rump.
+
+    Each ear is a flat round shell with a hollow on its front face. The hollow is dark.
+    """
+    out = []
+    v0, f0 = icosphere(1)
+    c, r = body.HEAD['ear']
+    for side, suffix in ((1, 'L'), (-1, 'R')):
+        local = v0 * np.array(r)
+        # The hollow: the front (local +z) of the shell sinks toward the back.
+        rad = np.hypot(local[:, 0] / r[0], local[:, 1] / r[1])
+        front = local[:, 2] > 0
+        local[front, 2] -= r[2] * 1.5 * np.clip(1.0 - rad[front] / 0.8, 0.0, 1.0)
+        f = body.ear_frame(side)
+        center = np.array(c) * np.array([side, 1, 1])
+        verts = center + local @ f.T
+        cen = local[f0].mean(axis=1)
+        nrm = np.cross(local[f0[:, 1]] - local[f0[:, 0]], local[f0[:, 2]] - local[f0[:, 0]])
+        inner = (nrm[:, 2] > 0) & (np.hypot(cen[:, 0] / r[0], cen[:, 1] / r[1]) < 0.75)
+        colors = np.where(inner[:, None], np.array(COLORS['ear_inner'], float),
+                          np.array(COLORS['ear'], float))
+        d = _detail(f'ear_{suffix}', verts, f0, COLORS['ear'], 'fur', f'ear_{suffix}')
+        d['colors'] = colors
+        out.append(d)
+    tc, tr = body.TAIL
+    tv = tc + (v0 * np.array(tr)) @ body.tail_rotation().T
+    out.append(_detail('tail', tv, f0, COLORS['ear'], 'fur', 'tail'))
     return out
 
 
@@ -204,9 +249,11 @@ def foot_claws():
     for side, suffix in ((1, 'L'), (-1, 'R')):
         for i, off in enumerate((-0.045, -0.015, 0.015, 0.045)):
             c = np.array([(0.142 + off * 0.95) * side, 0.03, 0.098 - abs(off) * 0.35])
-            base = c + np.array([off * 0.1 * side, -0.004, 0.02])
-            direction = np.array([off * 1.2 * side, -0.55, 1.0])
-            cv, cf = claw(base, direction, (0, -1.0, 0.2), 0.042, 0.0135)
+            base = c + np.array([off * 0.1 * side, -0.006, 0.018])
+            # Large claws, as on the sheet. The tips stay 2 mm above the ground.
+            direction = np.array([off * 1.2 * side, -0.3, 1.0])
+            cv, cf = claw(base, direction, (0, -1.0, 0.2), 0.05, 0.0165)
+            cv[:, 1] = np.maximum(cv[:, 1], 0.002)
             out.append(_detail(f'claw_foot_{suffix}{i}', cv, cf, COLORS['claw'], 'gloss',
                                f'toes_{suffix}'))
     return out
