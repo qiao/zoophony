@@ -1,6 +1,7 @@
-"""The four reference views: cameras, silhouette alignment, IoU, and a small PNG writer.
+"""The sheet views: cameras, silhouette alignment, IoU, and a small PNG writer.
 
-numpy only. The cameras match the cameras of the viewer (viewer/views.js).
+numpy only. The cameras match the cameras of the viewer (viewer/scene.js): far and level, at the
+azimuths of config sheet.views and the distance and height of config sheet.camera.
 """
 
 import json
@@ -11,20 +12,12 @@ import zlib
 
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.join(os.path.dirname(HERE), 'animals', 'bear')
 
-# Camera azimuth in degrees around the bear: 0 is in front, 90 is at the right of the bear.
-AZIMUTH = {'front': 0.0, 'side': 90.0, 'back': 180.0, 'three_quarter': 38.0}
-CAMERA_DISTANCE = 10.0
-CAMERA_HEIGHT = 0.5
-
-
-def camera_basis(azimuth_deg):
+def camera_basis(azimuth_deg, camera):
     """Calculates the camera position and its right, up, and forward unit vectors."""
     az = math.radians(azimuth_deg)
-    pos = np.array([-CAMERA_DISTANCE * math.sin(az), CAMERA_HEIGHT,
-                    CAMERA_DISTANCE * math.cos(az)])
+    pos = np.array([-camera.distance * math.sin(az), camera.height,
+                    camera.distance * math.cos(az)])
     fwd = np.array([-pos[0], 0.0, -pos[2]])
     fwd /= np.linalg.norm(fwd)
     up = np.array([0.0, 1.0, 0.0])
@@ -32,24 +25,24 @@ def camera_basis(azimuth_deg):
     return pos, right, up, fwd
 
 
-def project(points, azimuth_deg):
+def project(points, azimuth_deg, camera):
     """Projects points to the image plane: (u right, v up) in model units at the target."""
-    pos, right, up, fwd = camera_basis(azimuth_deg)
+    pos, right, up, fwd = camera_basis(azimuth_deg, camera)
     rel = points - pos
     depth = rel @ fwd
-    u = (rel @ right) / depth * CAMERA_DISTANCE
-    v = (rel @ up) / depth * CAMERA_DISTANCE
+    u = (rel @ right) / depth * camera.distance
+    v = (rel @ up) / depth * camera.distance
     return u, v
 
 
-def load_reference():
-    """Reads the measures and the raw masks of the reference views."""
-    with open(os.path.join(ROOT, 'out', 'measure.json')) as f:
+def load_reference(cfg):
+    """Reads the measures and the raw masks of the sheet views (studio/intake.py)."""
+    with open(cfg.paths.measure) as f:
         meta = json.load(f)
     w, h = meta['sheet']
     masks = {}
     for name in meta['views']:
-        raw = open(os.path.join(ROOT, 'out', 'masks', f'{name}.raw'), 'rb').read()
+        raw = open(os.path.join(cfg.paths.masks, f'{name}.raw'), 'rb').read()
         masks[name] = np.frombuffer(raw, np.uint8).reshape(h, w) > 127
     return meta, masks
 

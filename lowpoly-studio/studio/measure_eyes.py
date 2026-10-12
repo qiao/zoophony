@@ -1,13 +1,13 @@
 """Measures the eyes of the sheet and of the renders in the front and the 3/4 views.
 
-Run with the system python3 (Pillow only), after tools/shoot.mjs compare:
+Run with the system python3 (Pillow only), after studio/shoot.mjs compare (the CLI runs it):
 
-    python3 tools/eyes.py [--json out/compare/eyes.json]
+    python3 studio/measure_eyes.py <animal> [--out DIR]
 
-The measure is the same for the sheet and for a render, in bear heights (the height of the
+The measure is the same for the sheet and for a render, in animal heights (the height of the
 view is 1). Each eye is a blob of connected eye pixels (near black: the outline and the iris;
-near white: the rim and the highlight) in the band of the eyes (height 0.86 to 0.93). The two
-blobs with the most white pixels are the eyes.
+near white: the rim and the highlight) in the band of the eyes (config measure.eyes). The two
+blobs with the most white pixels are the eyes. Writes <out>/compare/eyes.json.
 
 - outline: the width of the blob (the eye with its dark outline);
 - height: the height of the blob;
@@ -16,6 +16,7 @@ blobs with the most white pixels are the eyes.
   row does not give its width.
 """
 
+import argparse
 import json
 import math
 import os
@@ -23,22 +24,23 @@ import sys
 
 from PIL import Image
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.join(os.path.dirname(HERE), 'animals', 'bear')
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from studio import config  # noqa: E402
 
 
-def white(c):
-    """Tells if a pixel is near white. The gray background (about 202) is darker than this."""
+def white(c, e):
+    """Tells if a pixel is near white (brighter than the background)."""
     hi, lo = max(c), min(c)
-    return hi > 212 and hi - lo < 45
+    return hi > e.white_min and hi - lo < e.white_spread
 
 
-def dark(c):
+def dark(c, e):
     """Tells if a pixel is near black: the outline or the iris of an eye."""
-    return max(c) < 100
+    return max(c) < e.dark_max
 
 
-def blobs(px, box):
+def blobs(px, box, e):
     """Lists the 4-connected blobs of eye pixels (near black or near white) in a box."""
     x0, y0, x1, y1 = box
     seen = set()
@@ -46,7 +48,7 @@ def blobs(px, box):
     for y in range(y0, y1):
         for x in range(x0, x1):
             c = px[x, y]
-            if (x, y) in seen or not (dark(c) or white(c)):
+            if (x, y) in seen or not (dark(c, e) or white(c, e)):
                 continue
             stack, comp = [(x, y)], []
             seen.add((x, y))
@@ -56,24 +58,24 @@ def blobs(px, box):
                 for nx, ny in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
                     if x0 <= nx < x1 and y0 <= ny < y1 and (nx, ny) not in seen:
                         n = px[nx, ny]
-                        if dark(n) or white(n):
+                        if dark(n, e) or white(n, e):
                             seen.add((nx, ny))
                             stack.append((nx, ny))
             out.append(comp)
     return out
 
 
-def measure_view(img, meta):
+def measure_view(img, meta, e):
     """Finds the two eyes of a view and measures them."""
     px = img.load()
     h = meta['height_px']
     g = meta['ground_px']
-    top = int(g - 0.93 * h)
-    bottom = int(g - 0.86 * h)
+    top = int(g - e.band[1] * h)
+    bottom = int(g - e.band[0] * h)
     found = []
-    for comp in blobs(px, (0, top, img.size[0], bottom)):
-        n_white = sum(1 for p in comp if white(px[p]))
-        if n_white < 3 or len(comp) > 600:
+    for comp in blobs(px, (0, top, img.size[0], bottom), e):
+        n_white = sum(1 for p in comp if white(px[p], e))
+        if n_white < 3 or len(comp) > e.max_blob:
             continue
         xs = [p[0] for p in comp]
         ys = [p[1] for p in comp]
@@ -89,35 +91,46 @@ def measure_view(img, meta):
             'x_px': 0.5 * (min(xs) + max(xs)),
             'y': round((g - 0.5 * (min(ys) + max(ys))) / h, 4),
         })
-    eyes.sort(key=lambda e: e['x_px'])
+    eyes.sort(key=lambda item: item['x_px'])
     return eyes
 
 
-def main():
+def measure(cfg):
     """Measures the eyes of the sheet and of the renders, prints them, and writes the JSON."""
-    with open(os.path.join(ROOT, 'out', 'measure.json')) as f:
+    e = cfg.measure.eyes
+    with open(cfg.paths.measure) as f:
         meta = json.load(f)['views']
-    sheet = Image.open(os.path.join(ROOT, 'reference', 'bear-views.png')).convert('RGB')
+    sheet = Image.open(cfg.paths.sheet).convert('RGB')
     result = {}
     for view in ('front', 'three_quarter'):
+        if view not in meta:
+            continue
         m = meta[view]
         c0, c1 = m['column']
         s = sheet.crop((c0, 0, c1, sheet.size[1]))
-        r = Image.open(os.path.join(ROOT, 'out', 'compare', f'render_{view}.png')).convert('RGB')
-        result[view] = {'sheet': measure_view(s, m), 'render': measure_view(r, m)}
+        r = Image.open(os.path.join(cfg.paths.compare, f'render_{view}.png')).convert('RGB')
+        result[view] = {'sheet': measure_view(s, m, e), 'render': measure_view(r, m, e)}
         for who in ('sheet', 'render'):
-            for e in result[view][who]:
-                e.pop('x_px')
+            for eye in result[view][who]:
+                eye.pop('x_px')
     for view, res in result.items():
         for who in ('sheet', 'render'):
-            for i, e in enumerate(res[who]):
-                print(f'{view:13s} {who:6s} eye {i}  outline {e["outline"]:.4f}  height '
-                      f'{e["height"]:.4f}  rim {e["rim"]:.4f}  at height {e["y"]:.3f}')
-    path = sys.argv[sys.argv.index('--json') + 1] if '--json' in sys.argv else \
-        os.path.join(ROOT, 'out', 'compare', 'eyes.json')
-    with open(path, 'w') as f:
+            for i, eye in enumerate(res[who]):
+                print(f'{view:13s} {who:6s} eye {i}  outline {eye["outline"]:.4f}  height '
+                      f'{eye["height"]:.4f}  rim {eye["rim"]:.4f}  at height {eye["y"]:.3f}')
+    with open(os.path.join(cfg.paths.compare, 'eyes.json'), 'w') as f:
         json.dump(result, f, indent=2)
         f.write('\n')
+    return result
+
+
+def main():
+    """Reads the arguments and measures the eyes of one animal."""
+    ap = argparse.ArgumentParser(prog='studio/measure_eyes.py')
+    ap.add_argument('animal')
+    ap.add_argument('--out', default=None)
+    args = ap.parse_args()
+    measure(config.load(args.animal, args.out))
 
 
 if __name__ == '__main__':

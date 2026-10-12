@@ -1,27 +1,26 @@
-"""Scores the body field against the reference masks, with no mesh and no browser.
+"""Scores the body field against the sheet masks, with no mesh and no browser (about 1 s).
 
-Run with Blender, or with any Python that has numpy:
+Run with Blender (the intake must have run):
 
-    blender -b --factory-startup --python studio/fit.py -- [--step 0.006] [--rows]
-        [--pose reference] [--azimuths 30,35,40]
+    blender -b --factory-startup --python studio/fit.py -- <animal> [--out DIR] [--step 0.006]
+        [--rows] [--pose reference] [--azimuths 30,35,40]
 
-Prints the silhouette IoU of each view and writes out/fit/<view>.png: gray where the model and
-the reference agree, red where only the reference has the bear, blue where only the model has it.
+Prints the silhouette IoU of each view and writes <out>/fit/overlay.png: gray where the model
+and the sheet agree, red where only the sheet has the animal, blue where only the model has it.
 """
 
 import argparse
+import importlib
 import os
 import sys
 import time
 
 import numpy as np
 
-STUDIO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-for _sub in ('studio', 'templates/biped', 'motions/conductor'):
-    sys.path.insert(0, os.path.join(STUDIO, _sub))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import body  # noqa: E402
-import views  # noqa: E402
+from studio import config, views  # noqa: E402
+from studio.field import field_on_grid, load_profiles  # noqa: E402
 
 
 def print_rows(name, model, ref, view_meta):
@@ -48,7 +47,9 @@ def print_rows(name, model, ref, view_meta):
 
 def main():
     """Builds the field, projects it into each view, and prints the IoU."""
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(prog='studio/fit.py')
+    ap.add_argument('animal')
+    ap.add_argument('--out', default=None)
     ap.add_argument('--step', type=float, default=0.006)
     ap.add_argument('--pose', default='reference')
     ap.add_argument('--azimuths', default='')
@@ -61,23 +62,28 @@ def main():
     args = ap.parse_args(argv)
 
     t0 = time.time()
-    meta, masks = views.load_reference()
-    parts = body.all_parts(args.pose, meta['views'])
-    field, origin, step = body.field_on_grid(parts, args.step)
+    cfg = config.load(args.animal, args.out)
+    template = importlib.import_module(f'templates.{cfg.animal.template}')
+    meta, masks = views.load_reference(cfg)
+    body = template.Body(cfg, load_profiles(cfg.paths.measure), cfg.role.bind)
+    parts = body.parts(args.pose)
+    field, origin, step = field_on_grid(parts, args.step)
     idx = np.nonzero(field < 0)
     pts = origin + step * np.stack(idx, axis=1)
     print(f'field {field.shape} inside {len(pts)} in {time.time() - t0:.1f} s')
 
-    out = os.path.join(views.ROOT, 'out', 'fit')
+    out = os.path.join(cfg.paths.out, 'fit')
     os.makedirs(out, exist_ok=True)
     tiles = []
-    for name, az in views.AZIMUTH.items():
+    r0, r1 = cfg.compare.rows
+    for name, view in cfg.sheet.views.items():
+        az = view.azimuth
         candidates = [az]
         if name == 'three_quarter' and args.azimuths:
             candidates = [float(a) for a in args.azimuths.split(',')]
         best = None
         for a in candidates:
-            u, v = views.project(pts, a)
+            u, v = views.project(pts, a, cfg.sheet.camera)
             iou, m, dx = views.align_and_score(u, v, masks[name], meta['views'][name], step)
             if len(candidates) > 1:
                 print(f'  {name} azimuth {a:.0f}: IoU {iou:.4f}')
@@ -86,7 +92,7 @@ def main():
         iou, m, dx, a = best
         c0, c1 = meta['views'][name]['column']
         ref = masks[name][:, c0:c1]
-        tiles.append(views.overlay(m, ref)[200:790])
+        tiles.append(views.overlay(m, ref)[r0:r1])
         print(f'{name:14s} azimuth {a:5.1f}  IoU {iou:.4f}  x shift {dx:+d} px')
         if args.rows:
             print_rows(name, m, ref, meta['views'][name])

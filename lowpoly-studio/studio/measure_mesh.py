@@ -1,14 +1,16 @@
-"""Measures the body facets of a GLB: size, slivers, and mirror symmetry.
+"""Measures the body facets of a GLB: size, slivers, mirror symmetry, valence, and the spread of
+the edge directions of the belly.
 
 Run with Blender:
 
-    blender -b --factory-startup --python tools/bear/facets.py -- out/bear.glb
+    blender -b --factory-startup --python studio/measure_mesh.py -- <animal> [--out DIR]
 
 The body faces are the faces of the largest connected piece with the material 'fur' (the ears,
 the tail, and the mouth line are separate pieces, and the other details use other materials).
-The lengths are in px at the scale of the sheet (the bear is 528 px tall in the front view).
+The lengths are in px at the scale of the sheet (the height of the front view in px).
 """
 
+import argparse
 import json
 import os
 import sys
@@ -16,7 +18,9 @@ import sys
 import bpy
 import numpy as np
 
-SHEET_PX = 528
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from studio import config  # noqa: E402
 
 
 def body_triangles(path):
@@ -61,8 +65,8 @@ def largest_piece(tris):
     return tris[roots == values[np.argmax(counts)]]
 
 
-def measure(v, tris):
-    """Calculates the facet measures."""
+def measure(v, tris, sheet_px, belly_box):
+    """Calculates the facet measures. belly_box: [x0, y0, x1, y1] of the belly (front view)."""
     t = v[tris]
     e = np.linalg.norm(t - np.roll(t, 1, axis=1), axis=2)
     angles = []
@@ -80,7 +84,7 @@ def measure(v, tris):
     for p in mirrored:
         if np.min(np.linalg.norm(pts - p, axis=1)) < 0.05 * edge:
             paired += 1
-    px = e.ravel() * SHEET_PX
+    px = e.ravel() * sheet_px
 
     # The regularity: the valence of each vertex (a split quad grid has 6 almost everywhere),
     # and the spread of the edge directions of the belly seen from the front (the normalized
@@ -97,7 +101,9 @@ def measure(v, tris):
     ev = np.array(list(edges))
     mid = 0.5 * (v[ev[:, 0]] + v[ev[:, 1]])
     # Blender axes after the import: x left, y back (negative is the front), z up.
-    belly = (np.abs(mid[:, 0]) < 0.15) & (mid[:, 2] > 0.3) & (mid[:, 2] < 0.55) & (mid[:, 1] < 0)
+    x0, y0, x1, y1 = belly_box
+    belly = ((mid[:, 0] > x0) & (mid[:, 0] < x1) & (mid[:, 2] > y0) & (mid[:, 2] < y1)
+             & (mid[:, 1] < 0))
     d = v[ev[belly, 1]] - v[ev[belly, 0]]
     angle = np.degrees(np.arctan2(d[:, 2], d[:, 0])) % 180.0
     hist = np.histogram(angle, bins=12, range=(0, 180))[0].astype(float)
@@ -120,13 +126,21 @@ def measure(v, tris):
 
 
 def main():
-    """Prints the measures of the GLB given after '--'."""
-    args = sys.argv[sys.argv.index('--') + 1:]
-    path = os.path.abspath(args[0])
-    v, tris = body_triangles(path)
+    """Prints the measures of the GLB of an animal and writes <out>/compare/mesh.json."""
+    ap = argparse.ArgumentParser(prog='studio/measure_mesh.py')
+    ap.add_argument('animal')
+    ap.add_argument('--out', default=None)
+    args = ap.parse_args(sys.argv[sys.argv.index('--') + 1:])
+    cfg = config.load(args.animal, args.out)
+    with open(cfg.paths.measure) as f:
+        sheet_px = json.load(f)['views']['front']['height_px']
+    v, tris = body_triangles(cfg.paths.glb)
     tris = largest_piece(tris)
-    result = measure(v, tris)
+    result = measure(v, tris, sheet_px, cfg.measure.mesh_belly)
     print('FACETS', json.dumps(result))
+    os.makedirs(cfg.paths.compare, exist_ok=True)
+    with open(os.path.join(cfg.paths.compare, 'mesh.json'), 'w') as f:
+        json.dump(result, f, indent=2)
 
 
 if __name__ == '__main__':

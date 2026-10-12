@@ -384,6 +384,9 @@ shoulder_arm = [-0.43, 0.35, -0.1, 0.76]
 head = [-0.19, 0.74, 0.19, 1.01]
 
 # The measures of the eyes, the ears, and the facet shading, on the sheet and on the renders.
+[measure]
+mesh_belly = [-0.15, 0.3, 0.15, 0.55]
+
 [measure.eyes]
 band = [0.86, 0.93]
 white_min = 212

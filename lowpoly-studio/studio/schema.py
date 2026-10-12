@@ -532,6 +532,8 @@ COMPARE = T('The compare of the renders with the sheet (viewer/compare.js).', {
 })
 
 MEASURE = T('The image measures of the eyes, the ears, and the facet shading.', {
+    'mesh_belly': F('rect', 'Belly box [x0, y0, x1, y1] of the edge-direction measure of the GLB '
+                            'facets (studio/measure_mesh.py).', todo=True),
     'eyes': T('Eyes: blobs of near-black and near-white pixels in a band of heights.', {
         'band': F('vec2', 'Low and high height of the band.', todo=True),
         'white_min': F('int', 'A white pixel has max(rgb) above this (above the background).',

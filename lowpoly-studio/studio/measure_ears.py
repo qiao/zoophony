@@ -1,8 +1,8 @@
 """Measures the ears of the sheet and of the renders in the front, back, and side views.
 
-Run with the system python3 (Pillow only), after tools/shoot.mjs compare:
+Run with the system python3 (Pillow only), after studio/shoot.mjs compare (the CLI runs it):
 
-    python3 tools/ears.py [--json out/compare/ears.json]
+    python3 studio/measure_ears.py <animal> [--out DIR]
 
 The measure uses the silhouette only, in the same way for the sheet and for a render:
 
@@ -13,35 +13,37 @@ The measure uses the silhouette only, in the same way for the sheet and for a re
 - dark: the share of the ear disk (the box of the ear above the notch) that is darker than the
   fur around it, which is the inner ear (front view only).
 
-All values are in bear heights (the height of the view is 1).
+All values are in animal heights (the height of the view is 1). Writes
+<out>/compare/ears.json.
 """
 
+import argparse
 import json
 import os
 import sys
 
 from PIL import Image
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.join(os.path.dirname(HERE), 'animals', 'bear')
-BACKGROUND = (202, 202, 203)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from studio import config  # noqa: E402
 
 
-def render_mask(path, width, height):
+def render_mask(path, background, diff):
     """Makes a mask of a render: the pixels that differ from the background of the sheet."""
     im = Image.open(path).convert('RGB')
     px = im.load()
     w, h = im.size
-    return [[sum(abs(a - b) for a, b in zip(px[x, y], BACKGROUND)) > 24 for x in range(w)]
+    return [[sum(abs(a - b) for a, b in zip(px[x, y], background)) > diff for x in range(w)]
             for y in range(h)], im
 
 
-def sheet_mask(view, meta):
+def sheet_mask(cfg, view, meta):
     """Reads the mask of the sheet for a view, cut to its column."""
     c0, c1 = meta['column']
-    im = Image.open(os.path.join(ROOT, 'out', 'masks', f'{view}.png')).convert('L')
+    im = Image.open(os.path.join(cfg.paths.masks, f'{view}.png')).convert('L')
     px = im.load()
-    sheet = Image.open(os.path.join(ROOT, 'reference', 'bear-views.png')).convert('RGB')
+    sheet = Image.open(cfg.paths.sheet).convert('RGB')
     rgb = sheet.crop((c0, 0, c1, im.size[1]))
     return [[px[x, y] > 127 for x in range(c0, c1)] for y in range(im.size[1])], rgb
 
@@ -60,12 +62,12 @@ def runs(row, x0, x1):
     return out
 
 
-def measure_half(mask, x0, x1, outer_is_low, height_px, axis):
+def measure_half(mask, x0, x1, outer_is_low, height_px, axis, e):
     """Measures the ear in one half of a view (x0..x1), with the outer side low or high x."""
     top = next(y for y, row in enumerate(mask) if any(row[x0:x1]))
     widest, center = 0, None
     merged = None
-    for y in range(top, top + int(0.15 * height_px)):
+    for y in range(top, top + int(e.search * height_px)):
         r = runs(mask[y], x0, x1)
         if not r:
             continue
@@ -85,20 +87,20 @@ def measure_half(mask, x0, x1, outer_is_low, height_px, axis):
             widest, center = width, 0.5 * (ear[0] + ear[1])
     # The notch: the outer edge goes out, then back in, then out again at the cheek.
     edge = []
-    for y in range(top, top + int(0.2 * height_px)):
+    for y in range(top, top + int(e.notch_span * height_px)):
         r = runs(mask[y], x0, x1)
         if r:
             edge.append((y, r[0][0] if outer_is_low else -r[-1][1]))
-    best_out = min(e for _, e in edge[: int(0.08 * height_px)])
+    best_out = min(d for _, d in edge[: int(e.notch_top * height_px)])
     notch = None
     deepest = None
-    for y, e in edge:
-        if deepest is None and e == best_out:
+    for y, d in edge:
+        if deepest is None and d == best_out:
             deepest = y
         if deepest is not None and y > deepest:
-            if notch is None or e > notch[1]:
-                notch = (y, e)
-            elif e < notch[1] - 2:
+            if notch is None or d > notch[1]:
+                notch = (y, d)
+            elif d < notch[1] - 2:
                 break
     notch_row = notch[0] if notch else top
     return {
@@ -128,16 +130,16 @@ def dark_share(rgb, mask, half, box):
     return round(sum(1 for v in lum if v < cut) / len(lum), 3)
 
 
-def measure_view(view, meta, mask, rgb, axis):
+def measure_view(view, meta, mask, rgb, axis, e):
     """Measures both ears of one view (or the one ear of the side view)."""
     h = meta['height_px']
     w = len(mask[0])
     if view == 'side':
         # The bear faces right: the ear stands up at the back of the head, the outer edge is low x.
-        return {'ear': measure_half(mask, 0, w, True, h, axis)}
+        return {'ear': measure_half(mask, 0, w, True, h, axis, e)}
     ax = int(round(axis))
-    left = measure_half(mask, 0, ax, True, h, axis)
-    right = measure_half(mask, ax, w, False, h, axis)
+    left = measure_half(mask, 0, ax, True, h, axis, e)
+    right = measure_half(mask, ax, w, False, h, axis, e)
     out = {'left_in_image': left, 'right_in_image': right}
     if view == 'front':
         for name, m, (x0, x1) in (('left_in_image', left, (0, ax)),
@@ -147,32 +149,40 @@ def measure_view(view, meta, mask, rgb, axis):
     return out
 
 
-def main():
-    """Measures the sheet and the renders and prints the ear sizes."""
-    with open(os.path.join(ROOT, 'out', 'measure.json')) as f:
+def measure(cfg):
+    """Measures the sheet and the renders, prints the ear sizes, and writes the JSON."""
+    e = cfg.measure.ears
+    with open(cfg.paths.measure) as f:
         meta = json.load(f)['views']
     result = {}
     for view in ('front', 'side', 'back'):
+        if view not in meta:
+            continue
         m = meta[view]
-        c0 = m['column'][0]
-        axis = m['axis_px'] - c0
-        if view == 'side':
-            axis = m['axis_px'] - c0
-        smask, srgb = sheet_mask(view, m)
-        rmask, rrgb = render_mask(os.path.join(ROOT, 'out', 'compare', f'render_{view}.png'),
-                                  None, None)
-        result[view] = {'sheet': measure_view(view, m, smask, srgb, axis),
-                        'render': measure_view(view, m, rmask, rrgb, axis)}
+        axis = m['axis_px'] - m['column'][0]
+        smask, srgb = sheet_mask(cfg, view, m)
+        rmask, rrgb = render_mask(os.path.join(cfg.paths.compare, f'render_{view}.png'),
+                                  cfg.sheet.background, e.background_diff)
+        result[view] = {'sheet': measure_view(view, m, smask, srgb, axis, e),
+                        'render': measure_view(view, m, rmask, rrgb, axis, e)}
     for view, r in result.items():
         for who in ('sheet', 'render'):
-            for side, e in r[who].items():
-                extra = f"  dark {e['dark']}" if 'dark' in e else ''
-                print(f'{view:6s} {who:6s} {side:15s} width {e["width"]:.3f}  height '
-                      f'{e["height"]:.3f}  center x {e["center_x"]}{extra}')
-    path = sys.argv[sys.argv.index('--json') + 1] if '--json' in sys.argv else \
-        os.path.join(ROOT, 'out', 'compare', 'ears.json')
-    with open(path, 'w') as f:
+            for side, ear in r[who].items():
+                extra = f"  dark {ear['dark']}" if 'dark' in ear else ''
+                print(f'{view:6s} {who:6s} {side:15s} width {ear["width"]:.3f}  height '
+                      f'{ear["height"]:.3f}  center x {ear["center_x"]}{extra}')
+    with open(os.path.join(cfg.paths.compare, 'ears.json'), 'w') as f:
         json.dump(result, f, indent=2)
+    return result
+
+
+def main():
+    """Reads the arguments and measures the ears of one animal."""
+    ap = argparse.ArgumentParser(prog='studio/measure_ears.py')
+    ap.add_argument('animal')
+    ap.add_argument('--out', default=None)
+    args = ap.parse_args()
+    measure(config.load(args.animal, args.out))
 
 
 if __name__ == '__main__':
