@@ -40,8 +40,8 @@ RESERVED_PORTS = (5173, 5190)
 # The Blender processes of the seed pool that run at the same time.
 DEFAULT_JOBS = 4
 
-# The largest size of the stage cache of one animal; a build deletes the least recently used
-# entries above it.
+# The largest size of the stage cache that all worktrees share; a build deletes the least
+# recently used entries above it.
 CACHE_LIMIT = 2 * 2**30
 
 INTAKE_CHECKLIST = '''Intake checklist (settle these with the user before the first build; each visual claim
@@ -193,9 +193,10 @@ class Timer:
         log(self.table(total))
 
 
-def cache_root(cfg):
-    """Returns the cache folder of an animal."""
-    return os.path.join(cfg.paths.root, 'cache')
+def cache_root():
+    """Returns the folder of the stage cache that all worktrees of the repository share."""
+    from studio import cache  # noqa: PLC0415
+    return cache.default_root()
 
 
 def step_intake(cfg, use_cache=True):
@@ -209,7 +210,7 @@ def step_intake(cfg, use_cache=True):
     if not use_cache:
         intake.intake(cfg)
         return 'run'
-    store = cache.Store(cache_root(cfg))
+    store = cache.Store(cache_root(), cfg.animal.id, 'cli')
     with open(cfg.paths.sheet, 'rb') as f:
         base = cache.digest(['intake', f.read(), sys.version, Image.__version__])
     hit = store.lookup('intake', base, {'cfg': cfg})
@@ -241,7 +242,7 @@ def step_intake(cfg, use_cache=True):
 
 def build_args(cfg, seed, until=None, clips=None, use_cache=True, gate=True):
     """Makes the arguments of studio/build.py for one seed."""
-    args = [cfg.paths.root, '--seed', str(seed), '--out', cfg.paths.out]
+    args = [cfg.paths.root, '--seed', str(seed), '--out', cfg.paths.out, '--cache', cache_root()]
     if until:
         args += ['--until', until]
     if clips:
@@ -468,10 +469,10 @@ def step_checks(cfg):
     return report
 
 
-def prune_cache(cfg):
-    """Deletes the least recently used cache entries of the animal above CACHE_LIMIT."""
+def prune_cache():
+    """Deletes the least recently used entries of the shared cache above CACHE_LIMIT."""
     from studio import cache  # noqa: PLC0415
-    root = cache_root(cfg)
+    root = cache_root()
     if os.path.isdir(root):
         n = cache.prune(root, CACHE_LIMIT)
         if n:
@@ -532,7 +533,7 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
     report = timer.run('checks', step_checks, cfg)
     timer.write(cfg)
     if use_cache:
-        prune_cache(cfg)
+        prune_cache()
     return report, pool
 
 
@@ -846,23 +847,35 @@ def cmd_fit(a):
 
 
 def cmd_cache(a):
-    """studio cache: prints the size of the stage cache, or deletes it (clean)."""
+    """studio cache: prints the size of the shared stage cache by step and by animal, or deletes
+    the entries of one animal or the whole cache (clean)."""
     from studio import cache  # noqa: PLC0415
-    names = [a.animal] if a.animal else sorted(
-        n for n in os.listdir(config.ANIMALS) if os.path.isdir(os.path.join(config.ANIMALS, n)))
-    for name in names:
-        root = os.path.join(config.animal_dir(name), 'cache')
-        size, entries = cache.size(root) if os.path.isdir(root) else (0, 0)
-        if a.action == 'clean':
-            if os.path.isdir(root):
-                shutil.rmtree(root)
-            log(f'{name}: deleted the cache ({entries} entries, {size / 2**20:.1f} MB)')
-            continue
-        log(f'{name}: {entries} entries, {size / 2**20:.1f} MB in {os.path.relpath(root, STUDIO)}')
-        if os.path.isdir(root):
-            for step in sorted(os.listdir(root)):
-                n_step = cache.size(os.path.join(root, step))
-                log(f'  {step:12s} {n_step[1]:4d} entries {n_step[0] / 2**20:8.1f} MB')
+    root = cache_root()
+    found = cache.entries(root) if os.path.isdir(root) else []
+    if a.animal:
+        found = [e for e in found if e[3] == a.animal]
+    total = sum(e[1] for e in found)
+    who = f'the entries of {a.animal}' if a.animal else 'all entries'
+    if a.action == 'clean':
+        if a.animal:
+            for meta_path, _, _, _ in found:
+                cache.remove_entry(meta_path)
+        elif os.path.isdir(root):
+            shutil.rmtree(root)
+        log(f'deleted {who} of the stage cache: {len(found)} entries, {total / 2**20:.1f} MB '
+            f'({root})')
+        return
+    log(f'stage cache: {root} (all worktrees of the repository share it, limit '
+        f'{CACHE_LIMIT / 2**30:.0f} GB)')
+    log(f'{who}: {len(found)} entries, {total / 2**20:.1f} MB')
+    for title, col in (('step', 2), ('animal', 3)):
+        groups = {}
+        for e in found:
+            n, b = groups.get(e[col] or '-', (0, 0))
+            groups[e[col] or '-'] = (n + 1, b + e[1])
+        log(f'  by {title}:')
+        for name, (n, b) in sorted(groups.items()):
+            log(f'    {name:28s} {n:5d} entries {b / 2**20:8.1f} MB')
 
 
 def serve(folder, port, page):

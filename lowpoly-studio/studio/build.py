@@ -23,8 +23,8 @@ The stages (each one writes its outputs into <out>/stages/, see studio/stages.py
 The model stages (field to details) take one input from the role: the bind pose.
 
 The stage cache (studio/cache.py, studio/stages.py): field, remesh, organic, clips, contacts, and
-export keep their outputs in the cache of the animal, keyed by their inputs, the config values
-that they read, and their code. A cache hit makes the Blender state again with the restore
+export keep their outputs in the cache that all worktrees share, keyed by their inputs, the
+config values that they read, and their code. A cache hit makes the Blender state again with the restore
 function of the stage, with the same calls as the run that made the entry. The cheap stages that
 change the scene (paint to assemble) always run.
 
@@ -43,6 +43,7 @@ import time
 STUDIO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, STUDIO)
 
+import bpy  # noqa: E402
 import numpy as np  # noqa: E402
 from mathutils import Vector  # noqa: E402
 from mathutils.bvhtree import BVHTree  # noqa: E402
@@ -69,7 +70,8 @@ def parse_args():
     ap.add_argument('--out', default=None, help='the output folder (default: <animal>/out)')
     ap.add_argument('--until', default=None, help='stop after this stage (no GLB)')
     ap.add_argument('--clips', default='', help='only these clips (a,b)')
-    ap.add_argument('--cache', default=None, help='the cache folder (default: <animal>/cache)')
+    ap.add_argument('--cache', default=None,
+                    help='the cache folder (default: the shared cache of all worktrees)')
     ap.add_argument('--no-cache', action='store_true', help='no cache reads and no cache writes')
     ap.add_argument('--no-gate', action='store_true', help='report the remesh gate, never stop')
     return ap.parse_args(argv)
@@ -589,8 +591,9 @@ def main():
     ctx, fps = setup(cfg_raw, args)
     cached = None
     if fps is not None:
-        root = args.cache or os.path.join(cfg_raw.paths.root, 'cache')
-        cached = stages.Cache(cache.Store(root), cfg_raw, fps, STAGES)
+        root = args.cache or cache.default_root()
+        space = 'blender-' + '.'.join(str(v) for v in bpy.app.version)
+        cached = stages.Cache(cache.Store(root, cfg_raw.animal.id, space), cfg_raw, fps, STAGES)
     os.makedirs(cfg_raw.paths.stages, exist_ok=True)
     gate = Gate(ctx, cfg_raw.paths.stages, not args.no_gate)
     setup_s = time.time() - t0

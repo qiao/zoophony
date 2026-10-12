@@ -16,8 +16,16 @@ takes the newest entry whose reads and code still have the same digests. Thus a 
 config value that a step did not read keeps its entry valid, and a change of a value that it
 read makes a new entry.
 
-    <root>/<step>/<base key>/<entry key>.json   the manifest, the output fingerprints, the log
-    <root>/<step>/<base key>/<entry key>.pkl    the outputs (pickle)
+    <root>/<space>/<step>/<base key>/<entry key>.json   the manifest, the output fingerprints,
+                                                        the log, the animal
+    <root>/<space>/<step>/<base key>/<entry key>.pkl    the outputs (pickle)
+
+All worktrees of the repository share one root (default_root: <git common dir>/lowpoly-studio/
+cache), so the first build in a new worktree takes its stages from the builds of the other
+worktrees. The keys hold only content digests (no path, no worktree, no animal name). The space
+is the program that made the entry ('blender-5.2.0' or 'cli'), so a new Blender version starts an
+empty space. A writer writes each file to a unique temporary name and renames it, so a reader in
+another process never sees a part of a file.
 
 Two rules keep a cache hit correct:
 - A step reads the config only through the Tracked view, and reads no clock and no file that is
@@ -28,12 +36,15 @@ Two rules keep a cache hit correct:
 
 import ast
 import contextlib
+import functools
 import hashlib
 import json
 import os
 import pickle
 import struct
+import subprocess
 import sys
+import tempfile
 import time
 import types
 
@@ -574,24 +585,59 @@ def quiet():
             sys.stdout = prev
 
 
+@functools.cache
+def shared_root():
+    """Returns the folder of the studio state that all worktrees of the repository share: the
+    variable STUDIO_SHARED, or <git common dir>/lowpoly-studio, or ~/.cache/lowpoly-studio
+    outside a git repository."""
+    env = os.environ.get('STUDIO_SHARED')
+    if env:
+        return os.path.abspath(env)
+    try:
+        common = subprocess.run(['git', 'rev-parse', '--path-format=absolute',
+                                 '--git-common-dir'], cwd=STUDIO, capture_output=True,
+                                text=True, check=True).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        common = ''
+    if common:
+        return os.path.join(common, 'lowpoly-studio')
+    return os.path.join(os.path.expanduser('~'), '.cache', 'lowpoly-studio')
+
+
+def default_root():
+    """Returns the folder of the stage cache that all worktrees share."""
+    return os.path.join(shared_root(), 'cache')
+
+
 def _write_atomic(path, data):
-    """Writes bytes to a file through a temporary file, so a reader never sees a part."""
-    tmp = f'{path}.tmp{os.getpid()}'
-    with open(tmp, 'wb') as f:
-        f.write(data)
-    os.replace(tmp, path)
+    """Writes bytes to a file through a unique temporary file in the same folder, then renames
+    it, so a reader never sees a part and two writers never share a temporary file."""
+    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path),
+                               prefix=os.path.basename(path) + '.tmp')
+    try:
+        with os.fdopen(fd, 'wb') as f:
+            f.write(data)
+        os.replace(tmp, path)
+    except BaseException:
+        with contextlib.suppress(OSError):
+            os.remove(tmp)
+        raise
 
 
 class Store:
-    """The cache entries of one animal (animals/<id>/cache/)."""
+    """The cache entries of one program space in the shared cache root."""
 
-    def __init__(self, root):
-        """Stores the root folder of the cache."""
+    def __init__(self, root, animal=None, space='cli'):
+        """Stores the root folder of the cache, the animal of the build (it goes into the meta
+        of each entry, for `cache info` and `cache clean <animal>`; it is not a part of a key),
+        and the space: the program that makes the entries ('blender-<version>' or 'cli')."""
         self.root = root
+        self.animal = animal
+        self.space = space
 
     def lookup(self, step, base, roots):
         """Finds the newest valid entry of a step. Returns (meta, data) or None."""
-        folder = os.path.join(self.root, step, base)
+        folder = os.path.join(self.root, self.space, step, base)
         try:
             names = [n for n in os.listdir(folder) if n.endswith('.json')]
         except OSError:
@@ -620,9 +666,9 @@ class Store:
 
     def save(self, step, base, key, meta, data):
         """Writes an entry: the data first, then the meta (a meta means a whole entry)."""
-        folder = os.path.join(self.root, step, base)
+        folder = os.path.join(self.root, self.space, step, base)
         os.makedirs(folder, exist_ok=True)
-        meta = dict(meta, version=VERSION, step=step, base=base, key=key)
+        meta = dict(meta, version=VERSION, step=step, base=base, key=key, animal=self.animal)
         _write_atomic(os.path.join(folder, f'{key}.pkl'),
                       pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL))
         _write_atomic(os.path.join(folder, f'{key}.json'),
@@ -648,9 +694,43 @@ def size(root):
     return total, entries
 
 
+def entries(root):
+    """Lists the entries of a cache folder: (meta path, bytes of the meta and the data, the
+    space/step folder, the animal of the meta or None)."""
+    out = []
+    for folder, _, names in os.walk(root):
+        for n in names:
+            if not n.endswith('.json') or '.tmp' in n:
+                continue
+            p = os.path.join(folder, n)
+            pkl = p[:-5] + '.pkl'
+            b = 0
+            for q in (p, pkl):
+                with contextlib.suppress(OSError):
+                    b += os.path.getsize(q)
+            try:
+                with open(p) as f:
+                    animal = json.load(f).get('animal')
+            except (OSError, ValueError):
+                animal = None
+            step = os.path.relpath(os.path.dirname(os.path.dirname(p)), root)
+            out.append((p, b, step, animal))
+    return out
+
+
+def remove_entry(meta_path):
+    """Deletes one entry (its meta and its data)."""
+    for p in (meta_path, meta_path[:-5] + '.pkl'):
+        with contextlib.suppress(OSError):
+            os.remove(p)
+
+
 def prune(root, limit_bytes):
     """Deletes the least recently used entries until the cache is at most limit_bytes. Also
-    deletes the temporary files of stopped writers. Returns the number of deleted entries."""
+    deletes the temporary files of stopped writers. Returns the number of deleted entries.
+
+    Another process can write, read, or prune the same root at the same time: a file that
+    goes away during the walk counts as no file."""
     files = []
     for folder, _, names in os.walk(root):
         for n in names:
@@ -659,17 +739,17 @@ def prune(root, limit_bytes):
                 with contextlib.suppress(OSError):
                     os.remove(p)
             elif n.endswith('.json'):
-                pkl = p[:-5] + '.pkl'
-                b = os.path.getsize(p) + (os.path.getsize(pkl) if os.path.exists(pkl) else 0)
-                files.append((_mtime(p), b, p, pkl))
+                b = 0
+                for q in (p, p[:-5] + '.pkl'):
+                    with contextlib.suppress(OSError):
+                        b += os.path.getsize(q)
+                files.append((_mtime(p), b, p))
     total = sum(f[1] for f in files)
     deleted = 0
-    for _, b, meta, pkl in sorted(files):
+    for _, b, meta in sorted(files):
         if total <= limit_bytes:
             break
-        for p in (meta, pkl):
-            with contextlib.suppress(OSError):
-                os.remove(p)
+        remove_entry(meta)
         total -= b
         deleted += 1
     return deleted
