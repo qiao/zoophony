@@ -603,10 +603,11 @@ goes on with the next seed. `--no-gate` reports the gate and builds on.
 | `inward_faces`: faces that point into the surface field | organic | `inward_faces` (0) |
 | `slivers`: share of faces with a smallest angle under 15 degrees | organic | `slivers` (1%) |
 | `open_edges`: edges with one face or with three or more | organic | 0 |
-| `slit_faces`: faces whose outward ray meets the body within `slit_gap` median edges, across a gap whose middle is inside the field | organic | `slit_faces` (0) |
+| `slit_faces`: faces whose outward ray meets the body within `slit_gap` median edges across a gap whose middle is inside the field, or within `slit_tight` median edges | organic | `slit_faces` (0) |
 
 A gap between two parts, such as the forearm and the trunk, is outside the field, so it is no
-slit. The gate writes `out/stages/remesh-gate.json`, and `checks.json` has each gate check as
+slit. On the bear, the narrowest such gap is 0.24 median edges. The slit check has no test on a
+real slit yet: the field of the bear gives none, also with a head blend of 0.010. The gate writes `out/stages/remesh-gate.json`, and `checks.json` has each gate check as
 `remesh_gate.<name>`. On the bear, seeds 3, 1, 5, 6, 4, 7, and 8 pass. Seed 2 fails: 1036
 quads (the band is 765 to 1035), 1.08% slivers, and 4 open edges.
 
@@ -1016,6 +1017,7 @@ The remesh gate (studio/remesh.py): a seed that fails it stops at once, and the 
 | `inward_faces` | int | `0` | Most faces of the body mesh that point into the body. |
 | `slivers` | num | `0.01` | Largest share of slivers (smallest angle under 15 degrees) in the body mesh. |
 | `slit_gap` | num | `1.0` | A face whose outward ray meets the body within this share of the median edge, across a gap whose middle is inside the field, is in a slit. |
+| `slit_tight` | num | `0.1` | A face whose outward ray meets the body within this share of the median edge is in a slit, also when the gap is outside the field (a crease that the facets cannot show). |
 | `slit_faces` | int | `0` | Most faces in a slit. |
 
 #### `[facets.protect]`

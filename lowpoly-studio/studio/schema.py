@@ -299,6 +299,9 @@ FACETS = T('The low-poly facets: QuadriFlow remesh with mirror, then the organic
         'slit_gap': F('num', 'A face whose outward ray meets the body within this share of the '
                              'median edge, across a gap whose middle is inside the field, is in '
                              'a slit.', default=1.0),
+        'slit_tight': F('num', 'A face whose outward ray meets the body within this share of '
+                               'the median edge is in a slit, also when the gap is outside the '
+                               'field (a crease that the facets cannot show).', default=0.1),
         'slit_faces': F('int', 'Most faces in a slit.', default=0),
     }),
     'protect': T('The skin that the organic pass leaves alone (it bends far, or it must stay '

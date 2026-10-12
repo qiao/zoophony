@@ -405,13 +405,15 @@ def open_edges(tris):
     return int(np.sum(counts != 2))
 
 
-def slit_faces(parts, v, tris, gap):
-    """Lists the faces that look onto the body across a gap that the field does not have.
+def slit_faces(parts, v, tris, gap, tight):
+    """Lists the faces that look onto the body across a gap that the field does not have, or
+    across a gap narrower than tight.
 
     A ray goes out from the center of each face along its normal (the faces point out). When it
     meets another face of the body within gap, and the middle of that gap is inside the field,
-    the mesh folds into the body there: a slit, or an undercut that the remesh could not follow.
-    A gap between two parts (an arm and the trunk) is outside the field, so it is no slit.
+    the mesh folds into the body there: a slit. A gap between two parts (an arm and the trunk)
+    is outside the field, so it is no slit. A gap under tight is a crease that the facets cannot
+    show (an undercut that the remesh could not follow), also when the field has the groove.
     Returns (faces, the smallest gap of a slit face, or None).
     """
     tree = BVHTree.FromPolygons([Vector(p) for p in v], tris.tolist(), all_triangles=True)
@@ -430,7 +432,7 @@ def slit_faces(parts, v, tris, gap):
     faces = np.array([f for f, _ in hits])
     dist = np.array([t for _, t in hits])
     middle = centers[faces] + 0.5 * dist[:, None] * n[faces]
-    inside = field_at(parts, middle) < 0.0
+    inside = (field_at(parts, middle) < 0.0) | (dist < tight)
     return [int(f) for f in faces[inside]], (float(dist[inside].min()) if inside.any() else None)
 
 
@@ -456,7 +458,7 @@ def gate_mesh(cfg, parts, v, tris, height_px):
     inward = inward_faces(parts, v, tris)
     slivers, _ = triangle_quality(v, tris)
     edge = float(np.median(np.linalg.norm(v[tris[:, 0]] - v[tris[:, 1]], axis=1)))
-    slits, smallest = slit_faces(parts, v, tris, g.slit_gap * edge)
+    slits, smallest = slit_faces(parts, v, tris, g.slit_gap * edge, g.slit_tight * edge)
     out = [
         {'name': 'inward_faces', 'value': len(inward), 'op': '<=', 'limit': g.inward_faces,
          'pass': len(inward) <= g.inward_faces},
