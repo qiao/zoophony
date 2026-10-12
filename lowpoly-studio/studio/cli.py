@@ -8,6 +8,7 @@
     python3 studio new <animal> --sheet <png> [--role R] [--like A] [--full] [--force]
     python3 studio regress <animal> [--no-build] [--no-cache] [--write --from DIR]
     python3 studio fit <animal> [--rows] [--azimuths a,b,c] [--pose bind]
+    python3 studio calibrate <animal> [--from A] [--quads] [--no-look] [--contrast X] [--dry-run]
     python3 studio report <animal> [--out DIR] [--measure] [--no-serve] [--port N]
     python3 studio schema [--role] [--readme]
     python3 studio cache info|clean [<animal>]
@@ -1353,6 +1354,66 @@ def cmd_fit(a):
                              for k, v in timer.steps.items()))
 
 
+def cmd_calibrate(a):
+    """studio calibrate: fits the light, the palette, and the dark classes of an animal to its
+    sheet with renders of a GLB (studio/calibrate.py), and with --quads the QuadriFlow target
+    (studio/quads.py). Writes the values into animal.toml unless --dry-run."""
+    from studio import calibrate  # noqa: PLC0415
+    from studio.like import ConfigText  # noqa: PLC0415
+    cfg = load(a.animal)
+    timer = Timer()
+    t = time.time()
+    timer.step('intake', time.time() - t, step_intake(cfg))
+    if not a.no_look:
+        source = load(a.source) if a.source else cfg
+        if not os.path.exists(source.paths.glb):
+            fail(f'{source.paths.glb} does not exist: build {source.animal.id} first, or give '
+                 f'--from <animal> with a GLB (for example the like animal)')
+        viewer_config.write(cfg)
+        node = shutil.which('node') or fail('no node on the path')
+        runs = calibrate.runs(cfg.look.light)
+        log(f'[calibrate] {len(runs)} renders of the front view of {source.animal.id}.glb')
+        t = time.time()
+        code = subprocess.call([node, os.path.join(STUDIO, 'studio', 'shoot.mjs'), 'calibrate',
+                                '--out', cfg.paths.out, '--glb', viewer_config.url_of(source.paths.glb),
+                                '--runs', json.dumps(runs)], cwd=STUDIO)
+        timer.step('renders', time.time() - t)
+        if code != 0:
+            fail('node studio/shoot.mjs calibrate failed (see its message above)')
+        t = time.time()
+        res = calibrate.calibrate(cfg, source, os.path.join(cfg.paths.out, 'calibrate'),
+                                  a.contrast)
+        calibrate.save(cfg, res)
+        timer.step('fit', time.time() - t)
+        for line in calibrate.summary(res):
+            log(line)
+        if not a.dry_run:
+            calibrate.write(cfg.paths.config, res)
+            log(f'wrote the light, the palette, and the dark classes into {cfg.paths.config}')
+    if a.quads:
+        log('[calibrate] the QuadriFlow target (studio/quads.py)')
+        t = time.time()
+        code, lines = blender('studio/quads.py', [cfg.paths.root, '--out', cfg.paths.out],
+                              os.path.join(cfg.paths.out, 'calibrate', 'quads.log'))
+        timer.step('quads', time.time() - t)
+        for line in lines:
+            if line.startswith(('target', 'ratio', 'wrote', 'Error', 'Traceback')):
+                log(f'  {line}')
+        if code != 0:
+            fail('studio/quads.py failed')
+        found = _read_json(os.path.join(cfg.paths.out, 'calibrate', 'quads.json'))
+        current = cfg.facets.quadriflow_target or cfg.facets.quads
+        if found['target'] != current and not a.dry_run:
+            with open(cfg.paths.config) as f:
+                doc = ConfigText(f.read())
+            doc.set('facets', 'quadriflow_target', found['target'],
+                    f'python3 studio calibrate --quads: ratio {found["ratio"]}')
+            with open(cfg.paths.config, 'w') as f:
+                f.write(doc.text)
+            log(f'wrote facets.quadriflow_target = {found["target"]} into {cfg.paths.config}')
+    log('time: ' + ', '.join(f'{k} {v:.1f} s' for k, v in timer.steps.items()))
+
+
 def cmd_cache(a):
     """studio cache: prints the size of the shared stage cache by step and by animal, or deletes
     the entries of one animal or the whole cache (clean)."""
@@ -1548,6 +1609,17 @@ def main(argv=None):
                    help='try these azimuths of the 3/4 view (a,b,c) and keep the best')
     p.add_argument('--pose', default='reference', help='the pose of the field: reference or bind')
     p.set_defaults(fn=cmd_fit)
+    p = sub.add_parser('calibrate', help='fit the light, the palette, the dark classes, and '
+                                         'the quad target to the sheet')
+    p.add_argument('animal')
+    p.add_argument('--from', dest='source', default=None,
+                   help='render the GLB of this animal (default: the GLB of the animal)')
+    p.add_argument('--contrast', type=float, default=None,
+                   help='a target belly contrast in place of the contrast of the sheet')
+    p.add_argument('--quads', action='store_true', help='also calibrate the QuadriFlow target')
+    p.add_argument('--no-look', action='store_true', help='no light, palette, or classes')
+    p.add_argument('--dry-run', action='store_true', help='print, write nothing into the config')
+    p.set_defaults(fn=cmd_calibrate)
     p = sub.add_parser('report', help='write the look report of the last build and serve it')
     p.add_argument('animal')
     p.add_argument('--out', default=None, help='output folder (default: animals/<id>/out)')

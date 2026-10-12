@@ -6,6 +6,10 @@
 // IoU in a window of +-40 px is chosen. A view with a range in config compare.head_turn also
 // gets the head turn (of the bone "head" of the biped template) with the best IoU, for the
 // compare render only. Nothing else is fitted.
+//
+// Options of `python3 studio calibrate` (studio/calibrate.py), off by default: ?views=front
+// renders only these views, ?flat=1 gives every mesh a white material with no vertex colors
+// (the light alone), and ?transparent=1 keeps the background of the renders transparent.
 
 import * as THREE from 'three';
 import {
@@ -26,6 +30,9 @@ const clipTime = Number(params.get('t') ?? 0);
 const RENDER = 1000;
 const SEARCH = 40;
 const [ROW0, ROW1] = SETTINGS.compare.rows;
+const ONLY = params.get('views')?.split(',') ?? null;
+const FLAT = params.get('flat') === '1';
+const TRANSPARENT = params.get('transparent') === '1';
 
 function loadImage(url) {
   return new Promise((resolve, reject) => {
@@ -76,6 +83,10 @@ function furStats(data, stride, mask, maskStride, maskOffset, rows, width) {
       vs.push(v);
     }
   }
+  if (hs.length === 0) {
+    // No fur pixel (a dark render of studio/calibrate.py).
+    return { hue: null, sat: null, val: null, litHue: null, litSat: null, n: 0 };
+  }
   const med = (a) => Float32Array.from(a).sort()[Math.floor(a.length / 2)];
   // The lit quarter: the pixels with the highest value.
   const vCut = Float32Array.from(vs).sort()[Math.floor(vs.length * 0.75)];
@@ -85,8 +96,8 @@ function furStats(data, stride, mask, maskStride, maskOffset, rows, width) {
     hue: Number(med(hs).toFixed(1)),
     sat: Number(med(ss).toFixed(3)),
     val: Number(med(vs).toFixed(3)),
-    litHue: Number(med(litH).toFixed(1)),
-    litSat: Number(med(litS).toFixed(3)),
+    litHue: litH.length ? Number(med(litH).toFixed(1)) : null,
+    litSat: litS.length ? Number(med(litS).toFixed(3)) : null,
     n: hs.length,
   };
 }
@@ -111,6 +122,16 @@ const camera = new THREE.PerspectiveCamera(7.4, 1, 0.1, 100);
 const lights = addLights(scene, camera);
 const model = await loadModel(glbUrl);
 scene.add(model.root);
+if (FLAT) {
+  for (const mesh of model.meshes) {
+    for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
+      m.color?.set(0xffffff);
+      m.vertexColors = false;
+      m.map = null;
+      m.needsUpdate = true;
+    }
+  }
+}
 const posed = poseAt(model, clipName, clipTime);
 
 const results = {};
@@ -239,6 +260,9 @@ function fitHeadTurn(range, render, none) {
 }
 
 for (const [name, view] of Object.entries(VIEWS)) {
+  if (ONLY && !ONLY.includes(name)) {
+    continue;
+  }
   const vm = meta.views[name];
   const [col0, col1] = vm.column;
   const colW = col1 - col0;
@@ -367,8 +391,10 @@ for (const [name, view] of Object.entries(VIEWS)) {
   }
   const refFur = furStats(sdata, colW, ref, colW, 0, furRows, colW);
   const [, mfctx] = canvas2d(colW, H);
-  mfctx.fillStyle = SHEET_BACKGROUND_CSS;
-  mfctx.fillRect(0, 0, colW, H);
+  if (!TRANSPARENT) {
+    mfctx.fillStyle = SHEET_BACKGROUND_CSS;
+    mfctx.fillRect(0, 0, colW, H);
+  }
   mfctx.drawImage(rc, ox + best.dx, oy, RENDER * scale, RENDER * scale);
   const mdat = mfctx.getImageData(0, 0, colW, H).data;
   const modelFur = furStats(mdat, colW, model, W2, SEARCH - best.dx, furRows, colW);

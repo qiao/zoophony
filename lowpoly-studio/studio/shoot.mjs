@@ -12,6 +12,11 @@
 //       Opens the viewer page, lets it play, and writes <out>/frames/viewer.png.
 //   node studio/shoot.mjs shots --out <out> --json '[{"clip":"ready","t":1,"az":0}]' [--name f]
 //       Renders custom shots into <out>/frames/<name>.png.
+//   node studio/shoot.mjs calibrate --out <out> --runs '[{"light":"1,0,0","flat":1}]' [--glb <url>]
+//       Renders the front view once for each run (a light "hemi,key,fill", and flat: a white
+//       material with no vertex colors) on a transparent background, aligned to the sheet as in
+//       compare, into <out>/calibrate/run-<i>.png and <out>/calibrate/runs.json
+//       (studio/calibrate.py).
 //   node studio/shoot.mjs compare,frames,viewer --out <out>
 //       Runs several commands with one server and one browser (a new page for each command).
 //
@@ -26,7 +31,7 @@ import { chromium } from '@playwright/test';
 import { createServer } from 'vite';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const COMMANDS = ['compare', 'frames', 'viewer', 'shots'];
+const COMMANDS = ['compare', 'frames', 'viewer', 'shots', 'calibrate'];
 const USAGE = `usage: node studio/shoot.mjs ${COMMANDS.join('|')}[,...] --out <output folder>`;
 const [cmdList = '', ...rest] = process.argv.slice(2);
 const flags = {};
@@ -179,7 +184,25 @@ async function shots({ page, race, ready }, base) {
   console.log(`wrote ${file}`);
 }
 
-const RUN = { compare, frames, viewer, shots };
+/** Renders the front view for each light run of studio/calibrate.py. */
+async function calibrate({ page, race, ready }, base) {
+  const runs = JSON.parse(flags.runs);
+  const dir = path.join(OUT, 'calibrate');
+  fs.mkdirSync(dir, { recursive: true });
+  const out = [];
+  for (const [i, run] of runs.entries()) {
+    const url = `${base}viewer/compare.html?config=${configUrl}&glb=${glb}&views=front&transparent=1&light=${run.light}&flat=${run.flat ? 1 : 0}`;
+    await race(page.goto(url));
+    await ready(() => window.__compare);
+    const res = await race(page.evaluate(() => window.__compare));
+    fs.writeFileSync(path.join(dir, `run-${i}.png`), Buffer.from(res.renders.front.split(',')[1], 'base64'));
+    out.push({ ...run, iou: res.results.front.iou, dx: res.results.front.dx });
+  }
+  fs.writeFileSync(path.join(dir, 'runs.json'), `${JSON.stringify(out, null, 1)}\n`);
+  console.log(`wrote ${runs.length} renders into ${dir}`);
+}
+
+const RUN = { compare, frames, viewer, shots, calibrate };
 
 /** Starts the server and the browser, runs each command on a new page, and stops both. */
 async function main() {

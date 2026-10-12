@@ -8,3 +8,6 @@ __pycache__/
 animals/*/out/seeds/
 animals/*/out/model/
 animals/*/out/view-server.json
+
+# Made again by python3 studio calibrate.
+animals/*/out/calibrate/
