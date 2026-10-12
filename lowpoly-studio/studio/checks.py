@@ -140,6 +140,10 @@ def run(cfg):
     if remesh:
         r.add('unpaired_vertices', remesh['remesh_info']['unpaired_vertices'], '<=',
               lim.unpaired_vertices)
+    # studio-speed: the remesh gate of the build (studio/remesh.py, stages/remesh-gate.json).
+    gate = _load(os.path.join(cfg.paths.stages, 'remesh-gate.json')) or {}
+    for c in gate.get('checks', []):
+        r.add(f'remesh_gate.{c["name"]}', c['value'], c['op'], c['limit'], True, c.get('where'))
 
     # The silhouette and the fur color of each view (studio/shoot.mjs compare).
     iou = _load(os.path.join(cfg.paths.compare, 'iou.json'))
