@@ -31,7 +31,7 @@ from studio.config import STUDIO, ConfigError
 BLENDER = os.environ.get('BLENDER', 'blender')
 
 # The lines of the Blender log that the CLI shows.
-SHOW = ('surface nets', 'remeshed', 'body:', 'bone heat', 'corrective', 'contact check',
+SHOW = ('surface nets', 'dense mesh:', 'remesh:', 'remeshed', 'body:', 'bone heat', 'corrective', 'contact check',
         'fold repair', 'remesh gate', 'stopped after', 'cache:', 'wrote', 'Error', 'Traceback')
 
 # The ports of the user's own servers, which the studio never takes.

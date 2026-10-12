@@ -157,6 +157,33 @@ def mirror_pairs(v, tol):
     return pairs
 
 
+def remove_center_fins(v, polys, pairs):
+    """Removes the triangles that lie flat in the center plane, and the vertices that they
+    leave.
+
+    Two mirrored quads that share three corners near the center line get those corners on the
+    plane x = 0 from the mirror pairs. Each one then gives a triangle in that plane, the two with
+    opposite windings: a fin (edges with four faces). A closed mirrored body has no face in that
+    plane. A mesh with no fin does not change.
+
+    Returns (verts, triangles, mirror partners).
+    """
+    fins = [k for k, p in enumerate(polys) if all(v[i, 0] == 0.0 for i in p)]
+    if not fins:
+        return v, polys, pairs
+    drop = set(fins)
+    polys = [p for k, p in enumerate(polys) if k not in drop]
+    used = np.zeros(len(v), bool)
+    for p in polys:
+        used[list(p)] = True
+    index = np.cumsum(used) - 1
+    pairs = np.array([index[j] if j >= 0 and used[j] else -1 for j in pairs[used]])
+    polys = np.array([[int(index[i]) for i in p] for p in polys], np.asarray(polys).dtype)
+    print(f'remesh: removed {len(fins)} fin faces in the center plane and '
+          f'{int(np.sum(~used))} vertices')
+    return v[used], polys, pairs
+
+
 def symmetrize(v, pairs):
     """Makes mirror pairs exact: each pair takes the mean of the two mirrored positions."""
     v = v.copy()
@@ -271,6 +298,44 @@ def untangle(parts, v, tris, pairs, offset, rounds=5, amount=0.6):
     return v, before, after
 
 
+def repair_pinches(obj, rings=2, rounds=3):
+    """Opens and fills the pinches of the dense mesh, in place.
+
+    A pinch is a non-manifold edge or vertex where two surfaces of the field touch within one
+    voxel (for example the bottom rim of the trunk loft at the outer knee). QuadriFlow refuses a
+    mesh with a pinch. The faces of a few rings around each pinch go, and each hole gets a
+    triangulated fill. A mesh with no pinch does not change.
+
+    Returns the places of the pinches that were found (three.js axes).
+    """
+    found = []
+    for _ in range(rounds):
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        bad = [v for v in bm.verts if not v.is_manifold]
+        if not bad:
+            bm.free()
+            break
+        found += [mesh.from_blender(np.array(v.co)) for v in bad]
+        faces = set()
+        for v in bad:
+            faces.update(v.link_faces)
+        for _ in range(rings):
+            grown = set()
+            for f in faces:
+                for v in f.verts:
+                    grown.update(v.link_faces)
+            faces |= grown
+        bmesh.ops.delete(bm, geom=list(faces), context='FACES')
+        bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context='VERTS')
+        filled = bmesh.ops.holes_fill(bm, edges=[e for e in bm.edges if e.is_boundary], sides=0)
+        bmesh.ops.triangulate(bm, faces=filled['faces'])
+        bm.to_mesh(obj.data)
+        bm.free()
+        obj.data.update()
+    return found
+
+
 def quadriflow(cfg, warp, parts, verts, quads, seed, height_px):
     """Stage "remesh": the warped dense mesh -> QuadriFlow quads -> mirrored triangles.
 
@@ -281,6 +346,11 @@ def quadriflow(cfg, warp, parts, verts, quads, seed, height_px):
     obj = mesh.new_mesh_object('Dense', mesh.to_blender(warp.apply(verts)), quads)
     mesh.decimate(obj, c.dense_faces)
     obj.data.validate()
+    pinches = repair_pinches(obj)
+    if pinches:
+        # The places are in the warped space of the remesh.
+        places = ', '.join(str(np.round(p, 3).tolist()) for p in pinches[:6])
+        print(f'dense mesh: repaired {len(pinches)} pinch vertices (warped space) at {places}')
     obj.data.use_mirror_x = True
     mesh.select_only(obj)
     result = set()
@@ -316,6 +386,7 @@ def quadriflow(cfg, warp, parts, verts, quads, seed, height_px):
     unpaired = int(np.sum(pairs < 0))
     bpy.data.objects.remove(obj, do_unlink=True)
     tris = chevron_triangles(v, polys)
+    v, tris, pairs = remove_center_fins(v, tris, pairs)
     info = {'quads': len(polys), 'unpaired_vertices': unpaired,
             'quad_edge_px': round(float(edge) * height_px, 1)}
     return v, tris, pairs, info
@@ -400,9 +471,14 @@ def triangle_quality(v, tris):
 
 def open_edges(tris):
     """Counts the edges that do not have exactly two faces (a hole, a crack, or a fin)."""
+    return len(open_edge_list(tris))
+
+
+def open_edge_list(tris):
+    """Lists the edges (vertex pairs) that do not have exactly two faces."""
     edges = np.sort(np.concatenate([tris[:, [0, 1]], tris[:, [1, 2]], tris[:, [2, 0]]]), axis=1)
-    _, counts = np.unique(edges, axis=0, return_counts=True)
-    return int(np.sum(counts != 2))
+    unique, counts = np.unique(edges, axis=0, return_counts=True)
+    return unique[counts != 2]
 
 
 def slit_faces(parts, v, tris, gap, tight):
@@ -473,6 +549,11 @@ def gate_mesh(cfg, parts, v, tris, height_px):
     if inward.size:
         out[0]['where'] = {'face': int(inward[0]), 'faces': [int(f) for f in inward[:20]],
                            'position': [round(float(x), 4) for x in centers[inward[0]]]}
+    bad_edges = open_edge_list(tris)
+    if len(bad_edges):
+        mids = v[bad_edges].mean(axis=1)
+        out[2]['where'] = {'position': [round(float(x), 4) for x in mids[0]],
+                           'positions': [[round(float(x), 4) for x in m] for m in mids[:20]]}
     if slits:
         out[3]['where'] = {'face': slits[0], 'faces': slits[:20],
                            'position': [round(float(x), 4) for x in centers[slits[0]]],
