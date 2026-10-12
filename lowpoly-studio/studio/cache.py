@@ -36,7 +36,7 @@ Two rules keep a cache hit correct:
 One rule keeps a key the same in each worktree: a key holds no path of the studio folder. The
 digest of a whole-table read leaves out the untracked tables below it (UNTRACKED), so a read of
 the whole cfg or of cfg.role holds no folder. A truth test of a table records only whether the
-table is empty.
+table is empty. The manifest refuses a read whose value holds a path in the studio folder.
 """
 
 import ast
@@ -376,6 +376,26 @@ def recorded_value(roots, root, path):
     return value
 
 
+def studio_path(value):
+    """Returns the first string in a value that is the studio folder or a path in it, or None.
+    Such a string differs in each worktree."""
+    if isinstance(value, Tracked):
+        value = value._tk[0]
+    if isinstance(value, str):
+        return value if value == STUDIO or value.startswith(STUDIO + os.sep) else None
+    if isinstance(value, dict):
+        items = [x for kv in dict.items(value) for x in kv]
+    elif isinstance(value, (list, tuple, set, frozenset)):
+        items = value
+    else:
+        return None
+    for x in items:
+        hit = studio_path(x)
+        if hit is not None:
+            return hit
+    return None
+
+
 class _Files:
     """The digests of the source files, and of the studio files that each one imports."""
 
@@ -538,7 +558,13 @@ class Recorder:
         for root, path in self.reads:
             if root not in roots:
                 raise KeyError(f'step {self.name}: no root {root!r} for the read {path}')
-            reads.append([root, list(path), digest(recorded_value(roots, root, path))])
+            value = recorded_value(roots, root, path)
+            leak = studio_path(value)
+            if leak is not None:
+                raise ValueError(f'step {self.name}: the read {root} {list(path)} holds the path '
+                                 f'{leak!r}. A path differs in each worktree, so the key misses '
+                                 f'the shared cache. Read only the fields that the step needs.')
+            reads.append([root, list(path), digest(value)])
         reads.sort(key=lambda r: json.dumps(r[:2]))
         keys = set(self.code) if _monitor['tool'] is not None else set(_all_code())
         for rel in [k for k in keys if '::' not in k]:
