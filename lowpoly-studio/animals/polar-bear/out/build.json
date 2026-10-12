@@ -1,11 +1,11 @@
 {
-  "run": "20261012-083312-8376",
-  "command": "build polar-bear --seed 1",
-  "started": "2026-10-12T08:33:12-0700",
-  "seed": 1,
+  "run": "20261012-093525-69503",
+  "command": "build polar-bear",
+  "started": "2026-10-12T09:35:25-0700",
+  "seed": 3,
   "shots": true,
   "until": null,
-  "glb": "ecd970cf44d849693b008d666d82fea245ae25afb4cee64f632f30b13840c6b8",
+  "glb": "cc2e3a7a1852e477a0a9eef50280517c2a675233958909c82b579cab2a713b18",
   "model": {
     "seed": 3,
     "log": "animals/polar-bear/out/model/stages/blender-seed3.log",
