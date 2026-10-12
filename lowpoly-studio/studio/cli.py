@@ -1423,6 +1423,36 @@ def cmd_calibrate(a):
     log('time: ' + ', '.join(f'{k} {v:.1f} s' for k, v in timer.steps.items()))
 
 
+def cmd_props(a):
+    """studio props: builds the props gallery of an animal (studio/gallery.py) and renders it
+    (studio/shoot.mjs props): <out>/props/gallery.glb, gallery.json, and props.png."""
+    cfg = load(a.animal, a.out)
+    timer = Timer()
+    t = time.time()
+    timer.step('intake', time.time() - t, step_intake(cfg))
+    folder = os.path.join(cfg.paths.out, 'props')
+    os.makedirs(folder, exist_ok=True)
+    args = [cfg.animal.id, '--out', folder] + (['--role', a.role] if a.role else [])
+    t = time.time()
+    code, lines = blender('studio/gallery.py', args, os.path.join(folder, 'gallery.log'))
+    timer.step('gallery', time.time() - t)
+    for line in lines:
+        if line.startswith(('prop ', 'wrote', 'Error', 'Traceback', 'ValueError')):
+            log(line)
+    if code != 0:
+        fail(f'studio/gallery.py failed (see {os.path.join(folder, "gallery.log")})')
+    if not a.no_shots:
+        viewer_config.write(cfg)
+        node = shutil.which('node') or fail('no node on the path')
+        t = time.time()
+        code = subprocess.call([node, os.path.join(STUDIO, 'studio', 'shoot.mjs'), 'props',
+                                '--out', cfg.paths.out], cwd=STUDIO)
+        timer.step('shots', time.time() - t)
+        if code != 0:
+            fail('node studio/shoot.mjs props failed (see its message above)')
+    log('time: ' + ', '.join(f'{k} {v:.1f} s' for k, v in timer.steps.items()))
+
+
 def cmd_cache(a):
     """studio cache: prints the size of the shared stage cache by step and by animal, or deletes
     the entries of one animal or the whole cache (clean)."""
@@ -1637,6 +1667,13 @@ def main(argv=None):
     p.add_argument('--no-serve', action='store_true', help='write the report, start no server')
     p.add_argument('--port', type=int, default=None)
     p.set_defaults(fn=cmd_report)
+    p = sub.add_parser('props', help='build and render the props gallery of an animal')
+    p.add_argument('animal')
+    p.add_argument('--role', default=None,
+                   help='the role whose bind pose sizes the props (default: a seated role)')
+    p.add_argument('--out', default=None)
+    p.add_argument('--no-shots', action='store_true', help='no render of props.png')
+    p.set_defaults(fn=cmd_props)
     p = sub.add_parser('cache', help='print the size of the stage cache, or delete it')
     p.add_argument('action', choices=('info', 'clean'))
     p.add_argument('animal', nargs='?', default=None, help='one animal (default: all)')

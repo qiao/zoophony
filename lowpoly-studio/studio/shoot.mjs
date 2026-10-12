@@ -17,6 +17,9 @@
 //       material with no vertex colors) on a transparent background, aligned to the sheet as in
 //       compare, into <out>/calibrate/run-<i>.png and <out>/calibrate/runs.json
 //       (studio/calibrate.py).
+//   node studio/shoot.mjs props --out <out>
+//       Renders the props gallery of <out>/props/gallery.json (studio/gallery.py) into
+//       <out>/props/props.png: one tile for each prop and a close view of the keys.
 //   node studio/shoot.mjs compare,frames,viewer --out <out>
 //       Runs several commands with one server and one browser (a new page for each command).
 //
@@ -31,7 +34,7 @@ import { chromium } from '@playwright/test';
 import { createServer } from 'vite';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const COMMANDS = ['compare', 'frames', 'viewer', 'shots', 'calibrate'];
+const COMMANDS = ['compare', 'frames', 'viewer', 'shots', 'calibrate', 'props'];
 const USAGE = `usage: node studio/shoot.mjs ${COMMANDS.join('|')}[,...] --out <output folder>`;
 const [cmdList = '', ...rest] = process.argv.slice(2);
 const flags = {};
@@ -202,7 +205,19 @@ async function calibrate({ page, race, ready }, base) {
   console.log(`wrote ${runs.length} renders into ${dir}`);
 }
 
-const RUN = { compare, frames, viewer, shots, calibrate };
+/** Renders the props gallery (studio/gallery.py) into <out>/props/props.png. */
+async function props({ page, race, ready }, base) {
+  const dir = path.join(OUT, 'props');
+  const galleryUrl = `/${path.relative(ROOT, path.join(dir, 'gallery.json')).split(path.sep).join('/')}`;
+  await race(page.goto(`${base}viewer/props.html?${query}&gallery=${galleryUrl}`));
+  await ready(() => window.__galleryReady);
+  const png = await race(page.evaluate(() => window.renderGallery({ cols: 3, w: 440, h: 340 })));
+  const file = path.join(dir, 'props.png');
+  fs.writeFileSync(file, Buffer.from(png.split(',')[1], 'base64'));
+  console.log(`wrote ${file}`);
+}
+
+const RUN = { compare, frames, viewer, shots, calibrate, props };
 
 /** Starts the server and the browser, runs each command on a new page, and stops both. */
 async function main() {
