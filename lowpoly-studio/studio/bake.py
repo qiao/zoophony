@@ -10,8 +10,9 @@ import numpy as np
 from studio.ik import slerp
 from studio.mesh import from_blender
 
-# The change of the last scale key of a hidden scene prop (write_node_actions).
-HIDDEN_STEP = 1e-4
+# The change of the last scale key of a hidden scene prop (write_node_actions). The glTF exporter
+# drops a node channel that changes by less than 1e-4 in a clip.
+HIDDEN_STEP = 1e-3
 
 # Blender world axes to three.js axes, for directions.
 TO_THREE = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, -1.0, 0.0]])
