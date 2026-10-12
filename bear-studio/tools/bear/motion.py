@@ -23,8 +23,8 @@ FPS = 30
 LEAN = 3.0
 
 # Rest positions of the wrists (in the rest frame of the chest) and the elbow poles.
-HOME_R = np.array([-0.19, 0.605, 0.285])
-HOME_L = np.array([0.21, 0.585, 0.27])
+HOME_R = np.array([-0.19, 0.635, 0.28])
+HOME_L = np.array([0.21, 0.605, 0.27])
 POLE_R = unit([-1.0, -0.7, -0.35])
 POLE_L = unit([1.0, -0.7, -0.35])
 
@@ -35,8 +35,8 @@ ICTUS = np.array([
     [-0.115, -0.050, -0.035],
     [-0.010, -0.005, 0.000],
 ])
-REBOUND = [0.055, 0.04, 0.045, 0.10]
-REBOUND_SHAPE = (0.6, 1.0)
+REBOUND = [0.036, 0.026, 0.03, 0.07]
+REBOUND_SHAPE = (0.7, 0.85)
 
 BATON_DIR = unit([0.30, 0.40, 1.0])
 PALM_R = unit([0.35, -1.0, 0.05])
@@ -83,16 +83,15 @@ def beat_right(t, size=1.0):
     i = k % 4
     u = t - k
     j = (i + 1) % 4
-    s = smooth((u - 0.1) / 0.85)
+    s = smooth(u * 1.25)
     up = np.array([0.0, 1.0, 0.0])
     b = bounce(u)
     off = ICTUS[i] * (1 - s) + ICTUS[j] * s + up * REBOUND[i] * b
     off = off + np.array([0.0, 0.0, 0.014 * (1 - b)])
     wrist = HOME_R + size * off
     # The tip of the baton dips at the ictus (a flick of the wrist) and lifts in the rebound.
-    dip = (1 - min(b * 1.6, 1.0)) ** 2
-    lateral = (ICTUS[j][0] - ICTUS[i][0]) * 1.5 * math.sin(math.pi * s)
-    direction = unit(BATON_DIR + np.array([lateral, -0.28 * dip, 0.0]))
+    dip = (1 - b) ** 2
+    direction = unit(BATON_DIR + np.array([0.0, -0.09 * dip, 0.0]))
     return wrist, direction, i, u
 
 
@@ -358,7 +357,7 @@ def clip_bow(t):
     rot.update(ears(t, flick=0.5 * bend))
     hips = np.array([0.0, -0.012 * bend, -0.03 * bend])
     # Right paw: from the beat home to the side of the thigh, the baton points down.
-    side_r = np.array([-0.28, 0.43, 0.08])
+    side_r = np.array([-0.255, 0.375, 0.06])
     wr = HOME_R + (side_r - HOME_R) * down
     tip = unit(BATON_DIR * (1 - down) + unit([-0.3, -0.65, -0.75]) * down)
     # Left paw: on the belly.
@@ -367,7 +366,7 @@ def clip_bow(t):
     fingers = unit(FINGERS_L * (1 - down) + unit([-1.0, -0.15, 0.25]) * down)
     palm = unit(PALM_L * (1 - down) + unit([-0.15, 0.0, -1.0]) * down)
     arms = {
-        'R': {'wrist': wr, 'pole': unit([-0.5, -0.1, -1.0]),
+        'R': {'wrist': wr, 'pole': unit([-0.6, 0.0, -1.0]),
               'hand': ('baton', tip, unit([0.9, -0.2, -0.3])), 'twist': 0.5},
         'L': {'wrist': wl, 'pole': unit([1.0, -0.6, -0.5]), 'hand': ('fingers', fingers, palm), 'twist': 0.5},
     }

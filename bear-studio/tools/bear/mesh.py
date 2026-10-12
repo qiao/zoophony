@@ -61,17 +61,37 @@ def apply_modifier(obj, mod):
     bpy.ops.object.modifier_apply(modifier=mod.name)
 
 
-def decimate(obj, target_tris, symmetric=True):
-    """Reduces a mesh to about target_tris triangles with an edge collapse, mirrored on x."""
+def decimate(obj, target_tris, symmetric=False, detail=None, detail_strength=0.02):
+    """Reduces a mesh to about target_tris triangles with an edge collapse.
+
+    The symmetric collapse of Blender folds some faces on the plane x = 0 (12 of 2800 in a
+    test), so the default is a free collapse. Its facets differ on the two sides, as the
+    facets of the sheet do.
+
+    detail: optional weights (0..1) per vertex. A high weight keeps more small facets there.
+    In the group of the modifier, the weight of a vertex scales how much it may collapse, and
+    the effect is strong: a group weight of 0.97 in the face (1 - 0.03 * detail) gives the face
+    343 triangles in place of 166 (measured with 2800 triangles in all).
+    """
     tris = sum(len(p.vertices) - 2 for p in obj.data.polygons)
     mod = obj.modifiers.new('decimate', 'DECIMATE')
     mod.decimate_type = 'COLLAPSE'
     mod.ratio = min(1.0, target_tris / tris)
     mod.use_collapse_triangulate = True
+    if detail is not None:
+        group = obj.vertex_groups.new(name='detail')
+        weights = np.round(1.0 - detail_strength * np.clip(detail, 0.0, 1.0), 4)
+        for w in np.unique(weights):
+            idx = np.nonzero(weights == w)[0].tolist()
+            group.add(idx, float(w), 'REPLACE')
+        mod.vertex_group = 'detail'
+        mod.vertex_group_factor = 1.0
     if symmetric:
         mod.use_symmetry = True
         mod.symmetry_axis = 'X'
     apply_modifier(obj, mod)
+    if detail is not None:
+        obj.vertex_groups.remove(obj.vertex_groups['detail'])
 
 
 def triangle_count(obj):

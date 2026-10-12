@@ -33,44 +33,60 @@ export function createRenderer(canvas, { alpha = false, preserve = false } = {})
   return renderer;
 }
 
-/** Adds the lights. The key light and the rim light move with the camera, as on the sheet. */
+/** The light levels. A page can change them with ?light=hemi,key,fill for tuning. */
+export const LIGHT = { hemi: 0.8, key: 4.4, fill: 0.3 };
+
+const lightParam = new URLSearchParams(globalThis.location?.search ?? '').get('light');
+if (lightParam) {
+  const [hemi, key, fill] = lightParam.split(',').map(Number);
+  Object.assign(LIGHT, { hemi, key, fill });
+}
+
+/** Adds the lights. The key, fill, and rim lights follow the camera, as on the sheet. The key
+ * light also casts the shadows, on the bear and on the ground. Call lights.aim(camera) before
+ * each render. */
 export function addLights(scene, camera) {
-  const hemi = new THREE.HemisphereLight(0xfff2e6, 0x5a4a3e, 0.85);
+  const hemi = new THREE.HemisphereLight(0xfff2e6, 0x2e2620, LIGHT.hemi);
   scene.add(hemi);
 
-  const key = new THREE.DirectionalLight(0xfff0de, 2.3);
-  key.position.set(-2.5, 4.5, 4);
-  const keyTarget = new THREE.Object3D();
-  keyTarget.position.set(0, 0, -10);
-  key.target = keyTarget;
-  camera.add(key, keyTarget);
+  const center = new THREE.Vector3(0, 0.55, 0);
+  const make = (color, intensity, offset) => {
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.userData.offset = new THREE.Vector3(...offset).normalize();
+    light.target.position.copy(center);
+    scene.add(light, light.target);
+    return light;
+  };
+  const key = make(0xfff0de, LIGHT.key, [-1.4, 2.0, 4.5]);
+  const fill = make(0xffe9d6, LIGHT.fill, [3, 0.5, 4]);
+  const rim = make(0xe8eeff, 0.35, [4, 2.5, -6]);
 
-  const fill = new THREE.DirectionalLight(0xffe9d6, 0.7);
-  fill.position.set(3, 0.5, 4);
-  const fillTarget = new THREE.Object3D();
-  fillTarget.position.set(0, 0, -10);
-  fill.target = fillTarget;
-  camera.add(fill, fillTarget);
-
-  const rim = new THREE.DirectionalLight(0xe8eeff, 0.35);
-  rim.position.set(4, 2.5, -6);
-  const rimTarget = new THREE.Object3D();
-  rimTarget.position.set(0, 0, -10);
-  rim.target = rimTarget;
-  camera.add(rim, rimTarget);
-
-  const shadow = new THREE.DirectionalLight(0xffffff, 0.0);
-  shadow.position.set(-1.2, 4, 2.2);
-  shadow.castShadow = true;
-  shadow.shadow.mapSize.set(2048, 2048);
-  shadow.shadow.camera.left = -1.2;
-  shadow.shadow.camera.right = 1.2;
-  shadow.shadow.camera.top = 1.2;
-  shadow.shadow.camera.bottom = -1.2;
-  shadow.shadow.radius = 6;
-  scene.add(shadow);
+  key.castShadow = true;
+  key.shadow.mapSize.set(4096, 4096);
+  const sc = key.shadow.camera;
+  sc.left = -1.0;
+  sc.right = 1.0;
+  sc.top = 1.0;
+  sc.bottom = -1.0;
+  sc.near = 0.5;
+  sc.far = 12;
+  key.shadow.bias = -0.0004;
+  key.shadow.normalBias = 0.012;
+  key.shadow.radius = 2;
+  key.shadow.intensity = 0.55;
   scene.add(camera);
-  return { hemi, key, fill, rim, shadow };
+
+  const dir = new THREE.Vector3();
+  const aim = (cam) => {
+    cam.updateMatrixWorld();
+    for (const light of [key, fill, rim]) {
+      dir.copy(light.userData.offset).transformDirection(cam.matrixWorld);
+      light.position.copy(center).addScaledVector(dir, 6);
+      light.updateMatrixWorld();
+      light.target.updateMatrixWorld();
+    }
+  };
+  return { hemi, key, fill, rim, aim };
 }
 
 /** Loads the bear GLB and prepares its materials for flat facets. */
@@ -81,7 +97,9 @@ export async function loadBear(url) {
   root.traverse((obj) => {
     if (obj.isMesh) {
       meshes.push(obj);
-      obj.castShadow = true;
+      // The thin baton casts no shadow: its shadow reads as a line drawn on the belly.
+      obj.castShadow = obj.material?.name !== 'baton';
+      obj.receiveShadow = true;
       obj.frustumCulled = false;
       const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
       for (const m of mats) {

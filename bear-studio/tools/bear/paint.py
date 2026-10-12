@@ -13,8 +13,8 @@ import body
 # The palette, measured as median colors of lit regions of the sheet and then tuned so that the
 # renders of the viewer match the mean color of the sheet (tools/shoot.mjs compare).
 PALETTE = {
-    'fur': (150, 96, 60),
-    'belly': (170, 112, 70),
+    'fur': (120, 77, 52),
+    'belly': (146, 94, 61),
     'muzzle': (214, 164, 108),
     'ear_inner': (96, 54, 33),
     'brow': (110, 68, 42),
@@ -76,12 +76,13 @@ def face_colors(parts, centers, normals, seed=7):
              * _smoothstep(0.22, 0.32, y) * (1 - _smoothstep(0.62, 0.72, y)))
     col = col * (1 - belly[:, None]) + _rgb('belly') * belly[:, None]
 
-    # The tan muzzle: inside a grown copy of the muzzle ellipsoid, on its front half.
+    # The tan muzzle: inside a grown copy of the muzzle ellipsoid, in front of the eyes, and
+    # below the eyes. The chin under the snout is tan too, as on the sheet.
     c, r = body.HEAD['muzzle']
-    q = (centers - np.array(c)) / (np.array(r) * np.array([1.3, 1.38, 1.25]))
+    q = (centers - np.array(c)) / (np.array(r) * np.array([1.08, 1.25, 1.2]))
     inside = np.sum(q * q, axis=1) < 1.0
-    front = z > c[2] - 0.06
-    muzzle = inside & front & (y < c[1] + r[1] * 0.9)
+    front = z > 0.165
+    muzzle = inside & front & (y < c[1] + 0.048)
     col[muzzle] = _rgb('muzzle')
 
     # The inner ears: the front faces of the ear hollow.
@@ -105,7 +106,7 @@ def face_colors(parts, centers, normals, seed=7):
     # Baked occlusion and a small value jitter of each facet.
     ao = occlusion(parts, centers, normals)
     shade = 1.0 - 0.6 * _smoothstep(0.05, 0.6, ao)
-    jitter = rng.uniform(0.965, 1.035, n)
+    jitter = rng.uniform(0.95, 1.05, n)
     col = col * (shade * jitter)[:, None]
     return np.clip(col, 0.0, 1.0), ao
 

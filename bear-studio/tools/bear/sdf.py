@@ -100,7 +100,8 @@ def loft(p, table):
     """Calculates the distance to a vertical loft of egg-shaped superellipse sections.
 
     table: dict of numpy arrays over the heights 'y': 'a' (half width in x), 'zb' (back z),
-    'zf' (front z), 'zw' (the z of the widest x), 'n' (the superellipse power).
+    'zf' (front z), 'zw' (the z of the widest x), 'nf' and 'nb' (the superellipse powers of
+    the front half and of the back half; a power below 2 makes a pointed half).
     """
     ys = table['y']
     py = p[..., 1]
@@ -108,8 +109,8 @@ def loft(p, table):
     zb = np.interp(py, ys, table['zb'])
     zf = np.interp(py, ys, table['zf'])
     zw = np.interp(py, ys, table['zw'])
-    n = np.interp(py, ys, table['n'])
     dz = p[..., 2] - zw
+    n = np.where(dz > 0, np.interp(py, ys, table['nf']), np.interp(py, ys, table['nb']))
     bz = np.where(dz > 0, zf - zw, zw - zb)
     a = np.maximum(a, 1e-4)
     bz = np.maximum(bz, 1e-4)

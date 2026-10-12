@@ -142,8 +142,8 @@ def face_details(parts):
         look = np.array([0.18 * side, 0.02, 1.0])
         look /= np.linalg.norm(look)
         surf = body.surface_along(parts, (ex * side, ey, 0.4), (0, 0, -1))
-        center = surf - look * (r * 0.35)
-        out.append(_detail(f'sclera_{suffix}', center - look * 0.0035 + sv * (r * 1.2), sf,
+        center = surf - look * (r * 0.55)
+        out.append(_detail(f'sclera_{suffix}', center - look * 0.003 + sv * (r * 1.14), sf,
                            COLORS['sclera'], 'gloss', 'head'))
         out.append(_detail(f'eye_{suffix}', center + sv * r, sf, COLORS['eye'], 'gloss', 'head'))
         hl = center + r * 0.82 * np.array([-0.35 * side + 0.1, 0.45, 0.82])
@@ -165,13 +165,16 @@ def face_details(parts):
     def on_surface(x, y):
         return body.surface_along(parts, (x, y, 0.45), (0, 0, -1)) + np.array([0, 0, 0.0012])
 
-    philtrum = [on_surface(0.0, y) for y in (ny - 0.028, ny - 0.038, ny - 0.047)]
-    pv, pf = tube(philtrum, [0.0026] * 3, 4, closed_tip=False)
+    philtrum = [on_surface(0.0, y) for y in np.linspace(ny - 0.027, ny - 0.046, 4)]
+    pv, pf = tube(philtrum, [0.0026] * 4, 4, closed_tip=False)
     out.append(_detail('mouth_0', pv, pf, COLORS['mouth'], 'fur', 'head'))
     for side in (1, -1):
-        smile = [on_surface(side * x, ny - 0.047 + dy)
-                 for x, dy in ((0.0, 0.0), (0.014, -0.005), (0.028, -0.003), (0.040, 0.004))]
-        mv, mf = tube(smile, [0.0026, 0.0026, 0.0024, 0.0016], 4, closed_tip=False)
+        # A smile: dense points along the curve, each one pressed onto the muzzle.
+        xs = np.linspace(0.0, 0.034, 7)
+        dys = -0.0062 * np.sin(np.pi * xs / 0.034 * 0.85) + 0.0035 * (xs / 0.034) ** 3
+        smile = [on_surface(side * x, ny - 0.046 + dy) for x, dy in zip(xs, dys)]
+        radii = np.linspace(0.0026, 0.0015, len(smile))
+        mv, mf = tube(smile, radii, 4, closed_tip=False)
         out.append(_detail(f'mouth_{side}', mv, mf, COLORS['mouth'], 'fur', 'head'))
     return out
 

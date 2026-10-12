@@ -51,7 +51,7 @@ renderer.setClearColor(0x000000, 0);
 renderer.setSize(RENDER, RENDER, false);
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(7.4, 1, 0.1, 100);
-addLights(scene, camera);
+const lights = addLights(scene, camera);
 const bear = await loadBear(glbUrl);
 scene.add(bear.root);
 const posed = poseAt(bear, clipName, clipTime);
@@ -65,6 +65,7 @@ for (const [name, view] of Object.entries(VIEWS)) {
   const H = meta.sheet[1];
 
   placeSheetCamera(camera, view.azimuth);
+  lights.aim(camera);
   renderer.render(scene, camera);
   const [rc, rctx] = canvas2d(RENDER, RENDER);
   rctx.drawImage(glCanvas, 0, 0);
@@ -138,6 +139,7 @@ for (const [name, view] of Object.entries(VIEWS)) {
   const ov = tctx.createImageData(colW, tileH);
   let modelColor = [0, 0, 0];
   let modelCount = 0;
+  const modelLum = [];
   const tdata = tctx.getImageData(colW, 0, colW, tileH).data;
   for (let y = 0; y < tileH; y++) {
     for (let x = 0; x < colW; x++) {
@@ -149,6 +151,7 @@ for (const [name, view] of Object.entries(VIEWS)) {
       if (b) {
         modelColor = modelColor.map((v, k) => v + tdata[o + k]);
         modelCount++;
+        modelLum.push(0.299 * tdata[o] + 0.587 * tdata[o + 1] + 0.114 * tdata[o + 2]);
       }
     }
   }
@@ -161,18 +164,26 @@ for (const [name, view] of Object.entries(VIEWS)) {
   const sdata = sctx.getImageData(0, 0, colW, H).data;
   let refColor = [0, 0, 0];
   let refCount = 0;
+  const refLum = [];
   for (let i = 0; i < colW * H; i++) {
     if (ref[i]) {
       refColor = refColor.map((v, k) => v + sdata[i * 4 + k]);
       refCount++;
+      refLum.push(0.299 * sdata[i * 4] + 0.587 * sdata[i * 4 + 1] + 0.114 * sdata[i * 4 + 2]);
     }
   }
+  const pct = (arr) => {
+    const s = Float32Array.from(arr).sort();
+    return [0.1, 0.5, 0.9].map((q) => Math.round(s[Math.floor(q * (s.length - 1))]));
+  };
   results[name] = {
     iou: Number(best.iou.toFixed(4)),
     dx: best.dx,
     scale: Number(scale.toFixed(4)),
     refMeanRGB: refColor.map((v) => Math.round(v / refCount)),
     modelMeanRGB: modelColor.map((v) => Math.round(v / Math.max(modelCount, 1))),
+    refLuma10_50_90: pct(refLum),
+    modelLuma10_50_90: pct(modelLum),
   };
 }
 

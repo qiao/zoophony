@@ -14,6 +14,21 @@ import {
   poseAt,
 } from './scene.js';
 
+/** Short notes on each clip, shown as button tooltips. */
+const CLIP_NOTES = {
+  performance: 'All gestures in order: ready, beats, cue, crescendo, hush, cutoff, bow.',
+  reference: 'The pose of the reference sheet (arms down). The compare tool uses it.',
+  ready: 'Both arms up, the baton ready.',
+  beat_4_4: 'One bar of 4/4 at 60 bpm: down, in, out, up, with ictus and rebound.',
+  cue_left: 'The left paw cues the players on the left, the head turns to them.',
+  crescendo: 'The left palm turns up and lifts.',
+  hush: 'The left palm turns down and presses.',
+  cutoff: 'A loop and a cutoff with both paws, then a hold.',
+  nod_turn: 'A head nod and a turn to each section.',
+  sway_dip: 'A torso sway and a knee dip on each beat.',
+  bow: 'The bow at the end.',
+};
+
 const params = new URLSearchParams(location.search);
 const shotMode = params.has('shot');
 const glbUrl = params.get('glb') ?? '/out/bear.glb';
@@ -34,7 +49,6 @@ const ground = new THREE.Mesh(
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
-lights.shadow.intensity = 0;
 
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, SHEET_CAMERA.height, 0);
@@ -131,11 +145,7 @@ if (shotMode) {
     camera.lookAt(0, Number(params.get('ty') ?? 0.5), 0);
     camera.updateProjectionMatrix();
   }
-  if (params.get('ground') === '1') {
-    lights.shadow.intensity = 0.001;
-  } else {
-    ground.visible = false;
-  }
+  ground.visible = params.get('ground') === '1';
   const clip = params.get('clip') ?? 'reference';
   const t = Number(params.get('t') ?? 0);
   if (params.get('trail') === '1') {
@@ -145,6 +155,7 @@ if (shotMode) {
   }
   poseAt(bear, clip, t);
   skeleton.visible = params.get('bones') === '1';
+  lights.aim(camera);
   renderer.render(scene, camera);
   window.__shotReady = true;
 } else {
@@ -165,6 +176,7 @@ function startViewer() {
   }
   setView('three_quarter');
 
+  const trailPts = [];
   const clipList = panel.querySelector('#clips');
   const order = [...bear.clips.keys()];
   let current = null;
@@ -187,7 +199,7 @@ function startViewer() {
     next.play();
     action = next;
     current = name;
-    trailCount = 0;
+    trailPts.length = 0;
     for (const b of clipList.querySelectorAll('button')) {
       b.classList.toggle('on', b.dataset.clip === name);
     }
@@ -223,19 +235,16 @@ function startViewer() {
     trail.visible = e.target.checked;
   };
   panel.querySelector('#shadow').onchange = (e) => {
-    lights.shadow.intensity = e.target.checked ? 0.001 : 0;
     ground.visible = e.target.checked;
   };
-  lights.shadow.intensity = 0.001;
   applyTempo();
   play(order.includes('performance') ? 'performance' : order[0]);
 
-  const clock = new THREE.Clock();
+  const timer = new THREE.Timer();
   const tip = new THREE.Vector3();
-  let trailCount = 0;
-  const trailPts = [];
   renderer.setAnimationLoop(() => {
-    const dt = clock.getDelta();
+    timer.update();
+    const dt = timer.getDelta();
     bear.mixer.update(dt);
     controls.update();
     if (bear.batonTip && trail.visible) {
@@ -244,27 +253,12 @@ function startViewer() {
       if (trailPts.length > TRAIL) {
         trailPts.shift();
       }
-      trailCount++;
       setTrail(trailPts);
     }
     if (action) {
       timeOut.textContent = `${current}  ${action.time.toFixed(2)} s`;
     }
+    lights.aim(camera);
     renderer.render(scene, camera);
   });
 }
-
-/** Short notes on each clip, shown as button tooltips. */
-const CLIP_NOTES = {
-  performance: 'All gestures in order: ready, beats, cue, crescendo, hush, cutoff, bow.',
-  reference: 'The pose of the reference sheet (arms down). The compare tool uses it.',
-  ready: 'Both arms up, the baton ready.',
-  beat_4_4: 'One bar of 4/4 at 60 bpm: down, in, out, up, with ictus and rebound.',
-  cue_left: 'The left paw cues the players on the left, the head turns to them.',
-  crescendo: 'The left palm turns up and lifts.',
-  hush: 'The left palm turns down and presses.',
-  cutoff: 'A loop and a cutoff with both paws, then a hold.',
-  nod_turn: 'A head nod and a turn to each section.',
-  sway_dip: 'A torso sway and a knee dip on each beat.',
-  bow: 'The bow at the end.',
-};

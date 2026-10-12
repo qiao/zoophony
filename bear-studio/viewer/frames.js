@@ -21,7 +21,6 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(SHEET_BACKGROUND);
 const camera = new THREE.PerspectiveCamera(20, 1, 0.05, 100);
 const lights = addLights(scene, camera);
-lights.shadow.intensity = 0.001;
 const ground = new THREE.Mesh(
   new THREE.CircleGeometry(3, 64),
   new THREE.ShadowMaterial({ color: 0x3a3330, opacity: 0.22 }),
@@ -103,6 +102,7 @@ window.renderSheet = (shots, { cols = 4, w = 360, h = 420 } = {}) => {
       }
     }
     poseAt(bear, shot.clip, shot.t);
+    lights.aim(camera);
     renderer.render(scene, camera);
     const x = (i % cols) * w;
     const y = Math.floor(i / cols) * h;

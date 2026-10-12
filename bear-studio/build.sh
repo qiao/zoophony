@@ -25,5 +25,6 @@ fi
 echo '[3/4] compare the four sheet views (IoU)'
 node tools/shoot.mjs compare
 
-echo '[4/4] motion frames'
+echo '[4/4] motion frames and the 4/4 path of the baton tip'
 node tools/shoot.mjs frames
+"$BLENDER" -b --factory-startup --python tools/bear/pattern.py 2>&1 | grep -E '^(beat|wrote)|Error' || true

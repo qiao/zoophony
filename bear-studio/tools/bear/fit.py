@@ -1,8 +1,9 @@
 """Scores the body field against the reference masks, with no mesh and no browser.
 
-Run with the Python of Blender (it has numpy):
+Run with Blender, or with any Python that has numpy:
 
-    $BLENDER_PY tools/bear/fit.py [--step 0.006] [--pose reference] [--azimuths 30,35,40]
+    blender -b --factory-startup --python tools/bear/fit.py -- [--step 0.006] [--rows]
+        [--pose reference] [--azimuths 30,35,40]
 
 Prints the silhouette IoU of each view and writes out/fit/<view>.png: gray where the model and
 the reference agree, red where only the reference has the bear, blue where only the model has it.
@@ -50,7 +51,8 @@ def main():
     ap.add_argument('--pose', default='reference')
     ap.add_argument('--azimuths', default='')
     ap.add_argument('--rows', action='store_true', help='print the edges of each row')
-    args = ap.parse_args()
+    argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else sys.argv[1:]
+    args = ap.parse_args(argv)
 
     t0 = time.time()
     meta, masks = views.load_reference()

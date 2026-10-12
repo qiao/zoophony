@@ -27,6 +27,9 @@ from sdf import surface_nets  # noqa: E402
 
 ROOT = body.ROOT
 
+# How strongly the face keeps small facets in the decimation (see mesh.decimate).
+DETAIL_STRENGTH = 0.02
+
 MATERIALS = {
     'fur': {'roughness': 0.88, 'specular': 0.25},
     'gloss': {'roughness': 0.42, 'specular': 0.5},
@@ -38,7 +41,7 @@ def parse_args():
     """Reads the arguments after the '--' of the Blender command line."""
     argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
     ap = argparse.ArgumentParser()
-    ap.add_argument('--tris', type=int, default=2800)
+    ap.add_argument('--tris', type=int, default=2400)
     ap.add_argument('--step', type=float, default=0.004)
     ap.add_argument('--pose', default='bind')
     ap.add_argument('--no-rig', action='store_true')
@@ -55,10 +58,19 @@ def build_body(parts, step, tris):
     verts, quads = surface_nets(field, origin, step)
     print(f'surface nets: {len(verts)} vertices, {len(quads)} quads, {time.time() - t0:.1f} s')
     obj = mesh.new_mesh_object('Bear', mesh.to_blender(verts), quads)
-    mesh.decimate(obj, tris)
+    mesh.decimate(obj, tris, detail=body.detail_weights(verts), detail_strength=DETAIL_STRENGTH)
     obj.data.validate()
     print(f'decimated: {mesh.triangle_count(obj)} triangles, {time.time() - t0:.1f} s')
     return obj
+
+
+def folded_faces(parts, centers, normals):
+    """Counts the faces whose normal points into the body (the field grows the other way)."""
+    eps = 0.002
+    grad = np.stack([body.field_at(parts, centers + eps * e) - body.field_at(parts, centers - eps * e)
+                     for e in np.eye(3)], axis=1)
+    grad /= np.maximum(np.linalg.norm(grad, axis=1, keepdims=True), 1e-9)
+    return int(np.sum(np.sum(grad * normals, axis=1) < -0.5))
 
 
 def face_arrays(obj):
@@ -171,14 +183,17 @@ def main():
     obj.data.materials.append(mats['fur'])
     set_face_colors(obj, colors)
     median_px, rms_px = paint.facet_stats(verts, tris)
+    folds = folded_faces(parts, centers, normals)
     print(f'body: {len(tris)} triangles, median edge {median_px:.1f} px of the sheet '
-          f'(rms {rms_px:.1f}), mean occlusion {ao.mean():.2f}, {time.time() - t0:.1f} s')
+          f'(rms {rms_px:.1f}), folded faces {folds}, mean occlusion {ao.mean():.2f}, '
+          f'{time.time() - t0:.1f} s')
 
     items = details.face_details(parts) + details.hand_claws(args.pose) + details.foot_claws()
     if args.pose == 'bind':
         baton_items, _, _ = details.baton(args.pose)
         items += baton_items
-    stats = {'body_triangles': len(tris), 'median_edge_px': round(median_px, 1)}
+    stats = {'body_triangles': len(tris), 'median_edge_px': round(median_px, 1),
+             'folded_faces': folds}
     if args.no_rig:
         detail_objs = add_detail_objects(items, mats)
         final = join([obj] + detail_objs, 'Bear')
@@ -191,6 +206,7 @@ def main():
         names = [b.name for b in arm.data.bones]
         w = rig.weight_table(obj, names)
         w = rig.smooth_weights(w, rig.vertex_neighbors(obj), rounds=2, amount=0.5)
+        w = rig.force_bone(w, names, 'head', rig.head_rigidity(verts), keep=('ear_L', 'ear_R'))
         w = rig.limit_and_normalize(w)
         rig.write_weights(obj, names, w)
         detail_objs = add_detail_objects(items, mats)

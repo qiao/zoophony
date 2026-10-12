@@ -69,7 +69,7 @@ HEAD = {
     'nose': (0.0, 0.842),
 }
 
-TAIL = ((0.0, 0.25, -0.127), (0.026, 0.029, 0.022))
+TAIL = ((0.0, 0.255, -0.14), (0.032, 0.036, 0.026))
 
 
 def load_profiles():
@@ -131,7 +131,7 @@ def trunk_table(views):
 
     # Round the bottom: the crotch is at y 0.153 on the front view. The width shrinks over a
     # longer span than the depth, so the bottom is a keel between the thighs.
-    bottom, cap_x, cap_z = 0.150, 0.07, 0.05
+    bottom, cap_x, cap_z = 0.150, 0.07, 0.075
     zc = 0.5 * (zb + zf)
     for i, y in enumerate(ys):
         if y < bottom + cap_x:
@@ -152,9 +152,13 @@ def trunk_table(views):
             zc_i = 0.5 * (zb[i] + zf[i])
             zb[i] = zc_i + (zb[i] - zc_i) * max(f, 0.05)
             zf[i] = zc_i + (zf[i] - zc_i) * max(f, 0.05)
-    zw = zb + 0.45 * (zf - zb)
-    n = np.full_like(ys, 2.2)
-    return {'y': ys, 'a': a, 'zb': zb, 'zf': zf, 'zw': zw, 'n': n}
+    # The widest point of the low belly is far back, so the front half is a long half
+    # ellipse: a round pot belly over the legs, as on the sheet. The back is broad. A power
+    # below 2 would make a sharp ridge down the middle of the belly.
+    zw = zb + np.interp(ys, [0.15, 0.3, 0.45], [0.28, 0.36, 0.45]) * (zf - zb)
+    nf = np.interp(ys, [0.15, 0.45, 0.6], [2.0, 2.1, 2.2])
+    nb = np.full_like(ys, 2.35)
+    return {'y': ys, 'a': a, 'zb': zb, 'zf': zf, 'zw': zw, 'nf': nf, 'nb': nb}
 
 
 def smooth(values, ys, sigma):
@@ -255,7 +259,7 @@ def arm_parts(pose, side):
     parts.append(Part('deltoid', lambda p: ellipsoid(p, delt_c, DELTOID[1], fu),
                       lo, hi, 0.03))
     lo, hi = _box_of_points([E, W], 0.10)
-    parts.append(Part('forearm', lambda p: round_cone(p, E, W, 0.064, 0.053), lo, hi, 0.03))
+    parts.append(Part('forearm', lambda p: round_cone(p, E, W, 0.068, 0.056), lo, hi, 0.03))
     fb_c = _local(ff, E, (0.008, 0.045, 0.004))
     lo, hi = _box_of_points([fb_c], 0.09)
     parts.append(Part('forearm_bulge',
@@ -342,8 +346,23 @@ def all_parts(pose, views):
         parts += leg_parts(side)
     c, r = TAIL
     lo, hi = _box_of_points([c], 0.06)
-    parts.append(Part('tail', lambda p: ellipsoid(p, c, r), lo, hi, 0.015))
+    tilt = rot_axis((1, 0, 0), math.radians(-15))
+    parts.append(Part('tail', lambda p: ellipsoid(p, c, r, tilt), lo, hi, 0.008))
     return parts
+
+
+def detail_weights(points):
+    """Weights the places that keep small facets: the face around the muzzle and the eyes."""
+    p = np.asarray(points, float)
+    w = np.zeros(len(p))
+
+    def bump(center, radius):
+        d = np.linalg.norm(p - np.asarray(center, float), axis=1) / radius
+        return np.clip(1.5 - d, 0.0, 1.0)
+
+    c, r = HEAD['muzzle']
+    w = np.maximum(w, bump(np.array(c) + np.array([0, 0.03, -0.02]), 0.11) * (p[:, 2] > 0.08))
+    return w
 
 
 def field_on_grid(parts, step):

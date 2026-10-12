@@ -161,6 +161,42 @@ def vertex_neighbors(obj):
     return nb
 
 
+def head_rigidity(points):
+    """Weights (0..1) of the places that must move only with the head: the muzzle and the face.
+
+    Bone heat gives the low muzzle some weight of the neck. Then the details on the muzzle
+    (the mouth line, the nose) and the muzzle part ways when the neck bends.
+    """
+    p = np.asarray(points, float)
+    c, r = body.HEAD['muzzle']
+    q = (p - np.array(c)) / (np.array(r) * 1.45)
+    muzzle = 1.0 - np.clip((np.sqrt(np.sum(q * q, axis=1)) - 0.8) / 0.4, 0.0, 1.0)
+    cc, cr = body.HEAD['cranium']
+    q = (p - np.array(cc)) / (np.array(cr) * 1.05)
+    cranium = 1.0 - np.clip((np.sqrt(np.sum(q * q, axis=1)) - 0.85) / 0.3, 0.0, 1.0)
+    cranium *= np.clip((p[:, 1] - 0.80) / 0.04, 0.0, 1.0)
+    return np.maximum(muzzle, cranium)
+
+
+def force_bone(w, names, bone, amount, keep=()):
+    """Moves the weight of each vertex toward one bone by amount (0..1 per vertex).
+
+    The bones in keep (such as the ears) keep their weight.
+    """
+    w = w.copy()
+    j = names.index(bone)
+    kept = np.zeros(len(w))
+    for k in keep:
+        kept += w[:, names.index(k)]
+    free = np.clip(1.0 - kept, 0.0, 1.0)
+    target = np.zeros_like(w)
+    for k in keep:
+        target[:, names.index(k)] = w[:, names.index(k)]
+    target[:, j] += free
+    a = np.asarray(amount)[:, None]
+    return w * (1 - a) + target * a
+
+
 def rigid_group(obj, bone):
     """Gives all vertices of obj to one bone."""
     g = obj.vertex_groups.new(name=bone)

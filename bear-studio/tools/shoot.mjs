@@ -5,6 +5,10 @@
 //       writes out/compare/compare.png and out/compare/iou.json.
 //   node tools/shoot.mjs frames [--glb /out/bear.glb] [--only <clip>]
 //       Renders the motion frames into out/frames/*.png.
+//   node tools/shoot.mjs viewer [--wait 6000]
+//       Opens the viewer page, lets it play, and writes out/frames/viewer.png.
+//   node tools/shoot.mjs shots --json '[{"clip":"ready","t":1,"az":0}]' [--name file]
+//       Renders custom shots into out/frames/<name>.png.
 //
 // The server and the browser stop at the end, also after an error.
 
@@ -20,6 +24,7 @@ for (let i = 0; i < rest.length; i += 2) {
   flags[rest[i].replace(/^--/, '')] = rest[i + 1];
 }
 const glb = flags.glb ?? '/out/bear.glb';
+const light = flags.light ? `&light=${flags.light}` : '';
 
 /** The motion proof: key frames of each clip from the front, the side, and a 3/4 view. */
 function motionShots() {
@@ -34,6 +39,12 @@ function motionShots() {
       { clip: 'ready', t: 1, ...S, label: 'ready, side' },
       { clip: 'ready', t: 1, ...Q, label: 'ready, 3/4' },
       { clip: 'ready', t: 1, ...Q, bones: true, label: 'ready, bones' },
+    ],
+    pattern: [
+      { clip: 'beat_4_4', t: 3.99, az: 165, el: 45, d: 1.7, ty: 0.75, tz: 0.25, fov: 30, trail: [0, 3.99], ictus: [0, 1, 2, 3], label: '4/4 tip path, over the shoulder' },
+      { clip: 'beat_4_4', t: 3.99, az: 0, el: 0, d: 2.2, ty: 0.62, tz: 0.2, fov: 24, trail: [0, 3.99], ictus: [0, 1, 2, 3], label: '4/4 tip path, orchestra view' },
+      { clip: 'beat_4_4', t: 3.99, az: 90, el: 0, d: 2.2, ty: 0.62, tz: 0.2, fov: 24, trail: [0, 3.99], ictus: [0, 1, 2, 3], label: '4/4 tip path, side' },
+      { clip: 'performance', t: 9.0, az: 30, el: 10, d: 3.0, fov: 24, trail: [5.0, 9.0], label: 'performance at 9 s' },
     ],
     beat_4_4: [
       { clip: 'beat_4_4', t: 0, ...F, ...beatTrail, label: 'beat 1 ictus (path of 1 bar)' },
@@ -104,7 +115,10 @@ async function main() {
   });
   try {
     const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
-    page.on('pageerror', (e) => console.error('page error:', e.message));
+    page.on('pageerror', (e) => {
+      console.error('page error:', e.message);
+      process.exitCode = 1;
+    });
     page.on('console', (m) => {
       if (m.type() === 'error' || m.type() === 'warning') {
         console.error(`console ${m.type()}:`, m.text());
@@ -112,8 +126,8 @@ async function main() {
     });
     if (cmd === 'compare') {
       const clip = flags.clip ?? 'reference';
-      await page.goto(`${base}viewer/compare.html?glb=${glb}&clip=${clip}`);
-      await page.waitForFunction(() => window.__compare, null, { timeout: 120000 });
+      await page.goto(`${base}viewer/compare.html?glb=${glb}&clip=${clip}${light}`);
+      await page.waitForFunction(() => window.__compare, null, { timeout: 60000 });
       const res = await page.evaluate(() => window.__compare);
       const dir = path.join(ROOT, 'out', 'compare');
       fs.mkdirSync(dir, { recursive: true });
@@ -123,11 +137,11 @@ async function main() {
         console.log(`(no clip "${clip}": the rest pose was rendered)`);
       }
       for (const [name, r] of Object.entries(res.results)) {
-        console.log(`${name.padEnd(14)} IoU ${r.iou.toFixed(4)}  x shift ${String(r.dx).padStart(3)} px  mean RGB ref ${r.refMeanRGB} model ${r.modelMeanRGB}`);
+        console.log(`${name.padEnd(14)} IoU ${r.iou.toFixed(4)}  x shift ${String(r.dx).padStart(3)} px  mean RGB ref ${r.refMeanRGB} model ${r.modelMeanRGB}  luma p10/50/90 ref ${r.refLuma10_50_90} model ${r.modelLuma10_50_90}`);
       }
       console.log(`wrote ${path.join(dir, 'compare.png')}`);
     } else if (cmd === 'frames') {
-      await page.goto(`${base}viewer/frames.html?glb=${glb}`);
+      await page.goto(`${base}viewer/frames.html?glb=${glb}${light}`);
       await page.waitForFunction(() => window.__framesReady, null, { timeout: 120000 });
       const clips = await page.evaluate(() => window.__clips.map((c) => c.name));
       const dir = path.join(ROOT, 'out', 'frames');
@@ -136,7 +150,8 @@ async function main() {
         if (flags.only && flags.only !== name) {
           continue;
         }
-        if (!clips.includes(name)) {
+        const clipOf = shots[0].clip;
+        if (!clips.includes(clipOf)) {
           console.log(`skip ${name}: the GLB has no such clip`);
           continue;
         }
@@ -145,6 +160,16 @@ async function main() {
         fs.writeFileSync(file, Buffer.from(png.split(',')[1], 'base64'));
         console.log(`wrote ${file}`);
       }
+    } else if (cmd === 'viewer') {
+      // A screenshot of the viewer page while it plays the performance.
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await page.goto(`${base}viewer/index.html?glb=${glb}${light}`);
+      await page.waitForSelector('#clips button');
+      await page.waitForTimeout(Number(flags.wait ?? 6000));
+      const file = path.join(ROOT, 'out', 'frames', 'viewer.png');
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      await page.screenshot({ path: file });
+      console.log(`wrote ${file}`);
     } else if (cmd === 'shots') {
       // Custom shots: --json '[{"clip":"ready","t":1,"az":0}]' --name file
       await page.goto(`${base}viewer/frames.html?glb=${glb}`);
