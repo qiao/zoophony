@@ -4,18 +4,33 @@ Branch `studio-core`, worktree `.claude/worktrees/studio-core`, from main c528ca
 
 ## Last finished step
 
-Step 2b: the files are in the new layout (`studio/`, `templates/biped/`, `motions/conductor/`,
-`viewer/`, `animals/bear/`) with only import and path fixes. `./build.sh --seed 3` (run in
-`lowpoly-studio/`) gives a byte-identical GLB, the same stats, and the same IoU as main.
-The modules still import each other by bare names (the entry scripts add the three code
-folders to `sys.path`), and the bear constants are still in the modules.
+Step 3 (core): the Blender build reads the config (`animals/bear/animal.toml`, checked by
+`studio/schema.py`) and the role pack (`roles/conductor/role.toml`), and runs in stages
+(`studio/build.py`, `studio/stages.py`). Run it by hand:
+
+    python3 studio/intake.py bear --out $S/t1
+    blender -b --factory-startup --python studio/build.py -- bear --seed 3 --out $S/t1
+
+The GLB and the stats of seed 3 are byte-identical to main.
+
+The user added a requirement during the work (2026-10-12): the animals will play other roles
+(piano, violin, and so on). The role is now a pack under `roles/` (stance, bind pose,
+correctives, props, clips, role checks). The model stages take only the bind pose from the role.
 
 ## Next step
 
-Step 2c: package imports (`studio.x`, `templates.biped.x`, `motions.conductor.x`), then the
-config (`animals/bear/animal.toml` with a schema check), module by module. After each module,
-run `$S/verify.sh <name> ./build.sh --seed 3` (S is the scratch folder below) and keep the
-GLB byte-identical.
+Make the other tools config-driven (`studio/fit.py`, `views.py`, the `measure_*` tools,
+`roles/conductor/pattern.py`, `studio/shoot.mjs`, `viewer/`), then the checks module, the CLI
+(`python3 studio ...`), the golden stats and `studio regress bear`, the README, and AGENTS.md.
+`build.sh` is stale until the CLI replaces it.
+
+## Phase 3 note
+
+Phase 3 adds a `pianist` role pack and tests it on a polar bear (a standing four-view sheet,
+then seated at a piano). The role interface must fit a seated player (bind pose with hip_flex
+and knee_flex about 90 degrees, a "legs_straight" corrective that the biped template does not
+have yet), a large scene prop (a piano and a bench: props with attach.bone = "scene" and a seat
+height that fits the legs, not built yet), and two hand targets per note.
 
 ## Baseline (main c528ca2e, seed 3)
 
