@@ -15,7 +15,7 @@ Run the commands in this folder. The build needs python3 with Pillow, Blender 5.
 
 | Command | Result |
 |---|---|
-| `./build.sh` | Makes everything again in about 70 s: the masks, `out/bear.glb`, the contact and fold check, the compare images, the motion frames, the 4/4 plot, and a viewer screenshot. It tries the remesh seeds of `SEEDS` (default `2 8 1 3 4 5 6 7`) in order and keeps the first one whose clips all pass the check (see "Seed"). It fails when no seed passes. |
+| `./build.sh` | Makes everything again in about 65 s: the masks, `out/bear.glb`, the contact and fold check with the fold repair, the compare images, the motion frames, the 4/4 plot, and a viewer screenshot. The log shows the first check, then the check after each repair round. It tries the remesh seeds of `SEEDS` (default `3 1 5 6 2 4 7 8`) in order and keeps the first one whose clips all pass (see "Seed"); all 8 pass now. It fails when no seed passes. |
 | `./build.sh --seed 5` | Uses one seed only, and fails when a clip of that seed fails the check. |
 | `./build.sh --no-shots` | Stops after `out/bear.glb`. |
 | `pnpm exec vite bear-studio` (in the worktree root) | Serves the viewer at `/viewer/index.html`. |
@@ -25,7 +25,8 @@ Run the commands in this folder. The build needs python3 with Pillow, Blender 5.
 | `blender -b --factory-startup --python tools/bear/pattern.py --` | Plots the path of the baton tip in the 4/4 clip. |
 | `blender -b --factory-startup --python tools/bear/facets.py -- out/bear.glb` | Measures the body facets of a GLB: edge length, slivers, mirror pairs, vertex valence, and the spread of the edge directions. |
 | `python3 tools/topology.py [render.png ...]` | Measures the sheet and front renders: the brightness spread of a belly crop (the facet contrast), and the facets by their shading edges. |
-| `blender ... tools/bear/build.py -- --quads 900 --seed 2` | Sets the target quad count and the seed of the remesh. |
+| `blender ... tools/bear/build.py -- --quads 900 --seed 3` | Sets the target quad count and the seed of the remesh. With `BEAR_DEBUG=1`, the build prints the place and the weights of each folded face, each face that the repair smooths, and each face that points into the body in the rest mesh. |
+| `python3 tools/eyes.py` | Measures the eyes of the sheet and of the renders in the front and 3/4 views (after `shoot.mjs compare`): the width of each eye with its outline, and the width of its white rim. Writes `out/compare/eyes.json`. |
 | `python3 tools/ears.py` | Measures the width, the height, the place, and the dark inner part of the ears of the sheet and of the renders (after `shoot.mjs compare`), and writes `out/compare/ears.json`. |
 | `node tools/shoot.mjs compare --light 1.4,3.8,0.9` | Renders the compare with other light levels (hemisphere, key, fill), for tuning. |
 
@@ -80,16 +81,17 @@ This build uses a distance field of measured parts:
   legs, and the feet with toes. A smooth union joins them into one surface, with soft fillets
   where the arms and the legs meet the trunk.
 - **Head.** A loft of its own (`head_table`), so the head reads as a round ball above the
-  shoulders and not as one mound with them. The front mask shows the head only from the
-  cheeks up, so the loft follows the masks from the cheeks (0.153 wide at height 0.83) to the
-  temples (0.92), closes the dome above with a quarter ellipse to height 0.978 between the
-  ears, and closes the jowls below with a squarish cap at height 0.75, so they overhang the
-  neck. The front is the face plane beside the snout and the forehead of the side mask, and
-  the back of the skull sits in front of the hump line. The trunk ends in a narrower neck
-  inside the head, and a small blend (0.016) leaves a soft groove where the head meets the
-  neck and the hump. A snout cone tilts up toward the front: the nose at its top reaches z
-  0.28, and the chin recedes, as on the sheet. From the front the snout is a round tan disk
-  0.13 wide.
+  shoulders. The front mask shows the head only from the cheeks up, so the loft follows the
+  masks from the cheeks (0.153 wide at height 0.83) to the temples (0.92), closes the dome above
+  with a quarter ellipse to height 0.978 between the ears, and closes the cheeks below with a
+  quarter ellipse to the chin at height 0.75. From the front the head outline is then close to
+  a circle from the ear bases round the cheeks to the chin. The trunk narrows above height
+  0.755 to a neck that is narrower than the head (0.115 at 0.795, against 0.153 for the
+  cheeks), so the shoulders start below and outside the head. A blend of 0.028 leaves a soft
+  groove at the sides; a smaller blend made an undercut that the remesh could not follow (a
+  slit and folded faces). A snout cone tilts up toward the front: the nose at its top reaches
+  z 0.28, and the chin recedes, as on the sheet. The tan disk is about 0.12 wide from the front
+  and ends at the chin (height 0.775), as measured on the sheet.
 - **Arms in two poses.** The arm parts are attached to the bone frames. The same code builds
   the arms as they hang on the sheet (`reference`) or raised for the rig (`bind`).
 
@@ -113,12 +115,16 @@ that still follow the forms, with mirrored halves and a V on the center line of 
 3. **Snap and mirror.** The vertices go back through the inverse warps, onto the field surface
    (0.004 outside, so the flat facets cut the smooth surface and keep the silhouette), and into
    exact mirror pairs about x = 0. Each quad splits on the diagonal toward the center line.
+   Blender's normal recalculation can turn a whole mesh inward (2 of 8 seeds did after the
+   round head). The field says where outside is, so when most faces point into the body, all
+   of them turn over.
 4. **Organic pass.** Pairs of mirrored edges collapse (135 pairs, short edges first) and flip
    (131 pairs) at random. This breaks the grid of the remesh: vertices of valence 6 fall from
    83% to 41%. An operation is refused when a triangle gets an angle under 20° to 22°, when a
    face tilts more than 23° to 28°, or when the mesh would lose its simple surface shape. The
    skin of the shoulders, the elbows, the wrists, and the crotch keeps the even layout, which
-   bends better.
+   bends better. The snout keeps the rings of the remesh too, so it reads round and smooth, as
+   on the sheet.
 5. **Relax.** Each vertex moves 12% of the way to the middle of its neighbors, along the
    surface, twice. This removes the worst shapes.
 6. **Jitter.** Each vertex moves a little along the surface (sigma 0.005), the same on both
@@ -134,11 +140,11 @@ The ears, the tail, the eyes, the brows, the nose, the mouth line, the claws, an
 are separate low-poly pieces in the same skinned mesh. The ears and the tail sink into the
 body. Quads of the body size cannot hold them.
 
-- **Eyes.** As on the sheet: a dark outline, a thin white rim, a dark iris that looks a little
-  inward, and a small highlight, in four flattened layers along the look direction. The outline
-  is 0.026 bear heights across (the sheet measures 0.025 to 0.027 with its outline), at height
-  0.892 and 0.043 from the middle, as measured on the sheet. The widest ring of the outline
-  sits on the facet, so the whole disk shows.
+- **Eyes.** As on the sheet: a dark outline, a thin white rim, a large dark iris that looks a
+  little inward, and a small highlight, in four flattened layers along the look direction, at
+  height 0.892 and 0.043 from the middle. The radius is 0.0143, and the iris fills 88% of the
+  white, from the measures of `tools/eyes.py` (see "Eyes" in the results). The widest ring of
+  the outline sits on the facet, so the whole disk shows.
 - **Brows.** A thin dark arc above each eye, highest above the eye, pressed onto the facets.
 - **Ears.** Round shells 0.081 wide and 0.086 high, turned out 35° and tilted out 10°, with a
   dark hollow over most of their front face.
@@ -198,6 +204,14 @@ root
     weight (`trunk_owned`);
   - each child bone of a limb loses its weight above the middle of its parent bone
     (`chain_limits`), so, for example, no paw weight reaches the elbow;
+  - the upper arm and the forearm lose their weight beyond the middle of their child bone
+    (`PARENT_LIMITS`), so no face of the wrist mixes the forearm (no twist), the twist bone
+    (half), and the paw (all of it), and no stray upper arm weight reaches the wrist;
+  - the legs keep bone heat only inside the thigh and the shin and below the trunk; the low
+    belly that hangs over the knees takes the trunk bands, because a face there with hips,
+    thigh, and shin weight folded over when the knee bent;
+  - the clavicle weight of the front of the neck moves to the neck bone (`throat_to_neck`), so
+    the throat does not fold when the head turns and a shoulder lifts;
   - extra smoothing under the shoulders and around each shoulder, elbow, and wrist;
   - the snout and the face move only with the head, and the crotch only with the hips;
   - at most 4 influences for each vertex.
@@ -258,8 +272,14 @@ each baked frame of each clip (30 per second) with linear blend skinning, as thr
   has folded over: that is a fold, which shows as a dark crease. A test with the left paw
   turned 170° and no twist on the twist bone gave a fold and a failure.
 
-The build fails when a clip has a contact deeper than 1 cm or any folded face. It reports the
-faces turned past 90° too.
+**Fold repair.** A fold means that the weights step sharply across one face between bones that
+turn far apart. After the check, the build smooths the weights around each folded face and its
+neighbors two rings deep (`rig.repair_folds`), makes the corrective shapes again, and checks
+again, for up to 4 rounds. The stats file lists the folded faces of each round
+(`fold_repairs`).
+
+The build fails when a clip has a contact deeper than 1 cm or any folded face after the
+repair. It reports the faces turned past 90° too.
 
 | Clip | Length | What it shows |
 |---|---|---|
@@ -299,15 +319,16 @@ interface BearGlb {
 ## Results
 
 All numbers come from `./build.sh` on the last commit. "Last round" is the GLB of commit
-`786a9122` (main before the look round of the eyes, the head, and the ears).
+`8ae25d46` (main before the round of the round head, the snout, the eyes, and the folds).
 
 | Measure | Value |
 |---|---|
-| Triangles | 2882 in all: body 1248, details 1634 (eyes in four layers, brows, nose, mouth, ears, tail, 16 claws, baton) |
+| Triangles | 2834 in all: body 1200, details 1634 (eyes in four layers, brows, nose, mouth, ears, tail, 16 claws, baton) |
 | Bones | 31 |
 | Morph targets | 2 (`arm_down_L`, `arm_down_R`) |
 | Clips | 11 |
-| Remesh seed | 2 (the first seed of `SEEDS` that passes) |
+| Remesh seed | 3 (the first seed of `SEEDS`; all 8 seeds pass, see "Seed") |
+| Fold repair | 1 round, 1 face |
 | GLB size | 1.4 MB |
 | Folded faces in the rest mesh | 0 |
 
@@ -316,20 +337,20 @@ All numbers come from `./build.sh` on the last commit. "Last round" is the GLB o
 The facets of the body mesh (`tools/bear/facets.py`). The lengths are in px at the scale of the
 sheet (the bear is 528 px tall).
 
-| Measure | First version (decimated) | Aligned remesh | Organic remesh (`786a9122`) | Now (round head) |
-|---|---|---|---|---|
-| Body triangles | 2400 | 1220 | 1356 | 1248 |
-| Median edge | 19.6 | 29.1 | 27.5 | 28.2 |
-| Edge quartiles | 14.5 to 26.9 | 23.1 to 35.8 | 21.6 to 34.8 | 22.1 to 35.8 |
-| Edge spread, IQR / median | 0.64 | 0.43 | 0.48 | 0.48 |
-| Slivers (smallest angle under 15°) | 4.4% | 0.7% | 0.6% | 0.5% |
-| Mirrored vertices | 4.5% | 99.8% | 99.9% | 100% |
-| Vertices of valence 6 (a regular grid) | - | 83% | 41% | 38% |
-| Spread of the valence (standard deviation) | - | 0.60 | 1.14 | 1.16 |
-| Edge directions of the belly (entropy, 1 = all equal) | - | 0.938 | 0.955 | 0.834 |
+| Measure | First version (decimated) | Aligned remesh | Organic remesh (`786a9122`) | Head ball (`8ae25d46`) | Now (round head, seed 3) |
+|---|---|---|---|---|---|
+| Body triangles | 2400 | 1220 | 1356 | 1248 | 1200 |
+| Median edge | 19.6 | 29.1 | 27.5 | 28.2 | 28.1 |
+| Edge quartiles | 14.5 to 26.9 | 23.1 to 35.8 | 21.6 to 34.8 | 22.1 to 35.8 | 20.7 to 37.6 |
+| Edge spread, IQR / median | 0.64 | 0.43 | 0.48 | 0.48 | 0.60 |
+| Slivers (smallest angle under 15°) | 4.4% | 0.7% | 0.6% | 0.5% | 0.2% |
+| Mirrored vertices | 4.5% | 99.8% | 99.9% | 100% | 100% |
+| Vertices of valence 6 (a regular grid) | - | 83% | 41% | 38% | 43% |
+| Spread of the valence (standard deviation) | - | 0.60 | 1.14 | 1.16 | 1.15 |
+| Edge directions of the belly (entropy, 1 = all equal) | - | 0.938 | 0.955 | 0.834 | 0.924 |
 
-The head changed the field, so the remesh lays its faces out again. The belly of this layout
-has more horizontal edges (a lower entropy of the edge directions) than the last round.
+The facets change with each change of the field and with the seed, because the remesh lays its
+faces out again.
 
 The sheet has no mesh, so `tools/topology.py` measures its facets from the shading of the
 front view. It finds 8.6 facets across the belly, 9.7 along the arm, and an edge of about
@@ -343,22 +364,25 @@ The brightness of a belly crop of the front view (x from −0.13 to 0.13, height
 "Fine spread" is the standard deviation of the luminance minus a blur of 8 px: it keeps the
 steps between neighbor facets and drops the gentle gradients.
 
-| Measure | Sheet | Aligned remesh | Organic remesh (`786a9122`) | Now |
-|---|---|---|---|---|
-| Fine spread (facet contrast) | 3.60 | 4.88 | 3.51 | 3.09 |
-| Spread (standard deviation of the luminance) | 16.6 | 15.5 | 15.4 | 15.7 |
-| Mean luminance | 102 | 113 | 97 | 97 |
+| Measure | Sheet | Aligned remesh | Organic remesh (`786a9122`) | Head ball (`8ae25d46`) | Now |
+|---|---|---|---|---|---|
+| Fine spread (facet contrast) | 3.60 | 4.88 | 3.51 | 3.09 | 4.06 |
+| Spread (standard deviation of the luminance) | 16.6 | 15.5 | 15.4 | 15.7 | 17.4 |
+| Mean luminance | 102 | 113 | 97 | 97 | 97 |
 
 ### Silhouette and color
 
 Silhouette IoU against the masks of the sheet:
 
-| View | GLB now | GLB of the last round (`786a9122`) | Field before the mesh now (`fit.py`) |
+| View | GLB now | GLB of the last round (`8ae25d46`) | Field before the mesh now (`fit.py`) |
 |---|---|---|---|
-| Front | 0.9508 | 0.9523 | 0.9551 |
-| Side | 0.9593 | 0.9600 | 0.9695 |
-| Back | 0.9500 | 0.9489 | 0.9516 |
-| 3/4 | 0.9133 | 0.9141 | 0.9156 |
+| Front | 0.9468 | 0.9508 | 0.9535 |
+| Side | 0.9596 | 0.9593 | 0.9678 |
+| Back | 0.9495 | 0.9500 | 0.9513 |
+| 3/4 | 0.9154 | 0.9133 | 0.9154 |
+
+The front lost 0.004: the narrower neck no longer fills the rows from height 0.775 to 0.80,
+where the front mask joins the cheek fur and the shoulders into one outline.
 
 The GLB column includes the facets, the ears, the claws, the skinning of the arms from the
 bind pose down to the sheet pose, and the corrective shapes.
@@ -368,10 +392,26 @@ more and value 0.18 or more), in hue (degrees), saturation, and value:
 
 | View | Sheet | Render now |
 |---|---|---|
-| Front | 22.7°, 0.603, 0.494 | 22.9°, 0.613, 0.498 |
-| Side | 22.6°, 0.602, 0.486 | 22.9°, 0.612, 0.490 |
-| Back | 22.3°, 0.615, 0.463 | 22.6°, 0.597, 0.518 |
-| 3/4 | 22.8°, 0.607, 0.529 | 22.7°, 0.602, 0.514 |
+| Front | 22.7°, 0.603, 0.494 | 23.0°, 0.613, 0.502 |
+| Side | 22.6°, 0.602, 0.486 | 22.9°, 0.616, 0.494 |
+| Back | 22.3°, 0.615, 0.463 | 22.7°, 0.596, 0.510 |
+| 3/4 | 22.8°, 0.607, 0.529 | 22.9°, 0.598, 0.510 |
+
+### Eyes
+
+`tools/eyes.py` finds each eye as a blob of near-black and near-white pixels in the band of
+the eyes, in bear heights. "Outline" is the width of the eye with its dark outline. "Rim" is the
+white area over the circumference (the width of an even white ring of the same area): the iris
+of the sheet looks to one side, so one row does not give the rim.
+
+| View | Sheet: outline, rim | Last round: outline, rim | Now: outline, rim |
+|---|---|---|---|
+| Front, eye 1 | 0.0265, 0.0008 | 0.0208, 0.0014 | 0.0246, 0.0007 |
+| Front, eye 2 | 0.0246, 0.0009 | 0.0189, 0.0013 | 0.0246, 0.0009 |
+| 3/4, near eye | 0.0261, 0.0006 | 0.0205, 0.0020 | 0.0261, 0.0014 |
+
+The far eye of the 3/4 view is 0.011 wide on the sheet and 0.024 on the render, because the
+sheet turns the head more toward the camera than the body (see "Open limits").
 
 ### Ears
 
@@ -381,12 +421,12 @@ head. "Dark" is the share of the ear disk of the front view that is darker than 
 
 | View | Sheet: width, height | Last round: width, height | Now: width, height |
 |---|---|---|---|
-| Front | 0.066, 0.076 (dark 0.37) | 0.062, 0.074 (dark 0.30) | 0.068, 0.078 (dark 0.33) |
-| Side | 0.056, 0.080 | 0.052, 0.076 | 0.050, 0.078 |
-| Back | 0.065, 0.075 | 0.064, 0.074 | 0.070, 0.079 |
+| Front | 0.066, 0.076 (dark 0.37) | 0.068, 0.078 (dark 0.33) | 0.066, 0.074 (dark 0.30) |
+| Side | 0.056, 0.080 | 0.050, 0.078 | 0.052, 0.078 |
+| Back | 0.065, 0.075 | 0.070, 0.079 | 0.070, 0.074 |
 
-The ears are a little larger than the sheet from the front and the back, and a little narrower
-from the side. A wider ear from the side needs a turn of the ear toward the front, and that
+The ears are a little larger than the sheet from the back, and a little narrower from the
+side. A wider ear from the side needs a turn of the ear toward the front, and that
 makes it narrower from the front.
 
 ### Contacts and folds
@@ -401,40 +441,54 @@ The worst value of each clip:
 | `cue_left` | 0.00 cm | 0 | 0 |
 | `crescendo` | 0.00 cm | 0 | 0 |
 | `hush` | 0.00 cm | 0 | 0 |
-| `cutoff` | 0.00 cm | 0 | 0 |
+| `cutoff` | 0.00 cm | 1 | 0 |
 | `nod_turn` | 0.00 cm | 0 | 0 |
 | `sway_dip` | 0.00 cm | 0 | 0 |
-| `bow` | 0.00 cm | 3 | 0 |
-| `performance` | 0.00 cm | 3 | 0 |
+| `bow` | 0.00 cm | 1 | 0 |
+| `performance` | 0.00 cm | 1 | 0 |
 
-The faces turned past 90° are three single faces of the bow that stand edge-on. The close
-view of the bow shows no crease there.
+The values are after the fold repair: the first check found one folded face in the bow, and
+one round of smoothing removed it. The faces turned past 90° are single faces that stand
+edge-on.
 
 ### Seed
 
-The facets come from a QuadriFlow remesh, and its seed decides where each face lands. A seed
-can put one face across two weight regions, and that face folds over in one clip. The full
-check of eight seeds after the head change:
+The facets come from a QuadriFlow remesh, and its seed decides where each face lands. The full
+check of all 8 seeds, before and after this round:
 
-| Seed | Result |
-|---|---|
-| 1 | fails: 2 folded faces at the knee fronts (cutoff, bow) |
-| 2 | passes |
-| 3 | fails: 1 folded face at a wrist (crescendo, cutoff) |
-| 4 | fails: 1 folded face under the right arm (bow) |
-| 5 | fails: 1 folded face (cue) |
-| 6 | fails: 1 folded face (bow) |
-| 7 | fails: 4 folded faces and 0.11 cm of contact (bow) |
-| 8 | passes |
+| Seed | Before (`8ae25d46`) | Now: first check | Now: after the fold repair |
+|---|---|---|---|
+| 1 | fails: knee fronts (cutoff, bow) | passes | passes |
+| 2 | passes | 9 folded faces | passes (1 round) |
+| 3 | fails: a wrist (crescendo, cutoff) | 1 folded face | passes (1 round) |
+| 4 | fails: under the right arm (bow) | passes | passes |
+| 5 | fails: 1 face (cue) | passes | passes |
+| 6 | fails: 1 face (bow) | passes | passes |
+| 7 | fails: 4 faces, 0.11 cm (bow) | 4 folded faces | passes (1 round) |
+| 8 | passes | 2 folded faces | passes (1 round) |
+| Pass count | 2 of 8 | 4 of 8 | 8 of 8 |
 
-No seed has a contact deeper than 0.11 cm: the failures are always 1 to 4 folded faces. Before
-this round, seed 2 also failed, with one face of the crotch keel that folded in the bow: the
-crotch mask of `rig.py` faded out at height 0.13 to 0.15, so that face had half hips and half
-thigh weight. The mask now stays full on the center line down to height 0.10.
+The causes, each with its fix:
 
-So `build.sh` tries the seeds of `SEEDS` in order and keeps the first one that passes. With
-the default order it keeps seed 2 on the first try. A test with `SEEDS="1 2"` failed on seed 1
-and kept seed 2.
+- **Slivers in deep creases** (seeds 1, 2, 4: faces with a smallest angle of 4° to 13° under
+  the raised arm). Their normal turns over at the first bend, and no weight helps. The remesh
+  now flips or collapses each sliver (`organic.clean_slivers`).
+- **Faces inside out after the remesh** (the crown of the dome, the crotch, the groove under the
+  head, and in seeds 5 and 6 the whole mesh). The remesh turns a mesh that points inward, and an
+  untangle pass moves the corners of each inward face (`retopo.untangle`). The dome closes as a
+  round cap, because a dome that closed in width before depth left a ridge on the crown.
+- **Weights of bones that turn far apart on one face**: paw and twist weight on the upper arm
+  near the raised paw (`arm_owned`, more `CHAINS`), twist weight up to the inner elbow (the
+  twist weight starts at 70% of the forearm bone), forearm and upper arm weight at the wrist
+  (`PARENT_LIMITS`), hips, thigh, and shin weight on the belly over the knees, clavicle weight on
+  the throat and head weight on the shoulder tops (`throat_to_neck`), and ear weight on the crown
+  (`ears_to_head`).
+- **What is left** is a single face here and there. The fold repair smooths the weights around
+  it (one ring), which removes it in one round in all 8 seeds. A wider repair (two rings) moved
+  the forearm skin into the body near the elbow (1.17 cm in the hush), so the repair stays small.
+
+`build.sh` keeps the seed search as a fallback. The default order starts with seed 3, which
+has the best sum of the four IoU values (3.771) and the cleanest face of seeds 1 and 3.
 
 ### Beat pattern
 
@@ -456,7 +510,8 @@ The tip of the baton at each ictus of `beat_4_4` (`pattern.py`, 120 samples per 
 - `out/compare/face_<view>.png`: the head of the sheet beside the render, at 3x.
 - `out/compare/facets_chest_belly.png`, `facets_shoulder_arm.png`, `facets_head.png`: the
   facets of the sheet beside the render, at the same scale (2x).
-- `out/compare/render_<view>.png`: the aligned renders, and `topology.json`, `iou.json`.
+- `out/compare/render_<view>.png`: the aligned renders, and `topology.json`, `iou.json`,
+  `eyes.json`, `ears.json`.
 - `out/frames/<clip>.png`: key frames of each clip from the front, the side, and a 3/4 view.
 - `out/frames/pattern.png` and `out/frames/pattern_plot.png`: the path of the baton tip.
 - `out/frames/deform.png`: close views of the shoulders, the elbows, the closed paw, and the
@@ -508,9 +563,13 @@ light casts shadows (soft, 30% strength), and the baton casts none.
   camera than the body, and its arms hang further forward than the side view shows. One rigid
   pose cannot match all four views, so the 3/4 IoU stays near 0.91. The front view of the
   sheet is not symmetric, and the model is.
-- **The remesh seed matters.** The look, the facet contrast, and the edge-on faces change with
-  the seed of QuadriFlow. Seed 2 at 900 quads was chosen from 8 candidates by the IoU and the
-  facet contrast, and the full check passes on it. Another seed can need new pose fixes.
+- **The remesh seed matters for the look.** All 8 seeds pass the check, but the facets, the
+  facet contrast, and the shape of the tan edge change with the seed. Seed 3 is the default.
+- **Snout from the front.** The snout reads round from the side and the 3/4 view. From the
+  front, the tan edge follows the facets, so it reads as a rounded block, not as the smooth
+  disk of the sheet.
+- **Facet contrast.** The fine spread of the belly is 4.06, against 3.60 on the sheet (3.09 in
+  the last round, on another remesh).
 - **Facet shapes.** The sheet still has more long, thin triangles that follow a fold, and its
   chest edges are more diagonal. The organic pass refuses angles under 20°, so it makes none.
 - **Twist.** The palm-up crescendo uses a palm turned up and in (about 85° of twist), because a
