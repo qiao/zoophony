@@ -20,7 +20,7 @@ import sys
 from PIL import Image, ImageChops, ImageFilter, ImageStat
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
+ROOT = os.path.join(os.path.dirname(HERE), 'animals', 'bear')
 JUMP = 3.0
 CHORD_TO_EDGE = 0.4534
 

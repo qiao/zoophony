@@ -23,7 +23,7 @@ const flags = {};
 for (let i = 0; i < rest.length; i += 2) {
   flags[rest[i].replace(/^--/, '')] = rest[i + 1];
 }
-const glb = flags.glb ?? '/out/bear.glb';
+const glb = flags.glb ?? '/animals/bear/out/bear.glb';
 const light = (flags.light ? `&light=${flags.light}` : '') + (flags.keydir ? `&keydir=${flags.keydir}` : '');
 
 /** The motion proof: key frames of each clip from the front, the side, and a 3/4 view. */
@@ -148,7 +148,7 @@ async function main() {
       await page.goto(`${base}viewer/compare.html?glb=${glb}&clip=${clip}${light}`);
       await ready(() => window.__compare);
       const res = await page.evaluate(() => window.__compare);
-      const dir = path.join(ROOT, 'out', 'compare');
+      const dir = path.join(ROOT, 'animals', 'bear', 'out', 'compare');
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, 'compare.png'), Buffer.from(res.png.split(',')[1], 'base64'));
       for (const [name, url] of Object.entries(res.renders)) {
@@ -172,7 +172,7 @@ async function main() {
       await page.goto(`${base}viewer/frames.html?glb=${glb}${light}`);
       await ready(() => window.__framesReady);
       const clips = await page.evaluate(() => window.__clips.map((c) => c.name));
-      const dir = path.join(ROOT, 'out', 'frames');
+      const dir = path.join(ROOT, 'animals', 'bear', 'out', 'frames');
       fs.mkdirSync(dir, { recursive: true });
       for (const [name, shots] of Object.entries(motionShots())) {
         if (flags.only && flags.only !== name) {
@@ -197,7 +197,7 @@ async function main() {
       await page.goto(`${base}viewer/index.html?glb=${glb}${light}`);
       await page.waitForSelector('#clips button');
       await page.waitForTimeout(Number(flags.wait ?? 6000));
-      const file = path.join(ROOT, 'out', 'frames', 'viewer.png');
+      const file = path.join(ROOT, 'animals', 'bear', 'out', 'frames', 'viewer.png');
       fs.mkdirSync(path.dirname(file), { recursive: true });
       await page.screenshot({ path: file });
       console.log(`wrote ${file}`);
@@ -208,7 +208,7 @@ async function main() {
       const shots = JSON.parse(flags.json);
       const cols = Number(flags.cols ?? 4);
       const png = await page.evaluate(([s, c]) => window.renderSheet(s, { cols: c, w: Number(340), h: Number(400) }), [shots, cols]);
-      const file = path.join(ROOT, 'out', 'frames', `${flags.name ?? 'shots'}.png`);
+      const file = path.join(ROOT, 'animals', 'bear', 'out', 'frames', `${flags.name ?? 'shots'}.png`);
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, Buffer.from(png.split(',')[1], 'base64'));
       console.log(`wrote ${file}`);

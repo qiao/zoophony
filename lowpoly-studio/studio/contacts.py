@@ -14,7 +14,7 @@ import numpy as np
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
-from pose import matrix_from_quat
+from ik import matrix_from_quat
 
 # The deepest contact that a clip may have, in bear heights (1 cm on the 1 m bear).
 LIMIT = 0.01

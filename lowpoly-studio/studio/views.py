@@ -12,7 +12,7 @@ import zlib
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(HERE))
+ROOT = os.path.join(os.path.dirname(HERE), 'animals', 'bear')
 
 # Camera azimuth in degrees around the bear: 0 is in front, 90 is at the right of the bear.
 AZIMUTH = {'front': 0.0, 'side': 90.0, 'back': 180.0, 'three_quarter': 38.0}

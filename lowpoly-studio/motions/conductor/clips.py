@@ -15,7 +15,7 @@ import math
 import numpy as np
 
 import body
-from pose import euler, rot_axis, unit
+from ik import euler, rot_axis, unit
 
 FPS = 30
 

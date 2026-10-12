@@ -18,7 +18,7 @@ import numpy as np
 from sdf import ellipsoid, frame_from, loft, rot_axis, round_cone, smax, smin
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(HERE))
+ROOT = os.path.join(os.path.dirname(os.path.dirname(HERE)), 'animals', 'bear')
 
 # Joints of the left arm in the reference pose (measured on the front and side views).
 ARM_REF = {

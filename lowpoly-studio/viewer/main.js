@@ -31,7 +31,7 @@ const CLIP_NOTES = {
 
 const params = new URLSearchParams(location.search);
 const shotMode = params.has('shot');
-const glbUrl = params.get('glb') ?? '/out/bear.glb';
+const glbUrl = params.get('glb') ?? '/animals/bear/out/bear.glb';
 
 const canvas = document.getElementById('view');
 const renderer = createRenderer(canvas, { preserve: shotMode });

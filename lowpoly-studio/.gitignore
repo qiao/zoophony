@@ -1,9 +1,10 @@
 # Made again by each build.
-out/masks/*.raw
-out/fit/
-out/test-*
-out/frames/face.png
+animals/*/out/masks/*.raw
+animals/*/out/fit/
+animals/*/out/stages/
+animals/*/out/regress/
+animals/*/out/frames/face.png
+animals/*/out/frames/dbg*.png
+animals/*/out/frames/wire.png
+animals/*/out/frames/qf.png
 __pycache__/
-out/frames/dbg*.png
-out/frames/wire.png
-out/frames/qf.png

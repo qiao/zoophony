@@ -18,7 +18,7 @@ import sys
 from PIL import Image, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
+ROOT = os.path.join(os.path.dirname(HERE), 'animals', 'bear')
 SHEET = os.path.join(ROOT, 'reference', 'bear-views.png')
 OUT = os.path.join(ROOT, 'out')
 

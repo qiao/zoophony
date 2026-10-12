@@ -13,7 +13,7 @@ import {
 } from './scene.js';
 
 const params = new URLSearchParams(location.search);
-const bear = await loadBear(params.get('glb') ?? '/out/bear.glb');
+const bear = await loadBear(params.get('glb') ?? '/animals/bear/out/bear.glb');
 
 const glCanvas = document.createElement('canvas');
 const renderer = createRenderer(glCanvas, { preserve: true });

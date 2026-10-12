@@ -2,7 +2,7 @@
 
 Run with Blender, or with any Python that has numpy:
 
-    blender -b --factory-startup --python tools/bear/pattern.py -- [--clip beat_4_4]
+    blender -b --factory-startup --python motions/conductor/pattern.py -- [--clip beat_4_4]
 
 Writes out/frames/pattern_plot.png: the frontal plane seen from behind the bear (the right of
 the bear is on the right). The tip path is dark, the wrist path is light, the squares are the
@@ -18,12 +18,14 @@ import types
 
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+STUDIO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+for _sub in ('studio', 'templates/biped', 'motions/conductor'):
+    sys.path.insert(0, os.path.join(STUDIO, _sub))
 sys.modules.setdefault('bpy', types.ModuleType('bpy'))
 
-import motion  # noqa: E402
+import clips as motion  # noqa: E402
 import rig  # noqa: E402
-from pose import Skeleton, frame, unit  # noqa: E402
+from ik import Skeleton, frame, unit  # noqa: E402
 from views import ROOT, write_png  # noqa: E402
 
 

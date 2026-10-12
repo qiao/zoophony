@@ -23,7 +23,7 @@ import sys
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
+ROOT = os.path.join(os.path.dirname(HERE), 'animals', 'bear')
 BACKGROUND = (202, 202, 203)
 
 

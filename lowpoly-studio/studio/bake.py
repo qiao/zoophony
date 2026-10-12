@@ -6,9 +6,9 @@ The glTF exporter writes each action as one animation of the GLB.
 import bpy
 import numpy as np
 
-import motion
+import clips as motion
 from mesh import from_blender
-from pose import Skeleton, slerp
+from ik import Skeleton, slerp
 
 # Blender world axes to three.js axes, for directions.
 TO_THREE = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, -1.0, 0.0]])

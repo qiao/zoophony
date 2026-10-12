@@ -17,7 +17,7 @@ import {
 } from './scene.js';
 
 const params = new URLSearchParams(location.search);
-const glbUrl = params.get('glb') ?? '/out/bear.glb';
+const glbUrl = params.get('glb') ?? '/animals/bear/out/bear.glb';
 const clipName = params.get('clip') ?? 'reference';
 const clipTime = Number(params.get('t') ?? 0);
 const RENDER = 1000;
@@ -95,8 +95,8 @@ function canvas2d(w, h) {
   return [c, c.getContext('2d', { willReadFrequently: true })];
 }
 
-const meta = await (await fetch('/out/measure.json')).json();
-const sheet = await loadImage('/reference/bear-views.png');
+const meta = await (await fetch('/animals/bear/out/measure.json')).json();
+const sheet = await loadImage('/animals/bear/reference/bear-views.png');
 const glCanvas = document.createElement('canvas');
 glCanvas.width = RENDER;
 glCanvas.height = RENDER;
@@ -156,7 +156,7 @@ for (const [name, view] of Object.entries(VIEWS)) {
     model[i] = mdata[i * 4 + 3] > 127 ? 1 : 0;
   }
 
-  const refImg = await loadImage(`/out/masks/${name}.png`);
+  const refImg = await loadImage(`/animals/bear/out/masks/${name}.png`);
   const [, refCtx] = canvas2d(colW, H);
   refCtx.drawImage(refImg, col0, 0, colW, H, 0, 0, colW, H);
   const refData = refCtx.getImageData(0, 0, colW, H).data;

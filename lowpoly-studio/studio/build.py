@@ -2,7 +2,7 @@
 
 Run with Blender (build.sh does it):
 
-    blender -b --factory-startup --python tools/bear/build.py -- [--tris 4200] [--step 0.004]
+    blender -b --factory-startup --python studio/build.py -- [--tris 4200] [--step 0.004]
         [--pose bind|reference] [--no-rig] [--clips a,b] [--out out/bear.glb]
 """
 
@@ -17,17 +17,19 @@ import numpy as np
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+STUDIO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+for _sub in ('studio', 'templates/biped', 'motions/conductor'):
+    sys.path.insert(0, os.path.join(STUDIO, _sub))
 
-import anim  # noqa: E402
+import bake as anim  # noqa: E402
 import body  # noqa: E402
 import contacts  # noqa: E402
 import corrective  # noqa: E402
-import motion  # noqa: E402
+import clips as motion  # noqa: E402
 import details  # noqa: E402
 import mesh  # noqa: E402
 import paint  # noqa: E402
-import retopo  # noqa: E402
+import remesh as retopo  # noqa: E402
 import rig  # noqa: E402
 from sdf import surface_nets  # noqa: E402
 

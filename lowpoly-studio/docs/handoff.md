@@ -4,14 +4,18 @@ Branch `studio-core`, worktree `.claude/worktrees/studio-core`, from main c528ca
 
 ## Last finished step
 
-Step 2a: `bear-studio/` moved to `lowpoly-studio/` with `git mv` (layout unchanged, so
-`./build.sh` still works from `lowpoly-studio/`). `.oxlintrc.json` ignores `lowpoly-studio/**`.
+Step 2b: the files are in the new layout (`studio/`, `templates/biped/`, `motions/conductor/`,
+`viewer/`, `animals/bear/`) with only import and path fixes. `./build.sh --seed 3` (run in
+`lowpoly-studio/`) gives a byte-identical GLB, the same stats, and the same IoU as main.
+The modules still import each other by bare names (the entry scripts add the three code
+folders to `sys.path`), and the bear constants are still in the modules.
 
 ## Next step
 
-Step 2b: move the files into the new layout (`studio/`, `templates/biped/`,
-`motions/conductor/`, `viewer/`, `animals/bear/`) with only import fixes, and check that the
-GLB of seed 3 is byte-identical to the baseline.
+Step 2c: package imports (`studio.x`, `templates.biped.x`, `motions.conductor.x`), then the
+config (`animals/bear/animal.toml` with a schema check), module by module. After each module,
+run `$S/verify.sh <name> ./build.sh --seed 3` (S is the scratch folder below) and keep the
+GLB byte-identical.
 
 ## Baseline (main c528ca2e, seed 3)
 

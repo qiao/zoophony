@@ -2,7 +2,7 @@
 
 Run with Blender, or with any Python that has numpy:
 
-    blender -b --factory-startup --python tools/bear/fit.py -- [--step 0.006] [--rows]
+    blender -b --factory-startup --python studio/fit.py -- [--step 0.006] [--rows]
         [--pose reference] [--azimuths 30,35,40]
 
 Prints the silhouette IoU of each view and writes out/fit/<view>.png: gray where the model and
@@ -16,7 +16,9 @@ import time
 
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+STUDIO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+for _sub in ('studio', 'templates/biped', 'motions/conductor'):
+    sys.path.insert(0, os.path.join(STUDIO, _sub))
 
 import body  # noqa: E402
 import views  # noqa: E402
