@@ -29,10 +29,14 @@ def body_triangles(path):
         bpy.data.objects.remove(o, do_unlink=True)
     bpy.ops.import_scene.gltf(filepath=path)
     for o in bpy.data.objects:
+        # The importer also makes a mesh for the bone shapes ("Icosphere"), and the objects
+        # sort by name: take the mesh with the fur material, not the first mesh.
         if o.type != 'MESH':
             continue
         me = o.data
         fur = [i for i, m in enumerate(me.materials) if m and m.name.startswith('fur')]
+        if not fur:
+            continue
         v = np.array([o.matrix_world @ x.co for x in me.vertices])
         tris = [list(p.vertices) for p in me.polygons
                 if p.material_index in fur and len(p.vertices) == 3]
