@@ -24,7 +24,9 @@ rig, assemble). Its key still comes from its inputs, so the stages after it can 
 
 The fingerprint of an output: the digest of its value ('array', 'json'), or the key of its stage
 ('live'). A stage with scene=True reads the whole Blender scene (the export): its key also holds
-the keys of all stages before it.
+the keys of all stages before it. A stage that reads a value of an earlier stage that the stage
+list does not name (the journal of the contact checks) names that stage in keys_of, and the
+earlier stage names it in joined: then the two run together or come from the cache together.
 """
 
 import json
@@ -40,7 +42,7 @@ class Stage:
     """One stage of the build."""
 
     def __init__(self, name, fn, inputs, outputs, doc, cache='store', keep=None, restore=None,
-                 restore_inputs=(), track=(), scene=False):
+                 restore_inputs=(), track=(), scene=False, keys_of=(), joined=None):
         """Stores the stage.
 
         fn(**inputs) returns the outputs, and '_restore' (the data of restore) when the stage
@@ -49,7 +51,11 @@ class Stage:
         restore(saved, **restore_inputs) returns the other outputs and makes the Blender state;
         the runner calls it after fn and after a cache hit. track: the inputs whose reads go into
         the key one by one (a list of dicts), in place of their whole value. scene: the stage
-        reads the whole Blender scene.
+        reads the whole Blender scene. keys_of: the stages whose keys go into the key of this
+        stage (an input that the stage list does not name, such as a journal in a module).
+        joined: a later stage that reads such an input of this stage; a cache hit of this stage
+        counts only when the joined stage has a valid entry too, so the two run or come from
+        the cache together.
         """
         self.name = name
         self.fn = fn
@@ -63,6 +69,8 @@ class Stage:
         self.restore_inputs = tuple(restore_inputs)
         self.track = tuple(track)
         self.scene = scene
+        self.keys_of = tuple(keys_of)
+        self.joined = joined
 
 
 def _plain(value):
@@ -134,22 +142,39 @@ class Cache:
     """The cache state of one build: the store, the raw config, the fingerprints of the values
     in the context, and the keys of the stages so far."""
 
-    def __init__(self, store, cfg_raw, fingerprints):
-        """Stores the store (cache.Store), the raw config (the root of the config reads), and the
-        fingerprints of the setup values {name: digest}."""
+    def __init__(self, store, cfg_raw, fingerprints, stages=()):
+        """Stores the store (cache.Store), the raw config (the root of the config reads), the
+        fingerprints of the setup values {name: digest}, and the stage list (for the joined
+        stages)."""
         self.store = store
         self.cfg_raw = cfg_raw
         self.fps = dict(fingerprints)
-        self.keys = []
+        self.keys = {}
+        self.by_name = {s.name: s for s in stages}
 
-    def base(self, stage):
-        """Calculates the base key of a stage: its name and the fingerprints of its inputs."""
-        missing = [k for k in stage.inputs
-                   if k != 'cfg' and k not in stage.track and k not in self.fps]
+    def base(self, stage, fps=None, keys=None):
+        """Calculates the base key of a stage: its name, the fingerprints of its inputs, and the
+        keys of the stages that it names (all stages before it with scene=True)."""
+        fps = self.fps if fps is None else fps
+        keys = self.keys if keys is None else keys
+        missing = [k for k in stage.inputs if k != 'cfg' and k not in stage.track and k not in fps]
+        missing += [f'the key of {k}' for k in stage.keys_of if k not in keys]
         if missing:
             raise KeyError(f'stage {stage.name}: no fingerprint of {missing}')
-        inputs = [[k, self.fps[k]] for k in stage.inputs if k != 'cfg' and k not in stage.track]
-        return cache.digest([stage.name, inputs, self.keys if stage.scene else []])
+        inputs = [[k, fps[k]] for k in stage.inputs if k != 'cfg' and k not in stage.track]
+        named = list(keys.values()) if stage.scene else [keys[k] for k in stage.keys_of]
+        return cache.digest([stage.name, inputs, named])
+
+    def _joined_valid(self, stage, ctx, meta):
+        """Tells if the joined stage of a stage has a valid entry after a hit of the stage (with
+        the outputs and the key of that hit)."""
+        joined = self.by_name[stage.joined]
+        fps = dict(self.fps, **meta['outputs'])
+        keys = dict(self.keys, **{stage.name: meta['key']})
+        if joined.track:
+            raise ValueError(f'stage {joined.name}: a joined stage can track no input')
+        return self.store.lookup(joined.name, self.base(joined, fps, keys),
+                                 {'cfg': self.cfg_raw}) is not None
 
     def run(self, stage, ctx):
         """Runs a stage with the cache. Returns (result, source, seconds of the run that made
@@ -158,6 +183,9 @@ class Cache:
         roots = {'cfg': self.cfg_raw, **_values(ctx, stage.track)}
         if stage.cache == 'store':
             hit = self.store.lookup(stage.name, base, roots)
+            if hit and stage.joined and not self._joined_valid(stage, ctx, hit[0]):
+                print(f'cache: {stage.name} runs again, because {stage.joined} has no entry')
+                hit = None
             if hit:
                 meta, data = hit
                 for line in meta['log']:
@@ -166,7 +194,7 @@ class Cache:
                 with cache.quiet():
                     _restore(stage, ctx, result, data['restore'])
                 self.fps.update(meta['outputs'])
-                self.keys.append(meta['key'])
+                self.keys[stage.name] = meta['key']
                 return result, 'cache', meta['seconds']
         rec = cache.Recorder(stage.name)
         t0 = time.time()
@@ -183,7 +211,7 @@ class Cache:
         fps = {name: cache.digest([key, name]) if kind == 'live' else cache.digest(result[name])
                for name, kind in stage.outputs.items()}
         self.fps.update(fps)
-        self.keys.append(key)
+        self.keys[stage.name] = key
         if stage.cache == 'store':
             self.store.save(stage.name, base, key,
                             {'manifest': manifest, 'outputs': fps, 'seconds': round(seconds, 3),

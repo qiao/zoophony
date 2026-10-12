@@ -420,7 +420,7 @@ STAGES = [
                   'final_shapes': 'array', 'final_corrective_report': 'json'},
                  'The contact and fold check of each clip, and the fold repair.',
                  restore=restore_contacts, restore_inputs=('final', 'bone_names', 'verts'),
-                 track=('items',)),
+                 track=('items',), joined='diagnostics'),
     stages.Stage('export', stage_export,
                  ('cfg', 'final', 'arm', 'body_stats', 'samples', 'final_corrective_report',
                   'fold_repairs', 'contact_report', 'pack'),
@@ -429,11 +429,14 @@ STAGES = [
                  scene=True),
     # studio-diag: the located contacts and folds and the fold debug list (studio/contacts.py).
     # studio/locate.py reads its data.json for checks.json and the look report.
+    # It reads contacts.JOURNAL, which the stage "contacts" fills: its key holds the key of
+    # "contacts", and "contacts" counts as a cache hit only when this stage has an entry too.
     stages.Stage('diagnostics', contacts.stage_diagnostics,
                  ('template', 'parts', 'surface_parts', 'samples', 'pack', 'contact_report',
                   'final_weights'),
                  {'diagnostics': 'json'},
-                 'The located contacts and folds, and the fold debug list.', cache='run'),
+                 'The located contacts and folds, and the fold debug list.',
+                 keys_of=('contacts',)),
 ]
 
 
@@ -514,7 +517,7 @@ def main():
     cached = None
     if fps is not None:
         root = args.cache or os.path.join(cfg_raw.paths.root, 'cache')
-        cached = stages.Cache(cache.Store(root), cfg_raw, fps)
+        cached = stages.Cache(cache.Store(root), cfg_raw, fps, STAGES)
     os.makedirs(cfg_raw.paths.stages, exist_ok=True)
     gate = Gate(ctx, cfg_raw.paths.stages, not args.no_gate)
     setup_s = time.time() - t0
