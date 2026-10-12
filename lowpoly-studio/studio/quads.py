@@ -3,8 +3,8 @@ is asked for (on the polar bear 1.16 to 1.31 times the target), so the remesh ga
 every seed. This tool measures the ratio of the count to the target on the field of the animal,
 and finds the target that puts the counts of the seeds in the band of the gate.
 
-Run with Blender (the CLI `python3 studio calibrate <animal> --quads` runs it; the intake must
-have run):
+Run with Blender (the CLI `python3 studio calibrate <animal> --quads` runs it, after the
+intake):
 
     blender -b --factory-startup --python studio/quads.py -- <animal> [--out DIR]
         [--seeds 3,1,5] [--targets 700,780]

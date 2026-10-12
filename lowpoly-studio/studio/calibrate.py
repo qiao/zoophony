@@ -9,7 +9,7 @@ The light and the palette:
    in the compare. The renders are linear in the light levels, so any light is a sum of them.
 2. The sheet gives the targets: the fur medians (hue, saturation, value) of the front view in
    compare.fur_band, and the facet contrast of the belly crop (measure.shading.belly_box). The
-   fur pixels need a saturation of compare.fur_min_saturation; calibrate sets it to 0.4 of the
+   fur pixels need a saturation of compare.fur_min_saturation. Calibrate sets it to 0.4 of the
    5th percentile of the fur saturation, at most 0.2 and at least the background saturation
    plus 0.03 (the bear 0.2, the polar bear 0.06: their hand values).
 3. A palette that is k times brighter under a light that is k times darker gives the same
@@ -288,7 +288,7 @@ def flat_luminance(basis, pixels):
 
 def solve_hemi(lum, fill, key):
     """Finds the hemisphere level whose median light on a white surface is LEVEL, for a key
-    level (bisection; the median grows with the hemisphere level)."""
+    level (a bisection: the median grows with the hemisphere level)."""
     rim, h, k, f = lum
 
     def median(hemi):
