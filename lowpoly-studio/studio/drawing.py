@@ -73,20 +73,23 @@ def lines(img, xy, rows, size=14, fill=INK, gap=4):
     return y
 
 
-def scale_to(img, height, most=8):
-    """Scales an image to a height (nearest pixels, so the facets stay sharp). Returns the image
-    and the scale."""
-    z = max(1.0, min(float(most), height / max(1, img.size[1])))
+def scale_to(img, height, most=8, width=None):
+    """Scales an image to a height, and to at most a width (nearest pixels when it grows, so
+    the facets stay sharp). Returns the image and the scale."""
+    z = min(float(most), height / max(1, img.size[1]))
+    if width:
+        z = min(z, width / max(1, img.size[0]))
     size = (max(1, round(img.size[0] * z)), max(1, round(img.size[1] * z)))
-    return img.resize(size, Image.NEAREST), z
+    return img.resize(size, Image.NEAREST if z >= 1 else Image.LANCZOS), z
 
 
 def pair(left, right, boxes_left=(), boxes_right=(), height=200, captions=('sheet', 'render'),
-         most=8):
-    """Puts two crops of the same size side by side, scaled to a height, with boxes drawn on
-    them. boxes: [(x0, y0, x1, y1, color)] in the pixels of the crop."""
-    a, z = scale_to(left, height, most)
-    b, _ = scale_to(right, height, most)
+         most=8, width=None):
+    """Puts two crops of the same size side by side, scaled to a height (and each to at most a
+    width), with boxes drawn on them. boxes: [(x0, y0, x1, y1, color)] in the pixels of the
+    crop."""
+    a, z = scale_to(left, height, most, width)
+    b, _ = scale_to(right, height, most, width)
     cap = 20
     out = Image.new('RGB', (a.size[0] + b.size[0] + 6, a.size[1] + cap), PAPER)
     out.paste(a, (0, cap))

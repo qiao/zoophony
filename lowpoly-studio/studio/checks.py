@@ -103,7 +103,7 @@ class Report:
 def feature_where(where):
     """Adds the crop of the look report to the place of a feature check."""
     out = dict(where)
-    out['crop'] = f'report/features/{where["feature"]}_{where["view"]}.png'
+    out['crop'] = f'report/features/{where["feature"]}_{where["view"]}_{where["region"]}.png'
     return out
 
 
@@ -144,13 +144,14 @@ def run(cfg):
     # The silhouette and the fur color of each view (studio/shoot.mjs compare).
     iou = _load(os.path.join(cfg.paths.compare, 'iou.json'))
     for view, v in ((iou or {}).get('views') or {}).items():
+        tile = {'view': view, 'crop': f'report/views/{view}.jpg'}
         if view in lim.iou:
-            r.add(f'iou.{view}', v['iou'], '>=', lim.iou[view])
+            r.add(f'iou.{view}', v['iou'], '>=', lim.iou[view], where=tile)
         hue, sat, val = lim.fur_color
         m, s = v['modelFurHSV'], v['refFurHSV']
-        r.add(f'fur_hue.{view}', [m['hue'], s['hue']], 'abs<=', hue)
-        r.add(f'fur_saturation.{view}', [m['sat'], s['sat']], 'abs<=', sat)
-        r.add(f'fur_value.{view}', [m['val'], s['val']], 'abs<=', val)
+        r.add(f'fur_hue.{view}', [m['hue'], s['hue']], 'abs<=', hue, where=tile)
+        r.add(f'fur_saturation.{view}', [m['sat'], s['sat']], 'abs<=', sat, where=tile)
+        r.add(f'fur_value.{view}', [m['val'], s['val']], 'abs<=', val, where=tile)
 
     # The features (studio/measure_features.py) and the facet contrast.
     features = _load(os.path.join(cfg.paths.compare, 'features.json')) or {}
