@@ -19,7 +19,7 @@ echo '[2/4] body field, low-poly mesh, colors, rig, weights, clips -> out/bear.g
 # folds over in one clip. So the build tries the seeds of SEEDS in order and keeps the first
 # one whose clips all pass the contact and fold check (tools/bear/contacts.py). With --seed,
 # the build uses that seed only.
-SEEDS="${SEEDS:-2 8 1 3 4 5 6 7}"
+SEEDS="${SEEDS:-3 1 5 6 2 4 7 8}"
 build_once() {
   "$BLENDER" -b --factory-startup --python tools/bear/build.py -- "$@" 2>&1 \
     | grep -E '^(surface nets|remeshed|body:|bone heat|contact|wrote)|Error|Traceback' || true
