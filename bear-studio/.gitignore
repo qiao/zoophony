@@ -1,0 +1,6 @@
+# Made again by each build.
+out/masks/*.raw
+out/fit/
+out/test-*
+out/frames/face.png
+__pycache__/
