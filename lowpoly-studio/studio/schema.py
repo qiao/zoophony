@@ -568,7 +568,7 @@ FEATURE = T('One feature of the face or the body (studio/measure_features.py). T
                          'uses the silhouette.', default=()),
     'regions': M('The region of each view, [x0, y0, x1, y1] in animal heights: x from the axis of '
                  'the view to the right of the image, y the height above the ground. The feature '
-                 'is measured in these views only.', F('rect', 'Region.')),
+                 'is measured in these views only.', F('rect', 'Region.', todo=True)),
     'split': F('strs', 'Views whose region splits at the axis into two regions, "left_in_image" '
                        'and "right_in_image" (a pair of ears or of paws).', default=()),
     'count': F('int', 'blobs: the number of blobs that each region keeps.', default=1),

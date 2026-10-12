@@ -371,7 +371,8 @@ def scaffold(schema, start, filled, path='', like=None):
 
     A field marked todo gets "TODO" (or a value of `filled`, or with `like` the value of that
     animal and a comment "TODO: measure"). A required field without a default starts from the
-    value of the start animal (src). A field with a default is a comment.
+    value of the start animal (src). A field with a default is a comment, unless the start
+    animal has another value: then that value is written as a start.
     """
     src = filled.get('_start', like)
     from studio.schema import REQUIRED, A, F, M, T  # noqa: PLC0415
@@ -388,6 +389,8 @@ def scaffold(schema, start, filled, path='', like=None):
             elif sub.todo:
                 lines.append(f'{key} = "TODO"')
             elif sub.default is REQUIRED:
+                lines.append(f'{key} = {_toml(config.to_plain(value))}  # a start ({src})')
+            elif value not in (None, ()) and config.to_plain(value) != config.to_plain(sub.default):
                 lines.append(f'{key} = {_toml(config.to_plain(value))}  # a start ({src})')
             elif sub.default is not None and sub.default != ():
                 lines.append(f'# {key} = {_toml(config.to_plain(sub.default))}')
