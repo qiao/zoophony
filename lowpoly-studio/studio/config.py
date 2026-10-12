@@ -127,6 +127,9 @@ def _resolve(schema, value, path, errors):
             if key in value:
                 out[key] = _resolve(sub, value[key], sub_path, errors)
                 continue
+            if isinstance(sub, T) and sub.optional:
+                out[key] = None
+                continue
             default = _default(sub)
             if default is REQUIRED:
                 errors.append(f'{sub_path}: missing ({_doc(sub)})')
@@ -193,8 +196,17 @@ def _role_checks(role, errors):
             errors.append(f'props[{i}].attach.bone: expected "hand" or "scene"')
         if prop.attach.side not in ('L', 'R'):
             errors.append(f'props[{i}].attach.side: expected "L" or "R"')
-        if prop.kind != 'stick':
-            errors.append(f'props[{i}].kind: only "stick" is built so far')
+        kinds = {'stick': ('hand', ('grip', 'direction', 'length', 'handle', 'shaft')),
+                 'piano': ('scene', ('piano',)), 'bench': ('scene', ('bench',))}
+        if prop.kind not in kinds:
+            errors.append(f'props[{i}].kind: expected one of {", ".join(kinds)}')
+            continue
+        bone, needs = kinds[prop.kind]
+        if prop.attach.bone != bone:
+            errors.append(f'props[{i}]: a "{prop.kind}" needs attach.bone = "{bone}"')
+        for key in needs:
+            if prop[key] is None:
+                errors.append(f'props[{i}].{key}: missing (a "{prop.kind}" needs it)')
 
 
 def role_dir(name):

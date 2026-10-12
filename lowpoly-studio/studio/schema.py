@@ -687,40 +687,74 @@ BIND = T('The bind pose of the role: joint turns from the pose of the sheet. The
     'hip_flex': F('num', 'Forward raise of the thighs (about 90 for a seated player).',
                   default=0.0),
     'knee_flex': F('num', 'Bend of the knees (about 90 for a seated player).', default=0.0),
+    'hip_abduct': F('num', 'Outward turn of the legs about the vertical axis at the hips (the '
+                           'knees apart, for a seated player).', default=0.0),
     'correctives': F('strs', 'Corrective shapes of the template between the bind pose and the '
                              'sheet pose. The biped template has "arm_down".', default=('arm_down',)),
 })
 
 ROLE_PROP = T('One prop of the role.', {
     'name': F('str', 'Name of the prop, of its bone, and of its material.'),
-    'kind': F('str', 'Geometry kind: "stick" (a handle and a tapered shaft). Later kinds: a mesh '
-                     'file of an instrument, a chair, a bench, a stand.', default='stick'),
+    'kind': F('str', 'Geometry kind: "stick" (a handle and a tapered shaft, in a hand), "piano" (a '
+                     'low-poly grand piano in the scene), "bench" (a piano bench in the scene). '
+                     'Later kinds: a mesh file of an instrument, a stand.', default='stick'),
     'attach': T('Where the prop attaches.', {
         'bone': F('str', '"hand": a bone of its own, a child of the hand of "side". "scene": a '
-                         'separate node in the scene (a piano, a chair), not skinned.'),
+                         'bone of its own, a child of the root (a piano, a bench). The prop is '
+                         'rigid on its bone, and the root does not move, so it stays in place.'),
         'side': F('str', '"L" or "R" (for a hand prop).', default='R'),
-        'seat_height': F('str', 'For a seat in the scene: "legs" puts the seat at the height of '
-                                'the bent knees of the bind pose.', default=None),
+        'seat_height': F('str', 'For a seat in the scene: "legs" puts the seat top under the '
+                                'trunk bottom of the seated pose, where the feet of the bent legs '
+                                'stand on the floor (templates/biped Body.seated_drop).',
+                         default=None),
     }),
     'tip_marker': F('str', 'Name of the empty node at the tip (the viewer draws its path).',
                     default=None),
-    'grip': F('vec3', 'Grip point in the hand frame, from the middle of the paw.'),
-    'direction': F('vec3', 'Direction of the shaft in the hand frame.'),
-    'length': F('num', 'Length from the grip to the tip.'),
-    'handle': T('The handle: a tube from behind the grip to just past it.', {
+    'grip': F('vec3', 'Grip point in the hand frame, from the middle of the paw (a stick).', default=None),
+    'direction': F('vec3', 'Direction of the shaft in the hand frame (a stick).', default=None),
+    'length': F('num', 'Length from the grip to the tip (a stick).', default=None),
+    'handle': T('The handle of a stick: a tube from behind the grip to just past it.', {
         'back': F('num', 'Length behind the grip.'),
         'steps': F('vec2', 'Second point after the back, third point after the grip.'),
         'radii': F('vec3', 'Radius at the three points.'),
         'sides': F('int', 'Sides of the tube.'),
         'color': F('rgb', 'Color.'),
-    }),
-    'shaft': T('The shaft: a tapered tube from the grip to the tip.', {
+    }, optional=True),
+    'shaft': T('The shaft of a stick: a tapered tube from the grip to the tip.', {
         'start': F('num', 'Start after the grip.'),
         'middle': F('num', 'Middle point after the grip.'),
         'radii': F('vec3', 'Radius at the start, the middle, and the tip.'),
         'sides': F('int', 'Sides of the tube.'),
         'color': F('rgb', 'Color.'),
-    }),
+    }, optional=True),
+    'piano': T('A grand piano (kind "piano"), sized to the seated animal: the keyboard runs '
+               'across the front of the belly, at the height of the forearms.', {
+        'keys_top': F('num', 'Height of the top of the white keys above the seat top.'),
+        'keys_front': F('num', 'z of the front edge of the keyboard.'),
+        'keys_depth': F('num', 'Depth of a white key.', default=0.11),
+        'white_keys': F('int', 'Number of white keys (from C, centered on x = 0).', default=17),
+        'key_width': F('num', 'Width of a white key.'),
+        'case_length': F('num', 'Length of the case behind the keyboard.'),
+        'case_width': F('num', 'Width of the case.'),
+        'case_height': F('num', 'Height of the case side.', default=0.1),
+        'lid_open': F('num', 'Angle of the open lid in degrees.', default=30.0),
+        'colors': T('The colors.', {
+            'case': F('rgb', 'The case, the legs, and the lid.'),
+            'white': F('rgb', 'The white keys.'),
+            'black': F('rgb', 'The black keys.'),
+            'metal': F('rgb', 'The pedals.'),
+        }),
+    }, optional=True),
+    'bench': T('A piano bench (kind "bench"): a padded top on four legs.', {
+        'width': F('num', 'Width (x).'),
+        'depth': F('num', 'Depth (z).'),
+        'center_z': F('num', 'z of the middle of the top.'),
+        'top_thickness': F('num', 'Thickness of the padded top.', default=0.025),
+        'colors': T('The colors.', {
+            'top': F('rgb', 'The padded top.'),
+            'legs': F('rgb', 'The legs and the frame.'),
+        }),
+    }, optional=True),
     'material': T('The material of the prop.', {
         'roughness': F('num', 'Roughness.'),
         'specular': F('num', 'Specular IOR level.'),
@@ -757,6 +791,15 @@ ROLE = T('A role pack (roles/<name>/role.toml).', {
         'contact_tests': F('strs', 'Parts of each arm that are tested against the rest of the '
                                    'body: paw, forearm, claws, props.',
                            default=('paw', 'forearm', 'claws', 'props')),
+        'scene_depth': F('num', 'Deepest point of the body (skin and details) inside a scene prop '
+                                '(a piano, a bench) in any frame, in animal heights.',
+                         default=0.01),
+        'seat_gap': F('num', 'Largest distance between the lowest body point over the seat and '
+                             'the seat top, in any seated frame: the animal rests on the seat.',
+                      default=0.015),
+        'hand_targets': F('num', 'Largest distance of the knuckles from the targets that the '
+                                 'clips give (pack.hand_targets), in animal heights.',
+                          default=0.01),
     }),
     'review': T('Review outputs of the role.', {
         'shots': F('str', 'JSON file of the review frames (studio/shoot.mjs frames).',
