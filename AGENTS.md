@@ -59,7 +59,7 @@ Open these files for these kinds of work:
   2026-10-11 (first as `bear-studio/`). It builds rigged low-poly animals from a reference sheet,
   with one config for each animal and one role pack for each role, such as the bear conductor.
   It is outside the rules of this file. Run its CLI in that folder:
-  `python3 studio build|compare|report|view|new|regress <animal>`, and
+  `python3 studio build|compare|report|view|new|regress <animal>`, `python3 studio log`, and
   `python3 studio cache info|clean`. The app does not use it, and the lint skips it. Its `README.md` gives the layout, the commands, the config, and the role packs.
 
 `docs/research/` holds the facts behind the decisions, with sources. Keep these reports as the
@@ -211,7 +211,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm format:check` | Checks the format of the same paths. CI runs it. |
 | `pnpm test` | Runs the Vitest tests once, except the speed tests. |
 | `pnpm test:perf` | Runs the speed tests (`*-speed.test.ts`) one file at a time (design 9.3). Each one compares the time of a work with a reference work in the same run. Heavy load on the machine can make them fail. |
-| `tools/merge-branch.sh <branch> [worktree]` | Rebases `<branch>` onto `main` in `<worktree>`, or in a temporary worktree. It runs `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, and the unit tests that the changes of the commit reach (`pnpm test --changed HEAD~1`) on each commit, and checks that the commit hashes did not change. Then it runs the full `pnpm test` one time on the last commit, and `pnpm build`, `pnpm size`, and `pnpm test:e2e --project=chromium`. It skips the last three checks for a branch that changes only `docs/` and Markdown files. It prints the time of each step. Then it fast-forwards `main` and removes the worktree and the branch. At the first failure, it stops and keeps them. Run it from the main worktree, with `main` checked out. |
+| `tools/merge-branch.sh [--check-only] <branch> [worktree]` | Rebases `<branch>` onto `main` in `<worktree>`, or in a temporary worktree. It runs `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, and the unit tests that the changes of the commit reach (`pnpm test --changed HEAD~1`) on each commit, and checks that the commit hashes did not change. Then it runs the full `pnpm test` one time on the last commit, and `pnpm build`, `pnpm size`, and `pnpm test:e2e --project=chromium`. It skips the last three checks for a branch that changes only `docs/` and Markdown files. Before the end-to-end tests, it waits until the 1-minute load average is at most `MERGE_E2E_MAX_LOAD` (20) and port 4182 is free, for `MERGE_E2E_WAIT` seconds at most (900), and prints the cause of the wait. After a failure, the end-to-end tests run one more time. It prints the time of each step. Then it fast-forwards `main` and removes the worktree and the branch. At the first failure, it stops and keeps them. `--check-only` runs each check and does not merge. Run it from the main worktree, with `main` checked out. |
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
 `pnpm format`, `pnpm screenshots`, `pnpm snapshot`, `pnpm sheet-check`, `pnpm pose-probe`, `pnpm choir-check`, `pnpm keyboard`,
