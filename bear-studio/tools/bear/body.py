@@ -58,18 +58,19 @@ SPINE = {
     'head_end': (0.99, 0.05),
 }
 
-# The head, measured on the side view of the sheet: the dome reaches 0.975, the forehead is
-# near vertical at z 0.20 from 0.89 to 0.93, the cheeks are widest (0.153) at 0.83, and the
-# snout spans 0.775 to 0.89 with the nose tip at z 0.282.
+# The head, measured on the sheet: the head ball is a loft of the front and side views
+# (head_table), the dome reaches 0.975, the forehead is near vertical at z 0.20 from 0.89 to
+# 0.93, the cheeks are widest (0.153) at 0.83, and the snout spans 0.775 to 0.89 with the nose
+# tip at z 0.282. 'skull' is only the region that moves with the head bone (rig.py).
 HEAD = {
-    'cranium': ((0.0, 0.865, 0.095), (0.116, 0.11, 0.108)),
-    'brow': ((0.0, 0.912, 0.14), (0.088, 0.042, 0.062)),
-    'jowls': ((0.0, 0.825, 0.08), (0.15, 0.068, 0.105)),
+    'skull': ((0.0, 0.865, 0.08), (0.15, 0.11, 0.125)),
+    'brow': ((0.0, 0.912, 0.13), (0.088, 0.042, 0.062)),
     'muzzle': ((0.0, 0.838, 0.2), (0.062, 0.056, 0.08)),
-    'ear': ((0.087, 0.962, 0.06), (0.035, 0.035, 0.017)),
-    'ear_yaw': 25.0,
-    'eye': (0.043, 0.888),
-    'eye_radius': 0.0118,
+    'ear': ((0.088, 0.9565, 0.058), (0.0405, 0.043, 0.027)),
+    'ear_yaw': 35.0,
+    'ear_roll': 10.0,
+    'eye': (0.043, 0.892),
+    'eye_radius': 0.0113,
     'nose': (0.0, 0.845),
 }
 
@@ -106,9 +107,12 @@ def trunk_table(views):
     """Builds the loft table of the trunk from the front, back, and side profiles."""
     ys = np.round(np.arange(0.150, 0.8851, 0.005), 4)
     # Above y 0.45 the arms hide the sides of the trunk, so the width follows control points.
+    # Above y 0.77 the trunk is only the neck and the nape: narrower than the head, so the
+    # head reads as a ball on the shoulders, with a groove under the cheeks.
     a_ctrl = [(0.45, None), (0.475, 0.2036), (0.52, 0.199), (0.58, 0.193), (0.64, 0.183),
-              (0.70, 0.168), (0.76, 0.150), (0.80, 0.128), (0.84, 0.118), (0.885, 0.09)]
-    zf_ctrl = [(0.74, None), (0.78, 0.18), (0.82, 0.14), (0.885, 0.08)]
+              (0.70, 0.174), (0.73, 0.167), (0.76, 0.157), (0.78, 0.145), (0.80, 0.13),
+              (0.84, 0.1), (0.885, 0.07)]
+    zf_ctrl = [(0.74, None), (0.77, 0.16), (0.80, 0.125), (0.84, 0.08), (0.885, 0.04)]
     a = np.zeros_like(ys)
     zb = np.zeros_like(ys)
     zf = np.zeros_like(ys)
@@ -126,6 +130,7 @@ def trunk_table(views):
         else:
             a[i] = np.interp(y, [c[0] for c in a_ctrl], [c[1] for c in a_ctrl])
         back, front = _side_edges(views['side']['profile'], min(max(y, 0.2), 0.885))
+        # The back follows the hump line of the side view up to the back of the head.
         zb[i] = back
         zf[i] = front if y <= 0.74 else np.interp(y, [c[0] for c in zf_ctrl],
                                                      [c[1] for c in zf_ctrl])
@@ -163,6 +168,86 @@ def trunk_table(views):
     nf = np.interp(ys, [0.15, 0.45, 0.6], [2.0, 2.1, 2.2])
     nb = np.full_like(ys, 2.35)
     return {'y': ys, 'a': a, 'zb': zb, 'zf': zf, 'zw': zw, 'nf': nf, 'nb': nb}
+
+
+# The head ball. The front mask shows the head only from the cheeks up (0.83 and above): below,
+# the cheek fur and the shoulders make one outline, so the head is analytic there. Its widest
+# point is at the cheeks, at the height of the muzzle; a round cap closes it at HEAD_BOTTOM, so
+# the jowls overhang the neck, and a round dome closes it at HEAD_TOP between the ears. A small
+# blend leaves a soft groove where the head meets the neck and the hump, as on the sheet.
+HEAD_BOTTOM = 0.75
+HEAD_CHEEK = (0.83, 0.153)
+HEAD_TEMPLE = 0.92
+HEAD_TOP = 0.978
+HEAD_BLEND = 0.016
+# The front and the back of the head ball (z) by height, where the side mask does not show
+# them: the face plane beside the snout, and the back of the skull in front of the hump line,
+# so the head reads as a ball and not as one slope with the back.
+HEAD_FACE = [(0.75, 0.09), (0.77, 0.15), (0.80, 0.178), (0.84, 0.188), (0.875, 0.192)]
+HEAD_BACK = [(0.75, 0.05), (0.77, 0.0), (0.80, -0.03), (0.84, -0.038), (0.88, -0.03)]
+
+
+def head_table(views):
+    """Builds the loft table of the head ball.
+
+    The width follows the front and back masks from the cheeks (0.83) to the temples (0.92),
+    where the outline is the head. Below the cheeks a quarter ellipse closes the head at
+    HEAD_BOTTOM, and above the temples a quarter ellipse makes the dome to HEAD_TOP. The front
+    follows the side mask on the forehead (0.89 to 0.955), and the back follows it above 0.9.
+    """
+    ys = np.round(np.arange(HEAD_BOTTOM, HEAD_TOP + 1e-6, 0.0025), 4)
+    side = views['side']['profile']
+    yc, ac = HEAD_CHEEK
+
+    def width(y):
+        vals = [v for v in (_central_half_width(views['front']['profile'], y),
+                            _central_half_width(views['back']['profile'], y)) if v]
+        return sum(vals) / len(vals)
+
+    a_temple = width(HEAD_TEMPLE)
+
+    def interp(y, ctrl):
+        return float(np.interp(y, [c[0] for c in ctrl], [c[1] for c in ctrl]))
+
+    a = np.zeros_like(ys)
+    zb = np.zeros_like(ys)
+    zf = np.zeros_like(ys)
+    forehead_top = 0.955
+    zf_top = _side_edges(side, forehead_top)[1]
+    zb_top = _side_edges(side, 0.93)[0]
+    for i, y in enumerate(ys):
+        if y <= yc:
+            # A squarish cap (power 3): the jowls keep their width low, then turn under.
+            t = (yc - y) / (yc - HEAD_BOTTOM)
+            a[i] = ac * max(1.0 - t ** 3, 0.0) ** (1.0 / 3.0)
+        elif y <= HEAD_TEMPLE:
+            a[i] = width(y)
+        else:
+            t = (y - HEAD_TEMPLE) / (HEAD_TOP - HEAD_TEMPLE)
+            a[i] = a_temple * math.sqrt(max(1.0 - t * t, 0.0))
+        if y < 0.875:
+            zf[i] = interp(y, HEAD_FACE)
+        elif y < 0.89:
+            zf[i] = interp(y, [(0.875, HEAD_FACE[-1][1]), (0.89, _side_edges(side, 0.89)[1])])
+        elif y <= forehead_top:
+            zf[i] = _side_edges(side, y)[1]
+        else:
+            t = (y - forehead_top) / (HEAD_TOP - forehead_top)
+            zf[i] = 0.07 + (zf_top - 0.07) * math.sqrt(max(1.0 - t * t, 0.0))
+        if y < 0.88:
+            zb[i] = interp(y, HEAD_BACK)
+        elif y <= 0.93:
+            zb[i] = interp(y, [(0.88, HEAD_BACK[-1][1]), (0.90, _side_edges(side, 0.90)[0])]) \
+                if y < 0.90 else _side_edges(side, y)[0]
+        else:
+            t = (y - 0.93) / (HEAD_TOP - 0.93)
+            zb[i] = 0.065 + (zb_top - 0.065) * math.sqrt(max(1.0 - t * t, 0.0))
+    a, zb, zf = (smooth(v, ys, 0.004) for v in (a, zb, zf))
+    a[0] = 0.0
+    a[-1] = 0.0
+    zw = zb + 0.5 * (zf - zb)
+    return {'y': ys, 'a': a, 'zb': zb, 'zf': zf, 'zw': zw,
+            'nf': np.full_like(ys, 2.0), 'nb': np.full_like(ys, 2.1)}
 
 
 def smooth(values, ys, sigma):
@@ -304,18 +389,23 @@ def leg_parts(side):
 
 
 def ear_frame(side):
-    """Calculates the frame of one ear: z is the normal of the ear's front face."""
+    """Calculates the frame of one ear: z is the normal of the ear's front face.
+
+    The ear turns out by ear_yaw (so it reads as a broad oval from the side, as on the sheet),
+    and its top leans out by ear_roll.
+    """
     yaw = math.radians(HEAD['ear_yaw']) * side
+    roll = math.radians(HEAD['ear_roll']) * side
     normal = np.array([math.sin(yaw), 0.15, math.cos(yaw)])
-    return frame_from((0.0, 1.0, 0.0), normal)
+    return frame_from((math.sin(roll), math.cos(roll), 0.0), normal)
 
 
 # The snout: a short cone along z from its base to the center of its round front. Its axis
 # tilts up toward the front, so the nose at the top reaches furthest (z 0.28 at height 0.85)
 # and the chin recedes, as in the side view of the sheet. From the front it is a round tan
 # disk 0.12 wide.
-SNOUT = ((0.0, 0.828, 0.165), (0.0, 0.845, 0.23))
-SNOUT_RADII = (0.062, 0.051)
+SNOUT = ((0.0, 0.822, 0.165), (0.0, 0.843, 0.232))
+SNOUT_RADII = (0.066, 0.055)
 SNOUT_SQUASH = 0.95
 
 
@@ -325,10 +415,15 @@ def snout(p):
     return round_cone(p, a, b, SNOUT_RADII[0], SNOUT_RADII[1], ((0.0, 1.0, 0.0), SNOUT_SQUASH))
 
 
-def head_parts():
-    """Makes the parts of the head: the cranium, the jowls, the muzzle, and the ears."""
+def head_parts(views=None):
+    """Makes the parts of the head: the head ball, the brow, the muzzle, and the ears."""
     parts = []
-    for name, k in (('cranium', 0.04), ('brow', 0.035), ('jowls', 0.04), ('muzzle', 0.022)):
+    if views is not None:
+        table = head_table(views)
+        lo = np.array([-0.18, HEAD_BOTTOM - 0.01, -0.12])
+        hi = np.array([0.18, HEAD_TOP + 0.01, 0.25])
+        parts.append(Part('head', lambda p: loft(p, table), lo, hi, HEAD_BLEND))
+    for name, k in (('brow', 0.02), ('muzzle', 0.022)):
         c, r = HEAD[name]
         lo, hi = _box_of_points([c], max(r) + 0.06)
         if name == 'muzzle':
@@ -339,11 +434,11 @@ def head_parts():
         c, r = HEAD['ear']
         c = np.array(c) * np.array([side, 1, 1])
         f = ear_frame(side)
-        hollow = c + f @ np.array([0.0, -0.002, 0.016])
+        hollow = c + f @ np.array([0.0, -0.002, 0.9 * r[2]])
 
         def ear(p, c=c, r=r, f=f, hollow=hollow):
             d = ellipsoid(p, c, r, f)
-            h = ellipsoid(p, hollow, (0.022, 0.023, 0.012), f)
+            h = ellipsoid(p, hollow, (0.65 * r[0], 0.65 * r[1], 0.55 * r[2]), f)
             return smax(d, -h, 0.006)
 
         lo, hi = _box_of_points([c], 0.07)
@@ -361,7 +456,7 @@ def all_parts(pose, views, small=True):
     lo = np.array([-0.26, 0.14, -0.22])
     hi = np.array([0.26, 0.89, 0.30])
     parts = [Part('trunk', lambda p: loft(p, table), lo, hi, 0.0)]
-    parts += [p for p in head_parts() if small or not p.name.startswith('ear')]
+    parts += [p for p in head_parts(views) if small or not p.name.startswith('ear')]
     for side in (1, -1):
         parts += arm_parts(pose, side)
         parts += leg_parts(side)

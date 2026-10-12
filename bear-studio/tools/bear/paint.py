@@ -114,24 +114,22 @@ def face_colors(parts, centers, normals, corners):
     under = _smoothstep(0.45, 0.2, y) * (y > 0.12)
     col = col * (1.0 - UNDER_DARK * under)[:, None]
 
-    # The tan muzzle: the faces on the snout capsule (near its surface, in front of z 0.17).
-    # From the front this is a round disk 0.12 wide, and from the side it reaches back to the
-    # base of the snout, as on the sheet.
-    near = np.abs(body.snout(corners.reshape(-1, 3))).reshape(-1, 3) < 0.018
-    muzzle = near.all(axis=1) & (corners[:, :, 2].min(axis=1) > 0.16)
-    col[muzzle] = _rgb('muzzle')
-
-    # Slightly darker brows above the eyes.
-    ex, ey = body.HEAD['eye']
-    for side in (1, -1):
-        d = np.hypot((x - side * (ex + 0.004)) / 0.026, (y - (ey + 0.022)) / 0.010)
-        brow = (d < 1.0) & (z > 0.12)
-        col[brow] = col[brow] * 0.85
+    # The tan muzzle: the faces on the snout cone and its base, down to the chin. From the
+    # front this is a round disk about 0.12 wide, and from the side it reaches back to the base
+    # of the snout, as on the sheet. (The brows are thin details: details.face_details.)
+    near = np.abs(body.snout(corners.reshape(-1, 3))).reshape(-1, 3) < 0.024
+    muzzle = near.all(axis=1) & (corners[:, :, 2].min(axis=1) > 0.135)
+    # The sheet lights the face with a soft front fill, so the lower muzzle that faces down is
+    # still light tan. The baked part of that fill lifts the muzzle faces that point down.
+    lift = 1.0 + 0.22 * np.clip(-normals[:, 1], 0.0, 1.0)
+    col[muzzle] = np.clip(_rgb('muzzle')[None, :] * lift[muzzle, None], 0.0, 1.0)
 
     # Baked occlusion. There is no random value jitter: the shading of the facets gives the
     # variation, as on the sheet.
     ao = occlusion(parts, centers, normals)
     shade = 1.0 - 0.6 * _smoothstep(0.05, 0.6, ao)
+    # The muzzle of the sheet is lit down to the chin, so it keeps only a little occlusion.
+    shade[muzzle] = 1.0 - 0.2 * _smoothstep(0.05, 0.6, ao[muzzle])
     col = col * shade[:, None]
     return np.clip(col, 0.0, 1.0), ao
 

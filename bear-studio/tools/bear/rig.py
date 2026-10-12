@@ -272,7 +272,7 @@ def head_rigidity(points):
     c, r = body.HEAD['muzzle']
     q = (p - np.array(c)) / (np.array(r) * 1.25)
     muzzle = 1.0 - np.clip((np.sqrt(np.sum(q * q, axis=1)) - 0.8) / 0.4, 0.0, 1.0)
-    cc, cr = body.HEAD['cranium']
+    cc, cr = body.HEAD['skull']
     q = (p - np.array(cc)) / (np.array(cr) * 1.05)
     cranium = 1.0 - np.clip((np.sqrt(np.sum(q * q, axis=1)) - 0.85) / 0.3, 0.0, 1.0)
     cranium *= np.clip((p[:, 1] - 0.80) / 0.04, 0.0, 1.0)

@@ -37,7 +37,7 @@ RELAX = 0.12
 WARPS = [
     (np.array([0.0, 0.42, 0.02]), 0.24, 0.72),
     (np.array([0.0, 0.86, 0.12]), 0.16, 1.5),
-    (np.array([0.0, 0.838, 0.21]), 0.1, 2.2),
+    (np.array([0.0, 0.832, 0.205]), 0.1, 2.6),
     (np.array([0.142, 0.035, 0.07]), 0.07, 1.8),
     (np.array([-0.142, 0.035, 0.07]), 0.07, 1.8),
 ]
@@ -57,6 +57,12 @@ def joint_skin(points):
     return out
 
 
+def _neck_warps():
+    """Adds a warp at each side of the neck, where the cheeks meet the shoulders, so the
+    facets there are small enough to show the groove under the head."""
+    return [(np.array([s * 0.13, 0.775, 0.03]), 0.06, 1.6) for s in (1.0, -1.0)]
+
+
 def _paw_warps():
     """Adds a warp at each paw of the bind pose, so the round end of the paw keeps its form."""
     joints, _ = body.arm_pose('bind')
@@ -64,7 +70,7 @@ def _paw_warps():
     return [(center * np.array([s, 1.0, 1.0]), 0.07, 1.7) for s in (1.0, -1.0)]
 
 
-WARPS += _paw_warps()
+WARPS += _paw_warps() + _neck_warps()
 
 
 def _scale(r, radius, factor):

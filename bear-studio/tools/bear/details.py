@@ -129,10 +129,12 @@ COLORS = {
     'ear': (104, 64, 36),
     'ear_inner': (72, 42, 26),
     'eye': (22, 17, 15),
-    'sclera': (236, 230, 220),
+    'eye_outline': (34, 22, 16),
+    'sclera': (236, 232, 224),
     'catchlight': (255, 255, 255),
     'nose': (46, 38, 35),
     'mouth': (70, 44, 30),
+    'brow': (78, 46, 27),
     'claw': (52, 44, 40),
     'baton': (244, 240, 230),
     'grip': (120, 84, 52),
@@ -154,15 +156,38 @@ def face_details(parts, ray=None):
     sv, sf = icosphere(1)
     cv, cf = icosphere(0)
     for side, suffix in ((1, 'L'), (-1, 'R')):
-        # A small dark eye with a calm look: no white ring, only a tiny highlight.
-        look = np.array([0.18 * side, 0.02, 1.0])
-        look /= np.linalg.norm(look)
+        # The eye of the sheet: a dark outline, a thin white rim (wider on the outer side, as
+        # the iris looks a little inward), a dark iris (0.026 across), and a small highlight.
+        # Each layer is a flattened sphere in the frame of the look direction.
+        look = unit_vec([0.18 * side, 0.02, 1.0])
+        right = unit_vec(np.cross([0.0, 1.0, 0.0], look))
+        up = np.cross(look, right)
+        frame = np.stack([right, up, look], axis=1)
         surf = ray((ex * side, ey, 0.4), (0, 0, -1))
-        center = surf - look * (r * 0.45)
-        out.append(_detail(f'eye_{suffix}', center + sv * r, sf, COLORS['eye'], 'gloss', 'head'))
-        hl = center + r * 0.85 * unit_vec([-0.3 * side + 0.15, 0.5, 0.82])
-        out.append(_detail(f'catchlight_{suffix}', hl + cv * (r * 0.22), cf,
-                           COLORS['catchlight'], 'gloss', 'head'))
+
+        def layer(name, center, radii, color, verts=sv, faces=sf):
+            pts = center + (verts * np.array(radii)) @ frame.T
+            out.append(_detail(f'{name}_{suffix}', pts, faces, color, 'gloss', 'head'))
+
+        # The widest ring of the outline sits on the facet, so the whole disk shows. (Sunk by
+        # 0.004, only 60% of its width showed, and the eyes read as small dots.)
+        base = surf - look * 0.0005
+        layer('eye_outline', base, (r * 1.14, r * 1.14, r * 0.45), COLORS['eye_outline'])
+        layer('sclera', base + look * 0.001, (r, r, r * 0.62), COLORS['sclera'])
+        inward = -side * 0.0022 * right
+        iris_c = base + look * 0.0035 + inward
+        layer('eye', iris_c, (r * 0.7, r * 0.7, r * 0.5), COLORS['eye'])
+        hl = iris_c + frame @ np.array([0.0032 * side, 0.0036, r * 0.42])
+        layer('catchlight', hl, (r * 0.2, r * 0.2, r * 0.12), COLORS['catchlight'], cv, cf)
+
+    # A soft brow line above each eye: a thin arc, highest above the eye, as on the sheet.
+    for side, suffix in ((1, 'L'), (-1, 'R')):
+        us = np.linspace(-1.0, 1.0, 7)
+        pts = [ray((side * (ex + 0.002 + 0.0135 * u), ey + 0.0165 + 0.0045 * (1 - u * u), 0.4),
+                   (0, 0, -1)) + np.array([0.0, 0.0, 0.0012]) for u in us]
+        radii = 0.0011 + 0.0004 * (1 - us * us)
+        bv, bf = tube(pts, radii, 4, closed_tip=False)
+        out.append(_detail(f'brow_{suffix}', bv, bf, COLORS['brow'], 'fur', 'head'))
 
     # The nose: a rounded triangle, wide at the top.
     nx, ny = body.HEAD['nose']
@@ -207,13 +232,13 @@ def ears_and_tail():
         # The hollow: the front (local +z) of the shell sinks toward the back.
         rad = np.hypot(local[:, 0] / r[0], local[:, 1] / r[1])
         front = local[:, 2] > 0
-        local[front, 2] -= r[2] * 1.5 * np.clip(1.0 - rad[front] / 0.8, 0.0, 1.0)
+        local[front, 2] -= r[2] * 1.8 * np.clip(1.0 - rad[front] / 0.88, 0.0, 1.0)
         f = body.ear_frame(side)
         center = np.array(c) * np.array([side, 1, 1])
         verts = center + local @ f.T
         cen = local[f0].mean(axis=1)
         nrm = np.cross(local[f0[:, 1]] - local[f0[:, 0]], local[f0[:, 2]] - local[f0[:, 0]])
-        inner = (nrm[:, 2] > 0) & (np.hypot(cen[:, 0] / r[0], cen[:, 1] / r[1]) < 0.75)
+        inner = (nrm[:, 2] > 0) & (np.hypot(cen[:, 0] / r[0], cen[:, 1] / r[1]) < 0.88)
         colors = np.where(inner[:, None], np.array(COLORS['ear_inner'], float),
                           np.array(COLORS['ear'], float))
         d = _detail(f'ear_{suffix}', verts, f0, COLORS['ear'], 'fur', f'ear_{suffix}')
