@@ -14,7 +14,7 @@ the golden file changes in a commit of its own.
 |---|---|---|
 | 2 | Foreground by the background difference | done (2db71c8b) |
 | 3 | `studio calibrate`: light, palette, color classes | open |
-| 4 | Sheet consistency at intake, head turn of a view in the compare | open |
+| 4 | Sheet consistency at intake, head turn of a view in the compare | code done (7dee5a24, 30bfdb9c, eae53c88), not yet applied to the polar bear |
 | 6 | Pixel floor of the feature limits | code done (07df1dd8), off for the bear and the polar bear |
 | 7 | Compact `new --like` | done (4554e5f7) |
 | 8 | Quad calibration of QuadriFlow | open |
@@ -38,6 +38,13 @@ pass too.
 Item 7: `new polar-bear-2 --like bear` on the polar bear sheet writes 477 lines (the scaffold
 had 1534). The writer parses the result again and compares it with the like config plus the
 changes.
+
+Item 4: the sheet check (out/sheet-check.json) of the bear: scale spread 2.1%, ground 5 px,
+arm gap 5%, 3/4 head turn -2.8 deg. The polar bear: scale 4.4%, ground 4 px, ears front 0.079
+and back 0.052, arm gap 5%, 3/4 head turn +6.3 deg. The compare head turn with [-20, 20] on the
+regression builds: polar bear +6 deg, IoU 0.9047 -> 0.9073, the 3/4 eye x errors 0.015 and
+0.008 -> 0.002 and 0.000. Bear: +20 deg (the end of the range) and worse eyes, so it stays off.
+With no head turn the compare refactor gives the golden IoU, measures, and checks of both.
 
 ## Regressions
 
