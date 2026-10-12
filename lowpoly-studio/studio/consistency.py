@@ -3,7 +3,9 @@
 A sheet shows one figure from four cameras. When two views disagree (a scale, a ground line, an
 ear, a head turn, an arm gap), a check of the build can fail because of the sheet, and no change
 of the model can pass it. The intake runs these checks on the masks and on the dark features of
-the sheet, and writes <out>/sheet-check.json:
+the sheet, and writes <out>/sheet-check.json. The checks describe the sheet: the head checks read
+no color class of the config (they find the dark blobs relative to the fur level of the sheet),
+so `calibrate` does not move them.
 
     figure_height            the spread of the figure heights of the views (each view is scaled
                              to its own height, so a view of another scale moves every measure)
@@ -36,9 +38,16 @@ NOSE_OFFSET_PX = 2.0
 HEAD_TURN = 4.0
 SYMMETRY = 0.97
 
-# The blobs of the eyes feature that the head checks read (a dark inner ear can be a larger
-# blob than a far eye, so the check reads more blobs than the feature keeps).
-EYE_BLOBS = 6
+# The head checks find the eyes and the nose from the sheet alone, with no color class or region
+# of the config, so a tuned class (`calibrate`) cannot move them. The fur level is the median of
+# the largest channel of the silhouette pixels in HEAD_BAND ([x0, y0, x1, y1] in animal heights).
+# A dark blob has a largest channel under DARK_SHARE of the fur level, at least EYE_MIN_AREA
+# pixels, and a core (its darkest pixel) under CORE_SHARE of the fur level: a pupil or a nose,
+# not the shade of an inner ear or of the mouth line.
+HEAD_BAND = (-0.3, 0.75, 0.3, 1.0)
+DARK_SHARE = 0.5
+CORE_SHARE = 0.15
+EYE_MIN_AREA = 10
 
 # The smallest spacing of the 3/4 eyes as a share of the front spacing (a head azimuth of 66
 # degrees at most).
@@ -47,13 +56,9 @@ EYE_SPACING = 0.4
 # The largest height difference of the two eyes of a view, in animal heights.
 EYE_HEIGHT = 0.02
 
-# The dark blobs that stand in for the eyes when the eyes feature finds no pair: a largest
-# channel under DARK_EYE, at least EYE_MIN_AREA pixels, in the eye band of the config grown by
-# EYE_GROW above and below (or in EYE_BAND, [x0, y0, x1, y1] in animal heights).
-DARK_EYE = 100
-EYE_MIN_AREA = 10
-EYE_GROW = 0.03
-EYE_BAND = (-0.3, 0.8, 0.3, 0.97)
+# The largest height difference of the eyes of the front view and of the 3/4 view, in animal
+# heights (the camera of each view is level).
+EYE_LEVEL = 0.03
 
 # The bump of an ear when the config has no ears feature of the method "bump".
 EAR_REGION = [-1.0, 0.7, 1.0, 1.1]
@@ -158,82 +163,101 @@ def arm_checks(pictures):
                    'the front and the back view disagree' if spread > 0.3 else '')]
 
 
-def blobs(cfg, pictures, name, view, classes, count=None):
-    """Measures the blobs of a feature of the config in one view of the sheet, or None.
-    count: the number of blobs to keep (default: the count of the feature)."""
-    feature = cfg.measure.features.get(name)
-    if not feature or feature.method != 'blobs' or view not in feature.regions:
-        return None
-    if view not in pictures:
-        return None
-    if count:
-        from studio.config import Section  # noqa: PLC0415
-        feature = Section(feature, count=count)
-    found = measure_features.measure_picture(pictures[view], feature, view, name, classes)
-    return next(iter(found.values()))['items']
+class DarkTest:
+    """The dark pixel test of the head checks: the largest channel under a limit."""
+
+    # The test reads no median of a region (measure_features.blobs_in).
+    needs_median = False
+
+    def __init__(self, limit):
+        """Stores the limit of the largest channel."""
+        self.limit = limit
+
+    def test(self, c):
+        """Tells if a pixel (r, g, b) is dark."""
+        return max(c) < self.limit
 
 
-def dark_eyes(cfg, pictures, view):
-    """Finds the dark blobs of a view in the eye band of the config grown by EYE_GROW (or in
-    EYE_BAND), when the eyes feature of the config finds no pair: the config can come from a like
-    animal whose eye band and classes do not fit this sheet."""
-    from studio.config import Section  # noqa: PLC0415
-    from studio.schema import COLOR_CLASS, FEATURE  # noqa: PLC0415
-    if view not in pictures:
-        return None
-    eyes = cfg.measure.features.get('eyes')
-    box = list(eyes.regions[view]) if eyes and view in eyes.regions else list(EYE_BAND)
-    box = [box[0], box[1] - EYE_GROW, box[2], box[3] + EYE_GROW]
-    plain = {k: f.default for k, f in FEATURE.fields.items() if hasattr(f, 'default')}
-    plain.update(method='blobs', classes=('dark',), regions={view: box}, split=(), rank=None,
-                 rim=None, count=EYE_BLOBS, min_area=EYE_MIN_AREA, max_area=0)
-    spec = Section({k: f.default for k, f in COLOR_CLASS.fields.items()}, max_under=DARK_EYE)
-    classes = {'dark': measure_features.ColorClass(spec, cfg)}
-    found = measure_features.measure_picture(pictures[view], Section(plain), view, 'eye',
-                                             classes)
-    return next(iter(found.values()))['items']
+def dark_blobs(pic):
+    """Finds the dark blobs of the head band of a view of the sheet: [{x, y, area}], with x and y
+    the middle of the box of the blob in animal heights, and area in pixels. Reads no config."""
+    box = pic.box_px(HEAD_BAND)
+    x0, y0, x1, y1 = box
+    levels = sorted(max(pic.px[x, y]) for y in range(y0, y1) for x in range(x0, x1)
+                    if pic.mask[y][x])
+    if not levels:
+        return []
+    fur = levels[len(levels) // 2]
+    out = []
+    for comp in measure_features.blobs_in(pic, box, [DarkTest(DARK_SHARE * fur)]):
+        if len(comp) < EYE_MIN_AREA:
+            continue
+        if min(max(pic.px[p]) for p in comp) >= CORE_SHARE * fur:
+            continue
+        if 2 * sum(1 for x, y in comp if pic.mask[y][x]) < len(comp):
+            continue
+        xs = [p[0] for p in comp]
+        ys = [p[1] for p in comp]
+        out.append({'x': pic.x_of(0.5 * (min(xs) + max(xs))),
+                    'y': pic.y_of(0.5 * (min(ys) + max(ys))), 'area': len(comp)})
+    return out
 
 
 def eye_pair(items, front=None):
-    """Finds the two eyes among the blobs of a view, left to right, or None: of the pairs whose
-    heights differ by EYE_HEIGHT at most, the pair whose smaller blob is largest. With no front
-    pair (the front view), the eyes are on both sides of the axis. With the front pair, the
-    eyes are at least EYE_SPACING of its spacing apart."""
-    def apart(a, b):
+    """Finds the two eyes among the dark blobs of a view, left to right, or None: of the pairs
+    whose heights differ by EYE_HEIGHT at most, the pair whose smaller blob is largest (then the
+    larger total area). With no front pair (the front view), the eyes are on both sides of the
+    axis. With the front pair, the eyes are at least EYE_SPACING of its spacing apart, and at
+    most EYE_LEVEL above or below it."""
+    def fits(a, b):
+        if abs(a['y'] - b['y']) > EYE_HEIGHT:
+            return False
         if front is None:
             return a['x'] * b['x'] < 0
-        return abs(a['x'] - b['x']) >= EYE_SPACING * abs(front[1]['x'] - front[0]['x'])
+        level = (front[0]['y'] + front[1]['y']) / 2
+        return (abs(a['x'] - b['x']) >= EYE_SPACING * abs(front[1]['x'] - front[0]['x'])
+                and abs(a['y'] - level) <= EYE_LEVEL and abs(b['y'] - level) <= EYE_LEVEL)
 
-    pairs = [(min(a['area'], b['area']), a, b) for i, a in enumerate(items or [])
-             for b in (items or [])[i + 1:]
-             if apart(a, b) and abs(a['y'] - b['y']) <= EYE_HEIGHT]
+    pairs = [((min(a['area'], b['area']), a['area'] + b['area']), a, b)
+             for i, a in enumerate(items) for b in items[i + 1:] if fits(a, b)]
     if not pairs:
         return None
     _, a, b = max(pairs, key=lambda p: p[0])
     return sorted([a, b], key=lambda item: item['x'])
 
 
-def head_checks(cfg, pictures, classes):
+def nose_blob(items, eyes):
+    """Finds the nose among the dark blobs of the front view: the largest blob below the eyes, or
+    None."""
+    level = min(eyes[0]['y'], eyes[1]['y']) - EYE_HEIGHT
+    below = [item for item in items if item['y'] < level]
+    return max(below, key=lambda item: item['area']) if below else None
+
+
+def head_checks(cfg, pictures):
     """Checks the head turn of the front view (the nose offset from the middle of the eyes) and
-    of the 3/4 view (the head azimuth from the eye spacing)."""
+    of the 3/4 view (the head azimuth from the eye spacing). The eyes and the nose are dark
+    blobs of the sheet (dark_blobs), so the config classes do not move them."""
     out = []
-    eyes_front = (eye_pair(blobs(cfg, pictures, 'eyes', 'front', classes, EYE_BLOBS))
-                  or eye_pair(dark_eyes(cfg, pictures, 'front')))
-    nose_front = blobs(cfg, pictures, 'nose', 'front', classes)
+    if 'front' not in pictures:
+        return out
+    front_blobs = dark_blobs(pictures['front'])
+    eyes_front = eye_pair(front_blobs)
+    nose_front = nose_blob(front_blobs, eyes_front) if eyes_front else None
     if eyes_front and nose_front:
         middle = (eyes_front[0]['x'] + eyes_front[1]['x']) / 2
-        offset = (nose_front[0]['x'] - middle) * pictures['front'].height
+        offset = (nose_front['x'] - middle) * pictures['front'].height
         out.append(_check('head_turn.front', round(offset, 1), NOSE_OFFSET_PX,
                           abs(offset) <= NOSE_OFFSET_PX,
-                          {'eyes_middle_x': round(middle, 4), 'nose_x': nose_front[0]['x']},
+                          {'eyes_middle_x': round(middle, 4), 'nose_x': nose_front['x']},
                           'eye_x.front, nose_x.front: the front view turns the head'))
-    eyes_34 = (eye_pair(blobs(cfg, pictures, 'eyes', 'three_quarter', classes, EYE_BLOBS),
-                        eyes_front)
-               or eye_pair(dark_eyes(cfg, pictures, 'three_quarter'), eyes_front))
     view = cfg.sheet.views.get('three_quarter')
-    front = abs(eyes_front[1]['x'] - eyes_front[0]['x']) if eyes_front else 0.0
+    if not eyes_front or not view or 'three_quarter' not in pictures:
+        return out
+    eyes_34 = eye_pair(dark_blobs(pictures['three_quarter']), eyes_front)
+    front = abs(eyes_front[1]['x'] - eyes_front[0]['x'])
     side = abs(eyes_34[1]['x'] - eyes_34[0]['x']) if eyes_34 else 0.0
-    if view and 0.0 < side < front:
+    if 0.0 < side < front:
         head = math.degrees(math.acos(side / front))
         turn = view.azimuth - head
         px = side * pictures['three_quarter'].height
@@ -273,16 +297,10 @@ def check(cfg, sheet, meta):
     """Runs the checks of a sheet on its masks (cfg.paths.masks) and its measures (meta: the
     views of measure.json). Returns {"ok", "warnings", "checks"}."""
     pictures = {v: measure_features.sheet_picture(cfg, sheet, v, m) for v, m in meta.items()}
-    classes = {name: measure_features.ColorClass(spec, cfg)
-               for name, spec in cfg.measure.classes.items()}
     checks = figure_checks(meta)
     checks += ear_checks(cfg, pictures)
     checks += arm_checks(pictures)
-    try:
-        checks += head_checks(cfg, pictures, classes)
-    except KeyError:
-        # A feature names a class that the config does not have: no head checks.
-        pass
+    checks += head_checks(cfg, pictures)
     checks += symmetry_checks(pictures)
     warnings = [c['name'] for c in checks if not c['ok']]
     return {'ok': not warnings, 'warnings': warnings, 'checks': checks}

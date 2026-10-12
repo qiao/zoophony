@@ -67,12 +67,12 @@
   },
   {
    "name": "head_turn.front",
-   "value": -1.2,
+   "value": -1.7,
    "limit": 2.0,
    "ok": true,
    "views": {
     "eyes_middle_x": 0.0015,
-    "nose_x": -0.0008
+    "nose_x": -0.0018
    },
    "affects": "eye_x.front, nose_x.front: the front view turns the head",
    "checks": [
@@ -82,13 +82,13 @@
   },
   {
    "name": "head_turn.three_quarter",
-   "value": -2.8,
+   "value": -0.7,
    "limit": 4.0,
    "ok": true,
    "views": {
-    "eye_spacing_front": 0.0862,
-    "eye_spacing_three_quarter": 0.0653,
-    "head_azimuth": 40.8,
+    "eye_spacing_front": 0.0824,
+    "eye_spacing_three_quarter": 0.0643,
+    "head_azimuth": 38.7,
     "view_azimuth": 38.0
    },
    "affects": "iou.three_quarter, eye_*.three_quarter: the 3/4 view turns the head (positive: toward the camera); compare.head_turn can fit it",

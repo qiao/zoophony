@@ -1050,7 +1050,20 @@ mask has IoU 0.986 and the colored mask 0.012 (`tests/test_intake.py`).
 
 The sheet check (`studio/consistency.py`) runs in the intake and writes `out/sheet-check.json`.
 Each warning names the build checks that the sheet can fail, and `checks.json` marks each
-failing or near check with the warning that can cause it (`sheet`):
+failing or near check with the warning that can cause it (`sheet`).
+
+The sheet check describes the sheet, so no tuned value of the model moves it. The head checks read
+no color class and no feature of the config. They find the dark blobs of the head band (x from -0.3
+to 0.3, y from 0.75 to 1.0) relative to the fur of the sheet: the fur level is the median of the
+largest channel of the silhouette pixels in the band. A blob has a largest channel under 0.5 of the
+fur level and a core under 0.15 of it, so a pupil or a nose counts, and the shade of an inner ear or
+of the mouth line does not. The eyes are the pair of blobs at one height (in the 3/4 view, also
+within 0.03 of the front eyes), and the nose is the largest blob below the eyes. With a blob limit
+from 0.4 to 0.6 of the fur level, the 3/4 head turn of each of the two sheets moves at most 1.8
+degrees (about one pixel of eye spacing). Before this rule the head checks read the config classes:
+on the polar bear sheet like the bear, `calibrate` (the dark class 100 to 90) moved the 3/4 head
+turn from +2.3 to -25.5 degrees, because a pair of blobs at the nose took the place of the eyes. Now
+it reads +2.3 before and after `calibrate` (`tests/test_consistency.py`).
 
 | Check | Measure | Limit | Bear | Polar bear |
 |---|---|---|---|---|
@@ -1058,8 +1071,8 @@ failing or near check with the warning that can cause it (`sheet`):
 | `ground_line` | spread of the ground rows | 2 px | 5 px | 4 px |
 | `ear_height` | the ear bumps (top to notch) of the front and the back view | 15% | 1.6% | 33% |
 | `arm_gap` | the share of the chest rows (0.45 to 0.65) with background between the arms and the trunk, front and back | 80% | 5% | 5% |
-| `head_turn.front` | the nose against the middle of the eyes | 2 px | -1.2 px | -1.0 px |
-| `head_turn.three_quarter` | the view azimuth less the head azimuth from the eye spacing (the spacing shrinks with the cosine of the azimuth, about 2 degrees for 1 px) | 4 deg | -2.8 deg | +6.3 deg |
+| `head_turn.front` | the nose against the middle of the eyes | 2 px | -1.7 px | -1.0 px |
+| `head_turn.three_quarter` | the view azimuth less the head azimuth from the eye spacing (the spacing shrinks with the cosine of the azimuth, about 2 degrees for 1 px) | 4 deg | -0.7 deg | +6.3 deg |
 | `symmetry` | the IoU of the front mask with its mirror | 0.97 | 0.971 | 0.972 |
 
 ## The head turn of a view in the compare
