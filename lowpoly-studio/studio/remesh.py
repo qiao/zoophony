@@ -357,7 +357,8 @@ def quadriflow(cfg, warp, parts, verts, quads, seed, height_px):
     for s in (seed, seed + 100, seed + 200):
         result = bpy.ops.object.quadriflow_remesh(
             use_mesh_symmetry=True, use_preserve_sharp=False, use_preserve_boundary=False,
-            smooth_normals=False, mode='FACES', target_faces=c.quads, seed=s)
+            smooth_normals=False, mode='FACES', target_faces=c.quadriflow_target or c.quads,
+            seed=s)
         if 'FINISHED' in result:
             break
     if 'FINISHED' not in result:

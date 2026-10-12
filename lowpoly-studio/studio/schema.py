@@ -281,7 +281,12 @@ WARP = T('One radial warp before the remesh: r -> r * (1 + (factor - 1) * exp(-(
 })
 
 FACETS = T('The low-poly facets: QuadriFlow remesh with mirror, then the organic pass.', {
-    'quads': F('int', 'Target quad count of QuadriFlow (it gives about 790 to 1200).', default=900),
+    'quads': F('int', 'The wanted quad count of the remesh: the middle of the band of the remesh '
+                      'gate, and the QuadriFlow target when quadriflow_target is 0.', default=900),
+    'quadriflow_target': F('int', 'The target that QuadriFlow gets (0: quads). QuadriFlow gives '
+                                  'about 1.0 to 1.3 times its target, so `python3 studio '
+                                  'calibrate <animal> --quads` measures the ratio on the field '
+                                  'and sets this target.', default=0),
     'seeds': F('ints', 'Remesh seeds in the order that the build tries them. The build keeps the '
                        'first seed whose clips pass the gate checks.', default=(3, 1, 5, 6, 2, 4, 7, 8)),
     'offset': F('num', 'The vertices sit this far outside the field, so the flat facets cut the '
