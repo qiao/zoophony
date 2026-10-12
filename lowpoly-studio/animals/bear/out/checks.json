@@ -391,6 +391,54 @@
       "gate": false
     },
     {
+      "name": "remesh_gate.quads",
+      "value": 836,
+      "op": "in",
+      "limit": [
+        765,
+        1035
+      ],
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
+      "name": "remesh_gate.inward_faces",
+      "value": 0,
+      "op": "<=",
+      "limit": 0,
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
+      "name": "remesh_gate.slivers",
+      "value": 0.0017,
+      "op": "<=",
+      "limit": 0.01,
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
+      "name": "remesh_gate.open_edges",
+      "value": 0,
+      "op": "<=",
+      "limit": 0,
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
+      "name": "remesh_gate.slit_faces",
+      "value": 0,
+      "op": "<=",
+      "limit": 0,
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
       "name": "iou.front",
       "value": 0.9468,
       "op": ">=",
