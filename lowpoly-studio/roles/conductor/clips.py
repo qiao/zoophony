@@ -1,8 +1,13 @@
-"""The conducting motions: each clip is a function of time (seconds) that returns a pose spec.
+"""The conducting clips: each clip is a function of time (seconds) that returns a pose spec of
+the biped solver (templates/biped/solver.py).
 
-numpy only, three.js axes (x is the bear's left, y up, z forward). The beat clips use 60 bpm,
+numpy only, three.js axes (x is the animal's left, y up, z forward). The beat clips use 60 bpm,
 so one beat is one second and the ictus of beat n is at t = n - 1. A player plays a clip at
 another tempo with a time scale of bpm / 60.
+
+The IK targets below were made on the bear (role.toml [targets]). On another body the studio
+moves each wrist target with the shoulder of its side and scales it by the arm reach
+(studio/roles.py Context.place).
 
 The right paw holds the baton. Its wrist follows a 4/4 path in a plane in front of the chest:
 beat 1 down, beat 2 in (toward the bear's left), beat 3 out, beat 4 up. Between two ictus
@@ -14,10 +19,7 @@ import math
 
 import numpy as np
 
-import body
-from ik import euler, rot_axis, unit
-
-FPS = 30
+from studio.ik import euler, rot_axis, unit
 
 # The forward lean of the spine and the chest while conducting (degrees each).
 LEAN = 3.0
@@ -32,7 +34,7 @@ POLE_L = unit([1.0, -0.7, -0.35])
 # The 4/4 path of the right wrist: ictus points (offsets from HOME_R) and rebound heights.
 # The wrist stays 0.26 to 0.32 from the shoulder: the arm reaches 0.336 when it is straight,
 # so the elbow stays bent by 35 degrees or more. The tip of the baton spans 0.29 wide and 0.23
-# tall (tools/bear/pattern.py).
+# tall (roles/conductor/pattern.py).
 ICTUS = np.array([
     [0.000, -0.080, 0.005],
     [0.09, -0.055, 0.025],
@@ -144,13 +146,6 @@ def spec(rot, hips, arms, **extra):
     return out
 
 
-def fingers_curl(side, degrees):
-    """Makes the curl of the finger bone about the breadth axis of the paw."""
-    _, frames = body.arm_pose('bind')
-    axis = frames['hand'][:, 0] * np.array([1.0 if side == 'L' else -1.0, 1.0, 1.0])
-    return rot_axis(axis, math.radians(degrees))
-
-
 def ears(t, flick=0.0):
     """Makes a small ear motion: a slow drift and an optional flick."""
     a = 3.0 * math.sin(t * 1.3) + 14.0 * flick
@@ -163,21 +158,6 @@ def breath(t):
 
 
 # The clips.
-
-def clip_reference(t):
-    """Makes the pose of the reference sheet: the arms hang, the baton is hidden."""
-    ref_j, ref_f = body.arm_pose('reference')
-    bind_j, bind_f = body.arm_pose('bind')
-    fk = {}
-    for side, m in (('L', np.diag([1.0, 1.0, 1.0])), ('R', np.diag([-1.0, 1.0, 1.0]))):
-        fk[side] = {
-            'upper_arm': m @ (ref_f['upper'] @ bind_f['upper'].T) @ m,
-            'forearm': m @ (ref_f['fore'] @ bind_f['fore'].T) @ m,
-            'forearm_twist': m @ (ref_f['fore'] @ bind_f['fore'].T) @ m,
-            'hand': m @ (ref_f['hand'] @ bind_f['hand'].T) @ m,
-        }
-    return {'rot': {}, 'arm_fk': fk, 'legs': 'planted', 'baton_scale': 0.0}
-
 
 def clip_ready(t):
     """Makes the ready pose: both paws up in front of the chest, the baton up."""
@@ -265,8 +245,11 @@ def clip_hush(t):
     return spec(rot, hips, {'R': right_arm(t, 1.0 - 0.55 * u), 'L': left})
 
 
-def clip_cutoff(t):
-    """Makes a release: both paws lift, loop, cut off with a click, and hold."""
+def clip_cutoff(t, curl):
+    """Makes a release: both paws lift, loop, cut off with a click, and hold.
+
+    curl: a function (side, degrees) -> the curl of the finger bone.
+    """
     # The paws close the cutoff in front of the shoulders, and they stay 0.35 apart.
     up_r = np.array([-0.25, 0.74, 0.25])
     up_l = np.array([0.25, 0.74, 0.25])
@@ -295,7 +278,7 @@ def clip_cutoff(t):
     rot = {
         'chest': euler(pitch=-2.0 * window(t, 0.2, 0.6, 1.3, 1.5) + 2.0 * close),
         'head': euler(pitch=-6.0 * window(t, 0.2, 0.6, 1.3, 1.5) + 4.0 * close),
-        'fingers_L': fingers_curl('L', 55.0 * close),
+        'fingers_L': curl('L', 55.0 * close),
     }
     rot.update(ears(t, flick=pulse(t, 1.4, 0.12)))
     hips = np.array([0.0, -0.008 * pulse(t, 1.42, 0.1), 0.0])
@@ -352,122 +335,146 @@ def clip_sway_dip(t):
     return spec(rot, np.array([shift, -dip, 0.0]), arms)
 
 
-_CACHE = {}
+class Conductor:
+    """The conductor pack: the clips, the performance, and the parts that need the body."""
 
-
-def _right_sheet_pose():
-    """Calculates the right wrist, the elbow pole, and the paw frame of the sheet pose."""
-    if 'sheet' not in _CACHE:
-        joints, frames = body.arm_pose('reference')
-        m = np.diag([-1.0, 1.0, 1.0])
-        S, E, W, K = (m @ joints[k] for k in ('shoulder', 'elbow', 'wrist', 'knuckle'))
-        d = unit(W - S)
-        _CACHE['sheet'] = {
-            'wrist': W,
-            'pole': unit(E - (S + np.dot(E - S, d) * d)),
-            'fingers': unit(K - W),
-            'palm': unit(m @ frames['hand'][:, 2]),
+    def __init__(self, ctx):
+        """Stores the context of the studio (studio/roles.py) and lists the clips."""
+        self.ctx = ctx
+        self.fps = ctx.role.clips.fps
+        self.blend = 0.3
+        self._cache = {}
+        place = self._placed
+        self.clips = {
+            'reference': ctx.reference_clip(),
+            'ready': (place(clip_ready), 3.2),
+            'beat_4_4': (place(clip_beat), 4.0),
+            'cue_left': (place(clip_cue_left), 4.0),
+            'crescendo': (place(clip_crescendo), 4.0),
+            'hush': (place(clip_hush), 4.0),
+            'cutoff': (place(lambda t: clip_cutoff(t, self.fingers_curl)), 3.0),
+            'nod_turn': (place(clip_nod_turn), 4.0),
+            'sway_dip': (place(clip_sway_dip), 4.0),
+            'bow': (place(self.clip_bow), 4.0),
         }
-    return _CACHE['sheet']
+        # The performance: the clips in order. (clip, start time in the clip, duration).
+        self.performance = [
+            ('ready', 0.0, 1.6),
+            ('beat_4_4', 3.6, 0.4),
+            ('beat_4_4', 0.0, 8.0),
+            ('cue_left', 0.0, 4.0),
+            ('crescendo', 0.0, 4.0),
+            ('hush', 0.0, 4.0),
+            ('cutoff', 0.0, 3.4),
+            ('bow', 0.0, 4.0),
+        ]
+
+    def _placed(self, fn):
+        """Wraps a clip so that its wrist targets move onto the body of the animal."""
+        if self.ctx.identity:
+            return fn
+
+        def placed(t):
+            out = fn(t)
+            for side, arm in out.get('arms', {}).items():
+                arm['wrist'] = self.ctx.place(side, arm['wrist'])
+            return out
+
+        return placed
+
+    def fingers_curl(self, side, degrees):
+        """Makes the curl of the finger bone about the breadth axis of the paw."""
+        _, frames = self.ctx.body.arm_pose('bind')
+        axis = frames['hand'][:, 0] * np.array([1.0 if side == 'L' else -1.0, 1.0, 1.0])
+        return rot_axis(axis, math.radians(degrees))
+
+    def _right_sheet_pose(self):
+        """Calculates the right wrist (in the frame of the pack), the elbow pole, and the paw
+        frame of the sheet pose."""
+        if 'sheet' not in self._cache:
+            joints, frames = self.ctx.body.arm_pose('reference')
+            m = np.diag([-1.0, 1.0, 1.0])
+            S, E, W, K = (m @ joints[k] for k in ('shoulder', 'elbow', 'wrist', 'knuckle'))
+            d = unit(W - S)
+            self._cache['sheet'] = {
+                'wrist': self.ctx.unplace('R', W),
+                'pole': unit(E - (S + np.dot(E - S, d) * d)),
+                'fingers': unit(K - W),
+                'palm': unit(m @ frames['hand'][:, 2]),
+            }
+        return self._cache['sheet']
+
+    def _bow_baton_turn(self, amount):
+        """Calculates the turn of the baton in the right paw for the bow (a share amount of
+        it)."""
+        if 'baton' not in self._cache:
+            bind_j, bind_f = self.ctx.body.arm_pose('bind')
+            ref_j, ref_f = self.ctx.body.arm_pose('reference')
+            m = np.diag([-1.0, 1.0, 1.0])
+            hand = m @ (ref_f['hand'] @ bind_f['hand'].T) @ m
+            grip, tip = self.ctx.prop_points('baton')
+            b_rest = unit(tip - grip)
+            want = hand.T @ unit([-0.45, -0.45, -0.77])
+            axis = np.cross(b_rest, want)
+            angle = math.atan2(np.linalg.norm(axis), float(np.dot(b_rest, want)))
+            self._cache['baton'] = (axis, angle)
+        axis, angle = self._cache['baton']
+        return rot_axis(axis, amount * angle)
+
+    def _right_home_frame(self):
+        """Calculates the frame of the right paw at the beat home (the fingers and the palm)."""
+        if 'home' not in self._cache:
+            skel, _ = self.ctx.rest_skeleton()
+            arms = {'R': {'wrist': self.ctx.place('R', HOME_R), 'pole': POLE_R,
+                          'hand': ('baton', BATON_DIR, PALM_R), 'twist': 0.5}}
+            _, D, _ = skel.solve({'rot': {}, 'arms': arms})
+            Dh = D['hand_R']
+            self._cache['home'] = {'fingers': unit(Dh @ skel.extras['fingers_R']),
+                                   'palm': unit(Dh @ skel.extras['palm_R'])}
+        return self._cache['home']
+
+    def clip_bow(self, t):
+        """Makes the bow at the end: the paws come down, the animal bends at the hips, and rises."""
+        down = smooth(t / 0.6)
+        bend = window(t, 0.5, 1.7, 2.3, 3.5)
+        rot = {
+            'hips': euler(pitch=18.0 * bend),
+            'spine': euler(pitch=5.0 * bend),
+            'spine1': euler(pitch=5.0 * bend),
+            'chest': euler(pitch=6.0 * bend),
+            'neck': euler(pitch=6.0 * bend),
+            'head': euler(pitch=10.0 * bend),
+            'tail': euler(pitch=-20.0 * bend),
+            'fingers_R': self.fingers_curl('R', 10.0 * down),
+        }
+        rot.update(ears(t, flick=0.5 * bend))
+        hips = np.array([0.0, -0.012 * bend, -0.03 * bend])
+        # Right paw: from the beat home down to the pose of the sheet (in the frame of the chest),
+        # where the arm-down corrective of the rig fits exactly. The elbow pole and the frame of the
+        # paw blend from the home values to the values of the sheet pose.
+        home = self._right_home_frame()
+        ref = self._right_sheet_pose()
+        wr = HOME_R + (ref['wrist'] - HOME_R) * down
+        # The paw swings out on its way down, so the forearm passes clear of the belly.
+        wr = wr + np.array([-0.06, 0.0, 0.03]) * math.sin(math.pi * down)
+        pole_r = unit(POLE_R * (1 - down) + ref['pole'] * down)
+        # In the sheet pose the fingers point down, so the baton would point into the ground in the
+        # deep bow. The baton turns in the paw to point down, out, and back past the hip.
+        rot['baton'] = self._bow_baton_turn(down)
+        fingers_r = unit(home['fingers'] * (1 - down) + ref['fingers'] * down)
+        palm_r = unit(home['palm'] * (1 - down) + ref['palm'] * down)
+        # Left paw: on the chest, the elbow out to the side, so the forearm passes above the belly.
+        belly = np.array([0.08, 0.60, 0.29])
+        wl = HOME_L + (belly - HOME_L) * down
+        fingers = unit(FINGERS_L * (1 - down) + unit([-1.0, 0.05, 0.1]) * down)
+        palm = unit(PALM_L * (1 - down) + unit([-0.1, 0.0, -1.0]) * down)
+        arms = {
+            'R': {'wrist': wr, 'pole': pole_r, 'hand': ('fingers', fingers_r, palm_r), 'twist': 0.5},
+            'L': {'wrist': wl, 'pole': unit([1.0, -0.15, -0.35]), 'hand': ('fingers', fingers, palm),
+                  'twist': 0.5},
+        }
+        return spec(rot, hips, arms)
 
 
-def _bow_baton_turn(amount):
-    """Calculates the turn of the baton in the right paw for the bow (a share amount of it)."""
-    if 'baton' not in _CACHE:
-        import details  # noqa: PLC0415
-        bind_j, bind_f = body.arm_pose('bind')
-        ref_j, ref_f = body.arm_pose('reference')
-        m = np.diag([-1.0, 1.0, 1.0])
-        hand = m @ (ref_f['hand'] @ bind_f['hand'].T) @ m
-        _, grip, tip = details.baton('bind')
-        b_rest = unit(tip - grip)
-        want = hand.T @ unit([-0.45, -0.45, -0.77])
-        axis = np.cross(b_rest, want)
-        angle = math.atan2(np.linalg.norm(axis), float(np.dot(b_rest, want)))
-        _CACHE['baton'] = (axis, angle)
-    axis, angle = _CACHE['baton']
-    return rot_axis(axis, amount * angle)
 
-
-def _right_home_frame():
-    """Calculates the frame of the right paw at the beat home (the fingers and the palm)."""
-    if 'home' not in _CACHE:
-        import pattern  # noqa: PLC0415 (pattern imports this module)
-        skel, _ = pattern.skeleton_from_layout()
-        arms = {'R': {'wrist': HOME_R, 'pole': POLE_R, 'hand': ('baton', BATON_DIR, PALM_R),
-                      'twist': 0.5}}
-        _, D, _ = skel.solve({'rot': {}, 'arms': arms})
-        Dh = D['hand_R']
-        _CACHE['home'] = {'fingers': unit(Dh @ skel.extras['fingers_R']),
-                          'palm': unit(Dh @ skel.extras['palm_R'])}
-    return _CACHE['home']
-
-
-def clip_bow(t):
-    """Makes the bow at the end: the paws come down, the bear bends at the hips, and rises."""
-    down = smooth(t / 0.6)
-    bend = window(t, 0.5, 1.7, 2.3, 3.5)
-    rot = {
-        'hips': euler(pitch=18.0 * bend),
-        'spine': euler(pitch=5.0 * bend),
-        'spine1': euler(pitch=5.0 * bend),
-        'chest': euler(pitch=6.0 * bend),
-        'neck': euler(pitch=6.0 * bend),
-        'head': euler(pitch=10.0 * bend),
-        'tail': euler(pitch=-20.0 * bend),
-        'fingers_R': fingers_curl('R', 10.0 * down),
-    }
-    rot.update(ears(t, flick=0.5 * bend))
-    hips = np.array([0.0, -0.012 * bend, -0.03 * bend])
-    # Right paw: from the beat home down to the pose of the sheet (in the frame of the chest),
-    # where the arm-down corrective of the rig fits exactly. The elbow pole and the frame of the
-    # paw blend from the home values to the values of the sheet pose.
-    home = _right_home_frame()
-    ref = _right_sheet_pose()
-    wr = HOME_R + (ref['wrist'] - HOME_R) * down
-    # The paw swings out on its way down, so the forearm passes clear of the belly.
-    wr = wr + np.array([-0.06, 0.0, 0.03]) * math.sin(math.pi * down)
-    pole_r = unit(POLE_R * (1 - down) + ref['pole'] * down)
-    # In the sheet pose the fingers point down, so the baton would point into the ground in the
-    # deep bow. The baton turns in the paw to point down, out, and back past the hip.
-    rot['baton'] = _bow_baton_turn(down)
-    fingers_r = unit(home['fingers'] * (1 - down) + ref['fingers'] * down)
-    palm_r = unit(home['palm'] * (1 - down) + ref['palm'] * down)
-    # Left paw: on the chest, the elbow out to the side, so the forearm passes above the belly.
-    belly = np.array([0.08, 0.60, 0.29])
-    wl = HOME_L + (belly - HOME_L) * down
-    fingers = unit(FINGERS_L * (1 - down) + unit([-1.0, 0.05, 0.1]) * down)
-    palm = unit(PALM_L * (1 - down) + unit([-0.1, 0.0, -1.0]) * down)
-    arms = {
-        'R': {'wrist': wr, 'pole': pole_r, 'hand': ('fingers', fingers_r, palm_r), 'twist': 0.5},
-        'L': {'wrist': wl, 'pole': unit([1.0, -0.15, -0.35]), 'hand': ('fingers', fingers, palm),
-              'twist': 0.5},
-    }
-    return spec(rot, hips, arms)
-
-
-CLIPS = {
-    'reference': (clip_reference, 1.0 / FPS),
-    'ready': (clip_ready, 3.2),
-    'beat_4_4': (clip_beat, 4.0),
-    'cue_left': (clip_cue_left, 4.0),
-    'crescendo': (clip_crescendo, 4.0),
-    'hush': (clip_hush, 4.0),
-    'cutoff': (clip_cutoff, 3.0),
-    'nod_turn': (clip_nod_turn, 4.0),
-    'sway_dip': (clip_sway_dip, 4.0),
-    'bow': (clip_bow, 4.0),
-}
-
-# The performance: the clips in order. (clip, start time in the clip, duration).
-PERFORMANCE = [
-    ('ready', 0.0, 1.6),
-    ('beat_4_4', 3.6, 0.4),
-    ('beat_4_4', 0.0, 8.0),
-    ('cue_left', 0.0, 4.0),
-    ('crescendo', 0.0, 4.0),
-    ('hush', 0.0, 4.0),
-    ('cutoff', 0.0, 3.4),
-    ('bow', 0.0, 4.0),
-]
-BLEND = 0.3
+    #####
