@@ -32,7 +32,7 @@ BLENDER = os.environ.get('BLENDER', 'blender')
 
 # The lines of the Blender log that the CLI shows.
 SHOW = ('surface nets', 'remeshed', 'body:', 'bone heat', 'corrective', 'contact check',
-        'fold repair', 'remesh gate', 'stopped after', 'wrote', 'Error', 'Traceback')
+        'fold repair', 'remesh gate', 'stopped after', 'cache:', 'wrote', 'Error', 'Traceback')
 
 # The ports of the user's own servers, which the studio never takes.
 RESERVED_PORTS = (5173, 5190)
@@ -400,13 +400,21 @@ def run_seeds(cfg, seeds, jobs, search=True, clips=None, use_cache=True, gate=Tr
 
 
 def keep_seed(cfg, seed):
-    """Copies the GLB, the stats, and the stage folders of a seed of the pool into out/."""
+    """Copies the outputs of a seed of the pool into out/: the GLB, the stats, the stage folders
+    (with stages/*-diagnostics/data.json), and the located failures (diag/). An output that the
+    seed does not have is removed from out/, so no output of another build stays there."""
     src = seed_folder(cfg, seed)
     for name in (cfg.paths.glb, cfg.paths.stats):
-        shutil.copyfile(os.path.join(src, os.path.basename(name)), name)
-    if os.path.exists(cfg.paths.stages):
-        shutil.rmtree(cfg.paths.stages)
-    shutil.copytree(os.path.join(src, 'stages'), cfg.paths.stages)
+        if os.path.exists(name):
+            os.remove(name)
+        if os.path.exists(os.path.join(src, os.path.basename(name))):
+            shutil.copyfile(os.path.join(src, os.path.basename(name)), name)
+    for folder in ('stages', 'diag'):
+        dst = os.path.join(cfg.paths.out, folder)
+        if os.path.exists(dst):
+            shutil.rmtree(dst)
+        if os.path.exists(os.path.join(src, folder)):
+            shutil.copytree(os.path.join(src, folder), dst)
 
 
 def step_shots(cfg):
@@ -508,6 +516,10 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
         timer.step('seed pool', time.time() - t)
         if kept is None:
             # studio-diag: the checks of the last seed, so that its located failures are there.
+            ran = [r['seed'] for r in pool if r['status'] != 'cancelled']
+            if ran:
+                keep_seed(cfg, ran[-1])
+                log(f'  the outputs of seed {ran[-1]} (the last seed) are in out/')
             timer.run('checks', step_checks, cfg)
             timer.write(cfg)
             fail(f'no seed of {seeds} passes the remesh gate and the contact and fold check')
