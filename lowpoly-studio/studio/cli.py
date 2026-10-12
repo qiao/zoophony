@@ -27,7 +27,7 @@ import subprocess
 import sys
 import time
 
-from studio import checks, config, regress, runlog, viewer_config
+from studio import checks, config, outputs, regress, runlog, viewer_config
 from studio.config import STUDIO, ConfigError
 
 BLENDER = os.environ.get('BLENDER', 'blender')
@@ -343,11 +343,11 @@ def run_seeds(cfg, seeds, jobs, search=True, clips=None, use_cache=True, gate=Tr
     """
     t0 = time.time()
     root = os.path.join(cfg.paths.out, 'seeds')
+    if os.path.exists(root):
+        shutil.rmtree(root)
     cfgs = {}
     for s in seeds:
         folder = seed_folder(cfg, s)
-        if os.path.exists(folder):
-            shutil.rmtree(folder)
         os.makedirs(os.path.join(folder, 'stages'))
         shutil.copyfile(cfg.paths.measure, os.path.join(folder, 'measure.json'))
         cfgs[s] = load(cfg.paths.root, folder)
@@ -470,6 +470,9 @@ def step_checks(cfg):
     from studio import report as look_report  # noqa: PLC0415 (Pillow is needed only here)
     report = checks.run(cfg)
     log(checks.summary(report))
+    folder = os.path.join(cfg.paths.out, 'report')
+    if os.path.isdir(folder):
+        shutil.rmtree(folder)
     page = look_report.write(cfg, report)
     log(f'look report: {page}')
     return report
@@ -496,6 +499,8 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
     """
     timer = Timer(run)
     os.makedirs(cfg.paths.out, exist_ok=True)
+    outputs.start_build(cfg, run.id if run else time.strftime('%Y%m%d-%H%M%S-') + str(os.getpid()),
+                        run.data['command'] if run else 'build', shots, until)
     t = time.time()
     source = step_intake(cfg, use_cache)
     timer.step('intake', time.time() - t, source)
@@ -521,6 +526,7 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
                 run.checks(report)
             fail(f'seed {s}: {describe(result)}')
         log(f'  seed {s}: {describe(result)}')
+        outputs.finish_build(cfg, seed=s)
     else:
         seeds = list(cfg.facets.seeds)
         t = time.time()
@@ -542,10 +548,13 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
             fail(f'no seed of {seeds} passes the remesh gate and the contact and fold check')
         log(f'  kept seed {kept}')
         keep_seed(cfg, kept)
+        outputs.finish_build(cfg, seed=kept)
         timer.blender(_read_json(os.path.join(cfg.paths.stages, 'run.json')))
     if shots:
+        outputs.clear_look(cfg)
         timer.run('shots', step_shots, cfg)
         timer.run('measures', step_measures, cfg)
+        outputs.write_look(cfg)
     report = timer.run('checks', step_checks, cfg)
     timer.write(cfg)
     if run:
@@ -584,8 +593,10 @@ def cmd_compare(a):
     with runlog.Run(cfg.animal.id, a.command, cfg.paths.out) as run:
         timer = Timer(run)
         viewer_config.write(cfg)
+        outputs.clear_look(cfg)
         timer.run('shots', step_shots, cfg)
         timer.run('measures', step_measures, cfg)
+        outputs.write_look(cfg)
         run.checks(timer.run('checks', step_checks, cfg))
         timer.write(cfg)
 

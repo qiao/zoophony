@@ -20,7 +20,7 @@ import glob
 import json
 import os
 
-from studio import locate, measure_features
+from studio import locate, measure_features, outputs
 
 # A passing check is near its limit when it uses this share of its allowance.
 NEAR = 0.75
@@ -160,6 +160,10 @@ def run(cfg):
     for c in gate.get('checks', []):
         r.add(f'remesh_gate.{c["name"]}', c['value'], c['op'], c['limit'], True, c.get('where'))
 
+    # studio-runtime: each check from here on is a look check of the renders. outputs.mark_look
+    # marks them stale when the renders are not of the build in out/.
+    first_look = len(r.items)
+
     # The silhouette and the fur color of each view (studio/shoot.mjs compare).
     iou = _load(os.path.join(cfg.paths.compare, 'iou.json'))
     for view, v in ((iou or {}).get('views') or {}).items():
@@ -187,6 +191,7 @@ def run(cfg):
               'rel<=', lim.facet_contrast)
 
     report = r.result(cfg, seed)
+    report = outputs.mark_look(report, first_look, outputs.look_state(cfg))  # studio-runtime
     if diag:
         report['diagnostics'] = {'folds': 'diag/folds.json', 'contacts': 'diag/contacts.json',
                                  'faces': len(diag.faces), 'contacts_found': len(diag.contacts)}
@@ -207,10 +212,15 @@ def _where_text(where):
 def summary(report):
     """Formats the report as a few lines for the terminal."""
     n = len(report['checks'])
-    lines = [f'checks: {n - len(report["failed"])} of {n} pass, {len(report.get("near", []))} '
-             f'near the limit, gates {"pass" if report["gate_pass"] else "FAIL"}']
+    stale = report.get('stale', [])
+    lines = [f'checks: {n - len(report["failed"]) - len(stale)} of {n} pass, '
+             f'{len(report.get("near", []))} near the limit, gates '
+             f'{"pass" if report["gate_pass"] else "FAIL"}']
+    # studio-runtime: a stale look check is neither pass nor fail (studio/outputs.py).
+    if stale:
+        lines.append(f'  STALE: {len(stale)} look checks, {report["look"]["reason"]}')
     for c in report['checks']:
-        if not c['pass']:
+        if not c['pass'] and not c.get('stale'):
             where = f'\n      at {_where_text(c["where"])}' if c.get('where') else ''
             lines.append(f'  {"GATE " if c["gate"] else ""}FAIL {c["name"]}: {c["value"]} '
                          f'{c["op"]} {c["limit"]}{where}')

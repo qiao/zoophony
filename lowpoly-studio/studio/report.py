@@ -79,8 +79,22 @@ def _value_text(c):
 
 
 def _state(c):
-    """Returns the result word of a check: FAIL, near, or pass."""
+    """Returns the result word of a check: stale (a look check of earlier renders, see
+    studio/outputs.py), FAIL, near, or pass."""
+    if c.get('stale'):
+        return 'stale'
     return 'FAIL' if not c['pass'] else 'near' if c.get('near') else 'pass'
+
+
+def _stale_text(report):
+    """Returns the warning of stale look checks, or None when the look checks are current."""
+    look = (report or {}).get('look') or {}
+    stale = (report or {}).get('stale') or []
+    if not stale:
+        return None
+    return (f'The {len(stale)} look checks are STALE: {look.get("reason") or "unknown reason"}. '
+            f'They count as neither pass nor fail. Build with shots, or run python3 studio '
+            f'compare, to judge them.')
 
 
 class Pictures:
@@ -287,8 +301,9 @@ def _exists(cfg, rel):
 def page(cfg, report, views, feature_files, folds, contacts, times):
     """Builds the HTML of the look report."""
     checks = report.get('checks', []) if report else []
-    failed = [c for c in checks if not c['pass']]
-    near = [c for c in checks if c['pass'] and c.get('near')]
+    failed = [c for c in checks if not c['pass'] and not c.get('stale')]
+    near = [c for c in checks if c['pass'] and c.get('near') and not c.get('stale')]
+    stale = [c for c in checks if c.get('stale')]
     title = f'{cfg.animal.name} look report'
     out = [f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
            f'<meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -301,11 +316,15 @@ def page(cfg, report, views, feature_files, folds, contacts, times):
                    f'<span class="chip">seed <b>{_e(report["seed"])}</b></span>'
                    f'<span class="chip">gates <b class="{"pass" if report["gate_pass"] else "fail"}">'
                    f'{gates}</b></span>'
-                   f'<span class="chip">checks <b>{len(checks) - len(failed)} of {len(checks)}'
-                   f'</b> pass</span>'
+                   f'<span class="chip">checks <b>{len(checks) - len(failed) - len(stale)} of '
+                   f'{len(checks)}</b> pass</span>'
                    f'<span class="chip"><b class="fail">{len(failed)}</b> fail</span>'
                    f'<span class="chip"><b class="near">{len(near)}</b> near the limit</span>'
-                   '</div>')
+                   + (f'<span class="chip"><b class="fail">{len(stale)}</b> stale</span>'
+                      if stale else '')
+                   + '</div>')
+        if _stale_text(report):
+            out.append(f'<p class="fail"><b>{_e(_stale_text(report))}</b></p>')
     links = [('#failures', 'Failures'), ('#views', 'Views'), ('#face', 'Head'),
              ('#features', 'Features'), ('#facets', 'Facets'), ('#located', 'Located places'),
              ('#checks', 'All checks'), ('#times', 'Stage times'), ('#frames', 'Frames')]
@@ -349,7 +368,8 @@ def page(cfg, report, views, feature_files, folds, contacts, times):
     if views:
         iou = (_load(os.path.join(cfg.paths.compare, 'iou.json')) or {}).get('views', {})
         by_name = {c['name']: c for c in checks}
-        out.append('<h2 id="views">Views: sheet, render, and silhouette overlap</h2>'
+        out.append('<h2 id="views">Views: sheet, render, and silhouette overlap'
+                   + (' (STALE)' if stale else '') + '</h2>'
                    '<p class="muted">Overlap: gray is both, red is the sheet only, blue is the '
                    'render only.</p><div class="wide">')
         for view, file in views.items():
@@ -453,7 +473,7 @@ def page(cfg, report, views, feature_files, folds, contacts, times):
                '<th>place</th></tr>')
     for c in checks:
         state = _state(c)
-        cls = {'FAIL': 'fail', 'near': 'near', 'pass': 'pass'}[state]
+        cls = {'FAIL': 'fail', 'near': 'near', 'pass': 'pass', 'stale': 'fail'}[state]
         where = _where_html(c['where']) if c.get('where') else ''
         out.append(f'<tr><td><code>{_e(c["name"])}</code></td><td class="num">'
                    f'{_e(_value_text(c))}</td><td class="num">{_e(c["op"])} {_e(_fmt(c["limit"]))}'
@@ -473,7 +493,8 @@ def page(cfg, report, views, feature_files, folds, contacts, times):
     frames = sorted(f for f in os.listdir(cfg.paths.frames)) if os.path.isdir(
         cfg.paths.frames) else []
     if frames:
-        out.append('<h2 id="frames">Frames</h2><div class="grid">'
+        out.append('<h2 id="frames">Frames' + (' (STALE)' if stale else '') + '</h2>'
+                   '<div class="grid">'
                    + ''.join(_figure(f'../frames/{f}', f[:-4]) for f in frames
                              if f.endswith('.png'))
                    + '</div>')
@@ -498,14 +519,18 @@ def review_image(cfg, report, pics, views, feature_files, folder):
     """Makes the review image: the numbers, the four views, the head, the feature crops, and
     the located crops, in one PNG of REVIEW_WIDTH pixels."""
     checks = report.get('checks', []) if report else []
-    failed = [c for c in checks if not c['pass']]
-    near = [c for c in checks if c['pass'] and c.get('near')]
+    failed = [c for c in checks if not c['pass'] and not c.get('stale')]
+    near = [c for c in checks if c['pass'] and c.get('near') and not c.get('stale')]
+    stale = [c for c in checks if c.get('stale')]
     tiles = []
     head = [(f'{cfg.animal.name} {report["role"] if report else ""}, seed '
              f'{report["seed"] if report else "-"}: gates '
              f'{"pass" if report and report["gate_pass"] else "FAIL"}, '
-             f'{len(checks) - len(failed)} of {len(checks)} checks pass, {len(near)} near the '
-             f'limit', drawing.INK)]
+             f'{len(checks) - len(failed) - len(stale)} of {len(checks)} checks pass, '
+             f'{len(near)} near the limit' + (f', {len(stale)} STALE' if stale else ''),
+             drawing.INK)]
+    if _stale_text(report):
+        head.append((_stale_text(report), drawing.FAIL))
     head += [(f'FAIL {"(gate) " if c["gate"] else ""}{c["name"]}: {_value_text(c)} '
               f'({c["op"]} {_fmt(c["limit"])})', drawing.FAIL) for c in failed]
     head += [(f'near {c["name"]}: {_value_text(c)} ({c["op"]} {_fmt(c["limit"])})',
