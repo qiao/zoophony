@@ -5,7 +5,7 @@
     python3 studio compare <animal> [--out DIR]
     python3 studio view <animal> [--port N] [--stop]
     python3 studio log [<animal>] [--all] [--last N] [--short] [--json]
-    python3 studio new <animal> --sheet <png> [--role R] [--like A] [--force]
+    python3 studio new <animal> --sheet <png> [--role R] [--like A] [--full] [--force]
     python3 studio regress <animal> [--no-build] [--no-cache] [--write --from DIR]
     python3 studio fit <animal> [--rows] [--azimuths a,b,c] [--pose bind]
     python3 studio report <animal> [--out DIR] [--measure] [--no-serve] [--port N]
@@ -29,6 +29,7 @@ import time
 
 from studio import checks, config, outputs, regress, runlog, viewer_config
 from studio.config import STUDIO, ConfigError
+from studio.like import toml_value as _toml
 
 BLENDER = os.environ.get('BLENDER', 'blender')
 
@@ -986,25 +987,31 @@ def cmd_log(a):
     runlog.main_log(a.animal, a.all, a.last, a.json, not a.short)
 
 
-def detect_views(path, min_saturation=14, max_dark_sum=390):
+def detect_views(path, foreground='difference'):
     """Finds the background and the view columns of a sheet: the runs of columns that hold
-    pixels of the figure (colored or dark, the default foreground rule; gray ground shadows
-    do not count). Returns (size, background rgb, [(x0, x1)])."""
+    pixels of the figure (by the intake rule `foreground` with its default values; a ground
+    shadow does not count). Returns (size, background rgb, [(x0, x1)], [(top, bottom)]): the
+    columns of each view and the rows of its figure."""
     from PIL import Image  # noqa: PLC0415
+
+    from studio import intake  # noqa: PLC0415
+    from studio.schema import INTAKE  # noqa: PLC0415
     im = Image.open(path).convert('RGB')
     w, h = im.size
-    px = im.load()
-    border = [px[x, y] for x in range(0, w, 7) for y in (0, h - 1)]
-    border += [px[x, y] for y in range(0, h, 7) for x in (0, w - 1)]
-    bg = max(set(border), key=border.count)
-    used = []
-    for x in range(w):
-        n = 0
-        for y in range(0, h, 2):
-            r, g, b = px[x, y]
-            if max(r, g, b) - min(r, g, b) >= min_saturation or r + g + b < max_dark_sum:
-                n += 1
-        used.append(n > 2)
+    bg = intake.border_color(im)
+    rule = config.Section({k: f.default for k, f in INTAKE.fields.items()},
+                          foreground=foreground)
+    sheet = config.Section(background=bg, foreground=config.Section(min_saturation=14,
+                                                                    max_dark_sum=390))
+    figure = intake.figure_of(im, sheet, rule)
+    px = im.load() if figure is None else figure.load()
+
+    def on(x, y):
+        if figure is not None:
+            return px[x, y] > 0
+        return intake.is_animal(px[x, y], sheet.foreground)
+
+    used = [sum(1 for y in range(0, h, 2) if on(x, y)) > 2 for x in range(w)]
     runs, start = [], None
     for x, u in enumerate(used + [False]):
         if u and start is None:
@@ -1013,27 +1020,14 @@ def detect_views(path, min_saturation=14, max_dark_sum=390):
             if x - start > 20:
                 runs.append([start, x])
             start = None
-    cols = []
+    cols, rows = [], []
     for i, (x0, x1) in enumerate(runs):
         lo = 0 if i == 0 else (runs[i - 1][1] + x0) // 2
         hi = w if i == len(runs) - 1 else (x1 + runs[i + 1][0]) // 2
         cols.append((lo, hi))
-    return (w, h), list(bg), cols
-
-
-def _toml(v):
-    """Writes one value as TOML."""
-    if isinstance(v, bool):
-        return 'true' if v else 'false'
-    if isinstance(v, str):
-        return json.dumps(v)
-    if isinstance(v, (int, float)):
-        return repr(v)
-    if isinstance(v, (list, tuple)):
-        return '[' + ', '.join(_toml(x) for x in v) + ']'
-    if isinstance(v, dict):
-        return '{ ' + ', '.join(f'{k} = {_toml(x)}' for k, x in v.items()) + ' }'
-    raise ValueError(f'no TOML for {v!r}')
+        ys = [y for y in range(h) if any(on(x, y) for x in range(x0, x1, 2))]
+        rows.append((ys[0], ys[-1]))
+    return (w, h), list(bg), cols, rows
 
 
 def _comment(doc, indent=''):
@@ -1129,8 +1123,29 @@ def start_animal(new_id):
     fail('no animal with a valid config to start from (give --like <animal>)')
 
 
+# The methods of a new animal that `studio new` turns on (an existing animal keeps its own
+# values): (table, key, value, note, the table that a new table comes before, table comment).
+NEW_METHODS = [
+    ('intake', 'foreground', 'difference', None, 'field',
+     'The masks of the sheet views: a figure pixel differs from the measured background color.'),
+    ('checks', 'feature_pixels', 1.0, 'a feature length may differ by 1 px of the sheet', None,
+     None),
+]
+
+
+def sheet_rows(rows, height):
+    """Calculates the sheet rows of the compare tiles: the rows of all figures with a margin of
+    8 px, on steps of 5 px."""
+    top = max(0, min(r[0] for r in rows) - 8)
+    bottom = min(height, max(r[1] for r in rows) + 9)
+    return [top // 5 * 5, -(-bottom // 5) * 5]
+
+
 def cmd_new(a):
-    """studio new: scaffolds animals/<animal>/ with a config of TODO fields and the sheet."""
+    """studio new: makes animals/<animal>/ with the sheet and a config. With --like (and no
+    --full) the config is the compact config of the like animal (studio/like.py); else it is
+    the scaffold of every field with "TODO" fields."""
+    from studio import like  # noqa: PLC0415
     from studio.schema import SCHEMA  # noqa: PLC0415
     if not re.fullmatch(r'[a-z][a-z0-9_-]*', a.animal):
         fail('the animal id is lower case letters, digits, hyphens, and underscores')
@@ -1143,7 +1158,7 @@ def cmd_new(a):
     os.makedirs(os.path.join(root, 'out'), exist_ok=True)
     name = os.path.basename(a.sheet)
     shutil.copyfile(a.sheet, os.path.join(root, 'reference', name))
-    size, bg, cols = detect_views(a.sheet)
+    size, bg, cols, rows = detect_views(a.sheet, a.foreground)
     names = ['front', 'side', 'back', 'three_quarter']
     labels = {'front': 'Front', 'side': 'Side', 'back': 'Back', 'three_quarter': '3/4'}
     azimuths = {'front': 0.0, 'side': 90.0, 'back': 180.0, 'three_quarter': 38.0}
@@ -1156,25 +1171,69 @@ def cmd_new(a):
         if n == 'back':
             v['flip'] = True
         views[n] = v
-    src = a.like or start_animal(a.animal)
-    start = config.load(src)
-    filled = {'animal.id': a.animal, 'animal.name': re.sub('[_-]', ' ', a.animal).title(),
-              'animal.role': a.role, 'sheet.image': f'reference/{name}', 'sheet.background': bg,
-              'sheet.views': views, '_start': src}
-    for n, v in views.items():
-        for k, x in v.items():
-            filled[f'sheet.views.{n}.{k}'] = x
-    head = (f'# The config of the animal "{a.animal}" (made by python3 studio new). Fill each '
-            f'"TODO" and each\n# "TODO: measure"; `python3 studio schema` explains each field. '
-            f'A value marked "a start ({src})"\n# comes from animals/{src}/animal.toml: tune it. '
-            f'A commented line shows a default.\n#\n# Units: the animal is 1 unit tall (sole to '
-            f'ear top). Axes of three.js: x left of the animal,\n# y up, z forward. Colors are '
-            f'sRGB 0..255. Angles are in degrees.\n\n')
-    text = head + scaffold(SCHEMA, config.to_plain(start), filled, '', a.like) + '\n'
+    methods = [m for m in NEW_METHODS if not (m[0] == 'intake' and m[1] == 'foreground')]
+    methods.insert(0, NEW_METHODS[0][:2] + (a.foreground,) + NEW_METHODS[0][3:])
+    compare_rows = sheet_rows(rows, size[1]) if rows else 'TODO'
+    title = re.sub('[_-]', ' ', a.animal).title()
+    role = a.role or (config.load(a.like).animal.role if a.like else 'conductor')
+    if a.like and not a.full:
+        with open(os.path.join(config.animal_dir(a.like), 'animal.toml')) as f:
+            like_text = f.read()
+        header = (f'The {title}: the config of the animal "{a.animal}". `python3 studio new '
+                  f'{a.animal} --like {a.like}`\nwrote it from animals/{a.like}/animal.toml '
+                  f'(with its comments) and the measures of the new sheet\n(the fields marked '
+                  f'"measured"). Each other value is a start from {a.like}: measure it on this '
+                  f'sheet\nwith `python3 studio fit` (the field) and `python3 studio calibrate` '
+                  f'(the light, the palette,\nthe color classes). `python3 studio schema` '
+                  f'explains each field.\n\nUnits: the animal is 1 unit tall, from the soles '
+                  f'to the tops of the ears. Axes of three.js\nand glTF: x is the left of the '
+                  f'animal, y is up, z is forward. Colors are sRGB 0..255. Angles\nare in '
+                  f'degrees.')
+        measured = 'measured by studio new'
+        changes = [('animal', 'id', a.animal, None, None, None),
+                   ('animal', 'name', title, None, None, None),
+                   ('animal', 'role', role, None, None, None),
+                   ('sheet', 'image', f'reference/{name}', None, None, None),
+                   ('sheet', 'background', bg, measured, None, None)]
+        changes += [(f'sheet.views.{n}', 'columns', v['columns'], measured, None, None)
+                    for n, v in views.items()]
+        changes += [('compare', 'rows', compare_rows, measured, None, None)]
+        changes += methods
+        try:
+            text = like.compact(like_text, header, changes) if len(cols) == 4 else None
+        except ValueError as e:
+            fail(f'the compact config of --like {a.like}: {e} (use --full)')
+        if text is None:
+            fail(f'the sheet shows {len(cols)} view column(s), not 4: use --full and set '
+                 f'sheet.views.*.columns by hand')
+        kind = f'the compact config of {a.like}'
+    else:
+        src = a.like or start_animal(a.animal)
+        start = config.load(src)
+        filled = {'animal.id': a.animal, 'animal.name': title,
+                  'animal.role': role, 'sheet.image': f'reference/{name}',
+                  'sheet.background': bg, 'sheet.views': views, 'compare.rows': compare_rows,
+                  '_start': src}
+        for n, v in views.items():
+            for k, x in v.items():
+                filled[f'sheet.views.{n}.{k}'] = x
+        for table, key, value, *_ in methods:
+            filled[f'{table}.{key}'] = value
+        head = (f'# The config of the animal "{a.animal}" (made by python3 studio new). Fill '
+                f'each "TODO" and each\n# "TODO: measure"; `python3 studio schema` explains '
+                f'each field. A value marked "a start ({src})"\n# comes from animals/{src}/'
+                f'animal.toml: tune it. A commented line shows a default.\n#\n# Units: the '
+                f'animal is 1 unit tall (sole to ear top). Axes of three.js: x left of the '
+                f'animal,\n# y up, z forward. Colors are sRGB 0..255. Angles are in degrees.'
+                f'\n\n')
+        text = head + scaffold(SCHEMA, config.to_plain(start), filled, '', a.like) + '\n'
+        kind = 'the scaffold of every field'
     with open(os.path.join(root, 'animal.toml'), 'w') as f:
         f.write(text)
     todo = text.count('"TODO"') + text.count('# TODO: measure')
-    log(f'made {root}/: animal.toml ({todo} TODO fields), reference/{name}, out/')
+    lines = text.count('\n')
+    log(f'made {root}/: animal.toml ({kind}, {lines} lines'
+        f'{f", {todo} TODO fields" if todo else ""}), reference/{name}, out/')
     log(f'sheet {size[0]} x {size[1]} px, background {bg}, '
         f'{len(cols)} view column(s) found: {cols}')
     if len(cols) != 4:
@@ -1425,8 +1484,14 @@ def main(argv=None):
     p = sub.add_parser('new', help='scaffold a new animal from its sheet')
     p.add_argument('animal')
     p.add_argument('--sheet', required=True)
-    p.add_argument('--role', default='conductor')
-    p.add_argument('--like', default=None, help='start the TODO fields from this animal')
+    p.add_argument('--role', default=None,
+                   help='the role pack (default: the role of --like, else conductor)')
+    p.add_argument('--like', default=None,
+                   help='write the compact config of this animal, with the measures of the sheet')
+    p.add_argument('--full', action='store_true',
+                   help='write the scaffold of every field (with --like: its values as starts)')
+    p.add_argument('--foreground', default='difference', choices=('difference', 'colored'),
+                   help='the intake rule of the new animal (default: difference)')
     p.add_argument('--force', action='store_true')
     p.set_defaults(fn=cmd_new)
     p = sub.add_parser('regress', help='build and compare with the golden stats')
