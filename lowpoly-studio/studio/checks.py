@@ -1,21 +1,29 @@
 """Stage "checks": one structured report of every check of a build, with its value, its limit,
-and pass or fail.
+pass or fail, and the place of each failure.
 
 Pure Python. It reads the outputs of the earlier stages (stats, stage data, IoU, measures) and
-the limits of the config (animal [checks] and role [checks]), and writes <out>/checks.json:
+the limits of the config (animal [checks], the feature checks of measure.features, and role
+[checks]), and writes <out>/checks.json:
 
     {"animal": ..., "role": ..., "seed": ..., "gate_pass": bool, "pass": bool,
-     "failed": [names], "checks": [{"name", "value", "limit", "op", "pass", "gate", "where"}]}
+     "failed": [names], "near": [names],
+     "checks": [{"name", "value", "limit", "op", "pass", "near", "gate", "where"}]}
 
 A gate check fails the build (the contact and fold checks of each clip). The other checks are
-reported. "where" holds the place of a failure when the check knows it (the clip, the side, the
-part, the time); a later phase can add the faces and the bones of each failure there.
+reported. A passing check is "near" when it uses NEAR or more of its allowance. Each failing or
+near check that the tools can locate gets "where": the clip, the frame, the bone, the side, the
+body region, the world position, the depth or the angle, and a crop image (studio/locate.py for
+the contacts, the folds, and the mesh; the feature crops of the look report for the features).
 """
 
+import glob
 import json
 import os
 
 from studio import measure_features
+
+# A passing check is near its limit when it uses this share of its allowance.
+NEAR = 0.75
 
 
 def _load(path):
@@ -26,6 +34,42 @@ def _load(path):
         return json.load(f)
 
 
+def stage_data(cfg, stage):
+    """Reads data.json of a stage of the last Blender build (out/stages/<nn>-<stage>/), or
+    returns None."""
+    found = sorted(glob.glob(os.path.join(cfg.paths.stages, f'[0-9][0-9]-{stage}', 'data.json')))
+    return _load(found[-1]) if found else None
+
+
+def judge(op, value, limit):
+    """Judges a value against a limit. Returns (pass, near).
+
+    op: '<=' (value at most limit), '>=', 'in' (limit is [lo, hi]), 'abs<=' (value is [model,
+    sheet], |model - sheet| at most limit), or 'rel<=' (|model - sheet| / |sheet| at most
+    limit). A value that is None, or a pair with a None, fails.
+    """
+    if value is None or (isinstance(value, list) and None in value):
+        return False, False
+    if op == '<=':
+        ok = value <= limit
+        return ok, ok and limit > 0 and value >= NEAR * limit
+    if op == '>=':
+        # The values of a '>=' check (IoU) are at most 1: the allowance is the room above.
+        ok = value >= limit
+        return ok, ok and limit < 1 and value < limit + (1 - NEAR) * (1 - limit)
+    if op == 'in':
+        lo, hi = limit
+        ok = lo <= value <= hi
+        band = 0.5 * (1 - NEAR) * (hi - lo)
+        return ok, ok and (value < lo + band or value > hi - band)
+    if op in ('abs<=', 'rel<='):
+        diff = abs(value[0] - value[1])
+        allowed = limit if op == 'abs<=' else limit * abs(value[1])
+        ok = diff <= allowed
+        return ok, ok and allowed > 0 and diff >= NEAR * allowed
+    raise ValueError(f'unknown op {op!r}')
+
+
 class Report:
     """The checks of one build."""
 
@@ -33,36 +77,34 @@ class Report:
         """Starts an empty list of checks."""
         self.items = []
 
-    def add(self, name, value, op, limit, gate=False, where=None):
-        """Adds one check. op: '<=' (value at most limit), '>=', 'in' (limit is [lo, hi]),
-        'abs<=' (value is [model, sheet], |model - sheet| at most limit), or 'rel<=' (|model -
-        sheet| / |sheet| at most limit)."""
-        if value is None or (isinstance(value, list) and None in value):
-            ok = False
-        elif op == '<=':
-            ok = value <= limit
-        elif op == '>=':
-            ok = value >= limit
-        elif op == 'in':
-            ok = limit[0] <= value <= limit[1]
-        elif op == 'abs<=':
-            ok = abs(value[0] - value[1]) <= limit
-        elif op == 'rel<=':
-            ok = abs(value[0] - value[1]) <= limit * abs(value[1])
-        else:
-            raise ValueError(f'unknown op {op!r}')
+    def add(self, name, value, op, limit, gate=False, where=None, near=None):
+        """Adds one check (see judge). where: the place of a failure, kept only when the check
+        fails or is near its limit. near: overrides the near rule (a fold check is near when
+        faces turn past 90 degrees, under the fold limit)."""
+        ok, close = judge(op, value, limit)
+        if near is not None:
+            close = ok and near
         item = {'name': name, 'value': value, 'op': op, 'limit': limit, 'pass': bool(ok),
-                'gate': gate}
-        if where:
+                'near': bool(close), 'gate': gate}
+        if where and (not ok or close):
             item['where'] = where
         self.items.append(item)
+        return item
 
     def result(self, cfg, seed):
         """Returns the report as a dict."""
         failed = [c['name'] for c in self.items if not c['pass']]
         return {'animal': cfg.animal.id, 'role': cfg.role.role.name, 'seed': seed,
                 'gate_pass': all(c['pass'] for c in self.items if c['gate']),
-                'pass': not failed, 'failed': failed, 'checks': self.items}
+                'pass': not failed, 'failed': failed,
+                'near': [c['name'] for c in self.items if c['near']], 'checks': self.items}
+
+
+def feature_where(where):
+    """Adds the crop of the look report to the place of a feature check."""
+    out = dict(where)
+    out['crop'] = f'report/features/{where["feature"]}_{where["view"]}.png'
+    return out
 
 
 def run(cfg):
@@ -75,16 +117,16 @@ def run(cfg):
     # The gates: the contacts and the folds of each clip, after the fold repair.
     contacts = (stats.get('contacts') or {}).get('clips', {})
     for clip, c in contacts.items():
-        where = {'clip': clip, 'side': c['side'], 'part': c['part'], 'time_s': c['time_s']}
-        r.add(f'contact.{clip}', c['depth'], '<=', cfg.role.checks.contact_depth, True, where)
-        r.add(f'folds.{clip}', c['folded_faces'], '<=', lim.folded_faces, True, {'clip': clip})
+        r.add(f'contact.{clip}', c['depth'], '<=', cfg.role.checks.contact_depth, True)
+        r.add(f'folds.{clip}', c['folded_faces'], '<=', lim.folded_faces, True,
+              near=c.get('turned_faces', 0) > 0)
 
     # The rest mesh.
     if stats:
         r.add('rest_inward_faces', stats['folded_faces'], '<=', lim.rest_inward_faces)
         r.add('body_triangles', stats['body_triangles'], 'in', list(lim.body_triangles))
         r.add('slivers', stats['sliver_share'], '<=', lim.slivers)
-    remesh = _load(os.path.join(cfg.paths.stages, '02-remesh', 'data.json'))
+    remesh = stage_data(cfg, 'remesh')
     if remesh:
         r.add('unpaired_vertices', remesh['remesh_info']['unpaired_vertices'], '<=',
               lim.unpaired_vertices)
@@ -107,7 +149,7 @@ def run(cfg):
         if not feature:
             continue
         for check, value, op, limit, where in measure_features.pairs(name, feature, res):
-            r.add(check, value, op, limit, where=where)
+            r.add(check, value, op, limit, where=feature_where(where))
     topo = _load(os.path.join(cfg.paths.compare, 'topology.json')) or {}
     if 'reference' in topo and 'render_front.png' in topo:
         r.add('facet_contrast', [topo['render_front.png']['belly_contrast']['fine_std'],
@@ -121,14 +163,25 @@ def run(cfg):
     return report
 
 
+def _where_text(where):
+    """Formats the place of a failure in one line."""
+    keys = ('clip', 'time_s', 'side', 'part', 'bone', 'region', 'position', 'depth', 'angle_deg',
+            'view', 'region', 'crop')
+    parts = []
+    for k in keys:
+        if k in where and f'{k}=' not in ' '.join(parts):
+            parts.append(f'{k}={where[k]}')
+    return ' '.join(parts)
+
+
 def summary(report):
     """Formats the report as a few lines for the terminal."""
     n = len(report['checks'])
-    lines = [f'checks: {n - len(report["failed"])} of {n} pass, gates '
-             f'{"pass" if report["gate_pass"] else "FAIL"}']
+    lines = [f'checks: {n - len(report["failed"])} of {n} pass, {len(report.get("near", []))} '
+             f'near the limit, gates {"pass" if report["gate_pass"] else "FAIL"}']
     for c in report['checks']:
         if not c['pass']:
-            where = f'  {c["where"]}' if c.get('where') else ''
+            where = f'\n      at {_where_text(c["where"])}' if c.get('where') else ''
             lines.append(f'  {"GATE " if c["gate"] else ""}FAIL {c["name"]}: {c["value"]} '
                          f'{c["op"]} {c["limit"]}{where}')
     return '\n'.join(lines)
