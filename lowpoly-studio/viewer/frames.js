@@ -3,17 +3,18 @@
 
 import * as THREE from 'three';
 import {
+  SETTINGS,
   SHEET_BACKGROUND,
   VIEWS,
   addLights,
   createRenderer,
-  loadBear,
+  loadModel,
   placeSheetCamera,
   poseAt,
 } from './scene.js';
 
 const params = new URLSearchParams(location.search);
-const bear = await loadBear(params.get('glb') ?? '/animals/bear/out/bear.glb');
+const model = await loadModel(params.get('glb') ?? SETTINGS.glb);
 
 const glCanvas = document.createElement('canvas');
 const renderer = createRenderer(glCanvas, { preserve: true });
@@ -27,12 +28,12 @@ const ground = new THREE.Mesh(
 );
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
-scene.add(ground, bear.root);
+scene.add(ground, model.root);
 // The wire copies share the geometry and the skeleton of each mesh, so they draw the edges of
 // the posed triangles in the same pass, with a depth test against the faces.
 const wireMaterial = new THREE.MeshBasicMaterial({ color: 0x1a1410, wireframe: true });
 const wires = [];
-for (const m of bear.meshes) {
+for (const m of model.meshes) {
   for (const mat of [m.material].flat()) {
     mat.polygonOffset = true;
     mat.polygonOffsetFactor = 1;
@@ -52,7 +53,7 @@ for (const m of bear.meshes) {
   m.parent.add(w);
   wires.push(w);
 }
-const skeleton = new THREE.SkeletonHelper(bear.root);
+const skeleton = new THREE.SkeletonHelper(model.root);
 scene.add(skeleton);
 
 const trailGeo = new THREE.BufferGeometry();
@@ -92,8 +93,8 @@ function sampleTip(clip, t0, t1, steps) {
   const tip = new THREE.Vector3();
   for (let i = 0; i <= steps; i++) {
     const t = t0 + ((t1 - t0) * i) / steps;
-    poseAt(bear, clip, Math.max(t, 0));
-    bear.batonTip.getWorldPosition(tip);
+    poseAt(model, clip, Math.max(t, 0));
+    model.tip.getWorldPosition(tip);
     pts.push(tip.x, tip.y, tip.z);
   }
   return pts;
@@ -113,7 +114,7 @@ window.renderSheet = (shots, { cols = 4, w = 360, h = 420 } = {}) => {
     skeleton.visible = Boolean(shot.bones);
     trail.visible = false;
     ictus.visible = false;
-    if (shot.trail && bear.batonTip) {
+    if (shot.trail && model.tip) {
       const [t0, t1] = shot.trail;
       trailGeo.setAttribute('position', new THREE.Float32BufferAttribute(sampleTip(shot.clip, t0, t1, 240), 3));
       trail.visible = true;
@@ -126,7 +127,7 @@ window.renderSheet = (shots, { cols = 4, w = 360, h = 420 } = {}) => {
         ictus.visible = true;
       }
     }
-    poseAt(bear, shot.clip, shot.t);
+    poseAt(model, shot.clip, shot.t);
     lights.aim(camera);
     for (const w of wires) {
       w.visible = Boolean(shot.wire);
@@ -146,5 +147,5 @@ window.renderSheet = (shots, { cols = 4, w = 360, h = 420 } = {}) => {
   return out.toDataURL('image/png');
 };
 
-window.__clips = [...bear.clips.entries()].map(([name, c]) => ({ name, duration: c.duration }));
+window.__clips = [...model.clips.entries()].map(([name, c]) => ({ name, duration: c.duration }));
 window.__framesReady = true;

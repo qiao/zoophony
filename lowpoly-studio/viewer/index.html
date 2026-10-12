@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bear Conductor</title>
+    <title>Model Viewer</title>
     <style>
       :root {
         --bg: #cacacb;
@@ -98,7 +98,7 @@
   <body>
     <canvas id="view"></canvas>
     <div id="panel">
-      <h1>Bear conductor</h1>
+      <h1 id="title">Model viewer</h1>
       <h2>Views of the sheet</h2>
       <div class="row" id="views"></div>
       <h2>Motions</h2>
@@ -108,7 +108,7 @@
       <label><input id="loop" type="checkbox" checked /> Loop</label>
       <label><input id="pause" type="checkbox" /> Pause</label>
       <h2>Show</h2>
-      <label><input id="trail" type="checkbox" checked /> Baton tip path</label>
+      <label id="trailRow"><input id="trail" type="checkbox" checked /> Prop tip path</label>
       <label><input id="bones" type="checkbox" /> Bones</label>
       <label><input id="wire" type="checkbox" /> Wireframe</label>
       <label><input id="shadow" type="checkbox" checked /> Ground shadow</label>

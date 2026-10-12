@@ -1,5 +1,5 @@
-// The compare page: renders the bear in the four sheet views, aligns each render to its
-// reference mask, and calculates the silhouette IoU. tools/shoot.mjs reads window.__compare.
+// The compare page: renders the animal in the sheet views, aligns each render to its reference
+// mask, and calculates the silhouette IoU. studio/shoot.mjs reads window.__compare.
 //
 // Alignment: the render is scaled so that its height equals the height of the reference mask,
 // and its lowest pixel sits on the ground row of the reference. Then the x shift with the best
@@ -7,23 +7,23 @@
 
 import * as THREE from 'three';
 import {
-  SHEET_BACKGROUND,
+  SETTINGS,
+  SHEET_BACKGROUND_CSS,
   VIEWS,
   addLights,
   createRenderer,
-  loadBear,
+  loadModel,
   placeSheetCamera,
   poseAt,
 } from './scene.js';
 
 const params = new URLSearchParams(location.search);
-const glbUrl = params.get('glb') ?? '/animals/bear/out/bear.glb';
+const glbUrl = params.get('glb') ?? SETTINGS.glb;
 const clipName = params.get('clip') ?? 'reference';
 const clipTime = Number(params.get('t') ?? 0);
 const RENDER = 1000;
 const SEARCH = 40;
-const ROW0 = 200;
-const ROW1 = 790;
+const [ROW0, ROW1] = SETTINGS.compare.rows;
 
 function loadImage(url) {
   return new Promise((resolve, reject) => {
@@ -64,7 +64,7 @@ function furStats(data, stride, mask, maskStride, maskOffset, rows, width) {
       }
       const o = (y * stride + x) * 4;
       const [h, s, v] = hsv(data[o], data[o + 1], data[o + 2]);
-      // Fur only: no dark claws, no white baton, no gray background at the edges.
+      // Fur only: no dark claws, no white props, no gray background at the edges.
       if (v < 0.18 || s < 0.2) {
         continue;
       }
@@ -95,8 +95,8 @@ function canvas2d(w, h) {
   return [c, c.getContext('2d', { willReadFrequently: true })];
 }
 
-const meta = await (await fetch('/animals/bear/out/measure.json')).json();
-const sheet = await loadImage('/animals/bear/reference/bear-views.png');
+const meta = await (await fetch(SETTINGS.measure)).json();
+const sheet = await loadImage(SETTINGS.sheet);
 const glCanvas = document.createElement('canvas');
 glCanvas.width = RENDER;
 glCanvas.height = RENDER;
@@ -106,9 +106,9 @@ renderer.setSize(RENDER, RENDER, false);
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(7.4, 1, 0.1, 100);
 const lights = addLights(scene, camera);
-const bear = await loadBear(glbUrl);
-scene.add(bear.root);
-const posed = poseAt(bear, clipName, clipTime);
+const model = await loadModel(glbUrl);
+scene.add(model.root);
+const posed = poseAt(model, clipName, clipTime);
 
 const results = {};
 const tiles = [];
@@ -156,7 +156,7 @@ for (const [name, view] of Object.entries(VIEWS)) {
     model[i] = mdata[i * 4 + 3] > 127 ? 1 : 0;
   }
 
-  const refImg = await loadImage(`/animals/bear/out/masks/${name}.png`);
+  const refImg = await loadImage(`${SETTINGS.masks}/${name}.png`);
   const [, refCtx] = canvas2d(colW, H);
   refCtx.drawImage(refImg, col0, 0, colW, H, 0, 0, colW, H);
   const refData = refCtx.getImageData(0, 0, colW, H).data;
@@ -189,7 +189,7 @@ for (const [name, view] of Object.entries(VIEWS)) {
   const tileH = ROW1 - ROW0;
   const [tc, tctx] = canvas2d(colW * 3, tileH);
   tctx.drawImage(sheet, col0, ROW0, colW, tileH, 0, 0, colW, tileH);
-  tctx.fillStyle = `#${SHEET_BACKGROUND.toString(16)}`;
+  tctx.fillStyle = SHEET_BACKGROUND_CSS;
   tctx.fillRect(colW, 0, colW, tileH);
   tctx.drawImage(rc, colW + ox + best.dx, oy - ROW0, RENDER * scale, RENDER * scale);
   const ov = tctx.createImageData(colW, tileH);
@@ -216,7 +216,7 @@ for (const [name, view] of Object.entries(VIEWS)) {
 
   // A close crop of the head: the sheet and the render side by side, both at 3x.
   const top = vm.box[1];
-  const headH = Math.round(vm.height_px * 0.3);
+  const headH = Math.round(vm.height_px * SETTINGS.compare.headShare);
   let hx0 = colW;
   let hx1 = 0;
   for (let y = top; y < top + headH; y++) {
@@ -243,11 +243,7 @@ for (const [name, view] of Object.entries(VIEWS)) {
 
   // Close crops of the facets in the front view: the sheet beside the render at 2x.
   if (name === 'front') {
-    const regions = {
-      chest_belly: [-0.22, 0.3, 0.22, 0.76],
-      shoulder_arm: [-0.43, 0.35, -0.1, 0.76],
-      head: [-0.19, 0.74, 0.19, 1.01],
-    };
+    const regions = SETTINGS.compare.facetCrops;
     for (const [rname, [mx0, my0, mx1, my1]] of Object.entries(regions)) {
       const ax = vm.axis_px - col0;
       const px0 = Math.round(ax + mx0 * vm.height_px);
@@ -267,7 +263,7 @@ for (const [name, view] of Object.entries(VIEWS)) {
     }
   }
 
-  // The mean color of the bear pixels of the reference.
+  // The mean color of the animal pixels of the reference.
   const [, sctx] = canvas2d(colW, H);
   sctx.drawImage(sheet, col0, 0, colW, H, 0, 0, colW, H);
   const sdata = sctx.getImageData(0, 0, colW, H).data;
@@ -285,14 +281,15 @@ for (const [name, view] of Object.entries(VIEWS)) {
     const s = Float32Array.from(arr).sort();
     return [0.1, 0.5, 0.9].map((q) => Math.round(s[Math.floor(q * (s.length - 1))]));
   };
-  // The fur band: heights 0.25 to 0.70 of the bear (the trunk and the arms, no head, no feet).
+  // The fur band: the trunk and the arms, no head, no feet (config compare.fur_band).
+  const [band0, band1] = SETTINGS.compare.furBand;
   const furRows = [];
-  for (let k = 0.25; k <= 0.7; k += 1 / vm.height_px) {
+  for (let k = band0; k <= band1; k += 1 / vm.height_px) {
     furRows.push(Math.round(vm.ground_px - k * vm.height_px));
   }
   const refFur = furStats(sdata, colW, ref, colW, 0, furRows, colW);
   const [, mfctx] = canvas2d(colW, H);
-  mfctx.fillStyle = `#${SHEET_BACKGROUND.toString(16)}`;
+  mfctx.fillStyle = SHEET_BACKGROUND_CSS;
   mfctx.fillRect(0, 0, colW, H);
   mfctx.drawImage(rc, ox + best.dx, oy, RENDER * scale, RENDER * scale);
   const mdat = mfctx.getImageData(0, 0, colW, H).data;

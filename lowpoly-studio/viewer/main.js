@@ -1,37 +1,28 @@
-// The bear viewer: plays the clips of the GLB, shows the four sheet views, and renders single
-// frames for the shot tool (tools/shoot.mjs) when the URL has ?shot=1.
+// The viewer: plays the clips of the GLB, shows the sheet views, and renders single frames for
+// the shot tool (studio/shoot.mjs) when the URL has ?shot=1. The animal, its views, and its clip
+// notes come from viewer.json (?animal=<id> or ?config=<url>, see scene.js).
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {
+  SETTINGS,
   SHEET_BACKGROUND,
   SHEET_CAMERA,
   VIEWS,
   addLights,
   createRenderer,
-  loadBear,
+  loadModel,
   placeSheetCamera,
   poseAt,
 } from './scene.js';
 
-/** Short notes on each clip, shown as button tooltips. */
-const CLIP_NOTES = {
-  performance: 'All gestures in order: ready, beats, cue, crescendo, hush, cutoff, bow.',
-  reference: 'The pose of the reference sheet (arms down). The compare tool uses it.',
-  ready: 'Both arms up, the baton ready.',
-  beat_4_4: 'One bar of 4/4 at 60 bpm: down, in, out, up, with ictus and rebound.',
-  cue_left: 'The left paw cues the players on the left, the head turns to them.',
-  crescendo: 'The left palm turns up and lifts.',
-  hush: 'The left palm turns down and presses.',
-  cutoff: 'A loop and a cutoff with both paws, then a hold.',
-  nod_turn: 'A head nod and a turn to each section.',
-  sway_dip: 'A torso sway and a knee dip on each beat.',
-  bow: 'The bow at the end.',
-};
+/** Short notes on each clip, shown as button tooltips (role.toml [clips.notes]). */
+const CLIP_NOTES = SETTINGS.clipNotes;
 
 const params = new URLSearchParams(location.search);
 const shotMode = params.has('shot');
-const glbUrl = params.get('glb') ?? '/animals/bear/out/bear.glb';
+const glbUrl = params.get('glb') ?? SETTINGS.glb;
+document.title = SETTINGS.title;
 
 const canvas = document.getElementById('view');
 const renderer = createRenderer(canvas, { preserve: shotMode });
@@ -54,14 +45,14 @@ const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, SHEET_CAMERA.height, 0);
 controls.enableDamping = true;
 
-const bear = await loadBear(glbUrl);
-scene.add(bear.root);
+const model = await loadModel(glbUrl);
+scene.add(model.root);
 
-const skeleton = new THREE.SkeletonHelper(bear.root);
+const skeleton = new THREE.SkeletonHelper(model.root);
 skeleton.visible = false;
 scene.add(skeleton);
 
-// The trail of the baton tip: the last seconds of its path.
+// The trail of the prop tip: the last seconds of its path.
 const TRAIL = 240;
 const trailGeo = new THREE.BufferGeometry();
 trailGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(TRAIL * 3), 3));
@@ -90,11 +81,11 @@ function setView(name) {
   }
 }
 
-/** Samples the baton tip of a clip over [t - span, t]. */
+/** Samples the prop tip of a clip over [t - span, t]. */
 function sampleTrail(clipName, t, span) {
   const pts = [];
-  const clip = bear.clips.get(clipName);
-  if (!clip || !bear.batonTip) {
+  const clip = model.clips.get(clipName);
+  if (!clip || !model.tip) {
     return pts;
   }
   const steps = 160;
@@ -104,11 +95,11 @@ function sampleTrail(clipName, t, span) {
     if (ti < 0) {
       continue;
     }
-    poseAt(bear, clipName, ti);
-    bear.batonTip.getWorldPosition(tip);
+    poseAt(model, clipName, ti);
+    model.tip.getWorldPosition(tip);
     pts.push(tip.clone());
   }
-  poseAt(bear, clipName, t);
+  poseAt(model, clipName, t);
   return pts;
 }
 
@@ -153,7 +144,7 @@ if (shotMode) {
   } else {
     trail.visible = false;
   }
-  poseAt(bear, clip, t);
+  poseAt(model, clip, t);
   skeleton.visible = params.get('bones') === '1';
   lights.aim(camera);
   renderer.render(scene, camera);
@@ -163,6 +154,7 @@ if (shotMode) {
 }
 
 function startViewer() {
+  document.querySelector('#title').textContent = SETTINGS.title;
   resize();
   addEventListener('resize', resize);
   const panel = document.getElementById('panel');
@@ -178,7 +170,7 @@ function startViewer() {
 
   const trailPts = [];
   const clipList = panel.querySelector('#clips');
-  const order = [...bear.clips.keys()];
+  const order = [...model.clips.keys()];
   let current = null;
   let action = null;
   const tempo = panel.querySelector('#tempo');
@@ -188,8 +180,8 @@ function startViewer() {
   const timeOut = panel.querySelector('#time');
 
   function play(name) {
-    const clip = bear.clips.get(name);
-    const next = bear.mixer.clipAction(clip);
+    const clip = model.clips.get(name);
+    const next = model.mixer.clipAction(clip);
     next.reset();
     next.setLoop(loop.checked ? THREE.LoopRepeat : THREE.LoopOnce, Infinity);
     next.clampWhenFinished = true;
@@ -216,7 +208,7 @@ function startViewer() {
 
   function applyTempo() {
     tempoOut.textContent = `${tempo.value} bpm`;
-    bear.mixer.timeScale = pause.checked ? 0 : Number(tempo.value) / 60;
+    model.mixer.timeScale = pause.checked ? 0 : Number(tempo.value) / 60;
   }
   tempo.oninput = applyTempo;
   pause.onchange = applyTempo;
@@ -225,12 +217,13 @@ function startViewer() {
     skeleton.visible = e.target.checked;
   };
   panel.querySelector('#wire').onchange = (e) => {
-    for (const m of bear.meshes) {
+    for (const m of model.meshes) {
       for (const mat of [m.material].flat()) {
         mat.wireframe = e.target.checked;
       }
     }
   };
+  panel.querySelector('#trailRow').hidden = !model.tip;
   panel.querySelector('#trail').onchange = (e) => {
     trail.visible = e.target.checked;
   };
@@ -245,10 +238,10 @@ function startViewer() {
   renderer.setAnimationLoop(() => {
     timer.update();
     const dt = timer.getDelta();
-    bear.mixer.update(dt);
+    model.mixer.update(dt);
     controls.update();
-    if (bear.batonTip && trail.visible) {
-      bear.batonTip.getWorldPosition(tip);
+    if (model.tip && trail.visible) {
+      model.tip.getWorldPosition(tip);
       trailPts.push(tip.clone());
       if (trailPts.length > TRAIL) {
         trailPts.shift();

@@ -1,22 +1,35 @@
-// The shared scene of the viewer and the compare page: the renderer, the lights, the bear, and
-// the four cameras of the reference sheet.
+// The shared scene of the viewer, the compare page, and the frames page: the settings of the
+// animal, the renderer, the lights, the model, and the cameras of the sheet views.
+//
+// The settings come from <out>/viewer.json, which the CLI writes from the animal config and its
+// role pack (studio/viewer_config.py). A page names it with ?config=<url>, or with ?animal=<id>
+// for /animals/<id>/out/viewer.json.
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-/** The camera azimuth of each sheet view in degrees: 0 is in front, 90 is at the bear's right. */
-export const VIEWS = {
-  front: { azimuth: 0, label: 'Front' },
-  side: { azimuth: 90, label: 'Side' },
-  back: { azimuth: 180, label: 'Back' },
-  three_quarter: { azimuth: 38, label: '3/4' },
-};
+const query = new URLSearchParams(globalThis.location?.search ?? '');
+const animal = query.get('animal');
+const configUrl = query.get('config') ?? (animal ? `/animals/${animal}/out/viewer.json` : null);
+if (!configUrl) {
+  document.body.textContent = 'Add ?animal=<id> to the URL (for example ?animal=bear).';
+  throw new Error('no ?animal=<id> or ?config=<url> in the URL');
+}
 
-/** The sheet cameras: far away and level, so the perspective is weak (tools/bear/views.py). */
-export const SHEET_CAMERA = { distance: 10, height: 0.5, fov: 7.4 };
+/** The settings of the animal (studio/viewer_config.py). */
+export const SETTINGS = await (await fetch(configUrl)).json();
+
+/** The camera azimuth of each sheet view in degrees: 0 is in front, 90 is at the right. */
+export const VIEWS = SETTINGS.views;
+
+/** The sheet cameras: far away and level, so the perspective is weak (studio/views.py). */
+export const SHEET_CAMERA = SETTINGS.camera;
 
 /** The background color of the reference sheet. */
-export const SHEET_BACKGROUND = 0xcacacb;
+export const SHEET_BACKGROUND = SETTINGS.background;
+
+/** The CSS color of the sheet background. */
+export const SHEET_BACKGROUND_CSS = `#${SHEET_BACKGROUND.toString(16).padStart(6, '0')}`;
 
 /** Creates a WebGL renderer for a canvas. */
 export function createRenderer(canvas, { alpha = false, preserve = false } = {}) {
@@ -35,9 +48,13 @@ export function createRenderer(canvas, { alpha = false, preserve = false } = {})
 
 /** The light levels and the key direction (camera space: right, up, back). A page can change
  * them with ?light=hemi,key,fill and ?keydir=x,y,z for tuning. */
-export const LIGHT = { hemi: 1.4, key: 3.8, fill: 0.9, keyDir: [-1.2, 3.5, 3.5] };
+export const LIGHT = {
+  hemi: SETTINGS.light.hemi,
+  key: SETTINGS.light.key,
+  fill: SETTINGS.light.fill,
+  keyDir: SETTINGS.light.key_dir,
+};
 
-const query = new URLSearchParams(globalThis.location?.search ?? '');
 const lightParam = query.get('light');
 if (lightParam) {
   const [hemi, key, fill] = lightParam.split(',').map(Number);
@@ -49,13 +66,14 @@ if (keyDirParam) {
 }
 
 /** Adds the lights. The key, fill, and rim lights follow the camera, as on the sheet. The key
- * light also casts the shadows, on the bear and on the ground. Call lights.aim(camera) before
+ * light also casts the shadows, on the animal and on the ground. Call lights.aim(camera) before
  * each render. */
 export function addLights(scene, camera) {
-  const hemi = new THREE.HemisphereLight(0xfbfaf8, 0x8a7d74, LIGHT.hemi);
+  const L = SETTINGS.light;
+  const hemi = new THREE.HemisphereLight(L.sky, L.ground, LIGHT.hemi);
   scene.add(hemi);
 
-  const center = new THREE.Vector3(0, 0.55, 0);
+  const center = new THREE.Vector3(0, L.center_y, 0);
   const make = (color, intensity, offset) => {
     const light = new THREE.DirectionalLight(color, intensity);
     light.userData.offset = new THREE.Vector3(...offset).normalize();
@@ -63,9 +81,9 @@ export function addLights(scene, camera) {
     scene.add(light, light.target);
     return light;
   };
-  const key = make(0xfffbf4, LIGHT.key, LIGHT.keyDir);
-  const fill = make(0xf6f6f8, LIGHT.fill, [3, 0.5, 4]);
-  const rim = make(0xe8eeff, 0.35, [4, 2.5, -6]);
+  const key = make(L.key_color, LIGHT.key, LIGHT.keyDir);
+  const fill = make(L.fill_color, LIGHT.fill, L.fill_dir);
+  const rim = make(L.rim_color, L.rim, L.rim_dir);
 
   key.castShadow = true;
   key.shadow.mapSize.set(4096, 4096);
@@ -79,7 +97,7 @@ export function addLights(scene, camera) {
   key.shadow.bias = -0.0004;
   key.shadow.normalBias = 0.012;
   key.shadow.radius = 6;
-  key.shadow.intensity = 0.3;
+  key.shadow.intensity = L.shadow;
   scene.add(camera);
 
   const dir = new THREE.Vector3();
@@ -95,16 +113,16 @@ export function addLights(scene, camera) {
   return { hemi, key, fill, rim, aim };
 }
 
-/** Loads the bear GLB and prepares its materials for flat facets. */
-export async function loadBear(url) {
+/** Loads the GLB of the animal and prepares its materials for flat facets. */
+export async function loadModel(url) {
   const gltf = await new GLTFLoader().loadAsync(url);
   const root = gltf.scene;
   const meshes = [];
   root.traverse((obj) => {
     if (obj.isMesh) {
       meshes.push(obj);
-      // The thin baton casts no shadow: its shadow reads as a line drawn on the belly.
-      obj.castShadow = obj.material?.name !== 'baton';
+      // A thin prop (a baton) casts no shadow: its shadow reads as a line drawn on the body.
+      obj.castShadow = !SETTINGS.noShadow.includes(obj.material?.name);
       obj.receiveShadow = true;
       obj.frustumCulled = false;
       const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
@@ -116,11 +134,11 @@ export async function loadBear(url) {
   });
   const mixer = new THREE.AnimationMixer(root);
   const clips = new Map(gltf.animations.map((c) => [c.name, c]));
-  const batonTip = root.getObjectByName('BatonTip') ?? null;
-  return { gltf, root, meshes, mixer, clips, batonTip };
+  const tip = SETTINGS.tipMarkers.length ? (root.getObjectByName(SETTINGS.tipMarkers[0]) ?? null) : null;
+  return { gltf, root, meshes, mixer, clips, tip };
 }
 
-/** Places a camera at a sheet view (azimuth in degrees) and aims it level at the bear. */
+/** Places a camera at a sheet view (azimuth in degrees) and aims it level at the animal. */
 export function placeSheetCamera(camera, azimuthDeg, { distance, height, fov } = SHEET_CAMERA) {
   const az = THREE.MathUtils.degToRad(azimuthDeg);
   camera.fov = fov;
@@ -130,17 +148,17 @@ export function placeSheetCamera(camera, azimuthDeg, { distance, height, fov } =
   camera.updateProjectionMatrix();
 }
 
-/** Sets the bear to one frame of a clip, or to the rest pose when the clip does not exist. */
-export function poseAt(bear, clipName, time) {
-  bear.mixer.stopAllAction();
-  const clip = bear.clips.get(clipName);
+/** Sets the model to one frame of a clip, or to the rest pose when the clip does not exist. */
+export function poseAt(model, clipName, time) {
+  model.mixer.stopAllAction();
+  const clip = model.clips.get(clipName);
   if (!clip) {
     return false;
   }
-  const action = bear.mixer.clipAction(clip);
+  const action = model.mixer.clipAction(clip);
   action.reset();
   action.play();
-  bear.mixer.setTime(Math.min(time, clip.duration));
-  bear.root.updateMatrixWorld(true);
+  model.mixer.setTime(Math.min(time, clip.duration));
+  model.root.updateMatrixWorld(true);
   return true;
 }
