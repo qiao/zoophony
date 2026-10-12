@@ -6,6 +6,7 @@
     python3 studio new <animal> --sheet <png> [--role R] [--like A] [--force]
     python3 studio regress <animal> [--no-build] [--write --from DIR]
     python3 studio fit <animal> [--rows]
+    python3 studio report <animal> [--out DIR] [--measure] [--no-serve] [--port N]
     python3 studio schema [--role] [--readme]
 
 Needs python3 3.11 or later with Pillow, Blender 5.2 or later (BLENDER or `blender` on the
@@ -213,9 +214,13 @@ def step_measures(cfg):
 
 
 def step_checks(cfg):
-    """Stage "checks": the structured report <out>/checks.json."""
+    """Stage "checks": the structured report <out>/checks.json with the located failures
+    (<out>/diag/), and the look report (<out>/report/index.html and review.png)."""
+    from studio import report as look_report  # noqa: PLC0415 (Pillow is needed only here)
     report = checks.run(cfg)
     log(checks.summary(report))
+    page = look_report.write(cfg, report)
+    log(f'look report: {page}')
     return report
 
 
@@ -542,6 +547,51 @@ def cmd_fit(a):
         fail('studio/fit.py failed')
 
 
+def serve(folder, port, page):
+    """Serves a folder over HTTP on 127.0.0.1 and prints the URL of a page. Ctrl-C stops it."""
+    import functools  # noqa: PLC0415
+    import http.server  # noqa: PLC0415
+
+    class Quiet(http.server.SimpleHTTPRequestHandler):
+        """A file handler that prints no request lines."""
+
+        def log_message(self, *args):
+            """Prints nothing."""
+
+    handler = functools.partial(Quiet, directory=folder)
+    with http.server.ThreadingHTTPServer(('127.0.0.1', port), handler) as httpd:
+        log(f'look report: http://127.0.0.1:{port}/{page}  (Ctrl-C stops the server)')
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            log('stopped')
+
+
+def cmd_report(a):
+    """studio report: writes the checks, the located failures, and the look report of the last
+    build, then serves the page on a free port (Ctrl-C stops it). --no-serve only writes it."""
+    cfg = load(a.animal, a.out)
+    if not os.path.exists(cfg.paths.stats):
+        fail(f'{cfg.paths.stats} does not exist: run python3 studio build {a.animal}')
+    if a.measure:
+        from studio import measure_features, measure_shading  # noqa: PLC0415
+        log('[measures] features and shading of the existing renders')
+        for mod in (measure_features, measure_shading):
+            with open(os.devnull, 'w') as quiet:
+                stdout, sys.stdout = sys.stdout, quiet
+                try:
+                    mod.measure(cfg)
+                finally:
+                    sys.stdout = stdout
+    step_checks(cfg)
+    if a.no_serve:
+        return
+    port = a.port or free_port()
+    if port in RESERVED_PORTS:
+        fail(f'port {port} is reserved for the servers of the user')
+    serve(cfg.paths.out, port, 'report/index.html')
+
+
 def schema_markdown(node, path=''):
     """Writes the schema as Markdown tables: one table for each section."""
     from studio.schema import REQUIRED, A, F, M, T  # noqa: PLC0415
@@ -634,6 +684,14 @@ def main(argv=None):
     p.add_argument('--out', default=None)
     p.add_argument('--rows', action='store_true')
     p.set_defaults(fn=cmd_fit)
+    p = sub.add_parser('report', help='write the look report of the last build and serve it')
+    p.add_argument('animal')
+    p.add_argument('--out', default=None, help='output folder (default: animals/<id>/out)')
+    p.add_argument('--measure', action='store_true',
+                   help='measure the features and the shading of the renders again first')
+    p.add_argument('--no-serve', action='store_true', help='write the report, start no server')
+    p.add_argument('--port', type=int, default=None)
+    p.set_defaults(fn=cmd_report)
     p = sub.add_parser('schema', help='print the config reference as Markdown')
     p.add_argument('--role', action='store_true', help='the reference of role.toml')
     p.add_argument('--readme', action='store_true', help='write both references into README.md')
