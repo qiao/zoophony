@@ -100,7 +100,7 @@ SHEET = T('The reference sheet: four views of one pose on one plain background.'
     }),
     'axis_rows': F('vec2', 'Heights (0..1) of the rows whose single run gives the axis column.',
                    default=(0.2, 0.3)),
-    'side_axis_height': F('num', 'Height of the shin rows that give the axis of an "shin" view.',
+    'side_axis_height': F('num', 'Height of the shin rows that give the axis of a "shin" view.',
                           default=0.1),
     'side_axis_halfband': F('num', 'Half height of that band of rows.', default=0.004),
     'views': M('The views, in this order. The names front, side, back, and three_quarter are the '
