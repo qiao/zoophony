@@ -66,27 +66,32 @@ each item.
 | Claws, paws, tail | <claw count and length, claws apart, tail size and views> | <#> |
 | Folds at any seed | <"each seed that passes the remesh gate passes the fold and contact gates"> | |
 | Other markings | <each marking and its paint rule, or "none"> | <#> |
-| Measures fit this animal | <"agent confirms the fur saturation floor, the color classes, and the pixel size of each feature limit before it trusts a check"> | |
+| Measures fit this animal | <"agent reads the warnings of `studio calibrate --from <like>`, then confirms the fur saturation floor, the color classes, and the pixel floor of the feature limits before it trusts a check"> | |
+| Sheet check | <each warning of `out/sheet-check.json` and the decision of the user: "accept as a limit" or "new sheet"> | |
 
 ## Role
 
 - Role pack: `roles/<role>/` (<exists, or "new in this round">). Stance: <standing or seated>.
 - Bind pose: <shoulder_flex, shoulder_abduct, elbow_flex, hip_flex, knee_flex, hip_abduct>,
   and the reason (the middle of the motion range). (The pianist: 42, 8, 40, 70, 70, 14.)
-- Props: <each prop, its kind (stick, piano, bench), its attachment (hand or scene), its
-  size>. (A new kind or a new attachment is studio code: say who writes it.)
+- Rig: <`[rig] fingers`: 1, or one digit for each claw (the pianist: 4)>.
+- Props: <each prop and its kind: in a hand `stick` or `bow`, in the scene `piano`, `bench`,
+  `chair`, `music_stand`, `violin`, or `cello`. The studio sizes them from the body: give a
+  size only to override it>. (A new kind or a new attachment, such as a violin on the chest, is
+  studio code: say who writes it.)
 - Clips: <each clip with the size and the place of its gesture, the tempo base, the length>.
 - IK target body: <the body of `[targets]`>.
 - Role checks: <contact depth, contact tests, and for a scene: scene depth, seat gap, hand
   targets>.
-- Seed check: <the clips that must pass on every seed that passes the remesh gate, or "the
-  kept seed only, with the other seeds listed">.
+- Seed rule: <`seeds.require = "kept"` (the kept seed must pass, the other seeds are listed)
+  or `"all"` (every seed that passes the remesh gate passes every clip)>.
 
 ## Values to keep
 
 <Each value that must not get worse, with its current number: the IoU of each view, the checks
-that pass now, the gates, the triangle budget, the GLB size, `python3 studio regress bear`
-and `python3 studio regress polar-bear`.>
+that pass now, the gates, the seed report, the triangle budget, the GLB size,
+`python3 studio regress bear` and `python3 studio regress polar-bear` (the GLB and the model
+GLB).>
 
 ## Limits
 
@@ -101,9 +106,10 @@ and `python3 studio regress polar-bear`.>
 
 - Commits on branch `<branch>`, one logical change per commit, Conventional Commits with the
   scope `studio`.
-- `animals/<id>/animal.toml`, the reference files, `out/` of the kept seed, `golden.json`
-  (`python3 studio regress <id> --write --from animals/<id>/out --note "<note>"`), and
+- `animals/<id>/animal.toml`, the reference files, `out/` of the kept seed, and
   `animals/<id>/README.md` with the method and the numbers.
+- `golden.json` (`python3 studio regress <id> --write --from animals/<id>/out --note
+  "<note>"`) in a commit of its own, with the reason in the commit message.
 - The handoff file `docs/handoff-<id>.md`: the last finished step, the next step, the
   numbers, the failing checks, the open problems.
 - The report in the format below.
@@ -121,11 +127,17 @@ and `python3 studio regress polar-bear`.>
   long builds in the background. Read the exit code of the command itself: a pipe gives the
   code of its last part.
 - Put numbers in `animal.toml` or `role.toml`. A change of studio code runs
-  `python3 studio regress bear` and `python3 studio regress polar-bear`, and both must pass.
-- Run `python3 studio build <id> --all-seeds --no-shots` before you call a model or a clip
-  done, and list each failed seed with its place.
-- Commit after each part. Update the handoff file after each finished step. Read each time of
-  a log or a handoff from `date`.
+  `python3 studio regress bear` and `python3 studio regress polar-bear`. A pure refactor keeps
+  every GLB byte-identical. An improvement may change an existing animal only when it is
+  measurably closer to its sheet and no gate gets worse: give a before-and-after table and a
+  review image, and write the new golden file in a commit of its own with the reason.
+- Read `out/seed-report.json` (or run `python3 studio build <id> --all-seeds --no-shots`)
+  before you call a model or a clip done, and list each failed seed with its place. With
+  `seeds.require = "kept"` the exit code says nothing about the other seeds.
+- Judge the look only on current look checks: a build with `--no-shots` marks them stale, and
+  `python3 studio compare <id>` makes them current.
+- Commit after each part. Update the handoff file after each finished step. Take each time of
+  a report or a handoff from `python3 studio log <id>`.
 - Write in ASD-STE100 Simplified Technical English, with no em dashes.
 
 ## Report format
@@ -136,8 +148,8 @@ Reply with these parts, in this order, and nothing else:
 ## Result
 <one sentence: done, or stopped at which step and why>
 
-## Numbers (seed <kept>, commit <hash>)
-| IoU front | side | back | 3/4 | checks pass / all | near | gates | body triangles | seeds pass (--all-seeds) |
+## Numbers (role seed <kept>, model seed <n>, commit <hash>)
+| IoU front | side | back | 3/4 | checks pass / all | near | stale | gates | body triangles | seeds pass (seed report) |
 
 ## Claims checked
 | # | Claim | Crop agrees? | Note |
@@ -145,7 +157,7 @@ Reply with these parts, in this order, and nothing else:
 ## Failing checks
 | Check | Value | Limit | Place and crop | Verdict: fixed, open, or limit of the sheet |
 
-## Times (from `date`)
+## Times (from `python3 studio log <id>`)
 | Part | Start | End | Minutes |
 | Step | Count | Typical seconds |
 
