@@ -174,10 +174,10 @@ def face_details(parts, ray=None):
         base = surf - look * 0.0005
         layer('eye_outline', base, (r * 1.14, r * 1.14, r * 0.45), COLORS['eye_outline'])
         layer('sclera', base + look * 0.001, (r, r, r * 0.62), COLORS['sclera'])
-        inward = -side * 0.0022 * right
+        inward = -side * 0.12 * r * right
         iris_c = base + look * 0.0035 + inward
-        layer('eye', iris_c, (r * 0.7, r * 0.7, r * 0.5), COLORS['eye'])
-        hl = iris_c + frame @ np.array([0.0032 * side, 0.0036, r * 0.42])
+        layer('eye', iris_c, (r * 0.86, r * 0.86, r * 0.5), COLORS['eye'])
+        hl = iris_c + frame @ np.array([0.24 * r * side, 0.28 * r, r * 0.42])
         layer('catchlight', hl, (r * 0.2, r * 0.2, r * 0.12), COLORS['catchlight'], cv, cf)
 
     # A soft brow line above each eye: a thin arc, highest above the eye, as on the sheet.

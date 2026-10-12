@@ -70,7 +70,7 @@ HEAD = {
     'ear_yaw': 35.0,
     'ear_roll': 10.0,
     'eye': (0.043, 0.892),
-    'eye_radius': 0.0113,
+    'eye_radius': 0.0135,
     'nose': (0.0, 0.845),
 }
 
@@ -110,8 +110,8 @@ def trunk_table(views):
     # Above y 0.77 the trunk is only the neck and the nape: narrower than the head, so the
     # head reads as a ball on the shoulders, with a groove under the cheeks.
     a_ctrl = [(0.45, None), (0.475, 0.2036), (0.52, 0.199), (0.58, 0.193), (0.64, 0.183),
-              (0.70, 0.174), (0.73, 0.167), (0.76, 0.157), (0.78, 0.145), (0.80, 0.13),
-              (0.84, 0.1), (0.885, 0.07)]
+              (0.70, 0.174), (0.73, 0.167), (0.755, 0.153), (0.775, 0.136), (0.795, 0.115),
+              (0.83, 0.09), (0.885, 0.06)]
     zf_ctrl = [(0.74, None), (0.77, 0.16), (0.80, 0.125), (0.84, 0.08), (0.885, 0.04)]
     a = np.zeros_like(ys)
     zb = np.zeros_like(ys)
@@ -178,8 +178,9 @@ def trunk_table(views):
 HEAD_BOTTOM = 0.75
 HEAD_CHEEK = (0.83, 0.153)
 HEAD_TEMPLE = 0.92
+HEAD_CAP = 0.93
 HEAD_TOP = 0.978
-HEAD_BLEND = 0.016
+HEAD_BLEND = 0.035
 # The front and the back of the head ball (z) by height, where the side mask does not show
 # them: the face plane beside the snout, and the back of the skull in front of the hump line,
 # so the head reads as a ball and not as one slope with the back.
@@ -217,9 +218,10 @@ def head_table(views):
     zb_top = _side_edges(side, 0.93)[0]
     for i, y in enumerate(ys):
         if y <= yc:
-            # A squarish cap (power 3): the jowls keep their width low, then turn under.
+            # A round cap: from the front, the cheeks turn under to the chin on a quarter
+            # ellipse, so the head outline is close to a circle from the ear bases down.
             t = (yc - y) / (yc - HEAD_BOTTOM)
-            a[i] = ac * max(1.0 - t ** 3, 0.0) ** (1.0 / 3.0)
+            a[i] = ac * math.sqrt(max(1.0 - t * t, 0.0))
         elif y <= HEAD_TEMPLE:
             a[i] = width(y)
         else:
@@ -242,6 +244,17 @@ def head_table(views):
         else:
             t = (y - 0.93) / (HEAD_TOP - 0.93)
             zb[i] = 0.065 + (zb_top - 0.065) * math.sqrt(max(1.0 - t * t, 0.0))
+    # The dome: above HEAD_CAP the width and the depth shrink together, as on an ellipsoid, so
+    # the top is round. (A width that closed before the depth left a thin ridge on the crown,
+    # and the faces across it pointed into the head.)
+    k = int(np.searchsorted(ys, HEAD_CAP))
+    zc = 0.5 * (zb[k] + zf[k])
+    for i in range(k, len(ys)):
+        t = (ys[i] - HEAD_CAP) / (HEAD_TOP - HEAD_CAP)
+        f = math.sqrt(max(1.0 - t * t, 0.0))
+        a[i] = a[k] * f
+        zf[i] = zc + (zf[k] - zc) * f
+        zb[i] = zc - (zc - zb[k]) * f
     a, zb, zf = (smooth(v, ys, 0.004) for v in (a, zb, zf))
     a[0] = 0.0
     a[-1] = 0.0
@@ -404,8 +417,8 @@ def ear_frame(side):
 # tilts up toward the front, so the nose at the top reaches furthest (z 0.28 at height 0.85)
 # and the chin recedes, as in the side view of the sheet. From the front it is a round tan
 # disk 0.12 wide.
-SNOUT = ((0.0, 0.822, 0.165), (0.0, 0.843, 0.232))
-SNOUT_RADII = (0.066, 0.055)
+SNOUT = ((0.0, 0.832, 0.165), (0.0, 0.845, 0.232))
+SNOUT_RADII = (0.06, 0.052)
 SNOUT_SQUASH = 0.95
 
 

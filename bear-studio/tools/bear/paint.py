@@ -118,7 +118,9 @@ def face_colors(parts, centers, normals, corners):
     # front this is a round disk about 0.12 wide, and from the side it reaches back to the base
     # of the snout, as on the sheet. (The brows are thin details: details.face_details.)
     near = np.abs(body.snout(corners.reshape(-1, 3))).reshape(-1, 3) < 0.024
-    muzzle = near.all(axis=1) & (corners[:, :, 2].min(axis=1) > 0.135)
+    # The tan ends at the chin (height 0.775 on the sheet), so it does not run down the throat.
+    muzzle = (near.all(axis=1) & (corners[:, :, 2].min(axis=1) > 0.135)
+              & (corners[:, :, 1].min(axis=1) > 0.766))
     # The sheet lights the face with a soft front fill, so the lower muzzle that faces down is
     # still light tan. The baked part of that fill lifts the muzzle faces that point down.
     lift = 1.0 + 0.22 * np.clip(-normals[:, 1], 0.0, 1.0)
