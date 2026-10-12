@@ -256,7 +256,8 @@ def main():
     if args.pose == 'bind':
         baton_items, _, _ = details.baton(args.pose)
         items += baton_items
-    stats = {'body_triangles': len(tris), 'median_edge_px': round(median_px, 1),
+    stats = {'seed': args.seed, 'quads': args.quads,
+             'body_triangles': len(tris), 'median_edge_px': round(median_px, 1),
              'edge_quartiles_px': [round(q1, 1), round(q3, 1)],
              'sliver_share': round(slivers, 4), 'folded_faces': folds}
     if args.no_rig:
