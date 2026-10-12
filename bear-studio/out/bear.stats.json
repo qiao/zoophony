@@ -1,0 +1,20 @@
+{
+  "body_triangles": 2400,
+  "median_edge_px": 19.6,
+  "folded_faces": 0,
+  "bones": 29,
+  "clips": [
+    "reference",
+    "ready",
+    "beat_4_4",
+    "cue_left",
+    "crescendo",
+    "hush",
+    "cutoff",
+    "nod_turn",
+    "sway_dip",
+    "bow",
+    "performance"
+  ],
+  "total_triangles": 3530
+}
