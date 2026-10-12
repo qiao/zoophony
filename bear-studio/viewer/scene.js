@@ -33,20 +33,26 @@ export function createRenderer(canvas, { alpha = false, preserve = false } = {})
   return renderer;
 }
 
-/** The light levels. A page can change them with ?light=hemi,key,fill for tuning. */
-export const LIGHT = { hemi: 0.6, key: 5.2, fill: 0.3 };
+/** The light levels and the key direction (camera space: right, up, back). A page can change
+ * them with ?light=hemi,key,fill and ?keydir=x,y,z for tuning. */
+export const LIGHT = { hemi: 1.4, key: 3.8, fill: 0.9, keyDir: [-1.2, 3.5, 3.5] };
 
-const lightParam = new URLSearchParams(globalThis.location?.search ?? '').get('light');
+const query = new URLSearchParams(globalThis.location?.search ?? '');
+const lightParam = query.get('light');
 if (lightParam) {
   const [hemi, key, fill] = lightParam.split(',').map(Number);
   Object.assign(LIGHT, { hemi, key, fill });
+}
+const keyDirParam = query.get('keydir');
+if (keyDirParam) {
+  LIGHT.keyDir = keyDirParam.split(',').map(Number);
 }
 
 /** Adds the lights. The key, fill, and rim lights follow the camera, as on the sheet. The key
  * light also casts the shadows, on the bear and on the ground. Call lights.aim(camera) before
  * each render. */
 export function addLights(scene, camera) {
-  const hemi = new THREE.HemisphereLight(0xfbfaf8, 0x2c2826, LIGHT.hemi);
+  const hemi = new THREE.HemisphereLight(0xfbfaf8, 0x8a7d74, LIGHT.hemi);
   scene.add(hemi);
 
   const center = new THREE.Vector3(0, 0.55, 0);
@@ -57,7 +63,7 @@ export function addLights(scene, camera) {
     scene.add(light, light.target);
     return light;
   };
-  const key = make(0xfffbf4, LIGHT.key, [-1.4, 2.0, 4.5]);
+  const key = make(0xfffbf4, LIGHT.key, LIGHT.keyDir);
   const fill = make(0xf6f6f8, LIGHT.fill, [3, 0.5, 4]);
   const rim = make(0xe8eeff, 0.35, [4, 2.5, -6]);
 
@@ -72,8 +78,8 @@ export function addLights(scene, camera) {
   sc.far = 12;
   key.shadow.bias = -0.0004;
   key.shadow.normalBias = 0.012;
-  key.shadow.radius = 2;
-  key.shadow.intensity = 0.55;
+  key.shadow.radius = 6;
+  key.shadow.intensity = 0.3;
   scene.add(camera);
 
   const dir = new THREE.Vector3();

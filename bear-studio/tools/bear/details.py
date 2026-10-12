@@ -168,11 +168,12 @@ def face_details(parts, ray=None):
     nx, ny = body.HEAD['nose']
     surf = ray((nx, ny, 0.45), (0, 0, -1))
     nv, nf = icosphere(1)
-    nv = nv * np.array([0.036, 0.025, 0.024])
-    taper = np.clip(1.0 + 0.5 * nv[:, 1] / 0.025, 0.55, 1.3)
+    # A big nose (0.095 wide at the top on the sheet) on the front of the snout.
+    nv = nv * np.array([0.037, 0.028, 0.024])
+    taper = np.clip(1.0 + 0.5 * nv[:, 1] / 0.028, 0.55, 1.3)
     nv[:, 0] *= taper
-    nv[:, 2] += 0.006 * (nv[:, 1] / 0.025)
-    center = surf + np.array([0.0, 0.0, -0.009])
+    nv[:, 2] += 0.006 * (nv[:, 1] / 0.028)
+    center = surf + np.array([0.0, 0.0, -0.01])
     out.append(_detail('nose', center + nv, nf, COLORS['nose'], 'gloss', 'head'))
 
     # The mouth: a short philtrum and a smile, pressed onto the muzzle.
@@ -180,13 +181,13 @@ def face_details(parts, ray=None):
         return ray((x, y, 0.45), (0, 0, -1)) + np.array([0, 0, 0.0012])
 
     # A short philtrum and a soft closed smile, as on the sheet (the mouth is at height 0.80).
-    philtrum = [on_surface(0.0, y) for y in np.linspace(ny - 0.024, ny - 0.034, 3)]
+    philtrum = [on_surface(0.0, y) for y in np.linspace(ny - 0.026, ny - 0.036, 3)]
     pv, pf = tube(philtrum, [0.0022] * 3, 4, closed_tip=False)
     out.append(_detail('mouth_0', pv, pf, COLORS['mouth'], 'fur', 'head'))
     for side in (1, -1):
         xs = np.linspace(0.0, 0.032, 7)
         dys = -0.0045 * np.sin(np.pi * xs / 0.032 * 0.8) + 0.004 * (xs / 0.032) ** 2
-        smile = [on_surface(side * x, ny - 0.034 + dy) for x, dy in zip(xs, dys)]
+        smile = [on_surface(side * x, ny - 0.036 + dy) for x, dy in zip(xs, dys)]
         radii = np.linspace(0.0021, 0.0012, len(smile))
         mv, mf = tube(smile, radii, 4, closed_tip=False)
         out.append(_detail(f'mouth_{side}', mv, mf, COLORS['mouth'], 'fur', 'head'))

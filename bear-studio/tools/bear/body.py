@@ -24,7 +24,7 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 ARM_REF = {
     'clavicle': (0.035, 0.70, 0.045),
     'shoulder': (0.16, 0.662, 0.015),
-    'elbow': (0.271, 0.50, -0.025),
+    'elbow': (0.271, 0.50, 0.0),
     'wrist': (0.331, 0.40, 0.045),
     'knuckle': (0.344, 0.335, 0.07),
 }
@@ -58,15 +58,19 @@ SPINE = {
     'head_end': (0.99, 0.05),
 }
 
+# The head, measured on the side view of the sheet: the dome reaches 0.975, the forehead is
+# near vertical at z 0.20 from 0.89 to 0.93, the cheeks are widest (0.153) at 0.83, and the
+# snout spans 0.775 to 0.89 with the nose tip at z 0.282.
 HEAD = {
-    'cranium': ((0.0, 0.878, 0.10), (0.112, 0.09, 0.105)),
-    'jowls': ((0.0, 0.822, 0.07), (0.152, 0.07, 0.105)),
-    'muzzle': ((0.0, 0.823, 0.19), (0.06, 0.053, 0.076)),
+    'cranium': ((0.0, 0.865, 0.095), (0.116, 0.11, 0.108)),
+    'brow': ((0.0, 0.912, 0.14), (0.088, 0.042, 0.062)),
+    'jowls': ((0.0, 0.825, 0.08), (0.15, 0.068, 0.105)),
+    'muzzle': ((0.0, 0.838, 0.2), (0.062, 0.056, 0.08)),
     'ear': ((0.087, 0.962, 0.06), (0.035, 0.035, 0.017)),
     'ear_yaw': 25.0,
-    'eye': (0.043, 0.882),
+    'eye': (0.043, 0.888),
     'eye_radius': 0.0118,
-    'nose': (0.0, 0.826),
+    'nose': (0.0, 0.845),
 }
 
 TAIL = ((0.0, 0.255, -0.14), (0.032, 0.036, 0.026))
@@ -103,7 +107,7 @@ def trunk_table(views):
     ys = np.round(np.arange(0.150, 0.8851, 0.005), 4)
     # Above y 0.45 the arms hide the sides of the trunk, so the width follows control points.
     a_ctrl = [(0.45, None), (0.475, 0.2036), (0.52, 0.199), (0.58, 0.193), (0.64, 0.183),
-              (0.70, 0.168), (0.76, 0.150), (0.82, 0.128), (0.885, 0.09)]
+              (0.70, 0.168), (0.76, 0.150), (0.80, 0.128), (0.84, 0.118), (0.885, 0.09)]
     zf_ctrl = [(0.74, None), (0.78, 0.18), (0.82, 0.14), (0.885, 0.08)]
     a = np.zeros_like(ys)
     zb = np.zeros_like(ys)
@@ -306,23 +310,25 @@ def ear_frame(side):
     return frame_from((0.0, 1.0, 0.0), normal)
 
 
-# The snout: a short capsule along z from its base to the center of its round front, with an
-# oval section (0.06 wide, 0.053 tall). On the sheet the tan snout has steep sides: from the
-# front it is a round disk, and from the side it is tan from z 0.18 to the nose tip at 0.265.
-SNOUT = ((0.0, 0.825, 0.165), (0.0, 0.822, 0.212))
+# The snout: a short cone along z from its base to the center of its round front. Its axis
+# tilts up toward the front, so the nose at the top reaches furthest (z 0.28 at height 0.85)
+# and the chin recedes, as in the side view of the sheet. From the front it is a round tan
+# disk 0.12 wide.
+SNOUT = ((0.0, 0.828, 0.165), (0.0, 0.845, 0.23))
+SNOUT_RADII = (0.062, 0.051)
+SNOUT_SQUASH = 0.95
 
 
 def snout(p):
-    """Calculates the distance to the snout capsule."""
-    _, r = HEAD['muzzle']
+    """Calculates the distance to the snout cone."""
     a, b = SNOUT
-    return round_cone(p, a, b, r[0], r[0] * 0.94, ((0.0, 1.0, 0.0), r[1] / r[0]))
+    return round_cone(p, a, b, SNOUT_RADII[0], SNOUT_RADII[1], ((0.0, 1.0, 0.0), SNOUT_SQUASH))
 
 
 def head_parts():
     """Makes the parts of the head: the cranium, the jowls, the muzzle, and the ears."""
     parts = []
-    for name, k in (('cranium', 0.04), ('jowls', 0.04), ('muzzle', 0.022)):
+    for name, k in (('cranium', 0.04), ('brow', 0.035), ('jowls', 0.04), ('muzzle', 0.022)):
         c, r = HEAD[name]
         lo, hi = _box_of_points([c], max(r) + 0.06)
         if name == 'muzzle':

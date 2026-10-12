@@ -8,9 +8,12 @@ Steps (Blender and numpy):
    the forms: rings around the trunk and along the limbs.
 3. The vertices go back through the inverse warp, onto the exact field surface, and into exact
    mirror pairs.
-4. A small jitter, the same on both sides, gives the hand-made irregular look.
-5. Each quad becomes two triangles. The diagonal runs down and in toward the center line on
+4. Each quad becomes two triangles. The diagonal runs down and in toward the center line on
    both halves, so the facets meet in a V on the chest and the belly.
+5. The organic pass (organic.py) collapses some short edges and flips some edges, mirrored,
+   so the triangles get varied sizes, shapes, and angles. A light relaxation along the surface
+   evens out the worst shapes.
+6. A small jitter, the same on both sides, gives the hand-made irregular look.
 """
 
 import bmesh
@@ -19,6 +22,13 @@ import numpy as np
 
 import body
 import mesh
+import organic
+
+# The organic pass (organic.py): the share of the half vertices that collapse, the share of the
+# half edges that try a flip, and the amount of the relaxation.
+COLLAPSE_SHARE = 0.3
+FLIP_SHARE = 0.8
+RELAX = 0.12
 
 # The warps, applied in order: (center, radius, factor). A factor above 1 gives denser facets.
 # Each warp is radial, r -> r * s(r) with s(r) = 1 + (factor - 1) * exp(-(r / radius)^2). It
@@ -27,10 +37,34 @@ import mesh
 WARPS = [
     (np.array([0.0, 0.42, 0.02]), 0.24, 0.72),
     (np.array([0.0, 0.86, 0.12]), 0.16, 1.5),
-    (np.array([0.0, 0.822, 0.2]), 0.1, 2.2),
+    (np.array([0.0, 0.838, 0.21]), 0.1, 2.2),
     (np.array([0.142, 0.035, 0.07]), 0.07, 1.8),
     (np.array([-0.142, 0.035, 0.07]), 0.07, 1.8),
 ]
+
+
+def joint_skin(points):
+    """Marks the skin around the joints that bend far: the shoulders, the elbows, the wrists
+    (bind pose), and the crotch. The organic pass leaves it alone."""
+    p = np.asarray(points, float)
+    joints, _ = body.arm_pose('bind')
+    out = np.zeros(len(p), bool)
+    for side in (1.0, -1.0):
+        for name, radius in (('shoulder', 0.1), ('elbow', 0.085), ('wrist', 0.07)):
+            c = joints[name] * np.array([side, 1.0, 1.0])
+            out |= np.linalg.norm(p - c, axis=1) < radius
+    out |= (np.abs(p[:, 0]) < 0.09) & (p[:, 1] < 0.21) & (p[:, 1] > 0.06)
+    return out
+
+
+def _paw_warps():
+    """Adds a warp at each paw of the bind pose, so the round end of the paw keeps its form."""
+    joints, _ = body.arm_pose('bind')
+    center = 0.5 * (joints['wrist'] + joints['knuckle'])
+    return [(center * np.array([s, 1.0, 1.0]), 0.07, 1.7) for s in (1.0, -1.0)]
+
+
+WARPS += _paw_warps()
 
 
 def _scale(r, radius, factor):
@@ -110,7 +144,7 @@ def unwarp(q):
 
 # The vertices sit this far outside the field surface, so that the flat facets cut through
 # the surface (half of each facet in, half out) and the silhouette keeps its size.
-OFFSET = 0.0025
+OFFSET = 0.004
 
 
 def project(parts, p, steps=6, offset=OFFSET):
@@ -230,7 +264,7 @@ def chevron_triangles(v, polys):
     return np.array(tris, np.int64)
 
 
-def remesh(parts, verts, quads, target_quads, seed=1, jitter_amount=0.006, jitter_depth=0.005):
+def remesh(parts, verts, quads, target_quads, seed=1, jitter_amount=0.005, jitter_depth=0.0):
     """Makes the aligned low-poly body from the dense field mesh. Returns the object."""
     # 1. Warp, so that the head gets more quads.
     obj = mesh.new_mesh_object('Dense', mesh.to_blender(warp(verts)), quads)
@@ -268,21 +302,35 @@ def remesh(parts, verts, quads, target_quads, seed=1, jitter_amount=0.006, jitte
     edge = np.median([np.linalg.norm(v[p[0]] - v[p[1]]) for p in polys])
     pairs = mirror_pairs(v, tol=0.25 * edge)
     v = symmetrize(v, pairs)
+    unpaired = int(np.sum(pairs < 0))
+    n_quads = len(polys)
+    bpy.data.objects.remove(obj, do_unlink=True)
+
+    # 3. Triangles with mirrored diagonals, then organic sizes and shapes.
+    tris = chevron_triangles(v, polys)
+
+    def onto(p):
+        p = np.asarray(p, float)
+        return project(parts, p[None])[0] if p.ndim == 1 else project(parts, p)
+
+    rng = np.random.default_rng(seed)
+    v, tris, pairs, counts = organic.organize(v, tris, pairs, onto, rng, COLLAPSE_SHARE,
+                                              FLIP_SHARE, joint_skin(v))
+    v = organic.relax(v, tris, pairs, onto, RELAX, 2)
+
+    # 4. A small mirrored jitter, smaller where the facets are small.
     if jitter_amount > 0 or jitter_depth > 0:
         sums = np.zeros(len(v))
-        counts = np.zeros(len(v))
-        for poly in polys:
-            for a, b in zip(poly, poly[1:] + poly[:1]):
+        counts_v = np.zeros(len(v))
+        for t in tris:
+            for a, b in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
                 length = np.linalg.norm(v[a] - v[b])
                 sums[[a, b]] += length
-                counts[[a, b]] += 1
-        local = np.clip(sums / np.maximum(counts, 1) / edge, 0.3, 1.5)
+                counts_v[[a, b]] += 1
+        edge_t = float(np.median(sums / np.maximum(counts_v, 1)))
+        local = np.clip(sums / np.maximum(counts_v, 1) / edge_t, 0.3, 1.5)
         v = jitter(parts, v, pairs, jitter_amount, jitter_depth, local)
-    unpaired = int(np.sum(pairs < 0))
 
-    # 3. Triangles with mirrored diagonals.
-    tris = chevron_triangles(v, polys)
-    bpy.data.objects.remove(obj, do_unlink=True)
     out = mesh.new_mesh_object('Bear', mesh.to_blender(v), tris)
     out.data.validate()
     bm = bmesh.new()
@@ -290,8 +338,10 @@ def remesh(parts, verts, quads, target_quads, seed=1, jitter_amount=0.006, jitte
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     bm.to_mesh(out.data)
     bm.free()
-    return out, {'quads': len(polys), 'unpaired_vertices': unpaired,
-                 'quad_edge_px': round(float(edge) * 528, 1)}
+    info = {'quads': n_quads, 'unpaired_vertices': unpaired,
+            'quad_edge_px': round(float(edge) * 528, 1)}
+    info.update(counts)
+    return out, info
 
 
 def triangle_quality(v, tris):
