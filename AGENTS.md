@@ -55,10 +55,12 @@ Open these files for these kinds of work:
 - SoundFont: `assets/soundfont/README.md` gives its source and checksum.
 - Hall reverb: `assets/hall/README.md` gives the source, the license, the checksums, and the
   steps that made the impulse response.
-- Standalone bear conductor: `bear-studio/` is a separate project that the user asked for on
-  2026-10-11. It builds a rigged low-poly bear with conducting clips from its own reference
-  image, outside the rules of this file. The app does not use it, and the lint skips it. Its
-  `README.md` gives the method and the commands.
+- Low-poly studio: `lowpoly-studio/` is a separate project that the user asked for on
+  2026-10-11 (first as `bear-studio/`). It builds rigged low-poly animals from a reference sheet,
+  with one config for each animal and one role pack for each role, such as the bear conductor.
+  It is outside the rules of this file. Run its CLI in that folder:
+  `python3 studio build|compare|view|new|regress <animal>`. The app does not use it, and the
+  lint skips it. Its `README.md` gives the layout, the commands, the config, and the role packs.
 
 `docs/research/` holds the facts behind the decisions, with sources. Keep these reports as the
 record of their date. Put new research in a new report.
