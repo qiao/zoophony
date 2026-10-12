@@ -394,6 +394,10 @@ mesh_belly = [-0.15, 0.3, 0.15, 0.55]
 dark = { max_under = 100 }
 white = { over_background = 9, spread_under = 45 }
 ear_dark = { median_under = 0.8 }
+nose = { palette = "nose", saturation_tol = 0.2, max_under = 100 }
+muzzle = { palette = "muzzle", hue_tol = 6.0, saturation_tol = 0.15, max_over = 120 }
+claw = { palette = "claw", saturation_tol = 0.15, max_under = 120 }
+light = { median_over = 1.12 }
 
 # The eyes: the two blobs of dark and white pixels in the band of the eyes with the most white.
 [measure.features.eyes]
@@ -414,7 +418,39 @@ dark = "ear_dark"
 dark_views = ["front"]
 split = ["front", "back"]
 regions = { front = [-1.0, 0.7, 1.0, 1.1], side = [-1.0, 0.7, 1.0, 1.1], back = [-1.0, 0.7, 1.0, 1.1] }
-checks = { width = { op = "rel<=", limit = 0.1 }, height = { op = "rel<=", limit = 0.1 } }
+checks = { width = { op = "rel<=", limit = 0.1 }, height = { op = "rel<=", limit = 0.1 }, dark = { op = "abs<=", limit = 0.1 } }
+
+# The nose: the largest blob of nose pixels on the snout. The 3/4 view of the sheet turns the
+# head more than the other views, so the nose and the muzzle are measured in the front and side views.
+[measure.features.nose]
+method = "blobs"
+classes = ["nose"]
+regions = { front = [-0.08, 0.79, 0.08, 0.88], side = [0.1, 0.79, 0.35, 0.9] }
+checks = { x = { op = "abs<=", limit = 0.01 }, y = { op = "abs<=", limit = 0.01 }, width = { op = "rel<=", limit = 0.15 }, height = { op = "rel<=", limit = 0.15 } }
+
+# The muzzle: the tan pixels around the snout.
+[measure.features.muzzle]
+method = "area"
+classes = ["muzzle"]
+regions = { front = [-0.13, 0.74, 0.13, 0.9], side = [0.0, 0.74, 0.35, 0.9] }
+checks = { y = { op = "abs<=", limit = 0.01 }, width = { op = "rel<=", limit = 0.15 }, height = { op = "rel<=", limit = 0.15 } }
+
+# The belly: the lighter part of the trunk in the front view.
+[measure.features.belly]
+method = "area"
+classes = ["light"]
+regions = { front = [-0.2, 0.25, 0.2, 0.62] }
+checks = { y = { op = "abs<=", limit = 0.03 }, width = { op = "rel<=", limit = 0.2 }, height = { op = "rel<=", limit = 0.2 } }
+
+# The claws of the paws: the blobs of claw pixels below each paw.
+[measure.features.claws]
+method = "blobs"
+classes = ["claw"]
+min_area = 30
+count = 4
+split = ["front"]
+regions = { front = [-0.45, 0.28, 0.45, 0.42] }
+checks = { count = { op = "abs<=", limit = 1 } }
 
 [measure.shading]
 belly_box = [-0.13, 0.30, 0.13, 0.52]
