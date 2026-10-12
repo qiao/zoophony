@@ -27,8 +27,12 @@ python3 studio view bear             # the viewer on a free port; Ctrl-C stops i
 python3 studio view bear --stop      # stop a viewer that runs in the background
 python3 studio log bear              # the timeline of the builds: real times, seeds, cache hits
 python3 studio regress bear          # build again and compare with the golden stats
-python3 studio new fox --sheet ~/fox-views.png   # start a new animal
+python3 studio new fox --sheet ~/fox-views.png --like bear   # start a new animal (compact
+                                     # config from the bear, sheet check)
+python3 studio calibrate fox --from bear   # light, palette, dark classes from the sheet (6 s)
+python3 studio calibrate fox --quads --no-look   # the QuadriFlow target (about 30 s)
 python3 studio regress polar-bear    # the polar bear pianist: build and compare
+python3 -m unittest tests.test_intake   # the tests of the foreground rules (about 13 s)
 ```
 
 All worktrees of the repository share the stage cache and the run files in
@@ -49,7 +53,12 @@ lowpoly-studio/
 │   │                    that all worktrees share
 │   ├── outputs.py       build.json, look.json, the old outputs, the stale look checks
 │   ├── runlog.py        the run files and the timeline of `studio log`
-│   ├── intake.py        sheet -> masks and row profiles (Pillow)
+│   ├── intake.py        sheet -> masks and row profiles (Pillow): the colored rule or the
+│   │                    difference rule (intake.foreground)
+│   ├── consistency.py   the sheet check of the intake: where the views disagree
+│   ├── like.py          the compact config of `new --like` (edits of the like config text)
+│   ├── calibrate.py     `calibrate`: the light, the palette, and the dark classes (Pillow)
+│   ├── quads.py         `calibrate --quads`: the QuadriFlow target (Blender)
 │   ├── sdf.py field.py  distance primitives, lofts from the masks, the field grid
 │   ├── remesh.py        warps, QuadriFlow with mirror, organic pass, cleanup, body object,
 │   │                    the remesh gate
@@ -86,10 +95,11 @@ lowpoly-studio/
 ├── animals/bear/        animal.toml, golden.json, README.md, reference/, out/ (out/model/,
 │                        out/seeds/, and out/stages/ are ignored by git)
 ├── animals/polar-bear/  animal.toml, golden.json, reference/, out/ (the pianist)
+├── tests/               test_intake.py: the foreground rules (python3 -m unittest)
 ├── docs/                handoff.md, handoff-diag.md, handoff-speed.md, handoff-pilot.md,
-│                        handoff-runtime.md (the state of the work), sheet-spec.md (the rules
-│                        of a reference sheet), brief-template.md (the brief of a round),
-│                        retro/ (the retrospectives)
+│                        handoff-runtime.md, handoff-intake.md (the state of the work),
+│                        sheet-spec.md (the rules of a reference sheet), brief-template.md
+│                        (the brief of a round), retro/ (the retrospectives)
 └── vite.config.js       the root of the pages is this folder
 ```
 
@@ -131,7 +141,7 @@ gate runs after "remesh" and after "organic" (see "Speed").
 
 | Stage | Where | Inputs | Outputs | Time (bear) |
 |---|---|---|---|---|
-| intake | CLI, Pillow | sheet, `sheet.*` | masks, `measure.json` | 2.6 s |
+| intake | CLI, Pillow | sheet, `sheet.*`, `intake.*` | masks, `measure.json`, `sheet-check.json` | 2.9 s |
 | field | Blender | body parts of the template | dense mesh (surface nets) | 1.5 s |
 | remesh | Blender | dense mesh, `facets.*`, seed | mirrored triangles | 2.0 s |
 | organic | Blender | triangles, `facets.*`, seed | body mesh and object | 15.4 s |
@@ -177,7 +187,8 @@ of the conductor, so a conductor build and its model build share the model stage
 | `python3 studio compare <animal>` | Renders the GLB of the model build beside the sheet, and the frames and the viewer shot of the role GLB, then the measures and the checks. No new role build. When `out/model/` does not hold the model GLB of the build in `out/`, it builds the model first (from the stage cache). |
 | `python3 studio view <animal> [--port N] [--stop]` | Writes `out/viewer.json`, starts Vite on a free port (never 5173 or 5190), writes the pid file `out/view-server.json` (the pids, the port, the URLs), and prints the URLs of the viewer and the compare page. Ctrl-C, SIGTERM, or `view <animal> --stop` stops the server and Vite, also when it runs as a background job (the shell then ignores Ctrl-C). A second `view` prints the URL of the running server. |
 | `python3 studio log [<animal>] [--all] [--last N] [--short] [--json]` | Prints the timeline of the runs of `build`, `regress`, and `compare` from their run files: the start, the wall time, the command, the seed and the model seed, the cache hits, the result, the time and the source of each step and Blender stage, and the seeds of the pool. `--all` shows the runs of all worktrees. Report these times, and do not guess them. |
-| `python3 studio new <animal> --sheet <png> [--role R] [--like A]` | Makes `animals/<animal>/` (the id: lower case letters, digits, hyphens, and underscores) with the sheet in `reference/`, an `animal.toml` with "TODO" fields, and prints the intake checklist. It finds the background and the four view columns of the sheet. `--like bear` fills the TODO fields with the bear values and marks them "TODO: measure", so `fit` and a first build run at once. |
+| `python3 studio new <animal> --sheet <png> [--like A] [--role R] [--full] [--foreground F]` | Makes `animals/<animal>/` (the id: lower case letters, digits, hyphens, and underscores) with the sheet in `reference/` and an `animal.toml`, runs the intake with its sheet check, and prints the intake checklist. It finds the background, the four view columns, and the rows of the compare tiles (`compare.rows`) by the intake rule `--foreground` (default `difference`). With `--like A`, the config is the compact config of A: the config file of A with its comments, the measured fields of the new sheet (marked "measured by studio new"), and the methods of a new animal (`intake.foreground = "difference"`, `checks.feature_pixels = 1.0`, and `compare.head_turn` of the 3/4 view: the turn that the sheet check measures, plus or minus 6 degrees). `fit`, `calibrate`, and a first build run at once. `--full` (or no `--like`) writes the scaffold of every field with "TODO" fields. `--role` defaults to the role of A. |
+| `python3 studio calibrate <animal> [--from A] [--quads] [--no-look] [--contrast X] [--dry-run]` | Fits the look to the sheet (see "Calibrate"): the hemisphere and the key light, the palette, and the dark color classes, with renders of the GLB of the animal (or of A, for a new animal with no GLB). It warns when a color class that decides a feature takes fur pixels. `--quads` also measures the QuadriFlow count on the field and sets `facets.quadriflow_target`. Writes the values into `animal.toml` with a comment, and `out/calibrate/look.json` and `quads.json`. `--dry-run` writes nothing into the config. |
 | `python3 studio fit <animal> [--rows] [--azimuths a,b,c] [--pose bind]` | Scores the field against the masks with no mesh (about 2 s: Blender start, field, four views). `--rows` prints the edges of each row. `--azimuths` tries these azimuths of the 3/4 view and keeps the best. `--pose bind` scores the field of the bind pose. |
 | `python3 studio report <animal>` | Writes the checks, the located failures (`out/diag/`), and the look report (`out/report/index.html`, `review.png`) of the last build, then serves `out/` on a free port (never 5173 or 5190) until Ctrl-C. `--measure` measures the features and the shading of the existing renders again first (a feature box change takes about 3 s). `--no-serve` only writes the files. `--out DIR` reads another output folder. |
 | `python3 studio regress <animal>` | Builds with the golden seed into `out/regress/` (with the model build) and compares with `golden.json`. `--no-cache` makes the build cold. `--no-build` compares the last regression build. `--write --from DIR --note TEXT` writes a new `golden.json` from a build. |
@@ -205,14 +216,20 @@ The Blender log of each seed is `out/stages/blender-seed<N>.log` (in the seed po
    the facet size, the light and the contrast, the palette, the eyes, the head, the snout, the
    ears, symmetry, "no folds at any seed". A manager writes the brief of each round from
    `docs/brief-template.md`. The agent skill `lowpoly-animal-studio` gives the whole loop.
-3. `python3 studio new <id> --sheet <png> --role conductor --like bear`.
-4. Measure the sheet in animal heights and replace each "TODO: measure" value. Start with
-   `sheet.views`, the trunk and head lofts, and the joints. Run `python3 studio fit <id> --rows`
-   after each change of the field: it takes seconds.
+3. `python3 studio new <id> --sheet <png> --like bear` (`--role` names another role). Read the
+   sheet check that it prints (`out/sheet-check.json`): each warning names the build checks
+   that the sheet can fail, so nobody chases a failure that the sheet causes. Ask the user about
+   a fault of the sheet before the work starts.
+4. `python3 studio calibrate <id> --from bear` sets the light, the palette, and the dark
+   classes from the sheet (6 s), and `python3 studio calibrate <id> --quads --no-look` sets the
+   QuadriFlow target (30 s). Measure the field in animal heights: start with `sheet.views`, the
+   trunk and head lofts, and the joints, and run `python3 studio fit <id> --rows` after each
+   change of the field (it takes seconds). The values of the like animal are starts.
 5. Build one seed: `python3 studio build <id> --seed 3`. Read the look report
    (`out/report/index.html`, or `out/report/review.png` as one image), `out/frames/`, and
    `out/checks.json`. Each failing check names its place and its crop.
-6. Tune, build again, and when the look is right, run the full seed check
+6. Tune, build again (after the first build, `python3 studio calibrate <id>` renders the GLB of
+   the animal itself), and when the look is right, run the full seed check
    (`build <id> --all-seeds --no-shots`, about 100 s for 8 seeds) so that all seeds pass.
 7. Write the golden stats: `python3 studio regress <id> --write --from animals/<id>/out --note
    "..."`, then commit the config, the sheet, `out/`, and `golden.json`.
@@ -386,6 +403,8 @@ interface CheckReport {
           made: string | null; compare: 'model' | 'role' | null; model_seed: number | null };
   /** The files of the located places (when the build has the stage "diagnostics"). */
   diagnostics?: { folds: string; contacts: string; faces: number; contacts_found: number };
+  /** The warnings of the sheet check of the intake (out/sheet-check.json). */
+  sheet?: { warnings: string[] };
   checks: Check[];
 }
 
@@ -396,6 +415,11 @@ interface Check {
   value: number | number[];
   op: '<=' | '>=' | 'in' | 'abs<=' | 'rel<=';
   limit: number | number[];
+  /** The pixel floor of a feature length in animal heights (checks.feature_pixels pixels of
+   *  the sheet view, plus the rounding step 1e-4): the allowed difference is at least this. */
+  floor?: number;
+  /** The warnings of the sheet check that can cause this failing or near check. */
+  sheet?: string[];
   pass: boolean;
   near: boolean;
   gate: boolean;
@@ -454,7 +478,8 @@ interface Place {
 | `scene.<clip>`, `seat.<clip>`, `hands.<clip>` (a role with scene props or hand targets) | role `checks.scene_depth`, `checks.seat_gap`, `checks.hand_targets` | yes | the frame, the prop piece, the bone, and the point (scene); the frame (seat); the frame and the side (hands) |
 | `remesh_gate.<name>`: `quads`, `inward_faces`, `slivers`, `open_edges`, `slit_faces` | `facets.gate.*` | yes | the first face and its center (inward, slit), the first open edges (open edges) |
 | `iou.<view>`, `fur_hue`, `fur_saturation`, `fur_value` of each view | `checks.iou.<view>`, `checks.fur_color` | no | the view tile `report/views/<view>.jpg` |
-| `<feature>_<check>.<view>.<item>` | `measure.features.<feature>.checks` | no | the feature crop `report/features/<feature>_<view>_<region>.png` |
+| `head_turn.<view>` (a view in `compare.head_turn`): the head turn of the compare render, near or out of range at an end of the range | `compare.head_turn.<view>` | no | the view tile |
+| `<feature>_<check>.<view>.<item>` | `measure.features.<feature>.checks`, the pixel floor `checks.feature_pixels` of a length | no | the feature crop `report/features/<feature>_<view>_<region>.png` |
 | `facet_contrast` | `checks.facet_contrast` | no | none |
 
 The bear passes 76 of 87 checks on the golden build, and 12 checks are near their limit. Three
@@ -902,6 +927,128 @@ slit check (1 and 4 slit faces).
 .../missing.glb" (before, it waited 2 minutes). The CLI runs compare, frames, and viewer in one
 node process with one server and one browser (about 9 s), and each part prints its time.
 
+## The intake: the foreground rules and the sheet check
+
+`studio/intake.py` makes one mask of each view by the rule of `intake.foreground`:
+
+| Rule | A pixel is on the animal when | Use |
+|---|---|---|
+| `colored` (default) | max(rgb) - min(rgb) is at least `sheet.foreground.min_saturation`, or r + g + b is under `max_dark_sum` | a colored or cream fur (the bear, the polar bear) |
+| `difference` | it differs from the background model at its place: the sum of its lighter channel differences, or the spread of its channel differences, is over `intake.difference`, or the sum of its darker differences is over `intake.dark_difference` | any fur, also neutral white or gray (the default of `studio new`) |
+
+The background model of the difference rule is the median color of each cell of 32 px outside
+a rough figure, smoothed and scaled up, so a gradient of the backdrop does not count. The soft
+edge maps the scores from `1 - soft` to `1 + soft` onto 0..255, a blur of 1 px smooths it, and
+the edge is the half value. A ground shadow is a thin band: a column run of figure pixels
+shorter than 3% of the figure height that ends within 5% of the figure height above the lowest
+row goes out, before the hole fill. On the two sheets the two rules agree at IoU 0.987 to
+0.993. On a synthetic white figure on a gray gradient with a ground shadow, the difference
+mask has IoU 0.986 and the colored mask 0.012 (`tests/test_intake.py`).
+
+The sheet check (`studio/consistency.py`) runs in the intake and writes `out/sheet-check.json`.
+Each warning names the build checks that the sheet can fail, and `checks.json` marks each
+failing or near check with the warning that can cause it (`sheet`):
+
+| Check | Measure | Limit | Bear | Polar bear |
+|---|---|---|---|---|
+| `figure_height` | spread of the figure heights of the views | 1% | 2.1% | 4.4% |
+| `ground_line` | spread of the ground rows | 2 px | 5 px | 4 px |
+| `ear_height` | the ear bumps (top to notch) of the front and the back view | 15% | 1.6% | 33% |
+| `arm_gap` | the share of the chest rows (0.45 to 0.65) with background between the arms and the trunk, front and back | 80% | 5% | 5% |
+| `head_turn.front` | the nose against the middle of the eyes | 2 px | -1.2 px | -1.0 px |
+| `head_turn.three_quarter` | the view azimuth less the head azimuth from the eye spacing (the spacing shrinks with the cosine of the azimuth, about 2 degrees for 1 px) | 4 deg | -2.8 deg | +6.3 deg |
+| `symmetry` | the IoU of the front mask with its mirror | 0.97 | 0.971 | 0.972 |
+
+## The head turn of a view in the compare
+
+A view in `compare.head_turn` (a range in degrees) gets the head turn with the best IoU in the
+compare render only: the compare page turns the bone "head" about the vertical axis, every 4
+degrees, then 2 and 1 degrees around the best. `iou.json` has the turn (`headTurn`) and the IoU
+with no turn (`iouNoTurn`), and `checks.json` has `head_turn.<view>`. The GLB does not change.
+On the polar bear (range [0, 12] in `animals/polar-bear/animal.toml`) the turn is +6 degrees:
+the 3/4 IoU goes from 0.9047 to 0.9073, and the 3/4 eye x errors from 0.015 and 0.008 to 0.002
+and 0.000. The far 3/4 eye gets 1 px wider (6 px against 4 px on the sheet). The bear has no
+head turn: its sheet shows the same eye spacing as its model, and a fit runs to the end of the
+range while the eyes move away from the sheet.
+
+## A new animal from a sheet: the start (polar-bear-2)
+
+The polar bear sheet as a new animal like the bear, on 2026-10-12 (the demo animal is deleted
+again):
+
+| Step | Time | Result |
+|---|---|---|
+| `new polar-bear-2 --sheet ... --like bear` | 5 s | a compact config of 477 lines. The sheet check warns about the scale (4.4%), the ground line (3 px), the ears (front 0.077, back 0.052), and the arm gap. The 3/4 head turn reads +2.3 deg against the start azimuth 38 of the bear, so `compare.head_turn` is [-4, 8] |
+| `calibrate polar-bear-2 --from bear` | 5 s | `compare.fur_min_saturation` 0.2 -> 0.06, the fur [208, 194, 170] (the polar bear has [215, 204, 185]), the dark class 100 -> 90. Warnings: the "white" class of the bear takes 45% of the cream fur (the eye rim trap of the pilot), the bear GLB gives more paint contrast than the sheet (so the light needs the own GLB), and the bear muzzle clips |
+| `calibrate polar-bear-2 --quads --no-look` | 31 s | at the target 900, 776 to 922 quads (ratio 0.99), 8 of 8 seeds in the band: the target stays |
+| `fit polar-bear-2` | 1.7 s | IoU front 0.9461, side 0.9626, back 0.9376, 3/4 0.9149 with the bear field (the pilot started at 0.942, 0.961, 0.935, 0.915) |
+
+## Calibrate: the light, the palette, the classes, and the quad target
+
+`python3 studio calibrate <animal>` (`studio/calibrate.py`) fits the look to the sheet:
+
+```text
+ GLB (own, or --from A) --shoot.mjs calibrate--> front renders: rim, hemi, key, fill alone,
+                                                 with the GLB colors and with white material
+                                                        │ (a light = a sum of them, linear)
+ sheet --> fur medians (H, S, V), belly contrast        v
+           dark pieces, belly and muzzle colors ──> fit: key by bisection on the contrast,
+                                                    hemi from the light level rule,
+                                                    palette scale from the fur medians
+                                                        │
+                                                        v
+          animal.toml: look.light hemi and key, paint.palette, dark classes
+```
+
+- The light level: a palette that is k times brighter under a light k times darker gives the
+  same render. The rule: the median light on a white surface over the fur pixels of the front
+  view is 1.02 (`calibrate.LEVEL`; the hand-tuned lights give 1.07 on the bear and 0.97 on the
+  polar bear).
+- The fur pixels: `compare.fur_min_saturation` is 0.4 of the 5th percentile of the fur
+  saturation of the sheet, at most 0.2 and at least the background saturation plus 0.03 (the
+  bear 0.2, the polar bear 0.06: their hand values).
+- The palette: the fur family (fur, belly, muzzle, ear, inner ear, brow) takes the scale of the
+  fur and keeps its ratios. A family color that the scale clips takes the fur color, with a
+  note. The dark pieces take the colors of their dark pixels on the sheet (the iris the darkest
+  quarter). A belly color from the "light" class of the sheet takes the brightest facets: it
+  made the polar bear belly 13 levels too light, and the belly contrast failed.
+- The classes: a class with only `max_under` gets the middle of the gap between the dark pieces
+  and the darkest fur (none on the bear sheet: dark brown fur). A class that decides a feature
+  (the rank, the rim, or the only class) and takes more than 2% of the fur pixels gets a
+  warning.
+- `--quads` (`studio/quads.py`): the median ratio of the QuadriFlow count to its target on the
+  field, over the seeds, and a new `facets.quadriflow_target` when it puts more seeds in the
+  band of the gate. `facets.quads` stays the middle of the band.
+
+The results from the sheets (the renders of the own GLB):
+
+| | Hand-tuned | Calibrate, sheet contrast | Calibrate, contrast of the hand render |
+|---|---|---|---|
+| Polar bear light (hemi, key) | 3.2, 0.6 | 3.29, 0.75 | 3.42, 0.58 |
+| Polar bear belly contrast (render, sheet 2.48) | 2.37 | 2.48 | 2.37 |
+| Polar bear fur | [215, 204, 185] | [211, 201, 183] | [211, 201, 184] |
+| Bear light (hemi, key) | 1.4, 3.8 | 2.14, 2.68 | 1.0, 3.89 |
+| Bear belly contrast (render, sheet 3.60) | 4.06 | 3.59 | 4.06 |
+| Bear fur | [117, 70, 38] | [118, 72, 41] | [118, 71, 40] |
+
+Margins: with the same contrast target, the key is within 3% of the hand value, the total
+light level within 5% (the level rule), and the fur palette within 4 levels of each channel. The
+hemisphere level alone differs more on the bear (1.0 against 1.4), because the key gives most
+of the bear light. The hand bear light renders 13% more belly contrast than the sheet (inside
+the 15% of `checks.facet_contrast`).
+
+The bear and the polar bear keep their hand light and palette. Builds with the calibrated light
+and fur family match the front view of the sheet (polar bear: fur value 0.839 against 0.839,
+belly contrast 2.46 against 2.48; bear: 0.494 against 0.494, 3.49 against 3.60), but the other
+views move away (the polar bear `fur_value.back` fails, the saturation of the side and 3/4
+views gets 0.006 to 0.007 worse, and the bear `fur_saturation.back` fails), because the fit reads
+the front view only.
+
+On a new animal with no GLB, `--from <like>` renders the GLB of the like animal. Its paint (the
+belly patch, `paint.occlusion`) stays in the renders: the bear GLB gives a belly contrast of 5.2
+with no key light against 2.48 of the polar bear sheet, so the fit cannot reach the sheet and
+says so. Calibrate again on the own GLB after the first build.
+
 ## Method, in short
 
 The sheet is the only input of the model. The intake makes a mask of each view. The template
@@ -933,15 +1080,23 @@ contact and fold check skins the mesh at each frame and repairs single folded fa
 - QuadriFlow can put three corners of two mirrored quads on the center line: a fin of two
   opposite triangles (open edges at the throat or the spine). `remesh.remove_center_fins` drops
   them and prints "remesh: removed N fin faces".
-- QuadriFlow does not follow `facets.quads` closely: on the polar bear it gave 1.16 to 1.31 times
-  the target. Widen `[facets.gate] quads` when the band rejects every seed, and check the
-  triangle count (`checks.body_triangles`).
+- QuadriFlow does not follow its target closely, and the ratio depends on the field: an early
+  field of the polar bear gave 1.16 to 1.31 times the target, the final field 0.97 to 1.09, and
+  a lower target can give more quads on some seeds. Run `python3 studio calibrate <id> --quads
+  --no-look` after a change of the field, before you widen `[facets.gate] quads`.
 - The feature measures need color classes that fit the animal. A cream fur is lighter than the
   background and has the color of a white eye rim, so the "white" class of the bear catches fur;
-  measure such eyes by their dark blobs. Lower `compare.fur_min_saturation` for a fur with a
-  saturation near 0.2 or under.
+  measure such eyes by their dark blobs. `calibrate` warns when a class that decides a feature
+  takes fur pixels. Lower `compare.fur_min_saturation` for a fur with a saturation near 0.2 or
+  under.
 - A relative feature limit on a small feature is a pixel limit: 0.08 of a 10 px eye is under one
-  pixel. Scale the limit to the pixel tolerance of the bear (about 1.1 px).
+  pixel. `checks.feature_pixels = 1.0` allows at least 1 px of the sheet for each length.
+- The intake rule "colored" does not separate a neutral white or gray fur from a gray
+  background. Use `intake.foreground = "difference"` (the default of `studio new`). It also
+  closes an arm gap of 1 or 2 px a little more than the colored rule.
+- A head turn of the compare (`compare.head_turn`) can fit a shift of the head that is no turn:
+  on the bear sheet the best IoU is at +20 degrees, and the eyes move away from the sheet. Keep
+  the range near the turn that the sheet check measures from the eye spacing.
 - A seated bind pose needs `hip_abduct` (the knees apart) and a seat under the trunk: a short leg
   with a low trunk puts the trunk on the seat, and the thighs stay above it. Put the paws of a rest pose
   where the arm stays bent: a straight arm across a big belly touches it on some seeds.
@@ -1012,6 +1167,17 @@ The far, level cameras of the sheet views (weak perspective).
 | `distance` | num | `10.0` | Distance from the animal, in animal heights. |
 | `height` | num | `0.5` | Height of the camera and of its target. |
 | `fov` | num | `7.4` | Vertical field of view in degrees. |
+
+#### `[intake]`
+
+The masks of the sheet views (studio/intake.py).
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `foreground` | str | `"colored"` | The rule that tells an animal pixel from the background: "colored" (a colored or dark pixel, sheet.foreground) or "difference" (a pixel that differs from the measured background color at its place). "difference" also works for a neutral white or gray fur. |
+| `difference` | num | `30.0` | difference: the summed channel difference of a lighter pixel (or the spread of the channel differences of a colored pixel) at the edge of the figure. |
+| `dark_difference` | num | `120.0` | difference: the summed channel difference of a darker pixel at the edge of the figure. It is larger, so a soft ground shadow stays out. |
+| `soft` | num | `0.3` | difference: the half width of the soft edge, as a share of the threshold. |
 
 #### `[field]`
 
@@ -1281,7 +1447,8 @@ The low-poly facets: QuadriFlow remesh with mirror, then the organic pass.
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
-| `quads` | int | `900` | Target quad count of QuadriFlow (it gives about 790 to 1200). |
+| `quads` | int | `900` | The wanted quad count of the remesh: the middle of the band of the remesh gate, and the QuadriFlow target when quadriflow_target is 0. |
+| `quadriflow_target` | int | `0` | The target that QuadriFlow gets (0: quads). QuadriFlow gives about 1.0 to 1.3 times its target, so `python3 studio calibrate <animal> --quads` measures the ratio on the field and sets this target. |
 | `seeds` | ints | `[3, 1, 5, 6, 2, 4, 7, 8]` | Remesh seeds in the order that the build tries them. The build keeps the first seed whose clips pass the gate checks. |
 | `offset` | num | `0.004` | The vertices sit this far outside the field, so the flat facets cut the smooth surface and keep the silhouette. |
 | `collapse_share` | num | `0.3` | Share of the half vertices that collapse in the organic pass. |
@@ -1722,6 +1889,7 @@ The compare of the renders with the sheet (viewer/compare.js).
 | `fur_min_saturation` | num | `0.2` | Smallest saturation of a fur pixel in the fur color measure: it leaves out the gray background, white props, and gray shadows. Lower it for a light, low-saturation fur (cream). |
 | `head_share` | num | `0.3` | Height of the head crop as a share of the view height. |
 | `facet_crops.<name>` | rect | map | Crops of the front view [x0, y0, x1, y1] in model units, the sheet beside the render. |
+| `head_turn.<name>` | vec2 | map | The head turn of a view in the compare render only: the range [from, to] in degrees (positive turns the snout to the right of the animal, toward a camera at a positive azimuth). The compare keeps the turn with the best IoU and reports it (check head_turn.<view>). Use it for a view where the sheet turns the head more than in the other views. Not given: no turn. |
 
 #### `[measure]`
 
@@ -1811,6 +1979,7 @@ The limits of the checks (studio/checks.py). The fold check is a gate: it fails 
 | `slivers` | num | `0.01` | Largest share of body faces with an angle under 15 degrees. |
 | `fur_color` | vec3 | `[1.0, 0.02, 0.03]` | Largest difference of the fur median from the sheet: hue (degrees), saturation, value. |
 | `facet_contrast` | num | `0.15` | Largest relative difference of the belly fine spread. |
+| `feature_pixels` | num | `0.0` | The pixel floor of a feature check: the allowed difference of a length (x, y, width, height, center_x, top) is at least this many pixels of the sheet view, so a 10 px eye does not fail by one pixel. 0: no floor. |
 
 #### `[seeds]`
 
