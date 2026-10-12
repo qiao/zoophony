@@ -1,0 +1,15 @@
+{
+  "valence_6_share": 0.464,
+  "valence_std": 1.1,
+  "belly_edge_direction_entropy": 0.969,
+  "triangles": 1120,
+  "edge_median_px": 31.0,
+  "edge_quartiles_px": [
+    21.1,
+    39.8
+  ],
+  "edge_spread_iqr_over_median": 0.6,
+  "slivers_share_min_angle_under_15": 0.009,
+  "median_smallest_angle_deg": 38.0,
+  "mirrored_vertex_share": 1.0
+}

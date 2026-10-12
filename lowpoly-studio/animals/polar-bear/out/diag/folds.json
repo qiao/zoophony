@@ -1,0 +1,982 @@
+{
+ "note": "The fold debug list: each folded, turned (past 90 degrees), repaired, inward, or sliver face of the body. A position is in animal heights (x to the left of the animal, y up, z forward). rest_dot is the cosine between the face normal and the outward direction of the field (below 0: the face points in).",
+ "rounds": 1,
+ "counts": {
+  "inward": 0,
+  "slivers": 10,
+  "body_faces": 1120
+ },
+ "faces": [
+  {
+   "face": 155,
+   "rest_position": [
+    -0.1881,
+    0.5212,
+    0.1313
+   ],
+   "bone": "upper_arm_R",
+   "side": "R",
+   "region": "upper arm, front, right",
+   "weights": [
+    [
+     "upper_arm_R",
+     0.44
+    ],
+    [
+     "spine",
+     0.247
+    ],
+    [
+     "clavicle_R",
+     0.141
+    ]
+   ],
+   "smallest_angle_deg": 35.6,
+   "rest_dot": 0.891,
+   "area": 0.001372,
+   "status": "turned",
+   "tags": [
+    "turned"
+   ],
+   "round": 0,
+   "clips": {
+    "rest": {
+     "frame": 90,
+     "time_s": 3.0,
+     "angle_deg": 116.9,
+     "frames": 50,
+     "position": [
+      -0.2171,
+      0.3851,
+      0.0739
+     ],
+     "crop": "diag/fold-155-rest.png"
+    },
+    "performance": {
+     "frame": 480,
+     "time_s": 16.0,
+     "angle_deg": 116.9,
+     "frames": 50,
+     "position": [
+      -0.2171,
+      0.3851,
+      0.0739
+     ],
+     "crop": "diag/fold-155-performance.png"
+    }
+   },
+   "clip": "rest",
+   "angle_deg": 116.9
+  },
+  {
+   "face": 715,
+   "rest_position": [
+    0.1881,
+    0.5212,
+    0.1313
+   ],
+   "bone": "upper_arm_L",
+   "side": "L",
+   "region": "upper arm, front, left",
+   "weights": [
+    [
+     "upper_arm_L",
+     0.44
+    ],
+    [
+     "spine",
+     0.247
+    ],
+    [
+     "clavicle_L",
+     0.141
+    ]
+   ],
+   "smallest_angle_deg": 35.6,
+   "rest_dot": 0.891,
+   "area": 0.001372,
+   "status": "turned",
+   "tags": [
+    "turned"
+   ],
+   "round": 0,
+   "clips": {
+    "rest": {
+     "frame": 90,
+     "time_s": 3.0,
+     "angle_deg": 116.9,
+     "frames": 48,
+     "position": [
+      0.2171,
+      0.3851,
+      0.0739
+     ],
+     "crop": "diag/fold-715-rest.png"
+    },
+    "performance": {
+     "frame": 480,
+     "time_s": 16.0,
+     "angle_deg": 116.9,
+     "frames": 48,
+     "position": [
+      0.2171,
+      0.3851,
+      0.0739
+     ],
+     "crop": "diag/fold-715-performance.png"
+    }
+   },
+   "clip": "rest",
+   "angle_deg": 116.9
+  },
+  {
+   "face": 508,
+   "rest_position": [
+    -0.1348,
+    0.5802,
+    0.1592
+   ],
+   "bone": "upper_arm_R",
+   "side": "R",
+   "region": "upper arm, front, right",
+   "weights": [
+    [
+     "upper_arm_R",
+     0.443
+    ],
+    [
+     "clavicle_R",
+     0.328
+    ],
+    [
+     "spine",
+     0.169
+    ]
+   ],
+   "smallest_angle_deg": 31.3,
+   "rest_dot": 0.991,
+   "area": 0.001658,
+   "status": "turned",
+   "tags": [
+    "turned"
+   ],
+   "round": 0,
+   "clips": {
+    "rest": {
+     "frame": 90,
+     "time_s": 3.0,
+     "angle_deg": 103.2,
+     "frames": 46,
+     "position": [
+      -0.1473,
+      0.4075,
+      0.0975
+     ],
+     "crop": "diag/fold-508-rest.png"
+    },
+    "performance": {
+     "frame": 480,
+     "time_s": 16.0,
+     "angle_deg": 103.2,
+     "frames": 46,
+     "position": [
+      -0.1473,
+      0.4075,
+      0.0975
+     ],
+     "crop": "diag/fold-508-performance.png"
+    }
+   },
+   "clip": "rest",
+   "angle_deg": 103.2
+  },
+  {
+   "face": 737,
+   "rest_position": [
+    0.1348,
+    0.5802,
+    0.1592
+   ],
+   "bone": "upper_arm_L",
+   "side": "L",
+   "region": "upper arm, front, left",
+   "weights": [
+    [
+     "upper_arm_L",
+     0.443
+    ],
+    [
+     "clavicle_L",
+     0.328
+    ],
+    [
+     "spine",
+     0.169
+    ]
+   ],
+   "smallest_angle_deg": 31.3,
+   "rest_dot": 0.991,
+   "area": 0.001658,
+   "status": "turned",
+   "tags": [
+    "turned"
+   ],
+   "round": 0,
+   "clips": {
+    "rest": {
+     "frame": 90,
+     "time_s": 3.0,
+     "angle_deg": 103.2,
+     "frames": 45,
+     "position": [
+      0.1473,
+      0.4075,
+      0.0975
+     ],
+     "crop": "diag/fold-737-rest.png"
+    },
+    "performance": {
+     "frame": 480,
+     "time_s": 16.0,
+     "angle_deg": 103.2,
+     "frames": 45,
+     "position": [
+      0.1473,
+      0.4075,
+      0.0975
+     ],
+     "crop": "diag/fold-737-performance.png"
+    }
+   },
+   "clip": "rest",
+   "angle_deg": 103.2
+  },
+  {
+   "face": 156,
+   "rest_position": [
+    -0.1979,
+    0.5022,
+    0.119
+   ],
+   "bone": "upper_arm_R",
+   "side": "R",
+   "region": "upper arm, under, right",
+   "weights": [
+    [
+     "upper_arm_R",
+     0.376
+    ],
+    [
+     "spine",
+     0.279
+    ],
+    [
+     "forearm_R",
+     0.167
+    ]
+   ],
+   "smallest_angle_deg": 41.0,
+   "rest_dot": 0.575,
+   "area": 0.000741,
+   "status": "turned",
+   "tags": [
+    "turned"
+   ],
+   "round": 0,
+   "clips": {
+    "rest": {
+     "frame": 57,
+     "time_s": 1.9,
+     "angle_deg": 101.9,
+     "frames": 46,
+     "position": [
+      -0.2326,
+      0.3847,
+      0.0702
+     ],
+     "crop": "diag/fold-156-rest.png"
+    },
+    "performance": {
+     "frame": 447,
+     "time_s": 14.9,
+     "angle_deg": 101.9,
+     "frames": 46,
+     "position": [
+      -0.2326,
+      0.3847,
+      0.0702
+     ],
+     "crop": "diag/fold-156-performance.png"
+    }
+   },
+   "clip": "rest",
+   "angle_deg": 101.9
+  },
+  {
+   "face": 716,
+   "rest_position": [
+    0.1979,
+    0.5022,
+    0.119
+   ],
+   "bone": "upper_arm_L",
+   "side": "L",
+   "region": "upper arm, under, left",
+   "weights": [
+    [
+     "upper_arm_L",
+     0.376
+    ],
+    [
+     "spine",
+     0.279
+    ],
+    [
+     "forearm_L",
+     0.167
+    ]
+   ],
+   "smallest_angle_deg": 41.0,
+   "rest_dot": 0.575,
+   "area": 0.000741,
+   "status": "turned",
+   "tags": [
+    "turned"
+   ],
+   "round": 0,
+   "clips": {
+    "rest": {
+     "frame": 57,
+     "time_s": 1.9,
+     "angle_deg": 101.9,
+     "frames": 45,
+     "position": [
+      0.2326,
+      0.3847,
+      0.0702
+     ],
+     "crop": "diag/fold-716-rest.png"
+    },
+    "performance": {
+     "frame": 447,
+     "time_s": 14.9,
+     "angle_deg": 101.9,
+     "frames": 45,
+     "position": [
+      0.2326,
+      0.3847,
+      0.0702
+     ],
+     "crop": "diag/fold-716-performance.png"
+    }
+   },
+   "clip": "rest",
+   "angle_deg": 101.9
+  },
+  {
+   "face": 177,
+   "rest_position": [
+    -0.1503,
+    0.5438,
+    0.1515
+   ],
+   "bone": "upper_arm_R",
+   "side": "R",
+   "region": "upper arm, front, right",
+   "weights": [
+    [
+     "upper_arm_R",
+     0.395
+    ],
+    [
+     "spine",
+     0.286
+    ],
+    [
+     "clavicle_R",
+     0.226
+    ]
+   ],
+   "smallest_angle_deg": 34.5,
+   "rest_dot": 0.976,
+   "area": 0.003093,
+   "status": "turned",
+   "tags": [
+    "turned"
+   ],
+   "round": 0,
+   "clips": {
+    "rest": {
+     "frame": 90,
+     "time_s": 3.0,
+     "angle_deg": 94.4,
+     "frames": 39,
+     "position": [
+      -0.1704,
+      0.3922,
+      0.0963
+     ],
+     "crop": "diag/fold-177-rest.png"
+    },
+    "performance": {
+     "frame": 480,
+     "time_s": 16.0,
+     "angle_deg": 94.4,
+     "frames": 39,
+     "position": [
+      -0.1704,
+      0.3922,
+      0.0963
+     ],
+     "crop": "diag/fold-177-performance.png"
+    }
+   },
+   "clip": "rest",
+   "angle_deg": 94.4
+  },
+  {
+   "face": 718,
+   "rest_position": [
+    0.1503,
+    0.5438,
+    0.1515
+   ],
+   "bone": "upper_arm_L",
+   "side": "L",
+   "region": "upper arm, front, left",
+   "weights": [
+    [
+     "upper_arm_L",
+     0.395
+    ],
+    [
+     "spine",
+     0.286
+    ],
+    [
+     "clavicle_L",
+     0.226
+    ]
+   ],
+   "smallest_angle_deg": 34.5,
+   "rest_dot": 0.976,
+   "area": 0.003093,
+   "status": "turned",
+   "tags": [
+    "turned"
+   ],
+   "round": 0,
+   "clips": {
+    "rest": {
+     "frame": 90,
+     "time_s": 3.0,
+     "angle_deg": 94.4,
+     "frames": 39,
+     "position": [
+      0.1704,
+      0.3922,
+      0.0963
+     ],
+     "crop": "diag/fold-718-rest.png"
+    },
+    "performance": {
+     "frame": 480,
+     "time_s": 16.0,
+     "angle_deg": 94.4,
+     "frames": 39,
+     "position": [
+      0.1704,
+      0.3922,
+      0.0963
+     ],
+     "crop": "diag/fold-718-performance.png"
+    }
+   },
+   "clip": "rest",
+   "angle_deg": 94.4
+  },
+  {
+   "face": 65,
+   "rest_position": [
+    -0.2798,
+    0.6406,
+    0.0877
+   ],
+   "bone": "upper_arm_R",
+   "side": "R",
+   "region": "upper arm, side, right",
+   "weights": [
+    [
+     "upper_arm_R",
+     0.503
+    ],
+    [
+     "forearm_R",
+     0.305
+    ],
+    [
+     "clavicle_R",
+     0.164
+    ]
+   ],
+   "smallest_angle_deg": 35.3,
+   "rest_dot": 0.993,
+   "area": 0.002261,
+   "status": "turned",
+   "tags": [
+    "turned"
+   ],
+   "round": 0,
+   "clips": {
+    "rest": {
+     "frame": 20,
+     "time_s": 0.667,
+     "angle_deg": 94.3,
+     "frames": 14,
+     "position": [
+      -0.2722,
+      0.5373,
+      0.1089
+     ],
+     "crop": "diag/fold-65-rest.png"
+    },
+    "performance": {
+     "frame": 410,
+     "time_s": 13.667,
+     "angle_deg": 94.3,
+     "frames": 14,
+     "position": [
+      -0.2722,
+      0.5373,
+      0.1089
+     ],
+     "crop": "diag/fold-65-performance.png"
+    }
+   },
+   "clip": "rest",
+   "angle_deg": 94.3
+  },
+  {
+   "face": 399,
+   "rest_position": [
+    -0.0787,
+    0.1484,
+    0.0303
+   ],
+   "bone": "hips",
+   "side": "R",
+   "region": "hips, under, right",
+   "weights": [
+    [
+     "hips",
+     0.586
+    ],
+    [
+     "foot_R",
+     0.208
+    ],
+    [
+     "shin_R",
+     0.191
+    ]
+   ],
+   "smallest_angle_deg": 17.1,
+   "rest_dot": 0.65,
+   "area": 0.001274,
+   "status": "turned",
+   "tags": [
+    "turned"
+   ],
+   "round": 0,
+   "clips": {
+    "reference": {
+     "frame": 0,
+     "time_s": 0.0,
+     "angle_deg": 92.8,
+     "frames": 2,
+     "position": [
+      -0.0786,
+      0.1088,
+      -0.0251
+     ],
+     "crop": "diag/fold-399-reference.png"
+    }
+   },
+   "clip": "reference",
+   "angle_deg": 92.8
+  },
+  {
+   "face": 956,
+   "rest_position": [
+    0.0787,
+    0.1484,
+    0.0303
+   ],
+   "bone": "hips",
+   "side": "L",
+   "region": "hips, under, left",
+   "weights": [
+    [
+     "hips",
+     0.586
+    ],
+    [
+     "foot_L",
+     0.208
+    ],
+    [
+     "shin_L",
+     0.191
+    ]
+   ],
+   "smallest_angle_deg": 17.1,
+   "rest_dot": 0.65,
+   "area": 0.001274,
+   "status": "turned",
+   "tags": [
+    "turned"
+   ],
+   "round": 0,
+   "clips": {
+    "reference": {
+     "frame": 0,
+     "time_s": 0.0,
+     "angle_deg": 92.8,
+     "frames": 2,
+     "position": [
+      0.0786,
+      0.1088,
+      -0.0251
+     ],
+     "crop": "diag/fold-956-reference.png"
+    }
+   },
+   "clip": "reference",
+   "angle_deg": 92.8
+  },
+  {
+   "face": 243,
+   "rest_position": [
+    -0.104,
+    0.1452,
+    0.0445
+   ],
+   "bone": "foot_R",
+   "side": "R",
+   "region": "foot, back, right",
+   "weights": [
+    [
+     "foot_R",
+     0.351
+    ],
+    [
+     "hips",
+     0.316
+    ],
+    [
+     "shin_R",
+     0.315
+    ]
+   ],
+   "smallest_angle_deg": 12.6,
+   "rest_dot": 0.974,
+   "area": 0.000131,
+   "status": "sliver",
+   "tags": [
+    "sliver"
+   ],
+   "clips": {},
+   "crop": "diag/face-243.png"
+  },
+  {
+   "face": 253,
+   "rest_position": [
+    -0.0881,
+    0.1459,
+    0.0829
+   ],
+   "bone": "foot_R",
+   "side": "R",
+   "region": "foot, side, right",
+   "weights": [
+    [
+     "foot_R",
+     0.394
+    ],
+    [
+     "shin_R",
+     0.314
+    ],
+    [
+     "hips",
+     0.282
+    ]
+   ],
+   "smallest_angle_deg": 13.8,
+   "rest_dot": 0.881,
+   "area": 0.000181,
+   "status": "sliver",
+   "tags": [
+    "sliver"
+   ],
+   "clips": {},
+   "crop": "diag/face-253.png"
+  },
+  {
+   "face": 413,
+   "rest_position": [
+    -0.0349,
+    0.1501,
+    0.0391
+   ],
+   "bone": "hips",
+   "side": "R",
+   "region": "hips, under, right",
+   "weights": [
+    [
+     "hips",
+     0.817
+    ],
+    [
+     "foot_R",
+     0.093
+    ],
+    [
+     "shin_R",
+     0.086
+    ]
+   ],
+   "smallest_angle_deg": 9.3,
+   "rest_dot": 0.993,
+   "area": 0.000814,
+   "status": "sliver",
+   "tags": [
+    "sliver"
+   ],
+   "clips": {},
+   "crop": "diag/face-413.png"
+  },
+  {
+   "face": 414,
+   "rest_position": [
+    -0.0285,
+    0.1486,
+    0.0435
+   ],
+   "bone": "hips",
+   "side": "R",
+   "region": "hips, under, right",
+   "weights": [
+    [
+     "hips",
+     0.817
+    ],
+    [
+     "foot_R",
+     0.093
+    ],
+    [
+     "shin_R",
+     0.086
+    ]
+   ],
+   "smallest_angle_deg": 4.4,
+   "rest_dot": 0.82,
+   "area": 0.000417,
+   "status": "sliver",
+   "tags": [
+    "sliver"
+   ],
+   "clips": {},
+   "crop": "diag/face-414.png"
+  },
+  {
+   "face": 427,
+   "rest_position": [
+    -0.0214,
+    0.1554,
+    -0.0071
+   ],
+   "bone": "hips",
+   "side": "R",
+   "region": "hips, under, right",
+   "weights": [
+    [
+     "hips",
+     0.997
+    ]
+   ],
+   "smallest_angle_deg": 10.5,
+   "rest_dot": 0.978,
+   "area": 0.000626,
+   "status": "sliver",
+   "tags": [
+    "sliver"
+   ],
+   "clips": {},
+   "crop": "diag/face-427.png"
+  },
+  {
+   "face": 803,
+   "rest_position": [
+    0.104,
+    0.1452,
+    0.0445
+   ],
+   "bone": "foot_L",
+   "side": "L",
+   "region": "foot, back, left",
+   "weights": [
+    [
+     "foot_L",
+     0.351
+    ],
+    [
+     "hips",
+     0.316
+    ],
+    [
+     "shin_L",
+     0.315
+    ]
+   ],
+   "smallest_angle_deg": 12.6,
+   "rest_dot": 0.974,
+   "area": 0.000131,
+   "status": "sliver",
+   "tags": [
+    "sliver"
+   ],
+   "clips": {},
+   "crop": "diag/face-803.png"
+  },
+  {
+   "face": 814,
+   "rest_position": [
+    0.0881,
+    0.1459,
+    0.0829
+   ],
+   "bone": "foot_L",
+   "side": "L",
+   "region": "foot, side, left",
+   "weights": [
+    [
+     "foot_L",
+     0.394
+    ],
+    [
+     "shin_L",
+     0.314
+    ],
+    [
+     "hips",
+     0.282
+    ]
+   ],
+   "smallest_angle_deg": 13.8,
+   "rest_dot": 0.881,
+   "area": 0.000181,
+   "status": "sliver",
+   "tags": [
+    "sliver"
+   ],
+   "clips": {},
+   "crop": "diag/face-814.png"
+  },
+  {
+   "face": 973,
+   "rest_position": [
+    0.0285,
+    0.1486,
+    0.0435
+   ],
+   "bone": "hips",
+   "side": "L",
+   "region": "hips, under, left",
+   "weights": [
+    [
+     "hips",
+     0.817
+    ],
+    [
+     "foot_L",
+     0.093
+    ],
+    [
+     "shin_L",
+     0.086
+    ]
+   ],
+   "smallest_angle_deg": 4.4,
+   "rest_dot": 0.82,
+   "area": 0.000417,
+   "status": "sliver",
+   "tags": [
+    "sliver"
+   ],
+   "clips": {},
+   "crop": "diag/face-973.png"
+  },
+  {
+   "face": 974,
+   "rest_position": [
+    0.0349,
+    0.1501,
+    0.0391
+   ],
+   "bone": "hips",
+   "side": "L",
+   "region": "hips, under, left",
+   "weights": [
+    [
+     "hips",
+     0.817
+    ],
+    [
+     "foot_L",
+     0.093
+    ],
+    [
+     "shin_L",
+     0.086
+    ]
+   ],
+   "smallest_angle_deg": 9.3,
+   "rest_dot": 0.993,
+   "area": 0.000814,
+   "status": "sliver",
+   "tags": [
+    "sliver"
+   ],
+   "clips": {},
+   "crop": "diag/face-974.png"
+  },
+  {
+   "face": 987,
+   "rest_position": [
+    0.0214,
+    0.1554,
+    -0.0071
+   ],
+   "bone": "hips",
+   "side": "L",
+   "region": "hips, under, left",
+   "weights": [
+    [
+     "hips",
+     0.997
+    ]
+   ],
+   "smallest_angle_deg": 10.5,
+   "rest_dot": 0.978,
+   "area": 0.000626,
+   "status": "sliver",
+   "tags": [
+    "sliver"
+   ],
+   "clips": {},
+   "crop": "diag/face-987.png"
+  }
+ ]
+}

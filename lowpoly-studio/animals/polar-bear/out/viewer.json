@@ -1,0 +1,322 @@
+{
+  "animal": "polar-bear",
+  "title": "Polar Bear pianist",
+  "role": "pianist",
+  "glb": "/animals/polar-bear/out/polar-bear.glb",
+  "sheet": "/animals/polar-bear/reference/polar-bear-views.png",
+  "measure": "/animals/polar-bear/out/measure.json",
+  "masks": "/animals/polar-bear/out/masks",
+  "views": {
+    "front": {
+      "azimuth": 0.0,
+      "label": "Front"
+    },
+    "side": {
+      "azimuth": 90.0,
+      "label": "Side"
+    },
+    "back": {
+      "azimuth": 180.0,
+      "label": "Back"
+    },
+    "three_quarter": {
+      "azimuth": 42.0,
+      "label": "3/4"
+    }
+  },
+  "camera": {
+    "distance": 10.0,
+    "height": 0.5,
+    "fov": 7.4
+  },
+  "background": 13487568,
+  "light": {
+    "hemi": 3.2,
+    "key": 0.6,
+    "fill": 0.6,
+    "rim": 0.35,
+    "key_dir": [
+      -1.2,
+      3.5,
+      3.5
+    ],
+    "fill_dir": [
+      3.0,
+      0.5,
+      4.0
+    ],
+    "rim_dir": [
+      4.0,
+      2.5,
+      -6.0
+    ],
+    "sky": 16513784,
+    "ground": 12892850,
+    "key_color": 16776180,
+    "fill_color": 16185080,
+    "rim_color": 15265535,
+    "center_y": 0.55,
+    "shadow": 0.2
+  },
+  "noShadow": [],
+  "tipMarkers": [],
+  "compare": {
+    "rows": [
+      200,
+      805
+    ],
+    "furBand": [
+      0.25,
+      0.7
+    ],
+    "headShare": 0.3,
+    "furMinSaturation": 0.06,
+    "facetCrops": {
+      "chest_belly": [
+        -0.22,
+        0.3,
+        0.22,
+        0.76
+      ],
+      "shoulder_arm": [
+        -0.43,
+        0.35,
+        -0.1,
+        0.76
+      ],
+      "head": [
+        -0.19,
+        0.74,
+        0.19,
+        1.01
+      ]
+    }
+  },
+  "clipNotes": {
+    "performance": "All clips in order: ready, play two times, the big chord, rest.",
+    "reference": "The pose of the reference sheet (standing, arms down). The compare tool uses it.",
+    "ready": "Seated at the piano, both paws above the keys.",
+    "play": "Two bars at 120 bpm: the right paw plays a melody, the left paw plays chords (a loop).",
+    "chord": "Both paws rise, strike a big chord, and lift with the head.",
+    "rest": "The paws come down from the keys to the thighs."
+  },
+  "shots": {
+    "ready": [
+      {
+        "clip": "ready",
+        "t": 1.0,
+        "az": 0,
+        "el": 6,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "ready, front"
+      },
+      {
+        "clip": "ready",
+        "t": 1.0,
+        "az": 90,
+        "el": 6,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "ready, side"
+      },
+      {
+        "clip": "ready",
+        "t": 1.0,
+        "az": 35,
+        "el": 12,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "ready, 3/4"
+      },
+      {
+        "clip": "ready",
+        "t": 1.0,
+        "az": 35,
+        "el": 12,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "bones": true,
+        "label": "ready, bones"
+      }
+    ],
+    "play": [
+      {
+        "clip": "play",
+        "t": 0.6,
+        "az": 0,
+        "el": 8,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "play: melody E, chord C"
+      },
+      {
+        "clip": "play",
+        "t": 1.6,
+        "az": -30,
+        "el": 14,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "play: melody, chord G"
+      },
+      {
+        "clip": "play",
+        "t": 2.6,
+        "az": 90,
+        "el": 8,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "play: side"
+      },
+      {
+        "clip": "play",
+        "t": 3.1,
+        "az": 180,
+        "el": 25,
+        "d": 2.2,
+        "ty": 0.45,
+        "tz": 0.3,
+        "fov": 30,
+        "label": "play: over the shoulder"
+      }
+    ],
+    "chord": [
+      {
+        "clip": "chord",
+        "t": 0.95,
+        "az": 0,
+        "el": 8,
+        "d": 3.6,
+        "ty": 0.45,
+        "tz": 0.25,
+        "label": "chord: paws up"
+      },
+      {
+        "clip": "chord",
+        "t": 1.5,
+        "az": 0,
+        "el": 8,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "chord: strike"
+      },
+      {
+        "clip": "chord",
+        "t": 1.5,
+        "az": 90,
+        "el": 8,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "chord: strike, side"
+      },
+      {
+        "clip": "chord",
+        "t": 2.9,
+        "az": 35,
+        "el": 12,
+        "d": 3.6,
+        "ty": 0.45,
+        "tz": 0.25,
+        "label": "chord: lift"
+      }
+    ],
+    "rest": [
+      {
+        "clip": "rest",
+        "t": 0.5,
+        "az": 0,
+        "el": 8,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "rest: off the keys"
+      },
+      {
+        "clip": "rest",
+        "t": 2.9,
+        "az": 0,
+        "el": 8,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "rest: paws on the thighs"
+      },
+      {
+        "clip": "rest",
+        "t": 2.9,
+        "az": 90,
+        "el": 8,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "rest: side"
+      },
+      {
+        "clip": "rest",
+        "t": 2.9,
+        "az": 35,
+        "el": 12,
+        "d": 3.6,
+        "ty": 0.4,
+        "tz": 0.25,
+        "label": "rest: 3/4"
+      }
+    ],
+    "deform": [
+      {
+        "clip": "play",
+        "t": 1.0,
+        "az": 90,
+        "el": 5,
+        "d": 1.4,
+        "ty": 0.2,
+        "tz": 0.05,
+        "fov": 28,
+        "label": "seated hips and knees, side"
+      },
+      {
+        "clip": "play",
+        "t": 1.0,
+        "az": -40,
+        "el": 10,
+        "d": 1.4,
+        "ty": 0.2,
+        "tz": 0.1,
+        "fov": 28,
+        "label": "seated hips, front 3/4"
+      },
+      {
+        "clip": "play",
+        "t": 1.0,
+        "az": 150,
+        "el": 10,
+        "d": 1.4,
+        "ty": 0.15,
+        "tz": 0.0,
+        "fov": 28,
+        "label": "seated rump on the bench, back"
+      },
+      {
+        "clip": "reference",
+        "t": 0.0,
+        "az": 90,
+        "el": 5,
+        "d": 1.6,
+        "ty": 0.3,
+        "tz": 0.0,
+        "fov": 28,
+        "label": "sheet pose: legs straight, side"
+      }
+    ]
+  },
+  "outDir": "animals/polar-bear/out"
+}

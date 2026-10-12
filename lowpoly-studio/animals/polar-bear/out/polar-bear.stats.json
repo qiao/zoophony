@@ -1,0 +1,197 @@
+{
+  "seed": 1,
+  "quads": 780,
+  "body_triangles": 1120,
+  "median_edge_px": 31.0,
+  "edge_quartiles_px": [
+    21.1,
+    39.8
+  ],
+  "sliver_share": 0.0089,
+  "folded_faces": 0,
+  "bones": 32,
+  "clips": [
+    "reference",
+    "ready",
+    "play",
+    "chord",
+    "rest",
+    "performance"
+  ],
+  "corrective": {
+    "region_vertices": 337,
+    "inverted_before": 4,
+    "inverted_after": 4,
+    "inward_after": 18,
+    "max_delta": 0.034,
+    "legs_straight": {
+      "region_vertices": 198,
+      "inverted_before": 4,
+      "inverted_after": 0,
+      "max_delta": 0.028
+    }
+  },
+  "fold_repairs": [],
+  "contacts": {
+    "limit": 0.01,
+    "clips": {
+      "reference": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 2,
+        "folded_faces": 0,
+        "pass": true
+      },
+      "ready": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
+        "pass": true,
+        "scene": {
+          "depth": 0.0,
+          "prop": "bench",
+          "piece": "top",
+          "frame": 0,
+          "time_s": 0.0,
+          "position": [
+            0.0,
+            0.0499,
+            0.0198
+          ],
+          "bone": "hips"
+        },
+        "seat": {
+          "gap": 0.002,
+          "frame": 60,
+          "time_s": 2.0
+        }
+      },
+      "play": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
+        "pass": true,
+        "scene": {
+          "depth": 0.0019,
+          "prop": "piano",
+          "piece": "keys",
+          "frame": 11,
+          "time_s": 0.367,
+          "position": [
+            0.2333,
+            0.399,
+            0.3216
+          ],
+          "bone": "hand_L"
+        },
+        "seat": {
+          "gap": 0.002,
+          "frame": 120,
+          "time_s": 4.0
+        },
+        "hands": {
+          "distance": 0.0,
+          "side": "L",
+          "frame": 120,
+          "time_s": 4.0
+        }
+      },
+      "chord": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
+        "pass": true,
+        "scene": {
+          "depth": 0.0011,
+          "prop": "piano",
+          "piece": "keys",
+          "frame": 0,
+          "time_s": 0.0,
+          "position": [
+            -0.1916,
+            0.3998,
+            0.3207
+          ],
+          "bone": "hand_R"
+        },
+        "seat": {
+          "gap": 0.002,
+          "frame": 90,
+          "time_s": 3.0
+        },
+        "hands": {
+          "distance": 0.0,
+          "side": "L",
+          "frame": 57,
+          "time_s": 1.9
+        }
+      },
+      "rest": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 8,
+        "folded_faces": 0,
+        "pass": true,
+        "scene": {
+          "depth": 0.0017,
+          "prop": "piano",
+          "piece": "keys",
+          "frame": 0,
+          "time_s": 0.0,
+          "position": [
+            0.2331,
+            0.3992,
+            0.3217
+          ],
+          "bone": "hand_L"
+        },
+        "seat": {
+          "gap": 0.002,
+          "frame": 90,
+          "time_s": 3.0
+        }
+      },
+      "performance": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 8,
+        "folded_faces": 0,
+        "pass": true,
+        "scene": {
+          "depth": 0.0019,
+          "prop": "piano",
+          "piece": "keys",
+          "frame": 71,
+          "time_s": 2.367,
+          "position": [
+            0.2333,
+            0.399,
+            0.3216
+          ],
+          "bone": "hand_L"
+        },
+        "seat": {
+          "gap": 0.002,
+          "frame": 480,
+          "time_s": 16.0
+        }
+      }
+    }
+  },
+  "total_triangles": 3284
+}

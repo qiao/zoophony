@@ -1,0 +1,170 @@
+{
+  "clip": "reference",
+  "posed": true,
+  "views": {
+    "front": {
+      "refFurHSV": {
+        "hue": 36,
+        "sat": 0.164,
+        "val": 0.839,
+        "litHue": 36.7,
+        "litSat": 0.155,
+        "n": 83162
+      },
+      "modelFurHSV": {
+        "hue": 36,
+        "sat": 0.167,
+        "val": 0.835,
+        "litHue": 36.7,
+        "litSat": 0.16,
+        "n": 85109
+      },
+      "iou": 0.9409,
+      "dx": 4,
+      "scale": 0.7121,
+      "refMeanRGB": [
+        200,
+        185,
+        164
+      ],
+      "modelMeanRGB": [
+        202,
+        188,
+        168
+      ],
+      "refLuma10_50_90": [
+        147,
+        193,
+        224
+      ],
+      "modelLuma10_50_90": [
+        166,
+        197,
+        214
+      ]
+    },
+    "side": {
+      "refFurHSV": {
+        "hue": 36,
+        "sat": 0.167,
+        "val": 0.824,
+        "litHue": 37.1,
+        "litSat": 0.151,
+        "n": 56153
+      },
+      "modelFurHSV": {
+        "hue": 36.4,
+        "sat": 0.164,
+        "val": 0.831,
+        "litHue": 36.7,
+        "litSat": 0.159,
+        "n": 55894
+      },
+      "iou": 0.912,
+      "dx": 9,
+      "scale": 0.7354,
+      "refMeanRGB": [
+        207,
+        192,
+        171
+      ],
+      "modelMeanRGB": [
+        208,
+        194,
+        174
+      ],
+      "refLuma10_50_90": [
+        163,
+        196,
+        229
+      ],
+      "modelLuma10_50_90": [
+        175,
+        200,
+        217
+      ]
+    },
+    "back": {
+      "refFurHSV": {
+        "hue": 36,
+        "sat": 0.161,
+        "val": 0.824,
+        "litHue": 36.4,
+        "litSat": 0.153,
+        "n": 80385
+      },
+      "modelFurHSV": {
+        "hue": 36,
+        "sat": 0.166,
+        "val": 0.851,
+        "litHue": 36.7,
+        "litSat": 0.161,
+        "n": 84773
+      },
+      "iou": 0.9405,
+      "dx": 1,
+      "scale": 0.7163,
+      "refMeanRGB": [
+        203,
+        189,
+        169
+      ],
+      "modelMeanRGB": [
+        206,
+        192,
+        171
+      ],
+      "refLuma10_50_90": [
+        150,
+        197,
+        226
+      ],
+      "modelLuma10_50_90": [
+        166,
+        203,
+        215
+      ]
+    },
+    "three_quarter": {
+      "refFurHSV": {
+        "hue": 35.7,
+        "sat": 0.167,
+        "val": 0.847,
+        "litHue": 36.7,
+        "litSat": 0.153,
+        "n": 71186
+      },
+      "modelFurHSV": {
+        "hue": 36.4,
+        "sat": 0.164,
+        "val": 0.847,
+        "litHue": 36.7,
+        "litSat": 0.159,
+        "n": 73158
+      },
+      "iou": 0.9047,
+      "dx": -12,
+      "scale": 0.7208,
+      "refMeanRGB": [
+        200,
+        185,
+        164
+      ],
+      "modelMeanRGB": [
+        203,
+        190,
+        169
+      ],
+      "refLuma10_50_90": [
+        144,
+        193,
+        226
+      ],
+      "modelLuma10_50_90": [
+        165,
+        201,
+        215
+      ]
+    }
+  }
+}
