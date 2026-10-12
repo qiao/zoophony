@@ -65,7 +65,9 @@ lowpoly-studio/
 │   ├── organic.py       mirrored edge collapses and flips, relax, sliver cleanup
 │   ├── paint.py         face colors and baked occlusion
 │   ├── details.py       eyes, brows, nose, mouth, ears, tail, claws
-│   ├── props.py         the props of a role (a baton)
+│   ├── props.py         the props of a role: sized from the body, built by props/; scene
+│   │                    props as nodes, the moving keys (ScenePose)
+│   ├── gallery.py       the props gallery of an animal (studio props)
 │   ├── weights.py       armature, bone heat, weight arrays, fold repair
 │   ├── skinning.py      linear blend skinning, face normals, fold measures
 │   ├── contacts.py      the contact and fold check of each clip, and the places of each
@@ -86,12 +88,16 @@ lowpoly-studio/
 │   └── shoot.mjs        headless renders: compare, frames, viewer shot (stops at the first
 │                        page failure)
 ├── templates/biped/     the body plan, the 31-bone rig, the solver, the weight rules,
-│                        the correctives, the contact groups
+│                        the correctives, the contact groups, the digits ([rig] fingers),
+│                        the seat of a seated pose
+├── props/               the prop library: shapes.py (the parts), piano.py, bench.py,
+│                        chair.py, stand.py, strings.py (violin, cello, bow), gallery.toml
 ├── roles/conductor/     role.toml, the clips (__init__.py, clips.py), shots.json,
 │                        pattern.py (the 4/4 plot)
 ├── roles/pianist/       role.toml (bench, piano, seated bind pose), clips.py, shots.json
 ├── roles/model/         the role of the model build: a fixed standing bind pose, one clip
-├── viewer/              viewer, compare page, frames page (three.js), read viewer.json
+├── viewer/              viewer, compare page, frames page, props gallery page (three.js),
+│                        read viewer.json
 ├── animals/bear/        animal.toml, golden.json, README.md, reference/, out/ (out/model/,
 │                        out/seeds/, and out/stages/ are ignored by git)
 ├── animals/polar-bear/  animal.toml, golden.json, reference/, out/ (the pianist)
@@ -192,6 +198,7 @@ of the conductor, so a conductor build and its model build share the model stage
 | `python3 studio fit <animal> [--rows] [--azimuths a,b,c] [--pose bind]` | Scores the field against the masks with no mesh (about 2 s: Blender start, field, four views). `--rows` prints the edges of each row. `--azimuths` tries these azimuths of the 3/4 view and keeps the best. `--pose bind` scores the field of the bind pose. |
 | `python3 studio report <animal>` | Writes the checks, the located failures (`out/diag/`), and the look report (`out/report/index.html`, `review.png`) of the last build, then serves `out/` on a free port (never 5173 or 5190) until Ctrl-C. `--measure` measures the features and the shading of the existing renders again first (a feature box change takes about 3 s). `--no-serve` only writes the files. `--out DIR` reads another output folder. |
 | `python3 studio regress <animal>` | Builds with the golden seed into `out/regress/` (with the model build) and compares with `golden.json`. `--no-cache` makes the build cold. `--no-build` compares the last regression build. `--write --from DIR --note TEXT` writes a new `golden.json` from a build. |
+| `python3 studio props <animal> [--role R] [--no-shots]` | Builds the props gallery (see "The prop library"): one prop of each kind of `props/gallery.toml`, sized from the body of the animal in a seated bind pose (the role of the animal when it sits, else `pianist`), into `out/props/gallery.glb` and `gallery.json`, and renders `out/props/props.png`. The page `viewer/props.html` shows the props one at a time. About 8 s. |
 | `python3 studio cache info\|clean [<animal>]` | Prints the size of the shared stage cache by step and by animal, or deletes the entries of one animal (or the whole cache). |
 | `python3 studio schema [--role] [--readme]` | Prints the config reference (or the role reference) as Markdown. `--readme` writes both into this README. |
 
@@ -260,10 +267,15 @@ interface RolePack {
   performance: Array<[string, number, number]>;
   /** Blend time at the joins of the performance, in seconds. */
   blend: number;
-  /** Optional: the knuckle targets of the paws that press a key at time t of a clip, in model
-   *  space, or null for a clip with no presses. The scene check measures the posed knuckles
+  /** Optional: the targets of the paws that press a key at time t of a clip, in model space,
+   *  or null for a clip with no presses: the knuckle of a paw (one finger bone), or the claw
+   *  tip of each pressing digit ([rig] fingers > 1). The scene check measures the posed points
    *  against them (gate hands.<clip>, role.toml [checks] hand_targets). */
-  hand_targets?(clip: string, t: number): { L?: Vec3 | null; R?: Vec3 | null } | null;
+  hand_targets?(clip: string, t: number):
+    { L?: Vec3 | Record<number, Vec3> | null; R?: Vec3 | Record<number, Vec3> | null } | null;
+  /** Optional: the names of the piano keys that the clips press ('E5', 'Cs4'). Each one gets a
+   *  node under the piano, and a pose spec turns it with spec.keys = {name: press share 0..1}. */
+  pressed_keys?: string[];
 }
 
 /** What a pack gets from the studio (studio/roles.py Context). */
@@ -281,9 +293,10 @@ interface RoleContext {
 ```
 
 A pose spec is the input of the template solver (`templates/biped/solver.py`): relative bone
-rotations, a hips offset, IK targets of each arm (wrist, elbow pole, hand direction, palm, twist
-share), forward kinematics of the arms or the legs, the scale of each prop (`<prop>_scale`), and
-planted legs.
+rotations (also of each digit), a hips offset, IK targets of each arm (wrist, elbow pole, hand
+direction, palm, twist share), forward kinematics of the arms or the legs, the scale of each prop
+(`<prop>_scale`), and planted legs. `keys` ({key name: press share}) turns the key nodes of a
+piano (`props.ScenePose`).
 
 ### Add a role
 
@@ -298,50 +311,125 @@ planted legs.
 
 `roles/pianist/` seats the animal on a bench at a grand piano. The polar bear plays it.
 
-The seated pose and the scene come from the body, so another animal gets its own seat and
-keyboard height:
+The seated pose and the scene come from the body, so another animal gets its own seat, keyboard
+height, and key width:
 
 ```text
- role.toml [bind]              props.scene_layout(body)             clips (roles/pianist)
- hip_flex 70, knee_flex 70 --> drop: lowest point of the    ---->  hips offset (0, -drop, 0),
- hip_abduct 14 (knees apart)   bent soles                          lean 12 deg, sway, nod
- arms 42 deg forward           seat top: trunk bottom - drop       knuckle targets over keys
-                               keys top: seat top + keys_top                |
-                                      |                                     v
-                      bench, piano: rigid bones under the root     wrist targets in the rest
-                                      |                            frame of the posed chest
-                                      v                                     |
-                      check_scene: scene.<clip>, seat.<clip>, hands.<clip> <+
+ role.toml [bind], [rig]        props.scene_layout(body)              clips (roles/pianist)
+ hip_flex 70, knee_flex 70 ---> drop: lowest point of the     ---->  hips offset (0, -drop, 0),
+ hip_abduct 14 (knees apart)    bent soles                           lean 12 deg, sway, nod
+ arms 42 deg forward            seat: Body.seat height map           a hand position per paw:
+ fingers = 4 (digits)           keys top: elbows - 0.06              digit k over its key
+                                key width: claw tip spacing          a note curls one digit:
+                                       |                             claw tip onto the key,
+                                       v                             key down by the dip
+                bench (pad fitted to the body), piano: nodes                  |
+                pressed keys: nodes under the piano  <--- spec['keys'] -------+
+                                       |                                      v
+                     check_scene: scene.<clip>, seat.<clip>, hands.<clip> (claw tips)
 ```
 
-The clips: `reference` (the sheet pose, the props hidden), `ready` (the paws above the first
-notes), `play` (two bars at 120 bpm: a melody in the right paw, chords in the left paw, a sway,
-and a nod, as a loop), `chord` (rise, strike, lift), `rest` (the paws on the outer knees), and
-`performance` (ready, play two times, chord, rest).
-
+The clips: `reference` (the sheet pose, the props hidden), `ready` (the paws over the first
+notes, the digits a little up), `play` (two bars at 120 bpm: the first line of "Ode to Joy" with
+single digits of the right paw, two-digit chords of the left paw on beats 1 and 3, a sway, and a
+nod, as a loop), `chord` (the paws rise, three digits of each paw strike a big chord, hold, and
+lift), `rest` (the paws on the outer tops of the knees), and `performance` (ready, play two times,
+chord, rest).
 
 | Part | Where | What it does |
 |---|---|---|
 | Seated bind pose | `[bind] hip_flex`, `knee_flex`, `hip_abduct` (templates/biped `Body.leg_rotations`) | The mesh is built and bound with the legs bent, so the seated clips stay near the bind pose. `hip_abduct` turns the knees apart: thighs side by side leave a slit between them, which the remesh gate stops. |
-| The drop onto the seat | `Body.seated_drop()`, `props.scene_layout()` | The clips offset the hips down by the height of the lowest point of the bent soles, so the feet stand on the floor. The seat top is the lowest point of the trunk loft (`Body.trunk_bottom()`) less `facets.offset`, after the drop. |
-| Scene props | `[[props]] kind = "piano"` and `"bench"`, `attach.bone = "scene"` (studio/props.py) | Each prop is rigid on a bone of its own under the root, joined into the GLB mesh with a material of its own. The sheet pose hides it (scale 0). The props give their test boxes to the scene check. |
-| Key targets | `props.piano_keys()`, `Pianist.arms()` | The clips make knuckle points over the keys in model space, and turn them into wrist targets in the rest frame of the chest of the same pose (the frame of the solver). |
-| Role checks | `[checks] scene_depth`, `seat_gap`, `hand_targets` (studio/build.py `check_scene`) | Gates of each clip: `scene.<clip>` (the deepest body skin point in a prop box), `seat.<clip>` (the gap between the sitting skin, trunk and thighs, and the seat top), `hands.<clip>` (the distance of each knuckle from `pack.hand_targets(clip, t)`). |
+| The drop onto the seat | `Body.seated_drop()`, `props.scene_layout()` | The clips offset the hips down by the height of the lowest point of the bent soles, so the feet stand on the floor. |
+| The seat | `Body.seat()`, `bench.fit` (props/bench.py) | The seat reaches from behind the rump to the backs of the shins. Its height map is the lowest body point over each spot, up to the plane of the thighs. The pad of the bench takes this form, as a soft pad under a heavy body: it rests at the thighs, and the rump and the hanging belly push it down. So the rump and the thighs both rest on it. |
+| Digits | `[rig] fingers = 4` (templates/biped, see "The biped template") | Each paw has one digit bone for each claw, from inside the paw to the claw tip. |
+| Keys and hand positions | `props.piano_keys()`, `Paw`, `Pianist.place()` | A white key is as wide as the spacing of the claw tips, so in a hand position each digit is over its own key: for the right paw digit 1 (inner) is on the home key and digit 4 three white keys higher, for the left paw three white keys lower. A straight digit has its claw tip on the key top, and a digit that does not play is lifted 12 degrees. |
+| A note | `Pianist.fingers()`, `envelope()` | The digit curls down until its claw tip is on its key (`Paw.curl_for`, a bisection on the tip height), then pushes the key down by the key dip, and lifts. The press share of each key goes into the pose spec (`spec['keys']`), and the key node of the piano turns with it. |
+| Scene props | `[[props]] kind = "piano"` and `"bench"`, `attach.bone = "scene"` (studio/props.py) | Each prop is a mesh node of its own in the GLB with no bone. The keys that the pack presses (`pack.pressed_keys`) are nodes under the piano. The sheet pose hides the props (node scale 0). The props give their test boxes to the scene check. |
+| Wrist targets | `Pianist.arms()` | The clips make wrist points in model space, and turn them into wrist targets in the rest frame of the chest of the same pose (the frame of the solver). |
+| Role checks | `[checks] scene_depth`, `seat_gap`, `hand_targets` (studio/build.py `check_scene`) | Gates of each clip: `scene.<clip>` (the deepest body skin point in a prop box), `seat.<clip>` (the larger gap of the rump skin and of the thigh skin to the top of the pad under them), `hands.<clip>` (the distance of the claw tip of each pressing digit from its target). |
 | Correctives | `[bind] correctives = ["arm_down", "legs_straight"]` | `legs_straight` moves the leg skin onto the standing legs in the sheet pose. The thigh angle drives it. |
 
-A pack can give the optional method `hand_targets(clip, t)`: `{side: knuckle point or None}` for
-the frames where a paw presses a key, or None. The build calls it in the scene check.
+A pack can give the optional method `hand_targets(clip, t)`: `{side: point}` (the knuckle, with
+one finger bone) or `{side: {digit: point}}` (the claw tip of each digit that presses a key, with
+digits) for the frames where a paw presses a key, or None. The pianist target of a digit is on
+its key, at the depth of the key, on the front part of the key: the claw tip slides a little
+along the key as the digit curls. An optional attribute `pressed_keys` lists the keys that the
+clips press.
 
-The results on the polar bear (seed 1): every gate passes. The look checks come from the model
-build (see "The model build"): IoU front 0.9465, side 0.9543, back 0.9452, 3/4 0.927. The sheet
-pose of the seated build has a side IoU of 0.912, because the knees of the straightened legs bulge
-forward. The seed report (`out/seed-report.json`) shows that the rest clip passes on seed 1 only:
-seeds 3, 2, 4, 7, and 8 put the right forearm 1.0 to 1.9 cm into the body, seed 5 puts the left
-forearm 1.66 cm into it (with folds), and seed 6 fails the remesh gate.
+The tuning of the rest clip (the paws out by 2.1 and forward by 1.3 knee radii, the elbows out
+and back in the first half of the way down, a deeper lean) came from a probe that runs the
+contact stage of the build on the stored mesh of each seed (`docs/handoff-props.md`).
 
-Not built yet: a score-driven clip generator (notes from a MIDI score), the export of the scene
-props as separate nodes (they are bones of the GLB armature now), key motion (the keys do not
-go down), and finger bones (one finger bone for each paw).
+The results on the polar bear: the role seed is 3, the first seed of `facets.seeds` that passes
+every gate (main kept seed 1). Every gate passes. The seed report (`out/seed-report.json`): each
+of the 7 seeds that pass the remesh gate passes every clip (main: seed 1 only). Seed 6 fails the
+remesh gate, as on main.
+
+| Gate (worst clip) | Main (seed 1) | Now (seed 3) |
+|---|---|---|
+| seeds that pass every clip | 1 of 7 | 7 of 7 |
+| contact (rest, over the seeds) | 1.0 to 1.9 cm on 6 seeds | 0.00 cm on each seed |
+| seat: the rump over the bench | 0.20 cm | 0.05 cm |
+| seat: the thighs over the bench | 2.23 cm (fails the new split) | -0.05 cm |
+| hands | 0.00 cm (knuckles) | 0.00 cm (the claw tip of each pressing digit) |
+| scene (a body point in a prop) | 0.19 cm | 0.17 cm |
+| folds | 0 | 0 |
+
+The look checks come from the model build, whose GLB is the GLB of main: IoU front 0.9465, side
+0.9543, back 0.9452, 3/4 0.9332, 71 of 84 checks. The role GLB grew from 888 kB to 1106 kB: 8
+digit bones with their keys in each clip, 10 key nodes, and the piano with its inside (1296
+triangles).
+
+Not built yet: a score-driven clip generator (notes from a MIDI score), black keys in the clips
+(the melody and the chords use white keys), and a violin or cello role (the props exist, see
+"The prop library").
+
+## The prop library
+
+`props/` beside `studio/` holds low-poly, flat-shaded props in the style of the animals, built by
+code (numpy). `studio/props.py` reads the config of each prop of a role (`[[props]]`, see "Role
+pack reference"), takes its sizes from the body, and calls the kinds. Each kind returns nodes
+(`PropNode`): one mesh with one color for each triangle.
+
+| Kind | Attach | Parts | Sizes from the body |
+|---|---|---|---|
+| `piano` | scene | case with a bentside, open lid on its stick, soundboard, iron plate, strings, white and black keys, key bed, cheeks, fallboard, music desk with a sheet, three legs, lyre, three pedals | keys top 6 cm below the elbows of the seated pose. A white key as wide as the claw tips are apart. The case, the lid, the desk, the legs, and the pedals scale with the keyboard width (a real keyboard is 1.24 m). |
+| `bench` | scene | a pad, an apron, four tapered legs | from behind the rump to the backs of the shins. The pad fits the seated body (`Body.seat`). |
+| `chair` | scene | a seat, two front legs, two back posts, a top rail, a stretcher | the seat as a bench. The back 0.55 of the shoulders above the seat. |
+| `music_stand` | scene | a tripod, a post, a tilted desk with a light edge and a lip, a sheet | the desk 0.2 below the eyes of the seated animal |
+| `violin` | scene | body with bouts and an arched top, f-holes, neck, pegbox, pegs, scroll, fingerboard, tailpiece, chin rest, bridge, strings | 1.1 arm reaches long |
+| `cello` | scene | the violin model with the cello colors, no chin rest, and an end pin | with its end pin, to the eyes of the seated animal |
+| `bow` | hand | stick, hair, frog, tip | 1.25 violins or 0.62 cellos long (`strings.bow_for`) |
+| `stick` | hand | handle, tapered shaft (the baton of the conductor) | config |
+
+```typescript
+/** One node of a prop (studio/props.py). */
+interface PropNode {
+  name: string;               // 'piano', 'piano_key_E5'
+  verts: Vec3[];              // model space, animal heights, three.js axes
+  faces: [number, number, number][];
+  colors: Rgb[];              // one sRGB color for each face
+  material: string;           // the name of the prop
+  parent: string | null;      // a key is a child of its piano
+  origin: Vec3;               // the pivot of the node (a key turns on it)
+}
+```
+
+A scene prop is a node of its own in the GLB, beside the rig. A hand prop sits on a bone of its
+own under the hand, and its mesh is joined into the mesh of the animal, rigid on that bone (the
+baton of the bear). The keys that a pack presses are nodes under the piano node, with their origin
+on the pivot of the key (far back under the fallboard, as the balance rail of a real key). A pose
+spec gives the press share of each key in `spec['keys']`. `props.ScenePose` turns the shares and
+the prop scales into node transforms, `bake.write_node_actions` writes them as actions on NLA
+tracks with the clip names, and the glTF exporter merges them into the animations of the clips.
+A node that does not move in a clip has no channel in it (three.js keeps its rest transform).
+
+The gallery: `python3 studio props <animal>` builds one prop of each kind (`props/gallery.toml`)
+for the body of the animal into `out/props/gallery.glb`, with the clip "keys" (a scale pressed in
+turn), and renders `out/props/props.png`. `viewer/props.html?animal=<id>` shows each prop alone,
+turns it with the mouse, and plays the keys.
+
+![props](animals/polar-bear/out/props/props.png)
 
 ## The biped template
 
@@ -362,8 +450,22 @@ root
          └─ tail
 ```
 
-30 body bones plus one bone for each hand prop (31 for the conductor: `baton`) and one bone under
-the root for each scene prop (32 for the pianist: `bench`, `piano`). The bind pose comes from the
+With `[rig] fingers = 4` in the role, each paw has four digit bones in place of `fingers_<s>`:
+`finger1_<s>` (the inner digit) to `finger4_<s>`, all children of the hand. A digit starts
+2.5 cm behind the base of its claw inside the paw and ends at the claw tip, so the front of the
+paw bends with it, and its claw is rigid on it. The rule `digit_weights` (rig.py) gives the paw
+weight of each skin point to the digits from 2 cm behind the digit heads (none) to the heads
+(all), and across the paw to the two nearest digits. The bear keeps one finger bone.
+
+```text
+ hand_L ─┬─ finger1_L   inner digit            side view of a digit:
+         ├─ finger2_L                               wrist ── hand ──┐ head (in the paw)
+         ├─ finger3_L                                               └──── claw ──> tip
+         └─ finger4_L   outer digit                 a curl turns the digit toward the palm
+```
+
+30 body bones (36 with four digits in each paw) plus one bone for each hand prop (31 for the
+conductor: `baton`). The scene props have no bone (36 bones for the pianist). The bind pose comes from the
 role: a seated bind pose bends the legs (`Body.leg_rotations`), and then the leg rule of the
 trunk weights takes the tops of the bent thigh and shin in place of the standing heights. The weight rules (`rig.py`) take their places from `rig.weights` of the
 animal config: trunk bands along the spine, owned parts of the arm, chain limits, throat and
@@ -475,7 +577,7 @@ interface Place {
 | `folds.<clip>` | `checks.folded_faces` | yes | the worst folded (or turned) face, `diag/fold-<face>-<clip>.png` |
 | `rest_inward_faces`, `slivers` | `checks.*` | no | the worst face, `diag/face-<face>.png` |
 | `unpaired_vertices`, `body_triangles` | `checks.*` | no | none |
-| `scene.<clip>`, `seat.<clip>`, `hands.<clip>` (a role with scene props or hand targets) | role `checks.scene_depth`, `checks.seat_gap`, `checks.hand_targets` | yes | the frame, the prop piece, the bone, and the point (scene); the frame (seat); the frame and the side (hands) |
+| `scene.<clip>`, `seat.<clip>`, `hands.<clip>` (a role with scene props or hand targets) | role `checks.scene_depth`, `checks.seat_gap`, `checks.hand_targets` | yes | the frame, the prop piece, the bone, and the point (scene); the frame, and the gaps of the rump and of the thighs in the stats (seat); the frame, the side, and the digit (hands) |
 | `remesh_gate.<name>`: `quads`, `inward_faces`, `slivers`, `open_edges`, `slit_faces` | `facets.gate.*` | yes | the first face and its center (inward, slit), the first open edges (open edges) |
 | `iou.<view>`, `fur_hue`, `fur_saturation`, `fur_value` of each view | `checks.iou.<view>`, `checks.fur_color` | no | the view tile `report/views/<view>.jpg` |
 | `head_turn.<view>` (a view in `compare.head_turn`): the head turn of the compare render, near or out of range at an end of the range | `compare.head_turn.<view>` | no | the view tile |
@@ -512,7 +614,7 @@ role build. `checks.json` (`look.compare`, `look.model_seed`), the CLI summary, 
 and `review.png` name the build of the look checks. When no seed of the model build passes the
 remesh gate, the compare renders the role GLB and says so.
 
-The polar bear pianist (role seed 1, model seed 3):
+The polar bear pianist when the model build came (role seed 1, model seed 3):
 
 | View | Pianist build | Model build |
 |---|---|---|
@@ -850,8 +952,8 @@ interface SeedResult {
 
 ### The seed rule
 
-A clip can pass on one seed and fail on others: the rest clip of the polar bear pianist passes
-on seed 1 only. Thus a pool build runs the role clips on every seed (a role check) when the
+A clip can pass on one seed and fail on others: the rest clip of the polar bear pianist passed
+on seed 1 only before the props round. Thus a pool build runs the role clips on every seed (a role check) when the
 digest of the role pack (each file of `roles/<role>/`), the template package, and `--clips`
 differs from the digest in `out/seed-report.json`, or when no report exists. A full seed run
 writes the report and prints it as a table:
@@ -2030,6 +2132,14 @@ The bind pose of the role: joint turns from the pose of the sheet. The mesh is b
 | `hip_abduct` | num | `0.0` | Outward turn of the legs about the vertical axis at the hips (the knees apart, for a seated player). |
 | `correctives` | strs | `["arm_down"]` | Corrective shapes of the template between the bind pose and the sheet pose. The biped template has "arm_down" (arms raised in the bind pose) and "legs_straight" (legs bent in the bind pose). |
 
+#### `[rig]`
+
+The rig options of the role.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `fingers` | int | `1` | Finger bones of each paw: 1 (one finger bone past the knuckles), or one digit bone for each hand claw (details.hand_claws.offsets, 4 on the bears): the digits of a pianist strike single keys. |
+
 #### `[[props]]`
 
 The props of the role, in the order of the joined mesh.
@@ -2037,7 +2147,7 @@ The props of the role, in the order of the joined mesh.
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
 | `name` | str | required | Name of the prop, of its bone, and of its material. |
-| `kind` | str | `"stick"` | Geometry kind: "stick" (a handle and a tapered shaft, in a hand), "piano" (a low-poly grand piano in the scene), "bench" (a piano bench in the scene). Later kinds: a mesh file of an instrument, a stand. |
+| `kind` | str | `"stick"` | Kind of the prop (the prop library props/, studio/props.py). In a hand: "stick" (a handle and a tapered shaft: a baton), "bow" (the bow of a violin or a cello). In the scene, a node of its own: "piano" (a grand piano), "bench" (a piano bench), "chair" (an orchestra chair), "music_stand", "violin", "cello". |
 | `tip_marker` | str | optional | Name of the empty node at the tip (the viewer draws its path). |
 | `grip` | vec3 | optional | Grip point in the hand frame, from the middle of the paw (a stick). |
 | `direction` | vec3 | optional | Direction of the shaft in the hand frame (a stick). |
@@ -2052,9 +2162,9 @@ Where the prop attaches.
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
-| `bone` | str | required | "hand": a bone of its own, a child of the hand of "side". "scene": a bone of its own, a child of the root (a piano, a bench). The prop is rigid on its bone, and the root does not move, so it stays in place. |
+| `bone` | str | required | "hand": a bone of its own, a child of the hand of "side", and the mesh joined into the mesh of the animal, rigid on that bone. "scene": a mesh node of its own in the GLB with no bone (a piano, a bench); it stays in place, and the keys of a piano are nodes under it. |
 | `side` | str | `"R"` | "L" or "R" (for a hand prop). |
-| `seat_height` | str | optional | For a seat in the scene: "legs" puts the seat top under the trunk bottom of the seated pose, where the feet of the bent legs stand on the floor (templates/biped Body.seated_drop). |
+| `seat_height` | str | optional | For a seat in the scene: "legs" puts the seat under the seated body, where the feet of the bent legs stand on the floor (templates/biped Body.seat, Body.seated_drop). |
 
 #### `[props.handle]`
 
@@ -2082,18 +2192,19 @@ The shaft of a stick: a tapered tube from the grip to the tip.
 
 #### `[props.piano]`
 
-A grand piano (kind "piano"), sized to the seated animal: the keyboard runs across the front of the belly, at the height of the forearms.
+A grand piano (kind "piano"), sized to the seated animal: the keyboard runs across the front of the belly, at the height of the forearms. The keys that the clips press (pack.pressed_keys) are nodes of their own and go down with the fingers. The case, the lid, the desk, the legs, and the pedals scale with the keyboard width (a real keyboard is 1.24 m).
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
-| `keys_top` | num | required | Height of the top of the white keys above the seat top. |
+| `keys_below_elbow` | num | `0.06` | Height of the elbows of the seated bind pose above the top of the white keys. |
 | `keys_front` | num | required | z of the front edge of the keyboard. |
-| `keys_depth` | num | `0.11` | Depth of a white key. |
-| `white_keys` | int | `17` | Number of white keys (from C, centered on x = 0). |
-| `key_width` | num | required | Width of a white key. |
-| `case_length` | num | required | Length of the case behind the keyboard. |
-| `case_width` | num | required | Width of the case. |
-| `case_height` | num | `0.1` | Height of the case side. |
+| `keys_depth` | num | optional | Visible length of a white key (default: a real key at the scale of the key width). |
+| `white_keys` | int | `29` | Number of white keys (from C, centered on x = 0). |
+| `lowest_octave` | int | `2` | Octave of the lowest C (the key names: C2, Cs2, D2, ...). |
+| `key_width` | num | optional | Width of a white key (default: the spacing of the claw tips of a paw, so each digit sits on its own key). |
+| `key_dip` | num | optional | How far the front of a key goes down when it is pressed (default: 0.42 of the key width, as on a real piano). |
+| `case_width` | num | optional | Width of the case (default: 1.4 m at the case scale). |
+| `case_length` | num | optional | Length of the case behind the keys (default: 1.85 m at the case scale). |
 | `lid_open` | num | `30.0` | Angle of the open lid in degrees. |
 
 #### `[props.piano.colors]`
@@ -2102,21 +2213,26 @@ The colors.
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
-| `case` | rgb | required | The case, the legs, and the lid. |
-| `white` | rgb | required | The white keys. |
-| `black` | rgb | required | The black keys. |
-| `metal` | rgb | required | The pedals. |
+| `case` | rgb | `[24, 22, 26]` | The case, the lid, the legs, the desk. |
+| `white` | rgb | `[240, 236, 226]` | The white keys. |
+| `black` | rgb | `[20, 18, 20]` | The black keys. |
+| `metal` | rgb | `[200, 170, 90]` | The iron plate and the pedals. |
+| `inside` | rgb | `[122, 84, 52]` | The soundboard. |
+| `strings` | rgb | `[168, 144, 100]` | The strings. |
+| `sheet` | rgb | `[236, 230, 214]` | The sheet of music on the desk. |
 
 #### `[props.bench]`
 
-A piano bench (kind "bench"): a padded top on four legs.
+A piano bench (kind "bench"): a padded top on an apron and four legs. With a seated bind pose, the top reaches from behind the rump to the backs of the shins.
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
-| `width` | num | required | Width (x). |
-| `depth` | num | required | Depth (z). |
-| `center_z` | num | required | z of the middle of the top. |
-| `top_thickness` | num | `0.025` | Thickness of the padded top. |
+| `width` | num | optional | Width (x). Default: the thighs on the seat and the margin. |
+| `depth` | num | optional | Depth (z). Default: from the seat of the body. |
+| `center_z` | num | optional | z of the middle of the top. Default: from the seat of the body. |
+| `margin` | num | `0.03` | Margin of the top behind the rump and beside the thighs. |
+| `fit` | bool | `true` | The top of the pad follows the lowest points of the seated body over it (templates/biped Body.seat): the rump sinks into the middle of the pad, and the thighs rest on its sides. False: a flat pad at the trunk bottom. |
+| `top_thickness` | num | `0.025` | Thickness of the padded top under its lowest point. |
 
 #### `[props.bench.colors]`
 
@@ -2124,8 +2240,81 @@ The colors.
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
-| `top` | rgb | required | The padded top. |
-| `legs` | rgb | required | The legs and the frame. |
+| `top` | rgb | `[52, 40, 36]` | The padded top. |
+| `legs` | rgb | `[30, 24, 22]` | The legs and the apron. |
+
+#### `[props.chair]`
+
+An orchestra chair (kind "chair"): a seat, four legs, the back posts, and a top rail. The seat is sized as a bench.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `width` | num | optional | Width (x). Default: from the seat of the body. |
+| `depth` | num | optional | Depth (z). Default: from the seat of the body. |
+| `center_z` | num | optional | z of the middle of the seat. |
+| `margin` | num | `0.03` | Margin of the seat behind the rump and beside the thighs. |
+| `fit` | bool | `true` | The top of the seat follows the seated body (as a bench). |
+| `back_height` | num | optional | Height of the back above the seat. Default: 0.55 of the shoulders above the seat. |
+
+#### `[props.chair.colors]`
+
+The colors.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `wood` | rgb | `[205, 178, 122]` | The wood. |
+
+#### `[props.stand]`
+
+A music stand (kind "music_stand"): a tripod, a post, and a tilted desk with a sheet that faces the player.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `at` | vec2 | `[0.0, 0.55]` | x and z of the post on the floor. |
+| `desk_center` | num | optional | Height of the middle of the desk. Default: below the eyes of the seated animal. |
+| `below_eyes` | num | `0.2` | Distance of the middle of the desk below the eyes. |
+| `desk_width` | num | optional | Width of the desk. |
+| `desk_height` | num | optional | Height of the desk plate. |
+| `tilt` | num | `30.0` | Lean of the desk away from the player, in degrees. |
+
+#### `[props.stand.colors]`
+
+The colors.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `stand` | rgb | `[30, 26, 22]` | The tripod and the post. |
+| `desk` | rgb | `[84, 72, 64]` | The face of the desk. |
+| `edge` | rgb | `[160, 139, 122]` | The edges and the lip of the desk. |
+| `sheet` | rgb | `[236, 230, 214]` | The sheet of music. |
+
+#### `[props.strings]`
+
+A violin, a cello, or a bow (kinds "violin", "cello", "bow"): the models of the app, sized from the body.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `length` | num | optional | Length (the tail end to the scroll, or the bow). Default: a violin of 1.1 arm reaches, a cello to the eyes of the seated animal, a bow of 1.25 violins or 0.62 cellos. |
+| `at` | vec2 | `[0.0, 0.25]` | x and z of the end pin (or the tail end) on the floor (a scene prop). |
+| `lean` | num | `25.0` | Lean of an upright instrument back toward the player, in degrees. |
+| `side_lean` | num | `0.0` | Lean of an upright instrument to the left of the player, in degrees. |
+| `hair` | vec3 | `[0.0, 0.0, 1.0]` | Direction of the hair of a bow in the hand frame (a bow). |
+| `bow_for` | str | `"violin"` | The instrument of a bow: "violin" or "cello". |
+
+#### `[props.strings.colors]`
+
+The colors.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `wood` | rgb | `[122, 58, 32]` | The ribs, the back edge, the neck. |
+| `top` | rgb | `[176, 86, 44]` | The arched top plate and the scroll. |
+| `dark` | rgb | `[27, 23, 20]` | The fingerboard, the pegs, the tailpiece, the f-holes. |
+| `bridge` | rgb | `[227, 201, 154]` | The bridge. |
+| `strings` | rgb | `[154, 144, 128]` | The strings. |
+| `stick` | rgb | `[59, 42, 32]` | The stick of a bow. |
+| `hair` | rgb | `[232, 226, 212]` | The hair of a bow. |
+| `frog` | rgb | `[27, 23, 20]` | The frog of a bow. |
 
 #### `[props.material]`
 
@@ -2163,8 +2352,8 @@ The gate checks of the role: a clip fails above a limit.
 | `contact_depth` | num | `0.01` | Deepest contact of a test part in any frame, in animal heights. |
 | `contact_tests` | strs | `["paw", "forearm", "claws", "props"]` | Parts of each arm that are tested against the rest of the body: paw, forearm, claws, props. |
 | `scene_depth` | num | `0.01` | Deepest point of the body skin inside a scene prop (a piano, a bench) in any frame, in animal heights. |
-| `seat_gap` | num | `0.015` | Largest distance between the lowest body point over the seat and the seat top, in any seated frame: the animal rests on the seat. |
-| `hand_targets` | num | `0.01` | Largest distance of the knuckles from the targets that the clips give (pack.hand_targets), in animal heights. |
+| `seat_gap` | num | `0.015` | Largest gap between the seat top and the lowest skin over it, of the rump and of the thighs apart, in any seated frame: the rump and the thighs rest on the seat. |
+| `hand_targets` | num | `0.01` | Largest distance of the knuckles (one finger bone) or of the claw tips of the pressing digits from the targets that the clips give (pack.hand_targets), in animal heights. |
 
 #### `[review]`
 

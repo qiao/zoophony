@@ -924,10 +924,11 @@ ROLE = T('A role pack (roles/<name>/role.toml).', {
         'scene_depth': F('num', 'Deepest point of the body skin inside a scene prop (a piano, a '
                                 'bench) in any frame, in animal heights.',
                          default=0.01),
-        'seat_gap': F('num', 'Largest distance between the lowest body point over the seat and '
-                             'the seat top, in any seated frame: the animal rests on the seat.',
-                      default=0.015),
-        'hand_targets': F('num', 'Largest distance of the knuckles from the targets that the '
+        'seat_gap': F('num', 'Largest gap between the seat top and the lowest skin over it, of '
+                             'the rump and of the thighs apart, in any seated frame: the rump '
+                             'and the thighs rest on the seat.', default=0.015),
+        'hand_targets': F('num', 'Largest distance of the knuckles (one finger bone) or of the '
+                                 'claw tips of the pressing digits from the targets that the '
                                  'clips give (pack.hand_targets), in animal heights.',
                           default=0.01),
     }),
