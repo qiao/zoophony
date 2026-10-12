@@ -563,6 +563,12 @@ COMPARE = T('The compare of the renders with the sheet (viewer/compare.js).', {
     'head_share': F('num', 'Height of the head crop as a share of the view height.', default=0.3),
     'facet_crops': M('Crops of the front view [x0, y0, x1, y1] in model units, the sheet beside '
                      'the render.', F('rect', 'Crop.'), default={}),
+    'head_turn': M('The head turn of a view in the compare render only: the range [from, to] '
+                   'in degrees (positive turns the snout to the right of the animal, toward a '
+                   'camera at a positive azimuth). The compare keeps the turn with the best IoU '
+                   'and reports it (check head_turn.<view>). Use it for a view where the sheet '
+                   'turns the head more than in the other views. Not given: no turn.',
+                   F('vec2', 'Range in degrees.'), default={}),
 })
 
 COLOR_CLASS = T('A pixel color class. A pixel is in the class when every given condition holds. '

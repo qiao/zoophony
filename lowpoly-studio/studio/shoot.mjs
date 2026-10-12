@@ -119,6 +119,9 @@ async function compare({ page, race, ready }, base) {
   }
   for (const [name, r] of Object.entries(res.results)) {
     console.log(`${name.padEnd(14)} IoU ${r.iou.toFixed(4)}  x shift ${String(r.dx).padStart(3)} px  mean RGB ref ${r.refMeanRGB} model ${r.modelMeanRGB}  luma p10/50/90 ref ${r.refLuma10_50_90} model ${r.modelLuma10_50_90}`);
+    if (r.headTurn !== undefined) {
+      console.log(`${''.padEnd(14)} head turn ${r.headTurn} deg (IoU ${r.iouNoTurn.toFixed(4)} with no turn)`);
+    }
     const f = (c) => `H ${c.hue} S ${c.sat} V ${c.val} (lit quarter H ${c.litHue} S ${c.litSat})`;
     console.log(`${''.padEnd(14)} fur median ref ${f(r.refFurHSV)}  model ${f(r.modelFurHSV)}`);
   }

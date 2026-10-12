@@ -3,7 +3,9 @@
 //
 // Alignment: the render is scaled so that its height equals the height of the reference mask,
 // and its lowest pixel sits on the ground row of the reference. Then the x shift with the best
-// IoU in a window of +-40 px is chosen. Nothing else is fitted.
+// IoU in a window of +-40 px is chosen. A view with a range in config compare.head_turn also
+// gets the head turn (of the bone "head" of the biped template) with the best IoU, for the
+// compare render only. Nothing else is fitted.
 
 import * as THREE from 'three';
 import {
@@ -115,12 +117,38 @@ const results = {};
 const tiles = [];
 const faces = {};
 const renders = {};
-for (const [name, view] of Object.entries(VIEWS)) {
-  const vm = meta.views[name];
-  const [col0, col1] = vm.column;
-  const colW = col1 - col0;
-  const H = meta.sheet[1];
 
+/** The head bone of the biped template, which compare.head_turn turns. */
+const headBone = model.root.getObjectByName('head');
+
+/** The head turn range of each view in degrees (config compare.head_turn). */
+const TURNS = SETTINGS.compare.headTurn ?? {};
+
+/** Sets the pose of the clip, then turns the head bone about the vertical axis of the world by
+ * deg (positive: the snout turns to the right of the animal, toward a positive azimuth). */
+function turnHead(deg) {
+  poseAt(model, clipName, clipTime);
+  if (deg === 0) {
+    return;
+  }
+  if (!headBone) {
+    throw new Error('compare.head_turn: the GLB has no bone "head"');
+  }
+  const parent = new THREE.Quaternion();
+  headBone.parent.getWorldQuaternion(parent);
+  const turn = new THREE.Quaternion().setFromAxisAngle(
+    new THREE.Vector3(0, 1, 0),
+    THREE.MathUtils.degToRad(-deg),
+  );
+  const local = parent.clone().invert().multiply(turn).multiply(parent).multiply(headBone.quaternion);
+  headBone.quaternion.copy(local);
+  model.root.updateMatrixWorld(true);
+}
+
+/** Renders a view, aligns the render to the reference mask, and finds the x shift with the best
+ * IoU. Returns the render canvas, the scale and the offsets of the render on the sheet, the
+ * model mask (wider than the column by SEARCH on each side), and the best shift and IoU. */
+function renderAligned(view, vm, ref, colW, H) {
   placeSheetCamera(camera, view.azimuth);
   lights.aim(camera);
   renderer.render(scene, camera);
@@ -143,27 +171,18 @@ for (const [name, view] of Object.entries(VIEWS)) {
   }
   const scale = vm.height_px / (y1 - y0 + 1);
   const oy = vm.ground_px - (y1 + 1) * scale;
-  const boxCenter = (vm.box[0] + vm.box[2] + 1) / 2 - col0;
+  const boxCenter = (vm.box[0] + vm.box[2] + 1) / 2 - vm.column[0];
   const ox = boxCenter - ((x0 + x1 + 1) / 2) * scale;
 
   // The model mask on a canvas that is wider than the column by SEARCH on each side.
   const W2 = colW + 2 * SEARCH;
-  const [mc, mctx] = canvas2d(W2, H);
+  const [, mctx] = canvas2d(W2, H);
   mctx.imageSmoothingQuality = 'high';
   mctx.drawImage(rc, ox + SEARCH, oy, RENDER * scale, RENDER * scale);
   const mdata = mctx.getImageData(0, 0, W2, H).data;
   const model = new Uint8Array(W2 * H);
   for (let i = 0; i < W2 * H; i++) {
     model[i] = mdata[i * 4 + 3] > 127 ? 1 : 0;
-  }
-
-  const refImg = await loadImage(`${SETTINGS.masks}/${name}.png`);
-  const [, refCtx] = canvas2d(colW, H);
-  refCtx.drawImage(refImg, col0, 0, colW, H, 0, 0, colW, H);
-  const refData = refCtx.getImageData(0, 0, colW, H).data;
-  const ref = new Uint8Array(colW * H);
-  for (let i = 0; i < colW * H; i++) {
-    ref[i] = refData[i * 4] > 127 ? 1 : 0;
   }
 
   let best = { iou: -1, dx: 0 };
@@ -185,6 +204,64 @@ for (const [name, view] of Object.entries(VIEWS)) {
       best = { iou, dx };
     }
   }
+  return { rc, scale, ox, oy, model, W2, best };
+}
+
+/** Finds the head turn of a view with the best IoU in a range [from, to] of degrees: every 4
+ * degrees, then 2 and 1 degrees around the best. `none` is the result with no turn. Returns
+ * [turn, the result of renderAligned]; a tie keeps the smaller turn that came first. */
+function fitHeadTurn(range, render, none) {
+  const tried = new Map([[0, none]]);
+  const at = (deg) => {
+    if (!tried.has(deg)) {
+      turnHead(deg);
+      tried.set(deg, render());
+    }
+    return tried.get(deg);
+  };
+  const [lo, hi] = range.map(Math.round);
+  for (let deg = lo; deg <= hi; deg += 4) {
+    at(deg);
+  }
+  at(hi);
+  const bestOf = () => [...tried.entries()].reduce((a, b) => (b[1].best.iou > a[1].best.iou ? b : a));
+  for (const step of [2, 1]) {
+    const [deg] = bestOf();
+    for (const d of [deg - step, deg + step]) {
+      if (d >= lo && d <= hi) {
+        at(d);
+      }
+    }
+  }
+  const found = bestOf();
+  turnHead(0);
+  return found;
+}
+
+for (const [name, view] of Object.entries(VIEWS)) {
+  const vm = meta.views[name];
+  const [col0, col1] = vm.column;
+  const colW = col1 - col0;
+  const H = meta.sheet[1];
+
+  const refImg = await loadImage(`${SETTINGS.masks}/${name}.png`);
+  const [, refCtx] = canvas2d(colW, H);
+  refCtx.drawImage(refImg, col0, 0, colW, H, 0, 0, colW, H);
+  const refData = refCtx.getImageData(0, 0, colW, H).data;
+  const ref = new Uint8Array(colW * H);
+  for (let i = 0; i < colW * H; i++) {
+    ref[i] = refData[i * 4] > 127 ? 1 : 0;
+  }
+
+  const render = () => renderAligned(view, vm, ref, colW, H);
+  let aligned = render();
+  let headTurn;
+  let iouNoTurn;
+  if (TURNS[name]) {
+    iouNoTurn = aligned.best.iou;
+    [headTurn, aligned] = fitHeadTurn(TURNS[name], render, aligned);
+  }
+  const { rc, scale, ox, oy, model, W2, best } = aligned;
 
   // The tiles: the reference, the render on the sheet color, and the overlay.
   const tileH = ROW1 - ROW0;
@@ -307,6 +384,10 @@ for (const [name, view] of Object.entries(VIEWS)) {
     refLuma10_50_90: pct(refLum),
     modelLuma10_50_90: pct(modelLum),
   };
+  if (headTurn !== undefined) {
+    results[name].headTurn = headTurn;
+    results[name].iouNoTurn = Number(iouNoTurn.toFixed(4));
+  }
 }
 
 // One row per view: reference | render | overlay.

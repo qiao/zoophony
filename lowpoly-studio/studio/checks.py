@@ -174,6 +174,11 @@ def run(cfg):
         tile = {'view': view, 'crop': f'report/views/{view}.jpg'}
         if view in lim.iou:
             r.add(f'iou.{view}', v['iou'], '>=', lim.iou[view], where=tile)
+        if 'headTurn' in v and view in cfg.compare.head_turn:
+            # The head turn of the compare render (compare.head_turn): near or out of its range
+            # when the best turn is at an end of the range.
+            r.add(f'head_turn.{view}', v['headTurn'], 'in', list(cfg.compare.head_turn[view]),
+                  where=tile)
         hue, sat, val = lim.fur_color
         m, s = v['modelFurHSV'], v['refFurHSV']
         r.add(f'fur_hue.{view}', [m['hue'], s['hue']], 'abs<=', hue, where=tile)
