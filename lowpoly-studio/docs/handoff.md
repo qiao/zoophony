@@ -1,62 +1,69 @@
 # Handoff: lowpoly-studio
 
-Branch `studio-core`, worktree `.claude/worktrees/studio-core`, from main c528ca2e.
+Read this file first. It gives the state of the studio, the open decisions, and the next
+steps. The other handoff files are the record of each round, in this order: `handoff-speed.md`
+and `handoff-diag.md` (phase 2), `handoff-pilot.md` (phase 3), `handoff-intake.md`,
+`handoff-runtime.md`, and `handoff-props.md` (rounds A, B, and C). For the commands and the
+config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-studio`.
 
-## Last finished step
+## State (main a9aeb4aa, 2026-10-12)
 
-Phase 1 (generic studio core) is done:
+```text
+ sheet --> new --like --> calibrate --> fit --> build (seed pool, gate) --> report --> fix
+                                                  |                                    |
+                                                  +--> role build + model build <------+
+                                                  +--> seed report (seeds.require)
+```
 
-- `bear-studio/` moved to `lowpoly-studio/` with `git mv` and the new layout (`studio/`,
-  `templates/biped/`, `roles/conductor/`, `viewer/`, `animals/bear/`).
-- All bear constants are in `animals/bear/animal.toml`, checked by `studio/schema.py`. All
-  conductor constants are in `roles/conductor/` (role.toml and the clip code).
-- The user added a requirement during the work (2026-10-12): the animals will play other roles
-  (piano, violin, and so on). The role is a pack under `roles/` (stance, bind pose, correctives,
-  props, clips, role checks). The model stages take only the bind pose from the role.
-- The CLI: `python3 studio build|compare|view|new|regress|fit|schema` (run in `lowpoly-studio/`).
-- The Blender build runs in explicit stages (`studio/build.py`, `studio/stages.py`). The checks
-  write one report (`studio/checks.py`, `out/checks.json`).
-- Regression: `python3 studio regress bear` builds seed 3 and compares with
-  `animals/bear/golden.json` (from the main build). Result: PASS, the GLB is byte-identical.
-- README, `animals/bear/README.md`, and the AGENTS.md line are up to date.
+- **Animals.** `bear` (conductor) and `polar-bear` (pianist). Both are regression animals:
+  `python3 studio regress <animal>` compares a build with `animals/<animal>/golden.json`.
+- **Roles.** `conductor` (standing, baton, 4/4 pattern, cues), `pianist` (seated on a bench at a
+  grand piano, 4 digits for each paw, keys that go down), and `model` (standing, no props: the
+  build that the compare and the look checks use for every role).
+- **Props.** `props/`: a grand piano with keys, a bench, a chair, a music stand, a violin, a
+  cello, and a bow. The sizes come from the body. No role uses the violin, the cello, or the
+  chair yet.
+- **Speed.** One stage cache for all worktrees (`<git common dir>/lowpoly-studio/cache/`). A
+  cached seed takes about 4 s, also in a new worktree. A paint or detail change takes about 5 s.
+  An empty cache takes about 52 s for one seed. `tests/test_cache.py` fails when a cache key
+  holds a worktree folder.
+- **Diagnostics.** Each failure names its clip, frame, bone, and region, with a crop. Each build
+  writes `out/report/index.html` and `out/report/review.png`. `out/sheet-check.json` marks the
+  failures that the sheet can cause. `studio log` gives the real times of each build.
+- **Measured speed.** The bear took about 5.7 h in 5 rounds. The polar bear pilot took 67 min: a
+  new animal 27.7 min and the new pianist role 34.3 min (`docs/retro/pilot-polar-bear.md`).
 
-## Next step (phase 2: speed and diagnostics)
+## Rules from the user
 
-1. A stage cache keyed by input hashes (see "Seams for a faster loop" in the README). The live
-   outputs (Blender objects) must be made again from the saved outputs. The edge order of a mesh
-   made again can change the weight smoothing in the last bits: run `regress` and expect "float
-   noise" at most.
-2. Parallel seeds: one Blender process for each seed with `--out animals/<id>/out/seeds/<n>`.
-3. The two slow stages: `contacts` (23 s, two check passes) and `organic` (15 s, Python loops).
-4. Located failures (the faces, bones, and frames of each failed check) and one look-report page.
+- The model does not depend on the role. The animals are orchestra players: most of them sit and
+  hold an instrument (user, 2026-10-12).
+- A pure refactor keeps every GLB byte-identical. An improvement may change an existing animal
+  when it is measurably closer to its sheet and no gate gets worse: give a before and after
+  table, look at the review image, and commit the new golden file alone with the reason
+  (user, 2026-10-12).
+- `seeds.require = "kept"`: the kept seed must pass all gates, and the other seeds are a
+  robustness report in `out/seed-report.json`. The manager chose this default, and the user can
+  change it to `"all"`.
+- The app (`src/`) does not use the studio. A GLB of the studio goes into the app only when the
+  user asks.
 
-## Phase 3 note
+## Next steps
 
-Phase 3 adds a `pianist` role pack and tests it on a polar bear (a standing four-view sheet, then
-seated at a piano). The role interface must fit:
-
-- a seated player: `[bind] hip_flex` and `knee_flex` of about 90 degrees exist in the template
-  (the legs bend in the field and the layout, and the sheet pose straightens them with `leg_fk`),
-  but no build has used them yet. A "legs_straight" corrective and a body drop onto the seat are
-  missing;
-- a large scene prop (a piano and a bench): `props.attach.bone = "scene"` and
-  `attach.seat_height` are in the schema, but no prop kind other than "stick" is built;
-- two hand targets per note: a pack can compute any wrist target. A check "hands within a
-  distance of their targets" is missing.
-
-The README section "What a seated role needs" lists these gaps.
-
-## Baseline (main c528ca2e, seed 3)
-
-- Two builds of main give the same GLB bytes.
-- Old `./build.sh --seed 3`: 64.4 s. New `python3 studio build bear`: 65.0 s (intake 2.6, Blender
-  49.3, shots 11.4, measures 1.7). The measures stage is new.
-- IoU front 0.9468, side 0.9596, back 0.9495, 3/4 0.9154.
+1. **A violinist role.** Most of the orchestra plays strings. The violin needs an attachment to
+   the chest and the chin, a bow in the right paw, and checks for the bow on the strings. Test it
+   on a rabbit from a new four-view sheet (see `docs/sheet-spec.md`). Estimate: 1 to 2 h.
+2. **Clips from a score.** The pianist plays fixed white keys. A role can read the notes of a MIDI
+   score, as the app does in `src/score/`.
+3. **The studio bear in the app.** Not decided by the user. The app drives its players from the
+   score each frame, so the studio GLB needs a retarget of the app pose to its bones, and the app
+   needs a skinned-mesh path again.
 
 ## Open problems
 
-- Three look checks fail on the bear, the same on main: `fur_value.back`,
-  `eye_rim.three_quarter.0`, `eye_outline.three_quarter.1` (limits of the sheet, see
-  `animals/bear/README.md`).
-- The retarget of the wrist targets (`Context.place`) and the seated bind pose have no test on a
-  second body yet.
+- `calibrate` fits the fur color in the front view only. Its light improves the front view and
+  makes the other views worse, so both animals keep their hand-tuned light.
+- A claw tip slides about 0.8 cm along its key while it presses.
+- The key animation costs 127 kB of the polar bear GLB.
+- The bear fails `fur_value.back` and two 3/4 eye checks, and the polar bear fails some ear and
+  belly checks. The sheet check shows that the views of each sheet disagree there.
+- Bear seeds 2, 4, and 8 fail the remesh gate (real mesh faults). The bear keeps seed 3.
