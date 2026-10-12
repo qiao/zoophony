@@ -243,11 +243,12 @@ def animal_dir(animal):
     return os.path.join(ANIMALS, animal)
 
 
-def load(animal, out_dir=None):
+def load(animal, out_dir=None, role=None):
     """Loads and checks the config of an animal. Raises ConfigError with all problems.
 
     out_dir: the folder of the outputs (default: <animal folder>/out). Parallel seed runs and the
-    regression use folders of their own.
+    regression use folders of their own. role: a role pack in place of the role of the animal
+    (the model build uses the role "model"); cfg.animal.role then names it.
     """
     root = animal_dir(animal)
     path = os.path.join(root, 'animal.toml')
@@ -265,6 +266,8 @@ def load(animal, out_dir=None):
         _cross_checks(cfg, errors)
     if errors:
         raise ConfigError(f'{path}: {len(errors)} problem(s)\n  ' + '\n  '.join(errors))
+    if role:
+        cfg['animal']['role'] = role
     cfg['role'] = load_role(cfg.animal.role)
     if cfg.role.role.template != cfg.animal.template:
         raise ConfigError(f'{path}: the role {cfg.animal.role!r} needs the template '

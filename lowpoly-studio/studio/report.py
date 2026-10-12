@@ -86,6 +86,17 @@ def _state(c):
     return 'FAIL' if not c['pass'] else 'near' if c.get('near') else 'pass'
 
 
+def _look_source(report):
+    """Returns the build of the look checks: 'the model build, seed 3', 'the role build', or
+    None for a report with no look state."""
+    look = (report or {}).get('look') or {}
+    if look.get('compare') == 'model':
+        return f'the model build, seed {look.get("model_seed")}'
+    if look.get('compare') == 'role':
+        return 'the role build'
+    return None
+
+
 def _stale_text(report):
     """Returns the warning of stale look checks, or None when the look checks are current."""
     look = (report or {}).get('look') or {}
@@ -314,6 +325,8 @@ def page(cfg, report, views, feature_files, folds, contacts, times):
         out.append('<div class="chips">'
                    f'<span class="chip">role <b>{_e(report["role"])}</b></span>'
                    f'<span class="chip">seed <b>{_e(report["seed"])}</b></span>'
+                   + (f'<span class="chip">look checks from <b>{_e(_look_source(report))}</b>'
+                      '</span>' if _look_source(report) else '') +
                    f'<span class="chip">gates <b class="{"pass" if report["gate_pass"] else "fail"}">'
                    f'{gates}</b></span>'
                    f'<span class="chip">checks <b>{len(checks) - len(failed) - len(stale)} of '
@@ -527,7 +540,8 @@ def review_image(cfg, report, pics, views, feature_files, folder):
              f'{report["seed"] if report else "-"}: gates '
              f'{"pass" if report and report["gate_pass"] else "FAIL"}, '
              f'{len(checks) - len(failed) - len(stale)} of {len(checks)} checks pass, '
-             f'{len(near)} near the limit' + (f', {len(stale)} STALE' if stale else ''),
+             f'{len(near)} near the limit' + (f', {len(stale)} STALE' if stale else '')
+             + (f'; look checks from {_look_source(report)}' if _look_source(report) else ''),
              drawing.INK)]
     if _stale_text(report):
         head.append((_stale_text(report), drawing.FAIL))

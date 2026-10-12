@@ -6,4 +6,5 @@ animals/*/out/stages/
 animals/*/out/regress/
 __pycache__/
 animals/*/out/seeds/
+animals/*/out/model/
 animals/*/out/view-server.json

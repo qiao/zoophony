@@ -42,6 +42,10 @@ RESERVED_PORTS = (5173, 5190)
 # The Blender processes of the seed pool that run at the same time.
 DEFAULT_JOBS = 4
 
+# The role pack of the model build (roles/model/): the bind pose of the sheet, no props, and the
+# clip 'reference' only. The look checks come from this build.
+MODEL_ROLE = 'model'
+
 # The largest size of the stage cache that all worktrees share; a build deletes the least
 # recently used entries above it.
 CACHE_LIMIT = 2 * 2**30
@@ -81,10 +85,11 @@ def fail(msg, code=1):
     sys.exit(code)
 
 
-def load(animal, out=None):
-    """Loads the config of an animal, or stops with the list of its problems."""
+def load(animal, out=None, role=None):
+    """Loads the config of an animal (with another role pack when role is given), or stops with
+    the list of its problems."""
     try:
-        return config.load(animal, out)
+        return config.load(animal, out, role)
     except ConfigError as e:
         fail(str(e))
 
@@ -145,6 +150,7 @@ class Timer:
         self.steps = {}
         self.sources = {}
         self.stages = None
+        self.model = None
         self.run_file = run
 
     def step(self, name, seconds, source=None):
@@ -179,6 +185,12 @@ class Timer:
                         src += f' (the run took {run["ran_seconds"][stage]:.1f} s)'
                     rows.append((f'  {stage}', sec, src))
                 rows.append(('  start and setup', round(max(seconds - inside, 0.0), 2), ''))
+            if name == 'model build' and self.model:
+                m = self.model
+                rows.append(('  beside the role build', m['seconds'],
+                             f'seed {m["seed"]} ({len(m["tried"])} seeds before it fail the '
+                             f'remesh gate), {m["cache_hits"]} of {m["stages"]} stages from the '
+                             f'cache'))
         rows.append(('total', total, ''))
         width = max(len(r[0]) for r in rows)
         out = [f'  {"step":{width}s}  {"seconds":>7s}  source']
@@ -192,7 +204,7 @@ class Timer:
         with open(os.path.join(cfg.paths.stages, 'pipeline.json'), 'w') as f:
             json.dump({'run': self.run_file and self.run_file.id, 'steps': self.steps,
                        'sources': self.sources, 'total': total,
-                       'blender_stages': self.stages}, f, indent=2)
+                       'blender_stages': self.stages, 'model': self.model}, f, indent=2)
         if self.run_file:
             self.run_file.timer(self.steps, self.sources, self.stages)
         log('time:')
@@ -246,9 +258,11 @@ def step_intake(cfg, use_cache=True):
     return 'run'
 
 
-def build_args(cfg, seed, until=None, clips=None, use_cache=True, gate=True):
+def build_args(cfg, seed, until=None, clips=None, use_cache=True, gate=True, role=None):
     """Makes the arguments of studio/build.py for one seed."""
     args = [cfg.paths.root, '--seed', str(seed), '--out', cfg.paths.out, '--cache', cache_root()]
+    if role:
+        args += ['--role', role]
     if until:
         args += ['--until', until]
     if clips:
@@ -424,13 +438,118 @@ def keep_seed(cfg, seed):
             shutil.copytree(os.path.join(src, folder), dst)
 
 
-def step_shots(cfg):
-    """Stage "shots": the compare with the sheet, the review frames, the viewer shot (one node
-    process), and the review scripts of the role."""
+class ModelBuild:
+    """The model build of an animal: the config of the animal with the role "model" (the bind
+    pose of the sheet, no props, the clip 'reference' only), in <out>/model/.
+
+    The compare with the sheet and the look checks use its GLB, so they do not depend on the
+    role: a seated role straightens the legs of its bent bind pose for the sheet pose, which
+    changes the silhouette. The build runs in a Blender process of its own beside the role
+    build. It keeps the first seed of facets.seeds that passes the remesh gate (the seeds run
+    one after the other), so its seed depends on the model only. With the stage cache, it takes
+    a few seconds after a change of a role.
+    """
+
+    def __init__(self, cfg, use_cache=True):
+        """Stores the config of the animal and the cache choice."""
+        self.cfg = cfg
+        self.folder = os.path.join(cfg.paths.out, 'model')
+        self.use_cache = use_cache
+        self.seeds = list(cfg.facets.seeds)
+        self.proc = None
+        self.mcfg = None
+        self.seed = None
+        self.log_file = None
+        self.log_path = None
+        self.t0 = time.time()
+
+    def start(self):
+        """Starts the Blender build of the next seed in the background. Returns self."""
+        if os.path.exists(self.folder):
+            shutil.rmtree(self.folder)
+        os.makedirs(os.path.join(self.folder, 'stages'))
+        shutil.copyfile(self.cfg.paths.measure, os.path.join(self.folder, 'measure.json'))
+        self.mcfg = load(self.cfg.paths.root, self.folder, MODEL_ROLE)
+        self.seed = self.seeds.pop(0)
+        self.log_path = os.path.join(self.mcfg.paths.stages, f'blender-seed{self.seed}.log')
+        self.log_file = open(self.log_path, 'w')  # noqa: SIM115 (closed in wait or stop)
+        self.proc = subprocess.Popen(
+            blender_cmd('studio/build.py', build_args(self.mcfg, self.seed, None, None,
+                                                      self.use_cache, True, MODEL_ROLE)),
+            stdout=self.log_file, stderr=subprocess.STDOUT, cwd=STUDIO)
+        return self
+
+    def wait(self):
+        """Waits for the build, and tries the next seed when the remesh gate stops a seed or
+        Blender fails. Returns {seed, glb (None when every seed failed), seconds, log, gate
+        (the remesh gate passes), gate_failed, stages, cache_hits, tried}."""
+        tried = []
+        while True:
+            code = self.proc.wait()
+            self.log_file.close()
+            self.proc = None
+            ok = code == 0 and os.path.exists(self.mcfg.paths.glb)
+            if ok:
+                break
+            gate = _read_json(os.path.join(self.mcfg.paths.stages, 'remesh-gate.json')) or {}
+            bad = [c for c in gate.get('checks', []) if not c['pass']]
+            why = (f'the remesh gate fails ({", ".join(f"{c["name"]} {c["value"]}" for c in bad)})'
+                   if bad else f'Blender failed (log: {os.path.relpath(self.log_path, STUDIO)})')
+            tried.append({'seed': self.seed, 'why': why})
+            if not self.seeds:
+                break
+            log(f'  model build: seed {self.seed}: {why}; it tries seed {self.seeds[0]}')
+            self.start()
+        run = _read_json(os.path.join(self.mcfg.paths.stages, 'run.json')) or {}
+        gate = _read_json(os.path.join(self.mcfg.paths.stages, 'remesh-gate.json')) or {}
+        sources = list((run.get('source') or {}).values())
+        return {'seed': self.seed, 'glb': self.mcfg.paths.glb if ok else None,
+                'seconds': round(time.time() - self.t0, 1),
+                'log': os.path.relpath(self.log_path, STUDIO), 'gate': gate.get('pass'),
+                'gate_failed': gate.get('failed', []), 'stages': len(sources),
+                'cache_hits': sum(v == 'cache' for v in sources), 'tried': tried}
+
+    def stop(self):
+        """Stops a running build (when the role build stops first)."""
+        if self.proc and self.proc.poll() is None:
+            self.proc.terminate()
+            self.proc.wait()
+        if self.log_file and not self.log_file.closed:
+            self.log_file.close()
+
+
+def model_step(cfg, model, timer, run=None):
+    """Waits for the model build and records it. Returns the path of its GLB, or None when
+    every seed failed (then the compare renders the role GLB, and look.json says so)."""
+    t = time.time()
+    res = model.wait()
+    timer.step('model build', time.time() - t)
+    timer.model = {k: res[k] for k in ('seed', 'seconds', 'stages', 'cache_hits', 'tried')}
+    if run:
+        run.set(model_seed=res['seed'] if res['glb'] else None, model=timer.model)
+    outputs.finish_build(cfg, model={'seed': res['seed'] if res['glb'] else None,
+                                     'log': res['log'], 'tried': res['tried'],
+                                     'glb': outputs.sha256(res['glb']) if res['glb'] else None})
+    if not res['glb']:
+        log('  WARNING: no seed of the model build passes the remesh gate; the compare renders '
+            'the role GLB (look.json: "compare": "role")')
+        return None
+    skipped = f', after seeds {", ".join(str(t["seed"]) for t in res["tried"])}' if res[
+        'tried'] else ''
+    log(f'  model build: seed {res["seed"]}{skipped}, {res["seconds"]:.1f} s, '
+        f'{res["cache_hits"]} of {res["stages"]} stages from the cache')
+    return res['glb']
+
+
+def step_shots(cfg, model_glb=None):
+    """Stage "shots": the compare with the sheet (of the model build when model_glb is given),
+    the review frames and the viewer shot of the role build (one node process), and the review
+    scripts of the role."""
     node = shutil.which('node') or fail('no node on the path')
     shoot = os.path.join(STUDIO, 'studio', 'shoot.mjs')
-    log('[shots] compare, frames, viewer')
-    code = subprocess.call([node, shoot, 'compare,frames,viewer', '--out', cfg.paths.out],
+    log('[shots] compare' + (' (the model build)' if model_glb else '') + ', frames, viewer')
+    extra = ['--compare-glb', viewer_config.url_of(model_glb)] if model_glb else []
+    code = subprocess.call([node, shoot, 'compare,frames,viewer', '--out', cfg.paths.out, *extra],
                            cwd=STUDIO)
     if code != 0:
         fail('node studio/shoot.mjs failed (see its message above)')
@@ -446,9 +565,9 @@ def step_shots(cfg):
             fail(f'the review script {rel} failed')
 
 
-def step_measures(cfg):
+def step_measures(cfg, model_glb=None):
     """Stage "measures": the features (eyes, ears, nose, ...) and the shading of the renders,
-    and the facets of the GLB."""
+    and the facets of the GLB (of the model build when model_glb is given)."""
     from studio import measure_features, measure_shading  # noqa: PLC0415
     log(f'[measures] features ({", ".join(cfg.measure.features)}), shading, mesh facets')
     for mod in (measure_features, measure_shading):
@@ -458,7 +577,8 @@ def step_measures(cfg):
                 mod.measure(cfg)
             finally:
                 sys.stdout = stdout
-    code, _ = blender('studio/measure_mesh.py', [cfg.paths.root, '--out', cfg.paths.out],
+    code, _ = blender('studio/measure_mesh.py', [cfg.paths.root, '--out', cfg.paths.out]
+                      + (['--glb', model_glb] if model_glb else []),
                       os.path.join(cfg.paths.stages, 'measure-mesh.log'))
     if code != 0:
         fail('studio/measure_mesh.py failed')
@@ -470,6 +590,12 @@ def step_checks(cfg):
     from studio import report as look_report  # noqa: PLC0415 (Pillow is needed only here)
     report = checks.run(cfg)
     log(checks.summary(report))
+    look = report.get('look') or {}
+    if look.get('compare') == 'model':
+        log(f'  the look checks come from the model build (seed {look.get("model_seed")}, '
+            f'out/model/); the role checks come from the role build (seed {report["seed"]})')
+    elif look.get('compare') == 'role':
+        log('  the look checks come from the role build: the model build made no GLB')
     folder = os.path.join(cfg.paths.out, 'report')
     if os.path.isdir(folder):
         shutil.rmtree(folder)
@@ -494,8 +620,9 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
     seed results of the pool or None).
 
     One seed (seed, or until): the Blender build runs in out/. Else the seed pool builds the
-    seeds of facets.seeds in out/seeds/<n>/ and copies the kept seed into out/. run: the run
-    file of the command (runlog.Run), or None.
+    seeds of facets.seeds in out/seeds/<n>/ and copies the kept seed into out/. With shots, the
+    model build (ModelBuild) runs beside the role build, and the compare and the measures use
+    its GLB. run: the run file of the command (runlog.Run), or None.
     """
     timer = Timer(run)
     os.makedirs(cfg.paths.out, exist_ok=True)
@@ -505,7 +632,38 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
     source = step_intake(cfg, use_cache)
     timer.step('intake', time.time() - t, source)
     viewer_config.write(cfg)
-    pool = None
+    model = None
+    if shots and not until:
+        model = ModelBuild(cfg, use_cache).start()
+        log(f'[model] the model build (role "{MODEL_ROLE}", seed {model.seed}) runs beside the '
+            f'role build in {os.path.relpath(model.folder, STUDIO)}/')
+    try:
+        pool = role_build(cfg, timer, seed, until, clips, use_cache, gate, jobs, all_seeds, run)
+        if until:
+            return None, None
+        if shots:
+            model_glb = model_step(cfg, model, timer, run)
+            outputs.clear_look(cfg)
+            timer.run('shots', step_shots, cfg, model_glb)
+            timer.run('measures', step_measures, cfg, model_glb)
+            outputs.write_look(cfg, model_glb)
+    finally:
+        if model:
+            model.stop()
+    report = timer.run('checks', step_checks, cfg)
+    timer.write(cfg)
+    if run:
+        run.checks(report)
+        if not report['gate_pass']:
+            run.result = 'fail'
+    if use_cache:
+        prune_cache()
+    return report, pool
+
+
+def role_build(cfg, timer, seed, until, clips, use_cache, gate, jobs, all_seeds, run):
+    """Builds the GLB of the role: one seed in out/, or the seed pool. Writes the checks and
+    stops (fail) when no seed passes the gates. Returns the seed results of the pool or None."""
     if seed is not None or until:
         s = seed if seed is not None else cfg.facets.seeds[0]
         if run:
@@ -517,7 +675,7 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
         timer.blender(_read_json(os.path.join(cfg.paths.stages, 'run.json')))
         if until:
             timer.write(cfg)
-            return None, None
+            return None
         if not result['pass']:
             # studio-diag: the checks of the seed, so that its located failures are there.
             report = timer.run('checks', step_checks, cfg)
@@ -527,43 +685,30 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
             fail(f'seed {s}: {describe(result)}')
         log(f'  seed {s}: {describe(result)}')
         outputs.finish_build(cfg, seed=s)
-    else:
-        seeds = list(cfg.facets.seeds)
-        t = time.time()
-        kept, pool = run_seeds(cfg, seeds, jobs, not all_seeds, clips, use_cache, gate)
-        timer.step('seed pool', time.time() - t)
-        if run:
-            run.pool(_read_json(os.path.join(cfg.paths.out, 'seeds', 'summary.json')))
-            run.set(seed=kept)
-        if kept is None:
-            # studio-diag: the checks of the last seed, so that its located failures are there.
-            ran = [r['seed'] for r in pool if r['status'] != 'cancelled']
-            if ran:
-                keep_seed(cfg, ran[-1])
-                log(f'  the outputs of seed {ran[-1]} (the last seed) are in out/')
-            report = timer.run('checks', step_checks, cfg)
-            timer.write(cfg)
-            if run:
-                run.checks(report)
-            fail(f'no seed of {seeds} passes the remesh gate and the contact and fold check')
-        log(f'  kept seed {kept}')
-        keep_seed(cfg, kept)
-        outputs.finish_build(cfg, seed=kept)
-        timer.blender(_read_json(os.path.join(cfg.paths.stages, 'run.json')))
-    if shots:
-        outputs.clear_look(cfg)
-        timer.run('shots', step_shots, cfg)
-        timer.run('measures', step_measures, cfg)
-        outputs.write_look(cfg)
-    report = timer.run('checks', step_checks, cfg)
-    timer.write(cfg)
+        return None
+    seeds = list(cfg.facets.seeds)
+    t = time.time()
+    kept, pool = run_seeds(cfg, seeds, jobs, not all_seeds, clips, use_cache, gate)
+    timer.step('seed pool', time.time() - t)
     if run:
-        run.checks(report)
-        if not report['gate_pass']:
-            run.result = 'fail'
-    if use_cache:
-        prune_cache()
-    return report, pool
+        run.pool(_read_json(os.path.join(cfg.paths.out, 'seeds', 'summary.json')))
+        run.set(seed=kept)
+    if kept is None:
+        # studio-diag: the checks of the last seed, so that its located failures are there.
+        ran = [r['seed'] for r in pool if r['status'] != 'cancelled']
+        if ran:
+            keep_seed(cfg, ran[-1])
+            log(f'  the outputs of seed {ran[-1]} (the last seed) are in out/')
+        report = timer.run('checks', step_checks, cfg)
+        timer.write(cfg)
+        if run:
+            run.checks(report)
+        fail(f'no seed of {seeds} passes the remesh gate and the contact and fold check')
+    log(f'  kept seed {kept}')
+    keep_seed(cfg, kept)
+    outputs.finish_build(cfg, seed=kept)
+    timer.blender(_read_json(os.path.join(cfg.paths.stages, 'run.json')))
+    return pool
 
 
 def cmd_build(a):
@@ -593,10 +738,17 @@ def cmd_compare(a):
     with runlog.Run(cfg.animal.id, a.command, cfg.paths.out) as run:
         timer = Timer(run)
         viewer_config.write(cfg)
+        # The model GLB of the build in out/, or a new model build (from the stage cache).
+        build = _read_json(outputs.build_path(cfg)) or {}
+        model_glb = outputs.model_glb(cfg)
+        known = (build.get('model') or {}).get('glb')
+        if not known or known != outputs.sha256(model_glb):
+            log(f'[model] the model build (role "{MODEL_ROLE}") of the config now')
+            model_glb = model_step(cfg, ModelBuild(cfg).start(), timer, run)
         outputs.clear_look(cfg)
-        timer.run('shots', step_shots, cfg)
-        timer.run('measures', step_measures, cfg)
-        outputs.write_look(cfg)
+        timer.run('shots', step_shots, cfg, model_glb)
+        timer.run('measures', step_measures, cfg, model_glb)
+        outputs.write_look(cfg, model_glb)
         run.checks(timer.run('checks', step_checks, cfg))
         timer.write(cfg)
 

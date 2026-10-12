@@ -111,7 +111,8 @@ def write_look(cfg, model=None):
     _write(look_path(cfg), {'run': build.get('run'), 'made': time.strftime('%Y-%m-%dT%H:%M:%S%z'),
                             'glb': sha256(cfg.paths.glb),
                             'model_glb': sha256(model) if model else None,
-                            'compare': 'model' if model else 'role'})
+                            'compare': 'model' if model else 'role',
+                            'model_seed': (build.get('model') or {}).get('seed') if model else None})
 
 
 def look_state(cfg):
@@ -124,7 +125,7 @@ def look_state(cfg):
     look = _load(look_path(cfg))
     state = {'current': False, 'reason': None, 'run': (build or {}).get('run'),
              'look_run': (look or {}).get('run'), 'made': (look or {}).get('made'),
-             'compare': (look or {}).get('compare')}
+             'compare': (look or {}).get('compare'), 'model_seed': (look or {}).get('model_seed')}
     if not look:
         state['reason'] = ('no renders of this build (it ran with --no-shots, or the shots '
                            'stopped)' if os.path.isdir(cfg.paths.compare) else 'no renders')

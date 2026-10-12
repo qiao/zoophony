@@ -4,6 +4,11 @@ Run with Blender (the CLI `python3 studio build <animal>` does it):
 
     blender -b --factory-startup --python studio/build.py -- <animal> --seed 3
         [--out DIR] [--until STAGE] [--clips a,b] [--cache DIR | --no-cache] [--no-gate]
+        [--role R]
+
+--role builds with another role pack than the role of the animal: the CLI builds each animal
+with the role "model" too (the model build: the bind pose of the sheet, no props, one clip), and
+the look checks come from that build.
 
 The stages (each one writes its outputs into <out>/stages/, see studio/stages.py):
 
@@ -74,6 +79,7 @@ def parse_args():
                     help='the cache folder (default: the shared cache of all worktrees)')
     ap.add_argument('--no-cache', action='store_true', help='no cache reads and no cache writes')
     ap.add_argument('--no-gate', action='store_true', help='report the remesh gate, never stop')
+    ap.add_argument('--role', default=None, help='another role pack than the role of the animal')
     return ap.parse_args(argv)
 
 
@@ -585,7 +591,7 @@ def main():
     """Runs the stages of the build."""
     args = parse_args()
     t0 = time.time()
-    cfg_raw = config.load(args.animal, args.out)
+    cfg_raw = config.load(args.animal, args.out, args.role)
     cache.register_functions('studio/build.py', globals())
     mesh.clear_scene()
     ctx, fps = setup(cfg_raw, args)

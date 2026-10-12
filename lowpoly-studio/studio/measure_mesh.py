@@ -130,15 +130,17 @@ def measure(v, tris, sheet_px, belly_box):
 
 
 def main():
-    """Prints the measures of the GLB of an animal and writes <out>/compare/mesh.json."""
+    """Prints the measures of the GLB of an animal and writes <out>/compare/mesh.json. --glb
+    measures another GLB (the GLB of the model build) in place of <out>/<id>.glb."""
     ap = argparse.ArgumentParser(prog='studio/measure_mesh.py')
     ap.add_argument('animal')
     ap.add_argument('--out', default=None)
+    ap.add_argument('--glb', default=None, help='the GLB to measure (default: <out>/<id>.glb)')
     args = ap.parse_args(sys.argv[sys.argv.index('--') + 1:])
     cfg = config.load(args.animal, args.out)
     with open(cfg.paths.measure) as f:
         sheet_px = json.load(f)['views']['front']['height_px']
-    v, tris = body_triangles(cfg.paths.glb)
+    v, tris = body_triangles(args.glb or cfg.paths.glb)
     tris = largest_piece(tris)
     result = measure(v, tris, sheet_px, cfg.measure.mesh_belly)
     print('FACETS', json.dumps(result))

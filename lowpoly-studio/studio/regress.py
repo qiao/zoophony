@@ -11,8 +11,10 @@ Pure Python (struct, hashlib, array): it parses the GLB itself. The golden stats
     clips      for each animation: the channels, the sha256 of its key data, the sums of its key
                times and key values, and 64 block checksums of the key values
     stats      the stats file of the build (contacts, folds, corrective report, facets)
-    iou        the silhouette IoU of each view
-    measures   the feature, shading, and GLB facet measures
+    model_glb  the sha256 and the size of the GLB of the model build (out/model/), which the
+               compare and the measures use
+    iou        the silhouette IoU of each view (of the model build)
+    measures   the feature, shading, and GLB facet measures (of the model build)
     checks     the pass or fail of each check of checks.json
 
 The compare says, for each item: identical (the same bytes), float noise (the bytes differ, and
@@ -205,6 +207,11 @@ def collect(cfg):
     """Collects the golden stats of the outputs in cfg.paths.out."""
     out = glb_stats(cfg.paths.glb)
     out['stats'] = _load(cfg.paths.stats)
+    model = os.path.join(cfg.paths.out, 'model', os.path.basename(cfg.paths.glb))
+    if os.path.exists(model):
+        with open(model, 'rb') as f:
+            data = f.read()
+        out['model_glb'] = {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)}
     iou = _load(os.path.join(cfg.paths.compare, 'iou.json')) or {}
     out['iou'] = {v: r['iou'] for v, r in (iou.get('views') or {}).items()}
     out['measures'] = {name: _load(os.path.join(cfg.paths.compare, f'{name}.json'))
@@ -264,6 +271,13 @@ def compare(golden, new):
     same_glb = golden['glb']['sha256'] == new['glb']['sha256']
     rows.append(('GLB file', 'identical' if same_glb else 'bytes differ',
                  f'{new["glb"]["bytes"]} bytes, sha256 {new["glb"]["sha256"][:12]}'))
+    if 'model_glb' in golden or 'model_glb' in new:
+        g, n = golden.get('model_glb'), new.get('model_glb')
+        if not g or not n:
+            rows.append(('model GLB', 'different', f'only in {"golden" if g else "new"}'))
+        else:
+            rows.append(('model GLB', 'identical' if g == n else 'different',
+                         f'{n["bytes"]} bytes, sha256 {n["sha256"][:12]}'))
     diffs = []
     _deep_diff(golden['counts'], new['counts'], 'counts', diffs, 0.0)
     rows.append(('counts', 'different' if diffs else 'identical',

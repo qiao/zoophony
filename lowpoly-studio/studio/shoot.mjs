@@ -1,9 +1,11 @@
 // Renders images of the GLB of an animal in headless Chromium, with a Vite server in this
 // process. <out> is the output folder of the animal (it holds viewer.json, which the CLI writes).
 //
-//   node studio/shoot.mjs compare --out <out> [--glb <url>] [--clip reference]
+//   node studio/shoot.mjs compare --out <out> [--glb <url>] [--compare-glb <url>] [--clip reference]
 //       Renders the sheet views beside the sheet, prints the IoU of each view, and writes
 //       <out>/compare/compare.png, the renders, the crops, and <out>/compare/iou.json.
+//       --compare-glb renders another GLB in this command only (the CLI gives the GLB of the
+//       model build, so the look checks do not depend on the role).
 //   node studio/shoot.mjs frames --out <out> [--only <name>]
 //       Renders the review frames of the role (role.toml [review] shots) into <out>/frames/.
 //   node studio/shoot.mjs viewer --out <out> [--wait 6000]
@@ -97,7 +99,8 @@ async function failFastPage(browser, viewport) {
 /** Renders the sheet views beside the sheet and writes the compare images and the IoU. */
 async function compare({ page, race, ready }, base) {
   const clip = flags.clip ?? 'reference';
-  await race(page.goto(`${base}viewer/compare.html?${query}&clip=${clip}`));
+  const compareQuery = flags['compare-glb'] ? query.replace(`glb=${glb}`, `glb=${flags['compare-glb']}`) : query;
+  await race(page.goto(`${base}viewer/compare.html?${compareQuery}&clip=${clip}`));
   await ready(() => window.__compare);
   const res = await race(page.evaluate(() => window.__compare));
   const dir = path.join(OUT, 'compare');
