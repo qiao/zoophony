@@ -50,6 +50,7 @@ def settings(cfg):
         'background': hex_color(cfg.sheet.background),
         'light': light,
         'noShadow': [p.name for p in role.props if not p.cast_shadow],
+        'sceneProps': [p.name for p in role.props if p.attach.bone == 'scene'],
         'tipMarkers': [p.tip_marker for p in hand_props if p.tip_marker],
         'compare': {'rows': list(cfg.compare.rows), 'furBand': list(cfg.compare.fur_band),
                     'headShare': cfg.compare.head_share,

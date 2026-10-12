@@ -230,6 +230,14 @@ function startViewer() {
   panel.querySelector('#shadow').onchange = (e) => {
     ground.visible = e.target.checked;
   };
+  // The scene props (a piano, a bench) are nodes of their own: the switch shows the animal alone.
+  const sceneProps = (SETTINGS.sceneProps ?? []).map((name) => model.root.getObjectByName(name)).filter(Boolean);
+  panel.querySelector('#propsRow').hidden = sceneProps.length === 0;
+  panel.querySelector('#props').onchange = (e) => {
+    for (const node of sceneProps) {
+      node.visible = e.target.checked;
+    }
+  };
   applyTempo();
   play(order.includes('performance') ? 'performance' : order[0]);
 
