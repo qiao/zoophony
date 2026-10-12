@@ -3,10 +3,10 @@
     python3 studio build <animal> [--seed N] [--no-shots] [--out DIR] [--until STAGE] [--clips a,b]
     python3 studio compare <animal> [--out DIR]
     python3 studio view <animal> [--port N]
-    python3 studio new <animal> --sheet <png> [--role R] [--like bear] [--force]
+    python3 studio new <animal> --sheet <png> [--role R] [--like A] [--force]
     python3 studio regress <animal> [--no-build] [--write --from DIR]
     python3 studio fit <animal> [--rows]
-    python3 studio schema [--role]
+    python3 studio schema [--role] [--readme]
 
 Needs python3 3.11 or later with Pillow, Blender 5.2 or later (BLENDER or `blender` on the
 path), Node 24, and the packages of the repository (three, vite, @playwright/test).
@@ -364,8 +364,9 @@ def scaffold(schema, start, filled, path='', like=None):
 
     A field marked todo gets "TODO" (or a value of `filled`, or with `like` the value of that
     animal and a comment "TODO: measure"). A required field without a default starts from the
-    value of the start animal. A field with a default is a comment.
+    value of the start animal (src). A field with a default is a comment.
     """
+    src = filled.get('_start', like)
     from studio.schema import REQUIRED, A, F, M, T  # noqa: PLC0415
     lines, subs = [], []
     for key, sub in schema.fields.items():
@@ -380,7 +381,7 @@ def scaffold(schema, start, filled, path='', like=None):
             elif sub.todo:
                 lines.append(f'{key} = "TODO"')
             elif sub.default is REQUIRED:
-                lines.append(f'{key} = {_toml(config.to_plain(value))}  # a start ({like or "bear"})')
+                lines.append(f'{key} = {_toml(config.to_plain(value))}  # a start ({src})')
             elif sub.default is not None and sub.default != ():
                 lines.append(f'# {key} = {_toml(config.to_plain(sub.default))}')
             elif value not in (None, ()):
@@ -421,6 +422,20 @@ def scaffold(schema, start, filled, path='', like=None):
     return out.strip('\n')
 
 
+def start_animal(new_id):
+    """Finds the animal whose values start a new config: the first animal folder (by name)
+    with a valid config."""
+    for name in sorted(os.listdir(config.ANIMALS)):
+        if name == new_id or not os.path.exists(os.path.join(config.ANIMALS, name, 'animal.toml')):
+            continue
+        try:
+            config.load(name)
+        except ConfigError:
+            continue
+        return name
+    fail('no animal with a valid config to start from (give --like <animal>)')
+
+
 def cmd_new(a):
     """studio new: scaffolds animals/<animal>/ with a config of TODO fields and the sheet."""
     from studio.schema import SCHEMA  # noqa: PLC0415
@@ -448,14 +463,14 @@ def cmd_new(a):
         if n == 'back':
             v['flip'] = True
         views[n] = v
-    start = config.load(a.like or 'bear')
+    src = a.like or start_animal(a.animal)
+    start = config.load(src)
     filled = {'animal.id': a.animal, 'animal.name': a.animal.replace('_', ' ').title(),
               'animal.role': a.role, 'sheet.image': f'reference/{name}', 'sheet.background': bg,
-              'sheet.views': views}
+              'sheet.views': views, '_start': src}
     for n, v in views.items():
         for k, x in v.items():
             filled[f'sheet.views.{n}.{k}'] = x
-    src = a.like or 'bear'
     head = (f'# The config of the animal "{a.animal}" (made by python3 studio new). Fill each '
             f'"TODO" and each\n# "TODO: measure"; `python3 studio schema` explains each field. '
             f'A value marked "a start ({src})"\n# comes from animals/{src}/animal.toml: tune it. '
@@ -533,7 +548,7 @@ def schema_markdown(node, path=''):
         p = f'{path}.{key}' if path else key
         if isinstance(sub, F):
             if sub.default is REQUIRED:
-                default = 'required' + (' (TODO in a new config)' if sub.todo else '')
+                default = 'measure' if sub.todo else 'required'
             elif sub.default is None or sub.default == ():
                 default = 'optional'
             else:
@@ -557,9 +572,24 @@ def schema_markdown(node, path=''):
 
 
 def cmd_schema(a):
-    """studio schema: prints the config reference (or the role pack reference) as Markdown."""
+    """studio schema: prints the config reference (or the role pack reference) as Markdown, or
+    writes both into README.md between their marker lines."""
     from studio.schema import ROLE, SCHEMA  # noqa: PLC0415
-    print(schema_markdown(ROLE if a.role else SCHEMA))
+    if not a.readme:
+        print(schema_markdown(ROLE if a.role else SCHEMA))
+        return
+    path = os.path.join(STUDIO, 'README.md')
+    with open(path) as f:
+        text = f.read()
+    for name, node in (('config', SCHEMA), ('role', ROLE)):
+        begin, end = f'<!-- {name}-reference:begin -->', f'<!-- {name}-reference:end -->'
+        if begin not in text or end not in text:
+            fail(f'README.md has no marker lines {begin} and {end}')
+        i, j = text.index(begin) + len(begin), text.index(end)
+        text = text[:i] + '\n\n' + schema_markdown(node).strip('\n') + '\n\n' + text[j:]
+    with open(path, 'w') as f:
+        f.write(text)
+    log(f'wrote the references into {path}')
 
 
 def main(argv=None):
@@ -604,6 +634,7 @@ def main(argv=None):
     p.set_defaults(fn=cmd_fit)
     p = sub.add_parser('schema', help='print the config reference as Markdown')
     p.add_argument('--role', action='store_true', help='the reference of role.toml')
+    p.add_argument('--readme', action='store_true', help='write both references into README.md')
     p.set_defaults(fn=cmd_schema)
     args = ap.parse_args(argv)
     args.fn(args)
