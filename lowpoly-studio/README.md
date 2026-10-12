@@ -19,15 +19,21 @@ Pillow, Blender 5.2 or later (`blender` on the path, or the variable `BLENDER`),
 packages of the repository (`pnpm install --offline` in the repository root).
 
 ```bash
-python3 studio build bear            # build, shots, measures, checks, look report (about 70 s
-                                     # cold, about 17 s when the stage cache has the seed)
-python3 studio build bear --all-seeds --no-shots   # the full seed check (about 100 s cold)
+python3 studio build bear            # build, model build, shots, measures, checks, look report
+                                     # (about 70 s cold, about 17 s from the stage cache)
+python3 studio build bear --all-seeds --no-shots   # the full seed check (76 s cold, 9 s cached)
 python3 studio report bear           # the look report of the last build on a free port
 python3 studio view bear             # the viewer on a free port; Ctrl-C stops it
+python3 studio view bear --stop      # stop a viewer that runs in the background
+python3 studio log bear              # the timeline of the builds: real times, seeds, cache hits
 python3 studio regress bear          # build again and compare with the golden stats
 python3 studio new fox --sheet ~/fox-views.png   # start a new animal
-python3 studio regress polar-bear    # the polar bear pianist: build and compare (about 16 s)
+python3 studio regress polar-bear    # the polar bear pianist: build and compare
 ```
+
+All worktrees of the repository share the stage cache and the run files in
+`<git common dir>/lowpoly-studio/` (`cache/`, `runs/`). So the first build in a new worktree takes
+its stages from the builds of the other worktrees (4.0 s for one bear seed, 55 s cold).
 
 ## Layout
 
@@ -40,6 +46,9 @@ lowpoly-studio/
 │   ├── build.py         the Blender build: the list of stages (stages.py runs them)
 │   ├── stages.py        the stage runner: stage folders, times, and the cache of each stage
 │   ├── cache.py         the stage cache: the keys (inputs, config reads, code), the store
+│   │                    that all worktrees share
+│   ├── outputs.py       build.json, look.json, the old outputs, the stale look checks
+│   ├── runlog.py        the run files and the timeline of `studio log`
 │   ├── intake.py        sheet -> masks and row profiles (Pillow)
 │   ├── sdf.py field.py  distance primitives, lofts from the masks, the field grid
 │   ├── remesh.py        warps, QuadriFlow with mirror, organic pass, cleanup, body object,
@@ -72,13 +81,15 @@ lowpoly-studio/
 ├── roles/conductor/     role.toml, the clips (__init__.py, clips.py), shots.json,
 │                        pattern.py (the 4/4 plot)
 ├── roles/pianist/       role.toml (bench, piano, seated bind pose), clips.py, shots.json
+├── roles/model/         the role of the model build: a fixed standing bind pose, one clip
 ├── viewer/              viewer, compare page, frames page (three.js), read viewer.json
-├── animals/bear/        animal.toml, golden.json, README.md, reference/, out/, cache/ (made by
-│                        the build, ignored by git)
+├── animals/bear/        animal.toml, golden.json, README.md, reference/, out/ (out/model/,
+│                        out/seeds/, and out/stages/ are ignored by git)
 ├── animals/polar-bear/  animal.toml, golden.json, reference/, out/ (the pianist)
-├── docs/                handoff.md, handoff-diag.md, handoff-speed.md, handoff-pilot.md (the
-│                        state of the work), sheet-spec.md (the rules of a reference sheet),
-│                        brief-template.md (the brief of a round), retro/ (the retrospectives)
+├── docs/                handoff.md, handoff-diag.md, handoff-speed.md, handoff-pilot.md,
+│                        handoff-runtime.md (the state of the work), sheet-spec.md (the rules
+│                        of a reference sheet), brief-template.md (the brief of a round),
+│                        retro/ (the retrospectives)
 └── vite.config.js       the root of the pages is this folder
 ```
 
@@ -88,7 +99,9 @@ and the numbers of the conductor are in `roles/conductor/`.
 ## How a build runs
 
 `python3 studio build <animal>` runs these stages. The Blender stages run in one Blender process
-for each seed, and the seed pool runs 4 seeds at a time. Each Blender stage is a function with
+for each seed, and the seed pool runs 4 seeds at a time. With shots, the model build (see "The
+model build") runs the same stages with the role `model` in one more Blender process beside the
+pool. Each Blender stage is a function with
 named inputs and named outputs (`studio/build.py`), and `studio/stages.py` writes its outputs,
 its time, and its source (a run, or the stage cache) into `out/stages/<nn>-<stage>/`. The remesh
 gate runs after "remesh" and after "organic" (see "Speed").
@@ -106,9 +119,13 @@ gate runs after "remesh" and after "organic" (see "Speed").
                                 │                diagnostics: the places ──┤
                                 │                of the contacts and folds │
         seed pool, 4 at a time: the first seed of facets.seeds that passes ┘
-                                                                           v
-                                     shots (compare, frames, viewer, role plots)
-                                                                           v
+                                                                           │
+   model build: the same stages with roles/model/ (a standing bind pose),  │
+   beside the seed pool ──> out/model/<id>.glb                             │
+                                    │                                      v
+               compare with the sheet <──┘          frames, viewer, role plots (shots)
+                     │                                                     │
+                     v                                                     v
                      measures (features, shading, mesh) ──> checks (+ diag/) ──> look report
 ```
 
@@ -127,40 +144,44 @@ gate runs after "remesh" and after "organic" (see "Speed").
 | contacts | Blender | clips, weights, role checks | contact and fold report, repaired weights | 23.1 s |
 | export | Blender | all | `out/<id>.glb`, `out/<id>.stats.json` | 1.9 s |
 | diagnostics | Blender | the contact checks (`contacts.JOURNAL`), the mesh | the places of the contacts and folds, the fold debug list | 0.05 s |
-| shots | CLI, node | GLB, `viewer.json` | `out/compare/`, `out/frames/` | 9.9 s |
-| measures | CLI | renders, sheet, GLB | `features.json`, `topology.json`, `mesh.json` | 2.1 s |
+| model build | Blender | the stages field to diagnostics with the role `model` | `out/model/<id>.glb` | 2.5 s from the cache |
+| shots | CLI, node | the model GLB (compare), the role GLB (frames, viewer), `viewer.json` | `out/compare/`, `out/frames/` | 9.9 s |
+| measures | CLI | renders, sheet, the model GLB | `features.json`, `topology.json`, `mesh.json` | 2.1 s |
 | checks | CLI | all outputs, limits | `out/checks.json`, `out/diag/`, `out/report/` | 1.8 s |
 
 The times in the table are of a cold build (no stage cache). A cold build of the bear takes
 about 66 s (Blender about 50 s with its start); the old `build.sh` took 64.4 s. With the stage
 cache, a build after a change of an eye radius or a paint color takes about 5 s for the GLB
 (see "Speed"). Each build prints a table of the time and the source of each step and stage, and
-writes it to `out/stages/pipeline.json` and `out/stages/run.json`.
+writes it to `out/stages/pipeline.json`, `out/stages/run.json`, and its run file (see "Run files
+and the timeline").
 
 The model stages (field to details) take one input from the role: the bind pose. Two roles with
-the same bind pose give the same mesh.
+the same bind pose give the same mesh. The model build uses this: `roles/model/` has the bind pose
+of the conductor, so a conductor build and its model build share the model stages in the cache.
 
 ## The CLI
 
 | Command | What it does |
 |---|---|
-| `python3 studio build <animal>` | intake, the Blender build of the seeds in a pool (the seeds of `facets.seeds`, 4 at a time, each in `out/seeds/<n>/`; the first seed in the config order that passes the remesh gate and the clip gates comes into `out/`), shots, measures, checks. Exits 1 when no seed passes or a gate fails. |
-| `--seed N` | One seed only, built in `out/`. |
-| `--all-seeds` | The full seed check: build every seed, write `out/seeds/summary.json`, keep the first seed that passes, and exit 1 when a seed fails. |
-| `--jobs N` | Blender processes of the seed pool at the same time (default 4). |
+| `python3 studio build <animal>` | Runs the intake and the role build: the seed pool builds the seeds of `facets.seeds`, 4 at a time, each in `out/seeds/<n>/`, and the first seed in the config order that passes the remesh gate and the clip gates comes into `out/`. With shots, the model build runs beside it (`out/model/`). Then the shots, the measures, and the checks run. After a change of the role pack, the template, or `--clips`, the pool runs every seed (a role check) and writes `out/seed-report.json` (see "The seed rule"). Exits 1 when no seed passes, a gate fails, or the seed rule (`seeds.require`) fails. |
+| `--seed N` | One seed only, built in `out/`. The model build keeps its own seed. |
+| `--all-seeds` | The full seed check: build every seed, write `out/seeds/summary.json` and `out/seed-report.json`, and keep the first seed that passes. Exits 1 when the seed rule fails. |
+| `--jobs N` | Blender processes of the seed pool at the same time (default 4). The model build runs beside them. |
 | `--no-cache` | No stage cache reads or writes (a cold build). |
 | `--no-gate` | Report the remesh gate, but build on when it fails (to look at a seed that fails it). |
-| `--no-shots` | Stop after the GLB and the checks of the stats (no renders, no measures). |
+| `--no-shots` | Stop after the GLB and the checks of the stats (no model build, no renders, no measures). The look checks of the earlier renders are marked stale (see "Old and stale outputs"). |
 | `--out DIR` | Another output folder (default `animals/<id>/out`). Keep it under `lowpoly-studio/` when you want shots: the page server serves only this folder. |
 | `--until STAGE` | Stop the Blender build after this stage (no GLB), for example `--until organic` to look at the mesh stages. |
 | `--clips a,b` | Bake only these clips. |
-| `python3 studio compare <animal>` | Renders the existing GLB beside the sheet, the frames, and the viewer shot, then the measures and the checks. No new build. |
-| `python3 studio view <animal> [--port N]` | Writes `out/viewer.json`, starts Vite on a free port (never 5173 or 5190), and prints the URLs of the viewer and the compare page. Ctrl-C stops the server. |
+| `python3 studio compare <animal>` | Renders the GLB of the model build beside the sheet, and the frames and the viewer shot of the role GLB, then the measures and the checks. No new role build. When `out/model/` does not hold the model GLB of the build in `out/`, it builds the model first (from the stage cache). |
+| `python3 studio view <animal> [--port N] [--stop]` | Writes `out/viewer.json`, starts Vite on a free port (never 5173 or 5190), writes the pid file `out/view-server.json` (the pids, the port, the URLs), and prints the URLs of the viewer and the compare page. Ctrl-C, SIGTERM, or `view <animal> --stop` stops the server and Vite, also when it runs as a background job (the shell then ignores Ctrl-C). A second `view` prints the URL of the running server. |
+| `python3 studio log [<animal>] [--all] [--last N] [--short] [--json]` | Prints the timeline of the runs of `build`, `regress`, and `compare` from their run files: the start, the wall time, the command, the seed and the model seed, the cache hits, the result, the time and the source of each step and Blender stage, and the seeds of the pool. `--all` shows the runs of all worktrees. Report these times, and do not guess them. |
 | `python3 studio new <animal> --sheet <png> [--role R] [--like A]` | Makes `animals/<animal>/` (the id: lower case letters, digits, hyphens, and underscores) with the sheet in `reference/`, an `animal.toml` with "TODO" fields, and prints the intake checklist. It finds the background and the four view columns of the sheet. `--like bear` fills the TODO fields with the bear values and marks them "TODO: measure", so `fit` and a first build run at once. |
 | `python3 studio fit <animal> [--rows] [--azimuths a,b,c] [--pose bind]` | Scores the field against the masks with no mesh (about 2 s: Blender start, field, four views). `--rows` prints the edges of each row. `--azimuths` tries these azimuths of the 3/4 view and keeps the best. `--pose bind` scores the field of the bind pose. |
 | `python3 studio report <animal>` | Writes the checks, the located failures (`out/diag/`), and the look report (`out/report/index.html`, `review.png`) of the last build, then serves `out/` on a free port (never 5173 or 5190) until Ctrl-C. `--measure` measures the features and the shading of the existing renders again first (a feature box change takes about 3 s). `--no-serve` only writes the files. `--out DIR` reads another output folder. |
-| `python3 studio regress <animal>` | Builds with the golden seed into `out/regress/` and compares with `golden.json`. `--no-cache` makes the build cold. `--no-build` compares the last regression build. `--write --from DIR --note TEXT` writes a new `golden.json` from a build. |
-| `python3 studio cache info\|clean [<animal>]` | Prints the size of the stage cache of each step, or deletes the cache (of one animal, or of all). |
+| `python3 studio regress <animal>` | Builds with the golden seed into `out/regress/` (with the model build) and compares with `golden.json`. `--no-cache` makes the build cold. `--no-build` compares the last regression build. `--write --from DIR --note TEXT` writes a new `golden.json` from a build. |
+| `python3 studio cache info\|clean [<animal>]` | Prints the size of the shared stage cache by step and by animal, or deletes the entries of one animal (or the whole cache). |
 | `python3 studio schema [--role] [--readme]` | Prints the config reference (or the role reference) as Markdown. `--readme` writes both into this README. |
 
 Debug prints: `STUDIO_DEBUG=1` makes the build print each face that points into the body, each
@@ -171,7 +192,8 @@ When no seed passes the gates, the outputs of the last seed that ran come into `
 build writes `checks.json`, `out/diag/`, and the look report of that seed, then stops with exit 1.
 
 The Blender log of each seed is `out/stages/blender-seed<N>.log` (in the seed pool:
-`out/seeds/<n>/stages/blender-seed<N>.log`).
+`out/seeds/<n>/stages/blender-seed<N>.log`, in the model build:
+`out/model/stages/blender-seed<N>.log`).
 
 ## Add a new animal
 
@@ -293,10 +315,12 @@ and a nod, as a loop), `chord` (rise, strike, lift), `rest` (the paws on the out
 A pack can give the optional method `hand_targets(clip, t)`: `{side: knuckle point or None}` for
 the frames where a paw presses a key, or None. The build calls it in the scene check.
 
-The results on the polar bear (seed 1): every gate passes. The sheet pose of the seated build has
-IoU front 0.9409, side 0.912, back 0.9405, 3/4 0.9047; the knees of the straightened legs still
-bulge forward in the side view. Seeds 2 to 8 fail the rest clip (the elbow skin 1.7 to 2.3 cm into
-the belly) or the remesh gate (seed 6); `docs/handoff-pilot.md` lists them.
+The results on the polar bear (seed 1): every gate passes. The look checks come from the model
+build (see "The model build"): IoU front 0.9465, side 0.9543, back 0.9452, 3/4 0.927. The sheet
+pose of the seated build has a side IoU of 0.912, because the knees of the straightened legs bulge
+forward. The seed report (`out/seed-report.json`) shows that the rest clip passes on seed 1 only:
+seeds 3, 2, 4, 7, and 8 put the right forearm 1.0 to 1.9 cm into the body, seed 5 puts the left
+forearm 1.66 cm into it (with folds), and seed 6 fails the remesh gate.
 
 Not built yet: a score-driven clip generator (notes from a MIDI score), the export of the scene
 props as separate nodes (they are bones of the GLB armature now), key motion (the keys do not
@@ -334,7 +358,9 @@ arm-down shapes and the legs-straight shapes.
 ## Checks
 
 `out/checks.json` holds one entry for each check. The contact and fold checks of each clip are
-gates: a failed gate fails the seed and the build. The other checks are reported. A passing
+gates: a failed gate fails the seed and the build. The other checks are reported. The look checks
+(IoU, fur color, features, facet contrast) come from the model build, and they are stale when the
+renders are not of the build in `out/` (see "The model build" and "Old and stale outputs"). A passing
 check is "near" its limit when it uses 75% or more of its allowance (`checks.NEAR`). A fold
 check is near when faces turn past 90 degrees. Each failing or near check that the tools can
 locate gets `where`.
@@ -347,11 +373,17 @@ interface CheckReport {
   seed: number;
   /** All gate checks pass. */
   gate_pass: boolean;
-  /** All checks pass. */
+  /** All checks pass, and no check is stale. */
   pass: boolean;
+  /** The current checks that fail (a stale check is not in it). */
   failed: string[];
-  /** The passing checks near their limit. */
+  /** The current passing checks near their limit. */
   near: string[];
+  /** The look checks of renders that are not of this build (see "Old and stale outputs"). */
+  stale: string[];
+  /** The state of the look checks: current or stale, and the build of the compare. */
+  look: { current: boolean; reason: string | null; run: string | null; look_run: string | null;
+          made: string | null; compare: 'model' | 'role' | null; model_seed: number | null };
   /** The files of the located places (when the build has the stage "diagnostics"). */
   diagnostics?: { folds: string; contacts: string; faces: number; contacts_found: number };
   checks: Check[];
@@ -367,6 +399,10 @@ interface Check {
   pass: boolean;
   near: boolean;
   gate: boolean;
+  /** A look check (IoU, fur color, features, facet contrast): it reads the renders. */
+  look?: true;
+  /** The renders are not of this build: the check is neither pass nor fail. */
+  stale?: true;
   /** The place of a failing or near check. */
   where?: Place;
 }
@@ -427,6 +463,128 @@ sheet is darker (`fur_value.back`), and the 3/4 view of the sheet turns the head
 (`eye_rim.three_quarter.0`, `eye_outline.three_quarter.1`). The feature checks of the nose, the
 muzzle, and the claws find real differences of the look: the nose sits higher in the front view
 and further forward in the side view, the muzzle is shorter, and the claws of each paw touch.
+
+## The model build
+
+The look checks (IoU, fur color, features, facet contrast) compare the sheet pose of a GLB with
+the sheet. A seated role bends the legs in its bind pose, and its sheet pose straightens them by
+skinning: the knees bulge forward, and the side IoU of the polar bear fell from 0.955 (conductor
+build) to 0.912 (pianist build). Thus each build with shots builds the animal a second time with
+the role pack `roles/model/`:
+
+- The bind pose stands: the arms raised (shoulder flex 40, abduct 10, elbow 25, with the
+  `arm_down` corrective) and the legs straight. `roles/model/role.toml` fixes the values, so a
+  change of a role does not change the model build. They are the values of the conductor, so a
+  conductor build shares field, remesh, and organic with its model build in the cache.
+- It has no props and one clip, `reference`.
+- Its seed is the first seed of `facets.seeds` that passes the remesh gate (the seeds run one
+  after the other), so the seed depends on the model only. `--seed` does not change it.
+- It runs in a Blender process beside the role build, in `out/model/` (ignored by git).
+
+The compare, the feature and shading measures, and the GLB facet measure use the model GLB. The
+role checks (contacts, folds, scene, seat, hands, the mesh stats, and the remesh gate) stay on the
+role build. `checks.json` (`look.compare`, `look.model_seed`), the CLI summary, the look report,
+and `review.png` name the build of the look checks. When no seed of the model build passes the
+remesh gate, the compare renders the role GLB and says so.
+
+The polar bear pianist (role seed 1, model seed 3):
+
+| View | Pianist build | Model build |
+|---|---|---|
+| front | 0.9409 | 0.9465 |
+| side | 0.912 (fail) | 0.9543 |
+| back | 0.9405 | 0.9452 |
+| 3/4 | 0.9047 | 0.927 |
+
+70 of 83 checks pass (71 before). `iou.side` and `ear_width.front` now pass.
+`eye_outline.front` (2 px narrower than the sheet) and `belly_y.front` and `belly_width.front` now
+fail: the class "light" finds no pixels on the standing body. The bear keeps its IoU and all 87
+check results.
+
+A bind pose in the pose of the sheet (no turns) was the other choice. On 2026-10-12 it gave the
+polar bear IoU 0.9410, 0.9526, 0.9410, and 0.9258, and only seed 6 of the bear passed its remesh
+gate (the quad counts of the other seeds fell under the band).
+
+## Old and stale outputs
+
+A build owns its output folder (`studio/outputs.py`):
+
+- When it starts, it writes `out/build.json` with a new run id, and deletes the GLB, the stats,
+  `checks.json`, `stages/`, `diag/`, and `report/`. The seed pool deletes `out/seeds/` (also the
+  seeds that left the config). A one-seed build keeps `out/seeds/` and `out/seed-report.json`,
+  the reports of the last pool run, which name their run.
+- The shots delete `compare/`, `frames/`, and `look.json`, then render, measure, and write
+  `look.json`: the run and the digests of the GLBs that the renders show. Thus the frames of an
+  earlier role go away.
+- The look checks are current only when `look.json` names the run of `build.json` and the GLBs
+  still have their digests. Else (after `--no-shots`, or after a stopped shot step)
+  `checks.json` marks each look check `"stale": true`, lists them in `stale`, and keeps the
+  reason in `look.reason`. A stale check counts as neither pass nor fail, and `pass` is false
+  while a check is stale. The CLI summary prints `STALE`. The look report and `review.png` show
+  a red line with the reason, `stale` in the table, and the views and the frames headed STALE.
+- `python3 studio compare <animal>` renders again and makes the look checks current.
+
+```typescript
+/** out/look.json (studio/outputs.py write_look). */
+interface LookRecord {
+  /** The run of out/build.json when the shots ran. */
+  run: string;
+  made: string;
+  /** sha256 of the role GLB and of the model GLB that the renders show. */
+  glb: string;
+  model_glb: string | null;
+  /** 'model': the compare showed the model GLB. 'role': the model build made no GLB. */
+  compare: 'model' | 'role';
+  model_seed: number | null;
+}
+```
+
+## Run files and the timeline
+
+Each run of `build`, `regress`, and `compare` writes one run file into
+`<git common dir>/lowpoly-studio/runs/<animal>/<start>-<pid>.json` (`studio/runlog.py`). The CLI
+writes it at the start (status `running`) and at the end. A run that a signal or a crash stopped
+keeps the status `running`. `python3 studio log [<animal>]` prints the runs of this worktree as a
+timeline (`--all`: of all worktrees):
+
+```text
+  10-12 07:57:06   135.6 s  build polar-bear  (seed 1, model seed 3; cache 8 of 13; pass, ...)
+                    steps: intake 0.0 (cache), seed pool 122.5, model build 0.0, shots 8.6
+                    stages: field 0.00 (cache), remesh 0.00 (cache), organic 0.02 (cache), ...
+                    seeds (all, kept 1): 3 contacts rest,performance 39 s, 1 pass 2 s, ...
+```
+
+```typescript
+/** <git common dir>/lowpoly-studio/runs/<animal>/<id>.json (studio/runlog.py Run). */
+interface RunFile {
+  id: string;                 // '20261012-075706-13746': the local start time and the pid
+  animal: string;
+  command: string;            // 'build polar-bear --seed 1'
+  worktree: string;           // the lowpoly-studio folder of the run
+  branch: string | null;
+  out: string;
+  started: string;            // ISO time with the UTC offset
+  ended: string | null;
+  seconds: number | null;
+  status: 'running' | 'pass' | 'fail' | 'error' | 'stopped';
+  seed: number | null;        // the seed of the role build (the kept seed of a pool)
+  model_seed: number | null;
+  steps: Record<string, number>;          // the CLI steps (intake, seed pool, shots, ...)
+  sources: Record<string, 'run' | 'cache'>;
+  stages: { seconds: Record<string, number>; source: Record<string, 'run' | 'cache'>;
+            ran_seconds: Record<string, number>; stopped: string | null } | null;
+  cache: { hits: number; steps: number } | null;
+  pool: { mode: 'search' | 'all'; kept: number | null; require: 'kept' | 'all';
+          results: Array<{ seed: number; status: string; seconds: number;
+                           clips_failed: string[]; cache_hits: number }> } | null;
+  seed_rule?: { require: 'kept' | 'all'; robust: boolean; rule_pass: boolean;
+                meshes: number; robust_seeds: number };
+  checks: { gate_pass: boolean; total: number; passed: number; failed: string[];
+            stale: string[] } | null;
+  regress?: 'PASS' | 'FAIL';
+  error: string | null;
+}
+```
 
 ## Located failures
 
@@ -502,38 +660,48 @@ holds the numbers and the key crops in one image, for an agent that reads only i
 
 - the sha256 and the size of the GLB, and the counts (vertices, triangles, bones, morph targets,
   clips, materials, nodes);
+- the sha256 and the size of the GLB of the model build (`out/model/`), which the compare uses;
 - for each accessor of the meshes and the skin, and for each clip: a sha256, the sums, the min
   and max, and 64 block checksums;
 - the rest transforms of the nodes, the stats file, the IoU, the measures, and the check results.
 
 `python3 studio regress <id>` builds the animal with the golden seed into `out/regress/` and
 compares. The build uses the stage cache, and `--no-cache` makes it cold: both give the same GLB
-bytes on the bear. Each group gets one verdict: identical (the same bytes), float noise (the bytes differ,
+bytes (and the same model GLB bytes) on the bear and the polar bear. Each group gets one verdict: identical (the same bytes), float noise (the bytes differ,
 and each block checksum agrees within 2e-6 of its block: about one float32 step of each value),
 or different. IoU may differ by 0.0005. A 1-ulp change of a vertex reads as float noise, and a
 change of 0.001 of one vertex reads as different.
 
 The golden stats of the bear come from the build of main c528ca2e (the old
 `bear-studio/build.sh --seed 3`). The build of the studio gives the same GLB bytes, the same
-stats, the same IoU (front 0.9468, side 0.9596, back 0.9495, 3/4 0.9154), the same measures,
-and the same check results.
+stats, the same IoU (front 0.9468, side 0.9596, back 0.9495, 3/4 0.9154), and the same check
+results. The measures and the look checks come from the model build since the runtime round
+(`docs/handoff-runtime.md`), so the golden measures changed then.
 
 ## Speed: the stage cache, the seed pool, and the remesh gate
 
 ### The stage cache
 
-Each cached step keeps its outputs in `animals/<id>/cache/`. Its key has three parts:
+Each cached step keeps its outputs in the stage cache that all worktrees of the repository share:
+`<git common dir>/lowpoly-studio/cache/` (the variable `STUDIO_SHARED` moves the shared folder).
+Its key has three parts:
 
 ```text
    inputs: digest of each array or JSON value;   ─┐
            key of the stage of each live value    │
-   reads:  each config value that the step read  ─┼──> key ──> cache/<step>/<base>/<key>.pkl
+   reads:  each config value that the step read  ─┼──> key ──> <space>/<step>/<base>/<key>.pkl
            (studio/cache.py Tracked)              │            (outputs, restore data, log)
    code:   each studio file whose code ran in    ─┘
            the step, and the studio files that
            it imports (in build.py: each stage
            function on its own)
 ```
+
+The keys hold only content digests: no path, no worktree, and no animal name. The space folder
+names the program that made the entry (`blender-5.2.2` or `cli`), so a new Blender version starts
+an empty space. A writer writes each file to a unique temporary name and renames it, so two
+builds in two worktrees can write and read the same entries at the same time. Each entry names
+its animal in its meta, for `cache info` and `cache clean <animal>`.
 
 A change of a config value that a step did not read keeps its entry valid. Thus a change of an
 eye radius runs paint to assemble again (cheap, they always run) and the export, and takes the
@@ -571,10 +739,10 @@ Rules for new stage code (`studio/cache.py` has the details):
   from the cache. Make such a memo in the setup or inside one stage.
 
 An edit of a studio file runs again each stage that ran code of that file. For example, an edit
-of `studio/remesh.py` runs the remesh and the organic pass again (about 18 s). The cache of one
-animal holds about 10 MB for each seed. A build deletes the least recently used entries above
-2 GB. `python3 studio cache info bear` prints the sizes, and `python3 studio cache clean bear`
-deletes the cache.
+of `studio/remesh.py` runs the remesh and the organic pass again (about 18 s). An animal holds
+about 10 MB for each seed. A build deletes the least recently used entries above 2 GB of the whole
+shared cache. `python3 studio cache info [bear]` prints the sizes by step and by animal, and
+`python3 studio cache clean bear` deletes the entries of the bear.
 
 ### Times (the bear, seed 3)
 
@@ -592,13 +760,21 @@ deletes the cache.
 A clip change runs the contact check again (about 23 s), because its key holds the samples of
 all clips.
 
+The shared cache in a new worktree (2026-10-12, another worktree filled the cache):
+
+| Case | Cold | From the shared cache |
+|---|---|---|
+| `build bear --seed 3 --no-shots` | 55.1 s | 4.0 s (the same GLB bytes) |
+| `build bear --all-seeds --no-shots` (8 seeds) | 76.1 s | 8.9 s |
+
 ### The seed pool
 
 `build` with no `--seed` starts one Blender process for each seed, `--jobs` (default 4) at a
 time, each in `out/seeds/<n>/`. The seed search keeps the first seed in the order of
 `facets.seeds` that passes: when each seed before it has failed, the pool stops the other runs.
-`--all-seeds` builds every seed. The kept seed comes into `out/` (the GLB, the stats,
-`stages/`, `diag/`). `out/seeds/summary.json` holds the outcome of each seed:
+A full seed run (`--all-seeds`, a role check, or `seeds.require = "all"`) builds every seed. The
+kept seed comes into `out/` (the GLB, the stats, `stages/`, `diag/`). `out/seeds/summary.json`
+holds the outcome of each seed:
 
 ```typescript
 /** out/seeds/summary.json (studio/cli.py run_seeds). */
@@ -606,6 +782,9 @@ interface SeedSummary {
   animal: string;
   /** 'search': stop at the first seed that passes; 'all': build every seed. */
   mode: 'search' | 'all';
+  /** Why the pool built every seed: '--all-seeds', a role check, or 'seeds.require = "all"'. */
+  reason: string | null;
+  require: 'kept' | 'all';
   jobs: number;
   /** The seeds in the config order. */
   seeds: number[];
@@ -630,6 +809,9 @@ interface SeedResult {
                            pass: boolean; where?: object }> } | null;
   /** The clips that fail the contact or the fold gate. */
   clips_failed?: string[];
+  /** The failed gates of each clip, for example ['contact 1.92 cm forearm R', 'folds 4'];
+   *  [] for a clip that passes. */
+  clips?: Record<string, string[]>;
   /** The checks of checks.json of the seed that fail (no shots: the stats checks). */
   checks_failed?: string[];
   /** The time and the source ('run' or 'cache') of each Blender stage. */
@@ -637,6 +819,58 @@ interface SeedResult {
   source?: Record<string, 'run' | 'cache'>;
   stats?: { body_triangles: number; median_edge_px: number; sliver_share: number;
             folded_faces: number; fold_repairs: number[] } | null;
+}
+```
+
+### The seed rule
+
+A clip can pass on one seed and fail on others: the rest clip of the polar bear pianist passes
+on seed 1 only. Thus a pool build runs the role clips on every seed (a role check) when the
+digest of the role pack (each file of `roles/<role>/`), the template package, and `--clips`
+differs from the digest in `out/seed-report.json`, or when no report exists. A full seed run
+writes the report and prints it as a table:
+
+```text
+  seed  remesh gate                        reference  ready  play  chord  rest                       performance
+  3     pass                               pass       pass   pass  pass   contact 1.92 cm forearm R  contact 1.92 cm forearm R
+  1     pass                               pass       pass   pass  pass   pass                       pass
+  6     FAIL slivers 0.0118, slit_faces 6
+```
+
+The setting `seeds.require` decides the exit code:
+
+- `"kept"` (the default): the kept seed must pass every gate. The other seeds are a robustness
+  report.
+- `"all"`: every seed that passes the remesh gate must pass every clip gate. Each pool build then
+  runs every seed.
+
+A one-seed build keeps the report and prints a note when the role changed after it. The look
+report has a section "Seeds", marked OLD after a later role change. On the polar bear, a pool
+build with no change takes 10.6 s, and the role check after a change of the clip code takes 84 s
+(8 seeds, 4 at a time).
+
+```typescript
+/** out/seed-report.json (studio/cli.py seed_report). */
+interface SeedReport {
+  animal: string;
+  role: string;
+  run: string | null;
+  made: string;
+  /** The digest of the role pack, the template, and --clips (studio/outputs.py role_key). */
+  role_key: string;
+  reason: string;
+  require: 'kept' | 'all';
+  kept: number | null;
+  /** Every seed that passes the remesh gate passes every clip. */
+  robust: boolean;
+  /** The result of the seed rule. */
+  rule_pass: boolean;
+  /** The seeds that pass the remesh gate, and those of them that pass every clip. */
+  meshes: number;
+  robust_seeds: number;
+  seeds: Array<{ seed: number; status: string; pass: boolean;
+                 remesh_gate: boolean | null; remesh_failed: string[];
+                 clips: Record<string, string[]> }>;
 }
 ```
 
@@ -655,10 +889,11 @@ goes on with the next seed. `--no-gate` reports the gate and builds on.
 | `slit_faces`: faces whose outward ray meets the body within `slit_gap` median edges across a gap whose middle is inside the field, or within `slit_tight` median edges | organic | `slit_faces` (0) |
 
 A gap between two parts, such as the forearm and the trunk, is outside the field, so it is no
-slit. On the bear, the narrowest such gap is 0.24 median edges. The slit check has no test on a
-real slit yet: the field of the bear gives none, also with a head blend of 0.010. The gate writes `out/stages/remesh-gate.json`, and `checks.json` has each gate check as
-`remesh_gate.<name>`. On the bear, seeds 3, 1, 5, 6, 4, 7, and 8 pass. Seed 2 fails: 1036
-quads (the band is 765 to 1035), 1.08% slivers, and 4 open edges.
+slit. On the bear, the narrowest such gap is 0.24 median edges. The polar bear pilot found two
+real slits (`docs/retro/pilot-polar-bear.md`). The gate writes `out/stages/remesh-gate.json`, and
+`checks.json` has each gate check as `remesh_gate.<name>`. On the bear (`build bear --all-seeds`, 2026-10-12), seeds 3, 1, 5, 6, and 7
+pass. Seed 2 fails the quad band (1036 quads, the band is 765 to 1035), and seeds 4 and 8 fail the
+slit check (1 and 4 slit faces).
 
 ### The shots
 
@@ -710,7 +945,11 @@ contact and fold check skins the mesh at each frame and repairs single folded fa
 - A seated bind pose needs `hip_abduct` (the knees apart) and a seat under the trunk: a short leg
   with a low trunk puts the trunk on the seat, and the thighs stay above it. Put the paws of a rest pose
   where the arm stays bent: a straight arm across a big belly touches it on some seeds.
-- `out/frames/` keeps the frames of an earlier role: delete the old files when the role changes.
+- A background `studio view` (a shell job) does not get the Ctrl-C of the shell. Stop it with
+  `python3 studio view <animal> --stop`.
+- Take the times of a report from `python3 studio log`.
+- A model build has a seed of its own (the first seed that passes its remesh gate). A look check
+  that changes with `--seed` is a fault: the look checks do not depend on the role seed.
 
 ## Config reference
 
@@ -1572,6 +1811,14 @@ The limits of the checks (studio/checks.py). The fold check is a gate: it fails 
 | `slivers` | num | `0.01` | Largest share of body faces with an angle under 15 degrees. |
 | `fur_color` | vec3 | `[1.0, 0.02, 0.03]` | Largest difference of the fur median from the sheet: hue (degrees), saturation, value. |
 | `facet_contrast` | num | `0.15` | Largest relative difference of the belly fine spread. |
+
+#### `[seeds]`
+
+The seed rule of the seed pool (studio/cli.py run_seeds). After a change of the role or of its clips, the pool runs the role clips on every seed that passes the remesh gate, and reports the failures of each seed and clip.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `require` | str | `"kept"` | "kept": the kept seed (the first seed in the order of facets.seeds that passes every gate) must pass, and the other seeds are a robustness report. "all": every seed that passes the remesh gate must also pass the clip gates. |
 
 <!-- config-reference:end -->
 
