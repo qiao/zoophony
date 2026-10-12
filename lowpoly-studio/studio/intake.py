@@ -17,6 +17,7 @@ Writes:
     <out>/masks/<view>.raw   the same mask as raw bytes (one byte per pixel, rows from the top)
     <out>/measure.json       the box, the ground row, the axis column, and the row runs of each
                              view in model units
+    <out>/sheet-check.json   where the views of the sheet disagree (studio/consistency.py)
 """
 
 import argparse
@@ -29,7 +30,7 @@ from PIL import Image, ImageChops, ImageFilter, ImageMath
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from studio import config  # noqa: E402
+from studio import config, consistency  # noqa: E402
 
 # The cell size in pixels of the background model of the difference rule.
 BACKGROUND_CELL = 32
@@ -359,6 +360,12 @@ def intake(cfg):
         print(name, {k: v for k, v in result['views'][name].items() if k != 'profile'})
     with open(cfg.paths.measure, 'w') as f:
         json.dump(result, f)
+    sheet_check = consistency.check(cfg, im, result['views'])
+    with open(os.path.join(cfg.paths.out, 'sheet-check.json'), 'w') as f:
+        json.dump(sheet_check, f, indent=1)
+        f.write('\n')
+    for line in consistency.summary(sheet_check):
+        print(line)
 
 
 def main():

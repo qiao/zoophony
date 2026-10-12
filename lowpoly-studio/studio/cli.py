@@ -241,6 +241,7 @@ def step_intake(cfg, use_cache=True):
             with open(path, 'wb') as f:
                 f.write(content)
         log(f'  from the cache (the run took {meta["seconds"]:.1f} s)')
+        print_sheet_check(cfg)
         return 'cache'
     rec = cache.Recorder('intake')
     t0 = time.time()
@@ -248,8 +249,9 @@ def step_intake(cfg, use_cache=True):
         intake.intake(cache.track(cfg, 'cfg'))
     seconds = time.time() - t0
     files = {}
-    for rel in ['measure.json'] + [f'masks/{v}.{ext}' for v in cfg.sheet.views
-                                   for ext in ('png', 'raw')]:
+    # studio-intake: the sheet check of the intake (studio/consistency.py) is an output too.
+    for rel in ['measure.json', 'sheet-check.json'] + [f'masks/{v}.{ext}' for v in cfg.sheet.views
+                                                       for ext in ('png', 'raw')]:
         with open(os.path.join(cfg.paths.out, rel), 'rb') as f:
             files[rel] = f.read()
     manifest = rec.manifest({'cfg': cfg})
@@ -257,6 +259,15 @@ def step_intake(cfg, use_cache=True):
                {'manifest': manifest, 'outputs': {}, 'seconds': round(seconds, 3), 'log': []},
                {'files': files})
     return 'run'
+
+
+def print_sheet_check(cfg):
+    """Prints the warnings of the sheet check of the intake (out/sheet-check.json)."""
+    from studio import consistency  # noqa: PLC0415
+    found = _read_json(os.path.join(cfg.paths.out, 'sheet-check.json'))
+    if found:
+        for line in consistency.summary(found):
+            log(f'  {line}')
 
 
 def build_args(cfg, seed, until=None, clips=None, use_cache=True, gate=True, role=None):

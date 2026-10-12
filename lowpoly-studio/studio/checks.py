@@ -20,7 +20,7 @@ import glob
 import json
 import os
 
-from studio import locate, measure_features, outputs
+from studio import consistency, locate, measure_features, outputs
 
 # A passing check is near its limit when it uses this share of its allowance.
 NEAR = 0.75
@@ -209,6 +209,15 @@ def run(cfg):
 
     report = r.result(cfg, seed)
     report = outputs.mark_look(report, first_look, outputs.look_state(cfg))  # studio-runtime
+    # studio-intake: the warnings of the sheet check (studio/consistency.py), and the failing or
+    # near checks that a warning can cause.
+    sheet = _load(os.path.join(cfg.paths.out, 'sheet-check.json'))
+    if sheet:
+        report['sheet'] = {'warnings': sheet['warnings']}
+        for c in report['checks']:
+            found = consistency.causes(sheet, c['name']) if not c['pass'] or c['near'] else []
+            if found:
+                c['sheet'] = found
     if diag:
         report['diagnostics'] = {'folds': 'diag/folds.json', 'contacts': 'diag/contacts.json',
                                  'faces': len(diag.faces), 'contacts_found': len(diag.contacts)}
@@ -236,9 +245,13 @@ def summary(report):
     # studio-runtime: a stale look check is neither pass nor fail (studio/outputs.py).
     if stale:
         lines.append(f'  STALE: {len(stale)} look checks, {report["look"]["reason"]}')
+    warnings = (report.get('sheet') or {}).get('warnings')
+    if warnings:
+        lines.append(f'  the sheet check warns: {", ".join(warnings)} (out/sheet-check.json)')
     for c in report['checks']:
         if not c['pass'] and not c.get('stale'):
             where = f'\n      at {_where_text(c["where"])}' if c.get('where') else ''
+            sheet = f' [sheet: {", ".join(c["sheet"])}]' if c.get('sheet') else ''
             lines.append(f'  {"GATE " if c["gate"] else ""}FAIL {c["name"]}: {c["value"]} '
-                         f'{c["op"]} {c["limit"]}{where}')
+                         f'{c["op"]} {c["limit"]}{sheet}{where}')
     return '\n'.join(lines)
