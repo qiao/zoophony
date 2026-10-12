@@ -127,13 +127,15 @@ def write_shape_action(obj, name, values):
     track.mute = True
 
 
-def bake_all(arm, skel, pack, only=None, shapes=None):
-    """Bakes every clip of a role pack (the sheet pose 'reference' first) and its performance.
+def sample_all(skel, pack, only=None, drivers=None):
+    """Solves every clip of a role pack (the sheet pose 'reference' first) and its performance.
+    No Blender state: the stage cache keeps the result.
 
     pack: the role pack (pack.clips {name: (fn, duration)}, pack.performance, pack.blend,
-    pack.fps). shapes: optional (mesh object, {shape key name: function pose -> weight}); the
-    weights of these shape keys are baked for each frame of each clip.
-    Returns {clip: list of sampled poses}. The samples are the keys of the actions.
+    pack.fps). drivers: optional {shape key name: function pose -> weight}; the weights of these
+    shape keys are solved for each frame of each clip.
+    Returns ({clip: list of sampled poses}, {clip: {shape key name: weights}} or None with no
+    drivers).
     """
     samples = {}
     for name, (fn, duration) in pack.clips.items():
@@ -143,12 +145,33 @@ def bake_all(arm, skel, pack, only=None, shapes=None):
     if pack.performance and (not only or 'performance' in only):
         samples['performance'] = sample_performance(skel, pack.clips, pack.performance,
                                                     pack.blend, pack.fps)
+    shape_weights = None
+    if drivers is not None:
+        shape_weights = {name: {k: [f(p) for p in poses] for k, f in drivers.items()}
+                         for name, poses in samples.items()}
+    return samples, shape_weights
+
+
+def write_all(arm, skel_props, fps, samples, shape_obj=None, shape_weights=None):
+    """Writes the solved clips into actions: one action of the armature for each clip, and one
+    action of the shape keys of shape_obj (with the weights of shape_weights) when it is given."""
     for name, poses in samples.items():
-        write_action(arm, name, poses, ('hips',), skel.props)
-        if shapes:
-            obj, drivers = shapes
-            write_shape_action(obj, name, {k: [f(p) for p in poses] for k, f in drivers.items()})
-    bpy.context.scene.render.fps = pack.fps
+        write_action(arm, name, poses, ('hips',), skel_props)
+        if shape_obj is not None:
+            write_shape_action(shape_obj, name, shape_weights[name])
+    bpy.context.scene.render.fps = fps
+
+
+def bake_all(arm, skel, pack, only=None, shapes=None):
+    """Bakes every clip of a role pack (the sheet pose 'reference' first) and its performance.
+
+    shapes: optional (mesh object, {shape key name: function pose -> weight}); the weights of
+    these shape keys are baked for each frame of each clip.
+    Returns {clip: list of sampled poses}. The samples are the keys of the actions.
+    """
+    obj, drivers = shapes if shapes else (None, None)
+    samples, shape_weights = sample_all(skel, pack, only, drivers)
+    write_all(arm, skel.props, pack.fps, samples, obj, shape_weights)
     return samples
 
 
