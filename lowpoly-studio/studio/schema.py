@@ -675,6 +675,14 @@ SCHEMA = T('An animal config.', {
     'compare': COMPARE,
     'measure': MEASURE,
     'checks': CHECKS,
+    'seeds': T('The seed rule of the seed pool (studio/cli.py run_seeds). After a change of the '
+               'role or of its clips, the pool runs the role clips on every seed that passes the '
+               'remesh gate, and reports the failures of each seed and clip.', {
+        'require': F('str', '"kept": the kept seed (the first seed in the order of facets.seeds '
+                            'that passes every gate) must pass, and the other seeds are a '
+                            'robustness report. "all": every seed that passes the remesh gate '
+                            'must also pass the clip gates.', default='kept'),
+    }),
 })
 
 

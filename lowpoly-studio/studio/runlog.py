@@ -218,6 +218,10 @@ def describe(rec, stages=True):
         for r in pool['results']:
             why = f' {",".join(r["clips_failed"])}' if r['clips_failed'] else ''
             items.append(f'{r["seed"]} {r["status"]}{why} {r["seconds"]:.0f} s')
+        rule = rec.get('seed_rule')
+        if rule:
+            items.append(f'seed rule {rule["require"]}: {"pass" if rule["rule_pass"] else "FAIL"}'
+                         f' ({rule["robust_seeds"]} of {rule["meshes"]} meshes pass every clip)')
         lines += _wrap(f'{pad}seeds ({pool["mode"]}, kept {pool["kept"]}): ', items)
     return lines
 

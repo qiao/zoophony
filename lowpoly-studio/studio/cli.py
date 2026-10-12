@@ -295,6 +295,7 @@ def seed_result(cfg, seed, code, seconds, log_path):
     if not stats:
         return out
     out['clips_failed'] = [k for k, v in stats['contacts']['clips'].items() if not v['pass']]
+    out['clips'] = clip_failures(cfg, stats)
     out['stats'] = {k: stats[k] for k in ('body_triangles', 'median_edge_px', 'sliver_share',
                                           'folded_faces', 'fold_repairs') if k in stats}
     report = checks.run(cfg)
@@ -302,6 +303,82 @@ def seed_result(cfg, seed, code, seconds, log_path):
     out['status'] = 'contacts' if out['clips_failed'] else 'pass'
     out['pass'] = not out['clips_failed']
     return out
+
+
+def clip_failures(cfg, stats):
+    """Lists the failed gates of each clip of a seed from its stats (studio/build.py
+    check_clips): {clip: [] when it passes, else texts such as 'contact 2.13 cm forearm R'}."""
+    rc = cfg.role.checks
+    out = {}
+    for clip, c in stats['contacts']['clips'].items():
+        bad = []
+        if c['depth'] > rc.contact_depth:
+            bad.append(f'contact {c["depth"] * 100:.2f} cm {c.get("part")} {c.get("side")}')
+        if c['folded_faces'] > cfg.checks.folded_faces:
+            bad.append(f'folds {c["folded_faces"]}')
+        if 'scene' in c and c['scene']['depth'] > rc.scene_depth:
+            bad.append(f'scene {c["scene"]["depth"] * 100:.2f} cm {c["scene"]["piece"]}')
+        if 'seat' in c and abs(c['seat']['gap']) > rc.seat_gap:
+            bad.append(f'seat gap {c["seat"]["gap"] * 100:.2f} cm')
+        if 'hands' in c and c['hands']['distance'] > rc.hand_targets:
+            bad.append(f'hands {c["hands"]["distance"] * 100:.2f} cm {c["hands"]["side"]}')
+        if not c['pass'] and not bad:
+            bad.append('FAIL')
+        out[clip] = bad
+    return out
+
+
+def seed_report_path(cfg):
+    """Returns the path of the seed report: the seeds and clips of the last full seed run."""
+    return os.path.join(cfg.paths.out, 'seed-report.json')
+
+
+def seed_report(cfg, summary, key, reason, run_id):
+    """Makes the seed report of a full seed run: for each seed, the remesh gate and the failed
+    gates of each clip; whether the kept seed passes, whether every seed that passes the remesh
+    gate passes every clip (robust), and the result of the seed rule (seeds.require)."""
+    rows = []
+    for r in summary['results']:
+        gate = r.get('gate') or {}
+        rows.append({'seed': r['seed'], 'status': r['status'], 'pass': r['pass'],
+                     'remesh_gate': None if r['status'] == 'error' else r['status'] != 'gate',
+                     'remesh_failed': [f'{c["name"]} {c["value"]}' for c in gate.get('checks', [])
+                                       if not c['pass']] if r['status'] == 'gate' else [],
+                     'clips': r.get('clips') or {}})
+    meshes = [row for row in rows if row['remesh_gate']]
+    robust = bool(meshes) and all(row['pass'] for row in meshes)
+    require = cfg.seeds.require
+    ok = summary['kept'] is not None and (require == 'kept' or robust)
+    return {'animal': cfg.animal.id, 'role': cfg.role.role.name, 'run': run_id,
+            'made': time.strftime('%Y-%m-%dT%H:%M:%S%z'), 'role_key': key, 'reason': reason,
+            'require': require, 'kept': summary['kept'], 'robust': robust, 'rule_pass': ok,
+            'meshes': len(meshes), 'robust_seeds': sum(row['pass'] for row in meshes),
+            'seeds': rows}
+
+
+def seed_matrix(report):
+    """Formats a seed report as a table: one row for each seed, one column for each clip."""
+    clips = []
+    for row in report['seeds']:
+        for clip in row['clips']:
+            if clip not in clips:
+                clips.append(clip)
+    cells = [['seed', 'remesh gate'] + clips]
+    for row in report['seeds']:
+        if row['remesh_gate'] is None:
+            line = [str(row['seed']), row['status']]
+        elif not row['remesh_gate']:
+            line = [str(row['seed']), 'FAIL ' + ', '.join(row['remesh_failed'])]
+        else:
+            line = [str(row['seed']), 'pass']
+            line += ['; '.join(row['clips'][c]) if row['clips'].get(c) else
+                     ('pass' if c in row['clips'] else '-') for c in clips]
+        cells.append(line)
+    width = [max(len(r[i]) for r in cells if i < len(r)) for i in range(len(cells[0]))]
+    out = []
+    for r in cells:
+        out.append('  ' + '  '.join(f'{v:{width[i]}s}' for i, v in enumerate(r)).rstrip())
+    return '\n'.join(out)
 
 
 def describe(result):
@@ -347,12 +424,13 @@ def seed_folder(cfg, seed):
     return os.path.join(cfg.paths.out, 'seeds', str(seed))
 
 
-def run_seeds(cfg, seeds, jobs, search=True, clips=None, use_cache=True, gate=True):
+def run_seeds(cfg, seeds, jobs, search=True, clips=None, use_cache=True, gate=True,
+              reason=None):
     """Builds seeds in a pool of Blender processes, each seed in out/seeds/<n>/.
 
     search: stop when the first seed in the order of seeds that passes is known (each seed
-    before it failed), and cancel the other runs. Otherwise build every seed. Returns
-    (the kept seed or None, the results in the order of seeds), and writes
+    before it failed), and cancel the other runs. Otherwise build every seed (reason: why).
+    Returns (the kept seed or None, the results in the order of seeds), and writes
     out/seeds/summary.json.
     """
     t0 = time.time()
@@ -366,7 +444,7 @@ def run_seeds(cfg, seeds, jobs, search=True, clips=None, use_cache=True, gate=Tr
         shutil.copyfile(cfg.paths.measure, os.path.join(folder, 'measure.json'))
         cfgs[s] = load(cfg.paths.root, folder)
     log(f'[seeds] {len(seeds)} seeds {list(seeds)}, {jobs} at a time, '
-        f'{"until the first seed that passes" if search else "all seeds"}')
+        f'{"until the first seed that passes" if search else f"all seeds ({reason})"}')
     pending, running, results, kept = list(seeds), {}, {}, None
     while pending or running:
         while pending and len(running) < jobs:
@@ -406,7 +484,7 @@ def run_seeds(cfg, seeds, jobs, search=True, clips=None, use_cache=True, gate=Tr
         kept = next((s for s in seeds if results[s]['pass']), None)
     ordered = [results[s] for s in seeds if s in results]
     summary = {'animal': cfg.animal.id, 'mode': 'search' if search else 'all', 'jobs': jobs,
-               'seeds': list(seeds), 'kept': kept,
+               'reason': reason, 'require': cfg.seeds.require, 'seeds': list(seeds), 'kept': kept,
                'all_pass': all(r['pass'] for r in ordered) and len(ordered) == len(seeds),
                'wall_seconds': round(time.time() - t0, 1), 'results': ordered}
     with open(os.path.join(root, 'summary.json'), 'w') as f:
@@ -503,8 +581,10 @@ class ModelBuild:
         run = _read_json(os.path.join(self.mcfg.paths.stages, 'run.json')) or {}
         gate = _read_json(os.path.join(self.mcfg.paths.stages, 'remesh-gate.json')) or {}
         sources = list((run.get('source') or {}).values())
+        # The end of the Blender run is the last write of its log (the pool can end later).
+        end = os.path.getmtime(self.log_path) if os.path.exists(self.log_path) else time.time()
         return {'seed': self.seed, 'glb': self.mcfg.paths.glb if ok else None,
-                'seconds': round(time.time() - self.t0, 1),
+                'seconds': round(max(end - self.t0, 0.0), 1),
                 'log': os.path.relpath(self.log_path, STUDIO), 'gate': gate.get('pass'),
                 'gate_failed': gate.get('failed', []), 'stages': len(sources),
                 'cache_hits': sum(v == 'cache' for v in sources), 'tried': tried}
@@ -669,6 +749,10 @@ def role_build(cfg, timer, seed, until, clips, use_cache, gate, jobs, all_seeds,
         if run:
             run.set(seed=s)
         log(f'[build] seed {s}')
+        last = _read_json(seed_report_path(cfg))
+        if last and last.get('role_key') != outputs.role_key(cfg, clips):
+            log('  note: the role pack, the template, or the clips changed after the seed report; '
+                'a build with no --seed runs the role check of every seed')
         t = time.time()
         result = step_blender_build(cfg, s, until, clips, use_cache, gate)
         timer.step('blender build', time.time() - t)
@@ -687,12 +771,34 @@ def role_build(cfg, timer, seed, until, clips, use_cache, gate, jobs, all_seeds,
         outputs.finish_build(cfg, seed=s)
         return None
     seeds = list(cfg.facets.seeds)
+    key = outputs.role_key(cfg, clips)
+    last = _read_json(seed_report_path(cfg)) or {}
+    reason = None
+    if all_seeds:
+        reason = '--all-seeds'
+    elif cfg.seeds.require == 'all':
+        reason = 'seeds.require = "all"'
+    elif last.get('role_key') != key:
+        reason = ('a role check: the role pack, the template, or the clips changed since the '
+                  'last seed report' if last else 'a role check: no seed report yet')
     t = time.time()
-    kept, pool = run_seeds(cfg, seeds, jobs, not all_seeds, clips, use_cache, gate)
+    kept, pool = run_seeds(cfg, seeds, jobs, reason is None, clips, use_cache, gate, reason)
     timer.step('seed pool', time.time() - t)
+    summary = _read_json(os.path.join(cfg.paths.out, 'seeds', 'summary.json'))
     if run:
-        run.pool(_read_json(os.path.join(cfg.paths.out, 'seeds', 'summary.json')))
+        run.pool(summary)
         run.set(seed=kept)
+    if reason:
+        report = seed_report(cfg, summary, key, reason, run.id if run else None)
+        outputs.write_json(seed_report_path(cfg), report)
+        log(f'[seeds] the seed report ({os.path.relpath(seed_report_path(cfg), STUDIO)}): '
+            f'{report["robust_seeds"]} of {report["meshes"]} seeds that pass the remesh gate '
+            f'pass every clip; seeds.require = "{report["require"]}": '
+            f'{"pass" if report["rule_pass"] else "FAIL"}')
+        log(seed_matrix(report))
+        if run:
+            run.set(seed_rule={k: report[k] for k in ('require', 'robust', 'rule_pass',
+                                                       'meshes', 'robust_seeds')})
     if kept is None:
         # studio-diag: the checks of the last seed, so that its located failures are there.
         ran = [r['seed'] for r in pool if r['status'] != 'cancelled']
@@ -723,8 +829,11 @@ def cmd_build(a):
                                  not a.no_gate, a.jobs, a.all_seeds, run)
         if report and not report['gate_pass']:
             sys.exit(1)
-        if pool and a.all_seeds and not all(r['pass'] for r in pool):
-            log('the full seed check fails: not every seed passes (out/seeds/summary.json)')
+        rule = (run.data.get('seed_rule') or {}) if pool else {}
+        if rule and not rule['rule_pass']:
+            log(f'the seed rule fails: seeds.require = "{rule["require"]}", and '
+                f'{rule["robust_seeds"]} of {rule["meshes"]} seeds that pass the remesh gate pass '
+                f'every clip ({os.path.relpath(seed_report_path(cfg), STUDIO)})')
             run.result = 'fail'
             sys.exit(1)
 

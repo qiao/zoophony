@@ -185,6 +185,8 @@ def _cross_checks(cfg, errors):
     for name in ('fur', 'gloss'):
         if name not in (cfg.look.materials or {}):
             errors.append(f'look.materials.{name}: missing')
+    if cfg.seeds.require not in ('kept', 'all'):
+        errors.append('seeds.require: expected "kept" or "all"')
 
 
 def _role_checks(role, errors):

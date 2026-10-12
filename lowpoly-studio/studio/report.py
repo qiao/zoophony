@@ -340,7 +340,8 @@ def page(cfg, report, views, feature_files, folds, contacts, times):
             out.append(f'<p class="fail"><b>{_e(_stale_text(report))}</b></p>')
     links = [('#failures', 'Failures'), ('#views', 'Views'), ('#face', 'Head'),
              ('#features', 'Features'), ('#facets', 'Facets'), ('#located', 'Located places'),
-             ('#checks', 'All checks'), ('#times', 'Stage times'), ('#frames', 'Frames')]
+             ('#seeds', 'Seeds'), ('#checks', 'All checks'), ('#times', 'Stage times'),
+             ('#frames', 'Frames')]
     files = [('../checks.json', 'checks.json'), ('../diag/folds.json', 'folds.json'),
              ('../diag/contacts.json', 'contacts.json'), ('review.png', 'review image')]
     out.append('<nav>' + ''.join(f'<a href="{h}">{_e(t)}</a>' for h, t in links)
@@ -480,6 +481,11 @@ def page(cfg, report, views, feature_files, folds, contacts, times):
             out.append('<div class="grid">' + ''.join(_figure(s, c) for s, c in crops[:24])
                        + '</div>')
 
+    # The seed report of the last full seed run (studio/cli.py seed_report).
+    seeds = _load(os.path.join(cfg.paths.out, 'seed-report.json'))
+    if seeds:
+        out.append(seed_section(cfg, seeds))
+
     # Every check.
     out.append('<h2 id="checks">All checks</h2><div class="scroll"><table><tr><th>check</th>'
                '<th>value (render | sheet)</th><th>limit</th><th>result</th><th>gate</th>'
@@ -512,6 +518,42 @@ def page(cfg, report, views, feature_files, folds, contacts, times):
                              if f.endswith('.png'))
                    + '</div>')
     out.append('</main></body></html>\n')
+    return ''.join(out)
+
+
+def seed_section(cfg, seeds):
+    """Builds the section of the seed report: the remesh gate and the failed gates of each clip
+    of each seed, the kept seed, and the seed rule. A report of an older role pack is marked."""
+    from studio import outputs  # noqa: PLC0415
+    clips = []
+    for row in seeds['seeds']:
+        clips += [c for c in row['clips'] if c not in clips]
+    old = outputs.role_key(cfg) != seeds.get('role_key')
+    rule = 'pass' if seeds['rule_pass'] else 'FAIL'
+    out = [f'<h2 id="seeds">Seeds{" (OLD)" if old else ""}</h2>'
+           f'<p>The last full seed run (run {_e(seeds.get("run"))}, {_e(seeds.get("made"))}; '
+           f'{_e(seeds.get("reason"))}): kept seed <b>{_e(seeds["kept"])}</b>. '
+           f'{seeds["robust_seeds"]} of {seeds["meshes"]} seeds that pass the remesh gate pass '
+           f'every clip. Seed rule <code>seeds.require = "{_e(seeds["require"])}"</code>: '
+           f'<b class="{"pass" if seeds["rule_pass"] else "fail"}">{rule}</b>.</p>']
+    if old:
+        out.append('<p class="fail">The role pack, the template, or the clips changed after this '
+                   'report. A build with no --seed makes a new one.</p>')
+    out.append('<div class="scroll"><table><tr><th>seed</th><th>remesh gate</th>'
+               + ''.join(f'<th>{_e(c)}</th>' for c in clips) + '</tr>')
+    for row in seeds['seeds']:
+        cells = [f'<td class="num">{_e(row["seed"])}</td>']
+        if not row['remesh_gate']:
+            why = ', '.join(row['remesh_failed']) or row['status']
+            cells.append(f'<td class="fail" colspan="{len(clips) + 1}">FAIL {_e(why)}</td>')
+        else:
+            cells.append('<td class="pass">pass</td>')
+            for c in clips:
+                bad = row['clips'].get(c)
+                cells.append(f'<td class="fail">{_e("; ".join(bad))}</td>' if bad else
+                             '<td class="pass">pass</td>')
+        out.append('<tr>' + ''.join(cells) + '</tr>')
+    out.append('</table></div>')
     return ''.join(out)
 
 

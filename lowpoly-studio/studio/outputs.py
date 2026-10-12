@@ -46,6 +46,11 @@ def _load(path):
         return None
 
 
+def write_json(path, data):
+    """Writes a JSON file (a report of the build)."""
+    _write(path, data)
+
+
 def _write(path, data):
     """Writes a JSON file."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -60,6 +65,24 @@ def _remove(path):
         shutil.rmtree(path)
     elif os.path.exists(path):
         os.remove(path)
+
+
+def role_key(cfg, clips=None):
+    """Calculates the digest of the role pack (each file of roles/<role>/), of the template
+    package (its solver makes the poses of the clips), and of the --clips choice. A new digest
+    makes the next pool build a role check of every seed (studio/cli.py role_build)."""
+    from studio import cache  # noqa: PLC0415 (cache imports subprocess and tempfile)
+    studio = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    parts = []
+    for top in (cfg.role.paths.root, os.path.join(studio, 'templates', cfg.animal.template)):
+        for folder, dirs, names in os.walk(top):
+            dirs[:] = sorted(d for d in dirs if d != '__pycache__')
+            for n in sorted(names):
+                if n.endswith(('.py', '.toml', '.json')):
+                    path = os.path.join(folder, n)
+                    with open(path, 'rb') as f:
+                        parts.append([os.path.relpath(path, studio), f.read()])
+    return cache.digest([parts, clips or ''])[:16]
 
 
 def build_path(cfg):
