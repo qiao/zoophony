@@ -73,7 +73,8 @@ lowpoly-studio/
 ├── animals/bear/        animal.toml, golden.json, README.md, reference/, out/, cache/ (made by
 │                        the build, ignored by git)
 ├── docs/                handoff.md, handoff-diag.md, handoff-speed.md (the state of the work),
-│                        retro/ (the retrospectives)
+│                        sheet-spec.md (the rules of a reference sheet), brief-template.md
+│                        (the brief of a round), retro/ (the retrospectives)
 └── vite.config.js       the root of the pages is this folder
 ```
 
@@ -170,12 +171,14 @@ The Blender log of each seed is `out/stages/blender-seed<N>.log` (in the seed po
 
 ## Add a new animal
 
-1. Get a sheet that follows the intake checklist (`python3 studio new` prints it): four views of
-   one pose (front, side facing right, back, 3/4 front-right) on one plain background, one
-   ground line, the arms a little away from the body, at least 500 px of figure height.
+1. Get a sheet that follows `docs/sheet-spec.md`: four views of one pose (front, side facing
+   right, back, 3/4 front-right) on one plain background, one ground line, the arms a little
+   away from the body, at least 500 px of figure height. The spec has a prompt for an image
+   generator.
 2. Settle the style with the user before the first build, each claim with a crop of the sheet:
    the facet size, the light and the contrast, the palette, the eyes, the head, the snout, the
-   ears, symmetry, "no folds at any seed".
+   ears, symmetry, "no folds at any seed". A manager writes the brief of each round from
+   `docs/brief-template.md`. The agent skill `lowpoly-animal-studio` gives the whole loop.
 3. `python3 studio new <id> --sheet <png> --role conductor --like bear`.
 4. Measure the sheet in animal heights and replace each "TODO: measure" value. Start with
    `sheet.views`, the trunk and head lofts, and the joints. Run `python3 studio fit <id> --rows`
