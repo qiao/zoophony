@@ -103,7 +103,7 @@ body. Quads of the body size cannot hold them.
 - **Eyes.** As on the sheet: a dark outline, a thin white rim, a large dark iris that looks a
   little inward, and a small highlight, in four flattened layers along the look direction, at
   height 0.892 and 0.043 from the middle. The radius is 0.0143, and the iris fills 88% of the
-  white, from the measures of `studio/measure_eyes.py` (see "Eyes" in the results). The widest ring of
+  white, from the measures of the feature `eyes` (see "Eyes" in the results). The widest ring of
   the outline sits on the facet, so the whole disk shows.
 - **Brows.** A thin dark arc above each eye, highest above the eye, pressed onto the facets.
 - **Ears.** Round shells 0.081 wide and 0.086 high, turned out 35° and tilted out 10°, with a
@@ -359,8 +359,9 @@ more and value 0.18 or more), in hue (degrees), saturation, and value:
 
 ### Eyes
 
-`studio/measure_eyes.py` finds each eye as a blob of near-black and near-white pixels in the band of
-the eyes, in bear heights. "Outline" is the width of the eye with its dark outline. "Rim" is the
+The feature `eyes` of `measure.features` (`studio/measure_features.py`, method "blobs") finds
+each eye as a blob of near-black and near-white pixels in the band of the eyes, in bear
+heights. "Outline" is the width of the eye with its dark outline. "Rim" is the
 white area over the circumference (the width of an even white ring of the same area): the iris
 of the sheet looks to one side, so one row does not give the rim.
 
@@ -375,8 +376,8 @@ sheet turns the head more toward the camera than the body (see "Open limits").
 
 ### Ears
 
-`studio/measure_ears.py` measures each ear on the silhouette, in bear heights: the widest row of the ear
-while it stands free of the skull, and the height from its top to the notch where it meets the
+The feature `ears` (method "bump") measures each ear on the silhouette, in bear heights: the
+widest row of the ear while it stands free of the skull, and the height from its top to the notch where it meets the
 head. "Dark" is the share of the ear disk of the front view that is darker than its fur.
 
 | View | Sheet: width, height | Last round: width, height | Now: width, height |
@@ -388,6 +389,23 @@ head. "Dark" is the share of the ear disk of the front view that is darker than 
 The ears are a little larger than the sheet from the back, and a little narrower from the
 side. A wider ear from the side needs a turn of the ear toward the front, and that
 makes it narrower from the front.
+
+### Nose, muzzle, belly, and claws
+
+The generic feature measure (`measure.features` of `animal.toml`) also measures these features,
+on the golden build (seed 3), in bear heights. The crops are in `out/report/features/`.
+
+| Feature, view | Sheet | Render | Check |
+|---|---|---|---|
+| Nose, front | y 0.833, width 0.066 | y 0.858, width 0.076 | fails: 2.5 cm higher |
+| Nose, side | x 0.264, width 0.033 | x 0.282, width 0.028 | fails: 1.8 cm further forward, narrower |
+| Muzzle, front | y 0.820, height 0.125 | y 0.852, height 0.091 | fails: higher and shorter |
+| Muzzle, side | y 0.831, height 0.100 | y 0.841, height 0.087 | fails: 1.0 cm higher |
+| Belly, front | y 0.503, width 0.239 | y 0.518, width 0.214 | passes |
+| Claws, front | 4 claws on each paw | 1 blob on each paw | fails: the claws touch |
+
+The nose and the muzzle are measured in the front and the side views only, because the 3/4
+view of the sheet turns the head more.
 
 ### Contacts and folds
 
@@ -410,6 +428,18 @@ The worst value of each clip:
 The values are after the fold repair: the first check found one folded face in the bow, and
 one round of smoothing removed it. The faces turned past 90° are single faces that stand
 edge-on.
+
+`out/diag/folds.json` lists these faces with their places, and `out/diag/` has a crop of each:
+
+| Face | Status | Region | Clips | Worst turn | Weights |
+|---|---|---|---|---|---|
+| 134 | repaired | upper arm, front, right | bow, performance (before the repair) | 145.4° | upper_arm_R 0.47, clavicle_R 0.21, forearm_R 0.15 |
+| 687 | turned | forearm, front, left | cutoff, performance | 106.7° | forearm_L 0.34, upper_arm_L 0.27, forearm_twist_L 0.16 |
+| 179 | turned | upper arm, side, right | bow, performance | 95.1° | upper_arm_R 0.42, spine 0.28, hips 0.26 |
+| 361, 960 | sliver | hips, under (right and left) | rest mesh | smallest angle 4.1° | hips 0.94 |
+
+The closest approach of the bow is the right forearm, 0.89 cm from the right hip
+(`out/diag/contacts.json`).
 
 ### Seed
 
@@ -471,7 +501,11 @@ The tip of the baton at each ictus of `beat_4_4` (`roles/conductor/pattern.py`, 
 - `out/compare/facets_chest_belly.png`, `facets_shoulder_arm.png`, `facets_head.png`: the
   facets of the sheet beside the render, at the same scale (2x).
 - `out/compare/render_<view>.png`: the aligned renders, and `topology.json`, `iou.json`,
-  `eyes.json`, `ears.json`.
+  `features.json`, `mesh.json`.
+- `out/report/index.html`: the look report of the build, and `out/report/review.png`: its key
+  crops and numbers in one image.
+- `out/diag/`: the fold debug list (`folds.json`), the contacts and the closest approaches
+  (`contacts.json`), and a crop of each located face.
 - `out/frames/<clip>.png`: key frames of each clip from the front, the side, and a 3/4 view.
 - `out/frames/pattern.png` and `out/frames/pattern_plot.png`: the path of the baton tip.
 - `out/frames/deform.png`: close views of the shoulders, the elbows, the closed paw, and the
@@ -507,6 +541,10 @@ The tip of the baton at each ictus of `beat_4_4` (`roles/conductor/pattern.py`, 
   accent needs a live driver. The solver of `pose.py` can be ported to TypeScript for that.
 - **Paw grip.** The paw has one finger bone, which curls all four claws together. The baton
   sits in the closed paw. There are no separate digits.
+- **Nose, muzzle, and claws.** The feature checks find that the nose sits 2.5 cm higher than
+  on the sheet in the front view and 1.8 cm further forward in the side view, that the tan
+  muzzle is shorter and does not reach down to the chin, and that the four claws of each paw
+  touch, so they read as one dark blob. These are look items for a next round.
 - **Highlights.** The renders have a little less contrast in the highlights (the 90th
   percentile of the luma is 108 to 112, and the sheet has 115 to 132), and the lit quarter of
   the fur is 1° to 2° redder.

@@ -18,7 +18,8 @@ Pillow, Blender 5.2 or later (`blender` on the path, or the variable `BLENDER`),
 packages of the repository (`pnpm install --offline` in the repository root).
 
 ```bash
-python3 studio build bear            # build, shots, measures, checks (about 65 s)
+python3 studio build bear            # build, shots, measures, checks, look report (about 70 s)
+python3 studio report bear           # the look report of the last build on a free port
 python3 studio view bear             # the viewer on a free port; Ctrl-C stops it
 python3 studio regress bear          # build again and compare with the golden stats
 python3 studio new fox --sheet ~/fox-views.png   # start a new animal
@@ -42,14 +43,20 @@ lowpoly-studio/
 │   ├── props.py         the props of a role (a baton)
 │   ├── weights.py       armature, bone heat, weight arrays, fold repair
 │   ├── skinning.py      linear blend skinning, face normals, fold measures
-│   ├── contacts.py      the contact and fold check of each clip
+│   ├── contacts.py      the contact and fold check of each clip, and the places of each
+│   │                    contact and fold (the stage "diagnostics")
 │   ├── ik.py bake.py    rotation math, two-bone IK; clip baking into actions
 │   ├── roles.py         the interface to the role packs
 │   ├── export.py        materials, join, shape keys, glTF export
-│   ├── checks.py        the structured check report (checks.json)
+│   ├── checks.py        the structured check report (checks.json) with the place of each failure
+│   ├── locate.py        the fold debug list and the crops of the located failures (diag/)
+│   ├── report.py        the look report page and the review image (report/)
+│   ├── drawing.py       Pillow helpers of the crops: fonts, labels, side by side crops
 │   ├── regress.py       golden stats and their compare
 │   ├── views.py fit.py  sheet cameras, IoU of the field with no mesh
-│   ├── measure_*.py     eyes, ears, shading (Pillow), GLB facets (Blender)
+│   ├── measure_features.py  the features of measure.features (eyes, ears, nose, ...), Pillow
+│   ├── measure_shading.py   the facet shading of the front view (Pillow)
+│   ├── measure_mesh.py      the GLB facets (Blender)
 │   ├── viewer_config.py writes out/viewer.json for the pages
 │   └── shoot.mjs        headless renders: compare, frames, viewer shot
 ├── templates/biped/     the body plan, the 31-bone rig, the solver, the weight rules,
@@ -82,11 +89,13 @@ for each seed. Each Blender stage is a function with named inputs and named outp
                                                                            │
                               clips ──> contacts (+ fold repair) ──> export: GLB, stats
                                 │                                          │
+                                │                diagnostics: the places ──┤
+                                │                of the contacts and folds │
              seed search: the next seed of facets.seeds while a gate fails ┘
                                                                            v
                                      shots (compare, frames, viewer, role plots)
                                                                            v
-                                     measures (eyes, ears, shading, mesh) ──> checks
+                     measures (features, shading, mesh) ──> checks (+ diag/) ──> look report
 ```
 
 | Stage | Where | Inputs | Outputs | Time (bear) |
@@ -103,9 +112,10 @@ for each seed. Each Blender stage is a function with named inputs and named outp
 | clips | Blender | the role pack | actions, sampled poses | 3.9 s |
 | contacts | Blender | clips, weights, role checks | contact and fold report, repaired weights | 23.1 s |
 | export | Blender | all | `out/<id>.glb`, `out/<id>.stats.json` | 1.9 s |
+| diagnostics | Blender | the contact checks (`contacts.JOURNAL`), the mesh | the places of the contacts and folds, the fold debug list | 0.05 s |
 | shots | CLI, node | GLB, `viewer.json` | `out/compare/`, `out/frames/` | 11.4 s |
-| measures | CLI | renders, sheet, GLB | `eyes.json`, `ears.json`, `topology.json`, `mesh.json` | 1.7 s |
-| checks | CLI | all outputs, limits | `out/checks.json` | 0.0 s |
+| measures | CLI | renders, sheet, GLB | `features.json`, `topology.json`, `mesh.json` | 2.1 s |
+| checks | CLI | all outputs, limits | `out/checks.json`, `out/diag/`, `out/report/` | 1.8 s |
 
 The whole build of the bear takes 65.0 s (Blender 49.3 s with its start); the old `build.sh`
 took 64.4 s. `out/stages/pipeline.json` and `out/stages/run.json` hold the times of each run.
@@ -127,11 +137,16 @@ the same bind pose give the same mesh.
 | `python3 studio view <animal> [--port N]` | Writes `out/viewer.json`, starts Vite on a free port (never 5173 or 5190), and prints the URLs of the viewer and the compare page. Ctrl-C stops the server. |
 | `python3 studio new <animal> --sheet <png> [--role R] [--like A]` | Makes `animals/<animal>/` with the sheet in `reference/`, an `animal.toml` with "TODO" fields, and prints the intake checklist. It finds the background and the four view columns of the sheet. `--like bear` fills the TODO fields with the bear values and marks them "TODO: measure", so `fit` and a first build run at once. |
 | `python3 studio fit <animal> [--rows]` | Scores the field against the masks with no mesh (about 5 s with the intake). `--rows` prints the edges of each row. |
+| `python3 studio report <animal>` | Writes the checks, the located failures (`out/diag/`), and the look report (`out/report/index.html`, `review.png`) of the last build, then serves `out/` on a free port (never 5173 or 5190) until Ctrl-C. `--measure` measures the features and the shading of the existing renders again first (a feature box change takes about 3 s). `--no-serve` only writes the files. `--out DIR` reads another output folder. |
 | `python3 studio regress <animal>` | Builds with the golden seed into `out/regress/` and compares with `golden.json`. `--no-build` compares the last regression build. `--write --from DIR --note TEXT` writes a new `golden.json` from a build. |
 | `python3 studio schema [--role] [--readme]` | Prints the config reference (or the role reference) as Markdown. `--readme` writes both into this README. |
 
 Debug prints: `STUDIO_DEBUG=1` makes the build print each face that points into the body, each
 face that the fold repair smooths, and each face that stays folded, with its place and weights.
+Each build also writes the same facts into `out/diag/folds.json`, with no flag.
+
+When no seed passes the gates, the build writes `checks.json`, `out/diag/`, and the look report of
+the last seed, then stops with exit 1.
 
 The Blender log of each seed is `out/stages/blender-seed<N>.log`.
 
@@ -147,8 +162,9 @@ The Blender log of each seed is `out/stages/blender-seed<N>.log`.
 4. Measure the sheet in animal heights and replace each "TODO: measure" value. Start with
    `sheet.views`, the trunk and head lofts, and the joints. Run `python3 studio fit <id> --rows`
    after each change of the field: it takes seconds.
-5. Build one seed: `python3 studio build <id> --seed 3`. Look at `out/compare/compare.png`, the
-   face and facet crops, `out/frames/`, and `out/checks.json`.
+5. Build one seed: `python3 studio build <id> --seed 3`. Read the look report
+   (`out/report/index.html`, or `out/report/review.png` as one image), `out/frames/`, and
+   `out/checks.json`. Each failing check names its place and its crop.
 6. Tune, build again, and when the look is right, run the seed search (`build` with no
    `--seed`) so that all seeds pass.
 7. Write the golden stats: `python3 studio regress <id> --write --from animals/<id>/out --note
@@ -252,7 +268,10 @@ arm-down shapes.
 ## Checks
 
 `out/checks.json` holds one entry for each check. The contact and fold checks of each clip are
-gates: a failed gate fails the seed and the build. The other checks are reported.
+gates: a failed gate fails the seed and the build. The other checks are reported. A passing
+check is "near" its limit when it uses 75% or more of its allowance (`checks.NEAR`). A fold
+check is near when faces turn past 90 degrees. Each failing or near check that the tools can
+locate gets `where`.
 
 ```typescript
 /** out/checks.json (studio/checks.py). */
@@ -265,34 +284,149 @@ interface CheckReport {
   /** All checks pass. */
   pass: boolean;
   failed: string[];
-  checks: Array<{
-    name: string;               // for example 'contact.bow', 'iou.front', 'eye_rim.front.0'
-    value: number | number[];   // a pair [model, sheet] for a compare with the sheet
-    op: '<=' | '>=' | 'in' | 'abs<=' | 'rel<=';
-    limit: number | number[];
-    pass: boolean;
-    gate: boolean;
-    /** The place of a failure when the check knows it (clip, side, part, time). */
-    where?: Record<string, string | number>;
-  }>;
+  /** The passing checks near their limit. */
+  near: string[];
+  /** The files of the located places (when the build has the stage "diagnostics"). */
+  diagnostics?: { folds: string; contacts: string; faces: number; contacts_found: number };
+  checks: Check[];
+}
+
+interface Check {
+  /** For example 'contact.bow', 'iou.front', 'eye_rim.front.0'. */
+  name: string;
+  /** A pair [render, sheet] for a compare with the sheet. */
+  value: number | number[];
+  op: '<=' | '>=' | 'in' | 'abs<=' | 'rel<=';
+  limit: number | number[];
+  pass: boolean;
+  near: boolean;
+  gate: boolean;
+  /** The place of a failing or near check. */
+  where?: Place;
+}
+
+/** Positions are in animal heights, three.js axes (x to the left of the animal, y up, z
+ *  forward). "position" is in the pose of the frame, "rest_position" in the bind pose. */
+interface Place {
+  clip?: string;
+  frame?: number;
+  time_s?: number;
+  side?: 'L' | 'R' | 'middle';
+  /** The test part of a contact: paw, forearm, claw, or a prop. */
+  part?: string;
+  /** The bone with the largest weight. */
+  bone?: string;
+  /** The bone of the body face that a contact goes into. */
+  into_bone?: string;
+  /** The body region, for example 'belly, front, left' (templates/biped region_name). */
+  region?: string;
+  position?: [number, number, number];
+  rest_position?: [number, number, number];
+  /** The nearest body point of a contact. */
+  nearest?: [number, number, number];
+  /** The contact depth. */
+  depth?: number;
+  /** The worst body face (an index of the body triangles), and all faces of the failure. */
+  face?: number;
+  faces?: number[];
+  /** The turn of a face normal from its expected normal, in degrees. */
+  angle_deg?: number;
+  smallest_angle_deg?: number;
+  /** The cosine between the face normal and the outward direction at rest (below 0: inward). */
+  rest_dot?: number;
+  weights?: [string, number][];
+  /** A feature check: the feature, the view, and the region. */
+  feature?: string;
+  view?: string;
+  /** The crop image, relative to out/. */
+  crop?: string;
 }
 ```
 
-| Check | Limit (config) | Gate |
-|---|---|---|
-| `contact.<clip>` | role `checks.contact_depth` | yes |
-| `folds.<clip>` | `checks.folded_faces` | yes |
-| `rest_inward_faces`, `unpaired_vertices`, `body_triangles`, `slivers` | `checks.*` | no |
-| `iou.<view>` | `checks.iou.<view>` | no |
-| `fur_hue`, `fur_saturation`, `fur_value` of each view | `checks.fur_color` | no |
-| `eye_outline`, `eye_rim` of each eye | `checks.eye_outline`, `checks.eye_rim` | no |
-| `ear_width`, `ear_height` of each ear | `checks.ear_size` | no |
-| `facet_contrast` | `checks.facet_contrast` | no |
+| Check | Limit (config) | Gate | Place |
+|---|---|---|---|
+| `contact.<clip>` | role `checks.contact_depth` | yes | the deepest point and the body face, `diag/contact-<clip>.png` |
+| `folds.<clip>` | `checks.folded_faces` | yes | the worst folded (or turned) face, `diag/fold-<face>-<clip>.png` |
+| `rest_inward_faces`, `slivers` | `checks.*` | no | the worst face, `diag/face-<face>.png` |
+| `unpaired_vertices`, `body_triangles` | `checks.*` | no | none |
+| `iou.<view>`, `fur_hue`, `fur_saturation`, `fur_value` of each view | `checks.iou.<view>`, `checks.fur_color` | no | the view tile `report/views/<view>.jpg` |
+| `<feature>_<check>.<view>.<item>` | `measure.features.<feature>.checks` | no | the feature crop `report/features/<feature>_<view>_<region>.png` |
+| `facet_contrast` | `checks.facet_contrast` | no | none |
 
-The bear passes 58 of 61 checks. The three failures are known limits of the sheet (see
-`animals/bear/README.md`): the back view of the sheet is darker (`fur_value.back`), and the 3/4
-view of the sheet turns the head more (`eye_rim.three_quarter.0`,
-`eye_outline.three_quarter.1`).
+The bear passes 71 of 82 checks on the golden build, and 12 checks are near their limit. Three
+failures are known limits of the sheet (see `animals/bear/README.md`): the back view of the
+sheet is darker (`fur_value.back`), and the 3/4 view of the sheet turns the head more
+(`eye_rim.three_quarter.0`, `eye_outline.three_quarter.1`). The feature checks of the nose, the
+muzzle, and the claws find real differences of the look: the nose sits higher in the front view
+and further forward in the side view, the muzzle is shorter, and the claws of each paw touch.
+
+## Located failures
+
+The stage "diagnostics" of the Blender build reads the contact checks of the build
+(`contacts.JOURNAL`: one for the first check and one after each fold repair) and returns the
+places. `studio/locate.py` writes them into `out/diag/`:
+
+| File | Content |
+|---|---|
+| `folds.json` | The fold debug list: each folded (past 120°), turned (past 90°), repaired, inward, or sliver face with its rest place, its posed place in each clip, its region, its weights (and the weights before the repair), its smallest angle, and its rest direction. |
+| `contacts.json` | The deepest contact of each clip (only when a part goes into the body) and the closest approach (the smallest gap) of each clip. |
+| `contact-<clip>.png`, `fold-<face>-<clip>.png`, `face-<face>.png` | A crop of each place: a flat-shaded render of the mesh around it, from outside the body and from the side. The face is red with a yellow edge and a ring. A body face that shows its back is purple, the arm of a contact is blue, and a claw or a prop is gray. |
+
+An example: a test bear with paws of radii `[0.115, 0.115, 0.1]` fails the gate of the bow, and
+the checks print:
+
+```text
+  GATE FAIL contact.bow: 0.0249 <= 0.01
+      at clip=bow time_s=1.7 frame=51 side=L part=paw bone=hand_L into_bone=spine
+      region=belly, front, right position=[-0.0076, 0.356, 0.2289] depth=0.0249
+      crop=diag/contact-bow.png
+```
+
+## Feature measures
+
+`studio/measure_features.py` measures each feature of `measure.features` in the same way on the
+sheet and on the render, and writes `out/compare/features.json`. A feature has color classes
+(`measure.classes`), a region box in each view, and a method:
+
+| Method | Pixels | Measures |
+|---|---|---|
+| `blobs` | The connected blobs of the class pixels. The blobs with the most pixels of the `rank` class win. | `x`, `y` (the center), `width`, `height`, `area`, and `rim` (with a rim class) of each blob, and `count` of the region |
+| `area` | All class pixels of the region. | `x`, `y` (the centroid), `width`, `height` (the 5 to 95 percentile spans), `area` |
+| `bump` | The part of the silhouette that stands up at the top of the region. | `width`, `height` (from the top to the notch), `center_x`, `top`, `dark` (the share of the dark class) |
+
+A color class is a threshold relative to the background (`over_background`), an absolute
+threshold (`max_under`, `max_over`, `spread_under`), a palette color with tolerances (`palette`,
+`hue_tol`, `saturation_tol`), or a share of the median luminance of the silhouette in the region
+(`median_over`, `median_under`). A view in `split` splits its box at the axis into
+`left_in_image` and `right_in_image`.
+
+```toml
+[measure.classes]
+dark = { max_under = 100 }
+white = { over_background = 9, spread_under = 45 }
+
+[measure.features.eyes]
+method = "blobs"
+classes = ["dark", "white"]
+rank = "white"
+count = 2
+rim = "white"
+regions = { front = [-0.5, 0.86, 0.5, 0.93], three_quarter = [-0.5, 0.86, 0.5, 0.93] }
+checks = { outline = { measure = "width", op = "rel<=", limit = 0.08 }, rim = { op = "abs<=", limit = 0.0003 } }
+```
+
+To tune a feature box, edit it and run `python3 studio report <animal> --measure`. It measures
+the existing renders again and draws the crops in about 3 s.
+
+## The look report
+
+`out/report/index.html` is one page for each build (`studio/report.py`). It shows the failing
+and near checks with their crops, the sheet beside the render for each view with the silhouette
+overlap, the head crops, one crop of each feature and region with the measured boxes (blue:
+sheet, orange: render) and the numbers of its checks, the facet crops, the contacts and the
+closest approaches, the fold debug list with its crops, every check, the stage times, and the
+frames. The links are relative, so the page works as a static file. `out/report/review.png`
+holds the numbers and the key crops in one image, for an agent that reads only images.
 
 ## Regression
 
@@ -330,11 +464,11 @@ These parts are ready for a stage cache, parallel seeds, and a look report:
 - **Parallel seeds.** Every path comes from `--out`, so one Blender process for each seed can
   write its own folder (`animals/<id>/out/seeds/<n>/`), and the CLI can keep the first seed in
   the order of `facets.seeds` that passes.
-- **Located failures.** Each check has a `where` field. The contact and fold checks fill it with
-  the clip, the side, the part, and the time. The folded faces of all frames are in
-  `ContactCheck.folded`.
-- **Look report.** `out/compare/` and `out/frames/` hold all crops, and `checks.json` holds
-  every measure with its limit: one page can show them side by side.
+- **Located failures (done).** The stage "diagnostics" returns the places of the contacts and
+  the folds from `contacts.JOURNAL`, an input that the stage list does not name. A cache must
+  run "contacts" and "diagnostics" together, and keep the JSON outputs of a cached stage in its
+  `data.json`, because `checks.py` reads `out/stages/<nn>-diagnostics/data.json`.
+- **Look report (done).** `out/report/index.html` and `review.png` (see "The look report").
 
 ## Method, in short
 
@@ -1118,34 +1252,61 @@ The compare of the renders with the sheet (viewer/compare.js).
 
 #### `[measure]`
 
-The image measures of the eyes, the ears, and the facet shading.
+The image measures of the features (eyes, ears, nose, ...) and of the facet shading.
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
 | `mesh_belly` | rect | measure | Belly box [x0, y0, x1, y1] of the edge-direction measure of the GLB facets (studio/measure_mesh.py). |
+| `background_diff` | int | `24` | A render pixel is on the animal when the sum of its differences from the background is over this. |
 
-#### `[measure.eyes]`
+#### `[measure.classes.<name>]`
 
-Eyes: blobs of near-black and near-white pixels in a band of heights.
-
-| Field | Kind | Default | Meaning |
-|---|---|---|---|
-| `band` | vec2 | measure | Low and high height of the band. |
-| `white_min` | int | measure | A white pixel has max(rgb) above this (above the background). |
-| `white_spread` | int | `45` | A white pixel has max - min under this. |
-| `dark_max` | int | `100` | A dark pixel has max(rgb) under this. |
-| `max_blob` | int | `600` | Larger blobs are not eyes. |
-
-#### `[measure.ears]`
-
-Ears: measured on the silhouette.
+Pixel color classes by name (the features use them).
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
-| `search` | num | `0.15` | Rows below the top that the ear search reads (share of the height). |
-| `notch_span` | num | `0.2` | Rows below the top where the notch can be. |
-| `notch_top` | num | `0.08` | Rows below the top where the outer edge is furthest out. |
-| `background_diff` | int | `24` | A render pixel differs from the background by more than this sum. |
+| `max_under` | int | optional | max(rgb) is under this (a dark pixel). |
+| `max_over` | int | optional | max(rgb) is over this. |
+| `over_background` | int | optional | max(rgb) is more than this over the max of sheet.background (a pixel lighter than the background). |
+| `spread_under` | int | optional | max(rgb) - min(rgb) is under this (near gray). |
+| `palette` | str | optional | A color of paint.palette: the hue and the saturation of the pixel are near it (hue_tol, saturation_tol). |
+| `hue_tol` | num | optional | Largest hue difference from the palette color, in degrees (not given: any hue). |
+| `saturation_tol` | num | optional | Largest saturation difference from the palette color (0..1). |
+| `median_over` | num | optional | The luminance is over this share of the median luminance of the silhouette in the region (a lighter part). |
+| `median_under` | num | optional | The luminance is under this share of the median luminance of the silhouette in the region (a darker part). |
+
+#### `[measure.features.<name>]`
+
+The features by name, in the order of the checks.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `method` | str | required | "blobs": connected blobs of the class pixels (eyes, a nose, claws). "area": all class pixels of the region (a muzzle, a belly). "bump": the part of the silhouette that stands up at the top of the region (an ear). |
+| `classes` | strs | optional | Color classes of the feature pixels (names of measure.classes). "bump" uses the silhouette. |
+| `regions.<name>` | rect | map | The region of each view, [x0, y0, x1, y1] in animal heights: x from the axis of the view to the right of the image, y the height above the ground. The feature is measured in these views only. |
+| `split` | strs | optional | Views whose region splits at the axis into two regions, "left_in_image" and "right_in_image" (a pair of ears or of paws). |
+| `count` | int | `1` | blobs: the number of blobs that each region keeps. |
+| `rank` | str | optional | blobs: keep the blobs with the most pixels of this class (not given: the largest blobs). |
+| `min_rank` | int | `1` | blobs: a blob needs at least this many pixels of the rank class. |
+| `min_area` | int | `1` | blobs: a blob needs at least this many pixels. |
+| `max_area` | int | `0` | blobs: a larger blob (pixels) is not the feature (0: no limit). |
+| `rim` | str | optional | blobs: the class of the measure "rim": its area over the circumference of the blob, which is the width of an even ring (the white rim of an eye). |
+| `dark` | str | optional | bump: the class of the measure "dark": its share of the silhouette above the notch (the inner ear). |
+| `dark_views` | strs | optional | bump: the views of the measure "dark". |
+| `search` | num | `0.15` | bump: rows below the top that the search reads (share of the height). |
+| `notch_span` | num | `0.2` | bump: rows below the top where the notch can be. |
+| `notch_top` | num | `0.08` | bump: rows below the top where the outer edge is furthest out. |
+| `name` | str | optional | Singular name in the check names (default: the key without a final "s"). |
+
+#### `[measure.features.<name>.checks.<name>]`
+
+The checks of the feature. A check is named "<name>_<check>.<view>.<item>".
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `measure` | str | optional | The measure (default: the name of the check): x, y, width, height, area, count, rim, dark, center_x. |
+| `op` | str | required | "rel<=": |render - sheet| / |sheet| at most the limit. "abs<=": |render - sheet| at most the limit. |
+| `limit` | num | required | The limit. |
 
 #### `[measure.shading]`
 
@@ -1176,9 +1337,6 @@ The limits of the checks (studio/checks.py). The fold check is a gate: it fails 
 | `body_triangles` | vec2 | `[600, 2000]` | Smallest and largest body triangle count. |
 | `slivers` | num | `0.01` | Largest share of body faces with an angle under 15 degrees. |
 | `fur_color` | vec3 | `[1.0, 0.02, 0.03]` | Largest difference of the fur median from the sheet: hue (degrees), saturation, value. |
-| `eye_outline` | num | `0.08` | Largest relative difference of the eye width. |
-| `eye_rim` | num | `0.0003` | Largest difference of the white rim width. |
-| `ear_size` | num | `0.1` | Largest relative difference of the ear width and height. |
 | `facet_contrast` | num | `0.15` | Largest relative difference of the belly fine spread. |
 
 <!-- config-reference:end -->
