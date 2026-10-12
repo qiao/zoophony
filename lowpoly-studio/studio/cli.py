@@ -3,7 +3,8 @@
     python3 studio build <animal> [--seed N | --all-seeds] [--jobs N] [--no-shots] [--out DIR]
                           [--until STAGE] [--clips a,b] [--no-cache] [--no-gate]
     python3 studio compare <animal> [--out DIR]
-    python3 studio view <animal> [--port N]
+    python3 studio view <animal> [--port N] [--stop]
+    python3 studio log [<animal>] [--all] [--last N] [--short] [--json]
     python3 studio new <animal> --sheet <png> [--role R] [--like A] [--force]
     python3 studio regress <animal> [--no-build] [--no-cache] [--write --from DIR]
     python3 studio fit <animal> [--rows] [--azimuths a,b,c] [--pose bind]
@@ -20,12 +21,13 @@ import json
 import os
 import re
 import shutil
+import signal
 import socket
 import subprocess
 import sys
 import time
 
-from studio import checks, config, regress, viewer_config
+from studio import checks, config, regress, runlog, viewer_config
 from studio.config import STUDIO, ConfigError
 
 BLENDER = os.environ.get('BLENDER', 'blender')
@@ -137,12 +139,13 @@ class Timer:
     """Times the steps of a CLI command, with the source of each one (a run or the cache), and
     writes them to <out>/stages/pipeline.json."""
 
-    def __init__(self):
-        """Starts the clock."""
+    def __init__(self, run=None):
+        """Starts the clock. run: the run file of the command (runlog.Run), or None."""
         self.t0 = time.time()
         self.steps = {}
         self.sources = {}
         self.stages = None
+        self.run_file = run
 
     def step(self, name, seconds, source=None):
         """Records the time of one step."""
@@ -187,8 +190,11 @@ class Timer:
         total = round(time.time() - self.t0, 2)
         os.makedirs(cfg.paths.stages, exist_ok=True)
         with open(os.path.join(cfg.paths.stages, 'pipeline.json'), 'w') as f:
-            json.dump({'steps': self.steps, 'sources': self.sources, 'total': total,
+            json.dump({'run': self.run_file and self.run_file.id, 'steps': self.steps,
+                       'sources': self.sources, 'total': total,
                        'blender_stages': self.stages}, f, indent=2)
+        if self.run_file:
+            self.run_file.timer(self.steps, self.sources, self.stages)
         log('time:')
         log(self.table(total))
 
@@ -480,14 +486,15 @@ def prune_cache():
 
 
 def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True, gate=True,
-              jobs=DEFAULT_JOBS, all_seeds=False):
+              jobs=DEFAULT_JOBS, all_seeds=False, run=None):
     """Runs the whole build of an animal. Returns (the checks report or None with --until, the
     seed results of the pool or None).
 
     One seed (seed, or until): the Blender build runs in out/. Else the seed pool builds the
-    seeds of facets.seeds in out/seeds/<n>/ and copies the kept seed into out/.
+    seeds of facets.seeds in out/seeds/<n>/ and copies the kept seed into out/. run: the run
+    file of the command (runlog.Run), or None.
     """
-    timer = Timer()
+    timer = Timer(run)
     os.makedirs(cfg.paths.out, exist_ok=True)
     t = time.time()
     source = step_intake(cfg, use_cache)
@@ -496,6 +503,8 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
     pool = None
     if seed is not None or until:
         s = seed if seed is not None else cfg.facets.seeds[0]
+        if run:
+            run.set(seed=s)
         log(f'[build] seed {s}')
         t = time.time()
         result = step_blender_build(cfg, s, until, clips, use_cache, gate)
@@ -506,8 +515,10 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
             return None, None
         if not result['pass']:
             # studio-diag: the checks of the seed, so that its located failures are there.
-            timer.run('checks', step_checks, cfg)
+            report = timer.run('checks', step_checks, cfg)
             timer.write(cfg)
+            if run:
+                run.checks(report)
             fail(f'seed {s}: {describe(result)}')
         log(f'  seed {s}: {describe(result)}')
     else:
@@ -515,14 +526,19 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
         t = time.time()
         kept, pool = run_seeds(cfg, seeds, jobs, not all_seeds, clips, use_cache, gate)
         timer.step('seed pool', time.time() - t)
+        if run:
+            run.pool(_read_json(os.path.join(cfg.paths.out, 'seeds', 'summary.json')))
+            run.set(seed=kept)
         if kept is None:
             # studio-diag: the checks of the last seed, so that its located failures are there.
             ran = [r['seed'] for r in pool if r['status'] != 'cancelled']
             if ran:
                 keep_seed(cfg, ran[-1])
                 log(f'  the outputs of seed {ran[-1]} (the last seed) are in out/')
-            timer.run('checks', step_checks, cfg)
+            report = timer.run('checks', step_checks, cfg)
             timer.write(cfg)
+            if run:
+                run.checks(report)
             fail(f'no seed of {seeds} passes the remesh gate and the contact and fold check')
         log(f'  kept seed {kept}')
         keep_seed(cfg, kept)
@@ -532,6 +548,10 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
         timer.run('measures', step_measures, cfg)
     report = timer.run('checks', step_checks, cfg)
     timer.write(cfg)
+    if run:
+        run.checks(report)
+        if not report['gate_pass']:
+            run.result = 'fail'
     if use_cache:
         prune_cache()
     return report, pool
@@ -544,13 +564,15 @@ def cmd_build(a):
     if a.jobs < 1:
         fail('--jobs needs 1 or more')
     cfg = load(a.animal, a.out)
-    report, pool = run_build(cfg, a.seed, not a.no_shots, a.until, a.clips, not a.no_cache,
-                             not a.no_gate, a.jobs, a.all_seeds)
-    if report and not report['gate_pass']:
-        sys.exit(1)
-    if pool and a.all_seeds and not all(r['pass'] for r in pool):
-        log('the full seed check fails: not every seed passes (out/seeds/summary.json)')
-        sys.exit(1)
+    with runlog.Run(cfg.animal.id, a.command, cfg.paths.out) as run:
+        report, pool = run_build(cfg, a.seed, not a.no_shots, a.until, a.clips, not a.no_cache,
+                                 not a.no_gate, a.jobs, a.all_seeds, run)
+        if report and not report['gate_pass']:
+            sys.exit(1)
+        if pool and a.all_seeds and not all(r['pass'] for r in pool):
+            log('the full seed check fails: not every seed passes (out/seeds/summary.json)')
+            run.result = 'fail'
+            sys.exit(1)
 
 
 def cmd_compare(a):
@@ -559,17 +581,80 @@ def cmd_compare(a):
     cfg = load(a.animal, a.out)
     if not os.path.exists(cfg.paths.glb):
         fail(f'{cfg.paths.glb} does not exist: run python3 studio build {a.animal}')
-    timer = Timer()
-    viewer_config.write(cfg)
-    timer.run('shots', step_shots, cfg)
-    timer.run('measures', step_measures, cfg)
-    timer.run('checks', step_checks, cfg)
-    timer.write(cfg)
+    with runlog.Run(cfg.animal.id, a.command, cfg.paths.out) as run:
+        timer = Timer(run)
+        viewer_config.write(cfg)
+        timer.run('shots', step_shots, cfg)
+        timer.run('measures', step_measures, cfg)
+        run.checks(timer.run('checks', step_checks, cfg))
+        timer.write(cfg)
+
+
+def view_file(cfg):
+    """Returns the pid file of the viewer server of an animal (<out>/view-server.json)."""
+    return os.path.join(cfg.paths.out, 'view-server.json')
+
+
+def alive(pid):
+    """Tells if a process with this pid runs (a zombie child counts as gone)."""
+    if not pid:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    try:
+        done, _ = os.waitpid(pid, os.WNOHANG)
+    except ChildProcessError:
+        return True
+    return done == 0
+
+
+def stop_view(cfg):
+    """Stops the viewer server of an animal: SIGTERM to the studio process and to the process
+    group of its Vite child, then SIGKILL after 5 s. Returns False when no server runs."""
+    path = view_file(cfg)
+    info = _read_json(path)
+    if not info:
+        return False
+    pids = [info.get('pid'), info.get('vite_pid')]
+    for pid in pids:
+        if alive(pid):
+            os.kill(pid, signal.SIGTERM)
+    if alive(info.get('vite_pid')):
+        try:
+            os.killpg(info['vite_pid'], signal.SIGTERM)
+        except (ProcessLookupError, PermissionError):
+            pass
+    deadline = time.time() + 5.0
+    while any(alive(p) for p in pids) and time.time() < deadline:
+        time.sleep(0.1)
+    for pid in pids:
+        if alive(pid):
+            os.kill(pid, signal.SIGKILL)
+    if os.path.exists(path):
+        os.remove(path)
+    log(f'stopped the viewer of {cfg.animal.id} (pid {info.get("pid")}, Vite pid '
+        f'{info.get("vite_pid")}, port {info.get("port")})')
+    return True
 
 
 def cmd_view(a):
-    """studio view: serves the viewer on a free port and prints its URL (Ctrl-C stops it)."""
+    """studio view: serves the viewer on a free port and prints its URL. Ctrl-C, SIGTERM, or
+    `studio view <animal> --stop` stops it. The pid file <out>/view-server.json holds the pids,
+    the port, and the URLs."""
     cfg = load(a.animal)
+    if a.stop:
+        if not stop_view(cfg):
+            log(f'no viewer of {cfg.animal.id} runs (no {view_file(cfg)})')
+        return
+    info = _read_json(view_file(cfg))
+    if info and alive(info.get('pid')):
+        log(f'a viewer of {cfg.animal.id} runs already (pid {info["pid"]}): {info["viewer"]}')
+        log(f'stop it with: python3 studio view {cfg.animal.id} --stop')
+        return
     if not os.path.exists(cfg.paths.glb):
         fail(f'{cfg.paths.glb} does not exist: run python3 studio build {a.animal}')
     url = viewer_config.write(cfg)
@@ -577,15 +662,56 @@ def cmd_view(a):
     if port in RESERVED_PORTS:
         fail(f'port {port} is reserved for the servers of the user')
     vite = find_node_bin('vite')
-    log(f'viewer: http://localhost:{port}/viewer/index.html?config={url}')
-    log(f'compare: http://localhost:{port}/viewer/compare.html?config={url}')
+    pages = {'viewer': f'http://localhost:{port}/viewer/index.html?config={url}',
+             'compare': f'http://localhost:{port}/viewer/compare.html?config={url}'}
+    log(f'viewer: {pages["viewer"]}')
+    log(f'compare: {pages["compare"]}')
+    # Vite gets a session of its own: a stop signal reaches it through this process (or through
+    # --stop, which signals its process group), also when the shell ignores SIGINT for a
+    # background job.
     proc = subprocess.Popen([vite, '--config', os.path.join(STUDIO, 'vite.config.js'), '--port',
-                             str(port), '--strictPort', '--clearScreen', 'false'], cwd=STUDIO)
+                             str(port), '--strictPort', '--clearScreen', 'false'], cwd=STUDIO,
+                            start_new_session=True)
+    with open(view_file(cfg), 'w') as f:
+        json.dump({'pid': os.getpid(), 'vite_pid': proc.pid, 'port': port,
+                   'started': time.strftime('%Y-%m-%dT%H:%M:%S%z'), **pages}, f, indent=2)
+    log(f'pid file: {view_file(cfg)} (stop: python3 studio view {cfg.animal.id} --stop)')
+
+    def stop(signum, _frame):
+        raise KeyboardInterrupt(signal.Signals(signum).name)
+
+    for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+        signal.signal(sig, stop)
     try:
         proc.wait()
     except KeyboardInterrupt:
-        proc.terminate()
-        proc.wait()
+        pass
+    finally:
+        if proc.poll() is None:
+            with_group = [lambda: os.killpg(proc.pid, signal.SIGTERM), proc.terminate]
+            for fn in with_group:
+                try:
+                    fn()
+                except (ProcessLookupError, PermissionError):
+                    pass
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait()
+        info = _read_json(view_file(cfg))
+        if info and info.get('pid') == os.getpid():
+            os.remove(view_file(cfg))
+        log('viewer stopped')
+
+
+def cmd_log(a):
+    """studio log: prints the timeline of the runs (build, regress, compare) from their run
+    files: the start, the time, the command, the seed, the cache hits, the result, the step and
+    stage times, and the seeds of the pool."""
+    if a.animal:
+        load(a.animal)
+    runlog.main_log(a.animal, a.all, a.last, a.json, not a.short)
 
 
 def detect_views(path, min_saturation=14, max_dark_sum=390):
@@ -811,16 +937,29 @@ def cmd_regress(a):
             shutil.rmtree(out)
         log(f'[regress] build with the golden seed {golden["stats"]["seed"]} into {out}'
             f'{" (no cache)" if a.no_cache else ""}')
-        run_build(cfg, golden['stats']['seed'], use_cache=not a.no_cache)
+        with runlog.Run(cfg.animal.id, a.command, cfg.paths.out) as run:
+            run_build(cfg, golden['stats']['seed'], use_cache=not a.no_cache, run=run)
+            ok = regression_table(a.animal, golden, cfg)
+            run.set(regress='PASS' if ok else 'FAIL')
+            if not ok:
+                run.result = 'fail'
+    else:
+        ok = regression_table(a.animal, golden, cfg)
+    if not ok:
+        sys.exit(1)
+
+
+def regression_table(animal, golden, cfg):
+    """Compares the build in cfg.paths.out with the golden stats and prints the table. Returns
+    True when the regression passes."""
     rows, ok = regress.compare(golden, regress.collect(cfg))
     log('')
-    log(f'regression of {a.animal} against {golden.get("source", "golden.json")}:')
+    log(f'regression of {animal} against {golden.get("source", "golden.json")}:')
     width = max(len(r[0]) for r in rows)
     for item, verdict, detail in rows:
         log(f'  {item:{width}s}  {verdict:12s}  {detail}')
     log('PASS' if ok else 'FAIL')
-    if not ok:
-        sys.exit(1)
+    return ok
 
 
 def cmd_fit(a):
@@ -1001,7 +1140,16 @@ def main(argv=None):
     p = sub.add_parser('view', help='serve the viewer on a free port')
     p.add_argument('animal')
     p.add_argument('--port', type=int, default=None)
+    p.add_argument('--stop', action='store_true',
+                   help='stop the viewer server of the animal (its pid file)')
     p.set_defaults(fn=cmd_view)
+    p = sub.add_parser('log', help='print the timeline of the builds from their run files')
+    p.add_argument('animal', nargs='?', default=None, help='one animal (default: all)')
+    p.add_argument('--all', action='store_true', help='the runs of all worktrees')
+    p.add_argument('--last', type=int, default=20, help='the last N runs (0: all)')
+    p.add_argument('--short', action='store_true', help='one line for each run')
+    p.add_argument('--json', action='store_true', help='print the run files as JSON')
+    p.set_defaults(fn=cmd_log)
     p = sub.add_parser('new', help='scaffold a new animal from its sheet')
     p.add_argument('animal')
     p.add_argument('--sheet', required=True)
@@ -1043,4 +1191,5 @@ def main(argv=None):
     p.add_argument('--readme', action='store_true', help='write both references into README.md')
     p.set_defaults(fn=cmd_schema)
     args = ap.parse_args(argv)
+    args.command = ' '.join(sys.argv[1:] if argv is None else argv)
     args.fn(args)
