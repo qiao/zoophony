@@ -745,7 +745,7 @@
     "front": 0.9465,
     "side": 0.9543,
     "back": 0.9452,
-    "three_quarter": 0.927
+    "three_quarter": 0.9332
   },
   "measures": {
     "features": {
@@ -824,23 +824,23 @@
                 ]
               },
               "render": {
-                "count": 3,
+                "count": 2,
                 "items": [
                   {
-                    "x": 0.1017,
-                    "y": 0.9234,
-                    "width": 0.0141,
-                    "height": 0.0194,
-                    "area": 0.000189,
-                    "box_px": [217, 269, 225, 280]
+                    "x": 0.0814,
+                    "y": 0.9243,
+                    "width": 0.0158,
+                    "height": 0.0211,
+                    "area": 0.000232,
+                    "box_px": [205, 268, 214, 280]
                   },
                   {
-                    "x": 0.1589,
+                    "x": 0.1457,
                     "y": 0.9225,
-                    "width": 0.0088,
-                    "height": 0.0176,
-                    "area": 0.000108,
-                    "box_px": [251, 270, 256, 280]
+                    "width": 0.0106,
+                    "height": 0.0211,
+                    "area": 0.000146,
+                    "box_px": [243, 269, 249, 281]
                   }
                 ]
               }
@@ -1284,6 +1284,7 @@
     "fur_saturation.back": true,
     "fur_value.back": true,
     "iou.three_quarter": true,
+    "head_turn.three_quarter": true,
     "fur_hue.three_quarter": true,
     "fur_saturation.three_quarter": true,
     "fur_value.three_quarter": true,
@@ -1322,5 +1323,5 @@
     "claw_count.front.right_in_image": true,
     "facet_contrast": true
   },
-  "source": "studio-pilot build of the polar bear pianist, seed 1 (2026-10-12); look checks and measures of the model build (studio-runtime, model seed 3)"
+  "source": "studio-pilot build of the polar bear pianist, seed 1 (2026-10-12); look checks and measures of the model build (studio-runtime, model seed 3); the 3/4 compare turns the head +9 deg (compare.head_turn) and the feature checks have a pixel floor of 1 px (studio-intake)"
 }
