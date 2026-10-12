@@ -1,0 +1,639 @@
+{
+  "animal": "bear",
+  "title": "Bear conductor",
+  "role": "conductor",
+  "glb": "/animals/bear/out/bear.glb",
+  "sheet": "/animals/bear/reference/bear-views.png",
+  "measure": "/animals/bear/out/measure.json",
+  "masks": "/animals/bear/out/masks",
+  "views": {
+    "front": {
+      "azimuth": 0.0,
+      "label": "Front"
+    },
+    "side": {
+      "azimuth": 90.0,
+      "label": "Side"
+    },
+    "back": {
+      "azimuth": 180.0,
+      "label": "Back"
+    },
+    "three_quarter": {
+      "azimuth": 38.0,
+      "label": "3/4"
+    }
+  },
+  "camera": {
+    "distance": 10.0,
+    "height": 0.5,
+    "fov": 7.4
+  },
+  "background": 13290187,
+  "light": {
+    "hemi": 1.4,
+    "key": 3.8,
+    "fill": 0.9,
+    "rim": 0.35,
+    "key_dir": [
+      -1.2,
+      3.5,
+      3.5
+    ],
+    "fill_dir": [
+      3.0,
+      0.5,
+      4.0
+    ],
+    "rim_dir": [
+      4.0,
+      2.5,
+      -6.0
+    ],
+    "sky": 16513784,
+    "ground": 9076084,
+    "key_color": 16776180,
+    "fill_color": 16185080,
+    "rim_color": 15265535,
+    "center_y": 0.55,
+    "shadow": 0.3
+  },
+  "noShadow": [
+    "baton"
+  ],
+  "tipMarkers": [
+    "BatonTip"
+  ],
+  "compare": {
+    "rows": [
+      200,
+      790
+    ],
+    "furBand": [
+      0.25,
+      0.7
+    ],
+    "headShare": 0.3,
+    "facetCrops": {
+      "chest_belly": [
+        -0.22,
+        0.3,
+        0.22,
+        0.76
+      ],
+      "shoulder_arm": [
+        -0.43,
+        0.35,
+        -0.1,
+        0.76
+      ],
+      "head": [
+        -0.19,
+        0.74,
+        0.19,
+        1.01
+      ]
+    }
+  },
+  "clipNotes": {
+    "performance": "All gestures in order: ready, beats, cue, crescendo, hush, cutoff, bow.",
+    "reference": "The pose of the reference sheet (arms down). The compare tool uses it.",
+    "ready": "Both arms up, the baton ready.",
+    "beat_4_4": "One bar of 4/4 at 60 bpm: down, in, out, up, with ictus and rebound.",
+    "cue_left": "The left paw cues the players on the left, the head turns to them.",
+    "crescendo": "The left palm turns up and lifts.",
+    "hush": "The left palm turns down and presses.",
+    "cutoff": "A loop and a cutoff with both paws, then a hold.",
+    "nod_turn": "A head nod and a turn to each section.",
+    "sway_dip": "A torso sway and a knee dip on each beat.",
+    "bow": "The bow at the end."
+  },
+  "shots": {
+    "ready": [
+      {
+        "clip": "ready",
+        "t": 1,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "ready, front"
+      },
+      {
+        "clip": "ready",
+        "t": 1,
+        "az": 90,
+        "el": 6,
+        "d": 3.4,
+        "label": "ready, side"
+      },
+      {
+        "clip": "ready",
+        "t": 1,
+        "az": 35,
+        "el": 10,
+        "d": 3.4,
+        "label": "ready, 3/4"
+      },
+      {
+        "clip": "ready",
+        "t": 1,
+        "az": 35,
+        "el": 10,
+        "d": 3.4,
+        "bones": true,
+        "label": "ready, bones"
+      }
+    ],
+    "deform": [
+      {
+        "clip": "crescendo",
+        "t": 3.9,
+        "az": -35,
+        "el": 15,
+        "d": 1.3,
+        "ty": 0.68,
+        "tz": 0.1,
+        "fov": 28,
+        "label": "crescendo high: left shoulder"
+      },
+      {
+        "clip": "crescendo",
+        "t": 3.9,
+        "az": -20,
+        "el": 55,
+        "d": 1.4,
+        "ty": 0.68,
+        "tz": 0.15,
+        "fov": 28,
+        "label": "crescendo high, from above: paws clear"
+      },
+      {
+        "clip": "cue_left",
+        "t": 2.1,
+        "az": -110,
+        "el": 15,
+        "d": 1.3,
+        "ty": 0.66,
+        "fov": 28,
+        "label": "cue: left shoulder, behind"
+      },
+      {
+        "clip": "cutoff",
+        "t": 0.5,
+        "az": 0,
+        "el": 30,
+        "d": 1.4,
+        "ty": 0.68,
+        "tz": 0.1,
+        "fov": 28,
+        "label": "cutoff lift: shoulders"
+      },
+      {
+        "clip": "cutoff",
+        "t": 2.5,
+        "az": -40,
+        "el": 5,
+        "d": 1,
+        "ty": 0.62,
+        "tz": 0.25,
+        "fov": 28,
+        "label": "cutoff hold: closed left paw"
+      },
+      {
+        "clip": "hush",
+        "t": 3.8,
+        "az": -70,
+        "el": 10,
+        "d": 1.3,
+        "ty": 0.6,
+        "tz": 0.1,
+        "fov": 28,
+        "label": "hush: left elbow"
+      },
+      {
+        "clip": "beat_4_4",
+        "t": 2,
+        "az": 110,
+        "el": 10,
+        "d": 1.3,
+        "ty": 0.62,
+        "tz": 0.1,
+        "fov": 28,
+        "label": "beat 3: right elbow"
+      },
+      {
+        "clip": "bow",
+        "t": 2,
+        "az": 60,
+        "el": 10,
+        "d": 1.6,
+        "ty": 0.45,
+        "fov": 28,
+        "label": "bow: belly and hips"
+      }
+    ],
+    "pattern": [
+      {
+        "clip": "beat_4_4",
+        "t": 3.99,
+        "az": 165,
+        "el": 45,
+        "d": 1.7,
+        "ty": 0.75,
+        "tz": 0.25,
+        "fov": 30,
+        "trail": [
+          0,
+          3.99
+        ],
+        "ictus": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "label": "4/4 tip path, over the shoulder"
+      },
+      {
+        "clip": "beat_4_4",
+        "t": 3.99,
+        "az": 0,
+        "el": 0,
+        "d": 2.2,
+        "ty": 0.62,
+        "tz": 0.2,
+        "fov": 24,
+        "trail": [
+          0,
+          3.99
+        ],
+        "ictus": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "label": "4/4 tip path, orchestra view"
+      },
+      {
+        "clip": "beat_4_4",
+        "t": 3.99,
+        "az": 90,
+        "el": 0,
+        "d": 2.2,
+        "ty": 0.62,
+        "tz": 0.2,
+        "fov": 24,
+        "trail": [
+          0,
+          3.99
+        ],
+        "ictus": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "label": "4/4 tip path, side"
+      },
+      {
+        "clip": "performance",
+        "t": 9,
+        "az": 30,
+        "el": 10,
+        "d": 3,
+        "fov": 24,
+        "trail": [
+          5,
+          9
+        ],
+        "label": "performance at 9 s"
+      }
+    ],
+    "beat_4_4": [
+      {
+        "clip": "beat_4_4",
+        "t": 0,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "trail": [
+          0,
+          4
+        ],
+        "ictus": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "label": "beat 1 ictus (path of 1 bar)"
+      },
+      {
+        "clip": "beat_4_4",
+        "t": 0.35,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "beat 1 rebound"
+      },
+      {
+        "clip": "beat_4_4",
+        "t": 1,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "beat 2 ictus (in)"
+      },
+      {
+        "clip": "beat_4_4",
+        "t": 2,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "beat 3 ictus (out)"
+      },
+      {
+        "clip": "beat_4_4",
+        "t": 3,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "beat 4 ictus (up)"
+      },
+      {
+        "clip": "beat_4_4",
+        "t": 3.6,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "preparation to 1"
+      },
+      {
+        "clip": "beat_4_4",
+        "t": 0,
+        "az": 90,
+        "el": 6,
+        "d": 3.4,
+        "trail": [
+          0,
+          4
+        ],
+        "ictus": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "label": "beat 1, side"
+      },
+      {
+        "clip": "beat_4_4",
+        "t": 2,
+        "az": 90,
+        "el": 6,
+        "d": 3.4,
+        "label": "beat 3, side"
+      }
+    ],
+    "cue_left": [
+      {
+        "clip": "cue_left",
+        "t": 1.2,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "cue: prepare"
+      },
+      {
+        "clip": "cue_left",
+        "t": 2,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "cue: the left paw points"
+      },
+      {
+        "clip": "cue_left",
+        "t": 2,
+        "az": -40,
+        "el": 8,
+        "d": 3.4,
+        "label": "cue, seen from the players"
+      },
+      {
+        "clip": "cue_left",
+        "t": 2,
+        "az": 90,
+        "el": 6,
+        "d": 3.4,
+        "label": "cue, side"
+      }
+    ],
+    "crescendo": [
+      {
+        "clip": "crescendo",
+        "t": 0.2,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "crescendo: palm up, low"
+      },
+      {
+        "clip": "crescendo",
+        "t": 2,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "crescendo: lift"
+      },
+      {
+        "clip": "crescendo",
+        "t": 3.8,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "crescendo: high"
+      },
+      {
+        "clip": "crescendo",
+        "t": 3.8,
+        "az": 90,
+        "el": 6,
+        "d": 3.4,
+        "label": "crescendo, side"
+      }
+    ],
+    "hush": [
+      {
+        "clip": "hush",
+        "t": 0.3,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "hush: palm down, high"
+      },
+      {
+        "clip": "hush",
+        "t": 2.5,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "hush: press down"
+      },
+      {
+        "clip": "hush",
+        "t": 3.8,
+        "az": 90,
+        "el": 6,
+        "d": 3.4,
+        "label": "hush, side"
+      },
+      {
+        "clip": "hush",
+        "t": 3.8,
+        "az": 35,
+        "el": 10,
+        "d": 3.4,
+        "label": "hush, 3/4"
+      }
+    ],
+    "cutoff": [
+      {
+        "clip": "cutoff",
+        "t": 0.4,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "cutoff: lift"
+      },
+      {
+        "clip": "cutoff",
+        "t": 1,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "cutoff: loop"
+      },
+      {
+        "clip": "cutoff",
+        "t": 1.5,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "cutoff: click"
+      },
+      {
+        "clip": "cutoff",
+        "t": 2.6,
+        "az": 90,
+        "el": 6,
+        "d": 3.4,
+        "label": "cutoff: hold, side"
+      }
+    ],
+    "nod_turn": [
+      {
+        "clip": "nod_turn",
+        "t": 0.5,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "nod down"
+      },
+      {
+        "clip": "nod_turn",
+        "t": 1.6,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "turn to the left section"
+      },
+      {
+        "clip": "nod_turn",
+        "t": 3.1,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "turn to the right section"
+      },
+      {
+        "clip": "nod_turn",
+        "t": 1.6,
+        "az": 35,
+        "el": 10,
+        "d": 3.4,
+        "label": "turn, 3/4"
+      }
+    ],
+    "sway_dip": [
+      {
+        "clip": "sway_dip",
+        "t": 0,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "dip on beat 1"
+      },
+      {
+        "clip": "sway_dip",
+        "t": 1,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "sway left"
+      },
+      {
+        "clip": "sway_dip",
+        "t": 3,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "sway right"
+      },
+      {
+        "clip": "sway_dip",
+        "t": 0,
+        "az": 90,
+        "el": 6,
+        "d": 3.4,
+        "label": "knee dip, side"
+      }
+    ],
+    "bow": [
+      {
+        "clip": "bow",
+        "t": 0.6,
+        "az": 35,
+        "el": 10,
+        "d": 3.4,
+        "label": "bow: arms down"
+      },
+      {
+        "clip": "bow",
+        "t": 2,
+        "az": 90,
+        "el": 6,
+        "d": 3.4,
+        "label": "bow: deepest, side"
+      },
+      {
+        "clip": "bow",
+        "t": 2,
+        "az": 0,
+        "el": 6,
+        "d": 3.4,
+        "label": "bow: deepest, front"
+      },
+      {
+        "clip": "bow",
+        "t": 3.6,
+        "az": 35,
+        "el": 10,
+        "d": 3.4,
+        "label": "bow: rise"
+      }
+    ]
+  },
+  "outDir": "animals/bear/out"
+}
