@@ -81,7 +81,32 @@ def measure(v, tris):
         if np.min(np.linalg.norm(pts - p, axis=1)) < 0.05 * edge:
             paired += 1
     px = e.ravel() * SHEET_PX
+
+    # The regularity: the valence of each vertex (a split quad grid has 6 almost everywhere),
+    # and the spread of the edge directions of the belly seen from the front (the normalized
+    # entropy of 12 bins over 180 degrees: 1 when all directions are equal, 0 for one direction).
+    valence = np.zeros(len(v), int)
+    edges = set()
+    for a, b2, c in tris:
+        for p0, p1 in ((a, b2), (b2, c), (c, a)):
+            edges.add((min(p0, p1), max(p0, p1)))
+    for p0, p1 in edges:
+        valence[p0] += 1
+        valence[p1] += 1
+    val = valence[used]
+    ev = np.array(list(edges))
+    mid = 0.5 * (v[ev[:, 0]] + v[ev[:, 1]])
+    # Blender axes after the import: x left, y back (negative is the front), z up.
+    belly = (np.abs(mid[:, 0]) < 0.15) & (mid[:, 2] > 0.3) & (mid[:, 2] < 0.55) & (mid[:, 1] < 0)
+    d = v[ev[belly, 1]] - v[ev[belly, 0]]
+    angle = np.degrees(np.arctan2(d[:, 2], d[:, 0])) % 180.0
+    hist = np.histogram(angle, bins=12, range=(0, 180))[0].astype(float)
+    prob = hist / hist.sum()
+    entropy = float(-np.sum(prob[prob > 0] * np.log(prob[prob > 0])) / np.log(12))
     return {
+        'valence_6_share': round(float(np.mean(val == 6)), 3),
+        'valence_std': round(float(np.std(val)), 2),
+        'belly_edge_direction_entropy': round(entropy, 3),
         'triangles': int(len(tris)),
         'edge_median_px': round(float(np.median(px)), 1),
         'edge_quartiles_px': [round(float(np.percentile(px, 25)), 1),

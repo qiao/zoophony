@@ -17,7 +17,7 @@ import os
 import statistics
 import sys
 
-from PIL import Image, ImageFilter
+from PIL import Image, ImageChops, ImageFilter, ImageStat
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -89,6 +89,27 @@ def orientations(im, box):
     return [round(b / total, 3) for b in bins]
 
 
+def contrast(im, to_px):
+    """Measures the brightness spread of a belly crop (x -0.13 to 0.13, y 0.30 to 0.52).
+
+    Returns the standard deviation of the luminance, the standard deviation of its fine part
+    (the luminance minus a blur of 8 px, which keeps the steps between neighbor facets and drops
+    the gentle gradients), and the mean luminance.
+    """
+    (x0, y0), (x1, y1) = to_px(-0.13, 0.52), to_px(0.13, 0.30)
+    box = (int(x0), int(y0), int(x1), int(y1))
+    crop = im.crop(box)
+    blur = crop.filter(ImageFilter.GaussianBlur(8))
+    fine = ImageChops.subtract(crop, blur, 1.0, 128)
+    s_all = ImageStat.Stat(crop)
+    s_fine = ImageStat.Stat(fine)
+    return {
+        'luma_std': round(s_all.stddev[0], 2),
+        'fine_std': round(s_fine.stddev[0], 2),
+        'luma_mean': round(s_all.mean[0], 1),
+    }
+
+
 def measure(im, to_px, height):
     """Measures one image of the front view."""
     def seg(a, b):
@@ -112,6 +133,7 @@ def measure(im, to_px, height):
         return (a[0], a[1], b[0], b[1])
 
     return {
+        'belly_contrast': contrast(im, to_px),
         'mean_chord_px': round(mean, 1),
         'chord_quartiles_px': [round(v, 1) for v in q],
         'edge_length_estimate_px': round(mean / CHORD_TO_EDGE, 1),
