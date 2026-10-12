@@ -29,8 +29,8 @@ python3 studio log bear              # the timeline of the builds: real times, s
 python3 studio regress bear          # build again and compare with the golden stats
 python3 studio new fox --sheet ~/fox-views.png --like bear   # start a new animal (compact
                                      # config from the bear, sheet check)
-python3 studio calibrate fox --from bear   # light, palette, dark classes from the sheet (6 s)
-python3 studio calibrate fox --quads --no-look   # the QuadriFlow target (about 30 s)
+python3 studio calibrate fox --from bear   # light, palette, dark classes from the sheet (5 s)
+python3 studio calibrate fox --quads --no-look   # the QuadriFlow target (about 60 s)
 python3 studio regress polar-bear    # the polar bear pianist: build and compare
 python3 -m unittest tests.test_intake   # the tests of the foreground rules (about 13 s)
 python3 -m unittest tests.test_cache    # the cache keys hold no worktree folder (about 8 s)
@@ -219,31 +219,74 @@ The Blender log of each seed is `out/stages/blender-seed<N>.log` (in the seed po
 
 ## Add a new animal
 
+These steps make a new animal from a sheet. The agent skill `lowpoly-animal-studio` gives the
+same loop with its traps. Take each time from `python3 studio log <id>`.
+
+```text
+ sheet + intake --> new --like (5 s) --> calibrate --from (5 s), --quads (60 s) --> fit (2 s)
+                                                                                     |
+     +-------------------------------------------------------------------------------+
+     v
+ build: seed pool (role build) + model build (look checks) --> report (review.png)
+     ^                                                            |
+     +---- fix one gap, `build --seed <kept>`, calibrate again <--+
+                          | the look is right on the model build
+                          v
+ seed report (out/seed-report.json) --> golden.json in its own commit --> role
+```
+
 1. Get a sheet that follows `docs/sheet-spec.md`: four views of one pose (front, side facing
    right, back, 3/4 front-right) on one plain background, one ground line, the arms a little
    away from the body, at least 500 px of figure height. The spec has a prompt for an image
    generator.
 2. Settle the style with the user before the first build, each claim with a crop of the sheet:
    the facet size, the light and the contrast, the palette, the eyes, the head, the snout, the
-   ears, symmetry, "no folds at any seed". A manager writes the brief of each round from
-   `docs/brief-template.md`. The agent skill `lowpoly-animal-studio` gives the whole loop.
-3. `python3 studio new <id> --sheet <png> --like bear` (`--role` names another role). Read the
-   sheet check that it prints (`out/sheet-check.json`): each warning names the build checks
-   that the sheet can fail, so nobody chases a failure that the sheet causes. Ask the user about
-   a fault of the sheet before the work starts.
-4. `python3 studio calibrate <id> --from bear` sets the light, the palette, and the dark
-   classes from the sheet (6 s), and `python3 studio calibrate <id> --quads --no-look` sets the
-   QuadriFlow target (30 s). Measure the field in animal heights: start with `sheet.views`, the
-   trunk and head lofts, and the joints, and run `python3 studio fit <id> --rows` after each
-   change of the field (it takes seconds). The values of the like animal are starts.
-5. Build one seed: `python3 studio build <id> --seed 3`. Read the look report
-   (`out/report/index.html`, or `out/report/review.png` as one image), `out/frames/`, and
-   `out/checks.json`. Each failing check names its place and its crop.
-6. Tune, build again (after the first build, `python3 studio calibrate <id>` renders the GLB of
-   the animal itself), and when the look is right, run the full seed check
-   (`build <id> --all-seeds --no-shots`, about 100 s for 8 seeds) so that all seeds pass.
-7. Write the golden stats: `python3 studio regress <id> --write --from animals/<id>/out --note
-   "..."`, then commit the config, the sheet, `out/`, and `golden.json`.
+   ears, symmetry, "no folds at any seed", and the bind pose of the role. A manager writes the
+   brief of each round from `docs/brief-template.md`.
+3. Start the animal: `python3 studio new <id> --sheet <png> --like bear` (about 5 s; `--role R`
+   names another role). It writes the compact config of the like animal, makes the masks, and
+   runs the sheet check. The fields of the new sheet are marked "measured by studio new", and
+   `compare.head_turn` of the 3/4 view comes from the sheet check. Read the sheet check
+   (`out/sheet-check.json`): each warning names the build checks that the sheet can fail. Ask
+   the user about a fault of the sheet before the work starts.
+4. Calibrate: `python3 studio calibrate <id> --from bear` (about 5 s) sets the light, the
+   palette, and the dark classes from the sheet with renders of the bear GLB. Read its warnings:
+   a color class that takes fur pixels, a color that clips, a paint contrast that the light
+   cannot reach. `python3 studio calibrate <id> --quads --no-look` (about 60 s) measures the
+   QuadriFlow count on the role field and the model field and sets
+   `facets.quadriflow_target`. The sheet check reads no config class, so calibrate does not
+   move it.
+5. Measure and fit: replace the values of the like animal with measures of the sheet, in
+   animal heights. Run `python3 studio fit <id> --rows` (about 2 s, no mesh) after each set of
+   changes. Tune the head first (cheek, dome top, snout cone, chin), then the ears and the arm
+   x, then the 3/4 azimuth (`python3 studio fit <id> --azimuths 38,40,42,44,46`).
+6. Build: `python3 studio build <id>`. The seed pool keeps the first seed of `facets.seeds` that
+   passes every gate (the role build, in `out/`). The model build runs beside it with
+   `roles/model/` (a fixed standing bind pose, no props, its own seed) into `out/model/`, and
+   the look checks read its GLB. The first pool build of a role runs every seed (a role check)
+   and writes `out/seed-report.json`. Each gate failure prints its place: fix the field at that
+   place before you change a limit. After the first build, run `python3 studio calibrate <id>`
+   again: it renders the model GLB of the animal itself.
+7. Read the report: `out/report/review.png` first (the numbers and the key crops in one image),
+   then each failing gate and look check in `out/report/index.html` or `out/checks.json`. A
+   check marked `stale` reads old renders (`python3 studio compare <id>` renders again). A
+   check marked `sheet` can come from a fault of the sheet.
+8. Fix one gap at a time: edit the config, and build the kept seed again
+   (`python3 studio build <id> --seed <kept>`). From the cache, the GLB of a paint, light, or
+   detail change takes about 5 s (`--no-shots`). Set the light before the palette. Change
+   numbers in the config, never in the code. To tune a feature box, run
+   `python3 studio report <id> --measure` (about 3 s).
+9. Read the seed report before you call the model or a clip done: `out/seed-report.json`, or
+   `python3 studio build <id> --all-seeds --no-shots`. With `seeds.require = "kept"` (the
+   default) only the kept seed must pass, so the exit code says nothing about the other seeds.
+   Read them, and list each failed seed with its place. `seeds.require = "all"` makes each seed
+   that passes the remesh gate pass every clip (see "The seed rule").
+10. Keep the result: `python3 studio regress <id> --write --from animals/<id>/out --note
+    "<what and why>"`, and commit `golden.json` in a commit of its own with the reason. Commit
+    the config, the sheet, `out/`, and the README of the animal after each part. Stage each
+    path by its name.
+11. Give it a role: set `[animal] role` and build again, or write a new role pack (see "Role
+    packs"). The look checks stay on the model build.
 
 ## Role packs
 
