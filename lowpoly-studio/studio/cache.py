@@ -145,6 +145,10 @@ class Tracked(Section):
     returns a Tracked view of it; a read of any other value records that value, whole. Iteration,
     length, and equality record the whole table. The storage holds the raw values, so the C code
     of dict (repr, a compare with a plain dict) sees the same content.
+
+    Speed: an attribute read keeps its result in the instance dict, so the next read of the same
+    attribute skips the hooks. A table view stays there. A value stays there until the next step
+    starts (recording() clears it), so each step records its own first read.
     """
 
     def __init__(self, raw, root, path):
@@ -167,13 +171,26 @@ class Tracked(Section):
         v = dict.__getitem__(raw, key)
         if (root, p) in _UNTRACKED_KEYS:
             return v
+        memo = type(key) is str and key not in _CLASS_ATTRS
         if isinstance(v, dict):
             kid = kids.get(key)
             if kid is None:
                 kid = kids[key] = Tracked(v, root, p)
+            if memo:
+                self.__dict__[key] = kid
             return kid
         note(root, p)
+        if memo and _active is not None:
+            self.__dict__[key] = v
+            _memo.append((self, key))
         return v
+
+    def __getattr__(self, key):
+        """Reads one key as an attribute (a missing key records only that key)."""
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(f'the config has no field {key!r} here') from None
 
     def get(self, key, default=None):
         """Reads one key, or returns the default."""
@@ -248,6 +265,19 @@ class Tracked(Section):
 
 
 _UNTRACKED_KEYS = {('cfg', p) for p in UNTRACKED}
+
+# The names that a key must not hide on a view (the methods of dict and Tracked).
+_CLASS_ATTRS = frozenset(dir(Tracked))
+
+# The values that attribute reads keep on the views in the running step: (view, key).
+_memo = []
+
+
+def _clear_memo():
+    """Removes the values that attribute reads kept on the views."""
+    for view, key in _memo:
+        view.__dict__.pop(key, None)
+    _memo.clear()
 
 
 def note(root, path):
@@ -469,6 +499,7 @@ def recording(rec):
     """Makes rec the recorder of the reads and the code until the block ends."""
     global _active
     _start_monitor()
+    _clear_memo()
     prev = _active
     _active = rec
     if _monitor['tool'] is not None:
@@ -476,6 +507,7 @@ def recording(rec):
     try:
         yield rec
     finally:
+        _clear_memo()
         _active = prev
 
 
