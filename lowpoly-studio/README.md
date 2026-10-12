@@ -7,7 +7,8 @@ role is a new folder.
 
 The app of this repository (`src/`) does not use the studio, and the lint of the repository skips
 it. The first animal is the bear conductor (`animals/bear/`, see its README for the method and
-the results with numbers).
+the results with numbers). The second animal is the polar bear pianist (`animals/polar-bear/`),
+the pilot of `docs/retro/pilot-polar-bear.md`.
 
 ![compare](animals/bear/out/compare/compare.png)
 
@@ -25,6 +26,7 @@ python3 studio report bear           # the look report of the last build on a fr
 python3 studio view bear             # the viewer on a free port; Ctrl-C stops it
 python3 studio regress bear          # build again and compare with the golden stats
 python3 studio new fox --sheet ~/fox-views.png   # start a new animal
+python3 studio regress polar-bear    # the polar bear pianist: build and compare (about 16 s)
 ```
 
 ## Layout
@@ -69,12 +71,14 @@ lowpoly-studio/
 │                        the correctives, the contact groups
 ├── roles/conductor/     role.toml, the clips (__init__.py, clips.py), shots.json,
 │                        pattern.py (the 4/4 plot)
+├── roles/pianist/       role.toml (bench, piano, seated bind pose), clips.py, shots.json
 ├── viewer/              viewer, compare page, frames page (three.js), read viewer.json
 ├── animals/bear/        animal.toml, golden.json, README.md, reference/, out/, cache/ (made by
 │                        the build, ignored by git)
-├── docs/                handoff.md, handoff-diag.md, handoff-speed.md (the state of the work),
-│                        sheet-spec.md (the rules of a reference sheet), brief-template.md
-│                        (the brief of a round), retro/ (the retrospectives)
+├── animals/polar-bear/  animal.toml, golden.json, reference/, out/ (the pianist)
+├── docs/                handoff.md, handoff-diag.md, handoff-speed.md, handoff-pilot.md (the
+│                        state of the work), sheet-spec.md (the rules of a reference sheet),
+│                        brief-template.md (the brief of a round), retro/ (the retrospectives)
 └── vite.config.js       the root of the pages is this folder
 ```
 
@@ -152,8 +156,8 @@ the same bind pose give the same mesh.
 | `--clips a,b` | Bake only these clips. |
 | `python3 studio compare <animal>` | Renders the existing GLB beside the sheet, the frames, and the viewer shot, then the measures and the checks. No new build. |
 | `python3 studio view <animal> [--port N]` | Writes `out/viewer.json`, starts Vite on a free port (never 5173 or 5190), and prints the URLs of the viewer and the compare page. Ctrl-C stops the server. |
-| `python3 studio new <animal> --sheet <png> [--role R] [--like A]` | Makes `animals/<animal>/` with the sheet in `reference/`, an `animal.toml` with "TODO" fields, and prints the intake checklist. It finds the background and the four view columns of the sheet. `--like bear` fills the TODO fields with the bear values and marks them "TODO: measure", so `fit` and a first build run at once. |
-| `python3 studio fit <animal> [--rows]` | Scores the field against the masks with no mesh (about 5 s with the intake). `--rows` prints the edges of each row. |
+| `python3 studio new <animal> --sheet <png> [--role R] [--like A]` | Makes `animals/<animal>/` (the id: lower case letters, digits, hyphens, and underscores) with the sheet in `reference/`, an `animal.toml` with "TODO" fields, and prints the intake checklist. It finds the background and the four view columns of the sheet. `--like bear` fills the TODO fields with the bear values and marks them "TODO: measure", so `fit` and a first build run at once. |
+| `python3 studio fit <animal> [--rows] [--azimuths a,b,c] [--pose bind]` | Scores the field against the masks with no mesh (about 2 s: Blender start, field, four views). `--rows` prints the edges of each row. `--azimuths` tries these azimuths of the 3/4 view and keeps the best. `--pose bind` scores the field of the bind pose. |
 | `python3 studio report <animal>` | Writes the checks, the located failures (`out/diag/`), and the look report (`out/report/index.html`, `review.png`) of the last build, then serves `out/` on a free port (never 5173 or 5190) until Ctrl-C. `--measure` measures the features and the shading of the existing renders again first (a feature box change takes about 3 s). `--no-serve` only writes the files. `--out DIR` reads another output folder. |
 | `python3 studio regress <animal>` | Builds with the golden seed into `out/regress/` and compares with `golden.json`. `--no-cache` makes the build cold. `--no-build` compares the last regression build. `--write --from DIR --note TEXT` writes a new `golden.json` from a build. |
 | `python3 studio cache info\|clean [<animal>]` | Prints the size of the stage cache of each step, or deletes the cache (of one animal, or of all). |
@@ -198,11 +202,12 @@ A role pack says what the animal does. It is one folder under `roles/`:
 | File | Content |
 |---|---|
 | `role.toml` | The data: the stance, the bind pose and its correctives, the props with their attachment, the clip notes, the body of the IK targets, the role checks, the review outputs. `studio/config.py` checks it against the `ROLE` schema. |
-| `__init__.py` | `make(ctx)` returns the pack object: `fps`, `clips`, `performance`, `blend`. |
+| `__init__.py` | `make(ctx)` returns the pack object: `fps`, `clips`, `performance`, `blend`, and optionally `hand_targets`. |
 | more | The clip code, the review shots (`shots.json`), review scripts (`pattern.py`). |
 
 The studio calls nothing else of a pack, so a new role is a new folder and no change of the studio
-code. The pack object has this shape:
+code (a new prop kind or a new corrective kind is a change of the studio or of the template). The
+pack object has this shape:
 
 ```typescript
 /** The pack object that make(ctx) returns (roles/<name>/__init__.py). */
@@ -216,6 +221,10 @@ interface RolePack {
   performance: Array<[string, number, number]>;
   /** Blend time at the joins of the performance, in seconds. */
   blend: number;
+  /** Optional: the knuckle targets of the paws that press a key at time t of a clip, in model
+   *  space, or null for a clip with no presses. The scene check measures the posed knuckles
+   *  against them (gate hands.<clip>, role.toml [checks] hand_targets). */
+  hand_targets?(clip: string, t: number): { L?: Vec3 | null; R?: Vec3 | null } | null;
 }
 
 /** What a pack gets from the studio (studio/roles.py Context). */
@@ -246,18 +255,52 @@ planted legs.
    specs. Make the IK targets on one body, and put that body in `[targets]`.
 4. Set `role = "<name>"` in an animal config and build.
 
-### What a seated role needs (phase 3: a pianist)
+### The pianist role (a seated role)
 
-Phase 3 adds a `pianist` pack and tests it on a polar bear (a standing four-view sheet, then
-seated at a piano). The seams for it exist. These parts do not exist yet:
+`roles/pianist/` seats the animal on a bench at a grand piano. The polar bear plays it.
 
-| Need | Seam now | Missing |
+The seated pose and the scene come from the body, so another animal gets its own seat and
+keyboard height:
+
+```text
+ role.toml [bind]              props.scene_layout(body)             clips (roles/pianist)
+ hip_flex 70, knee_flex 70 --> drop: lowest point of the    ---->  hips offset (0, -drop, 0),
+ hip_abduct 14 (knees apart)   bent soles                          lean 12 deg, sway, nod
+ arms 42 deg forward           seat top: trunk bottom - drop       knuckle targets over keys
+                               keys top: seat top + keys_top                |
+                                      |                                     v
+                      bench, piano: rigid bones under the root     wrist targets in the rest
+                                      |                            frame of the posed chest
+                                      v                                     |
+                      check_scene: scene.<clip>, seat.<clip>, hands.<clip> <+
+```
+
+The clips: `reference` (the sheet pose, the props hidden), `ready` (the paws above the first
+notes), `play` (two bars at 120 bpm: a melody in the right paw, chords in the left paw, a sway,
+and a nod; a loop), `chord` (rise, strike, lift), `rest` (the paws on the outer knees), and
+`performance` (ready, play two times, chord, rest).
+
+
+| Part | Where | What it does |
 |---|---|---|
-| Seated bind pose | `[bind] hip_flex`, `knee_flex`: the biped body bends the thighs and the shins, moves the feet, toes, and foot claws, and the layout uses the bent legs. The sheet pose clip straightens the legs with `leg_fk`. | A whole-body drop onto the seat height, and tests on a seated build. |
-| Correctives from the bind pose to the sheet pose | `[bind] correctives`; the template lists its kinds (`KINDS`). | A `legs_straight` corrective. |
-| Scene props (piano, bench) | `props.attach.bone = "scene"` and `attach.seat_height` are in the schema. | Their geometry kinds (a mesh file), the export as separate nodes, and the seat at the height of the knees. |
-| Two hand targets per note | A pack computes any wrist target in its clip functions; `ctx.place` maps targets onto the body. | A score-driven clip generator, and a role check "hands within a distance of their targets". |
-| Role checks | `[checks] contact_depth` and `contact_tests` (the groups of `templates/biped contact_spec`). | Body against instrument and seat contacts. |
+| Seated bind pose | `[bind] hip_flex`, `knee_flex`, `hip_abduct` (templates/biped `Body.leg_rotations`) | The mesh is built and bound with the legs bent, so the seated clips stay near the bind pose. `hip_abduct` turns the knees apart: thighs side by side leave a slit between them, which the remesh gate stops. |
+| The drop onto the seat | `Body.seated_drop()`, `props.scene_layout()` | The clips offset the hips down by the height of the lowest point of the bent soles, so the feet stand on the floor. The seat top is the lowest point of the trunk loft (`Body.trunk_bottom()`) less `facets.offset`, after the drop. |
+| Scene props | `[[props]] kind = "piano"` and `"bench"`, `attach.bone = "scene"` (studio/props.py) | Each prop is rigid on a bone of its own under the root, joined into the GLB mesh with a material of its own. The sheet pose hides it (scale 0). The props give their test boxes to the scene check. |
+| Key targets | `props.piano_keys()`, `Pianist.arms()` | The clips make knuckle points over the keys in model space, and turn them into wrist targets in the rest frame of the chest of the same pose (the frame of the solver). |
+| Role checks | `[checks] scene_depth`, `seat_gap`, `hand_targets` (studio/build.py `check_scene`) | Gates of each clip: `scene.<clip>` (the deepest body skin point in a prop box), `seat.<clip>` (the gap between the sitting skin, trunk and thighs, and the seat top), `hands.<clip>` (the distance of each knuckle from `pack.hand_targets(clip, t)`). |
+| Correctives | `[bind] correctives = ["arm_down", "legs_straight"]` | `legs_straight` moves the leg skin onto the standing legs in the sheet pose; the thigh angle drives it. |
+
+A pack can give the optional method `hand_targets(clip, t)`: `{side: knuckle point or None}` for
+the frames where a paw presses a key, or None. The build calls it in the scene check.
+
+The results on the polar bear (seed 1): every gate passes. The sheet pose of the seated build has
+IoU front 0.9409, side 0.912, back 0.9405, 3/4 0.9047; the knees of the straightened legs still
+bulge forward in the side view. Seeds 2 to 8 fail the rest clip (the elbow skin 1.7 to 2.3 cm into
+the belly) or the remesh gate (seed 6); `docs/handoff-pilot.md` lists them.
+
+Not built yet: a score-driven clip generator (notes from a MIDI score), the export of the scene
+props as separate nodes (they are bones of the GLB armature now), key motion (the keys do not
+go down), and finger bones (one finger bone for each paw).
 
 ## The biped template
 
@@ -278,13 +321,15 @@ root
          └─ tail
 ```
 
-30 body bones plus one bone for each hand prop (31 for the conductor: `baton`). The bind pose
-comes from the role. The weight rules (`rig.py`) take their places from `rig.weights` of the
+30 body bones plus one bone for each hand prop (31 for the conductor: `baton`) and one bone under
+the root for each scene prop (32 for the pianist: `bench`, `piano`). The bind pose comes from the
+role: a seated bind pose bends the legs (`Body.leg_rotations`), and then the leg rule of the
+trunk weights takes the tops of the bent thigh and shin in place of the standing heights. The weight rules (`rig.py`) take their places from `rig.weights` of the
 animal config: trunk bands along the spine, owned parts of the arm, chain limits, throat and
 shoulder tops to the neck, head rigidity, ears to the head, the crotch to the hips. The solver
 has two-bone IK for the arms and planted legs, the twist split (the forearm twist bone takes a
 share of the paw twist), and the clavicle follow (`rig.clavicle`). The correctives are the
-arm-down shapes.
+arm-down shapes and the legs-straight shapes.
 
 ## Checks
 
@@ -370,7 +415,8 @@ interface Place {
 | `folds.<clip>` | `checks.folded_faces` | yes | the worst folded (or turned) face, `diag/fold-<face>-<clip>.png` |
 | `rest_inward_faces`, `slivers` | `checks.*` | no | the worst face, `diag/face-<face>.png` |
 | `unpaired_vertices`, `body_triangles` | `checks.*` | no | none |
-| `remesh_gate.<name>`: `quads`, `inward_faces`, `slivers`, `open_edges`, `slit_faces` | `facets.gate.*` | yes | the first face and its center (inward, slit) |
+| `scene.<clip>`, `seat.<clip>`, `hands.<clip>` (a role with scene props or hand targets) | role `checks.scene_depth`, `checks.seat_gap`, `checks.hand_targets` | yes | the frame, the prop piece, the bone, and the point (scene); the frame (seat); the frame and the side (hands) |
+| `remesh_gate.<name>`: `quads`, `inward_faces`, `slivers`, `open_edges`, `slit_faces` | `facets.gate.*` | yes | the first face and its center (inward, slit), the first open edges (open edges) |
 | `iou.<view>`, `fur_hue`, `fur_saturation`, `fur_value` of each view | `checks.iou.<view>`, `checks.fur_color` | no | the view tile `report/views/<view>.jpg` |
 | `<feature>_<check>.<view>.<item>` | `measure.features.<feature>.checks` | no | the feature crop `report/features/<feature>_<view>_<region>.png` |
 | `facet_contrast` | `checks.facet_contrast` | no | none |
@@ -646,6 +692,25 @@ contact and fold check skins the mesh at each frame and repairs single folded fa
   outside `cfg` gives stale results from the cache. When in doubt, compare a build with
   `--no-cache`.
 - Small details (ears, tail) must sink into the body: quads of the facet size cannot hold them.
+- Two surfaces of the field within one voxel make a pinch in the dense mesh (on the polar bear:
+  the bottom rim of the trunk loft at the outer knee). `remesh.repair_pinches` opens and fills
+  it before QuadriFlow and prints "dense mesh: repaired N pinch vertices" with the places.
+- QuadriFlow can put three corners of two mirrored quads on the center line: a fin of two
+  opposite triangles (open edges at the throat or the spine). `remesh.remove_center_fins` drops
+  them and prints "remesh: removed N fin faces".
+- QuadriFlow does not follow `facets.quads` closely: on the polar bear it gave 1.16 to 1.31 times
+  the target. Widen `[facets.gate] quads` when the band rejects every seed, and check the
+  triangle count (`checks.body_triangles`).
+- The feature measures need color classes that fit the animal. A cream fur is lighter than the
+  background and has the color of a white eye rim, so the "white" class of the bear catches fur;
+  measure such eyes by their dark blobs. Lower `compare.fur_min_saturation` for a fur with a
+  saturation near 0.2 or under.
+- A relative feature limit on a small feature is a pixel limit: 0.08 of a 10 px eye is under one
+  pixel. Scale the limit to the pixel tolerance of the bear (about 1.1 px).
+- A seated bind pose needs `hip_abduct` (the knees apart) and a seat under the trunk: a short leg
+  with a low trunk puts the trunk, not the thighs, on the seat. Put the paws of a rest pose
+  where the arm stays bent: a straight arm across a big belly touches it on some seeds.
+- `out/frames/` keeps the frames of an earlier role: delete the old files when the role changes.
 
 ## Config reference
 
@@ -1415,6 +1480,7 @@ The compare of the renders with the sheet (viewer/compare.js).
 |---|---|---|---|
 | `rows` | ivec2 | measure | Sheet rows of the compare tiles: [from, to). |
 | `fur_band` | vec2 | `[0.25, 0.7]` | Heights of the fur color measure (no head, no feet). |
+| `fur_min_saturation` | num | `0.2` | Smallest saturation of a fur pixel in the fur color measure: it leaves out the gray background, white props, and gray shadows. Lower it for a light, low-saturation fur (cream). |
 | `head_share` | num | `0.3` | Height of the head crop as a share of the view height. |
 | `facet_crops.<name>` | rect | map | Crops of the front view [x0, y0, x1, y1] in model units, the sheet beside the render. |
 
@@ -1537,7 +1603,8 @@ The bind pose of the role: joint turns from the pose of the sheet. The mesh is b
 | `elbow_flex` | num | required | Extra bend of the elbows. |
 | `hip_flex` | num | `0.0` | Forward raise of the thighs (about 90 for a seated player). |
 | `knee_flex` | num | `0.0` | Bend of the knees (about 90 for a seated player). |
-| `correctives` | strs | `["arm_down"]` | Corrective shapes of the template between the bind pose and the sheet pose. The biped template has "arm_down". |
+| `hip_abduct` | num | `0.0` | Outward turn of the legs about the vertical axis at the hips (the knees apart, for a seated player). |
+| `correctives` | strs | `["arm_down"]` | Corrective shapes of the template between the bind pose and the sheet pose. The biped template has "arm_down" (arms raised in the bind pose) and "legs_straight" (legs bent in the bind pose). |
 
 #### `[[props]]`
 
@@ -1546,11 +1613,11 @@ The props of the role, in the order of the joined mesh.
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
 | `name` | str | required | Name of the prop, of its bone, and of its material. |
-| `kind` | str | `"stick"` | Geometry kind: "stick" (a handle and a tapered shaft). Later kinds: a mesh file of an instrument, a chair, a bench, a stand. |
+| `kind` | str | `"stick"` | Geometry kind: "stick" (a handle and a tapered shaft, in a hand), "piano" (a low-poly grand piano in the scene), "bench" (a piano bench in the scene). Later kinds: a mesh file of an instrument, a stand. |
 | `tip_marker` | str | optional | Name of the empty node at the tip (the viewer draws its path). |
-| `grip` | vec3 | required | Grip point in the hand frame, from the middle of the paw. |
-| `direction` | vec3 | required | Direction of the shaft in the hand frame. |
-| `length` | num | required | Length from the grip to the tip. |
+| `grip` | vec3 | optional | Grip point in the hand frame, from the middle of the paw (a stick). |
+| `direction` | vec3 | optional | Direction of the shaft in the hand frame (a stick). |
+| `length` | num | optional | Length from the grip to the tip (a stick). |
 | `cast_shadow` | bool | `true` | False for a thin prop: its shadow reads as a line on the body. |
 | `contact` | str | `"none"` | The piece of the prop that the contact check tests against the body ("shaft"), or "none". |
 | `hidden_in_reference` | bool | `true` | The sheet pose hides the prop (scale 0). |
@@ -1561,13 +1628,13 @@ Where the prop attaches.
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
-| `bone` | str | required | "hand": a bone of its own, a child of the hand of "side". "scene": a separate node in the scene (a piano, a chair), not skinned. |
+| `bone` | str | required | "hand": a bone of its own, a child of the hand of "side". "scene": a bone of its own, a child of the root (a piano, a bench). The prop is rigid on its bone, and the root does not move, so it stays in place. |
 | `side` | str | `"R"` | "L" or "R" (for a hand prop). |
-| `seat_height` | str | optional | For a seat in the scene: "legs" puts the seat at the height of the bent knees of the bind pose. |
+| `seat_height` | str | optional | For a seat in the scene: "legs" puts the seat top under the trunk bottom of the seated pose, where the feet of the bent legs stand on the floor (templates/biped Body.seated_drop). |
 
 #### `[props.handle]`
 
-The handle: a tube from behind the grip to just past it.
+The handle of a stick: a tube from behind the grip to just past it.
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
@@ -1579,7 +1646,7 @@ The handle: a tube from behind the grip to just past it.
 
 #### `[props.shaft]`
 
-The shaft: a tapered tube from the grip to the tip.
+The shaft of a stick: a tapered tube from the grip to the tip.
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
@@ -1588,6 +1655,53 @@ The shaft: a tapered tube from the grip to the tip.
 | `radii` | vec3 | required | Radius at the start, the middle, and the tip. |
 | `sides` | int | required | Sides of the tube. |
 | `color` | rgb | required | Color. |
+
+#### `[props.piano]`
+
+A grand piano (kind "piano"), sized to the seated animal: the keyboard runs across the front of the belly, at the height of the forearms.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `keys_top` | num | required | Height of the top of the white keys above the seat top. |
+| `keys_front` | num | required | z of the front edge of the keyboard. |
+| `keys_depth` | num | `0.11` | Depth of a white key. |
+| `white_keys` | int | `17` | Number of white keys (from C, centered on x = 0). |
+| `key_width` | num | required | Width of a white key. |
+| `case_length` | num | required | Length of the case behind the keyboard. |
+| `case_width` | num | required | Width of the case. |
+| `case_height` | num | `0.1` | Height of the case side. |
+| `lid_open` | num | `30.0` | Angle of the open lid in degrees. |
+
+#### `[props.piano.colors]`
+
+The colors.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `case` | rgb | required | The case, the legs, and the lid. |
+| `white` | rgb | required | The white keys. |
+| `black` | rgb | required | The black keys. |
+| `metal` | rgb | required | The pedals. |
+
+#### `[props.bench]`
+
+A piano bench (kind "bench"): a padded top on four legs.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `width` | num | required | Width (x). |
+| `depth` | num | required | Depth (z). |
+| `center_z` | num | required | z of the middle of the top. |
+| `top_thickness` | num | `0.025` | Thickness of the padded top. |
+
+#### `[props.bench.colors]`
+
+The colors.
+
+| Field | Kind | Default | Meaning |
+|---|---|---|---|
+| `top` | rgb | required | The padded top. |
+| `legs` | rgb | required | The legs and the frame. |
 
 #### `[props.material]`
 
@@ -1624,6 +1738,9 @@ The gate checks of the role: a clip fails above a limit.
 |---|---|---|---|
 | `contact_depth` | num | `0.01` | Deepest contact of a test part in any frame, in animal heights. |
 | `contact_tests` | strs | `["paw", "forearm", "claws", "props"]` | Parts of each arm that are tested against the rest of the body: paw, forearm, claws, props. |
+| `scene_depth` | num | `0.01` | Deepest point of the body skin inside a scene prop (a piano, a bench) in any frame, in animal heights. |
+| `seat_gap` | num | `0.015` | Largest distance between the lowest body point over the seat and the seat top, in any seated frame: the animal rests on the seat. |
+| `hand_targets` | num | `0.01` | Largest distance of the knuckles from the targets that the clips give (pack.hand_targets), in animal heights. |
 
 #### `[review]`
 

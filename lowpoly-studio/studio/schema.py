@@ -690,7 +690,9 @@ BIND = T('The bind pose of the role: joint turns from the pose of the sheet. The
     'hip_abduct': F('num', 'Outward turn of the legs about the vertical axis at the hips (the '
                            'knees apart, for a seated player).', default=0.0),
     'correctives': F('strs', 'Corrective shapes of the template between the bind pose and the '
-                             'sheet pose. The biped template has "arm_down".', default=('arm_down',)),
+                             'sheet pose. The biped template has "arm_down" (arms raised in the '
+                             'bind pose) and "legs_straight" (legs bent in the bind pose).',
+                     default=('arm_down',)),
 })
 
 ROLE_PROP = T('One prop of the role.', {
@@ -791,8 +793,8 @@ ROLE = T('A role pack (roles/<name>/role.toml).', {
         'contact_tests': F('strs', 'Parts of each arm that are tested against the rest of the '
                                    'body: paw, forearm, claws, props.',
                            default=('paw', 'forearm', 'claws', 'props')),
-        'scene_depth': F('num', 'Deepest point of the body (skin and details) inside a scene prop '
-                                '(a piano, a bench) in any frame, in animal heights.',
+        'scene_depth': F('num', 'Deepest point of the body skin inside a scene prop (a piano, a '
+                                'bench) in any frame, in animal heights.',
                          default=0.01),
         'seat_gap': F('num', 'Largest distance between the lowest body point over the seat and '
                              'the seat top, in any seated frame: the animal rests on the seat.',
