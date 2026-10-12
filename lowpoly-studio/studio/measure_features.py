@@ -467,11 +467,21 @@ def measure(cfg):
     return result
 
 
-def pairs(feature_name, feature, res):
-    """Lists the compares of a feature: (check name, [render, sheet], op, limit, where).
+# The measures that are lengths in animal heights: a check of one of them gets the pixel floor.
+LENGTHS = ('x', 'y', 'width', 'height', 'center_x', 'top')
+
+# The rounding step of the length measures (Picture.size, x_of, y_of round to 4 decimals).
+STEP = 1e-4
+
+
+def pairs(feature_name, feature, res, floors=None):
+    """Lists the compares of a feature: (check name, [render, sheet], op, limit, where, floor).
 
     A blob pairs with the blob of the same place in the order of x. A missing item gives None,
-    and the check fails. A measure that neither item has is not compared."""
+    and the check fails. A measure that neither item has is not compared. floors: the pixel
+    floor of each view in animal heights (checks.feature_pixels); a length measure gets it, and
+    the other measures get 0."""
+    floors = floors or {}
     out = []
     one = singular(feature_name, feature)
     for view, regions in res['views'].items():
@@ -484,10 +494,11 @@ def pairs(feature_name, feature, res):
                 keys = [(region, 0)]
             for check, c in feature.checks.items():
                 measure = c.measure or check
+                floor = floors.get(view, 0.0) if measure in LENGTHS else 0.0
                 if measure == 'count':
                     value = [both['render']['count'], both['sheet']['count']]
                     out.append((f'{one}_{check}.{view}.{region}', value, c.op, c.limit,
-                                {'feature': feature_name, 'view': view, 'region': region}))
+                                {'feature': feature_name, 'view': view, 'region': region}, 0.0))
                     continue
                 for key, i in keys:
                     m = r_items[i].get(measure) if i < len(r_items) else None
@@ -497,7 +508,7 @@ def pairs(feature_name, feature, res):
                         continue
                     out.append((f'{one}_{check}.{view}.{key}', [m, s], c.op, c.limit,
                                 {'feature': feature_name, 'view': view, 'region': region,
-                                 'item': i}))
+                                 'item': i}, floor))
     return out
 
 

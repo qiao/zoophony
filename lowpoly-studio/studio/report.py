@@ -78,6 +78,11 @@ def _value_text(c):
     return _fmt(v)
 
 
+def _floor_text(c):
+    """Formats the pixel floor of a feature check (checks.feature_pixels), or ''."""
+    return f', floor {_fmt(c["floor"])}' if c.get('floor') else ''
+
+
 def _state(c):
     """Returns the result word of a check: stale (a look check of earlier renders, see
     studio/outputs.py), FAIL, near, or pass."""
@@ -216,7 +221,8 @@ def feature_crops(cfg, pics, features, results, folder):
                     color = drawing.FAIL if not c['pass'] else drawing.WARN if c['near'] else \
                         drawing.PASS
                     rows.append((f'{rest} {check}: render {_fmt(c["value"][0])}, sheet '
-                                 f'{_fmt(c["value"][1])} ({c["op"]} {c["limit"]}) {_state(c)}',
+                                 f'{_fmt(c["value"][1])} ({c["op"]} {c["limit"]}{_floor_text(c)}) '
+                                 f'{_state(c)}',
                                  color))
                 width = max(tile.size[0], 380)
                 rows = drawing.wrapped(rows, 13, width - 8)
@@ -366,7 +372,8 @@ def page(cfg, report, views, feature_files, folds, contacts, times):
             where = c.get('where') or {}
             lines_.append(f'<div><b class="{"fail" if state == "FAIL" else "near"}">'
                           f'{"GATE " if c["gate"] else ""}{state}</b> <code>{_e(c["name"])}</code> '
-                          f'{_e(_value_text(c))} ({_e(c["op"])} {_e(_fmt(c["limit"]))})'
+                          f'{_e(_value_text(c))} ({_e(c["op"])} {_e(_fmt(c["limit"]))}'
+                          f'{_e(_floor_text(c))})'
                           f'{_where_html(where, crop=False) if where else ""}</div>')
         text = ''.join(lines_)
         if key.endswith(('.png', '.jpg')):
@@ -496,6 +503,7 @@ def page(cfg, report, views, feature_files, folds, contacts, times):
         where = _where_html(c['where']) if c.get('where') else ''
         out.append(f'<tr><td><code>{_e(c["name"])}</code></td><td class="num">'
                    f'{_e(_value_text(c))}</td><td class="num">{_e(c["op"])} {_e(_fmt(c["limit"]))}'
+                   f'{_e(_floor_text(c))}'
                    f'</td><td class="{cls}">{state}</td><td>{"gate" if c["gate"] else ""}</td>'
                    f'<td>{where}</td></tr>')
     out.append('</table></div>')
@@ -588,8 +596,9 @@ def review_image(cfg, report, pics, views, feature_files, folder):
     if _stale_text(report):
         head.append((_stale_text(report), drawing.FAIL))
     head += [(f'FAIL {"(gate) " if c["gate"] else ""}{c["name"]}: {_value_text(c)} '
-              f'({c["op"]} {_fmt(c["limit"])})', drawing.FAIL) for c in failed]
-    head += [(f'near {c["name"]}: {_value_text(c)} ({c["op"]} {_fmt(c["limit"])})',
+              f'({c["op"]} {_fmt(c["limit"])}{_floor_text(c)})', drawing.FAIL) for c in failed]
+    head += [(f'near {c["name"]}: {_value_text(c)} ({c["op"]} {_fmt(c["limit"])}'
+              f'{_floor_text(c)})',
               drawing.WARN) for c in near]
     rows = drawing.wrapped(head, 14, REVIEW_WIDTH - 16)
     board = Image.new('RGB', (REVIEW_WIDTH, 12 + 19 * len(rows)), drawing.PAPER)

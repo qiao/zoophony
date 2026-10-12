@@ -41,12 +41,13 @@ def stage_data(cfg, stage):
     return _load(found[-1]) if found else None
 
 
-def judge(op, value, limit):
+def judge(op, value, limit, floor=0.0):
     """Judges a value against a limit. Returns (pass, near).
 
     op: '<=' (value at most limit), '>=', 'in' (limit is [lo, hi]), 'abs<=' (value is [model,
     sheet], |model - sheet| at most limit), or 'rel<=' (|model - sheet| / |sheet| at most
-    limit). A value that is None, or a pair with a None, fails.
+    limit). A value that is None, or a pair with a None, fails. floor: the smallest allowed
+    |model - sheet| of an 'abs<=' or a 'rel<=' check (the pixel floor of a feature length).
     """
     if value is None or (isinstance(value, list) and None in value):
         return False, False
@@ -64,7 +65,7 @@ def judge(op, value, limit):
         return ok, ok and (value < lo + band or value > hi - band)
     if op in ('abs<=', 'rel<='):
         diff = abs(value[0] - value[1])
-        allowed = limit if op == 'abs<=' else limit * abs(value[1])
+        allowed = max(limit if op == 'abs<=' else limit * abs(value[1]), floor)
         ok = diff <= allowed
         return ok, ok and allowed > 0 and diff >= NEAR * allowed
     raise ValueError(f'unknown op {op!r}')
@@ -77,15 +78,18 @@ class Report:
         """Starts an empty list of checks."""
         self.items = []
 
-    def add(self, name, value, op, limit, gate=False, where=None, near=None):
+    def add(self, name, value, op, limit, gate=False, where=None, near=None, floor=0.0):
         """Adds one check (see judge). where: the place of a failure, kept only when the check
         fails or is near its limit. near: overrides the near rule (a fold check is near when
-        faces turn past 90 degrees, under the fold limit)."""
-        ok, close = judge(op, value, limit)
+        faces turn past 90 degrees, under the fold limit). floor: the pixel floor of a feature
+        length (see judge), kept in the check when it is over 0."""
+        ok, close = judge(op, value, limit, floor)
         if near is not None:
             close = ok and near
         item = {'name': name, 'value': value, 'op': op, 'limit': limit, 'pass': bool(ok),
                 'near': bool(close), 'gate': gate}
+        if floor > 0:
+            item['floor'] = round(floor, 5)
         if where and (not ok or close):
             item['where'] = where
         self.items.append(item)
@@ -176,14 +180,22 @@ def run(cfg):
         r.add(f'fur_saturation.{view}', [m['sat'], s['sat']], 'abs<=', sat, where=tile)
         r.add(f'fur_value.{view}', [m['val'], s['val']], 'abs<=', val, where=tile)
 
-    # The features (studio/measure_features.py) and the facet contrast.
+    # The features (studio/measure_features.py) and the facet contrast. The pixel floor of a
+    # feature length: checks.feature_pixels pixels of the sheet view in animal heights, plus the
+    # rounding step of the measures.
     features = _load(os.path.join(cfg.paths.compare, 'features.json')) or {}
+    floors = {}
+    if lim.feature_pixels > 0:
+        views = (_load(cfg.paths.measure) or {}).get('views', {})
+        floors = {v: lim.feature_pixels / m['height_px'] + measure_features.STEP
+                  for v, m in views.items()}
     for name, res in features.items():
         feature = cfg.measure.features.get(name)
         if not feature:
             continue
-        for check, value, op, limit, where in measure_features.pairs(name, feature, res):
-            r.add(check, value, op, limit, where=feature_where(where))
+        for check, value, op, limit, where, floor in measure_features.pairs(name, feature, res,
+                                                                            floors):
+            r.add(check, value, op, limit, where=feature_where(where), floor=floor)
     topo = _load(os.path.join(cfg.paths.compare, 'topology.json')) or {}
     if 'reference' in topo and 'render_front.png' in topo:
         r.add('facet_contrast', [topo['render_front.png']['belly_contrast']['fine_std'],

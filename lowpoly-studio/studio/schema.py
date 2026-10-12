@@ -667,6 +667,10 @@ CHECKS = T('The limits of the checks (studio/checks.py). The fold check is a gat
                            'saturation, value.', default=(1.0, 0.02, 0.03)),
     'facet_contrast': F('num', 'Largest relative difference of the belly fine spread.',
                         default=0.15),
+    'feature_pixels': F('num', 'The pixel floor of a feature check: the allowed difference of a '
+                               'length (x, y, width, height, center_x, top) is at least this many '
+                               'pixels of the sheet view, so a 10 px eye does not fail by one '
+                               'pixel. 0: no floor.', default=0.0),
 })
 
 SCHEMA = T('An animal config.', {
