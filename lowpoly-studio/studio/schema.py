@@ -531,26 +531,78 @@ COMPARE = T('The compare of the renders with the sheet (viewer/compare.js).', {
                      'the render.', F('rect', 'Crop.'), default={}),
 })
 
-MEASURE = T('The image measures of the eyes, the ears, and the facet shading.', {
+COLOR_CLASS = T('A pixel color class. A pixel is in the class when every given condition holds. '
+                'Give a threshold relative to the background, or a palette color.', {
+    'max_under': F('int', 'max(rgb) is under this (a dark pixel).', default=None),
+    'max_over': F('int', 'max(rgb) is over this.', default=None),
+    'over_background': F('int', 'max(rgb) is more than this over the max of sheet.background '
+                                '(a pixel lighter than the background).', default=None),
+    'spread_under': F('int', 'max(rgb) - min(rgb) is under this (near gray).', default=None),
+    'palette': F('str', 'A color of paint.palette: the hue and the saturation of the pixel are '
+                        'near it (hue_tol, saturation_tol).', default=None),
+    'hue_tol': F('num', 'Largest hue difference from the palette color, in degrees (not given: '
+                        'any hue).', default=None),
+    'saturation_tol': F('num', 'Largest saturation difference from the palette color (0..1).',
+                        default=None),
+    'median_over': F('num', 'The luminance is over this share of the median luminance of the '
+                            'silhouette in the region (a lighter part).', default=None),
+    'median_under': F('num', 'The luminance is under this share of the median luminance of the '
+                             'silhouette in the region (a darker part).', default=None),
+})
+
+FEATURE_CHECK = T('One check of a feature: the measure on the render against the sheet.', {
+    'measure': F('str', 'The measure (default: the name of the check): x, y, width, height, area, '
+                        'count, rim, dark, center_x.', default=None),
+    'op': F('str', '"rel<=": |render - sheet| / |sheet| at most the limit. "abs<=": |render - '
+                   'sheet| at most the limit.'),
+    'limit': F('num', 'The limit.'),
+})
+
+FEATURE = T('One feature of the face or the body (studio/measure_features.py). The tool finds its '
+            'pixels in the same way on the sheet and on the render: the pixels of its color '
+            'classes in its region of each view.', {
+    'method': F('str', '"blobs": connected blobs of the class pixels (eyes, a nose, claws). '
+                       '"area": all class pixels of the region (a muzzle, a belly). "bump": the '
+                       'part of the silhouette that stands up at the top of the region (an ear).'),
+    'classes': F('strs', 'Color classes of the feature pixels (names of measure.classes). "bump" '
+                         'uses the silhouette.', default=()),
+    'regions': M('The region of each view, [x0, y0, x1, y1] in animal heights: x from the axis of '
+                 'the view to the right of the image, y the height above the ground. The feature '
+                 'is measured in these views only.', F('rect', 'Region.')),
+    'split': F('strs', 'Views whose region splits at the axis into two regions, "left_in_image" '
+                       'and "right_in_image" (a pair of ears or of paws).', default=()),
+    'count': F('int', 'blobs: the number of blobs that each region keeps.', default=1),
+    'rank': F('str', 'blobs: keep the blobs with the most pixels of this class (not given: the '
+                     'largest blobs).', default=None),
+    'min_rank': F('int', 'blobs: a blob needs at least this many pixels of the rank class.',
+                  default=1),
+    'min_area': F('int', 'blobs: a blob needs at least this many pixels.', default=1),
+    'max_area': F('int', 'blobs: a larger blob (pixels) is not the feature (0: no limit).',
+                  default=0),
+    'rim': F('str', 'blobs: the class of the measure "rim": its area over the circumference of the '
+                    'blob, which is the width of an even ring (the white rim of an eye).',
+             default=None),
+    'dark': F('str', 'bump: the class of the measure "dark": its share of the silhouette above the '
+                     'notch (the inner ear).', default=None),
+    'dark_views': F('strs', 'bump: the views of the measure "dark".', default=()),
+    'search': F('num', 'bump: rows below the top that the search reads (share of the height).',
+                default=0.15),
+    'notch_span': F('num', 'bump: rows below the top where the notch can be.', default=0.2),
+    'notch_top': F('num', 'bump: rows below the top where the outer edge is furthest out.',
+                   default=0.08),
+    'name': F('str', 'Singular name in the check names (default: the key without a final "s").',
+              default=None),
+    'checks': M('The checks of the feature. A check is named "<name>_<check>.<view>.<item>".',
+                FEATURE_CHECK, default={}),
+})
+
+MEASURE = T('The image measures of the features (eyes, ears, nose, ...) and of the facet shading.', {
     'mesh_belly': F('rect', 'Belly box [x0, y0, x1, y1] of the edge-direction measure of the GLB '
                             'facets (studio/measure_mesh.py).', todo=True),
-    'eyes': T('Eyes: blobs of near-black and near-white pixels in a band of heights.', {
-        'band': F('vec2', 'Low and high height of the band.', todo=True),
-        'white_min': F('int', 'A white pixel has max(rgb) above this (above the background).',
-                       todo=True),
-        'white_spread': F('int', 'A white pixel has max - min under this.', default=45),
-        'dark_max': F('int', 'A dark pixel has max(rgb) under this.', default=100),
-        'max_blob': F('int', 'Larger blobs are not eyes.', default=600),
-    }),
-    'ears': T('Ears: measured on the silhouette.', {
-        'search': F('num', 'Rows below the top that the ear search reads (share of the height).',
-                    default=0.15),
-        'notch_span': F('num', 'Rows below the top where the notch can be.', default=0.2),
-        'notch_top': F('num', 'Rows below the top where the outer edge is furthest out.',
-                       default=0.08),
-        'background_diff': F('int', 'A render pixel differs from the background by more than '
-                                    'this sum.', default=24),
-    }),
+    'background_diff': F('int', 'A render pixel is on the animal when the sum of its differences '
+                                'from the background is over this.', default=24),
+    'classes': M('Pixel color classes by name (the features use them).', COLOR_CLASS, default={}),
+    'features': M('The features by name, in the order of the checks.', FEATURE, default={}),
     'shading': T('Facet shading of the front view: the belly contrast and the chords between '
                  'shading edges.', {
         'belly_box': F('rect', 'Belly crop of the contrast measure.', todo=True),
@@ -579,10 +631,6 @@ CHECKS = T('The limits of the checks (studio/checks.py). The fold check is a gat
                  default=0.01),
     'fur_color': F('vec3', 'Largest difference of the fur median from the sheet: hue (degrees), '
                            'saturation, value.', default=(1.0, 0.02, 0.03)),
-    'eye_outline': F('num', 'Largest relative difference of the eye width.', default=0.08),
-    'eye_rim': F('num', 'Largest difference of the white rim width.', default=0.0003),
-    'ear_size': F('num', 'Largest relative difference of the ear width and height.',
-                  default=0.10),
     'facet_contrast': F('num', 'Largest relative difference of the belly fine spread.',
                         default=0.15),
 })

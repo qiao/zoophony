@@ -12,7 +12,7 @@ Pure Python (struct, hashlib, array): it parses the GLB itself. The golden stats
                times and key values, and 64 block checksums of the key values
     stats      the stats file of the build (contacts, folds, corrective report, facets)
     iou        the silhouette IoU of each view
-    measures   the eye, ear, shading, and GLB facet measures
+    measures   the feature, shading, and GLB facet measures
     checks     the pass or fail of each check of checks.json
 
 The compare says, for each item: identical (the same bytes), float noise (the bytes differ, and
@@ -208,7 +208,7 @@ def collect(cfg):
     iou = _load(os.path.join(cfg.paths.compare, 'iou.json')) or {}
     out['iou'] = {v: r['iou'] for v, r in (iou.get('views') or {}).items()}
     out['measures'] = {name: _load(os.path.join(cfg.paths.compare, f'{name}.json'))
-                       for name in ('eyes', 'ears', 'topology', 'mesh')}
+                       for name in ('features', 'topology', 'mesh')}
     checks = _load(os.path.join(cfg.paths.out, 'checks.json')) or {}
     out['checks'] = {c['name']: c['pass'] for c in checks.get('checks', [])}
     return out

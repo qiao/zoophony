@@ -195,11 +195,11 @@ def step_shots(cfg):
 
 
 def step_measures(cfg):
-    """Stage "measures": the eyes, the ears, and the shading of the renders, and the facets of
-    the GLB."""
-    from studio import measure_ears, measure_eyes, measure_shading  # noqa: PLC0415
-    log('[measures] eyes, ears, shading, mesh facets')
-    for mod in (measure_eyes, measure_ears, measure_shading):
+    """Stage "measures": the features (eyes, ears, nose, ...) and the shading of the renders,
+    and the facets of the GLB."""
+    from studio import measure_features, measure_shading  # noqa: PLC0415
+    log(f'[measures] features ({", ".join(cfg.measure.features)}), shading, mesh facets')
+    for mod in (measure_features, measure_shading):
         with open(os.devnull, 'w') as quiet:
             stdout, sys.stdout = sys.stdout, quiet
             try:

@@ -15,6 +15,8 @@ part, the time); a later phase can add the faces and the bones of each failure t
 import json
 import os
 
+from studio import measure_features
+
 
 def _load(path):
     """Reads a JSON file, or returns None when it does not exist."""
@@ -35,7 +37,7 @@ class Report:
         """Adds one check. op: '<=' (value at most limit), '>=', 'in' (limit is [lo, hi]),
         'abs<=' (value is [model, sheet], |model - sheet| at most limit), or 'rel<=' (|model -
         sheet| / |sheet| at most limit)."""
-        if value is None:
+        if value is None or (isinstance(value, list) and None in value):
             ok = False
         elif op == '<=':
             ok = value <= limit
@@ -98,18 +100,14 @@ def run(cfg):
         r.add(f'fur_saturation.{view}', [m['sat'], s['sat']], 'abs<=', sat)
         r.add(f'fur_value.{view}', [m['val'], s['val']], 'abs<=', val)
 
-    # The eyes, the ears, and the facet contrast (the measure_* tools).
-    eyes = _load(os.path.join(cfg.paths.compare, 'eyes.json')) or {}
-    for view, res in eyes.items():
-        for i, (m, s) in enumerate(zip(res['render'], res['sheet'])):
-            r.add(f'eye_outline.{view}.{i}', [m['outline'], s['outline']], 'rel<=', lim.eye_outline)
-            r.add(f'eye_rim.{view}.{i}', [m['rim'], s['rim']], 'abs<=', lim.eye_rim)
-    ears = _load(os.path.join(cfg.paths.compare, 'ears.json')) or {}
-    for view, res in ears.items():
-        for side, m in res['render'].items():
-            s = res['sheet'][side]
-            r.add(f'ear_width.{view}.{side}', [m['width'], s['width']], 'rel<=', lim.ear_size)
-            r.add(f'ear_height.{view}.{side}', [m['height'], s['height']], 'rel<=', lim.ear_size)
+    # The features (studio/measure_features.py) and the facet contrast.
+    features = _load(os.path.join(cfg.paths.compare, 'features.json')) or {}
+    for name, res in features.items():
+        feature = cfg.measure.features.get(name)
+        if not feature:
+            continue
+        for check, value, op, limit, where in measure_features.pairs(name, feature, res):
+            r.add(check, value, op, limit, where=where)
     topo = _load(os.path.join(cfg.paths.compare, 'topology.json')) or {}
     if 'reference' in topo and 'render_front.png' in topo:
         r.add('facet_contrast', [topo['render_front.png']['belly_contrast']['fine_std'],

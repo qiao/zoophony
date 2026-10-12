@@ -383,13 +383,38 @@ chest_belly = [-0.22, 0.3, 0.22, 0.76]
 shoulder_arm = [-0.43, 0.35, -0.1, 0.76]
 head = [-0.19, 0.74, 0.19, 1.01]
 
-# The measures of the eyes, the ears, and the facet shading, on the sheet and on the renders.
+# The measures of the features and of the facet shading, on the sheet and on the renders
+# (studio/measure_features.py, studio/measure_shading.py).
 [measure]
 mesh_belly = [-0.15, 0.3, 0.15, 0.55]
 
-[measure.eyes]
-band = [0.86, 0.93]
-white_min = 212
+# The pixel color classes of the features. The background of the sheet is [202, 202, 203], so
+# "white" is max(rgb) over 212.
+[measure.classes]
+dark = { max_under = 100 }
+white = { over_background = 9, spread_under = 45 }
+ear_dark = { median_under = 0.8 }
+
+# The eyes: the two blobs of dark and white pixels in the band of the eyes with the most white.
+[measure.features.eyes]
+method = "blobs"
+classes = ["dark", "white"]
+rank = "white"
+min_rank = 3
+max_area = 600
+count = 2
+rim = "white"
+regions = { front = [-0.5, 0.86, 0.5, 0.93], three_quarter = [-0.5, 0.86, 0.5, 0.93] }
+checks = { outline = { measure = "width", op = "rel<=", limit = 0.08 }, rim = { op = "abs<=", limit = 0.0003 } }
+
+# The ears: the bumps of the silhouette at the top of the head, the inner ear in the front view.
+[measure.features.ears]
+method = "bump"
+dark = "ear_dark"
+dark_views = ["front"]
+split = ["front", "back"]
+regions = { front = [-1.0, 0.7, 1.0, 1.1], side = [-1.0, 0.7, 1.0, 1.1], back = [-1.0, 0.7, 1.0, 1.1] }
+checks = { width = { op = "rel<=", limit = 0.1 }, height = { op = "rel<=", limit = 0.1 } }
 
 [measure.shading]
 belly_box = [-0.13, 0.30, 0.13, 0.52]
@@ -407,7 +432,4 @@ iou = { front = 0.94, side = 0.94, back = 0.94, three_quarter = 0.90 }
 body_triangles = [900, 1600]
 slivers = 0.01
 fur_color = [1.0, 0.02, 0.03]
-eye_outline = 0.08
-eye_rim = 0.0003
-ear_size = 0.10
 facet_contrast = 0.15
