@@ -469,3 +469,4 @@ body_triangles = [900, 1600]
 slivers = 0.01
 fur_color = [1.0, 0.02, 0.03]
 facet_contrast = 0.15
+feature_pixels = 1.0
