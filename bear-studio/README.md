@@ -15,20 +15,23 @@ Run the commands in this folder. The build needs python3 with Pillow, Blender 5.
 
 | Command | Result |
 |---|---|
-| `./build.sh` | Makes everything again in about 25 s: the masks, `out/bear.glb`, the compare image, the motion frames, the 4/4 plot, and a viewer screenshot. |
+| `./build.sh` | Makes everything again in about 35 s: the masks, `out/bear.glb`, the contact check, the compare images, the motion frames, the 4/4 plot, and a viewer screenshot. It fails when a clip fails the contact check. |
 | `./build.sh --no-shots` | Stops after `out/bear.glb`. |
 | `pnpm exec vite bear-studio` (in the worktree root) | Serves the viewer at `/viewer/index.html`. |
 | `node tools/shoot.mjs compare` | Renders the four sheet views of the GLB beside the sheet and prints the IoU. |
 | `node tools/shoot.mjs frames [--only <clip>]` | Renders the motion frames into `out/frames/`. |
 | `blender -b --factory-startup --python tools/bear/fit.py -- --rows` | Scores the distance field against the masks with no mesh, and prints the edges of each row. One round takes 1 s. |
 | `blender -b --factory-startup --python tools/bear/pattern.py --` | Plots the path of the baton tip in the 4/4 clip. |
+| `blender -b --factory-startup --python tools/bear/facets.py -- out/bear.glb` | Measures the body facets of a GLB: edge length, slivers, and mirror pairs. |
+| `python3 tools/topology.py [render.png ...]` | Measures the facets of the sheet and of front renders by their shading edges. |
+| `blender ... tools/bear/build.py -- --quads 760 --seed 2` | Sets the target quad count and the seed of the remesh. |
 
 `tools/shoot.mjs` starts its own Vite server and headless Chromium, and stops both at the end.
 
 ## Method
 
 The sheet is the only input. The build measures the sheet, builds a smooth body from measured
-parts, cuts it into large flat facets, and then rigs and animates it.
+parts, remeshes it into flat facets that follow the forms, and then rigs and animates it.
 
 ```text
  bear-views.png
@@ -37,10 +40,13 @@ parts, cuts it into large flat facets, and then rigs and animates it.
  masks + row profiles ──> tools/bear/body.py: measured parts ──> one distance field
  (out/measure.json)        trunk loft, head, arms, legs,             │ sdf.py: surface nets
                            ears, tail, smooth union                  v
-                                                              dense mesh (141k quads)
-                                                                     │ Blender collapse,
-                                                                     v 2400 triangles
- details.py: eyes, nose, mouth, claws, baton ──> paint.py: face colors, baked occlusion
+                                                              dense mesh (139k quads)
+                                                                     │ retopo.py: warp,
+                                                                     │ QuadriFlow (mirror),
+                                                                     │ unwarp, snap, jitter,
+                                                                     v chevron split
+                                                              1220 body triangles
+ details.py: eyes, nose, mouth, ears, tail, claws, baton ──> paint.py: colors, occlusion
                                                                      │
  rig.py: 29 bones, bone heat weights, rigid head ────────────────────┤
  motion.py + pose.py: clips from an IK solver ──> anim.py: actions ──┤
@@ -65,9 +71,9 @@ This build uses a distance field of measured parts:
   side mask. The section therefore matches the front and the side silhouettes by
   construction, and it is round. Above the belly the arms hide the sides of the trunk, so the
   width there follows control points. A Gaussian blur of 0.012 removes the pixel steps.
-- **Other parts.** Ellipsoids and round cones at measured joints: head (cranium, jowls,
-  muzzle), ears with a hollow, arms, paws, legs, feet with toes, and the tail. A smooth union
-  joins them, so the joints get soft fillets.
+- **Other parts.** Ellipsoids and round cones at measured joints: head (cranium, jowls, and a
+  snout capsule), arms, paws, legs, and feet with toes. A smooth union joins them into one
+  surface, with soft fillets where the arms and the legs meet the trunk.
 - **Arms in two poses.** The arm parts are attached to the bone frames. The same code builds
   the arms as they hang on the sheet (`reference`) or raised for the rig (`bind`).
 
@@ -79,22 +85,41 @@ best value of a search from 30° to 50°.
 
 ### Facets and colors
 
-Surface nets make a dense mesh of the field (grid step 0.004). The Blender collapse decimation
-reduces it to 2400 triangles. A vertex group keeps more facets on the muzzle. The mirror
-option of the decimation folded 12 faces on the plane x = 0, so the build does not use it. The
-facets of the two sides therefore differ, as they do on the sheet. The build counts the faces
-whose normal points into the body: the count is 0.
+The topology follows the sheet: even, medium-large triangles that follow the forms, mirrored
+halves, and chevrons on the center line. `tools/bear/retopo.py` makes it in five steps:
+
+1. **Warp.** Blender QuadriFlow makes quads of one size. A radial warp first grows the head,
+   the snout, and the feet and shrinks the trunk (x and z more than y). After the remesh the
+   warp is undone, so the head and the snout get smaller facets, and the belly gets larger,
+   wide facets in horizontal bands.
+2. **Remesh.** QuadriFlow with mesh symmetry makes about 610 quads that follow the curvature:
+   rings around the trunk and along the limbs, and loops around the snout.
+3. **Snap and mirror.** The vertices go back through the inverse warp, onto the field surface
+   (0.0025 outside, so the flat facets cut the smooth surface and keep the silhouette), and into
+   exact mirror pairs about x = 0.
+4. **Jitter.** Each vertex moves a little along the surface (sigma 0.006) and in or out
+   (±0.005), the same on both sides. This gives the hand-made irregular look. The move is
+   smaller where the facets are small.
+5. **Chevron split.** Each quad splits on the diagonal that runs down and in toward the center
+   line. The two halves meet in a V on the chest and the belly.
+
+QuadriFlow is the right tool here. It aligns the quads to the curvature by construction and
+mirrors them. Edge loops built by hand would need a cage for each part and a join where the
+limbs meet the trunk, and the decimation of the first version gave random slivers with no flow.
+
+The ears, the tail, the eyes, the nose, the mouth line, the claws, and the baton are separate
+low-poly pieces in the same skinned mesh. The ears and the tail sink into the body. Quads of
+the body size cannot hold them.
 
 Each face has one color in a vertex color attribute (glTF `COLOR_0`):
 
-- the fur, the lighter belly, the tan muzzle, the dark inner ears, and the darker brows, by
-  region rules;
-- ambient occlusion baked from the field (the arms do not block, because they move);
-- a value jitter of ±5% for each facet.
+- the fur, the lighter belly (a soft ellipse on the front), the tan snout (the faces whose
+  three corners lie on the snout capsule), and slightly darker brows;
+- ambient occlusion baked from the field (the arms and the ground do not block);
+- no random value jitter: the shading of the facets gives the variation, as on the sheet.
 
-The palette and the light levels were tuned until the mean color of each rendered view is
-within 10 of the sheet. The eyes, the nose, the mouth line, the claws, and the baton are
-separate small meshes in the same skinned mesh.
+The palette and the light levels were tuned until the median hue and saturation of the fur of
+each rendered view match the sheet (Results). The lights are neutral white.
 
 ### Rig
 
@@ -116,12 +141,16 @@ root
   the arms up most of the time, so the mesh is built and bound with the arms raised 40°
   forward and 10° out, and with the elbows bent 25° more than on the sheet. This is near the
   middle of the range from the sheet pose to the conducting poses.
-- **Weights.** Bone heat (Blender `ARMATURE_AUTO`) on the body, two rounds of smoothing over
-  the edges, at most 4 influences for each vertex. The muzzle and the face then move only
-  with the head (`rig.head_rigidity`), so the mouth line and the nose stay on the muzzle when
-  the neck bends. The details are rigid: eyes, nose, and mouth on `head`, the hand claws on
-  `fingers_*`, the foot claws on `toes_*`, and the baton on `baton`.
-- **Baton.** A cork grip and a shaft (0.30 bear heights) in the right paw, on the bone
+- **Weights.** Bone heat (Blender `ARMATURE_AUTO`) on the arms, the legs, the head, and the
+  tail. The trunk takes bands along the spine in place of bone heat
+  (`rig.trunk_weights`): each trunk vertex blends the two spine bones above and below it.
+  Bone heat gave the front of the big belly weight from the thighs and the arms, and the belly
+  folded in the bow. Then two rounds of smoothing over the edges, ten more rounds under the
+  shoulders, and at most 4 influences for each vertex. The face moves only with the head
+  (`rig.head_rigidity`). The details are rigid: eyes, nose, and mouth on `head`, the ears on
+  `ear_*`, the tail on `tail`, the hand claws on `fingers_*`, the foot claws on `toes_*`, and
+  the baton on `baton`.
+- **Baton.** A cork grip and a shaft (0.36 bear heights) in the right paw, on the bone
   `baton`. The node `BatonTip` (a child of the joint `baton`) marks the tip.
 - **No jaw.** The sheet shows a closed mouth, and the muzzle has no inner mouth, so a jaw bone
   would only stretch the muzzle.
@@ -150,7 +179,19 @@ same solver, ported to TypeScript. The open limits list this.
 The 4/4 path of the right wrist is a ball that bounces between four ictus points: 1 down,
 2 in (to the bear's left), 3 out, and 4 up. The vertical speed changes sign at each ictus,
 which gives the click and the rebound. The tip of the baton also dips a little at each
-ictus.
+ictus. The pattern is at the chest, in front of the right shoulder, and as large as the short
+arms reach with the elbow bent by 35° or more: the tip spans 0.29 wide and 0.23 tall. The
+torso turns a little with the paw, and the head stays on the players.
+
+### Contact check
+
+`tools/bear/contacts.py` runs in each build. It skins the mesh at each baked frame of each clip
+(30 per second) with linear blend skinning, as three.js does. For each arm it measures how deep
+the paw, the claws, the forearm, and the baton go into the rest of the body (the trunk, the
+head, the legs, and the other arm). A point is inside when it is on the inner side of its
+nearest face and its winding number is above 0.5. The limit is 1 cm on the 1 m bear (0.01 bear
+heights). The build fails when a clip goes deeper. A test with the left paw moved into the
+belly gave 7.8 cm and a failure.
 
 | Clip | Length | What it shows |
 |---|---|---|
@@ -160,10 +201,10 @@ ictus.
 | `cue_left` | 4 s | The head turns to the players on the left, and the left paw cues on beat 3. |
 | `crescendo` | 4 s | The left palm turns up and lifts. The beat grows, and the chest rises. |
 | `hush` | 4 s | The left palm turns down and presses. The beat gets small, and the bear leans in. |
-| `cutoff` | 3 s | Both paws lift, make a loop, and cut off with a click. The left paw closes, and the bear holds. |
+| `cutoff` | 3 s | Both paws lift, make a loop, and cut off with a click in front of the shoulders, 0.35 apart. The left paw closes, and the bear holds. |
 | `nod_turn` | 4 s | A nod, a turn to the left section, a turn to the right section, and a return. |
 | `sway_dip` | 4 s | A torso sway over two beats and a knee dip on each beat. |
-| `bow` | 4 s | The right paw goes down with the baton, the left paw goes to the belly, the bear bends at the hips and rises. |
+| `bow` | 4 s | The right paw swings out and down with the baton, the left paw goes to the chest, the bend spreads over the hips and the three spine bones, and the bear rises. |
 | `performance` | 29.4 s | The clips in order, with blends of 0.3 s: ready, 2 bars of beats, cue, crescendo, hush, cutoff, bow. |
 
 The GLB has this content:
@@ -191,41 +232,94 @@ All numbers come from `./build.sh` on the last commit.
 
 | Measure | Value |
 |---|---|
-| Triangles | 3530 in all: body 2400, details 1130 (eyes, nose, mouth, 16 claws, baton) |
-| Median edge of a body facet | 19.6 px at the scale of the sheet (the bear is 528 px tall) |
+| Triangles | 2422 in all: body 1220, details 1202 (eyes, nose, mouth, ears, tail, 16 claws, baton) |
 | Bones | 29 |
 | Clips | 11 |
-| GLB size | 1.3 MB |
+| GLB size | 1.2 MB |
 | Folded faces | 0 |
+
+### Facets
+
+The facets of the sheet, measured by their shading edges in the front view
+(`tools/topology.py`), and the facets of the body mesh (`tools/bear/facets.py`). All lengths
+are in px at the scale of the sheet (the bear is 528 px tall).
+
+| Measure | Sheet | First version (decimated) | Now (aligned remesh) |
+|---|---|---|---|
+| Body triangles | - | 2400 | 1220 |
+| Median edge (mesh) | - | 19.6 | 29.1 |
+| Edge quartiles (mesh) | - | 14.5 to 26.9 | 23.1 to 35.8 |
+| Edge spread, IQR / median | - | 0.64 | 0.43 |
+| Slivers (smallest angle under 15°) | - | 4.4% | 0.7% |
+| Mirrored vertices | about 1 (by eye) | 4.5% | 99.8% |
+| Edge length from the image (mean chord / 0.453) | 49 | 52 | 50 |
+| Facets across the belly (image) | 8.6 | 9.6 | 9.0 |
+| Facets along the arm (image) | 9.7 | 3.7 | 7.0 |
+
+The image measure counts the luminance steps above 3 levels along lines across the belly, down
+the belly, and along the arm. It misses the edges of the soft sheet where two facets have
+almost the same shade, so its edge length is longer than the mesh edge. Use it to compare the
+sheet and the renders, which it measures in the same way. The edge directions of the belly
+(0°, 30°, 60°, 90°, 120°, 150° bins) are 0.22, 0.18, 0.17, 0.18, 0.13, 0.13 on the sheet and
+0.18, 0.11, 0.15, 0.26, 0.17, 0.13 now. The arm has edges at 120° (along the arm) as its main
+direction on both: 0.56 on the sheet, 0.57 now.
+
+### Silhouette and color
 
 Silhouette IoU against the masks of the sheet:
 
-| View | GLB in the `reference` pose (three.js render) | Field before the mesh (`fit.py`) |
-|---|---|---|
-| Front | 0.9445 | 0.9601 |
-| Side | 0.9617 | 0.9678 |
-| Back | 0.9528 | 0.9451 |
-| 3/4 | 0.9104 | 0.9109 |
+| View | GLB now | GLB of the first version | Field before the mesh (`fit.py`) |
+|---|---|---|---|
+| Front | 0.9486 | 0.9445 | 0.9606 |
+| Side | 0.9581 | 0.9617 | 0.9645 |
+| Back | 0.9427 | 0.9528 | 0.9456 |
+| 3/4 | 0.9134 | 0.9104 | 0.9121 |
 
-The GLB column is the honest one: it includes the decimation, the claws, and the skinning of
-the arms from the bind pose down to the sheet pose. The mean color of each view is within 10
-of the sheet in each channel (`out/compare/iou.json`).
+The GLB column includes the facets, the ears, the claws, and the skinning of the arms from the
+bind pose down to the sheet pose.
+
+The median color of the fur (the bear pixels from height 0.25 to 0.70, with saturation 0.2 or
+more and value 0.18 or more), in hue (degrees), saturation, and value:
+
+| View | Sheet | Render now | First version |
+|---|---|---|---|
+| Front | 22.7°, 0.603, 0.494 | 22.7°, 0.589, 0.518 | 22.0°, 0.604, 0.549 |
+| Side | 22.6°, 0.602, 0.486 | 22.6°, 0.598, 0.498 | 21.7°, 0.595, 0.522 |
+
+### Contacts
+
+The deepest contact of each clip (limit 1 cm):
+
+| Clip | Worst | Clip | Worst |
+|---|---|---|---|
+| `reference` | 0.00 cm | `cutoff` | 0.00 cm |
+| `ready` | 0.00 cm | `nod_turn` | 0.00 cm |
+| `beat_4_4` | 0.02 cm (right forearm) | `sway_dip` | 0.00 cm |
+| `cue_left` | 0.00 cm | `bow` | 0.00 cm |
+| `crescendo` | 0.00 cm | `performance` | 0.02 cm (right forearm) |
+| `hush` | 0.00 cm | | |
+
+### Beat pattern
 
 The tip of the baton at each ictus of `beat_4_4` (`pattern.py`, 120 samples per second):
 
 | Beat | Vertical speed before | Vertical speed after |
 |---|---|---|
-| 1 | −0.77 | +1.20 |
-| 2 | −0.57 | +1.06 |
-| 3 | −0.52 | +1.11 |
-| 4 | −0.54 | +1.59 |
+| 1 | −1.08 | +1.47 |
+| 2 | −0.70 | +1.33 |
+| 3 | −0.65 | +1.40 |
+| 4 | −0.68 | +2.23 |
 
 (Units: bear heights per second at 60 bpm.)
 
-Images:
+### Images
 
 - `out/compare/compare.png`: for each view, the sheet, the render, and the overlay (gray:
   both, red: only the sheet, blue: only the model).
+- `out/compare/face_<view>.png`: the head of the sheet beside the render, at 3x.
+- `out/compare/facets_chest_belly.png`, `facets_shoulder_arm.png`, `facets_head.png`: the
+  facets of the sheet beside the render, at the same scale (2x).
+- `out/compare/render_<view>.png`: the aligned renders, and `topology.json`, `iou.json`.
 - `out/frames/<clip>.png`: key frames of each clip from the front, the side, and a 3/4 view.
 - `out/frames/pattern.png` and `out/frames/pattern_plot.png`: the path of the baton tip.
 - `out/frames/deform.png`: close views of the shoulders, the elbows, the closed paw, and the
@@ -251,9 +345,13 @@ light casts shadows, and the baton casts none.
 | `tools/measure.py` | Masks, boxes, and row profiles of the sheet (Pillow). |
 | `tools/bear/sdf.py` | Distance primitives, smooth blends, and surface nets (numpy). |
 | `tools/bear/body.py` | The measured parts, the trunk loft, and the arm poses. |
-| `tools/bear/details.py` | Eyes, nose, mouth line, claws, and the baton. |
+| `tools/bear/retopo.py` | The aligned remesh: warps, QuadriFlow, mirror, jitter, chevron split. |
+| `tools/bear/details.py` | Eyes, nose, mouth line, ears, tail, claws, and the baton. |
 | `tools/bear/paint.py` | Palette, regions, baked occlusion, and facet statistics. |
-| `tools/bear/rig.py` | Bone layout, armature, bone heat, and weight fixes. |
+| `tools/bear/rig.py` | Bone layout, armature, bone heat, trunk bands, and weight fixes. |
+| `tools/bear/contacts.py` | The contact check of each clip. |
+| `tools/bear/facets.py` | The facet measures of a GLB. |
+| `tools/topology.py` | The facet measures of the sheet and of renders, from the shading. |
 | `tools/bear/pose.py` | The pose solver: relative rotations, two-bone IK, twist share. |
 | `tools/bear/motion.py` | The clips as functions of time. |
 | `tools/bear/anim.py` | Bakes the clips into Blender actions and NLA tracks. |
@@ -269,17 +367,20 @@ light casts shadows, and the baton casts none.
   camera than the body, and its arms hang further forward than the side view shows. One rigid
   pose cannot match all four views, so the 3/4 IoU stays near 0.91. The front view of the
   sheet is not symmetric, and the model is.
+- **Topology is close.** The facets have the size, the spread, the mirror, and the
+  limb flow of the sheet. The sheet has more varied shapes (some long, thin triangles that
+  follow a fold), and its chest edges are more diagonal than ours. The remesh is one seed of
+  QuadriFlow (seed 2, chosen by the mean IoU of seeds 1 to 4).
+- **Armpits.** In the sheet pose the arms are skinned down 40° from the bind pose. A small fold
+  shows under each shoulder in a close view. At the scale of the sheet it is about 3 px.
 - **The tail.** The back view shows a round tail. The side view shows none. The tail sticks
   out about 10 px behind the side silhouette.
-- **Sheet pose from the bind pose.** The `reference` clip skins the arms down 40° from the
-  bind pose. Together with the decimation and the claws, this makes the front IoU of the GLB
-  0.016 lower than the IoU of the field.
-- **Baked occlusion** is fixed to the bind pose. It is soft, and the arms do not block, but a
-  deep bow does not darken the belly more.
+- **Baked occlusion** is fixed to the bind pose. It is soft, but a deep bow does not darken the
+  belly more.
 - **Clips have a fixed shape.** A time scale follows a tempo, but a fermata, a rubato, or an
   accent needs a live driver. The solver of `pose.py` can be ported to TypeScript for that.
 - **Paw grip.** The paw has one finger bone, which curls all four claws together. The baton
   sits in the closed paw. There are no separate digits.
-- **Lighting match.** The mean colors match the sheet. The renders still have less contrast
-  in the highlights (the 90th percentile of the luma is 107 to 118, and the sheet has 115 to
-  132).
+- **Highlights.** The hue and the saturation of the fur match the sheet. The renders still have
+  a little less contrast in the highlights (the 90th percentile of the luma is 109 to 120, and
+  the sheet has 115 to 132), and the lit quarter of the fur is 1° to 2° redder.

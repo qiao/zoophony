@@ -1,6 +1,11 @@
 {
-  "body_triangles": 2400,
-  "median_edge_px": 19.6,
+  "body_triangles": 1220,
+  "median_edge_px": 29.1,
+  "edge_quartiles_px": [
+    23.1,
+    35.8
+  ],
+  "sliver_share": 0.0066,
   "folded_faces": 0,
   "bones": 29,
   "clips": [
@@ -16,5 +21,87 @@
     "bow",
     "performance"
   ],
-  "total_triangles": 3530
+  "contacts": {
+    "limit": 0.01,
+    "clips": {
+      "reference": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "pass": true
+      },
+      "ready": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "pass": true
+      },
+      "beat_4_4": {
+        "depth": 0.0002,
+        "side": "R",
+        "part": "forearm",
+        "time_s": 1.0,
+        "pass": true
+      },
+      "cue_left": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "pass": true
+      },
+      "crescendo": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "pass": true
+      },
+      "hush": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "pass": true
+      },
+      "cutoff": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "pass": true
+      },
+      "nod_turn": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "pass": true
+      },
+      "sway_dip": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "pass": true
+      },
+      "bow": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "pass": true
+      },
+      "performance": {
+        "depth": 0.0002,
+        "side": "R",
+        "part": "forearm",
+        "time_s": 3.0,
+        "pass": true
+      }
+    }
+  },
+  "total_triangles": 2422
 }

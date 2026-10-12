@@ -1,0 +1,113 @@
+{
+  "reference": {
+    "mean_chord_px": 22.4,
+    "chord_quartiles_px": [
+      6.0,
+      20.0,
+      33.0
+    ],
+    "edge_length_estimate_px": 49.4,
+    "facets_across_belly": 8.6,
+    "facets_along_arm": 9.7,
+    "edge_directions_0_30_60_90_120_150": {
+      "belly": [
+        0.216,
+        0.177,
+        0.169,
+        0.183,
+        0.128,
+        0.128
+      ],
+      "chest": [
+        0.193,
+        0.122,
+        0.072,
+        0.155,
+        0.236,
+        0.222
+      ],
+      "arm": [
+        0.043,
+        0.034,
+        0.04,
+        0.226,
+        0.563,
+        0.094
+      ]
+    }
+  },
+  "render_front_old.png": {
+    "mean_chord_px": 23.4,
+    "chord_quartiles_px": [
+      8.2,
+      19.0,
+      32.8
+    ],
+    "edge_length_estimate_px": 51.6,
+    "facets_across_belly": 9.6,
+    "facets_along_arm": 3.7,
+    "edge_directions_0_30_60_90_120_150": {
+      "belly": [
+        0.15,
+        0.169,
+        0.217,
+        0.221,
+        0.125,
+        0.118
+      ],
+      "chest": [
+        0.238,
+        0.131,
+        0.222,
+        0.27,
+        0.053,
+        0.087
+      ],
+      "arm": [
+        0.011,
+        0.026,
+        0.053,
+        0.325,
+        0.565,
+        0.02
+      ]
+    }
+  },
+  "render_front.png": {
+    "mean_chord_px": 22.8,
+    "chord_quartiles_px": [
+      8.0,
+      20.0,
+      33.0
+    ],
+    "edge_length_estimate_px": 50.3,
+    "facets_across_belly": 9,
+    "facets_along_arm": 7,
+    "edge_directions_0_30_60_90_120_150": {
+      "belly": [
+        0.18,
+        0.11,
+        0.149,
+        0.263,
+        0.167,
+        0.131
+      ],
+      "chest": [
+        0.076,
+        0.1,
+        0.314,
+        0.327,
+        0.124,
+        0.06
+      ],
+      "arm": [
+        0.007,
+        0.005,
+        0.062,
+        0.323,
+        0.57,
+        0.034
+      ]
+    }
+  }
+}
