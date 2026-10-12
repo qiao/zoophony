@@ -1,20 +1,28 @@
-"""Corrective shapes for the arms down, and the check for folded faces in each clip.
+"""Corrective shapes of the biped between the bind pose of the role and the pose of the sheet.
 
-The mesh is bound with the arms raised (rig.py). When an arm comes down to the pose of the
-sheet, linear blend skinning squeezes the skin under the shoulder, and some faces fold. The
-corrective shape of each arm moves the skin of the shoulder region, in the sheet pose, onto the
-surface of the field built in the sheet pose (body.all_parts('reference')), and relaxes the
-faces that still fold. The shape is stored in bind space (a glTF morph target, applied before
-the skinning). Each clip drives its weight from the angle of the upper arm: 0 at the bind pose,
-1 at the sheet pose.
+A role names the corrective kinds that it needs (role.toml [bind] correctives). The biped has:
+
+- "arm_down": the mesh is bound with the arms raised (a conductor). When an arm comes down to the
+  pose of the sheet, linear blend skinning squeezes the skin under the shoulder, and some faces
+  fold. The corrective shape of each arm moves the skin of the shoulder region, in the sheet
+  pose, onto the surface of the field built in the sheet pose (body.parts('reference')), and
+  relaxes the faces that still fold. Each clip drives its weight from the angle of the upper
+  arm: 0 at the bind pose, 1 at the sheet pose.
+
+A seated role will need a kind that straightens the legs to the sheet pose ("legs_straight"); it
+is not built yet. The shapes are stored in bind space (glTF morph targets, applied before the
+skinning).
 
 numpy only, three.js axes.
 """
 
 import numpy as np
 
-import body
-from contacts import blend_matrices, face_normals, forward_kinematics, inverted_faces, skin
+from studio.field import field_at
+from studio.skinning import blend_matrices, face_normals, forward_kinematics, inverted_faces, skin
+
+# The corrective kinds that this template can make.
+KINDS = ('arm_down',)
 
 DEBUG = False
 
@@ -35,7 +43,7 @@ def _neighbors(n, tris):
 def _grad(parts, p):
     """Calculates the unit gradient of the field at points."""
     eps = 1e-3
-    g = np.stack([body.field_at(parts, p + eps * e) - body.field_at(parts, p - eps * e)
+    g = np.stack([field_at(parts, p + eps * e) - field_at(parts, p - eps * e)
                   for e in np.eye(3)], axis=1)
     return g / np.maximum(np.linalg.norm(g, axis=1, keepdims=True), 1e-12)
 
@@ -151,7 +159,7 @@ def upper_arm_dirs(skel, pose):
 
 
 class ArmDriver:
-    """Turns a pose into the weights of the corrective shapes (0 bind, 1 sheet pose)."""
+    """Turns a pose into the weights of the arm-down shapes (0 bind, 1 sheet pose)."""
 
     def __init__(self, skel, pose_bind, pose_ref):
         """Stores the upper arm directions of the bind pose and of the sheet pose."""
@@ -168,3 +176,33 @@ class ArmDriver:
             w = float(np.dot(cur[s] - self.bind[s], span) / np.dot(span, span))
             out[s] = min(max(w, 0.0), 1.0)
         return out
+
+
+def make(kinds, skel, rest, tris, weights, pose_ref, parts_ref, project):
+    """Makes the corrective shapes of the kinds that the role names.
+
+    Returns ({shape name: delta in bind space}, {shape name: function pose -> weight}, a function
+    pose -> {shape name: weight} for all shapes at once, report).
+    """
+    unknown = [k for k in kinds if k not in KINDS]
+    if unknown:
+        raise ValueError(f'the biped template has no corrective {unknown} yet (it has: '
+                         f'{", ".join(KINDS)})')
+    shapes, drivers, report = {}, {}, {}
+
+    def weights_of(pose):
+        return {}
+
+    if 'arm_down' in kinds:
+        dL, dR, report = arm_down_shapes(skel, rest, tris, weights, pose_ref, parts_ref, project)
+        pose_bind = {n: (np.array([1.0, 0.0, 0.0, 0.0]), np.zeros(3), 1.0) for n in skel.names}
+        driver = ArmDriver(skel, pose_bind, pose_ref)
+        shapes = {'arm_down_L': dL, 'arm_down_R': dR}
+        drivers = {'arm_down_L': lambda p: driver.weights(p)['L'],
+                   'arm_down_R': lambda p: driver.weights(p)['R']}
+
+        def weights_of(pose):
+            w = driver.weights(pose)
+            return {'arm_down_L': w['L'], 'arm_down_R': w['R']}
+
+    return shapes, drivers, weights_of, report

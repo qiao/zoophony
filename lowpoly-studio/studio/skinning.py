@@ -1,23 +1,15 @@
-"""Checks each clip for parts that go into the body: paws, claws, forearms, and the baton.
+"""Linear blend skinning in numpy (as three.js and Blender do), face normals, and fold measures.
 
-The check skins the mesh itself (linear blend skinning, as three.js and Blender do) at each
-baked frame. For each arm it builds an obstacle from the body faces that do not belong to
-that arm: the trunk, the head, the legs, and the other arm. Then it measures how deep each test
-point lies inside the obstacle: the nearest point on the obstacle, and the side of its face
-normal. The test points are the forearm and paw vertices of the arm, its claws, and the baton.
-
-Runs inside Blender (it uses mathutils.bvhtree). All values are in bear heights: the GLB bear
-is 1 m tall, so 0.01 is 1 cm.
+numpy only, three.js axes. A skeleton here is any object with names, parents, heads, and rest
+(see templates/biped/solver.py), and a pose is {bone: (quaternion, location, scale)}.
 """
 
 import numpy as np
-from mathutils import Vector
-from mathutils.bvhtree import BVHTree
 
-from ik import matrix_from_quat
+from studio.ik import matrix_from_quat
 
-# The deepest contact that a clip may have, in bear heights (1 cm on the 1 m bear).
-LIMIT = 0.01
+# A face is folded when its normal turns more than 120 degrees from its expected normal.
+FOLD_DOT = -0.5
 
 
 def winding_number(p, verts, tris):
@@ -80,10 +72,6 @@ def face_normals(v, tris):
     return n / np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)
 
 
-# A face is folded when its normal turns more than 120 degrees from its expected normal.
-FOLD_DOT = -0.5
-
-
 def turn_dots(rest, tris, A, posed):
     """Calculates, for each face, the cosine between its posed normal and its expected normal.
 
@@ -113,131 +101,3 @@ def dominant_dots(rest, tris, posed, weights, rotations):
 def inverted_faces(rest, tris, A, posed):
     """Counts the faces turned past 90 degrees in a pose (see turn_dots)."""
     return int(np.sum(turn_dots(rest, tris, A, posed) < 0.0))
-
-
-class ContactCheck:
-    """The test points, the obstacles, and the skinning data of the bear."""
-
-    def __init__(self, skel, body_verts, body_tris, weights, details, morphs=None, driver=None):
-        """Stores the mesh in the bind pose (three.js axes) and sorts the test points.
-
-        weights: (vertices, bones) in the order of skel.names. details: the detail dicts of
-        details.py (each one is rigid on one bone). morphs: {'L': delta, 'R': delta}, the
-        corrective shapes, and driver: the corrective.ArmDriver that weights them.
-        """
-        self.skel = skel
-        self.morphs = morphs or {}
-        self.driver = driver
-        self.names = list(skel.names)
-        self.verts = np.asarray(body_verts, float)
-        self.tris = np.asarray(body_tris, np.int64)
-        self.w = np.asarray(weights, float)
-        # The faces that folded over in any frame (indices into body_tris).
-        self.folded = set()
-        col = {n: i for i, n in enumerate(self.names)}
-
-        def wsum(bones):
-            return self.w[:, [col[b] for b in bones]].sum(axis=1)
-
-        self.obstacles = {}
-        self.tests = {}
-        for side in ('L', 'R'):
-            arm = wsum([f'upper_arm_{side}', f'forearm_{side}', f'forearm_twist_{side}',
-                        f'hand_{side}', f'fingers_{side}'])
-            free = arm < 0.5
-            self.obstacles[side] = self.tris[free[self.tris].all(axis=1)]
-            tests = []
-            for part, bones in (('paw', [f'hand_{side}', f'fingers_{side}']),
-                                ('forearm', [f'forearm_{side}', f'forearm_twist_{side}'])):
-                member = wsum(bones) > 0.5
-                idx = np.nonzero(member)[0]
-                # The faces of the region add their centers as test points.
-                local = {v: i for i, v in enumerate(idx)}
-                faces = self.tris[member[self.tris].all(axis=1)]
-                faces = np.array([[local[v] for v in f] for f in faces], np.int64).reshape(-1, 3)
-                tests.append((part, self.verts[idx], self.w[idx], faces))
-            for d in details:
-                if d['name'].startswith(f'claw_hand_{side}'):
-                    tests.append(('claw', d['verts'], self._rigid(d['bone'], len(d['verts'])),
-                                  d['faces']))
-                if side == 'R' and d['name'] == 'baton_shaft':
-                    tests.append(('baton', d['verts'], self._rigid(d['bone'], len(d['verts'])),
-                                  d['faces']))
-            self.tests[side] = tests
-
-    def _rigid(self, bone, n):
-        """Makes weights that give n points to one bone."""
-        w = np.zeros((n, len(self.names)))
-        w[:, self.names.index(bone)] = 1.0
-        return w
-
-    def _skin(self, points, weights, D, H, S):
-        """Moves bind-pose points to the pose with linear blend skinning."""
-        out = np.zeros_like(points)
-        for j, name in enumerate(self.names):
-            wj = weights[:, j]
-            nz = wj > 0
-            if not nz.any():
-                continue
-            moved = (points[nz] - self.skel.heads[name]) @ (D[name] * S[name]).T + H[name]
-            out[nz] += wj[nz, None] * moved
-        return out
-
-    def frame(self, pose):
-        """Measures one frame.
-
-        Returns ({(side, part): deepest contact} in bear heights, (faces turned past 90
-        degrees, faces folded past 120 degrees)).
-        """
-        D, H, S = forward_kinematics(self.skel, pose)
-        rest = self.verts
-        if self.morphs and self.driver:
-            mw = self.driver.weights(pose)
-            rest = rest + sum(mw[s] * self.morphs[s] for s in self.morphs)
-        A, t = blend_matrices(self.skel, self.w, pose)
-        body = skin(A, t, rest)
-        rotations = np.stack([D[n] for n in self.names])
-        dots = dominant_dots(rest, self.tris, body, self.w, rotations)
-        turned = (int(np.sum(dots < 0.0)), int(np.sum(dots < FOLD_DOT)))
-        self.folded.update(np.nonzero(dots < FOLD_DOT)[0].tolist())
-        result = {}
-        for side in ('L', 'R'):
-            tri = self.obstacles[side]
-            tree = BVHTree.FromPolygons([Vector(v) for v in body], tri.tolist(), all_triangles=True)
-            for part, pts, w, faces in self.tests[side]:
-                posed = self._skin(pts, w, D, H, S)
-                if part == 'baton' and S['baton'] < 0.05:
-                    continue
-                if len(faces):
-                    posed = np.concatenate([posed, posed[faces].mean(axis=1)])
-                deepest = 0.0
-                for p in posed:
-                    hit = tree.find_nearest(Vector(p))
-                    if hit[0] is None:
-                        continue
-                    loc, normal, _, dist = hit
-                    if dist > deepest and (Vector(p) - loc).dot(normal) < 0:
-                        # The obstacle is open where the arm joins it, so the side of the
-                        # nearest face can be wrong. A winding number confirms the inside.
-                        if winding_number(p, body, tri) > 0.5:
-                            deepest = dist
-                key = (side, part)
-                result[key] = max(result.get(key, 0.0), deepest)
-        return result, turned
-
-    def clip(self, poses):
-        """Measures each frame of a clip.
-
-        Returns (worst depth, side, part, frame, the most turned faces in one frame, the most
-        folded faces in one frame).
-        """
-        worst = (0.0, '-', '-', 0)
-        turned = folded = 0
-        for i, pose in enumerate(poses):
-            depths, (n_turned, n_folded) = self.frame(pose)
-            turned = max(turned, n_turned)
-            folded = max(folded, n_folded)
-            for (side, part), depth in depths.items():
-                if depth > worst[0]:
-                    worst = (depth, side, part, i)
-        return worst + (turned, folded)
