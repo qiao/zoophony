@@ -59,6 +59,10 @@
     "shadow": 0.2
   },
   "noShadow": [],
+  "sceneProps": [
+    "bench",
+    "piano"
+  ],
   "tipMarkers": [],
   "compare": {
     "rows": [
