@@ -188,7 +188,7 @@ of the conductor, so a conductor build and its model build share the model stage
 | `python3 studio view <animal> [--port N] [--stop]` | Writes `out/viewer.json`, starts Vite on a free port (never 5173 or 5190), writes the pid file `out/view-server.json` (the pids, the port, the URLs), and prints the URLs of the viewer and the compare page. Ctrl-C, SIGTERM, or `view <animal> --stop` stops the server and Vite, also when it runs as a background job (the shell then ignores Ctrl-C). A second `view` prints the URL of the running server. |
 | `python3 studio log [<animal>] [--all] [--last N] [--short] [--json]` | Prints the timeline of the runs of `build`, `regress`, and `compare` from their run files: the start, the wall time, the command, the seed and the model seed, the cache hits, the result, the time and the source of each step and Blender stage, and the seeds of the pool. `--all` shows the runs of all worktrees. Report these times, and do not guess them. |
 | `python3 studio new <animal> --sheet <png> [--like A] [--role R] [--full] [--foreground F]` | Makes `animals/<animal>/` (the id: lower case letters, digits, hyphens, and underscores) with the sheet in `reference/` and an `animal.toml`, runs the intake with its sheet check, and prints the intake checklist. It finds the background, the four view columns, and the rows of the compare tiles (`compare.rows`) by the intake rule `--foreground` (default `difference`). With `--like A`, the config is the compact config of A: the config file of A with its comments, the measured fields of the new sheet (marked "measured by studio new"), and the methods of a new animal (`intake.foreground = "difference"`, `checks.feature_pixels = 1.0`, and `compare.head_turn` of the 3/4 view: the turn that the sheet check measures, plus or minus 6 degrees). `fit`, `calibrate`, and a first build run at once. `--full` (or no `--like`) writes the scaffold of every field with "TODO" fields. `--role` defaults to the role of A. |
-| `python3 studio calibrate <animal> [--from A] [--quads] [--no-look] [--contrast X] [--dry-run]` | Fits the look to the sheet (see "Calibrate"): the hemisphere and the key light, the palette, and the dark color classes, with renders of the GLB of the animal (or of A, for a new animal with no GLB). It warns when a color class that decides a feature takes fur pixels. `--quads` also measures the QuadriFlow count on the field and sets `facets.quadriflow_target`. Writes the values into `animal.toml` with a comment, and `out/calibrate/look.json` and `quads.json`. `--dry-run` writes nothing into the config. |
+| `python3 studio calibrate <animal> [--from A] [--quads] [--no-look] [--contrast X] [--dry-run]` | Fits the look to the sheet (see "Calibrate"): the hemisphere and the key light, the palette, and the dark color classes, with renders of the GLB of the animal (of its model build when it exists, or of A, for a new animal with no GLB). It warns when a color class that decides a feature takes fur pixels. `--quads` also measures the QuadriFlow count on the field and sets `facets.quadriflow_target`. Writes the values into `animal.toml` with a comment, and `out/calibrate/look.json` and `quads.json`. `--dry-run` writes nothing into the config. |
 | `python3 studio fit <animal> [--rows] [--azimuths a,b,c] [--pose bind]` | Scores the field against the masks with no mesh (about 2 s: Blender start, field, four views). `--rows` prints the edges of each row. `--azimuths` tries these azimuths of the 3/4 view and keeps the best. `--pose bind` scores the field of the bind pose. |
 | `python3 studio report <animal>` | Writes the checks, the located failures (`out/diag/`), and the look report (`out/report/index.html`, `review.png`) of the last build, then serves `out/` on a free port (never 5173 or 5190) until Ctrl-C. `--measure` measures the features and the shading of the existing renders again first (a feature box change takes about 3 s). `--no-serve` only writes the files. `--out DIR` reads another output folder. |
 | `python3 studio regress <animal>` | Builds with the golden seed into `out/regress/` (with the model build) and compares with `golden.json`. `--no-cache` makes the build cold. `--no-build` compares the last regression build. `--write --from DIR --note TEXT` writes a new `golden.json` from a build. |
@@ -524,7 +524,8 @@ The polar bear pianist (role seed 1, model seed 3):
 70 of 83 checks pass (71 before). `iou.side` and `ear_width.front` now pass.
 `eye_outline.front` (2 px narrower than the sheet) and `belly_y.front` and `belly_width.front` now
 fail: the class "light" finds no pixels on the standing body. The bear keeps its IoU and all 87
-check results.
+check results. With the 3/4 head turn of the compare (see "The head turn of a view in the
+compare"), the 3/4 IoU of the polar bear model build is 0.9332.
 
 A bind pose in the pose of the sheet (no turns) was the other choice. On 2026-10-12 it gave the
 polar bear IoU 0.9410, 0.9526, 0.9410, and 0.9258, and only seed 6 of the bear passed its remesh
@@ -965,9 +966,10 @@ A view in `compare.head_turn` (a range in degrees) gets the head turn with the b
 compare render only: the compare page turns the bone "head" about the vertical axis, every 4
 degrees, then 2 and 1 degrees around the best. `iou.json` has the turn (`headTurn`) and the IoU
 with no turn (`iouNoTurn`), and `checks.json` has `head_turn.<view>`. The GLB does not change.
-On the polar bear (range [0, 12] in `animals/polar-bear/animal.toml`) the turn is +6 degrees:
-the 3/4 IoU goes from 0.9047 to 0.9073, and the 3/4 eye x errors from 0.015 and 0.008 to 0.002
-and 0.000. The far 3/4 eye gets 1 px wider (6 px against 4 px on the sheet). The bear has no
+On the polar bear (range [0, 12] in `animals/polar-bear/animal.toml`), the model build of the
+compare gets +9 degrees: the 3/4 IoU goes from 0.927 to 0.9332, and the 3/4 eye x errors from
+0.020 and 0.015 to 0.000 and 0.002. The far 3/4 eye gets 1 px wider (6 px against 4 px on the
+sheet). On the pianist build the fit gave +6 degrees (IoU 0.9047 to 0.9073). The bear has no
 head turn: its sheet shows the same eye spacing as its model, and a fit runs to the end of the
 range while the eyes move away from the sheet.
 
@@ -980,7 +982,7 @@ again):
 |---|---|---|
 | `new polar-bear-2 --sheet ... --like bear` | 5 s | a compact config of 477 lines. The sheet check warns about the scale (4.4%), the ground line (3 px), the ears (front 0.077, back 0.052), and the arm gap. The 3/4 head turn reads +2.3 deg against the start azimuth 38 of the bear, so `compare.head_turn` is [-4, 8] |
 | `calibrate polar-bear-2 --from bear` | 5 s | `compare.fur_min_saturation` 0.2 -> 0.06, the fur [208, 194, 170] (the polar bear has [215, 204, 185]), the dark class 100 -> 90. Warnings: the "white" class of the bear takes 45% of the cream fur (the eye rim trap of the pilot), the bear GLB gives more paint contrast than the sheet (so the light needs the own GLB), and the bear muzzle clips |
-| `calibrate polar-bear-2 --quads --no-look` | 31 s | at the target 900, 776 to 922 quads (ratio 0.99), 8 of 8 seeds in the band: the target stays |
+| `calibrate polar-bear-2 --quads --no-look` | 31 s | at the target 900, 776 to 922 quads (ratio 0.99), 8 of 8 seeds in the band: the target stays (the field of the role only: the tool measures the field of the model build too since the merge with round B, about 60 s) |
 | `fit polar-bear-2` | 1.7 s | IoU front 0.9461, side 0.9626, back 0.9376, 3/4 0.9149 with the bear field (the pilot started at 0.942, 0.961, 0.935, 0.915) |
 
 ## Calibrate: the light, the palette, the classes, and the quad target
@@ -1016,11 +1018,15 @@ again):
   and the darkest fur (none on the bear sheet: dark brown fur). A class that decides a feature
   (the rank, the rim, or the only class) and takes more than 2% of the fur pixels gets a
   warning.
-- `--quads` (`studio/quads.py`): the median ratio of the QuadriFlow count to its target on the
-  field, over the seeds, and a new `facets.quadriflow_target` when it puts more seeds in the
-  band of the gate. `facets.quads` stays the middle of the band.
+- `--quads` (`studio/quads.py`): the median ratio of the QuadriFlow count to its target over
+  the seeds of two fields, the bind pose of the role and the standing pose of the model build
+  (one target remeshes both), and a new `facets.quadriflow_target` when it puts more (field,
+  seed) pairs in the band of the gate. `facets.quads` stays the middle of the band. When a pair
+  stays out, it prints the band that holds every pair.
+- The GLB: the GLB of the model build (`out/model/`, the GLB of the compare) when it exists,
+  else the role GLB, or the GLB of `--from A`.
 
-The results from the sheets (the renders of the own GLB):
+The results from the sheets (the renders of the own GLB, before the model build):
 
 | | Hand-tuned | Calibrate, sheet contrast | Calibrate, contrast of the hand render |
 |---|---|---|---|
@@ -1081,9 +1087,11 @@ contact and fold check skins the mesh at each frame and repairs single folded fa
   opposite triangles (open edges at the throat or the spine). `remesh.remove_center_fins` drops
   them and prints "remesh: removed N fin faces".
 - QuadriFlow does not follow its target closely, and the ratio depends on the field: an early
-  field of the polar bear gave 1.16 to 1.31 times the target, the final field 0.97 to 1.09, and
-  a lower target can give more quads on some seeds. Run `python3 studio calibrate <id> --quads
-  --no-look` after a change of the field, before you widen `[facets.gate] quads`.
+  field of the polar bear gave 1.16 to 1.31 times the target, the final seated field 0.97 to
+  1.09, and the standing field of its model build 1.02 to 1.21, and a lower target can give
+  more quads on some seeds. One target remeshes both fields: with the band of 15% the model
+  build of the polar bear lost its seed 3, so it keeps 30%. Run `python3 studio calibrate <id>
+  --quads --no-look` after a change of the field, before you widen `[facets.gate] quads`.
 - The feature measures need color classes that fit the animal. A cream fur is lighter than the
   background and has the color of a white eye rim, so the "white" class of the bear catches fur;
   measure such eyes by their dark blobs. `calibrate` warns when a class that decides a feature
