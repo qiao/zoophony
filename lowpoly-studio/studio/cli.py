@@ -1,7 +1,7 @@
 """The command line of the low-poly studio. Run it from lowpoly-studio/:
 
-    python3 studio build <animal> [--seed N] [--no-shots] [--out DIR] [--until STAGE]
-                          [--clips a,b] [--no-cache] [--no-gate]
+    python3 studio build <animal> [--seed N | --all-seeds] [--jobs N] [--no-shots] [--out DIR]
+                          [--until STAGE] [--clips a,b] [--no-cache] [--no-gate]
     python3 studio compare <animal> [--out DIR]
     python3 studio view <animal> [--port N]
     python3 studio new <animal> --sheet <png> [--role R] [--like A] [--force]
@@ -36,6 +36,9 @@ SHOW = ('surface nets', 'remeshed', 'body:', 'bone heat', 'corrective', 'contact
 
 # The ports of the user's own servers, which the studio never takes.
 RESERVED_PORTS = (5173, 5190)
+
+# The Blender processes of the seed pool that run at the same time.
+DEFAULT_JOBS = 4
 
 # The largest size of the stage cache of one animal; a build deletes the least recently used
 # entries above it.
@@ -318,6 +321,94 @@ def step_blender_build(cfg, seed, until=None, clips=None, use_cache=True, gate=T
     return seed_result(cfg, seed, code, time.time() - t0, log_path)
 
 
+def seed_folder(cfg, seed):
+    """Returns the output folder of one seed of the seed pool."""
+    return os.path.join(cfg.paths.out, 'seeds', str(seed))
+
+
+def run_seeds(cfg, seeds, jobs, search=True, clips=None, use_cache=True, gate=True):
+    """Builds seeds in a pool of Blender processes, each seed in out/seeds/<n>/.
+
+    search: stop when the first seed in the order of seeds that passes is known (each seed
+    before it failed), and cancel the other runs. Otherwise build every seed. Returns
+    (the kept seed or None, the results in the order of seeds), and writes
+    out/seeds/summary.json.
+    """
+    t0 = time.time()
+    root = os.path.join(cfg.paths.out, 'seeds')
+    cfgs = {}
+    for s in seeds:
+        folder = seed_folder(cfg, s)
+        if os.path.exists(folder):
+            shutil.rmtree(folder)
+        os.makedirs(os.path.join(folder, 'stages'))
+        shutil.copyfile(cfg.paths.measure, os.path.join(folder, 'measure.json'))
+        cfgs[s] = load(cfg.paths.root, folder)
+    log(f'[seeds] {len(seeds)} seeds {list(seeds)}, {jobs} at a time, '
+        f'{"until the first seed that passes" if search else "all seeds"}')
+    pending, running, results, kept = list(seeds), {}, {}, None
+    while pending or running:
+        while pending and len(running) < jobs:
+            s = pending.pop(0)
+            c = cfgs[s]
+            log_path = os.path.join(c.paths.stages, f'blender-seed{s}.log')
+            f = open(log_path, 'w')  # noqa: SIM115 (closed when the run ends)
+            proc = subprocess.Popen(blender_cmd('studio/build.py',
+                                                build_args(c, s, None, clips, use_cache, gate)),
+                                    stdout=f, stderr=subprocess.STDOUT, cwd=STUDIO)
+            running[s] = (proc, time.time(), f, log_path)
+        time.sleep(0.1)
+        for s, (proc, started, f, log_path) in list(running.items()):
+            if proc.poll() is None:
+                continue
+            f.close()
+            del running[s]
+            results[s] = seed_result(cfgs[s], s, proc.returncode, time.time() - started, log_path)
+            log(f'  seed {s}: {describe(results[s])}, {results[s]["seconds"]:.1f} s')
+        if search:
+            for s in seeds:
+                if s not in results:
+                    break
+                if results[s]['pass']:
+                    kept = s
+                    break
+            if kept is not None:
+                for s, (proc, started, f, _) in running.items():
+                    proc.terminate()
+                    proc.wait()
+                    f.close()
+                    results[s] = {'seed': s, 'status': 'cancelled', 'pass': False,
+                                  'seconds': round(time.time() - started, 1)}
+                running.clear()
+                pending.clear()
+    if not search:
+        kept = next((s for s in seeds if results[s]['pass']), None)
+    ordered = [results[s] for s in seeds if s in results]
+    summary = {'animal': cfg.animal.id, 'mode': 'search' if search else 'all', 'jobs': jobs,
+               'seeds': list(seeds), 'kept': kept,
+               'all_pass': all(r['pass'] for r in ordered) and len(ordered) == len(seeds),
+               'wall_seconds': round(time.time() - t0, 1), 'results': ordered}
+    with open(os.path.join(root, 'summary.json'), 'w') as f:
+        json.dump(summary, f, indent=2)
+    log(f'[seeds] {sum(r["pass"] for r in ordered)} of {len(ordered)} seeds pass in '
+        f'{summary["wall_seconds"]:.1f} s (out/seeds/summary.json)')
+    for r in ordered:
+        cached = sum(v == 'cache' for v in (r.get('source') or {}).values())
+        log(f'  seed {r["seed"]:>3}: {r["status"]:9s} {r["seconds"]:6.1f} s, '
+            f'{cached} stages from the cache')
+    return kept, ordered
+
+
+def keep_seed(cfg, seed):
+    """Copies the GLB, the stats, and the stage folders of a seed of the pool into out/."""
+    src = seed_folder(cfg, seed)
+    for name in (cfg.paths.glb, cfg.paths.stats):
+        shutil.copyfile(os.path.join(src, os.path.basename(name)), name)
+    if os.path.exists(cfg.paths.stages):
+        shutil.rmtree(cfg.paths.stages)
+    shutil.copytree(os.path.join(src, 'stages'), cfg.paths.stages)
+
+
 def step_shots(cfg):
     """Stage "shots": the compare with the sheet, the review frames, the viewer shot, and the
     review scripts of the role."""
@@ -379,11 +470,13 @@ def prune_cache(cfg):
             log(f'cache: deleted {n} old entries (limit {CACHE_LIMIT / 2**30:.0f} GB)')
 
 
-def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True, gate=True):
-    """Runs the whole build of an animal. Returns the checks report (None with --until).
+def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True, gate=True,
+              jobs=DEFAULT_JOBS, all_seeds=False):
+    """Runs the whole build of an animal. Returns (the checks report or None with --until, the
+    seed results of the pool or None).
 
-    One seed (seed, or until): one Blender build. Else the seed search builds the seeds of
-    facets.seeds in order and keeps the first seed that passes.
+    One seed (seed, or until): the Blender build runs in out/. Else the seed pool builds the
+    seeds of facets.seeds in out/seeds/<n>/ and copies the kept seed into out/.
     """
     timer = Timer()
     os.makedirs(cfg.paths.out, exist_ok=True)
@@ -391,6 +484,7 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
     source = step_intake(cfg, use_cache)
     timer.step('intake', time.time() - t, source)
     viewer_config.write(cfg)
+    pool = None
     if seed is not None or until:
         s = seed if seed is not None else cfg.facets.seeds[0]
         log(f'[build] seed {s}')
@@ -400,7 +494,7 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
         timer.blender(_read_json(os.path.join(cfg.paths.stages, 'run.json')))
         if until:
             timer.write(cfg)
-            return None
+            return None, None
         if not result['pass']:
             # studio-diag: the checks of the seed, so that its located failures are there.
             timer.run('checks', step_checks, cfg)
@@ -409,22 +503,16 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
         log(f'  seed {s}: {describe(result)}')
     else:
         seeds = list(cfg.facets.seeds)
-        kept = None
-        for s in seeds:
-            log(f'[build] seed {s}')
-            t = time.time()
-            result = step_blender_build(cfg, s, None, clips, use_cache, gate)
-            timer.step('blender build', time.time() - t)
-            log(f'  seed {s}: {describe(result)}')
-            if result['pass']:
-                kept = s
-                break
+        t = time.time()
+        kept, pool = run_seeds(cfg, seeds, jobs, not all_seeds, clips, use_cache, gate)
+        timer.step('seed pool', time.time() - t)
         if kept is None:
             # studio-diag: the checks of the last seed, so that its located failures are there.
             timer.run('checks', step_checks, cfg)
             timer.write(cfg)
             fail(f'no seed of {seeds} passes the remesh gate and the contact and fold check')
         log(f'  kept seed {kept}')
+        keep_seed(cfg, kept)
         timer.blender(_read_json(os.path.join(cfg.paths.stages, 'run.json')))
     if shots:
         timer.run('shots', step_shots, cfg)
@@ -433,15 +521,22 @@ def run_build(cfg, seed=None, shots=True, until=None, clips=None, use_cache=True
     timer.write(cfg)
     if use_cache:
         prune_cache(cfg)
-    return report
+    return report, pool
 
 
 def cmd_build(a):
     """studio build: builds the GLB of an animal, then the shots, the measures, and the checks."""
+    if a.all_seeds and a.seed is not None:
+        fail('give --seed or --all-seeds, not both')
+    if a.jobs < 1:
+        fail('--jobs needs 1 or more')
     cfg = load(a.animal, a.out)
-    report = run_build(cfg, a.seed, not a.no_shots, a.until, a.clips, not a.no_cache,
-                       not a.no_gate)
+    report, pool = run_build(cfg, a.seed, not a.no_shots, a.until, a.clips, not a.no_cache,
+                             not a.no_gate, a.jobs, a.all_seeds)
     if report and not report['gate_pass']:
+        sys.exit(1)
+    if pool and a.all_seeds and not all(r['pass'] for r in pool):
+        log('the full seed check fails: not every seed passes (out/seeds/summary.json)')
         sys.exit(1)
 
 
@@ -865,6 +960,10 @@ def main(argv=None):
     p.add_argument('--no-cache', action='store_true', help='no stage cache reads or writes')
     p.add_argument('--no-gate', action='store_true',
                    help='report the remesh gate, but build on when it fails')
+    p.add_argument('--all-seeds', action='store_true',
+                   help='the full seed check: build every seed of facets.seeds')
+    p.add_argument('--jobs', type=int, default=DEFAULT_JOBS,
+                   help=f'Blender processes of the seed pool at the same time ({DEFAULT_JOBS})')
     p.set_defaults(fn=cmd_build)
     p = sub.add_parser('compare', help='render the views beside the sheet, measure, and check')
     p.add_argument('animal')
