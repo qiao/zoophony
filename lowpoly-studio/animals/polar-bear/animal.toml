@@ -403,8 +403,8 @@ light = { median_over = 1.12 }
 
 # The eyes: the two dark blobs in the band of the eyes. The white rim of the sheet has the color
 # of the lit cream fur (253, 248, 224 on both), so no color class can find the rim, and the eyes
-# have no rim check. The outline limit is 0.11: the eyes are 10 px wide on the sheet, and 0.11 is
-# the pixel tolerance of the bear (0.08 of 14 px, about 1.1 px).
+# have no rim check. The eyes are 10 px wide on the sheet: the pixel floor of the checks
+# (checks.feature_pixels) allows 1 px more than the outline limit of 0.08.
 [measure.features.eyes]
 method = "blobs"
 classes = ["dark"]
@@ -412,7 +412,7 @@ min_area = 10
 max_area = 600
 count = 2
 regions = { front = [-0.2, 0.9, 0.2, 0.96], three_quarter = [-0.2, 0.9, 0.3, 0.96] }
-checks = { outline = { measure = "width", op = "rel<=", limit = 0.11 }, y = { op = "abs<=", limit = 0.01 } }
+checks = { outline = { measure = "width", op = "rel<=", limit = 0.08 }, y = { op = "abs<=", limit = 0.01 } }
 
 # The ears: the bumps of the silhouette at the top of the head, the inner ear in the front view.
 [measure.features.ears]
@@ -465,3 +465,4 @@ body_triangles = [900, 1600]
 slivers = 0.01
 fur_color = [1.0, 0.02, 0.03]
 facet_contrast = 0.15
+feature_pixels = 1.0
