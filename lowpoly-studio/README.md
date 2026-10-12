@@ -277,7 +277,7 @@ keyboard height:
 
 The clips: `reference` (the sheet pose, the props hidden), `ready` (the paws above the first
 notes), `play` (two bars at 120 bpm: a melody in the right paw, chords in the left paw, a sway,
-and a nod; a loop), `chord` (rise, strike, lift), `rest` (the paws on the outer knees), and
+and a nod, as a loop), `chord` (rise, strike, lift), `rest` (the paws on the outer knees), and
 `performance` (ready, play two times, chord, rest).
 
 
@@ -288,7 +288,7 @@ and a nod; a loop), `chord` (rise, strike, lift), `rest` (the paws on the outer 
 | Scene props | `[[props]] kind = "piano"` and `"bench"`, `attach.bone = "scene"` (studio/props.py) | Each prop is rigid on a bone of its own under the root, joined into the GLB mesh with a material of its own. The sheet pose hides it (scale 0). The props give their test boxes to the scene check. |
 | Key targets | `props.piano_keys()`, `Pianist.arms()` | The clips make knuckle points over the keys in model space, and turn them into wrist targets in the rest frame of the chest of the same pose (the frame of the solver). |
 | Role checks | `[checks] scene_depth`, `seat_gap`, `hand_targets` (studio/build.py `check_scene`) | Gates of each clip: `scene.<clip>` (the deepest body skin point in a prop box), `seat.<clip>` (the gap between the sitting skin, trunk and thighs, and the seat top), `hands.<clip>` (the distance of each knuckle from `pack.hand_targets(clip, t)`). |
-| Correctives | `[bind] correctives = ["arm_down", "legs_straight"]` | `legs_straight` moves the leg skin onto the standing legs in the sheet pose; the thigh angle drives it. |
+| Correctives | `[bind] correctives = ["arm_down", "legs_straight"]` | `legs_straight` moves the leg skin onto the standing legs in the sheet pose. The thigh angle drives it. |
 
 A pack can give the optional method `hand_targets(clip, t)`: `{side: knuckle point or None}` for
 the frames where a paw presses a key, or None. The build calls it in the scene check.
@@ -708,7 +708,7 @@ contact and fold check skins the mesh at each frame and repairs single folded fa
 - A relative feature limit on a small feature is a pixel limit: 0.08 of a 10 px eye is under one
   pixel. Scale the limit to the pixel tolerance of the bear (about 1.1 px).
 - A seated bind pose needs `hip_abduct` (the knees apart) and a seat under the trunk: a short leg
-  with a low trunk puts the trunk, not the thighs, on the seat. Put the paws of a rest pose
+  with a low trunk puts the trunk on the seat, and the thighs stay above it. Put the paws of a rest pose
   where the arm stays bent: a straight arm across a big belly touches it on some seeds.
 - `out/frames/` keeps the frames of an earlier role: delete the old files when the role changes.
 
