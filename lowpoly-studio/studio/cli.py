@@ -1371,16 +1371,20 @@ def cmd_calibrate(a):
     timer.step('intake', time.time() - t, step_intake(cfg))
     if not a.no_look:
         source = load(a.source) if a.source else cfg
-        if not os.path.exists(source.paths.glb):
+        # The GLB of the model build (out/model/, the GLB of the compare), else the role GLB.
+        model_glb = os.path.join(source.paths.out, 'model', os.path.basename(source.paths.glb))
+        glb = model_glb if os.path.exists(model_glb) else source.paths.glb
+        if not os.path.exists(glb):
             fail(f'{source.paths.glb} does not exist: build {source.animal.id} first, or give '
                  f'--from <animal> with a GLB (for example the like animal)')
         viewer_config.write(cfg)
         node = shutil.which('node') or fail('no node on the path')
         runs = calibrate.runs(cfg.look.light)
-        log(f'[calibrate] {len(runs)} renders of the front view of {source.animal.id}.glb')
+        log(f'[calibrate] {len(runs)} renders of the front view of '
+            f'{os.path.relpath(glb, STUDIO)}')
         t = time.time()
         code = subprocess.call([node, os.path.join(STUDIO, 'studio', 'shoot.mjs'), 'calibrate',
-                                '--out', cfg.paths.out, '--glb', viewer_config.url_of(source.paths.glb),
+                                '--out', cfg.paths.out, '--glb', viewer_config.url_of(glb),
                                 '--runs', json.dumps(runs)], cwd=STUDIO)
         timer.step('renders', time.time() - t)
         if code != 0:
