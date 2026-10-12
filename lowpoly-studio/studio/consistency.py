@@ -47,6 +47,14 @@ EYE_SPACING = 0.4
 # The largest height difference of the two eyes of a view, in animal heights.
 EYE_HEIGHT = 0.02
 
+# The dark blobs that stand in for the eyes when the eyes feature finds no pair: a largest
+# channel under DARK_EYE, at least EYE_MIN_AREA pixels, in the eye band of the config grown by
+# EYE_GROW above and below (or in EYE_BAND, [x0, y0, x1, y1] in animal heights).
+DARK_EYE = 100
+EYE_MIN_AREA = 10
+EYE_GROW = 0.03
+EYE_BAND = (-0.3, 0.8, 0.3, 0.97)
+
 # The bump of an ear when the config has no ears feature of the method "bump".
 EAR_REGION = [-1.0, 0.7, 1.0, 1.1]
 
@@ -165,6 +173,27 @@ def blobs(cfg, pictures, name, view, classes, count=None):
     return next(iter(found.values()))['items']
 
 
+def dark_eyes(cfg, pictures, view):
+    """Finds the dark blobs of a view in the eye band of the config grown by EYE_GROW (or in
+    EYE_BAND), when the eyes feature of the config finds no pair: the config can come from a like
+    animal whose eye band and classes do not fit this sheet."""
+    from studio.config import Section  # noqa: PLC0415
+    from studio.schema import COLOR_CLASS, FEATURE  # noqa: PLC0415
+    if view not in pictures:
+        return None
+    eyes = cfg.measure.features.get('eyes')
+    box = list(eyes.regions[view]) if eyes and view in eyes.regions else list(EYE_BAND)
+    box = [box[0], box[1] - EYE_GROW, box[2], box[3] + EYE_GROW]
+    plain = {k: f.default for k, f in FEATURE.fields.items() if hasattr(f, 'default')}
+    plain.update(method='blobs', classes=('dark',), regions={view: box}, split=(), rank=None,
+                 rim=None, count=EYE_BLOBS, min_area=EYE_MIN_AREA, max_area=0)
+    spec = Section({k: f.default for k, f in COLOR_CLASS.fields.items()}, max_under=DARK_EYE)
+    classes = {'dark': measure_features.ColorClass(spec, cfg)}
+    found = measure_features.measure_picture(pictures[view], Section(plain), view, 'eye',
+                                             classes)
+    return next(iter(found.values()))['items']
+
+
 def eye_pair(items, front=None):
     """Finds the two eyes among the blobs of a view, left to right, or None: of the pairs whose
     heights differ by EYE_HEIGHT at most, the pair whose smaller blob is largest. With no front
@@ -188,7 +217,8 @@ def head_checks(cfg, pictures, classes):
     """Checks the head turn of the front view (the nose offset from the middle of the eyes) and
     of the 3/4 view (the head azimuth from the eye spacing)."""
     out = []
-    eyes_front = eye_pair(blobs(cfg, pictures, 'eyes', 'front', classes, EYE_BLOBS))
+    eyes_front = (eye_pair(blobs(cfg, pictures, 'eyes', 'front', classes, EYE_BLOBS))
+                  or eye_pair(dark_eyes(cfg, pictures, 'front')))
     nose_front = blobs(cfg, pictures, 'nose', 'front', classes)
     if eyes_front and nose_front:
         middle = (eyes_front[0]['x'] + eyes_front[1]['x']) / 2
@@ -197,8 +227,9 @@ def head_checks(cfg, pictures, classes):
                           abs(offset) <= NOSE_OFFSET_PX,
                           {'eyes_middle_x': round(middle, 4), 'nose_x': nose_front[0]['x']},
                           'eye_x.front, nose_x.front: the front view turns the head'))
-    eyes_34 = eye_pair(blobs(cfg, pictures, 'eyes', 'three_quarter', classes, EYE_BLOBS),
-                       eyes_front)
+    eyes_34 = (eye_pair(blobs(cfg, pictures, 'eyes', 'three_quarter', classes, EYE_BLOBS),
+                        eyes_front)
+               or eye_pair(dark_eyes(cfg, pictures, 'three_quarter'), eyes_front))
     view = cfg.sheet.views.get('three_quarter')
     front = abs(eyes_front[1]['x'] - eyes_front[0]['x']) if eyes_front else 0.0
     side = abs(eyes_34[1]['x'] - eyes_34[0]['x']) if eyes_34 else 0.0
