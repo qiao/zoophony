@@ -1,67 +1,27 @@
-# Bear conductor studio
+# The bear conductor
 
-This folder makes a low-poly bear conductor from one reference sheet
-(`reference/bear-views.png`: front, side, back, and 3/4 views). One command makes the
-mesh, the colors, the rig, the baton, and the conducting clips, and writes them into one GLB
-file. The folder does not use the code of the app in `src/`.
+The first animal of the low-poly studio (see `../../README.md`): a bear conductor from one
+reference sheet (`reference/bear-views.png`: front, side, back, and 3/4 views), with the role
+`conductor` (`../../roles/conductor/`). This file gives the method with the numbers of the bear,
+the results, and the open limits. `animal.toml` holds all constants of the bear, and
+`golden.json` the stats of the regression (`python3 studio regress bear`).
 
 ![compare](out/compare/compare.png)
 
-## Commands
+Build it from `lowpoly-studio/`:
 
-Run the commands in this folder. The build needs python3 with Pillow, Blender 5.2 or later
-(`blender` on the path, or the variable `BLENDER`), Node 24, and the packages of the worktree
-(`pnpm install --offline` in the worktree root).
-
-| Command | Result |
-|---|---|
-| `./build.sh` | Makes everything again in about 65 s: the masks, `out/bear.glb`, the contact and fold check with the fold repair, the compare images, the motion frames, the 4/4 plot, and a viewer screenshot. The log shows the first check, then the check after each repair round. It tries the remesh seeds of `SEEDS` (default `3 1 5 6 2 4 7 8`) in order and keeps the first one whose clips all pass (see "Seed"); all 8 pass now. It fails when no seed passes. |
-| `./build.sh --seed 5` | Uses one seed only, and fails when a clip of that seed fails the check. |
-| `./build.sh --no-shots` | Stops after `out/bear.glb`. |
-| `pnpm exec vite bear-studio` (in the worktree root) | Serves the viewer at `/viewer/index.html`. |
-| `node tools/shoot.mjs compare` | Renders the four sheet views of the GLB beside the sheet and prints the IoU. |
-| `node tools/shoot.mjs frames [--only <clip>]` | Renders the motion frames into `out/frames/`. |
-| `blender -b --factory-startup --python tools/bear/fit.py -- --rows` | Scores the distance field against the masks with no mesh, and prints the edges of each row. One round takes 1 s. |
-| `blender -b --factory-startup --python tools/bear/pattern.py --` | Plots the path of the baton tip in the 4/4 clip. |
-| `blender -b --factory-startup --python tools/bear/facets.py -- out/bear.glb` | Measures the body facets of a GLB: edge length, slivers, mirror pairs, vertex valence, and the spread of the edge directions. |
-| `python3 tools/topology.py [render.png ...]` | Measures the sheet and front renders: the brightness spread of a belly crop (the facet contrast), and the facets by their shading edges. |
-| `blender ... tools/bear/build.py -- --quads 900 --seed 3` | Sets the target quad count and the seed of the remesh. With `BEAR_DEBUG=1`, the build prints the place and the weights of each folded face, each face that the repair smooths, and each face that points into the body in the rest mesh. |
-| `python3 tools/eyes.py` | Measures the eyes of the sheet and of the renders in the front and 3/4 views (after `shoot.mjs compare`): the width of each eye with its outline, and the width of its white rim. Writes `out/compare/eyes.json`. |
-| `python3 tools/ears.py` | Measures the width, the height, the place, and the dark inner part of the ears of the sheet and of the renders (after `shoot.mjs compare`), and writes `out/compare/ears.json`. |
-| `node tools/shoot.mjs compare --light 1.4,3.8,0.9` | Renders the compare with other light levels (hemisphere, key, fill), for tuning. |
-
-`tools/shoot.mjs` starts its own Vite server and headless Chromium, and stops both at the end.
+```bash
+python3 studio build bear          # the seed search; seed 3 passes first (about 65 s)
+python3 studio build bear --seed 5 # one seed
+python3 studio view bear           # the viewer on a free port
+```
 
 ## Method
 
 The sheet is the only input. The build measures the sheet, builds a smooth body from measured
-parts, remeshes it into flat facets that follow the forms, and then rigs and animates it.
-
-```text
- bear-views.png
-      │ tools/measure.py (Pillow)
-      v
- masks + row profiles ──> tools/bear/body.py: measured parts ──> one distance field
- (out/measure.json)        trunk loft, head with snout, arms,        │ sdf.py: surface nets
-                           legs, smooth union                        v
-                                                              dense mesh (139k quads)
-                                                                     │ retopo.py: warp,
-                                                                     │ QuadriFlow (mirror),
-                                                                     │ unwarp, snap, chevron
-                                                                     │ split. organic.py:
-                                                                     │ collapse, flip, relax;
-                                                                     v jitter
-                                                              1356 body triangles
- details.py: eyes, nose, mouth, ears, tail, claws, baton ──> paint.py: colors, occlusion
-                                                                     │
- rig.py: 31 bones, weights. corrective.py: arm-down shapes ──────────┤
- motion.py + pose.py: clips from an IK solver ──> anim.py: actions ──┤
-                                                                     v
-                                                             out/bear.glb
-                                                                     │ tools/shoot.mjs
-                                                                     v
-                                          compare.png + IoU, motion frames, viewer.png
-```
+parts, remeshes it into flat facets that follow the forms, and then rigs and animates it. The
+README of the studio shows the stages and the modules. This section gives the reasons and the
+numbers of the bear.
 
 ### Why a measured field
 
@@ -80,7 +40,7 @@ This build uses a distance field of measured parts:
 - **Other parts.** Ellipsoids and round cones at measured joints: the arms, the paws, the
   legs, and the feet with toes. A smooth union joins them into one surface, with soft fillets
   where the arms and the legs meet the trunk.
-- **Head.** A loft of its own (`head_table`), so the head reads as a round ball above the
+- **Head.** A loft of its own (`head_table` in `studio/field.py`), so the head reads as a round ball above the
   shoulders. The front mask shows the head only from the cheeks up, so the loft follows the
   masks from the cheeks (0.153 wide at height 0.83) to the temples (0.92), closes the dome above
   with a quarter ellipse to height 0.978 between the ears, and closes the cheeks below with a
@@ -105,7 +65,7 @@ best value of a search from 30° to 50°.
 
 The topology follows the sheet: organic triangles of varied sizes and shapes, at many angles,
 that still follow the forms, with mirrored halves and a V on the center line of the chest.
-`tools/bear/retopo.py` and `tools/bear/organic.py` make it in six steps:
+`studio/remesh.py` and `studio/organic.py` make it in six steps:
 
 1. **Warp.** Blender QuadriFlow makes quads of one size. Radial warps first grow the head, the
    snout, the paws, and the feet, and shrink the trunk (x and z more than y). After the remesh
@@ -143,7 +103,7 @@ body. Quads of the body size cannot hold them.
 - **Eyes.** As on the sheet: a dark outline, a thin white rim, a large dark iris that looks a
   little inward, and a small highlight, in four flattened layers along the look direction, at
   height 0.892 and 0.043 from the middle. The radius is 0.0143, and the iris fills 88% of the
-  white, from the measures of `tools/eyes.py` (see "Eyes" in the results). The widest ring of
+  white, from the measures of `studio/measure_eyes.py` (see "Eyes" in the results). The widest ring of
   the outline sits on the facet, so the whole disk shows.
 - **Brows.** A thin dark arc above each eye, highest above the eye, pressed onto the facets.
 - **Ears.** Round shells 0.081 wide and 0.086 high, turned out 35° and tilted out 10°, with a
@@ -197,7 +157,7 @@ root
   toward the wrist target (at most 15°), for a raised arm only (wrist height 0.45 to 0.55 blends
   it in). A real shoulder girdle follows the arm, and the skin over the shoulder no longer
   takes the whole rotation.
-- **Weights.** Bone heat (Blender `ARMATURE_AUTO`), then these rules (`rig.py`):
+- **Weights.** Bone heat (Blender `ARMATURE_AUTO`), then these rules (`templates/biped/rig.py`):
   - the trunk takes bands along the spine (`trunk_weights`): each trunk vertex blends the two
     spine bones above and below it;
   - the skin nearer to the trunk than to a forearm loses its forearm, twist, paw, and finger
@@ -217,7 +177,7 @@ root
   - at most 4 influences for each vertex.
   The details are rigid: eyes, nose, and mouth on `head`, the ears on `ear_*`, the tail on
   `tail`, the hand claws on `fingers_*`, the foot claws on `toes_*`, and the baton on `baton`.
-- **Arm-down corrective shapes** (`corrective.py`). The arms of the sheet pose are 40° below
+- **Arm-down corrective shapes** (`templates/biped/corrective.py`). The arms of the sheet pose are 40° below
   the bind pose. There, skinning folded the skin under the arms and at the back of the
   elbows. Two glTF morph targets (`arm_down_L`, `arm_down_R`) fix it. In the sheet pose, the
   arm skin moves onto the surface of its own arm in the field of the sheet pose, the change
@@ -232,7 +192,7 @@ root
 ### Motions: clips in the GLB
 
 The motions are animation clips in the GLB. A procedural IK solver in Python makes them at
-build time (`tools/bear/pose.py` and `tools/bear/motion.py`).
+build time (`templates/biped/solver.py` and `roles/conductor/clips.py`).
 
 Clips are the better delivery here for these reasons:
 
@@ -259,7 +219,7 @@ torso turns a little with the paw, and the head stays on the players.
 
 ### Contact and fold check
 
-`tools/bear/contacts.py` runs in each build. It skins the mesh, with the corrective shapes, at
+`studio/contacts.py` runs in each build. It skins the mesh, with the corrective shapes, at
 each baked frame of each clip (30 per second) with linear blend skinning, as three.js does.
 
 - **Contacts.** For each arm it measures how deep the paw, the claws, the forearm, and the
@@ -274,7 +234,7 @@ each baked frame of each clip (30 per second) with linear blend skinning, as thr
 
 **Fold repair.** A fold means that the weights step sharply across one face between bones that
 turn far apart. After the check, the build smooths the weights around each folded face and its
-neighbors two rings deep (`rig.repair_folds`), makes the corrective shapes again, and checks
+neighbors two rings deep (`repair_folds` in `studio/weights.py`), makes the corrective shapes again, and checks
 again, for up to 4 rounds. The stats file lists the folded faces of each round
 (`fold_repairs`).
 
@@ -318,7 +278,7 @@ interface BearGlb {
 
 ## Results
 
-All numbers come from `./build.sh` on the last commit. "Last round" is the GLB of commit
+All numbers come from `python3 studio build bear` on the last commit (byte-identical to the GLB of main c528ca2e). "Last round" is the GLB of commit
 `8ae25d46` (main before the round of the round head, the snout, the eyes, and the folds).
 
 | Measure | Value |
@@ -334,7 +294,7 @@ All numbers come from `./build.sh` on the last commit. "Last round" is the GLB o
 
 ### Facets
 
-The facets of the body mesh (`tools/bear/facets.py`). The lengths are in px at the scale of the
+The facets of the body mesh (`studio/measure_mesh.py`). The lengths are in px at the scale of the
 sheet (the bear is 528 px tall).
 
 | Measure | First version (decimated) | Aligned remesh | Organic remesh (`786a9122`) | Head ball (`8ae25d46`) | Now (round head, seed 3) |
@@ -352,7 +312,7 @@ sheet (the bear is 528 px tall).
 The facets change with each change of the field and with the seed, because the remesh lays its
 faces out again.
 
-The sheet has no mesh, so `tools/topology.py` measures its facets from the shading of the
+The sheet has no mesh, so `studio/measure_shading.py` measures its facets from the shading of the
 front view. It finds 8.6 facets across the belly, 9.7 along the arm, and an edge of about
 49 px. This measure counts only the edges where the brightness steps by 3 levels or more, so
 it depends on the contrast. It misses many edges of the soft renders now, so the mesh measures
@@ -399,7 +359,7 @@ more and value 0.18 or more), in hue (degrees), saturation, and value:
 
 ### Eyes
 
-`tools/eyes.py` finds each eye as a blob of near-black and near-white pixels in the band of
+`studio/measure_eyes.py` finds each eye as a blob of near-black and near-white pixels in the band of
 the eyes, in bear heights. "Outline" is the width of the eye with its dark outline. "Rim" is the
 white area over the circumference (the width of an even white ring of the same area): the iris
 of the sheet looks to one side, so one row does not give the rim.
@@ -415,7 +375,7 @@ sheet turns the head more toward the camera than the body (see "Open limits").
 
 ### Ears
 
-`tools/ears.py` measures each ear on the silhouette, in bear heights: the widest row of the ear
+`studio/measure_ears.py` measures each ear on the silhouette, in bear heights: the widest row of the ear
 while it stands free of the skull, and the height from its top to the notch where it meets the
 head. "Dark" is the share of the ear disk of the front view that is darker than its fur.
 
@@ -472,10 +432,10 @@ The causes, each with its fix:
 
 - **Slivers in deep creases** (seeds 1, 2, 4: faces with a smallest angle of 4° to 13° under
   the raised arm). Their normal turns over at the first bend, and no weight helps. The remesh
-  now flips or collapses each sliver (`organic.clean_slivers`).
+  now flips or collapses each sliver (`clean_slivers` in `studio/organic.py`).
 - **Faces inside out after the remesh** (the crown of the dome, the crotch, the groove under the
   head, and in seeds 5 and 6 the whole mesh). The remesh turns a mesh that points inward, and an
-  untangle pass moves the corners of each inward face (`retopo.untangle`). The dome closes as a
+  untangle pass moves the corners of each inward face (`untangle` in `studio/remesh.py`). The dome closes as a
   round cap, because a dome that closed in width before depth left a ridge on the crown.
 - **Weights of bones that turn far apart on one face**: paw and twist weight on the upper arm
   near the raised paw (`arm_owned`, more `CHAINS`), twist weight up to the inner elbow (the
@@ -487,12 +447,12 @@ The causes, each with its fix:
   it (one ring), which removes it in one round in all 8 seeds. A wider repair (two rings) moved
   the forearm skin into the body near the elbow (1.17 cm in the hush), so the repair stays small.
 
-`build.sh` keeps the seed search as a fallback. The default order starts with seed 3, which
+`python3 studio build` keeps the seed search as a fallback (the seed order is `facets.seeds` of `animal.toml`). The default order starts with seed 3, which
 has the best sum of the four IoU values (3.771) and the cleanest face of seeds 1 and 3.
 
 ### Beat pattern
 
-The tip of the baton at each ictus of `beat_4_4` (`pattern.py`, 120 samples per second):
+The tip of the baton at each ictus of `beat_4_4` (`roles/conductor/pattern.py`, 120 samples per second):
 
 | Beat | Vertical speed before | Vertical speed after |
 |---|---|---|
@@ -519,43 +479,6 @@ The tip of the baton at each ictus of `beat_4_4` (`pattern.py`, 120 samples per 
 - `out/frames/bow.png`, `out/frames/cutoff.png`, and the other clip sheets: the conducting
   frames.
 - `out/frames/viewer.png`: the viewer during the performance.
-
-## Viewer
-
-`viewer/index.html` loads `out/bear.glb` and draws flat facets. It has these controls:
-
-- the four views of the sheet (the same cameras as the compare), and orbit controls;
-- a button for each clip, a tempo slider (time scale bpm / 60), loop, and pause;
-- the path of the baton tip, the bones, a wireframe, and the ground shadow.
-
-The key, fill, and rim lights follow the camera, as the lights of the sheet do. Only the key
-light casts shadows (soft, 30% strength), and the baton casts none.
-
-## Files
-
-| Path | Content |
-|---|---|
-| `build.sh` | The one command. |
-| `tools/measure.py` | Masks, boxes, and row profiles of the sheet (Pillow). |
-| `tools/bear/sdf.py` | Distance primitives, smooth blends, and surface nets (numpy). |
-| `tools/bear/body.py` | The measured parts, the trunk loft, and the arm poses. |
-| `tools/bear/retopo.py` | The aligned remesh: warps, QuadriFlow, mirror, chevron split, jitter. |
-| `tools/bear/organic.py` | The organic pass: mirrored edge collapses and flips, and the relaxation. |
-| `tools/bear/details.py` | Eyes, nose, mouth line, ears, tail, claws, and the baton. |
-| `tools/bear/paint.py` | Palette, regions, baked occlusion, and facet statistics. |
-| `tools/bear/rig.py` | Bone layout, armature, bone heat, trunk bands, and weight rules. |
-| `tools/bear/corrective.py` | The arm-down corrective shapes and their driver. |
-| `tools/bear/contacts.py` | The contact and fold check of each clip. |
-| `tools/bear/facets.py` | The facet measures of a GLB. |
-| `tools/topology.py` | The facet contrast and the facet measures of the sheet and of renders. |
-| `tools/bear/pose.py` | The pose solver: relative rotations, two-bone IK, twist bone, automatic clavicle. |
-| `tools/bear/motion.py` | The clips as functions of time. |
-| `tools/bear/anim.py` | Bakes the clips into Blender actions and NLA tracks. |
-| `tools/bear/build.py` | The Blender entry point and the glTF export. |
-| `tools/bear/fit.py`, `views.py` | The fast field score (no mesh, no browser). |
-| `tools/bear/pattern.py` | The plot of the 4/4 path. |
-| `tools/shoot.mjs` | Compare, frames, viewer shot, and custom shots (Playwright, Vite). |
-| `viewer/` | The viewer page, the compare page, the frames page, and the shared scene. |
 
 ## Open limits
 
