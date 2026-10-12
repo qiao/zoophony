@@ -38,8 +38,15 @@ for (const m of bear.meshes) {
     mat.polygonOffsetFactor = 1;
     mat.polygonOffsetUnits = 1;
   }
-  const w = new THREE.SkinnedMesh(m.geometry, wireMaterial);
-  w.bind(m.skeleton, m.bindMatrix);
+  const w = m.isSkinnedMesh ? new THREE.SkinnedMesh(m.geometry, wireMaterial) : new THREE.Mesh(m.geometry, wireMaterial);
+  if (m.isSkinnedMesh) {
+    w.bind(m.skeleton, m.bindMatrix);
+  }
+  // The wire copy shares the morph weights, so it shows the corrective shapes too.
+  if (m.morphTargetInfluences) {
+    w.morphTargetInfluences = m.morphTargetInfluences;
+    w.morphTargetDictionary = m.morphTargetDictionary;
+  }
   w.frustumCulled = false;
   w.visible = false;
   m.parent.add(w);

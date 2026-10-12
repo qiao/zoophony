@@ -18,8 +18,8 @@ RIGID_ONLY = ('root', 'baton')
 # parent order.
 BONE_ORDER = [
     'root', 'hips', 'spine', 'spine1', 'chest', 'neck', 'head', 'ear_L', 'ear_R',
-    'clavicle_L', 'upper_arm_L', 'forearm_L', 'hand_L', 'fingers_L',
-    'clavicle_R', 'upper_arm_R', 'forearm_R', 'hand_R', 'fingers_R', 'baton',
+    'clavicle_L', 'upper_arm_L', 'forearm_L', 'forearm_twist_L', 'hand_L', 'fingers_L',
+    'clavicle_R', 'upper_arm_R', 'forearm_R', 'forearm_twist_R', 'hand_R', 'fingers_R', 'baton',
     'thigh_L', 'shin_L', 'foot_L', 'toes_L', 'thigh_R', 'shin_R', 'foot_R', 'toes_R', 'tail',
 ]
 
@@ -47,8 +47,12 @@ def layout(pose='bind'):
         hand_dir = (J['knuckle'] - J['wrist']) / np.linalg.norm(J['knuckle'] - J['wrist'])
         b[f'clavicle_{s}'] = (J['clavicle'], J['shoulder'], 'chest', fwd)
         b[f'upper_arm_{s}'] = (J['shoulder'], J['elbow'], f'clavicle_{s}', F['upper'][:, 2])
-        b[f'forearm_{s}'] = (J['elbow'], J['wrist'], f'upper_arm_{s}', F['fore'][:, 2])
-        b[f'hand_{s}'] = (J['wrist'], J['knuckle'], f'forearm_{s}', F['hand'][:, 2])
+        # The forearm bends at the elbow. The twist bone, from the middle of the forearm to the
+        # wrist, takes the twist of the paw, so the elbow skin does not twist.
+        mid = 0.5 * (J['elbow'] + J['wrist'])
+        b[f'forearm_{s}'] = (J['elbow'], mid, f'upper_arm_{s}', F['fore'][:, 2])
+        b[f'forearm_twist_{s}'] = (mid, J['wrist'], f'forearm_{s}', F['fore'][:, 2])
+        b[f'hand_{s}'] = (J['wrist'], J['knuckle'], f'forearm_twist_{s}', F['hand'][:, 2])
         b[f'fingers_{s}'] = (J['knuckle'], J['knuckle'] + hand_dir * 0.045, f'hand_{s}',
                              F['hand'][:, 2])
         L = {k: np.array(v) * m for k, v in body.LEG.items()}
@@ -155,6 +159,80 @@ def smooth_weights(w, neighbors, rounds=2, amount=0.5):
     return w
 
 
+def trunk_owned(points, parts, w, names):
+    """Removes the forearm, hand, and finger weights from the skin of the trunk.
+
+    In the bind pose the raised forearm lies near the side of the trunk, so bone heat gives
+    the trunk some forearm weight, and the trunk folds when the elbow bends. A vertex that is
+    nearer to the trunk part than to the forearm parts loses these weights (fully at 0.02).
+    """
+    p = np.asarray(points, float)
+    w = w.copy()
+    col = {n: i for i, n in enumerate(names)}
+    trunk = [q for q in parts if q.name == 'trunk'][0].fn(p)
+    for side, sign in (('L', 1.0), ('R', -1.0)):
+        low = [q for q in parts if q.name in ('forearm', 'forearm_bulge', 'paw')
+               and np.sign(0.5 * (q.lo[0] + q.hi[0])) == sign]
+        d_low = np.min([q.fn(p) for q in low], axis=0)
+        drop = np.clip((d_low - trunk) / 0.02, 0.0, 1.0)
+        for bone in ('forearm', 'forearm_twist', 'hand', 'fingers'):
+            w[:, col[f'{bone}_{side}']] *= 1.0 - drop
+    s = w.sum(axis=1, keepdims=True)
+    return w / np.maximum(s, 1e-9)
+
+
+# The limb chains: each child bone loses its weight above the middle of its parent bone.
+CHAINS = (('upper_arm', 'forearm'), ('forearm', 'forearm_twist'), ('forearm_twist', 'hand'),
+          ('hand', 'fingers'),
+          ('thigh', 'shin'), ('shin', 'foot'), ('foot', 'toes'))
+
+
+def chain_limits(points, w, names, bones):
+    """Keeps the weight of each child bone of a limb below the middle of its parent bone.
+
+    Bone heat and the smoothing spread, for example, hand weight up the short forearm to the
+    elbow. Then the twist of the paw twists the elbow skin, and it folds. Here the weight of the
+    child falls from 1 to 0 between 0.85 and 0.45 of the parent bone (from its head), for the
+    skin near the parent bone (within 0.13).
+    """
+    p = np.asarray(points, float)
+    w = w.copy()
+    col = {n: i for i, n in enumerate(names)}
+    for side in 'LR':
+        for parent, child in CHAINS:
+            head, tail = bones[f'{parent}_{side}'][0], bones[f'{parent}_{side}'][1]
+            seg = tail - head
+            t = (p - head) @ seg / (seg @ seg)
+            near = np.linalg.norm(p - (head + np.clip(t, 0, 1)[:, None] * seg), axis=1) < 0.13
+            keep = np.clip((t - 0.45) / 0.4, 0.0, 1.0)
+            keep = keep * keep * (3 - 2 * keep)
+            factor = np.where(near, keep, 1.0)
+            w[:, col[f'{child}_{side}']] *= factor
+    s = w.sum(axis=1, keepdims=True)
+    return w / np.maximum(s, 1e-9)
+
+
+def joint_mask(points):
+    """Weights (0..1) of the regions around each shoulder, elbow, and wrist, where the weights
+    get more smoothing."""
+    p = np.asarray(points, float)
+    joints, _ = body.arm_pose('bind')
+    out = np.zeros(len(p))
+    for side in (1, -1):
+        for joint, radius in (('shoulder', 0.09), ('elbow', 0.08), ('wrist', 0.06)):
+            e = joints[joint] * np.array([side, 1, 1])
+            d = np.linalg.norm(p - e, axis=1) / radius
+            out = np.maximum(out, np.clip(1.5 - d, 0.0, 1.0))
+    return out
+
+
+def crotch_mask(points):
+    """Weights (0..1) of the crotch between the legs, which moves only with the hips."""
+    p = np.asarray(points, float)
+    return (np.clip((0.07 - np.abs(p[:, 0])) / 0.03, 0, 1)
+            * np.clip((0.22 - p[:, 1]) / 0.03, 0, 1) * np.clip((p[:, 1] - 0.13) / 0.02, 0, 1))
+
+
 def armpit_mask(points):
     """Weights (0..1) of the region under each shoulder, where the arm meets the chest."""
     p = np.asarray(points, float)
@@ -186,7 +264,7 @@ def head_rigidity(points):
     """
     p = np.asarray(points, float)
     c, r = body.HEAD['muzzle']
-    q = (p - np.array(c)) / (np.array(r) * 1.45)
+    q = (p - np.array(c)) / (np.array(r) * 1.25)
     muzzle = 1.0 - np.clip((np.sqrt(np.sum(q * q, axis=1)) - 0.8) / 0.4, 0.0, 1.0)
     cc, cr = body.HEAD['cranium']
     q = (p - np.array(cc)) / (np.array(cr) * 1.05)
@@ -227,8 +305,8 @@ def trunk_weights(points, w_heat, names):
     def heat(bones):
         return w_heat[:, [col[b] for b in bones]].sum(axis=1)
 
-    arm = heat([f'{b}_{s}' for s in 'LR' for b in ('clavicle', 'upper_arm', 'forearm', 'hand',
-                                                    'fingers')])
+    arm = heat([f'{b}_{s}' for s in 'LR' for b in ('clavicle', 'upper_arm', 'forearm',
+                                                    'forearm_twist', 'hand', 'fingers')])
     keep_arm = np.clip((arm - 0.35) / 0.3, 0, 1)
     keep_tail = np.clip((heat(['tail']) - 0.2) / 0.3, 0, 1)
     keep_head = np.clip((y - 0.74) / 0.05, 0, 1)
@@ -242,6 +320,10 @@ def trunk_weights(points, w_heat, names):
         inside = np.clip((0.118 - d) / 0.04, 0, 1) * np.clip((0.29 - y) / 0.05, 0, 1)
         keep_leg = np.maximum(keep_leg, inside)
     keep_leg = np.maximum(keep_leg, np.clip((0.19 - y) / 0.03, 0, 1))
+    # The crotch between the legs follows the hips: it takes weight from both legs otherwise,
+    # and its faces turn over when one knee bends.
+    crotch = np.clip((0.07 - np.abs(p[:, 0])) / 0.04, 0, 1) * np.clip((0.24 - y) / 0.04, 0, 1)
+    keep_leg = keep_leg * (1.0 - crotch)
     keep = np.maximum.reduce([keep_arm, keep_tail, keep_head, keep_leg])
     return w_heat * keep[:, None] + band * (1 - keep)[:, None]
 

@@ -24,7 +24,7 @@ for (let i = 0; i < rest.length; i += 2) {
   flags[rest[i].replace(/^--/, '')] = rest[i + 1];
 }
 const glb = flags.glb ?? '/out/bear.glb';
-const light = flags.light ? `&light=${flags.light}` : '';
+const light = (flags.light ? `&light=${flags.light}` : '') + (flags.keydir ? `&keydir=${flags.keydir}` : '');
 
 /** The motion proof: key frames of each clip from the front, the side, and a 3/4 view. */
 function motionShots() {
@@ -126,10 +126,18 @@ async function main() {
   });
   try {
     const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
+    // A page error stops the wait at once: each wait races this promise.
+    let failPage;
+    const pageFailed = new Promise((_, reject) => {
+      failPage = reject;
+    });
+    pageFailed.catch(() => {});
     page.on('pageerror', (e) => {
       console.error('page error:', e.message);
       process.exitCode = 1;
+      failPage(e);
     });
+    const ready = (fn) => Promise.race([page.waitForFunction(fn, null, { timeout: 120000 }), pageFailed]);
     page.on('console', (m) => {
       if (m.type() === 'error' || m.type() === 'warning') {
         console.error(`console ${m.type()}:`, m.text());
@@ -138,7 +146,7 @@ async function main() {
     if (cmd === 'compare') {
       const clip = flags.clip ?? 'reference';
       await page.goto(`${base}viewer/compare.html?glb=${glb}&clip=${clip}${light}`);
-      await page.waitForFunction(() => window.__compare, null, { timeout: 60000 });
+      await ready(() => window.__compare);
       const res = await page.evaluate(() => window.__compare);
       const dir = path.join(ROOT, 'out', 'compare');
       fs.mkdirSync(dir, { recursive: true });
@@ -162,7 +170,7 @@ async function main() {
       console.log(`wrote ${path.join(dir, 'compare.png')}`);
     } else if (cmd === 'frames') {
       await page.goto(`${base}viewer/frames.html?glb=${glb}${light}`);
-      await page.waitForFunction(() => window.__framesReady, null, { timeout: 120000 });
+      await ready(() => window.__framesReady);
       const clips = await page.evaluate(() => window.__clips.map((c) => c.name));
       const dir = path.join(ROOT, 'out', 'frames');
       fs.mkdirSync(dir, { recursive: true });
@@ -196,7 +204,7 @@ async function main() {
     } else if (cmd === 'shots') {
       // Custom shots: --json '[{"clip":"ready","t":1,"az":0}]' --name file
       await page.goto(`${base}viewer/frames.html?glb=${glb}`);
-      await page.waitForFunction(() => window.__framesReady, null, { timeout: 120000 });
+      await ready(() => window.__framesReady);
       const shots = JSON.parse(flags.json);
       const cols = Number(flags.cols ?? 4);
       const png = await page.evaluate(([s, c]) => window.renderSheet(s, { cols: c, w: Number(340), h: Number(400) }), [shots, cols]);

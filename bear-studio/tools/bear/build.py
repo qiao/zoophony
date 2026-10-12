@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import anim  # noqa: E402
 import body  # noqa: E402
 import contacts  # noqa: E402
+import corrective  # noqa: E402
 import motion  # noqa: E402
 import details  # noqa: E402
 import mesh  # noqa: E402
@@ -44,7 +45,7 @@ def parse_args():
     """Reads the arguments after the '--' of the Blender command line."""
     argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
     ap = argparse.ArgumentParser()
-    ap.add_argument('--quads', type=int, default=760)
+    ap.add_argument('--quads', type=int, default=900)
     ap.add_argument('--seed', type=int, default=2, help='the seed of the QuadriFlow remesh')
     ap.add_argument('--step', type=float, default=0.004)
     ap.add_argument('--pose', default='bind')
@@ -64,6 +65,7 @@ def build_body(parts, step, target_quads, seed):
     obj, info = retopo.remesh(parts, verts, quads, target_quads, seed)
     print(f'remeshed: {info["quads"]} quads -> {mesh.triangle_count(obj)} triangles, '
           f'quad edge {info["quad_edge_px"]} px, unpaired vertices {info["unpaired_vertices"]}, '
+          f'collapsed pairs {info["collapsed_pairs"]}, flipped pairs {info["flipped_pairs"]}, '
           f'{time.time() - t0:.1f} s')
     return obj
 
@@ -149,18 +151,41 @@ def join(objs, name):
     return target
 
 
-def check_contacts(skel, verts, tris, weights, items, samples):
-    """Measures the deepest contact of paws, claws, forearms, and the baton in each clip."""
+def add_shape_keys(obj, body_verts, deltas):
+    """Adds shape keys to the joined mesh. The body vertices come first in it.
+
+    deltas: {name: (body vertices, 3) offsets in three.js axes}.
+    """
+    n = len(body_verts)
+    co = np.zeros(len(obj.data.vertices) * 3)
+    obj.data.vertices.foreach_get('co', co)
+    co = co.reshape(-1, 3)
+    if np.abs(mesh.from_blender(co[:n]) - body_verts).max() > 1e-5:
+        raise RuntimeError('the body vertices are not first in the joined mesh')
+    obj.shape_key_add(name='Basis', from_mix=False)
+    for name, delta in deltas.items():
+        key = obj.shape_key_add(name=name, from_mix=False)
+        moved = co.copy()
+        moved[:n] += mesh.to_blender(delta)
+        key.data.foreach_set('co', moved.ravel().astype(np.float32))
+
+
+def check_contacts(skel, verts, tris, weights, items, samples, morphs, driver):
+    """Measures the deepest contact of paws, claws, forearms, and the baton in each clip, and
+    the faces that turn over. A clip passes with no contact deeper than contacts.LIMIT and no
+    folded face."""
     t0 = time.time()
-    check = contacts.ContactCheck(skel, verts, tris, weights, items)
+    check = contacts.ContactCheck(skel, verts, tris, weights, items, morphs, driver)
     report = {}
     for name, poses in samples.items():
-        depth, side, part, frame = check.clip(poses)
-        ok = depth <= contacts.LIMIT
+        depth, side, part, frame, turned, folded = check.clip(poses)
+        ok = depth <= contacts.LIMIT and folded == 0
         report[name] = {'depth': round(depth, 4), 'side': side, 'part': part,
-                        'time_s': round(frame / motion.FPS, 3), 'pass': ok}
+                        'time_s': round(frame / motion.FPS, 3), 'turned_faces': turned,
+                        'folded_faces': folded, 'pass': ok}
         print(f'contact {name:12s} worst {depth * 100:5.2f} cm ({part} {side} at '
-              f'{frame / motion.FPS:5.2f} s)  {"pass" if ok else "FAIL"}')
+              f'{frame / motion.FPS:5.2f} s), turned past 90 deg {turned}, '
+              f'folded past 120 deg {folded}  {"pass" if ok else "FAIL"}')
     print(f'contact check: limit {contacts.LIMIT * 100:.1f} cm, {time.time() - t0:.1f} s')
     return {'limit': contacts.LIMIT, 'clips': report}
 
@@ -182,6 +207,10 @@ def export_glb(path):
         export_influence_nb=4,
         export_animations=True,
         export_animation_mode='NLA_TRACKS',
+        export_merge_animation='NLA_TRACK',
+        export_morph=True,
+        export_morph_normal=False,
+        export_morph_animation=True,
         export_force_sampling=True,
         export_def_bones=True,
         export_optimize_animation_size=True,
@@ -242,14 +271,31 @@ def main():
         names = [b.name for b in arm.data.bones]
         w = rig.weight_table(obj, names)
         w = rig.trunk_weights(verts, w, names)
+        w = rig.trunk_owned(verts, parts, w, names)
         neighbors = rig.vertex_neighbors(obj)
         w = rig.smooth_weights(w, neighbors, rounds=2, amount=0.5)
         w = rig.smooth_weights(w, neighbors, rounds=10, amount=0.7 * rig.armpit_mask(verts))
+        w = rig.smooth_weights(w, neighbors, rounds=10, amount=0.7 * rig.joint_mask(verts))
+        w = rig.chain_limits(verts, w, names, bones)
         w = rig.force_bone(w, names, 'head', rig.head_rigidity(verts), keep=('ear_L', 'ear_R'))
+        w = rig.force_bone(w, names, 'hips', rig.crotch_mask(verts))
         w = rig.limit_and_normalize(w)
         rig.write_weights(obj, names, w)
+
+        # The corrective shapes of the arms down (corrective.py).
+        skel = anim.skeleton_of(arm, bones)
+        pose_ref = skel.solve(motion.clip_reference(0.0))[0]
+        pose_bind = {n: (np.array([1.0, 0.0, 0.0, 0.0]), np.zeros(3), 1.0) for n in skel.names}
+        parts_ref = body.all_parts('reference', views, small=False)
+        dL, dR, creport = corrective.arm_down_shapes(
+            skel, verts, tris, w, pose_ref, parts_ref, retopo.project)
+        print(f'corrective: {creport}')
+        driver = corrective.ArmDriver(skel, pose_bind, pose_ref)
+        n_body = len(verts)
+
         detail_objs = add_detail_objects(items, mats)
         final = join([obj] + detail_objs, 'Bear')
+        add_shape_keys(final, verts, {'arm_down_L': dL, 'arm_down_R': dR})
         final.parent = arm
         if not any(m.type == 'ARMATURE' for m in final.modifiers):
             mod = final.modifiers.new('Armature', 'ARMATURE')
@@ -261,10 +307,15 @@ def main():
         tip.parent_bone = 'baton'
         tip.location = (0.0, 0.0, 0.0)
         only = [c for c in args.clips.split(',') if c] or None
-        samples, skel = anim.bake_all(arm, bones, only)
+        shapes = (final, {'arm_down_L': lambda p: driver.weights(p)['L'],
+                          'arm_down_R': lambda p: driver.weights(p)['R']})
+        samples, skel = anim.bake_all(arm, bones, only, shapes)
         stats['bones'] = len(arm.data.bones)
         stats['clips'] = list(samples)
-        stats['contacts'] = check_contacts(skel, verts, tris, w, items, samples)
+        stats['corrective'] = creport
+        stats['contacts'] = check_contacts(skel, verts, tris, w, items, samples,
+                                           {'L': dL, 'R': dR}, driver)
+        assert n_body == len(verts)
     for poly in final.data.polygons:
         poly.use_smooth = False
     stats['total_triangles'] = mesh.triangle_count(final)

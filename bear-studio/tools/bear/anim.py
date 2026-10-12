@@ -103,9 +103,37 @@ def write_action(arm, name, poses):
     return action
 
 
-def bake_all(arm, layout_bones, only=None):
+def write_shape_action(obj, name, values):
+    """Writes the weights of the shape keys of obj for one clip, on an NLA track of the same
+    name as the clip of the armature, so the glTF exporter merges them into one animation.
+
+    values: {shape key name: array of one weight per frame}.
+    """
+    key = obj.data.shape_keys
+    key.animation_data_create()
+    action = bpy.data.actions.new(f'{name}_shapes')
+    key.animation_data.action = action
+    for shape, w in values.items():
+        fc = action.fcurve_ensure_for_datablock(key, f'key_blocks["{shape}"].value', index=0)
+        fc.keyframe_points.add(len(w))
+        co = np.stack([np.arange(len(w), dtype=np.float32), np.asarray(w, np.float32)], axis=1)
+        fc.keyframe_points.foreach_set('co', co.ravel())
+        fc.keyframe_points.foreach_set('interpolation', [1] * len(w))
+        fc.update()
+    action.use_fake_user = True
+    key.animation_data.action = None
+    track = key.animation_data.nla_tracks.new()
+    track.name = name
+    strip = track.strips.new(name, 0, action)
+    strip.name = name
+    track.mute = True
+
+
+def bake_all(arm, layout_bones, only=None, shapes=None):
     """Bakes every clip and the performance into actions.
 
+    shapes: optional (mesh object, {shape key name: function pose -> weight}). The weights of
+    these shape keys are baked for each frame of each clip.
     Returns ({clip: list of sampled poses}, skeleton). The samples are the keys of the actions.
     """
     skel = skeleton_of(arm, layout_bones)
@@ -118,5 +146,8 @@ def bake_all(arm, layout_bones, only=None):
         samples['performance'] = sample_performance(skel)
     for name, poses in samples.items():
         write_action(arm, name, poses)
+        if shapes:
+            obj, drivers = shapes
+            write_shape_action(obj, name, {k: [f(p) for p in poses] for k, f in drivers.items()})
     bpy.context.scene.render.fps = motion.FPS
     return samples, skel

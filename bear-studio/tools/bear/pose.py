@@ -10,7 +10,8 @@ A pose spec holds:
             'baton' axis points at the target direction, and the palm faces the palm normal.
             The points and the directions are in the rest frame of the chest: they move with
             the posed chest, so the hands follow a sway or a bow.
-    arm_fk: {'L'|'R': {'upper_arm': D, 'forearm': D, 'hand': D}} world rotations of the arm bones
+    arm_fk: {'L'|'R': {'upper_arm': D, 'forearm': D, 'forearm_twist': D, 'hand': D}} world
+            rotations of the arm bones
             (in place of 'arms').
     baton_scale: a scale of the baton bone (0 hides the baton).
     legs:   'planted': the ankles stay on their rest points and the feet stay flat.
@@ -112,7 +113,9 @@ def slerp(q0, q1, t):
 def twist_angle(m, axis):
     """Finds the angle of the twist part of rotation m about axis (swing-twist split)."""
     q = quat_from_matrix(m)
-    return 2.0 * math.atan2(float(np.dot(q[1:], unit(axis))), q[0])
+    angle = 2.0 * math.atan2(float(np.dot(q[1:], unit(axis))), q[0])
+    # The shorter way round: the result is in (-pi, pi].
+    return (angle + math.pi) % (2.0 * math.pi) - math.pi
 
 
 def two_bone(s, t, l1, l2, pole):
@@ -132,6 +135,10 @@ def two_bone(s, t, l1, l2, pole):
     return mid, s + a * dist
 
 
+# The share of the swing of an arm that the clavicle takes (see Skeleton._auto_clavicle).
+CLAVICLE_SHARE = 0.25
+
+
 class Skeleton:
     """The rest pose of the armature, and the solver of pose specs."""
 
@@ -145,6 +152,25 @@ class Skeleton:
         self.heads = {n: np.asarray(h, float) for n, h in heads.items()}
         self.rest = {n: np.asarray(r, float) for n, r in rest_rots.items()}
         self.extras = extras
+
+    def _auto_clavicle(self, name, arm):
+        """Turns the clavicle by a share of the swing of the arm toward the wrist target.
+
+        A real shoulder girdle follows the arm, so the skin over the shoulder does not take the
+        whole rotation at the shoulder joint, where it would fold. The rotation is in the axes of
+        the rest pose (the frame of the chest).
+        """
+        side = name[-1]
+        c0 = self.heads[name]
+        v0 = unit(self.heads[f'hand_{side}'] - c0)
+        v1 = unit(np.asarray(arm['wrist'], float) - c0)
+        axis = np.cross(v0, v1)
+        angle = math.atan2(np.linalg.norm(axis), float(np.dot(v0, v1)))
+        # Only a raised arm moves the clavicle: from no share at wrist height 0.45 (a hanging
+        # arm, where the arm-down corrective expects the clavicle at rest) to the full share at
+        # 0.55.
+        lift = min(max((float(arm['wrist'][1]) - 0.45) / 0.1, 0.0), 1.0)
+        return rot_axis(axis, lift * min(CLAVICLE_SHARE * angle, math.radians(15.0)))
 
     def _arm(self, side, spec, D, H):
         """Solves one arm: the upper arm, the forearm, and the hand."""
@@ -173,12 +199,15 @@ class Skeleton:
         share = spec.get('twist', 0.5)
         rel = Df.T @ Dh
         tw = twist_angle(rel, f0)
-        Df = Df @ rot_axis(f0, share * tw)
+        tb = f'forearm_twist_{side}'
+        mid = np.linalg.norm(self.heads[tb] - E0) / l2
 
         D[up] = Du
         D[fo] = Df
+        D[tb] = Df @ rot_axis(f0, share * tw)
         D[ha] = Dh
         H[fo] = E
+        H[tb] = E + mid * (W - E)
         H[ha] = W
 
     def _leg(self, side, D, H):
@@ -213,6 +242,10 @@ class Skeleton:
             if name == 'hips':
                 H[name] = H[name] + hips_offset
             side = name[-1]
+            if name.startswith('clavicle_') and side in spec.get('arms', {}):
+                D[name] = D[parent] @ rot.get(name, np.eye(3)) @ self._auto_clavicle(
+                    name, spec['arms'][side])
+                continue
             if name.startswith('upper_arm_') and side in spec.get('arms', {}):
                 self._arm(side, spec['arms'][side], D, H)
                 continue

@@ -173,6 +173,7 @@ def clip_reference(t):
         fk[side] = {
             'upper_arm': m @ (ref_f['upper'] @ bind_f['upper'].T) @ m,
             'forearm': m @ (ref_f['fore'] @ bind_f['fore'].T) @ m,
+            'forearm_twist': m @ (ref_f['fore'] @ bind_f['fore'].T) @ m,
             'hand': m @ (ref_f['hand'] @ bind_f['hand'].T) @ m,
         }
     return {'rot': {}, 'arm_fk': fk, 'legs': 'planted', 'baton_scale': 0.0}
@@ -212,7 +213,9 @@ def clip_cue_left(t):
     rot['chest'] = rot['chest'] @ euler(yaw=6.0 * look)
     rot.update(ears(t, flick=nod))
     # The left paw: up to a preparation, a quick throw to the cue point, a hold, and back.
-    prep = np.array([0.22, 0.70, 0.20])
+    # The preparation keeps the elbow bent about 70 degrees, as in the beat. Nearer to the
+    # shoulder the elbow bends past 100 degrees, and the inner elbow skin folds.
+    prep = np.array([0.27, 0.69, 0.25])
     cue = np.array([0.33, 0.63, 0.29])
     w = HOME_L.copy()
     if t < 1.9:
@@ -228,7 +231,7 @@ def clip_cue_left(t):
         g = smooth((t - 1.75) / 0.25) if t < 3.0 else 1 - smooth((t - 3.0) / 0.9)
         fingers = unit(FINGERS_L * (1 - g) + unit([0.8, -0.05, 1.0]) * g)
         palm = unit(PALM_L * (1 - g) + unit([-0.35, -1.0, 0.1]) * g)
-    left = {'wrist': w, 'pole': POLE_L, 'hand': ('fingers', fingers, palm), 'twist': 0.5}
+    left = {'wrist': w, 'pole': POLE_L, 'hand': ('fingers', fingers, palm), 'twist': 0.65}
     return spec(rot, hips, {'R': right_arm(t, 0.9), 'L': left})
 
 
@@ -239,9 +242,9 @@ def clip_crescendo(t):
     rot['chest'] = rot['chest'] @ euler(pitch=-3.0 * u)
     rot['head'] = rot['head'] @ euler(pitch=-6.0 * u)
     rot.update(ears(t, flick=0.4 * u))
-    w = np.array([0.20, 0.50, 0.29]) * (1 - u) + np.array([0.25, 0.75, 0.24]) * u
+    w = np.array([0.21, 0.53, 0.25]) * (1 - u) + np.array([0.29, 0.72, 0.29]) * u
     left = {'wrist': w, 'pole': POLE_L,
-            'hand': ('fingers', unit([-0.35, 0.15, 1.0]), unit([-0.1, 1.0, 0.1])), 'twist': 0.5}
+            'hand': ('fingers', unit([-0.3, 0.25, 1.0]), unit([-1.0, 0.45, 0.1])), 'twist': 0.55}
     return spec(rot, hips, {'R': right_arm(t, 0.85 + 0.35 * u), 'L': left})
 
 
@@ -349,15 +352,66 @@ def clip_sway_dip(t):
     return spec(rot, np.array([shift, -dip, 0.0]), arms)
 
 
+_CACHE = {}
+
+
+def _right_sheet_pose():
+    """Calculates the right wrist, the elbow pole, and the paw frame of the sheet pose."""
+    if 'sheet' not in _CACHE:
+        joints, frames = body.arm_pose('reference')
+        m = np.diag([-1.0, 1.0, 1.0])
+        S, E, W, K = (m @ joints[k] for k in ('shoulder', 'elbow', 'wrist', 'knuckle'))
+        d = unit(W - S)
+        _CACHE['sheet'] = {
+            'wrist': W,
+            'pole': unit(E - (S + np.dot(E - S, d) * d)),
+            'fingers': unit(K - W),
+            'palm': unit(m @ frames['hand'][:, 2]),
+        }
+    return _CACHE['sheet']
+
+
+def _bow_baton_turn(amount):
+    """Calculates the turn of the baton in the right paw for the bow (a share amount of it)."""
+    if 'baton' not in _CACHE:
+        import details  # noqa: PLC0415
+        bind_j, bind_f = body.arm_pose('bind')
+        ref_j, ref_f = body.arm_pose('reference')
+        m = np.diag([-1.0, 1.0, 1.0])
+        hand = m @ (ref_f['hand'] @ bind_f['hand'].T) @ m
+        _, grip, tip = details.baton('bind')
+        b_rest = unit(tip - grip)
+        want = hand.T @ unit([-0.45, -0.45, -0.77])
+        axis = np.cross(b_rest, want)
+        angle = math.atan2(np.linalg.norm(axis), float(np.dot(b_rest, want)))
+        _CACHE['baton'] = (axis, angle)
+    axis, angle = _CACHE['baton']
+    return rot_axis(axis, amount * angle)
+
+
+def _right_home_frame():
+    """Calculates the frame of the right paw at the beat home (the fingers and the palm)."""
+    if 'home' not in _CACHE:
+        import pattern  # noqa: PLC0415 (pattern imports this module)
+        skel, _ = pattern.skeleton_from_layout()
+        arms = {'R': {'wrist': HOME_R, 'pole': POLE_R, 'hand': ('baton', BATON_DIR, PALM_R),
+                      'twist': 0.5}}
+        _, D, _ = skel.solve({'rot': {}, 'arms': arms})
+        Dh = D['hand_R']
+        _CACHE['home'] = {'fingers': unit(Dh @ skel.extras['fingers_R']),
+                          'palm': unit(Dh @ skel.extras['palm_R'])}
+    return _CACHE['home']
+
+
 def clip_bow(t):
     """Makes the bow at the end: the paws come down, the bear bends at the hips, and rises."""
     down = smooth(t / 0.6)
     bend = window(t, 0.5, 1.7, 2.3, 3.5)
     rot = {
-        'hips': euler(pitch=15.0 * bend),
-        'spine': euler(pitch=8.0 * bend),
-        'spine1': euler(pitch=7.0 * bend),
-        'chest': euler(pitch=5.0 * bend),
+        'hips': euler(pitch=18.0 * bend),
+        'spine': euler(pitch=5.0 * bend),
+        'spine1': euler(pitch=5.0 * bend),
+        'chest': euler(pitch=6.0 * bend),
         'neck': euler(pitch=6.0 * bend),
         'head': euler(pitch=10.0 * bend),
         'tail': euler(pitch=-20.0 * bend),
@@ -365,21 +419,27 @@ def clip_bow(t):
     }
     rot.update(ears(t, flick=0.5 * bend))
     hips = np.array([0.0, -0.012 * bend, -0.03 * bend])
-    # Right paw: from the beat home to the side of the thigh, the baton points down.
-    side_r = np.array([-0.31, 0.42, 0.09])
+    # Right paw: from the beat home down to the pose of the sheet (in the frame of the chest),
+    # where the arm-down corrective of the rig fits exactly. The elbow pole and the frame of the
+    # paw blend from the home values to the values of the sheet pose.
+    home = _right_home_frame()
+    ref = _right_sheet_pose()
+    wr = HOME_R + (ref['wrist'] - HOME_R) * down
     # The paw swings out on its way down, so the forearm passes clear of the belly.
-    wr = HOME_R + (side_r - HOME_R) * down + np.array([-0.06, 0.0, 0.03]) * math.sin(math.pi * down)
-    # The baton turns out to the side on its way down, so it stays clear of the belly.
-    tip = unit(BATON_DIR * (1 - down) + unit([-0.3, -0.65, -0.75]) * down
-               + np.array([-1.2, 0.0, 0.2]) * math.sin(math.pi * down))
+    wr = wr + np.array([-0.06, 0.0, 0.03]) * math.sin(math.pi * down)
+    pole_r = unit(POLE_R * (1 - down) + ref['pole'] * down)
+    # In the sheet pose the fingers point down, so the baton would point into the ground in the
+    # deep bow. The baton turns in the paw to point down, out, and back past the hip.
+    rot['baton'] = _bow_baton_turn(down)
+    fingers_r = unit(home['fingers'] * (1 - down) + ref['fingers'] * down)
+    palm_r = unit(home['palm'] * (1 - down) + ref['palm'] * down)
     # Left paw: on the chest, the elbow out to the side, so the forearm passes above the belly.
     belly = np.array([0.08, 0.60, 0.29])
     wl = HOME_L + (belly - HOME_L) * down
     fingers = unit(FINGERS_L * (1 - down) + unit([-1.0, 0.05, 0.1]) * down)
     palm = unit(PALM_L * (1 - down) + unit([-0.1, 0.0, -1.0]) * down)
     arms = {
-        'R': {'wrist': wr, 'pole': unit([-1.0, 0.0, -0.6]),
-              'hand': ('baton', tip, unit([0.9, -0.2, -0.3])), 'twist': 0.5},
+        'R': {'wrist': wr, 'pole': pole_r, 'hand': ('fingers', fingers_r, palm_r), 'twist': 0.5},
         'L': {'wrist': wl, 'pole': unit([1.0, -0.15, -0.35]), 'hand': ('fingers', fingers, palm),
               'twist': 0.5},
     }

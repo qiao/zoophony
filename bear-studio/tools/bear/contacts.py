@@ -52,16 +52,82 @@ def forward_kinematics(skel, pose):
     return D, H, S
 
 
+def blend_matrices(skel, weights, pose):
+    """Calculates the blended skin transform of each vertex: posed = A @ rest + t."""
+    D, H, S = forward_kinematics(skel, pose)
+    n = weights.shape[0]
+    A = np.zeros((n, 3, 3))
+    t = np.zeros((n, 3))
+    for j, name in enumerate(skel.names):
+        w = weights[:, j]
+        nz = w > 0
+        if not nz.any():
+            continue
+        M = D[name] * S[name]
+        A[nz] += w[nz, None, None] * M
+        t[nz] += w[nz, None] * (H[name] - M @ skel.heads[name])
+    return A, t
+
+
+def skin(A, t, points):
+    """Moves rest points with blended transforms."""
+    return np.einsum('nij,nj->ni', A, points) + t
+
+
+def face_normals(v, tris):
+    """Calculates unit face normals."""
+    n = np.cross(v[tris[:, 1]] - v[tris[:, 0]], v[tris[:, 2]] - v[tris[:, 0]])
+    return n / np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)
+
+
+# A face is folded when its normal turns more than 120 degrees from its expected normal.
+FOLD_DOT = -0.5
+
+
+def turn_dots(rest, tris, A, posed):
+    """Calculates, for each face, the cosine between its posed normal and its expected normal.
+
+    The expected normal of a face is its rest normal carried by the mean skin transform of its
+    corners (the inverse transpose). Below 0 the face is turned past 90 degrees (edge-on or
+    further), and below FOLD_DOT it is folded over.
+    """
+    n0 = face_normals(rest, tris)
+    Af = A[tris].mean(axis=1)
+    expected = np.einsum('nji,nj->ni', np.linalg.inv(Af), n0)
+    expected /= np.maximum(np.linalg.norm(expected, axis=1, keepdims=True), 1e-12)
+    return np.sum(face_normals(posed, tris) * expected, axis=1)
+
+
+def dominant_dots(rest, tris, posed, weights, rotations):
+    """Calculates, for each face, the cosine between its posed normal and its rest normal
+    turned by the rotation of its dominant bone (the bone with the most weight on its corners).
+
+    Unlike turn_dots, this does not collapse where two bones turned far apart blend 50/50, so it
+    finds the folds of a twist.
+    """
+    dom = np.argmax(weights[tris].mean(axis=1), axis=1)
+    expected = np.einsum('nij,nj->ni', rotations[dom], face_normals(rest, tris))
+    return np.sum(face_normals(posed, tris) * expected, axis=1)
+
+
+def inverted_faces(rest, tris, A, posed):
+    """Counts the faces turned past 90 degrees in a pose (see turn_dots)."""
+    return int(np.sum(turn_dots(rest, tris, A, posed) < 0.0))
+
+
 class ContactCheck:
     """The test points, the obstacles, and the skinning data of the bear."""
 
-    def __init__(self, skel, body_verts, body_tris, weights, details):
+    def __init__(self, skel, body_verts, body_tris, weights, details, morphs=None, driver=None):
         """Stores the mesh in the bind pose (three.js axes) and sorts the test points.
 
         weights: (vertices, bones) in the order of skel.names. details: the detail dicts of
-        details.py (each one is rigid on one bone).
+        details.py (each one is rigid on one bone). morphs: {'L': delta, 'R': delta}, the
+        corrective shapes, and driver: the corrective.ArmDriver that weights them.
         """
         self.skel = skel
+        self.morphs = morphs or {}
+        self.driver = driver
         self.names = list(skel.names)
         self.verts = np.asarray(body_verts, float)
         self.tris = np.asarray(body_tris, np.int64)
@@ -74,12 +140,13 @@ class ContactCheck:
         self.obstacles = {}
         self.tests = {}
         for side in ('L', 'R'):
-            arm = wsum([f'upper_arm_{side}', f'forearm_{side}', f'hand_{side}', f'fingers_{side}'])
+            arm = wsum([f'upper_arm_{side}', f'forearm_{side}', f'forearm_twist_{side}',
+                        f'hand_{side}', f'fingers_{side}'])
             free = arm < 0.5
             self.obstacles[side] = self.tris[free[self.tris].all(axis=1)]
             tests = []
             for part, bones in (('paw', [f'hand_{side}', f'fingers_{side}']),
-                                ('forearm', [f'forearm_{side}'])):
+                                ('forearm', [f'forearm_{side}', f'forearm_twist_{side}'])):
                 member = wsum(bones) > 0.5
                 idx = np.nonzero(member)[0]
                 # The faces of the region add their centers as test points.
@@ -115,9 +182,21 @@ class ContactCheck:
         return out
 
     def frame(self, pose):
-        """Measures one frame. Returns {(side, part): deepest contact} in bear heights."""
+        """Measures one frame.
+
+        Returns ({(side, part): deepest contact} in bear heights, (faces turned past 90
+        degrees, faces folded past 120 degrees)).
+        """
         D, H, S = forward_kinematics(self.skel, pose)
-        body = self._skin(self.verts, self.w, D, H, S)
+        rest = self.verts
+        if self.morphs and self.driver:
+            mw = self.driver.weights(pose)
+            rest = rest + sum(mw[s] * self.morphs[s] for s in self.morphs)
+        A, t = blend_matrices(self.skel, self.w, pose)
+        body = skin(A, t, rest)
+        rotations = np.stack([D[n] for n in self.names])
+        dots = dominant_dots(rest, self.tris, body, self.w, rotations)
+        turned = (int(np.sum(dots < 0.0)), int(np.sum(dots < FOLD_DOT)))
         result = {}
         for side in ('L', 'R'):
             tri = self.obstacles[side]
@@ -141,13 +220,21 @@ class ContactCheck:
                             deepest = dist
                 key = (side, part)
                 result[key] = max(result.get(key, 0.0), deepest)
-        return result
+        return result, turned
 
     def clip(self, poses):
-        """Measures each frame of a clip. Returns (worst depth, side, part, frame)."""
+        """Measures each frame of a clip.
+
+        Returns (worst depth, side, part, frame, the most turned faces in one frame, the most
+        folded faces in one frame).
+        """
         worst = (0.0, '-', '-', 0)
+        turned = folded = 0
         for i, pose in enumerate(poses):
-            for (side, part), depth in self.frame(pose).items():
+            depths, (n_turned, n_folded) = self.frame(pose)
+            turned = max(turned, n_turned)
+            folded = max(folded, n_folded)
+            for (side, part), depth in depths.items():
                 if depth > worst[0]:
                     worst = (depth, side, part, i)
-        return worst
+        return worst + (turned, folded)
