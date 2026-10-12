@@ -1,13 +1,13 @@
 {
-  "seed": 2,
+  "seed": 3,
   "quads": 900,
-  "body_triangles": 1248,
-  "median_edge_px": 28.2,
+  "body_triangles": 1200,
+  "median_edge_px": 28.1,
   "edge_quartiles_px": [
-    22.1,
-    35.8
+    20.7,
+    37.6
   ],
-  "sliver_share": 0.0048,
+  "sliver_share": 0.0017,
   "folded_faces": 0,
   "bones": 31,
   "clips": [
@@ -24,12 +24,15 @@
     "performance"
   ],
   "corrective": {
-    "region_vertices": 393,
+    "region_vertices": 365,
     "inverted_before": 0,
     "inverted_after": 0,
-    "inward_after": 4,
-    "max_delta": 0.0183
+    "inward_after": 12,
+    "max_delta": 0.0217
   },
+  "fold_repairs": [
+    1
+  ],
   "contacts": {
     "limit": 0.01,
     "clips": {
@@ -92,7 +95,7 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 0,
+        "turned_faces": 1,
         "folded_faces": 0,
         "pass": true
       },
@@ -119,7 +122,7 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 3,
+        "turned_faces": 1,
         "folded_faces": 0,
         "pass": true
       },
@@ -128,11 +131,11 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 3,
+        "turned_faces": 1,
         "folded_faces": 0,
         "pass": true
       }
     }
   },
-  "total_triangles": 2882
+  "total_triangles": 2834
 }
