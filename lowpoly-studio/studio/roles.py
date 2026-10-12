@@ -55,7 +55,8 @@ class Context:
 
     def reference_clip(self):
         """Returns the clip of the sheet pose: (function t -> spec, duration of one frame)."""
-        spec = self.body.reference_spec([p.name for p in props.hand_props(self.role)])
+        spec = self.body.reference_spec([p.name for p in self.role.props
+                                         if p.hidden_in_reference])
         return (lambda t: spec), 1.0 / self.role.clips.fps
 
     def place(self, side, p):

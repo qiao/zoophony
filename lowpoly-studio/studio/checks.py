@@ -128,6 +128,21 @@ def run(cfg):
         r.add(f'folds.{clip}', c['folded_faces'], '<=', lim.folded_faces, True,
               where(lambda: diag.where_fold(clip, ('folded', 'turned'))),
               near=c.get('turned_faces', 0) > 0)
+        # The scene checks of a role with scene props or hand targets (studio/build.py
+        # check_scene): the body in a prop, the body on the seat, the knuckles on the targets.
+        rc = cfg.role.checks
+        if 'scene' in c:
+            s = c['scene']
+            r.add(f'scene.{clip}', s['depth'], '<=', rc.scene_depth, True,
+                  {'clip': clip, 'frame': s['frame'], 'time_s': s['time_s'], 'part': s['piece'],
+                   'bone': s['bone'], 'position': s['position'], 'depth': s['depth']})
+        if 'seat' in c:
+            r.add(f'seat.{clip}', c['seat']['gap'], 'in', [-rc.seat_gap, rc.seat_gap], True,
+                  {'clip': clip, 'frame': c['seat']['frame'], 'time_s': c['seat']['time_s']})
+        if 'hands' in c:
+            h = c['hands']
+            r.add(f'hands.{clip}', h['distance'], '<=', rc.hand_targets, True,
+                  {'clip': clip, 'frame': h['frame'], 'time_s': h['time_s'], 'side': h['side']})
 
     # The rest mesh.
     if stats:

@@ -210,7 +210,7 @@ def stage_assemble(cfg, body, body_obj, body_items, materials, arm, verts, shape
     """Adds the details and the role props to the body, the shape keys, and the markers."""
     role = cfg.role
     mats = dict(materials)
-    for pr in props.hand_props(role):
+    for pr in role.props:
         mats[pr.name] = export.make_material(pr.name, pr.material)
     items = body_items + props.role_details(role, body)
     detail_objs = export.add_detail_objects(items, mats)
@@ -240,14 +240,73 @@ def restore_clips(saved, samples, arm, skel, final, pack):
     return {}
 
 
-def check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes, weights_of, fps):
-    """Measures the deepest contact and the folded faces of each clip.
+def check_scene(cfg, body, pack, check, name, poses, fps):
+    """Measures one clip against the scene props of the role: the deepest body point inside a
+    prop, the rest of the body on the seat, and the distance of the knuckles from the targets
+    that the pack gives (pack.hand_targets). A role with no scene prop and no targets gets None.
 
-    A clip passes with no contact deeper than the role limit and no more folded faces than the
-    fold limit. Returns (report, the faces that folded in any frame).
+    Returns {'scene': {depth, prop, piece, frame, position, bone}, 'seat': {gap, frame}, 'hands':
+    {distance, side, frame}} (each part only when it applies), or None.
+    """
+    role = cfg.role
+    boxes = props.scene_boxes(role, body)
+    targets = getattr(pack, 'hand_targets', None)
+    if not boxes and targets is None:
+        return None
+    bench = next((pr for pr in props.scene_props(role) if pr.kind == 'bench'), None)
+    seat_top = props.scene_layout(body, role)['seat_top'] if bench else None
+    out = {}
+    names = check.names
+    # The skin that sits: the trunk and the thighs (the shins and the feet hang in front).
+    col = {n: k for k, n in enumerate(names)}
+    sit = [col[n] for n in names if n in ('root', 'hips', 'spine', 'tail')
+           or n.startswith('thigh_')]
+    seated = check.w[:, sit].sum(axis=1) > 0.5
+    for i, pose in enumerate(poses):
+        D, H, S, _, posed = check.pose_body(pose)
+        for prop, piece, center, half in boxes:
+            if S[prop] < 0.05:
+                continue
+            q = np.abs(posed - center) - half
+            sdf = np.linalg.norm(np.maximum(q, 0.0), axis=1) + np.minimum(q.max(axis=1), 0.0)
+            k = int(np.argmin(sdf))
+            depth = max(0.0, -float(sdf[k]))
+            if 'scene' not in out or depth > out['scene']['depth']:
+                out['scene'] = {'depth': round(depth, 4), 'prop': prop, 'piece': piece,
+                                'frame': i, 'time_s': round(i / fps, 3),
+                                'position': [round(float(v), 4) for v in posed[k]],
+                                'bone': names[int(np.argmax(check.w[k]))]}
+        if bench and S[bench.name] >= 0.05:
+            c = bench.bench
+            over = ((np.abs(posed[:, 0]) <= 0.5 * c.width)
+                    & (np.abs(posed[:, 2] - c.center_z) <= 0.5 * c.depth) & seated)
+            if over.any():
+                gap = float(posed[over, 1].min()) - seat_top
+                if 'seat' not in out or abs(gap) > abs(out['seat']['gap']):
+                    out['seat'] = {'gap': round(gap, 4), 'frame': i, 'time_s': round(i / fps, 3)}
+        if targets is not None:
+            for side, goal in (targets(name, i / fps) or {}).items():
+                if goal is None:
+                    continue
+                dist = float(np.linalg.norm(H[f'fingers_{side}'] - np.asarray(goal, float)))
+                if 'hands' not in out or dist > out['hands']['distance']:
+                    out['hands'] = {'distance': round(dist, 4), 'side': side, 'frame': i,
+                                    'time_s': round(i / fps, 3)}
+    return out
+
+
+def check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes, weights_of, fps,
+                body=None, pack=None):
+    """Measures the deepest contact and the folded faces of each clip, and the scene checks of a
+    role with scene props or hand targets (check_scene).
+
+    A clip passes with no contact deeper than the role limit, no more folded faces than the
+    fold limit, and the scene checks within the role limits. Returns (report, the faces that
+    folded in any frame).
     """
     t0 = time.time()
     limit = cfg.role.checks.contact_depth
+    rc = cfg.role.checks
     check = contacts.ContactCheck(skel, verts, tris, w, items, template.contact_spec(cfg.role),
                                   shapes, weights_of)
     report = {}
@@ -257,9 +316,23 @@ def check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes, wei
         report[name] = {'depth': round(depth, 4), 'side': side, 'part': part,
                         'time_s': round(frame / fps, 3), 'turned_faces': turned,
                         'folded_faces': folded, 'pass': ok}
+        scene = check_scene(cfg, body, pack, check, name, poses, fps) if body else None
+        extra = ''
+        if scene:
+            report[name].update(scene)
+            if 'scene' in scene:
+                ok &= scene['scene']['depth'] <= rc.scene_depth
+                extra += f', scene {scene["scene"]["depth"] * 100:.2f} cm ({scene["scene"]["piece"]})'
+            if 'seat' in scene:
+                ok &= abs(scene['seat']['gap']) <= rc.seat_gap
+                extra += f', seat gap {scene["seat"]["gap"] * 100:.2f} cm'
+            if 'hands' in scene:
+                ok &= scene['hands']['distance'] <= rc.hand_targets
+                extra += f', hands {scene["hands"]["distance"] * 100:.2f} cm'
+            report[name]['pass'] = ok
         print(f'contact {name:12s} worst {depth * 100:5.2f} cm ({part} {side} at '
               f'{frame / fps:5.2f} s), turned past 90 deg {turned}, '
-              f'folded past 120 deg {folded}  {"pass" if ok else "FAIL"}')
+              f'folded past 120 deg {folded}{extra}  {"pass" if ok else "FAIL"}')
     print(f'contact check: limit {limit * 100:.1f} cm, {time.time() - t0:.1f} s')
     return {'limit': limit, 'clips': report}, check.folded
 
@@ -291,7 +364,7 @@ def _debug_persisting(verts, tris, w, names, folded, surface_parts):
 
 def stage_contacts(cfg, template, skel, verts, tris, weights, items, samples, shapes,
                    weights_of, bone_names, neighbors, pose_ref, parts_ref, project,
-                   corrective_report, surface_parts, pack):
+                   corrective_report, surface_parts, pack, body):
     """Checks the contacts and the folds of each clip, and repairs the folds.
 
     A fold means that the weights step sharply across one face between bones that turn far
@@ -301,7 +374,7 @@ def stage_contacts(cfg, template, skel, verts, tris, weights, items, samples, sh
     """
     w = weights
     report, folded = check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes,
-                                 weights_of, pack.fps)
+                                 weights_of, pack.fps, body, pack)
     repairs = []
     writes = []
     for _ in range(REPAIR_ROUNDS):
@@ -320,7 +393,7 @@ def stage_contacts(cfg, template, skel, verts, tris, weights, items, samples, sh
             cfg.role.bind.correctives, skel, verts, tris, w, pose_ref, parts_ref, project)
         writes.append((w, shapes))
         report, folded = check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes,
-                                     weights_of, pack.fps)
+                                     weights_of, pack.fps, body, pack)
     if DEBUG and folded:
         _debug_persisting(verts, tris, w, bone_names, folded, surface_parts)
     return {'contact_report': report, 'fold_repairs': repairs, 'final_weights': w,
@@ -415,7 +488,7 @@ STAGES = [
     stages.Stage('contacts', stage_contacts,
                  ('cfg', 'template', 'skel', 'verts', 'tris', 'weights', 'items', 'samples',
                   'shapes', 'weights_of', 'bone_names', 'neighbors', 'pose_ref', 'parts_ref',
-                  'project', 'corrective_report', 'surface_parts', 'pack'),
+                  'project', 'corrective_report', 'surface_parts', 'pack', 'body'),
                  {'contact_report': 'json', 'fold_repairs': 'json', 'final_weights': 'array',
                   'final_shapes': 'array', 'final_corrective_report': 'json'},
                  'The contact and fold check of each clip, and the fold repair.',
