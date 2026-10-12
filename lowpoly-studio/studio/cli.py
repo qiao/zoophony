@@ -3,7 +3,7 @@
     python3 studio build <animal> [--seed N] [--no-shots] [--out DIR] [--until STAGE] [--clips a,b]
     python3 studio compare <animal> [--out DIR]
     python3 studio view <animal> [--port N]
-    python3 studio new <animal> --sheet <png> [--force]
+    python3 studio new <animal> --sheet <png> [--role R] [--like bear] [--force]
     python3 studio regress <animal> [--no-build] [--write --from DIR]
     python3 studio fit <animal> [--rows]
     python3 studio schema [--role]
@@ -296,9 +296,10 @@ def cmd_view(a):
         proc.wait()
 
 
-def detect_views(path):
+def detect_views(path, min_saturation=14, max_dark_sum=390):
     """Finds the background and the view columns of a sheet: the runs of columns that hold
-    pixels of the figure. Returns (size, background rgb, [(x0, x1)])."""
+    pixels of the figure (colored or dark, the default foreground rule; gray ground shadows
+    do not count). Returns (size, background rgb, [(x0, x1)])."""
     from PIL import Image  # noqa: PLC0415
     im = Image.open(path).convert('RGB')
     w, h = im.size
@@ -311,7 +312,7 @@ def detect_views(path):
         n = 0
         for y in range(0, h, 2):
             r, g, b = px[x, y]
-            if abs(r - bg[0]) + abs(g - bg[1]) + abs(b - bg[2]) > 40:
+            if max(r, g, b) - min(r, g, b) >= min_saturation or r + g + b < max_dark_sum:
                 n += 1
         used.append(n > 2)
     runs, start = [], None
@@ -358,11 +359,12 @@ def _comment(doc, indent=''):
     return '\n'.join(f'{indent}# {x}' for x in lines if x)
 
 
-def scaffold(schema, start, filled, path=''):
+def scaffold(schema, start, filled, path='', like=None):
     """Writes the TOML of a new animal from the schema.
 
-    A field marked todo gets "TODO" (or a value of `filled`). A required field without a default
-    starts from the value of the bear. A field with a default is a comment.
+    A field marked todo gets "TODO" (or a value of `filled`, or with `like` the value of that
+    animal and a comment "TODO: measure"). A required field without a default starts from the
+    value of the start animal. A field with a default is a comment.
     """
     from studio.schema import REQUIRED, A, F, M, T  # noqa: PLC0415
     lines, subs = [], []
@@ -373,10 +375,12 @@ def scaffold(schema, start, filled, path=''):
             lines.append(_comment(sub.doc))
             if p in filled:
                 lines.append(f'{key} = {_toml(filled[p])}')
+            elif sub.todo and like and value is not None:
+                lines.append(f'{key} = {_toml(config.to_plain(value))}  # TODO: measure ({like})')
             elif sub.todo:
                 lines.append(f'{key} = "TODO"')
             elif sub.default is REQUIRED:
-                lines.append(f'{key} = {_toml(config.to_plain(value))}  # the bear value: a start')
+                lines.append(f'{key} = {_toml(config.to_plain(value))}  # a start ({like or "bear"})')
             elif sub.default is not None and sub.default != ():
                 lines.append(f'# {key} = {_toml(config.to_plain(sub.default))}')
             elif value not in (None, ()):
@@ -391,24 +395,28 @@ def scaffold(schema, start, filled, path=''):
     for kind, p, key, sub, value in subs:
         text = ''
         if kind == 'table':
-            text = f'\n\n{_comment(sub.doc)}\n[{p}]\n' + scaffold(sub, value, filled, p)
+            text = f'\n\n{_comment(sub.doc)}\n[{p}]\n' + scaffold(sub, value, filled, p, like)
         elif kind == 'map':
             item = sub.item
             entries = filled.get(p, value)
             if isinstance(item, F):
                 body = []
                 for k, v in entries.items():
-                    shown = 'TODO' if item.todo and p not in filled else config.to_plain(v)
-                    body.append(f'{k} = {_toml(shown)}')
+                    if item.todo and p not in filled and not like:
+                        body.append(f'{k} = "TODO"')
+                    elif item.todo and p not in filled:
+                        body.append(f'{k} = {_toml(config.to_plain(v))}  # TODO: measure ({like})')
+                    else:
+                        body.append(f'{k} = {_toml(config.to_plain(v))}')
                 text = f'\n\n{_comment(sub.doc)}\n[{p}]\n' + '\n'.join(body)
             else:
                 text = f'\n\n{_comment(sub.doc)}'
                 for k, v in entries.items():
-                    text += f'\n\n[{p}.{k}]\n' + scaffold(item, v, filled, f'{p}.{k}')
+                    text += f'\n\n[{p}.{k}]\n' + scaffold(item, v, filled, f'{p}.{k}', like)
         else:
             text = f'\n\n{_comment(sub.doc)}'
             for v in value:
-                text += f'\n\n[[{p}]]\n' + scaffold(sub.item, v, filled, p)
+                text += f'\n\n[[{p}]]\n' + scaffold(sub.item, v, filled, p, like)
         out += text
     return out.strip('\n')
 
@@ -440,23 +448,24 @@ def cmd_new(a):
         if n == 'back':
             v['flip'] = True
         views[n] = v
-    bear = config.load('bear')
+    start = config.load(a.like or 'bear')
     filled = {'animal.id': a.animal, 'animal.name': a.animal.replace('_', ' ').title(),
               'animal.role': a.role, 'sheet.image': f'reference/{name}', 'sheet.background': bg,
               'sheet.views': views}
     for n, v in views.items():
         for k, x in v.items():
             filled[f'sheet.views.{n}.{k}'] = x
+    src = a.like or 'bear'
     head = (f'# The config of the animal "{a.animal}" (made by python3 studio new). Fill each '
-            f'"TODO";\n# `python3 studio schema` explains each field. A value marked "the bear '
-            f'value" is a start\n# from animals/bear/animal.toml. A commented line shows a '
-            f'default.\n#\n# Units: the animal is 1 unit tall (sole to ear top). Axes of '
-            f'three.js: x left of the animal,\n# y up, z forward. Colors are sRGB 0..255. '
-            f'Angles are in degrees.\n\n')
-    text = head + scaffold(SCHEMA, config.to_plain(bear), filled) + '\n'
+            f'"TODO" and each\n# "TODO: measure"; `python3 studio schema` explains each field. '
+            f'A value marked "a start ({src})"\n# comes from animals/{src}/animal.toml: tune it. '
+            f'A commented line shows a default.\n#\n# Units: the animal is 1 unit tall (sole to '
+            f'ear top). Axes of three.js: x left of the animal,\n# y up, z forward. Colors are '
+            f'sRGB 0..255. Angles are in degrees.\n\n')
+    text = head + scaffold(SCHEMA, config.to_plain(start), filled, '', a.like) + '\n'
     with open(os.path.join(root, 'animal.toml'), 'w') as f:
         f.write(text)
-    todo = text.count('"TODO"')
+    todo = text.count('"TODO"') + text.count('# TODO: measure')
     log(f'made {root}/: animal.toml ({todo} TODO fields), reference/{name}, out/')
     log(f'sheet {size[0]} x {size[1]} px, background {bg}, '
         f'{len(cols)} view column(s) found: {cols}')
@@ -577,6 +586,7 @@ def main(argv=None):
     p.add_argument('animal')
     p.add_argument('--sheet', required=True)
     p.add_argument('--role', default='conductor')
+    p.add_argument('--like', default=None, help='start the TODO fields from this animal')
     p.add_argument('--force', action='store_true')
     p.set_defaults(fn=cmd_new)
     p = sub.add_parser('regress', help='build and compare with the golden stats')
