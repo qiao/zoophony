@@ -168,8 +168,6 @@ blend = 0.012
 box_pad = 0.06
 
 # The low-poly facets: the remesh and the organic pass.
-# python3 studio calibrate polar-bear --quads (2026-10-12): QuadriFlow gives 760 to 850 quads at
-# 780 on the final field (ratio 1.03), so all 8 seeds are in the default band of the gate.
 [facets]
 quads = 780
 seeds = [3, 1, 5, 6, 2, 4, 7, 8]
@@ -179,6 +177,13 @@ collapse_share = 0.3
 flip_share = 0.8
 relax = 0.12
 jitter = 0.005
+
+# python3 studio calibrate polar-bear --quads (2026-10-12): at the target 780, QuadriFlow gives
+# 760 to 850 quads on the seated field of the pianist and 792 to 940 on the standing field of
+# the model build, so the band is wider than on the bear. A target of 736 would put every seed
+# of both fields in the default band, but it changes both GLBs.
+[facets.gate]
+quads = 0.3
 
 [[facets.warps]]
 center = [0.0, 0.42, 0.02]
