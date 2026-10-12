@@ -101,8 +101,7 @@ The other bind pose that I tested, the pose of the sheet (no turns): polar bear 
 0.9526, 0.9410, 0.9258 (each lower than now), and only seed 6 of the bear passed its remesh
 gate (seeds 3, 1, and 2 fell under the quad band). With seed 6, the bear passed 75 of 87
 checks: 3 new failures (`eye_outline.front.1`, `eye_rim.front.1`, `nose_height.side`) and 2 new
-passes. The outputs of that test are in the scratch folder of the round, not in the
-repository.
+passes. The outputs of that test are in the scratch folder of the round only.
 
 Item 9: `build bear --seed 3 --no-shots` after a build with shots marks 56 look checks stale.
 `studio compare bear` deletes an old frame and makes the look checks current again.
@@ -129,8 +128,8 @@ Item 12: a background `studio view bear` (a zsh job, SIGINT ignored) stopped wit
 `studio view bear --stop` and with `kill -INT`. No Vite process stayed, and the pid file went.
 
 Item 13 (a throwaway branch with `--check-only`, main did not change, the branch is deleted):
-a flaky command passed on run 2 after two printed waits; the real e2e tests waited 62 s for the
-load to drop from 53 to 19, then passed (66 tests); a command that always fails stopped with
+a flaky command passed on run 2 after two printed waits. The real e2e tests waited 62 s for the
+load to drop from 53 to 19, then passed (66 tests). A command that always fails stopped with
 exit 6 after two runs.
 
 ## Regressions
