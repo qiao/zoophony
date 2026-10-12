@@ -1,11 +1,13 @@
 {
-  "body_triangles": 1356,
-  "median_edge_px": 27.5,
+  "seed": 2,
+  "quads": 900,
+  "body_triangles": 1248,
+  "median_edge_px": 28.2,
   "edge_quartiles_px": [
-    21.6,
-    34.8
+    22.1,
+    35.8
   ],
-  "sliver_share": 0.0059,
+  "sliver_share": 0.0048,
   "folded_faces": 0,
   "bones": 31,
   "clips": [
@@ -22,11 +24,11 @@
     "performance"
   ],
   "corrective": {
-    "region_vertices": 442,
+    "region_vertices": 393,
     "inverted_before": 0,
     "inverted_after": 0,
-    "inward_after": 6,
-    "max_delta": 0.0182
+    "inward_after": 4,
+    "max_delta": 0.0183
   },
   "contacts": {
     "limit": 0.01,
@@ -63,7 +65,7 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 1,
+        "turned_faces": 0,
         "folded_faces": 0,
         "pass": true
       },
@@ -90,7 +92,7 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 1,
+        "turned_faces": 0,
         "folded_faces": 0,
         "pass": true
       },
@@ -132,5 +134,5 @@
       }
     }
   },
-  "total_triangles": 2558
+  "total_triangles": 2882
 }
