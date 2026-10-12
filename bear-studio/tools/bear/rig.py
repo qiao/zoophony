@@ -229,8 +229,14 @@ def joint_mask(points):
 def crotch_mask(points):
     """Weights (0..1) of the crotch between the legs, which moves only with the hips."""
     p = np.asarray(points, float)
+    # The mask fades out below 0.15 at the sides, where the inner thighs begin. On the center
+    # line there is only the crotch down to its lowest point, so the mask stays full there: a
+    # face of the crotch keel with half hips and half thigh weight folds over in the bow.
+    low = np.maximum(np.clip((p[:, 1] - 0.13) / 0.02, 0, 1),
+                     np.clip((0.035 - np.abs(p[:, 0])) / 0.015, 0, 1)
+                     * np.clip((p[:, 1] - 0.10) / 0.02, 0, 1))
     return (np.clip((0.07 - np.abs(p[:, 0])) / 0.03, 0, 1)
-            * np.clip((0.22 - p[:, 1]) / 0.03, 0, 1) * np.clip((p[:, 1] - 0.13) / 0.02, 0, 1))
+            * np.clip((0.22 - p[:, 1]) / 0.03, 0, 1) * low)
 
 
 def armpit_mask(points):
