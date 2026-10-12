@@ -410,15 +410,15 @@ def keep_seed(cfg, seed):
 
 
 def step_shots(cfg):
-    """Stage "shots": the compare with the sheet, the review frames, the viewer shot, and the
-    review scripts of the role."""
+    """Stage "shots": the compare with the sheet, the review frames, the viewer shot (one node
+    process), and the review scripts of the role."""
     node = shutil.which('node') or fail('no node on the path')
     shoot = os.path.join(STUDIO, 'studio', 'shoot.mjs')
-    for cmd in ('compare', 'frames', 'viewer'):
-        log(f'[shots] {cmd}')
-        code = subprocess.call([node, shoot, cmd, '--out', cfg.paths.out], cwd=STUDIO)
-        if code != 0:
-            fail(f'node studio/shoot.mjs {cmd} failed')
+    log('[shots] compare, frames, viewer')
+    code = subprocess.call([node, shoot, 'compare,frames,viewer', '--out', cfg.paths.out],
+                           cwd=STUDIO)
+    if code != 0:
+        fail('node studio/shoot.mjs failed (see its message above)')
     for script in cfg.role.review.blender:
         rel = os.path.relpath(os.path.join(cfg.role.paths.root, script), STUDIO)
         log(f'[shots] {rel}')
