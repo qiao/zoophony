@@ -1,7 +1,7 @@
 """Signed distance primitives, smooth blends, and a surface-nets mesher (numpy only).
 
 All points are numpy arrays of shape (..., 3) in model units (three.js axes: x left of the
-bear, y up, z forward). A negative distance is inside.
+animal, y up, z forward). A negative distance is inside.
 """
 
 import numpy as np

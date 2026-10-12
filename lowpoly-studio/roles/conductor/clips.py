@@ -10,7 +10,7 @@ moves each wrist target with the shoulder of its side and scales it by the arm r
 (studio/roles.py Context.place).
 
 The right paw holds the baton. Its wrist follows a 4/4 path in a plane in front of the chest:
-beat 1 down, beat 2 in (toward the bear's left), beat 3 out, beat 4 up. Between two ictus
+beat 1 down, beat 2 in (toward the animal's left), beat 3 out, beat 4 up. Between two ictus
 points the wrist rebounds like a ball: the vertical speed turns over at the ictus, which gives
 the sharp click of the ictus, and the hand falls fast into the next one.
 """
@@ -123,7 +123,7 @@ def beat_body(t, amount=1.0):
     for n in range(5):
         strength = 0.009 if n % 4 == 0 else 0.004
         dip += strength * pulse(k, n - 0.03, 0.16)
-    # The torso turns a little with the right paw (+ yaw turns to the bear's left), and the
+    # The torso turns a little with the right paw (+ yaw turns to the animal's left), and the
     # head stays on the players.
     wrist, _, _, _ = beat_right(t)
     lateral = (wrist[0] - HOME_R[0]) / 0.1

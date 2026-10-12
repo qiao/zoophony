@@ -135,7 +135,7 @@ def measure_view(view, meta, mask, rgb, axis, e):
     h = meta['height_px']
     w = len(mask[0])
     if view == 'side':
-        # The bear faces right: the ear stands up at the back of the head, the outer edge is low x.
+        # The animal faces right: the ear stands up at the back of the head, the outer edge is low x.
         return {'ear': measure_half(mask, 0, w, True, h, axis, e)}
     ax = int(round(axis))
     left = measure_half(mask, 0, ax, True, h, axis, e)

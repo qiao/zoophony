@@ -1,6 +1,6 @@
 """Blender mesh helpers: numpy arrays to meshes, decimation, and axis conversion.
 
-The body code uses the axes of three.js (y up, z forward). Blender uses z up, and the bear faces
+The body code uses the axes of three.js (y up, z forward). Blender uses z up, and the animal faces
 -y. The glTF exporter turns the Blender axes back into the axes of three.js.
 """
 

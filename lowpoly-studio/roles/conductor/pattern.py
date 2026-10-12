@@ -60,7 +60,7 @@ def draw(paths, marks, size=(720, 560)):
     for p, color in marks:
         x, y = to_px(p[None])[0].astype(int)
         img[y - 6:y + 7, x - 6:x + 7] = color
-    # A scale bar of 0.1 bear heights (10 cm on the 1 m bear) at the bottom left.
+    # A scale bar of 0.1 animal heights (10 cm on a 1 m animal) at the bottom left.
     bar = int(round(0.1 * scale))
     img[h - 30:h - 26, 20:20 + bar] = (60, 60, 60)
     img[h - 38:h - 18, 20:22] = (60, 60, 60)
@@ -89,7 +89,7 @@ def main():
     fn = pack.clips[args.clip][0]
     times = np.arange(0, 4 * args.bars, 1 / 120)
     wrists, tips = tip_path(skel, bones, fn, times)
-    # The conductor view: from behind, so the right of the bear (-x) is on the right.
+    # The conductor view: from behind, so the right of the animal (-x) is on the right.
     view = lambda p: np.stack([-p[:, 0], p[:, 1]], axis=1)  # noqa: E731
     ictus_idx = [int(round(k * 120)) for k in range(4)]
     for k, i in enumerate(ictus_idx):
