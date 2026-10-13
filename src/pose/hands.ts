@@ -81,7 +81,9 @@ export type RestingHand =
       readonly kind: 'lap';
       /** The place of the palm. */
       readonly lap: LapPlace;
-      /** The direction of the fingers. It is level. */
+      /** The side of the palm: down onto a thigh, or back and down onto a round belly. */
+      readonly palm: Vec3;
+      /** The direction of the fingers. The pose keeps only its part in the plane of the palm. */
       readonly fingers: Vec3;
       /** The direction to which the elbow points, out to the side of the body. */
       readonly pole: Vec3;
@@ -137,12 +139,14 @@ export const HANDS_HOLDS = {
     restL: {
       kind: 'lap',
       lap: { along: 1, offset: [-0.8, -0.1, -0.35] },
+      palm: [0, -1, 0],
       fingers: [-0.3, -0.5, -1],
       pole: [-1, 0, 0.4],
     },
     restR: {
       kind: 'lap',
       lap: { along: 1, offset: [0.8, -0.1, -0.35] },
+      palm: [0, -1, 0],
       fingers: [0.3, -0.5, -1],
       pole: [1, 0, 0.4],
     },
@@ -171,6 +175,7 @@ export const HANDS_HOLDS = {
     restL: {
       kind: 'lap',
       lap: { along: 0.85, offset: [-0.22, 0.13, 0] },
+      palm: [0, -1, 0],
       fingers: [0, 0, -1],
       pole: [-0.5, -1, -0.5],
     },
@@ -208,7 +213,8 @@ export interface HandSide {
 }
 
 /**
- * Gives a hand that rests on the top of its thigh: the palm faces down, and the fingers are level.
+ * Gives a hand that rests on its lap: the palm faces the side of the rest hand, and the fingers
+ * point in the plane of the palm.
  *
  * @param model The player model.
  * @param arm The arm.
@@ -241,9 +247,11 @@ function restingHand(
   }
 
   // The bind palm faces the body: +x on the left and -x on the right. The fingers point down.
-  const up = arm.side === 'L' ? -1 : 1;
-  const back = new Vector3(...rest.fingers).setY(0).normalize().negate();
-  const rotation = setFromBasis(new Quaternion(), new Vector3(0, up, 0), back);
+  const side = new Vector3(...rest.palm).normalize();
+  const back = new Vector3(...rest.fingers);
+  back.addScaledVector(side, -back.dot(side)).normalize().negate();
+  side.multiplyScalar(arm.side === 'L' ? 1 : -1);
+  const rotation = setFromBasis(new Quaternion(), side, back);
   const palm = new Vector3(...lapPoint(model, arm.side, rest.lap));
 
   return {
