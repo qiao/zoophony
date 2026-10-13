@@ -465,12 +465,21 @@ export function framesPerSecond(stamps: readonly number[]): number {
   return span > 0 ? ((stamps.length - 1) * 1000) / span : 0;
 }
 
-/** The browsers and the child processes of a run, so that a stop of the run can stop them. */
+/**
+ * The browsers, the child processes, and the temporary folders of a run, so that a stop of the run
+ * can stop and remove them.
+ */
 const RUNNING = {
   /** The browsers that are open. */
   browsers: new Set<Browser>(),
   /** The child processes of `xctrace` that run. */
   children: new Set<ChildProcess>(),
+  /** The temporary folders that the run has not removed. */
+  folders: new Set<string>(),
+  /** The stop of the run after a signal. The waits for a low load end at the stop. */
+  stop: new AbortController(),
+  /** The promise of the end of the measure, which removes its folders at its end. */
+  measure: Promise.resolve(),
 };
 
 /** The flags of Chrome: ANGLE on Metal for the GPU of the Mac, and audio with no gesture. */
@@ -487,6 +496,7 @@ const UNCAPPED_ARGS = ['--disable-gpu-vsync', '--disable-frame-rate-limit'];
  * @returns The browser.
  */
 async function launchChrome(options: FrameOptions, uncapped: boolean): Promise<Browser> {
+  RUNNING.stop.signal.throwIfAborted();
   const browser = await chromium.launch({
     channel: 'chrome',
     headless: !options.headed,
@@ -553,7 +563,7 @@ async function waitForLowLoad(options: FrameOptions, phase: string): Promise<num
       );
     }
     console.log(`Load average ${load.toFixed(1)} is above ${options.maxLoad}: ${phase} waits.`);
-    await delay(LOAD_POLL_SEC * 1000);
+    await delay(LOAD_POLL_SEC * 1000, undefined, { signal: RUNNING.stop.signal });
     load = currentLoad();
   }
   return load;
@@ -638,7 +648,7 @@ function xctrace(
     child.stdout.on('data', collect);
     child.stderr.on('data', collect);
     const timer = setTimeout(() => {
-      stopChild(child);
+      void stopChild(child);
       reject(new Error(`xctrace ${args[0] ?? ''} did not end in ${limitMs} ms:\n${output}`));
     }, limitMs);
     child.on('error', (error) => {
@@ -658,17 +668,28 @@ function xctrace(
   });
 }
 
+/** The time from the interrupt of a child process to its kill, in milliseconds. */
+const KILL_AFTER_MS = 3000;
+
 /**
  * Stops a child process: an interrupt first, so that `xctrace` can end its file, then a kill
- * after 3 s.
+ * after {@link KILL_AFTER_MS}.
  *
  * @param child The child process.
+ * @returns A promise of the close of the child process.
  */
-function stopChild(child: ChildProcess): void {
-  child.kill('SIGINT');
-  const kill = setTimeout(() => child.kill('SIGKILL'), 3000);
-  kill.unref();
-  child.once('close', () => clearTimeout(kill));
+function stopChild(child: ChildProcess): Promise<void> {
+  if (child.exitCode !== null || child.signalCode !== null) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    const kill = setTimeout(() => child.kill('SIGKILL'), KILL_AFTER_MS);
+    child.once('close', () => {
+      clearTimeout(kill);
+      resolve();
+    });
+    child.kill('SIGINT');
+  });
 }
 
 /**
@@ -719,6 +740,7 @@ async function measureUncapped(
 ): Promise<UncappedMeasure> {
   const browser = await launchChrome(options, true);
   const folder = await mkdtemp(join(tmpdir(), 'zoophony-frame-'));
+  RUNNING.folders.add(folder);
   try {
     const page = await playDemo(browser, base, options);
     const probe = await probeFor(page, MEASURE_SEC);
@@ -775,23 +797,40 @@ async function measureUncapped(
   } finally {
     await browser.close();
     await rm(folder, { recursive: true, force: true });
+    RUNNING.folders.delete(folder);
   }
 }
 
+/** The longest wait for the end of the measure after a signal, in milliseconds. */
+const STOP_WAIT_MS = 30_000;
+
 /**
- * Stops each browser and child process of the run after a signal, then ends the process.
+ * Stops the run after a signal. It waits for the close of each child process, each browser, and
+ * the dev server, and for the end of the measure. Then it removes each temporary folder and ends
+ * the process with the exit code 130.
  *
  * @param close Closes the dev server.
  * @returns The function for the signal.
  */
 function stopOnSignal(close: () => Promise<void>): () => void {
   return () => {
-    console.log('\nStopped: the measure closes its browsers, xctrace, and the dev server.');
-    for (const child of RUNNING.children) {
-      stopChild(child);
-    }
+    console.log(
+      '\nStopped: the measure closes its browsers, xctrace, and the dev server, and removes ' +
+        'its temporary folders.',
+    );
+    RUNNING.stop.abort();
+    const children = [...RUNNING.children].map((child) => stopChild(child));
     const browsers = [...RUNNING.browsers].map((browser) => browser.close());
-    void Promise.allSettled([...browsers, close()]).then(() => process.exit(130));
+    void (async () => {
+      await Promise.allSettled([...children, ...browsers, close()]);
+      // The measure ends when its browser and its child process close.
+      await Promise.race([RUNNING.measure.catch(() => undefined), delay(STOP_WAIT_MS)]);
+      const folders = [...RUNNING.folders].map((folder) =>
+        rm(folder, { recursive: true, force: true }),
+      );
+      await Promise.allSettled(folders);
+      process.exit(130);
+    })();
   };
 }
 
@@ -917,10 +956,14 @@ async function main(): Promise<void> {
 }
 
 if (import.meta.main) {
+  RUNNING.measure = main();
   try {
-    await main();
+    await RUNNING.measure;
   } catch (error) {
-    console.error(error instanceof Error ? error.message : error);
-    process.exitCode = 2;
+    // After a signal, the handler ends the process with the exit code 130.
+    if (!RUNNING.stop.signal.aborted) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exitCode = 2;
+    }
   }
 }
