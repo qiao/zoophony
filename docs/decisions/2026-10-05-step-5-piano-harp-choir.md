@@ -13,7 +13,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The piano palm 0.04 m above the front edge of the keys, the move of 0.15 s (at most 0.6 of the gap), the lift of 0.03 m, the strike at the note start, and the curl of 30° | 5.3 |
 | A hand stops short of a key out of reach at 97% of the arm length. The meerkat does not reach A0 to F♯1 and D♯7 to C8 | 5.3, 4.7 |
 | The harp pluck: the rest of 0.04 s on the string, the pull of 0.025 m in 0.08 s, the curls of 15° and 60°, and the lean of 8° that the bass strings need | 5.3 |
-| The rest pose of the pianist and of the harp player: the arms hang | 5.2, 5.3 |
+| The rest pose of the pianist and of the harp player: the arms hang. Later rows replace it: the harp player in [`2026-10-06-rest-arms-and-bow.md`](2026-10-06-rest-arms-and-bow.md) and [`2026-10-07-rest-clearance.md`](2026-10-07-rest-clearance.md), and the pianist in [`2026-10-13-pianist-rest.md`](2026-10-13-pianist-rest.md) | 5.2, 5.3 |
 | The jaw of a singer: 18° in the 0.1 s before a note, closed in 0.12 s after it, and closed to half between two notes | 5.3 |
 | The sway of a singer: the chest turns 3° to each side, one side every 2 beats, in a phrase (a rest of 0.5 s), with a rise of 0.4 s and a fade of 1 s | 5.3 |
 | The rest pose of a singer: the jaw closes, the chest stops its turn, and the palms keep the folder | 5.2, 5.3 |

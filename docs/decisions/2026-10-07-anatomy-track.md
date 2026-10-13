@@ -12,4 +12,4 @@ remove its row.
 
 | Decision | Section |
 |---|---|
-| The rest places move for the lower laps: the violin and the viola stand at 0.85 of the way to the knee, the bow grip is 0.18 H out and 0.08 H above the knee, the right elbow of the violin and the viola points (1, -0.9, -0.5), and the rested bow tip points 0.3 to the front. The palms of the pianist rest at 0.7 of the way, and the left palm of the harp player at 0.85 of the way, 0.13 H above the leg. The rest and play clearance tests keep their bounds | 5.3 |
+| The rest places move for the lower laps: the violin and the viola stand at 0.85 of the way to the knee, the bow grip is 0.18 H out and 0.08 H above the knee, the right elbow of the violin and the viola points (1, -0.9, -0.5), and the rested bow tip points 0.3 to the front. The left palm of the harp player rests at 0.85 of the way, 0.13 H above the leg. The rest place of the pianist is a row of [`2026-10-13-pianist-rest.md`](2026-10-13-pianist-rest.md). The rest and play clearance tests keep their bounds | 5.3 |
