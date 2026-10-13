@@ -268,6 +268,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   pose, so the lean changes with the lift and the lowering. The harp player sits up in the rest
   pose. With an upright trunk, the arms of the pianist stood out from its sides like wings (user
   report of 2026-10-13: "the default rest pose of the polar bear looks strange, fix it").
+  - On top of the rest clip, the neck and the head of the pianist lift against the lean in the
+    rest pose (`restHeadLift`), so that the gaze is about level and the face shows over the lid
+    (manager decision of 2026-10-13). The pose mixes the lift with no lift by the weight of the
+    playing pose, so the idle turn of the head stays. With the head of the rest clip, the head bent
+    down to the music desk, and the bear looked slumped over the piano.
 - **Arm clearance.** In the rest pose, no arm goes through the body. The forearm, the hand, and the
   lower half of the upper arm can touch the torso, the head, and the thighs, as the arms of the
   reference images touch the body. They go no deeper into them than `ARM_CONTACT_DEPTH` of

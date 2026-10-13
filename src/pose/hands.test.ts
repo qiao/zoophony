@@ -299,6 +299,19 @@ describe('poseHands (design 5.3, 4.7)', () => {
       expect(part, side).toBeGreaterThan(0.5);
     }
   });
+
+  it('keeps the gaze of the resting pianist about level while its trunk leans (manager decision of 2026-10-13)', () => {
+    const piano = players[0];
+    if (!piano) {
+      throw new Error('The test file has a piano.');
+    }
+    // The head lifts against the lean of the trunk, so that the face shows over the lid. With no
+    // lift, the head bent down to the music desk with the trunk.
+    const posed = posedAt(scene, piano, 1.2, 10, NOT_STARTED);
+    const head = posed.frames[boneIndex('head')]?.rotation ?? new Quaternion();
+    const forward = new Vector3(0, 0, -1).applyQuaternion(head);
+    expect(Math.abs(Math.asin(forward.y)) * MathUtils.RAD2DEG).toBeLessThan(10);
+  });
 });
 
 describe('the reach of the hands (design 5.3)', () => {

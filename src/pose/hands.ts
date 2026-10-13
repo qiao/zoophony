@@ -117,7 +117,7 @@ export const HANDS_HOLDS = {
     faceR: [0, -1, 0],
     lean: 20 * MathUtils.DEG2RAD,
     restLean: 22 * MathUtils.DEG2RAD,
-    restHeadLift: 0,
+    restHeadLift: 22 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
     poleL: [-1, -0.6, 0.4],
     poleR: [1, -0.6, 0.4],
@@ -131,7 +131,9 @@ export const HANDS_HOLDS = {
     // down, and a little out. The round belly of the studio polar bear covers its thighs, so the
     // paws stay out of it. The elbows point out and back, so the forearms pass outside the belly.
     // An upright trunk stood the arms out from the sides like wings
-    // (`docs/research/2026-10-13-pianist-rest.md`).
+    // (`docs/research/2026-10-13-pianist-rest.md`). On top of the rest clip, the head lifts
+    // against the lean (`restHeadLift`), so the gaze is about level and the face shows over the
+    // lid. With the head of the clip, the bear bent down to the music desk (manager decision).
     restL: {
       kind: 'lap',
       lap: { along: 1, offset: [-0.8, -0.1, -0.35] },
