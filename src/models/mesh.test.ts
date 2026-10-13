@@ -164,6 +164,28 @@ describe('MeshBuilder.addMesh', () => {
   });
 });
 
+describe('MeshBuilder.addFaces', () => {
+  it('gives each triangle its color and finish, and each corner its skin', () => {
+    const builder = new MeshBuilder();
+    const positions = [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1];
+    builder.addFaces(positions, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6], [0, 2], (c) => ({
+      bone: c,
+      blendBone: c + 1,
+      blendWeight: c === 4 ? 0.25 : 0,
+    }));
+    const mesh = builder.build();
+
+    expect([...mesh.positions]).toEqual(positions);
+    expect(mesh.colors[2]).toBeCloseTo(0.3, 6);
+    expect(mesh.colors[9]).toBeCloseTo(0.4, 6);
+    expect([...mesh.finishes]).toEqual([0, 2]);
+    expect([...mesh.bones]).toEqual([0, 1, 2, 3, 4, 5]);
+    // A corner with the weight 0 keeps its main bone as its second bone.
+    expect([...mesh.blendBones]).toEqual([0, 1, 2, 3, 5, 5]);
+    expect(mesh.blendWeights[4]).toBe(0.25);
+  });
+});
+
 describe('blendSkin', () => {
   it('makes the bone with the larger weight the main bone', () => {
     expect(blendSkin(4, 5, 0.25)).toEqual({ bone: 4, blendBone: 5, blendWeight: 0.25 });

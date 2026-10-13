@@ -305,6 +305,38 @@ export class MeshBuilder {
   }
 
   /**
+   * Adds triangles that each have their own color and finish, and corners that each have their
+   * own skin, such as the faces of a studio body (design 4.4).
+   *
+   * @param positions x, y, z of each corner, 9 numbers for each triangle, counterclockwise from
+   *   outside.
+   * @param colors Linear r, g, b of each triangle.
+   * @param finishes The finish of each triangle, as an index in {@link FINISH_ORDER}.
+   * @param skin Gives the skin of a corner from its index.
+   * @throws Error if the skin of a corner has a weight that is not from 0 to 0.5.
+   */
+  addFaces(
+    positions: ArrayLike<number>,
+    colors: ArrayLike<number>,
+    finishes: ArrayLike<number>,
+    skin: (corner: number) => CornerSkin,
+  ): void {
+    for (let c = 0; c < positions.length / 3; c++) {
+      const t = Math.floor(c / 3);
+      this.#positions.push(
+        positions[c * 3] ?? 0,
+        positions[c * 3 + 1] ?? 0,
+        positions[c * 3 + 2] ?? 0,
+      );
+      this.#colors.push(colors[t * 3] ?? 0, colors[t * 3 + 1] ?? 0, colors[t * 3 + 2] ?? 0);
+      this.#pushSkin(skin(c));
+      if (c % 3 === 2) {
+        this.#finishes.push(finishes[t] ?? 0);
+      }
+    }
+  }
+
+  /**
    * Adds the bones of one corner. A corner with the weight 0 keeps its main bone as its second
    * bone, as a rigid corner does.
    *
