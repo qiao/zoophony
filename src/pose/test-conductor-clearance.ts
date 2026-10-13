@@ -263,10 +263,11 @@ function* armSamples(scene: TestScene): Generator<readonly [number, number, Tran
 
 /**
  * The number of shard files of the test of the conductor clearance
- * (`conductor-clearance-<shard>.test.ts`, design 9.3). With 3 shards, no file takes more than
- * about 10 s.
+ * (`conductor-clearance-<shard>.test.ts`, design 9.3). The skin of the studio bear and the depth
+ * of its paws take more time than the rigid parts, so each shard holds one demo, and no file takes
+ * more than about 10 s.
  */
-export const CONDUCTOR_CLEARANCE_SHARDS = 3;
+export const CONDUCTOR_CLEARANCE_SHARDS = 6;
 
 /**
  * Registers the tests of the clearance of the conductor in the demos of one shard (design 4.5,

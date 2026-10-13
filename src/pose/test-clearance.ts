@@ -421,16 +421,18 @@ const depthNormal = new Vector3();
  * @returns The depth, in meters: 0 when no point is under the surface.
  */
 export function depthUnder(points: readonly Vector3[], part: PosedPart, reach: number): number {
-  const boxes = part.triangles.map((t) => boxOf(t, new Box3()).expandByScalar(reach));
+  // Only the triangles near the box of the points can be within the reach of a point.
+  depthBox.setFromPoints([...points]).expandByScalar(reach);
+  const near = part.triangles.flatMap((t) => {
+    const box = boxOf(t, new Box3()).expandByScalar(reach);
+    return box.intersectsBox(depthBox) ? [{ triangle: t, box }] : [];
+  });
   let deepest = 0;
   for (const point of points) {
-    if (!depthBox.copy(part.box).expandByScalar(reach).containsPoint(point)) {
-      continue;
-    }
     let nearest = reach;
     let behind = false;
-    for (const [i, triangle] of part.triangles.entries()) {
-      if (!boxes[i]?.containsPoint(point)) {
+    for (const { triangle, box } of near) {
+      if (!box.containsPoint(point)) {
         continue;
       }
       const distance = triangle.closestPointToPoint(point, nearestPoint).distanceTo(point);
