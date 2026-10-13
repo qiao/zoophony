@@ -145,5 +145,10 @@ function probeSheet(name: SheetId, times: readonly number[]): void {
 }
 
 if (import.meta.main) {
-  main();
+  try {
+    main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
 }
