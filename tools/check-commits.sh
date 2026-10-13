@@ -82,6 +82,16 @@ run_plan() {
     report="${report:+$report, }$name $(since "$start")s"
   done <"$plan"
 
+  # A check result is a fact of the tree only when the checks saw the tree of the commit. An
+  # edit or a new file during the checks, or a move of HEAD, gives no entry.
+  local changed
+  changed=$(git status --porcelain --untracked-files=all)
+  if [ -n "$changed" ] || [ "$(git rev-parse HEAD)" != "$commit" ]; then
+    echo "$changed" | head -20
+    echo "RED ${label}${short} the working tree or HEAD changed during the checks: $subject"
+    echo "Do not edit the worktree while the script runs. The commit has no entry."
+    return 1
+  fi
   write_entry "$key" "$commit" "$subject" "$report"
   echo "${label}${short} $report  $subject"
 }

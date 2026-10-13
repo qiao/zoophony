@@ -24,12 +24,14 @@ interface RunResult {
 }
 
 /**
- * A fake `pnpm`. It writes each call with the short hash of HEAD into `pnpm.log` beside it, and it
- * fails the typecheck when the tree has the file `broken`.
+ * A fake `pnpm`. It writes each call with the short hash of HEAD into `pnpm.log` beside it. It
+ * fails the typecheck when the tree has the file `broken`. When the tree has the file
+ * `edit-during-lint`, the lint writes a new file, as an agent that edits the worktree.
  */
 const FAKE_PNPM = `#!/bin/sh
 echo "$(git rev-parse --short HEAD) $*" >> "$(dirname "$0")/pnpm.log"
 if [ "$2" = typecheck ] && [ -f broken ]; then exit 1; fi
+if [ "$2" = lint ] && [ -f edit-during-lint ]; then echo 'export const E = 1;' > src/edit.ts; fi
 exit 0
 `;
 
@@ -220,5 +222,17 @@ describe('tools/check-commits.sh', () => {
 
     expect(result.status).toBe(1);
     expect(result.output).toContain('src/b.ts');
+  });
+
+  it('writes no entry when the working tree changes during the checks', () => {
+    run('git', ['reset', '-q', '--hard', 'HEAD~1']);
+    const edit = commitFile('edit-during-lint', 'x\n');
+    const result = checkCommits();
+    rmSync(join(repo, 'src', 'edit.ts'), { force: true });
+
+    expect(result.status, result.output).toBe(3);
+    expect(result.output).toContain(`RED ${edit} the working tree or HEAD changed`);
+    expect(entries()).toHaveLength(3);
+    run('git', ['reset', '-q', '--hard', 'HEAD~1']);
   });
 });
