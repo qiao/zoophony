@@ -200,6 +200,16 @@ function alongBone(posed: PosedSkeleton, bone: number, point: Vector3): number {
 }
 
 /**
+ * Gets each posed sample of a sweep, with the closed surface of each obstacle by its name, for
+ * the other checks of a role.
+ */
+export type SweepVisit = (
+  posed: PosedSkeleton,
+  sample: SweepSample,
+  surfaces: ReadonlyMap<string, ClosedSurface>,
+) => void;
+
+/**
  * Sweeps one player of a role over a set of samples: in each sample, it poses the skin of the GPU
  * (`posedCorner()`), and measures the depth of each point of each moving part in each obstacle
  * (`closedDepth()`). It gives the deepest point of each pair.
@@ -207,14 +217,14 @@ function alongBone(posed: PosedSkeleton, bone: number, point: Vector3): number {
  * @param role The role.
  * @param player The player.
  * @param samples The samples.
- * @param visit Gets each posed sample, for the other checks of a role.
+ * @param visit Gets each posed sample with the surfaces of the obstacles.
  * @returns The deepest point of each pair of a moving part and an obstacle.
  */
 export function sweepDepths(
   role: RoleSweep,
   player: SweepPlayer,
   samples: Iterable<SweepSample>,
-  visit?: (posed: PosedSkeleton, sample: SweepSample) => void,
+  visit?: SweepVisit,
 ): PairDepth[] {
   const { mesh } = player.model;
   const parts = role.parts.map((part) => ({ part, points: partPoints(mesh, part.bones) }));
@@ -235,11 +245,11 @@ export function sweepDepths(
 
   for (const sample of samples) {
     const posed = poseSkeleton(player.model, player.poseAt(sample));
-    visit?.(posed, sample);
     const surfaces = role.obstacles.map((obstacle) => ({
       name: obstacle.name,
       surface: obstacle.surface(posed),
     }));
+    visit?.(posed, sample, new Map(surfaces.map(({ name, surface }) => [name, surface])));
     for (const { part, points } of parts) {
       const placed = points.corners.map((c) => new Vector3(...posedCorner(posed, c)));
       for (const { name, surface } of surfaces) {
