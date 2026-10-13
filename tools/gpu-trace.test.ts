@@ -10,6 +10,7 @@ import {
   droppedPerFrame,
   frameCheckFaults,
   gpuIntervals,
+  gpuSpanMs,
   otherGpuShare,
   parseTraceTable,
   webglFrameTimes,
@@ -401,6 +402,8 @@ describe('otherGpuShare', () => {
     });
     const intervals = [interval(0, 4, 'a'), other(1, 2), other(2, 2), interval(8, 2, 'b')];
     expect(otherGpuShare(intervals, '(7)')).toBe(0.3);
+    expect(gpuSpanMs(intervals)).toBe(10);
+    expect(gpuSpanMs([])).toBe(0);
     expect(otherGpuShare([interval(0, 4, 'a')], '(7)')).toBe(0);
     expect(otherGpuShare([], '(7)')).toBe(0);
   });

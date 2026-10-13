@@ -20,6 +20,7 @@ import {
   frameOptions,
   gpuGuardFaults,
   loadsText,
+  maximumCover,
   maximumShare,
   messageLines,
   middleFramesPerSecond,
@@ -261,18 +262,32 @@ describe('gpuGuardFaults', () => {
     expect(maximumShare(new Map())).toBe(0);
   });
 
+  it('gives the part of the span of the GPU intervals that the "Maximum" rows cover', () => {
+    expect(maximumCover(states(2700, 1), 3600)).toBe(0.75);
+    expect(maximumCover(states(2700, 1), 0)).toBe(0);
+  });
+
   it('passes a trace at "Maximum" with little other GPU work', () => {
-    expect(gpuGuardFaults(states(2700, 300), 0.1)).toEqual([]);
+    expect(gpuGuardFaults(states(2700, 300), 0.1, 3400)).toEqual([]);
   });
 
   it('fails a lower clock and other GPU work above 10%', () => {
-    expect(gpuGuardFaults(states(2600, 400), 0.02)).toEqual([
+    expect(gpuGuardFaults(states(2600, 400), 0.02, 3400)).toEqual([
       'The GPU was in its "Maximum" state for 86.7% of the state time, below 90%.',
     ]);
-    expect(gpuGuardFaults(states(3000, 0), 0.27)).toEqual([
+    expect(gpuGuardFaults(states(3000, 0), 0.27, 3400)).toEqual([
       'Other processes used the GPU in 27% of the trace, above 10%.',
     ]);
-    expect(gpuGuardFaults(new Map(), 0)).toHaveLength(1);
+    expect(gpuGuardFaults(new Map(), 0, 3400)).toHaveLength(2);
+  });
+
+  it('fails one short "Maximum" row in a long trace', () => {
+    // A low state that is open at both ends of the trace has no row.
+    const short = new Map([['Maximum', 50]]);
+    expect(maximumShare(short)).toBe(1);
+    expect(gpuGuardFaults(short, 0, 3500)).toEqual([
+      'The rows of the "Maximum" state cover 1.4% of the span of the GPU intervals, below 60%.',
+    ]);
   });
 });
 

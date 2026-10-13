@@ -553,22 +553,34 @@ export function frameCheckFaults(check: FrameCheck, expected: number | null): st
 }
 
 /**
- * Calculates the part of the time of a trace in which other processes used the GPU. The work of
- * another process, such as a page of another browser, shares the GPU with the measured frames and
- * makes them slower.
+ * Calculates the span of the GPU intervals of a trace: the time from the start of the first
+ * interval to the end of the last one, of all processes.
  *
  * @param intervals The GPU intervals of the trace.
- * @param process The text that the process column of the measured process holds.
- * @returns The busy time of the other processes over the time from the first interval to the
- *   end of the last one, from 0 to 1, or 0 with no intervals.
+ * @returns The span, in milliseconds, or 0 with no intervals.
  */
-export function otherGpuShare(intervals: readonly GpuInterval[], process: string): number {
+export function gpuSpanMs(intervals: readonly GpuInterval[]): number {
   let start = Infinity;
   let end = -Infinity;
   for (const interval of intervals) {
     start = Math.min(start, interval.startNs);
     end = Math.max(end, interval.startNs + interval.durationNs);
   }
+  return end > start ? (end - start) / 1e6 : 0;
+}
+
+/**
+ * Calculates the part of the time of a trace in which other processes used the GPU. The work of
+ * another process, such as a page of another browser, shares the GPU with the measured frames and
+ * makes them slower.
+ *
+ * @param intervals The GPU intervals of the trace.
+ * @param process The text that the process column of the measured process holds.
+ * @returns The busy time of the other processes over the span of the intervals
+ *   ({@link gpuSpanMs}), from 0 to 1, or 0 with no intervals.
+ */
+export function otherGpuShare(intervals: readonly GpuInterval[], process: string): number {
+  const span = gpuSpanMs(intervals);
   const others = intervals.filter((interval) => !interval.process.includes(process));
-  return end > start ? busyMs(others) / ((end - start) / 1e6) : 0;
+  return span > 0 ? busyMs(others) / span : 0;
 }

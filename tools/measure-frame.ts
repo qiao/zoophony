@@ -19,6 +19,7 @@ import {
   droppedPerFrame,
   frameCheckFaults,
   gpuIntervals,
+  gpuSpanMs,
   otherGpuShare,
   parseTraceTable,
   webglFrames,
@@ -48,6 +49,12 @@ export const OTHER_GPU_LIMIT = 0.1;
 
 /** The least part of the GPU state time in the state "Maximum" for a valid GPU phase. */
 export const MIN_MAXIMUM_SHARE = 0.9;
+
+/**
+ * The least part of the span of the GPU intervals that the rows of the state "Maximum" cover for
+ * a valid GPU phase (design 9.7). The kept traces of 2026-10-13 gave 73.6% to 95.9%.
+ */
+export const MIN_MAXIMUM_COVER = 0.6;
 
 /**
  * The song time of the seek before the Chrome trace, in seconds. The trace of 10 s then covers
@@ -521,20 +528,45 @@ export function maximumShare(states: ReadonlyMap<string, number>): number {
 }
 
 /**
+ * Calculates the part of the span of the GPU intervals that the rows of the state "Maximum"
+ * cover. A low state that is open at the start or at the end of the trace has no row, so
+ * {@link maximumShare} does not see it.
+ *
+ * @param states The time of each state ({@link stateTimes}).
+ * @param spanMs The span of the GPU intervals of the trace, in milliseconds.
+ * @returns The part, from 0, or 0 with no span.
+ */
+export function maximumCover(states: ReadonlyMap<string, number>, spanMs: number): number {
+  return spanMs > 0 ? (states.get('Maximum') ?? 0) / spanMs : 0;
+}
+
+/**
  * Gives the faults of the guard of the GPU phase (design 9.7). With a fault, the GPU values of
  * the trace are not valid: a lower clock or the work of other processes makes them too high.
  *
  * @param states The time of each GPU performance state in the trace.
  * @param otherShare The part of the trace in which other processes used the GPU.
+ * @param spanMs The span of the GPU intervals of the trace, in milliseconds.
  * @returns A text for each fault, or an empty list.
  */
-export function gpuGuardFaults(states: ReadonlyMap<string, number>, otherShare: number): string[] {
+export function gpuGuardFaults(
+  states: ReadonlyMap<string, number>,
+  otherShare: number,
+  spanMs: number,
+): string[] {
   const faults: string[] = [];
   const share = maximumShare(states);
   if (share < MIN_MAXIMUM_SHARE) {
     faults.push(
       `The GPU was in its "Maximum" state for ${(share * 100).toFixed(1)}% of the state time, ` +
         `below ${MIN_MAXIMUM_SHARE * 100}%.`,
+    );
+  }
+  const cover = maximumCover(states, spanMs);
+  if (cover < MIN_MAXIMUM_COVER) {
+    faults.push(
+      `The rows of the "Maximum" state cover ${(cover * 100).toFixed(1)}% of the span of the ` +
+        `GPU intervals, below ${MIN_MAXIMUM_COVER * 100}%.`,
     );
   }
   if (otherShare > OTHER_GPU_LIMIT) {
@@ -1001,6 +1033,8 @@ interface UncappedMeasure {
   readonly states: ReadonlyMap<string, number> | null;
   /** The part of the trace time in which other processes used the GPU, or `null`. */
   readonly otherShare: number | null;
+  /** The span of the GPU intervals of the trace, in milliseconds, or `null` with no trace. */
+  readonly spanMs: number | null;
   /** The self-check of the WebGL frames of the trace, or `null` with no trace. */
   readonly check: FrameCheck | null;
   /** The frame rate of the page in the middle of the record, or `null` with no trace. */
@@ -1040,7 +1074,14 @@ async function measureUncapped(
     const info = await pageInfo(browser, page, options);
     const probe = await probeFor(page, MEASURE_SEC);
     if (!metal) {
-      const none = { states: null, otherShare: null, check: null, traceFps: null, faults: [] };
+      const none = {
+        states: null,
+        otherShare: null,
+        spanMs: null,
+        check: null,
+        traceFps: null,
+        faults: [],
+      };
       return { info, probe, metal: null, songs: null, canvas, ...none };
     }
 
@@ -1092,8 +1133,9 @@ async function measureUncapped(
     const faults = frameCheckFaults(check, canvasWriteFrames(check));
     const states = stateTimes(await table('gpu-performance-state-intervals'));
     const otherShare = otherGpuShare(intervals, `(${gpu.id})`);
+    const spanMs = gpuSpanMs(intervals);
     const metalTimes = frames.map((frame) => busyMs(frame));
-    const values = { states, otherShare, songs, canvas, check, traceFps, faults };
+    const values = { states, otherShare, spanMs, songs, canvas, check, traceFps, faults };
     return { info, probe, metal: metalTimes, ...values };
   } finally {
     await browser.close();
@@ -1109,10 +1151,10 @@ async function measureUncapped(
  * @returns The faults, or an empty list with no Metal trace.
  */
 function guardFaults(measure: UncappedMeasure): string[] {
-  if (!measure.states || measure.otherShare === null) {
+  if (!measure.states || measure.otherShare === null || measure.spanMs === null) {
     return [];
   }
-  return gpuGuardFaults(measure.states, measure.otherShare);
+  return gpuGuardFaults(measure.states, measure.otherShare, measure.spanMs);
 }
 
 /** The longest wait for the end of the measure after a signal, in milliseconds. */
@@ -1400,9 +1442,11 @@ async function main(): Promise<void> {
     } else {
       const states = [...uncapped.states].map(([name, ms]) => `${name} ${ms.toFixed(0)} ms`);
       const maximum = (maximumShare(uncapped.states) * 100).toFixed(1);
+      const cover = (maximumCover(uncapped.states, uncapped.spanMs ?? 0) * 100).toFixed(1);
       console.log(
         `GPU performance states in the Metal trace: ${states.join(', ')} ` +
-          `(${maximum}% "Maximum").`,
+          `(${maximum}% "Maximum"). The "Maximum" rows cover ${cover}% of the span of the GPU ` +
+          `intervals.`,
       );
       const other = (uncapped.otherShare * 100).toFixed(0);
       console.log(`Other processes used the GPU in ${other}% of the Metal trace.`);
@@ -1418,7 +1462,8 @@ async function main(): Promise<void> {
       }
       const verdict = guard.length > 0 ? `not valid. ${guard.join(' ')}` : 'valid.';
       console.log(
-        `Guard of the GPU phase (at least ${MIN_MAXIMUM_SHARE * 100}% "Maximum", at most ` +
+        `Guard of the GPU phase (at least ${MIN_MAXIMUM_SHARE * 100}% "Maximum", "Maximum" ` +
+          `rows over at least ${MIN_MAXIMUM_COVER * 100}% of the span, at most ` +
           `${OTHER_GPU_LIMIT * 100}% other GPU work), ${records} record(s): ${verdict}`,
       );
     }
