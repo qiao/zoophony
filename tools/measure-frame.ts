@@ -836,9 +836,11 @@ async function main(): Promise<void> {
     }
     rows.push(
       {
+        // On ANGLE on Metal, the query gets the whole command buffer with its wait in the full
+        // queue of the GPU, so it is for information (design 9.7).
         name: 'GPU: timer query (no frame cap)',
         times: uncapped.probe.gpu,
-        target: true,
+        target: false,
       },
       {
         name: 'GPU: timer query (60 fps, clock of the GPU)',
@@ -863,7 +865,7 @@ async function main(): Promise<void> {
     const disjoint = capped.probe.disjoint + uncapped.probe.disjoint;
     console.log(`Disjoint timer results (dropped): ${disjoint}.`);
     if (!uncapped.states || uncapped.otherShare === null) {
-      console.log('No Metal trace (--no-metal, or no Xcode): the timer query is the GPU target.');
+      console.log('No Metal trace (--no-metal, or no Xcode): the tool does not check the GPU.');
     } else {
       const states = [...uncapped.states].map(([name, ms]) => `${name} ${ms.toFixed(0)} ms`);
       console.log(
