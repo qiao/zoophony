@@ -20,6 +20,7 @@ export type SweepSample = readonly [song: number, wall: number, transport: Trans
 export interface SampleSet {
   /** The name, such as `play`. An accepted depth names it. */
   readonly name: string;
+  /** The samples, in the order of the sweep. */
   readonly samples: Iterable<SweepSample>;
 }
 
@@ -60,6 +61,7 @@ export interface AcceptedDepth {
 
 /** A place where a palm must be at a time: the palm on the keys of a note. */
 export interface NoteTarget {
+  /** The hand of the palm. */
   readonly side: 'L' | 'R';
   /** The sample where the palm is on its keys. */
   readonly sample: SweepSample;
@@ -71,6 +73,7 @@ export interface NoteTarget {
 export interface SweepPlayer {
   /** The name in the reports, such as `pianist 3`. */
   readonly name: string;
+  /** The player model, with its mesh. */
   readonly model: PlayerModel;
   /** Gives the pose of the player at a sample. */
   readonly poseAt: (sample: SweepSample) => AnimalPose;
@@ -105,12 +108,15 @@ export interface RoleSweep {
 
 /** The deepest point of a moving part in an obstacle over a set of samples. */
 export interface PairDepth {
+  /** The name of the moving part. */
   readonly part: string;
+  /** The name of the obstacle. */
   readonly into: string;
   /** The depth, in meters: 0 when no point entered. */
   readonly depth: number;
-  /** The sample of the deepest point. */
+  /** The song time of the sample of the deepest point, in seconds. */
   readonly song: number;
+  /** The wall time of the sample of the deepest point, in seconds. */
   readonly wall: number;
   /** The bone of the deepest point, or `null` when no point entered. */
   readonly bone: BoneName | null;
@@ -123,6 +129,7 @@ export interface PairDepth {
 
 /** The largest distance from a palm to its note target. */
 export interface TargetError {
+  /** The hand. */
   readonly side: 'L' | 'R';
   /** The distance, in meters. */
   readonly error: number;

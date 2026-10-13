@@ -60,7 +60,9 @@ function benchOf(model: PlayerModel): PosedPart {
 
 /** The worst sample of one measure, with its label. */
 interface Worst {
+  /** The value, in meters. */
   readonly value: number;
+  /** The song time and the wall time of the sample. */
   readonly label: string;
 }
 

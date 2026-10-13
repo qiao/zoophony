@@ -46,7 +46,9 @@ function standOf(): PosedPart {
 
 /** The nearest sample of a gap, up to {@link GAP}. */
 interface Nearest {
+  /** The gap, in meters. */
   readonly gap: number;
+  /** The song time and the wall time of the sample. */
   readonly label: string;
 }
 

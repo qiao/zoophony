@@ -16,6 +16,7 @@ import { SWEEP_ROLES, playSample } from '../src/pose/test-sweep-roles.ts';
 
 /** The options of the command. */
 interface Options {
+  /** The role of the first argument. */
   readonly role: RoleSweep;
   /** The demos, by the name of the file with no `.mid`. All demos of the role when empty. */
   readonly demos: readonly string[];
@@ -113,9 +114,20 @@ function parseOptions(args: readonly string[]): Options {
 
 /** The results of one variant in one demo. */
 interface DemoResult {
+  /** The demo and the player, such as `bach-bwv1048 pianist 20`. */
   readonly demo: string;
-  readonly sets: readonly { readonly name: string; readonly pairs: readonly PairDepth[] }[];
+  /** The deepest point of each pair in each set of samples. */
+  readonly sets: readonly SetResult[];
+  /** The largest note-target error of each hand. */
   readonly targets: readonly TargetError[];
+}
+
+/** The deepest point of each pair in one set of samples. */
+interface SetResult {
+  /** The name of the set, such as `play`. */
+  readonly name: string;
+  /** The deepest point of each pair of a moving part and an obstacle. */
+  readonly pairs: readonly PairDepth[];
 }
 
 /**
