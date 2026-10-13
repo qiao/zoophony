@@ -28,17 +28,17 @@ import type { ArmRig } from './ik.ts';
 export const CONDUCTOR_HOLD = {
   /**
    * The point of the tip of the baton at beat 1 of each pattern, from the right shoulder joint.
-   * With the pivot, it puts the wrist of a soft beat 1 about at the height of the shoulder joint,
-   * 1.17 H forward, and 0.45 H out: in front of the chest, as the studio conducts, and out beside
-   * the head and the shoulder from behind. The point of the parametric bear, 0.89 H up and 1.56 H
-   * forward, put the wrist of the studio bear 0.1 H below its shoulder and 0.4 H forward, because
-   * the baton keeps its length. A wrist 0.1 H higher than now put the claws of the right paw
-   * 2.5 cm into the muzzle when the head turned to a section on the right (Mozart K. 525). Before
-   * the studio bear: the first point, 0.9 H up and 1.2 H forward, kept the hand next to the head
-   * (UX audit 2026-10-05, AM1), and with the wrist 0.4 H out, beat 2 of a pattern of 4 took the paw
-   * over the head in the view from behind.
+   * With the pivot, it puts the wrist of a soft beat 1 about 0.35 H up, 0.9 H forward, and 0.85 H
+   * out: a little below the chin, in front of the shoulder, and beside the head from behind, as in
+   * `mockup.png`. The point of the parametric bear, 0.89 H up and 1.56 H forward, put the wrist
+   * of the studio bear 0.1 H below its shoulder and 0.4 H forward, because the baton keeps its
+   * length. A wrist at the height of the shoulder and 0.45 H out hid the right paw behind the body
+   * from behind. A wrist 0.15 H further in than now put the claws of the right paw 2 cm into the
+   * long muzzle when the head turned to a section on the right (Mozart K. 525). Before the studio
+   * bear: the first point, 0.9 H up and 1.2 H forward, kept the hand next to the head (UX audit
+   * 2026-10-05, AM1).
    */
-  beatPoint: [-0.01, 1.15, -2.27],
+  beatPoint: [0.39, 1.48, -2.0],
   /**
    * The baton points from this place to its tip, from the right shoulder joint: up 49° and 22°
    * inward at beat 1, and nearly upright in the ready gesture, as in `bear-views.png`. The pivot is
@@ -46,11 +46,13 @@ export const CONDUCTOR_HOLD = {
    * follows about half of the motion of the tip in the beat plane, and the arm beats with the
    * baton.
    */
-  batonPivot: [0.81, -1.34, -0.27],
+  batonPivot: [1.21, -1.01, 0.0],
   /**
-   * The beat plane turns this part of the turn of the upper body to a cued section. Thus the arm
-   * opens to the right in a turn to the left, and the hand stays beside the head from behind. With
-   * the full turn of 30° to the left, the right hand went behind the head.
+   * The beat plane turns this part of the turn of the upper body to a cued section on the left.
+   * Thus the arm opens to the right in a turn to the left, and the hand stays beside the head from
+   * behind. With the full turn of 30° to the left, the right hand went behind the head. In a turn
+   * to the right, the beat plane turns with the whole turn ({@link beatTurnOf}): the head turns
+   * further, and at half of the turn, the long muzzle of the studio bear came into the right paw.
    */
   beatTurn: 0.5,
   /**
@@ -81,10 +83,11 @@ export const CONDUCTOR_HOLD = {
   readyCurl: 50 * MathUtils.DEG2RAD,
   /**
    * In the ready gesture of a count-in, the left hand points this far up, so that both paws are
-   * up at the height of the chin, as in `bear-views.png` (design 5.4). At 40°, the left paw was
-   * 0.5 H higher than the right paw.
+   * up at the height of the chin, 0.63 H above the shoulder joints, as in `bear-views.png` (design
+   * 5.4). At 21°, the left paw of the studio bear was 0.23 H lower than the right paw. At 40°, the
+   * left paw of the parametric bear was 0.5 H higher than its right paw.
    */
-  readyLift: 21 * MathUtils.DEG2RAD,
+  readyLift: 34 * MathUtils.DEG2RAD,
   /**
    * In the ready gesture, the left wrist is this part of the reach of the arm from the shoulder
    * joint, so that the left paw is as far forward as the right paw, and the side view shows one
@@ -94,10 +97,12 @@ export const CONDUCTOR_HOLD = {
   readyReach: 0.75,
   /**
    * In the ready gesture, the left hand points this far outward, to the left of the front, so
-   * that the two paws are at the same width, as in `bear-views.png`, and the paw shows beside the
-   * head from behind. At 10° inward, the forearm of option B came 0.8 cm from the head.
+   * that the paw shows beside the head from behind, and the two paws are nearly at the same width,
+   * as in `bear-views.png`. The right paw of the studio bear is still 0.3 H further out, because a
+   * paw further in met its muzzle. At 32°, the left paw was 0.16 H further in than now. At 10°
+   * inward, the forearm of option B came 0.8 cm from the head.
    */
-  readyOut: 32 * MathUtils.DEG2RAD,
+  readyOut: 44 * MathUtils.DEG2RAD,
 } as const;
 
 /** One place of the left hand between its cues (design 5.4). */
@@ -349,7 +354,18 @@ export function batonPoint(
     .fromArray(rig.beatPoint)
     .addScaledVector(offset.fromArray(rig.beatRight), baton.x)
     .addScaledVector(offset.fromArray(rig.beatUp), baton.y);
-  return turnWithTorso(rig, out, CONDUCTOR_HOLD.beatTurn * torsoYaw);
+  return turnWithTorso(rig, out, beatTurnOf(torsoYaw));
+}
+
+/**
+ * Gives the turn of the beat plane for a turn of the upper body (design 5.4): a part of a turn to
+ * the left ({@link CONDUCTOR_HOLD.beatTurn}), and the whole turn to the right.
+ *
+ * @param torsoYaw The turn of the upper body around +y, positive to the left.
+ * @returns The turn of the beat plane, positive to the left.
+ */
+function beatTurnOf(torsoYaw: number): number {
+  return torsoYaw > 0 ? CONDUCTOR_HOLD.beatTurn * torsoYaw : torsoYaw;
 }
 
 /**
@@ -429,7 +445,7 @@ export function poseConductor(
   lifted.x = state.baton.x;
   lifted.y = state.baton.y + cue.batonLift;
   batonPoint(rig, lifted, cue.torsoYaw, tip);
-  turnWithTorso(rig, pivot.fromArray(rig.pivot), hold.beatTurn * cue.torsoYaw);
+  turnWithTorso(rig, pivot.fromArray(rig.pivot), beatTurnOf(cue.torsoYaw));
   batonHand(rig, tip, pivot);
   levelOf(right, frames.root);
   hangingWrist(rig.hangR, hangFrame, hanging);
