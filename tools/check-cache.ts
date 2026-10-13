@@ -22,8 +22,22 @@ export interface Check {
   readonly command: string;
 }
 
+/** The parts of a cache key that are the same for each commit of one run. */
+export interface RunParts {
+  /** The SHA-256 of `tools/check-commits.sh` and of this module. */
+  readonly scriptHash: string;
+  /** The version, the platform, and the architecture of Node. */
+  readonly node: string;
+  /** The version of pnpm. */
+  readonly pnpm: string;
+  /** The value of `ZOOPHONY_BASE`, the base path of the site, or empty when it is not set. */
+  readonly siteBase: string;
+  /** The SHA-256 of the lockfile that `pnpm install` used, or "none" with no install. */
+  readonly modulesHash: string;
+}
+
 /** The parts of a cache key. A change of one part gives a new key. */
-export interface CheckKeyParts {
+export interface CheckKeyParts extends RunParts {
   /** The kind of the check. */
   readonly kind: CheckKind;
   /** The tree hash of the commit. */
@@ -35,12 +49,6 @@ export interface CheckKeyParts {
   readonly parentTree: string;
   /** The checks of the plan, in their order. */
   readonly checks: readonly Check[];
-  /** The SHA-256 of `tools/check-commits.sh` and of this module. */
-  readonly scriptHash: string;
-  /** The version, the platform, and the architecture of Node. */
-  readonly node: string;
-  /** The SHA-256 of the lockfile that `pnpm install` used, or "none" with no install. */
-  readonly modulesHash: string;
 }
 
 /** A line of a test file that `git grep -n` found. */
@@ -163,6 +171,8 @@ export function checkKey(parts: CheckKeyParts): string {
     parts.checks.map((check) => [check.name, check.command]),
     parts.scriptHash,
     parts.node,
+    parts.pnpm,
+    parts.siteBase,
     parts.modulesHash,
   ];
   return createHash('sha256').update(JSON.stringify(fields)).digest('hex');
@@ -222,18 +232,16 @@ function docsTestsOf(commit: string): string[] {
  *
  * @param kind The kind of the check.
  * @param rev The revision.
- * @param scriptHash The SHA-256 of the check script and of this module.
- * @param modulesHash The SHA-256 of the installed lockfile.
+ * @param run The parts of the key that are the same for each commit of the run.
  * @returns The plan.
  * @throws When the commit has no parent.
  */
-function planOf(kind: CheckKind, rev: string, scriptHash: string, modulesHash: string): CheckPlan {
+function planOf(kind: CheckKind, rev: string, run: RunParts): CheckPlan {
   const commit = git(['rev-parse', '--verify', `${rev}^{commit}`]);
   const tree = git(['rev-parse', `${commit}^{tree}`]);
-  const node = `${process.version} ${process.platform}-${process.arch}`;
   if (kind === 'tip') {
     const checks = tipChecks();
-    const key = checkKey({ kind, tree, parentTree: '', checks, scriptHash, node, modulesHash });
+    const key = checkKey({ ...run, kind, tree, parentTree: '', checks });
     return { commit, key, checks };
   }
 
@@ -242,7 +250,7 @@ function planOf(kind: CheckKind, rev: string, scriptHash: string, modulesHash: s
   const changedPaths = changed === '' ? [] : changed.split('\n');
   const docsTests = changedPaths.some(isDocsPath) ? docsTestsOf(commit) : [];
   const checks = commitChecks(changedPaths, docsTests);
-  const key = checkKey({ kind, tree, parentTree, checks, scriptHash, node, modulesHash });
+  const key = checkKey({ ...run, kind, tree, parentTree, checks });
   return { commit, key, checks };
 }
 
@@ -285,11 +293,16 @@ function main(args: readonly string[]): void {
     throw new Error('Usage: node tools/check-cache.ts plan <commit|tip> <rev>...');
   }
 
-  const scriptHash = scriptHashOf();
-  const modulesHash = modulesHashOf();
+  const run: RunParts = {
+    scriptHash: scriptHashOf(),
+    node: `${process.version} ${process.platform}-${process.arch}`,
+    pnpm: execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim(),
+    siteBase: process.env['ZOOPHONY_BASE'] ?? '',
+    modulesHash: modulesHashOf(),
+  };
   const lines: string[] = [];
   for (const rev of revs) {
-    const plan = planOf(kind, rev, scriptHash, modulesHash);
+    const plan = planOf(kind, rev, run);
     lines.push(`commit\t${plan.commit}\t${plan.key}`);
     for (const check of plan.checks) {
       lines.push(`check\t${check.name}\t${check.command}`);

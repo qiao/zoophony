@@ -18,6 +18,8 @@ const PARTS: CheckKeyParts = {
   checks: commitChecks(['src/a.ts'], []),
   scriptHash: 'c'.repeat(64),
   node: 'v24.10.0 darwin-arm64',
+  pnpm: '10.8.0',
+  siteBase: '',
   modulesHash: 'd'.repeat(64),
 };
 
@@ -51,11 +53,13 @@ describe('checkKey', () => {
     }
   });
 
-  it('gives a new key when the kind, the script, Node, or the install changes', () => {
+  it('gives a new key when the kind, the script, a tool, the base, or the install changes', () => {
     const changed: CheckKeyParts[] = [
       { ...PARTS, kind: 'tip' },
       { ...PARTS, scriptHash: 'e'.repeat(64) },
       { ...PARTS, node: 'v24.11.0 darwin-arm64' },
+      { ...PARTS, pnpm: '10.9.0' },
+      { ...PARTS, siteBase: '/zoophony/' },
       { ...PARTS, modulesHash: 'none' },
     ];
 

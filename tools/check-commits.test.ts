@@ -24,12 +24,14 @@ interface RunResult {
 }
 
 /**
- * A fake `pnpm`. It writes each call with the short hash of HEAD into `pnpm.log` beside it. It
- * fails the typecheck when the tree has the file `broken`. When the tree has the file
- * `edit-during-lint`, the lint writes a new file, as an agent that edits the worktree. When the
- * tree has the file `slow-lint`, the lint writes its process ID into `slow.pid` and waits 30 s.
+ * A fake `pnpm`. It prints a version for `--version`. It writes each other call with the short hash
+ * of HEAD into `pnpm.log` beside it. It fails the typecheck when the tree has the file `broken`.
+ * When the tree has the file `edit-during-lint`, the lint writes a new file, as an agent that
+ * edits the worktree. When the tree has the file `slow-lint`, the lint writes its process ID into
+ * `slow.pid` and waits 30 s.
  */
 const FAKE_PNPM = `#!/bin/sh
+if [ "$1" = --version ]; then echo 10.8.0; exit 0; fi
 echo "$(git rev-parse --short HEAD) $*" >> "$(dirname "$0")/pnpm.log"
 if [ "$2" = typecheck ] && [ -f broken ]; then exit 1; fi
 if [ "$2" = lint ] && [ -f edit-during-lint ]; then echo 'export const E = 1;' > src/edit.ts; fi
