@@ -109,7 +109,7 @@ export const HANDS_HOLDS = {
   // B♭4 with the left paw and from C4 to C8 with the right paw (`pose/hands.test.ts`), so a
   // melody changes paws between them. The wrists go out and up around the belly and over the case
   // between the knees and the keys (`restArc`). On a straight line, the paws went into the belly,
-  // and with a smaller arc, the claws went into the case when the paws lowered to the knees.
+  // and with a smaller arc, the claws went into the case when the paws lowered to the lap.
   piano: {
     action: 'strike',
     keyPoint: pianoKeyFront,
@@ -118,37 +118,38 @@ export const HANDS_HOLDS = {
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
     lean: 20 * MathUtils.DEG2RAD,
-    restLean: 22 * MathUtils.DEG2RAD,
-    restHeadLift: 22 * MathUtils.DEG2RAD,
+    restLean: 8 * MathUtils.DEG2RAD,
+    restHeadLift: 8 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
     poleL: [-1, -0.6, 0.4],
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
     restArc: [0.5, 0.5, 0],
-    // The rest pose follows the rest clip of the studio (`clip_rest()` of
-    // `lowpoly-studio/roles/pianist/clips.py`). The trunk leans further forward than in a play
-    // (`restLean`), so the shoulders come forward over the knees and the back hides the upper
-    // arms. The paws hang beside the outer sides of the knees, and the fingers point forward,
-    // down, and a little out. The round belly of the studio polar bear covers its thighs, so the
-    // paws stay out of it. The elbows point out and back, so the forearms pass outside the belly.
-    // An upright trunk stood the arms out from the sides like wings
-    // (`docs/research/2026-10-13-pianist-rest.md`). On top of the rest clip, the head lifts
-    // against the lean (`restHeadLift`), so the gaze is about level and the face shows over the
-    // lid. With the head of the clip, the bear bent down to the music desk (manager decision).
+    // The rest pose is the rest position of a pianist before a performance: the trunk sits tall
+    // with a slight lean toward the piano, the head is up, and the hands rest in the lap
+    // (`docs/research/2026-10-13-pianist-lap.md`). The rest lean is the lean of the `ready` clip
+    // of the studio (`clip_ready()` of `lowpoly-studio/roles/pianist/clips.py`). The head lifts
+    // against it (`restHeadLift`), so the gaze is level and the face shows over the lid. The round
+    // belly of the studio polar bear covers its thighs, and its arms are short, so the paws rest
+    // on the front of the belly over the thighs, nearer to the middle line than the knees. The
+    // palms face the belly, and the fingers point down along it. The elbows point out and a little
+    // forward, as arms that hold a ball, so the forearms lie on the belly and stay out of it. With
+    // the trunk of the studio rest clip, the bear slumped forward over its knees, and the paws hung
+    // beside them (user report of 2026-10-13).
     restL: {
       kind: 'lap',
-      lap: { along: 1, offset: [-0.8, -0.1, -0.35] },
-      palm: [0, -1, 0],
-      fingers: [-0.3, -0.5, -1],
-      pole: [-1, 0, 0.4],
+      lap: { along: 1, offset: [0.14, 0.22, -0.59] },
+      palm: [0.95, 0.1, 1],
+      fingers: [0.4, -1, 0.34],
+      pole: [-1, 0, -0.26],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 1, offset: [0.8, -0.1, -0.35] },
-      palm: [0, -1, 0],
-      fingers: [0.3, -0.5, -1],
-      pole: [1, 0, 0.4],
+      lap: { along: 1, offset: [-0.14, 0.22, -0.59] },
+      palm: [-0.95, 0.1, 1],
+      fingers: [-0.4, -1, 0.34],
+      pole: [1, 0, -0.26],
     },
   },
   // The left hand plays from the left side of the strings and the right hand from the right

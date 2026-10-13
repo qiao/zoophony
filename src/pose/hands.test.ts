@@ -36,6 +36,7 @@ import {
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
 import type { ScenePlayer } from './test-scene.ts';
+import type { Transport } from './types.ts';
 
 /** The keys of the left and of the right hand: bass and treble in turn, 0.5 s apart. */
 const PIANO_KEYS = [36, 72, 31, 98, 43, 79, 50, 73] as const;
@@ -213,7 +214,7 @@ describe('poseHands (design 5.3, 4.7)', () => {
     expect(curl(0.5 + HAND_MOTION.pluckSec + 0.01)).toBeCloseTo(60 * MathUtils.DEG2RAD, 4);
   });
 
-  it('rests the palms on the thighs or on a string before the first play (user report of 2026-10-06)', () => {
+  it('rests the palms on the thighs or on a string before the first play (user reports of 2026-10-06 and 2026-10-13)', () => {
     for (const player of players) {
       const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
       const h = player.model.body.headHeight;
@@ -234,13 +235,16 @@ describe('poseHands (design 5.3, 4.7)', () => {
         } else {
           if (player.model.studio) {
             // The skin of a studio body blends the thighs into the hips and the belly, and the
-            // body is one closed shell with the arms. The paw is near the lap, and the test of the
-            // pianist clearance keeps it and the forearm out of the body
-            // (`test-pianist-clearance.ts`). The paw of the round polar bear hangs beside the
-            // outer side of the knee, out of the belly, so it is up to 0.5 H from the lap.
+            // body is one closed shell with the arms. The paw of the round polar bear rests on
+            // the front of the belly over its thigh, as the hands of a pianist rest in the lap
+            // before a performance. It touches the lap, and the test of the pianist clearance
+            // keeps it and the forearm out of the body (`test-pianist-clearance.ts`). The palm is
+            // nearer to the middle line than the knee.
             const paw = posedPart(posed, [`hand${side}`, `fingers${side}`]);
             const lap = posedPart(posed, ['hips', 'spine', `thigh${side}`, `shin${side}`]);
-            expect(partDistance(paw, lap, 0.5 * h) / h, label).toBeLessThan(0.5);
+            expect(partDistance(paw, lap, 0.5 * h), label).toBeLessThanOrEqual(0.015);
+            const knee = posed.frames[boneIndex(`shin${side}`)]?.position ?? new Vector3();
+            expect(Math.abs(palm.x), label).toBeLessThan(Math.abs(knee.x));
           } else {
             // The palm is on the thigh.
             const gap = signedDistance(posedPart(posed, [`thigh${side}`]), palm) / h;
@@ -282,31 +286,32 @@ describe('poseHands (design 5.3, 4.7)', () => {
     expect(Math.abs(angle - 8 * MathUtils.DEG2RAD)).toBeLessThan(0.3 * MathUtils.DEG2RAD);
   });
 
-  it('brings the shoulders of the pianist forward over its thighs at rest (user report of 2026-10-13)', () => {
+  it('sits the pianist more upright at rest than in a play, with a slight lean to the piano (user request of 2026-10-13)', () => {
     const piano = players[0];
     if (!piano) {
       throw new Error('The test file has a piano.');
     }
-    // The trunk leans forward at rest, as in the rest clip of the studio, so that the back hides
-    // the upper arms. Seen from the side, each shoulder joint stands over the front half of its
-    // thigh: more than half of the way from the hip joint to the knee joint. An upright trunk
-    // keeps the shoulders over the hips.
-    const posed = posedAt(scene, piano, 1.2, 10, NOT_STARTED);
-    const z = (bone: BoneName): number => posed.frames[boneIndex(bone)]?.position.z ?? 0;
-    for (const side of ['L', 'R'] as const) {
-      const hip = z(`thigh${side}`);
-      const part = (z(`upperArm${side}`) - hip) / (z(`shin${side}`) - hip);
-      expect(part, side).toBeGreaterThan(0.5);
-    }
+    // A pianist sits tall before a performance, with the hands in the lap. The trunk leans a
+    // little toward the piano, and less than while it plays. The lean is the angle of the line
+    // from the hips joint to the neck joint from the vertical, forward to -z.
+    const lean = (transport: Transport): number => {
+      const posed = posedAt(scene, piano, 1.2, 10, transport);
+      const hips = posed.frames[boneIndex('hips')]?.position ?? new Vector3();
+      const neck = posed.frames[boneIndex('neck')]?.position ?? new Vector3();
+      return Math.atan2(hips.z - neck.z, neck.y - hips.y);
+    };
+    const rest = lean(NOT_STARTED);
+    expect(rest).toBeGreaterThan(0);
+    expect(rest).toBeLessThan(lean(PLAYING));
   });
 
-  it('keeps the gaze of the resting pianist about level while its trunk leans (manager decision of 2026-10-13)', () => {
+  it('keeps the gaze of the resting pianist about level while its trunk leans (user request of 2026-10-13)', () => {
     const piano = players[0];
     if (!piano) {
       throw new Error('The test file has a piano.');
     }
-    // The head lifts against the lean of the trunk, so that the face shows over the lid. With no
-    // lift, the head bent down to the music desk with the trunk.
+    // The head lifts against the lean of the trunk, so that the face shows over the lid and the
+    // gaze is level, as a pianist sits with the head up before a performance.
     const posed = posedAt(scene, piano, 1.2, 10, NOT_STARTED);
     const head = posed.frames[boneIndex('head')]?.rotation ?? new Quaternion();
     const forward = new Vector3(0, 0, -1).applyQuaternion(head);
