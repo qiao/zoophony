@@ -9,6 +9,8 @@ stages/) and writes into <out>/report/:
                          debug list, the contacts, and the stage times
     review.png           one image with the key crops and the numbers, for agents that read
                          only images
+    review.webp          the same image as a WebP file of at most about REVIEW_WEBP_BYTES: the
+                         one render of the build that git keeps (lowpoly-studio/.gitignore)
     views/<view>.jpg     the sheet column, the render, and the overlap of each view
     features/<f>_<v>_<r>.png  the crops of each feature in each view and region, sheet beside
                          render, with the measured boxes and the numbers of its checks
@@ -19,6 +21,7 @@ out.
 """
 
 import html
+import io
 import json
 import os
 
@@ -32,6 +35,11 @@ MARGIN = 0.03
 
 # The width of the review image in pixels.
 REVIEW_WIDTH = 1800
+
+# The size limit of review.webp in bytes, and the WebP qualities that review_webp tries in order.
+# The first quality whose file fits wins, and the last quality wins when none fits.
+REVIEW_WEBP_BYTES = 300_000
+REVIEW_WEBP_QUALITIES = (70, 65, 60, 55, 50)
 
 # The overlap colors of the compare page (viewer/compare.js): both, the sheet only, the render
 # only, and neither.
@@ -643,7 +651,23 @@ def review_image(cfg, report, pics, views, feature_files, folder):
                                     'Located failures and near checks', 16))
     out = drawing.stack(tiles, REVIEW_WIDTH, gap=12)
     out.save(os.path.join(folder, 'review.png'), optimize=True)
+    review_webp(out, os.path.join(folder, 'review.webp'))
     return 'review.png'
+
+
+def review_webp(image, path):
+    """Writes the review image as a WebP file of at most REVIEW_WEBP_BYTES, with the highest
+    quality of REVIEW_WEBP_QUALITIES that fits. Returns the quality."""
+    data = b''
+    for quality in REVIEW_WEBP_QUALITIES:
+        buf = io.BytesIO()
+        image.save(buf, 'WEBP', quality=quality, method=6)
+        data = buf.getvalue()
+        if len(data) <= REVIEW_WEBP_BYTES:
+            break
+    with open(path, 'wb') as f:
+        f.write(data)
+    return quality
 
 
 def write(cfg, report=None):
