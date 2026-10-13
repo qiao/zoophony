@@ -19,6 +19,8 @@ import type { AnimalPose, Transport } from './types.ts';
 export interface PosedSkeleton {
   readonly model: PlayerModel;
   readonly frames: readonly Frame[];
+  /** The pose of the frames. A studio body reads it for its own skin (`test-skin.ts`). */
+  readonly pose: AnimalPose;
 }
 
 /**
@@ -71,7 +73,7 @@ export function poseSkeleton(model: PlayerModel, pose: AnimalPose): PosedSkeleto
       position: bind.applyQuaternion(instrument.rotation).add(instrument.position),
     };
   }
-  return { model, frames };
+  return { model, frames, pose };
 }
 
 /**

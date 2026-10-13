@@ -1,4 +1,4 @@
-import { Bone, BufferAttribute, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three';
+import { Bone, BufferAttribute, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three';
 import type { BufferGeometry, MeshStandardMaterial } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
@@ -10,6 +10,12 @@ import type { SpeciesId } from '../models/species.ts';
 import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { boneIndex } from '../models/rig.ts';
+import type { BoneName } from '../models/rig.ts';
+import { STUDIO_BONES } from '../models/studio-format.ts';
+import { studioRenderMesh } from '../models/studio-body.ts';
+import { STUDIO_POSE_BONES, createStudioPose, poseStudioBones } from '../models/studio-rig.ts';
+import type { StudioPose, StudioRig } from '../models/studio-rig.ts';
+import type { Skeleton as PlayerSkeleton } from '../models/rig.ts';
 import type { AnimalPose, ScenePose } from '../pose/types.ts';
 import { createGeometry } from './geometry.ts';
 
@@ -23,6 +29,9 @@ import { createGeometry } from './geometry.ts';
  * @returns The geometry.
  */
 export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
+  if (model.studio) {
+    return createStudioGeometry(model, model.studio);
+  }
   const geometry = createGeometry(model.mesh, model.skeleton.parents);
 
   const { bones, blendBones, blendWeights } = model.mesh;
@@ -41,6 +50,41 @@ export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
   geometry.setAttribute('skinWeight', new BufferAttribute(skinWeight, 4));
   return geometry;
 }
+
+/**
+ * Creates the geometry of a player with a studio body (design 4.4): the body in the bind pose of
+ * the studio, with four bones for each vertex and the corrective shapes of the arms as morph
+ * targets, and the instrument on the bones of the player. The colors of the studio hold its
+ * baked occlusion, so the geometry adds none.
+ *
+ * @param model The player model.
+ * @param rig The rig of its studio body.
+ * @returns The geometry. Its skin indices point at the bones of {@link createPlayerMesh}.
+ */
+function createStudioGeometry(model: PlayerModel, rig: StudioRig): BufferGeometry {
+  const render = studioRenderMesh(rig, model.mesh);
+  const geometry = createGeometry(render.data);
+  geometry.setAttribute('skinIndex', new BufferAttribute(render.joints, 4));
+  geometry.setAttribute('skinWeight', new BufferAttribute(render.weights, 4));
+  geometry.morphAttributes['position'] = render.correctives.map(
+    (move) => new BufferAttribute(move, 3),
+  );
+  // The moves add to the bind places, as in a glTF file.
+  geometry.morphTargetsRelative = true;
+  return geometry;
+}
+
+/** The parts of a player mesh with a studio body that a pose needs. */
+interface StudioPlayer {
+  readonly rig: StudioRig;
+  /** The skeleton of the player, which `poseAt()` poses. */
+  readonly skeleton: PlayerSkeleton;
+  /** The bones of the pose, written on each frame. */
+  readonly pose: StudioPose;
+}
+
+/** The player meshes with a studio body. */
+const studioPlayers = new WeakMap<SkinnedMesh, StudioPlayer>();
 
 /** The index of the `slide` bone of the trombone (design 4.7). */
 const SLIDE = boneIndex('slide');
@@ -80,6 +124,9 @@ export function createPlayerMesh(
   geometry: BufferGeometry,
   materials: readonly MeshStandardMaterial[],
 ): SkinnedMesh {
+  if (model.studio) {
+    return createStudioMesh(model, model.studio, geometry, materials);
+  }
   const { positions, parents } = model.skeleton;
   const bones = positions.map(() => {
     const bone = new Bone();
@@ -126,14 +173,119 @@ export function createPlayerMesh(
 }
 
 /**
+ * Creates the skinned mesh of a player with a studio body (design 4.4). Each bone of the studio and
+ * of the player is a child of the mesh, with no parent bone: {@link applyPose} writes the matrix
+ * of each bone from the pose of the player (`poseStudioBones()`).
+ *
+ * @param model The player model.
+ * @param rig The rig of its studio body.
+ * @param geometry The geometry of the model, from {@link createPlayerGeometry}.
+ * @param materials The shared material.
+ * @returns The mesh in the bind pose of the player.
+ */
+function createStudioMesh(
+  model: PlayerModel,
+  rig: StudioRig,
+  geometry: BufferGeometry,
+  materials: readonly MeshStandardMaterial[],
+): SkinnedMesh {
+  const mesh = new SkinnedMesh(geometry, [...materials]);
+  const bones = Array.from({ length: STUDIO_POSE_BONES }, () => {
+    const bone = new Bone();
+    bone.matrixAutoUpdate = false;
+    mesh.add(bone);
+    return bone;
+  });
+  mesh.updateMatrixWorld(true);
+  mesh.bind(
+    new Skeleton(
+      bones,
+      bones.map(() => new Matrix4()),
+    ),
+  );
+  studioPlayers.set(mesh, { rig, skeleton: model.skeleton, pose: createStudioPose() });
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.frustumCulled = false;
+  applyStudioPose(mesh, {
+    rotations: new Float32Array(model.skeleton.positions.length * 4).map((_, i) =>
+      i % 4 === 3 ? 1 : 0,
+    ),
+    rootOffset: [0, 0, 0],
+    slideOffset: [0, 0, 0],
+    blink: 0,
+  });
+  return mesh;
+}
+
+/**
+ * Copies a pose to the bones of a player mesh with a studio body: the matrix of each bone and the
+ * weights of the corrective shapes (design 4.4, 5.1).
+ *
+ * @param mesh A mesh of {@link createStudioMesh}.
+ * @param pose The pose of the player.
+ * @returns False if the mesh has no studio body.
+ */
+function applyStudioPose(mesh: SkinnedMesh, pose: AnimalPose): boolean {
+  const player = studioPlayers.get(mesh);
+  if (!player) {
+    return false;
+  }
+  const eyeScale = Math.max(CLOSED_EYE_SCALE, 1 - pose.blink);
+  const { matrices, correctives } = poseStudioBones(
+    player.rig,
+    player.skeleton,
+    pose.rotations,
+    pose.rootOffset,
+    eyeScale,
+    player.pose,
+  );
+  for (const [i, bone] of mesh.skeleton.bones.entries()) {
+    bone.matrix.fromArray(matrices, i * 16);
+    bone.matrixWorldNeedsUpdate = true;
+  }
+  const influences = mesh.morphTargetInfluences;
+  if (influences) {
+    influences[0] = correctives[0] ?? 0;
+    influences[1] = correctives[1] ?? 0;
+  }
+  return true;
+}
+
+/**
+ * Hides the parts of one bone of a player mesh: the bone scales to 0, for example the baton of a
+ * silhouette. The next pose shows the parts again.
+ *
+ * @param mesh A mesh of {@link createPlayerMesh}.
+ * @param name The bone of the player.
+ */
+export function hideBone(mesh: SkinnedMesh, name: BoneName): void {
+  const studio = studioPlayers.has(mesh);
+  const bone = mesh.skeleton.bones[(studio ? STUDIO_BONES.length : 0) + boneIndex(name)];
+  if (!bone) {
+    return;
+  }
+  if (studio) {
+    bone.matrix.multiply(new Matrix4().makeScale(0, 0, 0));
+    bone.matrixWorldNeedsUpdate = true;
+  } else {
+    bone.scale.setScalar(0);
+  }
+}
+
+/**
  * Copies a pose to the bones of a player mesh: the rotations, the offset of the root, the move of
  * the trombone slide along its axis, the move of the instrument, and the blink of the eyes
- * (design 5.1).
+ * (design 5.1). A mesh with a studio body gets the bones of the studio from the pose
+ * ({@link applyStudioPose}).
  *
  * @param mesh A mesh of {@link createPlayerMesh}.
  * @param pose The pose, with one rotation for each bone.
  */
 export function applyPose(mesh: SkinnedMesh, pose: AnimalPose): void {
+  if (applyStudioPose(mesh, pose)) {
+    return;
+  }
   for (const [i, bone] of mesh.skeleton.bones.entries()) {
     bone.quaternion.fromArray(pose.rotations, i * 4);
   }

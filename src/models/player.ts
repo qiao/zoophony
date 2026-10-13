@@ -11,6 +11,8 @@ import type { SeatHeights, Support } from './props.ts';
 import { boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName, Skeleton } from './rig.ts';
 import { SPECIES } from './species.ts';
+import { studioRigOf } from './studio-body.ts';
+import type { StudioRig } from './studio-rig.ts';
 import type { SpeciesId, SpeciesParams } from './species.ts';
 import { buildInstrument } from './instruments/catalog.ts';
 import { attachInstrument } from './instruments/hold.ts';
@@ -136,6 +138,11 @@ export interface PlayerModel {
   readonly instrument: InstrumentModel;
   /** The pieces of the instrument at their places in the bind pose. */
   readonly pieces: readonly PlacedPiece[];
+  /**
+   * The rig of a studio body (design 4.4), or `null`. The scene draws a studio body with the skin
+   * of the studio, and `mesh` holds the body in the bind pose of the player.
+   */
+  readonly studio: StudioRig | null;
 }
 
 /**
@@ -179,7 +186,8 @@ export function buildPlayer(
   support: Support = INSTRUMENT_SUPPORTS[instrument],
 ): PlayerModel {
   const builder = new MeshBuilder();
-  const body = buildBiped(builder, SPECIES[species], stanceOn(support, SPECIES[species]));
+  const params: SpeciesParams = SPECIES[species];
+  const body = buildBiped(builder, params, stanceOn(support, params));
   const model = buildInstrument(instrument, kettles);
   const placed = attachInstrument(builder, model, body);
   const positions = {
@@ -194,5 +202,6 @@ export function buildPlayer(
     body,
     instrument: model,
     pieces: placed.pieces,
+    studio: params.body && params.body !== 'penguin' ? studioRigOf(params.body) : null,
   };
 }

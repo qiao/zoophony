@@ -295,7 +295,14 @@ describe('the reach of the hands (design 5.3)', () => {
     const arm = side === 'L' ? rig.left.arm : rig.right.arm;
     const joint = (bone: number): Vector3 => frames[bone]?.position ?? new Vector3();
     return {
-      error: palmOf({ model: player.model, frames }, side).distanceTo(target),
+      error: palmOf(
+        {
+          model: player.model,
+          frames,
+          pose: { rotations, rootOffset: [0, 0, 0], slideOffset: [0, 0, 0], blink: 0 },
+        },
+        side,
+      ).distanceTo(target),
       reach: joint(arm.bones.hand).distanceTo(joint(arm.bones.upperArm)) / arm.reach,
     };
   }

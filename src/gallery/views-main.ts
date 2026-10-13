@@ -17,7 +17,6 @@ import type { MeshStandardMaterial } from 'three';
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { buildMusicStand, buildSupport } from '../models/props.ts';
-import { boneIndex } from '../models/rig.ts';
 import { PODIUM_SIZE, buildPodium } from '../models/stage.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import { createMaterials } from '../scene/geometry.ts';
@@ -25,6 +24,7 @@ import {
   applyPose,
   createPlayerGeometry,
   createPlayerMesh,
+  hideBone,
   createStaticMesh,
 } from '../scene/player.ts';
 import { createRenderer } from '../scene/renderer.ts';
@@ -120,12 +120,12 @@ function buildView(
     applyPose(player, pose);
   }
   if (!showInstrument || MATTE) {
-    player.skeleton.bones[boneIndex('instrument')]?.scale.setScalar(0);
+    hideBone(player, 'instrument');
   }
   if (MATTE) {
     // The silhouette shows only the body: the bow, the baton, and the seat hide no part of it.
-    player.skeleton.bones[boneIndex('bow')]?.scale.setScalar(0);
-    player.skeleton.bones[boneIndex('baton')]?.scale.setScalar(0);
+    hideBone(player, 'bow');
+    hideBone(player, 'baton');
     player.material = new MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
   }
   view.add(player);

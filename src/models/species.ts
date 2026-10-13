@@ -1,4 +1,5 @@
 import type { BodyProportions } from './proportions.ts';
+import type { StudioBodyName } from './studio-body.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 
@@ -76,12 +77,16 @@ export interface BipedParams extends CommonParams {
 
 /**
  * The parameters of a species with a body of its own in place of the parametric biped (design
- * 4.4). The body reads the size, the colors, and the head height of the species, and it has no
- * shape parameters.
+ * 4.4). The egg body of the penguin reads the size, the colors, and the head height of the
+ * species. A studio body keeps the mesh, the colors, and the size of its GLB file. A body of its
+ * own has no shape parameters.
  */
 export interface OwnBodyParams extends CommonParams {
-  /** The body of its own: `penguin` for the egg body of the choir (`models/penguin/`). */
-  readonly body: 'penguin';
+  /**
+   * The body of its own: `penguin` for the egg body of the choir (`models/penguin/`), or a studio
+   * body of `lowpoly-studio/` (`models/studio-body.ts`).
+   */
+  readonly body: 'penguin' | StudioBodyName;
 }
 
 /** The parameters of one species (design 4.3): the parametric biped, or a body of its own. */
