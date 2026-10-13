@@ -1,8 +1,20 @@
 import { describe, expect, it } from 'vitest';
 
+import { layoutScene } from '../src/models/layout-scene.ts';
+import { ModelCache } from '../src/models/model-cache.ts';
+import type { Transport } from '../src/pose/types.ts';
+import { focusOf } from '../src/scene/focus.ts';
+import { buildScore } from '../src/score/score.ts';
+import { cameraAt } from '../src/shots/camera-at.ts';
+import { SHOT_SEED, prepareShots } from '../src/shots/prepare.ts';
+import { farPlane } from '../src/shots/view.ts';
+
 import type { TraceCell } from './gpu-trace.ts';
+import { perf60Bytes } from './write-perf-60.ts';
 import {
+  CHROME_SEEK_SEC,
   MAX_CPU,
+  METAL_SEEK_SEC,
   checkLines,
   cpuUse,
   frameOptions,
@@ -255,6 +267,43 @@ describe('gpuGuardFaults', () => {
       'Other processes used the GPU in 27% of the trace, above 10%.',
     ]);
     expect(gpuGuardFaults(new Map(), 0)).toHaveLength(1);
+  });
+});
+
+describe('the seeks before the traces', () => {
+  it('put each trace into one shot of perf-60.mid with the depth of field', () => {
+    const result = buildScore(perf60Bytes(), 'auto');
+    if (!result.ok) {
+      throw new Error(result.error);
+    }
+    const models = new ModelCache();
+    const plan = prepareShots(result.score, layoutScene(result.score, models), SHOT_SEED, models);
+    const transport: Transport = {
+      playing: true,
+      changedAtWall: 0,
+      before: null,
+      startSec: 0,
+      holdSec: 3,
+      leadSec: Infinity,
+    };
+    // The settle of 1 s, then the Chrome trace of 10 s, or the start of xctrace and its record.
+    const windows: [number, number][] = [
+      [CHROME_SEEK_SEC + 1, CHROME_SEEK_SEC + 11],
+      [METAL_SEEK_SEC + 1, METAL_SEEK_SEC + 7],
+    ];
+    for (const [from, to] of windows) {
+      const shots = plan.shots.filter((shot) => shot.startSec < to && shot.endSec > from);
+      expect(shots).toHaveLength(1);
+      for (let time = from; time <= to; time += 0.5) {
+        const camera = cameraAt(plan, time, transport, { aspect: 1.6, still: false });
+        const distance = Math.hypot(
+          ...camera.target.map((value, i) => value - (camera.position[i] ?? 0)),
+        );
+        const far = farPlane(distance, plan.stageSide);
+        const focus = focusOf(camera.position, camera.target, camera.fov, far, plan.stageSide);
+        expect(focus.active).toBe(true);
+      }
+    }
   });
 });
 

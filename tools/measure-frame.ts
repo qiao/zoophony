@@ -48,6 +48,23 @@ export const OTHER_GPU_LIMIT = 0.1;
 /** The least part of the GPU state time in the state "Maximum" for a valid GPU phase. */
 export const MIN_MAXIMUM_SHARE = 0.9;
 
+/**
+ * The song time of the seek before the Chrome trace, in seconds. The trace of 10 s then covers
+ * the section shot from 32 s to 44 s of `perf-60.mid`, with the depth of field
+ * (`docs/research/2026-10-13-frame-time/shot-focus.ts`).
+ */
+export const CHROME_SEEK_SEC = 32;
+
+/**
+ * The song time of the seek before the Metal trace, in seconds. The start of `xctrace` takes
+ * about 1 s, so the trace covers about 18 s to 23 s, in the section shot from 16 s to 26 s of
+ * `perf-60.mid`, with the depth of field.
+ */
+export const METAL_SEEK_SEC = 17;
+
+/** The time from a seek to the start of a trace, so that the work of the seek ends. */
+const SEEK_SETTLE_MS = 1000;
+
 /** The longest time for the record and the save of the Metal System Trace, in seconds. */
 const METAL_LIMIT_SEC = 360;
 
@@ -609,6 +626,30 @@ async function playDemo(browser: Browser, base: string, options: FrameOptions): 
 }
 
 /**
+ * Seeks the play of the page to a song time with the seek bar, and waits
+ * {@link SEEK_SETTLE_MS}. Two runs then measure the same shots.
+ *
+ * @param page The page during play.
+ * @param seconds The song time, in seconds.
+ * @returns The song time after the wait, in seconds.
+ */
+async function seekTo(page: Page, seconds: number): Promise<number> {
+  await page.$eval(
+    '.seek',
+    (element, value) => {
+      if (element instanceof HTMLInputElement) {
+        element.value = String(value);
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+        element.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    },
+    seconds,
+  );
+  await page.waitForTimeout(SEEK_SETTLE_MS);
+  return songTimeOf(page);
+}
+
+/**
  * Reads the 1-minute load average.
  *
  * @returns The load average.
@@ -706,6 +747,8 @@ interface CappedMeasure {
   readonly probe: ProbeValues;
   /** The frames of the Chrome trace. */
   readonly frames: TraceFrames;
+  /** The song time at the start and at the end of the Chrome trace, in seconds. */
+  readonly songs: readonly [number, number];
 }
 
 /**
@@ -722,9 +765,11 @@ async function measureCapped(base: string, options: FrameOptions): Promise<Cappe
     const page = await playDemo(browser, base, options);
     const info = await pageInfo(browser, page, options);
     const probe = await probeFor(page, MEASURE_SEC);
+    const from = await seekTo(page, CHROME_SEEK_SEC);
     await browser.startTracing(page, { categories: TRACE_CATEGORIES });
     await page.waitForTimeout(MEASURE_SEC * 1000);
     const trace = await browser.stopTracing();
+    const songs: readonly [number, number] = [from, await songTimeOf(page)];
     if (options.keep) {
       await writeFile(join(options.keep, 'main-trace.json'), trace);
     }
@@ -732,7 +777,7 @@ async function measureCapped(base: string, options: FrameOptions): Promise<Cappe
     const { traceEvents } = JSON.parse(trace.toString('utf8')) as {
       traceEvents: TraceEvent[];
     };
-    return { info, probe, frames: traceFrames(traceEvents) };
+    return { info, probe, frames: traceFrames(traceEvents), songs };
   } finally {
     await browser.close();
   }
@@ -973,6 +1018,7 @@ async function measureUncapped(
     if (!gpu) {
       throw new Error('Chrome gave no GPU process.');
     }
+    await seekTo(page, METAL_SEEK_SEC);
     // A trace of all processes saved in about 2 minutes. A trace that attached to the GPU process
     // did not save in that time.
     const traceFile = join(folder, 'gpu.trace');
@@ -1207,6 +1253,13 @@ async function main(): Promise<void> {
       );
     }
     console.log(`Load average (1 min, for information): ${loads.join(', ')}.`);
+    if (capped) {
+      const [from, to] = capped.songs;
+      console.log(
+        `The Chrome trace started at the song time ${from.toFixed(1)} s and ended at ` +
+          `${to.toFixed(1)} s, after a seek to ${CHROME_SEEK_SEC} s.`,
+      );
+    }
     const uncappedFps = `${framesPerSecond(uncapped.probe.stamps).toFixed(1)} fps with no cap`;
     const fps = capped
       ? `${framesPerSecond(capped.probe.stamps).toFixed(1)} fps with the cap, `
@@ -1227,7 +1280,8 @@ async function main(): Promise<void> {
       console.log(`Other processes used the GPU in ${other}% of the Metal trace.`);
       const [from, to] = uncapped.songs ?? [NaN, NaN];
       console.log(
-        `The Metal trace started at the song time ${from.toFixed(1)} s and ended at ${to.toFixed(1)} s.`,
+        `The Metal trace started at the song time ${from.toFixed(1)} s and ended at ` +
+          `${to.toFixed(1)} s, after a seek to ${METAL_SEEK_SEC} s.`,
       );
       if (uncapped.check) {
         for (const line of checkLines(uncapped.check, uncapped.traceFps ?? 0, uncapped.faults)) {
