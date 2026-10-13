@@ -87,9 +87,9 @@ export type CloseRole = 'conductor' | 'pianist';
  * - The conductor: the front, the right side, and the back, which the default view of the stage
  *   shows (design 2.5), at the four beats of the first bar of the default test notes (4/4 at 120
  *   BPM), between two beats, and in the rest pose. The conductor keeps its fixed line.
- * - The pianist: the front, both sides, the back, and the left paw on the keys, at a chord of
- *   three keys in each hand, between two chords, and in the rest pose. The camera turns around
- *   the body. It looks down 35°, over the case of the piano in the front view. The view of the
+ * - The pianist: the front, both sides, the back, and the left paw on the keys. The moments are
+ *   a chord of three keys in each hand, a time between two chords, and the rest pose. The camera
+ *   turns around the body. It looks down 35°, over the case of the piano in the front view. The view of the
  *   keys is low from the left, 15° to the front.
  *
  * A new role gives its species, its views, its moments, and its test notes, with the camera
