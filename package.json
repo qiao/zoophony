@@ -19,6 +19,7 @@
     "snapshot": "pnpm build && node tools/snapshot.ts",
     "sheet-check": "pnpm build && node tools/sheet-check.ts",
     "pose-probe": "node tools/pose-probe.ts",
+    "pose-depth": "node tools/pose-depth.ts",
     "choir-check": "pnpm build && node tools/choir-check.ts",
     "body-probe": "node tools/body-probe.ts",
     "keyboard": "pnpm build && node tools/keyboard-check.ts",
