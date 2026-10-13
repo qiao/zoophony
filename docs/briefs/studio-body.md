@@ -98,7 +98,9 @@ attachment. Name the code that each one touches.>
   the code and keeps the value that made the decision. A comment gives the reason and no value
   that the code states. A design file names the code.
 - Read each design paragraph that you change from its first sentence to its last.
-- Put probe scripts into `scratch/` of the worktree.
+- Put probe scripts into `scratch/` of the worktree. Put each probe that gives a number of the
+  report into `docs/research/<date>-<topic>/` with the report, and give its command in the
+  report. The merge removes the worktree with its `scratch/` folder.
 
 ## Docs
 
