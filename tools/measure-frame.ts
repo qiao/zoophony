@@ -694,6 +694,8 @@ interface UncappedMeasure {
   readonly states: ReadonlyMap<string, number> | null;
   /** The part of the trace time in which other processes used the GPU, or `null`. */
   readonly otherShare: number | null;
+  /** The song time at the start and at the end of the record of the trace, in seconds. */
+  readonly songs: readonly [number, number] | null;
 }
 
 /**
@@ -720,7 +722,7 @@ async function measureUncapped(
     const page = await playDemo(browser, base, options);
     const probe = await probeFor(page, MEASURE_SEC);
     if (!metal) {
-      return { probe, metal: null, states: null, otherShare: null };
+      return { probe, metal: null, states: null, otherShare: null, songs: null };
     }
 
     const cdp = await browser.newBrowserCDPSession();
@@ -734,14 +736,26 @@ async function measureUncapped(
     const traceFile = join(folder, 'gpu.trace');
     const record = ['record', '--template', 'Metal System Trace', '--all-processes'];
     const time = ['--time-limit', `${METAL_SEC}s`, '--output', traceFile, '--no-prompt'];
+    // The trace covers one shot of the plan, so the output gives its song times.
+    const songTime = (): Promise<number> =>
+      page.evaluate(() => window.zoophony?.songTime ?? 0).catch(() => NaN);
+    let started: Promise<number> = Promise.resolve(NaN);
+    let ended: Promise<number> = Promise.resolve(NaN);
     let stopped = false;
     await xctrace([...record, ...time], METAL_LIMIT_SEC * 1000, (text) => {
+      if (text.includes('Starting recording')) {
+        started = songTime();
+      }
       // The page stops its frames, so that the save of the trace gets the CPU.
       if (!stopped && text.includes('ending recording')) {
         stopped = true;
-        page.goto('about:blank').catch(() => undefined);
+        ended = songTime().then((end) => {
+          page.goto('about:blank').catch(() => undefined);
+          return end;
+        });
       }
     });
+    const songs: readonly [number, number] = [await started, await ended];
     await browser.close();
 
     const table = async (schema: string): Promise<TraceTable> => {
@@ -755,7 +769,7 @@ async function measureUncapped(
     const frames = webglFrameTimes(intervals, `(${gpu.id})`);
     const states = stateTimes(await table('gpu-performance-state-intervals'));
     const otherShare = otherGpuShare(intervals, `(${gpu.id})`);
-    return { probe, metal: frames, states, otherShare };
+    return { probe, metal: frames, states, otherShare, songs };
   } finally {
     await browser.close();
     await rm(folder, { recursive: true, force: true });
@@ -873,6 +887,10 @@ async function main(): Promise<void> {
       );
       const other = (uncapped.otherShare * 100).toFixed(0);
       console.log(`Other processes used the GPU in ${other}% of the Metal trace.`);
+      const [from, to] = uncapped.songs ?? [NaN, NaN];
+      console.log(
+        `The Metal trace started at the song time ${from.toFixed(1)} s and ended at ${to.toFixed(1)} s.`,
+      );
       if (uncapped.otherShare > OTHER_GPU_LIMIT) {
         console.log(
           'The other GPU work makes the GPU values too high. Close the pages that render, ' +
