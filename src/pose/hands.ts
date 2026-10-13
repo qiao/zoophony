@@ -5,7 +5,7 @@ import { boneIndex } from '../models/rig.ts';
 import { harpStringPosition } from '../models/instruments/harp.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { PlacedPiece } from '../models/instruments/hold.ts';
-import { pianoKeyPosition } from '../models/instruments/piano.ts';
+import { pianoKeyFront } from '../models/instruments/piano.ts';
 import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
 import type { PlayerNote } from '../score/types.ts';
@@ -88,40 +88,44 @@ export type RestingHand =
 
 /** The holds of the piano and the harp. */
 export const HANDS_HOLDS = {
-  // The palm is above the front edge of a white key, and 0.04 m above the keys. Thus the short
-  // arms of the animals reach further, and the fingers curl down onto the keys. The spine leans
-  // 16° forward: the clips of the pianist of the studio lean 12° (`lowpoly-studio/roles/
-  // pianist/`), and at 12° the left paw of the studio polar bear stopped 4 mm short of A♯0. The
-  // paws reach from A0 to C5 with the left paw and from C4 to C8 with the right paw
-  // (`pose/hands.test.ts`), so a melody changes paws between them.
+  // The paw of the studio polar bear is longer than a white key, so the palm is 0.02 m in front
+  // of the front edge of the keys and 0.065 m above them, and the curled claws lie on the keys
+  // (`pianoKeyFront()`). Further back, the claws went into the fallboard, and lower, into the
+  // key bed. The spine leans 20° forward: the clips of the pianist of the studio lean 12°
+  // (`lowpoly-studio/roles/pianist/`), and the keys stand far enough in front of the round
+  // belly that the paws reach only the middle keys with the lean. The paws reach from A0 to
+  // B♭4 with the left paw and from C4 to C8 with the right paw (`pose/hands.test.ts`), so a
+  // melody changes paws between them. The wrists go around the belly between the knees and the
+  // keys (`restArc`): on a straight line, the paws went 2.6 cm into the belly.
   piano: {
     action: 'strike',
-    keyPoint: pianoKeyPosition,
-    palmL: [0, 0.04, 0.04],
-    palmR: [0, 0.04, 0.04],
+    keyPoint: pianoKeyFront,
+    palmL: [0, 0.065, 0.02],
+    palmR: [0, 0.065, 0.02],
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
-    lean: 16 * MathUtils.DEG2RAD,
-    reach: { leftHighest: 72, rightLowest: 60 },
+    lean: 20 * MathUtils.DEG2RAD,
+    reach: { leftHighest: 70, rightLowest: 60 },
     poleL: [-1, -0.6, 0.4],
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
-    restArc: [0, 0, 0],
-    // The palms rest on the knees, 0.25 H to the outer side of the top of the lap, as the paws of
-    // the rest clip of the studio. The round belly of the studio polar bear covers its thighs, so
-    // at 0.6 of the way to the knee the palms were under the belly. The elbows point down, a
-    // little out, and forward.
+    restArc: [0.3, 0.4, 0],
+    // The palms rest beside the knees, 0.6 H to the outer side of the top of the lap, and the
+    // fingers point forward, down, and a little out, as the paws of the rest clip of the studio.
+    // The round belly of the studio polar bear covers its thighs: at 0.6 of the way to the knee
+    // the palms were under the belly, and at 0.25 H out the claws went 3 cm into its sides. The
+    // elbows point down, a little out, and forward.
     restL: {
       kind: 'lap',
-      lap: { along: 1, offset: [-0.25, 0.12, 0] },
-      fingers: [0, 0, -1],
+      lap: { along: 1, offset: [-0.6, 0.1, 0] },
+      fingers: [-0.3, -0.5, -1],
       pole: [-0.5, -1, -0.5],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 1, offset: [0.25, 0.12, 0] },
-      fingers: [0, 0, -1],
+      lap: { along: 1, offset: [0.6, 0.1, 0] },
+      fingers: [0.3, -0.5, -1],
       pole: [0.5, -1, -0.5],
     },
   },

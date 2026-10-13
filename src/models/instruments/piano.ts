@@ -38,7 +38,7 @@ export const PIANO = {
  * The distance of the front of the keys in front of the floor point of the body of the pianist,
  * in head heights `H`, before a further 0.05 m (design 4.6).
  */
-export const PIANO_FRONT_H = 1.2;
+export const PIANO_FRONT_H = 1.45;
 
 /** The piano bench: a seat of 0.75 × 0.35 m at the height of a chair seat (design 4.5). */
 export const PIANO_BENCH = {
@@ -249,6 +249,19 @@ function addInside(piece: PieceBuilder, boardY: number): void {
 }
 
 /**
+ * Calculates the point on the front edge of a piano key, at the height of the top of the white
+ * keys, in the piano axes. The paw of the studio polar bear is longer than a white key, so the
+ * palm of the pianist stays in front of this point, and the claws lie on the key (design 5.3).
+ *
+ * @param key The MIDI key. A key outside the piano plays the nearest key.
+ * @returns The point.
+ */
+export function pianoKeyFront(key: number): Vec3 {
+  const [x] = pianoKeyPosition(key);
+  return [x, PIANO.keyTop, 0];
+}
+
+/**
  * Builds the grand piano (design 4.6). It stands on the floor in front of the player, with the
  * lid open to the right of the player. The celesta and the organs use it too.
  *
@@ -359,9 +372,9 @@ export function buildPiano(): InstrumentModel {
   piece.add(box(0.2, 0.03, 0.12), dark, transform([0, 0.035, -0.42]));
 
   // The round belly of the studio polar bear reaches 0.45 m in front of the floor point, so the
-  // keys of 2026-10-11 (0.55 H + 0.05 m, 0.26 m) went 15 cm into it. At 1.2 H + 0.05 m (0.51 m),
-  // the keys are 7 cm in front of the belly. The studio has its keys 0.54 m in front, where each
-  // paw reached only the keys of its own half.
+  // keys of 2026-10-11 (0.55 H + 0.05 m, 0.26 m) went 15 cm into it. At 1.45 H + 0.05 m
+  // (0.60 m), the paws keep out of the belly (`pose/test-pianist-clearance.ts`). At 1.5 H, the
+  // stage of a violin and piano duo had no camera for a two-shot (`shots/prepare.test.ts`).
   const instrument = piece.build(
     'instrument',
     hold('floor', [0, 0, -PIANO_FRONT_H], undefined, [0, 0, -0.05]),

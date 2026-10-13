@@ -9,7 +9,7 @@ import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { harpStringPosition } from '../models/instruments/harp.ts';
 import { placePoint } from '../models/instruments/hold.ts';
-import { pianoKeyPosition } from '../models/instruments/piano.ts';
+import { pianoKeyFront } from '../models/instruments/piano.ts';
 import { BIND_ROTATIONS, chainFrames, setBoneRotation } from './frames.ts';
 import { HAND_MOTION, createHandState } from './hand-notes.ts';
 import { HANDS_HOLDS, handsRig, poseHands } from './hands.ts';
@@ -63,11 +63,11 @@ const FILE: TestFile = {
 
 /** The place of the palm over a key (design 5.3), in the instrument axes. */
 const PALM_OFFSETS = {
-  piano: { L: [0, 0.04, 0.04], R: [0, 0.04, 0.04] },
-  harp: { L: [-0.03, 0, 0], R: [0.03, 0, 0] },
+  piano: { L: HANDS_HOLDS.piano.palmL, R: HANDS_HOLDS.piano.palmR },
+  harp: { L: HANDS_HOLDS.harp.palmL, R: HANDS_HOLDS.harp.palmR },
 } as const satisfies Readonly<Record<HandsInstrument, { L: Vec3; R: Vec3 }>>;
 
-const KEY_POINTS = { piano: pianoKeyPosition, harp: harpStringPosition } as const;
+const KEY_POINTS = { piano: pianoKeyFront, harp: harpStringPosition } as const;
 
 const scene = sceneOf(FILE);
 const players = firstPlayers(scene, ['piano', 'harp'] as const);
@@ -232,12 +232,19 @@ describe('poseHands (design 5.3, 4.7)', () => {
           );
           expect(Math.abs(palm.distanceTo(string) - rest.away) / h, label).toBeLessThan(1e-6);
         } else {
-          // The palm is on the thigh. The skin of a studio body blends the thighs into the hips,
-          // so the thighs are a part of the closed shell of the body.
-          const thigh = posedPart(posed, player.model.studio ? ['hips'] : [`thigh${side}`]);
-          const gap = signedDistance(thigh, palm) / h;
-          expect(gap, label).toBeGreaterThan(0);
-          expect(gap, label).toBeLessThan(0.2);
+          if (player.model.studio) {
+            // The skin of a studio body blends the thighs into the hips and the belly, and the
+            // body is one closed shell with the arms. The paw is near the lap, and the test of the
+            // pianist clearance keeps it out of the body (`test-pianist-clearance.ts`).
+            const paw = posedPart(posed, [`hand${side}`, `fingers${side}`]);
+            const lap = posedPart(posed, ['hips', 'spine', `thigh${side}`, `shin${side}`]);
+            expect(partDistance(paw, lap, 0.2 * h) / h, label).toBeLessThan(0.2);
+          } else {
+            // The palm is on the thigh.
+            const gap = signedDistance(posedPart(posed, [`thigh${side}`]), palm) / h;
+            expect(gap, label).toBeGreaterThan(0);
+            expect(gap, label).toBeLessThan(0.2);
+          }
         }
 
         // The elbow bends: a hanging arm is straight (180°).
