@@ -1,9 +1,10 @@
 /**
- * Counts the folded faces of the skin of the studio body of a role in the poses of the app, over
- * the demos of the role (design 4.4). A face is folded when its posed normal is more than 90° from
- * its bind normal moved by the mean of the skin matrices of its corners: the test of the studio.
- * It prints the samples, the samples with a fold, their share, and the most folded faces of each
- * sample set, and the main bone of the folded faces. The method comes from
+ * Counts the folded faces of the skin of the studio body of a role (design 4.4). It poses the
+ * body as the app does, over each demo of the role. The test of a fold is the test of the
+ * studio. The bind normal of a face moves by the mean of the skin matrices of its corners. The
+ * face is folded when its posed normal is more than 90° from that normal. For each sample set,
+ * the tool prints the samples, the samples with a fold, their share, and the most folded faces.
+ * Then it prints the main bone of the folded faces. The method comes from
  * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
  * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>]
@@ -108,8 +109,9 @@ function cofactor(m: readonly number[], n: Vec3): Vec3 {
 }
 
 /**
- * Finds the folded faces of a posed studio mesh: each face whose posed normal is more than 90°
- * from its bind normal moved by the mean of the skin matrices of its corners.
+ * Finds the folded faces of a posed studio mesh. The bind normal of a face moves by the mean of
+ * the skin matrices of its corners. The face is folded when its posed normal is more than 90°
+ * from that normal.
  *
  * @param mesh The studio mesh in the bind pose.
  * @param matrices The skin matrices, 16 numbers for each bone, column by column.
@@ -248,9 +250,9 @@ function roleBodies(role: RoleSource, scene: TestScene): RoleBody[] {
 }
 
 /**
- * Counts the folded faces of the studio body of a role over demos. The samples of each demo are
- * the rest pose before the start, the play from the count-in to the end at each step, and the
- * lift of the arms in the first 3 s of wall time after the start.
+ * Counts the folded faces of the studio body of a role over demos. Each demo has three sample
+ * sets. The rest pose is the pose before the start. The play goes from the count-in to the end
+ * at each step. The lift of the arms takes the first 3 s of wall time after the start.
  *
  * @param role The role.
  * @param demos The demos. A demo with no body of the role adds nothing.

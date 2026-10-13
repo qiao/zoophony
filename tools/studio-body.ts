@@ -1078,8 +1078,8 @@ export interface InspectedKeys {
 }
 
 /**
- * The facts of a GLB file of the studio that a new studio body needs (design 4.4), in the axes
- * and the units of the studio: the animal faces +z with its left side at +x.
+ * The facts of a GLB file of the studio that a new studio body needs (design 4.4). The values
+ * are in the axes and the units of the studio. The animal faces +z with its left side at +x.
  */
 export interface StudioInspection {
   /** The meters for each unit of the studio. */
@@ -1102,8 +1102,8 @@ export interface StudioInspection {
    */
   readonly seated: boolean;
   /**
-   * The lowest point of the skin in the bind pose: the drop of a seated body in the app, which
-   * puts the soles on the floor.
+   * The lowest point of the skin in the bind pose. A seated body drops by its height in the app,
+   * so that the soles are on the floor.
    */
   readonly lowest: Vec3;
   /** The props: the scene nodes with a mesh and no skin. */
@@ -1150,10 +1150,10 @@ function meshBox(glb: Glb, worlds: readonly Matrix4[], nodes: readonly number[])
 }
 
 /**
- * Reads the facts of a GLB file of the studio that a new studio body needs (design 4.4): the
- * nodes, the joints, the morph targets, the clips, the heights of the hips, the lowest point of
- * the skin, and the boxes of the props. It reads the file as it is, and it does not stop on a
- * part that the export refuses: it lists that part.
+ * Reads the facts of a GLB file of the studio that a new studio body needs (design 4.4). These
+ * are the nodes, the joints, the morph targets, and the clips. They also hold the heights of the
+ * hips, the lowest point of the skin, and the boxes of the props. The function reads the file as
+ * it is. It does not stop on a part that the export refuses: it lists that part.
  *
  * @param bytes The GLB file.
  * @param settings The settings of the animal, or `null` for an animal that is not in `ANIMALS`.

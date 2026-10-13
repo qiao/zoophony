@@ -38,8 +38,8 @@ describe('closeViewPath', () => {
     const at = (name: string): number | undefined =>
       views.find((view) => view.name === name)?.azimuth;
     expect([at('front'), at('right'), at('back'), at('left')]).toEqual([0, 90, 180, -90]);
-    // The view of the keys is on the left side, turned toward the front, so that the case and
-    // the lid of the piano stay beside the left paw.
+    // The view of the keys is on the left side, turned toward the front. The case and the lid
+    // of the piano then stay beside the left paw.
     const keys = views.find((view) => view.name === 'keys');
     expect(keys?.azimuth).toBeGreaterThan(-90);
     expect(keys?.azimuth).toBeLessThan(-45);

@@ -35,7 +35,7 @@ export interface CloseMoment {
 }
 
 /**
- * The camera of a close view around the body of the animal (the query `body`): the box of the
+ * The camera of a close view around the body of the animal (the query `body`). The box of the
  * body gives the vertical line, the target, and the distance at the zoom 1. A new role needs no
  * other value.
  */
@@ -86,8 +86,7 @@ export type CloseRole = 'conductor' | 'pianist';
  *
  * - The conductor: the front, the right side, and the back, which the default view of the stage
  *   shows (design 2.5), at the four beats of the first bar of the default test notes (4/4 at 120
- *   BPM), between two beats, and in the rest pose. The camera turns around a fixed line, as
- *   before the camera around the body.
+ *   BPM), between two beats, and in the rest pose. The conductor keeps its fixed line.
  * - The pianist: the front, both sides, the back, and the left paw on the keys, at a chord of
  *   three keys in each hand, between two chords, and in the rest pose. The camera turns around
  *   the body. It looks down 35°, over the case of the piano in the front view. The view of the
