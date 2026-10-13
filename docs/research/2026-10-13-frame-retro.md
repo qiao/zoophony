@@ -60,13 +60,27 @@ processes used the GPU in 0% to 8% of the Metal trace, and 27% in `after1` and 5
 with the filter of a commit on the 18 kept Metal traces
 ([`filter-check.txt`](2026-10-13-frame-retro/filter-check.txt)). The kept traces have no frame
 rate of the page during the trace. The expected count comes from the command buffers that write
-the canvas (`canvasWriteFrames()`), as in `pnpm frame` since `9f1f6e70`.
+the canvas in the whole trace, after the writes of the partial frames at its ends
+(`canvasWriteFrames()`), as in `pnpm frame` since `8fe2c272`. The table of the file gives both
+counts of writes.
 
 | Filter | Traces that pass | Traces that fail | Faults |
 |---|---:|---:|---|
-| `a6cdc400` (`main` at the start of the round, the same filter as the tip) | 18 | 0 | none: no dropped canvas buffer, at most 0.8% from the expected count, and no merged frame |
+| `main` (`a6cdc400`, the same filter as the tip) | 18 | 0 | none: no dropped canvas buffer, at most 0.8% from the expected count, and no merged frame |
 | `e584e16f` (the dropped first buffer) | 0 | 18 | 0.73 to 3.44 ms of dropped canvas buffers in each frame in the 10 traces before the cut, and 2.9 to 3.0 times the expected count in the 8 traces after it |
 | `332d09ba` (the merged frames) | 2 | 16 | 1 to 13 merged frames. The traces `cut1` and `a` have no clear with no label, so the filter gives the frames of `main` there |
+
+The partial frames at the ends of a trace hold 1 to 3 canvas writes. In each of the 18 traces, the
+writes of the whole trace less these writes are the writes in the frames of `main`, so the code
+removes the writes at the ends correctly. Five traces have frames with only one canvas write: the
+trace lists no surface for their final pass. These frames give the differences of the filter of
+`main`: 6 frames in `before1` (385 / 382), 2 in `after1`, `final1`, and `final3` (1 frame more
+each), and 3 in `final2` (535 / 533.5). A probe of the review counted the writes in each frame.
+
+Before `8fe2c272`, the check counted the writes from the start of the first frame of the filter
+to the start of its last frame. Thus the expected count changed with the filter: with
+`e584e16f`, 570 in `frame` and 653.5 in `cut1`, against 571 and 652 now. Now the three filters
+get the same expected count in each trace.
 
 ### 3.2 The gate of the main-thread phase
 
@@ -110,7 +124,8 @@ The self-check of run 2 failed: the page drew 2.0% more frames than the trace he
 limit of 2%. The trace held no merged frame and no dropped canvas buffer. Runs 1 to 3 and a run
 with `--gpu-only` gave 1.1% to 2.7% more frames on the page, also with the marks from
 `performance.now()`. Since `9f1f6e70`, the count of the self-check comes from the canvas writes
-of the trace, and the four traces give the same count as the filter
+of the trace, and since `8fe2c272` from the writes of the whole trace. The traces of runs 1 to 4
+and 6 give the same count as the filter
 ([`filter-check.txt`](2026-10-13-frame-retro/filter-check.txt)). The count of the page stays in
 the output for information.
 
