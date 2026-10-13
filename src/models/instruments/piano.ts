@@ -249,9 +249,12 @@ function addInside(piece: PieceBuilder, boardY: number): void {
 }
 
 /**
- * Calculates the point on the front edge of a piano key, at the height of the top of the white
- * keys, in the piano axes. The paw of the studio polar bear is longer than a white key, so the
- * palm of the pianist stays in front of this point, and the claws lie on the key (design 5.3).
+ * Calculates the point in front of a piano key on the front edge of the white keys, at the height
+ * of the top of the white keys, in the piano axes. For a white key, the point is at the middle of
+ * its front edge. A black key is shorter and stands back from this edge, so its point is at the
+ * line between the two white keys at its sides. The paw of the studio polar bear is longer than a
+ * white key, so the palm of the pianist stays in front of this point, and the claws lie on the key
+ * (design 5.3).
  *
  * @param key The MIDI key. A key outside the piano plays the nearest key.
  * @returns The point.
