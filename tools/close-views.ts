@@ -4,15 +4,21 @@ import { join } from 'node:path';
 import { chromium } from '@playwright/test';
 import type { Browser } from '@playwright/test';
 
+import type { SpeciesId } from '../src/models/species.ts';
 import { chromiumArgs } from './chromium-args.ts';
 import { openShot, startSite, toWebp } from './screenshots.ts';
 
 /** One view of a close view: the turn of the gallery camera around the animal. */
 export interface CloseViewAngle {
   /** The name of the view in the file names and the labels. */
-  readonly name: 'front' | 'side' | 'left' | 'right' | 'back';
-  /** The turn of the gallery camera to the right side of the animal, in degrees. */
+  readonly name: 'front' | 'side' | 'left' | 'right' | 'back' | 'keys';
+  /**
+   * The turn of the camera to the right side of the animal, in degrees. Around a body, 0 is the
+   * front of the animal. Around a line, 0 is the +z side of the gallery.
+   */
   readonly azimuth: number;
+  /** The angle of the camera above the floor, in degrees, in place of the angle of the role. */
+  readonly elevation?: number;
 }
 
 /**
@@ -28,27 +34,46 @@ export interface CloseMoment {
   readonly rest: boolean;
 }
 
+/**
+ * The camera of a close view around the body of the animal (the query `body`): the box of the
+ * body gives the vertical line, the target, and the distance at the zoom 1. A new role needs no
+ * other value.
+ */
+export interface BodyCamera {
+  /** The kind of the camera. */
+  readonly kind: 'body';
+  /** The zoom of the camera, 1 or more: 1 shows the whole body. */
+  readonly zoom: number;
+  /** The angle of the camera above the floor, in degrees. */
+  readonly elevation: number;
+}
+
+/** The camera of a close view around a fixed vertical line of the gallery (`closeView()`). */
+export interface LineCamera {
+  /** The kind of the camera. */
+  readonly kind: 'line';
+  /** The zoom of the camera, 1 or more. */
+  readonly zoom: number;
+  /** The height of the point that the camera looks at, in meters. */
+  readonly target: number;
+  /** The angle of the camera above the floor, in degrees. */
+  readonly elevation: number;
+  /** The x of the vertical line around which the camera turns, in meters. */
+  readonly x: number;
+  /** The z of the vertical line around which the camera turns, in meters. */
+  readonly z: number;
+}
+
 /** The close view of one role of the gallery. */
 export interface RoleViews {
-  /** The species of the role, which the query `only` selects with its instrument. */
-  readonly species: 'bear' | 'polar-bear';
+  /** The species of the role, which the query `only` selects. */
+  readonly species: SpeciesId;
   /** The views, one column of the grid each. */
   readonly views: readonly CloseViewAngle[];
   /** The moments, one row of the grid each. */
   readonly moments: readonly CloseMoment[];
-  /** The camera of the close views, as the queries of the gallery give it (`closeView()`). */
-  readonly close: {
-    /** The zoom of the camera, 1 or more. */
-    readonly zoom: number;
-    /** The height of the point that the camera looks at, in meters. */
-    readonly target: number;
-    /** The angle of the camera above the floor, in degrees. */
-    readonly elevation: number;
-    /** The x of the vertical line around which the camera turns, in meters. */
-    readonly x: number;
-    /** The z of the vertical line around which the camera turns, in meters. */
-    readonly z: number;
-  };
+  /** The camera of the close views. */
+  readonly camera: BodyCamera | LineCamera;
   /** The test notes of the gallery for the moments, or none for the default test notes. */
   readonly notes: string | null;
 }
@@ -61,10 +86,14 @@ export type CloseRole = 'conductor' | 'pianist';
  *
  * - The conductor: the front, the right side, and the back, which the default view of the stage
  *   shows (design 2.5), at the four beats of the first bar of the default test notes (4/4 at 120
- *   BPM), between two beats, and in the rest pose.
- * - The pianist: the front, both sides, and the back, at a chord of three keys in each hand,
- *   between two chords, and in the rest pose. The camera looks down 35°, over the case of the
- *   piano in the front view.
+ *   BPM), between two beats, and in the rest pose. The camera turns around a fixed line, as
+ *   before the camera around the body.
+ * - The pianist: the front, both sides, the back, and the paws on the keys from the front left,
+ *   at a chord of three keys in each hand, between two chords, and in the rest pose. The camera
+ *   turns around the body, and looks down 35°, over the case of the piano in the front view.
+ *
+ * A new role gives its species, its views, its moments, and its test notes, with the camera
+ * `{ kind: 'body', zoom: 1, elevation }`.
  */
 export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
   conductor: {
@@ -82,26 +111,26 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
       { name: 'beat-4', time: 1.5, rest: false },
       { name: 'rest', time: 0, rest: true },
     ],
-    close: { zoom: 1.4, target: 0.9, elevation: 8, x: 0, z: 0 },
+    camera: { kind: 'line', zoom: 1.4, target: 0.9, elevation: 8, x: 0, z: 0 },
     notes: null,
   },
   pianist: {
     species: 'polar-bear',
-    // The pianist faces +x in the gallery, as on the stage (design 4.5), so its front is at the
-    // azimuth -90°.
     views: [
-      { name: 'front', azimuth: -90 },
-      { name: 'left', azimuth: 180 },
-      { name: 'right', azimuth: 0 },
-      { name: 'back', azimuth: 90 },
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+      // The lid of the piano hides the paws in the front view. This view looks down at the keys
+      // from the front left, the side of the hinge of the lid.
+      { name: 'keys', azimuth: -60, elevation: 60 },
     ],
     moments: [
       { name: 'chord', time: 0.6, rest: false },
       { name: 'between', time: 1.45, rest: false },
       { name: 'rest', time: 0, rest: true },
     ],
-    // The pianist sits at the keyboard end of the case, about 1.5 m to the left of the middle.
-    close: { zoom: 3.2, target: 0.85, elevation: 35, x: -1.35, z: 0 },
+    camera: { kind: 'body', zoom: 1, elevation: 35 },
     // A wide chord splits into C3 E3 G3 for the left paw and C5 E5 G5 for the right paw, then
     // A2 C3 E3 and A4 C5 E5 (design 5.3).
     notes: [
@@ -134,16 +163,21 @@ export const CELL = { width: 360, height: 450 } as const;
  * @returns The path and the query, from the root of the site.
  */
 export function closeViewPath(role: RoleViews, view: CloseViewAngle, moment: CloseMoment): string {
+  const camera = role.camera;
   const query = new URLSearchParams({
     page: 'species',
     only: role.species,
-    zoom: String(role.close.zoom),
-    target: String(role.close.target),
+    zoom: String(camera.zoom),
     azimuth: String(view.azimuth),
-    elevation: String(role.close.elevation),
-    x: String(role.close.x),
-    z: String(role.close.z),
+    elevation: String(view.elevation ?? camera.elevation),
   });
+  if (camera.kind === 'body') {
+    query.set('body', '');
+  } else {
+    query.set('target', String(camera.target));
+    query.set('x', String(camera.x));
+    query.set('z', String(camera.z));
+  }
   if (moment.rest) {
     query.set('rest', '');
   }

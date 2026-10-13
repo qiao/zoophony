@@ -12,8 +12,11 @@ describe('closeViewPath', () => {
           const search = new URLSearchParams(closeViewPath(role, view, moment).split('?')[1]);
           expect(search.get('only')).toBe(role.species);
           const close = closeView(search);
-          expect(close.zoom).toBeGreaterThan(1);
+          expect(close.zoom).toBeGreaterThanOrEqual(1);
           expect(close.azimuth).toBe(view.azimuth);
+          expect(close.elevation).toBe(view.elevation ?? role.camera.elevation);
+          // A camera around the body takes the line and the target from the body.
+          expect(close.body).toBe(role.camera.kind === 'body');
           // The rest pose is the transport before the first play (design 5.2).
           expect(galleryTransport(search).playing).toBe(!moment.rest);
         }
@@ -29,9 +32,17 @@ describe('closeViewPath', () => {
     expect(beats.map((moment) => moment.time)).toEqual([0, 0.5, 1, 1.5]);
   });
 
-  it('shows the pianist from four sides at a chord in each paw and between two chords', () => {
-    const { views, moments, notes } = ROLE_VIEWS.pianist;
-    expect(views.map((view) => view.azimuth).toSorted((a, b) => a - b)).toEqual([-90, 0, 90, 180]);
+  it('shows the pianist around its body from four sides and the paws on the keys', () => {
+    const { views, moments, notes, camera } = ROLE_VIEWS.pianist;
+    expect(camera.kind).toBe('body');
+    const at = (name: string): number | undefined =>
+      views.find((view) => view.name === name)?.azimuth;
+    expect([at('front'), at('right'), at('back'), at('left')]).toEqual([0, 90, 180, -90]);
+    // The view of the keys looks down from the front, on the side of the hinge of the lid.
+    const keys = views.find((view) => view.name === 'keys');
+    expect(Math.abs(keys?.azimuth ?? 0)).toBeGreaterThan(0);
+    expect(Math.abs(keys?.azimuth ?? 90)).toBeLessThan(90);
+    expect(keys?.elevation).toBeGreaterThan(camera.elevation);
     const result = parseTestNotes(notes ?? '');
     if (!result.ok) {
       throw new Error(`The test notes of the pianist fail on line ${result.line}.`);
