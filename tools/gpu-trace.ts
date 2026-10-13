@@ -241,15 +241,19 @@ function holdsClear(intervals: readonly GpuInterval[]): boolean {
 
 /**
  * Gives the GPU intervals of each WebGL frame of the GPU process of Chrome. The process also runs
- * the compositor of Chrome. A command buffer of the compositor reads or writes a surface that is
- * not a canvas surface, so the function drops it.
+ * the compositor of Chrome. The canvas surfaces are the surfaces with the size of the drawing
+ * buffer that a command buffer with the clear writes. A command buffer writes the canvas when one
+ * of its encoders writes a canvas surface and touches no other surface. The function counts a
+ * command buffer that holds the clear or writes the canvas, also when the trace puts a surface of
+ * the display into another encoder of it. It also counts a command buffer whose surfaces all have
+ * the size of the drawing buffer, such as a buffer with no surface. It drops each other command
+ * buffer as work of the compositor, which reads the tiles of the page and writes the surface of
+ * the window.
  *
  * A WebGL frame starts at the command buffer with the clear. It holds each counted command buffer
  * until the next start. Each frame writes a canvas surface in two command buffers: the clear, then
- * the final pass. The canvas surfaces are the surfaces with the size of the drawing buffer that a
- * command buffer with the clear writes. Sometimes the trace gives no label to the clear. Thus a
- * frame also starts at a command buffer that writes a canvas surface when the frame already holds
- * its final pass.
+ * the final pass. Sometimes the trace gives no label to the clear. Thus a frame also starts at a
+ * command buffer that writes the canvas when the frame already holds its final pass.
  *
  * @param intervals The GPU intervals of the trace.
  * @param process The text that the process column of the GPU process holds, such as its pid.
@@ -279,14 +283,18 @@ export function webglFrames(
       .filter((surface) => surface.size === size)
       .map((surface) => surface.id),
   );
+  // The trace sometimes lists the canvas among the writes of a compositor encoder that reads the
+  // tiles of the page. Thus only an encoder with no other surface writes the canvas.
   const writesCanvas = (list: readonly GpuInterval[]): boolean =>
-    list.some((interval) =>
-      writtenSurfaces(interval.surfaces).some((surface) => canvasIds.has(surface.id)),
+    list.some(
+      (interval) =>
+        writtenSurfaces(interval.surfaces).some((surface) => canvasIds.has(surface.id)) &&
+        [...interval.surfaces.matchAll(/(\d+)\(/g)].every((m) => canvasIds.has(m[1] ?? '')),
     );
   const start = (list: readonly GpuInterval[]): number =>
     Math.min(...list.map((interval) => interval.startNs));
   const webgl = [...byBuffer.values()]
-    .filter((list) => onlyCanvasSurfaces(list, canvas))
+    .filter((list) => holdsClear(list) || writesCanvas(list) || onlyCanvasSurfaces(list, canvas))
     .toSorted((a, b) => start(a) - start(b));
 
   const frames: GpuInterval[][] = [];

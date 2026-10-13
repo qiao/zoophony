@@ -194,6 +194,40 @@ describe('webglFrameTimes', () => {
     expect(times[0]).toBeCloseTo(0.27 + 3, 6);
     expect(times[1]).toBeCloseTo(0.26 + 3.5, 6);
   });
+
+  it('counts a WebGL command buffer with a surface of the display, and drops the compositor', () => {
+    const intervals = [
+      ...firstBuffer(0, 'f1'),
+      interval(1, 2, 'w1'),
+      interval(3, 1, 'w2', 'Render Command 4', 'Fragment', CANVAS_WRITE),
+      // The trace puts a blit of surfaces of the display into the first buffer of a frame.
+      ...firstBuffer(10, 'f2'),
+      interval(
+        10.6,
+        0.1,
+        'f2',
+        'Blit Command 4',
+        'Compute',
+        'Read Surface: 887(64×320:ARGB) -> Write Surface: 1075(3456×2168:ARGB)',
+      ),
+      interval(11, 2, 'w3'),
+      interval(13, 1.5, 'w4', 'Render Command 4', 'Fragment', CANVAS_WRITE),
+      // The trace lists the canvas among the writes of an encoder of the compositor.
+      interval(
+        15,
+        0.3,
+        'c1',
+        'Render Command 0',
+        'Fragment',
+        'Read Surface: 5(1472×256:ARGB) -> Write Surface: 4(1440×900:ARGB) 9(2880×1800:ARGB)',
+      ),
+      ...firstBuffer(20, 'f3'),
+    ];
+    const times = webglFrameTimes(intervals, '(7)', CANVAS);
+    expect(times).toHaveLength(2);
+    expect(times[0]).toBeCloseTo(0.27 + 3, 6);
+    expect(times[1]).toBeCloseTo(0.27 + 0.1 + 3.5, 6);
+  });
 });
 
 describe('otherGpuShare', () => {
