@@ -370,10 +370,6 @@ function rightEar(species: BipedParams, colors: BodyColors, h: number): RightEar
       );
       return { base: ear.base, parts: [...ear.parts, ...antler(h, colors.belly)] };
     }
-    case 'low-round':
-      // Small round ears low on the sides of the head, as the ears of a polar bear. The round
-      // ears of the bear stand on the top of the head.
-      return discEar(h, [0.42 * h, 0.24 * h, 0.1 * h], 58 * MathUtils.DEG2RAD, 0.24, outer, inner);
     case 'none':
       return { base: [0.25 * h, 0.38 * h, 0], parts: [] };
     default:

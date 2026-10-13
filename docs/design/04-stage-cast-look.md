@@ -132,9 +132,9 @@ interface CommonParams {
 
 interface BipedParams extends CommonParams {
   ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small'
-    | 'side-round' | 'antlered' | 'low-round' | 'none';
+    | 'side-round' | 'antlered' | 'none';
   snout: 'short' | 'long' | 'blunt' | 'broad' | 'pointed' | 'buck-teeth' | 'trunk' | 'flat-nose'
-    | 'horn' | 'roman';
+    | 'horn';
   tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Face pattern, for example the eye patches of the panda. */
   facePattern: 'none' | 'eye-patches' | 'cap' | 'stripe' | 'forehead-stripes' | 'face-disc';
@@ -1003,7 +1003,7 @@ The table gives the parts of the parametric body (4.4). The decision files of th
 | Legs and feet | `models/legs.ts` | A round thigh that rests on the seat and slopes a little down to the knee, a faceted ball at the knee near the height of the seat, a shin that goes straight down and narrows little to the ankle, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The skeleton sets the height of the chair and of the foot ring, so it sets the length of the shin (4.3, short legs). The stool of the harp and the piano bench keep their heights for the strings and the keys, so their players have longer shins. A standing leg is a straight column with no step at the knee. The radii come from the reference images (4.3, short legs). The toes keep clear of the legs of the shared music stands. |
 | Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. No mouth: only the egg body of the penguin has a lower beak on `jaw` (4.4, 4.7). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). The long and the pointed ears are flat plates with a sharp outline and an inner plate, as in `animals.webp`. The large-round ears sit high and out to the sides, so that the mouse does not look like the bear. The large-flap ear points back and out, so that two elephants on neighbor seats keep apart. |
-| Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long and the roman muzzles start high on the face, so that their tops continue the forehead. The tip of the trunk is the nose. The parametric beak of the penguin left the app on 2026-10-11 with the egg body, which has a beak of its own (4.4). |
+| Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long muzzle starts high on the face, so that its top continues the forehead. The tip of the trunk is the nose. The parametric beak of the penguin left the app on 2026-10-11 with the egg body, which has a beak of its own (4.4). |
 | Tails | `models/tails.ts` | The tail type of the species (4.3). A long tail leaves the body at the seat, goes back through the open back of the chair under its top rail, and hangs down. The puff sits low on the back, so that it shows at the seat in the back view, as in `animals.webp`. |
 | Face patterns | `models/face-patterns.ts` | The face pattern of the species (4.3). The eyes stand a little out of a patch, a disc, or a ring around them, so that the patch does not hide them. |
 

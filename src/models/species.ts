@@ -49,7 +49,6 @@ export interface BipedParams extends CommonParams {
     | 'small'
     | 'side-round'
     | 'antlered'
-    | 'low-round'
     | 'none';
   /** The snout type (design 4.3). */
   readonly snout:
@@ -61,8 +60,7 @@ export interface BipedParams extends CommonParams {
     | 'buck-teeth'
     | 'trunk'
     | 'flat-nose'
-    | 'horn'
-    | 'roman';
+    | 'horn';
   /** The tail type (design 4.3). */
   readonly tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Face pattern, for example the eye patches of the panda. */

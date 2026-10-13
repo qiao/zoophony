@@ -45,7 +45,6 @@ const MOUTHS = {
   trunk: [0, -0.44, -0.5],
   'flat-nose': [0, -0.42, -0.58],
   horn: [0, -0.42, -0.66],
-  roman: [0, -0.4, -0.76],
 } as const satisfies Readonly<Record<BipedParams['snout'], Vec3>>;
 
 /**
@@ -376,36 +375,6 @@ export function addSnout(
         partColor(species, colors, 'horn'),
         'head',
       );
-      return bones;
-    }
-    case 'roman': {
-      // A long straight muzzle of 0.27 H in front of the face, with a blunt tip and a large nose
-      // on the top of the tip, as the muzzle of a polar bear. It starts high on the face, so
-      // that its top continues the forehead in one line. It is narrower than it is tall. Its top
-      // has the fur color, and its sides and its underside have the color of the muzzle.
-      const axis = new Vector3(0, -0.28, -1).normalize();
-      const from = at(0, -0.1, -0.38);
-      const length = 0.52;
-      const cone = placeCorners(
-        lathe(
-          [
-            [0.3 * h, 0],
-            [0.27 * h, 0.22 * h],
-            [0.22 * h, 0.4 * h],
-            [0.15 * h, 0.49 * h],
-            [0, length * h],
-          ],
-          MUZZLE_SEGMENTS,
-        ),
-        transform(from, alongAxis(toVec3(axis), [1, 0, 0]), [0.78, 1, 0.82]),
-      );
-      const [top, sides] = splitByFacing(cone, [0, 1, 0], MUZZLE_TOP_FACING);
-      builder.add(top, { color: colors.fur, bone: head });
-      builder.add(sides, { color: muzzle, bone: head });
-      const nose = new Vector3(...from)
-        .addScaledVector(axis, (length - 0.07) * h)
-        .add(new Vector3(0, 0.1 * h, 0));
-      addNose(builder, colors, h, toVec3(nose), 0.08);
       return bones;
     }
     default:
