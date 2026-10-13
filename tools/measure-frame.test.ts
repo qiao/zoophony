@@ -168,7 +168,7 @@ describe('checkLines', () => {
 
 describe('frameOptions', () => {
   it('gives the defaults of the frame target', () => {
-    expect(frameOptions([])).toEqual({
+    expect(frameOptions([], true)).toEqual({
       demo: 'perf-60',
       scale: 2,
       headed: false,
@@ -183,7 +183,7 @@ describe('frameOptions', () => {
 
   it('reads each flag', () => {
     const flags = ['--demo=bach', '--scale=1', '--free', '--max-cpu=25', '--wait=5', '--no-metal'];
-    expect(frameOptions([...flags, '--keep=out', '--headed'])).toEqual({
+    expect(frameOptions([...flags, '--keep=out', '--headed'], true)).toEqual({
       demo: 'bach',
       scale: 1,
       headed: true,
@@ -197,22 +197,27 @@ describe('frameOptions', () => {
   });
 
   it('refuses an unknown flag and a value that is not a positive number', () => {
-    expect(() => frameOptions(['--uncapped'])).toThrow(/Unknown flag/);
-    expect(() => frameOptions(['perf-60'])).toThrow(/Unknown argument/);
-    expect(() => frameOptions(['--max-cpu=high'])).toThrow(/positive number/);
-    expect(() => frameOptions(['--max-load=8'])).toThrow(/Unknown flag/);
-    expect(() => frameOptions(['--scale=0'])).toThrow(/positive number/);
+    expect(() => frameOptions(['--uncapped'], true)).toThrow(/Unknown flag/);
+    expect(() => frameOptions(['perf-60'], true)).toThrow(/Unknown argument/);
+    expect(() => frameOptions(['--max-cpu=high'], true)).toThrow(/positive number/);
+    expect(() => frameOptions(['--max-load=8'], true)).toThrow(/Unknown flag/);
+    expect(() => frameOptions(['--scale=0'], true)).toThrow(/positive number/);
   });
 
   it('reads --gpu-only, and refuses it with --no-metal', () => {
-    expect(frameOptions(['--gpu-only']).gpuOnly).toBe(true);
-    expect(() => frameOptions(['--gpu-only', '--no-metal'])).toThrow(/--gpu-only needs/);
+    expect(frameOptions(['--gpu-only'], true).gpuOnly).toBe(true);
+    expect(() => frameOptions(['--gpu-only', '--no-metal'], true)).toThrow(/--gpu-only needs/);
+  });
+
+  it('records no Metal trace with no xctrace, and refuses --gpu-only then', () => {
+    expect(frameOptions([], false).metal).toBe(false);
+    expect(() => frameOptions(['--gpu-only'], false)).toThrow(/finds no xctrace/);
   });
 
   it('refuses a value flag with no value and a switch with a value', () => {
-    expect(() => frameOptions(['--keep'])).toThrow(/needs a value/);
-    expect(() => frameOptions(['--demo='])).toThrow(/needs a value/);
-    expect(() => frameOptions(['--headed=1'])).toThrow(/takes no value/);
+    expect(() => frameOptions(['--keep'], true)).toThrow(/needs a value/);
+    expect(() => frameOptions(['--demo='], true)).toThrow(/needs a value/);
+    expect(() => frameOptions(['--headed=1'], true)).toThrow(/takes no value/);
   });
 });
 

@@ -424,7 +424,7 @@ export interface FrameOptions {
   readonly maxCpu: number;
   /** The longest wait for a low CPU use before the main-thread phase, in seconds. */
   readonly waitSec: number;
-  /** False to skip the Metal System Trace. */
+  /** False to skip the Metal System Trace: with `--no-metal`, or with no `xctrace`. */
   readonly metal: boolean;
   /** True to skip the phase at 60 fps: the tool measures only the GPU. */
   readonly gpuOnly: boolean;
@@ -436,11 +436,13 @@ export interface FrameOptions {
  * Reads the options from the flags of the command line.
  *
  * @param flags The flags.
+ * @param xctraceFound True if `xcrun xctrace` of Xcode is on the machine. With no `xctrace`, the tool
+ *   records no Metal trace.
  * @returns The options.
  * @throws Error for an unknown flag, a value flag with no value, a switch with a value, a value
- *   that is not a positive number, or `--gpu-only` with `--no-metal`.
+ *   that is not a positive number, or `--gpu-only` with `--no-metal` or with no `xctrace`.
  */
-export function frameOptions(flags: readonly string[]): FrameOptions {
+export function frameOptions(flags: readonly string[], xctraceFound: boolean): FrameOptions {
   const values = new Map<string, string>();
   const switches = new Set<string>();
   for (const flag of flags) {
@@ -467,6 +469,9 @@ export function frameOptions(flags: readonly string[]): FrameOptions {
   if (switches.has('gpu-only') && switches.has('no-metal')) {
     throw new Error('The flag --gpu-only needs the Metal trace, so it refuses --no-metal.');
   }
+  if (switches.has('gpu-only') && !xctraceFound) {
+    throw new Error('The flag --gpu-only needs the Metal trace, and xcrun finds no xctrace.');
+  }
   const positive = (name: string, fallback: number): number => {
     const text = values.get(name);
     const value = text === undefined ? fallback : Number(text);
@@ -482,7 +487,7 @@ export function frameOptions(flags: readonly string[]): FrameOptions {
     free: switches.has('free'),
     maxCpu: positive('max-cpu', MAX_CPU),
     waitSec: positive('wait', CPU_WAIT_SEC),
-    metal: !switches.has('no-metal'),
+    metal: xctraceFound && !switches.has('no-metal'),
     gpuOnly: switches.has('gpu-only'),
     keep: values.get('keep'),
   };
@@ -1056,15 +1061,10 @@ interface UncappedMeasure {
  * process of Chrome.
  *
  * @param base The URL of the dev server.
- * @param options The options.
- * @param metal True to record the Metal System Trace.
+ * @param options The options. With `metal` false, the phase records no Metal System Trace.
  * @returns The values.
  */
-async function measureUncapped(
-  base: string,
-  options: FrameOptions,
-  metal: boolean,
-): Promise<UncappedMeasure> {
+async function measureUncapped(base: string, options: FrameOptions): Promise<UncappedMeasure> {
   const browser = await launchChrome(options, true);
   const folder = await mkdtemp(join(tmpdir(), 'zoophony-frame-'));
   RUNNING.folders.add(folder);
@@ -1073,7 +1073,7 @@ async function measureUncapped(
     const canvas = await drawingBufferSize(page);
     const info = await pageInfo(browser, page, options);
     const probe = await probeFor(page, MEASURE_SEC);
-    if (!metal) {
+    if (!options.metal) {
       const none = {
         states: null,
         otherShare: null,
@@ -1330,8 +1330,7 @@ function loadText(load: number): string {
 
 async function main(): Promise<void> {
   const started = Date.now();
-  const options = frameOptions(process.argv.slice(2));
-  const metal = options.metal && hasXctrace();
+  const options = frameOptions(process.argv.slice(2), hasXctrace());
   if (options.keep) {
     await mkdir(options.keep, { recursive: true });
   }
@@ -1355,12 +1354,12 @@ async function main(): Promise<void> {
     const capped = options.gpuOnly ? null : await measureCapped(base, options);
     // The GPU phase has no CPU gate: the GPU states and the other GPU work of its trace guard it.
     const gpuLoad = currentLoad();
-    let uncapped = await measureUncapped(base, options, metal);
+    let uncapped = await measureUncapped(base, options);
     let guard = guardFaults(uncapped);
     let records = 1;
     if (guard.length > 0) {
       console.log(`The GPU phase is not valid. ${guard.join(' ')} It records one more time.`);
-      uncapped = await measureUncapped(base, options, metal);
+      uncapped = await measureUncapped(base, options);
       guard = guardFaults(uncapped);
       records = 2;
     }
