@@ -7,15 +7,17 @@ import { HEAD_BONES, boxTriangles, closeSurface, posedPart } from './test-cleara
 import type { ClosedSurface } from './test-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
 import { PLAYING } from './test-scene.ts';
-import { CONDUCTOR_SWEEP, PIANIST_SWEEP } from './test-sweep-roles.ts';
 import { HEAD_PART, gapPairs, gapSweep, gapText } from './test-sweep.ts';
+import type { SweepObstacle } from './test-sweep.ts';
 
 describe('gapPairs', () => {
   it('pairs the head with each obstacle but the body, and each paw with the body', () => {
-    const names = (pairs: ReturnType<typeof gapPairs>): string[] =>
-      pairs.map(({ part, into }) => `${part.name} ${into}`);
-    expect(names(gapPairs(PIANIST_SWEEP))).toEqual(['head case', 'paw L body', 'paw R body']);
-    expect(names(gapPairs(CONDUCTOR_SWEEP))).toEqual(['paw L body', 'paw R body']);
+    const surface = (): ClosedSurface => closeSurface(boxTriangles([0, 0, 0], [1, 1, 1]), 0);
+    const role = {
+      obstacles: ['body', 'case', 'lid'].map((name): SweepObstacle => ({ name, surface })),
+    };
+    const pairs = gapPairs(role).map(({ part, into }) => `${part.name} ${into}`);
+    expect(pairs).toEqual(['head case', 'head lid', 'paw L body', 'paw R body']);
   });
 });
 
