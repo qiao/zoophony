@@ -5,7 +5,11 @@ import type { SpeciesId } from '../models/species.ts';
 import { INSTRUMENT_IDS } from '../models/instruments/catalog.ts';
 import { MeshBuilder, transform } from '../models/mesh.ts';
 import { box } from '../models/primitives.ts';
+import { buildPlayer } from '../models/player.ts';
+import { boneIndex } from '../models/rig.ts';
 import {
+  aroundBody,
+  bodyBoundsOf,
   boundsOf,
   GALLERY_ELEVATION_DEG,
   closeView,
@@ -138,6 +142,7 @@ describe('closeView', () => {
       elevation: GALLERY_ELEVATION_DEG,
       x: 0,
       z: 0,
+      body: false,
     };
     expect(closeView(new URLSearchParams(''))).toEqual(defaults);
     expect(
@@ -149,10 +154,56 @@ describe('closeView', () => {
       elevation: 22,
       x: -1.5,
       z: 0.2,
+      body: false,
     });
+    expect(closeView(new URLSearchParams('only=bear&body')).body).toBe(true);
     expect(closeView(new URLSearchParams('zoom=0.5&target=x&azimuth=y'))).toEqual(defaults);
     expect(closeView(new URLSearchParams('elevation=95')).elevation).toBe(89);
     expect(closeView(new URLSearchParams('elevation=-5')).elevation).toBe(0);
+  });
+});
+
+describe('bodyBoundsOf', () => {
+  it('boxes the body of a player with no instrument', () => {
+    const model = buildPlayer('polar-bear', 'piano');
+    const body = bodyBoundsOf(model.mesh);
+    const all = boundsOf([model.mesh]);
+    // The piano is in front of the player, and the body is behind the front of the keys.
+    expect(all.min[2]).toBeLessThan(body.min[2] - 1);
+    for (const joint of [model.body.positions.head, model.body.positions.hips]) {
+      for (let k = 0; k < 3; k++) {
+        expect(joint[k]).toBeGreaterThan(body.min[k] ?? 0);
+        expect(joint[k]).toBeLessThan(body.max[k] ?? 0);
+      }
+    }
+  });
+
+  it('refuses a mesh with no corner on a bone of the body', () => {
+    const builder = new MeshBuilder();
+    builder.add(box(1, 1, 1), { color: [0.5, 0.5, 0.5], bone: boneIndex('instrument') });
+    expect(() => bodyBoundsOf(builder.build())).toThrow('no corner');
+  });
+});
+
+describe('aroundBody', () => {
+  const view = closeView(new URLSearchParams('body&azimuth=0&elevation=30'));
+  const bodyBox = { min: [-2, 0, 1], max: [-1, 1.6, 2] } as const;
+
+  it('turns the camera around the vertical line through the middle of the body', () => {
+    const aimed = aroundBody(view, bodyBox, Math.PI);
+    expect([aimed.x, aimed.target, aimed.z]).toEqual([-1.5, 0.8, 1.5]);
+    expect(aimed.elevation).toBe(30);
+  });
+
+  it('starts the azimuth at the front of the animal', () => {
+    // An animal that faces the camera of the gallery (+z) has its front at the azimuth 0°.
+    expect(aroundBody(view, bodyBox, Math.PI).azimuth).toBeCloseTo(0, 9);
+    // The pianist faces +x, so its front is at -90° and its right side at 0°.
+    expect(aroundBody(view, bodyBox, -Math.PI / 2).azimuth).toBeCloseTo(-90, 9);
+    const right = closeView(new URLSearchParams('body&azimuth=90'));
+    expect(aroundBody(right, bodyBox, -Math.PI / 2).azimuth).toBeCloseTo(0, 9);
+    const back = closeView(new URLSearchParams('body&azimuth=180'));
+    expect(Math.abs(aroundBody(back, bodyBox, Math.PI).azimuth)).toBeCloseTo(180, 9);
   });
 });
 

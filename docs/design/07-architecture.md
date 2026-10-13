@@ -70,14 +70,19 @@ player.
   and tilt it, in degrees: a positive azimuth moves the camera to the right side of the animals,
   and the elevation is 35° by default. The queries `x` and `z` move the vertical line through
   the target from the middle of the gallery, in meters, for example to the pianist at the end of
-  its piano. `pnpm choir-check` (`tools/choir-check.ts`) uses them to
+  its piano. The query `body` turns the camera around the body of the first animal: the box of
+  its body with no instrument gives the vertical line, the target, and the distance at the zoom
+  1, and the azimuth 0 is the front of the animal. Thus a close view of a new role needs no
+  camera values. `pnpm choir-check` (`tools/choir-check.ts`) uses these queries to
   show the penguin at the cameras of `orchestra-latest.png` and `orchestra-side.png`, beside a
   crop of each image (4.4). `pnpm close-views` (`tools/close-views.ts`) uses them to show a role
   in one grid: the bear conductor from the front, the right side, and the back at the four beats
   of a bar of the test notes, between two beats, and in the rest pose (5.4), and the polar bear
-  pianist from the front, both sides, and the back at a chord in each paw, between two chords,
-  and in the rest pose (5.3). The pianist plays test notes of its own, which the tool writes into
-  the notes field of the page.
+  pianist from the front, both sides, the back, and the front left above the keys at a chord in
+  each paw, between two chords, and in the rest pose (5.3). The open lid hides the paws in the
+  front view of the pianist, so the view above the keys shows them. The pianist turns the camera
+  around its body, and the conductor keeps its fixed line. The pianist plays test notes of its
+  own, which the tool writes into the notes field of the page.
 - The query `rest` shows the players in the rest pose of 5.2, before the first play. With no
   `rest`, the players play. For example, `?page=species&only=rabbit&zoom=2.5&target=1.1&rest`
   shows a close view of the rest pose of the rabbit.

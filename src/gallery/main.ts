@@ -37,6 +37,8 @@ import {
 import { createRenderer } from '../scene/renderer.ts';
 import {
   GALLERY_ELEVATION_DEG,
+  aroundBody,
+  bodyBoundsOf,
   boundsOf,
   closeView,
   galleryTransport,
@@ -234,14 +236,54 @@ if (spot) {
 
 const camera = new PerspectiveCamera(30, 1, 0.1, 10 * floorSide);
 const controls = new OrbitControls(camera, canvas);
-const close = closeView(search);
 const transport = galleryTransport(search);
+
+/**
+ * Gives the box of the body of the first animal in the axes of the gallery, for a close view
+ * around the body (design 7.1).
+ *
+ * @returns The box, or `null` when the page shows no animal.
+ */
+function firstBodyBox(): Bounds | null {
+  const subject = models.find((model) => model.player);
+  if (!subject?.player) {
+    return null;
+  }
+  subject.object.updateMatrixWorld();
+  const local = bodyBoundsOf(subject.player.model.mesh);
+  const min = new Vector3(Infinity, Infinity, Infinity);
+  const max = new Vector3(-Infinity, -Infinity, -Infinity);
+  for (const x of [local.min[0], local.max[0]]) {
+    for (const y of [local.min[1], local.max[1]]) {
+      for (const z of [local.min[2], local.max[2]]) {
+        const corner = subject.object.localToWorld(new Vector3(x, y, z));
+        min.min(corner);
+        max.max(corner);
+      }
+    }
+  }
+  return { min: min.toArray(), max: max.toArray() };
+}
+
+const query = closeView(search);
+const bodyBox = query.body ? firstBodyBox() : null;
+const subjectItem = models.find((model) => model.player)?.item;
+const close = bodyBox && subjectItem ? aroundBody(query, bodyBox, facingOf(subjectItem)) : query;
 controls.target.set(close.x, close.target, close.z);
 
-/** The corners of the box around all models, for the camera fit. */
-const corners = [-1, 1].flatMap((sx) =>
-  [0, 2].flatMap((y) => [-1, 1].map((sz) => new Vector3(sx * extentX, y, sz * extentZ))),
-);
+/**
+ * The corners of the box that the camera fit shows: the body of the first animal in a close view
+ * around the body, or else all models.
+ */
+const corners = bodyBox
+  ? [bodyBox.min[0], bodyBox.max[0]].flatMap((x) =>
+      [bodyBox.min[1], bodyBox.max[1]].flatMap((y) =>
+        [bodyBox.min[2], bodyBox.max[2]].map((z) => new Vector3(x, y, z)),
+      ),
+    )
+  : [-1, 1].flatMap((sx) =>
+      [0, 2].flatMap((y) => [-1, 1].map((sz) => new Vector3(sx * extentX, y, sz * extentZ))),
+    );
 
 /**
  * Places the camera at a distance from the vertical line through the camera target, in the
@@ -263,11 +305,13 @@ function placeCamera(distance: number, height: number): void {
 
 /**
  * Places the camera in front of the models, at the smallest distance that shows the box around
- * all of them with a margin. A close view divides that distance by its zoom.
+ * all of them with a margin. A close view divides that distance by its zoom. A close view around
+ * a body fits the box of the body around the target.
  */
 function frameModels(): void {
+  const height = bodyBox ? close.target : 0.6;
   const fits = (distance: number): boolean => {
-    placeCamera(distance, 0.6);
+    placeCamera(distance, height);
     camera.lookAt(controls.target);
     camera.updateMatrixWorld();
     return corners.every((corner) => {
@@ -279,7 +323,7 @@ function frameModels(): void {
   while (!fits(distance)) {
     distance += 0.1;
   }
-  if (close.zoom > 1) {
+  if (close.zoom > 1 || bodyBox) {
     placeCamera(distance / close.zoom, close.target);
   }
   controls.update();

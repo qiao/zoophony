@@ -5,6 +5,7 @@ import type { PlayingSection } from '../models/cast.ts';
 import type { SpeciesId } from '../models/species.ts';
 import { INSTRUMENT_IDS } from '../models/instruments/catalog.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
+import { boneIndex } from '../models/rig.ts';
 import type { Transport } from '../pose/types.ts';
 
 /** One model of the gallery: a species with an instrument, or an instrument alone. */
@@ -109,6 +110,12 @@ export interface CloseView {
   readonly x: number;
   /** The z of the vertical line through the camera target, in meters: 0 by default. */
   readonly z: number;
+  /**
+   * True when the camera turns around the body of the first animal (the query `body`). Then the
+   * azimuth starts at the front of the animal, and the box of its body gives the line, the target,
+   * and the distance at the zoom 1 ({@link aroundBody}).
+   */
+  readonly body: boolean;
 }
 
 /**
@@ -133,6 +140,64 @@ export function closeView(search: URLSearchParams): CloseView {
     elevation: Math.min(89, Math.max(0, read('elevation', GALLERY_ELEVATION_DEG))),
     x: read('x', 0),
     z: read('z', 0),
+    body: search.has('body'),
+  };
+}
+
+/** The first instrument bone in `BONE_NAMES`. Each bone before it is a bone of the body. */
+const FIRST_INSTRUMENT_BONE = boneIndex('instrument');
+
+/**
+ * Gives the box around the body of a player: the corners on the bones of the body, with no
+ * instrument and no seat (design 7.1).
+ *
+ * @param mesh The mesh of the player.
+ * @returns The box, in the axes of the model.
+ * @throws Error if no corner is on a bone of the body.
+ */
+export function bodyBoundsOf(mesh: MeshData): Bounds {
+  const min = [Infinity, Infinity, Infinity];
+  const max = [-Infinity, -Infinity, -Infinity];
+  for (let v = 0; v < mesh.bones.length; v++) {
+    if ((mesh.bones[v] ?? FIRST_INSTRUMENT_BONE) >= FIRST_INSTRUMENT_BONE) {
+      continue;
+    }
+    for (let k = 0; k < 3; k++) {
+      const value = mesh.positions[v * 3 + k] ?? 0;
+      min[k] = Math.min(min[k] ?? Infinity, value);
+      max[k] = Math.max(max[k] ?? -Infinity, value);
+    }
+  }
+  if ((min[0] ?? 0) > (max[0] ?? 0)) {
+    throw new Error('The mesh has no corner on a bone of the body.');
+  }
+  return {
+    min: [min[0] ?? 0, min[1] ?? 0, min[2] ?? 0],
+    max: [max[0] ?? 0, max[1] ?? 0, max[2] ?? 0],
+  };
+}
+
+/**
+ * Turns a close view around the body of an animal (design 7.1): the vertical line through the
+ * middle of the box of the body, the target at its middle height, and the azimuth in the axes of
+ * the gallery. An animal faces -z in its own axes, so the front of an animal with the turn
+ * `facing` is at the azimuth 180° minus the facing.
+ *
+ * @param view The close view of the query. Its azimuth starts at the front of the animal, and a
+ *   positive turn moves the camera to the right side of the animal.
+ * @param box The box of the body, in the axes of the gallery.
+ * @param facing The turn of the animal around y, in radians.
+ * @returns The close view in the axes of the gallery.
+ */
+export function aroundBody(view: CloseView, box: Bounds, facing: number): CloseView {
+  const azimuth = view.azimuth + 180 - (facing * 180) / Math.PI;
+  return {
+    ...view,
+    x: (box.min[0] + box.max[0]) / 2,
+    z: (box.min[2] + box.max[2]) / 2,
+    target: (box.min[1] + box.max[1]) / 2,
+    // The azimuth from -180° to 180°.
+    azimuth: azimuth - 360 * Math.round(azimuth / 360) + 0,
   };
 }
 
