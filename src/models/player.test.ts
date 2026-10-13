@@ -247,7 +247,9 @@ describe('chairForward', () => {
   }
 
   it('keeps the body of each species in front of the chair back (design 4.5)', () => {
-    for (const id of SPECIES_IDS) {
+    // A studio body stands on each support, and the cast gives the bear only the stand of the
+    // conductor (design 4.4).
+    for (const id of SPECIES_IDS.filter((species) => !buildPlayer(species, 'violin').studio)) {
       const { mesh, seat } = buildPlayer(id, 'violin');
       expect(backOverlap(mesh, seat?.seatHeight ?? NaN), id).toBeLessThanOrEqual(
         -CHAIR_BACK_CLEARANCE + 1e-6,

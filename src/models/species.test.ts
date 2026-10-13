@@ -14,6 +14,7 @@ import { EYE_COLOR, NOSE_COLOR, SPECIES, SPECIES_IDS } from './species.ts';
 import type { SpeciesId, SpeciesParams } from './species.ts';
 import { toVec3 } from './tuples.ts';
 import type { Bounds } from './bounds.ts';
+import { studioRigOf } from './studio-body.ts';
 import { builtBody } from './test-body.ts';
 import type { BuiltBody } from './test-body.ts';
 
@@ -211,33 +212,57 @@ describe('buildBiped for each species', () => {
     const species: SpeciesParams = SPECIES[id];
     const { mesh, body } = build(species);
     const { headHeight: h } = proportionsOf(species);
+    // A studio body keeps the mesh, the skin, and the colors of its GLB file (design 4.4).
+    const studio = species.body && species.body !== 'penguin' ? studioRigOf(species.body) : null;
 
     describe(id, () => {
-      it('stays within the body budget of 2,600 triangles (design 4.5)', () => {
-        expect(mesh.positions.length / 9).toBeLessThanOrEqual(2600);
+      it('stays within its body budget (design 4.5)', () => {
+        // The studio bear keeps the faces of its GLB file, and the scene has one conductor.
+        expect(mesh.positions.length / 9).toBeLessThanOrEqual(studio ? 3000 : 2600);
       });
 
-      it('puts each triangle on one body bone, with faces that point out (design 4.4)', () => {
-        const volumes = new Map<number, number>();
+      it.runIf(studio)('keeps the faces and the colors of its GLB file (design 4.4)', () => {
+        const faces = studio?.mesh.colors ?? new Float32Array();
+        expect(mesh.positions.length / 9).toBe(faces.length / 3);
+        for (let t = 0; t < faces.length / 3; t++) {
+          for (let k = 0; k < 3; k++) {
+            expect(mesh.colors[t * 9 + k]).toBeCloseTo(faces[t * 3 + k] ?? -1, 6);
+          }
+        }
+        // The faces point out: the signed volume of the closed shells is positive.
+        let volume = 0;
         const p = mesh.positions;
-        for (let t = 0; t < mesh.bones.length / 3; t++) {
-          const bone = mesh.bones[t * 3] ?? -1;
-          expect(mesh.bones[t * 3 + 1]).toBe(bone);
-          expect(mesh.bones[t * 3 + 2]).toBe(bone);
-          const at = (k: number): Vector3 =>
-            new Vector3(
-              p[t * 9 + k * 3] ?? 0,
-              p[t * 9 + k * 3 + 1] ?? 0,
-              p[t * 9 + k * 3 + 2] ?? 0,
-            );
-          const volume = at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
-          volumes.set(bone, (volumes.get(bone) ?? 0) + volume);
+        for (let t = 0; t < p.length / 9; t++) {
+          const at = (k: number): Vector3 => new Vector3().fromArray(p, t * 9 + k * 3);
+          volume += at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
         }
-        for (const [bone, volume] of volumes) {
-          expect(bodyBones).toContain(BONE_NAMES[bone]);
-          expect(volume, BONE_NAMES[bone]).toBeGreaterThan(0);
-        }
+        expect(volume).toBeGreaterThan(0);
       });
+
+      it.runIf(!studio)(
+        'puts each triangle on one body bone, with faces that point out (design 4.4)',
+        () => {
+          const volumes = new Map<number, number>();
+          const p = mesh.positions;
+          for (let t = 0; t < mesh.bones.length / 3; t++) {
+            const bone = mesh.bones[t * 3] ?? -1;
+            expect(mesh.bones[t * 3 + 1]).toBe(bone);
+            expect(mesh.bones[t * 3 + 2]).toBe(bone);
+            const at = (k: number): Vector3 =>
+              new Vector3(
+                p[t * 9 + k * 3] ?? 0,
+                p[t * 9 + k * 3 + 1] ?? 0,
+                p[t * 9 + k * 3 + 2] ?? 0,
+              );
+            const volume = at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
+            volumes.set(bone, (volumes.get(bone) ?? 0) + volume);
+          }
+          for (const [bone, volume] of volumes) {
+            expect(bodyBones).toContain(BONE_NAMES[bone]);
+            expect(volume, BONE_NAMES[bone]).toBeGreaterThan(0);
+          }
+        },
+      );
 
       it('puts the left side of the animal at -x, because it faces -z', () => {
         const p = body.positions;
@@ -288,7 +313,7 @@ describe('buildBiped for each species', () => {
         expect(skeleton.parents.filter((parent) => parent === -1)).toHaveLength(1);
       });
 
-      it('uses the colors of design 4.5', () => {
+      it.runIf(!studio)('uses the colors of design 4.5', () => {
         expect(hasColor(mesh, srgb(species.colors.fur))).toBe(true);
         expect(hasColor(mesh, srgb(species.colors.belly))).toBe(true);
         expect(hasColor(mesh, srgb(species.colors.accent))).toBe(true);

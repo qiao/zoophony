@@ -194,12 +194,14 @@ export const CONDUCTOR_STAND = {
   tilt: 30 * MathUtils.DEG2RAD,
   /**
    * The distance of the post in front of the podium center, toward the orchestra (-z). The stand
-   * stands on the stage, just in front of the podium: its base keeps 3 cm from the front of the
+   * stands on the stage, just in front of the podium: its base keeps 8 cm from the front of the
    * podium. At 0.35 m on the podium, the lower edge of the desk was 0.24 m in front of the bear,
    * and the belly of the bear (0.36 m) went through the desk and the score. At 0.6 m in front of
-   * the podium of 1.05 m, the base stood 4.5 cm inside the podium.
+   * the podium of 1.05 m, the base stood 4.5 cm inside the podium. At 0.68 m, the eyes of the
+   * studio bear, whose muzzle is long, touched the desk in the bow at the song end (3 cm from the
+   * podium).
    */
-  forward: 0.68,
+  forward: 0.73,
   /** The radius of the round base of the post. */
   baseRadius: 0.12,
 } as const;

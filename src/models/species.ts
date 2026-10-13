@@ -1,5 +1,6 @@
 import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
+import { STUDIO_BEAR } from './studio/bear.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 
@@ -131,21 +132,6 @@ export function isSpeciesId(value: string): value is SpeciesId {
   return SPECIES_IDS.some((id) => id === value);
 }
 
-/**
- * The skeleton of the bear conductor (design 4.3): the long trunk and the wide legs of
- * `bear-views.png`, on the short standing legs of the default skeleton. On the page of the sheet,
- * the crown of the sheet bear is 3.05 H above the floor, and its shoulder joints are 2.21 H above
- * it. The head keeps its size, so the shoulder joints stay 0.1 H below the `head` bone: 1.95 H
- * above the floor. The legs of the sheet bear are 0.35 H from the middle. With the default trunk,
- * the shorter bear moved 41 px down from the bear of the sheet
- * (`docs/research/2026-10-11-short-legs.md`).
- */
-export const BEAR_PROPORTIONS = {
-  shoulderHeight: 1.4,
-  headCenter: 2.0,
-  hipSpread: 0.35,
-} as const satisfies Partial<BodyProportions>;
-
 /** The parameters of each species (design 4.3, 4.5). */
 export const SPECIES = {
   /** Rabbit, the first violins (reference image). */
@@ -198,16 +184,16 @@ export const SPECIES = {
     accentParts: ['inner-ears'],
     facePattern: 'none',
   },
-  /** Bear, the conductor (reference image). */
+  /**
+   * Bear, the conductor (reference image). It has the studio body of `lowpoly-studio/` (design
+   * 4.4), with the mesh and the colors of the studio. Its head height is the head of the studio.
+   */
   bear: {
-    ears: 'round',
-    snout: 'short',
-    tail: 'puff',
+    body: 'studio-bear',
     size: 1.35,
     colors: SPECIES_COLORS.bear,
     accentParts: ['snout'],
-    facePattern: 'none',
-    proportions: BEAR_PROPORTIONS,
+    proportions: { headHeight: STUDIO_BEAR.headHeight },
   },
   /** Cat, the violas. */
   cat: {

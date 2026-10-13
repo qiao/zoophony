@@ -205,11 +205,9 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
 - The standing legs of the default skeleton are as short as the legs of the standing bear of
   `animals.webp` and `bear-views.png`. The egg body of the penguin (4.4) shows no legs and reads
   no standing value of the skeleton.
-- The bear conductor has the long trunk of `bear-views.png` (`BEAR_PROPORTIONS` of
-  `models/species.ts`, a manager decision): its head center and its shoulder joints are higher
-  above the base of the torso, and its legs stand as far apart as on the sheet. With the default trunk, the bear with short legs was much shorter
-  than the bear of its sheet. The shoulder joints stay a little below the `head` bone, because our
-  head is larger than the head of the sheet bear.
+- The bear conductor has the studio body of `lowpoly-studio/` (4.4), with the trunk and the legs
+  that the studio fitted to `bear-views.png`. Its skeleton comes from the studio, and no value of
+  this table applies to it.
 - The legs have the form of the reference images (`SEATED_LEG` and `STANDING_LEG` of
   `models/legs.ts`). A seated thigh has the thickness of the thighs of the model sheets, and a
   shin narrows little to the ankle, as the shins of the sheets. A standing leg is a straight
@@ -274,7 +272,7 @@ its own skeleton:
   uses rabbits again, and a fourth uses red-orange foxes.
 
 The shape parameters of each species of the parametric biped (4.5 gives the colors). The penguin
-has its egg body (4.4) and no row:
+has its egg body and the bear its studio body (4.4), so they have no row:
 
 | Species | ears | snout | tail | facePattern |
 |---|---|---|---|---|
@@ -282,7 +280,6 @@ has its egg body (4.4) and no row:
 | fox (both colors) | pointed | long | bushy | none |
 | wolf | pointed | long | bushy | none |
 | elephant | large-flap | trunk | thin | none |
-| bear | round | short | puff | none |
 | cat | pointed | short | thin | forehead-stripes |
 | hippo | small | broad | thin | none |
 | deer | antlered | long | puff | none |

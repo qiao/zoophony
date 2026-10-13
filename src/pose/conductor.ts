@@ -18,29 +18,35 @@ import type { ArmRig } from './ik.ts';
 
 /**
  * The hold of the baton and of the left hand of the conductor (design 5.4). The places are in
- * head heights `H` of the parametric bear (0.513 m), in the model axes of the bind pose: the bear
- * faces -z, and its left is -x. The values of the history below are in the same `H`.
- * `CUE_MOTION` of `cues.ts` gives the directions of a cue.
+ * head heights `H` of the bear of the cast, the studio bear (0.313 m), in the model axes of the
+ * bind pose: the bear faces -z, and its left is -x. The places of the left hand and the elbows
+ * keep their values of the parametric bear (0.513 m). The point and the pivot of the baton are
+ * new for the studio bear, because its arms are shorter for its baton of 0.51 m. The values of
+ * the history below are in the `H` of the bear of their time. `CUE_MOTION` of `cues.ts` gives the
+ * directions of a cue.
  */
 export const CONDUCTOR_HOLD = {
   /**
    * The point of the tip of the baton at beat 1 of each pattern, from the right shoulder joint.
-   * With the pivot, it puts the wrist about 0.19 H up, 0.91 H forward, and 0.44 H out: in front
-   * of the chin, as the paws of `bear-views.png`, and beside the head from behind, as in
-   * `mockup.png`. The first point, 0.9 H up and 1.2 H forward, kept the hand next to the head (UX
-   * audit 2026-10-05, AM1). The second point, 0.45 H up and 1.3 H forward with the pivot 0.3 H
-   * forward, kept the wrist at the pivot in front of the mouth. From behind, the bear seemed to
-   * hold its head (review of 2026-10-07). With the wrist 0.4 H out, beat 2 of a pattern of 4 took
-   * the paw over the head in the view from behind.
+   * With the pivot, it puts the wrist of a soft beat 1 about at the height of the shoulder joint,
+   * 1.17 H forward, and 0.45 H out: in front of the chest, as the studio conducts, and out beside
+   * the head and the shoulder from behind. The point of the parametric bear, 0.89 H up and 1.56 H
+   * forward, put the wrist of the studio bear 0.1 H below its shoulder and 0.4 H forward, because
+   * the baton keeps its length. A wrist 0.1 H higher than now put the claws of the right paw
+   * 2.5 cm into the muzzle when the head turned to a section on the right (Mozart K. 525). Before
+   * the studio bear: the first point, 0.9 H up and 1.2 H forward, kept the hand next to the head
+   * (UX audit 2026-10-05, AM1), and with the wrist 0.4 H out, beat 2 of a pattern of 4 took the paw
+   * over the head in the view from behind.
    */
-  beatPoint: [0.16, 0.89, -1.56],
+  beatPoint: [-0.01, 1.15, -2.27],
   /**
-   * The baton points from this place to its tip, from the right shoulder joint: up 49° and a little
+   * The baton points from this place to its tip, from the right shoulder joint: up 49° and 22°
    * inward at beat 1, and nearly upright in the ready gesture, as in `bear-views.png`. The pivot is
-   * 0.91 H behind the wrist, so that the wrist follows about half of the motion of the tip in the
-   * beat plane, and the arm beats with the baton.
+   * 1.03 m from the tip and 0.47 m behind the wrist, as for the parametric bear, so that the wrist
+   * follows about half of the motion of the tip in the beat plane, and the arm beats with the
+   * baton.
    */
-  batonPivot: [0.63, -0.54, -0.41],
+  batonPivot: [0.81, -1.34, -0.27],
   /**
    * The beat plane turns this part of the turn of the upper body to a cued section. Thus the arm
    * opens to the right in a turn to the left, and the hand stays beside the head from behind. With
@@ -258,6 +264,20 @@ const NO_TURN = new Quaternion();
 
 const right = createFrame();
 const left = createFrame();
+/**
+ * The frame of a hanging arm: the posed shoulder joint with the rotation of the root. A hanging
+ * arm hangs from its shoulder with no turn of the upper body, so that in the bow at the song end
+ * the paws hang beside the body and do not swing into the belly.
+ */
+const hangFrame = createFrame();
+
+/**
+ * The part of the turn of the upper body that a hanging arm follows. In the bow at the song end,
+ * the arms that followed the whole bend of 32° swung the paws 2.8 cm into the belly of the studio
+ * bear, and the arms that hung straight down from the bent shoulders put the left paw on the
+ * conductor stand.
+ */
+const HANG_FOLLOW = 0.5;
 const tip = new Vector3();
 const lifted: BatonState = { x: 0, y: 0 };
 const along = new Vector3();
@@ -411,9 +431,10 @@ export function poseConductor(
   batonPoint(rig, lifted, cue.torsoYaw, tip);
   turnWithTorso(rig, pivot.fromArray(rig.pivot), hold.beatTurn * cue.torsoYaw);
   batonHand(rig, tip, pivot);
-  hangingWrist(rig.hangR, right, hanging);
+  levelOf(right, frames.root);
+  hangingWrist(rig.hangR, hangFrame, hanging);
   limitReach(rig.right, right.position, wrist);
-  mixRotation(hangingHand(rig.hangR, right, restHand), hand, weight, hand);
+  mixRotation(hangingHand(rig.hangR, hangFrame, restHand), hand, weight, hand);
   if (weight > 0 && weight < 1) {
     // The turn is at its full size in the middle of the motion. The tip leaves the width of the
     // desk early, while the hand is still high.
@@ -434,7 +455,18 @@ export function poseConductor(
   );
   writeCurl(rig.right, hold.batonCurl * weight, rotations);
 
-  poseLeftHand(rig, chest, state, weight, rotations);
+  poseLeftHand(rig, frames, state, weight, rotations);
+}
+
+/**
+ * Writes the module frame `hangFrame`: the posed shoulder joint with the rotation of the root.
+ *
+ * @param shoulder The posed `shoulder` bone, from `poseShoulder()`.
+ * @param root The posed frame of the root.
+ */
+function levelOf(shoulder: Frame, root: Frame): void {
+  hangFrame.position.copy(shoulder.position);
+  hangFrame.rotation.slerpQuaternions(root.rotation, shoulder.rotation, HANG_FOLLOW);
 }
 
 /**
@@ -469,19 +501,20 @@ function placeOf(
  * at the song end, the arm hangs.
  *
  * @param rig The points of the conductor.
- * @param chest The posed frame of the chest.
+ * @param frames The posed frames of the root and of the chest.
  * @param state The motion at the song time.
  * @param weight The eased weight of the playing pose: 0 is the rest pose (5.2).
  * @param rotations The rotations of the pose to write.
  */
 function poseLeftHand(
   rig: ConductorRig,
-  chest: Frame,
+  frames: TorsoFrames,
   state: ConductorState,
   weight: number,
   rotations: Float32Array,
 ): void {
   const { cue, left: weights } = state;
+  const { chest } = frames;
   const places = LEFT_HAND_PLACES;
   poseShoulder(rig.left, chest, rig.chestBind, NO_TURN, left);
   // The places turn with the upper body to the left. In a turn to the right, they stay, so that
@@ -528,13 +561,14 @@ function poseLeftHand(
   limitReach(rig.left, left.position, wrist);
   handToward(left, place.copy(left.position).add(direction.normalize()), hand);
   const up = weight * (1 - state.bow);
-  hangingWrist(rig.hangL, left, hanging);
+  levelOf(left, frames.root);
+  hangingWrist(rig.hangL, hangFrame, hanging);
   writeArm(
     {
       arm: rig.left,
       shoulder: left,
       wrist: wrist.lerpVectors(hanging, wrist, up),
-      hand: mixRotation(hangingHand(rig.hangL, left, restHand), hand, up, hand),
+      hand: mixRotation(hangingHand(rig.hangL, hangFrame, restHand), hand, up, hand),
       pole: mixPole(rig.hangL, CONDUCTOR_HOLD.poleL, up),
     },
     chest.rotation,

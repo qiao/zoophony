@@ -59,7 +59,7 @@ describe('createGeometry', () => {
   });
 
   it('darkens the vertex colors of a player by the baked occlusion', () => {
-    const model = buildPlayer('bear', 'baton');
+    const model = buildPlayer('rabbit', 'violin');
     const { light } = shadeMesh(model.mesh, model.skeleton.parents);
     const colors = createPlayerGeometry(model).getAttribute('color');
     let darker = 0;

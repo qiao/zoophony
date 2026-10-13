@@ -35,8 +35,11 @@ export const HANG = {
    * hung 0.19 H to 0.25 H below the hip joints, near the knees.
    */
   bend: 60 * MathUtils.DEG2RAD,
-  /** The smallest swing of the arm out to the side. */
-  minOut: 8 * MathUtils.DEG2RAD,
+  /**
+   * The smallest swing of the arm out to the side. The paws of the studio bear rest on the front
+   * of its round belly: at 8°, they went 2.2 cm into it.
+   */
+  minOut: 16 * MathUtils.DEG2RAD,
   /** The largest swing of the arm out to the side. */
   maxOut: 50 * MathUtils.DEG2RAD,
   /** The step of the search for the swing out to the side. */

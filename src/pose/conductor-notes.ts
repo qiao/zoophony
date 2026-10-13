@@ -58,11 +58,12 @@ export const CONDUCTOR_MOTION = {
   /**
    * In the ready gesture of a count-in, the baton waits this much higher than the point of the
    * last beat of the first bar, in units of the pattern, and above the point of beat 1 (design
-   * 5.4). Thus both paws are up at the same height and width, as in `bear-views.png`. Above the
-   * last beat, the right paw was 0.2 H further out than the left paw, and with 0.4 units, it was
-   * 0.17 H higher.
+   * 5.4). Thus both paws are up at the same height, 0.4 H above the shoulder joints, as in
+   * `bear-views.png`. With 0.22 units, the right paw of the studio bear was 0.1 H lower than the
+   * left paw. Above the last beat, the right paw of the parametric bear was 0.2 H further out than
+   * the left paw.
    */
-  readyLift: 0.22,
+  readyLift: 0.4,
 } as const;
 
 /** The baton data that the pose looks up at each frame. */

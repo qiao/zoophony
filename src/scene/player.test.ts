@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
+import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 
 import { MeshBuilder, blendSkin, transform } from '../models/mesh.ts';
 import { ModelCache } from '../models/model-cache.ts';
@@ -9,6 +9,7 @@ import type { PlayerModel } from '../models/player.ts';
 import { tube } from '../models/primitives.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
+import { STUDIO_BONES } from '../models/studio-format.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { BIND_ROTATIONS } from '../pose/frames.ts';
 import { poseSkeleton } from '../pose/test-kinematics.ts';
@@ -22,6 +23,7 @@ import {
   createPlayerGeometry,
   createPlayerMesh,
   createPlayers,
+  hideBone,
 } from './player.ts';
 import type { PlayerSpot } from './player.ts';
 
@@ -158,6 +160,68 @@ describe('createPlayerMesh', () => {
       expect(largest).toBeLessThan(1e-6);
     }
   });
+
+  describe('a studio body (design 4.4)', () => {
+    const model = buildPlayer('bear', 'baton');
+    const geometry = createPlayerGeometry(model);
+
+    it('gives each vertex up to four bones, and the two corrective shapes of the arms', () => {
+      const weights = geometry.getAttribute('skinWeight');
+      for (let v = 0; v < weights.count; v++) {
+        const sum = [0, 1, 2, 3].reduce((s, k) => s + weights.getComponent(v, k), 0);
+        expect(sum).toBeCloseTo(1, 5);
+      }
+      expect(geometry.morphAttributes['position']).toHaveLength(2);
+      expect(geometry.morphTargetsRelative).toBe(true);
+    });
+
+    it('skins each vertex as posedCorner() of the tests, within 1e-5 m', () => {
+      const mesh = createPlayerMesh(model, geometry, createMaterials());
+      // A raised right arm with a twist of the wrist and a turned and bent body, and an arm that
+      // hangs, which gives the corrective shape its weight.
+      const poses = [
+        turnedPose([
+          ['spine', [1, 0, 0], 20],
+          ['upperArmR', [0, 0, 1], 110],
+          ['forearmR', [1, 0, 0], 60],
+          ['handR', [0, 1, 0], 70],
+          ['fingersR', [0, 0, 1], -50],
+        ]),
+        turnedPose(
+          [
+            ['chest', [0, 1, 0], -25],
+            ['upperArmL', [1, 0, 0], -40],
+          ],
+          [0, 0.02, 0],
+        ),
+      ];
+      const vertex = new Vector3();
+      for (const pose of poses) {
+        applyPose(mesh, pose);
+        mesh.updateMatrixWorld(true);
+        const posed = poseSkeleton(model, pose);
+        let largest = 0;
+        for (let v = 0; v < model.mesh.bones.length; v++) {
+          mesh.getVertexPosition(v, vertex);
+          largest = Math.max(largest, vertex.distanceTo(new Vector3(...posedCorner(posed, v))));
+        }
+        expect(largest).toBeLessThan(1e-5);
+        expect(mesh.morphTargetInfluences?.some((w) => w > 0)).toBe(true);
+      }
+    });
+
+    it('hides the baton by its bone', () => {
+      const mesh = createPlayerMesh(model, geometry, createMaterials());
+      hideBone(mesh, 'baton');
+      mesh.updateMatrixWorld(true);
+      const baton = model.mesh.bones.indexOf(boneIndex('baton'));
+      const vertex = new Vector3();
+      const first = mesh.getVertexPosition(baton, new Vector3());
+      for (let v = baton; v < baton + 30; v++) {
+        expect(mesh.getVertexPosition(v, vertex).distanceTo(first)).toBeLessThan(1e-9);
+      }
+    });
+  });
 });
 
 describe('createPlayers', () => {
@@ -207,9 +271,14 @@ describe('applyScenePose', () => {
       return { rotations, rootOffset: [0, 0, 0], slideOffset: [0, 0, 0], blink: 0 };
     };
     applyScenePose(meshes, { players: [turned(0.1), turned(0.2)], conductor: turned(0.3) });
-    const angles = meshes.map(
-      (mesh) => 2 * Math.asin(mesh.skeleton.bones[head]?.quaternion.x ?? 0),
-    );
+    // The studio bear of the conductor gets the matrix of each bone from the pose (design 4.4).
+    const studioHead = meshes[2]?.skeleton.bones[STUDIO_BONES.indexOf('head')]?.matrix;
+    const angles = [
+      ...meshes
+        .slice(0, 2)
+        .map((mesh) => 2 * Math.asin(mesh.skeleton.bones[head]?.quaternion.x ?? 0)),
+      new Euler().setFromRotationMatrix(studioHead ?? new Matrix4()).x,
+    ];
     expect(angles[0]).toBeCloseTo(0.1, 6);
     expect(angles[1]).toBeCloseTo(0.2, 6);
     expect(angles[2]).toBeCloseTo(0.3, 6);
