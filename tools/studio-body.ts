@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
@@ -1424,6 +1425,23 @@ export function studioGlbPath(animal: string): string {
 }
 
 /**
+ * Reads the GLB file of an animal of the studio.
+ *
+ * @param animal The id of the animal in `lowpoly-studio/animals/`.
+ * @returns The file.
+ * @throws Error if the studio has not built the animal.
+ */
+async function readStudioGlb(animal: string): Promise<Buffer> {
+  const file = studioGlbPath(animal);
+  if (!existsSync(file)) {
+    throw new Error(
+      `The studio has no GLB file ${relative(ROOT, file)}. Build it with: python3 studio build ${animal}`,
+    );
+  }
+  return readFile(file);
+}
+
+/**
  * Writes the module of a studio body from its GLB file: `node tools/studio-body.ts <animal>`
  * (design 4.4). The GLB file is `lowpoly-studio/animals/<animal>/out/<animal>.glb`, the output
  * of `python3 studio build <animal>`. With `--inspect`, it writes no file, and it prints the
@@ -1437,10 +1455,9 @@ async function main(): Promise<void> {
   const settings = ANIMALS.get(animal);
   if (inspect && animal) {
     const file = studioGlbPath(animal);
+    const bytes = await readStudioGlb(animal);
     console.log(relative(ROOT, file));
-    console.log(
-      inspectionLines(inspectStudioGlb(await readFile(file), settings ?? null)).join('\n'),
-    );
+    console.log(inspectionLines(inspectStudioGlb(bytes, settings ?? null)).join('\n'));
     return;
   }
   if (!settings) {
@@ -1451,7 +1468,7 @@ async function main(): Promise<void> {
 
   const file = studioGlbPath(animal);
   const source = relative(ROOT, file);
-  const { body, sheetWeights } = studioBody(await readFile(file), source, settings);
+  const { body, sheetWeights } = studioBody(await readStudioGlb(animal), source, settings);
   await mkdir(STUDIO_DIR, { recursive: true });
   const out = join(STUDIO_DIR, `${animal}.ts`);
   await writeFile(out, studioModule(animal, settings.constant, body));
@@ -1468,5 +1485,10 @@ async function main(): Promise<void> {
 }
 
 if (import.meta.main) {
-  await main();
+  try {
+    await main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
 }
