@@ -396,9 +396,12 @@ export class PostPipeline {
     const renderer = this.#renderer;
     renderer.setRenderTarget(targets.scene);
     renderer.render(scene, camera);
+    // The depth pass of the depth of field comes directly after the scene pass, so that it can
+    // share the frame of the scene pass (#renderDepth).
+    const depth = focus.active && this.#renderDepth(targets, scene, camera, effects);
 
     const bloom = this.#renderBloom(targets);
-    const blur = focus.active ? this.#renderBlur(targets, scene, camera, focus, effects) : null;
+    const blur = depth ? this.#renderBlur(targets, camera, focus) : null;
 
     const final = this.#final;
     setUniform(final, 'uScene', targets.scene.texture);
@@ -483,18 +486,11 @@ export class PostPipeline {
     return levels.length > 0 ? source.texture : null;
   }
 
-  #renderBlur(
-    targets: Targets,
-    scene: Scene,
-    camera: PerspectiveCamera,
-    focus: Focus,
-    effects: readonly Object3D[],
-  ): Texture | null {
-    const { depth, blurPrepare, blurGather } = targets;
-    if (!depth || !blurPrepare || !blurGather) {
+  #renderBlur(targets: Targets, camera: PerspectiveCamera, focus: Focus): Texture | null {
+    const { blurPrepare, blurGather } = targets;
+    if (!blurPrepare || !blurGather) {
       return null;
     }
-    this.#renderDepth(depth, scene, camera, effects);
     const prepare = this.#blurPrepare;
     setUniform(prepare, 'uColor', targets.scene.texture);
     this.#setFocus(prepare, camera, focus, blurPrepare.height / 2);
@@ -508,11 +504,15 @@ export class PostPipeline {
   }
 
   #renderDepth(
-    depth: WebGLRenderTarget,
+    targets: Targets,
     scene: Scene,
     camera: PerspectiveCamera,
     effects: readonly Object3D[],
-  ): void {
+  ): boolean {
+    const { depth } = targets;
+    if (!depth) {
+      return false;
+    }
     const renderer = this.#renderer;
     // The shadow map of the frame is ready, so the depth pass needs no new one.
     const shadows = renderer.shadowMap.autoUpdate;
@@ -522,12 +522,17 @@ export class PostPipeline {
     }
     scene.overrideMaterial = this.#depthMaterial;
     renderer.setRenderTarget(depth);
+    // three.js updates the skeletons, the bone textures, and the geometries one time in each
+    // frame number, before it counts the frame. The scene pass updated them, so the pass takes
+    // the frame number of the scene pass, as the depth pass of the beam does (BeamDepth.render).
+    renderer.info.render.frame -= 1;
     renderer.render(scene, camera);
     scene.overrideMaterial = null;
     for (const effect of effects) {
       effect.visible = true;
     }
     renderer.shadowMap.autoUpdate = shadows;
+    return true;
   }
 
   #setFocus(
