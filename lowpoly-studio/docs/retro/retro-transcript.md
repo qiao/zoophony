@@ -7,8 +7,8 @@ reference sheet. The goal is to make the next model of the same kind faster and 
 
 - **Transcript:** `bc84cf37-.../subagents/agent-a6922107027d2bdf6.jsonl`. It has 2,491 lines
   (107 MB), 590 tool calls, 1,152 assistant lines (558 API responses), and 154 images.
-- **Scripts:** all scripts are in `/Users/xueqiaoxu/.claude/jobs/dae62c98/tmp/retro/`. They
-  stream the file line by line and skip the base64 data.
+- **Scripts:** all scripts are in `scripts/` beside this file (first in a scratch folder of the
+  session). They stream the file line by line and skip the base64 data.
   - `inspect.py`, `census.py`: the structure of the lines and the block types.
   - `briefs.py`: the briefs of the manager.
   - `extract.py`: one record per tool call, written to `events.json`.
