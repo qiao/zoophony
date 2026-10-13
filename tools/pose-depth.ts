@@ -4,10 +4,19 @@ import { scoreOf } from '../src/score/test-score.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import type { BoneName } from '../src/models/rig.ts';
 import { sceneOf } from '../src/pose/test-scene.ts';
-import { depthLimit, pairText, sweepDepths, targetErrors } from '../src/pose/test-sweep.ts';
+import {
+  depthLimit,
+  gapPairs,
+  gapSweep,
+  gapText,
+  pairText,
+  sweepDepths,
+  targetErrors,
+} from '../src/pose/test-sweep.ts';
 import type {
   AcceptedDepth,
   PairDepth,
+  PairGap,
   RoleSweep,
   SampleSet,
   TargetError,
@@ -15,7 +24,7 @@ import type {
 import { SWEEP_ROLES, playSample } from '../src/pose/test-sweep-roles.ts';
 
 /** The options of the command. */
-interface Options {
+export interface Options {
   /** The role of the first argument. */
   readonly role: RoleSweep;
   /** The demos, by the name of the file with no `.mid`. All demos of the role when empty. */
@@ -31,10 +40,12 @@ interface Options {
    * role.
    */
   readonly times: readonly number[] | null;
+  /** True to also measure the smallest gap of the head to each obstacle and of each paw to the body. */
+  readonly gaps: boolean;
 }
 
 /** The text of the usage. */
-const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>]`;
+const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps]`;
 
 /**
  * Tells if a text is the name of a bone.
@@ -53,7 +64,7 @@ function isBone(name: string): name is BoneName {
  * @returns The options.
  * @throws Error if an option is not known, or a value does not fit.
  */
-function parseOptions(args: readonly string[]): Options {
+export function parseOptions(args: readonly string[]): Options {
   const [name, ...rest] = args;
   const role = Object.entries(SWEEP_ROLES).find(([key]) => key === name)?.[1];
   if (!role) {
@@ -64,13 +75,16 @@ function parseOptions(args: readonly string[]): Options {
   let bones: BoneName[] | null = null;
   let into: string[] | null = null;
   let times: number[] | null = null;
-  for (let i = 0; i < rest.length; i += 2) {
-    const value = rest[i + 1];
+  // The flag --gaps has no value. Each other option has one.
+  const gaps = rest.includes('--gaps');
+  const valued = rest.filter((arg) => arg !== '--gaps');
+  for (let i = 0; i < valued.length; i += 2) {
+    const value = valued[i + 1];
     if (value === undefined) {
-      throw new Error(`The option "${rest[i]}" has no value.\n${USAGE}`);
+      throw new Error(`The option "${valued[i]}" has no value.\n${USAGE}`);
     }
     const list = value.split(',');
-    switch (rest[i]) {
+    switch (valued[i]) {
       case '--demo':
         demos.push(value.replace(/\.mid$/, ''));
         break;
@@ -102,14 +116,14 @@ function parseOptions(args: readonly string[]): Options {
         }
         break;
       default:
-        throw new Error(`The option "${rest[i]}" is not known.\n${USAGE}`);
+        throw new Error(`The option "${valued[i]}" is not known.\n${USAGE}`);
     }
   }
   // Each change must fit before the first sweep, so that a typing fault stops the run at once.
   for (const variant of variants) {
     setHolds(variant).undo();
   }
-  return { role, demos, variants, bones, into, times };
+  return { role, demos, variants, bones, into, times, gaps };
 }
 
 /** The results of one variant in one demo. */
@@ -122,12 +136,14 @@ interface DemoResult {
   readonly targets: readonly TargetError[];
 }
 
-/** The deepest point of each pair in one set of samples. */
+/** The deepest point and the smallest gap of each pair in one set of samples. */
 interface SetResult {
   /** The name of the set, such as `play`. */
   readonly name: string;
   /** The deepest point of each pair of a moving part and an obstacle. */
   readonly pairs: readonly PairDepth[];
+  /** The smallest gap of each pair of {@link gapPairs}, or none with no `--gaps`. */
+  readonly gaps: readonly PairGap[];
 }
 
 /**
@@ -155,10 +171,14 @@ async function sweepDemos(options: Options, role: RoleSweep): Promise<DemoResult
     for (const player of role.players(scene)) {
       results.push({
         demo: `${id} ${player.name}`,
-        sets: sets.map(({ name, samples }) => ({
-          name,
-          pairs: sweepDepths(role, player, samples),
-        })),
+        sets: sets.map(({ name, samples }) => {
+          const gaps = options.gaps ? gapSweep(gapPairs(role)) : null;
+          return {
+            name,
+            pairs: sweepDepths(role, player, samples, gaps?.visit),
+            gaps: gaps?.gaps() ?? [],
+          };
+        }),
         targets: times ? [] : targetErrors(player),
       });
     }
@@ -168,7 +188,7 @@ async function sweepDemos(options: Options, role: RoleSweep): Promise<DemoResult
 
 /**
  * Writes the results of one variant: the deepest point of each pair in each set, with its limit,
- * and the largest note-target error of each hand.
+ * the smallest gap of each pair of `--gaps`, and the largest note-target error of each hand.
  *
  * @param role The role.
  * @param results The results of each demo.
@@ -176,13 +196,16 @@ async function sweepDemos(options: Options, role: RoleSweep): Promise<DemoResult
 function printDetails(role: RoleSweep, results: readonly DemoResult[]): void {
   for (const { demo, sets, targets } of results) {
     console.log(`  ${demo}`);
-    for (const { name, pairs } of sets) {
+    for (const { name, pairs, gaps } of sets) {
       for (const pair of pairs) {
         const limit = depthLimit(role, pair, name);
         const mark = pair.depth > limit.depth ? ' OVER' : '';
         console.log(
           `    ${name}: ${pairText(pair)}; limit ${(limit.depth * 100).toFixed(1)} cm${mark}`,
         );
+      }
+      for (const gap of gaps) {
+        console.log(`    ${name}: gap of the ${gapText(gap)}`);
       }
     }
     for (const { side, error, song } of targets) {
@@ -195,23 +218,34 @@ function printDetails(role: RoleSweep, results: readonly DemoResult[]): void {
 
 /**
  * Writes one table with one row for each variant: the deepest point of each pair in each set over
- * all demos, in cm, and the largest note-target error of each hand, in mm. A column with 0 in each
- * row is left out.
+ * all demos, in cm, the smallest gap of each pair of `--gaps` over all demos, in cm, and the
+ * largest note-target error of each hand, in mm. A column of depths or errors with 0 in each row
+ * is left out.
  *
  * @param rows The variant and the results of each row.
  */
 function printTable(rows: readonly { variant: string; results: readonly DemoResult[] }[]): void {
   const columns = new Map<string, number[]>();
+  const gapColumns = new Set<string>();
   const add = (column: string, row: number, value: number): void => {
     const values = columns.get(column) ?? rows.map(() => 0);
     values[row] = Math.max(values[row] ?? 0, value);
     columns.set(column, values);
   };
+  const addGap = (column: string, row: number, value: number): void => {
+    const values = columns.get(column) ?? rows.map(() => Infinity);
+    values[row] = Math.min(values[row] ?? Infinity, value);
+    columns.set(column, values);
+    gapColumns.add(column);
+  };
   for (const [row, { results }] of rows.entries()) {
     for (const { sets, targets } of results) {
-      for (const { name, pairs } of sets) {
+      for (const { name, pairs, gaps } of sets) {
         for (const pair of pairs) {
           add(`${name} ${pair.part}>${pair.into} cm`, row, pair.depth * 100);
+        }
+        for (const gap of gaps) {
+          addGap(`${name} ${gap.part}~${gap.into} gap cm`, row, gap.gap * 100);
         }
       }
       for (const { side, error } of targets) {
@@ -220,7 +254,7 @@ function printTable(rows: readonly { variant: string; results: readonly DemoResu
     }
   }
   for (const [column, values] of columns) {
-    if (values.every((v) => v < 0.05)) {
+    if (!gapColumns.has(column) && values.every((v) => v < 0.05)) {
       columns.delete(column);
     }
   }
