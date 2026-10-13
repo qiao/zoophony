@@ -132,8 +132,8 @@ def run(cfg):
         r.add(f'folds.{clip}', c['folded_faces'], '<=', lim.folded_faces, True,
               where(lambda: diag.where_fold(clip, ('folded', 'turned'))),
               near=c.get('turned_faces', 0) > 0)
-        # The scene checks of a role with scene props or hand targets (studio/build.py
-        # check_scene): the body in a prop, the body on the seat, the knuckles on the targets.
+        # The scene checks of a role with scene props or hand targets (studio/scene_check.py):
+        # the body in a prop, the body on the seat, the knuckles on the targets.
         rc = cfg.role.checks
         if 'scene' in c:
             s = c['scene']

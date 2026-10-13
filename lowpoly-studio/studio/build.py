@@ -54,7 +54,7 @@ from mathutils import Vector  # noqa: E402
 from mathutils.bvhtree import BVHTree  # noqa: E402
 
 from studio import (bake, cache, config, contacts, details, export, mesh, paint, props,  # noqa: E402
-                    remesh, roles, stages)
+                    remesh, roles, scene_check, stages)
 from studio import weights as skin  # noqa: E402
 from studio.field import field_at, field_on_grid, load_profiles  # noqa: E402
 from studio.sdf import surface_nets  # noqa: E402
@@ -256,103 +256,10 @@ def restore_clips(saved, samples, arm, skel, final, pack, scene_objs):
     return {}
 
 
-def check_scene(cfg, body, pack, check, name, poses, fps):
-    """Measures one clip against the scene props of the role: the deepest body point inside a
-    prop, the rest of the rump and of the thighs on the seat (the gap to the top of the seat
-    under each skin point), and the distance of the knuckles or the claw tips of the digits from
-    the targets that the pack gives (pack.hand_targets). A role with no scene prop and no
-    targets gets None.
-
-    Returns {'scene': {depth, prop, piece, frame, position, bone}, 'seat': {gap, frame}, 'hands':
-    {distance, side, frame}} (each part only when it applies), or None.
-    """
-    role = cfg.role
-    boxes = props.scene_boxes(role, body)
-    targets = getattr(pack, 'hand_targets', None)
-    if not boxes and targets is None:
-        return None
-    bench = next((pr for pr in props.scene_props(role) if pr.kind in ('bench', 'chair')), None)
-    if bench is not None:
-        size = (props.bench_sizes if bench.kind == 'bench' else props.chair_sizes)(body, bench,
-                                                                                   role)
-    out = {}
-    names = check.names
-    # The skin that sits: the trunk and the thighs (the shins and the feet hang in front). Each
-    # one rests on the seat: the rump does not float, and the thighs do not float. The seated
-    # thighs take trunk weights where they meet the seat, so their skin is the sitting skin out
-    # from the hip joints (in the bind pose).
-    col = {n: k for k, n in enumerate(names)}
-    sit = check.w[:, [col[n] for n in names if n in ('root', 'hips', 'spine', 'tail')
-                      or n.startswith('thigh_')]].sum(axis=1) > 0.5
-    hip_x = abs(float(body.leg_pose('bind')[0]['hip'][0]))
-    trunk = sit & (np.abs(check.verts[:, 0]) < hip_x)
-    thighs = sit & (np.abs(check.verts[:, 0]) >= hip_x)
-
-    def shown(pose, prop):
-        return pose[prop][2] >= 0.05 if prop in pose else True
-
-    # The rest tips of the claws of the digits, the points that strike the keys.
-    tips = {}
-    if body.fingers > 1:
-        for side, m in (('L', np.array([1.0, 1.0, 1.0])), ('R', np.array([-1.0, 1.0, 1.0]))):
-            tips[side] = [d['tail'] * m for d in body.digits('bind')]
-
-    for i, pose in enumerate(poses):
-        D, H, S, _, posed = check.pose_body(pose)
-        for prop, piece, center, half in boxes:
-            if not shown(pose, prop):
-                continue
-            q = np.abs(posed - center) - half
-            sdf = np.linalg.norm(np.maximum(q, 0.0), axis=1) + np.minimum(q.max(axis=1), 0.0)
-            k = int(np.argmin(sdf))
-            depth = max(0.0, -float(sdf[k]))
-            if 'scene' not in out or depth > out['scene']['depth']:
-                out['scene'] = {'depth': round(depth, 4), 'prop': prop, 'piece': piece,
-                                'frame': i, 'time_s': round(i / fps, 3),
-                                'position': [round(float(v), 4) for v in posed[k]],
-                                'bone': names[int(np.argmax(check.w[k]))]}
-        if bench and shown(pose, bench.name):
-            over = ((np.abs(posed[:, 0]) <= 0.5 * size['width'])
-                    & (np.abs(posed[:, 2] - size['center_z']) <= 0.5 * size['depth']))
-            gaps = {}
-            for part, member in (('trunk', trunk), ('thighs', thighs)):
-                if (over & member).any():
-                    at = posed[over & member]
-                    gaps[part] = float((at[:, 1] - props.seat_top_at(size, at[:, 0],
-                                                                     at[:, 2])).min())
-            if gaps:
-                part = max(gaps, key=lambda k: abs(gaps[k]))
-                gap = gaps[part]
-                if 'seat' not in out or abs(gap) > abs(out['seat']['gap']):
-                    out['seat'] = {'gap': round(gap, 4), 'part': part, 'frame': i,
-                                   'time_s': round(i / fps, 3),
-                                   **{k: round(v, 4) for k, v in gaps.items()}}
-        if targets is not None:
-            for side, goal in (targets(name, i / fps) or {}).items():
-                if goal is None:
-                    continue
-                # A point: the knuckle of the paw. A dict {digit: point}: the claw tip of each
-                # digit that presses a key ([rig] fingers > 1).
-                goals = goal.items() if isinstance(goal, dict) else [(None, goal)]
-                for finger, g in goals:
-                    if finger is None:
-                        at = H[f'fingers_{side}']
-                    else:
-                        bone = f'finger{finger}_{side}'
-                        at = H[bone] + D[bone] @ (tips[side][finger - 1] - check.skel.heads[bone])
-                    dist = float(np.linalg.norm(at - np.asarray(g, float)))
-                    if 'hands' not in out or dist > out['hands']['distance']:
-                        out['hands'] = {'distance': round(dist, 4), 'side': side, 'frame': i,
-                                        'time_s': round(i / fps, 3)}
-                        if finger is not None:
-                            out['hands']['finger'] = int(finger)
-    return out
-
-
 def check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes, weights_of, fps,
                 body=None, pack=None):
     """Measures the deepest contact and the folded faces of each clip, and the scene checks of a
-    role with scene props or hand targets (check_scene).
+    role with scene props or hand targets (studio/scene_check.py).
 
     A clip passes with no contact deeper than the role limit, no more folded faces than the
     fold limit, and the scene checks within the role limits. Returns (report, the faces that
@@ -363,29 +270,37 @@ def check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes, wei
     rc = cfg.role.checks
     check = contacts.ContactCheck(skel, verts, tris, w, items, template.contact_spec(cfg.role),
                                   shapes, weights_of)
+    scene = scene_check.make(cfg, body, pack, check) if body else None
     report = {}
     for name, poses in samples.items():
-        depth, side, part, frame, turned, folded = check.clip(poses)
+        records = []
+        for i, pose in enumerate(poses):
+            posed_body = check.pose_body(pose)
+            rec = {'contact': check.frame(posed_body)}
+            if scene:
+                rec['scene'] = scene.frame(pose, scene.goal(name, i / fps), posed_body)
+            records.append(rec)
+        depth, side, part, frame, turned, folded = check.clip([r['contact'] for r in records])
         ok = depth <= limit and folded <= cfg.checks.folded_faces
         report[name] = {'depth': round(depth, 4), 'side': side, 'part': part,
                         'time_s': round(frame / fps, 3), 'turned_faces': turned,
                         'folded_faces': folded, 'pass': ok}
-        scene = check_scene(cfg, body, pack, check, name, poses, fps) if body else None
+        found = scene.reduce([r['scene'] for r in records], fps) if scene else None
         extra = ''
-        if scene:
-            report[name].update(scene)
-            if 'scene' in scene:
-                ok &= scene['scene']['depth'] <= rc.scene_depth
-                extra += f', scene {scene["scene"]["depth"] * 100:.2f} cm ({scene["scene"]["piece"]})'
-            if 'seat' in scene:
-                ok &= abs(scene['seat']['gap']) <= rc.seat_gap
-                st = scene['seat']
+        if found:
+            report[name].update(found)
+            if 'scene' in found:
+                ok &= found['scene']['depth'] <= rc.scene_depth
+                extra += f', scene {found["scene"]["depth"] * 100:.2f} cm ({found["scene"]["piece"]})'
+            if 'seat' in found:
+                ok &= abs(found['seat']['gap']) <= rc.seat_gap
+                st = found['seat']
                 extra += (f', seat gap {st["gap"] * 100:.2f} cm ({st["part"]}; trunk '
                           f'{st.get("trunk", float("nan")) * 100:.2f}, thighs '
                           f'{st.get("thighs", float("nan")) * 100:.2f})')
-            if 'hands' in scene:
-                ok &= scene['hands']['distance'] <= rc.hand_targets
-                extra += f', hands {scene["hands"]["distance"] * 100:.2f} cm'
+            if 'hands' in found:
+                ok &= found['hands']['distance'] <= rc.hand_targets
+                extra += f', hands {found["hands"]["distance"] * 100:.2f} cm'
             report[name]['pass'] = ok
         print(f'contact {name:12s} worst {depth * 100:5.2f} cm ({part} {side} at '
               f'{frame / fps:5.2f} s), turned past 90 deg {turned}, '

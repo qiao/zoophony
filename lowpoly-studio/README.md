@@ -379,7 +379,7 @@ height, and key width:
                 bench (pad fitted to the body), piano: nodes                  |
                 pressed keys: nodes under the piano  <--- spec['keys'] -------+
                                        |                                      v
-                     check_scene: scene.<clip>, seat.<clip>, hands.<clip> (claw tips)
+                     scene check: scene.<clip>, seat.<clip>, hands.<clip> (claw tips)
 ```
 
 The clips: `reference` (the sheet pose, the props hidden), `ready` (the paws over the first
@@ -399,7 +399,7 @@ chord, rest).
 | A note | `Pianist.fingers()`, `envelope()` | The digit curls down until its claw tip is on its key (`Paw.curl_for`, a bisection on the tip height), then pushes the key down by the key dip, and lifts. The press share of each key goes into the pose spec (`spec['keys']`), and the key node of the piano turns with it. |
 | Scene props | `[[props]] kind = "piano"` and `"bench"`, `attach.bone = "scene"` (studio/props.py) | Each prop is a mesh node of its own in the GLB with no bone. The keys that the pack presses (`pack.pressed_keys`) are nodes under the piano. The sheet pose hides the props (node scale 0). The props give their test boxes to the scene check. |
 | Wrist targets | `Pianist.arms()` | The clips make wrist points in model space, and turn them into wrist targets in the rest frame of the chest of the same pose (the frame of the solver). |
-| Role checks | `[checks] scene_depth`, `seat_gap`, `hand_targets` (studio/build.py `check_scene`) | Gates of each clip: `scene.<clip>` (the deepest body skin point in a prop box), `seat.<clip>` (the larger gap of the rump skin and of the thigh skin to the top of the pad under them), `hands.<clip>` (the distance of the claw tip of each pressing digit from its target). |
+| Role checks | `[checks] scene_depth`, `seat_gap`, `hand_targets` (`studio/scene_check.py`) | Gates of each clip: `scene.<clip>` (the deepest body skin point in a prop box), `seat.<clip>` (the larger gap of the rump skin and of the thigh skin to the top of the pad under them), `hands.<clip>` (the distance of the claw tip of each pressing digit from its target). |
 | Correctives | `[bind] correctives = ["arm_down", "legs_straight"]` | `legs_straight` moves the leg skin onto the standing legs in the sheet pose. The thigh angle drives it. |
 
 A pack can give the optional method `hand_targets(clip, t)`: `{side: point}` (the knuckle, with

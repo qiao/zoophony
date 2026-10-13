@@ -8,6 +8,9 @@ nearest point on the obstacle, and the side of its face normal. The template and
 the test groups (contact_spec): for the conductor, the forearm and paw vertices of the arm, its
 claws, and the baton.
 
+Each frame of a clip gives one plain record (ContactCheck.frame), and ContactCheck.clip reduces
+the records of a clip.
+
 The stage "diagnostics" (stage_diagnostics) runs after the export. It reads the checks of the
 build from JOURNAL and returns the located contacts, the closest approach of each clip, the fold
 debug list (each folded, turned, repaired, inward, or sliver face with its place, weights,
@@ -64,8 +67,6 @@ class ContactCheck:
         self.folded = set()
         # One record of each clip that clip() measured, in order (see clip()).
         self.records = []
-        # The details of the last frame that frame() measured.
-        self.last = None
         col = {n: i for i, n in enumerate(self.names)}
 
         def wsum(bones):
@@ -120,15 +121,22 @@ class ContactCheck:
             out[nz] += wj[nz, None] * moved
         return out
 
-    def pose_body(self, pose):
+    def morph_weights(self, pose):
+        """Returns the weights of the corrective shapes in a pose, or None with no shapes."""
+        if self.morphs and self.driver:
+            return self.driver(pose)
+        return None
+
+    def pose_body(self, pose, morph_weights=None):
         """Poses the body mesh: the corrective shapes of the pose, then the skinning.
 
+        morph_weights: the result of morph_weights(pose), when the caller has it.
         Returns (world rotations, heads, scales, the rest mesh with the shapes, the posed mesh).
         """
         D, H, S = forward_kinematics(self.skel, pose)
         rest = self.verts
         if self.morphs and self.driver:
-            mw = self.driver(pose)
+            mw = self.driver(pose) if morph_weights is None else morph_weights
             rest = rest + sum(mw[s] * self.morphs[s] for s in self.morphs)
         A, t = blend_matrices(self.skel, self.w, pose)
         return D, H, S, rest, skin(A, t, rest)
@@ -139,19 +147,19 @@ class ContactCheck:
         D, H, S = forward_kinematics(self.skel, pose)
         return self._skin(pts, w, D, H, S), np.asarray(faces, np.int64).reshape(-1, 3)
 
-    def frame(self, pose):
-        """Measures one frame.
+    def frame(self, posed_body):
+        """Measures one frame of the body that pose_body posed (posed_body: its result).
 
-        Returns ({(side, part): deepest contact} in animal heights, (faces turned past 90
-        degrees, faces folded past 120 degrees)). self.last keeps the details: the face dots,
-        the deepest point of each (side, part), and the closest point outside the body.
+        Returns the frame record (plain values): 'depths' {(side, part): deepest contact} in
+        animal heights, 'deep' {(side, part): the place of that contact}, 'gap' the place of the
+        closest point outside the body (or None), and 'turned' [(face, cosine)] of each face
+        turned past 90 degrees, in the order of the faces.
         """
-        D, H, S, rest, body = self.pose_body(pose)
+        D, H, S, rest, body = posed_body
         rotations = np.stack([D[n] for n in self.names])
         dots = dominant_dots(rest, self.tris, body, self.w, rotations)
-        turned = (int(np.sum(dots < 0.0)), int(np.sum(dots < FOLD_DOT)))
-        self.folded.update(np.nonzero(dots < FOLD_DOT)[0].tolist())
-        self.last = {'dots': dots, 'deep': {}, 'gap': None}
+        turned = [(f, float(dots[f])) for f in np.nonzero(dots < 0.0)[0].tolist()]
+        deep, closest = {}, None
         result = {}
         for side in self.sides:
             tri = self.obstacles[side]
@@ -176,18 +184,15 @@ class ContactCheck:
                         if winding_number(p, body, tri) > 0.5:
                             deepest = dist
                             spot = (k, index, loc)
-                    elif not inward:
-                        gap = self.last['gap']
-                        if gap is None or dist < gap['gap']:
-                            self.last['gap'] = self._place(side, part, test, k, p, index, loc,
-                                                           gap=dist)
+                    elif not inward and (closest is None or dist < closest['gap']):
+                        closest = self._place(side, part, test, k, p, index, loc, gap=dist)
                 key = (side, part)
                 if spot and deepest > result.get(key, 0.0):
                     k, index, loc = spot
-                    self.last['deep'][key] = self._place(side, part, test, k, posed[k], index,
-                                                         loc, depth=deepest)
+                    deep[key] = self._place(side, part, test, k, posed[k], index, loc,
+                                            depth=deepest)
                 result[key] = max(result.get(key, 0.0), deepest)
-        return result, turned
+        return {'depths': result, 'deep': deep, 'gap': closest, 'turned': turned}
 
     def _place(self, side, part, test, k, p, index, loc, **measure):
         """Describes a test point and its nearest obstacle face (plain values)."""
@@ -197,33 +202,35 @@ class ContactCheck:
         out.update({key: float(v) for key, v in measure.items()})
         return out
 
-    def clip(self, poses):
-        """Measures each frame of a clip.
+    def clip(self, frames):
+        """Reduces the frame records of a clip (frame(), in the order of the frames).
 
         Returns (worst depth, side, part, frame, the most turned faces in one frame, the most
-        folded faces in one frame). self.records gets the record of the clip: the deepest
-        contact, the closest approach, and the worst frame of each face turned past 90 degrees.
+        folded faces in one frame). self.folded gets the folded faces of each frame, and
+        self.records gets the record of the clip: the deepest contact, the closest approach, and
+        the worst frame of each face turned past 90 degrees.
         """
         worst = (0.0, '-', '-', 0)
         turned = folded = 0
-        rec = {'frames': len(poses), 'worst': None, 'gap': None, 'faces': {}}
-        for i, pose in enumerate(poses):
-            depths, (n_turned, n_folded) = self.frame(pose)
-            turned = max(turned, n_turned)
-            folded = max(folded, n_folded)
-            for (side, part), depth in depths.items():
+        rec = {'frames': len(frames), 'worst': None, 'gap': None, 'faces': {}}
+        for i, fr in enumerate(frames):
+            faces = fr['turned']
+            bent = [f for f, dot in faces if dot < FOLD_DOT]
+            self.folded.update(bent)
+            turned = max(turned, len(faces))
+            folded = max(folded, len(bent))
+            for (side, part), depth in fr['depths'].items():
                 if depth > worst[0]:
                     worst = (depth, side, part, i)
-                    rec['worst'] = dict(self.last['deep'][(side, part)], frame=i)
-            gap = self.last['gap']
+                    rec['worst'] = dict(fr['deep'][(side, part)], frame=i)
+            gap = fr['gap']
             if gap and (rec['gap'] is None or gap['gap'] < rec['gap']['gap']):
                 rec['gap'] = dict(gap, frame=i)
-            dots = self.last['dots']
-            for f in np.nonzero(dots < 0.0)[0].tolist():
+            for f, dot in faces:
                 face = rec['faces'].setdefault(f, {'dot': 1.0, 'frame': 0, 'frames': 0})
                 face['frames'] += 1
-                if dots[f] < face['dot']:
-                    face['dot'], face['frame'] = float(dots[f]), i
+                if dot < face['dot']:
+                    face['dot'], face['frame'] = dot, i
         self.records.append(rec)
         return worst + (turned, folded)
 
