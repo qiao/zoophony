@@ -1,3 +1,12 @@
+import {
+  byteReader,
+  readByte,
+  readVarint,
+  toBase64,
+  unzigzag,
+  writeVarint,
+  zigzag,
+} from './packed-bytes.ts';
 import type { Vec3 } from './tuples.ts';
 
 /**
@@ -46,14 +55,6 @@ export interface UnpackedMesh {
   readonly corners: Uint32Array;
   /** u, v of each vertex in the skin texture, from 0 to 1. */
   readonly uvs: Float32Array;
-}
-
-/** The cursor of a read of packed bytes. */
-interface Reader {
-  /** The bytes. */
-  readonly bytes: Uint8Array;
-  /** The index of the next byte. */
-  at: number;
 }
 
 /**
@@ -140,12 +141,7 @@ export function packMesh(vertices: readonly PackedVertex[], triangles: readonly 
     }
   }
 
-  // A call of fromCharCode takes a limited number of arguments, so the bytes go in parts.
-  let text = '';
-  for (let i = 0; i < out.length; i += 0x8000) {
-    text += String.fromCharCode(...out.slice(i, i + 0x8000));
-  }
-  return btoa(text);
+  return toBase64(out);
 }
 
 /**
@@ -156,7 +152,7 @@ export function packMesh(vertices: readonly PackedVertex[], triangles: readonly 
  * @throws Error if the bytes end early, or if a triangle names a vertex that does not exist.
  */
 export function unpackMesh(packed: string): UnpackedMesh {
-  const reader: Reader = { bytes: Uint8Array.from(atob(packed), (c) => c.charCodeAt(0)), at: 0 };
+  const reader = byteReader(packed);
   const vertexCount = readVarint(reader);
   const triangleCount = readVarint(reader);
 
@@ -201,82 +197,4 @@ export function unpackMesh(packed: string): UnpackedMesh {
     }
   }
   return { positions, bones, blendBones, blendWeights, corners, uvs };
-}
-
-/**
- * Adds an unsigned LEB128 number to a byte list: 7 bits in each byte, the low bits first, and the
- * high bit set on each byte except the last.
- *
- * @param out The bytes.
- * @param value The number, an integer of at least 0.
- * @throws Error if the number is not an integer of at least 0.
- */
-function writeVarint(out: number[], value: number): void {
-  if (!Number.isInteger(value) || value < 0) {
-    throw new Error(`The number ${value} is not an integer of at least 0.`);
-  }
-
-  let rest = value;
-  while (rest >= 0x80) {
-    out.push((rest % 0x80) | 0x80);
-    rest = Math.floor(rest / 0x80);
-  }
-  out.push(rest);
-}
-
-/**
- * Gives the zigzag number of a signed number: 0, -1, 1, -2 give 0, 1, 2, 3.
- *
- * @param value The signed integer.
- * @returns The zigzag number.
- */
-function zigzag(value: number): number {
-  return value < 0 ? -2 * value - 1 : 2 * value;
-}
-
-/**
- * Reads one byte.
- *
- * @param reader The cursor. The read moves it.
- * @returns The byte.
- * @throws Error if the bytes end.
- */
-function readByte(reader: Reader): number {
-  const byte = reader.bytes[reader.at];
-  if (byte === undefined) {
-    throw new Error('The packed mesh ends early.');
-  }
-
-  reader.at += 1;
-  return byte;
-}
-
-/**
- * Reads an unsigned LEB128 number ({@link writeVarint}).
- *
- * @param reader The cursor. The read moves it.
- * @returns The number.
- * @throws Error if the bytes end in the number.
- */
-function readVarint(reader: Reader): number {
-  let value = 0;
-  let scale = 1;
-  for (;;) {
-    const byte = readByte(reader);
-    value += (byte & 0x7f) * scale;
-    if (byte < 0x80) {
-      return value;
-    }
-    scale *= 0x80;
-  }
-}
-
-/**
- * Turns a zigzag number back into a signed number: 0, 1, 2, 3 give 0, -1, 1, -2.
- *
- * @param value The zigzag number.
- * @returns The signed number.
- */
-function unzigzag(value: number): number {
-  return value % 2 === 0 ? value / 2 : -(value + 1) / 2;
 }
