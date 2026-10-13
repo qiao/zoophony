@@ -47,6 +47,11 @@ export interface HandsHold {
    * by the weight of the playing pose.
    */
   readonly restLean: number;
+  /**
+   * The lift of the head in the rest pose, in radians: the neck and the head pitch up by it. The
+   * pose mixes it with no lift by the weight of the playing pose.
+   */
+  readonly restHeadLift: number;
   /** The keys that each hand reaches on the side of the other hand. */
   readonly reach: HandReach;
   /** The directions to which the elbows point. */
@@ -112,6 +117,7 @@ export const HANDS_HOLDS = {
     faceR: [0, -1, 0],
     lean: 20 * MathUtils.DEG2RAD,
     restLean: 22 * MathUtils.DEG2RAD,
+    restHeadLift: 0,
     reach: { leftHighest: 70, rightLowest: 60 },
     poleL: [-1, -0.6, 0.4],
     poleR: [1, -0.6, 0.4],
@@ -150,6 +156,7 @@ export const HANDS_HOLDS = {
     faceR: [-1, 0, 0],
     lean: 8 * MathUtils.DEG2RAD,
     restLean: 0,
+    restHeadLift: 0,
     reach: NO_REACH_LIMIT,
     poleL: [-1, -1, 0.3],
     poleR: [1, -1, 0.3],
