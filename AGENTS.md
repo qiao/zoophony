@@ -161,7 +161,8 @@ These traps of route 2 each cost a round:
 **Route 3: a studio body**, as the bear conductor and the polar bear pianist since 2026-10-12
 (design 4.4). The studio builds
 the GLB file. The app keeps its own motion and drives the bones of the studio from the pose of the
-player on each frame (`poseStudioBones()` of `src/models/studio-rig.ts`).
+player on each frame (`poseStudioBones()` of `src/models/studio-rig.ts`). A manager briefs the
+implementation, the review, and the fix of a round from `docs/briefs/studio-body.md`.
 
 ```text
  python3 studio build <animal> --> lowpoly-studio/animals/<animal>/out/<animal>.glb
