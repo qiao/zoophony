@@ -6,7 +6,7 @@ import type { Skeleton } from './rig.ts';
 import { STUDIO_BONES, unpackStudioMesh } from './studio-format.ts';
 import type { Side, StudioBody, StudioBone, StudioMesh } from './studio-format.ts';
 import { toVec3 } from './tuples.ts';
-import type { Vec3 } from './tuples.ts';
+import type { Quat, Vec3 } from './tuples.ts';
 
 /**
  * The bone of the player that each bone of a studio body follows (design 4.4, 4.7). A bone of the
@@ -63,14 +63,16 @@ export const TWIST_SHARE = 0.5;
  * hand, so its fingers stand at 45° to 150° from the forearm in the conductor poses. The skin of
  * the studio bends well up to about 50° at the wrist (`lowpoly-studio/roles/conductor/`). The
  * turn in the plane of the palm keeps the palm, the baton across it, and the curl of the fingers,
- * and it brings the paw toward the line of the forearm.
+ * and it brings the paw toward the line of the forearm. The right paw turns only by positive
+ * angles: toward the baton, which runs forward from the fist. A turn away from the baton takes the
+ * baton out of the paw.
  */
 export const PAW_TURN = {
   /** The largest turn, in radians. The baton stays in the paw up to about 70°. */
   max: (70 * Math.PI) / 180,
   /**
-   * The share of the forearm out of the plane of the palm, from 0 to 1, below which the turn
-   * fades out: a forearm along the palm normal gives no direction in the plane.
+   * The length of the part of the unit forearm in the plane of the palm, from 0 to 1, below which
+   * the turn fades out: a forearm along the palm normal gives no direction in the plane.
    */
   fade: [0.2, 0.5],
 } as const;
@@ -93,8 +95,9 @@ interface StudioArm {
   >;
   /** The bones of the player that drive the arm, as indices in `BONE_NAMES`. */
   readonly drivers: Readonly<Record<'upper' | 'fore' | 'hand' | 'fingers', number>>;
-  /** The unit directions of the upper arm and the forearm in the bind pose of the studio. */
+  /** The unit direction of the upper arm in the bind pose of the studio: shoulder to elbow. */
   readonly upper: Vec3;
+  /** The unit direction of the forearm in the bind pose of the studio: elbow to wrist. */
   readonly fore: Vec3;
   /** The unit axis of the elbow in the bind pose of the studio: upper × fore. */
   readonly hinge: Vec3;
@@ -113,9 +116,6 @@ interface StudioArm {
   /** The direction of the upper arm in the axes of the chest in the pose of the sheet. */
   readonly sheet: Vec3;
 }
-
-/** A rotation as (x, y, z, w). */
-type Quat = readonly [number, number, number, number];
 
 /**
  * A studio body that is ready to pose: the unpacked mesh, the skeleton of the player, and the
@@ -406,8 +406,10 @@ function writeMatrix(
  * player. Each arm of the studio takes the posed shoulder, elbow, and wrist of the player: the
  * upper arm and the forearm turn with the elbow axis of the studio onto the plane of the arm, so
  * that the elbow bends as the studio built it. The paw takes the rotation of the hand of the
- * player, and the forearm twist bone takes {@link TWIST_SHARE} of the twist from the forearm to
- * the paw. The corrective shape of each arm takes its weight from the direction of the upper arm
+ * player, turned in the plane of its palm toward the forearm by up to {@link PAW_TURN} (the right
+ * paw only toward the baton), and the forearm twist bone takes {@link TWIST_SHARE} of the twist
+ * from the forearm to the paw. The fingers of the studio curl around their own axis by the curl
+ * of the fingers of the player. The corrective shape of each arm takes its weight from the direction of the upper arm
  * between the bind pose of the studio and the pose of the sheet, as in the studio. The eyes
  * scale on y for a blink. The bones of the player follow, for the instrument.
  *
@@ -525,6 +527,7 @@ function poseArm(rig: StudioRig, arm: StudioArm, pose: Float32Array, out: Studio
   const fade = Math.min(1, Math.max(0, (inPlane - low) / (high - low)));
   const angle = Math.atan2(-inHand.z, -inHand.y) * fade * fade * (3 - 2 * fade);
   const limited = Math.min(PAW_TURN.max, Math.max(-PAW_TURN.max, angle));
+  // The right paw turns only toward the baton (PAW_TURN).
   palmTurn.setFromAxisAngle(X_AXIS, arm.side === 'R' ? Math.max(0, limited) : limited);
   paw.fromArray(arm.paw);
   handTurn.copy(hand).multiply(palmTurn).multiply(paw);
