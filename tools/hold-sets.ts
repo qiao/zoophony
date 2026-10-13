@@ -138,7 +138,7 @@ export function setHold(change: string): HoldChange {
  *
  * @param list The changes, such as `piano.lean=16deg;piano.curl=0.4`.
  * @returns A function that puts all old values back, and a text of the changes.
- * @throws Error if a change does not fit; the changes before it are put back.
+ * @throws Error if a change does not fit. The changes before it are then put back.
  */
 export function setHolds(list: string): HoldChanges {
   const done: HoldChange[] = [];
