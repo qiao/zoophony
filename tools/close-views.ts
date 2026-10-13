@@ -61,7 +61,7 @@ export type CloseRole = 'conductor' | 'pianist';
  *   shows (design 2.5), at the four beats of the first bar of the default test notes (4/4 at 120
  *   BPM), between two beats, and in the rest pose.
  * - The pianist: the front, both sides, and the back, at a chord of three keys in each hand,
- *   between two chords, and in the rest pose. The camera looks down 20°, over the case of the
+ *   between two chords, and in the rest pose. The camera looks down 35°, over the case of the
  *   piano in the front view.
  */
 export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
