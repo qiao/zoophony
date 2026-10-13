@@ -112,8 +112,8 @@ the end. The times are p50 / p95 in milliseconds. Chrome updated itself from 155
 | 5 | `df4a693d` | not printed | not printed | 421 s | stopped | stopped | stopped: `xctrace` did not save in 360 s |
 | 6 | `df4a693d` | 25% | 4.9, 4.7, 19.0 | 179 s | 3.47 / 4.35 | 4.51 / 4.80 | pass, 590 frames against 590 from the canvas writes |
 
-No run waited at the CPU gate. The old gate of a load average of 8 would have waited before runs
-1, 2, and 3. In the kept logs of the frame-time rounds, a run with no wait took 170 to 221 s
+Run 6 waited at the CPU gate for one read of 5 s at 53% (line 5 of `run6.txt`). The other runs
+did not wait. The old gate of a load average of 8 would have waited before runs 1, 2, and 3. In the kept logs of the frame-time rounds, a run with no wait took 170 to 221 s
 (8 runs), and a run with waits took up to 837 s.
 
 Run 5 stopped with the exit code 2 after 421 s: `xctrace` did not save its trace within the limit
