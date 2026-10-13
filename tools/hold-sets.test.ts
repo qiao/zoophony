@@ -5,6 +5,7 @@ import { MathUtils } from 'three';
 import { CONDUCTOR } from '../src/models/cast.ts';
 import { buildPlayer } from '../src/models/player.ts';
 import { CONDUCTOR_HOLD, conductorRig } from '../src/pose/conductor.ts';
+import { BOWED_HOLDS, holdOf } from '../src/pose/bowed-rig.ts';
 import { HANDS_HOLDS } from '../src/pose/hands.ts';
 import { setHold, setHolds } from './hold-sets.ts';
 
@@ -44,5 +45,28 @@ describe('setHold', () => {
     } finally {
       undo();
     }
+  });
+
+  it('changes the own hold of a species with the root <instrument>@<species>', () => {
+    const own = holdOf('rabbit', 'violin');
+    const lean = own.lean;
+    expect(own).not.toBe(BOWED_HOLDS.violin);
+    const { undo } = setHold('violin@rabbit.lean=20deg');
+    try {
+      expect(holdOf('rabbit', 'violin').lean).toBeCloseTo(20 * MathUtils.DEG2RAD, 12);
+      expect(BOWED_HOLDS.violin.lean).not.toBeCloseTo(20 * MathUtils.DEG2RAD, 12);
+    } finally {
+      undo();
+    }
+    expect(holdOf('rabbit', 'violin').lean).toBe(lean);
+
+    // The hold of the instrument does not change the own hold of the species.
+    const shared = setHold('violin.lean=20deg');
+    try {
+      expect(holdOf('rabbit', 'violin').lean).toBe(lean);
+    } finally {
+      shared.undo();
+    }
+    expect(() => setHold('drums.lean=1')).toThrow('violin@rabbit');
   });
 });

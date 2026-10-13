@@ -280,8 +280,12 @@ export const BOWED_HOLDS = {
 /**
  * The holds of the species that hold a bowed string in their own way, in place of
  * {@link BOWED_HOLDS}: the rabbits hold the violin on the left shoulder, as in `rabbit-views.png`.
+ * The tools change them in memory with `--set '<instrument>@<species>.<path>=<value>'`
+ * (`tools/hold-sets.ts`).
  */
-const SPECIES_HOLDS: Partial<Record<SpeciesId, Partial<Record<BowedInstrument, BowedHold>>>> = {
+export const SPECIES_HOLDS: Partial<
+  Record<SpeciesId, Partial<Record<BowedInstrument, BowedHold>>>
+> = {
   rabbit: { violin: SHOULDER_HOLD },
 };
 

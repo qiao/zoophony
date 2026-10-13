@@ -1,14 +1,24 @@
 import { MathUtils } from 'three';
 
-import { BOWED_HOLDS } from '../src/pose/bowed-rig.ts';
+import { BOWED_HOLDS, SPECIES_HOLDS } from '../src/pose/bowed-rig.ts';
 import { CONDUCTOR_HOLD, LEFT_HAND_PLACES } from '../src/pose/conductor.ts';
 import { HANDS_HOLDS } from '../src/pose/hands.ts';
 
 /**
+ * The own holds of the species (`SPECIES_HOLDS`), by the root `<instrument>@<species>`, such as
+ * `violin@rabbit`. A species with an own hold does not use the hold of its instrument.
+ */
+const OWN_HOLDS = Object.fromEntries(
+  Object.entries(SPECIES_HOLDS).flatMap(([species, holds]) =>
+    Object.entries(holds ?? {}).map(([instrument, hold]) => [`${instrument}@${species}`, hold]),
+  ),
+);
+
+/**
  * The holds that `--set` can change, by the first name of a path (design 5.3, 5.4). The tools
  * change the objects of the modules in memory, before they build a scene, and the source files
- * do not change. The rabbits hold the violin with a hold of their own, which `violin` does not
- * change.
+ * do not change. The rabbits hold the violin with a hold of their own: `violin` does not change
+ * it, and `violin@rabbit` does.
  */
 const HOLDS = {
   piano: HANDS_HOLDS.piano,
@@ -19,7 +29,8 @@ const HOLDS = {
   contrabass: BOWED_HOLDS.contrabass,
   conductor: CONDUCTOR_HOLD,
   conductorLeft: LEFT_HAND_PLACES,
-} as const;
+  ...OWN_HOLDS,
+};
 
 /** A change of a hold in memory. */
 export interface HoldChange {
