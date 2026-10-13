@@ -433,8 +433,11 @@ On 2026-10-13, after the frame-time rounds, the manager added guards and checks 
   starts no process before it, so the use is the use of the other processes. The 1-minute load
   average falls slowly after the save of a Metal trace, so it is for information only.
 - The GPU phase has no CPU gate. Its result is valid when the GPU is in its "Maximum" state for
-  at least 90% of the state time of the trace, and other processes use the GPU in at most 10% of
-  the trace. Else the tool records the GPU phase one more time, and then exits with 2.
+  at least 90% of the state time of the trace, the rows of "Maximum" cover at least 60% of the
+  span of the GPU intervals, and other processes use the GPU in at most 10% of the trace. The
+  open state at each end of the trace has no row, so the share of the state time alone passes
+  one short row of "Maximum". Else the tool records the GPU phase one more time, and then exits
+  with 2.
 - A self-check guards the GPU row against the faults of its filter. It uses only the sizes of the
   surfaces. It prints the time of the command buffers that the filter dropped in each frame, the
   WebGL frames against the count that the canvas writes of the trace give (two in each frame),
