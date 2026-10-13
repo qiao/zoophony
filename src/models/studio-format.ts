@@ -1,0 +1,380 @@
+import { FINISH_ORDER } from './mesh.ts';
+import type { Finish } from './mesh.ts';
+import { packCoordinate, PACKED_STEP } from './packed-mesh.ts';
+import {
+  byteReader,
+  readByte,
+  readVarint,
+  toBase64,
+  unzigzag,
+  writeVarint,
+  zigzag,
+} from './packed-bytes.ts';
+import type { Vec3 } from './tuples.ts';
+
+/**
+ * The bones of a studio body (design 4.4, 4.7): the 30 body bones of the biped template of
+ * `lowpoly-studio/`, in parent order, and the two eye bones that `pnpm studio-body` adds, so that
+ * the eyes blink (design 5.1). The names keep the spelling of the studio. The packed skin names
+ * each bone by its index in this list.
+ */
+export const STUDIO_BONES = [
+  'root',
+  'hips',
+  'spine',
+  'spine1',
+  'chest',
+  'neck',
+  'head',
+  'ear_L',
+  'ear_R',
+  'clavicle_L',
+  'upper_arm_L',
+  'forearm_L',
+  'forearm_twist_L',
+  'hand_L',
+  'fingers_L',
+  'clavicle_R',
+  'upper_arm_R',
+  'forearm_R',
+  'forearm_twist_R',
+  'hand_R',
+  'fingers_R',
+  'thigh_L',
+  'shin_L',
+  'foot_L',
+  'toes_L',
+  'thigh_R',
+  'shin_R',
+  'foot_R',
+  'toes_R',
+  'tail',
+  'eye_L',
+  'eye_R',
+] as const;
+
+/** A bone of a studio body. */
+export type StudioBone = (typeof STUDIO_BONES)[number];
+
+/** The parent of each bone of a studio body: the hierarchy of the biped template of the studio. */
+export const STUDIO_PARENTS = {
+  root: null,
+  hips: 'root',
+  spine: 'hips',
+  spine1: 'spine',
+  chest: 'spine1',
+  neck: 'chest',
+  head: 'neck',
+  ear_L: 'head',
+  ear_R: 'head',
+  clavicle_L: 'chest',
+  upper_arm_L: 'clavicle_L',
+  forearm_L: 'upper_arm_L',
+  forearm_twist_L: 'forearm_L',
+  hand_L: 'forearm_twist_L',
+  fingers_L: 'hand_L',
+  clavicle_R: 'chest',
+  upper_arm_R: 'clavicle_R',
+  forearm_R: 'upper_arm_R',
+  forearm_twist_R: 'forearm_R',
+  hand_R: 'forearm_twist_R',
+  fingers_R: 'hand_R',
+  thigh_L: 'hips',
+  shin_L: 'thigh_L',
+  foot_L: 'shin_L',
+  toes_L: 'foot_L',
+  thigh_R: 'hips',
+  shin_R: 'thigh_R',
+  foot_R: 'shin_R',
+  toes_R: 'foot_R',
+  tail: 'hips',
+  eye_L: 'head',
+  eye_R: 'head',
+} as const satisfies Readonly<Record<StudioBone, StudioBone | null>>;
+
+/** A side of the body: the left side of the animal is at -x (design 4.4). */
+export type Side = 'L' | 'R';
+
+/**
+ * A body from the studio (design 4.4): the mesh of a GLB file of `lowpoly-studio/` in its bind
+ * pose, with its own skeleton, its skin of up to four bones for each vertex, and its corrective
+ * shapes. `pnpm studio-body <animal>` writes the module of an animal. The axes are the axes of
+ * the model: the animal faces -z, its left side is -x, the soles are on y = 0, and the middle
+ * plane is x = 0. The units are meters.
+ */
+export interface StudioBody {
+  /** The GLB file, relative to the repository. */
+  readonly source: string;
+  /** The SHA-256 of the GLB file, as hex. */
+  readonly sha256: string;
+  /** The meters for each unit of the studio, which is the height of the animal. */
+  readonly scale: number;
+  /** The head of each bone in the bind pose of the mesh. */
+  readonly heads: Readonly<Record<StudioBone, Vec3>>;
+  /**
+   * The unit normal of each palm in the bind pose: the side to which the fingers curl. It is the
+   * z axis of the `hand` bone of the studio.
+   */
+  readonly palms: Readonly<Record<Side, Vec3>>;
+  /** The end of each finger block: the farthest claw tip from the `fingers` bone. */
+  readonly fingerTips: Readonly<Record<Side, Vec3>>;
+  /**
+   * The direction of each upper arm in the pose of the sheet, in the axes of the chest. The
+   * corrective shape of each arm has its full weight in this pose, and the weight 0 in the bind
+   * pose (`lowpoly-studio/templates/biped/corrective.py`).
+   */
+  readonly sheetArms: Readonly<Record<Side, Vec3>>;
+  /** The head height `H`: from the chin to the top of the skull. */
+  readonly headHeight: number;
+  /** The middle of the head. */
+  readonly headCenter: Vec3;
+  /** The tip of the nose. */
+  readonly nose: Vec3;
+  /** The packed mesh ({@link packStudioMesh}). */
+  readonly mesh: string;
+}
+
+/** The largest number of bones of a vertex of a studio body. */
+export const STUDIO_INFLUENCES = 4;
+
+/** The steps of a packed weight from 0 to 1: one byte. */
+export const STUDIO_WEIGHT_STEPS = 255;
+
+/** The step of a packed move of a corrective shape, in meters. */
+export const CORRECTIVE_STEP = 1e-4;
+
+/** The number of steps of a packed color channel from 0 to 1. */
+export const COLOR_STEPS = 65535;
+
+/** One vertex of a studio mesh for {@link packStudioMesh}. */
+export interface StudioVertex {
+  /** The place, in meters. */
+  readonly position: Vec3;
+  /** The bones, as indices in {@link STUDIO_BONES}, and their weights, which add up to 1. */
+  readonly skin: readonly (readonly [bone: number, weight: number])[];
+}
+
+/** One triangle of a studio mesh for {@link packStudioMesh}. */
+export interface StudioTriangle {
+  /** The three vertices, counterclockwise from outside. */
+  readonly corners: readonly [number, number, number];
+  /** The linear color of the face. */
+  readonly color: Vec3;
+  readonly finish: Finish;
+}
+
+/** A studio mesh read back by {@link unpackStudioMesh}. */
+export interface StudioMesh {
+  /** x, y, z of each vertex, in meters. */
+  readonly positions: Float32Array;
+  /** The four bones of each vertex. A bone with the weight 0 is bone 0. */
+  readonly joints: Uint8Array;
+  /** The four weights of each vertex, which add up to 1. */
+  readonly weights: Float32Array;
+  /** The three vertices of each triangle. */
+  readonly corners: Uint32Array;
+  /** Linear r, g, b of each triangle. */
+  readonly colors: Float32Array;
+  /** The finish of each triangle, as an index in `FINISH_ORDER`. */
+  readonly finishes: Uint8Array;
+  /** The move of each vertex for each corrective shape: x, y, z in meters. */
+  readonly correctives: readonly Float32Array[];
+}
+
+/**
+ * Splits weights that add up to 1 into whole steps of {@link STUDIO_WEIGHT_STEPS} that add up
+ * to the whole: each weight is rounded down, and the largest remainders get one more step.
+ *
+ * @param weights The weights.
+ * @returns The steps.
+ */
+export function weightSteps(weights: readonly number[]): number[] {
+  const total = weights.reduce((sum, w) => sum + w, 0);
+  const exact = weights.map((w) => (w / total) * STUDIO_WEIGHT_STEPS);
+  const steps = exact.map(Math.floor);
+  const order = exact
+    .map((value, i) => [value - Math.floor(value), i] as const)
+    .toSorted((a, b) => b[0] - a[0] || a[1] - b[1]);
+  let missing = STUDIO_WEIGHT_STEPS - steps.reduce((sum, s) => sum + s, 0);
+  for (const [, i] of order) {
+    if (missing <= 0) {
+      break;
+    }
+    steps[i] = (steps[i] ?? 0) + 1;
+    missing -= 1;
+  }
+  return steps;
+}
+
+/**
+ * Packs a studio mesh as base64 text.
+ *
+ * The packed bytes, each count and number a LEB128 number:
+ *
+ * 1. The vertex count, the triangle count, the color count, and the count of corrective shapes.
+ * 2. The place of each vertex: for each axis, the difference from the vertex before, in steps of
+ *    `PACKED_STEP`, as a zigzag number.
+ * 3. The skin of each vertex: the bone count, then each bone and its weight in steps of
+ *    {@link STUDIO_WEIGHT_STEPS}, one byte each. The steps add up to the whole.
+ * 4. The three vertices of each triangle, as differences from the corner before, as zigzag
+ *    numbers.
+ * 5. The colors: r, g, b in steps of {@link COLOR_STEPS} and the finish index.
+ * 6. The color of each triangle, as an index in the colors.
+ * 7. Each corrective shape: the count of the vertices that it moves, then for each one the
+ *    difference of its index from the one before, and its move on each axis in steps of
+ *    {@link CORRECTIVE_STEP} as zigzag numbers.
+ *
+ * @param vertices The vertices.
+ * @param triangles The triangles.
+ * @param correctives The move of each vertex for each corrective shape.
+ * @returns The packed mesh as base64.
+ * @throws Error if a vertex has more than {@link STUDIO_INFLUENCES} bones, or a triangle names a
+ *   vertex that does not exist.
+ */
+export function packStudioMesh(
+  vertices: readonly StudioVertex[],
+  triangles: readonly StudioTriangle[],
+  correctives: readonly (readonly Vec3[])[],
+): string {
+  const out: number[] = [];
+  const colorKeys = new Map<string, number>();
+  const colors: (readonly [Vec3, Finish])[] = [];
+  const triangleColors = triangles.map((t) => {
+    const steps = t.color.map((c) => Math.round(Math.min(1, Math.max(0, c)) * COLOR_STEPS));
+    const key = `${steps.join(' ')} ${t.finish}`;
+    let index = colorKeys.get(key);
+    if (index === undefined) {
+      index = colors.length;
+      colorKeys.set(key, index);
+      colors.push([[steps[0] ?? 0, steps[1] ?? 0, steps[2] ?? 0], t.finish]);
+    }
+    return index;
+  });
+
+  writeVarint(out, vertices.length);
+  writeVarint(out, triangles.length);
+  writeVarint(out, colors.length);
+  writeVarint(out, correctives.length);
+  const last = [0, 0, 0];
+  for (const vertex of vertices) {
+    for (let axis = 0; axis < 3; axis++) {
+      const steps = packCoordinate(vertex.position[axis] ?? 0);
+      writeVarint(out, zigzag(steps - (last[axis] ?? 0)));
+      last[axis] = steps;
+    }
+  }
+  for (const [v, vertex] of vertices.entries()) {
+    if (vertex.skin.length === 0 || vertex.skin.length > STUDIO_INFLUENCES) {
+      throw new Error(`The vertex ${v} has ${vertex.skin.length} bones.`);
+    }
+    const steps = weightSteps(vertex.skin.map(([, w]) => w));
+    out.push(vertex.skin.length);
+    for (const [k, [bone]] of vertex.skin.entries()) {
+      out.push(bone, steps[k] ?? 0);
+    }
+  }
+  let previous = 0;
+  for (const triangle of triangles) {
+    for (const corner of triangle.corners) {
+      if (!vertices[corner]) {
+        throw new Error(`A triangle names the vertex ${corner}, which does not exist.`);
+      }
+      writeVarint(out, zigzag(corner - previous));
+      previous = corner;
+    }
+  }
+  for (const [steps, finish] of colors) {
+    for (const step of steps) {
+      writeVarint(out, step);
+    }
+    out.push(FINISH_ORDER.indexOf(finish));
+  }
+  for (const index of triangleColors) {
+    writeVarint(out, index);
+  }
+  for (const corrective of correctives) {
+    const moved = corrective.flatMap((move, v) =>
+      move.some((d) => Math.round(d / CORRECTIVE_STEP) !== 0) ? [v] : [],
+    );
+    writeVarint(out, moved.length);
+    let lastVertex = 0;
+    for (const v of moved) {
+      writeVarint(out, v - lastVertex);
+      lastVertex = v;
+      for (const d of corrective[v] ?? [0, 0, 0]) {
+        writeVarint(out, zigzag(Math.round(d / CORRECTIVE_STEP)));
+      }
+    }
+  }
+  return toBase64(out);
+}
+
+/**
+ * Reads a mesh of {@link packStudioMesh} back.
+ *
+ * @param packed The packed mesh as base64.
+ * @returns The vertices, their skins, the triangles, their colors, and the corrective shapes.
+ * @throws Error if the bytes end early, or if a triangle names a vertex that does not exist.
+ */
+export function unpackStudioMesh(packed: string): StudioMesh {
+  const reader = byteReader(packed);
+  const vertexCount = readVarint(reader);
+  const triangleCount = readVarint(reader);
+  const colorCount = readVarint(reader);
+  const correctiveCount = readVarint(reader);
+
+  const positions = new Float32Array(vertexCount * 3);
+  const last = [0, 0, 0];
+  for (let v = 0; v < vertexCount; v++) {
+    for (let axis = 0; axis < 3; axis++) {
+      last[axis] = (last[axis] ?? 0) + unzigzag(readVarint(reader));
+      positions[v * 3 + axis] = (last[axis] ?? 0) * PACKED_STEP;
+    }
+  }
+
+  const joints = new Uint8Array(vertexCount * STUDIO_INFLUENCES);
+  const weights = new Float32Array(vertexCount * STUDIO_INFLUENCES);
+  for (let v = 0; v < vertexCount; v++) {
+    const count = readByte(reader);
+    for (let k = 0; k < count; k++) {
+      joints[v * STUDIO_INFLUENCES + k] = readByte(reader);
+      weights[v * STUDIO_INFLUENCES + k] = readByte(reader) / STUDIO_WEIGHT_STEPS;
+    }
+  }
+
+  const corners = new Uint32Array(triangleCount * 3);
+  let previous = 0;
+  for (let c = 0; c < corners.length; c++) {
+    previous += unzigzag(readVarint(reader));
+    if (previous < 0 || previous >= vertexCount) {
+      throw new Error(`The corner ${c} names the vertex ${previous}, which does not exist.`);
+    }
+    corners[c] = previous;
+  }
+
+  const palette = Array.from({ length: colorCount }, () => {
+    const rgb = [0, 1, 2].map(() => readVarint(reader) / COLOR_STEPS);
+    return { rgb, finish: readByte(reader) };
+  });
+  const colors = new Float32Array(triangleCount * 3);
+  const finishes = new Uint8Array(triangleCount);
+  for (let t = 0; t < triangleCount; t++) {
+    const entry = palette[readVarint(reader)];
+    colors.set(entry?.rgb ?? [1, 1, 1], t * 3);
+    finishes[t] = entry?.finish ?? 0;
+  }
+
+  const correctives = Array.from({ length: correctiveCount }, () => {
+    const corrective = new Float32Array(vertexCount * 3);
+    const moved = readVarint(reader);
+    let v = 0;
+    for (let k = 0; k < moved; k++) {
+      v += readVarint(reader);
+      for (let axis = 0; axis < 3; axis++) {
+        corrective[v * 3 + axis] = unzigzag(readVarint(reader)) * CORRECTIVE_STEP;
+      }
+    }
+    return corrective;
+  });
+  return { positions, joints, weights, corners, colors, finishes, correctives };
+}
