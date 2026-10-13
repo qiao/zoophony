@@ -200,6 +200,10 @@ These traps of route 3 each cost a round:
 - The depth of an open part is false near its open edge. A trunk with no arms is open at the
   shoulders, so the sign of its nearest face gave depths at the limit of the search. Measure in
   a closed part (`closedPart()` with the count of its open loops), as the sweep does.
+- A cap closes a cut with a fan from its middle. The cuts to the upper arms of the studio bears
+  are long and not flat, so a point of an upper arm near its cut has its depth to the cap. The
+  depth to the nearest triangle of the body can be twice as large. Read the depths of the upper
+  arms as depths behind the cap.
 
 ## Rules
 
