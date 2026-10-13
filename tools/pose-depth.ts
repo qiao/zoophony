@@ -3,10 +3,10 @@ import { setHolds } from './hold-sets.ts';
 import { scoreOf } from '../src/score/test-score.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import type { BoneName } from '../src/models/rig.ts';
-import { PLAYING, sceneOf } from '../src/pose/test-scene.ts';
+import { sceneOf } from '../src/pose/test-scene.ts';
 import { depthLimit, pairText, sweepDepths, targetErrors } from '../src/pose/test-sweep.ts';
 import type { PairDepth, RoleSweep, SampleSet, TargetError } from '../src/pose/test-sweep.ts';
-import { SWEEP_ROLES } from '../src/pose/test-sweep-roles.ts';
+import { SWEEP_ROLES, playSample } from '../src/pose/test-sweep-roles.ts';
 
 /** The options of the command. */
 interface Options {
@@ -129,7 +129,7 @@ async function sweepDemos(options: Options, role: RoleSweep): Promise<DemoResult
     const scene = sceneOf(demo.bytes);
     const times = options.times;
     const sets: readonly SampleSet[] = times
-      ? [{ name: 'times', samples: times.map((song) => [song, 10 + song, PLAYING] as const) }]
+      ? [{ name: 'times', samples: times.map((song) => playSample(scene, song)) }]
       : role.sampleSets(scene);
     for (const player of role.players(scene)) {
       results.push({

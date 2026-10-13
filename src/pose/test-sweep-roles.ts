@@ -72,6 +72,18 @@ const SWEEP_DECISIONS = 'docs/decisions/2026-10-13-role-sweep.md';
 const PLAY_STEP = 0.25;
 
 /**
+ * Gives the sample of a song time in a play that started at the wall time 10 s, with the
+ * count-in first: the wall time of the song time 0 is 10 s plus the count-in.
+ *
+ * @param scene The scene.
+ * @param song The song time, in seconds.
+ * @returns The sample.
+ */
+export function playSample(scene: TestScene, song: number): SweepSample {
+  return [song, 10 + song + countInAt(scene.plan.beats, 0).lengthSec, PLAYING];
+}
+
+/**
  * Gives the samples of a full play of a scene: the count-in and each song time to the end.
  *
  * @param scene The scene.
@@ -80,7 +92,7 @@ const PLAY_STEP = 0.25;
 function* playSamples(scene: TestScene): Generator<SweepSample> {
   const start = -countInAt(scene.plan.beats, 0).lengthSec;
   for (let song = start; song <= scene.score.durationSec; song += PLAY_STEP) {
-    yield [song, 10 + song - start, PLAYING];
+    yield playSample(scene, song);
   }
 }
 
@@ -170,7 +182,6 @@ export function pianoCase(posed: PosedSkeleton): PianoCase {
  * @returns The targets.
  */
 function pianistTargets(scene: TestScene, index: number): NoteTarget[] {
-  const countIn = countInAt(scene.plan.beats, 0).lengthSec;
   const plan = scene.plan.players[index];
   if (plan?.note.family !== 'keyboard') {
     return [];
@@ -184,8 +195,7 @@ function pianistTargets(scene: TestScene, index: number): NoteTarget[] {
         track.points[i * 3 + 1] ?? 0,
         track.points[i * 3 + 2] ?? 0,
       ];
-      const song = start + timeOffset + 0.02;
-      return { side, sample: [song, 10 + song + countIn, PLAYING], point };
+      return { side, sample: playSample(scene, start + timeOffset + 0.02), point };
     });
   });
 }
