@@ -219,7 +219,8 @@ repository root.
   table of section 3. Since the fix round, it gives the busy time of each command buffer of a
   frame and the encoders of each command buffer (section 10.2).
 - `node docs/research/2026-10-13-frame-time/gpu-rows.ts <dir>/metal-gpu-intervals.xml...` gives
-  the GPU row of `pnpm frame` for each kept trace (sections 7 and 10).
+  the GPU row of `pnpm frame` for each kept trace (sections 7 and 10). Since the second fix
+  round, an argument can end with the size of the drawing buffer, such as `:2160x1350`.
 - `node docs/research/2026-10-13-frame-time/main-spikes.ts <dir>/main-trace.json` gives the
   frames above 4 ms and the gaps between them (section 4).
 - `node docs/research/2026-10-13-frame-time/cpu-profile.ts [<out.cpuprofile>]` gives the self
@@ -381,3 +382,72 @@ scene.
 `options.webp` in [`2026-10-13-frame-time/`](2026-10-13-frame-time/) shows each option: the
 conductor shot at half size, and a face and a paw of the default play view at full size, each
 row with its label and its GPU p95. The patches are not in the repository.
+
+### 10.5 Second fix round: a clear with no label and the surfaces of the display
+
+The review of the fix round found two more faults of the GPU row of `47a0a9bc`:
+
+- In each kept trace, 0.5% to 2% of the first command buffers have no encoder with the label
+  `(Clear)`. The trace gives encoders 0, 1, and 3 to 26, with no encoder 2. The row then merged
+  two frames into one false frame of 7 to 14 ms.
+- The trace sometimes puts a blit of the surfaces of the display, such as 3456 × 2168, into a
+  WebGL command buffer. The row dropped such a buffer as work of the compositor, also when it
+  held the clear.
+
+The fix `05f05002` uses the canvas writes. Each frame writes a canvas surface in two command
+buffers: the clear, then the final pass. The canvas surfaces are the surfaces of the size of the
+drawing buffer that a buffer with the clear label writes. A frame now also starts at a buffer
+that writes a canvas surface after the final pass of the frame. Since `9e41c0ee`, the row counts
+a buffer that holds the clear or writes the canvas, also with a surface of the display in it. Only
+an encoder with no other surface writes the canvas. The trace lists the canvas among the writes
+of some encoders of the compositor that read the tiles of the page (49 buffers in `cut1`). Such a
+buffer stays out of the row.
+
+`gpu-rows.ts` gives the new rows of the kept traces. A merged frame holds more than two command
+buffers that write the canvas. The values are in milliseconds. The sections above keep the old
+values as the record.
+
+| Trace | Merged frames, old row / new row | Frames, old / new | p50 | p95 | Max, old / new | Within 4 ms |
+|---|---|---|---|---|---|---|
+| `review` | 6 / 0 | 565 / 571 | 4.74 | 4.92 | 9.58 / 5.48 | 0.0% |
+| `before1` | 9 / 0 | 376 / 385 | 5.25 | 6.08 | 11.47 / 6.49 | 0.8% |
+| `after1` | 7 / 0 | 527 / 534 | 4.99 | 5.93 | 10.77 / 6.82 | 0.9% |
+| `after2` | 4 / 0 | 632 / 636 | 4.54 | 5.06 | 8.69 / 5.51 | 0.0% |
+| `final1` | 12 / 0 | 536 / 548 | 4.56 | 5.04 | 9.87 / 5.39 | 0.4% |
+| `final2` | 13 / 0 | 521 / 535 | 4.46 | 4.95 | 12.63 / 5.39 | 0.7% |
+| `final3` | 10 / 0 | 534 / 545 | 4.43 | 4.89 | 14.27 / 5.25 | 0.4% |
+| `final4` | 4 / 0 | 548 / 552 | 4.35 | 4.82 | 9.70 / 5.44 | 0.0% |
+| `base1` | 8 / 0 | 552 / 560 | 4.35 | 4.87 | 9.40 / 5.18 | 0.0% |
+| `base2` | 5 / 0 | 535 / 540 | 4.75 | 4.90 | 9.52 / 6.72 | 0.0% |
+| `cut1` | 0 / 0 | 652 / 652 | 4.43 | 4.76 | 5.12 / 5.12 | 19.9% |
+| `a` | 0 / 0 | 712 / 712 | 3.91 | 4.38 | 4.53 / 4.53 | 68.4% |
+| `b` | 3 / 0 | 686 / 689 | 3.80 | 4.20 | 7.38 / 4.62 | 64.9% |
+| `c` | 6 / 0 | 677 / 683 | 4.25 | 4.62 | 9.46 / 5.07 | 33.8% |
+| `e` | 4 / 0 | 790 / 794 | 4.23 | 4.61 | 8.73 / 5.16 | 37.4% |
+| `ab4` | 1 / 0 | 782 / 783 | 3.96 | 4.28 | 5.04 / 4.51 | 68.5% |
+| `d` | 8 / 0 | 920 / 928 | 2.84 | 3.13 | 5.89 / 3.21 | 100.0% |
+
+The `review` row is the trace of the review of the first round. The rows of `final1` to `final3`
+stay false (section 5). The row of `d` takes the drawing buffer of 2160 × 1350. The p95 of each
+trace changed by at most 0.12 ms, and the max fell to 6.82 ms or less. The conclusions of
+section 10.4 do not change: only option d passes the target, and the combination a and b gives a
+p95 of 4.28 ms.
+
+Some frames of the old traces still have fewer than two command buffers that write the canvas:
+`before1` 6, `after1` 2, `final1` 2, `final2` 3, and `final3` 2. The old row gave 6, 4, 1, 2,
+and 1. These traces have the code before the cut. The traces after the cut have no such frame.
+
+One run of `pnpm frame` on `ccfc29a8`, the code of the scene of `2ed45faa`, at the song times
+13.0 to 17.2 s. The load was 4.2 and 4.6 before the two phases, and 11.4 at the end. Other
+processes used the GPU in 2% of the Metal trace. The values are in milliseconds.
+
+| Measure | Frames | p50 | p95 | Max | Within 4 ms | Target |
+|---|---|---|---|---|---|---|
+| Main thread | 599 | 3.35 | 4.66 | 5.26 | 88.3% | fail |
+| GPU: WebGL frames of the Metal trace | 656 | 3.99 | 4.55 | 5.44 | 51.2% | fail |
+| GPU: timer query, no frame cap | 2507 | 6.17 | 8.46 | 9.64 | 0.0% | information |
+| GPU: timer query, 60 fps | 601 | 12.04 | 14.95 | 18.45 | 0.0% | information |
+
+The old row gives 647 frames, 9 of them merged, with p95 4.57 ms and a max of 9.43 ms on the same
+trace. The GPU p95 of 4.55 ms is lower than the 4.76 ms of `cut1`, and the trace covers the same
+song times as `final4`. A second run at a low load can show if this is the noise of the runs.
