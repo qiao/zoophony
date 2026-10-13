@@ -177,7 +177,7 @@ describe('seatHeights (design 4.5)', () => {
   });
 
   it('keeps the stool of the harp and the bench of the piano at the heights of the strings and the keys', () => {
-    for (const species of [SPECIES.deer, SPECIES.rabbit, SPECIES.mouse]) {
+    for (const species of [SPECIES.deer, SPECIES.rabbit, SPECIES.mouse, SPECIES.penguin]) {
       expect(seatHeights('stool', species)).toEqual({
         seatHeight: STOOL.seatHeight,
         footHeight: 0,
