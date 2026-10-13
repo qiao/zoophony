@@ -1096,6 +1096,11 @@ export interface StudioInspection {
   /** The height of the hips joint in the bind pose. */
   readonly bindHips: number;
   /**
+   * True for a seated role: the setting of `ANIMALS`, or a prop `bench` for an animal that is not
+   * in `ANIMALS`.
+   */
+  readonly seated: boolean;
+  /**
    * The lowest point of the skin in the bind pose: the drop of a seated body in the app, which
    * puts the soles on the floor.
    */
@@ -1300,6 +1305,7 @@ export function inspectStudioGlb(
     targets,
     clips,
     bindHips: heightOf(hips, worlds),
+    seated: settings ? settings.seated : bench !== undefined,
     lowest: lowest.toArray(),
     props: props.map((prop) => ({ name: prop.name, nodes: prop.nodes, box: unitBox(prop.box) })),
     benchTop: bench ? bench.box.max.y : null,
@@ -1356,7 +1362,9 @@ export function inspectionLines(facts: StudioInspection): string[] {
     '',
     `Hips in the bind pose: ${units(facts.bindHips)}`,
     `Lowest point of the skin: ${point(facts.lowest)}, height ${units(facts.lowest[1])}`,
-    '  A seated body drops by this height in the app, so that its soles are on the floor.',
+    facts.seated
+      ? '  Seated: the body drops by this height in the app, so that its soles are on the floor.'
+      : '  Standing: no drop.',
     '',
     'Props (the box in units: min, max):',
     ...facts.props.map(

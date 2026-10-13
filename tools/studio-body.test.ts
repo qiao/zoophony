@@ -282,6 +282,10 @@ describe('pnpm studio-body --inspect (design 4.4)', async () => {
     expect(polar.lowest[1]).toBeGreaterThan(0.05);
     expect(Math.abs(bear.lowest[1])).toBeLessThan(0.05);
     expect(bear.clips.map((clip) => clip.name)).toContain('reference');
+    // Only a seated body drops.
+    expect(polarText).toContain('Seated: the body drops');
+    expect(bearText).toContain('Standing: no drop.');
+    expect(bearText).not.toContain('drops');
   });
 
   it('gives the bench top, the key top, and the key front at the scale of the settings', () => {
