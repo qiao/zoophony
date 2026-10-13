@@ -180,9 +180,12 @@ player on each frame (`poseStudioBones()` of `src/models/studio-rig.ts`).
    a fit of the holds in its `H`. Probe a hold with `pnpm pose-probe <sheet>`, and look at the
    close views. The clearance tests read the skin of the studio (`posedCorner()`).
    A new role adds its entry to `SWEEP_ROLES` of `pose/test-sweep-roles.ts`: its moving parts,
-   its obstacles with the shells of its instrument, its sample sets, and its limits. Tune each
-   hold with `pnpm pose-depth <role> --set <changes>`, and run `pnpm pose-depth <role>` before
-   the report of the round.
+   its obstacles with the shells of its instrument, its sample sets, and its limits. Add its
+   shard files `pose/<role>-clearance-<k>.test.ts`, each with a call of
+   `describeRoleClearance()` of `pose/test-role-clearance.ts` for its shard, as
+   `pose/test-pianist-clearance.ts` does, and a check of the files in `src/test-shards.test.ts`.
+   Tune each hold with `pnpm pose-depth <role> --set <changes>`, and run
+   `pnpm pose-depth <role>` before the report of the round.
 4. Run `pnpm snapshot`, and record the measures in a research report and the decisions in a
    decision file.
 
