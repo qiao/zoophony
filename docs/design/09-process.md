@@ -441,9 +441,12 @@ On 2026-10-13, after the frame-time rounds, the manager added guards and checks 
 - A self-check guards the GPU row against the faults of its filter. It uses only the sizes of the
   surfaces. It prints the time of the command buffers that the filter dropped in each frame, the
   WebGL frames against the count that the canvas writes of the trace give (two in each frame),
-  and the frames with more than two writes of the canvas. The GPU row fails when the dropped
-  canvas buffers take more than 0.1 ms in each frame, when the count is more than 2% off, or
-  when a frame holds more than two writes of the canvas. The frame rate of the page in the
+  and the frames with more than two writes of the canvas. The count takes the canvas writes of
+  the whole trace of the GPU process of Chrome, less the writes of the partial frames at its two
+  ends. Thus a filter that loses frames cannot lower its own expected count. The GPU row fails
+  when the filter gives no frame, when the dropped canvas buffers take more than 0.1 ms in each
+  frame, when the count is more than 2% off, or when a frame holds more than two writes of the
+  canvas. The frame rate of the page in the
   middle half of the record gives a second count for information. The page drew 1.1% to 2.7%
   more frames than the trace holds in four runs, so that count cannot fail the row. On the 18 kept
   traces of the rounds, the check passes with the filter of the tip, and it fails with each filter
