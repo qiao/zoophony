@@ -463,14 +463,18 @@ export class StageScene {
     }
     setHallCamera(view.hall, view.stageSide, camera.position, this.#beamDepth.size[1]);
     const focus = this.#focusOf(view, shot !== null, performance.now());
-    // The depth pass of the beam updated the world matrices of the frame (BeamDepth.render).
+    // The depth pass of the beam updated the world matrices and rendered the shadow map of the
+    // frame (BeamDepth.render).
     view.scene.matrixWorldAutoUpdate = !depthPass;
+    const shadows = this.#renderer.shadowMap.autoUpdate;
+    this.#renderer.shadowMap.autoUpdate = shadows && !depthPass;
     if (this.#post) {
       this.#post.render(view.scene, camera, focus, view.effects, timeSec);
     } else {
       this.#renderer.render(view.scene, camera);
     }
     view.scene.matrixWorldAutoUpdate = true;
+    this.#renderer.shadowMap.autoUpdate = shadows;
   }
 
   /**

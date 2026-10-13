@@ -842,9 +842,13 @@ visible beam, and `scene/solo-light.ts` the light of a solo. The decision files
   - An item on the stage (a player, an instrument, a stand, a chair, or a riser) gets no haze. The
     stage top, the hall, and the air keep the haze, so the beam shows behind and between the
     players down to the stage.
-- The depth pass does not count as a frame of the renderer, and the scene pass after it skips the
-  update of the world matrices. Thus the skeletons and the matrices update once in each frame. A
-  depth at half size gave a jagged edge of haze around each player.
+- The depth pass also renders the shadow map of the frame, and the scene pass keeps it. No hidden
+  object casts a shadow. three.js updates a skeleton when the frame number of the renderer
+  changed, and a render adds one to the frame number between its list of objects and its shadow
+  pass. With the shadow map in the depth pass, both updates come before the first draw, so each
+  bone texture uploads one time in each frame. The scene pass then starts at the frame number of
+  the shadow pass, and it skips the update of the world matrices. A depth at half size gave a
+  jagged edge of haze around each player.
 - Dust motes drift in the haze cone as points: more on the high tier, fewer on the medium tier,
   and none on the low tier. Too many motes read as a field of stars. The motes fade as the haze
   does. With reduced motion, the noise, the motes, and the grain stand still (2.5).

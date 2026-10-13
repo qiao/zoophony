@@ -22,7 +22,7 @@ section that holds it, and remove its row.
 | An item on the stage gets no haze: a surface inside the stage square, from 0.03 to 0.2 m above the stage top up to 3 m, with a fade out to 4 m. The stage top, the hall, and the air keep the haze, so the beam shows between and behind the players | 4.5 |
 | An item keeps no part of the haze. The column seen end-on in the top view is so bright that 3% of it still showed on the heads | 4.5 |
 | A ray leaves the cone at the first root after its entry and below the light. The larger root lay on the mirror cone above the apex for a steep ray, so a camera above the light saw no beam | 4.5 |
-| The depth pass does not count as a frame of the renderer, and the scene pass skips the update of the world matrices. The pass then costs 0.25 ms of CPU time in place of 0.8 ms | 2.6, 4.5 |
+| The scene pass skips the update of the world matrices after the depth pass | 2.6, 4.5 |
 | The strength stays 2.0. With 1.7, the beam of the high view looked thin | 4.5 |
 | 140 motes on the high tier and 70 on the medium tier, with a light of 1.0, a size of 3 cm, and a twinkle of 25%. The motes fade with the square of the fade of the haze, and in front of a surface and an item | 2.6, 4.5 |
 

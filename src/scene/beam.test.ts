@@ -227,7 +227,7 @@ describe('BeamDepth (design 4.5)', () => {
     depth.render(renderer, scene, new PerspectiveCamera(), [beam, hall]);
 
     expect(renderer.renders).toEqual([
-      { visible: [false, false, true], override: true, target: true, shadows: false },
+      { visible: [false, false, true], override: true, target: true, shadows: true },
     ]);
     expect([beam.visible, hall.visible, player.visible]).toEqual([true, true, true]);
     expect(scene.overrideMaterial).toBeNull();
@@ -237,12 +237,14 @@ describe('BeamDepth (design 4.5)', () => {
     depth.dispose();
   });
 
-  it('does not count as a frame, so the scene pass does not update the skeletons again', () => {
+  it('renders the shadow map of the frame, so that the skeletons upload one time', () => {
     const scene = new Scene();
     const renderer = new RecordingRenderer([]);
     const depth = new BeamDepth();
     depth.render(renderer, scene, new PerspectiveCamera(), []);
-    expect(renderer.info.render.frame).toBe(7);
+    expect(renderer.renders.map((render) => render.shadows)).toEqual([true]);
+    // The scene pass starts at the frame number of the shadow pass.
+    expect(renderer.info.render.frame).toBe(8);
     depth.dispose();
   });
 });

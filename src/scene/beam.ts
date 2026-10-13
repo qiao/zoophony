@@ -592,8 +592,6 @@ export function setBeamTier(beam: Group, tier: QualityTier): void {
 
 /** The parts of the renderer that the depth pass of the beam uses. A `WebGLRenderer` has them. */
 export interface DepthRenderer {
-  readonly shadowMap: { autoUpdate: boolean };
-  readonly info: { readonly render: { frame: number } };
   getRenderTarget(): WebGLRenderTarget | null;
   setRenderTarget(target: WebGLRenderTarget | null): void;
   render(scene: Object3D, camera: Camera): void;
@@ -648,6 +646,17 @@ export class BeamDepth {
   /**
    * Renders the depth of a scene with some objects hidden: the light effects, which write no
    * depth, and the hall. The haze in front of the hall shows in full, so the hall needs no depth.
+   * The pass also renders the shadow map of the frame, and the scene pass keeps it
+   * (`StageScene.render()`). No hidden object casts a shadow, so the shadow map does not change.
+   *
+   * three.js updates a skeleton when the frame number of the renderer changed since its last
+   * update. A render updates the skeletons in its list of objects, then adds one to the frame
+   * number, and then updates them again in the shadow pass. When both updates come before the
+   * first draw, each bone texture uploads one time. A shadow pass in the scene pass updated the
+   * skeletons after this pass drew with them, so each bone texture uploaded two times in a frame.
+   * The second upload of a texture that the GPU uses split the shadow pass into small passes
+   * with a copy before each one, 0.3 ms of GPU time on the development Mac. The scene pass now
+   * starts at the frame number of the shadow pass, so it does not update the skeletons again.
    *
    * @param renderer The renderer.
    * @param scene The scene.
@@ -660,9 +669,6 @@ export class BeamDepth {
     camera: PerspectiveCamera,
     hidden: readonly Object3D[],
   ): void {
-    // The depth pass needs no shadow map. The scene pass makes it.
-    const shadows = renderer.shadowMap.autoUpdate;
-    renderer.shadowMap.autoUpdate = false;
     const visible = hidden.map((object) => object.visible);
     for (const object of hidden) {
       object.visible = false;
@@ -671,16 +677,11 @@ export class BeamDepth {
     const target = renderer.getRenderTarget();
     renderer.setRenderTarget(this.#target);
     renderer.render(scene, camera);
-    // The pass does not count as a frame. The scene pass of the frame then keeps the skeletons and
-    // the geometries that this pass updated, and it does not update them again. With the world
-    // matrices, they cost 0.55 ms of the 0.8 ms of this pass on the development Mac.
-    renderer.info.render.frame -= 1;
     renderer.setRenderTarget(target);
     scene.overrideMaterial = null;
     for (const [i, object] of hidden.entries()) {
       object.visible = visible[i] ?? true;
     }
-    renderer.shadowMap.autoUpdate = shadows;
   }
 
   /** Frees the target, the depth texture, and the material. */
