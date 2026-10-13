@@ -1,9 +1,9 @@
 {
   "animal": "bear",
   "role": "conductor",
-  "run": "20261012-200249-60047",
-  "made": "2026-10-12T20:02:58-0700",
-  "role_key": "c52ee6bc2eb0f667",
+  "run": "20261012-203730-29457",
+  "made": "2026-10-12T20:37:46-0700",
+  "role_key": "6a64ee199e40a199",
   "reason": "a role check: the role pack, the template, or the clips changed since the last seed report",
   "require": "kept",
   "kept": 3,
