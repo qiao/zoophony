@@ -396,7 +396,10 @@ These parts of the prototype exist only in the prototype:
     straight edge over a light floor (audit 2026-10-06-ux-design-2, N21), and it is opaque over
     the text and a margin of 4 px.
   - The level: the app reads the frame behind each line every 0.15 s (`app/backdrop-probe.ts`).
-    The read goes into a pixel buffer with a fence, so it does not stop the frame. The lightest
+    The read goes into a new pixel buffer with a fence, so it does not stop the frame. The app
+    takes the pixels of a finished read at the start of a frame, before the render. In Chrome,
+    the copy to the CPU after the render waited for the GPU process to run the commands of the
+    frame (9.7). The lightest
     block of 6 × 6 px behind a line gives the level of its shade, from 0 to 1, which multiplies
     the alpha of `--title-shade` (`shadeLevel()` in `ui/title-shade.ts`). The level puts the
     backdrop at most at the relative luminance 0.125 behind the title and the composer, and
