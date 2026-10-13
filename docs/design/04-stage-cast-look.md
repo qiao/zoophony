@@ -475,7 +475,9 @@ retarget had about a quarter of the folded faces.
   between the bind pose of the studio and the pose of its sheet.
 - The scene draws the body in the bind pose of the studio, with four bones for each vertex and
   the corrective shapes as morph targets, and the instrument on the bones of the player. The
-  colors of the studio hold its baked occlusion, so the scene adds none (4.5).
+  colors of the studio hold its baked occlusion, so the scene adds none (4.5). The body has a
+  copy of the shared material with flat shading: the GPU skin turns the normal of each corner by
+  its own four bones, and about 30 to 50 faces of the arms and the chest showed soft gradients.
 - `buildStudioBody()` gives the mesh of the player in the bind pose of the player, with the two
   bones of the player with the largest weights for each corner. The footprints, the hanging
   arms, the budgets, and the tests read it. In the tests, `posedCorner()` poses a studio body

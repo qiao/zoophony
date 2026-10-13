@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
+import { Euler, MathUtils, Matrix4, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
+import type { WebGLProgramParametersWithUniforms, WebGLRenderer } from 'three';
 
 import { MeshBuilder, blendSkin, transform } from '../models/mesh.ts';
 import { ModelCache } from '../models/model-cache.ts';
@@ -208,6 +209,31 @@ describe('createPlayerMesh', () => {
         expect(largest).toBeLessThan(1e-5);
         expect(mesh.morphTargetInfluences?.some((w) => w > 0)).toBe(true);
       }
+    });
+
+    it('draws each face flat with a copy of the shared material, with its shader hook', () => {
+      const shared = createMaterials();
+      const hooked: string[] = [];
+      for (const material of shared) {
+        material.onBeforeCompile = () => {
+          hooked.push('pool');
+        };
+      }
+      const mesh = createPlayerMesh(model, geometry, shared);
+      const own = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      expect(own).toHaveLength(shared.length);
+      for (const [i, material] of own.entries()) {
+        expect(material).not.toBe(shared[i]);
+        expect(material instanceof MeshStandardMaterial && material.flatShading).toBe(true);
+        expect(shared[i]?.flatShading).toBe(false);
+        expect(material.customProgramCacheKey()).toBe(shared[i]?.customProgramCacheKey());
+      }
+      // SAFETY: the hook of the test reads neither the parameters nor the renderer.
+      const parameters = {} as WebGLProgramParametersWithUniforms;
+      // SAFETY: the hook of the test reads neither the parameters nor the renderer.
+      const renderer = {} as WebGLRenderer;
+      own[0]?.onBeforeCompile(parameters, renderer);
+      expect(hooked).toEqual(['pool']);
     });
 
     it('hides the baton by its bone', () => {
