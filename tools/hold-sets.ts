@@ -39,12 +39,6 @@ export interface HoldChanges {
   readonly text: string;
 }
 
-/**
- * The values that a module reads one time when it loads: a change in memory does not reach the
- * pose, so `--set` refuses them.
- */
-const READ_AT_LOAD = ['conductor.liftBaton', 'conductor.readyLift', 'conductor.readyOut'];
-
 /** The names of the holds that `--set` can change. */
 export const HOLD_NAMES = Object.keys(HOLDS);
 
@@ -94,9 +88,6 @@ export function setHold(change: string): HoldChange {
   }
   const path = change.slice(0, equals);
   const text = change.slice(equals + 1);
-  if (READ_AT_LOAD.some((fixed) => path === fixed || path.startsWith(`${fixed}.`))) {
-    throw new Error(`The module reads ${path} when it loads, so --set cannot change it.`);
-  }
   const [first = '', ...keys] = path.split('.');
   const hold = entryOf(HOLDS, first);
   if (!hold || keys.length === 0) {
