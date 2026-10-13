@@ -411,7 +411,11 @@ On 2026-10-13, the manager changed the condition of the GPU measure, and told th
   the queue is always full, so the timer query with no frame cap is for information only.
 - The Metal System Trace of Xcode gives the start and the end of each encoder on the GPU. The
   GPU time of a frame is the time in which at least one encoder of the WebGL frame runs
-  (`tools/gpu-trace.ts`). The trace also gives the GPU work of the other processes. A page of
+  (`tools/gpu-trace.ts`). A WebGL frame starts at the command buffer with the clear of the
+  drawing buffer, and it holds each WebGL command buffer until the next clear. A command buffer
+  that reads or writes a surface of another size than the drawing buffer is work of the
+  compositor of Chrome, and it does not count. The first version of the filter also dropped the
+  first command buffer of each frame, about 0.7 ms (review of 2026-10-13). The trace also gives the GPU work of the other processes. A page of
   another browser that renders shares the GPU and makes the frames slower, so the tool prints
   that share and a warning above 10%.
 - Each change of `src/scene/`, of a shader, or of the post effects runs `pnpm frame` before its
