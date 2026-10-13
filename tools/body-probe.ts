@@ -586,17 +586,30 @@ async function readProbe(file: string): Promise<Probe> {
 const ROOT = join(import.meta.dirname, '..');
 
 /**
+ * Gives the cause of a failure from the error output of a command: the lines before the first
+ * line of the stack, such as the place, the line of code, and the message of a `SyntaxError`.
+ *
+ * @param errors The error output.
+ * @returns The lines before the stack, or all lines when there is no stack.
+ */
+export function errorCause(errors: string): string {
+  const lines = errors.trim().split('\n');
+  const stack = lines.findIndex((line) => /^\s+at /.test(line));
+  return (stack > 0 ? lines.slice(0, stack) : lines).join('\n').trim();
+}
+
+/**
  * Runs a command, and stops on a failure.
  *
  * @param command The command.
  * @param args The arguments.
  * @param cwd The folder of the command.
- * @throws Error if the command fails, with the end of its error output.
+ * @throws Error if the command fails, with the cause from its error output.
  */
 function run(command: string, args: readonly string[], cwd: string): void {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8' });
   if (result.status !== 0) {
-    const reason = result.error?.message ?? result.stderr.trim().split('\n').slice(-5).join('\n');
+    const reason = result.error?.message ?? errorCause(result.stderr);
     throw new Error(`${command} ${args.join(' ')} failed: ${reason}`);
   }
 }
@@ -624,8 +637,7 @@ function runChild(command: string, args: readonly string[], cwd: string): Promis
         resolve();
         return;
       }
-      const reason = errors.trim().split('\n').slice(-5).join('\n');
-      reject(new Error(`${command} ${args.join(' ')} failed: ${reason}`));
+      reject(new Error(`${command} ${args.join(' ')} failed:\n${errorCause(errors)}`));
     });
   });
 }

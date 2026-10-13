@@ -14,6 +14,7 @@ import {
   POSE_SETS,
   STEP_DIGITS,
   compareProbes,
+  errorCause,
   jointsOf,
   meshHash,
   poseValues,
@@ -237,6 +238,31 @@ describe('compareProbes', () => {
       posesProbe({ samples: {}, players: {} }),
     );
     expect(differences).toEqual(['pose demo conductor/bear/baton: missing in the new probe']);
+  });
+});
+
+describe('errorCause', () => {
+  it('keeps the lines before the stack of an error', () => {
+    const errors = [
+      'file:///tmp/body-probe-x/tools/body-probe.ts:37',
+      "import { LOWER_MAX_SEC } from '../src/pose/rest.ts';",
+      "SyntaxError: The requested module '../src/pose/rest.ts' does not provide an export named 'LOWER_MAX_SEC'",
+      '    at ModuleJob._instantiate (node:internal/modules/esm/module_job:180:21)',
+      '    at async ModuleJob.run (node:internal/modules/esm/module_job:369:5)',
+      '',
+      'Node.js v24.10.0',
+    ].join('\n');
+    expect(errorCause(errors).split('\n')).toEqual([
+      'file:///tmp/body-probe-x/tools/body-probe.ts:37',
+      "import { LOWER_MAX_SEC } from '../src/pose/rest.ts';",
+      "SyntaxError: The requested module '../src/pose/rest.ts' does not provide an export named 'LOWER_MAX_SEC'",
+    ]);
+  });
+
+  it('keeps all lines when there is no stack', () => {
+    expect(errorCause('fatal: not a valid object name no-such-ref\n')).toBe(
+      'fatal: not a valid object name no-such-ref',
+    );
   });
 });
 
