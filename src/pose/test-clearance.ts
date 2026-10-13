@@ -705,12 +705,33 @@ const clusterMiddle = new Vector3();
  * @throws Error if the triangles have a different number of open loops.
  */
 export function closeSurface(triangles: readonly Triangle[], loops: number): ClosedSurface {
-  const corners = Float64Array.from(
-    triangles.flatMap((t) => [...t.a.toArray(), ...t.b.toArray(), ...t.c.toArray()]),
-  );
+  const corners = cornersOf(triangles);
   const plan = planSurface(corners);
   checkLoops(plan, loops, 'The triangles');
   return surfaceOf(plan, (corner) => new Vector3().fromArray(corners, corner * 3));
+}
+
+/**
+ * Counts the open boundary loops of a set of triangles, as {@link closeSurface} finds them. Only
+ * tests use it.
+ *
+ * @param triangles The triangles.
+ * @returns The number of open loops: 0 for a closed shell.
+ */
+export function openLoops(triangles: readonly Triangle[]): number {
+  return planSurface(cornersOf(triangles)).loops;
+}
+
+/**
+ * Gives the corners of some triangles as one list.
+ *
+ * @param triangles The triangles.
+ * @returns x, y, z of three corners for each triangle.
+ */
+function cornersOf(triangles: readonly Triangle[]): Float64Array {
+  return Float64Array.from(
+    triangles.flatMap((t) => [...t.a.toArray(), ...t.b.toArray(), ...t.c.toArray()]),
+  );
 }
 
 /**
