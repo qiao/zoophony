@@ -1,11 +1,11 @@
-import { Vector3 } from 'three';
+import { Triangle, Vector3 } from 'three';
 
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { Score } from '../score/types.ts';
-import { closedDepth } from './test-clearance.ts';
+import { HEAD_BONES, closedDepth, surfaceGap } from './test-clearance.ts';
 import type { ClosedSurface } from './test-clearance.ts';
 import { poseSkeleton, posedPoint } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
@@ -327,4 +327,195 @@ export function pairText(pair: PairDepth): string {
   const along = Number.isNaN(pair.along) ? '' : ` ${pair.along.toFixed(2)}`;
   const place = pair.bone ? ` (${pair.bone}${along})` : '';
   return `${pair.part} in ${pair.into}: ${(pair.depth * 100).toFixed(1)} cm at song ${pair.song.toFixed(2)} s, wall ${pair.wall.toFixed(2)} s${place}`;
+}
+
+/** The name of the obstacle of the body of the player in each role. */
+export const BODY_OBSTACLE = 'body';
+
+/** The head and the face of a player, for the gap to an obstacle. */
+export const HEAD_PART: SweepPart = { name: 'head', bones: HEAD_BONES };
+
+/** Each paw with its claws, for the gap to the body. */
+export const PAW_PARTS: readonly SweepPart[] = [
+  { name: 'paw L', bones: ['handL', 'fingersL'] },
+  { name: 'paw R', bones: ['handR', 'fingersR'] },
+];
+
+/** A part and an obstacle whose smallest gap a sweep measures. */
+export interface GapPair {
+  /** The part. */
+  readonly part: SweepPart;
+  /** The name of the obstacle. */
+  readonly into: string;
+}
+
+/** The smallest gap from a part to an obstacle over a set of samples. */
+export interface PairGap {
+  /** The name of the part. */
+  readonly part: string;
+  /** The name of the obstacle. */
+  readonly into: string;
+  /** The gap, in meters: 0 when the parts touch, and infinite with no sample. */
+  readonly gap: number;
+  /** The song time of the first sample with the smallest gap, in seconds. */
+  readonly song: number;
+  /** The wall time of the first sample with the smallest gap, in seconds. */
+  readonly wall: number;
+  /** The bone of the nearest point of the part, or `null` with no sample. */
+  readonly bone: BoneName | null;
+}
+
+/** The smallest gaps of some pairs over the samples of a sweep. */
+export interface GapSweep {
+  /** Measures the gaps of one posed sample. Give it to {@link sweepDepths}. */
+  readonly visit: SweepVisit;
+  /** Gives the smallest gap of each pair over the samples so far. */
+  readonly gaps: () => PairGap[];
+}
+
+/**
+ * Gives the pairs of the gaps of a role: the head to each obstacle that is not the body, such as
+ * the case of a piano, and each paw to the body. The head is a part of the body, so it has no gap
+ * to it.
+ *
+ * @param role The role.
+ * @returns The pairs.
+ */
+export function gapPairs(role: Pick<RoleSweep, 'obstacles'>): GapPair[] {
+  const names = role.obstacles.map((obstacle) => obstacle.name);
+  const head = names
+    .filter((name) => name !== BODY_OBSTACLE)
+    .map((into): GapPair => ({ part: HEAD_PART, into }));
+  const paws = names.includes(BODY_OBSTACLE)
+    ? PAW_PARTS.map((part): GapPair => ({ part, into: BODY_OBSTACLE }))
+    : [];
+  return [...head, ...paws];
+}
+
+/** The triangles of a part of a mesh, for a gap. */
+interface PartTriangles {
+  /** The first corner of each triangle, in the order of the mesh. */
+  readonly firsts: readonly number[];
+  /** One triangle of each piece of the triangles that share corners, by its index in `firsts`. */
+  readonly probes: readonly number[];
+}
+
+/** The triangles of the parts of each mesh, by the list of their bones. */
+const PART_TRIANGLES = new WeakMap<PlayerModel['mesh'], Map<string, PartTriangles>>();
+
+/**
+ * Gives the triangles whose main bone is one of some bones, and one triangle of each piece of
+ * them. The triangles that share a corner place in the bind pose are in one piece.
+ *
+ * @param mesh The mesh.
+ * @param bones The bones.
+ * @returns The triangles.
+ */
+function partTriangles(mesh: PlayerModel['mesh'], bones: readonly BoneName[]): PartTriangles {
+  let parts = PART_TRIANGLES.get(mesh);
+  if (!parts) {
+    parts = new Map();
+    PART_TRIANGLES.set(mesh, parts);
+  }
+  const key = bones.join(' ');
+  const known = parts.get(key);
+  if (known) {
+    return known;
+  }
+
+  const wanted = new Set(bones.map(boneIndex));
+  const firsts: number[] = [];
+  for (let c = 0; c < mesh.bones.length; c += 3) {
+    if (wanted.has(mesh.bones[c] ?? -1)) {
+      firsts.push(c);
+    }
+  }
+
+  // Each triangle starts as its own piece. A shared corner place joins two pieces.
+  const parent = firsts.map((_, i) => i);
+  const rootOf = (i: number): number => {
+    let r = i;
+    while (parent[r] !== r) {
+      r = parent[r] ?? r;
+    }
+    parent[i] = r;
+    return r;
+  };
+  const owner = new Map<string, number>();
+  const p = mesh.positions;
+  for (const [t, first] of firsts.entries()) {
+    for (let c = first; c < first + 3; c++) {
+      const place = `${p[c * 3]} ${p[c * 3 + 1]} ${p[c * 3 + 2]}`;
+      const other = owner.get(place);
+      if (other === undefined) {
+        owner.set(place, t);
+      } else {
+        parent[rootOf(t)] = rootOf(other);
+      }
+    }
+  }
+  const probes = [...new Set(firsts.map((_, t) => rootOf(t)))];
+  const found = { firsts, probes };
+  parts.set(key, found);
+  return found;
+}
+
+/**
+ * Starts the sweep of the smallest gaps of some pairs: in each sample, it poses the triangles of
+ * each part with the skin of the GPU (`posedCorner()`), and measures the gap to the closed
+ * surface of the obstacle (`surfaceGap()`), with one corner of each piece of the part for the test
+ * of a part inside the obstacle. A gap of 0 is a touch. The smallest gap so far is the
+ * limit of the next sample, so that a far sample costs little.
+ *
+ * @param pairs The pairs.
+ * @returns The sweep.
+ */
+export function gapSweep(pairs: readonly GapPair[]): GapSweep {
+  const smallest = pairs.map(({ part, into }): PairGap => ({
+    part: part.name,
+    into,
+    gap: Infinity,
+    song: 0,
+    wall: 0,
+    bone: null,
+  }));
+  const visit: SweepVisit = (posed, [song, wall], surfaces) => {
+    const { mesh } = posed.model;
+    for (const [i, { part, into }] of pairs.entries()) {
+      const best = smallest[i];
+      const surface = surfaces.get(into);
+      if (!best || best.gap === 0 || !surface) {
+        continue;
+      }
+      const { firsts, probes } = partTriangles(mesh, part.bones);
+      const triangles = firsts.map(
+        (c) =>
+          new Triangle(
+            new Vector3(...posedCorner(posed, c)),
+            new Vector3(...posedCorner(posed, c + 1)),
+            new Vector3(...posedCorner(posed, c + 2)),
+          ),
+      );
+      const { gap, index } = surfaceGap(triangles, surface, best.gap, probes);
+      const corner = firsts[index];
+      if (corner !== undefined && gap < best.gap) {
+        const bone = BONE_NAMES[mesh.bones[corner] ?? 0] ?? null;
+        smallest[i] = { ...best, gap, song, wall, bone };
+      }
+    }
+  };
+  return { visit, gaps: () => [...smallest] };
+}
+
+/**
+ * Writes a pair gap as one line of text.
+ *
+ * @param pair The pair.
+ * @returns The text, such as `head to case: 3.2 cm at song 12.25 s, wall 22.50 s (head)`.
+ */
+export function gapText(pair: PairGap): string {
+  if (!pair.bone) {
+    return `${pair.part} to ${pair.into}: no sample`;
+  }
+  return `${pair.part} to ${pair.into}: ${(pair.gap * 100).toFixed(1)} cm at song ${pair.song.toFixed(2)} s, wall ${pair.wall.toFixed(2)} s (${pair.bone})`;
 }
