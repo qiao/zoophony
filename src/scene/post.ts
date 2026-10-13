@@ -441,8 +441,12 @@ export class PostPipeline {
       depth = new WebGLRenderTarget(halfWidth, halfHeight, { type: UnsignedByteType });
       depth.depthTexture = new DepthTexture(halfWidth, halfHeight, UnsignedIntType);
     }
+    const scene = floatTarget(width, height, format, MSAA_SAMPLES);
+    // No pass reads the depth of the scene target, so the resolve of its samples copies only the
+    // color. The depth of field and the haze render their own depth.
+    scene.resolveDepthBuffer = false;
     return {
-      scene: floatTarget(width, height, format, MSAA_SAMPLES),
+      scene,
       bloomDown: sizes.map(([w, h]) => floatTarget(w, h, format)),
       bloomUp: sizes.slice(0, -1).map(([w, h]) => floatTarget(w, h, format)),
       depth,
