@@ -448,11 +448,12 @@ On 2026-10-13, after the frame-time rounds, the manager added guards and checks 
   frame, when the count is more than 2% off, or when a frame holds more than two writes of the
   canvas. The check finds the buffers that a filter drops and the frames that it merges. It
   cannot find a buffer that a filter adds to a frame by mistake, such as a buffer of the
-  compositor, because the frame count and the canvas writes of each frame stay the same. The frame rate of the page in the
-  middle half of the record gives a second count for information. The page drew 1.1% to 2.7%
-  more frames than the trace holds in four runs, so that count cannot fail the row. On the 18 kept
-  traces of the rounds, the check passes with the filter of the tip, and it fails with each filter
-  that reached a review (`e584e16f` and `332d09ba`) where that filter gave other frames.
+  compositor, because the frame count and the canvas writes of each frame stay the same. The frame
+  rate of the page in the middle half of the record gives a second count for information. The page
+  drew 1.1% to 2.7% more frames than the trace holds in four runs, so that count cannot fail the
+  row. On the 18 kept traces of the rounds, the check passes with the filter of the tip, and it
+  fails with each filter that reached a review (`e584e16f` and `332d09ba`) where that filter gave
+  other frames.
 - The tool seeks to 32 s before the Chrome trace and to 16 s before the Metal trace. Each trace
   then lies in one section shot of `perf-60.mid` with the depth of field, so two runs measure the
   same shots.
