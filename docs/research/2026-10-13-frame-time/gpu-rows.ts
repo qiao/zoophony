@@ -5,16 +5,36 @@
  *
  * The probe takes the GPU process of Chrome with the most intervals in each trace, and splits its
  * WebGL work into frames with `webglFrameTimes()` of `tools/gpu-trace.ts`. The drawing buffer is
- * 2880 × 1800, or the size after the colon of an argument, such as `:2160x1350` for the device
- * scale 1.5 of option d (section 10.4).
+ * the size after the colon of an argument, such as `:2160x1350` for the device scale 1.5 of
+ * option d (section 10.4). With no colon, it is the `canvas` of `run.json` in the folder of the
+ * trace, which `pnpm frame --keep` writes since the round `frame-tools`, else 2880 × 1800.
  */
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 
 import { gpuIntervals, parseTraceTable, webglFrameTimes } from '../../../tools/gpu-trace.ts';
 import { frameStats } from '../../../tools/measure-frame.ts';
 
+/**
+ * Reads the size of the drawing buffer from `run.json` beside a trace.
+ *
+ * @param file The XML file of the trace.
+ * @returns The size, such as `2880x1800`.
+ */
+async function keptSize(file: string): Promise<string> {
+  const run = join(dirname(file), 'run.json');
+  if (!existsSync(run)) {
+    return '2880x1800';
+  }
+  // SAFETY: pnpm frame writes run.json with a `canvas` of two numbers.
+  const { canvas } = JSON.parse(await readFile(run, 'utf8')) as { canvas: [number, number] };
+  return canvas.join('x');
+}
+
 for (const arg of process.argv.slice(2)) {
-  const [file = '', size = '2880x1800'] = arg.split(':');
+  const [file = '', given] = arg.split(':');
+  const size = given ?? (await keptSize(file));
   const [width = 0, height = 0] = size.split('x').map(Number);
   const intervals = gpuIntervals(parseTraceTable(await readFile(file, 'utf8')));
   const counts = new Map<string, number>();
