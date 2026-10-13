@@ -9,12 +9,14 @@ import type { StudioBody } from './studio-format.ts';
 import { createStudioPose, poseStudioBones, skinStudioMesh, studioRig } from './studio-rig.ts';
 import type { StudioRig } from './studio-rig.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
+import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import type { Vec3 } from './tuples.ts';
 
 /** The studio bodies that a species can have (design 4.4), by the value of `SpeciesParams.body`. */
-export const STUDIO_BODIES = { 'studio-bear': STUDIO_BEAR } as const satisfies Readonly<
-  Record<string, StudioBody>
->;
+export const STUDIO_BODIES = {
+  'studio-bear': STUDIO_BEAR,
+  'studio-polar-bear': STUDIO_POLAR_BEAR,
+} as const satisfies Readonly<Record<string, StudioBody>>;
 
 /** The name of a studio body of a species. */
 export type StudioBodyName = keyof typeof STUDIO_BODIES;
@@ -76,10 +78,12 @@ function playerSkins(rig: StudioRig): CornerSkin[] {
 /**
  * Builds a studio body in the bind pose of the player, and adds its triangles to a mesh (design
  * 4.4). The arms of the studio come down from their bind pose to hang straight, with the skin and
- * the corrective shapes of the studio, as the GPU poses them. Each corner follows the two bones
- * of the player with the largest weights, for the readers of the bind mesh. The scene draws the
- * body with the skin of the studio (`StudioRig`). A studio body stands on the floor on each
- * support: the cast gives the bear only the stand of the conductor.
+ * the corrective shapes of the studio, as the GPU poses them. The trunk, the head, and the legs
+ * keep the bind pose of the studio. Each corner follows the two bones of the player with the
+ * largest weights, for the readers of the bind mesh. The scene draws the body with the skin of the
+ * studio (`StudioRig`). A studio body keeps the stance of its role on each support: the bear
+ * conductor stands, and the polar bear pianist sits on a bench that fits its legs
+ * (`StudioBody.seatHeight`).
  *
  * @param builder The mesh that gets the triangles.
  * @param name The studio body.
@@ -135,7 +139,7 @@ export function buildStudioBody(builder: MeshBuilder, name: StudioBodyName): Bod
     headHeight: h,
     headCenter: body.headCenter,
     mouth: [body.nose[0], body.nose[1] - MOUTH_DROP * h, body.nose[2]],
-    floor: [0, 0, 0],
+    floor: body.floor,
     palmL: midpoint(positions.handL, positions.fingersL),
     palmR: midpoint(positions.handR, positions.fingersR),
     fingerBlockL: midpoint(positions.fingersL, tip('L')),

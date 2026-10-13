@@ -1,6 +1,7 @@
 import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
+import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 
@@ -313,17 +314,19 @@ export const SPECIES = {
     body: 'penguin',
   },
   /**
-   * Polar bear, the piano and the other keyboards. It has the round body of the bear, with white fur, small round ears
-   * low on the head, a long straight muzzle, and a black nose.
+   * Polar bear, the piano and the other keyboards. It has the studio body of `lowpoly-studio/`
+   * (design 4.4), seated as the pianist of the studio. Its head height is the head of the studio,
+   * and its bench fits its legs: the seat height is the seat of the studio body, in H.
    */
   'polar-bear': {
-    ears: 'low-round',
-    snout: 'roman',
-    tail: 'puff',
+    body: 'studio-polar-bear',
     size: 1.1,
     colors: SPECIES_COLORS['polar-bear'],
     accentParts: ['nose'],
-    facePattern: 'none',
+    proportions: {
+      headHeight: STUDIO_POLAR_BEAR.headHeight,
+      seatHeight: STUDIO_POLAR_BEAR.seatHeight / STUDIO_POLAR_BEAR.headHeight,
+    },
   },
 } as const satisfies Readonly<Record<SpeciesId, SpeciesParams>>;
 

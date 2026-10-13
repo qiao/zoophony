@@ -232,8 +232,10 @@ describe('poseHands (design 5.3, 4.7)', () => {
           );
           expect(Math.abs(palm.distanceTo(string) - rest.away) / h, label).toBeLessThan(1e-6);
         } else {
-          // The palm is on the thigh.
-          const gap = signedDistance(posedPart(posed, [`thigh${side}`]), palm) / h;
+          // The palm is on the thigh. The skin of a studio body blends the thighs into the hips,
+          // so the thighs are a part of the closed shell of the body.
+          const thigh = posedPart(posed, player.model.studio ? ['hips'] : [`thigh${side}`]);
+          const gap = signedDistance(thigh, palm) / h;
           expect(gap, label).toBeGreaterThan(0);
           expect(gap, label).toBeLessThan(0.2);
         }
@@ -307,13 +309,14 @@ describe('the reach of the hands (design 5.3)', () => {
     };
   }
 
-  it('reaches each piano key from A0 to C8 (the polar bear, design 4.3)', () => {
-    for (const [side, keys] of [
-      ['L', [21, 23, 29, 31, 36, 48, 60, 72]],
-      ['R', [48, 60, 72, 84, 96, 98, 106, 108]],
-    ] as const) {
-      for (const key of keys) {
-        expect(reachOf('piano', side, key).error, `${side} ${key}`).toBeLessThan(1e-4);
+  it('reaches each piano key of each hand: its own side and the keys that it crosses over to', () => {
+    const { leftHighest, rightLowest } = HANDS_HOLDS.piano.reach;
+    for (let key = 21; key <= 108; key++) {
+      if (key <= leftHighest) {
+        expect(reachOf('piano', 'L', key).error, `L ${key}`).toBeLessThan(1e-4);
+      }
+      if (key >= rightLowest) {
+        expect(reachOf('piano', 'R', key).error, `R ${key}`).toBeLessThan(1e-4);
       }
     }
   });

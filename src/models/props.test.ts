@@ -17,6 +17,7 @@ import {
   seatHeights,
 } from './props.ts';
 import { PIANO_BENCH, buildPianoBench } from './instruments/piano.ts';
+import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { SCENE_COLORS } from './colors.ts';
 import type { PlayerPlace, SceneLayout } from './layout.ts';
 import { proportionsOf } from './proportions.ts';
@@ -176,7 +177,7 @@ describe('seatHeights (design 4.5)', () => {
   });
 
   it('keeps the stool of the harp and the bench of the piano at the heights of the strings and the keys', () => {
-    for (const species of [SPECIES.deer, SPECIES['polar-bear'], SPECIES.mouse]) {
+    for (const species of [SPECIES.deer, SPECIES.rabbit, SPECIES.mouse]) {
       expect(seatHeights('stool', species)).toEqual({
         seatHeight: STOOL.seatHeight,
         footHeight: 0,
@@ -186,6 +187,13 @@ describe('seatHeights (design 4.5)', () => {
         footHeight: 0,
       });
     }
+  });
+
+  it('fits the piano bench to the legs of the studio polar bear (design 4.4)', () => {
+    const seat = seatHeights('bench', SPECIES['polar-bear']);
+    expect(seat?.seatHeight).toBeCloseTo(STUDIO_POLAR_BEAR.seatHeight, 9);
+    expect(seat?.footHeight).toBe(0);
+    expect(seat?.seatHeight).toBeLessThan(PIANO_BENCH.seatHeight);
   });
 
   it('keeps the seat of the high stool, and fits its foot ring to the legs', () => {

@@ -292,7 +292,6 @@ has its egg body and the bear its studio body (4.4), so they have no row:
 | pig | pointed | flat-nose | thin | none |
 | rhino | small | horn | thin | none |
 | badger | small | long | puff | stripe |
-| polar bear | low-round | roman | puff | none |
 
 The face patterns of the head (`models/face-patterns.ts`):
 

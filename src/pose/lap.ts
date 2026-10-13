@@ -15,7 +15,8 @@ export interface LapPlace {
 
 /**
  * Finds the height of the top of a leg above a point: the highest crossing of the vertical line
- * through the point with a triangle of the thigh or the knee.
+ * through the point with a triangle of the thigh or the knee. For a studio body, the triangles of
+ * the hips and the belly count too.
  *
  * @param model The player model.
  * @param side The side of the leg.
@@ -23,13 +24,19 @@ export interface LapPlace {
  * @returns The height, or the height of the point if the line misses the leg.
  */
 function legTop(model: PlayerModel, side: 'L' | 'R', point: Vector3): number {
-  // The knee is a ball on the shin bone.
+  // The knee is a ball on the shin bone. The skin of a studio body blends the thighs into the
+  // hips and the belly, so its lap is the top of the hips, the spine, and the legs (design 4.4).
   const leg = new Set([boneIndex(`thigh${side}`), boneIndex(`shin${side}`)]);
-  const { positions, bones } = model.mesh;
+  if (model.studio) {
+    leg.add(boneIndex('hips')).add(boneIndex('spine'));
+  }
+  const { positions, bones, blendBones } = model.mesh;
   const corner = (v: number, k: number): number => positions[v * 3 + k] ?? 0;
+  const onLeg = (v: number): boolean =>
+    leg.has(bones[v] ?? -1) || (model.studio !== null && leg.has(blendBones[v] ?? -1));
   let top = point.y;
   for (let v = 0; v + 2 < bones.length; v += 3) {
-    if (!leg.has(bones[v] ?? -1)) {
+    if (!onLeg(v)) {
       continue;
     }
     // The barycentric weights of the point in the triangle, seen from above.

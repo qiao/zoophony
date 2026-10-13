@@ -28,6 +28,7 @@ import {
 } from './layout-scene.ts';
 import type { Vec3 } from './tuples.ts';
 import { ModelCache } from './model-cache.ts';
+import { PIANO_FRONT_H } from './instruments/piano.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
 import { PODIUM_SIZE, STAGE_CORNER_CUT } from './stage.ts';
@@ -536,10 +537,11 @@ describe('layoutScene', () => {
     expect(species).toBe('polar-bear');
     const model = buildPlayer(species, 'piano');
     const keys = model.pieces[0]?.at.position ?? [0, 0, 0];
-    // The front of the keys is 0.55 H + 0.05 m in front of the seat (design 4.6), along +x.
+    // The front of the keys is PIANO_FRONT_H + 0.05 m in front of the floor point of the body
+    // (design 4.6), along +x.
     const keyFront = (pianist?.position[0] ?? 0) - keys[2];
     expect(keyFront - (pianist?.position[0] ?? 0)).toBeCloseTo(
-      0.55 * model.body.headHeight + 0.05,
+      PIANO_FRONT_H * model.body.headHeight + 0.05 - model.body.floor[2],
       9,
     );
     // The case is 2.0 m long from the key front, so its middle is 1.0 m to the right of it.

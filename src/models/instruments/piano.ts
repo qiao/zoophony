@@ -34,6 +34,12 @@ export const PIANO = {
   lidAngle: 35 * MathUtils.DEG2RAD,
 } as const;
 
+/**
+ * The distance of the front of the keys in front of the floor point of the body of the pianist,
+ * in head heights `H`, before a further 0.05 m (design 4.6).
+ */
+export const PIANO_FRONT_H = 1.2;
+
 /** The piano bench: a seat of 0.75 × 0.35 m at the height of a chair seat (design 4.5). */
 export const PIANO_BENCH = {
   width: 0.75,
@@ -352,9 +358,13 @@ export function buildPiano(): InstrumentModel {
   );
   piece.add(box(0.2, 0.03, 0.12), dark, transform([0, 0.035, -0.42]));
 
+  // The round belly of the studio polar bear reaches 0.45 m in front of the floor point, so the
+  // keys of 2026-10-11 (0.55 H + 0.05 m, 0.26 m) went 15 cm into it. At 1.2 H + 0.05 m (0.51 m),
+  // the keys are 7 cm in front of the belly. The studio has its keys 0.54 m in front, where each
+  // paw reached only the keys of its own half.
   const instrument = piece.build(
     'instrument',
-    hold('floor', [0, 0, -0.55], undefined, [0, 0, -0.05]),
+    hold('floor', [0, 0, -PIANO_FRONT_H], undefined, [0, 0, -0.05]),
   );
   const lowHand = pianoKeyPosition(48);
   const highHand = pianoKeyPosition(72);

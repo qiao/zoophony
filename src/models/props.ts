@@ -152,8 +152,9 @@ const CHAIR_LEG = 0.035;
  * Gives the heights of the seat of a body on a support (design 4.5, props). The chair fits the
  * legs of the species: its seat is the `seatHeight` of the skeleton above the floor. The high
  * stool keeps its seat for the contrabass, and its foot ring is the `seatHeight` of the skeleton
- * below the seat. The stool of the harp and the piano bench keep their heights, because the
- * strings and the keys need the body at that height.
+ * below the seat. The stool of the harp keeps its height, because the strings need the body at
+ * that height. The piano bench keeps its height for the parametric biped. Under a body of its
+ * own, the studio body of the polar bear, it fits the legs, as the chair does (design 4.4).
  *
  * @param support The support.
  * @param species The species of the body.
@@ -170,7 +171,7 @@ export function seatHeights(support: Support, species: SpeciesParams): SeatHeigh
     case 'high-stool':
       return { seatHeight: HIGH_STOOL.seatHeight, footHeight: HIGH_STOOL.seatHeight - legs };
     case 'bench':
-      return { seatHeight: PIANO_BENCH.seatHeight, footHeight: 0 };
+      return { seatHeight: species.body ? legs : PIANO_BENCH.seatHeight, footHeight: 0 };
     case 'stand':
     case 'riser':
       return null;

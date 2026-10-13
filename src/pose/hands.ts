@@ -83,7 +83,11 @@ export type RestingHand =
 /** The holds of the piano and the harp. */
 export const HANDS_HOLDS = {
   // The palm is above the front edge of a white key, and 0.04 m above the keys. Thus the short
-  // arms of the animals reach further, and the fingers curl down onto the keys.
+  // arms of the animals reach further, and the fingers curl down onto the keys. The spine leans
+  // 16° forward: the clips of the pianist of the studio lean 12° (`lowpoly-studio/roles/
+  // pianist/`), and at 12° the left paw of the studio polar bear stopped 4 mm short of A♯0. The
+  // paws reach from A0 to C5 with the left paw and from C4 to C8 with the right paw
+  // (`pose/hands.test.ts`), so a melody changes paws between them.
   piano: {
     action: 'strike',
     keyPoint: pianoKeyPosition,
@@ -91,25 +95,25 @@ export const HANDS_HOLDS = {
     palmR: [0, 0.04, 0.04],
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
-    lean: 0,
-    reach: NO_REACH_LIMIT,
+    lean: 16 * MathUtils.DEG2RAD,
+    reach: { leftHighest: 72, rightLowest: 60 },
     poleL: [-1, -0.6, 0.4],
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
-    // The palms rest at 0.6 of the way to the knee, 0.25 H to the outer side of the top of the
-    // thigh, and the elbows point down, a little out, and forward. Out, down, and forward, the
-    // elbows stood 58° out from the side. At 0.7, the left fingers touched the piano after the
-    // knee went down to the height of the seat (2026-10-11).
+    // The palms rest on the knees, 0.25 H to the outer side of the top of the lap, as the paws of
+    // the rest clip of the studio. The round belly of the studio polar bear covers its thighs, so
+    // at 0.6 of the way to the knee the palms were under the belly. The elbows point down, a
+    // little out, and forward.
     restL: {
       kind: 'lap',
-      lap: { along: 0.6, offset: [-0.25, 0.12, 0] },
+      lap: { along: 1, offset: [-0.25, 0.12, 0] },
       fingers: [0, 0, -1],
       pole: [-0.5, -1, -0.5],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 0.6, offset: [0.25, 0.12, 0] },
+      lap: { along: 1, offset: [0.25, 0.12, 0] },
       fingers: [0, 0, -1],
       pole: [0.5, -1, -0.5],
     },
