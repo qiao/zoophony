@@ -223,21 +223,15 @@ export const PIANIST_SWEEP: RoleSweep = {
         'The forearms of the round polar bear go into its trunk under the shoulders. No cheap change of the hold removes it.',
       decision: `${POLAR_BEAR_DECISIONS}, row "Accepted limits", and ${SWEEP_DECISIONS}`,
     },
-    ...(
-      [
-        ['play', 0.04],
-        ['lift', 0.07],
-        ['rest', 0.07],
-      ] as const
-    ).map(([samples, depth]) => ({
+    {
       part: 'upper arms',
       into: 'body',
-      samples,
-      depth,
+      samples: 'play',
+      depth: 0.04,
       reason:
         'The skin of the upper arm of the round polar bear runs inside the side of its belly to the elbow.',
       decision: SWEEP_DECISIONS,
-    })),
+    },
   ],
   targetError: 1e-4,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'piano'),
