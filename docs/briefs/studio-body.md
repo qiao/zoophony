@@ -30,6 +30,7 @@ makes a baseline worktree.
 | The folded faces of the studio bodies | `pnpm fold-probe <role>` |
 | The smallest gaps of the head to the instrument and of the paws to the body | `pnpm pose-depth <role> --gaps` |
 | The size of the first download | `pnpm build && pnpm size` |
+| The posture of a real player of the instrument at rest, when ready, and in a play | a source on the web, and the clips of the studio: `python3 studio view <animal>`, then the viewer query `shot&view=free&clip=<clip>&t=<s>&az=<deg>` |
 
 Make the worktree: `git worktree add .claude/worktrees/<branch> -b <branch> main`. Copy the
 common rules of the agents into the scratch folder (section 5).
@@ -84,6 +85,13 @@ attachment. Name the code that each one touches.>
   <the landmark of the instrument>. Record the choice and its measure as a decision row.
 - A seat fits the legs of the body. Do not stretch the legs (user rule of 2026-10-10). Look at
   the knees from the side.
+
+## Poses
+
+- The rest pose, the ready pose, and the play pose follow the posture of a real player of the
+  instrument: <the posture, with its source>. A clip of the studio fits the body, so take the
+  lean, the reach, and the clearance from it. Its look can be wrong: a rest pose after the rest clip of
+  the polar bear leaned 22° forward, and the user found it strange (2026-10-13).
 
 ## Process
 
