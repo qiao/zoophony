@@ -3,8 +3,9 @@ import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
-import { Matrix4, Quaternion, Vector3 } from 'three';
+import { Box3, Matrix4, Quaternion, Vector3 } from 'three';
 
+import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { STUDIO_BONES, packStudioMesh } from '../src/models/studio-format.ts';
 import type {
@@ -23,21 +24,37 @@ const ROOT = join(import.meta.dirname, '..');
 export const STUDIO_DIR = join(ROOT, 'src', 'models', 'studio');
 
 /** The settings of one animal of the studio that the app shows. */
-interface AnimalSettings {
+export interface AnimalSettings {
   /**
-   * The height of the shoulder joints above the soles, in meters. It sets the scale of the
-   * animal. The bear conductor keeps the shoulder joints of the parametric bear of 2026-10-11,
-   * 1.0 m above the floor, because the conductor stand and the places of the hands fit them
-   * (design 4.5, 5.4).
+   * The landmark of the scale (design 4.4): the shoulder joints of the bind pose, or the top of
+   * the white keys of the piano of the studio (`piano_key_*`), which the pianist role puts a set
+   * distance below the elbows of the seated bind pose.
    */
-  readonly shoulderHeight: number;
+  readonly landmark: 'shoulders' | 'keys';
+  /** The height of the landmark above the floor in the app, in meters. It sets the scale. */
+  readonly height: number;
+  /**
+   * The clip of a seated role whose first key gives the seated height of the hips, or none for a
+   * body that stands. The bind pose of a seated role has the legs bent for the seat, with the hips
+   * at their standing height, so the body drops onto its seat as in the scene of the studio.
+   */
+  readonly seatedClip?: string;
   /** The name of the constant of the module. */
   readonly constant: string;
 }
 
 /** The animals of the studio that the app shows, by their ids in `lowpoly-studio/animals/`. */
-const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
-  ['bear', { shoulderHeight: 1.0, constant: 'STUDIO_BEAR' }],
+export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
+  // The bear conductor keeps the shoulder joints of the parametric bear of 2026-10-11, 1.0 m
+  // above the floor, because the conductor stand and the places of the hands fit them (design
+  // 4.5, 5.4).
+  ['bear', { landmark: 'shoulders', height: 1.0, constant: 'STUDIO_BEAR' }],
+  // The polar bear pianist keeps the keys of its studio piano at the keys of the piano of the app,
+  // because the studio fitted its seated arms to them (design 4.4, 5.3).
+  [
+    'polar-bear',
+    { landmark: 'keys', height: PIANO.keyTop, seatedClip: 'ready', constant: 'STUDIO_POLAR_BEAR' },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
@@ -765,6 +782,100 @@ export function orderByFirstUse(mesh: SourceMesh): OrderedMesh {
   return { vertices, faces };
 }
 
+/** The place of the studio animal in the app: its scale and its move. */
+interface SceneFrame {
+  /** The meters for each unit of the studio. */
+  readonly scale: number;
+  /** The move of each point of the studio, in the axes and the units of the studio. */
+  readonly offset: Vector3;
+}
+
+/**
+ * Gives the box around the meshes of the scene nodes of the GLB file whose names pass a test, such
+ * as the bench or the keys of the piano of the studio.
+ *
+ * @param glb The file.
+ * @param test The test of a node name.
+ * @returns The box, in the axes and the units of the studio.
+ * @throws Error if no node with a mesh passes the test.
+ */
+function propBox(glb: Glb, test: (name: string) => boolean): Box3 {
+  const worlds = worldMatrices(glb.json, new Map());
+  const box = new Box3();
+  for (const [i, node] of glb.json.nodes.entries()) {
+    const mesh = node.mesh === undefined ? undefined : glb.json.meshes[node.mesh];
+    if (!mesh || node.skin !== undefined || !test(node.name ?? '')) {
+      continue;
+    }
+    for (const primitive of mesh.primitives) {
+      const positions = readAccessor(glb, primitive.attributes['POSITION'] ?? -1);
+      for (let v = 0; v < positions.length; v += 3) {
+        box.expandByPoint(
+          new Vector3().fromArray(positions, v).applyMatrix4(worlds[i] ?? new Matrix4()),
+        );
+      }
+    }
+  }
+  if (box.isEmpty()) {
+    throw new Error('The file has no prop with a matching name.');
+  }
+  return box;
+}
+
+/**
+ * Finds the scale and the move of the studio animal in the app (design 4.4). A standing body keeps
+ * its place: the soles of the studio are on the floor. A seated body drops by the hips of its
+ * seated clip, as in the scene of the studio, and moves forward so that the front edge of the
+ * bench of the studio is at the front edge of the piano bench of the app.
+ *
+ * @param glb The file.
+ * @param skeleton The bind pose.
+ * @param settings The settings of the animal.
+ * @returns The scale and the move.
+ */
+function sceneFrame(glb: Glb, skeleton: SourceSkeleton, settings: AnimalSettings): SceneFrame {
+  const landmark =
+    settings.landmark === 'shoulders'
+      ? headOf(skeleton, 'upper_arm_L').y
+      : propBox(glb, (name) => name.startsWith('piano_key_')).max.y;
+  const scale = settings.height / landmark;
+  if (!settings.seatedClip) {
+    return { scale, offset: new Vector3() };
+  }
+
+  // The seated clip moves the hips down, so that the soles of the bent legs stand on the floor.
+  const keys = firstKeys(glb, settings.seatedClip);
+  const hips = skeleton.nodes.get('hips') ?? -1;
+  const seated = new Vector3().setFromMatrixPosition(
+    worldMatrices(glb.json, keys.nodes)[hips] ?? new Matrix4(),
+  );
+  const drop = headOf(skeleton, 'hips').y - seated.y;
+  const front = propBox(glb, (name) => name === 'bench').max.z;
+  return { scale, offset: new Vector3(0, -drop, PIANO_BENCH.depth / 2 / scale - front) };
+}
+
+/**
+ * Finds the height of a flat bench under a seated studio body (design 4.4, 4.5): the lowest point
+ * of the mesh over the piano bench of the app, so that the body rests on the bench and no part of
+ * it goes into the bench.
+ *
+ * @param mesh The welded mesh.
+ * @param frame The place of the animal in the app.
+ * @returns The height of the top of the bench, in meters.
+ */
+function seatHeightOf(mesh: SourceMesh, frame: SceneFrame): number {
+  const halfX = PIANO_BENCH.width / 2 / frame.scale;
+  const halfZ = PIANO_BENCH.depth / 2 / frame.scale;
+  let low = Infinity;
+  for (const vertex of mesh.vertices) {
+    const p = vertex.position.clone().add(frame.offset);
+    if (Math.abs(p.x) <= halfX && Math.abs(p.z) <= halfZ) {
+      low = Math.min(low, p.y);
+    }
+  }
+  return round(low * frame.scale);
+}
+
 /** The output of the export of a studio body. */
 interface Export {
   readonly body: StudioBody;
@@ -786,8 +897,9 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   const glb = readGlb(bytes);
   const skeleton = readSkeleton(glb);
   const mesh = weldMesh(glb);
-  const scale = settings.shoulderHeight / headOf(skeleton, 'upper_arm_L').y;
-  const model = (p: Vector3): Vec3 => toModelAxes(p, scale);
+  const frame = sceneFrame(glb, skeleton, settings);
+  const scale = frame.scale;
+  const model = (p: Vector3): Vec3 => toModelAxes(p.clone().add(frame.offset), scale);
   const direction = (d: Vector3): Vec3 => toModelAxes(d.clone().normalize(), 1);
 
   // The eyes follow eye bones of their own, so that they blink.
@@ -879,6 +991,8 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       headHeight: round((top - chin) * scale),
       headCenter: model(center),
       nose: model(nose),
+      floor: toModelAxes(new Vector3(0, 0, frame.offset.z), scale),
+      seatHeight: settings.seatedClip ? seatHeightOf(mesh, frame) : null,
       mesh: packStudioMesh(vertices, ordered.faces, correctives),
     },
     sheetWeights: sheet.weights,
@@ -906,7 +1020,7 @@ export function studioModule(animal: string, constant: string, body: StudioBody)
     ` * The studio body of the animal \`${animal}\` (design 4.4), from \`${body.source}\`. The`,
     ` * command \`pnpm studio-body ${animal}\` writes this file. Do not change it by hand.`,
     ' */',
-    `export const ${constant}: StudioBody = ${fields};`,
+    `export const ${constant} = ${fields} satisfies StudioBody;`,
     '',
   ].join('\n');
 }

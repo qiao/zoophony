@@ -4,7 +4,8 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
-import { ownBone, studioBody, studioModule } from './studio-body.ts';
+import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
+import { ANIMALS, ownBone, studioBody, studioModule } from './studio-body.ts';
 
 /** The GLB file of the studio bear. */
 const SOURCE = 'lowpoly-studio/animals/bear/out/bear.glb';
@@ -12,7 +13,8 @@ const SOURCE = 'lowpoly-studio/animals/bear/out/bear.glb';
 describe('pnpm studio-body (design 4.4)', async () => {
   const bytes = await readFile(join(import.meta.dirname, '..', SOURCE));
   const { body, sheetWeights } = studioBody(bytes, SOURCE, {
-    shoulderHeight: 1,
+    landmark: 'shoulders',
+    height: 1,
     constant: 'STUDIO_BEAR',
   });
   const mesh = unpackStudioMesh(body.mesh);
@@ -21,6 +23,11 @@ describe('pnpm studio-body (design 4.4)', async () => {
     expect(body.heads.upper_arm_L[1]).toBeCloseTo(1, 5);
     expect(body.heads.upper_arm_R[1]).toBeCloseTo(1, 5);
     expect(body.scale).toBeGreaterThan(1);
+  });
+
+  it('keeps a standing body over the origin with no seat', () => {
+    expect(body.floor).toEqual([0, 0, 0]);
+    expect(body.seatHeight).toBeNull();
   });
 
   it('turns the animal to face -z with its left side at -x', () => {
@@ -104,7 +111,8 @@ describe('pnpm studio-body (design 4.4)', async () => {
 
   it('writes a module with the constant of the body', () => {
     const text = studioModule('bear', 'STUDIO_BEAR', body);
-    expect(text).toContain('export const STUDIO_BEAR: StudioBody = {');
+    expect(text).toContain('export const STUDIO_BEAR = {');
+    expect(text).toContain('} satisfies StudioBody;');
     expect(text).toContain(body.sha256);
   });
 });
@@ -112,7 +120,11 @@ describe('pnpm studio-body (design 4.4)', async () => {
 describe('pnpm studio-body with four digits on each paw (design 4.4)', async () => {
   const source = 'lowpoly-studio/animals/polar-bear/out/polar-bear.glb';
   const bytes = await readFile(join(import.meta.dirname, '..', source));
-  const { body } = studioBody(bytes, source, { shoulderHeight: 1, constant: 'STUDIO_POLAR_BEAR' });
+  const settings = ANIMALS.get('polar-bear');
+  if (!settings) {
+    throw new Error('The polar bear has no settings.');
+  }
+  const { body } = studioBody(bytes, source, settings);
   const mesh = unpackStudioMesh(body.mesh);
 
   it('gives each digit to the finger bone of its side', () => {
@@ -144,5 +156,56 @@ describe('pnpm studio-body with four digits on each paw (design 4.4)', async () 
         );
       expect(along(tip), side).toBeGreaterThan(along(knuckle));
     }
+  });
+});
+
+describe('pnpm studio-body with a seated body (design 4.4)', async () => {
+  const source = 'lowpoly-studio/animals/polar-bear/out/polar-bear.glb';
+  const bytes = await readFile(join(import.meta.dirname, '..', source));
+  const settings = ANIMALS.get('polar-bear');
+  if (!settings) {
+    throw new Error('The polar bear has no settings.');
+  }
+  const { body } = studioBody(bytes, source, settings);
+  const mesh = unpackStudioMesh(body.mesh);
+  const at = (v: number, k: number): number => mesh.positions[v * 3 + k] ?? 0;
+  const count = mesh.positions.length / 3;
+
+  it('drops the seated body so that its soles are on the floor', () => {
+    let low = Infinity;
+    for (let v = 0; v < count; v++) {
+      low = Math.min(low, at(v, 1));
+    }
+    // The skin of the studio is a little outside its field, as the soles of the bear are.
+    expect(low).toBeLessThan(0);
+    expect(low).toBeGreaterThan(-0.03);
+    expect(body.heads.hips[1]).toBeGreaterThan(body.heads.thigh_L[1] - 0.05);
+  });
+
+  it('puts the keys of the app a little below the elbows of the seated bind pose', () => {
+    for (const side of ['L', 'R'] as const) {
+      const elbow = body.heads[`forearm_${side}`][1];
+      expect(elbow - PIANO.keyTop, side).toBeGreaterThan(0);
+      expect(elbow - PIANO.keyTop, side).toBeLessThan(0.2);
+    }
+  });
+
+  it('rests the body on a bench that no part of it goes into', () => {
+    const seat = body.seatHeight ?? 0;
+    expect(seat).toBeGreaterThan(0);
+    let low = Infinity;
+    for (let v = 0; v < count; v++) {
+      const inside =
+        Math.abs(at(v, 0)) <= PIANO_BENCH.width / 2 && Math.abs(at(v, 2)) <= PIANO_BENCH.depth / 2;
+      if (inside) {
+        low = Math.min(low, at(v, 1));
+      }
+    }
+    // The packed places have steps of 1 mm or less.
+    expect(Math.abs(low - seat)).toBeLessThan(0.001);
+    // The hips are above the seat, and the body sits in front of the center of the bench.
+    expect(body.heads.hips[1]).toBeGreaterThan(seat);
+    expect(body.floor[1]).toBe(0);
+    expect(body.floor[2]).toBeLessThan(0);
   });
 });

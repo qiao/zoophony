@@ -100,7 +100,8 @@ export type Side = 'L' | 'R';
  * pose, with its own skeleton, its skin of up to four bones for each vertex, and its corrective
  * shapes. `pnpm studio-body <animal>` writes the module of an animal. The axes are the axes of
  * the model: the animal faces -z, its left side is -x, the soles are on y = 0, and the middle
- * plane is x = 0. The units are meters.
+ * plane is x = 0. The units are meters. A seated body has the bind pose of its seated role, with
+ * the legs bent for the seat and the soles on the floor.
  */
 export interface StudioBody {
   /** The GLB file, relative to the repository. */
@@ -130,6 +131,17 @@ export interface StudioBody {
   readonly headCenter: Vec3;
   /** The tip of the nose. */
   readonly nose: Vec3;
+  /**
+   * The point on the floor under the middle of the body: the origin of the studio. A seated body
+   * sits in front of the center of its seat, so that the bench of the studio and the piano bench
+   * of the app have one front edge, and the floor instruments go with it.
+   */
+  readonly floor: Vec3;
+  /**
+   * The height of the top of a flat bench under a seated body: the lowest point of the body over
+   * the piano bench of the app. It is `null` for a body that stands.
+   */
+  readonly seatHeight: number | null;
   /** The packed mesh ({@link packStudioMesh}). */
   readonly mesh: string;
 }
