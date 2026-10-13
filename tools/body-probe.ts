@@ -1,8 +1,10 @@
 /**
  * Prints the rest joints and a hash of the body mesh of each species on each support, and the
  * skeleton and a hash of the mesh of each player of the section cast and of the conductor (design
- * 4.3, 4.4). Two runs on two commits show if a change moved a body: the output of the same code
- * is the same, byte for byte.
+ * 4.3, 4.4). It also prints a hash of the poses of each player of each demo in each set of
+ * samples: the rest pose, the lift, the play, and the lowering after a pause (design 5.1, 5.2).
+ * Two runs on two commits show if a change moved a body or a pose: the output of the same code is
+ * the same, byte for byte.
  *
  * Usage: pnpm body-probe [--out <file>]
  *        pnpm body-probe --compare <base.json> <new.json>
@@ -10,6 +12,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import type { Hash } from 'node:crypto';
 import { rmSync } from 'node:fs';
 import { copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -27,6 +30,13 @@ import { BONE_NAMES } from '../src/models/rig.ts';
 import { SPECIES } from '../src/models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
+import { countInAt } from '../src/pose/count-in.ts';
+import { createScenePose, poseAt } from '../src/pose/pose-at.ts';
+import { LOWER_MAX_SEC } from '../src/pose/rest.ts';
+import { NOT_STARTED, PLAYING, allAudible, sceneOf } from '../src/pose/test-scene.ts';
+import type { TestScene } from '../src/pose/test-scene.ts';
+import type { AnimalPose, Transport } from '../src/pose/types.ts';
+import { patchedDemos } from './patch-demos.ts';
 
 /** The supports of each species in the probe: each seat, and standing. */
 export const PROBE_SUPPORTS = [
@@ -60,12 +70,57 @@ export interface PlayerProbe {
   readonly mesh: string;
 }
 
-/** The output of the probe. */
-export interface Probe {
+/** The names of the sets of samples of the pose probe. */
+export const POSE_SETS = ['rest', 'lift', 'play', 'lower'] as const;
+
+/** The name of a set of samples of the pose probe. */
+export type PoseSetName = (typeof POSE_SETS)[number];
+
+/** One sample of the pose probe: a song time, a wall time, and a transport. */
+export type PoseSample = readonly [song: number, wall: number, transport: Transport];
+
+/** The poses of one player in one set of samples. */
+export interface PoseSetProbe {
+  /** The hash of the rounded poses of all samples of the set, as 16 hex digits. */
+  readonly hash: string;
+  /**
+   * The short hash of the rounded pose of each sample, as {@link STEP_DIGITS} hex digits for
+   * each sample, in the order of the samples. It finds the first sample that differs.
+   */
+  readonly steps: string;
+}
+
+/** The poses of the players of one demo. */
+export interface DemoPoses {
+  /** The song time and the wall time of each sample of each set, in seconds, rounded. */
+  readonly samples: Readonly<Record<string, readonly (readonly [number, number])[]>>;
+  /**
+   * The poses of each player in each set, by the index of the player in the layout and its
+   * section, species, and instrument (such as `3 viola/cat/viola`), and the conductor.
+   */
+  readonly players: Readonly<Record<string, Readonly<Record<string, PoseSetProbe>>>>;
+}
+
+/** The bodies and the players of the probe, with no poses. */
+export interface BodiesProbe {
   /** The body of each species on each support. */
   readonly species: Readonly<Record<string, Readonly<Record<string, BodyProbe>>>>;
   /** Each player of the section cast and the conductor, by section, species, and instrument. */
   readonly players: Readonly<Record<string, PlayerProbe>>;
+}
+
+/** The output of the probe. */
+export interface Probe extends BodiesProbe {
+  /** The poses of the players of each demo, by the name of the demo file with no `.mid`. */
+  readonly poses: Readonly<Record<string, DemoPoses>>;
+}
+
+/** The comparison of two probes. */
+export interface ProbeComparison {
+  /** The counts of the equal bodies, players, and pose sets. */
+  readonly counts: readonly string[];
+  /** One line for each difference. */
+  readonly differences: readonly string[];
 }
 
 /**
@@ -153,9 +208,9 @@ function probeBody(species: SpeciesParams, support: Support): BodyProbe {
 /**
  * Probes all bodies and all players.
  *
- * @returns The probe.
+ * @returns The bodies and the players.
  */
-export function runProbe(): Probe {
+export function probeBodies(): BodiesProbe {
   const species: Record<string, Record<string, BodyProbe>> = {};
   for (const [id, params] of Object.entries<SpeciesParams>(SPECIES)) {
     const bySupport: Record<string, BodyProbe> = {};
@@ -201,15 +256,253 @@ export function runProbe(): Probe {
   return { species, players };
 }
 
+/** The step of the song time between two samples of a play, in seconds. */
+export const PLAY_STEP = 0.5;
+
+/** The number of hex digits of the short hash of one sample. */
+export const STEP_DIGITS = 6;
+
+/** The transport of a play that started at the wall time 10 s, for the lift. */
+const LIFTING: Transport = { ...PLAYING, changedAtWall: 10 };
+
+/** The transport of a pause at the wall time 10 s, after a play. */
+const PAUSED: Transport = { ...PLAYING, playing: false, changedAtWall: 10, before: PLAYING };
+
 /**
- * Compares two probes, and gives the counts of equal bodies and players and a line for each
- * difference.
+ * Gives the samples of each set of the pose probe of a scene, as the sweep of a role does
+ * (`pose/test-sweep-roles.ts`). The rest pose has a sample at each second of 4 s of the wall
+ * clock before the first play. The lift has a sample each 0.1 s in the first 4 s of a play from
+ * the count-in. The play has a sample each {@link PLAY_STEP} of the song from the count-in to the
+ * end. The lowering has the samples of a pause in the middle of the song and of a stop at its
+ * end, through the hold and the longest lowering.
+ *
+ * @param scene The scene.
+ * @returns The samples of each set.
+ */
+export function poseSamples(scene: TestScene): Record<PoseSetName, PoseSample[]> {
+  const start = -countInAt(scene.plan.beats, 0).lengthSec;
+  const end = scene.score.durationSec;
+  const rest = Array.from({ length: 4 }, (_, i): PoseSample => [start, 10 + i, NOT_STARTED]);
+  const lift = Array.from({ length: 40 }, (_, i): PoseSample => [
+    Math.min(0, start + i * 0.1),
+    10 + i * 0.1,
+    LIFTING,
+  ]);
+  const play: PoseSample[] = [];
+  for (let i = 0; start + i * PLAY_STEP <= end; i++) {
+    const song = start + i * PLAY_STEP;
+    play.push([song, 10 - start + song, PLAYING]);
+  }
+  const lower: PoseSample[] = [];
+  for (const song of [end / 2, end]) {
+    for (let i = 0; i * 0.5 < PAUSED.holdSec; i++) {
+      lower.push([song, 10 + i * 0.5, PAUSED]);
+    }
+    for (let i = 0; i * 0.1 < LOWER_MAX_SEC; i++) {
+      lower.push([song, 10 + PAUSED.holdSec + i * 0.1, PAUSED]);
+    }
+  }
+  return { rest, lift, play, lower };
+}
+
+/**
+ * Writes the values of a pose into a list of integers in micro-units: the rotations, the root
+ * offset, the slide offset, the instrument offset, and the blink. Thus the rounding is the
+ * rounding of {@link round}, and an integer has no negative zero.
+ *
+ * @param pose The pose.
+ * @returns The integers.
+ */
+export function poseValues(pose: AnimalPose): Int32Array {
+  const instrument = pose.instrumentOffset ?? [0, 0, 0];
+  const values = new Int32Array(pose.rotations.length + 10);
+  let k = 0;
+  for (const list of [pose.rotations, pose.rootOffset, pose.slideOffset, instrument]) {
+    for (const value of list) {
+      values[k++] = Math.round(value * 1e6);
+    }
+  }
+  values[k] = Math.round(pose.blink * 1e6);
+  return values;
+}
+
+/**
+ * Gives the short hash of the values of one pose: the high bits of a 32-bit FNV-1a hash of the
+ * integers. It only finds the first sample that differs, so a fast hash is enough.
+ *
+ * @param values The values of the pose, from {@link poseValues}.
+ * @returns The hash, as {@link STEP_DIGITS} hex digits.
+ */
+export function stepHash(values: Int32Array): string {
+  let hash = 0x811c9dc5;
+  for (const value of values) {
+    hash = Math.imul(hash ^ value, 0x01000193);
+  }
+  return (hash >>> (32 - STEP_DIGITS * 4)).toString(16).padStart(STEP_DIGITS, '0');
+}
+
+/**
+ * Probes the poses of each player and of the conductor of a scene in each set of samples.
+ *
+ * @param scene The scene.
+ * @returns The samples and the poses of each player.
+ */
+export function probeScenePoses(scene: TestScene): DemoPoses {
+  const sets = poseSamples(scene);
+  const buffer = createScenePose(scene.plan);
+  const audible = allAudible(scene.score);
+  const keys = scene.layout.players.map(({ cast }, index) => {
+    const section = scene.score.seats[cast.seatIndex]?.section ?? 'none';
+    return `${index} ${section}/${cast.species}/${cast.instrument}`;
+  });
+  if (scene.plan.conductor) {
+    keys.push(`conductor/${CONDUCTOR.species}/${CONDUCTOR.instrument}`);
+  }
+
+  const players: Record<string, Record<string, PoseSetProbe>> = {};
+  for (const name of POSE_SETS) {
+    const hashes: Hash[] = keys.map(() => createHash('sha256'));
+    const steps: string[][] = keys.map(() => []);
+    for (const [song, wall, transport] of sets[name]) {
+      const pose = poseAt(scene.plan, song, wall, transport, audible, buffer);
+      const all = pose.conductor ? [...pose.players, pose.conductor] : pose.players;
+      for (const [i, player] of all.entries()) {
+        const values = poseValues(player);
+        hashes[i]?.update(values);
+        steps[i]?.push(stepHash(values));
+      }
+    }
+    for (const [i, key] of keys.entries()) {
+      players[key] = {
+        ...players[key],
+        [name]: {
+          hash: hashes[i]?.digest('hex').slice(0, 16) ?? '',
+          steps: steps[i]?.join('') ?? '',
+        },
+      };
+    }
+  }
+
+  const samples = Object.fromEntries(
+    POSE_SETS.map((name) => [
+      name,
+      sets[name].map(([song, wall]): readonly [number, number] => [round(song), round(wall)]),
+    ]),
+  );
+  return { samples, players };
+}
+
+/**
+ * Probes the poses of the players of each demo (design 8.2), after the changes of
+ * `demos/patches.json`.
+ *
+ * @returns The poses of each demo, by the name of the file with no `.mid`.
+ */
+export async function probePoses(): Promise<Record<string, DemoPoses>> {
+  const poses: Record<string, DemoPoses> = {};
+  for (const demo of await patchedDemos()) {
+    poses[demo.file.replace(/\.mid$/, '')] = probeScenePoses(sceneOf(demo.bytes));
+  }
+  return poses;
+}
+
+/**
+ * Probes all bodies, all players, and the poses of each demo.
+ *
+ * @returns The probe.
+ */
+export async function runProbe(): Promise<Probe> {
+  const bodies = probeBodies();
+  return { ...bodies, poses: await probePoses() };
+}
+
+/**
+ * Gives the first sample of a set that differs between two probes: the first sample with another
+ * time or another short hash.
+ *
+ * @param a The samples and the poses of the base.
+ * @param b The samples and the poses of the new probe.
+ * @returns The text of the sample, such as `sample 3 of 40 (song -1.80 s, wall 10.20 s)`.
+ */
+function firstDifference(
+  a: { readonly samples: readonly (readonly [number, number])[]; readonly steps: string },
+  b: { readonly samples: readonly (readonly [number, number])[]; readonly steps: string },
+): string {
+  const count = Math.max(a.samples.length, b.samples.length);
+  for (let i = 0; i < count; i++) {
+    const at = (side: typeof a): string =>
+      `${String(side.samples[i])} ${side.steps.slice(i * STEP_DIGITS, (i + 1) * STEP_DIGITS)}`;
+    if (at(a) !== at(b)) {
+      const [song, wall] = b.samples[i] ?? a.samples[i] ?? [Number.NaN, Number.NaN];
+      return `sample ${i + 1} of ${b.samples.length} (song ${song.toFixed(2)} s, wall ${wall.toFixed(2)} s)`;
+    }
+  }
+  return 'a sample that the short hashes do not show';
+}
+
+/** The comparison of the poses of two probes. */
+interface PoseComparison {
+  /** The number of pose sets: a set of one player in one demo. */
+  readonly sets: number;
+  /** The number of equal pose sets. */
+  readonly equal: number;
+  /** One line for each player with a difference. */
+  readonly lines: readonly string[];
+}
+
+/**
+ * Compares the poses of two probes.
+ *
+ * @param base The poses of the base.
+ * @param next The poses to check.
+ * @returns The comparison.
+ */
+function comparePoses(base: Probe['poses'], next: Probe['poses']): PoseComparison {
+  let sets = 0;
+  let equal = 0;
+  const lines: string[] = [];
+  for (const demo of new Set([...Object.keys(base), ...Object.keys(next)])) {
+    const a = base[demo];
+    const b = next[demo];
+    const keys = new Set([...Object.keys(a?.players ?? {}), ...Object.keys(b?.players ?? {})]);
+    for (const key of keys) {
+      const pa = a?.players[key];
+      const pb = b?.players[key];
+      if (!a || !b || !pa || !pb) {
+        sets += POSE_SETS.length;
+        lines.push(`pose ${demo} ${key}: missing in the ${pa ? 'new probe' : 'base'}`);
+        continue;
+      }
+      const changed: string[] = [];
+      for (const name of new Set([...Object.keys(pa), ...Object.keys(pb)])) {
+        sets += 1;
+        const sa = { samples: a.samples[name] ?? [], steps: pa[name]?.steps ?? '' };
+        const sb = { samples: b.samples[name] ?? [], steps: pb[name]?.steps ?? '' };
+        const sameTimes = JSON.stringify(sa.samples) === JSON.stringify(sb.samples);
+        if (pa[name] && pa[name]?.hash === pb[name]?.hash && sameTimes) {
+          equal += 1;
+        } else {
+          changed.push(`${name} from ${firstDifference(sa, sb)}`);
+        }
+      }
+      if (changed.length > 0) {
+        lines.push(`pose ${demo} ${key}: ${changed.join(', ')}`);
+      }
+    }
+  }
+  return { sets, equal, lines };
+}
+
+/**
+ * Compares two probes, and gives the counts of equal bodies, players, and pose sets, and a line
+ * for each difference. A line of a pose names the player and each set that changed, with the
+ * first sample that differs.
  *
  * @param base The probe of the base.
  * @param next The probe to check.
- * @returns The report lines: the counts first, then one line for each difference.
+ * @returns The counts and the differences.
  */
-export function compareProbes(base: Probe, next: Probe): string[] {
+export function compareProbes(base: Probe, next: Probe): ProbeComparison {
   const same = (a: JointTable | Vec3 | undefined, b: JointTable | Vec3 | undefined): boolean =>
     JSON.stringify(a) === JSON.stringify(b);
   const lines: string[] = [];
@@ -255,11 +548,15 @@ export function compareProbes(base: Probe, next: Probe): string[] {
       `player ${key}: mesh ${mesh}, moved bones: ${moved.join(' ') || (a && b ? 'none' : 'missing')}`,
     );
   }
-  return [
-    `bodies equal: ${equalBodies} of ${bodies}`,
-    `players equal: ${equalPlayers} of ${players}`,
-    ...lines,
-  ];
+  const poses = comparePoses(base.poses, next.poses);
+  return {
+    counts: [
+      `bodies equal: ${equalBodies} of ${bodies}`,
+      `players equal: ${equalPlayers} of ${players}`,
+      `pose sets equal: ${poses.equal} of ${poses.sets}`,
+    ],
+    differences: [...lines, ...poses.lines],
+  };
 }
 
 /**
@@ -292,10 +589,21 @@ function run(command: string, args: readonly string[], cwd: string): void {
   }
 }
 
+/** The paths of a commit that the probe of the commit reads. */
+const REF_PATHS = [
+  'src',
+  'package.json',
+  'demos/src',
+  'demos/patches.json',
+  'demos/README.md',
+  'tools/patch-demos.ts',
+] as const;
+
 /**
- * Probes the bodies of a commit. It extracts `src/` and `package.json` of the commit into a new
- * folder. The folder gets a copy of this tool and a link to the `node_modules` of the
- * repository. Then it runs the probe there. The folder goes away at the end, also after a failure or a stop (INT or TERM).
+ * Probes the bodies and the poses of a commit. It extracts {@link REF_PATHS} of the commit into a
+ * new folder. The folder gets a copy of this tool and a link to the `node_modules` of the
+ * repository. Then it runs the probe there. The folder goes away at the end, also after a failure
+ * or a stop (INT or TERM).
  *
  * @param ref The commit, a branch, or a tag.
  * @param parent The folder that holds the temporary folder.
@@ -311,9 +619,9 @@ export async function probeRef(ref: string, parent: string = tmpdir()): Promise<
   process.once('SIGINT', stop);
   process.once('SIGTERM', stop);
   try {
-    run('git', ['archive', '--output', join(dir, 'ref.tar'), ref, 'src', 'package.json'], ROOT);
+    run('git', ['archive', '--output', join(dir, 'ref.tar'), ref, ...REF_PATHS], ROOT);
     run('tar', ['-xf', 'ref.tar'], dir);
-    await mkdir(join(dir, 'tools'));
+    await mkdir(join(dir, 'tools'), { recursive: true });
     await copyFile(join(ROOT, 'tools', 'body-probe.ts'), join(dir, 'tools', 'body-probe.ts'));
     await symlink(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
     const out = join(dir, 'probe.json');
@@ -326,6 +634,18 @@ export async function probeRef(ref: string, parent: string = tmpdir()): Promise<
   }
 }
 
+/**
+ * Prints a comparison, and ends the process: with 1 when there is a difference.
+ *
+ * @param title The first line, or `null` for none.
+ * @param comparison The comparison.
+ */
+function printComparison(title: string | null, comparison: ProbeComparison): never {
+  const lines = [...comparison.counts, ...comparison.differences];
+  console.log((title ? [title, ...lines] : lines).join('\n'));
+  process.exit(comparison.differences.length > 0 ? 1 : 0);
+}
+
 if (import.meta.main) {
   const args = process.argv.slice(2);
   const baseAt = args.indexOf('--base');
@@ -334,9 +654,8 @@ if (import.meta.main) {
     if (!ref || ref.startsWith('--')) {
       throw new Error('Usage: pnpm body-probe --base <ref>');
     }
-    const lines = compareProbes(await probeRef(ref), runProbe());
-    console.log([`base ${ref}, new: the working tree`, ...lines].join('\n'));
-    process.exit(lines.length > 2 ? 1 : 0);
+    const base = await probeRef(ref);
+    printComparison(`base ${ref}, new: the working tree`, compareProbes(base, await runProbe()));
   }
   const compare = args.indexOf('--compare');
   if (compare >= 0) {
@@ -344,12 +663,10 @@ if (import.meta.main) {
     if (!baseFile || !nextFile) {
       throw new Error('Usage: pnpm body-probe --compare <base.json> <new.json>');
     }
-    const lines = compareProbes(await readProbe(baseFile), await readProbe(nextFile));
-    console.log(lines.join('\n'));
-    process.exit(lines.length > 2 ? 1 : 0);
+    printComparison(null, compareProbes(await readProbe(baseFile), await readProbe(nextFile)));
   }
   const outIndex = args.indexOf('--out');
-  const text = `${JSON.stringify(runProbe(), null, 1)}\n`;
+  const text = `${JSON.stringify(await runProbe(), null, 1)}\n`;
   const out = outIndex >= 0 ? args[outIndex + 1] : undefined;
   if (out) {
     await writeFile(out, text);

@@ -6,7 +6,23 @@ import { describe, expect, it } from 'vitest';
 
 import { MeshBuilder, srgb } from '../src/models/mesh.ts';
 import type { MeshData } from '../src/models/mesh.ts';
-import { compareProbes, jointsOf, meshHash, probeRef, round, runProbe } from './body-probe.ts';
+import { BONE_NAMES } from '../src/models/rig.ts';
+import { demoSceneOf } from '../src/pose/test-scene.ts';
+import type { AnimalPose } from '../src/pose/types.ts';
+import {
+  POSE_SETS,
+  STEP_DIGITS,
+  compareProbes,
+  jointsOf,
+  meshHash,
+  poseValues,
+  probeBodies,
+  probeRef,
+  probeScenePoses,
+  round,
+  stepHash,
+} from './body-probe.ts';
+import type { DemoPoses, Probe } from './body-probe.ts';
 
 /**
  * Builds a mesh of one triangle.
@@ -18,6 +34,31 @@ function triangle(x: number): MeshData {
   const builder = new MeshBuilder();
   builder.add([x, 0, 0, 1, 0, 0, 0, 1, 0], { color: srgb('#808080') });
   return builder.build();
+}
+
+/**
+ * Builds a pose with no rotation, with one changed value of the rotations.
+ *
+ * @param change The change of the x of the rotation of the head.
+ * @returns The pose.
+ */
+function pose(change: number): AnimalPose {
+  const rotations = new Float32Array(BONE_NAMES.length * 4);
+  for (let bone = 0; bone < BONE_NAMES.length; bone++) {
+    rotations[bone * 4 + 3] = 1;
+  }
+  rotations[BONE_NAMES.indexOf('head') * 4] = change;
+  return { rotations, rootOffset: [0, 0, 0], slideOffset: [0, 0, 0], blink: 0 };
+}
+
+/**
+ * Builds a probe that holds only the poses of one demo.
+ *
+ * @param poses The poses of the demo.
+ * @returns The probe.
+ */
+function posesProbe(poses: DemoPoses): Probe {
+  return { species: {}, players: {}, poses: { demo: poses } };
 }
 
 describe('meshHash', () => {
@@ -41,13 +82,13 @@ describe('round', () => {
   });
 });
 
-describe('runProbe', () => {
+describe('probeBodies', () => {
   it('gives the same output on each run', () => {
-    expect(JSON.stringify(runProbe())).toBe(JSON.stringify(runProbe()));
+    expect(JSON.stringify(probeBodies())).toBe(JSON.stringify(probeBodies()));
   });
 
   it('probes each species on each support and the conductor', () => {
-    const probe = runProbe();
+    const probe = probeBodies();
     expect(Object.keys(probe.species)).toContain('bear');
     expect(Object.keys(probe.species['bear'] ?? {})).toEqual([
       'chair',
@@ -62,7 +103,7 @@ describe('runProbe', () => {
 
 describe('jointsOf', () => {
   it('lists the joints in name order after the head height', () => {
-    const probe = runProbe();
+    const probe = probeBodies();
     const joints = Object.keys(probe.species['cat']?.['chair']?.joints ?? {});
     expect(joints[0]).toBe('headHeight');
     const bones = joints.slice(1, joints.indexOf('headCenter'));
@@ -71,19 +112,70 @@ describe('jointsOf', () => {
   });
 });
 
+describe('poseValues and stepHash', () => {
+  it('give two hashes for two poses that differ by a thousandth', () => {
+    expect(stepHash(poseValues(pose(0.001)))).not.toBe(stepHash(poseValues(pose(0))));
+  });
+
+  it('give one hash for two poses that differ below a millionth', () => {
+    expect(poseValues(pose(1e-8))).toEqual(poseValues(pose(0)));
+    expect(stepHash(poseValues(pose(-1e-8)))).toBe(stepHash(poseValues(pose(0))));
+  });
+
+  it('give a short hash of a fixed length', () => {
+    expect(stepHash(poseValues(pose(0.5)))).toMatch(new RegExp(`^[0-9a-f]{${STEP_DIGITS}}$`));
+  });
+});
+
+describe('probeScenePoses', () => {
+  it('gives the same poses on each run, with a short hash for each sample', async () => {
+    const scene = await demoSceneOf('mozart-k525.mid');
+    const poses = probeScenePoses(scene);
+    expect(JSON.stringify(probeScenePoses(scene))).toBe(JSON.stringify(poses));
+    expect(Object.keys(poses.samples)).toEqual([...POSE_SETS]);
+    expect(Object.keys(poses.players)).toHaveLength(scene.layout.players.length + 1);
+    for (const sets of Object.values(poses.players)) {
+      for (const name of POSE_SETS) {
+        const count = poses.samples[name]?.length ?? 0;
+        expect(count).toBeGreaterThan(0);
+        expect(sets[name]?.steps).toHaveLength(count * STEP_DIGITS);
+      }
+    }
+  });
+
+  it('names only the player whose pose changed', async () => {
+    const scene = await demoSceneOf('mozart-k525.mid');
+    const base = probeScenePoses(scene);
+    const players = scene.plan.players.map((plan, i) =>
+      i === 2 ? { ...plan, lookYaw: plan.lookYaw + 0.2 } : plan,
+    );
+    const next = probeScenePoses({ ...scene, plan: { ...scene.plan, players } });
+    const { differences } = compareProbes(posesProbe(base), posesProbe(next));
+    expect(differences).toHaveLength(1);
+    expect(differences[0]).toMatch(/^pose demo 2 [a-z-]+\/[a-z-]+\/[a-z-]+: .* from sample \d+/);
+  });
+});
+
 describe('compareProbes', () => {
   it('finds no difference between two runs', () => {
-    expect(compareProbes(runProbe(), runProbe())).toHaveLength(2);
+    const bodies = probeBodies();
+    const { counts, differences } = compareProbes(
+      { ...bodies, poses: {} },
+      { ...probeBodies(), poses: {} },
+    );
+    expect(counts).toHaveLength(3);
+    expect(differences).toEqual([]);
   });
 
   it('names a body whose mesh changed and the bones of a moved player', () => {
-    const base = runProbe();
+    const base = { ...probeBodies(), poses: {} };
     const cat = base.species['cat'];
     const player = base.players['viola/cat/viola'];
     if (!cat?.['chair'] || !player) {
       throw new Error('The probe has no cat on a chair.');
     }
     const next = {
+      ...base,
       species: { ...base.species, cat: { ...cat, chair: { ...cat['chair'], mesh: 'x' } } },
       players: {
         ...base.players,
@@ -93,11 +185,45 @@ describe('compareProbes', () => {
         },
       },
     };
-    const lines = compareProbes(base, next);
-    expect(lines).toContain('body cat chair: mesh differs, joints same');
+    const { differences } = compareProbes(base, next);
+    expect(differences).toContain('body cat chair: mesh differs, joints same');
     expect(
-      lines.some((line) => line.startsWith('player viola/cat/viola') && line.endsWith('head')),
+      differences.some(
+        (line) => line.startsWith('player viola/cat/viola') && line.endsWith('head'),
+      ),
     ).toBe(true);
+  });
+
+  it('gives the first sample of a set whose short hash differs', () => {
+    const samples = {
+      rest: [[-2, 10] as const],
+      play: [0, 1, 2, 3].map((t) => [t, 12 + t] as const),
+    };
+    const steps = (changed: number): string =>
+      [0, 1, 2, 3].map((i) => (i === changed ? 'ffffff' : '000000')).join('');
+    const poses = (changed: number): DemoPoses => ({
+      samples,
+      players: {
+        '0 viola/cat/viola': {
+          rest: { hash: 'a', steps: '000000' },
+          play: { hash: changed < 0 ? 'b' : 'c', steps: steps(changed) },
+        },
+      },
+    });
+    const { counts, differences } = compareProbes(posesProbe(poses(-1)), posesProbe(poses(2)));
+    expect(counts).toContain('pose sets equal: 1 of 2');
+    expect(differences).toEqual([
+      'pose demo 0 viola/cat/viola: play from sample 3 of 4 (song 2.00 s, wall 14.00 s)',
+    ]);
+  });
+
+  it('names a player that one probe does not have', () => {
+    const poses: DemoPoses = { samples: {}, players: { 'conductor/bear/baton': {} } };
+    const { differences } = compareProbes(
+      posesProbe(poses),
+      posesProbe({ samples: {}, players: {} }),
+    );
+    expect(differences).toEqual(['pose demo conductor/bear/baton: missing in the new probe']);
   });
 });
 
@@ -108,6 +234,7 @@ describe('probeRef', () => {
       const base = await probeRef('HEAD', parent);
       expect(Object.keys(base.species['bear'] ?? {})).toContain('stand');
       expect(Object.keys(base.players)).toContain('conductor/bear/baton');
+      expect(Object.keys(base.poses)).toContain('mozart-k525');
       expect(await readdir(parent)).toEqual([]);
 
       await expect(probeRef('no-such-ref', parent)).rejects.toThrow('no-such-ref');
