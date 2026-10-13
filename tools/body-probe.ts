@@ -1,10 +1,11 @@
 /**
- * Prints the rest joints and a hash of the body mesh of each species on each support, and the
+ * Probes the rest joints and a hash of the body mesh of each species on each support, and the
  * skeleton and a hash of the mesh of each player of the section cast and of the conductor (design
- * 4.3, 4.4). It also prints a hash of the poses of each player of each demo in each set of
+ * 4.3, 4.4). It also probes a hash of the poses of each player of each demo in each set of
  * samples: the rest pose, the lift, the play, and the lowering after a pause (design 5.1, 5.2).
- * Two runs on two commits show if a change moved a body or a pose: the output of the same code is
- * the same, byte for byte.
+ * Two runs on two commits show if a change moved a body or a pose: the JSON of the same code is
+ * the same, byte for byte. `--out` writes the JSON. With no `--out`, the tool prints a summary
+ * with a SHA-256 of the JSON.
  *
  * Usage: pnpm body-probe [--out <file>]
  *        pnpm body-probe --compare <base.json> <new.json>
@@ -690,6 +691,28 @@ export async function probeRef(ref: string, parent: string = tmpdir()): Promise<
 }
 
 /**
+ * Gives the summary of a probe: the counts of the species, the bodies, the players, the demos, and
+ * the pose sets, and the SHA-256 of its JSON.
+ *
+ * @param probe The probe.
+ * @param json The JSON of the probe, as `--out` writes it.
+ * @returns The lines of the summary.
+ */
+export function summarize(probe: Probe, json: string): string[] {
+  const species = Object.values(probe.species);
+  const bodies = species.reduce((sum, supports) => sum + Object.keys(supports).length, 0);
+  const demos = Object.values(probe.poses ?? {});
+  const sets = demos
+    .flatMap((demo) => Object.values(demo.players))
+    .reduce((sum, player) => sum + Object.keys(player).length, 0);
+  const hash = createHash('sha256').update(json).digest('hex');
+  return [
+    `species ${species.length}, bodies ${bodies}, players ${Object.keys(probe.players).length}, demos ${demos.length}, pose sets ${sets}`,
+    `sha256 of the JSON: ${hash}`,
+  ];
+}
+
+/**
  * Prints a comparison, and ends the process: with 1 when there is a difference.
  *
  * @param title The first line, or `null` for none.
@@ -727,13 +750,14 @@ if (import.meta.main) {
     }
     printComparison(null, compareProbes(await readProbe(baseFile), await readProbe(nextFile)));
   }
+  // The JSON is about 1 MB, so only --out writes it. The summary is a few lines.
   const outIndex = args.indexOf('--out');
-  const text = `${JSON.stringify(await runProbe(), null, 1)}\n`;
+  const probe = await runProbe();
+  const text = `${JSON.stringify(probe, null, 1)}\n`;
   const out = outIndex >= 0 ? args[outIndex + 1] : undefined;
   if (out) {
     await writeFile(out, text);
-    console.log(`Wrote ${out}.`);
-  } else {
-    process.stdout.write(text);
   }
+  const next = out ? `Wrote ${out}.` : 'Write the JSON with --out <file>.';
+  console.log([...summarize(probe, text), next].join('\n'));
 }

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { existsSync, readdirSync } from 'node:fs';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -23,6 +24,7 @@ import {
   probeScenePoses,
   round,
   stepHash,
+  summarize,
 } from './body-probe.ts';
 import type { DemoPoses, Probe } from './body-probe.ts';
 
@@ -238,6 +240,27 @@ describe('compareProbes', () => {
       posesProbe({ samples: {}, players: {} }),
     );
     expect(differences).toEqual(['pose demo conductor/bear/baton: missing in the new probe']);
+  });
+});
+
+describe('summarize', () => {
+  it('counts the parts of a probe and hashes its JSON', () => {
+    const sets = { rest: { hash: 'a', steps: '' }, play: { hash: 'b', steps: '' } };
+    const probe: Probe = {
+      species: {
+        cat: {
+          chair: { joints: {}, triangles: 1, mesh: 'm' },
+          stand: { joints: {}, triangles: 1, mesh: 'n' },
+        },
+      },
+      players: {},
+      poses: { demo: { samples: {}, players: { '0 viola/cat/viola': sets, conductor: sets } } },
+    };
+    const json = JSON.stringify(probe);
+    expect(summarize(probe, json)).toEqual([
+      'species 1, bodies 2, players 0, demos 1, pose sets 4',
+      `sha256 of the JSON: ${createHash('sha256').update(json).digest('hex')}`,
+    ]);
   });
 });
 
