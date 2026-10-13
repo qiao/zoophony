@@ -214,11 +214,42 @@ function onlyCanvasSurfaces(
 }
 
 /**
+ * Gives the IOSurfaces that one encoder writes, from its IOSurface accesses, such as
+ * `Read Surface: 9(2880×1800:ARGB) -> Write Surface: 4(1440×900:ARGB)`.
+ *
+ * @param surfaces The IOSurface accesses of the encoder.
+ * @returns The id and the size of each written surface, for example `4` and `1440×900`.
+ */
+function writtenSurfaces(surfaces: string): { readonly id: string; readonly size: string }[] {
+  const writes = surfaces.split('Write Surface:')[1] ?? '';
+  return [...writes.matchAll(/(\d+)\((\d+×\d+)/g)].map((m) => ({
+    id: m[1] ?? '',
+    size: m[2] ?? '',
+  }));
+}
+
+/**
+ * Tells if a command buffer holds the clear of the drawing buffer: an encoder with the label
+ * `(Clear)`.
+ *
+ * @param intervals The intervals of one command buffer.
+ * @returns True if an encoder of the buffer has the label.
+ */
+function holdsClear(intervals: readonly GpuInterval[]): boolean {
+  return intervals.some((interval) => interval.label.includes('(Clear)'));
+}
+
+/**
  * Gives the GPU intervals of each WebGL frame of the GPU process of Chrome. The process also runs
  * the compositor of Chrome. A command buffer of the compositor reads or writes a surface that is
- * not a canvas surface, so the function drops it. A WebGL frame starts with the command buffer that
- * clears the drawing buffer (an encoder with the label `(Clear)`), and it holds each WebGL command
- * buffer until the next clear.
+ * not a canvas surface, so the function drops it.
+ *
+ * A WebGL frame starts at the command buffer with the clear. It holds each counted command buffer
+ * until the next start. Each frame writes a canvas surface in two command buffers: the clear, then
+ * the final pass. The canvas surfaces are the surfaces with the size of the drawing buffer that a
+ * command buffer with the clear writes. Sometimes the trace gives no label to the clear. Thus a
+ * frame also starts at a command buffer that writes a canvas surface when the frame already holds
+ * its final pass.
  *
  * @param intervals The GPU intervals of the trace.
  * @param process The text that the process column of the GPU process holds, such as its pid.
@@ -240,6 +271,18 @@ export function webglFrames(
     byBuffer.set(interval.commandBuffer, list);
   }
 
+  const size = `${canvas[0]}×${canvas[1]}`;
+  const canvasIds = new Set(
+    [...byBuffer.values()]
+      .filter((list) => holdsClear(list))
+      .flatMap((list) => list.flatMap((interval) => writtenSurfaces(interval.surfaces)))
+      .filter((surface) => surface.size === size)
+      .map((surface) => surface.id),
+  );
+  const writesCanvas = (list: readonly GpuInterval[]): boolean =>
+    list.some((interval) =>
+      writtenSurfaces(interval.surfaces).some((surface) => canvasIds.has(surface.id)),
+    );
   const start = (list: readonly GpuInterval[]): number =>
     Math.min(...list.map((interval) => interval.startNs));
   const webgl = [...byBuffer.values()]
@@ -249,16 +292,21 @@ export function webglFrames(
   const frames: GpuInterval[][] = [];
   // The work before the first clear belongs to a frame that started before the trace.
   let frame: GpuInterval[] | null = null;
+  let finalPass = false;
   for (const list of webgl) {
-    if (list.some((interval) => interval.label.includes('(Clear)'))) {
+    const writes = writesCanvas(list);
+    if (holdsClear(list) || (finalPass && writes)) {
       if (frame) {
         frames.push(frame);
       }
       frame = [];
+      finalPass = false;
+    } else if (frame && writes) {
+      finalPass = true;
     }
     frame?.push(...list);
   }
-  // The work after the last clear can go on after the trace, so it does not count.
+  // The work after the last start can go on after the trace, so it does not count.
   return frames;
 }
 

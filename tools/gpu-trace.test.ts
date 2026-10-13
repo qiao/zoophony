@@ -112,10 +112,12 @@ const CANVAS_WRITE = 'Write Surface: 9(2880×1800:ARGB)';
  *
  * @param startMs The start, in milliseconds.
  * @param buffer The command buffer.
- * @returns The intervals: 27 encoders, each 0.01 ms long and 0.01 ms apart.
+ * @param clearLabel False for a trace that gives no label to the clear: then the buffer has no
+ *   encoder 2, as in some frames of each kept trace.
+ * @returns The intervals: 27 encoders (26 with no label), each 0.01 ms long and 0.01 ms apart.
  */
-function firstBuffer(startMs: number, buffer: string): GpuInterval[] {
-  return Array.from({ length: 27 }, (_, i) => {
+function firstBuffer(startMs: number, buffer: string, clearLabel = true): GpuInterval[] {
+  const encoders = Array.from({ length: 27 }, (_, i) => {
     const blit = i === 4 || (i >= 7 && i % 2 === 1);
     let label = `Render Command ${i}`;
     if (blit) {
@@ -133,6 +135,7 @@ function firstBuffer(startMs: number, buffer: string): GpuInterval[] {
       surfaces,
     );
   });
+  return clearLabel ? encoders : encoders.filter((encoder) => !encoder.label.includes('(Clear)'));
 }
 
 describe('webglFrameTimes', () => {
@@ -173,6 +176,23 @@ describe('webglFrameTimes', () => {
     const times = webglFrameTimes(intervals, '(7)', CANVAS);
     expect(times).toHaveLength(1);
     expect(times[0]).toBeCloseTo(0.27 + 2.5, 6);
+  });
+
+  it('starts a frame at a first command buffer with no clear label after the final pass', () => {
+    const intervals = [
+      ...firstBuffer(0, 'f1'),
+      interval(1, 2, 'w1'),
+      interval(3, 1, 'w2', 'Render Command 4', 'Fragment', CANVAS_WRITE),
+      ...firstBuffer(10, 'f2', false),
+      interval(11, 2, 'w3'),
+      interval(13, 1.5, 'w4', 'Render Command 4', 'Fragment', CANVAS_WRITE),
+      ...firstBuffer(20, 'f3'),
+    ];
+    // The first buffer with no label has 26 encoders: 0.26 ms busy.
+    const times = webglFrameTimes(intervals, '(7)', CANVAS);
+    expect(times).toHaveLength(2);
+    expect(times[0]).toBeCloseTo(0.27 + 3, 6);
+    expect(times[1]).toBeCloseTo(0.26 + 3.5, 6);
   });
 });
 
