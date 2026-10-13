@@ -365,6 +365,17 @@ Follow these rules when another agent works on the repository at the same time.
   the reach of an instrument hold. Remove such a check, and fix the checks of the new code (user
   decision of 2026-10-10). Remove the tests and the test helpers of a body or a part that no
   species uses.
+- Put a probe script in `scratch/` of your worktree. Git ignores the folder, and the lint, the
+  typecheck, and the format check skip it. Run the probe with `node scratch/<name>.ts`. It
+  imports `three` through the `node_modules` of the worktree, and the source modules by relative
+  paths such as `../src/models/species.ts`. Do not name a probe `*.test.ts`, because
+  `pnpm test` runs each test file, also in `scratch/`.
+- Vitest hides the `console.log` output of a passing test. A probe in a test writes its values
+  into a file.
+- In the shell of an agent, `grep` is a shell function that runs ugrep with `--ignore-files`.
+  It skips the files that git ignores, such as `scratch/` and `node_modules/`. `command grep`
+  runs the grep of the system. The `sed -i` of macOS needs a suffix argument, so make a
+  temporary edit of a file with `perl -0pi -e`.
 
 ### Audits
 
