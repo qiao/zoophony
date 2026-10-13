@@ -50,6 +50,12 @@ export interface HandsHold {
   /** The curl of the fingers on the keys or the strings, and after a pluck. */
   readonly curl: number;
   readonly curlClosed: number;
+  /**
+   * The move of each wrist away from the straight line from its rest place to its playing place,
+   * at the middle of the change, in head heights: out to the side of the hand, up, and forward. A
+   * paw of the round studio polar bear goes around its belly and over the front of the keys.
+   */
+  readonly restArc: Vec3;
   /** The left hand in the rest pose, on its thigh (design 5.3). */
   readonly restL: RestingHand;
   /** The right hand in the rest pose, on its thigh. */
@@ -101,6 +107,7 @@ export const HANDS_HOLDS = {
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
+    restArc: [0, 0, 0],
     // The palms rest on the knees, 0.25 H to the outer side of the top of the lap, as the paws of
     // the rest clip of the studio. The round belly of the studio polar bear covers its thighs, so
     // at 0.6 of the way to the knee the palms were under the belly. The elbows point down, a
@@ -133,6 +140,7 @@ export const HANDS_HOLDS = {
     poleR: [1, -1, 0.3],
     curl: 15 * MathUtils.DEG2RAD,
     curlClosed: 60 * MathUtils.DEG2RAD,
+    restArc: [0, 0, 0],
     // The left palm rests at 0.85 of the way to the knee, 0.13 H above the leg, so that the
     // forearm passes over the thigh. The elbow points down, a little out, and forward. The palm is
     // 0.22 H out: 0.25 H put it 0.201 H from the thinner thigh of 2026-10-11 (limit 0.2 H).
@@ -167,6 +175,11 @@ export interface HandSide {
     readonly rotation: Quat;
     /** The direction to which the elbow points. */
     readonly pole: Vec3;
+    /**
+     * The move of the wrist away from the straight line to the playing place, at the middle of the
+     * change, in meters in the model axes ({@link HandsHold.restArc}).
+     */
+    readonly arc: Vec3;
   };
 }
 
@@ -184,7 +197,7 @@ function restingHand(
   arm: ArmRig,
   face: Vec3,
   rest: RestingHand,
-): HandSide['rest'] {
+): Omit<HandSide['rest'], 'arc'> {
   if (rest.kind === 'string') {
     // The hand rests on its string as it plays: the fingers point from the shoulder to the palm.
     const offset = arm.side === 'L' ? hold.palmL : hold.palmR;
@@ -247,7 +260,10 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument): Hands
   const side = (s: 'L' | 'R', face: Vec3, rest: RestingHand): HandSide => {
     const arm = armRig(model, s);
     const turned = faceOf(face);
-    return { arm, face: turned, rest: restingHand(model, hold, arm, turned, rest) };
+    const h = model.body.headHeight;
+    const [out, up, forward] = hold.restArc;
+    const arc: Vec3 = [(s === 'L' ? -out : out) * h, up * h, -forward * h];
+    return { arm, face: turned, rest: { ...restingHand(model, hold, arm, turned, rest), arc } };
   };
 
   return {
@@ -327,6 +343,7 @@ const turn = new Quaternion();
 const wrist = new Vector3();
 const restWrist = new Vector3();
 const restHand = new Quaternion();
+const arcMove = new Vector3();
 const poleMix = new Vector3();
 const polePlay = new Vector3();
 const poleTuple: [number, number, number] = [0, 0, 0];
@@ -378,7 +395,12 @@ function poseHand(
     {
       arm,
       shoulder,
-      wrist: wrist.lerpVectors(restWrist, wrist, weight),
+      wrist: wrist.lerpVectors(restWrist, wrist, weight).add(
+        arcMove
+          .fromArray(side.rest.arc)
+          .applyQuaternion(root.rotation)
+          .multiplyScalar(4 * weight * (1 - weight)),
+      ),
       hand: mixRotation(restHand, turn, weight, turn),
       pole: poleTuple,
     },
