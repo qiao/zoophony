@@ -260,6 +260,12 @@ describe('pnpm studio-body --inspect (design 4.4)', async () => {
     expect(bear.joints.digits.L).toEqual([]);
     expect(polar.joints.digits.L.length).toBeGreaterThan(1);
     expect(polar.joints.digits.R.length).toBe(polar.joints.digits.L.length);
+    // Each digit is on the paw of its own side.
+    for (const side of ['L', 'R'] as const) {
+      for (const digit of polar.joints.digits[side]) {
+        expect(digit.endsWith(`_${side}`), digit).toBe(true);
+      }
+    }
     expect(polarText).toMatch(/Digits of the right paw: finger\d_R/);
     expect(polar.targets.filter((t) => t.kept).map((t) => t.name)).toEqual([
       'arm_down_L',
