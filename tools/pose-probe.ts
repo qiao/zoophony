@@ -2,6 +2,7 @@ import { Vector3 } from 'three';
 
 import { SHEET_MOMENTS, sheetPose } from '../src/gallery/sheet-poses.ts';
 import { VIEW_SHEETS, isSheetId } from '../src/gallery/sheets.ts';
+import type { SheetId } from '../src/gallery/sheets.ts';
 import { buildPlayer } from '../src/models/player.ts';
 import type { PlayerModel } from '../src/models/player.ts';
 import { boneIndex } from '../src/models/rig.ts';
@@ -9,6 +10,7 @@ import type { BoneName } from '../src/models/rig.ts';
 import { poseSkeleton, posedPiecePoint, posedPoint } from '../src/pose/test-kinematics.ts';
 import type { PosedSkeleton } from '../src/pose/test-kinematics.ts';
 import type { AnimalPose } from '../src/pose/types.ts';
+import { setHolds } from './hold-sets.ts';
 
 /** A place from a shoulder joint, in head heights `H`: out to the side, up, and forward. */
 export type ArmPlace = readonly [out: number, up: number, forward: number];
@@ -77,18 +79,44 @@ function main(): void {
   const name = args.shift();
   if (!isSheetId(name)) {
     console.error(
-      `Usage: pnpm pose-probe <${Object.keys(VIEW_SHEETS).join(' | ')}> [--time <s>]...`,
+      `Usage: pnpm pose-probe <${Object.keys(VIEW_SHEETS).join(' | ')}> [--time <s>]... [--set <path>=<value>[;<path>=<value>]...]...`,
     );
     process.exit(1);
   }
-  const sheet = VIEW_SHEETS[name];
   const times: number[] = [];
+  const variants = [''];
   for (let i = 0; i < args.length; i += 2) {
-    if (args[i] !== '--time') {
+    const value = args[i + 1] ?? '';
+    if (args[i] === '--time') {
+      times.push(Number(value));
+    } else if (args[i] === '--set') {
+      setHolds(value).undo();
+      variants.push(value);
+    } else {
       throw new Error(`The option "${args[i]}" is not known.`);
     }
-    times.push(Number(args[i + 1]));
   }
+  for (const variant of variants) {
+    const { undo, text } = setHolds(variant);
+    if (variants.length > 1) {
+      console.log(`${text || 'base'}:`);
+    }
+    try {
+      probeSheet(name, times);
+    } finally {
+      undo();
+    }
+  }
+}
+
+/**
+ * Prints the arms of the sheet pose of a model sheet at some times.
+ *
+ * @param name The sheet.
+ * @param times The song times, or none for the time of the sheet.
+ */
+function probeSheet(name: SheetId, times: readonly number[]): void {
+  const sheet = VIEW_SHEETS[name];
 
   const model = buildPlayer(sheet.species, sheet.instrument);
   const moment = SHEET_MOMENTS[sheet.instrument];
