@@ -419,9 +419,9 @@ On 2026-10-13, the manager changed the condition of the GPU measure, and told th
   counts, also when the trace puts a surface of the display into it. Each other command buffer
   that reads or writes a surface of another size than the drawing buffer is work of the
   compositor of Chrome, and it does not count. The first version of the filter also dropped the
-  first command buffer of each frame, about 0.7 ms (review of 2026-10-13). The trace also gives the GPU work of the other processes. A page of
-  another browser that renders shares the GPU and makes the frames slower, so the tool prints
-  that share and a warning above 10%.
+  first command buffer of each frame, about 0.7 ms (review of 2026-10-13). The trace also gives the
+  GPU work of the other processes. A page of another browser that renders shares the GPU and makes
+  the frames slower, so the tool prints that share and a warning above 10%.
 - Each change of `src/scene/`, of a shader, or of the post effects runs `pnpm frame` before its
   report (`AGENTS.md`). CI has no GPU.
 
@@ -445,9 +445,9 @@ On 2026-10-13, after the frame-time rounds, the manager added guards and checks 
   canvas buffers take more than 0.1 ms in each frame, when the count is more than 2% off, or
   when a frame holds more than two writes of the canvas. The frame rate of the page in the
   middle half of the record gives a second count for information. The page drew 1.1% to 2.7%
-  more frames than the trace holds in four runs, so that count cannot fail the row. On the 18 kept traces of the rounds,
-  the check passes with the filter of the tip, and it fails with each filter that reached a
-  review (`e584e16f` and `332d09ba`) where that filter gave other frames.
+  more frames than the trace holds in four runs, so that count cannot fail the row. On the 18 kept
+  traces of the rounds, the check passes with the filter of the tip, and it fails with each filter
+  that reached a review (`e584e16f` and `332d09ba`) where that filter gave other frames.
 - The tool seeks to 32 s before the Chrome trace and to 16 s before the Metal trace. Each trace
   then lies in one section shot of `perf-60.mid` with the depth of field, so two runs measure the
   same shots.
