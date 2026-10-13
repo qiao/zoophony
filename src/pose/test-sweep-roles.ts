@@ -9,7 +9,7 @@ import { countInAt } from './count-in.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { closeSurface, closedPart, openLoops, posedPart } from './test-clearance.ts';
-import type { ClosedSurface } from './test-clearance.ts';
+import type { ClosedSurface, PosedPart } from './test-clearance.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, ofConductor } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
@@ -113,7 +113,15 @@ function onKeyboard(p: Vector3): boolean {
 }
 
 /** The case of the piano of each pianist model, found one time. */
-const CASES = new WeakMap<PlayerModel, ClosedSurface>();
+const CASES = new WeakMap<PlayerModel, PianoCase>();
+
+/** The case of the piano of a pianist. */
+export interface PianoCase {
+  /** The closed shells, each with its own box, for a fast gap. */
+  readonly shells: readonly PosedPart[];
+  /** The shells as one closed surface, for the depth of a point. */
+  readonly surface: ClosedSurface;
+}
 
 /**
  * Gives the case of the piano of a pianist: the closed shells of the piano that hold a triangle
@@ -123,9 +131,9 @@ const CASES = new WeakMap<PlayerModel, ClosedSurface>();
  * serves all poses.
  *
  * @param posed The posed skeleton.
- * @returns The closed surface of the case.
+ * @returns The case.
  */
-export function pianoCase(posed: PosedSkeleton): ClosedSurface {
+export function pianoCase(posed: PosedSkeleton): PianoCase {
   const known = CASES.get(posed.model);
   if (known) {
     return known;
@@ -142,12 +150,15 @@ export function pianoCase(posed: PosedSkeleton): ClosedSurface {
     return !onKeyboard(middle.divideScalar(corners.length).sub(origin));
   });
   const shells = (part.closed?.() ?? [part]).filter((shell) => openLoops(shell.triangles) === 0);
-  const surface = closeSurface(
-    shells.flatMap((shell) => shell.triangles),
-    0,
-  );
-  CASES.set(posed.model, surface);
-  return surface;
+  const found = {
+    shells,
+    surface: closeSurface(
+      shells.flatMap((shell) => shell.triangles),
+      0,
+    ),
+  };
+  CASES.set(posed.model, found);
+  return found;
 }
 
 /**
@@ -189,7 +200,7 @@ export const PIANIST_SWEEP: RoleSweep = {
   parts: ARM_PARTS,
   obstacles: [
     { name: 'body', surface: bodySurface },
-    { name: 'case', surface: pianoCase },
+    { name: 'case', surface: (posed) => pianoCase(posed).surface },
   ],
   contact: CONTACT,
   accepted: [

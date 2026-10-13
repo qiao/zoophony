@@ -83,7 +83,11 @@ function pianistChecks(model: PlayerModel, set: string): RoleChecks {
       if (bench < toBench.value) {
         toBench = { value: bench, label };
       }
-      const gap = partDistance(posedPart(posed, BODY), pianoCase(posed), PIANIST_GAP);
+      const body = posedPart(posed, BODY);
+      const gap = Math.min(
+        PIANIST_GAP,
+        ...pianoCase(posed).shells.map((shell) => partDistance(body, shell, PIANIST_GAP)),
+      );
       if (gap < bodyToCase.value) {
         bodyToCase = { value: gap, label };
       }
