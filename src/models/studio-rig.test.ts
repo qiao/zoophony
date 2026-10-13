@@ -1,0 +1,214 @@
+import { Matrix4, Quaternion, Vector3 } from 'three';
+import { describe, expect, it } from 'vitest';
+
+import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
+import type { BoneName } from './rig.ts';
+import { STUDIO_BONES } from './studio-format.ts';
+import type { StudioBone } from './studio-format.ts';
+import {
+  PAW_TURN,
+  STUDIO_FOLLOWS,
+  TWIST_SHARE,
+  createStudioPose,
+  poseStudioBones,
+  studioRig,
+  twistAngle,
+} from './studio-rig.ts';
+import { STUDIO_BEAR } from './studio/bear.ts';
+
+const rig = studioRig(STUDIO_BEAR);
+const positions = rig.positions;
+const skeleton = makeSkeleton(
+  {
+    ...positions,
+    instrument: positions.chest,
+    bow: positions.handR,
+    malletL: positions.handL,
+    malletR: positions.handR,
+    baton: positions.handR,
+    slide: positions.chest,
+  },
+  'chest',
+);
+
+/** The world rotation of each bone of the player in a pose of world rotations. */
+type WorldTurns = ReadonlyMap<BoneName, Quaternion>;
+
+/**
+ * Makes the local rotations of a pose from the world rotations of some bones. Each other bone
+ * keeps the rotation of its parent.
+ */
+function localPose(world: WorldTurns): Float32Array {
+  const rotations = new Float32Array(BONE_NAMES.length * 4);
+  const worlds: Quaternion[] = [];
+  for (const [i, name] of BONE_NAMES.entries()) {
+    const parent = worlds[skeleton.parents[i] ?? -1] ?? new Quaternion();
+    const own = world.get(name) ?? parent;
+    parent
+      .clone()
+      .invert()
+      .multiply(own)
+      .toArray(rotations, i * 4);
+    worlds.push(own);
+  }
+  return rotations;
+}
+
+/** Poses the bones of the studio bear with the local rotations of the player. */
+function pose(rotations: Float32Array, eyeScale = 1) {
+  return poseStudioBones(rig, skeleton, rotations, [0, 0, 0], eyeScale, createStudioPose());
+}
+
+/** Gives the matrix of a studio bone. */
+function matrixOf(out: ReturnType<typeof pose>, bone: StudioBone): Matrix4 {
+  return new Matrix4().fromArray(out.matrices, STUDIO_BONES.indexOf(bone) * 16);
+}
+
+/** Gives the rotation of a studio bone. */
+function turnOf(out: ReturnType<typeof pose>, bone: StudioBone): Quaternion {
+  return new Quaternion().setFromRotationMatrix(matrixOf(out, bone));
+}
+
+/** Moves the bind head of a studio bone with the matrix of a bone. */
+function moved(out: ReturnType<typeof pose>, bone: StudioBone, head: StudioBone): Vector3 {
+  return new Vector3(...STUDIO_BEAR.heads[head]).applyMatrix4(matrixOf(out, bone));
+}
+
+/** A raised right arm of a conductor: the elbow down and out, the wrist up and forward. */
+function raisedArm(handTwist = 0): WorldTurns {
+  const shoulder = new Vector3(...positions.upperArmR);
+  const elbow = new Vector3(...positions.forearmR);
+  const wrist = new Vector3(...positions.handR);
+  const upperTo = new Vector3(0.5, -0.4, -0.6).normalize();
+  const foreTo = new Vector3(-0.1, 0.8, -0.6).normalize();
+  const upper = new Quaternion().setFromUnitVectors(
+    elbow.clone().sub(shoulder).normalize(),
+    upperTo,
+  );
+  const fore = new Quaternion().setFromUnitVectors(wrist.clone().sub(elbow).normalize(), foreTo);
+  const hand = new Quaternion().setFromAxisAngle(foreTo, handTwist).multiply(fore);
+  return new Map<BoneName, Quaternion>([
+    ['upperArmR', upper],
+    ['forearmR', fore],
+    ['handR', hand],
+    ['fingersR', hand],
+  ]);
+}
+
+describe('poseStudioBones (design 4.4)', () => {
+  it('moves the trunk, the head, the legs, and the tail with their bones of the player', () => {
+    const turns = new Map<BoneName, Quaternion>([
+      ['spine', new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), 0.3)],
+      ['head', new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), 0.5)],
+    ]);
+    const out = pose(localPose(turns));
+    for (const bone of [
+      'hips',
+      'spine',
+      'spine1',
+      'chest',
+      'neck',
+      'head',
+      'ear_L',
+      'tail',
+    ] as const) {
+      const player = boneIndex(STUDIO_FOLLOWS[bone]);
+      const expected = new Matrix4().fromArray(out.matrices, (STUDIO_BONES.length + player) * 16);
+      expect(matrixOf(out, bone).elements, bone).toEqual(
+        expected.elements.map((e) => expect.closeTo(e, 6)),
+      );
+    }
+  });
+
+  it('puts the elbow and the wrist of the studio on the joints of the player', () => {
+    const turns = raisedArm();
+    const out = pose(localPose(turns));
+    const shoulder = new Vector3(...positions.upperArmR);
+    const elbow = new Vector3(...positions.forearmR)
+      .sub(shoulder)
+      .applyQuaternion(turns.get('upperArmR') ?? new Quaternion())
+      .add(shoulder);
+    const wrist = new Vector3(...positions.handR)
+      .sub(new Vector3(...positions.forearmR))
+      .applyQuaternion(turns.get('forearmR') ?? new Quaternion())
+      .add(elbow);
+    expect(moved(out, 'upper_arm_R', 'forearm_R').distanceTo(elbow)).toBeLessThan(1e-5);
+    expect(moved(out, 'forearm_R', 'hand_R').distanceTo(wrist)).toBeLessThan(1e-5);
+    expect(moved(out, 'forearm_twist_R', 'hand_R').distanceTo(wrist)).toBeLessThan(1e-5);
+    // The axis of the elbow of the studio stands square to the plane of the arm.
+    const hinge = new Vector3(...rig.arms.R.hinge).applyQuaternion(turnOf(out, 'upper_arm_R'));
+    const plane = elbow.clone().sub(shoulder).cross(wrist.clone().sub(elbow)).normalize();
+    expect(Math.abs(hinge.dot(plane))).toBeCloseTo(1, 5);
+  });
+
+  it(`gives the forearm twist bone ${TWIST_SHARE} of the twist of the paw`, () => {
+    const out = pose(localPose(raisedArm(1.2)));
+    const fore = turnOf(out, 'forearm_R');
+    const axis = new Vector3(...rig.arms.R.fore);
+    const paw = twistAngle(fore.clone().invert().multiply(turnOf(out, 'hand_R')), axis);
+    const twist = twistAngle(fore.clone().invert().multiply(turnOf(out, 'forearm_twist_R')), axis);
+    expect(Math.abs(paw)).toBeGreaterThan(0.5);
+    expect(twist).toBeCloseTo(TWIST_SHARE * paw, 5);
+  });
+
+  it('turns a paw in the plane of its palm toward the forearm, by at most the limit', () => {
+    // With no turn, the fingers of the player hang straight down from a level forearm.
+    const forward = new Vector3(0, 0, -1);
+    const level = new Quaternion().setFromUnitVectors(new Vector3(0, -1, 0), forward);
+    const out = pose(
+      localPose(
+        new Map<BoneName, Quaternion>([
+          ['upperArmL', level],
+          ['forearmL', level],
+          ['handL', new Quaternion()],
+          ['fingersL', new Quaternion()],
+        ]),
+      ),
+    );
+    const h = STUDIO_BEAR.heads;
+    const paw = new Vector3(...h.fingers_L)
+      .sub(new Vector3(...h.hand_L))
+      .normalize()
+      .applyQuaternion(turnOf(out, 'hand_L'));
+    // The fingers of the player point 90° from the forearm. The paw of the studio turns by the
+    // limit toward it.
+    expect(paw.angleTo(forward)).toBeCloseTo(Math.PI / 2 - PAW_TURN.max, 1);
+  });
+
+  it('gives the corrective shape of an arm the weight 0 in the bind pose of the studio and 1 in the pose of the sheet', () => {
+    const upperOf = (direction: Vector3): Float32Array => {
+      const shoulder = new Vector3(...positions.upperArmL);
+      const elbow = new Vector3(...positions.forearmL);
+      const upper = new Quaternion().setFromUnitVectors(
+        elbow.clone().sub(shoulder).normalize(),
+        direction,
+      );
+      return localPose(new Map<BoneName, Quaternion>([['upperArmL', upper]]));
+    };
+    expect(pose(upperOf(new Vector3(...rig.arms.L.upper))).correctives[0]).toBeCloseTo(0, 5);
+    expect(pose(upperOf(new Vector3(...rig.arms.L.sheet))).correctives[0]).toBeCloseTo(1, 5);
+  });
+
+  it('scales the eyes on y for a blink', () => {
+    const open = pose(localPose(new Map()), 1);
+    const closed = pose(localPose(new Map()), 0.05);
+    const eye = new Vector3(...STUDIO_BEAR.heads.eye_L);
+    const above = eye.clone().add(new Vector3(0, 0.01, 0));
+    expect(above.clone().applyMatrix4(matrixOf(open, 'eye_L')).y - eye.y).toBeCloseTo(0.01, 6);
+    expect(above.clone().applyMatrix4(matrixOf(closed, 'eye_L')).y - eye.y).toBeCloseTo(0.0005, 6);
+  });
+});
+
+describe('studioRig (design 4.4, 4.7)', () => {
+  it('hangs the arms of the player straight down, with the lengths of the arms of the studio', () => {
+    const h = STUDIO_BEAR.heads;
+    const length = (a: StudioBone, b: StudioBone): number =>
+      new Vector3(...h[a]).distanceTo(new Vector3(...h[b]));
+    const p = rig.positions;
+    expect(p.upperArmR).toEqual(h.upper_arm_R);
+    expect(p.upperArmR[1] - p.forearmR[1]).toBeCloseTo(length('upper_arm_R', 'forearm_R'), 6);
+    expect(p.forearmR[1] - p.handR[1]).toBeCloseTo(length('forearm_R', 'hand_R'), 6);
+    expect(p.forearmR[0]).toBe(p.upperArmR[0]);
+    expect(p.handL[2]).toBe(p.upperArmL[2]);
+  });
+});
