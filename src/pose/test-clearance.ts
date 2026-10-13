@@ -448,6 +448,456 @@ export function depthUnder(points: readonly Vector3[], part: PosedPart, reach: n
   return deepest;
 }
 
+/** A group of near triangles of a closed surface. */
+interface SurfaceCluster {
+  /** The indices of the triangles in the surface. */
+  readonly members: Int32Array;
+  /** The sum of the area vectors of the triangles: half the cross product of two edges. */
+  readonly area: Vector3;
+  /** The middle of the triangles, weighted by their areas. */
+  readonly middle: Vector3;
+  /** The largest distance from the middle to a corner of a triangle, in meters. */
+  readonly radius: number;
+}
+
+/**
+ * A closed surface: the triangles of a part, and a fan cap on each open boundary loop, such as
+ * the cut at a shoulder of a trunk with no arms. {@link closedDepth} measures it.
+ */
+export interface ClosedSurface {
+  /** The triangles: the triangles of the part, then the triangles of the caps. */
+  readonly triangles: readonly Triangle[];
+  /** The groups of near triangles, for a fast winding number. */
+  readonly clusters: readonly SurfaceCluster[];
+  /** The box around the triangles. */
+  readonly box: Box3;
+}
+
+/** The caps and the clusters of a surface, found from its corners in the bind pose. */
+interface SurfacePlan {
+  /** The number of triangles of the part, with no caps. */
+  readonly count: number;
+  /** The number of open boundary loops. */
+  readonly loops: number;
+  /**
+   * The two corners of the edge of each cap triangle, in the corners of the part: the end, then
+   * the start of the edge in its own triangle. Thus each cap turns as the part.
+   */
+  readonly capEdges: Int32Array;
+  /** The loop of each cap triangle. */
+  readonly capLoops: Int32Array;
+  /** The triangles of each cluster: the triangles of the part, then the caps. */
+  readonly clusters: readonly Int32Array[];
+}
+
+/** The largest number of triangles in a cluster of a closed surface. */
+const CLUSTER_SIZE = 32;
+
+/**
+ * A cluster farther than this many radii from a point counts as one area vector at its middle in
+ * the winding number. The error of this sum falls with the square of the ratio.
+ */
+const FAR_RATIO = 2;
+
+/**
+ * Groups triangles into clusters of near triangles: a split at the median of the longest axis of
+ * their middles, until each cluster has at most {@link CLUSTER_SIZE} triangles.
+ *
+ * @param middles The middle of each triangle.
+ * @returns The triangles of each cluster.
+ */
+function clusterTriangles(middles: readonly Vector3[]): Int32Array[] {
+  const clusters: Int32Array[] = [];
+  const split = (members: number[]): void => {
+    if (members.length <= CLUSTER_SIZE) {
+      clusters.push(Int32Array.from(members));
+      return;
+    }
+    const box = new Box3().setFromPoints(members.map((m) => middles[m] ?? new Vector3()));
+    const size = box.getSize(new Vector3());
+    const axis = size.x >= size.y && size.x >= size.z ? 'x' : size.y >= size.z ? 'y' : 'z';
+    const sorted = members.toSorted(
+      (a, b) => (middles[a]?.[axis] ?? 0) - (middles[b]?.[axis] ?? 0),
+    );
+    const half = sorted.length >> 1;
+    split(sorted.slice(0, half));
+    split(sorted.slice(half));
+  };
+  split(middles.map((_, i) => i));
+  return clusters;
+}
+
+/**
+ * Finds the open boundary loops of a set of triangles, the caps that close them, and the
+ * clusters. Two corners at the same place are one vertex, so a mesh with split normals counts as
+ * welded. An edge of one triangle is on a boundary. The boundary edges that share vertices form
+ * one loop.
+ *
+ * @param corners The corners of the triangles in the bind pose: x, y, z of three corners for each
+ *   triangle.
+ * @returns The plan of the surface.
+ */
+function planSurface(corners: ArrayLike<number>): SurfacePlan {
+  const count = Math.floor(corners.length / 9);
+  const keyOf = (corner: number): string =>
+    `${corners[corner * 3]} ${corners[corner * 3 + 1]} ${corners[corner * 3 + 2]}`;
+
+  // Each edge with its uses. An edge with one use is on an open boundary.
+  const edges = new Map<string, { uses: number; start: number; end: number }>();
+  for (let t = 0; t < count; t++) {
+    for (let k = 0; k < 3; k++) {
+      const start = t * 3 + k;
+      const end = t * 3 + ((k + 1) % 3);
+      const a = keyOf(start);
+      const b = keyOf(end);
+      const key = a < b ? `${a}|${b}` : `${b}|${a}`;
+      const edge = edges.get(key);
+      if (edge) {
+        edge.uses++;
+      } else {
+        edges.set(key, { uses: 1, start, end });
+      }
+    }
+  }
+  const open = [...edges.values()].filter((edge) => edge.uses === 1);
+
+  // The boundary edges that share a vertex are in one loop.
+  const parent = new Map<string, string>();
+  const rootOf = (key: string): string => {
+    let root = key;
+    while (parent.get(root) !== root) {
+      root = parent.get(root) ?? root;
+    }
+    parent.set(key, root);
+    return root;
+  };
+  for (const { start, end } of open) {
+    for (const key of [keyOf(start), keyOf(end)]) {
+      if (!parent.has(key)) {
+        parent.set(key, key);
+      }
+    }
+    parent.set(rootOf(keyOf(start)), rootOf(keyOf(end)));
+  }
+  const loopIds = new Map<string, number>();
+  const capLoops = Int32Array.from(open, ({ start }) => {
+    const root = rootOf(keyOf(start));
+    const known = loopIds.get(root);
+    if (known !== undefined) {
+      return known;
+    }
+    loopIds.set(root, loopIds.size);
+    return loopIds.size - 1;
+  });
+  const capEdges = Int32Array.from(open.flatMap(({ start, end }) => [end, start]));
+
+  // The clusters, from the middles of the triangles and of the caps in the bind pose.
+  const at = (corner: number): Vector3 => new Vector3().fromArray(corners, corner * 3);
+  const loopMiddles = middlesOfLoops(at, capEdges, capLoops, loopIds.size);
+  const middles = Array.from({ length: count }, (_, t) =>
+    at(t * 3)
+      .add(at(t * 3 + 1))
+      .add(at(t * 3 + 2))
+      .divideScalar(3),
+  );
+  for (const [i, loop] of capLoops.entries()) {
+    const middle = loopMiddles[loop] ?? new Vector3();
+    middles.push(
+      at(capEdges[i * 2] ?? 0)
+        .add(at(capEdges[i * 2 + 1] ?? 0))
+        .add(middle)
+        .divideScalar(3),
+    );
+  }
+  return { count, loops: loopIds.size, capEdges, capLoops, clusters: clusterTriangles(middles) };
+}
+
+/**
+ * Gives the middle of each open loop: the mean of the starts of its edges.
+ *
+ * @param at Gives the place of a corner of the part.
+ * @param capEdges The end and the start corner of each boundary edge.
+ * @param capLoops The loop of each boundary edge.
+ * @param loops The number of loops.
+ * @returns The middle of each loop.
+ */
+function middlesOfLoops(
+  at: (corner: number) => Vector3,
+  capEdges: Int32Array,
+  capLoops: Int32Array,
+  loops: number,
+): Vector3[] {
+  const sums = Array.from({ length: loops }, () => new Vector3());
+  const counts = Array.from({ length: loops }, () => 0);
+  for (const [i, loop] of capLoops.entries()) {
+    sums[loop]?.add(at(capEdges[i * 2 + 1] ?? 0));
+    counts[loop] = (counts[loop] ?? 0) + 1;
+  }
+  return sums.map((sum, loop) => sum.divideScalar(Math.max(1, counts[loop] ?? 1)));
+}
+
+/**
+ * Builds the closed surface of a plan from the posed corners of its part.
+ *
+ * @param plan The plan.
+ * @param at Gives the posed place of a corner of the part, as a new vector.
+ * @returns The surface.
+ */
+function surfaceOf(plan: SurfacePlan, at: (corner: number) => Vector3): ClosedSurface {
+  const triangles: Triangle[] = [];
+  for (let t = 0; t < plan.count; t++) {
+    triangles.push(new Triangle(at(t * 3), at(t * 3 + 1), at(t * 3 + 2)));
+  }
+  const middles = middlesOfLoops(at, plan.capEdges, plan.capLoops, plan.loops);
+  for (const [i, loop] of plan.capLoops.entries()) {
+    const middle = middles[loop] ?? new Vector3();
+    triangles.push(
+      new Triangle(at(plan.capEdges[i * 2] ?? 0), at(plan.capEdges[i * 2 + 1] ?? 0), middle),
+    );
+  }
+
+  const box = new Box3();
+  for (const t of triangles) {
+    box.expandByPoint(t.a).expandByPoint(t.b).expandByPoint(t.c);
+  }
+  const clusters = plan.clusters.map((members): SurfaceCluster => {
+    const area = new Vector3();
+    const middle = new Vector3();
+    let weight = 0;
+    for (const m of members) {
+      const t = triangles[m];
+      if (!t) {
+        continue;
+      }
+      const size = t.getArea();
+      area.add(t.getNormal(clusterNormal).multiplyScalar(size));
+      middle.addScaledVector(t.getMidpoint(clusterMiddle), size);
+      weight += size;
+    }
+    middle.divideScalar(Math.max(weight, 1e-12));
+    let radius = 0;
+    for (const m of members) {
+      const t = triangles[m];
+      if (t) {
+        radius = Math.max(
+          radius,
+          middle.distanceTo(t.a),
+          middle.distanceTo(t.b),
+          middle.distanceTo(t.c),
+        );
+      }
+    }
+    return { members, area, middle, radius };
+  });
+  return { triangles, clusters, box };
+}
+
+const clusterNormal = new Vector3();
+const clusterMiddle = new Vector3();
+
+/**
+ * Closes a set of triangles with a fan cap on each open boundary loop. The triangles turn as one
+ * surface, and their faces point out. Only tests use it.
+ *
+ * @param triangles The triangles.
+ * @param loops The expected number of open boundary loops.
+ * @returns The closed surface.
+ * @throws Error if the triangles have a different number of open loops.
+ */
+export function closeSurface(triangles: readonly Triangle[], loops: number): ClosedSurface {
+  const corners = Float64Array.from(
+    triangles.flatMap((t) => [...t.a.toArray(), ...t.b.toArray(), ...t.c.toArray()]),
+  );
+  const plan = planSurface(corners);
+  checkLoops(plan, loops, 'The triangles');
+  return surfaceOf(plan, (corner) => new Vector3().fromArray(corners, corner * 3));
+}
+
+/**
+ * Stops when a plan has a different number of open loops than expected: a new body or a new set
+ * of bones can open a new loop, and a cap over the wrong loop gives false depths.
+ *
+ * @param plan The plan.
+ * @param loops The expected number of open loops.
+ * @param name The name of the part, for the message.
+ * @throws Error if the numbers differ.
+ */
+function checkLoops(plan: SurfacePlan, loops: number, name: string): void {
+  if (plan.loops !== loops) {
+    throw new Error(`${name} have ${plan.loops} open loops, and the caller expects ${loops}.`);
+  }
+}
+
+/** The plans of the closed parts of each mesh, by the list of their bones. */
+const SURFACE_PLANS = new WeakMap<PlayerModel['mesh'], Map<string, SurfacePlan>>();
+
+/**
+ * Gives the posed closed surface of the parts that follow some bones: the triangles of the bones,
+ * as {@link posedPart} gives them, with a cap on each open loop. Only tests use it.
+ *
+ * @param posed The posed skeleton.
+ * @param bones The bones.
+ * @param loops The expected number of open loops of the triangles in the bind pose.
+ * @returns The closed surface.
+ * @throws Error if the triangles have a different number of open loops.
+ */
+export function closedPart(
+  posed: PosedSkeleton,
+  bones: readonly BoneName[],
+  loops: number,
+): ClosedSurface {
+  const { mesh } = posed.model;
+  const firsts = firstCorners(mesh, bones);
+  let plans = SURFACE_PLANS.get(mesh);
+  if (!plans) {
+    plans = new Map();
+    SURFACE_PLANS.set(mesh, plans);
+  }
+  const key = bones.join(' ');
+  let plan = plans.get(key);
+  if (!plan) {
+    const corners = new Float64Array(firsts.length * 9);
+    for (const [t, v] of firsts.entries()) {
+      corners.set(mesh.positions.subarray(v * 3, v * 3 + 9), t * 9);
+    }
+    plan = planSurface(corners);
+    plans.set(key, plan);
+  }
+  checkLoops(plan, loops, `The bones ${key}`);
+  return surfaceOf(plan, (corner) => {
+    const v = (firsts[Math.floor(corner / 3)] ?? 0) + (corner % 3);
+    return new Vector3(...posedCorner(posed, v));
+  });
+}
+
+/**
+ * Gives the first corner of each triangle whose main bone is one of some bones.
+ *
+ * @param mesh The mesh.
+ * @param bones The bones.
+ * @returns The first corners.
+ */
+function firstCorners(mesh: PlayerModel['mesh'], bones: readonly BoneName[]): number[] {
+  const wanted = new Set(bones.map(boneIndex));
+  const firsts: number[] = [];
+  for (let v = 0; v < mesh.bones.length; v += 3) {
+    if (wanted.has(mesh.bones[v] ?? -1)) {
+      firsts.push(v);
+    }
+  }
+  return firsts;
+}
+
+const toA = new Vector3();
+const toB = new Vector3();
+const toC = new Vector3();
+const across = new Vector3();
+const toMiddle = new Vector3();
+
+/**
+ * Gives the solid angle of a triangle seen from a point, with a sign: positive when the point is
+ * behind the face (Van Oosterom and Strackee, 1983).
+ *
+ * @param t The triangle.
+ * @param p The point.
+ * @returns The solid angle, in steradians.
+ */
+function solidAngle(t: Triangle, p: Vector3): number {
+  toA.subVectors(t.a, p);
+  toB.subVectors(t.b, p);
+  toC.subVectors(t.c, p);
+  const a = toA.length();
+  const b = toB.length();
+  const c = toC.length();
+  const volume = toA.dot(across.crossVectors(toB, toC));
+  const below = a * b * c + toA.dot(toB) * c + toB.dot(toC) * a + toC.dot(toA) * b;
+  return 2 * Math.atan2(volume, below);
+}
+
+/**
+ * Gives the winding number of a closed surface around a point: about 1 inside and 0 outside. A
+ * near cluster adds the solid angles of its triangles. A far cluster adds the solid angle of its
+ * area vector at its middle (Barill and others, "Fast winding numbers", 2018).
+ *
+ * @param surface The surface.
+ * @param p The point.
+ * @returns The winding number.
+ */
+function windingNumber(surface: ClosedSurface, p: Vector3): number {
+  let sum = 0;
+  for (const cluster of surface.clusters) {
+    toMiddle.subVectors(cluster.middle, p);
+    const distance = toMiddle.length();
+    if (distance > FAR_RATIO * cluster.radius) {
+      sum += cluster.area.dot(toMiddle) / distance ** 3;
+      continue;
+    }
+    for (const m of cluster.members) {
+      const t = surface.triangles[m];
+      if (t) {
+        sum += solidAngle(t, p);
+      }
+    }
+  }
+  return sum / (4 * Math.PI);
+}
+
+/**
+ * Gives the distance from a point to the nearest triangle of a surface. A cluster whose nearest
+ * possible point is farther than the best distance is skipped.
+ *
+ * @param surface The surface.
+ * @param p The point.
+ * @returns The distance, in meters.
+ */
+function surfaceDistance(surface: ClosedSurface, p: Vector3): number {
+  let best = Infinity;
+  for (const cluster of surface.clusters) {
+    if (cluster.middle.distanceTo(p) - cluster.radius >= best) {
+      continue;
+    }
+    for (const m of cluster.members) {
+      const t = surface.triangles[m];
+      if (t) {
+        best = Math.min(best, t.closestPointToPoint(p, nearestPoint).distanceTo(p));
+      }
+    }
+  }
+  return best;
+}
+
+/** The deepest point of a set of points in a closed surface. */
+export interface DeepestPoint {
+  /** The depth, in meters: 0 when no point is inside. */
+  readonly depth: number;
+  /** The index of the deepest point, or -1 when no point is inside. */
+  readonly index: number;
+}
+
+/**
+ * Finds the deepest point of a set in a closed surface: the distance from the point to the
+ * nearest triangle, for a point with a winding number of more than 0.5. A point outside the box
+ * of the surface is outside. The caps of the open loops count as surface, so the depth of a point
+ * near a cut is its distance to the cap. Only tests use it.
+ *
+ * @param points The points.
+ * @param surface The surface.
+ * @returns The deepest point.
+ */
+export function closedDepth(points: readonly Vector3[], surface: ClosedSurface): DeepestPoint {
+  let deepest: DeepestPoint = { depth: 0, index: -1 };
+  for (const [index, point] of points.entries()) {
+    if (!surface.box.containsPoint(point) || Math.abs(windingNumber(surface, point)) <= 0.5) {
+      continue;
+    }
+    const depth = surfaceDistance(surface, point);
+    if (depth > deepest.depth) {
+      deepest = { depth, index };
+    }
+  }
+  return deepest;
+}
+
 /**
  * Gives the smallest distance between two posed parts, up to a limit. Only tests use it.
  *

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { MathUtils, Quaternion, Vector3 } from 'three';
+import { MathUtils, Quaternion, Triangle, Vector3 } from 'three';
 
 import { MeshBuilder, blendSkin, transform } from '../models/mesh.ts';
 import { buildPlayer } from '../models/player.ts';
@@ -12,7 +12,7 @@ import type { Vec3 } from '../models/tuples.ts';
 import { createMaterials } from '../scene/geometry.ts';
 import { applyPose, createPlayerGeometry, createPlayerMesh } from '../scene/player.ts';
 import { BIND_ROTATIONS } from './frames.ts';
-import { posedPart, signedDistance } from './test-clearance.ts';
+import { closeSurface, closedDepth, posedPart, signedDistance } from './test-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
 import type { AnimalPose } from './types.ts';
 
@@ -114,5 +114,85 @@ describe('posedPart', () => {
     const point = new Vector3(x, (elbow + shoulder) / 2, z);
     const forearm = posedPart(posed, ['forearmR']);
     expect(signedDistance(forearm, point)).toBeLessThan(-0.9 * RADIUS);
+  });
+});
+
+/**
+ * Builds a sphere of triangles whose faces point out, with welded corners. With `cut`, the rows
+ * above the cut are missing, so the sphere is open at the top.
+ *
+ * @param radius The radius, in meters.
+ * @param cut The number of rows to leave out at the top.
+ * @returns The triangles.
+ */
+function sphere(radius: number, cut = 0): Triangle[] {
+  const rows = 24;
+  const columns = 32;
+  const at = (row: number, column: number): Vector3 => {
+    if (row === 0 || row === rows) {
+      return new Vector3(0, row === 0 ? radius : -radius, 0);
+    }
+    const polar = (Math.PI * row) / rows;
+    const turn = (2 * Math.PI * (column % columns)) / columns;
+    return new Vector3(
+      radius * Math.sin(polar) * Math.cos(turn),
+      radius * Math.cos(polar),
+      -radius * Math.sin(polar) * Math.sin(turn),
+    );
+  };
+  const triangles: Triangle[] = [];
+  for (let row = cut; row < rows; row++) {
+    for (let column = 0; column < columns; column++) {
+      const [a, b, c, d] = [
+        at(row, column),
+        at(row + 1, column),
+        at(row + 1, column + 1),
+        at(row, column + 1),
+      ];
+      if (row > 0) {
+        triangles.push(new Triangle(a, b, d));
+      }
+      if (row < rows - 1) {
+        triangles.push(new Triangle(b, c, d));
+      }
+    }
+  }
+  return triangles;
+}
+
+describe('closedDepth', () => {
+  it('gives the distance to the nearest face for a point in a closed shell, and 0 outside', () => {
+    const surface = closeSurface(sphere(0.1), 0);
+    const points = [new Vector3(0, 0, 0.12), new Vector3(0.05, 0, 0), new Vector3(0, 0.02, 0)];
+
+    // The deepest point is 0.08 m from the top. The faces cut the sphere a little, so its depth is
+    // a little less.
+    const { depth, index } = closedDepth(points, surface);
+    expect(index).toBe(2);
+    expect(depth).toBeGreaterThan(0.075);
+    expect(depth).toBeLessThan(0.08);
+
+    // Near the surface, the near triangles and the far clusters each give about half of the turn.
+    expect(closedDepth([new Vector3(0.09, 0, 0)], surface).depth).toBeGreaterThan(0.008);
+    expect(closedDepth([new Vector3(0.11, 0, 0), new Vector3(0, -0.2, 0)], surface)).toEqual({
+      depth: 0,
+      index: -1,
+    });
+  });
+
+  it('closes an open shell with a cap, so that a point near the cut has its depth to the cap', () => {
+    // The top four rows are missing: the cut is a circle 0.05 m above the middle.
+    const surface = closeSurface(sphere(0.1, 4), 1);
+    const top = 0.1 * Math.cos(Math.PI / 6);
+    const { depth } = closedDepth([new Vector3(0, top - 0.01, 0)], surface);
+    expect(depth).toBeCloseTo(0.01, 6);
+
+    // Above the cap, the point is outside.
+    expect(closedDepth([new Vector3(0, top + 0.005, 0)], surface).depth).toBe(0);
+  });
+
+  it('stops when the shell has a different number of open loops', () => {
+    expect(() => closeSurface(sphere(0.1, 4), 0)).toThrow('1 open loops');
+    expect(() => closeSurface(sphere(0.1), 1)).toThrow('0 open loops');
   });
 });
