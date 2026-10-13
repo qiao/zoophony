@@ -405,6 +405,47 @@ function boxOf(triangle: Triangle, out: Box3): Box3 {
     .expandByPoint(triangle.c);
 }
 
+const depthBox = new Box3();
+const depthNormal = new Vector3();
+
+/**
+ * Gives the depth of the deepest point under the surface of a part: the distance to the nearest
+ * triangle of the part, for a point behind that triangle (against its normal). A point in front
+ * of its nearest triangle has the depth 0. The faces of the part point out, and the surface near
+ * the points is convex, such as the trunk and the head near a paw. Only tests use it.
+ *
+ * @param points The points.
+ * @param part The part.
+ * @param reach The largest depth of interest, in meters. A point farther than this from each
+ *   triangle counts as outside.
+ * @returns The depth, in meters: 0 when no point is under the surface.
+ */
+export function depthUnder(points: readonly Vector3[], part: PosedPart, reach: number): number {
+  const boxes = part.triangles.map((t) => boxOf(t, new Box3()).expandByScalar(reach));
+  let deepest = 0;
+  for (const point of points) {
+    if (!depthBox.copy(part.box).expandByScalar(reach).containsPoint(point)) {
+      continue;
+    }
+    let nearest = reach;
+    let behind = false;
+    for (const [i, triangle] of part.triangles.entries()) {
+      if (!boxes[i]?.containsPoint(point)) {
+        continue;
+      }
+      const distance = triangle.closestPointToPoint(point, nearestPoint).distanceTo(point);
+      if (distance < nearest) {
+        nearest = distance;
+        behind = triangle.getNormal(depthNormal).dot(nearestPoint.sub(point).negate()) < 0;
+      }
+    }
+    if (behind) {
+      deepest = Math.max(deepest, nearest);
+    }
+  }
+  return deepest;
+}
+
 /**
  * Gives the smallest distance between two posed parts, up to a limit. Only tests use it.
  *

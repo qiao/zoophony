@@ -10,12 +10,11 @@ import { buildPodium } from '../models/stage.ts';
 import { countInAt } from './count-in.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
-import { partDistance } from './test-clearance.ts';
+import { depthUnder, partDistance } from './test-clearance.ts';
 import type { PosedPart } from './test-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
-import { posePoint } from './frames.ts';
-import { toVec3 } from '../models/tuples.ts';
+import { posedCorner } from './test-skin.ts';
 import { shardOf } from '../test-shards.ts';
 import { PLAYING, allAudible, ofConductor, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
@@ -23,6 +22,14 @@ import type { Transport } from './types.ts';
 
 /** The smallest gap from the bear to the conductor stand, in meters. */
 const GAP = 0.02;
+
+/**
+ * The largest depth of a paw, a claw, or the baton under the skin of the trunk and the head, in
+ * meters: the contact depth of the conductor of the studio (0.01 of the height of the bear,
+ * `lowpoly-studio/roles/conductor/role.toml`). A paw that rests on the belly presses the fur a
+ * little.
+ */
+const DEPTH = 0.015;
 
 /** The step of the song time between two samples of a full play, in seconds. */
 const STEP = 0.25;
@@ -66,11 +73,40 @@ interface Nearest {
   readonly label: string;
 }
 
-/** The nearest poses of the bear to its stand, and of its left hand to the rest of the bear. */
+/** The deepest pose of the paws and the baton under the skin of the trunk and the head. */
+interface Deepest {
+  readonly depth: number;
+  readonly label: string;
+}
+
+/**
+ * The nearest poses of the bear to its stand, and of its left hand to the rest of the bear, and
+ * the deepest pose of its paws and its baton in its body.
+ */
 interface Clearance {
   readonly stand: Nearest;
   readonly leftHand: Nearest;
+  readonly inside: Deepest;
 }
+
+/** The trunk and the head, which the paws and the baton must not enter (design 4.4, 5.4). */
+const BODY = [
+  'hips',
+  'spine',
+  'chest',
+  'neck',
+  'head',
+  'jaw',
+] as const satisfies readonly BoneName[];
+
+/** The paws with their claws, and the baton. */
+const PAWS = [
+  'handL',
+  'fingersL',
+  'handR',
+  'fingersR',
+  'baton',
+] as const satisfies readonly BoneName[];
 
 /** The left forearm and hand, which move between the cues (design 5.4). */
 const LEFT_HAND = ['forearmL', 'handL', 'fingersL'] as const satisfies readonly BoneName[];
@@ -109,7 +145,9 @@ const MOVING_AVOID = [
 
 /**
  * Gives the posed triangles of some groups of bones in one pass over the mesh. Each triangle
- * follows the bone of its first corner (design 4.4), as in `posedPart()` of `test-clearance.ts`.
+ * belongs to the bone of its first corner (design 4.4), as in `posedPart()` of
+ * `test-clearance.ts`, and each corner takes the skin of the GPU (`posedCorner()`): two bones of
+ * the player, or the skin of the studio for a studio body.
  *
  * @param posed The posed skeleton.
  * @param groups The groups of bones.
@@ -118,20 +156,14 @@ const MOVING_AVOID = [
 function posedParts(posed: PosedSkeleton, groups: readonly (readonly BoneName[])[]): PosedPart[] {
   const sets = groups.map((bones) => new Set(bones.map(boneIndex)));
   const parts = groups.map(() => ({ triangles: new Array<Triangle>(), box: new Box3() }));
-  const { positions, bones } = posed.model.mesh;
-  const binds = posed.model.skeleton.positions;
-  const corner = new Vector3();
+  const { bones } = posed.model.mesh;
   for (let v = 0; v < bones.length; v += 3) {
     const bone = bones[v] ?? 0;
-    const frame = posed.frames[bone];
     const owners = parts.filter((_, g) => sets[g]?.has(bone));
-    if (!frame || owners.length === 0) {
+    if (owners.length === 0) {
       continue;
     }
-    const bind = binds[bone] ?? [0, 0, 0];
-    const [a, b, c] = [0, 1, 2].map((k) =>
-      posePoint(frame, bind, toVec3(corner.fromArray(positions, (v + k) * 3))),
-    );
+    const [a, b, c] = [0, 1, 2].map((k) => new Vector3(...posedCorner(posed, v + k)));
     if (!a || !b || !c) {
       continue;
     }
@@ -167,24 +199,33 @@ function clearanceOf(
   let nearest: Clearance = {
     stand: { gap: GAP, label: 'none' },
     leftHand: { gap: GAP, label: 'none' },
+    inside: { depth: 0, label: 'none' },
   };
   for (const [song, wall, transport] of samples) {
     const pose = ofConductor(poseAt(plan, song, wall, transport, audible, buffer).conductor);
     // Each bone of `avoid` is its own part, so that its tight box skips most triangles.
-    const [all, hand, ...others] = posedParts(poseSkeleton(bear, pose), [
+    const [all, hand, body, paws, ...others] = posedParts(poseSkeleton(bear, pose), [
       BONE_NAMES,
       LEFT_HAND,
+      BODY,
+      PAWS,
       ...avoid.map((bone) => [bone]),
     ]);
-    if (!all || !hand) {
+    if (!all || !hand || !body || !paws) {
       throw new Error('The bear has its parts.');
     }
     const label = `song ${song.toFixed(2)} s, wall ${wall.toFixed(2)} s`;
     const toStand = partDistance(all, stand, GAP);
     const free = Math.min(GAP, ...others.map((other) => partDistance(hand, other, GAP)));
+    const depth = depthUnder(
+      paws.triangles.flatMap((t) => [t.a, t.b, t.c]),
+      body,
+      2 * DEPTH,
+    );
     nearest = {
       stand: toStand < nearest.stand.gap ? { gap: toStand, label } : nearest.stand,
       leftHand: free < nearest.leftHand.gap ? { gap: free, label } : nearest.leftHand,
+      inside: depth > nearest.inside.depth ? { depth, label } : nearest.inside,
     };
   }
   return nearest;
@@ -248,20 +289,30 @@ export function describeConductorClearanceShard(shard: number): void {
 
       // The check of the left hand against the head stays out: the user removed it when the rigged
       // bear of 2026-10-10 failed it (`docs/decisions/2026-10-11-body-revert.md`).
-      it(`keeps the bear out of the stand in a play of ${demo.file}`, () => {
-        const { stand: toStand } = clearanceOf(scene, stand, playSamples(scene), PLAYING_AVOID);
+      it(`keeps the bear out of the stand, and its paws and baton out of its body, in a play of ${demo.file}`, () => {
+        const { stand: toStand, inside } = clearanceOf(
+          scene,
+          stand,
+          playSamples(scene),
+          PLAYING_AVOID,
+        );
         expect(toStand.gap, `stand, ${toStand.label}`).toBeGreaterThanOrEqual(GAP);
+        expect(inside.depth, `paws and baton in the body, ${inside.label}`).toBeLessThanOrEqual(
+          DEPTH,
+        );
       });
 
       it(`keeps the bear out of the stand when it lifts and lowers its arms in ${demo.file}`, () => {
-        const { stand: toStand, leftHand } = clearanceOf(
-          scene,
-          stand,
-          armSamples(scene),
-          MOVING_AVOID,
-        );
+        const {
+          stand: toStand,
+          leftHand,
+          inside,
+        } = clearanceOf(scene, stand, armSamples(scene), MOVING_AVOID);
         expect(toStand.gap, `stand, ${toStand.label}`).toBeGreaterThanOrEqual(GAP);
         expect(leftHand.gap, `left hand, ${leftHand.label}`).toBeGreaterThanOrEqual(GAP);
+        expect(inside.depth, `paws and baton in the body, ${inside.label}`).toBeLessThanOrEqual(
+          DEPTH,
+        );
       });
     }
   });
