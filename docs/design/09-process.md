@@ -437,10 +437,10 @@ On 2026-10-13, after the frame-time rounds, the manager added guards and checks 
   the trace. Else the tool records the GPU phase one more time, and then exits with 2.
 - A self-check guards the GPU row against the faults of its filter. It uses only the sizes of the
   surfaces. It prints the time of the command buffers that the filter dropped in each frame, the
-  WebGL frames against the frame rate of the page during the record times the span of the
-  frames, and the frames with more than two writes of the canvas. The GPU row fails when the
-  dropped canvas buffers take more than 0.1 ms in each frame, when the count is more than 2% off,
-  or when a frame holds more than two writes of the canvas. On the 18 kept traces of the rounds,
+  WebGL frames against the frame rate of the page in the middle half of the record times the
+  span of the frames, and the frames with more than two writes of the canvas. The GPU row fails
+  when the dropped canvas buffers take more than 0.1 ms in each frame, when the count is more
+  than 2% off, or when a frame holds more than two writes of the canvas. On the 18 kept traces of the rounds,
   the check passes with the filter of the tip, and it fails with each filter that reached a
   review (`e584e16f` and `332d09ba`) where that filter gave other frames.
 - The tool seeks to 32 s before the Chrome trace and to 16 s before the Metal trace. Each trace
