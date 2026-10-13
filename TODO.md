@@ -533,6 +533,28 @@ the mockup is out of scope.
 - [x] Let the automatic camera film the player who just started to play: when a section or a
       soloist enters, the next cut goes to it (user request of 2026-10-07, design 5.6). Check
       the rules of the shot planner that already favor entries, and its stability tests.
+- [ ] Bring the high tier back within the frame target of 9.7. On 2026-10-13, `pnpm frame` gave
+      a GPU p95 of 4.76 ms and a main-thread p95 of 4.6 to 4.9 ms. The target is at most 4 ms
+      for each. The post effects of this step caused most of the GPU time
+      (`docs/research/2026-10-13-frame-time.md`, section 10). Each option below has one run at a
+      load of about 7. Measure it again at a low load before a choice.
+      - Cut the JavaScript of each frame by about 0.7 ms, with the same pixels.
+      - Find the geometry pass of about 0.64 ms after the scene pass. The fix round did not find
+        its code.
+      - a. The depth of field reads the depth of the beam: GPU p95 4.38 ms. A rim of 1 to 2
+        pixels shows on the back-row heads, only in shots with the depth of field. The main
+        thread also gets faster.
+      - b. MSAA with 2 samples in place of 4: GPU p95 4.20 ms. Thin lines show more steps.
+      - c. The two side spotlights become directional lights: GPU p95 4.63 ms. The stage corners
+        get brighter, and the pool of light gets flatter.
+      - d. The high tier renders at the device scale 1.5 in place of 2: GPU p95 3.13 ms. The
+        whole image is softer. Only this option passes the target alone.
+      - a and b together: GPU p95 4.28 ms.
+      - A new target of 5 ms for the high tier, with a change of design 9.7.
+      The image `docs/research/2026-10-13-frame-time/options.webp` shows each option beside the
+      current frame.
+      Waits for the user: on 2026-10-13, the user asked to record these options and to choose
+      no path yet.
 
 Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
 passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
