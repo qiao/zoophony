@@ -100,7 +100,8 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   `shots/test-shot-frames.ts`). The chamber test files have their own file
   (`shots/shot-frames-chamber.test.ts`). The test of the conductor clearance reads all patched
   demos, and skips a demo with no conductor (`pose/conductor-clearance-<k>.test.ts`,
-  `pose/test-conductor-clearance.ts`).
+  `pose/test-conductor-clearance.ts`). The test of the pianist clearance reads the patched demos
+  with a piano seat (`pose/pianist-clearance-<k>.test.ts`, `pose/test-pianist-clearance.ts`).
 - The Playwright smoke test does these steps:
   1. Load the page.
   2. Play the default demo for 4 seconds, with the autoplay policy turned off. The count-in of

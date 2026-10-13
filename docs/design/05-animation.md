@@ -556,16 +556,21 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     one octave splits at its largest interval: the left hand plays the notes below it, and the
     right hand the notes above it. Of two equal intervals, the one nearer to the middle of the
     chord splits it. A chord within one octave goes to the nearer hand, so that a melody stays in
-    one hand. At the same distance, a chord from middle C up goes to the right hand. The hands
-    start at C3 and C5.
+    one hand. At the same distance, a chord from middle C up goes to the right hand. A chord past
+    the reach of the nearer hand goes to the other hand (`reach` of `HANDS_HOLDS`): the left paw
+    of the studio polar bear reaches up to B♭4, and the right paw down to C4, so a melody changes
+    paws between them. The harp has no limit. The hands start at C3 and C5.
   - A hand plays a chord at the middle of its lowest and its highest key. The piano keys do not
     move, because they are not separate meshes.
-  - The piano palm faces down, 0.04 m above the keys and over the front edge of a white key. Over
-    a black key, it is 0.06 m further in. The fingers curl 30°, down onto the keys. A hand moves
-    to its next keys in at most 0.15 s and in at most 0.6 of the time from its last note. It
-    lifts up to 0.03 m times the gesture size in the move, strikes the keys at the note start,
-    and stays on them until its next move. The elbows point out, down, and back,
-    (±1, -0.6, 0.4).
+  - The piano palm faces down, a little above the keys and a little in front of the front edge of
+    the keys (`pianoKeyFront()` and `HANDS_HOLDS` of `pose/hands.ts`), for each key. The paw of
+    the studio polar bear is longer than a white key, so the curled claws lie on the keys. With the
+    palm over the keys, the claws went into the fallboard and the key bed. The fingers curl 30°,
+    down onto the keys. A hand moves to its next keys in at most 0.15 s and in at most 0.6 of the
+    time from its last note. It lifts up to 0.03 m times the gesture size in the move, strikes
+    the keys at the note start, and stays on them until its next move. The elbows point out,
+    down, and back, (±1, -0.6, 0.4). The pianist leans forward 20° while it plays, so that its
+    paws reach the keys in front of its round belly (4.6, the piano).
   - The harp palm is 0.03 m from the strings, at the middle of the string of its note: the left
     hand on the left side of the strings, and the right hand on the right side. The palm faces
     the strings. A hand moves to its next string in at most 0.15 s, and rests on it for up to
@@ -573,21 +578,23 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     0.08 s (at most 0.3 of the time to its next note), the palm pulls 0.025 m away from the
     strings times the gesture size, and the fingers curl from 15° to 60°. The hand comes back to
     the strings in the move to its next note.
-  - The polar bear reaches each piano key from A0 to C8 with 97% of the arm length. For a key
-    out of reach, the hand stops short of it at 97% of the reach, so that the elbow keeps its
-    bend. The harp player leans forward 8°. Without the lean, the left palm on the lowest string
+  - The left paw of the polar bear reaches each key from A0 to its limit, and the right paw each
+    key from its limit to C8, with 97% of the arm length (`pose/hands.test.ts`). For a key out of
+    reach, the hand stops short of it at 97% of the reach, so that the elbow keeps its bend. The harp player leans forward 8°. Without the lean, the left palm on the lowest string
     needed 1.01 of 97% of the arm length (the first arms). With the arms of
     4.5, the lean, and the turn of the harp (4.6), the left palm needs at most 0.997 of it, on
     the highest strings, and 0.984 on the lowest string.
   - While the harp player plays, the head keeps at least 0.03 m from the harp, with the looks
     at the conductor of the demo layouts: 0.034 m for the deer.
   - In the rest pose, the pianist and the harp player rest the palms on the thighs, palm down,
-    to the outer side: the pianist 0.25 H out and 0.12 H above the top of the leg at 0.7 of the
-    way from the hip to the knee, and the left hand of the harp player 0.25 H out and 0.13 H
-    above it at 0.85 of the way, so that the forearm passes over the thigh. The fingers point to
-    the front, and the elbows point down, a little out, and forward (`HANDS_HOLDS` of
-    `pose/hands.ts`). Out, down, and forward, (±1, -1, -1), the elbows of the polar bear stood
-    58° out from the side (31° now, user decision of 2026-10-10). The harp stands at the right
+    to the outer side: the left hand of the harp player 0.25 H out and 0.13 H above the top of
+    the leg at 0.85 of the way from the hip to the knee, so that the forearm passes over the
+    thigh, and the fingers point to the front. The round belly of the studio polar bear covers
+    its thighs, so its paws rest beside its knees, as the paws of the rest clip of the studio,
+    with the fingers forward and down. The top of the lap of a studio body is the top of its
+    hips, its belly, and its legs (`pose/lap.ts`). The elbows point down, a little out, and
+    forward (`HANDS_HOLDS` of `pose/hands.ts`). Between the rest pose and the playing pose, the
+    wrists of the pianist go out and up around the belly (`restArc`). The harp stands at the right
     knee of the harp player, so its right hand rests on the string of C4, 0.02 m further from the
     strings than in the playing pose, and its elbow points down. A
     place on the right thigh put the hand into the harp or the forearm into the belly. The

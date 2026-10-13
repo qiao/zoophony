@@ -109,12 +109,13 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 
 ## 4.3 Species
 
-All animals except the penguins and the bear conductor use one parametric biped body (4.4). Each
-species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its
-parameters. A species can have a body of its own in place of the biped (`body`): the penguins have
-the egg body of `models/penguin/` since 2026-10-11, and the bear has the studio body of
-`lowpoly-studio/` since 2026-10-12 (4.4, bodies of their own and studio bodies). A species with a
-body of its own has no shape parameters, because its body has its own parts.
+All animals except the penguins, the bear conductor, and the polar bear pianist use one parametric
+biped body (4.4). Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and
+changes only its parameters. A species can have a body of its own in place of the biped (`body`):
+the penguins have the egg body of `models/penguin/` since 2026-10-11, and the bear and the polar
+bear have studio bodies of `lowpoly-studio/` since 2026-10-12 (4.4, bodies of their own and studio
+bodies). A species with a body of its own has no shape parameters, because its body has its own
+parts.
 
 ```typescript
 /** The parametric biped, or a body of its own. */
@@ -143,7 +144,7 @@ interface BipedParams extends CommonParams {
 
 /** A body of its own in place of the parametric biped (4.4): the penguin, or a studio body. */
 interface OwnBodyParams extends CommonParams {
-  body: 'penguin' | 'studio-bear';
+  body: 'penguin' | 'studio-bear' | 'studio-polar-bear';
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -206,9 +207,10 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
 - The standing legs of the default skeleton are as short as the legs of the standing bear of
   `animals.webp` and `bear-views.png`. The egg body of the penguin (4.4) shows no legs and reads
   no standing value of the skeleton.
-- The bear conductor has the studio body of `lowpoly-studio/` (4.4), with the trunk and the legs
-  that the studio fitted to `bear-views.png`. Its skeleton comes from the studio, and no value of
-  this table applies to it.
+- The bear conductor and the polar bear pianist have studio bodies of `lowpoly-studio/` (4.4),
+  with the trunks and the legs that the studio fitted to their sheets. Their skeletons come from
+  the studio, and no value of this table applies to them, except the head height `H` and the seat
+  height of the polar bear, which `models/species.ts` reads from its studio body.
 - The legs have the form of the reference images (`SEATED_LEG` and `STANDING_LEG` of
   `models/legs.ts`). A seated thigh has the thickness of the thighs of the model sheets, and a
   shin narrows little to the ankle, as the shins of the sheets. A standing leg is a straight
@@ -273,7 +275,7 @@ its own skeleton:
   uses rabbits again, and a fourth uses red-orange foxes.
 
 The shape parameters of each species of the parametric biped (4.5 gives the colors). The penguin
-has its egg body and the bear its studio body (4.4), so they have no row:
+has its egg body, and the bear and the polar bear have studio bodies (4.4), so they have no row:
 
 | Species | ears | snout | tail | facePattern |
 |---|---|---|---|---|
@@ -326,11 +328,14 @@ border follows the edges of the triangles.
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
-Each body except the penguin's and the bear's is the parametric body: `buildBiped()` of
+Each body except the penguin's, the bear's, and the polar bear's is the parametric body: `buildBiped()` of
 `models/biped.ts` builds it from the parts of 4.5 (body proportions) on the skeleton of 4.3. A
 species with a `body` gets a body of its own from `buildBiped()` in its place. On 2026-10-12, the
 user decided: "use the studio bear in the app". The bear conductor has the studio body of
-`lowpoly-studio/animals/bear/` since then (studio bodies, below). The user chose these bodies again on 2026-10-09, in
+`lowpoly-studio/animals/bear/` since then (studio bodies, below). Later that day, the user
+decided: "replace the polar bear pianist by the polar bear model from the lowpoly studio folder".
+The polar bear pianist has the studio body of `lowpoly-studio/animals/polar-bear/` since then. The
+user chose these bodies again on 2026-10-09, in
 place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
 code after `fox-views.png`, the bear a body built in code after `bear-views.png` and then the
@@ -421,11 +426,12 @@ and of the body.
 **Studio bodies**
 
 A studio body is the GLB file of an animal of `lowpoly-studio/` (its `README.md`): one mesh of
-flat faces with one color each, a skeleton of 31 bones with twist bones of the forearms, a skin
-of up to four bones for each vertex, two arm-down corrective shapes, and the clips of its role.
-The bear conductor has the studio bear since 2026-10-12. The app keeps its own conductor motion
-(5.4), so it drives the bones of the studio from the pose of the player each frame: the
-retarget. `docs/research/2026-10-12-studio-bear.md` compares this route with the route of the
+flat faces with one color each, a skeleton of the biped template with twist bones of the
+forearms, a skin of up to four bones for each vertex, arm-down corrective shapes, and the clips
+of its role. The bear conductor has the studio bear since 2026-10-12, and the polar bear pianist
+the studio polar bear since the same day (`docs/decisions/2026-10-12-studio-polar-bear.md`). The
+app keeps its own conductor motion (5.4) and its own pianist motion (5.3), so it drives the bones
+of the studio from the pose of the player each frame: the retarget. `docs/research/2026-10-12-studio-bear.md` compares this route with the route of the
 rigged bodies of 2026-10-10 (below), which keeps two bones of the player for each vertex. The
 retarget had about a quarter of the folded faces.
 
@@ -450,16 +456,31 @@ retarget had about a quarter of the folded faces.
 ```
 
 - `pnpm studio-body <animal>` reads the GLB file with no Blender. It welds the faces of the fur
-  and the gloss, keeps the skin, the corrective shapes, and the bind pose of the bones, turns the
-  animal to face -z, and scales it. It drops the baton and the clips of the studio: the app keeps
-  its own baton (4.6) and its own motion. The eyes are the gloss shells of the head out of the
-  middle plane, and they get eye bones of their own, so that they blink (5.1).
-- The scale puts the shoulder joints at the height of the shoulder joints of the parametric bear
-  of 2026-10-11 (`shoulderHeight` of `ANIMALS` in `tools/studio-body.ts`). The conductor stand and
-  the beat fit the shoulders (4.5, 5.4), so this landmark keeps them. The module of the body
-  (`src/models/studio/bear.ts`) holds the scale and the head height `H` of the studio bear, and
-  `docs/research/2026-10-12-studio-bear.md` compares its height, its reach, and its `H` with the
-  parametric bear.
+  and the gloss, keeps the skin, the arm-down corrective shapes, and the bind pose of the bones,
+  turns the animal to face -z, and scales it. It drops the props and the clips of the studio (the
+  baton, the bench, and the piano): the app keeps its own props (4.5, 4.6) and its own motion. The
+  four digits of a paw of the pianist become the one `fingers` bone of the paw, so that they curl
+  together. The eyes are the gloss shells of the head out of the middle plane, and they get eye
+  bones of their own, so that they blink (5.1).
+- The scale keeps a landmark that the scene depends on (`ANIMALS` in `tools/studio-body.ts`). The
+  bear conductor keeps the shoulder joints of the parametric bear of 2026-10-11, because the
+  conductor stand and the beat fit the shoulders (4.5, 5.4). The polar bear pianist keeps the
+  keys of its studio piano at the keys of the piano of the app, because the studio fitted its
+  seated arms to its keys. The module of each body (`src/models/studio/<animal>.ts`) holds its
+  scale and its head height `H`, and the research reports
+  (`docs/research/2026-10-12-studio-bear.md`, `docs/research/2026-10-12-studio-polar-bear.md`)
+  compare them with the parametric bodies.
+- A seated role binds its mesh seated: the legs bend for the seat, and the hips keep their
+  standing height. The export drops such a body until the lowest point of its skin is on the
+  floor, and moves it forward so that the front edge of the bench of the studio meets the front
+  edge of the piano bench of the app. `StudioBody.floor` is the point on the floor under the body,
+  and the piano stands in front of it (4.6). `StudioBody.seatHeight` is the height of a flat bench
+  under the body: the lowest point of the body over the bench, so that the body rests on it and
+  no part goes into it. The seat height of the skeleton of the species is that height, so the
+  piano bench fits the legs (4.5, props). The legs keep the seated bind pose of the studio, and
+  the player has the same legs, so the bind mesh of the player is seated, as the bind mesh of
+  each seated parametric player is. The leg corrective shapes of the studio stay out: they
+  straighten the legs, and the pianist never stands.
 - The skeleton of the player for a studio body has the joints of the studio for the trunk, the
   head, and the legs. Each arm hangs straight down from the shoulder joint of the studio, with
   the lengths of the arm of the studio, because the pose code reads a hanging arm in the bind
@@ -485,11 +506,14 @@ retarget had about a quarter of the folded faces.
   bones of the player with the largest weights for each corner. The footprints, the hanging
   arms, the budgets, and the tests read it. In the tests, `posedCorner()` poses a studio body
   with its own skin.
-- A studio body stands on the floor on each support. The cast gives the bear only the stand of
-  the conductor.
-- `models/studio-rig.test.ts`, `models/studio-body.test.ts`, and the test of the conductor
-  clearance (5.4) check the behavior: the elbow on the joints of the player, the twist split, the
-  turn of a paw, the corrective weights, the blink, and the paws and the baton out of the body.
+- A studio body keeps the stance of its role on each support. The bear conductor stands, and the
+  cast gives it only the stand of the conductor. The polar bear pianist sits, and the cast gives it
+  only the piano bench.
+- `models/studio-rig.test.ts`, `models/studio-body.test.ts`, `tools/studio-body.test.ts`, the
+  test of the conductor clearance (5.4), and the test of the pianist clearance (5.3) check the
+  behavior: the elbow on the joints of the player, the twist split, the turn of a paw, the
+  corrective weights, the blink, the soles on the floor, the body on its bench, and the paws and
+  the baton out of the body and out of the piano.
 
 **Rigged bodies**
 
@@ -645,9 +669,9 @@ hall, and `CLEAR_COLOR` of `scene/post.ts` the clear color behind it. The intent
 
 `SPECIES_COLORS` of `models/colors.ts` gives each species three colors: the fur, the belly and
 the face, and the accent. The models and the seat dots of the UI read them through `SPECIES`
-(`models/species.ts`), which also gives the size of each species. The studio bear keeps the
-colors of the faces of its GLB file (4.4), and its colors and its accent parts here color no
-part of its body.
+(`models/species.ts`), which also gives the size of each species. The studio bear and the studio
+polar bear keep the colors of the faces of their GLB files (4.4), and their colors and their
+accent parts here color no part of their bodies.
 
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR` of
   `models/species.ts`), and a dark nose (`NOSE_COLOR`), unless their accent parts include the
@@ -1000,7 +1024,7 @@ The table gives the parts of the parametric body (4.4). The decision files of th
 | Head | `models/head.ts` | The round head of the polished images: a loft of rings with a round crown, the forehead, the eyes, full cheeks, and the chin. The face is a little flat, and the front of the cheeks carries the muzzle. Every second ring turns by half a side, so that the head has small triangle facets. |
 | Torso and neck | `models/trunk.ts` | A round pear torso with the belly forward, as the animals of `animals.webp`. Its top is under the chin, and a short thick neck joins it to the head, so that the torso and the head hide almost all of the neck. The part below the `chest` bone follows `spine`, and the part above follows `chest` (4.7). |
 | Arms and hands | `models/arms.ts` | Today two thin limbs for each arm, and a round mitten of two faceted balls for the palm and the fingers. The target is the arms of the reference images: thick arms with large flat facets, which lie close to the body and hold the instrument against it (`animals.webp`, `lowpoly-animals.png`). The upper arm starts in a dome around the shoulder joint, so that the shoulder is a round ball that sinks into the torso in each pose (`SHOULDER_JOINT` of `models/body-frame.ts`). The shoulder is about 0.6 of the seated height from the middle of the palm, as the reference image shows. |
-| Legs and feet | `models/legs.ts` | A round thigh that rests on the seat and slopes a little down to the knee, a faceted ball at the knee near the height of the seat, a shin that goes straight down and narrows little to the ankle, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The skeleton sets the height of the chair and of the foot ring, so it sets the length of the shin (4.3, short legs). The stool of the harp and the piano bench keep their heights for the strings and the keys, so their players have longer shins. A standing leg is a straight column with no step at the knee. The radii come from the reference images (4.3, short legs). The toes keep clear of the legs of the shared music stands. |
+| Legs and feet | `models/legs.ts` | A round thigh that rests on the seat and slopes a little down to the knee, a faceted ball at the knee near the height of the seat, a shin that goes straight down and narrows little to the ankle, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The skeleton sets the height of the chair and of the foot ring, so it sets the length of the shin (4.3, short legs). The stool of the harp keeps its height for the strings, so its player has longer shins. The piano bench fits the legs of the studio polar bear (props, below). A standing leg is a straight column with no step at the knee. The radii come from the reference images (4.3, short legs). The toes keep clear of the legs of the shared music stands. |
 | Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. No mouth: only the egg body of the penguin has a lower beak on `jaw` (4.4, 4.7). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). The long and the pointed ears are flat plates with a sharp outline and an inner plate, as in `animals.webp`. The large-round ears sit high and out to the sides, so that the mouse does not look like the bear. The large-flap ear points back and out, so that two elephants on neighbor seats keep apart. |
 | Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long muzzle starts high on the face, so that its top continues the forehead. The tip of the trunk is the nose. The parametric beak of the penguin left the app on 2026-10-11 with the egg body, which has a beak of its own (4.4). |
@@ -1339,8 +1363,8 @@ code of each instrument (`models/instruments/`) holds its sizes and the offsets 
 | Cello | A body with an end pin, and a bow. | The end pin stands in front of the seat and a little to the right. The cello leans back to the chest and to the left, so that its neck passes the left of the head, as in `animals.webp`. The top plate faces the front and a little to the right. The bow as on the violin. |
 | Contrabass | The cello at 1.6 scale, with the cello bow. | At the left side, in front of the seat. The axis leans back to the player and to the left, so that the neck passes the left of the head. The top plate faces the front and to the right. |
 | Harp | 24 strings that show the 47 strings of a concert harp, C1 to G7. | Between the knees. The harp leans back to the player and turns around the vertical, so that the top of the soundbox comes to the right shoulder, and the neck passes the right side of the face. With no turn, the neck went through the face of the deer (review of step 5, U1). The left hand plays from the left side of the strings, and the right hand from the right side. |
-| Piano | A case with an open lid, white and black keys, and a desk with sheet music. The lid opens less than the lid of `mockup.png`, because a wider lid hid the heads of the players behind the piano in the default view. | The front of the keys stands in front of the seat center. |
-| Piano bench | A seat at the height that the keys need (`PIANO_BENCH`). It keeps this height, so the legs of the pianist are longer than on a chair. A lower bench needs a lower piano. | A static prop under the pianist, as a chair. |
+| Piano | A case with an open lid, white and black keys, and a desk with sheet music. The lid opens less than the lid of `mockup.png`, because a wider lid hid the heads of the players behind the piano in the default view. | The front of the keys stands `PIANO_FRONT_H` head heights and 0.05 m in front of the floor point of the pianist (`models/instruments/piano.ts`), clear of the round belly of the studio polar bear (5.3). |
+| Piano bench | A seat of `PIANO_BENCH` at the height of the legs of the pianist, as a chair: the studio polar bear sits on its bench as the pianist of the studio, and its bench is low, because the studio fitted short legs to a round body (4.4, `StudioBody.seatHeight`). Under a parametric body, the bench keeps the height of `PIANO_BENCH`. The legs of the studio body are not stretched (user rule of 2026-10-10). | A static prop under the pianist, as a chair. |
 | Choir folder | Two open covers, with pages in the sheet music color. | In both hands, below the head center and in front of it. It leans back, so that the pages face the eyes. |
 | Flute | A silver tube. | The hole of the lip plate is at the mouth. The flute points to the right, a little to the front and down. |
 | Oboe | A thin dark tube with a small bell and metal keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |
