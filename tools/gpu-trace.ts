@@ -196,16 +196,16 @@ export function busyMs(intervals: readonly GpuInterval[]): number {
 const WEBGL_MAX_BLITS = 3;
 
 /**
- * Gives the GPU time of each WebGL frame of the GPU process of Chrome. The process also runs the
- * compositor of Chrome. A command buffer of the compositor reads an IOSurface (the canvas and
+ * Gives the GPU intervals of each WebGL frame of the GPU process of Chrome. The process also runs
+ * the compositor of Chrome. A command buffer of the compositor reads an IOSurface (the canvas and
  * the layers of the page), or holds many blit encoders, so the function drops it. A WebGL frame
  * ends with the fragment work of the final pass, which writes the IOSurface of the canvas.
  *
  * @param intervals The GPU intervals of the trace.
  * @param process The text that the process column of the GPU process holds, such as its pid.
- * @returns The busy time of each complete frame, in milliseconds ({@link busyMs}).
+ * @returns The intervals of each complete frame, in the order of their start.
  */
-export function webglFrameTimes(intervals: readonly GpuInterval[], process: string): number[] {
+export function webglFrames(intervals: readonly GpuInterval[], process: string): GpuInterval[][] {
   const byBuffer = new Map<string, GpuInterval[]>();
   for (const interval of intervals) {
     if (!interval.process.includes(process)) {
@@ -227,7 +227,7 @@ export function webglFrameTimes(intervals: readonly GpuInterval[], process: stri
     }
   }
 
-  const frames: number[] = [];
+  const frames: GpuInterval[][] = [];
   let frame: GpuInterval[] = [];
   let started = false;
   for (const interval of webgl.toSorted((a, b) => a.startNs - b.startNs)) {
@@ -235,11 +235,22 @@ export function webglFrameTimes(intervals: readonly GpuInterval[], process: stri
     if (interval.channel === 'Fragment' && interval.surfaces.includes('Write Surface')) {
       // The first frame can start before the trace, so it does not count.
       if (started) {
-        frames.push(busyMs(frame));
+        frames.push(frame);
       }
       started = true;
       frame = [];
     }
   }
   return frames;
+}
+
+/**
+ * Gives the GPU time of each WebGL frame of the GPU process of Chrome ({@link webglFrames}).
+ *
+ * @param intervals The GPU intervals of the trace.
+ * @param process The text that the process column of the GPU process holds, such as its pid.
+ * @returns The busy time of each complete frame, in milliseconds ({@link busyMs}).
+ */
+export function webglFrameTimes(intervals: readonly GpuInterval[], process: string): number[] {
+  return webglFrames(intervals, process).map((frame) => busyMs(frame));
 }
