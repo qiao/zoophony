@@ -6,9 +6,11 @@
  *
  * The probe writes `tools/gpu-trace.ts` of `<ref>` into a temporary folder, and splits the WebGL
  * work of the GPU process with the most intervals into frames with its `webglFrames()`. The
- * expected count comes from the command buffers that write the canvas (`canvasWriteFrames()`),
- * as in `pnpm frame`: each frame writes the canvas in two command buffers. The drawing buffer is 2880 × 1800, or the size after the
- * colon of an argument, such as `:2160x1350`.
+ * expected count comes from the command buffers that write the canvas in the whole trace, after
+ * the writes of the partial frames at its ends (`canvasWriteFrames()`), as in `pnpm frame`: each
+ * frame writes the canvas in two command buffers. The table gives both counts of writes. The
+ * drawing buffer is 2880 × 1800, or the size after the colon of an argument, such as
+ * `:2160x1350`.
  */
 import { execFileSync } from 'node:child_process';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
@@ -40,9 +42,10 @@ try {
   // SAFETY: each version of the module exports webglFrames() with these first arguments.
   const { webglFrames } = (await import(file)) as { webglFrames: Frames };
   console.log(
-    `| Trace | Filter | Dropped canvas ms per frame | Frames / expected | Merged | Span (s) | Verdict |`,
+    '| Trace | Filter | Dropped canvas ms per frame | Frames / expected | Canvas writes | ' +
+      'At the ends | Merged | Span (s) | Verdict |',
   );
-  console.log('|---|---|---|---|---|---|---|');
+  console.log('|---|---|---|---|---|---|---|---|---|');
   for (const arg of dirs) {
     const [dir = '', size = '2880x1800'] = arg.split(':');
     const [width = 0, height = 0] = size.split('x').map(Number);
@@ -67,6 +70,8 @@ try {
       ref,
       perFrame.toFixed(3),
       `${check.frames} / ${expected}`,
+      String(check.canvasWrites),
+      String(check.endWrites),
       String(check.merged),
       check.spanSec.toFixed(3),
       faults.length === 0 ? 'pass' : 'fail',
