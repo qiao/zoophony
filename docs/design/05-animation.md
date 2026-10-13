@@ -283,9 +283,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   arms of the percussion players and of the conductor stood 35° out from the side, and now 27°.
   The forward swing lets the arm pass in front of the widest part of the hips. The hand checks
   a third, two thirds, and the end of the paw that the mesh gives below the wrist, and the hips
-  count as a part of the body. The arm swings out at least 16°: the long paws of the studio bear
-  (4.4) rested 2.2 cm in the front of its round belly at 8°, and the earlier checks at 0.08 H and
-  0.16 H below the wrist did not reach the end of its paw.
+  count as a part of the body. The arm swings out at least `HANG.minOut`, because the long paws of
+  the studio bear (4.4) rested in the front of its round belly with the smaller swing of before,
+  and the checks at fixed heights below the wrist did not reach the end of its paw. The larger
+  swing also moves the hanging wrists of the standing parametric bodies a little further out
+  (`docs/research/2026-10-12-studio-bear.md`).
 
 ## 5.3 Instrument motion
 
@@ -718,14 +720,14 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     2026-10-06, N11).
   - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises to a point
     above the point of beat 1, 0.22 units higher than the point of the last beat of the first
-    bar. The left hand rises to point 34° up and 44° outward, with 0.75 of the reach of the arm
-    (`readyReach`), and closes to a loose fist. Thus both paws of the studio bear are up 0.63 H
-    above the shoulder joints, a little above the chin, and nearly equally far forward, as in
-    `bear-views.png`. The right paw is 0.3 H further out than the left paw, because a right paw
-    further in met the long muzzle in the cues to the right. At 21° up and 32° out, the left paw
-    of the studio bear was 0.23 H lower than the right paw. On the parametric bear, the ready
-    point 0.4 units above the last beat put the right paw 0.13 H further out and 0.11 H higher
-    than the left paw, and the left hand at 40° up was 0.31 H higher than the right paw,
+    bar. The left hand rises up and outward (`readyLift` and `readyOut`), with a part of the reach
+    of the arm (`readyReach`), and closes to a loose fist. Thus both paws of the studio bear are up
+    at the same height, a little above the chin, and nearly equally far forward, as in
+    `bear-views.png`. The right paw is further out than the left paw, because a right paw further
+    in met the long muzzle in the cues to the right. `docs/research/2026-10-12-studio-bear.md`
+    gives the places. On the parametric bear, the ready point 0.4 units above the last beat put
+    the right paw 0.13 H further out and 0.11 H higher than the left paw, and the left hand at 40°
+    up was 0.31 H higher than the right paw,
     and with the reach of a cue, it was 0.16 H further forward and showed in front of the muzzle
     in the side view. At 5° inward, the left hand was in front of the face. At 10° inward, the
     left forearm came 0.8 cm from the head, in the count-in of K. 525. The test keeps at least
@@ -746,25 +748,26 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     gave a small motion of the wrist (UX audit 2026-10-05, AM1).
   - The places of the hands are in head heights `H` of the bear of the cast (4.3), in
     `CONDUCTOR_HOLD` and `LEFT_HAND_PLACES` of `pose/conductor.ts`. Since 2026-10-12, the bear is
-    the studio bear (4.4), whose `H` is 0.313 m: the head of `bear-views.png`. The places of the
-    left hand and the elbows keep their values in `H`, so they scale with the head and the
-    arms. The point and the pivot of the baton are new for the studio bear, because the baton
-    keeps its length of 0.51 m: the old point put the right wrist 0.1 H below the shoulder
+    the studio bear (4.4), whose `H` is the head of `bear-views.png`. The places of the left hand
+    and the elbows keep their values in `H`, so they scale with the head and the arms. The point
+    and the pivot of the baton are new for the studio bear, because the baton keeps its length:
+    the old point put the right wrist below the shoulder
     (`docs/research/2026-10-12-studio-bear.md`). On 2026-10-10 the places scaled by 1.6 for the
     smaller head of the code-built bear of `bear-views.png`, and on 2026-10-11 they scaled back
     by 1 / 1.6 for the parametric bear (0.513 m). At beat 1, the tip of the baton is at
     `beatPoint` from the right shoulder joint: up, forward, and a little outward. The baton
     points to the tip from `batonPivot`, a point below the shoulder joint and outward, so the
-    baton points up 49° and 22° inward. The
+    baton points up and a little inward. The
     beat plane is square to the baton at beat 1: its x axis is level, and its y axis points up and
     back. Thus the tip moves around the pivot, and the arcs and the lift of a baton cue rise in the
-    plane. The pivot is 0.47 m behind the wrist, so the wrist follows about half of the motion of
-    the tip, and the arm beats with the baton. At a soft beat 1, the wrist of the studio bear is
-    0.35 H above the shoulder joint, a little below the chin, 0.9 H forward, and 0.85 H out:
+    plane. The pivot is behind the wrist, as far as the wrist is behind the tip, so the wrist
+    follows about half of the motion of the tip, and the arm beats with the baton. At a soft beat
+    1, the wrist of the studio bear is a little below the chin, in front of the shoulder, and out
     beside the head from behind, as in `mockup.png` and in views 02 and 05 of `scene.png`. A wrist
-    at the height of the shoulder and 0.45 H out hid the right paw behind the body from behind,
-    and a wrist 0.15 H further in than now put the claws 2 cm into the long muzzle when the head
-    turned to a section on the right. The fingers curl around the baton (`batonCurl`). The elbows
+    at the height of the shoulder and further in hid the right paw behind the body from behind,
+    and a wrist a little further in than now put the claws into the long muzzle when the head
+    turned to a section on the right. The comments of `CONDUCTOR_HOLD` and the report give the
+    places. The fingers curl around the baton (`batonCurl`). The elbows
     point down, a
     little out, and a little forward (`poleL` and `poleR`), so that they are below the shoulders and
     further in than the paws, and the forearms lean out to the paws, as in `bear-views.png`. Elbows
@@ -814,8 +817,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     0.8 s after the pause, while the instruments are still up (the hold of 5.2), the spine bends
     forward 32° in 0.7 s with a smoothstep, holds 0.6 s, and comes up in 0.7 s. The head bends half of that angle more. A
     hanging arm of the bear follows half of the bend (`HANG_FOLLOW` of `pose/conductor.ts`): with
-    the whole bend, the paws of the studio bear swung 2.8 cm into its belly, and with no bend,
-    the left paw touched the conductor stand. The
+    the whole bend, the paws of the studio bear swung into its belly, and with no bend, the left
+    paw touched the conductor stand. The
     bow is a function of the wall seconds since the pause at the end, so it keeps no state. A
     pause before the end gives no bow. Nothing marked the end of a piece: the last wide shot held,
     and the players lowered their instruments (UX audit 2026-10-05, AM2). The bear does not turn

@@ -455,10 +455,12 @@ retarget had about a quarter of the folded faces.
   animal to face -z, and scales it. It drops the baton and the clips of the studio: the app keeps
   its own baton (4.6) and its own motion. The eyes are the gloss shells of the head out of the
   middle plane, and they get eye bones of their own, so that they blink (5.1).
-- The scale puts the shoulder joints 1.0 m above the floor: the shoulder joints of the
-  parametric bear of 2026-10-11. The conductor stand and the beat fit the shoulders (4.5, 5.4),
-  so this landmark keeps them. The studio bear is then 1.51 m high (the parametric bear was
-  1.62 m), and its head height `H` is 0.313 m (0.513 m).
+- The scale puts the shoulder joints at the height of the shoulder joints of the parametric bear
+  of 2026-10-11 (`shoulderHeight` of `ANIMALS` in `tools/studio-body.ts`). The conductor stand and
+  the beat fit the shoulders (4.5, 5.4), so this landmark keeps them. The module of the body
+  (`src/models/studio/bear.ts`) holds the scale and the head height `H` of the studio bear, and
+  `docs/research/2026-10-12-studio-bear.md` compares its height, its reach, and its `H` with the
+  parametric bear.
 - The skeleton of the player for a studio body has the joints of the studio for the trunk, the
   head, and the legs. Each arm hangs straight down from the shoulder joint of the studio, with
   the lengths of the arm of the studio, because the pose code reads a hanging arm in the bind
@@ -467,17 +469,19 @@ retarget had about a quarter of the folded faces.
   the studio move with their bones of the player. Each arm of the studio takes the posed
   shoulder, elbow, and wrist of the player, and its upper arm and forearm turn with the elbow
   axis of the studio onto the plane of the arm, so that the elbow bends as the studio built it.
-  The forearm twist bone takes half of the twist of the paw, as in the clips of the studio. Each
-  paw turns in the plane of its palm toward the forearm, by up to 70°: the hands of the player
-  stood 45° to 150° from the forearm, and the skin of the studio bends well up to about 50°. The
-  fingers of the studio curl around their own axis by the curl of the player. The corrective
+  The forearm twist bone takes a share of the twist of the paw (`TWIST_SHARE`), as in the clips of
+  the studio. Each paw turns in the plane of its palm toward the forearm, up to a limit
+  (`PAW_TURN`), because the hands of the player stood much further from the line of the forearm
+  than the wrists of the clips of the studio, where its skin bends well. The right paw turns only
+  toward the baton. The fingers of the studio curl around their own axis by the curl of the
+  player. `docs/research/2026-10-12-studio-bear.md` gives the bends of the wrists. The corrective
   shape of each arm takes the weight of the driver of the studio: the place of the upper arm
   between the bind pose of the studio and the pose of its sheet.
 - The scene draws the body in the bind pose of the studio, with four bones for each vertex and
   the corrective shapes as morph targets, and the instrument on the bones of the player. The
   colors of the studio hold its baked occlusion, so the scene adds none (4.5). The body has a
   copy of the shared material with flat shading: the GPU skin turns the normal of each corner by
-  its own four bones, and about 30 to 50 faces of the arms and the chest showed soft gradients.
+  its own four bones, and some faces of the arms and the chest showed soft gradients.
 - `buildStudioBody()` gives the mesh of the player in the bind pose of the player, with the two
   bones of the player with the largest weights for each corner. The footprints, the hanging
   arms, the budgets, and the tests read it. In the tests, `posedCorner()` poses a studio body
@@ -732,7 +736,8 @@ fox in `animals.webp`.
   flat boxes.
 - The vertex colors of a player hold a baked ambient occlusion (`shadeMesh()` and `OCCLUSION` of
   `models/shading.ts`), so that the folds stay dark in the light of the hall: the neck under the
-  head, the hips above the thighs, and the knees. Each nearby triangle counts as a disc that hides
+  head, the hips above the thighs, and the knees. A studio body keeps the occlusion that the
+  studio baked into its face colors, and gets none of `shadeMesh()` (4.4). Each nearby triangle counts as a disc that hides
   a part of the sky of a vertex, and the light of a vertex has a floor. A convex part does not
   shade itself.
 - The bones of the body shade each other. An arm and a piece in a hand shade only their parent and
@@ -1015,8 +1020,8 @@ A standing player is a little shorter than a seated one. The base of its torso s
 its feet rest on the floor. Its legs are a short part of its height, as the legs of the standing
 bear of the reference images (4.3, short legs). The props of a standing player fit its shoulders: the snare drum, the
 xylophone, and the tambourine of the badger are lower (4.6), and the desk of the conductor stand
-follows the shoulders of the bear. The scale of the studio bear keeps its shoulder joints 1.0 m
-above the floor (4.4).
+follows the shoulders of the bear. The scale of the studio bear keeps its shoulder joints at the
+height of the shoulder joints of the parametric bear (4.4).
 
 Today the width of the torso and the thickness of the arms and the legs are the same for all
 species, in `H`. The legs have the form of the reference images since 2026-10-11 (4.3, short
@@ -1034,8 +1039,8 @@ through the open back. A floor instrument, such as the cello, moves with the bod
   and the left half of a loft is the mirror image of its right half. The target is the facets of
   the reference images: large, flat, and clean facets that follow the form of each animal
   (design 1, `lowpoly-animals.png` and `animals.webp`).
-- A body has at most 2,600 triangles. The studio bear keeps the 2,768 faces of its GLB file: the
-  scene has one conductor, so a studio body has a budget of its own of 3,000. An instrument has
+- A body has at most 2,600 triangles. A studio body keeps the faces of its GLB file: the scene
+  has one conductor, so a studio body has a budget of its own of 3,000. An instrument has
   at most 800, except the timpani (1,200)
   and the piano (2,000). A chair or the piano bench has at most 120, and a stand at most 80. The
   full scene with 60 players has at most 200,000 triangles. The frame cost of `perf-60.mid` on
@@ -1056,7 +1061,7 @@ risers. `models/stage.ts` holds the sizes of the stage, the podium, and the cond
 | High stool | For the contrabass: a high seat, four legs, a foot ring, and no back (`HIGH_STOOL`). The seat keeps its height for the contrabass, and the foot ring is the `seatHeight` of the skeleton below it. The feet rest on the ring. |
 | Music stand | A tripod base, a post, and a desk that tilts to the player, with a white sheet (`MUSIC_STAND`). |
 | Podium | A box with a top plate whose corners are cut, and framed panels on its sides (`PODIUM_SIZE` and `PODIUM_TRIM`), as the podium of `orchestra-latest.png`. Its width and its height in relation to the bear are the size of the podium of `bear-views.png`. The panels stand out of the body by a few millimeters, so the podium keeps its box for the layout. |
-| Conductor stand | A desk with an open score in front of the conductor, just below the chest of the bear, on a post that stands on the stage 8 cm in front of the podium (`CONDUCTOR_STAND`). Its top edge is at the shoulders of the bear, as in `animals.webp`, and the desk is lower than the chest, as in `scene.png` (05). A higher desk kept the beat at the height of the head (UX audit 2026-10-05, AM1). A post on the podium put the belly of the bear through the desk (user report of 2026-10-06). With the post 3 cm in front of the podium, the eyes on the long muzzle of the studio bear touched the desk in the bow at the song end. The desk follows the shoulders when the legs of the bear change, and `models/stage.test.ts` keeps its top edge there. |
+| Conductor stand | A desk with an open score in front of the conductor, just below the chest of the bear, on a post that stands on the stage in front of the podium (`CONDUCTOR_STAND`). Its top edge is at the shoulders of the bear, as in `animals.webp`, and the desk is lower than the chest, as in `scene.png` (05). A higher desk kept the beat at the height of the head (UX audit 2026-10-05, AM1). A post on the podium put the belly of the bear through the desk (user report of 2026-10-06). With the post nearer to the podium, the eyes on the long muzzle of the studio bear touched the desk in the bow at the song end (`docs/research/2026-10-12-studio-bear.md`). The desk follows the shoulders when the legs of the bear change, and `models/stage.test.ts` keeps its top edge there. |
 | Stage | A slab of side `S` (stage origin, below) with no steps, as in `mockup.png`. Each corner is cut by `STAGE_CORNER_CUT × S` along each edge, so the outline has eight sides, as in `orchestra-latest.png`. A raised lip runs around the top (`STAGE_LIP`). The planks run from the left to the right, as in `mockup.png`, with staggered joints, and a deterministic hash gives each plank its length and its tone. The stage has its own material with a grain along the planks (`STAGE_FINISH` of `scene/stage.ts`). The gloss of the key light gives most of the light of the planks in the default view, so the roughness sets the width of the pool of light (light and render, above). |
 | Choir risers | Up to three arc levels behind the orchestra (seat geometry, below), with three steps in front of the lowest level, so that the risers rise from the stage top in even steps, as the wooden risers of `orchestra-latest.png` and `orchestra-side.png` (`RISER`). No singer stands on the steps. Each tread has boards and a lighter front edge. |
 | Floor | The floor of the hall at the bottom of the stage, with the baked spill of the stage light (hall, above). |
