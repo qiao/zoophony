@@ -181,7 +181,8 @@ describe('closedDepth', () => {
   });
 
   it('closes an open shell with a cap, so that a point near the cut has its depth to the cap', () => {
-    // The top four rows are missing: the cut is a circle 0.05 m above the middle.
+    // The top four rows are missing: the cut is a circle with a radius of 0.05 m, 0.087 m above
+    // the middle.
     const surface = closeSurface(sphere(0.1, 4), 1);
     const top = 0.1 * Math.cos(Math.PI / 6);
     const { depth } = closedDepth([new Vector3(0, top - 0.01, 0)], surface);
