@@ -10,6 +10,7 @@ import type { InstrumentId } from '../models/instruments/types.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { headOf, lookAngles } from './plan.ts';
 import type { PosePlan } from './plan.ts';
@@ -904,6 +905,110 @@ export function partDistance(a: PosedPart, b: PosedPart, limit: number): number 
         return 0;
       }
       boxOf(ta, boxA).expandByScalar(best);
+    }
+  }
+  return best;
+}
+
+/**
+ * Builds the triangles of a closed box with its faces to the outside. Only tests use it.
+ *
+ * @param min The corner with the smallest x, y, and z.
+ * @param max The corner with the largest x, y, and z.
+ * @returns The 12 triangles.
+ */
+export function boxTriangles(min: Vec3, max: Vec3): Triangle[] {
+  const corner = (i: number): Vector3 =>
+    new Vector3(i & 1 ? max[0] : min[0], i & 2 ? max[1] : min[1], i & 4 ? max[2] : min[2]);
+  const faces = [
+    [0, 4, 6, 2],
+    [1, 3, 7, 5],
+    [0, 1, 5, 4],
+    [2, 6, 7, 3],
+    [0, 2, 3, 1],
+    [4, 5, 7, 6],
+  ] as const;
+  return faces.flatMap(([a, b, c, d]) => [
+    new Triangle(corner(a), corner(b), corner(c)),
+    new Triangle(corner(a), corner(c), corner(d)),
+  ]);
+}
+
+/** The smallest gap from a part to a closed surface. */
+export interface SurfaceGap {
+  /** The gap, in meters: 0 when the part touches the surface, or the limit when none is nearer. */
+  readonly gap: number;
+  /** The index of the triangle of the part with the nearest point, or -1 when none is nearer. */
+  readonly index: number;
+}
+
+const gapMiddle = new Vector3();
+
+/**
+ * Gives the smallest gap from the triangles of a part to a closed surface: the distance of the
+ * nearest points. The gap is 0 when a triangle crosses the surface or the part is inside it. A
+ * piece of a part that crosses no triangle is either inside or outside, so the first corner of one
+ * triangle of each piece tells it. A cluster of the surface whose bounding sphere is farther than
+ * the best gap is skipped, and so is a triangle whose box is farther. Only tests and tools use it.
+ *
+ * @param triangles The posed triangles of the part.
+ * @param surface The closed surface.
+ * @param limit The largest gap of interest, in meters.
+ * @param probes The indices of the triangles whose first corner tells if the part is inside: one
+ *   for each connected piece of the part. All triangles by default.
+ * @returns The gap, and the triangle of the part with the nearest point.
+ */
+export function surfaceGap(
+  triangles: readonly Triangle[],
+  surface: ClosedSurface,
+  limit = Infinity,
+  probes: Iterable<number> = triangles.keys(),
+): SurfaceGap {
+  for (const index of probes) {
+    const corner = triangles[index]?.a;
+    if (
+      corner &&
+      surface.box.containsPoint(corner) &&
+      Math.abs(windingNumber(surface, corner)) > 0.5
+    ) {
+      return { gap: 0, index };
+    }
+  }
+
+  // The box of each triangle of the surface, made on its first use.
+  const boxes: (Box3 | undefined)[] = [];
+  let best: SurfaceGap = { gap: limit, index: -1 };
+  for (const [index, part] of triangles.entries()) {
+    part.getMidpoint(gapMiddle);
+    const radius = Math.max(
+      gapMiddle.distanceTo(part.a),
+      gapMiddle.distanceTo(part.b),
+      gapMiddle.distanceTo(part.c),
+    );
+    boxOf(part, boxA).expandByScalar(best.gap);
+    for (const cluster of surface.clusters) {
+      if (cluster.middle.distanceTo(gapMiddle) - cluster.radius - radius >= best.gap) {
+        continue;
+      }
+      for (const m of cluster.members) {
+        const other = surface.triangles[m];
+        if (!other) {
+          continue;
+        }
+        const otherBox = boxes[m] ?? boxOf(other, new Box3());
+        boxes[m] = otherBox;
+        if (!boxA.intersectsBox(otherBox)) {
+          continue;
+        }
+        const gap = triangleDistance(part, other);
+        if (gap < best.gap) {
+          best = { gap, index };
+          boxOf(part, boxA).expandByScalar(gap);
+        }
+        if (gap === 0) {
+          return best;
+        }
+      }
     }
   }
   return best;

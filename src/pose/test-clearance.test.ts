@@ -12,7 +12,14 @@ import type { Vec3 } from '../models/tuples.ts';
 import { createMaterials } from '../scene/geometry.ts';
 import { applyPose, createPlayerGeometry, createPlayerMesh } from '../scene/player.ts';
 import { BIND_ROTATIONS } from './frames.ts';
-import { closeSurface, closedDepth, posedPart, signedDistance } from './test-clearance.ts';
+import {
+  boxTriangles,
+  closeSurface,
+  closedDepth,
+  posedPart,
+  signedDistance,
+  surfaceGap,
+} from './test-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
 import type { AnimalPose } from './types.ts';
 
@@ -195,5 +202,34 @@ describe('closedDepth', () => {
   it('stops when the shell has a different number of open loops', () => {
     expect(() => closeSurface(sphere(0.1, 4), 0)).toThrow('1 open loops');
     expect(() => closeSurface(sphere(0.1), 1)).toThrow('0 open loops');
+  });
+});
+
+describe('surfaceGap', () => {
+  const unit = closeSurface(boxTriangles([0, 0, 0], [1, 1, 1]), 0);
+
+  it('gives the distance of the nearest points of two boxes, with the near triangle', () => {
+    const part = boxTriangles([1.3, 0.2, 0.2], [1.5, 0.8, 0.8]);
+    const { gap, index } = surfaceGap(part, unit);
+    expect(gap).toBeCloseTo(0.3, 9);
+    expect([part[index]?.a.x, part[index]?.b.x, part[index]?.c.x]).toEqual([1.3, 1.3, 1.3]);
+
+    // Off a corner, the nearest points are on two edges.
+    expect(surfaceGap(boxTriangles([1.3, 1.4, 0.2], [1.5, 1.6, 0.8]), unit).gap).toBeCloseTo(
+      0.5,
+      9,
+    );
+  });
+
+  it('gives 0 for a box that crosses the surface or that is inside it', () => {
+    expect(surfaceGap(boxTriangles([0.9, 0.2, 0.2], [1.5, 0.8, 0.8]), unit).gap).toBe(0);
+    expect(surfaceGap(boxTriangles([0.4, 0.4, 0.4], [0.6, 0.6, 0.6]), unit).gap).toBe(0);
+  });
+
+  it('gives the limit and no triangle when the gap is not below the limit', () => {
+    expect(surfaceGap(boxTriangles([1.3, 0.2, 0.2], [1.5, 0.8, 0.8]), unit, 0.25)).toEqual({
+      gap: 0.25,
+      index: -1,
+    });
   });
 });
