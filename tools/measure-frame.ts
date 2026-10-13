@@ -1046,7 +1046,10 @@ interface UncappedMeasure {
   readonly traceFps: number | null;
   /** The faults of the self-check ({@link frameCheckFaults}). */
   readonly faults: readonly string[];
-  /** The song time at the start and at the end of the record of the trace, in seconds. */
+  /**
+   * The song times of the messages of `xctrace` at the start and at the end of the record, in
+   * seconds, or `null` with no trace. They bracket the data of the trace.
+   */
   readonly songs: readonly [number, number] | null;
   /** The width and the height of the drawing buffer of the stage, in pixels. */
   readonly canvas: readonly [number, number];
@@ -1452,9 +1455,12 @@ async function main(): Promise<void> {
       const other = (uncapped.otherShare * 100).toFixed(0);
       console.log(`Other processes used the GPU in ${other}% of the Metal trace.`);
       const [from, to] = uncapped.songs ?? [NaN, NaN];
+      // The page reads the song time at the messages of xctrace, so the data of the trace lies
+      // inside this window, and it can be shorter.
       console.log(
-        `The Metal trace started at the song time ${from.toFixed(1)} s and ended at ` +
-          `${to.toFixed(1)} s, after a seek to ${METAL_SEEK_SEC} s.`,
+        `The messages of xctrace at the start and at the end of the record came at the song ` +
+          `times ${from.toFixed(1)} s and ${to.toFixed(1)} s, after a seek to ` +
+          `${METAL_SEEK_SEC} s. These times bracket the Metal trace.`,
       );
       if (uncapped.check) {
         for (const line of checkLines(uncapped.check, uncapped.traceFps ?? 0, uncapped.faults)) {
