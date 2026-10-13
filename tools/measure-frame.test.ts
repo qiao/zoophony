@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
-import { frameStats, sumByFrame, traceFrames } from './measure-frame.ts';
+import type { TraceCell } from './gpu-trace.ts';
+import {
+  MAX_LOAD,
+  frameOptions,
+  frameStats,
+  frameTable,
+  framesPerSecond,
+  stateTimes,
+  meetsTarget,
+  sumByFrame,
+  traceFrames,
+} from './measure-frame.ts';
 
 describe('frameStats', () => {
   it('gives the nearest rank percentiles, the max, and the part within 4 ms', () => {
@@ -66,5 +77,97 @@ describe('traceFrames', () => {
       gpuTask: [1.5, 1],
       spanSec: 0.032,
     });
+  });
+});
+
+describe('meetsTarget', () => {
+  it('needs 95% of the frames within 4 ms, and at least one frame', () => {
+    const passing = [...Array.from({ length: 19 }, () => 3.9), 9];
+    const failing = [...Array.from({ length: 18 }, () => 3.9), 9, 9];
+    expect(meetsTarget(passing)).toBe(true);
+    expect(meetsTarget(failing)).toBe(false);
+    expect(meetsTarget([])).toBe(false);
+  });
+});
+
+describe('frameTable', () => {
+  it('gives a Markdown row for each measure, with a verdict only for a target', () => {
+    const lines = frameTable([
+      { name: 'Main thread', times: [1, 2, 3], target: true },
+      { name: 'GPU', times: [5, 6, 3], target: true },
+      { name: 'Old GPU', times: [5, 6, 3], target: false },
+    ]);
+    expect(lines).toEqual([
+      '| Measure | Frames | p50 (ms) | p95 (ms) | Max (ms) | Within 4 ms | Target |',
+      '|---|---|---|---|---|---|---|',
+      '| Main thread | 3 | 2.00 | 3.00 | 3.00 | 100.0% | pass |',
+      '| GPU | 3 | 5.00 | 6.00 | 6.00 | 33.3% | fail |',
+      '| Old GPU | 3 | 5.00 | 6.00 | 6.00 | 33.3% | information |',
+    ]);
+  });
+});
+
+describe('frameOptions', () => {
+  it('gives the defaults of the frame target', () => {
+    expect(frameOptions([])).toEqual({
+      demo: 'perf-60',
+      scale: 2,
+      headed: false,
+      free: false,
+      maxLoad: MAX_LOAD,
+      waitSec: 300,
+      metal: true,
+      keep: undefined,
+    });
+  });
+
+  it('reads each flag', () => {
+    const flags = ['--demo=bach', '--scale=1', '--free', '--max-load=4', '--wait=5', '--no-metal'];
+    expect(frameOptions([...flags, '--keep=out', '--headed'])).toEqual({
+      demo: 'bach',
+      scale: 1,
+      headed: true,
+      free: true,
+      maxLoad: 4,
+      waitSec: 5,
+      metal: false,
+      keep: 'out',
+    });
+  });
+
+  it('refuses an unknown flag and a value that is not a positive number', () => {
+    expect(() => frameOptions(['--uncapped'])).toThrow(/Unknown flag/);
+    expect(() => frameOptions(['perf-60'])).toThrow(/Unknown argument/);
+    expect(() => frameOptions(['--max-load=high'])).toThrow(/positive number/);
+    expect(() => frameOptions(['--scale=0'])).toThrow(/positive number/);
+  });
+});
+
+describe('stateTimes', () => {
+  it('adds the time of each GPU performance state', () => {
+    const cell = (fmt: string, raw = ''): TraceCell => ({ fmt, raw });
+    const table = {
+      columns: ['start', 'duration', 'gpu-performance-state'],
+      rows: [
+        [cell('0'), cell('1 ms', '1000000'), cell('Minimum')],
+        [cell('1'), cell('3 ms', '3000000'), cell('Maximum')],
+        [cell('4'), cell('1 ms', '1000000'), cell('Minimum')],
+      ],
+    };
+    expect(stateTimes(table)).toEqual(
+      new Map([
+        ['Minimum', 2],
+        ['Maximum', 3],
+      ]),
+    );
+    expect(stateTimes({ ...table, rows: [] }).size).toBe(0);
+    expect(() => stateTimes({ ...table, columns: ['start'] })).toThrow(/state/);
+  });
+});
+
+describe('framesPerSecond', () => {
+  it('counts the frame gaps in the time between the first and the last stamp', () => {
+    expect(framesPerSecond([0, 16, 32, 48, 64])).toBe(62.5);
+    expect(framesPerSecond([5])).toBe(0);
   });
 });
