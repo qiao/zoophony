@@ -123,13 +123,22 @@ target now resolves only the color (`resolveDepthBuffer = false` in `scene/post.
 frames of section 6 keep the same PNG bytes. The fragment time of render 3 went from 0.93 ms to
 0.79 ms (mean, quiet GPU). The change of the whole frame is inside the noise of two runs.
 
+The depth pass of the depth of field came after the bloom passes. Each pass of the bloom calls
+`renderer.render()`, which counts a new frame. three.js updates the skeletons, the bone textures,
+and the geometries one time for each frame number, so the depth pass updated the 60 skeletons of
+`perf-60.mid` again and uploaded their bone textures again. In a CPU profile,
+`multiplyMatrices()` (the skeletons) had 0.23 ms and `texSubImage2D()` (the bone textures)
+0.13 ms of self time for each frame. The pass now comes directly after the scene pass and takes
+its frame number (`scene/post.ts`), as the depth pass of the beam does. The frozen frames of
+section 6 keep the same PNG bytes, also the conductor shot with the depth of field.
+
 ## 6. Frozen frames
 
 `frozen.ts` holds the time of the page at 1,000,000 ms after a seek, so that the effects that
 read the wall time draw the same frame in each run. It wrote three shots before and after the
-depth resolve change: the default play view (Boulanger demo, 30 s, Free mode), the conductor shot
+depth resolve change, and after the change of the depth pass of the depth of field: the default play view (Boulanger demo, 30 s, Free mode), the conductor shot
 with the depth of field (Boulanger demo, 73 s), and the wide shot of `perf-60.mid` (5 s). `cmp`
-found the same bytes in each pair of PNG files.
+found the same bytes in each pair of PNG files of the three runs.
 
 ## 7. Each measure with its load
 
