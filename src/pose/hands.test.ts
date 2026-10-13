@@ -36,7 +36,6 @@ import {
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
 import type { ScenePlayer } from './test-scene.ts';
-import type { Transport } from './types.ts';
 
 /** The keys of the left and of the right hand: bass and treble in turn, 0.5 s apart. */
 const PIANO_KEYS = [36, 72, 31, 98, 43, 79, 50, 73] as const;
@@ -283,24 +282,22 @@ describe('poseHands (design 5.3, 4.7)', () => {
     expect(Math.abs(angle - 8 * MathUtils.DEG2RAD)).toBeLessThan(0.3 * MathUtils.DEG2RAD);
   });
 
-  it('leans the pianist forward at rest at least as far as in a play (user report of 2026-10-13)', () => {
+  it('brings the shoulders of the pianist forward over its thighs at rest (user report of 2026-10-13)', () => {
     const piano = players[0];
     if (!piano) {
       throw new Error('The test file has a piano.');
     }
-    // The forward lean of the line from the hips to the neck, from the vertical. The player faces
-    // -z. The rest clip of the studio leans further than its play clips, so that the shoulders
-    // come forward over the knees and the back hides the upper arms.
-    const lean = (transport: Transport): number => {
-      const posed = posedAt(scene, piano, 1.2, 10, transport);
-      const hips = posed.frames[boneIndex('hips')]?.position ?? new Vector3();
-      const neck = posed.frames[boneIndex('neck')]?.position ?? new Vector3();
-      const trunk = neck.clone().sub(hips);
-      return Math.atan2(-trunk.z, trunk.y);
-    };
-    const rest = lean(NOT_STARTED);
-    expect(rest).toBeGreaterThan(0);
-    expect(rest).toBeGreaterThanOrEqual(lean(PLAYING));
+    // The trunk leans forward at rest, as in the rest clip of the studio, so that the back hides
+    // the upper arms. Seen from the side, each shoulder joint stands over the front half of its
+    // thigh: more than half of the way from the hip joint to the knee joint. An upright trunk
+    // keeps the shoulders over the hips.
+    const posed = posedAt(scene, piano, 1.2, 10, NOT_STARTED);
+    const z = (bone: BoneName): number => posed.frames[boneIndex(bone)]?.position.z ?? 0;
+    for (const side of ['L', 'R'] as const) {
+      const hip = z(`thigh${side}`);
+      const part = (z(`upperArm${side}`) - hip) / (z(`shin${side}`) - hip);
+      expect(part, side).toBeGreaterThan(0.5);
+    }
   });
 });
 
