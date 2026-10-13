@@ -1146,6 +1146,73 @@ export function checkLines(
   return lines;
 }
 
+/** The 1-minute load average at the start of each phase and at the end of a run. */
+export interface RunLoads {
+  /** At the start of the main-thread phase, or `null` with `--gpu-only`. */
+  readonly mainThread: number | null;
+  /** At the start of the first record of the GPU phase. */
+  readonly gpu: number;
+  /** At the end of the measure. */
+  readonly end: number;
+}
+
+/** The record of a kept run: `run.json` beside the traces of `--keep` (design 9.7). */
+export interface RunRecord {
+  /** The commit of the working tree. */
+  readonly commit: string;
+  /** True if the working tree had changes. */
+  readonly dirty: boolean;
+  /** The demo of the run. */
+  readonly demo: string;
+  /** The device pixels for each CSS pixel. */
+  readonly scale: number;
+  /** The width and the height of the drawing buffer of the stage, in pixels. */
+  readonly canvas: readonly [number, number];
+  /** The song times of the seeks and of each trace, in seconds. */
+  readonly songs: {
+    /** The seek before the Chrome trace, and the start and the end of the trace. */
+    readonly chrome: { readonly seek: number; readonly trace: readonly [number, number] } | null;
+    /** The seek before the Metal trace, and the start and the end of the record. */
+    readonly metal: { readonly seek: number; readonly trace: readonly [number, number] } | null;
+  };
+  /** The 1-minute load averages of the run. */
+  readonly loads: RunLoads;
+  /** The CPU use of all cores before the main-thread phase, in percent, or `null`. */
+  readonly cpu: number | null;
+  /** The time of each GPU performance state in the Metal trace, in milliseconds, or `null`. */
+  readonly gpuStates: Readonly<Record<string, number>> | null;
+  /** The part of the Metal trace in which other processes used the GPU, or `null`. */
+  readonly otherGpuShare: number | null;
+  /** The count of the records of the GPU phase: 2 after a failed guard. */
+  readonly records: number;
+}
+
+/**
+ * Reads the commit of the working tree and tells if the tree has changes.
+ *
+ * @param root The root of the repository.
+ * @returns The commit hash and the flag.
+ */
+function treeState(root: string): Pick<RunRecord, 'commit' | 'dirty'> {
+  const git = (args: readonly string[]): string =>
+    execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
+  return { commit: git(['rev-parse', 'HEAD']), dirty: git(['status', '--porcelain']) !== '' };
+}
+
+/**
+ * Formats the load averages of a run.
+ *
+ * @param loads The load averages.
+ * @returns The text, such as `main-thread phase 4.2, GPU phase 4.6, end 11.4`.
+ */
+export function loadsText(loads: RunLoads): string {
+  const parts = [`GPU phase ${loadText(loads.gpu)}`, `end ${loadText(loads.end)}`];
+  if (loads.mainThread !== null) {
+    parts.unshift(`main-thread phase ${loadText(loads.mainThread)}`);
+  }
+  return parts.join(', ');
+}
+
 /**
  * Formats a load average.
  *
@@ -1165,7 +1232,7 @@ async function main(): Promise<void> {
   }
 
   const cpu = options.gpuOnly ? null : await waitForLowCpu(options, 'the main-thread phase');
-  const loads: string[] = options.gpuOnly ? [] : [`main-thread phase ${loadText(currentLoad())}`];
+  const mainLoad = options.gpuOnly ? null : currentLoad();
   const root = join(import.meta.dirname, '..');
   // 4182 is the port of the end-to-end tests, so the server starts higher.
   const server = await createServer({
@@ -1182,7 +1249,7 @@ async function main(): Promise<void> {
     const base = server.resolvedUrls?.local[0] ?? 'http://localhost:4191/';
     const capped = options.gpuOnly ? null : await measureCapped(base, options);
     // The GPU phase has no CPU gate: the GPU states and the other GPU work of its trace guard it.
-    loads.push(`GPU phase ${loadText(currentLoad())}`);
+    const gpuLoad = currentLoad();
     let uncapped = await measureUncapped(base, options, metal);
     let guard = guardFaults(uncapped);
     let records = 1;
@@ -1192,7 +1259,7 @@ async function main(): Promise<void> {
       guard = guardFaults(uncapped);
       records = 2;
     }
-    loads.push(`end ${loadText(currentLoad())}`);
+    const loads = { mainThread: mainLoad, gpu: gpuLoad, end: currentLoad() };
 
     const rows: FrameRow[] = [];
     if (capped) {
@@ -1252,7 +1319,7 @@ async function main(): Promise<void> {
           `all cores. Limit ${options.maxCpu}%.`,
       );
     }
-    console.log(`Load average (1 min, for information): ${loads.join(', ')}.`);
+    console.log(`Load average (1 min, for information): ${loadsText(loads)}.`);
     if (capped) {
       const [from, to] = capped.songs;
       console.log(
@@ -1293,6 +1360,25 @@ async function main(): Promise<void> {
         `Guard of the GPU phase (at least ${MIN_MAXIMUM_SHARE * 100}% "Maximum", at most ` +
           `${OTHER_GPU_LIMIT * 100}% other GPU work), ${records} record(s): ${verdict}`,
       );
+    }
+    if (options.keep) {
+      const record: RunRecord = {
+        ...treeState(root),
+        demo: options.demo,
+        scale: options.scale,
+        canvas: uncapped.canvas,
+        songs: {
+          chrome: capped ? { seek: CHROME_SEEK_SEC, trace: capped.songs } : null,
+          metal: uncapped.songs ? { seek: METAL_SEEK_SEC, trace: uncapped.songs } : null,
+        },
+        loads,
+        cpu,
+        gpuStates: uncapped.states ? Object.fromEntries(uncapped.states) : null,
+        otherGpuShare: uncapped.otherShare,
+        records,
+      };
+      await writeFile(join(options.keep, 'run.json'), `${JSON.stringify(record, null, 2)}\n`);
+      console.log(`Wrote ${join(options.keep, 'run.json')}.`);
     }
     console.log('');
     for (const line of frameTable(rows)) {

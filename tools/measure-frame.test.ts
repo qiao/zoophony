@@ -19,6 +19,7 @@ import {
   cpuUse,
   frameOptions,
   gpuGuardFaults,
+  loadsText,
   maximumShare,
   frameStats,
   frameTable,
@@ -304,6 +305,15 @@ describe('the seeks before the traces', () => {
         expect(focus.active).toBe(true);
       }
     }
+  });
+});
+
+describe('loadsText', () => {
+  it('gives the load of each phase, with no main-thread phase for --gpu-only', () => {
+    expect(loadsText({ mainThread: 4.24, gpu: 4.6, end: 11.38 })).toBe(
+      'main-thread phase 4.2, GPU phase 4.6, end 11.4',
+    );
+    expect(loadsText({ mainThread: null, gpu: 4.6, end: 11.38 })).toBe('GPU phase 4.6, end 11.4');
   });
 });
 
