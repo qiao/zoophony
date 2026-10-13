@@ -36,9 +36,12 @@ Open these files for these kinds of work:
   The reference images win over the values in the code that design 4.5 to 4.7 names. These
   values describe the current models, and they are no targets. Design 1 says which image wins
   where they differ. The bodies of 2026-10-06 18:58 are the start point, and these images stay
-  the target of the animals (design 1). Since 2026-10-11, all species except the penguin have
-  the parametric bodies of 2026-10-06 18:58 again (`docs/decisions/2026-10-11-body-revert.md`),
-  and `pnpm sheet-check <id> <dir>` compares a species with its sheet. The penguins of the choir
+  the target of the animals (design 1). Since 2026-10-11, all species except the penguin and the
+  bear have the parametric bodies of 2026-10-06 18:58 again
+  (`docs/decisions/2026-10-11-body-revert.md`), and `pnpm sheet-check <id> <dir>` compares a
+  species with its sheet. Since 2026-10-12, the bear conductor has the studio bear of
+  `lowpoly-studio/` (route 3 below, `docs/decisions/2026-10-12-studio-bear.md`), and
+  `pnpm conductor-views <dir>` shows it close at the beats of a bar. The penguins of the choir
   have an egg body of their own, built in code in `src/models/penguin/` after the choir of the two
   newest images (design 4.4). They have no sheet, so `pnpm choir-check <dir>` puts the gallery
   penguin beside one penguin of each image. The GLB files
@@ -60,15 +63,18 @@ Open these files for these kinds of work:
   with one config for each animal and one role pack for each role, such as the bear conductor.
   It is outside the rules of this file. Run its CLI in that folder:
   `python3 studio build|compare|report|view|new|regress <animal>`, `python3 studio log`, and
-  `python3 studio cache info|clean`. The app does not use it, and the lint skips it. Its `README.md` gives the layout, the commands, the config, and the role packs.
+  `python3 studio cache info|clean`. The lint skips it. The app uses one output of it: the GLB
+  file of the bear, through `pnpm studio-body bear` (route 3 below). The app imports no studio
+  code. Its `README.md` gives the layout, the commands, the config, and the role packs.
 
 `docs/research/` holds the facts behind the decisions, with sources. Keep these reports as the
 record of their date. Put new research in a new report.
 
 ## Model work
 
-A species gets a body of its own by one of two routes (design 4.4). Prefer the GLB route when the
-user gives a model: it takes minutes, and the code route takes hours.
+A species gets a body of its own by one of three routes (design 4.4). Prefer the GLB route when the
+user gives a model: it takes minutes, and the code route takes hours. Use route 3 when the user
+asks for an animal of `lowpoly-studio/` in the app.
 
 **Route 1: a rigged GLB file.** The user gives a model in a T-pose with a Mixamo skeleton. Since
 2026-10-11, the app has no code of a rigged body. Before step 3, bring back the code of
@@ -149,6 +155,37 @@ These traps of route 2 each cost a round:
 - The colors of the page pass through the light of the page. Change the light of a sheet page
   only when its sheet has a different light, such as the soft light of `bear-views.png`.
 - A test that pins a tuned value fails on each retune and finds no fault. Test the behavior.
+
+**Route 3: a studio body**, as the bear conductor since 2026-10-12 (design 4.4). The studio builds
+the GLB file. The app keeps its own motion and drives the bones of the studio from the pose of the
+player on each frame (`poseStudioBones()` of `src/models/studio-rig.ts`).
+
+```text
+ python3 studio build <animal> --> lowpoly-studio/animals/<animal>/out/<animal>.glb
+        | pnpm studio-body <animal> (no Blender)
+        v
+ src/models/studio/<animal>.ts --> STUDIO_BODIES of models/studio-body.ts --> SPECIES[<s>].body
+        --> pnpm test --> pnpm conductor-views <dir> --> pnpm snapshot
+```
+
+1. Run `pnpm studio-body <animal>` after each build of the studio that changes the GLB file. Add
+   an animal to `ANIMALS` of `tools/studio-body.ts` with the height of its shoulder joints in
+   the app: the landmark of its scale.
+2. Add the module to `STUDIO_BODIES`, and give the species the body.
+3. Run `pnpm test`. The pose of the player drives the arms by their joints, so a new body needs
+   a fit of the holds in its `H`. Probe a hold with `pnpm pose-probe <sheet>`, and look at the
+   close views. The clearance tests read the skin of the studio (`posedCorner()`).
+4. Run `pnpm snapshot`, and record the measures in a research report and the decisions in a
+   decision file.
+
+These traps of route 3 each cost a round:
+
+- The hands of the player turn freely at the wrist, and the skin of the studio bends well only
+  near its clips. The retarget turns each paw in the plane of its palm toward the forearm.
+- The baton keeps its length, and the holds are in head heights. A smaller head moves the wrist
+  down and back along the baton, so set the point of the baton from the wrist that you want.
+- A long muzzle turns into the paws when the head turns to a section. The test of the conductor
+  clearance finds the frame, and the close views show it.
 
 ## Rules
 
