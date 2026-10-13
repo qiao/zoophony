@@ -167,7 +167,8 @@ stages.
 | State | Size |
 |---|---:|
 | `main` (a9b811ea) | 327,410 B |
-| End of the branch | 344,921 B |
+| After the studio polar bear (051adaac) | 344,921 B |
+| End of the branch | 344,919 B |
 
 The packed studio polar bear is about 17.5 kB after gzip, as the packed studio bear. The limit is
 1,000,000 B.
