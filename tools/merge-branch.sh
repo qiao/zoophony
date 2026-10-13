@@ -6,6 +6,11 @@
 # adds a temporary worktree. The script stops at the first failure and keeps the
 # branch and the worktree. It removes them only after a successful merge.
 #
+# tools/check-commits.sh --tip, from the folder of this script, checks each commit
+# and runs the full unit suite on the last commit. It keeps each passed result in a
+# cache by tree, so a commit that an agent checked before prints "hit" and runs no
+# check. MERGE_NO_CACHE=1 runs each check again.
+#
 # --check-only runs each check and stops before the merge. The script rebases the
 # branch onto main, but it does not change main, and it keeps the branch and the
 # worktree.
@@ -34,6 +39,8 @@ if [ $# -lt 1 ] || [ $# -gt 2 ]; then
 fi
 
 BRANCH=$1
+# The folder of this script, which holds the check script of the commits.
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 WORKTREE=
 if [ $# -eq 2 ]; then
   WORKTREE=$(cd "$2" && pwd)
@@ -126,20 +133,33 @@ if ! git rebase main >>"$LOG" 2>&1; then
   exit 2
 fi
 
-# The second rebase rewrites no commit: it only runs the checks on each commit. Each commit
+# The check script rewrites no commit: it only runs the checks on each commit. Each commit
 # runs only the unit tests that its changes reach through the imports (`--changed`). The
 # other tests give the result of its parent, which the step before checked. A test that
 # reads a file with no import does not see a change of that file, so the full suite runs one
-# time on the last commit.
+# time on the last commit (`--tip`). A commit with an entry in the cache prints "hit".
 HEAD_BEFORE=$(git rev-parse HEAD)
-CHECK='pnpm -s lint >"$MERGE_TMP/lint.log" 2>&1 && pnpm -s typecheck >"$MERGE_TMP/typecheck.log" 2>&1 && pnpm -s test --changed HEAD~1 --passWithNoTests >"$MERGE_TMP/test.log" 2>&1 && pnpm -s format:check >"$MERGE_TMP/format.log" 2>&1 || { echo "RED $(git log -1 --format="%h %s")"; exit 1; }'
-if ! git rebase main --exec "$CHECK" >>"$LOG" 2>&1; then
-  grep -E '^RED ' "$LOG" || true
-  git rebase --abort >/dev/null 2>&1 || true
-  echo "A commit failed a check. The rebase is aborted, and the branch is unchanged."
-  echo "The logs are in $MERGE_TMP."
-  exit 3
+CHECK_ARGS=(--tip)
+if [ "${MERGE_NO_CACHE:-0}" = 1 ]; then
+  CHECK_ARGS+=(--no-cache)
 fi
+CHECK_STATUS=0
+"$SCRIPT_DIR/check-commits.sh" "${CHECK_ARGS[@]}" main || CHECK_STATUS=$?
+case $CHECK_STATUS in
+  0) ;;
+  1)
+    echo "The commit checks could not start in $WORKTREE." >&2
+    exit 1
+    ;;
+  4)
+    echo "The check rebase changed the commit hashes. Examine $WORKTREE." >&2
+    exit 4
+    ;;
+  *)
+    echo "A commit or the full unit suite failed a check. The branch is unchanged."
+    exit 3
+    ;;
+esac
 if [ -d "$(git rev-parse --git-path rebase-merge)" ]; then
   echo "The rebase did not finish in $WORKTREE." >&2
   exit 3
@@ -148,14 +168,7 @@ if [ "$(git rev-parse HEAD)" != "$HEAD_BEFORE" ]; then
   echo "The check rebase changed the commit hashes. Examine $WORKTREE." >&2
   exit 4
 fi
-echo "Checked $(git rev-list --count main..HEAD) commits in ${SECONDS}s."
-
-pnpm -s test >"$MERGE_TMP/test-full.log" 2>&1 || {
-  tail -30 "$MERGE_TMP/test-full.log"
-  echo "The full unit suite failed on the last commit. The log is $MERGE_TMP/test-full.log."
-  exit 3
-}
-echo "Ran the full unit suite at ${SECONDS}s."
+echo "Checked $(git rev-list --count main..HEAD) commits and ran the full unit suite at ${SECONDS}s."
 
 # A branch that changes only docs cannot change the site.
 SITE_FILES=$(git diff --name-only main HEAD | grep -vE '^docs/|\.md$' || true)
