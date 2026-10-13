@@ -405,49 +405,6 @@ function boxOf(triangle: Triangle, out: Box3): Box3 {
     .expandByPoint(triangle.c);
 }
 
-const depthBox = new Box3();
-const depthNormal = new Vector3();
-
-/**
- * Gives the depth of the deepest point under the surface of a part: the distance to the nearest
- * triangle of the part, for a point behind that triangle (against its normal). A point in front
- * of its nearest triangle has the depth 0. The faces of the part point out, and the surface near
- * the points is convex, such as the trunk and the head near a paw. Only tests use it.
- *
- * @param points The points.
- * @param part The part.
- * @param reach The largest depth of interest, in meters. A point farther than this from each
- *   triangle counts as outside.
- * @returns The depth, in meters: 0 when no point is under the surface.
- */
-export function depthUnder(points: readonly Vector3[], part: PosedPart, reach: number): number {
-  // Only the triangles near the box of the points can be within the reach of a point.
-  depthBox.setFromPoints([...points]).expandByScalar(reach);
-  const near = part.triangles.flatMap((t) => {
-    const box = boxOf(t, new Box3()).expandByScalar(reach);
-    return box.intersectsBox(depthBox) ? [{ triangle: t, box }] : [];
-  });
-  let deepest = 0;
-  for (const point of points) {
-    let nearest = reach;
-    let behind = false;
-    for (const { triangle, box } of near) {
-      if (!box.containsPoint(point)) {
-        continue;
-      }
-      const distance = triangle.closestPointToPoint(point, nearestPoint).distanceTo(point);
-      if (distance < nearest) {
-        nearest = distance;
-        behind = triangle.getNormal(depthNormal).dot(nearestPoint.sub(point).negate()) < 0;
-      }
-    }
-    if (behind) {
-      deepest = Math.max(deepest, nearest);
-    }
-  }
-  return deepest;
-}
-
 /** A group of near triangles of a closed surface. */
 interface SurfaceCluster {
   /** The indices of the triangles in the surface. */
