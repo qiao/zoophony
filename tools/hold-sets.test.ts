@@ -69,4 +69,17 @@ describe('setHold', () => {
     }
     expect(() => setHold('drums.lean=1')).toThrow('violin@rabbit');
   });
+
+  it('names the other holds that a change of a shared object moves too', () => {
+    const { undo, text } = setHolds('violin.restBow.lap.along=0.5');
+    try {
+      expect(BOWED_HOLDS.viola.restBow.lap.along).toBe(0.5);
+      expect(text).toContain('also moves viola.restBow.lap.along');
+    } finally {
+      undo();
+    }
+    const alone = setHold('piano.lean=0.2');
+    alone.undo();
+    expect(alone.also).toEqual([]);
+  });
 });

@@ -40,6 +40,11 @@ export interface HoldChange {
   readonly before: string;
   /** The text of the new value. */
   readonly after: string;
+  /**
+   * The other paths that the change moves too. A hold that copies another hold with a spread
+   * shares its nested objects, such as `violin.restBow` and `viola.restBow`.
+   */
+  readonly also: readonly string[];
 }
 
 /** The changes of a list of `--set`. */
@@ -84,12 +89,40 @@ function entryOf(node: object, key: string): [string, unknown] | undefined {
 }
 
 /**
+ * Finds each path from the roots of {@link HOLDS} to an object.
+ *
+ * @param target The object.
+ * @returns The paths, such as `viola.restBow.lap`.
+ */
+// oxlint-disable-next-line anti-slop/no-object-parameters -- a `--set` path is an I/O boundary that walks any hold.
+function pathsTo(target: object): string[] {
+  const found: string[] = [];
+  // oxlint-disable-next-line anti-slop/no-object-parameters -- the walk goes down into each hold.
+  const walk = (node: object, path: string): void => {
+    for (const [key, child] of Object.entries(node)) {
+      if (!(child instanceof Object)) {
+        continue;
+      }
+      const next = path ? `${path}.${key}` : key;
+      if (child === target) {
+        found.push(next);
+      } else {
+        walk(child, next);
+      }
+    }
+  };
+  walk(HOLDS, '');
+  return found;
+}
+
+/**
  * Changes one value of a hold in memory, such as `piano.lean=16deg` or
  * `piano.restL.lap.offset=-0.75,0.1,0`. The path names the keys from a hold of {@link HOLDS}. The
  * new value has the type of the old value: a number, or a list of numbers of the same length.
  *
  * @param change The change, as `<path>=<value>`.
- * @returns A function that puts the old value back, and the texts of the old and the new value.
+ * @returns A function that puts the old value back, the texts of the old and the new value, and
+ *   the other paths that the change moves too.
  * @throws Error if the path has an unknown key, or if the value does not fit the old value.
  */
 export function setHold(change: string): HoldChange {
@@ -137,10 +170,14 @@ export function setHold(change: string): HoldChange {
   }
   const target = node;
   Reflect.set(target, key, value);
+  const parent = [first, ...keys.slice(0, -1)].join('.');
   return {
     undo: () => Reflect.set(target, key, old),
     before: String(old),
     after: String(value),
+    also: pathsTo(target)
+      .filter((other) => other !== parent)
+      .map((other) => `${other}.${key}`),
   };
 }
 
@@ -148,7 +185,8 @@ export function setHold(change: string): HoldChange {
  * Applies a list of changes, separated by `;`, as {@link setHold} does.
  *
  * @param list The changes, such as `piano.lean=16deg;piano.curl=0.4`.
- * @returns A function that puts all old values back, and a text of the changes.
+ * @returns A function that puts all old values back, and a text of the changes, with the other
+ *   paths that they move too.
  * @throws Error if a change does not fit. The changes before it are then put back.
  */
 export function setHolds(list: string): HoldChanges {
@@ -166,5 +204,7 @@ export function setHolds(list: string): HoldChanges {
     undo();
     throw error;
   }
-  return { undo, text: list };
+  const also = done.flatMap((change) => change.also);
+  const text = also.length > 0 ? `${list} (also moves ${also.join(', ')})` : list;
+  return { undo, text };
 }
