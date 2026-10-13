@@ -102,6 +102,16 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   demos, and skips a demo with no conductor (`pose/conductor-clearance-<k>.test.ts`,
   `pose/test-conductor-clearance.ts`). The test of the pianist clearance reads the patched demos
   with a piano seat (`pose/pianist-clearance-<k>.test.ts`, `pose/test-pianist-clearance.ts`).
+- The clearance tests of the roles share one sweep (`pose/test-sweep.ts`,
+  `pose/test-role-clearance.ts`). `pose/test-sweep-roles.ts` gives each role its moving parts,
+  its obstacles, its sample sets, its note targets, and its limits. In each sample, the sweep
+  poses the skin of the GPU. It measures the depth of each point of the paws, the claws, the
+  forearms, and the upper arms in the closed body and in the closed shells of the instrument
+  (`closedDepth()` of `pose/test-clearance.ts`). A cap on each open loop closes a part, and a
+  point is inside when its winding number is more than 0.5. Each point stays at most the contact
+  depth of the role in each obstacle. A depth past it is a named entry with its reason and its
+  decision row. The entry is a contract of contact that the look accepts, with a margin over the
+  measure. `pnpm pose-depth <role>` prints the same depths.
 - The Playwright smoke test does these steps:
   1. Load the page.
   2. Play the default demo for 4 seconds, with the autoplay policy turned off. The count-in of
