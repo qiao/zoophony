@@ -25,7 +25,7 @@ import io
 import json
 import os
 
-from PIL import Image
+from PIL import Image, ImageChops, ImageMath
 
 from studio import drawing
 from studio.measure_features import singular
@@ -144,6 +144,20 @@ class Pictures:
         return self._renders[view]
 
 
+def overlap(mask, render, bg, diff):
+    """Draws the silhouette overlap of a view: OVERLAP of (the mask pixel is over 127, the sum of
+    the differences of the render pixel from the background color bg is over diff). Pillow
+    lookup tables and ImageMath do the per-pixel work in C, with integers."""
+    on_sheet = mask.point(lambda v: 2 if v > 127 else 0)
+    dist = [ch.point(lambda v, q=q: abs(v - q)) for ch, q in zip(render.split(), bg)]
+    on_render = ImageMath.lambda_eval(lambda a: (a['r'] + a['g'] + a['b']) > diff,
+                                      r=dist[0], g=dist[1], b=dist[2]).convert('L')
+    code = ImageChops.add(on_sheet, on_render)
+    over = Image.frombytes('P', code.size, code.tobytes())
+    over.putpalette([c for k in range(4) for c in OVERLAP[(k >= 2, k % 2 == 1)]])
+    return over.convert('RGB')
+
+
 def view_tiles(cfg, pics, folder):
     """Writes one image of each view: the sheet, the render, and the silhouette overlap (gray:
     both, red: the sheet only, blue: the render only), cut to the rows of the compare. Returns
@@ -163,14 +177,7 @@ def view_tiles(cfg, pics, folder):
         sheet = pics.sheet_column(view).crop((0, r0, w, r1))
         rend = render.crop((0, r0, w, r1))
         mask = Image.open(mask_path).convert('L').crop((c0, r0, c1, r1))
-        mp, rp = mask.load(), rend.load()
-        over = Image.new('RGB', (w, r1 - r0))
-        op = over.load()
-        for y in range(r1 - r0):
-            for x in range(w):
-                a = mp[x, y] > 127
-                b = sum(abs(p - q) for p, q in zip(rp[x, y], bg)) > diff
-                op[x, y] = OVERLAP[(a, b)]
+        over = overlap(mask, rend, bg, diff)
         tile = Image.new('RGB', (3 * w + 12, r1 - r0), drawing.PAPER)
         for i, im in enumerate((sheet, rend, over)):
             tile.paste(im, (i * (w + 6), 0))
