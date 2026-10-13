@@ -277,7 +277,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `tools/decision-rows.sh [--diff <base>] [<term>...]` | Prints each table row of `docs/decisions/*.md` that holds a term, with the file and the line. A term of the command line matches with no regard to case. With `--diff <base>`, the identifiers and the string literals that the diff of `<base>..HEAD` removes outside `docs/` are terms too. They match as whole names in the code spans of a row. A person reads the list. It stops no merge. CI does not run it. |
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
-`pnpm format`, `pnpm screenshots`, `pnpm snapshot`, `pnpm sheet-check`, `pnpm pose-probe`, `pnpm choir-check`, `pnpm keyboard`,
+`pnpm format`, `pnpm screenshots`, `pnpm snapshot`, `pnpm sheet-check`, `pnpm pose-probe`, `pnpm pose-depth`, `pnpm choir-check`, `pnpm keyboard`,
 `pnpm smoke`, `pnpm glb-init`, `pnpm rig-body`, `pnpm studio-body`, `pnpm close-views`,
 `tools/merge-branch.sh`, `tools/check-commits.sh`, and `tools/decision-rows.sh`. It runs `pnpm test:e2e` in one job for each browser, and only the Chromium job blocks a merge
 (design 9.2).
