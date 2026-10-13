@@ -24,6 +24,7 @@ import {
   partDistance,
   posedPart,
   signedDistance,
+  surfaceGap,
 } from './test-clearance.ts';
 import {
   armLengthErrors,
@@ -36,6 +37,7 @@ import {
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
 import type { ScenePlayer } from './test-scene.ts';
+import { pianoCase } from './test-sweep-roles.ts';
 import type { Transport } from './types.ts';
 
 /** The keys of the left and of the right hand: bass and treble in turn, 0.5 s apart. */
@@ -214,7 +216,7 @@ describe('poseHands (design 5.3, 4.7)', () => {
     expect(curl(0.5 + HAND_MOTION.pluckSec + 0.01)).toBeCloseTo(60 * MathUtils.DEG2RAD, 4);
   });
 
-  it('rests the palms on the thighs or on a string before the first play (user reports of 2026-10-06 and 2026-10-13)', () => {
+  it('rests the palms in the lap or on a string before the first play (user reports of 2026-10-06 and 2026-10-13)', () => {
     for (const player of players) {
       const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
       const h = player.model.body.headHeight;
@@ -236,7 +238,7 @@ describe('poseHands (design 5.3, 4.7)', () => {
           if (player.model.studio) {
             // The skin of a studio body blends the thighs into the hips and the belly, and the
             // body is one closed shell with the arms. The paw of the round polar bear rests on
-            // the front of the belly over its thigh, as the hands of a pianist rest in the lap
+            // the low front of the belly over its thigh, as the hands of a pianist rest in the lap
             // before a performance. It touches the lap, and the test of the pianist clearance
             // keeps it and the forearm out of the body (`test-pianist-clearance.ts`). The palm is
             // nearer to the middle line than the knee.
@@ -303,6 +305,21 @@ describe('poseHands (design 5.3, 4.7)', () => {
     const rest = lean(NOT_STARTED);
     expect(rest).toBeGreaterThan(0);
     expect(rest).toBeLessThan(lean(PLAYING));
+  });
+
+  it('keeps the paws of the resting pianist 5 cm from the case of the piano (review of 2026-10-13)', () => {
+    const piano = players[0];
+    if (!piano) {
+      throw new Error('The test file has a piano.');
+    }
+    // The paws rest in the lap, away from the keys. Paws that hung near the case looked as if
+    // the bear held them up at the keys before a first chord.
+    const posed = posedAt(scene, piano, 1.2, 10, NOT_STARTED);
+    const { surface } = pianoCase(posed);
+    for (const side of ['L', 'R'] as const) {
+      const paw = posedPart(posed, [`hand${side}`, `fingers${side}`]);
+      expect(surfaceGap(paw.triangles, surface, 0.1).gap, side).toBeGreaterThanOrEqual(0.05);
+    }
   });
 
   it('keeps the gaze of the resting pianist about level while its trunk leans (user request of 2026-10-13)', () => {

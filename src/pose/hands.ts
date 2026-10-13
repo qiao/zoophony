@@ -63,17 +63,17 @@ export interface HandsHold {
   /**
    * The move of each wrist away from the straight line from its rest place to its playing place,
    * at the middle of the change, in head heights: out to the side of the hand, up, and forward. A
-   * paw of the round studio polar bear goes around its belly and over the front of the keys.
+   * paw of the round studio polar bear goes up over the front of the keys.
    */
   readonly restArc: Vec3;
-  /** The left hand in the rest pose, on its thigh (design 5.3). */
+  /** The left hand in the rest pose, in the lap (design 5.3). */
   readonly restL: RestingHand;
-  /** The right hand in the rest pose, on its thigh. */
+  /** The right hand in the rest pose, in the lap. */
   readonly restR: RestingHand;
 }
 
 /**
- * A hand in the rest pose: on its thigh with the palm down (`lap`), or on a string of the harp, as
+ * A hand in the rest pose: in its lap (`lap`), or on a string of the harp, as
  * in the playing pose (`string`).
  */
 export type RestingHand =
@@ -107,9 +107,9 @@ export const HANDS_HOLDS = {
   // (`lowpoly-studio/roles/pianist/`), and the keys stand far enough in front of the round
   // belly that the paws reach only the middle keys with the lean. The paws reach from A0 to
   // B♭4 with the left paw and from C4 to C8 with the right paw (`pose/hands.test.ts`), so a
-  // melody changes paws between them. The wrists go out and up around the belly and over the case
-  // between the knees and the keys (`restArc`). On a straight line, the paws went into the belly,
-  // and with a smaller arc, the claws went into the case when the paws lowered to the lap.
+  // melody changes paws between them. The wrists go up over the case between the lap and the keys
+  // (`restArc`). With the paws in the lap, an arc of 0.5 H out stood the upper arms 61° out from
+  // the trunk in the lift. With no arc out, they stand out at most as far as in a play.
   piano: {
     action: 'strike',
     keyPoint: pianoKeyFront,
@@ -125,31 +125,33 @@ export const HANDS_HOLDS = {
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
-    restArc: [0.5, 0.5, 0],
+    restArc: [0, 0.4, 0],
     // The rest pose is the rest position of a pianist before a performance: the trunk sits tall
     // with a slight lean toward the piano, the head is up, and the hands rest in the lap
     // (`docs/research/2026-10-13-pianist-lap.md`). The rest lean is the lean of the `ready` clip
     // of the studio (`clip_ready()` of `lowpoly-studio/roles/pianist/clips.py`). The head lifts
     // against it (`restHeadLift`), so the gaze is level and the face shows over the lid. The round
-    // belly of the studio polar bear covers its thighs, and its arms are short, so the paws rest
-    // on the front of the belly over the thighs, nearer to the middle line than the knees. The
-    // palms face the belly, and the fingers point down along it. The elbows point out and a little
-    // forward, as arms that hold a ball, so the forearms lie on the belly and stay out of it. With
-    // the trunk of the studio rest clip, the bear slumped forward over its knees, and the paws hung
-    // beside them (user report of 2026-10-13).
+    // belly of the studio polar bear covers its thighs, so the paws rest on the low front of the
+    // belly over the thighs, at about the height of the top of the leg above the knee and nearer
+    // to the middle line than the knees. The palms face back and down onto the belly, and the
+    // fingers point in, toward each other. The elbows hang by the sides, out and a little back.
+    // The arms are short, so the forearms and the upper arms lie on the belly, up to 3 cm into
+    // it. Higher paws with the elbows forward looked as if the bear held its paws up at the keys
+    // (review of 2026-10-13). With the trunk of the studio rest clip, the bear slumped forward over
+    // its knees, and the paws hung beside them (user report of 2026-10-13).
     restL: {
       kind: 'lap',
-      lap: { along: 1, offset: [0.14, 0.22, -0.59] },
-      palm: [0.95, 0.1, 1],
-      fingers: [0.4, -1, 0.34],
-      pole: [-1, 0, -0.26],
+      lap: { along: 1, offset: [0.03, 0.14, -0.5] },
+      palm: [0.06, -0.57, 0.79],
+      fingers: [1.18, -0.09, -0.92],
+      pole: [-1, -1, 0.77],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 1, offset: [-0.14, 0.22, -0.59] },
-      palm: [-0.95, 0.1, 1],
-      fingers: [-0.4, -1, 0.34],
-      pole: [1, 0, -0.26],
+      lap: { along: 1, offset: [-0.03, 0.14, -0.5] },
+      palm: [-0.06, -0.57, 0.79],
+      fingers: [-1.18, -0.09, -0.92],
+      pole: [1, -1, 0.77],
     },
   },
   // The left hand plays from the left side of the strings and the right hand from the right

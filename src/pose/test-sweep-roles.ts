@@ -66,6 +66,9 @@ const CONTACT = 0.015;
 /** The decision file of the studio polar bear. */
 const POLAR_BEAR_DECISIONS = 'docs/decisions/2026-10-12-studio-polar-bear.md';
 
+/** The decision file of the lap pose of the pianist. */
+const LAP_DECISIONS = 'docs/decisions/2026-10-13-pianist-lap.md';
+
 /** The decision file of the sweep of each role. */
 const SWEEP_DECISIONS = 'docs/decisions/2026-10-13-role-sweep.md';
 
@@ -209,7 +212,7 @@ function pianistTargets(scene: TestScene, index: number): NoteTarget[] {
 
 /**
  * The sweep of the pianist (design 5.3): the arms against the body and the case of the piano, in
- * a full play, in the lift of the paws from the knees to the keys at the play start, in the rest
+ * a full play, in the lift of the paws from the lap to the keys at the play start, in the rest
  * pose before the first play, and in the lowering of the paws after a stop.
  */
 export const PIANIST_SWEEP: RoleSweep = {
@@ -240,6 +243,19 @@ export const PIANIST_SWEEP: RoleSweep = {
         'The skin of the upper arm of the round polar bear runs inside the side of its belly to the elbow.',
       decision: SWEEP_DECISIONS,
     })),
+    // The paws rest in the lap, and the round belly covers the thighs. The forearms lie on the
+    // belly, and the upper arms hang by its sides.
+    ...(['rest', 'lift'] as const).flatMap((samples) =>
+      (['forearms', 'upper arms'] as const).map((part) => ({
+        part,
+        into: 'body',
+        samples,
+        depth: 0.03,
+        reason:
+          'The arms of the round polar bear are short. With the paws in the lap and the elbows by the sides, the arms lie on its belly.',
+        decision: LAP_DECISIONS,
+      })),
+    ),
   ],
   targetError: 1e-4,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'piano'),
