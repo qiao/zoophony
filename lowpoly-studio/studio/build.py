@@ -31,7 +31,9 @@ The stage cache (studio/cache.py, studio/stages.py): field, remesh, organic, cli
 export keep their outputs in the cache that all worktrees share, keyed by their inputs, the
 config values that they read, and their code. A cache hit makes the Blender state again with the restore
 function of the stage, with the same calls as the run that made the entry. The cheap stages that
-change the scene (paint to assemble) always run.
+change the scene (paint to assemble) always run. Inside the stage "contacts", the frame cache
+(studio/contacts.py Frames) keeps the record of each frame of each clip, so a change of one clip
+measures only the frames whose pose changed.
 
 The remesh gate (studio/remesh.py): after the remesh, the quad count; after the organic pass,
 the inward faces, the slivers, and the slits. A failed gate stops the build: <out>/stages/
@@ -257,13 +259,14 @@ def restore_clips(saved, samples, arm, skel, final, pack, scene_objs):
 
 
 def check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes, weights_of, fps,
-                body=None, pack=None):
+                body=None, pack=None, pose_keys=None):
     """Measures the deepest contact and the folded faces of each clip, and the scene checks of a
     role with scene props or hand targets (studio/scene_check.py).
 
     A clip passes with no contact deeper than the role limit, no more folded faces than the
-    fold limit, and the scene checks within the role limits. Returns (report, the faces that
-    folded in any frame).
+    fold limit, and the scene checks within the role limits. The frame cache
+    (contacts.Frames) measures only the frames that it does not hold; pose_keys: the pose
+    digests of contacts.pose_keys. Returns (report, the faces that folded in any frame).
     """
     t0 = time.time()
     limit = cfg.role.checks.contact_depth
@@ -271,15 +274,10 @@ def check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes, wei
     check = contacts.ContactCheck(skel, verts, tris, w, items, template.contact_spec(cfg.role),
                                   shapes, weights_of)
     scene = scene_check.make(cfg, body, pack, check) if body else None
+    frames = contacts.Frames(check, scene)
     report = {}
     for name, poses in samples.items():
-        records = []
-        for i, pose in enumerate(poses):
-            posed_body = check.pose_body(pose)
-            rec = {'contact': check.frame(posed_body)}
-            if scene:
-                rec['scene'] = scene.frame(pose, scene.goal(name, i / fps), posed_body)
-            records.append(rec)
+        records = frames.clip(name, poses, fps, pose_keys[name] if pose_keys else None)
         depth, side, part, frame, turned, folded = check.clip([r['contact'] for r in records])
         ok = depth <= limit and folded <= cfg.checks.folded_faces
         report[name] = {'depth': round(depth, 4), 'side': side, 'part': part,
@@ -305,7 +303,8 @@ def check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes, wei
         print(f'contact {name:12s} worst {depth * 100:5.2f} cm ({part} {side} at '
               f'{frame / fps:5.2f} s), turned past 90 deg {turned}, '
               f'folded past 120 deg {folded}{extra}  {"pass" if ok else "FAIL"}')
-    print(f'contact check: limit {limit * 100:.1f} cm, {time.time() - t0:.1f} s')
+    print(f'contact check: limit {limit * 100:.1f} cm, {time.time() - t0:.1f} s '
+          f'({frames.summary()})')
     return {'limit': limit, 'clips': report}, check.folded
 
 
@@ -345,8 +344,9 @@ def stage_contacts(cfg, template, skel, verts, tris, weights, items, samples, sh
     weights and the shapes of each round go to restore_contacts, which writes them into the mesh.
     """
     w = weights
+    keys = contacts.pose_keys(samples)
     report, folded = check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes,
-                                 weights_of, pack.fps, body, pack)
+                                 weights_of, pack.fps, body, pack, keys)
     repairs = []
     writes = []
     for _ in range(REPAIR_ROUNDS):
@@ -365,7 +365,7 @@ def stage_contacts(cfg, template, skel, verts, tris, weights, items, samples, sh
             cfg.role.bind.correctives, skel, verts, tris, w, pose_ref, parts_ref, project)
         writes.append((w, shapes))
         report, folded = check_clips(cfg, template, skel, verts, tris, w, items, samples, shapes,
-                                     weights_of, pack.fps, body, pack)
+                                     weights_of, pack.fps, body, pack, keys)
     if DEBUG and folded:
         _debug_persisting(verts, tris, w, bone_names, folded, surface_parts)
     return {'contact_report': report, 'fold_repairs': repairs, 'final_weights': w,
@@ -564,7 +564,9 @@ def main():
     if fps is not None:
         root = args.cache or cache.default_root()
         space = 'blender-' + '.'.join(str(v) for v in bpy.app.version)
-        cached = stages.Cache(cache.Store(root, cfg_raw.animal.id, space), cfg_raw, fps, STAGES)
+        store = cache.Store(root, cfg_raw.animal.id, space)
+        cached = stages.Cache(store, cfg_raw, fps, STAGES)
+        contacts.FRAME_STORE = store
     os.makedirs(cfg_raw.paths.stages, exist_ok=True)
     gate = Gate(ctx, cfg_raw.paths.stages, not args.no_gate)
     setup_s = time.time() - t0

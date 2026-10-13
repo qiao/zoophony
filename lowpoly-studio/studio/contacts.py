@@ -9,7 +9,10 @@ the test groups (contact_spec): for the conductor, the forearm and paw vertices 
 claws, and the baton.
 
 Each frame of a clip gives one plain record (ContactCheck.frame), and ContactCheck.clip reduces
-the records of a clip.
+the records of a clip. The frame cache (Frames) keeps the record of each frame in the shared stage
+cache, keyed by the pose of the frame and the inputs of the check. So a change of one clip measures
+again only the frames whose pose changed: the frames of that clip, and the frames of the
+performance that show it.
 
 The stage "diagnostics" (stage_diagnostics) runs after the export. It reads the checks of the
 build from JOURNAL and returns the located contacts, the closest approach of each clip, the fold
@@ -21,10 +24,13 @@ Runs inside Blender (it uses mathutils.bvhtree). All values are in animal height
 is 1 m tall, so 0.01 is 1 cm.
 """
 
+import time
+
 import numpy as np
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
+from studio import cache
 from studio.field import field_at
 from studio.skinning import (FOLD_DOT, blend_matrices, dominant_dots, face_normals,
                              forward_kinematics, skin, winding_number)
@@ -42,6 +48,16 @@ PATCH_RADIUS = 0.12
 
 # The largest number of faces of the fold debug list that get a patch.
 MAX_PATCHES = 30
+
+# The store of the frame cache (a cache.Store), or None for no frame cache. studio/build.py sets
+# it when the stage cache is on, so a build with --no-cache measures every frame.
+FRAME_STORE = None
+
+# The step name of the frame records in the store.
+FRAME_STEP = 'contact-frames'
+
+# The number of the newest valid entries of a clip that the frame cache reads its records from.
+FRAME_SOURCES = 4
 
 
 class ContactCheck:
@@ -141,6 +157,16 @@ class ContactCheck:
         A, t = blend_matrices(self.skel, self.w, pose)
         return D, H, S, rest, skin(A, t, rest)
 
+    def content(self):
+        """Returns the plain values that decide the record of a frame, besides the pose and the
+        weights of the shapes: the skeleton, the mesh, the weights, the shapes, the obstacles,
+        and the test groups. The frame cache keys a round of the check with their digest."""
+        skel = self.skel
+        return [self.names, [skel.parents[n] for n in self.names],
+                [skel.heads[n] for n in self.names], [skel.rest[n] for n in self.names],
+                self.verts, self.tris, self.w, self.morphs, self.sides, self.arm_bones,
+                self.obstacles, self.obstacle_faces, self.tests]
+
     def posed_test(self, side, index, pose):
         """Poses one test group of a side. Returns (points, faces of the points)."""
         _, prop_bone, pts, w, faces, _ = self.tests[side][index]
@@ -233,6 +259,113 @@ class ContactCheck:
                     face['dot'], face['frame'] = dot, i
         self.records.append(rec)
         return worst + (turned, folded)
+
+
+def pose_keys(samples):
+    """Returns the digest of each pose of each clip {clip: [digest]} for the frame cache, or
+    None with no frame cache. The rounds of the fold repair share them."""
+    if FRAME_STORE is None:
+        return None
+    return {name: [cache.digest(p) for p in poses] for name, poses in samples.items()}
+
+
+class Frames:
+    """The frame cache of one round of the contact check: it measures the frames of a clip, or
+    takes their records from the shared stage cache (FRAME_STORE).
+
+    The key of a frame holds the inputs of its measure: the digest of the round (the content of
+    the ContactCheck and of the scene check), the pose, the weights of the corrective shapes in
+    the pose, and the hand targets of the frame. An entry holds the records of all frames of
+    one clip, in the folder of the round and the clip. Its manifest holds the code that measured
+    the records, as a stage entry does (studio/cache.py), and the stage "contacts" records that
+    code too, so its own key stays true.
+    """
+
+    def __init__(self, check, scene=None):
+        """Stores the contact check and the scene check (studio/scene_check.py, or None) of the
+        round, and the digest of the round."""
+        self.check = check
+        self.scene = scene
+        self.store = FRAME_STORE
+        self.round = None
+        if self.store is not None:
+            self.round = cache.digest([FRAME_STEP, check.content(),
+                                       scene.content() if scene else None])
+        # The frames that the round measured, and the frames that came from the cache.
+        self.measured = 0
+        self.cached = 0
+        # The seconds of the frames that the round measured.
+        self.seconds = 0.0
+
+    def _measure(self, poses, weights, goals, index):
+        """Measures one frame: the contact check and the scene check on one posed body."""
+        posed_body = self.check.pose_body(poses[index], weights[index])
+        rec = {'contact': self.check.frame(posed_body)}
+        if self.scene:
+            rec['scene'] = self.scene.frame(poses[index], goals[index], posed_body)
+        return rec
+
+    def clip(self, name, poses, fps, keys=None):
+        """Returns the record of each frame of a clip: {'contact': ContactCheck.frame, 'scene':
+        SceneCheck.frame (with a scene check)}. keys: the pose digests of pose_keys."""
+        weights = [self.check.morph_weights(p) for p in poses]
+        goals = [self.scene.goal(name, i / fps) if self.scene else None
+                 for i in range(len(poses))]
+        if self.store is None:
+            t0 = time.time()
+            out = [self._measure(poses, weights, goals, i) for i in range(len(poses))]
+            self.measured += len(poses)
+            self.seconds += time.time() - t0
+            return out
+        if keys is None:
+            keys = [cache.digest(p) for p in poses]
+        keys = [cache.digest([keys[i], weights[i], goals[i]]) for i in range(len(poses))]
+        base = cache.digest([FRAME_STEP, self.round, name])
+        entries = self.store.lookup_all(FRAME_STEP, base, {}, FRAME_SOURCES)
+        known = {}
+        for j, (_, data) in enumerate(entries):
+            for k, rec in data['frames'].items():
+                known.setdefault(k, (rec, j))
+        records = [None] * len(poses)
+        missing = []
+        used = set()
+        for i, k in enumerate(keys):
+            hit = known.get(k)
+            if hit is None:
+                missing.append(i)
+            else:
+                records[i] = hit[0]
+                used.add(hit[1])
+        code = {}
+        for j in sorted(used):
+            code.update((k, d) for k, d in entries[j][0]['manifest']['code'])
+        cache.note_code(code)
+        self.cached += len(poses) - len(missing)
+        if not missing:
+            return records
+        t0 = time.time()
+        with cache.part(FRAME_STEP) as rec:
+            for i in missing:
+                records[i] = self._measure(poses, weights, goals, i)
+        seconds = time.time() - t0
+        self.measured += len(missing)
+        self.seconds += seconds
+        manifest = rec.manifest({})
+        code.update((k, d) for k, d in manifest['code'])
+        manifest['code'] = sorted([k, d] for k, d in code.items())
+        frames = dict(zip(keys, records))
+        self.store.save(FRAME_STEP, base, cache.digest([base, manifest, keys]),
+                        {'manifest': manifest, 'clip': name, 'frames': len(poses),
+                         'measured': len(missing), 'seconds': round(seconds, 3)},
+                        {'frames': frames})
+        return records
+
+    def summary(self):
+        """Describes the frames of the round for the log of the build."""
+        text = f'{self.measured} frames measured in {self.seconds:.1f} s'
+        if self.store is not None:
+            text += f', {self.cached} from the frame cache'
+        return text
 
 
 def _angle(dot):

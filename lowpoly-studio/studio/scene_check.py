@@ -6,7 +6,7 @@ gives (pack.hand_targets).
 studio/build.py check_clips runs it beside the contact check (studio/contacts.py), on the same
 posed body of each frame: make() reads the role and the body once for each round, frame()
 measures one frame into a plain record, and reduce() turns the records of a clip into the scene
-values of the clip.
+values of the clip. The frame cache of studio/contacts.py keeps the records.
 
 Runs inside Blender (studio/props.py). All values are in animal heights.
 """
@@ -33,6 +33,12 @@ class SceneCheck:
         self.targets = targets
         self.check = check
 
+    def content(self):
+        """Returns the plain values that decide the record of a frame, besides the pose, the
+        posed body, and the targets of the frame (for the key of the frame cache)."""
+        return [self.boxes, self.bench, self.size, self.trunk, self.thighs, self.tips,
+                self.targets is not None]
+
     def goal(self, clip, t):
         """Returns the targets of the digits at time t of a clip (pack.hand_targets), or None."""
         if self.targets is None:
@@ -43,8 +49,11 @@ class SceneCheck:
         """Measures one frame (posed_body: the result of ContactCheck.pose_body).
 
         Returns the frame record (plain values): 'boxes' [(depth, prop, piece, position, bone)]
-        of each shown prop box, 'seat' {part: gap} of the sitting skin over the seat (or None),
-        and 'hands' [(side, digit or None, distance)] of each target.
+        of the first shown prop box and of each shown box that the body goes into, 'seat'
+        {part: gap} of the sitting skin over the seat (or None), and 'hands' [(side, digit or
+        None, distance)] of each target. A box with no depth never wins over an earlier box in
+        reduce(), because its compare is strict, so the record leaves it out (the piano of the
+        pianist has about 100 boxes).
         """
         D, H, _, _, posed = posed_body
         check = self.check
@@ -56,8 +65,10 @@ class SceneCheck:
             q = np.abs(posed - center) - half
             sdf = np.linalg.norm(np.maximum(q, 0.0), axis=1) + np.minimum(q.max(axis=1), 0.0)
             k = int(np.argmin(sdf))
-            boxes.append((max(0.0, -float(sdf[k])), prop, piece,
-                          [round(float(v), 4) for v in posed[k]],
+            depth = max(0.0, -float(sdf[k]))
+            if boxes and depth == 0.0:
+                continue
+            boxes.append((depth, prop, piece, [round(float(v), 4) for v in posed[k]],
                           names[int(np.argmax(check.w[k]))]))
         seat = None
         if self.bench and _shown(pose, self.bench):
