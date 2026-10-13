@@ -21,6 +21,7 @@ import {
   gpuGuardFaults,
   loadsText,
   maximumShare,
+  messageLines,
   frameStats,
   frameTable,
   framesPerSecond,
@@ -314,6 +315,25 @@ describe('loadsText', () => {
       'main-thread phase 4.2, GPU phase 4.6, end 11.4',
     );
     expect(loadsText({ mainThread: null, gpu: 4.6, end: 11.38 })).toBe('GPU phase 4.6, end 11.4');
+  });
+});
+
+describe('messageLines', () => {
+  it('gives each console message with its count, the most frequent first', () => {
+    const long = `warning: ${'x'.repeat(300)}`;
+    const lines = messageLines(
+      new Map([
+        ['error: one', 1],
+        [long, 12],
+      ]),
+    );
+    expect(lines[0]).toContain('count and text');
+    expect(lines[1]).toBe(`  12 × ${long.slice(0, 200)}...`);
+    expect(lines[2]).toBe('  1 × error: one');
+  });
+
+  it('says when the pages gave no message', () => {
+    expect(messageLines(new Map())).toEqual(['Console warnings and errors of the pages: none.']);
   });
 });
 

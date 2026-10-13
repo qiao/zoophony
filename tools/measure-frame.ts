@@ -567,8 +567,10 @@ const RUNNING = {
   children: new Set<ChildProcess>(),
   /** The temporary folders that the run has not removed. */
   folders: new Set<string>(),
-  /** The stop of the run after a signal. The waits for a low load end at the stop. */
+  /** The stop of the run after a signal. The waits for a low CPU use end at the stop. */
   stop: new AbortController(),
+  /** The count of each console warning and error of the pages, by its type and text. */
+  messages: new Map<string, number>(),
   /** The promise of the end of the measure, which removes its folders at its end. */
   measure: Promise.resolve(),
 };
@@ -617,6 +619,15 @@ async function playDemo(browser: Browser, base: string, options: FrameOptions): 
     reducedMotion: options.free ? 'reduce' : 'no-preference',
   });
   await page.addInitScript(FRAME_PROBE);
+  const count = (text: string): void => {
+    RUNNING.messages.set(text, (RUNNING.messages.get(text) ?? 0) + 1);
+  };
+  page.on('console', (message) => {
+    if (message.type() === 'warning' || message.type() === 'error') {
+      count(`${message.type()}: ${message.text()}`);
+    }
+  });
+  page.on('pageerror', (error) => count(`page error: ${error.message}`));
   await page.goto(`${base}#demo=${options.demo}`);
   await page.waitForSelector(`canvas[data-demo="${options.demo}"]`, { timeout: 60_000 });
   await page.waitForSelector(SAMPLES_READY, { timeout: 120_000 });
@@ -1213,6 +1224,29 @@ export function loadsText(loads: RunLoads): string {
   return parts.join(', ');
 }
 
+/** The longest text of a console message in the output, in characters. */
+const MESSAGE_CHARS = 200;
+
+/**
+ * Formats the console warnings and errors of the pages, with a count of each text.
+ *
+ * @param messages The count of each message, by its type and text.
+ * @returns The lines, the most frequent message first.
+ */
+export function messageLines(messages: ReadonlyMap<string, number>): string[] {
+  if (messages.size === 0) {
+    return ['Console warnings and errors of the pages: none.'];
+  }
+  const sorted = [...messages].toSorted((a, b) => b[1] - a[1]);
+  return [
+    'Console warnings and errors of the pages (count and text):',
+    ...sorted.map(([text, n]) => {
+      const short = text.length > MESSAGE_CHARS ? `${text.slice(0, MESSAGE_CHARS)}...` : text;
+      return `  ${n} × ${short}`;
+    }),
+  ];
+}
+
 /**
  * Formats a load average.
  *
@@ -1379,6 +1413,9 @@ async function main(): Promise<void> {
       };
       await writeFile(join(options.keep, 'run.json'), `${JSON.stringify(record, null, 2)}\n`);
       console.log(`Wrote ${join(options.keep, 'run.json')}.`);
+    }
+    for (const line of messageLines(RUNNING.messages)) {
+      console.log(line);
     }
     console.log('');
     for (const line of frameTable(rows)) {
