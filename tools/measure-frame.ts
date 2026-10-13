@@ -495,8 +495,8 @@ export function frameOptions(flags: readonly string[], xctraceFound: boolean): F
 
 /**
  * Adds the time of each GPU performance state in the table `gpu-performance-state-intervals` of a
- * Metal System Trace. The table has a row only for a state that the trace saw start, so its rows
- * can cover less than the trace.
+ * Metal System Trace. The table has a row for each state interval that starts and ends in the
+ * trace, so its rows can cover less than the trace.
  *
  * @param table The parsed table.
  * @returns The time of each state, such as `Maximum` or `Minimum`, in milliseconds.
@@ -518,8 +518,8 @@ export function stateTimes(table: TraceTable): Map<string, number> {
 
 /**
  * Calculates the part of the time of the GPU state rows in the state "Maximum". The table has a
- * row for each state interval that ends in the trace, so the open state at the start and at the
- * end of the trace has no row.
+ * row for each state interval that starts and ends in the trace, so the open state at the start
+ * and at the end of the trace has no row.
  *
  * @param states The time of each state ({@link stateTimes}).
  * @returns The part, from 0 to 1, or 0 with no rows.
