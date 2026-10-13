@@ -2,10 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import {
   busyMs,
+  checkFrames,
+  frameCheckFaults,
   gpuIntervals,
   otherGpuShare,
   parseTraceTable,
   webglFrameTimes,
+  webglFrames,
 } from './gpu-trace.ts';
 import type { GpuInterval } from './gpu-trace.ts';
 
@@ -227,6 +230,90 @@ describe('webglFrameTimes', () => {
     expect(times).toHaveLength(2);
     expect(times[0]).toBeCloseTo(0.27 + 3, 6);
     expect(times[1]).toBeCloseTo(0.27 + 0.1 + 3.5, 6);
+  });
+});
+
+/**
+ * Makes three WebGL frames of 10 ms each, with a command buffer of the compositor in each frame.
+ *
+ * @returns The intervals: the first buffers `f1` to `f4`, the final passes `w1` to `w3`, and the
+ *   compositor buffers `c1` to `c3`.
+ */
+function threeFrames(): GpuInterval[] {
+  return [
+    ...[1, 2, 3].flatMap((k) => {
+      const start = (k - 1) * 10;
+      return [
+        ...firstBuffer(start, `f${k}`),
+        interval(start + 1, 2, `w${k}`, 'Render Command 4', 'Fragment', CANVAS_WRITE),
+        interval(
+          start + 2.5,
+          0.5,
+          `c${k}`,
+          'Render Command 0',
+          'Fragment',
+          'Read Surface: 5(1472×256:ARGB) -> Write Surface: 4(1440×900:ARGB)',
+        ),
+      ];
+    }),
+    ...firstBuffer(30, 'f4'),
+  ];
+}
+
+describe('checkFrames', () => {
+  it('counts the buffers that the filter dropped: canvas buffers apart from the compositor', () => {
+    const intervals = threeFrames();
+    const frames = webglFrames(intervals, '(7)', CANVAS);
+    const check = checkFrames(intervals, '(7)', CANVAS, frames);
+    expect(check.frames).toBe(3);
+    expect(check.droppedCanvas).toEqual({ buffers: 0, ms: 0 });
+    expect(check.droppedOther.buffers).toBe(3);
+    expect(check.droppedOther.ms).toBeCloseTo(1.5, 6);
+    expect(check.merged).toBe(0);
+    // From the start of f1 to the end of w3.
+    expect(check.spanSec).toBeCloseTo(0.023, 9);
+
+    // A filter that drops the first command buffer of each frame, as the filter of e584e16f.
+    const noFirst = frames.map((frame) => frame.filter((i) => !i.commandBuffer.startsWith('f')));
+    const old = checkFrames(intervals, '(7)', CANVAS, noFirst);
+    expect(old.droppedCanvas.buffers).toBe(2);
+    expect(old.droppedCanvas.ms).toBeCloseTo(0.54, 6);
+  });
+
+  it('counts a frame with more than two writes of the canvas as merged', () => {
+    const intervals = threeFrames();
+    const [first = [], second = [], third = []] = webglFrames(intervals, '(7)', CANVAS);
+    const check = checkFrames(intervals, '(7)', CANVAS, [[...first, ...second], third]);
+    expect(check.frames).toBe(2);
+    expect(check.merged).toBe(1);
+  });
+});
+
+describe('frameCheckFaults', () => {
+  const check = {
+    frames: 100,
+    spanSec: 0.5,
+    droppedCanvas: { buffers: 0, ms: 0 },
+    droppedOther: { buffers: 100, ms: 50 },
+    merged: 0,
+  };
+
+  it('gives no fault for a frame count within 2% and no dropped canvas time', () => {
+    expect(frameCheckFaults(check, 102)).toEqual([]);
+    expect(frameCheckFaults(check, null)).toEqual([]);
+  });
+
+  it('gives a fault for dropped canvas time, a frame count off by more than 2%, and merges', () => {
+    const dropped = { ...check, droppedCanvas: { buffers: 100, ms: 11 } };
+    expect(frameCheckFaults(dropped, 100)).toEqual([
+      'The filter dropped 0.11 ms of canvas buffers in each frame, above 0.1 ms.',
+    ]);
+    expect(frameCheckFaults(check, 97.9)).toEqual([
+      'The filter gave 100 frames against 98 expected (2.1%), more than 2% off.',
+    ]);
+    expect(frameCheckFaults({ ...check, merged: 3 }, null)).toEqual([
+      '3 frames hold more than two writes of the canvas.',
+    ]);
   });
 });
 

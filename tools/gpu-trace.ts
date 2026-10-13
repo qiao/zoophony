@@ -334,6 +334,168 @@ export function webglFrameTimes(
   return webglFrames(intervals, process, canvas).map((frame) => busyMs(frame));
 }
 
+/** The time and the count of command buffers that a filter dropped. */
+export interface DroppedBuffers {
+  /** The count of the command buffers. */
+  readonly buffers: number;
+  /** The busy time of the command buffers, in milliseconds ({@link busyMs} of each buffer). */
+  readonly ms: number;
+}
+
+/**
+ * The self-check of the WebGL frames of a filter. It uses only the sizes of the surfaces, so it
+ * does not depend on the labels of the encoders, as the filter does.
+ */
+export interface FrameCheck {
+  /** The count of the frames of the filter. */
+  readonly frames: number;
+  /** The time from the start of the first frame to the end of the last frame, in seconds. */
+  readonly spanSec: number;
+  /**
+   * The command buffers of the process in the span of the frames that no frame holds, with only
+   * surfaces of the size of the drawing buffer or no surface. Such a buffer is WebGL work, such as
+   * the first command buffer of a frame, which the filter of `e584e16f` dropped.
+   */
+  readonly droppedCanvas: DroppedBuffers;
+  /**
+   * The other command buffers of the process in the span of the frames that no frame holds. Each
+   * one touches a surface of another size, as the compositor of Chrome does.
+   */
+  readonly droppedOther: DroppedBuffers;
+  /**
+   * The count of the frames with more than two command buffers that write the canvas. Each frame
+   * writes the canvas in two command buffers, so such a frame holds two frames, as the filter of
+   * `332d09ba` gave at a clear with no label.
+   */
+  readonly merged: number;
+}
+
+/**
+ * Tells if a command buffer writes the canvas: one of its encoders writes a surface of the size of
+ * the drawing buffer and touches no surface of another size.
+ *
+ * @param intervals The intervals of one command buffer.
+ * @param size The size of the drawing buffer, such as `2880×1800`.
+ * @returns True if the buffer writes the canvas.
+ */
+function writesCanvasSize(intervals: readonly GpuInterval[], size: string): boolean {
+  return intervals.some(
+    (interval) =>
+      writtenSurfaces(interval.surfaces).some((surface) => surface.size === size) &&
+      [...interval.surfaces.matchAll(/\((\d+×\d+)/g)].every((m) => m[1] === size),
+  );
+}
+
+/**
+ * Checks the WebGL frames of a filter against the command buffers of the trace. The check counts
+ * the command buffers that the filter dropped in the span of its frames, and the frames that hold
+ * more than two writes of the canvas.
+ *
+ * @param intervals The GPU intervals of the trace.
+ * @param process The text that the process column of the GPU process holds, such as its pid.
+ * @param canvas The width and the height of the drawing buffer of the canvas, in device pixels.
+ * @param frames The intervals of each frame of the filter, such as {@link webglFrames}.
+ * @returns The check.
+ */
+export function checkFrames(
+  intervals: readonly GpuInterval[],
+  process: string,
+  canvas: readonly [number, number],
+  frames: readonly (readonly GpuInterval[])[],
+): FrameCheck {
+  const size = `${canvas[0]}×${canvas[1]}`;
+  const byBuffer = new Map<string, GpuInterval[]>();
+  for (const interval of intervals) {
+    if (interval.process.includes(process)) {
+      const list = byBuffer.get(interval.commandBuffer) ?? [];
+      list.push(interval);
+      byBuffer.set(interval.commandBuffer, list);
+    }
+  }
+
+  let start = Infinity;
+  let end = -Infinity;
+  const counted = new Set<string>();
+  for (const frame of frames) {
+    for (const interval of frame) {
+      counted.add(interval.commandBuffer);
+      start = Math.min(start, interval.startNs);
+    }
+  }
+  for (const interval of frames.at(-1) ?? []) {
+    end = Math.max(end, interval.startNs + interval.durationNs);
+  }
+
+  const canvasDropped: GpuInterval[][] = [];
+  const otherDropped: GpuInterval[][] = [];
+  for (const [buffer, list] of byBuffer) {
+    const first = Math.min(...list.map((interval) => interval.startNs));
+    if (counted.has(buffer) || first < start || first >= end) {
+      continue;
+    }
+    (onlyCanvasSurfaces(list, canvas) ? canvasDropped : otherDropped).push(list);
+  }
+  const dropped = (lists: readonly GpuInterval[][]): DroppedBuffers => ({
+    buffers: lists.length,
+    ms: lists.reduce((sum, list) => sum + busyMs(list), 0),
+  });
+
+  const merged = frames.filter((frame) => {
+    const buffers = new Map<string, GpuInterval[]>();
+    for (const interval of frame) {
+      const list = buffers.get(interval.commandBuffer) ?? [];
+      list.push(interval);
+      buffers.set(interval.commandBuffer, list);
+    }
+    return [...buffers.values()].filter((list) => writesCanvasSize(list, size)).length > 2;
+  }).length;
+
+  return {
+    frames: frames.length,
+    spanSec: end > start ? (end - start) / 1e9 : 0,
+    droppedCanvas: dropped(canvasDropped),
+    droppedOther: dropped(otherDropped),
+    merged,
+  };
+}
+
+/** The largest time of dropped canvas buffers for each frame, in milliseconds (design 9.7). */
+export const DROPPED_CANVAS_LIMIT_MS = 0.1;
+
+/** The largest difference of the frame count from the expected count, as a part of it. */
+export const FRAME_COUNT_TOLERANCE = 0.02;
+
+/**
+ * Gives the faults of a self-check of the WebGL frames (design 9.7). A fault makes the GPU row
+ * of `pnpm frame` fail.
+ *
+ * @param check The check of {@link checkFrames}.
+ * @param expected The expected count of frames: the frame rate of the page during the trace
+ *   times {@link FrameCheck}.spanSec. `null` skips the count.
+ * @returns A text for each fault, or an empty list.
+ */
+export function frameCheckFaults(check: FrameCheck, expected: number | null): string[] {
+  const faults: string[] = [];
+  const perFrame = check.frames > 0 ? check.droppedCanvas.ms / check.frames : 0;
+  if (perFrame > DROPPED_CANVAS_LIMIT_MS) {
+    faults.push(
+      `The filter dropped ${perFrame.toFixed(2)} ms of canvas buffers in each frame, ` +
+        `above ${DROPPED_CANVAS_LIMIT_MS} ms.`,
+    );
+  }
+  if (expected !== null && Math.abs(check.frames - expected) > FRAME_COUNT_TOLERANCE * expected) {
+    const off = ((check.frames / expected - 1) * 100).toFixed(1);
+    faults.push(
+      `The filter gave ${check.frames} frames against ${Math.round(expected)} expected (${off}%), ` +
+        `more than ${FRAME_COUNT_TOLERANCE * 100}% off.`,
+    );
+  }
+  if (check.merged > 0) {
+    faults.push(`${check.merged} frames hold more than two writes of the canvas.`);
+  }
+  return faults;
+}
+
 /**
  * Calculates the part of the time of a trace in which other processes used the GPU. The work of
  * another process, such as a page of another browser, shares the GPU with the measured frames and
