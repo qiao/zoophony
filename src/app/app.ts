@@ -320,7 +320,8 @@ export class App {
   constructor(canvas: HTMLCanvasElement, scene: StageScene) {
     this.#canvas = canvas;
     this.#scene = scene;
-    this.#backdrop = new BackdropProbe(canvas);
+    // The renderer made the context of the canvas first, so the canvas gives the same context.
+    this.#backdrop = new BackdropProbe(canvas, canvas.getContext('webgl2'));
     this.#tierWatch = watchTier(scene.tier);
     this.#cameraMode = startMode(scene.reducedMotion);
     this.#ui = new Ui(
@@ -880,6 +881,8 @@ export class App {
    */
   frame(): void {
     const wallTime = performance.now() / 1000;
+    // The probe takes a finished read before the commands of the render (BackdropProbe).
+    const shade = this.#backdrop.collect(() => this.#ui.title.lines);
     const piece = this.#piece;
     let shot: CameraPose | null = null;
     if (piece) {
@@ -914,7 +917,7 @@ export class App {
     // The frame of the first screen shrinks with the camera, so a zoom there is off (2.5).
     this.#scene.allowZoom(!this.#onFirstScreen);
     this.#scene.render(shot, cover, ring);
-    this.#followShade(wallTime);
+    this.#followShade(wallTime, shade);
     this.#showFrame();
     if (piece && !this.#audioStarted) {
       this.#audioStarted = true;
@@ -925,15 +928,17 @@ export class App {
   }
 
   /**
-   * Reads the frame behind the title directly after the render, and shows the shade of each title
-   * line at the level that its text needs (design 2.8). A shade comes in at once and goes out
-   * slowly.
+   * Starts a read of the frame behind the title directly after the render, and shows the shade of
+   * each title line at the level that its text needs (design 2.8). A shade comes in at once and
+   * goes out slowly.
    *
    * @param wallTime The wall time of the frame, in seconds.
+   * @param needed The level of each line from a read that finished at the start of the frame, or
+   *   `null` when no read finished.
    */
-  #followShade(wallTime: number): void {
+  #followShade(wallTime: number, needed: readonly number[] | null): void {
     const title = this.#ui.title;
-    const needed = this.#backdrop.update(wallTime, () => title.lines);
+    this.#backdrop.request(wallTime, () => title.lines);
     if (needed !== null) {
       this.#shadeNeeded = needed;
     }

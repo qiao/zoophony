@@ -11,6 +11,44 @@ const BLOCK_CSS = 6;
 /** The rectangle of a line that does not show. */
 const EMPTY: PixelRect = { x: 0, y: 0, width: 0, height: 0 };
 
+/** The members of the WebGL2 context that the probe uses. */
+export type BackdropContext = Pick<
+  WebGL2RenderingContext,
+  | 'bindBuffer'
+  | 'bindFramebuffer'
+  | 'bufferData'
+  | 'clientWaitSync'
+  | 'createBuffer'
+  | 'deleteBuffer'
+  | 'deleteSync'
+  | 'drawingBufferHeight'
+  | 'drawingBufferWidth'
+  | 'fenceSync'
+  | 'flush'
+  | 'getBufferSubData'
+  | 'getParameter'
+  | 'isContextLost'
+  | 'readPixels'
+  | 'PIXEL_PACK_BUFFER'
+  | 'READ_FRAMEBUFFER'
+  | 'READ_FRAMEBUFFER_BINDING'
+  | 'RGBA'
+  | 'STREAM_READ'
+  | 'SYNC_GPU_COMMANDS_COMPLETE'
+  | 'TIMEOUT_EXPIRED'
+  | 'UNSIGNED_BYTE'
+  | 'WAIT_FAILED'
+>;
+
+/** The box of the canvas of the stage, in CSS pixels of the window. */
+export type CanvasBox = Pick<DOMRect, 'left' | 'top' | 'width' | 'height'>;
+
+/** The members of the canvas of the stage that the probe uses. */
+export interface BackdropCanvas {
+  /** Gives the box of the canvas in the window. */
+  getBoundingClientRect(): CanvasBox;
+}
+
 /** One read of the backdrop that the GPU did not finish yet. */
 interface PendingRead {
   /** The fence after the read. */
@@ -35,7 +73,7 @@ interface PendingRead {
  * @param height The height of the drawing buffer, in pixels.
  * @returns The rectangle, from the bottom left of the buffer.
  */
-function bufferRect(box: ScreenBox, canvas: DOMRect, width: number, height: number): PixelRect {
+function bufferRect(box: ScreenBox, canvas: CanvasBox, width: number, height: number): PixelRect {
   const sx = width / Math.max(1, canvas.width);
   const sy = height / Math.max(1, canvas.height);
   const left = Math.max(0, Math.floor((box.left - canvas.left) * sx));
@@ -57,12 +95,17 @@ function bufferRect(box: ScreenBox, canvas: DOMRect, width: number, height: numb
  * probe takes its pixels a few frames later, when the GPU signals its fence. Thus the read does
  * not stop the frame. With no WebGL2 context, or after an error, the probe asks for the full
  * shade.
+ *
+ * The probe takes the pixels at the start of a frame, before the render. In Chrome, the copy of a
+ * pixel buffer to the CPU waits until the GPU process runs each command before it. After the
+ * render, these commands hold the full frame, and the wait took about 1.3 ms of the main thread
+ * on the development Mac. At the start of a frame, the GPU process has no commands of the frame.
  */
 export class BackdropProbe {
   /** The canvas of the stage. */
-  readonly #canvas: HTMLCanvasElement;
+  readonly #canvas: BackdropCanvas;
   /** The WebGL2 context of the renderer, or `null` if the canvas has none. */
-  readonly #gl: WebGL2RenderingContext | null;
+  readonly #gl: BackdropContext | null;
   /** The pixel buffer of the reads, or `null` before the first read. */
   #buffer: WebGLBuffer | null = null;
   /** The size of the pixel buffer, in bytes. */
@@ -77,27 +120,25 @@ export class BackdropProbe {
   #failed = false;
 
   /**
-   * Creates the probe on the canvas of the renderer. The renderer must make its context first,
-   * because the first context of a canvas keeps its attributes.
+   * Creates the probe on the canvas of the renderer.
    *
    * @param canvas The canvas of the stage.
+   * @param gl The WebGL2 context of the renderer, or `null` if the canvas has none.
    */
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: BackdropCanvas, gl: BackdropContext | null) {
     this.#canvas = canvas;
-    this.#gl = canvas.getContext('webgl2');
+    this.#gl = gl;
   }
 
   /**
-   * Takes the result of a finished read, and starts a new read every 0.15 s. Call it directly
-   * after the render of a frame, because the browser clears the drawing buffer after it shows
-   * the frame.
+   * Takes the result of a finished read. Call it at the start of a frame, before the render.
    *
-   * @param wallTime The wall time of the frame, in seconds.
-   * @param lines Gives the lines of the title. The probe calls it only when a read starts.
+   * @param lines Gives the lines of the title. The probe calls it only with no context or after
+   *   an error.
    * @returns The level of the shade that each line needs, from 0 to 1, in the order of the
-   *   lines, or `null` when no read finished in this frame.
+   *   lines, or `null` when no read finished.
    */
-  update(wallTime: number, lines: () => readonly TitleLine[]): number[] | null {
+  collect(lines: () => readonly TitleLine[]): number[] | null {
     const gl = this.#gl;
     if (!gl || this.#failed) {
       return lines().map(() => 1);
@@ -110,16 +151,36 @@ export class BackdropProbe {
     }
 
     try {
-      const level = this.#finish(gl);
-      if (!this.#pending && wallTime - this.#readAt >= READ_INTERVAL_SEC) {
-        this.#readAt = wallTime;
-        this.#start(gl, lines());
-      }
-      return level;
+      return this.#finish(gl);
     } catch (error) {
       console.error(error);
       this.#failed = true;
       return lines().map(() => 1);
+    }
+  }
+
+  /**
+   * Starts a new read every 0.15 s, when no read is in flight. Call it directly after the render
+   * of a frame, because the browser clears the drawing buffer after it shows the frame.
+   *
+   * @param wallTime The wall time of the frame, in seconds.
+   * @param lines Gives the lines of the title. The probe calls it only when a read starts.
+   */
+  request(wallTime: number, lines: () => readonly TitleLine[]): void {
+    const gl = this.#gl;
+    if (!gl || this.#failed || this.#pending || gl.isContextLost()) {
+      return;
+    }
+    if (wallTime - this.#readAt < READ_INTERVAL_SEC) {
+      return;
+    }
+
+    this.#readAt = wallTime;
+    try {
+      this.#start(gl, lines());
+    } catch (error) {
+      console.error(error);
+      this.#failed = true;
     }
   }
 
@@ -129,7 +190,7 @@ export class BackdropProbe {
    * @param gl The context.
    * @returns The level of the shade that each line needs, or `null` with no finished read.
    */
-  #finish(gl: WebGL2RenderingContext): number[] | null {
+  #finish(gl: BackdropContext): number[] | null {
     const pending = this.#pending;
     if (!pending) {
       return null;
@@ -164,7 +225,7 @@ export class BackdropProbe {
    * @param gl The context.
    * @param lines The lines of the title.
    */
-  #start(gl: WebGL2RenderingContext, lines: readonly TitleLine[]): void {
+  #start(gl: BackdropContext, lines: readonly TitleLine[]): void {
     const canvas = this.#canvas.getBoundingClientRect();
     const width = gl.drawingBufferWidth;
     const height = gl.drawingBufferHeight;
@@ -196,13 +257,11 @@ export class BackdropProbe {
     }
 
     // The renderer keeps the framebuffer that it bound last, so the probe binds it again.
-    const framebuffer: unknown = gl.getParameter(gl.READ_FRAMEBUFFER_BINDING);
+    // SAFETY: WebGL2 gives a WebGLFramebuffer or null for this parameter.
+    const framebuffer = gl.getParameter(gl.READ_FRAMEBUFFER_BINDING) as WebGLFramebuffer | null;
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
     gl.readPixels(rect.x, rect.y, rect.width, rect.height, gl.RGBA, gl.UNSIGNED_BYTE, 0);
-    gl.bindFramebuffer(
-      gl.READ_FRAMEBUFFER,
-      framebuffer instanceof WebGLFramebuffer ? framebuffer : null,
-    );
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffer);
     gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
     const fence = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
     if (!fence) {
