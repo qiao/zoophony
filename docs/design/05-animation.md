@@ -553,11 +553,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   plays high notes.
 - **Piano and harp in detail** (`pose/hand-notes.ts`, `pose/hands.ts`):
   - The notes of a player that start within 50 ms of each other form a chord. A chord wider than
-    one octave splits at its largest interval: the left hand plays the notes below it, and the
-    right hand the notes above it. Of two equal intervals, the one nearer to the middle of the
-    chord splits it. A chord within one octave goes to the nearer hand, so that a melody stays in
-    one hand. At the same distance, a chord from middle C up goes to the right hand. A chord past
-    the reach of the nearer hand goes to the other hand. `reach` of `HANDS_HOLDS` gives the
+    one octave splits at its largest interval that keeps each hand in its reach: the left hand
+    plays the notes below it, and the right hand the notes above it. Of two equal intervals, the
+    one nearer to the middle of the chord splits it. A chord within one octave goes to the nearer
+    hand, so that a melody stays in one hand. At the same distance, a chord from middle C up goes
+    to the right hand. A chord past the reach of the nearer hand goes to the other hand, also a
+    wide chord with all its keys past the reach of one hand. `reach` of `HANDS_HOLDS` gives the
     highest key of the left paw of the studio polar bear and the lowest key of its right paw, so a
     melody changes paws between them. The harp has no limit. The hands start at C3 and C5.
   - A hand plays a chord at the middle of its lowest and its highest key. The piano keys do not

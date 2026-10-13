@@ -328,6 +328,41 @@ describe('the reach of the hands (design 5.3)', () => {
     }
   });
 
+  it('gives the part of a wide chord past the reach of a paw to the other paw', () => {
+    const { leftHighest, rightLowest } = HANDS_HOLDS.piano.reach;
+    // At its largest interval, the first chord splits into G♯4 to G5 for the left paw, and the
+    // second chord into G3 to D4 for the right paw. Each of these parts is past the reach of its
+    // paw, so each chord splits at a smaller interval.
+    const first = [leftHighest - 2, leftHighest + 2, leftHighest + 6, leftHighest + 9, 84];
+    const second = [43, 48, rightLowest - 5, rightLowest - 2, rightLowest + 2];
+    const wide = sceneOf({
+      tracks: [
+        [tempo(0, 120)],
+        track([programChange(0, 0, 0)], chord(0, 0, first, 400), chord(960, 0, second, 1360)),
+      ],
+    });
+    const [pianist] = firstPlayers(wide, ['piano'] as const);
+    if (!pianist) {
+      throw new Error('The test file has a piano.');
+    }
+    const offset = wide.plan.players[pianist.index]?.timeOffset ?? 0;
+    const parts = [
+      { start: 0, left: [first[0], first[0]], right: [first[1], first[4]] },
+      { start: 1, left: [second[0], second[3]], right: [second[4], second[4]] },
+    ] as const;
+    for (const { start, left, right } of parts) {
+      const posed = posedAt(wide, pianist, start + offset + 0.02);
+      const [lowL = 0, highL = 0] = left;
+      const [lowR = 0, highR = 0] = right;
+      expect(highL, `left paw at ${start} s`).toBeLessThanOrEqual(leftHighest);
+      expect(lowR, `right paw at ${start} s`).toBeGreaterThanOrEqual(rightLowest);
+      const errorL = palmOf(posed, 'L').distanceTo(expectedPalm(pianist, 'L', lowL, highL));
+      const errorR = palmOf(posed, 'R').distanceTo(expectedPalm(pianist, 'R', lowR, highR));
+      expect(errorL, `left paw at ${start} s`).toBeLessThan(1e-4);
+      expect(errorR, `right paw at ${start} s`).toBeLessThan(1e-4);
+    }
+  });
+
   it('reaches each harp string with both hands', () => {
     for (let key = 24; key <= 103; key++) {
       for (const side of ['L', 'R'] as const) {

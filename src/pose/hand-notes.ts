@@ -53,12 +53,14 @@ export interface HandNote {
 /**
  * Gives the notes of a player to its two hands (design 5.3). The left hand plays the low notes
  * and the right hand the high notes. A chord wider than one octave splits at its largest
- * interval: the left hand plays the notes below it. Of two equal intervals, the one nearer to the
- * middle of the chord splits it. A chord within one octave goes to the hand
- * that is nearer to it, so that a melody stays in one hand. At the same distance, it goes to the
- * right hand from middle C up, and to the left hand below. A chord above the reach of the left
- * hand goes to the right hand, and a chord below the reach of the right hand goes to the left
- * hand, so that a melody changes hands where one hand cannot cross over the other.
+ * interval that keeps each hand in its reach: the left hand plays the notes below it. Of two
+ * equal intervals, the one nearer to the middle of the chord splits it. A chord within one octave
+ * goes to the hand that is nearer to it, so that a melody stays in one hand. At the same
+ * distance, it goes to the right hand from middle C up, and to the left hand below. A chord above
+ * the reach of the left hand goes to the right hand, and a chord below the reach of the right
+ * hand goes to the left hand, so that a melody changes hands where one hand cannot cross over the
+ * other. These two rules also give a wide chord to one hand when all its keys are past the reach
+ * of the other hand.
  *
  * @param notes The notes of the player, sorted by start.
  * @param loudness The loudness of each note, in the order of `notes`.
@@ -86,16 +88,8 @@ export function splitHands(
       high,
       loudness: group.loudness,
     });
-    if (group.high - group.low > HAND_MOTION.span) {
-      // Of two equal intervals, the one nearer to the middle of the chord splits it.
-      const gapAt = (i: number): number => (keys[i] ?? 0) - (keys[i - 1] ?? 0);
-      const offMiddle = (i: number): number => Math.abs(i - keys.length / 2);
-      let cut = 1;
-      for (let i = 2; i < keys.length; i++) {
-        if (gapAt(i) > gapAt(cut) || (gapAt(i) === gapAt(cut) && offMiddle(i) < offMiddle(cut))) {
-          cut = i;
-        }
-      }
+    const cut = group.high - group.low > HAND_MOTION.span ? wideChordCut(keys, reach) : null;
+    if (cut !== null) {
       const below = keys[cut - 1] ?? group.low;
       const above = keys[cut] ?? group.high;
       left.push(part(group.low, below));
@@ -117,6 +111,35 @@ export function splitHands(
     }
   }
   return [left, right];
+}
+
+/**
+ * Finds where a chord wider than one octave splits (design 5.3): at its largest interval that
+ * keeps the notes below it in the reach of the left hand and the notes above it in the reach of
+ * the right hand. Of two equal intervals, the one nearer to the middle of the chord splits it.
+ *
+ * @param keys The keys of the chord, sorted up.
+ * @param reach The highest key of the left hand and the lowest key of the right hand.
+ * @returns The index of the lowest key of the right hand, or null when all keys are past the
+ *   reach of one hand.
+ */
+function wideChordCut(keys: readonly number[], reach: HandReach): number | null {
+  const gapAt = (i: number): number => (keys[i] ?? 0) - (keys[i - 1] ?? 0);
+  const offMiddle = (i: number): number => Math.abs(i - keys.length / 2);
+  let cut: number | null = null;
+  for (let i = 1; i < keys.length; i++) {
+    if ((keys[i - 1] ?? 0) > reach.leftHighest || (keys[i] ?? 0) < reach.rightLowest) {
+      continue;
+    }
+    if (
+      cut === null ||
+      gapAt(i) > gapAt(cut) ||
+      (gapAt(i) === gapAt(cut) && offMiddle(i) < offMiddle(cut))
+    ) {
+      cut = i;
+    }
+  }
+  return cut;
 }
 
 /** The note data of one hand that the pose looks up at each frame. */
