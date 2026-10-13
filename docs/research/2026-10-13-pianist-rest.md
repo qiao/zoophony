@@ -116,6 +116,20 @@ still near the playing pose, so the forearms and the upper arms show the depths 
 With the arc of the branch, the lift keeps 0.1 cm of the claws in the case, and the forearms,
 the upper arms, and the paws stay out of the body.
 
+The sweep of the pianist now has the sample set `lower`: a stop at the outermost note of each paw
+and at the song end, with wall times through the hold (each 0.5 s) and the longest lowering (each
+0.1 s). The lowering starts at the playing pose, so the forearms and the upper arms have the
+accepted depths of a play.
+
+| `lower` of `pnpm pose-depth pianist` | main | branch | arc of before on the branch |
+|---|---:|---:|---:|
+| Claws in the case | 0.1 cm | 0.9 cm | 1.7 cm (Bach, 108.61 s) |
+| Forearms in the body | 8.0 cm | 8.0 cm | 8.0 cm |
+| Upper arms in the body | 7.5 cm | 2.7 cm | 2.7 cm |
+
+The two shards of the test of the pianist clearance take 13.6 s and 12.1 s with the set, and
+12.9 s and 11.3 s without it.
+
 ## 6. The sweep and the folds
 
 `pnpm pose-depth pianist`:
@@ -146,15 +160,40 @@ A hash of the rotations and the offsets of each other player of each demo, at re
 lift, and at a sample of each 7.3 s of a play, is equal on main and on the branch. The harp
 keeps a rest lean of 0.
 
-## 7. Images
+## 7. The head (manager decision)
+
+With the head of the rest clip, the head of the pianist pitched down with the lean of the trunk
+to the music desk. The lid and the desk hid the face, and from the audience the bear looked
+slumped over the piano. On top of the rest clip, the manager decided to lift the head at rest
+(`restHeadLift`). The head pitch is the angle of the forward axis of the head bone from the
+level. The face measure is the count of the pixels of the fur in the front close view (360 by
+450 pixels), with the eyes that show over the lid. The gap is from the head, the neck, the jaw,
+the ears, and the eyes to the nearest closed shell of the case, at rest, in the lift, and in the
+lowering set.
+
+| Measure | main | branch, no head lift | branch, lift 22° | lift 26° | lift 30° |
+|---|---:|---:|---:|---:|---:|
+| Head pitch at rest (Bach) | -0.1° | -22.1° | -0.1° | 3.9° | 7.9° |
+| Fur pixels in the front close view | 12,328 | 8,199 | 9,883 | not measured | not measured |
+| Eyes over the lid in the front close view | 2 and the nose | 0 | 1 | not measured | not measured |
+| Head to the case, rest (Bach, Boulanger) | 21.9, 20.9 cm | 10.1, 9.3 cm | 6.3, 7.8 cm | 3.8, 5.0 cm | 1.9, 2.5 cm |
+| Head to the case, lift and lowering, smallest | not measured | 9.3 cm | 5.1 cm | not measured | not measured |
+| Most folded faces, rest and lift | 4 and 4 | 2 and 2 | 2 and 2 | not measured | not measured |
+
+A larger lift raises the muzzle to the desk, so the gap gets small. A lift of 22° gives the level
+gaze of main. The front close view looks down 35°, so the slant of the open lid still hides one
+eye and the nose of the leaning bear. In the first screen, the head is level over the desk, as on
+main.
+
+## 8. Images
 
 `rest-views.webp`: the rest views of the pianist. The rows are the rest clip of the studio at
-2.95 s, main, and the branch. The columns are the front, the left, the right, the back, and the
-keys (low from the left).
+2.95 s, main, the branch with no head lift, and the branch with the head lift. The columns are
+the front, the left, the right, the back, and the keys (low from the left).
 
-![The rest views of the studio, main, and the branch](2026-10-13-pianist-rest/rest-views.webp)
+![The rest views of the studio, main, and the branch before and after the head lift](2026-10-13-pianist-rest/rest-views.webp)
 
 `first-screen.webp`: the polar bear in the first screen of the default demo, enlarged 4 times.
-Main is on the left, and the branch on the right.
+The panels are main, the branch with no head lift, and the branch with the head lift.
 
 ![The pianist in the first screen of main and of the branch](2026-10-13-pianist-rest/first-screen.webp)
