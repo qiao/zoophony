@@ -261,18 +261,20 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   `transport.startSec` keeps the start point of the last play for the count-in of the pose. A
   seek during play moves it to the seek point (6.5).
 - The rest pose comes from `transport`, so the pose function still keeps no state.
-- **Seated lean.** The pianist leans its trunk forward in the rest pose, a little further than in
-  a play, as the rest clip of the studio polar bear does (`restLean` of `HANDS_HOLDS` in
-  `pose/hands.ts`). The shoulders then come forward over the knees, and the back hides most of
-  the upper arms. The pose mixes the rest lean and the play lean by the weight of the playing
-  pose, so the lean changes with the lift and the lowering. The harp player sits up in the rest
-  pose. With an upright trunk, the arms of the pianist stood out from its sides like wings (user
-  report of 2026-10-13: "the default rest pose of the polar bear looks strange, fix it").
-  - On top of the rest clip, the neck and the head of the pianist lift against the lean in the
-    rest pose (`restHeadLift`), so that the gaze is about level and the face shows over the lid
-    (manager decision of 2026-10-13). The pose mixes the lift with no lift by the weight of the
-    playing pose, so the idle turn of the head stays. With the head of the rest clip, the head bent
-    down to the music desk, and the bear looked slumped over the piano.
+- **Seated lean.** The pianist sits tall in the rest pose, as a real pianist before a
+  performance: the trunk leans a little toward the piano, less than in a play, as the `ready`
+  clip of the studio polar bear does (`restLean` of `HANDS_HOLDS` in `pose/hands.ts`). The hands
+  rest in the lap, and the lift of the count-in brings them to the keys, as a pianist lifts the
+  hands when the conductor signals. The pose mixes the rest lean and the play lean by the weight
+  of the playing pose, so the lean changes with the lift and the lowering. The harp player sits
+  up in the rest pose. With the forward lean of the studio rest clip, the bear slumped over its
+  knees, with the head forward and the paws at the bench (user report of 2026-10-13: "the pose
+  is still strange. Identify what's the common pose for real pianist when they're preparing for
+  a performance").
+  - The neck and the head of the pianist lift against the lean in the rest pose (`restHeadLift`),
+    so that the head is up, the gaze is about level, and the face shows over the lid. The pose
+    mixes the lift with no lift by the weight of the playing pose, so the idle turn of the head
+    stays.
 - **Arm clearance.** In the rest pose, no arm goes through the body. The forearm, the hand, and the
   lower half of the upper arm can touch the torso, the head, and the thighs, as the arms of the
   reference images touch the body. They go no deeper into them than `ARM_CONTACT_DEPTH` of
@@ -601,13 +603,15 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     at the conductor of the demo layouts: 0.034 m for the deer.
   - In the rest pose, the harp player rests its left palm on the left thigh, palm down, to the outer
     side, near the knee and a little above the top of the leg, so that the forearm passes over the
-    thigh. The fingers point to the front. The pianist hangs its paws beside the outer sides of
-    its knees, with the wrists at the places of the rest clip of the studio (`clip_rest()` of
-    `lowpoly-studio/roles/pianist/clips.py`). The round belly of the studio polar bear covers its
-    thighs, so the paws stay outside it. The fingers point forward, down, and a little out. The top
-    of the lap of a studio body is the top of its hips, its belly, and its legs (`pose/lap.ts`).
-    The elbows of the pianist point out and back, so that the forearms pass outside the belly, and
-    its trunk leans forward (5.2, `HANDS_HOLDS` of `pose/hands.ts`). Between the rest pose and the
+    thigh. The fingers point to the front. The pianist rests its paws in the lap. The round belly
+    of the studio polar bear covers its thighs, and its arms are short, so each paw rests on the
+    front of the belly over its thigh, nearer to the middle line than the knee. The palm faces the
+    belly and touches it, and the fingers point down along it. A rest hand of the kind `lap` thus
+    has the side of its palm: down on a thigh, or back and down on a round belly. The top of the
+    lap of a studio body is the top of its hips, its belly, and its legs (`pose/lap.ts`). The
+    elbows of the pianist point out and a little forward, as arms that hold a ball, so that the
+    forearms lie on the belly and stay out of it, and the back hides the arms (5.2, `HANDS_HOLDS`
+    of `pose/hands.ts`). Between the rest pose and the
     playing pose, the wrists of the pianist go out and up around the belly and over the case
     (`restArc`). The harp stands at the right knee of the harp player, so its right hand rests on
     the string of C4, 0.02 m further from the strings than in the playing pose, and its elbow
