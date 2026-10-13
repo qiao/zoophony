@@ -101,7 +101,7 @@ section 6 or of `pose/hands.test.ts`:
 | Lean of the spine | 0°: the right paw 2.8 cm short of C3 | 20° (the studio clips lean 12°) |
 | Reach of each paw over the other side (`reach`) | no limit: the right paw followed a melody of Bach out of its reach | left paw up to B♭4, right paw down to C4 |
 | Palm place (`pianoKeyFront()`) | over the keys: the claws in the fallboard, then 0.04 m above the keys: 2.6 cm in the key bed | 0.02 m in front of the edge of the keys, 0.065 m above them |
-| Rest place | 0.6 of the way to the knee: under the belly, then 0.25 H out: 3 cm in the sides of the belly | beside the knees, 0.6 H out, fingers forward and down |
+| Rest place | 0.6 of the way to the knee: under the belly, then 0.25 H out: 3 cm in the sides of the belly, then 0.6 H out: the left forearm 7.3 cm in the belly (section 6) | beside the knees, 0.75 H out, fingers forward and down |
 | Path to the keys (`restArc`) | a straight line: 2.6 cm in the belly | 0.3 H out and 0.4 H up at the middle |
 
 Two values meet a limit of another area. At 1.4 H, with the palm 0.04 m in front of the edge of
@@ -117,17 +117,18 @@ its bind normal moved by the mean of the skin matrices of its corners (the test 
 
 | Body | Samples | Most folded faces | Samples with a fold | Folded faces of all samples, by the main bone |
 |---|---:|---:|---:|---|
-| Polar bear pianist | 2,510 | 15 (Bach, the rest pose) | 35.1% | head 1,022, neck 770, spine 568, upper arms 175, right forearm 19, right fingers 16 |
+| Polar bear pianist | 2,510 | 8 (Bach, the play at 75.00 s) | 21.1% | head 1,022, neck 770, spine 168, upper arms 121, right fingers 11 |
 | Bear conductor | 6,200 | 9 (Beethoven 9, the lift) | 52.1% | left forearm 3,227, left upper arm 486, the other arm bones 141 |
 
-The conductor keeps at most 9 folded faces, as on `main`. Of the folds of the pianist, 92% are
-at the head, the neck, and the spine. The studio has corrective shapes for the arms and the legs,
+The conductor keeps at most 9 folded faces, as on `main`. Of the folds of the pianist, 94% are
+at the head, the neck, and the spine. With the rest place of 0.6 H, the pianist had at most 15
+folded faces (Bach, the rest pose), and 35.1% of the samples had a fold. The studio has corrective shapes for the arms and the legs,
 and none for the neck. The cause of these folds stays open.
 
 ## 6. Tests
 
 On `main`, `pnpm test` ran 2,037 tests in 200 files: 2,017 pass, and 20 skip. At the end of the branch,
-`pnpm test` runs 2,047 tests in 202 files: 2,026 pass, and 21 skip. `pnpm test:perf` passes.
+`pnpm test` runs 2,048 tests in 202 files: 2,027 pass, and 21 skip. `pnpm test:perf` passes.
 `pnpm body-probe --compare` gives 90 of 95 bodies and 22 of 23 players equal to `main`: the
 different ones are the polar bear on each of its 5 supports and the pianist.
 
@@ -137,7 +138,11 @@ New behavior tests:
   skin of the GPU (`posedCorner()`) over a full play, the rest pose, and the lift. No point of a
   paw or a claw more than 1.5 cm under the skin of the trunk, the head, and the legs, or in a
   closed shell of the piano off the keyboard. The paws stay off the bench, and the body keeps
-  1 cm from the case. The test failed with each "before" value of section 4 that it covers.
+  1 cm from the case. In the rest pose, no point of a forearm is more than 1.5 cm under the skin
+  of the trunk, the head, and the legs. The test failed with each "before" value of section 4
+  that it covers.
+- `pose/hands.test.ts`: two wide chords of a test file split so that each part is in the reach of
+  its paw. At the largest interval, the left paw got 11 chords past B♭4 in `boulanger-matin.mid`.
 - `tools/studio-body.test.ts`: the digits of each paw on its finger bone, the soles of a seated
   body on the floor, the keys below the seated elbows, and the body on its bench.
 - `pose/hand-notes.test.ts`: a melody changes hands past the reach of a hand.
@@ -152,10 +157,22 @@ Checks that the studio polar bear failed, because they were tuned on the paramet
 - `pose/hands.test.ts`: the reach of each key from A0 to C8 with C3 for the right hand and C5 for
   the left hand. It now checks each key in the reach of each hand of the hold. The palm on the
   closed shell of the thigh: the skin of a studio body blends the thighs into the hips, and the
-  body is one shell with the arms, so the test checks that the paw is near the lap. The palm
-  places read the palm offsets of the hold.
+  body is one shell with the arms, so the test checks that the paw is within 0.5 H of the lap.
+  The paws at rest are 0.37 H (left) and 0.45 H (right) from the lap. The palm places read the
+  palm offsets of the hold.
 - `models/props.test.ts`: the bench of 0.45 m for the polar bear.
 - `models/layout-scene.test.ts`: the key front reads `PIANO_FRONT_H` and the floor point.
+
+A probe measured the depth of the forearms in the body. The trunk, the head, and the legs of the
+skin are open at the shoulders, so a search of the nearest face finds false depths near the open
+edges. The probe closed each of the two open loops with a fan of faces from its middle, and counted
+a point of a forearm as inside when its winding number was more than 0.5. Its depth is the distance
+to the nearest face. In the rest pose with the paws 0.6 H out, the left forearm was 7.3 cm in the
+belly, at 0.31 of the way from the elbow to the wrist. With 0.75 H, it is at most 0.8 cm in it. In a
+play, the middle of a forearm is up to 6.0 cm in the trunk under the shoulder. It is more than 3 cm
+in it in 1,293 of 1,348 samples of Bach and in 669 of 1,162 samples of Boulanger. At the five
+deepest samples of a play, elbows that point twice as far out left 4.4 to 6.5 cm, and level elbows
+3.2 to 5.8 cm.
 
 The stage of the Boulanger demo grows from 11.301 m to 11.347 m. The other demos keep their
 stages.
@@ -168,7 +185,8 @@ stages.
 |---|---:|
 | `main` (a9b811ea) | 327,410 B |
 | After the studio polar bear (051adaac) | 344,921 B |
-| End of the branch | 344,919 B |
+| End of the first round (400904ac) | 344,919 B |
+| End of the fix round | 344,963 B |
 
 The packed studio polar bear is about 17.5 kB after gzip, as the packed studio bear. The limit is
 1,000,000 B.
@@ -179,7 +197,8 @@ The packed studio polar bear is about 17.5 kB after gzip, as the packed studio b
   `pnpm close-views pianist` from the front, the left side, the right side, and the back, at a
   chord of three keys in each paw, between two chords, and in the rest pose. The bear leans over
   the keys and plays with the paws in front of its belly. The open lid hides most of the bear in
-  the front view. In the rest pose, the paws hang beside the knees.
+  the front view. In the rest pose, the paws hang beside the knees, and the left arm shows beside
+  the belly.
 - [`sheet-main-and-branch.webp`](2026-10-12-studio-polar-bear/sheet-main-and-branch.webp):
   `polar-bear-views.png` above the sheet page of `main` (the parametric polar bear, about 1.19 m high, on
   the bench of 0.45 m) and of the branch (the studio polar bear, on its bench of 0.118 m). The
@@ -191,8 +210,12 @@ The packed studio polar bear is about 17.5 kB after gzip, as the packed studio b
 
 ## 9. Open problems
 
-- Up to 15 faces fold at the neck and the head in the pianist poses (section 5). A neck
+- Up to 8 faces fold at the neck and the head in the pianist poses (section 5). A neck
   corrective shape of the studio, or a smaller turn of the head of the pianist, could remove them.
+- While the pianist plays, the middle of a forearm goes up to 6.0 cm into the trunk under the
+  shoulder (section 6). The test checks the forearms only in the rest pose. A play hold with the
+  elbows further back, or a corrective shape of the studio for the bent arm at the side, could
+  remove it.
 - The paws reach only from A0 to B♭4 and from C4 to C8, so a wide melody changes paws in the
   middle of the keyboard.
 - The bench is 0.118 m high. The bench of `polar-bear-views.png` is about 0.41 m high: the studio
