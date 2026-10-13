@@ -114,7 +114,9 @@ The folded faces of each route, summed over all samples, by the main bone of the
 
 Route A folds the skin of the shoulders and the upper arms in nearly each raised pose, because
 its bind pose has the arms down and it has no corrective shape for a raised arm. Route B folds
-from 1 to 9 faces in half of the samples. Most of them are on the left forearm, at the inner
+from 1 to 9 faces in half of the samples. Of its folded faces of all samples, 85% are on the
+forearms and the upper arms, 13% on the spine and the hips, and 2% on the shoulders and the
+hands. Most of them are on the left forearm, at the inner
 side of the elbow, in poses where the elbow bends further than in the clips of the studio. On the
 right arm, the same kind of faces spanned from the underside of the forearm to the upper arm and
 the chest, so the default view from behind does not show them. The other choice of the retarget is the decision of the route: route B.
@@ -146,8 +148,11 @@ the twist, the folds did not change.
   from the middle plane.
 - **The checks of a hanging paw.** The hanging arm of 5.2 checked the paw at 0.08 H and 0.16 H
   below the wrist, a third and two thirds of the paws of the parametric bodies (0.24 H). The paw
-  of the studio bear is 0.57 H long. The checks now follow the paw length of the mesh, and the
-  parametric bodies keep their hanging arms.
+  of the studio bear is 0.57 H long. The checks now follow the paw length of the mesh. This
+  change alone kept the hanging arms of the parametric bodies. The larger smallest swing of
+  section 4 (16° in place of 8°) then moved the hanging wrist of each standing parametric species
+  from 0.335 H to 0.350 H out of the shoulder joint, 5 mm to 8 mm (the badger, the elephant, the
+  standing rabbit, and the standing tan fox). Each test of the parametric bodies passes with it.
 
 ## 3. The scale
 
@@ -274,6 +279,12 @@ The packed studio bear is 18 kB after gzip (40 kB of TypeScript). The limit is 1
   colors look warmer and darker in the app, because the light of the stage is warm and the grade
   of the stage darkens the shadows. The poses of the arms differ: the app has no pose of the
   sheet of the studio.
+- [`flat-before-after.webp`](2026-10-12-studio-bear/flat-before-after.webp): close views of the
+  chest and the raised arms at beat 1 before and after the flat shading of the review of the
+  branch. With the shared material, the GPU skin turned the three normals of a flat face by
+  different blends of four bones, and 30 to 50 faces of the arms and the chest showed soft
+  gradients. A copy of the material with flat shading keeps each face flat, as in the studio.
+  The nose and the eyes are flat too, as the normals of the GLB file are.
 - [`conductor-views.webp`](2026-10-12-studio-bear/conductor-views.webp): `pnpm conductor-views`
   at the four beats of a bar, between two beats, and in the rest pose, from the front, the right
   side, and the back. From behind, both paws show beside the head at each beat.
@@ -282,7 +293,7 @@ The packed studio bear is 18 kB after gzip (40 kB of TypeScript). The limit is 1
 
 ## 8. Open problems
 
-- Up to 9 faces at the inner elbows fold in half of the samples (2.1). A weight repair of the
+- Up to 9 faces fold in half of the samples, mostly at the inner elbows (2.1). A weight repair of the
   studio for the poses of the app could remove them: the studio repairs folds only in its own
   clips.
 - The right paw of the ready gesture is 0.31 H further out than the left paw, because a right paw
