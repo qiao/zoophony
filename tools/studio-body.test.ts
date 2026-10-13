@@ -15,6 +15,7 @@ describe('pnpm studio-body (design 4.4)', async () => {
   const { body, sheetWeights } = studioBody(bytes, SOURCE, {
     landmark: 'shoulders',
     height: 1,
+    seated: false,
     constant: 'STUDIO_BEAR',
   });
   const mesh = unpackStudioMesh(body.mesh);
@@ -176,9 +177,7 @@ describe('pnpm studio-body with a seated body (design 4.4)', async () => {
     for (let v = 0; v < count; v++) {
       low = Math.min(low, at(v, 1));
     }
-    // The skin of the studio is a little outside its field, as the soles of the bear are.
-    expect(low).toBeLessThan(0);
-    expect(low).toBeGreaterThan(-0.03);
+    expect(low).toBeCloseTo(0, 3);
     expect(body.heads.hips[1]).toBeGreaterThan(body.heads.thigh_L[1] - 0.05);
   });
 

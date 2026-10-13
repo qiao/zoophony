@@ -34,11 +34,10 @@ export interface AnimalSettings {
   /** The height of the landmark above the floor in the app, in meters. It sets the scale. */
   readonly height: number;
   /**
-   * The clip of a seated role whose first key gives the seated height of the hips, or none for a
-   * body that stands. The bind pose of a seated role has the legs bent for the seat, with the hips
-   * at their standing height, so the body drops onto its seat as in the scene of the studio.
+   * True for a body of a seated role. Its bind pose has the legs bent for the seat, with the hips
+   * at their standing height, so the body drops until its soles are on the floor.
    */
-  readonly seatedClip?: string;
+  readonly seated: boolean;
   /** The name of the constant of the module. */
   readonly constant: string;
 }
@@ -48,12 +47,12 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
   // The bear conductor keeps the shoulder joints of the parametric bear of 2026-10-11, 1.0 m
   // above the floor, because the conductor stand and the places of the hands fit them (design
   // 4.5, 5.4).
-  ['bear', { landmark: 'shoulders', height: 1.0, constant: 'STUDIO_BEAR' }],
+  ['bear', { landmark: 'shoulders', height: 1.0, seated: false, constant: 'STUDIO_BEAR' }],
   // The polar bear pianist keeps the keys of its studio piano at the keys of the piano of the app,
   // because the studio fitted its seated arms to them (design 4.4, 5.3).
   [
     'polar-bear',
-    { landmark: 'keys', height: PIANO.keyTop, seatedClip: 'ready', constant: 'STUDIO_POLAR_BEAR' },
+    { landmark: 'keys', height: PIANO.keyTop, seated: true, constant: 'STUDIO_POLAR_BEAR' },
   ],
 ]);
 
@@ -824,32 +823,34 @@ function propBox(glb: Glb, test: (name: string) => boolean): Box3 {
 
 /**
  * Finds the scale and the move of the studio animal in the app (design 4.4). A standing body keeps
- * its place: the soles of the studio are on the floor. A seated body drops by the hips of its
- * seated clip, as in the scene of the studio, and moves forward so that the front edge of the
- * bench of the studio is at the front edge of the piano bench of the app.
+ * its place: the soles of the studio are on the floor. A seated body drops until the lowest point
+ * of its mesh, a sole, is on the floor, and moves forward so that the front edge of the bench of
+ * the studio is at the front edge of the piano bench of the app. The scene of the studio puts the
+ * field of the soles on its floor, and the skin is a little outside the field, so the seated body
+ * of the app is up to 0.011 units higher above its keys than in the studio.
  *
  * @param glb The file.
  * @param skeleton The bind pose.
+ * @param mesh The welded mesh.
  * @param settings The settings of the animal.
  * @returns The scale and the move.
  */
-function sceneFrame(glb: Glb, skeleton: SourceSkeleton, settings: AnimalSettings): SceneFrame {
+function sceneFrame(
+  glb: Glb,
+  skeleton: SourceSkeleton,
+  mesh: SourceMesh,
+  settings: AnimalSettings,
+): SceneFrame {
   const landmark =
     settings.landmark === 'shoulders'
       ? headOf(skeleton, 'upper_arm_L').y
       : propBox(glb, (name) => name.startsWith('piano_key_')).max.y;
   const scale = settings.height / landmark;
-  if (!settings.seatedClip) {
+  if (!settings.seated) {
     return { scale, offset: new Vector3() };
   }
 
-  // The seated clip moves the hips down, so that the soles of the bent legs stand on the floor.
-  const keys = firstKeys(glb, settings.seatedClip);
-  const hips = skeleton.nodes.get('hips') ?? -1;
-  const seated = new Vector3().setFromMatrixPosition(
-    worldMatrices(glb.json, keys.nodes)[hips] ?? new Matrix4(),
-  );
-  const drop = headOf(skeleton, 'hips').y - seated.y;
+  const drop = Math.min(...mesh.vertices.map((v) => v.position.y));
   const front = propBox(glb, (name) => name === 'bench').max.z;
   return { scale, offset: new Vector3(0, -drop, PIANO_BENCH.depth / 2 / scale - front) };
 }
@@ -897,7 +898,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   const glb = readGlb(bytes);
   const skeleton = readSkeleton(glb);
   const mesh = weldMesh(glb);
-  const frame = sceneFrame(glb, skeleton, settings);
+  const frame = sceneFrame(glb, skeleton, mesh, settings);
   const scale = frame.scale;
   const model = (p: Vector3): Vec3 => toModelAxes(p.clone().add(frame.offset), scale);
   const direction = (d: Vector3): Vec3 => toModelAxes(d.clone().normalize(), 1);
@@ -992,7 +993,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       headCenter: model(center),
       nose: model(nose),
       floor: toModelAxes(new Vector3(0, 0, frame.offset.z), scale),
-      seatHeight: settings.seatedClip ? seatHeightOf(mesh, frame) : null,
+      seatHeight: settings.seated ? seatHeightOf(mesh, frame) : null,
       mesh: packStudioMesh(vertices, ordered.faces, correctives),
     },
     sheetWeights: sheet.weights,
