@@ -90,6 +90,8 @@ class ContactCheck:
 
         self.obstacles = {}
         self.obstacle_faces = {}
+        # The obstacle faces of each side as lists, the input of BVHTree.FromPolygons.
+        self.obstacle_lists = {}
         self.tests = {}
         self.sides = list(spec)
         self.arm_bones = {side: list(s['arm']) for side, s in spec.items()}
@@ -99,6 +101,7 @@ class ContactCheck:
             keep = free[self.tris].all(axis=1)
             self.obstacles[side] = self.tris[keep]
             self.obstacle_faces[side] = np.nonzero(keep)[0]
+            self.obstacle_lists[side] = self.obstacles[side].tolist()
             tests = []
             for part, kind, what in s['tests']:
                 if kind == 'skin':
@@ -187,9 +190,10 @@ class ContactCheck:
         turned = [(f, float(dots[f])) for f in np.nonzero(dots < 0.0)[0].tolist()]
         deep, closest = {}, None
         result = {}
+        corners = [Vector(v) for v in body]
         for side in self.sides:
             tri = self.obstacles[side]
-            tree = BVHTree.FromPolygons([Vector(v) for v in body], tri.tolist(), all_triangles=True)
+            tree = BVHTree.FromPolygons(corners, self.obstacle_lists[side], all_triangles=True)
             for test, (part, prop_bone, pts, w, faces, _) in enumerate(self.tests[side]):
                 posed = self._skin(pts, w, D, H, S)
                 # A hidden prop (scale near 0) is not tested.
@@ -199,11 +203,12 @@ class ContactCheck:
                     posed = np.concatenate([posed, posed[faces].mean(axis=1)])
                 deepest, spot = 0.0, None
                 for k, p in enumerate(posed):
-                    hit = tree.find_nearest(Vector(p))
+                    vp = Vector(p)
+                    hit = tree.find_nearest(vp)
                     if hit[0] is None:
                         continue
                     loc, normal, index, dist = hit
-                    inward = (Vector(p) - loc).dot(normal) < 0
+                    inward = (vp - loc).dot(normal) < 0
                     if dist > deepest and inward:
                         # The obstacle is open where the arm joins it, so the side of the nearest
                         # face can be wrong. A winding number confirms the inside.
