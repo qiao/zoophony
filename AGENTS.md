@@ -296,6 +296,10 @@ A commit that can change the speed of `score/`, `pose/`, or the synth engine als
 `pnpm test:perf`. If it fails under a heavy load, run it again when the load is lower.
 
 - Commit each verified change. Leave no verified work in the working tree.
+- Before your report, run `tools/check-commits.sh --tip main` one time in your worktree, with a
+  clean tree. It checks each commit of the branch and the full suite on the last commit, and it
+  keeps each passed result in the cache by tree. Then the review and the merge get a `hit` for
+  each commit. Only the script writes an entry, and a claim in a report is no entry.
 - Write the subject as a Conventional Commit: `type(scope): subject`. Use the imperative mood,
   lower case, and no full stop at the end. Wrap the body at 75 characters.
 - The types are `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `style`, `build`, and `ci`.
