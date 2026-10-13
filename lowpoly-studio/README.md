@@ -78,8 +78,11 @@ lowpoly-studio/
 │   ├── gallery.py       the props gallery of an animal (studio props)
 │   ├── weights.py       armature, bone heat, weight arrays, fold repair
 │   ├── skinning.py      linear blend skinning, face normals, fold measures
-│   ├── contacts.py      the contact and fold check of each clip, and the places of each
-│   │                    contact and fold (the stage "diagnostics")
+│   ├── contacts.py      the contact and fold check of each clip, the frame cache of the
+│   │                    check, and the places of each contact and fold (the stage
+│   │                    "diagnostics")
+│   ├── scene_check.py   the scene check of each clip: the body in a prop, on the seat, and
+│   │                    the claw tips on the key targets
 │   ├── ik.py bake.py    rotation math, two-bone IK; clip baking into actions
 │   ├── roles.py         the interface to the role packs
 │   ├── export.py        materials, join, shape keys, glTF export
@@ -167,7 +170,7 @@ gate runs after "remesh" and after "organic" (see "Speed").
 | correctives | Blender | weights, role `bind.correctives` | shape keys and their drivers | 0.1 s |
 | assemble | Blender | details, role props | joined mesh, shape keys, tip markers | 0.0 s |
 | clips | Blender | the role pack | actions, sampled poses | 3.9 s |
-| contacts | Blender | clips, weights, role checks | contact and fold report, repaired weights | 23.1 s |
+| contacts | Blender | clips, weights, role checks | contact and fold report, repaired weights | 20.6 s (1.3 s after a change of one clip, from the frame cache) |
 | export | Blender | all | `out/<id>.glb`, `out/<id>.stats.json` | 1.9 s |
 | diagnostics | Blender | the contact checks (`contacts.JOURNAL`), the mesh | the places of the contacts and folds, the fold debug list | 0.05 s |
 | model build | Blender | the stages field to diagnostics with the role `model` | `out/model/<id>.glb` | 2.5 s from the cache |
@@ -940,7 +943,7 @@ and the baton, so a change of the eyes or of a paint color keeps its entry.
 | organic | yes | makes the body object again from the stored mesh (`restore_organic`) |
 | paint, details, rig, correctives, assemble | no: always runs | (cheap, and they change the Blender scene) |
 | clips | yes | writes the stored samples into actions (`restore_clips`) |
-| contacts | yes, with diagnostics | writes the repaired weights and shapes of each round (`restore_contacts`) |
+| contacts | yes, with diagnostics; inside it, the frame cache keeps the record of each frame | writes the repaired weights and shapes of each round (`restore_contacts`) |
 | export | yes, with the keys of all stages before it in its key | writes the stored GLB and stats |
 | diagnostics | yes, with the key of contacts in its key | loads its data |
 
@@ -961,6 +964,10 @@ Rules for new stage code (`studio/cache.py` has the details):
   the two run together or come from the cache together.
 - A live object that keeps config values from one stage for another stage hides those reads
   from the cache. Make such a memo in the setup or inside one stage.
+- A cache inside a stage (such as the frame cache) keys its entries by content only. It runs its
+  work under `cache.part()` and gives the code of each entry that it uses to the stage with
+  `cache.note_code()`. Then the key of the stage holds the code of each result, also when no
+  code ran.
 - Read the single fields that a stage or a setup value needs. A key holds no path of the studio
   folder, because such a path differs in each worktree. A read of a whole table records the
   whole table, but its digest leaves out the untracked tables (`cfg.paths`, `cfg.role.paths`).
@@ -980,14 +987,15 @@ shared cache. `python3 studio cache info [bear]` prints the sizes by step and by
 | Cold GLB build (`build --seed 3 --no-shots`, empty cache) | 52.2 s | 53.4 s |
 | Eye radius change (`details.eyes.radius`), GLB | 52.2 s | 4.6 s |
 | Fur color change (`paint.palette.fur`), GLB | 52.1 s | 4.9 s |
-| Clip change (a number in `roles/conductor/clips.py`), GLB | 52.7 s | 32.0 s |
+| Clip change (a number in `roles/conductor/clips.py`), GLB | 52.7 s | 10.7 s (12.8 s for a clip of the performance, see "The frame cache") |
 | No change, GLB | 52 s | 1.9 s |
 | Full build with shots, the cache has the seed (`regress bear`) | 65.3 s | 16.0 s |
 | Full 8-seed check (`build --all-seeds --no-shots`), empty cache | 380.2 s (one after the other) | 97.7 s (4 jobs) |
 | Full 8-seed check after an eye radius change | 380 s | 13.3 s |
 
-A clip change runs the contact check again (about 23 s), because its key holds the samples of
-all clips.
+A clip change runs the clips stage again (about 3.4 s: it solves every clip) and the contact
+stage. The frame cache of the contact stage measures only the frames whose pose changed (see "The
+frame cache of the contact check").
 
 The shared cache in a new worktree (2026-10-12, another worktree filled the cache):
 
@@ -1008,6 +1016,77 @@ model build share the keys of the model stages. The times of the fix (2026-10-12
 | `build bear --seed 3 --no-shots`, first build in a new worktree | 52.2 s, 1 of 13 steps from the cache | 3.9 s, 8 of 13 |
 | `build polar-bear --seed 1 --no-shots`, first build in a new worktree | 49.6 s, 1 of 13 | 7.3 s, 8 of 13 |
 | the model build of `compare bear` after a conductor build | 20.6 s | 1.8 s (field, remesh, and organic from the conductor build) |
+
+### The frame cache of the contact check
+
+The key of the stage "contacts" holds the samples of all clips, so a change of one clip runs the
+stage again. Before the frame cache, the stage then measured each frame of each clip in each
+round of the fold repair (about 24 s for the bear). Now `contacts.Frames` keeps the record of each
+frame in the shared stage cache (step `contact-frames`), and the stage measures only the frames
+that the cache does not hold:
+
+```text
+ round key = digest(skeleton, mesh, weights, corrective shapes, obstacles, test groups,
+                    scene check)                     one round of the fold repair
+ frame key = digest(pose, weights of the corrective shapes in the pose, hand targets)
+ entry     = <cache>/<space>/contact-frames/<digest(round key, clip)>/<entry key>.pkl
+             {frames: {frame key: record}} + manifest: the code that measured the records
+```
+
+A clip reads the records of the 4 newest valid entries of its folder. A change of one clip thus
+measures the frames of that clip and the frames of the performance that show it, in each round.
+The other frames come from the cache. The diagnostics read the same journal of records, and
+`--no-cache` measures every frame. A build from the frame cache gives the same bytes as a cold
+build: after a change of `clip_hush`, the GLB, the stats, and the diagnostics of the build with
+the frame cache and of the build with `--no-cache` are the same.
+
+```typescript
+/** The record of one frame (studio/contacts.py ContactCheck.frame, studio/scene_check.py
+ *  SceneCheck.frame). Plain values, in animal heights. */
+interface FrameRecord {
+  contact: {
+    /** The deepest contact of each test group, by (side, part). */
+    depths: Map<[side: string, part: string], number>;
+    /** The place of each contact deeper than 0, by (side, part). */
+    deep: Map<[side: string, part: string], Place>;
+    /** The closest approach outside the body, or null. */
+    gap: Place | null;
+    /** Each face turned past 90 degrees: [face, cosine], in the order of the faces. */
+    turned: Array<[face: number, cosine: number]>;
+  };
+  /** Only for a role with scene props or hand targets. */
+  scene?: {
+    /** The first shown prop box, and each shown box that the body goes into. */
+    boxes: Array<[depth: number, prop: string, piece: string, position: number[], bone: string]>;
+    /** The gap of the sitting skin over the seat, or null with no seat. */
+    seat: { trunk?: number; thighs?: number } | null;
+    hands: Array<[side: string, digit: number | null, distance: number]>;
+  };
+}
+
+interface Place {
+  side: string; part: string; test: number; point: number;
+  position: number[]; nearest: number[]; face: number;
+  depth?: number;   // a contact
+  gap?: number;     // a closest approach
+}
+```
+
+The times of the bear (`python3 studio build bear --seed 3 --no-shots`, the cache filled, from
+`python3 studio log`, 2026-10-12):
+
+| Change | Before (main a01d45d2) | After |
+|---|---|---|
+| A number in `clip_nod_turn` (not in the performance) | 40.7 s (contacts 29.4 s) | 10.7 s (contacts 1.3 s: 54 of 1920 frames in each round) |
+| A number in `clip_hush` (in the performance) | 34.7 s (contacts 23.7 s) | 12.8 s (contacts 3.6 s: 248 of 1920 frames in each round) |
+| A comment in `roles/conductor/clips.py`, then `build bear --all-seeds --no-shots` (a role check, 8 seeds) | 43.2 s (the frame cache empty for 4 of the 5 seeds that pass the remesh gate) | 20.4 s |
+
+Three more changes of this round cut the time of the frames that run: the corrective drivers pose
+only the bones that they read (`skinning.world_rotations`), the contact check makes the vertex
+vectors once for each frame (a cold round of the bear: 12.1 s before, 9.9 s after), and the look
+report draws its overlap tiles with Pillow in place of a Python loop (1.3 s less in each build).
+The rest of a one-clip change is the clips stage (3.4 s), the export (2.0 s), the start of
+Blender with the cheap stages (about 2 s), and the checks (1.7 s).
 
 ### The seed pool
 
@@ -1088,8 +1167,9 @@ The setting `seeds.require` decides the exit code:
 
 A one-seed build keeps the report and prints a note when the role changed after it. The look
 report has a section "Seeds", marked OLD after a later role change. On the polar bear, a pool
-build with no change takes 10.6 s, and the role check after a change of the clip code takes 84 s
-(8 seeds, 4 at a time).
+build with no change takes 10.6 s, and the role check after a change of the clip code took 84 s
+(8 seeds, 4 at a time) before the frame cache. With the frame cache, the role check of the bear
+after a comment in its clip file takes 20.4 s.
 
 ```typescript
 /** out/seed-report.json (studio/cli.py seed_report). */

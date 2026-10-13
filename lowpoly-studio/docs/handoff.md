@@ -6,7 +6,7 @@ and `handoff-diag.md` (phase 2), `handoff-pilot.md` (phase 3), `handoff-intake.m
 `handoff-runtime.md`, and `handoff-props.md` (rounds A, B, and C). For the commands and the
 config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-studio`.
 
-## State (main a9aeb4aa, 2026-10-12)
+## State (branch studio-lean, 2026-10-12)
 
 ```text
  sheet --> new --like --> calibrate --> fit --> build (seed pool, gate) --> report --> fix
@@ -27,6 +27,14 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
   cached seed takes about 4 s, also in a new worktree. A paint or detail change takes about 5 s.
   An empty cache takes about 52 s for one seed. `tests/test_cache.py` fails when a cache key
   holds a worktree folder.
+- **Frame cache.** The contact stage keeps the record of each frame of each clip in the stage
+  cache (`contacts.Frames`, README "The frame cache of the contact check"). A change of one clip
+  of the bear takes 10.7 s (40.7 s before), or 12.8 s for a clip of the performance (34.7 s
+  before). A role check of the bear after a comment in its clip file takes 20.4 s.
+- **Outputs in git.** Git keeps only the GLB, its stats, `build.json`, `checks.json`,
+  `seed-report.json`, `sheet-check.json`, and `report/review.webp` of each animal (README, "The
+  outputs that git keeps"). A round of both animals adds 8 files and 3.2 MB in place of 70 files
+  and 18.0 MB. A build makes the other outputs again.
 - **Diagnostics.** Each failure names its clip, frame, bone, and region, with a crop. Each build
   writes `out/report/index.html` and `out/report/review.png`. `out/sheet-check.json` marks the
   failures that the sheet can cause. `studio log` gives the real times of each build.
@@ -64,6 +72,15 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
 
 ## Open problems
 
+- The old renders stay in the history of git (about 77 MB of the 197 MB pack), because main is
+  pushed. Only a rewrite of the history can make the pack smaller, and the user must decide it.
+- A clip change still runs the clips stage (3.4 s: it solves every clip) and the export (2.0 s).
+  A cache of each clip in the clips stage needs a code key for each clip function, and the clip
+  files share module constants, so a file is the smallest code key today.
+- The frames of a clip in the performance run twice in each round of the fold repair: once in
+  the clip, once in the performance. A change of `clip_hush` measures 248 frames in each of the
+  2 rounds of the bear (the clip and its part of the performance): 3.6 s.
+- `build.json` and `checks.json` change in each build (the run), so each round commits them.
 - `calibrate` fits the fur color in the front view only. Its light improves the front view and
   makes the other views worse, so both animals keep their hand-tuned light.
 - A claw tip slides about 0.8 cm along its key while it presses.
