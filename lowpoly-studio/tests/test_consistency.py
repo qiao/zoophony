@@ -4,7 +4,7 @@ tuned color class of the config does not move them. Run in lowpoly-studio/:
     python3 -m unittest tests.test_consistency
 
 Pillow only. The tests read the sheets, the masks, and measure.json of the bear and the polar bear
-(about 2 s).
+(about 2 s). The intake makes measure.json first when git has none.
 """
 
 import json
@@ -22,7 +22,12 @@ from studio.config import Section  # noqa: E402
 
 
 def sheet_of(cfg):
-    """Loads the sheet of a config and the views of its measure.json."""
+    """Loads the sheet of a config and the views of its measure.json. Git does not keep
+    measure.json, so the intake makes it first when it is missing (from the stage cache, or in
+    about 3 s)."""
+    if not os.path.exists(cfg.paths.measure):
+        from studio import cli  # noqa: PLC0415
+        cli.step_intake(cfg)
     with open(cfg.paths.measure) as f:
         meta = json.load(f)['views']
     return Image.open(cfg.paths.sheet).convert('RGB'), meta

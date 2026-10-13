@@ -137,8 +137,12 @@ class TestSetupKeys(unittest.TestCase):
             dst = os.path.join(cls.copy, 'animals', animal)
             os.makedirs(os.path.join(dst, 'out'))
             shutil.copy(os.path.join(STUDIO, 'animals', animal, 'animal.toml'), dst)
-            shutil.copy(os.path.join(STUDIO, 'animals', animal, 'out', 'measure.json'),
-                        os.path.join(dst, 'out'))
+            measure = os.path.join(STUDIO, 'animals', animal, 'out', 'measure.json')
+            if not os.path.exists(measure):
+                # Git does not keep measure.json: the intake makes it.
+                from studio import cli  # noqa: PLC0415
+                cli.step_intake(config.load(animal))
+            shutil.copy(measure, os.path.join(dst, 'out'))
 
     @classmethod
     def tearDownClass(cls):
