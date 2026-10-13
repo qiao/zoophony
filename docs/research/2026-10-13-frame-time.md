@@ -19,12 +19,19 @@ All measures use `perf-60.mid` (60 players) in Cinematic mode, in Google Chrome 
   Markdown table. Its GPU row is the time of the WebGL frames in a Metal System Trace with no
   frame cap.
 - The read of the title backdrop waited 1.6 to 1.8 ms on the main thread every 9 to 10 frames.
-  It now waits about 0.8 ms in a trace. The main-thread p95 went from 5.91 to 5.93 ms to 4.56 to
-  4.76 ms. The target of 4 ms still fails: the frame itself takes 3.3 to 3.6 ms (p50) in a trace.
+  It now waits about 0.8 ms in a trace. The main-thread p95 went from 5.93 ms (run `before1`) to
+  4.56 to 4.76 ms. The target of 4 ms still fails: the frame itself takes 3.3 to 3.6 ms (p50) in a trace.
 - With a quiet GPU, the GPU time of a WebGL frame was p50 3.66 to 3.70 ms and p95 4.15 to
   4.44 ms in two runs on the code of the scene of the tip. The target of 4 ms fails. When the
   Chrome of the user rendered a page, it used up to 50% of the GPU time of a trace, and the p95
   rose to 5.3 to 7.1 ms.
+- Correction of the fix round (section 10): the filter of the GPU row dropped WebGL work. It
+  dropped the first command buffer of each frame (the clear of the drawing buffer, the depth pass
+  of the beam, and the shadow map, about 0.7 ms), and the command buffer with the read of the
+  title backdrop. Thus each GPU number of the Metal trace in sections 1, 3, 5, and 7 is too low.
+  The corrected GPU time on the same code was p50 4.35 to 4.75 ms and p95 4.91 to 4.92 ms, with
+  0.0% of the frames within 4 ms. A cut with the same pixels then removed 0.3 ms of the first
+  command buffer (section 10).
 
 ## 2. The instruments and the power state of the GPU
 
@@ -51,6 +58,8 @@ This round found these facts:
   and the duration of each encoder on each channel of the GPU, with its process and its command
   buffer. `tools/gpu-trace.ts` splits the WebGL work of the GPU process of Chrome into frames at
   each write of the canvas surface. It drops the command buffers of the compositor of Chrome.
+  (Fix round: this filter also dropped WebGL work. A frame now starts at the command buffer with
+  the clear of the drawing buffer, section 10.)
 - A trace that attached to the GPU process (`--attach <pid>`) did not save in 100 s and in
   110 s. A trace of all processes (`--all-processes`) of 3 s saved in about 110 s. Thus
   `pnpm frame` records all processes for 3 s, and stops the frames of the page while Xcode saves
@@ -64,6 +73,12 @@ This round found these facts:
 cap, other GPU work 2%. Each row is an encoder of a WebGL frame with its time in milliseconds.
 The labels of ANGLE give no pass name. The table leaves out the encoders below 0.05 ms: the ten
 small passes of the bloom and the depth of field.
+
+Note of the fix round: this table is wrong in two ways. The filter dropped the first command
+buffer of each frame (section 10), so the table has no row for it. The labels of ANGLE start at 0
+in each command buffer, and the first version of the probe added the encoders with the same label
+in different command buffers. The table also left out `Render Command 4` fragment with no canvas
+write (mean 0.10 ms). Section 10.2 gives the table again with each command buffer.
 
 | Encoder | Frames | Mean | p95 |
 |---|---|---|---|
@@ -95,13 +110,12 @@ The fix has two parts:
 
 1. `BackdropProbe.collect()` takes a finished read at the start of a frame, before the commands
    of the render. `request()` starts a read after the render, as before. In the trace of the run
-   `after1`, the wait of a read fell to 0.77 ms. `getBufferSubData()` had 0.044 ms of self time
-   for each frame in a CPU profile.
-2. Each read gets a new pixel buffer. With one buffer for all reads, Chrome printed this warning
-   60 times in 8 s: "performance warning: READ-usage buffer was written, then fenced, but written
+   `after1`, the wait of a read fell to 0.77 ms.
+2. Each read gets a new pixel buffer. With one buffer for all reads, Chrome printed this warning: "performance warning: READ-usage buffer was written, then fenced, but written
    again before being read back. This discarded the shadow copy that was created to accelerate
-   readback." With a new buffer, it printed none (`console-warnings.ts`). `getBufferSubData()`
-   had 0.035 ms of self time for each frame. In a trace with the GPU categories, each read still
+   readback." With a new buffer, it printed none (`console-warnings.ts`). A CPU profile of 607
+   frames after both parts (`cpu-profile.ts`, log `probe-cpu.log` of the round) gave
+   `getBufferSubData()` 0.040 ms of self time for each frame. In a trace with the GPU categories, each read still
    waits about 0.77 ms (run `v2a`).
 
 The frames with no read take 3.3 to 3.6 ms (p50) in a trace, and the callback of each frame
@@ -116,13 +130,15 @@ The Metal trace of all processes shows the GPU work of the other processes. In t
 `before1`, the Chrome of the user (a page of the user that rendered) kept the GPU busy for 50.5%
 of the trace, and in the run `after1` for 27%. The GPU p95 of the WebGL frames was 7.09 ms and
 5.27 ms. With 2% of other work, it was 4.32 ms before the change below (an experiment with the
-timer query on) and 4.44 ms after it (run `after2`). `pnpm frame` now prints the share of the
+timer query on) and 4.44 ms after it (run `after2`). These GPU numbers leave out the first
+command buffer of each frame (section 10). The corrected p95 of `after2` is 5.07 ms. `pnpm frame` now prints the share of the
 other processes, and a warning above 10%.
 
 The MSAA target of the scene resolved its depth with its color. No pass reads that depth, so the
 target now resolves only the color (`resolveDepthBuffer = false` in `scene/post.ts`). The frozen
 frames of section 6 keep the same PNG bytes. The fragment time of render 3 went from 0.93 ms to
-0.79 ms (mean, quiet GPU). The change of the whole frame is inside the noise of two runs.
+0.79 ms (mean, quiet GPU). These two values add the encoders of that label in all command
+buffers of a frame (section 3). The change of the whole frame is inside the noise of two runs.
 
 The depth pass of the depth of field comes after the bloom passes. Each pass of the bloom calls
 `renderer.render()`, which counts a new frame. three.js updates the skeletons, the bone textures,
@@ -132,7 +148,8 @@ frame number of the scene pass. The frozen frames kept the same PNG bytes. The m
 was 4.56, 4.76, and 4.72 ms in three runs (`final1` to `final3`), against 4.67 ms before it, so it
 gave no measured gain. It also put 13 blit encoders in place of 2 into the first command buffer
 of each frame. The filter of `tools/gpu-trace.ts` then dropped that buffer as work of the
-compositor, and the GPU row fell to a false p50 of 1.43 ms. The commit `d31b7adc` undid the
+compositor, and the GPU row fell to a false p50 of 1.43 ms. The same filter dropped the first
+command buffer of each frame also before that change (section 10). The commit `d31b7adc` undid the
 change.
 
 ## 6. Frozen frames
@@ -152,7 +169,6 @@ milliseconds.
 
 | Run | Code | Load | Main p50 / p95 / within 4 ms | Metal p50 / p95 / within 4 ms | Other GPU | Timer, no cap, p50 / p95 | Timer, 60 fps, p50 / p95 |
 |---|---|---|---|---|---|---|---|
-| first | `183e6106` | 5.2 | 3.50 / 5.91 / 84.1% | (the trace did not save) | | | |
 | `before1` | `183e6106` | 6.9, 6.2, 12.3 | 3.75 / 5.93 / 68.0% | 4.48 / 7.09 / 18.9% | 50.5% | 9.22 / 17.83 | 7.73 / 13.67 |
 | experiment | `183e6106` | about 8 | | 3.82 / 4.32 / 83.9% | 1.7% | 7.73 / 11.36 | |
 | `after1` | read at the frame start | 6.4, 6.0, 8.4 | 3.43 / 4.69 / 85.1% | 4.26 / 5.27 / 14.8% | 27% | 8.03 / 17.58 | 9.30 / 19.16 |
@@ -162,6 +178,23 @@ milliseconds.
 | `final2` | `e3f90d5d` | 7.7, 7.6, 12.3 | 3.45 / 4.76 / 83.6% | (false: 1.43 / 1.56) | 2% | 4.91 / 8.64 | 9.30 / 20.46 |
 | `final3` | `dea4cbf6` | 7.5, 7.5, 8.8 | 3.36 / 4.72 / 85.8% | (false: 1.43 / 1.50) | 1% | 4.92 / 8.71 | 9.19 / 17.07 |
 | `final4` | `d31b7adc` | 4.4, 4.3, 9.7 | 3.40 / 4.68 / 86.3% | 3.66 / 4.15 / 69.5% | 1% | 4.99 / 9.20 | 8.73 / 15.41 |
+
+The Metal column leaves out the first command buffer of each frame and the command buffer with
+the read of the title backdrop (section 10). `gpu-rows.ts` (section 8) gives the corrected
+values of the kept traces with `webglFrameTimes()` of `47a0a9bc`, as p50 / p95 / within 4 ms:
+
+| Run | Corrected Metal row |
+|---|---|
+| `before1` | 5.26 / 6.19 / 0.5% |
+| `after1` | 4.99 / 6.01 / 0.8% |
+| `after2` | 4.58 / 5.07 / 0.2% |
+| `final1` | 4.56 / 5.13 / 0.2% |
+| `final2` | 4.47 / 5.07 / 0.6% |
+| `final3` | 4.43 / 4.92 / 0.2% |
+| `final4` | 4.35 / 4.83 / 0.0% |
+
+The review of the round measured 4.05 / 4.27 / 44.0% with the old filter and 4.74 / 4.93 / 0.0%
+with the corrected one on one more trace.
 
 The experiment ran the old frame probe with no frame cap and the timer query on, and a Metal
 trace of 3 s of all processes at 188 fps. Its timer values come from 60 s of play.
@@ -183,7 +216,10 @@ repository root.
 - `pnpm frame --keep=<dir>` gives each row of section 7, and keeps `main-trace.json`,
   `metal-gpu-intervals.xml`, and `gpu-performance-state-intervals.xml` in `<dir>`.
 - `node docs/research/2026-10-13-frame-time/encoders.ts <dir>/metal-gpu-intervals.xml` gives the
-  table of section 3.
+  table of section 3. Since the fix round, it gives the busy time of each command buffer of a
+  frame and the encoders of each command buffer (section 10.2).
+- `node docs/research/2026-10-13-frame-time/gpu-rows.ts <dir>/metal-gpu-intervals.xml...` gives
+  the GPU row of `pnpm frame` for each kept trace (sections 7 and 10).
 - `node docs/research/2026-10-13-frame-time/main-spikes.ts <dir>/main-trace.json` gives the
   frames above 4 ms and the gaps between them (section 4).
 - `node docs/research/2026-10-13-frame-time/cpu-profile.ts [<out.cpuprofile>]` gives the self
@@ -214,3 +250,4 @@ repository root.
   that writes a surface of 2880 × 1800 and reads none (0.70 ms, one in each frame). The filter
   drops it as work of the compositor. If it is WebGL work, the GPU time of a frame is up to
   0.7 ms higher than the GPU row. A probe of the surfaces that the compositor reads can decide.
+  (Fix round: it is WebGL work, and the GPU row now counts it, section 10.)
