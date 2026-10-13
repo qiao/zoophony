@@ -335,12 +335,12 @@ Follow these rules when another agent works on the repository at the same time.
 - A rebase is finished when the folder `$(git rev-parse --git-path rebase-merge)` does not exist.
   `REBASE_HEAD` can stay after a finished rebase, so it does not show the state.
 - A review agent checks the tip only. It runs `tools/check-commits.sh --tip main` in a worktree
-  of the branch: each commit that the agent checked prints `hit`, and only a tree with no entry
+  of the branch. Each commit that the agent checked prints `hit`, and only a tree with no entry
   runs its checks. It does not check each commit again in a copy of the tree.
 - Let the agent that wrote a branch do a long rebase, because it knows the intent of each commit.
-- A rebase with `--exec` runs its command in the tree of each commit, and an old commit has an
-  old copy of a script or none. Copy a script of the branch to a temporary path first, and run
-  the copy. `tools/check-commits.sh` does this.
+- A rebase with `--exec` runs its command in the tree of each commit. An old commit has an old
+  copy of a script or none. Copy a script of the branch to a temporary path first, and run the
+  copy. `tools/check-commits.sh` does this.
 - Before the report, run `tools/decision-rows.sh --diff main`. It lists the decision rows that
   name an identifier or a string literal that the branch removes. Update or remove each row that
   the change makes wrong.
