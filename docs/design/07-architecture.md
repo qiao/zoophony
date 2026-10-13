@@ -72,9 +72,12 @@ player.
   the target from the middle of the gallery, in meters, for example to the pianist at the end of
   its piano. `pnpm choir-check` (`tools/choir-check.ts`) uses them to
   show the penguin at the cameras of `orchestra-latest.png` and `orchestra-side.png`, beside a
-  crop of each image (4.4). `pnpm conductor-views` (`tools/conductor-views.ts`) uses them to show
-  the bear from the front, the right side, and the back at the four beats of a bar of the test
-  notes, between two beats, and in the rest pose, in one grid (5.4).
+  crop of each image (4.4). `pnpm close-views` (`tools/close-views.ts`) uses them to show a role
+  in one grid: the bear conductor from the front, the right side, and the back at the four beats
+  of a bar of the test notes, between two beats, and in the rest pose (5.4), and the polar bear
+  pianist from the front, both sides, and the back at a chord in each paw, between two chords,
+  and in the rest pose (5.3). The pianist plays test notes of its own, which the tool writes into
+  the notes field of the page.
 - The query `rest` shows the players in the rest pose of 5.2, before the first play. With no
   `rest`, the players play. For example, `?page=species&only=rabbit&zoom=2.5&target=1.1&rest`
   shows a close view of the rest pose of the rabbit.

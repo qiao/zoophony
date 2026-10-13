@@ -798,7 +798,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     conductor of the studio. It also keeps the left forearm and hand 0.02 m from the head, the
     right hand, and the baton in the lift and the lowering.
   - **View from behind.** The user removed this test on 2026-10-10, and it stays out
-    (`docs/decisions/2026-10-11-body-revert.md`). `pnpm conductor-views` shows the bear from
+    (`docs/decisions/2026-10-11-body-revert.md`). `pnpm close-views conductor` shows the bear from
     behind at the beats of a bar (7.1). The test `pose/conductor-view.test.ts` sampled a full play
     of each demo every 0.1 s. It looks at the bear from behind, 10° above the level (the conductor shot, 5.6) and
     34° above it (the default view at the podium). No hand is ever inside the outline of the

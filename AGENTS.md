@@ -41,7 +41,7 @@ Open these files for these kinds of work:
   (`docs/decisions/2026-10-11-body-revert.md`), and `pnpm sheet-check <id> <dir>` compares a
   species with its sheet. Since 2026-10-12, the bear conductor has the studio bear of
   `lowpoly-studio/` (route 3 below, `docs/decisions/2026-10-12-studio-bear.md`), and
-  `pnpm conductor-views <dir>` shows it close at the beats of a bar. The penguins of the choir
+  `pnpm close-views conductor <dir>` shows it close at the beats of a bar. The penguins of the choir
   have an egg body of their own, built in code in `src/models/penguin/` after the choir of the two
   newest images (design 4.4). They have no sheet, so `pnpm choir-check <dir>` puts the gallery
   penguin beside one penguin of each image. The GLB files
@@ -165,7 +165,7 @@ player on each frame (`poseStudioBones()` of `src/models/studio-rig.ts`).
         | pnpm studio-body <animal> (no Blender)
         v
  src/models/studio/<animal>.ts --> STUDIO_BODIES of models/studio-body.ts --> SPECIES[<s>].body
-        --> pnpm test --> pnpm conductor-views <dir> --> pnpm snapshot
+        --> pnpm test --> pnpm close-views <role> <dir> --> pnpm snapshot
 ```
 
 1. Run `pnpm studio-body <animal>` after each build of the studio that changes the GLB file. Add
@@ -243,7 +243,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm glb-init <species> <glb> [--force] [--preview <dir>]` | Starts the rigged GLB body of a species (design 4.4): copies the file to `assets/models/<species>/<species>.glb` with a README of its checksum, inspects it with `tools/blender/inspect_glb.py`, and writes the proposed config `tools/glb-bodies/<species>.json`. The proposal maps the Mixamo joints, takes the palette from clusters of the face colors, finds the eyes, the nose, the ears, and the finger blocks, and scales the body to the head center of the current body of the species. The tail gets no vertex. `--force` writes over an existing config and README. `--preview` also writes the images of `pnpm rig-body --preview`. |
 | `pnpm rig-body <species> [--preview <dir>]` | Prepares the rigged GLB body of a species with Blender (design 4.4) and writes `src/models/rigged/<species>.ts`. `tools/glb-bodies/<species>.json` gives the source file, the height, the map from its joints to the bones of the player, the bones that the file does not have, the color rules, and the triangle budget. `tools/blender/rig_body.py` welds the mesh, measures the eyes and the nose from the texture, collapses the mesh to the budget, adds the eye plates, keeps two bones for each vertex, and bakes the texture into the skin `src/models/rigged/<species>-skin.webp`, with the fur and the accent in the colors of the species. With `--preview`, `tools/blender/preview_rig.py` also writes `skin.png` and `bones.png` into `<dir>`: the skin and the main bone of each face. Blender 5.2 or later comes from the variable `BLENDER`, or from the path. |
 | `pnpm studio-body <animal>` | Writes `src/models/studio/<animal>.ts` from the GLB file of an animal of the studio, `lowpoly-studio/animals/<animal>/out/<animal>.glb` (design 4.4), with no Blender: the welded mesh, the skin of up to four bones, the eye bones, the arm-down corrective shapes, and the bind pose of the bones of the studio, turned to face -z and scaled so that the shoulder joints are 1.0 m high. It drops the baton of the studio. Run it after `python3 studio build <animal>` changes the GLB file. |
-| `pnpm conductor-views <dir> [--base <url>]` | Builds the site and writes close views of the conductor from the gallery into `<dir>`: the front, the right side, and the back, at the four beats of a bar of the test notes, between two beats, and in the rest pose, and the grid of all views (`conductor-views.png` and `.webp`). `--base` uses a running site, such as the dev server, with no build. It stops the browser at the end. |
+| `pnpm close-views <role> <dir> [--base <url>]` | Builds the site and writes close views of a role from the gallery into `<dir>`, and the grid of all views (`<role>-views.png` and `.webp`). `conductor`: the bear from the front, the right side, and the back, at the four beats of a bar of the test notes, between two beats, and in the rest pose. `pianist`: the polar bear from the front, both sides, and the back, at a chord in each paw, between two chords, and in the rest pose. `--base` uses a running site, such as the dev server, with no build. It stops the browser at the end. |
 | `pnpm typecheck` | Runs `tsc` with no output files. |
 | `pnpm lint` | Runs `oxlint --type-aware .` with the anti-slop plugin. |
 | `pnpm format` | Formats the paths of design 9.5 with oxfmt. |
@@ -254,7 +254,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
 `pnpm format`, `pnpm screenshots`, `pnpm snapshot`, `pnpm sheet-check`, `pnpm pose-probe`, `pnpm choir-check`, `pnpm keyboard`,
-`pnpm smoke`, `pnpm glb-init`, `pnpm rig-body`, `pnpm studio-body`, `pnpm conductor-views`, and
+`pnpm smoke`, `pnpm glb-init`, `pnpm rig-body`, `pnpm studio-body`, `pnpm close-views`, and
 `tools/merge-branch.sh`. It runs `pnpm test:e2e` in one job for each browser, and only the Chromium job blocks a merge
 (design 9.2).
 `.github/workflows/pages.yml` deploys the site to GitHub Pages under `/zoophony/` after CI passes
