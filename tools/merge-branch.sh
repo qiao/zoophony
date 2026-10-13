@@ -6,10 +6,11 @@
 # adds a temporary worktree. The script stops at the first failure and keeps the
 # branch and the worktree. It removes them only after a successful merge.
 #
-# tools/check-commits.sh --tip, from the folder of this script, checks each commit
-# and runs the full unit suite on the last commit. It keeps each passed result in a
-# cache by tree, so a commit that an agent checked before prints "hit" and runs no
-# check. MERGE_NO_CACHE=1 runs each check again.
+# tools/check-commits.sh, from the folder of this script, checks each commit. It
+# keeps each passed result in a cache by tree, so a commit that an agent checked
+# before prints "hit" and runs no check. MERGE_NO_CACHE=1 runs each check again.
+# The full unit suite on the last commit always runs, with no cache, as a second
+# guard against a wrong entry.
 #
 # --check-only runs each check and stops before the merge. The script rebases the
 # branch onto main, but it does not change main, and it keeps the branch and the
@@ -137,14 +138,14 @@ fi
 # runs only the unit tests that its changes reach through the imports (`--changed`). The
 # other tests give the result of its parent, which the step before checked. A test that
 # reads a file with no import does not see a change of that file, so the full suite runs one
-# time on the last commit (`--tip`). A commit with an entry in the cache prints "hit".
+# time on the last commit, with no cache. A commit with an entry in the cache prints "hit".
 HEAD_BEFORE=$(git rev-parse HEAD)
-CHECK_ARGS=(--tip)
+CHECK_ARGS=()
 if [ "${MERGE_NO_CACHE:-0}" = 1 ]; then
-  CHECK_ARGS+=(--no-cache)
+  CHECK_ARGS=(--no-cache)
 fi
 CHECK_STATUS=0
-"$SCRIPT_DIR/check-commits.sh" "${CHECK_ARGS[@]}" main || CHECK_STATUS=$?
+"$SCRIPT_DIR/check-commits.sh" ${CHECK_ARGS[@]+"${CHECK_ARGS[@]}"} main || CHECK_STATUS=$?
 case $CHECK_STATUS in
   0) ;;
   1)
@@ -156,7 +157,7 @@ case $CHECK_STATUS in
     exit 4
     ;;
   *)
-    echo "A commit or the full unit suite failed a check. The branch is unchanged."
+    echo "A commit failed a check. The branch is unchanged."
     exit 3
     ;;
 esac
@@ -168,7 +169,14 @@ if [ "$(git rev-parse HEAD)" != "$HEAD_BEFORE" ]; then
   echo "The check rebase changed the commit hashes. Examine $WORKTREE." >&2
   exit 4
 fi
-echo "Checked $(git rev-list --count main..HEAD) commits and ran the full unit suite at ${SECONDS}s."
+echo "Checked $(git rev-list --count main..HEAD) commits in ${SECONDS}s."
+
+pnpm -s test >"$MERGE_TMP/test-full.log" 2>&1 || {
+  tail -30 "$MERGE_TMP/test-full.log"
+  echo "The full unit suite failed on the last commit. The log is $MERGE_TMP/test-full.log."
+  exit 3
+}
+echo "Ran the full unit suite with no cache at ${SECONDS}s."
 
 # A branch that changes only docs cannot change the site.
 SITE_FILES=$(git diff --name-only main HEAD | grep -vE '^docs/|\.md$' || true)
