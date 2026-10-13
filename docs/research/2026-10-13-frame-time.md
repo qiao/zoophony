@@ -228,6 +228,8 @@ repository root.
   8 s of play (section 4).
 - `node docs/research/2026-10-13-frame-time/frozen.ts <dir>` writes the frozen frames of
   section 6.
+- `python3 docs/research/2026-10-13-frame-time/pixel-diff.py <base dir> <dir>...` gives the
+  pixel differences of section 10.4 from the frozen frames of two runs.
 
 ## 9. Open problems
 
@@ -251,3 +253,131 @@ repository root.
   drops it as work of the compositor. If it is WebGL work, the GPU time of a frame is up to
   0.7 ms higher than the GPU row. A probe of the surfaces that the compositor reads can decide.
   (Fix round: it is WebGL work, and the GPU row now counts it, section 10.)
+
+## 10. Fix round: the corrected GPU row and the first command buffer
+
+The review of the round found that the filter of the GPU row dropped WebGL work. A command
+buffer with a surface read or with more than 3 blit encoders counted as work of the compositor.
+That rule dropped the first command buffer of each frame, and the command buffer with the read
+of the title backdrop. The frame of the dropped read then merged with the next frame. The fix
+(`47a0a9bc`) tells the compositor by its surfaces: a command buffer that reads or writes a
+surface of another size than the drawing buffer is compositor work. The compositor reads the
+tiles of the page (for example 1472 × 256) and writes the surface of the window (1440 × 900 in
+the headless Chrome). A WebGL frame starts at the command buffer with the clear of the drawing
+buffer, and it holds each WebGL command buffer until the next clear. Since `5c0e02ce`, the tool
+reads the size of the drawing buffer from the page.
+
+### 10.1 The corrected GPU row
+
+Two runs of `pnpm frame` with the fixed filter, on the code of the scene of `e584e16f`. The load
+is the 1-minute load average before each phase and at the end. Times are p50 / p95 / within
+4 ms, in milliseconds.
+
+| Run | Code | Load | Main thread | Metal (GPU row) | Other GPU | Song times of the trace |
+|---|---|---|---|---|---|---|
+| `base1` | `47a0a9bc` | 6.6, 5.6, 11.2 | 3.33 / 4.77 / 87.6% | 4.35 / 4.92 / 0.0% | 1% | 13.2 to 17.4 s |
+| `base2` | `4a785f74` | 8.0, 6.7, 18.8 | 3.39 / 4.61 / 85.8% | 4.75 / 4.91 / 0.0% | 1% | 13.9 to 19.4 s |
+
+The timer query gave p50 / p95 4.69 / 8.38 and 4.95 / 8.95 ms with no frame cap, and
+7.96 / 12.52 and 9.05 / 16.31 ms at 60 fps (for information). Thus the GPU fails the target by
+about 1 ms at p95, and no frame was within 4 ms.
+
+### 10.2 The command buffers of a frame
+
+`encoders.ts` on the trace of `base2` (535 frames): each frame has three command buffers, and 1%
+of the frames have six, because the trace gave no label to one clear.
+
+| Command buffer | Busy mean (ms) | Busy p95 (ms) |
+|---|---|---|
+| 1 | 0.71 | 0.80 |
+| 2 | 3.14 | 3.18 |
+| 3 | 1.21 | 1.37 |
+
+The command buffers overlap in time, so the sum is more than the busy time of the frame.
+`gl-calls.ts` gave the WebGL calls of one frame of `perf-60.mid` at 6 s of play. With the
+encoders, they give the content of the first command buffer:
+
+| Encoders of command buffer 1 | Mean (ms) | What it is | Code |
+|---|---|---|---|
+| Render 0 to 3, with `(Clear)` and two writes of the canvas surface | 0.27 (sum) | The clear of the drawing buffer before the first draw of the frame | Chrome: WebGL with `preserveDrawingBuffer: false` |
+| Blit 4 | 0.03 | The upload of the bone textures: 59 of 16 × 16 and 2 of 20 × 20 texels | three.js `skeleton.update()` before the first draw of the depth pass |
+| Render 5, vertex and fragment | 0.17 + 0.12 | The depth of the beam at 2880 × 1800, 63 draws | `BeamDepth.render()`, `scene/beam.ts` |
+| Render 6, vertex and fragment | 0.15 + 0.06 | The first part of the shadow map of the key light at 2048 × 2048, 63 draws | three.js `WebGLShadowMap` in the scene render of `PostPipeline.render()`, `scene/post.ts` |
+| Blits 7 to 25 and renders 8 to 26 | 0.31 (sum of all encoders below 0.02 ms) | The second upload of the 61 bone textures, which split the rest of the shadow pass into 10 small passes | three.js `WebGLObjects.update()` in the shadow pass |
+
+three.js updates a skeleton when the frame number of the renderer changed since its last update.
+A render updates the skeletons in its list of objects, adds one to the frame number, and updates
+them again in the shadow pass. The depth pass of the beam drew with the bone textures, and the
+shadow pass of the scene pass then updated each skeleton again. Thus each bone texture uploaded
+two times in each frame: 122 calls of `texSubImage2D`. On ANGLE on Metal, the upload of a texture
+that the GPU uses needs a blit, and the blit ends the render pass.
+
+### 10.3 The cut with the same pixels
+
+`2ed45faa` renders the shadow map in the depth pass of the beam, and the scene pass keeps it
+(design 4.5). Both updates of the skeletons then come before the first draw, and each bone
+texture uploads one time in each frame: `gl-calls.ts` counts 61 calls of `texSubImage2D` in
+place of 122. The frozen frames of section 6 keep the same PNG bytes. A frame then has two
+command buffers. The small encoders of the first one fell from 0.31 ms to 0.12 ms (sum, mean of
+all frames).
+
+| Run | Code | Load | Main thread | Metal (GPU row) | Other GPU | Song times of the trace |
+|---|---|---|---|---|---|---|
+| `cut1` | `3293fda3` | 7.3, 6.7, 15.8 | 3.79 / 4.87 / 66.8% | 4.43 / 4.76 / 19.9% | 3% | 13.8 to 18.4 s |
+| `cut2` | `19693b3b` | 24.7 to 49.0 | (refused after 300 s, exit code 2) | | | |
+
+`3293fda3` holds the same source files as `2ed45faa`, which only adds the docs. Against
+`base1` and `base2`, the GPU p95 fell by 0.15 ms, and the share of the frames within 4 ms rose
+from 0.0% to 19.9%. The options b, c, and e of section 10.4 run on this code and
+change only GPU work. Their main-thread rows gave p50 3.35 to 3.67 ms and p95 4.56 to 4.89 ms,
+against 3.33 to 3.39 ms and 4.61 to 4.77 ms before the cut. Thus the main-thread row of `cut1`
+is inside the noise of the runs.
+
+### 10.4 The options that change pixels
+
+The user decides which change of the look to accept, so no option is in the code. Each option
+was a temporary patch on `19693b3b` (the code of the scene of `2ed45faa`). Each one got one run
+of `pnpm frame`, at a load of at most 8 before each phase, and the frozen frames of section 6.
+The pixel values compare each frozen frame with the frame of the base: the mean absolute
+difference of the channels (0 to 255), the largest difference of a channel, and the part of the
+pixels with a difference above 16. Each value is the range over the three shots.
+
+| Option | Load | GPU p50 / p95 / within 4 ms | Main thread p50 / p95 | Other GPU | Mean difference | Largest difference | Pixels above 16 |
+|---|---|---|---|---|---|---|---|
+| Base (`cut1`) | 7.3, 6.7, 15.8 | 4.43 / 4.76 / 19.9% | 3.79 / 4.87 | 3% | 0 | 0 | 0% |
+| a. The depth of field reads the depth of the beam | 7.7, 6.4, 12.0 | 3.91 / 4.38 / 68.4% | 2.95 / 4.32 | 0% | 0 to 0.07 | 0 to 169 | 0 to 0.1% |
+| b. MSAA with 2 samples in place of 4 | 7.8, 6.3, 8.2 | 3.80 / 4.20 / 64.3% | 3.36 / 4.68 | 2% | 0.30 to 0.36 | 223 to 235 | 0.5 to 0.7% |
+| c. The two side lights as directional lights | 6.7, 6.2, 13.0 | 4.25 / 4.63 / 33.8% | 3.35 / 4.56 | 8% | 3.57 to 4.68 | 211 to 248 | 6.3 to 8.4% |
+| d. Device scale 1.5 in place of 2 | 7.6, 6.4, 5.4 | 2.84 / 3.13 / 99.7% | 3.51 / 4.82 | 8% | 2.28 to 2.43 | 199 to 222 | 1.1 to 1.3% |
+| e. The depth of the beam at half size | 5.4, 5.4, 12.3 | 4.23 / 4.61 / 37.7% | 3.67 / 4.89 | 2% | 0 to 0.02 | 25 to 167 | below 0.05% |
+| a and b together | 7.6, 7.6, 16.3 | 3.96 / 4.28 / 68.5% | 3.00 / 4.34 | 2% | 0.30 to 0.41 | 223 to 235 | 0.5 to 0.7% |
+
+What changes in the look:
+
+- **a.** The depth pass of the depth of field goes. Its blur reads the depth of the beam, which
+  has no hall, so the hall counts as far. Only the shots with the depth of field change: a rim of
+  one to two pixels at the edges of the heads of the back rows against the hall. This option also
+  removes one render of the scene from the main thread.
+- **b.** The thin lines show more steps at their edges: the bows, the strings, and the legs of
+  the stands.
+- **c.** Each side light becomes a directional light with the color, the direction, and the
+  illuminance at the aim point of the spotlight (`SIDE_LIGHT` of `scene/lights.ts`). It has no
+  cone and no fall with the distance. Thus the corners of the stage and the back rows get more
+  warm light, and the pool of light is flatter. The saving is small, because each light still
+  costs one light evaluation in each lit pixel.
+- **d.** The high tier renders 2160 × 1350 pixels in place of 2880 × 1800, with the post effects
+  at that size, and the browser scales the canvas up. Each edge, texture, and face is softer.
+  The main thread does not change.
+- **e.** The haze of the beam gets a jagged edge of steps around the heads and the instruments
+  in the beam, as design 4.5 says of a depth at half size.
+
+Only option d keeps the GPU time within 4 ms for 95% of the frames. The combination a and b,
+with the two smallest changes of the look, fails by 0.28 ms at p95. A second run of each option,
+a second run of the base with the cut, and three runs of the combination refused after 300 s:
+other work kept the load average at 8.6 to 49 between 13:34 and 13:56. The main thread fails its
+target with each option. Option a cuts the most from it, because it removes one render of the
+scene.
+
+`options.webp` in [`2026-10-13-frame-time/`](2026-10-13-frame-time/) shows each option: the
+conductor shot at half size, and a face and a paw of the default play view at full size, each
+row with its label and its GPU p95. The patches are not in the repository.
