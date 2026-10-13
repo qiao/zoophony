@@ -1,6 +1,6 @@
 # Snapshot of 2026-10-13
 
-Commit `628f95ea`: docs(decisions): record the lap pose of the pianist. `pnpm snapshot` made these images.
+Commit `8d08d429`: docs(design): rest the pianist paws low in the lap with the elbows down. `pnpm snapshot` made these images.
 
 | File | View |
 |---|---|
