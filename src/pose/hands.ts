@@ -111,20 +111,21 @@ export const HANDS_HOLDS = {
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
     restArc: [0.3, 0.4, 0],
-    // The palms rest beside the knees, 0.6 H to the outer side of the top of the lap, and the
+    // The palms rest beside the knees, 0.75 H to the outer side of the top of the lap, and the
     // fingers point forward, down, and a little out, as the paws of the rest clip of the studio.
     // The round belly of the studio polar bear covers its thighs: at 0.6 of the way to the knee
-    // the palms were under the belly, and at 0.25 H out the claws went 3 cm into its sides. The
-    // elbows point down, a little out, and forward.
+    // the palms were under the belly, at 0.25 H out the claws went 3 cm into its sides, and at
+    // 0.6 H out the forearms went 7 cm into them. The elbows point down, a little out, and
+    // forward.
     restL: {
       kind: 'lap',
-      lap: { along: 1, offset: [-0.6, 0.1, 0] },
+      lap: { along: 1, offset: [-0.75, 0.1, 0] },
       fingers: [-0.3, -0.5, -1],
       pole: [-0.5, -1, -0.5],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 1, offset: [0.6, 0.1, 0] },
+      lap: { along: 1, offset: [0.75, 0.1, 0] },
       fingers: [0.3, -0.5, -1],
       pole: [0.5, -1, -0.5],
     },

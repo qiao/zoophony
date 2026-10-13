@@ -59,6 +59,12 @@ const BODY = [
 const PAWS = ['handL', 'fingersL', 'handR', 'fingersR'] as const satisfies readonly BoneName[];
 
 /**
+ * The forearms. In the rest pose, they must not enter the trunk, the head, and the legs. While
+ * the round polar bear plays, they go into its trunk (design 5.3).
+ */
+const FOREARMS = ['forearmL', 'forearmR'] as const satisfies readonly BoneName[];
+
+/**
  * Tells if a point of the piano in its own axes is on the keyboard: the keys and the key bed under
  * them. A claw may press a key down, and the key bed is under the keys. The white keys run 0.15 m
  * back from the front edge of the keys, the black keys stand on them, and the key bed is 0.08 m
@@ -78,8 +84,12 @@ function onKeyboard(p: Vector3): boolean {
 
 /** The parts of the posed pianist. */
 interface PianistParts {
+  /** The trunk, the head, and the legs. */
   readonly body: PosedPart;
+  /** The paws with their claws. */
   readonly paws: PosedPart;
+  /** The forearms. */
+  readonly forearms: PosedPart;
 }
 
 /**
@@ -149,7 +159,7 @@ function benchOf(model: PlayerModel): PosedPart {
 }
 
 /**
- * Gives the posed trunk, head, legs, and paws of a pianist in one pass over the mesh. Each
+ * Gives the posed trunk, head, legs, paws, and forearms of a pianist in one pass over the mesh. Each
  * triangle belongs to the bone of its first corner, as in `posedPart()` of `test-clearance.ts`,
  * and each corner takes the skin of the GPU (`posedCorner()`): the skin of the studio for a studio
  * body.
@@ -161,13 +171,21 @@ function pianistParts(posed: PosedSkeleton): PianistParts {
   const { mesh } = posed.model;
   const body = new Set<number>(BODY.map(boneIndex));
   const paws = new Set<number>(PAWS.map(boneIndex));
-  const parts: Record<'body' | 'paws', { triangles: Triangle[]; box: Box3 }> = {
+  const forearms = new Set<number>(FOREARMS.map(boneIndex));
+  const parts: Record<keyof PianistParts, { triangles: Triangle[]; box: Box3 }> = {
     body: { triangles: [], box: new Box3() },
     paws: { triangles: [], box: new Box3() },
+    forearms: { triangles: [], box: new Box3() },
   };
   for (let v = 0; v < mesh.bones.length; v += 3) {
     const bone = mesh.bones[v] ?? 0;
-    const part = body.has(bone) ? parts.body : paws.has(bone) ? parts.paws : null;
+    const part = body.has(bone)
+      ? parts.body
+      : paws.has(bone)
+        ? parts.paws
+        : forearms.has(bone)
+          ? parts.forearms
+          : null;
     if (!part) {
       continue;
     }
@@ -196,6 +214,11 @@ export interface PianistClearance {
   readonly toBench: Worst;
   /** The smallest gap from the trunk, the head, and the legs to the case of the piano. */
   readonly bodyToCase: Worst;
+  /**
+   * The deepest point of a forearm under the skin of the trunk, the head, and the legs. It is 0
+   * when the caller does not measure the forearms.
+   */
+  readonly forearmsInBody: Worst;
 }
 
 /**
@@ -204,12 +227,14 @@ export interface PianistClearance {
  * @param scene The scene.
  * @param index The index of the pianist in the plan.
  * @param samples The song time, the wall time, and the transport of each sample.
+ * @param withForearms True to measure the forearms in the body too.
  * @returns The worst samples.
  */
 export function pianistClearance(
   scene: TestScene,
   index: number,
   samples: Iterable<readonly [song: number, wall: number, transport: Transport]>,
+  withForearms = false,
 ): PianistClearance {
   const place = scene.layout.players[index];
   if (!place) {
@@ -224,6 +249,7 @@ export function pianistClearance(
     inCase: { value: 0, label: 'none' },
     toBench: { value: PIANIST_GAP, label: 'none' },
     bodyToCase: { value: PIANIST_GAP, label: 'none' },
+    forearmsInBody: { value: 0, label: 'none' },
   };
   let shells: readonly PosedPart[] | null = null;
   for (const [song, wall, transport] of samples) {
@@ -243,12 +269,23 @@ export function pianistClearance(
       PIANIST_GAP,
       ...shells.map((shell) => partDistance(parts.body, shell, PIANIST_GAP)),
     );
+    const forearmsInBody = withForearms
+      ? depthUnder(
+          parts.forearms.triangles.flatMap((t) => [t.a, t.b, t.c]),
+          parts.body,
+          2 * PIANIST_DEPTH,
+        )
+      : 0;
     worst = {
       inBody: inBody > worst.inBody.value ? { value: inBody, label } : worst.inBody,
       inCase: inCase > worst.inCase.value ? { value: inCase, label } : worst.inCase,
       toBench: toBench < worst.toBench.value ? { value: toBench, label } : worst.toBench,
       bodyToCase:
         bodyToCase < worst.bodyToCase.value ? { value: bodyToCase, label } : worst.bodyToCase,
+      forearmsInBody:
+        forearmsInBody > worst.forearmsInBody.value
+          ? { value: forearmsInBody, label }
+          : worst.forearmsInBody,
     };
   }
   return worst;
@@ -268,8 +305,18 @@ function* playSamples(scene: TestScene): Generator<readonly [number, number, Tra
 }
 
 /**
- * Gives the samples of the rest pose before the first play and of the lift of the paws from the
- * knees to the keys at the play start (design 5.2, 5.3).
+ * Gives the sample of the rest pose before the first play (design 5.2, 5.3).
+ *
+ * @param scene The scene.
+ * @yields The song time, the wall time, and the transport.
+ */
+function* restSamples(scene: TestScene): Generator<readonly [number, number, Transport]> {
+  yield [-countInAt(scene.plan.beats, 0).lengthSec, 10, NOT_STARTED];
+}
+
+/**
+ * Gives the samples of the lift of the paws from the knees to the keys at the play start (design
+ * 5.2, 5.3).
  *
  * @param scene The scene.
  * @yields The song time, the wall time, and the transport.
@@ -277,7 +324,6 @@ function* playSamples(scene: TestScene): Generator<readonly [number, number, Tra
 function* liftSamples(scene: TestScene): Generator<readonly [number, number, Transport]> {
   const start = -countInAt(scene.plan.beats, 0).lengthSec;
   const play: Transport = { ...PLAYING, changedAtWall: 10 };
-  yield [start, 10, NOT_STARTED];
   for (let wall = 10; wall < 13; wall += LIFT_STEP) {
     yield [Math.min(0, start + wall - 10), wall, play];
   }
@@ -292,7 +338,8 @@ export const PIANIST_CLEARANCE_SHARDS = 2;
 
 /**
  * Registers the tests of the clearance of the pianist in the demos of one shard (design 4.4,
- * 5.3): a full play, the rest pose, and the lift of the paws. The shard takes its demos from the
+ * 5.3): a full play, the rest pose, and the lift of the paws. In the rest pose, the forearms
+ * also stay out of the body. The shard takes its demos from the
  * patched demos with a piano seat. Each shard file calls it with its own shard.
  *
  * @param shard The shard, from 1 to {@link PIANIST_CLEARANCE_SHARDS}.
@@ -309,8 +356,21 @@ export function describePianistClearanceShard(shard: number): void {
       );
       for (const index of pianists) {
         it(`keeps the paws out of the body, the piano case, and the bench in ${demo.file}`, () => {
-          for (const samples of [playSamples(scene), liftSamples(scene)]) {
-            const { inBody, inCase, toBench, bodyToCase } = pianistClearance(scene, index, samples);
+          const sets = [
+            { samples: playSamples(scene), atRest: false },
+            { samples: liftSamples(scene), atRest: false },
+            { samples: restSamples(scene), atRest: true },
+          ];
+          for (const { samples, atRest } of sets) {
+            const { inBody, inCase, toBench, bodyToCase, forearmsInBody } = pianistClearance(
+              scene,
+              index,
+              samples,
+              atRest,
+            );
+            expect
+              .soft(forearmsInBody.value, `forearms in the body at rest, ${forearmsInBody.label}`)
+              .toBeLessThanOrEqual(PIANIST_DEPTH);
             expect
               .soft(inBody.value, `paws in the body, ${inBody.label}`)
               .toBeLessThanOrEqual(PIANIST_DEPTH);

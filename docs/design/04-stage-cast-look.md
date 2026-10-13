@@ -512,8 +512,10 @@ retarget had about a quarter of the folded faces.
 - `models/studio-rig.test.ts`, `models/studio-body.test.ts`, `tools/studio-body.test.ts`, the
   test of the conductor clearance (5.4), and the test of the pianist clearance (5.3) check the
   behavior: the elbow on the joints of the player, the twist split, the turn of a paw, the
-  corrective weights, the blink, the soles on the floor, the body on its bench, and the paws and
-  the baton out of the body and out of the piano.
+  corrective weights, the blink, the soles on the floor, the body on its bench, the paws and the
+  baton out of the body and out of the piano, and the forearms of the pianist out of the body in
+  the rest pose. While the pianist plays, the middle of each forearm goes into the trunk under
+  the shoulder, as an accepted limit (`docs/decisions/2026-10-12-studio-polar-bear.md`).
 
 **Rigged bodies**
 
