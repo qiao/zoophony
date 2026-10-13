@@ -604,20 +604,24 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - In the rest pose, the harp player rests its left palm on the left thigh, palm down, to the outer
     side, near the knee and a little above the top of the leg, so that the forearm passes over the
     thigh. The fingers point to the front. The pianist rests its paws in the lap. The round belly
-    of the studio polar bear covers its thighs, and its arms are short, so each paw rests on the
-    front of the belly over its thigh, nearer to the middle line than the knee. The palm faces the
-    belly and touches it, and the fingers point down along it. A rest hand of the kind `lap` thus
-    has the side of its palm: down on a thigh, or back and down on a round belly. The top of the
-    lap of a studio body is the top of its hips, its belly, and its legs (`pose/lap.ts`). The
-    elbows of the pianist point out and a little forward, as arms that hold a ball, so that the
-    forearms lie on the belly and stay out of it, and the back hides the arms (5.2, `HANDS_HOLDS`
-    of `pose/hands.ts`). Between the rest pose and the
-    playing pose, the wrists of the pianist go out and up around the belly and over the case
-    (`restArc`). The harp stands at the right knee of the harp player, so its right hand rests on
-    the string of C4, 0.02 m further from the strings than in the playing pose, and its elbow
-    points down. A place on the right thigh put the hand into the harp or the forearm into the
-    belly. The elbows bend, and the harp player sits up. The first rest pose hung the arms beside
-    the seat (user reports of 2026-10-06: "by default the animals' arms are drooping").
+    of the studio polar bear covers its thighs, so each paw rests on the low front of the belly
+    over its thigh, at about the height of the top of the leg above the knee, and nearer to the
+    middle line than the knee. The palm faces back and down onto the belly, the paw touches it,
+    and the fingers point in, toward the other paw. A rest hand of the kind `lap` thus has the side
+    of its palm: down on a thigh, or back and down on a round belly. The top of the lap of a studio
+    body is the top of its hips, its belly, and its legs (`pose/lap.ts`). The elbows of the
+    pianist hang by the sides, out and a little back, and the back hides the arms. The arms are
+    short, so the forearms and the upper arms lie on the belly, up to 3 cm into it (5.2,
+    `HANDS_HOLDS` of `pose/hands.ts`). The paws stay at least 5 cm from the case of the piano.
+    Paws higher in front of the belly, with the elbows forward, looked as if the bear held them up
+    at the keys (review of 2026-10-13). Between the rest pose and the playing pose, the wrists of
+    the pianist go up over the case, with no move out, so the upper arms stand out no further than
+    in a play (`restArc`). The harp stands at the right knee of the harp player, so its right
+    hand rests on the string of C4, 0.02 m further from the strings than in the playing pose, and
+    its elbow points down. A place on the right thigh put the hand into the harp or the forearm
+    into the belly. The elbows bend, and the harp player sits up. The first rest pose hung the
+    arms beside the seat (user reports of 2026-10-06: "by default the animals' arms are
+    drooping").
 - Choir: the beak or mouth opens with each note, the singer breathes in before a phrase, and it
   sways.
 - **Choir in detail** (`pose/choir-notes.ts`, `pose/choir.ts`):
