@@ -218,6 +218,18 @@ describe('compareProbes', () => {
     ]);
   });
 
+  it('reads the missing poses of a file of an older tool as empty', () => {
+    const bodies = probeBodies();
+    const older: Probe = { species: bodies.species, players: bodies.players };
+    const poses: DemoPoses = { samples: {}, players: { 'conductor/bear/baton': {} } };
+    const { counts, differences } = compareProbes(older, { ...bodies, poses: { demo: poses } });
+    expect(counts).toContain('pose sets equal: 0 of 4');
+    expect(differences).toEqual(['poses missing in the base']);
+    expect(compareProbes({ ...bodies, poses: {} }, older).differences).toEqual([
+      'poses missing in the new probe',
+    ]);
+  });
+
   it('names a player that one probe does not have', () => {
     const poses: DemoPoses = { samples: {}, players: { 'conductor/bear/baton': {} } };
     const { differences } = compareProbes(
@@ -239,7 +251,7 @@ describe('probeRef', () => {
       const base = await running;
       expect(Object.keys(base.species['bear'] ?? {})).toContain('stand');
       expect(Object.keys(base.players)).toContain('conductor/bear/baton');
-      expect(Object.keys(base.poses)).toContain('mozart-k525');
+      expect(Object.keys(base.poses ?? {})).toContain('mozart-k525');
       expect(await readdir(parent)).toEqual([]);
 
       await expect(probeRef('no-such-ref', parent)).rejects.toThrow('no-such-ref');

@@ -111,8 +111,11 @@ export interface BodiesProbe {
 
 /** The output of the probe. */
 export interface Probe extends BodiesProbe {
-  /** The poses of the players of each demo, by the name of the demo file with no `.mid`. */
-  readonly poses: Readonly<Record<string, DemoPoses>>;
+  /**
+   * The poses of the players of each demo, by the name of the demo file with no `.mid`. A file of
+   * an older tool has none.
+   */
+  readonly poses?: Readonly<Record<string, DemoPoses>>;
 }
 
 /** The comparison of two probes. */
@@ -457,7 +460,10 @@ interface PoseComparison {
  * @param next The poses to check.
  * @returns The comparison.
  */
-function comparePoses(base: Probe['poses'], next: Probe['poses']): PoseComparison {
+function comparePoses(
+  base: Readonly<Record<string, DemoPoses>>,
+  next: Readonly<Record<string, DemoPoses>>,
+): PoseComparison {
   let sets = 0;
   let equal = 0;
   const lines: string[] = [];
@@ -548,14 +554,20 @@ export function compareProbes(base: Probe, next: Probe): ProbeComparison {
       `player ${key}: mesh ${mesh}, moved bones: ${moved.join(' ') || (a && b ? 'none' : 'missing')}`,
     );
   }
-  const poses = comparePoses(base.poses, next.poses);
+  // A file of an older tool has no poses. Then one line tells it, in place of a line for each
+  // player.
+  const poses = comparePoses(base.poses ?? {}, next.poses ?? {});
+  const missing = [
+    ...(base.poses ? [] : ['poses missing in the base']),
+    ...(next.poses ? [] : ['poses missing in the new probe']),
+  ];
   return {
     counts: [
       `bodies equal: ${equalBodies} of ${bodies}`,
       `players equal: ${equalPlayers} of ${players}`,
       `pose sets equal: ${poses.equal} of ${poses.sets}`,
     ],
-    differences: [...lines, ...poses.lines],
+    differences: [...lines, ...(missing.length > 0 ? missing : poses.lines)],
   };
 }
 
