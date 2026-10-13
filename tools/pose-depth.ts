@@ -5,7 +5,13 @@ import { BONE_NAMES } from '../src/models/rig.ts';
 import type { BoneName } from '../src/models/rig.ts';
 import { sceneOf } from '../src/pose/test-scene.ts';
 import { depthLimit, pairText, sweepDepths, targetErrors } from '../src/pose/test-sweep.ts';
-import type { PairDepth, RoleSweep, SampleSet, TargetError } from '../src/pose/test-sweep.ts';
+import type {
+  AcceptedDepth,
+  PairDepth,
+  RoleSweep,
+  SampleSet,
+  TargetError,
+} from '../src/pose/test-sweep.ts';
 import { SWEEP_ROLES, playSample } from '../src/pose/test-sweep-roles.ts';
 
 /** The options of the command. */
@@ -19,7 +25,10 @@ interface Options {
   readonly bones: readonly BoneName[] | null;
   /** The obstacles, or `null` for all obstacles of the role. */
   readonly into: readonly string[] | null;
-  /** The song times, or `null` for the sample sets of the role. */
+  /**
+   * The song times of a play, with the limits of a play, or `null` for the sample sets of the
+   * role.
+   */
   readonly times: readonly number[] | null;
 }
 
@@ -129,7 +138,7 @@ async function sweepDemos(options: Options, role: RoleSweep): Promise<DemoResult
     const scene = sceneOf(demo.bytes);
     const times = options.times;
     const sets: readonly SampleSet[] = times
-      ? [{ name: 'times', samples: times.map((song) => playSample(scene, song)) }]
+      ? [{ name: 'play', samples: times.map((song) => playSample(scene, song)) }]
       : role.sampleSets(scene);
     for (const player of role.players(scene)) {
       results.push({
@@ -212,15 +221,43 @@ function printTable(rows: readonly { variant: string; results: readonly DemoResu
   }
 }
 
+/**
+ * Gives the role of the options: one part for each bone of `--bones`, with the accepted depths of
+ * the part of the role that holds the bone, and the obstacles of `--into`.
+ *
+ * @param options The options.
+ * @returns The role.
+ */
+function roleOf(options: Options): RoleSweep {
+  const { role, bones, into } = options;
+  const obstacles = role.obstacles.filter((o) => !into || into.includes(o.name));
+  if (!bones) {
+    return { ...role, obstacles };
+  }
+  const holder = (bone: BoneName): string | undefined =>
+    role.parts.find((part) => part.bones.includes(bone))?.name;
+  return {
+    ...role,
+    parts: bones.map((bone) => ({ name: bone, bones: [bone] })),
+    obstacles,
+    accepted: role.accepted.flatMap((entry) =>
+      bones
+        .filter((bone) => holder(bone) === entry.part)
+        .map((bone): AcceptedDepth => ({
+          part: bone,
+          into: entry.into,
+          samples: entry.samples,
+          depth: entry.depth,
+          reason: entry.reason,
+          decision: entry.decision,
+        })),
+    ),
+  };
+}
+
 async function main(): Promise<void> {
   const options = parseOptions(process.argv.slice(2));
-  const role: RoleSweep = {
-    ...options.role,
-    parts: options.bones
-      ? options.bones.map((bone) => ({ name: bone, bones: [bone] }))
-      : options.role.parts,
-    obstacles: options.role.obstacles.filter((o) => !options.into || options.into.includes(o.name)),
-  };
+  const role = roleOf(options);
   const rows: { variant: string; results: DemoResult[] }[] = [];
   for (const variant of options.variants) {
     const { undo, text } = setHolds(variant);
