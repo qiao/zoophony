@@ -173,8 +173,9 @@ function printDetails(role: RoleSweep, results: readonly DemoResult[]): void {
 }
 
 /**
- * Writes one table with one row for each variant: the deepest point of each pair over all demos
- * and sets, in cm, and the largest note-target error of each hand, in mm.
+ * Writes one table with one row for each variant: the deepest point of each pair in each set over
+ * all demos, in cm, and the largest note-target error of each hand, in mm. A column with 0 in each
+ * row is left out.
  *
  * @param rows The variant and the results of each row.
  */
@@ -187,14 +188,19 @@ function printTable(rows: readonly { variant: string; results: readonly DemoResu
   };
   for (const [row, { results }] of rows.entries()) {
     for (const { sets, targets } of results) {
-      for (const { pairs } of sets) {
+      for (const { name, pairs } of sets) {
         for (const pair of pairs) {
-          add(`${pair.part}>${pair.into} cm`, row, pair.depth * 100);
+          add(`${name} ${pair.part}>${pair.into} cm`, row, pair.depth * 100);
         }
       }
       for (const { side, error } of targets) {
         add(`target ${side} mm`, row, error * 1000);
       }
+    }
+  }
+  for (const [column, values] of columns) {
+    if (values.every((v) => v < 0.05)) {
+      columns.delete(column);
     }
   }
   const header = ['variant', ...columns.keys()];
