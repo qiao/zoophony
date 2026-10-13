@@ -28,6 +28,7 @@ makes a baseline worktree.
 | The same facts of the last studio body, for the section "What is new" | `pnpm studio-body bear --inspect` |
 | The depth of each part and the note errors of a role that exists | `pnpm pose-depth <role>` |
 | The folded faces of the studio bodies | `pnpm fold-probe <role>` |
+| The smallest gaps of the head to the instrument and of the paws to the body | `pnpm pose-depth <role> --gaps` |
 | The size of the first download | `pnpm build && pnpm size` |
 
 Make the worktree: `git worktree add .claude/worktrees/<branch> -b <branch> main`. Copy the
@@ -151,8 +152,9 @@ generated module and no image:
    in another way.
 2. Run each break command of the report, watch the test fail, and restore the file with
    `git checkout -- <path>`.
-3. Run `pnpm pose-depth <role>`, `pnpm fold-probe <role>`, and `pnpm body-probe --base main`.
-   Compare them with the report.
+3. Run `pnpm pose-depth <role> --gaps`, `pnpm fold-probe <role>`, and
+   `pnpm body-probe --base main`. Compare them with the report. The body probe names each
+   player whose pose changed.
 4. Check the correctness, the rules of `AGENTS.md`, and the edge cases of the shared pose code
    for the other species.
 5. Run `tools/decision-rows.sh --diff main`. List each old row that the branch replaces and does
