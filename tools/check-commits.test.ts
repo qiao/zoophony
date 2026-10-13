@@ -258,6 +258,15 @@ describe('tools/check-commits.sh', () => {
     run('git', ['reset', '-q', '--hard', 'HEAD~1']);
   });
 
+  it('stops when the plan does not hold each commit', () => {
+    commitFile('tools/check-cache.ts', "process.stdout.write('');\n");
+    const result = checkCommits();
+    run('git', ['reset', '-q', '--hard', 'HEAD~1']);
+
+    expect(result.status, result.output).toBe(1);
+    expect(result.output).toContain('The plan has 0 commits, and base..HEAD has 3.');
+  });
+
   it('aborts the rebase and stops its checks when the script stops', async () => {
     commitFile('slow-lint', 'x\n');
     const branch = run('git', ['symbolic-ref', 'HEAD']).output;

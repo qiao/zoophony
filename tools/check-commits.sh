@@ -81,6 +81,10 @@ run_plan() {
     fi
     report="${report:+$report, }$name $(since "$start")s"
   done <"$plan"
+  if [ -z "$report" ]; then
+    echo "RED ${label}${short} the plan has no check: $subject"
+    return 1
+  fi
 
   # A check result is a fact of the tree only when the checks saw the tree of the commit. An
   # edit or a new file during the checks, or a move of HEAD, gives no entry.
@@ -190,6 +194,11 @@ if [ -n "$COMMITS" ]; then
       FIRST_MISS=$commit
     fi
   done <"$CHECK_TMP/plan-all.txt"
+fi
+EXPECTED=$(git rev-list --count "$BASE..HEAD")
+if [ "$COUNT" != "$EXPECTED" ]; then
+  echo "The plan has $COUNT commits, and $BASE..HEAD has $EXPECTED. The plan is wrong." >&2
+  exit 1
 fi
 
 # The rebase starts at the parent of the first commit with no entry. Each later commit with an
