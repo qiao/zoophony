@@ -926,9 +926,7 @@ scene ──> [depth 1/2] ──────────────────
   (2026-10-07).
 - A separate depth pass at half size gives the depth, because the resolve of the depth of the
   multisample target cost more time. The multisample target of the scene thus resolves only its
-  color. The depth pass comes directly after the scene pass and takes its frame number, so the
-  skeletons, the bone textures, and the geometries do not update again (9.7). The hall keeps its
-  own material in the depth pass
+  color (9.7). The hall keeps its own material in the depth pass
   (`allowOverride = false`), so that the pass also drops the parts of the cutaway (review of step
   8, U2). The gather takes samples on a golden angle spiral at half size, fewer on the medium
   tier. A sample behind the pixel blurs at most as much as the pixel, so a sharp subject keeps its
