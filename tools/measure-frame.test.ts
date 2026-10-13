@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import type { TraceCell } from './gpu-trace.ts';
 import {
-  MAX_LOAD,
+  MAX_CPU,
   checkLines,
+  cpuUse,
   frameOptions,
   frameStats,
   frameTable,
@@ -148,7 +149,7 @@ describe('frameOptions', () => {
       scale: 2,
       headed: false,
       free: false,
-      maxLoad: MAX_LOAD,
+      maxCpu: MAX_CPU,
       waitSec: 300,
       metal: true,
       keep: undefined,
@@ -156,13 +157,13 @@ describe('frameOptions', () => {
   });
 
   it('reads each flag', () => {
-    const flags = ['--demo=bach', '--scale=1', '--free', '--max-load=4', '--wait=5', '--no-metal'];
+    const flags = ['--demo=bach', '--scale=1', '--free', '--max-cpu=25', '--wait=5', '--no-metal'];
     expect(frameOptions([...flags, '--keep=out', '--headed'])).toEqual({
       demo: 'bach',
       scale: 1,
       headed: true,
       free: true,
-      maxLoad: 4,
+      maxCpu: 25,
       waitSec: 5,
       metal: false,
       keep: 'out',
@@ -172,7 +173,8 @@ describe('frameOptions', () => {
   it('refuses an unknown flag and a value that is not a positive number', () => {
     expect(() => frameOptions(['--uncapped'])).toThrow(/Unknown flag/);
     expect(() => frameOptions(['perf-60'])).toThrow(/Unknown argument/);
-    expect(() => frameOptions(['--max-load=high'])).toThrow(/positive number/);
+    expect(() => frameOptions(['--max-cpu=high'])).toThrow(/positive number/);
+    expect(() => frameOptions(['--max-load=8'])).toThrow(/Unknown flag/);
     expect(() => frameOptions(['--scale=0'])).toThrow(/positive number/);
   });
 
@@ -180,6 +182,21 @@ describe('frameOptions', () => {
     expect(() => frameOptions(['--keep'])).toThrow(/needs a value/);
     expect(() => frameOptions(['--demo='])).toThrow(/needs a value/);
     expect(() => frameOptions(['--headed=1'])).toThrow(/takes no value/);
+  });
+});
+
+describe('cpuUse', () => {
+  it('gives the busy time of all cores over their whole time, in percent', () => {
+    const core = (busy: number, idle: number) => ({
+      model: 'M1 Max',
+      speed: 24,
+      times: { user: busy / 2, nice: 0, sys: busy / 2, idle, irq: 0 },
+    });
+    const before = [core(100, 900), core(0, 1000)];
+    const after = [core(400, 1600), core(100, 2900)];
+    // Busy 300 + 100 of 300 + 700 + 100 + 1900.
+    expect(cpuUse(before, after)).toBeCloseTo(13.333, 3);
+    expect(cpuUse(before, before)).toBe(0);
   });
 });
 

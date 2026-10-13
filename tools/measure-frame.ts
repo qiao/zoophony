@@ -1,7 +1,8 @@
 import { execFileSync, spawn } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { loadavg, tmpdir } from 'node:os';
+import { cpus, loadavg, tmpdir } from 'node:os';
+import type { CpuInfo } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 
@@ -362,17 +363,21 @@ export function frameTable(rows: readonly FrameRow[]): string[] {
   return lines;
 }
 
-/** The highest 1-minute load average at which a phase of the measure starts. */
-export const MAX_LOAD = 8;
+/**
+ * The highest CPU use of the machine over {@link CPU_WINDOW_SEC} at which the main-thread phase
+ * starts, in percent of all cores (design 9.7). At the 1-minute load averages 4.1 to 5.8, below
+ * the old limit of 8, the CPU use over 5 s was 15% to 38%.
+ */
+export const MAX_CPU = 40;
 
-/** The longest wait for a load at or below the limit before a phase, in seconds. */
-const LOAD_WAIT_SEC = 300;
+/** The time of each read of the CPU use, in seconds. */
+const CPU_WINDOW_SEC = 5;
 
-/** The time between two reads of the load during a wait, in seconds. */
-const LOAD_POLL_SEC = 10;
+/** The longest wait for a low CPU use before the main-thread phase, in seconds. */
+const CPU_WAIT_SEC = 300;
 
 /** The flags of `pnpm frame` that take a value, such as `--demo=<id>`. */
-const VALUE_FLAGS = new Set(['demo', 'scale', 'max-load', 'wait', 'keep']);
+const VALUE_FLAGS = new Set(['demo', 'scale', 'max-cpu', 'wait', 'keep']);
 
 /** The flags of `pnpm frame` that take no value, such as `--headed`. */
 const SWITCH_FLAGS = new Set(['headed', 'free', 'no-metal']);
@@ -387,9 +392,9 @@ export interface FrameOptions {
   readonly headed: boolean;
   /** True for reduced motion: the app starts in Free mode at the default view (design 2.5). */
   readonly free: boolean;
-  /** The highest 1-minute load average at which a phase starts. */
-  readonly maxLoad: number;
-  /** The longest wait for a low load before a phase, in seconds. */
+  /** The highest CPU use of the machine at which the main-thread phase starts, in percent. */
+  readonly maxCpu: number;
+  /** The longest wait for a low CPU use before the main-thread phase, in seconds. */
   readonly waitSec: number;
   /** False to skip the Metal System Trace. */
   readonly metal: boolean;
@@ -442,8 +447,8 @@ export function frameOptions(flags: readonly string[]): FrameOptions {
     scale: positive('scale', 2),
     headed: switches.has('headed'),
     free: switches.has('free'),
-    maxLoad: positive('max-load', MAX_LOAD),
-    waitSec: positive('wait', LOAD_WAIT_SEC),
+    maxCpu: positive('max-cpu', MAX_CPU),
+    waitSec: positive('wait', CPU_WAIT_SEC),
     metal: !switches.has('no-metal'),
     keep: values.get('keep'),
   };
@@ -562,29 +567,58 @@ function currentLoad(): number {
 }
 
 /**
- * Waits until the 1-minute load average is at or below the limit of the options. A busy machine
- * slows the frames, so a measure at a high load gives false values.
+ * Calculates the CPU use of the machine between two reads of the times of its cores.
+ *
+ * @param before The times of each core at the first read (`os.cpus()`).
+ * @param after The times of each core at the second read.
+ * @returns The busy time of all cores over their whole time, in percent, or 0 with no time.
+ */
+export function cpuUse(before: readonly CpuInfo[], after: readonly CpuInfo[]): number {
+  let busy = 0;
+  let all = 0;
+  after.forEach((core, i) => {
+    const first = before[i]?.times;
+    if (!first) {
+      return;
+    }
+    const { user, nice, sys, irq, idle } = core.times;
+    const work = user - first.user + (nice - first.nice) + (sys - first.sys) + (irq - first.irq);
+    busy += work;
+    all += work + (idle - first.idle);
+  });
+  return all > 0 ? (busy / all) * 100 : 0;
+}
+
+/**
+ * Waits until the CPU use of the machine over {@link CPU_WINDOW_SEC} is at or below the limit of
+ * the options. The tool starts no process before the main-thread phase, so the use is the use of
+ * the other processes. A busy machine slows the main thread of the page.
  *
  * @param options The options.
  * @param phase The name of the phase, for the output.
- * @returns The load average at the start of the phase.
- * @throws Error if the load stays above the limit for the time of the wait.
+ * @returns The CPU use at the start of the phase, in percent.
+ * @throws Error if the CPU use stays above the limit for the time of the wait.
  */
-async function waitForLowLoad(options: FrameOptions, phase: string): Promise<number> {
+async function waitForLowCpu(options: FrameOptions, phase: string): Promise<number> {
   const end = Date.now() + options.waitSec * 1000;
-  let load = currentLoad();
-  while (load > options.maxLoad) {
+  for (;;) {
+    const before = cpus();
+    await delay(CPU_WINDOW_SEC * 1000, undefined, { signal: RUNNING.stop.signal });
+    const use = cpuUse(before, cpus());
+    if (use <= options.maxCpu) {
+      return use;
+    }
     if (Date.now() >= end) {
       throw new Error(
-        `The load average stayed above ${options.maxLoad} for ${options.waitSec} s ` +
-          `(${load.toFixed(1)}). Stop the other work, or run again later.`,
+        `The CPU use stayed above ${options.maxCpu}% for ${options.waitSec} s ` +
+          `(${use.toFixed(0)}%). Stop the other work, or run again later.`,
       );
     }
-    console.log(`Load average ${load.toFixed(1)} is above ${options.maxLoad}: ${phase} waits.`);
-    await delay(LOAD_POLL_SEC * 1000, undefined, { signal: RUNNING.stop.signal });
-    load = currentLoad();
+    console.log(
+      `CPU use ${use.toFixed(0)}% over ${CPU_WINDOW_SEC} s is above ${options.maxCpu}%: ` +
+        `${phase} waits.`,
+    );
   }
-  return load;
 }
 
 /** The values of the phase at the frame rate of the display. */
@@ -1005,10 +1039,8 @@ async function main(): Promise<void> {
     await mkdir(options.keep, { recursive: true });
   }
 
-  const loads: string[] = [];
-  loads.push(
-    `main-thread phase ${loadText(await waitForLowLoad(options, 'the main-thread phase'))}`,
-  );
+  const cpu = await waitForLowCpu(options, 'the main-thread phase');
+  const loads: string[] = [`main-thread phase ${loadText(currentLoad())}`];
   const root = join(import.meta.dirname, '..');
   // 4182 is the port of the end-to-end tests, so the server starts higher.
   const server = await createServer({
@@ -1024,7 +1056,8 @@ async function main(): Promise<void> {
     await server.listen();
     const base = server.resolvedUrls?.local[0] ?? 'http://localhost:4191/';
     const capped = await measureCapped(base, options);
-    loads.push(`GPU phase ${loadText(await waitForLowLoad(options, 'the GPU phase'))}`);
+    // The GPU phase has no CPU gate: the GPU states and the other GPU work of its trace guard it.
+    loads.push(`GPU phase ${loadText(currentLoad())}`);
     const uncapped = await measureUncapped(base, options, metal);
     loads.push(`end ${loadText(currentLoad())}`);
 
@@ -1068,7 +1101,11 @@ async function main(): Promise<void> {
     console.log(`Frame measure of ${options.demo} (${capped.players} players), ${view}, ${size}`);
     console.log(`${capped.browser}, ${capped.renderer}`);
     console.log(`Drawing buffer of the stage: ${uncapped.canvas.join(' × ')} pixels.`);
-    console.log(`Load average (1 min): ${loads.join(', ')}. Limit ${options.maxLoad}.`);
+    console.log(
+      `CPU use over ${CPU_WINDOW_SEC} s before the main-thread phase: ${cpu.toFixed(0)}% of all ` +
+        `cores. Limit ${options.maxCpu}%.`,
+    );
+    console.log(`Load average (1 min, for information): ${loads.join(', ')}.`);
     const fps = framesPerSecond(capped.probe.stamps).toFixed(1);
     const uncappedFps = framesPerSecond(uncapped.probe.stamps).toFixed(1);
     console.log(`Frame rate: ${fps} fps with the cap, ${uncappedFps} fps with no cap.`);
