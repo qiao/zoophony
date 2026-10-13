@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   busyMs,
   checkFrames,
+  droppedPerFrame,
   frameCheckFaults,
   gpuIntervals,
   otherGpuShare,
@@ -267,8 +268,9 @@ describe('checkFrames', () => {
     const check = checkFrames(intervals, '(7)', CANVAS, frames);
     expect(check.frames).toBe(3);
     expect(check.droppedCanvas).toEqual({ buffers: 0, ms: 0 });
-    expect(check.droppedOther.buffers).toBe(3);
-    expect(check.droppedOther.ms).toBeCloseTo(1.5, 6);
+    // The check ends at the start of the last frame, so c3 does not count.
+    expect(check.droppedOther.buffers).toBe(2);
+    expect(check.droppedOther.ms).toBeCloseTo(1, 6);
     expect(check.merged).toBe(0);
     // From the start of f1 to the end of w3.
     expect(check.spanSec).toBeCloseTo(0.023, 9);
@@ -277,7 +279,7 @@ describe('checkFrames', () => {
     const noFirst = frames.map((frame) => frame.filter((i) => !i.commandBuffer.startsWith('f')));
     const old = checkFrames(intervals, '(7)', CANVAS, noFirst);
     expect(old.droppedCanvas.buffers).toBe(2);
-    expect(old.droppedCanvas.ms).toBeCloseTo(0.54, 6);
+    expect(droppedPerFrame(old, old.droppedCanvas)).toBeCloseTo(0.27, 6);
   });
 
   it('counts a frame with more than two writes of the canvas as merged', () => {

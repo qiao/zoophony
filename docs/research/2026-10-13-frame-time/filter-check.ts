@@ -18,6 +18,7 @@ import { join } from 'node:path';
 
 import {
   checkFrames,
+  droppedPerFrame,
   frameCheckFaults,
   gpuIntervals,
   parseTraceTable,
@@ -59,7 +60,7 @@ try {
     const check = checkFrames(intervals, gpu, canvas, frames);
     const expected = canvasWrites(intervals, gpu, canvas, frames) / 2;
     const faults = frameCheckFaults(check, expected);
-    const perFrame = check.frames > 0 ? check.droppedCanvas.ms / check.frames : 0;
+    const perFrame = droppedPerFrame(check, check.droppedCanvas);
     const name = dir.split('/').filter(Boolean).at(-1) ?? dir;
     const cells = [
       name,

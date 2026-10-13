@@ -352,14 +352,15 @@ export interface FrameCheck {
   /** The time from the start of the first frame to the end of the last frame, in seconds. */
   readonly spanSec: number;
   /**
-   * The command buffers of the process in the span of the frames that no frame holds, with only
+   * The command buffers of the process that no frame holds, with a start from the start of the
+   * first frame to the start of the last frame, and with only
    * surfaces of the size of the drawing buffer or no surface. Such a buffer is WebGL work, such as
    * the first command buffer of a frame, which the filter of `e584e16f` dropped.
    */
   readonly droppedCanvas: DroppedBuffers;
   /**
-   * The other command buffers of the process in the span of the frames that no frame holds. Each
-   * one touches a surface of another size, as the compositor of Chrome does.
+   * The other command buffers of the process in the same time that no frame holds. Each one
+   * touches a surface of another size, as the compositor of Chrome does.
    */
   readonly droppedOther: DroppedBuffers;
   /**
@@ -422,15 +423,19 @@ export function checkFrames(
       start = Math.min(start, interval.startNs);
     }
   }
+  // The first buffer of the next frame can start before the last pass of the last frame, so
+  // the dropped buffers end at the start of the last frame.
+  let lastStart = Infinity;
   for (const interval of frames.at(-1) ?? []) {
     end = Math.max(end, interval.startNs + interval.durationNs);
+    lastStart = Math.min(lastStart, interval.startNs);
   }
 
   const canvasDropped: GpuInterval[][] = [];
   const otherDropped: GpuInterval[][] = [];
   for (const [buffer, list] of byBuffer) {
     const first = Math.min(...list.map((interval) => interval.startNs));
-    if (counted.has(buffer) || first < start || first >= end) {
+    if (counted.has(buffer) || first < start || first >= lastStart) {
       continue;
     }
     (onlyCanvasSurfaces(list, canvas) ? canvasDropped : otherDropped).push(list);
@@ -459,6 +464,18 @@ export function checkFrames(
   };
 }
 
+/**
+ * Calculates the time of dropped command buffers for each frame. The check counts the dropped
+ * buffers in each frame but the last.
+ *
+ * @param check The check.
+ * @param dropped The dropped buffers of the check.
+ * @returns The busy time for each frame, in milliseconds, or 0 with fewer than two frames.
+ */
+export function droppedPerFrame(check: FrameCheck, dropped: DroppedBuffers): number {
+  return check.frames > 1 ? dropped.ms / (check.frames - 1) : 0;
+}
+
 /** The largest time of dropped canvas buffers for each frame, in milliseconds (design 9.7). */
 export const DROPPED_CANVAS_LIMIT_MS = 0.1;
 
@@ -476,7 +493,7 @@ export const FRAME_COUNT_TOLERANCE = 0.02;
  */
 export function frameCheckFaults(check: FrameCheck, expected: number | null): string[] {
   const faults: string[] = [];
-  const perFrame = check.frames > 0 ? check.droppedCanvas.ms / check.frames : 0;
+  const perFrame = droppedPerFrame(check, check.droppedCanvas);
   if (perFrame > DROPPED_CANVAS_LIMIT_MS) {
     faults.push(
       `The filter dropped ${perFrame.toFixed(2)} ms of canvas buffers in each frame, ` +

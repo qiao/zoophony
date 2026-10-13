@@ -120,8 +120,8 @@ describe('checkLines', () => {
   const check = {
     frames: 650,
     spanSec: 3.25,
-    droppedCanvas: { buffers: 650, ms: 455 },
-    droppedOther: { buffers: 1300, ms: 650 },
+    droppedCanvas: { buffers: 649, ms: 454.3 },
+    droppedOther: { buffers: 1298, ms: 649 },
     merged: 2,
   };
 
@@ -129,8 +129,8 @@ describe('checkLines', () => {
     const [count, dropped, ...rest] = checkLines(check, 196, []);
     expect(count).toContain('650 WebGL frames in 3.250 s');
     expect(count).toContain('637 frames expected (2.0%). Merged frames: 2.');
-    expect(dropped).toContain('canvas buffers 0.700 ms (650 buffers)');
-    expect(dropped).toContain('other buffers 1.000 ms (1300 buffers)');
+    expect(dropped).toContain('canvas buffers 0.700 ms (649 buffers)');
+    expect(dropped).toContain('other buffers 1.000 ms (1298 buffers)');
     expect(rest).toEqual([]);
   });
 

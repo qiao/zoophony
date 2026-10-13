@@ -14,13 +14,14 @@ import { chromiumArgs } from './chromium-args.ts';
 import {
   busyMs,
   checkFrames,
+  droppedPerFrame,
   frameCheckFaults,
   gpuIntervals,
   otherGpuShare,
   parseTraceTable,
   webglFrames,
 } from './gpu-trace.ts';
-import type { FrameCheck, TraceTable } from './gpu-trace.ts';
+import type { DroppedBuffers, FrameCheck, TraceTable } from './gpu-trace.ts';
 
 /** The frame target of design 9.7: main-thread time and GPU time, in milliseconds. */
 export const FRAME_LIMIT_MS = 4;
@@ -971,14 +972,14 @@ export function checkLines(
 ): string[] {
   const expected = traceFps * check.spanSec;
   const off = expected > 0 ? `${((check.frames / expected - 1) * 100).toFixed(1)}%` : 'no count';
-  const perFrame = (ms: number): string => (check.frames > 0 ? ms / check.frames : 0).toFixed(3);
+  const perFrame = (dropped: DroppedBuffers): string => droppedPerFrame(check, dropped).toFixed(3);
   const lines = [
     `Self-check of the GPU row: ${check.frames} WebGL frames in ${check.spanSec.toFixed(3)} s ` +
       `of the Metal trace. The page drew ${traceFps.toFixed(1)} fps during the record: ` +
       `${expected.toFixed(0)} frames expected (${off}). Merged frames: ${check.merged}.`,
-    `Dropped by the filter in each frame: canvas buffers ${perFrame(check.droppedCanvas.ms)} ms ` +
+    `Dropped by the filter in each frame: canvas buffers ${perFrame(check.droppedCanvas)} ms ` +
       `(${check.droppedCanvas.buffers} buffers), other buffers ` +
-      `${perFrame(check.droppedOther.ms)} ms (${check.droppedOther.buffers} buffers).`,
+      `${perFrame(check.droppedOther)} ms (${check.droppedOther.buffers} buffers).`,
   ];
   if (faults.length > 0) {
     lines.push(`Warning: the self-check fails, so the GPU row fails. ${faults.join(' ')}`);
