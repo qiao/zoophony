@@ -154,6 +154,7 @@ describe('frameOptions', () => {
       maxCpu: MAX_CPU,
       waitSec: 300,
       metal: true,
+      gpuOnly: false,
       keep: undefined,
     });
   });
@@ -168,6 +169,7 @@ describe('frameOptions', () => {
       maxCpu: 25,
       waitSec: 5,
       metal: false,
+      gpuOnly: false,
       keep: 'out',
     });
   });
@@ -178,6 +180,11 @@ describe('frameOptions', () => {
     expect(() => frameOptions(['--max-cpu=high'])).toThrow(/positive number/);
     expect(() => frameOptions(['--max-load=8'])).toThrow(/Unknown flag/);
     expect(() => frameOptions(['--scale=0'])).toThrow(/positive number/);
+  });
+
+  it('reads --gpu-only, and refuses it with --no-metal', () => {
+    expect(frameOptions(['--gpu-only']).gpuOnly).toBe(true);
+    expect(() => frameOptions(['--gpu-only', '--no-metal'])).toThrow(/--gpu-only needs/);
   });
 
   it('refuses a value flag with no value and a switch with a value', () => {

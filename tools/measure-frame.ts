@@ -383,7 +383,7 @@ const CPU_WAIT_SEC = 300;
 const VALUE_FLAGS = new Set(['demo', 'scale', 'max-cpu', 'wait', 'keep']);
 
 /** The flags of `pnpm frame` that take no value, such as `--headed`. */
-const SWITCH_FLAGS = new Set(['headed', 'free', 'no-metal']);
+const SWITCH_FLAGS = new Set(['headed', 'free', 'no-metal', 'gpu-only']);
 
 /** The options of the frame measure (the flags of `pnpm frame`). */
 export interface FrameOptions {
@@ -401,6 +401,8 @@ export interface FrameOptions {
   readonly waitSec: number;
   /** False to skip the Metal System Trace. */
   readonly metal: boolean;
+  /** True to skip the phase at 60 fps: the tool measures only the GPU. */
+  readonly gpuOnly: boolean;
   /** The folder for the raw traces of the run, or `undefined` to keep none. */
   readonly keep: string | undefined;
 }
@@ -410,8 +412,8 @@ export interface FrameOptions {
  *
  * @param flags The flags.
  * @returns The options.
- * @throws Error for an unknown flag, a value flag with no value, a switch with a value, or a value
- *   that is not a positive number.
+ * @throws Error for an unknown flag, a value flag with no value, a switch with a value, a value
+ *   that is not a positive number, or `--gpu-only` with `--no-metal`.
  */
 export function frameOptions(flags: readonly string[]): FrameOptions {
   const values = new Map<string, string>();
@@ -437,6 +439,9 @@ export function frameOptions(flags: readonly string[]): FrameOptions {
       throw new Error(`Unknown flag "--${name}".`);
     }
   }
+  if (switches.has('gpu-only') && switches.has('no-metal')) {
+    throw new Error('The flag --gpu-only needs the Metal trace, so it refuses --no-metal.');
+  }
   const positive = (name: string, fallback: number): number => {
     const text = values.get(name);
     const value = text === undefined ? fallback : Number(text);
@@ -453,6 +458,7 @@ export function frameOptions(flags: readonly string[]): FrameOptions {
     maxCpu: positive('max-cpu', MAX_CPU),
     waitSec: positive('wait', CPU_WAIT_SEC),
     metal: !switches.has('no-metal'),
+    gpuOnly: switches.has('gpu-only'),
     keep: values.get('keep'),
   };
 }
@@ -666,16 +672,36 @@ async function waitForLowCpu(options: FrameOptions, phase: string): Promise<numb
   }
 }
 
-/** The values of the phase at the frame rate of the display. */
-interface CappedMeasure {
+/** The facts of the browser and of the page of a phase. */
+interface PageInfo {
   /** The version of Chrome and its mode. */
   readonly browser: string;
-  /** The GPU of the WebGL2 context. */
-  readonly renderer: string;
   /** The count of the players of the demo. */
   readonly players: number;
   /** The camera mode at the start of the play. */
   readonly camera: string;
+}
+
+/**
+ * Reads the facts of the browser and of the page during play.
+ *
+ * @param browser The browser.
+ * @param page The page during play.
+ * @param options The options.
+ * @returns The facts.
+ */
+async function pageInfo(browser: Browser, page: Page, options: FrameOptions): Promise<PageInfo> {
+  const players = await page.evaluate(() => window.zoophony?.instruments.length ?? 0);
+  // The frame target holds in both camera modes (design 9.7). Cinematic is the default.
+  const camera = await page.evaluate(() => window.zoophony?.cameraMode ?? '');
+  const mode = options.headed ? 'headed' : 'headless';
+  return { browser: `Chrome ${browser.version()}, ${mode}`, players, camera };
+}
+
+/** The values of the phase at the frame rate of the display. */
+interface CappedMeasure {
+  /** The facts of the browser and of the page. */
+  readonly info: PageInfo;
   /** The values of the frame probe. */
   readonly probe: ProbeValues;
   /** The frames of the Chrome trace. */
@@ -694,9 +720,7 @@ async function measureCapped(base: string, options: FrameOptions): Promise<Cappe
   const browser = await launchChrome(options, false);
   try {
     const page = await playDemo(browser, base, options);
-    const players = await page.evaluate(() => window.zoophony?.instruments.length ?? 0);
-    // The frame target holds in both camera modes (design 9.7). Cinematic is the default.
-    const camera = await page.evaluate(() => window.zoophony?.cameraMode ?? '');
+    const info = await pageInfo(browser, page, options);
     const probe = await probeFor(page, MEASURE_SEC);
     await browser.startTracing(page, { categories: TRACE_CATEGORIES });
     await page.waitForTimeout(MEASURE_SEC * 1000);
@@ -708,14 +732,7 @@ async function measureCapped(base: string, options: FrameOptions): Promise<Cappe
     const { traceEvents } = JSON.parse(trace.toString('utf8')) as {
       traceEvents: TraceEvent[];
     };
-    return {
-      browser: `Chrome ${browser.version()}, ${options.headed ? 'headed' : 'headless'}`,
-      renderer: probe.renderer,
-      players,
-      camera,
-      probe,
-      frames: traceFrames(traceEvents),
-    };
+    return { info, probe, frames: traceFrames(traceEvents) };
   } finally {
     await browser.close();
   }
@@ -897,6 +914,8 @@ async function endMarks(page: Page): Promise<TraceEnd> {
 
 /** The values of the GPU phase with no frame cap. */
 interface UncappedMeasure {
+  /** The facts of the browser and of the page. */
+  readonly info: PageInfo;
   /** The values of the frame probe, with the GPU timer query of each frame. */
   readonly probe: ProbeValues;
   /** The GPU time of each WebGL frame in the Metal System Trace, or `null` with no trace. */
@@ -941,15 +960,16 @@ async function measureUncapped(
   try {
     const page = await playDemo(browser, base, options);
     const canvas = await drawingBufferSize(page);
+    const info = await pageInfo(browser, page, options);
     const probe = await probeFor(page, MEASURE_SEC);
     if (!metal) {
       const none = { states: null, otherShare: null, check: null, traceFps: null, faults: [] };
-      return { probe, metal: null, songs: null, canvas, ...none };
+      return { info, probe, metal: null, songs: null, canvas, ...none };
     }
 
     const cdp = await browser.newBrowserCDPSession();
     const { processInfo } = await cdp.send('SystemInfo.getProcessInfo');
-    const gpu = processInfo.find((info) => info.type.toLowerCase() === 'gpu');
+    const gpu = processInfo.find((entry) => entry.type.toLowerCase() === 'gpu');
     if (!gpu) {
       throw new Error('Chrome gave no GPU process.');
     }
@@ -995,7 +1015,8 @@ async function measureUncapped(
     const states = stateTimes(await table('gpu-performance-state-intervals'));
     const otherShare = otherGpuShare(intervals, `(${gpu.id})`);
     const metalTimes = frames.map((frame) => busyMs(frame));
-    return { probe, metal: metalTimes, states, otherShare, songs, canvas, check, traceFps, faults };
+    const values = { states, otherShare, songs, canvas, check, traceFps, faults };
+    return { info, probe, metal: metalTimes, ...values };
   } finally {
     await browser.close();
     await rm(folder, { recursive: true, force: true });
@@ -1097,8 +1118,8 @@ async function main(): Promise<void> {
     await mkdir(options.keep, { recursive: true });
   }
 
-  const cpu = await waitForLowCpu(options, 'the main-thread phase');
-  const loads: string[] = [`main-thread phase ${loadText(currentLoad())}`];
+  const cpu = options.gpuOnly ? null : await waitForLowCpu(options, 'the main-thread phase');
+  const loads: string[] = options.gpuOnly ? [] : [`main-thread phase ${loadText(currentLoad())}`];
   const root = join(import.meta.dirname, '..');
   // 4182 is the port of the end-to-end tests, so the server starts higher.
   const server = await createServer({
@@ -1113,7 +1134,7 @@ async function main(): Promise<void> {
   try {
     await server.listen();
     const base = server.resolvedUrls?.local[0] ?? 'http://localhost:4191/';
-    const capped = await measureCapped(base, options);
+    const capped = options.gpuOnly ? null : await measureCapped(base, options);
     // The GPU phase has no CPU gate: the GPU states and the other GPU work of its trace guard it.
     loads.push(`GPU phase ${loadText(currentLoad())}`);
     let uncapped = await measureUncapped(base, options, metal);
@@ -1127,13 +1148,14 @@ async function main(): Promise<void> {
     }
     loads.push(`end ${loadText(currentLoad())}`);
 
-    const rows: FrameRow[] = [
-      {
+    const rows: FrameRow[] = [];
+    if (capped) {
+      rows.push({
         name: 'Main thread: tasks of each frame (Chrome trace, 60 fps)',
         times: capped.frames.main,
         target: true,
-      },
-    ];
+      });
+    }
     if (uncapped.metal) {
       const row = {
         name: 'GPU: WebGL frames in the Metal trace (no frame cap)',
@@ -1148,40 +1170,49 @@ async function main(): Promise<void> {
         rows.push(row);
       }
     }
-    rows.push(
-      {
-        // On ANGLE on Metal, the query gets the whole command buffer with its wait in the full
-        // queue of the GPU, so it is for information (design 9.7).
-        name: 'GPU: timer query (no frame cap)',
-        times: uncapped.probe.gpu,
-        target: false,
-      },
-      {
-        name: 'GPU: timer query (60 fps, clock of the GPU)',
-        times: capped.probe.gpu,
-        target: false,
-      },
-      {
-        name: 'Frame callback (performance.now, 60 fps)',
-        times: capped.probe.cpu,
-        target: false,
-      },
-    );
+    // On ANGLE on Metal, the query gets the whole command buffer with its wait in the full queue
+    // of the GPU, so it is for information (design 9.7).
+    rows.push({
+      name: 'GPU: timer query (no frame cap)',
+      times: uncapped.probe.gpu,
+      target: false,
+    });
+    if (capped) {
+      rows.push(
+        {
+          name: 'GPU: timer query (60 fps, clock of the GPU)',
+          times: capped.probe.gpu,
+          target: false,
+        },
+        {
+          name: 'Frame callback (performance.now, 60 fps)',
+          times: capped.probe.cpu,
+          target: false,
+        },
+      );
+    }
 
-    const view = options.free ? 'Free' : capped.camera;
+    const { info } = capped ?? uncapped;
+    const view = options.free ? 'Free' : info.camera;
     const size = `1440 × 900 at the device scale ${options.scale}`;
-    console.log(`Frame measure of ${options.demo} (${capped.players} players), ${view}, ${size}`);
-    console.log(`${capped.browser}, ${capped.renderer}`);
+    console.log(`Frame measure of ${options.demo} (${info.players} players), ${view}, ${size}`);
+    console.log(`${info.browser}, ${uncapped.probe.renderer}`);
     console.log(`Drawing buffer of the stage: ${uncapped.canvas.join(' × ')} pixels.`);
-    console.log(
-      `CPU use over ${CPU_WINDOW_SEC} s before the main-thread phase: ${cpu.toFixed(0)}% of all ` +
-        `cores. Limit ${options.maxCpu}%.`,
-    );
+    if (cpu === null) {
+      console.log('No main-thread phase (--gpu-only), so no CPU gate.');
+    } else {
+      console.log(
+        `CPU use over ${CPU_WINDOW_SEC} s before the main-thread phase: ${cpu.toFixed(0)}% of ` +
+          `all cores. Limit ${options.maxCpu}%.`,
+      );
+    }
     console.log(`Load average (1 min, for information): ${loads.join(', ')}.`);
-    const fps = framesPerSecond(capped.probe.stamps).toFixed(1);
-    const uncappedFps = framesPerSecond(uncapped.probe.stamps).toFixed(1);
-    console.log(`Frame rate: ${fps} fps with the cap, ${uncappedFps} fps with no cap.`);
-    const disjoint = capped.probe.disjoint + uncapped.probe.disjoint;
+    const uncappedFps = `${framesPerSecond(uncapped.probe.stamps).toFixed(1)} fps with no cap`;
+    const fps = capped
+      ? `${framesPerSecond(capped.probe.stamps).toFixed(1)} fps with the cap, `
+      : '';
+    console.log(`Frame rate: ${fps}${uncappedFps}.`);
+    const disjoint = (capped?.probe.disjoint ?? 0) + uncapped.probe.disjoint;
     console.log(`Disjoint timer results (dropped): ${disjoint}.`);
     if (!uncapped.states || uncapped.otherShare === null) {
       console.log('No Metal trace (--no-metal, or no Xcode): the tool does not check the GPU.');
