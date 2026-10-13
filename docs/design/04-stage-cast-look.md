@@ -109,11 +109,12 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 
 ## 4.3 Species
 
-All animals except the penguins use one parametric biped body (4.4). Each species has one
-`SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A species can
-have a body of its own in place of the biped (`body`): the penguins have the egg body of
-`models/penguin/` since 2026-10-11 (4.4, bodies of their own). A species with a body of its own
-has no shape parameters, because its body has its own parts.
+All animals except the penguins and the bear conductor use one parametric biped body (4.4). Each
+species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its
+parameters. A species can have a body of its own in place of the biped (`body`): the penguins have
+the egg body of `models/penguin/` since 2026-10-11, and the bear has the studio body of
+`lowpoly-studio/` since 2026-10-12 (4.4, bodies of their own and studio bodies). A species with a
+body of its own has no shape parameters, because its body has its own parts.
 
 ```typescript
 /** The parametric biped, or a body of its own. */
@@ -140,9 +141,9 @@ interface BipedParams extends CommonParams {
   body?: undefined;
 }
 
-/** A body of its own in place of the parametric biped (4.4): the penguin. */
+/** A body of its own in place of the parametric biped (4.4): the penguin, or a studio body. */
 interface OwnBodyParams extends CommonParams {
-  body: 'penguin';
+  body: 'penguin' | 'studio-bear';
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -326,9 +327,11 @@ border follows the edges of the triangles.
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
-Each body except the penguin's is the parametric body: `buildBiped()` of `models/biped.ts` builds
-it from the parts of 4.5 (body proportions) on the skeleton of 4.3. A species with a `body` gets
-a body of its own from `buildBiped()` in its place. The user chose these bodies again on 2026-10-09, in
+Each body except the penguin's and the bear's is the parametric body: `buildBiped()` of
+`models/biped.ts` builds it from the parts of 4.5 (body proportions) on the skeleton of 4.3. A
+species with a `body` gets a body of its own from `buildBiped()` in its place. On 2026-10-12, the
+user decided: "use the studio bear in the app". The bear conductor has the studio body of
+`lowpoly-studio/animals/bear/` since then (studio bodies, below). The user chose these bodies again on 2026-10-09, in
 place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
 code after `fox-views.png`, the bear a body built in code after `bear-views.png` and then the
@@ -342,12 +345,14 @@ their own, below).
 
 Each body follows these rules:
 
-- A body has at most 2,600 triangles (4.5, facets and triangle budgets).
+- A body has at most 2,600 triangles, and a studio body at most 3,000 (4.5, facets and triangle
+  budgets).
 - The left side of the animal is at -x, because it faces -z, and the mouth is near the middle
   plane, below the eyes (`models/species.test.ts`).
 - The body takes the colors of its species (4.5, species colors).
 - The bones have the names of 4.7, so that the pose code of section 5 drives each body.
-- Each part follows one bone (4.7), and each triangle is on one bone.
+- Each part follows one bone (4.7), and each triangle is on one bone. A studio body has the skin
+  of the studio instead: up to four bones for each vertex (studio bodies, below).
 - The tests of the behavior check each body: the clearance of the arms in the playing pose and in
   the rest pose, the bow and the bow hold, the arm joints, the hidden heads, the budgets, the feet
   on the floor, and the footprints of the layout. A body that grows its footprint moves the rows of
@@ -414,9 +419,77 @@ and of the body.
   flippers out of the body, and the lower edge of the head on the body while it sings
   (`pose/choir.test.ts`).
 
+**Studio bodies**
+
+A studio body is the GLB file of an animal of `lowpoly-studio/` (its `README.md`): one mesh of
+flat faces with one color each, a skeleton of 31 bones with twist bones of the forearms, a skin
+of up to four bones for each vertex, two arm-down corrective shapes, and the clips of its role.
+The bear conductor has the studio bear since 2026-10-12. The app keeps its own conductor motion
+(5.4), so it drives the bones of the studio from the pose of the player each frame: the
+retarget. `docs/research/2026-10-12-studio-bear.md` compares this route with the route of the
+rigged bodies of 2026-10-10 (below), which keeps two bones of the player for each vertex. The
+retarget had about a quarter of the folded faces.
+
+```text
+ lowpoly-studio/animals/bear/out/bear.glb
+        | pnpm studio-body bear (tools/studio-body.ts, no Blender)
+        v
+ src/models/studio/bear.ts: StudioBody (packed mesh, heads, palms, sheet arms)
+        | studioRig() (models/studio-rig.ts)
+        v
+ StudioRig: the skeleton of the player (arms straight down), the constants of the arms
+        |                                   |
+ buildStudioBody(): the body in the         poseAt() pose of the player (5.1), each frame
+ bind pose of the player, two bones of          |
+ the player for each corner (footprints,        v
+ hanging arms, tests)                       poseStudioBones(): 32 studio bones + 38 bones of
+                                            the player, 2 corrective weights
+                                                |
+                                                v
+                                            the scene: one SkinnedMesh, 4 bones and morph
+                                            targets (scene/player.ts)
+```
+
+- `pnpm studio-body <animal>` reads the GLB file with no Blender. It welds the faces of the fur
+  and the gloss, keeps the skin, the corrective shapes, and the bind pose of the bones, turns the
+  animal to face -z, and scales it. It drops the baton and the clips of the studio: the app keeps
+  its own baton (4.6) and its own motion. The eyes are the gloss shells of the head out of the
+  middle plane, and they get eye bones of their own, so that they blink (5.1).
+- The scale puts the shoulder joints 1.0 m above the floor: the shoulder joints of the
+  parametric bear of 2026-10-11. The conductor stand and the beat fit the shoulders (4.5, 5.4),
+  so this landmark keeps them. The studio bear is then 1.51 m high (the parametric bear was
+  1.62 m), and its head height `H` is 0.313 m (0.513 m).
+- The skeleton of the player for a studio body has the joints of the studio for the trunk, the
+  head, and the legs. Each arm hangs straight down from the shoulder joint of the studio, with
+  the lengths of the arm of the studio, because the pose code reads a hanging arm in the bind
+  pose (4.7, 5.2).
+- The retarget (`poseStudioBones()`): the trunk, the head, the ears, the legs, and the tail of
+  the studio move with their bones of the player. Each arm of the studio takes the posed
+  shoulder, elbow, and wrist of the player, and its upper arm and forearm turn with the elbow
+  axis of the studio onto the plane of the arm, so that the elbow bends as the studio built it.
+  The forearm twist bone takes half of the twist of the paw, as in the clips of the studio. Each
+  paw turns in the plane of its palm toward the forearm, by up to 70°: the hands of the player
+  stood 45° to 150° from the forearm, and the skin of the studio bends well up to about 50°. The
+  fingers of the studio curl around their own axis by the curl of the player. The corrective
+  shape of each arm takes the weight of the driver of the studio: the place of the upper arm
+  between the bind pose of the studio and the pose of its sheet.
+- The scene draws the body in the bind pose of the studio, with four bones for each vertex and
+  the corrective shapes as morph targets, and the instrument on the bones of the player. The
+  colors of the studio hold its baked occlusion, so the scene adds none (4.5).
+- `buildStudioBody()` gives the mesh of the player in the bind pose of the player, with the two
+  bones of the player with the largest weights for each corner. The footprints, the hanging
+  arms, the budgets, and the tests read it. In the tests, `posedCorner()` poses a studio body
+  with its own skin.
+- A studio body stands on the floor on each support. The cast gives the bear only the stand of
+  the conductor.
+- `models/studio-rig.test.ts`, `models/studio-body.test.ts`, and the test of the conductor
+  clearance (5.4) check the behavior: the elbow on the joints of the player, the twist split, the
+  turn of a paw, the corrective weights, the blink, and the paws and the baton out of the body.
+
 **Rigged bodies**
 
-No species has a rigged body since 2026-10-11, and the app has no code of a rigged body. On
+No species has a rigged body since 2026-10-11, and the app has no code of a rigged body of a GLB
+file of the user (the studio bodies above have their own code). On
 2026-10-10, the rabbit and the bear conductor had the rigged bodies of
 `assets/models/rabbit/rabbit.glb` and `assets/models/bear/bear.glb`, which the user gave that
 day: T-pose meshes with Mixamo skeletons, their weights, and one texture each. The user asked that
@@ -501,7 +574,8 @@ them:
 **Meshes**
 
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
-  into one mesh. A vertex follows one or two bones (4.7). A rigid part follows one bone.
+  into one mesh. A vertex follows one or two bones (4.7), or up to four bones of the studio in a
+  studio body. A rigid part follows one bone.
 - This gives one draw call for each player (4.5, materials), plus the shadow pass. One `Mesh` for
   each part would give about 25 draw calls for each animal, which is too many for an integrated
   GPU.
@@ -566,7 +640,9 @@ hall, and `CLEAR_COLOR` of `scene/post.ts` the clear color behind it. The intent
 
 `SPECIES_COLORS` of `models/colors.ts` gives each species three colors: the fur, the belly and
 the face, and the accent. The models and the seat dots of the UI read them through `SPECIES`
-(`models/species.ts`), which also gives the size of each species.
+(`models/species.ts`), which also gives the size of each species. The studio bear keeps the
+colors of the faces of its GLB file (4.4), and its colors and its accent parts here color no
+part of its body.
 
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR` of
   `models/species.ts`), and a dark nose (`NOSE_COLOR`), unless their accent parts include the
@@ -937,7 +1013,8 @@ A standing player is a little shorter than a seated one. The base of its torso s
 its feet rest on the floor. Its legs are a short part of its height, as the legs of the standing
 bear of the reference images (4.3, short legs). The props of a standing player fit its shoulders: the snare drum, the
 xylophone, and the tambourine of the badger are lower (4.6), and the desk of the conductor stand
-follows the shoulders of the bear, which has the long trunk of `bear-views.png` (4.3).
+follows the shoulders of the bear. The scale of the studio bear keeps its shoulder joints 1.0 m
+above the floor (4.4).
 
 Today the width of the torso and the thickness of the arms and the legs are the same for all
 species, in `H`. The legs have the form of the reference images since 2026-10-11 (4.3, short
@@ -955,7 +1032,9 @@ through the open back. A floor instrument, such as the cello, moves with the bod
   and the left half of a loft is the mirror image of its right half. The target is the facets of
   the reference images: large, flat, and clean facets that follow the form of each animal
   (design 1, `lowpoly-animals.png` and `animals.webp`).
-- A body has at most 2,600 triangles. An instrument has at most 800, except the timpani (1,200)
+- A body has at most 2,600 triangles. The studio bear keeps the 2,768 faces of its GLB file: the
+  scene has one conductor, so a studio body has a budget of its own of 3,000. An instrument has
+  at most 800, except the timpani (1,200)
   and the piano (2,000). A chair or the piano bench has at most 120, and a stand at most 80. The
   full scene with 60 players has at most 200,000 triangles. The frame cost of `perf-60.mid` on
   the development Mac set these budgets against the frame target of 9.7.
@@ -975,7 +1054,7 @@ risers. `models/stage.ts` holds the sizes of the stage, the podium, and the cond
 | High stool | For the contrabass: a high seat, four legs, a foot ring, and no back (`HIGH_STOOL`). The seat keeps its height for the contrabass, and the foot ring is the `seatHeight` of the skeleton below it. The feet rest on the ring. |
 | Music stand | A tripod base, a post, and a desk that tilts to the player, with a white sheet (`MUSIC_STAND`). |
 | Podium | A box with a top plate whose corners are cut, and framed panels on its sides (`PODIUM_SIZE` and `PODIUM_TRIM`), as the podium of `orchestra-latest.png`. Its width and its height in relation to the bear are the size of the podium of `bear-views.png`. The panels stand out of the body by a few millimeters, so the podium keeps its box for the layout. |
-| Conductor stand | A desk with an open score in front of the conductor, just below the chest of the bear, on a post that stands on the stage in front of the podium (`CONDUCTOR_STAND`). Its top edge is at the shoulders of the bear, as in `animals.webp`, and the desk is lower than the chest, as in `scene.png` (05). A higher desk kept the beat at the height of the head (UX audit 2026-10-05, AM1). A post on the podium put the belly of the bear through the desk (user report of 2026-10-06). The desk follows the shoulders when the legs of the bear change, and `models/stage.test.ts` keeps its top edge there. |
+| Conductor stand | A desk with an open score in front of the conductor, just below the chest of the bear, on a post that stands on the stage 8 cm in front of the podium (`CONDUCTOR_STAND`). Its top edge is at the shoulders of the bear, as in `animals.webp`, and the desk is lower than the chest, as in `scene.png` (05). A higher desk kept the beat at the height of the head (UX audit 2026-10-05, AM1). A post on the podium put the belly of the bear through the desk (user report of 2026-10-06). With the post 3 cm in front of the podium, the eyes on the long muzzle of the studio bear touched the desk in the bow at the song end. The desk follows the shoulders when the legs of the bear change, and `models/stage.test.ts` keeps its top edge there. |
 | Stage | A slab of side `S` (stage origin, below) with no steps, as in `mockup.png`. Each corner is cut by `STAGE_CORNER_CUT × S` along each edge, so the outline has eight sides, as in `orchestra-latest.png`. A raised lip runs around the top (`STAGE_LIP`). The planks run from the left to the right, as in `mockup.png`, with staggered joints, and a deterministic hash gives each plank its length and its tone. The stage has its own material with a grain along the planks (`STAGE_FINISH` of `scene/stage.ts`). The gloss of the key light gives most of the light of the planks in the default view, so the roughness sets the width of the pool of light (light and render, above). |
 | Choir risers | Up to three arc levels behind the orchestra (seat geometry, below), with three steps in front of the lowest level, so that the risers rise from the stage top in even steps, as the wooden risers of `orchestra-latest.png` and `orchestra-side.png` (`RISER`). No singer stands on the steps. Each tread has boards and a lighter front edge. |
 | Floor | The floor of the hall at the bottom of the stage, with the baked spill of the stage light (hall, above). |
@@ -1357,6 +1436,12 @@ bones:
   with no port in the torso (`docs/research/2026-10-06-shoulder-spike.md`). A long tail is two
   parts on `tail1` and `tail2`. The leg is the thigh on `thigh`, the knee ball and the shin on
   `shin`, and the foot on `foot`. No pose turns the legs.
+- A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
+  studio and two eye bones. Each vertex follows up to four of them, and two corrective shapes
+  move the skin of the arms. The scene gives the mesh one bone for each studio bone and one for
+  each bone of the player, and `poseStudioBones()` writes their matrices from the pose of the
+  player. The bones of the player keep the list below, so the pose code drives a studio body as
+  each other body.
 - The egg body of the penguin (4.4) is rigid too. Its body is two parts on `spine` and `chest`,
   its head with the upper beak is on `head`, and its lower beak is on `jaw`. Each flipper is three
   parts on `upperArm`, `forearm`, and `hand`. Its feet are on `foot`, and its thighs and shins

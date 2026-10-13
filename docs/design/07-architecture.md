@@ -34,7 +34,7 @@ first download                                lazy, after the first frame
 | `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
 | `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
-| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, and the Blender tools of the rigged GLB bodies (`tools/blender/`): the start of a body (`pnpm glb-init`) and its packer (`pnpm rig-body`). Since 2026-10-11, the app reads no output of them (4.4). | no | build only |
+| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, the export of a studio body (`pnpm studio-body`, 4.4), and the Blender tools of the rigged GLB bodies (`tools/blender/`): the start of a body (`pnpm glb-init`) and its packer (`pnpm rig-body`). Since 2026-10-11, the app reads no output of the Blender tools (4.4). | no | build only |
 
 A pure module gets all inputs as arguments, reads no clock, uses only seeded randomness, and
 touches no DOM. It can use the math classes of Three.js: `Vector3`, `Quaternion`, `Matrix4`, and
@@ -70,7 +70,9 @@ player.
   and tilt it, in degrees: a positive azimuth moves the camera to the right side of the animals,
   and the elevation is 35° by default. `pnpm choir-check` (`tools/choir-check.ts`) uses them to
   show the penguin at the cameras of `orchestra-latest.png` and `orchestra-side.png`, beside a
-  crop of each image (4.4).
+  crop of each image (4.4). `pnpm conductor-views` (`tools/conductor-views.ts`) uses them to show
+  the bear from the front, the right side, and the back at the four beats of a bar of the test
+  notes, between two beats, and in the rest pose, in one grid (5.4).
 - The query `rest` shows the players in the rest pose of 5.2, before the first play. With no
   `rest`, the players play. For example, `?page=species&only=rabbit&zoom=2.5&target=1.1&rest`
   shows a close view of the rest pose of the rabbit.
@@ -245,6 +247,9 @@ them.
   are about 80 KB, and the skin coordinates double each rigged module to about 30 KB after gzip.
 - On 2026-10-11, `main` gives 440,833 B, and the second revert of the bodies (4.4) gives
   299,037 B: the rigged modules and the skins of the rabbit and the bear left the first download.
+- On 2026-10-12, `main` gives 302,805 B, and the studio bear (4.4) gives 327,356 B: the packed
+  studio bear is 18 KB after gzip, and the code of its rig, its skin, and its scene path is the
+  rest. The studio bear has no texture.
 
 ## 7.3 Third-party licenses
 
