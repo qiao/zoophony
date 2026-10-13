@@ -272,8 +272,8 @@ const close = bodyBox && subjectItem ? aroundBody(query, bodyBox, facingOf(subje
 controls.target.set(close.x, close.target, close.z);
 
 /**
- * The corners of the box that the camera fit shows: the body of the first animal in a close view
- * around the body, or else all models.
+ * The corners of the box that the camera fit shows. A close view around the body shows the body
+ * of the first animal. Each other view shows all models.
  */
 const corners = bodyBox
   ? [bodyBox.min[0], bodyBox.max[0]].flatMap((x) =>

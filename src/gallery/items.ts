@@ -112,7 +112,7 @@ export interface CloseView {
   readonly z: number;
   /**
    * True when the camera turns around the body of the first animal (the query `body`). Then the
-   * azimuth starts at the front of the animal, and the box of its body gives the line, the target,
+   * azimuth starts at the front of the animal. The box of its body gives the line, the target,
    * and the distance at the zoom 1 ({@link aroundBody}).
    */
   readonly body: boolean;
@@ -178,10 +178,10 @@ export function bodyBoundsOf(mesh: MeshData): Bounds {
 }
 
 /**
- * Turns a close view around the body of an animal (design 7.1): the vertical line through the
- * middle of the box of the body, the target at its middle height, and the azimuth in the axes of
- * the gallery. An animal faces -z in its own axes, so the front of an animal with the turn
- * `facing` is at the azimuth 180° minus the facing.
+ * Turns a close view around the body of an animal (design 7.1). The vertical line goes through
+ * the middle of the box of the body, and the target is at its middle height. The azimuth goes
+ * into the axes of the gallery. An animal faces -z in its own axes. Thus the front of an animal
+ * with the turn `facing` is at the azimuth 180° minus the facing.
  *
  * @param view The close view of the query. Its azimuth starts at the front of the animal, and a
  *   positive turn moves the camera to the right side of the animal.
