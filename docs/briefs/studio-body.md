@@ -113,7 +113,7 @@ attachment. Name the code that each one touches.>
 
 ## Values to keep
 
-- `pnpm body-probe --base main`: each other body and player stays equal.
+- `pnpm body-probe --base main`: each other body and player, and each pose set, stays equal.
 - The first download stays below 1 MB. Give a change of more than 5 KB in its commit message.
 - `pnpm fold-probe` and `pnpm pose-depth` of the other roles stay as in the baseline.
 

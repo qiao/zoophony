@@ -111,7 +111,10 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   point is inside when its winding number is more than 0.5. Each point stays at most the contact
   depth of the role in each obstacle. A depth past it is a named entry with its reason and its
   decision row. The entry is a contract of contact that the look accepts, with a margin over the
-  measure. `pnpm pose-depth <role>` prints the same depths.
+  measure. `pnpm pose-depth <role>` prints the same depths. `pnpm pose-depth <role> --gaps` also
+  prints the smallest gap in each sample set from the head to each obstacle except the body, and
+  from each paw to the body (`surfaceGap()` of `pose/test-clearance.ts`). A gap is 0 when the
+  parts touch.
 - The Playwright smoke test does these steps:
   1. Load the page.
   2. Play the default demo for 4 seconds, with the autoplay policy turned off. The count-in of
