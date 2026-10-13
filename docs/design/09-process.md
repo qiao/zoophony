@@ -295,7 +295,7 @@ machine.
 | Pose timing | each note event of `poseAt()` within 5 ms of the note time in the `Score`, before the seeded offset | Vitest | 5 |
 | Seeded offset | at most ±20 ms for each player | Vitest | 5 |
 | Audio render | at most 1.3 ms for each 128-frame block (half of the budget) for each demo | Node: an offline render of each demo with the block scheduler and spessasynth_core, timed for each block (`node tools/measure-targets.ts`). The script also times the block of a seek near the end of the largest demo, and the block of a solo of one seat and of its end at 60 % of each demo (6.6) | 2 |
-| Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames | `pnpm frame` (`tools/measure-frame.ts`): Google Chrome at 1440 × 900 and the device scale 2, at a 1-minute load average of at most 8. The main-thread time is the sum of the tasks of each frame in a Chrome performance trace of 10 s at 60 fps. The GPU time is the time of each WebGL frame in a Metal System Trace of 3 s with no frame cap, so that the GPU runs at its highest clock (below). The tool also prints the timer query of `EXT_disjoint_timer_query_webgl2` with no frame cap and at 60 fps, for information | 5 |
+| Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames | `pnpm frame` (`tools/measure-frame.ts`): Google Chrome at 1440 × 900 and the device scale 2. The main-thread time is the sum of the tasks of each frame in a Chrome performance trace of 10 s at 60 fps, after a CPU use of at most 40% over 5 s. The GPU time is the time of each WebGL frame in a Metal System Trace of 3 s with no frame cap, so that the GPU runs at its highest clock, with the guards and the self-check below. Each trace starts after a seek to a fixed song time. The tool also prints the timer query of `EXT_disjoint_timer_query_webgl2` with no frame cap and at 60 fps, for information | 5 |
 | Load | the presets of the default demo load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
 | First sound | the first note sounds at its song time after the downbeat (song time 0), at most one block (2.7 ms) early and never late. The count-in starts at most 300 ms after the click on play, when the default demo is ready | Node: `audio/clock-render.test.ts` and `audio/engine.test.ts` render a play with a count-in offline. Browser: `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
 | Memory | at most 100 MB of decoded samples for each demo | the `Player` reports the PCM size of the banks of the synth (`pcmBytes`). Node: `audio/pcm-memory.test.ts` converts the presets of each demo as the Worker does | 2 |
@@ -424,6 +424,28 @@ On 2026-10-13, the manager changed the condition of the GPU measure, and told th
   that share and a warning above 10%.
 - Each change of `src/scene/`, of a shader, or of the post effects runs `pnpm frame` before its
   report (`AGENTS.md`). CI has no GPU.
+
+On 2026-10-13, after the frame-time rounds, the manager added guards and checks to the measure
+([`2026-10-13-frame-tools.md`](../decisions/2026-10-13-frame-tools.md)). The facts are in
+[`research/2026-10-13-frame-retro.md`](../research/2026-10-13-frame-retro.md):
+
+- The main-thread phase starts when the CPU use of all cores over 5 s is at most 40%. The tool
+  starts no process before it, so the use is the use of the other processes. The 1-minute load
+  average falls slowly after the save of a Metal trace, so it is for information only.
+- The GPU phase has no CPU gate. Its result is valid when the GPU is in its "Maximum" state for
+  at least 90% of the state time of the trace, and other processes use the GPU in at most 10% of
+  the trace. Else the tool records the GPU phase one more time, and then exits with 2.
+- A self-check guards the GPU row against the faults of its filter. It uses only the sizes of the
+  surfaces. It prints the time of the command buffers that the filter dropped in each frame, the
+  WebGL frames against the frame rate of the page during the record times the span of the
+  frames, and the frames with more than two writes of the canvas. The GPU row fails when the
+  dropped canvas buffers take more than 0.1 ms in each frame, when the count is more than 2% off,
+  or when a frame holds more than two writes of the canvas. On the 18 kept traces of the rounds,
+  the check passes with the filter of the tip, and it fails with each filter that reached a
+  review (`e584e16f` and `332d09ba`) where that filter gave other frames.
+- The tool seeks to 32 s before the Chrome trace and to 16 s before the Metal trace. Each trace
+  then lies in one section shot of `perf-60.mid` with the depth of field, so two runs measure the
+  same shots.
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: the default demo must play at
