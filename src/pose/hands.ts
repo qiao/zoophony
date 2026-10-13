@@ -42,6 +42,11 @@ export interface HandsHold {
   readonly faceR: Vec3;
   /** The forward lean of the spine in the playing pose. */
   readonly lean: number;
+  /**
+   * The forward lean of the spine in the rest pose. The pose mixes it with {@link HandsHold.lean}
+   * by the weight of the playing pose.
+   */
+  readonly restLean: number;
   /** The keys that each hand reaches on the side of the other hand. */
   readonly reach: HandReach;
   /** The directions to which the elbows point. */
@@ -105,6 +110,7 @@ export const HANDS_HOLDS = {
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
     lean: 20 * MathUtils.DEG2RAD,
+    restLean: 0,
     reach: { leftHighest: 70, rightLowest: 60 },
     poleL: [-1, -0.6, 0.4],
     poleR: [1, -0.6, 0.4],
@@ -140,6 +146,7 @@ export const HANDS_HOLDS = {
     faceL: [1, 0, 0],
     faceR: [-1, 0, 0],
     lean: 8 * MathUtils.DEG2RAD,
+    restLean: 0,
     reach: NO_REACH_LIMIT,
     poleL: [-1, -1, 0.3],
     poleR: [1, -1, 0.3],

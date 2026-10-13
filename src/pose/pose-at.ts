@@ -344,7 +344,8 @@ function poseAnimal(
       const { hands } = scratch;
       handStateAt(note.left, noteTime, hands.left);
       handStateAt(note.right, noteTime, hands.right);
-      body.lean = note.rig.hold.lean * weight;
+      const { lean, restLean } = note.rig.hold;
+      body.lean = restLean + (lean - restLean) * weight;
       writeBody(pose, player, scratch);
       poseHands(note.rig, scratch.torso, hands, weight, pose.rotations);
       break;
