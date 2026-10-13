@@ -44,8 +44,10 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
 - `seeds.require = "kept"`: the kept seed must pass all gates, and the other seeds are a
   robustness report in `out/seed-report.json`. The manager chose this default, and the user can
   change it to `"all"`.
-- The app (`src/`) does not use the studio. A GLB of the studio goes into the app only when the
-  user asks.
+- The app (`src/`) uses the GLB file of the bear since 2026-10-12, when the user asked for it.
+  After a change of `animals/bear/out/bear.glb`, run `pnpm studio-body bear` and `pnpm test` in
+  the root of the repository (route 3 of the model work in `AGENTS.md`). Another GLB of the
+  studio goes into the app only when the user asks.
 
 ## Next steps
 
@@ -54,9 +56,11 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
    on a rabbit from a new four-view sheet (see `docs/sheet-spec.md`). Estimate: 1 to 2 h.
 2. **Clips from a score.** The pianist plays fixed white keys. A role can read the notes of a MIDI
    score, as the app does in `src/score/`.
-3. **The studio bear in the app.** Not decided by the user. The app drives its players from the
-   score each frame, so the studio GLB needs a retarget of the app pose to its bones, and the app
-   needs a skinned-mesh path again.
+3. **The studio bear in the app.** Done on 2026-10-12. The app retargets its conductor pose to
+   the bones of the studio bear on each frame, with the skin of four bones, the twist bones, and
+   the corrective shapes (`docs/research/2026-10-12-studio-bear.md` of the repository). The app
+   drives the wrists further than the clips of the studio, so it turns each paw in the plane of
+   its palm toward the forearm.
 
 ## Open problems
 
