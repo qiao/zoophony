@@ -110,7 +110,8 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
      the canvas is not empty, and that the console shows no errors.
 - `pnpm test:e2e` runs these steps with Playwright (`e2e/smoke.e2e.ts`) on the built site in
   `dist/`, so that CI tests the files that it deploys. Run `pnpm build` first.
-  `playwright.config.ts` starts `vite preview` on port 4182, and stops it at the end. It has the
+  `playwright.config.ts` starts `vite preview` on the port of `ZOOPHONY_E2E_PORT` (4182 when it is
+  not set), and stops it at the end. It has the
   projects `chromium`, `firefox`, and `webkit`.
 - The built site has no dev hook. Thus `App` writes the song time into the attribute
   `data-song-time` of the stage canvas in all builds, with one decimal (`songTimeValue()`). The
