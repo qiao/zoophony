@@ -267,6 +267,21 @@ describe('tools/check-commits.sh', () => {
     expect(result.output).toContain('The plan has 0 commits, and base..HEAD has 3.');
   });
 
+  it('refuses a range with a merge commit', () => {
+    const head = run('git', ['rev-parse', 'HEAD']).output.trim();
+    run('git', ['checkout', '-q', '-b', 'side']);
+    commitFile('src/side.ts', 'export const S = 1;\n');
+    run('git', ['checkout', '-q', 'main']);
+    commitFile('src/c.ts', 'export const C = 1;\n');
+    run('git', ['merge', '-q', '--no-ff', '-m', 'merge side', 'side']);
+    const result = checkCommits();
+    run('git', ['reset', '-q', '--hard', head]);
+    run('git', ['branch', '-q', '-D', 'side']);
+
+    expect(result.status, result.output).toBe(1);
+    expect(result.output).toContain('base..HEAD has a merge commit.');
+  });
+
   it('aborts the rebase and stops its checks when the script stops', async () => {
     commitFile('slow-lint', 'x\n');
     const branch = run('git', ['symbolic-ref', 'HEAD']).output;

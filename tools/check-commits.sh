@@ -167,6 +167,13 @@ git rev-parse --verify --quiet "$BASE^{commit}" >/dev/null || {
   echo "No commit $BASE." >&2
   exit 1
 }
+# The check rebase makes a range with a merge commit linear, and that changes the hashes.
+MERGES=$(git rev-list --merges "$BASE..HEAD")
+if [ -n "$MERGES" ]; then
+  echo "$BASE..HEAD has a merge commit. Rebase the branch onto $BASE first:" >&2
+  echo "$MERGES" | head -5 >&2
+  exit 1
+fi
 
 CHECK_CACHE="$(git rev-parse --path-format=absolute --git-common-dir)/check-cache"
 TMP_ROOT=${TMPDIR:-/tmp}
