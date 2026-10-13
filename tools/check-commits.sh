@@ -8,20 +8,23 @@
 #
 # tools/check-cache.ts gives the plan and the key of each commit. The key holds the tree of the
 # commit, the tree of its parent, the check commands, the hash of this script and of the module,
-# the version of Node, and the hash of the installed lockfile. A commit that changes code runs the
-# lint, the typecheck, the unit tests that its changes reach, and the format check. A commit that
-# changes only docs/ and Markdown files runs the format check and the tests that read docs paths.
+# the versions of Node and pnpm, ZOOPHONY_BASE, and the hash of the installed lockfile. A commit
+# that changes code runs the lint, the typecheck, the unit tests that its changes reach, and the
+# format check. A commit that changes only docs/ and Markdown files runs the format check and the
+# tests that read docs paths.
 #
 # --tip also runs the full unit suite on the last commit. --no-cache reads no entry, and it
 # still writes an entry for each passed check. Only this script writes an entry, after each
-# check of the commit exits with 0, through a temporary file and `mv`.
+# check of the commit exits with 0 on an unchanged tree, through a temporary file and `mv`. Do not
+# edit the worktree while the script runs.
 #
 # The script checks the commits in place with `git rebase --exec`, which changes no commit. An old
 # commit has an old copy of this script or none, so the rebase runs a copy of this script and of
-# the module from a temporary folder. The script stops when HEAD changed.
+# the module from a temporary folder. The script refuses a range with a merge commit, and it stops
+# when HEAD changed. A stop (INT or TERM) stops the checks and aborts the rebase.
 #
 # Exit codes: 1 bad use or bad state, 3 a check failed (the branch is unchanged), 4 the commit
-# hashes changed.
+# hashes changed, 130 a stop.
 set -euo pipefail
 
 usage() {
