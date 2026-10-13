@@ -383,6 +383,12 @@ export interface FrameCheck {
    * `332d09ba` gave at a clear with no label.
    */
   readonly merged: number;
+  /**
+   * The count of the command buffers of the process that write the canvas, with a start from the
+   * start of the first frame to the start of the last frame. Each frame but the last writes the
+   * canvas in two of them, so this count does not depend on the filter.
+   */
+  readonly canvasWrites: number;
 }
 
 /**
@@ -447,9 +453,16 @@ export function checkFrames(
 
   const canvasDropped: GpuInterval[][] = [];
   const otherDropped: GpuInterval[][] = [];
+  let canvasWrites = 0;
   for (const [buffer, list] of byBuffer) {
     const first = Math.min(...list.map((interval) => interval.startNs));
-    if (counted.has(buffer) || first < start || first >= lastStart) {
+    if (first < start || first >= lastStart) {
+      continue;
+    }
+    if (writesCanvasSize(list, size)) {
+      canvasWrites += 1;
+    }
+    if (counted.has(buffer)) {
       continue;
     }
     (onlyCanvasSurfaces(list, canvas) ? canvasDropped : otherDropped).push(list);
@@ -475,6 +488,7 @@ export function checkFrames(
     droppedCanvas: dropped(canvasDropped),
     droppedOther: dropped(otherDropped),
     merged,
+    canvasWrites,
   };
 }
 
@@ -490,6 +504,17 @@ export function droppedPerFrame(check: FrameCheck, dropped: DroppedBuffers): num
   return check.frames > 1 ? dropped.ms / (check.frames - 1) : 0;
 }
 
+/**
+ * Calculates the count of frames that the canvas writes of the trace give: two writes in each
+ * frame but the last, and the last frame.
+ *
+ * @param check The check.
+ * @returns The expected count of frames, or 0 with no frame.
+ */
+export function canvasWriteFrames(check: FrameCheck): number {
+  return check.frames > 0 ? check.canvasWrites / 2 + 1 : 0;
+}
+
 /** The largest time of dropped canvas buffers for each frame, in milliseconds (design 9.7). */
 export const DROPPED_CANVAS_LIMIT_MS = 0.1;
 
@@ -501,8 +526,8 @@ export const FRAME_COUNT_TOLERANCE = 0.02;
  * of `pnpm frame` fail.
  *
  * @param check The check of {@link checkFrames}.
- * @param expected The expected count of frames: the frame rate of the page during the trace
- *   times {@link FrameCheck}.spanSec. `null` skips the count.
+ * @param expected The expected count of frames, such as {@link canvasWriteFrames}. `null` skips
+ *   the count.
  * @returns A text for each fault, or an empty list.
  */
 export function frameCheckFaults(check: FrameCheck, expected: number | null): string[] {

@@ -14,6 +14,7 @@ import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { chromiumArgs } from './chromium-args.ts';
 import {
   busyMs,
+  canvasWriteFrames,
   checkFrames,
   droppedPerFrame,
   frameCheckFaults,
@@ -548,9 +549,9 @@ export function gpuGuardFaults(states: ReadonlyMap<string, number>, otherShare: 
 /**
  * Calculates the frame rate of the page in the middle half of the record of the Metal trace. The
  * page marks its frames from the message of the start of the record to the message of its end.
- * The data of the trace starts after the first message and ends before the second one, and the
- * frames there ran faster: over the whole window, the rate was 1% to 2% above the WebGL frames of
- * the trace. The middle half lies in the data of the trace.
+ * The data of the trace starts after the first message and ends before the second one, so the
+ * middle half lies in the data. In four runs, the page drew 1.1% to 2.7% more frames than the
+ * trace holds, so the self-check gives this count for information.
  *
  * @param marks The time stamp of each frame of the window, in milliseconds.
  * @returns The frames for each second, or 0 with fewer than two frames in the middle half.
@@ -1002,7 +1003,7 @@ interface UncappedMeasure {
   readonly otherShare: number | null;
   /** The self-check of the WebGL frames of the trace, or `null` with no trace. */
   readonly check: FrameCheck | null;
-  /** The frame rate of the page during the record of the trace, or `null` with no trace. */
+  /** The frame rate of the page in the middle of the record, or `null` with no trace. */
   readonly traceFps: number | null;
   /** The faults of the self-check ({@link frameCheckFaults}). */
   readonly faults: readonly string[];
@@ -1088,7 +1089,7 @@ async function measureUncapped(
     const frames = webglFrames(intervals, `(${gpu.id})`, canvas);
     const check = checkFrames(intervals, `(${gpu.id})`, canvas, frames);
     const traceFps = middleFramesPerSecond(end.marks);
-    const faults = frameCheckFaults(check, traceFps > 0 ? traceFps * check.spanSec : null);
+    const faults = frameCheckFaults(check, canvasWriteFrames(check));
     const states = stateTimes(await table('gpu-performance-state-intervals'));
     const otherShare = otherGpuShare(intervals, `(${gpu.id})`);
     const metalTimes = frames.map((frame) => busyMs(frame));
@@ -1160,14 +1161,17 @@ export function checkLines(
   traceFps: number,
   faults: readonly string[],
 ): string[] {
-  const expected = traceFps * check.spanSec;
-  const off = expected > 0 ? `${((check.frames / expected - 1) * 100).toFixed(1)}%` : 'no count';
+  const percent = (expected: number): string =>
+    expected > 0 ? `${((check.frames / expected - 1) * 100).toFixed(1)}%` : 'no count';
+  const writes = canvasWriteFrames(check);
+  const page = traceFps * check.spanSec;
   const perFrame = (dropped: DroppedBuffers): string => droppedPerFrame(check, dropped).toFixed(3);
   const lines = [
     `Self-check of the GPU row: ${check.frames} WebGL frames in ${check.spanSec.toFixed(3)} s ` +
-      `of the Metal trace. The page drew ${traceFps.toFixed(1)} fps in the middle of the ` +
-      `record: ` +
-      `${expected.toFixed(0)} frames expected (${off}). Merged frames: ${check.merged}.`,
+      `of the Metal trace, against ${writes.toFixed(0)} from the canvas writes of the trace ` +
+      `(${percent(writes)}). Merged frames: ${check.merged}.`,
+    `The page drew ${traceFps.toFixed(1)} fps in the middle of the record: ${page.toFixed(0)} ` +
+      `frames (${percent(page)}), for information.`,
     `Dropped by the filter in each frame: canvas buffers ${perFrame(check.droppedCanvas)} ms ` +
       `(${check.droppedCanvas.buffers} buffers), other buffers ` +
       `${perFrame(check.droppedOther)} ms (${check.droppedOther.buffers} buffers).`,

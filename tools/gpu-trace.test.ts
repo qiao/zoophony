@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   busyMs,
+  canvasWriteFrames,
   checkFrames,
   droppedPerFrame,
   frameCheckFaults,
@@ -323,7 +324,7 @@ describe('webglFrames on a real trace', () => {
       expect(times[i]).toBeCloseTo(ms, 3);
     });
     const check = checkFrames(intervals, process, canvas, frames);
-    expect(frameCheckFaults(check, null)).toEqual([]);
+    expect(frameCheckFaults(check, canvasWriteFrames(check))).toEqual([]);
     expect(check.droppedOther.buffers).toBeGreaterThan(0);
   });
 });
@@ -339,6 +340,9 @@ describe('checkFrames', () => {
     expect(check.droppedOther.buffers).toBe(2);
     expect(check.droppedOther.ms).toBeCloseTo(1, 6);
     expect(check.merged).toBe(0);
+    // f1, w1, f2, and w2 write the canvas before the start of the last frame.
+    expect(check.canvasWrites).toBe(4);
+    expect(canvasWriteFrames(check)).toBe(3);
     // From the start of f1 to the end of w3.
     expect(check.spanSec).toBeCloseTo(0.023, 9);
 
@@ -355,6 +359,8 @@ describe('checkFrames', () => {
     const check = checkFrames(intervals, '(7)', CANVAS, [[...first, ...second], third]);
     expect(check.frames).toBe(2);
     expect(check.merged).toBe(1);
+    expect(check.canvasWrites).toBe(4);
+    expect(canvasWriteFrames(check)).toBe(3);
   });
 });
 
@@ -365,6 +371,7 @@ describe('frameCheckFaults', () => {
     droppedCanvas: { buffers: 0, ms: 0 },
     droppedOther: { buffers: 100, ms: 50 },
     merged: 0,
+    canvasWrites: 198,
   };
 
   it('gives no fault for a frame count within 2% and no dropped canvas time', () => {
