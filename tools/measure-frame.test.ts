@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { TraceCell } from './gpu-trace.ts';
 import {
   MAX_LOAD,
+  checkLines,
   frameOptions,
   frameStats,
   frameTable,
@@ -105,6 +106,38 @@ describe('frameTable', () => {
       '| GPU | 3 | 5.00 | 6.00 | 6.00 | 33.3% | fail |',
       '| Old GPU | 3 | 5.00 | 6.00 | 6.00 | 33.3% | information |',
     ]);
+  });
+});
+
+describe('frameTable with a note', () => {
+  it('fails a target row with a note, whatever its times are', () => {
+    const lines = frameTable([{ name: 'GPU', times: [1, 2, 3], target: true, note: 'self-check' }]);
+    expect(lines[2]).toBe('| GPU | 3 | 2.00 | 3.00 | 3.00 | 100.0% | fail (self-check) |');
+  });
+});
+
+describe('checkLines', () => {
+  const check = {
+    frames: 650,
+    spanSec: 3.25,
+    droppedCanvas: { buffers: 650, ms: 455 },
+    droppedOther: { buffers: 1300, ms: 650 },
+    merged: 2,
+  };
+
+  it('prints the frames against the expected count, the merges, and the dropped time', () => {
+    const [count, dropped, ...rest] = checkLines(check, 196, []);
+    expect(count).toContain('650 WebGL frames in 3.250 s');
+    expect(count).toContain('637 frames expected (2.0%). Merged frames: 2.');
+    expect(dropped).toContain('canvas buffers 0.700 ms (650 buffers)');
+    expect(dropped).toContain('other buffers 1.000 ms (1300 buffers)');
+    expect(rest).toEqual([]);
+  });
+
+  it('adds a warning with the faults', () => {
+    expect(checkLines(check, 200, ['A fault.']).at(-1)).toBe(
+      'Warning: the self-check fails, so the GPU row fails. A fault.',
+    );
   });
 });
 

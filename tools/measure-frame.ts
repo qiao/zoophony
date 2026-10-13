@@ -11,8 +11,16 @@ import { createServer } from 'vite';
 
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { chromiumArgs } from './chromium-args.ts';
-import { gpuIntervals, otherGpuShare, parseTraceTable, webglFrameTimes } from './gpu-trace.ts';
-import type { TraceTable } from './gpu-trace.ts';
+import {
+  busyMs,
+  checkFrames,
+  frameCheckFaults,
+  gpuIntervals,
+  otherGpuShare,
+  parseTraceTable,
+  webglFrames,
+} from './gpu-trace.ts';
+import type { FrameCheck, TraceTable } from './gpu-trace.ts';
 
 /** The frame target of design 9.7: main-thread time and GPU time, in milliseconds. */
 export const FRAME_LIMIT_MS = 4;
@@ -200,6 +208,8 @@ interface ProbeValues {
   readonly gpu: number[];
   /** The time stamp of each frame, in milliseconds. */
   readonly stamps: number[];
+  /** The time stamp of each frame while the Metal trace records, in milliseconds. */
+  readonly marks: number[];
   /** The count of the GPU results that the driver marked as disjoint. */
   readonly disjoint: number;
   /** True if the WebGL2 context has the timer query extension. */
@@ -214,8 +224,8 @@ interface ProbeValues {
  * timer query. The page reads the result of a query some frames later.
  */
 const FRAME_PROBE = `(() => {
-  const values = { cpu: [], gpu: [], stamps: [], disjoint: 0, timer: false, renderer: '' };
-  const probe = { on: false, values, gl: null, ext: null };
+  const values = { cpu: [], gpu: [], stamps: [], marks: [], disjoint: 0, timer: false, renderer: '' };
+  const probe = { on: false, mark: false, values, gl: null, ext: null };
   window.frameProbe = probe;
   const getContext = HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
@@ -233,6 +243,9 @@ const FRAME_PROBE = `(() => {
   const pending = [];
   const request = window.requestAnimationFrame.bind(window);
   window.requestAnimationFrame = (callback) => request((stamp) => {
+    if (probe.mark) {
+      values.marks.push(stamp);
+    }
     const { gl, ext } = probe;
     while (gl && ext && pending.length > 0) {
       const [query, counted] = pending[0];
@@ -299,6 +312,8 @@ export interface FrameRow {
   readonly times: readonly number[];
   /** True if the row is a target of design 9.7, false for a row for information. */
   readonly target: boolean;
+  /** The reason that a target row fails whatever its times are, such as a failed self-check. */
+  readonly note?: string;
 }
 
 /**
@@ -327,7 +342,9 @@ export function frameTable(rows: readonly FrameRow[]): string[] {
   for (const row of rows) {
     const s = frameStats(row.times);
     let verdict = 'information';
-    if (row.target) {
+    if (row.target && row.note !== undefined) {
+      verdict = `fail (${row.note})`;
+    } else if (row.target) {
       verdict = meetsTarget(row.times) ? 'pass' : 'fail';
     }
     const cells = [
@@ -743,6 +760,61 @@ async function drawingBufferSize(page: Page): Promise<readonly [number, number]>
   return size;
 }
 
+/**
+ * Tells if a value from the page is a list of finite numbers.
+ *
+ * @param value The value.
+ * @returns True if it is.
+ */
+function isNumbers(value: unknown): value is number[] {
+  return Array.isArray(value) && value.every((item) => Number.isFinite(item));
+}
+
+/**
+ * Reads the song time of the page.
+ *
+ * @param page The page during play.
+ * @returns The song time in seconds, or `NaN` when the page has none.
+ */
+async function songTimeOf(page: Page): Promise<number> {
+  const song = await page.evaluate('[window.zoophony?.songTime]').catch(() => null);
+  return isNumbers(song) && song[0] !== undefined ? song[0] : NaN;
+}
+
+/**
+ * Starts the marks of the frames of the page during the Metal trace (`FRAME_PROBE`).
+ *
+ * @param page The page during play.
+ * @returns The song time at the start, in seconds.
+ */
+async function startMarks(page: Page): Promise<number> {
+  await page
+    .evaluate('(window.frameProbe.values.marks = [], window.frameProbe.mark = true)')
+    .catch(() => undefined);
+  return songTimeOf(page);
+}
+
+/** The values of the page at the end of the record of the Metal trace. */
+interface TraceEnd {
+  /** The song time, in seconds. */
+  readonly song: number;
+  /** The time stamp of each frame during the record, in milliseconds. */
+  readonly marks: readonly number[];
+}
+
+/**
+ * Stops the marks of the frames of the page and reads them.
+ *
+ * @param page The page during play.
+ * @returns The song time and the marks.
+ */
+async function endMarks(page: Page): Promise<TraceEnd> {
+  const marks = await page
+    .evaluate('(window.frameProbe.mark = false, window.frameProbe.values.marks)')
+    .catch(() => null);
+  return { song: await songTimeOf(page), marks: isNumbers(marks) ? marks : [] };
+}
+
 /** The values of the GPU phase with no frame cap. */
 interface UncappedMeasure {
   /** The values of the frame probe, with the GPU timer query of each frame. */
@@ -753,6 +825,12 @@ interface UncappedMeasure {
   readonly states: ReadonlyMap<string, number> | null;
   /** The part of the trace time in which other processes used the GPU, or `null`. */
   readonly otherShare: number | null;
+  /** The self-check of the WebGL frames of the trace, or `null` with no trace. */
+  readonly check: FrameCheck | null;
+  /** The frame rate of the page during the record of the trace, or `null` with no trace. */
+  readonly traceFps: number | null;
+  /** The faults of the self-check ({@link frameCheckFaults}). */
+  readonly faults: readonly string[];
   /** The song time at the start and at the end of the record of the trace, in seconds. */
   readonly songs: readonly [number, number] | null;
   /** The width and the height of the drawing buffer of the stage, in pixels. */
@@ -785,7 +863,8 @@ async function measureUncapped(
     const canvas = await drawingBufferSize(page);
     const probe = await probeFor(page, MEASURE_SEC);
     if (!metal) {
-      return { probe, metal: null, states: null, otherShare: null, songs: null, canvas };
+      const none = { states: null, otherShare: null, check: null, traceFps: null, faults: [] };
+      return { probe, metal: null, songs: null, canvas, ...none };
     }
 
     const cdp = await browser.newBrowserCDPSession();
@@ -799,26 +878,26 @@ async function measureUncapped(
     const traceFile = join(folder, 'gpu.trace');
     const record = ['record', '--template', 'Metal System Trace', '--all-processes'];
     const time = ['--time-limit', `${METAL_SEC}s`, '--output', traceFile, '--no-prompt'];
-    // The trace covers one shot of the plan, so the output gives its song times.
-    const songTime = (): Promise<number> =>
-      page.evaluate(() => window.zoophony?.songTime ?? 0).catch(() => NaN);
+    // The trace covers one shot of the plan, so the output gives its song times. The page marks
+    // its frames during the record: their rate gives the expected count of the self-check.
     let started: Promise<number> = Promise.resolve(NaN);
-    let ended: Promise<number> = Promise.resolve(NaN);
+    let ended: Promise<TraceEnd> = Promise.resolve({ song: NaN, marks: [] });
     let stopped = false;
     await xctrace([...record, ...time], METAL_LIMIT_SEC * 1000, (text) => {
       if (text.includes('Starting recording')) {
-        started = songTime();
+        started = startMarks(page);
       }
       // The page stops its frames, so that the save of the trace gets the CPU.
       if (!stopped && text.includes('ending recording')) {
         stopped = true;
-        ended = songTime().then((end) => {
+        ended = endMarks(page).then((end) => {
           page.goto('about:blank').catch(() => undefined);
           return end;
         });
       }
     });
-    const songs: readonly [number, number] = [await started, await ended];
+    const end = await ended;
+    const songs: readonly [number, number] = [await started, end.song];
     await browser.close();
 
     const table = async (schema: string): Promise<TraceTable> => {
@@ -829,10 +908,14 @@ async function measureUncapped(
       return parseTraceTable(await readFile(file, 'utf8'));
     };
     const intervals = gpuIntervals(await table('metal-gpu-intervals'));
-    const frames = webglFrameTimes(intervals, `(${gpu.id})`, canvas);
+    const frames = webglFrames(intervals, `(${gpu.id})`, canvas);
+    const check = checkFrames(intervals, `(${gpu.id})`, canvas, frames);
+    const traceFps = framesPerSecond(end.marks);
+    const faults = frameCheckFaults(check, traceFps > 0 ? traceFps * check.spanSec : null);
     const states = stateTimes(await table('gpu-performance-state-intervals'));
     const otherShare = otherGpuShare(intervals, `(${gpu.id})`);
-    return { probe, metal: frames, states, otherShare, songs, canvas };
+    const metalTimes = frames.map((frame) => busyMs(frame));
+    return { probe, metal: metalTimes, states, otherShare, songs, canvas, check, traceFps, faults };
   } finally {
     await browser.close();
     await rm(folder, { recursive: true, force: true });
@@ -871,6 +954,36 @@ function stopOnSignal(close: () => Promise<void>): () => void {
       process.exit(130);
     })();
   };
+}
+
+/**
+ * Formats the self-check of the GPU row (design 9.7) for the output.
+ *
+ * @param check The check of the WebGL frames of the Metal trace.
+ * @param traceFps The frame rate of the page during the record of the trace.
+ * @param faults The faults of the check.
+ * @returns The lines.
+ */
+export function checkLines(
+  check: FrameCheck,
+  traceFps: number,
+  faults: readonly string[],
+): string[] {
+  const expected = traceFps * check.spanSec;
+  const off = expected > 0 ? `${((check.frames / expected - 1) * 100).toFixed(1)}%` : 'no count';
+  const perFrame = (ms: number): string => (check.frames > 0 ? ms / check.frames : 0).toFixed(3);
+  const lines = [
+    `Self-check of the GPU row: ${check.frames} WebGL frames in ${check.spanSec.toFixed(3)} s ` +
+      `of the Metal trace. The page drew ${traceFps.toFixed(1)} fps during the record: ` +
+      `${expected.toFixed(0)} frames expected (${off}). Merged frames: ${check.merged}.`,
+    `Dropped by the filter in each frame: canvas buffers ${perFrame(check.droppedCanvas.ms)} ms ` +
+      `(${check.droppedCanvas.buffers} buffers), other buffers ` +
+      `${perFrame(check.droppedOther.ms)} ms (${check.droppedOther.buffers} buffers).`,
+  ];
+  if (faults.length > 0) {
+    lines.push(`Warning: the self-check fails, so the GPU row fails. ${faults.join(' ')}`);
+  }
+  return lines;
 }
 
 /**
@@ -922,11 +1035,12 @@ async function main(): Promise<void> {
       },
     ];
     if (uncapped.metal) {
-      rows.push({
+      const row = {
         name: 'GPU: WebGL frames in the Metal trace (no frame cap)',
         times: uncapped.metal,
         target: true,
-      });
+      };
+      rows.push(uncapped.faults.length > 0 ? { ...row, note: 'self-check' } : row);
     }
     rows.push(
       {
@@ -972,6 +1086,11 @@ async function main(): Promise<void> {
       console.log(
         `The Metal trace started at the song time ${from.toFixed(1)} s and ended at ${to.toFixed(1)} s.`,
       );
+      if (uncapped.check) {
+        for (const line of checkLines(uncapped.check, uncapped.traceFps ?? 0, uncapped.faults)) {
+          console.log(line);
+        }
+      }
       if (uncapped.otherShare > OTHER_GPU_LIMIT) {
         console.log(
           'The other GPU work makes the GPU values too high. Close the pages that render, ' +
@@ -984,7 +1103,7 @@ async function main(): Promise<void> {
       console.log(line);
     }
     console.log(`\nRun time: ${((Date.now() - started) / 1000).toFixed(0)} s.`);
-    if (rows.some((row) => row.target && !meetsTarget(row.times))) {
+    if (rows.some((row) => row.target && (row.note !== undefined || !meetsTarget(row.times)))) {
       console.log('The frame target of design 9.7 fails.');
       process.exitCode = 1;
     }
