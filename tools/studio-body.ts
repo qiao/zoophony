@@ -1060,6 +1060,22 @@ export interface InspectedProp {
   readonly box: UnitBox;
 }
 
+/** One morph target of the skinned mesh. */
+export interface InspectedTarget {
+  /** The name of the target, such as `arm_down_L`. */
+  readonly name: string;
+  /** True when the export keeps the target as a corrective shape. */
+  readonly kept: boolean;
+}
+
+/** The keys `piano_key_*` of the piano of the studio. */
+export interface InspectedKeys {
+  /** The height of the top of the keys. */
+  readonly top: number;
+  /** The z of the front edge of the keys: the edge near the player. */
+  readonly front: number;
+}
+
 /**
  * The facts of a GLB file of the studio that a new studio body needs (design 4.4), in the axes
  * and the units of the studio: the animal faces +z with its left side at +x.
@@ -1074,7 +1090,7 @@ export interface StudioInspection {
   /** The joints of the skin. */
   readonly joints: InspectedJoints;
   /** The morph targets of the skinned mesh, and if the export keeps each one. */
-  readonly targets: readonly { readonly name: string; readonly kept: boolean }[];
+  readonly targets: readonly InspectedTarget[];
   /** The animation clips. */
   readonly clips: readonly InspectedClip[];
   /** The height of the hips joint in the bind pose. */
@@ -1088,8 +1104,8 @@ export interface StudioInspection {
   readonly props: readonly InspectedProp[];
   /** The height of the top of the prop `bench`, or `null` with no bench. */
   readonly benchTop: number | null;
-  /** The top of the keys and the z of their front edge (near the player), or `null`. */
-  readonly keys: { readonly top: number; readonly front: number } | null;
+  /** The keys of the piano of the studio, or `null` with no keys. */
+  readonly keys: InspectedKeys | null;
 }
 
 /**
