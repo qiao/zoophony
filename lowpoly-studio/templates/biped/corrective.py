@@ -24,7 +24,7 @@ numpy only, three.js axes.
 import numpy as np
 
 from studio.field import field_at
-from studio.skinning import blend_matrices, face_normals, forward_kinematics, inverted_faces, skin
+from studio.skinning import blend_matrices, face_normals, inverted_faces, skin, world_rotations
 from templates.biped.solver import is_finger
 
 # The corrective kinds that this template can make.
@@ -259,7 +259,7 @@ def legs_straight_shapes(skel, rest, tris, weights, pose_ref, parts_ref, project
 
 def thigh_dirs(skel, pose):
     """Calculates the direction of each thigh in the frame of the hips."""
-    D, _, _ = forward_kinematics(skel, pose)
+    D = world_rotations(skel, pose, ('hips', 'thigh_L', 'thigh_R'))
     out = {}
     for s in 'LR':
         name = f'thigh_{s}'
@@ -289,7 +289,7 @@ class LegDriver:
 
 def upper_arm_dirs(skel, pose):
     """Calculates the direction of each upper arm in the frame of the chest."""
-    D, _, _ = forward_kinematics(skel, pose)
+    D = world_rotations(skel, pose, ('chest', 'upper_arm_L', 'upper_arm_R'))
     out = {}
     for s in 'LR':
         name = f'upper_arm_{s}'

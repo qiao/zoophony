@@ -44,6 +44,27 @@ def forward_kinematics(skel, pose):
     return D, H, S
 
 
+def world_rotations(skel, pose, names):
+    """Calculates the world rotations (with no scale) of some bones and of their parents, with
+    the same steps as forward_kinematics, so the values are the same. A corrective driver needs
+    only a few bones, and this skips the others. Returns {bone: rotation}."""
+    need = set()
+    for name in names:
+        while name is not None and name not in need:
+            need.add(name)
+            name = skel.parents[name]
+    D = {}
+    for name in skel.names:
+        if name not in need:
+            continue
+        q, _, _ = pose[name]
+        r0 = skel.rest[name]
+        r = r0 @ matrix_from_quat(np.asarray(q, float)) @ r0.T
+        parent = skel.parents[name]
+        D[name] = r if parent is None else D[parent] @ r
+    return D
+
+
 def blend_matrices(skel, weights, pose):
     """Calculates the blended skin transform of each vertex: posed = A @ rest + t."""
     D, H, S = forward_kinematics(skel, pose)
