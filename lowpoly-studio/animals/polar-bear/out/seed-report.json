@@ -1,9 +1,9 @@
 {
   "animal": "polar-bear",
   "role": "pianist",
-  "run": "20261012-093525-69503",
-  "made": "2026-10-12T09:36:47-0700",
-  "role_key": "d391a80e6cb5cadf",
+  "run": "20261012-200314-65425",
+  "made": "2026-10-12T20:03:35-0700",
+  "role_key": "71514f270a828039",
   "reason": "a role check: the role pack, the template, or the clips changed since the last seed report",
   "require": "kept",
   "kept": 3,

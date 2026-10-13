@@ -1,7 +1,7 @@
 {
-  "run": "20261012-083328-12134",
-  "command": "build bear --seed 3",
-  "started": "2026-10-12T08:33:28-0700",
+  "run": "20261012-200249-60047",
+  "command": "build bear",
+  "started": "2026-10-12T20:02:49-0700",
   "seed": 3,
   "shots": true,
   "until": null,
