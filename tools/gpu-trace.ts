@@ -255,6 +255,20 @@ function holdsClear(intervals: readonly GpuInterval[]): boolean {
  * the final pass. Sometimes the trace gives no label to the clear. Thus a frame also starts at a
  * command buffer that writes the canvas when the frame already holds its final pass.
  *
+ * The Metal System Trace of Xcode has these known faults. `gpu-trace.fixture.json` holds a real
+ * case of each one, and {@link checkFrames} finds a filter that they break.
+ *
+ * - The read and the write lists of an encoder mix. The trace lists the canvas among the writes of
+ *   some encoders of the compositor that read the tiles of the page, so only an encoder with no
+ *   other surface writes the canvas.
+ * - Some clears have no label: 0.5% to 2% of the first command buffers have no encoder with the
+ *   label `(Clear)`.
+ * - A WebGL command buffer can hold surfaces of the display, such as a blit that writes a surface
+ *   of 3456 × 2168 beside the read of the title backdrop.
+ * - Some encoders have only the label `GPU Execution`, with no command buffer label.
+ * - A canvas surface counts only when a clear with a label writes it. Chrome turns through about
+ *   five canvas surfaces, so a short cut of a trace needs a clear with a label for each one.
+ *
  * @param intervals The GPU intervals of the trace.
  * @param process The text that the process column of the GPU process holds, such as its pid.
  * @param canvas The width and the height of the drawing buffer of the canvas, in device pixels.

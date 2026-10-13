@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -260,6 +263,70 @@ function threeFrames(): GpuInterval[] {
     ...firstBuffer(30, 'f4'),
   ];
 }
+
+/** The fixture of a real Metal trace: six WebGL frames of the run `e` (`gpu-trace.fixture.json`). */
+interface TraceFixture {
+  /** The source of the cuts, the process, the size of the drawing buffer, and the columns. */
+  readonly header: {
+    readonly process: string;
+    readonly canvas: readonly [number, number];
+  };
+  /** The start, the duration, the channel, the buffer, the label, and the surfaces of each row. */
+  readonly intervals: readonly (readonly [number, number, string, string, string, string])[];
+}
+
+/** The values of the fixture of a real Metal trace. */
+interface RealTrace {
+  /** The GPU process of Chrome. */
+  readonly process: string;
+  /** The size of the drawing buffer. */
+  readonly canvas: readonly [number, number];
+  /** The intervals of the GPU process. */
+  readonly intervals: GpuInterval[];
+}
+
+/**
+ * Reads the fixture of a real Metal trace.
+ *
+ * @returns The process, the size of the drawing buffer, and the intervals.
+ */
+function realTrace(): RealTrace {
+  const text = readFileSync(join(import.meta.dirname, 'gpu-trace.fixture.json'), 'utf8');
+  // SAFETY: the fixture is a file of the repository with the fields of TraceFixture.
+  const { header, intervals } = JSON.parse(text) as TraceFixture;
+  return {
+    process: header.process,
+    canvas: header.canvas,
+    intervals: intervals.map(([startNs, durationNs, channel, commandBuffer, label, surfaces]) => ({
+      startNs,
+      durationNs,
+      channel,
+      process: header.process,
+      commandBuffer,
+      label,
+      surfaces,
+    })),
+  };
+}
+
+describe('webglFrames on a real trace', () => {
+  it('gives each frame with its busy time, also at the known faults of the trace', () => {
+    // Frame 368 holds the read of the title backdrop and a blit of the display in one buffer.
+    // Frame 572 has encoders with only the label "GPU Execution". Frame 579 starts at a clear
+    // with no label, which writes the canvas surface of the clear of frame 571. Compositor
+    // buffers run between the frames.
+    const { process, canvas, intervals } = realTrace();
+    const frames = webglFrames(intervals, process, canvas);
+    const times = frames.map((frame) => busyMs(frame));
+    expect(times).toHaveLength(6);
+    [3.933, 4.0279, 4.3632, 4.5901, 4.4152, 4.7035].forEach((ms, i) => {
+      expect(times[i]).toBeCloseTo(ms, 3);
+    });
+    const check = checkFrames(intervals, process, canvas, frames);
+    expect(frameCheckFaults(check, null)).toEqual([]);
+    expect(check.droppedOther.buffers).toBeGreaterThan(0);
+  });
+});
 
 describe('checkFrames', () => {
   it('counts the buffers that the filter dropped: canvas buffers apart from the compositor', () => {
