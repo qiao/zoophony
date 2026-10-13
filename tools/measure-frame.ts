@@ -546,6 +546,25 @@ export function gpuGuardFaults(states: ReadonlyMap<string, number>, otherShare: 
 }
 
 /**
+ * Calculates the frame rate of the page in the middle half of the record of the Metal trace. The
+ * page marks its frames from the message of the start of the record to the message of its end.
+ * The data of the trace starts after the first message and ends before the second one, and the
+ * frames there ran faster: over the whole window, the rate was 1% to 2% above the WebGL frames of
+ * the trace. The middle half lies in the data of the trace.
+ *
+ * @param marks The time stamp of each frame of the window, in milliseconds.
+ * @returns The frames for each second, or 0 with fewer than two frames in the middle half.
+ */
+export function middleFramesPerSecond(marks: readonly number[]): number {
+  const first = marks[0] ?? 0;
+  const window = (marks.at(-1) ?? 0) - first;
+  const middle = marks.filter(
+    (mark) => mark >= first + window * 0.25 && mark <= first + window * 0.75,
+  );
+  return framesPerSecond(middle);
+}
+
+/**
  * Calculates the frame rate of the probe values.
  *
  * @param stamps The time stamp of each frame, in milliseconds.
@@ -1068,7 +1087,7 @@ async function measureUncapped(
     const intervals = gpuIntervals(await table('metal-gpu-intervals'));
     const frames = webglFrames(intervals, `(${gpu.id})`, canvas);
     const check = checkFrames(intervals, `(${gpu.id})`, canvas, frames);
-    const traceFps = framesPerSecond(end.marks);
+    const traceFps = middleFramesPerSecond(end.marks);
     const faults = frameCheckFaults(check, traceFps > 0 ? traceFps * check.spanSec : null);
     const states = stateTimes(await table('gpu-performance-state-intervals'));
     const otherShare = otherGpuShare(intervals, `(${gpu.id})`);
@@ -1146,7 +1165,8 @@ export function checkLines(
   const perFrame = (dropped: DroppedBuffers): string => droppedPerFrame(check, dropped).toFixed(3);
   const lines = [
     `Self-check of the GPU row: ${check.frames} WebGL frames in ${check.spanSec.toFixed(3)} s ` +
-      `of the Metal trace. The page drew ${traceFps.toFixed(1)} fps during the record: ` +
+      `of the Metal trace. The page drew ${traceFps.toFixed(1)} fps in the middle of the ` +
+      `record: ` +
       `${expected.toFixed(0)} frames expected (${off}). Merged frames: ${check.merged}.`,
     `Dropped by the filter in each frame: canvas buffers ${perFrame(check.droppedCanvas)} ms ` +
       `(${check.droppedCanvas.buffers} buffers), other buffers ` +
@@ -1195,6 +1215,8 @@ export interface RunRecord {
   readonly gpuStates: Readonly<Record<string, number>> | null;
   /** The part of the Metal trace in which other processes used the GPU, or `null`. */
   readonly otherGpuShare: number | null;
+  /** The frame rate of the page in the middle of the record of the Metal trace, or `null`. */
+  readonly traceFps: number | null;
   /** The count of the records of the GPU phase: 2 after a failed guard. */
   readonly records: number;
 }
@@ -1410,6 +1432,7 @@ async function main(): Promise<void> {
         cpu,
         gpuStates: uncapped.states ? Object.fromEntries(uncapped.states) : null,
         otherGpuShare: uncapped.otherShare,
+        traceFps: uncapped.traceFps,
         records,
       };
       await writeFile(join(options.keep, 'run.json'), `${JSON.stringify(record, null, 2)}\n`);

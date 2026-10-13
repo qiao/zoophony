@@ -22,6 +22,7 @@ import {
   loadsText,
   maximumShare,
   messageLines,
+  middleFramesPerSecond,
   frameStats,
   frameTable,
   framesPerSecond,
@@ -334,6 +335,18 @@ describe('messageLines', () => {
 
   it('says when the pages gave no message', () => {
     expect(messageLines(new Map())).toEqual(['Console warnings and errors of the pages: none.']);
+  });
+});
+
+describe('middleFramesPerSecond', () => {
+  it('gives the frame rate of the middle half of the window', () => {
+    // 1 s at 250 fps, 2 s at 200 fps, and 1 s at 250 fps.
+    const fast = (start: number) => Array.from({ length: 250 }, (_, i) => start + i * 4);
+    const slow = Array.from({ length: 400 }, (_, i) => 1000 + i * 5);
+    const marks = [...fast(0), ...slow, ...fast(3000)];
+    expect(framesPerSecond(marks)).toBeGreaterThan(220);
+    expect(middleFramesPerSecond(marks)).toBeCloseTo(200, 6);
+    expect(middleFramesPerSecond([5])).toBe(0);
   });
 });
 
