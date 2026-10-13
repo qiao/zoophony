@@ -603,12 +603,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     of the lap of a studio body is the top of its hips, its belly, and its legs (`pose/lap.ts`).
     The elbows of the pianist point out and back, so that the forearms pass outside the belly, and
     its trunk leans forward (5.2, `HANDS_HOLDS` of `pose/hands.ts`). Between the rest pose and the
-    playing pose, the wrists of the pianist go out and up around the belly (`restArc`). The harp
-    stands at the right knee of the harp player, so its right hand rests on the string of C4,
-    0.02 m further from the strings than in the playing pose, and its elbow points down. A place on
-    the right thigh put the hand into the harp or the forearm into the belly. The elbows bend, and
-    the harp player sits up. The first rest pose hung the arms beside the seat (user reports of
-    2026-10-06: "by default the animals' arms are drooping").
+    playing pose, the wrists of the pianist go out and up around the belly and over the case
+    (`restArc`). The harp stands at the right knee of the harp player, so its right hand rests on
+    the string of C4, 0.02 m further from the strings than in the playing pose, and its elbow
+    points down. A place on the right thigh put the hand into the harp or the forearm into the
+    belly. The elbows bend, and the harp player sits up. The first rest pose hung the arms beside
+    the seat (user reports of 2026-10-06: "by default the animals' arms are drooping").
 - Choir: the beak or mouth opens with each note, the singer breathes in before a phrase, and it
   sways.
 - **Choir in detail** (`pose/choir-notes.ts`, `pose/choir.ts`):

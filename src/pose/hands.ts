@@ -100,8 +100,9 @@ export const HANDS_HOLDS = {
   // (`lowpoly-studio/roles/pianist/`), and the keys stand far enough in front of the round
   // belly that the paws reach only the middle keys with the lean. The paws reach from A0 to
   // B♭4 with the left paw and from C4 to C8 with the right paw (`pose/hands.test.ts`), so a
-  // melody changes paws between them. The wrists go around the belly between the knees and the
-  // keys (`restArc`): on a straight line, the paws went 2.6 cm into the belly.
+  // melody changes paws between them. The wrists go out and up around the belly and over the case
+  // between the knees and the keys (`restArc`). On a straight line, the paws went into the belly,
+  // and with a smaller arc, the claws went into the case when the paws lowered to the knees.
   piano: {
     action: 'strike',
     keyPoint: pianoKeyFront,
@@ -116,7 +117,7 @@ export const HANDS_HOLDS = {
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
-    restArc: [0.3, 0.4, 0],
+    restArc: [0.5, 0.5, 0],
     // The rest pose follows the rest clip of the studio (`clip_rest()` of
     // `lowpoly-studio/roles/pianist/clips.py`). The trunk leans further forward than in a play
     // (`restLean`), so the shoulders come forward over the knees and the back hides the upper
