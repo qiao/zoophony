@@ -6,9 +6,14 @@
  *
  * Usage: pnpm body-probe [--out <file>]
  *        pnpm body-probe --compare <base.json> <new.json>
+ *        pnpm body-probe --base <ref>
  */
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFile, writeFile } from 'node:fs/promises';
+import { rmSync } from 'node:fs';
+import { copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import { buildBiped } from '../src/models/biped.ts';
 import type { BodyBones } from '../src/models/biped.ts';
@@ -268,8 +273,71 @@ async function readProbe(file: string): Promise<Probe> {
   return JSON.parse(await readFile(file, 'utf8')) as Probe;
 }
 
+/** The repository root. */
+const ROOT = join(import.meta.dirname, '..');
+
+/**
+ * Runs a command, and stops on a failure.
+ *
+ * @param command The command.
+ * @param args The arguments.
+ * @param cwd The folder of the command.
+ * @throws Error if the command fails, with the end of its error output.
+ */
+function run(command: string, args: readonly string[], cwd: string): void {
+  const result = spawnSync(command, args, { cwd, encoding: 'utf8' });
+  if (result.status !== 0) {
+    const reason = result.error?.message ?? result.stderr.trim().split('\n').slice(-5).join('\n');
+    throw new Error(`${command} ${args.join(' ')} failed: ${reason}`);
+  }
+}
+
+/**
+ * Probes the bodies of a commit: extracts `src/` and `package.json` of the commit into a new
+ * folder, copies this tool into it, links the `node_modules` of the repository, and runs the
+ * probe there. The folder goes away at the end, also after a failure or a stop (INT or TERM).
+ *
+ * @param ref The commit, a branch, or a tag.
+ * @param parent The folder that holds the temporary folder.
+ * @returns The probe of the commit.
+ * @throws Error if git does not know the ref, or the probe fails on the code of the commit.
+ */
+export async function probeRef(ref: string, parent: string = tmpdir()): Promise<Probe> {
+  const dir = await mkdtemp(join(parent, 'body-probe-'));
+  const stop = (): void => {
+    rmSync(dir, { recursive: true, force: true });
+    process.exit(130);
+  };
+  process.once('SIGINT', stop);
+  process.once('SIGTERM', stop);
+  try {
+    run('git', ['archive', '--output', join(dir, 'ref.tar'), ref, 'src', 'package.json'], ROOT);
+    run('tar', ['-xf', 'ref.tar'], dir);
+    await mkdir(join(dir, 'tools'));
+    await copyFile(join(ROOT, 'tools', 'body-probe.ts'), join(dir, 'tools', 'body-probe.ts'));
+    await symlink(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
+    const out = join(dir, 'probe.json');
+    run(process.execPath, [join('tools', 'body-probe.ts'), '--out', out], dir);
+    return await readProbe(out);
+  } finally {
+    process.off('SIGINT', stop);
+    process.off('SIGTERM', stop);
+    await rm(dir, { recursive: true, force: true });
+  }
+}
+
 if (import.meta.main) {
   const args = process.argv.slice(2);
+  const baseAt = args.indexOf('--base');
+  if (baseAt >= 0) {
+    const ref = args[baseAt + 1];
+    if (!ref || ref.startsWith('--')) {
+      throw new Error('Usage: pnpm body-probe --base <ref>');
+    }
+    const lines = compareProbes(await probeRef(ref), runProbe());
+    console.log([`base ${ref}, new: the working tree`, ...lines].join('\n'));
+    process.exit(lines.length > 2 ? 1 : 0);
+  }
   const compare = args.indexOf('--compare');
   if (compare >= 0) {
     const [baseFile, nextFile] = [args[compare + 1], args[compare + 2]];

@@ -1,8 +1,12 @@
+import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import { MeshBuilder, srgb } from '../src/models/mesh.ts';
 import type { MeshData } from '../src/models/mesh.ts';
-import { compareProbes, jointsOf, meshHash, round, runProbe } from './body-probe.ts';
+import { compareProbes, jointsOf, meshHash, probeRef, round, runProbe } from './body-probe.ts';
 
 /**
  * Builds a mesh of one triangle.
@@ -95,4 +99,21 @@ describe('compareProbes', () => {
       lines.some((line) => line.startsWith('player viola/cat/viola') && line.endsWith('head')),
     ).toBe(true);
   });
+});
+
+describe('probeRef', () => {
+  it('probes a commit in a temporary folder, and removes the folder also after a failure', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'probe-ref-test-'));
+    try {
+      const base = await probeRef('HEAD', parent);
+      expect(Object.keys(base.species['bear'] ?? {})).toContain('stand');
+      expect(Object.keys(base.players)).toContain('conductor/bear/baton');
+      expect(await readdir(parent)).toEqual([]);
+
+      await expect(probeRef('no-such-ref', parent)).rejects.toThrow('no-such-ref');
+      expect(await readdir(parent)).toEqual([]);
+    } finally {
+      await rm(parent, { recursive: true, force: true });
+    }
+  }, 30_000);
 });
