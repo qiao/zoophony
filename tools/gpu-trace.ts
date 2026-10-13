@@ -384,33 +384,77 @@ export interface FrameCheck {
    */
   readonly merged: number;
   /**
-   * The count of the command buffers of the process that write the canvas, with a start from the
-   * start of the first frame to the start of the last frame. Each frame but the last writes the
-   * canvas in two of them, so this count does not depend on the filter.
+   * The count of the command buffers of the process that write the canvas in the whole trace.
+   * Each frame writes the canvas in two of them, so this count does not depend on the filter.
    */
   readonly canvasWrites: number;
+  /**
+   * The canvas writes of the partial frames at the two ends of the trace, from 0 to 3. The clear
+   * and the final pass of a frame write the same canvas surface, and two frames in a row write
+   * different surfaces. Thus a first write with no surface of the second write is the final pass
+   * of a frame that started before the trace. The last frame has no next start, so the filter
+   * does not count it: its clear, and its final pass when that pass writes the surface of the
+   * clear.
+   */
+  readonly endWrites: number;
 }
 
 /**
- * Tells if a command buffer writes the canvas: one of its encoders writes a surface of the size of
- * the drawing buffer and touches no surface of another size.
+ * Gives the canvas surfaces that a command buffer writes: the surfaces of the size of the drawing
+ * buffer that each encoder writes when it touches no surface of another size.
+ *
+ * @param intervals The intervals of one command buffer.
+ * @param size The size of the drawing buffer, such as `2880×1800`.
+ * @returns The ids of the surfaces, or an empty set when the buffer does not write the canvas.
+ */
+function canvasWriteIds(intervals: readonly GpuInterval[], size: string): Set<string> {
+  const ids = new Set<string>();
+  for (const interval of intervals) {
+    if ([...interval.surfaces.matchAll(/\((\d+×\d+)/g)].every((m) => m[1] === size)) {
+      for (const surface of writtenSurfaces(interval.surfaces)) {
+        if (surface.size === size) {
+          ids.add(surface.id);
+        }
+      }
+    }
+  }
+  return ids;
+}
+
+/**
+ * Tells if a command buffer writes the canvas ({@link canvasWriteIds}).
  *
  * @param intervals The intervals of one command buffer.
  * @param size The size of the drawing buffer, such as `2880×1800`.
  * @returns True if the buffer writes the canvas.
  */
 function writesCanvasSize(intervals: readonly GpuInterval[], size: string): boolean {
-  return intervals.some(
-    (interval) =>
-      writtenSurfaces(interval.surfaces).some((surface) => surface.size === size) &&
-      [...interval.surfaces.matchAll(/\((\d+×\d+)/g)].every((m) => m[1] === size),
-  );
+  return canvasWriteIds(intervals, size).size > 0;
+}
+
+/**
+ * Counts the canvas writes of the partial frames at the two ends of a trace
+ * ({@link FrameCheck.endWrites}).
+ *
+ * @param writes The canvas surfaces of each command buffer that writes the canvas, in the order
+ *   of their start.
+ * @returns The count, from 0 to 3.
+ */
+function endWriteCount(writes: readonly ReadonlySet<string>[]): number {
+  const shared = (a: ReadonlySet<string> | undefined, b: ReadonlySet<string> | undefined) =>
+    a !== undefined && b !== undefined && [...a].some((id) => b.has(id));
+  const head = writes.length > 1 && !shared(writes[0], writes[1]) ? 1 : 0;
+  if (writes.length <= head) {
+    return head;
+  }
+  const pair = writes.length - head >= 2 && shared(writes.at(-2), writes.at(-1));
+  return head + (pair ? 2 : 1);
 }
 
 /**
  * Checks the WebGL frames of a filter against the command buffers of the trace. The check counts
- * the command buffers that the filter dropped in the span of its frames, and the frames that hold
- * more than two writes of the canvas.
+ * the command buffers that the filter dropped in the span of its frames, the frames that hold
+ * more than two writes of the canvas, and the canvas writes of the whole trace.
  *
  * @param intervals The GPU intervals of the trace.
  * @param process The text that the process column of the GPU process holds, such as its pid.
@@ -453,14 +497,17 @@ export function checkFrames(
 
   const canvasDropped: GpuInterval[][] = [];
   const otherDropped: GpuInterval[][] = [];
-  let canvasWrites = 0;
+  // The canvas writes come from the whole trace of the process, so that a filter that loses
+  // frames, also each frame, cannot lower the count.
+  const writes: { readonly start: number; readonly ids: Set<string> }[] = [];
   for (const [buffer, list] of byBuffer) {
     const first = Math.min(...list.map((interval) => interval.startNs));
+    const ids = canvasWriteIds(list, size);
+    if (ids.size > 0) {
+      writes.push({ start: first, ids });
+    }
     if (first < start || first >= lastStart) {
       continue;
-    }
-    if (writesCanvasSize(list, size)) {
-      canvasWrites += 1;
     }
     if (counted.has(buffer)) {
       continue;
@@ -488,7 +535,10 @@ export function checkFrames(
     droppedCanvas: dropped(canvasDropped),
     droppedOther: dropped(otherDropped),
     merged,
-    canvasWrites,
+    canvasWrites: writes.length,
+    endWrites: endWriteCount(
+      writes.toSorted((a, b) => a.start - b.start).map((write) => write.ids),
+    ),
   };
 }
 
@@ -505,14 +555,15 @@ export function droppedPerFrame(check: FrameCheck, dropped: DroppedBuffers): num
 }
 
 /**
- * Calculates the count of frames that the canvas writes of the trace give: two writes in each
- * frame but the last, and the last frame.
+ * Calculates the count of complete frames that the canvas writes of the trace give: two writes in
+ * each frame, after the writes of the partial frames at the ends. It does not use the frames of
+ * the filter.
  *
  * @param check The check.
- * @returns The expected count of frames, or 0 with no frame.
+ * @returns The expected count of frames.
  */
 export function canvasWriteFrames(check: FrameCheck): number {
-  return check.frames > 0 ? check.canvasWrites / 2 + 1 : 0;
+  return Math.max(0, (check.canvasWrites - check.endWrites) / 2);
 }
 
 /** The largest time of dropped canvas buffers for each frame, in milliseconds (design 9.7). */
@@ -532,6 +583,9 @@ export const FRAME_COUNT_TOLERANCE = 0.02;
  */
 export function frameCheckFaults(check: FrameCheck, expected: number | null): string[] {
   const faults: string[] = [];
+  if (check.frames === 0) {
+    faults.push('The filter gave no WebGL frames.');
+  }
   const perFrame = droppedPerFrame(check, check.droppedCanvas);
   if (perFrame > DROPPED_CANVAS_LIMIT_MS) {
     faults.push(
@@ -540,9 +594,9 @@ export function frameCheckFaults(check: FrameCheck, expected: number | null): st
     );
   }
   if (expected !== null && Math.abs(check.frames - expected) > FRAME_COUNT_TOLERANCE * expected) {
-    const off = ((check.frames / expected - 1) * 100).toFixed(1);
+    const off = expected > 0 ? `${((check.frames / expected - 1) * 100).toFixed(1)}%` : 'no count';
     faults.push(
-      `The filter gave ${check.frames} frames against ${Math.round(expected)} expected (${off}%), ` +
+      `The filter gave ${check.frames} frames against ${Math.round(expected)} expected (${off}), ` +
         `more than ${FRAME_COUNT_TOLERANCE * 100}% off.`,
     );
   }

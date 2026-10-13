@@ -1206,12 +1206,14 @@ export function checkLines(
   const percent = (expected: number): string =>
     expected > 0 ? `${((check.frames / expected - 1) * 100).toFixed(1)}%` : 'no count';
   const writes = canvasWriteFrames(check);
+  const writesText = Number.isInteger(writes) ? String(writes) : writes.toFixed(1);
   const page = traceFps * check.spanSec;
   const perFrame = (dropped: DroppedBuffers): string => droppedPerFrame(check, dropped).toFixed(3);
   const lines = [
     `Self-check of the GPU row: ${check.frames} WebGL frames in ${check.spanSec.toFixed(3)} s ` +
-      `of the Metal trace, against ${writes.toFixed(0)} from the canvas writes of the trace ` +
-      `(${percent(writes)}). Merged frames: ${check.merged}.`,
+      `of the Metal trace, against ${writesText} from the ${check.canvasWrites} canvas writes ` +
+      `of the trace, with ${check.endWrites} at its ends (${percent(writes)}). ` +
+      `Merged frames: ${check.merged}.`,
     `The page drew ${traceFps.toFixed(1)} fps in the middle of the record: ${page.toFixed(0)} ` +
       `frames (${percent(page)}), for information.`,
     `Dropped by the filter in each frame: canvas buffers ${perFrame(check.droppedCanvas)} ms ` +

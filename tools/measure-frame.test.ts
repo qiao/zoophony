@@ -142,13 +142,16 @@ describe('checkLines', () => {
     droppedCanvas: { buffers: 649, ms: 454.3 },
     droppedOther: { buffers: 1298, ms: 649 },
     merged: 2,
-    canvasWrites: 1300,
+    canvasWrites: 1303,
+    endWrites: 1,
   };
 
   it('prints the frames against the expected counts, the merges, and the dropped time', () => {
     const [count, page, dropped, ...rest] = checkLines(check, 196, []);
     expect(count).toContain('650 WebGL frames in 3.250 s');
-    expect(count).toContain('against 651 from the canvas writes of the trace (-0.2%).');
+    expect(count).toContain(
+      'against 651 from the 1303 canvas writes of the trace, with 1 at its ends (-0.2%).',
+    );
     expect(count).toContain('Merged frames: 2.');
     expect(page).toContain('637 frames (2.0%), for information.');
     expect(dropped).toContain('canvas buffers 0.700 ms (649 buffers)');

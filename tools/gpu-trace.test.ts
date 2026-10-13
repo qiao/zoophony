@@ -112,8 +112,18 @@ describe('busyMs', () => {
 /** The size of the drawing buffer in the tests: 1440 × 900 at the device scale 2. */
 const CANVAS: readonly [number, number] = [2880, 1800];
 
+/**
+ * Gives the write of a canvas surface, as the Metal trace gives it.
+ *
+ * @param surface The id of the surface.
+ * @returns The IOSurface accesses of the encoder.
+ */
+function canvasWrite(surface: number): string {
+  return `Write Surface: ${surface}(2880×1800:ARGB)`;
+}
+
 /** The write of a canvas surface, as the Metal trace gives it. */
-const CANVAS_WRITE = 'Write Surface: 9(2880×1800:ARGB)';
+const CANVAS_WRITE = canvasWrite(9);
 
 /**
  * Makes the first command buffer of a WebGL frame, as ANGLE on Metal gives it: 27 encoders with
@@ -123,9 +133,15 @@ const CANVAS_WRITE = 'Write Surface: 9(2880×1800:ARGB)';
  * @param buffer The command buffer.
  * @param clearLabel False for a trace that gives no label to the clear: then the buffer has no
  *   encoder 2, as in some frames of each kept trace.
+ * @param surface The id of the canvas surface that the buffer writes.
  * @returns The intervals: 27 encoders (26 with no label), each 0.01 ms long and 0.01 ms apart.
  */
-function firstBuffer(startMs: number, buffer: string, clearLabel = true): GpuInterval[] {
+function firstBuffer(
+  startMs: number,
+  buffer: string,
+  clearLabel = true,
+  surface = 9,
+): GpuInterval[] {
   const encoders = Array.from({ length: 27 }, (_, i) => {
     const blit = i === 4 || (i >= 7 && i % 2 === 1);
     let label = `Render Command ${i}`;
@@ -134,7 +150,7 @@ function firstBuffer(startMs: number, buffer: string, clearLabel = true): GpuInt
     } else if (i === 2) {
       label = 'Render Command 2   (Clear)';
     }
-    const surfaces = i === 1 || i === 3 ? CANVAS_WRITE : '';
+    const surfaces = i === 1 || i === 3 ? canvasWrite(surface) : '';
     return interval(
       startMs + i * 0.02,
       0.01,
@@ -241,6 +257,7 @@ describe('webglFrameTimes', () => {
 
 /**
  * Makes three WebGL frames of 10 ms each, with a command buffer of the compositor in each frame.
+ * Frame `k` writes the canvas surface `10 + k`, as Chrome turns through its canvas surfaces.
  *
  * @returns The intervals: the first buffers `f1` to `f4`, the final passes `w1` to `w3`, and the
  *   compositor buffers `c1` to `c3`.
@@ -250,8 +267,8 @@ function threeFrames(): GpuInterval[] {
     ...[1, 2, 3].flatMap((k) => {
       const start = (k - 1) * 10;
       return [
-        ...firstBuffer(start, `f${k}`),
-        interval(start + 1, 2, `w${k}`, 'Render Command 4', 'Fragment', CANVAS_WRITE),
+        ...firstBuffer(start, `f${k}`, true, 10 + k),
+        interval(start + 1, 2, `w${k}`, 'Render Command 4', 'Fragment', canvasWrite(10 + k)),
         interval(
           start + 2.5,
           0.5,
@@ -262,7 +279,7 @@ function threeFrames(): GpuInterval[] {
         ),
       ];
     }),
-    ...firstBuffer(30, 'f4'),
+    ...firstBuffer(30, 'f4', true, 14),
   ];
 }
 
@@ -341,8 +358,9 @@ describe('checkFrames', () => {
     expect(check.droppedOther.buffers).toBe(2);
     expect(check.droppedOther.ms).toBeCloseTo(1, 6);
     expect(check.merged).toBe(0);
-    // f1, w1, f2, and w2 write the canvas before the start of the last frame.
-    expect(check.canvasWrites).toBe(4);
+    // f1 to f4 and w1 to w3 write the canvas. The open frame of f4 has one write at the end.
+    expect(check.canvasWrites).toBe(7);
+    expect(check.endWrites).toBe(1);
     expect(canvasWriteFrames(check)).toBe(3);
     // From the start of f1 to the end of w3.
     expect(check.spanSec).toBeCloseTo(0.023, 9);
@@ -360,8 +378,40 @@ describe('checkFrames', () => {
     const check = checkFrames(intervals, '(7)', CANVAS, [[...first, ...second], third]);
     expect(check.frames).toBe(2);
     expect(check.merged).toBe(1);
-    expect(check.canvasWrites).toBe(4);
+    expect(check.canvasWrites).toBe(7);
     expect(canvasWriteFrames(check)).toBe(3);
+  });
+
+  it('counts the canvas writes of the whole trace, apart from the partial frames at its ends', () => {
+    const intervals = [
+      // The final pass of a frame that started before the trace.
+      interval(-5, 1, 'w0', 'Render Command 4', 'Fragment', canvasWrite(10)),
+      ...threeFrames(),
+      // The final pass of the open frame of f4.
+      interval(31, 2, 'w4', 'Render Command 4', 'Fragment', canvasWrite(14)),
+    ];
+    const frames = webglFrames(intervals, '(7)', CANVAS);
+    const check = checkFrames(intervals, '(7)', CANVAS, frames);
+    expect(check.frames).toBe(3);
+    expect(check.canvasWrites).toBe(9);
+    expect(check.endWrites).toBe(3);
+    expect(canvasWriteFrames(check)).toBe(3);
+    expect(frameCheckFaults(check, canvasWriteFrames(check))).toEqual([]);
+  });
+
+  it('fails a filter that gives no frames, or loses the frames at the ends', () => {
+    const intervals = threeFrames();
+    const none = checkFrames(intervals, '(7)', CANVAS, []);
+    expect(canvasWriteFrames(none)).toBe(3);
+    expect(frameCheckFaults(none, canvasWriteFrames(none))).toEqual([
+      'The filter gave no WebGL frames.',
+      'The filter gave 0 frames against 3 expected (-100.0%), more than 2% off.',
+    ]);
+    const middle = webglFrames(intervals, '(7)', CANVAS).slice(1, -1);
+    const cut = checkFrames(intervals, '(7)', CANVAS, middle);
+    expect(frameCheckFaults(cut, canvasWriteFrames(cut))).toEqual([
+      'The filter gave 1 frames against 3 expected (-66.7%), more than 2% off.',
+    ]);
   });
 });
 
@@ -372,7 +422,8 @@ describe('frameCheckFaults', () => {
     droppedCanvas: { buffers: 0, ms: 0 },
     droppedOther: { buffers: 100, ms: 50 },
     merged: 0,
-    canvasWrites: 198,
+    canvasWrites: 202,
+    endWrites: 2,
   };
 
   it('gives no fault for a frame count within 2% and no dropped canvas time', () => {
