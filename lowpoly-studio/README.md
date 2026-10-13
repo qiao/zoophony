@@ -12,7 +12,11 @@ bones of the bear from it on each frame. The lint of the repository skips the st
 the results with numbers). The second animal is the polar bear pianist (`animals/polar-bear/`),
 the pilot of `docs/retro/pilot-polar-bear.md`.
 
-![compare](animals/bear/out/compare/compare.png)
+![review](animals/bear/out/report/review.webp)
+
+The image is the review image of the bear (`animals/bear/out/report/review.webp`). Git keeps
+only this render of each animal. `python3 studio build bear` makes the compare image
+(`out/compare/compare.png`) and the other renders again (see "The outputs that git keeps").
 
 ## Quick start
 
@@ -102,8 +106,8 @@ lowpoly-studio/
 ├── roles/model/         the role of the model build: a fixed standing bind pose, one clip
 ├── viewer/              viewer, compare page, frames page, props gallery page (three.js),
 │                        read viewer.json
-├── animals/bear/        animal.toml, golden.json, README.md, reference/, out/ (out/model/,
-│                        out/seeds/, and out/stages/ are ignored by git)
+├── animals/bear/        animal.toml, golden.json, README.md, reference/, out/ (git keeps
+│                        only the files of "The outputs that git keeps")
 ├── animals/polar-bear/  animal.toml, golden.json, reference/, out/ (the pianist)
 ├── tests/               test_intake.py: the foreground rules; test_cache.py and
 │                        setup_keys.py: the cache keys; test_consistency.py: the sheet
@@ -476,9 +480,8 @@ A node that does not move in a clip has no channel in it (three.js keeps its res
 The gallery: `python3 studio props <animal>` builds one prop of each kind (`props/gallery.toml`)
 for the body of the animal into `out/props/gallery.glb`, with the clip "keys" (a scale pressed in
 turn), and renders `out/props/props.png`. `viewer/props.html?animal=<id>` shows each prop alone,
-turns it with the mouse, and plays the keys.
-
-![props](animals/polar-bear/out/props/props.png)
+turns it with the mouse, and plays the keys. Git does not keep the gallery: run
+`python3 studio props polar-bear` to make `out/props/props.png` again.
 
 ## The biped template
 
@@ -716,6 +719,48 @@ interface LookRecord {
 }
 ```
 
+## The outputs that git keeps
+
+A round of the studio writes about 24 MB of outputs for the two animals, most of them renders.
+Git keeps only what a reader or a tool needs (`lowpoly-studio/.gitignore` names each file):
+
+| File in `animals/<id>/out/` | Why git keeps it |
+|---|---|
+| `<id>.glb` | The result. The app reads `animals/bear/out/bear.glb` (`pnpm studio-body bear`). |
+| `<id>.stats.json` | The stats of the GLB: the counts, the contacts, and the fold repairs. |
+| `build.json` | The run, the seed, and the model seed of the build. |
+| `checks.json` | Every check with its value, its limit, its result, and its place. |
+| `seed-report.json` | The result of each seed (see "The seed rule"). A pool build reads its role key. |
+| `sheet-check.json` | The places where the views of the sheet disagree. |
+| `report/review.webp` | The review image: the numbers and the key crops (about 300 kB). |
+
+`golden.json`, `animal.toml`, `README.md`, and `reference/` of each animal stay in git too. The
+other outputs are ignored, and these commands make them again:
+
+| Outputs | Command |
+|---|---|
+| `compare/`, `frames/`, `look.json`, `viewer.json`, `report/`, `diag/`, `model/`, `seeds/`, `stages/` | `python3 studio build <id>` (`compare <id>` for the renders and the measures alone) |
+| `masks/`, `measure.json` | `build`, `fit`, `calibrate`, or `new` (the intake) |
+| `props/` | `python3 studio props <id>` |
+| `calibrate/` | `python3 studio calibrate <id>` |
+| `regress/` | `python3 studio regress <id>` |
+
+A new output folder is ignored by default, because the rules keep files by name. To keep
+another file in git, add a `!` rule to `.gitignore` and say why here. The old renders stay in the
+history of the repository, because main is pushed (about 77 MB of the 197 MB pack on
+2026-10-12).
+
+The size of one round of both animals (a change of `details.eyes.radius` of each animal, then
+`python3 studio build bear` and `python3 studio build polar-bear`, 2026-10-12):
+
+| What a commit of `animals/*/out/` adds | Before | After |
+|---|---|---|
+| Files | 70 | 8 |
+| Bytes | 18.0 MB (15.9 MB compressed) | 3.2 MB (1.4 MB compressed) |
+
+After the change, the two GLB files are 2.5 MB of the 3.2 MB, and the two review images 0.6 MB.
+A build that does not change the look changes only `build.json` and `checks.json` (the run).
+
 ## Run files and the timeline
 
 Each run of `build`, `regress`, and `compare` writes one run file into
@@ -830,6 +875,8 @@ sheet, orange: render) and the numbers of its checks, the facet crops, the conta
 closest approaches, the fold debug list with its crops, every check, the stage times, and the
 frames. The links are relative, so the page works as a static file. `out/report/review.png`
 holds the numbers and the key crops in one image, for an agent that reads only images.
+`out/report/review.webp` is the same image in at most about 300 kB (`REVIEW_WEBP_BYTES` of
+`studio/report.py`), and git keeps it.
 
 ## Regression
 

@@ -6,7 +6,11 @@ reference sheet (`reference/bear-views.png`: front, side, back, and 3/4 views), 
 the results, and the open limits. `animal.toml` holds all constants of the bear, and
 `golden.json` the stats of the regression (`python3 studio regress bear`).
 
-![compare](out/compare/compare.png)
+![review](out/report/review.webp)
+
+The image is the review image of the golden build. Git keeps only this render. Run
+`python3 studio build bear` to make the compare image (`out/compare/compare.png`) and the other
+images of the section "Images" again.
 
 Build it from `lowpoly-studio/`:
 
@@ -429,7 +433,8 @@ The values are after the fold repair: the first check found one folded face in t
 one round of smoothing removed it. The faces turned past 90° are single faces that stand
 edge-on.
 
-`out/diag/folds.json` lists these faces with their places, and `out/diag/` has a crop of each:
+`out/diag/folds.json` lists these faces with their places, and `out/diag/` has a crop of each.
+Git does not keep `out/diag/`: `python3 studio build bear` writes it again.
 
 | Face | Status | Region | Clips | Worst turn | Weights |
 |---|---|---|---|---|---|
@@ -495,6 +500,10 @@ The tip of the baton at each ictus of `beat_4_4` (`roles/conductor/pattern.py`, 
 
 ### Images
 
+A build writes these images. Git keeps only `out/report/review.webp`, so run
+`python3 studio build bear` (or `python3 studio compare bear` for the renders alone) to make the
+others again.
+
 - `out/compare/compare.png`: for each view, the sheet, the render, and the overlay (gray:
   both, red: only the sheet, blue: only the model).
 - `out/compare/face_<view>.png`: the head of the sheet beside the render, at 3x.
@@ -503,7 +512,7 @@ The tip of the baton at each ictus of `beat_4_4` (`roles/conductor/pattern.py`, 
 - `out/compare/render_<view>.png`: the aligned renders, and `topology.json`, `iou.json`,
   `features.json`, `mesh.json`.
 - `out/report/index.html`: the look report of the build, and `out/report/review.png`: its key
-  crops and numbers in one image.
+  crops and numbers in one image (`review.webp`: the same image in at most about 300 kB).
 - `out/diag/`: the fold debug list (`folds.json`), the contacts and the closest approaches
   (`contacts.json`), and a crop of each located face.
 - `out/frames/<clip>.png`: key frames of each clip from the front, the side, and a 3/4 view.
