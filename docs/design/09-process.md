@@ -412,7 +412,11 @@ On 2026-10-13, the manager changed the condition of the GPU measure, and told th
 - The Metal System Trace of Xcode gives the start and the end of each encoder on the GPU. The
   GPU time of a frame is the time in which at least one encoder of the WebGL frame runs
   (`tools/gpu-trace.ts`). A WebGL frame starts at the command buffer with the clear of the
-  drawing buffer, and it holds each WebGL command buffer until the next clear. A command buffer
+  drawing buffer, and it holds each WebGL command buffer until the next start. Each frame writes
+  the canvas in two command buffers: the clear, then the final pass. The trace sometimes gives
+  no label to the clear. Then a frame also starts at a command buffer that writes the canvas
+  after the final pass of the frame. A command buffer with the clear or a write of the canvas
+  counts, also when the trace puts a surface of the display into it. Each other command buffer
   that reads or writes a surface of another size than the drawing buffer is work of the
   compositor of Chrome, and it does not count. The first version of the filter also dropped the
   first command buffer of each frame, about 0.7 ms (review of 2026-10-13). The trace also gives the GPU work of the other processes. A page of
