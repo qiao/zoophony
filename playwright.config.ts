@@ -1,9 +1,13 @@
 import { defineConfig } from '@playwright/test';
 
 import { chromiumArgs } from './tools/chromium-args.ts';
+import { e2ePort } from './tools/e2e-port.ts';
 
-/** The port of `vite preview` for the Playwright tests. Ports 4179 to 4181 are for the tools. */
-const PORT = 4182;
+/**
+ * The port of `vite preview` for the Playwright tests: `ZOOPHONY_E2E_PORT`, or 4182. Ports 4179 to
+ * 4181 are for the tools.
+ */
+const PORT = e2ePort(process.env['ZOOPHONY_E2E_PORT']);
 
 /**
  * The URL of the built site. With `ZOOPHONY_BASE`, the build and `vite preview` use the base path
