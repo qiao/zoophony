@@ -50,7 +50,7 @@ export const HANG = {
 } as const;
 
 /** The parts of the body that a hanging arm keeps clear of. */
-const BODY: readonly BoneName[] = ['spine', 'chest', 'thighL', 'thighR', 'shinL', 'shinR'];
+const BODY: readonly BoneName[] = ['hips', 'spine', 'chest', 'thighL', 'thighR', 'shinL', 'shinR'];
 
 /** A triangle of the body, seen along x: its corners in y and z, and in x. */
 interface SideTriangle {
@@ -140,6 +140,26 @@ function radiusOf(
 }
 
 /**
+ * Finds the length of a paw: the largest drop of a corner of the hand or the fingers below the
+ * wrist in the bind pose, where the arm hangs straight down.
+ *
+ * @param model The player model.
+ * @param arm The arm.
+ * @returns The length, in meters.
+ */
+function pawLength(model: PlayerModel, arm: ArmRig): number {
+  const wanted = new Set([boneIndex(`hand${arm.side}`), boneIndex(`fingers${arm.side}`)]);
+  const { positions, bones } = model.mesh;
+  let length = 0;
+  for (let v = 0; v < bones.length; v++) {
+    if (wanted.has(bones[v] ?? -1)) {
+      length = Math.max(length, arm.bind.wrist[1] - (positions[v * 3 + 1] ?? 0));
+    }
+  }
+  return length;
+}
+
+/**
  * Gives the direction of a part of a hanging arm: down, out to the side, and forward.
  *
  * @param out The angle out to the side.
@@ -183,7 +203,9 @@ export function hangingArm(model: PlayerModel, arm: ArmRig): HangingArm {
     hand: radiusOf(model, [`hand${s}`, `fingers${s}`], arm.bind.wrist, Infinity),
   };
   // The points of the arm that must keep clear: the lower half of the upper arm, the forearm,
-  // and the hand, each with the radius of its part. The shoulder ball sinks into the torso.
+  // and the hand, each with the radius of its part. The shoulder ball sinks into the torso. The
+  // hand points are at a third, two thirds, and the end of the paw below the wrist.
+  const paw = pawLength(model, arm);
   const checks: readonly (readonly [part: 'upper' | 'elbow' | 'lower' | 'hand', along: number])[] =
     [
       ['upper', 0.5],
@@ -192,8 +214,9 @@ export function hangingArm(model: PlayerModel, arm: ArmRig): HangingArm {
       ['lower', 0.33],
       ['lower', 0.67],
       ['lower', 1],
-      ['hand', 0.08],
-      ['hand', 0.16],
+      ['hand', paw / 3],
+      ['hand', (2 * paw) / 3],
+      ['hand', paw],
     ];
 
   const upper = new Vector3();
@@ -213,7 +236,7 @@ export function hangingArm(model: PlayerModel, arm: ArmRig): HangingArm {
         point.addScaledVector(upper, upperLength);
         point.addScaledVector(lower, part === 'lower' ? along * lowerLength : lowerLength);
         if (part === 'hand') {
-          point.addScaledVector(lower, along * h);
+          point.addScaledVector(lower, along);
         }
       }
       const body = outermost(triangles, point, side);
