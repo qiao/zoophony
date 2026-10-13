@@ -31,7 +31,8 @@ export default defineConfig({
   },
   test: {
     // Agent worktrees under .claude/ hold copies of the tests. Run only the tests of this checkout.
-    exclude: [...configDefaults.exclude, '.claude/**'],
+    // The probe scripts of an agent in scratch/ are no tests.
+    exclude: [...configDefaults.exclude, '.claude/**', 'scratch/**'],
     // The slowest tests take 0.5 to 3.5 s with a low load, and 5 to 13 s at a load average of
     // 300. The default limit of 5 s failed a test under load. A test that does not end fails
     // after 60 s.

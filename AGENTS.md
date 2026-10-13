@@ -368,8 +368,7 @@ Follow these rules when another agent works on the repository at the same time.
 - Put a probe script in `scratch/` of your worktree. Git ignores the folder, and the lint, the
   typecheck, and the format check skip it. Run the probe with `node scratch/<name>.ts`. It
   imports `three` through the `node_modules` of the worktree, and the source modules by relative
-  paths such as `../src/models/species.ts`. Do not name a probe `*.test.ts`, because
-  `pnpm test` runs each test file, also in `scratch/`.
+  paths such as `../src/models/species.ts`. `pnpm test` skips the test files in `scratch/`.
 - Vitest hides the `console.log` output of a passing test. A probe in a test writes its values
   into a file.
 - In the shell of an agent, `grep` is a shell function that runs ugrep with `--ignore-files`.
