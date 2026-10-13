@@ -19,11 +19,12 @@ All measures use `perf-60.mid` (60 players) in Cinematic mode, in Google Chrome 
   Markdown table. Its GPU row is the time of the WebGL frames in a Metal System Trace with no
   frame cap.
 - The read of the title backdrop waited 1.6 to 1.8 ms on the main thread every 9 to 10 frames.
-  It now waits about 0.8 ms in a trace. The main-thread p95 went from 5.91 to 5.93 ms to 4.67 to
-  4.69 ms. The target of 4 ms still fails: the frame itself takes 3.3 to 3.6 ms (p50) in a trace.
-- With a quiet GPU, the GPU time of a WebGL frame is p50 3.70 ms and p95 4.44 ms on the tip. The
-  target of 4 ms still fails. When the Chrome of the user rendered a page, it used up to 50% of
-  the GPU time of a trace, and the p95 rose to 5.3 to 7.1 ms.
+  It now waits about 0.8 ms in a trace. The main-thread p95 went from 5.91 to 5.93 ms to 4.56 to
+  4.76 ms. The target of 4 ms still fails: the frame itself takes 3.3 to 3.6 ms (p50) in a trace.
+- With a quiet GPU, the GPU time of a WebGL frame was p50 3.66 to 3.70 ms and p95 4.15 to
+  4.44 ms in two runs on the code of the scene of the tip. The target of 4 ms fails. When the
+  Chrome of the user rendered a page, it used up to 50% of the GPU time of a trace, and the p95
+  rose to 5.3 to 7.1 ms.
 
 ## 2. The instruments and the power state of the GPU
 
@@ -123,22 +124,25 @@ target now resolves only the color (`resolveDepthBuffer = false` in `scene/post.
 frames of section 6 keep the same PNG bytes. The fragment time of render 3 went from 0.93 ms to
 0.79 ms (mean, quiet GPU). The change of the whole frame is inside the noise of two runs.
 
-The depth pass of the depth of field came after the bloom passes. Each pass of the bloom calls
+The depth pass of the depth of field comes after the bloom passes. Each pass of the bloom calls
 `renderer.render()`, which counts a new frame. three.js updates the skeletons, the bone textures,
-and the geometries one time for each frame number, so the depth pass updated the 60 skeletons of
-`perf-60.mid` again and uploaded their bone textures again. In a CPU profile,
-`multiplyMatrices()` (the skeletons) had 0.23 ms and `texSubImage2D()` (the bone textures)
-0.13 ms of self time for each frame. The pass now comes directly after the scene pass and takes
-its frame number (`scene/post.ts`), as the depth pass of the beam does. The frozen frames of
-section 6 keep the same PNG bytes, also the conductor shot with the depth of field.
+and the geometries one time for each frame number, so the depth pass updates the 60 skeletons of
+`perf-60.mid` again. The commit `1c2e8992` moved the pass directly after the scene pass with the
+frame number of the scene pass. The frozen frames kept the same PNG bytes. The main-thread p95
+was 4.56, 4.76, and 4.72 ms in three runs (`final1` to `final3`), against 4.67 ms before it, so it
+gave no measured gain. It also put 13 blit encoders in place of 2 into the first command buffer
+of each frame. The filter of `tools/gpu-trace.ts` then dropped that buffer as work of the
+compositor, and the GPU row fell to a false p50 of 1.43 ms. The commit `d31b7adc` undid the
+change.
 
 ## 6. Frozen frames
 
 `frozen.ts` holds the time of the page at 1,000,000 ms after a seek, so that the effects that
 read the wall time draw the same frame in each run. It wrote three shots before and after the
-depth resolve change, and after the change of the depth pass of the depth of field: the default play view (Boulanger demo, 30 s, Free mode), the conductor shot
-with the depth of field (Boulanger demo, 73 s), and the wide shot of `perf-60.mid` (5 s). `cmp`
-found the same bytes in each pair of PNG files of the three runs.
+depth resolve change, and with the change of the depth pass of the depth of field (`1c2e8992`,
+section 5): the default play view (Boulanger demo, 30 s, Free mode), the conductor shot with the
+depth of field (Boulanger demo, 73 s), and the wide shot of `perf-60.mid` (5 s). `cmp` found the
+same bytes in each pair of PNG files of the three runs.
 
 ## 7. Each measure with its load
 
@@ -154,9 +158,19 @@ milliseconds.
 | `after1` | read at the frame start | 6.4, 6.0, 8.4 | 3.43 / 4.69 / 85.1% | 4.26 / 5.27 / 14.8% | 27% | 8.03 / 17.58 | 9.30 / 19.16 |
 | `v2a` | a new buffer for each read | 6.5, 7.6, 6.8 | 3.59 / 4.75 / 80.5% | (`--no-metal`) | | 7.59 / 16.36 | 9.39 / 19.15 |
 | `after2` | `74a293f2` | 7.5, 6.7, 7.8 | 3.32 / 4.67 / 87.3% | 3.70 / 4.44 / 55.9% | 2% | 4.69 / 14.01 | 9.29 / 20.19 |
+| `final1` | `e3f90d5d` | 7.7, 7.7, 14.7 | 3.39 / 4.56 / 84.6% | (false: 1.43 / 1.69) | 3% | 4.95 / 8.73 | 9.57 / 18.93 |
+| `final2` | `e3f90d5d` | 7.7, 7.6, 12.3 | 3.45 / 4.76 / 83.6% | (false: 1.43 / 1.56) | 2% | 4.91 / 8.64 | 9.30 / 20.46 |
+| `final3` | `dea4cbf6` | 7.5, 7.5, 8.8 | 3.36 / 4.72 / 85.8% | (false: 1.43 / 1.50) | 1% | 4.92 / 8.71 | 9.19 / 17.07 |
+| `final4` | `d31b7adc` | 4.4, 4.3, 9.7 | 3.40 / 4.68 / 86.3% | 3.66 / 4.15 / 69.5% | 1% | 4.99 / 9.20 | 8.73 / 15.41 |
 
 The experiment ran the old frame probe with no frame cap and the timer query on, and a Metal
 trace of 3 s of all processes at 188 fps. Its timer values come from 60 s of play.
+
+The GPU rows of `final1` to `final3` are false (section 5). In `final3`, the Metal trace ran
+from the song time 13.5 s to 17.7 s: the end of the solo shot and the start of a section shot of
+the plan of `perf-60.mid` (wide to 8 s, solo to 16 s, section to 26 s, side to 32 s). The trace of
+3 s covers about one shot, and its start depends on the start of `xctrace`. In `final4`, after the
+undo, the trace ran from 13.0 s to 17.2 s, and the GPU row was true again.
 
 A run on `74a293f2` after `after2` waited 300 s while other work kept the load average at 14.8
 to 47.2. Then `pnpm frame` refused with the exit code 2 and measured nothing.
@@ -181,13 +195,22 @@ repository root.
 
 ## 9. Open problems
 
-- The main-thread p95 is 4.67 to 4.75 ms. A cut of the JavaScript of each frame by about 0.7 ms
+- The main-thread p95 is 4.56 to 4.76 ms. A cut of the JavaScript of each frame by about 0.7 ms
   is necessary, for example one scene traversal for the depth of the beam and of the depth of
   field, or fewer program changes of the override materials of the depth passes.
-- The GPU p95 is 4.44 ms with a quiet GPU. The candidates change pixels, so the manager or the
-  user must approve them first: the depth of field from the depth of the beam (one geometry pass
-  less in each frame with the depth of field), fewer MSAA samples, or cheaper side lights. The
+- The GPU p95 is 4.15 to 4.44 ms with a quiet GPU. The candidates change pixels, so the
+  manager or the user must approve them first: the depth of field from the depth of the beam
+  (one geometry pass less in each frame with the depth of field), fewer MSAA samples, or cheaper
+  side lights. The
   ablations of the first agent at a high load suggested about 0.85 ms for the MSAA, 0.6 ms for
   the depth of field, and 0.4 ms for the side lights.
 - A page that renders in another browser makes the GPU values too high. Close it before a
   measure.
+- The Metal trace of `pnpm frame` starts at a song time that depends on the start of `xctrace`.
+  A seek to fixed song times, such as the heaviest shot with the depth of field, before the
+  trace would make two runs comparable. The tool prints the song times of the trace.
+- The filter of `tools/gpu-trace.ts` keeps a command buffer of the GPU process when it reads no
+  IOSurface and holds at most 3 blit encoders. Each frame also has a buffer with 11 blit encoders
+  that writes a surface of 2880 × 1800 and reads none (0.70 ms, one in each frame). The filter
+  drops it as work of the compositor. If it is WebGL work, the GPU time of a frame is up to
+  0.7 ms higher than the GPU row. A probe of the surfaces that the compositor reads can decide.
