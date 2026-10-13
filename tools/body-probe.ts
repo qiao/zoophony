@@ -420,6 +420,14 @@ export async function runProbe(): Promise<Probe> {
   return { ...bodies, poses: await probePoses() };
 }
 
+/** The samples of one set of one player and their short hashes, from one probe. */
+interface SetSamples {
+  /** The song time and the wall time of each sample, in seconds, rounded. */
+  readonly samples: readonly (readonly [number, number])[];
+  /** The short hash of each sample, {@link STEP_DIGITS} hex digits each, in sample order. */
+  readonly steps: string;
+}
+
 /**
  * Gives the first sample of a set that differs between two probes: the first sample with another
  * time or another short hash.
@@ -428,13 +436,10 @@ export async function runProbe(): Promise<Probe> {
  * @param b The samples and the poses of the new probe.
  * @returns The text of the sample, such as `sample 3 of 40 (song -1.80 s, wall 10.20 s)`.
  */
-function firstDifference(
-  a: { readonly samples: readonly (readonly [number, number])[]; readonly steps: string },
-  b: { readonly samples: readonly (readonly [number, number])[]; readonly steps: string },
-): string {
+function firstDifference(a: SetSamples, b: SetSamples): string {
   const count = Math.max(a.samples.length, b.samples.length);
   for (let i = 0; i < count; i++) {
-    const at = (side: typeof a): string =>
+    const at = (side: SetSamples): string =>
       `${String(side.samples[i])} ${side.steps.slice(i * STEP_DIGITS, (i + 1) * STEP_DIGITS)}`;
     if (at(a) !== at(b)) {
       const [song, wall] = b.samples[i] ?? a.samples[i] ?? [Number.NaN, Number.NaN];
@@ -483,8 +488,8 @@ function comparePoses(
       const changed: string[] = [];
       for (const name of new Set([...Object.keys(pa), ...Object.keys(pb)])) {
         sets += 1;
-        const sa = { samples: a.samples[name] ?? [], steps: pa[name]?.steps ?? '' };
-        const sb = { samples: b.samples[name] ?? [], steps: pb[name]?.steps ?? '' };
+        const sa: SetSamples = { samples: a.samples[name] ?? [], steps: pa[name]?.steps ?? '' };
+        const sb: SetSamples = { samples: b.samples[name] ?? [], steps: pb[name]?.steps ?? '' };
         const sameTimes = JSON.stringify(sa.samples) === JSON.stringify(sb.samples);
         if (pa[name] && pa[name]?.hash === pb[name]?.hash && sameTimes) {
           equal += 1;
