@@ -30,7 +30,8 @@ const gpuProcess = [...counts.entries()].toSorted((a, b) => b[1] - a[1])[0]?.[0]
 if (!gpuProcess) {
   throw new Error('The trace has no GPU process of Chrome.');
 }
-const frames = webglFrames(intervals, gpuProcess);
+// The drawing buffer of `pnpm frame`: 1440 × 900 at the device scale 2.
+const frames = webglFrames(intervals, gpuProcess, [2880, 1800]);
 
 const times = new Map<string, number[]>();
 const order: string[] = [];

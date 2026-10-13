@@ -766,7 +766,8 @@ async function measureUncapped(
       return parseTraceTable(await readFile(file, 'utf8'));
     };
     const intervals = gpuIntervals(await table('metal-gpu-intervals'));
-    const frames = webglFrameTimes(intervals, `(${gpu.id})`);
+    const canvas: readonly [number, number] = [1440 * options.scale, 900 * options.scale];
+    const frames = webglFrameTimes(intervals, `(${gpu.id})`, canvas);
     const states = stateTimes(await table('gpu-performance-state-intervals'));
     const otherShare = otherGpuShare(intervals, `(${gpu.id})`);
     return { probe, metal: frames, states, otherShare, songs };

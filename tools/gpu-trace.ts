@@ -192,20 +192,42 @@ export function busyMs(intervals: readonly GpuInterval[]): number {
   return busy / 1e6;
 }
 
-/** The most blit encoders in a command buffer of WebGL. The compositor of Chrome has more. */
-const WEBGL_MAX_BLITS = 3;
+/**
+ * Tells if the IOSurface accesses of a command buffer are all on the surfaces of the canvas. The
+ * compositor of Chrome reads the tiles of the page and writes the surface of the window, which have
+ * other sizes. WebGL draws into the canvas surfaces, and the read of the title backdrop reads one.
+ *
+ * @param intervals The intervals of one command buffer.
+ * @param canvas The width and the height of the drawing buffer of the canvas, in device pixels.
+ * @returns True if each surface that the buffer reads or writes has the size of the canvas.
+ */
+function onlyCanvasSurfaces(
+  intervals: readonly GpuInterval[],
+  canvas: readonly [number, number],
+): boolean {
+  const size = `${canvas[0]}×${canvas[1]}`;
+  return intervals.every((interval) =>
+    [...interval.surfaces.matchAll(/\((\d+×\d+)/g)].every((m) => m[1] === size),
+  );
+}
 
 /**
  * Gives the GPU intervals of each WebGL frame of the GPU process of Chrome. The process also runs
- * the compositor of Chrome. A command buffer of the compositor reads an IOSurface (the canvas and
- * the layers of the page), or holds many blit encoders, so the function drops it. A WebGL frame
- * ends with the fragment work of the final pass, which writes the IOSurface of the canvas.
+ * the compositor of Chrome. A command buffer of the compositor reads or writes a surface that is
+ * not a canvas surface, so the function drops it. A WebGL frame starts with the command buffer that
+ * clears the drawing buffer (an encoder with the label `(Clear)`), and it holds each WebGL command
+ * buffer until the next clear.
  *
  * @param intervals The GPU intervals of the trace.
  * @param process The text that the process column of the GPU process holds, such as its pid.
+ * @param canvas The width and the height of the drawing buffer of the canvas, in device pixels.
  * @returns The intervals of each complete frame, in the order of their start.
  */
-export function webglFrames(intervals: readonly GpuInterval[], process: string): GpuInterval[][] {
+export function webglFrames(
+  intervals: readonly GpuInterval[],
+  process: string,
+  canvas: readonly [number, number],
+): GpuInterval[][] {
   const byBuffer = new Map<string, GpuInterval[]>();
   for (const interval of intervals) {
     if (!interval.process.includes(process)) {
@@ -216,31 +238,25 @@ export function webglFrames(intervals: readonly GpuInterval[], process: string):
     byBuffer.set(interval.commandBuffer, list);
   }
 
-  const webgl: GpuInterval[] = [];
-  for (const list of byBuffer.values()) {
-    const blits = new Set(
-      list.flatMap((interval) => /Blit Command (\d+)/.exec(interval.label)?.[1] ?? []),
-    );
-    const reads = list.some((interval) => interval.surfaces.includes('Read Surface'));
-    if (!reads && blits.size <= WEBGL_MAX_BLITS) {
-      webgl.push(...list);
-    }
-  }
+  const start = (list: readonly GpuInterval[]): number =>
+    Math.min(...list.map((interval) => interval.startNs));
+  const webgl = [...byBuffer.values()]
+    .filter((list) => onlyCanvasSurfaces(list, canvas))
+    .toSorted((a, b) => start(a) - start(b));
 
   const frames: GpuInterval[][] = [];
-  let frame: GpuInterval[] = [];
-  let started = false;
-  for (const interval of webgl.toSorted((a, b) => a.startNs - b.startNs)) {
-    frame.push(interval);
-    if (interval.channel === 'Fragment' && interval.surfaces.includes('Write Surface')) {
-      // The first frame can start before the trace, so it does not count.
-      if (started) {
+  // The work before the first clear belongs to a frame that started before the trace.
+  let frame: GpuInterval[] | null = null;
+  for (const list of webgl) {
+    if (list.some((interval) => interval.label.includes('(Clear)'))) {
+      if (frame) {
         frames.push(frame);
       }
-      started = true;
       frame = [];
     }
+    frame?.push(...list);
   }
+  // The work after the last clear can go on after the trace, so it does not count.
   return frames;
 }
 
@@ -249,10 +265,15 @@ export function webglFrames(intervals: readonly GpuInterval[], process: string):
  *
  * @param intervals The GPU intervals of the trace.
  * @param process The text that the process column of the GPU process holds, such as its pid.
+ * @param canvas The width and the height of the drawing buffer of the canvas, in device pixels.
  * @returns The busy time of each complete frame, in milliseconds ({@link busyMs}).
  */
-export function webglFrameTimes(intervals: readonly GpuInterval[], process: string): number[] {
-  return webglFrames(intervals, process).map((frame) => busyMs(frame));
+export function webglFrameTimes(
+  intervals: readonly GpuInterval[],
+  process: string,
+  canvas: readonly [number, number],
+): number[] {
+  return webglFrames(intervals, process, canvas).map((frame) => busyMs(frame));
 }
 
 /**
