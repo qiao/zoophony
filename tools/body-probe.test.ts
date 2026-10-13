@@ -1,3 +1,4 @@
+import { existsSync, readdirSync } from 'node:fs';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -231,7 +232,11 @@ describe('probeRef', () => {
   it('probes a commit in a temporary folder, and removes the folder also after a failure', async () => {
     const parent = await mkdtemp(join(tmpdir(), 'probe-ref-test-'));
     try {
-      const base = await probeRef('HEAD', parent);
+      const running = probeRef('HEAD', parent);
+      // The child starts before the first await, so the probe of the caller runs beside it.
+      const [dir] = readdirSync(parent);
+      expect(existsSync(join(parent, dir ?? '', 'tools', 'body-probe.ts'))).toBe(true);
+      const base = await running;
       expect(Object.keys(base.species['bear'] ?? {})).toContain('stand');
       expect(Object.keys(base.players)).toContain('conductor/bear/baton');
       expect(Object.keys(base.poses)).toContain('mozart-k525');

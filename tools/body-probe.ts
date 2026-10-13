@@ -10,11 +10,11 @@
  *        pnpm body-probe --compare <base.json> <new.json>
  *        pnpm body-probe --base <ref>
  */
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import type { Hash } from 'node:crypto';
-import { rmSync } from 'node:fs';
-import { copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { copyFileSync, mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -589,6 +589,35 @@ function run(command: string, args: readonly string[], cwd: string): void {
   }
 }
 
+/**
+ * Starts a command, and gives a promise of its end. The command runs beside the code of the
+ * caller.
+ *
+ * @param command The command.
+ * @param args The arguments.
+ * @param cwd The folder of the command.
+ * @returns A promise that resolves when the command ends with no failure.
+ */
+function runChild(command: string, args: readonly string[], cwd: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { cwd, stdio: ['ignore', 'ignore', 'pipe'] });
+    let errors = '';
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', (text: string) => {
+      errors += text;
+    });
+    child.on('error', reject);
+    child.on('close', (status) => {
+      if (status === 0) {
+        resolve();
+        return;
+      }
+      const reason = errors.trim().split('\n').slice(-5).join('\n');
+      reject(new Error(`${command} ${args.join(' ')} failed: ${reason}`));
+    });
+  });
+}
+
 /** The paths of a commit that the probe of the commit reads. */
 const REF_PATHS = [
   'src',
@@ -602,8 +631,9 @@ const REF_PATHS = [
 /**
  * Probes the bodies and the poses of a commit. It extracts {@link REF_PATHS} of the commit into a
  * new folder. The folder gets a copy of this tool and a link to the `node_modules` of the
- * repository. Then it runs the probe there. The folder goes away at the end, also after a failure
- * or a stop (INT or TERM).
+ * repository. Then it runs the probe there, in a child process, so that the caller can probe the
+ * working tree at the same time. The folder goes away at the end, also after a failure or a stop
+ * (INT or TERM).
  *
  * @param ref The commit, a branch, or a tag.
  * @param parent The folder that holds the temporary folder.
@@ -611,7 +641,7 @@ const REF_PATHS = [
  * @throws Error if git does not know the ref, or the probe fails on the code of the commit.
  */
 export async function probeRef(ref: string, parent: string = tmpdir()): Promise<Probe> {
-  const dir = await mkdtemp(join(parent, 'body-probe-'));
+  const dir = mkdtempSync(join(parent, 'body-probe-'));
   const stop = (): void => {
     rmSync(dir, { recursive: true, force: true });
     process.exit(130);
@@ -619,13 +649,14 @@ export async function probeRef(ref: string, parent: string = tmpdir()): Promise<
   process.once('SIGINT', stop);
   process.once('SIGTERM', stop);
   try {
+    // The child starts before the first await, so it runs beside a probe of the caller.
     run('git', ['archive', '--output', join(dir, 'ref.tar'), ref, ...REF_PATHS], ROOT);
     run('tar', ['-xf', 'ref.tar'], dir);
-    await mkdir(join(dir, 'tools'), { recursive: true });
-    await copyFile(join(ROOT, 'tools', 'body-probe.ts'), join(dir, 'tools', 'body-probe.ts'));
-    await symlink(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
+    mkdirSync(join(dir, 'tools'), { recursive: true });
+    copyFileSync(join(ROOT, 'tools', 'body-probe.ts'), join(dir, 'tools', 'body-probe.ts'));
+    symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
     const out = join(dir, 'probe.json');
-    run(process.execPath, [join('tools', 'body-probe.ts'), '--out', out], dir);
+    await runChild(process.execPath, [join('tools', 'body-probe.ts'), '--out', out], dir);
     return await readProbe(out);
   } finally {
     process.off('SIGINT', stop);
@@ -654,8 +685,15 @@ if (import.meta.main) {
     if (!ref || ref.startsWith('--')) {
       throw new Error('Usage: pnpm body-probe --base <ref>');
     }
-    const base = await probeRef(ref);
-    printComparison(`base ${ref}, new: the working tree`, compareProbes(base, await runProbe()));
+    // Both probes end before a failure stops the process, so the temporary folder goes away.
+    const [base, next] = await Promise.allSettled([probeRef(ref), runProbe()]);
+    if (base.status === 'rejected') {
+      throw base.reason;
+    }
+    if (next.status === 'rejected') {
+      throw next.reason;
+    }
+    printComparison(`base ${ref}, new: the working tree`, compareProbes(base.value, next.value));
   }
   const compare = args.indexOf('--compare');
   if (compare >= 0) {
