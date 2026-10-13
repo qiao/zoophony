@@ -181,6 +181,13 @@ export interface ConductorRig {
   readonly beatUp: Vec3;
   /** The head height `H` of the bear: the unit of the places of the hands. */
   readonly headHeight: number;
+  /**
+   * The unit direction of the baton in the middle of a lift or a lowering of the arms
+   * ({@link CONDUCTOR_HOLD.liftBaton}).
+   */
+  readonly liftBaton: Vec3;
+  /** The unit direction of the left hand in the ready gesture: up and a little outward. */
+  readonly readyDirection: Vec3;
 }
 
 /**
@@ -241,6 +248,12 @@ export function conductorRig(model: PlayerModel): ConductorRig {
     beatRight: toVec3(beatRight),
     beatUp: toVec3(beatUp),
     headHeight: h,
+    liftBaton: toVec3(new Vector3(...CONDUCTOR_HOLD.liftBaton).normalize()),
+    readyDirection: [
+      -Math.sin(CONDUCTOR_HOLD.readyOut) * Math.cos(CONDUCTOR_HOLD.readyLift),
+      Math.sin(CONDUCTOR_HOLD.readyLift),
+      -Math.cos(CONDUCTOR_HOLD.readyOut) * Math.cos(CONDUCTOR_HOLD.readyLift),
+    ],
   };
 }
 
@@ -305,15 +318,8 @@ const fingers = new Vector3();
 const toPlace = new Vector3();
 const Y_AXIS = new Vector3(0, 1, 0);
 
-/** The direction of the baton in the middle of a lift or a lowering of the arms. */
-const LIFT_BATON = new Vector3(...CONDUCTOR_HOLD.liftBaton).normalize();
-
-/** The direction of the left hand in the ready gesture: up and a little outward. */
-const READY_DIRECTION = new Vector3(
-  -Math.sin(CONDUCTOR_HOLD.readyOut) * Math.cos(CONDUCTOR_HOLD.readyLift),
-  Math.sin(CONDUCTOR_HOLD.readyLift),
-  -Math.cos(CONDUCTOR_HOLD.readyOut) * Math.cos(CONDUCTOR_HOLD.readyLift),
-);
+/** The direction of the baton in the middle of a lift or a lowering. Each call writes it first. */
+const liftBaton = new Vector3();
 
 /**
  * Turns a point of the model axes around the vertical through the `spine` bone.
@@ -455,7 +461,7 @@ export function poseConductor(
     // The turn is at its full size in the middle of the motion. The tip leaves the width of the
     // desk early, while the hand is still high.
     along.set(0, 0, -1).applyQuaternion(hand);
-    liftTurn.setFromUnitVectors(along, LIFT_BATON);
+    liftTurn.setFromUnitVectors(along, liftBaton.fromArray(rig.liftBaton));
     hand.premultiply(mixRotation(NO_TURN, liftTurn, Math.sin(Math.PI * weight), liftTurn));
   }
   writeArm(
@@ -560,7 +566,7 @@ function poseLeftHand(
   const ready = state.ready * (1 - cue.hand);
   const lift = Math.max(cue.hand, state.ready);
   if (lift > 0) {
-    toCue.copy(READY_DIRECTION).multiplyScalar(ready);
+    toCue.fromArray(rig.readyDirection).multiplyScalar(ready);
     if (cue.hand > 0) {
       toCue.addScaledVector(directionOf(cue.handYaw, cue.handLift, fingers), cue.hand);
     }
