@@ -557,9 +557,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     right hand the notes above it. Of two equal intervals, the one nearer to the middle of the
     chord splits it. A chord within one octave goes to the nearer hand, so that a melody stays in
     one hand. At the same distance, a chord from middle C up goes to the right hand. A chord past
-    the reach of the nearer hand goes to the other hand (`reach` of `HANDS_HOLDS`): the left paw
-    of the studio polar bear reaches up to B♭4, and the right paw down to C4, so a melody changes
-    paws between them. The harp has no limit. The hands start at C3 and C5.
+    the reach of the nearer hand goes to the other hand. `reach` of `HANDS_HOLDS` gives the
+    highest key of the left paw of the studio polar bear and the lowest key of its right paw, so a
+    melody changes paws between them. The harp has no limit. The hands start at C3 and C5.
   - A hand plays a chord at the middle of its lowest and its highest key. The piano keys do not
     move, because they are not separate meshes.
   - The piano palm faces down, a little above the keys and a little in front of the front edge of
@@ -569,8 +569,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     down onto the keys. A hand moves to its next keys in at most 0.15 s and in at most 0.6 of the
     time from its last note. It lifts up to 0.03 m times the gesture size in the move, strikes
     the keys at the note start, and stays on them until its next move. The elbows point out,
-    down, and back, (±1, -0.6, 0.4). The pianist leans forward 20° while it plays, so that its
-    paws reach the keys in front of its round belly (4.6, the piano).
+    down, and back, (±1, -0.6, 0.4). The pianist leans forward while it plays (`lean` of
+    `HANDS_HOLDS`), so that its paws reach the keys in front of its round belly (4.6, the piano).
   - The harp palm is 0.03 m from the strings, at the middle of the string of its note: the left
     hand on the left side of the strings, and the right hand on the right side. The palm faces
     the strings. A hand moves to its next string in at most 0.15 s, and rests on it for up to
