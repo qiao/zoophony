@@ -103,6 +103,29 @@ exec_one() {
   run_plan "$CHECK_TMP/plan-one.txt" ''
 }
 
+# Prints the process IDs of each descendant of the process $1.
+descendants() {
+  local child
+  for child in $(pgrep -P "$1" || true); do
+    echo "$child"
+    descendants "$child"
+  done
+}
+
+# Stops the check rebase and each of its processes, and aborts the rebase. A trap on INT and TERM
+# runs it.
+stop_rebase() {
+  trap - INT TERM
+  if [ -n "${REBASE_PID:-}" ]; then
+    # shellcheck disable=SC2046 # Each process ID is one word.
+    kill -TERM "$REBASE_PID" $(descendants "$REBASE_PID") 2>/dev/null || true
+    wait "$REBASE_PID" 2>/dev/null || true
+  fi
+  git rebase --abort >/dev/null 2>&1 || true
+  echo "The check stopped. The rebase is aborted, and the branch is unchanged." >&2
+  exit 130
+}
+
 if [ "${1:-}" = --exec-one ]; then
   exec_one
   exit $?
@@ -171,10 +194,21 @@ fi
 
 # The rebase starts at the parent of the first commit with no entry. Each later commit with an
 # entry prints "hit" in the rebase.
+#
+# A stop (Ctrl-C, kill, or the time limit of a tool) runs stop_rebase(): it stops the rebase and
+# its checks, and aborts the rebase. Else the worktree stays in a rebase at an old commit. The
+# rebase runs in the background, because bash runs a trap only after the foreground command.
 if [ -n "$FIRST_MISS" ]; then
+  trap stop_rebase INT TERM
   # The messages of git go to the log. The report lines of each commit go to the output.
-  if ! git rebase --exec "bash \"$CHECK_BIN/check-commits.sh\" --exec-one" "$FIRST_MISS^" \
-    2>"$CHECK_TMP/rebase.log"; then
+  git rebase --exec "bash \"$CHECK_BIN/check-commits.sh\" --exec-one" "$FIRST_MISS^" \
+    2>"$CHECK_TMP/rebase.log" &
+  REBASE_PID=$!
+  REBASE_STATUS=0
+  wait "$REBASE_PID" || REBASE_STATUS=$?
+  REBASE_PID=
+  trap - INT TERM
+  if [ "$REBASE_STATUS" != 0 ]; then
     git rebase --abort >/dev/null 2>&1 || true
     echo "A commit failed a check. The branch is unchanged, and that commit has no entry."
     echo "The logs and the messages of the rebase (rebase.log) are in $CHECK_TMP."

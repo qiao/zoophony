@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import {
   chmodSync,
   copyFileSync,
@@ -26,12 +26,14 @@ interface RunResult {
 /**
  * A fake `pnpm`. It writes each call with the short hash of HEAD into `pnpm.log` beside it. It
  * fails the typecheck when the tree has the file `broken`. When the tree has the file
- * `edit-during-lint`, the lint writes a new file, as an agent that edits the worktree.
+ * `edit-during-lint`, the lint writes a new file, as an agent that edits the worktree. When the
+ * tree has the file `slow-lint`, the lint writes its process ID into `slow.pid` and waits 30 s.
  */
 const FAKE_PNPM = `#!/bin/sh
 echo "$(git rev-parse --short HEAD) $*" >> "$(dirname "$0")/pnpm.log"
 if [ "$2" = typecheck ] && [ -f broken ]; then exit 1; fi
 if [ "$2" = lint ] && [ -f edit-during-lint ]; then echo 'export const E = 1;' > src/edit.ts; fi
+if [ "$2" = lint ] && [ -f slow-lint ]; then echo $$ > "$(dirname "$0")/slow.pid"; exec sleep 30; fi
 exit 0
 `;
 
@@ -127,6 +129,26 @@ function pnpmCalls(short: string): string[] {
   return lines
     .filter((line) => line.startsWith(`${short} `))
     .map((line) => line.slice(short.length + 1));
+}
+
+/**
+ * Tells if a process runs. A stopped process can stay for a short time until its parent waits for
+ * it, so the function tries for at most 2 s.
+ *
+ * @param pid The process ID.
+ * @returns True when the process still runs after 2 s.
+ */
+function isRunning(pid: number): boolean {
+  const end = Date.now() + 2000;
+  while (Date.now() < end) {
+    try {
+      process.kill(pid, 0);
+    } catch {
+      return false;
+    }
+    spawnSync('sleep', ['0.1']);
+  }
+  return true;
 }
 
 /** The short hashes of the commits of the branch. */
@@ -233,6 +255,32 @@ describe('tools/check-commits.sh', () => {
     expect(result.status, result.output).toBe(3);
     expect(result.output).toContain(`RED ${edit} the working tree or HEAD changed`);
     expect(entries()).toHaveLength(3);
+    run('git', ['reset', '-q', '--hard', 'HEAD~1']);
+  });
+
+  it('aborts the rebase and stops its checks when the script stops', async () => {
+    commitFile('slow-lint', 'x\n');
+    const branch = run('git', ['symbolic-ref', 'HEAD']).output;
+    const pidFile = join(bin, 'slow.pid');
+    const script = spawn('bash', ['tools/check-commits.sh', 'base'], {
+      cwd: repo,
+      env: environment(),
+    });
+    const exit = new Promise<number | null>((resolve) => {
+      script.on('exit', (code) => resolve(code));
+    });
+    while (!existsSync(pidFile) || readFileSync(pidFile, 'utf8') === '') {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    const lint = Number(readFileSync(pidFile, 'utf8'));
+
+    script.kill('SIGTERM');
+
+    expect(await exit).toBe(130);
+    expect(existsSync(join(repo, '.git', 'rebase-merge'))).toBe(false);
+    expect(run('git', ['symbolic-ref', 'HEAD']).output).toBe(branch);
+    expect(run('git', ['status', '--porcelain']).output).toBe('');
+    expect(isRunning(lint)).toBe(false);
     run('git', ['reset', '-q', '--hard', 'HEAD~1']);
   });
 });
