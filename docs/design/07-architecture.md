@@ -34,7 +34,7 @@ first download                                lazy, after the first frame
 | `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
 | `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
-| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, the export and the inspection of a studio body (`pnpm studio-body`, 4.4), the count of its folded faces (`pnpm fold-probe`), and the Blender tools of the rigged GLB bodies (`tools/blender/`): the start of a body (`pnpm glb-init`) and its packer (`pnpm rig-body`). Since 2026-10-11, the app reads no output of the Blender tools (4.4). | no | build only |
+| `tools/` | Build scripts: SF3 split, demo changes, size check, and license file. The tools of a studio body (4.4): its export and its inspection (`pnpm studio-body`), and the count of its folded faces (`pnpm fold-probe`). The Blender tools of the rigged GLB bodies (`tools/blender/`): the start of a body (`pnpm glb-init`) and its packer (`pnpm rig-body`). Since 2026-10-11, the app reads no output of the Blender tools (4.4). | no | build only |
 
 A pure module gets all inputs as arguments, reads no clock, uses only seeded randomness, and
 touches no DOM. It can use the math classes of Three.js: `Vector3`, `Quaternion`, `Matrix4`, and
@@ -70,19 +70,21 @@ player.
   and tilt it, in degrees: a positive azimuth moves the camera to the right side of the animals,
   and the elevation is 35° by default. The queries `x` and `z` move the vertical line through
   the target from the middle of the gallery, in meters, for example to the pianist at the end of
-  its piano. The query `body` turns the camera around the body of the first animal: the box of
+  its piano. The query `body` turns the camera around the body of the first animal. The box of
   its body with no instrument gives the vertical line, the target, and the distance at the zoom
-  1, and the azimuth 0 is the front of the animal. Thus a close view of a new role needs no
-  camera values. `pnpm choir-check` (`tools/choir-check.ts`) uses these queries to
+  1. The azimuth 0 is the front of the animal. Thus a close view of a new role needs no camera
+  values. `pnpm choir-check` (`tools/choir-check.ts`) uses these queries to
   show the penguin at the cameras of `orchestra-latest.png` and `orchestra-side.png`, beside a
   crop of each image (4.4). `pnpm close-views` (`tools/close-views.ts`) uses them to show a role
-  in one grid: the bear conductor from the front, the right side, and the back at the four beats
-  of a bar of the test notes, between two beats, and in the rest pose (5.4), and the polar bear
-  pianist from the front, both sides, the back, and the front left above the keys at a chord in
-  each paw, between two chords, and in the rest pose (5.3). The open lid hides the paws in the
-  front view of the pianist, so the view above the keys shows them. The pianist turns the camera
-  around its body, and the conductor keeps its fixed line. The pianist plays test notes of its
-  own, which the tool writes into the notes field of the page.
+  in one grid. The bear conductor shows from the front, the right side, and the back (5.4). Its
+  moments are the four beats of a bar of the test notes, a time between two beats, and the rest
+  pose. The polar bear pianist shows from the front, both sides, and the back (5.3). Its
+  moments are a chord in each paw, a time between two chords, and the rest pose. The open lid
+  and the muzzle hide the paws in the front view and in each view from above. A fifth view of
+  the pianist is low from the left, 15° to the front. It shows the left paw on the keys, and the
+  right paw stays behind the body. The pianist turns the camera around its body, and the
+  conductor keeps its fixed line. The pianist plays test notes of its own, which the tool writes
+  into the notes field of the page.
 - The query `rest` shows the players in the rest pose of 5.2, before the first play. With no
   `rest`, the players play. For example, `?page=species&only=rabbit&zoom=2.5&target=1.1&rest`
   shows a close view of the rest pose of the rabbit.
