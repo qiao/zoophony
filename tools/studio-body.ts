@@ -1000,6 +1000,369 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   };
 }
 
+/** A box in the axes and the units of the studio. */
+export interface UnitBox {
+  /** The lowest corner. */
+  readonly min: Vec3;
+  /** The highest corner. */
+  readonly max: Vec3;
+}
+
+/** One node of the scene of a GLB file, in the order of a walk from the roots down. */
+export interface InspectedNode {
+  /** The name of the node. */
+  readonly name: string;
+  /** The number of parents of the node. */
+  readonly depth: number;
+  /** The skinned mesh of the animal, a prop with a mesh, a joint of the skin, or another node. */
+  readonly kind: 'skinned mesh' | 'prop' | 'joint' | 'node';
+  /** The number of faces of each material of the mesh of the node, by material name. */
+  readonly faces: ReadonlyMap<string, number>;
+  /** The number of joints in the tree of a root joint of the skin, or 0 for another node. */
+  readonly joints: number;
+  /** The names of the nodes in the tree of a root joint that are no joints, such as a prop tip. */
+  readonly inside: readonly string[];
+}
+
+/** The joints of the skin of a GLB file, by what the export does with them. */
+export interface InspectedJoints {
+  /** All joints, in the order of the skin. */
+  readonly all: readonly string[];
+  /** The digits of each paw, which become the one `fingers` bone of their side. */
+  readonly digits: Readonly<Record<Side, readonly string[]>>;
+  /** The joints that the export drops, such as the baton. */
+  readonly dropped: readonly string[];
+  /** The body bones of a studio body that the skin does not have. The export stops on them. */
+  readonly missing: readonly string[];
+  /** The joints that are no bone of a studio body. The export stops on them. */
+  readonly unknown: readonly string[];
+}
+
+/** One animation clip of a GLB file. */
+export interface InspectedClip {
+  /** The name of the clip. */
+  readonly name: string;
+  /** The time of the last key, in seconds. */
+  readonly seconds: number;
+  /** The number of channels. */
+  readonly channels: number;
+  /** The height of the hips joint at the first key, in units of the studio. */
+  readonly hips: number;
+}
+
+/** One group of props: one node, or all keys `piano_key_*` of the piano of the studio. */
+export interface InspectedProp {
+  /** The name of the node, or `piano_key_*` for the keys. */
+  readonly name: string;
+  /** The number of nodes in the group. */
+  readonly nodes: number;
+  /** The box of the meshes of the group. */
+  readonly box: UnitBox;
+}
+
+/**
+ * The facts of a GLB file of the studio that a new studio body needs (design 4.4), in the axes
+ * and the units of the studio: the animal faces +z with its left side at +x.
+ */
+export interface StudioInspection {
+  /** The meters for each unit of the studio. */
+  readonly scale: number;
+  /** The source of the scale: the settings of `ANIMALS`, or the assumed settings. */
+  readonly scaleFrom: string;
+  /** The nodes of the scene, from the roots down. */
+  readonly nodes: readonly InspectedNode[];
+  /** The joints of the skin. */
+  readonly joints: InspectedJoints;
+  /** The morph targets of the skinned mesh, and if the export keeps each one. */
+  readonly targets: readonly { readonly name: string; readonly kept: boolean }[];
+  /** The animation clips. */
+  readonly clips: readonly InspectedClip[];
+  /** The height of the hips joint in the bind pose. */
+  readonly bindHips: number;
+  /**
+   * The lowest point of the skin in the bind pose: the drop of a seated body in the app, which
+   * puts the soles on the floor.
+   */
+  readonly lowest: Vec3;
+  /** The props: the scene nodes with a mesh and no skin. */
+  readonly props: readonly InspectedProp[];
+  /** The height of the top of the prop `bench`, or `null` with no bench. */
+  readonly benchTop: number | null;
+  /** The top of the keys and the z of their front edge (near the player), or `null`. */
+  readonly keys: { readonly top: number; readonly front: number } | null;
+}
+
+/**
+ * Gives a box as two points.
+ *
+ * @param box The box.
+ * @returns The box.
+ */
+function unitBox(box: Box3): UnitBox {
+  return { min: box.min.toArray(), max: box.max.toArray() };
+}
+
+/**
+ * Gives the box of the meshes of some scene nodes of a GLB file.
+ *
+ * @param glb The file.
+ * @param worlds The world matrix of each node.
+ * @param nodes The nodes.
+ * @returns The box, in the axes and the units of the studio.
+ */
+function meshBox(glb: Glb, worlds: readonly Matrix4[], nodes: readonly number[]): Box3 {
+  const box = new Box3();
+  for (const i of nodes) {
+    const node = glb.json.nodes[i];
+    const mesh = node?.mesh === undefined ? undefined : glb.json.meshes[node.mesh];
+    for (const primitive of mesh?.primitives ?? []) {
+      const positions = readAccessor(glb, primitive.attributes['POSITION'] ?? -1);
+      for (let v = 0; v < positions.length; v += 3) {
+        box.expandByPoint(
+          new Vector3().fromArray(positions, v).applyMatrix4(worlds[i] ?? new Matrix4()),
+        );
+      }
+    }
+  }
+  return box;
+}
+
+/**
+ * Reads the facts of a GLB file of the studio that a new studio body needs (design 4.4): the
+ * nodes, the joints, the morph targets, the clips, the heights of the hips, the lowest point of
+ * the skin, and the boxes of the props. It reads the file as it is, and it does not stop on a
+ * part that the export refuses: it lists that part.
+ *
+ * @param bytes The GLB file.
+ * @param settings The settings of the animal, or `null` for an animal that is not in `ANIMALS`.
+ *   Then the scale puts the shoulder joints 1.0 m above the floor.
+ * @returns The facts, in the axes and the units of the studio.
+ * @throws Error if the file has no skin, or no prop of the landmark of the settings.
+ */
+export function inspectStudioGlb(
+  bytes: Uint8Array,
+  settings: AnimalSettings | null,
+): StudioInspection {
+  const glb = readGlb(bytes);
+  const gltf = glb.json;
+  const skin = gltf.skins[0];
+  if (!skin) {
+    throw new Error('The file has no skin.');
+  }
+  const worlds = worldMatrices(gltf, new Map());
+  const nodeOf = (name: string): number => gltf.nodes.findIndex((n) => n.name === name);
+  const heightOf = (node: number, matrices: readonly Matrix4[]): number =>
+    new Vector3().setFromMatrixPosition(matrices[node] ?? new Matrix4()).y;
+
+  // The props: each node with a mesh and no skin. The keys of the piano are one group.
+  const propNodes = [...gltf.nodes.keys()].filter(
+    (i) => gltf.nodes[i]?.mesh !== undefined && gltf.nodes[i]?.skin === undefined,
+  );
+  const keyNodes = propNodes.filter((i) => (gltf.nodes[i]?.name ?? '').startsWith('piano_key_'));
+  const groups = [
+    ...propNodes
+      .filter((i) => !keyNodes.includes(i))
+      .map((i) => ({ name: gltf.nodes[i]?.name ?? '', nodes: [i] })),
+    ...(keyNodes.length > 0 ? [{ name: 'piano_key_*', nodes: keyNodes }] : []),
+  ];
+  const props = groups.map((group) => ({
+    name: group.name,
+    nodes: group.nodes.length,
+    box: meshBox(glb, worlds, group.nodes),
+  }));
+  const bench = props.find((prop) => prop.name === 'bench');
+  const keys = props.find((prop) => prop.name === 'piano_key_*');
+
+  // The scale of the settings, as the export finds it.
+  const used = settings ?? { landmark: 'shoulders', height: 1, seated: false, constant: '' };
+  const landmark =
+    used.landmark === 'shoulders' ? heightOf(nodeOf('upper_arm_L'), worlds) : keys?.box.max.y;
+  if (landmark === undefined) {
+    throw new Error('The file has no keys `piano_key_*` for the landmark of the settings.');
+  }
+  const scaleFrom = settings
+    ? `ANIMALS: the ${used.landmark} at ${used.height} m`
+    : 'assumed: the shoulders at 1 m, because the animal is not in ANIMALS';
+
+  // The joints, by what the export does with them.
+  const all = skin.joints.map((j) => gltf.nodes[j]?.name ?? '');
+  const body = STUDIO_BONES.filter((b) => !b.startsWith('eye_'));
+  const digits = {
+    L: all.filter((name) => DIGIT.exec(name)?.[1] === 'L'),
+    R: all.filter((name) => DIGIT.exec(name)?.[1] === 'R'),
+  };
+  const joints: InspectedJoints = {
+    all,
+    digits,
+    dropped: all.filter((name) => DROPPED_BONES.has(name)),
+    // The digits of a paw give the `fingers` bone of its side.
+    missing: body.filter((bone) => !all.some((name) => ownBone(name) === bone)),
+    unknown: all.filter(
+      (name) => !DROPPED_BONES.has(name) && !DIGIT.test(name) && !body.some((b) => b === name),
+    ),
+  };
+
+  // The nodes, from the roots down. The tree of a root joint is one node.
+  const jointSet = new Set(skin.joints);
+  const children = new Set(gltf.nodes.flatMap((n) => n.children ?? []));
+  const nodes: InspectedNode[] = [];
+  const subtree = (i: number): number[] => [
+    i,
+    ...(gltf.nodes[i]?.children ?? []).flatMap((c) => subtree(c)),
+  ];
+  const walk = (i: number, depth: number): void => {
+    const node = gltf.nodes[i] ?? {};
+    const faces = new Map<string, number>();
+    const mesh = node.mesh === undefined ? undefined : gltf.meshes[node.mesh];
+    for (const primitive of mesh?.primitives ?? []) {
+      const material = gltf.materials?.[primitive.material ?? -1]?.name ?? '';
+      const count = (gltf.accessors[primitive.indices]?.count ?? 0) / 3;
+      faces.set(material, (faces.get(material) ?? 0) + count);
+    }
+    const kind =
+      node.skin !== undefined ? 'skinned mesh' : mesh ? 'prop' : jointSet.has(i) ? 'joint' : 'node';
+    if (kind === 'joint') {
+      const tree = subtree(i);
+      const inside = tree.filter((t) => !jointSet.has(t)).map((t) => gltf.nodes[t]?.name ?? '');
+      const count = tree.length - inside.length;
+      nodes.push({ name: node.name ?? '', depth, kind, faces, joints: count, inside });
+      return;
+    }
+    nodes.push({ name: node.name ?? '', depth, kind, faces, joints: 0, inside: [] });
+    for (const child of node.children ?? []) {
+      walk(child, depth + 1);
+    }
+  };
+  for (const i of gltf.nodes.keys()) {
+    if (!children.has(i)) {
+      walk(i, 0);
+    }
+  }
+
+  // The skinned mesh: its morph targets and the lowest point of the faces that the export keeps.
+  const skinned = gltf.nodes.find((n) => n.skin !== undefined && n.mesh !== undefined);
+  const animal = skinned?.mesh === undefined ? undefined : gltf.meshes[skinned.mesh];
+  const targets = (animal?.extras?.targetNames ?? []).map((name) => ({
+    name,
+    kept: CORRECTIVE_NAMES.some((own) => own === name),
+  }));
+  const lowest = new Vector3(0, Infinity, 0);
+  for (const primitive of animal?.primitives ?? []) {
+    if (!FINISHES.has(gltf.materials?.[primitive.material ?? -1]?.name ?? '')) {
+      continue;
+    }
+    const positions = readAccessor(glb, primitive.attributes['POSITION'] ?? -1);
+    for (let v = 0; v < positions.length; v += 3) {
+      if ((positions[v + 1] ?? 0) < lowest.y) {
+        lowest.fromArray(positions, v);
+      }
+    }
+  }
+
+  // The clips: the time of the last key, and the hips at the first key.
+  const hips = nodeOf('hips');
+  const clips = (gltf.animations ?? []).map((animation): InspectedClip => {
+    let seconds = 0;
+    for (const sampler of animation.samplers) {
+      const times = readAccessor(glb, sampler.input);
+      seconds = Math.max(seconds, times.at(-1) ?? 0);
+    }
+    const posed = worldMatrices(gltf, firstKeys(glb, animation.name ?? '').nodes);
+    return {
+      name: animation.name ?? '',
+      seconds,
+      channels: animation.channels.length,
+      hips: heightOf(hips, posed),
+    };
+  });
+
+  return {
+    scale: used.height / landmark,
+    scaleFrom,
+    nodes,
+    joints,
+    targets,
+    clips,
+    bindHips: heightOf(hips, worlds),
+    lowest: lowest.toArray(),
+    props: props.map((prop) => ({ name: prop.name, nodes: prop.nodes, box: unitBox(prop.box) })),
+    benchTop: bench ? bench.box.max.y : null,
+    keys: keys ? { top: keys.box.max.y, front: keys.box.min.z } : null,
+  };
+}
+
+/**
+ * Writes the facts of a GLB file as the lines of the report of `--inspect`. Each length is in the
+ * units of the studio, and in meters at the scale of the facts.
+ *
+ * @param facts The facts.
+ * @returns The lines.
+ */
+export function inspectionLines(facts: StudioInspection): string[] {
+  const units = (value: number): string =>
+    `${value.toFixed(3)} u (${(value * facts.scale).toFixed(3)} m)`;
+  const list = (names: readonly string[]): string => (names.length > 0 ? names.join(' ') : 'none');
+  const point = (p: Vec3): string => `[${p.map((v) => v.toFixed(3)).join(', ')}] u`;
+  const lines = [
+    `Scale: ${facts.scale.toFixed(4)} m for each unit (${facts.scaleFrom}).`,
+    'The studio animal faces +z, with its left side at +x.',
+    '',
+    `Scene nodes (the export keeps the faces of the skinned mesh in ${[...FINISHES.keys()].join(' and ')}):`,
+  ];
+  for (const node of facts.nodes) {
+    const faces = [...node.faces].map(([material, n]) => `${material} ${n}`).join(', ');
+    const what =
+      node.kind === 'joint'
+        ? `root joint of the skin, ${node.joints} joints, other nodes in its tree: ${list(node.inside)}`
+        : node.kind === 'node'
+          ? 'node'
+          : `${node.kind}, faces: ${faces}`;
+    lines.push(`  ${'  '.repeat(node.depth)}${node.name}: ${what}`);
+  }
+
+  const { joints } = facts;
+  lines.push(
+    '',
+    `Joints of the skin (${joints.all.length}): ${joints.all.join(' ')}`,
+    `  Digits of the left paw: ${list(joints.digits.L)}`,
+    `  Digits of the right paw: ${list(joints.digits.R)}`,
+    `  Dropped by the export: ${list(joints.dropped)}`,
+    `  Missing body bones (the export stops): ${list(joints.missing)}`,
+    `  Unknown joints (the export stops): ${list(joints.unknown)}`,
+    '',
+    `Morph targets: ${facts.targets.map((t) => `${t.name} (${t.kept ? 'kept' : 'dropped'})`).join(', ') || 'none'}`,
+    '',
+    'Clips (the time of the last key, the channels, the hips at the first key):',
+    ...facts.clips.map(
+      (clip) =>
+        `  ${clip.name}: ${clip.seconds.toFixed(3)} s, ${clip.channels} channels, hips ${units(clip.hips)}`,
+    ),
+    '',
+    `Hips in the bind pose: ${units(facts.bindHips)}`,
+    `Lowest point of the skin: ${point(facts.lowest)}, height ${units(facts.lowest[1])}`,
+    '  A seated body drops by this height in the app, so that its soles are on the floor.',
+    '',
+    'Props (the box in units: min, max):',
+    ...facts.props.map(
+      (prop) =>
+        `  ${prop.name} (${prop.nodes} node${prop.nodes === 1 ? '' : 's'}): ${point(prop.box.min)}, ${point(prop.box.max)}`,
+    ),
+  );
+  if (facts.props.length === 0) {
+    lines.push('  none');
+  }
+  if (facts.benchTop !== null) {
+    lines.push(`Bench top: ${units(facts.benchTop)}`);
+  }
+  if (facts.keys) {
+    lines.push(
+      `Key top: ${units(facts.keys.top)}`,
+      `Key front (the edge near the player), z: ${units(facts.keys.front)}`,
+    );
+  }
+  return lines;
+}
+
 /**
  * Writes the TypeScript module of a studio body.
  *
@@ -1027,20 +1390,42 @@ export function studioModule(animal: string, constant: string, body: StudioBody)
 }
 
 /**
+ * Gives the GLB file of an animal of the studio.
+ *
+ * @param animal The id of the animal in `lowpoly-studio/animals/`.
+ * @returns The absolute path of the file.
+ */
+export function studioGlbPath(animal: string): string {
+  return join(ROOT, 'lowpoly-studio', 'animals', animal, 'out', `${animal}.glb`);
+}
+
+/**
  * Writes the module of a studio body from its GLB file: `node tools/studio-body.ts <animal>`
  * (design 4.4). The GLB file is `lowpoly-studio/animals/<animal>/out/<animal>.glb`, the output
- * of `python3 studio build <animal>`.
+ * of `python3 studio build <animal>`. With `--inspect`, it writes no file, and it prints the
+ * facts of the GLB file that a new studio body needs. An animal that is not in `ANIMALS` gets
+ * an assumed scale.
  */
 async function main(): Promise<void> {
-  const animal = process.argv[2] ?? '';
+  const args = process.argv.slice(2);
+  const inspect = args.includes('--inspect');
+  const animal = args.find((arg) => !arg.startsWith('--')) ?? '';
   const settings = ANIMALS.get(animal);
+  if (inspect && animal) {
+    const file = studioGlbPath(animal);
+    console.log(relative(ROOT, file));
+    console.log(
+      inspectionLines(inspectStudioGlb(await readFile(file), settings ?? null)).join('\n'),
+    );
+    return;
+  }
   if (!settings) {
     throw new Error(
-      `Usage: node tools/studio-body.ts <animal>, with an animal of: ${[...ANIMALS.keys()].join(', ')}.`,
+      `Usage: node tools/studio-body.ts <animal> [--inspect], with an animal of: ${[...ANIMALS.keys()].join(', ')}. --inspect also takes another animal of the studio.`,
     );
   }
 
-  const file = join(ROOT, 'lowpoly-studio', 'animals', animal, 'out', `${animal}.glb`);
+  const file = studioGlbPath(animal);
   const source = relative(ROOT, file);
   const { body, sheetWeights } = studioBody(await readFile(file), source, settings);
   await mkdir(STUDIO_DIR, { recursive: true });
