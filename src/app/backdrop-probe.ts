@@ -106,10 +106,8 @@ export class BackdropProbe {
   readonly #canvas: BackdropCanvas;
   /** The WebGL2 context of the renderer, or `null` if the canvas has none. */
   readonly #gl: BackdropContext | null;
-  /** The pixel buffer of the reads, or `null` before the first read. */
+  /** The pixel buffer of the last read, or `null` before the first read. */
   #buffer: WebGLBuffer | null = null;
-  /** The size of the pixel buffer, in bytes. */
-  #bufferBytes = 0;
   /** The pixels of the last read, on the CPU. */
   #pixels = new Uint8Array(0);
   /** The read in flight, or `null`. */
@@ -145,7 +143,6 @@ export class BackdropProbe {
     }
     if (gl.isContextLost()) {
       this.#buffer = null;
-      this.#bufferBytes = 0;
       this.#pending = null;
       return null;
     }
@@ -244,17 +241,15 @@ export class BackdropProbe {
     const rect = { x, y, width: right - x, height: top - y };
     const bytes = 4 * rect.width * rect.height;
 
-    if (!this.#buffer || this.#bufferBytes < bytes) {
-      if (this.#buffer) {
-        gl.deleteBuffer(this.#buffer);
-      }
-      this.#buffer = gl.createBuffer();
-      this.#bufferBytes = bytes;
-      gl.bindBuffer(gl.PIXEL_PACK_BUFFER, this.#buffer);
-      gl.bufferData(gl.PIXEL_PACK_BUFFER, bytes, gl.STREAM_READ);
-    } else {
-      gl.bindBuffer(gl.PIXEL_PACK_BUFFER, this.#buffer);
+    // Each read gets a new buffer. Chrome keeps a copy of a fenced read on the CPU, so that
+    // getBufferSubData() does not wait for the GPU process. With one buffer for all reads, Chrome
+    // discarded that copy at each read ("written again before being read back").
+    if (this.#buffer) {
+      gl.deleteBuffer(this.#buffer);
     }
+    this.#buffer = gl.createBuffer();
+    gl.bindBuffer(gl.PIXEL_PACK_BUFFER, this.#buffer);
+    gl.bufferData(gl.PIXEL_PACK_BUFFER, bytes, gl.STREAM_READ);
 
     // The renderer keeps the framebuffer that it bound last, so the probe binds it again.
     // SAFETY: WebGL2 gives a WebGLFramebuffer or null for this parameter.

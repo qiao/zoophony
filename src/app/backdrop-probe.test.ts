@@ -99,6 +99,35 @@ describe('BackdropProbe (design 2.8)', () => {
     expect(levels.filter((level) => level !== null)).toContainEqual([white]);
   });
 
+  it('gives each read a new pixel buffer, and frees the buffer of the read before', () => {
+    const fake = fakeContext();
+    const created: WebGLBuffer[] = [];
+    const deleted: WebGLBuffer[] = [];
+    const gl: BackdropContext = {
+      ...fake.gl,
+      createBuffer: () => {
+        const buffer = {};
+        created.push(buffer);
+        return buffer;
+      },
+      deleteBuffer: (buffer) => {
+        if (buffer) {
+          deleted.push(buffer);
+        }
+      },
+    };
+    const probe = new BackdropProbe(CANVAS, gl);
+
+    for (let frame = 0; frame < 30; frame++) {
+      probe.collect(() => LINES);
+      probe.request(frame / 60, () => LINES);
+    }
+
+    expect(created.length).toBeGreaterThan(2);
+    expect(new Set(created).size).toBe(created.length);
+    expect(deleted).toEqual(created.slice(0, -1));
+  });
+
   it('asks for the full shade with no context', () => {
     const probe = new BackdropProbe(CANVAS, null);
     expect(probe.collect(() => LINES)).toEqual([1]);
