@@ -42,8 +42,11 @@ const WARM_SEC = 3;
  */
 const METAL_SEC = 3;
 
-/** The part of the Metal trace with other GPU work above which the tool prints a warning. */
-const OTHER_GPU_LIMIT = 0.1;
+/** The largest part of the Metal trace with other GPU work for a valid GPU phase (design 9.7). */
+export const OTHER_GPU_LIMIT = 0.1;
+
+/** The least part of the GPU state time in the state "Maximum" for a valid GPU phase. */
+export const MIN_MAXIMUM_SHARE = 0.9;
 
 /** The longest time for the record and the save of the Metal System Trace, in seconds. */
 const METAL_LIMIT_SEC = 360;
@@ -475,6 +478,48 @@ export function stateTimes(table: TraceTable): Map<string, number> {
     times.set(name, (times.get(name) ?? 0) + Number(row[duration]?.raw ?? 0) / 1e6);
   }
   return times;
+}
+
+/**
+ * Calculates the part of the time of the GPU state rows in the state "Maximum". The table has a
+ * row for each state interval that ends in the trace, so the open state at the start and at the
+ * end of the trace has no row.
+ *
+ * @param states The time of each state ({@link stateTimes}).
+ * @returns The part, from 0 to 1, or 0 with no rows.
+ */
+export function maximumShare(states: ReadonlyMap<string, number>): number {
+  let all = 0;
+  for (const ms of states.values()) {
+    all += ms;
+  }
+  return all > 0 ? (states.get('Maximum') ?? 0) / all : 0;
+}
+
+/**
+ * Gives the faults of the guard of the GPU phase (design 9.7). With a fault, the GPU values of
+ * the trace are not valid: a lower clock or the work of other processes makes them too high.
+ *
+ * @param states The time of each GPU performance state in the trace.
+ * @param otherShare The part of the trace in which other processes used the GPU.
+ * @returns A text for each fault, or an empty list.
+ */
+export function gpuGuardFaults(states: ReadonlyMap<string, number>, otherShare: number): string[] {
+  const faults: string[] = [];
+  const share = maximumShare(states);
+  if (share < MIN_MAXIMUM_SHARE) {
+    faults.push(
+      `The GPU was in its "Maximum" state for ${(share * 100).toFixed(1)}% of the state time, ` +
+        `below ${MIN_MAXIMUM_SHARE * 100}%.`,
+    );
+  }
+  if (otherShare > OTHER_GPU_LIMIT) {
+    faults.push(
+      `Other processes used the GPU in ${(otherShare * 100).toFixed(0)}% of the trace, ` +
+        `above ${OTHER_GPU_LIMIT * 100}%.`,
+    );
+  }
+  return faults;
 }
 
 /**
@@ -958,6 +1003,19 @@ async function measureUncapped(
   }
 }
 
+/**
+ * Gives the faults of the guard of a GPU phase ({@link gpuGuardFaults}).
+ *
+ * @param measure The values of the GPU phase.
+ * @returns The faults, or an empty list with no Metal trace.
+ */
+function guardFaults(measure: UncappedMeasure): string[] {
+  if (!measure.states || measure.otherShare === null) {
+    return [];
+  }
+  return gpuGuardFaults(measure.states, measure.otherShare);
+}
+
 /** The longest wait for the end of the measure after a signal, in milliseconds. */
 const STOP_WAIT_MS = 30_000;
 
@@ -1058,7 +1116,15 @@ async function main(): Promise<void> {
     const capped = await measureCapped(base, options);
     // The GPU phase has no CPU gate: the GPU states and the other GPU work of its trace guard it.
     loads.push(`GPU phase ${loadText(currentLoad())}`);
-    const uncapped = await measureUncapped(base, options, metal);
+    let uncapped = await measureUncapped(base, options, metal);
+    let guard = guardFaults(uncapped);
+    let records = 1;
+    if (guard.length > 0) {
+      console.log(`The GPU phase is not valid. ${guard.join(' ')} It records one more time.`);
+      uncapped = await measureUncapped(base, options, metal);
+      guard = guardFaults(uncapped);
+      records = 2;
+    }
     loads.push(`end ${loadText(currentLoad())}`);
 
     const rows: FrameRow[] = [
@@ -1074,7 +1140,13 @@ async function main(): Promise<void> {
         times: uncapped.metal,
         target: true,
       };
-      rows.push(uncapped.faults.length > 0 ? { ...row, note: 'self-check' } : row);
+      if (guard.length > 0) {
+        rows.push({ ...row, note: 'not valid' });
+      } else if (uncapped.faults.length > 0) {
+        rows.push({ ...row, note: 'self-check' });
+      } else {
+        rows.push(row);
+      }
     }
     rows.push(
       {
@@ -1115,8 +1187,10 @@ async function main(): Promise<void> {
       console.log('No Metal trace (--no-metal, or no Xcode): the tool does not check the GPU.');
     } else {
       const states = [...uncapped.states].map(([name, ms]) => `${name} ${ms.toFixed(0)} ms`);
+      const maximum = (maximumShare(uncapped.states) * 100).toFixed(1);
       console.log(
-        `GPU performance states in the ${METAL_SEC} s of the Metal trace: ${states.join(', ')}.`,
+        `GPU performance states in the Metal trace: ${states.join(', ')} ` +
+          `(${maximum}% "Maximum").`,
       );
       const other = (uncapped.otherShare * 100).toFixed(0);
       console.log(`Other processes used the GPU in ${other}% of the Metal trace.`);
@@ -1129,19 +1203,26 @@ async function main(): Promise<void> {
           console.log(line);
         }
       }
-      if (uncapped.otherShare > OTHER_GPU_LIMIT) {
-        console.log(
-          'The other GPU work makes the GPU values too high. Close the pages that render, ' +
-            'and run again.',
-        );
-      }
+      const verdict = guard.length > 0 ? `not valid. ${guard.join(' ')}` : 'valid.';
+      console.log(
+        `Guard of the GPU phase (at least ${MIN_MAXIMUM_SHARE * 100}% "Maximum", at most ` +
+          `${OTHER_GPU_LIMIT * 100}% other GPU work), ${records} record(s): ${verdict}`,
+      );
     }
     console.log('');
     for (const line of frameTable(rows)) {
       console.log(line);
     }
     console.log(`\nRun time: ${((Date.now() - started) / 1000).toFixed(0)} s.`);
-    if (rows.some((row) => row.target && (row.note !== undefined || !meetsTarget(row.times)))) {
+    if (guard.length > 0) {
+      console.log(
+        'The GPU phase stayed not valid after two records. Close the pages that render, and ' +
+          'run again.',
+      );
+      process.exitCode = 2;
+    } else if (
+      rows.some((row) => row.target && (row.note !== undefined || !meetsTarget(row.times)))
+    ) {
       console.log('The frame target of design 9.7 fails.');
       process.exitCode = 1;
     }

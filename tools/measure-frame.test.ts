@@ -6,6 +6,8 @@ import {
   checkLines,
   cpuUse,
   frameOptions,
+  gpuGuardFaults,
+  maximumShare,
   frameStats,
   frameTable,
   framesPerSecond,
@@ -219,6 +221,33 @@ describe('stateTimes', () => {
     );
     expect(stateTimes({ ...table, rows: [] }).size).toBe(0);
     expect(() => stateTimes({ ...table, columns: ['start'] })).toThrow(/state/);
+  });
+});
+
+describe('gpuGuardFaults', () => {
+  const states = (maximum: number, minimum: number) =>
+    new Map([
+      ['Minimum', minimum],
+      ['Maximum', maximum],
+    ]);
+
+  it('gives the share of the state time in "Maximum"', () => {
+    expect(maximumShare(states(2924, 1))).toBeCloseTo(0.99966, 5);
+    expect(maximumShare(new Map())).toBe(0);
+  });
+
+  it('passes a trace at "Maximum" with little other GPU work', () => {
+    expect(gpuGuardFaults(states(2700, 300), 0.1)).toEqual([]);
+  });
+
+  it('fails a lower clock and other GPU work above 10%', () => {
+    expect(gpuGuardFaults(states(2600, 400), 0.02)).toEqual([
+      'The GPU was in its "Maximum" state for 86.7% of the state time, below 90%.',
+    ]);
+    expect(gpuGuardFaults(states(3000, 0), 0.27)).toEqual([
+      'Other processes used the GPU in 27% of the trace, above 10%.',
+    ]);
+    expect(gpuGuardFaults(new Map(), 0)).toHaveLength(1);
   });
 });
 
