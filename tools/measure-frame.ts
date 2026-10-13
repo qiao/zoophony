@@ -706,6 +706,39 @@ function hasXctrace(): boolean {
   }
 }
 
+/**
+ * Tells if a value is the size of a drawing buffer: two positive integers.
+ *
+ * @param value The value from the page.
+ * @returns True if the value is a size.
+ */
+function isSize(value: unknown): value is readonly [number, number] {
+  return (
+    Array.isArray(value) &&
+    value.length === 2 &&
+    value.every((side) => Number.isInteger(side) && Number(side) > 0)
+  );
+}
+
+/**
+ * Reads the size of the drawing buffer of the stage. It is the size of the canvas surfaces in the
+ * Metal trace. The pixel ratio of the quality tier can make it smaller than the device pixels of
+ * the viewport.
+ *
+ * @param page The page during play.
+ * @returns The width and the height, in pixels.
+ * @throws Error if the page has no WebGL2 context of the stage.
+ */
+async function drawingBufferSize(page: Page): Promise<readonly [number, number]> {
+  const size: unknown = await page.evaluate(
+    '[window.frameProbe.gl?.drawingBufferWidth, window.frameProbe.gl?.drawingBufferHeight]',
+  );
+  if (!isSize(size)) {
+    throw new Error('The page has no WebGL2 context of the stage.');
+  }
+  return size;
+}
+
 /** The values of the GPU phase with no frame cap. */
 interface UncappedMeasure {
   /** The values of the frame probe, with the GPU timer query of each frame. */
@@ -718,6 +751,8 @@ interface UncappedMeasure {
   readonly otherShare: number | null;
   /** The song time at the start and at the end of the record of the trace, in seconds. */
   readonly songs: readonly [number, number] | null;
+  /** The width and the height of the drawing buffer of the stage, in pixels. */
+  readonly canvas: readonly [number, number];
 }
 
 /**
@@ -743,9 +778,10 @@ async function measureUncapped(
   RUNNING.folders.add(folder);
   try {
     const page = await playDemo(browser, base, options);
+    const canvas = await drawingBufferSize(page);
     const probe = await probeFor(page, MEASURE_SEC);
     if (!metal) {
-      return { probe, metal: null, states: null, otherShare: null, songs: null };
+      return { probe, metal: null, states: null, otherShare: null, songs: null, canvas };
     }
 
     const cdp = await browser.newBrowserCDPSession();
@@ -789,11 +825,10 @@ async function measureUncapped(
       return parseTraceTable(await readFile(file, 'utf8'));
     };
     const intervals = gpuIntervals(await table('metal-gpu-intervals'));
-    const canvas: readonly [number, number] = [1440 * options.scale, 900 * options.scale];
     const frames = webglFrameTimes(intervals, `(${gpu.id})`, canvas);
     const states = stateTimes(await table('gpu-performance-state-intervals'));
     const otherShare = otherGpuShare(intervals, `(${gpu.id})`);
-    return { probe, metal: frames, states, otherShare, songs };
+    return { probe, metal: frames, states, otherShare, songs, canvas };
   } finally {
     await browser.close();
     await rm(folder, { recursive: true, force: true });
@@ -913,6 +948,7 @@ async function main(): Promise<void> {
     const size = `1440 × 900 at the device scale ${options.scale}`;
     console.log(`Frame measure of ${options.demo} (${capped.players} players), ${view}, ${size}`);
     console.log(`${capped.browser}, ${capped.renderer}`);
+    console.log(`Drawing buffer of the stage: ${uncapped.canvas.join(' × ')} pixels.`);
     console.log(`Load average (1 min): ${loads.join(', ')}. Limit ${options.maxLoad}.`);
     const fps = framesPerSecond(capped.probe.stamps).toFixed(1);
     const uncappedFps = framesPerSecond(uncapped.probe.stamps).toFixed(1);
