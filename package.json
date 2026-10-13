@@ -27,7 +27,8 @@
     "glb-init": "node tools/glb-init.ts",
     "rig-body": "node tools/rig-body.ts",
     "studio-body": "node tools/studio-body.ts",
-    "close-views": "pnpm build && node tools/close-views.ts"
+    "close-views": "pnpm build && node tools/close-views.ts",
+    "fold-probe": "node tools/fold-probe.ts"
   },
   "dependencies": {
     "spessasynth_core": "4.3.22",
