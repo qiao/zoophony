@@ -141,6 +141,12 @@ describe('frameOptions', () => {
     expect(() => frameOptions(['--max-load=high'])).toThrow(/positive number/);
     expect(() => frameOptions(['--scale=0'])).toThrow(/positive number/);
   });
+
+  it('refuses a value flag with no value and a switch with a value', () => {
+    expect(() => frameOptions(['--keep'])).toThrow(/needs a value/);
+    expect(() => frameOptions(['--demo='])).toThrow(/needs a value/);
+    expect(() => frameOptions(['--headed=1'])).toThrow(/takes no value/);
+  });
 });
 
 describe('stateTimes', () => {

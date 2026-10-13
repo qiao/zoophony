@@ -353,6 +353,12 @@ const LOAD_WAIT_SEC = 300;
 /** The time between two reads of the load during a wait, in seconds. */
 const LOAD_POLL_SEC = 10;
 
+/** The flags of `pnpm frame` that take a value, such as `--demo=<id>`. */
+const VALUE_FLAGS = new Set(['demo', 'scale', 'max-load', 'wait', 'keep']);
+
+/** The flags of `pnpm frame` that take no value, such as `--headed`. */
+const SWITCH_FLAGS = new Set(['headed', 'free', 'no-metal']);
+
 /** The options of the frame measure (the flags of `pnpm frame`). */
 export interface FrameOptions {
   /** The demo id, or `perf-60`, the file of the frame target. */
@@ -378,7 +384,8 @@ export interface FrameOptions {
  *
  * @param flags The flags.
  * @returns The options.
- * @throws Error for an unknown flag or a value that is not a positive number.
+ * @throws Error for an unknown flag, a value flag with no value, a switch with a value, or a value
+ *   that is not a positive number.
  */
 export function frameOptions(flags: readonly string[]): FrameOptions {
   const values = new Map<string, string>();
@@ -389,24 +396,18 @@ export function frameOptions(flags: readonly string[]): FrameOptions {
     if (!match || !name) {
       throw new Error(`Unknown argument "${flag}".`);
     }
-    if (match[2] === undefined) {
+    const value = match[2];
+    if (VALUE_FLAGS.has(name)) {
+      if (!value) {
+        throw new Error(`The flag --${name} needs a value: --${name}=<value>.`);
+      }
+      values.set(name, value);
+    } else if (SWITCH_FLAGS.has(name)) {
+      if (value !== undefined) {
+        throw new Error(`The flag --${name} takes no value.`);
+      }
       switches.add(name);
     } else {
-      values.set(name, match[2]);
-    }
-  }
-  const known = new Set([
-    'demo',
-    'scale',
-    'max-load',
-    'wait',
-    'keep',
-    'headed',
-    'free',
-    'no-metal',
-  ]);
-  for (const name of [...values.keys(), ...switches]) {
-    if (!known.has(name)) {
       throw new Error(`Unknown flag "--${name}".`);
     }
   }
