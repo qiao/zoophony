@@ -236,7 +236,7 @@ const camera = new PerspectiveCamera(30, 1, 0.1, 10 * floorSide);
 const controls = new OrbitControls(camera, canvas);
 const close = closeView(search);
 const transport = galleryTransport(search);
-controls.target.set(0, close.target, 0);
+controls.target.set(close.x, close.target, close.z);
 
 /** The corners of the box around all models, for the camera fit. */
 const corners = [-1, 1].flatMap((sx) =>
@@ -255,9 +255,9 @@ function placeCamera(distance: number, height: number): void {
   const azimuth = close.azimuth * MathUtils.DEG2RAD;
   const across = distance * Math.cos(elevation);
   camera.position.set(
-    -across * Math.sin(azimuth),
+    close.x - across * Math.sin(azimuth),
     height + distance * Math.sin(elevation),
-    across * Math.cos(azimuth),
+    close.z + across * Math.cos(azimuth),
   );
 }
 

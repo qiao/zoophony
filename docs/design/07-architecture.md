@@ -68,7 +68,9 @@ player.
   `target` (0.6 m by default). For example, `?page=species&only=dog&zoom=2.5&target=1.1` shows
   the head of the dog. The queries `azimuth` and `elevation` turn the camera around the target
   and tilt it, in degrees: a positive azimuth moves the camera to the right side of the animals,
-  and the elevation is 35° by default. `pnpm choir-check` (`tools/choir-check.ts`) uses them to
+  and the elevation is 35° by default. The queries `x` and `z` move the vertical line through
+  the target from the middle of the gallery, in meters, for example to the pianist at the end of
+  its piano. `pnpm choir-check` (`tools/choir-check.ts`) uses them to
   show the penguin at the cameras of `orchestra-latest.png` and `orchestra-side.png`, beside a
   crop of each image (4.4). `pnpm conductor-views` (`tools/conductor-views.ts`) uses them to show
   the bear from the front, the right side, and the back at the four beats of a bar of the test

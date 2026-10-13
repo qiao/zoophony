@@ -131,13 +131,24 @@ describe('selectItems', () => {
 
 describe('closeView', () => {
   it('reads the zoom, the target, and the direction of the query, with defaults', () => {
-    const defaults = { zoom: 1, target: 0.6, azimuth: 0, elevation: GALLERY_ELEVATION_DEG };
+    const defaults = {
+      zoom: 1,
+      target: 0.6,
+      azimuth: 0,
+      elevation: GALLERY_ELEVATION_DEG,
+      x: 0,
+      z: 0,
+    };
     expect(closeView(new URLSearchParams(''))).toEqual(defaults);
-    expect(closeView(new URLSearchParams('zoom=2.5&target=1.1&azimuth=-40&elevation=22'))).toEqual({
+    expect(
+      closeView(new URLSearchParams('zoom=2.5&target=1.1&azimuth=-40&elevation=22&x=-1.5&z=0.2')),
+    ).toEqual({
       zoom: 2.5,
       target: 1.1,
       azimuth: -40,
       elevation: 22,
+      x: -1.5,
+      z: 0.2,
     });
     expect(closeView(new URLSearchParams('zoom=0.5&target=x&azimuth=y'))).toEqual(defaults);
     expect(closeView(new URLSearchParams('elevation=95')).elevation).toBe(89);
