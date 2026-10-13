@@ -59,6 +59,8 @@ of the elbow.
 | Upper arm angle, left and right | 18.5°, 18.6° | 49.9°, 49.8° | 45.7°, 45.7° |
 | Trunk lean | 4.4° | 20.8° | 20.6° |
 | Wrist from the knee (out, up, forward) | 0.27, 0.29, -0.04 m | 0.29, 0.22, 0.09 m | 0.30, 0.21, 0.09 m |
+| Paw to the nearest triangle of the trunk and the legs, L / R (Bach) | 13.7 cm / 16.5 cm | 11.5 cm / 11.4 cm | 14.5 cm to 16.2 cm (review) |
+| Paw to the nearest triangle of the trunk and the legs, L / R (Boulanger) | 14.2 cm / 17.2 cm | 11.3 cm / 11.3 cm | |
 | Elbow from the shoulder (out, down, forward) | 0.10, 0.29, 0.18 m | 0.27, 0.23, 0.04 m | 0.25, 0.24, 0.06 m |
 
 In the default demo (Boulanger), the branch shows 58.7% and 59.1% of the upper arms, and the
@@ -86,8 +88,10 @@ the lift.
 | rest lean 30°, paws of the rest clip, elbows down and forward | 67.4%, 70.5% | 26.9° | not measured | not measured |
 | rest lean 22°, paws of the rest clip, elbows out and back (branch) | 60.9%, 61.4% | 20.8° | 0.0 cm | 0.0 cm |
 
-The paws of the rest clip are 0.8 H out, 0.1 H down, and 0.35 H forward from the top of the leg
-at the knee. These values put the wrist 0.29 m out, 0.22 m up, and 0.09 m forward of the knee
+The paws hang beside the outer sides of the knees, about 11 cm from the skin. The paws of the
+rest clip hang 14.5 cm to 16.2 cm from it. They do not lie on the knees. The rest places of the
+branch are 0.8 H out, 0.1 H down, and 0.35 H forward from the top of the leg at the knee. These
+values put the wrist 0.29 m out, 0.22 m up, and 0.09 m forward of the knee
 joint, as in the rest clip. A rest lean of 22° gives the trunk lean of the rest clip. The studio
 adds 30° to its three spine bones, but the line from the hips to the neck turns less than the
 sum, because each bone turns only the part above it.

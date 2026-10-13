@@ -121,10 +121,10 @@ export const HANDS_HOLDS = {
     // The rest pose follows the rest clip of the studio (`clip_rest()` of
     // `lowpoly-studio/roles/pianist/clips.py`). The trunk leans further forward than in a play
     // (`restLean`), so the shoulders come forward over the knees and the back hides the upper
-    // arms. The palms lie on the outer tops of the knees, and the fingers point forward, down,
-    // and a little out. The round belly of the studio polar bear covers its thighs, so the palms
-    // stay out of it. The elbows point out and back, so the forearms pass outside the belly. An
-    // upright trunk with the paws beside the knees stood the arms out from the sides like wings
+    // arms. The paws hang beside the outer sides of the knees, and the fingers point forward,
+    // down, and a little out. The round belly of the studio polar bear covers its thighs, so the
+    // paws stay out of it. The elbows point out and back, so the forearms pass outside the belly.
+    // An upright trunk stood the arms out from the sides like wings
     // (`docs/research/2026-10-13-pianist-rest.md`).
     restL: {
       kind: 'lap',

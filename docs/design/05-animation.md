@@ -596,10 +596,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     at the conductor of the demo layouts: 0.034 m for the deer.
   - In the rest pose, the harp player rests its left palm on the left thigh, palm down, to the outer
     side, near the knee and a little above the top of the leg, so that the forearm passes over the
-    thigh. The fingers point to the front. The pianist rests its paws on the outer tops of its
-    knees, as the paws of the rest clip of the studio (`clip_rest()` of
+    thigh. The fingers point to the front. The pianist hangs its paws beside the outer sides of
+    its knees, with the wrists at the places of the rest clip of the studio (`clip_rest()` of
     `lowpoly-studio/roles/pianist/clips.py`). The round belly of the studio polar bear covers its
-    thighs, so the paws lie outside it. The fingers point forward, down, and a little out. The top
+    thighs, so the paws stay outside it. The fingers point forward, down, and a little out. The top
     of the lap of a studio body is the top of its hips, its belly, and its legs (`pose/lap.ts`).
     The elbows of the pianist point out and back, so that the forearms pass outside the belly, and
     its trunk leans forward (5.2, `HANDS_HOLDS` of `pose/hands.ts`). Between the rest pose and the

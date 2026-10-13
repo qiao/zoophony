@@ -237,8 +237,8 @@ describe('poseHands (design 5.3, 4.7)', () => {
             // The skin of a studio body blends the thighs into the hips and the belly, and the
             // body is one closed shell with the arms. The paw is near the lap, and the test of the
             // pianist clearance keeps it and the forearm out of the body
-            // (`test-pianist-clearance.ts`). The paw of the round polar bear lies on the outer
-            // top of the knee, out of the belly, so it is up to 0.5 H from the lap.
+            // (`test-pianist-clearance.ts`). The paw of the round polar bear hangs beside the
+            // outer side of the knee, out of the belly, so it is up to 0.5 H from the lap.
             const paw = posedPart(posed, [`hand${side}`, `fingers${side}`]);
             const lap = posedPart(posed, ['hips', 'spine', `thigh${side}`, `shin${side}`]);
             expect(partDistance(paw, lap, 0.5 * h) / h, label).toBeLessThan(0.5);
