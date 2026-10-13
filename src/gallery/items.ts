@@ -102,20 +102,21 @@ export interface CloseView {
   /** The angle of the camera above the floor, in degrees, from 0 to 89. */
   readonly elevation: number;
   /**
-   * The x and the z of the vertical line through the camera target, in meters: the middle of the
-   * gallery by default. The pianist sits at one end of its piano, so its close view moves the
-   * line to the pianist.
+   * The x of the vertical line through the camera target, in meters: the middle of the gallery
+   * by default. The pianist sits at one end of its piano, so its close view moves the line to the
+   * pianist.
    */
   readonly x: number;
+  /** The z of the vertical line through the camera target, in meters: 0 by default. */
   readonly z: number;
 }
 
 /**
  * Reads a close view from the query of the gallery (design 7.1): `zoom` (1 or more, default 1),
  * `target` (default 0.6 m), `azimuth` (default 0°), `elevation` (default
- * {@link GALLERY_ELEVATION_DEG}), and `x` and `z` (default 0 m). For example, `?only=dog&zoom=2.5&target=1.1` shows the head of
- * the dog, and `&azimuth=45&elevation=20` shows it from its right side and lower. A value that is
- * not a number keeps its default.
+ * {@link GALLERY_ELEVATION_DEG}), and `x` and `z` (default 0 m). For example,
+ * `?only=dog&zoom=2.5&target=1.1` shows the head of the dog, and `&azimuth=45&elevation=20` shows
+ * it from its right side and lower. A value that is not a number keeps its default.
  *
  * @param search The query of the page.
  * @returns The close view.

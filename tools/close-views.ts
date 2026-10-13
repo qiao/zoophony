@@ -36,15 +36,17 @@ export interface RoleViews {
   readonly views: readonly CloseViewAngle[];
   /** The moments, one row of the grid each. */
   readonly moments: readonly CloseMoment[];
-  /**
-   * The camera: the zoom, the height that it looks at in meters, the elevation in degrees, and
-   * the x and the z of the vertical line around which it turns, in meters.
-   */
+  /** The camera of the close views, as the queries of the gallery give it (`closeView()`). */
   readonly close: {
+    /** The zoom of the camera, 1 or more. */
     readonly zoom: number;
+    /** The height of the point that the camera looks at, in meters. */
     readonly target: number;
+    /** The angle of the camera above the floor, in degrees. */
     readonly elevation: number;
+    /** The x of the vertical line around which the camera turns, in meters. */
     readonly x: number;
+    /** The z of the vertical line around which the camera turns, in meters. */
     readonly z: number;
   };
   /** The test notes of the gallery for the moments, or none for the default test notes. */
