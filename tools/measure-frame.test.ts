@@ -11,6 +11,7 @@ import {
   meetsTarget,
   sumByFrame,
   traceFrames,
+  xctrace,
 } from './measure-frame.ts';
 
 describe('frameStats', () => {
@@ -175,5 +176,15 @@ describe('framesPerSecond', () => {
   it('counts the frame gaps in the time between the first and the last stamp', () => {
     expect(framesPerSecond([0, 16, 32, 48, 64])).toBe(62.5);
     expect(framesPerSecond([5])).toBe(0);
+  });
+});
+
+describe('xctrace', () => {
+  it('starts no run after the stop of the measure', async () => {
+    const stop = new AbortController();
+    stop.abort();
+    await expect(xctrace(['version'], 10_000, () => undefined, stop.signal)).rejects.toThrow(
+      expect.objectContaining({ name: 'AbortError' }),
+    );
   });
 });

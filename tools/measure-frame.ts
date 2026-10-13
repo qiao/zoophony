@@ -626,18 +626,22 @@ async function measureCapped(base: string, options: FrameOptions): Promise<Cappe
 
 /**
  * Runs `xcrun xctrace` with arguments and waits for its end. The run stays in {@link RUNNING}.
+ * After a signal, it starts no run, so that no export starts after the stop of the measure.
  *
  * @param args The arguments after `xctrace`.
  * @param limitMs The longest time, in milliseconds. Then the function stops the run.
  * @param onOutput A function for each part of the output.
- * @returns A promise of the end of the run.
+ * @param stop The stop of the measure: by default the stop of {@link RUNNING}.
+ * @returns A promise of the end of the run. It rejects with an `AbortError` after the stop.
  */
-function xctrace(
+export function xctrace(
   args: readonly string[],
   limitMs: number,
   onOutput: (text: string) => void = () => undefined,
+  stop: AbortSignal = RUNNING.stop.signal,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
+    stop.throwIfAborted();
     const child = spawn('xcrun', ['xctrace', ...args], { stdio: ['ignore', 'pipe', 'pipe'] });
     RUNNING.children.add(child);
     let output = '';
