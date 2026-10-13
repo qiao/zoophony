@@ -40,8 +40,10 @@ Open these files for these kinds of work:
   bear have the parametric bodies of 2026-10-06 18:58 again
   (`docs/decisions/2026-10-11-body-revert.md`), and `pnpm sheet-check <id> <dir>` compares a
   species with its sheet. Since 2026-10-12, the bear conductor has the studio bear of
-  `lowpoly-studio/` (route 3 below, `docs/decisions/2026-10-12-studio-bear.md`), and
-  `pnpm close-views conductor <dir>` shows it close at the beats of a bar. The penguins of the choir
+  `lowpoly-studio/` (route 3 below, `docs/decisions/2026-10-12-studio-bear.md`), and the polar
+  bear pianist has the studio polar bear (`docs/decisions/2026-10-12-studio-polar-bear.md`).
+  `pnpm close-views conductor <dir>` and `pnpm close-views pianist <dir>` show them close at the
+  beats of a bar and at the chords of the keys. The penguins of the choir
   have an egg body of their own, built in code in `src/models/penguin/` after the choir of the two
   newest images (design 4.4). They have no sheet, so `pnpm choir-check <dir>` puts the gallery
   penguin beside one penguin of each image. The GLB files
@@ -63,9 +65,9 @@ Open these files for these kinds of work:
   with one config for each animal and one role pack for each role, such as the bear conductor.
   It is outside the rules of this file. Run its CLI in that folder:
   `python3 studio build|compare|report|view|new|regress <animal>`, `python3 studio log`, and
-  `python3 studio cache info|clean`. The lint skips it. The app uses one output of it: the GLB
-  file of the bear, through `pnpm studio-body bear` (route 3 below). The app imports no studio
-  code. Its `README.md` gives the layout, the commands, the config, and the role packs.
+  `python3 studio cache info|clean`. The lint skips it. The app uses two outputs of it: the GLB
+  files of the bear and of the polar bear, through `pnpm studio-body bear` and
+  `pnpm studio-body polar-bear` (route 3 below). The app imports no studio code. Its `README.md` gives the layout, the commands, the config, and the role packs.
 
 `docs/research/` holds the facts behind the decisions, with sources. Keep these reports as the
 record of their date. Put new research in a new report.
@@ -156,7 +158,8 @@ These traps of route 2 each cost a round:
   only when its sheet has a different light, such as the soft light of `bear-views.png`.
 - A test that pins a tuned value fails on each retune and finds no fault. Test the behavior.
 
-**Route 3: a studio body**, as the bear conductor since 2026-10-12 (design 4.4). The studio builds
+**Route 3: a studio body**, as the bear conductor and the polar bear pianist since 2026-10-12
+(design 4.4). The studio builds
 the GLB file. The app keeps its own motion and drives the bones of the studio from the pose of the
 player on each frame (`poseStudioBones()` of `src/models/studio-rig.ts`).
 
@@ -169,8 +172,9 @@ player on each frame (`poseStudioBones()` of `src/models/studio-rig.ts`).
 ```
 
 1. Run `pnpm studio-body <animal>` after each build of the studio that changes the GLB file. Add
-   an animal to `ANIMALS` of `tools/studio-body.ts` with the height of its shoulder joints in
-   the app: the landmark of its scale.
+   an animal to `ANIMALS` of `tools/studio-body.ts` with the landmark of its scale and its
+   height in the app: the shoulder joints of a standing role, or the keys of the piano of a
+   pianist. Mark a seated role: the export drops it onto its bench, and the bench fits its legs.
 2. Add the module to `STUDIO_BODIES`, and give the species the body.
 3. Run `pnpm test`. The pose of the player drives the arms by their joints, so a new body needs
    a fit of the holds in its `H`. Probe a hold with `pnpm pose-probe <sheet>`, and look at the
@@ -186,6 +190,9 @@ These traps of route 3 each cost a round:
   down and back along the baton, so set the point of the baton from the wrist that you want.
 - A long muzzle turns into the paws when the head turns to a section. The test of the conductor
   clearance finds the frame, and the close views show it.
+- A round belly takes the room of the forearms. The pianist needed the keys further in front, a
+  lean, a reach limit for each paw, and a curved path from the knees to the keys. The test of the
+  pianist clearance finds each contact with the frame.
 
 ## Rules
 
@@ -242,7 +249,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm keyboard` | Builds the site, serves `dist/` with `vite preview`, and checks each control with the keyboard alone in headless Chromium at 1440 × 900 and at 390 × 844 (design 9.5, step 6). It prints a Markdown table of the controls, the keys, and the results, and fails on a failed check. It stops the server and the browser at the end. |
 | `pnpm glb-init <species> <glb> [--force] [--preview <dir>]` | Starts the rigged GLB body of a species (design 4.4): copies the file to `assets/models/<species>/<species>.glb` with a README of its checksum, inspects it with `tools/blender/inspect_glb.py`, and writes the proposed config `tools/glb-bodies/<species>.json`. The proposal maps the Mixamo joints, takes the palette from clusters of the face colors, finds the eyes, the nose, the ears, and the finger blocks, and scales the body to the head center of the current body of the species. The tail gets no vertex. `--force` writes over an existing config and README. `--preview` also writes the images of `pnpm rig-body --preview`. |
 | `pnpm rig-body <species> [--preview <dir>]` | Prepares the rigged GLB body of a species with Blender (design 4.4) and writes `src/models/rigged/<species>.ts`. `tools/glb-bodies/<species>.json` gives the source file, the height, the map from its joints to the bones of the player, the bones that the file does not have, the color rules, and the triangle budget. `tools/blender/rig_body.py` welds the mesh, measures the eyes and the nose from the texture, collapses the mesh to the budget, adds the eye plates, keeps two bones for each vertex, and bakes the texture into the skin `src/models/rigged/<species>-skin.webp`, with the fur and the accent in the colors of the species. With `--preview`, `tools/blender/preview_rig.py` also writes `skin.png` and `bones.png` into `<dir>`: the skin and the main bone of each face. Blender 5.2 or later comes from the variable `BLENDER`, or from the path. |
-| `pnpm studio-body <animal>` | Writes `src/models/studio/<animal>.ts` from the GLB file of an animal of the studio, `lowpoly-studio/animals/<animal>/out/<animal>.glb` (design 4.4), with no Blender: the welded mesh, the skin of up to four bones, the eye bones, the arm-down corrective shapes, and the bind pose of the bones of the studio, turned to face -z and scaled so that the shoulder joints are 1.0 m high. It drops the baton of the studio. Run it after `python3 studio build <animal>` changes the GLB file. |
+| `pnpm studio-body <animal>` | Writes `src/models/studio/<animal>.ts` from the GLB file of an animal of the studio, `lowpoly-studio/animals/<animal>/out/<animal>.glb` (design 4.4), with no Blender: the welded mesh, the skin of up to four bones, the eye bones, the arm-down corrective shapes, and the bind pose of the bones of the studio, turned to face -z and scaled by the landmark of the animal (`ANIMALS`: the shoulder joints of the bear at 1.0 m, the keys of the studio piano of the polar bear at 0.70 m). The four digits of a paw become its one finger bone. A seated role drops until its soles are on the floor, with the front edge of its studio bench at the front edge of the piano bench, and gets the height of a flat bench under it. It drops the props of the studio: the baton, the bench, and the piano. Run it after `python3 studio build <animal>` changes the GLB file. |
 | `pnpm close-views <role> <dir> [--base <url>]` | Builds the site and writes close views of a role from the gallery into `<dir>`, and the grid of all views (`<role>-views.png` and `.webp`). `conductor`: the bear from the front, the right side, and the back, at the four beats of a bar of the test notes, between two beats, and in the rest pose. `pianist`: the polar bear from the front, both sides, and the back, at a chord in each paw, between two chords, and in the rest pose. `--base` uses a running site, such as the dev server, with no build. It stops the browser at the end. |
 | `pnpm typecheck` | Runs `tsc` with no output files. |
 | `pnpm lint` | Runs `oxlint --type-aware .` with the anti-slop plugin. |
