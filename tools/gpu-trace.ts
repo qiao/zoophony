@@ -359,6 +359,12 @@ export interface DroppedBuffers {
 /**
  * The self-check of the WebGL frames of a filter. It uses only the sizes of the surfaces, so it
  * does not depend on the labels of the encoders, as the filter does.
+ *
+ * The check finds the command buffers that a filter drops and the frames that it merges. It
+ * cannot find a command buffer that a filter adds to a frame by mistake, such as a buffer of the
+ * compositor of Chrome: the frame count and the canvas writes of each frame stay the same. On a
+ * trace of 2026-10-13, a filter that added each compositor buffer to the frame of its start
+ * passed the check with 640 / 640 frames, and it raised the p50 from 4.447 ms to 4.503 ms.
  */
 export interface FrameCheck {
   /** The count of the frames of the filter. */
