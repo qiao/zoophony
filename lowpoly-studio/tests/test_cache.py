@@ -110,6 +110,57 @@ class TestKeys(unittest.TestCase):
                         cache.recorded_value({'cfg': cfg}, 'cfg', ())))
 
 
+class TestStepCache(unittest.TestCase):
+    """The parts of a cache inside a step: the lookup of all valid entries, and the recorder of
+    a part of a step."""
+
+    def setUp(self):
+        """Makes an empty store in a temporary folder."""
+        self.tmp = tempfile.mkdtemp(prefix='studio-store-')
+        self.store = cache.Store(self.tmp, 'test', 'test')
+
+    def tearDown(self):
+        """Deletes the store."""
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def save(self, name, code, when):
+        """Saves an entry with a code manifest, and sets its time."""
+        manifest = {'reads': [], 'code': code}
+        self.store.save('step', 'base', name, {'manifest': manifest}, {'name': name})
+        folder = os.path.join(self.tmp, 'test', 'step', 'base')
+        for ext in ('.json', '.pkl'):
+            os.utime(os.path.join(folder, name + ext), (when, when))
+
+    def test_lookup_all_gives_the_valid_entries_newest_first(self):
+        """lookup_all skips an entry whose code changed, sorts by time, and stops at the
+        limit; lookup gives the newest valid entry."""
+        good = [['studio/runlog.py', cache.FILES.digest('studio/runlog.py')]]
+        self.save('old', good, 1000)
+        self.save('new', good, 3000)
+        self.save('stale', [['studio/runlog.py', 'a digest of other code']], 4000)
+        self.save('middle', good, 2000)
+        names = [data['name'] for _, data in self.store.lookup_all('step', 'base', {})]
+        self.assertEqual(names, ['new', 'middle', 'old'])
+        names = [data['name'] for _, data in self.store.lookup_all('step', 'base', {}, 2)]
+        self.assertEqual(names, ['new', 'middle'])
+        self.assertEqual(self.store.lookup('step', 'base', {})[1]['name'], 'new')
+        self.assertEqual(self.store.lookup_all('step', 'other', {}), [])
+
+    def test_part_gives_its_code_to_the_step(self):
+        """The code that runs in a part goes into the recorder of the part and into the
+        recorder of the step; note_code adds the code of a cached result to the step."""
+        from studio import runlog  # noqa: PLC0415
+        step = cache.Recorder('step')
+        with cache.recording(step):
+            with cache.part('part') as part:
+                runlog._now()
+            cache.note_code(['studio/fit.py'])
+        self.assertIn('studio/runlog.py', part.code)
+        self.assertIn('studio/runlog.py', step.code)
+        self.assertIn('studio/fit.py', step.code)
+        self.assertNotIn('studio/fit.py', part.code)
+
+
 def setup_keys(studio, animal, role):
     """Runs tests/setup_keys.py of a studio folder in Blender. Returns the fingerprints."""
     out = subprocess.run([BLENDER, '-b', '--factory-startup', '--python-exit-code', '1',

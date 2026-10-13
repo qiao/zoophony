@@ -591,6 +591,31 @@ def recording(rec):
         _active = prev
 
 
+@contextlib.contextmanager
+def part(name):
+    """Records the reads and the code of a part of the running step in a recorder of its own
+    (for a cache inside the step, such as the frame records of the contact check). When the
+    part ends, its reads and its code go into the recorder of the step too, because the code
+    monitor reports each piece of code only once after a restart. Yields the recorder of the
+    part."""
+    outer = _active
+    rec = Recorder(name)
+    with recording(rec):
+        yield rec
+    if outer is not None:
+        outer.reads.update(rec.reads)
+        outer.code.update(rec.code)
+
+
+def note_code(keys):
+    """Records code keys in the running step: the code of a result that the step takes from a
+    cache inside the step (the code list of a manifest), so the key of the step holds it."""
+    rec = _active
+    if rec is not None:
+        for k in keys:
+            rec.code[k] = None
+
+
 def matches(manifest, roots):
     """Tells if each recorded read and each code key still has the digest of the manifest."""
     for root, path, d in manifest['reads']:
@@ -706,13 +731,24 @@ class Store:
 
     def lookup(self, step, base, roots):
         """Finds the newest valid entry of a step. Returns (meta, data) or None."""
+        hits = self.lookup_all(step, base, roots, 1)
+        return hits[0] if hits else None
+
+    def lookup_all(self, step, base, roots, limit=None):
+        """Finds the valid entries of a step in one base folder, the newest first, at most limit
+        of them. Returns a list of (meta, data). Each entry that it returns gets a new time (for
+        the pruning of the least recently used entries), in the same order, so the newest entry
+        stays the newest."""
         folder = os.path.join(self.root, self.space, step, base)
         try:
             names = [n for n in os.listdir(folder) if n.endswith('.json')]
         except OSError:
-            return None
+            return []
         paths = sorted((os.path.join(folder, n) for n in names), key=_mtime, reverse=True)
+        hits = []
         for meta_path in paths:
+            if limit is not None and len(hits) >= limit:
+                break
             try:
                 with open(meta_path) as f:
                     meta = json.load(f)
@@ -726,12 +762,13 @@ class Store:
                     data = pickle.load(f)
             except (OSError, pickle.UnpicklingError, EOFError):
                 continue
-            now = time.time()
-            for p in (meta_path, data_path):
+            hits.append((meta, data, meta_path, data_path))
+        now = time.time()
+        for k, (_, _, *paths) in enumerate(hits):
+            for p in paths:
                 with contextlib.suppress(OSError):
-                    os.utime(p, (now, now))
-            return meta, data
-        return None
+                    os.utime(p, (now - 0.001 * k, now - 0.001 * k))
+        return [(meta, data) for meta, data, _, _ in hits]
 
     def save(self, step, base, key, meta, data):
         """Writes an entry: the data first, then the meta (a meta means a whole entry)."""
