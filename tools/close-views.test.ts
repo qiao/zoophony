@@ -38,11 +38,11 @@ describe('closeViewPath', () => {
     const at = (name: string): number | undefined =>
       views.find((view) => view.name === name)?.azimuth;
     expect([at('front'), at('right'), at('back'), at('left')]).toEqual([0, 90, 180, -90]);
-    // The view of the keys looks down from the front, on the side of the hinge of the lid.
+    // The view of the keys is on the left side, turned toward the front, so that the case and
+    // the lid of the piano stay beside the left paw.
     const keys = views.find((view) => view.name === 'keys');
-    expect(Math.abs(keys?.azimuth ?? 0)).toBeGreaterThan(0);
-    expect(Math.abs(keys?.azimuth ?? 90)).toBeLessThan(90);
-    expect(keys?.elevation).toBeGreaterThan(camera.elevation);
+    expect(keys?.azimuth).toBeGreaterThan(-90);
+    expect(keys?.azimuth).toBeLessThan(-45);
     const result = parseTestNotes(notes ?? '');
     if (!result.ok) {
       throw new Error(`The test notes of the pianist fail on line ${result.line}.`);

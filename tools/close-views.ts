@@ -88,9 +88,10 @@ export type CloseRole = 'conductor' | 'pianist';
  *   shows (design 2.5), at the four beats of the first bar of the default test notes (4/4 at 120
  *   BPM), between two beats, and in the rest pose. The camera turns around a fixed line, as
  *   before the camera around the body.
- * - The pianist: the front, both sides, the back, and the paws on the keys from the front left,
- *   at a chord of three keys in each hand, between two chords, and in the rest pose. The camera
- *   turns around the body, and looks down 35°, over the case of the piano in the front view.
+ * - The pianist: the front, both sides, the back, and the left paw on the keys, at a chord of
+ *   three keys in each hand, between two chords, and in the rest pose. The camera turns around
+ *   the body. It looks down 35°, over the case of the piano in the front view. The view of the
+ *   keys is low from the left, 15° to the front.
  *
  * A new role gives its species, its views, its moments, and its test notes, with the camera
  * `{ kind: 'body', zoom: 1, elevation }`.
@@ -121,9 +122,9 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
       { name: 'left', azimuth: -90 },
       { name: 'right', azimuth: 90 },
       { name: 'back', azimuth: 180 },
-      // The lid of the piano hides the paws in the front view. This view looks down at the keys
-      // from the front left, the side of the hinge of the lid.
-      { name: 'keys', azimuth: -60, elevation: 60 },
+      // The lid of the piano hides the paws in the front view. From above, the muzzle hides them.
+      // This low view from the left, 15° to the front, shows the left paw on the keys.
+      { name: 'keys', azimuth: -75, elevation: 25 },
     ],
     moments: [
       { name: 'chord', time: 0.6, rest: false },
