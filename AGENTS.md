@@ -318,15 +318,19 @@ Follow these rules when another agent works on the repository at the same time.
   files of the other agents, so use neither.
 - Merge a branch with `tools/merge-branch.sh <branch> [worktree]`. It does the steps below and
   stops at the first failure.
-  - Rebase onto `main` with no `--force-rebase`, then check each commit:
-    `git rebase main --exec 'pnpm -s lint && pnpm -s typecheck && pnpm -s test --changed HEAD~1 --passWithNoTests && pnpm -s format:check'`.
-    Each commit runs only the tests that its changes reach through the imports. The parent of
-    the commit passed the other tests. The full `pnpm test` runs one time on the last commit.
+  - Rebase onto `main` with no `--force-rebase`, then check each commit with
+    `tools/check-commits.sh --tip main`. Each commit runs only the tests that its changes reach
+    through the imports, and the tests that read a docs path when it changes docs. The parent of
+    the commit passed the other tests. The full `pnpm test` runs one time on the last commit. A
+    tree that passed before prints `hit`, so this step takes seconds after the check of the agent.
   - Run `git merge --ff-only` only in a script with `set -euo pipefail`. A pipe such as
     `git merge --ff-only <branch> | tail` hides a failed merge. Then the next command can delete
     a branch that is not merged.
 - A rebase is finished when the folder `$(git rev-parse --git-path rebase-merge)` does not exist.
   `REBASE_HEAD` can stay after a finished rebase, so it does not show the state.
+- A review agent checks the tip only. It runs `tools/check-commits.sh --tip main` in a worktree
+  of the branch: each commit that the agent checked prints `hit`, and only a tree with no entry
+  runs its checks. It does not check each commit again in a copy of the tree.
 - Let the agent that wrote a branch do a long rebase, because it knows the intent of each commit.
 - Put a new decision in a new decision file of `docs/decisions/`. Two branches then add two
   files, and their merge has no conflict.
