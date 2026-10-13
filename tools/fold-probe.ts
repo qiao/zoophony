@@ -6,7 +6,7 @@
  * sample set, and the main bone of the folded faces. The method comes from
  * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
- * Usage: pnpm fold-probe <role> [--demo <file>]... [--step <seconds>]
+ * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>]
  */
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
@@ -341,7 +341,7 @@ export function foldLines(name: string, report: FoldReport, step: number): strin
 }
 
 /**
- * Runs the probe: `node tools/fold-probe.ts <role> [--demo <file>]... [--step <seconds>]`.
+ * Runs the probe: `node tools/fold-probe.ts <role> [--demo <id>]... [--step <seconds>]`.
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
@@ -349,10 +349,13 @@ async function main(): Promise<void> {
   const role = FOLD_ROLES.get(name);
   if (!role) {
     throw new Error(
-      `Usage: pnpm fold-probe <role> [--demo <file>]... [--step <seconds>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
+      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
     );
   }
-  const chosen = args.flatMap((arg, i) => (args[i - 1] === '--demo' ? [arg] : []));
+  // A demo is its file name, with or without `.mid`, as in `pnpm pose-depth`.
+  const chosen = args.flatMap((arg, i) =>
+    args[i - 1] === '--demo' ? [arg.endsWith('.mid') ? arg : `${arg}.mid`] : [],
+  );
   const stepAt = args.indexOf('--step');
   const step = stepAt >= 0 ? Number(args[stepAt + 1]) : 0.25;
   if (!(step > 0)) {
@@ -369,5 +372,10 @@ async function main(): Promise<void> {
 }
 
 if (import.meta.main) {
-  await main();
+  try {
+    await main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
 }
