@@ -50,6 +50,25 @@ const FINISHES: ReadonlyMap<string, Finish> = new Map([
 const DROPPED_BONES: ReadonlySet<string> = new Set(['baton']);
 
 /**
+ * The name of a digit bone of a paw with four digits, such as `finger3_L` of the pianist role
+ * (`lowpoly-studio/roles/pianist/role.toml`). The app has one finger bone on each hand, so the
+ * digits of a paw become the one `fingers` bone of its side, and they curl together.
+ */
+const DIGIT = /^finger\d_([LR])$/;
+
+/**
+ * Gives the bone of a studio body that takes a bone of the studio: the `fingers` bone of its side
+ * for a digit, and the bone itself for each other bone.
+ *
+ * @param name The name of the bone of the studio.
+ * @returns The name of the bone of the studio body.
+ */
+export function ownBone(name: string): string {
+  const digit = DIGIT.exec(name);
+  return digit ? `fingers_${digit[1] ?? ''}` : name;
+}
+
+/**
  * The smallest distance of the middle of a gloss shell of the head from the middle plane, in the
  * units of the studio, for an eye. The nose lies on the middle plane.
  */
@@ -425,7 +444,7 @@ export function weldMesh(glb: Glb): SourceMesh {
     throw new Error(`The shapes are ${names.join(', ')}, not ${CORRECTIVE_NAMES.join(', ')}.`);
   }
 
-  const jointNames = skin.joints.map((j) => glb.json.nodes[j]?.name ?? '');
+  const jointNames = skin.joints.map((j) => ownBone(glb.json.nodes[j]?.name ?? ''));
   const vertices: SourceVertex[] = [];
   const faces: SourceMesh['faces'] = [];
   for (const primitive of mesh.primitives) {
@@ -453,9 +472,16 @@ export function weldMesh(glb: Glb): SourceMesh {
       if (known !== undefined) {
         return known;
       }
-      const skinOf = [0, 1, 2, 3]
-        .map((k) => [jointNames[joints[v * 4 + k] ?? 0] ?? '', weights[v * 4 + k] ?? 0] as const)
-        .filter(([, w]) => w > 0);
+      // The digits of a paw are one bone, so their weights add up.
+      const sums = new Map<string, number>();
+      for (let k = 0; k < 4; k++) {
+        const bone = jointNames[joints[v * 4 + k] ?? 0] ?? '';
+        const w = weights[v * 4 + k] ?? 0;
+        if (w > 0) {
+          sums.set(bone, (sums.get(bone) ?? 0) + w);
+        }
+      }
+      const skinOf = [...sums];
       if (skinOf.some(([bone]) => DROPPED_BONES.has(bone))) {
         throw new Error(`A vertex of the material "${material}" follows a dropped bone.`);
       }
@@ -525,15 +551,49 @@ export function readSkeleton(glb: Glb): SourceSkeleton {
     binds.set(name, bind);
     nodes.set(name, joint);
   }
+  for (const side of ['L', 'R'] as const) {
+    const digits = [...binds].filter(([name]) => ownBone(name) === `fingers_${side}`);
+    if (!binds.has(`fingers_${side}`) && digits.length > 0) {
+      binds.set(`fingers_${side}`, mergedBind(digits.map(([, bind]) => bind)));
+    }
+  }
   const body = STUDIO_BONES.filter((b) => !b.startsWith('eye_'));
   const missing = body.filter((b) => !binds.has(b));
   const extra = [...binds.keys()].filter(
-    (b) => !DROPPED_BONES.has(b) && !body.some((own) => own === b),
+    (b) => !DROPPED_BONES.has(b) && !DIGIT.test(b) && !body.some((own) => own === b),
   );
   if (missing.length > 0 || extra.length > 0) {
     throw new Error(`The joints lack ${missing.join(', ')} and add ${extra.join(', ')}.`);
   }
   return { binds, nodes };
+}
+
+/**
+ * Makes the bind pose of the one finger bone of a paw from the bind poses of its digits: the
+ * head at the middle of the heads of the digits, the y axis along the mean digit, and the z axis
+ * (the side of the palm) along the mean z axis of the digits. The digits start on one line
+ * across the paw, so a curl around this bone stays near the curl of each digit around its own
+ * head.
+ *
+ * @param digits The bind pose of each digit.
+ * @returns The bind pose of the finger bone.
+ */
+function mergedBind(digits: readonly Matrix4[]): Matrix4 {
+  const head = new Vector3();
+  const y = new Vector3();
+  const z = new Vector3();
+  const axes = [new Vector3(), new Vector3(), new Vector3()] as const;
+  for (const digit of digits) {
+    digit.extractBasis(axes[0], axes[1], axes[2]);
+    head.add(new Vector3().setFromMatrixPosition(digit));
+    y.add(axes[1].normalize());
+    z.add(axes[2].normalize());
+  }
+  head.divideScalar(digits.length);
+  y.normalize();
+  z.addScaledVector(y, -z.dot(y)).normalize();
+  const x = new Vector3().crossVectors(y, z);
+  return new Matrix4().makeBasis(x, y, z).setPosition(head);
 }
 
 /**

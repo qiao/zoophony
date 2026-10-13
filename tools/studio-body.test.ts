@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
-import { studioBody, studioModule } from './studio-body.ts';
+import { ownBone, studioBody, studioModule } from './studio-body.ts';
 
 /** The GLB file of the studio bear. */
 const SOURCE = 'lowpoly-studio/animals/bear/out/bear.glb';
@@ -106,5 +106,43 @@ describe('pnpm studio-body (design 4.4)', async () => {
     const text = studioModule('bear', 'STUDIO_BEAR', body);
     expect(text).toContain('export const STUDIO_BEAR: StudioBody = {');
     expect(text).toContain(body.sha256);
+  });
+});
+
+describe('pnpm studio-body with four digits on each paw (design 4.4)', async () => {
+  const source = 'lowpoly-studio/animals/polar-bear/out/polar-bear.glb';
+  const bytes = await readFile(join(import.meta.dirname, '..', source));
+  const { body } = studioBody(bytes, source, { shoulderHeight: 1, constant: 'STUDIO_POLAR_BEAR' });
+  const mesh = unpackStudioMesh(body.mesh);
+
+  it('gives each digit to the finger bone of its side', () => {
+    expect(ownBone('finger3_L')).toBe('fingers_L');
+    expect(ownBone('finger1_R')).toBe('fingers_R');
+    expect(ownBone('hand_L')).toBe('hand_L');
+  });
+
+  it('moves the claws of each paw with its finger bone', () => {
+    for (const side of ['L', 'R'] as const) {
+      const bone = STUDIO_BONES.indexOf(`fingers_${side}`);
+      let count = 0;
+      for (let v = 0; v < mesh.positions.length / 3; v++) {
+        const w = [0, 1, 2, 3].reduce(
+          (sum, k) => sum + (mesh.joints[v * 4 + k] === bone ? (mesh.weights[v * 4 + k] ?? 0) : 0),
+          0,
+        );
+        count += w > 0.5 ? 1 : 0;
+      }
+      expect(count, side).toBeGreaterThan(50);
+      // The claw tips are beyond the knuckles.
+      const knuckle = body.heads[`fingers_${side}`];
+      const wrist = body.heads[`hand_${side}`];
+      const tip = body.fingerTips[side];
+      const along = (p: readonly number[]): number =>
+        [0, 1, 2].reduce(
+          (sum, k) => sum + ((p[k] ?? 0) - (wrist[k] ?? 0)) * ((knuckle[k] ?? 0) - (wrist[k] ?? 0)),
+          0,
+        );
+      expect(along(tip), side).toBeGreaterThan(along(knuckle));
+    }
   });
 });
