@@ -40,9 +40,9 @@ try {
   // SAFETY: each version of the module exports webglFrames() with these first arguments.
   const { webglFrames } = (await import(file)) as { webglFrames: Frames };
   console.log(
-    `| Trace | Filter | Dropped canvas ms per frame | Frames / expected | Merged | Verdict |`,
+    `| Trace | Filter | Dropped canvas ms per frame | Frames / expected | Merged | Span (s) | Verdict |`,
   );
-  console.log('|---|---|---|---|---|---|');
+  console.log('|---|---|---|---|---|---|---|');
   for (const arg of dirs) {
     const [dir = '', size = '2880x1800'] = arg.split(':');
     const [width = 0, height = 0] = size.split('x').map(Number);
@@ -68,6 +68,7 @@ try {
       perFrame.toFixed(3),
       `${check.frames} / ${expected}`,
       String(check.merged),
+      check.spanSec.toFixed(3),
       faults.length === 0 ? 'pass' : 'fail',
     ];
     console.log(`| ${cells.join(' | ')} |`);
