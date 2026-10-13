@@ -8,7 +8,9 @@ export interface TraceCell {
 
 /** A table of an `xctrace export`: the mnemonic of each column, and the cells of each row. */
 export interface TraceTable {
+  /** The mnemonic of each column of the schema, for example `start` or `channel-name`. */
   readonly columns: readonly string[];
+  /** The cells of each row, one cell for each column, in the order of the columns. */
   readonly rows: readonly (readonly TraceCell[])[];
 }
 
