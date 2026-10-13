@@ -67,6 +67,24 @@ describe('splitHands (design 5.3)', () => {
     expect(right).toEqual(['0:60-72']);
   });
 
+  it('gives a melody to the other hand past the reach of a hand', () => {
+    const melody = [62, 60, 58, 56, 54, 52, 50, 48, 46, 44];
+    const notes = [n(0, 36), ...melody.map((k, i) => n((i + 1) * 0.25, k))];
+    const reach = { leftHighest: 72, rightLowest: 48 };
+    const [left, right] = splitHands(
+      notes,
+      notes.map(() => 0.5),
+      reach,
+    );
+    expect(right.map((h) => h.low)).toEqual(melody.slice(0, 8));
+    expect(left.map((h) => h.low)).toEqual([36, 46, 44]);
+    // A chord above the reach of the left hand goes to the right hand, also when the left hand
+    // is nearer.
+    const far = [n(0, 96), n(0.25, 64)];
+    expect(splitHands(far, [0.5, 0.5])[0]).toHaveLength(1);
+    expect(splitHands(far, [0.5, 0.5], { leftHighest: 60, rightLowest: 0 })[1]).toHaveLength(2);
+  });
+
   it('keeps a melody in the nearer hand, also below middle C', () => {
     const [left, right] = keysOf([62, 60, 59, 57, 55].map((k, i) => n(i * 0.25, k)));
     expect(left).toEqual([]);

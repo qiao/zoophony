@@ -25,6 +25,17 @@ export const HAND_MOTION = {
   startKeys: [48, 72],
 } as const;
 
+/** The keys that each hand of a player reaches when it crosses over to the side of the other hand. */
+export interface HandReach {
+  /** The highest key of the left hand. */
+  readonly leftHighest: number;
+  /** The lowest key of the right hand. */
+  readonly rightLowest: number;
+}
+
+/** The reach of two hands that cross over to each key: all MIDI keys. */
+export const NO_REACH_LIMIT: HandReach = { leftHighest: 127, rightLowest: 0 };
+
 /** How a hand plays: a piano hand strikes the keys, and a harp hand plucks the strings. */
 export type HandAction = 'strike' | 'pluck';
 
@@ -45,15 +56,20 @@ export interface HandNote {
  * interval: the left hand plays the notes below it. Of two equal intervals, the one nearer to the
  * middle of the chord splits it. A chord within one octave goes to the hand
  * that is nearer to it, so that a melody stays in one hand. At the same distance, it goes to the
- * right hand from middle C up, and to the left hand below.
+ * right hand from middle C up, and to the left hand below. A chord above the reach of the left
+ * hand goes to the right hand, and a chord below the reach of the right hand goes to the left
+ * hand, so that a melody changes hands where one hand cannot cross over the other.
  *
  * @param notes The notes of the player, sorted by start.
  * @param loudness The loudness of each note, in the order of `notes`.
+ * @param reach The highest key of the left hand and the lowest key of the right hand. No limit by
+ *   default.
  * @returns The notes of the left hand and of the right hand, sorted by start.
  */
 export function splitHands(
   notes: readonly PlayerNote[],
   loudness: readonly number[],
+  reach: HandReach = NO_REACH_LIMIT,
 ): readonly [left: HandNote[], right: HandNote[]] {
   const left: HandNote[] = [];
   const right: HandNote[] = [];
@@ -91,7 +107,8 @@ export function splitHands(
     const middle = (group.low + group.high) / 2;
     const toLeft = Math.abs(middle - lastLeft);
     const toRight = Math.abs(middle - lastRight);
-    if (toRight < toLeft || (toRight === toLeft && middle >= 60)) {
+    const nearerRight = toRight < toLeft || (toRight === toLeft && middle >= 60);
+    if (group.low >= reach.rightLowest && (nearerRight || group.high > reach.leftHighest)) {
       right.push(part(group.low, group.high));
       lastRight = middle;
     } else {

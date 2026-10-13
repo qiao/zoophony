@@ -13,8 +13,8 @@ import { mixDirection, mixRotation } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
 import { createFrame, posePoint, setFromBasis } from './frames.ts';
 import type { TorsoFrames } from './frames.ts';
-import { HAND_MOTION, buildHandTrack, splitHands } from './hand-notes.ts';
-import type { HandAction, HandState, HandTrack } from './hand-notes.ts';
+import { HAND_MOTION, NO_REACH_LIMIT, buildHandTrack, splitHands } from './hand-notes.ts';
+import type { HandAction, HandReach, HandState, HandTrack } from './hand-notes.ts';
 import { armRig, limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import { lapPoint } from './lap.ts';
 import type { LapPlace } from './lap.ts';
@@ -42,6 +42,8 @@ export interface HandsHold {
   readonly faceR: Vec3;
   /** The forward lean of the spine in the playing pose. */
   readonly lean: number;
+  /** The keys that each hand reaches on the side of the other hand. */
+  readonly reach: HandReach;
   /** The directions to which the elbows point. */
   readonly poleL: Vec3;
   readonly poleR: Vec3;
@@ -90,6 +92,7 @@ export const HANDS_HOLDS = {
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
     lean: 0,
+    reach: NO_REACH_LIMIT,
     poleL: [-1, -0.6, 0.4],
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
@@ -121,6 +124,7 @@ export const HANDS_HOLDS = {
     faceL: [1, 0, 0],
     faceR: [-1, 0, 0],
     lean: 8 * MathUtils.DEG2RAD,
+    reach: NO_REACH_LIMIT,
     poleL: [-1, -1, 0.3],
     poleR: [1, -1, 0.3],
     curl: 15 * MathUtils.DEG2RAD,
@@ -292,7 +296,7 @@ export function handTracks(
   loudness: readonly number[],
   amplitude: number,
 ): HandTracks {
-  const [left, right] = splitHands(notes, loudness);
+  const [left, right] = splitHands(notes, loudness, rig.hold.reach);
   const [firstL, firstR] = HAND_MOTION.startKeys;
   const { action } = rig.hold;
   return {
