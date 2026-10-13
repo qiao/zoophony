@@ -294,8 +294,8 @@ function run(command: string, args: readonly string[], cwd: string): void {
 
 /**
  * Probes the bodies of a commit. It extracts `src/` and `package.json` of the commit into a new
- * folder, with a copy of this tool and a link to the `node_modules` of the repository. Then it
- * runs the probe there. The folder goes away at the end, also after a failure or a stop (INT or TERM).
+ * folder. The folder gets a copy of this tool and a link to the `node_modules` of the
+ * repository. Then it runs the probe there. The folder goes away at the end, also after a failure or a stop (INT or TERM).
  *
  * @param ref The commit, a branch, or a tag.
  * @param parent The folder that holds the temporary folder.
