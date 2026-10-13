@@ -244,7 +244,7 @@ work.
   of each second, and the chord sounds for 0.5 s, at 120 BPM. `pnpm dev` runs the script. The
   folder `perf/` is not in git and not in the build, so only the dev server serves the file.
   On the dev server, the hash `#demo=perf-60` shows it with "One per part", so that a later
-  change can measure the frame target again (`tools/measure-frame.ts`). The build ignores this
+  change can measure the frame target again (`pnpm frame`). The build ignores this
   id.
 - Done when: the Vitest tests of `pose/` pass, and the pose and frame targets of 9.7 pass.
 - Review: the review agent examines a screen recording of the Beethoven demo and of the Boulanger
@@ -295,7 +295,7 @@ machine.
 | Pose timing | each note event of `poseAt()` within 5 ms of the note time in the `Score`, before the seeded offset | Vitest | 5 |
 | Seeded offset | at most ±20 ms for each player | Vitest | 5 |
 | Audio render | at most 1.3 ms for each 128-frame block (half of the budget) for each demo | Node: an offline render of each demo with the block scheduler and spessasynth_core, timed for each block (`node tools/measure-targets.ts`). The script also times the block of a seek near the end of the largest demo, and the block of a solo of one seat and of its end at 60 % of each demo (6.6) | 2 |
-| Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames over 10 s | Google Chrome at 1440 × 900 and the device scale 2 (`node tools/measure-frame.ts`). The main-thread time is the sum of the tasks of each frame in a Chrome performance trace. The GPU time is a query of `EXT_disjoint_timer_query_webgl2` around each frame callback, because the GPU track of DevTools shows the CPU time of the GPU process | 5 |
+| Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames | `pnpm frame` (`tools/measure-frame.ts`): Google Chrome at 1440 × 900 and the device scale 2, at a 1-minute load average of at most 8. The main-thread time is the sum of the tasks of each frame in a Chrome performance trace of 10 s at 60 fps. The GPU time is the time of each WebGL frame in a Metal System Trace of 3 s with no frame cap, so that the GPU runs at its highest clock (below). The tool also prints the timer query of `EXT_disjoint_timer_query_webgl2` with no frame cap and at 60 fps, for information | 5 |
 | Load | the presets of the default demo load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
 | First sound | the first note sounds at its song time after the downbeat (song time 0), at most one block (2.7 ms) early and never late. The count-in starts at most 300 ms after the click on play, when the default demo is ready | Node: `audio/clock-render.test.ts` and `audio/engine.test.ts` render a play with a count-in offline. Browser: `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
 | Memory | at most 100 MB of decoded samples for each demo | the `Player` reports the PCM size of the banks of the synth (`pcmBytes`). Node: `audio/pcm-memory.test.ts` converts the presets of each demo as the Worker does | 2 |
@@ -398,6 +398,24 @@ test file gives the ratio of record. The sight lines, the entry shots, and the b
 lines of sight, so the planner tests more cameras. Thus the limit of `prepareShots()` is above
 the 20 ms of the target. The test finds a plan that is 2 times slower, and a measure on the
 development Mac checks the target.
+
+On 2026-10-13, the manager changed the condition of the GPU measure, and told the user
+([`2026-10-13-frame-time.md`](../decisions/2026-10-13-frame-time.md)). The facts are in
+[`research/2026-10-13-frame-time.md`](../research/2026-10-13-frame-time.md):
+
+- At 60 fps, the GPU of the development Mac stays in its lowest performance state for about 77%
+  of the time. It lowers its clock while the frames fit. Thus the timer query at 60 fps measures
+  the clock more than the work, and a cheaper frame can give a higher value.
+- With no frame cap, the GPU runs at its highest clock. On ANGLE on Metal, a timer query gets the
+  time of the whole command buffer, also its wait in the queue of the GPU. With no frame cap,
+  the queue is always full, so the timer query with no frame cap is for information only.
+- The Metal System Trace of Xcode gives the start and the end of each encoder on the GPU. The
+  GPU time of a frame is the time in which at least one encoder of the WebGL frame runs
+  (`tools/gpu-trace.ts`). The trace also gives the GPU work of the other processes. A page of
+  another browser that renders shares the GPU and makes the frames slower, so the tool prints
+  that share and a warning above 10%.
+- Each change of `src/scene/`, of a shader, or of the post effects runs `pnpm frame` before its
+  report (`AGENTS.md`). CI has no GPU.
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: the default demo must play at
