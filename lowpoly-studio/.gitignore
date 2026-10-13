@@ -1,14 +1,16 @@
-# Made again by each build.
-animals/*/out/masks/*.raw
-animals/*/out/fit/
-animals/*/out/fit.log
-animals/*/out/stages/
-animals/*/out/regress/
 __pycache__/
-animals/*/out/seeds/
-animals/*/out/model/
-animals/*/out/view-server.json
-animals/*/out/props/gallery.log
 
-# Made again by python3 studio calibrate.
-animals/*/out/calibrate/
+# The outputs of an animal. Git keeps only what a reader or a tool needs: the GLB (the app
+# reads animals/bear/out/bear.glb), its stats, the small JSON results, and the review image.
+# python3 studio build, compare, report, fit, calibrate, view, and props make the other files
+# again (README.md, "The outputs that git keeps").
+animals/*/out/*
+!animals/*/out/*.glb
+!animals/*/out/*.stats.json
+!animals/*/out/build.json
+!animals/*/out/checks.json
+!animals/*/out/seed-report.json
+!animals/*/out/sheet-check.json
+!animals/*/out/report/
+animals/*/out/report/*
+!animals/*/out/report/review.webp
