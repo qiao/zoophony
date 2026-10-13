@@ -52,10 +52,13 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
 - `seeds.require = "kept"`: the kept seed must pass all gates, and the other seeds are a
   robustness report in `out/seed-report.json`. The manager chose this default, and the user can
   change it to `"all"`.
-- The app (`src/`) uses the GLB file of the bear since 2026-10-12, when the user asked for it.
-  After a change of `animals/bear/out/bear.glb`, run `pnpm studio-body bear` and `pnpm test` in
-  the root of the repository (route 3 of the model work in `AGENTS.md`). Another GLB of the
-  studio goes into the app only when the user asks.
+- The app (`src/`) uses the GLB files of the bear and of the polar bear since 2026-10-12, when
+  the user asked for them. After a change of `animals/bear/out/bear.glb` or
+  `animals/polar-bear/out/polar-bear.glb`, run `pnpm studio-body bear` or
+  `pnpm studio-body polar-bear`, and `pnpm test`, in the root of the repository (route 3 of the
+  model work in `AGENTS.md`). The test of the pianist clearance checks the paws of the polar bear
+  against its belly and the piano of the app. Another GLB of the studio goes into the app only
+  when the user asks.
 
 ## Next steps
 
@@ -69,6 +72,11 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
    the corrective shapes (`docs/research/2026-10-12-studio-bear.md` of the repository). The app
    drives the wrists further than the clips of the studio, so it turns each paw in the plane of
    its palm toward the forearm.
+4. **The studio polar bear in the app.** Done on 2026-10-12
+   (`docs/research/2026-10-12-studio-polar-bear.md` of the repository). The app scales the bear by
+   the keys of its studio piano, drops it onto a bench that fits its legs, and gives the four
+   digits of each paw to one finger bone. Up to 15 faces fold at the neck and the head in the
+   pianist poses of the app: a neck corrective shape of the studio could help.
 
 ## Open problems
 

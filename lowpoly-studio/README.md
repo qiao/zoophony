@@ -5,10 +5,11 @@ Each animal is a folder with a config file. A role pack says what the animal doe
 later play the piano or the violin). The code is generic: a new animal is a new config, and a new
 role is a new folder.
 
-The app of this repository (`src/`) uses one output of the studio since 2026-10-12, when the user
-asked for it: the GLB file of the bear conductor, through `pnpm studio-body bear` in the root of
-the repository. The app imports no studio code, keeps its own conductor motion, and drives the
-bones of the bear from it on each frame. The lint of the repository skips the studio. The first animal is the bear conductor (`animals/bear/`, see its README for the method and
+The app of this repository (`src/`) uses two outputs of the studio since 2026-10-12, when the
+user asked for them: the GLB files of the bear conductor and of the polar bear pianist, through
+`pnpm studio-body bear` and `pnpm studio-body polar-bear` in the root of the repository. The app
+imports no studio code, keeps its own conductor and pianist motion, and drives the bones of the
+studio from it on each frame. It drops the bench and the piano of the pianist, and keeps its own. The lint of the repository skips the studio. The first animal is the bear conductor (`animals/bear/`, see its README for the method and
 the results with numbers). The second animal is the polar bear pianist (`animals/polar-bear/`),
 the pilot of `docs/retro/pilot-polar-bear.md`.
 
@@ -729,7 +730,7 @@ Git keeps only what a reader or a tool needs (`lowpoly-studio/.gitignore` names 
 
 | File in `animals/<id>/out/` | Why git keeps it |
 |---|---|
-| `<id>.glb` | The result. The app reads `animals/bear/out/bear.glb` (`pnpm studio-body bear`). |
+| `<id>.glb` | The result. The app reads `animals/bear/out/bear.glb` (`pnpm studio-body bear`) and `animals/polar-bear/out/polar-bear.glb` (`pnpm studio-body polar-bear`). |
 | `<id>.stats.json` | The stats of the GLB: the counts, the contacts, and the fold repairs. |
 | `build.json` | The run, the seed, and the model seed of the build. |
 | `checks.json` | Every check with its value, its limit, its result, and its place. |
