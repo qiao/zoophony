@@ -49,6 +49,12 @@ const FINISHES: ReadonlyMap<string, Finish> = new Map([
 /** The bones of the studio that the app drops: the hand props. The app has its own baton. */
 const DROPPED_BONES: ReadonlySet<string> = new Set(['baton']);
 
+/**
+ * The smallest distance of the middle of a gloss shell of the head from the middle plane, in the
+ * units of the studio, for an eye. The nose lies on the middle plane.
+ */
+const EYE_SIDE = 0.02;
+
 /** The order of the corrective shapes in a studio body: the left arm, then the right arm. */
 export const CORRECTIVE_NAMES = ['arm_down_L', 'arm_down_R'] as const;
 
@@ -558,23 +564,48 @@ function axisOf(skeleton: SourceSkeleton, bone: string, axis: number): Vector3 {
 }
 
 /**
- * Finds the parts of the eyes: the faces of the gloss material on the head that are out of the
+ * Finds the parts of the eyes: the shells of the gloss material on the head that are out of the
  * middle plane. Each eye is a few nested shells and a light.
  *
  * @param mesh The welded mesh.
  * @returns The vertices of the eye of each side.
  */
 export function eyeVertices(mesh: SourceMesh): Readonly<Record<Side, ReadonlySet<number>>> {
+  // The shells of the gloss faces on the head: the faces that share a vertex are one shell.
+  const parent = mesh.vertices.map((_, v) => v);
+  const rootOf = (v: number): number => {
+    let r = v;
+    while (parent[r] !== r) {
+      r = parent[r] ?? r;
+    }
+    return r;
+  };
+  const onHead = mesh.faces.filter((face) =>
+    face.corners.every((c) => {
+      const v = mesh.vertices[c];
+      return v?.material === 'gloss' && v.skin.length === 1 && v.skin[0]?.[0] === 'head';
+    }),
+  );
+  for (const face of onHead) {
+    const [a, b, c] = face.corners.map(rootOf);
+    parent[b ?? 0] = a ?? 0;
+    parent[rootOf(c ?? 0)] = a ?? 0;
+  }
+  const shells = new Map<number, number[]>();
+  for (const face of onHead) {
+    const root = rootOf(face.corners[0]);
+    const shell = shells.get(root) ?? [];
+    shell.push(...face.corners);
+    shells.set(root, shell);
+  }
+
+  // A shell out of the middle plane is a part of an eye. The nose is on the middle plane.
   const out = { L: new Set<number>(), R: new Set<number>() };
-  for (const face of mesh.faces) {
-    const corners = face.corners.map((c) => mesh.vertices[c]);
-    const onHead = corners.every(
-      (v) => v?.material === 'gloss' && v.skin.length === 1 && v.skin[0]?.[0] === 'head',
-    );
-    const x = corners.reduce((sum, v) => sum + (v?.position.x ?? 0), 0) / 3;
-    if (onHead && Math.abs(x) > 0.01) {
+  for (const shell of shells.values()) {
+    const x = shell.reduce((sum, c) => sum + (mesh.vertices[c]?.position.x ?? 0), 0) / shell.length;
+    if (Math.abs(x) > EYE_SIDE) {
       // The studio puts the left side of the animal at +x.
-      for (const c of face.corners) {
+      for (const c of shell) {
         out[x > 0 ? 'L' : 'R'].add(c);
       }
     }
