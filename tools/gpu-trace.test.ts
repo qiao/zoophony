@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { busyMs, gpuIntervals, parseTraceTable, webglFrameTimes } from './gpu-trace.ts';
+import {
+  busyMs,
+  gpuIntervals,
+  otherGpuShare,
+  parseTraceTable,
+  webglFrameTimes,
+} from './gpu-trace.ts';
 import type { GpuInterval } from './gpu-trace.ts';
 
 /** A small export of `metal-gpu-intervals` with ids, refs, nested ids, and an empty value. */
@@ -114,5 +120,18 @@ describe('webglFrameTimes', () => {
       { ...interval(24, 9, 'x'), process: 'GPU (8)' },
     ];
     expect(webglFrameTimes(intervals, '(7)')).toEqual([3.5, 3]);
+  });
+});
+
+describe('otherGpuShare', () => {
+  it('gives the busy time of the other processes over the span of the trace', () => {
+    const other = (startMs: number, ms: number): GpuInterval => ({
+      ...interval(startMs, ms, 'o'),
+      process: 'Google Chrome Helper (8)',
+    });
+    const intervals = [interval(0, 4, 'a'), other(1, 2), other(2, 2), interval(8, 2, 'b')];
+    expect(otherGpuShare(intervals, '(7)')).toBe(0.3);
+    expect(otherGpuShare([interval(0, 4, 'a')], '(7)')).toBe(0);
+    expect(otherGpuShare([], '(7)')).toBe(0);
   });
 });

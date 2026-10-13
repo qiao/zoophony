@@ -254,3 +254,24 @@ export function webglFrames(intervals: readonly GpuInterval[], process: string):
 export function webglFrameTimes(intervals: readonly GpuInterval[], process: string): number[] {
   return webglFrames(intervals, process).map((frame) => busyMs(frame));
 }
+
+/**
+ * Calculates the part of the time of a trace in which other processes used the GPU. The work of
+ * another process, such as a page of another browser, shares the GPU with the measured frames and
+ * makes them slower.
+ *
+ * @param intervals The GPU intervals of the trace.
+ * @param process The text that the process column of the measured process holds.
+ * @returns The busy time of the other processes over the time from the first interval to the
+ *   end of the last one, from 0 to 1, or 0 with no intervals.
+ */
+export function otherGpuShare(intervals: readonly GpuInterval[], process: string): number {
+  let start = Infinity;
+  let end = -Infinity;
+  for (const interval of intervals) {
+    start = Math.min(start, interval.startNs);
+    end = Math.max(end, interval.startNs + interval.durationNs);
+  }
+  const others = intervals.filter((interval) => !interval.process.includes(process));
+  return end > start ? busyMs(others) / ((end - start) / 1e6) : 0;
+}
