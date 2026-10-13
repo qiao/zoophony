@@ -1,6 +1,6 @@
 # Snapshot of 2026-10-13
 
-Commit `bc873919`: docs(decisions): point the play lean row of the pianist to the rest lean. `pnpm snapshot` made these images.
+Commit `923f18df`: feat(pose): lift the head of the resting pianist over the lid. `pnpm snapshot` made these images.
 
 | File | View |
 |---|---|
