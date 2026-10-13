@@ -44,7 +44,7 @@ const only = flags.find((flag) => flag.startsWith('--shots='))?.slice(8).split('
 const server = await createServer({
   root: '.',
   logLevel: 'error',
-  server: { port: 4183, strictPort: false },
+  server: { port: 4192, strictPort: false },
 });
 await server.listen();
 const base = server.resolvedUrls?.local[0] ?? '';
