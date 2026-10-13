@@ -41,7 +41,7 @@ export interface SweepObstacle {
 
 /**
  * A depth that a decision accepts for one pair of parts in one set of samples. It is a contract
- * of contact: a depth that the look accepts, not a measure of the pose of today.
+ * of contact: a depth that the look accepts, with a margin over the measure.
  */
 export interface AcceptedDepth {
   /** The moving part. */
