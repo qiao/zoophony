@@ -8,6 +8,7 @@ import type { Vec3 } from '../models/tuples.ts';
 import { countInAt } from './count-in.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
+import { LOWER_MAX_SEC } from './rest.ts';
 import { closeSurface, closedPart, openLoops, posedPart } from './test-clearance.ts';
 import type { ClosedSurface, PosedPart } from './test-clearance.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
@@ -70,6 +71,12 @@ const SWEEP_DECISIONS = 'docs/decisions/2026-10-13-role-sweep.md';
 
 /** The step of the song time between two samples of a full play, in seconds. */
 const PLAY_STEP = 0.25;
+
+/** The steps of the wall time between two samples of a lowering, in seconds. */
+const LOWER_STEP = { hold: 0.5, move: 0.1 } as const;
+
+/** The transport of a stop at the wall time 10 s, after a play. */
+const STOPPED: Transport = { ...PLAYING, playing: false, changedAtWall: 10, before: PLAYING };
 
 /**
  * Gives the sample of a song time in a play that started at the wall time 10 s, with the
@@ -202,8 +209,8 @@ function pianistTargets(scene: TestScene, index: number): NoteTarget[] {
 
 /**
  * The sweep of the pianist (design 5.3): the arms against the body and the case of the piano, in
- * a full play, in the lift of the paws from the knees to the keys at the play start, and in the
- * rest pose before the first play.
+ * a full play, in the lift of the paws from the knees to the keys at the play start, in the rest
+ * pose before the first play, and in the lowering of the paws after a stop.
  */
 export const PIANIST_SWEEP: RoleSweep = {
   role: 'pianist',
@@ -214,24 +221,25 @@ export const PIANIST_SWEEP: RoleSweep = {
   ],
   contact: CONTACT,
   accepted: [
-    {
+    // The lowering starts at the playing pose, so it has the accepted depths of a play.
+    ...(['play', 'lower'] as const).map((samples) => ({
       part: 'forearms',
       into: 'body',
-      samples: 'play',
+      samples,
       depth: 0.09,
       reason:
         'The forearms of the round polar bear go into its trunk under the shoulders. No cheap change of the hold removes it.',
       decision: `${POLAR_BEAR_DECISIONS}, row "Accepted limits", and ${SWEEP_DECISIONS}`,
-    },
-    {
+    })),
+    ...(['play', 'lower'] as const).map((samples) => ({
       part: 'upper arms',
       into: 'body',
-      samples: 'play',
+      samples,
       depth: 0.04,
       reason:
         'The skin of the upper arm of the round polar bear runs inside the side of its belly to the elbow.',
       decision: SWEEP_DECISIONS,
-    },
+    })),
   ],
   targetError: 1e-4,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'piano'),
@@ -269,9 +277,47 @@ export const PIANIST_SWEEP: RoleSweep = {
       { name: 'play', samples: playSamples(scene) },
       { name: 'lift', samples: lift },
       { name: 'rest', samples: [[start, 10, NOT_STARTED]] },
+      { name: 'lower', samples: lowerSamples(scene) },
     ];
   },
 };
+
+/**
+ * Gives the samples of the lowering of the paws of a pianist after a stop (design 5.2): at the
+ * outermost note of each paw, where a paw lowers past the end of the case, and at the song end.
+ * Each stop has samples through the hold of the transport and the longest lowering.
+ *
+ * @param scene The scene.
+ * @returns The samples.
+ */
+function lowerSamples(scene: TestScene): SweepSample[] {
+  const plan = scene.plan.players.find((p) => p.note.family === 'keyboard');
+  const stops = [scene.score.durationSec];
+  if (plan?.note.family === 'keyboard') {
+    for (const [track, sign] of [
+      [plan.note.left, -1],
+      [plan.note.right, 1],
+    ] as const) {
+      let best = 0;
+      for (let i = 1; i < track.starts.length; i++) {
+        if (sign * ((track.points[i * 3] ?? 0) - (track.points[best * 3] ?? 0)) > 0) {
+          best = i;
+        }
+      }
+      // The paw is on its keys 0.02 s after the note start (design 5.3).
+      stops.push((track.starts[best] ?? 0) + plan.timeOffset + 0.02);
+    }
+  }
+
+  const samples: SweepSample[] = [];
+  const end = STOPPED.holdSec + LOWER_MAX_SEC;
+  for (const song of stops) {
+    for (let t = 0; t < end; t += t < STOPPED.holdSec ? LOWER_STEP.hold : LOWER_STEP.move) {
+      samples.push([song, 10 + t, STOPPED]);
+    }
+  }
+  return samples;
+}
 
 /**
  * The sweep of the conductor (design 5.4): the arms and the baton against the body, in a full
