@@ -1394,7 +1394,7 @@ code of each instrument (`models/instruments/`) holds its sizes and the offsets 
 | Cymbals | Two crash cymbals, each with a strap. | One cymbal in each hand, with the inner faces to each other. In the bind pose, the strap is above the palm, so that the rim stays above the floor (review of step 4, P1). |
 | Small percussion | A triangle with a metal beater, and a tambourine on a tripod. | The triangle hangs from the left hand, and the beater is in the right hand. In the bind pose, the triangle points forward from the hand, as a mallet does, so that it stays above the floor. The tambourine stands at the front right of the player and leans to the player. The beater in the right hand strikes it for key 54. |
 | Xylophone | 30 bars from C5 to F7 on a frame, with the natural bars in the front row and the sharp bars in the back row. | In front of the player, with a mallet in each hand. A mallet strikes a natural bar at its middle, and a sharp bar near its near end. The bars are below the shoulders of the badger, so the mallets strike them from above. |
-| Baton | A white stick with a handle, about 2 cm thick at the paw, as in `bear-views.png`. It tapers to a tip that bends a little back, toward the bear. | In the right hand. |
+| Baton | A straight white stick with a handle, about 2 cm thick at the paw, as in `bear-views.png`. It tapers to the tip, as in `orchestra-latest.png` and `orchestra-side.png` (user decision of 2026-10-13). | In the right hand. |
 
 In the bind pose, each mallet, stick, beater, the triangle, and the baton lies in the hanging
 hand in front of the palm, and points forward. No vertex of a player model is below the floor: a
