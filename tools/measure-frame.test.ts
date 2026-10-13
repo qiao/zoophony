@@ -291,7 +291,7 @@ describe('the seeks before the traces', () => {
     // The settle of 1 s, then the Chrome trace of 10 s, or the start of xctrace and its record.
     const windows: [number, number][] = [
       [CHROME_SEEK_SEC + 1, CHROME_SEEK_SEC + 11],
-      [METAL_SEEK_SEC + 1, METAL_SEEK_SEC + 7],
+      [METAL_SEEK_SEC + 1, METAL_SEEK_SEC + 9],
     ];
     for (const [from, to] of windows) {
       const shots = plan.shots.filter((shot) => shot.startSec < to && shot.endSec > from);

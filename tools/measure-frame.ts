@@ -56,11 +56,11 @@ export const MIN_MAXIMUM_SHARE = 0.9;
 export const CHROME_SEEK_SEC = 32;
 
 /**
- * The song time of the seek before the Metal trace, in seconds. The start of `xctrace` takes
- * about 1 s, so the trace covers about 18 s to 23 s, in the section shot from 16 s to 26 s of
- * `perf-60.mid`, with the depth of field.
+ * The song time of the seek before the Metal trace, in seconds. The start of `xctrace` took
+ * 2.2 s after the settle, and the record 4.4 s of song time, so the trace covers about 19 s to
+ * 24 s, in the section shot from 16 s to 26 s of `perf-60.mid`, with the depth of field.
  */
-export const METAL_SEEK_SEC = 17;
+export const METAL_SEEK_SEC = 16;
 
 /** The time from a seek to the start of a trace, so that the work of the seek ends. */
 const SEEK_SETTLE_MS = 1000;
@@ -779,8 +779,9 @@ async function measureCapped(base: string, options: FrameOptions): Promise<Cappe
     const from = await seekTo(page, CHROME_SEEK_SEC);
     await browser.startTracing(page, { categories: TRACE_CATEGORIES });
     await page.waitForTimeout(MEASURE_SEC * 1000);
-    const trace = await browser.stopTracing();
+    // The stop of the trace takes about 1.5 s, so the end comes before it.
     const songs: readonly [number, number] = [from, await songTimeOf(page)];
+    const trace = await browser.stopTracing();
     if (options.keep) {
       await writeFile(join(options.keep, 'main-trace.json'), trace);
     }
