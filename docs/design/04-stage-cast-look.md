@@ -514,9 +514,10 @@ retarget had about a quarter of the folded faces.
   behavior: the elbow on the joints of the player, the twist split, the turn of a paw, the
   corrective weights, the blink, the soles on the floor, the body on its bench, and the paws,
   the claws, the forearms, the upper arms, and the baton out of the closed body and the piano
-  (the sweep of each role, 9.3). While the pianist plays, the middle of each forearm goes into
-  the trunk under the shoulder, as an accepted limit
-  (`docs/decisions/2026-10-12-studio-polar-bear.md`, `docs/decisions/2026-10-13-role-sweep.md`).
+  (the sweep of each role, 9.3). A part goes into the body past the contact depth only as an
+  accepted depth: the forearms and the upper arms of the round pianist, and the hanging arms of
+  the conductor. `docs/decisions/2026-10-13-role-sweep.md` lists each accepted depth with its
+  reason.
 
 **Rigged bodies**
 
