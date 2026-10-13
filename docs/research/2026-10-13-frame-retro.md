@@ -131,9 +131,12 @@ the output for information.
 
 ## 4. Facts of this round
 
-- The Metal trace slows the frames of the page. In the 18 kept traces, the WebGL frames of the
-  trace ran 14% to 30% below the frame rate of the probe just before the trace: the frames and
-  the span of `filter-check.ts`, against the line "Frame rate" of each log.
+- In the 18 kept traces, the WebGL frames of the trace ran 14% to 30% below the frame rate of the
+  probe before the trace: the frames and the span of `filter-check.ts`, against the line "Frame
+  rate" of each log. The probe ran in other shots, at about 3 s to 13 s of the song time: the
+  wide shot with no depth of field, and the solo shot. The traces ran from 13 s to 17 s, over the
+  cut from the solo shot to a section shot. Thus this difference does not measure an effect of
+  the trace on the frames.
 - The page draws more frames than the trace holds while `xctrace` records: 1.1% to 2.7% in four
   runs (section 3.3). The cause is open.
 - The rows of `gpu-performance-state-intervals` covered 74% to 96% of the span of 17 kept traces
