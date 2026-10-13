@@ -13,7 +13,7 @@ import { layoutScene } from '../models/layout-scene.ts';
 import { PODIUM_SIZE } from '../models/stage.ts';
 import { chord, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { effectTime, lightEffects, playerSpots } from './stage-scene.ts';
+import { effectTime, lightEffects, playerSpots, renderScenePass } from './stage-scene.ts';
 
 describe('playerSpots', () => {
   it('gives each player of the layout, then the bear on the podium top (design 4.5)', () => {
@@ -83,5 +83,37 @@ describe('effectTime (design 2.5, review of step 8, L3)', () => {
     expect(effectTime(12_500, false)).toBe(12.5);
     expect(effectTime(12_500, true)).toBe(0);
     expect(effectTime(99_000, true)).toBe(0);
+  });
+});
+
+describe('renderScenePass (design 4.5, the shadow map in the depth pass of the beam)', () => {
+  /**
+   * Renders one scene pass, and records the setting of the shadow map at the render and after it.
+   *
+   * @param depthPass True if the depth pass of the beam rendered before the scene pass.
+   * @param autoUpdate The setting of the shadow map before the pass.
+   * @returns The setting at the render, then the setting after the pass.
+   */
+  function record(depthPass: boolean, autoUpdate: boolean): boolean[] {
+    const shadowMap = { autoUpdate };
+    const settings: boolean[] = [];
+    renderScenePass(shadowMap, depthPass, () => {
+      settings.push(shadowMap.autoUpdate);
+    });
+    settings.push(shadowMap.autoUpdate);
+    return settings;
+  }
+
+  it('keeps the shadow map of the depth pass in the scene pass after it', () => {
+    expect(record(true, true)).toEqual([false, true]);
+  });
+
+  it('renders the shadow map in the scene pass with no depth pass', () => {
+    expect(record(false, true)).toEqual([true, true]);
+  });
+
+  it('keeps the shadow map off when it was off before the pass', () => {
+    expect(record(true, false)).toEqual([false, false]);
+    expect(record(false, false)).toEqual([false, false]);
   });
 });

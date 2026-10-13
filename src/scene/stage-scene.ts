@@ -1,5 +1,11 @@
 import { Group, Mesh, Points, Scene, Vector2, Vector3 } from 'three';
-import type { Object3D, SkinnedMesh, WebGLRenderTarget, WebGLRenderer } from 'three';
+import type {
+  Object3D,
+  SkinnedMesh,
+  WebGLRenderTarget,
+  WebGLRenderer,
+  WebGLShadowMap,
+} from 'three';
 
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
@@ -169,6 +175,27 @@ export function lightEffects(scene: Object3D): Object3D[] {
  * the shader programs again (review of step 4, F6). The players show the bind pose until
  * {@link StageScene.pose} gives them the poses of a frame.
  */
+/**
+ * Renders the scene pass of a frame (design 4.5). The depth pass of the beam renders the shadow
+ * map of the frame (`BeamDepth.render`), so the scene pass after it does not render the map again.
+ * With no depth pass, the scene pass renders the map. The setting of the shadow map comes back
+ * after the pass.
+ *
+ * @param shadowMap The shadow map of the renderer.
+ * @param depthPass True if the depth pass of the beam rendered before the scene pass.
+ * @param render Renders the scene, with or without the post effects.
+ */
+export function renderScenePass(
+  shadowMap: Pick<WebGLShadowMap, 'autoUpdate'>,
+  depthPass: boolean,
+  render: () => void,
+): void {
+  const shadows = shadowMap.autoUpdate;
+  shadowMap.autoUpdate = shadows && !depthPass;
+  render();
+  shadowMap.autoUpdate = shadows;
+}
+
 export class StageScene {
   readonly #canvas: HTMLCanvasElement;
   readonly #renderer: WebGLRenderer;
@@ -463,18 +490,16 @@ export class StageScene {
     }
     setHallCamera(view.hall, view.stageSide, camera.position, this.#beamDepth.size[1]);
     const focus = this.#focusOf(view, shot !== null, performance.now());
-    // The depth pass of the beam updated the world matrices and rendered the shadow map of the
-    // frame (BeamDepth.render).
+    // The depth pass of the beam updated the world matrices of the frame (BeamDepth.render).
     view.scene.matrixWorldAutoUpdate = !depthPass;
-    const shadows = this.#renderer.shadowMap.autoUpdate;
-    this.#renderer.shadowMap.autoUpdate = shadows && !depthPass;
-    if (this.#post) {
-      this.#post.render(view.scene, camera, focus, view.effects, timeSec);
-    } else {
-      this.#renderer.render(view.scene, camera);
-    }
+    renderScenePass(this.#renderer.shadowMap, depthPass, () => {
+      if (this.#post) {
+        this.#post.render(view.scene, camera, focus, view.effects, timeSec);
+      } else {
+        this.#renderer.render(view.scene, camera);
+      }
+    });
     view.scene.matrixWorldAutoUpdate = true;
-    this.#renderer.shadowMap.autoUpdate = shadows;
   }
 
   /**
