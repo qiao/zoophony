@@ -5,10 +5,9 @@
  * `node docs/research/2026-10-13-frame-time/filter-check.ts <ref> <dir>[:<w>x<h>]...`.
  *
  * The probe writes `tools/gpu-trace.ts` of `<ref>` into a temporary folder, and splits the WebGL
- * work of the GPU process with the most intervals into frames with its `webglFrames()`. The kept
- * traces have no frame rate of the page during the trace. Thus the expected count is half the
- * count of the command buffers that write the canvas in the span of the frames: each frame writes
- * the canvas in two command buffers. The drawing buffer is 2880 × 1800, or the size after the
+ * work of the GPU process with the most intervals into frames with its `webglFrames()`. The
+ * expected count comes from the command buffers that write the canvas (`canvasWriteFrames()`),
+ * as in `pnpm frame`: each frame writes the canvas in two command buffers. The drawing buffer is 2880 × 1800, or the size after the
  * colon of an argument, such as `:2160x1350`.
  */
 import { execFileSync } from 'node:child_process';
@@ -17,6 +16,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import {
+  canvasWriteFrames,
   checkFrames,
   droppedPerFrame,
   frameCheckFaults,
@@ -58,7 +58,7 @@ try {
     const gpu = [...counts.entries()].toSorted((a, b) => b[1] - a[1])[0]?.[0] ?? '';
     const frames = webglFrames(intervals, gpu, canvas);
     const check = checkFrames(intervals, gpu, canvas, frames);
-    const expected = canvasWrites(intervals, gpu, canvas, frames) / 2;
+    const expected = canvasWriteFrames(check);
     const faults = frameCheckFaults(check, expected);
     const perFrame = droppedPerFrame(check, check.droppedCanvas);
     const name = dir.split('/').filter(Boolean).at(-1) ?? dir;
@@ -74,36 +74,4 @@ try {
   }
 } finally {
   await rm(folder, { recursive: true, force: true });
-}
-
-/**
- * Counts the command buffers of the process that write the canvas between the start of the first
- * frame and the end of the last frame. An encoder writes the canvas when it writes a surface of the
- * size of the drawing buffer and touches no surface of another size.
- *
- * @param intervals The GPU intervals of the trace.
- * @param process The process.
- * @param canvas The size of the drawing buffer.
- * @param frames The frames of the filter, for the span.
- * @returns The count.
- */
-function canvasWrites(
-  intervals: readonly GpuInterval[],
-  process: string,
-  canvas: readonly [number, number],
-  frames: readonly GpuInterval[][],
-): number {
-  const size = `${canvas[0]}×${canvas[1]}`;
-  const start = Math.min(...(frames[0] ?? []).map((interval) => interval.startNs));
-  const end = Math.max(...(frames.at(-1) ?? []).map((i) => i.startNs + i.durationNs));
-  const writers = new Set<string>();
-  for (const interval of intervals) {
-    const sizes = [...interval.surfaces.matchAll(/\((\d+×\d+)/g)].map((m) => m[1]);
-    const writes = (interval.surfaces.split('Write Surface:')[1] ?? '').includes(`(${size}`);
-    const inSpan = interval.startNs >= start && interval.startNs < end;
-    if (interval.process === process && inSpan && writes && sizes.every((s) => s === size)) {
-      writers.add(interval.commandBuffer);
-    }
-  }
-  return writers.size;
 }
