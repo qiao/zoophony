@@ -263,8 +263,8 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
 `pnpm format`, `pnpm screenshots`, `pnpm snapshot`, `pnpm sheet-check`, `pnpm pose-probe`, `pnpm choir-check`, `pnpm keyboard`,
-`pnpm smoke`, `pnpm glb-init`, `pnpm rig-body`, `pnpm studio-body`, `pnpm close-views`, and
-`tools/merge-branch.sh`. It runs `pnpm test:e2e` in one job for each browser, and only the Chromium job blocks a merge
+`pnpm smoke`, `pnpm glb-init`, `pnpm rig-body`, `pnpm studio-body`, `pnpm close-views`,
+`tools/merge-branch.sh`, `tools/check-commits.sh`, and `tools/decision-rows.sh`. It runs `pnpm test:e2e` in one job for each browser, and only the Chromium job blocks a merge
 (design 9.2).
 `.github/workflows/pages.yml` deploys the site to GitHub Pages under `/zoophony/` after CI passes
 on `main`.
