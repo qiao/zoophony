@@ -71,9 +71,9 @@ player.
   and the elevation is 35° by default. The queries `x` and `z` move the vertical line through
   the target from the middle of the gallery, in meters, for example to the pianist at the end of
   its piano. The query `body` turns the camera around the body of the first animal. The box of
-  its body with no instrument gives the vertical line, the target, and the distance at the zoom
-  1. The azimuth 0 is the front of the animal. Thus a close view of a new role needs no camera
-  values. `pnpm choir-check` (`tools/choir-check.ts`) uses these queries to
+  its body with no instrument gives the vertical line, the target, and the distance at the
+  zoom 1. The azimuth 0 is the front of the animal. Thus a close view of a new role needs no
+  camera values. `pnpm choir-check` (`tools/choir-check.ts`) uses these queries to
   show the penguin at the cameras of `orchestra-latest.png` and `orchestra-side.png`, beside a
   crop of each image (4.4). `pnpm close-views` (`tools/close-views.ts`) uses them to show a role
   in one grid. The bear conductor shows from the front, the right side, and the back (5.4). Its
