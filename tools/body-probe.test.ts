@@ -293,17 +293,18 @@ describe('probeRef', () => {
   it('probes a commit in a temporary folder, and removes the folder also after a failure', async () => {
     const parent = await mkdtemp(join(tmpdir(), 'probe-ref-test-'));
     try {
-      const running = probeRef('HEAD', parent);
+      // The poses take most of the time of a probe, and this test checks the folder only.
+      const running = probeRef('HEAD', parent, false);
       // The child starts before the first await, so the probe of the caller runs beside it.
       const [dir] = readdirSync(parent);
       expect(existsSync(join(parent, dir ?? '', 'tools', 'body-probe.ts'))).toBe(true);
       const base = await running;
       expect(Object.keys(base.species['bear'] ?? {})).toContain('stand');
       expect(Object.keys(base.players)).toContain('conductor/bear/baton');
-      expect(Object.keys(base.poses ?? {})).toContain('mozart-k525');
+      expect(base.poses).toBeUndefined();
       expect(await readdir(parent)).toEqual([]);
 
-      await expect(probeRef('no-such-ref', parent)).rejects.toThrow('no-such-ref');
+      await expect(probeRef('no-such-ref', parent, false)).rejects.toThrow('no-such-ref');
       expect(await readdir(parent)).toEqual([]);
     } finally {
       await rm(parent, { recursive: true, force: true });

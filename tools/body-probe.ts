@@ -5,9 +5,9 @@
  * samples: the rest pose, the lift, the play, and the lowering after a pause (design 5.1, 5.2).
  * Two runs on two commits show if a change moved a body or a pose: the JSON of the same code is
  * the same, byte for byte. `--out` writes the JSON. With no `--out`, the tool prints a summary
- * with a SHA-256 of the JSON.
+ * with a SHA-256 of the JSON. `--no-poses` probes only the bodies and the players.
  *
- * Usage: pnpm body-probe [--out <file>]
+ * Usage: pnpm body-probe [--out <file>] [--no-poses]
  *        pnpm body-probe --compare <base.json> <new.json>
  *        pnpm body-probe --base <ref>
  */
@@ -662,10 +662,15 @@ const REF_PATHS = [
  *
  * @param ref The commit, a branch, or a tag.
  * @param parent The folder that holds the temporary folder.
+ * @param poses False to probe only the bodies and the players, as `--no-poses` does.
  * @returns The probe of the commit.
  * @throws Error if git does not know the ref, or the probe fails on the code of the commit.
  */
-export async function probeRef(ref: string, parent: string = tmpdir()): Promise<Probe> {
+export async function probeRef(
+  ref: string,
+  parent: string = tmpdir(),
+  poses = true,
+): Promise<Probe> {
   const dir = mkdtempSync(join(parent, 'body-probe-'));
   const stop = (): void => {
     rmSync(dir, { recursive: true, force: true });
@@ -681,7 +686,8 @@ export async function probeRef(ref: string, parent: string = tmpdir()): Promise<
     copyFileSync(join(ROOT, 'tools', 'body-probe.ts'), join(dir, 'tools', 'body-probe.ts'));
     symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
     const out = join(dir, 'probe.json');
-    await runChild(process.execPath, [join('tools', 'body-probe.ts'), '--out', out], dir);
+    const args = [join('tools', 'body-probe.ts'), '--out', out, ...(poses ? [] : ['--no-poses'])];
+    await runChild(process.execPath, args, dir);
     return await readProbe(out);
   } finally {
     process.off('SIGINT', stop);
@@ -752,7 +758,7 @@ if (import.meta.main) {
   }
   // The JSON is about 1 MB, so only --out writes it. The summary is a few lines.
   const outIndex = args.indexOf('--out');
-  const probe = await runProbe();
+  const probe: Probe = args.includes('--no-poses') ? probeBodies() : await runProbe();
   const text = `${JSON.stringify(probe, null, 1)}\n`;
   const out = outIndex >= 0 ? args[outIndex + 1] : undefined;
   if (out) {
