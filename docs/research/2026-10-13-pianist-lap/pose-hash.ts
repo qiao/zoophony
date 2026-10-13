@@ -1,8 +1,11 @@
 /**
  * Prints a hash of the pose of each player and of the conductor of each demo (the report
- * `2026-10-13-pianist-lap.md`, section 5): at rest, in the lift of the first 3 s after the
- * start, and in a play of the first 20 s at each 0.25 s. Two trees with the same pose of a player
- * print the same hash. Run from the repository root of each tree:
+ * `2026-10-13-pianist-lap.md`, section 6): at rest, in the lift of the first 3 s after the
+ * start, and in a play of the first 20 s at each 0.25 s. It has no set of the lowering after a
+ * stop. Two trees with the same pose of a player print the same hash. A quaternion and its
+ * negative are the same rotation, and they give different hashes. `pnpm body-probe --base main`
+ * now hashes the poses of each player, with the lowering. Run from the repository root of each
+ * tree:
  * `node docs/research/2026-10-13-pianist-lap/pose-hash.ts > <file>`, then compare the files.
  */
 import { createHash } from 'node:crypto';

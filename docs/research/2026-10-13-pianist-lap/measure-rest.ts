@@ -17,7 +17,8 @@
  *   line from the neck joint to the hips joint, in the back view. Positive is out.
  * - Palm x and knee x: the palm point and the knee joint, out from the middle line, in meters.
  * - Paw gap: the smallest distance from the paw and the claws to the trunk, the hips, and the
- *   legs, 0 when they touch or cross.
+ *   legs, 0 when they touch or cross. The palm point is in the middle of the paw, so its distance
+ *   to the body is larger.
  * - Depths: the deepest point of each arm part in the closed body, as the sweep measures it.
  */
 import { readFile } from 'node:fs/promises';
@@ -111,6 +112,13 @@ function appRows(posed: PosedSkeleton): string[] {
     const palm = new Vector3(...posedPoint(posed, `hand${s}`, posed.model.body[`palm${s}`]));
     const paw = posedPart(posed, [`hand${s}`, `fingers${s}`]);
     const gap = partDistance(paw, body, 0.3);
+    // The palm point is in the middle of the paw, between the wrist and the finger joint.
+    let palmToBody = Infinity;
+    const nearest = new Vector3();
+    for (const t of body.triangles) {
+      t.closestPointToPoint(palm, nearest);
+      palmToBody = Math.min(palmToBody, nearest.distanceTo(palm));
+    }
     const lapGap = partDistance(paw, lap, 0.3);
     const depth = (bones: readonly BoneName[]): string => {
       const part = posedPart(posed, bones);
@@ -119,7 +127,8 @@ function appRows(posed: PosedSkeleton): string[] {
     };
     rows.push(
       `${s}: palm x ${f(side * palm.x, 3)} m, knee x ${f(side * at(`shin${s}`).x, 3)} m, ` +
-        `palm ${triple(palm)}, paw gap body ${f(gap * 100, 1)} cm, lap ${f(lapGap * 100, 1)} cm`,
+        `palm ${triple(palm)}, paw gap body ${f(gap * 100, 1)} cm, lap ${f(lapGap * 100, 1)} cm, ` +
+        `palm point to body ${f(palmToBody * 100, 1)} cm`,
       `${s}: wrist from knee ${triple(moveFrom(at(`shin${s}`), at(`hand${s}`), side))} m, ` +
         `elbow from shoulder ${triple(moveFrom(at(`upperArm${s}`), at(`forearm${s}`), side))} m, ` +
         `arm angle ${f(armAngle(at(`upperArm${s}`), at(`forearm${s}`), at('neck'), at('hips'), side), 1)} deg`,
