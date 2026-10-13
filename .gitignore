@@ -31,3 +31,7 @@ docs/research/scripts/webkit-audio/out/
 # Output of tools/write-perf-60.ts: the file of the frame target (design 9.5). Only the dev
 # server serves it.
 perf/
+
+# Probe scripts of an agent. A script here imports `three` and the source modules through the
+# node_modules of its worktree: `node scratch/<name>.ts`.
+scratch/
