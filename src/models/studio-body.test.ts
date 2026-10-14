@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { MeshBuilder } from './mesh.ts';
+import { SPECIES_COLORS } from './colors.ts';
+import { FINISH_ORDER, MeshBuilder, srgb } from './mesh.ts';
+import type { MeshData } from './mesh.ts';
 import { box } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import { STUDIO_BONES } from './studio-format.ts';
@@ -38,6 +40,61 @@ describe('buildStudioBody (design 4.4)', () => {
     expect(body.mouth[1]).toBeLessThan(rig.body.nose[1]);
     expect(body.palmR[1]).toBeLessThan(body.positions.handR[1]);
     expect(body.headHeight).toBe(rig.body.headHeight);
+  });
+});
+
+describe('buildStudioBody with another palette (design 4.4, 4.5)', () => {
+  const build = (palette?: 'tan'): MeshData => {
+    const builder = new MeshBuilder();
+    buildStudioBody(builder, 'studio-fox', false, palette);
+    return builder.build();
+  };
+  const red = build();
+  const tan = build('tan');
+  const matte = FINISH_ORDER.indexOf('matte');
+
+  /**
+   * Gives the mean color of the faces of a mesh whose red color is near a color: the faces of one
+   * class of the colors of the red fox.
+   *
+   * @param mesh The mesh.
+   * @param near The linear color of the class.
+   * @returns The mean linear color.
+   */
+  const meanNear = (mesh: MeshData, near: readonly number[]): number[] => {
+    const sum = [0, 0, 0];
+    let count = 0;
+    for (const [t, finish] of red.finishes.entries()) {
+      const color = [0, 1, 2].map((k) => red.colors[t * 9 + k] ?? 0);
+      if (finish === matte && Math.hypot(...color.map((c, k) => c - (near[k] ?? 0))) < 0.1) {
+        count++;
+        for (let k = 0; k < 3; k++) {
+          sum[k] = (sum[k] ?? 0) + (mesh.colors[t * 9 + k] ?? 0);
+        }
+      }
+    }
+    return sum.map((value) => value / count);
+  };
+
+  it('keeps the faces and the gloss of the eyes and of the nose', () => {
+    expect([...tan.positions]).toEqual([...red.positions]);
+    expect([...tan.finishes]).toEqual([...red.finishes]);
+    for (const [t, finish] of red.finishes.entries()) {
+      if (finish !== matte) {
+        expect([...tan.colors.subarray(t * 9, t * 9 + 9)]).toEqual([
+          ...red.colors.subarray(t * 9, t * 9 + 9),
+        ]);
+      }
+    }
+  });
+
+  it('moves the fur faces of the red fox mesh toward the tan fur', () => {
+    const redFur = srgb(SPECIES_COLORS['fox-red'].fur);
+    const tanFur = srgb(SPECIES_COLORS['fox-tan'].fur);
+    const off = (color: readonly number[]): number =>
+      Math.hypot(...color.map((c, k) => c - (tanFur[k] ?? 0)));
+
+    expect(off(meanNear(tan, redFur))).toBeLessThan(off(meanNear(red, redFur)) / 2);
   });
 });
 

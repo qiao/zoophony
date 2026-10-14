@@ -1,5 +1,6 @@
 import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
+import type { StudioPalette } from './studio-format.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
@@ -96,6 +97,11 @@ export interface OwnBodyParams extends CommonParams {
    * body of `lowpoly-studio/` (`models/studio-body.ts`).
    */
   readonly body: 'penguin' | StudioBodyName;
+  /**
+   * Another palette of the faces of a studio body (`StudioBody.palettes`), such as the tan palette
+   * of the fox mesh. The colors of the mesh when it is not given.
+   */
+  readonly palette?: StudioPalette;
 }
 
 /** The parameters of one species (design 4.3): the parametric biped, or a body of its own. */

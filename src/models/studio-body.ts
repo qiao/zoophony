@@ -4,8 +4,8 @@ import type { BodyBones } from './biped.ts';
 import type { CornerSkin, MeshBuilder, MeshData } from './mesh.ts';
 import { BONE_NAMES } from './rig.ts';
 import { makeSkeleton } from './rig.ts';
-import { STUDIO_BONES, STUDIO_INFLUENCES } from './studio-format.ts';
-import type { StudioBody } from './studio-format.ts';
+import { STUDIO_BONES, STUDIO_INFLUENCES, unpackStudioMesh } from './studio-format.ts';
+import type { StudioBody, StudioPalette } from './studio-format.ts';
 import { studioNormals } from './studio-normals.ts';
 import {
   NO_OFFSETS,
@@ -55,6 +55,32 @@ export function studioRigOf(name: StudioBodyName, stands: boolean): StudioRig {
   return rig;
 }
 
+/** The colors of the faces of each studio body with another palette, made on their first use. */
+const paletteColors = new Map<string, Float32Array>();
+
+/**
+ * Gives the colors of the faces of a studio body with another palette (design 4.4, 4.5).
+ *
+ * @param name The studio body.
+ * @param palette The other palette.
+ * @returns Linear r, g, b of each triangle.
+ * @throws Error if the body has no such palette.
+ */
+function colorsWith(name: StudioBodyName, palette: StudioPalette): Float32Array {
+  const key = `${name} ${palette}`;
+  let colors = paletteColors.get(key);
+  if (!colors) {
+    const body: StudioBody = STUDIO_BODIES[name];
+    const packed = body.palettes?.[palette];
+    if (packed === undefined) {
+      throw new Error(`The studio body ${name} has no ${palette} palette.`);
+    }
+    colors = unpackStudioMesh(body.mesh, packed).colors;
+    paletteColors.set(key, colors);
+  }
+  return colors;
+}
+
 /** The place of the mouth below the tip of the nose, in H. */
 const MOUTH_DROP = 0.08;
 
@@ -100,17 +126,20 @@ function playerSkins(rig: StudioRig): CornerSkin[] {
  * studio (`StudioRig`). A studio body keeps the stance of its role on each support: the bear
  * conductor stands, and the polar bear pianist sits on its bench (`StudioBody.seatHeight`). A
  * seated body that also stands, such as the violinist rabbit, sits on a seat and stands as a
- * soloist ({@link studioRigOf}).
+ * soloist ({@link studioRigOf}). A species can take another palette of the faces, as the tan
+ * foxes take the tan palette of the fox mesh.
  *
  * @param builder The mesh that gets the triangles.
  * @param name The studio body.
  * @param stands True for a player that stands.
+ * @param palette Another palette of the faces. The colors of the mesh by default.
  * @returns The bind positions of the body bones, and the points that the instruments need.
  */
 export function buildStudioBody(
   builder: MeshBuilder,
   name: StudioBodyName,
   stands: boolean,
+  palette?: StudioPalette,
 ): BodyBones {
   const rig = studioRigOf(name, stands);
   const { body, positions } = rig;
@@ -132,7 +161,8 @@ export function buildStudioBody(
     poseStudioBones(rig, skeleton, bind, NO_OFFSETS, 1, createStudioPose()),
   );
 
-  const { corners, colors, finishes } = rig.mesh;
+  const { corners, finishes } = rig.mesh;
+  const colors = palette ? colorsWith(name, palette) : rig.mesh.colors;
   const skins = playerSkins(rig);
   const places = new Float32Array(corners.length * 3);
   for (const [c, v] of corners.entries()) {

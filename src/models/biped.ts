@@ -65,7 +65,7 @@ export function buildBiped(
     return buildPenguinBody(builder, species, stance);
   }
   if (species.body) {
-    return buildStudioBody(builder, species.body, stance.kind === 'standing');
+    return buildStudioBody(builder, species.body, stance.kind === 'standing', species.palette);
   }
 
   const frame = bodyFrame(species, stance);
