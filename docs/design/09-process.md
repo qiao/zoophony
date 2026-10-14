@@ -444,7 +444,7 @@ On 2026-10-13, the manager changed the condition of the GPU measure, and told th
   GPU work of the other processes. A page of another browser that renders shares the GPU and makes
   the frames slower, so the tool prints that share and a warning above 10%.
 - Each change of `src/scene/`, of a shader, or of the post effects runs `pnpm frame` before its
-  report (`AGENTS.md`). CI has no GPU.
+  report (`AGENTS.md`). CI has no GPU. The user paused this rule on 2026-10-14 (below).
 
 On 2026-10-13, after the frame-time rounds, the manager added guards and checks to the measure
 ([`2026-10-13-frame-tools.md`](../decisions/2026-10-13-frame-tools.md)). The facts are in
@@ -478,6 +478,12 @@ On 2026-10-13, after the frame-time rounds, the manager added guards and checks 
 - The tool seeks to 32 s before the Chrome trace and to 16 s before the Metal trace. Each trace
   then lies in one section shot of `perf-60.mid` with the depth of field, so two runs measure the
   same shots.
+
+On 2026-10-14, the user paused the frame test until a sweep of the performance work
+([`2026-10-14-test-pause.md`](../decisions/2026-10-14-test-pause.md)). Until the sweep starts, a
+change of `src/scene/`, of a shader, or of the post effects does not run `pnpm frame` before its
+report. The frame target, `pnpm frame`, and its unit tests stay, and the sweep measures the target
+again.
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: the default demo must play at
