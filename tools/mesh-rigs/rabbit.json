@@ -73,9 +73,9 @@
   "eyeLift": 0.002,
   "chair": {
     "halfWidth": 0.16,
-    "front": 0,
-    "back": -0.13,
+    "front": -0.03,
+    "back": -0.16,
     "backHeight": 0.15,
-    "note": "The chair of the studio rabbit has its front edge at z 0 and its back at z -0.123. The seat top is the lowest point of the seated body over the seat."
+    "note": "The chair has the depth of the chair of the studio rabbit (0.123 to 0.13). Its front edge lies behind the heels of the seated bind (z -0.022, pnpm rig-mesh prints it), so that no foot lies over the seat, and the haunch (z -0.04 to -0.19) sits on it. The seat top is the lowest point of the seated body over the seat."
   }
 }
