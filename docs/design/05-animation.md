@@ -391,13 +391,17 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the thin faces of the left upper arm of the rabbit mesh turned over. The right arm has the
     shoulder turn of the chin hold. At the frog, the right elbow points less down than in the
     chin hold, nearer to the level of the bow: with the elbow of the chin hold, the bow paw of
-    the rabbit mesh went into the body in a demo of 2026-10-14. At the tip, the right elbow also
+    the rabbit mesh went into the body in a demo of 2026-10-14. The rabbit of 1.2 times the size
+    points the elbow at the frog further out: the free hair at the frog keeps its length in
+    meters (`HAIR_END` of `pose/bowed.ts`), so the larger bow reaches nearer to its frog, and the
+    bow paw went deeper into the body. At the tip, the right elbow also
     points down: up, the skin of the studio rabbit folded at the upper arm. In the rest pose, the
     left paw holds the violin at the left side by the neck near its body, and the bow hangs from
     the right paw (`BowedHold.restAtSide`), as for a soloist who stands: the round belly covers
     the short thighs, so the rabbit has no lap for the violin. The red foxes take the shoulder hold
     of the rabbits (`FOX_HOLD`), with the violin 0.12 H further forward under the long jaw, the bow
-    slanted 12°, the right shoulder turned 25°, and the right elbow at the tip less down. With the
+    slanted 12°, the right shoulder turned 25°, the right elbow at the tip less down, and the right
+    elbow at the frog of the rabbits before their larger size. With the
     bow of the rabbit, the skin of the right shoulder of the fox mesh folded in 18% of the play
     samples. With the violin of the rabbit, the right forearm went into the chest at the end of the
     lift of the violin. The fox rests the violin at its side too: the lap rest put its right upper

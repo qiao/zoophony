@@ -247,7 +247,10 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  * the strings. The right arm has the shoulder turn of the chin hold. At the frog, the right elbow
  * points out, forward, and less down than in the chin hold, nearer to the level of the bow, as a
  * real violinist holds it: with the elbow of the chin hold, the bow paw went 1.6 cm into the body
- * in a play of the Brandenburg Concerto No. 5 (2026-10-13-mesh-rabbit decisions). The
+ * in a play of the Brandenburg Concerto No. 5 (2026-10-13-mesh-rabbit decisions). The rabbit of
+ * 1.2 times the size points the elbow at the frog further out: the free hair at the frog keeps
+ * its length in meters (`HAIR_END`), so the larger bow reaches nearer to its frog, and the bow
+ * paw went 1.7 cm into the body in the same play (2026-10-14-animal-size decisions). The
  * right elbow points down at the tip too: up, as in the chin hold, the skin of the studio rabbit
  * folded at the right upper arm (`pnpm fold-probe violinist`). The left elbow keeps the
  * pole of the chin hold: a pole further in put the elbow under the violin, and turned over faces
@@ -261,7 +264,7 @@ const SHOULDER_HOLD = {
   ...CHIN_HOLD,
   playShift: [-0.15, 0.06, 0.04],
   playTurn: violinTurn(-25, 5),
-  poleR: [1, -0.7, -1],
+  poleR: [1.2, -0.7, -1],
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
@@ -277,10 +280,12 @@ const SHOULDER_HOLD = {
  * shoulder of the fox mesh folded in 18% of the play samples (`pnpm fold-probe fox-violinist`).
  * The violin lies 0.12 H further forward, still under the long jaw: with the place of the rabbit,
  * the right forearm went 2.0 cm into the chest at the end of the lift of the violin in the
- * Beethoven 8 demo, and 2.5 cm with a slant of 25° (limit 1.5 cm).
+ * Beethoven 8 demo, and 2.5 cm with a slant of 25° (limit 1.5 cm). The right elbow at the frog
+ * keeps the pole of the rabbit before its larger size.
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
+  poleR: [1, -0.7, -1],
   playShift: [-0.15, 0.06, -0.08],
   slant: -12 * MathUtils.DEG2RAD,
   reach: 25 * MathUtils.DEG2RAD,
