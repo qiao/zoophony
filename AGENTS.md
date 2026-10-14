@@ -340,10 +340,10 @@ These traps of route 3 each cost a round:
   payload. When an API asks for contact data in the User-Agent, send a neutral value such as
   `zoophony-build/1.0`.
 - **Frame time.** The user paused this rule on 2026-10-14, until the user starts the sweep of
-  the performance work (`docs/decisions/2026-10-14-test-pause.md`). Until then, a change of `src/scene/`, of a
-  shader, or of the post effects does not run `pnpm frame`. After the pause, each such change
-  runs `pnpm frame` before its report, and gives the table in the report or the commit message.
-  CI has no GPU, so this check is local (design 9.7).
+  the performance work (`docs/decisions/2026-10-14-test-pause.md`). Until then, a change of
+  `src/scene/`, of a shader, or of the post effects does not run `pnpm frame`. After the pause,
+  each such change runs `pnpm frame` before its report, and gives the table in the report or the
+  commit message. CI has no GPU, so this check is local (design 9.7).
 - **Work order.** Follow the steps in design 9.5. The largest risks come first.
 
 ## Commands
