@@ -1,6 +1,6 @@
 # Snapshot of 2026-10-14
 
-Commit `e9f655a7`: feat(pose): fit the bow of the red fox against the folds of its shoulder. `pnpm snapshot` made these images.
+Commit `a71995d8`: feat(pose): fit the bow of the red fox against the folds of its shoulder. `pnpm snapshot` made these images.
 
 | File | View |
 |---|---|
