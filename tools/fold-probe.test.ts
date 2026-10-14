@@ -7,10 +7,12 @@ import {
   SAMPLE_SETS,
   faceFacts,
   faceLines,
+  foldJson,
   foldLines,
   foldedFaces,
   mainBone,
   probeFolds,
+  readFoldJson,
   roleAnimal,
 } from './fold-probe.ts';
 import type { FoldCount, FoldReport } from './fold-probe.ts';
@@ -130,6 +132,29 @@ describe('faceLines', () => {
       sets: { rest: countOf(1, []), play: countOf(1, []), lift: countOf(1, []) },
     };
     expect(faceLines(empty, 3)).toEqual(['No face folds.']);
+  });
+});
+
+describe('foldJson and readFoldJson', () => {
+  it('write and read the samples and the samples with a fold of each set', () => {
+    const report: FoldReport = {
+      demos: ['a.mid'],
+      faces: 2,
+      mesh: null,
+      sets: { rest: countOf(1, [[0, 1]]), play: countOf(200, []), lift: countOf(30, []) },
+    };
+    report.sets.rest.withFold = 1;
+    report.sets.play.withFold = 7;
+    expect(readFoldJson(foldJson(report))).toEqual({
+      rest: { samples: 1, withFold: 1 },
+      play: { samples: 200, withFold: 7 },
+      lift: { samples: 30, withFold: 0 },
+    });
+  });
+
+  it('stops on a set with no whole counts', () => {
+    expect(() => readFoldJson('{"sets":{"rest":{"samples":1,"withFold":0}}}')).toThrow(/play/);
+    expect(() => readFoldJson('{}')).toThrow(/rest/);
   });
 });
 

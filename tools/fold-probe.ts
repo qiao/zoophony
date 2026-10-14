@@ -6,11 +6,15 @@
  * the tool prints the samples, the samples with a fold, their share, and the most folded faces.
  * Then it prints the main bone of the folded faces. With `--faces <n>`, it also prints the `n`
  * faces that fold in the most samples, with their places, their corner angles, and the weights of
- * their corners. The method comes from
+ * their corners. With `--json <file>`, it also writes the counts of each sample set into the file
+ * for `pnpm rig-mesh --check`. The method comes from
  * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
- * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--glb <file>]
+ * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--json <file>]
+ * [--glb <file>]
  */
+import { writeFile } from 'node:fs/promises';
+
 import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
@@ -529,6 +533,55 @@ export function faceLines(report: FoldReport, count: number): string[] {
   ];
 }
 
+/** The samples and the samples with a fold of one sample set. */
+export interface SetCount {
+  /** The number of posed bodies. */
+  readonly samples: number;
+  /** The number of posed bodies with one folded face or more. */
+  readonly withFold: number;
+}
+
+/** The counts of the folds of each sample set, as `--json` writes them. */
+export type FoldCounts = Readonly<Record<SampleSet, SetCount>>;
+
+/**
+ * Writes the counts of the folds of each sample set of a report as the JSON text of `--json`.
+ *
+ * @param report The report.
+ * @returns The JSON text.
+ */
+export function foldJson(report: FoldReport): string {
+  const sets = Object.fromEntries(
+    SAMPLE_SETS.map((set) => {
+      const { samples, withFold } = report.sets[set];
+      return [set, { samples, withFold }];
+    }),
+  );
+  return JSON.stringify({ sets });
+}
+
+/**
+ * Reads the JSON text of `--json` ({@link foldJson}).
+ *
+ * @param text The JSON text.
+ * @returns The counts of each sample set.
+ * @throws Error if a sample set has no whole counts.
+ */
+export function readFoldJson(text: string): FoldCounts {
+  // SAFETY: the text comes from foldJson(), and the loop below checks each count that it reads.
+  const parsed = JSON.parse(text) as {
+    readonly sets?: Partial<Record<SampleSet, Partial<SetCount>>>;
+  };
+  const count = (set: SampleSet): SetCount => {
+    const { samples, withFold } = parsed.sets?.[set] ?? {};
+    if (!Number.isInteger(samples) || !Number.isInteger(withFold)) {
+      throw new Error(`The fold counts have no whole counts of the set ${set}.`);
+    }
+    return { samples: samples ?? 0, withFold: withFold ?? 0 };
+  };
+  return { rest: count('rest'), play: count('play'), lift: count('lift') };
+}
+
 /**
  * Runs the probe: `node tools/fold-probe.ts <role> [--demo <id>]... [--step <seconds>]`. With
  * `--glb <file>`, the role gets the studio body that the export makes from the file, in a copy of
@@ -540,7 +593,7 @@ async function main(): Promise<void> {
   const role = FOLD_ROLES.get(name);
   if (!role) {
     throw new Error(
-      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--glb <file>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
+      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--json <file>] [--glb <file>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
     );
   }
   if (glb) {
@@ -574,6 +627,14 @@ async function main(): Promise<void> {
   console.log(foldLines(name, report, step).join('\n'));
   if (faces > 0) {
     console.log(['', ...faceLines(report, faces)].join('\n'));
+  }
+  const jsonAt = args.indexOf('--json');
+  const json = jsonAt >= 0 ? args[jsonAt + 1] : undefined;
+  if (jsonAt >= 0 && (!json || json.startsWith('--'))) {
+    throw new Error('The option --json takes a file.');
+  }
+  if (json) {
+    await writeFile(json, foldJson(report));
   }
 }
 
