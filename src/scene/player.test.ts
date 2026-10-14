@@ -44,14 +44,14 @@ function spot(species: PlayerSpot['species'], instrument: PlayerSpot['instrument
 const ELBOW_BAND = 0.04;
 
 /**
- * Builds the red fox with the violin and a test arm: a tube of 8 sides from the right wrist to
+ * Builds the wolf with the violin and a test arm: a tube of 8 sides from the right wrist to
  * the right shoulder. Its corners blend `upperArmR` and `forearmR` in a band around the elbow,
  * and the other parts stay rigid.
  *
  * @returns The model.
  */
 function testArmModel(): PlayerModel {
-  const model = buildPlayer('fox-tan', 'violin');
+  const model = buildPlayer('wolf', 'violin');
   const at = (bone: BoneName): Vec3 => model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
   const [x, elbow, z] = at('forearmR');
   const wrist = at('handR')[1];
@@ -264,12 +264,12 @@ describe('createPlayers', () => {
       }
     }
     const meshes = createPlayers(
-      [spot('fox-tan', 'violin'), spot('cat', 'viola'), spot('fox-tan', 'violin')],
+      [spot('wolf', 'violin'), spot('cat', 'viola'), spot('wolf', 'violin')],
       materials,
       new RecordingCache(),
     );
     // The models come from the cache of the score (audit 2026-10-05-pose-scene, finding 8).
-    expect(asked).toEqual(['fox-tan violin 4', 'cat viola 4', 'fox-tan violin 4']);
+    expect(asked).toEqual(['wolf violin 4', 'cat viola 4', 'wolf violin 4']);
     expect(meshes).toHaveLength(3);
     const [a, b, c] = meshes;
     expect(a?.geometry).toBe(c?.geometry);
@@ -286,7 +286,7 @@ describe('createPlayers', () => {
 describe('applyScenePose', () => {
   it('gives each player its pose, and the last mesh the pose of the conductor', () => {
     const meshes = createPlayers(
-      [spot('fox-tan', 'violin'), spot('cat', 'viola'), spot('bear', 'baton')],
+      [spot('wolf', 'violin'), spot('cat', 'viola'), spot('bear', 'baton')],
       createMaterials(),
       new ModelCache(),
     );
@@ -334,7 +334,7 @@ describe('applyPose', () => {
   });
 
   it('moves the instrument from its bind place by the instrument offset (design 5.1)', () => {
-    const model = buildPlayer('fox-tan', 'violin');
+    const model = buildPlayer('wolf', 'violin');
     const mesh = createPlayerMesh(model, createPlayerGeometry(model), createMaterials());
     const instrument = mesh.skeleton.bones[boneIndex('instrument')];
     const bind = instrument?.position.toArray();
@@ -356,7 +356,7 @@ describe('applyPose', () => {
   });
 
   it('closes the eyes on y by the blink, with no other scale (design 4.7, 5.1)', () => {
-    const model = buildPlayer('fox-tan', 'violin');
+    const model = buildPlayer('wolf', 'violin');
     const mesh = createPlayerMesh(model, createPlayerGeometry(model), createMaterials());
     const bones = mesh.skeleton.bones;
     const eyes = [bones[boneIndex('eyeL')], bones[boneIndex('eyeR')]];
@@ -386,7 +386,7 @@ describe('applyPose', () => {
   });
 
   it('writes the quaternions with no update of the Euler angles (review of step 5, F13)', () => {
-    const model = buildPlayer('fox-tan', 'violin');
+    const model = buildPlayer('wolf', 'violin');
     const mesh = createPlayerMesh(model, createPlayerGeometry(model), createMaterials());
     const head = mesh.skeleton.bones[boneIndex('head')];
     const rotations = Float32Array.from(BIND_ROTATIONS);

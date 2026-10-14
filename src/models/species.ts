@@ -187,15 +187,23 @@ export const SPECIES = {
       seatHeight: STUDIO_FOX.seatHeight / STUDIO_FOX.headHeight,
     },
   },
-  /** Light tan fox, the flutes (reference image). */
+  /**
+   * Light tan fox, the flutes (reference image). It has the studio body of the red fox with the tan
+   * palette of the faces (design 4.4, 4.5): the colors of the mesh of the user moved from the
+   * colors of the red fox to the colors of the tan fox. It sits with its tail back through the
+   * chair, and stands as a soloist. Its head height is the head of the studio body, and its chair
+   * fits its legs.
+   */
   'fox-tan': {
-    ears: 'pointed',
-    snout: 'long',
-    tail: 'bushy',
+    body: 'studio-fox',
+    palette: 'tan',
     size: 1,
     colors: SPECIES_COLORS['fox-tan'],
     accentParts: ['ears', 'feet'],
-    facePattern: 'none',
+    proportions: {
+      headHeight: STUDIO_FOX.headHeight,
+      seatHeight: STUDIO_FOX.seatHeight / STUDIO_FOX.headHeight,
+    },
   },
   /** Wolf, the clarinets (the gray animal with a clarinet of `animals.webp`). */
   wolf: {
