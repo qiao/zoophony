@@ -4,10 +4,12 @@
  * studio. The bind normal of a face moves by the mean of the skin matrices of its corners. The
  * face is folded when its posed normal is more than 90° from that normal. For each sample set,
  * the tool prints the samples, the samples with a fold, their share, and the most folded faces.
- * Then it prints the main bone of the folded faces. The method comes from
+ * Then it prints the main bone of the folded faces. With `--faces <n>`, it also prints the `n`
+ * faces that fold in the most samples, with their places, their corner angles, and the weights of
+ * their corners. The method comes from
  * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
- * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--glb <file>]
+ * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--glb <file>]
  */
 import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { patchedDemos } from './patch-demos.ts';
@@ -114,6 +116,8 @@ export interface FoldCount {
   worst: string;
   /** The folded faces of all samples, by the main studio bone of the face. */
   readonly bones: Map<string, number>;
+  /** The number of samples in which each folded face folds, by the index of the face. */
+  readonly byFace: Map<number, number>;
 }
 
 /** The folds of a role over its demos. */
@@ -122,6 +126,11 @@ export interface FoldReport {
   readonly demos: string[];
   /** The number of faces of the studio body. */
   faces: number;
+  /**
+   * The bind mesh of the first studio body of the role, or `null` when no demo has the role. The
+   * bodies of a role share their faces, so the facts of a face come from this mesh.
+   */
+  mesh: StudioMesh | null;
   /** The folds of each sample set. */
   readonly sets: Readonly<Record<SampleSet, FoldCount>>;
 }
@@ -232,7 +241,7 @@ export function mainBone(
  * @returns The count.
  */
 function emptyCount(): FoldCount {
-  return { samples: 0, withFold: 0, most: 0, worst: '', bones: new Map() };
+  return { samples: 0, withFold: 0, most: 0, worst: '', bones: new Map(), byFace: new Map() };
 }
 
 /**
@@ -260,6 +269,7 @@ function countPose(model: PlayerModel, pose: AnimalPose, label: string, count: F
   for (const face of folded) {
     const bone = mainBone(rig.mesh, face);
     count.bones.set(bone, (count.bones.get(bone) ?? 0) + 1);
+    count.byFace.set(face, (count.byFace.get(face) ?? 0) + 1);
   }
   count.samples += 1;
   if (folded.length > 0) {
@@ -321,6 +331,7 @@ export function probeFolds(role: RoleSource, demos: readonly DemoFile[], step: n
   const report: FoldReport = {
     demos: [],
     faces: 0,
+    mesh: null,
     sets: { rest: emptyCount(), play: emptyCount(), lift: emptyCount() },
   };
   for (const demo of demos) {
@@ -331,6 +342,7 @@ export function probeFolds(role: RoleSource, demos: readonly DemoFile[], step: n
     }
     report.demos.push(demo.file);
     report.faces = (bodies[0]?.model.studio?.mesh.corners.length ?? 0) / 3;
+    report.mesh ??= bodies[0]?.model.studio?.mesh ?? null;
 
     const audible = allAudible(scene.score);
     const buffer = createScenePose(scene.plan);
@@ -400,6 +412,123 @@ export function foldLines(name: string, report: FoldReport, step: number): strin
   ];
 }
 
+/** One bone of a corner of a face, with its weight. */
+export interface CornerWeight {
+  /** The name of the studio bone. */
+  readonly bone: string;
+  /** The weight, from 0 to 1. */
+  readonly weight: number;
+}
+
+/** The facts of one face of a studio mesh in the bind pose. */
+export interface FaceFacts {
+  /** The index of the triangle in the mesh. */
+  readonly face: number;
+  /** The main studio bone of the face ({@link mainBone}). */
+  readonly bone: string;
+  /** The middle of the face: the mean of its three corners, in meters. */
+  readonly middle: Vec3;
+  /** The angle at each corner, in degrees, in the order of the corners. */
+  readonly angles: readonly [number, number, number];
+  /**
+   * The bones of each corner with a weight above 0, the largest weight first: at most 4 for each
+   * corner.
+   */
+  readonly weights: readonly (readonly CornerWeight[])[];
+}
+
+/**
+ * Gives the facts of one face of a studio mesh in the bind pose: its main bone, its middle, the
+ * angle at each corner, and the weights of each corner.
+ *
+ * @param mesh The studio mesh in the bind pose.
+ * @param face The index of the triangle.
+ * @returns The facts.
+ */
+export function faceFacts(
+  mesh: Pick<StudioMesh, 'positions' | 'joints' | 'weights' | 'corners'>,
+  face: number,
+): FaceFacts {
+  const corners = [0, 1, 2].map((k) => mesh.corners[face * 3 + k] ?? 0);
+  const points = corners.map((v): Vec3 => [
+    mesh.positions[v * 3] ?? 0,
+    mesh.positions[v * 3 + 1] ?? 0,
+    mesh.positions[v * 3 + 2] ?? 0,
+  ]);
+  const mean = (axis: 0 | 1 | 2): number => points.reduce((sum, p) => sum + p[axis], 0) / 3;
+  const middle: Vec3 = [mean(0), mean(1), mean(2)];
+  const angle = (k: number): number => {
+    const p = points[k] ?? [0, 0, 0];
+    const a = (points[(k + 1) % 3] ?? p).map((x, axis) => x - (p[axis] ?? 0));
+    const b = (points[(k + 2) % 3] ?? p).map((x, axis) => x - (p[axis] ?? 0));
+    const dot = a.reduce((sum, x, axis) => sum + x * (b[axis] ?? 0), 0);
+    const cos = dot / (Math.hypot(...a) * Math.hypot(...b));
+    return Math.acos(Math.min(1, Math.max(-1, cos))) * (180 / Math.PI);
+  };
+  const weights = corners.map((v) =>
+    [0, 1, 2, 3]
+      .map((k) => ({
+        bone: STUDIO_BONES[mesh.joints[v * 4 + k] ?? 0] ?? '',
+        weight: mesh.weights[v * 4 + k] ?? 0,
+      }))
+      .filter((entry) => entry.weight > 0)
+      .toSorted((x, y) => y.weight - x.weight),
+  );
+  return {
+    face,
+    bone: mainBone(mesh, face),
+    middle,
+    angles: [angle(0), angle(1), angle(2)],
+    weights,
+  };
+}
+
+/**
+ * Writes the faces that fold in the most samples of all sample sets as a table: for each face,
+ * its index, the share of the samples of each set in which it folds, and its facts
+ * ({@link faceFacts}).
+ *
+ * @param report The report.
+ * @param count The number of faces.
+ * @returns The lines, or a line that names no face when no face folds.
+ */
+export function faceLines(report: FoldReport, count: number): string[] {
+  const totals = new Map<number, number>();
+  for (const set of SAMPLE_SETS) {
+    for (const [face, n] of report.sets[set].byFace) {
+      totals.set(face, (totals.get(face) ?? 0) + n);
+    }
+  }
+  const top = [...totals]
+    .toSorted((x, y) => y[1] - x[1] || x[0] - y[0])
+    .slice(0, count)
+    .map(([face]) => face);
+  if (!report.mesh || top.length === 0) {
+    return ['No face folds.'];
+  }
+
+  const share = (set: SampleSet, face: number): string => {
+    const { byFace, samples } = report.sets[set];
+    return `${((100 * (byFace.get(face) ?? 0)) / Math.max(1, samples)).toFixed(1)}%`;
+  };
+  const mesh = report.mesh;
+  return [
+    `The ${top.length} faces that fold in the most samples, with the places and the weights of the bind pose:`,
+    '',
+    `| Face | ${SAMPLE_SETS.map((set) => `${set[0]?.toUpperCase()}${set.slice(1)}`).join(' | ')} | Main bone | Middle (m) | Corner angles | Corner weights |`,
+    `|---:|${SAMPLE_SETS.map(() => '---:|').join('')}---|---|---|---|`,
+    ...top.map((face) => {
+      const facts = faceFacts(mesh, face);
+      const middle = facts.middle.map((x) => x.toFixed(3)).join(', ');
+      const angles = facts.angles.map((a) => `${a.toFixed(1)}°`).join(', ');
+      const weights = facts.weights
+        .map((corner) => corner.map((w) => `${w.bone} ${w.weight.toFixed(2)}`).join(' '))
+        .join(' / ');
+      return `| ${face} | ${SAMPLE_SETS.map((set) => share(set, face)).join(' | ')} | ${facts.bone} | ${middle} | ${angles} | ${weights} |`;
+    }),
+  ];
+}
+
 /**
  * Runs the probe: `node tools/fold-probe.ts <role> [--demo <id>]... [--step <seconds>]`. With
  * `--glb <file>`, the role gets the studio body that the export makes from the file, in a copy of
@@ -411,7 +540,7 @@ async function main(): Promise<void> {
   const role = FOLD_ROLES.get(name);
   if (!role) {
     throw new Error(
-      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--glb <file>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
+      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--glb <file>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
     );
   }
   if (glb) {
@@ -429,6 +558,11 @@ async function main(): Promise<void> {
   if (!(step > 0)) {
     throw new Error('The step must be a number of seconds above 0.');
   }
+  const facesAt = args.indexOf('--faces');
+  const faces = facesAt >= 0 ? Number(args[facesAt + 1]) : 0;
+  if (!Number.isInteger(faces) || faces < 0) {
+    throw new Error('The option --faces takes a whole number of faces.');
+  }
 
   const all = await patchedDemos();
   const unknown = chosen.filter((file) => !all.some((demo) => demo.file === file));
@@ -436,7 +570,11 @@ async function main(): Promise<void> {
     throw new Error(`No demo has the name ${unknown.join(', ')}.`);
   }
   const demos = chosen.length > 0 ? all.filter((demo) => chosen.includes(demo.file)) : all;
-  console.log(foldLines(name, probeFolds(role, demos, step), step).join('\n'));
+  const report = probeFolds(role, demos, step);
+  console.log(foldLines(name, report, step).join('\n'));
+  if (faces > 0) {
+    console.log(['', ...faceLines(report, faces)].join('\n'));
+  }
 }
 
 if (import.meta.main) {

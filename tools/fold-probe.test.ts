@@ -5,12 +5,15 @@ import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import {
   FOLD_ROLES,
   SAMPLE_SETS,
+  faceFacts,
+  faceLines,
   foldLines,
   foldedFaces,
   mainBone,
   probeFolds,
   roleAnimal,
 } from './fold-probe.ts';
+import type { FoldCount, FoldReport } from './fold-probe.ts';
 import { ANIMALS } from './studio-body.ts';
 
 /** The identity matrix, column by column. */
@@ -51,6 +54,85 @@ describe('mainBone', () => {
   });
 });
 
+/**
+ * Makes a mesh of two triangles that share an edge. The first vertex has three bones, and the
+ * other vertices have one bone each.
+ *
+ * @returns The mesh.
+ */
+function twoTriangles(): Parameters<typeof faceFacts>[0] {
+  return {
+    positions: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0]),
+    joints: new Uint8Array([3, 5, 6, 0, 1, 0, 0, 0, 2, 0, 0, 0, 4, 0, 0, 0]),
+    weights: new Float32Array([0.2, 0.7, 0.1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]),
+    corners: new Uint32Array([0, 1, 2, 1, 3, 2]),
+  };
+}
+
+/**
+ * Makes a count of one sample set with the samples in which each face folds.
+ *
+ * @param samples The number of samples.
+ * @param byFace The samples of each face, by the index of the face.
+ * @returns The count.
+ */
+function countOf(samples: number, byFace: readonly [number, number][]): FoldCount {
+  return { samples, withFold: 0, most: 0, worst: '', bones: new Map(), byFace: new Map(byFace) };
+}
+
+describe('faceFacts', () => {
+  it('gives the middle, the corner angles, and the weights of each corner, the largest first', () => {
+    const facts = faceFacts(twoTriangles(), 0);
+    expect(facts.face).toBe(0);
+    expect(facts.middle.map((x) => Number(x.toFixed(6)))).toEqual([0.333333, 0.333333, 0]);
+    expect(facts.angles.map((a) => Number(a.toFixed(6)))).toEqual([90, 45, 45]);
+    expect(facts.weights[0]).toEqual([
+      { bone: STUDIO_BONES[5], weight: expect.closeTo(0.7, 6) },
+      { bone: STUDIO_BONES[3], weight: expect.closeTo(0.2, 6) },
+      { bone: STUDIO_BONES[6], weight: expect.closeTo(0.1, 6) },
+    ]);
+    expect(facts.weights[1]).toEqual([{ bone: STUDIO_BONES[1], weight: 1 }]);
+  });
+});
+
+describe('faceLines', () => {
+  it('lists the faces that fold in the most samples of all sets, with the share of each set', () => {
+    const report: FoldReport = {
+      demos: ['a.mid'],
+      faces: 2,
+      mesh: {
+        ...twoTriangles(),
+        colors: new Float32Array(),
+        finishes: new Uint8Array(),
+        correctives: [],
+      },
+      sets: {
+        rest: countOf(4, [[0, 4]]),
+        play: countOf(100, [
+          [0, 1],
+          [1, 30],
+        ]),
+        lift: countOf(10, [[1, 5]]),
+      },
+    };
+    const rows = faceLines(report, 5).filter((line) => /^\| \d/.test(line));
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toMatch(/^\| 1 \| 0\.0% \| 30\.0% \| 50\.0% \| /);
+    expect(rows[1]).toMatch(/^\| 0 \| 100\.0% \| 1\.0% \| 0\.0% \| /);
+    expect(faceLines(report, 1).filter((line) => /^\| \d/.test(line))).toHaveLength(1);
+  });
+
+  it('names no face when no face folds', () => {
+    const empty: FoldReport = {
+      demos: [],
+      faces: 0,
+      mesh: null,
+      sets: { rest: countOf(1, []), play: countOf(1, []), lift: countOf(1, []) },
+    };
+    expect(faceLines(empty, 3)).toEqual(['No face folds.']);
+  });
+});
+
 describe('probeFolds', async () => {
   const boulanger = await patchedDemo('boulanger-matin.mid');
   const beethoven = await patchedDemo('beethoven-9.mid');
@@ -64,10 +146,12 @@ describe('probeFolds', async () => {
     expect(report.demos).toEqual(['boulanger-matin.mid']);
     expect(report.faces).toBeGreaterThan(1000);
     expect(report.sets.rest.samples).toBe(1);
+    expect(report.mesh?.corners.length).toBe(report.faces * 3);
     for (const set of SAMPLE_SETS) {
       const count = report.sets[set];
       expect(count.samples, set).toBeGreaterThan(0);
       expect(count.withFold, set).toBeLessThanOrEqual(count.samples);
+      expect(Math.max(0, ...count.byFace.values()), set).toBeLessThanOrEqual(count.withFold);
       for (const bone of count.bones.keys()) {
         expect(STUDIO_BONES, bone).toContain(bone);
       }
