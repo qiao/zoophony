@@ -157,4 +157,19 @@ from other work. Both fail the target of design 9.7 on this load:
 | Main thread: tasks of each frame (60 fps) | 3.54 ms | 4.82 ms | 80.6% | 3.52 ms | 4.84 ms | 85.1% |
 | GPU: WebGL frames in the Metal trace | 4.03 ms | 4.26 ms | 30.9% | 4.10 ms | 4.42 ms | 1.5% |
 
-The manager measures `pnpm frame --gpu-only` again under a lower load.
+The manager then ran `pnpm frame --gpu-only` two times on each tree, in the order main, branch,
+main, branch, in detached worktrees at main 2bb97ae2 and at the branch commit 17147c6d (the code
+after it is a test only). The load average in the GPU phase was 14 to 66, and the guard of the
+GPU phase was valid in each run: 99.8% to 99.9% "Maximum", and 1% to 5% other GPU work.
+
+| Run | Log | Frames | p50 | p95 | Max | Within 4 ms |
+|---|---|---|---|---|---|---|
+| main 1 | `frame-gpu-main-1.txt` | 710 | 4.02 ms | 4.30 ms | 4.71 ms | 35.4% |
+| branch 1 | `frame-gpu-branch-1.txt` | 704 | 4.11 ms | 4.39 ms | 4.70 ms | 1.1% |
+| main 2 | `frame-gpu-main-2.txt` | 690 | 4.05 ms | 4.45 ms | 4.90 ms | 22.0% |
+| branch 2 | `frame-gpu-branch-2.txt` | 643 | 4.11 ms | 4.40 ms | 4.80 ms | 0.3% |
+
+The smooth bodies add 0.06 to 0.09 ms to the GPU p50 (about 2%). The p95 changes by -0.05 to
++0.09 ms. The share of the frames within 4 ms falls from 22% to 35% on main to about 1% on the
+branch, because the p50 of main is already at 4.0 ms, so a small shift moves most frames over the
+line. The frame target of design 9.7 fails on main too.
