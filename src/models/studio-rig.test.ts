@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import { STUDIO_BONES } from './studio-format.ts';
+import { STUDIO_BONES, STUDIO_LEG_BONES } from './studio-format.ts';
 import type { StudioBone } from './studio-format.ts';
 import {
   PAW_TURN,
@@ -15,6 +15,7 @@ import {
   twistAngle,
 } from './studio-rig.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
+import { STUDIO_RABBIT } from './studio/rabbit.ts';
 
 const rig = studioRig(STUDIO_BEAR);
 const positions = rig.positions;
@@ -218,6 +219,84 @@ describe('studioRig for a player that stands (design 4.4)', () => {
     const standing = studioRig(STUDIO_BEAR, true);
     expect(standing.positions).toEqual(rig.positions);
     expect([...standing.mesh.positions]).toEqual([...rig.mesh.positions]);
+    expect(standing.mesh.correctives).toHaveLength(2);
+  });
+});
+
+describe('studioRig for a seated body that also stands (design 4.4)', () => {
+  const seated = studioRig(STUDIO_RABBIT, false);
+  const standing = studioRig(STUDIO_RABBIT, true);
+  const lowest = (places: Float32Array): number => {
+    let low = Infinity;
+    for (let v = 1; v < places.length; v += 3) {
+      low = Math.min(low, places[v] ?? 0);
+    }
+    return low;
+  };
+
+  it('puts the soles on the floor in each stance', () => {
+    expect(Math.abs(lowest(seated.mesh.positions))).toBeLessThan(0.005);
+    expect(Math.abs(lowest(standing.mesh.positions))).toBeLessThan(0.005);
+    expect(standing.body.floor).toEqual([0, 0, 0]);
+    expect(standing.body.seatHeight).toBeNull();
+  });
+
+  it('straightens the legs under the hips', () => {
+    for (const side of ['L', 'R'] as const) {
+      const hip = new Vector3(...standing.positions[`thigh${side}`]);
+      const knee = new Vector3(...standing.positions[`shin${side}`]);
+      const ankle = new Vector3(...standing.positions[`foot${side}`]);
+      // The thigh and the shin point down within 20° of the vertical, as the legs of the sheet.
+      for (const [from, to] of [
+        [hip, knee],
+        [knee, ankle],
+      ] as const) {
+        const down = to.clone().sub(from).normalize();
+        expect(down.y, side).toBeLessThan(-Math.cos((20 * Math.PI) / 180));
+      }
+    }
+    // The shoulders stand at the landmark of the export, above the seated shoulders.
+    expect(standing.positions.upperArmL[1]).toBeGreaterThan(seated.positions.upperArmL[1]);
+  });
+
+  it('turns no face of the legs over against the turn of its main bone', () => {
+    const turns = new Map(
+      STUDIO_LEG_BONES.map((bone) => [
+        STUDIO_BONES.indexOf(bone),
+        new Quaternion(...(STUDIO_RABBIT.standing?.turns[bone] ?? [0, 0, 0, 1])),
+      ]),
+    );
+    const { corners, joints, weights } = seated.mesh;
+    const normal = (places: Float32Array, t: number): Vector3 => {
+      const [a, b, c] = [0, 1, 2].map((k) =>
+        new Vector3().fromArray(places, (corners[t * 3 + k] ?? 0) * 3),
+      );
+      return (b ?? new Vector3())
+        .clone()
+        .sub(a ?? new Vector3())
+        .cross((c ?? new Vector3()).clone().sub(a ?? new Vector3()))
+        .normalize();
+    };
+    let folded = 0;
+    for (let t = 0; t < corners.length / 3; t++) {
+      const sums = new Map<number, number>();
+      for (let k = 0; k < 3; k++) {
+        const v = corners[t * 3 + k] ?? 0;
+        for (let j = 0; j < 4; j++) {
+          const bone = joints[v * 4 + j] ?? 0;
+          sums.set(bone, (sums.get(bone) ?? 0) + (weights[v * 4 + j] ?? 0));
+        }
+      }
+      const [main] = [...sums].toSorted((a, b) => b[1] - a[1])[0] ?? [0];
+      const turn = turns.get(main) ?? new Quaternion();
+      const before = normal(seated.mesh.positions, t).applyQuaternion(turn);
+      folded += before.dot(normal(standing.mesh.positions, t)) < 0 ? 1 : 0;
+    }
+    expect(folded).toBe(0);
+  });
+
+  it('keeps the arm corrective shapes only', () => {
+    expect(seated.mesh.correctives).toHaveLength(2);
     expect(standing.mesh.correctives).toHaveLength(2);
   });
 });
