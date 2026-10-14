@@ -485,9 +485,10 @@ Follow these rules when another agent works on the repository at the same time.
 - Ship the tests in the same commit as the change of behavior.
 - Confirm that a new test fails without the change. Break the code that it covers, watch the test
   fail, then restore the code. A test that passes both ways pins nothing.
-- Test behavior: no clipping, the bow on the strings, the hidden heads, the budgets. Do not pin an
-  exact tuned value, a hash, or the geometry of a look. Each deliberate change of the look then
-  edits such a test, and the test finds no fault.
+- Test behavior: the same pose after a seek, the note times of a pose, the size budget of design
+  7.2. The tests of the clearance and of the fit of a body, such as no clipping and the bow on
+  the strings, are paused (below). Do not pin an exact tuned value, a hash, or the geometry of a
+  look. Each deliberate change of the look then edits such a test, and the test finds no fault.
 - Leave no known red test of `pnpm test` or `pnpm test:perf` on `main`. Fix the cause, or change
   the test with the reason in the same session.
 - Since 2026-10-14, the tests of the look, the fit, and the clearance of the bodies, and of the
