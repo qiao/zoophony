@@ -357,8 +357,9 @@ violin follows the rule of 4.6. On 2026-10-14, the user decided: "now replace th
 @~/Downloads/fox.glb", and chose "All foxes, violins first". The red violin fox has that mesh
 since then (`assets/models/fox/fox.glb`), rigged as the rabbit mesh, and the tan flute fox keeps
 the parametric body until a later round gives it the mesh in tan colors. The user chose "1.08x,
-rabbit reach": the arms reach as far as the arms of the rabbits
-(`docs/decisions/2026-10-14-mesh-fox.md`). The
+rabbit reach": the arms reached as far as the arms of the rabbits
+(`docs/decisions/2026-10-14-mesh-fox.md`). Later that day, the user asked for a fox of 1.3 times
+the size, and the arms grew with the body (`docs/decisions/2026-10-14-animal-size.md`). The
 user chose these bodies again on 2026-10-09, in
 place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
@@ -535,9 +536,12 @@ quarter of the folded faces.
   keys of its studio piano at the keys of the piano of the app, because the studio fitted its
   seated arms to its keys. The rabbit violinist keeps the standing shoulder joints of the
   parametric rabbit, so that the violin section and the music stands keep their fit. The red
-  violin fox keeps the standing head top of the parametric fox: at the shoulders of the parametric
-  fox, the mesh was lower than the rabbit beside it. `ANIMALS` gives its standing shoulder joints at
-  the height that gives that head top. The module of
+  violin fox first had the standing head top of the parametric fox: at the shoulders of the
+  parametric fox, the mesh was lower than the rabbit beside it. On 2026-10-14, the user said that
+  the fox was too small, and asked for 1.3 times its size. `ANIMALS` gives its standing shoulder
+  joints at 1.3 times the height that gave that head top. The scale grows each length of the body,
+  so the arms, the seat, and the chair grow with it, and the holds in `H` follow
+  (`docs/decisions/2026-10-14-animal-size.md`). The module of
   each body (`src/models/studio/<animal>.ts`) holds its
   scale and its head height `H`, and the research reports
   (`docs/research/2026-10-12-studio-bear.md`, `docs/research/2026-10-12-studio-polar-bear.md`)
