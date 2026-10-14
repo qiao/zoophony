@@ -482,7 +482,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     50 ms of each other (a chord), it shows the highest. Thus the tuba (cap 1) shows the top
     note of a chord, and a held note gives way to a new note.
   - The mouthpiece stays at the mouth while the player plays: the head and the instrument both
-    follow the chest, and the look at the conductor does not turn the head. The palms stay on
+    follow the chest, and the look at the conductor does not turn the head. A hold can turn the
+    head to the left while the player plays (`WindHold.headTurn`), as a real flutist does. The
+    neck and the head then turn as the look turns them (`NECK_SHARE` of `pose/frames.ts`), and the
+    mouthpiece moves with the turned mouth. The palms stay on
     their grips, and the two-bone IK places each arm. The hand points from the shoulder to the
     grip. Each hold of `WIND_HOLDS` (`pose/winds.ts`) gives the directions of the elbows. They
     point as far down and in as the arms permit, as the elbows near the torso of the reference
@@ -500,6 +503,16 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     62° out from the side. The left hand of the flute holds it in front of the face, to the
     right of the middle, so the left arm crosses the chest: level and square to the front, the
     left upper arm of the tan fox went 0.067 H into the chest.
+  - A species can hold a wind instrument in its own way (`SPECIES_WIND_HOLDS` and `windHoldOf()`
+    of `pose/winds.ts`), as a species can hold a bowed string. The tan fox, with the studio body of
+    the fox mesh, holds the flute as a real flutist (Debost, Flute Talk, May/June 1996): the head
+    turns to the left, the flute lies square to the face with a small slope down to the right, and
+    the shoulders stay square and low, with no forward turn of the right shoulder. A long muzzle
+    reaches past the mouth, so the lip plate sits under it (`WindHold.lipShift`). At rest, the
+    flute stands on the right thigh with the foot joint down, as a real flutist rests it (George,
+    The Instrumentalist, December 2018), and both paws stay on it. The angles, the poles, and the
+    place of the lip plate are in `pose/winds.ts`, and their measures in
+    `docs/research/2026-10-14-fox-flute.md`.
   - A rest of at least 0.5 s ends a phrase. The player breathes in during the 0.4 s before a
     phrase: the spine leans back by up to 3° times the amplitude of the player. It breathes out
     over the phrase, in at least 1 s.
