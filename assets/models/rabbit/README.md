@@ -34,9 +34,10 @@ bones of the player, the bones that the file does not have, and the color rules.
 yourself." The file is the file of the user, byte for byte. The rig of this project makes a
 studio body from it (route 3 of `AGENTS.md`, `docs/decisions/2026-10-13-mesh-rabbit.md`).
 
-The user also chose "Longer arms, 28 cm violin" on 2026-10-13. The rig makes the upper arm and
-the forearm about 1.25 times longer, so that the reach is 0.377 m, as the studio rabbit of
-2026-10-13. The violin stays 0.28 m. This changes the mesh at the arms only.
+The user also chose "Longer arms, 28 cm violin" on 2026-10-13. The text of the option said
+"about 1.25x longer" for the upper arm and the forearm. On the joints that the rig measured,
+the reach of 0.377 m of the studio rabbit of 2026-10-13 needs the factor 1.445 (`armFactor` of
+`tools/mesh-rigs/rabbit.json`). The violin stays 0.28 m. This changes the mesh at the arms only.
 
 | Item | Value |
 |---|---|
