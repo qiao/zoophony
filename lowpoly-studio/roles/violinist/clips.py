@@ -46,8 +46,9 @@ CONTACT = 0.36
 STRINGS = {'A': 5.0, 'D': -5.0}
 
 # The bow: the place of the contact from the frog, as a share of the bow length, at the frog end
-# and at the tip end of a whole bow. A half bow uses the half at the frog. The short arms of the
-# animal do not reach the far half of the bow.
+# and at the tip end of a whole bow. A half bow uses the half at the frog. The short arms of
+# rounds 1 to 3 did not reach the far half of the bow. The arms of round 4 (1.4 times the reach)
+# keep these values.
 FROG = 0.12
 TIP = 0.30
 
@@ -60,8 +61,9 @@ LEAN = (4.0, 3.0, 2.0)
 # The rest: each paw hangs at its side as in the sheet pose (the hand frame of the reference
 # pose), the left paw holds the violin at the neck, the right paw holds the bow. The elbows turn
 # out, so that the forearms pass outside the belly. The belly of the animal covers its short
-# thighs, and its short arms do not reach the lap, so the violin and the bow do not lie on the
-# lap as in the rest pose of the app.
+# thighs, and the short arms of rounds 1 to 3 did not reach the lap, so the violin and the bow do
+# not lie on the lap as in the rest pose of the app. The arms of round 4 keep these places: the
+# elbows bend more.
 REST_WRIST = {'L': (0.20, 0.43, 0.15), 'R': (-0.20, 0.43, 0.15)}
 REST_POLE = {'L': (1.0, -0.3, -0.4), 'R': (-1.0, -0.3, -0.4)}
 
