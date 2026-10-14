@@ -291,9 +291,10 @@ def reach_text(report):
     if ik:
         over = ik['share'] > reach['ik_limit']
         bad = bad or over
-        line += (f'; the IK targets ask for up to {ik["share"]} of the reach ({ik["clip"]}, '
+        line += (f'. The IK targets ask for up to {ik["share"]} of the reach ({ik["clip"]}, '
                  f'frame {ik["frame"]}, side {ik["side"]})'
                  + (': MORE THAN THE REACH, the paw misses its target' if over else ''))
+    line += '.'
     return line, bad
 
 

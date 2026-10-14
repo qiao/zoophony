@@ -120,6 +120,13 @@ class ReachTextTest(unittest.TestCase):
         self.assertIn('ratio 0.985', text)
         self.assertFalse(bad)
 
+    def test_line_has_two_sentences(self):
+        _, line = run(ROUND_1)
+        text, _ = checks.reach_text({'reach': line})
+        self.assertNotIn(';', text)
+        self.assertIn('). The IK targets', text)
+        self.assertTrue(text.endswith('.'))
+
     def test_line_marks_a_blocker_and_a_missed_target(self):
         _, line = run(ROUND_1)
         text, bad = checks.reach_text({'reach': line})

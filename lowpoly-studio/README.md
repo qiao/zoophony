@@ -540,8 +540,8 @@ at the top of `out/report/review.png`, and at the top of `out/report/index.html`
 
 ```text
 reach: the arm from the neck to the middle of the palm 0.397, the violin 0.234, ratio 0.589 (the
-size chart of a violin shop gives 0.9 to 1.1: OUT OF RANGE, a blocker for the app); the IK
-targets ask for up to 0.8145 of the reach (ready, frame 24, side R)
+size chart of a violin shop gives 0.9 to 1.1: OUT OF RANGE, a blocker for the app). The IK
+targets ask for up to 0.8145 of the reach (ready, frame 24, side R).
 ```
 
 - The arm is the arm of a violin shop: the player holds the left arm out to the side, and the
