@@ -1163,6 +1163,45 @@ def sheet_rows(rows, height):
     return [top // 5 * 5, -(-bottom // 5) * 5]
 
 
+def scale_like(cfg, like_id, path):
+    """Scales the values in animal heights of the compact config (studio/like.py SCALED) by
+    the body height of the new sheet over the body height of the like sheet, when they differ by
+    more than like.SCALE_MIN. The intake of the like animal runs into a temporary folder. Prints
+    each scaled value and each value that stays."""
+    import contextlib  # noqa: PLC0415
+    import io  # noqa: PLC0415
+    import tempfile  # noqa: PLC0415
+
+    from studio import like  # noqa: PLC0415
+    new_views = (_read_json(cfg.paths.measure) or {}).get('views')
+    tmp = tempfile.mkdtemp(prefix='studio-like-')
+    try:
+        like_cfg = config.load(like_id, out_dir=tmp)
+        with contextlib.redirect_stdout(io.StringIO()):
+            step_intake(like_cfg)
+        like_views = (_read_json(like_cfg.paths.measure) or {}).get('views')
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    ratio = like.body_ratio(new_views, like_views) if new_views and like_views else None
+    if ratio is None:
+        log(f'body height: no crown in a front view, the values of {like_id} stay')
+        return
+    if abs(ratio - 1.0) < like.SCALE_MIN:
+        log(f'body height: {ratio} of {like_id}, the values of {like_id} stay')
+        return
+    with open(path) as f:
+        text = f.read()
+    note = f'scaled by studio new: x{ratio}, the body height of the sheet over {like_id}'
+    changes, scaled, left = like.scale_changes(text, ratio, note)
+    text = like.compact(text, None, changes)
+    with open(path, 'w') as f:
+        f.write(text)
+    log(f'body height: {ratio} of {like_id} (the crown of the front view). Scaled by {ratio}: '
+        f'{", ".join(scaled)}')
+    if left:
+        log(f'  not scaled: {", ".join(left)} (the top of the silhouette stays at 1)')
+
+
 def cmd_new(a):
     """studio new: makes animals/<animal>/ with the sheet and a config. With --like (and no
     --full) the config is the compact config of the like animal (studio/like.py); else it is
@@ -1284,6 +1323,8 @@ def cmd_new(a):
                 f.write(doc.text)
             log(f'compare.head_turn: three_quarter = [{lo}, {hi}] (the sheet check measures '
                 f'{turn} deg)')
+        if a.like and not a.full:
+            scale_like(cfg, a.like, path)
     log('')
     log(INTAKE_CHECKLIST)
 

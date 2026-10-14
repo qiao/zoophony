@@ -271,6 +271,37 @@ same loop with its traps. Take each time from `python3 studio log <id>`.
    rabbit config, the ear box of the bear (0.07) cut the long ears: the field grid lost 14 of its
    186 rows at the top, `fit` scaled the body to the lower top, and the front IoU fell from
    0.886 to 0.790. A config that gives `box_pad` keeps it.
+
+   When the body of the new sheet has another height than the body of the like animal, `new`
+   scales the values in animal heights that come from the like animal by the body height ratio
+   (`scale_like()` of `studio/cli.py`, `SCALED` of `studio/like.py`). The body height is the
+   crown: the top of the head at the axis of the front view, between the ears. The intake of the
+   like animal runs into a temporary folder for its crown. A ratio within 0.03 of 1 keeps the
+   values. Each scaled line gets the comment "scaled by studio new", and `new` prints the list.
+
+   | Scaled (only the lengths: factors, flags, and names stay) | Not scaled, and why |
+   |---|---|
+   | `facets.offset` (the skin offset), `facets.squeeze`, `facets.warps` (center, radius), `facets.protect` | `field.*`: `fit` measures the field on the sheet |
+   | `rig.spine`, `rig.tail_bone`, `rig.fingers_length` | `details.*`: `fit` and the look checks measure the eyes, the nose, the ears, and the claws |
+   | `rig.weights`, `rig.weights.trunk` (`x_scale` and `muzzle_scale` stay) | `rig.ear_bone`: it is in the frame and the size of the ear |
+   | `measure.mesh_belly`, `measure.shading` (`jump` stays) | `rig.clavicle`: a rule of the arm motion of the role |
+   | `measure.features.<name>.regions` | the regions of a feature of the method `bump` (the ears): the top of the silhouette stays at 1 |
+   | `compare.facet_crops` | `paint`, `look`, `checks`, `seeds`, `measure.classes`: no lengths |
+
+   A dry run on the rabbit sheet with `--like polar-bear` (a temporary id, removed after the
+   test) measured the crowns 0.767 and 0.992, a ratio of 0.7733, and scaled 51 values. The
+   scaled values come near the values that round 1 of the rabbit set by hand:
+
+   | Value | Polar bear | Scaled | Round 1 by hand |
+   |---|---|---|---|
+   | `facets.warps[1].center` y, `radius` | 0.88, 0.16 | 0.6805, 0.1237 | 0.67, 0.12 |
+   | `facets.squeeze.center` y | 0.43 | 0.3325 | 0.30 |
+   | `rig.spine.head_end` y | 1.0 | 0.7733 | 0.78 |
+   | `measure.features.eyes.regions.front` y | 0.9 to 0.96 | 0.696 to 0.7424 | 0.64 to 0.70 |
+   | `facets.offset` | 0.004 | 0.0031 | 0.0015 |
+
+   The skin offset of the rabbit (0.0015) follows its thin limbs more than its height: check it
+   in the first build.
 4. Calibrate: `python3 studio calibrate <id> --from bear` (about 5 s) sets the light, the
    palette, and the dark classes from the sheet with renders of the bear GLB. Read its warnings:
    a color class that takes fur pixels, a color that clips, a paint contrast that the light
