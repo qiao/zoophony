@@ -22,7 +22,8 @@ reads it (route 3 of `AGENTS.md`). The steps:
    their neighbors.
 6. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. The faces under it take the fur color, so that a blink
-   shows no hole. The faces of the nose become gloss.
+   shows no hole. The faces of the nose become gloss. Each face takes the nearest color of a
+   palette in Oklab.
 7. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
    and the other vertices give `legs_straight_L` and `legs_straight_R`.
@@ -257,6 +258,52 @@ def face_colors(tris, uvs, texture, rules):
         else:
             colors[f] = samples.mean(axis=0)
     return colors, dark
+
+
+def oklab(srgb):
+    """Converts sRGB colors from 0 to 1 to Oklab (Björn Ottosson, 2020)."""
+    rgb = linear(srgb)
+    lms = rgb @ np.array([[0.4122214708, 0.5363325363, 0.0514459929],
+                          [0.2119034982, 0.6806995451, 0.1073969566],
+                          [0.0883024619, 0.2817188376, 0.6299787005]]).T
+    return np.cbrt(lms) @ np.array([[0.2104542553, 0.7936177850, -0.0040720468],
+                                    [1.9779984951, -2.4285922050, 0.4505937099],
+                                    [0.0259040371, 0.7827717662, -0.8086757660]]).T
+
+
+def srgb_of_oklab(lab):
+    """Converts Oklab colors back to sRGB colors from 0 to 1."""
+    lms = lab @ np.array([[1.0, 0.3963377774, 0.2158037573],
+                          [1.0, -0.1055613458, -0.0638541728],
+                          [1.0, -0.0894841775, -1.2914855480]]).T
+    rgb = (lms ** 3) @ np.array([[4.0767416621, -3.3077115913, 0.2309699292],
+                                 [-1.2684380046, 2.6097574011, -0.3413193965],
+                                 [-0.0041960863, -0.7034186147, 1.7076147010]]).T
+    rgb = np.clip(rgb, 0.0, 1.0)
+    return np.where(rgb <= 0.0031308, rgb * 12.92, 1.055 * rgb ** (1 / 2.4) - 0.055)
+
+
+def palette(colors, size, rounds=40):
+    """Gives each face a color of a palette of at most `size` colors: k-means in Oklab, a uniform
+    color space, so that a step of the palette looks the same in each hue. The first centers are
+    the farthest colors from each other, so that the small features (the eyes, the nose, the
+    inner ears, the whiskers) get centers of their own. Gives the new sRGB colors and the largest
+    and the mean Oklab distance of a face from its palette color."""
+    lab = oklab(colors)
+    centers = [lab[int(np.argmin(np.linalg.norm(lab - lab.mean(axis=0), axis=1)))]]
+    near = np.linalg.norm(lab - centers[0], axis=1)
+    while len(centers) < min(size, len(lab)):
+        centers.append(lab[int(np.argmax(near))])
+        near = np.minimum(near, np.linalg.norm(lab - centers[-1], axis=1))
+    centers = np.array(centers)
+    for _ in range(rounds):
+        label = np.argmin(np.linalg.norm(lab[:, None] - centers[None], axis=2), axis=1)
+        for k in range(len(centers)):
+            if (label == k).any():
+                centers[k] = lab[label == k].mean(axis=0)
+    label = np.argmin(np.linalg.norm(lab[:, None] - centers[None], axis=2), axis=1)
+    error = np.linalg.norm(lab - centers[label], axis=1)
+    return srgb_of_oklab(centers)[label], float(error.max()), float(error.mean())
 
 
 def in_box(points, box):
@@ -1080,6 +1127,9 @@ def main():
     src_all, bind_all, tris_all, colors_all, materials = add_eye_shells(
         long_verts, bind, tris, colors, eyes, config['eyeShell'])
     materials[nose] = 'gloss'
+    colors_all, worst_color, mean_color = palette(colors_all, config['colors']['palette'])
+    log(f'palette: {len(np.unique(colors_all, axis=0))} colors, the Oklab distance of a face '
+        f'from its color {mean_color:.4f} on the mean, {worst_color:.4f} at most')
     extra = len(src_all) - len(long_verts)
     head_only = np.zeros((extra, len(BONES)))
     head_only[:, BONES.index('head')] = 1.0

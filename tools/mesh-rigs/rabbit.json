@@ -57,6 +57,7 @@
   },
   "colors": {
     "samples": 6,
+    "palette": 48,
     "dark": 0.05,
     "eyeShare": 0.34,
     "eyeBox": [
@@ -68,7 +69,7 @@
       [0.03, 0.66, 0.2]
     ],
     "nose": [0.85, 0.55, 0.55],
-    "note": "Each face takes the mean sRGB color of the texture at the samples of a grid of the given steps on the face. A face is dark when its share of samples with a linear luminance below dark is at least eyeShare, and then it takes the mean of its dark samples. A dark face in the eye box (the left eye, mirrored for the right eye) is a face of an eye. A face in the nose box whose color is nearer to the nose color than to white is a face of the nose."
+    "note": "Each face takes the mean sRGB color of the texture at the samples of a grid of the given steps on the face. A face is dark when its share of samples with a linear luminance below dark is at least eyeShare, and then it takes the mean of its dark samples. A dark face in the eye box (the left eye, mirrored for the right eye) is a face of an eye. A face in the nose box whose color is nearer to the nose color than to white is a face of the nose. Then each face takes the nearest color of a palette of palette colors, from k-means in Oklab, so that the packed mesh of the app holds few colors."
   },
   "eyeShell": {
     "lift": 0.002,
