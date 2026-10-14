@@ -16,8 +16,10 @@ reference images, and record the conflict as a row in your decision file. Then u
 file in the same commit as the change.
 
 Take the next task from `TODO.md`, and follow the rules at its top. A step is done only when its
-"done" criterion is true, and, for a step with a review, after the review agent approves it
-(design 9.8).
+"done" criterion is true and its review is done (design 9.8). A review agent runs only for a
+change of tool code that deletes files, starts processes, or changes the git state. It also runs
+for a change of a rule of the pure core. The manager reviews each other round from the report and
+the images.
 
 A decision file in `docs/decisions/` holds the details that one agent session decided after the
 design session (section 10 of `docs/design.md`). Treat each row as decided, unless a newer
