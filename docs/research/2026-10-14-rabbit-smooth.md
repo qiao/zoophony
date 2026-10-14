@@ -111,6 +111,15 @@ morph normals, so a hanging arm does not keep the light of the raised bind arm.
 the self shadow under the arms and at the backs of the legs on both. The smooth normals add no
 stair line where the light grazes the fur, so the shadow bias stays.
 
+## The values that stay
+
+`pnpm body-probe --base main` (`body-probe-base-main.txt`) names only the bodies of the rabbit
+and its player: their colors changed. The bodies of the bear and the polar bear stay equal,
+because the probe reads no normals, and each of the 1,492 pose sets stays equal.
+`pnpm rig-mesh rabbit --check` (`rig-mesh-check.txt`) keeps 3,100 triangles, the standing body
+within 0.234 mm of the source, and the folds of `pnpm fold-probe violinist` of main: 688 of 17,788
+play samples, 112 of 434 lift samples, and 7 faces in each rest sample.
+
 ## The colors of the rabbit
 
 `colors-main-branch.txt` gives `colors.py` on the rig of main and on the new rig.
