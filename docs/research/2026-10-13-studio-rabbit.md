@@ -3,7 +3,7 @@
 On 2026-10-13 the user gave a new four-view sheet of a low-poly rabbit and asked: "create a
 low-poly model for the rabbit following this reference image and replace the main-app's rabbit
 by this new one". The studio built the rabbit violinist (`lowpoly-studio/animals/rabbit/`, round
-1, then round 2 `rabbit-look`). This report gives the measures of the branch `rabbit-app`, which
+1, round 2 `rabbit-look`, and round 3 `rabbit-ears`). Round 3 changed only the ears. This report gives the measures of the branch `rabbit-app`, which
 puts the studio rabbit into the app by route 3 of `AGENTS.md`. The decisions are in
 [`2026-10-13-studio-rabbit.md`](../decisions/2026-10-13-studio-rabbit.md). The probes are in
 [`2026-10-13-studio-rabbit/`](2026-10-13-studio-rabbit/). Run each probe from the root of the
@@ -27,17 +27,18 @@ repository with `node docs/research/2026-10-13-studio-rabbit/<probe>.ts`.
 of the fur and the gloss, and drops the violin (444 faces) and the bow (56 faces) with their
 joints, and the chair.
 
-| Measure | Round 1 (6e6acc13) | Round 2 (11720c96) |
-|---|---:|---:|
-| Faces of the body | 2,716 | 3,252 |
-| Head height `H` | 0.234 m | 0.230 m |
-| Seat height | 0.130 m | 0.133 m |
-| Chair depth (`chairDepth`) | 0.173 m | 0.190 m |
-| Scale | 1.198 m for each unit | 1.198 m for each unit |
-| Shoulder joints, standing | 0.581 m | 0.583 m |
+| Measure | Round 1 (6e6acc13) | Round 2 (11720c96) | Round 3 (520bd6d8) |
+|---|---:|---:|---:|
+| Faces of the body | 2,716 | 3,252 | 3,012 |
+| Head height `H` | 0.234 m | 0.230 m | 0.230 m |
+| Seat height | 0.130 m | 0.133 m | 0.133 m |
+| Chair depth (`chairDepth`) | 0.173 m | 0.190 m | 0.190 m |
+| Scale | 1.198 m for each unit | 1.198 m for each unit | 1.198 m for each unit |
+| Shoulder joints, standing | 0.581 m | 0.583 m | 0.583 m |
 
 The parametric rabbit had `H` 0.38 m and 2,172 triangles. The scene of `perf-60.mid` has 164,502
-triangles with the round 1 body and 167,718 with the round 2 body, of its budget of 200,000
+triangles with the round 1 body, 167,718 with the round 2 body, and 166,278 with the round 3 body,
+of its budget of 200,000
 (`models/budget.test.ts`, with a print of `sceneTriangles()`).
 
 ## 2. The height against the red fox
@@ -157,10 +158,10 @@ bone was at 0.384 m (`rest-probe.ts`).
 
 | Measure | main | branch |
 |---|---:|---:|
-| First download (`pnpm build && pnpm size`) | 344,961 B | 365,575 B |
+| First download (`pnpm build && pnpm size`) | 344,961 B | 364,645 B |
 | `pnpm test` | 27.4 s to 28.3 s (`2026-10-13-route-3-retro.md`) | 40.7 s (`tools/check-commits.sh --tip main`) |
-| `pnpm pose-depth violinist`, the deepest pair over the contact depth | no role | none (paws in the lowering 1.9 cm, accepted 2.5 cm) |
-| `pnpm fold-probe violinist` | no role | 0.3% of the play samples, at most 1 face |
+| `pnpm pose-depth violinist`, the deepest pair over the contact depth | no role | none (paws in the lowering 1.9 cm, accepted 2.5 cm, `depth-round3.txt`) |
+| `pnpm fold-probe violinist` | no role | 0.3% of the play samples, at most 1 face (`fold-round3.txt`) |
 | `pnpm pose-depth pianist`, forearms and upper arms in play | 8.0 cm, 2.9 cm | 8.0 cm, 2.9 cm |
 | `pnpm pose-depth conductor`, arms | 3.7 cm, 3.5 cm | 3.7 cm, 3.5 cm |
 | `pnpm fold-probe pianist` | 20.7%, at most 8 faces | 20.7%, at most 8 faces |
@@ -177,5 +178,5 @@ violin seat, and the rabbit has its eyes lower.
 
 ## 8. Images
 
-- Close views: `pnpm close-views violinist <dir>` on `15ece4ec` (`violinist-views.webp`).
-- Snapshot: `docs/snapshots/2026-10-13-15ece4ec/`.
+- Close views: `pnpm close-views violinist <dir>` on `119c63da` (`violinist-views.webp`).
+- Snapshot: `docs/snapshots/2026-10-13-119c63da/`.
