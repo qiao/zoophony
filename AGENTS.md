@@ -179,7 +179,9 @@ implementation, the review, and the fix of a round from `docs/briefs/studio-body
 1. Run `pnpm studio-body <animal> --inspect` first. It prints the joints, the reach of each arm,
    the clips, the props, the seated drop, and the parts that the export refuses, with no write.
    For a violin or a viola, the manager compares the reach with the instrument before the round
-   (`docs/briefs/studio-body.md`, section 1). Run
+   (`docs/briefs/studio-body.md`, section 1). The meters of `--inspect` and of `pnpm hold-reach`
+   hold only at the scale of the entry of the animal in `ANIMALS` (below). Without an entry,
+   `--inspect` assumes the shoulders at 1 m. Run
    `pnpm studio-body <animal>` after each build of the studio that changes the GLB file. Add
    an animal to `ANIMALS` of `tools/studio-body.ts` with the landmark of its scale and its
    height in the app: the shoulder joints of a standing role, or the keys of the piano of a
