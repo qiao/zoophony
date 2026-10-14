@@ -411,6 +411,11 @@ deprecation shims, legacy branches, or compatibility aliases.
   result. Name the code file instead, and put the measures of a tuning in its research report.
 - When you move or delete code, update all pointers, comments, and TSDoc references. Grep for the
   old names before you finish.
+- A commit that changes the value of a setting, or the reason for it, updates these in the same
+  commit: its decision row, its design text, the line of its decision file in `docs/design.md`,
+  and the TSDoc of the setting. Before the commit, grep `docs/`, `src/`, and `tools/` for the
+  words of the old reason. Commit `18cd7e3b` changed the crease angle of the rabbit from 10° to
+  35° with no docs, and three old claims stayed.
 - `docs/research/` is a historical record. Keep each report as it was on its date.
 - Each measured number of a research report names its log or the command of its probe. Keep the
   probe in the research folder of the report.
