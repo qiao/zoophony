@@ -1,32 +1,30 @@
 {
   "animal": "rabbit",
   "role": "violinist",
-  "seed": 1,
+  "seed": 5,
   "gate_pass": true,
   "pass": false,
   "failed": [
     "iou.front",
     "iou.side",
+    "fur_hue.side",
     "iou.back",
     "iou.three_quarter",
     "eye_outline.three_quarter.0",
     "eye_outline.three_quarter.1",
-    "eye_y.three_quarter.0",
     "eye_y.three_quarter.1",
     "ear_dark.front.left_in_image",
     "ear_width.side.ear",
-    "ear_height.side.ear",
     "nose_x.side.0",
-    "nose_y.side.0",
-    "nose_width.side.0",
-    "nose_height.side.0",
-    "belly_width.front.belly",
-    "facet_contrast"
+    "nose_y.side.0"
   ],
   "near": [
-    "eye_outline.front.0",
+    "slivers",
+    "remesh_gate.slivers",
+    "eye_outline.front.1",
+    "eye_y.three_quarter.0",
     "nose_height.front.0",
-    "belly_height.front.belly",
+    "belly_width.front.belly",
     "claw_count.front.left_in_image",
     "claw_count.front.right_in_image"
   ],
@@ -69,7 +67,7 @@
     },
     {
       "name": "scene.ready",
-      "value": 0.004,
+      "value": 0.0048,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -78,7 +76,7 @@
     },
     {
       "name": "seat.ready",
-      "value": 0.0056,
+      "value": 0.0089,
       "op": "in",
       "limit": [
         -0.015,
@@ -108,7 +106,7 @@
     },
     {
       "name": "scene.play",
-      "value": 0.0029,
+      "value": 0.0,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -117,7 +115,7 @@
     },
     {
       "name": "seat.play",
-      "value": 0.0056,
+      "value": 0.0089,
       "op": "in",
       "limit": [
         -0.015,
@@ -147,7 +145,7 @@
     },
     {
       "name": "scene.rest",
-      "value": 0.004,
+      "value": 0.0048,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -156,7 +154,7 @@
     },
     {
       "name": "seat.rest",
-      "value": 0.0056,
+      "value": 0.0089,
       "op": "in",
       "limit": [
         -0.015,
@@ -204,7 +202,7 @@
     },
     {
       "name": "scene.performance",
-      "value": 0.004,
+      "value": 0.0048,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -213,7 +211,7 @@
     },
     {
       "name": "seat.performance",
-      "value": 0.0056,
+      "value": 0.0089,
       "op": "in",
       "limit": [
         -0.015,
@@ -234,7 +232,7 @@
     },
     {
       "name": "body_triangles",
-      "value": 1148,
+      "value": 1204,
       "op": "in",
       "limit": [
         900.0,
@@ -246,12 +244,38 @@
     },
     {
       "name": "slivers",
-      "value": 0.007,
+      "value": 0.0083,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
-      "near": false,
-      "gate": false
+      "near": true,
+      "gate": false,
+      "where": {
+        "face": 314,
+        "faces": [
+          314,
+          359,
+          495,
+          517,
+          596,
+          916,
+          961,
+          1098,
+          1119,
+          1199
+        ],
+        "bone": "hips",
+        "side": "R",
+        "region": "hips, under, right",
+        "rest_position": [
+          -0.0197,
+          0.1413,
+          0.0042
+        ],
+        "smallest_angle_deg": 0.6,
+        "rest_dot": 0.465,
+        "crop": "diag/face-314.png"
+      }
     },
     {
       "name": "unpaired_vertices",
@@ -264,7 +288,7 @@
     },
     {
       "name": "remesh_gate.quads",
-      "value": 808,
+      "value": 840,
       "op": "in",
       "limit": [
         546,
@@ -285,11 +309,11 @@
     },
     {
       "name": "remesh_gate.slivers",
-      "value": 0.007,
+      "value": 0.0083,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
-      "near": false,
+      "near": true,
       "gate": true
     },
     {
@@ -312,7 +336,7 @@
     },
     {
       "name": "iou.front",
-      "value": 0.9147,
+      "value": 0.9178,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -369,7 +393,7 @@
     },
     {
       "name": "iou.side",
-      "value": 0.8817,
+      "value": 0.9158,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -384,20 +408,24 @@
     {
       "name": "fur_hue.side",
       "value": [
-        32.6,
+        33.5,
         32.1
       ],
       "op": "abs<=",
       "limit": 1.0,
-      "pass": true,
+      "pass": false,
       "near": false,
       "gate": false,
+      "where": {
+        "view": "side",
+        "crop": "report/views/side.jpg"
+      },
       "look": true
     },
     {
       "name": "fur_saturation.side",
       "value": [
-        0.152,
+        0.151,
         0.14
       ],
       "op": "abs<=",
@@ -410,7 +438,7 @@
     {
       "name": "fur_value.side",
       "value": [
-        0.898,
+        0.894,
         0.89
       ],
       "op": "abs<=",
@@ -422,7 +450,7 @@
     },
     {
       "name": "iou.back",
-      "value": 0.9189,
+      "value": 0.9182,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -453,7 +481,7 @@
     {
       "name": "fur_saturation.back",
       "value": [
-        0.151,
+        0.152,
         0.138
       ],
       "op": "abs<=",
@@ -466,7 +494,7 @@
     {
       "name": "fur_value.back",
       "value": [
-        0.898,
+        0.894,
         0.91
       ],
       "op": "abs<=",
@@ -478,7 +506,7 @@
     },
     {
       "name": "iou.three_quarter",
-      "value": 0.85,
+      "value": 0.8515,
       "op": ">=",
       "limit": 0.91,
       "pass": false,
@@ -492,7 +520,7 @@
     },
     {
       "name": "head_turn.three_quarter",
-      "value": 8,
+      "value": 13,
       "op": "in",
       "limit": [
         0.0,
@@ -506,7 +534,7 @@
     {
       "name": "fur_hue.three_quarter",
       "value": [
-        32.6,
+        33.3,
         33.3
       ],
       "op": "abs<=",
@@ -519,7 +547,7 @@
     {
       "name": "fur_saturation.three_quarter",
       "value": [
-        0.154,
+        0.152,
         0.149
       ],
       "op": "abs<=",
@@ -532,7 +560,7 @@
     {
       "name": "fur_value.three_quarter",
       "value": [
-        0.882,
+        0.886,
         0.89
       ],
       "op": "abs<=",
@@ -545,8 +573,22 @@
     {
       "name": "eye_outline.front.0",
       "value": [
-        0.0247,
+        0.0232,
         0.0232
+      ],
+      "op": "rel<=",
+      "limit": 0.08,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00155,
+      "look": true
+    },
+    {
+      "name": "eye_outline.front.1",
+      "value": [
+        0.0232,
+        0.0247
       ],
       "op": "rel<=",
       "limit": 0.08,
@@ -558,29 +600,15 @@
         "feature": "eyes",
         "view": "front",
         "region": "eye",
-        "item": 0,
+        "item": 1,
         "crop": "report/features/eyes_front_eye.png"
       },
       "look": true
     },
     {
-      "name": "eye_outline.front.1",
-      "value": [
-        0.0247,
-        0.0247
-      ],
-      "op": "rel<=",
-      "limit": 0.08,
-      "pass": true,
-      "near": false,
-      "gate": false,
-      "floor": 0.00155,
-      "look": true
-    },
-    {
       "name": "eye_y.front.0",
       "value": [
-        0.6647,
+        0.6662,
         0.6705
       ],
       "op": "abs<=",
@@ -594,7 +622,7 @@
     {
       "name": "eye_y.front.1",
       "value": [
-        0.6647,
+        0.6662,
         0.6705
       ],
       "op": "abs<=",
@@ -608,7 +636,7 @@
     {
       "name": "eye_outline.three_quarter.0",
       "value": [
-        0.0292,
+        0.0277,
         0.0408
       ],
       "op": "rel<=",
@@ -650,13 +678,13 @@
     {
       "name": "eye_y.three_quarter.0",
       "value": [
-        0.664,
+        0.6655,
         0.6742
       ],
       "op": "abs<=",
       "limit": 0.01,
-      "pass": false,
-      "near": false,
+      "pass": true,
+      "near": true,
       "gate": false,
       "floor": 0.00156,
       "where": {
@@ -671,7 +699,7 @@
     {
       "name": "eye_y.three_quarter.1",
       "value": [
-        0.6625,
+        0.6647,
         0.6764
       ],
       "op": "abs<=",
@@ -692,7 +720,7 @@
     {
       "name": "ear_width.front.left_in_image",
       "value": [
-        0.0885,
+        0.0929,
         0.09
       ],
       "op": "rel<=",
@@ -706,7 +734,7 @@
     {
       "name": "ear_height.front.left_in_image",
       "value": [
-        0.1959,
+        0.1974,
         0.1974
       ],
       "op": "rel<=",
@@ -740,7 +768,7 @@
     {
       "name": "ear_width.front.right_in_image",
       "value": [
-        0.0885,
+        0.0929,
         0.0943
       ],
       "op": "rel<=",
@@ -754,7 +782,7 @@
     {
       "name": "ear_height.front.right_in_image",
       "value": [
-        0.1959,
+        0.1974,
         0.1974
       ],
       "op": "rel<=",
@@ -781,7 +809,7 @@
     {
       "name": "ear_width.side.ear",
       "value": [
-        0.0932,
+        0.1194,
         0.0611
       ],
       "op": "rel<=",
@@ -802,28 +830,21 @@
     {
       "name": "ear_height.side.ear",
       "value": [
-        0.0742,
+        0.1965,
         0.198
       ],
       "op": "rel<=",
       "limit": 0.1,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
       "floor": 0.00156,
-      "where": {
-        "feature": "ears",
-        "view": "side",
-        "region": "ear",
-        "item": 0,
-        "crop": "report/features/ears_side_ear.png"
-      },
       "look": true
     },
     {
       "name": "ear_width.back.left_in_image",
       "value": [
-        0.0878,
+        0.0937,
         0.0893
       ],
       "op": "rel<=",
@@ -851,7 +872,7 @@
     {
       "name": "ear_width.back.right_in_image",
       "value": [
-        0.0878,
+        0.0922,
         0.0922
       ],
       "op": "rel<=",
@@ -865,7 +886,7 @@
     {
       "name": "ear_height.back.right_in_image",
       "value": [
-        0.1962,
+        0.1977,
         0.1977
       ],
       "op": "rel<=",
@@ -942,7 +963,7 @@
     {
       "name": "nose_x.side.0",
       "value": [
-        0.2017,
+        0.1574,
         0.1872
       ],
       "op": "abs<=",
@@ -963,7 +984,7 @@
     {
       "name": "nose_y.side.0",
       "value": [
-        0.6245,
+        0.6601,
         0.6463
       ],
       "op": "abs<=",
@@ -984,49 +1005,35 @@
     {
       "name": "nose_width.side.0",
       "value": [
-        0.0189,
+        0.0146,
         0.016
       ],
       "op": "rel<=",
       "limit": 0.15,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
       "floor": 0.00156,
-      "where": {
-        "feature": "nose",
-        "view": "side",
-        "region": "nose",
-        "item": 0,
-        "crop": "report/features/nose_side_nose.png"
-      },
       "look": true
     },
     {
       "name": "nose_height.side.0",
       "value": [
-        0.0058,
+        0.0189,
         0.0204
       ],
       "op": "rel<=",
       "limit": 0.15,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
       "floor": 0.00156,
-      "where": {
-        "feature": "nose",
-        "view": "side",
-        "region": "nose",
-        "item": 0,
-        "crop": "report/features/nose_side_nose.png"
-      },
       "look": true
     },
     {
       "name": "belly_y.front.belly",
       "value": [
-        0.395,
+        0.3981,
         0.3795
       ],
       "op": "abs<=",
@@ -1040,29 +1047,8 @@
     {
       "name": "belly_width.front.belly",
       "value": [
-        0.0711,
+        0.0784,
         0.0958
-      ],
-      "op": "rel<=",
-      "limit": 0.2,
-      "pass": false,
-      "near": false,
-      "gate": false,
-      "floor": 0.00155,
-      "where": {
-        "feature": "belly",
-        "view": "front",
-        "region": "belly",
-        "item": 0,
-        "crop": "report/features/belly_front_belly.png"
-      },
-      "look": true
-    },
-    {
-      "name": "belly_height.front.belly",
-      "value": [
-        0.0914,
-        0.1103
       ],
       "op": "rel<=",
       "limit": 0.2,
@@ -1077,6 +1063,20 @@
         "item": 0,
         "crop": "report/features/belly_front_belly.png"
       },
+      "look": true
+    },
+    {
+      "name": "belly_height.front.belly",
+      "value": [
+        0.0987,
+        0.1103
+      ],
+      "op": "rel<=",
+      "limit": 0.2,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00155,
       "look": true
     },
     {
@@ -1120,12 +1120,12 @@
     {
       "name": "facet_contrast",
       "value": [
-        3.7,
+        2.88,
         3.02
       ],
       "op": "rel<=",
       "limit": 0.15,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
       "look": true
@@ -1135,11 +1135,11 @@
   "look": {
     "current": true,
     "reason": null,
-    "run": "20261013-180606-60274",
-    "look_run": "20261013-180606-60274",
-    "made": "2026-10-13T18:06:29-0700",
+    "run": "20261013-184035-7486",
+    "look_run": "20261013-184035-7486",
+    "made": "2026-10-13T18:42:05-0700",
     "compare": "model",
-    "model_seed": 1
+    "model_seed": 6
   },
   "sheet": {
     "warnings": [
@@ -1151,7 +1151,7 @@
   "diagnostics": {
     "folds": "diag/folds.json",
     "contacts": "diag/contacts.json",
-    "faces": 8,
+    "faces": 10,
     "contacts_found": 0
   }
 }

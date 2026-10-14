@@ -1,16 +1,16 @@
 {
   "animal": "rabbit",
   "role": "violinist",
-  "run": "20261013-180606-60274",
-  "made": "2026-10-13T18:06:17-0700",
-  "role_key": "a854d3561ccb7794",
+  "run": "20261013-184035-7486",
+  "made": "2026-10-13T18:41:51-0700",
+  "role_key": "87fa90c2fc6e249f",
   "reason": "--all-seeds",
   "require": "kept",
-  "kept": 1,
+  "kept": 5,
   "robust": true,
   "rule_pass": true,
-  "meshes": 5,
-  "robust_seeds": 5,
+  "meshes": 3,
+  "robust_seeds": 3,
   "seeds": [
     {
       "seed": 3,
@@ -18,38 +18,24 @@
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "inward_faces 2",
-        "slit_faces 2"
+        "slivers 0.0121"
       ],
       "clips": {}
     },
     {
       "seed": 1,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "play": [],
-        "rest": [],
-        "stand_play": [],
-        "performance": []
-      }
-    },
-    {
-      "seed": 5,
       "status": "gate",
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
+        "inward_faces 2",
+        "slivers 0.0108",
         "slit_faces 4"
       ],
       "clips": {}
     },
     {
-      "seed": 6,
+      "seed": 5,
       "status": "pass",
       "pass": true,
       "remesh_gate": true,
@@ -62,6 +48,16 @@
         "stand_play": [],
         "performance": []
       }
+    },
+    {
+      "seed": 6,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slivers 0.0109"
+      ],
+      "clips": {}
     },
     {
       "seed": 2,
@@ -91,18 +87,13 @@
     },
     {
       "seed": 7,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "play": [],
-        "rest": [],
-        "stand_play": [],
-        "performance": []
-      }
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slivers 0.0105"
+      ],
+      "clips": {}
     },
     {
       "seed": 8,
