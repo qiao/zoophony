@@ -463,7 +463,7 @@ export interface GripReach {
 
 /**
  * Measures the reach of the arms of a species to their grips on the flute (`palmL` and `palmR` of
- * `WOODWINDS`), with the lip plate at the mouth, in the playing pose and in the rest pose of its
+ * `WOODWINDS`), with the lip plate at its place of the hold, in the playing pose and in the rest pose of its
  * flute hold (`windHoldOf()`), with the chest in its bind pose. A palm misses its grip by the distance
  * less the arm when the distance is longer than the arm.
  *
@@ -505,7 +505,7 @@ export function fluteReachLines(species: SpeciesId, support: ReachSupport): stri
       ? `misses the grip by ${m(distance - arm)}`
       : `reaches the grip with ${m(arm - distance)} to spare`;
   const lines = [
-    `${species} with the flute on the ${support}, hold ${own ? `flute@${species} (SPECIES_WIND_HOLDS)` : 'flute (WIND_HOLDS)'}, the lip plate at the mouth:`,
+    `${species} with the flute on the ${support}, hold ${own ? `flute@${species} (SPECIES_WIND_HOLDS)` : 'flute (WIND_HOLDS)'}, the lip plate at its place of the hold:`,
   ];
   for (const s of ['L', 'R'] as const) {
     const { arm, play, rest } = reach[s];
