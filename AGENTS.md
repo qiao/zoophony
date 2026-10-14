@@ -434,8 +434,8 @@ A commit that can change the speed of `score/`, `pose/`, or the synth engine als
 - Commit each verified change. Leave no verified work in the working tree.
 - Before your report, run `tools/check-commits.sh --tip main` one time in your worktree, with a
   clean tree. It checks each commit of the branch and the full suite on the last commit. It keeps
-  each passed result in the cache by tree. Then the review and the merge get a `hit` for each
-  commit. Only the script writes an entry, and a claim in a report is no entry.
+  each passed result in the cache by tree. Then the merge, and a review agent when one runs, get
+  a `hit` for each commit. Only the script writes an entry, and a claim in a report is no entry.
 - Run the check script in the background, because a run with no cache can take more than the
   10-minute limit of a Bash call. Do not edit the worktree while it runs. An edit gives no entry,
   and the rebase abort after a failure removes the edits of the tracked files.
@@ -470,9 +470,9 @@ Follow these rules when another agent works on the repository at the same time.
     a branch that is not merged.
 - A rebase is finished when the folder `$(git rev-parse --git-path rebase-merge)` does not exist.
   `REBASE_HEAD` can stay after a finished rebase, so it does not show the state.
-- A review agent checks the tip only. It runs `tools/check-commits.sh --tip main` in a worktree
-  of the branch. Each commit that the agent checked prints `hit`, and only a tree with no entry
-  runs its checks. It does not check each commit again in a copy of the tree.
+- A review agent (design 9.8) checks the tip only. It runs `tools/check-commits.sh --tip main` in
+  a worktree of the branch. Each commit that the agent checked prints `hit`, and only a tree with
+  no entry runs its checks. It does not check each commit again in a copy of the tree.
 - Let the agent that wrote a branch do a long rebase, because it knows the intent of each commit.
 - A rebase with `--exec` runs its command in the tree of each commit. An old commit has an old
   copy of a script or none. Copy a script of the branch to a temporary path first, and run the
