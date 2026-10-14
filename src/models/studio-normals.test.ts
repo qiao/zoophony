@@ -88,6 +88,39 @@ describe('studioNormals (design 4.4, 4.5)', () => {
     expect(angle(normalOf(normals, 3), [0, 1, 0])).toBeCloseTo(20, 3);
   });
 
+  it('weights each face by its corner angle, so the normal leans to the face with the wider corner', () => {
+    const turn = (20 * Math.PI) / 180;
+    const narrow = (20 * Math.PI) / 180;
+    const wide = (120 * Math.PI) / 180;
+    const mesh = {
+      // The shared edge from vertex 0 to vertex 1, a floor point with a corner of 120° at vertex
+      // 0, and a point of a face that turns up by 20° with a corner of 20° at vertex 0.
+      positions: Float32Array.from([
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        Math.cos(wide),
+        0,
+        Math.sin(wide),
+        Math.cos(narrow),
+        Math.sin(narrow) * Math.sin(turn),
+        -Math.sin(narrow) * Math.cos(turn),
+      ]),
+      corners: Uint32Array.from([0, 2, 1, 0, 1, 3]),
+      finishes: Uint8Array.from([FINISH_ORDER.indexOf('matte'), FINISH_ORDER.indexOf('matte')]),
+    };
+    const normals = studioNormals(mesh, 35);
+    // Equal weights put the normal halfway, 10° from the floor face. The weights 120 and 20 put
+    // it about 3° from the floor face.
+    const lean = angle(normalOf(normals, 0), [0, 1, 0]);
+    expect(lean).toBeGreaterThan(1);
+    expect(lean).toBeLessThan(5);
+    expect(angle(normalOf(normals, 0), normalOf(normals, 3))).toBeLessThan(0.05);
+  });
+
   it('gives each corner of the rabbit a unit normal within the crease angle of its face', () => {
     const mesh = unpackStudioMesh(STUDIO_RABBIT.mesh);
     const crease = 40;
