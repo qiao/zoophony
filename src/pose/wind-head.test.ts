@@ -59,13 +59,18 @@ describe('the head turn of a wind hold (design 5.3)', () => {
     }
   });
 
-  it('keeps the lip plate at the turned mouth while the flutist plays', () => {
+  it('keeps the lip plate at its place under the turned muzzle while the flutist plays', () => {
     if (!grips.mouth) {
       throw new Error('The flute has no grip of the mouth.');
     }
+    // The place of the lip plate on the head: the mouth, moved by the hold.
+    const lip = new Vector3(...hold.lipShift)
+      .multiplyScalar(player.model.body.headHeight)
+      .add(new Vector3(...player.model.body.mouth))
+      .toArray();
     for (const t of [0.5, 1.3, 2.9]) {
       const posed = posedAt(scene, player, t);
-      const mouth = posedPoint(posed, 'head', player.model.body.mouth);
+      const mouth = posedPoint(posed, 'head', lip);
       expect(gap(mouth, posedPiecePoint(posed, grips.mouth))).toBeLessThan(1e-6);
     }
   });

@@ -62,6 +62,12 @@ export interface WindHold {
    * line with the shoulder. 0 keeps the head square to the chest.
    */
   readonly headTurn: number;
+  /**
+   * The move of the mouthpiece from the mouth of the bind pose, in head heights, in the bind axes
+   * of the head. A long muzzle reaches past the mouth, so a flute can sit further back under it.
+   * (0, 0, 0) keeps the mouthpiece at the mouth.
+   */
+  readonly lipShift: Vec3;
 }
 
 /**
@@ -85,6 +91,7 @@ const WOODWIND = {
   fingering: 'holes',
   fundamental: 0,
   headTurn: 0,
+  lipShift: [0, 0, 0],
 } as const satisfies WindHold;
 
 /** The rotation that changes nothing. Nothing writes it. */
@@ -267,23 +274,27 @@ const FOX_HEAD_TURN = 25;
 
 /**
  * The flute hold of the tan fox (design 5.3), the hold of a real flutist (decisions
- * `2026-10-14-fox-flute.md`): the head turns to the left while the fox plays, the lip plate stays
- * at the turned mouth under the long muzzle, and the flute lies square to the face, 10° down to
- * the right. The shoulders stay square and low, with no forward turn of the right shoulder. The
- * left elbow points down and out, and the right elbow out to the side, in line with the shoulder.
- * In the rest pose, the flute stands upright on the right thigh with the foot joint down, as a
- * real flutist rests it, and both paws stay on it.
+ * `2026-10-14-fox-flute.md`). The head turns 25° to the left while the fox plays, and the flute
+ * lies square to the face, 10° down to the right. The lip plate sits under the long muzzle, 0.3 H
+ * behind and 0.25 H below the mouth at its front: at the mouth, both shoulders folded in each play
+ * sample (`pnpm hold-fit flutist`). The shoulders stay square and low, with no forward turn of the
+ * right shoulder. The left elbow points down and out, and the right elbow out to the side, in line
+ * with the shoulder. In the rest pose, the flute stands on the right thigh with the foot joint
+ * down, as a real flutist rests it, and leans to the left and to the front, so that the left paw
+ * holds it in front of the chest. Upright at the side of the thigh, the left forearm went 15 cm
+ * into the belly. Both paws stay on it.
  */
 const FOX_FLUTE = {
   ...WOODWIND,
   headTurn: FOX_HEAD_TURN * MathUtils.DEG2RAD,
+  lipShift: [0, -0.25, 0.3],
   play: fluteTurn(FOX_HEAD_TURN, 10),
   poleL: [-1, -1, -0.3],
   poleR: [1, -0.8, 0],
-  rest: fluteTurn(0, 90, [0, 0, -1]),
-  restShift: [0.53, -0.69, 0.82],
+  rest: fluteTurn(-22, 59, [0, 0, -1]),
+  restShift: [0, -0.5, -0.19],
   restPoleL: [-1, -1, 0],
-  restPoleR: [1, -1, 0],
+  restPoleR: [1, -0.5, 0.5],
 } as const satisfies WindHold;
 
 /**
@@ -352,6 +363,8 @@ export interface WindRig {
   /** The bind positions of the `neck` and the `head` bones, around which the head turns. */
   readonly neckBind: Vec3;
   readonly headBind: Vec3;
+  /** The move of the mouthpiece from the mouth, in meters (`WindHold.lipShift`). */
+  readonly lip: Vec3;
   readonly left: WindSide;
   readonly right: WindSide;
   /** The unit direction of the trombone slide from the first position, or (0, 0, 0). */
@@ -458,6 +471,7 @@ export function windRig(
     chestBind: at(BONES.chest),
     neckBind: at(BONES.neck),
     headBind: at(BONES.head),
+    lip: toVec3(new Vector3(...hold.lipShift).multiplyScalar(model.body.headHeight)),
     left: side('L'),
     right: side('R'),
     slideAxis: toVec3(travelVector.clone().normalize()),
@@ -592,7 +606,8 @@ const mouth = new Vector3();
 const mouthTuple: [number, number, number] = [0, 0, 0];
 
 /**
- * Gives the place of the mouth after a turn of the head around y, in the bind axes of the chest:
+ * Gives the place of the mouthpiece at the mouth after a turn of the head around y, in the bind
+ * axes of the chest, with the move of the hold from the mouth (`WindRig.lip`):
  * the neck turns {@link NECK_SHARE} of the angle around its joint, and the head the rest around
  * its joint, as the look of the body layer turns them (`writeBody()` of `pose-at.ts`). The mouth
  * of the bind pose is the bind place of the mouthpiece.
@@ -605,7 +620,11 @@ function turnedMouth(rig: WindRig, yaw: number): Vec3 {
   neckTurn.setFromAxisAngle(Y_AXIS, yaw * NECK_SHARE);
   headTurn.setFromAxisAngle(Y_AXIS, yaw);
   neckBind.fromArray(rig.neckBind);
-  mouth.fromArray(rig.pivot).sub(turned.fromArray(rig.headBind)).applyQuaternion(headTurn);
+  mouth
+    .fromArray(rig.pivot)
+    .add(turned.fromArray(rig.lip))
+    .sub(turned.fromArray(rig.headBind))
+    .applyQuaternion(headTurn);
   turned.fromArray(rig.headBind).sub(neckBind).applyQuaternion(neckTurn).add(neckBind);
   return mouth.add(turned).toArray(mouthTuple);
 }
