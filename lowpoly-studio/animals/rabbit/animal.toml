@@ -78,7 +78,7 @@ cheek = [0.615, 0.106]
 temple = 0.72
 cap = 0.725
 top = 0.775
-blend = 0.03
+blend = 0.018
 step = 0.0025
 face_points = [[0.548, 0.06], [0.565, 0.11], [0.58, 0.15], [0.60, 0.165], [0.62, 0.168], [0.66, 0.165], [0.70, 0.16]]
 face_join = 0.71
@@ -179,6 +179,7 @@ squeeze = { factor = 0.78, center = [0.0, 0.30, 0.02], radii = [0.2, 0.17, 0.2] 
 collapse_share = 0.3
 flip_share = 0.8
 relax = 0.12
+relax_rounds = 3
 jitter = 0.005
 
 # python3 studio calibrate polar-bear --quads (2026-10-12): at the target 780, QuadriFlow gives
