@@ -123,7 +123,8 @@ lowpoly-studio/
 │                        setup_keys.py: the cache keys; test_consistency.py: the sheet
 │                        check; test_role_props.py: the attachments of the props;
 │                        test_ear_checks.py: the ear measures; test_reach.py: the reach
-│                        checks of a held instrument (python3 -m unittest)
+│                        checks of a held instrument; test_ear_box.py: the ear box;
+│                        test_like_scale.py: the scale of new --like (python3 -m unittest)
 ├── docs/                handoff.md, handoff-diag.md, handoff-speed.md, handoff-pilot.md,
 │                        handoff-runtime.md, handoff-intake.md, handoff-rabbit.md (the
 │                        state of the work),
