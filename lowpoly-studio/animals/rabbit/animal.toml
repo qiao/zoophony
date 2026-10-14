@@ -232,7 +232,7 @@ fur = [220, 208, 192]
 belly = [236, 228, 214]
 muzzle = [226, 216, 200]  # python3 studio calibrate (rabbit GLB)
 ear = [217, 205, 190]  # python3 studio calibrate (rabbit GLB)
-ear_inner = [239, 173, 152]  # python3 studio calibrate (rabbit GLB)
+ear_inner = [219, 175, 155]  # the sheet median of the inner ear (222, 175, 153) through the light
 eye = [52, 30, 22]
 eye_outline = [22, 17, 15]
 sclera = [236, 228, 216]
@@ -308,7 +308,8 @@ smile_radii = [0.0015, 0.0009]
 
 [details.ears]
 hollow_depth = 1.8
-hollow_radius = 0.8
+hollow_radius = 0.62
+subdivisions = 2
 
 [details.hand_claws]
 offsets = [-0.012, -0.004, 0.004, 0.012]
