@@ -4,6 +4,19 @@ import { configDefaults, defineConfig } from 'vitest/config';
 const SPEED_TESTS = '**/*-speed.test.ts';
 
 /**
+ * The paused test files (design 9.3, decision `2026-10-14-test-pause.md`). Each model round
+ * changes the look of the animals, and these tests check the look, the fit, or the clearance of
+ * the bodies. `pnpm test` skips them, and `pnpm test:paused` runs them for information. The
+ * typecheck and the lint still read them. Remove a file from the list to bring it back.
+ */
+const PAUSED_TESTS = [
+  // The clearance of the bodies: the sweeps of the roles and the other clearance tests.
+  'src/pose/*-clearance-*.test.ts',
+  'src/pose/violinist-standing-clearance.test.ts',
+  'src/pose/rest-clearance.test.ts',
+];
+
+/**
  * The base path of the site. The Pages workflow sets `ZOOPHONY_BASE=/zoophony/`, the name of the
  * repository (design 9.2), for the build and for `vite preview`. Without it, the site is at `/`.
  */
@@ -40,13 +53,17 @@ export default defineConfig({
     projects: [
       {
         extends: true,
-        test: { name: 'unit', exclude: [SPEED_TESTS] },
+        test: { name: 'unit', exclude: [SPEED_TESTS, ...PAUSED_TESTS] },
       },
       {
         // The speed tests compare times, so load on the machine can make them fail. They run
         // one file at a time with `pnpm test:perf`, and `pnpm test` skips them (design 9.3).
         extends: true,
         test: { name: 'perf', include: [SPEED_TESTS], fileParallelism: false },
+      },
+      {
+        extends: true,
+        test: { name: 'paused', include: PAUSED_TESTS },
       },
     ],
   },
