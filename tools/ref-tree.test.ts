@@ -1,3 +1,5 @@
+import { spawn, spawnSync } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -78,5 +80,100 @@ describe('optionValue', () => {
     expect(optionValue([], '--base')).toBeNull();
     expect(optionValue(['--base'], '--base')).toBeUndefined();
     expect(optionValue(['--base', '--url', 'x'], '--base')).toBeUndefined();
+  });
+});
+
+/** A child process of a test that holds a tree of a commit, and its end. */
+interface Holder {
+  /** The child process, which leads a process group of its own, as a tool in a terminal. */
+  readonly child: ChildProcess;
+  /** The exit code of the child, or `null` when a signal stopped it. */
+  readonly closed: Promise<number | null>;
+  /** The output of the child so far. */
+  readonly output: () => string;
+}
+
+/**
+ * Starts a Node child that runs a script with `withRefTree()` and `runChild()` of this module.
+ *
+ * @param script The body of the script. It reads the parent folder from `REF_TREE_PARENT`.
+ * @param parent The folder that holds the temporary folder.
+ * @param path The value of `PATH`.
+ * @returns The child.
+ */
+function hold(script: string, parent: string, path = process.env['PATH'] ?? ''): Holder {
+  const module = JSON.stringify(join(import.meta.dirname, 'ref-tree.ts'));
+  const code = `import { runChild, withRefTree } from ${module};\n${script}`;
+  const child = spawn(process.execPath, ['--input-type=module', '-e', code], {
+    cwd: join(import.meta.dirname, '..'),
+    env: { ...process.env, PATH: path, REF_TREE_PARENT: parent },
+    detached: true,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let output = '';
+  child.stdout?.setEncoding('utf8').on('data', (text: string) => {
+    output += text;
+  });
+  child.stderr?.setEncoding('utf8').on('data', (text: string) => {
+    output += text;
+  });
+  const closed = new Promise<number | null>((resolve) => {
+    child.on('close', (status) => resolve(status));
+  });
+  return { child, closed, output: () => output };
+}
+
+/**
+ * Waits until a condition holds, for at most 10 s.
+ *
+ * @param condition The condition.
+ */
+async function waitFor(condition: () => boolean): Promise<void> {
+  for (let i = 0; i < 200 && !condition(); i++) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  expect(condition()).toBe(true);
+}
+
+/**
+ * Tells if a process with a text in its command line runs.
+ *
+ * @param text The text.
+ * @returns True if such a process runs.
+ */
+function runs(text: string): boolean {
+  return spawnSync('pgrep', ['-f', text]).status === 0;
+}
+
+describe('withRefTree after Ctrl-C', () => {
+  it('ends a child of runChild, removes the folder, and exits with 130, also after a second INT', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'ref-tree-stop-'));
+    const marker = `ref-tree-wait-${process.pid}-${Date.now()}`;
+    try {
+      // The child waits in the folder, as the build of a commit does.
+      const holder = hold(
+        [
+          "await withRefTree('HEAD', async (dir) => {",
+          `  const waiting = runChild(process.execPath, ['-e', 'setTimeout(() => {}, 20000) // ${marker}'], dir);`,
+          '  console.log(dir);',
+          '  await waiting;',
+          "}, { parent: process.env.REF_TREE_PARENT, paths: ['package.json'] });",
+        ].join('\n'),
+        parent,
+      );
+      await waitFor(() => holder.output().includes(parent) && runs(marker));
+      const dir = holder.output().trim();
+      expect(existsSync(dir)).toBe(true);
+
+      // Ctrl-C sends INT to each process of the group of the terminal. Then pnpm sends a second
+      // INT to its child, the tool.
+      process.kill(-(holder.child.pid ?? 0), 'SIGINT');
+      process.kill(holder.child.pid ?? 0, 'SIGINT');
+      expect(await holder.closed).toBe(130);
+      expect(existsSync(dir)).toBe(false);
+      expect(runs(marker)).toBe(false);
+    } finally {
+      await rm(parent, { recursive: true, force: true });
+    }
   });
 });

@@ -4,6 +4,7 @@
  * `pnpm close-views`).
  */
 import { spawn, spawnSync } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import { mkdtempSync, rmSync, symlinkSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -41,9 +42,13 @@ export function run(command: string, args: readonly string[], cwd: string): void
   }
 }
 
+/** The child processes of {@link runChild} that run now. A stop ends them first. */
+const running = new Set<ChildProcess>();
+
 /**
  * Starts a command, and gives a promise of its end. The command runs beside the code of the
- * caller.
+ * caller, in a process group of its own. Thus Ctrl-C does not stop it in the middle of a write
+ * into a temporary folder. The stop of {@link withRefTree} ends its group first.
  *
  * @param command The command.
  * @param args The arguments.
@@ -52,14 +57,23 @@ export function run(command: string, args: readonly string[], cwd: string): void
  */
 export function runChild(command: string, args: readonly string[], cwd: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { cwd, stdio: ['ignore', 'ignore', 'pipe'] });
+    const child = spawn(command, args, {
+      cwd,
+      detached: true,
+      stdio: ['ignore', 'ignore', 'pipe'],
+    });
+    running.add(child);
     let errors = '';
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', (text: string) => {
       errors += text;
     });
-    child.on('error', reject);
+    child.on('error', (error) => {
+      running.delete(child);
+      reject(error);
+    });
     child.on('close', (status) => {
+      running.delete(child);
       if (status === 0) {
         resolve();
         return;
@@ -67,6 +81,71 @@ export function runChild(command: string, args: readonly string[], cwd: string):
       reject(new Error(`${command} ${args.join(' ')} failed:\n${errorCause(errors)}`));
     });
   });
+}
+
+/**
+ * Ends the process group of a child, and waits for the end of the child: TERM first, and KILL
+ * after 5 s.
+ *
+ * @param child The child process of {@link runChild}.
+ * @returns A promise that resolves when the child has ended.
+ */
+function endChild(child: ChildProcess): Promise<void> {
+  const pid = child.pid;
+  if (child.exitCode !== null || child.signalCode !== null || pid === undefined) {
+    return Promise.resolve();
+  }
+
+  const signal = (name: NodeJS.Signals): void => {
+    try {
+      process.kill(-pid, name);
+    } catch {
+      // The group has ended.
+    }
+  };
+  return new Promise((resolve) => {
+    const kill = setTimeout(() => signal('SIGKILL'), 5000);
+    child.once('close', () => {
+      clearTimeout(kill);
+      resolve();
+    });
+    signal('SIGTERM');
+  });
+}
+
+/** The temporary folders of {@link withRefTree} that exist now. */
+const held = new Set<string>();
+
+/**
+ * Removes each temporary folder of {@link withRefTree} that exists now. The exit of the process
+ * calls it too, also after an error.
+ */
+function removeHeld(): void {
+  for (const dir of held) {
+    rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+  }
+  held.clear();
+}
+
+process.on('exit', removeHeld);
+
+/** The stop that runs, or `null`. A second signal during a stop starts no second stop. */
+let stopping: Promise<void> | null = null;
+
+/**
+ * Stops the tool after INT or TERM: ends the process group of each child of {@link runChild},
+ * waits for them, removes each temporary folder, and exits with 128 plus the number of the
+ * signal. The listener stays during the stop, because `pnpm` sends a second INT to the tool after
+ * the INT of the terminal, and with no listener that INT ends the process at once.
+ *
+ * @param signal The signal.
+ */
+function stopAfter(signal: NodeJS.Signals): void {
+  stopping ??= (async (): Promise<void> => {
+    await Promise.all([...running].map(endChild));
+    removeHeld();
+    process.exit(signal === 'SIGINT' ? 130 : 143);
+  })();
 }
 
 /** The options of {@link withRefTree}. */
@@ -83,7 +162,8 @@ export interface RefTreeOptions {
  * Extracts the tree of a commit into a new temporary folder, and gives the folder to a function.
  * The extraction and the start of the function run before the first `await`, so a child process
  * that the function starts at once runs beside the code of the caller. The folder goes away at
- * the end, also after a failure or a stop (INT or TERM).
+ * the end, also after a failure or a stop (INT or TERM). A stop first ends each child of
+ * {@link runChild} and waits for it, so that no child writes into the folder during its removal.
  *
  * @param ref The commit, a branch, or a tag.
  * @param use The function that reads the folder.
@@ -97,12 +177,12 @@ export async function withRefTree<T>(
   options: RefTreeOptions = {},
 ): Promise<T> {
   const dir = mkdtempSync(join(options.parent ?? tmpdir(), options.prefix ?? 'ref-'));
-  const stop = (): void => {
-    rmSync(dir, { recursive: true, force: true });
-    process.exit(130);
+  held.add(dir);
+  const stop = (signal: NodeJS.Signals): void => {
+    stopAfter(signal);
   };
-  process.once('SIGINT', stop);
-  process.once('SIGTERM', stop);
+  process.on('SIGINT', stop);
+  process.on('SIGTERM', stop);
   try {
     run('git', ['archive', '--output', join(dir, 'ref.tar'), ref, ...(options.paths ?? [])], ROOT);
     run('tar', ['-xf', 'ref.tar'], dir);
@@ -111,7 +191,8 @@ export async function withRefTree<T>(
   } finally {
     process.off('SIGINT', stop);
     process.off('SIGTERM', stop);
-    await rm(dir, { recursive: true, force: true });
+    await rm(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    held.delete(dir);
   }
 }
 
