@@ -476,9 +476,10 @@ retarget had about a quarter of the folded faces.
   bones of their own, so that they blink (5.1).
 - `pnpm studio-body <animal> --inspect` writes no file. It prints the facts of the GLB file that
   a new body needs. These are the nodes, the joints with the digits of each paw, the morph
-  targets, and the clips. They also hold the hips, the lowest point of the skin, and the boxes of
-  the props. It also names each part that the export refuses. `pnpm fold-probe <role>` counts the folded faces of the studio
-  skin in the poses of the app over the demos of the role.
+  targets, and the clips. They also hold the hips, the length of each arm from the shoulder joint
+  to the middle of the palm along the joints, the lowest point of the skin, and the boxes of the
+  props. It also names each part that the export refuses. `pnpm fold-probe <role>` counts the
+  folded faces of the studio skin in the poses of the app over the demos of the role.
 - The scale keeps a landmark that the scene depends on (`ANIMALS` in `tools/studio-body.ts`). The
   bear conductor keeps the shoulder joints of the parametric bear of 2026-10-11, because the
   conductor stand and the beat fit the shoulders (4.5, 5.4). The polar bear pianist keeps the
