@@ -11,11 +11,10 @@
  *        pnpm body-probe --compare <base.json> <new.json>
  *        pnpm body-probe --base <ref>
  */
-import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import type { Hash } from 'node:crypto';
-import { copyFileSync, mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs';
-import { readFile, rm, writeFile } from 'node:fs/promises';
+import { copyFileSync, mkdirSync, symlinkSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -38,6 +37,7 @@ import { NOT_STARTED, PLAYING, allAudible, sceneOf } from '../src/pose/test-scen
 import type { TestScene } from '../src/pose/test-scene.ts';
 import type { AnimalPose, Transport } from '../src/pose/types.ts';
 import { patchedDemos } from './patch-demos.ts';
+import { ROOT, runChild, withRefTree } from './ref-tree.ts';
 
 /** The supports of each species in the probe: each seat, and standing. */
 export const PROBE_SUPPORTS = [
@@ -588,66 +588,6 @@ async function readProbe(file: string): Promise<Probe> {
   return JSON.parse(await readFile(file, 'utf8')) as Probe;
 }
 
-/** The repository root. */
-const ROOT = join(import.meta.dirname, '..');
-
-/**
- * Gives the cause of a failure from the error output of a command: the lines before the first
- * line of the stack, such as the place, the line of code, and the message of a `SyntaxError`.
- *
- * @param errors The error output.
- * @returns The lines before the stack, or all lines when there is no stack.
- */
-export function errorCause(errors: string): string {
-  const lines = errors.trim().split('\n');
-  const stack = lines.findIndex((line) => /^\s+at /.test(line));
-  return (stack > 0 ? lines.slice(0, stack) : lines).join('\n').trim();
-}
-
-/**
- * Runs a command, and stops on a failure.
- *
- * @param command The command.
- * @param args The arguments.
- * @param cwd The folder of the command.
- * @throws Error if the command fails, with the cause from its error output.
- */
-function run(command: string, args: readonly string[], cwd: string): void {
-  const result = spawnSync(command, args, { cwd, encoding: 'utf8' });
-  if (result.status !== 0) {
-    const reason = result.error?.message ?? errorCause(result.stderr);
-    throw new Error(`${command} ${args.join(' ')} failed: ${reason}`);
-  }
-}
-
-/**
- * Starts a command, and gives a promise of its end. The command runs beside the code of the
- * caller.
- *
- * @param command The command.
- * @param args The arguments.
- * @param cwd The folder of the command.
- * @returns A promise that resolves when the command ends with no failure.
- */
-function runChild(command: string, args: readonly string[], cwd: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { cwd, stdio: ['ignore', 'ignore', 'pipe'] });
-    let errors = '';
-    child.stderr.setEncoding('utf8');
-    child.stderr.on('data', (text: string) => {
-      errors += text;
-    });
-    child.on('error', reject);
-    child.on('close', (status) => {
-      if (status === 0) {
-        resolve();
-        return;
-      }
-      reject(new Error(`${command} ${args.join(' ')} failed:\n${errorCause(errors)}`));
-    });
-  });
-}
-
 /** The paths of a commit that the probe of the commit reads. */
 const REF_PATHS = [
   'src',
@@ -658,10 +598,13 @@ const REF_PATHS = [
   'tools/patch-demos.ts',
 ] as const;
 
+/** The files of this tool that the probe of a commit copies into its folder. */
+const TOOL_FILES = ['body-probe.ts', 'ref-tree.ts'] as const;
+
 /**
  * Probes the bodies and the poses of a commit. It extracts {@link REF_PATHS} of the commit into a
- * new folder. The folder gets a copy of this tool and a link to the `node_modules` of the
- * repository. Then it runs the probe there, in a child process, so that the caller can probe the
+ * new folder with `withRefTree()`. The folder gets a copy of this tool and of `ref-tree.ts`, and a
+ * link to the `node_modules` of the repository. Then it runs the probe there, in a child process, so that the caller can probe the
  * working tree at the same time. The folder goes away at the end, also after a failure or a stop
  * (INT or TERM).
  *
@@ -671,34 +614,23 @@ const REF_PATHS = [
  * @returns The probe of the commit.
  * @throws Error if git does not know the ref, or the probe fails on the code of the commit.
  */
-export async function probeRef(
-  ref: string,
-  parent: string = tmpdir(),
-  poses = true,
-): Promise<Probe> {
-  const dir = mkdtempSync(join(parent, 'body-probe-'));
-  const stop = (): void => {
-    rmSync(dir, { recursive: true, force: true });
-    process.exit(130);
-  };
-  process.once('SIGINT', stop);
-  process.once('SIGTERM', stop);
-  try {
-    // The child starts before the first await, so it runs beside a probe of the caller.
-    run('git', ['archive', '--output', join(dir, 'ref.tar'), ref, ...REF_PATHS], ROOT);
-    run('tar', ['-xf', 'ref.tar'], dir);
-    mkdirSync(join(dir, 'tools'), { recursive: true });
-    copyFileSync(join(ROOT, 'tools', 'body-probe.ts'), join(dir, 'tools', 'body-probe.ts'));
-    symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
-    const out = join(dir, 'probe.json');
-    const args = [join('tools', 'body-probe.ts'), '--out', out, ...(poses ? [] : ['--no-poses'])];
-    await runChild(process.execPath, args, dir);
-    return await readProbe(out);
-  } finally {
-    process.off('SIGINT', stop);
-    process.off('SIGTERM', stop);
-    await rm(dir, { recursive: true, force: true });
-  }
+export function probeRef(ref: string, parent: string = tmpdir(), poses = true): Promise<Probe> {
+  return withRefTree(
+    ref,
+    async (dir) => {
+      // The child starts before the first await, so it runs beside a probe of the caller.
+      mkdirSync(join(dir, 'tools'), { recursive: true });
+      for (const file of TOOL_FILES) {
+        copyFileSync(join(ROOT, 'tools', file), join(dir, 'tools', file));
+      }
+      symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
+      const out = join(dir, 'probe.json');
+      const args = [join('tools', 'body-probe.ts'), '--out', out, ...(poses ? [] : ['--no-poses'])];
+      await runChild(process.execPath, args, dir);
+      return await readProbe(out);
+    },
+    { parent, prefix: 'body-probe-', paths: REF_PATHS },
+  );
 }
 
 /**
