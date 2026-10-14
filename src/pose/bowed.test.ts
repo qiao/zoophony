@@ -515,9 +515,13 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
         const points = bowEdgePoints(posed);
         const species = scene.layout.players[player.index]?.cast.species ?? '?';
         const label = `${species} at ${wall} s`;
-        expect(deepestIn(posed, ['hips', 'spine', 'chest', 'neck', 'head'], points), label).toBe(0);
+        // The bow of the side rest of a studio body hangs beside its round belly, and may touch
+        // its fur (2026-10-13-studio-rabbit.md).
+        const touch = player.model.studio ? 0.001 : 0;
+        const trunk = deepestIn(posed, ['hips', 'spine', 'chest', 'neck', 'head'], points);
+        expect(trunk, label).toBeLessThanOrEqual(touch);
         const arms = ['upperArmL', 'forearmL', 'handL', 'upperArmR', 'forearmR'] as const;
-        expect(deepestIn(posed, arms, points), label).toBe(0);
+        expect(deepestIn(posed, arms, points), label).toBeLessThanOrEqual(touch);
         const legs = ['thighL', 'thighR', 'shinL', 'shinR'] as const;
         expect(deepestIn(posed, legs, points) / h, label).toBeLessThanOrEqual(REST_BOW_LEG_DEPTH);
       }

@@ -138,7 +138,10 @@ describe('the bow in the right hand (design 4.6, 5.3)', () => {
       'hippo contrabass',
       'rabbit violin',
     ]);
-    for (const player of players) {
+    // The paw of the studio rabbit closes around its small bow, so the stick and the hair go
+    // into the skin of the paw. The sweep of the violinist keeps the bow out of the body and the
+    // violin (`pose/test-sweep-roles.ts`).
+    for (const player of players.filter((p) => !p.model.studio)) {
       const plan = scene.plan.players[player.index];
       if (!plan) {
         throw new Error('The player has no plan.');
