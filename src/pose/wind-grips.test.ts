@@ -40,7 +40,7 @@ describe('windGrips (design 4.6, 5.3)', () => {
     expect(new Vector3(...play.L.joint).distanceTo(new Vector3(...bindL))).toBeLessThan(1e-9);
   });
 
-  it('moves the grips by the rest move in the rest pose', () => {
+  it('moves the grips by the rest turn and the rest move in the rest pose', () => {
     const rest = windGrips(oboe, 0);
     const play = windGrips(oboe, 1);
     expect(new Vector3(...rest.L.grip).distanceTo(new Vector3(...play.L.grip))).toBeGreaterThan(
