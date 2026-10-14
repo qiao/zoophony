@@ -32,6 +32,8 @@ export interface CloseMoment {
   readonly time: number;
   /** True for the rest pose: the arms hang, or the paws rest on the knees. */
   readonly rest: boolean;
+  /** True for a player who stands as a soloist (the gallery query `stand`, design 4.5). */
+  readonly stand?: boolean;
 }
 
 /**
@@ -78,8 +80,8 @@ export interface RoleViews {
   readonly notes: string | null;
 }
 
-/** A role with a close view: the bear conductor or the polar bear pianist. */
-export type CloseRole = 'conductor' | 'pianist';
+/** A role with a close view: the bear conductor, the polar bear pianist, or the rabbit violinist. */
+export type CloseRole = 'conductor' | 'pianist' | 'violinist';
 
 /**
  * The close views of the roles (design 7.1):
@@ -91,6 +93,9 @@ export type CloseRole = 'conductor' | 'pianist';
  *   a chord of three keys in each hand, a time between two chords, and the rest pose. The camera
  *   turns around the body. It looks down 35°, over the case of the piano in the front view. The view of the
  *   keys is low from the left, 15° to the front.
+ * - The violinist: the front, both sides, and the back. The moments are the frog and the tip of a
+ *   whole bow on the A string, a string crossing from the G string to the E string, the rest
+ *   pose, and the standing soloist at the frog.
  *
  * A new role gives its species, its views, its moments, and its test notes, with the camera
  * `{ kind: 'body', zoom: 1, elevation }`.
@@ -148,6 +153,25 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
       '1.5 0.8 E5',
     ].join('\n'),
   },
+  violinist: {
+    species: 'rabbit',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'frog', time: 0.55, rest: false },
+      { name: 'tip', time: 2.4, rest: false },
+      { name: 'crossing', time: 3.25, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      { name: 'stand', time: 0.55, rest: false, stand: true },
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // A whole down-bow on A4, then a string crossing from G3 to E5.
+    notes: ['0.5 2 A4', '3 0.25 G3', '3.25 0.25 E5', '3.5 0.25 G3'].join('\n'),
+  },
 };
 
 /** The size of one cell of the close view, in CSS pixels. */
@@ -180,6 +204,9 @@ export function closeViewPath(role: RoleViews, view: CloseViewAngle, moment: Clo
   }
   if (moment.rest) {
     query.set('rest', '');
+  }
+  if (moment.stand) {
+    query.set('stand', '');
   }
   return `/gallery.html?${query.toString()}`;
 }
@@ -299,7 +326,7 @@ async function grid(
  * @returns The role, or `null` for a name that is not a role.
  */
 export function roleOf(name: string | undefined): CloseRole | null {
-  return name === 'conductor' || name === 'pianist' ? name : null;
+  return name === 'conductor' || name === 'pianist' || name === 'violinist' ? name : null;
 }
 
 /**
@@ -315,7 +342,9 @@ async function main(): Promise<void> {
   const baseAt = args.indexOf('--base');
   const given = baseAt >= 0 ? args[baseAt + 1] : undefined;
   if (!name || !out || out.startsWith('--')) {
-    console.error('Usage: pnpm close-views <conductor|pianist> <output directory> [--base <url>]');
+    console.error(
+      'Usage: pnpm close-views <conductor|pianist|violinist> <output directory> [--base <url>]',
+    );
     process.exit(1);
   }
 

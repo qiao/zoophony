@@ -58,7 +58,38 @@ describe('closeViewPath', () => {
     expect(moments.some((moment) => moment.rest)).toBe(true);
   });
 
+  it('shows the violinist at the frog and the tip of a whole bow, at a crossing, at rest, and standing', () => {
+    const { moments, notes } = ROLE_VIEWS.violinist;
+    const result = parseTestNotes(notes ?? '');
+    if (!result.ok) {
+      throw new Error(`The test notes of the violinist fail on line ${result.line}.`);
+    }
+    const whole = result.notes[0];
+    const timeOf = (name: string): number => moments.find((m) => m.name === name)?.time ?? NaN;
+    // The frog is near the start of the long note, and the tip near its end.
+    expect(timeOf('frog') - (whole?.start ?? NaN)).toBeLessThan(0.25 * (whole?.length ?? 0));
+    expect((whole?.start ?? NaN) + (whole?.length ?? 0) - timeOf('tip')).toBeLessThan(
+      0.25 * (whole?.length ?? 0),
+    );
+    // The crossing is at the start of a note on another string, after a note on the G string.
+    const crossing = result.notes.find((note) => Math.abs(note.start - timeOf('crossing')) < 1e-9);
+    const before = result.notes.find((note) => note.start + note.length === crossing?.start);
+    expect(crossing && before && Math.abs(crossing.key - before.key)).toBeGreaterThan(12);
+    expect(moments.some((moment) => moment.rest)).toBe(true);
+    expect(moments.some((moment) => moment.stand)).toBe(true);
+    const stand = moments.find((moment) => moment.stand);
+    const search = new URLSearchParams(
+      closeViewPath(
+        ROLE_VIEWS.violinist,
+        { name: 'front', azimuth: 0 },
+        stand ?? moments[0]!,
+      ).split('?')[1],
+    );
+    expect(search.has('stand')).toBe(true);
+  });
+
   it('reads the role of the command line', () => {
+    expect(roleOf('violinist')).toBe('violinist');
     expect(roleOf('pianist')).toBe('pianist');
     expect(roleOf('conductor')).toBe('conductor');
     expect(roleOf('drummer')).toBeNull();
