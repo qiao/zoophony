@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { patchedDemos } from '../tools/patch-demos.ts';
 import { CONDUCTOR_CLEARANCE_SHARDS } from './pose/test-conductor-clearance.ts';
 import { PIANIST_CLEARANCE_SHARDS } from './pose/test-pianist-clearance.ts';
+import { VIOLINIST_CLEARANCE_SHARDS } from './pose/test-violinist-clearance.ts';
 import { SHOT_FRAME_SHARDS } from './shots/test-shot-frames.ts';
 import { SHOT_DEMOS } from './shots/test-shots.ts';
 import { shardFileFaults, shardOf } from './test-shards.ts';
@@ -36,6 +37,19 @@ describe('the shards of the slow sweeps (design 9.3)', () => {
         join(import.meta.dirname, 'pose'),
         'conductor-clearance',
         CONDUCTOR_CLEARANCE_SHARDS,
+      ),
+    ).toEqual([]);
+  });
+
+  it('puts each demo of the violinist clearance into one shard file', async () => {
+    const files = (await patchedDemos()).map((demo) => demo.file);
+
+    expect(allShards(files, VIOLINIST_CLEARANCE_SHARDS).toSorted()).toEqual(files.toSorted());
+    expect(
+      shardFileFaults(
+        join(import.meta.dirname, 'pose'),
+        'violinist-clearance',
+        VIOLINIST_CLEARANCE_SHARDS,
       ),
     ).toEqual([]);
   });

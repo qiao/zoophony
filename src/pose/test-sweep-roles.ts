@@ -2,15 +2,18 @@ import { Vector3 } from 'three';
 
 import { CONDUCTOR } from '../models/cast.ts';
 import { PIANO } from '../models/instruments/piano.ts';
+import { STRING_SCALES, VIOLIN } from '../models/instruments/strings.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { BoneName } from '../models/rig.ts';
+import { SPECIES } from '../models/species.ts';
+import type { SpeciesId, SpeciesParams } from '../models/species.ts';
 import { countInAt } from './count-in.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { LOWER_MAX_SEC } from './rest.ts';
 import { closeSurface, closedPart, openLoops, posedPart } from './test-clearance.ts';
 import type { ClosedSurface, PosedPart } from './test-clearance.ts';
-import { posedPoint } from './test-kinematics.ts';
+import { posedPiecePoint, posedPoint } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, ofConductor } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
@@ -391,8 +394,168 @@ export const CONDUCTOR_SWEEP: RoleSweep = {
   },
 };
 
+/**
+ * Gives the closed shells of the violin of a violinist in a pose: the body, the neck, the
+ * fingerboard, the scroll, and the chin rest. The bow is a piece of its own.
+ *
+ * @param posed The posed skeleton.
+ * @returns The shells as one closed surface.
+ */
+function violinSurface(posed: PosedSkeleton): ClosedSurface {
+  const part = posedPart(posed, ['instrument']);
+  const shells = (part.closed?.() ?? [part]).filter((shell) => openLoops(shell.triangles) === 0);
+  return closeSurface(
+    shells.flatMap((shell) => shell.triangles),
+    0,
+  );
+}
+
+/**
+ * Gives the distance of the bow hair from the strings at the bow contact point: the distance of
+ * the middle of the strings from the line of the hair, less half the width of the strings. The
+ * hair crosses the strings at the string of the note, so it touches the strip of the strings.
+ *
+ * @param posed The posed skeleton.
+ * @param halfWidth Half the width of the strip of the strings, in meters.
+ * @returns The distance, in meters: 0 when the hair touches the strings.
+ */
+function hairOffStrings(posed: PosedSkeleton, halfWidth: number): number {
+  const { targets } = posed.model.instrument;
+  const contact = targets.find((t) => t.kind === 'bow-contact');
+  const hair = targets.find((t) => t.kind === 'bow-hair');
+  if (!contact || !hair) {
+    throw new Error('The violin has no bow contact or no bow hair.');
+  }
+  const point = new Vector3(...posedPiecePoint(posed, { bone: 'instrument', at: contact.from }));
+  const from = new Vector3(...posedPiecePoint(posed, { bone: 'bow', at: hair.from }));
+  const to = new Vector3(...posedPiecePoint(posed, { bone: 'bow', at: hair.to }));
+  const axis = to.clone().sub(from).normalize();
+  const off = point.clone().sub(from);
+  const distance = off.addScaledVector(axis, -off.dot(axis)).length();
+  return Math.max(0, distance - halfWidth);
+}
+
+/**
+ * Gives the note targets of the bow of a violinist: the bow hair is on the strings in the middle
+ * of each bowed stroke (design 5.3), in a play that started at the count-in.
+ *
+ * @param scene The scene.
+ * @param index The index of the violinist.
+ * @returns The targets.
+ */
+function violinistTargets(scene: TestScene, index: number): NoteTarget[] {
+  const plan = scene.plan.players[index];
+  if (plan?.note.family !== 'bowed') {
+    return [];
+  }
+  const { note: layer, timeOffset } = plan;
+  const species = scene.layout.players[index]?.cast.species ?? VIOLINIST;
+  const params: SpeciesParams = SPECIES[species];
+  const halfWidth = (VIOLIN.stringsWidth / 2) * STRING_SCALES.violin * (params.violinScale ?? 1);
+  return layer.strokes.flatMap((stroke): NoteTarget[] =>
+    stroke.technique === 'pizzicato'
+      ? []
+      : [
+          {
+            side: 'R',
+            sample: playSample(scene, (stroke.start + stroke.end) / 2 + timeOffset),
+            error: (posed) => hairOffStrings(posed, halfWidth),
+          },
+        ],
+  );
+}
+
+/**
+ * Tells if a player of a scene is in the sweep of the violinist: the first rabbit of the violin
+ * section, which sits, and each rabbit soloist, which stands. The violin seats alternate the
+ * rabbit and the red fox (`models/cast.ts`), so a demo shows many rabbits with one model.
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @returns True for a player of the sweep.
+ */
+function sweptViolinist(scene: TestScene, index: number): boolean {
+  const { cast } = scene.layout.players[index] ?? {};
+  if (cast?.species !== VIOLINIST || cast.instrument !== 'violin') {
+    return false;
+  }
+  if (cast.support === 'stand') {
+    return true;
+  }
+  const first = scene.layout.players.findIndex(
+    (p) =>
+      p.cast.species === VIOLINIST && p.cast.instrument === 'violin' && p.cast.support !== 'stand',
+  );
+  return first === index;
+}
+
+/** The species of the violinist with a studio body. */
+const VIOLINIST: SpeciesId = 'rabbit';
+
+/**
+ * The sweep of the violinist (design 5.3): the arms and the bow against the body and the violin,
+ * in a full play, in the lift of the violin at the play start, in the rest pose before the first
+ * play, and in the lowering after the song end. The first seated rabbit of each demo and each
+ * standing rabbit soloist play it.
+ */
+export const VIOLINIST_SWEEP: RoleSweep = {
+  role: 'violinist',
+  parts: [...ARM_PARTS, { name: 'bow', bones: ['bow'] }],
+  obstacles: [
+    { name: 'body', surface: bodySurface },
+    { name: 'violin', surface: violinSurface },
+  ],
+  contact: CONTACT,
+  accepted: [],
+  targetError: 1e-3,
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'violin'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      if (!sweptViolinist(scene, index)) {
+        return [];
+      }
+      const { species, instrument, kettles, support } = place.cast;
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      return [
+        {
+          name: `violinist ${index} (${support})`,
+          model: scene.models.get(species, instrument, kettles, support),
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => violinistTargets(scene, index),
+        },
+      ];
+    }),
+  sampleSets: (scene) => {
+    const start = -countInAt(scene.plan.beats, 0).lengthSec;
+    const play: Transport = { ...PLAYING, changedAtWall: 10 };
+    const lift: SweepSample[] = [];
+    for (let wall = 10; wall < 13; wall += 0.1) {
+      lift.push([Math.min(0, start + wall - 10), wall, play]);
+    }
+    const lower: SweepSample[] = [];
+    const end = STOPPED.holdSec + LOWER_MAX_SEC;
+    for (let t = 0; t < end; t += t < STOPPED.holdSec ? LOWER_STEP.hold : LOWER_STEP.move) {
+      lower.push([scene.score.durationSec, 10 + t, STOPPED]);
+    }
+    return [
+      { name: 'play', samples: playSamples(scene) },
+      { name: 'lift', samples: lift },
+      { name: 'rest', samples: [[start, 10, NOT_STARTED]] },
+      { name: 'lower', samples: lower },
+    ];
+  },
+};
+
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,
   pianist: PIANIST_SWEEP,
+  violinist: VIOLINIST_SWEEP,
 } as const;
