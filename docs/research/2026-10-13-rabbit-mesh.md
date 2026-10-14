@@ -170,7 +170,7 @@ are the rows of the app round in
 
 | Measure | Studio rabbit (main) | Rig round | App round | Log |
 |---|---|---|---|---|
-| Triangles | 2,920 | 3,126 | 3,086 (eye fans of 11 and 10 faces) | `rig-mesh.log` of `pnpm rig-mesh rabbit` |
+| Triangles | 2,920 | 3,126 | 3,086 (eye fans of 11 and 10 faces) | `rig-mesh.log` (rig round) and `rig-mesh-app.log` (app round) of `pnpm rig-mesh rabbit` |
 | Colors of the packed mesh | 122 | 2,849 | 54 (a palette of 48 in Oklab, by finish) | `module-parts.txt` |
 | Module after gzip | 17,667 B | 53,947 B | 24,696 B | `module-parts-main.txt`, `module-parts.txt` |
 
@@ -182,9 +182,15 @@ atlas. Each step of the rig commits of this round:
 | Step | Module after gzip |
 |---|---|
 | One color for each face (rig round, eye copies) | 53,947 B |
-| Palette of 48 colors in Oklab (Oklab distance of a face from its color 0.0026 on the mean, 0.013 at most) | 29,980 B |
+| Palette of 48 colors in Oklab (Oklab distance of a face from its color 0.0026 on the mean, 0.013 at most, `rig-mesh-app.log`) | 29,980 B |
 | Faces in the order of a walk over their shared edges (corners 8,945 B, places 6,293 B) | 24,780 B |
 | Weight rules of thin faces and fingers (the skin bytes change) | 24,696 B |
+
+`rig-mesh-app.log` is the run of `pnpm rig-mesh rabbit --preview` on the tree of the last commit
+of the app round, "docs(snapshots): add the snapshot of the rabbit mesh of the user", in a copy
+under `scratch/`. It writes the GLB file of that commit byte for byte. With the eye fans, the
+standing body gives back the long-armed source within 0.234 mm, and the 23 vertices of the fans
+do not count (`standing-probe-app.txt`, with the preview of that run).
 
 ### The folds
 
@@ -202,13 +208,14 @@ The rabbit mesh of the user has many thin faces: 335 of its 3,065 faces have a c
 joint. The rig rules of this round:
 
 - The corners of each thin face with a corner angle below 10° and a longest edge below 0.03 u
-  share one set of weights. Three thin faces at the front of each shoulder share a vertex with
-  less upper arm weight than its neighbors (0.62 against 0.71 to 0.77), and they folded in each
-  sample. A group with no limit of the edge pulled the side of the trunk out with the arms in the
-  seated bind, and the angle 15° turned over more faces (24 at rest).
+  share one set of weights (14 groups of 48 vertices, `rig-mesh-app.log`). Three thin faces at
+  the front of each shoulder share a vertex with less upper arm weight than its neighbors (0.62
+  against 0.71 to 0.77), and they folded in each sample. A group with no limit of the edge pulled
+  the side of the trunk out with the arms in the seated bind, and the angle 15° turned over more
+  faces (24 at rest).
 - The middle corner of each face with a corner angle above 160° takes the weights of the line of
-  its two other corners. The angles 150° and 140° turned over more faces (1,249 of 1,505 play
-  samples at a step of 1 s).
+  its two other corners (19 corners, `rig-mesh-app.log`). The angles 150° and 140° turned over
+  more faces (1,249 of 1,505 play samples at a step of 1 s).
 - The fingers keep half of their bone heat weight. With the full share, one face between the hand
   and the fingers of each paw folded in each play sample, and with 0.75 the right paw still did.
 
