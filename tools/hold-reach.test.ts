@@ -7,8 +7,10 @@ import {
   holdReachVariantLines,
   parseReachOptions,
   ruleFactor,
+  ruleSize,
   violinReachAt,
 } from './hold-reach.ts';
+import type { HoldReach } from './hold-reach.ts';
 
 describe('ruleFactor', () => {
   it('gives the factor that puts the scroll at the distance of the arm from the shoulder', () => {
@@ -23,6 +25,27 @@ describe('ruleFactor', () => {
     expect(ruleFactor([0, 0, 0], [0.4, 0, 0], [0, 0.3, 0], 0.2)).toBeNull();
     // The scroll points away from the shoulder joint, and the tail end is out of reach.
     expect(ruleFactor([0, 0, 0], [-1, 0, 0], [1, 0, 0], 0.5)).toBeNull();
+  });
+});
+
+describe('ruleSize', () => {
+  const reach: HoldReach = {
+    arms: { L: 0.4, R: 0.4 },
+    length: 0.5,
+    scale: 0.8,
+    scroll: 0.3,
+    stopRange: [0, 1],
+    bowRange: [0, 0.4],
+    hairLength: 0.4,
+    ruleFactor: 0.5,
+  };
+
+  it('multiplies the scale and the length by the factor of the rule', () => {
+    expect(ruleSize(reach)).toEqual({ scale: 0.4, length: 0.25 });
+  });
+
+  it('gives null when no length puts the scroll in the palm', () => {
+    expect(ruleSize({ ...reach, ruleFactor: null })).toBeNull();
   });
 });
 

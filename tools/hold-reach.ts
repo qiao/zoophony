@@ -177,8 +177,30 @@ export function violinReachAt(species: SpeciesId, support: ReachSupport, scale: 
   }
 }
 
+/** The size of the instrument by the rule of a violin shop. */
+export interface RuleSize {
+  /** The scale, as a factor of the instrument of the app (`violinScale` for a violin). */
+  readonly scale: number;
+  /** The length from the tail end to the scroll, in meters. */
+  readonly length: number;
+}
+
+/**
+ * Gives the size of the instrument by the rule of a violin shop: the current scale and length,
+ * times the factor of the rule.
+ *
+ * @param reach The reach.
+ * @returns The size, or `null` when no length puts the scroll in the palm.
+ */
+export function ruleSize(reach: HoldReach): RuleSize | null {
+  if (reach.ruleFactor === null) {
+    return null;
+  }
+  return { scale: reach.scale * reach.ruleFactor, length: reach.length * reach.ruleFactor };
+}
+
 /** The texts of the reached parts of a reach. */
-interface RangeTexts {
+export interface RangeTexts {
   /** The reached part of the fingerboard. */
   readonly stop: string;
   /** The reached part of the bow hair. */
@@ -191,7 +213,7 @@ interface RangeTexts {
  * @param reach The reach.
  * @returns The two texts.
  */
-function rangeTexts(reach: HoldReach): RangeTexts {
+export function rangeTexts(reach: HoldReach): RangeTexts {
   const [stopLow, stopHigh] = reach.stopRange;
   const [bowLow, bowHigh] = reach.bowRange;
   return {
@@ -228,13 +250,13 @@ export function holdReachLines(
     `  Reached part of the bow hair (bowRange, from the frog end): ${ranges.bow}`,
     '  Rule of a violin shop (the scroll in the middle of the palm of the extended left arm):',
   ];
-  if (reach.ruleFactor === null) {
+  const rule = ruleSize(reach);
+  if (!rule) {
     lines.push('    No length of the instrument puts the scroll in the palm.');
     return lines;
   }
 
-  const ruleScale = reach.scale * reach.ruleFactor;
-  const ruleLength = reach.length * reach.ruleFactor;
+  const { scale: ruleScale, length: ruleLength } = rule;
   lines.push(`    scale ${ruleScale.toFixed(3)}, ${instrument} ${m(ruleLength)}`);
   if (instrument === 'viola') {
     lines.push(
