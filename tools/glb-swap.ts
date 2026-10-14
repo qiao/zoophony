@@ -5,7 +5,7 @@
  * of the file, as `pnpm body-probe --base` runs the probe of a commit.
  */
 import { spawn } from 'node:child_process';
-import { cpSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs';
+import { cpSync, mkdtempSync, symlinkSync } from 'node:fs';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
@@ -15,6 +15,7 @@ import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import { STUDIO_BODIES } from '../src/models/studio-body.ts';
 import type { StudioBodyName } from '../src/models/studio-body.ts';
 import type { StudioBody } from '../src/models/studio-format.ts';
+import { trackChild, trackFolder } from './stop-cleanup.ts';
 import { ANIMALS, studioBody, studioModule } from './studio-body.ts';
 import type { AnimalSettings } from './studio-body.ts';
 
@@ -149,7 +150,8 @@ export function glbModule(animal: string, file: string, bytes: Uint8Array): GlbM
  * Makes a copy of the working tree in which the studio body of an animal comes from another GLB
  * file, runs a work in it, and removes it. The copy holds `src/`, `package.json`, and the scripts
  * of `tools/`, with links to `node_modules/` and `demos/`. Its module of the animal is the export
- * of the file. The folder goes away at the end, also after a failure or a stop (INT or TERM).
+ * of the file. The folder goes away at the end, also after a failure. After a stop (INT or TERM),
+ * `tools/stop-cleanup.ts` stops the children of {@link runTool} first, then removes the folder.
  *
  * @param animal The animal of `ANIMALS`.
  * @param file The absolute path of the GLB file.
@@ -166,12 +168,7 @@ export async function withGlbBody<T>(
 ): Promise<T> {
   const { text } = glbModule(animal, file, new Uint8Array(await readFile(file)));
   const dir = mkdtempSync(join(parent, 'glb-swap-'));
-  const stop = (): void => {
-    rmSync(dir, { recursive: true, force: true });
-    process.exit(130);
-  };
-  process.once('SIGINT', stop);
-  process.once('SIGTERM', stop);
+  const release = trackFolder(dir);
   try {
     for (const path of COPIED) {
       cpSync(join(ROOT, path), join(dir, path), { recursive: true });
@@ -186,9 +183,8 @@ export async function withGlbBody<T>(
     await writeFile(join(dir, 'src', 'models', 'studio', `${animal}.ts`), text);
     return await work(dir);
   } finally {
-    process.off('SIGINT', stop);
-    process.off('SIGTERM', stop);
     await rm(dir, { recursive: true, force: true });
+    release();
   }
 }
 
@@ -203,9 +199,9 @@ export async function withGlbBody<T>(
  */
 export function runTool(dir: string, script: string, args: readonly string[]): Promise<number> {
   return new Promise((done, fail) => {
-    const child = spawn(process.execPath, [join(dir, 'tools', script), ...args], {
-      stdio: 'inherit',
-    });
+    const child = trackChild(
+      spawn(process.execPath, [join(dir, 'tools', script), ...args], { stdio: 'inherit' }),
+    );
     child.on('error', fail);
     child.on('close', (code) => done(code ?? 1));
   });
