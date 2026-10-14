@@ -2,13 +2,14 @@ import { MathUtils, Quaternion, Vector3 } from 'three';
 
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
+import type { SpeciesId } from '../models/species.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { PiecePoint } from '../models/instruments/types.ts';
 import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
 import { mixDirection, mixRotation } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
-import { createFrame, posePoint, setBoneRotation } from './frames.ts';
+import { NECK_SHARE, createFrame, posePoint, setBoneRotation, setFromBasis } from './frames.ts';
 import type { Frame, TorsoFrames } from './frames.ts';
 import { armRig, handToward, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
@@ -54,6 +55,13 @@ export interface WindHold {
   readonly fingering: Fingering;
   /** The fundamental of a brass tube, as a MIDI key. 0 for a woodwind. */
   readonly fundamental: number;
+  /**
+   * The turn of the head to the left while the player plays, in radians, as the look turns the
+   * neck and the head (design 5.3). The mouthpiece follows the turned mouth. A real flutist turns
+   * the head to the left, so that the flute lies square to the face and the right elbow stays in
+   * line with the shoulder. 0 keeps the head square to the chest.
+   */
+  readonly headTurn: number;
 }
 
 /**
@@ -76,6 +84,7 @@ const WOODWIND = {
   restShift: [0, 0, 0],
   fingering: 'holes',
   fundamental: 0,
+  headTurn: 0,
 } as const satisfies WindHold;
 
 /** The rotation that changes nothing. Nothing writes it. */
@@ -100,6 +109,45 @@ function holdTurn(x: number, z: number, first: Quat = IDENTITY): Quat {
       .setFromAxisAngle(X_AXIS, x * MathUtils.DEG2RAD)
       .multiply(new Quaternion().setFromAxisAngle(Z_AXIS, z * MathUtils.DEG2RAD))
       .multiply(new Quaternion(...first)),
+  );
+}
+
+/**
+ * The direction of the flute in the bind pose: from the lip plate to the right, 10° to the front
+ * and 8° down, with the keys up (`woodwindRotation()` of `models/instruments/woodwinds.ts`).
+ */
+const FLUTE_BIND = { forward: 10, down: 8 } as const;
+
+/**
+ * Gives the rotation of a tube from the mouthpiece along +x, with its keys along +y: the tube
+ * points to the right, the given angles to the front and down, and the keys are as near to a
+ * direction as the tube permits.
+ *
+ * @param forward The angle of the tube to the front of the right side, in degrees.
+ * @param down The angle of the tube below the level, in degrees.
+ * @param keys The direction of the keys. Up by default.
+ * @returns The rotation.
+ */
+function tubeAim(forward: number, down: number, keys: Vec3 = [0, 1, 0]): Quaternion {
+  const f = forward * MathUtils.DEG2RAD;
+  const d = down * MathUtils.DEG2RAD;
+  const along = new Vector3(Math.cos(d) * Math.cos(f), -Math.sin(d), -Math.cos(d) * Math.sin(f));
+  const up = new Vector3(...keys).projectOnPlane(along).normalize();
+  return setFromBasis(new Quaternion(), along, up);
+}
+
+/**
+ * Gives the turn of the `instrument` bone of the flute from its bind direction to another
+ * direction (design 5.3).
+ *
+ * @param forward The angle of the flute to the front of the right side, in degrees.
+ * @param down The angle of the flute below the level, in degrees.
+ * @param keys The direction of the keys. Up by default.
+ * @returns The turn, in the axes of the chest.
+ */
+export function fluteTurn(forward: number, down: number, keys: Vec3 = [0, 1, 0]): Quat {
+  return toQuat(
+    tubeAim(forward, down, keys).multiply(tubeAim(FLUTE_BIND.forward, FLUTE_BIND.down).invert()),
   );
 }
 
@@ -214,6 +262,53 @@ export const WIND_HOLDS = {
   },
 } as const satisfies Readonly<Record<WindInstrument, WindHold>>;
 
+/** The turn of the head of the flutist fox to the left while it plays, in degrees. */
+const FOX_HEAD_TURN = 25;
+
+/**
+ * The flute hold of the tan fox (design 5.3), the hold of a real flutist (decisions
+ * `2026-10-14-fox-flute.md`): the head turns to the left while the fox plays, the lip plate stays
+ * at the turned mouth under the long muzzle, and the flute lies square to the face, 10° down to
+ * the right. The shoulders stay square and low, with no forward turn of the right shoulder. The
+ * left elbow points down and out, and the right elbow out to the side, in line with the shoulder.
+ * In the rest pose, the flute stands upright on the right thigh with the foot joint down, as a
+ * real flutist rests it, and both paws stay on it.
+ */
+const FOX_FLUTE = {
+  ...WOODWIND,
+  headTurn: FOX_HEAD_TURN * MathUtils.DEG2RAD,
+  play: fluteTurn(FOX_HEAD_TURN, 10),
+  poleL: [-1, -1, -0.3],
+  poleR: [1, -0.8, 0],
+  rest: fluteTurn(0, 90, [0, 0, -1]),
+  restShift: [0.53, -0.69, 0.82],
+  restPoleL: [-1, -1, 0],
+  restPoleR: [1, -1, 0],
+} as const satisfies WindHold;
+
+/**
+ * The holds of the species that hold a wind instrument in their own way, in place of
+ * {@link WIND_HOLDS} (design 5.3). The tools change them in memory with
+ * `--set '<instrument>@<species>.<path>=<value>'` (`tools/hold-sets.ts`).
+ */
+export const SPECIES_WIND_HOLDS: Partial<
+  Record<SpeciesId, Partial<Record<WindInstrument, WindHold>>>
+> = {
+  'fox-tan': { flute: FOX_FLUTE },
+};
+
+/**
+ * Gives the hold of a wind instrument for a species: its own hold, or the hold of
+ * {@link WIND_HOLDS}.
+ *
+ * @param species The species of the player.
+ * @param instrument The instrument.
+ * @returns The hold.
+ */
+export function windHoldOf(species: SpeciesId, instrument: WindInstrument): WindHold {
+  return SPECIES_WIND_HOLDS[species]?.[instrument] ?? WIND_HOLDS[instrument];
+}
+
 /** The sizes of the body and the hand motion of the winds, in radians (design 5.3). */
 export const WIND_BODY = {
   /** The spine leans back by this angle at the top of a breath in, at an amplitude of 1. */
@@ -229,6 +324,8 @@ export const WIND_BODY = {
 
 const BONES = {
   chest: boneIndex('chest'),
+  neck: boneIndex('neck'),
+  head: boneIndex('head'),
   instrument: boneIndex('instrument'),
 } as const;
 
@@ -252,6 +349,9 @@ export interface WindRig {
   /** The move of the `instrument` bone in the rest pose, in meters, in the axes of the chest. */
   readonly restOffset: Vec3;
   readonly chestBind: Vec3;
+  /** The bind positions of the `neck` and the `head` bones, around which the head turns. */
+  readonly neckBind: Vec3;
+  readonly headBind: Vec3;
   readonly left: WindSide;
   readonly right: WindSide;
   /** The unit direction of the trombone slide from the first position, or (0, 0, 0). */
@@ -324,10 +424,16 @@ function slideReachOf(rig: Omit<WindRig, 'slideReach'>, travel: number): number 
  *
  * @param model A player with a woodwind or a brass instrument.
  * @param instrument The instrument of the model.
+ * @param hold The hold of the instrument (`windHoldOf()`). The hold of {@link WIND_HOLDS} by
+ *   default.
  * @returns The rig.
  * @throws Error if the instrument has no grip of a palm, or if it does not hang on the chest.
  */
-export function windRig(model: PlayerModel, instrument: WindInstrument): WindRig {
+export function windRig(
+  model: PlayerModel,
+  instrument: WindInstrument,
+  hold: WindHold = WIND_HOLDS[instrument],
+): WindRig {
   const { positions, parents } = model.skeleton;
   if (parents[BONES.instrument] !== BONES.chest) {
     throw new Error(`The ${instrument} does not hang on the chest.`);
@@ -345,12 +451,13 @@ export function windRig(model: PlayerModel, instrument: WindInstrument): WindRig
   const slideAt = (point: Vec3): Vector3 =>
     new Vector3(...placePoint(model.pieces, { bone: 'slide', at: point }));
   const travelVector = slide ? slideAt(slide.to).sub(slideAt(slide.from)) : new Vector3();
-  const hold = WIND_HOLDS[instrument];
   const rig = {
     hold,
     pivot: at(BONES.instrument),
     restOffset: toVec3(new Vector3(...hold.restShift).multiplyScalar(model.body.headHeight)),
     chestBind: at(BONES.chest),
+    neckBind: at(BONES.neck),
+    headBind: at(BONES.head),
     left: side('L'),
     right: side('R'),
     slideAxis: toVec3(travelVector.clone().normalize()),
@@ -458,8 +565,9 @@ function mixPole(rest: Vec3, play: Vec3, weight: number): Vec3 {
  * Places the instrument of a wind player: the local rotation of the `instrument` bone, its world
  * rotation, its move in the axes of the chest, and the posed place of the mouthpiece. The
  * instrument turns from its rest rotation to its playing rotation around the mouthpiece. In the
- * rest pose, it comes down from the mouth by the rest move. It writes the module scratch objects
- * `local`, `rotation`, `shift`, and `pivot`.
+ * rest pose, it comes down from the mouth by the rest move. While the player plays, it moves with
+ * the mouth of a head that the hold turns. It writes the module scratch objects `local`,
+ * `rotation`, `shift`, and `pivot`.
  *
  * @param rig The points of the player.
  * @param chest The posed frame of the chest.
@@ -468,11 +576,38 @@ function mixPole(rest: Vec3, play: Vec3, weight: number): Vec3 {
 function placeWind(rig: WindRig, chest: Frame, weight: number): void {
   mixRotation(local.fromArray(rig.hold.rest), playTurn.fromArray(rig.hold.play), weight, local);
   rotation.multiplyQuaternions(chest.rotation, local);
-  // In the rest pose, the instrument comes down from the mouth to the lap.
-  shift.fromArray(rig.restOffset).multiplyScalar(1 - weight);
+  // In the rest pose, the instrument comes down from the mouth to the lap. While the player
+  // plays, the mouthpiece follows the mouth of a turned head.
+  shift.fromArray(turnedMouth(rig, rig.hold.headTurn * weight)).sub(turned.fromArray(rig.pivot));
+  shift.addScaledVector(turned.fromArray(rig.restOffset), 1 - weight);
   posePoint(chest, rig.chestBind, rig.pivot, pivot).add(
     turned.copy(shift).applyQuaternion(chest.rotation),
   );
+}
+
+const neckTurn = new Quaternion();
+const headTurn = new Quaternion();
+const neckBind = new Vector3();
+const mouth = new Vector3();
+const mouthTuple: [number, number, number] = [0, 0, 0];
+
+/**
+ * Gives the place of the mouth after a turn of the head around y, in the bind axes of the chest:
+ * the neck turns {@link NECK_SHARE} of the angle around its joint, and the head the rest around
+ * its joint, as the look of the body layer turns them (`writeBody()` of `pose-at.ts`). The mouth
+ * of the bind pose is the bind place of the mouthpiece.
+ *
+ * @param rig The points of the player.
+ * @param yaw The turn of the head to the left, in radians.
+ * @returns The place, in a module tuple that the next call writes again.
+ */
+function turnedMouth(rig: WindRig, yaw: number): Vec3 {
+  neckTurn.setFromAxisAngle(Y_AXIS, yaw * NECK_SHARE);
+  headTurn.setFromAxisAngle(Y_AXIS, yaw);
+  neckBind.fromArray(rig.neckBind);
+  mouth.fromArray(rig.pivot).sub(turned.fromArray(rig.headBind)).applyQuaternion(headTurn);
+  turned.fromArray(rig.headBind).sub(neckBind).applyQuaternion(neckTurn).add(neckBind);
+  return mouth.add(turned).toArray(mouthTuple);
 }
 
 /** The posed place of each grip of a wind instrument and of the shoulder joint that reaches it. */

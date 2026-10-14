@@ -12,7 +12,7 @@ import type { Vec3 } from '../src/models/tuples.ts';
 import { SPECIES_HOLDS, bowedRig, holdOf, playingFrames } from '../src/pose/bowed-rig.ts';
 import { createBowPlaces, instrumentAt } from '../src/pose/bowed.ts';
 import { poseShoulder } from '../src/pose/ik.ts';
-import { windGrips, windRig } from '../src/pose/winds.ts';
+import { SPECIES_WIND_HOLDS, windGrips, windHoldOf, windRig } from '../src/pose/winds.ts';
 import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { existsSync, readFileSync } from 'node:fs';
@@ -463,8 +463,8 @@ export interface GripReach {
 
 /**
  * Measures the reach of the arms of a species to their grips on the flute (`palmL` and `palmR` of
- * `WOODWINDS`), with the lip plate at the mouth, in the playing pose and in the rest pose of the
- * flute hold of `WIND_HOLDS`, with the chest in its bind pose. A palm misses its grip by the distance
+ * `WOODWINDS`), with the lip plate at the mouth, in the playing pose and in the rest pose of its
+ * flute hold (`windHoldOf()`), with the chest in its bind pose. A palm misses its grip by the distance
  * less the arm when the distance is longer than the arm.
  *
  * @param species The species.
@@ -476,7 +476,7 @@ export function fluteReach(
   support: ReachSupport,
 ): Readonly<Record<'L' | 'R', GripReach>> {
   const model = buildPlayer(species, 'flute', 4, support);
-  const rig = windRig(model, 'flute');
+  const rig = windRig(model, 'flute', windHoldOf(species, 'flute'));
   const play = windGrips(rig, 1);
   const rest = windGrips(rig, 0);
   const distance = (grip: { readonly joint: Vec3; readonly grip: Vec3 }): number =>
@@ -498,13 +498,14 @@ export function fluteReach(
  */
 export function fluteReachLines(species: SpeciesId, support: ReachSupport): string[] {
   const reach = fluteReach(species, support);
+  const own = SPECIES_WIND_HOLDS[species]?.flute !== undefined;
   const m = (value: number): string => `${value.toFixed(3)} m`;
   const miss = (distance: number, arm: number): string =>
     distance > arm
       ? `misses the grip by ${m(distance - arm)}`
       : `reaches the grip with ${m(arm - distance)} to spare`;
   const lines = [
-    `${species} with the flute on the ${support}, hold flute (WIND_HOLDS), the lip plate at the mouth:`,
+    `${species} with the flute on the ${support}, hold ${own ? `flute@${species} (SPECIES_WIND_HOLDS)` : 'flute (WIND_HOLDS)'}, the lip plate at the mouth:`,
   ];
   for (const s of ['L', 'R'] as const) {
     const { arm, play, rest } = reach[s];

@@ -3,14 +3,17 @@ import { MathUtils } from 'three';
 import { BOWED_HOLDS, SPECIES_HOLDS } from '../src/pose/bowed-rig.ts';
 import { CONDUCTOR_HOLD, LEFT_HAND_PLACES } from '../src/pose/conductor.ts';
 import { HANDS_HOLDS } from '../src/pose/hands.ts';
+import { SPECIES_WIND_HOLDS } from '../src/pose/winds.ts';
 
 /**
- * The own holds of the species (`SPECIES_HOLDS`), by the root `<instrument>@<species>`, such as
- * `violin@rabbit`. A species with an own hold does not use the hold of its instrument.
+ * The own holds of the species (`SPECIES_HOLDS` of the bowed strings and `SPECIES_WIND_HOLDS` of
+ * the winds), by the root `<instrument>@<species>`, such as `violin@rabbit` or `flute@fox-tan`. A
+ * species with an own hold does not use the hold of its instrument.
  */
 const OWN_HOLDS = Object.fromEntries(
-  Object.entries(SPECIES_HOLDS).flatMap(([species, holds]) =>
-    Object.entries(holds ?? {}).map(([instrument, hold]) => [`${instrument}@${species}`, hold]),
+  [...Object.entries(SPECIES_HOLDS), ...Object.entries(SPECIES_WIND_HOLDS)].flatMap(
+    ([species, holds]) =>
+      Object.entries(holds ?? {}).map(([instrument, hold]) => [`${instrument}@${species}`, hold]),
   ),
 );
 

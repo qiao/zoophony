@@ -45,7 +45,7 @@ import { TUNINGS, buildStrokes } from './strokes.ts';
 import type { Stroke } from './strokes.ts';
 import { buildWindTrack } from './wind-notes.ts';
 import type { WindTrack } from './wind-notes.ts';
-import { windRig } from './winds.ts';
+import { windHoldOf, windRig } from './winds.ts';
 import type { WindRig } from './winds.ts';
 
 /** The seeded offsets of each player (design 5.3). */
@@ -315,7 +315,8 @@ function notesOfPlayers(score: Score, layout: SceneLayout, loudness: Float32Arra
  *
  * @param rigs The rigs of the score.
  * @param model The player model.
- * @param species The species of the player. A species can hold a bowed string in its own way.
+ * @param species The species of the player. A species can hold a bowed string or a wind
+ *   instrument in its own way.
  * @param instrument The instrument of the player.
  * @param notes The notes of the player, sorted by start.
  * @param loudness The loudness of each note.
@@ -340,7 +341,9 @@ function noteLayerOf(
     return { family: 'bowed', rig, strokes, starts: Float64Array.from(strokes, (s) => s.start) };
   }
   if (isInFamily(instrument, ['woodwind', 'brass'])) {
-    const rig = cached(rigs.windRigs, model, () => windRig(model, instrument));
+    const rig = cached(rigs.windRigs, model, () =>
+      windRig(model, instrument, windHoldOf(species, instrument)),
+    );
     return {
       family: MOTION_FAMILIES[instrument],
       rig,

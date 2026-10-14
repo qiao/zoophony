@@ -331,10 +331,12 @@ function poseAnimal(
     case 'brass': {
       const { wind } = scratch;
       windStateAt(note.track, noteTime, wind);
-      // The head lifts off the mouthpiece in the rest pose, and keeps still while it plays.
+      // The head lifts off the mouthpiece in the rest pose, and keeps still while it plays. A
+      // hold can turn the head to the left while the player plays, as a real flutist does.
       body.lean = -wind.breath * WIND_BODY.breath * player.amplitude * weight;
       body.look = 1 - weight;
       body.lift = WIND_BODY.headLift * (1 - weight);
+      body.headTurn = note.rig.hold.headTurn * weight;
       writeBody(pose, player, scratch);
       poseWind(note.rig, scratch.torso, wind, weight, pose);
       break;
