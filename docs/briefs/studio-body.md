@@ -105,6 +105,15 @@ attachment. Name the code that each one touches.>
   lean, the reach, and the clearance from it. Its look can be wrong: a rest pose after the rest clip of
   the polar bear leaned 22° forward, and the user found it strange (2026-10-13).
 
+## Range and stop
+
+<For each fallback rule of this brief, give the range of its result and the stop when the result
+is outside it. For example: "When the left paw cannot reach the neck, give the species a smaller
+violin by the rule of a violin shop (`pnpm hold-reach <species>`). Range: a violin of 0.33 m
+(1/32) to 0.59 m (4/4). Outside it, stop, write the measures into the handoff file, and report to
+the manager." The fallback rule of the rabbit of 2026-10-13 had no range, and it gave a violin of
+0.15 m.>
+
 ## Process
 
 - Commit the mechanism first, with values that change nothing. Then tune. Then commit the tuned
