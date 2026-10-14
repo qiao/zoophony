@@ -241,7 +241,7 @@ catchlight = [255, 255, 255]
 nose = [214, 150, 134]
 mouth = [96, 72, 60]
 brow = [220, 208, 192]
-claw = [176, 124, 108]
+claw = [140, 104, 90]
 
 [paint.belly]
 center_y = 0.38
