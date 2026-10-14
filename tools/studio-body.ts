@@ -56,6 +56,12 @@ export interface AnimalSettings {
    * The export keeps the leg corrective shapes and the leg turns of the pose of the sheet.
    */
   readonly soloist: boolean;
+  /**
+   * The height of the seat top of a seated role above the floor, in meters (design 4.4, 4.5). The
+   * export puts the seat top at this height, and the feet hang above the floor. With no value,
+   * the body drops until its lowest point is on the floor, and the seat fits its legs.
+   */
+  readonly seat?: number;
   /** The name of the constant of the module. */
   readonly constant: string;
   /**
@@ -1036,7 +1042,9 @@ function seatOf(glb: Glb): SeatProp {
  * Finds the scale and the move of the studio animal in the app (design 4.4). A standing body keeps
  * its place: the soles of the studio are on the floor. A seated body drops until the lowest point
  * of its mesh, a sole, is on the floor, and moves forward so that the front edge of the seat of
- * the studio (a bench or a chair) is at the front edge of the seat of the app. The scene of the
+ * the studio (a bench or a chair) is at the front edge of the seat of the app. A seated role with
+ * a seat height in its settings then rises until its seat is at that height, and its feet hang
+ * above the floor. The scene of the
  * studio puts the field of the soles on its floor, and the skin is a little outside the field, so
  * the seated body of the app is up to 0.011 units higher above its keys than in the studio.
  *
@@ -1069,11 +1077,18 @@ function sceneFrame(
   // The front edge of the seat of the app, in the axes of the studio: a chair keeps its back at
   // the back of the chair of design 4.5, and a shorter seat ends further back.
   const appFront = seat.name === 'chair' ? depth - CHAIR.seatDepth / 2 : depth / 2;
-  return {
+  const frame = {
     scale,
     offset: new Vector3(0, -drop, appFront / scale - front),
     chairDepth: seat.name === 'chair' ? round(depth) : null,
   };
+  if (settings.seat === undefined) {
+    return frame;
+  }
+  // The body rises from the floor until the lowest point over the seat is at the seat height.
+  const low = seatHeightOf(glb, mesh, frame);
+  frame.offset.y += (settings.seat - low) / scale;
+  return frame;
 }
 
 /**

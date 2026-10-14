@@ -598,3 +598,30 @@ describe('pnpm studio-body with a head that the rig grows (design 4.4)', async (
     expect(() => headFactorOf(readGlb(withHeadFactor(bytes, 0)))).toThrow(/positive/);
   });
 });
+
+describe('pnpm studio-body with a seat height in the settings (design 4.4)', async () => {
+  const settings = ANIMALS.get('rabbit');
+  if (!settings?.glb) {
+    throw new Error('The rabbit has no settings with a GLB file.');
+  }
+  const bytes = await readFile(join(import.meta.dirname, '..', settings.glb));
+  const { seat: _seat, ...floor } = settings;
+
+  it('puts the seat top at the height of the settings, with the feet above the floor', () => {
+    const high = studioBody(bytes, settings.glb ?? '', { ...floor, seat: 0.3 }).body;
+    const low = studioBody(bytes, settings.glb ?? '', floor).body;
+    expect(high.seatHeight).toBeCloseTo(0.3, 6);
+    expect(low.seatHeight ?? 1).toBeLessThan(0.3);
+    const lowest = (body: typeof high): number => {
+      const { positions } = unpackStudioMesh(body.mesh);
+      let y = Infinity;
+      for (let v = 1; v < positions.length; v += 3) {
+        y = Math.min(y, positions[v] ?? 0);
+      }
+      return y;
+    };
+    // The packed mesh keeps each place within 0.1 mm.
+    expect(lowest(low)).toBeCloseTo(0, 3);
+    expect(lowest(high)).toBeCloseTo(0.3 - (low.seatHeight ?? 0), 3);
+  });
+});
