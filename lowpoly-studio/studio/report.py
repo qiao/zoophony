@@ -27,6 +27,7 @@ import os
 
 from PIL import Image, ImageChops, ImageMath
 
+from studio import checks as checks_mod
 from studio import drawing
 from studio.measure_features import singular
 
@@ -359,6 +360,9 @@ def page(cfg, report, views, feature_files, folds, contacts, times):
                    + '</div>')
         if _stale_text(report):
             out.append(f'<p class="fail"><b>{_e(_stale_text(report))}</b></p>')
+        line, bad = checks_mod.reach_text(report)
+        if line:
+            out.append(f'<p class="{"fail" if bad else "muted"}"><b>{_e(line)}</b></p>')
     links = [('#failures', 'Failures'), ('#views', 'Views'), ('#face', 'Head'),
              ('#features', 'Features'), ('#facets', 'Facets'), ('#located', 'Located places'),
              ('#seeds', 'Seeds'), ('#checks', 'All checks'), ('#times', 'Stage times'),
@@ -610,6 +614,9 @@ def review_image(cfg, report, pics, views, feature_files, folder):
              drawing.INK)]
     if _stale_text(report):
         head.append((_stale_text(report), drawing.FAIL))
+    line, bad = checks_mod.reach_text(report)
+    if line:
+        head.append((line, drawing.FAIL if bad else drawing.INK))
     head += [(f'FAIL {"(gate) " if c["gate"] else ""}{c["name"]}: {_value_text(c)} '
               f'({c["op"]} {_fmt(c["limit"])}{_floor_text(c)})', drawing.FAIL) for c in failed]
     head += [(f'near {c["name"]}: {_value_text(c)} ({c["op"]} {_fmt(c["limit"])}'

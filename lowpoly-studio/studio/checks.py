@@ -164,6 +164,10 @@ def run(cfg):
     for c in gate.get('checks', []):
         r.add(f'remesh_gate.{c["name"]}', c['value'], c['op'], c['limit'], True, c.get('where'))
 
+    # The arm reach of a role with a held instrument (the data of the stage "clips").
+    reach_line = reach_checks(r, (stage_data(cfg, 'clips') or {}).get('reach'), cfg.role.checks,
+                              cfg.role.clips.fps)
+
     # studio-runtime: each check from here on is a look check of the renders. outputs.mark_look
     # marks them stale when the renders are not of the build in out/.
     first_look = len(r.items)
@@ -218,6 +222,8 @@ def run(cfg):
             found = consistency.causes(sheet, c['name']) if not c['pass'] or c['near'] else []
             if found:
                 c['sheet'] = found
+    if reach_line:
+        report['reach'] = reach_line
     if diag:
         report['diagnostics'] = {'folds': 'diag/folds.json', 'contacts': 'diag/contacts.json',
                                  'faces': len(diag.faces), 'contacts_found': len(diag.contacts)}
@@ -225,6 +231,34 @@ def run(cfg):
         json.dump(report, f, indent=2)
         f.write('\n')
     return report
+
+
+def reach_checks(r, reach, rc, fps):
+    """Adds the reach checks of a role with a held instrument to the report r, and returns the
+    reach line of the report (None for a role with no held instrument).
+
+    reach: the data of studio/bake.py reach_report with "instruments" (studio/props.py
+    held_instruments). rc: the role [checks]. fps: the frames of a second of the clips. The
+    checks: the instrument length over the reach to the middle of the palm (instrument_reach),
+    and the largest share of the reach that the IK wrist targets of each clip ask for
+    (ik_reach)."""
+    if not reach or not reach.get('instruments'):
+        return None
+    line = {'palm': reach['palm'], 'instruments': reach['instruments'],
+            'range': list(rc.instrument_reach), 'ik_limit': rc.ik_reach, 'ik': None}
+    for ins in reach['instruments']:
+        r.add(f'instrument_reach.{ins["name"]}', round(ins['length'] / reach['palm'], 3), 'in',
+              list(rc.instrument_reach),
+              where={'part': ins['name'], 'length': ins['length'], 'reach': reach['palm']})
+    for clip, arms in reach['clips'].items():
+        if not arms:
+            continue
+        side, (share, frame) = max(arms.items(), key=lambda a: a[1][0])
+        r.add(f'ik_reach.{clip}', share, '<=', rc.ik_reach,
+              where={'clip': clip, 'frame': frame, 'time_s': round(frame / fps, 3), 'side': side})
+        if line['ik'] is None or share > line['ik']['share']:
+            line['ik'] = {'share': share, 'clip': clip, 'frame': frame, 'side': side}
+    return line
 
 
 def _where_text(where):
@@ -235,6 +269,31 @@ def _where_text(where):
     return ' '.join(f'{k}={where[k]}' for k in keys if k in where)
 
 
+def reach_text(report):
+    """Formats the reach line of a role with a held instrument (report["reach"]), or returns
+    (None, False). Returns (the line, True when a value is out of its range)."""
+    reach = report.get('reach') if report else None
+    if not reach:
+        return None, False
+    lo, hi = reach['range']
+    parts, bad = [], False
+    for ins in reach['instruments']:
+        ratio = round(ins['length'] / reach['palm'], 3)
+        out = not lo <= ratio <= hi
+        bad = bad or out
+        parts.append(f'the {ins["name"]} {ins["length"]}, ratio {ratio} (a real player {lo} to '
+                     f'{hi}' + (': OUT OF RANGE, a blocker for the app)' if out else ')'))
+    line = f'reach: the arm to the middle of the palm {reach["palm"]}, ' + ', '.join(parts)
+    ik = reach['ik']
+    if ik:
+        over = ik['share'] > reach['ik_limit']
+        bad = bad or over
+        line += (f'; the IK targets ask for up to {ik["share"]} of the reach ({ik["clip"]}, '
+                 f'frame {ik["frame"]}, side {ik["side"]})'
+                 + (': MORE THAN THE REACH, the paw misses its target' if over else ''))
+    return line, bad
+
+
 def summary(report):
     """Formats the report as a few lines for the terminal."""
     n = len(report['checks'])
@@ -242,6 +301,9 @@ def summary(report):
     lines = [f'checks: {n - len(report["failed"]) - len(stale)} of {n} pass, '
              f'{len(report.get("near", []))} near the limit, gates '
              f'{"pass" if report["gate_pass"] else "FAIL"}']
+    line, _ = reach_text(report)
+    if line:
+        lines.append(f'  {line}')
     # studio-runtime: a stale look check is neither pass nor fail (studio/outputs.py).
     if stale:
         lines.append(f'  STALE: {len(stale)} look checks, {report["look"]["reason"]}')

@@ -120,7 +120,8 @@ lowpoly-studio/
 ├── tests/               test_intake.py: the foreground rules; test_cache.py and
 │                        setup_keys.py: the cache keys; test_consistency.py: the sheet
 │                        check; test_role_props.py: the attachments of the props;
-│                        test_ear_checks.py: the ear measures (python3 -m unittest)
+│                        test_ear_checks.py: the ear measures; test_reach.py: the reach
+│                        checks of a held instrument (python3 -m unittest)
 ├── docs/                handoff.md, handoff-diag.md, handoff-speed.md, handoff-pilot.md,
 │                        handoff-runtime.md, handoff-intake.md, handoff-rabbit.md (the
 │                        state of the work),
@@ -491,6 +492,35 @@ a whole bow uses 0.18 of the bow length. The app keeps its own violin, bow, and 
 its violin by the rule of a violin shop to the arm of its body (`violinScale` of
 `src/models/species.ts`), and for the app the role gives the seated bind pose and the skin.
 
+### The reach line of a held instrument
+
+The stage "clips" records the reach that each IK arm asks for in each frame
+(`reach_report()` of `studio/bake.py`, the data of `out/stages/<nn>-clips/data.json`). For a
+role with a held instrument (a hand prop of `HELD_INSTRUMENTS` in `studio/props.py`: the
+violin), the checks add two report checks and one line. The line is in the summary of the build,
+at the top of `out/report/review.png`, and at the top of `out/report/index.html`:
+
+```text
+reach: the arm to the middle of the palm 0.3146, the violin 0.234, ratio 0.744 (a real player
+0.9 to 1.1: OUT OF RANGE, a blocker for the app); the IK targets ask for up to 0.8145 of the
+reach (ready, frame 24, side R)
+```
+
+- The reach to the middle of the palm is the upper arm, the forearm, and half the paw (to the
+  mean head of the finger bones), in the bind skeleton.
+- `instrument_reach.<prop>`: the length of the instrument over this reach, in the range of
+  `checks.instrument_reach` of the role (default 0.9 to 1.1). A person has an arm of about 0.6 m
+  to the middle of the palm and a violin of 0.6 m (the rule of the prop library).
+- `ik_reach.<clip>`: the largest share of the reach of the upper arm and the forearm that the
+  IK wrist targets of the clip ask for, at most `checks.ik_reach` (default 1.0). Above it, the
+  IK stops at the reach, and the paw misses its target.
+
+The manager reads this line before an app round. A ratio outside the range or a target past the
+reach blocks the app round, unless the user decided the size. The rabbit of round 1: a reach of
+0.2247, a violin of 0.17 (ratio 0.757), and targets up to 1.1287 of the reach (`ready`, the bow
+paw). The rabbit of round 4: a reach of 0.3146, a violin of 0.234 (ratio 0.744, the decision of
+the user "Arms x1.4, violin 28 cm"), and targets up to 0.8145 of the reach.
+
 ## The prop library
 
 `props/` beside `studio/` holds low-poly, flat-shaded props in the style of the animals, built by
@@ -694,6 +724,8 @@ interface Place {
 | `head_turn.<view>` (a view in `compare.head_turn`): the head turn of the compare render, near or out of range at an end of the range | `compare.head_turn.<view>` | no | the view tile |
 | `<feature>_<check>.<view>.<item>` | `measure.features.<feature>.checks`, the pixel floor `checks.feature_pixels` of a length | no | the feature crop `report/features/<feature>_<view>_<region>.png` |
 | `facet_contrast` | `checks.facet_contrast` | no | none |
+| `instrument_reach.<prop>` (a role with a held instrument) | role `checks.instrument_reach` | no | the prop, its length, and the reach to the middle of the palm |
+| `ik_reach.<clip>` (a role with a held instrument) | role `checks.ik_reach` | no | the clip, the frame, the time, and the side of the largest share |
 
 Two ear checks of the bump method find the look faults that rounds 2 and 3 of the rabbit fixed
 by eye. Both are look checks of the model build, and each failure gets the feature crop.
@@ -2637,7 +2669,7 @@ The body that the IK targets of the clips were made on. On another body the wris
 
 #### `[checks]`
 
-The gate checks of the role: a clip fails above a limit.
+The checks of the role: the gates of each clip (a clip fails above a limit), and the report checks of a held instrument.
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
@@ -2646,6 +2678,8 @@ The gate checks of the role: a clip fails above a limit.
 | `scene_depth` | num | `0.01` | Deepest point of the body skin inside a scene prop (a piano, a bench) in any frame, in animal heights. |
 | `seat_gap` | num | `0.015` | Largest gap between the seat top and the lowest skin over it, of the rump and of the thighs apart, in any seated frame: the rump and the thighs rest on the seat. |
 | `hand_targets` | num | `0.01` | Largest distance of the knuckles (one finger bone) or of the claw tips of the pressing digits from the targets that the clips give (pack.hand_targets), in animal heights. |
+| `instrument_reach` | vec2 | `[0.9, 1.1]` | Report check of a role with a held instrument (a violin): the range of the instrument length over the arm reach to the middle of the palm. A person: a violin of 0.6 m and a reach of about 0.6 m (the rule of the prop library). A value outside the range blocks the app round. |
+| `ik_reach` | num | `1.0` | Report check of a role with a held instrument: the largest share of the arm reach (the upper arm and the forearm) that the IK wrist targets of a clip ask for. Above 1, the IK stops at the reach, and the paw misses its target. |
 
 #### `[review]`
 

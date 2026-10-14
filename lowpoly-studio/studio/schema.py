@@ -957,7 +957,8 @@ ROLE = T('A role pack (roles/<name>/role.toml).', {
         'shoulder': F('vec3', 'Left shoulder joint of that body (sheet pose).'),
         'reach': F('num', 'Arm reach of that body: shoulder to elbow plus elbow to wrist.'),
     }),
-    'checks': T('The gate checks of the role: a clip fails above a limit.', {
+    'checks': T('The checks of the role: the gates of each clip (a clip fails above a limit), and '
+                'the report checks of a held instrument.', {
         'contact_depth': F('num', 'Deepest contact of a test part in any frame, in animal '
                                   'heights.', default=0.01),
         'contact_tests': F('strs', 'Parts of each arm that are tested against the rest of the '
@@ -973,6 +974,16 @@ ROLE = T('A role pack (roles/<name>/role.toml).', {
                                  'claw tips of the pressing digits from the targets that the '
                                  'clips give (pack.hand_targets), in animal heights.',
                           default=0.01),
+        'instrument_reach': F('vec2', 'Report check of a role with a held instrument (a violin): '
+                                      'the range of the instrument length over the arm reach to '
+                                      'the middle of the palm. A person: a violin of 0.6 m and a '
+                                      'reach of about 0.6 m (the rule of the prop library). A '
+                                      'value outside the range blocks the app round.',
+                              default=(0.9, 1.1)),
+        'ik_reach': F('num', 'Report check of a role with a held instrument: the largest share '
+                             'of the arm reach (the upper arm and the forearm) that the IK wrist '
+                             'targets of a clip ask for. Above 1, the IK stops at the reach, and '
+                             'the paw misses its target.', default=1.0),
     }),
     'review': T('Review outputs of the role.', {
         'shots': F('str', 'JSON file of the review frames (studio/shoot.mjs frames).',
