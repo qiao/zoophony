@@ -327,13 +327,13 @@ takes its color from the texture again, before the palette.
 
 ### The cause of the folds
 
-`fold-faces.ts` lists the folded faces of each sample set. On a3ef0b2a, one face at the left
-elbow folds in 2,510 of the 6,008 play samples. In the source, it has the angles 142°, 18°, and
-20°. The bind pose bends the elbow by 62°, and the face becomes 173°, 4°, and 4° and 15 cm long:
-it runs from the shoulder over the elbow to the forearm. Its middle corner lies on its long edge
-in the bind mesh, so a little more bend of the elbow turns it over. A flip of its long edge in
-the bind mesh left a face of 162° (10.5% of the play samples). A ring at the left elbow cuts the
-long edges across the elbow, and no face of the elbow folds in a play.
+`fold-faces.ts` lists the folded faces of each sample set. At the end of the app round, one face at
+the left elbow folds in 2,510 of the 6,008 play samples. In the source, it has the angles 142°, 18°,
+and 20°. The bind pose bends the elbow by 62°, and the face becomes 173°, 4°, and 4° and 15 cm long:
+it runs from the shoulder over the elbow to the forearm. Its middle corner lies on its long edge in
+the bind mesh, so a little more bend of the elbow turns it over. A flip of its long edge in the bind
+mesh left a face of 162° (10.5% of the play samples). A ring at the left elbow cuts the long edges
+across the elbow, and no face of the elbow folds in a play.
 
 ### The rig
 
@@ -352,7 +352,7 @@ long edges across the elbow, and no face of the elbow folds in a play.
 
 ### The measures
 
-| Measure | a3ef0b2a | the ring at the left elbow | File |
+| Measure | End of the app round | the ring at the left elbow | File |
 |---|---|---|---|
 | Folds, play | 45.0% | 5.0% | `fold-probe-folds.txt` |
 | Folds, lift | 50.0% | 25.8% | `fold-probe-folds.txt` |
@@ -375,17 +375,73 @@ sample (`fold-variants.txt`).
 
 ### The deepest corner of the upper arms
 
-`deep-corner.ts` (`deep-corner.txt`) gives the deepest corner of the left upper arm in the rest
-pose of the Boulanger demo. On a3ef0b2a, it is a vertex on the side of the trunk with 0.72 of
-the upper arm weight. It lies 2.07 cm behind the cap of the cut to the arm and 4.08 cm from the
-nearest triangle of the body. The ring at the left elbow also splits the long faces that join
-the forearm to the side of the trunk. Now the corner with the same skin lies 0.22 cm behind the
-cap and 1.66 cm from the nearest triangle of the body. The sweep needs no accepted depth of the
-upper arms. An armpit rule that gave the side of the trunk to the trunk put folds in each play
-sample when it reached that vertex, so the round kept no such rule.
+`deep-corner.ts` (`deep-corner.txt`) gives the deepest corner of the left upper arm in the rest pose
+of the Boulanger demo. At the end of the app round, it is a vertex on the side of the trunk with
+0.72 of the upper arm weight. It lies 2.07 cm behind the cap of the cut to the arm and 4.08 cm from
+the nearest triangle of the body. The ring at the left elbow also splits the long faces that join
+the forearm to the side of the trunk. Now the corner with the same skin lies 0.22 cm behind the cap
+and 1.66 cm from the nearest triangle of the body. The sweep needs no accepted depth of the upper
+arms. An armpit rule that gave the side of the trunk to the trunk put folds in each play sample when
+it reached that vertex, so the round kept no such rule.
 
 ### Images of the round of the folds
 
 - `violinist-views-folds.webp`: `pnpm close-views violinist` with the ring at the left elbow. The
   arms keep the look of `violinist-views-app.webp`.
 
+
+## The round after the review (2026-10-14)
+
+The branch moved onto main `eeeb7557`, which adds 8 demos with rabbit violinists, 14 demos in
+all. The probe outputs of the earlier rounds name commits from before the rebase. `a3ef0b2a` is
+the end of the app round ("docs(snapshots): add the snapshot of the rabbit mesh of the user"),
+`3bd0acb1` is the rig of the round of the folds ("build(models): rig the rabbit with a ring at
+the left elbow"), and `559774da` removed the accepted depth of the upper arms ("test(pose):
+remove the accepted depth of the upper arms of the rabbit").
+
+### The sweeps on the 14 demos
+
+After the rebase, `pnpm pose-depth violinist --gaps` (`pose-depth-gaps-rebase.txt`) found one part
+over its limit: the bow paw went 1.6 cm into the body in a play of `bach-bwv1050` (song 162.80 s,
+limit 1.5 cm), and 1.3 cm in `brahms-2`. Each other part kept 1.4 cm or less. The variants of the
+bow elbow at the frog, with `--set` (`pose-depth-elbow.txt`, `fold-set-elbow.txt`):
+
+| Variant | Paws in the body, play | Forearms in the body, lowering | Play folds |
+|---|---|---|---|
+| Elbow of the chin hold, (1, -1, -1) | 1.6 cm | 0.9 cm | 4.5% |
+| (1.3, -1, -1) | 1.2 cm | 0.7 cm | 4.0% |
+| (1, -0.7, -1), the hold of this round | 1.2 cm | 0.5 cm | 3.9% |
+| Slant of the bow -2° | 1.3 cm | 0.8 cm | 4.2% |
+
+A real violinist holds the right elbow near the level of the bow, so the hold takes the elbow
+that points less down. With it (`pose-depth-gaps-fix.txt`), the paws go 1.2 cm at most into the
+body and 1.3 cm into the violin, the forearms 0.5 cm into the body and 1.4 cm into the violin, and
+the upper arms 0.7 cm into the body. The note targets have no error. The shard tests of the
+violinist and the test of the standing soloist pass. The close views show the same look as in the
+round of the folds (`violinist-views-fix.webp`). `pnpm body-probe --base main`
+(`body-probe-fix.txt`) names only the rabbit violinist: 90 of 95 bodies, 22 of 23 players, and
+1,240 of 1,492 pose sets are equal.
+
+### The folds
+
+`pnpm fold-probe violinist` on the 14 demos, play step 0.25 s:
+
+| Set | Main (`fold-probe-main-14.txt`) | After the rebase (`fold-probe-rebase.txt`) | With the new elbow (`fold-probe-fix.txt`) |
+|---|---|---|---|
+| Rest | 14 of 14, 1 face | 14 of 14, 7 faces | 14 of 14, 7 faces |
+| Play | 0 of 17,788 | 797 of 17,788 (4.5%), 2 faces | 688 of 17,788 (3.9%), 2 faces |
+| Lift | 98 of 434 (22.6%), 1 face | 112 of 434 (25.8%), 12 faces | 112 of 434 (25.8%), 10 faces |
+
+The manager accepts these folds as a limit until the user decides (row of the folds in
+[`2026-10-13-mesh-rabbit.md`](../decisions/2026-10-13-mesh-rabbit.md)). `fold-faces.ts`
+(`fold-faces-fix.txt`) lists the faces. In the play, faces 343 and 342 on the top of the right
+shoulder fold in 644 and 172 samples when the bow arm rises, and face 898 at the front of the left
+shoulder folds in 48 samples. Faces 343 and 342 have corner angles of 13° or more. At rest, three
+faces at the front of the right shoulder, three faces of the left upper arm, and one face of the
+left forearm fold. Three of the left faces are thin, with a corner angle of 2° to 11°. No fold
+shows in the close views.
+
+### Open problems
+
+- The folds of the shoulders. The next fix is a corrective shape for the raised bow arm and for
+  the hanging arms. It is new code of the app, so the user chooses it.
