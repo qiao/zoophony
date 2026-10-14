@@ -58,6 +58,13 @@ export interface MeshRigConfig {
   };
   /** The factor of the length of the upper arm and of the forearm. */
   readonly armFactor: number;
+  /**
+   * The factor of the length of the thigh and of the shin, 1 when it is not given. The feet keep
+   * their size, and the body rises by the growth of the legs.
+   */
+  readonly legFactor?: number;
+  /** The factor of the size of the head around the neck joint, 1 when it is not given. */
+  readonly headFactor?: number;
   /** The joints of the middle and of the left side. The right side mirrors the left side. */
   readonly joints: Readonly<Record<string, MeshRigJoint>>;
   /** The rules of `--check`. */
@@ -95,16 +102,24 @@ export const CONFIG_JOINTS = [
  *
  * @param text The text of the JSON file.
  * @returns The config.
- * @throws Error if a number of the app or the arm factor is not a positive number, or if the
- *   config lacks a joint of {@link CONFIG_JOINTS}.
+ * @throws Error if a number of the app or a factor is not a positive number, or if the config
+ *   lacks a joint of {@link CONFIG_JOINTS}.
  */
 export function parseConfig(text: string): MeshRigConfig {
   // SAFETY: the configs in tools/mesh-rigs/ hold the fields of MeshRigConfig, and the checks below
   // read the fields that the wrapper uses.
   const config = JSON.parse(text) as MeshRigConfig;
-  const numbers = [config.armFactor, config.app.shoulders, config.app.reach];
+  const numbers = [
+    config.armFactor,
+    config.legFactor ?? 1,
+    config.headFactor ?? 1,
+    config.app.shoulders,
+    config.app.reach,
+  ];
   if (!numbers.every((n) => Number.isFinite(n) && n > 0)) {
-    throw new Error('The arm factor, app.shoulders, and app.reach must be positive numbers.');
+    throw new Error(
+      'The arm factor, the leg factor, the head factor, app.shoulders, and app.reach must be positive numbers.',
+    );
   }
   const missing = CONFIG_JOINTS.filter((name) => config.joints[name]?.head.length !== 3);
   if (missing.length > 0) {
@@ -390,11 +405,35 @@ function distance(a: Vec3, b: Vec3): number {
 }
 
 /**
+ * Gives the rise of the body of a rig by the growth of its legs, as `tools/blender/rig_mesh.py`
+ * gives it: the thigh and the shin take the leg factor, the foot keeps its size, and the body
+ * rises by the drop of the ankle, so that the soles stay on the floor.
+ *
+ * @param config The config.
+ * @returns The rise, in the units of the studio.
+ */
+export function legRise(config: MeshRigConfig): number {
+  const hip = jointHead(config, 'thigh_L');
+  const ankle = jointHead(config, 'foot_L');
+  return ((config.legFactor ?? 1) - 1) * (hip[1] - ankle[1]);
+}
+
+/**
+ * Gives the height of the standing shoulder joint of a rig, after the rise of the legs.
+ *
+ * @param config The config.
+ * @returns The height, in the units of the studio.
+ */
+export function shoulderHeight(config: MeshRigConfig): number {
+  return jointHead(config, 'upper_arm_L')[1] + legRise(config);
+}
+
+/**
  * Measures the reach of an arm of the rig in the app, as `pnpm studio-body --inspect` does: from
  * the shoulder joint over the elbow and the wrist to the middle of the palm, the midpoint of the
  * wrist and the finger joint. The upper arm and the forearm take the factor, and the paw keeps
- * its size (`tools/blender/rig_mesh.py`). The scale puts the shoulder joint at the height of the
- * app.
+ * its size (`tools/blender/rig_mesh.py`). The scale puts the shoulder joint, after the rise of the
+ * legs, at the height of the app.
  *
  * @param config The config.
  * @param side The side of the arm.
@@ -413,7 +452,7 @@ export function armReach(config: MeshRigConfig, side: Side, factor = config.armF
   ];
   const units =
     factor * (distance(shoulder, elbow) + distance(elbow, wrist)) + distance(wrist, palm);
-  return (units * config.app.shoulders) / shoulder[1];
+  return (units * config.app.shoulders) / shoulderHeight(config);
 }
 
 /**
@@ -458,14 +497,14 @@ export function targetFactor(config: MeshRigConfig, side: Side): number {
  * @returns The line.
  */
 export function reachLine(config: MeshRigConfig): string {
-  const shoulder = jointHead(config, 'upper_arm_L');
-  const scale = config.app.shoulders / shoulder[1];
+  const shoulder = shoulderHeight(config);
+  const scale = config.app.shoulders / shoulder;
   const sides = (['L', 'R'] as const).map(
     (side) =>
       `Reach ${side}: ${armReach(config, side, 1).toFixed(4)} m with no factor, ${armReach(config, side).toFixed(4)} m with ${config.armFactor}, and the factor ${targetFactor(config, side).toFixed(4)} gives ${config.app.reach} m.`,
   );
   return [
-    `Shoulder joint at ${shoulder[1]} u, ${scale.toFixed(4)} m for each unit.`,
+    `Shoulder joint at ${Number(shoulder.toFixed(6))} u, ${scale.toFixed(4)} m for each unit.`,
     ...sides,
   ].join(' ');
 }

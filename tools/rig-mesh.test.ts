@@ -12,6 +12,7 @@ import {
   blenderArgs,
   checkReach,
   jointHead,
+  legRise,
   parseArgs,
   parseConfig,
   reachLine,
@@ -169,6 +170,23 @@ describe('the check of pnpm rig-mesh', () => {
     expect(targetFactor(figure(1.4), 'R')).toBeCloseTo(1.4, 9);
     expect(reachLine(config)).toContain(`the factor ${factor.toFixed(4)} gives 0.35 m`);
     expect(reachLine(config)).toContain('Shoulder joint at 0.5 u');
+  });
+
+  it('raises the shoulder joint by the growth of the legs, and takes the scale from it', () => {
+    const joints = {
+      ...figure(1).joints,
+      thigh_L: { head: [0.05, 0.2, 0], tail: 'shin_L' },
+      foot_L: { head: [0.05, 0.05, 0], tail: 'toes_L' },
+    } satisfies Record<string, MeshRigJoint>;
+    const short = { ...figure(1), joints };
+    // The thigh and the shin span 0.15 units, so the factor 2 raises the body 0.15 units.
+    const long = { ...short, legFactor: 2, app: { ...short.app, shoulders: 0.65 } };
+    expect(legRise(short)).toBe(0);
+    expect(legRise(long)).toBeCloseTo(0.15, 12);
+    expect(armReach(long, 'L')).toBeCloseTo(armReach(short, 'L'), 12);
+    expect(reachLine(long)).toContain('Shoulder joint at 0.65 u, 1.0000 m for each unit');
+    expect(() => parseConfig(JSON.stringify({ ...long, legFactor: 0 }))).toThrow(/leg factor/);
+    expect(() => parseConfig(JSON.stringify({ ...long, headFactor: -1 }))).toThrow(/head factor/);
   });
 
   it('takes the settings of ANIMALS, or a seated role that also stands at the shoulders of the config', () => {
