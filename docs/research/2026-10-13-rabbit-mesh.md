@@ -157,3 +157,145 @@ These checks ran with a temporary swap: the rabbit entry of `ANIMALS` named the 
 - `preview-knees.webp`: the legs of the seated bind from both sides and from the front.
 - `preview-bones.webp`, `preview-bones-standing.webp`: the main bone of each face.
 - `violinist-views.webp`: the close views of the violinist with the current holds.
+
+## The app round
+
+The second round of the branch puts the rig into the app in place of the studio rabbit, for each
+seated rabbit and each standing rabbit soloist, and refits the violin hold. The `rabbit` entry of
+`ANIMALS` names the rig in `glb`, and `pnpm studio-body rabbit` writes the module. The decisions
+are the rows of the app round in
+[`2026-10-13-mesh-rabbit.md`](../decisions/2026-10-13-mesh-rabbit.md).
+
+### The faces and the module
+
+| Measure | Studio rabbit (main) | Rig round | App round | Log |
+|---|---|---|---|---|
+| Triangles | 2,920 | 3,126 | 3,086 (eye fans of 11 and 10 faces) | `rig-mesh.log` of `pnpm rig-mesh rabbit` |
+| Colors of the packed mesh | 122 | 2,849 | 54 (a palette of 48 in Oklab, by finish) | `module-parts.txt` |
+| Module after gzip | 17,667 B | 53,947 B | 24,696 B | `module-parts-main.txt`, `module-parts.txt` |
+
+`module-parts.ts` splits the packed mesh into its parts and gives the gzip of each part and of
+the mesh without it. With one color for each face, the palette and the color indices took
+25 KB of the 54 KB. The corners took 11 KB, because the faces came in the order of the texture
+atlas. Each step of the rig commits of this round:
+
+| Step | Module after gzip |
+|---|---|
+| One color for each face (rig round, eye copies) | 53,947 B |
+| Palette of 48 colors in Oklab (Oklab distance of a face from its color 0.0026 on the mean, 0.013 at most) | 29,980 B |
+| Faces in the order of a walk over their shared edges (corners 8,945 B, places 6,293 B) | 24,780 B |
+| Weight rules of thin faces and fingers (the skin bytes change) | 24,696 B |
+
+### The folds
+
+`pnpm fold-probe violinist` (`fold-probe-app.txt`, play step 0.25 s):
+
+| Set | Main (studio rabbit) | Rig round, old holds | App round |
+|---|---|---|---|
+| Rest | 6 of 6, 1 face | 6 of 6, 13 faces | 6 of 6, 9 faces |
+| Play | 0 of 6,008 | 6,008 of 6,008, 10 faces | 2,703 of 6,008 (45.0%), 3 faces |
+| Lift | 42 of 186, 1 face | 186 of 186, 20 faces | 93 of 186 (50.0%), 12 faces |
+
+The rabbit mesh of the user has many thin faces: 335 of its 3,065 faces have a corner angle below
+10° in the long-armed source (`slivers.ts` on the `source-long-arms.obj` of
+`pnpm rig-mesh rabbit --preview`, `slivers.txt`). A thin face whose corners have different weights turns over at a bent
+joint. The rig rules of this round:
+
+- The corners of each thin face with a corner angle below 10° and a longest edge below 0.03 u
+  share one set of weights. Three thin faces at the front of each shoulder share a vertex with
+  less upper arm weight than its neighbors (0.62 against 0.71 to 0.77), and they folded in each
+  sample. A group with no limit of the edge pulled the side of the trunk out with the arms in the
+  seated bind, and the angle 15° turned over more faces (24 at rest).
+- The middle corner of each face with a corner angle above 160° takes the weights of the line of
+  its two other corners. The angles 150° and 140° turned over more faces (1,249 of 1,505 play
+  samples at a step of 1 s).
+- The fingers keep half of their bone heat weight. With the full share, one face between the hand
+  and the fingers of each paw folded in each play sample, and with 0.75 the right paw still did.
+
+These variants made the folds worse, and the rig does not use them: 4 rounds of smoothing of
+the arm weights, a relax of the bind mesh until each face keeps 60° or 37° of its source normal,
+and the head weight below the head line moved to the neck.
+
+The folds that stay are thin faces of the upper arms: face 845 at the left elbow (15.3 cm long,
+the angles 173°, 4°, and 4°, the weights upper arm 0.82 and forearm 0.18 at its middle corner),
+and faces at the front of the shoulders. A face along the elbow is thin only when the elbow
+bends, so the line rule of the source does not reach it. The hold sets the bend of the left
+elbow (`fold-variants.txt`, play samples with a fold):
+
+| Hold | Play | Rule of the violin (`reach-set.ts`) |
+|---|---|---|
+| Hold of the studio rabbit (scroll 15° down) | 44.6% | 0.541 |
+| Scroll level, no move back | 19.9% | 0.511 |
+| Scroll 2° down, 0.02 H back | 26.1% | 0.526 |
+| Scroll 2° down, 0.04 H back (the app) | 45.0% | 0.536 |
+| The app hold with the left elbow further in, (0.6, -1, -0.8) | 100% | 0.536 |
+
+The violin of the rule needs the violin back on the collarbone, and the left elbow then bends
+more. The brief stops this item at more than 1% of the play samples.
+
+### The hold
+
+`violin-probe.ts` measures the hold on the sheet moment of the violin (`violin-probe.txt`), and
+`reach-set.ts` and `pnpm hold-reach rabbit` the rule of a violin shop (`hold-reach-app.txt`).
+
+| Measure | Studio rabbit hold on the new body | App round |
+|---|---|---|
+| Violin to the left of the front | 45° | 45° |
+| Scroll | 15° down | 2° down |
+| Chin rest from the left shoulder joint (out, up, forward) | (-0.16, 0.30, 0.62) H | (-0.17, 0.31, 0.58) H |
+| Chin rest under the mouth | 0.36 H | 0.35 H |
+| Left elbow out of the plane of the violin | 0.34 H | 0.29 H |
+| Left palm from the neck | 0.11 H | 0.11 H |
+| Bow to the violin axis | 85° | 85° |
+| Rule of the violin, scale and length | 0.541, 0.274 m | 0.536, 0.271 m |
+| `violinScale` | 0.55 (0.279 m) | 0.54 (0.274 m) |
+
+The rest probe (`rest-probe.ts`, `rest-probe.txt`) measures the rested violin and bow against the
+trunk and the head, as `pose/rest-clearance.test.ts`. With the hand on the neck near the scroll
+(`restPlace` 0.4), the violin touched the trunk. With the hand near the body of the violin (0.8),
+it keeps 2.4 cm, and with 1.0, 4.1 cm.
+
+### The sweeps
+
+`pnpm pose-depth violinist --gaps` (`pose-depth-gaps.txt`, the first seated rabbit of each demo)
+gives each part within the contact depth of 1.5 cm, except the upper arms in the body in the
+rest pose, the lift, and the lowering: 2.1 cm, accepted up to 2.5 cm. The deepest corners lie at
+the root of the left upper arm, 2 cm inside the shoulder joint in the bind pose of the player
+(`deep-probe.ts`, `deep-probe.txt`). They turn behind the fan cap of the
+cut to the arm when the arm hangs. The other deepest values: the paws in the body 1.2 cm and in
+the violin 1.3 cm in a play, the forearms in the violin 1.2 cm in the lift and 1.3 cm in the
+lowering. The head keeps 0.5 cm from the violin in a play. The solo violin test file of
+`pose/violinist-standing-clearance.test.ts` passes for the standing rabbit. The sweep of the
+violinist expects 6 open loops in the closed body: the two cuts to the arms, the edge of each eye
+fan, and two open edges of the whiskers.
+
+`limits-probe.ts` (`limits-probe.txt`) measures the accepted limits of the studio rabbit again.
+The bow of the side rest is 0 mm in the trunk and in the arms (0.53 mm on the studio rabbit). The
+bow paw turns 329° a second in the lift of the Boulanger demo. In Bach and Beethoven 9, it turns
+3,579° to 3,690° a second in one step of 1 ms, as on main.
+
+### The scale, the scene, and the other players
+
+- `height-probe.ts` (`height-probe.txt`): the seated head top of the rabbit is 0.784 m above its
+  seat, 0.897 of the 0.874 m of the red fox. The studio rabbit gave 0.86. The landmark stays.
+- `scene-triangles.ts` (`scene-triangles.txt`): the scene of `perf-60.mid` has 166,722
+  triangles (165,726 with the studio rabbit).
+- `pnpm body-probe --base main` (`body-probe.txt`) names only the rabbit violinist: 5 bodies, 1
+  player, and the pose sets of 27 rabbit players. No other player and no cue of the conductor
+  changes.
+- `pnpm fold-probe conductor` and `pnpm fold-probe pianist` give the tables of main.
+
+### The dark band under the head
+
+`neck-probe.ts` (`neck-probe.txt`) reads the 155 faces between the neck joint and the head joint
+of the seated bind. Their colors have a linear luminance of 0.80 or more, the fur color of the
+palette. 38 of them face down, to the weak ground fill of the stage light. No face of the neck or
+the head folds in `pnpm fold-probe violinist`. So the band comes from the light, an open item of
+the user that affects each player.
+
+### Images of the app round
+
+- `violinist-views-app.webp`: `pnpm close-views violinist` on the hold of the app round. The
+  violin lies under the jaw, about level, and turns to the left front. The rabbit sits on its
+  haunch at the front of the chair, and its knees stay low in the side views. The dark band under
+  the head shows in the side and the back views.
