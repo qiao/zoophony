@@ -282,6 +282,22 @@ With the shoulder hold of round 3 on the round 4 body, the bow paw turns 730° a
 the strings: with the rabbit in the finger block check of `pose/bowed.test.ts`, its highest point
 is 3.8 mm under the plane (the check asks 5.5 mm above). The palm checks keep the rabbit.
 
+Open problem: the test of the bow turn limit runs only the Boulanger demo. In Bach and Beethoven
+9, the bow paw of the rabbit turns about 3.6° in one step of 1 ms, at wall 0.249 to 0.250 s of the
+lift. That is 3,678° and 3,590° a second with the song held at 0, and 3,593° a second with the
+real count-in. Only this one step is above 1,000° a second (`turn-profile.txt`). A second rabbit
+of Bach (seat index 2) turns 3,633° a second at wall 0.145 s. The rabbits of the other demos turn
+764° to 828° a second (`turn-all-demos.txt`). On `796e9278`, before the arms of round 4, the
+rabbits of Bach and Beethoven 9 turn 3,704° to 3,795° a second (`turn-profile-796e9278.txt`,
+`turn-all-demos-796e9278.txt`). Thus the longer arms did not cause the jump, and the removed limit
+of 1,500° a second did not hold in these two demos either. A later round finds the switch at wall
+0.25 s, and runs the test of the limit on each demo with a rabbit. The commands are
+`node docs/research/2026-10-13-studio-rabbit/turn-profile.ts` and
+`node docs/research/2026-10-13-studio-rabbit/turn-all-demos.ts`. For `796e9278`, extract
+`src/`, `tools/`, `demos/`, and `package.json` of the commit with `git archive` into a folder,
+link `node_modules` of the worktree into it, copy both probes to the same path in it, and run
+them there.
+
 `pnpm fold-probe violinist` on the chosen hold: no fold in the play samples, and one face of the
 right upper arm folds in each rest sample and in 22.6% of the lift samples (`fold-round4.txt`).
 Round 3 had no fold in the rest and the lift. The fold is in the hanging right arm of the side
