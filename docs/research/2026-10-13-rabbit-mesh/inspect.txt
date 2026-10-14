@@ -26,4 +26,4 @@ Lowest point of the skin: [-0.092, 0.038, -0.002] u, height 0.038 u (0.047 m)
   Seated: the body drops by this height in the app, so that its soles are on the floor.
 
 Props (the box in units: min, max):
-  chair (1 node): [-0.160, 0.000, -0.130] u, [0.160, 0.272, 0.000] u
+  chair (1 node): [-0.160, 0.000, -0.160] u, [0.160, 0.272, -0.030] u

@@ -15,7 +15,7 @@ ear tips. All meters are at the scale of the app.
 
 `pnpm rig-mesh rabbit` reads `tools/mesh-rigs/rabbit.json` and runs
 `tools/blender/rig_mesh.py`. The script writes the GLB file with its own code. Thus a second run
-writes the same bytes (sha256 `341d2f0a6fb3`, 909,932 bytes, in `rig-mesh.log`).
+writes the same bytes (sha256 `b71278cfaf6f`, 909,948 bytes, in `rig-mesh.log`).
 
 ```text
  rabbit-4.glb (mesh, texture, no skeleton)
@@ -110,11 +110,30 @@ node docs/research/2026-10-13-rabbit-mesh/standing-probe.ts <dir>/source-long-ar
 | Triangles | 3,126: 3,065 of the source, 61 of the eye shells. The budget of a studio body is 3,100 | `rig-mesh.log` |
 | Eye faces | 31 left, 30 right: a share of dark samples of 0.34 or more | `rig-mesh.log` |
 | Nose faces | 15, gloss | `rig-mesh.log` |
-| Module `src/models/studio/rabbit.ts` | 87,926 bytes, 53,963 after gzip (studio rabbit: 40,331 and 17,691) | `module-size.txt` |
+| Module `src/models/studio/rabbit.ts` | 87,933 bytes, 53,969 after gzip (studio rabbit: 40,331 and 17,691) | `module-size.txt` |
 
 Each face takes the mean color of 28 samples of the texture. The module is larger than the
 module of the studio rabbit, because almost each face has a color of its own, and the palette of
 the packed mesh holds each color.
+
+## The seat
+
+The shins hang down from the knees in the seated bind, and the heels reach back to z -0.022 u.
+The first chair of the GLB file had its front edge at z 0, as the chair of the studio rabbit.
+`pnpm studio-body` takes the lowest point of the body over the seat as the seat height, so the
+heels put the seat of the app on the floor (0 m). The chair now goes from z -0.03 to -0.16 u, and
+the script stops when a shin or a foot lies over it (`rig-mesh.log`).
+
+| Measure | Rig | Studio rabbit | Log |
+|---|---|---|---|
+| Lowest point of the seated skin (the drop in the app) | 0.038 u, 0.047 m | 0.032 u, 0.039 m | `inspect.txt` |
+| Seat top of the GLB chair, before the drop | 0.122 u | 0.294 u with the back | `rig-mesh.log` |
+| Seat height in the app | 0.103 m | 0.126 m | `seat.txt` |
+| Chair depth in the app | 0.195 m | 0.167 m | `seat.txt` |
+| Head height `H` | 0.269 m | 0.224 m | `seat.txt` |
+
+The thighs of the mesh are short and lie in the haunch, which follows the hips. Thus the seated
+rabbit sits on its haunch, and the short legs and the feet come forward (`preview-knees.webp`).
 
 ## In the app, with the current holds
 
@@ -124,8 +143,8 @@ These checks ran with a temporary swap: the rabbit entry of `ANIMALS` named the 
 - `pnpm studio-body rabbit --inspect` (`inspect.txt`): 30 joints, no missing body bone, no
   unknown joint, the materials `fur` and `gloss`, the four morph targets, the clip `reference`,
   and the prop `chair`. The lowest point of the seated skin is 0.038 u above the floor.
-- `pnpm close-views violinist` (`violinist-views.webp`): the rabbit sits on the chair and plays.
-  The holds were tuned on the studio rabbit, so the violin sits low at the mouth.
+- `pnpm close-views violinist` (`violinist-views.webp`): the rabbit sits on its haunch on the
+  chair and plays. The holds were tuned on the studio rabbit, so the violin sits low at the mouth.
 - `pnpm fold-probe violinist` (`fold-probe-new.txt`): each sample has folded faces, at most 13 at
   rest, 10 in a play, and 20 in the lift. By bone: `upper_arm_L` 30,920 faces in 6,200 samples
   (the front of the left shoulder), `hand_R` one face in each sample, `upper_arm_R` 564, and
