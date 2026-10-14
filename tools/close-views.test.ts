@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import { closeView, galleryTransport } from '../src/gallery/items.ts';
 import { parseTestNotes } from '../src/gallery/notes.ts';
-import { ROLE_VIEWS, closeViewPath, roleOf } from './close-views.ts';
+import {
+  ROLE_VIEWS,
+  baseGridLabels,
+  closeViewPath,
+  closeViewsArgs,
+  roleOf,
+} from './close-views.ts';
 
 describe('closeViewPath', () => {
   it('shows the animal of each role alone and close, at the camera of each view', () => {
@@ -93,5 +99,37 @@ describe('closeViewPath', () => {
     expect(roleOf('pianist')).toBe('pianist');
     expect(roleOf('conductor')).toBe('conductor');
     expect(roleOf('drummer')).toBeNull();
+  });
+});
+
+describe('closeViewsArgs', () => {
+  it('reads the role, the folder, the URL of a running site, and the commit to compare', () => {
+    expect(closeViewsArgs(['violinist', 'out'])).toEqual({
+      role: 'violinist',
+      out: 'out',
+      url: null,
+      base: null,
+    });
+    expect(
+      closeViewsArgs(['pianist', 'out', '--base', 'main', '--url', 'http://localhost:5199/']),
+    ).toEqual({ role: 'pianist', out: 'out', url: 'http://localhost:5199/', base: 'main' });
+  });
+
+  it('refuses a wrong role, no folder, and an option with no value', () => {
+    expect(closeViewsArgs(['drummer', 'out'])).toBeNull();
+    expect(closeViewsArgs(['violinist', '--base', 'main'])).toBeNull();
+    expect(closeViewsArgs(['violinist', 'out', '--base'])).toBeNull();
+    expect(closeViewsArgs(['violinist', 'out', '--url', '--base', 'main'])).toBeNull();
+  });
+});
+
+describe('baseGridLabels', () => {
+  it('names the commit in each cell of the upper grid and the working tree in the lower grid', () => {
+    expect(baseGridLabels(['frog, front', 'frog, left'], 'main (cc83899c)')).toEqual([
+      'main (cc83899c): frog, front',
+      'main (cc83899c): frog, left',
+      'working tree: frog, front',
+      'working tree: frog, left',
+    ]);
   });
 });

@@ -3,9 +3,11 @@ import { join } from 'node:path';
 
 import { chromium } from '@playwright/test';
 import type { Browser } from '@playwright/test';
+import { preview } from 'vite';
 
 import type { SpeciesId } from '../src/models/species.ts';
 import { chromiumArgs } from './chromium-args.ts';
+import { ROOT, optionValue, shortHash, withRefBuild } from './ref-tree.ts';
 import { openShot, startSite, toWebp } from './screenshots.ts';
 
 /** One view of a close view: the turn of the gallery camera around the animal. */
@@ -329,51 +331,179 @@ export function roleOf(name: string | undefined): CloseRole | null {
   return name === 'conductor' || name === 'pianist' || name === 'violinist' ? name : null;
 }
 
+/** The command line of the close views. */
+export interface CloseViewsArgs {
+  /** The role. */
+  readonly role: CloseRole;
+  /** The output directory. */
+  readonly out: string;
+  /** The URL of a running site of the working tree, or `null` for the built site. */
+  readonly url: string | null;
+  /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
+  readonly base: string | null;
+}
+
 /**
- * Renders the close view of a role: `node tools/close-views.ts <role> <dir> [--url <url>]`
- * (design 7.1). It writes the animal of the role at each moment from each view into `<dir>`, and
- * the grid of all cells as `<role>-views.png` and `<role>-views.webp`. With `--url`, it uses a
- * running site, such as the dev server, in place of the built site.
+ * Reads the command line of the close views: `<role> <dir> [--url <url>] [--base <ref>]`.
+ *
+ * @param args The arguments after the script.
+ * @returns The command line, or `null` when it is not correct.
+ */
+export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
+  const role = roleOf(args[0]);
+  const out = args[1];
+  const url = optionValue(args, '--url');
+  const base = optionValue(args, '--base');
+  if (!role || !out || out.startsWith('--') || url === undefined || base === undefined) {
+    return null;
+  }
+  return { role, out, url, base };
+}
+
+/**
+ * Gives the labels of the grid of a commit above the grid of the working tree: each label of a
+ * cell starts with the name of its tree.
+ *
+ * @param labels The labels of the cells of one grid.
+ * @param base The name of the commit, such as `main (cc83899c)`.
+ * @returns The labels of the cells of the commit, then of the working tree.
+ */
+export function baseGridLabels(labels: readonly string[], base: string): string[] {
+  return [
+    ...labels.map((label) => `${base}: ${label}`),
+    ...labels.map((label) => `working tree: ${label}`),
+  ];
+}
+
+/** The cells of the close view of a role, row by row, with their labels. */
+interface RenderedViews {
+  /** The PNG image of each cell. */
+  readonly cells: readonly Buffer[];
+  /** The label of each cell: the moment and the view. */
+  readonly labels: readonly string[];
+}
+
+/**
+ * Renders each cell of the close view of a role, and writes each cell as a PNG file.
+ *
+ * @param browser The browser.
+ * @param base The URL of the site.
+ * @param name The role.
+ * @param out The output directory.
+ * @param prefix The start of the file names, such as `violinist-`.
+ * @returns The cells and their labels.
+ */
+async function renderViews(
+  browser: Browser,
+  base: string,
+  name: CloseRole,
+  out: string,
+  prefix: string,
+): Promise<RenderedViews> {
+  const role = ROLE_VIEWS[name];
+  const cells: Buffer[] = [];
+  const labels: string[] = [];
+  for (const moment of role.moments) {
+    for (const view of role.views) {
+      const cell = await render(browser, base, role, view, moment);
+      await writeFile(join(out, `${prefix}${moment.name}-${view.name}.png`), cell);
+      cells.push(cell);
+      labels.push(`${moment.name}, ${view.name}`);
+    }
+  }
+  return { cells, labels };
+}
+
+/**
+ * Builds a commit in a temporary folder, serves its site, and renders the close view of a role
+ * there. Then it writes the grid of the commit above the grid of the working tree as
+ * `<role>-base-views.png` and `<role>-base-views.webp`, and each cell of the commit as
+ * `<role>-base-<moment>-<view>.png`.
+ *
+ * @param browser The browser.
+ * @param ref The commit, the branch, or the tag.
+ * @param name The role.
+ * @param out The output directory.
+ * @param views The cells of the working tree.
+ */
+async function renderBase(
+  browser: Browser,
+  ref: string,
+  name: CloseRole,
+  out: string,
+  views: RenderedViews,
+): Promise<void> {
+  const label = `${ref} (${shortHash(ref)})`;
+  await withRefBuild(ref, async (dir) => {
+    const server = await preview({
+      root: dir,
+      preview: { port: 4179, strictPort: false, open: false },
+    });
+    try {
+      const site = server.resolvedUrls?.local[0];
+      if (!site) {
+        throw new Error(`The preview server of ${label} has no URL.`);
+      }
+      const before = await renderViews(browser, site, name, out, `${name}-base-`);
+      const cells = [...before.cells, ...views.cells];
+      const labels = baseGridLabels(views.labels, label);
+      const sheet = await grid(browser, cells, labels, ROLE_VIEWS[name].views.length);
+      await writeFile(join(out, `${name}-base-views.png`), sheet);
+      await writeFile(join(out, `${name}-base-views.webp`), await toWebp(browser, sheet));
+      console.log(join(out, `${name}-base-views.png`));
+    } finally {
+      await server.close();
+    }
+  });
+}
+
+/**
+ * Renders the close view of a role:
+ * `node tools/close-views.ts <role> <dir> [--url <url>] [--base <ref>]` (design 7.1). It writes
+ * the animal of the role at each moment from each view into `<dir>`, and the grid of all cells as
+ * `<role>-views.png` and `<role>-views.webp`. With `--url`, it uses a running site, such as the
+ * dev server, in place of the built site. With `--base`, it also builds the commit in a temporary
+ * folder, and writes the grid of the commit above the grid of the working tree.
  */
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
-  const name = roleOf(args[0]);
-  const out = args[1];
-  const urlAt = args.indexOf('--url');
-  const given = urlAt >= 0 ? args[urlAt + 1] : undefined;
-  if (!name || !out || out.startsWith('--')) {
+  const args = closeViewsArgs(process.argv.slice(2));
+  if (!args) {
     console.error(
-      'Usage: pnpm close-views <conductor|pianist|violinist> <output directory> [--url <url>]',
+      'Usage: pnpm close-views <conductor|pianist|violinist> <output directory> [--url <url>] [--base <ref>]',
     );
     process.exit(1);
   }
+  if (args.base !== null) {
+    // An unknown commit stops the tool before the first render.
+    try {
+      shortHash(args.base);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  }
 
+  const { role: name, out, url } = args;
   const role = ROLE_VIEWS[name];
   await mkdir(out, { recursive: true });
-  const site = given
+  const site = url
     ? {
-        base: given,
+        base: url,
         browser: await chromium.launch({ args: chromiumArgs(process.platform) }),
         close: async (): Promise<void> => undefined,
       }
-    : await startSite(join(import.meta.dirname, '..'));
+    : await startSite(ROOT);
   try {
-    const cells: Buffer[] = [];
-    const labels: string[] = [];
-    for (const moment of role.moments) {
-      for (const view of role.views) {
-        const cell = await render(site.browser, site.base, role, view, moment);
-        await writeFile(join(out, `${name}-${moment.name}-${view.name}.png`), cell);
-        cells.push(cell);
-        labels.push(`${moment.name}, ${view.name}`);
-      }
-    }
-    const sheet = await grid(site.browser, cells, labels, role.views.length);
+    const views = await renderViews(site.browser, site.base, name, out, `${name}-`);
+    const sheet = await grid(site.browser, views.cells, views.labels, role.views.length);
     await writeFile(join(out, `${name}-views.png`), sheet);
     await writeFile(join(out, `${name}-views.webp`), await toWebp(site.browser, sheet));
     console.log(join(out, `${name}-views.png`));
+    if (args.base !== null) {
+      await renderBase(site.browser, args.base, name, out, views);
+    }
   } finally {
-    if (given) {
+    if (url) {
       await site.browser.close();
     }
     await site.close();

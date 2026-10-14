@@ -86,7 +86,9 @@ player.
   conductor keeps its fixed line. The pianist plays test notes of its own, which the tool writes
   into the notes field of the page. The rabbit violinist shows from the front, both sides, and
   the back (5.3), around its body. Its moments are the frog and the tip of a whole bow, a string
-  crossing, the rest pose, and the standing soloist at the frog.
+  crossing, the rest pose, and the standing soloist at the frog. With `--base <ref>`, the tool
+  puts the grid of a commit above the grid of the working tree, so a round shows the change of
+  a body with no worktree of `main`.
 - The query `stand` gives each player of the species page the support `stand`, as a soloist who
   stands (4.5). With no `stand`, each player has the support of its instrument.
 - The query `rest` shows the players in the rest pose of 5.2, before the first play. With no
