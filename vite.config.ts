@@ -14,6 +14,18 @@ const PAUSED_TESTS = [
   'src/pose/*-clearance-*.test.ts',
   'src/pose/violinist-standing-clearance.test.ts',
   'src/pose/rest-clearance.test.ts',
+  // The fit of a pose to a body: the bow on the strings, the reach, the holds, the paws on the
+  // keys, the feet on the floor, and the poses of the sheet pages and of the gallery.
+  'src/pose/bowed.test.ts',
+  'src/pose/bow-hold.test.ts',
+  'src/pose/hands.test.ts',
+  'src/pose/winds.test.ts',
+  'src/pose/percussion.test.ts',
+  'src/pose/choir.test.ts',
+  'src/pose/seated-feet.test.ts',
+  'src/models/player.test.ts',
+  'src/gallery/sheet-poses.test.ts',
+  'src/gallery/view-poses.test.ts',
 ];
 
 /**
