@@ -163,3 +163,19 @@ export function shortHash(ref: string): string {
   }
   return result.stdout.trim();
 }
+
+/**
+ * Gives the value of an option of the command line.
+ *
+ * @param args The arguments.
+ * @param name The option, such as `--base`.
+ * @returns The value, `null` when the option is not there, or `undefined` when it has no value.
+ */
+export function optionValue(args: readonly string[], name: string): string | null | undefined {
+  const at = args.indexOf(name);
+  if (at < 0) {
+    return null;
+  }
+  const value = args[at + 1];
+  return value && !value.startsWith('--') ? value : undefined;
+}

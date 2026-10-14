@@ -5,7 +5,6 @@ import {
   baseLines,
   defaultDemoFile,
   htmlAssetFiles,
-  optionValue,
   sizeReport,
   staticChunkFiles,
 } from './size.ts';
@@ -117,14 +116,5 @@ describe('baseLines', () => {
   it('prints a smaller working tree as a minus, and no sign for no change', () => {
     expect(baseLines('main', base, base.slice(1)).at(-1)).toBe('      -260 B  difference');
     expect(baseLines('main', base, base).at(-1)).toBe('         0 B  difference');
-  });
-});
-
-describe('optionValue', () => {
-  it('gives the value of an option, null with no option, and undefined with no value', () => {
-    expect(optionValue(['--base', 'main'], '--base')).toBe('main');
-    expect(optionValue([], '--base')).toBeNull();
-    expect(optionValue(['--base'], '--base')).toBeUndefined();
-    expect(optionValue(['--base', '--url', 'x'], '--base')).toBeUndefined();
   });
 });

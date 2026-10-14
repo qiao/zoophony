@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { errorCause, shortHash, withRefTree } from './ref-tree.ts';
+import { errorCause, optionValue, shortHash, withRefTree } from './ref-tree.ts';
 
 describe('errorCause', () => {
   it('keeps the lines before the stack of an error', () => {
@@ -69,5 +69,14 @@ describe('shortHash', () => {
   it('gives the short hash of a commit, and stops on an unknown ref', () => {
     expect(shortHash('HEAD')).toMatch(/^[0-9a-f]{7,}$/);
     expect(() => shortHash('no-such-ref')).toThrow('no-such-ref');
+  });
+});
+
+describe('optionValue', () => {
+  it('gives the value of an option, null with no option, and undefined with no value', () => {
+    expect(optionValue(['--base', 'main'], '--base')).toBe('main');
+    expect(optionValue([], '--base')).toBeNull();
+    expect(optionValue(['--base'], '--base')).toBeUndefined();
+    expect(optionValue(['--base', '--url', 'x'], '--base')).toBeUndefined();
   });
 });

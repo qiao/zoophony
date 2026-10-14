@@ -6,7 +6,7 @@ import { gzipSync } from 'node:zlib';
 import type { Manifest } from 'vite';
 
 import { DEFAULT_DEMO } from '../src/app/demos.ts';
-import { ROOT, shortHash, withRefBuild } from './ref-tree.ts';
+import { ROOT, optionValue, shortHash, withRefBuild } from './ref-tree.ts';
 
 /** Limit of the first download after gzip, in bytes (design 7.2). */
 const SIZE_LIMIT_BYTES = 1_000_000;
@@ -144,22 +144,6 @@ export function baseLines(
     `${bytes(total(parts).toLocaleString('en-US'))}  total of the working tree`,
     `${bytes(`${sign}${Math.abs(change).toLocaleString('en-US')}`)}  difference`,
   ];
-}
-
-/**
- * Gives the value of an option of the command line.
- *
- * @param args The arguments.
- * @param name The option, such as `--base`.
- * @returns The value, `null` when the option is not there, or `undefined` when it has no value.
- */
-export function optionValue(args: readonly string[], name: string): string | null | undefined {
-  const at = args.indexOf(name);
-  if (at < 0) {
-    return null;
-  }
-  const value = args[at + 1];
-  return value && !value.startsWith('--') ? value : undefined;
 }
 
 async function measure(root: string, path: string): Promise<DownloadPart> {
