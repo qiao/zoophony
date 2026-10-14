@@ -25,7 +25,7 @@ describe('pickPlayer (design 2.3)', () => {
   const meshes = createPlayers(
     [
       {
-        species: 'fox-red',
+        species: 'fox-tan',
         instrument: 'violin',
         kettles: 4,
         support: 'chair',

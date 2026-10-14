@@ -15,10 +15,10 @@ import type { BipedParams, SpeciesParams } from './species.ts';
 export const SEAT = 0.45;
 
 /**
- * The red fox: the sample body of the tests of the parametric parts. The rabbit has a studio body
- * since 2026-10-13 (design 4.4).
+ * The tan fox: the sample body of the tests of the parametric parts. The rabbit has a studio body
+ * since 2026-10-13, and the red fox since 2026-10-14 (design 4.4).
  */
-const SAMPLE = SPECIES['fox-red'];
+const SAMPLE = SPECIES['fox-tan'];
 
 /** The head height `H` of the sample body (design 4.5, body proportions). */
 export const H = proportionsOf(SAMPLE).headHeight;

@@ -44,9 +44,9 @@ describe('pnpm hold-reach (design 4.6)', () => {
   it('puts the violin scale of the species back after the measure', () => {
     const before = SPECIES.rabbit.violinScale;
     violinReachAt('rabbit', 'chair', 0.3);
-    violinReachAt('fox-red', 'chair', 0.3);
+    violinReachAt('fox-tan', 'chair', 0.3);
     expect(SPECIES.rabbit.violinScale).toBe(before);
-    expect(Object.hasOwn(SPECIES['fox-red'], 'violinScale')).toBe(false);
+    expect(Object.hasOwn(SPECIES['fox-tan'], 'violinScale')).toBe(false);
   });
 
   it('reports the arms, the reached parts, and the rule for each instrument', () => {
