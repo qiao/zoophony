@@ -454,7 +454,7 @@ pack reference"), takes its sizes from the body, and calls the kinds. Each kind 
 | `bench` | scene | a pad, an apron, four tapered legs | from behind the rump to the backs of the shins. The pad fits the seated body (`Body.seat`). |
 | `chair` | scene | a seat, two front legs, two back posts, a top rail, a stretcher | the seat as a bench. The back 0.55 of the shoulders above the seat. |
 | `music_stand` | scene | a tripod, a post, a tilted desk with a light edge and a lip, a sheet | the desk 0.2 below the eyes of the seated animal |
-| `violin` | scene | body with bouts and an arched top, f-holes, neck, pegbox, pegs, scroll, fingerboard, tailpiece, chin rest, bridge, strings | 1.1 arm reaches long |
+| `violin` | scene or hand | body with bouts and an arched top, f-holes, neck, pegbox, pegs, scroll, fingerboard, tailpiece, chin rest, bridge, strings | 1.1 arm reaches long. In a hand (the violinist), the neck lies in the paw at `strings.neck` of the length from the tail end, the scroll along `direction`, and the top plate toward `strings.top` (both in the hand frame). |
 | `cello` | scene | the violin model with the cello colors, no chin rest, and an end pin | with its end pin, to the eyes of the seated animal |
 | `bow` | hand | stick, hair, frog, tip | 1.25 violins or 0.62 cellos long (`strings.bow_for`) |
 | `stick` | hand | handle, tapered shaft (the baton of the conductor) | config |
@@ -474,7 +474,10 @@ interface PropNode {
 
 A scene prop is a node of its own in the GLB, beside the rig. A hand prop sits on a bone of its
 own under the hand, and its mesh is joined into the mesh of the animal, rigid on that bone (the
-baton of the bear). The keys that a pack presses are nodes under the piano node, with their origin
+baton of the bear, the bow and the violin of the violinist). A violin between the chin and the
+shoulder is a hand prop of the left paw: the clips turn the paw so that the violin lies under the
+chin (`roles/violinist/clips.py`), and the left paw carries it to the thigh in the rest. The
+studio has no attachment to the chest or the head. The keys that a pack presses are nodes under the piano node, with their origin
 on the pivot of the key (far back under the fallboard, as the balance rail of a real key). A pose
 spec gives the press share of each key in `spec['keys']`. `props.ScenePose` turns the shares and
 the prop scales into node transforms, `bake.write_node_actions` writes them as actions on NLA
@@ -2355,10 +2358,10 @@ The props of the role, in the order of the joined mesh.
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
 | `name` | str | required | Name of the prop, of its bone, and of its material. |
-| `kind` | str | `"stick"` | Kind of the prop (the prop library props/, studio/props.py). In a hand: "stick" (a handle and a tapered shaft: a baton), "bow" (the bow of a violin or a cello). In the scene, a node of its own: "piano" (a grand piano), "bench" (a piano bench), "chair" (an orchestra chair), "music_stand", "violin", "cello". |
+| `kind` | str | `"stick"` | Kind of the prop (the prop library props/, studio/props.py). In a hand: "stick" (a handle and a tapered shaft: a baton), "bow" (the bow of a violin or a cello), "violin" (held at the neck, the violinist). In the scene, a node of its own: "piano" (a grand piano), "bench" (a piano bench), "chair" (an orchestra chair), "music_stand", "violin", "cello". |
 | `tip_marker` | str | optional | Name of the empty node at the tip (the viewer draws its path). |
-| `grip` | vec3 | optional | Grip point in the hand frame, from the middle of the paw (a stick). |
-| `direction` | vec3 | optional | Direction of the shaft in the hand frame (a stick). |
+| `grip` | vec3 | optional | Grip point in the hand frame, from the middle of the paw (a stick, a bow, or the neck of a violin in a hand). |
+| `direction` | vec3 | optional | Direction of the shaft in the hand frame (a stick or a bow), or of the violin axis from the neck to the scroll (a violin in a hand). |
 | `length` | num | optional | Length from the grip to the tip (a stick). |
 | `cast_shadow` | bool | `true` | False for a thin prop: its shadow reads as a line on the body. |
 | `contact` | str | `"none"` | The piece of the prop that the contact check tests against the body ("shaft"), or "none". |
@@ -2507,6 +2510,8 @@ A violin, a cello, or a bow (kinds "violin", "cello", "bow"): the models of the 
 | `lean` | num | `25.0` | Lean of an upright instrument back toward the player, in degrees. |
 | `side_lean` | num | `0.0` | Lean of an upright instrument to the left of the player, in degrees. |
 | `hair` | vec3 | `[0.0, 0.0, 1.0]` | Direction of the hair of a bow in the hand frame (a bow). |
+| `top` | vec3 | `[0.0, 1.0, 0.0]` | Direction of the top plate of a violin in the hand frame (a violin in a hand). |
+| `neck` | num | `0.75` | Place of the grip on a violin in a hand: a share of the length from the tail end (the left paw in the first position). |
 | `bow_for` | str | `"violin"` | The instrument of a bow: "violin" or "cello". |
 
 #### `[props.strings.colors]`

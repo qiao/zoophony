@@ -198,17 +198,23 @@ def _role_checks(role, errors):
             errors.append(f'props[{i}].attach.bone: expected "hand" or "scene"')
         if prop.attach.side not in ('L', 'R'):
             errors.append(f'props[{i}].attach.side: expected "L" or "R"')
-        kinds = {'stick': ('hand', ('grip', 'direction', 'length', 'handle', 'shaft')),
-                 'bow': ('hand', ('grip', 'direction', 'strings')),
-                 'piano': ('scene', ('piano',)), 'bench': ('scene', ('bench',)),
-                 'chair': ('scene', ('chair',)), 'music_stand': ('scene', ('stand',)),
-                 'violin': ('scene', ('strings',)), 'cello': ('scene', ('strings',))}
+        # The attachments of each kind, and the fields that each attachment needs. A violin
+        # stands in the scene, or a paw holds it at the neck (the violinist).
+        kinds = {'stick': {'hand': ('grip', 'direction', 'length', 'handle', 'shaft')},
+                 'bow': {'hand': ('grip', 'direction', 'strings')},
+                 'piano': {'scene': ('piano',)}, 'bench': {'scene': ('bench',)},
+                 'chair': {'scene': ('chair',)}, 'music_stand': {'scene': ('stand',)},
+                 'violin': {'scene': ('strings',), 'hand': ('grip', 'direction', 'strings')},
+                 'cello': {'scene': ('strings',)}}
         if prop.kind not in kinds:
             errors.append(f'props[{i}].kind: expected one of {", ".join(kinds)}')
             continue
-        bone, needs = kinds[prop.kind]
-        if prop.attach.bone != bone:
-            errors.append(f'props[{i}]: a "{prop.kind}" needs attach.bone = "{bone}"')
+        bones = kinds[prop.kind]
+        if prop.attach.bone not in bones:
+            want = ' or '.join(f'"{b}"' for b in bones)
+            errors.append(f'props[{i}]: a "{prop.kind}" needs attach.bone = {want}')
+            continue
+        needs = bones[prop.attach.bone]
         for key in needs:
             if prop[key] is None:
                 errors.append(f'props[{i}].{key}: missing (a "{prop.kind}" needs it)')

@@ -5,8 +5,9 @@ each prop, takes its sizes from the body, and gives the build what it needs.
 
 A hand prop (attach.bone = "hand") sits on a bone of its own, a child of a hand, and its mesh is
 joined into the mesh of the animal, rigid on that bone. The kinds: "stick" (a handle and a
-tapered shaft: a baton) and "bow" (the bow of a violin or a cello). Each one gives detail dicts
-(as studio/details.py), the grip point, and the tip point, in a pose of the arms.
+tapered shaft: a baton), "bow" (the bow of a violin or a cello), and "violin" (a violin that the
+left paw holds at the neck: the clips put it between the chin and the shoulder). Each one gives
+detail dicts (as studio/details.py), the grip point, and the tip point, in a pose of the arms.
 
 A scene prop (attach.bone = "scene") is a mesh node of its own in the GLB, with no bone: the
 kinds "piano", "bench", "chair", "music_stand", "violin", and "cello". Each one is sized to the
@@ -34,7 +35,7 @@ from props.shapes import basis
 from studio.details import detail, tube
 
 # The kinds of each attachment.
-HAND_KINDS = ('stick', 'bow')
+HAND_KINDS = ('stick', 'bow', 'violin')
 SCENE_KINDS = ('piano', 'bench', 'chair', 'music_stand', 'violin', 'cello')
 
 
@@ -381,12 +382,52 @@ def bow(body, pr, pose):
     return [d], grip, grip + direction * (length - back)
 
 
+def held_violin_frame(body, pr, pose):
+    """Calculates the place of a violin in its hand: the grip on the neck (from the middle of
+    the paw, in the hand frame), the axis from the tail end to the scroll (direction), and the
+    normal of the top plate (strings.top).
+
+    Returns (grip point, axis, top normal, length, the rotation from the violin axes to model
+    space): the violin axes are those of props/strings.py (x to the scroll, y to the top plate).
+    """
+    joints, frames = body.arm_pose(pose)
+    sx = np.diag([1.0 if pr.attach.side == 'L' else -1.0, 1.0, 1.0])
+    W = sx @ joints['wrist']
+    K = sx @ joints['knuckle']
+    fh = sx @ frames['hand']
+    grip = 0.5 * (W + K) + fh @ np.array(pr.grip)
+    axis = fh @ np.array(pr.direction)
+    axis /= np.linalg.norm(axis)
+    frame = basis(axis, fh @ np.array(pr.strings.top))
+    rot = np.stack([frame[:, 1], frame[:, 2], frame[:, 0]], axis=1)
+    return grip, axis, frame[:, 2], string_length(body, pr), rot
+
+
+def held_violin(body, pr, pose):
+    """Makes a violin in its hand: the neck in the paw at strings.neck of the length from the
+    tail end, the scroll along direction, and the top plate toward strings.top (in the hand
+    frame).
+
+    Returns (details, grip point, tip point): the tip is the end of the scroll.
+    """
+    grip, axis, _, length, rot = held_violin_frame(body, pr, pose)
+    v, f, fc = strings_kind.violin_mesh(length, string_colors(pr.strings))
+    k = length / strings_kind.LENGTH
+    neck = np.array([pr.strings.neck * length, (strings_kind.THICKNESS - 0.002) * k, 0.0])
+    v = (v - neck) @ rot.T + grip
+    d = detail(f'{pr.name}_violin', v, f, fc[0], pr.name, pr.name)
+    d['colors'] = fc
+    return [d], grip, grip + axis * (1.0 - pr.strings.neck) * length
+
+
 def make(body, pr, pose):
     """Makes one hand prop of any kind. Returns (details, grip point, tip point)."""
     if pr.kind == 'stick':
         return stick(body, pr, pose)
     if pr.kind == 'bow':
         return bow(body, pr, pose)
+    if pr.kind == 'violin':
+        return held_violin(body, pr, pose)
     raise ValueError(f'prop {pr.name!r}: the kind {pr.kind!r} is not built yet')
 
 

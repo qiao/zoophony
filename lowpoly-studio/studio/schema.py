@@ -738,9 +738,9 @@ ROLE_PROP = T('One prop of the role.', {
     'name': F('str', 'Name of the prop, of its bone, and of its material.'),
     'kind': F('str', 'Kind of the prop (the prop library props/, studio/props.py). In a hand: '
                      '"stick" (a handle and a tapered shaft: a baton), "bow" (the bow of a violin '
-                     'or a cello). In the scene, a node of its own: "piano" (a grand piano), '
-                     '"bench" (a piano bench), "chair" (an orchestra chair), "music_stand", '
-                     '"violin", "cello".', default='stick'),
+                     'or a cello), "violin" (held at the neck, the violinist). In the scene, a '
+                     'node of its own: "piano" (a grand piano), "bench" (a piano bench), "chair" '
+                     '(an orchestra chair), "music_stand", "violin", "cello".', default='stick'),
     'attach': T('Where the prop attaches.', {
         'bone': F('str', '"hand": a bone of its own, a child of the hand of "side", and the '
                          'mesh joined into the mesh of the animal, rigid on that bone. "scene": a '
@@ -753,8 +753,11 @@ ROLE_PROP = T('One prop of the role.', {
     }),
     'tip_marker': F('str', 'Name of the empty node at the tip (the viewer draws its path).',
                     default=None),
-    'grip': F('vec3', 'Grip point in the hand frame, from the middle of the paw (a stick).', default=None),
-    'direction': F('vec3', 'Direction of the shaft in the hand frame (a stick).', default=None),
+    'grip': F('vec3', 'Grip point in the hand frame, from the middle of the paw (a stick, a '
+                      'bow, or the neck of a violin in a hand).', default=None),
+    'direction': F('vec3', 'Direction of the shaft in the hand frame (a stick or a bow), or of '
+                           'the violin axis from the neck to the scroll (a violin in a hand).',
+                   default=None),
     'length': F('num', 'Length from the grip to the tip (a stick).', default=None),
     'handle': T('The handle of a stick: a tube from behind the grip to just past it.', {
         'back': F('num', 'Length behind the grip.'),
@@ -867,6 +870,10 @@ ROLE_PROP = T('One prop of the role.', {
                               'degrees.', default=0.0),
         'hair': F('vec3', 'Direction of the hair of a bow in the hand frame (a bow).',
                   default=(0.0, 0.0, 1.0)),
+        'top': F('vec3', 'Direction of the top plate of a violin in the hand frame (a violin in a '
+                         'hand).', default=(0.0, 1.0, 0.0)),
+        'neck': F('num', 'Place of the grip on a violin in a hand: a share of the length from the '
+                         'tail end (the left paw in the first position).', default=0.75),
         'bow_for': F('str', 'The instrument of a bow: "violin" or "cello".', default='violin'),
         'colors': T('The colors.', {
             'wood': F('rgb', 'The ribs, the back edge, the neck.', default=(122, 58, 32)),
