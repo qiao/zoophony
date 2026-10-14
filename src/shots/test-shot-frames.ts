@@ -839,7 +839,9 @@ export function describeShotFrames(scenes: readonly ShotScene[]): void {
             checked++;
           }
         }
-        expect(checked).toBeGreaterThanOrEqual(6);
+        // Two times of each solo shot of the soloist: 2 solo shots since the higher seats of
+        // 2026-10-14 (`films the soloist of K. 315` of `shots/prepare.test.ts`).
+        expect(checked).toBeGreaterThanOrEqual(4);
       });
     }
   });

@@ -8,6 +8,7 @@ import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
 import type { RequiredStudioBone } from '../src/models/studio-format.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
+import type { AnimalSettings } from './studio-body.ts';
 import {
   ANIMALS,
   headFactorOf,
@@ -370,13 +371,36 @@ describe('pnpm studio-body --inspect (design 4.4)', async () => {
   });
 });
 
+/**
+ * Gives the settings of an animal with no seat height, so that the export drops a seated body
+ * until its lowest point is on the floor.
+ *
+ * @param settings The settings.
+ * @returns The settings with no seat height.
+ */
+function onFloor(settings: AnimalSettings): AnimalSettings {
+  const floor: AnimalSettings = {
+    landmark: settings.landmark,
+    height: settings.height,
+    seated: settings.seated,
+    soloist: settings.soloist,
+    constant: settings.constant,
+    crease: settings.crease,
+  };
+  if (settings.glb) {
+    return { ...floor, glb: settings.glb };
+  }
+  return floor;
+}
+
 describe('pnpm studio-body with a seated body that also stands (design 4.4)', async () => {
   const source = 'lowpoly-studio/animals/rabbit/out/rabbit.glb';
   const bytes = await readFile(join(import.meta.dirname, '..', source));
-  const settings = ANIMALS.get('rabbit');
-  if (!settings) {
+  const rabbit = ANIMALS.get('rabbit');
+  if (!rabbit) {
     throw new Error('The rabbit has no settings.');
   }
+  const settings = onFloor(rabbit);
   const { body, sheetWeights } = studioBody(bytes, source, settings);
   const mesh = unpackStudioMesh(body.mesh);
   const facts = inspectStudioGlb(bytes, settings);
@@ -605,7 +629,7 @@ describe('pnpm studio-body with a seat height in the settings (design 4.4)', asy
     throw new Error('The rabbit has no settings with a GLB file.');
   }
   const bytes = await readFile(join(import.meta.dirname, '..', settings.glb));
-  const { seat: _seat, ...floor } = settings;
+  const floor = onFloor(settings);
 
   it('puts the seat top at the height of the settings, with the feet above the floor', () => {
     const high = studioBody(bytes, settings.glb ?? '', { ...floor, seat: 0.3 }).body;

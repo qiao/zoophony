@@ -561,7 +561,9 @@ quarter of the folded faces.
 - A seated role binds its mesh seated: the legs bend for the seat, and the hips keep their
   standing height. The export drops such a body until the lowest point of its skin is on the
   floor, and moves it so that the front edge of the seat of the studio (the bench or the chair)
-  meets the front edge of the seat of the app. `StudioBody.floor` is the point on the floor under
+  meets the front edge of the seat of the app. A seated role with a seat height in `ANIMALS` (the
+  rabbits and the red foxes, since the user said on 2026-10-14 that hanging feet may be cuter)
+  then rises until its seat is at that height, and its feet hang above the floor. `StudioBody.floor` is the point on the floor under
   the body, and the piano stands in front of it (4.6). `StudioBody.seatHeight` is the height of a
   flat seat under the body: the lowest point of the body over the seat, so that the body rests on
   it and no part goes into it. The seat height of the skeleton of the species is that height, so

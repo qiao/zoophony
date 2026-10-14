@@ -558,7 +558,10 @@ describe('the soloist and the first voice (design 5.6, UX audit 2026-10-05, SC4)
     const { soloist } = scene.score;
     const place = scene.layout.players.find((p) => p.cast.seatIndex === soloist);
     const shots = scene.plan.shots.filter((s) => s.kind === 'solo' && s.seats[0] === soloist);
-    expect(shots.length).toBeGreaterThanOrEqual(3);
+    // Since the higher seats and the larger red fox of 2026-10-14, the seated players hide the
+    // low cameras of the solo of the horns at 78.3 s. The plan then takes a side shot that holds
+    // the soloist, so its solo shot of 93.9 s drops out, and 2 solo shots of the soloist stay.
+    expect(shots.length).toBeGreaterThanOrEqual(2);
     for (const shot of shots) {
       // The target is above the soloist, and the camera looks at its front from the audience.
       expect(shot.target[0]).toBeCloseTo(place?.position[0] ?? NaN, 6);

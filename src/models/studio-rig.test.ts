@@ -266,8 +266,12 @@ describe('studioRig for a seated body that also stands (design 4.4)', () => {
     return low;
   };
 
-  it('puts the soles on the floor in each stance', () => {
-    expect(Math.abs(lowest(seated.mesh.positions))).toBeLessThan(0.005);
+  it('puts the soles on the floor when it stands, and the seated feet at most on the floor', () => {
+    // The seat of the rabbit is higher than its legs since 2026-10-14 (`seat` of `ANIMALS`), so
+    // its seated feet hang above the floor, under the seat. No part goes into the floor.
+    const seat = STUDIO_RABBIT.seatHeight ?? 0;
+    expect(lowest(seated.mesh.positions)).toBeGreaterThan(-0.005);
+    expect(lowest(seated.mesh.positions)).toBeLessThan(seat);
     expect(Math.abs(lowest(standing.mesh.positions))).toBeLessThan(0.005);
     expect(standing.body.floor).toEqual([0, 0, 0]);
     expect(standing.body.seatHeight).toBeNull();

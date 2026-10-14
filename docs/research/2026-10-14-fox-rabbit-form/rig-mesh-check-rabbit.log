@@ -1,6 +1,6 @@
 
 > zoophony@0.0.0 rig-mesh /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fox-rabbit-form
-> node tools/rig-mesh.ts rabbit --check --preview scratch/rig/check-rabbit3
+> node tools/rig-mesh.ts rabbit --check
 
 Shoulder joint at 0.58 u, 1.4678 m for each unit. Reach L: 0.3241 m with no factor, 0.4523 m with 1.445, and the factor 1.4454 gives 0.4524 m. Reach R: 0.3241 m with no factor, 0.4523 m with 1.445, and the factor 1.4454 gives 0.4524 m.
 rig_mesh: source: 1536 vertices, 3065 triangles, scale 0.525384
@@ -22,37 +22,30 @@ rig_mesh: corrective: the smallest determinant of the skin is 0.6878 at the vert
 rig_mesh: corrective: the clip gives the source back within 3.00e-16 u (0.0000 mm)
 rig_mesh: shape arm_down_L: 146 vertices, largest move 0.0274 u
 rig_mesh: shape arm_down_R: 131 vertices, largest move 0.0129 u
-rig_mesh: shape legs_straight_L: 99 vertices, largest move 0.0373 u
-rig_mesh: shape legs_straight_R: 92 vertices, largest move 0.0335 u
+rig_mesh: shape legs_straight_L: 99 vertices, largest move 0.0371 u
+rig_mesh: shape legs_straight_R: 92 vertices, largest move 0.0334 u
 rig_mesh: chair: the tail goes 0.0113 u over the seat top at its lowest point over the seat
-rig_mesh: chair: front edge at z -0.03 u, the shins and the feet from z 0.0648 u
-rig_mesh: chair: seat top 0.2375 u, lowest point of the body 0.0908 u
+rig_mesh: chair: front edge at z -0.03 u, the shins and the feet from z 0.0629 u
+rig_mesh: chair: seat top 0.2375 u, lowest point of the body 0.0605 u
 rig_mesh: triangles: 3100 (36 gloss)
-rig_mesh: wrote /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-mKfneY/rabbit.rig.glb: 370840 bytes
-rig_mesh: preview: scratch/rig/check-rabbit3/seated.png
-rig_mesh: preview: scratch/rig/check-rabbit3/standing.png
-rig_mesh: preview: scratch/rig/check-rabbit3/tail.png
-rig_mesh: preview: scratch/rig/check-rabbit3/tail-bones.png
-rig_mesh: preview: scratch/rig/check-rabbit3/knees.png
-rig_mesh: preview: scratch/rig/check-rabbit3/bones.png
-rig_mesh: preview: scratch/rig/check-rabbit3/bones-standing.png
-Rig: 370840 B, sha256 fde61cb674069885032ff99acbace623fe0f5d3d20e1e4af3b710619893eacbe.
+rig_mesh: wrote /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-UrmkNr/rabbit.rig.glb: 370840 bytes
+Rig: 370840 B, sha256 5da6aa0f0d2aa8a6940f594108a1c40231797bea1f1d99344e59c355f824fcda.
 Triangles: 3100 of the budget of 3200 of a studio body.
-Finished in 9ms on 1 files using 10 threads.
-Module: 45,491 B, 25,633 B after gzip. Packed mesh: 24,421 B after gzip, budget 32,000 B (src/models/studio-size.test.ts).
-Scale 1.46779 m for each unit. Head height H 0.323 m. Seat height 0.215 m. Chair depth 0.225 m.
+Finished in 5ms on 1 files using 10 threads.
+Module: 45,627 B, 25,700 B after gzip. Packed mesh: 24,480 B after gzip, budget 32,000 B (src/models/studio-size.test.ts).
+Scale 1.46779 m for each unit. Head height H 0.323 m. Seat height 0.300 m. Chair depth 0.225 m.
 Arm from the shoulder joint to the middle of the palm: L 0.452 m, R 0.452 m.
-Lowest point above the floor, seated bind (seat height 0.215 m): leg L 0.000 m, leg R 0.000 m, tail 0.232 m. Standing body: leg L 0.000 m, leg R 0.000 m, tail 0.365 m.
-Standing body against the long-armed source: 0.317 mm at most (limit 1.000 mm), 0.317 mm back, 1554 vertices, 23 eye vertices left out.
+Lowest point above the floor, seated bind (seat height 0.300 m): leg L 0.041 m, leg R 0.040 m, tail 0.317 m. Standing body: leg L 0.000 m, leg R 0.000 m, tail 0.365 m.
+Standing body against the long-armed source: 0.268 mm at most (limit 1.000 mm), 0.268 mm back, 1554 vertices, 23 eye vertices left out.
 Thin faces near the joints of the limbs (corner below 10°, longest edge from 0.08 u, joint within 0.1 u), candidates for a ring:
-  elbow L: 836 (6.2°, 0.161 m, 0.057 m from the joint), 841 (9.1°, 0.127 m, 0.062 m from the joint), 842 (3.9°, 0.127 m, 0.062 m from the joint), 864 (5.5°, 0.153 m, 0.058 m from the joint), 946 (4.4°, 0.159 m, 0.048 m from the joint), 949 (4.8°, 0.179 m, 0.040 m from the joint), 1703 (5.0°, 0.147 m, 0.058 m from the joint), 1704 (8.6°, 0.140 m, 0.061 m from the joint)
+  elbow L: 836 (6.2°, 0.161 m, 0.057 m from the joint), 841 (9.1°, 0.127 m, 0.062 m from the joint), 842 (3.9°, 0.127 m, 0.062 m from the joint), 864 (5.4°, 0.153 m, 0.058 m from the joint), 946 (4.4°, 0.159 m, 0.048 m from the joint), 949 (4.7°, 0.179 m, 0.040 m from the joint), 1703 (5.1°, 0.147 m, 0.058 m from the joint), 1704 (8.7°, 0.140 m, 0.061 m from the joint)
   elbow R: 86 (7.3°, 0.185 m, 0.045 m from the joint), 87 (8.4°, 0.185 m, 0.045 m from the joint), 112 (2.7°, 0.184 m, 0.051 m from the joint), 242 (4.2°, 0.151 m, 0.049 m from the joint), 245 (6.9°, 0.203 m, 0.042 m from the joint), 246 (7.4°, 0.192 m, 0.048 m from the joint), 272 (5.1°, 0.139 m, 0.103 m from the joint)
-  wrist L: 1677 (4.1°, 0.157 m, 0.040 m from the joint)
+  wrist L: 1677 (4.2°, 0.157 m, 0.040 m from the joint)
   hip L: 2197 (1.9°, 0.150 m, 0.106 m from the joint)
-  knee L: 465 (8.4°, 0.136 m, 0.078 m from the joint)
-  knee R: 1444 (8.6°, 0.136 m, 0.079 m from the joint)
-  ankle L: 462 (9.3°, 0.122 m, 0.091 m from the joint), 1588 (7.2°, 0.125 m, 0.079 m from the joint), 1589 (8.0°, 0.125 m, 0.079 m from the joint)
-  ankle R: 1447 (9.2°, 0.122 m, 0.091 m from the joint), 2180 (7.4°, 0.131 m, 0.046 m from the joint), 2186 (7.3°, 0.124 m, 0.082 m from the joint)
+  knee L: 465 (8.4°, 0.136 m, 0.078 m from the joint), 804 (9.9°, 0.136 m, 0.054 m from the joint)
+  knee R: 1444 (8.6°, 0.136 m, 0.079 m from the joint), 2693 (9.1°, 0.119 m, 0.061 m from the joint)
+  ankle L: 462 (9.2°, 0.123 m, 0.090 m from the joint), 1588 (7.0°, 0.127 m, 0.078 m from the joint), 1589 (6.6°, 0.127 m, 0.078 m from the joint)
+  ankle R: 1447 (9.2°, 0.123 m, 0.090 m from the joint), 2180 (5.9°, 0.143 m, 0.044 m from the joint), 2186 (6.3°, 0.126 m, 0.081 m from the joint)
 
 hold-reach rabbit with the body of the rig:
 rabbit with the violin on the chair, hold violin@rabbit (SPECIES_HOLDS):
@@ -74,13 +67,13 @@ Demos: bach-bwv1047.mid, bach-bwv1048.mid, bach-bwv1050.mid, beethoven-1.mid, be
 | Set | Samples | With a fold | Share | Most faces | Worst sample |
 |---|---:|---:|---:|---:|---|
 | rest | 14 | 14 | 100.0% | 7 | bach-bwv1047.mid rest |
-| play | 17788 | 1093 | 6.1% | 2 | boulanger-matin.mid 24.13 s |
-| lift | 434 | 112 | 25.8% | 9 | boulanger-matin.mid wall 0.6 s |
-| all | 18236 | 1219 | 6.7% | 9 | boulanger-matin.mid wall 0.6 s |
+| play | 17788 | 1069 | 6.0% | 2 | boulanger-matin.mid 172.13 s |
+| lift | 434 | 112 | 25.8% | 9 | boulanger-matin.mid wall 0.5 s |
+| all | 18236 | 1195 | 6.6% | 9 | boulanger-matin.mid wall 0.5 s |
 
-Folded faces of all samples by the main studio bone: upper_arm_R 1528, upper_arm_L 279, forearm_L 99, hand_L 28
+Folded faces of all samples by the main studio bone: upper_arm_R 1542, upper_arm_L 241, forearm_L 99, hand_L 28
 
 | Variant | Triangles | Mesh gzip B | Seat m | Chair m | Reach L m | Reach R m | Standing mm | violinist play | violinist lift | violinist rest |
 |---|---|---|---|---|---|---|---|---|---|---|
-| base | 3100 | 24421 | 0.215 | 0.225 | 0.452 | 0.452 | 0.317 | 6.1% | 25.8% | 100.0% |
+| base | 3100 | 24480 | 0.300 | 0.225 | 0.452 | 0.452 | 0.268 | 6.0% | 25.8% | 100.0% |
 exit 0

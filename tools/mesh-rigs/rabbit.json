@@ -11,7 +11,7 @@
   "armFactor": 1.445,
   "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh prints the reach and stops when it is more than 1% from app.reach.",
   "legFactor": 1.75,
-  "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.105 units, so that the soles stay at y 0. The user asked for longer legs and a higher seat on 2026-10-14, and then said that the legs of the factor 2.5 were too long. The seat is 0.215 m high, 0.67 H (0.123 m before). The factor 2.75 gave the seat of the reference rabbit (1.03 H against 1.07 H), with standing animals that were too tall (docs/research/2026-10-14-fox-rabbit-form.md).",
+  "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.105 units, so that the soles stay at y 0. The user asked for longer legs and a higher seat on 2026-10-14, and then said that the legs of the factor 2.5 were too long. The legs give a seat of 0.215 m, 0.67 H (0.123 m before), and the chair of the app is 0.30 m high (seat of ANIMALS), so the feet hang. The factor 2.75 gave the seat of the reference rabbit (1.03 H against 1.07 H), with standing animals that were too tall (docs/research/2026-10-14-fox-rabbit-form.md).",
   "joints": {
     "root": { "head": [0, 0, 0], "tail": [0, 0, 0.1], "roll": [0, 1, 0] },
     "hips": { "head": [0, 0.2, -0.01], "tail": "spine" },
@@ -39,15 +39,15 @@
     "legTurns": {
       "thigh": [0.577901, 0.030451, -0.075797, 0.812009],
       "shin": [0.170381, 0, 0.034076, 0.984789],
-      "foot": [0, 0, 0, 1],
-      "toes": [0, 0, 0, 1]
+      "foot": [-0.172681, -0.006863, 0.011069, 0.984892],
+      "toes": [-0.172681, -0.006863, 0.011069, 0.984892]
     },
     "bindArms": {
       "upper_arm": [0.813873, -0.143043, 0.563161],
       "forearm": [0.316246, 0.757051, 0.571719],
       "hand": [-0.078782, 0.677317, 0.731461]
     },
-    "note": "The seat of a long thigh, made with docs/research/2026-10-14-fox-rabbit-form/leg_turns.py: legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The thigh lies on the seat, 10 degrees below the level and 8 degrees out, the shin hangs straight down under the knee (the shin of the source slants 20 degrees back), and the foot and the toes keep the turn of the source, so that the soles stay flat. The seat of the studio rabbit (a thigh turn of 57 degrees) left the longer thighs slanted down, with the knees low in front of the chair. The bind arms are the bind arms of the studio rabbit (lowpoly-studio/animals/rabbit/out/rabbit.glb), from docs/research/2026-10-13-rabbit-mesh/studio-targets.ts: the unit direction of each left arm bone in the bind pose."
+    "note": "The seat of a long thigh, made with docs/research/2026-10-14-fox-rabbit-form/leg_turns.py: legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The thigh lies on the seat, 10 degrees below the level and 8 degrees out, the shin hangs straight down under the knee (the shin of the source slants 20 degrees back), and the foot and the toes turn 20 degrees further down than in the source, as relaxed feet that hang above the floor. The seat of the studio rabbit (a thigh turn of 57 degrees) left the longer thighs slanted down, with the knees low in front of the chair. The bind arms are the bind arms of the studio rabbit (lowpoly-studio/animals/rabbit/out/rabbit.glb), from docs/research/2026-10-13-rabbit-mesh/studio-targets.ts: the unit direction of each left arm bone in the bind pose."
   },
   "weights": {
     "armSplit": 0.106,
@@ -104,6 +104,6 @@
     "front": -0.03,
     "back": -0.16,
     "backHeight": 0.15,
-    "note": "The chair has the depth of the chair of the studio rabbit (0.123 to 0.13). Its front edge lies behind the heels of the seated bind (z 0.065 with the leg factor, pnpm rig-mesh prints it), so that no foot lies over the seat, and the haunch (z -0.04 to -0.19) sits on it. The seat top is the lowest point of the seated body over the seat."
+    "note": "The chair has the depth of the chair of the studio rabbit (0.123 to 0.13). Its front edge lies behind the heels of the seated bind (z 0.063 with the leg factor, pnpm rig-mesh prints it), so that no foot lies over the seat, and the haunch (z -0.04 to -0.19) sits on it. The seat top is the lowest point of the seated body over the seat."
   }
 }
