@@ -82,8 +82,14 @@ export interface RoleViews {
   readonly notes: string | null;
 }
 
-/** A role with a close view: the bear conductor, the polar bear pianist, or the rabbit violinist. */
-export type CloseRole = 'conductor' | 'pianist' | 'violinist';
+/**
+ * A role with a close view: the bear conductor, the polar bear pianist, the rabbit violinist, or
+ * the red fox violinist.
+ */
+export type CloseRole = 'conductor' | 'pianist' | 'violinist' | 'fox-violinist';
+
+/** The roles with a close view, in the order of the usage text. */
+const CLOSE_ROLES: readonly CloseRole[] = ['conductor', 'pianist', 'violinist', 'fox-violinist'];
 
 /**
  * The close views of the roles (design 7.1):
@@ -98,6 +104,9 @@ export type CloseRole = 'conductor' | 'pianist' | 'violinist';
  * - The violinist: the front, both sides, and the back. The moments are the frog and the tip of a
  *   whole bow on the A string, a string crossing from the G string to the E string, the rest
  *   pose, and the standing soloist at the frog.
+ * - The red fox violinist of the second violins: the views and the moments of the violinist. The
+ *   side views and the back view also show the tail, which goes back over the seat and through
+ *   the open back of the chair.
  *
  * A new role gives its species, its views, its moments, and its test notes, with the camera
  * `{ kind: 'body', zoom: 1, elevation }`.
@@ -172,6 +181,25 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
     ],
     camera: { kind: 'body', zoom: 1, elevation: 20 },
     // A whole down-bow on A4, then a string crossing from G3 to E5.
+    notes: ['0.5 2 A4', '3 0.25 G3', '3.25 0.25 E5', '3.5 0.25 G3'].join('\n'),
+  },
+  'fox-violinist': {
+    species: 'fox-red',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'frog', time: 0.55, rest: false },
+      { name: 'tip', time: 2.4, rest: false },
+      { name: 'crossing', time: 3.25, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      { name: 'stand', time: 0.55, rest: false, stand: true },
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // The test notes of the violinist.
     notes: ['0.5 2 A4', '3 0.25 G3', '3.25 0.25 E5', '3.5 0.25 G3'].join('\n'),
   },
 };
@@ -334,7 +362,7 @@ async function grid(
  * @returns The role, or `null` for a name that is not a role.
  */
 export function roleOf(name: string | undefined): CloseRole | null {
-  return name === 'conductor' || name === 'pianist' || name === 'violinist' ? name : null;
+  return CLOSE_ROLES.find((role) => role === name) ?? null;
 }
 
 /** The command line of the close views. */
@@ -475,7 +503,7 @@ async function main(): Promise<void> {
   const args = closeViewsArgs(process.argv.slice(2));
   if (!args) {
     console.error(
-      'Usage: pnpm close-views <conductor|pianist|violinist> <output directory> [--url <url>] [--base <ref>]',
+      `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--url <url>] [--base <ref>]`,
     );
     process.exit(1);
   }

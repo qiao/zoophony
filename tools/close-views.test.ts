@@ -97,6 +97,7 @@ describe('closeViewPath', () => {
 
   it('reads the role of the command line', () => {
     expect(roleOf('violinist')).toBe('violinist');
+    expect(roleOf('fox-violinist')).toBe('fox-violinist');
     expect(roleOf('pianist')).toBe('pianist');
     expect(roleOf('conductor')).toBe('conductor');
     expect(roleOf('drummer')).toBeNull();
