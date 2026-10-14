@@ -4,7 +4,7 @@ import { note, programChange, tempo, timeSignature, track } from '../midi/test-s
 import type { TestFile } from '../midi/test-smf.ts';
 import { describeRoleClearance, describeSceneClearance } from './test-role-clearance.ts';
 import { sceneOf } from './test-scene.ts';
-import { STANDING_VIOLINIST_SWEEP, VIOLINIST_SWEEP } from './test-sweep-roles.ts';
+import { VIOLINIST_SWEEP } from './test-sweep-roles.ts';
 
 /**
  * The number of shard files of the test of the violinist clearance
@@ -49,20 +49,18 @@ const SOLO_VIOLIN: TestFile = {
 
 /**
  * Registers the tests of the clearance of a standing violinist (design 4.4, 5.2): the sweep of
- * {@link STANDING_VIOLINIST_SWEEP} for the standing rabbit of a solo violin, built with the real
- * `midi/` and `score/` modules.
+ * {@link VIOLINIST_SWEEP} for the standing rabbit of a solo violin, built with the real `midi/`
+ * and `score/` modules. The standing rabbit has the limits of the seated rabbits.
  */
 export function describeStandingViolinistClearance(): void {
   describe('the clearance of the standing violinist (design 9.3)', () => {
     const scene = sceneOf(SOLO_VIOLIN, 1, 'one-per-part');
 
     it('stands the rabbit of a solo violin', () => {
-      const supports = STANDING_VIOLINIST_SWEEP.players(scene).map(
-        (player) => player.model.support,
-      );
+      const supports = VIOLINIST_SWEEP.players(scene).map((player) => player.model.support);
       expect(supports).toEqual(['stand']);
     });
 
-    describeSceneClearance(STANDING_VIOLINIST_SWEEP, scene, 'a solo violin');
+    describeSceneClearance(VIOLINIST_SWEEP, scene, 'a solo violin');
   });
 }

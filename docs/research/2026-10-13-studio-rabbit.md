@@ -97,9 +97,10 @@ The demos have no standing rabbit. A solo violin with one player for each part s
 and pizzicato. `standing-sweep.ts` prints its deepest pairs (`standing-sweep.txt`). In the lift,
 the right paw goes 1.9 cm and the right forearm 1.5 cm into the round belly, at the wall time
 10.60 s: the arm lifts the bow from the side rest across the side of the belly. Each other pair
-stays within the contact depth of 1.5 cm. `STANDING_VIOLINIST_SWEEP` of
-`pose/test-sweep-roles.ts` accepts 2.5 cm for the paws and the forearms in the lift of a standing
-rabbit only. The seated rabbits keep the limits of `VIOLINIST_SWEEP`.
+stays within the contact depth of 1.5 cm. Until the arms of round 4 (section 9), a sweep of its
+own accepted 2.5 cm for the paws and the forearms in the lift of a standing rabbit only. Since
+round 4, the standing rabbit has the limits of the seated rabbits (`VIOLINIST_SWEEP` of
+`pose/test-sweep-roles.ts`).
 
 Open problem: the standing rabbit has a dark pinch behind each knee, under the haunch. The review of
 the branch found it in the "stand" tiles of the close views on `119c63da` (`violinist-views.webp`).
