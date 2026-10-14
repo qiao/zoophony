@@ -22,6 +22,7 @@
     "pose-probe": "node tools/pose-probe.ts",
     "pose-depth": "node tools/pose-depth.ts",
     "hold-reach": "node tools/hold-reach.ts",
+    "hold-fit": "node tools/hold-fit.ts",
     "choir-check": "pnpm build && node tools/choir-check.ts",
     "body-probe": "node tools/body-probe.ts",
     "keyboard": "pnpm build && node tools/keyboard-check.ts",

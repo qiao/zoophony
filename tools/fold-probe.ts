@@ -282,7 +282,7 @@ function countPose(model: PlayerModel, pose: AnimalPose, label: string, count: F
 }
 
 /** One studio body of a role in a scene. */
-interface RoleBody {
+export interface RoleBody {
   /** The index of the player in the layout, or `null` for the conductor. */
   readonly index: number | null;
   /** The player model, with its studio rig. */
@@ -298,7 +298,7 @@ interface RoleBody {
  * @param scene The scene of a demo.
  * @returns The bodies with a studio rig, or none when the scene has no body of the role.
  */
-function roleBodies(role: RoleSource, scene: TestScene): RoleBody[] {
+export function roleBodies(role: RoleSource, scene: TestScene): RoleBody[] {
   if (role.kind === 'conductor') {
     const model = scene.models.get(CONDUCTOR.species, CONDUCTOR.instrument, 4);
     return scene.plan.conductor && model.studio ? [{ index: null, model }] : [];
