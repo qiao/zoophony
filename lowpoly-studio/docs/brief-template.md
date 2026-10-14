@@ -74,6 +74,17 @@ each item.
 - Role pack: `roles/<role>/` (<exists, or "new in this round">). Stance: <standing or seated>.
 - Bind pose: <shoulder_flex, shoulder_abduct, elbow_flex, hip_flex, knee_flex, hip_abduct>,
   and the reason (the middle of the motion range). (The pianist: 42, 8, 40, 70, 70, 14.)
+- A seated role on an animal with short legs or a large belly: build the bind pose on 2 seeds
+  before the clips are written (`python3 studio build <id> --seed <s> --until organic`, the
+  remesh gate). (On the rabbit, the pianist values 70, 70, 14 made slits on each seed and cost
+  4 role builds, about 15 min.)
+- A held instrument (a violin): the build prints the reach line (README of the studio, "The
+  reach line of a held instrument"): the arm reach to the middle of the palm, the instrument
+  length, their ratio, and the largest share of the reach that the IK targets ask for. The
+  agent reports a ratio outside the range of a real player (0.9 to 1.1) or a target past the
+  reach (above 1) as a blocker for the app, unless the user decided the size. (The rabbit of
+  round 1: ratio 0.757, targets up to 1.13 of the reach. Nobody marked it, and a round of the
+  arms followed.)
 - Rig: <`[rig] fingers`: 1, or one digit for each claw (the pianist: 4)>.
 - Props: <each prop and its kind: in a hand `stick` or `bow`, in the scene `piano`, `bench`,
   `chair`, `music_stand`, `violin`, or `cello`. The studio sizes them from the body: give a
@@ -136,6 +147,11 @@ GLB).>
   `seeds.require = "kept"` the exit code says nothing about the other seeds.
 - Judge the look only on current look checks: a build with `--no-shots` marks them stale, and
   `python3 studio compare <id>` makes them current.
+- After each round, compare `out/compare/face_front.png`, `out/compare/face_side.png`, and the
+  ear crops (`out/report/features/ears_*.png`) with the sheet by eye. List each visible
+  difference with a measure, also when the checks pass. (Round 1 of the rabbit tuned only to the
+  IoU and the feature checks. It missed a pointed muzzle, upright ears, and a pink inner ear of
+  87% of the ear area against 50% on the sheet, and round 2 fixed them in 40 minutes.)
 - Commit after each part. Update the handoff file after each finished step. Take each time of
   a report or a handoff from `python3 studio log <id>`.
 - Write in ASD-STE100 Simplified Technical English, with no em dashes.
@@ -156,6 +172,12 @@ Reply with these parts, in this order, and nothing else:
 
 ## Failing checks
 | Check | Value | Limit | Place and crop | Verdict: fixed, open, or limit of the sheet |
+
+## Differences by eye (also when the checks pass)
+| Part | View and crop | Sheet | Model | Measure | Verdict |
+
+## Reach (a role with a held instrument)
+<the reach line of the build, and "blocker for the app" or "in the range">
 
 ## Times (from `python3 studio log <id>`)
 | Part | Start | End | Minutes |
