@@ -244,23 +244,16 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  * 4.6): the chin hold, with the violin to the left and up, turned from the left toward the front,
  * and the scroll down. The violin rests on the chest under the chin, where the large head of the
  * rabbit puts its jaw. The back stays straight, as a real violinist sits (2026-10-13-studio-rabbit
- * decisions). The bow lies nearly square across the strings. The short arms change three values of
- * the chin hold, each from a sweep of `pnpm pose-depth violinist`:
- *
- * - The right elbow points out, forward, and a little up: down, as in the chin hold, the forearm
- *   went into the round belly in the lift of the violin.
- * - The right shoulder turns further forward, so that the bow paw reaches the pluck place of a
- *   pizzicato without the upper arm in the chest.
- * - The rest pose holds the violin at the left side: the round belly covers the short thighs, so
- *   the lap place of the chin hold was on the top of the belly, and the bow went into it.
+ * decisions). The bow lies nearly square across the strings. The right arm has the elbows and the
+ * shoulder turn of the chin hold: with the longer arms of the studio round 4, the sweep of `pnpm
+ * pose-depth violinist` keeps the right arm within the contact depth of the body. The rest pose
+ * holds the violin at the left side: the round belly covers the short thighs, so the lap place of
+ * the chin hold was on the top of the belly, and the bow went into it.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
   playShift: [-0.15, 0.06, 0],
   playTurn: violinTurn(-25, -8),
-  poleR: [1.5, 0.6, -1],
-  reach: 45 * MathUtils.DEG2RAD,
-  poleTipR: CHIN_HOLD.poleR,
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
   restAtSide: true,
