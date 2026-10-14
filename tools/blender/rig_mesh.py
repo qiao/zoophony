@@ -12,10 +12,10 @@ reads it (route 3 of `AGENTS.md`). The steps:
    +x the left side of the animal.
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, and give
-   the weights with bone heat. Then the rules of the config: the free arm, the paw, the head, the
-   ears, the tail ball, the haunch, one set of weights for the corners of each short thin face,
-   and the weights of the line for the middle corner of each long thin face. Each vertex keeps
-   four bones, in steps of 1/255.
+   the weights with bone heat. Then the rules of the config: the free arm, the paw, the head and
+   the shoulders, the ears, the tail ball, the haunch, one set of weights for the corners of each
+   short thin face, and the weights of the line for the middle corner of each long thin face.
+   Each vertex keeps four bones, in steps of 1/255.
 4. Make the upper arm and the forearm longer by the arm factor of the config. Each bone scales
    along its axis, and the weights blend the stretch to 0 at the shoulder. The paw keeps its size.
 5. Change the faces of the arms so that they bend at the joints: a ring of new vertices at each
@@ -526,6 +526,15 @@ def apply_rules(verts, tris, weights, rules, ends):
     w[:, col['tail']] = 0.0
     w[inside] = 0.0
     w[inside, col['tail']] = 1.0
+
+    # The shoulders below the head line give the weight of the head to the neck, so that a turn
+    # of the head does not pull them. The share grows from 0 at the smaller distance of
+    # `shoulderHead` from the middle plane to all at the larger distance.
+    if 'shoulderHead' in rules:
+        share = smoothstep(np.abs(verts[:, 0]), *rules['shoulderHead']) * (y < rules['headFrom'])
+        taken = w[:, col['head']] * share
+        w[:, col['head']] -= taken
+        w[:, col['neck']] += taken
 
     # The head: the eyes, the nose, and the whiskers follow the head only. Each ear follows its
     # ear bone above its base.
