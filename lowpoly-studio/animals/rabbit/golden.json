@@ -890,7 +890,8 @@
                     "merge_row": null,
                     "notch_row": 275,
                     "box_px": [127, 139, 189, 275],
-                    "dark": 0.16
+                    "dark": 0.16,
+                    "inner": 0.481
                   }
                 ]
               },
@@ -906,7 +907,8 @@
                     "merge_row": null,
                     "notch_row": 275,
                     "box_px": [125, 139, 186, 275],
-                    "dark": 0.0
+                    "dark": 0.0,
+                    "inner": 0.484
                   }
                 ]
               }
@@ -925,7 +927,8 @@
                     "merge_row": null,
                     "notch_row": 275,
                     "box_px": [229, 139, 294, 275],
-                    "dark": 0.0
+                    "dark": 0.0,
+                    "inner": 0.505
                   }
                 ]
               },
@@ -941,7 +944,8 @@
                     "merge_row": null,
                     "notch_row": 274,
                     "box_px": [234, 138, 295, 274],
-                    "dark": 0.0
+                    "dark": 0.0,
+                    "inner": 0.484
                   }
                 ]
               }
@@ -961,7 +965,8 @@
                     "top_row": 142,
                     "merge_row": 169,
                     "notch_row": 278,
-                    "box_px": [83, 142, 125, 278]
+                    "box_px": [83, 142, 125, 278],
+                    "lean": 9.82
                   }
                 ]
               },
@@ -976,7 +981,8 @@
                     "top_row": 142,
                     "merge_row": null,
                     "notch_row": 278,
-                    "box_px": [106, 142, 180, 278]
+                    "box_px": [106, 142, 180, 278],
+                    "lean": 9.51
                   }
                 ]
               }
@@ -1408,11 +1414,14 @@
     "ear_width.front.left_in_image": true,
     "ear_height.front.left_in_image": true,
     "ear_dark.front.left_in_image": false,
+    "ear_inner.front.left_in_image": true,
     "ear_width.front.right_in_image": true,
     "ear_height.front.right_in_image": true,
     "ear_dark.front.right_in_image": true,
+    "ear_inner.front.right_in_image": true,
     "ear_width.side.ear": false,
     "ear_height.side.ear": true,
+    "ear_lean.side.ear": true,
     "ear_width.back.left_in_image": true,
     "ear_height.back.left_in_image": true,
     "ear_width.back.right_in_image": true,
@@ -1432,5 +1441,5 @@
     "claw_count.front.right_in_image": true,
     "facet_contrast": true
   },
-  "source": "Round 4: the arms reach 1.4 times to the middle of the palm (0.3146), the violin 0.234, the bow 0.29. Role seed 8, model seed 3."
+  "source": "Round 4: the arms reach 1.4 times to the middle of the palm (0.3146), the violin 0.234, the bow 0.29. Role seed 8, model seed 3. Retro: the ear measures inner and lean, and their checks (the same GLB)."
 }
