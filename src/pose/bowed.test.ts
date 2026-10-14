@@ -279,21 +279,27 @@ describe('poseBowed (design 5.3, 4.7)', () => {
   it('puts the left fingers on the strings and the left palm under them', () => {
     // The first palm was 0.063 m below the strings at the violin model size (0.08 m on the
     // violin), with the fingers beside the neck, so the hand did not touch the fingerboard. The
-    // distances fit the mitten of the parametric biped and the violin of the app. The studio
-    // rabbit is not here: its violin is 0.3 of that size (2026-10-13-studio-rabbit.md).
-    for (const player of players.filter((p) => !p.model.studio)) {
+    // distances across the neck scale with the violin of the species (design 4.6).
+    for (const player of players) {
+      const species = scene.layout.players[player.index]?.cast.species ?? 'fox-red';
+      const params: SpeciesParams = SPECIES[species];
+      const scale = params.violinScale ?? 1;
       for (const t of [0.3, 1.3, 2.25, 2.75]) {
         const posed = posedAt(scene, player, t);
-        const label = `${player.instrument} at ${t}`;
-        // The finger block reaches through the plane of the strings.
-        const heights = posedPart(posed, ['fingersL']).triangles.flatMap((triangle) =>
-          [triangle.a, triangle.b, triangle.c].map((corner) => stopOf(posed, corner).height),
-        );
-        expect(Math.max(...heights), label).toBeGreaterThan(0.01);
-        expect(Math.min(...heights), label).toBeLessThan(-0.01);
+        const label = `${species} ${player.instrument} at ${t}`;
+        // The finger block of the mitten reaches through the plane of the strings. The paw of a
+        // studio body has one finger bone, and its finger block stays at the side of the neck,
+        // under the plane of the strings (2026-10-13-studio-rabbit.md).
+        if (!player.model.studio) {
+          const heights = posedPart(posed, ['fingersL']).triangles.flatMap((triangle) =>
+            [triangle.a, triangle.b, triangle.c].map((corner) => stopOf(posed, corner).height),
+          );
+          expect(Math.max(...heights), label).toBeGreaterThan(0.01 * scale);
+          expect(Math.min(...heights), label).toBeLessThan(-0.01 * scale);
+        }
         // The palm is below the strings, near the neck.
         const palm = stopOf(posed, v(posedPoint(posed, 'handL', player.model.body.palmL)));
-        expect(palm.height, label).toBeLessThan(-0.005);
+        expect(palm.height, label).toBeLessThan(-0.005 * scale);
         expect(Math.hypot(palm.height, palm.side), label).toBeLessThan(
           0.25 * player.model.body.headHeight,
         );
