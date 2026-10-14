@@ -303,6 +303,39 @@ right upper arm folds in each rest sample and in 22.6% of the lift samples (`fol
 Round 3 had no fold in the rest and the lift. The fold is in the hanging right arm of the side
 rest, so it comes from the remesh of round 4. It is open for the studio.
 
+The folded face is face 248 of `upper_arm_R`, at the front of the right armpit, with the bind
+centroid (0.107, 0.497, -0.052) m. It is a thin face: its smallest angle is 15.8°, and its area is
+3.25 cm². It is the mirror of studio face 805 of `upper_arm_L` (0.0 mm off), the thin face that
+the near check of round 4 found. In the rest of Bach, the face turns 101.8° from its bind normal.
+With the weights of the arm corrective shapes at 0, it turns 80.9° and does not fold. Thus the
+arm-down corrective shape of the right arm (weight 0.62 in the rest) makes the fold. In the lift,
+the face turns 114.1°, 129.4°, 146.5°, and 168.1° at 0.3, 0.4, 0.5, and 0.6 s, more than the fold
+limit of the studio (120°). The rest row of `violinist-views.webp` shows no fault at the right
+armpit. `rest-fold.txt` gives these values, from
+`node docs/research/2026-10-13-studio-rabbit/rest-fold.ts` with the variants below as arguments.
+
+No hold value of the rest removes the fold. `standingRest()` of `pose/bowed-rig.ts` replaces
+`restPoleR` and `restBow` with `hangingArm()`. Thus `violin@rabbit.restPoleR=1,-0.3,0` and
+`violin@rabbit.restBow.tip=-1,0,0.3` keep the fold, and `violin@rabbit.reach=45deg` changes only
+the lift. The `HANG` constants of `src/pose/hang.ts` can remove it. `HANG.forward=30deg` and
+`HANG.bend=80deg` give no fold in the rest of Bach (`rest-fold.txt`). The review measured
+`forward` 30° with a temporary edit of `src/pose/hang.ts`, then `pnpm fold-probe violinist`,
+`pnpm fold-probe conductor`, `pnpm pose-depth violinist`, and `pnpm body-probe --base HEAD`:
+
+| Measure | `forward` 20° (now) | `forward` 30° |
+|---|---:|---:|
+| Violinist rest samples with a fold | 100% (`fold-round4.txt`) | 0% (`hang-forward30-fold-violinist.txt`) |
+| Violinist lift samples with a fold | 22.6% | 4.3% |
+| Conductor rest samples with a fold | 100% (`fold-conductor-round4.txt`) | 0% (`hang-forward30-fold-conductor.txt`) |
+| Conductor lift samples with a fold | 9.7% | 3.2% |
+| Deepest part of the violinist in an obstacle | 1.3 cm (`depth-round4.txt`) | 1.3 cm (`hang-forward30-depth.txt`) |
+| Pose sets that change against the tip (`pnpm body-probe --base HEAD`) | 0 of 672 | 120 of 672 (`hang-forward30-body-probe.txt`) |
+
+The 120 changed pose sets are the rest, the lift, and the lowering of 40 players: the rabbits,
+the conductor in each demo, the badgers, and the elephant timpani. The `HANG` constants are a
+change of design 5.2 for each player that hangs its arms, so this is a later choice. The fix of the
+studio is the thin face at the armpit, or the corrective shape.
+
 `pnpm body-probe --base main` (`body-probe-round4.txt`): 90 of 95 bodies, 22 of 23 players, and
 555 of 672 pose sets equal. These are the counts of round 3. The pose sets of the other players
 that change are the same as in section 7: the red foxes 6 and 7 and the conductor in Beethoven 8

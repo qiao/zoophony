@@ -88,8 +88,16 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
    which reach 0.377 m to the middle of the palm. The body of round 4 has 2,920 faces, within the
    app budget of 3,100. Open for the studio: in the side rest of the app, the right arm hangs, and
    one face of the right upper arm folds in each rest sample (`pnpm fold-probe violinist`, round 3:
-   none). It can be the mirror of face 805, the thin face near the left armpit that the near
-   check of round 4 found. Also open for the studio: the standing rabbit has
+   none). It is face 248 of `upper_arm_R`, at the front of the right armpit: the exact mirror of
+   face 805, the thin face near the left armpit that the near check of round 4 found (smallest
+   angle 15.8°, area 3.25 cm²). In the rest, it turns 101.8°. In the lift of the app, it turns
+   up to 168.1°, more than the fold limit of 120°. With the weights of the arm corrective shapes
+   at 0, it turns 80.9° and does not fold, so the arm-down corrective shape of the right arm makes
+   the fold. The studio fix is the thin face at the armpit, or the corrective shape. No hold
+   value of the rest in the app removes it. The `HANG` constants of `src/pose/hang.ts` can, with
+   120 more changed pose sets (design 5.2), as a later choice
+   (`docs/research/2026-10-13-studio-rabbit.md` section 9 of the repository). Also open for the
+   studio: the standing rabbit has
    a dark pinch behind each knee, under the haunch, in the back and the left views of the stand
    (`docs/research/2026-10-13-studio-rabbit/stand-knee-pinch.webp` of the repository). No face
    folds: the faces near the haunch pinch. The cause is likely the shapes `legs_straight_*`
