@@ -245,9 +245,10 @@ def linear(srgb):
 
 
 def face_colors(tris, uvs, texture, rules):
-    """Gives the sRGB color of each face, and a flag for each dark face. The color is the mean of
-    the texture samples of a grid on the face. A face with a share of dark samples of at least
-    `eyeShare` is dark, and takes the mean of its dark samples."""
+    """Gives the sRGB color of each face, and a flag for each dark face. A face with a share of
+    dark samples of at least `eyeShare` is dark, and takes the mean of its dark samples. Each
+    other face takes the mean of its samples that are not dark, so that the black gaps between
+    the islands of the texture do not darken a face at the edge of an island."""
     n = rules['samples']
     grid = np.array([(i / n, j / n, (n - i - j) / n) for i in range(n + 1) for j in range(n + 1 - i)])
     height, width, _ = texture.shape
@@ -264,7 +265,7 @@ def face_colors(tris, uvs, texture, rules):
             dark[f] = True
             colors[f] = samples[low].mean(axis=0)
         else:
-            colors[f] = samples.mean(axis=0)
+            colors[f] = samples[~low].mean(axis=0)
     return colors, dark
 
 
