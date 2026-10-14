@@ -176,6 +176,21 @@ describe('seatHeights (design 4.5)', () => {
     );
   });
 
+  it('keeps the back of a chair with a short seat, and moves its front edge back', () => {
+    const depthOf = (mesh: MeshData): [number, number] => {
+      let [front, back] = [Infinity, -Infinity];
+      for (let v = 0; v < mesh.positions.length / 3; v++) {
+        front = Math.min(front, mesh.positions[v * 3 + 2] ?? 0);
+        back = Math.max(back, mesh.positions[v * 3 + 2] ?? 0);
+      }
+      return [front, back];
+    };
+    const [front, back] = depthOf(buildChair(0.13, 0.2));
+    const [, standardBack] = depthOf(buildChair(0.13));
+    expect(back).toBeCloseTo(standardBack, 6);
+    expect(back - front).toBeCloseTo(0.2, 6);
+  });
+
   it('keeps the stool of the harp and the bench of the piano at the heights of the strings and the keys', () => {
     for (const species of [SPECIES.deer, SPECIES.rabbit, SPECIES.mouse, SPECIES.penguin]) {
       expect(seatHeights('stool', species)).toEqual({

@@ -12,6 +12,7 @@ import { box, quad } from './primitives.ts';
 import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
+import { STUDIO_BODIES } from './studio-body.ts';
 
 /**
  * The colors of the stage, the steps, the podium, and the choir risers (design 4.5, scene
@@ -73,6 +74,12 @@ export interface SeatHeights {
    * ring of the high stool.
    */
   readonly footHeight: number;
+  /**
+   * The depth of the seat of a chair under a studio body, in meters (`StudioBody.chairDepth`).
+   * The chair keeps its back, and its front edge is further back. The other seats, and the chair
+   * under the parametric biped, keep their own depth.
+   */
+  readonly seatDepth?: number;
 }
 
 /**
@@ -164,8 +171,14 @@ export function seatHeights(support: Support, species: SpeciesParams): SeatHeigh
   const proportions = proportionsOf(species);
   const legs = proportions.seatHeight * proportions.headHeight;
   switch (support) {
-    case 'chair':
-      return { seatHeight: legs, footHeight: 0 };
+    case 'chair': {
+      // A studio body sits on a chair as deep as the chair of the studio (design 4.4).
+      const depth =
+        species.body && species.body !== 'penguin' ? STUDIO_BODIES[species.body].chairDepth : null;
+      return depth === null
+        ? { seatHeight: legs, footHeight: 0 }
+        : { seatHeight: legs, footHeight: 0, seatDepth: depth };
+    }
     case 'stool':
       return { seatHeight: STOOL.seatHeight, footHeight: 0 };
     case 'high-stool':
@@ -221,20 +234,23 @@ function addBox(builder: MeshBuilder, part: Bounds, color: Rgb): void {
 
 /**
  * Builds a chair: a seat, four legs, two back posts, and a wide top rail (design 4.5). The seat
- * center is above the origin, and the back is at +z.
+ * center of the chair of design 4.5 is above the origin, and the back is at +z. A shorter seat
+ * keeps the back, and its front edge is further back (`StudioBody.chairDepth`).
  *
  * @param seatHeight The height of the seat, in meters.
+ * @param seatDepth The depth of the seat, in meters.
  * @returns The mesh data, with all vertices on bone 0.
  */
-export function buildChair(seatHeight: number): MeshData {
+export function buildChair(seatHeight: number, seatDepth: number = CHAIR.seatDepth): MeshData {
   const c = { ...CHAIR, seatHeight };
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.chair;
   const x = c.seatWidth / 2 - CHAIR_LEG / 2;
-  const z = c.seatDepth / 2 - CHAIR_LEG / 2;
+  const center = (c.seatDepth - seatDepth) / 2;
+  const z = seatDepth / 2 - CHAIR_LEG / 2 - center;
   addBox(
     builder,
-    centeredBox([0, c.seatHeight - 0.02, 0], [c.seatWidth, 0.04, c.seatDepth]),
+    centeredBox([0, c.seatHeight - 0.02, center], [c.seatWidth, 0.04, seatDepth]),
     color,
   );
   for (const side of [-1, 1]) {
@@ -362,7 +378,7 @@ export function buildSupport(support: Support, seat: SeatHeights | null): MeshDa
 
   switch (support) {
     case 'chair':
-      return buildChair(seat.seatHeight);
+      return buildChair(seat.seatHeight, seat.seatDepth);
     case 'stool':
       return buildStool(false, seat);
     case 'high-stool':
