@@ -7,6 +7,7 @@ import {
   STUDIO_BONES,
   STUDIO_PARENTS,
   packStudioMesh,
+  packStudioPalette,
   unpackStudioMesh,
   weightSteps,
 } from './studio-format.ts';
@@ -99,6 +100,31 @@ describe('the packed mesh of a studio body', () => {
     );
     expect(mesh.positions[0]).toBe(0);
     expect(mesh.correctives[0]?.[0]).toBe(0);
+  });
+
+  it('reads the faces with another palette of the same triangles, with their finishes', () => {
+    const palette = packStudioPalette(triangles, ([r, g, b], finish) =>
+      finish === 'matte' ? [b, g, r] : [r, g, b],
+    );
+    const mesh = unpackStudioMesh(packStudioMesh(vertices, triangles, correctives), palette);
+
+    expect(mesh.colors[0]).toBeCloseTo(0.125, 4);
+    expect(mesh.colors[2]).toBeCloseTo(0.5, 4);
+    expect(mesh.colors[8]).toBeCloseTo(0.5, 4);
+    expect([...mesh.colors.subarray(3, 6)]).toEqual([1, 1, 1]);
+    expect([...mesh.finishes]).toEqual([
+      FINISH_ORDER.indexOf('matte'),
+      FINISH_ORDER.indexOf('lacquer'),
+      FINISH_ORDER.indexOf('matte'),
+    ]);
+    expect([...mesh.positions]).toEqual([0, 0, 0, 0.5, -0.25, 1.75, -0.5, 1, -0.125]);
+  });
+
+  it('refuses a palette with another number of colors', () => {
+    const packed = packStudioMesh(vertices, triangles, correctives);
+    const one = packStudioPalette(triangles.slice(0, 1), (color) => color);
+
+    expect(() => unpackStudioMesh(packed, one)).toThrow(/1 colors, and the mesh has 2/);
   });
 
   it('refuses a vertex with more than four bones, and a triangle with no vertex', () => {

@@ -160,6 +160,15 @@ export interface StudioStanding {
 }
 
 /**
+ * The names of the other palettes of a studio body (design 4.4, 4.5): the tan palette of the fox
+ * mesh, which the tan foxes of the flutes take. The red foxes keep the palette of the mesh.
+ */
+export const STUDIO_PALETTES = ['tan'] as const;
+
+/** The name of another palette of a studio body. */
+export type StudioPalette = (typeof STUDIO_PALETTES)[number];
+
+/**
  * A body from the studio (design 4.4): the mesh of a GLB file of `lowpoly-studio/` in its bind
  * pose, with its own skeleton, its skin of up to four bones for each vertex, and its corrective
  * shapes. `pnpm studio-body <animal>` writes the module of an animal. The axes are the axes of
@@ -229,6 +238,11 @@ export interface StudioBody {
   readonly crease: number;
   /** The packed mesh ({@link packStudioMesh}). */
   readonly mesh: string;
+  /**
+   * The other palettes of the faces of the mesh, by name ({@link packStudioPalette}). A species
+   * selects one with its `palette` (`models/species.ts`). A body with one palette has none.
+   */
+  readonly palettes?: Readonly<Partial<Record<StudioPalette, string>>>;
 }
 
 /** The largest number of bones of a vertex of a studio body. */
@@ -303,6 +317,64 @@ export function weightSteps(weights: readonly number[]): number[] {
   return steps;
 }
 
+/** The palette of a studio mesh: its colors in the order of their first use. */
+interface Palette {
+  /** Each color: r, g, b in steps of {@link COLOR_STEPS}, and the finish. */
+  readonly colors: readonly (readonly [Vec3, Finish])[];
+  /** The color of each triangle, as an index in {@link Palette.colors}. */
+  readonly triangleColors: readonly number[];
+}
+
+/**
+ * Gives the palette of the triangles of a studio mesh: each pair of a color in whole steps and a
+ * finish one time, in the order of the first triangle that has it.
+ *
+ * @param triangles The triangles.
+ * @returns The palette.
+ */
+function paletteOf(triangles: readonly StudioTriangle[]): Palette {
+  const keys = new Map<string, number>();
+  const colors: (readonly [Vec3, Finish])[] = [];
+  const triangleColors = triangles.map((t) => {
+    const steps = t.color.map((c) => Math.round(Math.min(1, Math.max(0, c)) * COLOR_STEPS));
+    const key = `${steps.join(' ')} ${t.finish}`;
+    let index = keys.get(key);
+    if (index === undefined) {
+      index = colors.length;
+      keys.set(key, index);
+      colors.push([[steps[0] ?? 0, steps[1] ?? 0, steps[2] ?? 0], t.finish]);
+    }
+    return index;
+  });
+  return { colors, triangleColors };
+}
+
+/**
+ * Packs another palette of the faces of a studio mesh as base64 text: the color count, then r, g,
+ * b of each color of the palette of {@link packStudioMesh} after the map, in steps of
+ * {@link COLOR_STEPS}, in the same order. The finishes stay. {@link unpackStudioMesh} reads it
+ * with the packed mesh of the same triangles.
+ *
+ * @param triangles The triangles of the packed mesh.
+ * @param map Gives the new linear color of a color of the palette and its finish.
+ * @returns The packed palette as base64.
+ */
+export function packStudioPalette(
+  triangles: readonly StudioTriangle[],
+  map: (color: Vec3, finish: Finish) => Vec3,
+): string {
+  const out: number[] = [];
+  const { colors } = paletteOf(triangles);
+  writeVarint(out, colors.length);
+  for (const [steps, finish] of colors) {
+    const linear: Vec3 = [steps[0] / COLOR_STEPS, steps[1] / COLOR_STEPS, steps[2] / COLOR_STEPS];
+    for (const c of map(linear, finish)) {
+      writeVarint(out, Math.round(Math.min(1, Math.max(0, c)) * COLOR_STEPS));
+    }
+  }
+  return toBase64(out);
+}
+
 /**
  * Packs a studio mesh as base64 text.
  *
@@ -334,19 +406,7 @@ export function packStudioMesh(
   correctives: readonly (readonly Vec3[])[],
 ): string {
   const out: number[] = [];
-  const colorKeys = new Map<string, number>();
-  const colors: (readonly [Vec3, Finish])[] = [];
-  const triangleColors = triangles.map((t) => {
-    const steps = t.color.map((c) => Math.round(Math.min(1, Math.max(0, c)) * COLOR_STEPS));
-    const key = `${steps.join(' ')} ${t.finish}`;
-    let index = colorKeys.get(key);
-    if (index === undefined) {
-      index = colors.length;
-      colorKeys.set(key, index);
-      colors.push([[steps[0] ?? 0, steps[1] ?? 0, steps[2] ?? 0], t.finish]);
-    }
-    return index;
-  });
+  const { colors, triangleColors } = paletteOf(triangles);
 
   writeVarint(out, vertices.length);
   writeVarint(out, triangles.length);
@@ -407,13 +467,16 @@ export function packStudioMesh(
 }
 
 /**
- * Reads a mesh of {@link packStudioMesh} back.
+ * Reads a mesh of {@link packStudioMesh} back, with its own palette or with another palette of
+ * {@link packStudioPalette}.
  *
  * @param packed The packed mesh as base64.
+ * @param palette Another packed palette of the same triangles. The colors of the mesh by default.
  * @returns The vertices, their skins, the triangles, their colors, and the corrective shapes.
- * @throws Error if the bytes end early, or if a triangle names a vertex that does not exist.
+ * @throws Error if the bytes end early, if a triangle names a vertex that does not exist, or if
+ *   the other palette has another number of colors.
  */
-export function unpackStudioMesh(packed: string): StudioMesh {
+export function unpackStudioMesh(packed: string, palette?: string): StudioMesh {
   const reader = byteReader(packed);
   const vertexCount = readVarint(reader);
   const triangleCount = readVarint(reader);
@@ -449,14 +512,24 @@ export function unpackStudioMesh(packed: string): StudioMesh {
     corners[c] = previous;
   }
 
-  const palette = Array.from({ length: colorCount }, () => {
+  const entries = Array.from({ length: colorCount }, () => {
     const rgb = [0, 1, 2].map(() => readVarint(reader) / COLOR_STEPS);
     return { rgb, finish: readByte(reader) };
   });
+  if (palette !== undefined) {
+    const other = byteReader(palette);
+    const count = readVarint(other);
+    if (count !== colorCount) {
+      throw new Error(`The palette has ${count} colors, and the mesh has ${colorCount}.`);
+    }
+    for (const entry of entries) {
+      entry.rgb = [0, 1, 2].map(() => readVarint(other) / COLOR_STEPS);
+    }
+  }
   const colors = new Float32Array(triangleCount * 3);
   const finishes = new Uint8Array(triangleCount);
   for (let t = 0; t < triangleCount; t++) {
-    const entry = palette[readVarint(reader)];
+    const entry = entries[readVarint(reader)];
     colors.set(entry?.rgb ?? [1, 1, 1], t * 3);
     finishes[t] = entry?.finish ?? 0;
   }
