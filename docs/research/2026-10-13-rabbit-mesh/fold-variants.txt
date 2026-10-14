@@ -84,3 +84,18 @@ of the shoulder weight between the clavicle and the upper arm.
 The rings at both elbows put the inner right elbow 1.6 cm (lift) to 1.8 cm (lowering) into the
 trunk in the sweep (pnpm pose-depth violinist --bones forearmL,forearmR,upperArmL,upperArmR
 --into body). The ring at the left elbow only gives 0.5 cm and 0.9 cm.
+
+## After the rebase onto eeeb7557 (2026-10-14, 14 demos, 8 of them new)
+
+The rig of the left elbow ring, with hold changes in memory:
+node docs/research/2026-10-13-studio-rabbit/fold-set.ts '<set>' (fold-set-elbow.txt),
+and pnpm fold-probe violinist for the base (fold-probe-rebase.txt). Main on the same 14 demos:
+fold-probe-main-14.txt.
+
+| Variant | play | lift | rest | triangles |
+|---|---|---|---|---|
+| main (studio rabbit) | 0 of 17788 (0.0%) | 98 of 434 (22.6%), 1 face | 1 face | 2920 |
+| base hold, right elbow (1, -1, -1) at the frog | 797 of 17788 (4.5%) | 112 of 434 (25.8%), 12 faces | 7 | 3100 |
+| violin@rabbit.poleR=1.3,-1,-1 | 716 of 17788 (4.0%) | 112 of 434 (25.8%), 10 faces | 7 | 3100 |
+| violin@rabbit.poleR=1,-0.7,-1 (the hold of this round) | 688 of 17788 (3.9%) | 112 of 434 (25.8%), 10 faces | 7 | 3100 |
+| violin@rabbit.slant=-2deg | 742 of 17788 (4.2%) | 112 of 434 (25.8%), 12 faces | 7 | 3100 |
