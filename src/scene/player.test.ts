@@ -11,6 +11,7 @@ import { tube } from '../models/primitives.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { STUDIO_BONES } from '../models/studio-format.ts';
+import { studioNormals } from '../models/studio-normals.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { BIND_ROTATIONS } from '../pose/frames.ts';
 import { poseSkeleton } from '../pose/test-kinematics.ts';
@@ -234,6 +235,32 @@ describe('createPlayerMesh', () => {
       const renderer = {} as WebGLRenderer;
       own[0]?.onBeforeCompile(parameters, renderer);
       expect(hooked).toEqual(['pool']);
+    });
+
+    it('draws a body with a crease angle with the shared material and smooth normals', () => {
+      const rig = model.studio;
+      if (!rig) {
+        throw new Error('The bear has no studio body.');
+      }
+      const smoothModel = { ...model, studio: { ...rig, body: { ...rig.body, crease: 30 } } };
+      const smooth = createPlayerGeometry(smoothModel);
+      const normals = smooth.getAttribute('normal');
+      expect(smooth.morphAttributes['normal']).toHaveLength(2);
+      const expected = studioNormals(rig.mesh, 30);
+      const bodyCorners = rig.mesh.corners.length;
+      for (let c = 0; c < bodyCorners; c += 97) {
+        expect(normals.getY(c)).toBeCloseTo(expected[c * 3 + 1] ?? 2, 6);
+      }
+      // The baton keeps the crease normals of its finish.
+      const flat = geometry.getAttribute('normal');
+      for (let c = bodyCorners; c < normals.count; c++) {
+        expect(normals.getX(c)).toBe(flat.getX(c));
+      }
+
+      const shared = createMaterials();
+      const mesh = createPlayerMesh(smoothModel, smooth, shared);
+      expect(mesh.material).toEqual(shared);
+      expect(shared[0]?.flatShading).toBe(false);
     });
 
     it('hides the baton by its bone', () => {

@@ -60,7 +60,9 @@ export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
  * Creates the geometry of a player with a studio body (design 4.4): the body in the bind pose of
  * the studio, with four bones for each vertex and the corrective shapes of the arms as morph
  * targets, and the instrument on the bones of the player. The colors of the studio hold its
- * baked occlusion, so the geometry adds none.
+ * baked occlusion, so the geometry adds none. A body with a crease angle gets its smooth normals,
+ * with their changes for the corrective shapes as morph normals (design 4.5). The instrument keeps
+ * the crease normals of its finishes.
  *
  * @param model The player model.
  * @param rig The rig of its studio body.
@@ -74,6 +76,15 @@ function createStudioGeometry(model: PlayerModel, rig: StudioRig): BufferGeometr
   geometry.morphAttributes['position'] = render.correctives.map(
     (move) => new BufferAttribute(move, 3),
   );
+  if (render.normals) {
+    const normals = geometry.getAttribute('normal');
+    if (normals.array instanceof Float32Array) {
+      normals.array.set(render.normals.corners);
+    }
+    geometry.morphAttributes['normal'] = render.normals.moves.map(
+      (move) => new BufferAttribute(move, 3),
+    );
+  }
   // The moves add to the bind places, as in a glTF file.
   geometry.morphTargetsRelative = true;
   return geometry;
@@ -185,7 +196,8 @@ export function createPlayerMesh(
  * @param model The player model.
  * @param rig The rig of its studio body.
  * @param geometry The geometry of the model, from {@link createPlayerGeometry}.
- * @param materials The shared material. The mesh takes a copy of it with flat shading.
+ * @param materials The shared material. A body with flat faces takes a copy of it with flat
+ *   shading. A body with a crease angle takes it as it is, for its smooth normals (design 4.5).
  * @returns The mesh in the bind pose of the player.
  */
 function createStudioMesh(
@@ -194,7 +206,8 @@ function createStudioMesh(
   geometry: BufferGeometry,
   materials: readonly MeshStandardMaterial[],
 ): SkinnedMesh {
-  const mesh = new SkinnedMesh(geometry, materials.map(flatMaterial));
+  const own = rig.body.crease === undefined ? materials.map(flatMaterial) : [...materials];
+  const mesh = new SkinnedMesh(geometry, own);
   const bones = Array.from({ length: STUDIO_POSE_BONES }, () => {
     const bone = new Bone();
     bone.matrixAutoUpdate = false;
@@ -224,7 +237,8 @@ function createStudioMesh(
 }
 
 /**
- * Makes the material of a studio body: a copy of the shared material with flat shading. The GPU
+ * Makes the material of a studio body with flat faces: a copy of the shared material with flat
+ * shading. The GPU
  * skin turns the normal of each corner of a face by the blend of its own four bones, so on a
  * flat face of a raised arm or of the chest the three normals differ, and the face showed a soft
  * gradient. With flat shading, each face takes the normal of its posed corners, and it stays
