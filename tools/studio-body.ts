@@ -10,13 +10,21 @@ import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
-import { STUDIO_BONES, STUDIO_LEG_BONES, packStudioMesh } from '../src/models/studio-format.ts';
+import {
+  OPTIONAL_STUDIO_BONES,
+  STUDIO_BONES,
+  STUDIO_LEG_BONES,
+  STUDIO_TAIL_BONES,
+  packStudioMesh,
+} from '../src/models/studio-format.ts';
 import type {
   Side,
   StudioBody,
   StudioBone,
+  StudioHeads,
   StudioLegBone,
   StudioStanding,
+  StudioTailBone,
   StudioTriangle,
   StudioVertex,
 } from '../src/models/studio-format.ts';
@@ -142,6 +150,30 @@ const DIGIT = /^finger\d_([LR])$/;
 export function ownBone(name: string): string {
   const digit = DIGIT.exec(name);
   return digit ? `fingers_${digit[1] ?? ''}` : name;
+}
+
+/**
+ * Finds if a bone is a bone that a studio body can lack, such as the tip of a tail of two bones.
+ *
+ * @param bone The name of the bone.
+ * @returns True for a bone of `OPTIONAL_STUDIO_BONES`.
+ */
+function isOptionalBone(bone: string): boolean {
+  return OPTIONAL_STUDIO_BONES.some((own) => own === bone);
+}
+
+/** The bones of a tail, whose vertices hang behind the seat and the back of a chair. */
+const TAIL_BONES: ReadonlySet<string> = new Set(STUDIO_TAIL_BONES);
+
+/**
+ * Finds if a vertex follows the tail most: a vertex of a tail that goes back over the seat and
+ * through the open back of the chair (design 4.4, 4.5).
+ *
+ * @param vertex The vertex.
+ * @returns True when the bones of the tail hold more than half of its weight.
+ */
+function onTail(vertex: SourceVertex): boolean {
+  return vertex.skin.reduce((sum, [bone, w]) => sum + (TAIL_BONES.has(bone) ? w : 0), 0) > 0.5;
 }
 
 /**
@@ -669,7 +701,7 @@ export function readSkeleton(glb: Glb): SourceSkeleton {
     }
   }
   const body = STUDIO_BONES.filter((b) => !b.startsWith('eye_'));
-  const missing = body.filter((b) => !binds.has(b));
+  const missing = body.filter((b) => !binds.has(b) && !isOptionalBone(b));
   const extra = [...binds.keys()].filter(
     (b) => !DROPPED_BONES.has(b) && !DIGIT.test(b) && !body.some((own) => own === b),
   );
@@ -992,19 +1024,24 @@ function sceneFrame(
  */
 function chairDepthOf(mesh: SourceMesh, chair: Box3, scale: number): number {
   // The back of the chair of the app reaches its height above the seat: the lowest point of the
-  // body over the chair of the studio.
+  // body over the chair of the studio. The tail goes back over the seat, so it does not count.
   let seat = Infinity;
-  for (const { position: p } of mesh.vertices) {
-    if (Math.abs(p.x) <= chair.max.x && p.z >= chair.min.z && p.z <= chair.max.z) {
+  for (const vertex of mesh.vertices) {
+    const p = vertex.position;
+    if (
+      !onTail(vertex) &&
+      Math.abs(p.x) <= chair.max.x &&
+      p.z >= chair.min.z &&
+      p.z <= chair.max.z
+    ) {
       seat = Math.min(seat, p.y);
     }
   }
   const top = seat + CHAIR.back / scale;
   let back = Infinity;
   for (const vertex of mesh.vertices) {
-    const [bone] = vertex.skin.toSorted((a, b) => b[1] - a[1])[0] ?? [''];
     const p = vertex.position;
-    if (bone !== 'tail' && p.y <= top && Math.abs(p.x) <= chair.max.x) {
+    if (!onTail(vertex) && p.y <= top && Math.abs(p.x) <= chair.max.x) {
       back = Math.min(back, p.z);
     }
   }
@@ -1015,7 +1052,8 @@ function chairDepthOf(mesh: SourceMesh, chair: Box3, scale: number): number {
 /**
  * Finds the height of a flat seat under a seated studio body (design 4.4, 4.5): the lowest point
  * of the mesh over the seat of the app (the piano bench or the chair), so that the body rests on
- * the seat and no part of it goes into the seat.
+ * the seat and no part of it goes into the seat. A tail goes back over the seat and through the
+ * open back of the chair, so it does not count: the seat is under the haunch.
  *
  * @param glb The file.
  * @param mesh The welded mesh.
@@ -1033,7 +1071,7 @@ function seatHeightOf(glb: Glb, mesh: SourceMesh, frame: SceneFrame): number {
   for (const vertex of mesh.vertices) {
     const p = vertex.position.clone().add(frame.offset);
     const z = p.z * frame.scale;
-    if (Math.abs(p.x) <= halfX && z >= back && z <= back + depth) {
+    if (!onTail(vertex) && Math.abs(p.x) <= halfX && z >= back && z <= back + depth) {
       low = Math.min(low, p.y);
     }
   }
@@ -1071,13 +1109,25 @@ function standingOf(glb: Glb, skeleton: SourceSkeleton, frame: SceneFrame): Stud
   }
   // The turn of a half circle around y moves a rotation into the model axes: x and z change sign.
   const model = (q: Quaternion): Quat => [round(-q.x), round(q.y), round(-q.z), round(q.w)];
-  return {
+  const standing: StudioStanding = {
     lift: toModelAxes(frame.offset.clone().negate(), frame.scale),
     // SAFETY: the entries hold each bone of STUDIO_LEG_BONES one time.
     turns: Object.fromEntries(STUDIO_LEG_BONES.map((bone) => [bone, model(turn(bone))])) as Record<
       StudioLegBone,
       Quat
     >,
+  };
+  if (!skeleton.binds.has('tail_tip')) {
+    return standing;
+  }
+  // A tail of two bones goes back through the chair in the bind pose, and it hangs in the pose of
+  // the sheet.
+  return {
+    ...standing,
+    // SAFETY: the entries hold each bone of STUDIO_TAIL_BONES one time.
+    tailTurns: Object.fromEntries(
+      STUDIO_TAIL_BONES.map((bone) => [bone, model(turn(bone))]),
+    ) as Record<StudioTailBone, Quat>,
   };
 }
 
@@ -1127,11 +1177,15 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   }
 
   const heads = Object.fromEntries(
-    STUDIO_BONES.map((bone): [StudioBone, Vec3] => {
+    STUDIO_BONES.flatMap((bone): [StudioBone, Vec3][] => {
       if (bone === 'eye_L' || bone === 'eye_R') {
-        return [bone, model(eyeCenter(bone === 'eye_L' ? 'L' : 'R'))];
+        return [[bone, model(eyeCenter(bone === 'eye_L' ? 'L' : 'R'))]];
       }
-      return [bone, model(headOf(skeleton, bone))];
+      if (!skeleton.binds.has(bone)) {
+        // An optional bone, such as the tip of a tail of two bones.
+        return [];
+      }
+      return [[bone, model(headOf(skeleton, bone))]];
     }),
   );
 
@@ -1186,8 +1240,9 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       source,
       sha256: createHash('sha256').update(bytes).digest('hex'),
       scale: round(scale),
-      // SAFETY: the entries hold each bone of STUDIO_BONES one time.
-      heads: heads as Record<StudioBone, Vec3>,
+      // SAFETY: the entries hold each bone of STUDIO_BONES one time, and readSkeleton() checks
+      // that the skeleton lacks only optional bones.
+      heads: heads as StudioHeads,
       palms: {
         L: direction(axisOf(skeleton, 'hand_L', 2)),
         R: direction(axisOf(skeleton, 'hand_R', 2)),
@@ -1441,7 +1496,9 @@ export function inspectStudioGlb(
     digits,
     dropped: all.filter((name) => DROPPED_BONES.has(name)),
     // The digits of a paw give the `fingers` bone of its side.
-    missing: body.filter((bone) => !all.some((name) => ownBone(name) === bone)),
+    missing: body.filter(
+      (bone) => !isOptionalBone(bone) && !all.some((name) => ownBone(name) === bone),
+    ),
     unknown: all.filter(
       (name) => !DROPPED_BONES.has(name) && !DIGIT.test(name) && !body.some((b) => b === name),
     ),

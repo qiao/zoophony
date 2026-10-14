@@ -7,15 +7,24 @@ import {
   STUDIO_BONES,
   STUDIO_LEG_BONES,
   STUDIO_PARENTS,
+  STUDIO_TAIL_BONES,
   unpackStudioMesh,
 } from './studio-format.ts';
-import type { Side, StudioBody, StudioBone, StudioMesh } from './studio-format.ts';
+import type {
+  Side,
+  StudioBody,
+  StudioBone,
+  StudioHeads,
+  StudioMesh,
+  StudioStanding,
+} from './studio-format.ts';
 import { toVec3 } from './tuples.ts';
 import type { Quat, Vec3 } from './tuples.ts';
 
 /**
  * The bone of the player that each bone of a studio body follows (design 4.4, 4.7). A bone of the
- * trunk, the head, the legs, or the tail moves as its bone of the player. The arm bones of the
+ * trunk, the head, the legs, or the tail moves as its bone of the player. The root of the tail
+ * follows `tail1`, and the tip of a tail of two bones follows `tail2`. The arm bones of the
  * studio take the joints and the hand of the player, with the bend of the elbow of the studio and
  * the twist split of the forearm ({@link poseStudioBones}). The readers of the bind mesh, such as
  * the footprints, read the bone of the player of the largest weight.
@@ -53,6 +62,7 @@ export const STUDIO_FOLLOWS = {
   tail: 'tail1',
   eye_L: 'eyeL',
   eye_R: 'eyeR',
+  tail_tip: 'tail2',
 } as const satisfies Readonly<Record<StudioBone, BodyBoneName>>;
 
 /**
@@ -304,7 +314,7 @@ function playerPositions(body: StudioBody): Record<BodyBoneName, Vec3> {
     earL: h.ear_L,
     earR: h.ear_R,
     tail1: h.tail,
-    tail2: h.tail,
+    tail2: h.tail_tip ?? h.tail,
     trunk1: h.head,
     trunk2: h.head,
     trunk3: h.head,
@@ -325,6 +335,19 @@ function playerPositions(body: StudioBody): Record<BodyBoneName, Vec3> {
     shinR: h.shin_R,
     footR: h.foot_R,
   };
+}
+
+/**
+ * Gives the turns of the standing pose of a seated studio body, in parent order: each leg bone,
+ * then each bone of a tail of two bones.
+ *
+ * @param standing The standing pose.
+ * @returns The bone and its world turn from the bind pose, for each turned bone.
+ */
+function standingTurns(standing: StudioStanding): (readonly [StudioBone, Quat])[] {
+  const legs = STUDIO_LEG_BONES.map((bone) => [bone, standing.turns[bone]] as const);
+  const tail = standing.tailTurns;
+  return tail ? [...legs, ...STUDIO_TAIL_BONES.map((bone) => [bone, tail[bone]] as const)] : legs;
 }
 
 /** A studio body with its unpacked mesh, in the stance of a player. */
@@ -356,22 +379,24 @@ export function standingBody(body: StudioBody, mesh: StudioMesh): PosedStudioBod
     throw new Error('The studio body has no standing pose.');
   }
 
-  // Each leg bone turns around its head, and its children follow it from the hips down.
+  // Each leg bone and each bone of a tail of two bones turns around its head, and its children
+  // follow it from the hips down.
   const pose = createStudioPose();
-  const heads = { ...body.heads };
+  const heads: Partial<Record<StudioBone, Vec3>> = { ...body.heads };
   const turnOf = new Map<StudioBone, Quaternion>();
-  for (const bone of STUDIO_LEG_BONES) {
-    const turn = new Quaternion(...standing.turns[bone]);
+  for (const [bone, quat] of standingTurns(standing)) {
+    const turn = new Quaternion(...quat);
     const parent = STUDIO_PARENTS[bone];
-    const parentTurn = turnOf.get(parent);
-    const from = new Vector3(...body.heads[bone]);
-    const to = parentTurn
-      ? from
-          .clone()
-          .sub(new Vector3(...body.heads[parent]))
-          .applyQuaternion(parentTurn)
-          .add(new Vector3(...heads[parent]))
-      : from.clone();
+    const parentTurn = parent ? turnOf.get(parent) : undefined;
+    const from = new Vector3(...(body.heads[bone] ?? [0, 0, 0]));
+    const to =
+      parent && parentTurn
+        ? from
+            .clone()
+            .sub(new Vector3(...(body.heads[parent] ?? [0, 0, 0])))
+            .applyQuaternion(parentTurn)
+            .add(new Vector3(...(heads[parent] ?? [0, 0, 0])))
+        : from.clone();
     turnOf.set(bone, turn);
     heads[bone] = toVec3(to);
     writeMatrix(pose.matrices, STUDIO_BONES.indexOf(bone), turn, from, to);
@@ -396,11 +421,14 @@ export function standingBody(body: StudioBody, mesh: StudioMesh): PosedStudioBod
   return {
     body: {
       ...body,
-      // SAFETY: the entries hold each bone of STUDIO_BONES one time.
-      heads: Object.fromEntries(STUDIO_BONES.map((bone) => [bone, lifted(heads[bone])])) as Record<
-        StudioBone,
-        Vec3
-      >,
+      // SAFETY: the entries hold each bone of the body one time: each bone of STUDIO_BONES with a
+      // head.
+      heads: Object.fromEntries(
+        STUDIO_BONES.flatMap((bone) => {
+          const place = heads[bone];
+          return place ? [[bone, lifted(place)]] : [];
+        }),
+      ) as StudioHeads,
       fingerTips: { L: lifted(body.fingerTips.L), R: lifted(body.fingerTips.R) },
       headCenter: lifted(body.headCenter),
       nose: lifted(body.nose),

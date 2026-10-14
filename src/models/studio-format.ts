@@ -14,9 +14,10 @@ import type { Quat, Vec3 } from './tuples.ts';
 
 /**
  * The bones of a studio body (design 4.4, 4.7): the 30 body bones of the biped template of
- * `lowpoly-studio/`, in parent order, and the two eye bones that `pnpm studio-body` adds, so that
- * the eyes blink (design 5.1). The names keep the spelling of the studio. The packed skin names
- * each bone by its index in this list.
+ * `lowpoly-studio/`, in parent order, the two eye bones that `pnpm studio-body` adds, so that the
+ * eyes blink (design 5.1), and the optional tip of a tail of two bones
+ * ({@link OPTIONAL_STUDIO_BONES}). The names keep the spelling of the studio. The packed skin
+ * names each bone by its index in this list.
  */
 export const STUDIO_BONES = [
   'root',
@@ -51,10 +52,28 @@ export const STUDIO_BONES = [
   'tail',
   'eye_L',
   'eye_R',
+  'tail_tip',
 ] as const;
 
 /** A bone of a studio body. */
 export type StudioBone = (typeof STUDIO_BONES)[number];
+
+/**
+ * The bones that a studio body can lack: the tip of a tail of two bones, as the rig of the fox
+ * mesh has (design 4.4). The `tail` bone then holds the root of the tail. A body with no tip, such
+ * as the bear or the rabbit, has no vertex on it.
+ */
+export const OPTIONAL_STUDIO_BONES = ['tail_tip'] as const;
+
+/** A bone that a studio body can lack. */
+export type OptionalStudioBone = (typeof OPTIONAL_STUDIO_BONES)[number];
+
+/** A bone that each studio body has. */
+export type RequiredStudioBone = Exclude<StudioBone, OptionalStudioBone>;
+
+/** The head of each bone of a studio body: each bone except an optional bone has one. */
+export type StudioHeads = Readonly<Record<RequiredStudioBone, Vec3>> &
+  Readonly<Partial<Record<OptionalStudioBone, Vec3>>>;
 
 /** The parent of each bone of a studio body: the hierarchy of the biped template of the studio. */
 export const STUDIO_PARENTS = {
@@ -90,6 +109,7 @@ export const STUDIO_PARENTS = {
   tail: 'hips',
   eye_L: 'head',
   eye_R: 'head',
+  tail_tip: 'tail',
 } as const satisfies Readonly<Record<StudioBone, StudioBone | null>>;
 
 /** A side of the body: the left side of the animal is at -x (design 4.4). */
@@ -111,6 +131,15 @@ export const STUDIO_LEG_BONES = [
 export type StudioLegBone = (typeof STUDIO_LEG_BONES)[number];
 
 /**
+ * The bones of a tail of two bones, which turn when a seated body with such a tail stands (design
+ * 4.4): the seated tail goes back through the open back of the chair, and the standing tail hangs.
+ */
+export const STUDIO_TAIL_BONES = ['tail', 'tail_tip'] as const;
+
+/** A bone of a tail of two bones. */
+export type StudioTailBone = (typeof STUDIO_TAIL_BONES)[number];
+
+/**
  * The standing pose of a seated studio body that also stands, such as the violinist rabbit as a
  * soloist (design 4.4): the legs of the pose of the sheet, with the leg corrective shapes of the
  * studio at their full weight.
@@ -123,6 +152,11 @@ export interface StudioStanding {
   readonly lift: Vec3;
   /** The world turn of each leg bone from the bind pose to the pose of the sheet. */
   readonly turns: Readonly<Record<StudioLegBone, Quat>>;
+  /**
+   * The world turn of each tail bone from the bind pose to the pose of the sheet, for a body with
+   * a tail of two bones. A body with one tail bone keeps the tail of its bind pose.
+   */
+  readonly tailTurns?: Readonly<Record<StudioTailBone, Quat>>;
 }
 
 /**
@@ -141,7 +175,7 @@ export interface StudioBody {
   /** The meters for each unit of the studio, which is the height of the animal. */
   readonly scale: number;
   /** The head of each bone in the bind pose of the mesh. */
-  readonly heads: Readonly<Record<StudioBone, Vec3>>;
+  readonly heads: StudioHeads;
   /**
    * The unit normal of each palm in the bind pose: the side to which the fingers curl. It is the
    * z axis of the `hand` bone of the studio.

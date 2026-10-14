@@ -5,7 +5,7 @@ import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
-import type { StudioBone } from '../src/models/studio-format.ts';
+import type { RequiredStudioBone } from '../src/models/studio-format.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import {
@@ -55,6 +55,9 @@ describe('pnpm studio-body (design 4.4)', async () => {
     for (const bone of STUDIO_BONES.filter((b) => b.endsWith('_L'))) {
       const left = body.heads[bone];
       const right = body.heads[STUDIO_BONES.find((b) => b === bone.replace(/_L$/, '_R')) ?? bone];
+      if (!left || !right) {
+        throw new Error(`The body has no head of ${bone} or of its right side.`);
+      }
       expect(right[0], bone).toBeCloseTo(-left[0], 5);
       expect(right[1], bone).toBeCloseTo(left[1], 5);
       expect(right[2], bone).toBeCloseTo(left[2], 5);
@@ -325,7 +328,7 @@ describe('pnpm studio-body --inspect (design 4.4)', async () => {
       }
       const { heads } = studioBody(await read(animal), 'x.glb', settings).body;
       for (const side of ['L', 'R'] as const) {
-        const head = (bone: StudioBone): Vector3 => new Vector3(...heads[bone]);
+        const head = (bone: RequiredStudioBone): Vector3 => new Vector3(...heads[bone]);
         const wrist = head(`hand_${side}`);
         const palm = wrist
           .clone()

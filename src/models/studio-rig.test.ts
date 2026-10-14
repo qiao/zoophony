@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { STUDIO_BONES, STUDIO_LEG_BONES } from './studio-format.ts';
-import type { StudioBone } from './studio-format.ts';
+import type { RequiredStudioBone, StudioBone } from './studio-format.ts';
 import {
   NO_OFFSETS,
   PAW_TURN,
@@ -72,7 +72,7 @@ function turnOf(out: ReturnType<typeof pose>, bone: StudioBone): Quaternion {
 }
 
 /** Moves the bind head of a studio bone with the matrix of a bone. */
-function moved(out: ReturnType<typeof pose>, bone: StudioBone, head: StudioBone): Vector3 {
+function moved(out: ReturnType<typeof pose>, bone: StudioBone, head: RequiredStudioBone): Vector3 {
   return new Vector3(...STUDIO_BEAR.heads[head]).applyMatrix4(matrixOf(out, bone));
 }
 
@@ -204,7 +204,7 @@ describe('poseStudioBones (design 4.4)', () => {
 describe('studioRig (design 4.4, 4.7)', () => {
   it('hangs the arms of the player straight down, with the lengths of the arms of the studio', () => {
     const h = STUDIO_BEAR.heads;
-    const length = (a: StudioBone, b: StudioBone): number =>
+    const length = (a: RequiredStudioBone, b: RequiredStudioBone): number =>
       new Vector3(...h[a]).distanceTo(new Vector3(...h[b]));
     const p = rig.positions;
     expect(p.upperArmR).toEqual(h.upper_arm_R);
@@ -339,5 +339,45 @@ describe('studioRig for a seated body that also stands (design 4.4)', () => {
   it('keeps the arm corrective shapes only', () => {
     expect(seated.mesh.correctives).toHaveLength(2);
     expect(standing.mesh.correctives).toHaveLength(2);
+  });
+});
+
+describe('studioRig for a body with a tail of two bones (design 4.4)', () => {
+  const root = STUDIO_RABBIT.heads.tail;
+  const tip: [number, number, number] = [root[0], root[1] - 0.05, root[2] + 0.1];
+  const turn = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), 0.8);
+  const standing = STUDIO_RABBIT.standing;
+  if (!standing) {
+    throw new Error('The rabbit has no standing pose.');
+  }
+  const body = {
+    ...STUDIO_RABBIT,
+    heads: { ...STUDIO_RABBIT.heads, tail_tip: tip },
+    standing: {
+      ...standing,
+      tailTurns: {
+        tail: [turn.x, turn.y, turn.z, turn.w] as const,
+        tail_tip: [0, 0, 0, 1] as const,
+      },
+    },
+  };
+
+  it('drives the tip of the tail with the second tail bone of the player', () => {
+    expect(STUDIO_FOLLOWS.tail_tip).toBe('tail2');
+    expect(studioRig(body).positions.tail2).toEqual(tip);
+    expect(studioRig(STUDIO_RABBIT).positions.tail2).toEqual(root);
+  });
+
+  it('turns the tail of a standing body by the tail turns of its standing pose', () => {
+    const seated = studioRig(body).body.heads;
+    const stood = studioRig(body, true).body.heads;
+    const lift = new Vector3(...stood.tail).sub(new Vector3(...seated.tail));
+    const expected = new Vector3(...tip)
+      .sub(new Vector3(...root))
+      .applyQuaternion(turn)
+      .add(new Vector3(...root))
+      .add(lift);
+    expect(new Vector3(...(stood.tail_tip ?? [0, 0, 0])).distanceTo(expected)).toBeLessThan(1e-9);
+    expect(studioRig(STUDIO_RABBIT, true).body.heads.tail_tip).toBeUndefined();
   });
 });

@@ -205,7 +205,11 @@ export function standingError(bytes: Uint8Array, body: StudioBody, obj: string):
   const heads = new Map<StudioBone, Vector3>();
   const turns = new Map<StudioBone, Quaternion>();
   for (const [index, bone] of STUDIO_BONES.entries()) {
-    const from = new Vector3(...rig.body.heads[bone]);
+    const place = rig.body.heads[bone];
+    if (!place) {
+      continue;
+    }
+    const from = new Vector3(...place);
     const parent = STUDIO_PARENTS[bone];
     const parentTurn = parent ? turns.get(parent) : undefined;
     const parentHead = parent ? heads.get(parent) : undefined;
