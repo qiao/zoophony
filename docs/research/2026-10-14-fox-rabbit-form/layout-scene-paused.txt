@@ -5,39 +5,15 @@
 
  RUN  v5.0.3 /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fox-rabbit-form
 
- ❯ |paused| src/models/layout-scene.test.ts (37 tests | 5 failed) 1693ms
+ ❯ |paused| src/models/layout-scene.test.ts (37 tests | 2 failed) 1704ms
    ❯ layoutScene (30)
-     × keeps all chairs, players, instruments, stands, and risers apart (design 4.5) 35ms
-     × gives the reference composition the stage of its rule and footprints (design 4.5) 36ms
+     × gives the reference composition the stage of its rule and footprints (design 4.5) 40ms
      × grows no stage of a demo by more than 3% (design 4.5) 0ms
-     × spreads the rows toward the front corners (review of step 4, F1) 0ms
-     × keeps two neighbors of a row at most 1.6 m apart (review of step 4, F1) 3ms
 
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
-
- FAIL  |paused| src/models/layout-scene.test.ts > layoutScene > keeps all chairs, players, instruments, stands, and risers apart (design 4.5)
-AssertionError: string quartet: expected [ 'stand 1 and stand 2' ] to deeply equal []
-
-- Expected
-+ Received
-
-- []
-+ [
-+   "stand 1 and stand 2",
-+ ]
-
- ❯ src/models/layout-scene.test.ts:221:30
-    219|         }
-    220|       }
-    221|       expect(touching, name).toEqual([]);
-       |                              ^
-    222|     }
-    223|   });
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
 
  FAIL  |paused| src/models/layout-scene.test.ts > layoutScene > gives the reference composition the stage of its rule and footprints (design 4.5)
-AssertionError: expected 8.90639466054148 to be less than or equal to 8.3636
+AssertionError: expected 8.588296038584716 to be less than or equal to 8.3636
  ❯ src/models/layout-scene.test.ts:336:30
     334|     // The rule gives REFERENCE_STAGE_SIDE. A footprint can add arc to…
     335|     // depth to the stage.
@@ -46,10 +22,10 @@ AssertionError: expected 8.90639466054148 to be less than or equal to 8.3636
     337|     expect(layout.podium[2]).toBeCloseTo(layout.stageSide / 2 - 1.0, 9…
     338|     // The first desks sit in row 0, the third first violin and the se…
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
 
  FAIL  |paused| src/models/layout-scene.test.ts > layoutScene > grows no stage of a demo by more than 3% (design 4.5)
-AssertionError: mozart-k525.mid auto: expected 8.03617929204969 to be less than or equal to 6.931900000000001
+AssertionError: mozart-k525.mid auto: expected 7.433087983753707 to be less than or equal to 6.931900000000001
  ❯ src/models/layout-scene.test.ts:430:46
     428|     };
     429|     for (const [name, side] of Object.entries(sides)) {
@@ -58,37 +34,12 @@ AssertionError: mozart-k525.mid auto: expected 8.03617929204969 to be less than 
     431|     }
     432|   });
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
-
- FAIL  |paused| src/models/layout-scene.test.ts > layoutScene > spreads the rows toward the front corners (review of step 4, F1)
-AssertionError: mozart-k525.mid auto: expected 0.3171780606808167 to be less than or equal to 0.31
- ❯ src/models/layout-scene.test.ts:447:42
-    445|     for (const { name, layout } of LAYOUTS) {
-    446|       if (name.endsWith(' auto')) {
-    447|         expect(nearCorner(layout), name).toBeLessThanOrEqual(0.31);
-       |                                          ^
-    448|       }
-    449|     }
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
-
- FAIL  |paused| src/models/layout-scene.test.ts > layoutScene > keeps two neighbors of a row at most 1.6 m apart (review of step 4, F1)
-AssertionError: beethoven-8.mid one-per-part: violin and violin: expected 1.6500002723058398 to be less than or equal to 1.6000100000000002
- ❯ src/models/layout-scene.test.ts:519:79
-    517|             return;
-    518|           }
-    519|           expect(radius * (angle - before), `${name}: ${pair.join(' an…
-       |                                                                               ^
-    520|             SPREAD_LIMITS.maxArc + 1e-5,
-    521|           );
- ❯ src/models/layout-scene.test.ts:493:25
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
 
 
  Test Files  1 failed (1)
-      Tests  5 failed | 32 passed (37)
-   Start at  15:37:18
-   Duration  4.16s (import 52%, tests 42%, transform 7%)
+      Tests  2 failed | 35 passed (37)
+   Start at  15:55:35
+   Duration  4.72s (import 52%, tests 37%, transform 11%)
 
  ELIFECYCLE  Command failed with exit code 1.

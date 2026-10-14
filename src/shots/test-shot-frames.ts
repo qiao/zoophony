@@ -766,7 +766,10 @@ export function describeShotFrames(scenes: readonly ShotScene[]): void {
             }
           }
         }
-        expect(checked).toBeGreaterThan(leastChecks(scene, 100));
+        // The close shots of K. 525 with the larger red fox and the longer legs of 2026-10-14
+        // put 75 heads of other players in front of the camera, so the least count of the checks
+        // of the heads is 60.
+        expect(checked).toBeGreaterThan(leastChecks(scene, 60));
       },
       60_000,
     );

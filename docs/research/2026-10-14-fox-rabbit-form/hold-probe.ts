@@ -4,8 +4,8 @@
  * `pnpm pose-depth --set`). It prints, in meters and in head heights `H` (model axes: +x is the
  * right of the player, +y up, -z the front):
  *
- * - the collarbone point: the highest point of the trunk skin (the corners of the chest, the
- *   neck, and the left shoulder bones) in a column halfway from the middle plane to the left
+ * - the collarbone point: the highest point of the trunk skin (the corners of the chest and the
+ *   left shoulder bones) in a column halfway from the middle plane to the left
  *   shoulder joint, in front of that joint;
  * - the jaw point: the lowest corner of the head bone on the left of the middle plane, in front
  *   of the neck joint;
@@ -57,7 +57,7 @@ for (const variant of ['', ...sets]) {
     const shoulder = at('upperArmL');
     const neck = at('neck');
     const { positions, bones } = model.mesh;
-    const trunk = new Set(['chest', 'neck', 'shoulderL', 'spine'].map((b) => boneIndex(b)));
+    const trunk = new Set(['chest', 'shoulderL'].map((b) => boneIndex(b)));
     const head = new Set([boneIndex('head'), boneIndex('jaw')]);
     const column = shoulder.x / 2;
     let collar: Vector3 | null = null;
