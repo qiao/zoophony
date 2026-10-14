@@ -13,7 +13,6 @@
  */
 import { createHash } from 'node:crypto';
 import type { Hash } from 'node:crypto';
-import { copyFileSync, mkdirSync, symlinkSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -39,7 +38,7 @@ import { NOT_STARTED, PLAYING, allAudible, sceneOf } from '../src/pose/test-scen
 import type { TestScene } from '../src/pose/test-scene.ts';
 import type { AnimalPose, Transport } from '../src/pose/types.ts';
 import { patchedDemos } from './patch-demos.ts';
-import { ROOT, runChild, withRefTree } from './ref-tree.ts';
+import { runChild, withProbeTree } from './ref-tree.ts';
 
 /** The supports of each species in the probe: each seat, and standing. */
 export const PROBE_SUPPORTS = [
@@ -738,25 +737,11 @@ async function readProbe(file: string): Promise<Probe> {
   return JSON.parse(await readFile(file, 'utf8')) as Probe;
 }
 
-/** The paths of a commit that the probe of the commit reads. */
-const REF_PATHS = [
-  'src',
-  'package.json',
-  'demos/src',
-  'demos/patches.json',
-  'demos/README.md',
-  'tools/patch-demos.ts',
-] as const;
-
-/** The files of this tool that the probe of a commit copies into its folder. */
-const TOOL_FILES = ['body-probe.ts', 'ref-tree.ts'] as const;
-
 /**
- * Probes the bodies and the poses of a commit. It extracts {@link REF_PATHS} of the commit into a
- * new folder with `withRefTree()`. The folder gets a copy of this tool and of `ref-tree.ts`, and a
- * link to the `node_modules` of the repository. Then it runs the probe there, in a child
- * process, so that the caller can probe the working tree at the same time. The folder goes away
- * at the end, also after a failure or a stop (INT or TERM).
+ * Probes the bodies and the poses of a commit. The folder of `withProbeTree()` holds the code and
+ * the demos of the commit, and a copy of this tool. The probe runs there in a child process, so
+ * that the caller can probe the working tree at the same time. The folder goes away at the end,
+ * also after a failure or a stop (INT or TERM).
  *
  * @param ref The commit, a branch, or a tag.
  * @param parent The folder that holds the temporary folder.
@@ -765,21 +750,16 @@ const TOOL_FILES = ['body-probe.ts', 'ref-tree.ts'] as const;
  * @throws Error if git does not know the ref, or the probe fails on the code of the commit.
  */
 export function probeRef(ref: string, parent: string = tmpdir(), poses = true): Promise<Probe> {
-  return withRefTree(
+  return withProbeTree(
     ref,
     async (dir) => {
       // The child starts before the first await, so it runs beside a probe of the caller.
-      mkdirSync(join(dir, 'tools'), { recursive: true });
-      for (const file of TOOL_FILES) {
-        copyFileSync(join(ROOT, 'tools', file), join(dir, 'tools', file));
-      }
-      symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
       const out = join(dir, 'probe.json');
       const args = [join('tools', 'body-probe.ts'), '--out', out, ...(poses ? [] : ['--no-poses'])];
       await runChild(process.execPath, args, dir);
       return await readProbe(out);
     },
-    { parent, prefix: 'body-probe-', paths: REF_PATHS },
+    { parent, prefix: 'body-probe-' },
   );
 }
 

@@ -14,7 +14,14 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { errorCause, optionValue, shortHash, withRefTree } from './ref-tree.ts';
+import {
+  errorCause,
+  optionValue,
+  probeScripts,
+  shortHash,
+  withProbeTree,
+  withRefTree,
+} from './ref-tree.ts';
 
 describe('errorCause', () => {
   it('keeps the lines before the stack of an error', () => {
@@ -67,6 +74,43 @@ describe('withRefTree', () => {
 
       const unknown = withRefTree('no-such-ref', () => Promise.resolve(0), { parent });
       await expect(unknown).rejects.toThrow('no-such-ref');
+      expect(await readdir(parent)).toEqual([]);
+    } finally {
+      await rm(parent, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('probeScripts', () => {
+  it('copies each script of tools/ with no test and with no path of the commit', () => {
+    const files = [
+      'body-probe.ts',
+      'body-probe.test.ts',
+      'blender',
+      'patch-demos.ts',
+      'ref-tree.ts',
+    ];
+    expect(probeScripts(files)).toEqual(['body-probe.ts', 'ref-tree.ts']);
+  });
+});
+
+describe('withProbeTree', () => {
+  it('gives the code of a commit with the scripts and the node_modules of the working tree', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'probe-tree-test-'));
+    try {
+      await withProbeTree(
+        'HEAD',
+        async (dir) => {
+          expect(existsSync(join(dir, 'src', 'pose', 'pose-at.ts'))).toBe(true);
+          expect(existsSync(join(dir, 'demos', 'patches.json'))).toBe(true);
+          expect(existsSync(join(dir, 'tools', 'patch-demos.ts'))).toBe(true);
+          expect(existsSync(join(dir, 'tools', 'pose-depth.ts'))).toBe(true);
+          expect(existsSync(join(dir, 'tools', 'ref-tree.test.ts'))).toBe(false);
+          expect(existsSync(join(dir, 'node_modules', 'three', 'package.json'))).toBe(true);
+          return Promise.resolve();
+        },
+        { parent, prefix: 'probe-tree-' },
+      );
       expect(await readdir(parent)).toEqual([]);
     } finally {
       await rm(parent, { recursive: true, force: true });

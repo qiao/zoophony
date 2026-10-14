@@ -1,11 +1,11 @@
 /**
  * Puts the tree of a commit into a temporary folder, so that a tool can compare the working tree
- * with a commit, a branch, or a tag (`--base <ref>` of `pnpm body-probe`, `pnpm size`, and
- * `pnpm close-views`).
+ * with a commit, a branch, or a tag (`--base <ref>` of `pnpm body-probe`, `pnpm pose-depth`,
+ * `pnpm hold-fit`, `pnpm size`, and `pnpm close-views`).
  */
 import { spawn, spawnSync } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
-import { mkdtempSync, rmSync, symlinkSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -221,6 +221,78 @@ export async function withRefTree<T>(
     await rm(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
     held.delete(dir);
   }
+}
+
+/**
+ * The paths of a commit that a probe of the code of the commit reads: the source, the demos, and
+ * the rules of the demo patches.
+ */
+export const PROBE_PATHS: readonly string[] = [
+  'src',
+  'package.json',
+  'demos/src',
+  'demos/patches.json',
+  'demos/README.md',
+  'tools/patch-demos.ts',
+];
+
+/**
+ * Gives the scripts of `tools/` of the working tree that a probe of a commit copies: each script
+ * that is not a test and that {@link PROBE_PATHS} does not take from the commit.
+ *
+ * @param files The names of the files of `tools/`.
+ * @returns The names of the scripts to copy, in their order.
+ */
+export function probeScripts(files: readonly string[]): string[] {
+  return files.filter(
+    (file) =>
+      file.endsWith('.ts') && !file.endsWith('.test.ts') && !PROBE_PATHS.includes(`tools/${file}`),
+  );
+}
+
+/** The options of {@link withProbeTree}. */
+export interface ProbeTreeOptions {
+  /** The folder that holds the temporary folder. The default is the temporary folder of the OS. */
+  readonly parent?: string;
+  /** The start of the name of the temporary folder, such as `body-probe-`. */
+  readonly prefix: string;
+}
+
+/**
+ * Extracts {@link PROBE_PATHS} of a commit into a new temporary folder with {@link withRefTree},
+ * and gives the folder to a function. The folder also gets a copy of the scripts of `tools/` of
+ * the working tree ({@link probeScripts}), and a link to the `node_modules` of the repository.
+ * Thus a tool of the working tree runs there, in a child process of {@link runChild}, on the code
+ * and the demos of the commit. The copy and the start of the function run before the first
+ * `await`, so the child runs beside the code of the caller. The folder goes away at the end, also
+ * after a failure or a stop (INT or TERM).
+ *
+ * @param ref The commit, a branch, or a tag.
+ * @param use The function that runs the probe in the folder.
+ * @param options The parent folder and the start of the name.
+ * @returns The result of the function.
+ * @throws Error if git does not know the ref, or the function fails.
+ */
+export function withProbeTree<T>(
+  ref: string,
+  use: (dir: string) => Promise<T>,
+  options: ProbeTreeOptions,
+): Promise<T> {
+  const tree: RefTreeOptions = options.parent
+    ? { parent: options.parent, prefix: options.prefix, paths: PROBE_PATHS }
+    : { prefix: options.prefix, paths: PROBE_PATHS };
+  return withRefTree(
+    ref,
+    (dir) => {
+      mkdirSync(join(dir, 'tools'), { recursive: true });
+      for (const file of probeScripts(readdirSync(join(ROOT, 'tools')))) {
+        copyFileSync(join(ROOT, 'tools', file), join(dir, 'tools', file));
+      }
+      symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
+      return use(dir);
+    },
+    tree,
+  );
 }
 
 /**
