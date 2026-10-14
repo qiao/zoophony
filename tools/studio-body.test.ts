@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
+import { CHAIR } from '../src/models/props.ts';
 import {
   ANIMALS,
   inspectStudioGlb,
@@ -23,6 +24,7 @@ describe('pnpm studio-body (design 4.4)', async () => {
     landmark: 'shoulders',
     height: 1,
     seated: false,
+    soloist: false,
     constant: 'STUDIO_BEAR',
   });
   const mesh = unpackStudioMesh(body.mesh);
@@ -317,7 +319,79 @@ describe('pnpm studio-body --inspect (design 4.4)', async () => {
 
     const facts = inspectStudioGlb(bytes, null);
     expect(facts.scaleFrom).toContain('assumed');
-    const assumed = { ...settings, landmark: 'shoulders', height: 1, seated: false } as const;
+    const assumed = {
+      ...settings,
+      landmark: 'shoulders',
+      height: 1,
+      seated: false,
+      soloist: false,
+    } as const;
     expect(facts.scale).toBeCloseTo(studioBody(bytes, 'x.glb', assumed).body.scale, 5);
+  });
+});
+
+describe('pnpm studio-body with a seated body that also stands (design 4.4)', async () => {
+  const source = 'lowpoly-studio/animals/rabbit/out/rabbit.glb';
+  const bytes = await readFile(join(import.meta.dirname, '..', source));
+  const settings = ANIMALS.get('rabbit');
+  if (!settings) {
+    throw new Error('The rabbit has no settings.');
+  }
+  const { body, sheetWeights } = studioBody(bytes, source, settings);
+  const mesh = unpackStudioMesh(body.mesh);
+  const facts = inspectStudioGlb(bytes, settings);
+
+  it('drops the held violin and bow of the studio with their faces and bones', () => {
+    expect(facts.joints.dropped).toEqual(['violin', 'bow']);
+    expect(facts.joints.unknown).toEqual([]);
+    const animal = facts.nodes.find((node) => node.kind === 'skinned mesh');
+    const kept = ['fur', 'gloss'].reduce((sum, m) => sum + (animal?.faces.get(m) ?? 0), 0);
+    expect(mesh.corners.length / 3).toBe(kept);
+  });
+
+  it('rests the seated body on a chair that fits its legs', () => {
+    const seat = body.seatHeight ?? 0;
+    let low = Infinity;
+    let lowOnSeat = Infinity;
+    for (let v = 0; v < mesh.positions.length / 3; v++) {
+      const [x, y, z] = [0, 1, 2].map((k) => mesh.positions[v * 3 + k] ?? 0);
+      low = Math.min(low, y ?? 0);
+      if (Math.abs(x ?? 0) <= CHAIR.seatWidth / 2 && Math.abs(z ?? 0) <= CHAIR.seatDepth / 2) {
+        lowOnSeat = Math.min(lowOnSeat, y ?? 0);
+      }
+    }
+    expect(low).toBeCloseTo(0, 3);
+    expect(Math.abs(lowOnSeat - seat)).toBeLessThan(0.001);
+    expect(seat).toBeGreaterThan(0.05);
+    expect(body.heads.hips[1]).toBeGreaterThan(seat);
+  });
+
+  it('keeps the leg corrective shapes and the standing pose of the sheet', () => {
+    expect(facts.targets.every((target) => target.kept)).toBe(true);
+    expect(mesh.correctives).toHaveLength(4);
+    expect(sheetWeights).toEqual([1, 1, 1, 1]);
+    const standing = body.standing;
+    if (!standing) {
+      throw new Error('The rabbit has no standing pose.');
+    }
+    // The body moves up by its seated drop and back over the origin.
+    expect(standing.lift[1]).toBeGreaterThan(0);
+    expect(standing.lift[2]).toBeCloseTo(-body.floor[2], 5);
+    // Each thigh turns forward and down by more than 45° from the seat.
+    const thigh = standing.turns.thigh_L;
+    expect(2 * Math.acos(Math.min(1, Math.abs(thigh[3])))).toBeGreaterThan(Math.PI / 4);
+  });
+
+  it('gives no standing pose to a body that keeps the stance of its role', async () => {
+    const polar = await readFile(
+      join(import.meta.dirname, '..', 'lowpoly-studio/animals/polar-bear/out/polar-bear.glb'),
+    );
+    const polarSettings = ANIMALS.get('polar-bear');
+    if (!polarSettings) {
+      throw new Error('The polar bear has no settings.');
+    }
+    const polarBody = studioBody(polar, 'x.glb', polarSettings).body;
+    expect(polarBody.standing).toBeNull();
+    expect(unpackStudioMesh(polarBody.mesh).correctives).toHaveLength(2);
   });
 });

@@ -8,15 +8,18 @@ import { Box3, Matrix4, Quaternion, Vector3 } from 'three';
 
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import type { Finish } from '../src/models/mesh.ts';
-import { STUDIO_BONES, packStudioMesh } from '../src/models/studio-format.ts';
+import { CHAIR } from '../src/models/props.ts';
+import { STUDIO_BONES, STUDIO_LEG_BONES, packStudioMesh } from '../src/models/studio-format.ts';
 import type {
   Side,
   StudioBody,
   StudioBone,
+  StudioLegBone,
+  StudioStanding,
   StudioTriangle,
   StudioVertex,
 } from '../src/models/studio-format.ts';
-import type { Vec3 } from '../src/models/tuples.ts';
+import type { Quat, Vec3 } from '../src/models/tuples.ts';
 
 /** The repository root. */
 const ROOT = join(import.meta.dirname, '..');
@@ -39,6 +42,11 @@ export interface AnimalSettings {
    * at their standing height, so the body drops until its soles are on the floor.
    */
   readonly seated: boolean;
+  /**
+   * True for a seated body that also stands, as the violinist rabbit as a soloist (design 4.5).
+   * The export keeps the leg corrective shapes and the leg turns of the pose of the sheet.
+   */
+  readonly soloist: boolean;
   /** The name of the constant of the module. */
   readonly constant: string;
 }
@@ -48,12 +56,40 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
   // The bear conductor keeps the shoulder joints of the parametric bear of 2026-10-11, 1.0 m
   // above the floor, because the conductor stand and the places of the hands fit them (design
   // 4.5, 5.4).
-  ['bear', { landmark: 'shoulders', height: 1.0, seated: false, constant: 'STUDIO_BEAR' }],
+  [
+    'bear',
+    {
+      landmark: 'shoulders',
+      height: 1.0,
+      seated: false,
+      soloist: false,
+      constant: 'STUDIO_BEAR',
+    },
+  ],
   // The polar bear pianist keeps the keys of its studio piano at the keys of the piano of the app,
   // because the studio fitted its seated arms to them (design 4.4, 5.3).
   [
     'polar-bear',
-    { landmark: 'keys', height: PIANO.keyTop, seated: true, constant: 'STUDIO_POLAR_BEAR' },
+    {
+      landmark: 'keys',
+      height: PIANO.keyTop,
+      seated: true,
+      soloist: false,
+      constant: 'STUDIO_POLAR_BEAR',
+    },
+  ],
+  // The violinist rabbit keeps the standing shoulder joints of the parametric rabbit, so that the
+  // section spacing and the music stands keep their fit (design 4.4, 4.5). It sits in the violin
+  // section and stands as a soloist.
+  [
+    'rabbit',
+    {
+      landmark: 'shoulders',
+      height: 0.581,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_RABBIT',
+    },
   ],
 ]);
 
@@ -63,8 +99,12 @@ const FINISHES: ReadonlyMap<string, Finish> = new Map([
   ['gloss', 'lacquer'],
 ]);
 
-/** The bones of the studio that the app drops: the hand props. The app has its own baton. */
-const DROPPED_BONES: ReadonlySet<string> = new Set(['baton']);
+/**
+ * The bones of the studio that the app drops: the hand props. The app has its own baton, violin,
+ * and bow. The faces of a held prop are a material of their own, which the export drops too
+ * ({@link FINISHES}).
+ */
+const DROPPED_BONES: ReadonlySet<string> = new Set(['baton', 'violin', 'bow']);
 
 /**
  * The name of a digit bone of a paw with four digits, such as `finger3_L` of the pianist role
@@ -93,6 +133,38 @@ const EYE_SIDE = 0.02;
 
 /** The order of the corrective shapes in a studio body: the left arm, then the right arm. */
 export const CORRECTIVE_NAMES = ['arm_down_L', 'arm_down_R'] as const;
+
+/**
+ * The leg corrective shapes of a seated body that also stands, after {@link CORRECTIVE_NAMES}: the
+ * left leg, then the right leg. They have their full weight in the pose of the sheet.
+ */
+export const LEG_CORRECTIVE_NAMES = ['legs_straight_L', 'legs_straight_R'] as const;
+
+/**
+ * Gives the corrective shapes that the export keeps for an animal.
+ *
+ * @param settings The settings of the animal.
+ * @returns The names, in their order in the packed mesh.
+ */
+export function keptCorrectives(settings: AnimalSettings): readonly string[] {
+  return settings.soloist ? [...CORRECTIVE_NAMES, ...LEG_CORRECTIVE_NAMES] : CORRECTIVE_NAMES;
+}
+
+/** A seat prop of the studio, and the size of the seat of the app that takes its place. */
+interface SeatProp {
+  /** The name of the prop node: `bench` or `chair`. */
+  readonly name: string;
+  /** The width of the seat of the app, in meters. */
+  readonly width: number;
+  /** The depth of the seat of the app, in meters. */
+  readonly depth: number;
+}
+
+/** The seat props of the studio, and the width and the depth of the seat of the app for each. */
+const SEATS: ReadonlyMap<string, Omit<SeatProp, 'name'>> = new Map([
+  ['bench', { width: PIANO_BENCH.width, depth: PIANO_BENCH.depth }],
+  ['chair', { width: CHAIR.seatWidth, depth: CHAIR.seatDepth }],
+]);
 
 /** A node of a glTF file: the fields that the tool reads. */
 interface GltfNode {
@@ -355,7 +427,7 @@ export function worldMatrices(gltf: Gltf, poses: ReadonlyMap<number, NodePose>):
 interface FirstKeys {
   /** The values of each animated node. */
   readonly nodes: Map<number, NodePose>;
-  /** The weights of the corrective shapes. */
+  /** The weights of the morph targets of the skinned mesh, in their order. */
   readonly weights: readonly number[];
 }
 
@@ -364,7 +436,7 @@ interface FirstKeys {
  *
  * @param glb The file.
  * @param name The name of the animation.
- * @returns The values of each animated node, and the weights of the corrective shapes.
+ * @returns The values of each animated node, and the weights of the morph targets.
  * @throws Error if the file has no animation of the name.
  */
 export function firstKeys(glb: Glb, name: string): FirstKeys {
@@ -390,7 +462,8 @@ export function firstKeys(glb: Glb, name: string): FirstKeys {
     } else if (path === 'scale') {
       pose.scale = Array.from(output.subarray(0, 3));
     } else if (path === 'weights') {
-      weights = Array.from(output.subarray(0, CORRECTIVE_NAMES.length));
+      const keys = glb.json.accessors[sampler.input]?.count ?? 1;
+      weights = Array.from(output.subarray(0, output.length / keys));
     }
     nodes.set(channel.target.node, pose);
   }
@@ -446,10 +519,12 @@ interface SourceMesh {
  * the studio are flat, with one color each, so a vertex needs no normal and no color.
  *
  * @param glb The file.
- * @returns The welded mesh. The primitive of a dropped bone (the baton) is not in it.
- * @throws Error if the file has no skinned mesh, or a face has corners of different colors.
+ * @param kept The corrective shapes that the export keeps: the first morph targets.
+ * @returns The welded mesh. The primitive of a dropped bone, such as the baton, is not in it.
+ * @throws Error if the file has no skinned mesh, if its first morph targets are not these shapes,
+ *   or if a face has corners of different colors.
  */
-export function weldMesh(glb: Glb): SourceMesh {
+export function weldMesh(glb: Glb, kept: readonly string[]): SourceMesh {
   const node = glb.json.nodes.find((n) => n.mesh !== undefined && n.skin !== undefined);
   const mesh = node?.mesh === undefined ? undefined : glb.json.meshes[node.mesh];
   const skin = node?.skin === undefined ? undefined : glb.json.skins[node.skin];
@@ -457,8 +532,8 @@ export function weldMesh(glb: Glb): SourceMesh {
     throw new Error('The file has no skinned mesh.');
   }
   const names = mesh.extras?.targetNames ?? [];
-  if (CORRECTIVE_NAMES.some((name, i) => names[i] !== name)) {
-    throw new Error(`The shapes are ${names.join(', ')}, not ${CORRECTIVE_NAMES.join(', ')}.`);
+  if (kept.some((name, i) => names[i] !== name)) {
+    throw new Error(`The shapes are ${names.join(', ')}, not ${kept.join(', ')}.`);
   }
 
   const jointNames = skin.joints.map((j) => ownBone(glb.json.nodes[j]?.name ?? ''));
@@ -823,12 +898,28 @@ function propBox(glb: Glb, test: (name: string) => boolean): Box3 {
 }
 
 /**
+ * Finds the seat prop of the studio (a bench or a chair) and the size of the seat of the app.
+ *
+ * @param glb The file.
+ * @returns The name of the prop, and the width and the depth of the seat of the app, in meters.
+ * @throws Error if the file has no seat prop.
+ */
+function seatOf(glb: Glb): SeatProp {
+  for (const [name, size] of SEATS) {
+    if (glb.json.nodes.some((node) => node.name === name && node.mesh !== undefined)) {
+      return { name, ...size };
+    }
+  }
+  throw new Error(`The file has no seat prop: ${[...SEATS.keys()].join(' or ')}.`);
+}
+
+/**
  * Finds the scale and the move of the studio animal in the app (design 4.4). A standing body keeps
  * its place: the soles of the studio are on the floor. A seated body drops until the lowest point
- * of its mesh, a sole, is on the floor, and moves forward so that the front edge of the bench of
- * the studio is at the front edge of the piano bench of the app. The scene of the studio puts the
- * field of the soles on its floor, and the skin is a little outside the field, so the seated body
- * of the app is up to 0.011 units higher above its keys than in the studio.
+ * of its mesh, a sole, is on the floor, and moves forward so that the front edge of the seat of
+ * the studio (a bench or a chair) is at the front edge of the seat of the app. The scene of the
+ * studio puts the field of the soles on its floor, and the skin is a little outside the field, so
+ * the seated body of the app is up to 0.011 units higher above its keys than in the studio.
  *
  * @param glb The file.
  * @param skeleton The bind pose.
@@ -852,22 +943,25 @@ function sceneFrame(
   }
 
   const drop = Math.min(...mesh.vertices.map((v) => v.position.y));
-  const front = propBox(glb, (name) => name === 'bench').max.z;
-  return { scale, offset: new Vector3(0, -drop, PIANO_BENCH.depth / 2 / scale - front) };
+  const seat = seatOf(glb);
+  const front = propBox(glb, (name) => name === seat.name).max.z;
+  return { scale, offset: new Vector3(0, -drop, seat.depth / 2 / scale - front) };
 }
 
 /**
- * Finds the height of a flat bench under a seated studio body (design 4.4, 4.5): the lowest point
- * of the mesh over the piano bench of the app, so that the body rests on the bench and no part of
- * it goes into the bench.
+ * Finds the height of a flat seat under a seated studio body (design 4.4, 4.5): the lowest point
+ * of the mesh over the seat of the app (the piano bench or the chair), so that the body rests on
+ * the seat and no part of it goes into the seat.
  *
+ * @param glb The file.
  * @param mesh The welded mesh.
  * @param frame The place of the animal in the app.
- * @returns The height of the top of the bench, in meters.
+ * @returns The height of the top of the seat, in meters.
  */
-function seatHeightOf(mesh: SourceMesh, frame: SceneFrame): number {
-  const halfX = PIANO_BENCH.width / 2 / frame.scale;
-  const halfZ = PIANO_BENCH.depth / 2 / frame.scale;
+function seatHeightOf(glb: Glb, mesh: SourceMesh, frame: SceneFrame): number {
+  const seat = seatOf(glb);
+  const halfX = seat.width / 2 / frame.scale;
+  const halfZ = seat.depth / 2 / frame.scale;
   let low = Infinity;
   for (const vertex of mesh.vertices) {
     const p = vertex.position.clone().add(frame.offset);
@@ -876,6 +970,47 @@ function seatHeightOf(mesh: SourceMesh, frame: SceneFrame): number {
     }
   }
   return round(low * frame.scale);
+}
+
+/**
+ * Finds the standing pose of a seated body that also stands (design 4.4): the turns of the leg
+ * bones in the first key of the clip `reference`, the pose of the sheet, in which the leg
+ * corrective shapes have their full weight. The trunk keeps its bind pose in that key, so the
+ * hips stay, and the body moves back from its seat to stand over the origin.
+ *
+ * @param glb The file.
+ * @param skeleton The bind pose.
+ * @param frame The place of the seated animal in the app.
+ * @returns The standing pose, in the model axes.
+ * @throws Error if the hips move or turn in the pose of the sheet.
+ */
+function standingOf(glb: Glb, skeleton: SourceSkeleton, frame: SceneFrame): StudioStanding {
+  const posed = worldMatrices(glb.json, firstKeys(glb, 'reference').nodes);
+  const turn = (bone: string): Quaternion => {
+    const node = skeleton.nodes.get(bone) ?? -1;
+    const world = new Quaternion().setFromRotationMatrix(posed[node] ?? new Matrix4());
+    const bind = new Quaternion().setFromRotationMatrix(skeleton.binds.get(bone) ?? new Matrix4());
+    return world.multiply(bind.invert());
+  };
+  const hips = new Vector3().setFromMatrixPosition(
+    posed[skeleton.nodes.get('hips') ?? -1] ?? new Matrix4(),
+  );
+  if (
+    hips.distanceTo(headOf(skeleton, 'hips')) > 1e-4 ||
+    turn('hips').angleTo(new Quaternion()) > 1e-3
+  ) {
+    throw new Error('The hips move in the pose of the sheet, so the legs alone do not make it.');
+  }
+  // The turn of a half circle around y moves a rotation into the model axes: x and z change sign.
+  const model = (q: Quaternion): Quat => [round(-q.x), round(q.y), round(-q.z), round(q.w)];
+  return {
+    lift: toModelAxes(frame.offset.clone().negate(), frame.scale),
+    // SAFETY: the entries hold each bone of STUDIO_LEG_BONES one time.
+    turns: Object.fromEntries(STUDIO_LEG_BONES.map((bone) => [bone, model(turn(bone))])) as Record<
+      StudioLegBone,
+      Quat
+    >,
+  };
 }
 
 /** The output of the export of a studio body. */
@@ -898,7 +1033,8 @@ interface Export {
 export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSettings): Export {
   const glb = readGlb(bytes);
   const skeleton = readSkeleton(glb);
-  const mesh = weldMesh(glb);
+  const kept = keptCorrectives(settings);
+  const mesh = weldMesh(glb, kept);
   const frame = sceneFrame(glb, skeleton, mesh, settings);
   const scale = frame.scale;
   const model = (p: Vector3): Vec3 => toModelAxes(p.clone().add(frame.offset), scale);
@@ -972,7 +1108,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     position: model(v.position),
     skin: v.skin.map(([bone, w]) => [boneIndexOf(bone), w] as const),
   }));
-  const correctives = CORRECTIVE_NAMES.map((_, s) =>
+  const correctives = kept.map((_, s) =>
     ordered.vertices.map((v) => toModelAxes(v.moves[s] ?? new Vector3(), scale)),
   );
   const sheet = sheetArms(glb, skeleton);
@@ -994,7 +1130,8 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       headCenter: model(center),
       nose: model(nose),
       floor: toModelAxes(new Vector3(0, 0, frame.offset.z), scale),
-      seatHeight: settings.seated ? seatHeightOf(mesh, frame) : null,
+      seatHeight: settings.seated ? seatHeightOf(glb, mesh, frame) : null,
+      standing: settings.seated && settings.soloist ? standingOf(glb, skeleton, frame) : null,
       mesh: packStudioMesh(vertices, ordered.faces, correctives),
     },
     sheetWeights: sheet.weights,
@@ -1196,7 +1333,13 @@ export function inspectStudioGlb(
   const keys = props.find((prop) => prop.name === 'piano_key_*');
 
   // The scale of the settings, as the export finds it.
-  const used = settings ?? { landmark: 'shoulders', height: 1, seated: false, constant: '' };
+  const used = settings ?? {
+    landmark: 'shoulders',
+    height: 1,
+    seated: false,
+    soloist: false,
+    constant: '',
+  };
   const landmark =
     used.landmark === 'shoulders' ? heightOf(nodeOf('upper_arm_L'), worlds) : keys?.box.max.y;
   if (landmark === undefined) {
@@ -1266,7 +1409,7 @@ export function inspectStudioGlb(
   const animal = skinned?.mesh === undefined ? undefined : gltf.meshes[skinned.mesh];
   const targets = (animal?.extras?.targetNames ?? []).map((name) => ({
     name,
-    kept: CORRECTIVE_NAMES.some((own) => own === name),
+    kept: keptCorrectives(used).includes(name),
   }));
   const lowest = new Vector3(0, Infinity, 0);
   for (const primitive of animal?.primitives ?? []) {

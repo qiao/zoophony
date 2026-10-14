@@ -10,7 +10,7 @@ import {
   writeVarint,
   zigzag,
 } from './packed-bytes.ts';
-import type { Vec3 } from './tuples.ts';
+import type { Quat, Vec3 } from './tuples.ts';
 
 /**
  * The bones of a studio body (design 4.4, 4.7): the 30 body bones of the biped template of
@@ -95,6 +95,33 @@ export const STUDIO_PARENTS = {
 /** A side of the body: the left side of the animal is at -x (design 4.4). */
 export type Side = 'L' | 'R';
 
+/** The leg bones of a studio body, which turn when a seated body stands (design 4.4). */
+export const STUDIO_LEG_BONES = [
+  'thigh_L',
+  'shin_L',
+  'foot_L',
+  'toes_L',
+  'thigh_R',
+  'shin_R',
+  'foot_R',
+  'toes_R',
+] as const;
+
+/** A leg bone of a studio body. */
+export type StudioLegBone = (typeof STUDIO_LEG_BONES)[number];
+
+/**
+ * The standing pose of a seated studio body that also stands, such as the violinist rabbit as a
+ * soloist (design 4.4): the legs of the pose of the sheet, with the leg corrective shapes of the
+ * studio at their full weight.
+ */
+export interface StudioStanding {
+  /** The move of the body from its seated place over the seat to its standing place. */
+  readonly lift: Vec3;
+  /** The world turn of each leg bone from the bind pose to the pose of the sheet. */
+  readonly turns: Readonly<Record<StudioLegBone, Quat>>;
+}
+
 /**
  * A body from the studio (design 4.4): the mesh of a GLB file of `lowpoly-studio/` in its bind
  * pose, with its own skeleton, its skin of up to four bones for each vertex, and its corrective
@@ -133,15 +160,21 @@ export interface StudioBody {
   readonly nose: Vec3;
   /**
    * The point on the floor under the middle of the body: the origin of the studio. A seated body
-   * sits in front of the center of its seat, so that the bench of the studio and the piano bench
-   * of the app have one front edge, and the floor instruments go with it.
+   * sits in front of the center of its seat, so that the seat of the studio (a bench or a chair)
+   * and the seat of the app have one front edge, and the floor instruments go with it.
    */
   readonly floor: Vec3;
   /**
-   * The height of the top of a flat bench under a seated body: the lowest point of the body over
-   * the piano bench of the app. It is `null` for a body that stands.
+   * The height of the top of a flat seat under a seated body: the lowest point of the body over
+   * the seat of the app (the piano bench or the chair). It is `null` for a body that stands.
    */
   readonly seatHeight: number | null;
+  /**
+   * The standing pose of a seated body that also stands. The packed mesh then holds the leg
+   * corrective shapes after the arm corrective shapes. It is `null` for a body that keeps the
+   * stance of its role.
+   */
+  readonly standing: StudioStanding | null;
   /** The packed mesh ({@link packStudioMesh}). */
   readonly mesh: string;
 }
