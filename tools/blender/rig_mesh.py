@@ -1,0 +1,958 @@
+"""Rigs a textured mesh with no skeleton into the GLB format of a studio body (design 4.4).
+
+    blender -b --factory-startup --python tools/blender/rig_mesh.py -- <config.json> <out.glb> \
+        [--preview <dir>]
+
+`pnpm rig-mesh <animal>` runs this script with `tools/mesh-rigs/<animal>.json`. The output has
+the format of `lowpoly-studio/animals/<animal>/out/<animal>.glb`, so that `pnpm studio-body`
+reads it (route 3 of `AGENTS.md`). The steps:
+
+1. Import the source GLB file, weld the corners, and scale the mesh to 1 unit from the soles to
+   the top, with the soles at y = 0. The math uses the axes of the studio: y up, +z forward, and
+   +x the left side of the animal.
+2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
+3. Build the skeleton of the 30 body bones of the studio at the joints of the config, and give
+   the weights with bone heat. Then the rules of the config: the head, the ears, the tail ball,
+   and the haunch. Each vertex keeps four bones, in steps of 1/255.
+4. Make the upper arm and the forearm longer by the arm factor of the config. Each bone scales
+   along its axis, and the weights blend the stretch to 0 at the shoulder. The paw keeps its size.
+5. Pose the skeleton in the seated bind pose: the legs turn by the seat of the studio, and the
+   arms go to the bind arms of the studio. The skin of the long-armed source in this pose is the
+   bind mesh.
+6. Split each eye into a gloss shell a little out of the surface. The faces under it take the
+   fur color, so that a blink shows no hole. The faces of the nose become gloss.
+7. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
+   `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
+   and the other vertices give `legs_straight_L` and `legs_straight_R`.
+8. Write the GLB file with the code of this script: the materials `fur`, `gloss`, and `chair`,
+   the skinned mesh with its morph targets, the skeleton, the clip `reference` with one key, and
+   a chair under the seated body. The bytes depend only on the config and the source file.
+
+With `--preview`, the script also renders the seated bind and the standing body from four sides,
+the knees of the seated body from the side, and the main bone of each face, and it writes the
+long-armed source as `source-long-arms.obj` for the probes of `docs/research/`.
+"""
+
+import colorsys
+import json
+import math
+import os
+import struct
+import sys
+
+import bmesh
+import bpy
+import numpy as np
+from mathutils import Vector
+
+#: The body bones of a studio body, in parent order (`STUDIO_BONES` of
+#: `src/models/studio-format.ts`, with no eye bones).
+BONES = (
+    'root', 'hips', 'spine', 'spine1', 'chest', 'neck', 'head', 'ear_L', 'ear_R',
+    'clavicle_L', 'upper_arm_L', 'forearm_L', 'forearm_twist_L', 'hand_L', 'fingers_L',
+    'clavicle_R', 'upper_arm_R', 'forearm_R', 'forearm_twist_R', 'hand_R', 'fingers_R',
+    'thigh_L', 'shin_L', 'foot_L', 'toes_L', 'thigh_R', 'shin_R', 'foot_R', 'toes_R', 'tail',
+)
+
+#: The parent of each body bone (`STUDIO_PARENTS` of `src/models/studio-format.ts`).
+PARENTS = {
+    'root': None, 'hips': 'root', 'spine': 'hips', 'spine1': 'spine', 'chest': 'spine1',
+    'neck': 'chest', 'head': 'neck', 'ear_L': 'head', 'ear_R': 'head', 'clavicle_L': 'chest',
+    'upper_arm_L': 'clavicle_L', 'forearm_L': 'upper_arm_L', 'forearm_twist_L': 'forearm_L',
+    'hand_L': 'forearm_twist_L', 'fingers_L': 'hand_L', 'clavicle_R': 'chest',
+    'upper_arm_R': 'clavicle_R', 'forearm_R': 'upper_arm_R', 'forearm_twist_R': 'forearm_R',
+    'hand_R': 'forearm_twist_R', 'fingers_R': 'hand_R', 'thigh_L': 'hips', 'shin_L': 'thigh_L',
+    'foot_L': 'shin_L', 'toes_L': 'foot_L', 'thigh_R': 'hips', 'shin_R': 'thigh_R',
+    'foot_R': 'shin_R', 'toes_R': 'foot_R', 'tail': 'hips',
+}
+
+#: The arm bones of each side, from the shoulder out. The clavicle does not move.
+ARM = ('upper_arm', 'forearm', 'forearm_twist', 'hand', 'fingers')
+
+#: The leg bones of each side, from the hips down.
+LEG = ('thigh', 'shin', 'foot', 'toes')
+
+#: The largest number of bones of a vertex, and the steps of a weight (design 4.4).
+INFLUENCES = 4
+WEIGHT_STEPS = 255
+
+#: The corrective shapes, in their order in the mesh (`tools/studio-body.ts`).
+SHAPES = ('arm_down_L', 'arm_down_R', 'legs_straight_L', 'legs_straight_R')
+
+#: The roughness of each material, as the materials of the studio rabbit.
+MATERIALS = (('chair', 0.6), ('fur', 0.7), ('gloss', 0.42))
+
+#: The color of the chair, in sRGB.
+CHAIR_COLOR = (0.55, 0.42, 0.3)
+
+#: The size of one view of a preview, in pixels.
+VIEW = 500
+
+
+def log(text):
+    """Prints a line that `tools/rig-mesh.ts` shows."""
+    print(f'rig_mesh: {text}', flush=True)
+
+
+def args():
+    """Reads the config path, the output path, and the preview folder after `--`."""
+    rest = sys.argv[sys.argv.index('--') + 1 :]
+    preview = None
+    if '--preview' in rest:
+        at = rest.index('--preview')
+        preview = rest[at + 1]
+        rest = rest[:at] + rest[at + 2 :]
+    if len(rest) != 2:
+        raise SystemExit('Usage: blender -b --python rig_mesh.py -- <config> <out.glb> [--preview <dir>]')
+    return rest[0], rest[1], preview
+
+
+def to_blender(v):
+    """Converts points from the axes of the studio (y up, z forward) to the axes of Blender."""
+    v = np.asarray(v, float)
+    return np.stack([v[..., 0], -v[..., 2], v[..., 1]], axis=-1)
+
+
+def from_blender(v):
+    """Converts points from the axes of Blender to the axes of the studio."""
+    v = np.asarray(v, float)
+    return np.stack([v[..., 0], v[..., 2], -v[..., 1]], axis=-1)
+
+
+def unit(v):
+    """Gives a vector of length 1 in the direction of a vector."""
+    v = np.asarray(v, float)
+    return v / np.linalg.norm(v)
+
+
+def smoothstep(x, low, high):
+    """Gives 0 below `low`, 1 above `high`, and a smooth ramp between them, for arrays."""
+    t = np.clip((np.asarray(x, float) - low) / (high - low), 0.0, 1.0)
+    return t * t * (3 - 2 * t)
+
+
+def quat_matrix(q):
+    """Gives the rotation matrix of a quaternion (x, y, z, w)."""
+    x, y, z, w = unit(q)
+    return np.array([
+        [1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+        [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+        [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)],
+    ])
+
+
+def matrix_quat(m):
+    """Gives the quaternion (x, y, z, w) of a rotation matrix, with w >= 0."""
+    t = np.trace(m)
+    if t > 0:
+        s = math.sqrt(t + 1.0) * 2
+        q = [(m[2, 1] - m[1, 2]) / s, (m[0, 2] - m[2, 0]) / s, (m[1, 0] - m[0, 1]) / s, 0.25 * s]
+    elif m[0, 0] > m[1, 1] and m[0, 0] > m[2, 2]:
+        s = math.sqrt(1.0 + m[0, 0] - m[1, 1] - m[2, 2]) * 2
+        q = [0.25 * s, (m[0, 1] + m[1, 0]) / s, (m[0, 2] + m[2, 0]) / s, (m[2, 1] - m[1, 2]) / s]
+    elif m[1, 1] > m[2, 2]:
+        s = math.sqrt(1.0 + m[1, 1] - m[0, 0] - m[2, 2]) * 2
+        q = [(m[0, 1] + m[1, 0]) / s, 0.25 * s, (m[1, 2] + m[2, 1]) / s, (m[0, 2] - m[2, 0]) / s]
+    else:
+        s = math.sqrt(1.0 + m[2, 2] - m[0, 0] - m[1, 1]) * 2
+        q = [(m[0, 2] + m[2, 0]) / s, (m[1, 2] + m[2, 1]) / s, 0.25 * s, (m[1, 0] - m[0, 1]) / s]
+    q = unit(q)
+    return q if q[3] >= 0 else -q
+
+
+def swing(a, b):
+    """Gives the smallest rotation matrix that turns the unit vector `a` onto the unit vector `b`."""
+    a, b = unit(a), unit(b)
+    axis = np.cross(a, b)
+    s = np.linalg.norm(axis)
+    c = float(np.dot(a, b))
+    if s < 1e-9:
+        return np.eye(3)
+    k = axis / s
+    kx = np.array([[0, -k[2], k[1]], [k[2], 0, -k[0]], [-k[1], k[0], 0]])
+    return np.eye(3) + s * kx + (1 - c) * kx @ kx
+
+
+def mirror_name(name):
+    """Gives the name of the bone on the other side, or the name of a bone of the middle."""
+    if name.endswith('_L'):
+        return name[:-2] + '_R'
+    if name.endswith('_R'):
+        return name[:-2] + '_L'
+    return name
+
+
+def mirrored(v):
+    """Mirrors a point or a direction to the other side of the middle plane."""
+    return np.array([-v[0], v[1], v[2]], float)
+
+
+def load_mesh(config):
+    """Imports the source GLB file, welds the corners, and gives the vertices (axes of the studio,
+    1 unit high, soles at y = 0), the triangles, the UV of each corner, the base color texture,
+    and the scale from the units of the file."""
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.import_scene.gltf(filepath=config['source'])
+    meshes = [o for o in bpy.context.scene.objects if o.type == 'MESH']
+    if len(meshes) != 1:
+        raise SystemExit(f"{config['source']} has {len(meshes)} meshes, not 1.")
+    ob = meshes[0]
+    material = ob.material_slots[0].material
+    bsdf = next(n for n in material.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
+    image = bsdf.inputs['Base Color'].links[0].from_node.image
+    width, height = image.size
+    pixels = np.empty(width * height * 4, np.float32)
+    image.pixels.foreach_get(pixels)
+    texture = pixels.reshape(height, width, 4)[:, :, :3]
+
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    bm.transform(ob.matrix_world)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=config['weld'])
+    bmesh.ops.triangulate(bm, faces=bm.faces[:])
+    bm.verts.ensure_lookup_table()
+    bm.faces.ensure_lookup_table()
+    uv_layer = bm.loops.layers.uv.active
+    verts = from_blender(np.array([v.co[:] for v in bm.verts]))
+    tris = np.array([[v.index for v in f.verts] for f in bm.faces], np.int64)
+    uvs = np.array([[loop[uv_layer].uv[:] for loop in f.loops] for f in bm.faces])
+    bm.free()
+    # The scene keeps only the objects of the rig and of the previews.
+    for o in list(bpy.context.scene.objects):
+        bpy.data.objects.remove(o)
+    floor, top = verts[:, 1].min(), verts[:, 1].max()
+    scale = 1.0 / (top - floor)
+    verts = (verts - [0.0, floor, 0.0]) * scale
+    log(f'source: {len(verts)} vertices, {len(tris)} triangles, scale {scale:.6f}')
+    return verts, tris, uvs, texture
+
+
+def linear(srgb):
+    """Converts sRGB values from 0 to 1 to linear values."""
+    srgb = np.asarray(srgb, float)
+    return np.where(srgb <= 0.04045, srgb / 12.92, ((srgb + 0.055) / 1.055) ** 2.4)
+
+
+def face_colors(tris, uvs, texture, rules):
+    """Gives the sRGB color of each face, and a flag for each dark face. The color is the mean of
+    the texture samples of a grid on the face. A face with a share of dark samples of at least
+    `eyeShare` is dark, and takes the mean of its dark samples."""
+    n = rules['samples']
+    grid = np.array([(i / n, j / n, (n - i - j) / n) for i in range(n + 1) for j in range(n + 1 - i)])
+    height, width, _ = texture.shape
+    colors = np.zeros((len(tris), 3))
+    dark = np.zeros(len(tris), bool)
+    for f in range(len(tris)):
+        at = grid @ uvs[f]
+        x = np.clip(((at[:, 0] % 1.0) * width).astype(int), 0, width - 1)
+        y = np.clip(((at[:, 1] % 1.0) * height).astype(int), 0, height - 1)
+        samples = texture[y, x]
+        lum = linear(samples) @ [0.2126, 0.7152, 0.0722]
+        low = lum < rules['dark']
+        if low.mean() >= rules['eyeShare']:
+            dark[f] = True
+            colors[f] = samples[low].mean(axis=0)
+        else:
+            colors[f] = samples.mean(axis=0)
+    return colors, dark
+
+
+def in_box(points, box):
+    """Tells for each point if it is in a box of two corners."""
+    lo, hi = np.asarray(box[0]), np.asarray(box[1])
+    return np.all((points >= lo) & (points <= hi), axis=1)
+
+
+def features(verts, tris, colors, dark, rules):
+    """Finds the faces of the eyes, by side, and the faces of the nose."""
+    centers = verts[tris].mean(axis=1)
+    box = np.asarray(rules['eyeBox'], float)
+    left = dark & in_box(centers, box)
+    right_box = [[-box[1][0], box[0][1], box[0][2]], [-box[0][0], box[1][1], box[1][2]]]
+    right = dark & in_box(centers, right_box)
+    nose_color = np.asarray(rules['nose'], float)
+    pink = np.linalg.norm(colors - nose_color, axis=1) < np.linalg.norm(colors - 1.0, axis=1)
+    nose = pink & in_box(centers, rules['noseBox'])
+    log(f'eyes: {left.sum()} faces left, {right.sum()} faces right, nose: {nose.sum()} faces')
+    return {'L': np.nonzero(left)[0], 'R': np.nonzero(right)[0]}, np.nonzero(nose)[0]
+
+
+def joints_of(config):
+    """Gives the head, the tail, the roll hint, and the child at the tail (or `None` for a tail
+    at a point of its own) of each body bone, in the pose of the source. The right side mirrors
+    the left side of the config."""
+    joints = config['joints']
+    palm = unit(config['palm'])
+    heads, ends, rolls, children = {}, {}, {}, {}
+    specs = {}
+    for name in BONES:
+        own = name in joints
+        spec = joints[name] if own else joints[mirror_name(name)]
+        side = (lambda v: np.asarray(v, float)) if own else mirrored
+        specs[name] = (spec, own, side)
+        heads[name] = side(spec['head'])
+        roll = spec.get('roll', [0, 0, 1])
+        rolls[name] = side(palm if roll == 'palm' else roll)
+    for name in BONES:
+        spec, own, side = specs[name]
+        tail = spec['tail']
+        if isinstance(tail, str):
+            children[name] = tail if own else mirror_name(tail)
+            ends[name] = heads[children[name]]
+        else:
+            children[name] = None
+            ends[name] = side(tail)
+    return heads, ends, rolls, children
+
+
+def frame(head, tail, roll):
+    """Gives the rotation of a bone frame: y along the bone, z toward the roll hint, x = y × z."""
+    y = unit(np.asarray(tail) - head)
+    z = np.asarray(roll, float) - np.dot(roll, y) * y
+    z = unit(z)
+    return np.stack([np.cross(y, z), y, z], axis=1)
+
+
+def bone_heat(verts, tris, heads, ends, rolls):
+    """Gives the weights of each vertex on the body bones with the bone heat of Blender. The root
+    does not deform. A vertex that bone heat leaves with no weight takes the nearest bone."""
+    mesh = bpy.data.meshes.new('heat')
+    mesh.from_pydata(to_blender(verts).tolist(), [], tris.tolist())
+    mesh.update()
+    ob = bpy.data.objects.new('heat', mesh)
+    bpy.context.scene.collection.objects.link(ob)
+    arm_data = bpy.data.armatures.new('heat_rig')
+    rig = bpy.data.objects.new('heat_rig', arm_data)
+    bpy.context.scene.collection.objects.link(rig)
+    bpy.context.view_layer.objects.active = rig
+    bpy.ops.object.mode_set(mode='EDIT')
+    for name in BONES:
+        bone = arm_data.edit_bones.new(name)
+        bone.head = to_blender(heads[name]).tolist()
+        bone.tail = to_blender(ends[name]).tolist()
+        bone.align_roll(to_blender(rolls[name]).tolist())
+        bone.use_deform = name != 'root'
+    for name in BONES:
+        if PARENTS[name]:
+            arm_data.edit_bones[name].parent = arm_data.edit_bones[PARENTS[name]]
+    bpy.ops.object.mode_set(mode='OBJECT')
+    for o in bpy.context.scene.objects:
+        o.select_set(o in (ob, rig))
+    bpy.context.view_layer.objects.active = rig
+    bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+
+    weights = np.zeros((len(verts), len(BONES)))
+    index = {g.index: BONES.index(g.name) for g in ob.vertex_groups}
+    for v in ob.data.vertices:
+        for g in v.groups:
+            weights[v.index, index[g.group]] += g.weight
+    empty = weights.sum(axis=1) <= 1e-6
+    if empty.any():
+        for v in np.nonzero(empty)[0]:
+            weights[v, nearest_bone(verts[v], heads, ends)] = 1.0
+    log(f'bone heat: {int(empty.sum())} vertices with no weight took the nearest bone')
+    bpy.data.objects.remove(ob)
+    bpy.data.objects.remove(rig)
+    return weights
+
+
+def nearest_bone(p, heads, ends):
+    """Gives the index of the deforming bone whose segment is nearest to a point."""
+    best, found = math.inf, 1
+    for k, name in enumerate(BONES[1:], 1):
+        a, b = heads[name], ends[name]
+        t = np.clip(np.dot(p - a, b - a) / max(np.dot(b - a, b - a), 1e-12), 0, 1)
+        d = np.linalg.norm(p - (a + t * (b - a)))
+        if d < best:
+            best, found = d, k
+    return found
+
+
+def apply_rules(verts, weights, rules):
+    """Applies the weight rules of the config: the haunch on the hips, the tail ball on the tail,
+    the ears on their bones, and the head only above the head line."""
+    w = weights.copy()
+    col = {name: k for k, name in enumerate(BONES)}
+    y = verts[:, 1]
+
+    # The haunch: the thigh weight above the leg goes to the hips.
+    share = smoothstep(y, *rules['haunch']['height'])
+    for side in 'LR':
+        taken = w[:, col[f'thigh_{side}']] * share
+        w[:, col[f'thigh_{side}']] -= taken
+        w[:, col['hips']] += taken
+
+    # The tail ball follows the tail only, and no other vertex follows the tail.
+    ball = rules['tailBall']
+    inside = np.linalg.norm(verts - ball['center'], axis=1) <= ball['radius']
+    inside &= verts[:, 2] <= ball['behind']
+    w[:, col['hips']] += np.where(inside, 0.0, w[:, col['tail']])
+    w[:, col['tail']] = 0.0
+    w[inside] = 0.0
+    w[inside, col['tail']] = 1.0
+
+    # The head: the eyes, the nose, and the whiskers follow the head only. Each ear follows its
+    # ear bone above its base.
+    above = y >= rules['headFrom']
+    w[above] = 0.0
+    w[above, col['head']] = 1.0
+    ear = smoothstep(y, *rules['earBase'])
+    for side, sign in (('L', 1.0), ('R', -1.0)):
+        mine = above & (verts[:, 0] * sign > 0.01) & (ear > 0)
+        w[mine, col[f'ear_{side}']] = ear[mine]
+        w[mine, col['head']] = 1.0 - ear[mine]
+    return w
+
+
+def weight_steps(row):
+    """Splits weights that add up to 1 into whole steps of 1/255, as `weightSteps()` of
+    `src/models/studio-format.ts`: each weight rounds down, and the largest remainders get one
+    more step."""
+    exact = row / row.sum() * WEIGHT_STEPS
+    steps = np.floor(exact)
+    order = sorted(range(len(row)), key=lambda i: (-(exact[i] - steps[i]), i))
+    missing = int(WEIGHT_STEPS - steps.sum())
+    for i in order[:missing]:
+        steps[i] += 1
+    return steps
+
+
+def limit(weights):
+    """Keeps the four largest weights of each vertex, in steps of 1/255 that add up to 1."""
+    out = np.zeros_like(weights)
+    for v, row in enumerate(weights):
+        keep = sorted(np.nonzero(row > 1e-4)[0], key=lambda k: (-row[k], k))[:INFLUENCES]
+        steps = weight_steps(row[keep])
+        for k, s in zip(keep, steps):
+            if s > 0:
+                out[v, k] = s / WEIGHT_STEPS
+    return out
+
+
+def skin(weights, matrices, points):
+    """Moves points with linear blend skinning: each matrix is (3 × 4), rotation and move."""
+    out = np.zeros_like(points)
+    for k, m in enumerate(matrices):
+        w = weights[:, k]
+        if not w.any():
+            continue
+        out += w[:, None] * (points @ m[:, :3].T + m[:, 3])
+    return out
+
+
+def move(rotation, src, dst):
+    """Gives the (3 × 4) matrix that turns a point around `src` and moves `src` to `dst`."""
+    return np.concatenate([rotation, (dst - rotation @ src)[:, None]], axis=1)
+
+
+def stretch(verts, weights, heads, ends, children, factor):
+    """Makes the upper arm and the forearm of each side longer by a factor along their axes. The
+    paw moves with the wrist and keeps its size. Gives the moved vertices, heads, and tails."""
+    new_heads = {k: v.copy() for k, v in heads.items()}
+    new_ends = {k: v.copy() for k, v in ends.items()}
+    matrices = [move(np.eye(3), np.zeros(3), np.zeros(3)) for _ in BONES]
+    for side in 'LR':
+        s = heads[f'upper_arm_{side}']
+        e = heads[f'forearm_{side}']
+        wrist = heads[f'hand_{side}']
+        e2 = s + factor * (e - s)
+        wrist2 = e2 + factor * (wrist - e)
+        for name, origin, start, axis in (
+            ('upper_arm', s, s, e - s),
+            ('forearm', e, e2, wrist - e),
+            ('forearm_twist', e, e2, wrist - e),
+        ):
+            y = unit(axis)
+            scale = np.eye(3) + (factor - 1) * np.outer(y, y)
+            matrices[BONES.index(f'{name}_{side}')] = move(scale, origin, start)
+        shift = wrist2 - wrist
+        for name in ('hand', 'fingers'):
+            matrices[BONES.index(f'{name}_{side}')] = move(np.eye(3), np.zeros(3), shift)
+        new_heads[f'forearm_{side}'] = e2
+        new_heads[f'forearm_twist_{side}'] = e2 + factor * (heads[f'forearm_twist_{side}'] - e)
+        new_heads[f'hand_{side}'] = wrist2
+        new_heads[f'fingers_{side}'] = heads[f'fingers_{side}'] + shift
+        new_ends[f'fingers_{side}'] = ends[f'fingers_{side}'] + shift
+    for name in BONES:
+        if children[name]:
+            new_ends[name] = new_heads[children[name]]
+    return skin(weights, matrices, verts), new_heads, new_ends
+
+
+def reach(heads, side):
+    """Gives the arm from the shoulder joint over the elbow and the wrist to the middle of the
+    palm, as `pnpm studio-body --inspect` measures it."""
+    s, e, w, f = (heads[f'{b}_{side}'] for b in ('upper_arm', 'forearm', 'hand', 'fingers'))
+    palm = (w + f) / 2
+    return np.linalg.norm(e - s) + np.linalg.norm(w - e) + np.linalg.norm(palm - w)
+
+
+def bind_turns(config, heads, ends, rolls):
+    """Gives the world turn of each bone from the pose of the source to the seated bind pose. The
+    legs take the inverse of the turns of the studio from its bind pose to its clip `reference`.
+    Each arm bone turns the least way onto its bind direction after the turn of its parent, so
+    that the arm does not twist. The other bones do not turn."""
+    studio = config['studio']
+    turns = {name: np.eye(3) for name in BONES}
+    for side in 'LR':
+        for bone in LEG:
+            q = np.asarray(studio['legTurns'][bone], float)
+            if side == 'R':
+                q = q * [1, -1, -1, 1]
+            turns[f'{bone}_{side}'] = quat_matrix(q).T
+        parent = np.eye(3)
+        for bone in ARM:
+            name = f'{bone}_{side}'
+            if bone in ('forearm_twist', 'fingers'):
+                # The twist bone and the fingers keep the turn of their parent.
+                turns[name] = parent
+                continue
+            target = np.asarray(studio['bindArms'][bone], float)
+            if side == 'R':
+                target = mirrored(target)
+            now = parent @ unit(ends[name] - heads[name])
+            turns[name] = swing(now, target) @ parent
+            parent = turns[name]
+    return turns
+
+
+def posed_heads(heads, turns):
+    """Gives the head of each bone after the world turns, from the root down."""
+    out = {}
+    for name in BONES:
+        parent = PARENTS[name]
+        if parent is None:
+            out[name] = heads[name].copy()
+        else:
+            out[name] = out[parent] + turns[parent] @ (heads[name] - heads[parent])
+    return out
+
+
+def add_eye_shells(verts, bind, tris, colors, eyes, lift):
+    """Adds a gloss shell over each eye: a copy of the faces of the eye, lifted along the normals
+    of the bind mesh. The faces under it take the mean fur color of their neighbors. Gives the
+    new vertices of the source and of the bind mesh, the triangles, the colors, the materials,
+    and the side of each new vertex."""
+    material = np.array(['fur'] * len(tris), dtype=object)
+    new_src, new_bind, new_tris, new_colors = [verts], [bind], [tris], [colors.copy()]
+    count = len(verts)
+    eye_faces = np.concatenate([eyes['L'], eyes['R']])
+    neighbors = {}
+    for f, t in enumerate(tris):
+        for k in range(3):
+            edge = tuple(sorted((t[k], t[(k + 1) % 3])))
+            neighbors.setdefault(edge, []).append(f)
+    for side in 'LR':
+        faces = eyes[side]
+        if len(faces) == 0:
+            continue
+        corners = np.unique(tris[faces])
+        normal = np.zeros(3)
+        for f in faces:
+            a, b, c = bind[tris[f]]
+            normal += np.cross(b - a, c - a)
+        normal = unit(normal)
+        index = {v: count + k for k, v in enumerate(corners)}
+        new_src.append(verts[corners] + lift * normal)
+        new_bind.append(bind[corners] + lift * normal)
+        new_tris.append(np.array([[index[v] for v in tris[f]] for f in faces]))
+        new_colors.append(colors[faces])
+        count += len(corners)
+        # The faces under the shell take the mean color of the fur faces around the eye.
+        around = set()
+        for f in faces:
+            t = tris[f]
+            for k in range(3):
+                around.update(neighbors[tuple(sorted((t[k], t[(k + 1) % 3])))])
+        around -= set(eye_faces.tolist())
+        fur = colors[sorted(around)].mean(axis=0) if around else colors[faces].mean(axis=0)
+        new_colors[0][faces] = fur
+    tris_out = np.concatenate(new_tris)
+    material = np.concatenate([material, np.array(['gloss'] * (len(tris_out) - len(tris)),
+                                                  dtype=object)])
+    return (np.concatenate(new_src), np.concatenate(new_bind), tris_out,
+            np.concatenate(new_colors), material)
+
+
+def correctives(src, bind, weights, turns, src_heads, bind_heads):
+    """Finds the move of each vertex in the bind pose that the skin of the clip `reference` takes
+    to its source place: d = A⁻¹ (source − b) − bind, with the skin A p + b of the clip. Gives the
+    moves, the smallest determinant of A, and the vertex of it."""
+    a = np.zeros((len(src), 3, 3))
+    b = np.zeros((len(src), 3))
+    for k, name in enumerate(BONES):
+        w = weights[:, k]
+        if not w.any():
+            continue
+        back = turns[name].T
+        a += w[:, None, None] * back
+        b += w[:, None] * (src_heads[name] - back @ bind_heads[name])
+    det = np.linalg.det(a)
+    worst = int(np.argmin(np.abs(det)))
+    moves = np.linalg.solve(a, (src - b)[:, :, None])[:, :, 0] - bind
+    return moves, float(det[worst]), worst
+
+
+def split_shapes(moves, weights, bind):
+    """Splits the corrective moves into the four shapes: the vertices with an arm weight give the
+    arm shapes, and the others give the leg shapes. Each kind splits by side with a smooth ramp
+    across the middle plane, as the studio does."""
+    arm = np.zeros(len(moves), bool)
+    for side in 'LR':
+        for bone in ARM:
+            arm |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+    side = smoothstep(bind[:, 0], -0.02, 0.02)
+    out = {}
+    for kind, mask in (('arm_down', arm), ('legs_straight', ~arm)):
+        part = moves * mask[:, None]
+        out[f'{kind}_L'] = part * side[:, None]
+        out[f'{kind}_R'] = part * (1 - side)[:, None]
+    return out
+
+
+def chair_mesh(rule, bind, weights):
+    """Makes the chair under the seated body: a seat whose top is the lowest point of the body
+    over the seat, four legs, and a back. The shins and the feet hang in front of the seat, so
+    they do not count. Gives the vertices, the triangles, and the seat top."""
+    hw, front, back = rule['halfWidth'], rule['front'], rule['back']
+    lower = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
+    hanging = weights[:, lower].sum(axis=1) > 0.5
+    over = (np.abs(bind[:, 0]) <= hw) & (bind[:, 2] >= back) & (bind[:, 2] <= front) & ~hanging
+    top = float(bind[over, 1].min())
+    boxes = [
+        ((-hw, top - 0.02, back), (hw, top, front)),
+        ((-hw, 0, back), (-hw + 0.02, top - 0.02, back + 0.02)),
+        ((hw - 0.02, 0, back), (hw, top - 0.02, back + 0.02)),
+        ((-hw, 0, front - 0.02), (-hw + 0.02, top - 0.02, front)),
+        ((hw - 0.02, 0, front - 0.02), (hw, top - 0.02, front)),
+        ((-hw, top, back), (hw, top + rule['backHeight'], back + 0.02)),
+    ]
+    verts, faces = [], []
+    quads = ((0, 2, 3, 1), (4, 5, 7, 6), (0, 1, 5, 4), (2, 6, 7, 3), (0, 4, 6, 2), (1, 3, 7, 5))
+    for lo, hi in boxes:
+        base = len(verts)
+        for i in range(8):
+            verts.append([(lo, hi)[i >> 2 & 1][0], (lo, hi)[i >> 1 & 1][1], (lo, hi)[i & 1][2]])
+        for a, b, c, d in quads:
+            faces += [[base + a, base + b, base + c], [base + a, base + c, base + d]]
+    return np.array(verts, float), np.array(faces), top
+
+
+class GlbWriter:
+    """Collects the buffer views and the accessors of a GLB file."""
+
+    def __init__(self):
+        """Starts an empty binary chunk."""
+        self.bin = bytearray()
+        self.views = []
+        self.accessors = []
+
+    def add(self, array, component, kind, minmax=False, normalized=False):
+        """Adds an accessor of a numpy array, and gives its index."""
+        data = np.ascontiguousarray(array).tobytes()
+        while len(self.bin) % 4:
+            self.bin.append(0)
+        self.views.append({'buffer': 0, 'byteOffset': len(self.bin), 'byteLength': len(data)})
+        self.bin += data
+        count = len(array)
+        accessor = {'bufferView': len(self.views) - 1, 'componentType': component,
+                    'count': count, 'type': kind}
+        if normalized:
+            accessor['normalized'] = True
+        if minmax:
+            flat = np.asarray(array, float).reshape(count, -1)
+            accessor['min'] = [float(np.float32(x)) for x in flat.min(axis=0)]
+            accessor['max'] = [float(np.float32(x)) for x in flat.max(axis=0)]
+        self.accessors.append(accessor)
+        return len(self.accessors) - 1
+
+    def floats(self, array, kind, minmax=False):
+        """Adds an accessor of 32-bit floats."""
+        return self.add(np.asarray(array, np.float32), 5126, kind, minmax)
+
+
+def primitive_arrays(points, tris, colors, materials, weights, shapes, name):
+    """Gives the vertex arrays of the faces of one material: each corner with its face color is
+    one vertex, so that each face keeps one color."""
+    faces = np.nonzero(materials == name)[0]
+    keys, index, corners = {}, [], []
+    for f in faces:
+        c = tuple(np.round(linear(colors[f]), 7))
+        row = []
+        for v in tris[f]:
+            key = (int(v), c)
+            if key not in keys:
+                keys[key] = len(index)
+                index.append(key)
+            row.append(keys[key])
+        corners.append(row)
+    vertex = np.array([k[0] for k in index])
+    color = np.array([k[1] for k in index])
+    joints = np.zeros((len(vertex), 4), np.uint8)
+    values = np.zeros((len(vertex), 4), np.float32)
+    for i, v in enumerate(vertex):
+        bones = sorted(np.nonzero(weights[v] > 0)[0], key=lambda k: (-weights[v, k], k))
+        for j, k in enumerate(bones):
+            joints[i, j] = k
+            values[i, j] = weights[v, k]
+    return {
+        'position': points[vertex], 'color': color, 'joints': joints, 'weights': values,
+        'shapes': [shapes[s][vertex] for s in SHAPES], 'indices': np.array(corners, np.uint32),
+    }
+
+
+def write_glb(path, config, bind, tris, colors, materials, weights, shapes, bind_frames,
+              bind_heads, src_frames, src_heads, chair):
+    """Writes the rig as a GLB file in the format of a studio body."""
+    w = GlbWriter()
+    mats = [{'name': name, 'doubleSided': True,
+             'pbrMetallicRoughness': {'metallicFactor': 0.0, 'roughnessFactor': rough}}
+            for name, rough in MATERIALS]
+
+    chair_verts, chair_tris, _ = chair
+    chair_prim = {
+        'attributes': {
+            'POSITION': w.floats(chair_verts, 'VEC3', minmax=True),
+            'COLOR_0': w.floats(np.tile(linear(CHAIR_COLOR), (len(chair_verts), 1)), 'VEC3'),
+        },
+        'indices': w.add(chair_tris.astype(np.uint32).ravel(), 5125, 'SCALAR'),
+        'material': 0,
+    }
+
+    primitives = []
+    for k, name in ((1, 'fur'), (2, 'gloss')):
+        arrays = primitive_arrays(bind, tris, colors, materials, weights, shapes, name)
+        primitives.append({
+            'attributes': {
+                'POSITION': w.floats(arrays['position'], 'VEC3', minmax=True),
+                'COLOR_0': w.floats(arrays['color'], 'VEC3'),
+                'JOINTS_0': w.add(arrays['joints'], 5121, 'VEC4'),
+                'WEIGHTS_0': w.floats(arrays['weights'], 'VEC4'),
+            },
+            'indices': w.add(arrays['indices'].ravel(), 5125, 'SCALAR'),
+            'material': k,
+            'targets': [{'POSITION': w.floats(s, 'VEC3', minmax=True)} for s in arrays['shapes']],
+        })
+
+    # The joints: the local place and turn of each bone in the bind pose and in the clip.
+    def local(frames, heads, name):
+        parent = PARENTS[name]
+        if parent is None:
+            return heads[name], frames[name]
+        back = frames[parent].T
+        return back @ (heads[name] - heads[parent]), back @ frames[name]
+
+    first = 2
+    nodes = [{'name': 'chair', 'mesh': 0}]
+    nodes.append({'name': config['name'], 'mesh': 1, 'skin': 0})
+    joint_index = {name: first + k for k, name in enumerate(BONES)}
+    inverse = []
+    for name in BONES:
+        t, r = local(bind_frames, bind_heads, name)
+        node = {'name': name, 'rotation': [float(x) for x in matrix_quat(r)],
+                'translation': [float(x) for x in t]}
+        children = [joint_index[c] for c in BONES if PARENTS[c] == name]
+        if children:
+            node['children'] = children
+        nodes.append(node)
+        world = np.eye(4)
+        world[:3, :3] = bind_frames[name]
+        world[:3, 3] = bind_heads[name]
+        inverse.append(np.linalg.inv(world).T.ravel())
+    nodes.append({'name': f"{config['name']}Rig", 'children': [1, joint_index['root']]})
+
+    times = w.floats(np.zeros(1), 'SCALAR', minmax=True)
+    channels, samplers = [], []
+    for name in BONES:
+        t, r = local(src_frames, src_heads, name)
+        for target, value, kind in (('translation', t, 'VEC3'),
+                                    ('rotation', matrix_quat(r), 'VEC4')):
+            samplers.append({'input': times, 'output': w.floats(np.asarray([value]), kind),
+                             'interpolation': 'LINEAR'})
+            channels.append({'sampler': len(samplers) - 1,
+                             'target': {'node': joint_index[name], 'path': target}})
+    samplers.append({'input': times, 'output': w.floats(np.ones(len(SHAPES)), 'SCALAR'),
+                     'interpolation': 'LINEAR'})
+    channels.append({'sampler': len(samplers) - 1, 'target': {'node': 1, 'path': 'weights'}})
+
+    gltf = {
+        'asset': {'generator': 'zoophony tools/blender/rig_mesh.py', 'version': '2.0'},
+        'scene': 0,
+        'scenes': [{'name': 'Scene', 'nodes': [0, len(nodes) - 1]}],
+        'nodes': nodes,
+        'animations': [{'name': 'reference', 'channels': channels, 'samplers': samplers}],
+        'materials': mats,
+        'meshes': [
+            {'name': 'chair', 'primitives': [chair_prim]},
+            {'name': config['name'], 'primitives': primitives,
+             'weights': [0.0] * len(SHAPES), 'extras': {'targetNames': list(SHAPES)}},
+        ],
+        'skins': [{'name': f"{config['name']}Rig", 'joints': [joint_index[n] for n in BONES],
+                   'skeleton': joint_index['root'],
+                   'inverseBindMatrices': w.floats(np.array(inverse), 'MAT4')}],
+        'accessors': w.accessors,
+        'bufferViews': w.views,
+        'buffers': [{'byteLength': len(w.bin)}],
+    }
+    text = json.dumps(gltf, separators=(',', ':')).encode()
+    text += b' ' * (-len(text) % 4)
+    data = bytes(w.bin) + b'\0' * (-len(w.bin) % 4)
+    gltf['buffers'][0]['byteLength'] = len(w.bin)
+    out = struct.pack('<III', 0x46546C67, 2, 12 + 8 + len(text) + 8 + len(data))
+    out += struct.pack('<II', len(text), 0x4E4F534A) + text
+    out += struct.pack('<II', len(data), 0x004E4942) + data
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, 'wb') as f:
+        f.write(out)
+    log(f'wrote {path}: {len(out)} bytes')
+
+
+def bone_color(index):
+    """Gives a color for a bone: hues by the golden ratio, so that neighbors differ."""
+    return colorsys.hsv_to_rgb((index * 0.61803) % 1.0, 0.7, 0.95)
+
+
+def preview(out, parts):
+    """Renders the preview images. Each part is (name, [(vertices, triangles, sRGB face colors)],
+    [(view name, azimuth in degrees, elevation in degrees, center, size)])."""
+    os.makedirs(out, exist_ok=True)
+    scene = bpy.context.scene
+    scene.render.engine = 'BLENDER_WORKBENCH'
+    scene.display.shading.light = 'STUDIO'
+    scene.display.shading.color_type = 'VERTEX'
+    scene.render.resolution_x = scene.render.resolution_y = VIEW
+    scene.world = bpy.data.worlds.new('world')
+    camera = bpy.data.cameras.new('camera')
+    camera.type = 'ORTHO'
+    cam = bpy.data.objects.new('camera', camera)
+    scene.collection.objects.link(cam)
+    scene.camera = cam
+    for name, meshes, views in parts:
+        objects = []
+        for k, (verts, tris, colors) in enumerate(meshes):
+            mesh = bpy.data.meshes.new(f'{name}{k}')
+            mesh.from_pydata(to_blender(verts).tolist(), [], np.asarray(tris).tolist())
+            mesh.update()
+            attr = mesh.color_attributes.new('color', 'FLOAT_COLOR', 'CORNER')
+            rgba = np.concatenate([linear(colors), np.ones((len(colors), 1))], axis=1)
+            attr.data.foreach_set('color', np.repeat(rgba, 3, axis=0).ravel().astype(np.float32))
+            ob = bpy.data.objects.new(f'{name}{k}', mesh)
+            scene.collection.objects.link(ob)
+            objects.append(ob)
+        paths = []
+        for view, azimuth, elevation, center, size in views:
+            a, e = math.radians(azimuth), math.radians(elevation)
+            # The azimuth 0 looks at the front of the animal, which faces -y in Blender.
+            d = np.array([math.sin(a) * math.cos(e), -math.cos(a) * math.cos(e), math.sin(e)])
+            camera.ortho_scale = size
+            cam.location = (to_blender(center) + d * 5).tolist()
+            cam.rotation_euler = Vector((-d).tolist()).to_track_quat('-Z', 'Y').to_euler()
+            path = os.path.join(out, f'{name}-{view}.png')
+            scene.render.filepath = path
+            bpy.ops.render.render(write_still=True)
+            paths.append(path)
+        images = [bpy.data.images.load(p) for p in paths]
+        pixels = [np.array(img.pixels[:], np.float32).reshape(VIEW, VIEW, 4) for img in images]
+        sheet = bpy.data.images.new(name, VIEW * len(pixels), VIEW)
+        sheet.pixels = np.concatenate(pixels, axis=1).ravel()
+        sheet.filepath_raw = os.path.join(out, f'{name}.png')
+        sheet.file_format = 'PNG'
+        sheet.save()
+        for img in images:
+            bpy.data.images.remove(img)
+        for p in paths:
+            os.remove(p)
+        for ob in objects:
+            bpy.data.objects.remove(ob)
+        log(f'preview: {sheet.filepath_raw}')
+
+
+def write_obj(path, verts, tris):
+    """Writes a mesh as an OBJ file."""
+    with open(path, 'w') as f:
+        for v in verts:
+            f.write(f'v {v[0]:.7f} {v[1]:.7f} {v[2]:.7f}\n')
+        for t in tris:
+            f.write(f'f {t[0] + 1} {t[1] + 1} {t[2] + 1}\n')
+
+
+def main():
+    config_path, out_path, preview_dir = args()
+    with open(config_path) as f:
+        config = json.load(f)
+    rules = config['weights']
+
+    verts, tris, uvs, texture = load_mesh(config)
+    colors, dark = face_colors(tris, uvs, texture, config['colors'])
+    eyes, nose = features(verts, tris, colors, dark, config['colors'])
+
+    heads, ends, rolls, children = joints_of(config)
+    weights = limit(apply_rules(verts, bone_heat(verts, tris, heads, ends, rolls), rules))
+
+    # The long arms: the scale of the app comes from the shoulder joints.
+    long_verts, long_heads, long_ends = stretch(verts, weights, heads, ends, children,
+                                                 config['armFactor'])
+    meters = config['app']['shoulders'] / heads['upper_arm_L'][1]
+    for side in 'LR':
+        before, after = reach(heads, side) * meters, reach(long_heads, side) * meters
+        log(f'arm {side}: reach {before:.4f} m before, {after:.4f} m after the factor '
+            f"{config['armFactor']} (target {config['app']['reach']} m)")
+
+    src_frames = {n: frame(long_heads[n], long_ends[n], rolls[n]) for n in BONES}
+    turns = bind_turns(config, long_heads, long_ends, rolls)
+    bind_heads = posed_heads(long_heads, turns)
+    bind_frames = {n: turns[n] @ src_frames[n] for n in BONES}
+    matrices = [move(turns[n], long_heads[n], bind_heads[n]) for n in BONES]
+    bind = skin(weights, matrices, long_verts)
+
+    src_all, bind_all, tris_all, colors_all, materials = add_eye_shells(
+        long_verts, bind, tris, colors, eyes, config['eyeLift'])
+    materials[nose] = 'gloss'
+    extra = len(src_all) - len(long_verts)
+    head_only = np.zeros((extra, len(BONES)))
+    head_only[:, BONES.index('head')] = 1.0
+    weights_all = np.concatenate([weights, head_only])
+
+    moves, det, worst = correctives(src_all, bind_all, weights_all, turns, long_heads, bind_heads)
+    log(f'corrective: the smallest determinant of the skin is {det:.4f} at the vertex {worst}')
+    back = skin(weights_all, [move(turns[n].T, bind_heads[n], long_heads[n]) for n in BONES],
+                bind_all + moves)
+    error = np.linalg.norm(back - src_all, axis=1).max()
+    log(f'corrective: the clip gives the source back within {error:.2e} u '
+        f'({error * meters * 1000:.4f} mm)')
+    shapes = split_shapes(moves, weights_all, bind_all)
+    for name in SHAPES:
+        log(f'shape {name}: {int((np.abs(shapes[name]).max(axis=1) > 1e-6).sum())} vertices, '
+            f'largest move {np.abs(shapes[name]).max():.4f} u')
+
+    chair = chair_mesh(config['chair'], bind_all, weights_all)
+    log(f'chair: seat top {chair[2]:.4f} u, lowest point of the body {bind_all[:, 1].min():.4f} u')
+    log(f'triangles: {len(tris_all)} ({int((materials == "gloss").sum())} gloss)')
+    write_glb(out_path, config, bind_all, tris_all, colors_all, materials, weights_all, shapes,
+              bind_frames, bind_heads, src_frames, long_heads, chair)
+
+    if preview_dir:
+        os.makedirs(preview_dir, exist_ok=True)
+        write_obj(os.path.join(preview_dir, 'source-long-arms.obj'), long_verts, tris)
+        main_bone = weights_all[tris_all].sum(axis=1).argmax(axis=1)
+        bones = np.array([bone_color(k) for k in main_bone])
+        chair_part = (chair[0], chair[1], np.tile(CHAIR_COLOR, (len(chair[1]), 1)))
+        four = [('front', 0, 5), ('right', 90, 5), ('back', 180, 5), ('q', 35, 15)]
+        seated_center = np.array([0, 0.5, 0.02])
+        preview(preview_dir, [
+            ('seated', [(bind_all, tris_all, colors_all), chair_part],
+             [(v, a, e, seated_center, 1.1) for v, a, e in four]),
+            ('standing', [(src_all, tris_all, colors_all)],
+             [(v, a, e, np.array([0, 0.5, 0]), 1.1) for v, a, e in four]),
+            ('knees', [(bind_all, tris_all, colors_all), chair_part],
+             [('right', 90, 0, np.array([0, 0.17, 0.02]), 0.4),
+              ('left', 270, 0, np.array([0, 0.17, 0.02]), 0.4),
+              ('front', 0, 10, np.array([0, 0.17, 0.02]), 0.4)]),
+            ('bones', [(bind_all, tris_all, bones)],
+             [(v, a, e, seated_center, 1.1) for v, a, e in four]),
+            ('bones-standing', [(src_all, tris_all, bones)],
+             [(v, a, e, np.array([0, 0.5, 0]), 1.1) for v, a, e in four]),
+        ])
+
+
+main()

@@ -27,6 +27,7 @@
     "smoke": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/smoke.ts",
     "glb-init": "node tools/glb-init.ts",
     "rig-body": "node tools/rig-body.ts",
+    "rig-mesh": "node tools/rig-mesh.ts",
     "studio-body": "node tools/studio-body.ts",
     "close-views": "pnpm build && node tools/close-views.ts",
     "fold-probe": "node tools/fold-probe.ts",
