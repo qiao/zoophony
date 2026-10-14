@@ -76,7 +76,7 @@ each item.
   and the reason (the middle of the motion range). (The pianist: 42, 8, 40, 70, 70, 14.)
 - A seated role on an animal with short legs or a large belly: build the bind pose on 2 seeds
   before the clips are written (`python3 studio build <id> --seed <s> --until organic`, the
-  remesh gate). (On the rabbit, the pianist values 70, 70, 14 made slits on each seed and cost
+  remesh gate). (On the rabbit, the pianist values 70, 70, 14 made slits on most seeds and cost
   4 role builds, about 15 min.)
 - A held instrument (a violin): the build prints the reach line (README of the studio, "The
   reach line of a held instrument"): the arm reach to the middle of the palm, the instrument
@@ -150,8 +150,8 @@ GLB).>
 - After each round, compare `out/compare/face_front.png`, `out/compare/face_side.png`, and the
   ear crops (`out/report/features/ears_*.png`) with the sheet by eye. List each visible
   difference with a measure, also when the checks pass. (Round 1 of the rabbit tuned only to the
-  IoU and the feature checks. It missed a pointed muzzle, upright ears, and a pink inner ear of
-  87% of the ear area against 50% on the sheet, and round 2 fixed them in 40 minutes.)
+  IoU and the feature checks. It missed a pointed muzzle, upright ears, and a pink share of the
+  ear of 0.84 against 0.48 on the sheet, and round 2 fixed them in 40 minutes.)
 - Commit after each part. Update the handoff file after each finished step. Take each time of
   a report or a handoff from `python3 studio log <id>`.
 - Write in ASD-STE100 Simplified Technical English, with no em dashes.
