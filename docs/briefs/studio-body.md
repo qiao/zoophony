@@ -234,7 +234,10 @@ Reply with only: Verdict; Findings (| # | Severity | File:line | Finding | Evide
 Checks run (| Check | Result |).
 ```
 
-## 4. Fix brief
+## 4. Fix brief (after a review)
+
+Use this brief when the review finds a fault. The fixes get no second review (design 9.8). The
+manager reads the report of the fixes, and the merge script runs the checks.
 
 ```markdown
 Fix round of the branch `<branch>`. Read `<scratch>/rules-common.md`, the brief `<path>`, the
