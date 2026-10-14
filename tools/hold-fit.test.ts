@@ -11,6 +11,7 @@ import {
   chooseDemos,
   fitSweep,
   fitTable,
+  foldShares,
   parseFitOptions,
   worstPairs,
 } from './hold-fit.ts';
@@ -173,7 +174,7 @@ describe('fitTable', () => {
   };
   const row: FitRow = {
     variant: '',
-    folds: FOLDS,
+    folds: foldShares(FOLDS),
     depths: [
       { set: 'play', demo: 'a', pair: pair('paws', 'body', 0.02), limit: 0.015 },
       { set: 'lift', demo: 'a', pair: pair('bow', 'violin', 0.01), limit: 0.015 },

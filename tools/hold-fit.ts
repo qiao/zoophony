@@ -9,7 +9,7 @@
  * [--step <seconds>]
  */
 import { FOLD_ROLES, probeFolds, roleBodies } from './fold-probe.ts';
-import type { FoldReport, RoleSource } from './fold-probe.ts';
+import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
 import { holdReach, rangeTexts, ruleSize } from './hold-reach.ts';
 import type { ChinInstrument, HoldReach } from './hold-reach.ts';
 import { setHolds } from './hold-sets.ts';
@@ -177,12 +177,32 @@ export function worstPairs(role: RoleSweep, results: readonly DemoResult[]): Set
   return [...worst.values()];
 }
 
+/** The samples of a set and the samples with a fold. */
+export type FoldShare = Readonly<Pick<FoldCount, 'samples' | 'withFold'>>;
+
+/** The shares of the samples with a fold in the play and in the lift. */
+export type FoldShares = Readonly<Record<'play' | 'lift', FoldShare>>;
+
+/**
+ * Gives the shares of the samples with a fold of a fold report, in plain numbers.
+ *
+ * @param report The folds.
+ * @returns The samples and the samples with a fold of the play and of the lift.
+ */
+export function foldShares(report: FoldReport): FoldShares {
+  const { play, lift } = report.sets;
+  return {
+    play: { samples: play.samples, withFold: play.withFold },
+    lift: { samples: lift.samples, withFold: lift.withFold },
+  };
+}
+
 /** The results of one variant. */
 export interface FitRow {
   /** The text of the changes, or empty for the base. */
   readonly variant: string;
   /** The folds of the variant. */
-  readonly folds: FoldReport;
+  readonly folds: FoldShares;
   /** The deepest point of each sample set of the sweep, or none for a role with no sweep. */
   readonly depths: readonly SetWorst[];
   /** The reach of a violin role, or `null`. */
@@ -199,8 +219,8 @@ export interface FitRow {
  * @param goal The largest share without a mark, or `null` for no mark.
  * @returns The text, such as `2.3% (103/4454) OVER`.
  */
-function foldCell(folds: FoldReport, set: 'play' | 'lift', goal: number | null): string {
-  const { withFold, samples } = folds.sets[set];
+function foldCell(folds: FoldShares, set: 'play' | 'lift', goal: number | null): string {
+  const { withFold, samples } = folds[set];
   const share = withFold / Math.max(1, samples);
   const mark = goal !== null && share > goal ? ' OVER' : '';
   return `${(100 * share).toFixed(1)}% (${withFold}/${samples})${mark}`;
@@ -348,7 +368,7 @@ async function main(): Promise<void> {
     const started = performance.now();
     const { undo, text } = setHolds(variant);
     try {
-      const folds = probeFolds(options.role, demos, options.step);
+      const folds = foldShares(probeFolds(options.role, demos, options.step));
       const results = sweep
         ? await sweepDemos({ demos: ids, times: null, gaps: false }, sweep)
         : [];
