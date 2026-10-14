@@ -79,12 +79,12 @@ each item.
   remesh gate). (On the rabbit, the pianist values 70, 70, 14 made slits on most seeds and cost
   4 role builds, about 15 min.)
 - A held instrument (a violin): the build prints the reach line (README of the studio, "The
-  reach line of a held instrument"): the arm reach to the middle of the palm, the instrument
-  length, their ratio, and the largest share of the reach that the IK targets ask for. The
-  agent reports a ratio outside the range of a real player (0.9 to 1.1) or a target past the
-  reach (above 1) as a blocker for the app, unless the user decided the size. (The rabbit of
-  round 1: ratio 0.757, targets up to 1.13 of the reach. Nobody marked it, and a round of the
-  arms followed.)
+  reach line of a held instrument"): the arm from the neck to the middle of the palm (as a
+  violin shop measures it), the instrument length, their ratio, and the largest share of the
+  reach that the IK targets ask for. The agent reports a ratio outside the range of the size
+  chart of a violin shop (0.9 to 1.1) or a target past the reach (above 1) as a blocker for the
+  app, unless the user decided the size. (The rabbit of round 1: ratio 0.554, targets up to
+  1.13 of the reach. Nobody marked it, and a round of the arms followed.)
 - Rig: <`[rig] fingers`: 1, or one digit for each claw (the pianist: 4)>.
 - Props: <each prop and its kind: in a hand `stick` or `bow`, in the scene `piano`, `bench`,
   `chair`, `music_stand`, `violin`, or `cello`. The studio sizes them from the body: give a
