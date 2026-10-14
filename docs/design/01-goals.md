@@ -92,8 +92,9 @@ added it on 2026-10-07 for the fox model. It wins for the fox.
 
 The reference image [`reference/rabbit-views.png`](../reference/rabbit-views.png) (1280 × 720 px)
 shows the white rabbit of the violins from the front, the side, and the back, on a chair. The
-user added it on 2026-10-07 for the rabbit model. It wins for the rabbit. Its sheet gives about
-1,150 triangles for the rabbit.
+user added it on 2026-10-07 for the rabbit model. It wins for the rabbit, except for the form
+and the colors of the mesh of the user of 2026-10-13 (the last item below). Its sheet gives
+about 1,150 triangles for the rabbit.
 
 - The head is round and soft, with a short muzzle, large dark eyes with a light, a small pink
   nose, and long upright ears with pink insides.
@@ -103,6 +104,12 @@ user added it on 2026-10-07 for the rabbit model. It wins for the rabbit. Its sh
 - On 2026-10-10, a rigged rabbit from the GLB file of the user took the form of this image: the
   legs, the arms, the haunches, the head, the dark eyes, and the round tail. The user reverted
   the rabbit to the parametric body on 2026-10-11 (4.4).
+- On 2026-10-13, the user gave the mesh `assets/models/rabbit/rabbit-4.glb` for the rabbit
+  violinist, in place of the studio rabbit of the same day (4.4,
+  `docs/decisions/2026-10-13-mesh-rabbit.md`). The mesh of the user is the target of the form
+  and the colors of the rabbit, and it wins over this image where they differ. The rig gives
+  it longer arms, as the user chose. The violin pose of the rabbit follows a real violinist
+  (5.3).
 
 The reference image [`reference/dog-views.png`](../reference/dog-views.png) (1280 × 720 px)
 shows the dog of the cellos from the front, the side, and the back, on a chair, with a scale in
