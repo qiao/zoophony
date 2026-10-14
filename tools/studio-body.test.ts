@@ -440,9 +440,11 @@ describe('pnpm studio-body with a seated body that also stands (design 4.4)', as
 describe('studioGlbPath', () => {
   const settings = ANIMALS.get('rabbit');
 
-  it('gives the output of the studio for an animal with no file of its own', () => {
-    expect(studioGlbPath('rabbit')).toMatch(/lowpoly-studio\/animals\/rabbit\/out\/rabbit\.glb$/);
-    expect(studioGlbPath('bear', ANIMALS.get('bear'))).toMatch(/animals\/bear\/out\/bear\.glb$/);
+  it('gives the output of the studio for an animal with no glb in its settings', () => {
+    expect(studioGlbPath('bear', ANIMALS.get('bear'))).toMatch(
+      /lowpoly-studio\/animals\/bear\/out\/bear\.glb$/,
+    );
+    expect(studioGlbPath('cat')).toMatch(/lowpoly-studio\/animals\/cat\/out\/cat\.glb$/);
   });
 
   it('gives the file of the settings when the settings name one', () => {
