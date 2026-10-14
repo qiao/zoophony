@@ -144,6 +144,7 @@ describe('closeView', () => {
       x: 0,
       z: 0,
       body: false,
+      distance: null,
     };
     expect(closeView(new URLSearchParams(''))).toEqual(defaults);
     expect(
@@ -156,11 +157,18 @@ describe('closeView', () => {
       x: -1.5,
       z: 0.2,
       body: false,
+      distance: null,
     });
     expect(closeView(new URLSearchParams('only=bear&body')).body).toBe(true);
     expect(closeView(new URLSearchParams('zoom=0.5&target=x&azimuth=y'))).toEqual(defaults);
     expect(closeView(new URLSearchParams('elevation=95')).elevation).toBe(89);
     expect(closeView(new URLSearchParams('elevation=-5')).elevation).toBe(0);
+  });
+
+  it('reads a fixed distance of the camera above 0 m, or none', () => {
+    expect(closeView(new URLSearchParams('distance=7.5')).distance).toBe(7.5);
+    expect(closeView(new URLSearchParams('distance=0')).distance).toBeNull();
+    expect(closeView(new URLSearchParams('distance=far')).distance).toBeNull();
   });
 });
 

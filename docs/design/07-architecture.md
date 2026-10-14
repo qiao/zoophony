@@ -73,11 +73,15 @@ player.
   its piano. The query `body` turns the camera around the body of the first animal. The box of
   its body with no instrument gives the vertical line, the target, and the distance at the
   zoom 1. The azimuth 0 is the front of the animal. Thus a close view of a new role needs no
-  camera values. `pnpm choir-check` (`tools/choir-check.ts`) uses these queries to
-  show the penguin at the cameras of `orchestra-latest.png` and `orchestra-side.png`, beside a
-  crop of each image (4.4). `pnpm close-views` (`tools/close-views.ts`) uses them to show a role
-  in one grid. The bear conductor shows from the front, the right side, and the back (5.4). Its
-  moments are the four beats of a bar of the test notes, a time between two beats, and the rest
+  camera values. The query `distance` places the camera at that distance from the target, in
+  meters, with no fit to the models. Thus two pages with models of different sizes get the same
+  camera. The page writes the box of its models into the attribute `data-row` of the canvas: the
+  half width, the half depth, and the height of the tallest model. `pnpm choir-check`
+  (`tools/choir-check.ts`) uses these queries to show the penguin at the cameras of
+  `orchestra-latest.png` and `orchestra-side.png`, beside a crop of each image (4.4).
+  `pnpm close-views` (`tools/close-views.ts`) uses them to show a role in one grid.
+  The bear conductor shows from the front, the right side, and the back (5.4). Its moments are
+  the four beats of a bar of the test notes, a time between two beats, and the rest
   pose. The polar bear pianist shows from the front, both sides, and the back (5.3). Its
   moments are a chord in each paw, a time between two chords, and the rest pose. The open lid
   and the muzzle hide the paws in the front view and in each view from above. A fifth view of

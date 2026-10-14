@@ -88,6 +88,9 @@ export function selectItems(items: readonly GalleryItem[], only: string | null):
 /** The angle of the camera of the gallery above the floor, in degrees, with no query. */
 export const GALLERY_ELEVATION_DEG = 35;
 
+/** The vertical field of view of the camera of the gallery, in degrees. */
+export const GALLERY_FOV_DEG = 30;
+
 /**
  * A close view of the gallery: a zoom of the camera, the height that it looks at, and the
  * direction of the camera.
@@ -118,12 +121,19 @@ export interface CloseView {
    * and the distance at the zoom 1 ({@link aroundBody}).
    */
   readonly body: boolean;
+  /**
+   * The distance of the camera from the target, in meters, or `null` for the distance that fits
+   * the models. A fixed distance keeps the camera of two pages the same when their models differ
+   * in size, as the lineup of `pnpm close-views` needs. The zoom does not change it.
+   */
+  readonly distance: number | null;
 }
 
 /**
  * Reads a close view from the query of the gallery (design 7.1): `zoom` (1 or more, default 1),
  * `target` (default 0.6 m), `azimuth` (default 0°), `elevation` (default
- * {@link GALLERY_ELEVATION_DEG}), and `x` and `z` (default 0 m). For example,
+ * {@link GALLERY_ELEVATION_DEG}), `x` and `z` (default 0 m), and `distance` (above 0 m, default
+ * the distance that fits the models). For example,
  * `?only=dog&zoom=2.5&target=1.1` shows the head of the dog, and `&azimuth=45&elevation=20` shows
  * it from its right side and lower. A value that is not a number keeps its default.
  *
@@ -143,6 +153,7 @@ export function closeView(search: URLSearchParams): CloseView {
     x: read('x', 0),
     z: read('z', 0),
     body: search.has('body'),
+    distance: read('distance', 0) > 0 ? read('distance', 0) : null,
   };
 }
 

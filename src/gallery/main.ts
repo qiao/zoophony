@@ -36,6 +36,7 @@ import {
 import { createRenderer } from '../scene/renderer.ts';
 import {
   GALLERY_ELEVATION_DEG,
+  GALLERY_FOV_DEG,
   aroundBody,
   bodyBoundsOf,
   boundsOf,
@@ -217,6 +218,11 @@ for (const [i, model] of models.entries()) {
 const extentX = Math.max(...places.map(([x], i) => Math.abs(x) + (sizes[i]?.width ?? 0) / 2));
 const extentZ = Math.max(...places.map(([, z], i) => Math.abs(z) + (sizes[i]?.depth ?? 0) / 2));
 const floorSide = 2 * Math.max(extentX, extentZ) + 2;
+// The box of the models on the floor, for a camera that `pnpm close-views lineup` sets: the half
+// width, the half depth, and the height of the tallest model, in meters.
+canvas.dataset['row'] = [extentX, extentZ, Math.max(...sizes.map((size) => size.height))]
+  .map((value) => value.toFixed(3))
+  .join(' ');
 const floor = new Mesh(
   new PlaneGeometry(floorSide, floorSide),
   new MeshStandardMaterial({
@@ -239,7 +245,7 @@ if (spot) {
   spot.shadow.radius = GALLERY_SHADOW_RADIUS;
 }
 
-const camera = new PerspectiveCamera(30, 1, 0.1, 10 * floorSide);
+const camera = new PerspectiveCamera(GALLERY_FOV_DEG, 1, 0.1, 10 * floorSide);
 const controls = new OrbitControls(camera, canvas);
 const transport = galleryTransport(search);
 
@@ -311,9 +317,15 @@ function placeCamera(distance: number, height: number): void {
 /**
  * Places the camera in front of the models, at the smallest distance that shows the box around
  * all of them with a margin. A close view divides that distance by its zoom. A close view around
- * a body fits the box of the body around the target.
+ * a body fits the box of the body around the target. The query `distance` places the camera at
+ * that distance from the target, with no fit.
  */
 function frameModels(): void {
+  if (close.distance !== null) {
+    placeCamera(close.distance, close.target);
+    controls.update();
+    return;
+  }
   const height = bodyBox ? close.target : 0.6;
   const fits = (distance: number): boolean => {
     placeCamera(distance, height);
