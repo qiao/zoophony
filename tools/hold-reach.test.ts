@@ -51,7 +51,7 @@ describe('ruleSize', () => {
 
 describe('pnpm hold-reach (design 4.6)', () => {
   it('puts the scroll in the middle of the palm when the player has the violin of the rule', () => {
-    // The violin of the app is about twice the violin of the rule for the rabbit.
+    // The violin of the app is larger than the violin of the rule for the rabbit.
     const reach = violinReachAt('rabbit', 'chair', 1);
     const factor = reach.ruleFactor;
     if (factor === null) {
@@ -59,7 +59,7 @@ describe('pnpm hold-reach (design 4.6)', () => {
     }
 
     const rebuilt = violinReachAt('rabbit', 'chair', reach.scale * factor);
-    expect(factor).toBeLessThan(0.7);
+    expect(factor).toBeLessThan(1);
     expect(rebuilt.length).toBeCloseTo(reach.length * factor, 6);
     expect(Math.abs(rebuilt.scroll - rebuilt.arms.L)).toBeLessThan(1e-3);
   });
@@ -137,13 +137,13 @@ describe('holdReachVariantLines', () => {
     const lines = holdReachVariantLines('rabbit', {
       instrument: 'violin',
       support: 'chair',
-      sets: ['violin@rabbit.playShift=-0.15,0.06,0.2'],
+      sets: ['violin@rabbit.playShift=-0.054,-0.005,0.311'],
     });
 
     expect(lines[0]).toBe('base:');
-    expect(lines).toContain('violin@rabbit.playShift=-0.15,0.06,0.2:');
+    expect(lines).toContain('violin@rabbit.playShift=-0.054,-0.005,0.311:');
     const [base = 0, moved = 0] = scrolls(lines);
-    // The violin comes 0.16 H forward, so its scroll comes nearer to the left shoulder joint.
+    // The violin moves 0.16 H back, so its scroll comes nearer to the left shoulder joint.
     expect(moved).toBeLessThan(base - 0.01);
     expect(SPECIES_HOLDS.rabbit?.violin?.playShift).toEqual(shift);
   });

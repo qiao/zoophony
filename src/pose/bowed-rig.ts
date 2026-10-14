@@ -250,21 +250,21 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
 }
 
 /**
- * The hold of the violin on the left shoulder, for the rabbit (design 4.6, 5.3): the chin hold,
- * with the violin to the left and up, turned from the left toward the front, as a real violinist
- * holds it (2026-10-13-studio-rabbit decisions): on the left collarbone under the jaw, about level,
- * about 45° to the left of the front. The back stays straight. The bow lies nearly square across
- * the strings. The right arm has the shoulder turn of the chin hold. At the frog, the right elbow
- * points out, forward, and less down than in the chin hold, nearer to the level of the bow, as a
- * real violinist holds it: with the elbow of the chin hold, the bow paw went 1.6 cm into the body
- * in a play of the Brandenburg Concerto No. 5 (2026-10-13-mesh-rabbit decisions). The rabbit of
- * 1.2 times the size points the elbow at the frog further out: the free hair at the frog keeps
- * its length in meters (`FREE_HAIR`), so the larger bow reaches nearer to its frog, and the bow
- * paw went 1.7 cm into the body in the same play (2026-10-14-animal-size decisions). The
- * right elbow points down at the tip too: up, as in the chin hold, the skin of the studio rabbit
- * folded at the right upper arm (`pnpm fold-probe violinist`). The left elbow keeps the
- * pole of the chin hold: a pole further in put the elbow under the violin, and turned over faces
- * of the left upper arm of the rabbit mesh in each play sample (2026-10-13-mesh-rabbit decisions).
+ * The hold of the violin on the left shoulder, for the rabbit (design 4.6, 5.3), as a real
+ * violinist holds it (violinonline.com, "How to hold the violin", and Simon Fischer, "Basics:
+ * Holding the violin", 2026-10-14-fox-rabbit-form decisions): the tail end on the left
+ * collarbone next to the neck, under the left side of the jaw, the violin about 38° to the left
+ * of the front, and the scroll a little up, so that the strings are about level. The back stays
+ * straight. The bow lies nearly square across the strings. The right arm has the shoulder turn of
+ * the chin hold. At the frog, the right elbow points out, forward, and less down than in the chin
+ * hold, nearer to the level of the bow, and the bow keeps 0.06 m of free hair at each end: with
+ * the violin of the rule of this hold, the bow paw went 3.2 cm into the body at the frog, and
+ * 1.9 cm with this elbow and this free hair. The right elbow points down at the tip too: up, as in
+ * the chin hold, the skin of the studio rabbit folded at the right upper arm
+ * (`pnpm fold-probe violinist`). The left elbow keeps the pole of the chin hold: a pole further in
+ * put the elbow under the violin, and turned over faces of the left upper arm of the rabbit mesh
+ * in each play sample (2026-10-13-mesh-rabbit decisions).
+ *
  * The rest pose holds the violin at the left side, by the neck near the body of the violin: the
  * round belly covers the short thighs, so the lap place of the chin hold was on the top of the
  * belly, and the bow went into it. With the hand nearer the scroll, the body of the violin of the
@@ -272,9 +272,10 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
-  playShift: [-0.15, 0.06, 0.04],
+  playShift: [-0.054, -0.005, 0.151],
   playTurn: violinTurn(-25, 5),
-  poleR: [1.2, -0.7, -1],
+  poleR: [1.5, -0.7, -1],
+  freeHair: 0.06,
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
@@ -284,23 +285,21 @@ const SHOULDER_HOLD = {
 
 /**
  * The hold of the violin on the left shoulder, for the red fox (design 4.6, 5.3): the hold of the
- * rabbit, whose studio body of a mesh of the user has a head height near the head height of the
- * fox (0.27 m and 0.25 m). The bow slants 12° and the right shoulder turns 25°, and the right
- * elbow at the tip points less down: with the bow of the rabbit (5°, 30°), the skin of the right
- * shoulder of the fox mesh folded in 18% of the play samples (`pnpm fold-probe fox-violinist`).
- * The violin lies 0.12 H further forward, still under the long jaw: with the place of the rabbit,
- * the right forearm went 2.0 cm into the chest at the end of the lift of the violin in the
- * Beethoven 8 demo, and 2.5 cm with a slant of 25° (limit 1.5 cm). The right elbow at the frog
- * keeps the pole of the rabbit before its larger size.
+ * rabbit, with the tail end on the collarbone of the deeper chest of the fox, under its long
+ * jaw. The bow slants 12° and the right shoulder turns 25°, and the right elbow at the tip points
+ * less down: with the bow of the rabbit (5°, 30°), the skin of the right shoulder of the fox mesh
+ * folded in 18% of the play samples (`pnpm fold-probe fox-violinist`). At the frog, the right
+ * elbow points further out than the elbow of the rabbit, with 0.06 m of free hair: the bow paw
+ * went 3.6 cm into the body, and 2.4 cm with this elbow and this free hair.
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
-  poleR: [1, -0.7, -1],
-  playShift: [-0.15, 0.06, -0.08],
+  poleR: [1.4, -0.7, -1],
+  playShift: [-0.054, -0.005, 0.093],
   slant: -12 * MathUtils.DEG2RAD,
   reach: 25 * MathUtils.DEG2RAD,
   poleTipR: [1, -0.85, -1],
-  freeHair: FREE_HAIR,
+  freeHair: 0.06,
 } as const satisfies BowedHold;
 
 /** The holds of the bowed strings. */

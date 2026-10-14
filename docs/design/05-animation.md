@@ -384,27 +384,24 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     at the frog on the highest string. A move of more than 0.1 H forward needs the shoulder turn of
     30° (20° before), so that the bow arm still reaches the tip. A species can hold a bowed string
     in its own way (`holdOf()` of `pose/bowed-rig.ts`). The rabbits hold the violin on the left
-    shoulder as a real violinist does (`SHOULDER_HOLD`): the violin moves to the left, up, and
-    back onto the collarbone under the jaw, turns toward the front, and keeps the scroll about
-    level. The bow lies nearly square across the strings. The back stays straight. The left elbow
-    keeps the direction of the chin hold, a little out of the plane of the violin: further in,
-    the thin faces of the left upper arm of the rabbit mesh turned over. The right arm has the
-    shoulder turn of the chin hold. At the frog, the right elbow points less down than in the
-    chin hold, nearer to the level of the bow: with the elbow of the chin hold, the bow paw of
-    the rabbit mesh went into the body in a demo of 2026-10-14. The rabbit of 1.2 times the size
-    points the elbow at the frog further out: the free hair at the frog keeps its length in
-    meters (`BowedHold.freeHair` of `pose/bowed-rig.ts`), so the larger bow reaches nearer to
-    its frog, and the bow paw went deeper into the body. At the tip, the right elbow also
-    points down: up, the skin of the studio rabbit folded at the upper arm. In the rest pose, the
+    shoulder as a real violinist does (`SHOULDER_HOLD`): the tail end lies on the left collarbone
+    next to the neck, under the left side of the jaw, the violin turns toward the front, and the
+    scroll rises a little, so that the strings are about level. The bow lies nearly square across
+    the strings. The back stays straight. The left elbow keeps the direction of the chin hold, a
+    little out of the plane of the violin: further in, the thin faces of the left upper arm of the
+    rabbit mesh turned over. The right arm has the shoulder turn of the chin hold. At the frog,
+    the right elbow points out and less down than in the chin hold, nearer to the level of the
+    bow, and the bow keeps a longer free hair at each end (`BowedHold.freeHair` of
+    `pose/bowed-rig.ts`): the larger violin and bow of the rule of this hold put the bow paw into
+    the body at the frog. At the tip, the right elbow also points down: up, the skin of the studio
+    rabbit folded at the upper arm. In the rest pose, the
     left paw holds the violin at the left side by the neck near its body, and the bow hangs from
     the right paw (`BowedHold.restAtSide`), as for a soloist who stands: the round belly covers
     the short thighs, so the rabbit has no lap for the violin. The red foxes take the shoulder hold
-    of the rabbits (`FOX_HOLD`), with the violin 0.12 H further forward under the long jaw, the bow
-    slanted 12°, the right shoulder turned 25°, the right elbow at the tip less down, and the right
-    elbow at the frog of the rabbits before their larger size. With the
-    bow of the rabbit, the skin of the right shoulder of the fox mesh folded in 18% of the play
-    samples. With the violin of the rabbit, the right forearm went into the chest at the end of the
-    lift of the violin. The fox rests the violin at its side too: the lap rest put its right upper
+    of the rabbits (`FOX_HOLD`), with the tail end on the collarbone of the deeper chest under the
+    long jaw, the bow slanted 12°, the right shoulder turned 25°, the right elbow at the tip less
+    down, and the right elbow at the frog further out. With the bow of the rabbit, the skin of the
+    right shoulder of the fox mesh folded in 18% of the play samples. The fox rests the violin at its side too: the lap rest put its right upper
     arm into the body. `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
     `pnpm fold-probe fox-violinist` measure each change
     (`docs/research/2026-10-13-studio-rabbit.md`, `docs/research/2026-10-13-rabbit-mesh.md`,

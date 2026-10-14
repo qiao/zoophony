@@ -154,7 +154,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
-    violinScale: 0.64,
+    violinScale: 0.74,
     proportions: {
       headHeight: STUDIO_RABBIT.headHeight,
       seatHeight: STUDIO_RABBIT.seatHeight / STUDIO_RABBIT.headHeight,
@@ -172,7 +172,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['feet'],
-    violinScale: 0.56,
+    violinScale: 0.7,
     proportions: {
       headHeight: STUDIO_FOX.headHeight,
       seatHeight: STUDIO_FOX.seatHeight / STUDIO_FOX.headHeight,

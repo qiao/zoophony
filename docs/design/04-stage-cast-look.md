@@ -1480,8 +1480,8 @@ animals of the reference image. The builder scales the violin and its bow by the
 the rabbit of the reference image, so that they keep their size relative to the animals. A species
 with short arms plays a smaller violin and bow (`SpeciesParams.violinScale`), as a child plays a
 fractional size. A violin shop sizes a violin so that, in the play position with the left arm
-extended, the scroll lies in the middle of the palm. The rabbit and the red fox have this scale,
-and `pose/bowed.test.ts` checks the rule (`docs/research/2026-10-13-studio-rabbit.md`,
+extended, the scroll lies in the middle of the palm. The rabbit and the red fox have this scale
+in their hold on the collarbone (5.3), and `pose/bowed.test.ts` checks the rule (`docs/research/2026-10-13-studio-rabbit.md`,
 `docs/research/2026-10-13-rabbit-mesh.md`). The chairs, the stands, the
 podium, and the steps keep their sizes in meters. The bodies of the bowed strings are plates
 with round edges and an arched top (`plate()` of `models/primitives.ts`), with two f-holes beside
