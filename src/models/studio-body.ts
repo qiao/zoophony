@@ -6,7 +6,13 @@ import { BONE_NAMES } from './rig.ts';
 import { makeSkeleton } from './rig.ts';
 import { STUDIO_BONES, STUDIO_INFLUENCES } from './studio-format.ts';
 import type { StudioBody } from './studio-format.ts';
-import { createStudioPose, poseStudioBones, skinStudioMesh, studioRig } from './studio-rig.ts';
+import {
+  NO_OFFSETS,
+  createStudioPose,
+  poseStudioBones,
+  skinStudioMesh,
+  studioRig,
+} from './studio-rig.ts';
 import type { StudioRig } from './studio-rig.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
@@ -120,7 +126,7 @@ export function buildStudioBody(
   const bind = new Float32Array(BONE_NAMES.length * 4).map((_, i) => (i % 4 === 3 ? 1 : 0));
   const posed = skinStudioMesh(
     rig.mesh,
-    poseStudioBones(rig, skeleton, bind, [0, 0, 0], 1, createStudioPose()),
+    poseStudioBones(rig, skeleton, bind, NO_OFFSETS, 1, createStudioPose()),
   );
 
   const { corners, colors, finishes } = rig.mesh;

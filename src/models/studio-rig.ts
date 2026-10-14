@@ -154,6 +154,52 @@ export interface StudioPose {
   readonly correctives: Float32Array;
 }
 
+/**
+ * The offsets of a pose of the player that move bones from their bind places (design 5.1): the
+ * root offset, and the offsets of the instrument bone and of the slide bone.
+ */
+export interface BoneOffsets {
+  /** The offset of the root bone, in the model axes. */
+  readonly root: Vec3;
+  /** The offset of the `instrument` bone, in the axes of its parent. */
+  readonly instrument: Vec3;
+  /** The offset of the `slide` bone, in the axes of its parent, the `instrument` bone. */
+  readonly slide: Vec3;
+}
+
+/** The offsets of a pose that moves no bone from its bind place. */
+export const NO_OFFSETS: BoneOffsets = { root: [0, 0, 0], instrument: [0, 0, 0], slide: [0, 0, 0] };
+
+/** The offsets that a pose of a player holds (`AnimalPose` of `pose/types.ts`, design 5.1). */
+export interface PoseOffsets {
+  /** The offset of the root bone. */
+  readonly rootOffset: Vec3;
+  /** The offset of the `instrument` bone, or none for no move. */
+  readonly instrumentOffset?: Vec3;
+  /** The offset of the `slide` bone. */
+  readonly slideOffset: Vec3;
+}
+
+/**
+ * Gives the bone offsets of a pose of a player.
+ *
+ * @param pose The pose.
+ * @returns The offsets of the root, the instrument, and the slide.
+ */
+export function studioOffsets(pose: PoseOffsets): BoneOffsets {
+  return {
+    root: pose.rootOffset,
+    instrument: pose.instrumentOffset ?? NO_OFFSETS.instrument,
+    slide: pose.slideOffset,
+  };
+}
+
+/** The index of the `instrument` bone of the player. */
+const INSTRUMENT = boneIndex('instrument');
+
+/** The index of the `slide` bone of the player. */
+const SLIDE = boneIndex('slide');
+
 /** The number of matrices of a {@link StudioPose}. */
 export const STUDIO_POSE_BONES = STUDIO_BONES.length + BONE_NAMES.length;
 
@@ -504,12 +550,13 @@ function writeMatrix(
  * from the forearm to the paw. The fingers of the studio curl around their own axis by the curl
  * of the fingers of the player. The corrective shape of each arm takes its weight from the direction of the upper arm
  * between the bind pose of the studio and the pose of the sheet, as in the studio. The eyes
- * scale on y for a blink. The bones of the player follow, for the instrument.
+ * scale on y for a blink. The bones of the player follow, for the instrument, with the offsets of
+ * the instrument and of the slide, as the scene moves them (design 5.1).
  *
  * @param rig The studio rig.
  * @param skeleton The skeleton of the player, with the positions of {@link StudioRig.positions}.
  * @param pose The local rotations of the bones of the player, four numbers for each bone.
- * @param rootOffset The offset of the root bone.
+ * @param offsets The offsets of the root, the instrument, and the slide.
  * @param eyeScale The scale of the eyes on y: 1 is open.
  * @param out The pose to write.
  * @returns `out`.
@@ -518,7 +565,7 @@ export function poseStudioBones(
   rig: StudioRig,
   skeleton: Skeleton,
   pose: Float32Array,
-  rootOffset: Vec3,
+  offsets: BoneOffsets,
   eyeScale: number,
   out: StudioPose,
 ): StudioPose {
@@ -532,12 +579,13 @@ export function poseStudioBones(
     const parentPlace = places[parentIndex];
     if (!parent || !parentPlace || parentIndex >= i) {
       rotation.copy(local);
-      place.add(offset.fromArray(rootOffset));
+      place.add(offset.fromArray(offsets.root));
     } else {
-      place
-        .sub(offset.fromArray(skeleton.positions[parentIndex] ?? [0, 0, 0]))
-        .applyQuaternion(parent)
-        .add(parentPlace);
+      place.sub(offset.fromArray(skeleton.positions[parentIndex] ?? [0, 0, 0]));
+      if (i === INSTRUMENT || i === SLIDE) {
+        place.add(offset.fromArray(i === INSTRUMENT ? offsets.instrument : offsets.slide));
+      }
+      place.applyQuaternion(parent).add(parentPlace);
       rotation.multiplyQuaternions(parent, local);
     }
     writeMatrix(

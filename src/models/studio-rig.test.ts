@@ -6,6 +6,7 @@ import type { BoneName } from './rig.ts';
 import { STUDIO_BONES, STUDIO_LEG_BONES } from './studio-format.ts';
 import type { StudioBone } from './studio-format.ts';
 import {
+  NO_OFFSETS,
   PAW_TURN,
   STUDIO_FOLLOWS,
   TWIST_SHARE,
@@ -57,7 +58,7 @@ function localPose(world: WorldTurns): Float32Array {
 
 /** Poses the bones of the studio bear with the local rotations of the player. */
 function pose(rotations: Float32Array, eyeScale = 1) {
-  return poseStudioBones(rig, skeleton, rotations, [0, 0, 0], eyeScale, createStudioPose());
+  return poseStudioBones(rig, skeleton, rotations, NO_OFFSETS, eyeScale, createStudioPose());
 }
 
 /** Gives the matrix of a studio bone. */
@@ -211,6 +212,37 @@ describe('studioRig (design 4.4, 4.7)', () => {
     expect(p.forearmR[1] - p.handR[1]).toBeCloseTo(length('forearm_R', 'hand_R'), 6);
     expect(p.forearmR[0]).toBe(p.upperArmR[0]);
     expect(p.handL[2]).toBe(p.upperArmL[2]);
+  });
+});
+
+describe('poseStudioBones with the offsets of a pose (design 5.1)', () => {
+  it('moves the instrument and the slide by their offsets, as the scene moves them', () => {
+    const rotations = localPose(new Map());
+    const offset = poseStudioBones(
+      rig,
+      skeleton,
+      rotations,
+      { root: [0, 0, 0], instrument: [0.1, 0.2, 0.3], slide: [0, 0, -0.4] },
+      1,
+      createStudioPose(),
+    );
+    const still = poseStudioBones(rig, skeleton, rotations, NO_OFFSETS, 1, createStudioPose());
+    const placeOf = (out: ReturnType<typeof pose>, bone: BoneName): Vector3 =>
+      new Vector3().setFromMatrixPosition(
+        new Matrix4().fromArray(out.matrices, (STUDIO_BONES.length + boneIndex(bone)) * 16),
+      );
+    // The bind pose turns no bone, so each offset moves its bone in the model axes.
+    expect(placeOf(offset, 'instrument').sub(placeOf(still, 'instrument')).toArray()).toEqual([
+      expect.closeTo(0.1, 6),
+      expect.closeTo(0.2, 6),
+      expect.closeTo(0.3, 6),
+    ]);
+    expect(placeOf(offset, 'slide').sub(placeOf(still, 'slide')).toArray()).toEqual([
+      expect.closeTo(0.1, 6),
+      expect.closeTo(0.2, 6),
+      expect.closeTo(-0.1, 6),
+    ]);
+    expect(placeOf(offset, 'chest').distanceTo(placeOf(still, 'chest'))).toBe(0);
   });
 });
 

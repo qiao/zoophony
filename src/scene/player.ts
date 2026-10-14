@@ -13,7 +13,12 @@ import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { STUDIO_BONES } from '../models/studio-format.ts';
 import { studioRenderMesh } from '../models/studio-body.ts';
-import { STUDIO_POSE_BONES, createStudioPose, poseStudioBones } from '../models/studio-rig.ts';
+import {
+  STUDIO_POSE_BONES,
+  createStudioPose,
+  poseStudioBones,
+  studioOffsets,
+} from '../models/studio-rig.ts';
 import type { StudioPose, StudioRig } from '../models/studio-rig.ts';
 import type { Skeleton as PlayerSkeleton } from '../models/rig.ts';
 import type { AnimalPose, ScenePose } from '../pose/types.ts';
@@ -259,7 +264,7 @@ function applyStudioPose(mesh: SkinnedMesh, pose: AnimalPose): boolean {
     player.rig,
     player.skeleton,
     pose.rotations,
-    pose.rootOffset,
+    studioOffsets(pose),
     eyeScale,
     player.pose,
   );

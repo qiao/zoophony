@@ -1,7 +1,12 @@
 import { Vector3 } from 'three';
 
 import { STUDIO_BONES } from '../models/studio-format.ts';
-import { createStudioPose, poseStudioBones, skinStudioMesh } from '../models/studio-rig.ts';
+import {
+  createStudioPose,
+  poseStudioBones,
+  skinStudioMesh,
+  studioOffsets,
+} from '../models/studio-rig.ts';
 import type { StudioRig } from '../models/studio-rig.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
@@ -37,7 +42,7 @@ function posedStudioCorners(posed: PosedSkeleton, rig: StudioRig): Float32Array 
     rig,
     skeleton,
     posed.pose.rotations,
-    posed.pose.rootOffset,
+    studioOffsets(posed.pose),
     Math.max(CLOSED_EYE_SCALE, 1 - posed.pose.blink),
     createStudioPose(),
   );

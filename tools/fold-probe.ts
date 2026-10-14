@@ -16,7 +16,12 @@ import type { InstrumentId } from '../src/models/instruments/types.ts';
 import type { PlayerModel } from '../src/models/player.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import type { StudioMesh } from '../src/models/studio-format.ts';
-import { createStudioPose, poseStudioBones, skinStudioMesh } from '../src/models/studio-rig.ts';
+import {
+  createStudioPose,
+  poseStudioBones,
+  skinStudioMesh,
+  studioOffsets,
+} from '../src/models/studio-rig.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { countInAt } from '../src/pose/count-in.ts';
 import { createScenePose, poseAt } from '../src/pose/pose-at.ts';
@@ -199,7 +204,7 @@ function countPose(model: PlayerModel, pose: AnimalPose, label: string, count: F
     rig,
     model.skeleton,
     pose.rotations,
-    pose.rootOffset,
+    studioOffsets(pose),
     1,
     createStudioPose(),
   );
