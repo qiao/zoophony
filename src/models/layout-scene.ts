@@ -340,7 +340,9 @@ function standsAlone(member: Member, next: Member | undefined): boolean {
 /**
  * Calculates the arc from the seat center of one player to the next in a row. It is at least the
  * mean of their two smallest arcs. It grows until the two players, their own stands, and the
- * stand between them keep the gap (design 4.5).
+ * stand between them keep the gap (design 4.5). The stands also keep the gap from each other,
+ * with the stand of the right player that it shares with its partner, or that stands where a
+ * partner would share it.
  *
  * @param left The player on the left, as the audience sees it.
  * @param right The player on the right.
@@ -370,6 +372,13 @@ function spacing(left: Member, right: Member, radius: number): number {
       const alone = aloneStandArc(left, radius) / radius;
       stands.push(placeStand(alone, radius - STAND_DISTANCE, left.index));
     }
+    // The right player starts a desk: its stand stands to its right, at half the arc to a
+    // partner of its seat. The string quartet put the stands of the second violin and the viola
+    // into each other (2026-10-14).
+    const next =
+      right.stand === 'shared' && right.cast.player % 2 === 0 && !sharesWith(left, right)
+        ? [placeStand(angle + aloneStandArc(right, radius) / radius, radius - STAND_DISTANCE, -1)]
+        : [];
     const clear =
       !obstaclesTouch(a.obstacle, b.obstacle, FOOTPRINT_GAP) &&
       stands.every(
@@ -378,6 +387,11 @@ function spacing(left: Member, right: Member, radius: number): number {
             !obstaclesTouch(stand.obstacle, a.obstacle, FOOTPRINT_GAP)) &&
           (stand.owner === right.index ||
             !obstaclesTouch(stand.obstacle, b.obstacle, FOOTPRINT_GAP)),
+      ) &&
+      stands.every((stand, i) =>
+        [...stands.slice(i + 1), ...next].every(
+          (other) => !obstaclesTouch(stand.obstacle, other.obstacle, FOOTPRINT_GAP),
+        ),
       );
     if (clear) {
       return arc;
