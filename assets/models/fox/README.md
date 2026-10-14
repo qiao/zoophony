@@ -6,8 +6,15 @@ This folder holds the fox mesh that the user gave. The app does not serve it.
 
 `fox.glb` is a mesh with no skeleton. The user gave it on 2026-10-14 with the words "now replace
 the fox by @~/Downloads/fox.glb". The file is the file of the user, byte for byte. The rig of this
-project can make a studio body from it, as for the rabbit mesh (route 3 of `AGENTS.md`,
-`tools/mesh-rigs/fox.json`). No species uses it yet.
+project makes a studio body from it, as for the rabbit mesh (route 3 of `AGENTS.md`,
+`tools/mesh-rigs/fox.json`): `pnpm rig-mesh fox` writes the rigged file `fox.rig.glb`, and
+`pnpm studio-body fox` writes the module `src/models/studio/fox.ts` from it. The app does not
+serve the two GLB files.
+
+The user also chose "1.08x, rabbit reach" on 2026-10-14: the upper arm and the forearm get
+longer, so that the reach is 0.377 m, as the rabbits. The rig measured the factor 1.0782
+(`armFactor` of `tools/mesh-rigs/fox.json`). The rig adds a second tail bone, so that the seated
+tail goes back through the open back of the chair.
 
 | Item | Value |
 |---|---|

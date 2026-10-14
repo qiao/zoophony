@@ -118,6 +118,22 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/rabbit/rabbit-4.rig.glb',
     },
   ],
+  // The red violin fox stands with the head top of the parametric fox at 1.083 m, so its standing
+  // shoulder joints are 0.7454 m above the floor (`tools/mesh-rigs/fox.json`). It sits in the
+  // second violins and stands as a soloist. It is a mesh of an image model of the user, as the
+  // rabbit, so it takes the crease angle of the rabbit.
+  [
+    'fox',
+    {
+      landmark: 'shoulders',
+      height: 0.7454,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_FOX',
+      crease: 35,
+      glb: 'assets/models/fox/fox.rig.glb',
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */

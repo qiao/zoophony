@@ -425,6 +425,8 @@ describe('pnpm studio-body with a seated body that also stands (design 4.4)', as
     // Each thigh turns forward and down by more than 45° from the seat.
     const thigh = standing.turns.thigh_L;
     expect(2 * Math.acos(Math.min(1, Math.abs(thigh[3])))).toBeGreaterThan(Math.PI / 4);
+    // The tail of one bone keeps the tail of its bind pose.
+    expect(standing.tailTurns).toBeUndefined();
   });
 
   it('gives no standing pose to a body that keeps the stance of its role', async () => {
@@ -438,6 +440,64 @@ describe('pnpm studio-body with a seated body that also stands (design 4.4)', as
     const polarBody = studioBody(polar, 'x.glb', polarSettings).body;
     expect(polarBody.standing).toBeNull();
     expect(unpackStudioMesh(polarBody.mesh).correctives).toHaveLength(2);
+  });
+});
+
+describe('pnpm studio-body with a tail of two bones (design 4.4)', async () => {
+  const settings = ANIMALS.get('fox');
+  if (!settings?.glb) {
+    throw new Error('The fox has no settings with a GLB file.');
+  }
+  const bytes = await readFile(join(import.meta.dirname, '..', settings.glb));
+  const { body } = studioBody(bytes, settings.glb, settings);
+  const mesh = unpackStudioMesh(body.mesh);
+  const tip = STUDIO_BONES.indexOf('tail_tip');
+  const root = STUDIO_BONES.indexOf('tail');
+
+  it('keeps the tip of the tail behind its root, with the vertices of the tip on it', () => {
+    const head = body.heads.tail_tip;
+    if (!head) {
+      throw new Error('The fox has no tip of its tail.');
+    }
+    // The body faces -z, so the seated tail goes back to +z.
+    expect(head[2]).toBeGreaterThan(body.heads.tail[2]);
+    let onTip = 0;
+    for (let v = 0; v < mesh.positions.length / 3; v++) {
+      for (let k = 0; k < 4; k++) {
+        onTip += mesh.joints[v * 4 + k] === tip && (mesh.weights[v * 4 + k] ?? 0) > 0.5 ? 1 : 0;
+      }
+    }
+    expect(onTip).toBeGreaterThan(50);
+  });
+
+  it('rests the haunch on the seat, and the tail goes over the seat', () => {
+    const seat = body.seatHeight ?? 0;
+    const back = CHAIR.seatDepth / 2;
+    const depth = body.chairDepth ?? 0;
+    let tailLow = Infinity;
+    for (let v = 0; v < mesh.positions.length / 3; v++) {
+      const [x = 0, y = 0, z = 0] = [0, 1, 2].map((k) => mesh.positions[v * 3 + k] ?? 0);
+      let tail = 0;
+      for (let k = 0; k < 4; k++) {
+        const joint = mesh.joints[v * 4 + k];
+        tail += joint === tip || joint === root ? (mesh.weights[v * 4 + k] ?? 0) : 0;
+      }
+      if (tail > 0.5 && Math.abs(x) <= CHAIR.seatWidth / 2 && z <= back && z >= back - depth) {
+        tailLow = Math.min(tailLow, y);
+      }
+    }
+    expect(seat).toBeGreaterThan(0.05);
+    // The tail lies on the back of the seat or above it, within 5 mm.
+    expect(tailLow).toBeGreaterThan(seat - 0.005);
+  });
+
+  it('stands the tail with the turns of its two bones in the pose of the sheet', () => {
+    const turns = body.standing?.tailTurns;
+    if (!turns) {
+      throw new Error('The fox has no turns of its tail in its standing pose.');
+    }
+    // The seated tail goes back, and the standing tail hangs down as in the source.
+    expect(2 * Math.acos(Math.min(1, Math.abs(turns.tail[3])))).toBeGreaterThan(Math.PI / 6);
   });
 });
 
