@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
 import { SPECIES } from '../src/models/species.ts';
-import { holdReachLines, ruleFactor, violinReachAt } from './hold-reach.ts';
+import { SPECIES_HOLDS } from '../src/pose/bowed-rig.ts';
+import {
+  holdReachLines,
+  holdReachVariantLines,
+  parseReachOptions,
+  ruleFactor,
+  violinReachAt,
+} from './hold-reach.ts';
 
 describe('ruleFactor', () => {
   it('gives the factor that puts the scroll at the distance of the arm from the shoulder', () => {
@@ -58,5 +65,73 @@ describe('pnpm hold-reach (design 4.6)', () => {
     const viola = holdReachLines('rabbit', 'viola', 'chair').join('\n');
     expect(viola).toContain('Rule of a violin shop');
     expect(viola).toContain('no scale of the viola');
+  });
+});
+
+describe('parseReachOptions', () => {
+  it('gives the violin on the chair with no variant by default', () => {
+    expect(parseReachOptions([])).toEqual({ instrument: 'violin', support: 'chair', sets: [] });
+  });
+
+  it('reads each --set as one variant beside the other options', () => {
+    const options = parseReachOptions([
+      '--set',
+      'violin@rabbit.lean=12deg',
+      '--support',
+      'stand',
+      '--set',
+      'violin@rabbit.slant=0;violin@rabbit.lean=0',
+    ]);
+    expect(options.support).toBe('stand');
+    expect(options.sets).toEqual([
+      'violin@rabbit.lean=12deg',
+      'violin@rabbit.slant=0;violin@rabbit.lean=0',
+    ]);
+  });
+
+  it('stops on an unknown option, on an option with no value, and on a value that is not permitted', () => {
+    expect(() => parseReachOptions(['--glow', 'x'])).toThrow('is not known');
+    expect(() => parseReachOptions(['--set'])).toThrow('has no value');
+    expect(() => parseReachOptions(['--support', 'floor'])).toThrow('--support takes one of');
+  });
+});
+
+describe('holdReachVariantLines', () => {
+  /**
+   * Gives the distance from the left shoulder joint to the scroll of each report of the lines.
+   *
+   * @param lines The lines of the reports.
+   * @returns The distances, in meters.
+   */
+  const scrolls = (lines: readonly string[]): number[] =>
+    lines.flatMap((line) => {
+      const match = /to the scroll in the playing pose: ([\d.]+) m/.exec(line);
+      return match ? [Number(match[1])] : [];
+    });
+
+  it('measures each variant with its changes, and puts the holds back after it', () => {
+    const shift = SPECIES_HOLDS.rabbit?.violin?.playShift;
+    const lines = holdReachVariantLines('rabbit', {
+      instrument: 'violin',
+      support: 'chair',
+      sets: ['violin@rabbit.playShift=-0.15,0.06,0.2'],
+    });
+
+    expect(lines[0]).toBe('base:');
+    expect(lines).toContain('violin@rabbit.playShift=-0.15,0.06,0.2:');
+    const [base = 0, moved = 0] = scrolls(lines);
+    // The violin comes 0.16 H forward, so its scroll comes nearer to the left shoulder joint.
+    expect(moved).toBeLessThan(base - 0.01);
+    expect(SPECIES_HOLDS.rabbit?.violin?.playShift).toEqual(shift);
+  });
+
+  it('stops on a variant that does not fit before the first report', () => {
+    expect(() =>
+      holdReachVariantLines('rabbit', {
+        instrument: 'violin',
+        support: 'chair',
+        sets: ['violin@rabbit.nothing=1'],
+      }),
+    ).toThrow('is not known');
   });
 });

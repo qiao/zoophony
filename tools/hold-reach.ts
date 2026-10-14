@@ -12,6 +12,7 @@ import type { Vec3 } from '../src/models/tuples.ts';
 import { SPECIES_HOLDS, bowedRig, holdOf, playingFrames } from '../src/pose/bowed-rig.ts';
 import { createBowPlaces, instrumentAt } from '../src/pose/bowed.ts';
 import { poseShoulder } from '../src/pose/ik.ts';
+import { setHolds } from './hold-sets.ts';
 
 /** An instrument that the player holds under the chin. */
 export type ChinInstrument = 'violin' | 'viola';
@@ -260,49 +261,104 @@ export function holdReachLines(
   return lines;
 }
 
+/** The options of `pnpm hold-reach <species>`. */
+export interface ReachOptions {
+  /** The instrument under the chin. */
+  readonly instrument: ChinInstrument;
+  /** The support of the player. */
+  readonly support: ReachSupport;
+  /**
+   * The variants of `--set`, each a list of hold changes separated by `;`, as in
+   * `pnpm pose-depth`. The report gives the base first, then each variant.
+   */
+  readonly sets: readonly string[];
+}
+
+/** The usage text of `pnpm hold-reach`. */
+const USAGE =
+  'Usage: pnpm hold-reach <species> [--instrument violin|viola] [--support chair|stand] [--set <path>=<value>[;<path>=<value>]...]...';
+
 /**
- * Reads the value of a flag of the command line.
+ * Reads the options after the species. Each option has one value, and `--set` can come more than
+ * one time.
  *
  * @param args The arguments after the species.
- * @param flag The flag, such as `--instrument`.
- * @param values The permitted values. The first one is the default.
- * @returns The value.
- * @throws Error if the value is not permitted.
+ * @returns The options. The first permitted value of an option is its default.
+ * @throws Error if an option is not known, has no value, or has a value that is not permitted.
  */
-function flagValue<T extends string>(
-  args: readonly string[],
-  flag: string,
-  values: readonly T[],
-): T {
-  const at = args.indexOf(flag);
-  const text = at < 0 ? values[0] : args[at + 1];
-  const value = values.find((v) => v === text);
-  if (value === undefined) {
-    throw new Error(`${flag} takes one of: ${values.join(', ')}.`);
+export function parseReachOptions(args: readonly string[]): ReachOptions {
+  let instrument: ChinInstrument = 'violin';
+  let support: ReachSupport = 'chair';
+  const sets: string[] = [];
+  const pick = <T extends string>(flag: string, text: string, values: readonly T[]): T => {
+    const value = values.find((v) => v === text);
+    if (value === undefined) {
+      throw new Error(`${flag} takes one of: ${values.join(', ')}.`);
+    }
+    return value;
+  };
+  for (let i = 0; i < args.length; i += 2) {
+    const flag = args[i] ?? '';
+    const value = args[i + 1];
+    if (value === undefined) {
+      throw new Error(`The option "${flag}" has no value.\n${USAGE}`);
+    }
+    switch (flag) {
+      case '--instrument':
+        instrument = pick(flag, value, ['violin', 'viola'] as const);
+        break;
+      case '--support':
+        support = pick(flag, value, ['chair', 'stand'] as const);
+        break;
+      case '--set':
+        sets.push(value);
+        break;
+      default:
+        throw new Error(`The option "${flag}" is not known.\n${USAGE}`);
+    }
   }
-  return value;
+  return { instrument, support, sets };
+}
+
+/**
+ * Writes the report of `pnpm hold-reach` for the base and for each variant of `--set`. Each
+ * variant changes the holds in memory, as `pnpm pose-depth --set` does, and the old values come
+ * back after its report.
+ *
+ * @param species The species.
+ * @param options The options.
+ * @returns The lines. With variants, each report starts with the line of its changes.
+ * @throws Error if a variant names an unknown key or a value that does not fit, before the first
+ *   report.
+ */
+export function holdReachVariantLines(species: SpeciesId, options: ReachOptions): string[] {
+  for (const set of options.sets) {
+    setHolds(set).undo();
+  }
+
+  const lines: string[] = [];
+  for (const set of ['', ...options.sets]) {
+    const { undo, text } = setHolds(set);
+    try {
+      if (options.sets.length > 0) {
+        lines.push(`${text || 'base'}:`);
+      }
+      lines.push(...holdReachLines(species, options.instrument, options.support));
+    } finally {
+      undo();
+    }
+  }
+  return lines;
 }
 
 function main(): void {
   const [species = '', ...args] = process.argv.slice(2);
   if (!isSpeciesId(species)) {
-    console.error(
-      `Usage: pnpm hold-reach <species> [--instrument violin|viola] [--support chair|stand], with a species of: ${SPECIES_IDS.join(', ')}.`,
-    );
+    console.error(`${USAGE}, with a species of: ${SPECIES_IDS.join(', ')}.`);
     process.exit(1);
   }
 
-  const known = new Set(['--instrument', '--support']);
-  for (let i = 0; i < args.length; i += 2) {
-    if (!known.has(args[i] ?? '')) {
-      throw new Error(`The option "${args[i]}" is not known.`);
-    }
-  }
-
-  const instrument = flagValue(args, '--instrument', ['violin', 'viola'] as const);
-  const support = flagValue(args, '--support', ['chair', 'stand'] as const);
-
-  console.log(holdReachLines(species, instrument, support).join('\n'));
+  console.log(holdReachVariantLines(species, parseReachOptions(args)).join('\n'));
 }
 
 if (import.meta.main) {
