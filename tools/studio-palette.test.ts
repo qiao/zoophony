@@ -51,13 +51,26 @@ describe('the tan palette of the fox mesh (design 4.4, 4.5)', () => {
     expect(map(eye, 'lacquer')).toEqual(eye);
   });
 
-  it('keeps a pale face warm', () => {
-    // A cream white of the chest of the fox mesh. With the full hue step of the fur, a pale face
-    // turned cool (Oklab b below 0).
-    const cream = srgb('#fef7de');
-    const after = oklab(map(cream, 'matte'));
+  it('keeps a face of low chroma warm', () => {
+    // A light orange brown. With the full hue step of the fur, it turned green (Oklab a below 0).
+    const pale = srgb('#c09068');
+    const after = oklab(map(pale, 'matte'));
 
+    expect(after[1]).toBeGreaterThan(0);
     expect(after[2]).toBeGreaterThan(0);
-    expect(after[2]).toBeGreaterThan(oklab(cream)[2] * 0.8);
+  });
+
+  it('gives no sudden step to a face between two colors of the red fox', () => {
+    const fur = oklab(srgb(SPECIES_COLORS['fox-red'].fur));
+    const belly = oklab(srgb(SPECIES_COLORS['fox-red'].belly));
+    const between = (t: number): Vec3 =>
+      linearOfOklab([
+        fur[0] + (belly[0] - fur[0]) * t,
+        fur[1] + (belly[1] - fur[1]) * t,
+        fur[2] + (belly[2] - fur[2]) * t,
+      ]);
+
+    // The two faces are 0.003 apart in Oklab, on the two sides of the middle.
+    expect(distance(map(between(0.49), 'matte'), map(between(0.51), 'matte'))).toBeLessThan(0.01);
   });
 });

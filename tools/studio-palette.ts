@@ -64,8 +64,8 @@ export function linearOfOklab([lightness, a, b]: Vec3): Vec3 {
  * by the step from each color of the species of the mesh (the fur, the belly, and the accent) to
  * the same color of the other species. It blends the steps by the nearness of the face to each
  * color of the species of the mesh ({@link SPREAD}), and a face far from each color takes the step
- * of its nearest color. The hue step of the fur shrinks with the chroma of the face, so a pale face
- * does not turn cool. The faces of the other finishes, the gloss of the eyes and of the nose, keep
+ * of its nearest color. The hue step of the fur shrinks with the chroma of the face, so a face of
+ * low chroma does not turn green. The faces of the other finishes, the gloss of the eyes and of the nose, keep
  * their colors.
  *
  * @param map The colors of the two species.
