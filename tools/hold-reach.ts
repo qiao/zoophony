@@ -12,6 +12,7 @@ import type { Vec3 } from '../src/models/tuples.ts';
 import { SPECIES_HOLDS, bowedRig, holdOf, playingFrames } from '../src/pose/bowed-rig.ts';
 import { createBowPlaces, instrumentAt } from '../src/pose/bowed.ts';
 import { poseShoulder } from '../src/pose/ik.ts';
+import { windGrips, windRig } from '../src/pose/winds.ts';
 import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { existsSync, readFileSync } from 'node:fs';
@@ -20,6 +21,9 @@ import { armReach, parseConfig } from './rig-mesh.ts';
 
 /** An instrument that the player holds under the chin. */
 export type ChinInstrument = 'violin' | 'viola';
+
+/** An instrument that `pnpm hold-reach` measures: an instrument under the chin, or the flute. */
+export type ReachInstrument = ChinInstrument | 'flute';
 
 /** A support of the player that `pnpm hold-reach` takes. */
 export type ReachSupport = 'chair' | 'stand';
@@ -447,6 +451,72 @@ export function ruleSize(reach: HoldReach): RuleSize | null {
   return { scale: reach.scale * reach.ruleFactor, length: reach.length * reach.ruleFactor };
 }
 
+/** The reach of one arm to its grip on a wind instrument, in meters. */
+export interface GripReach {
+  /** The arm from the shoulder joint over the elbow and the wrist to the middle of the palm. */
+  readonly arm: number;
+  /** The distance from the shoulder joint to the grip of the palm in the playing pose. */
+  readonly play: number;
+  /** The distance from the shoulder joint to the grip of the palm in the rest pose. */
+  readonly rest: number;
+}
+
+/**
+ * Measures the reach of the arms of a species to their grips on the flute (`palmL` and `palmR` of
+ * `WOODWINDS`), with the lip plate at the mouth, in the playing pose and in the rest pose of the
+ * flute hold of `WIND_HOLDS`, with the chest in its bind pose. A palm misses its grip by the distance
+ * less the arm when the distance is longer than the arm.
+ *
+ * @param species The species.
+ * @param support The support of the player.
+ * @returns The reach of each side.
+ */
+export function fluteReach(
+  species: SpeciesId,
+  support: ReachSupport,
+): Readonly<Record<'L' | 'R', GripReach>> {
+  const model = buildPlayer(species, 'flute', 4, support);
+  const rig = windRig(model, 'flute');
+  const play = windGrips(rig, 1);
+  const rest = windGrips(rig, 0);
+  const distance = (grip: { readonly joint: Vec3; readonly grip: Vec3 }): number =>
+    new Vector3(...grip.joint).distanceTo(new Vector3(...grip.grip));
+  const side = (s: 'L' | 'R'): GripReach => ({
+    arm: armLength(model, s),
+    play: distance(play[s]),
+    rest: distance(rest[s]),
+  });
+  return { L: side('L'), R: side('R') };
+}
+
+/**
+ * Writes the report of `pnpm hold-reach <species> --instrument flute`.
+ *
+ * @param species The species.
+ * @param support The support of the player.
+ * @returns The lines.
+ */
+export function fluteReachLines(species: SpeciesId, support: ReachSupport): string[] {
+  const reach = fluteReach(species, support);
+  const m = (value: number): string => `${value.toFixed(3)} m`;
+  const miss = (distance: number, arm: number): string =>
+    distance > arm
+      ? `misses the grip by ${m(distance - arm)}`
+      : `reaches the grip with ${m(arm - distance)} to spare`;
+  const lines = [
+    `${species} with the flute on the ${support}, hold flute (WIND_HOLDS), the lip plate at the mouth:`,
+  ];
+  for (const s of ['L', 'R'] as const) {
+    const { arm, play, rest } = reach[s];
+    lines.push(
+      `  ${s}: arm ${m(arm)} from the shoulder joint to the middle of the palm`,
+      `    Playing pose: shoulder joint to the grip ${m(play)}, the palm ${miss(play, arm)}`,
+      `    Rest pose: shoulder joint to the grip ${m(rest)}, the palm ${miss(rest, arm)}`,
+    );
+  }
+  return lines;
+}
+
 /** The texts of the reached parts of a reach. */
 export interface RangeTexts {
   /** The reached part of the fingerboard. */
@@ -534,8 +604,8 @@ export function holdReachLines(
 
 /** The options of `pnpm hold-reach <species>`. */
 export interface ReachOptions {
-  /** The instrument under the chin. */
-  readonly instrument: ChinInstrument;
+  /** The instrument under the chin, or the flute. */
+  readonly instrument: ReachInstrument;
   /** The support of the player. */
   readonly support: ReachSupport;
   /**
@@ -547,7 +617,7 @@ export interface ReachOptions {
 
 /** The usage text of `pnpm hold-reach`. */
 const USAGE =
-  'Usage: pnpm hold-reach <species> [--instrument violin|viola] [--support chair|stand] [--set <path>=<value>[;<path>=<value>]...]... [--glb <file>]';
+  'Usage: pnpm hold-reach <species> [--instrument violin|viola|flute] [--support chair|stand] [--set <path>=<value>[;<path>=<value>]...]... [--glb <file>]';
 
 /**
  * Reads the options after the species. Each option has one value, and `--set` can come more than
@@ -558,7 +628,7 @@ const USAGE =
  * @throws Error if an option is not known, has no value, or has a value that is not permitted.
  */
 export function parseReachOptions(args: readonly string[]): ReachOptions {
-  let instrument: ChinInstrument = 'violin';
+  let instrument: ReachInstrument = 'violin';
   let support: ReachSupport = 'chair';
   const sets: string[] = [];
   const pick = <T extends string>(flag: string, text: string, values: readonly T[]): T => {
@@ -576,7 +646,7 @@ export function parseReachOptions(args: readonly string[]): ReachOptions {
     }
     switch (flag) {
       case '--instrument':
-        instrument = pick(flag, value, ['violin', 'viola'] as const);
+        instrument = pick(flag, value, ['violin', 'viola', 'flute'] as const);
         break;
       case '--support':
         support = pick(flag, value, ['chair', 'stand'] as const);
@@ -614,7 +684,11 @@ export function holdReachVariantLines(species: SpeciesId, options: ReachOptions)
       if (options.sets.length > 0) {
         lines.push(`${text || 'base'}:`);
       }
-      lines.push(...holdReachLines(species, options.instrument, options.support));
+      lines.push(
+        ...(options.instrument === 'flute'
+          ? fluteReachLines(species, options.support)
+          : holdReachLines(species, options.instrument, options.support)),
+      );
     } finally {
       undo();
     }

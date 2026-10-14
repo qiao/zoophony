@@ -4,6 +4,8 @@ import { SPECIES } from '../src/models/species.ts';
 import { SPECIES_HOLDS } from '../src/pose/bowed-rig.ts';
 import {
   armFactorFor,
+  fluteReach,
+  fluteReachLines,
   holdReach,
   holdReachLines,
   holdReachVariantLines,
@@ -96,6 +98,28 @@ describe('pnpm hold-reach (design 4.6)', () => {
   });
 });
 
+describe('pnpm hold-reach --instrument flute (design 4.6)', () => {
+  it('measures each palm to its grip in the playing pose and in the rest pose', () => {
+    // The wolf has the parametric biped, and the tan fox the studio body of the fox mesh.
+    const wolf = fluteReach('wolf', 'chair');
+    const fox = fluteReach('fox-tan', 'chair');
+
+    for (const side of ['L', 'R'] as const) {
+      expect(wolf[side].play).toBeLessThan(wolf[side].arm);
+      expect(fox[side].arm).not.toBeCloseTo(wolf[side].arm, 3);
+      expect(fox[side].play).toBeGreaterThan(0.1);
+      expect(fox[side].rest).toBeGreaterThan(0.1);
+    }
+  });
+
+  it('reports the reach or the miss of each palm', () => {
+    const text = fluteReachLines('wolf', 'chair').join('\n');
+    for (const part of ['L: arm', 'R: arm', 'Playing pose', 'Rest pose', 'to spare']) {
+      expect(text, part).toContain(part);
+    }
+  });
+});
+
 describe('parseReachOptions', () => {
   it('gives the violin on the chair with no variant by default', () => {
     expect(parseReachOptions([])).toEqual({ instrument: 'violin', support: 'chair', sets: [] });
@@ -121,6 +145,7 @@ describe('parseReachOptions', () => {
     expect(() => parseReachOptions(['--glow', 'x'])).toThrow('is not known');
     expect(() => parseReachOptions(['--set'])).toThrow('has no value');
     expect(() => parseReachOptions(['--support', 'floor'])).toThrow('--support takes one of');
+    expect(() => parseReachOptions(['--instrument', 'oboe'])).toThrow('violin, viola, flute');
   });
 });
 
@@ -136,6 +161,15 @@ describe('holdReachVariantLines', () => {
       const match = /to the scroll in the playing pose: ([\d.]+) m/.exec(line);
       return match ? [Number(match[1])] : [];
     });
+
+  it('reports the flute for --instrument flute', () => {
+    const lines = holdReachVariantLines('wolf', {
+      instrument: 'flute',
+      support: 'chair',
+      sets: [],
+    });
+    expect(lines[0]).toContain('wolf with the flute on the chair');
+  });
 
   it('measures each variant with its changes, and puts the holds back after it', () => {
     const shift = SPECIES_HOLDS.rabbit?.violin?.playShift;
