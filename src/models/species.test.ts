@@ -137,8 +137,9 @@ describe('buildBiped for each species', () => {
 
     describe(id, () => {
       it('stays within its body budget (design 4.5)', () => {
-        // The studio bear keeps the faces of its GLB file, and the scene has one conductor.
-        expect(mesh.positions.length / 9).toBeLessThanOrEqual(studio ? 3000 : 2600);
+        // A studio body keeps the faces of its GLB file. The budget of the full scene holds the
+        // frame (`budget.test.ts`).
+        expect(mesh.positions.length / 9).toBeLessThanOrEqual(studio ? 3400 : 2600);
       });
 
       it.runIf(studio)('keeps the faces and the colors of its GLB file (design 4.4)', () => {

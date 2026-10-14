@@ -349,7 +349,7 @@ their own, below).
 
 Each body follows these rules:
 
-- A body has at most 2,600 triangles, and a studio body at most 3,000 (4.5, facets and triangle
+- A body has at most 2,600 triangles, and a studio body at most 3,400 (4.5, facets and triangle
   budgets).
 - The left side of the animal is at -x, because it faces -z, and the mouth is near the middle
   plane, below the eyes (`models/species.test.ts`).
@@ -1076,8 +1076,9 @@ through the open back. A floor instrument, such as the cello, moves with the bod
   and the left half of a loft is the mirror image of its right half. The target is the facets of
   the reference images: large, flat, and clean facets that follow the form of each animal
   (design 1, `lowpoly-animals.png` and `animals.webp`).
-- A body has at most 2,600 triangles. A studio body keeps the faces of its GLB file: the scene
-  has one conductor, so a studio body has a budget of its own of 3,000. An instrument has
+- A body has at most 2,600 triangles. A studio body keeps the faces of its GLB file, so it has a
+  budget of its own of 3,400. The rabbit plays in the violin section, so many studio bodies
+  share the scene, and the budget of the full scene holds the frame. An instrument has
   at most 800, except the timpani (1,200)
   and the piano (2,000). A chair or the piano bench has at most 120, and a stand at most 80. The
   full scene with 60 players has at most 200,000 triangles. The frame cost of `perf-60.mid` on

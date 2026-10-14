@@ -22,10 +22,10 @@ import { perf60File } from './test-perf-60.ts';
 const BODY_BUDGET = 2600;
 
 /**
- * The most triangles of a studio body (design 4.4, 4.5): the bear conductor keeps the faces of its
- * GLB file, and the scene has one conductor.
+ * The most triangles of a studio body (design 4.4, 4.5): a studio body keeps the faces of its GLB
+ * file. The rabbit plays in the violin section, so the budget of the full scene holds the frame.
  */
-const STUDIO_BODY_BUDGET = 3000;
+const STUDIO_BODY_BUDGET = 3400;
 
 /** The most triangles of the scene with 60 players (design 4.5). */
 const SCENE_BUDGET = 200_000;
