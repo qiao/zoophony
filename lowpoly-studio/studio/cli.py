@@ -1163,6 +1163,25 @@ def sheet_rows(rows, height):
     return [top // 5 * 5, -(-bottom // 5) * 5]
 
 
+def compact_changes(animal, title, role, image, bg, views, compare_rows, methods):
+    """Lists the changes of the compact config of `new --like` (studio/like.py compact): the
+    fields of the new sheet, the methods of a new animal, and the removal of the ear box of the
+    like animal (its box fits its own ears, and the box of the new animal follows the ear radii:
+    studio/config.py ear_box_pad)."""
+    measured = 'measured by studio new'
+    changes = [('animal', 'id', animal, None, None, None),
+               ('animal', 'name', title, None, None, None),
+               ('animal', 'role', role, None, None, None),
+               ('sheet', 'image', image, None, None, None),
+               ('sheet', 'background', bg, measured, None, None)]
+    changes += [(f'sheet.views.{n}', 'columns', v['columns'], measured, None, None)
+                for n, v in views.items()]
+    changes += [('compare', 'rows', compare_rows, measured, None, None)]
+    changes += methods
+    changes += [('field.ears', 'box_pad', None, None, None, None)]
+    return changes
+
+
 def scale_like(cfg, like_id, path):
     """Scales the values in animal heights of the compact config (studio/like.py SCALED) by
     the body height of the new sheet over the body height of the like sheet, when they differ by
@@ -1250,19 +1269,8 @@ def cmd_new(a):
                   f'to the tops of the ears. Axes of three.js\nand glTF: x is the left of the '
                   f'animal, y is up, z is forward. Colors are sRGB 0..255. Angles\nare in '
                   f'degrees.')
-        measured = 'measured by studio new'
-        changes = [('animal', 'id', a.animal, None, None, None),
-                   ('animal', 'name', title, None, None, None),
-                   ('animal', 'role', role, None, None, None),
-                   ('sheet', 'image', f'reference/{name}', None, None, None),
-                   ('sheet', 'background', bg, measured, None, None)]
-        changes += [(f'sheet.views.{n}', 'columns', v['columns'], measured, None, None)
-                    for n, v in views.items()]
-        changes += [('compare', 'rows', compare_rows, measured, None, None)]
-        changes += methods
-        # The ear box of the like animal fits its own ears: the box of the new animal follows
-        # the ear radii (studio/config.py ear_box_pad).
-        changes += [('field.ears', 'box_pad', None, None, None, None)]
+        changes = compact_changes(a.animal, title, role, f'reference/{name}', bg, views,
+                                  compare_rows, methods)
         try:
             text = like.compact(like_text, header, changes) if len(cols) == 4 else None
         except ValueError as e:

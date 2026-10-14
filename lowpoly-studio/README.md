@@ -87,6 +87,8 @@ lowpoly-studio/
 │   ├── scene_check.py   the scene check of each clip: the body in a prop, on the seat, and
 │   │                    the claw tips on the key targets
 │   ├── ik.py bake.py    rotation math, two-bone IK; clip baking into actions
+│   ├── reach.py         the IK reach of the clips and the arm of a held instrument (pure
+│   │                    Python)
 │   ├── roles.py         the interface to the role packs
 │   ├── export.py        materials, join, shape keys, glTF export
 │   ├── checks.py        the structured check report (checks.json) with the place of each failure
@@ -531,7 +533,7 @@ its violin by the rule of a violin shop to the arm of its body (`violinScale` of
 ### The reach line of a held instrument
 
 The stage "clips" records the reach that each IK arm asks for in each frame
-(`reach_report()` of `studio/bake.py`, the data of `out/stages/<nn>-clips/data.json`). For a
+(`reach_report()` of `studio/reach.py`, the data of `out/stages/<nn>-clips/data.json`). For a
 role with a held instrument (a hand prop of `HELD_INSTRUMENTS` in `studio/props.py`: the
 violin), the checks add two report checks and one line. The line is in the summary of the build,
 at the top of `out/report/review.png`, and at the top of `out/report/index.html`:

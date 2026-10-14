@@ -57,6 +57,7 @@ from mathutils.bvhtree import BVHTree  # noqa: E402
 
 from studio import (bake, cache, config, contacts, details, export, mesh, paint, props,  # noqa: E402
                     remesh, roles, scene_check, stages)
+from studio import reach as reach_mod  # noqa: E402
 from studio import weights as skin  # noqa: E402
 from studio.field import field_at, field_on_grid, load_profiles  # noqa: E402
 from studio.sdf import surface_nets  # noqa: E402
@@ -248,7 +249,7 @@ def stage_clips(cfg, body, pack, skel, drivers, clips_only):
         scene = props.ScenePose(body, cfg.role, props.moving_keys(cfg.role, pack))
     asked = {}
     samples, shape_weights = bake.sample_all(skel, pack, clips_only, drivers, scene, asked)
-    reach = bake.reach_report(skel, asked)
+    reach = reach_mod.reach_report(skel.heads, skel.parents, skel.names, asked)
     reach['instruments'] = props.held_instruments(body, cfg.role)
     return {'samples': samples, 'sample_arrays': bake.sample_arrays(samples, skel.names),
             'reach': reach, '_restore': {'shape_weights': shape_weights}}

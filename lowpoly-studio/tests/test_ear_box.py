@@ -14,7 +14,7 @@ from types import SimpleNamespace
 STUDIO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, STUDIO)
 
-from studio import config, like  # noqa: E402
+from studio import cli, config, like  # noqa: E402
 
 
 class EarBoxTest(unittest.TestCase):
@@ -45,7 +45,9 @@ class LikeDropsTheEarBoxTest(unittest.TestCase):
     def test_compact_config_has_no_ear_box(self):
         with open(os.path.join(config.animal_dir('bear'), 'animal.toml')) as f:
             text = f.read()
-        out = like.compact(text, 'A test.', [('field.ears', 'box_pad', None, None, None, None)])
+        changes = cli.compact_changes('fox', 'Fox', 'conductor', 'reference/fox.png',
+                                      [200, 200, 200], {}, [0, 10], [])
+        out = like.compact(text, 'A test.', changes)
         self.assertNotIn('box_pad', tomllib.loads(out)['field']['ears'])
         self.assertIn('box_pad', tomllib.loads(out)['field']['tail'])
 

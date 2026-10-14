@@ -237,7 +237,7 @@ def reach_checks(r, reach, rc, fps):
     """Adds the reach checks of a role with a held instrument to the report r, and returns the
     reach line of the report (None for a role with no held instrument).
 
-    reach: the data of studio/bake.py reach_report with "instruments" (studio/props.py
+    reach: the data of studio/reach.py reach_report with "instruments" (studio/props.py
     held_instruments). rc: the role [checks]. fps: the frames of a second of the clips. The
     checks: the instrument length over the reach to the middle of the palm (instrument_reach),
     and the largest share of the reach that the IK wrist targets of each clip ask for

@@ -233,32 +233,6 @@ def sample_all(skel, pack, only=None, drivers=None, scene=None, asked=None):
     return samples, shape_weights
 
 
-def reach_report(skel, asked, side='L'):
-    """Sums up the IK reach of the clips: the reach of the arm of one side in the bind skeleton,
-    and the largest share of the reach that the IK targets of each clip ask for.
-
-    Returns {"ik": the upper arm plus the forearm, "palm": ik plus half the paw (the hand head to
-    the mean head of its finger bones: "fingers" or the digits, not the prop bones), "clips":
-    {clip: {side: [largest share, frame]}}}. A share above 1 asks for more than the reach: the IK
-    stops at the reach.
-    """
-    h = skel.heads
-    s, e, w = h[f'upper_arm_{side}'], h[f'forearm_{side}'], h[f'hand_{side}']
-    ik = float(np.linalg.norm(e - s) + np.linalg.norm(w - e))
-    kids = [h[n] for n in skel.names
-            if skel.parents[n] == f'hand_{side}' and n.startswith('finger')]
-    paw = float(np.linalg.norm(np.mean(kids, axis=0) - w)) if kids else 0.0
-    clips = {}
-    for name, frames in asked.items():
-        worst = {}
-        for i, arms in enumerate(frames):
-            for arm_side, share in arms:
-                if arm_side not in worst or share > worst[arm_side][0]:
-                    worst[arm_side] = [round(share, 4), i]
-        clips[name] = worst
-    return {'ik': round(ik, 4), 'palm': round(ik + 0.5 * paw, 4), 'clips': clips}
-
-
 def write_all(arm, skel_props, fps, samples, shape_obj=None, shape_weights=None, nodes=None):
     """Writes the solved clips into actions: one action of the armature for each clip, one
     action of the shape keys of shape_obj (with the weights of shape_weights) when it is given,

@@ -1,5 +1,5 @@
-"""Tests of the reach checks of a role with a held instrument (studio/checks.py reach_checks and
-reach_text). Run in lowpoly-studio/:
+"""Tests of the reach of a role with a held instrument: studio/reach.py reach_report, and
+studio/checks.py reach_checks and reach_text. Run in lowpoly-studio/:
 
     python3 -m unittest tests.test_reach
 
@@ -15,7 +15,7 @@ from types import SimpleNamespace
 STUDIO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, STUDIO)
 
-from studio import checks  # noqa: E402
+from studio import checks, reach as reach_mod  # noqa: E402
 
 # The role [checks] with the defaults of the schema.
 LIMITS = SimpleNamespace(instrument_reach=(0.9, 1.1), ik_reach=1.0)
@@ -40,6 +40,36 @@ def run(data):
     r = checks.Report()
     line = checks.reach_checks(r, data, LIMITS, 30)
     return {c['name']: c for c in r.items}, line
+
+
+# A small left arm: the upper arm 0.3 long, the forearm 0.4, a paw of 0.1 to its finger bone, and
+# a prop bone of the hand that is no finger.
+HEADS = {'upper_arm_L': (0.0, 0.0, 0.0), 'forearm_L': (0.3, 0.0, 0.0),
+         'hand_L': (0.3, -0.4, 0.0), 'fingers_L': (0.3, -0.5, 0.0), 'violin': (0.3, -0.4, 0.5)}
+PARENTS = {'upper_arm_L': None, 'forearm_L': 'upper_arm_L', 'hand_L': 'forearm_L',
+           'fingers_L': 'hand_L', 'violin': 'hand_L'}
+NAMES = list(HEADS)
+
+
+class ReachReportTest(unittest.TestCase):
+    """The reach of the arm and the largest share of each clip."""
+
+    def setUp(self):
+        asked = {'reference': [[]],
+                 'ready': [[('L', 0.9), ('R', 0.7)], [('L', 1.05), ('R', 0.6)], [('L', 1.0)]]}
+        self.report = reach_mod.reach_report(HEADS, PARENTS, NAMES, asked)
+
+    def test_reach_of_the_upper_arm_and_the_forearm(self):
+        self.assertAlmostEqual(self.report['ik'], 0.7)
+
+    def test_palm_adds_half_the_paw_and_no_prop_bone(self):
+        self.assertAlmostEqual(self.report['palm'], 0.75)
+
+    def test_largest_share_and_its_frame_of_each_side(self):
+        self.assertEqual(self.report['clips']['ready'], {'L': [1.05, 1], 'R': [0.7, 0]})
+
+    def test_clip_with_no_ik_arm_is_empty(self):
+        self.assertEqual(self.report['clips']['reference'], {})
 
 
 class ReachChecksTest(unittest.TestCase):
@@ -89,6 +119,13 @@ class ReachTextTest(unittest.TestCase):
         self.assertIn('a blocker for the app', text)
         self.assertIn('MORE THAN THE REACH', text)
         self.assertIn('1.1287', text)
+        self.assertTrue(bad)
+
+    def test_line_flags_a_short_violin_with_targets_in_the_reach(self):
+        _, line = run(reach(0.3146, 0.234, {'ready': {'L': [0.7885, 48], 'R': [0.8145, 24]}}))
+        text, bad = checks.reach_text({'reach': line})
+        self.assertIn('a blocker for the app', text)
+        self.assertNotIn('MORE THAN THE REACH', text)
         self.assertTrue(bad)
 
     def test_no_line_with_no_reach(self):
