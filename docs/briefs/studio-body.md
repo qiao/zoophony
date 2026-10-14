@@ -205,29 +205,30 @@ branch |); Decisions; Removed or changed tests (| Test | Reason |); Break comman
 Command | Failure |); Commits; Images to review; Open problems and the next step.
 ```
 
-## 3. Review brief
+## 3. Review brief (optional)
+
+Use this brief only when the round changes code of the kinds of design 9.8, such as a tool that
+removes a folder or starts a server. Name that code in `<paths>`. The review takes about 10
+minutes and reads the code only.
 
 ```markdown
 You are the independent review agent of the branch `<branch>` (design 9.8), in the worktree
 `<path>`. Do not edit, commit, merge, or push. Write files only into `<scratch>/review/`.
-Read `<scratch>/rules-common.md`, the brief `<path>`, `AGENTS.md`, and the diff with no
-generated module and no image:
-`git log -p main..<branch> -- . ':!src/models/studio/*.ts' ':!*.webp' ':!*.png'`.
+Time box 10 minutes. Review only the code of `<paths>`: <the tool code that deletes files,
+starts processes, or changes the git state, or the rule of the pure core>. Read
+`<scratch>/rules-common.md`, the brief `<path>`, `AGENTS.md`, and the diff of that code:
+`git log -p main..<branch> -- <paths>`.
 
 1. Run `tools/check-commits.sh --tip main` one time, in the background, with no edits during the
    run. It reads the results of the implementer from the cache. Do not check each commit again
    in another way.
-2. Run each break command of the report with `tools/break-test.sh`, and read the test that
-   fails. The script restores the file.
-3. Run `pnpm pose-depth <role> --gaps`, `pnpm fold-probe <role>`, and
-   `pnpm body-probe --base main`. Compare them with the report. The body probe names each
-   player whose pose changed, and the fields of each mesh that changed.
-4. Check the correctness, the rules of `AGENTS.md`, and the edge cases of the shared pose code
-   for the other species.
-5. Run `tools/decision-rows.sh --diff main`. List each old row that the branch replaces and does
-   not remove. Check the design files for copied values.
-6. Run `pnpm close-views <role> <dir> --base main`, and look at the grid of `main` above the
-   grid of the branch. Look at the snapshot.
+2. Run each break command of the report for that code with `tools/break-test.sh`, and read the
+   test that fails. The script restores the file.
+3. Check the correctness, the rules of `AGENTS.md`, and the edge cases. For a tool, these are the
+   stop paths (a failure, and Ctrl-C through pnpm), the removed files, the ports, and the git
+   state. For the pure core, these are the rules of its design section.
+4. Run no image tool and no probe of a body. The manager reads the close views, the snapshot, and
+   the probes of the report.
 
 Reply with only: Verdict; Findings (| # | Severity | File:line | Finding | Evidence | Fix |);
 Checks run (| Check | Result |).
