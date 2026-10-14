@@ -16,6 +16,7 @@ import {
   parseConfig,
   reachLine,
   checkTable,
+  checkTexts,
   configChanges,
   printedOnly,
   rigSettings,
@@ -350,5 +351,22 @@ describe('variantText', () => {
     expect(() => variantText(text, 'output=x.glb', false)).toThrow(/--set output/);
     expect(() => variantText(text, ';', true)).toThrow(/has no change/);
     expect(() => variantText(text, 'armFactor=0', true)).toThrow(/positive numbers/);
+  });
+});
+
+describe('checkTexts', () => {
+  it('gives the base text as read, then each variant made from the same text', () => {
+    // The text of the file, with a number that JSON writes in another form.
+    const text = `${JSON.stringify(figure(1)).replace('"armFactor":1', '"armFactor":1.0')}\n`;
+    const [base, variant, ...rest] = checkTexts(text, ['armFactor=1.2'], true);
+    expect(base).toBe(text);
+    expect(rest).toEqual([]);
+    expect(JSON.parse(variant ?? '')).toEqual({ ...JSON.parse(text), armFactor: 1.2 });
+  });
+
+  it('stops before the first rig when a variant does not fit', () => {
+    expect(() => checkTexts(JSON.stringify(figure(1)), ['armFactor=1.2', ''], true)).toThrow(
+      /has no change/,
+    );
   });
 });

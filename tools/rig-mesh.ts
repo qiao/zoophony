@@ -759,17 +759,30 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
 }
 
 /**
+ * Gives the JSON text of the config of each row of `--check`: the text of the base as the tool
+ * read it, then the text of each variant from it ({@link variantText}). The base and the variants
+ * thus come from one read of the config file, and each variant fits before the first rig.
+ *
+ * @param text The JSON text of the config, read one time at the start.
+ * @param sets The variants of `--set`.
+ * @param known True for an animal of `ANIMALS` of `tools/studio-body.ts`.
+ * @returns The text of the base, then the text of each variant.
+ * @throws Error if a variant does not fit.
+ */
+export function checkTexts(text: string, sets: readonly string[], known: boolean): string[] {
+  return [text, ...sets.map((set) => variantText(text, set, known))];
+}
+
+/**
  * Rigs a mesh into a temporary folder and measures the rig, with no write into the repository
- * (`--check`). A variant writes its changed config into the folder, and the rig reads it from
- * there. The app checks run on a copy of `src/` with the body of the rig: the violin by the rule
+ * (`--check`). The JSON text of the config goes into the folder, and the rig reads it from there,
+ * so that the base and each variant read the text that the tool read at its start. The app checks run on a copy of `src/` with the body of the rig: the violin by the rule
  * of a violin shop for the violinist, and the folds of each role of the animal. The folder goes
  * away at the end, also after a failure. After a stop (INT or TERM), `tools/stop-cleanup.ts` stops
  * Blender and the probes first, then removes the folder.
  *
  * @param animal The animal.
- * @param configPath The path of the config in the repository.
- * @param text The JSON text of the config.
- * @param variant The changes of the variant ({@link setConfig}), or empty for the base.
+ * @param text The JSON text of the config of the base or of a variant ({@link variantText}).
  * @param preview The folder of the preview images, or `null`.
  * @returns The measures.
  * @throws Error if the config has no rule of the thin faces, if the rig fails, if it is above the
@@ -777,13 +790,10 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
  */
 async function checkRig(
   animal: string,
-  configPath: string,
   text: string,
-  variant: string,
   preview: string | null,
 ): Promise<CheckMeasures> {
-  const changed = variant ? setConfig(text, variant) : text;
-  const config = parseConfig(changed);
+  const config = parseConfig(text);
   const thin = config.check?.thin;
   if (!thin) {
     throw new Error(`The config of ${animal} has no check.thin: angle, length, and near.`);
@@ -793,11 +803,8 @@ async function checkRig(
   const dir = mkdtempSync(join(tmpdir(), 'rig-mesh-check-'));
   const release = trackFolder(dir);
   try {
-    let path = configPath;
-    if (variant) {
-      path = join(dir, `${animal}.json`);
-      await writeFile(path, changed);
-    }
+    const path = join(dir, `${animal}.json`);
+    await writeFile(path, text);
     const output = join(dir, `${animal}.rig.glb`);
     const obj = join(dir, 'source-long-arms.obj');
     await runBlender(blenderArgs(path, output, preview, obj));
@@ -855,24 +862,24 @@ async function checkRig(
 
 /**
  * Checks the base and each variant of the config of an animal, one rig at a time, and prints the
- * table of the variants ({@link checkTable}). A variant that fails prints its message, and the
- * next variant runs.
+ * table of the variants ({@link checkTable}). Each variant must fit ({@link variantText}) before
+ * the first rig. A variant whose rig or probe fails prints its message, and the next variant runs.
  *
  * @param animal The animal.
- * @param configPath The path of the config in the repository.
- * @param text The JSON text of the config.
+ * @param text The JSON text of the config, read one time at the start.
  * @param sets The variants of `--set`.
  * @param preview The folder of the preview images, or `null`. With variants, each rig writes into
  *   a folder of its own in it: `base`, `variant-1`, and so on.
  * @returns True when each variant passed.
+ * @throws Error if a variant does not fit, before the first rig.
  */
 async function checkVariants(
   animal: string,
-  configPath: string,
   text: string,
   sets: readonly string[],
   preview: string | null,
 ): Promise<boolean> {
+  const texts = checkTexts(text, sets, ANIMALS.has(animal));
   const rows: CheckRow[] = [];
   for (const [k, variant] of ['', ...sets].entries()) {
     if (sets.length > 0) {
@@ -881,7 +888,7 @@ async function checkVariants(
     const folder =
       preview && sets.length > 0 ? join(preview, k === 0 ? 'base' : `variant-${k}`) : preview;
     try {
-      const measures = await checkRig(animal, configPath, text, variant, folder);
+      const measures = await checkRig(animal, texts[k] ?? text, folder);
       rows.push({ variant, measures, error: null });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -909,11 +916,7 @@ async function main(): Promise<void> {
   const text = await readFile(configPath, 'utf8');
   const config = parseConfig(text);
   if (check) {
-    // Each change must fit before the first rig, so that a typing fault stops the tool at once.
-    for (const set of sets) {
-      variantText(text, set, ANIMALS.has(animal));
-    }
-    if (!(await checkVariants(animal, configPath, text, sets, preview))) {
+    if (!(await checkVariants(animal, text, sets, preview))) {
       process.exitCode = 1;
     }
     return;
