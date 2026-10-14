@@ -85,9 +85,6 @@ const SWEEP_DECISIONS = 'docs/decisions/2026-10-13-role-sweep.md';
 /** The decision file of cheerful demos. */
 const CHEERFUL_DEMO_DECISIONS = 'docs/decisions/2026-10-14-cheerful-demos.md';
 
-/** The decision file of the rabbit of the mesh of the user. */
-const MESH_RABBIT_DECISIONS = 'docs/decisions/2026-10-13-mesh-rabbit.md';
-
 /** The step of the song time between two samples of a full play, in seconds. */
 const PLAY_STEP = 0.25;
 
@@ -543,17 +540,7 @@ export const VIOLINIST_SWEEP: RoleSweep = {
     { name: 'violin', surface: violinSurface },
   ],
   contact: CONTACT,
-  // The arms hang at the sides when the violin rests, and the root of each upper arm turns
-  // behind the fan cap of its cut.
-  accepted: (['rest', 'lift', 'lower'] as const).map((samples) => ({
-    part: 'upper arms',
-    into: 'body',
-    samples,
-    depth: 0.025,
-    reason:
-      'The root of the hanging upper arm of the rabbit mesh turns behind the cap of the cut to the arm.',
-    decision: `${MESH_RABBIT_DECISIONS}, row "Accepted limits"`,
-  })),
+  accepted: [],
   targetError: 1e-3,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'violin'),
   players: (scene) =>
