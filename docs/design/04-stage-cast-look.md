@@ -489,7 +489,13 @@ retarget had about a quarter of the folded faces.
   nearest color of a palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan
   over its dark faces, so that the body keeps the triangle budget of a studio body (4.5) and a
   small module. The corners of each short thin face share one set of weights, and the hand takes
-  half of the finger weight, so that fewer faces turn over at the shoulders and the paws.
+  half of the finger weight, so that fewer faces turn over at the shoulders and the paws. The
+  long thin faces of an image mesh fold when a joint bends, so the rig may change the faces of
+  the arms, the shoulders, and the hands. A ring of new vertices at a joint splits the faces that
+  it crosses, and the long edge of a face that is thin in the seated bind flips. A split keeps the
+  surface, a flip moves it at most 2 mm, and each new face takes its color from the texture. The
+  head, the ears, the eyes, the whiskers, the legs, and the trunk keep their faces. The shoulders
+  give their head weight to the neck.
 - `pnpm studio-body <animal> --inspect` writes no file. It prints the facts of the GLB file that
   a new body needs. These are the nodes, the joints with the digits of each paw, the morph
   targets, and the clips. They also hold the hips, the length of each arm from the shoulder joint
