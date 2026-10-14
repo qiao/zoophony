@@ -80,7 +80,7 @@ record of their date. Put new research in a new report.
 
 A species gets a body of its own by one of three routes (design 4.4). Prefer the GLB route when the
 user gives a model: it takes minutes, and the code route takes hours. Use route 3 when the user
-asks for an animal of `lowpoly-studio/` in the app.
+asks for an animal of `lowpoly-studio/` in the app, or gives a mesh with no skeleton.
 
 **Route 1: a rigged GLB file.** The user gives a model in a T-pose with a Mixamo skeleton. Since
 2026-10-11, the app has no code of a rigged body. Before step 3, bring back the code of
@@ -207,6 +207,30 @@ implementation, the review, and the fix of a round from `docs/briefs/studio-body
 4. Run `pnpm snapshot`, and record the measures in a research report and the decisions in a
    decision file.
 
+**A mesh with no skeleton into route 3.** The user gives a textured mesh with no skeleton, as the
+rabbit `assets/models/rabbit/rabbit-4.glb` of 2026-10-13. `pnpm rig-mesh <animal>` rigs it into
+the GLB format of a studio body, and the steps of route 3 follow. Name the rigged file in `glb`
+of the entry of the animal in `ANIMALS`.
+
+```text
+ assets/models/<s>/<file>.glb + tools/mesh-rigs/<animal>.json
+        | pnpm rig-mesh <animal> --preview <dir> (Blender)
+        v
+ <output>.glb (fur, gloss, chair, 30 joints, 4 shapes, clip reference) --> pnpm studio-body
+```
+
+1. Measure the joints on cuts of the mesh, as `docs/research/2026-10-13-rabbit-mesh/sections.py`
+   does, and write them in the config with a note on each measure. The right side mirrors the
+   left side.
+2. Set the arm factor, if the user asks for longer arms. The tool stops when the reach misses
+   the target of the config by more than 1%, and it names the factor of the target.
+3. Run the tool with `--preview`, and look at the seated bind, the standing body, the knees, and
+   the main bones. The log gives the faces that the bind turns over, the smallest determinant of
+   the skin of the clip, and the triangles. Change a weight rule of the config, and run it again.
+4. With a temporary `glb` on the entry, run `pnpm studio-body <animal> --inspect` and
+   `docs/research/2026-10-13-rabbit-mesh/standing-probe.ts`. The standing body must give back the
+   long-armed source within 1 mm.
+
 These traps of route 3 each cost a round:
 
 - The hands of the player turn freely at the wrist, and the skin of the studio bends well only
@@ -236,6 +260,9 @@ These traps of route 3 each cost a round:
   rests the violin at its side (`BowedHold.restAtSide`).
 - A new body changes the footprints, so the layout of a section, the looks of the other players,
   and the cues of the conductor change with it. `pnpm body-probe --base main` names them.
+- Bone heat gives a part of the arm weight to the side of the trunk when the arm of a mesh hangs
+  near it. The raised bind arms then drag the trunk, and the fold probe finds folds at the
+  shoulder. Keep the arm weights on the free arm (`armSplit` of the config of `pnpm rig-mesh`).
 
 ## Rules
 
@@ -297,6 +324,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm keyboard` | Builds the site, serves `dist/` with `vite preview`, and checks each control with the keyboard alone in headless Chromium at 1440 × 900 and at 390 × 844 (design 9.5, step 6). It prints a Markdown table of the controls, the keys, and the results, and fails on a failed check. It stops the server and the browser at the end. |
 | `pnpm glb-init <species> <glb> [--force] [--preview <dir>]` | Starts the rigged GLB body of a species (design 4.4): copies the file to `assets/models/<species>/<species>.glb` with a README of its checksum, inspects it with `tools/blender/inspect_glb.py`, and writes the proposed config `tools/glb-bodies/<species>.json`. The proposal maps the Mixamo joints, takes the palette from clusters of the face colors, finds the eyes, the nose, the ears, and the finger blocks, and scales the body to the head center of the current body of the species. The tail gets no vertex. `--force` writes over an existing config and README. `--preview` also writes the images of `pnpm rig-body --preview`. |
 | `pnpm rig-body <species> [--preview <dir>]` | Prepares the rigged GLB body of a species with Blender (design 4.4) and writes `src/models/rigged/<species>.ts`. `tools/glb-bodies/<species>.json` gives the source file, the height, the map from its joints to the bones of the player, the bones that the file does not have, the color rules, and the triangle budget. `tools/blender/rig_body.py` welds the mesh, measures the eyes and the nose from the texture, collapses the mesh to the budget, adds the eye plates, keeps two bones for each vertex, and bakes the texture into the skin `src/models/rigged/<species>-skin.webp`, with the fur and the accent in the colors of the species. With `--preview`, `tools/blender/preview_rig.py` also writes `skin.png` and `bones.png` into `<dir>`: the skin and the main bone of each face. Blender 5.2 or later comes from the variable `BLENDER`, or from the path. |
+| `pnpm rig-mesh <animal> [--preview <dir>]` | Rigs a textured mesh with no skeleton into the GLB format of a studio body (design 4.4) with Blender, so that `pnpm studio-body` reads it. `tools/mesh-rigs/<animal>.json` gives the source file, the output file, the joints in the units of the studio, the arm factor and the reach of the app, the seat and the bind arms of the studio, the weight rules, the color rules, and the chair. The tool first checks that the arm factor gives the reach, within 1%. `tools/blender/rig_mesh.py` welds and scales the mesh, gives each face one color from the texture, gives the weights with bone heat and the rules, makes the arms longer, poses the seated bind, relaxes the faces that the bind turns over, adds a gloss shell over each eye, finds the corrective shapes, and writes the GLB file with its own code. A second run writes the same bytes. With `--preview`, it also writes the seated and the standing body from four sides, the knees, the main bones, and `source-long-arms.obj` into `<dir>`. Blender 5.2 or later comes from the variable `BLENDER`, or from the path. |
 | `pnpm studio-body <animal> [--inspect]` | Writes `src/models/studio/<animal>.ts` from the GLB file of an animal of the studio, `lowpoly-studio/animals/<animal>/out/<animal>.glb` (design 4.4), with no Blender: the welded mesh, the skin of up to four bones, the eye bones, the arm-down corrective shapes, and the bind pose of the bones of the studio, turned to face -z and scaled by the landmark of the animal (`ANIMALS`: the shoulder joints of the bear at 1.0 m, the keys of the studio piano of the polar bear at 0.70 m, the standing shoulder joints of the rabbit at 0.581 m). The four digits of a paw become its one finger bone. A seated role drops until its soles are on the floor, with the front edge of its studio seat at the front edge of the seat of the app, and gets the height of a flat seat under it. A chair also gets the depth of the chair of the studio (`chairDepth`). A seated role that also stands (`soloist`) keeps the leg corrective shapes and the leg turns of the clip `reference` (`standing`). It drops the props of the studio: the baton, the violin and the bow in the paws, the bench, the chair, and the piano. Run it after `python3 studio build <animal>` changes the GLB file. With `--inspect`, it writes no file, and it prints the facts of the GLB file that a new body needs. These are the scene nodes, the faces of each material, the morph targets, and the joints of the skin. The joints show the digits of each paw and the joints that the export drops or refuses. It also prints the clips with the hips at their first key, the hips of the bind pose, the length of each arm from the shoulder joint to the middle of the palm along the joints, and the lowest point of the skin. The props show their boxes, the bench top, the key top, and the key front. Each length is in studio units and in meters at the scale of `ANIMALS`. An animal that is not in `ANIMALS` gets the shoulder joints at 1 m. |
 | `pnpm close-views <role> <dir> [--base <url>]` | Builds the site and writes close views of a role from the gallery into `<dir>`, and the grid of all views (`<role>-views.png` and `.webp`). `conductor`: the bear from the front, the right side, and the back, at the four beats of a bar of the test notes, between two beats, and in the rest pose. `pianist`: the polar bear from the front, both sides, and the back, at a chord in each paw, between chords, and in the rest pose. `violinist`: the rabbit from the front, both sides, and the back, at the frog and the tip of a whole bow, at a string crossing, in the rest pose, and standing at the frog (the gallery query `stand`). The open lid and the muzzle hide the paws in the front view and in each view from above. So a fifth view is low from the left, 15° to the front. It shows the left paw on the keys, and the right paw stays behind the body. The camera of the pianist turns around the box of its body, with the azimuth 0 at its front (the gallery query `body`, design 7.1). The conductor keeps its fixed line. A new role adds one entry to `ROLE_VIEWS` of `tools/close-views.ts`. The entry gives its species, its views, its moments, and its test notes, with the camera `{ kind: 'body', zoom: 1, elevation }`. It needs no other camera value. `--base` uses a running site, such as the dev server, with no build. It stops the browser at the end. |
 | `pnpm fold-probe <role> [--demo <id>]... [--step <s>]` | Counts the folded faces of the skin of the studio body of a role (`conductor`, `pianist`, or `violinist`) over each demo with the role (design 4.4). It poses the first player of each model of a demo, with the support of the player. A face is folded when its posed normal is more than 90° from its bind normal, moved by the mean skin matrix of its corners. It prints one row for each sample set. The sets are the rest pose, the play at each step of 0.25 s by default, and the first 3 s of the arm lift. Each row gives the samples, the samples with a fold, their share, the most folded faces, and the worst sample. Then it prints the folded faces by the main studio bone. `--demo` takes the file name with or without `.mid`. A new role adds one entry to `FOLD_ROLES` of `tools/fold-probe.ts`. All demos take about 6 s for the pianist, 12 s for the conductor, and 12 s for the violinist, with no build. |
@@ -313,7 +341,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
 `pnpm format`, `pnpm screenshots`, `pnpm snapshot`, `pnpm sheet-check`, `pnpm pose-probe`, `pnpm pose-depth`, `pnpm hold-reach`, `pnpm choir-check`,
-`pnpm body-probe`, `pnpm keyboard`, `pnpm smoke`, `pnpm glb-init`, `pnpm rig-body`, `pnpm studio-body`,
+`pnpm body-probe`, `pnpm keyboard`, `pnpm smoke`, `pnpm glb-init`, `pnpm rig-body`, `pnpm rig-mesh`, `pnpm studio-body`,
 `pnpm close-views`, `pnpm fold-probe`, `pnpm frame`,
 `tools/merge-branch.sh`, `tools/check-commits.sh`, and `tools/decision-rows.sh`. It runs `pnpm test:e2e` in one job for each browser, and only the Chromium job blocks a merge
 (design 9.2).
