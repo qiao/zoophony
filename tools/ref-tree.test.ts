@@ -17,10 +17,12 @@ import { describe, expect, it } from 'vitest';
 import {
   errorCause,
   optionValue,
+  probeBeside,
   probeScripts,
   shortHash,
   withProbeTree,
   withRefTree,
+  withoutOptions,
 } from './ref-tree.ts';
 
 describe('errorCause', () => {
@@ -115,6 +117,52 @@ describe('withProbeTree', () => {
     } finally {
       await rm(parent, { recursive: true, force: true });
     }
+  });
+});
+
+describe('probeBeside', () => {
+  it('runs a script on a commit and on the working tree, and removes the folder', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'probe-beside-test-'));
+    try {
+      const args = ['pianist', '--demo', 'bach-bwv1048', '--bones', 'handL', '--times', '10'];
+      const texts = await probeBeside(
+        'HEAD',
+        'pose-depth.ts',
+        { base: args, tree: [...args, '--set', 'piano.lean=16deg'] },
+        { parent, prefix: 'probe-beside-' },
+      );
+      // The tree of the test is the commit, so both sides give the same base.
+      // SAFETY: rowsJson() of pnpm pose-depth wrote the text.
+      const base = JSON.parse(texts.base) as { rows: { variant: string }[] };
+      // SAFETY: rowsJson() of pnpm pose-depth wrote the text.
+      const tree = JSON.parse(texts.tree) as { rows: { variant: string }[] };
+      expect(base.rows.map((row) => row.variant)).toEqual(['']);
+      expect(tree.rows.map((row) => row.variant)).toEqual(['', 'piano.lean=16deg']);
+      expect(await readdir(parent)).toEqual([]);
+
+      const failing = probeBeside(
+        'HEAD',
+        'pose-depth.ts',
+        { base: ['no-such-role'], tree: args },
+        { parent, prefix: 'probe-beside-' },
+      );
+      await expect(failing).rejects.toThrow('The probe of HEAD failed');
+      expect(await readdir(parent)).toEqual([]);
+    } finally {
+      await rm(parent, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+
+describe('withoutOptions', () => {
+  it('removes each option with its value and each flag, and keeps the other arguments', () => {
+    const args = ['violinist', '--set', 'a=1', '--gaps', '--demo', 'x', '--base', 'main'];
+    expect(withoutOptions(args, ['--set', '--base'], ['--gaps'])).toEqual([
+      'violinist',
+      '--demo',
+      'x',
+    ]);
+    expect(withoutOptions(args, ['--base'])).toEqual(args.slice(0, 6));
   });
 });
 

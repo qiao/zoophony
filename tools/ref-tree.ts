@@ -6,7 +6,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
 import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync } from 'node:fs';
-import { rm } from 'node:fs/promises';
+import { readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -293,6 +293,102 @@ export function withProbeTree<T>(
     },
     tree,
   );
+}
+
+/** The arguments of the two children of {@link probeBeside}. */
+export interface BesideArgs {
+  /** The arguments of the script on the code of the commit. */
+  readonly base: readonly string[];
+  /** The arguments of the script on the working tree. */
+  readonly tree: readonly string[];
+}
+
+/** The output files of the two children of {@link probeBeside}. */
+export interface BesideTexts {
+  /** The text of the file of the script on the code of the commit. */
+  readonly base: string;
+  /** The text of the file of the script on the working tree. */
+  readonly tree: string;
+}
+
+/**
+ * Runs a script of `tools/` on the code of a commit and on the working tree at the same time,
+ * each in a child process of {@link runChild}. The first child runs in the folder of
+ * {@link withProbeTree}, and the second child runs in the repository. Each child writes its
+ * results into a file of the folder, which the option `--json <file>` names. The caller only
+ * waits, so a stop (INT or TERM) ends both children at once, and removes the folder.
+ *
+ * @param ref The commit, a branch, or a tag.
+ * @param script The script, such as `pose-depth.ts`.
+ * @param args The arguments of each child, with no `--json`.
+ * @param options The parent folder and the start of the name of the folder.
+ * @returns The text of the file of each child.
+ * @throws Error if git does not know the ref, or a child fails. Both children end first.
+ */
+export function probeBeside(
+  ref: string,
+  script: string,
+  args: BesideArgs,
+  options: ProbeTreeOptions,
+): Promise<BesideTexts> {
+  return withProbeTree(
+    ref,
+    async (dir) => {
+      const files = { base: join(dir, 'base.json'), tree: join(dir, 'tree.json') };
+      const [base, tree] = await Promise.allSettled([
+        runChild(
+          process.execPath,
+          [join('tools', script), ...args.base, '--json', files.base],
+          dir,
+        ),
+        runChild(
+          process.execPath,
+          [join('tools', script), ...args.tree, '--json', files.tree],
+          ROOT,
+        ),
+      ]);
+      if (base.status === 'rejected') {
+        const reason: unknown = base.reason;
+        throw new Error(
+          `The probe of ${ref} failed: ${reason instanceof Error ? reason.message : String(reason)}`,
+        );
+      }
+      if (tree.status === 'rejected') {
+        throw tree.reason;
+      }
+      return {
+        base: await readFile(files.base, 'utf8'),
+        tree: await readFile(files.tree, 'utf8'),
+      };
+    },
+    options,
+  );
+}
+
+/**
+ * Removes options from the arguments of a command line, such as `--base <ref>` from the arguments
+ * of a child.
+ *
+ * @param args The arguments.
+ * @param valued The options to remove with their values.
+ * @param flags The options with no value to remove.
+ * @returns The other arguments, in their order.
+ */
+export function withoutOptions(
+  args: readonly string[],
+  valued: readonly string[],
+  flags: readonly string[] = [],
+): string[] {
+  const kept: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i] ?? '';
+    if (valued.includes(arg)) {
+      i++;
+    } else if (!flags.includes(arg)) {
+      kept.push(arg);
+    }
+  }
+  return kept;
 }
 
 /**

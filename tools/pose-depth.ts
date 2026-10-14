@@ -2,6 +2,7 @@ import { writeFileSync } from 'node:fs';
 
 import { patchedDemos } from './patch-demos.ts';
 import { setHolds } from './hold-sets.ts';
+import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
 import { scoreOf } from '../src/score/test-score.ts';
 import { CONDUCTOR } from '../src/models/cast.ts';
 import type { PlayerModel } from '../src/models/player.ts';
@@ -50,10 +51,12 @@ export interface Options {
   readonly gaps: boolean;
   /** The file into which the tool writes its rows as JSON, or `null` for none. */
   readonly json: string | null;
+  /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
+  readonly base: string | null;
 }
 
 /** The text of the usage. */
-const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--json <file>]`;
+const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--base <ref>] [--json <file>]`;
 
 /**
  * Tells if a text is the name of a bone.
@@ -84,6 +87,7 @@ export function parseOptions(args: readonly string[]): Options {
   let into: string[] | null = null;
   let times: number[] | null = null;
   let json: string | null = null;
+  let base: string | null = null;
   // The flag --gaps has no value. Each other option has one.
   const gaps = rest.includes('--gaps');
   const valued = rest.filter((arg) => arg !== '--gaps');
@@ -121,6 +125,9 @@ export function parseOptions(args: readonly string[]): Options {
       case '--json':
         json = value;
         break;
+      case '--base':
+        base = value;
+        break;
       case '--times':
         times = list.map(Number);
         if (times.some((t) => !Number.isFinite(t))) {
@@ -135,7 +142,10 @@ export function parseOptions(args: readonly string[]): Options {
   for (const variant of variants) {
     setHolds(variant).undo();
   }
-  return { role, demos, variants, bones, into, times, gaps, json };
+  if (base !== null && json !== null) {
+    throw new Error(`The options --base and --json do not go together.\n${USAGE}`);
+  }
+  return { role, demos, variants, bones, into, times, gaps, json, base };
 }
 
 /** The results of one variant in one demo. */
@@ -460,6 +470,104 @@ export function readRows(text: string): SweepRow[] {
   }));
 }
 
+/** The step of the depths that the tool prints, in meters: 0.1 cm. */
+export const DEPTH_STEP = 0.001;
+
+/** The deepest point of a species in one pair of parts in one set of samples. */
+interface SpeciesDepth {
+  /** The species. */
+  readonly species: string;
+  /** The set of samples. */
+  readonly set: string;
+  /** The pair, such as `forearms in body`. */
+  readonly pair: string;
+  /** The depth, in meters. */
+  readonly depth: number;
+  /** The head height H of the body of the species, in meters. */
+  readonly headHeight: number;
+}
+
+/**
+ * Gives the deepest point of each species in each pair of parts in each set of samples, over the
+ * demos and the players.
+ *
+ * @param results The results of each demo and player.
+ * @returns The deepest points, by the species, the set, and the pair, in the order of the results.
+ */
+function speciesDepths(results: readonly DemoResult[]): Map<string, SpeciesDepth> {
+  const deepest = new Map<string, SpeciesDepth>();
+  for (const { species, headHeight, sets } of results) {
+    const name = species ?? 'unknown';
+    for (const { name: set, pairs } of sets) {
+      for (const { part, into, depth } of pairs) {
+        const pair = `${part} in ${into}`;
+        const key = `${name}\t${set}\t${pair}`;
+        const best = deepest.get(key);
+        if (!best || depth > best.depth) {
+          deepest.set(key, { species: name, set, pair, depth, headHeight });
+        }
+      }
+    }
+  }
+  return deepest;
+}
+
+/**
+ * Compares the deepest points of the sweep of a commit with the deepest points of the working
+ * tree, in cm and in the head height H of each body. A body that grows keeps its depths in H, so
+ * its depths in cm grow with it. The table has one row for each species, set, and pair with a
+ * depth that prints as 0.1 cm or more on one side. A mark `GROWS` follows a depth whose value in H grows by more than one step
+ * of the print ({@link DEPTH_STEP}) in the H of the body of the working tree.
+ *
+ * @param label The name of the commit, such as `main (ac0f4d56)`.
+ * @param base The results of the commit.
+ * @param tree The results of the working tree.
+ * @returns The lines: the H of each species, then the table, grouped by species.
+ */
+export function compareDepths(
+  label: string,
+  base: readonly DemoResult[],
+  tree: readonly DemoResult[],
+): string[] {
+  const before = speciesDepths(base);
+  const after = speciesDepths(tree);
+  const keys = [...new Set([...after.keys(), ...before.keys()])];
+  const species = [...new Set(keys.map((key) => key.split('\t')[0] ?? ''))];
+  const heights = species.map((name) => {
+    const of = (depths: Map<string, SpeciesDepth>): string => {
+      const found = [...depths.values()].find((d) => d.species === name);
+      return found ? `${found.headHeight.toFixed(3)} m` : '-';
+    };
+    return `${name} ${of(before)} -> ${of(after)}`;
+  });
+
+  const cm = (d: SpeciesDepth | undefined): string => (d ? (d.depth * 100).toFixed(1) : '-');
+  const inH = (d: SpeciesDepth | undefined): string =>
+    d ? (d.depth / d.headHeight).toFixed(3) : '-';
+  const lines = [
+    `H of each body, ${label} -> working tree: ${heights.join(', ')}`,
+    `| Species | Set | Pair | ${label} cm | ${label} H | tree cm | tree H | Mark |`,
+    '|---|---|---|---:|---:|---:|---:|---|',
+  ];
+  for (const name of species) {
+    for (const key of keys.filter((k) => k.startsWith(`${name}\t`))) {
+      const a = before.get(key);
+      const b = after.get(key);
+      const any = b ?? a;
+      // A row whose depths both print as 0.0 cm shows nothing.
+      if (!any || Math.max(a?.depth ?? 0, b?.depth ?? 0) < DEPTH_STEP / 2) {
+        continue;
+      }
+      const grows =
+        a && b && b.depth / b.headHeight - a.depth / a.headHeight > DEPTH_STEP / b.headHeight;
+      lines.push(
+        `| ${name} | ${any.set} | ${any.pair} | ${cm(a)} | ${inH(a)} | ${cm(b)} | ${inH(b)} | ${grows ? 'GROWS' : ''} |`,
+      );
+    }
+  }
+  return lines;
+}
+
 /**
  * Sweeps each variant of the options with the holds of now, and writes the details of each
  * variant after its sweep.
@@ -487,9 +595,48 @@ async function sweepRows(options: Options, role: RoleSweep): Promise<SweepRow[]>
   return rows;
 }
 
+/**
+ * Sweeps the commit of `--base` and the working tree at the same time, each in a child process
+ * (`probeBeside()`). The commit runs the base with no change. Then the tool writes the details
+ * and the table of the working tree, and one compare of each variant with the commit
+ * ({@link compareDepths}).
+ *
+ * @param role The role of the options.
+ * @param ref The commit, the branch, or the tag.
+ */
+async function compareRef(role: RoleSweep, ref: string): Promise<void> {
+  const label = `${ref} (${shortHash(ref)})`;
+  const args = withoutOptions(process.argv.slice(2), ['--base']);
+  const started = performance.now();
+  const texts = await probeBeside(
+    ref,
+    'pose-depth.ts',
+    { base: withoutOptions(args, ['--set'], ['--gaps']), tree: args },
+    { prefix: 'pose-depth-' },
+  );
+  const [base] = readRows(texts.base);
+  const rows = readRows(texts.tree);
+  console.log(
+    `Sweeps of ${label} and of the working tree: ${((performance.now() - started) / 1000).toFixed(1)} s.`,
+  );
+  for (const { variant, seconds, results } of rows) {
+    console.log(`${variant || 'base'} (${seconds.toFixed(1)} s):`);
+    printDetails(role, results);
+  }
+  printTable(rows);
+  for (const { variant, results } of rows) {
+    console.log(`\nThe depths of ${label} and of the working tree with ${variant || 'no change'}:`);
+    console.log(compareDepths(label, base?.results ?? [], results).join('\n'));
+  }
+}
+
 async function main(): Promise<void> {
   const options = parseOptions(process.argv.slice(2));
   const role = roleOf(options);
+  if (options.base !== null) {
+    await compareRef(role, options.base);
+    return;
+  }
   const rows = await sweepRows(options, role);
   printTable(rows);
   if (options.json !== null) {
