@@ -356,7 +356,9 @@ export function rigSettings(animal: string, config: MeshRigConfig): RigSettings 
       seated: true,
       soloist: true,
       constant,
-      // A new animal has no measured crease angle yet, so its faces keep their own normals.
+      // A new animal has no measured crease angle yet. The angle 0 keeps the normal of each face
+      // only in the bind pose. In a pose, the GPU skin turns the three normals of a face by
+      // different blends, so a new body needs its measured angle before it goes into the scene.
       crease: 0,
     },
     known: false,

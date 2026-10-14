@@ -51,8 +51,11 @@ export interface AnimalSettings {
   /** The name of the constant of the module. */
   readonly constant: string;
   /**
-   * The crease angle of the smooth normals of the fur, in degrees (design 4.5). Each body has its
-   * own angle, measured against its reference images (`docs/research/2026-10-14-rabbit-smooth.md`).
+   * The crease angle of the smooth normals of the fur, in degrees (design 4.4, 4.5). Each body has
+   * its own angle. The angle of a bear is the angle whose facet contrast is nearest to its
+   * reference images. The reference rabbits have more facet contrast than each render of the app
+   * rabbit, so the manager chose its angle from the play frames
+   * (`docs/research/2026-10-14-rabbit-smooth.md`).
    */
   readonly crease: number;
   /**
