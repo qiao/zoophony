@@ -20,17 +20,19 @@ manager show.
 | Step | Time (brief) | Commit and file times |
 |---|---|---|
 | Manager: the measures of the shading, the normals, the texture, and the mesh, then the brief | about 15 min (08:19 to 08:34) | The brief file has the time 08:29:33. The first commit of the round is at 08:31:47 |
-| Implementation round with two addenda (13 commits) | 44.5 min by the duration of the agent run | The 13 commits lie from 08:31:47 to 08:59:24 (27.6 min). From the brief file to the 13th commit is 29.9 min. 08:29:33 plus 44.5 min is 09:14, after the 6 commits of the 35° pass (09:09:20 to 09:12:17) |
+| Implementation round with two addenda (13 commits) | 44.5 min by the duration of the agent run | The 13 commits lie from 08:31:47 to 08:59:24 (27.6 min). From the brief file to the 13th commit is 29.9 min, so the commits support about 30 min. 44.5 min fits only when the agent run also holds the 6 commits of the 35° pass (09:09:20 to 09:12:17): 08:29:33 plus 44.5 min is 09:14 |
 | Manager decision of 35° and the second pass (6 commits) | 52 min | From the 13th commit to the last commit of the pass is 12.9 min. The commits do not show 52 min |
 | Review | 8 min | The review brief has the time 09:09:19 |
 | Fix round (7 commits) and the frame record (1 commit) | 9 min | The 7 commits lie from 09:25:44 to 09:28:08, and the frame record is at 09:35:58 |
 | Manager: `pnpm frame --gpu-only` two times on each tree | about 11 min | The install logs of the two trees have the time 09:24:51, and the last frame log 09:34:43 (9.9 min) |
-| Merge | 247 s | The merge log gives 247 s, with 61 s of wait for the load and 87 s of the full unit suite |
+| Merge | 247 s | The merge log gives 247 s, with 61 s of wait for the load. The full unit suite ended at 87 s, after 4 s of commit checks, so it took about 83 s |
 
 The report of the implementation round gave about 190 minutes. The commit times do not support
 it. The manager started at 08:19, and the merge log has the time 09:41:55, so the whole task took
-83 minutes. The commit times agree with the 44.5 minutes of the agent run. A run that started
-with the brief file at 08:29:33 ended at about 09:14, after the last commit of the 35° pass.
+83 minutes. The 13 commits of the round end 29.9 minutes after the brief file, so the commits
+support about 30 minutes for the round. The 44.5 minutes of the agent run fit only when the run
+also holds the 6 commits of the 35° pass. A run that started with the brief file at 08:29:33
+ended at about 09:14, after the last commit of that pass.
 
 ```text
  08:19     the manager starts the measures            -+
