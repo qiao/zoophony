@@ -801,14 +801,14 @@ def split_triangle(t, mids, points):
 
 def refine(verts, tris, uvs, weights, heads, ends, matrices, rule):
     """Changes the faces of the arms so that they bend at the joints (design 4.4): first a ring
-    of new vertices at each joint of `rings` on each side (`ring_cuts()`, `split_faces()`), then
-    the flips of the long edges of the faces that are thin in the seated bind pose
-    (`flip_edges()`). The cuts keep the surface, and each new vertex keeps four bones. Gives the
-    new vertices, triangles, corner UVs, and weights, the number of flips, the largest move of a
-    flip, and the number of cut edges."""
+    of new vertices at each joint of `rings` (`ring_cuts()`, `split_faces()`), on the sides of its
+    `sides` or on both sides, then the flips of the long edges of the faces that are thin in the
+    seated bind pose (`flip_edges()`). The cuts keep the surface, and each new vertex keeps four
+    bones. Gives the new vertices, triangles, corner UVs, and weights, the number of flips, the
+    largest move of a flip, and the number of cut edges."""
     cuts = {}
     for ring in rule['rings']:
-        for side in 'LR':
+        for side in ring.get('sides', 'LR'):
             cuts.update(ring_cuts(verts, tris, weights, heads, ends, ring, side))
     verts, tris, uvs, weights = split_faces(verts, tris, uvs, weights, cuts)
     if cuts:

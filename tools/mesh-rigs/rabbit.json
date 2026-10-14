@@ -61,7 +61,7 @@
   },
   "refine": {
     "rings": [],
-    "ringsNote": "Each ring cuts the edges of an arm near a joint with the plane through the joint, at right angles to the mean direction of the bone before the joint and the bone after it: joint (the arm bone that starts at the joint), radius (units from the joint), minEdge (the shortest edge that the ring cuts, in units), and ends (the smallest part of the edge from each corner). A new vertex takes the place, the UV, and the weights of its place on the edge, and each split face takes its color from the texture again. With no rings, the faces of the source stay.",
+    "ringsNote": "Each ring cuts the edges of an arm near a joint with the plane through the joint, at right angles to the mean direction of the bone before the joint and the bone after it: joint (the arm bone that starts at the joint), radius (units from the joint), minEdge (the shortest edge that the ring cuts, in units), ends (the smallest part of the edge from each corner), and sides (L, R, or LR, both by default). A new vertex takes the place, the UV, and the weights of its place on the edge, and each split face takes its color from the texture again. With no rings, the faces of the source stay.",
     "flip": {
       "angle": 180,
       "normals": 0,
