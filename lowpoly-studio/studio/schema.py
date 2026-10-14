@@ -448,6 +448,26 @@ DETAILS = T('Small low-poly pieces on the body (template "biped").', {
         'subdivisions': F('int', 'Subdivisions of the icosphere of each ear shell (1: 80 faces, '
                                  '2: 320 faces, so the inner color can follow a smaller hollow).',
                           default=1),
+        'blade': F('triples', 'Rings [t, half width, center] of a blade loft in place of the '
+                              'icosphere shell, from the base (t = -1) up: t in y radii, the half '
+                              'width and the center in x radii (+x is the outer edge). A point at '
+                              't = 1 closes the tip. Empty: the icosphere shell.', default=()),
+        'tip_x': F('num', 'x of the tip point of the blade in x radii.', default=0.0),
+        'blade_columns': F('nums', 'Front columns of each blade ring as shares of the half width, '
+                                   'from the inner edge (-1) to the outer edge (1).',
+                           default=(-1.0, -0.5, 0.0, 0.5, 1.0)),
+        'blade_front': F('nums', 'Front z of each blade column in z radii (0 at the edges).',
+                         default=(0.0, 1.0, 1.0, 1.0, 0.0)),
+        'slot_columns': F('ivec2', 'The inner ear of the blade: the front faces from this column '
+                                   'to that column.', default=(1, 3)),
+        'slot_rows': F('vec2', 'Heights t (in y radii) of the first and the last ring of the inner '
+                               'ear of the blade.', default=(-0.6, 0.8)),
+        'slot_depth': F('num', 'Sink of the columns inside the inner ear in z radii.', default=1.0),
+        'slot_scale': F('nums', 'Spread of the slot columns of each blade ring from the outer '
+                                'column of the slot (one value for each ring; empty: 1).',
+                        default=()),
+        'jitter': F('num', 'Seeded jitter of the inner points of the blade in z radii (soft '
+                           'facets).', default=0.0),
     }),
     'hand_claws': T('Four claws on each paw, in the hand frame.', {
         'offsets': F('nums', 'x offset of each claw.', todo=True),

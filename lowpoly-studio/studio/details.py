@@ -213,10 +213,71 @@ def face_details(cfg, parts, ray=None):
     return out
 
 
+def ear_blade(r, de):
+    """Makes the left ear as a blade loft in the ear frame: (verts, faces, inner faces).
+
+    x is across the ear (+ to the outer edge), y along it (+ to the tip), z the normal of the
+    front face. Each row of de.blade is a ring [t, half width, center]: t in y radii, the other
+    two in x radii. A ring holds the front columns (de.blade_columns, from the inner edge -1 to
+    the outer edge 1) and the back of the inner columns. A point at t = 1 closes the tip, and a
+    fan closes the base. The front faces from column slot_columns[0] to slot_columns[1] between
+    the heights of slot_rows are the inner ear, and slot_scale spreads the slot columns of each
+    ring. Their edges follow the rows and the columns, so the inner color has a clean edge. A
+    seeded jitter of the other points gives soft facets.
+    """
+    cols = np.array(de.blade_columns, float)
+    fz = np.array(de.blade_front, float)
+    n = len(cols)
+    a, b = de.slot_columns
+    lo, hi = de.slot_rows
+    rng = np.random.default_rng(0)
+    verts = []
+    for i, (t, half, mid) in enumerate(de.blade):
+        sink = de.slot_depth if lo - 1e-6 <= t <= hi + 1e-6 else 0.0
+        s = cols.copy()
+        if de.slot_scale:
+            # The slot columns of this ring spread from the outer column of the slot.
+            s[a:b + 1] = cols[b] + (cols[a:b + 1] - cols[b]) * de.slot_scale[i]
+        x = r[0] * (mid + half * s)
+        z = r[2] * fz.copy()
+        z[a + 1:b] -= r[2] * sink
+        back = -r[2] * np.sqrt(np.maximum(1.0 - cols[1:-1] ** 2, 0.15))
+        ring = [(x[j], r[1] * t, z[j]) for j in range(n)]
+        ring += [(x[j], r[1] * t, back[j - 1]) for j in range(n - 2, 0, -1)]
+        verts += ring
+    m = 2 * n - 2
+    verts = np.array(verts, float)
+    # The jitter leaves the edges of the ear and the edges of the slot in place.
+    inner_pts = np.ones(len(verts), bool)
+    for j in (0, a, b, n - 1):
+        inner_pts[j::m] = False
+    verts[inner_pts, 2] += r[2] * de.jitter * rng.uniform(-1.0, 1.0, inner_pts.sum())
+    rows = len(de.blade)
+    tip = len(verts)
+    base = tip + 1
+    verts = np.vstack([verts, [(r[0] * de.tip_x, r[1], 0.0), (r[0] * de.blade[0][2],
+                                                               r[1] * de.blade[0][0], 0.0)]])
+    faces, inner = [], []
+    for i in range(rows - 1):
+        slot_row = lo - 1e-6 <= de.blade[i][0] and de.blade[i + 1][0] <= hi + 1e-6
+        for j in range(m):
+            p, q = i * m + j, i * m + (j + 1) % m
+            faces += [(p, q, q + m), (p, q + m, p + m)]
+            inner += [slot_row and a <= j < b] * 2
+    top = (rows - 1) * m
+    for j in range(m):
+        faces.append((top + j, top + (j + 1) % m, tip))
+        inner.append(hi >= 1.0 and a <= j < b)
+        faces.append(((j + 1) % m, j, base))
+        inner.append(False)
+    return verts, np.array(faces, np.int64), np.array(inner, bool)
+
+
 def ears_and_tail(cfg, body):
     """Makes the ears and the tail as low-poly pieces that sink into the head and the rump.
 
-    Each ear is a flat round shell with a hollow on its front face. The hollow is dark.
+    Each ear is a flat round shell with a hollow on its front face, or a blade loft
+    (details.ears.blade, see ear_blade). The hollow is dark.
     """
     pal = cfg.paint.palette
     e = cfg.field.ears
@@ -226,14 +287,28 @@ def ears_and_tail(cfg, body):
     ve, fe = icosphere(de.subdivisions) if de.subdivisions != 1 else (v0, f0)
     c, r = e.center, e.radii
     for side, suffix in ((1, 'L'), (-1, 'R')):
+        f = body.ear_frame(side)
+        center = np.array(c) * np.array([side, 1, 1])
+        if de.blade:
+            # The frame of the right ear is the mirror of the left frame with x negated, so the
+            # mirrored blade negates x and turns each face over.
+            local, faces, inner = ear_blade(r, de)
+            local = local * np.array([side, 1.0, 1.0])
+            if side < 0:
+                faces = faces[:, ::-1]
+            verts = center + local @ f.T
+            colors = np.where(inner[:, None], np.array(pal['ear_inner'], float),
+                              np.array(pal['ear'], float))
+            d = detail(f'ear_{suffix}', verts, faces, pal['ear'], 'fur', f'ear_{suffix}')
+            d['colors'] = colors
+            out.append(d)
+            continue
         local = ve * np.array(r)
         # The hollow: the front (local +z) of the shell sinks toward the back.
         rad = np.hypot(local[:, 0] / r[0], local[:, 1] / r[1])
         front = local[:, 2] > 0
         local[front, 2] -= r[2] * de.hollow_depth * np.clip(1.0 - rad[front] / de.hollow_radius,
                                                              0.0, 1.0)
-        f = body.ear_frame(side)
-        center = np.array(c) * np.array([side, 1, 1])
         verts = center + local @ f.T
         cen = local[fe].mean(axis=1)
         nrm = np.cross(local[fe[:, 1]] - local[fe[:, 0]], local[fe[:, 2]] - local[fe[:, 0]])

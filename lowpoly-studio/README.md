@@ -2054,6 +2054,15 @@ The ear shells (their size and place come from field.ears).
 | `hollow_depth` | num | `1.8` | Depth of the hollow in z radii. |
 | `hollow_radius` | num | `0.88` | Radius of the hollow as a share of the ear (also the dark inner color). |
 | `subdivisions` | int | `1` | Subdivisions of the icosphere of each ear shell (1: 80 faces, 2: 320 faces, so the inner color can follow a smaller hollow). |
+| `blade` | triples | optional | Rings [t, half width, center] of a blade loft in place of the icosphere shell, from the base (t = -1) up: t in y radii, the half width and the center in x radii (+x is the outer edge). A point at t = 1 closes the tip. Empty: the icosphere shell. |
+| `tip_x` | num | `0.0` | x of the tip point of the blade in x radii. |
+| `blade_columns` | nums | `[-1.0, -0.5, 0.0, 0.5, 1.0]` | Front columns of each blade ring as shares of the half width, from the inner edge (-1) to the outer edge (1). |
+| `blade_front` | nums | `[0.0, 1.0, 1.0, 1.0, 0.0]` | Front z of each blade column in z radii (0 at the edges). |
+| `slot_columns` | ivec2 | `[1, 3]` | The inner ear of the blade: the front faces from this column to that column. |
+| `slot_rows` | vec2 | `[-0.6, 0.8]` | Heights t (in y radii) of the first and the last ring of the inner ear of the blade. |
+| `slot_depth` | num | `1.0` | Sink of the columns inside the inner ear in z radii. |
+| `slot_scale` | nums | optional | Spread of the slot columns of each blade ring from the outer column of the slot (one value for each ring; empty: 1). |
+| `jitter` | num | `0.0` | Seeded jitter of the inner points of the blade in z radii (soft facets). |
 
 #### `[details.hand_claws]`
 
