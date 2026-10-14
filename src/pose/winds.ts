@@ -455,6 +455,61 @@ function mixPole(rest: Vec3, play: Vec3, weight: number): Vec3 {
 }
 
 /**
+ * Places the instrument of a wind player: the local rotation of the `instrument` bone, its world
+ * rotation, its move in the axes of the chest, and the posed place of the mouthpiece. The
+ * instrument turns from its rest rotation to its playing rotation around the mouthpiece. In the
+ * rest pose, it comes down from the mouth by the rest move. It writes the module scratch objects
+ * `local`, `rotation`, `shift`, and `pivot`.
+ *
+ * @param rig The points of the player.
+ * @param chest The posed frame of the chest.
+ * @param weight The eased weight of the playing pose: 0 is the rest pose.
+ */
+function placeWind(rig: WindRig, chest: Frame, weight: number): void {
+  mixRotation(local.fromArray(rig.hold.rest), playTurn.fromArray(rig.hold.play), weight, local);
+  rotation.multiplyQuaternions(chest.rotation, local);
+  // In the rest pose, the instrument comes down from the mouth to the lap.
+  shift.fromArray(rig.restOffset).multiplyScalar(1 - weight);
+  posePoint(chest, rig.chestBind, rig.pivot, pivot).add(
+    turned.copy(shift).applyQuaternion(chest.rotation),
+  );
+}
+
+/** The posed place of each grip of a wind instrument and of the shoulder joint that reaches it. */
+export interface WindGrip {
+  /** The shoulder joint, at the start of the upper arm. */
+  readonly joint: Vec3;
+  /** The grip of the palm on the instrument. */
+  readonly grip: Vec3;
+}
+
+/**
+ * Gives the posed grips of a wind player and the shoulder joints that reach them, with the chest
+ * in its bind pose (design 4.6, 5.3). The arm reaches a grip when the distance from the joint to
+ * the grip is at most the length of the arm. `pnpm hold-reach --instrument flute` reads it.
+ *
+ * @param rig The points of the player.
+ * @param weight The weight of the playing pose: 0 is the rest pose, 1 the playing pose.
+ * @returns The grip and the joint of each side.
+ */
+export function windGrips(rig: WindRig, weight: number): Readonly<Record<'L' | 'R', WindGrip>> {
+  const chest = { rotation: new Quaternion(), position: new Vector3(...rig.chestBind) };
+  placeWind(rig, chest, weight);
+  const side = (s: WindSide, turn: Quaternion): WindGrip => {
+    const at = new Vector3(...s.grip)
+      .sub(new Vector3(...rig.pivot))
+      .applyQuaternion(rotation)
+      .add(pivot);
+    const joint = poseShoulder(s.arm, chest, rig.chestBind, turn).position;
+    return { joint: toVec3(joint), grip: toVec3(at) };
+  };
+  return {
+    L: side(rig.left, new Quaternion()),
+    R: side(rig.right, rightShoulderTurn(rig.hold, new Quaternion())),
+  };
+}
+
+/**
  * Writes the arms, the fingers, the instrument, and the slide of a wind player (design 5.3,
  * 4.7). The mouthpiece stays at the mouth, because the head and the instrument both follow the
  * chest. The palms stay on their grips, also in the rest pose, and the two-bone IK places each
@@ -477,13 +532,7 @@ export function poseWind(
   out: WindPoseOut,
 ): void {
   const chest = frames.chest;
-  mixRotation(local.fromArray(rig.hold.rest), playTurn.fromArray(rig.hold.play), weight, local);
-  rotation.multiplyQuaternions(chest.rotation, local);
-  // In the rest pose, the instrument comes down from the mouth to the lap.
-  shift.fromArray(rig.restOffset).multiplyScalar(1 - weight);
-  posePoint(chest, rig.chestBind, rig.pivot, pivot).add(
-    turned.copy(shift).applyQuaternion(chest.rotation),
-  );
+  placeWind(rig, chest, weight);
   slide.fromArray(rig.slideAxis).multiplyScalar(state.slide * rig.slideReach * weight);
   const { hold } = rig;
   const left = curlOf(state.fingersL, weight);
