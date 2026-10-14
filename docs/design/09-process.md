@@ -185,9 +185,9 @@ The author of spessasynth does not test on Safari, so this manual test is necess
 ## 9.5 Order of work
 
 The steps put the largest risks first. Each step has its work and a "done" criterion. A step is
-done only when its criterion is true. A step with a review is done only after the review agent
-approves it (9.8). [`../TODO.md`](../../TODO.md) splits each step into tasks, and it holds the status of the
-work.
+done only when its criterion is true and its review of 9.8 is done. The "Review" line of a step
+names the images that the manager reads, and the code that gets a short review agent (9.8).
+[`../TODO.md`](../../TODO.md) splits each step into tasks, and it holds the status of the work.
 
 **Step 0. Project skeleton**
 
@@ -220,7 +220,8 @@ work.
 - Done when: the spike page plays the Beethoven demo to the end in Chrome, Firefox, and Safari on the
   development Mac with no dropout. The targets of step 1 in 9.7 pass. A new report in
   `docs/research/` gives the result of each check, or the reason for each miss.
-- Review: the review agent reads the report.
+- Review: the manager reads the report. A change of a rule of the synth, such as the block
+  scheduler or the clock, also gets the short review agent of 9.8.
 
 **Step 2. MIDI and score**
 
@@ -229,6 +230,7 @@ work.
 - Done when: each rule of section 3 has at least one Vitest test that fails without the rule. The
   demo tests of 8.5 pass for all demos. The step 2 targets of 9.7 pass: the score build, the
   audio render, and the memory.
+- Review: each change of a rule of `midi/` or `score/` gets the short review agent of 9.8.
 
 **Step 3. Scene and one player**
 
@@ -237,7 +239,7 @@ work.
 - Done when: a screenshot of the default view at 1440 × 900 has the same composition as the
   reference: the stage as a diamond shape, the beam from above, the dark background, and the
   view from behind the conductor. The clock target of 9.7 passes.
-- Review: the review agent compares the screenshot with the reference.
+- Review: the manager compares the screenshot with the reference. No review agent runs (9.8).
 
 **Step 4. Models and gallery**
 
@@ -247,7 +249,7 @@ work.
 - Done when: the gallery shows each species with the instrument of its section. The triangle
   budget test passes. The scene of each demo has its seats and stage size from 4.5, with no
   overlap of chairs.
-- Review: the review agent examines screenshots of the gallery.
+- Review: the manager examines screenshots of the gallery. No review agent runs (9.8).
 
 **Step 5. Motion**
 
@@ -268,8 +270,8 @@ work.
   change can measure the frame target again (`pnpm frame`). The build ignores this
   id.
 - Done when: the Vitest tests of `pose/` pass, and the pose and frame targets of 9.7 pass.
-- Review: the review agent examines a screen recording of the Beethoven demo and of the Boulanger
-  demo.
+- Review: the manager examines a screen recording of the Beethoven demo and of the Boulanger
+  demo. A change of the timing of `pose/` also gets the short review agent of 9.8.
 
 **Step 6. UI**
 
@@ -277,7 +279,8 @@ work.
   the quality tiers, "Reset view", the drop of a file, the URL hash, and the messages of 2.8.
 - Done when: the UI matches [`prototype/ui.html`](../prototype/ui.html) at 1440 × 900 and at
   390 × 844. A keyboard alone can reach and use each control.
-- Review: the review agent examines screenshots at both sizes.
+- Review: the manager examines screenshots at both sizes and the table of `pnpm keyboard`. No
+  review agent runs (9.8).
 
 **Step 6b. Cinematic camera**
 
@@ -287,8 +290,9 @@ work.
   [`research/cinematic-camera.md`](../research/cinematic-camera.md).
 - Done when: the tests of 5.6 pass for each demo, the two shot targets of 9.7 pass, the frame
   target of 9.7 passes in Cinematic mode, and the smoke test checks the camera.
-- Review: the review agent examines a frame of each kind of shot of each demo at both sizes
-  (`pnpm screenshots <dir> --shots`) and a GIF of the Boulanger demo in Cinematic mode.
+- Review: the manager examines a frame of each kind of shot of each demo at both sizes
+  (`pnpm screenshots <dir> --shots`) and a GIF of the Boulanger demo in Cinematic mode. No review
+  agent runs (9.8).
 
 **Step 7. Demo build, tests, and deploy**
 
