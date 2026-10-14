@@ -10,12 +10,14 @@ import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import {
   ANIMALS,
+  headFactorOf,
   inspectStudioGlb,
   inspectionLines,
   ownBone,
   studioBody,
   studioGlbPath,
   studioModule,
+  readGlb,
 } from './studio-body.ts';
 
 /** The GLB file of the studio bear. */
@@ -519,5 +521,60 @@ describe('studioGlbPath', () => {
     expect(studioGlbPath('rabbit', { ...settings, glb })).toBe(
       join(import.meta.dirname, '..', glb),
     );
+  });
+});
+
+/**
+ * Writes a GLB file again with a head factor of `pnpm rig-mesh` in the extras of its asset.
+ *
+ * @param bytes The GLB file.
+ * @param factor The head factor.
+ * @returns The new file.
+ */
+function withHeadFactor(bytes: Uint8Array, factor: number): Uint8Array {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const jsonLength = view.getUint32(12, true);
+  // SAFETY: the JSON chunk of a GLB file holds one JSON object.
+  const json = JSON.parse(new TextDecoder().decode(bytes.subarray(20, 20 + jsonLength))) as {
+    asset: { extras?: { headFactor: number } };
+  };
+  json.asset.extras = { headFactor: factor };
+  let text = JSON.stringify(json);
+  text += ' '.repeat((4 - (text.length % 4)) % 4);
+  const chunk = new TextEncoder().encode(text);
+  const bin = bytes.subarray(20 + jsonLength);
+  const out = new Uint8Array(20 + chunk.length + bin.length);
+  const head = new DataView(out.buffer);
+  head.setUint32(0, 0x46546c67, true);
+  head.setUint32(4, 2, true);
+  head.setUint32(8, out.length, true);
+  head.setUint32(12, chunk.length, true);
+  head.setUint32(16, 0x4e4f534a, true);
+  out.set(chunk, 20);
+  out.set(bin, 20 + chunk.length);
+  return out;
+}
+
+describe('pnpm studio-body with a head that the rig grows (design 4.4)', async () => {
+  const bytes = new Uint8Array(await readFile(join(import.meta.dirname, '..', SOURCE)));
+  const settings = {
+    landmark: 'shoulders',
+    height: 1,
+    seated: false,
+    soloist: false,
+    constant: 'STUDIO_BEAR',
+    crease: 15,
+  } as const;
+
+  it('keeps the head height of the holds from the head before the factor', () => {
+    const grown = withHeadFactor(bytes, 1.5);
+    expect(headFactorOf(readGlb(bytes))).toBe(1);
+    expect(headFactorOf(readGlb(grown))).toBe(1.5);
+    const plain = studioBody(bytes, SOURCE, settings).body.headHeight;
+    expect(studioBody(grown, SOURCE, settings).body.headHeight).toBeCloseTo(plain / 1.5, 5);
+  });
+
+  it('refuses a head factor that is not a positive number', () => {
+    expect(() => headFactorOf(readGlb(withHeadFactor(bytes, 0)))).toThrow(/positive/);
   });
 });

@@ -311,12 +311,38 @@ interface Gltf {
   readonly bufferViews: readonly GltfBufferView[];
   readonly animations?: readonly GltfAnimation[];
   readonly materials?: readonly { readonly name?: string }[];
+  /** The asset of the file. */
+  readonly asset?: {
+    /** The facts of the rig of `pnpm rig-mesh` that the export reads. */
+    readonly extras?: {
+      /**
+       * The factor by which the rig grows the head around the neck joint (`headFactor` of the
+       * config of the mesh rig). The file has no factor when the head keeps its size.
+       */
+      readonly headFactor?: number;
+    };
+  };
 }
 
 /** A GLB file: its JSON part and its binary part. */
 export interface Glb {
   readonly json: Gltf;
   readonly bin: Uint8Array;
+}
+
+/**
+ * Gives the factor by which the rig of a GLB file grows the head (`pnpm rig-mesh`).
+ *
+ * @param glb The file.
+ * @returns The factor, or 1 when the file has none.
+ * @throws Error if the factor is not a positive number.
+ */
+export function headFactorOf(glb: Glb): number {
+  const factor = glb.json.asset?.extras?.headFactor ?? 1;
+  if (!Number.isFinite(factor) || factor <= 0) {
+    throw new Error(`The head factor ${factor} of the file is not a positive number.`);
+  }
+  return factor;
 }
 
 /**
@@ -1266,7 +1292,9 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       },
       fingerTips: { L: fingerTip('L'), R: fingerTip('R') },
       sheetArms: { L: direction(sheet.arms.L), R: direction(sheet.arms.R) },
-      headHeight: round((top - chin) * scale),
+      // The holds are in head heights, so a head that the rig grows keeps the head height of
+      // the head before its factor, and the holds keep their places (design 4.4).
+      headHeight: round(((top - chin) * scale) / headFactorOf(glb)),
       headCenter: model(center),
       nose: model(nose),
       floor: toModelAxes(new Vector3(0, 0, frame.offset.z), scale),

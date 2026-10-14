@@ -189,7 +189,11 @@ export interface StudioBody {
    * pose (`lowpoly-studio/templates/biped/corrective.py`).
    */
   readonly sheetArms: Readonly<Record<Side, Vec3>>;
-  /** The head height `H`: from the chin to the top of the skull. */
+  /**
+   * The head height `H` of the holds: from the chin to the top of the skull. When the rig grows
+   * the head (`headFactor` of `pnpm rig-mesh`), `H` is the head height before the factor, so that
+   * the holds in head heights keep their places.
+   */
   readonly headHeight: number;
   /** The middle of the head. */
   readonly headCenter: Vec3;
