@@ -132,13 +132,17 @@ tilt = -15.0
 blend = 0.008
 box_pad = 0.05
 
-# The left arm in the pose of the sheet (the "reference" pose).
+# The left arm in the pose of the sheet (the "reference" pose). Round 4 (the user, 2026-10-13:
+# "Arms x1.4, violin 28 cm"): the upper arm and the forearm are 1.444 times the sheet arm along the
+# directions of the sheet (sheet: elbow [0.14, 0.40, 0.035], wrist [0.200, 0.335, 0.06]), so the
+# reach from the shoulder joint to the middle of the palm is 1.40 times (0.2247 to 0.3146). The
+# clavicle, the shoulder joint, and the paw (the knuckle - wrist offset) do not change.
 [field.arm.joints]
 clavicle = [0.02, 0.50, 0.02]
 shoulder = [0.07, 0.485, 0.025]
-elbow = [0.14, 0.40, 0.035]
-wrist = [0.200, 0.335, 0.06]
-knuckle = [0.212, 0.295, 0.075]
+elbow = [0.1711, 0.3623, 0.0394]
+wrist = [0.2577, 0.2684, 0.0755]
+knuckle = [0.2697, 0.2284, 0.0905]
 
 [field.arm]
 palm = [-0.86, 0.0, -0.51]
