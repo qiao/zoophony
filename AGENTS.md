@@ -482,8 +482,15 @@ Follow these rules when another agent works on the repository at the same time.
 - Test behavior: no clipping, the bow on the strings, the hidden heads, the budgets. Do not pin an
   exact tuned value, a hash, or the geometry of a look. Each deliberate change of the look then
   edits such a test, and the test finds no fault.
-- Leave no known red test on `main`, also in `pnpm test:perf`. Fix the cause, or change the test
-  with the reason in the same session.
+- Leave no known red test of `pnpm test` or `pnpm test:perf` on `main`. Fix the cause, or change
+  the test with the reason in the same session.
+- Since 2026-10-14, the tests of the look, the fit, and the clearance of the bodies, and of the
+  layout from their footprints, are paused (`docs/decisions/2026-10-14-test-pause.md`).
+  `PAUSED_TESTS` of `vite.config.ts` lists them. `pnpm test` skips them, so a paused test that
+  fails stops no commit and no merge. Do not fix a paused test in a model round. When a change
+  needs a paused check, run its file with `pnpm test:paused <path>`. Put each new test of the
+  look, the fit, or the clearance of a body into the list. To bring a test back, remove it from
+  the list, make it pass, and update the decision file.
 - A unit test goes beside its module, as `<name>.test.ts`.
 - The lint refuses `vi.mock` (`anti-slop/no-module-mocking`). Thus a class that makes a
   `WebGLRenderer`, such as `StageScene`, moves the logic under test into a function with plain
