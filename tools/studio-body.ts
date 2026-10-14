@@ -1658,6 +1658,30 @@ export function studioModule(animal: string, constant: string, body: StudioBody)
 }
 
 /**
+ * Writes the module of a studio body, in the form of the formatter of the repository (design 9.5).
+ *
+ * @param out The path of the module.
+ * @param animal The id of the animal.
+ * @param constant The name of the constant.
+ * @param body The body.
+ * @throws Error if the formatter fails.
+ */
+export async function writeStudioModule(
+  out: string,
+  animal: string,
+  constant: string,
+  body: StudioBody,
+): Promise<void> {
+  await writeFile(out, studioModule(animal, constant, body));
+  const format = spawnSync(join(ROOT, 'node_modules', '.bin', 'oxfmt'), [out], {
+    stdio: 'inherit',
+  });
+  if (format.status !== 0) {
+    throw new Error(`oxfmt failed with the status ${String(format.status)}.`);
+  }
+}
+
+/**
  * Gives the GLB file of an animal: the file of its settings, or the output of the studio.
  *
  * @param animal The id of the animal in `lowpoly-studio/animals/` or in `ANIMALS`.
@@ -1727,14 +1751,7 @@ async function main(): Promise<void> {
   const { body, sheetWeights } = studioBody(await readStudioGlb(file, animal), source, settings);
   await mkdir(STUDIO_DIR, { recursive: true });
   const out = join(STUDIO_DIR, `${animal}.ts`);
-  await writeFile(out, studioModule(animal, settings.constant, body));
-  // The formatter of the repository gives the module its final form (design 9.5).
-  const format = spawnSync(join(ROOT, 'node_modules', '.bin', 'oxfmt'), [out], {
-    stdio: 'inherit',
-  });
-  if (format.status !== 0) {
-    throw new Error(`oxfmt failed with the status ${String(format.status)}.`);
-  }
+  await writeStudioModule(out, animal, settings.constant, body);
   console.log(`Wrote ${relative(ROOT, out)} from ${source} (sha256 ${body.sha256.slice(0, 12)}).`);
   console.log(`Scale ${body.scale} m for each unit, head height ${body.headHeight} m.`);
   console.log(`Corrective weights of the sheet pose: ${sheetWeights.join(', ')}.`);
