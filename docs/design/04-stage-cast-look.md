@@ -489,8 +489,9 @@ retarget had about a quarter of the folded faces.
   the source mesh back when the body stands with the arms of the source. Each face takes the
   nearest color of a palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan
   over its dark faces, so that the body keeps the triangle budget of a studio body (4.5) and a
-  small module. The corners of each short thin face share one set of weights, and the hand takes
-  half of the finger weight, so that fewer faces turn over at the shoulders and the paws. The
+  small module. The corners of each short thin face share one set of weights, and the fingers
+  keep only a share of their bone heat weight (`weights.fingers` of the config), with the rest on
+  the hand, so that fewer faces turn over at the shoulders and the paws. The
   long thin faces of an image mesh fold when a joint bends, so the rig may change the faces of
   the arms, the shoulders, and the hands. A ring of new vertices at a joint splits the faces that
   it crosses, and the long edge of a face that is thin in the seated bind flips. A split keeps the
