@@ -185,3 +185,8 @@ details and the head field did not change, so the facets of the seed are the cau
   they are less than one pixel).
 - One catchlight in each eye, mirrored. The sheet has the catchlight of both eyes on the same
   side.
+- `instrument_reach.violin` fails: the violin of 0.234 is 0.589 of the arm from the neck to the
+  middle of the palm (0.397), and the size chart of a violin shop gives 0.9 to 1.1. This is the
+  decision of the user of 2026-10-13 ("Arms x1.4, violin 28 cm"), and it is no blocker for the
+  app. (Measured from the shoulder joint, as before the review of the retro, the ratio is
+  0.744.)
