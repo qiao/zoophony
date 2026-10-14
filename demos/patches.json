@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "file": "bach-bwv1047.mid",
+    "setProgram": [
+      { "track": 8, "program": 42 },
+      { "track": 9, "program": 6 }
+    ]
+  }
+]

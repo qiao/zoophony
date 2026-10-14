@@ -19,6 +19,14 @@ export const DEMO_LOUDNESS = {
   'bach-bwv1048': -19.3,
   'beethoven-8': -21.1,
   'mozart-k315': -22.3,
+  'beethoven-1': -21.0,
+  'brahms-2': -17.5,
+  'beethoven-8-4': -19.5,
+  'bach-bwv1047': -19.0,
+  'bach-bwv1050': -21.5,
+  'mendelssohn-op61': -22.0,
+  'mozart-k417': -24.0,
+  'mozart-k191': -24.5,
 } as const satisfies Record<DemoId, number>;
 
 /** The values of {@link DEMO_LOUDNESS}, for a lookup with any file name. */

@@ -25,8 +25,8 @@ describe('the demo covers (design 2.8)', () => {
     }
   });
 
-  it('keeps the six covers small', () => {
+  it('keeps the covers small', () => {
     const bytes = Object.values(COVERS).reduce((sum, markup) => sum + markup.length, 0);
-    expect(bytes).toBeLessThan(6000);
+    expect(bytes).toBeLessThan(8000);
   });
 });

@@ -21,6 +21,14 @@ describe('reviewShots', () => {
       'bach-bwv1048-1440x900.webp',
       'beethoven-8-1440x900.webp',
       'mozart-k315-1440x900.webp',
+      'beethoven-1-1440x900.webp',
+      'brahms-2-1440x900.webp',
+      'beethoven-8-4-1440x900.webp',
+      'bach-bwv1047-1440x900.webp',
+      'bach-bwv1050-1440x900.webp',
+      'mendelssohn-op61-1440x900.webp',
+      'mozart-k417-1440x900.webp',
+      'mozart-k191-1440x900.webp',
       'boulanger-matin-390x844.webp',
       'gallery-species-1440x900.webp',
       'gallery-instruments-1440x900.webp',
@@ -31,18 +39,18 @@ describe('reviewShots', () => {
       'polar-bear-sheet-views.webp',
       'bear-sheet-views.webp',
     ]);
-    expect(shots[6]).toEqual({
+    expect(shots[14]).toEqual({
       file: 'boulanger-matin-390x844.webp',
       path: '/#demo=boulanger-matin',
       width: 390,
       height: 844,
       ready: 'canvas[data-demo="boulanger-matin"]',
     });
-    expect(shots[8]?.ready).toBe('canvas[data-ready="instruments"]');
+    expect(shots[16]?.ready).toBe('canvas[data-ready="instruments"]');
     // The views page has the size of docs/reference/animals.webp.
-    expect(shots[9]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
+    expect(shots[17]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
     // The page of fox-views.png has half of its size (design 7.1).
-    expect(shots[10]).toMatchObject({ path: '/views.html?sheet=fox', width: 1247, height: 677 });
+    expect(shots[18]).toMatchObject({ path: '/views.html?sheet=fox', width: 1247, height: 677 });
   });
 });
 

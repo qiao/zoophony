@@ -202,7 +202,8 @@ function demoScene(file: string): Promise<TestScene> {
   let scene = demoScenes.get(file);
   if (!scene) {
     scene = patchedDemos().then((demos) => {
-      const demo = demos.find((d) => d.file.startsWith(file));
+      const demo =
+        demos.find((d) => d.file === `${file}.mid`) ?? demos.find((d) => d.file.startsWith(file));
       if (!demo) {
         throw new Error(`The demos have the file ${file}.`);
       }

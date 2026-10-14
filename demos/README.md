@@ -23,6 +23,14 @@ All compositions are in the public domain. Each file also has its own license.
 | `mozart-k525` | `src/mozart-k525.mid` | Mozart, Eine kleine Nachtmusik, K. 525, mvt 1 | [Mutopia 2230](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2230), file `MozartWA-KV525-mov-01.mid` in the MIDI zip | Public Domain | Mike Blackstock |
 | `bach-bwv1048` | `src/bach-bwv1048.mid` | Bach, Brandenburg Concerto No. 3, BWV 1048, mvt 1 | [OpenScore Orchestra](https://github.com/MarkGotham/Hauptstimme/blob/8f677853c45b74ca0afcd79677e5379c06c82354/data/Bach,_Johann_Sebastian/Brandenburg_Concerto_No.3,_BWV.1048/1/Bach_BWV.1048_1.mscz), made by the OpenScore pipeline below | CC0 1.0 (score) | OpenScore |
 | `beethoven-8` | `src/beethoven-8.mid` | Beethoven, Symphony No. 8, Op. 93, mvt 2 | [OpenScore Orchestra](https://github.com/MarkGotham/Hauptstimme/blob/8f677853c45b74ca0afcd79677e5379c06c82354/data/Beethoven,_Ludwig_van/Symphony_No.8,_Op.93/2/Beethoven_Op.93_2.mscz), made by the OpenScore pipeline below | CC0 1.0 (score) | OpenScore |
+| `beethoven-1` | `src/beethoven-1.mid` | Beethoven, Symphony No. 1, Op. 21, mvt 4 | [OpenScore Orchestra](https://github.com/MarkGotham/Hauptstimme/blob/8f677853c45b74ca0afcd79677e5379c06c82354/data/Beethoven,_Ludwig_van/Symphony_No.1,_Op.21/4/Beethoven_Op.21_4.mscz), made by the OpenScore pipeline below | CC0 1.0 (score) | OpenScore |
+| `brahms-2` | `src/brahms-2.mid` | Brahms, Symphony No. 2, Op. 73, mvt 4 | [OpenScore Orchestra](https://github.com/MarkGotham/Hauptstimme/blob/8f677853c45b74ca0afcd79677e5379c06c82354/data/Brahms,_Johannes/Symphony_No.2,_Op.73/4/Brahms_Op.73_4.mscz), made by the OpenScore pipeline below | CC0 1.0 (score) | OpenScore |
+| `beethoven-8-4` | `src/beethoven-8-4.mid` | Beethoven, Symphony No. 8, Op. 93, mvt 4 | [OpenScore Orchestra](https://github.com/MarkGotham/Hauptstimme/blob/8f677853c45b74ca0afcd79677e5379c06c82354/data/Beethoven,_Ludwig_van/Symphony_No.8,_Op.93/4/Beethoven_Op.93_4.mscz), made by the OpenScore pipeline below | CC0 1.0 (score) | OpenScore |
+| `bach-bwv1047` | `src/bach-bwv1047.mid` | Bach, Brandenburg Concerto No. 2, BWV 1047, mvt 1 | [Mutopia 1680](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1680) | Public Domain | Allen Garvin |
+| `bach-bwv1050` | `src/bach-bwv1050.mid` | Bach, Brandenburg Concerto No. 5, BWV 1050, mvt 3 | [Mutopia 548](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=548) | Public Domain | Eric van der Velden |
+| `mendelssohn-op61` | `src/mendelssohn-op61.mid` | Mendelssohn, A Midsummer Night's Dream, Op. 61: V | [Mutopia 80](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=80) | Public Domain | Aaron Gage |
+| `mozart-k417` | `src/mozart-k417.mid` | Mozart, Horn Concerto No. 2, K. 417, mvt 3 | [Mutopia 901](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=901) | Public Domain | Maurizio Tomasi |
+| `mozart-k191` | `src/mozart-k191.mid` | Mozart, Bassoon Concerto, K. 191, mvt 3 | [Mutopia 686](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=686) | Public Domain | Maurizio Tomasi |
 
 The licenses do not require a credit line. The credits panel of the app still lists each source
 and each typesetter.
@@ -44,12 +52,22 @@ on 2026-10-05 at commit `8f677853`). Each score holds the same text in its `copy
 | `src/mozart-k525.mid` | `7a6f71b2b7763524a56322723c774d584af006dd980289fce60ebd93a91a16d7` |
 | `src/bach-bwv1048.mid` | `acf4428de234548e528185334283fe492e3cffe561f77b3dfdde74f212a4e41b` |
 | `src/beethoven-8.mid` | `1482c086437e225e0849a31ba05e920011e1cac6b96490017f8799bc77c92b80` |
+| `src/beethoven-1.mid` | `72adea7ea3831e7cb25e6143d9299b09b9a08d28d663a6268100d1375848eff8` |
+| `src/brahms-2.mid` | `b7f6292e05f7f74a2bc0e54224ff4aa5f7d4cb97705079a3a5fa22397fb6e0c5` |
+| `src/beethoven-8-4.mid` | `d6bd7608a97e2b19c18d5d3810b1ec8217f8619f77f0f2bc8f9a260fad5574f0` |
+| `src/bach-bwv1047.mid` | `d2892d03237a1cf0e0b55b12ebccee6d5cdfb7e6951c3c2429f64294a6e0d40a` |
+| `src/bach-bwv1050.mid` | `7dc1acc6d8502b99af6ea2269dd5d20d23e812a6c40d3d11a0a2abb23ae5baf1` |
+| `src/mendelssohn-op61.mid` | `2f421b302892d4bc8de5832d61c1d9c8b091eeba62fb31b180626d1dd895261a` |
+| `src/mozart-k417.mid` | `d6ab9bc12bfdc4dedd0751a45d3ad1cd1d8a549101a5c3649c38e202ef3d84fb` |
+| `src/mozart-k191.mid` | `3fa97dfb3136ffe1c62e5420a44c5a630954a92e7fb33b8858a05717d9adf284` |
 | `boulanger/matin-nolyrics.mscz` | `cbcca2cd6b43c0d58ba0c3f38b7e9bfbc438e1b1ec4720b6bea784e7fbcd013f` |
 
 ## Program changes
 
-No demo file needs a program change, so `patches.json` is an empty list. The build keeps the
-mechanism for a future file (design 8.3).
+`patches.json` holds the program changes that the build applies by track (design 8.3).
+In `src/bach-bwv1047.mid` (Mutopia 1680), track 8 (the cello / violone) has program 40 (Violin),
+changed to 42 (Cello), and track 9 (the continuo) has program 0 (Acoustic Grand Piano), changed
+to 6 (Harpsichord) for Baroque continuo.
 
 Until 2026-10-05, the Beethoven 5 demo (`beethoven-5.mid`, Mutopia 941) had two changes: track 5
 (the horns) and track 6 (the trumpets) changed from program 69 (English Horn) to 60 (French
@@ -98,7 +116,7 @@ that run, MuseScore exited with code 0.
 
 ## The other OpenScore files
 
-`src/beethoven-9.mid`, `src/bach-bwv1048.mid`, and `src/beethoven-8.mid` come from the
+`src/beethoven-9.mid`, `src/bach-bwv1048.mid`, `src/beethoven-8.mid`, and `src/beethoven-1.mid` come from the
 OpenScore scores at commit `8f677853` of the Hauptstimme repository. The repository does not hold
 these scores. The pipeline downloads each score and removes all lyrics first, so the annotations
 of the instrumental scores (CC BY-SA, stored as lyrics) do not enter it. The Beethoven 9 score
@@ -137,6 +155,7 @@ the candidates and the measures.
 | `Beethoven_Op.125_4.mscz` | `7055e0c60a1d819ec21e455676aaca0106f0d251a17e311714a0de62434dca55` |
 | `Bach_BWV.1048_1.mscz` | `7ea8d2cf64a0aa54cdd4d7f5df8f7433fdf5f3169b27111e9c62be4e30d90a4c` |
 | `Beethoven_Op.93_2.mscz` | `6e3437c0edd2729f49302fc2728595624f87ff4a4f1b38e71cd244583a522fb8` |
+| `Beethoven_Op.21_4.mscz` | `7f8843cd12e525dbd7731e67ddd98bc505d6567088d3abfebda5e7a56411a9a5` |
 
 ```bash
 P=tools/musescore

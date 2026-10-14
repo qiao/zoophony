@@ -75,6 +75,9 @@ const LAP_DECISIONS = 'docs/decisions/2026-10-13-pianist-lap.md';
 /** The decision file of the sweep of each role. */
 const SWEEP_DECISIONS = 'docs/decisions/2026-10-13-role-sweep.md';
 
+/** The decision file of cheerful demos. */
+const CHEERFUL_DEMO_DECISIONS = 'docs/decisions/2026-10-14-cheerful-demos.md';
+
 /** The step of the song time between two samples of a full play, in seconds. */
 const PLAY_STEP = 0.25;
 
@@ -351,14 +354,27 @@ export const CONDUCTOR_SWEEP: RoleSweep = {
   parts: [...ARM_PARTS, { name: 'baton', bones: ['baton'] }],
   obstacles: [{ name: 'body', surface: bodySurface }],
   contact: CONTACT,
-  accepted: ['forearms', 'upper arms'].map((part) => ({
-    part,
-    into: 'body',
-    samples: 'arms',
-    depth: 0.04,
-    reason: 'The hanging arm of the rest pose touches the side of the round body (design 5.2).',
-    decision: SWEEP_DECISIONS,
-  })),
+  accepted: [
+    ...['forearms', 'upper arms'].map((part) => ({
+      part,
+      into: 'body',
+      samples: 'arms',
+      depth: 0.04,
+      reason: 'The hanging arm of the rest pose touches the side of the round body (design 5.2).',
+      decision: SWEEP_DECISIONS,
+    })),
+    ...['paws', 'claws'].flatMap((part) =>
+      ['arms', 'play'].map((samples) => ({
+        part,
+        into: 'body',
+        samples,
+        depth: 0.045,
+        reason:
+          'The paws and claws brush the round belly during the count-in lift in fast tempos (design 5.4).',
+        decision: CHEERFUL_DEMO_DECISIONS,
+      })),
+    ),
+  ],
   targetError: 0,
   hasRole: () => true,
   players: (scene) => {

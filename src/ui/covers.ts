@@ -50,6 +50,61 @@ export const COVERS = {
     '<ellipse cx="13" cy="19" rx="7" ry="2.4" fill="#2f5b3e"/><ellipse cx="29" cy="14" rx="5" ry="1.8" fill="#2f5b3e"/>' +
     '<path d="M9.5 18c1-3 2.5-4 3.5-4.5 1 .5 2.5 1.5 3.5 4.5-2 1-5 1-7 0zM26.5 13c.8-2.4 2-3.2 2.5-3.5.6.3 1.7 1.1 2.5 3.5-1.6.8-3.4.8-5 0z" fill="#f6ecd6"/>' +
     '<circle cx="13" cy="17" r=".9" fill="#e7b45a"/><circle cx="29" cy="12.3" r=".7" fill="#e7b45a"/>',
+  // Symphony No. 1: a celebratory morning sunburst with golden rays.
+  'beethoven-1':
+    '<defs><linearGradient id="cover-beethoven-1-sky" x2="0" y2="1"><stop offset="0" stop-color="#faecc5"/><stop offset="1" stop-color="#b86b32"/></linearGradient></defs>' +
+    '<rect width="40" height="30" fill="url(#cover-beethoven-1-sky)"/>' +
+    '<circle cx="20" cy="24" r="10" fill="#fff7dc" opacity=".85"/>' +
+    '<path d="M20 24L5 7M20 24L12 3M20 24V2M20 24L28 3M20 24L35 7" stroke="#fff8e7" stroke-width="1.3" opacity=".6"/>' +
+    '<circle cx="20" cy="24" r="5" fill="#fde392"/>',
+  // Symphony No. 2 Finale: an Alpine sunrise over rolling green hills.
+  'brahms-2':
+    '<defs><linearGradient id="cover-brahms-2-sky" x2="0" y2="1"><stop offset="0" stop-color="#fde047"/><stop offset="1" stop-color="#ea580c"/></linearGradient></defs>' +
+    '<rect width="40" height="30" fill="url(#cover-brahms-2-sky)"/>' +
+    '<circle cx="20" cy="10" r="4" fill="#fef08a"/>' +
+    '<polygon points="6,30 20,12 34,30" fill="#15803d"/>' +
+    '<polygon points="14,30 26,16 38,30" fill="#166534"/>',
+  // Symphony No. 8 Finale: energetic radiating bursts and vibrant sparks.
+  'beethoven-8-4':
+    '<defs><linearGradient id="cover-beethoven-8-4-glow" x2="0" y2="1"><stop offset="0" stop-color="#fb7185"/><stop offset="1" stop-color="#881337"/></linearGradient></defs>' +
+    '<rect width="40" height="30" fill="url(#cover-beethoven-8-4-glow)"/>' +
+    '<circle cx="20" cy="15" r="7" fill="#fde047" opacity=".8"/>' +
+    '<path d="M20 4v22M9 15h22M12 7l16 16M28 7L12 23" stroke="#fff" stroke-width="1.2" opacity=".7"/>',
+  // Brandenburg Concerto No. 2: brilliant golden trumpet fanfare waves.
+  'bach-bwv1047':
+    '<defs><linearGradient id="cover-bach-bwv1047-blue" x2="0" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs>' +
+    '<rect width="40" height="30" fill="url(#cover-bach-bwv1047-blue)"/>' +
+    '<path d="M10 18h12l8-8v16l-8-8" fill="#fbbf24"/>' +
+    '<circle cx="30" cy="18" r="8" fill="none" stroke="#fef08a" stroke-width="1.2" opacity=".6"/>',
+  // Brandenburg Concerto No. 5: sparkling gigue with harpsichord geometry.
+  'bach-bwv1050':
+    '<defs><linearGradient id="cover-bach-bwv1050-jade" x2="0" y2="1"><stop offset="0" stop-color="#059669"/><stop offset="1" stop-color="#064e3b"/></linearGradient></defs>' +
+    '<rect width="40" height="30" fill="url(#cover-bach-bwv1050-jade)"/>' +
+    '<path d="M8 24V10l12-4v18zm12-4l12-4v12H20z" fill="#fde68a" opacity=".85"/>' +
+    '<path d="M14 8v14M26 12v10" stroke="#064e3b" stroke-width="1"/>',
+  // A Midsummer Night's Dream: enchanted moonlit forest and glowing fireflies.
+  'mendelssohn-op61':
+    '<defs><linearGradient id="cover-mendelssohn-op61-dusk" x2="0" y2="1"><stop offset="0" stop-color="#4338ca"/><stop offset="1" stop-color="#1e1b4b"/></linearGradient></defs>' +
+    '<rect width="40" height="30" fill="url(#cover-mendelssohn-op61-dusk)"/>' +
+    '<path d="M18 6a8 8 0 1 0 8 8 9 9 0 0 1-8-8z" fill="#fde047"/>' +
+    '<circle cx="10" cy="22" r="1.5" fill="#a7f3d0"/>' +
+    '<circle cx="28" cy="20" r="1.2" fill="#a7f3d0"/>' +
+    '<circle cx="32" cy="12" r="1" fill="#c7d2fe"/>',
+  // Horn Concerto No. 2: golden French hunting horn on deep meadow green.
+  'mozart-k417':
+    '<defs><linearGradient id="cover-mozart-k417-amber" x2="0" y2="1"><stop offset="0" stop-color="#d97706"/><stop offset="1" stop-color="#78350f"/></linearGradient></defs>' +
+    '<rect width="40" height="30" fill="url(#cover-mozart-k417-amber)"/>' +
+    '<circle cx="20" cy="15" r="9" fill="none" stroke="#fde68a" stroke-width="3"/>' +
+    '<path d="M29 15h6v4h-6z" fill="#fde68a"/>' +
+    '<path d="M11 15v-6h4" fill="none" stroke="#fde68a" stroke-width="2"/>',
+  // Bassoon Concerto: warm mahogany tones and dancing musical keywork.
+  'mozart-k191':
+    '<defs><linearGradient id="cover-mozart-k191-warm" x2="0" y2="1"><stop offset="0" stop-color="#c2410c"/><stop offset="1" stop-color="#431407"/></linearGradient></defs>' +
+    '<rect width="40" height="30" fill="url(#cover-mozart-k191-warm)"/>' +
+    '<line x1="14" y1="26" x2="26" y2="6" stroke="#fed7aa" stroke-width="3.5" stroke-linecap="round"/>' +
+    '<circle cx="18" cy="19" r="1.2" fill="#431407"/>' +
+    '<circle cx="20" cy="16" r="1.2" fill="#431407"/>' +
+    '<circle cx="22" cy="13" r="1.2" fill="#431407"/>',
 } as const satisfies Readonly<Record<DemoId, string>>;
 
 /** The namespace of SVG elements. */

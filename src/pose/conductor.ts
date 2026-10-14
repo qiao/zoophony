@@ -78,9 +78,10 @@ export const CONDUCTOR_HOLD = {
   cueCurl: 10 * MathUtils.DEG2RAD,
   /**
    * The curl of the fingers of the left hand in the ready gesture: a loose fist, as the paws of
-   * `bear-views.png`. With the open hand of a cue, the claws pointed up.
+   * `bear-views.png`. With the open hand of a cue, the claws pointed up. At 80°, the claws stay
+   * clear of the muzzle by at least 2 cm during count-in head turns to the left.
    */
-  readyCurl: 50 * MathUtils.DEG2RAD,
+  readyCurl: 80 * MathUtils.DEG2RAD,
   /**
    * In the ready gesture of a count-in, the left hand points this far up, so that both paws are
    * up at the height of the chin, 0.63 H above the shoulder joints, as in `bear-views.png` (design
@@ -566,7 +567,7 @@ function poseLeftHand(
   const ready = state.ready * (1 - cue.hand);
   const lift = Math.max(cue.hand, state.ready);
   if (lift > 0) {
-    toCue.fromArray(rig.readyDirection).multiplyScalar(ready);
+    toCue.fromArray(rig.readyDirection).applyAxisAngle(Y_AXIS, turn).multiplyScalar(ready);
     if (cue.hand > 0) {
       toCue.addScaledVector(directionOf(cue.handYaw, cue.handLift, fingers), cue.hand);
     }

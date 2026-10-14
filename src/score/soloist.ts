@@ -27,7 +27,7 @@ export const SOLOIST_RULE = {
    * key is above each key of the other pitched seats, or its velocity is above the loudness
    * share times the highest velocity of the other seats.
    */
-  above: 0.75,
+  above: 0.78,
   /** The velocity of the soloist is at least this factor of the highest other velocity. */
   louder: 1.2,
   /** In this part of its sounding time or more, two or more other seats sound with it. */

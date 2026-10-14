@@ -131,15 +131,31 @@ describe('the demo files after demos/patches.json (design 8.3)', () => {
    * The tracks and the new program of each change of demos/README.md. No demo file needs a
    * change since the user decision of 2026-10-05 (design 8.2, 8.3).
    */
-  const CHANGES = new Map<string, ReadonlyMap<number, number>>();
+  const CHANGES = new Map<string, ReadonlyMap<number, number>>([
+    [
+      'bach-bwv1047.mid',
+      new Map([
+        [8, 42],
+        [9, 6],
+      ]),
+    ],
+  ]);
 
   it('gives all demo files, sorted by name', () => {
     expect(demos.map((demo) => demo.file)).toEqual([
+      'bach-bwv1047.mid',
       'bach-bwv1048.mid',
+      'bach-bwv1050.mid',
+      'beethoven-1.mid',
+      'beethoven-8-4.mid',
       'beethoven-8.mid',
       'beethoven-9.mid',
       'boulanger-matin.mid',
+      'brahms-2.mid',
+      'mendelssohn-op61.mid',
+      'mozart-k191.mid',
       'mozart-k315.mid',
+      'mozart-k417.mid',
       'mozart-k525.mid',
     ]);
   });

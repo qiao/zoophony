@@ -216,6 +216,14 @@ describe('the soloist of each demo (design 3.8, 8.2)', () => {
     ['mozart-k525.mid', 'none'],
     ['bach-bwv1048.mid', 'none'],
     ['beethoven-8.mid', 'none'],
+    ['beethoven-1.mid', 'none'],
+    ['brahms-2.mid', 'none'],
+    ['beethoven-8-4.mid', 'none'],
+    ['bach-bwv1047.mid', 'none'],
+    ['bach-bwv1050.mid', 'none'],
+    ['mendelssohn-op61.mid', 'none'],
+    ['mozart-k417.mid', 'none'],
+    ['mozart-k191.mid', 'none'],
   ]);
 
   it.each(demos.map((d) => d.file))('gives %s its soloist with each section size', (file) => {

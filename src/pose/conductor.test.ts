@@ -415,7 +415,8 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     });
 
     it('points the left hand up and outward in the ready gesture', () => {
-      const pose = posed(-0.8);
+      // Before the turn to the cued section starts (-1.11 s).
+      const pose = posed(-1.11);
       const toWrist = at(pose, 'handL').sub(at(pose, 'upperArmL'));
       // The skeleton holds 32-bit rotations, so the angles keep about 1e-6 rad of noise.
       expect(Math.asin(toWrist.y / toWrist.length())).toBeCloseTo(CONDUCTOR_HOLD.readyLift, 5);

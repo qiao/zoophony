@@ -422,7 +422,7 @@ the removal above 60 players. The soloist then gets one player:
 - The rule reads the notes on a grid of 0.1 s, from the first note of the piece to its end. A
   candidate is **clearly the soloist** when all of these are true:
   - It sounds in 0.5 of the piece or more.
-  - In 0.75 of its sounding time or more, it is above the orchestra: its highest key is above
+  - In 0.78 of its sounding time or more, it is above the orchestra: its highest key is above
     each key of the other pitched seats, or its velocity is at least 1.2 times the highest
     velocity of the other seats. Thus a low soloist, such as a bassoon, can lead by loudness.
   - In 0.6 of its sounding time or more, two or more other seats sound with it: the orchestra
@@ -431,7 +431,7 @@ the removal above 60 players. The soloist then gets one player:
   soloist.
 - With the three section sizes, the demos give: K. 315 the flute (it sounds in 0.79 of the
   piece, above the orchestra in 0.91 of its time, and with the orchestra in 0.91), and the other
-  five demos no soloist. The violin concertino of the second audit (`score/test-audit-files.ts`)
+  thirteen demos no soloist. The violin concertino of the second audit (`score/test-audit-files.ts`)
   gives its solo violin, with one player, and the violins of the string ensemble keep 4 players.
   With "One per part", the first violins of Bach have one player and lead in 0.53 of their time,
   and the two other violin seats play as loud as they do. No other candidate of a demo passes.

@@ -83,7 +83,7 @@ describe('DEFAULT_DEMO', () => {
 });
 
 describe('isDemoId', () => {
-  it('accepts only the six hash ids of design 8.2', () => {
+  it('accepts only the fourteen hash ids of design 8.2', () => {
     expect(DEMO_IDS).toEqual([
       'boulanger-matin',
       'beethoven-9',
@@ -91,6 +91,14 @@ describe('isDemoId', () => {
       'bach-bwv1048',
       'beethoven-8',
       'mozart-k315',
+      'beethoven-1',
+      'brahms-2',
+      'beethoven-8-4',
+      'bach-bwv1047',
+      'bach-bwv1050',
+      'mendelssohn-op61',
+      'mozart-k417',
+      'mozart-k191',
     ]);
     for (const id of DEMO_IDS) {
       expect(isDemoId(id)).toBe(true);
@@ -126,6 +134,14 @@ describe('DEMOS (design 8.2)', () => {
       'Brandenburg Concerto No. 3, BWV 1048: I',
       'Symphony No. 8, Op. 93: II',
       'Andante in C, K. 315',
+      'Symphony No. 1, Op. 21: IV',
+      'Symphony No. 2, Op. 73: IV',
+      'Symphony No. 8, Op. 93: IV',
+      'Brandenburg Concerto No. 2, BWV 1047: I',
+      'Brandenburg Concerto No. 5, BWV 1050: III',
+      "A Midsummer Night's Dream, Op. 61: V",
+      'Horn Concerto No. 2, K. 417: III',
+      'Bassoon Concerto, K. 191: III',
     ]);
     for (const id of DEMO_IDS) {
       expect(DEMOS[id].title).not.toMatch(/mvt|movement/u);

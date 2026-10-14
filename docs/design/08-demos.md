@@ -30,6 +30,14 @@ excerpt of 2026-10-06 are in
 | 4 | `bach-bwv1048` | Bach, Brandenburg Concerto 3, mvt 1 | OpenScore | CC0 | 5:27 | Three violin seats, string orchestra, harpsichord |
 | 5 | `beethoven-8` | Beethoven, Symphony 8, mvt 2 | OpenScore | CC0 | 3:40 | Woodwinds and horns with the strings |
 | 6 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | 4:15 | Solo flute |
+| 7 | `beethoven-1` | Beethoven, Symphony 1, mvt 4 | OpenScore | CC0 | 4:54 | Classical symphony finale with cheerful allegro molto, full classical woodwinds, brass, and timpani |
+| 8 | `brahms-2` | Brahms, Symphony 2, mvt 4 | OpenScore | CC0 | 12:32 | Exuberant sunny finale with full romantic brass, woodwinds, and strings |
+| 9 | `beethoven-8-4` | Beethoven, Symphony 8, mvt 4 | OpenScore | CC0 | 11:58 | Energetic vivace finale, full orchestra |
+| 10 | `bach-bwv1047` | Bach, Brandenburg Concerto 2, mvt 1 | Mutopia 1680 | public domain | 4:37 | Solo trumpet, recorder (flute), oboe, violin, strings, harpsichord |
+| 11 | `bach-bwv1050` | Bach, Brandenburg Concerto 5, mvt 3 | Mutopia 548 | public domain | 5:10 | Buoyant Italian gigue, solo flute, violin, harpsichord |
+| 12 | `mendelssohn-op61` | Mendelssohn, A Midsummer Night's Dream, Op. 61: V | Mutopia 80 | public domain | 2:28 | Fairy dance, enchanted woodwinds and strings |
+| 13 | `mozart-k417` | Mozart, Horn Concerto 2, mvt 3 | Mutopia 901 | public domain | 3:23 | Joyful hunting rondo for horns, oboes, and strings |
+| 14 | `mozart-k191` | Mozart, Bassoon Concerto, mvt 3 | Mutopia 686 | public domain | 3:44 | Charming playful rondo, solo bassoon, oboes, horns, strings |
 
 - The length is `durationSec` (the last note-off), shown as `Math.floor(durationSec + 0.001)`
   seconds. For example, K. 315 ends at 254.9998 s, because the file rounds a tempo of 46 to
@@ -80,6 +88,14 @@ excerpt of 2026-10-06 are in
 | `bach-bwv1048` | Brandenburg Concerto No. 3, BWV 1048: I | Johann Sebastian Bach | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
 | `beethoven-8` | Symphony No. 8, Op. 93: II | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
 | `mozart-k315` | Andante in C, K. 315 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 344, public domain. Typeset by Maurizio Tomasi. |
+| `beethoven-1` | Symphony No. 1, Op. 21: IV | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
+| `brahms-2` | Symphony No. 2, Op. 73: IV | Johannes Brahms | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
+| `beethoven-8-4` | Symphony No. 8, Op. 93: IV | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
+| `bach-bwv1047` | Brandenburg Concerto No. 2, BWV 1047: I | Johann Sebastian Bach | Score: Mutopia Project, piece 1680, public domain. Typeset by Allen Garvin. |
+| `bach-bwv1050` | Brandenburg Concerto No. 5, BWV 1050: III | Johann Sebastian Bach | Score: Mutopia Project, piece 548, public domain. Typeset by Eric van der Velden. |
+| `mendelssohn-op61` | A Midsummer Night's Dream, Op. 61: V | Felix Mendelssohn | Score: Mutopia Project, piece 80, public domain. Typeset by Aaron Gage. |
+| `mozart-k417` | Horn Concerto No. 2, K. 417: III | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 901, public domain. Typeset by Maurizio Tomasi. |
+| `mozart-k191` | Bassoon Concerto, K. 191: III | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 686, public domain. Typeset by Maurizio Tomasi. |
 
 - Each title has one pattern: "{work}, {catalogue number}: {movement}", with the movement as a
   Roman number or the name of the excerpt. The title at the top left and the row of the demo
@@ -106,11 +122,21 @@ dropped file has no credit line.
 | `bach-bwv1048` | piano (the harpsichord), violin (3), viola, cello, contrabass |
 | `beethoven-8` | flute, oboe, clarinet, bassoon, horn, violin (2), viola, cello, contrabass |
 | `mozart-k315` | flute, oboe, horn, violin (2), viola, cello |
+| `beethoven-1` | flute, oboe, clarinet, bassoon, horn, trumpet, timpani, violin (2), viola, cello, contrabass |
+| `brahms-2` | flute, oboe, clarinet, bassoon, horn, trumpet, trombone, tuba, timpani, violin (2), viola, cello, contrabass |
+| `beethoven-8-4` | flute, oboe, clarinet, bassoon, horn, trumpet, timpani, violin (2), viola, cello, contrabass |
+| `bach-bwv1047` | flute, oboe, trumpet, piano (the harpsichord), violin (3), viola, cello |
+| `bach-bwv1050` | flute, piano (the harpsichord), violin (2), viola, cello, contrabass |
+| `mendelssohn-op61` | flute, oboe, clarinet, bassoon, horn, violin (2), viola, cello, contrabass |
+| `mozart-k417` | oboe, horn (2), violin (2), viola, cello |
+| `mozart-k191` | oboe, bassoon, horn, violin (2), viola, cello |
 
 ## 8.3 Changes to the files
 
-A demo file with wrong programs gets a repair at build time. No current demo file needs one, so
-`demos/patches.json` is an empty list, and the build keeps the mechanism for a future file.
+A demo file with wrong programs gets a repair at build time. `demos/patches.json` holds the
+program changes: in `src/bach-bwv1047.mid` (Mutopia 1680), track 8 (cello / violone) has program 40
+(violin), changed to 42 (cello), and track 9 (continuo) has program 0 (piano), changed to 6
+(harpsichord) for Baroque continuo.
 
 Until the user decision of 2026-10-05 (8.2), the Beethoven 5 demo had one: its horn track (5)
 and its trumpet track (6) used program 69 (English horn), and they changed to 60 and 56. Each

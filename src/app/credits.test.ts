@@ -16,6 +16,14 @@ describe('creditTexts (design 2.8, 7.3, 8.1)', () => {
       'Brandenburg Concerto No. 3, BWV 1048: I',
       'Symphony No. 8, Op. 93: II',
       'Andante in C, K. 315',
+      'Symphony No. 1, Op. 21: IV',
+      'Symphony No. 2, Op. 73: IV',
+      'Symphony No. 8, Op. 93: IV',
+      'Brandenburg Concerto No. 2, BWV 1047: I',
+      'Brandenburg Concerto No. 5, BWV 1050: III',
+      "A Midsummer Night's Dream, Op. 61: V",
+      'Horn Concerto No. 2, K. 417: III',
+      'Bassoon Concerto, K. 191: III',
     ]);
     expect(texts.otherDemos[0]?.credit).toBe(
       'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',
