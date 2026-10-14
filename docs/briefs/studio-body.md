@@ -129,6 +129,13 @@ violin. Size it by the rule of a violin shop (`pnpm hold-reach <species>`). Rang
 Then report to the manager." The fallback rule of the rabbit of 2026-10-13 had no range. It gave
 a violin of 0.15 m.>
 
+- When a measure chooses a value, such as a crease angle or a scale, check first that the
+  reference lies inside the range of the renders of the variants. When it does not, the measure
+  cannot choose. Stop, and send the table of the variants and the reference to the manager.
+  (The facet contrast of the rabbit references of 2026-10-14, 4.01% and 4.61%, lay above the
+  flat rabbit, 3.28% and 2.64%. The round took 10°. The manager changed it to 35°, and that
+  cost six more commits.)
+
 
 ## Process
 
