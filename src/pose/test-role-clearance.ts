@@ -39,26 +39,41 @@ export function describeRoleClearance(
   describe(`the clearance of the ${role.role} (design 9.3)`, async () => {
     const demos = (await patchedDemos()).filter((demo) => role.hasRole(scoreOf(demo.bytes)));
     for (const demo of shardOf(demos, shard, shards)) {
-      const scene = sceneOf(demo.bytes);
-      for (const player of role.players(scene)) {
-        it(`keeps the arms of the ${player.name} out of the body and the instrument in ${demo.file}`, () => {
-          for (const { name, samples } of role.sampleSets(scene)) {
-            const checks = checksOf?.(scene, player, name);
-            for (const pair of sweepDepths(role, player, samples, checks?.visit)) {
-              const limit = depthLimit(role, pair, name);
-              expect
-                .soft(pair.depth, `${name}: ${pairText(pair)}`)
-                .toBeLessThanOrEqual(limit.depth);
-            }
-            checks?.check();
-          }
-          for (const { side, error, song } of targetErrors(player)) {
-            expect
-              .soft(error, `hand ${side} at its note target, song ${song.toFixed(2)} s`)
-              .toBeLessThanOrEqual(role.targetError);
-          }
-        });
-      }
+      describeSceneClearance(role, sceneOf(demo.bytes), demo.file, checksOf);
     }
   });
+}
+
+/**
+ * Registers the sweep tests of a role in one scene (design 9.3), as
+ * {@link describeRoleClearance} does for each demo: one test for each player of the role.
+ *
+ * @param role The role.
+ * @param scene The scene.
+ * @param file The name of the file of the scene, for the test names.
+ * @param checksOf Gives the other checks of the role for a player and a set of samples.
+ */
+export function describeSceneClearance(
+  role: RoleSweep,
+  scene: TestScene,
+  file: string,
+  checksOf?: (scene: TestScene, player: SweepPlayer, set: string) => RoleChecks,
+): void {
+  for (const player of role.players(scene)) {
+    it(`keeps the arms of the ${player.name} out of the body and the instrument in ${file}`, () => {
+      for (const { name, samples } of role.sampleSets(scene)) {
+        const checks = checksOf?.(scene, player, name);
+        for (const pair of sweepDepths(role, player, samples, checks?.visit)) {
+          const limit = depthLimit(role, pair, name);
+          expect.soft(pair.depth, `${name}: ${pairText(pair)}`).toBeLessThanOrEqual(limit.depth);
+        }
+        checks?.check();
+      }
+      for (const { side, error, song } of targetErrors(player)) {
+        expect
+          .soft(error, `hand ${side} at its note target, song ${song.toFixed(2)} s`)
+          .toBeLessThanOrEqual(role.targetError);
+      }
+    });
+  }
 }
