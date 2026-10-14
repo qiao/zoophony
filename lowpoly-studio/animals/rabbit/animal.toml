@@ -113,9 +113,10 @@ box_pad = 0.05
 
 [field.ears]
 center = [0.075, 0.87, -0.022]
-radii = [0.064, 0.13, 0.013]
-yaw = 55.0
+radii = [0.068, 0.135, 0.013]
+yaw = 62.0
 roll = 17.0
+lean = 22.0
 lift = 0.5
 hollow_offset = [0.0, -0.004, 0.9]
 hollow_scale = [0.68, 0.85, 0.55]
