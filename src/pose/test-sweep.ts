@@ -3,11 +3,10 @@ import { Triangle, Vector3 } from 'three';
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
-import type { Vec3 } from '../models/tuples.ts';
 import type { Score } from '../score/types.ts';
 import { HEAD_BONES, closedDepth, surfaceGap } from './test-clearance.ts';
 import type { ClosedSurface } from './test-clearance.ts';
-import { poseSkeleton, posedPoint } from './test-kinematics.ts';
+import { poseSkeleton } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import type { TestScene } from './test-scene.ts';
 import { posedCorner } from './test-skin.ts';
@@ -59,14 +58,20 @@ export interface AcceptedDepth {
   readonly decision: string;
 }
 
-/** A place where a palm must be at a time: the palm on the keys of a note. */
+/**
+ * A place where a hand, or the part that it holds, must be at a time: the palm on the keys of a
+ * note, or the bow hair on the strings.
+ */
 export interface NoteTarget {
-  /** The hand of the palm. */
+  /** The hand. */
   readonly side: 'L' | 'R';
-  /** The sample where the palm is on its keys. */
+  /** The sample where the hand is at its target. */
   readonly sample: SweepSample;
-  /** The place of the palm, in the model axes. */
-  readonly point: Vec3;
+  /**
+   * Gives the distance of the hand, or of the part that it holds, from its target in a posed
+   * skeleton of the sample.
+   */
+  readonly error: (posed: PosedSkeleton) => number;
 }
 
 /** One player of a role in a scene. */
@@ -277,19 +282,16 @@ export function sweepDepths(
 }
 
 /**
- * Measures the distance from each palm of a player to its note targets, with the pose of the
- * skeleton.
+ * Measures the distance from each hand of a player, or from the part that it holds, to its note
+ * targets, with the pose of the skeleton.
  *
  * @param player The player.
  * @returns The largest error of each hand with a note target.
  */
 export function targetErrors(player: SweepPlayer): TargetError[] {
-  const { body } = player.model;
   const worst = new Map<'L' | 'R', TargetError>();
-  for (const { side, sample, point } of player.targets()) {
-    const posed = poseSkeleton(player.model, player.poseAt(sample));
-    const palm = posedPoint(posed, `hand${side}`, side === 'L' ? body.palmL : body.palmR);
-    const error = new Vector3(...palm).distanceTo(new Vector3(...point));
+  for (const { side, sample, error: errorOf } of player.targets()) {
+    const error = errorOf(poseSkeleton(player.model, player.poseAt(sample)));
     if (error >= (worst.get(side)?.error ?? -1)) {
       worst.set(side, { side, error, song: sample[0] });
     }

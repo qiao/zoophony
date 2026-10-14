@@ -4,13 +4,13 @@ import { CONDUCTOR } from '../models/cast.ts';
 import { PIANO } from '../models/instruments/piano.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { BoneName } from '../models/rig.ts';
-import type { Vec3 } from '../models/tuples.ts';
 import { countInAt } from './count-in.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { LOWER_MAX_SEC } from './rest.ts';
 import { closeSurface, closedPart, openLoops, posedPart } from './test-clearance.ts';
 import type { ClosedSurface, PosedPart } from './test-clearance.ts';
+import { posedPoint } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, ofConductor } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
@@ -189,9 +189,10 @@ export function pianoCase(posed: PosedSkeleton): PianoCase {
  *
  * @param scene The scene.
  * @param index The index of the pianist.
+ * @param model The model of the pianist.
  * @returns The targets.
  */
-function pianistTargets(scene: TestScene, index: number): NoteTarget[] {
+function pianistTargets(scene: TestScene, index: number, model: PlayerModel): NoteTarget[] {
   const plan = scene.plan.players[index];
   if (plan?.note.family !== 'keyboard') {
     return [];
@@ -199,13 +200,14 @@ function pianistTargets(scene: TestScene, index: number): NoteTarget[] {
   const { note: layer, timeOffset } = plan;
   return (['L', 'R'] as const).flatMap((side) => {
     const track = side === 'L' ? layer.left : layer.right;
+    const palm = side === 'L' ? model.body.palmL : model.body.palmR;
     return Array.from(track.starts, (start: number, i): NoteTarget => {
-      const point: Vec3 = [
-        track.points[i * 3] ?? 0,
-        track.points[i * 3 + 1] ?? 0,
-        track.points[i * 3 + 2] ?? 0,
-      ];
-      return { side, sample: playSample(scene, start + timeOffset + 0.02), point };
+      const point = new Vector3().fromArray(track.points, i * 3);
+      return {
+        side,
+        sample: playSample(scene, start + timeOffset + 0.02),
+        error: (posed) => new Vector3(...posedPoint(posed, `hand${side}`, palm)).distanceTo(point),
+      };
     });
   });
 }
@@ -267,10 +269,11 @@ export const PIANIST_SWEEP: RoleSweep = {
       const { species, instrument, kettles } = place.cast;
       const buffer = createScenePose(scene.plan);
       const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles);
       return [
         {
           name: `pianist ${index}`,
-          model: scene.models.get(species, instrument, kettles),
+          model,
           poseAt: ([song, wall, transport]: SweepSample) => {
             const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
             if (!pose) {
@@ -278,7 +281,7 @@ export const PIANIST_SWEEP: RoleSweep = {
             }
             return pose;
           },
-          targets: () => pianistTargets(scene, index),
+          targets: () => pianistTargets(scene, index, model),
         },
       ];
     }),
