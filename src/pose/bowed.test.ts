@@ -17,7 +17,7 @@ import { VIOLIN } from '../models/instruments/strings.ts';
 import { SPECIES } from '../models/species.ts';
 import type { SpeciesParams } from '../models/species.ts';
 import { poseShoulder } from './ik.ts';
-import { BOWED_HOLDS, bowedRig, holdOf } from './bowed-rig.ts';
+import { BOWED_HOLDS, bowedRig, holdOf, playingFrames } from './bowed-rig.ts';
 import type { BowedHold, BowedInstrument } from './bowed-rig.ts';
 import { BIND_ROTATIONS } from './frames.ts';
 import type { PosePlan } from './plan.ts';
@@ -679,5 +679,22 @@ describe('instrumentAt with a play turn (design 7.1)', () => {
     expect(instrumentAt(stage, frames, 1, place).local.angleTo(new Quaternion())).toBeLessThan(
       1e-6,
     );
+  });
+});
+
+describe('playingFrames (design 5.3)', () => {
+  it('leans the chest forward around the spine joint by the lean of the hold', () => {
+    const model = buildPlayer('fox-red', 'violin');
+    const lean = 10 * MathUtils.DEG2RAD;
+    const rig = bowedRig(model, 'violin', { ...BOWED_HOLDS.violin, lean });
+    const { root, chest } = playingFrames(rig);
+    const spine = new Vector3(...rig.spineBind);
+    const bind = new Vector3(...rig.chestBind);
+
+    expect(root.rotation.angleTo(new Quaternion())).toBeLessThan(1e-9);
+    expect(chest.rotation.angleTo(new Quaternion())).toBeCloseTo(lean, 9);
+    expect(chest.position.distanceTo(spine)).toBeCloseTo(bind.distanceTo(spine), 9);
+    // The player faces -z, so a forward lean moves the chest joint to -z.
+    expect(chest.position.z).toBeLessThan(bind.z - 0.01);
   });
 });

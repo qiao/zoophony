@@ -437,12 +437,12 @@ function toSide(v: Vector3, prefer: Vec3): Vec3 {
 
 /**
  * Makes the frames of the torso in the playing pose with no idle motion: the bind pose with the
- * lean of the hold.
+ * lean of the hold. The reach searches of the rig and `pnpm hold-reach` use them.
  *
  * @param rig The points of the player.
  * @returns The frames.
  */
-function playingFrames(rig: RigPoints): TorsoFrames {
+export function playingFrames(rig: RigPoints): TorsoFrames {
   const lean = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -rig.hold.lean);
   const spine = new Vector3(...rig.spineBind);
   return {
