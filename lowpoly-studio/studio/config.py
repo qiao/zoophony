@@ -189,6 +189,20 @@ def _cross_checks(cfg, errors):
         errors.append('seeds.require: expected "kept" or "all"')
 
 
+# The margin of the ear box over the largest ear radius and the blend, in animal heights.
+EAR_BOX_MARGIN = 0.01
+
+
+def ear_box_pad(ears):
+    """Returns the half size of the box where the field samples an ear: field.ears.box_pad when
+    the config gives it, else the largest ear radius plus the blend plus EAR_BOX_MARGIN. A turned
+    ellipsoid stays within its largest radius of its center, so the box holds the whole ear, also
+    a long ear."""
+    if ears.box_pad is not None:
+        return ears.box_pad
+    return round(max(ears.radii) + ears.blend + EAR_BOX_MARGIN, 4)
+
+
 def _role_checks(role, errors):
     """Checks the rules that span fields of a role pack."""
     if role.role.stance not in ('standing', 'seated'):
@@ -277,6 +291,7 @@ def load(animal, out_dir=None, role=None):
         _cross_checks(cfg, errors)
     if errors:
         raise ConfigError(f'{path}: {len(errors)} problem(s)\n  ' + '\n  '.join(errors))
+    cfg['field']['ears']['box_pad'] = ear_box_pad(cfg.field.ears)
     if role:
         cfg['animal']['role'] = role
     cfg['role'] = load_role(cfg.animal.role)

@@ -222,7 +222,9 @@ FIELD = T('The body field: measured parts that blend into one signed distance fi
                           default=(0.65, 0.65, 0.55)),
         'hollow_blend': F('num', 'Blend of the hollow cut.', default=0.006),
         'blend': F('num', 'Blend width.', default=0.012),
-        'box_pad': F('num', 'Padding of the box.', default=0.07),
+        'box_pad': F('num', 'Half size of the box where the field samples the ear (not given: '
+                            'the largest radius plus the blend plus 0.01, so the box holds the '
+                            'whole turned ear).', default=None),
     }),
     'tail': T('The tail: an ellipsoid that points a little down.', {
         'center': F('vec3', 'Center.', todo=True),

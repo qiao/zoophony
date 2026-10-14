@@ -265,7 +265,12 @@ same loop with its traps. Take each time from `python3 studio log <id>`.
    runs the sheet check. The fields of the new sheet are marked "measured by studio new", and
    `compare.head_turn` of the 3/4 view comes from the sheet check. Read the sheet check
    (`out/sheet-check.json`): each warning names the build checks that the sheet can fail. Ask
-   the user about a fault of the sheet before the work starts.
+   the user about a fault of the sheet before the work starts. The compact config drops
+   `field.ears.box_pad` of the like animal, so the box of the ears follows the ear radii: the
+   largest radius plus the blend plus 0.01 (`ear_box_pad()` of `studio/config.py`). On the
+   rabbit config, the ear box of the bear (0.07) cut the long ears: the field grid lost 14 of its
+   186 rows at the top, `fit` scaled the body to the lower top, and the front IoU fell from
+   0.886 to 0.790. A config that gives `box_pad` keeps it.
 4. Calibrate: `python3 studio calibrate <id> --from bear` (about 5 s) sets the light, the
    palette, and the dark classes from the sheet with renders of the bear GLB. Read its warnings:
    a color class that takes fur pixels, a color that clips, a paint contrast that the light
@@ -1705,7 +1710,7 @@ The left ear: a flat ellipsoid with a hollow on its front face. The surface leav
 | `hollow_scale` | vec3 | `[0.65, 0.65, 0.55]` | Radii of the hollow as shares of the ear radii. |
 | `hollow_blend` | num | `0.006` | Blend of the hollow cut. |
 | `blend` | num | `0.012` | Blend width. |
-| `box_pad` | num | `0.07` | Padding of the box. |
+| `box_pad` | num | optional | Half size of the box where the field samples the ear (not given: the largest radius plus the blend plus 0.01, so the box holds the whole turned ear). |
 
 #### `[field.tail]`
 

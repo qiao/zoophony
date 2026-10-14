@@ -80,9 +80,13 @@ class ConfigText:
     def set(self, table, key, value, note=None, before=None, table_note=None):
         """Sets key = value in a table. Replaces a single-line value in place, or adds the key at
         the end of the table. A missing table comes before the table `before` (with its comment
-        block), or at the end of the file, with table_note as its comment."""
-        text = f'{key} = {toml_value(value)}' + (f'  # {note}' if note else '')
+        block), or at the end of the file, with table_note as its comment. value None removes
+        the key (a single line), so that the default rule of the field applies."""
+        text = (f'{key} = {toml_value(value)}' if value is not None else '') + (
+            f'  # {note}' if note and value is not None else '')
         tables = {name: (i, end) for name, i, end in self._tables()}
+        if value is None and table not in tables:
+            return
         if table not in tables:
             block = ([f'# {table_note}'] if table_note else []) + [f'[{table}]', text, '']
             if before in tables:
@@ -100,17 +104,25 @@ class ConfigText:
                 except tomllib.TOMLDecodeError:
                     raise ValueError(f'[{table}] {key}: the value spans lines, the compact '
                                      f'writer changes only single-line values') from None
-                self.lines[k] = text
+                if value is None:
+                    del self.lines[k]
+                else:
+                    self.lines[k] = text
                 return
-        self.lines.insert(end, text)
+        if value is not None:
+            self.lines.insert(end, text)
 
 
 def apply(plain, table, key, value):
-    """Sets a value in a plain dict tree (the parsed TOML) at table.key."""
+    """Sets a value in a plain dict tree (the parsed TOML) at table.key. value None removes
+    the key."""
     node = plain
     for part in table.split('.'):
         node = node.setdefault(part, {})
-    node[key] = value
+    if value is None:
+        node.pop(key, None)
+    else:
+        node[key] = value
 
 
 def compact(like_text, header, changes):

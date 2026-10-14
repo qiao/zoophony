@@ -1221,6 +1221,9 @@ def cmd_new(a):
                     for n, v in views.items()]
         changes += [('compare', 'rows', compare_rows, measured, None, None)]
         changes += methods
+        # The ear box of the like animal fits its own ears: the box of the new animal follows
+        # the ear radii (studio/config.py ear_box_pad).
+        changes += [('field.ears', 'box_pad', None, None, None, None)]
         try:
             text = like.compact(like_text, header, changes) if len(cols) == 4 else None
         except ValueError as e:
