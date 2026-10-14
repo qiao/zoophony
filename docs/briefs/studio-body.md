@@ -82,8 +82,9 @@ Done when:
 2. <the pose claims: the seat, the feet on the floor, the hold on the instrument>.
 3. The role is in `SWEEP_ROLES` of `src/pose/test-sweep-roles.ts`, with its parts, its
    instrument shells, its note targets, and its shard files
-   `src/pose/<role>-clearance-<k>.test.ts`. Each accepted limit is an `AcceptedDepth` with a
-   decision row. `pnpm pose-depth <role>` shows each other part within the contact depth.
+   `src/pose/<role>-clearance-<k>.test.ts`. The shard files are paused tests, so `pnpm test`
+   skips them. Each accepted limit is an `AcceptedDepth` with a decision row.
+   `pnpm pose-depth <role>` shows each other part within the contact depth.
 4. `tools/check-commits.sh --tip main` passes one time before the report. Build, size, and
    `ZOOPHONY_E2E_PORT=<port> pnpm test:e2e --project=chromium` pass on the tip.
 5. The role is in `ROLE_VIEWS` of `tools/close-views.ts` and in `FOLD_ROLES` of
@@ -167,7 +168,9 @@ a violin of 0.15 m.>
 ## Tests
 
 - Remove each old check that was tuned on the parametric bodies and that the studio body fails.
-  Try a cheap fix first. List each removed check in its commit message with the reason.
+  Try a cheap fix first. List each removed check in its commit message with the reason. A paused
+  test (`PAUSED_TESTS` of `vite.config.ts`) needs no fix. Run it with `pnpm test:paused <path>`
+  only when the change needs its check.
 - For each new test, give in the report one command that breaks the code that it covers, and
   the failure that it gives.
 
@@ -299,4 +302,6 @@ Add these items to the briefs of the rig round and of the app round.
     a real violinist". Its old title was "scroll down, as its sheet".
   - `src/models/studio-rig.test.ts`: the leg angle of "straightens the legs under the hips".
 
-  A new body changes their target, and they find no fault.
+  A new body changes their target, and they find no fault. Since 2026-10-14, `bowed.test.ts` is a
+  paused test (`docs/decisions/2026-10-14-test-pause.md`), and a round does not fix it.
+  `studio-rig.test.ts` stays in `pnpm test`.
