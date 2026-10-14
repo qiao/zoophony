@@ -245,6 +245,12 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
       if (!a || !b) {
         continue;
       }
+      // When no subject has a clear camera after a conductor shot, the conductor fills the time
+      // with its other framing, a camera of another field of view (design 5.6, rule 6).
+      if (a.kind === 'conductor' && b.kind === 'conductor') {
+        expect(b.from.fov, `shots ${i - 1} and ${i}`).not.toBe(a.from.fov);
+        continue;
+      }
       const sameSubject = a.kind === b.kind && a.seats.join() === b.seats.join();
       expect(sameSubject && b.kind !== 'wide', `shots ${i - 1} and ${i}`).toBe(false);
       const group = groupOf(score, b);
