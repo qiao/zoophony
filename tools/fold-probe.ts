@@ -43,18 +43,23 @@ export type RoleSource =
       readonly kind: 'player';
       /** The instrument of the players. */
       readonly instrument: InstrumentId;
+      /**
+       * The species of the role. The rabbits of the first violins and the red foxes of the second
+       * violins play one instrument with two studio bodies, so each body has a role of its own.
+       */
+      readonly species: readonly SpeciesId[];
     };
 
 /** The roles with a studio body. A new role of route 3 adds one entry. */
 export const FOLD_ROLES: ReadonlyMap<string, RoleSource> = new Map<string, RoleSource>([
   ['conductor', { kind: 'conductor' }],
-  ['pianist', { kind: 'player', instrument: 'piano' }],
-  ['violinist', { kind: 'player', instrument: 'violin' }],
+  ['pianist', { kind: 'player', instrument: 'piano', species: ['polar-bear'] }],
+  ['violinist', { kind: 'player', instrument: 'violin', species: ['rabbit'] }],
 ]);
 
 /**
- * Gives the species of a role: the conductor, or the species of each section with the instrument
- * of the role.
+ * Gives the species of a role: the conductor, or the species of the role in each section with the
+ * instrument of the role.
  *
  * @param role The role.
  * @returns The species.
@@ -68,7 +73,8 @@ export function roleSpecies(role: RoleSource): SpeciesId[] {
     .filter((section) =>
       SECTION_INSTRUMENTS[section].some((instrument) => instrument === role.instrument),
     )
-    .flatMap((section) => SECTION_SPECIES[section]);
+    .flatMap((section) => SECTION_SPECIES[section])
+    .filter((species) => role.species.includes(species));
 }
 
 /**
@@ -273,8 +279,9 @@ interface RoleBody {
 }
 
 /**
- * Finds the studio bodies of a role in a scene: the first player of each model. The violin seats
- * of a demo hold many rabbits with one model, so the first of them stands for all.
+ * Finds the studio bodies of a role in a scene: the first player of each model of a species of the
+ * role. The violin seats of a demo hold many rabbits with one model, so the first of them stands
+ * for all.
  *
  * @param role The role.
  * @param scene The scene of a demo.
@@ -288,8 +295,11 @@ function roleBodies(role: RoleSource, scene: TestScene): RoleBody[] {
   const bodies: RoleBody[] = [];
   for (const [index, place] of scene.layout.players.entries()) {
     const { species, instrument, kettles, support } = place.cast;
+    if (instrument !== role.instrument || !role.species.includes(species)) {
+      continue;
+    }
     const model = scene.models.get(species, instrument, kettles, support);
-    if (instrument === role.instrument && model.studio && !bodies.some((b) => b.model === model)) {
+    if (model.studio && !bodies.some((b) => b.model === model)) {
       bodies.push({ index, model });
     }
   }

@@ -429,7 +429,8 @@ async function checkRig(
     await withGlbBody(animal, output, async (copy) => {
       for (const { role, species } of roles) {
         const runs: [string, string[]][] = [['fold-probe.ts', [role]]];
-        if (role === 'violinist') {
+        const source = FOLD_ROLES.get(role);
+        if (source?.kind === 'player' && source.instrument === 'violin') {
           runs.unshift(['hold-reach.ts', [species]]);
         }
         for (const [script, args] of runs) {
