@@ -1,3 +1,5 @@
+import { writeFileSync } from 'node:fs';
+
 import { patchedDemos } from './patch-demos.ts';
 import { setHolds } from './hold-sets.ts';
 import { scoreOf } from '../src/score/test-score.ts';
@@ -46,10 +48,12 @@ export interface Options {
   readonly times: readonly number[] | null;
   /** True to also measure the smallest gap of the head to each obstacle and of each paw to the body. */
   readonly gaps: boolean;
+  /** The file into which the tool writes its rows as JSON, or `null` for none. */
+  readonly json: string | null;
 }
 
 /** The text of the usage. */
-const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps]`;
+const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--json <file>]`;
 
 /**
  * Tells if a text is the name of a bone.
@@ -79,6 +83,7 @@ export function parseOptions(args: readonly string[]): Options {
   let bones: BoneName[] | null = null;
   let into: string[] | null = null;
   let times: number[] | null = null;
+  let json: string | null = null;
   // The flag --gaps has no value. Each other option has one.
   const gaps = rest.includes('--gaps');
   const valued = rest.filter((arg) => arg !== '--gaps');
@@ -113,6 +118,9 @@ export function parseOptions(args: readonly string[]): Options {
           return obstacle;
         });
         break;
+      case '--json':
+        json = value;
+        break;
       case '--times':
         times = list.map(Number);
         if (times.some((t) => !Number.isFinite(t))) {
@@ -127,7 +135,7 @@ export function parseOptions(args: readonly string[]): Options {
   for (const variant of variants) {
     setHolds(variant).undo();
   }
-  return { role, demos, variants, bones, into, times, gaps };
+  return { role, demos, variants, bones, into, times, gaps, json };
 }
 
 /** The results of one variant in one demo. */
@@ -277,7 +285,7 @@ function printDetails(role: RoleSweep, results: readonly DemoResult[]): void {
  *
  * @param rows The variant and the results of each row.
  */
-function printTable(rows: readonly { variant: string; results: readonly DemoResult[] }[]): void {
+function printTable(rows: readonly SweepRow[]): void {
   const columns = new Map<string, number[]>();
   const gapColumns = new Set<string>();
   const add = (column: string, row: number, value: number): void => {
@@ -354,23 +362,139 @@ function roleOf(options: Options): RoleSweep {
   };
 }
 
-async function main(): Promise<void> {
-  const options = parseOptions(process.argv.slice(2));
-  const role = roleOf(options);
-  const rows: { variant: string; results: DemoResult[] }[] = [];
+/** The rows of one run: the deepest points of each variant. */
+export interface SweepRow {
+  /** The text of the changes of the variant, or empty for the base. */
+  readonly variant: string;
+  /** The time of the sweep of the variant, in seconds. */
+  readonly seconds: number;
+  /** The results of each demo and player. */
+  readonly results: readonly DemoResult[];
+}
+
+/** A depth of the JSON text of {@link rowsJson}. JSON writes the place `NaN` as `null`. */
+type StoredDepth = Omit<PairDepth, 'along'> & {
+  /** The place along the bone, or `null` for `NaN`. */
+  readonly along: number | null;
+};
+
+/** A gap of the JSON text of {@link rowsJson}. JSON writes an infinite gap as `null`. */
+type StoredGap = Omit<PairGap, 'gap'> & {
+  /** The gap in meters, or `null` for an infinite gap. */
+  readonly gap: number | null;
+};
+
+/** A result of the JSON text of {@link rowsJson}. */
+type StoredResult = Omit<DemoResult, 'sets'> & {
+  /** The sets of samples. */
+  readonly sets: readonly (Omit<SetResult, 'pairs' | 'gaps'> & {
+    /** The deepest point of each pair. */
+    readonly pairs: readonly StoredDepth[];
+    /** The smallest gap of each pair. */
+    readonly gaps: readonly StoredGap[];
+  })[];
+};
+
+/** The JSON text of {@link rowsJson}. */
+interface StoredRows {
+  /** The rows, the base first. */
+  readonly rows: readonly (Omit<SweepRow, 'results'> & {
+    /** The results of each demo and player. */
+    readonly results: readonly StoredResult[];
+  })[];
+}
+
+/**
+ * Writes the rows of a run as JSON (`--json`). JSON writes the place `NaN` of a depth with no
+ * bone and the infinite gap of a set with no sample as `null`.
+ *
+ * @param rows The rows.
+ * @returns The text.
+ */
+export function rowsJson(rows: readonly SweepRow[]): string {
+  return JSON.stringify({ rows });
+}
+
+/**
+ * Reads the rows of a run from the text of {@link rowsJson}, with `NaN` and the infinite gaps in
+ * place of `null`.
+ *
+ * @param text The text.
+ * @returns The rows.
+ */
+export function readRows(text: string): SweepRow[] {
+  // SAFETY: the text comes from rowsJson() of this tool, in the probe of a commit or of the
+  // working tree.
+  const stored = JSON.parse(text) as StoredRows;
+  const depth = (p: StoredDepth): PairDepth => ({
+    part: p.part,
+    into: p.into,
+    depth: p.depth,
+    song: p.song,
+    wall: p.wall,
+    bone: p.bone,
+    along: p.along ?? Number.NaN,
+  });
+  const gap = (g: StoredGap): PairGap => ({
+    part: g.part,
+    into: g.into,
+    gap: g.gap ?? Infinity,
+    song: g.song,
+    wall: g.wall,
+    bone: g.bone,
+  });
+  return stored.rows.map((row) => ({
+    variant: row.variant,
+    seconds: row.seconds,
+    results: row.results.map((result) => ({
+      demo: result.demo,
+      species: result.species,
+      headHeight: result.headHeight,
+      targets: result.targets,
+      sets: result.sets.map((set) => ({
+        name: set.name,
+        pairs: set.pairs.map(depth),
+        gaps: set.gaps.map(gap),
+      })),
+    })),
+  }));
+}
+
+/**
+ * Sweeps each variant of the options with the holds of now, and writes the details of each
+ * variant after its sweep.
+ *
+ * @param options The options.
+ * @param role The role of the options.
+ * @returns The rows, the base first.
+ */
+async function sweepRows(options: Options, role: RoleSweep): Promise<SweepRow[]> {
+  const rows: SweepRow[] = [];
   for (const variant of options.variants) {
     const { undo, text } = setHolds(variant);
     const started = performance.now();
+    let results: DemoResult[];
     try {
-      rows.push({ variant: text, results: await sweepDemos(options, role) });
+      results = await sweepDemos(options, role);
     } finally {
       undo();
     }
-    const seconds = ((performance.now() - started) / 1000).toFixed(1);
-    console.log(`${text || 'base'} (${seconds} s):`);
-    printDetails(role, rows.at(-1)?.results ?? []);
+    const seconds = (performance.now() - started) / 1000;
+    rows.push({ variant: text, seconds, results });
+    console.log(`${text || 'base'} (${seconds.toFixed(1)} s):`);
+    printDetails(role, results);
   }
+  return rows;
+}
+
+async function main(): Promise<void> {
+  const options = parseOptions(process.argv.slice(2));
+  const role = roleOf(options);
+  const rows = await sweepRows(options, role);
   printTable(rows);
+  if (options.json !== null) {
+    writeFileSync(options.json, rowsJson(rows));
+  }
 }
 
 if (import.meta.main) {

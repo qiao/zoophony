@@ -4,7 +4,8 @@ import { sceneOf } from '../src/pose/test-scene.ts';
 import { VIOLINIST_SWEEP, playSample } from '../src/pose/test-sweep-roles.ts';
 import type { RoleSweep, SweepSample } from '../src/pose/test-sweep.ts';
 import { patchedDemos } from './patch-demos.ts';
-import { parseOptions, playerLabel, sweepDemos } from './pose-depth.ts';
+import { parseOptions, playerLabel, readRows, rowsJson, sweepDemos } from './pose-depth.ts';
+import type { DemoResult } from './pose-depth.ts';
 
 /**
  * Gives the bytes of a demo with its patches, as the sweep reads it.
@@ -34,6 +35,53 @@ describe('parseOptions', () => {
     expect(options.demos).toEqual(['bach-bwv1048']);
     expect(options.into).toEqual(['case']);
     expect(parseOptions(['conductor']).gaps).toBe(false);
+  });
+
+  it('reads the file of --json', () => {
+    expect(parseOptions(['violinist', '--json', 'out.json']).json).toBe('out.json');
+  });
+});
+
+/**
+ * Makes the result of one player with one pair in one set.
+ *
+ * @param species The species.
+ * @param headHeight The head height H of its body, in meters.
+ * @param depths The depth of each pair of the set `play`, in meters, by the name of the part.
+ * @returns The result.
+ */
+function resultOf(
+  species: 'rabbit' | 'fox-red',
+  headHeight: number,
+  depths: Readonly<Record<string, number>>,
+): DemoResult {
+  return {
+    demo: `d violinist 1 (${species}, chair)`,
+    species,
+    headHeight,
+    sets: [
+      {
+        name: 'play',
+        pairs: Object.entries(depths).map(([part, depth]) => ({
+          part,
+          into: 'body',
+          depth,
+          song: 1,
+          wall: 2,
+          bone: depth > 0 ? 'handL' : null,
+          along: depth > 0 ? 0.5 : Number.NaN,
+        })),
+        gaps: [{ part: 'paw L', into: 'body', gap: Infinity, song: 0, wall: 0, bone: null }],
+      },
+    ],
+    targets: [],
+  };
+}
+
+describe('rowsJson', () => {
+  it('gives back NaN and the infinite gaps of the rows that it writes', () => {
+    const rows = [{ variant: '', seconds: 1, results: [resultOf('rabbit', 0.3, { paws: 0 })] }];
+    expect(readRows(rowsJson(rows))).toEqual(rows);
   });
 });
 
