@@ -1,15 +1,27 @@
+import { PerspectiveCamera, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { closeView, galleryTransport } from '../src/gallery/items.ts';
+import {
+  GALLERY_FOV_DEG,
+  closeView,
+  gallerySupport,
+  galleryTransport,
+} from '../src/gallery/items.ts';
 import { parseTestNotes } from '../src/gallery/notes.ts';
 import {
+  LINEUP,
+  LINEUP_ELEVATION,
   ROLE_VIEWS,
   SERVER_PORT,
   baseGridLabels,
   closeViewPath,
   closeViewsArgs,
+  lineupArgs,
+  lineupCamera,
+  lineupPath,
   roleOf,
 } from './close-views.ts';
+import type { RowBox } from './close-views.ts';
 
 describe('closeViewPath', () => {
   it('shows the animal of each role alone and close, at the camera of each view', () => {
@@ -139,5 +151,84 @@ describe('baseGridLabels', () => {
 describe('SERVER_PORT', () => {
   it('starts each server above 4290, so that Vite never moves up to 4182, the port of the merge', () => {
     expect(SERVER_PORT).toBeGreaterThan(4290);
+  });
+});
+
+describe('lineupCamera', () => {
+  /**
+   * Projects a point with the camera of a lineup, as the gallery places it from the front.
+   *
+   * @param boxes The boxes of the trees.
+   * @param point The point, in meters.
+   * @returns The point in the image, from -1 to 1 on each axis inside the image.
+   */
+  function project(boxes: readonly RowBox[], point: Vector3): Vector3 {
+    const aspect = LINEUP.width / LINEUP.height;
+    const { target, distance } = lineupCamera(boxes, aspect);
+    const camera = new PerspectiveCamera(GALLERY_FOV_DEG, aspect, 0.1, 100);
+    const elevation = (LINEUP_ELEVATION * Math.PI) / 180;
+    camera.position.set(0, target + distance * Math.sin(elevation), distance * Math.cos(elevation));
+    camera.lookAt(0, target, 0);
+    camera.updateMatrixWorld();
+    return point.clone().project(camera);
+  }
+
+  it('shows the tallest model and the widest row of all trees whole, and fills the image', () => {
+    const wide: RowBox[] = [
+      { halfWidth: 3, halfDepth: 0.3, height: 1.5 },
+      { halfWidth: 3.4, halfDepth: 0.35, height: 1.9 },
+    ];
+    const tall: RowBox[] = [{ halfWidth: 0.4, halfDepth: 0.3, height: 1.9 }];
+    for (const boxes of [wide, tall]) {
+      const halfWidth = Math.max(...boxes.map((box) => box.halfWidth));
+      let fill = 0;
+      for (const x of [-halfWidth, halfWidth]) {
+        for (const z of [-0.35, 0.35]) {
+          for (const y of [0, 1.9]) {
+            const p = project(boxes, new Vector3(x, y, z));
+            expect(Math.abs(p.x)).toBeLessThan(1);
+            expect(Math.abs(p.y)).toBeLessThan(1);
+            fill = Math.max(fill, Math.abs(p.x), Math.abs(p.y));
+          }
+        }
+      }
+      expect(fill).toBeGreaterThan(0.85);
+    }
+    // The camera does not depend on the order of the trees.
+    expect(lineupCamera(wide.toReversed(), 2)).toEqual(lineupCamera(wide, 2));
+  });
+});
+
+describe('lineupPath', () => {
+  it('shows the species standing in the rest pose, low, at a fixed camera or at the fit', () => {
+    const fixed = new URLSearchParams(
+      lineupPath(['rabbit', 'fox-red'], { target: 0.8, distance: 9.5 }).split('?')[1],
+    );
+    expect(fixed.get('only')).toBe('rabbit,fox-red');
+    expect(gallerySupport(fixed, 'violin')).toBe('stand');
+    expect(galleryTransport(fixed).playing).toBe(false);
+    expect(closeView(fixed)).toMatchObject({
+      target: 0.8,
+      distance: 9.5,
+      elevation: LINEUP_ELEVATION,
+      azimuth: 0,
+    });
+    const fit = new URLSearchParams(lineupPath(['rabbit'], null).split('?')[1]);
+    expect(closeView(fit).distance).toBeNull();
+  });
+});
+
+describe('lineupArgs', () => {
+  it('reads the species, the folder, the URL, and the commit, and refuses a wrong line', () => {
+    expect(lineupArgs(['lineup', 'rabbit,fox-red', 'out', '--base', 'main'])).toEqual({
+      species: ['rabbit', 'fox-red'],
+      out: 'out',
+      url: null,
+      base: 'main',
+    });
+    expect(lineupArgs(['lineup', 'rabbit,unicorn', 'out'])).toBeNull();
+    expect(lineupArgs(['lineup', 'rabbit'])).toBeNull();
+    expect(lineupArgs(['lineup', 'rabbit', 'out', '--base'])).toBeNull();
+    expect(lineupArgs(['violinist', 'out'])).toBeNull();
   });
 });

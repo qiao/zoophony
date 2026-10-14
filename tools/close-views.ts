@@ -5,6 +5,8 @@ import { chromium } from '@playwright/test';
 import type { Browser } from '@playwright/test';
 import { preview } from 'vite';
 
+import { GALLERY_FOV_DEG } from '../src/gallery/items.ts';
+import { SPECIES } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { chromiumArgs } from './chromium-args.ts';
 import { ROOT, optionValue, shortHash, withRefBuild } from './ref-tree.ts';
@@ -305,6 +307,7 @@ async function render(
  * @param cells The image of each cell, row by row.
  * @param labels The label of each cell.
  * @param columns The number of columns.
+ * @param cellSize The size of one cell, in CSS pixels.
  * @returns The PNG image.
  */
 async function grid(
@@ -312,6 +315,7 @@ async function grid(
   cells: readonly Buffer[],
   labels: readonly string[],
   columns: number,
+  cellSize: { readonly width: number; readonly height: number } = CELL,
 ): Promise<Buffer> {
   const page = await browser.newPage();
   try {
@@ -345,7 +349,7 @@ async function grid(
       {
         images: cells.map((cell) => `data:image/png;base64,${cell.toString('base64')}`),
         names: [...labels],
-        size: CELL,
+        size: cellSize,
         across: columns,
       },
     );
@@ -491,34 +495,308 @@ async function renderBase(
   });
 }
 
+/** The size of the lineup image of one tree, in CSS pixels. */
+export const LINEUP = { width: 1440, height: 720 } as const;
+
+/** The angle of the camera of a lineup above the floor, in degrees: low, so the heights compare. */
+export const LINEUP_ELEVATION = 4;
+
+/** The floor in front of the models that the camera of a lineup shows for the labels, in meters. */
+const LABEL_FLOOR = 0.3;
+
+/** The box of the models of a gallery page on the floor: the attribute `data-row` of its canvas. */
+export interface RowBox {
+  /** The half width of the models, in meters. */
+  readonly halfWidth: number;
+  /** The half depth of the models, in meters. */
+  readonly halfDepth: number;
+  /** The height of the tallest model, in meters. */
+  readonly height: number;
+}
+
+/** The camera of a lineup, from the front at {@link LINEUP_ELEVATION}. */
+export interface LineupCamera {
+  /** The height of the point that the camera looks at, in meters. */
+  readonly target: number;
+  /** The distance of the camera from that point, in meters. */
+  readonly distance: number;
+}
+
+/**
+ * Chooses one camera for the lineups of some trees, so that their images compare. The camera
+ * shows the tallest model of all trees whole, with 5% of its height above it and the labels on
+ * the floor in front of the models. It also shows the widest row whole, with a margin of 5%. It
+ * looks at the middle of that height. The front of the row is nearer to the camera than the
+ * target, so the distance grows by the half depth of the row.
+ *
+ * @param boxes The box of the models of each tree, at least one.
+ * @param aspect The width of the image divided by its height.
+ * @returns The camera, with the distance rounded up to centimeters.
+ */
+export function lineupCamera(boxes: readonly RowBox[], aspect: number): LineupCamera {
+  const height = Math.max(...boxes.map((box) => box.height));
+  const halfWidth = Math.max(...boxes.map((box) => box.halfWidth));
+  const halfDepth = Math.max(...boxes.map((box) => box.halfDepth));
+  const top = height * 1.05;
+  const bottom = -LABEL_FLOOR;
+  const tan = Math.tan((GALLERY_FOV_DEG * Math.PI) / 360);
+  const tall = (top - bottom) / 2 / tan + halfDepth;
+  const wide = (halfWidth * 1.05) / (tan * aspect) + halfDepth;
+  return {
+    target: Math.round(((top + bottom) / 2) * 1000) / 1000,
+    distance: Math.ceil(Math.max(tall, wide) * 100) / 100,
+  };
+}
+
+/**
+ * Gives the path of the gallery page of a lineup: the species standing side by side in the rest
+ * pose, low from the front.
+ *
+ * @param species The species, in any order. The page keeps the order of its sections.
+ * @param camera The camera, or `null` for the camera that fits the models.
+ * @returns The path and the query, from the root of the site.
+ */
+export function lineupPath(species: readonly SpeciesId[], camera: LineupCamera | null): string {
+  const query = new URLSearchParams({
+    page: 'species',
+    only: species.join(','),
+    stand: '',
+    rest: '',
+    elevation: String(LINEUP_ELEVATION),
+  });
+  if (camera) {
+    query.set('target', String(camera.target));
+    query.set('distance', String(camera.distance));
+  }
+  return `/gallery.html?${query.toString()}`;
+}
+
+/** The command line of a lineup. */
+export interface LineupArgs {
+  /** The species of the lineup. */
+  readonly species: readonly SpeciesId[];
+  /** The output directory. */
+  readonly out: string;
+  /** The URL of a running site of the working tree, or `null` for the built site. */
+  readonly url: string | null;
+  /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
+  readonly base: string | null;
+}
+
+/**
+ * Tells if a name is a species.
+ *
+ * @param name The name.
+ * @returns True for a species.
+ */
+function isSpecies(name: string): name is SpeciesId {
+  return Object.keys(SPECIES).includes(name);
+}
+
+/**
+ * Reads the command line of a lineup: `lineup <species,...> <dir> [--url <url>] [--base <ref>]`.
+ *
+ * @param args The arguments after the script.
+ * @returns The command line, or `null` when it is not a correct lineup.
+ */
+export function lineupArgs(args: readonly string[]): LineupArgs | null {
+  const names = args[1]?.split(',') ?? [];
+  const species = names.filter(isSpecies);
+  const out = args[2];
+  const url = optionValue(args, '--url');
+  const base = optionValue(args, '--base');
+  if (
+    args[0] !== 'lineup' ||
+    species.length === 0 ||
+    species.length !== names.length ||
+    !out ||
+    out.startsWith('--') ||
+    url === undefined ||
+    base === undefined
+  ) {
+    return null;
+  }
+  return { species, out, url, base };
+}
+
+/**
+ * Reads the box of the models of the lineup page of a site, with the camera that fits them.
+ *
+ * @param browser The browser.
+ * @param site The URL of the site.
+ * @param species The species.
+ * @returns The box.
+ * @throws Error if the page writes no box, as a gallery before the query `distance`.
+ */
+async function rowBox(
+  browser: Browser,
+  site: string,
+  species: readonly SpeciesId[],
+): Promise<RowBox> {
+  const path = lineupPath(species, null);
+  const page = await openShot(browser, new URL(path.slice(1), site).href, {
+    file: '',
+    path,
+    ...LINEUP,
+    ready: 'canvas[data-ready="species"]',
+  });
+  try {
+    const row = await page.evaluate(() => {
+      const canvas = document.querySelector('#gallery');
+      return canvas instanceof HTMLElement ? (canvas.dataset['row'] ?? '') : '';
+    });
+    const [halfWidth = 0, halfDepth = 0, height = 0] = row.split(' ').map(Number);
+    if (!(height > 0)) {
+      throw new Error(`The gallery of ${site} writes no box of its models (data-row).`);
+    }
+    return { halfWidth, halfDepth, height };
+  } finally {
+    await page.close();
+  }
+}
+
+/**
+ * Renders the lineup page of a site at a camera, with no panel.
+ *
+ * @param browser The browser.
+ * @param site The URL of the site.
+ * @param species The species.
+ * @param camera The camera.
+ * @returns The PNG image.
+ */
+async function renderLineup(
+  browser: Browser,
+  site: string,
+  species: readonly SpeciesId[],
+  camera: LineupCamera,
+): Promise<Buffer> {
+  const path = lineupPath(species, camera);
+  const page = await openShot(browser, new URL(path.slice(1), site).href, {
+    file: '',
+    path,
+    ...LINEUP,
+    ready: 'canvas[data-ready="species"]',
+  });
+  try {
+    await page.addStyleTag({ content: '#controls { display: none; }' });
+    // The idle motion needs a few frames.
+    await page.waitForTimeout(300);
+    return await page.screenshot({ type: 'png' });
+  } finally {
+    await page.close();
+  }
+}
+
+/**
+ * Writes a PNG image and its WebP image.
+ *
+ * @param browser The browser that encodes the WebP image.
+ * @param image The PNG image.
+ * @param file The path with no extension.
+ */
+async function writeImage(browser: Browser, image: Buffer, file: string): Promise<void> {
+  await writeFile(`${file}.png`, image);
+  await writeFile(`${file}.webp`, await toWebp(browser, image));
+  console.log(`${file}.png`);
+}
+
+/**
+ * Renders a lineup of species of the working tree into `<dir>/lineup.png` and `.webp`. With
+ * `--base`, it also builds the commit in a temporary folder with the gallery of the working tree
+ * (`withRefBuild()` with the overlay `src/gallery`), and reads the box of the models of both
+ * sites. One camera ({@link lineupCamera}) then shows the tallest model of both whole. It writes
+ * the lineup of the commit as `lineup-base.png`, and the lineup of the commit above the lineup of
+ * the working tree as `lineup-base-views.png` and `.webp`.
+ *
+ * @param args The command line.
+ * @param site The site of the working tree, with its browser.
+ */
+async function lineupViews(
+  args: LineupArgs,
+  site: { readonly base: string; readonly browser: Browser },
+): Promise<void> {
+  const { browser } = site;
+  const aspect = LINEUP.width / LINEUP.height;
+  const tree = await rowBox(browser, site.base, args.species);
+  const say = (camera: LineupCamera): void => {
+    console.log(
+      `Lineup camera: target ${camera.target} m, distance ${camera.distance} m, elevation ${LINEUP_ELEVATION} degrees.`,
+    );
+  };
+  const ref = args.base;
+  if (ref === null) {
+    const camera = lineupCamera([tree], aspect);
+    say(camera);
+    const image = await renderLineup(browser, site.base, args.species, camera);
+    await writeImage(browser, image, join(args.out, 'lineup'));
+    return;
+  }
+
+  const label = `${ref} (${shortHash(ref)})`;
+  await withRefBuild(
+    ref,
+    async (dir) => {
+      const server = await preview({
+        root: dir,
+        preview: { port: SERVER_PORT, strictPort: false, open: false },
+      });
+      try {
+        const other = server.resolvedUrls?.local[0];
+        if (!other) {
+          throw new Error(`The preview server of ${label} has no URL.`);
+        }
+        const camera = lineupCamera([tree, await rowBox(browser, other, args.species)], aspect);
+        say(camera);
+        const after = await renderLineup(browser, site.base, args.species, camera);
+        const before = await renderLineup(browser, other, args.species, camera);
+        await writeImage(browser, after, join(args.out, 'lineup'));
+        await writeFile(join(args.out, 'lineup-base.png'), before);
+        const labels = baseGridLabels(['lineup'], label);
+        const sheet = await grid(browser, [before, after], labels, 1, LINEUP);
+        await writeImage(browser, sheet, join(args.out, 'lineup-base-views'));
+      } finally {
+        await server.close();
+      }
+    },
+    undefined,
+    ['src/gallery'],
+  );
+}
+
 /**
  * Renders the close view of a role:
- * `node tools/close-views.ts <role> <dir> [--url <url>] [--base <ref>]` (design 7.1). It writes
+ * `node tools/close-views.ts <role> <dir> [--url <url>] [--base <ref>]` (design 7.1), or a lineup
+ * of species: `node tools/close-views.ts lineup <species,...> <dir>` ({@link lineupViews}). It writes
  * the animal of the role at each moment from each view into `<dir>`, and the grid of all cells as
  * `<role>-views.png` and `<role>-views.webp`. With `--url`, it uses a running site, such as the
  * dev server, in place of the built site. With `--base`, it also builds the commit in a temporary
  * folder, and writes the grid of the commit above the grid of the working tree.
  */
 async function main(): Promise<void> {
-  const args = closeViewsArgs(process.argv.slice(2));
-  if (!args) {
+  const argv = process.argv.slice(2);
+  const lineup = lineupArgs(argv);
+  const args = lineup ? null : closeViewsArgs(argv);
+  const asked = lineup ?? args;
+  if (!asked) {
     console.error(
-      `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--url <url>] [--base <ref>]`,
+      [
+        `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--url <url>] [--base <ref>]`,
+        '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
+      ].join('\n'),
     );
     process.exit(1);
   }
-  if (args.base !== null) {
+  if (asked.base !== null) {
     // An unknown commit stops the tool before the first render.
     try {
-      shortHash(args.base);
+      shortHash(asked.base);
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));
       process.exit(1);
     }
   }
 
-  const { role: name, out, url } = args;
-  const role = ROLE_VIEWS[name];
+  const { out, url } = asked;
   await mkdir(out, { recursive: true });
   const site = url
     ? {
@@ -528,13 +806,19 @@ async function main(): Promise<void> {
       }
     : await startSite(ROOT, SERVER_PORT);
   try {
-    const views = await renderViews(site.browser, site.base, name, out, `${name}-`);
-    const sheet = await grid(site.browser, views.cells, views.labels, role.views.length);
-    await writeFile(join(out, `${name}-views.png`), sheet);
-    await writeFile(join(out, `${name}-views.webp`), await toWebp(site.browser, sheet));
-    console.log(join(out, `${name}-views.png`));
-    if (args.base !== null) {
-      await renderBase(site.browser, args.base, name, out, views);
+    if (lineup) {
+      await lineupViews(lineup, site);
+    } else if (args) {
+      const { role: name } = args;
+      const role = ROLE_VIEWS[name];
+      const views = await renderViews(site.browser, site.base, name, out, `${name}-`);
+      const sheet = await grid(site.browser, views.cells, views.labels, role.views.length);
+      await writeFile(join(out, `${name}-views.png`), sheet);
+      await writeFile(join(out, `${name}-views.webp`), await toWebp(site.browser, sheet));
+      console.log(join(out, `${name}-views.png`));
+      if (args.base !== null) {
+        await renderBase(site.browser, args.base, name, out, views);
+      }
     }
   } finally {
     if (url) {
