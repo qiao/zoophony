@@ -13,8 +13,9 @@ reads it (route 3 of `AGENTS.md`). The steps:
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, and give
    the weights with bone heat. Then the rules of the config: the free arm, the paw, the head, the
-   ears, the tail ball, the haunch, and one set of weights for the corners of each short thin
-   face. Each vertex keeps four bones, in steps of 1/255.
+   ears, the tail ball, the haunch, one set of weights for the corners of each short thin face,
+   and the weights of the line for the middle corner of each long thin face. Each vertex keeps
+   four bones, in steps of 1/255.
 4. Make the upper arm and the forearm longer by the arm factor of the config. Each bone scales
    along its axis, and the weights blend the stretch to 0 at the shoulder. The paw keeps its size.
 5. Pose the skeleton in the seated bind pose: the legs turn by the seat of the studio, and the
@@ -586,6 +587,31 @@ def rigid_slivers(verts, tris, weights, rules):
         sizes.append(len(members))
     log(f'slivers: {len(thin)} faces below {limit_angle}°, {len(sizes)} groups of '
         f'{sum(sizes)} vertices, the largest {max(sizes, default=0)}')
+    return out
+
+
+def straight_slivers(verts, tris, weights, rules):
+    """Gives the middle corner of each long thin face the weights of the line between its two
+    other corners: the mix of their weights by the place of the middle corner along that line. A
+    thin face whose middle corner lags behind the line turns over when a joint bends across it,
+    as the faces along the elbow do. A face is such a face when one corner angle is above `angle`.
+    The vertices of the head, the ears, and the tail ball keep the weights of their rules."""
+    limit_angle = rules['line']['angle']
+    keep = (verts[:, 1] >= rules['headFrom']) | (weights[:, BONES.index('tail')] > 0)
+    out = weights.copy()
+    moved = 0
+    for t in tris:
+        for k in range(3):
+            m, a, b = int(t[k]), int(t[(k + 1) % 3]), int(t[(k + 2) % 3])
+            u, v = verts[a] - verts[m], verts[b] - verts[m]
+            cos = u.dot(v) / max(np.linalg.norm(u) * np.linalg.norm(v), 1e-12)
+            if keep[m] or math.degrees(math.acos(max(-1.0, min(1.0, cos)))) <= limit_angle:
+                continue
+            line = verts[b] - verts[a]
+            along = float(np.clip((verts[m] - verts[a]).dot(line) / line.dot(line), 0.0, 1.0))
+            out[m] = (1 - along) * out[a] + along * out[b]
+            moved += 1
+    log(f'lines: {moved} middle corners of faces with a corner angle above {limit_angle}°')
     return out
 
 
@@ -1189,7 +1215,8 @@ def main():
 
     heads, ends, rolls, children = joints_of(config)
     weights = apply_rules(verts, tris, bone_heat(verts, tris, heads, ends, rolls), rules, ends)
-    weights = limit(rigid_slivers(verts, tris, weights, rules))
+    weights = straight_slivers(verts, tris, rigid_slivers(verts, tris, weights, rules), rules)
+    weights = limit(weights)
 
     # The long arms: the scale of the app comes from the shoulder joints.
     long_verts, long_heads, long_ends = stretch(verts, weights, heads, ends, children,
