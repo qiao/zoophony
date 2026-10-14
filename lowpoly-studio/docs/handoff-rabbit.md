@@ -1,111 +1,99 @@
-# Handoff: rabbit violinist, round 2 (the look)
+# Handoff: rabbit violinist, round 3 (the ears)
 
-Branch `rabbit-look`, worktree `.claude/worktrees/rabbit-look`, from main 3f9a9f35.
-Brief: close the six gaps that the manager measured against the sheet (2026-10-13). Keep the
-rig of round 1, because the app agent fits its holds to the joints of round 1.
+Branch `rabbit-ears`, worktree `.claude/worktrees/rabbit-ears`, from main d020aca0.
+Brief: give the ears the look of the sheet (pointed blades, a narrow pink slot, a wide cream
+band on the inner edge, soft facets), and change nothing else of the body (2026-10-13).
+Rounds 1 and 2 are in the git log of this file (d020aca0 holds the handoff of round 2).
 
 ## Last finished step
 
-The look round is committed, and the golden file holds the last build (e3ef6fb3).
-`python3 studio regress bear` and `python3 studio regress polar-bear` gave identical GLB files
-after each of the three studio code commits. `python3 studio regress rabbit` passes. The studio
-unit tests pass (21 tests).
+The ears round is committed, and the golden file holds the last build (1d8773e8).
+`python3 studio regress bear` and `python3 studio regress polar-bear` gave identical GLB and
+model GLB files after the studio code change. The 21 studio unit tests pass.
 
 | Commit | Step |
 |---|---|
-| 2fa573fb | The field `field.ears.lean`: a turn of the ear frame about the x axis. |
-| 28fcad1e | The field `field.head.width_points`: the head width from the cheeks to the temples. |
-| 107d004a | The field `details.ears.subdivisions`: a finer icosphere for the ear shells. |
-| 23bee5ee | Gap 1: the snout and the face points (a round face in the side view). |
-| 109691f5 | Gap 2: the ears lean back 22 degrees. |
-| dfed0b51 | Gap 3: the inner ear (320 faces, a softer pink). |
-| 6e446ec3 | Gap 4: the head width points. |
-| 7b96a6e4 | Gap 5: the feet and the warp of the heels. |
-| 551ca31f | Gap 6: brown foot claws. |
-| 42e07c0b, 4f8d0a27 | The build of the round and its golden stats. |
-| f0b31596, 61f52fae, e3ef6fb3 | The hollow radius 0.66 (a clean pink edge), its build, and the golden stats. |
-| 9c37db84 | The README of the rabbit. |
+| 8dda9558 | The config kind `triples` (a list of lists of 3 numbers). |
+| 9f662c4a | The blade loft of the ear details (`details.ears.blade` and its fields). |
+| 0cdc5b77 | The blade ears of the rabbit. |
+| e497d38f | The build of the round (`--all-seeds`). |
+| 1d8773e8 | The golden stats. |
 
 ## Next step
 
-The app: give the app rabbit the GLB of this round (`pnpm studio-body rabbit`). No joint moves,
-so the holds of the app agent stay valid. Then a look review with the user (about 30 min):
-the ear shape (the sheet ears are narrower and pointed at the tip), the side ears at two
-depths, and the shoulders.
+The app: give the app rabbit the GLB of this round (`pnpm studio-body rabbit`). Each vertex
+outside the ears has the same place, joints, and weights as in round 2, and no joint moves, so
+the holds of the app agent stay valid. Then a look review with the user (about 20 min): the ears
+in the side view and the shoulders.
 
-## Rig
+## Body and rig
 
-No joint place moves. The inverse bind matrices of the 32 joints of `out/rabbit.glb` are the
-same as in round 1 (largest move 0). `field.arm.joints`, `field.leg.joints`, `rig.*`, and
-`field.ears.center` (the start of the ear bones) did not change. The role build keeps seed 5
-(round 1: seed 1), so the skin mesh is new.
+The role build keeps seed 5, and the model build keeps seed 6, as in round 2. The probe
+`bodydiff.py` of the session scratchpad compares the role GLB of round 2 with the new one: the
+joint names are the same, the largest change of the 32 bind matrices is 0, and the 8685
+vertices outside the ears have the same places, joints, and weights (largest change 0). Only
+the ear vertices change (1920 to 1168 GLB vertices).
 
 ## Numbers (role seed 5, model seed 6)
 
-| IoU front, side, back, 3/4 | checks pass / all, near, stale | gates | body triangles | seeds pass (seed report) |
+| IoU front, side, back, 3/4 | checks pass / all, near, stale | gates | body triangles | ear triangles | seeds pass (seed report) |
+|---|---|---|---|---|---|
+| 0.9244, 0.9016, 0.9159, 0.8528 | 67 / 80, 7 near, 0 stale | pass | 1204 | 200 in each ear | 3 of 3 gated seeds (5, 4, 8) |
+
+Round 2: IoU 0.9178, 0.9158, 0.9182, 0.8515, 68 of 80 checks, 320 triangles in each ear. GLB
+879 kB (round 2: 920 kB), model GLB 509 kB (550 kB).
+
+The rows of the brief, from `ears.py` of the session scratchpad (the ear at x < 0 in the front
+view, units animal heights):
+
+| # | Rows | Sheet | Round 2 | Round 3 |
 |---|---|---|---|---|
-| 0.9178, 0.9158, 0.9182, 0.8515 | 68 / 80, 8 near, 0 stale | pass | 1204 | 3 of 3 gated seeds (5, 4, 8) |
+| 1 | ear run, y 0.98 / 0.96 / 0.94 / 0.92 | -0.123 to -0.088 / -0.072 / -0.058 / -0.048 | -0.122 to -0.071 / -0.058 / -0.048 / -0.039 | -0.122 to -0.082, -0.126 to -0.066, -0.127 to -0.055, -0.126 to -0.046 |
+| 2 | pink run, y 0.90 / 0.88 / 0.84 / 0.82 | -0.113 to -0.068 / -0.110 to -0.065 / -0.100 to -0.062 / -0.091 to -0.061 | -0.111 to -0.055 / -0.111 to -0.049 / -0.101 to -0.045 / -0.084 to -0.042 | -0.116 to -0.071 / -0.111 to -0.069 / -0.098 to -0.066 / -0.090 to -0.065 |
+| 2 | inner band, same rows | 0.029 / 0.035 / 0.041 / 0.041 | 0.022 / 0.022 / 0.025 / 0.023 | 0.029 / 0.035 / 0.042 / 0.046 |
+| 3 | pink at y 0.98 / 0.78 | -0.114 to -0.107 / -0.066 to -0.056 | none / none | -0.117 to -0.104 / -0.069 to -0.059 |
 
-GLB 920 kB, model GLB 550 kB, 32 bones.
-
-| # | Gap | Sheet | Round 1 | Round 2 |
-|---|---|---|---|---|
-| 1 | side front edge, y 0.58 / 0.60 / 0.62 / 0.64 | 0.122 / 0.168 / 0.184 / 0.192 | 0.148 / 0.199 / 0.213 / 0.202 | 0.122 / 0.173 / 0.192 / 0.189 |
-| 2 | side ear back edge, y 0.80 / 0.85 / 0.90 / 0.95 | -0.056 / -0.084 / -0.097 / -0.101 | -0.062 / -0.068 / -0.065 / -0.054 | -0.050 / -0.073 / -0.086 / -0.089 |
-| 3 | front inner ear share, median RGB | 0.50, 222 175 153 | 0.90, 237 168 145 | 0.57, 222 175 152 |
-| 4 | front half width, y 0.66 / 0.70 / 0.72 / 0.74 / 0.76 | 0.098 / 0.082 / 0.073 / 0.062 / 0.067 | 0.105 / 0.088 / 0.081 / 0.073 / 0.057 | 0.098 / 0.085 / 0.079 / 0.072 / 0.060 |
-| 5 | side heel y 0.01 / 0.03, toe y 0.01 / 0.03, front foot run y 0.02 | -0.050 / -0.054, 0.098 / 0.101, 0.079 | -0.012 / -0.041, 0.101 / 0.088, 0.046 | -0.037 / -0.050, 0.101 / 0.085, 0.066 |
-| 6 | foot claws | brown tips at the toe ends | pink dots below the toes | brown tips at the toe ends |
-
-The probe of these measures is `gaps.py` in the session scratchpad of the brief (`S/gaps.py`).
-It reads the masks of `out/masks/` and the renders of `out/compare/`.
-
-## Times (python3 studio log rabbit)
+## Times (python3 studio log rabbit, bear, polar-bear)
 
 | Part | Start | End | Minutes |
 |---|---|---|---|
-| Brief, crops, measures, fit, ear lean code | 18:16 | 18:24 | 8 |
-| First build, head width code, second build, regressions | 18:24 | 18:33 | 9 |
-| Ear shell code, regressions, failed toe and chin builds | 18:33 | 18:40 | 7 |
-| All seeds, commits, shoulder try, golden | 18:40 | 18:52 | 12 |
+| Brief, rules, crops, baseline build, probe of the rows | 19:03 | 19:07 | 4 |
+| Blade code, first build (tip too low, front IoU 0.868) | 19:07 | 19:09 | 2 |
+| Ring probe, 7 probe rounds, 3 builds of seed 5 | 19:09 | 19:20 | 11 |
+| All seeds, regressions, unit tests, commits, golden | 19:20 | 19:24 | 4 |
 
 | Step | Count | Typical seconds |
 |---|---|---|
-| `fit` | 13 | 2 |
-| Build, a new field (8 seeds, 2 at a time) | 6 | 68 to 251 |
-| Build `--all-seeds`, the stages of some seeds in the cache | 3 | 24 to 91 |
-| Build, a paint or detail change (`--seed 5`) | 1 | 24 |
-| `regress` (bear, polar bear, rabbit) | 8 | 18 to 63 |
+| Ring probe (`rings.py`, no build) | 8 | 2 |
+| Build, a detail change (`--seed 5`) | 6 | 19 to 27 |
+| Build `--all-seeds` (the body stages from the cache) | 1 | 37 |
+| `regress` bear, polar bear | 2 | 23, 63 |
 
 ## Failing checks
 
 | Check | Value | Verdict |
 |---|---|---|
-| `iou.front`, `iou.back` | 0.9178, 0.9182 | open (the sheet symmetry 0.9615, the shoulders 0.01 narrow, the ear bases 0.010 wide at y 0.74) |
-| `iou.side` | 0.9158 | limit of the sheet: the side ears are at two depths and two leans |
-| `iou.three_quarter` | 0.8515 | limit of the sheet: the head turn and the ears of the 3/4 view |
+| `iou.front`, `iou.back` | 0.9244, 0.9159 | open (the sheet symmetry 0.9615, the shoulders 0.01 narrow, the head 0.010 wide at y 0.74). The back ear tips of the sheet are 0.012 nearer the axis than its front ear tips. |
+| `iou.side` | 0.9016 | limit of the sheet: the side ears are at two depths and two leans. The round ears of round 2 filled more of their union. |
+| `iou.three_quarter` | 0.8528 | limit of the sheet |
 | `eye_outline.three_quarter.*`, `eye_y.three_quarter.1` | see `animals/rabbit/README.md` | limit of the sheet |
 | `ear_dark.front.left_in_image` | 0, 0.16 | limit of the sheet (one inner ear in shade) |
-| `ear_width.side` | 0.1194, 0.0611 | measure: the bump finds only the top of the sheet ears |
+| `ear_width.side` | 0.1077, 0.0611 | measure: the bump finds only the top of the sheet ears (round 2: 0.1194) |
 | `nose_x.side`, `nose_y.side` | x 0.157, 0.187 | limit of the sheet (the side nose is 0.03 higher than the front nose) |
-| `fur_hue.side` | 33.5, 32.1 | open (round 1: 32.6; the fur palette did not change) |
+| `nose_height.front.0` | 0.0363, 0.0305 | new: round 2 passed near the limit (0.0348). The ears move the front frame by less than one pixel, and the nose blob grows by one row. |
+| `fur_hue.side` | 33.5, 32.1 | open (the fur palette did not change) |
 
 ## Open problems
 
-- The remesh gate stops 5 of 8 seeds (round 1: 3 of 8): seeds 3, 6, and 7 on slivers (1.05 to
-  1.21 percent), seed 1 at the trunk bottom (y 0.145) and the crown (x 0, y 0.769), seed 2 at
-  the crown (y 0.770). The model build stops seeds 3, 1, and 5.
-- Larger toes failed the remesh gate on every seed (the seated right leg, y 0.10 to 0.12), so
-  the toe at y 0.03 stays 0.016 short and the front foot run 0.013 narrow.
-- Wider shoulder tops left no model seed, and two role seeds got a seat gap over 2 cm. The seat
-  gap of the thighs changes from seed to seed, so a form change near the thighs or the chin
-  can fail the seat check on some seeds.
-- The ear is an ellipsoid shell: the sheet ears are narrower at the base and pointed at the
-  tip. The round ear bases make the head 0.010 too wide at y 0.74.
+- The side view: the pointed blade leaves the back edge of the side ears 0.02 short at y 0.86
+  to 0.97 (round 2: 0.011 to 0.015). A mirrored model cannot match the two side ears.
+- The remesh gate stops 5 of 8 seeds, as in round 2 (seeds 3, 6, 7 on slivers, seeds 1 and 2 at
+  the trunk bottom and the crown).
+- The toe, the heel, and the shoulders stay as in round 2.
 
 ## Changes outside the files of the task
 
-`lowpoly-studio/studio/schema.py`, `lowpoly-studio/studio/field.py`,
-`lowpoly-studio/studio/details.py`, `lowpoly-studio/templates/biped/body.py`, and the schema
-tables of `lowpoly-studio/README.md`: the three new fields, each with a default that keeps the
-bear and the polar bear identical.
+`lowpoly-studio/studio/config.py`, `lowpoly-studio/studio/details.py`,
+`lowpoly-studio/studio/schema.py`, and the table `[details.ears]` of `lowpoly-studio/README.md`
+(written by `python3 studio schema --readme`, no other line changed). Each new field has a
+default that keeps the bear and the polar bear identical.
