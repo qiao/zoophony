@@ -1,9 +1,9 @@
 {
   "animal": "rabbit",
   "role": "violinist",
-  "run": "20261013-204240-56686",
-  "made": "2026-10-13T20:42:53-0700",
-  "role_key": "2970eab3a206eca9",
+  "run": "20261013-220724-37117",
+  "made": "2026-10-13T22:07:36-0700",
+  "role_key": "bc0f93a4199e8313",
   "reason": "a role check: the role pack, the template, or the clips changed since the last seed report",
   "require": "kept",
   "kept": 8,

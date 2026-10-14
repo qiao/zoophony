@@ -5,6 +5,7 @@
   "gate_pass": true,
   "pass": false,
   "failed": [
+    "instrument_reach.violin",
     "iou.front",
     "iou.side",
     "iou.back",
@@ -26,6 +27,11 @@
     "folds.rest",
     "folds.stand_play",
     "folds.performance",
+    "ik_reach.ready",
+    "ik_reach.play",
+    "ik_reach.rest",
+    "ik_reach.stand_play",
+    "ik_reach.performance",
     "eye_outline.front.0",
     "eye_y.three_quarter.0",
     "belly_width.front.belly",
@@ -513,6 +519,98 @@
       "gate": true
     },
     {
+      "name": "instrument_reach.violin",
+      "value": 0.744,
+      "op": "in",
+      "limit": [
+        0.9,
+        1.1
+      ],
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "where": {
+        "part": "violin",
+        "length": 0.234,
+        "reach": 0.3146
+      }
+    },
+    {
+      "name": "ik_reach.ready",
+      "value": 0.8145,
+      "op": "<=",
+      "limit": 1.0,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "where": {
+        "clip": "ready",
+        "frame": 24,
+        "time_s": 0.8,
+        "side": "R"
+      }
+    },
+    {
+      "name": "ik_reach.play",
+      "value": 0.7885,
+      "op": "<=",
+      "limit": 1.0,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "where": {
+        "clip": "play",
+        "frame": 0,
+        "time_s": 0.0,
+        "side": "L"
+      }
+    },
+    {
+      "name": "ik_reach.rest",
+      "value": 0.8145,
+      "op": "<=",
+      "limit": 1.0,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "where": {
+        "clip": "rest",
+        "frame": 33,
+        "time_s": 1.1,
+        "side": "R"
+      }
+    },
+    {
+      "name": "ik_reach.stand_play",
+      "value": 0.7885,
+      "op": "<=",
+      "limit": 1.0,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "where": {
+        "clip": "stand_play",
+        "frame": 0,
+        "time_s": 0.0,
+        "side": "L"
+      }
+    },
+    {
+      "name": "ik_reach.performance",
+      "value": 0.8145,
+      "op": "<=",
+      "limit": 1.0,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "where": {
+        "clip": "performance",
+        "frame": 24,
+        "time_s": 0.8,
+        "side": "R"
+      }
+    },
+    {
       "name": "iou.front",
       "value": 0.8905,
       "op": ">=",
@@ -947,6 +1045,19 @@
       "look": true
     },
     {
+      "name": "ear_inner.front.left_in_image",
+      "value": [
+        0.484,
+        0.481
+      ],
+      "op": "abs<=",
+      "limit": 0.1,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
       "name": "ear_width.front.right_in_image",
       "value": [
         0.0885,
@@ -988,6 +1099,19 @@
       "look": true
     },
     {
+      "name": "ear_inner.front.right_in_image",
+      "value": [
+        0.484,
+        0.505
+      ],
+      "op": "abs<=",
+      "limit": 0.1,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
       "name": "ear_width.side.ear",
       "value": [
         0.1077,
@@ -1020,6 +1144,19 @@
       "near": false,
       "gate": false,
       "floor": 0.00156,
+      "look": true
+    },
+    {
+      "name": "ear_lean.side.ear",
+      "value": [
+        9.51,
+        9.82
+      ],
+      "op": "abs<=",
+      "limit": 5.0,
+      "pass": true,
+      "near": false,
+      "gate": false,
       "look": true
     },
     {
@@ -1323,9 +1460,9 @@
   "look": {
     "current": true,
     "reason": null,
-    "run": "20261013-204240-56686",
-    "look_run": "20261013-204240-56686",
-    "made": "2026-10-13T20:43:04-0700",
+    "run": "20261013-220724-37117",
+    "look_run": "20261013-220724-37117",
+    "made": "2026-10-13T22:07:47-0700",
     "compare": "model",
     "model_seed": 3
   },
@@ -1335,6 +1472,27 @@
       "arm_gap",
       "symmetry"
     ]
+  },
+  "reach": {
+    "palm": 0.3146,
+    "instruments": [
+      {
+        "name": "violin",
+        "kind": "violin",
+        "length": 0.234
+      }
+    ],
+    "range": [
+      0.9,
+      1.1
+    ],
+    "ik_limit": 1.0,
+    "ik": {
+      "share": 0.8145,
+      "clip": "ready",
+      "frame": 24,
+      "side": "R"
+    }
   },
   "diagnostics": {
     "folds": "diag/folds.json",
