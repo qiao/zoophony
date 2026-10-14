@@ -710,6 +710,14 @@ def chair_mesh(rule, bind, weights):
     hanging = weights[:, lower].sum(axis=1) > 0.5
     over = (np.abs(bind[:, 0]) <= hw) & (bind[:, 2] >= back) & (bind[:, 2] <= front) & ~hanging
     top = float(bind[over, 1].min())
+    # `pnpm studio-body` finds the seat height as the lowest point of the body over the seat, so
+    # a foot over the seat puts the seat on the floor.
+    feet = hanging & (np.abs(bind[:, 0]) <= hw) & (bind[:, 2] >= back) & (bind[:, 2] <= front)
+    if feet.any():
+        raise SystemExit(f'A shin or a foot lies over the chair, at z up to '
+                         f'{bind[feet, 2].min():.4f} u. Move the front edge of the chair back.')
+    log(f'chair: front edge at z {front} u, the shins and the feet from z '
+        f'{bind[hanging, 2].min():.4f} u')
     boxes = [
         ((-hw, top - 0.02, back), (hw, top, front)),
         ((-hw, 0, back), (-hw + 0.02, top - 0.02, back + 0.02)),
