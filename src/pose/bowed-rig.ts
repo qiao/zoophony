@@ -272,10 +272,13 @@ const SHOULDER_HOLD = {
 /**
  * The hold of the violin on the left shoulder, for the red fox (design 4.6, 5.3): the hold of the
  * rabbit, whose studio body of a mesh of the user has a head height near the head height of the
- * fox (0.27 m and 0.25 m).
+ * fox (0.27 m and 0.25 m). The violin lies 0.06 H further forward, still under the jaw: with the
+ * place of the rabbit, the right forearm went 2.0 cm into the chest in the lift of the violin in
+ * the Beethoven 8 demo (limit 1.5 cm).
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
+  playShift: [-0.15, 0.06, -0.02],
 } as const satisfies BowedHold;
 
 /** The holds of the bowed strings. */
