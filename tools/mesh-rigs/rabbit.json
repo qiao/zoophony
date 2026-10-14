@@ -1,0 +1,80 @@
+{
+  "source": "assets/models/rabbit/rabbit-4.glb",
+  "output": "assets/models/rabbit/rabbit-4.rig.glb",
+  "name": "Rabbit",
+  "weld": 1e-5,
+  "app": {
+    "shoulders": 0.581,
+    "reach": 0.377,
+    "note": "The app puts the standing shoulder joints 0.581 m above the floor (ANIMALS of tools/studio-body.ts). The user chose the reach of the studio rabbit, 0.377 m (2026-10-13)."
+  },
+  "armFactor": 1.445,
+  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh prints the reach and stops when it is more than 1% from app.reach.",
+  "joints": {
+    "root": { "head": [0, 0, 0], "tail": [0, 0, 0.1], "roll": [0, 1, 0] },
+    "hips": { "head": [0, 0.2, -0.01], "tail": "spine" },
+    "spine": { "head": [0, 0.27, -0.012], "tail": "spine1" },
+    "spine1": { "head": [0, 0.34, -0.005], "tail": "chest" },
+    "chest": { "head": [0, 0.41, 0], "tail": "neck" },
+    "neck": { "head": [0, 0.505, 0.01], "tail": "head" },
+    "head": { "head": [0, 0.555, 0.02], "tail": [0, 0.75, 0.03] },
+    "ear_L": { "head": [0.0525, 0.765, -0.021], "tail": [0.118, 0.99, -0.086] },
+    "clavicle_L": { "head": [0.02, 0.485, 0.02], "tail": "upper_arm_L" },
+    "upper_arm_L": { "head": [0.075, 0.475, 0.016], "tail": "forearm_L", "roll": "palm" },
+    "forearm_L": { "head": [0.136, 0.404, 0.038], "tail": "forearm_twist_L", "roll": "palm" },
+    "forearm_twist_L": { "head": [0.166, 0.369, 0.0575], "tail": "hand_L", "roll": "palm" },
+    "hand_L": { "head": [0.196, 0.334, 0.077], "tail": "fingers_L", "roll": "palm" },
+    "fingers_L": { "head": [0.222, 0.296, 0.094], "tail": [0.236, 0.27, 0.1], "roll": "palm" },
+    "thigh_L": { "head": [0.075, 0.19, -0.01], "tail": "shin_L" },
+    "shin_L": { "head": [0.08, 0.12, 0], "tail": "foot_L" },
+    "foot_L": { "head": [0.085, 0.05, -0.025], "tail": "toes_L", "roll": [0, 1, 0] },
+    "toes_L": { "head": [0.091, 0.02, 0.05], "tail": [0.092, 0.012, 0.095], "roll": [0, 1, 0] },
+    "tail": { "head": [0, 0.2, -0.125], "tail": [0, 0.195, -0.195], "roll": [0, 1, 0] }
+  },
+  "palm": [-0.72, -0.63, -0.29],
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the ear tips, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-13-rabbit-mesh/. sections.py gives the cuts at each height: the feet and the legs below y 0.13, the body from 0.13 to 0.53 with the narrow neck at 0.53, the head from 0.55, and the ear bases at 0.765 (the middle of the ear cut at 0.77). The trunk joints lie 0.01 to 0.02 behind the middle of the body cut, as in the studio rabbit. The leg joints lie on the middle of the leg cuts, the ankle at the narrow cut 0.05 above the soles, and the toes at the ball of the foot. The cuts at x 0.106 to 0.226 give the middle line of the free arm. The shoulder joint lies on that line, 0.03 inside the root of the arm. The elbow lies halfway to the wrist and 0.01 behind the line. The wrist lies where the paw starts, and the finger joint at the claws. The tail joint lies at the front of the tail ball, whose middle the cuts at z -0.185 to -0.145 give. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): inward and back, across the paw.",
+  "studio": {
+    "legTurns": {
+      "thigh": [0.457255, -0.123448, -0.064263, 0.878379],
+      "shin": [0, -0.139173, 0, 0.990268],
+      "foot": [0, -0.139173, 0, 0.990268],
+      "toes": [0, -0.139173, 0, 0.990268]
+    },
+    "bindArms": {
+      "upper_arm": [0.813873, -0.143043, 0.563161],
+      "forearm": [0.316246, 0.757051, 0.571719],
+      "hand": [-0.078782, 0.677317, 0.731461]
+    },
+    "note": "The seat and the bind arms of the studio rabbit (lowpoly-studio/animals/rabbit/out/rabbit.glb), from docs/research/2026-10-13-rabbit-mesh/studio-targets.ts: the world turn of each left leg bone from the bind pose to the first key of the clip reference, and the unit direction of each left arm bone in the bind pose."
+  },
+  "weights": {
+    "headFrom": 0.575,
+    "earBase": [0.745, 0.78],
+    "tailBall": { "center": [0, 0.197, -0.168], "radius": 0.06, "behind": -0.14 },
+    "haunch": { "height": [0.11, 0.16], "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the haunch stays on the seat and only the leg below it turns." },
+    "note": "Above headFrom, each vertex except the ears follows the head only: the eyes, the nose, and the whiskers. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail ball follows the tail only: the vertices near its middle and behind the plane z = behind, where the cuts of sections.py z show the ball apart from the body (z -0.145)."
+  },
+  "colors": {
+    "samples": 6,
+    "dark": 0.05,
+    "eyeShare": 0.34,
+    "eyeBox": [
+      [0.03, 0.6, 0.08],
+      [0.12, 0.7, 0.2]
+    ],
+    "noseBox": [
+      [-0.03, 0.58, 0.15],
+      [0.03, 0.66, 0.2]
+    ],
+    "nose": [0.85, 0.55, 0.55],
+    "note": "Each face takes the mean sRGB color of the texture at the samples of a grid of the given steps on the face. A face is dark when its share of samples with a linear luminance below dark is at least eyeShare, and then it takes the mean of its dark samples. A dark face in the eye box (the left eye, mirrored for the right eye) is a face of an eye. A face in the nose box whose color is nearer to the nose color than to white is a face of the nose."
+  },
+  "eyeLift": 0.002,
+  "chair": {
+    "halfWidth": 0.16,
+    "front": 0,
+    "back": -0.13,
+    "backHeight": 0.15,
+    "note": "The chair of the studio rabbit has its front edge at z 0 and its back at z -0.123. The seat top is the lowest point of the seated body over the seat."
+  }
+}

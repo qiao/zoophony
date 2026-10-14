@@ -1,3 +1,6 @@
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import type { Vec3 } from '../src/models/tuples.ts';
@@ -98,5 +101,20 @@ describe('the arguments of pnpm rig-mesh', () => {
     expect(args[3]).toMatch(/tools\/blender\/rig_mesh\.py$/);
     expect(args.slice(4)).toEqual(['--', 'c.json', 'o.glb', '--preview', 'p']);
     expect(blenderArgs('c.json', 'o.glb', null).slice(4)).toEqual(['--', 'c.json', 'o.glb']);
+  });
+});
+
+describe('the mesh rig of the rabbit', async () => {
+  const path = join(import.meta.dirname, 'mesh-rigs', 'rabbit.json');
+  const config = parseConfig(await readFile(path, 'utf8'));
+
+  it('gives both arms the reach of the app with the arm factor of the config', () => {
+    expect(checkReach(config)).toBeCloseTo(config.app.reach, 2);
+    expect(armReach(config, 'R')).toBeCloseTo(armReach(config, 'L'), 9);
+  });
+
+  it('makes the arms longer than the arms of the source', () => {
+    expect(config.armFactor).toBeGreaterThan(1);
+    expect(armReach(config, 'L', 1)).toBeLessThan(config.app.reach);
   });
 });
