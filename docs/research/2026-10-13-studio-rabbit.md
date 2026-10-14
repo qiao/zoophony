@@ -101,6 +101,16 @@ stays within the contact depth of 1.5 cm. `STANDING_VIOLINIST_SWEEP` of
 `pose/test-sweep-roles.ts` accepts 2.5 cm for the paws and the forearms in the lift of a standing
 rabbit only. The seated rabbits keep the limits of `VIOLINIST_SWEEP`.
 
+Open problem: the standing rabbit has a dark pinch behind each knee, under the haunch. The review of
+the branch found it in the "stand" tiles of the close views on `119c63da` (`violinist-views.webp`).
+`stand-knee-pinch.webp` holds the crops: the back view on the left, and the left view on the right,
+with dark horizontal streaks between the haunch and the shins, and a dark notch behind the knee. The
+fold test of the standing skin passes: no face flips, and the faces near the haunch pinch. The
+likely cause is the leg shapes `legs_straight_*` of the studio near the haunch. The app keeps the
+body, and the item is open for the studio (`lowpoly-studio/docs/handoff.md`). No demo has a standing
+rabbit, so only the gallery view `stand` and a file of a user show it. `pnpm fold-probe` covers the
+demos only.
+
 ## 5. The size of the violin
 
 A violin shop sizes a violin by the arm. Ellis Music: "Have the player stand with left arm fully

@@ -85,7 +85,11 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
    the standing shoulders of the parametric rabbit, seats it on a chair with the depth of the chair
    of the studio, stands it as a soloist with the leg corrective shapes, and gives it a violin of
    0.3 of the app size. Open for the studio: a role mesh of at most 3,000 faces (round 3 has
-   3,012), because a demo shows many rabbits.
+   3,012), because a demo shows many rabbits. Also open for the studio: the standing rabbit has
+   a dark pinch behind each knee, under the haunch, in the back and the left views of the stand
+   (`docs/research/2026-10-13-studio-rabbit/stand-knee-pinch.webp` of the repository). No face
+   folds: the faces near the haunch pinch. The cause is likely the shapes `legs_straight_*`
+   near the haunch.
 
 ## Open problems
 
