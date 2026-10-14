@@ -1586,8 +1586,8 @@ bones:
   parts on `tail1` and `tail2`. The leg is the thigh on `thigh`, the knee ball and the shin on
   `shin`, and the foot on `foot`. No pose turns the legs.
 - A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
-  studio and two eye bones. Each vertex follows up to four of them, and two corrective shapes
-  move the skin of the arms. The scene gives the mesh one bone for each studio bone and one for
+  studio, two eye bones, and the optional tip of a tail of two bones (`tail_tip`, the red fox).
+  Each vertex follows up to four of them, and two corrective shapes move the skin of the arms. The scene gives the mesh one bone for each studio bone and one for
   each bone of the player, and `poseStudioBones()` writes their matrices from the pose of the
   player. The bones of the player keep the list below, so the pose code drives a studio body as
   each other body.
