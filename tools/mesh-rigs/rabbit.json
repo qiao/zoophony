@@ -4,14 +4,14 @@
   "name": "Rabbit",
   "weld": 1e-5,
   "app": {
-    "shoulders": 1.0568084,
+    "shoulders": 1.0054358,
     "reach": 0.4524,
-    "note": "The app puts the standing shoulder joints 1.0568084 m above the floor (ANIMALS of tools/studio-body.ts). The scale is 1.467789 m for each unit: 1.2 times the scale that put the shoulder joints at 0.581 m, the shoulder joints of the parametric rabbit, because the user asked for a rabbit 1.2 times the size on 2026-10-14 (docs/research/2026-10-14-animal-size.md). The leg factor raises the shoulder joints from 0.475 to 0.72 units, and the scale stays, so that the trunk, the head, and the arms keep their meters (docs/research/2026-10-14-fox-rabbit-form.md). The user chose the reach of the studio rabbit, 0.377 m (2026-10-13), and the arm factor keeps that proportion at the new size: 0.4524 m."
+    "note": "The app puts the standing shoulder joints 1.0054358 m above the floor (ANIMALS of tools/studio-body.ts). The scale is 1.467789 m for each unit: 1.2 times the scale that put the shoulder joints at 0.581 m, the shoulder joints of the parametric rabbit, because the user asked for a rabbit 1.2 times the size on 2026-10-14 (docs/research/2026-10-14-animal-size.md). The leg factor raises the shoulder joints from 0.475 to 0.685 units, and the scale stays, so that the trunk, the head, and the arms keep their meters (docs/research/2026-10-14-fox-rabbit-form.md). The user chose the reach of the studio rabbit, 0.377 m (2026-10-13), and the arm factor keeps that proportion at the new size: 0.4524 m."
   },
   "armFactor": 1.445,
   "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh prints the reach and stops when it is more than 1% from app.reach.",
-  "legFactor": 2.75,
-  "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.245 units, so that the soles stay at y 0. The user asked for longer legs and a higher seat on 2026-10-14. The factor gives the seat of the reference rabbit, about one head height (H with no ears): the seat is 0.332 m high, 1.03 H (docs/research/2026-10-14-fox-rabbit-form.md). The factors 2.5 and 3.0 gave 0.94 and 1.12 H.",
+  "legFactor": 2.5,
+  "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.21 units, so that the soles stay at y 0. The user asked for longer legs and a higher seat on 2026-10-14. The seat is 0.303 m high, 0.94 H (0.123 m before). The factor 2.75 gave the seat of the reference rabbit (1.03 H against 1.07 H), but the standing animals grew too tall, so the manager chose 2.5 (docs/research/2026-10-14-fox-rabbit-form.md).",
   "joints": {
     "root": { "head": [0, 0, 0], "tail": [0, 0, 0.1], "roll": [0, 1, 0] },
     "hips": { "head": [0, 0.2, -0.01], "tail": "spine" },
@@ -104,6 +104,6 @@
     "front": -0.03,
     "back": -0.16,
     "backHeight": 0.15,
-    "note": "The chair has the depth of the chair of the studio rabbit (0.123 to 0.13). Its front edge lies behind the heels of the seated bind (z 0.109 with the leg factor, pnpm rig-mesh prints it), so that no foot lies over the seat, and the haunch (z -0.04 to -0.19) sits on it. The seat top is the lowest point of the seated body over the seat."
+    "note": "The chair has the depth of the chair of the studio rabbit (0.123 to 0.13). Its front edge lies behind the heels of the seated bind (z 0.094 with the leg factor, pnpm rig-mesh prints it), so that no foot lies over the seat, and the haunch (z -0.04 to -0.19) sits on it. The seat top is the lowest point of the seated body over the seat."
   }
 }

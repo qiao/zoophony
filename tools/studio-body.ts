@@ -112,7 +112,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     'rabbit',
     {
       landmark: 'shoulders',
-      height: 1.0568084,
+      height: 1.0054358,
       seated: true,
       soloist: true,
       constant: 'STUDIO_RABBIT',
@@ -130,7 +130,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     'fox',
     {
       landmark: 'shoulders',
-      height: 1.596912,
+      height: 1.248072,
       seated: true,
       soloist: true,
       constant: 'STUDIO_FOX',

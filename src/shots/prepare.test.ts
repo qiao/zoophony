@@ -337,10 +337,12 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
   it('keeps the section and solo cameras low when no player blocks them (N4)', () => {
     // N4 asks for at least 60% of these cameras at 30° or lower, and at most 15% above 40°. In
     // the demos, the bodies block some low cameras, so a new body moves these shares. With each
-    // layout spread 3 times, no player blocks another, and each camera stays in the lowest band.
-    // Thus a planner that raises a camera with no blocked view fails here.
+    // layout spread 4 times, no player blocks another, and each camera stays in the lowest band.
+    // Thus a planner that raises a camera with no blocked view fails here. With a spread of 3,
+    // the red foxes with the longer legs of 2026-10-14 still blocked the low cameras to the
+    // flutes of the Boulanger demo, and one camera rose to 34.5°.
     const elevations = SCENES.flatMap(({ score, layout, models }) =>
-      closeElevations(score, prepareShots(score, spreadLayout(layout, 3), TEST_SEED, models).shots),
+      closeElevations(score, prepareShots(score, spreadLayout(layout, 4), TEST_SEED, models).shots),
     );
     const low = elevations.filter((e) => e <= 30 + 1e-9).length / elevations.length;
     const high = elevations.filter((e) => e > 40 + 1e-9).length / elevations.length;

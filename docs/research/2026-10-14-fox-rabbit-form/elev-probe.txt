@@ -1,0 +1,2 @@
+boulanger-matin.mid section flute 24.0 s 34.5°
+--- factor 4
