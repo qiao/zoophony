@@ -84,7 +84,11 @@ player.
   the pianist is low from the left, 15° to the front. It shows the left paw on the keys, and the
   right paw stays behind the body. The pianist turns the camera around its body, and the
   conductor keeps its fixed line. The pianist plays test notes of its own, which the tool writes
-  into the notes field of the page.
+  into the notes field of the page. The rabbit violinist shows from the front, both sides, and
+  the back (5.3), around its body. Its moments are the frog and the tip of a whole bow, a string
+  crossing, the rest pose, and the standing soloist at the frog.
+- The query `stand` gives each player of the species page the support `stand`, as a soloist who
+  stands (4.5). With no `stand`, each player has the support of its instrument.
 - The query `rest` shows the players in the rest pose of 5.2, before the first play. With no
   `rest`, the players play. For example, `?page=species&only=rabbit&zoom=2.5&target=1.1&rest`
   shows a close view of the rest pose of the rabbit.

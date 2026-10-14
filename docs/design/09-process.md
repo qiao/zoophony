@@ -101,16 +101,23 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   (`shots/shot-frames-chamber.test.ts`). The test of the conductor clearance reads all patched
   demos, and skips a demo with no conductor (`pose/conductor-clearance-<k>.test.ts`,
   `pose/test-conductor-clearance.ts`). The test of the pianist clearance reads the patched demos
-  with a piano seat (`pose/pianist-clearance-<k>.test.ts`, `pose/test-pianist-clearance.ts`).
+  with a piano seat (`pose/pianist-clearance-<k>.test.ts`, `pose/test-pianist-clearance.ts`). The
+  test of the violinist clearance reads the patched demos with a violin seat
+  (`pose/violinist-clearance-<k>.test.ts`, `pose/test-violinist-clearance.ts`). It sweeps the
+  first seated rabbit of each demo and each standing rabbit soloist, because a demo has many
+  rabbits with one model.
 - The clearance tests of the roles share one sweep (`pose/test-sweep.ts`,
   `pose/test-role-clearance.ts`). `pose/test-sweep-roles.ts` gives each role its moving parts,
   its obstacles, its sample sets, its note targets, and its limits. In each sample, the sweep
   poses the skin of the GPU. It measures the depth of each point of the paws, the claws, the
-  forearms, and the upper arms in the closed body and in the closed shells of the instrument
+  forearms, the upper arms, and a held part such as the baton or the bow in the closed body and
+  in the closed shells of the instrument
   (`closedDepth()` of `pose/test-clearance.ts`). A cap on each open loop closes a part, and a
   point is inside when its winding number is more than 0.5. Each point stays at most the contact
   depth of the role in each obstacle. A depth past it is a named entry with its reason and its
-  decision row. The entry is a contract of contact that the look accepts, with a margin over the
+  decision row. A note target gives the distance of a hand, or of the part that it holds, from
+  its target: the palm of the pianist on its keys, and the bow hair of the violinist on the
+  strings in the middle of each stroke. The entry is a contract of contact that the look accepts, with a margin over the
   measure. `pnpm pose-depth <role>` prints the same depths. `pnpm pose-depth <role> --gaps` also
   prints the smallest gap in each sample set from the head to each obstacle except the body, and
   from each paw to the body (`surfaceGap()` of `pose/test-clearance.ts`). A gap is 0 when the
