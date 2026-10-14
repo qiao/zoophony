@@ -214,7 +214,19 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
  * @returns The arguments of `blender`.
  */
 export function blenderArgs(config: string, output: string, preview: string | null): string[] {
-  const args = ['-b', '--factory-startup', '--python', RIG_SCRIPT, '--', config, output];
+  // A Python error of the script gives the exit code 1. Blender gives 0 by default, and the
+  // rig then seems to pass with the old file.
+  const args = [
+    '-b',
+    '--factory-startup',
+    '--python-exit-code',
+    '1',
+    '--python',
+    RIG_SCRIPT,
+    '--',
+    config,
+    output,
+  ];
   return preview ? [...args, '--preview', preview] : args;
 }
 

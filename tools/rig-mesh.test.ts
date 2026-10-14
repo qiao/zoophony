@@ -95,12 +95,18 @@ describe('the arguments of pnpm rig-mesh', () => {
     expect(() => parseArgs(['rabbit', 'bear'])).toThrow(/Usage/);
   });
 
-  it('runs the Blender script headless, with the preview folder last', () => {
+  it('runs the Blender script headless, fails on a Python error, and puts the preview folder last', () => {
     const args = blenderArgs('c.json', 'o.glb', 'p');
-    expect(args.slice(0, 3)).toEqual(['-b', '--factory-startup', '--python']);
-    expect(args[3]).toMatch(/tools\/blender\/rig_mesh\.py$/);
-    expect(args.slice(4)).toEqual(['--', 'c.json', 'o.glb', '--preview', 'p']);
-    expect(blenderArgs('c.json', 'o.glb', null).slice(4)).toEqual(['--', 'c.json', 'o.glb']);
+    expect(args.slice(0, 5)).toEqual([
+      '-b',
+      '--factory-startup',
+      '--python-exit-code',
+      '1',
+      '--python',
+    ]);
+    expect(args[5]).toMatch(/tools\/blender\/rig_mesh\.py$/);
+    expect(args.slice(6)).toEqual(['--', 'c.json', 'o.glb', '--preview', 'p']);
+    expect(blenderArgs('c.json', 'o.glb', null).slice(6)).toEqual(['--', 'c.json', 'o.glb']);
   });
 });
 
