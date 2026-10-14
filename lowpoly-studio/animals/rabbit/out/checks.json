@@ -24,9 +24,6 @@
     "facet_contrast"
   ],
   "near": [
-    "folds.ready",
-    "folds.rest",
-    "folds.performance",
     "eye_outline.front.0",
     "nose_height.front.0",
     "belly_height.front.belly",
@@ -67,49 +64,8 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": true,
-      "gate": true,
-      "where": {
-        "clip": "ready",
-        "frame": 0,
-        "time_s": 0.0,
-        "face": 238,
-        "faces": [
-          238,
-          812
-        ],
-        "bone": "upper_arm_R",
-        "side": "R",
-        "region": "upper arm, side, right",
-        "position": [
-          -0.0877,
-          0.3881,
-          0.0522
-        ],
-        "rest_position": [
-          -0.0788,
-          0.4315,
-          0.0921
-        ],
-        "angle_deg": 106.7,
-        "weights": [
-          [
-            "upper_arm_R",
-            0.441
-          ],
-          [
-            "spine1",
-            0.373
-          ],
-          [
-            "clavicle_R",
-            0.119
-          ]
-        ],
-        "smallest_angle_deg": 22.7,
-        "rest_dot": 1.0,
-        "crop": "diag/fold-238-ready.png"
-      }
+      "near": false,
+      "gate": true
     },
     {
       "name": "scene.ready",
@@ -186,49 +142,8 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": true,
-      "gate": true,
-      "where": {
-        "clip": "rest",
-        "frame": 90,
-        "time_s": 3.0,
-        "face": 238,
-        "faces": [
-          238,
-          812
-        ],
-        "bone": "upper_arm_R",
-        "side": "R",
-        "region": "upper arm, side, right",
-        "position": [
-          -0.0877,
-          0.3879,
-          0.0522
-        ],
-        "rest_position": [
-          -0.0788,
-          0.4315,
-          0.0921
-        ],
-        "angle_deg": 107.9,
-        "weights": [
-          [
-            "upper_arm_R",
-            0.441
-          ],
-          [
-            "spine1",
-            0.373
-          ],
-          [
-            "clavicle_R",
-            0.119
-          ]
-        ],
-        "smallest_angle_deg": 22.7,
-        "rest_dot": 1.0,
-        "crop": "diag/fold-238-rest.png"
-      }
+      "near": false,
+      "gate": true
     },
     {
       "name": "scene.rest",
@@ -284,49 +199,8 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": true,
-      "gate": true,
-      "where": {
-        "clip": "performance",
-        "frame": 390,
-        "time_s": 13.0,
-        "face": 238,
-        "faces": [
-          238,
-          812
-        ],
-        "bone": "upper_arm_R",
-        "side": "R",
-        "region": "upper arm, side, right",
-        "position": [
-          -0.0877,
-          0.3879,
-          0.0522
-        ],
-        "rest_position": [
-          -0.0788,
-          0.4315,
-          0.0921
-        ],
-        "angle_deg": 107.9,
-        "weights": [
-          [
-            "upper_arm_R",
-            0.441
-          ],
-          [
-            "spine1",
-            0.373
-          ],
-          [
-            "clavicle_R",
-            0.119
-          ]
-        ],
-        "smallest_angle_deg": 22.7,
-        "rest_dot": 1.0,
-        "crop": "diag/fold-238-performance.png"
-      }
+      "near": false,
+      "gate": true
     },
     {
       "name": "scene.performance",
@@ -510,7 +384,7 @@
     {
       "name": "fur_hue.side",
       "value": [
-        32.7,
+        32.6,
         32.1
       ],
       "op": "abs<=",
@@ -548,7 +422,7 @@
     },
     {
       "name": "iou.back",
-      "value": 0.9188,
+      "value": 0.9189,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -1261,9 +1135,9 @@
   "look": {
     "current": true,
     "reason": null,
-    "run": "20261013-175953-73895",
-    "look_run": "20261013-175953-73895",
-    "made": "2026-10-13T18:00:17-0700",
+    "run": "20261013-180606-60274",
+    "look_run": "20261013-180606-60274",
+    "made": "2026-10-13T18:06:29-0700",
     "compare": "model",
     "model_seed": 1
   },
@@ -1277,7 +1151,7 @@
   "diagnostics": {
     "folds": "diag/folds.json",
     "contacts": "diag/contacts.json",
-    "faces": 10,
+    "faces": 8,
     "contacts_found": 0
   }
 }

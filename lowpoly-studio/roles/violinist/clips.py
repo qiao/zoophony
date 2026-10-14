@@ -62,7 +62,7 @@ LEAN = (4.0, 3.0, 2.0)
 # out, so that the forearms pass outside the belly. The belly of the animal covers its short
 # thighs, and its short arms do not reach the lap, so the violin and the bow do not lie on the
 # lap as in the rest pose of the app.
-REST_WRIST = {'L': (0.20, 0.40, 0.12), 'R': (-0.20, 0.40, 0.12)}
+REST_WRIST = {'L': (0.20, 0.43, 0.15), 'R': (-0.20, 0.43, 0.15)}
 REST_POLE = {'L': (1.0, -0.3, -0.4), 'R': (-1.0, -0.3, -0.4)}
 
 # On the way between the rest and the play, the right paw passes a way point: out and forward

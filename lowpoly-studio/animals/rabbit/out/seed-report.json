@@ -1,16 +1,16 @@
 {
   "animal": "rabbit",
   "role": "violinist",
-  "run": "20261013-175953-73895",
-  "made": "2026-10-13T18:00:05-0700",
-  "role_key": "09191c223a63d0d3",
+  "run": "20261013-180606-60274",
+  "made": "2026-10-13T18:06:17-0700",
+  "role_key": "a854d3561ccb7794",
   "reason": "--all-seeds",
   "require": "kept",
   "kept": 1,
-  "robust": false,
+  "robust": true,
   "rule_pass": true,
   "meshes": 5,
-  "robust_seeds": 4,
+  "robust_seeds": 5,
   "seeds": [
     {
       "seed": 3,
@@ -106,23 +106,17 @@
     },
     {
       "seed": 8,
-      "status": "contacts",
-      "pass": false,
+      "status": "pass",
+      "pass": true,
       "remesh_gate": true,
       "remesh_failed": [],
       "clips": {
         "reference": [],
-        "ready": [
-          "folds 1"
-        ],
+        "ready": [],
         "play": [],
-        "rest": [
-          "folds 1"
-        ],
+        "rest": [],
         "stand_play": [],
-        "performance": [
-          "folds 1"
-        ]
+        "performance": []
       }
     }
   ]
