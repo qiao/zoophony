@@ -1,0 +1,39 @@
+{
+  "seed": 4,
+  "quads": 780,
+  "body_triangles": 1156,
+  "median_edge_px": 24.8,
+  "edge_quartiles_px": [
+    17.5,
+    32.9
+  ],
+  "sliver_share": 0.0069,
+  "folded_faces": 0,
+  "bones": 30,
+  "clips": [
+    "reference"
+  ],
+  "corrective": {
+    "region_vertices": 279,
+    "inverted_before": 0,
+    "inverted_after": 0,
+    "inward_after": 4,
+    "max_delta": 0.0119
+  },
+  "fold_repairs": [],
+  "contacts": {
+    "limit": 0.01,
+    "clips": {
+      "reference": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
+        "pass": true
+      }
+    }
+  },
+  "total_triangles": 2724
+}

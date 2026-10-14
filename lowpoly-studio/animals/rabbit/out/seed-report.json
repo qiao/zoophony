@@ -1,0 +1,101 @@
+{
+  "animal": "rabbit",
+  "role": "model",
+  "run": "20261013-170717-61089",
+  "made": "2026-10-13T17:08:27-0700",
+  "role_key": "ce927ddbddcfd001",
+  "reason": "a role check: no seed report yet",
+  "require": "kept",
+  "kept": 4,
+  "robust": true,
+  "rule_pass": true,
+  "meshes": 3,
+  "robust_seeds": 3,
+  "seeds": [
+    {
+      "seed": 3,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slivers 0.0163",
+        "slit_faces 2"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 1,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slivers 0.017",
+        "open_edges 3",
+        "slit_faces 1"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 5,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slivers 0.0122"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 6,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slivers 0.0122",
+        "slit_faces 2"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 2,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "inward_faces 4",
+        "slit_faces 4"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 4,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": []
+      }
+    },
+    {
+      "seed": 7,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": []
+      }
+    },
+    {
+      "seed": 8,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": []
+      }
+    }
+  ]
+}

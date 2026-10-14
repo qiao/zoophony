@@ -1,0 +1,1021 @@
+{
+  "animal": "rabbit",
+  "role": "model",
+  "seed": 4,
+  "gate_pass": true,
+  "pass": false,
+  "failed": [
+    "iou.front",
+    "iou.side",
+    "fur_hue.side",
+    "iou.back",
+    "iou.three_quarter",
+    "eye_outline.three_quarter.0",
+    "eye_outline.three_quarter.1",
+    "ear_dark.front.left_in_image",
+    "ear_width.side.ear",
+    "ear_height.side.ear",
+    "nose_width.front.0",
+    "nose_height.front.0",
+    "nose_x.side.0",
+    "nose_y.side.0",
+    "nose_width.side.0",
+    "nose_height.side.0",
+    "belly_height.front.belly",
+    "claw_count.front.left_in_image"
+  ],
+  "near": [
+    "fur_hue.back",
+    "head_turn.three_quarter",
+    "eye_outline.front.0",
+    "eye_outline.front.1",
+    "ear_width.front.right_in_image",
+    "nose_y.front.0",
+    "belly_y.front.belly",
+    "belly_width.front.belly",
+    "claw_count.front.right_in_image"
+  ],
+  "checks": [
+    {
+      "name": "contact.reference",
+      "value": 0.0,
+      "op": "<=",
+      "limit": 0.01,
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
+      "name": "folds.reference",
+      "value": 0,
+      "op": "<=",
+      "limit": 0,
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
+      "name": "rest_inward_faces",
+      "value": 0,
+      "op": "<=",
+      "limit": 0,
+      "pass": true,
+      "near": false,
+      "gate": false
+    },
+    {
+      "name": "body_triangles",
+      "value": 1156,
+      "op": "in",
+      "limit": [
+        900.0,
+        1600.0
+      ],
+      "pass": true,
+      "near": false,
+      "gate": false
+    },
+    {
+      "name": "slivers",
+      "value": 0.0069,
+      "op": "<=",
+      "limit": 0.01,
+      "pass": true,
+      "near": false,
+      "gate": false
+    },
+    {
+      "name": "unpaired_vertices",
+      "value": 0,
+      "op": "<=",
+      "limit": 0,
+      "pass": true,
+      "near": false,
+      "gate": false
+    },
+    {
+      "name": "remesh_gate.quads",
+      "value": 814,
+      "op": "in",
+      "limit": [
+        546,
+        1014
+      ],
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
+      "name": "remesh_gate.inward_faces",
+      "value": 0,
+      "op": "<=",
+      "limit": 0,
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
+      "name": "remesh_gate.slivers",
+      "value": 0.0069,
+      "op": "<=",
+      "limit": 0.01,
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
+      "name": "remesh_gate.open_edges",
+      "value": 0,
+      "op": "<=",
+      "limit": 0,
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
+      "name": "remesh_gate.slit_faces",
+      "value": 0,
+      "op": "<=",
+      "limit": 0,
+      "pass": true,
+      "near": false,
+      "gate": true
+    },
+    {
+      "name": "iou.front",
+      "value": 0.8977,
+      "op": ">=",
+      "limit": 0.94,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "where": {
+        "view": "front",
+        "crop": "report/views/front.jpg"
+      },
+      "look": true,
+      "sheet": [
+        "arm_gap",
+        "symmetry"
+      ]
+    },
+    {
+      "name": "fur_hue.front",
+      "value": [
+        33.5,
+        32.9
+      ],
+      "op": "abs<=",
+      "limit": 1.0,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "fur_saturation.front",
+      "value": [
+        0.151,
+        0.146
+      ],
+      "op": "abs<=",
+      "limit": 0.02,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "fur_value.front",
+      "value": [
+        0.886,
+        0.882
+      ],
+      "op": "abs<=",
+      "limit": 0.03,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "iou.side",
+      "value": 0.8707,
+      "op": ">=",
+      "limit": 0.94,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "where": {
+        "view": "side",
+        "crop": "report/views/side.jpg"
+      },
+      "look": true
+    },
+    {
+      "name": "fur_hue.side",
+      "value": [
+        33.8,
+        32.1
+      ],
+      "op": "abs<=",
+      "limit": 1.0,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "where": {
+        "view": "side",
+        "crop": "report/views/side.jpg"
+      },
+      "look": true
+    },
+    {
+      "name": "fur_saturation.side",
+      "value": [
+        0.149,
+        0.14
+      ],
+      "op": "abs<=",
+      "limit": 0.02,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "fur_value.side",
+      "value": [
+        0.894,
+        0.89
+      ],
+      "op": "abs<=",
+      "limit": 0.03,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "iou.back",
+      "value": 0.912,
+      "op": ">=",
+      "limit": 0.94,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "where": {
+        "view": "back",
+        "crop": "report/views/back.jpg"
+      },
+      "look": true,
+      "sheet": [
+        "arm_gap"
+      ]
+    },
+    {
+      "name": "fur_hue.back",
+      "value": [
+        33.5,
+        32.7
+      ],
+      "op": "abs<=",
+      "limit": 1.0,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "where": {
+        "view": "back",
+        "crop": "report/views/back.jpg"
+      },
+      "look": true
+    },
+    {
+      "name": "fur_saturation.back",
+      "value": [
+        0.149,
+        0.138
+      ],
+      "op": "abs<=",
+      "limit": 0.02,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "fur_value.back",
+      "value": [
+        0.894,
+        0.91
+      ],
+      "op": "abs<=",
+      "limit": 0.03,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "iou.three_quarter",
+      "value": 0.8501,
+      "op": ">=",
+      "limit": 0.91,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "where": {
+        "view": "three_quarter",
+        "crop": "report/views/three_quarter.jpg"
+      },
+      "look": true
+    },
+    {
+      "name": "head_turn.three_quarter",
+      "value": 12,
+      "op": "in",
+      "limit": [
+        0.0,
+        12.0
+      ],
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "where": {
+        "view": "three_quarter",
+        "crop": "report/views/three_quarter.jpg"
+      },
+      "look": true
+    },
+    {
+      "name": "fur_hue.three_quarter",
+      "value": [
+        33.8,
+        33.3
+      ],
+      "op": "abs<=",
+      "limit": 1.0,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "fur_saturation.three_quarter",
+      "value": [
+        0.15,
+        0.149
+      ],
+      "op": "abs<=",
+      "limit": 0.02,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "fur_value.three_quarter",
+      "value": [
+        0.89,
+        0.89
+      ],
+      "op": "abs<=",
+      "limit": 0.03,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "eye_outline.front.0",
+      "value": [
+        0.0247,
+        0.0232
+      ],
+      "op": "rel<=",
+      "limit": 0.08,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "floor": 0.00155,
+      "where": {
+        "feature": "eyes",
+        "view": "front",
+        "region": "eye",
+        "item": 0,
+        "crop": "report/features/eyes_front_eye.png"
+      },
+      "look": true
+    },
+    {
+      "name": "eye_outline.front.1",
+      "value": [
+        0.0232,
+        0.0247
+      ],
+      "op": "rel<=",
+      "limit": 0.08,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "floor": 0.00155,
+      "where": {
+        "feature": "eyes",
+        "view": "front",
+        "region": "eye",
+        "item": 1,
+        "crop": "report/features/eyes_front_eye.png"
+      },
+      "look": true
+    },
+    {
+      "name": "eye_y.front.0",
+      "value": [
+        0.6727,
+        0.6705
+      ],
+      "op": "abs<=",
+      "limit": 0.01,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00155,
+      "look": true
+    },
+    {
+      "name": "eye_y.front.1",
+      "value": [
+        0.6727,
+        0.6705
+      ],
+      "op": "abs<=",
+      "limit": 0.01,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00155,
+      "look": true
+    },
+    {
+      "name": "eye_outline.three_quarter.0",
+      "value": [
+        0.0277,
+        0.0408
+      ],
+      "op": "rel<=",
+      "limit": 0.08,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "where": {
+        "feature": "eyes",
+        "view": "three_quarter",
+        "region": "eye",
+        "item": 0,
+        "crop": "report/features/eyes_three_quarter_eye.png"
+      },
+      "look": true
+    },
+    {
+      "name": "eye_outline.three_quarter.1",
+      "value": [
+        0.016,
+        0.0044
+      ],
+      "op": "rel<=",
+      "limit": 0.08,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "where": {
+        "feature": "eyes",
+        "view": "three_quarter",
+        "region": "eye",
+        "item": 1,
+        "crop": "report/features/eyes_three_quarter_eye.png"
+      },
+      "look": true
+    },
+    {
+      "name": "eye_y.three_quarter.0",
+      "value": [
+        0.672,
+        0.6742
+      ],
+      "op": "abs<=",
+      "limit": 0.01,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "look": true
+    },
+    {
+      "name": "eye_y.three_quarter.1",
+      "value": [
+        0.6706,
+        0.6764
+      ],
+      "op": "abs<=",
+      "limit": 0.01,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "look": true
+    },
+    {
+      "name": "ear_width.front.left_in_image",
+      "value": [
+        0.0856,
+        0.09
+      ],
+      "op": "rel<=",
+      "limit": 0.1,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00155,
+      "look": true
+    },
+    {
+      "name": "ear_height.front.left_in_image",
+      "value": [
+        0.1959,
+        0.1974
+      ],
+      "op": "rel<=",
+      "limit": 0.1,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00155,
+      "look": true
+    },
+    {
+      "name": "ear_dark.front.left_in_image",
+      "value": [
+        0.0,
+        0.16
+      ],
+      "op": "abs<=",
+      "limit": 0.1,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "where": {
+        "feature": "ears",
+        "view": "front",
+        "region": "left_in_image",
+        "item": 0,
+        "crop": "report/features/ears_front_left_in_image.png"
+      },
+      "look": true
+    },
+    {
+      "name": "ear_width.front.right_in_image",
+      "value": [
+        0.0856,
+        0.0943
+      ],
+      "op": "rel<=",
+      "limit": 0.1,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "floor": 0.00155,
+      "where": {
+        "feature": "ears",
+        "view": "front",
+        "region": "right_in_image",
+        "item": 0,
+        "crop": "report/features/ears_front_right_in_image.png"
+      },
+      "look": true
+    },
+    {
+      "name": "ear_height.front.right_in_image",
+      "value": [
+        0.1974,
+        0.1974
+      ],
+      "op": "rel<=",
+      "limit": 0.1,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00155,
+      "look": true
+    },
+    {
+      "name": "ear_dark.front.right_in_image",
+      "value": [
+        0.0,
+        0.0
+      ],
+      "op": "abs<=",
+      "limit": 0.1,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    },
+    {
+      "name": "ear_width.side.ear",
+      "value": [
+        0.0975,
+        0.0611
+      ],
+      "op": "rel<=",
+      "limit": 0.1,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "where": {
+        "feature": "ears",
+        "view": "side",
+        "region": "ear",
+        "item": 0,
+        "crop": "report/features/ears_side_ear.png"
+      },
+      "look": true
+    },
+    {
+      "name": "ear_height.side.ear",
+      "value": [
+        0.0713,
+        0.198
+      ],
+      "op": "rel<=",
+      "limit": 0.1,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "where": {
+        "feature": "ears",
+        "view": "side",
+        "region": "ear",
+        "item": 0,
+        "crop": "report/features/ears_side_ear.png"
+      },
+      "look": true
+    },
+    {
+      "name": "ear_width.back.left_in_image",
+      "value": [
+        0.0864,
+        0.0893
+      ],
+      "op": "rel<=",
+      "limit": 0.1,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "look": true
+    },
+    {
+      "name": "ear_height.back.left_in_image",
+      "value": [
+        0.1977,
+        0.1962
+      ],
+      "op": "rel<=",
+      "limit": 0.1,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "look": true
+    },
+    {
+      "name": "ear_width.back.right_in_image",
+      "value": [
+        0.0864,
+        0.0922
+      ],
+      "op": "rel<=",
+      "limit": 0.1,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "look": true
+    },
+    {
+      "name": "ear_height.back.right_in_image",
+      "value": [
+        0.1962,
+        0.1977
+      ],
+      "op": "rel<=",
+      "limit": 0.1,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "look": true
+    },
+    {
+      "name": "nose_x.front.0",
+      "value": [
+        -0.0004,
+        -0.0033
+      ],
+      "op": "abs<=",
+      "limit": 0.01,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00155,
+      "look": true
+    },
+    {
+      "name": "nose_y.front.0",
+      "value": [
+        0.6241,
+        0.6161
+      ],
+      "op": "abs<=",
+      "limit": 0.01,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "floor": 0.00155,
+      "where": {
+        "feature": "nose",
+        "view": "front",
+        "region": "nose",
+        "item": 0,
+        "crop": "report/features/nose_front_nose.png"
+      },
+      "look": true
+    },
+    {
+      "name": "nose_width.front.0",
+      "value": [
+        0.0552,
+        0.0406
+      ],
+      "op": "rel<=",
+      "limit": 0.15,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "floor": 0.00155,
+      "where": {
+        "feature": "nose",
+        "view": "front",
+        "region": "nose",
+        "item": 0,
+        "crop": "report/features/nose_front_nose.png"
+      },
+      "look": true
+    },
+    {
+      "name": "nose_height.front.0",
+      "value": [
+        0.0406,
+        0.0305
+      ],
+      "op": "rel<=",
+      "limit": 0.15,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "floor": 0.00155,
+      "where": {
+        "feature": "nose",
+        "view": "front",
+        "region": "nose",
+        "item": 0,
+        "crop": "report/features/nose_front_nose.png"
+      },
+      "look": true
+    },
+    {
+      "name": "nose_x.side.0",
+      "value": [
+        0.1988,
+        0.1872
+      ],
+      "op": "abs<=",
+      "limit": 0.01,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "where": {
+        "feature": "nose",
+        "view": "side",
+        "region": "nose",
+        "item": 0,
+        "crop": "report/features/nose_side_nose.png"
+      },
+      "look": true
+    },
+    {
+      "name": "nose_y.side.0",
+      "value": [
+        0.6288,
+        0.6463
+      ],
+      "op": "abs<=",
+      "limit": 0.01,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "where": {
+        "feature": "nose",
+        "view": "side",
+        "region": "nose",
+        "item": 0,
+        "crop": "report/features/nose_side_nose.png"
+      },
+      "look": true
+    },
+    {
+      "name": "nose_width.side.0",
+      "value": [
+        0.0247,
+        0.016
+      ],
+      "op": "rel<=",
+      "limit": 0.15,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "where": {
+        "feature": "nose",
+        "view": "side",
+        "region": "nose",
+        "item": 0,
+        "crop": "report/features/nose_side_nose.png"
+      },
+      "look": true
+    },
+    {
+      "name": "nose_height.side.0",
+      "value": [
+        0.0146,
+        0.0204
+      ],
+      "op": "rel<=",
+      "limit": 0.15,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "floor": 0.00156,
+      "where": {
+        "feature": "nose",
+        "view": "side",
+        "region": "nose",
+        "item": 0,
+        "crop": "report/features/nose_side_nose.png"
+      },
+      "look": true
+    },
+    {
+      "name": "belly_y.front.belly",
+      "value": [
+        0.4024,
+        0.3795
+      ],
+      "op": "abs<=",
+      "limit": 0.03,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "floor": 0.00155,
+      "where": {
+        "feature": "belly",
+        "view": "front",
+        "region": "belly",
+        "item": 0,
+        "crop": "report/features/belly_front_belly.png"
+      },
+      "look": true
+    },
+    {
+      "name": "belly_width.front.belly",
+      "value": [
+        0.0784,
+        0.0958
+      ],
+      "op": "rel<=",
+      "limit": 0.2,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "floor": 0.00155,
+      "where": {
+        "feature": "belly",
+        "view": "front",
+        "region": "belly",
+        "item": 0,
+        "crop": "report/features/belly_front_belly.png"
+      },
+      "look": true
+    },
+    {
+      "name": "belly_height.front.belly",
+      "value": [
+        0.0755,
+        0.1103
+      ],
+      "op": "rel<=",
+      "limit": 0.2,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "floor": 0.00155,
+      "where": {
+        "feature": "belly",
+        "view": "front",
+        "region": "belly",
+        "item": 0,
+        "crop": "report/features/belly_front_belly.png"
+      },
+      "look": true
+    },
+    {
+      "name": "claw_count.front.left_in_image",
+      "value": [
+        6,
+        3
+      ],
+      "op": "abs<=",
+      "limit": 1.0,
+      "pass": false,
+      "near": false,
+      "gate": false,
+      "where": {
+        "feature": "claws",
+        "view": "front",
+        "region": "left_in_image",
+        "crop": "report/features/claws_front_left_in_image.png"
+      },
+      "look": true
+    },
+    {
+      "name": "claw_count.front.right_in_image",
+      "value": [
+        2,
+        3
+      ],
+      "op": "abs<=",
+      "limit": 1.0,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "where": {
+        "feature": "claws",
+        "view": "front",
+        "region": "right_in_image",
+        "crop": "report/features/claws_front_right_in_image.png"
+      },
+      "look": true
+    },
+    {
+      "name": "facet_contrast",
+      "value": [
+        3.06,
+        3.02
+      ],
+      "op": "rel<=",
+      "limit": 0.15,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "look": true
+    }
+  ],
+  "stale": [],
+  "look": {
+    "current": true,
+    "reason": null,
+    "run": "20261013-171135-11868",
+    "look_run": "20261013-171135-11868",
+    "made": "2026-10-13T17:11:55-0700",
+    "compare": "model",
+    "model_seed": 4
+  },
+  "sheet": {
+    "warnings": [
+      "ground_line",
+      "arm_gap",
+      "symmetry"
+    ]
+  },
+  "diagnostics": {
+    "folds": "diag/folds.json",
+    "contacts": "diag/contacts.json",
+    "faces": 8,
+    "contacts_found": 0
+  }
+}

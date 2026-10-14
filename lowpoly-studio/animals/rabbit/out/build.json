@@ -1,0 +1,36 @@
+{
+  "run": "20261013-171135-11868",
+  "command": "build rabbit --jobs 2",
+  "started": "2026-10-13T17:11:35-0700",
+  "seed": 4,
+  "shots": true,
+  "until": null,
+  "glb": "9b5ea57c9432f858304351972296c204aef25e8ffc0844cd4b8b5d9f773beb76",
+  "model": {
+    "seed": 4,
+    "log": "animals/rabbit/out/model/stages/blender-seed4.log",
+    "tried": [
+      {
+        "seed": 3,
+        "why": "the remesh gate fails (slivers 0.0163, slit_faces 2)"
+      },
+      {
+        "seed": 1,
+        "why": "the remesh gate fails (slivers 0.017, open_edges 3, slit_faces 1)"
+      },
+      {
+        "seed": 5,
+        "why": "the remesh gate fails (slivers 0.0122)"
+      },
+      {
+        "seed": 6,
+        "why": "the remesh gate fails (slivers 0.0122, slit_faces 2)"
+      },
+      {
+        "seed": 2,
+        "why": "the remesh gate fails (inward_faces 4, slit_faces 4)"
+      }
+    ],
+    "glb": "9b5ea57c9432f858304351972296c204aef25e8ffc0844cd4b8b5d9f773beb76"
+  }
+}
