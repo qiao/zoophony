@@ -112,13 +112,14 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 ## 4.3 Species
 
 All animals except the penguins, the bear conductor, the polar bear pianist, the rabbit
-violinist, and the red violin fox use one parametric biped body (4.4). Each species has one
+violinist, and the two foxes use one parametric biped body (4.4). Each species has one
 `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A species
 can have a body of its own in place of the biped (`body`): the penguins have the egg body of
 `models/penguin/` since 2026-10-11, the bear and the polar bear have studio bodies of
-`lowpoly-studio/` since 2026-10-12, the rabbit has a studio body since 2026-10-13, and the red fox
-since 2026-10-14: meshes of the user, which `pnpm rig-mesh` rigs (4.4, bodies of their own and
-studio bodies). A species with a body of its own has no shape parameters, because its body has
+`lowpoly-studio/` since 2026-10-12, the rabbit has a studio body since 2026-10-13, and the two
+foxes since 2026-10-14: meshes of the user, which `pnpm rig-mesh` rigs (4.4, bodies of their own
+and studio bodies). The two foxes share one rig, and the tan fox takes another palette of its
+faces (`palette`). A species with a body of its own has no shape parameters, because its body has
 its own parts.
 
 ```typescript
@@ -215,11 +216,11 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
   no standing value of the skeleton.
 - The bear conductor and the polar bear pianist have studio bodies of `lowpoly-studio/` (4.4),
   with the trunks and the legs that the studio fitted to their sheets. The rabbit violinist and
-  the red violin fox have the meshes of the user, which `pnpm rig-mesh <animal>` rigs into the
-  format of a studio body (4.4), with the trunks and the legs of the meshes. The four skeletons
-  have the bones of the studio, and no value of this table applies to them, except the head height
-  `H` and the seat heights of the polar bear, the rabbit, and the red fox, which
-  `models/species.ts` reads from their studio bodies.
+  the two foxes have the meshes of the user, which `pnpm rig-mesh <animal>` rigs into the format
+  of a studio body (4.4), with the trunks and the legs of the meshes. These skeletons have the
+  bones of the studio, and no value of this table applies to them, except the head height `H` and
+  the seat heights of the polar bear, the rabbit, and the foxes, which `models/species.ts` reads
+  from their studio bodies.
 - The legs have the form of the reference images (`SEATED_LEG` and `STANDING_LEG` of
   `models/legs.ts`). A seated thigh has the thickness of the thighs of the model sheets, and a
   shin narrows little to the ankle, as the shins of the sheets. A standing leg is a straight
@@ -284,12 +285,11 @@ its own skeleton:
   uses rabbits again, and a fourth uses red-orange foxes.
 
 The shape parameters of each species of the parametric biped (4.5 gives the colors). The penguin
-has its egg body, and the rabbit, the red fox, the bear, and the polar bear have studio bodies
+has its egg body, and the rabbit, the two foxes, the bear, and the polar bear have studio bodies
 (4.4), so they have no row:
 
 | Species | ears | snout | tail | facePattern |
 |---|---|---|---|---|
-| fox (tan) | pointed | long | bushy | none |
 | wolf | pointed | long | bushy | none |
 | elephant | large-flap | trunk | thin | none |
 | cat | pointed | short | thin | forehead-stripes |
@@ -337,7 +337,7 @@ border follows the edges of the triangles.
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
-Each body except the penguin's, the bear's, the polar bear's, the rabbit's, and the red fox's is
+Each body except the penguin's, the bear's, the polar bear's, the rabbit's, and the foxes' is
 the parametric body: `buildBiped()` of
 `models/biped.ts` builds it from the parts of 4.5 (body proportions) on the skeleton of 4.3. A
 species with a `body` gets a body of its own from `buildBiped()` in its place. On 2026-10-12, the
@@ -358,9 +358,9 @@ and the arms grew with the body. Later that day, the user asked for longer legs 
 for the rabbit and the red fox, and a larger head for the red fox
 (`docs/decisions/2026-10-14-fox-rabbit-form.md`). Earlier that day, the user decided: "now replace the fox by
 @~/Downloads/fox.glb", and chose "All foxes, violins first". The red violin fox has that mesh
-since then (`assets/models/fox/fox.glb`), rigged as the rabbit mesh, and the tan flute fox keeps
-the parametric body until a later round gives it the mesh in tan colors. The user chose "1.08x,
-rabbit reach": the arms reached as far as the arms of the rabbits
+since then (`assets/models/fox/fox.glb`), rigged as the rabbit mesh, and the tan flute fox has
+the same rig since the same day, with a tan palette of its faces
+(`docs/decisions/2026-10-14-fox-flute.md`). The user chose "1.08x, rabbit reach": the arms reached as far as the arms of the rabbits
 (`docs/decisions/2026-10-14-mesh-fox.md`). Later that day, the user asked for a fox of 1.3 times
 the size, and the arms grew with the body (`docs/decisions/2026-10-14-animal-size.md`). The
 user chose these bodies again on 2026-10-09, in
@@ -461,7 +461,8 @@ bear since 2026-10-12, and the polar bear pianist the studio polar bear since th
 (`docs/decisions/2026-10-12-studio-polar-bear.md`). The rabbit violinist has the rigged mesh of the
 user since 2026-10-13 (`docs/decisions/2026-10-13-mesh-rabbit.md`), after the studio rabbit of the
 same day (`docs/decisions/2026-10-13-studio-rabbit.md`). The red violin fox has the rigged fox mesh
-of the user since 2026-10-14 (`docs/decisions/2026-10-14-mesh-fox.md`). The app keeps its own
+of the user since 2026-10-14 (`docs/decisions/2026-10-14-mesh-fox.md`), and the tan flute fox the
+same rig with a tan palette (`docs/decisions/2026-10-14-fox-flute.md`). The app keeps its own
 conductor motion (5.4), its own pianist motion, and its own violin motion (5.3), so it drives the
 bones of the studio from the pose of the player each frame: the retarget.
 `docs/research/2026-10-12-studio-bear.md` compares this route with the route of the rigged bodies of
@@ -517,7 +518,15 @@ quarter of the folded faces.
   palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan over its dark faces,
   so that the body keeps the triangle budget of a studio body (4.5) and a small module. A face takes
   the mean of its texture samples that are not dark, so that the black gaps between the islands of
-  the texture do not darken a face at the edge of an island. The corners of each short thin face
+  the texture do not darken a face at the edge of an island. A studio body can hold other palettes
+  of the same faces (`StudioBody.palettes`), and a species selects one (`SpeciesParams.palette`).
+  `pnpm studio-body` writes each palette of `AnimalSettings.palettes` with the map of
+  `tools/studio-palette.ts`: the tan palette of the fox mesh moves the Oklab color of each matte
+  face by the steps from the fur, the belly, and the accent of the red fox to the colors of the tan
+  fox, blended by the nearness of the face to each red color. The hue step of the fur shrinks with
+  the chroma of the face, so that a face of low chroma does not turn green, and the gloss of the
+  eyes and of the nose keeps its colors. One module serves both foxes, and the palette adds less
+  than 1 KB to it. The corners of each short thin face
   share one set of weights, and the fingers keep only a share of their bone heat weight
   (`weights.fingers` of the config), with the rest on the hand, so that fewer faces turn over at the
   shoulders and the paws. The long thin faces of an image mesh fold when a joint bends, so the rig
