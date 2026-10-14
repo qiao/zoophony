@@ -3,8 +3,8 @@ studio/checks.py reach_checks and reach_text. Run in lowpoly-studio/:
 
     python3 -m unittest tests.test_reach
 
-No Blender: the tests give the data of the stage "clips" (studio/bake.py reach_report) by hand,
-with the values of the rabbit violinist of round 1 and of round 4.
+No Blender: the tests give the data of the stage "clips" (studio/reach.py reach_report) by hand,
+with values near those of the rabbit violinist.
 """
 
 import os
@@ -21,9 +21,10 @@ from studio import checks, reach as reach_mod  # noqa: E402
 LIMITS = SimpleNamespace(instrument_reach=(0.9, 1.1), ik_reach=1.0)
 
 
-def reach(palm, length, clips):
-    """Makes the reach data of the stage "clips" for one held violin."""
-    return {'ik': palm - 0.02, 'palm': palm, 'clips': clips,
+def reach(arm, length, clips):
+    """Makes the reach data of the stage "clips" for one held violin: the arm from the neck to
+    the middle of the palm, and the length of the violin."""
+    return {'ik': arm - 0.1, 'palm': arm - 0.08, 'arm': arm, 'clips': clips,
             'instruments': [{'name': 'violin', 'kind': 'violin', 'length': length}]}
 
 
@@ -42,11 +43,14 @@ def run(data):
     return {c['name']: c for c in r.items}, line
 
 
-# A small left arm: the upper arm 0.3 long, the forearm 0.4, a paw of 0.1 to its finger bone, and
-# a prop bone of the hand that is no finger.
-HEADS = {'upper_arm_L': (0.0, 0.0, 0.0), 'forearm_L': (0.3, 0.0, 0.0),
+# A small left arm: the neck 0.1 from the inner end of the clavicle, the clavicle 0.1 long, the
+# upper arm 0.3, the forearm 0.4, a paw of 0.1 to its finger bone, and a prop bone of the hand
+# that is no finger.
+HEADS = {'neck': (-0.2, 0.0, 0.0), 'clavicle_L': (-0.1, 0.0, 0.0),
+         'upper_arm_L': (0.0, 0.0, 0.0), 'forearm_L': (0.3, 0.0, 0.0),
          'hand_L': (0.3, -0.4, 0.0), 'fingers_L': (0.3, -0.5, 0.0), 'violin': (0.3, -0.4, 0.5)}
-PARENTS = {'upper_arm_L': None, 'forearm_L': 'upper_arm_L', 'hand_L': 'forearm_L',
+PARENTS = {'neck': None, 'clavicle_L': None, 'upper_arm_L': 'clavicle_L',
+           'forearm_L': 'upper_arm_L', 'hand_L': 'forearm_L',
            'fingers_L': 'hand_L', 'violin': 'hand_L'}
 NAMES = list(HEADS)
 
@@ -64,6 +68,9 @@ class ReachReportTest(unittest.TestCase):
 
     def test_palm_adds_half_the_paw_and_no_prop_bone(self):
         self.assertAlmostEqual(self.report['palm'], 0.75)
+
+    def test_arm_of_a_violin_shop_starts_at_the_neck(self):
+        self.assertAlmostEqual(self.report['arm'], 0.95)
 
     def test_largest_share_and_its_frame_of_each_side(self):
         self.assertEqual(self.report['clips']['ready'], {'L': [1.05, 1], 'R': [0.7, 0]})
@@ -108,7 +115,7 @@ class ReachTextTest(unittest.TestCase):
     def test_line_gives_the_reach_the_length_and_the_ratio(self):
         _, line = run(REAL)
         text, bad = checks.reach_text({'reach': line})
-        self.assertIn('the middle of the palm 0.3146', text)
+        self.assertIn('from the neck to the middle of the palm 0.3146', text)
         self.assertIn('the violin 0.31', text)
         self.assertIn('ratio 0.985', text)
         self.assertFalse(bad)

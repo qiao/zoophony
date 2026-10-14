@@ -239,17 +239,18 @@ def reach_checks(r, reach, rc, fps):
 
     reach: the data of studio/reach.py reach_report with "instruments" (studio/props.py
     held_instruments). rc: the role [checks]. fps: the frames of a second of the clips. The
-    checks: the instrument length over the reach to the middle of the palm (instrument_reach),
-    and the largest share of the reach that the IK wrist targets of each clip ask for
+    checks: the instrument length over the arm from the neck to the middle of the palm, as a
+    violin shop measures it (instrument_reach, studio/reach.py), and the largest share of the
+    reach of the upper arm and the forearm that the IK wrist targets of each clip ask for
     (ik_reach)."""
     if not reach or not reach.get('instruments'):
         return None
-    line = {'palm': reach['palm'], 'instruments': reach['instruments'],
+    line = {'arm': reach['arm'], 'instruments': reach['instruments'],
             'range': list(rc.instrument_reach), 'ik_limit': rc.ik_reach, 'ik': None}
     for ins in reach['instruments']:
-        r.add(f'instrument_reach.{ins["name"]}', round(ins['length'] / reach['palm'], 3), 'in',
+        r.add(f'instrument_reach.{ins["name"]}', round(ins['length'] / reach['arm'], 3), 'in',
               list(rc.instrument_reach),
-              where={'part': ins['name'], 'length': ins['length'], 'reach': reach['palm']})
+              where={'part': ins['name'], 'length': ins['length'], 'arm': reach['arm']})
     for clip, arms in reach['clips'].items():
         if not arms:
             continue
@@ -278,12 +279,14 @@ def reach_text(report):
     lo, hi = reach['range']
     parts, bad = [], False
     for ins in reach['instruments']:
-        ratio = round(ins['length'] / reach['palm'], 3)
+        ratio = round(ins['length'] / reach['arm'], 3)
         out = not lo <= ratio <= hi
         bad = bad or out
-        parts.append(f'the {ins["name"]} {ins["length"]}, ratio {ratio} (a real player {lo} to '
-                     f'{hi}' + (': OUT OF RANGE, a blocker for the app)' if out else ')'))
-    line = f'reach: the arm to the middle of the palm {reach["palm"]}, ' + ', '.join(parts)
+        parts.append(f'the {ins["name"]} {ins["length"]}, ratio {ratio} (the size chart of a '
+                     f'violin shop gives {lo} to {hi}'
+                     + (': OUT OF RANGE, a blocker for the app)' if out else ')'))
+    line = (f'reach: the arm from the neck to the middle of the palm {reach["arm"]}, '
+            + ', '.join(parts))
     ik = reach['ik']
     if ik:
         over = ik['share'] > reach['ik_limit']

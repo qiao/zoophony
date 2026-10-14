@@ -977,9 +977,11 @@ ROLE = T('A role pack (roles/<name>/role.toml).', {
                                  'clips give (pack.hand_targets), in animal heights.',
                           default=0.01),
         'instrument_reach': F('vec2', 'Report check of a role with a held instrument (a violin): '
-                                      'the range of the instrument length over the arm reach to '
-                                      'the middle of the palm. A person: a violin of 0.6 m and a '
-                                      'reach of about 0.6 m (the rule of the prop library). A '
+                                      'the range of the instrument length over the arm from the '
+                                      'neck to the middle of the palm, as a violin shop measures '
+                                      'it. The size chart of Violin Lounge gives 59 cm for an arm '
+                                      'of 58.5 cm (4/4), 52 cm for 51 cm (1/2), and 36 cm for '
+                                      '35.5 cm (1/16): ratios 1.01 to 1.02 (studio/reach.py). A '
                                       'value outside the range blocks the app round.',
                               default=(0.9, 1.1)),
         'ik_reach': F('num', 'Report check of a role with a held instrument: the largest share '
