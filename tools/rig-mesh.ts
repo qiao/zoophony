@@ -305,6 +305,60 @@ export function setConfig(text: string, list: string): string {
 }
 
 /**
+ * Gives the reason why a change of a path of a config changes only the printed text of
+ * `--check`, with the place of the real value. These paths change no rig and no measure of the
+ * table:
+ * - `output`: the check writes the rig into its temporary folder.
+ * - `app.reach`: the target of the printed reach line.
+ * - `app` and `app.shoulders` of an animal of `ANIMALS`: the export takes the scale from its
+ *   entry in `ANIMALS`.
+ * - A note: a key `note`, or a key whose name ends with `Note`.
+ *
+ * @param path The path of the change.
+ * @param known True for an animal of `ANIMALS` of `tools/studio-body.ts`.
+ * @returns The reason, or `null` when the change can change the rig or its measures.
+ */
+export function printedOnly(path: string, known: boolean): string | null {
+  const last = path.split('.').at(-1) ?? '';
+  if (path === 'output') {
+    return 'the check writes the rig into its temporary folder, and output names only the file in the text of the module. A run with no --check writes the file of output.';
+  }
+  if (path === 'app.reach') {
+    return 'app.reach is only the target of the reach line. The reach of the rig comes from armFactor.';
+  }
+  if (known && (path === 'app' || path === 'app.shoulders')) {
+    return 'the export takes the scale of the animal from its entry in ANIMALS of tools/studio-body.ts, and app.shoulders sets only the scale of the reach line and of the log of Blender.';
+  }
+  if (last === 'note' || last.endsWith('Note')) {
+    return 'a note changes no value that the rig or the check reads.';
+  }
+  return null;
+}
+
+/**
+ * Gives the JSON text of a variant of `--set` of `--check`.
+ *
+ * @param text The JSON text of the config.
+ * @param list The changes of the variant ({@link setConfig}).
+ * @param known True for an animal of `ANIMALS` of `tools/studio-body.ts`.
+ * @returns The JSON text of the changed config.
+ * @throws Error if the variant has no change, if a change changes only the printed text of the
+ *   check ({@link printedOnly}), if a change does not fit the config, or if the changed config
+ *   fails the checks of {@link parseConfig}.
+ */
+export function variantText(text: string, list: string, known: boolean): string {
+  for (const { path } of configChanges(list)) {
+    const reason = printedOnly(path, known);
+    if (reason) {
+      throw new Error(`--set ${path} changes only the printed text of the check: ${reason}`);
+    }
+  }
+  const changed = setConfig(text, list);
+  parseConfig(changed);
+  return changed;
+}
+
+/**
  * Gives the head of a joint of a config. A joint of the right side mirrors its left joint.
  *
  * @param config The config.
@@ -857,7 +911,7 @@ async function main(): Promise<void> {
   if (check) {
     // Each change must fit before the first rig, so that a typing fault stops the tool at once.
     for (const set of sets) {
-      parseConfig(setConfig(text, set));
+      variantText(text, set, ANIMALS.has(animal));
     }
     if (!(await checkVariants(animal, configPath, text, sets, preview))) {
       process.exitCode = 1;

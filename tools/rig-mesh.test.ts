@@ -17,9 +17,11 @@ import {
   reachLine,
   checkTable,
   configChanges,
+  printedOnly,
   rigSettings,
   setConfig,
   targetFactor,
+  variantText,
 } from './rig-mesh.ts';
 import type { CheckMeasures } from './rig-mesh.ts';
 import { FOLD_ROLES, roleAnimal } from './fold-probe.ts';
@@ -312,5 +314,41 @@ describe('configChanges', () => {
     expect(() => configChanges('')).toThrow(/has no change/);
     expect(() => configChanges(';')).toThrow(/has no change/);
     expect(() => configChanges(' ; ')).toThrow(/has no change/);
+  });
+});
+
+describe('printedOnly', () => {
+  it('names the place of the real value of each path that changes only printed text', () => {
+    expect(printedOnly('output', false)).toMatch(/temporary folder/);
+    expect(printedOnly('app.reach', false)).toMatch(/armFactor/);
+    expect(printedOnly('app.shoulders', true)).toMatch(/ANIMALS of tools\/studio-body\.ts/);
+    expect(printedOnly('app', true)).toMatch(/ANIMALS of tools\/studio-body\.ts/);
+    expect(printedOnly('weights.note', false)).toMatch(/note/);
+    expect(printedOnly('armFactorNote', true)).toMatch(/note/);
+  });
+
+  it('lets a path change the rig', () => {
+    expect(printedOnly('app.shoulders', false)).toBeNull();
+    expect(printedOnly('app', false)).toBeNull();
+    expect(printedOnly('armFactor', true)).toBeNull();
+    expect(printedOnly('weights.haunch.height', true)).toBeNull();
+    expect(printedOnly('source', true)).toBeNull();
+  });
+});
+
+describe('variantText', () => {
+  const text = JSON.stringify(figure(1));
+
+  it('gives the changed config of a variant', () => {
+    expect(JSON.parse(variantText(text, 'armFactor=1.2', true)).armFactor).toBe(1.2);
+  });
+
+  it('stops on a path that changes only printed text, on no change, and on a bad config', () => {
+    expect(() => variantText(text, 'armFactor=1.2;app.shoulders=0.8', true)).toThrow(
+      /--set app\.shoulders changes only the printed text.*ANIMALS of tools\/studio-body\.ts/,
+    );
+    expect(() => variantText(text, 'output=x.glb', false)).toThrow(/--set output/);
+    expect(() => variantText(text, ';', true)).toThrow(/has no change/);
+    expect(() => variantText(text, 'armFactor=0', true)).toThrow(/positive numbers/);
   });
 });
