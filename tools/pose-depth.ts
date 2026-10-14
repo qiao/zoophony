@@ -127,7 +127,7 @@ export function parseOptions(args: readonly string[]): Options {
 }
 
 /** The results of one variant in one demo. */
-interface DemoResult {
+export interface DemoResult {
   /** The demo and the player, such as `bach-bwv1048 pianist 20`. */
   readonly demo: string;
   /** The deepest point of each pair in each set of samples. */
@@ -137,7 +137,7 @@ interface DemoResult {
 }
 
 /** The deepest point and the smallest gap of each pair in one set of samples. */
-interface SetResult {
+export interface SetResult {
   /** The name of the set, such as `play`. */
   readonly name: string;
   /** The deepest point of each pair of a moving part and an obstacle. */
@@ -147,13 +147,16 @@ interface SetResult {
 }
 
 /**
- * Sweeps the players of the role in the demos with the holds of now.
+ * Sweeps the players of the role in the demos with the holds of now. `pnpm hold-fit` runs it too.
  *
- * @param options The options.
+ * @param options The demos, the song times, and the flag of the gaps.
  * @param role The role, with the parts and the obstacles of the options.
  * @returns The results of each demo.
  */
-async function sweepDemos(options: Options, role: RoleSweep): Promise<DemoResult[]> {
+export async function sweepDemos(
+  options: Pick<Options, 'demos' | 'times' | 'gaps'>,
+  role: RoleSweep,
+): Promise<DemoResult[]> {
   const results: DemoResult[] = [];
   for (const demo of await patchedDemos()) {
     const id = demo.file.replace(/\.mid$/, '');
