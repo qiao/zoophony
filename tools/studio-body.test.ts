@@ -29,6 +29,7 @@ describe('pnpm studio-body (design 4.4)', async () => {
     seated: false,
     soloist: false,
     constant: 'STUDIO_BEAR',
+    crease: 15,
   });
   const mesh = unpackStudioMesh(body.mesh);
 

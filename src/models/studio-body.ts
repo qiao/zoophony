@@ -188,11 +188,8 @@ export interface StudioRenderMesh {
   readonly weights: Float32Array;
   /** The move of each corner for each corrective shape: x, y, z in meters. */
   readonly correctives: readonly Float32Array[];
-  /**
-   * The smooth normals of a body with a crease angle (`StudioBody.crease`, design 4.5), or `null`
-   * for a body with flat faces.
-   */
-  readonly normals: SmoothNormals | null;
+  /** The smooth normals of the body, with its crease angle (`StudioBody.crease`, design 4.5). */
+  readonly normals: SmoothNormals;
 }
 
 /** The smooth normals of a studio body as the GPU draws them (design 4.5). */
@@ -272,6 +269,6 @@ export function studioRenderMesh(rig: StudioRig, mesh: MeshData): StudioRenderMe
     joints: cornerJoints,
     weights: cornerWeights,
     correctives: moves,
-    normals: rig.body.crease === undefined ? null : smoothNormals(rig, rig.body.crease, total),
+    normals: smoothNormals(rig, rig.body.crease, total),
   };
 }

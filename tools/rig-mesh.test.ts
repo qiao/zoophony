@@ -159,6 +159,7 @@ describe('the check of pnpm rig-mesh', () => {
         seated: true,
         soloist: true,
         constant: 'STUDIO_RED_PANDA',
+        crease: 0,
       },
       known: false,
     });

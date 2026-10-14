@@ -3,8 +3,10 @@
 ## 4.1 Look
 
 - Low-poly shapes with flat facets, low polygon counts, and matte colors from the reference
-  image. Each face of a matte part stays flat: the bodies, the props, and the plain parts of the
-  instruments. The glossy parts of the instruments shade soft (4.5, materials).
+  image. Each face of a matte part stays flat: the parametric bodies, the props, and the plain
+  parts of the instruments. The fur of the studio bodies shades smooth across the small angles
+  between its faces, and keeps its larger edges (4.5, materials). The glossy parts of the
+  instruments shade soft (4.5, materials).
 - One warm spotlight from above, with soft shadows, so that the faceted scene keeps the look of a
   toy model. It makes a pool of light near the conductor, and the stage edges stay dark.
 - A visible beam of warm light falls on the stage from above, with haze and dust motes.
@@ -441,7 +443,7 @@ and of the body.
 **Studio bodies**
 
 A studio body is the GLB file of an animal of `lowpoly-studio/` (its `README.md`), or of a mesh of
-the user that `pnpm rig-mesh` rigs into the same format: one mesh of flat faces with one color each, a skeleton of the biped template with twist bones of the
+the user that `pnpm rig-mesh` rigs into the same format: one mesh of faces with one color each, a skeleton of the biped template with twist bones of the
 forearms, a skin of up to four bones for each vertex, arm-down corrective shapes, and the clips
 of its role. The bear conductor has the studio bear since 2026-10-12, and the polar bear pianist
 the studio polar bear since the same day (`docs/decisions/2026-10-12-studio-polar-bear.md`). The
@@ -489,7 +491,8 @@ retarget had about a quarter of the folded faces.
   the source mesh back when the body stands with the arms of the source. Each face takes the
   nearest color of a palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan
   over its dark faces, so that the body keeps the triangle budget of a studio body (4.5) and a
-  small module. The corners of each short thin face share one set of weights, and the fingers
+  small module. A face takes the mean of its texture samples that are not dark, so that the black
+  gaps between the islands of the texture do not darken a face at the edge of an island. The corners of each short thin face share one set of weights, and the fingers
   keep only a share of their bone heat weight (`weights.fingers` of the config), with the rest on
   the hand, so that fewer faces turn over at the shoulders and the paws. The
   long thin faces of an image mesh fold when a joint bends, so the rig may change the faces of
@@ -554,9 +557,17 @@ retarget had about a quarter of the folded faces.
   move by the offsets of the pose, as the scene moves them on a parametric player (5.1).
 - The scene draws the body in the bind pose of the studio, with four bones for each vertex and
   the corrective shapes as morph targets, and the instrument on the bones of the player. The
-  colors of the studio hold its baked occlusion, so the scene adds none (4.5). The body has a
-  copy of the shared material with flat shading: the GPU skin turns the normal of each corner by
-  its own four bones, and some faces of the arms and the chest showed soft gradients.
+  colors of the studio hold its baked occlusion, so the scene adds none (4.5). The body takes the
+  shared material with smooth normals (4.5, materials): each corner of the fur gets the mean
+  normal of the fur faces at its vertex that turn from its own face by at most the crease angle
+  of the body (`crease` of `ANIMALS` in `tools/studio-body.ts`, `studioNormals()` of
+  `models/studio-normals.ts`). Each face counts with the angle of its corner. The app makes the
+  normals when it loads the body, so the module holds no normal. A corrective shape turns the
+  normals of the skin that it moves, so the geometry adds the changes of the normals as morph
+  normals, and the GPU skin turns the normals with the bones. The gloss of the eyes and of the
+  nose keeps flat faces, and the instrument keeps the crease normals of its finishes. Each body
+  has its own crease angle, measured against the facet contrast of its reference images
+  (`docs/research/2026-10-14-rabbit-smooth.md`).
 - `buildStudioBody()` gives the mesh of the player in the bind pose of the player, with the two
   bones of the player with the largest weights for each corner. The footprints, the hanging
   arms, the budgets, and the tests read it. In the tests, `posedCorner()` poses a studio body
@@ -806,7 +817,7 @@ fox in `animals.webp`.
 
 | Finish | Parts | Intent |
 |---|---|---|
-| `matte` | Cloth, raw wood, the stage, the props, and the bodies. | No gloss, and flat faces. |
+| `matte` | Cloth, raw wood, the stage, the props, and the bodies. | No gloss, and flat faces. The fur of a studio body smooths the angles below its crease angle. |
 | `varnish` | The varnished wood of the bowed strings. | A soft gloss. |
 | `lacquer` | The black lacquer of the piano and the clarinet, and the eyes. | A sharp gloss. |
 | `metal` | Brass, copper, and silver. | Sharp highlights, as the brass of the polished images. The environment map of the hall is dark, so a high metalness makes metal look black. |
@@ -814,6 +825,11 @@ fox in `animals.webp`.
 - The `matte` finish keeps each face flat, so the animals show the facets of the low-poly look
   of 2026-10-06 18:58. The user chose this look on 2026-10-09. The smooth crease of 2026-10-06
   20:22 made the heads and the bodies look round.
+- The studio bodies smooth their fur since 2026-10-14, when the user asked for a smoother rabbit
+  and smoother bears. The mesh of a studio body has many small faces with small angles between
+  them. With flat faces under the one hard spotlight, these angles showed as a crumpled pattern
+  of bright and dark triangles. Each studio body smooths the angles below its own crease angle
+  (4.4), and the larger edges, such as the rims of the ears, stay sharp.
 - The glossy finishes (`varnish`, `lacquer`, and `metal`) smooth the small angles of a curved
   part, and keep the hard edges of a box or a plate.
 - The stage keeps flat shading in its own material (`scene/stage.ts`), because its planks are

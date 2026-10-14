@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { Euler, MathUtils, Matrix4, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
-import type { WebGLProgramParametersWithUniforms, WebGLRenderer } from 'three';
+import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 
 import { MeshBuilder, blendSkin, transform } from '../models/mesh.ts';
 import { ModelCache } from '../models/model-cache.ts';
@@ -212,32 +211,7 @@ describe('createPlayerMesh', () => {
       }
     });
 
-    it('draws each face flat with a copy of the shared material, with its shader hook', () => {
-      const shared = createMaterials();
-      const hooked: string[] = [];
-      for (const material of shared) {
-        material.onBeforeCompile = () => {
-          hooked.push('pool');
-        };
-      }
-      const mesh = createPlayerMesh(model, geometry, shared);
-      const own = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-      expect(own).toHaveLength(shared.length);
-      for (const [i, material] of own.entries()) {
-        expect(material).not.toBe(shared[i]);
-        expect(material instanceof MeshStandardMaterial && material.flatShading).toBe(true);
-        expect(shared[i]?.flatShading).toBe(false);
-        expect(material.customProgramCacheKey()).toBe(shared[i]?.customProgramCacheKey());
-      }
-      // SAFETY: the hook of the test reads neither the parameters nor the renderer.
-      const parameters = {} as WebGLProgramParametersWithUniforms;
-      // SAFETY: the hook of the test reads neither the parameters nor the renderer.
-      const renderer = {} as WebGLRenderer;
-      own[0]?.onBeforeCompile(parameters, renderer);
-      expect(hooked).toEqual(['pool']);
-    });
-
-    it('draws a body with a crease angle with the shared material and smooth normals', () => {
+    it('draws the body with the shared material and the smooth normals of its crease angle', () => {
       const rig = model.studio;
       if (!rig) {
         throw new Error('The bear has no studio body.');

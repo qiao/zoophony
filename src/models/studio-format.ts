@@ -186,9 +186,9 @@ export interface StudioBody {
   readonly standing: StudioStanding | null;
   /**
    * The crease angle of the smooth normals of the fur, in degrees (design 4.5), from the settings
-   * of the animal. A body with no crease angle keeps flat faces.
+   * of the animal.
    */
-  readonly crease?: number;
+  readonly crease: number;
   /** The packed mesh ({@link packStudioMesh}). */
   readonly mesh: string;
 }

@@ -51,6 +51,11 @@ export interface AnimalSettings {
   /** The name of the constant of the module. */
   readonly constant: string;
   /**
+   * The crease angle of the smooth normals of the fur, in degrees (design 4.5). Each body has its
+   * own angle, measured against its reference images (`docs/research/2026-10-14-rabbit-smooth.md`).
+   */
+  readonly crease: number;
+  /**
    * The GLB file of the body, relative to the repository, when the studio does not build it, such
    * as a mesh of the user that `pnpm rig-mesh` rigs (route 3 of `AGENTS.md`). With no file, the
    * body comes from `lowpoly-studio/animals/<animal>/out/<animal>.glb`.
@@ -71,6 +76,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       seated: false,
       soloist: false,
       constant: 'STUDIO_BEAR',
+      crease: 15,
     },
   ],
   // The polar bear pianist keeps the keys of its studio piano at the keys of the piano of the app,
@@ -83,6 +89,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       seated: true,
       soloist: false,
       constant: 'STUDIO_POLAR_BEAR',
+      crease: 15,
     },
   ],
   // The violinist rabbit keeps the standing shoulder joints of the parametric rabbit, so that the
@@ -96,6 +103,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       seated: true,
       soloist: true,
       constant: 'STUDIO_RABBIT',
+      crease: 10,
       glb: 'assets/models/rabbit/rabbit-4.rig.glb',
     },
   ],
@@ -1190,6 +1198,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       seatHeight: settings.seated ? seatHeightOf(glb, mesh, frame) : null,
       chairDepth: frame.chairDepth,
       standing: settings.seated && settings.soloist ? standingOf(glb, skeleton, frame) : null,
+      crease: settings.crease,
       mesh: packStudioMesh(vertices, ordered.faces, correctives),
     },
     sheetWeights: sheet.weights,
@@ -1406,6 +1415,7 @@ export function inspectStudioGlb(
     seated: false,
     soloist: false,
     constant: '',
+    crease: 0,
   };
   const landmark =
     used.landmark === 'shoulders' ? heightOf(nodeOf('upper_arm_L'), worlds) : keys?.box.max.y;

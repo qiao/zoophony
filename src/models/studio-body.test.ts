@@ -72,28 +72,27 @@ describe('studioRenderMesh with a crease angle (design 4.5)', () => {
   const mesh = builder.build();
   const rig = studioRigOf('studio-bear', true);
 
-  it('gives the corners of the body smooth normals, and none to a body with flat faces', () => {
-    expect(studioRenderMesh(rig, mesh).normals).toBeNull();
+  it('gives each corner of the body the smooth normal of the crease angle of the body', () => {
     const smooth = studioRenderMesh({ ...rig, body: { ...rig.body, crease: 30 } }, mesh);
-    expect(smooth.normals?.corners).toHaveLength(rig.mesh.corners.length * 3);
+    expect(smooth.normals.corners).toEqual(studioNormals(rig.mesh, 30));
   });
 
   it('turns the normals with each corrective shape, as the normals of the moved skin', () => {
     const smooth = studioRenderMesh({ ...rig, body: { ...rig.body, crease: 30 } }, mesh).normals;
-    expect(smooth?.moves).toHaveLength(rig.mesh.correctives.length);
+    expect(smooth.moves).toHaveLength(rig.mesh.correctives.length);
     for (const [s, corrective] of rig.mesh.correctives.entries()) {
       const moved = rig.mesh.positions.map((p, i) => p + (corrective[i] ?? 0));
       const target = studioNormals({ ...rig.mesh, positions: moved }, 30);
       let turned = 0;
       for (let c = 0; c < rig.mesh.corners.length; c++) {
         const normal = [0, 1, 2].map(
-          (k) => (smooth?.corners[c * 3 + k] ?? 0) + (smooth?.moves[s]?.[c * 3 + k] ?? 0),
+          (k) => (smooth.corners[c * 3 + k] ?? 0) + (smooth.moves[s]?.[c * 3 + k] ?? 0),
         );
         const length = Math.hypot(...normal);
         const dot = normal.reduce((sum, n, k) => sum + (n / length) * (target[c * 3 + k] ?? 0), 0);
         expect(dot).toBeGreaterThan(0.9999);
         const before = [0, 1, 2].reduce(
-          (sum, k) => sum + (smooth?.corners[c * 3 + k] ?? 0) * (target[c * 3 + k] ?? 0),
+          (sum, k) => sum + (smooth.corners[c * 3 + k] ?? 0) * (target[c * 3 + k] ?? 0),
           0,
         );
         if (before < Math.cos(Math.PI / 18)) {
@@ -102,7 +101,7 @@ describe('studioRenderMesh with a crease angle (design 4.5)', () => {
       }
       // Some corners of the shoulder turn by more than 10° with the shape.
       expect(turned).toBeGreaterThan(10);
-      expect(smooth?.moves[s]).toHaveLength(mesh.bones.length * 3);
+      expect(smooth.moves[s]).toHaveLength(mesh.bones.length * 3);
     }
   });
 });

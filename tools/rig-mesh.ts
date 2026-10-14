@@ -356,6 +356,8 @@ export function rigSettings(animal: string, config: MeshRigConfig): RigSettings 
       seated: true,
       soloist: true,
       constant,
+      // A new animal has no measured crease angle yet, so its faces keep their own normals.
+      crease: 0,
     },
     known: false,
   };
