@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BODIES } from '../src/models/studio-body.ts';
-import type { StudioMesh } from '../src/models/studio-format.ts';
+import { STUDIO_BONES } from '../src/models/studio-format.ts';
+import type { StudioBone, StudioMesh } from '../src/models/studio-format.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import {
   LIMB_JOINTS,
+  chainLows,
   objVertices,
   standingError,
   thinFaces,
@@ -30,6 +32,79 @@ function mesh(
     corners: new Uint32Array(triangles.flatMap((_, t) => [t * 3, t * 3 + 1, t * 3 + 2])),
   };
 }
+
+/**
+ * Makes the skin of vertices with up to four bones each.
+ *
+ * @param vertices The height of each vertex and its bones with their weights.
+ * @returns The places and the skin.
+ */
+function skin(
+  vertices: readonly (readonly [number, readonly (readonly [StudioBone, number])[]])[],
+): Pick<StudioMesh, 'positions' | 'joints' | 'weights'> {
+  const pad = <T>(list: readonly T[], fill: T): T[] =>
+    [...list, fill, fill, fill, fill].slice(0, 4);
+  return {
+    positions: new Float32Array(vertices.flatMap(([y]) => [0, y, 0])),
+    joints: new Uint8Array(
+      vertices.flatMap(([, bones]) =>
+        pad(
+          bones.map(([bone]) => STUDIO_BONES.indexOf(bone)),
+          0,
+        ),
+      ),
+    ),
+    weights: new Float32Array(
+      vertices.flatMap(([, bones]) =>
+        pad(
+          bones.map(([, w]) => w),
+          0,
+        ),
+      ),
+    ),
+  };
+}
+
+describe('chainLows', () => {
+  it('gives the lowest vertex of each chain by the largest weight of the vertex', () => {
+    const lows = chainLows(
+      skin([
+        [0.3, [['thigh_L', 1]]],
+        [
+          0.01,
+          [
+            ['foot_L', 0.4],
+            ['toes_L', 0.6],
+          ],
+        ],
+        [0.2, [['shin_R', 1]]],
+        [
+          -0.5,
+          [
+            ['tail', 0.4],
+            ['hips', 0.6],
+          ],
+        ],
+        [
+          -0.4,
+          [
+            ['hips', 0.3],
+            ['tail_tip', 0.7],
+          ],
+        ],
+      ]),
+    );
+    expect(lows.map(({ chain, low }) => [chain, Number(low.toFixed(6))])).toEqual([
+      ['leg L', 0.01],
+      ['leg R', 0.2],
+      ['tail', -0.4],
+    ]);
+  });
+
+  it('leaves out a chain with no vertex, such as a body with no tail', () => {
+    expect(chainLows(skin([[0.1, [['shin_L', 1]]]])).map((low) => low.chain)).toEqual(['leg L']);
+  });
+});
 
 describe('thinFaces', () => {
   // The left elbow at (0.3, 1, 0), and the right knee at (-0.1, 0.4, 0).

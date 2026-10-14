@@ -1,14 +1,19 @@
 /**
  * Measures a rig of `pnpm rig-mesh <animal> --check` (route 3 of `AGENTS.md`): the triangles, the
- * size of the module, the seat, the head height, the reach, the standing body against the
- * long-armed source, and the thin faces near the joints of the limbs. It reads the GLB file of
- * the rig and writes no file.
+ * size of the module, the seat, the head height, the reach, the lowest point of each leg and of
+ * the tail above the floor, the standing body against the long-armed source, and the thin faces
+ * near the joints of the limbs. It reads the GLB file of the rig and writes no file.
  */
 import { Matrix4, Quaternion, Vector3 } from 'three';
 
 import { STUDIO_BONES, STUDIO_PARENTS, unpackStudioMesh } from '../src/models/studio-format.ts';
 import type { StudioBody, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
-import { createStudioPose, skinStudioMesh, studioRig } from '../src/models/studio-rig.ts';
+import {
+  createStudioPose,
+  skinStudioMesh,
+  standingBody,
+  studioRig,
+} from '../src/models/studio-rig.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { STUDIO_MESH_GZIP_BUDGET, STUDIO_TRIANGLE_BUDGET, gzipSize } from './studio-budgets.ts';
 import {
@@ -138,6 +143,55 @@ export function thinFaces(
   return found.toSorted((x, y) => order.indexOf(x.bone) - order.indexOf(y.bone) || x.face - y.face);
 }
 
+/** The bone chains whose lowest point above the floor `--check` gives: each leg, and the tail. */
+export const FLOOR_CHAINS = [
+  ['leg L', ['thigh_L', 'shin_L', 'foot_L', 'toes_L']],
+  ['leg R', ['thigh_R', 'shin_R', 'foot_R', 'toes_R']],
+  ['tail', ['tail', 'tail_tip']],
+] as const satisfies readonly (readonly [string, readonly StudioBone[]])[];
+
+/** The lowest point of a bone chain above the floor. */
+export interface ChainLow {
+  /** The name of the chain, such as `leg L`. */
+  readonly chain: string;
+  /** The height of the lowest point above the floor, in meters. */
+  readonly low: number;
+}
+
+/**
+ * Finds the lowest point of each chain of {@link FLOOR_CHAINS} above the floor, the plane y = 0 of
+ * a studio body: the lowest vertex whose largest weight is on a bone of the chain. A chain with no
+ * such vertex is left out, such as the tail of a body with no tail.
+ *
+ * @param mesh The places and the skin of the mesh, in meters.
+ * @returns The lowest point of each chain, in the order of {@link FLOOR_CHAINS}.
+ */
+export function chainLows(mesh: Pick<StudioMesh, 'positions' | 'joints' | 'weights'>): ChainLow[] {
+  const chainOf = new Map<number, string>(
+    FLOOR_CHAINS.flatMap(([chain, bones]) =>
+      bones.map((bone) => [STUDIO_BONES.indexOf(bone), chain] as const),
+    ),
+  );
+  const lows = new Map<string, number>();
+  for (let v = 0; v < mesh.positions.length / 3; v++) {
+    let main = 0;
+    for (let k = 1; k < 4; k++) {
+      if ((mesh.weights[v * 4 + k] ?? 0) > (mesh.weights[v * 4 + main] ?? 0)) {
+        main = k;
+      }
+    }
+    const chain = chainOf.get(mesh.joints[v * 4 + main] ?? -1);
+    const y = mesh.positions[v * 3 + 1] ?? 0;
+    if (chain !== undefined && y < (lows.get(chain) ?? Infinity)) {
+      lows.set(chain, y);
+    }
+  }
+  return FLOOR_CHAINS.flatMap(([chain]) => {
+    const low = lows.get(chain);
+    return low === undefined ? [] : [{ chain, low }];
+  });
+}
+
 /** The error of the standing body of the app against the long-armed source of the rig. */
 export interface StandingError {
   /** The largest distance of a posed vertex from the nearest vertex of the source, in meters. */
@@ -261,6 +315,13 @@ export interface RigMeasures {
   readonly arms: Readonly<Record<'L' | 'R', number | null>>;
   /** The error of the standing body against the long-armed source. */
   readonly standing: StandingError;
+  /** The lowest point of each bone chain above the floor in the seated bind and standing. */
+  readonly floor: {
+    /** The chains of the seated bind, with the soles on the floor. */
+    readonly seated: readonly ChainLow[];
+    /** The chains of the standing body of the app. */
+    readonly standing: readonly ChainLow[];
+  };
   /** The thin faces near the joints of the limbs. */
   readonly thin: readonly ThinFace[];
 }
@@ -289,11 +350,16 @@ export function measureRig(
   const facts = inspectStudioGlb(bytes, settings);
   const meters = (value: number | null): number | null =>
     value === null ? null : value * facts.scale;
+  const seated = settings.seated ? body : standingExport(bytes, source, settings);
   return {
     triangles: mesh.corners.length / 3,
     body,
     arms: { L: meters(facts.arms.L), R: meters(facts.arms.R) },
     standing: standingError(bytes, standing, obj),
+    floor: {
+      seated: chainLows(unpackStudioMesh(seated.mesh)),
+      standing: chainLows(standingBody(standing, unpackStudioMesh(standing.mesh)).mesh),
+    },
     thin: thinFaces(mesh, body.heads, rule, body.scale),
   };
 }
@@ -309,6 +375,16 @@ export function measureRig(
  */
 function standingExport(bytes: Uint8Array, source: string, settings: AnimalSettings): StudioBody {
   return studioBody(bytes, source, { ...settings, seated: true, soloist: true }).body;
+}
+
+/**
+ * Writes the lowest point of each bone chain.
+ *
+ * @param lows The lowest points.
+ * @returns The text, such as `leg L 0.000 m, leg R 0.000 m, tail 0.044 m`.
+ */
+function chainText(lows: readonly ChainLow[]): string {
+  return lows.map(({ chain, low }) => `${chain} ${low.toFixed(3)} m`).join(', ') || 'none';
 }
 
 /**
@@ -328,6 +404,7 @@ export function measureLines(measures: RigMeasures, module: string, rule: ThinRu
     `Module: ${bytes(module.length)}, ${bytes(gzipSize(module))} after gzip. Packed mesh: ${bytes(gzipSize(body.mesh))} after gzip, budget ${bytes(STUDIO_MESH_GZIP_BUDGET)} (src/models/studio-size.test.ts).`,
     `Scale ${body.scale} m for each unit. Head height H ${m(body.headHeight)}. Seat height ${m(body.seatHeight)}. Chair depth ${m(body.chairDepth)}.`,
     `Arm from the shoulder joint to the middle of the palm: L ${m(measures.arms.L)}, R ${m(measures.arms.R)}.`,
+    `Lowest point above the floor, seated bind (seat height ${m(body.seatHeight)}): ${chainText(measures.floor.seated)}. Standing body: ${chainText(measures.floor.standing)}.`,
     `Standing body against the long-armed source: ${mm(standing.worst)} at most (limit ${mm(STANDING_LIMIT)}), ${mm(standing.back)} back, ${standing.vertices} vertices, ${standing.shells} eye vertices left out.${standing.worst > STANDING_LIMIT ? ' ABOVE THE LIMIT.' : ''}`,
     `Thin faces near the joints of the limbs (corner below ${rule.angle}°, longest edge from ${rule.length} u, joint within ${rule.near} u), candidates for a ring:`,
   ];
