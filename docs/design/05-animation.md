@@ -395,9 +395,16 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     points down: up, the skin of the studio rabbit folded at the upper arm. In the rest pose, the
     left paw holds the violin at the left side by the neck near its body, and the bow hangs from
     the right paw (`BowedHold.restAtSide`), as for a soloist who stands: the round belly covers
-    the short thighs, so the rabbit has no lap for the violin. `pnpm pose-depth violinist` and
-    `pnpm fold-probe violinist` measure each change (`docs/research/2026-10-13-studio-rabbit.md`,
-    `docs/research/2026-10-13-rabbit-mesh.md`). A test keeps the rest bow of each violinist out
+    the short thighs, so the rabbit has no lap for the violin. The red foxes take the shoulder hold
+    of the rabbits (`FOX_HOLD`), with the violin 0.12 H further forward under the long jaw, the bow
+    slanted 12°, the right shoulder turned 25°, and the right elbow at the tip less down. With the
+    bow of the rabbit, the skin of the right shoulder of the fox mesh folded in 18% of the play
+    samples. With the violin of the rabbit, the right forearm went into the chest at the end of the
+    lift of the violin. The fox rests the violin at its side too: the lap rest put its right upper
+    arm into the body. `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
+    `pnpm fold-probe fox-violinist` measure each change
+    (`docs/research/2026-10-13-studio-rabbit.md`, `docs/research/2026-10-13-rabbit-mesh.md`,
+    `docs/research/2026-10-14-fox-rig.md`). A test keeps the rest bow of each violinist out
     of the trunk and the arms, and at most 0.03 H in the legs. On the cello and the
     contrabass, the
     elbow points out and up, (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in pizzicato, (1, 0,

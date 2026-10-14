@@ -111,14 +111,15 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 
 ## 4.3 Species
 
-All animals except the penguins, the bear conductor, the polar bear pianist, and the rabbit
-violinist use one parametric biped body (4.4). Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and
-changes only its parameters. A species can have a body of its own in place of the biped (`body`):
-the penguins have the egg body of `models/penguin/` since 2026-10-11, the bear and the polar bear
-have studio bodies of `lowpoly-studio/` since 2026-10-12, and the rabbit has a studio body since
-2026-10-13: the mesh of the user, which `pnpm rig-mesh` rigs (4.4, bodies of their own and studio
-bodies). A species with a body of its own has no shape parameters, because its body has its own
-parts.
+All animals except the penguins, the bear conductor, the polar bear pianist, the rabbit
+violinist, and the red violin fox use one parametric biped body (4.4). Each species has one
+`SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A species
+can have a body of its own in place of the biped (`body`): the penguins have the egg body of
+`models/penguin/` since 2026-10-11, the bear and the polar bear have studio bodies of
+`lowpoly-studio/` since 2026-10-12, the rabbit has a studio body since 2026-10-13, and the red fox
+since 2026-10-14: meshes of the user, which `pnpm rig-mesh` rigs (4.4, bodies of their own and
+studio bodies). A species with a body of its own has no shape parameters, because its body has
+its own parts.
 
 ```typescript
 /** The parametric biped, or a body of its own. */
@@ -149,7 +150,7 @@ interface BipedParams extends CommonParams {
 
 /** A body of its own in place of the parametric biped (4.4): the penguin, or a studio body. */
 interface OwnBodyParams extends CommonParams {
-  body: 'penguin' | 'studio-bear' | 'studio-polar-bear' | 'studio-rabbit';
+  body: 'penguin' | 'studio-bear' | 'studio-fox' | 'studio-polar-bear' | 'studio-rabbit';
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -213,11 +214,12 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
   `animals.webp` and `bear-views.png`. The egg body of the penguin (4.4) shows no legs and reads
   no standing value of the skeleton.
 - The bear conductor and the polar bear pianist have studio bodies of `lowpoly-studio/` (4.4),
-  with the trunks and the legs that the studio fitted to their sheets. The rabbit violinist has
-  the mesh of the user, which `pnpm rig-mesh rabbit` rigs into the format of a studio body
-  (4.4), with the trunk and the legs of the mesh. The three skeletons have the bones of the studio,
-  and no value of this table applies to them, except the head height `H` and the seat heights of
-  the polar bear and the rabbit, which `models/species.ts` reads from their studio bodies.
+  with the trunks and the legs that the studio fitted to their sheets. The rabbit violinist and
+  the red violin fox have the meshes of the user, which `pnpm rig-mesh <animal>` rigs into the
+  format of a studio body (4.4), with the trunks and the legs of the meshes. The four skeletons
+  have the bones of the studio, and no value of this table applies to them, except the head height
+  `H` and the seat heights of the polar bear, the rabbit, and the red fox, which
+  `models/species.ts` reads from their studio bodies.
 - The legs have the form of the reference images (`SEATED_LEG` and `STANDING_LEG` of
   `models/legs.ts`). A seated thigh has the thickness of the thighs of the model sheets, and a
   shin narrows little to the ankle, as the shins of the sheets. A standing leg is a straight
@@ -282,12 +284,12 @@ its own skeleton:
   uses rabbits again, and a fourth uses red-orange foxes.
 
 The shape parameters of each species of the parametric biped (4.5 gives the colors). The penguin
-has its egg body, and the rabbit, the bear, and the polar bear have studio bodies (4.4), so they
-have no row:
+has its egg body, and the rabbit, the red fox, the bear, and the polar bear have studio bodies
+(4.4), so they have no row:
 
 | Species | ears | snout | tail | facePattern |
 |---|---|---|---|---|
-| fox (both colors) | pointed | long | bushy | none |
+| fox (tan) | pointed | long | bushy | none |
 | wolf | pointed | long | bushy | none |
 | elephant | large-flap | trunk | thin | none |
 | cat | pointed | short | thin | forehead-stripes |
@@ -335,8 +337,8 @@ border follows the edges of the triangles.
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
-Each body except the penguin's, the bear's, the polar bear's, and the rabbit's is the parametric
-body: `buildBiped()` of
+Each body except the penguin's, the bear's, the polar bear's, the rabbit's, and the red fox's is
+the parametric body: `buildBiped()` of
 `models/biped.ts` builds it from the parts of 4.5 (body proportions) on the skeleton of 4.3. A
 species with a `body` gets a body of its own from `buildBiped()` in its place. On 2026-10-12, the
 user decided: "use the studio bear in the app". The bear conductor has the studio body of
@@ -351,7 +353,12 @@ x1.4, violin 28 cm"). Later that day, the user decided: "replace the rabbit by u
 mesh since then (`assets/models/rabbit/rabbit-4.glb`), rigged into the format of a studio body
 (studio bodies, below). The user chose "Longer arms, 28 cm violin": the rig makes the upper arm
 and the forearm longer, so that the arm reaches as far as the arm of the studio rabbit, and the
-violin follows the rule of 4.6. The
+violin follows the rule of 4.6. On 2026-10-14, the user decided: "now replace the fox by
+@~/Downloads/fox.glb", and chose "All foxes, violins first". The red violin fox has that mesh
+since then (`assets/models/fox/fox.glb`), rigged as the rabbit mesh, and the tan flute fox keeps
+the parametric body until a later round gives it the mesh in tan colors. The user chose "1.08x,
+rabbit reach": the arms reach as far as the arms of the rabbits
+(`docs/decisions/2026-10-14-mesh-fox.md`). The
 user chose these bodies again on 2026-10-09, in
 place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
@@ -366,7 +373,7 @@ their own, below).
 
 Each body follows these rules:
 
-- A body has at most 2,600 triangles, and a studio body at most 3,100 (4.5, facets and triangle
+- A body has at most 2,600 triangles, and a studio body at most 3,200 (4.5, facets and triangle
   budgets).
 - The left side of the animal is at -x, because it faces -z, and the mouth is near the middle
   plane, below the eyes (`models/species.test.ts`).
@@ -449,11 +456,13 @@ vertex, arm-down corrective shapes, and the clips of its role. The bear conducto
 bear since 2026-10-12, and the polar bear pianist the studio polar bear since the same day
 (`docs/decisions/2026-10-12-studio-polar-bear.md`). The rabbit violinist has the rigged mesh of the
 user since 2026-10-13 (`docs/decisions/2026-10-13-mesh-rabbit.md`), after the studio rabbit of the
-same day (`docs/decisions/2026-10-13-studio-rabbit.md`). The app keeps its own conductor motion
-(5.4), its own pianist motion, and its own violin motion (5.3), so it drives the bones of the studio
-from the pose of the player each frame: the retarget. `docs/research/2026-10-12-studio-bear.md`
-compares this route with the route of the rigged bodies of 2026-10-10 (below), which keeps two bones
-of the player for each vertex. The retarget had about a quarter of the folded faces.
+same day (`docs/decisions/2026-10-13-studio-rabbit.md`). The red violin fox has the rigged fox mesh
+of the user since 2026-10-14 (`docs/decisions/2026-10-14-mesh-fox.md`). The app keeps its own
+conductor motion (5.4), its own pianist motion, and its own violin motion (5.3), so it drives the
+bones of the studio from the pose of the player each frame: the retarget.
+`docs/research/2026-10-12-studio-bear.md` compares this route with the route of the rigged bodies of
+2026-10-10 (below), which keeps two bones of the player for each vertex. The retarget had about a
+quarter of the folded faces.
 
 ```text
  lowpoly-studio/animals/bear/out/bear.glb
@@ -467,7 +476,7 @@ of the player for each vertex. The retarget had about a quarter of the folded fa
  buildStudioBody(): the body in the         poseAt() pose of the player (5.1), each frame
  bind pose of the player, two bones of          |
  the player for each corner (footprints,        v
- hanging arms, tests)                       poseStudioBones(): 32 studio bones + 38 bones of
+ hanging arms, tests)                       poseStudioBones(): 33 studio bones + 38 bones of
                                             the player, 2 corrective weights
                                                 |
                                                 v
@@ -487,7 +496,9 @@ of the player for each vertex. The retarget had about a quarter of the folded fa
   with Blender (`tools/blender/rig_mesh.py`), and `AnimalSettings.glb` names its output for
   `pnpm studio-body`. The config `tools/mesh-rigs/<animal>.json` gives the joints, measured on cuts
   of the mesh, the arm factor, the weight rules, the colors, the seat, and the chair. The rig takes
-  the seated bind pose and the bind arms of the studio rabbit. Its corrective shapes give the source
+  the bind arms of the studio rabbit and the seat of its config: the seat of the studio rabbit for
+  the rabbit, and a seat of a long thigh for the fox, with the thigh turned 81° onto the seat. Its
+  corrective shapes give the source
   mesh back when the body stands with the arms of the source. Each face takes the nearest color of a
   palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan over its dark faces,
   so that the body keeps the triangle budget of a studio body (4.5) and a small module. A face takes
@@ -500,7 +511,18 @@ of the player for each vertex. The retarget had about a quarter of the folded fa
   splits the faces that it crosses, and the long edge of a face that is thin in the seated bind
   flips. A split keeps the surface, a flip moves it at most 2 mm, and each new face takes its color
   from the texture. The head, the ears, the eyes, the whiskers, the legs, and the trunk keep their
-  faces. The shoulders give their head weight to the neck.
+  faces. The shoulders give their head weight to the neck. A config can also fade the clavicle
+  weight out below the clavicles and the arm weight out up the neck, and let the line rule take
+  the corners of the head, as the fox config does: these rules remove folds of the right
+  shoulder and of the jaw in the play of the violin.
+- A config with the joint `tail_tip` gives the mesh a tail of two bones: the root and the tip,
+  each with smooth weights along the line of the tail. The studio format has `tail_tip` as an
+  optional bone after the eye bones (`OPTIONAL_STUDIO_BONES` of `models/studio-format.ts`), so
+  the bodies with one tail bone keep their modules. The seated bind turns the root back over the
+  seat and the tip back and down behind the chair, through the open back under the top rail
+  (4.5, props). The standing pose of a soloist turns the two tail bones back to the source
+  (`StudioStanding.tailTurns`). The chair rule of the rig and the seat of the export skip the
+  tail, so that the seat stays under the haunch.
 - `pnpm studio-body <animal> --inspect` writes no file. It prints the facts of the GLB file that
   a new body needs. These are the nodes, the joints with the digits of each paw, the morph
   targets, and the clips. They also hold the hips, the length of each arm from the shoulder joint
@@ -512,7 +534,10 @@ of the player for each vertex. The retarget had about a quarter of the folded fa
   conductor stand and the beat fit the shoulders (4.5, 5.4). The polar bear pianist keeps the
   keys of its studio piano at the keys of the piano of the app, because the studio fitted its
   seated arms to its keys. The rabbit violinist keeps the standing shoulder joints of the
-  parametric rabbit, so that the violin section and the music stands keep their fit. The module of
+  parametric rabbit, so that the violin section and the music stands keep their fit. The red
+  violin fox keeps the standing head top of the parametric fox: at the shoulders of the parametric
+  fox, the mesh was lower than the rabbit beside it. `ANIMALS` gives its standing shoulder joints at
+  the height that gives that head top. The module of
   each body (`src/models/studio/<animal>.ts`) holds its
   scale and its head height `H`, and the research reports
   (`docs/research/2026-10-12-studio-bear.md`, `docs/research/2026-10-12-studio-polar-bear.md`)
@@ -531,19 +556,20 @@ of the player for each vertex. The retarget had about a quarter of the folded fa
   the body at the front edge of the seat. The legs keep the seated bind pose of the studio, and
   the player has the same legs, so the bind mesh of the player is seated, as the bind mesh of each
   seated parametric player is.
-- A seated body that also stands (`soloist` of `ANIMALS`), the rabbit violinist, keeps the leg
-  corrective shapes of its GLB file and the leg turns of the pose of its sheet
-  (`StudioBody.standing`). For a player that stands, `standingBody()` of `models/studio-rig.ts`
-  turns the legs, gives the leg shapes their full weight, and moves the body over the origin with
-  its lowest point on the floor. That standing mesh is the bind mesh of the standing rig, so the
-  retarget poses it as a body that the studio built standing. The pianist never stands, so its
-  leg shapes stay out.
+- A seated body that also stands (`soloist` of `ANIMALS`), the rabbit violinist and the red violin
+  fox, keeps the leg corrective shapes of its GLB file and the leg turns of the pose of its sheet
+  (`StudioBody.standing`), and the turns of a tail of two bones. For a player that stands,
+  `standingBody()` of `models/studio-rig.ts` turns the legs and the tail, gives the leg shapes their
+  full weight, and moves the body over the origin with its lowest point on the floor. That standing
+  mesh is the bind mesh of the standing rig, so the retarget poses it as a body that the studio
+  built standing. The pianist never stands, so its leg shapes stay out.
 - The skeleton of the player for a studio body has the joints of the studio for the trunk, the
   head, and the legs. Each arm hangs straight down from the shoulder joint of the studio, with
   the lengths of the arm of the studio, because the pose code reads a hanging arm in the bind
   pose (4.7, 5.2).
 - The retarget (`poseStudioBones()`): the trunk, the head, the ears, the legs, and the tail of
-  the studio move with their bones of the player. Each arm of the studio takes the posed
+  the studio move with their bones of the player. The root of the tail follows `tail1`, and the
+  tip of a tail of two bones follows `tail2`. Each arm of the studio takes the posed
   shoulder, elbow, and wrist of the player, and its upper arm and forearm turn with the elbow
   axis of the studio onto the plane of the arm, so that the elbow bends as the studio built it.
   The forearm twist bone takes a share of the twist of the paw (`TWIST_SHARE`), as in the clips of
@@ -569,15 +595,16 @@ of the player for each vertex. The retarget had about a quarter of the folded fa
   Each body has its own crease angle. The angle of a bear is the angle whose facet contrast is
   nearest to its reference images. The reference rabbits have more facet contrast than each render
   of the app rabbit, so the manager chose its angle from the play frames
-  (`docs/research/2026-10-14-rabbit-smooth.md`).
+  (`docs/research/2026-10-14-rabbit-smooth.md`). The red fox takes the angle of the rabbit, because
+  both are meshes of image models of the user.
 - `buildStudioBody()` gives the mesh of the player in the bind pose of the player, with the two
   bones of the player with the largest weights for each corner. The footprints, the hanging
   arms, the budgets, and the tests read it. In the tests, `posedCorner()` poses a studio body
   with its own skin.
 - A studio body keeps the stance of its role on each support. The bear conductor stands, and the
   cast gives it only the stand of the conductor. The polar bear pianist sits, and the cast gives it
-  only the piano bench. The rabbit violinist sits on its chair in the violin section, and stands
-  as a soloist (`supportOf()` of `models/player.ts`).
+  only the piano bench. The rabbit violinist and the red violin fox sit on their chairs in the
+  violin sections, and stand as soloists (`supportOf()` of `models/player.ts`).
 - `models/studio-rig.test.ts`, `models/studio-body.test.ts`, `tools/studio-body.test.ts`, the
   test of the conductor clearance (5.4), and the tests of the pianist clearance and of the
   violinist clearance (5.3) check the behavior: the elbow on the joints of the player, the twist
@@ -1147,8 +1174,10 @@ through the open back. A floor instrument, such as the cello, moves with the bod
   the reference images: large, flat, and clean facets that follow the form of each animal
   (design 1, `lowpoly-animals.png` and `animals.webp`).
 - A body has at most 2,600 triangles. A studio body keeps the faces of its GLB file, so it has a
-  budget of its own of 3,100. The rabbit plays in the violin section, so many studio bodies
-  share the scene, and the budget of the full scene holds the frame. An instrument has
+  budget of its own of 3,200. The rabbit and the red fox play in the violin sections, so many
+  studio bodies share the scene, and the budget of the full scene holds the frame. The fox mesh of
+  the user needs 3,135 triangles with its eye fans, so the manager raised the budget from 3,100 on
+  2026-10-14. An instrument has
   at most 800, except the timpani (1,200)
   and the piano (2,000). A chair or the piano bench has at most 120, and a stand at most 80. The
   full scene with 60 players has at most 200,000 triangles. The frame cost of `perf-60.mid` on
@@ -1433,8 +1462,8 @@ animals of the reference image. The builder scales the violin and its bow by the
 the rabbit of the reference image, so that they keep their size relative to the animals. A species
 with short arms plays a smaller violin and bow (`SpeciesParams.violinScale`), as a child plays a
 fractional size. A violin shop sizes a violin so that, in the play position with the left arm
-extended, the scroll lies in the middle of the palm. The rabbit has this scale, and
-`pose/bowed.test.ts` checks the rule (`docs/research/2026-10-13-studio-rabbit.md`,
+extended, the scroll lies in the middle of the palm. The rabbit and the red fox have this scale,
+and `pose/bowed.test.ts` checks the rule (`docs/research/2026-10-13-studio-rabbit.md`,
 `docs/research/2026-10-13-rabbit-mesh.md`). The chairs, the stands, the
 podium, and the steps keep their sizes in meters. The bodies of the bowed strings are plates
 with round edges and an arched top (`plate()` of `models/primitives.ts`), with two f-holes beside
