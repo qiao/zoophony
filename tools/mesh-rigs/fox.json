@@ -4,12 +4,16 @@
   "name": "Fox",
   "weld": 1e-5,
   "app": {
-    "shoulders": 0.969,
+    "shoulders": 1.596912,
     "reach": 0.4901,
-    "note": "The scale is 1.3 times the scale that puts the standing head top of the fox at 1.083 m, the head top of the parametric fox (docs/research/2026-10-14-fox-mesh/landmark-probe.txt and scale-variants.txt). That scale had 1.1927 m for each unit and the shoulder joint at 0.625 units 0.7454 m above the floor. On 2026-10-14 the user asked for a fox 1.3 times the size, so the scale is 1.5504 m for each unit and the shoulder joint is 0.969 m above the floor (docs/research/2026-10-14-animal-size.md). The user chose the reach of the rabbit, 0.377 m, and the arm factor keeps that proportion at the new size: 0.4901 m (2026-10-14)."
+    "note": "The scale is 1.5504 m for each unit: 1.3 times the scale that puts the standing head top of the fox at 1.083 m, the head top of the parametric fox (docs/research/2026-10-14-fox-mesh/landmark-probe.txt and scale-variants.txt), because the user asked for a fox 1.3 times the size on 2026-10-14 (docs/research/2026-10-14-animal-size.md). The leg factor raises the standing shoulder joint from 0.625 to 1.03 units, so app.shoulders is 1.596912 m, and the scale stays, so that the trunk, the head before its factor, and the arms keep their meters (docs/research/2026-10-14-fox-rabbit-form.md). The user chose the reach of the rabbit, 0.377 m, and the arm factor keeps that proportion at the new size: 0.4901 m (2026-10-14)."
   },
   "armFactor": 1.0782,
   "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh fox --check measured 0.3519 m with no factor and the factor 1.0782 for 0.377 m at the first scale (shoulders 0.7454 m). The factor stays at each scale, because the reach and the shoulders grow together. With no --check, pnpm rig-mesh stops when the reach is more than 1% from app.reach.",
+  "legFactor": 3.25,
+  "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.405 units, so that the soles stay at y 0. The user asked for longer legs and a higher seat on 2026-10-14. The factor gives the seat of the reference fox, about one head height (H with no ears, after the head factor): the seat is 0.484 m high, 1.00 times the head of 0.485 m (docs/research/2026-10-14-fox-rabbit-form.md). The factors 2.5, 3.0, and 3.5 gave the seats 0.79, 0.93, and 1.17 H.",
+  "headFactor": 1.5,
+  "headFactorNote": "The factor of the head and the ears around the neck joint. The weights blend the growth over the neck. The user asked for a larger head that appears cuter on 2026-10-14. Of the variants 1.2, 1.35, and 1.5, the factor 1.5 comes nearest to the ratio of the head to the seated trunk of the reference fox: 0.71 against about 0.77 (0.57 and 0.64 for the others). The export keeps the head height and the head center of the head before the factor for the holds (ungrown() of tools/studio-body.ts).",
   "joints": {
     "root": { "head": [0, 0, 0], "tail": [0, 0, 0.1], "roll": [0, 1, 0] },
     "hips": { "head": [0, 0.24, 0.03], "tail": "spine" },
@@ -115,6 +119,6 @@
     "front": 0.05,
     "back": -0.16,
     "backHeight": 0.15,
-    "note": "The chair is wider than the chair of the rabbit rig, because the haunch of the fox is x ±0.17. Its front edge lies behind the heels of the seated bind (z 0.103), so that the long thighs lie on the seat. The seat top is the lowest point of the seated body over the seat, with no shin, foot, or tail."
+    "note": "The chair is wider than the chair of the rabbit rig, because the haunch of the fox is x ±0.17. Its front edge lies behind the heels of the seated bind (z 0.329 with the leg factor), so that the long thighs lie on the seat. The seat top is the lowest point of the seated body over the seat, with no shin, foot, or tail."
   }
 }

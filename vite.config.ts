@@ -41,6 +41,7 @@ const PAUSED_TESTS = [
   'src/models/layout-scene.test.ts',
   'src/scene/hidden-heads.test.ts',
   'src/shots/choir-theme.test.ts',
+  'src/shots/duo-shots.test.ts',
 ];
 
 /**

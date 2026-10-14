@@ -103,14 +103,16 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       crease: 15,
     },
   ],
-  // The violinist rabbit has 1.2 times the standing shoulder joints of the parametric rabbit
-  // (0.581 m), because the user asked for a rabbit 1.2 times the size on 2026-10-14 (design 4.4,
-  // 4.5). It sits in the violin section and stands as a soloist.
+  // The violinist rabbit has 1.2 times the scale that put its standing shoulder joints at the
+  // shoulder joints of the parametric rabbit (0.581 m), because the user asked for a rabbit 1.2
+  // times the size on 2026-10-14. Its longer legs (`legFactor` of `tools/mesh-rigs/rabbit.json`)
+  // raise the shoulder joints, and the scale stays (design 4.4, 4.5). It sits in the violin
+  // section and stands as a soloist.
   [
     'rabbit',
     {
       landmark: 'shoulders',
-      height: 0.6972,
+      height: 1.0568084,
       seated: true,
       soloist: true,
       constant: 'STUDIO_RABBIT',
@@ -118,16 +120,17 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/rabbit/rabbit-4.rig.glb',
     },
   ],
-  // The red violin fox has 1.3 times the size that puts its standing head top at the head top of
+  // The red violin fox has 1.3 times the scale that puts its standing head top at the head top of
   // the parametric fox (1.083 m, shoulder joints at 0.7454 m), because the user asked for a fox
-  // 1.3 times the size on 2026-10-14 (`tools/mesh-rigs/fox.json`). It sits in the second violins
-  // and stands as a soloist. It is a mesh of an image model of the user, as the rabbit, so it
-  // takes the crease angle of the rabbit.
+  // 1.3 times the size on 2026-10-14. Its longer legs (`legFactor` of `tools/mesh-rigs/fox.json`)
+  // raise the shoulder joints, and the scale stays. It sits in the second violins and stands as a
+  // soloist. It is a mesh of an image model of the user, as the rabbit, so it takes the crease
+  // angle of the rabbit.
   [
     'fox',
     {
       landmark: 'shoulders',
-      height: 0.969,
+      height: 1.596912,
       seated: true,
       soloist: true,
       constant: 'STUDIO_FOX',

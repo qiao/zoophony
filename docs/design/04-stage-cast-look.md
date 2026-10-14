@@ -354,7 +354,9 @@ mesh since then (`assets/models/rabbit/rabbit-4.glb`), rigged into the format of
 (studio bodies, below). The user chose "Longer arms, 28 cm violin": the rig makes the upper arm
 and the forearm longer, so that the arm reached as far as the arm of the studio rabbit, and the
 violin follows the rule of 4.6. On 2026-10-14, the user asked for a rabbit of 1.2 times the size,
-and the arms grew with the body. Earlier that day, the user decided: "now replace the fox by
+and the arms grew with the body. Later that day, the user asked for longer legs and a higher seat
+for the rabbit and the red fox, and a larger head for the red fox
+(`docs/decisions/2026-10-14-fox-rabbit-form.md`). Earlier that day, the user decided: "now replace the fox by
 @~/Downloads/fox.glb", and chose "All foxes, violins first". The red violin fox has that mesh
 since then (`assets/models/fox/fox.glb`), rigged as the rabbit mesh, and the tan flute fox keeps
 the parametric body until a later round gives it the mesh in tan colors. The user chose "1.08x,
@@ -497,10 +499,15 @@ quarter of the folded faces.
 - `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format of a studio body
   with Blender (`tools/blender/rig_mesh.py`), and `AnimalSettings.glb` names its output for
   `pnpm studio-body`. The config `tools/mesh-rigs/<animal>.json` gives the joints, measured on cuts
-  of the mesh, the arm factor, the weight rules, the colors, the seat, and the chair. The rig takes
-  the bind arms of the studio rabbit and the seat of its config: the seat of the studio rabbit for
-  the rabbit, and a seat of a long thigh for the fox, with the thigh turned 81° onto the seat. Its
-  corrective shapes give the source
+  of the mesh, the arm factor, the leg factor, the weight rules, the colors, the seat, and the
+  chair. The leg factor makes the thigh and the shin longer, as the arm factor makes the upper arm
+  and the forearm longer. The thigh and the shin stretch only between their joints, the feet keep
+  their size, and the body rises so that the soles stay on the floor. The rig takes the bind arms
+  of the studio rabbit and the seat of its config: a seat of a long thigh, with the thigh about
+  level on the seat and the shin under the knee. The head factor grows the head and the ears
+  around the neck joint, and the weights blend the growth over the neck. The export measures the
+  head height and the head center of the holds on the head before the growth, so the holds in `H`
+  keep their places (`ungrown()` of `tools/studio-body.ts`). The corrective shapes of the rig give the source
   mesh back when the body stands with the arms of the source. Each face takes the nearest color of a
   palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan over its dark faces,
   so that the body keeps the triangle budget of a studio body (4.5) and a small module. A face takes
@@ -543,7 +550,10 @@ quarter of the folded faces.
   the user said that the fox was too small, and asked for 1.3 times its size. `ANIMALS` gives its
   standing shoulder joints at 1.3 times the height that gave that head top. For both, the scale
   grows each length, so the arms, the seat, and the chair grow with it, and the holds in `H`
-  follow (`docs/decisions/2026-10-14-animal-size.md`). The module of
+  follow (`docs/decisions/2026-10-14-animal-size.md`). Later that day, the user asked for longer
+  legs and a higher seat. The leg factor of a rig raises the standing shoulder joints, and
+  `ANIMALS` raises them by the same growth, so the scale stays, and the trunk, the head, and the
+  arms keep their meters (`docs/decisions/2026-10-14-fox-rabbit-form.md`). The module of
   each body (`src/models/studio/<animal>.ts`) holds its
   scale and its head height `H`, and the research reports
   (`docs/research/2026-10-12-studio-bear.md`, `docs/research/2026-10-12-studio-polar-bear.md`)

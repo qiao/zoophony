@@ -1,0 +1,14 @@
+bach-bwv1047.mid 11.598
+bach-bwv1048.mid 11.598
+bach-bwv1050.mid 9.574
+beethoven-1.mid 10.104
+beethoven-8-4.mid 10.129
+beethoven-8.mid 10.057
+beethoven-9.mid 12.005
+boulanger-matin.mid 11.369
+brahms-2.mid 10.527
+mendelssohn-op61.mid 10.057
+mozart-k191.mid 8.894
+mozart-k315.mid 9.174
+mozart-k417.mid 8.909
+mozart-k525.mid 7.921

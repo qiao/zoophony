@@ -4,12 +4,14 @@
   "name": "Rabbit",
   "weld": 1e-5,
   "app": {
-    "shoulders": 0.6972,
+    "shoulders": 1.0568084,
     "reach": 0.4524,
-    "note": "The app puts the standing shoulder joints 0.6972 m above the floor (ANIMALS of tools/studio-body.ts): 1.2 times the 0.581 m of the parametric rabbit, because the user asked for a rabbit 1.2 times the size on 2026-10-14 (docs/research/2026-10-14-animal-size.md). The user chose the reach of the studio rabbit, 0.377 m (2026-10-13), and the arm factor keeps that proportion at the new size: 0.4524 m."
+    "note": "The app puts the standing shoulder joints 1.0568084 m above the floor (ANIMALS of tools/studio-body.ts). The scale is 1.467789 m for each unit: 1.2 times the scale that put the shoulder joints at 0.581 m, the shoulder joints of the parametric rabbit, because the user asked for a rabbit 1.2 times the size on 2026-10-14 (docs/research/2026-10-14-animal-size.md). The leg factor raises the shoulder joints from 0.475 to 0.72 units, and the scale stays, so that the trunk, the head, and the arms keep their meters (docs/research/2026-10-14-fox-rabbit-form.md). The user chose the reach of the studio rabbit, 0.377 m (2026-10-13), and the arm factor keeps that proportion at the new size: 0.4524 m."
   },
   "armFactor": 1.445,
   "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh prints the reach and stops when it is more than 1% from app.reach.",
+  "legFactor": 2.75,
+  "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.245 units, so that the soles stay at y 0. The user asked for longer legs and a higher seat on 2026-10-14. The factor gives the seat of the reference rabbit, about one head height (H with no ears): the seat is 0.332 m high, 1.03 H (docs/research/2026-10-14-fox-rabbit-form.md). The factors 2.5 and 3.0 gave 0.94 and 1.12 H.",
   "joints": {
     "root": { "head": [0, 0, 0], "tail": [0, 0, 0.1], "roll": [0, 1, 0] },
     "hips": { "head": [0, 0.2, -0.01], "tail": "spine" },
@@ -35,17 +37,17 @@
   "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the ear tips, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-13-rabbit-mesh/. sections.py gives the cuts at each height: the feet and the legs below y 0.13, the body from 0.13 to 0.53 with the narrow neck at 0.53, the head from 0.55, and the ear bases at 0.765 (the middle of the ear cut at 0.77). The trunk joints lie 0.01 to 0.02 behind the middle of the body cut, as in the studio rabbit. The leg joints lie on the middle of the leg cuts, the ankle at the narrow cut 0.05 above the soles, and the toes at the ball of the foot. The cuts at x 0.106 to 0.226 give the middle line of the free arm. The shoulder joint lies on that line, 0.03 inside the root of the arm. The elbow lies halfway to the wrist and 0.01 behind the line. The wrist lies where the paw starts, and the finger joint at the claws. The tail joint lies at the front of the tail ball, whose middle the cuts at z -0.185 to -0.145 give. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): inward and back, across the paw.",
   "studio": {
     "legTurns": {
-      "thigh": [0.457255, -0.123448, -0.064263, 0.878379],
-      "shin": [0, -0.139173, 0, 0.990268],
-      "foot": [0, -0.139173, 0, 0.990268],
-      "toes": [0, -0.139173, 0, 0.990268]
+      "thigh": [0.577901, 0.030451, -0.075797, 0.812009],
+      "shin": [0.170381, 0, 0.034076, 0.984789],
+      "foot": [0, 0, 0, 1],
+      "toes": [0, 0, 0, 1]
     },
     "bindArms": {
       "upper_arm": [0.813873, -0.143043, 0.563161],
       "forearm": [0.316246, 0.757051, 0.571719],
       "hand": [-0.078782, 0.677317, 0.731461]
     },
-    "note": "The seat and the bind arms of the studio rabbit (lowpoly-studio/animals/rabbit/out/rabbit.glb), from docs/research/2026-10-13-rabbit-mesh/studio-targets.ts: the world turn of each left leg bone from the bind pose to the first key of the clip reference, and the unit direction of each left arm bone in the bind pose."
+    "note": "The seat of a long thigh, made with docs/research/2026-10-14-fox-rabbit-form/leg_turns.py: legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The thigh lies on the seat, 10 degrees below the level and 8 degrees out, the shin hangs straight down under the knee (the shin of the source slants 20 degrees back), and the foot and the toes keep the turn of the source, so that the soles stay flat. The seat of the studio rabbit (a thigh turn of 57 degrees) left the longer thighs slanted down, with the knees low in front of the chair. The bind arms are the bind arms of the studio rabbit (lowpoly-studio/animals/rabbit/out/rabbit.glb), from docs/research/2026-10-13-rabbit-mesh/studio-targets.ts: the unit direction of each left arm bone in the bind pose."
   },
   "weights": {
     "armSplit": 0.106,
@@ -102,6 +104,6 @@
     "front": -0.03,
     "back": -0.16,
     "backHeight": 0.15,
-    "note": "The chair has the depth of the chair of the studio rabbit (0.123 to 0.13). Its front edge lies behind the heels of the seated bind (z -0.022, pnpm rig-mesh prints it), so that no foot lies over the seat, and the haunch (z -0.04 to -0.19) sits on it. The seat top is the lowest point of the seated body over the seat."
+    "note": "The chair has the depth of the chair of the studio rabbit (0.123 to 0.13). Its front edge lies behind the heels of the seated bind (z 0.109 with the leg factor, pnpm rig-mesh prints it), so that no foot lies over the seat, and the haunch (z -0.04 to -0.19) sits on it. The seat top is the lowest point of the seated body over the seat."
   }
 }
