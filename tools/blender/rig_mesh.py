@@ -1004,24 +1004,35 @@ def relax(src, bind, tris, weights, matrices, rounds=60):
 
 def boundary_loop(tris):
     """Gives the longest closed loop of the open edges of a patch of faces, in the order of the
-    faces (counterclockwise from outside for faces in that order)."""
+    faces (counterclockwise from outside for faces in that order). Two parts of a patch can touch
+    at one corner, with two open edges out of it, as the left eye of the fox does. The loop then
+    goes around both parts and passes that corner two times: each loop is a walk that uses each
+    open edge of its part one time (the algorithm of Hierholzer)."""
     count = {}
     for t in tris:
         for k in range(3):
             edge = (int(t[k]), int(t[(k + 1) % 3]))
             count[edge] = count.get(edge, 0) + 1
-    nxt = {a: b for (a, b) in count if (b, a) not in count}
-    loops, seen = [], set()
-    for start in sorted(nxt):
-        if start in seen:
+    outs = {}
+    for a, b in sorted(count):
+        if (b, a) not in count:
+            outs.setdefault(a, []).append(b)
+    loops, used = [], set()
+    for start in sorted(outs):
+        if all((start, b) in used for b in outs[start]):
             continue
-        loop, v = [], start
-        while v not in seen and v in nxt:
-            seen.add(v)
-            loop.append(v)
-            v = nxt[v]
-        if v == start:
-            loops.append(loop)
+        stack, walk = [start], []
+        while stack:
+            v = stack[-1]
+            free = [b for b in outs.get(v, []) if (v, b) not in used]
+            if free:
+                used.add((v, free[0]))
+                stack.append(free[0])
+            else:
+                walk.append(stack.pop())
+        walk.reverse()
+        if len(walk) > 1 and walk[0] == walk[-1]:
+            loops.append(walk[:-1])
     return max(loops, key=len) if loops else []
 
 
