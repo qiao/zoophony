@@ -1,4 +1,4 @@
-Shoulder joint at 0.475 u, 1.2232 m for each unit. Reach: L 0.2701 m with no factor, 0.3769 m with 1.445, the factor 1.4454 gives 0.377 m; R 0.2701 m with no factor, 0.3769 m with 1.445, the factor 1.4454 gives 0.377 m.
+Shoulder joint at 0.475 u, 1.2232 m for each unit. Reach L: 0.2701 m with no factor, 0.3769 m with 1.445, and the factor 1.4454 gives 0.377 m. Reach R: 0.2701 m with no factor, 0.3769 m with 1.445, and the factor 1.4454 gives 0.377 m.
 rig_mesh: source: 1536 vertices, 3065 triangles, scale 0.525384
 rig_mesh: bone heat: 0 vertices with no weight took the nearest bone
 rig_mesh: slivers: 236 faces below 10°, 14 groups of 48 vertices, the largest 5
@@ -22,7 +22,7 @@ rig_mesh: shape legs_straight_R: 67 vertices, largest move 0.0227 u
 rig_mesh: chair: front edge at z -0.03 u, the shins and the feet from z -0.0221 u
 rig_mesh: chair: seat top 0.1220 u, lowest point of the body 0.0380 u
 rig_mesh: triangles: 3100 (36 gloss)
-rig_mesh: wrote /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-sTwnGM/rabbit.rig.glb: 335712 bytes
+rig_mesh: wrote /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-3lwHVp/rabbit.rig.glb: 335712 bytes
 Triangles: 3100 of the budget of 3100 of a studio body.
 Finished in 4ms on 1 files using 10 threads.
 Module: 44,780 B, 24,879 B after gzip. Packed mesh: 23,682 B after gzip, budget 32,000 B (src/models/studio-size.test.ts).

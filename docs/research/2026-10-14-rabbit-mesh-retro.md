@@ -113,12 +113,12 @@ Each time is one run on the development Mac (`times.txt`).
 
 | Measure | Value | Log |
 |---|---|---|
-| `pnpm rig-mesh rabbit --check` | 38.3 s | `times.txt`, `rig-mesh-check.txt` |
+| `pnpm rig-mesh rabbit --check` | 38.3 s, and 39.3 s in the fix round | `times.txt`, `rig-mesh-check.txt` (the run of the fix round) |
 | The part of the folds in it (`pnpm fold-probe violinist`, 14 demos) | 35.9 s | `times.txt` |
 | `pnpm fold-probe violinist --glb <the rig of main>` | 36.2 s, the same lines as with no `--glb` | `times.txt`, `fold-probe-same.txt` |
 | `pnpm hold-reach rabbit` / with `--glb` | 0.30 s / 0.62 s | `times.txt` |
 | `pnpm studio-body rabbit --inspect --glb <file>` | 0.15 s | `times.txt` |
-| The Blender rig of the rabbit | 2.0 s | the run of the Blender script into `scratch/` of the worktree |
+| The Blender rig of the rabbit, with no preview | 1.5 s | `times.txt`, the run of the fix round |
 | Packed mesh after gzip: bear, polar bear, rabbit | 17,299 B, 16,597 B, 23,682 B (budget 32,000 B) | `mesh-gzip.txt` (`node docs/research/2026-10-14-rabbit-mesh-retro/mesh-gzip.ts`) |
 | `pnpm body-probe --base main` | 95 of 95 bodies, 23 of 23 players, 1,492 of 1,492 pose sets equal | `body-probe.txt` |
 | The GLB file of `pnpm rig-mesh rabbit` | the same bytes (sha256 `5f590568…`) | `rig-mesh-check.txt` and the run of the tool |
