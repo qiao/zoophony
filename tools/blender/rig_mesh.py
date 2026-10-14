@@ -13,10 +13,11 @@ reads it (route 3 of `AGENTS.md`). The steps:
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones, and give the weights with bone heat. Then the
-   rules of the config: the free arm, the paw, the head and the shoulders, the ears, the tail
-   (a ball on one tail bone, or a ramp along a tail of two bones), the haunch, one set of weights
-   for the corners of each short thin face, and the weights of the line for the middle corner of
-   each long thin face. Each vertex keeps four bones, in steps of 1/255.
+   rules of the config: the free arm, the clavicles below the shoulders and the arms up the neck,
+   the paw, the head and the shoulders, the ears, the tail (a ball on one tail bone, or a ramp
+   along a tail of two bones), the haunch, one set of weights for the corners of each short thin
+   face, and the weights of the line for the middle corner of each long thin face. Each vertex
+   keeps four bones, in steps of 1/255.
 4. Make the upper arm and the forearm longer by the arm factor of the config. Each bone scales
    along its axis, and the weights blend the stretch to 0 at the shoulder. The paw keeps its size.
 5. Change the faces of the arms so that they bend at the joints: a ring of new vertices at each
@@ -568,6 +569,25 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
         for k in lower:
             w[inside, k] = 0.0
 
+    # The chest below the clavicles: the clavicle weight fades out downward, so that the turn of
+    # a shoulder does not shear the faces of the chest.
+    if 'clavicleFrom' in rules:
+        keep = smoothstep(y, *rules['clavicleFrom'])
+        for side in 'LR':
+            taken = w[:, col[f'clavicle_{side}']] * (1.0 - keep)
+            w[:, col[f'clavicle_{side}']] -= taken
+            w[:, col['chest']] += taken
+
+    # The neck above the shoulders: the weight of the clavicles and of the upper arms fades out
+    # upward, so that a raised arm does not drag the side of the neck and the jaw.
+    if 'armTop' in rules:
+        keep = 1.0 - smoothstep(y, *rules['armTop'])
+        for side in 'LR':
+            for bone in ('clavicle', 'upper_arm'):
+                taken = w[:, col[f'{bone}_{side}']] * (1.0 - keep)
+                w[:, col[f'{bone}_{side}']] -= taken
+                w[:, col['neck']] += taken
+
     # The paw: the fingers keep a share of their weight, and the hand takes the rest.
     for side in 'LR':
         moved = w[:, col[f'fingers_{side}']] * (1.0 - rules['fingers'])
@@ -681,9 +701,13 @@ def straight_slivers(verts, tris, weights, rules):
     other corners: the mix of their weights by the place of the middle corner along that line. A
     thin face whose middle corner lags behind the line turns over when a joint bends across it,
     as the faces along the elbow do. A face is such a face when one corner angle is above `angle`.
-    The vertices of the head, the ears, and the tail ball keep the weights of their rules."""
+    The vertices of the tail keep the weights of their rules. The vertices of the head and of the
+    ears keep them too, unless the rule has `head`: a long thin face of the jaw then folds less
+    when the head turns against the neck."""
     limit_angle = rules['line']['angle']
-    keep = (verts[:, 1] >= rules['headFrom']) | tail_mask(weights)
+    keep = tail_mask(weights)
+    if not rules['line'].get('head', False):
+        keep |= verts[:, 1] >= rules['headFrom']
     out = weights.copy()
     moved = 0
     for t in tris:
