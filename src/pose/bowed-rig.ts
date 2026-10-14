@@ -265,10 +265,12 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  * put the elbow under the violin, and turned over faces of the left upper arm of the rabbit mesh
  * in each play sample (2026-10-13-mesh-rabbit decisions).
  *
- * The rest pose holds the violin at the left side, by the neck near the body of the violin: the
- * round belly covers the short thighs, so the lap place of the chin hold was on the top of the
- * belly, and the bow went into it. With the hand nearer the scroll, the body of the violin of the
- * rabbit mesh lay against its belly.
+ * The rest pose is the rest of a seated violinist between the passages (violinspiration.com,
+ * "Violin posture": "the violin resting on your left leg with the neck in your left hand", "the
+ * bow will also be pointing up"): the violin stands upright on the left thigh, held at its neck,
+ * and the bow stands on the right thigh, up and forward at 45°. Straight up, the bow went 5.4 cm
+ * into the body during the lift and the lowering. The right elbow points out, down, and forward,
+ * so that the upper arm keeps off the trunk.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
@@ -279,8 +281,12 @@ const SHOULDER_HOLD = {
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
-  restAtSide: true,
-  restPlace: 0.8,
+  restPoleR: [1, -0.9, -0.5],
+  restBow: {
+    lap: { along: 0.8, offset: [0.25, 0.06, -0.1] },
+    tip: [0.1, 0.8, -0.8],
+    hair: [-1, 0, 0],
+  },
 } as const satisfies BowedHold;
 
 /**
@@ -291,6 +297,12 @@ const SHOULDER_HOLD = {
  * folded in 18% of the play samples (`pnpm fold-probe fox-violinist`). At the frog, the right
  * elbow points further out than the elbow of the rabbit, with 0.06 m of free hair: the bow paw
  * went 3.6 cm into the body, and 2.4 cm with this elbow and this free hair.
+ *
+ * In the rest pose, the arms of the fox do not reach its thighs: the shoulder joints are 0.65 m
+ * above the top of the thighs, and each arm reaches 0.49 m. The violin stands upright on the left
+ * thigh nearer to the hip and further out, held at its neck, with the left elbow out to the side,
+ * and the right paw holds the bow at the frog beside the right thigh, with the tip down and
+ * forward. With the rest of the rabbit, the right upper arm went 6.5 cm into the body.
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
@@ -300,6 +312,18 @@ const FOX_HOLD = {
   reach: 25 * MathUtils.DEG2RAD,
   poleTipR: [1, -0.85, -1],
   freeHair: 0.06,
+  restPoleL: [-1, -1, 0],
+  restPoleR: [1, -0.4, 0.3],
+  rest: {
+    axis: CHIN_HOLD.rest.axis,
+    top: CHIN_HOLD.rest.top,
+    lap: { along: 0.7, offset: [-0.15, 0.06, 0] },
+  },
+  restBow: {
+    lap: { along: 0.6, offset: [0.25, 0.5, -0.1] },
+    tip: [0.2, -0.6, -1],
+    hair: [-1, 0, 0],
+  },
 } as const satisfies BowedHold;
 
 /** The holds of the bowed strings. */

@@ -287,8 +287,10 @@ These traps of route 3 each cost a round:
   players, and keep the limbs of the studio (user rule of 2026-10-10). Make the arms longer in
   the studio only when the user asks, as for the rabbit on 2026-10-13. The violin of the rabbit
   follows the rule (`SpeciesParams.violinScale`).
-- A round belly can cover the thighs, so the lap place of a hold lands on the belly. The rabbit
-  rests the violin at its side (`BowedHold.restAtSide`).
+- A round belly can cover short thighs, so the lap place of a hold lands on the belly. The rabbit
+  rested the violin at its side (`BowedHold.restAtSide`) until its longer legs of 2026-10-14 gave
+  it a lap. Short arms on a long trunk may not reach the thighs: the paws of the red fox hang
+  0.16 m above them, so its rest holds the bow beside the thigh with the tip down.
 - A new body changes the footprints, so the layout of a section, the looks of the other players,
   and the cues of the conductor change with it. `pnpm body-probe --base main` names them.
 - Bone heat gives a part of the arm weight to the side of the trunk when the arm of a mesh hangs

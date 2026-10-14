@@ -395,14 +395,15 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     `pose/bowed-rig.ts`): the larger violin and bow of the rule of this hold put the bow paw into
     the body at the frog. At the tip, the right elbow also points down: up, the skin of the studio
     rabbit folded at the upper arm. In the rest pose, the
-    left paw holds the violin at the left side by the neck near its body, and the bow hangs from
-    the right paw (`BowedHold.restAtSide`), as for a soloist who stands: the round belly covers
-    the short thighs, so the rabbit has no lap for the violin. The red foxes take the shoulder hold
+    violin stands upright on the left thigh, held at its neck, and the bow stands on the right
+    thigh, up and forward, as a seated violinist rests between the passages: the longer legs of
+    2026-10-14 give the rabbit a lap. The red foxes take the shoulder hold
     of the rabbits (`FOX_HOLD`), with the tail end on the collarbone of the deeper chest under the
     long jaw, the bow slanted 12°, the right shoulder turned 25°, the right elbow at the tip less
     down, and the right elbow at the frog further out. With the bow of the rabbit, the skin of the
-    right shoulder of the fox mesh folded in 18% of the play samples. The fox rests the violin at its side too: the lap rest put its right upper
-    arm into the body. `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
+    right shoulder of the fox mesh folded in 18% of the play samples. The paws of the fox do not reach its thighs, so its violin stands on the
+    left thigh nearer to the hip, and its right paw holds the bow beside the right thigh, with the
+    tip down. `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
     `pnpm fold-probe fox-violinist` measure each change
     (`docs/research/2026-10-13-studio-rabbit.md`, `docs/research/2026-10-13-rabbit-mesh.md`,
     `docs/research/2026-10-14-fox-rig.md`). A test keeps the rest bow of each violinist out
