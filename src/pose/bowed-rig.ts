@@ -113,6 +113,12 @@ export interface BowedHold {
     /** The place of the tail end on the left thigh. */
     readonly lap: LapPlace;
   } | null;
+  /**
+   * True when the left paw holds the instrument at the left side in the rest pose and the bow
+   * hangs from the right paw, also on a seat, as for a soloist who stands (design 5.2). A body with
+   * no lap, such as the studio rabbit, whose round belly covers its short thighs, rests so.
+   */
+  readonly restAtSide: boolean;
   /** The bow in the rest pose. */
   readonly restBow: {
     /** The place of the grip on the right thigh. */
@@ -167,6 +173,7 @@ const CHIN_HOLD = {
     top: [0, 0, -1],
     lap: { along: 0.85, offset: [0, 0.06, 0] },
   },
+  restAtSide: false,
   restBow: {
     lap: { along: 1, offset: [0.18, 0.08, 0] },
     tip: [-1, 0, -0.3],
@@ -204,6 +211,7 @@ const FLOOR_HOLD = {
   restPlace: 0.4,
   pluckPlace: 0.3,
   rest: null,
+  restAtSide: false,
   restBow: {
     lap: { along: 1, offset: [0.2, 0.08, 0] },
     tip: [-0.1, -0.1, -1],
@@ -598,8 +606,8 @@ export function bowedRig(
   const hairNormal = new Vector3(...hair.normal).applyQuaternion(pieceRotation('bow')).normalize();
 
   const parent = parents[BONES.instrument] ?? 0;
-  const standing = model.support === 'stand' && hold.rest !== null;
-  const lapRest = standing ? STANDING_REST : hold.rest;
+  const atSide = (model.support === 'stand' || hold.restAtSide) && hold.rest !== null;
+  const lapRest = atSide ? STANDING_REST : hold.rest;
   const restRotation = new Quaternion();
   if (lapRest) {
     const restAxis = new Vector3(...lapRest.axis).normalize();
@@ -643,7 +651,7 @@ export function bowedRig(
     armR: armRig(model, 'R'),
     restRotation: toQuat(restRotation),
     playShift: toVec3(new Vector3(...hold.playShift).multiplyScalar(model.body.headHeight)),
-    restPivot: hold.rest && !standing ? lapPoint(model, 'L', hold.rest.lap) : at(BONES.instrument),
+    restPivot: hold.rest && !atSide ? lapPoint(model, 'L', hold.rest.lap) : at(BONES.instrument),
     restPoleR: hold.restPoleR,
     restPoleL: hold.restPoleL,
     restBow: {
@@ -655,7 +663,7 @@ export function bowedRig(
       ),
     },
   };
-  const rest = standing ? standingRest(model, rig) : rig;
+  const rest = atSide ? standingRest(model, rig) : rig;
   return { ...rest, bowRange: bowRangeOf(rest), stopRange: stopRangeOf(rest) };
 }
 
