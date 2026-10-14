@@ -3,9 +3,11 @@ import type { ChildProcess } from 'node:child_process';
 import {
   chmodSync,
   existsSync,
+  lstatSync,
   mkdirSync,
   readFileSync,
   readdirSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
@@ -23,6 +25,7 @@ import {
   probeScripts,
   shortHash,
   withProbeTree,
+  withRefBuild,
   withRefTree,
   withoutOptions,
 } from './ref-tree.ts';
@@ -138,6 +141,53 @@ describe('overlayPaths', () => {
       expect(() => overlayPaths(dir, [path])).toThrow('is under node_modules');
     }
   });
+});
+
+describe('withRefBuild', () => {
+  it('puts the overlay into the tree before the link of node_modules', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'ref-build-test-'));
+    const bin = join(parent, 'bin');
+    const path = process.env['PATH'];
+    try {
+      // A pnpm that builds nothing, so the test reads only the tree of the build.
+      mkdirSync(bin);
+      writeFileSync(join(bin, 'pnpm'), '#!/bin/sh\nexit 0\n');
+      chmodSync(join(bin, 'pnpm'), 0o755);
+      process.env['PATH'] = `${bin}:${path ?? ''}`;
+      const items = join('src', 'gallery', 'items.ts');
+      const seen = await withRefBuild(
+        'HEAD',
+        (dir) =>
+          Promise.resolve({
+            items: readFileSync(join(dir, items), 'utf8'),
+            linked: lstatSync(join(dir, 'node_modules')).isSymbolicLink(),
+          }),
+        parent,
+        ['src/gallery'],
+      );
+      expect(seen.items).toBe(readFileSync(join(import.meta.dirname, '..', items), 'utf8'));
+      expect(seen.linked).toBe(true);
+      expect(await readdir(parent)).toEqual(['bin']);
+
+      // The overlay refuses a tree that has node_modules already.
+      await withRefTree(
+        'HEAD',
+        (dir) => {
+          symlinkSync(join(import.meta.dirname, '..', 'node_modules'), join(dir, 'node_modules'));
+          expect(() => overlayTree(dir, ['src/gallery'])).toThrow('has node_modules');
+          return Promise.resolve();
+        },
+        { parent, paths: ['src/gallery'] },
+      );
+    } finally {
+      if (path === undefined) {
+        delete process.env['PATH'];
+      } else {
+        process.env['PATH'] = path;
+      }
+      await rm(parent, { recursive: true, force: true });
+    }
+  }, 30_000);
 });
 
 describe('probeBeside', () => {

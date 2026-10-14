@@ -8,6 +8,7 @@ import type { ChildProcess } from 'node:child_process';
 import {
   copyFileSync,
   cpSync,
+  lstatSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
@@ -428,14 +429,19 @@ export function overlayPaths(dir: string, paths: readonly string[]): string[] {
 /**
  * Replaces paths of the tree of a commit with the paths of the working tree. A file that only the
  * commit has under such a path goes away. Each path must pass {@link overlayPaths} before the
- * first removal.
+ * first removal, and the tree must have no `node_modules` yet.
  *
  * @param dir The folder of the tree of the commit.
  * @param paths The paths, such as `src/gallery`.
- * @throws Error if a path breaks a rule of {@link overlayPaths}. Then nothing goes away.
+ * @throws Error if a path breaks a rule of {@link overlayPaths}, or if the tree already has
+ *   `node_modules`, such as the link of {@link withRefBuild}. Then nothing goes away.
  */
 export function overlayTree(dir: string, paths: readonly string[]): void {
-  for (const path of overlayPaths(dir, paths)) {
+  const checked = overlayPaths(dir, paths);
+  if (lstatSync(join(dir, 'node_modules'), { throwIfNoEntry: false })) {
+    throw new Error('The tree of the commit has node_modules. Put the overlay in before the link.');
+  }
+  for (const path of checked) {
     rmSync(join(dir, path), { recursive: true, force: true });
     cpSync(join(ROOT, path), join(dir, path), { recursive: true });
   }
@@ -445,8 +451,8 @@ export function overlayTree(dir: string, paths: readonly string[]): void {
  * Builds the site of a commit in a temporary folder, and gives the folder to a function. The
  * folder gets the whole tree of the commit and a link to the `node_modules` of the repository.
  * The paths of `overlay` come from the working tree in place of the commit, such as the gallery
- * page of a tool that needs the camera code of the working tree. Then `pnpm build` writes `dist/`
- * there. The folder goes away at the end, also after a failure or a stop.
+ * page of a tool that needs the camera code of the working tree. They go in before the link
+ * ({@link overlayTree}). Then `pnpm build` writes `dist/` there. The folder goes away at the end, also after a failure or a stop.
  *
  * @param ref The commit, a branch, or a tag.
  * @param use The function that reads the folder and its `dist/`.
@@ -468,8 +474,9 @@ export function withRefBuild<T>(
   return withRefTree(
     ref,
     async (dir) => {
-      symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
+      // The overlay comes before the link, so that no removal can follow the link.
       overlayTree(dir, overlay);
+      symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
       await runChild('pnpm', ['run', 'build'], dir);
       return await use(dir);
     },
