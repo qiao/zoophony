@@ -269,6 +269,15 @@ const SHOULDER_HOLD = {
   restPlace: 0.8,
 } as const satisfies BowedHold;
 
+/**
+ * The hold of the violin on the left shoulder, for the red fox (design 4.6, 5.3): the hold of the
+ * rabbit, whose studio body of a mesh of the user has a head height near the head height of the
+ * fox (0.27 m and 0.25 m).
+ */
+const FOX_HOLD = {
+  ...SHOULDER_HOLD,
+} as const satisfies BowedHold;
+
 /** The holds of the bowed strings. */
 export const BOWED_HOLDS = {
   violin: CHIN_HOLD,
@@ -293,7 +302,8 @@ export const BOWED_HOLDS = {
 
 /**
  * The holds of the species that hold a bowed string in their own way, in place of
- * {@link BOWED_HOLDS}: the rabbits hold the violin on the left shoulder, as in `rabbit-views.png`.
+ * {@link BOWED_HOLDS}: the rabbits and the red foxes hold the violin on the left shoulder, as in
+ * `rabbit-views.png`.
  * The tools change them in memory with `--set '<instrument>@<species>.<path>=<value>'`
  * (`tools/hold-sets.ts`).
  */
@@ -301,6 +311,7 @@ export const SPECIES_HOLDS: Partial<
   Record<SpeciesId, Partial<Record<BowedInstrument, BowedHold>>>
 > = {
   rabbit: { violin: SHOULDER_HOLD },
+  'fox-red': { violin: FOX_HOLD },
 };
 
 /**

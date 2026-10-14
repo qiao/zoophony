@@ -1,6 +1,7 @@
 import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
+import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
 import { SPECIES_COLORS } from './colors.ts';
@@ -159,15 +160,23 @@ export const SPECIES = {
       seatHeight: STUDIO_RABBIT.seatHeight / STUDIO_RABBIT.headHeight,
     },
   },
-  /** Red-orange fox with a white face, the second violins (reference image). */
+  /**
+   * Red-orange fox with a white face, the second violins (reference image). It has the studio body
+   * of the mesh of the user, `assets/models/fox/fox.glb`, which `pnpm rig-mesh fox` rigs (design
+   * 4.4), seated with its long thighs on the seat and its tail back through the chair, and
+   * standing as a soloist. Its head height is the head of the studio body, and its chair fits its
+   * legs: the seat height is the seat of the studio body, in H.
+   */
   'fox-red': {
-    ears: 'pointed',
-    snout: 'long',
-    tail: 'bushy',
+    body: 'studio-fox',
     size: 1,
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['feet'],
-    facePattern: 'none',
+    violinScale: 0.49,
+    proportions: {
+      headHeight: STUDIO_FOX.headHeight,
+      seatHeight: STUDIO_FOX.seatHeight / STUDIO_FOX.headHeight,
+    },
   },
   /** Light tan fox, the flutes (reference image). */
   'fox-tan': {

@@ -70,7 +70,8 @@ describe('the animal of a studio body', () => {
       }
     }
     expect(animalSpecies('rabbit')).toContain('rabbit');
-    expect(speciesAnimal('fox-red')).toBeNull();
+    expect(animalSpecies('fox')).toEqual(['fox-red']);
+    expect(speciesAnimal('fox-tan')).toBeNull();
   });
 });
 
