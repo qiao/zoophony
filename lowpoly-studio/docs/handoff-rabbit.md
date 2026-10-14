@@ -61,13 +61,16 @@ view, units animal heights):
 | Blade code, first build (tip too low, front IoU 0.868) | 19:07 | 19:09 | 2 |
 | Ring probe, 7 probe rounds, 3 builds of seed 5 | 19:09 | 19:20 | 11 |
 | All seeds, regressions, unit tests, commits, golden | 19:20 | 19:24 | 4 |
+| Docs, `tools/check-commits.sh --tip main` (2 runs), decision rows | 19:24 | 19:29 | 5 |
 
 | Step | Count | Typical seconds |
 |---|---|---|
 | Ring probe (`rings.py`, no build) | 8 | 2 |
-| Build, a detail change (`--seed 5`) | 6 | 19 to 27 |
+| Build, a detail change (`--seed 5`, the first one is the baseline) | 5 | 19 to 27 |
 | Build `--all-seeds` (the body stages from the cache) | 1 | 37 |
 | `regress` bear, polar bear | 2 | 23, 63 |
+| `regress rabbit` (against the new golden) | 1 | 18.5 |
+| `tools/check-commits.sh --tip main` | 2 | 103 (first run) |
 
 ## Failing checks
 
