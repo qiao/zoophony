@@ -657,8 +657,9 @@ export function meshChange(
 
 /**
  * Compares two probes, and gives the counts of equal bodies, players, and pose sets, and a line
- * for each difference. A line of a body or of a player names the fields of the mesh that changed. A line of a pose names the player and each set that changed, with the
- * first sample that differs.
+ * for each difference. A line of a body or of a player names the fields of the mesh that changed.
+ * A line of a pose names the player and each set that changed, with the first sample that
+ * differs.
  *
  * @param base The probe of the base.
  * @param next The probe to check.
@@ -753,9 +754,9 @@ const TOOL_FILES = ['body-probe.ts', 'ref-tree.ts'] as const;
 /**
  * Probes the bodies and the poses of a commit. It extracts {@link REF_PATHS} of the commit into a
  * new folder with `withRefTree()`. The folder gets a copy of this tool and of `ref-tree.ts`, and a
- * link to the `node_modules` of the repository. Then it runs the probe there, in a child process, so that the caller can probe the
- * working tree at the same time. The folder goes away at the end, also after a failure or a stop
- * (INT or TERM).
+ * link to the `node_modules` of the repository. Then it runs the probe there, in a child
+ * process, so that the caller can probe the working tree at the same time. The folder goes away
+ * at the end, also after a failure or a stop (INT or TERM).
  *
  * @param ref The commit, a branch, or a tag.
  * @param parent The folder that holds the temporary folder.
