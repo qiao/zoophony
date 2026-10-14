@@ -6,6 +6,7 @@ import { BONE_NAMES } from './rig.ts';
 import { makeSkeleton } from './rig.ts';
 import { STUDIO_BONES, STUDIO_INFLUENCES } from './studio-format.ts';
 import type { StudioBody } from './studio-format.ts';
+import { studioNormals } from './studio-normals.ts';
 import {
   NO_OFFSETS,
   createStudioPose,
@@ -187,6 +188,47 @@ export interface StudioRenderMesh {
   readonly weights: Float32Array;
   /** The move of each corner for each corrective shape: x, y, z in meters. */
   readonly correctives: readonly Float32Array[];
+  /**
+   * The smooth normals of a body with a crease angle (`StudioBody.crease`, design 4.5), or `null`
+   * for a body with flat faces.
+   */
+  readonly normals: SmoothNormals | null;
+}
+
+/** The smooth normals of a studio body as the GPU draws them (design 4.5). */
+export interface SmoothNormals {
+  /** The unit normal of each corner of the body: x, y, z, in the order of the corners. */
+  readonly corners: Float32Array;
+  /**
+   * The change of the normal of each corner of the mesh for each corrective shape at its full
+   * weight: x, y, z, in the order of {@link StudioRenderMesh.correctives}. The instrument has 0.
+   */
+  readonly moves: readonly Float32Array[];
+}
+
+/**
+ * Calculates the smooth normals of a studio body, and their changes for each corrective shape.
+ * A shape moves the skin of a shoulder by a few centimeters, and turns the normals of some
+ * corners by more than 20°, so the GPU adds the changes as morph normals.
+ *
+ * @param rig The studio rig.
+ * @param crease The crease angle in degrees.
+ * @param total The number of corners of the mesh of the player, with the instrument.
+ * @returns The normals.
+ */
+function smoothNormals(rig: StudioRig, crease: number, total: number): SmoothNormals {
+  const { positions, correctives } = rig.mesh;
+  const corners = studioNormals(rig.mesh, crease);
+  const moves = correctives.map((corrective) => {
+    const moved = positions.map((p, i) => p + (corrective[i] ?? 0));
+    const after = studioNormals({ ...rig.mesh, positions: moved }, crease);
+    const move = new Float32Array(total * 3);
+    for (let i = 0; i < corners.length; i++) {
+      move[i] = (after[i] ?? 0) - (corners[i] ?? 0);
+    }
+    return move;
+  });
+  return { corners, moves };
 }
 
 /**
@@ -230,5 +272,6 @@ export function studioRenderMesh(rig: StudioRig, mesh: MeshData): StudioRenderMe
     joints: cornerJoints,
     weights: cornerWeights,
     correctives: moves,
+    normals: rig.body.crease === undefined ? null : smoothNormals(rig, rig.body.crease, total),
   };
 }
