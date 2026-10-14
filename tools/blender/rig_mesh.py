@@ -11,20 +11,22 @@ reads it (route 3 of `AGENTS.md`). The steps:
    the top, with the soles at y = 0. The math uses the axes of the studio: y up, +z forward, and
    +x the left side of the animal.
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
-3. Build the skeleton of the 30 body bones of the studio at the joints of the config, and give
-   the weights with bone heat. Then the rules of the config: the free arm, the paw, the head and
-   the shoulders, the ears, the tail ball, the haunch, one set of weights for the corners of each
-   short thin face, and the weights of the line for the middle corner of each long thin face.
-   Each vertex keeps four bones, in steps of 1/255.
+3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
+   optional bone `tail_tip` for a tail of two bones, and give the weights with bone heat. Then the
+   rules of the config: the free arm, the paw, the head and the shoulders, the ears, the tail
+   (a ball on one tail bone, or a ramp along a tail of two bones), the haunch, one set of weights
+   for the corners of each short thin face, and the weights of the line for the middle corner of
+   each long thin face. Each vertex keeps four bones, in steps of 1/255.
 4. Make the upper arm and the forearm longer by the arm factor of the config. Each bone scales
    along its axis, and the weights blend the stretch to 0 at the shoulder. The paw keeps its size.
 5. Change the faces of the arms so that they bend at the joints: a ring of new vertices at each
    joint of the config splits the faces that it crosses, and the long edge of a face that is
    thin in the seated bind pose flips. Each face then takes its color from the texture again.
-6. Pose the skeleton in the seated bind pose: the legs turn by the seat of the studio, and the
-   arms go to the bind arms of the studio. The skin of the long-armed source in this pose is the
-   bind mesh. Where the pose turns faces over, as at the haunch, their vertices relax toward
-   their neighbors.
+6. Pose the skeleton in the seated bind pose: the legs turn by the seat of the config, the arms
+   go to the bind arms of the studio, and the bones of a tail of two bones go to the bind
+   directions of the config, back through the open back of the chair. The skin of the
+   long-armed source in this pose is the bind mesh. Where the pose turns faces over, as at the
+   haunch, their vertices relax toward their neighbors.
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. The faces under it take the fur color, so that a blink
    shows no hole. The faces of the nose become gloss. Each face takes the nearest color of a
@@ -63,6 +65,10 @@ BONES = (
     'thigh_L', 'shin_L', 'foot_L', 'toes_L', 'thigh_R', 'shin_R', 'foot_R', 'toes_R', 'tail',
 )
 
+#: The optional bone of a tail of two bones (`OPTIONAL_STUDIO_BONES` of
+#: `src/models/studio-format.ts`). A config with a joint `tail_tip` adds it after the body bones.
+TAIL_TIP = 'tail_tip'
+
 #: The parent of each body bone (`STUDIO_PARENTS` of `src/models/studio-format.ts`).
 PARENTS = {
     'root': None, 'hips': 'root', 'spine': 'hips', 'spine1': 'spine', 'chest': 'spine1',
@@ -72,7 +78,7 @@ PARENTS = {
     'upper_arm_R': 'clavicle_R', 'forearm_R': 'upper_arm_R', 'forearm_twist_R': 'forearm_R',
     'hand_R': 'forearm_twist_R', 'fingers_R': 'hand_R', 'thigh_L': 'hips', 'shin_L': 'thigh_L',
     'foot_L': 'shin_L', 'toes_L': 'foot_L', 'thigh_R': 'hips', 'shin_R': 'thigh_R',
-    'foot_R': 'shin_R', 'toes_R': 'foot_R', 'tail': 'hips',
+    'foot_R': 'shin_R', 'toes_R': 'foot_R', 'tail': 'hips', TAIL_TIP: 'tail',
 }
 
 #: The arm bones of each side, from the shoulder out. The clavicle does not move.
@@ -483,9 +489,62 @@ def free_arm(verts, tris, split, tip, sign):
     return out
 
 
-def apply_rules(verts, tris, weights, rules, ends):
-    """Applies the weight rules of the config: the arms, the haunch on the hips, the tail ball on
-    the tail, the ears on their bones, and the head only above the head line."""
+def polyline_place(points, line):
+    """Gives for each point its place along a line of segments, as the length from the start of
+    the line to the nearest point of the line, and its distance from that point."""
+    best = np.full(len(points), np.inf)
+    place = np.zeros(len(points))
+    start = 0.0
+    for a, b in zip(line, line[1:]):
+        d = b - a
+        length = float(np.linalg.norm(d))
+        t = np.clip((points - a) @ d / (length * length), 0.0, 1.0)
+        gap = np.linalg.norm(points - (a + t[:, None] * d), axis=1)
+        near = gap < best
+        best[near] = gap[near]
+        place[near] = start + t[near] * length
+        start += length
+    return place, best
+
+
+def tail_weights(verts, tris, w, rule, heads, ends):
+    """Gives a tail of two bones smooth weights along its line (design 4.4). The tail is the part
+    of the mesh within `radius` of the line from the root over the bend to the tip, and behind the
+    plane z = `behind`. Along the line, the share of the tail bones grows from 0 to 1 over the place range
+    `root` (units from the root), and the share of the tip within the tail grows from 0 to 1 over
+    `bend` units on each side of the bend. Then the share of the tail bones takes the mean of its
+    neighbors in `smooth` rounds, so that the root has no hard edge. No other vertex follows the
+    tail bones."""
+    col = {name: k for k, name in enumerate(BONES)}
+    root, bend, tip = heads['tail'], heads[TAIL_TIP], ends[TAIL_TIP]
+    place, gap = polyline_place(verts, [root, bend, tip])
+    inside = (gap <= rule['radius']) & (verts[:, 2] <= rule['behind'])
+    share = smoothstep(place, *rule['root']) * inside
+    neighbors = [set() for _ in range(len(verts))]
+    for a, b, c in tris:
+        neighbors[a].update((b, c))
+        neighbors[b].update((a, c))
+        neighbors[c].update((a, b))
+    neighbors = [np.array(sorted(n)) for n in neighbors]
+    for _ in range(rule['smooth']):
+        share = np.array([share[n].mean() for n in neighbors])
+    first = float(np.linalg.norm(bend - root))
+    tip_share = smoothstep(place, first - rule['bend'], first + rule['bend'])
+    out = w.copy()
+    out[:, col['hips']] += out[:, col['tail']] + out[:, col[TAIL_TIP]]
+    out[:, col['tail']] = 0.0
+    out[:, col[TAIL_TIP]] = 0.0
+    out *= (1.0 - share)[:, None]
+    out[:, col['tail']] = share * (1.0 - tip_share)
+    out[:, col[TAIL_TIP]] = share * tip_share
+    log(f'tail: {int(inside.sum())} vertices in the tail, {int((share > 0).sum())} with a tail '
+        f'weight after {rule["smooth"]} rounds, the bend {first:.3f} u from the root')
+    return out
+
+
+def apply_rules(verts, tris, weights, rules, heads, ends):
+    """Applies the weight rules of the config: the arms, the haunch on the hips, the tail, the ears
+    on their bones, and the head only above the head line."""
     w = weights.copy()
     col = {name: k for k, name in enumerate(BONES)}
     y = verts[:, 1]
@@ -522,14 +581,17 @@ def apply_rules(verts, tris, weights, rules, ends):
         w[:, col[f'thigh_{side}']] -= taken
         w[:, col['hips']] += taken
 
-    # The tail ball follows the tail only, and no other vertex follows the tail.
-    ball = rules['tailBall']
-    inside = np.linalg.norm(verts - ball['center'], axis=1) <= ball['radius']
-    inside &= verts[:, 2] <= ball['behind']
-    w[:, col['hips']] += np.where(inside, 0.0, w[:, col['tail']])
-    w[:, col['tail']] = 0.0
-    w[inside] = 0.0
-    w[inside, col['tail']] = 1.0
+    if TAIL_TIP in BONES:
+        w = tail_weights(verts, tris, w, rules['tail'], heads, ends)
+    else:
+        # The tail ball follows the tail only, and no other vertex follows the tail.
+        ball = rules['tailBall']
+        inside = np.linalg.norm(verts - ball['center'], axis=1) <= ball['radius']
+        inside &= verts[:, 2] <= ball['behind']
+        w[:, col['hips']] += np.where(inside, 0.0, w[:, col['tail']])
+        w[:, col['tail']] = 0.0
+        w[inside] = 0.0
+        w[inside, col['tail']] = 1.0
 
     # The shoulders below the head line give the weight of the head to the neck, so that a turn
     # of the head does not pull them. The share grows from 0 at the smaller distance of
@@ -551,6 +613,14 @@ def apply_rules(verts, tris, weights, rules, ends):
         w[mine, col[f'ear_{side}']] = ear[mine]
         w[mine, col['head']] = 1.0 - ear[mine]
     return w
+
+
+def tail_mask(weights):
+    """Tells for each vertex if a tail bone moves it."""
+    mask = weights[:, BONES.index('tail')] > 0
+    if TAIL_TIP in BONES:
+        mask |= weights[:, BONES.index(TAIL_TIP)] > 0
+    return mask
 
 
 def min_angles(verts, tris):
@@ -576,7 +646,7 @@ def rigid_slivers(verts, tris, weights, rules):
                       for k in range(3)], axis=1).max(axis=1)
     thin = np.nonzero((min_angles(verts, tris) < limit_angle)
                       & (edges < rules['sliver']['longest']))[0]
-    keep = (verts[:, 1] >= rules['headFrom']) | (weights[:, BONES.index('tail')] > 0)
+    keep = (verts[:, 1] >= rules['headFrom']) | tail_mask(weights)
     parent = list(range(len(verts)))
 
     def root(v):
@@ -613,7 +683,7 @@ def straight_slivers(verts, tris, weights, rules):
     as the faces along the elbow do. A face is such a face when one corner angle is above `angle`.
     The vertices of the head, the ears, and the tail ball keep the weights of their rules."""
     limit_angle = rules['line']['angle']
-    keep = (verts[:, 1] >= rules['headFrom']) | (weights[:, BONES.index('tail')] > 0)
+    keep = (verts[:, 1] >= rules['headFrom']) | tail_mask(weights)
     out = weights.copy()
     moved = 0
     for t in tris:
@@ -918,7 +988,8 @@ def bind_turns(config, heads, ends, rolls):
     """Gives the world turn of each bone from the pose of the source to the seated bind pose. The
     legs take the inverse of the turns of the studio from its bind pose to its clip `reference`.
     Each arm bone turns the least way onto its bind direction after the turn of its parent, so
-    that the arm does not twist. The other bones do not turn."""
+    that the arm does not twist. The bones of a tail of two bones turn so onto the directions of
+    `tailBind`. The other bones do not turn."""
     studio = config['studio']
     turns = {name: np.eye(3) for name in BONES}
     for side in 'LR':
@@ -939,6 +1010,13 @@ def bind_turns(config, heads, ends, rolls):
                 target = mirrored(target)
             now = parent @ unit(ends[name] - heads[name])
             turns[name] = swing(now, target) @ parent
+            parent = turns[name]
+    if TAIL_TIP in BONES:
+        # Each tail bone turns the least way onto its bind direction after the turn of its parent.
+        parent = np.eye(3)
+        for name in ('tail', TAIL_TIP):
+            now = parent @ unit(ends[name] - heads[name])
+            turns[name] = swing(now, np.asarray(studio['tailBind'][name], float)) @ parent
             parent = turns[name]
     return turns
 
@@ -977,13 +1055,15 @@ def turn_dots(src, posed, tris, weights, matrices):
 def relax(src, bind, tris, weights, matrices, rounds=60):
     """Cleans the bind mesh where the bind pose pinches it: each vertex of a face that turns over
     (or nearly) against the source moves halfway to the middle of its neighbors, in rounds, until
-    no face turns over. Only the vertices that an arm bone or a thigh moves can move, and the paws
-    and the feet keep their form. The corrective shapes give the source back. Gives the cleaned
-    bind mesh and the number of rounds."""
+    no face turns over. Only the vertices that an arm bone, a thigh, a shin, or a tail of two bones
+    moves can move, and the paws and the feet keep their form. The corrective shapes give the
+    source back. Gives the cleaned bind mesh and the number of rounds."""
     moving = np.zeros(len(src), bool)
     for side in 'LR':
         for bone in ('upper_arm', 'forearm', 'forearm_twist', 'thigh', 'shin'):
             moving |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+    if TAIL_TIP in BONES:
+        moving |= tail_mask(weights)
     neighbors = [set() for _ in range(len(src))]
     for a, b, c in tris:
         neighbors[a].update((b, c))
@@ -1158,13 +1238,20 @@ def split_shapes(moves, weights, bind):
 
 def chair_mesh(rule, bind, weights):
     """Makes the chair under the seated body: a seat whose top is the lowest point of the body
-    over the seat, four legs, and a back. The shins and the feet hang in front of the seat, so
-    they do not count. Gives the vertices, the triangles, and the seat top."""
+    over the seat, four legs, and a back. The shins and the feet hang in front of the seat, and
+    the tail goes back over it, so they do not count. Gives the vertices, the triangles, and the
+    seat top."""
     hw, front, back = rule['halfWidth'], rule['front'], rule['back']
     lower = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
     hanging = weights[:, lower].sum(axis=1) > 0.5
-    over = (np.abs(bind[:, 0]) <= hw) & (bind[:, 2] >= back) & (bind[:, 2] <= front) & ~hanging
+    tails = [BONES.index(b) for b in ('tail', TAIL_TIP) if b in BONES]
+    tail = weights[:, tails].sum(axis=1) > 0.5
+    seat = (np.abs(bind[:, 0]) <= hw) & (bind[:, 2] >= back) & (bind[:, 2] <= front)
+    over = seat & ~hanging & ~tail
     top = float(bind[over, 1].min())
+    if (seat & tail).any():
+        log(f'chair: the tail goes {bind[seat & tail, 1].min() - top:.4f} u over the seat top at '
+            f'its lowest point over the seat')
     # `pnpm studio-body` finds the seat height as the lowest point of the body over the seat, so
     # a foot over the seat puts the seat on the floor.
     feet = hanging & (np.abs(bind[:, 0]) <= hw) & (bind[:, 2] >= back) & (bind[:, 2] <= front)
@@ -1435,11 +1522,14 @@ def main():
     with open(config_path) as f:
         config = json.load(f)
     rules = config['weights']
+    if TAIL_TIP in config['joints']:
+        global BONES
+        BONES = BONES + (TAIL_TIP,)
 
     verts, source_tris, uvs, texture = load_mesh(config)
     heads, ends, rolls, children = joints_of(config)
     weights = apply_rules(verts, source_tris, bone_heat(verts, source_tris, heads, ends, rolls),
-                          rules, ends)
+                          rules, heads, ends)
     weights = straight_slivers(verts, source_tris,
                                rigid_slivers(verts, source_tris, weights, rules), rules)
     weights = limit(weights)
@@ -1507,6 +1597,11 @@ def main():
 
     chair = chair_mesh(config['chair'], bind_all, weights_all)
     log(f'chair: seat top {chair[2]:.4f} u, lowest point of the body {bind_all[:, 1].min():.4f} u')
+    if TAIL_TIP in BONES:
+        tail = weights_all[:, [BONES.index('tail'), BONES.index(TAIL_TIP)]].sum(axis=1) > 0.5
+        log(f'tail: the lowest point {bind_all[tail, 1].min() - bind_all[:, 1].min():.4f} u above '
+            f'the soles, the farthest point back at z {bind_all[tail, 2].min():.4f} u, the widest '
+            f'at |x| {np.abs(bind_all[tail, 0]).max():.4f} u')
     log(f'triangles: {len(tris_all)} ({int((materials == "gloss").sum())} gloss)')
     write_glb(out_path, config, bind_all, tris_all, colors_all, materials, weights_all, shapes,
               bind_frames, bind_heads, src_frames, long_heads, chair)
@@ -1526,6 +1621,12 @@ def main():
              [(v, a, e, seated_center, 1.1) for v, a, e in four]),
             ('standing', [(src_all, tris_all, colors_all)],
              [(v, a, e, np.array([0, 0.5, 0]), 1.1) for v, a, e in four]),
+            ('tail', [(bind_all, tris_all, colors_all), chair_part],
+             [('right', 90, 0, np.array([0, 0.25, -0.15]), 0.7),
+              ('back', 180, 10, np.array([0, 0.25, -0.15]), 0.7)]),
+            ('tail-bones', [(bind_all, tris_all, bones), chair_part],
+             [('right', 90, 0, np.array([0, 0.25, -0.15]), 0.7),
+              ('back', 180, 10, np.array([0, 0.25, -0.15]), 0.7)]),
             ('knees', [(bind_all, tris_all, colors_all), chair_part],
              [('right', 90, 0, np.array([0, 0.17, 0.02]), 0.4),
               ('left', 270, 0, np.array([0, 0.17, 0.02]), 0.4),
