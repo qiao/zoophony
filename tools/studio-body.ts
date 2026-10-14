@@ -1349,7 +1349,8 @@ function meshBox(glb: Glb, worlds: readonly Matrix4[], nodes: readonly number[])
  * Reads the facts of a GLB file of the studio that a new studio body needs (design 4.4). These
  * are the nodes, the joints, the morph targets, and the clips. They also hold the heights of the
  * hips, the length of each arm to the middle of the palm, the lowest point of the skin, and the
- * boxes of the props. The function reads the file as it is. It does not stop on a part that the export refuses: it lists that part.
+ * boxes of the props. The function reads the file as it is. It does not stop on a part that the
+ * export refuses: it lists that part.
  *
  * @param bytes The GLB file.
  * @param settings The settings of the animal, or `null` for an animal that is not in `ANIMALS`.
@@ -1440,6 +1441,7 @@ export function inspectStudioGlb(
     if (!shoulder || !elbow || !wrist || fingerHeads.length === 0) {
       return null;
     }
+
     const fingers = new Vector3();
     for (const head of fingerHeads) {
       if (!head) {
@@ -1448,6 +1450,7 @@ export function inspectStudioGlb(
       fingers.add(head);
     }
     fingers.divideScalar(fingerHeads.length);
+
     const palm = wrist.clone().add(fingers).multiplyScalar(0.5);
     return shoulder.distanceTo(elbow) + elbow.distanceTo(wrist) + wrist.distanceTo(palm);
   };

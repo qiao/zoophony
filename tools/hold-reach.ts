@@ -291,14 +291,17 @@ function main(): void {
     );
     process.exit(1);
   }
+
   const known = new Set(['--instrument', '--support']);
   for (let i = 0; i < args.length; i += 2) {
     if (!known.has(args[i] ?? '')) {
       throw new Error(`The option "${args[i]}" is not known.`);
     }
   }
+
   const instrument = flagValue(args, '--instrument', ['violin', 'viola'] as const);
   const support = flagValue(args, '--support', ['chair', 'stand'] as const);
+
   console.log(holdReachLines(species, instrument, support).join('\n'));
 }
 
