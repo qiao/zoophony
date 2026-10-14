@@ -9,7 +9,9 @@ import {
   foldedFaces,
   mainBone,
   probeFolds,
+  roleAnimal,
 } from './fold-probe.ts';
+import { ANIMALS } from './studio-body.ts';
 
 /** The identity matrix, column by column. */
 const IDENTITY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
@@ -79,4 +81,12 @@ describe('probeFolds', async () => {
       ).toBe(true);
     }
   }, 30_000);
+});
+
+describe('roleAnimal', () => {
+  it('gives each role one animal of ANIMALS, for the body of --glb', () => {
+    for (const [name, role] of FOLD_ROLES) {
+      expect(ANIMALS.has(roleAnimal(role)), name).toBe(true);
+    }
+  });
 });

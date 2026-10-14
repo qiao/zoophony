@@ -7,13 +7,16 @@
  * Then it prints the main bone of the folded faces. The method comes from
  * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
- * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>]
+ * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--glb <file>]
  */
+import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
-import { CONDUCTOR } from '../src/models/cast.ts';
+import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from '../src/models/cast.ts';
+import type { PlayingSection } from '../src/models/cast.ts';
 import type { InstrumentId } from '../src/models/instruments/types.ts';
 import type { PlayerModel } from '../src/models/player.ts';
+import type { SpeciesId } from '../src/models/species.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import type { StudioMesh } from '../src/models/studio-format.ts';
 import {
@@ -48,6 +51,43 @@ export const FOLD_ROLES: ReadonlyMap<string, RoleSource> = new Map<string, RoleS
   ['pianist', { kind: 'player', instrument: 'piano' }],
   ['violinist', { kind: 'player', instrument: 'violin' }],
 ]);
+
+/**
+ * Gives the species of a role: the conductor, or the species of each section with the instrument
+ * of the role.
+ *
+ * @param role The role.
+ * @returns The species.
+ */
+export function roleSpecies(role: RoleSource): SpeciesId[] {
+  if (role.kind === 'conductor') {
+    return [CONDUCTOR.species];
+  }
+  return Object.keys(SECTION_INSTRUMENTS)
+    .filter((section): section is PlayingSection => section in SECTION_SPECIES)
+    .filter((section) =>
+      SECTION_INSTRUMENTS[section].some((instrument) => instrument === role.instrument),
+    )
+    .flatMap((section) => SECTION_SPECIES[section]);
+}
+
+/**
+ * Gives the animal of the studio body of a role (`tools/glb-swap.ts`).
+ *
+ * @param role The role.
+ * @returns The animal, such as `rabbit` for the violinist.
+ * @throws Error if no species of the role has a studio body, or more than one has.
+ */
+export function roleAnimal(role: RoleSource): string {
+  const animals = [
+    ...new Set(roleSpecies(role).flatMap((species) => speciesAnimal(species) ?? [])),
+  ];
+  const [animal] = animals;
+  if (animal === undefined || animals.length > 1) {
+    throw new Error(`The role has the studio bodies of ${animals.join(', ') || 'no animal'}.`);
+  }
+  return animal;
+}
 
 /** The names of the sample sets: the rest pose, the play, and the lift of the arms at the start. */
 export const SAMPLE_SETS = ['rest', 'play', 'lift'] as const;
@@ -350,16 +390,24 @@ export function foldLines(name: string, report: FoldReport, step: number): strin
 }
 
 /**
- * Runs the probe: `node tools/fold-probe.ts <role> [--demo <id>]... [--step <seconds>]`.
+ * Runs the probe: `node tools/fold-probe.ts <role> [--demo <id>]... [--step <seconds>]`. With
+ * `--glb <file>`, the role gets the studio body that the export makes from the file, in a copy of
+ * `src/` (`tools/glb-swap.ts`).
  */
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
+  const { glb, rest: args } = takeGlb(process.argv.slice(2));
   const name = args[0] ?? '';
   const role = FOLD_ROLES.get(name);
   if (!role) {
     throw new Error(
-      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
+      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--glb <file>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
     );
+  }
+  if (glb) {
+    process.exitCode = await withGlbBody(roleAnimal(role), glb, (dir) =>
+      runTool(dir, 'fold-probe.ts', args),
+    );
+    return;
   }
   // A demo is its file name, with or without `.mid`, as in `pnpm pose-depth`.
   const chosen = args.flatMap((arg, i) =>
