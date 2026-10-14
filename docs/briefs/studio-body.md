@@ -44,6 +44,12 @@ smallest real violin (0.33 m). The app agent found it at minute 14 of its round,
 saw it only after the round, then chose longer arms
 ([`2026-10-13-rabbit-retro.md`](../research/2026-10-13-rabbit-retro.md)).
 
+Finish the look rounds of the studio before the app round starts. A merge of a studio round
+during the app round makes the app agent rebase, and each commit then gets a new tree and a full
+check again: about 10 minutes for each merge in the rabbit task. When the studio work and the app
+work must overlap, put the studio round on the app branch, one agent after the other, as the
+arms of the rabbit (round 4).
+
 Make the worktree: `git worktree add .claude/worktrees/<branch> -b <branch> main`. Copy the
 common rules of the agents into the scratch folder (section 5).
 
