@@ -666,7 +666,8 @@ FEATURE = T('One feature of the face or the body (studio/measure_features.py). T
     'inner_views': F('strs', 'bump: the views of the measure "inner".', default=()),
     'lean_views': F('strs', 'bump: the views of the measure "lean": the angle in degrees of the '
                             'outer edge from the vertical, plus when the top leans out (back in a '
-                            'side view).', default=()),
+                            'side view). The fit reads the rows of notch_span below the top: set '
+                            'notch_span near the ear length of the sheet.', default=()),
     'search': F('num', 'bump: rows below the top that the search reads (share of the height).',
                 default=0.15),
     'notch_span': F('num', 'bump: rows below the top where the notch can be.', default=0.2),

@@ -786,6 +786,10 @@ The limits come from these measures: each limit is less than a third of the roun
 more than 4 times the gap of the current rabbit. The probe `python3 studio report rabbit --measure --no-serve
 --out <dir>` measured the renders of round 1 (copied into `<dir>/compare/`) and of the current rabbit (round 4: the ears of round 3).
 
+The lean fit reads all rows of `notch_span` below the top, also the rows below the notch. Set
+`notch_span` of the feature near the ear length of the sheet (the rabbit: 0.198, with the
+default 0.2). A larger span puts the base of the ear and the back of the head into the fit.
+
 The bear passes 76 of 87 checks on the golden build, and 12 checks are near their limit. Three
 failures are known limits of the sheet (see `animals/bear/README.md`): the back view of the
 sheet is darker (`fur_value.back`), and the 3/4 view of the sheet turns the head more
@@ -2412,7 +2416,7 @@ The features by name, in the order of the checks.
 | `dark_views` | strs | optional | bump: the views of the measure "dark". |
 | `inner` | str | optional | bump: the class of the measure "inner": its share of the silhouette above the notch (the pink inner ear: a palette class of the inner ear color). |
 | `inner_views` | strs | optional | bump: the views of the measure "inner". |
-| `lean_views` | strs | optional | bump: the views of the measure "lean": the angle in degrees of the outer edge from the vertical, plus when the top leans out (back in a side view). |
+| `lean_views` | strs | optional | bump: the views of the measure "lean": the angle in degrees of the outer edge from the vertical, plus when the top leans out (back in a side view). The fit reads the rows of notch_span below the top: set notch_span near the ear length of the sheet. |
 | `search` | num | `0.15` | bump: rows below the top that the search reads (share of the height). |
 | `notch_span` | num | `0.2` | bump: rows below the top where the notch can be. |
 | `notch_top` | num | `0.08` | bump: rows below the top where the outer edge is furthest out. |
