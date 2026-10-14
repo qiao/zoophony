@@ -71,16 +71,41 @@ Wider shoulder tops (`field.trunk.width_points` 0.092 at y 0.50) left no model s
 passes the remesh gate, and seeds 2 and 8 got a seat gap of 2.2 and 2.4 cm. So the arms stay
 about 0.01 narrow at the shoulders.
 
-## Numbers (round 2, role seed 5, model seed 6)
+## Method (round 3, the ears)
 
-| Check | Rabbit | Round 1 | Bar |
+Round 3 changed the ear details only (`details.ears`). The field, the bones, the bind pose, the
+clips, the props, and the `[rig]` values stay as in round 2. Each vertex of the role GLB
+outside the ears has the same place, joints, and weights as in round 2. The measures come from
+the sheet mask, the sheet pixels, and the background difference of the renders (more than 18
+from RGB 204, 204, 206). Pink is R - B > 45.
+
+1. Each ear is a blade loft (`details.ears.blade`) in place of the icosphere shell: 10 rings
+   from the base to a tip point, 6 front columns in each ring, and 200 triangles in each ear
+   (round 2: 320). The outer edge follows the ellipse of round 2, and the inner edge comes in
+   toward the tip, so the tip is pointed near the outer edge.
+2. The tip point keeps the top of round 2 (y 0.99373, `tip_x`). The renders scale the model to
+   its top, so a lower tip makes the whole body larger in the frame. The first blade had its tip
+   at 0.972, and the front IoU fell to 0.868.
+3. The pink slot is the front faces between two columns (`slot_columns`) from the ring at
+   t -0.75 to the ring at t 0.9 (`slot_rows`), so its edge follows the mesh edges.
+   `slot_scale` spreads the slot of each ring from its outer column: the slot is a point at the
+   bottom and widest near the top, as on the sheet. The outer band stays about 0.01 wide.
+4. A seeded jitter of 0.35 z radii moves the points that are not on an edge of the ear or of
+   the slot. It gives soft facets, and the edges of the pink stay straight.
+
+The probe `rings.py` of the round (in the session scratchpad of the brief) rasterizes the front
+view of the blade in about 2 s. It reads the config, so a round of the rings needs no build.
+
+## Numbers (round 3, role seed 5, model seed 6)
+
+| Check | Rabbit | Round 2 | Bar |
 |---|---|---|---|
-| IoU front, side, back, 3/4 | 0.9178, 0.9158, 0.9182, 0.8515 | 0.9147, 0.8817, 0.9188, 0.8500 | 0.94, 0.94, 0.94, 0.91 |
-| Checks | 68 of 80 pass, every gate passes | 63 of 80 | |
-| Body triangles | 1204 (3752 with the details and the props) | 1148 (3216) | 900 to 1600 |
-| Median edge | 24.3 px of the sheet | 24.1 px | |
-| GLB | 920 kB (model GLB 550 kB) | 828 kB (513 kB) | 1.5 MB |
-| Seed report | seeds 5, 4, 8 pass every clip (3 of the 3 that pass the remesh gate) | 5 of 5 | |
+| IoU front, side, back, 3/4 | 0.9244, 0.9016, 0.9159, 0.8528 | 0.9178, 0.9158, 0.9182, 0.8515 | 0.94, 0.94, 0.94, 0.91 |
+| Checks | 67 of 80 pass, every gate passes | 68 of 80 | |
+| Body triangles | 1204 (200 in each ear) | 1204 (320 in each ear) | 900 to 1600 |
+| Median edge | 24.3 px of the sheet | 24.3 px | |
+| GLB | 879 kB (model GLB 509 kB) | 920 kB (550 kB) | 1.5 MB |
+| Seed report | seeds 5, 4, 8 pass every clip (3 of the 3 that pass the remesh gate) | the same | |
 
 The seed report: seeds 3, 6, and 7 fail the remesh gate on slivers (1.21, 1.09, and 1.05
 percent, limit 1 percent). Seed 1 fails at the trunk bottom between the thighs (y 0.145) and
@@ -91,17 +116,22 @@ build fails the remesh gate on seeds 3, 1, and 5, and keeps seed 6.
 
 | Check | Value (render, sheet) | Cause |
 |---|---|---|
-| `iou.side` | 0.9158 | The two ears of the side view are at other depths (one forward, one back), and the near ear leans back about 20 degrees, the far ear about 10 degrees. A mirrored model puts both at one depth and one lean. |
+| `iou.side` | 0.9016 | The two ears of the side view are at other depths (one forward, one back), and the near ear leans back about 20 degrees, the far ear about 10 degrees. A mirrored model puts both at one depth and one lean. The round ears of round 2 (0.9158) filled more of the union of the two ears. The pointed blade leaves the back edge 0.02 short at y 0.86 to 0.97. |
 | `iou.three_quarter` | 0.8515 | The 3/4 view turns the head more than the body (the compare turns the head 13 degrees), and its ears disagree with the front view. |
 | `eye_outline.three_quarter`, `eye_y.three_quarter` | 0.0277, 0.0408 and 0.016, 0.0044 | The far eye is almost hidden in the 3/4 view of the sheet. The eye heights differ between the views (front 0.670, side 0.69, 3/4 0.675). |
 | `ear_dark.front.left_in_image` | 0, 0.16 | The light of the sheet shades one inner ear only. |
-| `ear_width.side` | 0.1194, 0.0611 | The bump measure of the side view finds only the top of the sheet ears. |
+| `ear_width.side` | 0.1077, 0.0611 | The bump measure of the side view finds only the top of the sheet ears. |
 | `nose_x.side`, `nose_y.side` | x 0.157, 0.187 and y 0.660, 0.646 | The nose of the side view is 0.03 higher than the nose of the front view (0.616). The side region of the measure starts at 0.62, above the nose of the model (0.612). |
 
-Open (not of the sheet): `iou.front` and `iou.back` (0.918, 0.918: the sheet is asymmetric,
-0.9615, the arms are about 0.01 narrow at the shoulders, and the ear bases make the head 0.010
-too wide at y 0.74), and `fur_hue.side` (33.5, 32.1, limit 1. Round 1 gave 32.6 with the model
-seed 1. The palette of the fur did not change, so the cause is not known).
+Open (not of the sheet): `iou.front` and `iou.back` (0.924, 0.916: the sheet is asymmetric,
+0.9615, the arms are about 0.01 narrow at the shoulders, and the head is 0.010 too wide at
+y 0.74). The ear tips of the back view of the sheet are 0.012 nearer the axis than in its front
+view (y 0.94), so a better fit of the front ears costs a little of the back IoU. `fur_hue.side`
+(33.5, 32.1, limit 1. Round 1 gave 32.6 with the model seed 1. The palette of the fur did not
+change, so the cause is not known). `nose_height.front` (0.0363, 0.0305, limit 15 percent): in
+round 2 it passed near the limit (0.0348). The new ears move the front frame by less than one
+pixel (the difference of the renders is on the facet edges only), and the nose blob grows by
+one pixel row.
 
 ## Known differences
 
