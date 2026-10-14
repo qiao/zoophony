@@ -393,8 +393,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     chin hold, nearer to the level of the bow: with the elbow of the chin hold, the bow paw of
     the rabbit mesh went into the body in a demo of 2026-10-14. The rabbit of 1.2 times the size
     points the elbow at the frog further out: the free hair at the frog keeps its length in
-    meters (`HAIR_END` of `pose/bowed.ts`), so the larger bow reaches nearer to its frog, and the
-    bow paw went deeper into the body. At the tip, the right elbow also
+    meters (`BowedHold.freeHair` of `pose/bowed-rig.ts`), so the larger bow reaches nearer to
+    its frog, and the bow paw went deeper into the body. At the tip, the right elbow also
     points down: up, the skin of the studio rabbit folded at the upper arm. In the rest pose, the
     left paw holds the violin at the left side by the neck near its body, and the bow hangs from
     the right paw (`BowedHold.restAtSide`), as for a soloist who stands: the round belly covers

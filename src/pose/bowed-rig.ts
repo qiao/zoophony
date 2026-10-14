@@ -9,7 +9,6 @@ import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
 import {
   BOWED_HANDS,
-  HAIR_END,
   bowAt,
   createBowPlaces,
   gripHand,
@@ -88,6 +87,12 @@ export interface BowedHold {
   readonly slant: number;
   /** The forward turn of the right shoulder bone around y, so that the arm reaches further. */
   readonly reach: number;
+  /**
+   * The free part of the bow hair at each end, in meters. The reached part of the hair
+   * (`BowedRig.bowRange`) starts at this distance from the frog and stops at this distance from
+   * the tip, so the strokes come no nearer to the ends.
+   */
+  readonly freeHair: number;
   /** The forward lean of the spine. It brings the shoulders nearer to a floor instrument. */
   readonly lean: number;
   /**
@@ -130,6 +135,9 @@ export interface BowedHold {
   };
 }
 
+/** The free part of the bow hair at each end in the holds of the stage, in meters. */
+const FREE_HAIR = 0.03;
+
 /**
  * The violin and the viola share their hold under the chin. While the player plays, the right
  * elbow points out, forward, and down at the frog, and out and up at the tip. The left elbow
@@ -165,6 +173,7 @@ const CHIN_HOLD = {
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
+  freeHair: FREE_HAIR,
   lean: 0,
   restPlace: 0.4,
   pluckPlace: 0.9,
@@ -207,6 +216,7 @@ const FLOOR_HOLD = {
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
+  freeHair: FREE_HAIR,
   lean: 10 * MathUtils.DEG2RAD,
   restPlace: 0.4,
   pluckPlace: 0.3,
@@ -249,7 +259,7 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  * real violinist holds it: with the elbow of the chin hold, the bow paw went 1.6 cm into the body
  * in a play of the Brandenburg Concerto No. 5 (2026-10-13-mesh-rabbit decisions). The rabbit of
  * 1.2 times the size points the elbow at the frog further out: the free hair at the frog keeps
- * its length in meters (`HAIR_END`), so the larger bow reaches nearer to its frog, and the bow
+ * its length in meters (`FREE_HAIR`), so the larger bow reaches nearer to its frog, and the bow
  * paw went 1.7 cm into the body in the same play (2026-10-14-animal-size decisions). The
  * right elbow points down at the tip too: up, as in the chin hold, the skin of the studio rabbit
  * folded at the right upper arm (`pnpm fold-probe violinist`). The left elbow keeps the
@@ -290,6 +300,7 @@ const FOX_HOLD = {
   slant: -12 * MathUtils.DEG2RAD,
   reach: 25 * MathUtils.DEG2RAD,
   poleTipR: [1, -0.85, -1],
+  freeHair: FREE_HAIR,
 } as const satisfies BowedHold;
 
 /** The holds of the bowed strings. */
@@ -513,12 +524,13 @@ function bowRangeOf(rig: RigPoints): BowRange {
     return gripHand(rig, placed, rollToward(rig, placed, elbow), hand).wrist;
   };
   const reach = rig.armR.reach;
-  const end = rig.hairLength - HAIR_END + 1e-9;
+  const free = rig.hold.freeHair;
+  const end = rig.hairLength - free + 1e-9;
   let best: [number, number] | null = null;
   let start = -1;
-  let nearest = HAIR_END;
+  let nearest = free;
   let nearestDistance = Infinity;
-  for (let bow = HAIR_END; bow <= end; bow += BOW_STEP) {
+  for (let bow = free; bow <= end; bow += BOW_STEP) {
     const distance = Math.max(
       wristAt(0, bow).distanceTo(shoulder.position),
       wristAt(3, bow).distanceTo(shoulder.position),

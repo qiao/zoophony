@@ -156,9 +156,6 @@ export function stringsAt(rig: RigPoints, place: InstrumentPlace, out: StringsPl
   return out;
 }
 
-/** The free part of the bow hair at each end, in meters. */
-export const HAIR_END = 0.03;
-
 /**
  * Gives the forward turn of the right shoulder bone, so that the bow arm reaches the strings.
  *
