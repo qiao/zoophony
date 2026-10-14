@@ -52,12 +52,13 @@ python3 studio view rabbit                        # the viewer on a free port
 | Body triangles | 1148 (3216 with the details and the props) | 900 to 1600 |
 | Median edge | 24.1 px of the sheet | |
 | GLB | 828 kB (model GLB 513 kB) | 1.5 MB |
-| Seed report | seeds 1, 6, 4, 7 pass every clip | |
+| Seed report | seeds 1, 6, 4, 7, 8 pass every clip (5 of the 5 that pass the remesh gate) | |
 
 The seed report: seeds 3 and 2 fail the remesh gate at the trunk bottom between the thighs
-(y 0.146), seed 5 at the right shin against the belly (y 0.096). Seed 8 passes the remesh gate
-and folds 1 face at the top of the right upper arm in `ready` and `rest` (the paw between the
-rest and the play).
+(y 0.146), seed 5 at the right shin against the belly (y 0.096). Each other seed passes every
+clip. The short neck puts the shoulder tops near the head, so the shoulder tops give their head
+weight to the neck up to 0.56 (`rig.weights.shoulder_tops`): with 0.53, seed 8 folded 1 face
+at the top of the right shoulder between the rest and the play.
 
 ## Limits of the sheet
 

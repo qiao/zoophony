@@ -5,8 +5,10 @@ Brief: the rabbit from the sheet of the user (2026-10-13) and a new `violinist` 
 
 ## Last finished step
 
-The golden file of the rabbit (b2e6488d), then the docs. `python3 studio regress rabbit`,
-`bear`, and `polar-bear` pass with identical GLB files.
+Every gated seed passes every clip (11eed820), and the golden file holds it (5bc39d4d).
+`python3 studio regress bear` and `polar-bear` gave identical GLB files after the studio change
+(46c56f08). `python3 studio regress rabbit` passes on the new golden file (identical GLB and
+model GLB).
 
 | Commit | Step |
 |---|---|
@@ -17,6 +19,9 @@ The golden file of the rabbit (b2e6488d), then the docs. `python3 studio regress
 | dae2f43f | The legs, the feet, the ears, the skin offset, and the trunk bottom (0.145). |
 | f9a617c4 | The nose, the fur hue, and the contrast. |
 | b2e6488d | The golden stats. |
+| e5f56120, ab3248d9, 9996fc68 | The docs: the studio README, the rabbit README, this handoff. |
+| 11eed820 | The shoulder tops to the neck up to 0.56, the rest paws higher: 5 of 5 gated seeds pass. |
+| 5bc39d4d | The golden stats again. |
 
 ## Next step
 
@@ -30,7 +35,7 @@ sheet ears disagree between the views (about 30 to 45 min). Then the app (route 
 
 | IoU front, side, back, 3/4 | checks pass / all, near, stale | gates | body triangles | seeds pass (seed report) |
 |---|---|---|---|---|
-| 0.9147, 0.8817, 0.9188, 0.8500 | 63 / 80, 8 near, 0 stale | pass | 1148 | 4 of 5 gated seeds (1, 6, 4, 7) |
+| 0.9147, 0.8817, 0.9189, 0.8500 | 63 / 80, 5 near, 0 stale | pass | 1148 | 5 of 5 gated seeds (1, 6, 4, 7, 8) |
 
 GLB 828 kB, model GLB 513 kB, 32 bones (30 body bones, the violin, the bow).
 
@@ -42,15 +47,16 @@ GLB 828 kB, model GLB 513 kB, 32 bones (30 body bones, the violin, the bow).
 | Model: 3 builds to the first commit | 17:07 | 17:13 | 6 |
 | Held violin code, regressions, role pack, 13 role builds | 17:13 | 17:39 | 26 |
 | Look and seed rounds (fit sweeps, 14 builds) | 17:40 | 18:00 | 20 |
-| Golden, regress, docs | 18:00 | 18:10 | 10 |
+| Golden, regress, docs, commit checks | 18:00 | 18:04 | 4 |
+| The fold of seed 8 (3 builds), golden again | 18:04 | 18:08 | 4 |
 
 | Step | Count | Typical seconds |
 |---|---|---|
 | `fit` (one variant) | about 30 | 2 |
 | Build, a new field or bind pose (8 seeds, 2 at a time) | 10 | 70 to 142 |
-| Build, a clip change (the gated seeds) | 10 | 24 to 44 |
+| Build, a clip or weight change (the gated seeds) | 12 | 24 to 47 |
 | Build, a paint or light change | 7 | 17 to 21 |
-| Build `--all-seeds` from the cache | 4 | 25 to 48 |
+| Build `--all-seeds` from the cache | 5 | 25 to 48 |
 | `regress` (rabbit) | 1 | 18 |
 
 ## Failing checks
@@ -70,8 +76,7 @@ GLB 828 kB, model GLB 513 kB, 32 bones (30 body bones, the violin, the bow).
 ## Open problems
 
 - The remesh gate stops 3 of 8 seeds: seeds 3 and 2 at the trunk bottom between the seated
-  thighs (y 0.146), seed 5 at the right shin against the belly. Seed 8 folds 1 face at the top
-  of the right upper arm between the rest and the play.
+  thighs (y 0.146), seed 5 at the right shin against the belly.
 - The head loft makes a thin collar at its bottom row (`sdf.loft` gives a distance near 0 where
   the half width is 0). On the bears the trunk hides it. On the rabbit the head bottom is at the
   neck, and `studio fit` shows a 1-voxel line at y 0.548 in the side view.
