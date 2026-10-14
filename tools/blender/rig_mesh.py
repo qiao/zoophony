@@ -1,7 +1,7 @@
 """Rigs a textured mesh with no skeleton into the GLB format of a studio body (design 4.4).
 
     blender -b --factory-startup --python tools/blender/rig_mesh.py -- <config.json> <out.glb> \
-        [--preview <dir>]
+        [--preview <dir>] [--obj <file>]
 
 `pnpm rig-mesh <animal>` runs this script with `tools/mesh-rigs/<animal>.json`. The output has
 the format of `lowpoly-studio/animals/<animal>/out/<animal>.glb`, so that `pnpm studio-body`
@@ -38,7 +38,8 @@ reads it (route 3 of `AGENTS.md`). The steps:
 
 With `--preview`, the script also renders the seated bind and the standing body from four sides,
 the knees of the seated body from the side, and the main bone of each face, and it writes the
-long-armed source as `source-long-arms.obj` for the probes of `docs/research/`.
+long-armed source as `source-long-arms.obj` for the probes of `docs/research/`. With `--obj`, it
+writes only the long-armed source, into the file, for `pnpm rig-mesh --check`.
 """
 
 import colorsys
@@ -103,16 +104,18 @@ def log(text):
 
 
 def args():
-    """Reads the config path, the output path, and the preview folder after `--`."""
+    """Reads the config path, the output path, the preview folder, and the OBJ file after `--`."""
     rest = sys.argv[sys.argv.index('--') + 1 :]
-    preview = None
-    if '--preview' in rest:
-        at = rest.index('--preview')
-        preview = rest[at + 1]
-        rest = rest[:at] + rest[at + 2 :]
+    options = {'--preview': None, '--obj': None}
+    for flag in options:
+        if flag in rest:
+            at = rest.index(flag)
+            options[flag] = rest[at + 1]
+            rest = rest[:at] + rest[at + 2 :]
     if len(rest) != 2:
-        raise SystemExit('Usage: blender -b --python rig_mesh.py -- <config> <out.glb> [--preview <dir>]')
-    return rest[0], rest[1], preview
+        raise SystemExit('Usage: blender -b --python rig_mesh.py -- <config> <out.glb> '
+                         '[--preview <dir>] [--obj <file>]')
+    return rest[0], rest[1], options['--preview'], options['--obj']
 
 
 def to_blender(v):
@@ -1416,7 +1419,7 @@ def write_obj(path, verts, tris):
 
 
 def main():
-    config_path, out_path, preview_dir = args()
+    config_path, out_path, preview_dir, obj_path = args()
     with open(config_path) as f:
         config = json.load(f)
     rules = config['weights']
@@ -1496,6 +1499,8 @@ def main():
     write_glb(out_path, config, bind_all, tris_all, colors_all, materials, weights_all, shapes,
               bind_frames, bind_heads, src_frames, long_heads, chair)
 
+    if obj_path:
+        write_obj(obj_path, long_verts, tris)
     if preview_dir:
         os.makedirs(preview_dir, exist_ok=True)
         write_obj(os.path.join(preview_dir, 'source-long-arms.obj'), long_verts, tris)
