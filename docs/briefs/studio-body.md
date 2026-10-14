@@ -356,3 +356,7 @@ Add these items to the briefs of the rig round and of the app round.
   a kept test of a shot plan can change: the fox moved the check of the choir shots of the Ode to
   Joy into the paused file `src/shots/choir-theme.test.ts`. A test that takes a species as the
   sample of a parametric body moves to a species that keeps it, as the tan fox.
+- **The shot plans.** A change of the footprints of a body changes the layout of the sections,
+  and the layout changes the shot plans of the camera. Run `pnpm test src/shots/` early in a
+  round that changes a body, before the fit of the holds. A shot test of the size round failed on
+  the new layout, and its agent read the planner for 12 minutes to find the cause.
