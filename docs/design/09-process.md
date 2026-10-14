@@ -133,7 +133,9 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   decision row. A note target gives the distance of a hand, or of the part that it holds, from
   its target: the palm of the pianist on its keys, and the bow hair of the violinist on the
   strings in the middle of each stroke. The entry is a contract of contact that the look accepts, with a margin over the
-  measure. `pnpm pose-depth <role>` prints the same depths. `pnpm pose-depth <role> --gaps` also
+  measure. `pnpm pose-depth <role>` prints the same depths. With `--base <ref>`, it also compares
+  the deepest point of each species with a commit, in cm and in the H of each body, because a body
+  that grows keeps its depths in H. `pnpm pose-depth <role> --gaps` also
   prints the smallest gap in each sample set from the head to each obstacle except the body, and
   from each paw to the body (`surfaceGap()` of `pose/test-clearance.ts`). A gap is 0 when the
   parts touch.
