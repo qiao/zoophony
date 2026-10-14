@@ -91,10 +91,16 @@ Polar bear pianist (reference: sheet 1.21%, scene 2.27%):
 | 50° | 1.04 | 0.96 | 1.47 |
 | 180° | 1.06 | 0.94 | 1.47 |
 
-The bears take 15°. The reference rabbits have more facet contrast than the flat app rabbit,
-because their facets are larger (about 1,150 triangles in `rabbit-views.png`) and the light of the
-image model shows each one. The flat look is nearest to them. The user asked for a smoother rabbit,
-so it takes 10°, the smooth angle nearest to the references.
+The bears take 15°: each bear reference lies inside the range of its renders, so the measure
+chooses the angle. The measure cannot choose the angle of the rabbit. Its reference crops have
+more facet contrast (4.01% and 4.61%) than each app rabbit, the flat one too (3.28% and 2.64%), so
+that contrast comes from something other than the facets of the app, such as the larger facets
+of the image model (about 1,150 triangles in `rabbit-views.png`) and its light. The round first
+took 10°, the smooth angle nearest to the references, and the close views of main and of the
+branch looked almost the same. The manager then chose 35° from the play frames
+(`cmp-rabbits.webp`: flat, 35°, and 180° from left to right). At 35°, the crumpled look goes
+(facet contrast 1.49% against 2.64% flat), and the edges of the ears and the chin stay sharp.
+180° looks almost the same as 35°, with fewer edges.
 
 ## The corrective shapes
 
