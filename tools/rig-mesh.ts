@@ -319,6 +319,17 @@ function runBlender(args: readonly string[]): Promise<void> {
   });
 }
 
+/**
+ * Gives the SHA-256 of the bytes of a file, so that a check shows if a rig gives the bytes of the
+ * GLB file in the repository.
+ *
+ * @param bytes The bytes.
+ * @returns The hash, as hex.
+ */
+function sha256(bytes: Uint8Array): string {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
 /** The settings of the animal of a rig. */
 export interface RigSettings {
   /** The settings of the export. */
@@ -410,6 +421,7 @@ async function checkRig(
     const obj = join(dir, 'source-long-arms.obj');
     await runBlender(blenderArgs(configPath, output, preview, obj));
     const bytes = new Uint8Array(await readFile(output));
+    console.log(`Rig: ${bytes.byteLength} B, sha256 ${sha256(bytes)}.`);
     const { settings, known } = rigSettings(animal, config);
     if (!known) {
       console.log(`ANIMALS has no ${animal}, so the check takes a seated role that also stands.`);
@@ -471,8 +483,7 @@ async function main(): Promise<void> {
   const output = join(ROOT, config.output);
   await runBlender(blenderArgs(configPath, output, preview));
   const bytes = await readFile(output);
-  const sha = createHash('sha256').update(bytes).digest('hex');
-  console.log(`Wrote ${config.output}: ${bytes.byteLength} B, sha256 ${sha}.`);
+  console.log(`Wrote ${config.output}: ${bytes.byteLength} B, sha256 ${sha256(bytes)}.`);
 }
 
 if (import.meta.main) {
