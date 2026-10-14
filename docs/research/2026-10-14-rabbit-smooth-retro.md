@@ -104,7 +104,7 @@ Each time is one run on the development Mac at the load average 3.96, from `time
 | `pnpm build` of the working tree | 1.18 s | `times.txt` |
 | `pnpm body-probe` with the tool of `main` / with the new tool | 4.53 s / 5.62 s, and 6.06 s in `times.txt` | `body-probe-compat.txt`, `times.txt` |
 | `pnpm body-probe --base main` | 5.97 s | `times.txt` |
-| The JSON of the body probe, the tool of `main` / the new tool | 2,566,320 B / 2,596,526 B | `body-probe-compat.txt` (the sizes of `ls -l`) |
+| The JSON of the body probe, the tool of `main` / the new tool | 2,566,320 B / 2,596,526 B | `body-probe-compat.txt` (the last lines, `ls -l`) |
 | One run of `tools/break-test.sh` on `tools/close-views.test.ts` | 1.95 s | `times.txt` |
 | The 16 break commands of the retro round, one after the other | 118 s | `breaks.txt` |
 

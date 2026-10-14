@@ -36,3 +36,6 @@ body polar-bear stand: mesh differs (no field hashes in the base), joints same
 player violin/rabbit/violin: mesh differs (no field hashes in the base), moved bones: none
 player piano/polar-bear/piano: mesh differs (no field hashes in the base), moved bones: none
 player conductor/bear/baton: mesh differs (no field hashes in the base), moved bones: none
+$ ls -l old.json new.json
+-rw-r--r--@ 1 xueqiaoxu  staff  2596526 Oct 14 10:39 new.json
+-rw-r--r--@ 1 xueqiaoxu  staff  2566320 Oct 14 10:39 old.json
