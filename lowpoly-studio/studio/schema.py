@@ -625,7 +625,7 @@ COLOR_CLASS = T('A pixel color class. A pixel is in the class when every given c
 
 FEATURE_CHECK = T('One check of a feature: the measure on the render against the sheet.', {
     'measure': F('str', 'The measure (default: the name of the check): x, y, width, height, area, '
-                        'count, rim, dark, center_x.', default=None),
+                        'count, rim, dark, inner, lean, center_x.', default=None),
     'op': F('str', '"rel<=": |render - sheet| / |sheet| at most the limit. "abs<=": |render - '
                    'sheet| at most the limit.'),
     'limit': F('num', 'The limit.'),
@@ -658,6 +658,13 @@ FEATURE = T('One feature of the face or the body (studio/measure_features.py). T
     'dark': F('str', 'bump: the class of the measure "dark": its share of the silhouette above the '
                      'notch (the inner ear).', default=None),
     'dark_views': F('strs', 'bump: the views of the measure "dark".', default=()),
+    'inner': F('str', 'bump: the class of the measure "inner": its share of the silhouette above '
+                      'the notch (the pink inner ear: a palette class of the inner ear color).',
+               default=None),
+    'inner_views': F('strs', 'bump: the views of the measure "inner".', default=()),
+    'lean_views': F('strs', 'bump: the views of the measure "lean": the angle in degrees of the '
+                            'outer edge from the vertical, plus when the top leans out (back in a '
+                            'side view).', default=()),
     'search': F('num', 'bump: rows below the top that the search reads (share of the height).',
                 default=0.15),
     'notch_span': F('num', 'bump: rows below the top where the notch can be.', default=0.2),

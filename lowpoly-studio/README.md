@@ -119,8 +119,8 @@ lowpoly-studio/
 ├── animals/rabbit/      animal.toml, golden.json, README.md, reference/, out/ (the violinist)
 ├── tests/               test_intake.py: the foreground rules; test_cache.py and
 │                        setup_keys.py: the cache keys; test_consistency.py: the sheet
-│                        check; test_role_props.py: the attachments of the props
-│                        (python3 -m unittest)
+│                        check; test_role_props.py: the attachments of the props;
+│                        test_ear_checks.py: the ear measures (python3 -m unittest)
 ├── docs/                handoff.md, handoff-diag.md, handoff-speed.md, handoff-pilot.md,
 │                        handoff-runtime.md, handoff-intake.md, handoff-rabbit.md (the
 │                        state of the work),
@@ -899,7 +899,7 @@ sheet and on the render, and writes `out/compare/features.json`. A feature has c
 |---|---|---|
 | `blobs` | The connected blobs of the class pixels. The blobs with the most pixels of the `rank` class win. | `x`, `y` (the center), `width`, `height`, `area`, and `rim` (with a rim class) of each blob, and `count` of the region |
 | `area` | All class pixels of the region. | `x`, `y` (the centroid), `width`, `height` (the 5 to 95 percentile spans), `area` |
-| `bump` | The part of the silhouette that stands up at the top of the region. | `width`, `height` (from the top to the notch), `center_x`, `top`, `dark` (the share of the dark class) |
+| `bump` | The part of the silhouette that stands up at the top of the region. | `width`, `height` (from the top to the notch), `center_x`, `top`, `dark` (the share of the dark class), `inner` (the share of the `inner` class above the notch, in `inner_views`), `lean` (in `lean_views`: the angle in degrees of the outer edge from the vertical, plus when the top leans out) |
 
 A color class is a threshold relative to the background (`over_background`), an absolute
 threshold (`max_under`, `max_over`, `spread_under`), a palette color with tolerances (`palette`,
@@ -2319,6 +2319,9 @@ The features by name, in the order of the checks.
 | `rim` | str | optional | blobs: the class of the measure "rim": its area over the circumference of the blob, which is the width of an even ring (the white rim of an eye). |
 | `dark` | str | optional | bump: the class of the measure "dark": its share of the silhouette above the notch (the inner ear). |
 | `dark_views` | strs | optional | bump: the views of the measure "dark". |
+| `inner` | str | optional | bump: the class of the measure "inner": its share of the silhouette above the notch (the pink inner ear: a palette class of the inner ear color). |
+| `inner_views` | strs | optional | bump: the views of the measure "inner". |
+| `lean_views` | strs | optional | bump: the views of the measure "lean": the angle in degrees of the outer edge from the vertical, plus when the top leans out (back in a side view). |
 | `search` | num | `0.15` | bump: rows below the top that the search reads (share of the height). |
 | `notch_span` | num | `0.2` | bump: rows below the top where the notch can be. |
 | `notch_top` | num | `0.08` | bump: rows below the top where the outer edge is furthest out. |
@@ -2330,7 +2333,7 @@ The checks of the feature. A check is named "<name>_<check>.<view>.<item>".
 
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
-| `measure` | str | optional | The measure (default: the name of the check): x, y, width, height, area, count, rim, dark, center_x. |
+| `measure` | str | optional | The measure (default: the name of the check): x, y, width, height, area, count, rim, dark, inner, lean, center_x. |
 | `op` | str | required | "rel<=": |render - sheet| / |sheet| at most the limit. "abs<=": |render - sheet| at most the limit. |
 | `limit` | num | required | The limit. |
 

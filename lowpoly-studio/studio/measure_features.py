@@ -21,8 +21,11 @@ The measure is the same for the sheet and for a render. A feature has:
            5th to the 95th percentile), and area.
     bump   the part of the silhouette that stands up at the top of the region (an ear): width
            (the widest row while it is a run of its own), height (from the top down to the notch
-           of the outer edge), center_x (from the axis), and dark (the share of the "dark" class
-           above the notch).
+           of the outer edge), center_x (from the axis), dark (the share of the "dark" class
+           above the notch), inner (the share of the "inner" class above the notch, in the views
+           of inner_views), and lean (in the views of lean_views: the angle in degrees of the
+           outer edge from the vertical, plus when the top leans out, which is back in a side
+           view).
 
 All lengths are in animal heights (the height of the view is 1), areas in squared animal
 heights. Writes <out>/compare/features.json:
@@ -264,11 +267,13 @@ def runs(row, x0, x1):
     return out
 
 
-def measure_bump(pic, box, outer_is_low, feature, dark):
+def measure_bump(pic, box, outer_is_low, feature, dark, inner=None, lean=False):
     """Measures the part of the silhouette that stands up at the top of a box (an ear).
 
     outer_is_low: the outer edge of the bump is at the low x of the box (the left half of a
-    front view, or the back of the head in a side view that faces right).
+    front view, or the back of the head in a side view that faces right). dark and inner: the
+    classes of the shares above the notch (None: no measure). lean: measure the lean of the
+    outer edge.
     """
     mask, height_px = pic.mask, pic.height
     x0, y0, x1, y1 = box
@@ -325,7 +330,37 @@ def measure_bump(pic, box, outer_is_low, feature, dark):
     }
     if dark:
         item['dark'] = dark_share(pic, (x0, top, x1, notch_row), dark)
+    if inner:
+        item['inner'] = dark_share(pic, (x0, top, x1, notch_row), inner)
+    if lean:
+        item['lean'] = edge_lean(edge)
     return {'count': 1, 'items': [item]}
+
+
+# The share of the rows at each end that the lean fit leaves out (the round tip and the curve
+# into the head).
+LEAN_TRIM = 0.1
+
+
+def edge_lean(edge):
+    """Calculates the lean of the outer edge of a bump in degrees from the vertical.
+
+    edge: (row, d) of each row of notch_span below the top, with d the outer edge (the low x, or
+    minus the high x). The fit is a least-squares line of d over these rows, less LEAN_TRIM of
+    the rows at each end. The window does not use the notch, because an oval ear moves the notch
+    up. Plus: the top leans out (back in a side view). Returns None when fewer than 3 rows
+    remain."""
+    cut = int(LEAN_TRIM * len(edge))
+    rows = edge[cut:len(edge) - cut]
+    if len(rows) < 3:
+        return None
+    n = len(rows)
+    my = sum(y for y, _ in rows) / n
+    md = sum(d for _, d in rows) / n
+    syy = sum((y - my) ** 2 for y, _ in rows)
+    slope = sum((y - my) * (d - md) for y, d in rows) / syy
+    # d grows inward on both sides, so a top that leans out has d growing with the row.
+    return round(math.degrees(math.atan(slope)), 2)
 
 
 def dark_share(pic, box, dark):
@@ -363,7 +398,10 @@ def measure_picture(pic, feature, view, name, classes):
             result = measure_area(pic, box, kinds)
         elif feature.method == 'bump':
             dark = classes[feature.dark] if feature.dark and view in feature.dark_views else None
-            result = measure_bump(pic, box, outer_is_low, feature, dark)
+            inner = (classes[feature.inner] if feature.inner and view in feature.inner_views
+                     else None)
+            result = measure_bump(pic, box, outer_is_low, feature, dark, inner,
+                                  view in feature.lean_views)
         else:
             raise ValueError(f'unknown feature method {feature.method!r}')
         result['box_px'] = box
@@ -405,10 +443,11 @@ def check_config(cfg):
             for c in f[key]:
                 if c not in cfg.measure.classes:
                     errors.append(f'measure.features.{name}.{key}: no class {c!r}')
-        for key in ('rank', 'rim', 'dark'):
+        for key in ('rank', 'rim', 'dark', 'inner'):
             if f[key] and f[key] not in cfg.measure.classes:
                 errors.append(f'measure.features.{name}.{key}: no class {f[key]!r}')
-        for v in list(f.regions) + list(f.split) + list(f.dark_views):
+        for v in list(f.regions) + list(f.split) + list(f.dark_views) + list(f.inner_views) + \
+                list(f.lean_views):
             if v not in views:
                 errors.append(f'measure.features.{name}: no view {v!r} in sheet.views')
         for check, c in f.checks.items():
