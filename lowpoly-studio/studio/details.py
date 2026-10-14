@@ -223,9 +223,10 @@ def ears_and_tail(cfg, body):
     de = cfg.details.ears
     out = []
     v0, f0 = icosphere(1)
+    ve, fe = icosphere(de.subdivisions) if de.subdivisions != 1 else (v0, f0)
     c, r = e.center, e.radii
     for side, suffix in ((1, 'L'), (-1, 'R')):
-        local = v0 * np.array(r)
+        local = ve * np.array(r)
         # The hollow: the front (local +z) of the shell sinks toward the back.
         rad = np.hypot(local[:, 0] / r[0], local[:, 1] / r[1])
         front = local[:, 2] > 0
@@ -234,12 +235,12 @@ def ears_and_tail(cfg, body):
         f = body.ear_frame(side)
         center = np.array(c) * np.array([side, 1, 1])
         verts = center + local @ f.T
-        cen = local[f0].mean(axis=1)
-        nrm = np.cross(local[f0[:, 1]] - local[f0[:, 0]], local[f0[:, 2]] - local[f0[:, 0]])
+        cen = local[fe].mean(axis=1)
+        nrm = np.cross(local[fe[:, 1]] - local[fe[:, 0]], local[fe[:, 2]] - local[fe[:, 0]])
         inner = (nrm[:, 2] > 0) & (np.hypot(cen[:, 0] / r[0], cen[:, 1] / r[1]) < de.hollow_radius)
         colors = np.where(inner[:, None], np.array(pal['ear_inner'], float),
                           np.array(pal['ear'], float))
-        d = detail(f'ear_{suffix}', verts, f0, pal['ear'], 'fur', f'ear_{suffix}')
+        d = detail(f'ear_{suffix}', verts, fe, pal['ear'], 'fur', f'ear_{suffix}')
         d['colors'] = colors
         out.append(d)
     t = cfg.field.tail

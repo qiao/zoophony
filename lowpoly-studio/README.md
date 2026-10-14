@@ -2053,6 +2053,7 @@ The ear shells (their size and place come from field.ears).
 |---|---|---|---|
 | `hollow_depth` | num | `1.8` | Depth of the hollow in z radii. |
 | `hollow_radius` | num | `0.88` | Radius of the hollow as a share of the ear (also the dark inner color). |
+| `subdivisions` | int | `1` | Subdivisions of the icosphere of each ear shell (1: 80 faces, 2: 320 faces, so the inner color can follow a smaller hollow). |
 
 #### `[details.hand_claws]`
 

@@ -445,6 +445,9 @@ DETAILS = T('Small low-poly pieces on the body (template "biped").', {
         'hollow_depth': F('num', 'Depth of the hollow in z radii.', default=1.8),
         'hollow_radius': F('num', 'Radius of the hollow as a share of the ear (also the dark '
                                   'inner color).', default=0.88),
+        'subdivisions': F('int', 'Subdivisions of the icosphere of each ear shell (1: 80 faces, '
+                                 '2: 320 faces, so the inner color can follow a smaller hollow).',
+                          default=1),
     }),
     'hand_claws': T('Four claws on each paw, in the hand frame.', {
         'offsets': F('nums', 'x offset of each claw.', todo=True),
