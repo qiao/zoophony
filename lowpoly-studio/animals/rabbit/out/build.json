@@ -1,7 +1,7 @@
 {
-  "run": "20261013-220724-37117",
+  "run": "20261013-223915-40530",
   "command": "build rabbit --jobs 2",
-  "started": "2026-10-13T22:07:24-0700",
+  "started": "2026-10-13T22:39:15-0700",
   "seed": 8,
   "shots": true,
   "until": null,

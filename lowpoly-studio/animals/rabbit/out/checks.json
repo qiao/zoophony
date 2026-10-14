@@ -520,7 +520,7 @@
     },
     {
       "name": "instrument_reach.violin",
-      "value": 0.744,
+      "value": 0.589,
       "op": "in",
       "limit": [
         0.9,
@@ -532,7 +532,7 @@
       "where": {
         "part": "violin",
         "length": 0.234,
-        "reach": 0.3146
+        "arm": 0.397
       }
     },
     {
@@ -1460,9 +1460,9 @@
   "look": {
     "current": true,
     "reason": null,
-    "run": "20261013-220724-37117",
-    "look_run": "20261013-220724-37117",
-    "made": "2026-10-13T22:07:47-0700",
+    "run": "20261013-223915-40530",
+    "look_run": "20261013-223915-40530",
+    "made": "2026-10-13T22:39:36-0700",
     "compare": "model",
     "model_seed": 3
   },
@@ -1474,7 +1474,7 @@
     ]
   },
   "reach": {
-    "palm": 0.3146,
+    "arm": 0.397,
     "instruments": [
       {
         "name": "violin",
