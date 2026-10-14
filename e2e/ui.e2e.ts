@@ -1,12 +1,27 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
-import { DEFAULT_DEMO, DEMOS } from '../src/app/demos.ts';
+import { DEFAULT_DEMO, DEMOS, DEMO_IDS } from '../src/app/demos.ts';
+import type { DemoId } from '../src/app/demos.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { ABOUT_TEXT, CAMERA_OFF_TEXTS, NO_WEBGL2_TEXT } from '../src/app/messages.ts';
 import { SETTING_HELP } from '../src/app/settings.ts';
 import { note, writeSmf } from '../src/midi/test-smf.ts';
 import { INTRO_TEXT, LOADING_TEXT, SELECT_PIECE_TEXT, WAIT_TEXT } from '../src/app/play-control.ts';
+
+/**
+ * Gets the last demo of the demo list. A test that clicks the last row of the list waits for it.
+ *
+ * @returns The hash id of the last demo.
+ * @throws Error when the demo list is empty.
+ */
+function lastDemo(): DemoId {
+  const id = DEMO_IDS.at(-1);
+  if (!id) {
+    throw new Error('The demo list is empty.');
+  }
+  return id;
+}
 
 /**
  * Holds each request of a preset file, so that the samples stay in the load. The preset index
@@ -126,7 +141,7 @@ test.describe('the place of the first screen (audit 2026-10-05-ux-design, FI3)',
 
 test.describe('the drawer after a selection (audit 2026-10-05-ux-design, PH1)', () => {
   /**
-   * Opens the drawer with the drawer button of the bar, and selects the demo K. 315.
+   * Opens the drawer with the drawer button of the bar, and selects the last demo of the list.
    *
    * @param page The page.
    */
@@ -136,7 +151,7 @@ test.describe('the drawer after a selection (audit 2026-10-05-ux-design, PH1)', 
     await page.locator('.bar button[aria-expanded]').click();
     await expect(page.locator('.drawer')).toBeVisible();
     await page.locator('.demo').last().click();
-    await page.waitForSelector('#stage[data-demo="mozart-k315"]');
+    await page.waitForSelector(`#stage[data-demo="${lastDemo()}"]`);
   }
 
   test.describe('on a phone', () => {
@@ -363,7 +378,7 @@ test('a demo switch fades the stage out and in (audit 2026-10-05-ux-design, PF1)
   });
   await page.locator('.bar button[aria-expanded]').click();
   await page.locator('.demo').last().click();
-  await page.waitForSelector('#stage[data-demo="mozart-k315"]');
+  await page.waitForSelector(`#stage[data-demo="${lastDemo()}"]`);
   await expect(page.locator('body')).not.toHaveClass(/is-building/u);
   expect(await page.getAttribute('html', 'data-covers')).toBe('10');
 });
