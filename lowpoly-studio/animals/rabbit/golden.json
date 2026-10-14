@@ -1386,6 +1386,12 @@
     "remesh_gate.slivers": true,
     "remesh_gate.open_edges": true,
     "remesh_gate.slit_faces": true,
+    "instrument_reach.violin": false,
+    "ik_reach.ready": true,
+    "ik_reach.play": true,
+    "ik_reach.rest": true,
+    "ik_reach.stand_play": true,
+    "ik_reach.performance": true,
     "iou.front": false,
     "fur_hue.front": true,
     "fur_saturation.front": true,
@@ -1441,5 +1447,5 @@
     "claw_count.front.right_in_image": true,
     "facet_contrast": true
   },
-  "source": "Round 4: the arms reach 1.4 times to the middle of the palm (0.3146), the violin 0.234, the bow 0.29. Role seed 8, model seed 3. Retro: the ear measures inner and lean, and their checks (the same GLB)."
+  "source": "Round 4: the arms reach 1.4 times to the middle of the palm (0.3146), the violin 0.234, the bow 0.29. Role seed 8, model seed 3. Retro: the ear measures inner and lean, the ear checks, and the reach checks of the held violin (the same GLB)."
 }
