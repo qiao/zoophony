@@ -72,6 +72,9 @@ const POLAR_BEAR_DECISIONS = 'docs/decisions/2026-10-12-studio-polar-bear.md';
 /** The decision file of the lap pose of the pianist. */
 const LAP_DECISIONS = 'docs/decisions/2026-10-13-pianist-lap.md';
 
+/** The decision file of the studio rabbit. */
+const RABBIT_DECISIONS = 'docs/decisions/2026-10-13-studio-rabbit.md';
+
 /** The decision file of the sweep of each role. */
 const SWEEP_DECISIONS = 'docs/decisions/2026-10-13-role-sweep.md';
 
@@ -506,7 +509,17 @@ export const VIOLINIST_SWEEP: RoleSweep = {
     { name: 'violin', surface: violinSurface },
   ],
   contact: CONTACT,
-  accepted: [],
+  accepted: [
+    {
+      part: 'paws',
+      into: 'body',
+      samples: 'lower',
+      depth: 0.025,
+      reason:
+        'The right paw lowers to the side rest, where the hanging arm touches the side of the round belly (design 5.2).',
+      decision: `${RABBIT_DECISIONS}, row "Accepted limits"`,
+    },
+  ],
   targetError: 1e-3,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'violin'),
   players: (scene) =>
