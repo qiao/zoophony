@@ -16,6 +16,7 @@ import {
   parseConfig,
   reachLine,
   rigSettings,
+  setConfig,
   targetFactor,
 } from './rig-mesh.ts';
 import { FOLD_ROLES, roleAnimal } from './fold-probe.ts';
@@ -185,5 +186,52 @@ describe('the mesh rig of the rabbit', async () => {
   it('makes the arms longer than the arms of the source', () => {
     expect(config.armFactor).toBeGreaterThan(1);
     expect(armReach(config, 'L', 1)).toBeLessThan(config.app.reach);
+  });
+});
+
+describe('setConfig', () => {
+  const text = JSON.stringify({
+    armFactor: 1,
+    weights: { haunch: { height: [0.16, 0.27] }, line: { angle: 150, head: true } },
+    refine: { rings: [], flip: { note: 'a' } },
+    joints: { tail: { head: [0, 0.4, -0.1] } },
+    list: [{ radius: 0.1 }],
+  });
+
+  it('changes numbers, lists of numbers, flags, texts, and items of a list', () => {
+    const changed = JSON.parse(
+      setConfig(
+        text,
+        'armFactor=1.08; weights.haunch.height=0.2,0.3;weights.line.head=false;refine.flip.note=b;list.0.radius=0.12;joints.tail.head=[0,0.5,-0.2]',
+      ),
+    );
+    expect(changed.armFactor).toBe(1.08);
+    expect(changed.weights.haunch.height).toEqual([0.2, 0.3]);
+    expect(changed.weights.line).toEqual({ angle: 150, head: false });
+    expect(changed.refine.flip.note).toBe('b');
+    expect(changed.list).toEqual([{ radius: 0.12 }]);
+    expect(changed.joints.tail.head).toEqual([0, 0.5, -0.2]);
+  });
+
+  it('takes JSON text for a list that is not a list of numbers', () => {
+    const changed = JSON.parse(setConfig(text, 'refine.rings=[{"joint":"forearm","radius":0.1}]'));
+    expect(changed.refine.rings).toEqual([{ joint: 'forearm', radius: 0.1 }]);
+  });
+
+  it('keeps the other values', () => {
+    expect(JSON.parse(setConfig(text, ''))).toEqual(JSON.parse(text));
+  });
+
+  it('stops on an unknown path or a value of another kind', () => {
+    expect(() => setConfig(text, 'weights.clavicleFrom=0.58,0.63')).toThrow(
+      /"clavicleFrom" of weights.clavicleFrom is not known/,
+    );
+    expect(() => setConfig(text, 'list.1.radius=0.1')).toThrow(/"1" of list.1.radius/);
+    expect(() => setConfig(text, 'armFactor.x=1')).toThrow(/"x" of armFactor.x/);
+    expect(() => setConfig(text, 'weights.haunch.height=0.2')).toThrow(/2 numbers/);
+    expect(() => setConfig(text, 'armFactor=long')).toThrow(/not a number/);
+    expect(() => setConfig(text, 'weights.line.head=1')).toThrow(/not a boolean/);
+    expect(() => setConfig(text, 'refine.rings={}')).toThrow(/not a list/);
+    expect(() => setConfig(text, 'armFactor')).toThrow(/<path>=<value>/);
   });
 });

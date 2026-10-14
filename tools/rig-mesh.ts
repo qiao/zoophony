@@ -111,6 +111,169 @@ export function parseConfig(text: string): MeshRigConfig {
   return config;
 }
 
+/** A value of the JSON text of a config of a mesh rig. */
+export type ConfigValue = number | string | boolean | null | ConfigValue[] | ConfigObject;
+
+/** An object of the JSON text of a config of a mesh rig. */
+export interface ConfigObject {
+  /** The value of each key. */
+  [key: string]: ConfigValue;
+}
+
+/**
+ * Gives the kind of a value of a config.
+ *
+ * @param value The value.
+ * @returns The kind: `number`, `string`, `boolean`, `null`, `list`, or `object`.
+ */
+function kindOf(value: ConfigValue): string {
+  if (value === null) {
+    return 'null';
+  }
+  if (Array.isArray(value)) {
+    return 'list';
+  }
+  // oxlint-disable-next-line anti-slop/no-runtime-typeof -- a config is JSON from a file, an I/O boundary.
+  return typeof value;
+}
+
+/**
+ * Parses the new value of a change of a config from its text, with the kind of the old value.
+ *
+ * @param text The text of the new value.
+ * @param old The old value.
+ * @param path The path, for the message.
+ * @returns The new value.
+ * @throws Error if the text does not give a value of the kind of the old value.
+ */
+function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigValue {
+  const kind = kindOf(old);
+  const fault = new Error(`The value "${text}" of ${path} is not a ${kind} as the old value.`);
+  const number = (part: string): number => {
+    const value = Number(part);
+    if (part.trim() === '' || !Number.isFinite(value)) {
+      throw fault;
+    }
+    return value;
+  };
+  if (kind === 'number') {
+    return number(text);
+  }
+  if (kind === 'boolean') {
+    if (text !== 'true' && text !== 'false') {
+      throw fault;
+    }
+    return text === 'true';
+  }
+  if (kind === 'string') {
+    return text;
+  }
+  if (Array.isArray(old) && old.length > 0 && old.every((v) => kindOf(v) === 'number')) {
+    const list = text
+      .replace(/^\[|\]$/g, '')
+      .split(',')
+      .map(number);
+    if (list.length !== old.length) {
+      throw new Error(`${path} has ${old.length} numbers, and "${text}" has ${list.length}.`);
+    }
+    return list;
+  }
+
+  let value: ConfigValue;
+  try {
+    // SAFETY: JSON.parse gives a JSON value, and the check of the kind follows.
+    value = JSON.parse(text) as ConfigValue;
+  } catch {
+    throw fault;
+  }
+  if (kind !== 'null' && kindOf(value) !== kind) {
+    throw fault;
+  }
+  return value;
+}
+
+/**
+ * Changes one value of a config in place, such as `weights.haunch.height=0.16,0.27` or
+ * `armFactor=1.08`. The path names the keys from the top of the config, and the index of an item
+ * of a list is a key too. The new value has the kind of the old value: a number, `true` or
+ * `false`, a text, numbers separated by commas for a list of the same count of numbers, or JSON
+ * text for another list or an object.
+ *
+ * @param config The config.
+ * @param change The change, as `<path>=<value>`.
+ * @throws Error if the path names no value of the config, or if the value does not fit the old
+ *   value.
+ */
+function setConfigValue(config: ConfigObject, change: string): void {
+  const equals = change.indexOf('=');
+  if (equals < 1) {
+    throw new Error(`The change "${change}" is not <path>=<value>.`);
+  }
+  const path = change.slice(0, equals);
+  const text = change.slice(equals + 1);
+  const keys = path.split('.');
+  let node: ConfigValue = config;
+  for (const [i, key] of keys.entries()) {
+    const old = childOf(node, key);
+    if (old === undefined) {
+      throw new Error(`The key "${key}" of ${path} is not known.`);
+    }
+    if (i < keys.length - 1) {
+      node = old;
+    } else {
+      setChild(node, key, parseConfigValue(text, old, path));
+    }
+  }
+}
+
+/**
+ * Gives the value of a key of an object of a config, or of an index of a list.
+ *
+ * @param node The object or the list.
+ * @param key The key, or the index as text.
+ * @returns The value, or `undefined` when the node has no such key or index.
+ */
+function childOf(node: ConfigValue, key: string): ConfigValue | undefined {
+  if (Array.isArray(node)) {
+    return /^\d+$/.test(key) ? node[Number(key)] : undefined;
+  }
+  return node instanceof Object && Object.hasOwn(node, key) ? node[key] : undefined;
+}
+
+/**
+ * Sets the value of a key of an object of a config, or of an index of a list.
+ *
+ * @param node The object or the list.
+ * @param key The key, or the index as text.
+ * @param value The value.
+ */
+function setChild(node: ConfigValue, key: string, value: ConfigValue): void {
+  if (Array.isArray(node)) {
+    node[Number(key)] = value;
+  } else if (node instanceof Object) {
+    node[key] = value;
+  }
+}
+
+/**
+ * Applies a list of changes, separated by `;`, to the JSON text of a config, as
+ * {@link setConfigValue} does. The text of the input does not change.
+ *
+ * @param text The JSON text of the config.
+ * @param list The changes, such as `weights.haunch.height=0.16,0.27;armFactor=1.08`.
+ * @returns The JSON text of the changed config.
+ * @throws Error if a change names no value of the config, or if a value does not fit the old
+ *   value.
+ */
+export function setConfig(text: string, list: string): string {
+  // SAFETY: a config file of tools/mesh-rigs/ holds one JSON object.
+  const config = JSON.parse(text) as ConfigObject;
+  for (const change of list.split(';').filter((c) => c.trim() !== '')) {
+    setConfigValue(config, change.trim());
+  }
+  return `${JSON.stringify(config, null, 2)}\n`;
+}
+
 /**
  * Gives the head of a joint of a config. A joint of the right side mirrors its left joint.
  *
