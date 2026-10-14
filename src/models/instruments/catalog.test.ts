@@ -88,6 +88,19 @@ describe('buildInstrument', () => {
     }
   });
 
+  it('scales the violin and its bow by the violin scale of the species (design 4.6)', () => {
+    const scaled = buildInstrument('violin', 4, 0.3);
+    const [violin, bow] = ['instrument', 'bow'].map((bone) => {
+      const piece = scaled.pieces.find((p) => p.bone === bone);
+      return piece ? pieceSize(piece)[0] : NaN;
+    });
+    expect(scaled.size[0]).toBeCloseTo(0.3 * (buildInstrument('violin').size[0] ?? NaN), 6);
+    expect(violin).toBeCloseTo(scaled.size[0] ?? NaN, 6);
+    expect(bow).toBeCloseTo(0.3 * BOW_LENGTHS.violin, 2);
+    // The other instruments ignore it.
+    expect(buildInstrument('viola', 4, 0.3).size).toEqual(buildInstrument('viola').size);
+  });
+
   it('puts each piece on its own bone, with the main piece first', () => {
     for (const model of models) {
       const bones = model.pieces.map((p) => p.bone);

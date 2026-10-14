@@ -356,7 +356,8 @@ function buildBow(size: number): BowPiece {
 }
 
 /**
- * Builds a bowed string instrument and its bow (design 4.6).
+ * Builds a bowed string instrument and its bow (design 4.6). A species with short arms plays a
+ * smaller violin and bow (`SpeciesParams.violinScale`), as a child plays a fractional violin.
  *
  * The violin and the viola use the violin axes: the tail end is at the origin, the violin runs
  * along +x to the scroll, and the top plate faces +y. The player holds them under the chin.
@@ -366,11 +367,12 @@ function buildBow(size: number): BowPiece {
  * stands between the knees, and the contrabass at the left side of the player.
  *
  * @param id The instrument.
+ * @param scale The scale of the instrument and its bow, as a factor of {@link STRING_SCALES}.
  * @returns The model.
  */
-export function buildBowedString(id: BowedStringId): InstrumentModel {
+export function buildBowedString(id: BowedStringId, scale = 1): InstrumentModel {
   const v = VIOLIN;
-  const s = STRING_SCALES[id];
+  const s = STRING_SCALES[id] * scale;
   const upright = id === 'cello' || id === 'contrabass';
   const pin = upright ? (CELLO_END_PIN * s) / STRING_SCALES.cello : 0;
   // The violin axes in the piece axes, before the scale: upright, the length is +y, the top is
@@ -402,7 +404,7 @@ export function buildBowedString(id: BowedStringId): InstrumentModel {
       ? hold('floor', UPRIGHT_HOLDS[id].offsetH, uprightRotation(id), UPRIGHT_HOLDS[id].offset)
       : hold('head', CHIN_HOLD.offsetH, chinRotation());
   const instrument = piece.build('instrument', instrumentHold);
-  const bow = buildBow(upright ? LOW_BOW_SCALE : INSTRUMENT_SCALE);
+  const bow = buildBow((upright ? LOW_BOW_SCALE : INSTRUMENT_SCALE) * scale);
   const stringsY = v.stringHeight;
   return {
     id,

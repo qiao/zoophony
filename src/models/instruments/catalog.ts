@@ -49,11 +49,18 @@ export const INSTRUMENT_IDS = [
  * @param id The instrument.
  * @param kettles The number of kettles of the timpani (design 4.6). The other instruments
  *   ignore it.
+ * @param violinScale The scale of the violin and its bow for the species of the player
+ *   (`SpeciesParams.violinScale`). The other instruments ignore it.
  * @returns The model.
  */
-export function buildInstrument(id: InstrumentId, kettles: KettleCount = 4): InstrumentModel {
+export function buildInstrument(
+  id: InstrumentId,
+  kettles: KettleCount = 4,
+  violinScale = 1,
+): InstrumentModel {
   switch (id) {
     case 'violin':
+      return buildBowedString(id, violinScale);
     case 'viola':
     case 'cello':
     case 'contrabass':

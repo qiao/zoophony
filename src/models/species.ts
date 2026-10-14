@@ -34,6 +34,13 @@ interface CommonParams {
    * `proportions.ts`).
    */
   readonly proportions?: Partial<BodyProportions>;
+  /**
+   * The scale of the violin and its bow for the species, as a factor of the violin of the app
+   * (design 4.6). It is 1 when it is not given. A species with short arms plays a smaller
+   * violin, as a child plays a fractional size: with the violin under the chin and the left arm
+   * extended, the scroll lies in the middle of the palm.
+   */
+  readonly violinScale?: number;
 }
 
 /** The parameters of a species with the parametric biped (design 4.3): the shape of its parts. */

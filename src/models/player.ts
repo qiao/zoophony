@@ -189,7 +189,7 @@ export function buildPlayer(
   const params: SpeciesParams = SPECIES[species];
   const stance = stanceOn(support, params);
   const body = buildBiped(builder, params, stance);
-  const model = buildInstrument(instrument, kettles);
+  const model = buildInstrument(instrument, kettles, params.violinScale ?? 1);
   const placed = attachInstrument(builder, model, body);
   const positions = {
     ...body.positions,
