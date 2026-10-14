@@ -341,7 +341,9 @@ decided: "replace the polar bear pianist by the polar bear model from the lowpol
 The polar bear pianist has the studio body of `lowpoly-studio/animals/polar-bear/` since then. On
 2026-10-13, the user decided: "create a low-poly model for the rabbit following this reference
 image and replace the main-app's rabbit by this new one". The rabbit violinist has the studio body
-of `lowpoly-studio/animals/rabbit/` since then. The
+of `lowpoly-studio/animals/rabbit/` since then. Later that day, the user chose longer arms for the
+rabbit: "Arms x1.4, violin 28 cm". The studio round 4 made the reach of its arms 1.4 times the
+reach of its sheet, and its violin follows the rule of 4.6. The
 user chose these bodies again on 2026-10-09, in
 place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
