@@ -43,37 +43,65 @@ python3 studio view rabbit                        # the viewer on a free port
 5. The trunk bottom at 0.145 ends the slits and the inward faces of the crotch keel between the
    seated thighs of the violinist.
 
-## Numbers (round 1, role seed 1, model seed 1)
+## Method (round 2, the look)
 
-| Check | Rabbit | Bar |
-|---|---|---|
-| IoU front, side, back, 3/4 | 0.9147, 0.8817, 0.9188, 0.8500 | 0.94, 0.94, 0.94, 0.91 |
-| Checks | 63 of 80 pass, every gate passes | |
-| Body triangles | 1148 (3216 with the details and the props) | 900 to 1600 |
-| Median edge | 24.1 px of the sheet | |
-| GLB | 828 kB (model GLB 513 kB) | 1.5 MB |
-| Seed report | seeds 1, 6, 4, 7, 8 pass every clip (5 of the 5 that pass the remesh gate) | |
+Round 2 changed the form (the field) and the paint only. The bones, the joint places, the bind
+pose, the clips, the props, and the `[rig]` values stay as in round 1: no joint of the GLB
+moves. The measures come from the sheet masks and the background difference of the renders
+(more than 18 from RGB 204, 204, 206).
 
-The seed report: seeds 3 and 2 fail the remesh gate at the trunk bottom between the thighs
-(y 0.146), seed 5 at the right shin against the belly (y 0.096). Each other seed passes every
-clip. The short neck puts the shoulder tops near the head, so the shoulder tops give their head
-weight to the neck up to 0.56 (`rig.weights.shoulder_tops`): with 0.53, seed 8 folded 1 face
-at the top of the right shoulder between the rest and the play.
+1. The face: the snout tip moves up and back with a larger radius (`field.snout`), and the face
+   points move forward above the nose and back below it. The side front edge is within 0.009
+   of the sheet from y 0.58 to 0.74. A chin that stays behind the chest line (`face_points` at
+   0.548 and 0.565) passes the seat check. A chin moved forward to 0.10 at 0.565 gave a seat
+   gap of 1.5 to 2.0 cm on seeds 1 and 5.
+2. The ears lean back 22 degrees about their center (`field.ears.lean`), turn 62 degrees out,
+   and are a little longer. A lean of 25 degrees lowers the fit IoU of each view.
+3. The ear shells use 320 faces (`details.ears.subdivisions = 2`), so the pink is a smooth slot
+   with a cream rim. A hollow radius of 0.66 follows a ring of the shell. At 0.62 the edge of
+   the pink cut across the faces and showed jagged points.
+4. The head width from the cheeks to the temples follows `field.head.width_points`, measured on
+   the front mask. The mean of the front and back profiles was 0.003 to 0.008 wider.
+5. The feet are wider, flatter, and lower, and the warp of the feet moves back over the heels.
+   Larger toes (radii 0.013, 0.014, 0.017, 5 percent more spread) failed the remesh gate on
+   every seed, at the seated right leg (y 0.10 to 0.12).
+6. The foot claws are brown (`paint.palette.claw`), as the claw tips of the sheet.
+
+Wider shoulder tops (`field.trunk.width_points` 0.092 at y 0.50) left no model seed that
+passes the remesh gate, and seeds 2 and 8 got a seat gap of 2.2 and 2.4 cm. So the arms stay
+about 0.01 narrow at the shoulders.
+
+## Numbers (round 2, role seed 5, model seed 6)
+
+| Check | Rabbit | Round 1 | Bar |
+|---|---|---|---|
+| IoU front, side, back, 3/4 | 0.9178, 0.9158, 0.9182, 0.8515 | 0.9147, 0.8817, 0.9188, 0.8500 | 0.94, 0.94, 0.94, 0.91 |
+| Checks | 68 of 80 pass, every gate passes | 63 of 80 | |
+| Body triangles | 1204 (3752 with the details and the props) | 1148 (3216) | 900 to 1600 |
+| Median edge | 24.3 px of the sheet | 24.1 px | |
+| GLB | 920 kB (model GLB 550 kB) | 828 kB (513 kB) | 1.5 MB |
+| Seed report | seeds 5, 4, 8 pass every clip (3 of the 3 that pass the remesh gate) | 5 of 5 | |
+
+The seed report: seeds 3, 6, and 7 fail the remesh gate on slivers (1.21, 1.09, and 1.05
+percent, limit 1 percent). Seed 1 fails at the trunk bottom between the thighs (y 0.145) and
+at the crown (x 0, y 0.769, z 0.043). Seed 2 fails at the crown (y 0.770, z 0.054). The model
+build fails the remesh gate on seeds 3, 1, and 5, and keeps seed 6.
 
 ## Limits of the sheet
 
 | Check | Value (render, sheet) | Cause |
 |---|---|---|
-| `iou.side` | 0.8817 | The two ears of the side view are at other depths (one forward, one back). A mirrored model puts both at one depth. |
-| `iou.three_quarter` | 0.8500 | The 3/4 view turns the head more than the body (the compare turns the head 8 degrees), and its ears disagree with the front view. |
-| `eye_outline.three_quarter`, `eye_y.three_quarter` | 0.0292, 0.0408 and 0.016, 0.0044 | The far eye is almost hidden in the 3/4 view of the sheet. The eye heights differ between the views (front 0.670, side 0.69, 3/4 0.675). |
+| `iou.side` | 0.9158 | The two ears of the side view are at other depths (one forward, one back), and the near ear leans back about 20 degrees, the far ear about 10 degrees. A mirrored model puts both at one depth and one lean. |
+| `iou.three_quarter` | 0.8515 | The 3/4 view turns the head more than the body (the compare turns the head 13 degrees), and its ears disagree with the front view. |
+| `eye_outline.three_quarter`, `eye_y.three_quarter` | 0.0277, 0.0408 and 0.016, 0.0044 | The far eye is almost hidden in the 3/4 view of the sheet. The eye heights differ between the views (front 0.670, side 0.69, 3/4 0.675). |
 | `ear_dark.front.left_in_image` | 0, 0.16 | The light of the sheet shades one inner ear only. |
-| `ear_width.side`, `ear_height.side` | 0.0932, 0.0611 and 0.0742, 0.198 | The bump measure finds only the top of the render ear in the side view. |
-| `nose_*.side` | y 0.6245, 0.6463 | The nose of the side view is 0.03 higher than the nose of the front view (0.616). |
+| `ear_width.side` | 0.1194, 0.0611 | The bump measure of the side view finds only the top of the sheet ears. |
+| `nose_x.side`, `nose_y.side` | x 0.157, 0.187 and y 0.660, 0.646 | The nose of the side view is 0.03 higher than the nose of the front view (0.616). The side region of the measure starts at 0.62, above the nose of the model (0.612). |
 
-Open (not of the sheet): `iou.front` and `iou.back` (0.915, 0.919: the sheet is asymmetric,
-0.9615, and the thin arms lose width to the facets), `belly_width.front` (0.071, 0.096), and
-`facet_contrast` (3.70, 3.02).
+Open (not of the sheet): `iou.front` and `iou.back` (0.918, 0.918: the sheet is asymmetric,
+0.9615, the arms are about 0.01 narrow at the shoulders, and the ear bases make the head 0.010
+too wide at y 0.74), and `fur_hue.side` (33.5, 32.1, limit 1. Round 1 gave 32.6 with the model
+seed 1. The palette of the fur did not change, so the cause is not known).
 
 ## Known differences
 
