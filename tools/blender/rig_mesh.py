@@ -20,8 +20,9 @@ reads it (route 3 of `AGENTS.md`). The steps:
    arms go to the bind arms of the studio. The skin of the long-armed source in this pose is the
    bind mesh. Where the pose turns faces over, as at the haunch, their vertices relax toward
    their neighbors.
-6. Split each eye into a gloss shell a little out of the surface. The faces under it take the
-   fur color, so that a blink shows no hole. The faces of the nose become gloss.
+6. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
+   faces, a little out of the surface. The faces under it take the fur color, so that a blink
+   shows no hole. The faces of the nose become gloss.
 7. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
    and the other vertices give `legs_straight_L` and `legs_straight_R`.
@@ -619,11 +620,58 @@ def relax(src, bind, tris, weights, matrices, rounds=60):
     return out, rounds
 
 
-def add_eye_shells(verts, bind, tris, colors, eyes, lift):
-    """Adds a gloss shell over each eye: a copy of the faces of the eye, lifted along the normals
-    of the bind mesh. The faces under it take the mean fur color of their neighbors. Gives the
-    new vertices of the source and of the bind mesh, the triangles, the colors, the materials,
-    and the side of each new vertex."""
+def boundary_loop(tris):
+    """Gives the longest closed loop of the open edges of a patch of faces, in the order of the
+    faces (counterclockwise from outside for faces in that order)."""
+    count = {}
+    for t in tris:
+        for k in range(3):
+            edge = (int(t[k]), int(t[(k + 1) % 3]))
+            count[edge] = count.get(edge, 0) + 1
+    nxt = {a: b for (a, b) in count if (b, a) not in count}
+    loops, seen = [], set()
+    for start in sorted(nxt):
+        if start in seen:
+            continue
+        loop, v = [], start
+        while v not in seen and v in nxt:
+            seen.add(v)
+            loop.append(v)
+            v = nxt[v]
+        if v == start:
+            loops.append(loop)
+    return max(loops, key=len) if loops else []
+
+
+def fan_gap(points, fan, inside, normal):
+    """Gives the largest height of a point above a fan of triangles, along a normal: the lift
+    that puts each point under the fan. A point counts for the triangle that holds it when both
+    are seen along the normal."""
+    gap = 0.0
+    for a, b, c in fan:
+        pa, pb, pc = points[a], points[b], points[c]
+        face = np.cross(pb - pa, pc - pa)
+        if abs(face.dot(normal)) < 1e-12:
+            continue
+        for p in inside:
+            # The point where the line through p along the normal meets the plane of the face.
+            t = (pa - p).dot(face) / normal.dot(face)
+            q = p + t * normal
+            u = np.cross(pb - pa, q - pa).dot(face)
+            v = np.cross(pc - pb, q - pb).dot(face)
+            w = np.cross(pa - pc, q - pc).dot(face)
+            if (u >= 0 and v >= 0 and w >= 0) or (u <= 0 and v <= 0 and w <= 0):
+                gap = max(gap, -t)
+    return gap
+
+
+def add_eye_shells(verts, bind, tris, colors, eyes, rule):
+    """Adds a gloss shell over each eye: a fan from the middle of the eye to at most `points`
+    points of the edge of the dark faces, lifted along the normal of the eye in the bind mesh. The
+    fan needs fewer faces than a copy of the faces of the eye. The faces under it take the mean
+    fur color of their neighbors. Gives the new vertices of the source and of the bind mesh, the
+    triangles, the colors, and the materials."""
+    lift, points = rule['lift'], rule['points']
     material = np.array(['fur'] * len(tris), dtype=object)
     new_src, new_bind, new_tris, new_colors = [verts], [bind], [tris], [colors.copy()]
     count = len(verts)
@@ -637,18 +685,32 @@ def add_eye_shells(verts, bind, tris, colors, eyes, lift):
         faces = eyes[side]
         if len(faces) == 0:
             continue
-        corners = np.unique(tris[faces])
+        loop = boundary_loop(tris[faces])
+        if len(loop) < 3:
+            raise SystemExit(f'The eye {side} has no closed edge.')
+        n = min(points, len(loop))
+        ring = [loop[k * len(loop) // n] for k in range(n)]
         normal = np.zeros(3)
         for f in faces:
             a, b, c = bind[tris[f]]
             normal += np.cross(b - a, c - a)
         normal = unit(normal)
-        index = {v: count + k for k, v in enumerate(corners)}
-        new_src.append(verts[corners] + lift * normal)
-        new_bind.append(bind[corners] + lift * normal)
-        new_tris.append(np.array([[index[v] for v in tris[f]] for f in faces]))
-        new_colors.append(colors[faces])
-        count += len(corners)
+        corners = np.unique(tris[faces])
+        fan = [[0, 1 + k, 1 + (k + 1) % n] for k in range(n)]
+        for target, place in ((new_src, verts), (new_bind, bind)):
+            # The eye bulges, so the middle of the fan goes to the top of the dark faces, and the
+            # fan rises until each corner of the dark faces lies under it.
+            middle = place[corners].mean(axis=0)
+            middle += normal * (place[corners] - middle).dot(normal).max()
+            shell = np.vstack([middle, place[ring]])
+            gap = fan_gap(shell, fan, place[corners], normal)
+            target.append(shell + (lift + gap) * normal)
+        new_tris.append(np.array([[count, count + 1 + k, count + 1 + (k + 1) % n]
+                                  for k in range(n)]))
+        new_colors.append(np.tile(colors[faces].mean(axis=0), (n, 1)))
+        count += n + 1
+        log(f'eye {side}: {len(faces)} dark faces, an edge of {len(loop)} points, a fan of {n} '
+            f'faces, {gap + lift:.4f} u over the eye')
         # The faces under the shell take the mean color of the fur faces around the eye.
         around = set()
         for f in faces:
@@ -1016,7 +1078,7 @@ def main():
     log(f'bind: after {rounds} rounds of relaxing, {int((dots < 0).sum())} faces turn over')
 
     src_all, bind_all, tris_all, colors_all, materials = add_eye_shells(
-        long_verts, bind, tris, colors, eyes, config['eyeLift'])
+        long_verts, bind, tris, colors, eyes, config['eyeShell'])
     materials[nose] = 'gloss'
     extra = len(src_all) - len(long_verts)
     head_only = np.zeros((extra, len(BONES)))

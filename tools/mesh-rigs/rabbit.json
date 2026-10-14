@@ -70,7 +70,11 @@
     "nose": [0.85, 0.55, 0.55],
     "note": "Each face takes the mean sRGB color of the texture at the samples of a grid of the given steps on the face. A face is dark when its share of samples with a linear luminance below dark is at least eyeShare, and then it takes the mean of its dark samples. A dark face in the eye box (the left eye, mirrored for the right eye) is a face of an eye. A face in the nose box whose color is nearer to the nose color than to white is a face of the nose."
   },
-  "eyeLift": 0.002,
+  "eyeShell": {
+    "lift": 0.002,
+    "points": 12,
+    "note": "Each eye shell is a fan from the middle of the dark faces of the eye to at most this number of points of their edge, lifted this far (units) along the normal of the eye, so that the shells keep the triangles within the budget of a studio body."
+  },
   "chair": {
     "halfWidth": 0.16,
     "front": -0.03,
