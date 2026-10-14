@@ -1,6 +1,6 @@
 # Snapshot of 2026-10-14
 
-Commit `559774da`: test(pose): remove the accepted depth of the upper arms of the rabbit. `pnpm snapshot` made these images.
+Commit `89b3c7de`: docs(design): accept the folds of the shoulders of the rabbit mesh. `pnpm snapshot` made these images.
 
 | File | View |
 |---|---|
