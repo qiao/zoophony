@@ -225,13 +225,15 @@ of the entry of the animal in `ANIMALS`.
 1. Measure the joints on cuts of the mesh, as `docs/research/2026-10-13-rabbit-mesh/sections.py`
    does, and write them in the config with a note on each measure. The right side mirrors the
    left side.
-2. Run `pnpm rig-mesh <animal> --check` with the arm factor 1. Its first line gives the shoulder
-   joint, the reach with no factor, and the factor of the target reach. Ask the user about longer
-   arms with this measured factor, and then set it. With no `--check`, the tool stops when the
-   reach misses the target of the config by more than 1%.
-3. Run the tool with `--preview`, and look at the seated bind, the standing body, the knees, and
-   the main bones. The log gives the faces that the bind turns over, the smallest determinant of
-   the skin of the clip, and the triangles. Change a weight rule of the config, and run it again.
+2. Give the first config the arm factor 1 and the rule of the thin faces (`check.thin`). Then run
+   `pnpm rig-mesh <animal> --check`. Its first line gives the shoulder joint, the reach with no
+   factor, and the factor of the target reach. Ask the user about longer arms with this measured
+   factor, and then set it. With no `--check`, the tool stops when the reach misses the target of
+   the config by more than 1%.
+3. Run `pnpm rig-mesh <animal> --check --preview <dir>`, and look at the seated bind, the standing
+   body, the knees, and the main bones. It writes no file into the repository. The log gives the
+   faces that the bind turns over, the smallest determinant of the skin of the clip, and the
+   triangles. Change a weight rule of the config, and run it again.
 4. Run `pnpm rig-mesh <animal> --check` after each change of the config or of the script, and
    before the first docs commit. The triangles must stay in the budget, the packed mesh in its
    gzip budget, and the standing body within 1 mm of the long-armed source. Read the seat, the

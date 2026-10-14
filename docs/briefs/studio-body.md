@@ -258,8 +258,9 @@ format of a studio body ("A mesh with no skeleton into route 3" of `AGENTS.md`).
 five agent rounds ([`2026-10-14-rabbit-mesh-retro.md`](../research/2026-10-14-rabbit-mesh-retro.md)).
 Add these items to the briefs of the rig round and of the app round.
 
-- **The arms.** Write a first config with the measured joints and `armFactor` 1. Then run
-  `pnpm rig-mesh <animal> --check` before the question to the user about the arms. Its first line
+- **The arms.** Write a first config with the measured joints, `armFactor` 1, and the rule of
+  the thin faces (`check.thin`). Then run `pnpm rig-mesh <animal> --check` before the question to
+  the user about the arms. Its first line
   gives the shoulder joint, the reach with no factor, and the factor of the target reach. Ask
   with that measured factor. For the rabbit, the manager estimated 1.25 from a render, and the
   measure gave 1.445.
@@ -278,8 +279,10 @@ Add these items to the briefs of the rig round and of the app round.
   `pnpm rig-mesh <animal> --check` gives the triangles, the module size, the seat, the chair, H,
   the reach, the standing body, the violin rule, and the folds. Then look at the close views.
   Write the docs last. The rig round of the rabbit found the seat of 0 m after its docs commits.
-- **The probes.** Probe a rig before the swap with `--glb <file>` of `pnpm studio-body --inspect`,
-  `pnpm hold-reach`, and `pnpm fold-probe`. Do not edit `ANIMALS` for a probe.
+- **The probes.** Look at a rig with `pnpm rig-mesh <animal> --check --preview <dir>`, which
+  writes no file into the repository. A plain `--preview` writes the GLB file. Probe a rig before
+  the swap with `--glb <file>` of `pnpm studio-body --inspect`, `pnpm hold-reach`, and
+  `pnpm fold-probe`. Do not edit `ANIMALS` for a probe.
 - **The GLB file.** Commit each rule of the rig script with the GLB file unchanged. Only the last
   commit of a series of rig commits writes the GLB file again. The rig GLB files of the rabbit
   rounds put about 4.4 MB into the history: three extra files of 0.9 MB in the rig round, and six
