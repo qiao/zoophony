@@ -206,4 +206,4 @@ cue centers of the two seats move, and the cues of the conductor change in these
 ## 8. Images
 
 - Close views: `pnpm close-views violinist <dir>` on `119c63da` (`violinist-views.webp`).
-- Snapshot: `docs/snapshots/2026-10-13-119c63da/`.
+- Snapshot: `docs/snapshots/2026-10-13-9ed4c683/` (the round 4 body).

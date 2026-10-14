@@ -1,6 +1,6 @@
 # Snapshot of 2026-10-13
 
-Commit `119c63da`: feat(models): take the round 3 body of the studio rabbit. `pnpm snapshot` made these images.
+Commit `9ed4c683`: fix(pose): keep the right elbow of the rabbit down at the tip. `pnpm snapshot` made these images.
 
 | File | View |
 |---|---|
