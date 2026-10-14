@@ -4,7 +4,7 @@
  * `pnpm close-views`).
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, symlinkSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -113,4 +113,53 @@ export async function withRefTree<T>(
     process.off('SIGTERM', stop);
     await rm(dir, { recursive: true, force: true });
   }
+}
+
+/**
+ * Builds the site of a commit in a temporary folder, and gives the folder to a function. The
+ * folder gets the whole tree of the commit and a link to the `node_modules` of the repository.
+ * Then `pnpm build` of the commit writes `dist/` there. The folder goes away at the end, also
+ * after a failure or a stop.
+ *
+ * @param ref The commit, a branch, or a tag.
+ * @param use The function that reads the folder and its `dist/`.
+ * @param parent The folder that holds the temporary folder.
+ * @returns The result of the function.
+ * @throws Error if git does not know the ref, the build fails, or the function fails.
+ */
+export function withRefBuild<T>(
+  ref: string,
+  use: (dir: string) => Promise<T>,
+  parent?: string,
+): Promise<T> {
+  const options: RefTreeOptions = parent
+    ? { parent, prefix: 'ref-build-' }
+    : { prefix: 'ref-build-' };
+  return withRefTree(
+    ref,
+    async (dir) => {
+      symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
+      await runChild('pnpm', ['run', 'build'], dir);
+      return await use(dir);
+    },
+    options,
+  );
+}
+
+/**
+ * Gives the short hash of a commit.
+ *
+ * @param ref The commit, a branch, or a tag.
+ * @returns The short hash.
+ * @throws Error if git does not know the ref.
+ */
+export function shortHash(ref: string): string {
+  const result = spawnSync('git', ['rev-parse', '--short', '--verify', `${ref}^{commit}`], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  });
+  if (result.status !== 0) {
+    throw new Error(`git does not know the commit "${ref}".`);
+  }
+  return result.stdout.trim();
 }

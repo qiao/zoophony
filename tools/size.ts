@@ -6,7 +6,7 @@ import { gzipSync } from 'node:zlib';
 import type { Manifest } from 'vite';
 
 import { DEFAULT_DEMO } from '../src/app/demos.ts';
-import { DEMOS_DIR } from './patch-demos.ts';
+import { ROOT, shortHash, withRefBuild } from './ref-tree.ts';
 
 /** Limit of the first download after gzip, in bytes (design 7.2). */
 const SIZE_LIMIT_BYTES = 1_000_000;
@@ -120,6 +120,48 @@ export function defaultDemoFile(
   return exists(built) ? built : join(demosDir, 'src', `${DEFAULT_DEMO}.mid`);
 }
 
+/**
+ * Formats the totals of a base commit and of the working tree, and their difference.
+ *
+ * @param label The name of the base, such as `main (cc83899c)`.
+ * @param base The parts of the first download of the base.
+ * @param parts The parts of the first download of the working tree.
+ * @returns The lines.
+ */
+export function baseLines(
+  label: string,
+  base: readonly DownloadPart[],
+  parts: readonly DownloadPart[],
+): string[] {
+  const total = (list: readonly DownloadPart[]): number =>
+    list.reduce((sum, part) => sum + part.gzipBytes, 0);
+  const change = total(parts) - total(base);
+  const sign = change > 0 ? '+' : change < 0 ? '-' : '';
+  const bytes = (text: string): string => `${text} B`.padStart(12);
+  return [
+    `Base ${label}, built in a temporary folder:`,
+    `${bytes(total(base).toLocaleString('en-US'))}  total of the base`,
+    `${bytes(total(parts).toLocaleString('en-US'))}  total of the working tree`,
+    `${bytes(`${sign}${Math.abs(change).toLocaleString('en-US')}`)}  difference`,
+  ];
+}
+
+/**
+ * Gives the value of an option of the command line.
+ *
+ * @param args The arguments.
+ * @param name The option, such as `--base`.
+ * @returns The value, `null` when the option is not there, or `undefined` when it has no value.
+ */
+export function optionValue(args: readonly string[], name: string): string | null | undefined {
+  const at = args.indexOf(name);
+  if (at < 0) {
+    return null;
+  }
+  const value = args[at + 1];
+  return value && !value.startsWith('--') ? value : undefined;
+}
+
 async function measure(root: string, path: string): Promise<DownloadPart> {
   const data = await readFile(path);
   return {
@@ -128,19 +170,55 @@ async function measure(root: string, path: string): Promise<DownloadPart> {
   };
 }
 
-async function main(): Promise<void> {
-  const root = join(import.meta.dirname, '..');
+/**
+ * Measures the files of the first download of a build.
+ *
+ * @param root The folder of the build, with its `dist/` and its `demos/`.
+ * @returns The parts, with their paths relative to the folder.
+ */
+async function measureBuild(root: string): Promise<DownloadPart[]> {
   const dist = join(root, 'dist');
   const manifestText = await readFile(join(dist, '.vite', 'manifest.json'), 'utf8');
   // SAFETY: Vite writes this file in the format of its Manifest type (build.manifest).
   const manifest = JSON.parse(manifestText) as Manifest;
-  const demo = defaultDemoFile(dist, DEMOS_DIR);
+  const demo = defaultDemoFile(dist, join(root, 'demos'));
   const html = await readFile(join(dist, 'index.html'), 'utf8');
   const files = new Set([...staticChunkFiles(manifest, 'index.html'), ...htmlAssetFiles(html)]);
   const paths = [join(dist, 'index.html'), ...[...files].map((file) => join(dist, file)), demo];
-  const parts = await Promise.all(paths.map((path) => measure(root, path)));
+  return Promise.all(paths.map((path) => measure(root, path)));
+}
+
+/**
+ * Prints the size report of the build in `dist/`: `node tools/size.ts [--base <ref>]`. With
+ * `--base`, it also builds the commit in a temporary folder, and prints the totals and their
+ * difference.
+ */
+async function main(): Promise<void> {
+  const ref = optionValue(process.argv.slice(2), '--base');
+  if (ref === undefined) {
+    console.error('Usage: pnpm size [--base <ref>]');
+    process.exitCode = 1;
+    return;
+  }
+
+  let label = '';
+  if (ref !== null) {
+    try {
+      label = `${ref} (${shortHash(ref)})`;
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exitCode = 1;
+      return;
+    }
+  }
+
+  const parts = await measureBuild(ROOT);
   const report = sizeReport(parts, SIZE_LIMIT_BYTES);
   console.log(report.lines.join('\n'));
+  if (ref !== null) {
+    const base = await withRefBuild(ref, measureBuild);
+    console.log(baseLines(label, base, parts).join('\n'));
+  }
   if (!report.pass) {
     process.exitCode = 1;
   }

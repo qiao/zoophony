@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { Manifest } from 'vite';
 
-import { defaultDemoFile, htmlAssetFiles, sizeReport, staticChunkFiles } from './size.ts';
+import {
+  baseLines,
+  defaultDemoFile,
+  htmlAssetFiles,
+  optionValue,
+  sizeReport,
+  staticChunkFiles,
+} from './size.ts';
 
 const manifest: Manifest = {
   'index.html': {
@@ -88,5 +95,36 @@ describe('sizeReport', () => {
     const report = sizeReport(parts, 14_144);
     expect(report.pass).toBe(false);
     expect(report.lines.at(-1)).toContain('FAIL');
+  });
+});
+
+describe('baseLines', () => {
+  const base = [
+    { path: 'dist/index.html', gzipBytes: 260 },
+    { path: 'dist/assets/index.js', gzipBytes: 10_000 },
+  ];
+
+  it('prints both totals and a larger working tree as a plus', () => {
+    const next = [base[0]!, { path: 'dist/assets/index.js', gzipBytes: 11_234 }];
+    expect(baseLines('main (cc83899c)', base, next)).toEqual([
+      'Base main (cc83899c), built in a temporary folder:',
+      '    10,260 B  total of the base',
+      '    11,494 B  total of the working tree',
+      '    +1,234 B  difference',
+    ]);
+  });
+
+  it('prints a smaller working tree as a minus, and no sign for no change', () => {
+    expect(baseLines('main', base, base.slice(1)).at(-1)).toBe('      -260 B  difference');
+    expect(baseLines('main', base, base).at(-1)).toBe('         0 B  difference');
+  });
+});
+
+describe('optionValue', () => {
+  it('gives the value of an option, null with no option, and undefined with no value', () => {
+    expect(optionValue(['--base', 'main'], '--base')).toBe('main');
+    expect(optionValue([], '--base')).toBeNull();
+    expect(optionValue(['--base'], '--base')).toBeUndefined();
+    expect(optionValue(['--base', '--url', 'x'], '--base')).toBeUndefined();
   });
 });

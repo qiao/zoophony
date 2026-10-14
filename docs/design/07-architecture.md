@@ -245,6 +245,9 @@ them.
   It also counts each script and stylesheet that `index.html` loads. With several entries,
   Vite puts its module preload polyfill into a shared chunk that the manifest entry does not
   import.
+- `pnpm size --base <ref>` builds a commit in a temporary folder with its own `pnpm build`, and
+  prints its total beside the total of the working tree, with the difference. A round thus
+  gives the size change of a branch with no worktree of `main`.
 - The site holds the default demo at `demos/boulanger-matin.mid`. The build writes it to
   `dist/demos/boulanger-matin.mid` (8.3), and the check counts that file. With no such file, the
   check counts `demos/src/boulanger-matin.mid`. `defaultDemoFile()` of `tools/size.ts` follows
