@@ -332,6 +332,21 @@ These traps of route 3 each cost a round:
   right shoulder of the fox, but put the right forearm into the chest at the end of the lift.
   Count the folds of hold changes in memory (`docs/research/2026-10-14-fox-rig/fold-set.ts`), and
   check each candidate with `pnpm pose-depth --set` before you write it.
+- The values of the pose in meters do not change with the size of a body. The size round of
+  2026-10-14 tried five hold variants for 25 minutes. Then it found that the free hair of the bow
+  stays 0.03 m on the larger rabbit. These values stay in meters:
+  - the bow: `HAIR_END`, and `pluckHeight` and `pluck` of `BOWED_HANDS` (`src/pose/bowed.ts`),
+    `BOW_STEP` (`src/pose/bowed-rig.ts`), and `lift` and `tremoloAmplitude` of `BOW_MOTION`
+    (`src/pose/strokes.ts`);
+  - the hands and the head: `lift` and `pull` of `HAND_MOTION` (`src/pose/hand-notes.ts`), the
+    `sizes` of each hold of `src/pose/percussion-rig.ts`, `scale` of `CONDUCTOR_MOTION`
+    (`src/pose/conductor-notes.ts`), and `eyeHeight` of the cues (`src/pose/cues.ts`);
+  - the sweep: `CONTACT`, the `depth` of each accepted depth, and the `targetError` of each role
+    (`src/pose/test-sweep-roles.ts`), `PIANIST_GAP` (`src/pose/test-pianist-clearance.ts`), and
+    `GAP` (`src/pose/test-conductor-clearance.ts`).
+
+  Compare the folds and the depths in H first, with `pnpm hold-fit <role> --base main` and
+  `pnpm pose-depth <role> --base main`. Then probe these values before a fit of a hold.
 
 ## Rules
 

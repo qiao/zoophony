@@ -317,6 +317,14 @@ Add these items to the briefs of the rig round and of the app round.
   rule, read the weights of the faces that fold with `pnpm fold-probe <role> --faces <n>`. The
   fox round lost about 45 minutes to hand probes between these tools
   ([`2026-10-14-fox-retro.md`](../research/2026-10-14-fox-retro.md)).
+- **The size of a body.** A change of the size of a body keeps the values of the pose in meters,
+  such as the free hair of the bow (`HAIR_END`), the lift of the bow, and the contact limits of
+  the sweep. The trap of a body size in route 3 of `AGENTS.md` lists them with their files.
+  Compare the folds and the depths in the H of each body first, with
+  `pnpm hold-fit <role> --base main` and `pnpm pose-depth <role> --base main`. Then probe these
+  values before a fit of a hold. Compare the heights with
+  `pnpm close-views lineup <species,...> <dir> --base main`, which keeps one camera for both
+  trees.
 - **The seat and the tail.** Give the seat height and the lowest point of the tail of
   `pnpm rig-mesh <animal> --check` before a plan of a tail. The brief of the fox asked for a tail
   tip down behind the chair, and the seat of 0.126 m does not give room for a tip of 0.31 m.
