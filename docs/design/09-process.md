@@ -85,7 +85,8 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   iterates on the look of the animals, and each model round changed the targets of these tests.
   `PAUSED_TESTS` of `vite.config.ts` lists them in the Vitest project `paused`, in four groups:
   the clearance of the bodies, the fit of a pose to a body, the look of the bodies and the seats,
-  and the layout from the footprints of the bodies. `pnpm test` runs the project `unit`, which
+  and the layout from the footprints of the bodies, with a shot plan that the layout of one demo
+  decides. `pnpm test` runs the project `unit`, which
   skips them. Thus CI, `tools/check-commits.sh`, and `tools/merge-branch.sh` skip them too.
   `pnpm test:paused` runs them for information. The typecheck and the lint still read them, and
   each test helper stays. A section of this design that names a paused test as the check of a
