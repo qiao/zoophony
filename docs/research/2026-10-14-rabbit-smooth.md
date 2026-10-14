@@ -117,6 +117,14 @@ morph normals, so a hanging arm does not keep the light of the raised bind arm.
 the self shadow under the arms and at the backs of the legs on both. The smooth normals add no
 stair line where the light grazes the fur, so the shadow bias stays.
 
+The violinist views of the rabbit at 35° (`close-violinist-main-branch.webp` at the frog and
+`close-violinist-rest-main-branch.webp` at rest, main above the branch) came from a second run
+on commit abf518ba. `shadow-violinist-main-branch.webp` enlarges the back of the trunk in the left
+and the right views at the frog, main and branch in pairs. On main, the edge of the self shadow
+on the back follows the facets as a jagged line. At 35°, the shadow is a soft band, and its edge
+follows a smooth curve with no steps along the triangle edges. The dark line under the haunch at
+the seat is the contact shadow, the same on main. So the shadow bias stays at 35° too.
+
 ## The values that stay
 
 `pnpm body-probe --base main` (`body-probe-base-main.txt`) names only the bodies of the rabbit
