@@ -282,7 +282,8 @@ const FOX_HEAD_TURN = 25;
  * with the shoulder. In the rest pose, the flute stands on the right thigh with the foot joint
  * down, as a real flutist rests it, and leans to the left and to the front, so that the left paw
  * holds it in front of the chest. Upright at the side of the thigh, the left forearm went 15 cm
- * into the belly. Both paws stay on it.
+ * into the belly. Both paws stay on it, and the left elbow points out to the side: down, the left
+ * upper arm went 4.5 cm into the side of the belly.
  */
 const FOX_FLUTE = {
   ...WOODWIND,
@@ -293,7 +294,7 @@ const FOX_FLUTE = {
   poleR: [1, -0.8, 0],
   rest: fluteTurn(-22, 59, [0, 0, -1]),
   restShift: [0, -0.5, -0.19],
-  restPoleL: [-1, -1, 0],
+  restPoleL: [-1, 0, 0],
   restPoleR: [1, -0.5, 0.5],
 } as const satisfies WindHold;
 
