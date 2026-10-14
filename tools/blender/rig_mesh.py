@@ -1020,6 +1020,9 @@ def stretch(verts, weights, heads, ends, children, factors):
         new_ends[f'fingers_{side}'] = ends[f'fingers_{side}'] + shift
 
     rise = 0.0
+    # The thigh and the shin stretch only between their joints (segment_stretch), so that the
+    # haunch above the hip and the sole below the ankle do not move with the stretch.
+    segments = {}
     if factors['leg'] != 1:
         factor = factors['leg']
         for side in 'LR':
@@ -1028,11 +1031,8 @@ def stretch(verts, weights, heads, ends, children, factors):
             ankle = heads[f'foot_{side}']
             knee2 = hip + factor * (knee - hip)
             ankle2 = knee2 + factor * (ankle - knee)
-            for name, origin, start, axis in (('thigh', hip, hip, knee - hip),
-                                              ('shin', knee, knee2, ankle - knee)):
-                y = unit(axis)
-                scale = np.eye(3) + (factor - 1) * np.outer(y, y)
-                matrices[BONES.index(f'{name}_{side}')] = move(scale, origin, start)
+            for name, origin, start, end in (('thigh', hip, hip, knee), ('shin', knee, knee2, ankle)):
+                segments[BONES.index(f'{name}_{side}')] = (origin, start, end, factor)
             shift = ankle2 - ankle
             for name in ('foot', 'toes'):
                 matrices[BONES.index(f'{name}_{side}')] = move(np.eye(3), np.zeros(3), shift)
@@ -1054,15 +1054,32 @@ def stretch(verts, weights, heads, ends, children, factors):
     for name in BONES:
         if children[name]:
             new_ends[name] = new_heads[children[name]]
+    up = np.array([0.0, rise, 0.0])
     if rise:
-        up = np.array([0.0, rise, 0.0])
         for m in matrices:
             m[:, 3] += up
         for name in BONES:
             if name != 'root':
                 new_heads[name] = new_heads[name] + up
                 new_ends[name] = new_ends[name] + up
-    return skin(weights, matrices, verts), new_heads, new_ends, rise
+    for k in segments:
+        matrices[k] = np.zeros((3, 4))
+    out = skin(weights, matrices, verts)
+    for k, (origin, start, end, factor) in segments.items():
+        out += weights[:, k, None] * (segment_stretch(verts, origin, start, end, factor) + up)
+    return out, new_heads, new_ends, rise
+
+
+def segment_stretch(points, head, start, end, factor):
+    """Stretches points along a bone from `head` to `end` by a factor, and moves the head to
+    `start`. Only the part of a point along the segment stretches: a point before the head moves
+    with the head, and a point beyond the end moves with the end, so the parts beyond the joints
+    keep their form."""
+    axis = end - head
+    length = np.linalg.norm(axis)
+    y = axis / length
+    along = np.clip((points - head) @ y, 0.0, length)
+    return points + (start - head) + (factor - 1) * along[:, None] * y
 
 
 def reach(heads, side):
