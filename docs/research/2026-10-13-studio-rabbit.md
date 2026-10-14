@@ -78,7 +78,8 @@ layout: the second desk of the first violins of Beethoven 8 moved from (-4.36, 2
 (-4.53, 3.38), and the head point of the first violin stood 3.5 px outside the free area of the
 default view (`shots/shot-frames-2.test.ts`). With the back in place, that desk is at (-4.39,
 2.70), and the test passes (`layout-probe.ts`: `layout-main.txt`, `layout-centered-chair.txt`,
-and `layout-branch.txt`; run it with the root of a source tree as its argument).
+and `layout-branch.txt`; run it with the root of a source tree as its argument, and a demo file
+as a second argument for a demo other than Beethoven 8).
 
 ## 4. The standing body
 
@@ -171,10 +172,14 @@ bone was at 0.384 m (`rest-probe.ts`).
 The shards of the violinist clearance take 21 s, 16 s, and 15 s of file time.
 
 `pnpm body-probe --base main` (`body-probe.txt`: 90 of 95 bodies, 22 of 23 players, and 555 of 672 pose sets equal): the bodies and the player of the rabbit change. The
-other changes come from the layout and the cues. The layout fits the footprints of the new
-rabbit, so the second desk of the first violins and the red foxes 6 and 7 of some demos move a
-little, and their looks at the conductor change. The cues of the conductor read the eyes of the
-violin seat, and the rabbit has its eyes lower.
+other changes come from the layout. The layout fits the footprints of the new rabbit. In
+Beethoven 8 and K. 315, it moves the rabbits 2 and 3 (the second desk of the first violins) and the
+red foxes 6 and 7 of the second violins a little, and the looks of the foxes at the conductor change
+(`layout-main.txt` and `layout-branch.txt` for Beethoven 8, `layout-main-k315.txt` and
+`layout-branch-k315.txt` for K. 315, with the argument `mozart-k315.mid`). The cue center of a seat
+is the middle of the places of its players, at the fixed eye height of the cues (`cueSeats()` of
+`pose/plan.ts`). It reads no eye of a player. The layout moves players of both violin seats, so the
+cue centers of the two seats move, and the cues of the conductor change in these two demos.
 
 ## 8. Images
 
