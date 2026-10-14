@@ -18,18 +18,21 @@ reads it (route 3 of `AGENTS.md`). The steps:
    four bones, in steps of 1/255.
 4. Make the upper arm and the forearm longer by the arm factor of the config. Each bone scales
    along its axis, and the weights blend the stretch to 0 at the shoulder. The paw keeps its size.
-5. Pose the skeleton in the seated bind pose: the legs turn by the seat of the studio, and the
+5. Change the faces of the arms so that they bend at the joints: a ring of new vertices at each
+   joint of the config splits the faces that it crosses, and the long edge of a face that is
+   thin in the seated bind pose flips. Each face then takes its color from the texture again.
+6. Pose the skeleton in the seated bind pose: the legs turn by the seat of the studio, and the
    arms go to the bind arms of the studio. The skin of the long-armed source in this pose is the
    bind mesh. Where the pose turns faces over, as at the haunch, their vertices relax toward
    their neighbors.
-6. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
+7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. The faces under it take the fur color, so that a blink
    shows no hole. The faces of the nose become gloss. Each face takes the nearest color of a
    palette in Oklab, and the faces go in the order of a walk over their shared edges.
-7. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
+8. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
    and the other vertices give `legs_straight_L` and `legs_straight_R`.
-8. Write the GLB file with the code of this script: the materials `fur`, `gloss`, and `chair`,
+9. Write the GLB file with the code of this script: the materials `fur`, `gloss`, and `chair`,
    the skinned mesh with its morph targets, the skeleton, the clip `reference` with one key, and
    a chair under the seated body. The bytes depend only on the config and the source file.
 
@@ -613,6 +616,206 @@ def straight_slivers(verts, tris, weights, rules):
             moved += 1
     log(f'lines: {moved} middle corners of faces with a corner angle above {limit_angle}°')
     return out
+
+
+def edge_faces(tris):
+    """Gives the faces of each edge, by the sorted pair of its corners."""
+    out = {}
+    for f, t in enumerate(tris):
+        for k in range(3):
+            out.setdefault(tuple(sorted((int(t[k]), int(t[(k + 1) % 3])))), []).append(f)
+    return out
+
+
+def corner_angle(p, a, b):
+    """Gives the angle at the point `p` between the points `a` and `b`, in degrees."""
+    u, v = a - p, b - p
+    cos = u.dot(v) / max(np.linalg.norm(u) * np.linalg.norm(v), 1e-12)
+    return math.degrees(math.acos(max(-1.0, min(1.0, cos))))
+
+
+def segment_gap(a, b, c, d):
+    """Gives the smallest distance between the segments ab and cd."""
+    u, v, w = b - a, d - c, a - c
+    uu, uv, vv, uw, vw = u.dot(u), u.dot(v), v.dot(v), u.dot(w), v.dot(w)
+    det = uu * vv - uv * uv
+    s = np.clip((uv * vw - vv * uw) / det, 0.0, 1.0) if det > 1e-18 else 0.0
+    t = np.clip((uv * s + vw) / vv, 0.0, 1.0)
+    s = np.clip((uv * t - uw) / uu, 0.0, 1.0)
+    return float(np.linalg.norm(a + s * u - (c + t * v)))
+
+
+def arm_mask(weights):
+    """Tells for each vertex if an arm bone of a side moves it."""
+    arm = np.zeros(len(weights), bool)
+    for side in 'LR':
+        for bone in ARM:
+            arm |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+    return arm
+
+
+def flip_edges(verts, bind, tris, uvs, weights, rule):
+    """Flips the long edge of each thin face of the arms in the seated bind pose: the edge across
+    a corner angle above `angle` in the bind mesh goes to the corner of the face on its other
+    side. The bind pose bends the elbows, so a face across an elbow is thin in the bind mesh only.
+    A flip needs the two faces almost on one plane in the source and in the bind mesh (normals
+    within `normals` degrees), a move of the surface of at most `move` units in both, the two new
+    faces on the side of the old faces in both, and a larger smallest corner angle in the bind
+    mesh. An edge on a seam of the texture does not flip. Gives the new triangles and corner UVs,
+    the number of flips, and the largest move of the surface (at the crossing of the two
+    diagonals)."""
+    tris, uvs = tris.copy(), uvs.copy()
+    arm = arm_mask(weights)
+    flips, largest = 0, 0.0
+    for _ in range(rule.get('rounds', 4)):
+        changed = False
+        faces_of = edge_faces(tris)
+        done = set()
+        for f in range(len(tris)):
+            if f in done or not arm[tris[f]].all():
+                continue
+            t = tris[f]
+            angles = [corner_angle(bind[t[k]], bind[t[(k + 1) % 3]], bind[t[(k + 2) % 3]])
+                      for k in range(3)]
+            k = int(np.argmax(angles))
+            if angles[k] <= rule['angle']:
+                continue
+            m, a, b = int(t[k]), int(t[(k + 1) % 3]), int(t[(k + 2) % 3])
+            others = [g for g in faces_of[tuple(sorted((a, b)))] if g != f]
+            if len(others) != 1 or others[0] in done or not arm[tris[others[0]]].all():
+                continue
+            g = others[0]
+            n = int(next(v for v in tris[g] if v not in (a, b)))
+            uv_f = {int(v): uvs[f][j] for j, v in enumerate(t)}
+            uv_g = {int(v): uvs[g][j] for j, v in enumerate(tris[g])}
+            if any(np.abs(uv_f[v] - uv_g[v]).max() > 1e-6 for v in (a, b)):
+                continue
+            # The face f is (m, a, b) in its order, so the face g holds (b, a, n) in its order.
+            new = np.array([[m, a, n], [m, n, b]])
+            fits, gap = True, 0.0
+            for points in (verts, bind):
+                old_normals = face_normals(points, tris[[f, g]])
+                cos = float(old_normals[0].dot(old_normals[1]))
+                gap = max(gap, segment_gap(points[a], points[b], points[m], points[n]))
+                fits &= math.degrees(math.acos(max(-1.0, min(1.0, cos)))) <= rule['normals']
+                fits &= bool((face_normals(points, new) @ old_normals.sum(axis=0) > 0).all())
+            if not fits or gap > rule['move']:
+                continue
+            if min_angles(bind, new).min() <= min_angles(bind, tris[[f, g]]).min():
+                continue
+            uv_g[m] = uv_f[m]
+            tris[f], tris[g] = new
+            uvs[f] = [uv_f[m], uv_f[a], uv_g[n]]
+            uvs[g] = [uv_f[m], uv_g[n], uv_f[b]]
+            done.update((f, g))
+            flips += 1
+            largest = max(largest, gap)
+            changed = True
+        if not changed:
+            break
+    return tris, uvs, flips, largest
+
+
+def ring_cuts(verts, tris, weights, heads, ends, ring, side):
+    """Finds the edges that a ring of one joint cuts: the plane through the joint, at right
+    angles to the mean direction of the bone before it and the bone after it. An edge counts when
+    both corners lie within `radius` of the joint, an arm bone of the side moves one corner, it is
+    at least `minEdge` long, and the plane cuts it at least `ends` of its length from each
+    corner. Gives the place of the cut along each edge, by the sorted pair of its corners."""
+    joint = f"{ring['joint']}_{side}"
+    parent = PARENTS[joint]
+    point = heads[joint]
+    normal = unit(unit(point - heads[parent]) + unit(ends[joint] - point))
+    near = np.linalg.norm(verts - point, axis=1) <= ring['radius']
+    arm = np.zeros(len(verts), bool)
+    for bone in ARM:
+        arm |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+    height = (verts - point) @ normal
+    cuts = {}
+    for a, b in edge_faces(tris):
+        if not (near[a] and near[b] and (arm[a] or arm[b])) or height[a] * height[b] >= 0:
+            continue
+        if np.linalg.norm(verts[a] - verts[b]) < ring.get('minEdge', 0.0):
+            continue
+        t = height[a] / (height[a] - height[b])
+        if ring.get('ends', 0.0) <= t <= 1.0 - ring.get('ends', 0.0):
+            cuts[(a, b)] = float(t)
+    return cuts
+
+
+def split_faces(verts, tris, uvs, weights, cuts):
+    """Splits each edge of `cuts` at its place, and each face with a cut edge into faces on its
+    plane: two faces for one cut edge, three for two, and four for three. A new vertex takes the
+    place, the UV of each face, and the weights of its place on the edge. A face keeps its index
+    for its first part, and the other parts follow the faces. Gives the new vertices, triangles,
+    corner UVs, and weights."""
+    index = {}
+    new_verts, new_weights = [verts], [weights]
+    for (a, b), t in sorted(cuts.items()):
+        index[(a, b)] = len(verts) + len(index)
+        new_verts.append([(1 - t) * verts[a] + t * verts[b]])
+        new_weights.append([(1 - t) * weights[a] + t * weights[b]])
+    out_tris, out_uvs, extra_tris, extra_uvs = [], [], [], []
+    for f, t in enumerate(tris):
+        uv = {int(v): uvs[f][j] for j, v in enumerate(t)}
+        mids = {}
+        for k in range(3):
+            a, b = int(t[k]), int(t[(k + 1) % 3])
+            key = tuple(sorted((a, b)))
+            if key in index:
+                s = cuts[key] if key == (a, b) else 1.0 - cuts[key]
+                mids[k] = index[key]
+                uv[index[key]] = (1 - s) * uv[a] + s * uv[b]
+        parts = split_triangle([int(v) for v in t], mids, np.concatenate(new_verts))
+        out_tris.append(parts[0])
+        out_uvs.append([uv[v] for v in parts[0]])
+        extra_tris += parts[1:]
+        extra_uvs += [[uv[v] for v in p] for p in parts[1:]]
+    tris_out = np.array(out_tris + extra_tris, np.int64)
+    uvs_out = np.array(out_uvs + extra_uvs)
+    return np.concatenate(new_verts), tris_out, uvs_out, np.concatenate(new_weights)
+
+
+def split_triangle(t, mids, points):
+    """Splits the triangle `t` (three corners in order) at the new vertices `mids` of its edges
+    (the edge k goes from the corner k to the corner k + 1). A quad takes its shorter diagonal.
+    Gives the parts, in the order of the corners."""
+    a, b, c = t
+    if not mids:
+        return [t]
+    if len(mids) == 1:
+        k = next(iter(mids))
+        p, (u, v, w) = mids[k], (t[k], t[(k + 1) % 3], t[(k + 2) % 3])
+        return [[u, p, w], [p, v, w]]
+    if len(mids) == 3:
+        p, q, r = mids[0], mids[1], mids[2]
+        return [[a, p, r], [p, b, q], [r, q, c], [p, q, r]]
+    # Two cut edges: the corner between them is alone on one side of the cut.
+    k = next(j for j in range(3) if j in mids and (j + 2) % 3 in mids)
+    u, v, w = t[k], t[(k + 1) % 3], t[(k + 2) % 3]
+    p, q = mids[k], mids[(k + 2) % 3]
+    if np.linalg.norm(points[p] - points[w]) <= np.linalg.norm(points[v] - points[q]):
+        return [[u, p, q], [p, v, w], [p, w, q]]
+    return [[u, p, q], [p, v, q], [v, w, q]]
+
+
+def refine(verts, tris, uvs, weights, heads, ends, matrices, rule):
+    """Changes the faces of the arms so that they bend at the joints (design 4.4): first a ring
+    of new vertices at each joint of `rings` on each side (`ring_cuts()`, `split_faces()`), then
+    the flips of the long edges of the faces that are thin in the seated bind pose
+    (`flip_edges()`). The cuts keep the surface, and each new vertex keeps four bones. Gives the
+    new vertices, triangles, corner UVs, and weights, the number of flips, the largest move of a
+    flip, and the number of cut edges."""
+    cuts = {}
+    for ring in rule['rings']:
+        for side in 'LR':
+            cuts.update(ring_cuts(verts, tris, weights, heads, ends, ring, side))
+    verts, tris, uvs, weights = split_faces(verts, tris, uvs, weights, cuts)
+    if cuts:
+        weights = limit(weights)
+    tris, uvs, flips, largest = flip_edges(verts, skin(weights, matrices, verts), tris, uvs,
+                                           weights, rule['flip'])
+    return verts, tris, uvs, weights, flips, largest, len(cuts)
 
 
 def weight_steps(row):
@@ -1209,13 +1412,12 @@ def main():
         config = json.load(f)
     rules = config['weights']
 
-    verts, tris, uvs, texture = load_mesh(config)
-    colors, dark = face_colors(tris, uvs, texture, config['colors'])
-    eyes, nose = features(verts, tris, colors, dark, config['colors'])
-
+    verts, source_tris, uvs, texture = load_mesh(config)
     heads, ends, rolls, children = joints_of(config)
-    weights = apply_rules(verts, tris, bone_heat(verts, tris, heads, ends, rolls), rules, ends)
-    weights = straight_slivers(verts, tris, rigid_slivers(verts, tris, weights, rules), rules)
+    weights = apply_rules(verts, source_tris, bone_heat(verts, source_tris, heads, ends, rolls),
+                          rules, ends)
+    weights = straight_slivers(verts, source_tris,
+                               rigid_slivers(verts, source_tris, weights, rules), rules)
     weights = limit(weights)
 
     # The long arms: the scale of the app comes from the shoulder joints.
@@ -1232,12 +1434,22 @@ def main():
     bind_heads = posed_heads(long_heads, turns)
     bind_frames = {n: turns[n] @ src_frames[n] for n in BONES}
     matrices = [move(turns[n], long_heads[n], bind_heads[n]) for n in BONES]
+
+    # The faces of the arms change so that they bend at the joints. The head, the trunk, and the
+    # legs keep their faces, their vertices, and their weights.
+    long_verts, tris, uvs, weights, flips, largest, cuts = refine(
+        long_verts, source_tris, uvs, weights, long_heads, long_ends, matrices, config['refine'])
+    log(f'refine: {flips} flips, the largest move {largest * meters * 1000:.3f} mm, {cuts} cut '
+        f'edges, {len(tris) - len(source_tris)} new faces')
+    colors, dark = face_colors(tris, uvs, texture, config['colors'])
+    eyes, nose = features(long_verts, tris, colors, dark, config['colors'])
+
     bind = skin(weights, matrices, long_verts)
     dots = turn_dots(long_verts, bind, tris, weights, matrices)
     main_bone = weights[tris].sum(axis=1).argmax(axis=1)
     turned = np.nonzero(dots < 0)[0]
     names = sorted({BONES[main_bone[f]] for f in turned})
-    free = int(free_arm(verts, tris, rules['armSplit'], ends['fingers_L'], 1.0).sum())
+    free = int(free_arm(verts, source_tris, rules['armSplit'], ends['fingers_L'], 1.0).sum())
     log(f'arm: {free} vertices in the free left arm beyond |x| = {rules["armSplit"]}')
     log(f'bind: {len(turned)} faces turn over from the source, on the bones {names}')
     bind, rounds = relax(long_verts, bind, tris, weights, matrices)

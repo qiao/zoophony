@@ -59,6 +59,17 @@
     "haunch": { "height": [0.11, 0.16], "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the haunch stays on the seat and only the leg below it turns." },
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.106 out. Inside that plane, the shoulder follows the upper arm and no lower bone of the arm. Above headFrom, each vertex except the ears follows the head only: the eyes, the nose, and the whiskers. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail ball follows the tail only: the vertices near its middle and behind the plane z = behind, where the cuts of sections.py z show the ball apart from the body (z -0.145)."
   },
+  "refine": {
+    "rings": [],
+    "ringsNote": "Each ring cuts the edges of an arm near a joint with the plane through the joint, at right angles to the mean direction of the bone before the joint and the bone after it: joint (the arm bone that starts at the joint), radius (units from the joint), minEdge (the shortest edge that the ring cuts, in units), and ends (the smallest part of the edge from each corner). A new vertex takes the place, the UV, and the weights of its place on the edge, and each split face takes its color from the texture again. With no rings, the faces of the source stay.",
+    "flip": {
+      "angle": 180,
+      "normals": 0,
+      "move": 0,
+      "rounds": 4,
+      "note": "The long edge of a face of the arms with a corner angle above angle (degrees) in the seated bind mesh flips to the corner of the face on its other side. The two faces must lie almost on one plane in the source and in the bind mesh (normals within normals, in degrees), and the flip must move the surface by at most move (units) in both. The flips run in rounds until no edge flips. The angle 180 turns the flips off."
+    }
+  },
   "colors": {
     "samples": 6,
     "palette": 48,
