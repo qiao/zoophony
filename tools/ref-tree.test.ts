@@ -1,6 +1,13 @@
 import { spawn, spawnSync } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  writeFileSync,
+} from 'node:fs';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -175,6 +182,34 @@ describe('withRefTree after Ctrl-C', () => {
       expect(await holder.closed).toBe(130);
       expect(existsSync(dir)).toBe(false);
       expect(runs(marker)).toBe(false);
+    } finally {
+      await rm(parent, { recursive: true, force: true });
+    }
+  });
+
+  it('removes the folder and exits with 130 after Ctrl-C during git archive', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'ref-tree-stop-'));
+    const bin = join(parent, 'bin');
+    try {
+      mkdirSync(bin);
+      // A git that waits, so that the stop comes during the extraction.
+      writeFileSync(
+        join(bin, 'git'),
+        `#!/bin/sh\necho started > "${bin}/started"\nexec sleep 20\n`,
+      );
+      chmodSync(join(bin, 'git'), 0o755);
+      const holder = hold(
+        "await withRefTree('HEAD', async () => 0, { parent: process.env.REF_TREE_PARENT });",
+        parent,
+        `${bin}:${process.env['PATH'] ?? ''}`,
+      );
+      await waitFor(() => existsSync(join(bin, 'started')));
+      expect(readdirSync(parent).filter((name) => name.startsWith('ref-'))).toHaveLength(1);
+
+      process.kill(-(holder.child.pid ?? 0), 'SIGINT');
+      expect(await holder.closed).toBe(130);
+      expect(holder.output()).toBe('');
+      expect(readdirSync(parent).filter((name) => name.startsWith('ref-'))).toEqual([]);
     } finally {
       await rm(parent, { recursive: true, force: true });
     }

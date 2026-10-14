@@ -32,10 +32,16 @@ export function errorCause(errors: string): string {
  * @param command The command.
  * @param args The arguments.
  * @param cwd The folder of the command.
- * @throws Error if the command fails, with the cause from its error output.
+ * @throws Error if the command fails, with the cause from its error output. After INT or TERM, the
+ *   tool removes each temporary folder and exits.
  */
 export function run(command: string, args: readonly string[], cwd: string): void {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8' });
+  if (result.signal === 'SIGINT' || result.signal === 'SIGTERM') {
+    // The signal of a stop reached the command too. The stop listener of withRefTree() waits for
+    // the event loop, so the tool stops here.
+    stopNow(result.signal);
+  }
   if (result.status !== 0) {
     const reason = result.error?.message ?? errorCause(result.stderr);
     throw new Error(`${command} ${args.join(' ')} failed: ${reason}`);
@@ -146,6 +152,27 @@ function stopAfter(signal: NodeJS.Signals): void {
     removeHeld();
     process.exit(signal === 'SIGINT' ? 130 : 143);
   })();
+}
+
+/**
+ * Stops the tool at once after INT or TERM during a synchronous command: sends TERM to the group
+ * of each child of {@link runChild}, removes each temporary folder, and exits with 128 plus the
+ * number of the signal.
+ *
+ * @param signal The signal.
+ */
+function stopNow(signal: NodeJS.Signals): never {
+  for (const child of running) {
+    if (child.pid !== undefined) {
+      try {
+        process.kill(-child.pid, 'SIGTERM');
+      } catch {
+        // The group has ended.
+      }
+    }
+  }
+  removeHeld();
+  process.exit(signal === 'SIGINT' ? 130 : 143);
 }
 
 /** The options of {@link withRefTree}. */
