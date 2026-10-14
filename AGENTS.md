@@ -116,8 +116,9 @@ dispatch in `buildBiped()` and `SpeciesParams.rigged`, the seat drop of a rigged
    `models/layout-scene.test.ts` limits the growth, so run
    `pnpm test:paused src/models/layout-scene.test.ts` for a wider body. The seats fit its legs.
    Fix the tests of the new code.
-   Remove each check that was tuned on the parametric bodies and fails on the reach or the size
-   of the model, and list it in the commit message (user decisions of 2026-10-10).
+   Remove each check of `pnpm test` that was tuned on the parametric bodies and fails on the
+   reach or the size of the model, and list it in the commit message (user decisions of
+   2026-10-10). A model round does not fix or remove a paused test.
 5. Run `pnpm snapshot`, look at the play frame and the close view, and add a decision row. On a
    seat, look at the knees from the side. When the weights of the file put the haunch on the
    thigh, each seated thigh swings the haunch under it, and the knee stands up high. Give the
@@ -507,10 +508,10 @@ Follow these rules when another agent works on the repository at the same time.
   its filter drops, and compares its frames with the canvas writes of the trace.
 - Build test inputs with the real `midi/` and `score/` modules. A hand-made `Score` copies the
   rules of design section 3, and it can drift from them.
-- A model that the user gives can fail checks that were tuned on the parametric bodies, such as
-  the reach of an instrument hold. Remove such a check, and fix the checks of the new code (user
-  decision of 2026-10-10). Remove the tests and the test helpers of a body or a part that no
-  species uses.
+- A model that the user gives can fail checks of `pnpm test` that were tuned on the parametric
+  bodies. Remove such a check, and fix the checks of the new code (user decision of 2026-10-10).
+  A model round does not fix or remove a paused test. Remove the tests and the test helpers of a
+  body or a part that no species uses.
 - Put a probe script in `scratch/` of your worktree. Git ignores the folder, and the lint, the
   typecheck, and the format check skip it. Run the probe with `node scratch/<name>.ts`. It
   imports `three` through the `node_modules` of the worktree, and the source modules by relative
