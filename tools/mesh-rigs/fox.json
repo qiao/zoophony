@@ -4,12 +4,12 @@
   "name": "Fox",
   "weld": 1e-5,
   "app": {
-    "shoulders": 0.581,
-    "reach": 0.543,
-    "note": "The parametric fox of the app puts its standing shoulder joints 0.581 m above the floor (docs/research/2026-10-14-fox-mesh/landmark-probe.txt), as the parametric rabbit that set the scale of the rabbit mesh. The reach is the reach of the parametric fox to the middle of the palm in the violin hold (pnpm hold-reach fox-red, hold-reach-parametric.txt). The user has not chosen the arms yet: the reach of the rabbit, 0.377 m, needs a smaller factor."
+    "shoulders": 0.7454,
+    "reach": 0.377,
+    "note": "The scale puts the standing head top of the fox at 1.083 m, the head top of the parametric fox (docs/research/2026-10-14-fox-mesh/landmark-probe.txt and scale-variants.txt): 1.1927 m for each unit, so the shoulder joint at 0.625 units is 0.7454 m above the floor. At the shoulders of the parametric fox (0.581 m), the head top of the mesh was 0.844 m, below the head top of the standing rabbit mesh (0.934 m), and the seated rabbits of orchestra-latest.png have 0.76 to 0.90 of the head top of the red fox beside them. The user chose the reach of the rabbit, 0.377 m (2026-10-14)."
   },
-  "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. The first config keeps the arms of the mesh (factor 1), so that pnpm rig-mesh fox --check gives the measured factor for the question to the user. With no --check, pnpm rig-mesh stops when the reach is more than 1% from app.reach.",
+  "armFactor": 1.0782,
+  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh fox --check measured 0.3519 m with no factor and the factor 1.0782 for 0.377 m. With no --check, pnpm rig-mesh stops when the reach is more than 1% from app.reach.",
   "joints": {
     "root": { "head": [0, 0, 0], "tail": [0, 0, 0.1], "roll": [0, 1, 0] },
     "hips": { "head": [0, 0.24, 0.03], "tail": "spine" },
@@ -33,37 +33,42 @@
     "shin_L": { "head": [0.078, 0.125, 0.03], "tail": "foot_L" },
     "foot_L": { "head": [0.086, 0.05, 0.035], "tail": "toes_L", "roll": [0, 1, 0] },
     "toes_L": { "head": [0.09, 0.02, 0.095], "tail": [0.09, 0.012, 0.135], "roll": [0, 1, 0] },
-    "tail": { "head": [0, 0.34, -0.075], "tail": [0, 0.25, -0.15], "roll": [0, 1, 0] }
+    "tail": { "head": [0, 0.34, -0.075], "tail": "tail_tip", "roll": [0, 1, 0] },
+    "tail_tip": { "head": [0, 0.25, -0.15], "tail": [0, 0.01, -0.247], "roll": [0, 1, 0] }
   },
   "palm": [-0.7, -0.52, -0.49],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the ear tips, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-14-fox-mesh/. sections.py gives the cuts at each height: the feet below y 0.05 (the toes forward to z 0.14), the thin shins from 0.05 to 0.11, the wide thighs from 0.13 to the crotch at 0.23, the body from 0.23 to 0.51 (x ±0.093 under the arms), the shoulders at 0.53 to 0.66, the narrow neck at 0.69 to 0.71 (x ±0.089), the head from 0.71 with the muzzle to z 0.28, and the ears apart from 0.91. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut, as in the rabbit, from the hips over the crotch to the chest 0.085 below the shoulder joint. The thigh joint lies at the crotch on the middle of the leg cut, the knee where the thin shin meets the wide thigh, the ankle where the foot starts, and the toes at the ball of the foot. The ear joint lies on the line of the middles of the ear cuts at 0.91 and 0.95, at the top of the head (0.89), and its tail at the ear tip. The cuts at x 0.101 to 0.221 give the middle line of the free arm (sections-x.txt), which leaves the body between x 0.081 and 0.101. The shoulder joint lies on that line, 0.03 inside the root (x 0.07). The wrist lies at the narrow cut where the paw starts (arm-axis.txt, s 0.01 to 0.02), the elbow halfway from the shoulder joint to the wrist and 0.01 behind the line, and the finger joint at the knuckles, 0.03 before the tip of the paw. The tail joint lies at the middle of the root of the tail, between its top on the back (y 0.42, z -0.09) and its bottom on the thighs (y 0.26, z -0.055), and its tail on the middle line of the tail cuts. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw, inward and back (facts.txt).",
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the ear tips, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-14-fox-mesh/. sections.py gives the cuts at each height: the feet below y 0.05 (the toes forward to z 0.14), the thin shins from 0.05 to 0.11, the wide thighs from 0.13 to the crotch at 0.23, the body from 0.23 to 0.51 (x ±0.093 under the arms), the shoulders at 0.53 to 0.66, the narrow neck at 0.69 to 0.71 (x ±0.089), the head from 0.71 with the muzzle to z 0.28, and the ears apart from 0.91. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut, as in the rabbit, from the hips over the crotch to the chest 0.085 below the shoulder joint. The thigh joint lies at the crotch on the middle of the leg cut, the knee where the thin shin meets the wide thigh, the ankle where the foot starts, and the toes at the ball of the foot. The ear joint lies on the line of the middles of the ear cuts at 0.91 and 0.95, at the top of the head (0.89), and its tail at the ear tip. The cuts at x 0.101 to 0.221 give the middle line of the free arm (sections-x.txt), which leaves the body between x 0.081 and 0.101. The shoulder joint lies on that line, 0.03 inside the root (x 0.07). The wrist lies at the narrow cut where the paw starts (arm-axis.txt, s 0.01 to 0.02), the elbow halfway from the shoulder joint to the wrist and 0.01 behind the line, and the finger joint at the knuckles, 0.03 before the tip of the paw. The tail is a chain of two bones (tail_line.py, tail-line.txt). The tail joint lies at the middle of the root of the tail, between its top on the back (y 0.42, z -0.09) and its bottom on the thighs (y 0.26, z -0.055). The tail_tip joint lies at the bend of the middle line of the tail cuts, where the tail leaves the body (y 0.25, z -0.15), 0.117 units from the root, and its tail at the tip of the tail (y 0.01, z -0.247). Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw, inward and back (facts.txt).",
   "studio": {
     "legTurns": {
-      "thigh": [0.457255, -0.123448, -0.064263, 0.878379],
-      "shin": [0, -0.139173, 0, 0.990268],
-      "foot": [0, -0.139173, 0, 0.990268],
-      "toes": [0, -0.139173, 0, 0.990268]
+      "thigh": [0.6405, -0.03327, -0.099019, 0.760821],
+      "shin": [0, 0, 0, 1],
+      "foot": [0, 0, 0, 1],
+      "toes": [0, 0, 0, 1]
     },
     "bindArms": {
       "upper_arm": [0.813873, -0.143043, 0.563161],
       "forearm": [0.316246, 0.757051, 0.571719],
       "hand": [-0.078782, 0.677317, 0.731461]
     },
-    "note": "The studio has no fox, so the first config takes the seat and the bind arms of the studio rabbit (tools/mesh-rigs/rabbit.json, docs/research/2026-10-13-rabbit-mesh/studio-targets.ts): the world turn of each left leg bone from the bind pose to the first key of the clip reference, and the unit direction of each left arm bone in the bind pose."
+    "tailBind": {
+      "tail": [0, -0.12, -1],
+      "tail_tip": [0, -1.4, -1]
+    },
+    "note": "The studio has no fox. The seat is the seat of a long thigh: legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The thigh lies on the seat, 15 degrees below the level and 8 degrees out, and the shin, the foot, and the toes keep the turn of the source, so that the shin hangs under the knee and the sole stays flat. The seat of the studio rabbit turned the thigh 57 degrees, and the long thigh of the fox stood almost upright on the chair. The bind arms are the bind arms of the studio rabbit (tools/mesh-rigs/rabbit.json, docs/research/2026-10-13-rabbit-mesh/studio-targets.ts): the unit direction of each left arm bone in the bind pose. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back over the seat, 7 degrees below the level, and the tip hangs back and down behind the chair, 54 degrees below the level. Then the tail goes at most 0.0005 units over the seat top, and its lowest point is 0.037 units above the soles."
   },
   "weights": {
     "armSplit": 0.1,
     "headFrom": 0.725,
     "earBase": [0.875, 0.91],
-    "tailBall": { "center": [0, 0.2, -0.17], "radius": 0.24, "behind": -0.07 },
+    "tail": { "radius": 0.115, "behind": -0.07, "root": [-0.03, 0.05], "bend": 0.05, "smooth": 3 },
     "sliver": { "angle": 10, "longest": 0.03, "note": "The corners of each thin face share one set of weights, so that the face moves rigidly and does not turn over at a bent joint. A thin face has a corner angle below angle (degrees) and a longest edge below longest (units). The values are the values of the rabbit." },
     "line": { "angle": 160, "note": "The middle corner of each long thin face (a corner angle above angle, in degrees) takes the mix of the weights of its two other corners by its place along their line, so that it does not lag behind the line when a joint bends. The value is the value of the rabbit." },
     "shoulderHead": [0.045, 0.08],
     "shoulderHeadNote": "Below headFrom, the share of the head weight that goes to the neck grows from 0 at the smaller distance from the middle plane to all at the larger distance (units). The values are the values of the rabbit, scaled by the neck of the fox (x ±0.089 against ±0.077).",
     "fingers": 0.5,
     "fingersNote": "The fingers keep this share of their bone heat weight, and the hand takes the rest, as in the rabbit.",
-    "haunch": { "height": [0.11, 0.185], "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the haunch stays on the seat and only the leg below it turns. The heights take the places of the rabbit ramp along the thigh, from 0.14 of the thigh below the knee to 0.57 of the thigh above it." },
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.101 out. Above headFrom, each vertex except the ears follows the head only: the neck is narrowest at y 0.69 to 0.71, and the cheek fur starts at 0.73. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail ball is the one tail bone of the studio format: the vertices within radius of center and behind the plane z = behind follow the tail only. The ball holds the tail from its tip (y 0.01) to its root on the back (y 0.42), and the plane keeps the backs of the thighs (z -0.04 at y 0.21) out of it."
+    "haunch": { "height": [0.16, 0.27], "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips and the long thigh turns onto the seat. With the ramp of the first config (0.11 to 0.185), the upper half of the thigh stayed upright. With the ramp from 0.2 to 0.27, 9 faces of the hip crease turned over in the seated bind, and with this ramp none." },
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.101 out. Above headFrom, each vertex except the ears follows the head only: the neck is narrowest at y 0.69 to 0.71, and the cheek fur starts at 0.73. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail has two bones (tail): the vertices within radius of the line from the root over the bend to the tip, and behind the plane z = behind, follow the tail bones. The share of the tail bones grows from 0 to 1 over the places of root along the line (units from the root), the share of the tip within the tail grows from 0 to 1 over bend units on each side of the bend, and the share of the tail bones takes the mean of its neighbors in smooth rounds, so that the root has no hard edge. The radius holds the widest cut of the tail (x Â±0.103 at y 0.21), and the plane keeps the backs of the thighs (z -0.04 at y 0.21) out of it."
   },
   "refine": {
     "rings": [],
@@ -90,11 +95,11 @@
       [0.08, 0.84, 0.22]
     ],
     "noseBox": [
-      [-0.035, 0.73, 0.24],
+      [-0.035, 0.752, 0.255],
       [0.035, 0.8, 0.29]
     ],
     "nose": [0.1, 0.08, 0.08],
-    "note": "Each face takes the mean sRGB color of the texture at the samples of a grid of the given steps on the face. A face is dark when its share of samples with a linear luminance below dark is at least eyeShare, and then it takes the mean of its dark samples. Each other face takes the mean of its samples that are not dark. A dark face in the eye box (the left eye at x 0.043, y 0.805 in the front view, mirrored for the right eye) is a face of an eye. A face in the nose box whose color is nearer to the nose color than to white is a face of the nose: the nose of the fox is black, at the tip of the muzzle (y 0.765, z 0.28). Then each face takes the nearest color of a palette of palette colors, from k-means in Oklab."
+    "note": "Each face takes the mean sRGB color of the texture at the samples of a grid of the given steps on the face. A face is dark when its share of samples with a linear luminance below dark is at least eyeShare, and then it takes the mean of its dark samples. Each other face takes the mean of its samples that are not dark. A dark face in the eye box (the left eye at x 0.043, y 0.805 in the front view, mirrored for the right eye) is a face of an eye. A face in the nose box whose color is nearer to the nose color than to white is a face of the nose: the nose of the fox is black, at the tip of the muzzle (y 0.765, z 0.28). The box starts above the dark faces of the mouth (y 0.736 to 0.75), which the first box held. Then each face takes the nearest color of a palette of palette colors, from k-means in Oklab."
   },
   "eyeShell": {
     "lift": 0.002,
@@ -103,9 +108,9 @@
   },
   "chair": {
     "halfWidth": 0.2,
-    "front": -0.03,
+    "front": 0.05,
     "back": -0.16,
     "backHeight": 0.15,
-    "note": "The chair has the depth of the chair of the rabbit rig (0.13 units), and it is wider, because the haunch of the fox is x ±0.17. Its front edge lies behind the heels of the seated bind. The seat top is the lowest point of the seated body over the seat."
+    "note": "The chair is wider than the chair of the rabbit rig, because the haunch of the fox is x ±0.17. Its front edge lies behind the heels of the seated bind (z 0.103), so that the long thighs lie on the seat. The seat top is the lowest point of the seated body over the seat, with no shin, foot, or tail."
   }
 }

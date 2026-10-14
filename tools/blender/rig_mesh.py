@@ -510,11 +510,11 @@ def polyline_place(points, line):
 def tail_weights(verts, tris, w, rule, heads, ends):
     """Gives a tail of two bones smooth weights along its line (design 4.4). The tail is the part
     of the mesh within `radius` of the line from the root over the bend to the tip, and behind the
-    plane z = `behind`. Along the line, the share of the tail bones grows from 0 to 1 over the place range
-    `root` (units from the root), and the share of the tip within the tail grows from 0 to 1 over
-    `bend` units on each side of the bend. Then the share of the tail bones takes the mean of its
-    neighbors in `smooth` rounds, so that the root has no hard edge. No other vertex follows the
-    tail bones."""
+    plane z = `behind`. Along the line, the share of the tail bones grows from 0 to 1 over the
+    place range `root` (units from the root), and the share of the tip within the tail grows from
+    0 to 1 over `bend` units on each side of the bend. Then the share of the tail bones takes the
+    mean of its neighbors in `smooth` rounds, so that the root has no hard edge. No other vertex
+    follows the tail bones."""
     col = {name: k for k, name in enumerate(BONES)}
     root, bend, tip = heads['tail'], heads[TAIL_TIP], ends[TAIL_TIP]
     place, gap = polyline_place(verts, [root, bend, tip])
