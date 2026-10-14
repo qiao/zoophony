@@ -96,6 +96,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       seated: true,
       soloist: true,
       constant: 'STUDIO_RABBIT',
+      glb: 'assets/models/rabbit/rabbit-4.rig.glb',
     },
   ],
 ]);

@@ -116,7 +116,7 @@ export interface BowedHold {
   /**
    * True when the left paw holds the instrument at the left side in the rest pose and the bow
    * hangs from the right paw, also on a seat, as for a soloist who stands (design 5.2). A body with
-   * no lap, such as the studio rabbit, whose round belly covers its short thighs, rests so.
+   * no lap, such as the rabbit, whose round belly covers its short thighs, rests so.
    */
   readonly restAtSide: boolean;
   /** The bow in the rest pose. */
@@ -240,17 +240,19 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
 }
 
 /**
- * The hold of the violin on the left shoulder of `rabbit-views.png`, for the studio rabbit (design
- * 4.6): the chin hold, with the violin to the left and up, turned from the left toward the front,
- * and the scroll down. The violin rests on the chest under the chin, where the large head of the
- * rabbit puts its jaw. The back stays straight, as a real violinist sits (2026-10-13-studio-rabbit
+ * The hold of the violin on the left shoulder of `rabbit-views.png`, for the rabbit (design 4.6):
+ * the chin hold, with the violin to the left and up, turned from the left toward the front, and the
+ * scroll down. The violin rests on the chest under the chin, where the large head of the rabbit
+ * puts its jaw. The back stays straight, as a real violinist sits (2026-10-13-studio-rabbit
  * decisions). The bow lies nearly square across the strings. The right arm has the elbow and the
  * shoulder turn of the chin hold at the frog: with the longer arms of the studio round 4, the
  * sweep of `pnpm pose-depth violinist` keeps the right arm within the contact depth of the body.
  * At the tip, the right elbow also points down: up, as in the chin hold, the skin of the studio
- * folded at the right upper arm (`pnpm fold-probe violinist`). The rest pose holds the violin at
- * the left side: the round belly covers the short thighs, so the lap place of the chin hold was on
- * the top of the belly, and the bow went into it.
+ * rabbit folded at the right upper arm (`pnpm fold-probe violinist`). The rest pose holds the
+ * violin at the left side, by the neck near the body of the violin: the round belly covers the
+ * short thighs, so the lap place of the chin hold was on the top of the belly, and the bow went
+ * into it. With the hand nearer the scroll, the body of the violin of the rabbit mesh lay against
+ * its belly (2026-10-13-mesh-rabbit decisions).
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
@@ -260,6 +262,7 @@ const SHOULDER_HOLD = {
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
   restAtSide: true,
+  restPlace: 0.8,
 } as const satisfies BowedHold;
 
 /** The holds of the bowed strings. */

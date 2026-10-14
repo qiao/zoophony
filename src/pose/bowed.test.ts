@@ -521,13 +521,10 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
         const points = bowEdgePoints(posed);
         const species = scene.layout.players[player.index]?.cast.species ?? '?';
         const label = `${species} at ${wall} s`;
-        // The bow of the side rest of a studio body hangs beside its round belly, and may touch
-        // its fur (2026-10-13-studio-rabbit.md).
-        const touch = player.model.studio ? 0.001 : 0;
         const trunk = deepestIn(posed, ['hips', 'spine', 'chest', 'neck', 'head'], points);
-        expect(trunk, label).toBeLessThanOrEqual(touch);
+        expect(trunk, label).toBe(0);
         const arms = ['upperArmL', 'forearmL', 'handL', 'upperArmR', 'forearmR'] as const;
-        expect(deepestIn(posed, arms, points), label).toBeLessThanOrEqual(touch);
+        expect(deepestIn(posed, arms, points), label).toBe(0);
         const legs = ['thighL', 'thighR', 'shinL', 'shinR'] as const;
         expect(deepestIn(posed, legs, points) / h, label).toBeLessThanOrEqual(REST_BOW_LEG_DEPTH);
       }
@@ -618,8 +615,8 @@ describe('the bow hand in the lift (design 5.2, 5.3)', () => {
     // of the stick: the hand of a violin turned 103,000° a second in the lift of the default
     // demo, and the cello hand 7.5° in 2 ms (2026-10-07). The limit finds such a snap. On
     // 2026-10-11, the limit also found the turns of 1,333° to 2,467° a second of a bad rest grip.
-    // The bow paw of the studio rabbit hangs at its side in the rest pose, and the lift turns it
-    // to the hold with no snap (2026-10-13-studio-rabbit.md).
+    // The bow paw of the rabbit hangs at its side in the rest pose, and the lift turns it to the
+    // hold with no snap (2026-10-13-mesh-rabbit.md, row "Accepted limits").
     const scene = await demoSceneOf('boulanger-matin.mid');
     const bones = [boneIndex('handR'), boneIndex('bow')];
     const step = 0.001;

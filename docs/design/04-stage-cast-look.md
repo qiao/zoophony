@@ -113,8 +113,9 @@ All animals except the penguins, the bear conductor, the polar bear pianist, and
 violinist use one parametric biped body (4.4). Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and
 changes only its parameters. A species can have a body of its own in place of the biped (`body`):
 the penguins have the egg body of `models/penguin/` since 2026-10-11, the bear and the polar bear
-have studio bodies of `lowpoly-studio/` since 2026-10-12, and the rabbit since 2026-10-13 (4.4,
-bodies of their own and studio bodies). A species with a body of its own has no shape parameters, because its body has its own
+have studio bodies of `lowpoly-studio/` since 2026-10-12, and the rabbit has a studio body since
+2026-10-13: the mesh of the user, which `pnpm rig-mesh` rigs (4.4, bodies of their own and studio
+bodies). A species with a body of its own has no shape parameters, because its body has its own
 parts.
 
 ```typescript
@@ -340,10 +341,14 @@ user decided: "use the studio bear in the app". The bear conductor has the studi
 decided: "replace the polar bear pianist by the polar bear model from the lowpoly studio folder".
 The polar bear pianist has the studio body of `lowpoly-studio/animals/polar-bear/` since then. On
 2026-10-13, the user decided: "create a low-poly model for the rabbit following this reference
-image and replace the main-app's rabbit by this new one". The rabbit violinist has the studio body
-of `lowpoly-studio/animals/rabbit/` since then. Later that day, the user chose longer arms for the
-rabbit: "Arms x1.4, violin 28 cm". The studio round 4 made the reach of its arms 1.4 times the
-reach of its sheet, and its violin follows the rule of 4.6. The
+image and replace the main-app's rabbit by this new one". The rabbit violinist had the studio body
+of `lowpoly-studio/animals/rabbit/` that day, with arms 1.4 times as long as on its sheet ("Arms
+x1.4, violin 28 cm"). Later that day, the user decided: "replace the rabbit by using the model at
+@~/Downloads/rabbit-4.glb. Note that you need to rig it yourself." The rabbit violinist has that
+mesh since then (`assets/models/rabbit/rabbit-4.glb`), rigged into the format of a studio body
+(studio bodies, below). The user chose "Longer arms, 28 cm violin": the rig makes the upper arm
+and the forearm longer, so that the arm reaches as far as the arm of the studio rabbit, and the
+violin follows the rule of 4.6. The
 user chose these bodies again on 2026-10-09, in
 place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
@@ -434,12 +439,13 @@ and of the body.
 
 **Studio bodies**
 
-A studio body is the GLB file of an animal of `lowpoly-studio/` (its `README.md`): one mesh of
-flat faces with one color each, a skeleton of the biped template with twist bones of the
+A studio body is the GLB file of an animal of `lowpoly-studio/` (its `README.md`), or of a mesh of
+the user that `pnpm rig-mesh` rigs into the same format: one mesh of flat faces with one color each, a skeleton of the biped template with twist bones of the
 forearms, a skin of up to four bones for each vertex, arm-down corrective shapes, and the clips
 of its role. The bear conductor has the studio bear since 2026-10-12, and the polar bear pianist
 the studio polar bear since the same day (`docs/decisions/2026-10-12-studio-polar-bear.md`). The
-rabbit violinist has the studio rabbit since 2026-10-13
+rabbit violinist has the rigged mesh of the user since 2026-10-13
+(`docs/decisions/2026-10-13-mesh-rabbit.md`), after the studio rabbit of the same day
 (`docs/decisions/2026-10-13-studio-rabbit.md`). The app keeps its own conductor motion (5.4), its
 own pianist motion, and its own violin motion (5.3), so it drives the bones of the studio from the
 pose of the player each frame: the retarget. `docs/research/2026-10-12-studio-bear.md` compares this route with the route of the
@@ -474,6 +480,16 @@ retarget had about a quarter of the folded faces.
   the one `fingers` bone of the paw, so that they curl together. The rabbit has one finger bone on
   each paw. The eyes are the gloss shells of the head out of the middle plane, and they get eye
   bones of their own, so that they blink (5.1).
+- `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format of a studio
+  body with Blender (`tools/blender/rig_mesh.py`), and `AnimalSettings.glb` names its output for
+  `pnpm studio-body`. The config `tools/mesh-rigs/<animal>.json` gives the joints, measured on cuts
+  of the mesh, the arm factor, the weight rules, the colors, the seat, and the chair. The rig
+  takes the seated bind pose and the bind arms of the studio rabbit. Its corrective shapes give
+  the source mesh back when the body stands with the arms of the source. Each face takes the
+  nearest color of a palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan
+  over its dark faces, so that the body keeps the triangle budget of a studio body (4.5) and a
+  small module. The corners of each short thin face share one set of weights, and the hand takes
+  half of the finger weight, so that fewer faces turn over at the shoulders and the paws.
 - `pnpm studio-body <animal> --inspect` writes no file. It prints the facts of the GLB file that
   a new body needs. These are the nodes, the joints with the digits of each paw, the morph
   targets, and the clips. They also hold the hips, the length of each arm from the shoulder joint
@@ -505,7 +521,7 @@ retarget had about a quarter of the folded faces.
   the player has the same legs, so the bind mesh of the player is seated, as the bind mesh of each
   seated parametric player is.
 - A seated body that also stands (`soloist` of `ANIMALS`), the rabbit violinist, keeps the leg
-  corrective shapes of the studio and the leg turns of the pose of its sheet
+  corrective shapes of its GLB file and the leg turns of the pose of its sheet
   (`StudioBody.standing`). For a player that stands, `standingBody()` of `models/studio-rig.ts`
   turns the legs, gives the leg shapes their full weight, and moves the body over the origin with
   its lowest point on the floor. That standing mesh is the bind mesh of the standing rig, so the
@@ -1391,8 +1407,9 @@ animals of the reference image. The builder scales the violin and its bow by the
 the rabbit of the reference image, so that they keep their size relative to the animals. A species
 with short arms plays a smaller violin and bow (`SpeciesParams.violinScale`), as a child plays a
 fractional size. A violin shop sizes a violin so that, in the play position with the left arm
-extended, the scroll lies in the middle of the palm. The studio rabbit has this scale, and
-`pose/bowed.test.ts` checks the rule (`docs/research/2026-10-13-studio-rabbit.md`). The chairs, the stands, the
+extended, the scroll lies in the middle of the palm. The rabbit has this scale, and
+`pose/bowed.test.ts` checks the rule (`docs/research/2026-10-13-studio-rabbit.md`,
+`docs/research/2026-10-13-rabbit-mesh.md`). The chairs, the stands, the
 podium, and the steps keep their sizes in meters. The bodies of the bowed strings are plates
 with round edges and an arched top (`plate()` of `models/primitives.ts`), with two f-holes beside
 the bridge, as the instruments of the polished images.

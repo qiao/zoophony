@@ -278,13 +278,14 @@ describe('studioRig for a seated body that also stands (design 4.4)', () => {
       const hip = new Vector3(...standing.positions[`thigh${side}`]);
       const knee = new Vector3(...standing.positions[`shin${side}`]);
       const ankle = new Vector3(...standing.positions[`foot${side}`]);
-      // The thigh and the shin point down within 20° of the vertical, as the legs of the sheet.
+      // The thigh and the shin point down within 25° of the vertical, as the legs of the mesh of
+      // the user: its shin slants 20° back from the knee to the ankle (tools/mesh-rigs/rabbit.json).
       for (const [from, to] of [
         [hip, knee],
         [knee, ankle],
       ] as const) {
         const down = to.clone().sub(from).normalize();
-        expect(down.y, side).toBeLessThan(-Math.cos((20 * Math.PI) / 180));
+        expect(down.y, side).toBeLessThan(-Math.cos((25 * Math.PI) / 180));
       }
     }
     // The shoulders stand at the landmark of the export, above the seated shoulders.

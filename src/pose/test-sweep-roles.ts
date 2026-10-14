@@ -51,6 +51,13 @@ const BODY_BONES = [
 /** The open loops of {@link BODY_BONES}: the cuts to the two upper arms. */
 const BODY_LOOPS = 2;
 
+/**
+ * The open loops of {@link BODY_BONES} of the rabbit, the body of the mesh of the user
+ * (`pnpm rig-mesh rabbit`): the cuts to the two upper arms, the edge of the gloss fan over each eye,
+ * and two open edges of the whiskers of the mesh. A cap closes each eye fan behind it, in the head.
+ */
+const RABBIT_BODY_LOOPS = 6;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -77,6 +84,9 @@ const SWEEP_DECISIONS = 'docs/decisions/2026-10-13-role-sweep.md';
 
 /** The decision file of cheerful demos. */
 const CHEERFUL_DEMO_DECISIONS = 'docs/decisions/2026-10-14-cheerful-demos.md';
+
+/** The decision file of the rabbit of the mesh of the user. */
+const MESH_RABBIT_DECISIONS = 'docs/decisions/2026-10-13-mesh-rabbit.md';
 
 /** The step of the song time between two samples of a full play, in seconds. */
 const PLAY_STEP = 0.25;
@@ -120,6 +130,17 @@ function* playSamples(scene: TestScene): Generator<SweepSample> {
  */
 function bodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the rabbit violinist: {@link BODY_BONES} with a cap on each
+ * open loop ({@link RABBIT_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function rabbitBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, RABBIT_BODY_LOOPS);
 }
 
 /**
@@ -518,11 +539,21 @@ export const VIOLINIST_SWEEP: RoleSweep = {
   role: 'violinist',
   parts: [...ARM_PARTS, { name: 'bow', bones: ['bow'] }],
   obstacles: [
-    { name: 'body', surface: bodySurface },
+    { name: 'body', surface: rabbitBodySurface },
     { name: 'violin', surface: violinSurface },
   ],
   contact: CONTACT,
-  accepted: [],
+  // The arms hang at the sides when the violin rests, and the root of each upper arm turns
+  // behind the fan cap of its cut.
+  accepted: (['rest', 'lift', 'lower'] as const).map((samples) => ({
+    part: 'upper arms',
+    into: 'body',
+    samples,
+    depth: 0.025,
+    reason:
+      'The root of the hanging upper arm of the rabbit mesh turns behind the cap of the cut to the arm.',
+    decision: `${MESH_RABBIT_DECISIONS}, row "Accepted limits"`,
+  })),
   targetError: 1e-3,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'violin'),
   players: (scene) =>

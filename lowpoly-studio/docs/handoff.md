@@ -16,7 +16,9 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
 ```
 
 - **Animals.** `bear` (conductor), `polar-bear` (pianist), and `rabbit` (violinist, from
-  2026-10-13). Each is a regression animal: `python3 studio regress <animal>` compares a build
+  2026-10-13). The app uses the bear and the polar bear. Since the evening of 2026-10-13, the app
+  rabbit is a mesh of the user that `pnpm rig-mesh rabbit` rigs in the format of the studio, and
+  the studio rabbit stays here. Each is a regression animal: `python3 studio regress <animal>` compares a build
   with `animals/<animal>/golden.json`.
 - **Roles.** `conductor` (standing, baton, 4/4 pattern, cues), `pianist` (seated on a bench at a
   grand piano, 4 digits for each paw, keys that go down), `violinist` (seated on a chair, a
@@ -80,7 +82,9 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
    the keys of its studio piano, drops it onto a bench that fits its legs, and gives the four
    digits of each paw to one finger bone. Up to 15 faces fold at the neck and the head in the
    pianist poses of the app: a neck corrective shape of the studio could help.
-5. **The studio rabbit in the app.** Done on 2026-10-13
+5. **The studio rabbit in the app.** Done on 2026-10-13, and replaced the same day by the rigged
+   mesh of the user (`docs/decisions/2026-10-13-mesh-rabbit.md` of the repository). The facts
+   below hold for the studio rabbit
    (`docs/research/2026-10-13-studio-rabbit.md` of the repository). The app scales the rabbit by
    the standing shoulders of the parametric rabbit, seats it on a chair with the depth of the chair
    of the studio, stands it as a soloist with the leg corrective shapes, and gives it a violin

@@ -142,10 +142,11 @@ export function isSpeciesId(value: string): value is SpeciesId {
 /** The parameters of each species (design 4.3, 4.5). */
 export const SPECIES = {
   /**
-   * Rabbit, the first violins (reference image). It has the studio body of `lowpoly-studio/`
-   * (design 4.4), seated as the violinist of the studio, and standing as a soloist. Its head
-   * height is the head of the studio, and its chair fits its legs: the seat height is the seat of
-   * the studio body, in H.
+   * Rabbit, the first violins (reference image). It has the studio body of the mesh of the user,
+   * `assets/models/rabbit/rabbit-4.glb`, which `pnpm rig-mesh rabbit` rigs (design 4.4), seated
+   * with the bind pose of the studio rabbit, and standing as a soloist. Its head height is the
+   * head of the studio body, and its chair fits its legs: the seat height is the seat of the
+   * studio body, in H.
    */
   rabbit: {
     body: 'studio-rabbit',
