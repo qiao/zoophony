@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
-import { CHAIR } from '../src/models/props.ts';
+import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import {
   ANIMALS,
   inspectStudioGlb,
@@ -349,21 +349,29 @@ describe('pnpm studio-body with a seated body that also stands (design 4.4)', as
     expect(mesh.corners.length / 3).toBe(kept);
   });
 
-  it('rests the seated body on a chair that fits its legs', () => {
+  it('rests the seated body on a chair that fits its legs and its seat', () => {
     const seat = body.seatHeight ?? 0;
+    const depth = body.chairDepth ?? 0;
+    // The chair keeps the back of the chair of design 4.5, and its front edge is further back.
+    const back = CHAIR.seatDepth / 2;
     let low = Infinity;
     let lowOnSeat = Infinity;
     for (let v = 0; v < mesh.positions.length / 3; v++) {
-      const [x, y, z] = [0, 1, 2].map((k) => mesh.positions[v * 3 + k] ?? 0);
-      low = Math.min(low, y ?? 0);
-      if (Math.abs(x ?? 0) <= CHAIR.seatWidth / 2 && Math.abs(z ?? 0) <= CHAIR.seatDepth / 2) {
-        lowOnSeat = Math.min(lowOnSeat, y ?? 0);
+      const [x = 0, y = 0, z = 0] = [0, 1, 2].map((k) => mesh.positions[v * 3 + k] ?? 0);
+      low = Math.min(low, y);
+      if (Math.abs(x) <= CHAIR.seatWidth / 2 && z <= back && z >= back - depth) {
+        lowOnSeat = Math.min(lowOnSeat, y);
       }
     }
     expect(low).toBeCloseTo(0, 3);
     expect(Math.abs(lowOnSeat - seat)).toBeLessThan(0.001);
     expect(seat).toBeGreaterThan(0.05);
     expect(body.heads.hips[1]).toBeGreaterThan(seat);
+    // The seat is shorter than the chair of design 4.5, and the body sits on it, in front of the
+    // back posts.
+    expect(depth).toBeLessThan(CHAIR.seatDepth);
+    expect(body.heads.hips[2]).toBeGreaterThan(back - depth);
+    expect(body.heads.hips[2]).toBeLessThan(back - CHAIR_LEG);
   });
 
   it('keeps the leg corrective shapes and the standing pose of the sheet', () => {

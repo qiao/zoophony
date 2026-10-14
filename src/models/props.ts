@@ -146,7 +146,7 @@ export const MUSIC_STAND = {
 } as const;
 
 /** The width of the legs and of the back posts of the chair. */
-const CHAIR_LEG = 0.035;
+export const CHAIR_LEG = 0.035;
 
 /**
  * Gives the heights of the seat of a body on a support (design 4.5, props). The chair fits the

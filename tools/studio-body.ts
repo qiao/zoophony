@@ -8,7 +8,8 @@ import { Box3, Matrix4, Quaternion, Vector3 } from 'three';
 
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import type { Finish } from '../src/models/mesh.ts';
-import { CHAIR } from '../src/models/props.ts';
+import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
+import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import { STUDIO_BONES, STUDIO_LEG_BONES, packStudioMesh } from '../src/models/studio-format.ts';
 import type {
   Side,
@@ -863,6 +864,8 @@ interface SceneFrame {
   readonly scale: number;
   /** The move of each point of the studio, in the axes and the units of the studio. */
   readonly offset: Vector3;
+  /** The depth of the chair of the app under a body on a chair, in meters, or `null`. */
+  readonly chairDepth: number | null;
 }
 
 /**
@@ -939,13 +942,56 @@ function sceneFrame(
       : propBox(glb, (name) => name.startsWith('piano_key_')).max.y;
   const scale = settings.height / landmark;
   if (!settings.seated) {
-    return { scale, offset: new Vector3() };
+    return { scale, offset: new Vector3(), chairDepth: null };
   }
 
   const drop = Math.min(...mesh.vertices.map((v) => v.position.y));
   const seat = seatOf(glb);
-  const front = propBox(glb, (name) => name === seat.name).max.z;
-  return { scale, offset: new Vector3(0, -drop, seat.depth / 2 / scale - front) };
+  const box = propBox(glb, (name) => name === seat.name);
+  const front = box.max.z;
+  const depth = seat.name === 'chair' ? chairDepthOf(mesh, box, scale) : seat.depth;
+  // The front edge of the seat of the app, in the axes of the studio: a chair keeps its back at
+  // the back of the chair of design 4.5, and a shorter seat ends further back.
+  const appFront = seat.name === 'chair' ? depth - CHAIR.seatDepth / 2 : depth / 2;
+  return {
+    scale,
+    offset: new Vector3(0, -drop, appFront / scale - front),
+    chairDepth: seat.name === 'chair' ? round(depth) : null,
+  };
+}
+
+/**
+ * Finds the depth of the chair of the app under a body on a chair (design 4.4, 4.5): the depth of
+ * the chair of the studio, so that the body sits on the whole seat, as in the studio. The chair
+ * grows back until its back posts keep {@link CHAIR_BACK_CLEARANCE} behind the trunk, as the
+ * chair of the parametric biped does (`chairForward()` of `models/player.ts`). The tail goes
+ * back through the open back under the top rail, so it does not count.
+ *
+ * @param mesh The welded mesh.
+ * @param chair The box of the chair of the studio, in the axes and the units of the studio.
+ * @param scale The meters for each unit.
+ * @returns The depth, in meters.
+ */
+function chairDepthOf(mesh: SourceMesh, chair: Box3, scale: number): number {
+  // The back of the chair of the app reaches its height above the seat: the lowest point of the
+  // body over the chair of the studio.
+  let seat = Infinity;
+  for (const { position: p } of mesh.vertices) {
+    if (Math.abs(p.x) <= chair.max.x && p.z >= chair.min.z && p.z <= chair.max.z) {
+      seat = Math.min(seat, p.y);
+    }
+  }
+  const top = seat + CHAIR.back / scale;
+  let back = Infinity;
+  for (const vertex of mesh.vertices) {
+    const [bone] = vertex.skin.toSorted((a, b) => b[1] - a[1])[0] ?? [''];
+    const p = vertex.position;
+    if (bone !== 'tail' && p.y <= top && Math.abs(p.x) <= chair.max.x) {
+      back = Math.min(back, p.z);
+    }
+  }
+  const studio = (chair.max.z - chair.min.z) * scale;
+  return Math.max(studio, (chair.max.z - back) * scale + CHAIR_LEG + CHAIR_BACK_CLEARANCE);
 }
 
 /**
@@ -961,11 +1007,15 @@ function sceneFrame(
 function seatHeightOf(glb: Glb, mesh: SourceMesh, frame: SceneFrame): number {
   const seat = seatOf(glb);
   const halfX = seat.width / 2 / frame.scale;
-  const halfZ = seat.depth / 2 / frame.scale;
+  // The seat in the axes of the studio: a chair from its back at the back of the chair of design
+  // 4.5 to its front edge, and the bench around the origin.
+  const back = frame.chairDepth === null ? -seat.depth / 2 : -CHAIR.seatDepth / 2;
+  const depth = frame.chairDepth ?? seat.depth;
   let low = Infinity;
   for (const vertex of mesh.vertices) {
     const p = vertex.position.clone().add(frame.offset);
-    if (Math.abs(p.x) <= halfX && Math.abs(p.z) <= halfZ) {
+    const z = p.z * frame.scale;
+    if (Math.abs(p.x) <= halfX && z >= back && z <= back + depth) {
       low = Math.min(low, p.y);
     }
   }
@@ -1131,6 +1181,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       nose: model(nose),
       floor: toModelAxes(new Vector3(0, 0, frame.offset.z), scale),
       seatHeight: settings.seated ? seatHeightOf(glb, mesh, frame) : null,
+      chairDepth: frame.chairDepth,
       standing: settings.seated && settings.soloist ? standingOf(glb, skeleton, frame) : null,
       mesh: packStudioMesh(vertices, ordered.faces, correctives),
     },

@@ -170,6 +170,12 @@ export interface StudioBody {
    */
   readonly seatHeight: number | null;
   /**
+   * The depth of the chair under a body that sits on a chair: the depth of the chair of the
+   * studio, so that the body sits on the whole seat. The back of the chair keeps a gap behind the
+   * trunk. It is `null` for a body that stands or sits on a bench.
+   */
+  readonly chairDepth: number | null;
+  /**
    * The standing pose of a seated body that also stands. The packed mesh then holds the leg
    * corrective shapes after the arm corrective shapes. It is `null` for a body that keeps the
    * stance of its role.
