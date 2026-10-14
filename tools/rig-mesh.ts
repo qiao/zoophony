@@ -215,9 +215,12 @@ export function reachLine(config: MeshRigConfig): string {
   const scale = config.app.shoulders / shoulder[1];
   const sides = (['L', 'R'] as const).map(
     (side) =>
-      `${side} ${armReach(config, side, 1).toFixed(4)} m with no factor, ${armReach(config, side).toFixed(4)} m with ${config.armFactor}, the factor ${targetFactor(config, side).toFixed(4)} gives ${config.app.reach} m`,
+      `Reach ${side}: ${armReach(config, side, 1).toFixed(4)} m with no factor, ${armReach(config, side).toFixed(4)} m with ${config.armFactor}, and the factor ${targetFactor(config, side).toFixed(4)} gives ${config.app.reach} m.`,
   );
-  return `Shoulder joint at ${shoulder[1]} u, ${scale.toFixed(4)} m for each unit. Reach: ${sides.join('; ')}.`;
+  return [
+    `Shoulder joint at ${shoulder[1]} u, ${scale.toFixed(4)} m for each unit.`,
+    ...sides,
+  ].join(' ');
 }
 
 /** The arguments of `pnpm rig-mesh`. */
@@ -375,7 +378,7 @@ export function animalRoles(animal: string): AnimalRole[] {
 
 /**
  * Rigs a mesh into a temporary folder and measures the rig, with no write into the repository
- * (`--check`). The app checks run on a copy of \`src/\` with the body of the rig: the violin by
+ * (`--check`). The app checks run on a copy of `src/` with the body of the rig: the violin by
  * the rule of a violin shop for the violinist, and the folds of each role of the animal.
  *
  * @param animal The animal.
