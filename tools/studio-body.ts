@@ -346,6 +346,26 @@ export function headFactorOf(glb: Glb): number {
 }
 
 /**
+ * Gives the place of a vertex of a grown head before the growth of the rig. The rig moves each
+ * vertex from the neck joint by its share of the growth: `p' = neck + (1 + share (factor - 1))
+ * (p - neck)`, with the weight of the head and the ears as the share. Only the bones of the head
+ * grow, so the inverse is exact.
+ *
+ * @param place The place of the vertex in the bind pose of the file.
+ * @param neck The neck joint in the bind pose of the file.
+ * @param share The weight of the vertex on the head and the ears.
+ * @param factor The head factor of the rig.
+ * @returns The place before the growth.
+ */
+export function ungrown(place: Vector3, neck: Vector3, share: number, factor: number): Vector3 {
+  return place
+    .clone()
+    .sub(neck)
+    .divideScalar(1 + share * (factor - 1))
+    .add(neck);
+}
+
+/**
  * Splits a GLB file into its JSON chunk and its binary chunk.
  *
  * @param bytes The file.
@@ -1245,7 +1265,12 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     return model(head.addScaledVector(along, far));
   };
 
-  // The head: the faces of the fur that follow the head bone most. The ears follow ear bones.
+  // The head: the faces of the fur that follow the head bone most. The ears follow ear bones. The
+  // holds are in head heights and start at the head center, so a head that the rig grows keeps
+  // the head height and the center of the head before its factor, and the holds keep their places
+  // (design 4.4).
+  const factor = headFactorOf(glb);
+  const neck = headOf(skeleton, 'neck');
   let top = -Infinity;
   let chin = Infinity;
   const box = {
@@ -1256,10 +1281,14 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   for (const vertex of mesh.vertices) {
     const head = vertex.skin.find(([bone]) => bone === 'head')?.[1] ?? 0;
     if (vertex.material === 'fur' && head > 0.5) {
-      top = Math.max(top, vertex.position.y);
-      chin = Math.min(chin, vertex.position.y);
-      box.min.min(vertex.position);
-      box.max.max(vertex.position);
+      const share = vertex.skin
+        .filter(([bone]) => bone === 'head' || bone === 'ear_L' || bone === 'ear_R')
+        .reduce((sum, [, w]) => sum + w, 0);
+      const place = ungrown(vertex.position, neck, share, factor);
+      top = Math.max(top, place.y);
+      chin = Math.min(chin, place.y);
+      box.min.min(place);
+      box.max.max(place);
     }
     if (vertex.material === 'gloss' && head === 1 && vertex.position.z > nose.z) {
       nose = vertex.position;
@@ -1292,9 +1321,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       },
       fingerTips: { L: fingerTip('L'), R: fingerTip('R') },
       sheetArms: { L: direction(sheet.arms.L), R: direction(sheet.arms.R) },
-      // The holds are in head heights, so a head that the rig grows keeps the head height of
-      // the head before its factor, and the holds keep their places (design 4.4).
-      headHeight: round(((top - chin) * scale) / headFactorOf(glb)),
+      headHeight: round((top - chin) * scale),
       headCenter: model(center),
       nose: model(nose),
       floor: toModelAxes(new Vector3(0, 0, frame.offset.z), scale),

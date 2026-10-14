@@ -18,6 +18,7 @@ import {
   studioGlbPath,
   studioModule,
   readGlb,
+  ungrown,
 } from './studio-body.ts';
 
 /** The GLB file of the studio bear. */
@@ -566,12 +567,31 @@ describe('pnpm studio-body with a head that the rig grows (design 4.4)', async (
     crease: 15,
   } as const;
 
-  it('keeps the head height of the holds from the head before the factor', () => {
+  it('moves each vertex of a grown head back by its share of the growth', () => {
+    const neck = new Vector3(0, 0.6, 0.05);
+    const source = new Vector3(0.02, 0.8, 0.2);
+    for (const share of [0, 0.4, 1]) {
+      const grown = source
+        .clone()
+        .sub(neck)
+        .multiplyScalar(1 + share * 0.5)
+        .add(neck);
+      expect(ungrown(grown, neck, share, 1.5).distanceTo(source)).toBeLessThan(1e-12);
+    }
+  });
+
+  it('keeps the head height and the head center of the holds from the head before the factor', () => {
     const grown = withHeadFactor(bytes, 1.5);
     expect(headFactorOf(readGlb(bytes))).toBe(1);
     expect(headFactorOf(readGlb(grown))).toBe(1.5);
-    const plain = studioBody(bytes, SOURCE, settings).body.headHeight;
-    expect(studioBody(grown, SOURCE, settings).body.headHeight).toBeCloseTo(plain / 1.5, 5);
+    // The head of the bear keeps its size, so the head before the factor is about 1.5 times
+    // smaller. The vertices with a part of the head weight move back less.
+    const plain = studioBody(bytes, SOURCE, settings).body;
+    const shrunk = studioBody(grown, SOURCE, settings).body;
+    expect(shrunk.headHeight).toBeLessThan(plain.headHeight / 1.4);
+    expect(shrunk.headHeight).toBeGreaterThan(plain.headHeight / 1.6);
+    expect(shrunk.headCenter[1]).toBeLessThan(plain.headCenter[1]);
+    expect(shrunk.nose).toEqual(plain.nose);
   });
 
   it('refuses a head factor that is not a positive number', () => {
