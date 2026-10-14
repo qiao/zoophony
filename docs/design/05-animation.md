@@ -1450,9 +1450,11 @@ solo. The agent chose the details on 2026-10-06:
   conductor shot, also when it has a conductor.
 - The two-shot is a section shot of all players on the stage, also of a seat that rests, with
   the group `ensemble`. A group with one player has no two-shot. Its score is the score of a
-  section shot of all seats. Its sphere holds each player plus 0.5 m in the stage plane, in place
+  section shot of all seats. Its sphere holds each player plus 0.48 m in the stage plane, in place
   of 0.75 m: with 0.75 m, each camera of the two-shot of the duo test file was 0.45 to 0.46 of the
   default distance away, beyond the limit of 0.44 of the close shots, so the duo had no two-shot.
+  With 0.5 m, the standing rabbit with the longer legs of 2026-10-14 put its only clear camera
+  0.4415 of the default distance away (`SUBJECT_SIZES.twoShotMargin` of `shots/subjects.ts`).
 - With one seat, rules 1 and 2 do not stop a solo shot of that seat after a solo shot of the same
   seat. The jump cut rule and the rule of no repeat of a framing keep the two cameras at least
   20° apart. Thus a piano solo shows the pianist from several sides between its wide shots.

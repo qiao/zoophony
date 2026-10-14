@@ -59,9 +59,11 @@ export const SUBJECT_SIZES = {
    * The sphere of the two-shot of a small group holds each player plus this margin in the stage
    * plane. A two-shot frames its players closer than a section shot. With 0.75 m, the violin and
    * the piano of a duo needed a camera 0.45 of the default distance away, beyond the limit of the
-   * close shots (design 5.6).
+   * close shots (design 5.6). With 0.5 m, the deeper footprint of the standing rabbit with the
+   * longer legs of 2026-10-14 put the two players 2 cm further apart, and the only clear camera
+   * stood 0.4415 of the default distance away, beyond the limit of 0.44.
    */
-  twoShotMargin: 0.5,
+  twoShotMargin: 0.48,
   /** The largest sphere of a section shot. */
   sectionMaxRadius: 2.6,
   /**
