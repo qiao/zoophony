@@ -23,7 +23,7 @@ reads it (route 3 of `AGENTS.md`). The steps:
 6. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. The faces under it take the fur color, so that a blink
    shows no hole. The faces of the nose become gloss. Each face takes the nearest color of a
-   palette in Oklab.
+   palette in Oklab, and the faces go in the order of a walk over their shared edges.
 7. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
    and the other vertices give `legs_straight_L` and `legs_straight_R`.
@@ -304,6 +304,39 @@ def palette(colors, size, rounds=40):
     label = np.argmin(np.linalg.norm(lab[:, None] - centers[None], axis=2), axis=1)
     error = np.linalg.norm(lab - centers[label], axis=1)
     return srgb_of_oklab(centers)[label], float(error.max()), float(error.mean())
+
+
+def locality_order(tris):
+    """Gives an order of the faces in which each face follows a neighbor where it can: a walk
+    from face to face over the shared edges, which goes back to the oldest face with a free
+    neighbor when it stops. The export numbers the vertices in the order of their first face, so
+    the packed corners and places of the app become small steps that pack well."""
+    faces_of = {}
+    for f, t in enumerate(tris):
+        for k in range(3):
+            faces_of.setdefault(tuple(sorted((int(t[k]), int(t[(k + 1) % 3])))), []).append(f)
+
+    def free(f):
+        t = tris[f]
+        for k in (1, 2, 0):
+            for g in faces_of[tuple(sorted((int(t[k]), int(t[(k + 1) % 3]))))]:
+                if not seen[g]:
+                    return g
+        return None
+
+    seen = np.zeros(len(tris), bool)
+    order, oldest = [], 0
+    for start in range(len(tris)):
+        current = None if seen[start] else start
+        while current is not None:
+            seen[current] = True
+            order.append(current)
+            current = free(current)
+            while current is None and oldest < len(order):
+                current = free(order[oldest])
+                if current is None:
+                    oldest += 1
+    return np.array(order)
 
 
 def in_box(points, box):
@@ -1130,6 +1163,8 @@ def main():
     colors_all, worst_color, mean_color = palette(colors_all, config['colors']['palette'])
     log(f'palette: {len(np.unique(colors_all, axis=0))} colors, the Oklab distance of a face '
         f'from its color {mean_color:.4f} on the mean, {worst_color:.4f} at most')
+    order = locality_order(tris_all)
+    tris_all, colors_all, materials = tris_all[order], colors_all[order], materials[order]
     extra = len(src_all) - len(long_verts)
     head_only = np.zeros((extra, len(BONES)))
     head_only[:, BONES.index('head')] = 1.0
