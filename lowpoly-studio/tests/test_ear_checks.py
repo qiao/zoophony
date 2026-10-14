@@ -35,8 +35,9 @@ FEATURE = SimpleNamespace(search=0.15, notch_span=0.2, notch_top=0.08)
 def ear_picture(lean_deg, pink=None, pink_share=0.0, outer_is_low=True):
     """Draws a head with one ear in the left half of a view and returns its picture and box.
 
-    The ear is a band 24 px wide from row 20 to row 90 (longer than the notch_span rows), and its outer edge leans out by lean_deg
-    from the vertical. pink_share of the band width at its inner side gets the color pink."""
+    The ear is a band 24 px wide from row 20 to row 90 (longer than the notch_span rows), and
+    its outer edge leans out by lean_deg from the vertical. pink_share of the band width at its
+    inner side gets the color pink."""
     im = Image.new('RGB', (W, H), BACKGROUND)
     draw = ImageDraw.Draw(im)
     draw.rectangle((10, 90, 99, 180), fill=FUR)
