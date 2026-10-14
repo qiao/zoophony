@@ -1045,9 +1045,8 @@ def stretch(verts, weights, heads, ends, children, factors):
     if factors['head'] != 1:
         factor = factors['head']
         pivot = heads['neck']
-        grow = move(factor * np.eye(3), pivot, pivot)
         for name in ('head', 'ear_L', 'ear_R'):
-            matrices[BONES.index(name)] = grow
+            matrices[BONES.index(name)] = move(factor * np.eye(3), pivot, pivot)
             new_heads[name] = pivot + factor * (heads[name] - pivot)
             if not children[name]:
                 new_ends[name] = pivot + factor * (ends[name] - pivot)
