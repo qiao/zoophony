@@ -310,6 +310,18 @@ Add these items to the briefs of the rig round and of the app round.
   `pnpm rig-mesh <animal> --check` gives the triangles, the module size, the seat, the chair, and
   H. It also gives the reach, the standing body, the violin rule, and the folds. Then look at the close views.
   Write the docs last. The rig round of the rabbit found the seat of 0 m after its docs commits.
+- **The variants.** Fit each variant of a hold with `pnpm hold-fit <role> --set <changes>`. One
+  table gives the play and the lift folds, the deepest point of each sample set of the sweep,
+  and, for a violin, the rule scale, `stopRange`, and `bowRange`. Fit each variant of the rig
+  config with `pnpm rig-mesh <animal> --check --set <path>=<value>`. Before a change of a weight
+  rule, read the weights of the faces that fold with `pnpm fold-probe <role> --faces <n>`. The
+  fox round lost about 45 minutes to hand probes between these tools
+  ([`2026-10-14-fox-retro.md`](../research/2026-10-14-fox-retro.md)).
+- **The seat and the tail.** Give the seat height and the lowest point of the tail of
+  `pnpm rig-mesh <animal> --check` before a plan of a tail. The brief of the fox asked for a tail
+  tip down behind the chair, and the seat of 0.126 m does not give room for a tip of 0.31 m.
+- **The end of the round.** Run `pnpm snapshot` after the last check of the code. Give the line of
+  `pnpm size --base main` in the commit that adds the body.
 - **The probes.** Look at a rig with `pnpm rig-mesh <animal> --check --preview <dir>`, which
   writes no file into the repository. A plain `--preview` writes the GLB file. Probe a rig before
   the swap with `--glb <file>` of `pnpm studio-body --inspect`, `pnpm hold-reach`, and
