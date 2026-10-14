@@ -57,9 +57,9 @@ The agents answered the questions of the manager in `retro-rabbit-app.md` and
 | Height values of the like animal, written by hand | about 15 | studio | `new --like` does not scale them |
 | The fit scaled the whole body by about 7% | about 10 | studio | a fixed `box_pad` clipped the long ears |
 
-The studio agent saw the short reach in round 1. It measured an arm of 0.2 and a chest 0.11 in
-front of the shoulders, set the violin of the studio to 0.17, and recorded this in its report. It
-did not mark it as a blocker for the app.
+The studio agent saw the short reach in round 1. It measured an arm of 0.2 animal heights, and a
+chest 0.11 animal heights in front of the shoulder joints. It set the violin of the studio to 0.17
+animal heights, and recorded this in its report. It did not mark it as a blocker for the app.
 
 ## 3. Decisions
 
