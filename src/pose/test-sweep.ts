@@ -82,7 +82,7 @@ export interface SweepPlayer {
   readonly model: PlayerModel;
   /** Gives the pose of the player at a sample. */
   readonly poseAt: (sample: SweepSample) => AnimalPose;
-  /** Gives the note targets of the palms. A role with no note targets gives none. */
+  /** Gives the note targets of the hands. A role with no note targets gives none. */
   readonly targets: () => readonly NoteTarget[];
 }
 
@@ -101,7 +101,10 @@ export interface RoleSweep {
   readonly contact: number;
   /** The depths that a decision accepts past {@link contact}. */
   readonly accepted: readonly AcceptedDepth[];
-  /** The largest distance from a palm to its note target, in meters. */
+  /**
+   * The largest distance from a hand, or from the part that it holds, to its note target, in
+   * meters.
+   */
   readonly targetError: number;
   /** Tells if a score has the role. */
   readonly hasRole: (score: Score) => boolean;
@@ -132,7 +135,7 @@ export interface PairDepth {
   readonly along: number;
 }
 
-/** The largest distance from a palm to its note target. */
+/** The largest distance from a hand, or from the part that it holds, to its note target. */
 export interface TargetError {
   /** The hand. */
   readonly side: 'L' | 'R';

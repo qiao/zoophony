@@ -21,8 +21,9 @@ export interface RoleChecks {
  * Registers the sweep tests of a role in the demos of one shard (design 9.3). Each player of the
  * role plays each set of samples of the role. Each point of each moving part stays at most the
  * contact depth of the role in each obstacle, or at most a depth that a decision accepts. Each
- * palm with note targets stays near its targets. Each shard file calls it with its own shard, so
- * that Vitest runs the shards in separate workers, and a new demo joins a shard with no new file.
+ * hand with note targets, or the part that it holds, stays near its targets. Each shard file
+ * calls it with its own shard, so that Vitest runs the shards in separate workers, and a new demo
+ * joins a shard with no new file.
  *
  * @param role The role.
  * @param shard The shard, from 1 to `shards`.
@@ -53,7 +54,7 @@ export function describeRoleClearance(
           }
           for (const { side, error, song } of targetErrors(player)) {
             expect
-              .soft(error, `palm ${side} at its note target, song ${song.toFixed(2)} s`)
+              .soft(error, `hand ${side} at its note target, song ${song.toFixed(2)} s`)
               .toBeLessThanOrEqual(role.targetError);
           }
         });
