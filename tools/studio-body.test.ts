@@ -14,6 +14,7 @@ import {
   inspectionLines,
   ownBone,
   studioBody,
+  studioGlbPath,
   studioModule,
 } from './studio-body.ts';
 
@@ -433,5 +434,24 @@ describe('pnpm studio-body with a seated body that also stands (design 4.4)', as
     const polarBody = studioBody(polar, 'x.glb', polarSettings).body;
     expect(polarBody.standing).toBeNull();
     expect(unpackStudioMesh(polarBody.mesh).correctives).toHaveLength(2);
+  });
+});
+
+describe('studioGlbPath', () => {
+  const settings = ANIMALS.get('rabbit');
+
+  it('gives the output of the studio for an animal with no file of its own', () => {
+    expect(studioGlbPath('rabbit')).toMatch(/lowpoly-studio\/animals\/rabbit\/out\/rabbit\.glb$/);
+    expect(studioGlbPath('bear', ANIMALS.get('bear'))).toMatch(/animals\/bear\/out\/bear\.glb$/);
+  });
+
+  it('gives the file of the settings when the settings name one', () => {
+    if (!settings) {
+      throw new Error('ANIMALS has no rabbit.');
+    }
+    const glb = 'assets/models/rabbit/rabbit-4.rig.glb';
+    expect(studioGlbPath('rabbit', { ...settings, glb })).toBe(
+      join(import.meta.dirname, '..', glb),
+    );
   });
 });

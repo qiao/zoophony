@@ -50,6 +50,12 @@ export interface AnimalSettings {
   readonly soloist: boolean;
   /** The name of the constant of the module. */
   readonly constant: string;
+  /**
+   * The GLB file of the body, relative to the repository, when the studio does not build it, such
+   * as a mesh of the user that `pnpm rig-mesh` rigs (route 3 of `AGENTS.md`). With no file, the
+   * body comes from `lowpoly-studio/animals/<animal>/out/<animal>.glb`.
+   */
+  readonly glb?: string;
 }
 
 /** The animals of the studio that the app shows, by their ids in `lowpoly-studio/animals/`. */
@@ -1651,27 +1657,31 @@ export function studioModule(animal: string, constant: string, body: StudioBody)
 }
 
 /**
- * Gives the GLB file of an animal of the studio.
+ * Gives the GLB file of an animal: the file of its settings, or the output of the studio.
  *
- * @param animal The id of the animal in `lowpoly-studio/animals/`.
+ * @param animal The id of the animal in `lowpoly-studio/animals/` or in `ANIMALS`.
+ * @param settings The settings of the animal, or none for an animal that is not in `ANIMALS`.
  * @returns The absolute path of the file.
  */
-export function studioGlbPath(animal: string): string {
+export function studioGlbPath(animal: string, settings?: AnimalSettings): string {
+  if (settings?.glb) {
+    return join(ROOT, settings.glb);
+  }
   return join(ROOT, 'lowpoly-studio', 'animals', animal, 'out', `${animal}.glb`);
 }
 
 /**
- * Reads the GLB file of an animal of the studio.
+ * Reads the GLB file of an animal.
  *
- * @param animal The id of the animal in `lowpoly-studio/animals/`.
+ * @param file The absolute path of the file ({@link studioGlbPath}).
+ * @param animal The id of the animal.
  * @returns The file.
- * @throws Error if the studio has not built the animal.
+ * @throws Error if the file does not exist.
  */
-async function readStudioGlb(animal: string): Promise<Buffer> {
-  const file = studioGlbPath(animal);
+async function readStudioGlb(file: string, animal: string): Promise<Buffer> {
   if (!existsSync(file)) {
     throw new Error(
-      `The studio has no GLB file ${relative(ROOT, file)}. Build it with: python3 studio build ${animal}`,
+      `The GLB file ${relative(ROOT, file)} does not exist. Build it with: python3 studio build ${animal}, or pnpm rig-mesh ${animal} for a mesh of the user`,
     );
   }
   return readFile(file);
@@ -1680,7 +1690,7 @@ async function readStudioGlb(animal: string): Promise<Buffer> {
 /**
  * Writes the module of a studio body from its GLB file: `node tools/studio-body.ts <animal>`
  * (design 4.4). The GLB file is `lowpoly-studio/animals/<animal>/out/<animal>.glb`, the output
- * of `python3 studio build <animal>`. With `--inspect`, it writes no file, and it prints the
+ * of `python3 studio build <animal>`, or the file of the settings of the animal. With `--inspect`, it writes no file, and it prints the
  * facts of the GLB file that a new studio body needs. An animal that is not in `ANIMALS` gets
  * an assumed scale.
  */
@@ -1690,8 +1700,8 @@ async function main(): Promise<void> {
   const animal = args.find((arg) => !arg.startsWith('--')) ?? '';
   const settings = ANIMALS.get(animal);
   if (inspect && animal) {
-    const file = studioGlbPath(animal);
-    const bytes = await readStudioGlb(animal);
+    const file = studioGlbPath(animal, settings);
+    const bytes = await readStudioGlb(file, animal);
     console.log(relative(ROOT, file));
     console.log(inspectionLines(inspectStudioGlb(bytes, settings ?? null)).join('\n'));
     return;
@@ -1702,9 +1712,9 @@ async function main(): Promise<void> {
     );
   }
 
-  const file = studioGlbPath(animal);
+  const file = studioGlbPath(animal, settings);
   const source = relative(ROOT, file);
-  const { body, sheetWeights } = studioBody(await readStudioGlb(animal), source, settings);
+  const { body, sheetWeights } = studioBody(await readStudioGlb(file, animal), source, settings);
   await mkdir(STUDIO_DIR, { recursive: true });
   const out = join(STUDIO_DIR, `${animal}.ts`);
   await writeFile(out, studioModule(animal, settings.constant, body));
