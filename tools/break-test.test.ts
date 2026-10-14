@@ -31,8 +31,8 @@ const SCRIPT = join(import.meta.dirname, 'break-test.sh');
 /**
  * A fake `pnpm` for `pnpm exec vitest run --reporter=json --outputFile=<file> <tests>`. It writes a
  * report with one test, which fails when `lib.txt` holds the word `BROKEN` or the folder holds
- * the file `fail`. With the file `crash` in the folder, it fails with no report. With the file `slow`, it writes the file `started`
- * beside it and waits 30 s.
+ * the file `fail`. With the file `crash` in the folder, it fails with no report. With the file
+ * `slow`, it writes the file `started` beside it and waits 30 s.
  */
 const FAKE_PNPM = `#!/bin/sh
 out=''
