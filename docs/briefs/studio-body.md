@@ -293,6 +293,8 @@ Add these items to the briefs of the rig round and of the app round.
   F=assets/models/rabbit/rabbit-4.rig.glb
   git log --format=%h -- $F | while read h; do echo "$h $(git cat-file -s $h:$F)"; done
   ```
-- **The look tests.** Name the look tests that can change with the new body, such as the test
-  "scroll down, as its sheet" of `src/pose/bowed.test.ts` and the leg angle of
+- **The look tests.** Name the look tests that can change with the new body. The app round of the
+  rabbit changed two: the hold of the violin in `src/pose/bowed.test.ts` (now "holds the violin
+  of a rabbit on the left shoulder about level, as a real violinist", before "scroll down, as its
+  sheet"), and the leg angle of "straightens the legs under the hips" in
   `src/models/studio-rig.test.ts`. A new body changes their target, and they find no fault.
