@@ -128,3 +128,17 @@ The fur faces that are 10% or more darker than the cream fall from 136 to 55: 12
 and its spread falls from 0.036 to 0.056 to 0.029 to 0.053. The gloss faces keep their colors.
 `dark-faces.py` lists the 55 faces (`dark-faces.txt`): 33 on the paws of the bind arms and 22 on
 the toes, on both sides. The texture paints the finger and the toe lines there in a light brown.
+
+## The frame time
+
+`pnpm frame` on the branch (`frame-branch.txt`, commit 6fb36499) and on main (`frame-main.txt`,
+commit 2bb97ae2, in a worktree of main) ran one after the other, with a load average of 10 to 20
+from other work. Both fail the target of design 9.7 on this load, and the main thread is the same:
+
+| Measure | Main p50 | Main p95 | Branch p50 | Branch p95 |
+|---|---|---|---|---|
+| Main thread: tasks of each frame (60 fps) | 3.54 ms | 4.82 ms | 3.52 ms | 4.84 ms |
+| GPU: WebGL frames in the Metal trace | 4.03 ms | 4.26 ms | 4.10 ms | 4.42 ms |
+
+The GPU frame grows by 0.07 ms (p50) and 0.16 ms (p95). The smooth normals add the morph normals
+of the corrective shapes to the morph texture of each studio body.
