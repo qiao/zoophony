@@ -1,26 +1,39 @@
 {
-  "seed": 4,
+  "seed": 8,
   "quads": 780,
-  "body_triangles": 1156,
-  "median_edge_px": 24.8,
+  "body_triangles": 1292,
+  "median_edge_px": 23.2,
   "edge_quartiles_px": [
-    17.5,
-    32.9
+    16.6,
+    31.2
   ],
-  "sliver_share": 0.0069,
+  "sliver_share": 0.0062,
   "folded_faces": 0,
-  "bones": 30,
+  "bones": 32,
   "clips": [
-    "reference"
+    "reference",
+    "ready",
+    "play",
+    "rest",
+    "stand_play",
+    "performance"
   ],
   "corrective": {
-    "region_vertices": 279,
+    "region_vertices": 359,
     "inverted_before": 0,
     "inverted_after": 0,
-    "inward_after": 4,
-    "max_delta": 0.0119
+    "inward_after": 12,
+    "max_delta": 0.0174,
+    "legs_straight": {
+      "region_vertices": 204,
+      "inverted_before": 0,
+      "inverted_after": 0,
+      "max_delta": 0.0077
+    }
   },
-  "fold_repairs": [],
+  "fold_repairs": [
+    2
+  ],
   "contacts": {
     "limit": 0.01,
     "clips": {
@@ -32,8 +45,137 @@
         "turned_faces": 0,
         "folded_faces": 0,
         "pass": true
+      },
+      "ready": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
+        "pass": true,
+        "scene": {
+          "depth": 0.0,
+          "prop": "chair",
+          "piece": "seat",
+          "frame": 0,
+          "time_s": 0.0,
+          "position": [
+            -0.1058,
+            0.0891,
+            -0.0107
+          ],
+          "bone": "hips"
+        },
+        "seat": {
+          "gap": 0.0036,
+          "part": "trunk",
+          "frame": 0,
+          "time_s": 0.0,
+          "trunk": 0.0036,
+          "thighs": 0.0021
+        }
+      },
+      "play": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
+        "pass": true,
+        "scene": {
+          "depth": 0.0,
+          "prop": "chair",
+          "piece": "seat",
+          "frame": 0,
+          "time_s": 0.0,
+          "position": [
+            -0.1058,
+            0.0891,
+            -0.0107
+          ],
+          "bone": "hips"
+        },
+        "seat": {
+          "gap": 0.0036,
+          "part": "trunk",
+          "frame": 0,
+          "time_s": 0.0,
+          "trunk": 0.0036,
+          "thighs": 0.0021
+        }
+      },
+      "rest": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
+        "pass": true,
+        "scene": {
+          "depth": 0.0,
+          "prop": "chair",
+          "piece": "seat",
+          "frame": 0,
+          "time_s": 0.0,
+          "position": [
+            -0.1058,
+            0.0891,
+            -0.0107
+          ],
+          "bone": "hips"
+        },
+        "seat": {
+          "gap": 0.0036,
+          "part": "trunk",
+          "frame": 0,
+          "time_s": 0.0,
+          "trunk": 0.0036,
+          "thighs": 0.0021
+        }
+      },
+      "stand_play": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
+        "pass": true
+      },
+      "performance": {
+        "depth": 0.0,
+        "side": "-",
+        "part": "-",
+        "time_s": 0.0,
+        "turned_faces": 0,
+        "folded_faces": 0,
+        "pass": true,
+        "scene": {
+          "depth": 0.0,
+          "prop": "chair",
+          "piece": "seat",
+          "frame": 0,
+          "time_s": 0.0,
+          "position": [
+            -0.1058,
+            0.0891,
+            -0.0107
+          ],
+          "bone": "hips"
+        },
+        "seat": {
+          "gap": 0.0036,
+          "part": "trunk",
+          "frame": 0,
+          "time_s": 0.0,
+          "trunk": 0.0036,
+          "thighs": 0.0021
+        }
       }
     }
   },
-  "total_triangles": 2724
+  "total_triangles": 3360
 }

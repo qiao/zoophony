@@ -1,27 +1,41 @@
 {
   "animal": "rabbit",
-  "role": "model",
-  "run": "20261013-170717-61089",
-  "made": "2026-10-13T17:08:27-0700",
-  "role_key": "ce927ddbddcfd001",
-  "reason": "a role check: no seed report yet",
+  "role": "violinist",
+  "run": "20261013-173838-27786",
+  "made": "2026-10-13T17:38:48-0700",
+  "role_key": "09191c223a63d0d3",
+  "reason": "a role check: the role pack, the template, or the clips changed since the last seed report",
   "require": "kept",
-  "kept": 4,
-  "robust": true,
+  "kept": 8,
+  "robust": false,
   "rule_pass": true,
-  "meshes": 3,
-  "robust_seeds": 3,
+  "meshes": 2,
+  "robust_seeds": 1,
   "seeds": [
     {
       "seed": 3,
-      "status": "gate",
+      "status": "contacts",
       "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slivers 0.0163",
-        "slit_faces 2"
-      ],
-      "clips": {}
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [
+          "folds 3"
+        ],
+        "play": [
+          "folds 3"
+        ],
+        "rest": [
+          "folds 3"
+        ],
+        "stand_play": [
+          "folds 3"
+        ],
+        "performance": [
+          "folds 3"
+        ]
+      }
     },
     {
       "seed": 1,
@@ -29,9 +43,7 @@
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "slivers 0.017",
-        "open_edges 3",
-        "slit_faces 1"
+        "slit_faces 2"
       ],
       "clips": {}
     },
@@ -41,7 +53,9 @@
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "slivers 0.0122"
+        "inward_faces 4",
+        "slivers 0.0113",
+        "slit_faces 2"
       ],
       "clips": {}
     },
@@ -51,8 +65,7 @@
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "slivers 0.0122",
-        "slit_faces 2"
+        "slivers 0.0101"
       ],
       "clips": {}
     },
@@ -62,30 +75,30 @@
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "inward_faces 4",
-        "slit_faces 4"
+        "slivers 0.0109",
+        "slit_faces 2"
       ],
       "clips": {}
     },
     {
       "seed": 4,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": []
-      }
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slivers 0.011"
+      ],
+      "clips": {}
     },
     {
       "seed": 7,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": []
-      }
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slit_faces 2"
+      ],
+      "clips": {}
     },
     {
       "seed": 8,
@@ -94,7 +107,12 @@
       "remesh_gate": true,
       "remesh_failed": [],
       "clips": {
-        "reference": []
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "rest": [],
+        "stand_play": [],
+        "performance": []
       }
     }
   ]

@@ -12,7 +12,7 @@
 id = "rabbit"
 name = "Rabbit"
 template = "biped"
-role = "model"
+role = "violinist"
 
 # The reference sheet: four views of one pose on one plain background.
 [sheet]
@@ -473,3 +473,7 @@ slivers = 0.01
 fur_color = [1.0, 0.02, 0.03]
 facet_contrast = 0.15
 feature_pixels = 1.0  # a feature length may differ by 1 px of the sheet
+
+# The seed rule: the kept seed must pass every gate. The seed report lists the other seeds.
+[seeds]
+require = "kept"
