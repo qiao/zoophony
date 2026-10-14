@@ -1,107 +1,30 @@
 {
   "animal": "rabbit",
   "role": "violinist",
-  "run": "20261013-173838-27786",
-  "made": "2026-10-13T17:38:48-0700",
+  "run": "20261013-175019-63376",
+  "made": "2026-10-13T17:50:29-0700",
   "role_key": "09191c223a63d0d3",
-  "reason": "a role check: the role pack, the template, or the clips changed since the last seed report",
+  "reason": "--all-seeds",
   "require": "kept",
-  "kept": 8,
+  "kept": 1,
   "robust": false,
   "rule_pass": true,
-  "meshes": 2,
-  "robust_seeds": 1,
+  "meshes": 5,
+  "robust_seeds": 4,
   "seeds": [
     {
       "seed": 3,
-      "status": "contacts",
+      "status": "gate",
       "pass": false,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [
-          "folds 3"
-        ],
-        "play": [
-          "folds 3"
-        ],
-        "rest": [
-          "folds 3"
-        ],
-        "stand_play": [
-          "folds 3"
-        ],
-        "performance": [
-          "folds 3"
-        ]
-      }
+      "remesh_gate": false,
+      "remesh_failed": [
+        "inward_faces 2",
+        "slit_faces 2"
+      ],
+      "clips": {}
     },
     {
       "seed": 1,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slit_faces 2"
-      ],
-      "clips": {}
-    },
-    {
-      "seed": 5,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "inward_faces 4",
-        "slivers 0.0113",
-        "slit_faces 2"
-      ],
-      "clips": {}
-    },
-    {
-      "seed": 6,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slivers 0.0101"
-      ],
-      "clips": {}
-    },
-    {
-      "seed": 2,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slivers 0.0109",
-        "slit_faces 2"
-      ],
-      "clips": {}
-    },
-    {
-      "seed": 4,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slivers 0.011"
-      ],
-      "clips": {}
-    },
-    {
-      "seed": 7,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slit_faces 2"
-      ],
-      "clips": {}
-    },
-    {
-      "seed": 8,
       "status": "pass",
       "pass": true,
       "remesh_gate": true,
@@ -113,6 +36,93 @@
         "rest": [],
         "stand_play": [],
         "performance": []
+      }
+    },
+    {
+      "seed": 5,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slit_faces 4"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 6,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "rest": [],
+        "stand_play": [],
+        "performance": []
+      }
+    },
+    {
+      "seed": 2,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "inward_faces 2",
+        "slit_faces 2"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 4,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "rest": [],
+        "stand_play": [],
+        "performance": []
+      }
+    },
+    {
+      "seed": 7,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "rest": [],
+        "stand_play": [],
+        "performance": []
+      }
+    },
+    {
+      "seed": 8,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [
+          "folds 1"
+        ],
+        "play": [],
+        "rest": [
+          "folds 1"
+        ],
+        "stand_play": [],
+        "performance": [
+          "folds 1"
+        ]
       }
     }
   ]
