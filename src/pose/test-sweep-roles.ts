@@ -566,6 +566,27 @@ export const VIOLINIST_SWEEP: RoleSweep = {
   },
 };
 
+/**
+ * The sweep of the violinist for a standing rabbit (design 5.2, 9.3). It accepts the contact of
+ * the right arm with the round belly when the arm lifts the bow from the side rest. The seated
+ * rabbits of the demos keep the limits of {@link VIOLINIST_SWEEP}.
+ */
+export const STANDING_VIOLINIST_SWEEP: RoleSweep = {
+  ...VIOLINIST_SWEEP,
+  accepted: [
+    ...VIOLINIST_SWEEP.accepted,
+    ...(['paws', 'forearms'] as const).map((part) => ({
+      part,
+      into: 'body',
+      samples: 'lift',
+      depth: 0.025,
+      reason:
+        'The right arm of the standing rabbit lifts the bow from the side rest across the side of the round belly (design 5.2).',
+      decision: `${RABBIT_DECISIONS}, row "Accepted limits"`,
+    })),
+  ],
+};
+
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,

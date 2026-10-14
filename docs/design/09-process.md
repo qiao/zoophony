@@ -105,7 +105,8 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   test of the violinist clearance reads the patched demos with a violin seat
   (`pose/violinist-clearance-<k>.test.ts`, `pose/test-violinist-clearance.ts`). It sweeps the
   first seated rabbit of each demo and each standing rabbit soloist, because a demo has many
-  rabbits with one model.
+  rabbits with one model. The demos have no standing rabbit, so a solo violin test file stands
+  one for its own sweep (`pose/violinist-standing-clearance.test.ts`).
 - The clearance tests of the roles share one sweep (`pose/test-sweep.ts`,
   `pose/test-role-clearance.ts`). `pose/test-sweep-roles.ts` gives each role its moving parts,
   its obstacles, its sample sets, its note targets, and its limits. In each sample, the sweep

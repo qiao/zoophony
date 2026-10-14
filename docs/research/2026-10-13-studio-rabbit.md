@@ -90,6 +90,17 @@ the fix `e87bef4a`). `stand-probe.ts` gives the round 2 body (`stand-probe.txt`)
 of each stance at 0, the standing hips at 0.241 m, the thigh and the shin straight under the
 hip, and no folded face of the standing legs against the turn of their main bone.
 
+The demos have no standing rabbit. A solo violin with one player for each part stands the rabbit
+(chamber form `solo`, `castScore()` of `models/cast.ts`).
+`pose/violinist-standing-clearance.test.ts` sweeps it with `SOLO_VIOLIN` of
+`pose/test-violinist-clearance.ts`: quarter notes across the strings, a whole bow on each string,
+and pizzicato. `standing-sweep.ts` prints its deepest pairs (`standing-sweep.txt`). In the lift,
+the right paw goes 1.9 cm and the right forearm 1.5 cm into the round belly, at the wall time
+10.60 s: the arm lifts the bow from the side rest across the side of the belly. Each other pair
+stays within the contact depth of 1.5 cm. `STANDING_VIOLINIST_SWEEP` of
+`pose/test-sweep-roles.ts` accepts 2.5 cm for the paws and the forearms in the lift of a standing
+rabbit only. The seated rabbits keep the limits of `VIOLINIST_SWEEP`.
+
 ## 5. The size of the violin
 
 A violin shop sizes a violin by the arm. Ellis Music: "Have the player stand with left arm fully
