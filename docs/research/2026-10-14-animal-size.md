@@ -181,5 +181,6 @@ The first download grows by 853 B after gzip, to 402,070 B (`size.txt`).
 - `close-views-violinist.webp` and `close-views-fox-violinist.webp`: `pnpm close-views` with
   `--base main`, the grid of `main` above the grid of the branch. The camera fits the body, so the
   two grids show the same pose at the new size.
-- The snapshot of the round is in `docs/snapshots/` (`pnpm snapshot`).
+- The snapshot of the round is `docs/snapshots/2026-10-14-1e6ae0ef/` (`pnpm snapshot` on the commit
+  of the hold fit).
 
