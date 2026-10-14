@@ -1,9 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
+import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
+import type { StudioBone } from '../src/models/studio-format.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import {
@@ -307,6 +309,36 @@ describe('pnpm studio-body --inspect (design 4.4)', async () => {
     );
     expect(keys.top * polar.scale).toBeCloseTo(PIANO.keyTop, 5);
     expect(polarText).toContain('Key front');
+  });
+
+  it('gives the arm from the shoulder joint to the middle of the palm at the joints of the export', async () => {
+    // The bear has one finger joint on each paw, and the polar bear has the digits of a paw.
+    for (const [animal, facts] of [
+      ['bear', bear],
+      ['polar-bear', polar],
+    ] as const) {
+      const settings = ANIMALS.get(animal);
+      if (!settings) {
+        throw new Error(`The ${animal} has no settings.`);
+      }
+      const { heads } = studioBody(await read(animal), 'x.glb', settings).body;
+      for (const side of ['L', 'R'] as const) {
+        const head = (bone: StudioBone): Vector3 => new Vector3(...heads[bone]);
+        const wrist = head(`hand_${side}`);
+        const palm = wrist
+          .clone()
+          .add(head(`fingers_${side}`))
+          .multiplyScalar(0.5);
+        const arm =
+          head(`upper_arm_${side}`).distanceTo(head(`forearm_${side}`)) +
+          head(`forearm_${side}`).distanceTo(wrist) +
+          wrist.distanceTo(palm);
+        expect((facts.arms[side] ?? 0) * facts.scale, `${animal} ${side}`).toBeCloseTo(arm, 4);
+      }
+    }
+    expect(bearText).toMatch(
+      /Arm from the shoulder joint to the middle of the palm.*: L [\d.]+ u \([\d.]+ m\), R /,
+    );
   });
 
   it('gives the scale of the export, and assumes the shoulders at 1 m for a new animal', async () => {

@@ -1282,6 +1282,14 @@ export interface StudioInspection {
   readonly targets: readonly InspectedTarget[];
   /** The animation clips. */
   readonly clips: readonly InspectedClip[];
+  /**
+   * The length of each arm along its joints in the bind pose: from the shoulder joint over the
+   * elbow and the wrist to the middle of the palm, the midpoint of the hand joint and the finger
+   * joint, as the palm of a studio body in the app. The finger joint of a paw with digits is the
+   * middle of the heads of its digits. The rule of a violin shop measures this extended arm. It
+   * is `null` when the skin lacks a joint of the arm.
+   */
+  readonly arms: Readonly<Record<Side, number | null>>;
   /** The height of the hips joint in the bind pose. */
   readonly bindHips: number;
   /**
@@ -1340,8 +1348,8 @@ function meshBox(glb: Glb, worlds: readonly Matrix4[], nodes: readonly number[])
 /**
  * Reads the facts of a GLB file of the studio that a new studio body needs (design 4.4). These
  * are the nodes, the joints, the morph targets, and the clips. They also hold the heights of the
- * hips, the lowest point of the skin, and the boxes of the props. The function reads the file as
- * it is. It does not stop on a part that the export refuses: it lists that part.
+ * hips, the length of each arm to the middle of the palm, the lowest point of the skin, and the
+ * boxes of the props. The function reads the file as it is. It does not stop on a part that the export refuses: it lists that part.
  *
  * @param bytes The GLB file.
  * @param settings The settings of the animal, or `null` for an animal that is not in `ANIMALS`.
@@ -1417,6 +1425,33 @@ export function inspectStudioGlb(
       (name) => !DROPPED_BONES.has(name) && !DIGIT.test(name) && !body.some((b) => b === name),
     ),
   };
+
+  // The arms along their joints, with the finger joint that the export makes for a paw.
+  const headAt = (name: string): Vector3 | null => {
+    const node = nodeOf(name);
+    return node < 0 ? null : new Vector3().setFromMatrixPosition(worlds[node] ?? new Matrix4());
+  };
+  const armOf = (side: Side): number | null => {
+    const fingerHeads =
+      nodeOf(`fingers_${side}`) >= 0 ? [headAt(`fingers_${side}`)] : digits[side].map(headAt);
+    const shoulder = headAt(`upper_arm_${side}`);
+    const elbow = headAt(`forearm_${side}`);
+    const wrist = headAt(`hand_${side}`);
+    if (!shoulder || !elbow || !wrist || fingerHeads.length === 0) {
+      return null;
+    }
+    const fingers = new Vector3();
+    for (const head of fingerHeads) {
+      if (!head) {
+        return null;
+      }
+      fingers.add(head);
+    }
+    fingers.divideScalar(fingerHeads.length);
+    const palm = wrist.clone().add(fingers).multiplyScalar(0.5);
+    return shoulder.distanceTo(elbow) + elbow.distanceTo(wrist) + wrist.distanceTo(palm);
+  };
+  const arms = { L: armOf('L'), R: armOf('R') };
 
   // The nodes, from the roots down. The tree of a root joint is one node.
   const jointSet = new Set(skin.joints);
@@ -1499,6 +1534,7 @@ export function inspectStudioGlb(
     joints,
     targets,
     clips,
+    arms,
     bindHips: heightOf(hips, worlds),
     seated: settings ? settings.seated : bench !== undefined,
     lowest: lowest.toArray(),
@@ -1520,6 +1556,8 @@ export function inspectionLines(facts: StudioInspection): string[] {
     `${value.toFixed(3)} u (${(value * facts.scale).toFixed(3)} m)`;
   const list = (names: readonly string[]): string => (names.length > 0 ? names.join(' ') : 'none');
   const point = (p: Vec3): string => `[${p.map((v) => v.toFixed(3)).join(', ')}] u`;
+  const arm = (value: number | null): string =>
+    value === null ? 'none (the skin lacks a joint of the arm)' : units(value);
   const lines = [
     `Scale: ${facts.scale.toFixed(4)} m for each unit (${facts.scaleFrom}).`,
     'The studio animal faces +z, with its left side at +x.',
@@ -1555,6 +1593,7 @@ export function inspectionLines(facts: StudioInspection): string[] {
         `  ${clip.name}: ${clip.seconds.toFixed(3)} s, ${clip.channels} channels, hips ${units(clip.hips)}`,
     ),
     '',
+    `Arm from the shoulder joint to the middle of the palm, along the joints: ${(['L', 'R'] as const).map((side) => `${side} ${arm(facts.arms[side])}`).join(', ')}`,
     `Hips in the bind pose: ${units(facts.bindHips)}`,
     `Lowest point of the skin: ${point(facts.lowest)}, height ${units(facts.lowest[1])}`,
     facts.seated
