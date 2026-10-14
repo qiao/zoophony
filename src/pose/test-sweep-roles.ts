@@ -52,7 +52,7 @@ const BODY_BONES = [
 const BODY_LOOPS = 2;
 
 /**
- * The open loops of {@link BODY_BONES} of the rabbit and of the red fox, the bodies of the meshes of
+ * The open loops of {@link BODY_BONES} of the rabbit and of the foxes, the bodies of the meshes of
  * the user (`pnpm rig-mesh <animal>`): the cuts to the two upper arms, the edge of the gloss fan
  * over each eye, and two open edges of each mesh, at the whiskers of the rabbit. A cap closes each
  * eye fan behind it, in the head.
@@ -131,13 +131,13 @@ function bodySurface(posed: PosedSkeleton): ClosedSurface {
 }
 
 /**
- * The closed surface of the body of a violinist, the rabbit or the red fox: {@link BODY_BONES} with
- * a cap on each open loop ({@link MESH_BODY_LOOPS}).
+ * The closed surface of the body of a mesh of the user, the rabbit or a fox: {@link BODY_BONES}
+ * with a cap on each open loop ({@link MESH_BODY_LOOPS}).
  *
  * @param posed The posed skeleton.
  * @returns The surface.
  */
-function violinistBodySurface(posed: PosedSkeleton): ClosedSurface {
+function meshBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, MESH_BODY_LOOPS);
 }
 
@@ -430,13 +430,14 @@ export const CONDUCTOR_SWEEP: RoleSweep = {
 };
 
 /**
- * Gives the closed shells of the violin of a violinist in a pose: the body, the neck, the
- * fingerboard, the scroll, and the chin rest. The bow is a piece of its own.
+ * Gives the closed shells of the piece of the `instrument` bone of a player in a pose: for a
+ * violin, the body, the neck, the fingerboard, the scroll, and the chin rest, with the bow as a
+ * piece of its own. For a flute, the tube, the lip plate, the head cap, and the keys.
  *
  * @param posed The posed skeleton.
  * @returns The shells as one closed surface.
  */
-function violinSurface(posed: PosedSkeleton): ClosedSurface {
+function instrumentSurface(posed: PosedSkeleton): ClosedSurface {
   const part = posedPart(posed, ['instrument']);
   const shells = (part.closed?.() ?? [part]).filter((shell) => openLoops(shell.triangles) === 0);
   return closeSurface(
@@ -540,8 +541,8 @@ export const VIOLINIST_SWEEP: RoleSweep = {
   role: 'violinist',
   parts: [...ARM_PARTS, { name: 'bow', bones: ['bow'] }],
   obstacles: [
-    { name: 'body', surface: violinistBodySurface },
-    { name: 'violin', surface: violinSurface },
+    { name: 'body', surface: meshBodySurface },
+    { name: 'violin', surface: instrumentSurface },
   ],
   contact: CONTACT,
   accepted: [],
@@ -591,9 +592,110 @@ export const VIOLINIST_SWEEP: RoleSweep = {
   },
 };
 
+/**
+ * Gives the note targets of the palms of a flutist: each palm is on its grip at the start of each
+ * phrase (design 5.3), in a play that started at the count-in.
+ *
+ * @param scene The scene.
+ * @param index The index of the flutist.
+ * @param model The model of the flutist.
+ * @returns The targets.
+ */
+function flutistTargets(scene: TestScene, index: number, model: PlayerModel): NoteTarget[] {
+  const plan = scene.plan.players[index];
+  if (plan?.note.family !== 'woodwind') {
+    return [];
+  }
+  const { note: layer, timeOffset } = plan;
+  return (['L', 'R'] as const).flatMap((side) => {
+    const grip = side === 'L' ? model.instrument.grips.palmL : model.instrument.grips.palmR;
+    const palm = side === 'L' ? model.body.palmL : model.body.palmR;
+    if (!grip) {
+      return [];
+    }
+    return Array.from(layer.track.phraseStarts, (start: number): NoteTarget => ({
+      side,
+      sample: playSample(scene, start + timeOffset + 0.1),
+      error: (posed) =>
+        new Vector3(...posedPoint(posed, `hand${side}`, palm)).distanceTo(
+          new Vector3(...posedPiecePoint(posed, grip)),
+        ),
+    }));
+  });
+}
+
+/**
+ * Tells if a player of a scene is in the sweep of the flutist: the first seated tan fox with a
+ * flute, and each tan fox soloist, which stands (design 4.2).
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @returns True for a player of the sweep.
+ */
+function sweptFlutist(scene: TestScene, index: number): boolean {
+  const { cast } = scene.layout.players[index] ?? {};
+  if (cast?.species !== 'fox-tan' || cast.instrument !== 'flute') {
+    return false;
+  }
+  if (cast.support === 'stand') {
+    return true;
+  }
+  const first = scene.layout.players.findIndex(
+    (p) =>
+      p.cast.species === 'fox-tan' && p.cast.instrument === 'flute' && p.cast.support !== 'stand',
+  );
+  return first === index;
+}
+
+/**
+ * The sweep of the flutist (design 5.3): the arms against the body and the flute, in a full play,
+ * in the lift of the flute at the play start, in the rest pose before the first play, and in the
+ * lowering after the song end, with the palms on their grips. The first seated tan fox of each
+ * demo with flutes, and each standing tan fox soloist, play it. `pnpm pose-depth flutist --gaps`
+ * also gives the gap from the head, with its long muzzle, to the flute.
+ */
+export const FLUTIST_SWEEP: RoleSweep = {
+  role: 'flutist',
+  parts: ARM_PARTS,
+  obstacles: [
+    { name: 'body', surface: meshBodySurface },
+    { name: 'flute', surface: instrumentSurface },
+  ],
+  contact: CONTACT,
+  accepted: [],
+  targetError: 1e-3,
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'flute'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      if (!sweptFlutist(scene, index)) {
+        return [];
+      }
+      const { species, instrument, kettles, support } = place.cast;
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles, support);
+      return [
+        {
+          name: `flutist ${index} (${support})`,
+          model,
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => flutistTargets(scene, index, model),
+        },
+      ];
+    }),
+  sampleSets: (scene) => VIOLINIST_SWEEP.sampleSets(scene),
+};
+
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,
   pianist: PIANIST_SWEEP,
   violinist: VIOLINIST_SWEEP,
+  flutist: FLUTIST_SWEEP,
 } as const;
