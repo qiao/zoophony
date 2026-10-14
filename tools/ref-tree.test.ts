@@ -17,6 +17,7 @@ import { describe, expect, it } from 'vitest';
 import {
   errorCause,
   optionValue,
+  overlayTree,
   probeBeside,
   probeScripts,
   shortHash,
@@ -163,6 +164,31 @@ describe('withoutOptions', () => {
       'x',
     ]);
     expect(withoutOptions(args, ['--base'])).toEqual(args.slice(0, 6));
+  });
+});
+
+describe('overlayTree', () => {
+  it('replaces a path of the tree of a commit with the path of the working tree', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'overlay-test-'));
+    try {
+      await withRefTree(
+        'HEAD',
+        async (dir) => {
+          writeFileSync(join(dir, 'src', 'gallery', 'only-in-commit.ts'), '');
+          writeFileSync(join(dir, 'src', 'gallery', 'items.ts'), '// the commit');
+          overlayTree(dir, ['src/gallery']);
+          expect(existsSync(join(dir, 'src', 'gallery', 'only-in-commit.ts'))).toBe(false);
+          const items = join('src', 'gallery', 'items.ts');
+          expect(readFileSync(join(dir, items), 'utf8')).toBe(
+            readFileSync(join(import.meta.dirname, '..', items), 'utf8'),
+          );
+          return Promise.resolve();
+        },
+        { parent, paths: ['src/gallery'] },
+      );
+    } finally {
+      await rm(parent, { recursive: true, force: true });
+    }
   });
 });
 

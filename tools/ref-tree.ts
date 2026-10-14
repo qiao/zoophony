@@ -5,7 +5,15 @@
  */
 import { spawn, spawnSync } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
-import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync } from 'node:fs';
+import {
+  copyFileSync,
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  rmSync,
+  symlinkSync,
+} from 'node:fs';
 import { readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -392,14 +400,31 @@ export function withoutOptions(
 }
 
 /**
+ * Replaces paths of the tree of a commit with the paths of the working tree. A file that only the
+ * commit has under such a path goes away.
+ *
+ * @param dir The folder of the tree of the commit.
+ * @param paths The paths, such as `src/gallery`.
+ */
+export function overlayTree(dir: string, paths: readonly string[]): void {
+  for (const path of paths) {
+    rmSync(join(dir, path), { recursive: true, force: true });
+    cpSync(join(ROOT, path), join(dir, path), { recursive: true });
+  }
+}
+
+/**
  * Builds the site of a commit in a temporary folder, and gives the folder to a function. The
  * folder gets the whole tree of the commit and a link to the `node_modules` of the repository.
- * Then `pnpm build` of the commit writes `dist/` there. The folder goes away at the end, also
- * after a failure or a stop.
+ * The paths of `overlay` come from the working tree in place of the commit, such as the gallery
+ * page of a tool that needs the camera code of the working tree. Then `pnpm build` writes `dist/`
+ * there. The folder goes away at the end, also after a failure or a stop.
  *
  * @param ref The commit, a branch, or a tag.
  * @param use The function that reads the folder and its `dist/`.
  * @param parent The folder that holds the temporary folder.
+ * @param overlay The paths of the working tree, such as `src/gallery`, that replace the paths of
+ *   the commit.
  * @returns The result of the function.
  * @throws Error if git does not know the ref, the build fails, or the function fails.
  */
@@ -407,6 +432,7 @@ export function withRefBuild<T>(
   ref: string,
   use: (dir: string) => Promise<T>,
   parent?: string,
+  overlay: readonly string[] = [],
 ): Promise<T> {
   const options: RefTreeOptions = parent
     ? { parent, prefix: 'ref-build-' }
@@ -415,6 +441,7 @@ export function withRefBuild<T>(
     ref,
     async (dir) => {
       symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
+      overlayTree(dir, overlay);
       await runChild('pnpm', ['run', 'build'], dir);
       return await use(dir);
     },
