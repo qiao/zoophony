@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdtempSync } from 'node:fs';
 import { readFile, rm } from 'node:fs/promises';
@@ -10,6 +10,7 @@ import type { Vec3 } from '../src/models/tuples.ts';
 import { FOLD_ROLES, roleAnimal, roleSpecies } from './fold-probe.ts';
 import { animalSpecies, runTool, withGlbBody } from './glb-swap.ts';
 import { measureLines, measureRig, triangleLine } from './rig-mesh-check.ts';
+import { trackChild, trackFolder } from './stop-cleanup.ts';
 import type { ThinRule } from './rig-mesh-check.ts';
 import { ANIMALS, writeStudioModule } from './studio-body.ts';
 import type { AnimalSettings } from './studio-body.ts';
@@ -283,24 +284,36 @@ export function blenderArgs(
 }
 
 /**
- * Runs the rig script of Blender, and prints the lines of its log.
+ * Runs the rig script of Blender, and prints the lines of its log. A stop signal (INT or TERM)
+ * stops Blender first (`tools/stop-cleanup.ts`).
  *
  * @param args The arguments of `blender` ({@link blenderArgs}).
+ * @returns A promise of the end of the run.
  * @throws Error if Blender fails.
  */
-function runBlender(args: readonly string[]): void {
+function runBlender(args: readonly string[]): Promise<void> {
   const blender = process.env['BLENDER'] ?? 'blender';
-  const result = spawnSync(blender, args, {
-    cwd: ROOT,
-    stdio: ['ignore', 'pipe', 'inherit'],
-    encoding: 'utf8',
+  return new Promise((done, fail) => {
+    const child = trackChild(
+      spawn(blender, args, { cwd: ROOT, stdio: ['ignore', 'pipe', 'inherit'] }),
+    );
+    let out = '';
+    child.stdout?.setEncoding('utf8');
+    child.stdout?.on('data', (text: string) => {
+      out += text;
+    });
+    child.on('error', fail);
+    child.on('close', (code) => {
+      for (const line of out.split('\n').filter((l) => l.startsWith('rig_mesh:'))) {
+        console.log(line);
+      }
+      if (code === 0) {
+        done();
+      } else {
+        fail(new Error(`${blender} failed with the status ${String(code)}.`));
+      }
+    });
   });
-  for (const line of result.stdout.split('\n').filter((l) => l.startsWith('rig_mesh:'))) {
-    console.log(line);
-  }
-  if (result.status !== 0) {
-    throw new Error(`${blender} failed with the status ${String(result.status)}.`);
-  }
 }
 
 /** The settings of the animal of a rig. */
@@ -384,10 +397,11 @@ async function checkRig(
   console.log(reachLine(config));
 
   const dir = mkdtempSync(join(tmpdir(), 'rig-mesh-check-'));
+  const release = trackFolder(dir);
   try {
     const output = join(dir, `${animal}.rig.glb`);
     const obj = join(dir, 'source-long-arms.obj');
-    runBlender(blenderArgs(configPath, output, preview, obj));
+    await runBlender(blenderArgs(configPath, output, preview, obj));
     const bytes = new Uint8Array(await readFile(output));
     const { settings, known } = rigSettings(animal, config);
     if (!known) {
@@ -422,6 +436,7 @@ async function checkRig(
     });
   } finally {
     await rm(dir, { recursive: true, force: true });
+    release();
   }
 }
 
@@ -446,7 +461,7 @@ async function main(): Promise<void> {
   console.log(`Arm factor ${config.armFactor}: reach ${reach.toFixed(4)} m in the app.`);
 
   const output = join(ROOT, config.output);
-  runBlender(blenderArgs(configPath, output, preview));
+  await runBlender(blenderArgs(configPath, output, preview));
   const bytes = await readFile(output);
   const sha = createHash('sha256').update(bytes).digest('hex');
   console.log(`Wrote ${config.output}: ${bytes.byteLength} B, sha256 ${sha}.`);
