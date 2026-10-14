@@ -330,20 +330,20 @@ export function roleOf(name: string | undefined): CloseRole | null {
 }
 
 /**
- * Renders the close view of a role: `node tools/close-views.ts <role> <dir> [--base <url>]`
+ * Renders the close view of a role: `node tools/close-views.ts <role> <dir> [--url <url>]`
  * (design 7.1). It writes the animal of the role at each moment from each view into `<dir>`, and
- * the grid of all cells as `<role>-views.png` and `<role>-views.webp`. With `--base`, it uses a
+ * the grid of all cells as `<role>-views.png` and `<role>-views.webp`. With `--url`, it uses a
  * running site, such as the dev server, in place of the built site.
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const name = roleOf(args[0]);
   const out = args[1];
-  const baseAt = args.indexOf('--base');
-  const given = baseAt >= 0 ? args[baseAt + 1] : undefined;
+  const urlAt = args.indexOf('--url');
+  const given = urlAt >= 0 ? args[urlAt + 1] : undefined;
   if (!name || !out || out.startsWith('--')) {
     console.error(
-      'Usage: pnpm close-views <conductor|pianist|violinist> <output directory> [--base <url>]',
+      'Usage: pnpm close-views <conductor|pianist|violinist> <output directory> [--url <url>]',
     );
     process.exit(1);
   }
