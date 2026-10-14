@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { join, relative } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 
 import { Box3, Matrix4, Quaternion, Vector3 } from 'three';
 
@@ -1693,15 +1693,24 @@ async function readStudioGlb(file: string, animal: string): Promise<Buffer> {
  * (design 4.4). The GLB file is `lowpoly-studio/animals/<animal>/out/<animal>.glb`, the output
  * of `python3 studio build <animal>`, or the file of the settings of the animal. With
  * `--inspect`, it writes no file, and it prints the facts of the GLB file that a new studio body
- * needs. An animal that is not in `ANIMALS` gets an assumed scale.
+ * needs. An animal that is not in `ANIMALS` gets an assumed scale. `--inspect --glb <file>`
+ * inspects another file with the settings of the animal.
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const inspect = args.includes('--inspect');
-  const animal = args.find((arg) => !arg.startsWith('--')) ?? '';
+  const glbAt = args.indexOf('--glb');
+  const glb = glbAt >= 0 ? args[glbAt + 1] : undefined;
+  const animal =
+    args.find((arg, i) => !arg.startsWith('--') && (glbAt < 0 || i !== glbAt + 1)) ?? '';
   const settings = ANIMALS.get(animal);
+  if (glbAt >= 0 && (!inspect || glb === undefined || glb.startsWith('--'))) {
+    throw new Error(
+      'The option --glb <file> works only with --inspect. The probes take it too: pnpm hold-reach and pnpm fold-probe.',
+    );
+  }
   if (inspect && animal) {
-    const file = studioGlbPath(animal, settings);
+    const file = glb === undefined ? studioGlbPath(animal, settings) : resolve(glb);
     const bytes = await readStudioGlb(file, animal);
     console.log(relative(ROOT, file));
     console.log(inspectionLines(inspectStudioGlb(bytes, settings ?? null)).join('\n'));
@@ -1709,7 +1718,7 @@ async function main(): Promise<void> {
   }
   if (!settings) {
     throw new Error(
-      `Usage: node tools/studio-body.ts <animal> [--inspect], with an animal of: ${[...ANIMALS.keys()].join(', ')}. --inspect also takes another animal of the studio.`,
+      `Usage: node tools/studio-body.ts <animal> [--inspect [--glb <file>]], with an animal of: ${[...ANIMALS.keys()].join(', ')}. --inspect also takes another animal of the studio.`,
     );
   }
 
