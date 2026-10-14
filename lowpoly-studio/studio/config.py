@@ -88,8 +88,8 @@ def _check_value(kind, value, path, errors):
             errors.append(f'{path}: expected a list of {kind[:-1]}s, got {value!r}')
             return None
         return tuple(float(x) for x in value) if kind == 'nums' else tuple(value)
-    if kind in ('pairs', 'box', 'seg'):
-        n, count = {'pairs': (2, None), 'box': (3, 2), 'seg': (2, 2)}[kind]
+    if kind in ('pairs', 'triples', 'box', 'seg'):
+        n, count = {'pairs': (2, None), 'triples': (3, None), 'box': (3, 2), 'seg': (2, 2)}[kind]
         if not isinstance(value, list) or (count and len(value) != count):
             errors.append(f'{path}: expected a list of {count or "any number of"} lists of {n} '
                           f'numbers, got {value!r}')
