@@ -172,7 +172,8 @@ These traps of route 2 each cost a round:
 and the rabbit violinist since 2026-10-13 (design 4.4). The studio builds
 the GLB file, or `pnpm rig-mesh` rigs a mesh of the user into it, as for the rabbit (below). The app keeps its own motion and drives the bones of the studio from the pose of the
 player on each frame (`poseStudioBones()` of `src/models/studio-rig.ts`). A manager briefs the
-implementation, the review, and the fix of a round from `docs/briefs/studio-body.md`.
+implementation of a round from `docs/briefs/studio-body.md`. A review and a fix follow only for
+the code that design 9.8 names.
 
 ```text
  python3 studio build <animal> --> lowpoly-studio/animals/<animal>/out/<animal>.glb
