@@ -1,6 +1,6 @@
 # Snapshot of 2026-10-14
 
-Commit `47451276`: docs(research): measure the rabbit mesh of the user in the app. `pnpm snapshot` made these images.
+Commit `559774da`: test(pose): remove the accepted depth of the upper arms of the rabbit. `pnpm snapshot` made these images.
 
 | File | View |
 |---|---|
