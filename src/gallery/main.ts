@@ -21,7 +21,6 @@ import { SCENE_COLORS } from '../models/colors.ts';
 import { MeshBuilder } from '../models/mesh.ts';
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
-import { INSTRUMENT_SUPPORTS } from '../models/player.ts';
 import { buildSupport } from '../models/props.ts';
 import type { PosePlan } from '../pose/plan.ts';
 import { createScenePose, poseAt } from '../pose/pose-at.ts';
@@ -41,6 +40,7 @@ import {
   bodyBoundsOf,
   boundsOf,
   closeView,
+  gallerySupport,
   galleryTransport,
   gridPlaces,
   instrumentItems,
@@ -116,7 +116,12 @@ function buildSpeciesModel(
   item: GalleryItem,
   materials: readonly MeshStandardMaterial[],
 ): GalleryModel {
-  const model = buildPlayer(item.species, item.instrument);
+  const model = buildPlayer(
+    item.species,
+    item.instrument,
+    4,
+    gallerySupport(search, item.instrument),
+  );
   const seat = buildSupport(model.support, model.seat);
   const player = createPlayerMesh(model, createPlayerGeometry(model), materials);
   const object = new Group();
@@ -363,7 +368,7 @@ function galleryCast(): GalleryCast | null {
             place: {
               position: [object.position.x, 0, object.position.z] as const,
               facing: object.rotation.y,
-              support: INSTRUMENT_SUPPORTS[item.instrument],
+              support: player.model.support,
               species: item.species,
               instrument: item.instrument,
             },

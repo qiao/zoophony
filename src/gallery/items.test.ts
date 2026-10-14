@@ -13,6 +13,7 @@ import {
   boundsOf,
   GALLERY_ELEVATION_DEG,
   closeView,
+  gallerySupport,
   galleryTransport,
   gridPlaces,
   instrumentItems,
@@ -204,6 +205,14 @@ describe('aroundBody', () => {
     expect(aroundBody(right, bodyBox, -Math.PI / 2).azimuth).toBeCloseTo(0, 9);
     const back = closeView(new URLSearchParams('body&azimuth=180'));
     expect(Math.abs(aroundBody(back, bodyBox, Math.PI).azimuth)).toBeCloseTo(180, 9);
+  });
+});
+
+describe('gallerySupport', () => {
+  it('stands each player with the query stand, and keeps the support of its instrument with none', () => {
+    expect(gallerySupport(new URLSearchParams(''), 'violin')).toBe('chair');
+    expect(gallerySupport(new URLSearchParams('stand'), 'violin')).toBe('stand');
+    expect(gallerySupport(new URLSearchParams('only=rabbit&stand'), 'piano')).toBe('stand');
   });
 });
 

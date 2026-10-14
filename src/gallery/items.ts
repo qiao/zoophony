@@ -1,6 +1,8 @@
 import type { Bounds } from '../models/bounds.ts';
 import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from '../models/cast.ts';
 import type { MeshData } from '../models/mesh.ts';
+import { INSTRUMENT_SUPPORTS } from '../models/player.ts';
+import type { Support } from '../models/props.ts';
 import type { PlayingSection } from '../models/cast.ts';
 import type { SpeciesId } from '../models/species.ts';
 import { INSTRUMENT_IDS } from '../models/instruments/catalog.ts';
@@ -220,6 +222,19 @@ const REST: Transport = {
   holdSec: 3,
   leadSec: 0,
 };
+
+/**
+ * Reads the support of a species item from the query of the gallery (design 7.1). The query
+ * `stand` shows each player standing, as a soloist who stands (design 4.5). With no `stand`, each
+ * player has the support of its instrument.
+ *
+ * @param search The query of the page.
+ * @param instrument The instrument of the item.
+ * @returns The support.
+ */
+export function gallerySupport(search: URLSearchParams, instrument: InstrumentId): Support {
+  return search.has('stand') ? 'stand' : INSTRUMENT_SUPPORTS[instrument];
+}
 
 /**
  * Reads the transport of the players from the query of the gallery (design 7.1). The query
