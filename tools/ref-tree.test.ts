@@ -150,11 +150,13 @@ describe('withRefTree after Ctrl-C', () => {
     const parent = await mkdtemp(join(tmpdir(), 'ref-tree-stop-'));
     const marker = `ref-tree-wait-${process.pid}-${Date.now()}`;
     try {
-      // The child waits in the folder, as the build of a commit does.
+      // The child waits in the folder, as the build of a commit does. After TERM, it takes 300 ms
+      // to end, as a build that writes a file.
+      const wait = `process.on("SIGTERM", () => setTimeout(() => process.exit(0), 300)); setTimeout(() => {}, 20000) // ${marker}`;
       const holder = hold(
         [
           "await withRefTree('HEAD', async (dir) => {",
-          `  const waiting = runChild(process.execPath, ['-e', 'setTimeout(() => {}, 20000) // ${marker}'], dir);`,
+          `  const waiting = runChild(process.execPath, ['-e', '${wait}'], dir);`,
           '  console.log(dir);',
           '  await waiting;',
           "}, { parent: process.env.REF_TREE_PARENT, paths: ['package.json'] });",
@@ -166,8 +168,9 @@ describe('withRefTree after Ctrl-C', () => {
       expect(existsSync(dir)).toBe(true);
 
       // Ctrl-C sends INT to each process of the group of the terminal. Then pnpm sends a second
-      // INT to its child, the tool.
+      // INT to its child, the tool, during the stop.
       process.kill(-(holder.child.pid ?? 0), 'SIGINT');
+      await new Promise((resolve) => setTimeout(resolve, 100));
       process.kill(holder.child.pid ?? 0, 'SIGINT');
       expect(await holder.closed).toBe(130);
       expect(existsSync(dir)).toBe(false);
