@@ -392,9 +392,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the left paw holds the violin at the left side and the bow hangs from the right paw
     (`BowedHold.restAtSide`), as for a soloist who stands: the round belly covers the short
     thighs, so the rabbit has no lap for the violin. `pnpm pose-depth violinist` and
-    `pnpm fold-probe violinist` measure each change (`docs/research/2026-10-13-studio-rabbit.md`). A test keeps the rest bow of each violinist out
-    of the trunk and the arms, and at most 0.03 H in the legs. The bow of the side rest of a studio
-    body may touch its fur. On the cello and the contrabass, the
+    `pnpm fold-probe violinist` measure each change (`docs/research/2026-10-13-studio-rabbit.md`).
+    A test keeps the rest bow of each violinist out of the trunk and the arms, and at most 0.03 H
+    in the legs. The bow of the side rest of a studio body may touch its fur. On the cello and the
+    contrabass, the
     elbow points out and up, (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in pizzicato, (1, 0,
     0). The left elbow points down, out, and a little forward, so that the arm hugs the instrument:
     level and out, (-1, 0, 0.3), the left upper arm of the dog stood 70° out from the side. The
