@@ -272,13 +272,19 @@ const SHOULDER_HOLD = {
 /**
  * The hold of the violin on the left shoulder, for the red fox (design 4.6, 5.3): the hold of the
  * rabbit, whose studio body of a mesh of the user has a head height near the head height of the
- * fox (0.27 m and 0.25 m). The violin lies 0.06 H further forward, still under the jaw: with the
- * place of the rabbit, the right forearm went 2.0 cm into the chest in the lift of the violin in
- * the Beethoven 8 demo (limit 1.5 cm).
+ * fox (0.27 m and 0.25 m). The bow slants 12° and the right shoulder turns 25°, and the right
+ * elbow at the tip points less down: with the bow of the rabbit (5°, 30°), the skin of the right
+ * shoulder of the fox mesh folded in 18% of the play samples (`pnpm fold-probe fox-violinist`).
+ * The violin lies 0.12 H further forward, still under the long jaw: with the place of the rabbit,
+ * the right forearm went 2.0 cm into the chest at the end of the lift of the violin in the
+ * Beethoven 8 demo, and 2.5 cm with a slant of 25° (limit 1.5 cm).
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
-  playShift: [-0.15, 0.06, -0.02],
+  playShift: [-0.15, 0.06, -0.08],
+  slant: -12 * MathUtils.DEG2RAD,
+  reach: 25 * MathUtils.DEG2RAD,
+  poleTipR: [1, -0.85, -1],
 } as const satisfies BowedHold;
 
 /** The holds of the bowed strings. */
