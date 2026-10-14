@@ -103,14 +103,14 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       crease: 15,
     },
   ],
-  // The violinist rabbit keeps the standing shoulder joints of the parametric rabbit, so that the
-  // section spacing and the music stands keep their fit (design 4.4, 4.5). It sits in the violin
-  // section and stands as a soloist.
+  // The violinist rabbit has 1.2 times the standing shoulder joints of the parametric rabbit
+  // (0.581 m), because the user asked for a rabbit 1.2 times the size on 2026-10-14 (design 4.4,
+  // 4.5). It sits in the violin section and stands as a soloist.
   [
     'rabbit',
     {
       landmark: 'shoulders',
-      height: 0.581,
+      height: 0.6972,
       seated: true,
       soloist: true,
       constant: 'STUDIO_RABBIT',

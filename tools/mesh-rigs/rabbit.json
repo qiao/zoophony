@@ -4,9 +4,9 @@
   "name": "Rabbit",
   "weld": 1e-5,
   "app": {
-    "shoulders": 0.581,
-    "reach": 0.377,
-    "note": "The app puts the standing shoulder joints 0.581 m above the floor (ANIMALS of tools/studio-body.ts). The user chose the reach of the studio rabbit, 0.377 m (2026-10-13)."
+    "shoulders": 0.6972,
+    "reach": 0.4524,
+    "note": "The app puts the standing shoulder joints 0.6972 m above the floor (ANIMALS of tools/studio-body.ts): 1.2 times the 0.581 m of the parametric rabbit, because the user asked for a rabbit 1.2 times the size on 2026-10-14 (docs/research/2026-10-14-animal-size.md). The user chose the reach of the studio rabbit, 0.377 m (2026-10-13), and the arm factor keeps that proportion at the new size: 0.4524 m."
   },
   "armFactor": 1.445,
   "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh prints the reach and stops when it is more than 1% from app.reach.",

@@ -352,8 +352,9 @@ x1.4, violin 28 cm"). Later that day, the user decided: "replace the rabbit by u
 @~/Downloads/rabbit-4.glb. Note that you need to rig it yourself." The rabbit violinist has that
 mesh since then (`assets/models/rabbit/rabbit-4.glb`), rigged into the format of a studio body
 (studio bodies, below). The user chose "Longer arms, 28 cm violin": the rig makes the upper arm
-and the forearm longer, so that the arm reaches as far as the arm of the studio rabbit, and the
-violin follows the rule of 4.6. On 2026-10-14, the user decided: "now replace the fox by
+and the forearm longer, so that the arm reached as far as the arm of the studio rabbit, and the
+violin follows the rule of 4.6. On 2026-10-14, the user asked for a rabbit of 1.2 times the size,
+and the arms grew with the body. Earlier that day, the user decided: "now replace the fox by
 @~/Downloads/fox.glb", and chose "All foxes, violins first". The red violin fox has that mesh
 since then (`assets/models/fox/fox.glb`), rigged as the rabbit mesh, and the tan flute fox keeps
 the parametric body until a later round gives it the mesh in tan colors. The user chose "1.08x,
@@ -534,14 +535,15 @@ quarter of the folded faces.
   bear conductor keeps the shoulder joints of the parametric bear of 2026-10-11, because the
   conductor stand and the beat fit the shoulders (4.5, 5.4). The polar bear pianist keeps the
   keys of its studio piano at the keys of the piano of the app, because the studio fitted its
-  seated arms to its keys. The rabbit violinist keeps the standing shoulder joints of the
-  parametric rabbit, so that the violin section and the music stands keep their fit. The red
-  violin fox first had the standing head top of the parametric fox: at the shoulders of the
-  parametric fox, the mesh was lower than the rabbit beside it. On 2026-10-14, the user said that
-  the fox was too small, and asked for 1.3 times its size. `ANIMALS` gives its standing shoulder
-  joints at 1.3 times the height that gave that head top. The scale grows each length of the body,
-  so the arms, the seat, and the chair grow with it, and the holds in `H` follow
-  (`docs/decisions/2026-10-14-animal-size.md`). The module of
+  seated arms to its keys. The rabbit violinist first had the standing shoulder joints of the
+  parametric rabbit, so that the violin section and the music stands kept their fit. On
+  2026-10-14, the user asked for 1.2 times its size, and `ANIMALS` gives 1.2 times these shoulder
+  joints. The red violin fox first had the standing head top of the parametric fox: at the
+  shoulders of the parametric fox, the mesh was lower than the rabbit beside it. On 2026-10-14,
+  the user said that the fox was too small, and asked for 1.3 times its size. `ANIMALS` gives its
+  standing shoulder joints at 1.3 times the height that gave that head top. For both, the scale
+  grows each length, so the arms, the seat, and the chair grow with it, and the holds in `H`
+  follow (`docs/decisions/2026-10-14-animal-size.md`). The module of
   each body (`src/models/studio/<animal>.ts`) holds its
   scale and its head height `H`, and the research reports
   (`docs/research/2026-10-12-studio-bear.md`, `docs/research/2026-10-12-studio-polar-bear.md`)
