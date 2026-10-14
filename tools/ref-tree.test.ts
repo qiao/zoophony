@@ -210,13 +210,17 @@ describe('probeBeside', () => {
       expect(tree.rows.map((row) => row.variant)).toEqual(['', 'piano.lean=16deg']);
       expect(await readdir(parent)).toEqual([]);
 
+      // The failure of the commit ends the sweep of the working tree at once. The full sweep of
+      // the violinist takes minutes.
+      const started = Date.now();
       const failing = probeBeside(
         'HEAD',
         'pose-depth.ts',
-        { base: ['no-such-role'], tree: args },
+        { base: ['no-such-role'], tree: ['violinist'] },
         { parent, prefix: 'probe-beside-' },
       );
       await expect(failing).rejects.toThrow('The probe of HEAD failed');
+      expect(Date.now() - started).toBeLessThan(20_000);
       expect(await readdir(parent)).toEqual([]);
     } finally {
       await rm(parent, { recursive: true, force: true });

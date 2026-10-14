@@ -60,24 +60,31 @@ export function run(command: string, args: readonly string[], cwd: string): void
 /** The child processes of {@link runChild} that run now. A stop ends them first. */
 const running = new Set<ChildProcess>();
 
+/** A child process of {@link startChild} and the promise of its end. */
+interface StartedChild {
+  /** The child process. */
+  readonly child: ChildProcess;
+  /** A promise that resolves when the command ends with no failure. */
+  readonly done: Promise<void>;
+}
+
 /**
- * Starts a command, and gives a promise of its end. The command runs beside the code of the
- * caller, in a process group of its own. Thus Ctrl-C does not stop it in the middle of a write
- * into a temporary folder. The stop of {@link withRefTree} ends its group first.
+ * Starts a command in a process group of its own, as {@link runChild} does, and gives the child
+ * with the promise of its end.
  *
  * @param command The command.
  * @param args The arguments.
  * @param cwd The folder of the command.
- * @returns A promise that resolves when the command ends with no failure.
+ * @returns The child and the promise of its end.
  */
-export function runChild(command: string, args: readonly string[], cwd: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      cwd,
-      detached: true,
-      stdio: ['ignore', 'ignore', 'pipe'],
-    });
-    running.add(child);
+function startChild(command: string, args: readonly string[], cwd: string): StartedChild {
+  const child = spawn(command, args, {
+    cwd,
+    detached: true,
+    stdio: ['ignore', 'ignore', 'pipe'],
+  });
+  running.add(child);
+  const done = new Promise<void>((resolve, reject) => {
     let errors = '';
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', (text: string) => {
@@ -96,6 +103,21 @@ export function runChild(command: string, args: readonly string[], cwd: string):
       reject(new Error(`${command} ${args.join(' ')} failed:\n${errorCause(errors)}`));
     });
   });
+  return { child, done };
+}
+
+/**
+ * Starts a command, and gives a promise of its end. The command runs beside the code of the
+ * caller, in a process group of its own. Thus Ctrl-C does not stop it in the middle of a write
+ * into a temporary folder. The stop of {@link withRefTree} ends its group first.
+ *
+ * @param command The command.
+ * @param args The arguments.
+ * @param cwd The folder of the command.
+ * @returns A promise that resolves when the command ends with no failure.
+ */
+export function runChild(command: string, args: readonly string[], cwd: string): Promise<void> {
+  return startChild(command, args, cwd).done;
 }
 
 /**
@@ -325,7 +347,8 @@ export interface BesideTexts {
  * each in a child process of {@link runChild}. The first child runs in the folder of
  * {@link withProbeTree}, and the second child runs in the repository. Each child writes its
  * results into a file of the folder, which the option `--json <file>` names. The caller only
- * waits, so a stop (INT or TERM) ends both children at once, and removes the folder.
+ * waits, so a stop (INT or TERM) ends both children at once, and removes the folder. A failure of
+ * one child ends the other child at once.
  *
  * @param ref The commit, a branch, or a tag.
  * @param script The script, such as `pose-depth.ts`.
@@ -344,17 +367,28 @@ export function probeBeside(
     ref,
     async (dir) => {
       const files = { base: join(dir, 'base.json'), tree: join(dir, 'tree.json') };
-      const [base, tree] = await Promise.allSettled([
-        runChild(
+      const children = {
+        base: startChild(
           process.execPath,
           [join('tools', script), ...args.base, '--json', files.base],
           dir,
         ),
-        runChild(
+        tree: startChild(
           process.execPath,
           [join('tools', script), ...args.tree, '--json', files.tree],
           ROOT,
         ),
+      };
+      // A failure of one child ends the other at once, so the report of the failure comes early.
+      const endOther =
+        (other: StartedChild) =>
+        async (error: Error): Promise<void> => {
+          await endChild(other.child);
+          throw error;
+        };
+      const [base, tree] = await Promise.allSettled([
+        children.base.done.catch(endOther(children.tree)),
+        children.tree.done.catch(endOther(children.base)),
       ]);
       if (base.status === 'rejected') {
         const reason: unknown = base.reason;
