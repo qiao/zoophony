@@ -176,8 +176,10 @@ implementation, the review, and the fix of a round from `docs/briefs/studio-body
         --> pnpm test --> pnpm close-views <role> <dir> --> pnpm snapshot
 ```
 
-1. Run `pnpm studio-body <animal> --inspect` first. It prints the joints, the clips, the props,
-   the seated drop, and the parts that the export refuses, with no write. Run
+1. Run `pnpm studio-body <animal> --inspect` first. It prints the joints, the reach of each arm,
+   the clips, the props, the seated drop, and the parts that the export refuses, with no write.
+   For a violin or a viola, the manager compares the reach with the instrument before the round
+   (`docs/briefs/studio-body.md`, section 1). Run
    `pnpm studio-body <animal>` after each build of the studio that changes the GLB file. Add
    an animal to `ANIMALS` of `tools/studio-body.ts` with the landmark of its scale and its
    height in the app: the shoulder joints of a standing role, or the keys of the piano of a
@@ -188,7 +190,9 @@ implementation, the review, and the fix of a round from `docs/briefs/studio-body
 2. Add the module to `STUDIO_BODIES`, and give the species the body.
 3. Run `pnpm test`. The pose of the player drives the arms by their joints, so a new body needs
    a fit of the holds in its `H`. Probe a hold with `pnpm pose-probe <sheet>`, and look at the
-   close views. The clearance tests read the skin of the studio (`posedCorner()`).
+   close views. For a violin or a viola, `pnpm hold-reach <species>` gives the reached parts of
+   the fingerboard and the bow, and the violin scale of the rule of a violin shop. The clearance
+   tests read the skin of the studio (`posedCorner()`).
    A new role adds its entry to `SWEEP_ROLES` of `pose/test-sweep-roles.ts`: its moving parts,
    its obstacles with the shells of its instrument, its sample sets, and its limits. Add its
    shard files `pose/<role>-clearance-<k>.test.ts`, each with a call of
