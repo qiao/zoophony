@@ -189,7 +189,9 @@ implementation, the review, and the fix of a round from `docs/briefs/studio-body
    an animal to `ANIMALS` of `tools/studio-body.ts` with the landmark of its scale and its
    height in the app: the shoulder joints of a standing role, or the keys of the piano of a
    pianist. Give it a crease angle for the smooth normals of its fur: the angle whose facet
-   contrast is nearest to its reference crops (`docs/research/2026-10-14-rabbit-smooth.md`). Mark a seated role: the export drops it onto its seat, and the seat fits its legs. A
+   contrast is nearest to its reference crops (`docs/research/2026-10-14-rabbit-smooth.md`).
+   When each render has less contrast than the references, as for the rabbit, the measure
+   cannot choose, so compare the play frames. Mark a seated role: the export drops it onto its seat, and the seat fits its legs. A
    chair also takes the depth of the chair of the studio. Mark a seated role that also stands
    (`soloist`), as the violinist: the export keeps its leg corrective shapes and the leg turns of
    its sheet, and the app stands it for a soloist.
