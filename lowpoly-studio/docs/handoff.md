@@ -83,9 +83,13 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
 5. **The studio rabbit in the app.** Done on 2026-10-13
    (`docs/research/2026-10-13-studio-rabbit.md` of the repository). The app scales the rabbit by
    the standing shoulders of the parametric rabbit, seats it on a chair with the depth of the chair
-   of the studio, stands it as a soloist with the leg corrective shapes, and gives it a violin of
-   0.3 of the app size. Open for the studio: a role mesh of at most 3,000 faces (round 3 has
-   3,012), because a demo shows many rabbits. Also open for the studio: the standing rabbit has
+   of the studio, stands it as a soloist with the leg corrective shapes, and gives it a violin
+   sized by the rule of a violin shop: 0.55 of the app size (0.28 m) for the arms of round 4,
+   which reach 0.377 m to the middle of the palm. The body of round 4 has 2,920 faces, within the
+   app budget of 3,100. Open for the studio: in the side rest of the app, the right arm hangs, and
+   one face of the right upper arm folds in each rest sample (`pnpm fold-probe violinist`, round 3:
+   none). It can be the mirror of face 805, the thin face near the left armpit that the near
+   check of round 4 found. Also open for the studio: the standing rabbit has
    a dark pinch behind each knee, under the haunch, in the back and the left views of the stand
    (`docs/research/2026-10-13-studio-rabbit/stand-knee-pinch.webp` of the repository). No face
    folds: the faces near the haunch pinch. The cause is likely the shapes `legs_straight_*`

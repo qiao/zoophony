@@ -482,10 +482,14 @@ of the paws, the forearms, the claws, and the bow (`contact_tests = ["paw", "for
 "props"]`, the bow with `contact = "bow"`; the violin touches the chin, so it has `contact =
 "none"`), folds, the scene (the chair), and the seat.
 
-The limits on the rabbit: its arms reach 0.2 animal heights and its chest stands 0.11 in front
-of its shoulder joints, so the violin is 0.17 long (0.85 arm reaches, a person: 1.1), the paw
-holds it at 0.68 of the length, and a whole bow uses 0.18 of the bow length. The app keeps its
-own violin, bow, and motion: for the app the role gives the seated bind pose and the skin.
+The limits on the rabbit: since round 4, its arms reach 0.29 animal heights in the sheet pose
+(`reach` of `role.toml`), 1.4 times the reach of rounds 1 to 3 (the user, 2026-10-13: "Arms
+x1.4, violin 28 cm"). Its chest stands 0.11 in front of its shoulder joints. The violin is 0.234
+long (0.80 arm reaches, a person: 1.1), about 0.28 m at the scale of the app, and the paw holds
+it at 0.68 of the length. The bow is 0.29 long (1.25 violins, the rule of the prop library), and
+a whole bow uses 0.18 of the bow length. The app keeps its own violin, bow, and motion: it sizes
+its violin by the rule of a violin shop to the arm of its body (`violinScale` of
+`src/models/species.ts`), and for the app the role gives the seated bind pose and the skin.
 
 ## The prop library
 
