@@ -45,6 +45,9 @@ if ! git diff --quiet HEAD -- "$file" || ! git diff --cached --quiet -- "$file";
 fi
 
 work=$(mktemp -d "${TMPDIR:-/tmp}/break-test.XXXXXX")
+# The reader of the report runs from a copy, so that a break of the reader does not change the
+# verdict.
+cp "$script_dir/break-test.ts" "$work/break-test.ts"
 
 # The file is equal to HEAD and to the index here, so the checkout restores it as it was.
 restore() {
@@ -76,5 +79,5 @@ if [ ! -s "$work/report.json" ]; then
 fi
 
 verdict=0
-node "$script_dir/break-test.ts" "$work/report.json" "$(pwd -P)" || verdict=$?
+node "$work/break-test.ts" "$work/report.json" "$(pwd -P)" || verdict=$?
 exit "$verdict"

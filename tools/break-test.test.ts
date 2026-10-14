@@ -1,6 +1,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import {
   chmodSync,
+  copyFileSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -29,8 +30,8 @@ const SCRIPT = join(import.meta.dirname, 'break-test.sh');
 
 /**
  * A fake `pnpm` for `pnpm exec vitest run --reporter=json --outputFile=<file> <tests>`. It writes a
- * report with one test, which fails when `lib.txt` holds the word `BROKEN`. With the file `crash`
- * in the folder, it fails with no report. With the file `slow`, it writes the file `started`
+ * report with one test, which fails when `lib.txt` holds the word `BROKEN` or the folder holds
+ * the file `fail`. With the file `crash` in the folder, it fails with no report. With the file `slow`, it writes the file `started`
  * beside it and waits 30 s.
  */
 const FAKE_PNPM = `#!/bin/sh
@@ -38,7 +39,7 @@ out=''
 for arg in "$@"; do case "$arg" in --outputFile=*) out="\${arg#--outputFile=}";; esac; done
 if [ -f slow ]; then echo started > "$(dirname "$0")/started"; exec sleep 30; fi
 if [ -f crash ]; then echo 'Error: the run crashes' >&2; exit 1; fi
-if grep -q BROKEN lib.txt; then status=failed; else status=passed; fi
+if grep -q BROKEN lib.txt || [ -f fail ]; then status=failed; else status=passed; fi
 printf '{"testResults":[{"name":"%s/lib.test.ts","status":"%s","message":"","assertionResults":[{"ancestorTitles":["lib"],"title":"keeps the word ok","status":"%s"}]}]}' "$(pwd -P)" "$status" "$status" > "$out"
 [ "$status" = passed ]
 `;
@@ -239,6 +240,31 @@ describe('tools/break-test.sh', () => {
       expect(lib()).toBe(LIB);
     } finally {
       rmSync(join(repo, 'slow'));
+    }
+  });
+
+  it('gives the verdict of the reader as it was before the break', () => {
+    const tools = join(repo, 'tools');
+    mkdirSync(tools, { recursive: true });
+    copyFileSync(SCRIPT, join(tools, 'break-test.sh'));
+    copyFileSync(join(import.meta.dirname, 'break-test.ts'), join(tools, 'break-test.ts'));
+    const git = (...args: readonly string[]): void => {
+      spawnSync('git', args, { cwd: repo, env: environment() });
+    };
+    git('add', 'tools');
+    git('commit', '-q', '-m', 'add the break script');
+    writeFileSync(join(repo, 'fail'), '');
+    try {
+      const result = spawnSync(
+        'bash',
+        ['tools/break-test.sh', 's/Tests that fail/Tests that pass/', 'tools/break-test.ts', 'x'],
+        { cwd: repo, env: environment(), encoding: 'utf8' },
+      );
+      expect(`${result.stdout}${result.stderr}`).toContain('Tests that fail (1):');
+      expect(result.status).toBe(0);
+      expect(readFileSync(join(tools, 'break-test.ts'), 'utf8')).toContain('Tests that fail');
+    } finally {
+      rmSync(join(repo, 'fail'));
     }
   });
 });
