@@ -1691,9 +1691,9 @@ async function readStudioGlb(file: string, animal: string): Promise<Buffer> {
 /**
  * Writes the module of a studio body from its GLB file: `node tools/studio-body.ts <animal>`
  * (design 4.4). The GLB file is `lowpoly-studio/animals/<animal>/out/<animal>.glb`, the output
- * of `python3 studio build <animal>`, or the file of the settings of the animal. With `--inspect`, it writes no file, and it prints the
- * facts of the GLB file that a new studio body needs. An animal that is not in `ANIMALS` gets
- * an assumed scale.
+ * of `python3 studio build <animal>`, or the file of the settings of the animal. With
+ * `--inspect`, it writes no file, and it prints the facts of the GLB file that a new studio body
+ * needs. An animal that is not in `ANIMALS` gets an assumed scale.
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
