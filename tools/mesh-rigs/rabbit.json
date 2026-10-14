@@ -49,7 +49,7 @@
   },
   "weights": {
     "armSplit": 0.106,
-    "headFrom": 0.575,
+    "headFrom": 0.565,
     "earBase": [0.745, 0.78],
     "tailBall": { "center": [0, 0.197, -0.168], "radius": 0.06, "behind": -0.14 },
     "haunch": { "height": [0.11, 0.16], "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the haunch stays on the seat and only the leg below it turns." },
