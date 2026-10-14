@@ -172,7 +172,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['feet'],
-    violinScale: 0.43,
+    violinScale: 0.56,
     proportions: {
       headHeight: STUDIO_FOX.headHeight,
       seatHeight: STUDIO_FOX.seatHeight / STUDIO_FOX.headHeight,
