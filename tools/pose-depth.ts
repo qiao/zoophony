@@ -382,8 +382,8 @@ export interface SweepRow {
   readonly results: readonly DemoResult[];
 }
 
-/** A depth of the JSON text of {@link rowsJson}. JSON writes the place `NaN` as `null`. */
-type StoredDepth = Omit<PairDepth, 'along'> & {
+/** A depth of a JSON text, such as of {@link rowsJson}. JSON writes the place `NaN` as `null`. */
+export type StoredDepth = Omit<PairDepth, 'along'> & {
   /** The place along the bone, or `null` for `NaN`. */
   readonly along: number | null;
 };
@@ -394,8 +394,8 @@ type StoredGap = Omit<PairGap, 'gap'> & {
   readonly gap: number | null;
 };
 
-/** A result of the JSON text of {@link rowsJson}. */
-type StoredResult = Omit<DemoResult, 'sets'> & {
+/** A result of a JSON text, such as of {@link rowsJson}. */
+export type StoredResult = Omit<DemoResult, 'sets'> & {
   /** The sets of samples. */
   readonly sets: readonly (Omit<SetResult, 'pairs' | 'gaps'> & {
     /** The deepest point of each pair. */
@@ -436,38 +436,66 @@ export function readRows(text: string): SweepRow[] {
   // SAFETY: the text comes from rowsJson() of this tool, in the probe of a commit or of the
   // working tree.
   const stored = JSON.parse(text) as StoredRows;
-  const depth = (p: StoredDepth): PairDepth => ({
-    part: p.part,
-    into: p.into,
-    depth: p.depth,
-    song: p.song,
-    wall: p.wall,
-    bone: p.bone,
-    along: p.along ?? Number.NaN,
-  });
-  const gap = (g: StoredGap): PairGap => ({
-    part: g.part,
-    into: g.into,
-    gap: g.gap ?? Infinity,
-    song: g.song,
-    wall: g.wall,
-    bone: g.bone,
-  });
   return stored.rows.map((row) => ({
     variant: row.variant,
     seconds: row.seconds,
-    results: row.results.map((result) => ({
-      demo: result.demo,
-      species: result.species,
-      headHeight: result.headHeight,
-      targets: result.targets,
-      sets: result.sets.map((set) => ({
-        name: set.name,
-        pairs: set.pairs.map(depth),
-        gaps: set.gaps.map(gap),
-      })),
-    })),
+    results: row.results.map(restoreResult),
   }));
+}
+
+/**
+ * Gives back a depth of a JSON text, with `NaN` in place of `null`.
+ *
+ * @param stored The depth of the text.
+ * @returns The depth.
+ */
+export function restoreDepth(stored: StoredDepth): PairDepth {
+  return {
+    part: stored.part,
+    into: stored.into,
+    depth: stored.depth,
+    song: stored.song,
+    wall: stored.wall,
+    bone: stored.bone,
+    along: stored.along ?? Number.NaN,
+  };
+}
+
+/**
+ * Gives back a gap of a JSON text, with an infinite gap in place of `null`.
+ *
+ * @param stored The gap of the text.
+ * @returns The gap.
+ */
+function restoreGap(stored: StoredGap): PairGap {
+  return {
+    part: stored.part,
+    into: stored.into,
+    gap: stored.gap ?? Infinity,
+    song: stored.song,
+    wall: stored.wall,
+    bone: stored.bone,
+  };
+}
+
+/**
+ * Gives back the result of a demo and a player of a JSON text ({@link restoreDepth}).
+ *
+ * @param stored The result of the text.
+ * @returns The result.
+ */
+export function restoreResult(stored: StoredResult): DemoResult {
+  return {
+    demo: stored.demo,
+    species: stored.species,
+    headHeight: stored.headHeight,
+    targets: stored.targets,
+    sets: stored.sets.map((set) => ({
+      name: set.name,
+      pairs: set.pairs.map(restoreDepth),
+      gaps: set.gaps.map(restoreGap),
+    })),
+  };
 }
 
 /** The step of the depths that the tool prints, in meters: 0.1 cm. */

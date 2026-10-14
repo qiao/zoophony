@@ -5,9 +5,15 @@
  * `pnpm hold-reach`. It prints one table with one row for each variant. The source files do not
  * change.
  *
+ * With `--base <ref>`, the commit and the working tree run at the same time, each in a child
+ * process. The table then starts with the row of the commit, and one compare of the deepest
+ * points in the H of each body follows for each variant.
+ *
  * Usage: pnpm hold-fit <role> [--set <path>=<value>[;<path>=<value>]...]... [--demo <id>|all]...
- * [--step <seconds>]
+ * [--step <seconds>] [--base <ref>] [--json <file>]
  */
+import { writeFileSync } from 'node:fs';
+
 import { FOLD_ROLES, probeFolds, roleBodies } from './fold-probe.ts';
 import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
 import { holdReach, rangeTexts, ruleSize } from './hold-reach.ts';
@@ -15,8 +21,9 @@ import type { ChinInstrument, HoldReach } from './hold-reach.ts';
 import { setHolds } from './hold-sets.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
-import { sweepDemos } from './pose-depth.ts';
-import type { DemoResult } from './pose-depth.ts';
+import { compareDepths, restoreDepth, restoreResult, sweepDemos } from './pose-depth.ts';
+import type { DemoResult, StoredDepth, StoredResult } from './pose-depth.ts';
+import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { sceneOf } from '../src/pose/test-scene.ts';
 import type { TestScene } from '../src/pose/test-scene.ts';
@@ -47,7 +54,7 @@ export const FIT_STEP = 1;
 export const PLAY_FOLD_GOAL = 0.01;
 
 /** The usage text of `pnpm hold-fit`. */
-const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--demo <id>|all]... [--step <seconds>]`;
+const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--demo <id>|all]... [--step <seconds>] [--base <ref>] [--json <file>]`;
 
 /** The options of `pnpm hold-fit`. */
 export interface FitOptions {
@@ -64,6 +71,10 @@ export interface FitOptions {
   readonly demos: readonly string[];
   /** The step of the song time of the play folds, in seconds. */
   readonly step: number;
+  /** The file into which the tool writes its rows as JSON, or `null` for none. */
+  readonly json: string | null;
+  /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
+  readonly base: string | null;
 }
 
 /**
@@ -84,6 +95,8 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   const variants = [''];
   const demos: string[] = [];
   let step = FIT_STEP;
+  let json: string | null = null;
+  let base: string | null = null;
   for (let i = 0; i < rest.length; i += 2) {
     const value = rest[i + 1];
     if (value === undefined) {
@@ -95,6 +108,12 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
         break;
       case '--demo':
         demos.push(value.replace(/\.mid$/, ''));
+        break;
+      case '--json':
+        json = value;
+        break;
+      case '--base':
+        base = value;
         break;
       case '--step':
         step = Number(value);
@@ -109,7 +128,10 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   for (const variant of variants) {
     setHolds(variant).undo();
   }
-  return { name, role, variants, demos, step };
+  if (base !== null && json !== null) {
+    throw new Error(`The options --base and --json do not go together.\n${USAGE}`);
+  }
+  return { name, role, variants, demos, step, json, base };
 }
 
 /**
@@ -209,6 +231,70 @@ export interface FitRow {
   readonly reach: HoldReach | null;
   /** The time of the run of the variant, in seconds. */
   readonly seconds: number;
+  /** The results of the sweep in each demo, for the compare of `--base`. */
+  readonly results: readonly DemoResult[];
+}
+
+/** The JSON text of {@link fitJson}. JSON writes the place `NaN` of a depth as `null`. */
+interface StoredFit {
+  /** The demos of the run. */
+  readonly demos: readonly string[];
+  /** The rows, the base first. */
+  readonly rows: readonly (Omit<FitRow, 'depths' | 'results'> & {
+    /** The deepest point of each sample set. */
+    readonly depths: readonly (Omit<SetWorst, 'pair'> & {
+      /** The deepest point of the pair. */
+      readonly pair: StoredDepth;
+    })[];
+    /** The results of the sweep in each demo. */
+    readonly results: readonly StoredResult[];
+  })[];
+}
+
+/** The rows of a run and its demos. */
+export interface FitRun {
+  /** The demos of the run. */
+  readonly demos: readonly string[];
+  /** The rows, the base first. */
+  readonly rows: readonly FitRow[];
+}
+
+/**
+ * Writes the rows of a run as JSON (`--json`).
+ *
+ * @param run The demos and the rows.
+ * @returns The text.
+ */
+export function fitJson(run: FitRun): string {
+  return JSON.stringify(run);
+}
+
+/**
+ * Reads the rows of a run from the text of {@link fitJson}, with `NaN` in place of `null`.
+ *
+ * @param text The text.
+ * @returns The demos and the rows.
+ */
+export function readFit(text: string): FitRun {
+  // SAFETY: the text comes from fitJson() of this tool, in the probe of a commit or of the
+  // working tree.
+  const stored = JSON.parse(text) as StoredFit;
+  return {
+    demos: stored.demos,
+    rows: stored.rows.map((row) => ({
+      variant: row.variant,
+      folds: row.folds,
+      depths: row.depths.map((worst) => ({
+        set: worst.set,
+        demo: worst.demo,
+        pair: restoreDepth(worst.pair),
+        limit: worst.limit,
+      })),
+      reach: row.reach,
+      seconds: row.seconds,
+      results: row.results.map(restoreResult),
+    })),
+  };
 }
 
 /**
@@ -351,9 +437,63 @@ async function fitDemos(
   return { demos: all.filter((demo) => ids.includes(id(demo))), first };
 }
 
+/**
+ * Writes the time and the deepest point of each sample set of a row.
+ *
+ * @param row The row.
+ */
+function printRow(row: FitRow): void {
+  console.log(`${row.variant || 'base'} (${row.seconds.toFixed(1)} s):`);
+  for (const { set, demo, pair } of row.depths) {
+    console.log(`  ${set}: ${pairText(pair)}, ${demo}`);
+  }
+}
+
+/**
+ * Fits the commit of `--base` and the working tree at the same time, each in a child process
+ * (`probeBeside()`). The commit runs the base with no change. Then the tool writes the table with
+ * the row of the commit first, and one compare of the deepest points of each variant with the
+ * commit, in the H of each body (`compareDepths()`).
+ *
+ * @param options The options.
+ * @param ref The commit, the branch, or the tag.
+ */
+async function compareFit(options: FitOptions, ref: string): Promise<void> {
+  const label = `${ref} (${shortHash(ref)})`;
+  const args = withoutOptions(process.argv.slice(2), ['--base']);
+  const started = performance.now();
+  const texts = await probeBeside(
+    ref,
+    'hold-fit.ts',
+    { base: withoutOptions(args, ['--set']), tree: args },
+    { prefix: 'hold-fit-' },
+  );
+  const base = readFit(texts.base);
+  const tree = readFit(texts.tree);
+  const seconds = ((performance.now() - started) / 1000).toFixed(1);
+  console.log(`Hold fit of the ${options.name} on ${label} and on the working tree: ${seconds} s.`);
+  console.log(`Demos of ${label}: ${base.demos.join(', ')}`);
+  console.log(`Demos of the working tree: ${tree.demos.join(', ')}`);
+  const [first] = base.rows;
+  for (const row of tree.rows) {
+    printRow(row);
+  }
+  console.log(
+    ['', ...fitTable([...(first ? [{ ...first, variant: label }] : []), ...tree.rows])].join('\n'),
+  );
+  for (const { variant, results } of tree.rows) {
+    console.log(`\nThe depths of ${label} and of the working tree with ${variant || 'no change'}:`);
+    console.log(compareDepths(label, first?.results ?? [], results).join('\n'));
+  }
+}
+
 /** Runs the tool: `node tools/hold-fit.ts <role> [options]`. */
 async function main(): Promise<void> {
   const options = parseFitOptions(process.argv.slice(2));
+  if (options.base !== null) {
+    await compareFit(options, options.base);
+    return;
+  }
   const { demos, first } = await fitDemos(options);
   const sweep = fitSweep(options.role, first);
   const chin = chinOf(options.role);
@@ -372,23 +512,24 @@ async function main(): Promise<void> {
       const results = sweep
         ? await sweepDemos({ demos: ids, times: null, gaps: false }, sweep)
         : [];
-      rows.push({
+      const row: FitRow = {
         variant: text,
         folds,
         depths: sweep ? worstPairs(sweep, results) : [],
         reach: chin ? holdReach(chin.species, chin.instrument, 'chair') : null,
         seconds: (performance.now() - started) / 1000,
-      });
+        results,
+      };
+      rows.push(row);
+      printRow(row);
     } finally {
       undo();
     }
-    const row = rows.at(-1);
-    console.log(`${text || 'base'} (${row?.seconds.toFixed(1)} s):`);
-    for (const { set, demo, pair } of row?.depths ?? []) {
-      console.log(`  ${set}: ${pairText(pair)}, ${demo}`);
-    }
   }
   console.log(['', ...fitTable(rows)].join('\n'));
+  if (options.json !== null) {
+    writeFileSync(options.json, fitJson({ demos: ids, rows }));
+  }
 }
 
 if (import.meta.main) {

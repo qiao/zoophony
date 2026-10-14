@@ -10,9 +10,11 @@ import {
   FIT_STEP,
   chooseDemos,
   fitSweep,
+  fitJson,
   fitTable,
   foldShares,
   parseFitOptions,
+  readFit,
   worstPairs,
 } from './hold-fit.ts';
 import type { FitRow } from './hold-fit.ts';
@@ -81,6 +83,14 @@ describe('parseFitOptions', () => {
     expect(options.step).toBe(FIT_STEP);
     expect(FIT_STEP).toBe(1);
     expect(parseFitOptions(['pianist', '--step', '0.5']).step).toBe(0.5);
+    expect(parseFitOptions(['pianist', '--base', 'main']).base).toBe('main');
+    expect(parseFitOptions(['pianist', '--json', 'out.json']).json).toBe('out.json');
+  });
+
+  it('stops on --base with --json', () => {
+    expect(() => parseFitOptions(['pianist', '--base', 'main', '--json', 'out.json'])).toThrow(
+      'do not go together',
+    );
   });
 
   it('stops on an unknown role, an unknown option, a change that does not fit, or a bad step', () => {
@@ -181,6 +191,7 @@ describe('fitTable', () => {
     ],
     reach: null,
     seconds: 1,
+    results: [],
   };
 
   it('marks a depth over its limit and play folds over the goal of 1%', () => {
@@ -191,6 +202,24 @@ describe('fitTable', () => {
     expect(base).toBe(
       '| base | 2.0% (2/100) OVER | 10.0% (1/10) | 2.0 paws>body (1.5) OVER | 1.0 bow>violin (1.5) |',
     );
+  });
+
+  it('gives back the rows of its JSON text, with NaN for a depth with no bone', () => {
+    const none = { ...pair('claws', 'body', 0), bone: null, along: Number.NaN };
+    const results: DemoResult[] = [
+      {
+        demo: 'a violinist 1 (rabbit, chair)',
+        species: 'rabbit',
+        headHeight: 0.3,
+        sets: [{ name: 'play', pairs: [none], gaps: [] }],
+        targets: [],
+      },
+    ];
+    const run = {
+      demos: ['a'],
+      rows: [{ ...row, depths: [{ set: 'play', demo: 'a', pair: none, limit: 0.015 }], results }],
+    };
+    expect(readFit(fitJson(run))).toEqual(run);
   });
 
   it('adds the rule scale, the violin length, and the reached ranges for a violin role', () => {
