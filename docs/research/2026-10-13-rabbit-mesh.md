@@ -262,7 +262,10 @@ gives each part within the contact depth of 1.5 cm, except the upper arms in the
 rest pose, the lift, and the lowering: 2.1 cm, accepted up to 2.5 cm. The deepest corners lie at
 the root of the left upper arm, 2 cm inside the shoulder joint in the bind pose of the player
 (`deep-probe.ts`, `deep-probe.txt`). They turn behind the fan cap of the
-cut to the arm when the arm hangs. The other deepest values: the paws in the body 1.2 cm and in
+cut to the arm when the arm hangs. Correction of the review of 2026-10-14: the deepest corner is a vertex
+on the side of the trunk with 0.72 of the upper arm weight, 11.4 cm below the shoulder joint. It
+lies 2.1 cm behind the cap and 4.1 cm from the nearest triangle of the body (`deep-corner.ts`,
+section "The round of the folds"). The other deepest values: the paws in the body 1.2 cm and in
 the violin 1.3 cm in a play, the forearms in the violin 1.2 cm in the lift and 1.3 cm in the
 lowering. The head keeps 0.5 cm from the violin in a play. The solo violin test file of
 `pose/violinist-standing-clearance.test.ts` passes for the standing rabbit. The sweep of the
@@ -299,3 +302,83 @@ the user that affects each player.
   violin lies under the jaw, about level, and turns to the left front. The rabbit sits on its
   haunch at the front of the chair, and its knees stay low in the side views. The dark band under
   the head shows in the side and the back views.
+
+## The round of the folds (2026-10-14)
+
+The manager let this round change the faces of the arms, the shoulders, and the hands, when the
+surface and the colors keep their look. `pnpm rig-mesh` now has two steps after the long arms
+(`refine` of the config). A ring cuts the edges near a joint with the plane through the joint
+and splits each crossed face into faces on its plane. A new vertex takes the UV and the weights
+of its place on the edge. Then the long edge of a face that is thin in the seated bind mesh
+flips, when the two faces lie almost on one plane and the surface moves at most 2 mm. Each face
+takes its color from the texture again, before the palette.
+
+```text
+ source mesh --weights--> long arms --rings (split)--> flips (bind mesh) --> colors --> bind
+                                          ^ left elbow only    ^ move <= 2 mm
+```
+
+### The cause of the folds
+
+`fold-faces.ts` lists the folded faces of each sample set. On a3ef0b2a, one face at the left
+elbow folds in 2,510 of the 6,008 play samples. In the source, it has the angles 142°, 18°, and
+20°. The bind pose bends the elbow by 62°, and the face becomes 173°, 4°, and 4° and 15 cm long:
+it runs from the shoulder over the elbow to the forearm. Its middle corner lies on its long edge
+in the bind mesh, so a little more bend of the elbow turns it over. A flip of its long edge in
+the bind mesh left a face of 162° (10.5% of the play samples). A ring at the left elbow cuts the
+long edges across the elbow, and no face of the elbow folds in a play.
+
+### The rig
+
+- `rig-mesh-folds.log`: the ring at the left elbow cuts 7 edges of at least 0.08 units (14 new
+  faces), and 3 edges flip. The largest move of a flip is 0.41 mm in the app, the larger of the
+  source and the bind mesh. The body has 3,100 triangles (3,086 before).
+- A ring at the right elbow pulled the inner elbow 1.8 cm into the trunk in the lowering, and the
+  faces of the right elbow did not fold. A ring at each shoulder put more folded faces on the top
+  of the right shoulder. The variants are in `fold-variants.txt`.
+- The shoulders below the head line give their head weight to the neck (`shoulderHead`). Bone
+  heat gave the top of each shoulder up to 0.18 of the head weight. The play folds went from
+  5.7% to 5.0% of the samples.
+- `standing-probe-folds.txt`: the standing body gives back the long-armed source within 0.234 mm.
+  Each new vertex lies on an edge of the source, and the flips move the surface by 0.41 mm at
+  most.
+
+### The measures
+
+| Measure | a3ef0b2a | the ring at the left elbow | File |
+|---|---|---|---|
+| Folds, play | 45.0% | 5.0% | `fold-probe-folds.txt` |
+| Folds, lift | 50.0% | 25.8% | `fold-probe-folds.txt` |
+| Folds, rest | 9 faces | 7 faces | `fold-probe-folds.txt` |
+| Triangles of the body | 3,086 | 3,100 | `rig-mesh-folds.log` |
+| Triangles of `perf-60.mid` | 166,722 | 166,806 | `scene-triangles-folds.txt` |
+| Module gzip | 24,696 B | 24,863 B | `module-parts-folds.txt` |
+| Upper arms in the body | 2.1 cm | 0.9 cm | `pose-depth-gaps-folds.txt` |
+| Forearms in the body | 0.7 cm | 0.9 cm | `pose-depth-gaps-folds.txt` |
+| Forearms in the violin | 1.3 cm | 1.4 cm | `pose-depth-gaps-folds.txt` |
+
+`pnpm body-probe --base main` (`body-probe-folds.txt`) names only the rabbit violinist, as in the
+app round.
+
+The open folds are well-formed faces. Two faces on the top of the right shoulder fold in 261 and
+76 play samples, when the bow arm rises. One face at the front of the left shoulder folds in 45
+play samples and in 42 lift samples. The rest pose folds 7 faces at the front of each shoulder,
+where the hanging arm pinches the skin. Weight rules at the shoulder put folds in each play
+sample (`fold-variants.txt`).
+
+### The deepest corner of the upper arms
+
+`deep-corner.ts` (`deep-corner.txt`) gives the deepest corner of the left upper arm in the rest
+pose of the Boulanger demo. On a3ef0b2a, it is a vertex on the side of the trunk with 0.72 of
+the upper arm weight. It lies 2.07 cm behind the cap of the cut to the arm and 4.08 cm from the
+nearest triangle of the body. The ring at the left elbow also splits the long faces that join
+the forearm to the side of the trunk. Now the corner with the same skin lies 0.22 cm behind the
+cap and 1.66 cm from the nearest triangle of the body. The sweep needs no accepted depth of the
+upper arms. An armpit rule that gave the side of the trunk to the trunk put folds in each play
+sample when it reached that vertex, so the round kept no such rule.
+
+### Images of the round of the folds
+
+- `violinist-views-folds.webp`: `pnpm close-views violinist` with the ring at the left elbow. The
+  arms keep the look of `violinist-views-app.webp`.
+
