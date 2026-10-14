@@ -81,6 +81,9 @@ class Skeleton:
         self.extras = extras
         self.clavicle = rig.clavicle
         self.leg_pole = rig.leg_pole
+        # A list while studio/bake.py records a pose: each IK arm adds (side, the distance from
+        # the shoulder to its wrist target over the reach of the upper arm and the forearm).
+        self.asked = None
         self.props = [n for n in self.names if n not in BODY_BONES and not is_finger(n)]
 
     def _auto_clavicle(self, name, arm):
@@ -115,6 +118,8 @@ class Skeleton:
         axis_name, target_dir, palm = spec['hand']
         target_dir = Dc @ np.asarray(target_dir, float)
         palm = Dc @ np.asarray(palm, float)
+        if self.asked is not None:
+            self.asked.append((side, float(np.linalg.norm(wrist - S)) / (l1 + l2)))
         E, W = two_bone(S, wrist, l1, l2, pole)
         u0, f0 = unit(E0 - S0), unit(W0 - E0)
         n0 = unit(np.cross(u0, f0))

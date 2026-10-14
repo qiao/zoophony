@@ -219,6 +219,16 @@ def string_length(body, pr):
     return 1.25 * violin if c.bow_for == 'violin' else 0.62 * cello
 
 
+# The hand props that are instruments: the report gives their length against the arm reach.
+HELD_INSTRUMENTS = ('violin',)
+
+
+def held_instruments(body, role):
+    """Lists the instruments that a paw of the role holds: [{"name", "kind", "length"}]."""
+    return [{'name': pr.name, 'kind': pr.kind, 'length': round(float(string_length(body, pr)), 4)}
+            for pr in hand_props(role) if pr.kind in HELD_INSTRUMENTS]
+
+
 def string_colors(c):
     """Returns the colors of a string instrument from its config."""
     return dict(c.colors)

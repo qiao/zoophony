@@ -246,9 +246,12 @@ def stage_clips(cfg, body, pack, skel, drivers, clips_only):
     scene = None
     if props.scene_props(cfg.role):
         scene = props.ScenePose(body, cfg.role, props.moving_keys(cfg.role, pack))
-    samples, shape_weights = bake.sample_all(skel, pack, clips_only, drivers, scene)
+    asked = {}
+    samples, shape_weights = bake.sample_all(skel, pack, clips_only, drivers, scene, asked)
+    reach = bake.reach_report(skel, asked)
+    reach['instruments'] = props.held_instruments(body, cfg.role)
     return {'samples': samples, 'sample_arrays': bake.sample_arrays(samples, skel.names),
-            '_restore': {'shape_weights': shape_weights}}
+            'reach': reach, '_restore': {'shape_weights': shape_weights}}
 
 
 def restore_clips(saved, samples, arm, skel, final, pack, scene_objs):
@@ -454,9 +457,9 @@ STAGES = [
                  'Detail and hand prop objects, the join, the shape keys, the markers, and the '
                  'scene prop nodes.', cache='run'),
     stages.Stage('clips', stage_clips, ('cfg', 'body', 'pack', 'skel', 'drivers', 'clips_only'),
-                 {'samples': 'live', 'sample_arrays': 'array'},
-                 'The clips of the role -> actions.',
-                 keep=('samples', 'sample_arrays'), restore=restore_clips,
+                 {'samples': 'live', 'sample_arrays': 'array', 'reach': 'json'},
+                 'The clips of the role -> actions, and the IK reach of each clip.',
+                 keep=('samples', 'sample_arrays', 'reach'), restore=restore_clips,
                  restore_inputs=('samples', 'arm', 'skel', 'final', 'pack', 'scene_objs')),
     stages.Stage('contacts', stage_contacts,
                  ('cfg', 'template', 'skel', 'verts', 'tris', 'weights', 'items', 'samples',

@@ -30,25 +30,33 @@ def armature_rest(arm):
     return names, parents, heads, rests
 
 
-def solve(skel, spec, scene=None):
+def solve(skel, spec, scene=None, asked=None):
     """Solves one pose spec: {bone: (quat, loc, scale)}, and the scene nodes of scene(spec) (the
-    props of studio/props.py ScenePose), which are no bones."""
+    props of studio/props.py ScenePose), which are no bones. asked: a list that gets the reach
+    that each IK arm of the pose asks for, [(side, share of the reach)] (None: no record)."""
+    if asked is not None:
+        skel.asked = []
     pose = skel.solve(spec)[0]
+    if asked is not None:
+        asked.append(skel.asked)
+        skel.asked = None
     if scene is not None:
         pose.update(scene(spec))
     return pose
 
 
-def sample_clip(skel, fn, duration, fps, start=0.0, scene=None):
-    """Solves a clip at each frame. Returns a list of {bone or node: (quat, loc, scale)}."""
+def sample_clip(skel, fn, duration, fps, start=0.0, scene=None, asked=None):
+    """Solves a clip at each frame. Returns a list of {bone or node: (quat, loc, scale)}.
+    asked: a list that gets the IK reach of each frame (see solve)."""
     frames = max(1, int(round(duration * fps))) + 1
-    return [solve(skel, fn(start + i / fps), scene) for i in range(frames)]
+    return [solve(skel, fn(start + i / fps), scene, asked) for i in range(frames)]
 
 
-def sample_performance(skel, clips, performance, blend, fps, scene=None):
+def sample_performance(skel, clips, performance, blend, fps, scene=None, asked=None):
     """Solves a performance: segments of clips in order, with short blends at the joins.
 
-    performance: [(clip, start time in the clip, duration)].
+    performance: [(clip, start time in the clip, duration)]. asked: a list that gets the IK
+    reach of each frame (see solve), from the segment of the frame.
     """
     out = []
     t_total = sum(seg[2] for seg in performance)
@@ -59,7 +67,7 @@ def sample_performance(skel, clips, performance, blend, fps, scene=None):
         k = min(int(np.searchsorted(starts, t, side='right')) - 1, len(performance) - 1)
         name, t0, _ = performance[k]
         fn = clips[name][0]
-        pose = solve(skel, fn(t0 + t - starts[k]), scene)
+        pose = solve(skel, fn(t0 + t - starts[k]), scene, asked)
         # Blend from the end of the segment before.
         since = t - starts[k]
         if k > 0 and since < blend:
@@ -195,7 +203,7 @@ def write_shape_action(obj, name, values):
     track.mute = True
 
 
-def sample_all(skel, pack, only=None, drivers=None, scene=None):
+def sample_all(skel, pack, only=None, drivers=None, scene=None, asked=None):
     """Solves every clip of a role pack (the sheet pose 'reference' first) and its performance.
     No Blender state: the stage cache keeps the result.
 
@@ -203,6 +211,8 @@ def sample_all(skel, pack, only=None, drivers=None, scene=None):
     pack.fps). drivers: optional {shape key name: function pose -> weight}; the weights of these
     shape keys are solved for each frame of each clip. scene: optional function spec -> {scene
     node: (quat, loc, scale)} (studio/props.py ScenePose); its nodes join each sampled pose.
+    asked: a dict that gets the IK reach of each frame of each clip, {clip: [[(side, share of
+    the reach)]]} (see solve).
     Returns ({clip: list of sampled poses}, {clip: {shape key name: weights}} or None with no
     drivers).
     """
@@ -210,15 +220,43 @@ def sample_all(skel, pack, only=None, drivers=None, scene=None):
     for name, (fn, duration) in pack.clips.items():
         if only and name not in only:
             continue
-        samples[name] = sample_clip(skel, fn, duration, pack.fps, scene=scene)
+        log = asked.setdefault(name, []) if asked is not None else None
+        samples[name] = sample_clip(skel, fn, duration, pack.fps, scene=scene, asked=log)
     if pack.performance and (not only or 'performance' in only):
+        log = asked.setdefault('performance', []) if asked is not None else None
         samples['performance'] = sample_performance(skel, pack.clips, pack.performance,
-                                                    pack.blend, pack.fps, scene)
+                                                    pack.blend, pack.fps, scene, log)
     shape_weights = None
     if drivers is not None:
         shape_weights = {name: {k: [f(p) for p in poses] for k, f in drivers.items()}
                          for name, poses in samples.items()}
     return samples, shape_weights
+
+
+def reach_report(skel, asked, side='L'):
+    """Sums up the IK reach of the clips: the reach of the arm of one side in the bind skeleton,
+    and the largest share of the reach that the IK targets of each clip ask for.
+
+    Returns {"ik": the upper arm plus the forearm, "palm": ik plus half the paw (the hand head to
+    the mean head of its finger bones: "fingers" or the digits, not the prop bones), "clips":
+    {clip: {side: [largest share, frame]}}}. A share above 1 asks for more than the reach: the IK
+    stops at the reach.
+    """
+    h = skel.heads
+    s, e, w = h[f'upper_arm_{side}'], h[f'forearm_{side}'], h[f'hand_{side}']
+    ik = float(np.linalg.norm(e - s) + np.linalg.norm(w - e))
+    kids = [h[n] for n in skel.names
+            if skel.parents[n] == f'hand_{side}' and n.startswith('finger')]
+    paw = float(np.linalg.norm(np.mean(kids, axis=0) - w)) if kids else 0.0
+    clips = {}
+    for name, frames in asked.items():
+        worst = {}
+        for i, arms in enumerate(frames):
+            for arm_side, share in arms:
+                if arm_side not in worst or share > worst[arm_side][0]:
+                    worst[arm_side] = [round(share, 4), i]
+        clips[name] = worst
+    return {'ik': round(ik, 4), 'palm': round(ik + 0.5 * paw, 4), 'clips': clips}
 
 
 def write_all(arm, skel_props, fps, samples, shape_obj=None, shape_weights=None, nodes=None):
