@@ -566,7 +566,9 @@ retarget had about a quarter of the folded faces.
   normals of the skin that it moves, so the geometry adds the changes of the normals as morph
   normals, and the GPU skin turns the normals with the bones. The gloss of the eyes and of the
   nose keeps flat faces, and the instrument keeps the crease normals of its finishes. Each body
-  has its own crease angle, measured against the facet contrast of its reference images
+  has its own crease angle. The angle of a bear is the angle whose facet contrast is nearest to
+  its reference images. The reference rabbits have more facet contrast than each render of the
+  app rabbit, so the manager chose its angle from the play frames
   (`docs/research/2026-10-14-rabbit-smooth.md`).
 - `buildStudioBody()` gives the mesh of the player in the bind pose of the player, with the two
   bones of the player with the largest weights for each corner. The footprints, the hanging
