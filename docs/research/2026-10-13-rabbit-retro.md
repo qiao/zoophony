@@ -2,10 +2,10 @@
 
 On 2026-10-13 the rabbit violinist got the studio body of `lowpoly-studio/` by route 3 of
 `AGENTS.md` ([`2026-10-13-studio-rabbit.md`](2026-10-13-studio-rabbit.md)). The task merged at
-`2b827885`. The rule of the user of 2026-10-12 then applies: after a task merges, the manager
-asks its agents what makes the next similar task faster, decides, and applies the items that are
-worth their cost. This report gives the rounds of the task, the costs that the agents named, the
-decisions of the manager, and the measured gain.
+`2b827885`. The rule of the user of 2026-10-12 then applies. After a task merges, the manager
+asks its agents what makes the next similar task faster. Then the manager decides, and applies
+the items that are worth their cost. This report gives the rounds of the task, the costs that the
+agents named, the decisions of the manager, and the measured gain.
 
 ## 1. The rounds and their times
 
@@ -34,10 +34,10 @@ The largest cost was the reach of the arms. The arms of the studio rabbit reache
 the shoulder joint to the middle of the palm. The rule of a violin shop then gives a violin of
 0.15 m, less than half of the smallest real violin (0.33 m). The app agent found this at minute
 14 of app round 1 (18:33): the left paw reached no part of the fingerboard. The brief of app
-round 1 had a fallback rule ("give the rabbit a smaller violin and bow, sized by the rule of real
-violins") with no range and no stop. So the agent made a violin of 0.15 m and finished the
-round. The user saw it only after the round, and chose longer arms. Studio round 4, app round 2,
-review 2, and fix 2 followed, about 70 minutes from 20:31 to 21:42.
+round 1 had a fallback rule with no range and no stop. The rule said: "give the rabbit a smaller
+violin and bow, sized by the rule of real violins". So the agent made a violin of 0.15 m and
+finished the round. The user saw it only after the round, and chose longer arms. Studio round 4,
+app round 2, review 2, and fix 2 followed, about 70 minutes from 20:31 to 21:42.
 
 ## 2. The costs that the agents named
 
@@ -67,7 +67,7 @@ did not mark it as a blocker for the app.
 |---|---|---|---|---|
 | `pnpm hold-reach <species>`: the arms, the scroll, the reached parts of the fingerboard and the bow, and the scale of the rule | about 15 min of probes in each round with a chin instrument | about 30 min | applied | The app agent named it first. It also gives the manager the scale of the rule before the round. |
 | The arm reach in `pnpm studio-body --inspect` | a probe before each round | about 10 min | applied | The manager runs the inspection before each brief, so the arm is in the brief with no other step. |
-| A row "The reach of the arms against the instrument" in section 1 of `docs/briefs/studio-body.md`, with a question to the user before the round when the rule gives an instrument outside the real sizes | about 70 min when the reach is short | no code | applied | The question of the user came after a round of 97 minutes. Before the round, it costs a few minutes. |
+| A row for the reach of the arms in section 1 of `docs/briefs/studio-body.md`. The manager asks the user before the round when the rule gives a violin outside the real sizes. | about 70 min when the reach is short | no code | applied | The question of the user came after a round of 97 minutes. Before the round, it costs a few minutes. |
 | A part "Range and stop" in the implementation brief | a round with a result outside its range | no code | applied | The fallback rule of app round 1 gave a violin of 0.15 m, and nothing stopped the agent. |
 | The look rounds of the studio finish before the app round starts. An overlap puts the studio round on the app branch, one agent after the other. | about 20 min of check waits | no code | applied | Each studio merge during app round 1 made the app agent rebase and check each commit again. Studio round 4 on the app branch had no such wait. |
 | A layout diff tool (`pnpm body-probe --layout`) | about 20 min, only when a layout changes | about 40 min | not taken now | The cost is larger than the gain of one task, and only a body with a new footprint changes the layout. |
@@ -80,11 +80,13 @@ did not mark it as a blocker for the app.
 agent named about 15 minutes of scratch probes for the same numbers: `violin-rule.ts` and
 `violin-solve.ts` of [`2026-10-13-studio-rabbit/`](2026-10-13-studio-rabbit/).
 
-The tool gives the same numbers as the probes on the body of studio round 4: an arm of 0.377 m,
-the scroll 0.377 m from the left shoulder joint, the fingerboard reached from 0 to 1, the bow hair
-reached from 0.030 m to 0.245 m, and a rule scale of 0.549 (`violin-round4.txt` of the rabbit
-research). The probe found the scale with a search of about 30 builds for each turn of the violin. The
-tool solves it from one build: the instrument grows from its tail end, so the scroll moves on a
-line. Then it builds the player at that scale one time, as a check. The inspection gives the same
-arms as the tool for each studio animal: 0.377 m for the rabbit, 0.540 m for the bear, and
-0.625 m for the polar bear (`2026-10-13-rabbit-retro/inspect-arms.txt`).
+The tool gives the same numbers as the probes on the body of studio round 4 (`violin-round4.txt`
+of the rabbit research). The arm is 0.377 m, and the scroll lies 0.377 m from the left shoulder
+joint. The arm reaches the fingerboard from 0 to 1, and the bow hair from 0.030 m to 0.245 m. The
+rule scale is 0.549. The probe found the scale with a search of about 30 builds for each turn of
+the violin. The tool solves it from one build: the instrument grows from its tail end, so the
+scroll moves on a line. Then it builds the player at that scale one time, as a check. The
+inspection gives the same arms as the tool for each studio animal
+(`2026-10-13-rabbit-retro/inspect-arms.txt`). The arm is 0.377 m for the rabbit, 0.540 m for the
+bear, and 0.625 m for the polar bear.
+

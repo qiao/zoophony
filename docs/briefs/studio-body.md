@@ -29,7 +29,7 @@ makes a baseline worktree.
 | The depth of each part and the note errors of a role that exists | `pnpm pose-depth <role>` |
 | The folded faces of the studio bodies | `pnpm fold-probe <role>` |
 | The smallest gaps of the head to the instrument and of the paws to the body | `pnpm pose-depth <role> --gaps` |
-| The reach of the arms against the instrument | On a scratch copy of the body with an entry in `ANIMALS`: `pnpm studio-body <animal> --inspect` (the arm of each side to the middle of the palm), and `pnpm hold-reach <species>` for a violin or a viola |
+| The reach of the arms against the instrument | `pnpm studio-body <animal> --inspect` for the arms, and `pnpm hold-reach <species>` for a violin or a viola. Both run on a scratch copy with an entry in `ANIMALS`. |
 | The size of the first download | `pnpm build && pnpm size` |
 | The posture of a real player of the instrument at rest, when ready, and in a play | a source on the web, and the clips of the studio: `python3 studio view <animal>`, then the viewer query `shot&view=free&clip=<clip>&t=<s>&az=<deg>` |
 
@@ -44,16 +44,16 @@ the bow, and the scale of the rule of a violin shop. When the rule gives a violi
 real sizes, ask the user before the round. The tool gives no real viola sizes, and the app has no
 viola scale. So for a viola, a rule scale below 1 is a question to the user. Give the measures
 and the choices, such as longer arms in the studio or a smaller instrument. The rabbit of
-2026-10-13 had arms of 0.27 m, and the rule gave a violin of 0.15 m, less than half of the
-smallest real violin (0.33 m). The app agent found it at minute 14 of its round, and the user saw
-it only after the round, then chose longer arms
+2026-10-13 had arms of 0.27 m. The rule gave it a violin of 0.15 m, less than half of the smallest
+real violin (0.33 m). The app agent found it at minute 14 of its round, and the user saw it only
+after the round, then chose longer arms
 ([`2026-10-13-rabbit-retro.md`](../research/2026-10-13-rabbit-retro.md)).
 
 Finish the look rounds of the studio before the app round starts. A merge of a studio round
-during the app round makes the app agent rebase, and each commit then gets a new tree and a full
-check again: about 10 minutes for each merge in the rabbit task. When the studio work and the app
-work must overlap, put the studio round on the app branch, one agent after the other, as the
-arms of the rabbit (round 4).
+during the app round makes the app agent rebase. Each commit then gets a new tree, and the check
+runs on each commit again. In the rabbit task, this took about 10 minutes for each merge. When the
+studio work and the app work must overlap, put the studio round on the app branch. Then one agent
+works after the other, as for the arms of the rabbit (round 4).
 
 Make the worktree: `git worktree add .claude/worktrees/<branch> -b <branch> main`. Copy the
 common rules of the agents into the scratch folder (section 5).
@@ -120,10 +120,11 @@ attachment. Name the code that each one touches.>
 
 <For each fallback rule of this brief, give the range of its result and the stop when the result
 is outside it. For example: "When the left paw cannot reach the neck, give the species a smaller
-violin by the rule of a violin shop (`pnpm hold-reach <species>`). Range: a violin of 0.33 m
-(1/32) to 0.59 m (4/4). Outside it, stop, write the measures into the handoff file, and report to
-the manager." The fallback rule of the rabbit of 2026-10-13 had no range, and it gave a violin of
-0.15 m.>
+violin. Size it by the rule of a violin shop (`pnpm hold-reach <species>`). Range: a violin of
+0.33 m (1/32) to 0.59 m (4/4). Outside it, stop, and write the measures into the handoff file.
+Then report to the manager." The fallback rule of the rabbit of 2026-10-13 had no range. It gave
+a violin of 0.15 m.>
+
 
 ## Process
 
