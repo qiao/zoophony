@@ -18,7 +18,8 @@ reads it (route 3 of `AGENTS.md`). The steps:
    along its axis, and the weights blend the stretch to 0 at the shoulder. The paw keeps its size.
 5. Pose the skeleton in the seated bind pose: the legs turn by the seat of the studio, and the
    arms go to the bind arms of the studio. The skin of the long-armed source in this pose is the
-   bind mesh.
+   bind mesh. Where the pose turns faces over, as at the haunch, their vertices relax toward
+   their neighbors.
 6. Split each eye into a gloss shell a little out of the surface. The faces under it take the
    fur color, so that a blink shows no hole. The faces of the nose become gloss.
 7. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
@@ -571,6 +572,53 @@ def posed_heads(heads, turns):
     return out
 
 
+def face_normals(points, tris):
+    """Gives the unit normal of each face."""
+    n = np.cross(points[tris[:, 1]] - points[tris[:, 0]], points[tris[:, 2]] - points[tris[:, 0]])
+    return n / np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)
+
+
+def turn_dots(src, posed, tris, weights, matrices):
+    """Gives for each face the cosine of its posed normal and its source normal moved by the mean
+    skin of its corners (the inverse transpose), as `foldedFaces()` of `tools/fold-probe.ts`.
+    Below 0, the face turned over."""
+    a = np.zeros((len(src), 3, 3))
+    for k, m in enumerate(matrices):
+        a += weights[:, k, None, None] * m[:, :3]
+    mean = a[tris].mean(axis=1)
+    expected = np.einsum('nji,nj->ni', np.linalg.inv(mean), face_normals(src, tris))
+    expected /= np.maximum(np.linalg.norm(expected, axis=1, keepdims=True), 1e-12)
+    return np.sum(face_normals(posed, tris) * expected, axis=1)
+
+
+def relax(src, bind, tris, weights, matrices, rounds=60):
+    """Cleans the bind mesh where the bind pose pinches it: each vertex of a face that turns over
+    (or nearly) against the source moves halfway to the middle of its neighbors, in rounds, until
+    no face turns over. Only the vertices that an arm bone or a thigh moves can move, and the paws
+    and the feet keep their form. The corrective shapes give the source back. Gives the cleaned
+    bind mesh and the number of rounds."""
+    moving = np.zeros(len(src), bool)
+    for side in 'LR':
+        for bone in ('upper_arm', 'forearm', 'forearm_twist', 'thigh', 'shin'):
+            moving |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+    neighbors = [set() for _ in range(len(src))]
+    for a, b, c in tris:
+        neighbors[a].update((b, c))
+        neighbors[b].update((a, c))
+        neighbors[c].update((a, b))
+    neighbors = [np.array(sorted(n)) for n in neighbors]
+    out = bind.copy()
+    for done in range(rounds):
+        bad = np.nonzero(turn_dots(src, out, tris, weights, matrices) < 0.1)[0]
+        ids = np.unique(tris[bad])
+        ids = ids[moving[ids]]
+        if len(ids) == 0:
+            return out, done
+        mids = np.array([out[neighbors[i]].mean(axis=0) for i in ids])
+        out[ids] = 0.5 * out[ids] + 0.5 * mids
+    return out, rounds
+
+
 def add_eye_shells(verts, bind, tris, colors, eyes, lift):
     """Adds a gloss shell over each eye: a copy of the faces of the eye, lifted along the normals
     of the bind mesh. The faces under it take the mean fur color of their neighbors. Gives the
@@ -948,8 +996,17 @@ def main():
     bind_frames = {n: turns[n] @ src_frames[n] for n in BONES}
     matrices = [move(turns[n], long_heads[n], bind_heads[n]) for n in BONES]
     bind = skin(weights, matrices, long_verts)
+    dots = turn_dots(long_verts, bind, tris, weights, matrices)
+    main_bone = weights[tris].sum(axis=1).argmax(axis=1)
+    turned = np.nonzero(dots < 0)[0]
+    names = sorted({BONES[main_bone[f]] for f in turned})
     free = int(free_arm(verts, tris, rules['armSplit'], ends['fingers_L'], 1.0).sum())
     log(f'arm: {free} vertices in the free left arm beyond |x| = {rules["armSplit"]}')
+    log(f'bind: {len(turned)} faces turn over from the source, on the bones {names}')
+    bind, rounds = relax(long_verts, bind, tris, weights, matrices)
+    dots = turn_dots(long_verts, bind, tris, weights, matrices)
+    log(f'bind: after {rounds} rounds of relaxing, {int((dots < 0).sum())} faces turn over')
+
     src_all, bind_all, tris_all, colors_all, materials = add_eye_shells(
         long_verts, bind, tris, colors, eyes, config['eyeLift'])
     materials[nose] = 'gloss'
