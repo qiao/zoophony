@@ -309,7 +309,7 @@ smile_radii = [0.0015, 0.0009]
 
 [details.ears]
 hollow_depth = 1.8
-hollow_radius = 0.62
+hollow_radius = 0.66
 subdivisions = 2
 
 [details.hand_claws]
