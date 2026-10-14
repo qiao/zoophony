@@ -210,11 +210,12 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
 - The standing legs of the default skeleton are as short as the legs of the standing bear of
   `animals.webp` and `bear-views.png`. The egg body of the penguin (4.4) shows no legs and reads
   no standing value of the skeleton.
-- The bear conductor, the polar bear pianist, and the rabbit violinist have studio bodies of
-  `lowpoly-studio/` (4.4), with the trunks and the legs that the studio fitted to their sheets.
-  Their skeletons come from the studio, and no value of this table applies to them, except the
-  head height `H` and the seat heights of the polar bear and the rabbit, which
-  `models/species.ts` reads from their studio bodies.
+- The bear conductor and the polar bear pianist have studio bodies of `lowpoly-studio/` (4.4),
+  with the trunks and the legs that the studio fitted to their sheets. The rabbit violinist has
+  the mesh of the user, which `pnpm rig-mesh rabbit` rigs into the format of a studio body
+  (4.4), with the trunk and the legs of the mesh. The three skeletons have the bones of the studio,
+  and no value of this table applies to them, except the head height `H` and the seat heights of
+  the polar bear and the rabbit, which `models/species.ts` reads from their studio bodies.
 - The legs have the form of the reference images (`SEATED_LEG` and `STANDING_LEG` of
   `models/legs.ts`). A seated thigh has the thickness of the thighs of the model sheets, and a
   shin narrows little to the ankle, as the shins of the sheets. A standing leg is a straight
