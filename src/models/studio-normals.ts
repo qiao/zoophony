@@ -1,0 +1,123 @@
+import { FINISH_ORDER } from './mesh.ts';
+import type { StudioMesh } from './studio-format.ts';
+
+/** The index of the `matte` finish, the only finish that a studio body smooths (design 4.5). */
+const MATTE = FINISH_ORDER.indexOf('matte');
+
+/**
+ * Calculates the normal of each corner of a studio mesh with a crease angle (design 4.4, 4.5). A
+ * corner of a `matte` face gets the mean of the normals of the `matte` faces at its vertex whose
+ * normals turn from the normal of its own face by at most the crease angle. Each face counts with
+ * the angle of its corner at the vertex. Thus the small angles of the fur look smooth, and an
+ * edge with a larger angle, such as an ear rim, stays sharp. A face of another finish, such as
+ * the gloss of an eye, keeps its own normal at each corner, so it stays flat.
+ *
+ * @param mesh The places of the welded vertices, the corners, and the finishes of the mesh.
+ * @param crease The crease angle in degrees.
+ * @returns x, y, z of the unit normal of each corner, in the order of `mesh.corners`.
+ */
+export function studioNormals(
+  mesh: Pick<StudioMesh, 'positions' | 'corners' | 'finishes'>,
+  crease: number,
+): Float32Array {
+  const { positions: p, corners, finishes } = mesh;
+  const cornerCount = corners.length;
+  const faces = new Float32Array(cornerCount);
+  const angles = new Float32Array(cornerCount);
+  for (let t = 0; t < cornerCount / 3; t++) {
+    const a = (corners[t * 3] ?? 0) * 3;
+    const b = (corners[t * 3 + 1] ?? 0) * 3;
+    const c = (corners[t * 3 + 2] ?? 0) * 3;
+    const ux = (p[b] ?? 0) - (p[a] ?? 0);
+    const uy = (p[b + 1] ?? 0) - (p[a + 1] ?? 0);
+    const uz = (p[b + 2] ?? 0) - (p[a + 2] ?? 0);
+    const wx = (p[c] ?? 0) - (p[a] ?? 0);
+    const wy = (p[c + 1] ?? 0) - (p[a + 1] ?? 0);
+    const wz = (p[c + 2] ?? 0) - (p[a + 2] ?? 0);
+    const nx = uy * wz - uz * wy;
+    const ny = uz * wx - ux * wz;
+    const nz = ux * wy - uy * wx;
+    const length = Math.hypot(nx, ny, nz);
+    if (length > 0) {
+      faces[t * 3] = nx / length;
+      faces[t * 3 + 1] = ny / length;
+      faces[t * 3 + 2] = nz / length;
+    }
+    // The angle at each corner, between the edges to the two other corners.
+    const ends = [a, b, c];
+    for (let k = 0; k < 3; k++) {
+      const o = ends[k] ?? 0;
+      const e = ends[(k + 1) % 3] ?? 0;
+      const f = ends[(k + 2) % 3] ?? 0;
+      const ex = (p[e] ?? 0) - (p[o] ?? 0);
+      const ey = (p[e + 1] ?? 0) - (p[o + 1] ?? 0);
+      const ez = (p[e + 2] ?? 0) - (p[o + 2] ?? 0);
+      const fx = (p[f] ?? 0) - (p[o] ?? 0);
+      const fy = (p[f + 1] ?? 0) - (p[o + 1] ?? 0);
+      const fz = (p[f + 2] ?? 0) - (p[o + 2] ?? 0);
+      const lengths = Math.hypot(ex, ey, ez) * Math.hypot(fx, fy, fz);
+      angles[t * 3 + k] =
+        lengths > 0
+          ? Math.acos(Math.min(1, Math.max(-1, (ex * fx + ey * fy + ez * fz) / lengths)))
+          : 0;
+    }
+  }
+
+  // The corners of each vertex, as a list for each vertex.
+  const vertexCount = p.length / 3;
+  const start = new Uint32Array(vertexCount + 1);
+  for (const v of corners) {
+    start[v + 1] = (start[v + 1] ?? 0) + 1;
+  }
+  for (let v = 0; v < vertexCount; v++) {
+    start[v + 1] = (start[v + 1] ?? 0) + (start[v] ?? 0);
+  }
+  const fill = start.slice(0, vertexCount);
+  const around = new Uint32Array(cornerCount);
+  for (let c = 0; c < cornerCount; c++) {
+    const v = corners[c] ?? 0;
+    around[fill[v] ?? 0] = c;
+    fill[v] = (fill[v] ?? 0) + 1;
+  }
+
+  const limit = Math.cos((crease * Math.PI) / 180) - 1e-6;
+  const out = new Float32Array(cornerCount * 3);
+  for (let c = 0; c < cornerCount; c++) {
+    const own = Math.floor(c / 3);
+    const ox = faces[own * 3] ?? 0;
+    const oy = faces[own * 3 + 1] ?? 0;
+    const oz = faces[own * 3 + 2] ?? 0;
+    let sx = ox;
+    let sy = oy;
+    let sz = oz;
+    if (finishes[own] === MATTE) {
+      sx = 0;
+      sy = 0;
+      sz = 0;
+      const v = corners[c] ?? 0;
+      for (let i = start[v] ?? 0; i < (start[v + 1] ?? 0); i++) {
+        const other = around[i] ?? 0;
+        const face = Math.floor(other / 3);
+        const fx = faces[face * 3] ?? 0;
+        const fy = faces[face * 3 + 1] ?? 0;
+        const fz = faces[face * 3 + 2] ?? 0;
+        if (other === c || (finishes[face] === MATTE && ox * fx + oy * fy + oz * fz >= limit)) {
+          const weight = angles[other] ?? 0;
+          sx += fx * weight;
+          sy += fy * weight;
+          sz += fz * weight;
+        }
+      }
+    }
+    let length = Math.hypot(sx, sy, sz);
+    if (length === 0) {
+      // A face with no area: it takes its own normal, or up.
+      [sx, sy, sz] = ox !== 0 || oy !== 0 || oz !== 0 ? [ox, oy, oz] : [0, 1, 0];
+      length = 1;
+    }
+    out[c * 3] = sx / length;
+    out[c * 3 + 1] = sy / length;
+    out[c * 3 + 2] = sz / length;
+  }
+  return out;
+}
