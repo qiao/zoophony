@@ -324,7 +324,8 @@ Add these items to the briefs of the rig round and of the app round.
   `pnpm hold-fit <role> --base main` and `pnpm pose-depth <role> --base main`. Then probe these
   values before a fit of a hold. Compare the heights with
   `pnpm close-views lineup <species,...> <dir> --base main`, which keeps one camera for both
-  trees.
+  trees. The size round lost about 55 minutes to hand probes and to these values
+  ([`2026-10-14-size-retro.md`](../research/2026-10-14-size-retro.md)).
 - **The seat and the tail.** Give the seat height and the lowest point of the tail of
   `pnpm rig-mesh <animal> --check` before a plan of a tail. The brief of the fox asked for a tail
   tip down behind the chair, and the seat of 0.126 m does not give room for a tip of 0.31 m.
