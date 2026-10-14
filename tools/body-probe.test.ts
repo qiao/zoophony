@@ -9,13 +9,18 @@ import { describe, expect, it } from 'vitest';
 import { MeshBuilder, srgb } from '../src/models/mesh.ts';
 import type { MeshData } from '../src/models/mesh.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
+import { SPECIES } from '../src/models/species.ts';
+import type { SpeciesParams } from '../src/models/species.ts';
 import { demoSceneOf } from '../src/pose/test-scene.ts';
 import type { AnimalPose } from '../src/pose/types.ts';
 import {
+  MESH_FIELDS,
   POSE_SETS,
   STEP_DIGITS,
   compareProbes,
+  fieldHashes,
   jointsOf,
+  meshChange,
   meshHash,
   poseValues,
   probeBodies,
@@ -75,6 +80,50 @@ describe('meshHash', () => {
 
   it('ignores a move below a micrometer', () => {
     expect(meshHash(triangle(1e-8))).toBe(meshHash(triangle(0)));
+  });
+});
+
+describe('fieldHashes', () => {
+  it('hashes each field of a mesh, and changes only the hash of the field that changed', () => {
+    const base = triangle(0);
+    const colors = new Float32Array(base.colors).fill(0.5);
+    const a = fieldHashes(base);
+    const b = fieldHashes({ ...base, colors });
+    expect(Object.keys(a)).toEqual(MESH_FIELDS.slice(0, 6));
+    expect(MESH_FIELDS.filter((field) => a[field] !== b[field])).toEqual(['colors']);
+  });
+
+  it('hashes the corrective shapes and the normals of each studio body, and of no other body', () => {
+    const probe = probeBodies();
+    for (const [id, params] of Object.entries<SpeciesParams>(SPECIES)) {
+      const studio = params.body?.startsWith('studio-') ?? false;
+      for (const body of Object.values(probe.species[id] ?? {})) {
+        expect(body.fields?.correctives !== undefined, id).toBe(studio);
+        expect(body.fields?.normals !== undefined, id).toBe(studio);
+      }
+    }
+    expect(probe.players['conductor/bear/baton']?.fields?.normals).toBeDefined();
+  });
+});
+
+describe('meshChange', () => {
+  it('names the fields whose hashes differ', () => {
+    const a = { mesh: 'a', fields: { positions: 'p', colors: 'c', normals: 'n' } };
+    const b = { mesh: 'b', fields: { positions: 'p', colors: 'd', normals: 'm' } };
+    expect(meshChange(a, b)).toBe('mesh differs (colors, normals)');
+    expect(meshChange(a, a)).toBe('mesh same');
+  });
+
+  it('counts a field that only one probe has as changed', () => {
+    const a = { mesh: 'a', fields: { positions: 'p' } };
+    const b = { mesh: 'b', fields: { positions: 'p', correctives: 'c' } };
+    expect(meshChange(a, b)).toBe('mesh differs (correctives)');
+  });
+
+  it('says when a probe of an older tool has no field hashes', () => {
+    expect(meshChange({ mesh: 'a' }, { mesh: 'b', fields: { colors: 'c' } })).toBe(
+      'mesh differs (no field hashes in the base)',
+    );
   });
 });
 
@@ -177,9 +226,13 @@ describe('compareProbes', () => {
     if (!cat?.['chair'] || !player) {
       throw new Error('The probe has no cat on a chair.');
     }
+    const chair = cat['chair'];
     const next = {
       ...base,
-      species: { ...base.species, cat: { ...cat, chair: { ...cat['chair'], mesh: 'x' } } },
+      species: {
+        ...base.species,
+        cat: { ...cat, chair: { ...chair, mesh: 'x', fields: { ...chair.fields, colors: 'x' } } },
+      },
       players: {
         ...base.players,
         'viola/cat/viola': {
@@ -189,7 +242,7 @@ describe('compareProbes', () => {
       },
     };
     const { differences } = compareProbes(base, next);
-    expect(differences).toContain('body cat chair: mesh differs, joints same');
+    expect(differences).toContain('body cat chair: mesh differs (colors), joints same');
     expect(
       differences.some(
         (line) => line.startsWith('player viola/cat/viola') && line.endsWith('head'),
