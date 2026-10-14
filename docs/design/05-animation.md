@@ -387,11 +387,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     left shoulder, as in `rabbit-views.png` (`SHOULDER_HOLD`): the violin moves to the left and up
     and turns toward the front with the scroll down, on the chest under the chin, and the bow lies
     nearly square across the strings. The back stays straight, as a real violinist sits. The right
-    arm has the elbows and the shoulder turn of the chin hold. In the rest pose, the left paw holds
-    the violin at the left side and the bow hangs from the right paw (`BowedHold.restAtSide`), as
-    for a soloist who stands: the round belly covers the short thighs, so the rabbit has no lap
-    for the violin. `pnpm pose-depth violinist` measures each change
-    (`docs/research/2026-10-13-studio-rabbit.md`). A test keeps the rest bow of each violinist out
+    arm has the elbow of the frog and the shoulder turn of the chin hold. At the tip, the right
+    elbow also points down: up, the skin of the studio folded at the upper arm. In the rest pose,
+    the left paw holds the violin at the left side and the bow hangs from the right paw
+    (`BowedHold.restAtSide`), as for a soloist who stands: the round belly covers the short
+    thighs, so the rabbit has no lap for the violin. `pnpm pose-depth violinist` and
+    `pnpm fold-probe violinist` measure each change (`docs/research/2026-10-13-studio-rabbit.md`). A test keeps the rest bow of each violinist out
     of the trunk and the arms, and at most 0.03 H in the legs. The bow of the side rest of a studio
     body may touch its fur. On the cello and the contrabass, the
     elbow points out and up, (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in pizzicato, (1, 0,
