@@ -1,20 +1,31 @@
 # Briefs for a studio body in the app
 
 A manager uses these templates to put an animal of `lowpoly-studio/` into the app for a role, by
-route 3 of `AGENTS.md`. Examples are a violinist rabbit and a cellist dog. A round has three
-agents, one after the other: the implementation, the review, and the fix. Copy each template to
-the scratch folder of the session, replace each `<...>`, and delete the notes in parentheses.
+route 3 of `AGENTS.md`. Examples are a violinist rabbit and a cellist dog. A round has one
+implementation agent. A review agent and a fix agent follow only when the round changes code of
+the kinds that design 9.8 names. These are tool code that deletes files, starts processes, or
+changes the git state, and a rule of the pure core. The model work of a round gets no review
+agent. The manager reads the report and the close views, and the merge script runs the checks.
+Copy each template to the scratch folder of the session, replace each `<...>`, and delete the
+notes in parentheses.
 
 The polar bear pianist of 2026-10-12 took about 2.3 hours. The retrospective of that task made
 the tools that these templates name ([`2026-10-13-route-3-retro.md`](../research/2026-10-13-route-3-retro.md)).
 
 ```text
- manager            agents                                          manager
- +-----------+      +----------------+   +----------+   +-----+     +-------+   +-------+
- | baseline, | ---> | implementation | > |  review  | > | fix | --> | merge | > | retro |
- | inspect,  |      | sweep, probes  |   | tip only |   |     |     | cache |   |       |
- | brief     |      +----------------+   +----------+   +-----+     | hits  |   +-------+
- +-----------+                                                       +-------+
+ manager            agents                                   manager
+ +-----------+      +----------------+                       +-------+   +-------+
+ | baseline, | ---> | implementation | --------------------> | merge | > | retro |
+ | inspect,  |      | sweep, probes  |                       | cache |   |       |
+ | brief     |      +----------------+                       | hits  |   +-------+
+ +-----------+              |                                +-------+
+                            | only for the code of design 9.8    ^
+                            v                                    |
+                      +-----------+   +-----+                    |
+                      |  review   | > | fix | -------------------+
+                      | 10 min,   |   |     |
+                      | code only |   +-----+
+                      +-----------+
 ```
 
 ## 1. Before the brief
