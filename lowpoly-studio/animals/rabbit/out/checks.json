@@ -15,6 +15,7 @@
     "eye_y.three_quarter.1",
     "ear_dark.front.left_in_image",
     "ear_width.side.ear",
+    "nose_height.front.0",
     "nose_x.side.0",
     "nose_y.side.0"
   ],
@@ -23,7 +24,6 @@
     "remesh_gate.slivers",
     "eye_outline.front.1",
     "eye_y.three_quarter.0",
-    "nose_height.front.0",
     "belly_width.front.belly",
     "claw_count.front.left_in_image",
     "claw_count.front.right_in_image"
@@ -336,7 +336,7 @@
     },
     {
       "name": "iou.front",
-      "value": 0.9178,
+      "value": 0.9244,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -368,7 +368,7 @@
     {
       "name": "fur_saturation.front",
       "value": [
-        0.153,
+        0.152,
         0.146
       ],
       "op": "abs<=",
@@ -393,7 +393,7 @@
     },
     {
       "name": "iou.side",
-      "value": 0.9158,
+      "value": 0.9016,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -450,7 +450,7 @@
     },
     {
       "name": "iou.back",
-      "value": 0.9182,
+      "value": 0.9159,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -506,7 +506,7 @@
     },
     {
       "name": "iou.three_quarter",
-      "value": 0.8515,
+      "value": 0.8528,
       "op": ">=",
       "limit": 0.91,
       "pass": false,
@@ -520,7 +520,7 @@
     },
     {
       "name": "head_turn.three_quarter",
-      "value": 13,
+      "value": 10,
       "op": "in",
       "limit": [
         0.0,
@@ -534,7 +534,7 @@
     {
       "name": "fur_hue.three_quarter",
       "value": [
-        33.3,
+        32.9,
         33.3
       ],
       "op": "abs<=",
@@ -547,7 +547,7 @@
     {
       "name": "fur_saturation.three_quarter",
       "value": [
-        0.152,
+        0.153,
         0.149
       ],
       "op": "abs<=",
@@ -608,7 +608,7 @@
     {
       "name": "eye_y.front.0",
       "value": [
-        0.6662,
+        0.6669,
         0.6705
       ],
       "op": "abs<=",
@@ -622,7 +622,7 @@
     {
       "name": "eye_y.front.1",
       "value": [
-        0.6662,
+        0.6669,
         0.6705
       ],
       "op": "abs<=",
@@ -636,7 +636,7 @@
     {
       "name": "eye_outline.three_quarter.0",
       "value": [
-        0.0277,
+        0.0292,
         0.0408
       ],
       "op": "rel<=",
@@ -720,7 +720,7 @@
     {
       "name": "ear_width.front.left_in_image",
       "value": [
-        0.0929,
+        0.0885,
         0.09
       ],
       "op": "rel<=",
@@ -734,7 +734,7 @@
     {
       "name": "ear_height.front.left_in_image",
       "value": [
-        0.1974,
+        0.1959,
         0.1974
       ],
       "op": "rel<=",
@@ -768,7 +768,7 @@
     {
       "name": "ear_width.front.right_in_image",
       "value": [
-        0.0929,
+        0.0885,
         0.0943
       ],
       "op": "rel<=",
@@ -809,7 +809,7 @@
     {
       "name": "ear_width.side.ear",
       "value": [
-        0.1194,
+        0.1077,
         0.0611
       ],
       "op": "rel<=",
@@ -830,7 +830,7 @@
     {
       "name": "ear_height.side.ear",
       "value": [
-        0.1965,
+        0.198,
         0.198
       ],
       "op": "rel<=",
@@ -844,7 +844,7 @@
     {
       "name": "ear_width.back.left_in_image",
       "value": [
-        0.0937,
+        0.0878,
         0.0893
       ],
       "op": "rel<=",
@@ -858,7 +858,7 @@
     {
       "name": "ear_height.back.left_in_image",
       "value": [
-        0.1962,
+        0.1977,
         0.1962
       ],
       "op": "rel<=",
@@ -872,7 +872,7 @@
     {
       "name": "ear_width.back.right_in_image",
       "value": [
-        0.0922,
+        0.0878,
         0.0922
       ],
       "op": "rel<=",
@@ -886,7 +886,7 @@
     {
       "name": "ear_height.back.right_in_image",
       "value": [
-        0.1977,
+        0.1962,
         0.1977
       ],
       "op": "rel<=",
@@ -914,7 +914,7 @@
     {
       "name": "nose_y.front.0",
       "value": [
-        0.6183,
+        0.619,
         0.6161
       ],
       "op": "abs<=",
@@ -942,13 +942,13 @@
     {
       "name": "nose_height.front.0",
       "value": [
-        0.0348,
+        0.0363,
         0.0305
       ],
       "op": "rel<=",
       "limit": 0.15,
-      "pass": true,
-      "near": true,
+      "pass": false,
+      "near": false,
       "gate": false,
       "floor": 0.00155,
       "where": {
@@ -1033,7 +1033,7 @@
     {
       "name": "belly_y.front.belly",
       "value": [
-        0.3981,
+        0.3987,
         0.3795
       ],
       "op": "abs<=",
@@ -1068,7 +1068,7 @@
     {
       "name": "belly_height.front.belly",
       "value": [
-        0.0987,
+        0.0972,
         0.1103
       ],
       "op": "rel<=",
@@ -1135,9 +1135,9 @@
   "look": {
     "current": true,
     "reason": null,
-    "run": "20261013-185028-29718",
-    "look_run": "20261013-185028-29718",
-    "made": "2026-10-13T18:50:53-0700",
+    "run": "20261013-192034-21697",
+    "look_run": "20261013-192034-21697",
+    "made": "2026-10-13T19:21:09-0700",
     "compare": "model",
     "model_seed": 6
   },
