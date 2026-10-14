@@ -9,9 +9,10 @@ agents named, the decisions of the manager, and the measured gain.
 
 ## 1. The rounds and their times
 
-The times are the times of the briefs, the reports, and the merge logs in the scratch folder of
-the manager session (`brief-rabbit-*.md`, `report-rabbit-*.md`, `review-rabbit-*.md`, and
-`merge-rabbit-*.log`). The merge time is the time that `tools/merge-branch.sh` printed.
+Each clock time is the file time of a brief, a report, or a merge log in the scratch folder of
+the manager session. These are `brief-rabbit-*.md`, `report-rabbit-*.md`, `review-rabbit-*.md`,
+and `merge-rabbit-*.log`. The seconds of a merge are the time that `tools/merge-branch.sh`
+printed in its log. The script prints no clock time.
 
 | Round | Branch | Start | End | Minutes | Merge |
 |---|---|---|---|---:|---|
