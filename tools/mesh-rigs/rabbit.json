@@ -48,11 +48,12 @@
     "note": "The seat and the bind arms of the studio rabbit (lowpoly-studio/animals/rabbit/out/rabbit.glb), from docs/research/2026-10-13-rabbit-mesh/studio-targets.ts: the world turn of each left leg bone from the bind pose to the first key of the clip reference, and the unit direction of each left arm bone in the bind pose."
   },
   "weights": {
+    "armSplit": 0.106,
     "headFrom": 0.575,
     "earBase": [0.745, 0.78],
     "tailBall": { "center": [0, 0.197, -0.168], "radius": 0.06, "behind": -0.14 },
     "haunch": { "height": [0.11, 0.16], "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the haunch stays on the seat and only the leg below it turns." },
-    "note": "Above headFrom, each vertex except the ears follows the head only: the eyes, the nose, and the whiskers. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail ball follows the tail only: the vertices near its middle and behind the plane z = behind, where the cuts of sections.py z show the ball apart from the body (z -0.145)."
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.106 out. Inside that plane, the shoulder follows the upper arm and no lower bone of the arm. Above headFrom, each vertex except the ears follows the head only: the eyes, the nose, and the whiskers. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail ball follows the tail only: the vertices near its middle and behind the plane z = behind, where the cuts of sections.py z show the ball apart from the body (z -0.145)."
   },
   "colors": {
     "samples": 6,

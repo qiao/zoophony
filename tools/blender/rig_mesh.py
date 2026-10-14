@@ -12,8 +12,8 @@ reads it (route 3 of `AGENTS.md`). The steps:
    +x the left side of the animal.
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, and give
-   the weights with bone heat. Then the rules of the config: the head, the ears, the tail ball,
-   and the haunch. Each vertex keeps four bones, in steps of 1/255.
+   the weights with bone heat. Then the rules of the config: the free arm, the head, the ears,
+   the tail ball, and the haunch. Each vertex keeps four bones, in steps of 1/255.
 4. Make the upper arm and the forearm longer by the arm factor of the config. Each bone scales
    along its axis, and the weights blend the stretch to 0 at the shoulder. The paw keeps its size.
 5. Pose the skeleton in the seated bind pose: the legs turn by the seat of the studio, and the
@@ -368,12 +368,55 @@ def nearest_bone(p, heads, ends):
     return found
 
 
-def apply_rules(verts, weights, rules):
-    """Applies the weight rules of the config: the haunch on the hips, the tail ball on the tail,
-    the ears on their bones, and the head only above the head line."""
+def free_arm(verts, tris, split, tip, sign):
+    """Finds the vertices of the free arm of one side: the part of the mesh beyond the plane
+    |x| = split that holds the vertex nearest to the finger tip. The haunch beside the body is
+    beyond that plane too, and it is not a part of the arm."""
+    beyond = verts[:, 0] * sign > split
+    neighbors = [[] for _ in range(len(verts))]
+    for t in tris:
+        for a, b in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
+            if beyond[a] and beyond[b]:
+                neighbors[a].append(b)
+                neighbors[b].append(a)
+    start = int(np.argmin(np.linalg.norm(verts - tip, axis=1)))
+    seen = {start}
+    stack = [start]
+    while stack:
+        for n in neighbors[stack.pop()]:
+            if n not in seen:
+                seen.add(n)
+                stack.append(n)
+    out = np.zeros(len(verts), bool)
+    out[sorted(seen)] = True
+    return out
+
+
+def apply_rules(verts, tris, weights, rules, ends):
+    """Applies the weight rules of the config: the arms, the haunch on the hips, the tail ball on
+    the tail, the ears on their bones, and the head only above the head line."""
     w = weights.copy()
     col = {name: k for k, name in enumerate(BONES)}
     y = verts[:, 1]
+
+    # The arms: bone heat gives a part of the arm weight to the side of the trunk, where the arm
+    # hangs near it. Beyond the plane of the split, only the free arm follows the arm bones. Inside
+    # it, the shoulder follows the upper arm and no lower bone of the arm.
+    trunk = [col[name] for name in ('hips', 'spine', 'spine1', 'chest')]
+    split = rules['armSplit']
+    for side, sign in (('L', 1.0), ('R', -1.0)):
+        arm = [col[f'{bone}_{side}'] for bone in ARM]
+        lower = arm[1:]
+        free = free_arm(verts, tris, split, ends[f'fingers_{side}'], sign)
+        beyond = verts[:, 0] * sign > split
+        for v in np.nonzero(beyond & ~free)[0]:
+            target = trunk[int(np.argmax(w[v, trunk]))] if w[v, trunk].any() else col['spine1']
+            w[v, target] += w[v, arm].sum()
+            w[v, arm] = 0.0
+        inside = (verts[:, 0] * sign > 0) & ~beyond
+        w[inside, col[f'upper_arm_{side}']] += w[inside][:, lower].sum(axis=1)
+        for k in lower:
+            w[inside, k] = 0.0
 
     # The haunch: the thigh weight above the leg goes to the hips.
     share = smoothstep(y, *rules['haunch']['height'])
@@ -887,7 +930,8 @@ def main():
     eyes, nose = features(verts, tris, colors, dark, config['colors'])
 
     heads, ends, rolls, children = joints_of(config)
-    weights = limit(apply_rules(verts, bone_heat(verts, tris, heads, ends, rolls), rules))
+    weights = limit(apply_rules(verts, tris, bone_heat(verts, tris, heads, ends, rolls), rules,
+                                ends))
 
     # The long arms: the scale of the app comes from the shoulder joints.
     long_verts, long_heads, long_ends = stretch(verts, weights, heads, ends, children,
@@ -904,7 +948,8 @@ def main():
     bind_frames = {n: turns[n] @ src_frames[n] for n in BONES}
     matrices = [move(turns[n], long_heads[n], bind_heads[n]) for n in BONES]
     bind = skin(weights, matrices, long_verts)
-
+    free = int(free_arm(verts, tris, rules['armSplit'], ends['fingers_L'], 1.0).sum())
+    log(f'arm: {free} vertices in the free left arm beyond |x| = {rules["armSplit"]}')
     src_all, bind_all, tris_all, colors_all, materials = add_eye_shells(
         long_verts, bind, tris, colors, eyes, config['eyeLift'])
     materials[nose] = 'gloss'
