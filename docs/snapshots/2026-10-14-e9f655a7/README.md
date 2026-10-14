@@ -1,6 +1,6 @@
 # Snapshot of 2026-10-14
 
-Commit `4c524fa3`: feat(pose): move the violin of the red fox forward under the jaw. `pnpm snapshot` made these images.
+Commit `e9f655a7`: feat(pose): fit the bow of the red fox against the folds of its shoulder. `pnpm snapshot` made these images.
 
 | File | View |
 |---|---|
