@@ -108,6 +108,27 @@ test that fails. The output of each run is in `break-tests.txt`.
 | lineupPath shows the species standing | ``tools/break-test.sh 's/    stand: '',\n//' tools/close-views.ts tools/close-views.test.ts`` | tools/close-views.test.ts > lineupPath > shows the species standing in the rest pose, low, at a fixed camera or at the fit |
 | closeView reads a distance above 0 m only | ``tools/break-test.sh 's/read\('distance', 0\) > 0 \?/read('distance', 0) >= 0 ?/' src/gallery/items.ts src/gallery/items.test.ts`` | src/gallery/items.test.ts > closeView > reads the zoom, the target, and the direction of the query, with defaults<br>src/gallery/items.test.ts > closeView > reads a fixed distance of the camera above 0 m, or none |
 
+## Fixes of the review
+
+The short review of the branch found one fault: `overlayTree()` removed `join(dir, path)` with no
+check of the path. A path with `..` removed a file next to the folder. `withRefBuild()` linked
+`node_modules` before the overlay, so a path under `node_modules` removed files of the real
+`node_modules`. Now `overlayPaths()` refuses an absolute path, a path that is not a part of the
+folder, and a path under `node_modules`, before the first removal. The overlay goes in before the
+link, and `overlayTree()` refuses a tree that has `node_modules` already. A failure of one child of
+`probeBeside()` now ends the other child at once. The output of each break is in
+`break-tests-review.txt`.
+
+| Rule | Command | Failing test |
+|---|---|---|
+| overlayPaths refuses an absolute path | ``tools/break-test.sh 's/    if \(isAbsolute\(path\)\) \{\n      throw new Error\(`The overlay path \"\$\{path\}\" is absolute\.`\);\n    \}\n//' tools/ref-tree.ts tools/ref-tree.test.ts`` | tools/ref-tree.test.ts > overlayPaths > refuses an absolute path, a path outside the tree, and a path under node_modules |
+| overlayPaths refuses a path that is not inside the tree | ``tools/break-test.sh 's/inside === '' \\|\\| inside === '\.\.' \\|\\| inside\.startsWith\(`\.\.\$\{sep\}`\) \\|\\| isAbsolute\(inside\)/false/' tools/ref-tree.ts tools/ref-tree.test.ts`` | tools/ref-tree.test.ts > overlayPaths > refuses an absolute path, a path outside the tree, and a path under node_modules<br>tools/ref-tree.test.ts > overlayTree > replaces a path of the tree of a commit with the path of the working tree |
+| overlayPaths refuses a path under node_modules | ``tools/break-test.sh 's/inside\.split\(sep\)\[0\] === 'node_modules'/false/' tools/ref-tree.ts tools/ref-tree.test.ts`` | tools/ref-tree.test.ts > overlayPaths > refuses an absolute path, a path outside the tree, and a path under node_modules |
+| overlayTree checks each path before the first removal | ``tools/break-test.sh 's/  const checked = overlayPaths\(dir, paths\);/  const checked = paths;/; s/  for \(const path of checked\) \{\n/  for (const raw of checked) {\n    const [path = ""] = overlayPaths(dir, [raw]);\n/' tools/ref-tree.ts tools/ref-tree.test.ts`` | tools/ref-tree.test.ts > overlayTree > replaces a path of the tree of a commit with the path of the working tree |
+| overlayTree refuses a tree with node_modules | ``tools/break-test.sh 's/  if \(lstatSync\(join\(dir, 'node_modules'\), \{ throwIfNoEntry: false \}\)\) \{/  if (false) {/' tools/ref-tree.ts tools/ref-tree.test.ts`` | tools/ref-tree.test.ts > withRefBuild > puts the overlay into the tree before the link of node_modules |
+| withRefBuild puts the overlay in before the link | ``tools/break-test.sh 's/      overlayTree\(dir, overlay\);\n      (symlinkSync\(join\(ROOT, 'node_modules'\), join\(dir, 'node_modules'\), 'dir'\);)/      $1\n      overlayTree(dir, overlay);/' tools/ref-tree.ts tools/ref-tree.test.ts`` | tools/ref-tree.test.ts > withRefBuild > puts the overlay into the tree before the link of node_modules |
+| probeBeside ends the other child after a failure | ``tools/break-test.sh 's/children\.base\.done\.catch\(endOther\(children\.tree\)\)/children.base.done/' tools/ref-tree.ts tools/ref-tree.test.ts`` | tools/ref-tree.test.ts > probeBeside > runs a script on a commit and on the working tree, and removes the folder |
+
 ## Decisions
 
 [`2026-10-14-size-retro.md`](../decisions/2026-10-14-size-retro.md) gives the decisions of the
