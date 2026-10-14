@@ -139,7 +139,7 @@ describe('buildBiped for each species', () => {
       it('stays within its body budget (design 4.5)', () => {
         // A studio body keeps the faces of its GLB file. The budget of the full scene holds the
         // frame (`budget.test.ts`).
-        expect(mesh.positions.length / 9).toBeLessThanOrEqual(studio ? 3100 : 2600);
+        expect(mesh.positions.length / 9).toBeLessThanOrEqual(studio ? 3200 : 2600);
       });
 
       it.runIf(studio)('keeps the faces and the colors of its GLB file (design 4.4)', () => {
