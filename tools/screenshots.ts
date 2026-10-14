@@ -636,11 +636,12 @@ export interface Site {
  * play shot start the audio.
  *
  * @param root The root of the repository.
+ * @param port The first port to try. Vite takes the next free port above it.
  * @returns The site.
  */
-export async function startSite(root: string): Promise<Site> {
-  const server = await preview({ root, preview: { port: 4179, strictPort: false, open: false } });
-  const base = server.resolvedUrls?.local[0] ?? 'http://localhost:4179/';
+export async function startSite(root: string, port = 4179): Promise<Site> {
+  const server = await preview({ root, preview: { port, strictPort: false, open: false } });
+  const base = server.resolvedUrls?.local[0] ?? `http://localhost:${port}/`;
   const browser = await chromium.launch({
     args: [
       '--use-angle=metal',

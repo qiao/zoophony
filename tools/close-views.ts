@@ -176,6 +176,12 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
   },
 };
 
+/**
+ * The first port of the servers of the tool. Vite takes the next free port above it, so a server
+ * never takes 4182, the port of the end-to-end tests of the merge script.
+ */
+export const SERVER_PORT = 4300;
+
 /** The size of one cell of the close view, in CSS pixels. */
 export const CELL = { width: 360, height: 450 } as const;
 
@@ -437,7 +443,7 @@ async function renderBase(
   await withRefBuild(ref, async (dir) => {
     const server = await preview({
       root: dir,
-      preview: { port: 4179, strictPort: false, open: false },
+      preview: { port: SERVER_PORT, strictPort: false, open: false },
     });
     try {
       const site = server.resolvedUrls?.local[0];
@@ -492,7 +498,7 @@ async function main(): Promise<void> {
         browser: await chromium.launch({ args: chromiumArgs(process.platform) }),
         close: async (): Promise<void> => undefined,
       }
-    : await startSite(ROOT);
+    : await startSite(ROOT, SERVER_PORT);
   try {
     const views = await renderViews(site.browser, site.base, name, out, `${name}-`);
     const sheet = await grid(site.browser, views.cells, views.labels, role.views.length);

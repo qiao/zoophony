@@ -4,6 +4,7 @@ import { closeView, galleryTransport } from '../src/gallery/items.ts';
 import { parseTestNotes } from '../src/gallery/notes.ts';
 import {
   ROLE_VIEWS,
+  SERVER_PORT,
   baseGridLabels,
   closeViewPath,
   closeViewsArgs,
@@ -131,5 +132,11 @@ describe('baseGridLabels', () => {
       'working tree: frog, front',
       'working tree: frog, left',
     ]);
+  });
+});
+
+describe('SERVER_PORT', () => {
+  it('starts each server above 4290, so that Vite never moves up to 4182, the port of the merge', () => {
+    expect(SERVER_PORT).toBeGreaterThan(4290);
   });
 });
