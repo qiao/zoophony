@@ -13,7 +13,7 @@ reads it (route 3 of `AGENTS.md`). The steps:
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, and give
    the weights with bone heat. Then the rules of the config: the free arm, the head, the ears,
-   the tail ball, and the haunch. Each vertex keeps four bones, in steps of 1/255.
+   the tail ball, the haunch, and one set of weights for the corners of each short thin face. Each vertex keeps four bones, in steps of 1/255.
 4. Make the upper arm and the forearm longer by the arm factor of the config. Each bone scales
    along its axis, and the weights blend the stretch to 0 at the shoulder. The paw keeps its size.
 5. Pose the skeleton in the seated bind pose: the legs turn by the seat of the studio, and the
@@ -527,6 +527,59 @@ def apply_rules(verts, tris, weights, rules, ends):
         w[mine, col[f'ear_{side}']] = ear[mine]
         w[mine, col['head']] = 1.0 - ear[mine]
     return w
+
+
+def min_angles(verts, tris):
+    """Gives the smallest corner angle of each face, in degrees."""
+    out = np.full(len(tris), 180.0)
+    for k in range(3):
+        a, b, c = verts[tris[:, k]], verts[tris[:, (k + 1) % 3]], verts[tris[:, (k + 2) % 3]]
+        u, v = b - a, c - a
+        cos = np.sum(u * v, axis=1) / np.maximum(
+            np.linalg.norm(u, axis=1) * np.linalg.norm(v, axis=1), 1e-12)
+        out = np.minimum(out, np.degrees(np.arccos(np.clip(cos, -1.0, 1.0))))
+    return out
+
+
+def rigid_slivers(verts, tris, weights, rules):
+    """Gives the corners of each thin face of the source one set of weights: the mean of the
+    weights of the thin faces that share corners. A thin face has a corner angle below `sliver`.
+    Its corners lie almost on one line, so a small difference of their weights turns the face
+    over when a joint bends. With one set of weights, the face moves rigidly. The vertices of the
+    head, the ears, and the tail ball keep the weights of their rules."""
+    limit_angle = rules['sliver']['angle']
+    edges = np.stack([np.linalg.norm(verts[tris[:, k]] - verts[tris[:, (k + 1) % 3]], axis=1)
+                      for k in range(3)], axis=1).max(axis=1)
+    thin = np.nonzero((min_angles(verts, tris) < limit_angle)
+                      & (edges < rules['sliver']['longest']))[0]
+    keep = (verts[:, 1] >= rules['headFrom']) | (weights[:, BONES.index('tail')] > 0)
+    parent = list(range(len(verts)))
+
+    def root(v):
+        while parent[v] != v:
+            parent[v] = parent[parent[v]]
+            v = parent[v]
+        return v
+
+    for f in thin:
+        corners = [int(v) for v in tris[f] if not keep[v]]
+        for v in corners[1:]:
+            ra, rb = root(corners[0]), root(v)
+            if ra != rb:
+                parent[max(ra, rb)] = min(ra, rb)
+    groups = {}
+    for v in sorted({int(v) for f in thin for v in tris[f] if not keep[v]}):
+        groups.setdefault(root(v), []).append(v)
+    out = weights.copy()
+    sizes = []
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        out[members] = weights[members].mean(axis=0)
+        sizes.append(len(members))
+    log(f'slivers: {len(thin)} faces below {limit_angle}°, {len(sizes)} groups of '
+        f'{sum(sizes)} vertices, the largest {max(sizes, default=0)}')
+    return out
 
 
 def weight_steps(row):
@@ -1128,8 +1181,8 @@ def main():
     eyes, nose = features(verts, tris, colors, dark, config['colors'])
 
     heads, ends, rolls, children = joints_of(config)
-    weights = limit(apply_rules(verts, tris, bone_heat(verts, tris, heads, ends, rolls), rules,
-                                ends))
+    weights = apply_rules(verts, tris, bone_heat(verts, tris, heads, ends, rolls), rules, ends)
+    weights = limit(rigid_slivers(verts, tris, weights, rules))
 
     # The long arms: the scale of the app comes from the shoulder joints.
     long_verts, long_heads, long_ends = stretch(verts, weights, heads, ends, children,
