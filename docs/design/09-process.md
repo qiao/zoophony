@@ -16,12 +16,13 @@ GitHub Actions runs these checks:
 | Type check | yes |
 | Oxlint, with `.oxlintrc.json` and the anti-slop plugin in `tools/oxlint/anti-slop/` | yes |
 | oxfmt format check | yes |
-| Vitest | yes |
+| Vitest (`pnpm test`, with no paused test, 9.3) | yes |
 | Vitest speed tests (`pnpm test:perf`, 9.3) | yes |
 | Size check (7.2) | yes |
 | Playwright in Chromium | yes |
 | Playwright in WebKit and Firefox | no, until the runs are stable |
 | Keyboard check (`pnpm keyboard`) | not in CI |
+| Paused Vitest tests (`pnpm test:paused`, 9.3) | not in CI |
 
 Headless WebKit and Firefox on Linux have weak support for WebGL2 and for audio output. Thus their
 runs do not block a merge.
@@ -79,13 +80,24 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   gives the reason. On 2026-10-08, the user approved the removal of the tests of the forms of the
   parametric body and of the hash of the skeletons
   ([`2026-10-08-cleanup.md`](../decisions/2026-10-08-cleanup.md)).
+- Since 2026-10-14, the tests of the look, the fit, and the clearance of the animal bodies are
+  paused ([`2026-10-14-test-pause.md`](../decisions/2026-10-14-test-pause.md)). The user
+  iterates on the look of the animals, and each model round changed the targets of these tests.
+  `PAUSED_TESTS` of `vite.config.ts` lists them in the Vitest project `paused`, in four groups:
+  the clearance of the bodies, the fit of a pose to a body, the look of the bodies and the seats,
+  and the layout from the footprints of the bodies. `pnpm test` runs the project `unit`, which
+  skips them. Thus CI, `tools/check-commits.sh`, and `tools/merge-branch.sh` skip them too.
+  `pnpm test:paused` runs them for information. The typecheck and the lint still read them, and
+  each test helper stays. A section of this design that names a paused test as the check of a
+  rule keeps the rule, and the check waits for the end of the pause.
 - Node tests render audio offline with spessasynth_core.
 - The demo tests of 8.3 and 8.5.
 - A speed test (`*-speed.test.ts`) compares the time of its work with a fixed reference work in
   the same run (`src/test-speed.ts`), and keeps the least time of each over many rounds. No test
   compares a wall time with an absolute limit. Heavy load can still make a speed test fail, so
   the speed tests are a separate Vitest project. `pnpm test:perf` runs them one file at a time,
-  in CI and on demand. `pnpm test` runs all other tests, which check only the behavior.
+  in CI and on demand. `pnpm test` runs the other tests, which check only the behavior, except
+  the paused tests (above).
 - The timeout of each test is 60 s, because the slowest tests take up to 13 s at a load average
   of 300.
 - Vitest runs all tests of one file in one worker. Thus a slow sweep goes into several test
@@ -108,7 +120,8 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   rabbits with one model. The demos have no standing rabbit, so a solo violin test file stands
   one for its own sweep (`pose/violinist-standing-clearance.test.ts`).
 - The clearance tests of the roles share one sweep (`pose/test-sweep.ts`,
-  `pose/test-role-clearance.ts`). `pose/test-sweep-roles.ts` gives each role its moving parts,
+  `pose/test-role-clearance.ts`). They are paused tests (above), and the sweep stays for
+  `pnpm pose-depth`. `pose/test-sweep-roles.ts` gives each role its moving parts,
   its obstacles, its sample sets, its note targets, and its limits. In each sample, the sweep
   poses the skin of the GPU. It measures the depth of each point of the paws, the claws, the
   forearms, the upper arms, and a held part such as the baton or the bow in the closed body and
