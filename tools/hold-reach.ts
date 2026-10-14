@@ -12,6 +12,7 @@ import type { Vec3 } from '../src/models/tuples.ts';
 import { SPECIES_HOLDS, bowedRig, holdOf, playingFrames } from '../src/pose/bowed-rig.ts';
 import { createBowPlaces, instrumentAt } from '../src/pose/bowed.ts';
 import { poseShoulder } from '../src/pose/ik.ts';
+import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 
 /** An instrument that the player holds under the chin. */
@@ -276,7 +277,7 @@ export interface ReachOptions {
 
 /** The usage text of `pnpm hold-reach`. */
 const USAGE =
-  'Usage: pnpm hold-reach <species> [--instrument violin|viola] [--support chair|stand] [--set <path>=<value>[;<path>=<value>]...]...';
+  'Usage: pnpm hold-reach <species> [--instrument violin|viola] [--support chair|stand] [--set <path>=<value>[;<path>=<value>]...]... [--glb <file>]';
 
 /**
  * Reads the options after the species. Each option has one value, and `--set` can come more than
@@ -351,19 +352,36 @@ export function holdReachVariantLines(species: SpeciesId, options: ReachOptions)
   return lines;
 }
 
-function main(): void {
+/**
+ * Runs the tool: `node tools/hold-reach.ts <species> [options]`. With `--glb <file>`, the species
+ * gets the studio body that the export makes from the file, in a copy of `src/`
+ * (`tools/glb-swap.ts`).
+ */
+async function main(): Promise<void> {
   const [species = '', ...args] = process.argv.slice(2);
   if (!isSpeciesId(species)) {
     console.error(`${USAGE}, with a species of: ${SPECIES_IDS.join(', ')}.`);
     process.exit(1);
   }
 
-  console.log(holdReachVariantLines(species, parseReachOptions(args)).join('\n'));
+  const { glb, rest } = takeGlb(args);
+  const options = parseReachOptions(rest);
+  if (glb) {
+    const animal = speciesAnimal(species);
+    if (!animal) {
+      throw new Error(`The species ${species} has no studio body, so --glb does not apply.`);
+    }
+    process.exitCode = await withGlbBody(animal, glb, (dir) =>
+      runTool(dir, 'hold-reach.ts', [species, ...rest]),
+    );
+    return;
+  }
+  console.log(holdReachVariantLines(species, options).join('\n'));
 }
 
 if (import.meta.main) {
   try {
-    main();
+    await main();
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);
