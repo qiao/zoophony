@@ -284,9 +284,15 @@ Add these items to the briefs of the rig round and of the app round.
   the swap with `--glb <file>` of `pnpm studio-body --inspect`, `pnpm hold-reach`, and
   `pnpm fold-probe`. Do not edit `ANIMALS` for a probe.
 - **The GLB file.** Commit each rule of the rig script with the GLB file unchanged. Only the last
-  commit of a series of rig commits writes the GLB file again. The rig GLB files of the rabbit
-  rounds put about 4.4 MB into the history: three extra files of 0.9 MB in the rig round, and six
-  files of about 334 KB in the app round.
+  commit of a series of rig commits writes the GLB file again. The rig GLB file of the rabbit has
+  12 versions in the history, with blobs of 7,450,048 B in all. The rig round wrote five files of
+  about 0.91 MB. The app round wrote one file of 0.89 MB and five of 0.33 MB, and the folds round
+  wrote one of 0.34 MB. This command gives the sizes:
+
+  ```bash
+  F=assets/models/rabbit/rabbit-4.rig.glb
+  git log --format=%h -- $F | while read h; do echo "$h $(git cat-file -s $h:$F)"; done
+  ```
 - **The look tests.** Name the look tests that can change with the new body, such as the test
   "scroll down, as its sheet" of `src/pose/bowed.test.ts` and the leg angle of
   `src/models/studio-rig.test.ts`. A new body changes their target, and they find no fault.
