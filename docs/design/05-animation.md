@@ -383,18 +383,22 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     to the left and an elbow forward and down, (0.5, -1, -1), put the bow arm 0.065 H into the chest
     at the frog on the highest string. A move of more than 0.1 H forward needs the shoulder turn of
     30° (20° before), so that the bow arm still reaches the tip. A species can hold a bowed string
-    in its own way (`holdOf()` of `pose/bowed-rig.ts`). The studio rabbits hold the violin on the
-    left shoulder, as in `rabbit-views.png` (`SHOULDER_HOLD`): the violin moves to the left and up
-    and turns toward the front with the scroll down, on the chest under the chin, and the bow lies
-    nearly square across the strings. The back stays straight, as a real violinist sits. The right
-    arm has the elbow of the frog and the shoulder turn of the chin hold. At the tip, the right
-    elbow also points down: up, the skin of the studio folded at the upper arm. In the rest pose,
-    the left paw holds the violin at the left side and the bow hangs from the right paw
-    (`BowedHold.restAtSide`), as for a soloist who stands: the round belly covers the short
-    thighs, so the rabbit has no lap for the violin. `pnpm pose-depth violinist` and
-    `pnpm fold-probe violinist` measure each change (`docs/research/2026-10-13-studio-rabbit.md`).
-    A test keeps the rest bow of each violinist out of the trunk and the arms, and at most 0.03 H
-    in the legs. The bow of the side rest of a studio body may touch its fur. On the cello and the
+    in its own way (`holdOf()` of `pose/bowed-rig.ts`). The rabbits hold the violin on the left
+    shoulder as a real violinist does (`SHOULDER_HOLD`): the violin moves to the left, up, and
+    back onto the collarbone under the jaw, turns toward the front, and keeps the scroll about
+    level. The bow lies nearly square across the strings. The back stays straight. The left elbow
+    keeps the direction of the chin hold, a little out of the plane of the violin: further in,
+    the thin faces of the left upper arm of the rabbit mesh turned over. The right arm has the
+    shoulder turn of the chin hold. At the frog, the right elbow points less down than in the
+    chin hold, nearer to the level of the bow: with the elbow of the chin hold, the bow paw of
+    the rabbit mesh went into the body in a demo of 2026-10-14. At the tip, the right elbow also
+    points down: up, the skin of the studio rabbit folded at the upper arm. In the rest pose, the
+    left paw holds the violin at the left side by the neck near its body, and the bow hangs from
+    the right paw (`BowedHold.restAtSide`), as for a soloist who stands: the round belly covers
+    the short thighs, so the rabbit has no lap for the violin. `pnpm pose-depth violinist` and
+    `pnpm fold-probe violinist` measure each change (`docs/research/2026-10-13-studio-rabbit.md`,
+    `docs/research/2026-10-13-rabbit-mesh.md`). A test keeps the rest bow of each violinist out
+    of the trunk and the arms, and at most 0.03 H in the legs. On the cello and the
     contrabass, the
     elbow points out and up, (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in pizzicato, (1, 0,
     0). The left elbow points down, out, and a little forward, so that the arm hugs the instrument:

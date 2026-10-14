@@ -240,24 +240,28 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
 }
 
 /**
- * The hold of the violin on the left shoulder of `rabbit-views.png`, for the rabbit (design 4.6):
- * the chin hold, with the violin to the left and up, turned from the left toward the front, and the
- * scroll down. The violin rests on the chest under the chin, where the large head of the rabbit
- * puts its jaw. The back stays straight, as a real violinist sits (2026-10-13-studio-rabbit
- * decisions). The bow lies nearly square across the strings. The right arm has the elbow and the
- * shoulder turn of the chin hold at the frog: with the longer arms of the studio round 4, the
- * sweep of `pnpm pose-depth violinist` keeps the right arm within the contact depth of the body.
- * At the tip, the right elbow also points down: up, as in the chin hold, the skin of the studio
- * rabbit folded at the right upper arm (`pnpm fold-probe violinist`). The rest pose holds the
- * violin at the left side, by the neck near the body of the violin: the round belly covers the
- * short thighs, so the lap place of the chin hold was on the top of the belly, and the bow went
- * into it. With the hand nearer the scroll, the body of the violin of the rabbit mesh lay against
- * its belly (2026-10-13-mesh-rabbit decisions).
+ * The hold of the violin on the left shoulder, for the rabbit (design 4.6, 5.3): the chin hold,
+ * with the violin to the left and up, turned from the left toward the front, as a real violinist
+ * holds it (2026-10-13-studio-rabbit decisions): on the left collarbone under the jaw, about level,
+ * about 45° to the left of the front. The back stays straight. The bow lies nearly square across
+ * the strings. The right arm has the shoulder turn of the chin hold. At the frog, the right elbow
+ * points out, forward, and less down than in the chin hold, nearer to the level of the bow, as a
+ * real violinist holds it: with the elbow of the chin hold, the bow paw went 1.6 cm into the body
+ * in a play of the Brandenburg Concerto No. 5 (2026-10-13-mesh-rabbit decisions). The
+ * right elbow points down at the tip too: up, as in the chin hold, the skin of the studio rabbit
+ * folded at the right upper arm (`pnpm fold-probe violinist`). The left elbow keeps the
+ * pole of the chin hold: a pole further in put the elbow under the violin, and turned over faces
+ * of the left upper arm of the rabbit mesh in each play sample (2026-10-13-mesh-rabbit decisions).
+ * The rest pose holds the violin at the left side, by the neck near the body of the violin: the
+ * round belly covers the short thighs, so the lap place of the chin hold was on the top of the
+ * belly, and the bow went into it. With the hand nearer the scroll, the body of the violin of the
+ * rabbit mesh lay against its belly.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
-  playShift: [-0.15, 0.06, 0],
-  playTurn: violinTurn(-25, -8),
+  playShift: [-0.15, 0.06, 0.04],
+  playTurn: violinTurn(-25, 5),
+  poleR: [1, -0.7, -1],
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,

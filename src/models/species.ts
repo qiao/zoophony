@@ -153,7 +153,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
-    violinScale: 0.55,
+    violinScale: 0.54,
     proportions: {
       headHeight: STUDIO_RABBIT.headHeight,
       seatHeight: STUDIO_RABBIT.seatHeight / STUDIO_RABBIT.headHeight,

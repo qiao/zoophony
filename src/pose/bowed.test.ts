@@ -200,7 +200,7 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     }
   });
 
-  it('holds the violin of a rabbit on the left shoulder with the scroll down, as its sheet', () => {
+  it('holds the violin of a rabbit on the left shoulder about level, as a real violinist', () => {
     const rabbit = players[0];
     const fox = players[4];
     if (!rabbit || !fox) {
@@ -221,10 +221,10 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     };
     const shoulder = place(rabbit);
     const chin = place(fox);
-    // The left side of the animal is -x.
+    // The left side of the animal is -x. The scroll stays within 10° of the level line
+    // (2026-10-13-mesh-rabbit decisions).
     expect(shoulder.side).toBeLessThan(chin.side - 0.15);
-    expect(shoulder.rise).toBeLessThan(0);
-    expect(shoulder.rise).toBeLessThan(chin.rise);
+    expect(Math.abs(shoulder.rise)).toBeLessThan(Math.sin((10 * Math.PI) / 180));
   });
 
   it('sizes the violin of a species with a violin scale by the rule of real violins (design 4.6)', () => {
