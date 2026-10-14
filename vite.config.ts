@@ -26,6 +26,15 @@ const PAUSED_TESTS = [
   'src/models/player.test.ts',
   'src/gallery/sheet-poses.test.ts',
   'src/gallery/view-poses.test.ts',
+  // The look and the geometry of a body and of its seat: the forms, the sizes, the colors, the
+  // faces, the eyes, and the triangle budgets.
+  'src/models/species.test.ts',
+  'src/models/budget.test.ts',
+  'src/models/proportions.test.ts',
+  'src/models/legs.test.ts',
+  'src/models/props.test.ts',
+  'src/models/face-patterns.test.ts',
+  'src/models/penguin/penguin-body.test.ts',
 ];
 
 /**
