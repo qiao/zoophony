@@ -509,17 +509,7 @@ export const VIOLINIST_SWEEP: RoleSweep = {
     { name: 'violin', surface: violinSurface },
   ],
   contact: CONTACT,
-  accepted: [
-    {
-      part: 'paws',
-      into: 'body',
-      samples: 'lower',
-      depth: 0.025,
-      reason:
-        'The right paw lowers to the side rest, where the hanging arm touches the side of the round belly (design 5.2).',
-      decision: `${RABBIT_DECISIONS}, row "Accepted limits"`,
-    },
-  ],
+  accepted: [],
   targetError: 1e-3,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'violin'),
   players: (scene) =>

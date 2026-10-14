@@ -546,7 +546,8 @@ retarget had about a quarter of the folded faces.
   the upper arms, the baton, and the bow out of the closed body, the piano, and the violin (the
   sweep of each role, 9.3). A part goes into the body past the contact depth only as an
   accepted depth: the forearms and the upper arms of the round pianist, and the hanging arms of
-  the conductor, and the paw of the violinist on its belly when it lowers to the side rest.
+  the conductor, and the right arm of the standing violinist on its belly when it lifts the bow
+  from the side rest.
   `docs/decisions/2026-10-13-role-sweep.md` and `docs/decisions/2026-10-13-studio-rabbit.md` list
   each accepted depth with its reason.
 
