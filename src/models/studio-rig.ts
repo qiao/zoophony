@@ -379,7 +379,14 @@ export function standingBody(body: StudioBody, mesh: StudioMesh): PosedStudioBod
   const weights = new Float32Array(mesh.correctives.length).fill(1, ARM_CORRECTIVES);
   const positions = skinStudioMesh(mesh, { matrices: pose.matrices, correctives: weights });
 
+  // The body stands with its lowest point, a sole, on the floor. The straight legs of the sheet
+  // can put a heel a little below the seated soles, which the lift of the export puts on the floor.
+  let low = Infinity;
+  for (let v = 1; v < positions.length; v += 3) {
+    low = Math.min(low, positions[v] ?? 0);
+  }
   const lift = new Vector3(...standing.lift);
+  lift.y = -low;
   const lifted = (p: Vec3): Vec3 => toVec3(new Vector3(...p).add(lift));
   for (let v = 0; v < positions.length; v += 3) {
     positions[v] = (positions[v] ?? 0) + lift.x;

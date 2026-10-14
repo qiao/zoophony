@@ -116,7 +116,10 @@ export type StudioLegBone = (typeof STUDIO_LEG_BONES)[number];
  * studio at their full weight.
  */
 export interface StudioStanding {
-  /** The move of the body from its seated place over the seat to its standing place. */
+  /**
+   * The move of the body from its seated place over the seat to its standing place. The app
+   * takes its height from the standing skin: the lowest point, a sole, goes onto the floor.
+   */
   readonly lift: Vec3;
   /** The world turn of each leg bone from the bind pose to the pose of the sheet. */
   readonly turns: Readonly<Record<StudioLegBone, Quat>>;
