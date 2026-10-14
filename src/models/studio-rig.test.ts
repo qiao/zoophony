@@ -212,3 +212,12 @@ describe('studioRig (design 4.4, 4.7)', () => {
     expect(p.handL[2]).toBe(p.upperArmL[2]);
   });
 });
+
+describe('studioRig for a player that stands (design 4.4)', () => {
+  it('keeps the stance of the role for a body with no standing pose', () => {
+    const standing = studioRig(STUDIO_BEAR, true);
+    expect(standing.positions).toEqual(rig.positions);
+    expect([...standing.mesh.positions]).toEqual([...rig.mesh.positions]);
+    expect(standing.mesh.correctives).toHaveLength(2);
+  });
+});

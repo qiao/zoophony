@@ -3,7 +3,12 @@ import { Matrix4, Quaternion, Vector3 } from 'three';
 import type { BodyBoneName } from './biped.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { Skeleton } from './rig.ts';
-import { STUDIO_BONES, unpackStudioMesh } from './studio-format.ts';
+import {
+  STUDIO_BONES,
+  STUDIO_LEG_BONES,
+  STUDIO_PARENTS,
+  unpackStudioMesh,
+} from './studio-format.ts';
 import type { Side, StudioBody, StudioBone, StudioMesh } from './studio-format.ts';
 import { toVec3 } from './tuples.ts';
 import type { Quat, Vec3 } from './tuples.ts';
@@ -276,14 +281,102 @@ function playerPositions(body: StudioBody): Record<BodyBoneName, Vec3> {
   };
 }
 
+/** A studio body with its unpacked mesh, in the stance of a player. */
+export interface PosedStudioBody {
+  /** The body, with the bind places of its bones in the stance. */
+  readonly body: StudioBody;
+  /** The mesh, with its bind places in the stance and the arm corrective shapes only. */
+  readonly mesh: StudioMesh;
+}
+
+/** The number of the arm corrective shapes, the first shapes of a packed studio mesh. */
+const ARM_CORRECTIVES = 2;
+
+/**
+ * Makes the standing body of a seated studio body that also stands, such as the violinist rabbit
+ * as a soloist (design 4.4). The legs take the turns of the pose of the sheet, with the leg
+ * corrective shapes of the studio at their full weight, and the body moves from its seat to stand
+ * over the origin. The bind places of the mesh and of the bones become the standing places, so
+ * that the rig poses the standing body as it poses a body that the studio built standing.
+ *
+ * @param body The seated studio body, with its standing pose.
+ * @param mesh The unpacked mesh of the body, with the leg corrective shapes after the arm shapes.
+ * @returns The standing body and its mesh, with the arm corrective shapes only.
+ * @throws Error if the body has no standing pose.
+ */
+export function standingBody(body: StudioBody, mesh: StudioMesh): PosedStudioBody {
+  const standing = body.standing;
+  if (!standing) {
+    throw new Error('The studio body has no standing pose.');
+  }
+
+  // Each leg bone turns around its head, and its children follow it from the hips down.
+  const pose = createStudioPose();
+  const heads = { ...body.heads };
+  const turnOf = new Map<StudioBone, Quaternion>();
+  for (const bone of STUDIO_LEG_BONES) {
+    const turn = new Quaternion(...standing.turns[bone]);
+    const parent = STUDIO_PARENTS[bone];
+    const parentTurn = turnOf.get(parent);
+    const from = new Vector3(...body.heads[bone]);
+    const to = parentTurn
+      ? from
+          .clone()
+          .sub(new Vector3(...body.heads[parent]))
+          .applyQuaternion(parentTurn)
+          .add(new Vector3(...heads[parent]))
+      : from.clone();
+    turnOf.set(bone, turn);
+    heads[bone] = toVec3(to);
+    writeMatrix(pose.matrices, STUDIO_BONES.indexOf(bone), turn, from, to);
+  }
+  const weights = new Float32Array(mesh.correctives.length).fill(1, ARM_CORRECTIVES);
+  const positions = skinStudioMesh(mesh, { matrices: pose.matrices, correctives: weights });
+
+  const lift = new Vector3(...standing.lift);
+  const lifted = (p: Vec3): Vec3 => toVec3(new Vector3(...p).add(lift));
+  for (let v = 0; v < positions.length; v += 3) {
+    positions[v] = (positions[v] ?? 0) + lift.x;
+    positions[v + 1] = (positions[v + 1] ?? 0) + lift.y;
+    positions[v + 2] = (positions[v + 2] ?? 0) + lift.z;
+  }
+  return {
+    body: {
+      ...body,
+      // SAFETY: the entries hold each bone of STUDIO_BONES one time.
+      heads: Object.fromEntries(STUDIO_BONES.map((bone) => [bone, lifted(heads[bone])])) as Record<
+        StudioBone,
+        Vec3
+      >,
+      fingerTips: { L: lifted(body.fingerTips.L), R: lifted(body.fingerTips.R) },
+      headCenter: lifted(body.headCenter),
+      nose: lifted(body.nose),
+      floor: [0, 0, 0],
+      seatHeight: null,
+      standing: null,
+    },
+    mesh: { ...mesh, positions, correctives: mesh.correctives.slice(0, ARM_CORRECTIVES) },
+  };
+}
+
 /**
  * Prepares a studio body to pose (design 4.4): unpacks its mesh, and finds the skeleton of the
- * player and the constants of the arms.
+ * player and the constants of the arms. A seated body that also stands gets its standing body
+ * ({@link standingBody}) for a player that stands. Each other body keeps the stance of its role.
  *
- * @param body The studio body.
+ * @param seated The studio body, as the export wrote it.
+ * @param stands True for a player that stands.
  * @returns The rig.
  */
-export function studioRig(body: StudioBody): StudioRig {
+export function studioRig(seated: StudioBody, stands = false): StudioRig {
+  const unpacked = unpackStudioMesh(seated.mesh);
+  const { body, mesh }: PosedStudioBody =
+    stands && seated.standing
+      ? standingBody(seated, unpacked)
+      : {
+          body: seated,
+          mesh: { ...unpacked, correctives: unpacked.correctives.slice(0, ARM_CORRECTIVES) },
+        };
   const h = body.heads;
   const unit = (from: Vec3, to: Vec3): Vector3 =>
     new Vector3(...to).sub(new Vector3(...from)).normalize();
@@ -334,7 +427,7 @@ export function studioRig(body: StudioBody): StudioRig {
   };
   return {
     body,
-    mesh: unpackStudioMesh(body.mesh),
+    mesh,
     positions: playerPositions(body),
     follows: Uint8Array.from(STUDIO_BONES, (bone) => boneIndex(STUDIO_FOLLOWS[bone])),
     arms: { L: arm('L'), R: arm('R') },

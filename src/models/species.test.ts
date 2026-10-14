@@ -132,7 +132,8 @@ describe('buildBiped for each species', () => {
     const { mesh, body } = build(species);
     const { headHeight: h } = proportionsOf(species);
     // A studio body keeps the mesh, the skin, and the colors of its GLB file (design 4.4).
-    const studio = species.body && species.body !== 'penguin' ? studioRigOf(species.body) : null;
+    const studio =
+      species.body && species.body !== 'penguin' ? studioRigOf(species.body, false) : null;
 
     describe(id, () => {
       it('stays within its body budget (design 4.5)', () => {

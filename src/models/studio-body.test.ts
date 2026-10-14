@@ -8,9 +8,9 @@ import { buildStudioBody, studioRenderMesh, studioRigOf } from './studio-body.ts
 
 describe('buildStudioBody (design 4.4)', () => {
   const builder = new MeshBuilder();
-  const body = buildStudioBody(builder, 'studio-bear');
+  const body = buildStudioBody(builder, 'studio-bear', true);
   const mesh = builder.build();
-  const rig = studioRigOf('studio-bear');
+  const rig = studioRigOf('studio-bear', true);
 
   it('adds one triangle for each face of the studio, with its color', () => {
     expect(mesh.finishes).toHaveLength(rig.mesh.corners.length / 3);
@@ -42,10 +42,10 @@ describe('buildStudioBody (design 4.4)', () => {
 
 describe('studioRenderMesh (design 4.4)', () => {
   const builder = new MeshBuilder();
-  buildStudioBody(builder, 'studio-bear');
+  buildStudioBody(builder, 'studio-bear', true);
   const baton = boneIndex('baton');
   builder.add(box(0.01, 0.01, 0.4), { color: [1, 1, 1], bone: baton });
-  const rig = studioRigOf('studio-bear');
+  const rig = studioRigOf('studio-bear', true);
   const render = studioRenderMesh(rig, builder.build());
   const bodyCorners = rig.mesh.corners.length;
 

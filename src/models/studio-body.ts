@@ -21,20 +21,25 @@ export const STUDIO_BODIES = {
 /** The name of a studio body of a species. */
 export type StudioBodyName = keyof typeof STUDIO_BODIES;
 
-/** The rig of each studio body, made on its first use. */
-const rigs = new Map<StudioBodyName, StudioRig>();
+/** The rig of each studio body and stance, made on its first use. */
+const rigs = new Map<string, StudioRig>();
 
 /**
- * Gives the rig of a studio body. The rig of each body is made one time.
+ * Gives the rig of a studio body. The rig of each body and stance is made one time. A seated body
+ * that also stands has a standing rig (`standingBody()` of `studio-rig.ts`). Each other body
+ * keeps the stance of its role.
  *
  * @param name The studio body.
+ * @param stands True for a player that stands.
  * @returns The rig.
  */
-export function studioRigOf(name: StudioBodyName): StudioRig {
-  let rig = rigs.get(name);
+export function studioRigOf(name: StudioBodyName, stands: boolean): StudioRig {
+  const body = STUDIO_BODIES[name];
+  const key = `${name} ${stands && body.standing ? 'standing' : 'bind'}`;
+  let rig = rigs.get(key);
   if (!rig) {
-    rig = studioRig(STUDIO_BODIES[name]);
-    rigs.set(name, rig);
+    rig = studioRig(body, stands);
+    rigs.set(key, rig);
   }
   return rig;
 }
@@ -83,14 +88,20 @@ function playerSkins(rig: StudioRig): CornerSkin[] {
  * largest weights, for the readers of the bind mesh. The scene draws the body with the skin of the
  * studio (`StudioRig`). A studio body keeps the stance of its role on each support: the bear
  * conductor stands, and the polar bear pianist sits on a bench that fits its legs
- * (`StudioBody.seatHeight`).
+ * (`StudioBody.seatHeight`). A seated body that also stands, such as the violinist rabbit, sits
+ * on a seat and stands as a soloist ({@link studioRigOf}).
  *
  * @param builder The mesh that gets the triangles.
  * @param name The studio body.
+ * @param stands True for a player that stands.
  * @returns The bind positions of the body bones, and the points that the instruments need.
  */
-export function buildStudioBody(builder: MeshBuilder, name: StudioBodyName): BodyBones {
-  const rig = studioRigOf(name);
+export function buildStudioBody(
+  builder: MeshBuilder,
+  name: StudioBodyName,
+  stands: boolean,
+): BodyBones {
+  const rig = studioRigOf(name, stands);
   const { body, positions } = rig;
   const skeleton = makeSkeleton(
     {

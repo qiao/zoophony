@@ -187,7 +187,8 @@ export function buildPlayer(
 ): PlayerModel {
   const builder = new MeshBuilder();
   const params: SpeciesParams = SPECIES[species];
-  const body = buildBiped(builder, params, stanceOn(support, params));
+  const stance = stanceOn(support, params);
+  const body = buildBiped(builder, params, stance);
   const model = buildInstrument(instrument, kettles);
   const placed = attachInstrument(builder, model, body);
   const positions = {
@@ -202,6 +203,9 @@ export function buildPlayer(
     body,
     instrument: model,
     pieces: placed.pieces,
-    studio: params.body && params.body !== 'penguin' ? studioRigOf(params.body) : null,
+    studio:
+      params.body && params.body !== 'penguin'
+        ? studioRigOf(params.body, stance.kind === 'standing')
+        : null,
   };
 }
