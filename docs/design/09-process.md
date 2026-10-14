@@ -119,7 +119,10 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   (`pose/violinist-clearance-<k>.test.ts`, `pose/test-violinist-clearance.ts`). It sweeps the
   first seated rabbit of each demo and each standing rabbit soloist, because a demo has many
   rabbits with one model. The demos have no standing rabbit, so a solo violin test file stands
-  one for its own sweep (`pose/violinist-standing-clearance.test.ts`).
+  one for its own sweep (`pose/violinist-standing-clearance.test.ts`). The test of the flutist
+  clearance reads the patched demos with a flute seat (`pose/flutist-clearance-<k>.test.ts`,
+  `pose/test-flutist-clearance.ts`). It sweeps the first seated tan fox of each demo and each
+  standing tan fox soloist, such as the soloist of K. 315.
 - The clearance tests of the roles share one sweep (`pose/test-sweep.ts`,
   `pose/test-role-clearance.ts`). They are paused tests (above), and the sweep stays for
   `pnpm pose-depth`. `pose/test-sweep-roles.ts` gives each role its moving parts,
@@ -131,8 +134,9 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   point is inside when its winding number is more than 0.5. Each point stays at most the contact
   depth of the role in each obstacle. A depth past it is a named entry with its reason and its
   decision row. A note target gives the distance of a hand, or of the part that it holds, from
-  its target: the palm of the pianist on its keys, and the bow hair of the violinist on the
-  strings in the middle of each stroke. The entry is a contract of contact that the look accepts, with a margin over the
+  its target: the palm of the pianist on its keys, the bow hair of the violinist on the
+  strings in the middle of each stroke, and each palm of the flutist on its grip at the start of
+  each phrase. The entry is a contract of contact that the look accepts, with a margin over the
   measure. `pnpm pose-depth <role>` prints the same depths. With `--base <ref>`, it also compares
   the deepest point of each species with a commit, in cm and in the H of each body, because a body
   that grows keeps its depths in H. `pnpm pose-depth <role> --gaps` also
