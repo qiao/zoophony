@@ -72,6 +72,10 @@
       "note": "The long edge of a face of the arms with a corner angle above angle (degrees) in the seated bind mesh flips to the corner of the face on its other side. The two faces must lie almost on one plane in the source and in the bind mesh (normals within normals, in degrees), and the flip must move the surface by at most move (units) in both. The flips run in rounds until no edge flips. The angle 180 turns the flips off. The move of 0.0016 units is 2 mm in the app."
     }
   },
+  "check": {
+    "thin": { "angle": 10, "length": 0.08, "near": 0.1 },
+    "note": "pnpm rig-mesh --check lists the faces of the seated bind mesh with a corner angle below angle (degrees) and a longest edge of at least length (units), when that edge passes within near (units) of a joint of the arms or the legs. These faces are candidates for a ring (refine.rings). The values are the sliver angle and the minEdge and the radius of the ring at the left elbow."
+  },
   "colors": {
     "samples": 6,
     "palette": 48,

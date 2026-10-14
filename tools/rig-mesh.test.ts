@@ -7,13 +7,19 @@ import type { Vec3 } from '../src/models/tuples.ts';
 import {
   CONFIG_JOINTS,
   REACH_TOLERANCE,
+  animalRoles,
   armReach,
   blenderArgs,
   checkReach,
   jointHead,
   parseArgs,
   parseConfig,
+  reachLine,
+  rigSettings,
+  targetFactor,
 } from './rig-mesh.ts';
+import { FOLD_ROLES, roleAnimal } from './fold-probe.ts';
+import { ANIMALS } from './studio-body.ts';
 import type { MeshRigConfig, MeshRigJoint } from './rig-mesh.ts';
 
 /**
@@ -78,14 +84,25 @@ describe('pnpm rig-mesh (route 3 of AGENTS.md)', () => {
 
 describe('the arguments of pnpm rig-mesh', () => {
   it('reads the animal and the preview folder', () => {
-    expect(parseArgs(['rabbit'])).toEqual({ animal: 'rabbit', preview: null });
+    expect(parseArgs(['rabbit'])).toEqual({ animal: 'rabbit', preview: null, check: false });
     expect(parseArgs(['rabbit', '--preview', '/tmp/x'])).toEqual({
       animal: 'rabbit',
       preview: '/tmp/x',
+      check: false,
     });
     expect(parseArgs(['--preview', '/tmp/x', 'rabbit'])).toEqual({
       animal: 'rabbit',
       preview: '/tmp/x',
+      check: false,
+    });
+  });
+
+  it('reads --check before or after the animal', () => {
+    expect(parseArgs(['rabbit', '--check']).check).toBe(true);
+    expect(parseArgs(['--check', 'rabbit', '--preview', 'p'])).toEqual({
+      animal: 'rabbit',
+      preview: 'p',
+      check: true,
     });
   });
 
@@ -107,6 +124,51 @@ describe('the arguments of pnpm rig-mesh', () => {
     expect(args[5]).toMatch(/tools\/blender\/rig_mesh\.py$/);
     expect(args.slice(6)).toEqual(['--', 'c.json', 'o.glb', '--preview', 'p']);
     expect(blenderArgs('c.json', 'o.glb', null).slice(6)).toEqual(['--', 'c.json', 'o.glb']);
+  });
+
+  it('asks the Blender script for the long-armed source of the check', () => {
+    expect(blenderArgs('c.json', 'o.glb', null, 's.obj').slice(6)).toEqual([
+      '--',
+      'c.json',
+      'o.glb',
+      '--obj',
+      's.obj',
+    ]);
+  });
+});
+
+describe('the check of pnpm rig-mesh', () => {
+  it('gives the arm factor of the target reach, also when the factor of the config misses it', () => {
+    const config = { ...figure(1.1), app: { shoulders: 0.5, reach: 0.35 } };
+    const factor = targetFactor(config, 'L');
+    expect(armReach(config, 'L', factor)).toBeCloseTo(0.35, 9);
+    expect(targetFactor(figure(1.4), 'R')).toBeCloseTo(1.4, 9);
+    expect(reachLine(config)).toContain(`the factor ${factor.toFixed(4)} gives 0.35 m`);
+    expect(reachLine(config)).toContain('Shoulder joint at 0.5 u');
+  });
+
+  it('takes the settings of ANIMALS, or a seated role that also stands at the shoulders of the config', () => {
+    expect(rigSettings('rabbit', figure(1.4))).toEqual({
+      settings: ANIMALS.get('rabbit'),
+      known: true,
+    });
+    expect(rigSettings('red-panda', figure(1.4))).toEqual({
+      settings: {
+        landmark: 'shoulders',
+        height: 0.5,
+        seated: true,
+        soloist: true,
+        constant: 'STUDIO_RED_PANDA',
+      },
+      known: false,
+    });
+  });
+
+  it('runs the app checks of each role with the body of the animal', () => {
+    for (const [role, source] of FOLD_ROLES) {
+      expect(animalRoles(roleAnimal(source)).map((r) => r.role)).toContain(role);
+    }
+    expect(animalRoles('red-panda')).toEqual([]);
   });
 });
 
