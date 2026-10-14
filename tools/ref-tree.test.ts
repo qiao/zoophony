@@ -17,6 +17,7 @@ import { describe, expect, it } from 'vitest';
 import {
   errorCause,
   optionValue,
+  overlayPaths,
   overlayTree,
   probeBeside,
   probeScripts,
@@ -121,6 +122,24 @@ describe('withProbeTree', () => {
   });
 });
 
+describe('overlayPaths', () => {
+  it('refuses an absolute path, a path outside the tree, and a path under node_modules', () => {
+    const dir = join(tmpdir(), 'ref-build-x');
+    expect(overlayPaths(dir, ['src/gallery', './src/../gallery.html'])).toEqual([
+      join('src', 'gallery'),
+      'gallery.html',
+    ]);
+    expect(() => overlayPaths(dir, ['/etc'])).toThrow('is absolute');
+    expect(() => overlayPaths(dir, [join(dir, 'src')])).toThrow('is absolute');
+    for (const path of ['..', '../x', 'src/../../x', '', '.']) {
+      expect(() => overlayPaths(dir, [path])).toThrow('is not inside the tree');
+    }
+    for (const path of ['node_modules', 'node_modules/three', 'src/../node_modules/three']) {
+      expect(() => overlayPaths(dir, [path])).toThrow('is under node_modules');
+    }
+  });
+});
+
 describe('probeBeside', () => {
   it('runs a script on a commit and on the working tree, and removes the folder', async () => {
     const parent = await mkdtemp(join(tmpdir(), 'probe-beside-test-'));
@@ -182,6 +201,11 @@ describe('overlayTree', () => {
           expect(readFileSync(join(dir, items), 'utf8')).toBe(
             readFileSync(join(import.meta.dirname, '..', items), 'utf8'),
           );
+
+          // A refused path stops the overlay before its first removal.
+          writeFileSync(join(dir, 'src', 'gallery', 'only-in-commit.ts'), '');
+          expect(() => overlayTree(dir, ['src/gallery', '../outside'])).toThrow('not inside');
+          expect(existsSync(join(dir, 'src', 'gallery', 'only-in-commit.ts'))).toBe(true);
           return Promise.resolve();
         },
         { parent, paths: ['src/gallery'] },

@@ -16,7 +16,7 @@ import {
 } from 'node:fs';
 import { readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { isAbsolute, join, relative, resolve as resolvePath, sep } from 'node:path';
 
 /** The repository root. */
 export const ROOT = join(import.meta.dirname, '..');
@@ -400,14 +400,42 @@ export function withoutOptions(
 }
 
 /**
- * Replaces paths of the tree of a commit with the paths of the working tree. A file that only the
- * commit has under such a path goes away.
+ * Checks the paths of an overlay before any removal: each path is relative, names a part of the
+ * folder of the tree and not the whole folder, and is not under `node_modules`. A removal of
+ * another path could reach a file next to the folder, or the real `node_modules` through its link.
  *
  * @param dir The folder of the tree of the commit.
  * @param paths The paths, such as `src/gallery`.
+ * @returns The paths, relative to the folder, with no `.` or `..` part.
+ * @throws Error for the first path that breaks a rule.
+ */
+export function overlayPaths(dir: string, paths: readonly string[]): string[] {
+  return paths.map((path) => {
+    if (isAbsolute(path)) {
+      throw new Error(`The overlay path "${path}" is absolute.`);
+    }
+    const inside = relative(dir, resolvePath(dir, path));
+    if (inside === '' || inside === '..' || inside.startsWith(`..${sep}`) || isAbsolute(inside)) {
+      throw new Error(`The overlay path "${path}" is not inside the tree of the commit.`);
+    }
+    if (inside.split(sep)[0] === 'node_modules') {
+      throw new Error(`The overlay path "${path}" is under node_modules.`);
+    }
+    return inside;
+  });
+}
+
+/**
+ * Replaces paths of the tree of a commit with the paths of the working tree. A file that only the
+ * commit has under such a path goes away. Each path must pass {@link overlayPaths} before the
+ * first removal.
+ *
+ * @param dir The folder of the tree of the commit.
+ * @param paths The paths, such as `src/gallery`.
+ * @throws Error if a path breaks a rule of {@link overlayPaths}. Then nothing goes away.
  */
 export function overlayTree(dir: string, paths: readonly string[]): void {
-  for (const path of paths) {
+  for (const path of overlayPaths(dir, paths)) {
     rmSync(join(dir, path), { recursive: true, force: true });
     cpSync(join(ROOT, path), join(dir, path), { recursive: true });
   }
