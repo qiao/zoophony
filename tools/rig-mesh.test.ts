@@ -15,10 +15,12 @@ import {
   parseArgs,
   parseConfig,
   reachLine,
+  checkTable,
   rigSettings,
   setConfig,
   targetFactor,
 } from './rig-mesh.ts';
+import type { CheckMeasures } from './rig-mesh.ts';
 import { FOLD_ROLES, roleAnimal } from './fold-probe.ts';
 import { ANIMALS } from './studio-body.ts';
 import type { MeshRigConfig, MeshRigJoint } from './rig-mesh.ts';
@@ -85,16 +87,23 @@ describe('pnpm rig-mesh (route 3 of AGENTS.md)', () => {
 
 describe('the arguments of pnpm rig-mesh', () => {
   it('reads the animal and the preview folder', () => {
-    expect(parseArgs(['rabbit'])).toEqual({ animal: 'rabbit', preview: null, check: false });
+    expect(parseArgs(['rabbit'])).toEqual({
+      animal: 'rabbit',
+      preview: null,
+      check: false,
+      sets: [],
+    });
     expect(parseArgs(['rabbit', '--preview', '/tmp/x'])).toEqual({
       animal: 'rabbit',
       preview: '/tmp/x',
       check: false,
+      sets: [],
     });
     expect(parseArgs(['--preview', '/tmp/x', 'rabbit'])).toEqual({
       animal: 'rabbit',
       preview: '/tmp/x',
       check: false,
+      sets: [],
     });
   });
 
@@ -104,7 +113,17 @@ describe('the arguments of pnpm rig-mesh', () => {
       animal: 'rabbit',
       preview: 'p',
       check: true,
+      sets: [],
     });
+  });
+
+  it('reads each --set of --check as one variant', () => {
+    expect(
+      parseArgs(['fox', '--check', '--set', 'armFactor=1.1', '--set', 'weld=0.001;armFactor=1'])
+        .sets,
+    ).toEqual(['armFactor=1.1', 'weld=0.001;armFactor=1']);
+    expect(() => parseArgs(['fox', '--set', 'armFactor=1.1'])).toThrow(/Usage/);
+    expect(() => parseArgs(['fox', '--check', '--set'])).toThrow(/Usage/);
   });
 
   it('gives the usage for other arguments', () => {
@@ -233,5 +252,48 @@ describe('setConfig', () => {
     expect(() => setConfig(text, 'weights.line.head=1')).toThrow(/not a boolean/);
     expect(() => setConfig(text, 'refine.rings={}')).toThrow(/not a list/);
     expect(() => setConfig(text, 'armFactor')).toThrow(/<path>=<value>/);
+  });
+});
+
+describe('checkTable', () => {
+  const measures: CheckMeasures = {
+    triangles: 3135,
+    meshGzip: 27673,
+    seat: 0.126,
+    chair: 0.25,
+    reach: { L: 0.377, R: 0.3771 },
+    standing: 0.000228,
+    folds: [
+      {
+        role: 'fox-violinist',
+        counts: {
+          rest: { samples: 14, withFold: 14 },
+          play: { samples: 17788, withFold: 588 },
+          lift: { samples: 434, withFold: 88 },
+        },
+      },
+    ],
+  };
+
+  it('gives one row for each variant with the measures and the folds of each role', () => {
+    const lines = checkTable([
+      { variant: '', measures, error: null },
+      { variant: 'armFactor=1.1', measures: { ...measures, triangles: 3136 }, error: null },
+    ]);
+    expect(lines[0]).toBe(
+      '| Variant | Triangles | Mesh gzip B | Seat m | Chair m | Reach L m | Reach R m | Standing mm | fox-violinist play | fox-violinist lift | fox-violinist rest |',
+    );
+    expect(lines[2]).toBe(
+      '| base | 3135 | 27673 | 0.126 | 0.250 | 0.377 | 0.377 | 0.228 | 3.3% | 20.3% | 100.0% |',
+    );
+    expect(lines[3]).toMatch(/^\| armFactor=1\.1 \| 3136 \| /);
+  });
+
+  it('gives the message of a variant that failed', () => {
+    const lines = checkTable([
+      { variant: '', measures, error: null },
+      { variant: 'weld=1', measures: null, error: 'Blender failed.' },
+    ]);
+    expect(lines[3]).toMatch(/^\| weld=1 \| failed: Blender failed\. \| - \|/);
   });
 });

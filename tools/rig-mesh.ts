@@ -1,16 +1,18 @@
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdtempSync } from 'node:fs';
-import { readFile, rm } from 'node:fs/promises';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { Side } from '../src/models/studio-format.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
-import { FOLD_ROLES, roleAnimal, roleSpecies } from './fold-probe.ts';
+import { FOLD_ROLES, SAMPLE_SETS, readFoldJson, roleAnimal, roleSpecies } from './fold-probe.ts';
+import type { FoldCounts } from './fold-probe.ts';
 import { animalSpecies, runTool, withGlbBody } from './glb-swap.ts';
 import { measureLines, measureRig, triangleLine } from './rig-mesh-check.ts';
 import { trackChild, trackFolder } from './stop-cleanup.ts';
+import { gzipSize } from './studio-budgets.ts';
 import type { ThinRule } from './rig-mesh-check.ts';
 import { ANIMALS, writeStudioModule } from './studio-body.ts';
 import type { AnimalSettings } from './studio-body.ts';
@@ -394,28 +396,55 @@ export interface RigMeshArgs {
   readonly preview: string | null;
   /** True for `--check`: the rig goes into a temporary folder, and the tool measures it. */
   readonly check: boolean;
+  /**
+   * The variants of `--set` for `--check`: each is a list of changes of the config, separated by
+   * `;` ({@link setConfig}). The check runs the base first, then each variant.
+   */
+  readonly sets: readonly string[];
 }
 
+/** The usage text of `pnpm rig-mesh`. */
+const USAGE =
+  'Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <path>=<value>[;<path>=<value>]...]...]';
+
 /**
- * Reads the arguments of `pnpm rig-mesh <animal> [--preview <dir>] [--check]`.
+ * Reads the arguments of `pnpm rig-mesh <animal> [--preview <dir>] [--check] [--set <changes>]...`.
  *
  * @param args The arguments after the script.
- * @returns The animal, the preview folder, and the check flag.
- * @throws Error with the usage for other arguments.
+ * @returns The animal, the preview folder, the check flag, and the variants.
+ * @throws Error with the usage for other arguments, or for `--set` with no `--check`.
  */
 export function parseArgs(args: readonly string[]): RigMeshArgs {
-  const usage = new Error('Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check]');
-  const previewAt = args.indexOf('--preview');
-  const preview = previewAt >= 0 ? args[previewAt + 1] : undefined;
-  const check = args.includes('--check');
-  const rest = args.filter(
-    (arg, i) => arg !== '--check' && (previewAt < 0 || (i !== previewAt && i !== previewAt + 1)),
-  );
-  const [animal] = rest;
-  if (!animal || rest.length !== 1 || animal.startsWith('--') || (previewAt >= 0 && !preview)) {
-    throw usage;
+  let preview: string | null = null;
+  let check = false;
+  const sets: string[] = [];
+  const rest: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i] ?? '';
+    if (arg === '--check') {
+      check = true;
+      continue;
+    }
+    if (arg !== '--preview' && arg !== '--set') {
+      rest.push(arg);
+      continue;
+    }
+    const value = args[i + 1];
+    if (value === undefined || value.startsWith('--')) {
+      throw new Error(USAGE);
+    }
+    i++;
+    if (arg === '--preview') {
+      preview = value;
+    } else {
+      sets.push(value);
+    }
   }
-  return { animal, preview: preview ?? null, check };
+  const [animal] = rest;
+  if (!animal || rest.length !== 1 || animal.startsWith('--') || (sets.length > 0 && !check)) {
+    throw new Error(USAGE);
+  }
+  return { animal, preview, check, sets };
 }
 
 /**
@@ -554,23 +583,125 @@ export function animalRoles(animal: string): AnimalRole[] {
   });
 }
 
+/** The folds of one role of the app with the body of a rig. */
+export interface RoleFolds {
+  /** The role, a key of `FOLD_ROLES`. */
+  readonly role: string;
+  /** The counts of each sample set of `pnpm fold-probe`. */
+  readonly counts: FoldCounts;
+}
+
+/** The measures of one rig of `--check`, for the table of the variants. */
+export interface CheckMeasures {
+  /** The triangles of the packed mesh. */
+  readonly triangles: number;
+  /** The size of the packed mesh after gzip, in bytes. */
+  readonly meshGzip: number;
+  /** The height of the seat, in meters, or `null` for a body that stands. */
+  readonly seat: number | null;
+  /** The depth of the chair, in meters, or `null`. */
+  readonly chair: number | null;
+  /** The arm of each side from the shoulder joint to the middle of the palm, in meters. */
+  readonly reach: Readonly<Record<Side, number | null>>;
+  /** The largest error of the standing body against the long-armed source, in meters. */
+  readonly standing: number;
+  /** The folds of each role of the animal. */
+  readonly folds: readonly RoleFolds[];
+}
+
+/** One row of the table of `--check`: a variant and its measures or its failure. */
+export interface CheckRow {
+  /** The changes of the variant, or empty for the base. */
+  readonly variant: string;
+  /** The measures, or `null` when the variant failed. */
+  readonly measures: CheckMeasures | null;
+  /** The message of the failure, or `null`. */
+  readonly error: string | null;
+}
+
+/**
+ * Writes the table of the variants of `--check`: one row for each variant, with the triangles, the
+ * gzip size of the packed mesh, the seat, the chair depth, the reach of each arm, the error of the
+ * standing body, and the share of the samples with a fold in the play, the lift, and the rest pose
+ * of each role. A variant that failed gives its message.
+ *
+ * @param rows The rows, the base first.
+ * @returns The lines.
+ */
+export function checkTable(rows: readonly CheckRow[]): string[] {
+  const roles = [
+    ...new Set(rows.flatMap((row) => row.measures?.folds.map((fold) => fold.role) ?? [])),
+  ];
+  const sets = ['play', 'lift', 'rest'] as const satisfies readonly (typeof SAMPLE_SETS)[number][];
+  const header = [
+    'Variant',
+    'Triangles',
+    'Mesh gzip B',
+    'Seat m',
+    'Chair m',
+    'Reach L m',
+    'Reach R m',
+    'Standing mm',
+    ...roles.flatMap((role) => sets.map((set) => `${role} ${set}`)),
+  ];
+  const m = (value: number | null): string => (value === null ? 'none' : value.toFixed(3));
+  const lines = [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`];
+  for (const { variant, measures, error } of rows) {
+    if (!measures) {
+      const cells = header.slice(2).map(() => '-');
+      lines.push(
+        `| ${variant || 'base'} | failed: ${error ?? 'no measures'} | ${cells.join(' | ')} |`,
+      );
+      continue;
+    }
+    const folds = roles.flatMap((role) =>
+      sets.map((set) => {
+        const count = measures.folds.find((fold) => fold.role === role)?.counts[set];
+        return count ? `${((100 * count.withFold) / Math.max(1, count.samples)).toFixed(1)}%` : '-';
+      }),
+    );
+    const cells = [
+      variant || 'base',
+      String(measures.triangles),
+      String(measures.meshGzip),
+      m(measures.seat),
+      m(measures.chair),
+      m(measures.reach.L),
+      m(measures.reach.R),
+      (measures.standing * 1000).toFixed(3),
+      ...folds,
+    ];
+    lines.push(`| ${cells.join(' | ')} |`);
+  }
+  return lines;
+}
+
 /**
  * Rigs a mesh into a temporary folder and measures the rig, with no write into the repository
- * (`--check`). The app checks run on a copy of `src/` with the body of the rig: the violin by
- * the rule of a violin shop for the violinist, and the folds of each role of the animal.
+ * (`--check`). A variant writes its changed config into the folder, and the rig reads it from
+ * there. The app checks run on a copy of `src/` with the body of the rig: the violin by the rule
+ * of a violin shop for the violinist, and the folds of each role of the animal. The folder goes
+ * away at the end, also after a failure. After a stop (INT or TERM), `tools/stop-cleanup.ts` stops
+ * Blender and the probes first, then removes the folder.
  *
  * @param animal The animal.
- * @param configPath The path of the config.
- * @param config The config.
+ * @param configPath The path of the config in the repository.
+ * @param text The JSON text of the config.
+ * @param variant The changes of the variant ({@link setConfig}), or empty for the base.
  * @param preview The folder of the preview images, or `null`.
- * @throws Error if the rig fails, if it is above the triangle budget, or if a probe fails.
+ * @returns The measures.
+ * @throws Error if the config has no rule of the thin faces, if the rig fails, if it is above the
+ *   triangle budget, or if a probe fails.
  */
 async function checkRig(
   animal: string,
   configPath: string,
-  config: MeshRigConfig,
+  text: string,
+  variant: string,
   preview: string | null,
-): Promise<void> {
+): Promise<CheckMeasures> {
+  const changed = variant ? setConfig(text, variant) : text;
+  const config = parseConfig(changed);
   const thin = config.check?.thin;
   if (!thin) {
     throw new Error(`The config of ${animal} has no check.thin: angle, length, and near.`);
@@ -580,9 +711,14 @@ async function checkRig(
   const dir = mkdtempSync(join(tmpdir(), 'rig-mesh-check-'));
   const release = trackFolder(dir);
   try {
+    let path = configPath;
+    if (variant) {
+      path = join(dir, `${animal}.json`);
+      await writeFile(path, changed);
+    }
     const output = join(dir, `${animal}.rig.glb`);
     const obj = join(dir, 'source-long-arms.obj');
-    await runBlender(blenderArgs(configPath, output, preview, obj));
+    await runBlender(blenderArgs(path, output, preview, obj));
     const bytes = new Uint8Array(await readFile(output));
     console.log(`Rig: ${bytes.byteLength} B, sha256 ${sha256(bytes)}.`);
     const { settings, known } = rigSettings(animal, config);
@@ -595,28 +731,40 @@ async function checkRig(
     const module = join(dir, `${animal}.ts`);
     await writeStudioModule(module, animal, settings.constant, measures.body);
     console.log(measureLines(measures, await readFile(module, 'utf8'), thin).join('\n'));
+    const result = {
+      triangles: measures.triangles,
+      meshGzip: gzipSize(measures.body.mesh),
+      seat: measures.body.seatHeight,
+      chair: measures.body.chairDepth,
+      reach: measures.arms,
+      standing: measures.standing.worst,
+    };
 
     const roles = known ? animalRoles(animal) : [];
     if (roles.length === 0) {
       console.log(`No role of the app has the body of ${animal}, so the app checks do not run.`);
-      return;
+      return { ...result, folds: [] };
     }
+    const folds: RoleFolds[] = [];
     await withGlbBody(animal, output, async (copy) => {
       for (const { role, species } of roles) {
-        const runs: [string, string[]][] = [['fold-probe.ts', [role]]];
+        const json = join(dir, `folds-${role}.json`);
+        const runs: [string, string[]][] = [['fold-probe.ts', [role, '--json', json]]];
         const source = FOLD_ROLES.get(role);
         if (source?.kind === 'player' && source.instrument === 'violin') {
           runs.unshift(['hold-reach.ts', [species]]);
         }
         for (const [script, args] of runs) {
-          console.log(`\n${script.replace('.ts', '')} ${args.join(' ')} with the body of the rig:`);
+          console.log(`\n${script.replace('.ts', '')} ${args[0]} with the body of the rig:`);
           const code = await runTool(copy, script, args);
           if (code !== 0) {
             throw new Error(`${script} failed with the status ${code}.`);
           }
         }
+        folds.push({ role, counts: readFoldJson(await readFile(json, 'utf8')) });
       }
     });
+    return { ...result, folds };
   } finally {
     await rm(dir, { recursive: true, force: true });
     release();
@@ -624,20 +772,68 @@ async function checkRig(
 }
 
 /**
+ * Checks the base and each variant of the config of an animal, one rig at a time, and prints the
+ * table of the variants ({@link checkTable}). A variant that fails prints its message, and the
+ * next variant runs.
+ *
+ * @param animal The animal.
+ * @param configPath The path of the config in the repository.
+ * @param text The JSON text of the config.
+ * @param sets The variants of `--set`.
+ * @param preview The folder of the preview images, or `null`. With variants, each rig writes into
+ *   a folder of its own in it: `base`, `variant-1`, and so on.
+ * @returns True when each variant passed.
+ */
+async function checkVariants(
+  animal: string,
+  configPath: string,
+  text: string,
+  sets: readonly string[],
+  preview: string | null,
+): Promise<boolean> {
+  const rows: CheckRow[] = [];
+  for (const [k, variant] of ['', ...sets].entries()) {
+    if (sets.length > 0) {
+      console.log(`\n${variant || 'base'}:`);
+    }
+    const folder =
+      preview && sets.length > 0 ? join(preview, k === 0 ? 'base' : `variant-${k}`) : preview;
+    try {
+      const measures = await checkRig(animal, configPath, text, variant, folder);
+      rows.push({ variant, measures, error: null });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      rows.push({ variant, measures: null, error: message });
+    }
+  }
+  console.log(['', ...checkTable(rows)].join('\n'));
+  return rows.every((row) => row.measures);
+}
+
+/**
  * Rigs the mesh of the user of an animal into the format of a studio body (route 3 of
- * `AGENTS.md`): `node tools/rig-mesh.ts <animal> [--preview <dir>] [--check]`. It checks the arm
- * factor of `tools/mesh-rigs/<animal>.json`, and runs `tools/blender/rig_mesh.py`, which writes the
- * GLB file of the config. With `--preview`, the script also writes the images of the rig into the
- * folder. With `--check`, the rig goes into a temporary folder, and the tool measures it with no
- * write into the repository. Blender comes from the environment variable `BLENDER`, or `blender`
- * on the path.
+ * `AGENTS.md`): `node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <changes>]...]`.
+ * It checks the arm factor of `tools/mesh-rigs/<animal>.json`, and runs
+ * `tools/blender/rig_mesh.py`, which writes the GLB file of the config. With `--preview`, the
+ * script also writes the images of the rig into the folder. With `--check`, the rig goes into a
+ * temporary folder, and the tool measures it with no write into the repository. Each `--set` of
+ * `--check` is a variant of the config in memory, and the tool checks the base and each variant.
+ * Blender comes from the environment variable `BLENDER`, or `blender` on the path.
  */
 async function main(): Promise<void> {
-  const { animal, preview, check } = parseArgs(process.argv.slice(2));
+  const { animal, preview, check, sets } = parseArgs(process.argv.slice(2));
   const configPath = join(CONFIG_DIR, `${animal}.json`);
-  const config = parseConfig(await readFile(configPath, 'utf8'));
+  const text = await readFile(configPath, 'utf8');
+  const config = parseConfig(text);
   if (check) {
-    await checkRig(animal, configPath, config, preview);
+    // Each change must fit before the first rig, so that a typing fault stops the tool at once.
+    for (const set of sets) {
+      parseConfig(setConfig(text, set));
+    }
+    if (!(await checkVariants(animal, configPath, text, sets, preview))) {
+      process.exitCode = 1;
+    }
     return;
   }
   const reach = checkReach(config);
