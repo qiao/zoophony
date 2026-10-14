@@ -147,7 +147,8 @@ export interface SetResult {
 }
 
 /**
- * Sweeps the players of the role in the demos with the holds of now. `pnpm hold-fit` runs it too.
+ * Sweeps the players of the role in the demos with the holds of now. Each player gets the sample
+ * sets of the role. `pnpm hold-fit` runs it too.
  *
  * @param options The demos, the song times, and the flag of the gaps.
  * @param role The role, with the parts and the obstacles of the options.
@@ -168,10 +169,11 @@ export async function sweepDemos(
     }
     const scene = sceneOf(demo.bytes);
     const times = options.times;
-    const sets: readonly SampleSet[] = times
-      ? [{ name: 'play', samples: times.map((song) => playSample(scene, song)) }]
-      : role.sampleSets(scene);
     for (const player of role.players(scene)) {
+      // Each player gets its own sample sets: a set can be a generator, which one sweep uses up.
+      const sets: readonly SampleSet[] = times
+        ? [{ name: 'play', samples: times.map((song) => playSample(scene, song)) }]
+        : role.sampleSets(scene);
       results.push({
         demo: `${id} ${player.name}`,
         sets: sets.map(({ name, samples }) => {
