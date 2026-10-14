@@ -528,6 +528,9 @@ Follow these rules when another agent works on the repository at the same time.
   typecheck, and the format check skip it. Run the probe with `node scratch/<name>.ts`. It
   imports `three` through the `node_modules` of the worktree, and the source modules by relative
   paths such as `../src/models/species.ts`. `pnpm test` skips the test files in `scratch/`.
+- Run an image probe in Python with
+  `uv run --no-project --with pillow --with numpy --with scipy python -I <script>`. The Python of
+  Homebrew and the Python of the system have no numpy, and the Python of Blender has no Pillow.
 - Vitest hides the `console.log` output of a passing test. A probe in a test writes its values
   into a file.
 - In the shell of an agent, `grep` is a shell function that runs ugrep with `--ignore-files`.
