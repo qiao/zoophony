@@ -11,6 +11,13 @@ The compact config is the config file of the like animal, with its comments, and
 Each other value comes from the like animal. The tools measure it on the new sheet: `fit`
 (the field), `calibrate` (the light, the palette, the color classes, and the quad target).
 
+When the body of the new sheet has another height than the body of the like animal (long ears
+take a share of the animal height), `new` scales the values of SCALED by the body height ratio
+(scale_changes): the warps, the squeeze, the protected regions, the skin offset, the spine
+joints, the tail bone, the finger length, the weights, the measure boxes, and the facet crops.
+The body height is the crown: the top of the head at the axis of the front view, between the
+ears (crown).
+
 The writer edits the text line by line, so it changes only single-line values. It parses the
 result again and checks it against the like config with the changes applied.
 """
@@ -51,9 +58,20 @@ class ConfigText:
 
     def _tables(self):
         """Lists the tables in file order: (name, header line, end line). The end is the next
-        header, or the comment block right above it."""
-        heads = [(i, m.group(1)) for i, line in enumerate(self.lines)
-                 if (m := HEADER.match(line))]
+        header, or the comment block right above it. Item k of an array of tables is named
+        "<name>[k]"."""
+        heads = []
+        items = {}
+        for i, line in enumerate(self.lines):
+            m = HEADER.match(line)
+            if not m:
+                continue
+            name = m.group(1)
+            if line.lstrip().startswith('[['):
+                k = items.get(name, 0)
+                items[name] = k + 1
+                name = f'{name}[{k}]'
+            heads.append((i, name))
         out = []
         for k, (i, name) in enumerate(heads):
             end = heads[k + 1][0] if k + 1 < len(heads) else len(self.lines)
@@ -115,10 +133,11 @@ class ConfigText:
 
 def apply(plain, table, key, value):
     """Sets a value in a plain dict tree (the parsed TOML) at table.key. value None removes
-    the key."""
+    the key. A table part "name[k]" is item k of an array of tables."""
     node = plain
     for part in table.split('.'):
-        node = node.setdefault(part, {})
+        m = re.fullmatch(r'(.+)\[(\d+)\]', part)
+        node = node[m.group(1)][int(m.group(2))] if m else node.setdefault(part, {})
     if value is None:
         node.pop(key, None)
     else:
@@ -128,11 +147,13 @@ def apply(plain, table, key, value):
 def compact(like_text, header, changes):
     """Writes the compact config text: the like text, a new header, and the changes.
 
-    changes: a list of (table, key, value, note, before, table_note). Returns the text. Raises
+    changes: a list of (table, key, value, note, before, table_note). header None keeps the
+    header of the like text. Returns the text. Raises
     ValueError when the result does not parse to the like config with the changes applied.
     """
     doc = ConfigText(like_text)
-    doc.replace_header(header)
+    if header is not None:
+        doc.replace_header(header)
     for table, key, value, note, before, table_note in changes:
         doc.set(table, key, value, note, before, table_note)
     text = doc.text.rstrip('\n') + '\n'
@@ -144,3 +165,106 @@ def compact(like_text, header, changes):
                                                       sort_keys=True):
         raise ValueError('the compact config does not match the like config with the changes')
     return text
+
+
+# The values in animal heights that come from the like animal and not from the sheet, which
+# `new --like` scales by the body height ratio: (table, key). key None: each key of the table.
+# "[]" marks an array of tables (each item), "*" each table of a map.
+SCALED = (
+    ('facets', 'offset'),
+    ('facets', 'squeeze'),
+    ('facets.warps[]', None),
+    ('facets.protect', None),
+    ('rig.spine', None),
+    ('rig', 'tail_bone'),
+    ('rig', 'fingers_length'),
+    ('rig.weights', None),
+    ('rig.weights.trunk', None),
+    ('measure', 'mesh_belly'),
+    ('measure.shading', None),
+    ('measure.features.*', 'regions'),
+    ('compare.facet_crops', None),
+)
+
+# The keys inside SCALED that hold no length: factors, shares, names, flags, and a luminance step.
+UNITLESS = ('factor', 'mirror', 'at', 'part', 'x_scale', 'muzzle_scale', 'jump')
+
+# A body height ratio nearer to 1 than this keeps the values of the like animal.
+SCALE_MIN = 0.03
+
+
+def crown(profile):
+    """Returns the height of the highest row of a view profile (measure.json) whose runs hold the
+    axis (x 0): the top of the head between the ears. Returns None when no row holds it."""
+    rows = [row['y'] for row in profile if any(a <= 0 <= b for a, b in row['runs'])]
+    return max(rows) if rows else None
+
+
+def body_ratio(new_views, like_views):
+    """Returns the body height of the new sheet over the body height of the like sheet (the
+    crowns of the front views of measure.json), or None when a crown is missing."""
+    new, old = crown(new_views['front']['profile']), crown(like_views['front']['profile'])
+    if not new or not old:
+        return None
+    return round(new / old, 4)
+
+
+def scale_value(value, ratio, key=None):
+    """Scales the lengths of a value: a number, a list, or an inline table (each key but the
+    keys of UNITLESS)."""
+    if key in UNITLESS or isinstance(value, (bool, str)):
+        return value
+    if isinstance(value, (int, float)):
+        return round(value * ratio, 4)
+    if isinstance(value, list):
+        return [scale_value(v, ratio) for v in value]
+    if isinstance(value, dict):
+        return {k: scale_value(v, ratio, k) for k, v in value.items()}
+    return value
+
+
+def scale_changes(text, ratio, note):
+    """Lists the changes that scale the values of SCALED in a config text by ratio.
+
+    Returns (changes, scaled, left): changes as compact() takes them, the names of the scaled
+    values, and the names of the values that stay (a feature of the method "bump" measures the
+    top of the silhouette, and the top stays at 1). A key of a table that holds an inline table
+    scales as one value. A table with a header of its own is not a value of its parent."""
+    plain = tomllib.loads(text)
+    headers = {name for name, _, _ in ConfigText(text)._tables()}
+    changes, scaled, left = [], [], []
+
+    def add(table, node, key):
+        if key in UNITLESS or key not in node:
+            return
+        new = scale_value(node[key], ratio, key)
+        if new != node[key]:
+            changes.append((table, key, new, note, None, None))
+            scaled.append(f'{table}.{key}')
+
+    for table, key in SCALED:
+        parts = table.split('.')
+        nodes = [('', plain)]
+        for part in parts:
+            nxt = []
+            for name, node in nodes:
+                prefix = f'{name}.' if name else ''
+                if part == '*':
+                    nxt += [(f'{prefix}{k}', v) for k, v in node.items() if isinstance(v, dict)]
+                elif part.endswith('[]'):
+                    items = node.get(part[:-2]) or []
+                    nxt += [(f'{prefix}{part[:-2]}[{i}]', v) for i, v in enumerate(items)]
+                elif isinstance(node.get(part), dict):
+                    nxt.append((f'{prefix}{part}', node[part]))
+            nodes = nxt
+        for name, node in nodes:
+            if name.startswith('measure.features.') and node.get('method') == 'bump':
+                left.append(f'{name}.{key}')
+                continue
+            keys = [key] if key else [k for k, v in node.items()
+                                      if not (isinstance(v, dict) and f'{name}.{k}' in headers)
+                                      and not (isinstance(v, list) and v
+                                               and isinstance(v[0], dict))]
+            for k in keys:
+                add(name, node, k)
+    return changes, scaled, left
