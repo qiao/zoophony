@@ -607,12 +607,14 @@ function turnBetween(a: Float32Array, b: Float32Array, bone: number): number {
 }
 
 describe('the bow hand in the lift (design 5.2, 5.3)', () => {
-  it('turns the bow hand and the bow at most 1500° a second', async () => {
+  it('turns the bow hand and the bow at most 1000° a second, or 1500° on a studio body', async () => {
     // While the elbow turned to the back of the hand, the roll of the hand snapped near the line
     // of the stick: the hand of a violin turned 103,000° a second in the lift of the default
-    // demo, and the cello hand 7.5° in 2 ms (2026-10-07). The limit finds such a snap. The bow
-    // paw of the studio rabbit hangs at its side in the rest pose, and the lift turns it to the
-    // hold at up to 1,138° a second, with no snap (2026-10-13-studio-rabbit.md).
+    // demo, and the cello hand 7.5° in 2 ms (2026-10-07). The limit finds such a snap. On
+    // 2026-10-11, the limit of a parametric player also found the turns of 1,333° to 2,467° a
+    // second of a bad rest grip. The bow paw of the studio rabbit hangs at its side in the rest
+    // pose, and the lift turns it to the hold at up to 1,138° a second, with no snap
+    // (2026-10-13-studio-rabbit.md).
     const scene = await demoSceneOf('boulanger-matin.mid');
     const bones = [boneIndex('handR'), boneIndex('bow')];
     const step = 0.001;
@@ -626,6 +628,8 @@ describe('the bow hand in the lift (design 5.2, 5.3)', () => {
         continue;
       }
       seen.add(label);
+      const model = scene.models.get(cast.species, cast.instrument, cast.kettles, cast.support);
+      const limit = model.studio ? 1500 : 1000;
       const one: PosePlan = { ...scene.plan, players: [player] };
       let last = createScenePose(one);
       let next = createScenePose(one);
@@ -640,8 +644,8 @@ describe('the bow hand in the lift (design 5.2, 5.3)', () => {
         }
         [last, next] = [next, last];
       }
-      if (worst > 1500) {
-        fast.push(`${label}: ${worst.toFixed(0)}° a second`);
+      if (worst > limit) {
+        fast.push(`${label}: ${worst.toFixed(0)}° a second, limit ${limit}`);
       }
     }
 
