@@ -178,23 +178,23 @@ implementation, the review, and the fix of a round from `docs/briefs/studio-body
         --> pnpm test --> pnpm close-views <role> <dir> --> pnpm snapshot
 ```
 
-1. Run `pnpm studio-body <animal> --inspect` first. It prints the joints, the reach of each arm,
-   the clips, the props, the seated drop, and the parts that the export refuses, with no write.
-   For a violin or a viola, the manager compares the reach with the instrument before the round
+1. Run `pnpm studio-body <animal> --inspect` first. It prints the joints, the reach of each arm, the
+   clips, the props, the seated drop, and the parts that the export refuses, with no write. For a
+   violin or a viola, the manager compares the reach with the instrument before the round
    (`docs/briefs/studio-body.md`, section 1). The meters of `--inspect` and of `pnpm hold-reach`
    hold only at the scale of the entry of the animal in `ANIMALS` (below). Without an entry,
-   `--inspect` assumes the shoulders at 1 m. With `--glb <file>`, both read another GLB file of
-   an animal of `ANIMALS`, with no edit of the entry. Run
-   `pnpm studio-body <animal>` after each build of the studio that changes the GLB file. Add
-   an animal to `ANIMALS` of `tools/studio-body.ts` with the landmark of its scale and its
-   height in the app: the shoulder joints of a standing role, or the keys of the piano of a
-   pianist. Give it a crease angle for the smooth normals of its fur: the angle whose facet
-   contrast is nearest to its reference crops (`docs/research/2026-10-14-rabbit-smooth.md`).
-   When each render has less contrast than the references, as for the rabbit, the measure
-   cannot choose, so compare the play frames. Mark a seated role: the export drops it onto its seat, and the seat fits its legs. A
-   chair also takes the depth of the chair of the studio. Mark a seated role that also stands
-   (`soloist`), as the violinist: the export keeps its leg corrective shapes and the leg turns of
-   its sheet, and the app stands it for a soloist.
+   `--inspect` assumes the shoulders at 1 m. With `--glb <file>`, both read another GLB file of an
+   animal of `ANIMALS`, with no edit of the entry. Run `pnpm studio-body <animal>` after each build
+   of the studio that changes the GLB file. Add an animal to `ANIMALS` of `tools/studio-body.ts`
+   with the landmark of its scale and its height in the app: the shoulder joints of a standing role,
+   or the keys of the piano of a pianist. Give it a crease angle for the smooth normals of its fur:
+   the angle whose facet contrast is nearest to its reference crops
+   (`docs/research/2026-10-14-rabbit-smooth.md`). When each render has less contrast than the
+   references, as for the rabbit, the measure cannot choose, so compare the play frames. Mark a
+   seated role: the export drops it onto its seat, and the seat fits its legs. A chair also takes
+   the depth of the chair of the studio. Mark a seated role that also stands (`soloist`), as the
+   violinist: the export keeps its leg corrective shapes and the leg turns of its sheet, and the app
+   stands it for a soloist.
 2. Add the module to `STUDIO_BODIES`, and give the species the body.
 3. Run `pnpm test`. The pose of the player drives the arms by their joints, so a new body needs
    a fit of the holds in its `H`. Probe a hold with `pnpm pose-probe <sheet>`, and look at the
