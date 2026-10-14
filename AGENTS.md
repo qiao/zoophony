@@ -492,6 +492,11 @@ Follow these rules when another agent works on the repository at the same time.
 - Ship the tests in the same commit as the change of behavior.
 - Confirm that a new test fails without the change. Break the code that it covers, watch the test
   fail, then restore the code. A test that passes both ways pins nothing.
+- The report of a new pure function gives one break command for each rule that its TSDoc
+  states. Run each command with `tools/break-test.sh '<perl expr>' <file> <test files>`, and
+  give the test that fails. Read the diff of the break that the script prints: a break that
+  changes only a comment tests nothing. The weight by the corner angle of `studioNormals()` had
+  no test until the review of 2026-10-14.
 - Test behavior: the same pose after a seek, the note times of a pose, and the size budget of
   design 7.2. The tests of the clearance and of the fit of a body, such as no clipping and the
   bow on the strings, are paused (below). Do not pin an exact tuned value, a hash, or the
