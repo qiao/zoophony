@@ -12,8 +12,9 @@ reads it (route 3 of `AGENTS.md`). The steps:
    +x the left side of the animal.
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, and give
-   the weights with bone heat. Then the rules of the config: the free arm, the head, the ears,
-   the tail ball, the haunch, and one set of weights for the corners of each short thin face. Each vertex keeps four bones, in steps of 1/255.
+   the weights with bone heat. Then the rules of the config: the free arm, the paw, the head, the
+   ears, the tail ball, the haunch, and one set of weights for the corners of each short thin
+   face. Each vertex keeps four bones, in steps of 1/255.
 4. Make the upper arm and the forearm longer by the arm factor of the config. Each bone scales
    along its axis, and the weights blend the stretch to 0 at the shoulder. The paw keeps its size.
 5. Pose the skeleton in the seated bind pose: the legs turn by the seat of the studio, and the
@@ -499,6 +500,12 @@ def apply_rules(verts, tris, weights, rules, ends):
         w[inside, col[f'upper_arm_{side}']] += w[inside][:, lower].sum(axis=1)
         for k in lower:
             w[inside, k] = 0.0
+
+    # The paw: the fingers keep a share of their weight, and the hand takes the rest.
+    for side in 'LR':
+        moved = w[:, col[f'fingers_{side}']] * (1.0 - rules['fingers'])
+        w[:, col[f'fingers_{side}']] -= moved
+        w[:, col[f'hand_{side}']] += moved
 
     # The haunch: the thigh weight above the leg goes to the hips.
     share = smoothstep(y, *rules['haunch']['height'])
