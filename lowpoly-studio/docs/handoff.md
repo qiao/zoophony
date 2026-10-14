@@ -15,14 +15,16 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
                                                   +--> seed report (seeds.require)
 ```
 
-- **Animals.** `bear` (conductor) and `polar-bear` (pianist). Both are regression animals:
-  `python3 studio regress <animal>` compares a build with `animals/<animal>/golden.json`.
+- **Animals.** `bear` (conductor), `polar-bear` (pianist), and `rabbit` (violinist, from
+  2026-10-13). Each is a regression animal: `python3 studio regress <animal>` compares a build
+  with `animals/<animal>/golden.json`.
 - **Roles.** `conductor` (standing, baton, 4/4 pattern, cues), `pianist` (seated on a bench at a
-  grand piano, 4 digits for each paw, keys that go down), and `model` (standing, no props: the
-  build that the compare and the look checks use for every role).
+  grand piano, 4 digits for each paw, keys that go down), `violinist` (seated on a chair, a
+  violin in the left paw under the chin, a bow in the right paw), and `model` (standing, no
+  props: the build that the compare and the look checks use for every role).
 - **Props.** `props/`: a grand piano with keys, a bench, a chair, a music stand, a violin, a
-  cello, and a bow. The sizes come from the body. No role uses the violin, the cello, or the
-  chair yet.
+  cello, and a bow. The sizes come from the body. A violin stands in the scene or sits in a paw.
+  No role uses the cello or the music stand yet.
 - **Speed.** One stage cache for all worktrees (`<git common dir>/lowpoly-studio/cache/`). A
   cached seed takes about 4 s, also in a new worktree. A paint or detail change takes about 5 s.
   An empty cache takes about 52 s for one seed. `tests/test_cache.py` fails when a cache key
@@ -62,9 +64,11 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
 
 ## Next steps
 
-1. **A violinist role.** Most of the orchestra plays strings. The violin needs an attachment to
-   the chest and the chin, a bow in the right paw, and checks for the bow on the strings. Test it
-   on a rabbit from a new four-view sheet (see `docs/sheet-spec.md`). Estimate: 1 to 2 h.
+1. **A violinist role.** Done on 2026-10-13 (`docs/handoff-rabbit.md`): the rabbit from the
+   sheet of the user plays `roles/violinist/` on a chair. The left paw holds the violin at the
+   neck (a hand prop, `studio/props.py` `held_violin`), so the studio needs no attachment to the
+   chest or the head. Open: a check of the bow on the strings, and the IoU of the rabbit
+   model below the bar (the sheet ears disagree between the views).
 2. **Clips from a score.** The pianist plays fixed white keys. A role can read the notes of a MIDI
    score, as the app does in `src/score/`.
 3. **The studio bear in the app.** Done on 2026-10-12. The app retargets its conductor pose to

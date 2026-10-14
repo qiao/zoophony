@@ -107,17 +107,21 @@ lowpoly-studio/
 ├── roles/conductor/     role.toml, the clips (__init__.py, clips.py), shots.json,
 │                        pattern.py (the 4/4 plot)
 ├── roles/pianist/       role.toml (bench, piano, seated bind pose), clips.py, shots.json
+├── roles/violinist/     role.toml (chair, violin in the left paw, bow), clips.py, shots.json
 ├── roles/model/         the role of the model build: a fixed standing bind pose, one clip
 ├── viewer/              viewer, compare page, frames page, props gallery page (three.js),
 │                        read viewer.json
 ├── animals/bear/        animal.toml, golden.json, README.md, reference/, out/ (git keeps
 │                        only the files of "The outputs that git keeps")
 ├── animals/polar-bear/  animal.toml, golden.json, reference/, out/ (the pianist)
+├── animals/rabbit/      animal.toml, golden.json, README.md, reference/, out/ (the violinist)
 ├── tests/               test_intake.py: the foreground rules; test_cache.py and
 │                        setup_keys.py: the cache keys; test_consistency.py: the sheet
-│                        check (python3 -m unittest)
+│                        check; test_role_props.py: the attachments of the props
+│                        (python3 -m unittest)
 ├── docs/                handoff.md, handoff-diag.md, handoff-speed.md, handoff-pilot.md,
-│                        handoff-runtime.md, handoff-intake.md (the state of the work),
+│                        handoff-runtime.md, handoff-intake.md, handoff-rabbit.md (the
+│                        state of the work),
 │                        sheet-spec.md (the rules of a reference sheet), brief-template.md
 │                        (the brief of a round), retro/ (the retrospectives)
 └── vite.config.js       the root of the pages is this folder
@@ -438,8 +442,48 @@ digit bones with their keys in each clip, 10 key nodes, and the piano with its i
 triangles).
 
 Not built yet: a score-driven clip generator (notes from a MIDI score), black keys in the clips
-(the melody and the chords use white keys), and a violin or cello role (the props exist, see
-"The prop library").
+(the melody and the chords use white keys), and a cello role (the props exist, see "The prop
+library").
+
+### The violinist role (a seated role with a held violin)
+
+`roles/violinist/` seats the animal on the front part of a chair (`chair`, a scene prop). The
+left paw holds the violin at the neck, and the right paw holds the bow. Both are hand props
+(`[[props]] kind = "violin"` and `"bow"`, `attach.bone = "hand"`). The rabbit plays it.
+
+```text
+ the violin (chest rest frame)          the bow
+ T  tail end, under the chin            C  contact point on a string: T + A * 0.36 length
+ A  axis to the scroll: 40 deg left,       + N * string height
+    8 deg down                          B  frog to tip: N x A (square to the strings)
+ N  top plate: up, rolled 15 deg right  hair: -N (onto the strings), turned 5 deg about A
+                                           for each string (A, D)
+ left paw:  the rotation that turns the bind violin onto (A, N); wrist = grip - turn of the
+            bind grip offset
+ right paw: the rotation that turns the bind bow onto (B, hair); the place on the bow from the
+            frog sets the frog, then the grip and the wrist
+```
+
+| Part | Where | What it does |
+|---|---|---|
+| The held violin | `studio/props.py` `held_violin`, `held_violin_frame` | The neck lies in the paw at `strings.neck` of the length from the tail end, the scroll along `direction`, the top plate toward `strings.top` (hand frame). The clips turn the paw, so no attachment to the chest or the head is needed. |
+| The hold | `Violinist.held()`, `left_arm()` | The violin lies under the chin (`TAIL`), turned `TURN` degrees to the left of straight forward, the scroll `SCROLL_DOWN` degrees down, the top plate rolled `ROLL` degrees to the right. |
+| The bow | `Violinist.on_string()`, `right_arm()` | The bow crosses the strings square to them at `CONTACT` of the violin length from the tail end (between the bridge and the fingerboard), with the hair down. A whole bow goes from `FROG` to `TIP` of the bow length, a half bow over the half at the frog. |
+| A turn between two places | `slerp()`, `Violinist.way()` | A paw turns about one axis (a linear blend of the directions flipped the paw). The bow paw passes a way point in front of the belly, with the bow pointing forward, so the bow does not cross the belly. |
+| The rest | `Violinist.rest_arms()` | Each paw hangs at its side in the hand frame of the sheet pose: the violin and the bow hang from the paws. The belly of the rabbit covers its short thighs, and its arms do not reach the lap. |
+| The soloist | `clip_stand_play` | The legs of the sheet pose, the chair hidden (`chair_scale = 0`), the violin up, a short stroke. |
+
+The clips: `reference`, `ready` (the violin comes up from the rest), `play` (two bars at 120
+bpm: a whole bow down and up on the A string, then half bows down and up on the D string),
+`rest`, `stand_play`, and `performance` (ready, play two times, rest). The role checks: contact
+of the paws, the forearms, the claws, and the bow (`contact_tests = ["paw", "forearm", "claws",
+"props"]`, the bow with `contact = "bow"`; the violin touches the chin, so it has `contact =
+"none"`), folds, the scene (the chair), and the seat.
+
+The limits on the rabbit: its arms reach 0.2 animal heights and its chest stands 0.11 in front
+of its shoulder joints, so the violin is 0.17 long (0.85 arm reaches, a person: 1.1), the paw
+holds it at 0.68 of the length, and a whole bow uses 0.18 of the bow length. The app keeps its
+own violin, bow, and motion: for the app the role gives the seated bind pose and the skin.
 
 ## The prop library
 
@@ -476,10 +520,12 @@ A scene prop is a node of its own in the GLB, beside the rig. A hand prop sits o
 own under the hand, and its mesh is joined into the mesh of the animal, rigid on that bone (the
 baton of the bear, the bow and the violin of the violinist). A violin between the chin and the
 shoulder is a hand prop of the left paw: the clips turn the paw so that the violin lies under the
-chin (`roles/violinist/clips.py`), and the left paw carries it to the thigh in the rest. The
-studio has no attachment to the chest or the head. The keys that a pack presses are nodes under the piano node, with their origin
-on the pivot of the key (far back under the fallboard, as the balance rail of a real key). A pose
-spec gives the press share of each key in `spec['keys']`. `props.ScenePose` turns the shares and
+chin (`roles/violinist/clips.py`), and the left paw carries it to the side in the rest. The
+studio has no attachment to the chest or the head.
+
+The keys that a pack presses are nodes under the piano node, with their origin on the pivot of
+the key (far back under the fallboard, as the balance rail of a real key). A pose spec gives the
+press share of each key in `spec['keys']`. `props.ScenePose` turns the shares and
 the prop scales into node transforms, `bake.write_node_actions` writes them as actions on NLA
 tracks with the clip names, and the glTF exporter merges them into the animations of the clips.
 A node that does not move in a clip has no channel in it (three.js keeps its rest transform).
