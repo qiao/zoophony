@@ -174,8 +174,8 @@ describe('the bow in the right hand (design 4.6, 5.3)', () => {
   it('lays the stick in the fingers, against the palm and the finger block', () => {
     // A small file: each bowed section plays four quarter notes. The band of the gap fits the
     // mitten of the parametric biped and the stick of the bow of the app. The studio rabbit is
-    // not here: its bow is 0.3 of that size, and its paw has the skin of the studio
-    // (2026-10-13-studio-rabbit.md).
+    // not here: its bow is smaller (`violinScale` of its species), and its paw has the skin of
+    // the studio (2026-10-13-studio-rabbit.md).
     const scene = sceneOf(STRINGS);
     const parametric = bowedPlayers(scene).filter((player) => !player.model.studio);
     expect(parametric.length).toBeGreaterThan(2);
