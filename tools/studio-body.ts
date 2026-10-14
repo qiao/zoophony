@@ -6,6 +6,7 @@ import { join, relative, resolve } from 'node:path';
 
 import { Box3, MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 
+import { SPECIES_COLORS } from '../src/models/colors.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
@@ -16,6 +17,7 @@ import {
   STUDIO_LEG_BONES,
   STUDIO_TAIL_BONES,
   packStudioMesh,
+  packStudioPalette,
 } from '../src/models/studio-format.ts';
 import type {
   Side,
@@ -23,12 +25,15 @@ import type {
   StudioBone,
   StudioHeads,
   StudioLegBone,
+  StudioPalette,
   StudioStanding,
   StudioTailBone,
   StudioTriangle,
   StudioVertex,
 } from '../src/models/studio-format.ts';
 import type { Quat, Vec3 } from '../src/models/tuples.ts';
+import { paletteMap } from './studio-palette.ts';
+import type { PaletteMap } from './studio-palette.ts';
 
 /** The repository root. */
 const ROOT = join(import.meta.dirname, '..');
@@ -86,6 +91,11 @@ export interface AnimalSettings {
    * body comes from `lowpoly-studio/animals/<animal>/out/<animal>.glb`.
    */
   readonly glb?: string;
+  /**
+   * The other palettes of the faces, by name, each with the map from the colors of the mesh
+   * (`tools/studio-palette.ts`, design 4.4). A species selects one with its `palette`.
+   */
+  readonly palettes?: Readonly<Partial<Record<StudioPalette, PaletteMap>>>;
 }
 
 /** The animals of the studio that the app shows, by their ids in `lowpoly-studio/animals/`. */
@@ -140,13 +150,14 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/rabbit/rabbit-4.rig.glb',
     },
   ],
-  // The red violin fox has 1.3 times the scale that puts its standing head top at the head top of
-  // the parametric fox (1.083 m, shoulder joints at 0.7454 m), because the user asked for a fox
-  // 1.3 times the size on 2026-10-14. Its longer legs (`legFactor` of `tools/mesh-rigs/fox.json`)
-  // raise the shoulder joints, and the scale stays. It sits in the second violins and stands as a
-  // soloist. It is a mesh of an image model of the user, as the rabbit, so it takes the crease
-  // angle of the rabbit. It moves 4 cm back on its chair, so that its haunch is near the chair
-  // back.
+  // The fox has 1.3 times the scale that puts its standing head top at the head top of the
+  // parametric fox (1.083 m, shoulder joints at 0.7454 m), because the user asked for a fox 1.3
+  // times the size on 2026-10-14. Its longer legs (`legFactor` of `tools/mesh-rigs/fox.json`)
+  // raise the shoulder joints, and the scale stays. It sits in the second violins and in the
+  // flutes, and stands as a soloist. It is a mesh of an image model of the user, as the rabbit, so
+  // it takes the crease angle of the rabbit. It moves 4 cm back on its chair, so that its haunch is
+  // near the chair back. The red foxes keep the colors of the mesh, and the tan foxes of the flutes
+  // take the tan palette: the colors of the red fox moved to the colors of the tan fox.
   [
     'fox',
     {
@@ -159,6 +170,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       constant: 'STUDIO_FOX',
       crease: 35,
       glb: 'assets/models/fox/fox.rig.glb',
+      palettes: { tan: { from: SPECIES_COLORS['fox-red'], to: SPECIES_COLORS['fox-tan'] } },
     },
   ],
 ]);
@@ -1440,32 +1452,39 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   );
   const sheet = sheetArms(glb, skeleton);
 
-  return {
-    body: {
-      source,
-      sha256: createHash('sha256').update(bytes).digest('hex'),
-      scale: round(scale),
-      // SAFETY: the entries hold each bone of STUDIO_BONES one time, and readSkeleton() checks
-      // that the skeleton lacks only optional bones.
-      heads: heads as StudioHeads,
-      palms: {
-        L: direction(axisOf(skeleton, 'hand_L', 2)),
-        R: direction(axisOf(skeleton, 'hand_R', 2)),
-      },
-      fingerTips: { L: fingerTip('L'), R: fingerTip('R') },
-      sheetArms: { L: direction(sheet.arms.L), R: direction(sheet.arms.R) },
-      headHeight: round((top - chin) * scale),
-      headCenter: model(center),
-      nose: model(nose),
-      floor: toModelAxes(new Vector3(0, 0, frame.offset.z), scale),
-      seatHeight: settings.seated ? seatHeightOf(glb, mesh, frame) : null,
-      chairDepth: frame.chairDepth,
-      standing: settings.seated && settings.soloist ? standingOf(glb, skeleton, frame) : null,
-      crease: settings.crease,
-      mesh: packStudioMesh(vertices, ordered.faces, correctives),
+  const body: StudioBody = {
+    source,
+    sha256: createHash('sha256').update(bytes).digest('hex'),
+    scale: round(scale),
+    // SAFETY: the entries hold each bone of STUDIO_BONES one time, and readSkeleton() checks
+    // that the skeleton lacks only optional bones.
+    heads: heads as StudioHeads,
+    palms: {
+      L: direction(axisOf(skeleton, 'hand_L', 2)),
+      R: direction(axisOf(skeleton, 'hand_R', 2)),
     },
-    sheetWeights: sheet.weights,
+    fingerTips: { L: fingerTip('L'), R: fingerTip('R') },
+    sheetArms: { L: direction(sheet.arms.L), R: direction(sheet.arms.R) },
+    headHeight: round((top - chin) * scale),
+    headCenter: model(center),
+    nose: model(nose),
+    floor: toModelAxes(new Vector3(0, 0, frame.offset.z), scale),
+    seatHeight: settings.seated ? seatHeightOf(glb, mesh, frame) : null,
+    chairDepth: frame.chairDepth,
+    standing: settings.seated && settings.soloist ? standingOf(glb, skeleton, frame) : null,
+    crease: settings.crease,
+    mesh: packStudioMesh(vertices, ordered.faces, correctives),
   };
+  if (settings.palettes) {
+    const palettes = Object.entries(settings.palettes).map(
+      ([name, map]) => [name, packStudioPalette(ordered.faces, paletteMap(map))] as const,
+    );
+    return {
+      body: { ...body, palettes: Object.fromEntries(palettes) },
+      sheetWeights: sheet.weights,
+    };
+  }
+  return { body, sheetWeights: sheet.weights };
 }
 
 /** A box in the axes and the units of the studio. */
