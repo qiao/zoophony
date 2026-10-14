@@ -88,8 +88,8 @@ Done when:
 4. `tools/check-commits.sh --tip main` passes one time before the report. Build, size, and
    `ZOOPHONY_E2E_PORT=<port> pnpm test:e2e --project=chromium` pass on the tip.
 5. The role is in `ROLE_VIEWS` of `tools/close-views.ts` and in `FOLD_ROLES` of
-   `tools/fold-probe.ts`. `pnpm close-views <role> <dir>` ran on the last pose, and you looked
-   at each view.
+   `tools/fold-probe.ts`. `pnpm close-views <role> <dir> --base main` ran on the last pose, and
+   you compared each view with the grid of `main` above it.
 6. `pnpm snapshot` ran after the last code commit.
 7. The docs below are true.
 
@@ -170,6 +170,7 @@ a violin of 0.15 m.>
 
 - `pnpm body-probe --base main`: each other body and player, and each pose set, stays equal.
 - The first download stays below 1 MB. Give a change of more than 5 KB in its commit message.
+  `pnpm build && pnpm size --base main` prints the change.
 - `pnpm fold-probe` and `pnpm pose-depth` of the other roles stay as in the baseline.
 
 ## Tests
@@ -179,7 +180,8 @@ a violin of 0.15 m.>
   test (`PAUSED_TESTS` of `vite.config.ts`) needs no fix. Run it with `pnpm test:paused <path>`
   only when the change needs its check.
 - For each new test, give in the report one command that breaks the code that it covers, and
-  the failure that it gives.
+  the failure that it gives. For a new pure function, give one command for each rule of its
+  TSDoc. Run each command with `tools/break-test.sh '<perl expr>' <file> <test files>`.
 
 ## Files
 
@@ -204,16 +206,17 @@ generated module and no image:
 1. Run `tools/check-commits.sh --tip main` one time, in the background, with no edits during the
    run. It reads the results of the implementer from the cache. Do not check each commit again
    in another way.
-2. Run each break command of the report, watch the test fail, and restore the file with
-   `git checkout -- <path>`.
+2. Run each break command of the report with `tools/break-test.sh`, and read the test that
+   fails. The script restores the file.
 3. Run `pnpm pose-depth <role> --gaps`, `pnpm fold-probe <role>`, and
    `pnpm body-probe --base main`. Compare them with the report. The body probe names each
-   player whose pose changed.
+   player whose pose changed, and the fields of each mesh that changed.
 4. Check the correctness, the rules of `AGENTS.md`, and the edge cases of the shared pose code
    for the other species.
 5. Run `tools/decision-rows.sh --diff main`. List each old row that the branch replaces and does
    not remove. Check the design files for copied values.
-6. Look at the close views and the snapshot.
+6. Run `pnpm close-views <role> <dir> --base main`, and look at the grid of `main` above the
+   grid of the branch. Look at the snapshot.
 
 Reply with only: Verdict; Findings (| # | Severity | File:line | Finding | Evidence | Fix |);
 Checks run (| Check | Result |).
