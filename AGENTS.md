@@ -112,9 +112,10 @@ dispatch in `buildBiped()` and `SpeciesParams.rigged`, the seat drop of a rigged
 4. Run `pnpm test`. Keep the mesh of the user as it is, and do not stretch its limbs, unless the
    user asks for the look of a reference image. Then give the config a `shape` (a scale for each
    joint), an `eyeLook`, or a `tail`, and compare the sheet page with
-   `pnpm sheet-check <id> <dir>`. A wider body grows the stages, and
-   `models/layout-scene.test.ts` limits the growth. The seats fit its legs. Fix the tests of the
-   new code.
+   `pnpm sheet-check <id> <dir>`. A wider body grows the stages. The paused test
+   `models/layout-scene.test.ts` limits the growth, so run
+   `pnpm test:paused src/models/layout-scene.test.ts` for a wider body. The seats fit its legs.
+   Fix the tests of the new code.
    Remove each check that was tuned on the parametric bodies and fails on the reach or the size
    of the model, and list it in the commit message (user decisions of 2026-10-10).
 5. Run `pnpm snapshot`, look at the play frame and the close view, and add a decision row. On a
@@ -200,16 +201,19 @@ implementation, the review, and the fix of a round from `docs/briefs/studio-body
    a fit of the holds in its `H`. Probe a hold with `pnpm pose-probe <sheet>`, and look at the
    close views. For a violin or a viola, `pnpm hold-reach <species>` gives the reached parts of
    the fingerboard and the bow, and the violin scale of the rule of a violin shop. The clearance
-   tests read the skin of the studio (`posedCorner()`).
+   tests read the skin of the studio (`posedCorner()`). They are paused tests
+   (`pnpm test:paused`), so `pnpm test` does not run them.
    A new role adds its entry to `SWEEP_ROLES` of `pose/test-sweep-roles.ts`: its moving parts,
    its obstacles with the shells of its instrument, its sample sets, and its limits. Add its
    shard files `pose/<role>-clearance-<k>.test.ts`, each with a call of
    `describeRoleClearance()` of `pose/test-role-clearance.ts` for its shard, as
    `pose/test-pianist-clearance.ts` does, and a check of the files in `src/test-shards.test.ts`.
-   Tune each hold with `pnpm pose-depth <role> --set <changes>`, and run
-   `pnpm pose-depth <role>` before the report of the round. Add `--gaps` when the change moves
-   the head or the paws near the instrument or the body. Run `pnpm body-probe --base main` to
-   show that the poses of the other players do not change.
+   The shard files match the paused list of `vite.config.ts`.
+   Tune each hold with `pnpm pose-depth <role> --set <changes>`. Run `pnpm pose-depth <role>`
+   when the change moves the arms, the paws, the instrument, or the body of the role. Add
+   `--gaps` when the change moves the head or the paws near the instrument or the body. Run
+   `pnpm body-probe --base main` when the change touches shared pose or model code, to show that
+   the poses of the other players do not change.
 4. Run `pnpm snapshot`, and record the measures in a research report and the decisions in a
    decision file.
 
@@ -250,11 +254,11 @@ These traps of route 3 each cost a round:
   near its clips. The retarget turns each paw in the plane of its palm toward the forearm.
 - The baton keeps its length, and the holds are in head heights. A smaller head moves the wrist
   down and back along the baton, so set the point of the baton from the wrist that you want.
-- A long muzzle turns into the paws when the head turns to a section. The test of the conductor
-  clearance finds the frame, and the close views show it.
+- A long muzzle turns into the paws when the head turns to a section. The paused test of the
+  conductor clearance finds the frame, and the close views show it.
 - A round belly takes the room of the forearms. The pianist needed the keys further in front, a
-  lean, a reach limit for each paw, and a curved path from the knees to the keys. The test of the
-  pianist clearance finds each contact with the frame.
+  lean, a reach limit for each paw, and a curved path from the knees to the keys. The paused test
+  of the pianist clearance finds each contact with the frame.
 - The depth of an open part is false near its open edge. A trunk with no arms is open at the
   shoulders, so the sign of its nearest face gave depths at the limit of the search. Measure in
   a closed part (`closedPart()` with the count of its open loops), as the sweep does.
@@ -287,8 +291,8 @@ These traps of route 3 each cost a round:
   from the shoulder over the elbow to the forearm, and the bent elbow of the bind made it thin.
   It folded in 45% of the play samples, and weight rules made it worse. A ring of new vertices
   at the joint fixes it (`refine.rings` of the config of `pnpm rig-mesh`). Put a ring only where
-  `pnpm fold-probe` finds folds, and run the sweep after it: a ring at an elbow that does not
-  fold can pull the inner elbow into the trunk.
+  `pnpm fold-probe` finds folds, and run the sweep (`pnpm pose-depth <role>`) after it: a ring at
+  an elbow that does not fold can pull the inner elbow into the trunk.
 - One color for each face of a texture gives one palette entry for each face, and the module of
   the rabbit was 54 KB after gzip. The palette in Oklab and the walk order of `pnpm rig-mesh`
   made it 24.7 KB. Measure the parts of the packed mesh before you cut one.
