@@ -1,9 +1,13 @@
 import { patchedDemos } from './patch-demos.ts';
 import { setHolds } from './hold-sets.ts';
 import { scoreOf } from '../src/score/test-score.ts';
+import { CONDUCTOR } from '../src/models/cast.ts';
+import type { PlayerModel } from '../src/models/player.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import type { BoneName } from '../src/models/rig.ts';
+import type { SpeciesId } from '../src/models/species.ts';
 import { sceneOf } from '../src/pose/test-scene.ts';
+import type { TestScene } from '../src/pose/test-scene.ts';
 import {
   depthLimit,
   gapPairs,
@@ -128,8 +132,12 @@ export function parseOptions(args: readonly string[]): Options {
 
 /** The results of one variant in one demo. */
 export interface DemoResult {
-  /** The demo and the player, such as `bach-bwv1048 pianist 20`. */
+  /** The demo and the player with its species, such as `bach-bwv1048 pianist 20 (polar-bear)`. */
   readonly demo: string;
+  /** The species of the player, or `null` when the scene has no player with its model. */
+  readonly species: SpeciesId | null;
+  /** The head height H of the body of the player, in meters. */
+  readonly headHeight: number;
   /** The deepest point of each pair in each set of samples. */
   readonly sets: readonly SetResult[];
   /** The largest note-target error of each hand. */
@@ -144,6 +152,43 @@ export interface SetResult {
   readonly pairs: readonly PairDepth[];
   /** The smallest gap of each pair of {@link gapPairs}, or none with no `--gaps`. */
   readonly gaps: readonly PairGap[];
+}
+
+/**
+ * Finds the species of the model of a player in a scene. The models of a scene come from one
+ * cache, so each kind of player has one model object: the model of a place of the layout, or of
+ * the conductor.
+ *
+ * @param scene The scene.
+ * @param model The model of the player.
+ * @returns The species, or `null` when no place and no conductor has the model.
+ */
+export function speciesOf(scene: TestScene, model: PlayerModel): SpeciesId | null {
+  for (const { cast } of scene.layout.players) {
+    if (scene.models.get(cast.species, cast.instrument, cast.kettles, cast.support) === model) {
+      return cast.species;
+    }
+  }
+  const conductor = scene.plan.conductor
+    ? scene.models.get(CONDUCTOR.species, CONDUCTOR.instrument, 4)
+    : null;
+  return conductor === model ? CONDUCTOR.species : null;
+}
+
+/**
+ * Adds the species to the name of a player in the sweep, in the parentheses of the name when it
+ * has them.
+ *
+ * @param name The name of the player, such as `violinist 4 (chair)` or `pianist 20`.
+ * @param species The species, or `null` for none.
+ * @returns The label, such as `violinist 4 (fox-red, chair)` or `pianist 20 (polar-bear)`.
+ */
+export function playerLabel(name: string, species: SpeciesId | null): string {
+  if (!species) {
+    return name;
+  }
+  const inner = /^(.*) \((.*)\)$/.exec(name);
+  return inner ? `${inner[1]} (${species}, ${inner[2]})` : `${name} (${species})`;
 }
 
 /**
@@ -174,8 +219,11 @@ export async function sweepDemos(
       const sets: readonly SampleSet[] = times
         ? [{ name: 'play', samples: times.map((song) => playSample(scene, song)) }]
         : role.sampleSets(scene);
+      const species = speciesOf(scene, player.model);
       results.push({
-        demo: `${id} ${player.name}`,
+        demo: `${id} ${playerLabel(player.name, species)}`,
+        species,
+        headHeight: player.model.body.headHeight,
         sets: sets.map(({ name, samples }) => {
           const gaps = options.gaps ? gapSweep(gapPairs(role)) : null;
           return {

@@ -127,7 +127,9 @@ describe('worstPairs', () => {
   };
   const results: DemoResult[] = [
     {
-      demo: 'a violinist 1',
+      demo: 'a violinist 1 (rabbit, chair)',
+      species: 'rabbit',
+      headHeight: 0.3,
       sets: [
         {
           name: 'play',
@@ -138,7 +140,9 @@ describe('worstPairs', () => {
       targets: [],
     },
     {
-      demo: 'b violinist 2',
+      demo: 'b violinist 2 (fox-red, chair)',
+      species: 'fox-red',
+      headHeight: 0.3,
       sets: [
         { name: 'play', pairs: [pair('bow', 'violin', 0.012)], gaps: [] },
         { name: 'lift', pairs: [pair('forearms', 'body', 0.02)], gaps: [] },
@@ -150,8 +154,8 @@ describe('worstPairs', () => {
   it('gives the pair of each set nearest to its limit or most over it, with its demo', () => {
     const worst = worstPairs(role, results);
     expect(worst.map((w) => [w.set, w.demo, w.pair.part, w.pair.depth, w.limit])).toEqual([
-      ['play', 'b violinist 2', 'bow', 0.012, 0.015],
-      ['lift', 'b violinist 2', 'forearms', 0.02, 0.015],
+      ['play', 'b violinist 2 (fox-red, chair)', 'bow', 0.012, 0.015],
+      ['lift', 'b violinist 2 (fox-red, chair)', 'forearms', 0.02, 0.015],
     ]);
   });
 });

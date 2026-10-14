@@ -143,7 +143,8 @@ export function fitSweep(role: RoleSource, scene: TestScene): RoleSweep | null {
 export interface SetWorst {
   /** The name of the sample set, such as `lift`. */
   readonly set: string;
-  /** The demo and the player of the deepest point, such as `beethoven-8 violinist 3 (chair)`. */
+  /** The demo and the player of the deepest point, such as
+   * `beethoven-8 violinist 3 (fox-red, chair)`. */
   readonly demo: string;
   /** The deepest point of the pair. */
   readonly pair: PairDepth;
