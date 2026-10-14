@@ -308,9 +308,29 @@ smile_lift = 0.003
 smile_radii = [0.0015, 0.0009]
 
 [details.ears]
-hollow_depth = 1.8
-hollow_radius = 0.66
-subdivisions = 2
+# A blade loft (round 3): the outer edge follows the ellipse of round 2, the inner edge comes in
+# toward a pointed tip, and a narrow pink slot runs near the outer edge with a wide cream band on
+# the inner edge. The rings follow the ear rows and the pink rows of the front view of the sheet
+# (y 0.78 to 0.99). tip_x keeps the top of round 2 (y 0.99373), because the renders scale the
+# model to its top.
+blade = [[-1.0, 0.425, -0.025],
+         [-0.75, 0.64, -0.02],
+         [-0.5, 0.795, -0.005],
+         [-0.25, 0.89, 0.01],
+         [0.0, 0.915, 0.015],
+         [0.25, 0.87, 0.01],
+         [0.45, 0.76, 0.02],
+         [0.62, 0.61, 0.03],
+         [0.77, 0.45, 0.03],
+         [0.9, 0.26, 0.02]]
+tip_x = -0.1283
+blade_columns = [-1.0, -0.88, -0.35, 0.15, 0.7, 1.0]
+blade_front = [0.2, 1.3, 1.0, 1.0, 0.7, 0.6]
+slot_columns = [2, 4]
+slot_rows = [-0.75, 0.9]
+slot_depth = 1.5
+slot_scale = [0.28, 0.42, 0.65, 0.92, 1.1, 1.32, 1.42, 1.45, 1.38, 1.2]
+jitter = 0.35
 
 [details.hand_claws]
 offsets = [-0.012, -0.004, 0.004, 0.012]
