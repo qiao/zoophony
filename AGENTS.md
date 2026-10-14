@@ -223,8 +223,9 @@ These traps of route 3 each cost a round:
   pose in `poseStudioBones()`. Before 2026-10-13 the retarget dropped them, and the violin of
   the rabbit stayed at its bind place at the chin.
 - Short arms do not reach the instrument of the app. Size the instrument by the rule of real
-  players, and keep the limbs of the studio (user rule of 2026-10-10). The violin of the rabbit
-  is 0.3 of the violin of the app (`SpeciesParams.violinScale`).
+  players, and keep the limbs of the studio (user rule of 2026-10-10). Make the arms longer in
+  the studio only when the user asks, as for the rabbit on 2026-10-13. The violin of the rabbit
+  follows the rule (`SpeciesParams.violinScale`).
 - A round belly can cover the thighs, so the lap place of a hold lands on the belly. The rabbit
   rests the violin at its side (`BowedHold.restAtSide`).
 - A new body changes the footprints, so the layout of a section, the looks of the other players,
