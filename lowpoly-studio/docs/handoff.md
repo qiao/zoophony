@@ -54,13 +54,12 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
 - `seeds.require = "kept"`: the kept seed must pass all gates, and the other seeds are a
   robustness report in `out/seed-report.json`. The manager chose this default, and the user can
   change it to `"all"`.
-- The app (`src/`) uses the GLB files of the bear and of the polar bear since 2026-10-12, when
-  the user asked for them. After a change of `animals/bear/out/bear.glb` or
-  `animals/polar-bear/out/polar-bear.glb`, run `pnpm studio-body bear` or
-  `pnpm studio-body polar-bear`, and `pnpm test`, in the root of the repository (route 3 of the
-  model work in `AGENTS.md`). The test of the pianist clearance checks the paws of the polar bear
-  against its belly and the piano of the app. Another GLB of the studio goes into the app only
-  when the user asks.
+- The app (`src/`) uses the GLB files of the bear and of the polar bear since 2026-10-12, and
+  of the rabbit since 2026-10-13, when the user asked for them. After a change of
+  `animals/<animal>/out/<animal>.glb`, run `pnpm studio-body <animal>` and `pnpm test` in the
+  root of the repository (route 3 of the model work in `AGENTS.md`). The tests of the pianist and
+  of the violinist clearance check the paws against the body and the instrument of the app.
+  Another GLB of the studio goes into the app only when the user asks.
 
 ## Next steps
 
@@ -81,6 +80,12 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
    the keys of its studio piano, drops it onto a bench that fits its legs, and gives the four
    digits of each paw to one finger bone. Up to 15 faces fold at the neck and the head in the
    pianist poses of the app: a neck corrective shape of the studio could help.
+5. **The studio rabbit in the app.** Done on 2026-10-13
+   (`docs/research/2026-10-13-studio-rabbit.md` of the repository). The app scales the rabbit by
+   the standing shoulders of the parametric rabbit, seats it on a chair with the depth of the chair
+   of the studio, stands it as a soloist with the leg corrective shapes, and gives it a violin of
+   0.3 of the app size. Open for the studio: a role mesh of at most 3,000 faces (round 3 has
+   3,012), because a demo shows many rabbits.
 
 ## Open problems
 
