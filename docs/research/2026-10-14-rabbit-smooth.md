@@ -150,12 +150,11 @@ the toes, on both sides. The texture paints the finger and the toe lines there i
 
 `pnpm frame` on the branch (`frame-branch.txt`, commit 6fb36499) and on main (`frame-main.txt`,
 commit 2bb97ae2, in a worktree of main) ran one after the other, with a load average of 10 to 20
-from other work. Both fail the target of design 9.7 on this load, and the main thread is the same:
+from other work. Both fail the target of design 9.7 on this load:
 
-| Measure | Main p50 | Main p95 | Branch p50 | Branch p95 |
-|---|---|---|---|---|
-| Main thread: tasks of each frame (60 fps) | 3.54 ms | 4.82 ms | 3.52 ms | 4.84 ms |
-| GPU: WebGL frames in the Metal trace | 4.03 ms | 4.26 ms | 4.10 ms | 4.42 ms |
+| Measure | Main p50 | Main p95 | Main within 4 ms | Branch p50 | Branch p95 | Branch within 4 ms |
+|---|---|---|---|---|---|---|
+| Main thread: tasks of each frame (60 fps) | 3.54 ms | 4.82 ms | 80.6% | 3.52 ms | 4.84 ms | 85.1% |
+| GPU: WebGL frames in the Metal trace | 4.03 ms | 4.26 ms | 30.9% | 4.10 ms | 4.42 ms | 1.5% |
 
-The GPU frame grows by 0.07 ms (p50) and 0.16 ms (p95). The smooth normals add the morph normals
-of the corrective shapes to the morph texture of each studio body.
+The manager measures `pnpm frame --gpu-only` again under a lower load.
