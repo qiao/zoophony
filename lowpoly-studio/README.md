@@ -695,6 +695,18 @@ interface Place {
 | `<feature>_<check>.<view>.<item>` | `measure.features.<feature>.checks`, the pixel floor `checks.feature_pixels` of a length | no | the feature crop `report/features/<feature>_<view>_<region>.png` |
 | `facet_contrast` | `checks.facet_contrast` | no | none |
 
+Two ear checks of the bump method find the look faults that rounds 2 and 3 of the rabbit fixed
+by eye. Both are look checks of the model build, and each failure gets the feature crop.
+
+| Check | What it measures | Limit (rabbit) | Sheet | Round 1 (fails) | Current, round 4 (passes) |
+|---|---|---|---|---|---|
+| `ear_inner.front.<side>` | The share of the ear above the notch in the class `ear_inner` (the palette color `ear_inner`, hue 20 degrees, saturation 0.12) | `abs<=` 0.1 | 0.481, 0.505 | 0.836, 0.838 | 0.484, 0.484 |
+| `ear_lean.side.ear` | The lean of the back edge of the ear from the vertical: a least-squares line over the rows of `notch_span` below the top, less 10% at each end. The window does not use the notch, because an oval ear moves the notch up. | `abs<=` 5 degrees | 9.82 | -7.19 | 9.51 |
+
+The limits come from these measures: each limit is less than a third of the round 1 gap, and
+more than 4 times the gap of the current rabbit. The probe `python3 studio report rabbit --measure --no-serve
+--out <dir>` measured the renders of round 1 (copied into `<dir>/compare/`) and of the current rabbit (round 4: the ears of round 3).
+
 The bear passes 76 of 87 checks on the golden build, and 12 checks are near their limit. Three
 failures are known limits of the sheet (see `animals/bear/README.md`): the back view of the
 sheet is darker (`fur_value.back`), and the 3/4 view of the sheet turns the head more

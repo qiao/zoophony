@@ -431,6 +431,9 @@ mesh_belly = [-0.1, 0.2, 0.1, 0.4]
 [measure.classes]
 dark = { max_under = 129 }  # python3 studio calibrate (rabbit GLB)
 ear_dark = { median_under = 0.8 }
+# The pink of the inner ear: the hue and the saturation of paint.palette.ear_inner. The cream fur
+# (saturation 0.13) stays out, and the strong pink of round 1 (237, 168, 145) stays in.
+ear_inner = { palette = "ear_inner", hue_tol = 20.0, saturation_tol = 0.12 }
 nose = { palette = "nose", saturation_tol = 0.12 }
 claw = { palette = "claw", saturation_tol = 0.12, max_under = 185 }
 light = { median_over = 1.12 }
@@ -449,13 +452,19 @@ regions = { front = [-0.12, 0.64, 0.12, 0.70], three_quarter = [-0.12, 0.64, 0.2
 checks = { outline = { measure = "width", op = "rel<=", limit = 0.08 }, y = { op = "abs<=", limit = 0.01 } }
 
 # The ears: the bumps of the silhouette at the top of the head, the inner ear in the front view.
+# inner: the pink share of the ear in the front view (sheet 0.48 and 0.50, round 1 0.84, round 4
+# 0.48). lean: the back edge of the ear from the vertical in the side view (sheet 9.8 degrees,
+# the upright ears of round 1 -7.2, round 4 9.5).
 [measure.features.ears]
 method = "bump"
 dark = "ear_dark"
 dark_views = ["front"]
+inner = "ear_inner"
+inner_views = ["front"]
+lean_views = ["side"]
 split = ["front", "back"]
 regions = { front = [-1.0, 0.76, 1.0, 1.1], side = [-0.14, 0.79, 0.07, 1.1], back = [-1.0, 0.76, 1.0, 1.1] }
-checks = { width = { op = "rel<=", limit = 0.1 }, height = { op = "rel<=", limit = 0.1 }, dark = { op = "abs<=", limit = 0.1 } }
+checks = { width = { op = "rel<=", limit = 0.1 }, height = { op = "rel<=", limit = 0.1 }, dark = { op = "abs<=", limit = 0.1 }, inner = { op = "abs<=", limit = 0.1 }, lean = { op = "abs<=", limit = 5.0 } }
 
 # The nose: the largest blob of nose pixels on the snout. The 3/4 view of the sheet turns the
 # head more than the other views, so the nose and the muzzle are measured in the front and side views.
