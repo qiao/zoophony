@@ -1648,6 +1648,7 @@ The left ear: a flat ellipsoid with a hollow on its front face. The surface leav
 | `radii` | vec3 | measure | Radii in the frame of the ear (z is the normal of its front face). |
 | `yaw` | num | measure | Turn of the front face out to the side. |
 | `roll` | num | measure | Lean of the top out to the side. |
+| `lean` | num | `0.0` | Lean of the top back, a turn of the whole ear about the x axis through its center (0: no turn). |
 | `lift` | num | `0.15` | Up component of the ear normal before it is made unit. |
 | `hollow_offset` | vec3 | `[0.0, -0.002, 0.9]` | Center of the hollow in the ear frame (z is a share of the z radius). |
 | `hollow_scale` | vec3 | `[0.65, 0.65, 0.55]` | Radii of the hollow as shares of the ear radii. |

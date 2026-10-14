@@ -210,6 +210,8 @@ FIELD = T('The body field: measured parts that blend into one signed distance fi
                    todo=True),
         'yaw': F('num', 'Turn of the front face out to the side.', todo=True),
         'roll': F('num', 'Lean of the top out to the side.', todo=True),
+        'lean': F('num', 'Lean of the top back, a turn of the whole ear about the x axis through its '
+                         'center (0: no turn).', default=0.0),
         'lift': F('num', 'Up component of the ear normal before it is made unit.', default=0.15),
         'hollow_offset': F('vec3', 'Center of the hollow in the ear frame (z is a share of the '
                                    'z radius).', default=(0.0, -0.002, 0.9)),

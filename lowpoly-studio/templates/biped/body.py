@@ -384,13 +384,19 @@ class Body:
         """Calculates the frame of one ear: z is the normal of the ear's front face.
 
         The ear turns out by yaw (so it reads as a broad oval from the side), and its top leans
-        out by roll.
+        out by roll. A lean turns the whole frame about the x axis, so the top leans back.
         """
         e = self.f.ears
         yaw = math.radians(e.yaw) * side
         roll = math.radians(e.roll) * side
         normal = np.array([math.sin(yaw), e.lift, math.cos(yaw)])
-        return frame_from((math.sin(roll), math.cos(roll), 0.0), normal)
+        f = frame_from((math.sin(roll), math.cos(roll), 0.0), normal)
+        if not e.lean:
+            return f
+        a = math.radians(e.lean)
+        back = np.array([[1.0, 0.0, 0.0], [0.0, math.cos(a), math.sin(a)],
+                         [0.0, -math.sin(a), math.cos(a)]])
+        return back @ f
 
     def snout(self, p):
         """Calculates the distance to the snout cone."""
