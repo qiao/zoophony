@@ -726,7 +726,10 @@ describe('the seeded rest motions (design 5.2, 5.5)', () => {
     }
     expect(worst.step, worst.at).toBeLessThan(largest);
     // The poses of a smaller scene also move with no jump: each part of each rotation changes by
-    // less than 0.06 in 2 ms. The song time stays, so only the weights and the idle layer move.
+    // less than 0.06 in 2 ms. The song time stays, so only the weights and the idle layer move. A
+    // rotation has two quaternions, q and -q, and the blends take the nearer one (`blend.ts`). The
+    // left hand of the side rest of the rabbit changes from one to the other in the lift (at the
+    // wall time 3.79 s) with no move, so the test compares each rotation with the nearer one.
     const small = sceneOf(FILE).plan;
     let last = createScenePose(small);
     let next = createScenePose(small);
@@ -736,8 +739,15 @@ describe('the seeded rest motions (design 5.2, 5.5)', () => {
       poseAt(small, 30, wall, transportAt(wall), seats(wall), next);
       for (const [i, pose] of next.players.entries()) {
         const old = last.players[i]?.rotations ?? pose.rotations;
-        for (const [k, value] of pose.rotations.entries()) {
-          jump = Math.max(jump, Math.abs(value - (old[k] ?? value)));
+        for (let b = 0; b < pose.rotations.length; b += 4) {
+          let same = 0;
+          let opposite = 0;
+          for (let k = b; k < b + 4; k++) {
+            const value = pose.rotations[k] ?? 0;
+            same = Math.max(same, Math.abs(value - (old[k] ?? value)));
+            opposite = Math.max(opposite, Math.abs(value + (old[k] ?? -value)));
+          }
+          jump = Math.max(jump, Math.min(same, opposite));
         }
       }
       [last, next] = [next, last];

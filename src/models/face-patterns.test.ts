@@ -10,7 +10,7 @@ import { H, boundsOf, variant, verticesWithColor } from './test-body.ts';
 describe('addFacePattern', () => {
   it('makes the eye patches larger than the eyes, so that they show around them', () => {
     const { mesh } = variant({ facePattern: 'eye-patches', accentParts: ['face-pattern'] });
-    const patch = verticesWithColor(mesh, srgb(SPECIES.rabbit.colors.accent), ['head']).filter(
+    const patch = verticesWithColor(mesh, srgb(SPECIES['fox-red'].colors.accent), ['head']).filter(
       (p) => p[0] > 0,
     );
     const eye = boundsOf(mesh, 'eyeR');

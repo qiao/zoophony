@@ -65,11 +65,11 @@ describe('the standing legs (design 4.3, 4.5)', () => {
   it('keeps the legs of each standing player short, as in the reference images', () => {
     // The standing bear of the reference images has legs of 0.55 H from the crotch to the soles
     // (`docs/research/2026-10-11-short-legs.md`). The legs of 2026-10-06 were 0.77 H. The egg body
-    // of the penguin has no legs. The studio bear has the legs that the studio fitted to
-    // `bear-views.png` (design 4.4), so it is not here.
+    // of the penguin has no legs. The studio bear and the studio rabbit have the legs that the
+    // studio fitted to their sheets (design 4.4), so they are not here.
     const players = [
       ...CAST.filter(({ model, label }) => !model.seat && !label.startsWith('penguin')),
-      { label: 'rabbit violin soloist', model: buildPlayer('rabbit', 'violin', 4, 'stand') },
+      { label: 'fox-red violin soloist', model: buildPlayer('fox-red', 'violin', 4, 'stand') },
     ];
 
     expect(players.length).toBeGreaterThanOrEqual(3);

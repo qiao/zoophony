@@ -25,7 +25,7 @@ describe('pickPlayer (design 2.3)', () => {
   const meshes = createPlayers(
     [
       {
-        species: 'rabbit',
+        species: 'fox-red',
         instrument: 'violin',
         kettles: 4,
         support: 'chair',
@@ -52,7 +52,7 @@ describe('pickPlayer (design 2.3)', () => {
   });
 
   it('tests the posed triangles, also outside the bind pose of the mesh', () => {
-    // The rabbit with its violin reaches 0.26 m to the right of its seat in the bind pose.
+    // The red fox with its violin reaches 0.26 m to the right of its seat in the bind pose.
     const camera = new PerspectiveCamera(30, 1, 0.1, 100);
     camera.position.set(0.45, 0.6, 4);
     camera.lookAt(0.45, 0.6, 0);

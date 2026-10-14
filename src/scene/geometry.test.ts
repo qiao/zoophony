@@ -31,7 +31,7 @@ describe('createGeometry', () => {
   });
 
   it('keeps each matte face of an animal flat', () => {
-    const model = buildPlayer('rabbit', 'violin');
+    const model = buildPlayer('fox-red', 'violin');
     const { positions, finishes } = model.mesh;
     const normal = createPlayerGeometry(model).getAttribute('normal');
     const corner = (i: number): Vector3 => new Vector3().fromArray(positions, i * 3);
@@ -59,7 +59,7 @@ describe('createGeometry', () => {
   });
 
   it('darkens the vertex colors of a player by the baked occlusion', () => {
-    const model = buildPlayer('rabbit', 'violin');
+    const model = buildPlayer('fox-red', 'violin');
     const { light } = shadeMesh(model.mesh, model.skeleton.parents);
     const colors = createPlayerGeometry(model).getAttribute('color');
     let darker = 0;

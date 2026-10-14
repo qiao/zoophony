@@ -240,27 +240,30 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
 }
 
 /**
- * The hold of the violin on the left shoulder of `rabbit-views.png`: the chin hold, with the violin
- * 0.15 H to the left and 0.06 H up, turned 25° from the left toward the front, and the scroll 8°
- * down. The hold came with the rigged rabbit of 2026-10-10, and its places keep their meters on the
- * parametric rabbit, whose head height is 1.6 times larger. The right elbow keeps the direction of
- * the frog, forward and down, so that it hangs at the side. The spine leans 10° forward over the
- * violin, as the rabbit of the sheet. The bow lies nearly square across the strings (5° of slant):
- * the longer arms of the rabbit reach them, and with the slant of the chin hold the bow went 0.13 m
- * into the right paw near the end of a long stroke. The bow rests across the lap, with its tip to
- * the left: with the tip of the chin hold, the bow paw snapped 17° in 1 ms in the lift of the
- * default demo. The grip rests on the knee: with the grip at 0.7 to 0.9 of the thigh, or with the
- * places in the head heights of the rigged rabbit, the bow paw of the parametric rabbit turned
- * 1,333° to 2,467° a second in the lift.
+ * The hold of the violin on the left shoulder of `rabbit-views.png`, for the studio rabbit (design
+ * 4.6): the chin hold, with the violin to the left and up, turned from the left toward the front,
+ * and the scroll down. The violin rests on the chest under the chin, where the large head of the
+ * rabbit puts its jaw. The back stays straight, as a real violinist sits (2026-10-13-studio-rabbit
+ * decisions). The bow lies nearly square across the strings. The short arms change three values of
+ * the chin hold, each from a sweep of `pnpm pose-depth violinist`:
+ *
+ * - The right elbow points out, forward, and a little up: down, as in the chin hold, the forearm
+ *   went into the round belly in the lift of the violin.
+ * - The right shoulder turns further forward, so that the bow paw reaches the pluck place of a
+ *   pizzicato without the upper arm in the chest.
+ * - The rest pose holds the violin at the left side: the round belly covers the short thighs, so
+ *   the lap place of the chin hold was on the top of the belly, and the bow went into it.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
   playShift: [-0.15, 0.06, 0],
   playTurn: violinTurn(-25, -8),
+  poleR: [1.5, 0.6, -1],
+  reach: 45 * MathUtils.DEG2RAD,
   poleTipR: CHIN_HOLD.poleR,
-  lean: 10 * MathUtils.DEG2RAD,
+  lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
-  restBow: { ...CHIN_HOLD.restBow, lap: { along: 1, offset: [0.11, 0.05, 0] }, tip: [-1, 0, 0] },
+  restAtSide: true,
 } as const satisfies BowedHold;
 
 /** The holds of the bowed strings. */

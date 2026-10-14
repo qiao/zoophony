@@ -18,6 +18,7 @@ import {
 } from './props.ts';
 import { PIANO_BENCH, buildPianoBench } from './instruments/piano.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
+import { STUDIO_RABBIT } from './studio/rabbit.ts';
 import { SCENE_COLORS } from './colors.ts';
 import type { PlayerPlace, SceneLayout } from './layout.ts';
 import { proportionsOf } from './proportions.ts';
@@ -163,7 +164,7 @@ describe('buildSupport', () => {
 
 describe('seatHeights (design 4.5)', () => {
   it('fits the seat of the chair to the legs of the species', () => {
-    for (const species of [SPECIES.mouse, SPECIES.rabbit, SPECIES.rhino]) {
+    for (const species of [SPECIES.mouse, SPECIES['fox-red'], SPECIES.rhino]) {
       const { seatHeight, headHeight } = proportionsOf(species);
 
       expect(seatHeights('chair', species)).toEqual({
@@ -176,6 +177,12 @@ describe('seatHeights (design 4.5)', () => {
     );
   });
 
+  it('gives a studio body on a chair the depth of the chair of the studio (design 4.4)', () => {
+    const seat = seatHeights('chair', SPECIES.rabbit);
+    expect(seat?.seatDepth).toBe(STUDIO_RABBIT.chairDepth);
+    expect(seat?.seatHeight).toBeCloseTo(STUDIO_RABBIT.seatHeight, 6);
+  });
+
   it('keeps the back of a chair with a short seat, and moves its front edge back', () => {
     const depthOf = (mesh: MeshData): [number, number] => {
       let [front, back] = [Infinity, -Infinity];
@@ -185,14 +192,14 @@ describe('seatHeights (design 4.5)', () => {
       }
       return [front, back];
     };
-    const [front, back] = depthOf(buildChair(0.13, 0.2));
+    const [front, back] = depthOf(buildChair(0.13, STUDIO_RABBIT.chairDepth));
     const [, standardBack] = depthOf(buildChair(0.13));
     expect(back).toBeCloseTo(standardBack, 6);
-    expect(back - front).toBeCloseTo(0.2, 6);
+    expect(back - front).toBeCloseTo(STUDIO_RABBIT.chairDepth, 6);
   });
 
   it('keeps the stool of the harp and the bench of the piano at the heights of the strings and the keys', () => {
-    for (const species of [SPECIES.deer, SPECIES.rabbit, SPECIES.mouse, SPECIES.penguin]) {
+    for (const species of [SPECIES.deer, SPECIES['fox-red'], SPECIES.mouse, SPECIES.penguin]) {
       expect(seatHeights('stool', species)).toEqual({
         seatHeight: STOOL.seatHeight,
         footHeight: 0,

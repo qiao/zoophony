@@ -14,14 +14,17 @@ import type { BipedParams, SpeciesParams } from './species.ts';
 /** The seat height of the test bodies, in meters. */
 export const SEAT = 0.45;
 
-/** The rabbit: the sample body of the tests of the parametric parts. */
-const RABBIT = SPECIES.rabbit;
+/**
+ * The red fox: the sample body of the tests of the parametric parts. The rabbit has a studio body
+ * since 2026-10-13 (design 4.4).
+ */
+const SAMPLE = SPECIES['fox-red'];
 
-/** The head height `H` of the parametric rabbit (design 4.5, body proportions). */
-export const H = proportionsOf(RABBIT).headHeight;
+/** The head height `H` of the sample body (design 4.5, body proportions). */
+export const H = proportionsOf(SAMPLE).headHeight;
 
-/** The mesh and the bones of the parametric rabbit. */
-export interface RabbitBody {
+/** The mesh and the bones of the sample body. */
+export interface SampleBody {
   /** The mesh of the body. */
   readonly mesh: MeshData;
   /** The bind position of each body bone. */
@@ -29,12 +32,12 @@ export interface RabbitBody {
 }
 
 /**
- * Builds the parametric body of the rabbit on a seat of {@link SEAT}.
+ * Builds the sample body on a seat of {@link SEAT}.
  *
  * @returns The mesh and the bones.
  */
-export function rabbit(): RabbitBody {
-  const { mesh, body } = builtBody(RABBIT, seated(SEAT));
+export function sampleBody(): SampleBody {
+  const { mesh, body } = builtBody(SAMPLE, seated(SEAT));
   return { mesh, positions: body.positions };
 }
 
@@ -60,13 +63,13 @@ export function builtBody(species: SpeciesParams, stance: Stance): BuiltBody {
 }
 
 /**
- * Builds the body of a variant of the parametric rabbit on a seat of {@link SEAT}.
+ * Builds the body of a variant of the sample body on a seat of {@link SEAT}.
  *
- * @param change The parameters that differ from the rabbit.
+ * @param change The parameters that differ from the sample body.
  * @returns The mesh and the bones.
  */
 export function variant(change: Partial<BipedParams>): BuiltBody {
-  return builtBody({ ...RABBIT, ...change }, seated(SEAT));
+  return builtBody({ ...SAMPLE, ...change }, seated(SEAT));
 }
 
 /** The smallest and the largest x, y, and z of the parts that follow one bone. */

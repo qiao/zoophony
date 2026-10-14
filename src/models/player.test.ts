@@ -49,7 +49,8 @@ function extentAlong(
 }
 
 describe('buildPlayer', () => {
-  const player = buildPlayer('rabbit', 'violin');
+  // The red fox holds the violin of the app. The rabbit holds a smaller violin (design 4.6).
+  const player = buildPlayer('fox-red', 'violin');
   const placeOf = (bone: 'instrument' | 'bow'): Transform =>
     player.pieces.find((p) => p.piece.bone === bone)?.at ?? {
       position: [NaN, NaN, NaN],
@@ -80,6 +81,28 @@ describe('buildPlayer', () => {
     expect(violinAxis.x).toBeLessThan(-0.5);
     expect(violinTop.y).toBeGreaterThan(0);
     expect(violinAxis.dot(violinTop)).toBeCloseTo(0, 9);
+  });
+
+  it('scales the violin and the bow of a species by its violin scale (design 4.6)', () => {
+    const rabbit = buildPlayer('rabbit', 'violin');
+    const scale: number = SPECIES.rabbit.violinScale;
+    const pieceAxis = (bone: 'instrument' | 'bow'): Vector3 =>
+      new Vector3(1, 0, 0).applyQuaternion(
+        new Quaternion(
+          ...(rabbit.pieces.find((p) => p.piece.bone === bone)?.at.rotation ?? IDENTITY),
+        ),
+      );
+    const { positions, bones } = rabbit.mesh;
+    const violin = extentAlong(positions, bones, boneIndex('instrument'), pieceAxis('instrument'));
+    const bow = extentAlong(positions, bones, boneIndex('bow'), pieceAxis('bow'));
+    expect(scale).toBeLessThan(1);
+    expect(
+      violin /
+        extentAlong(player.mesh.positions, player.mesh.bones, boneIndex('instrument'), violinAxis),
+    ).toBeCloseTo(scale, 2);
+    expect(
+      bow / extentAlong(player.mesh.positions, player.mesh.bones, boneIndex('bow'), bowAxis),
+    ).toBeCloseTo(scale, 2);
   });
 
   it('makes the violin 0.51 m long and the bow 0.57 m long (design 4.6)', () => {

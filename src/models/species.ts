@@ -2,6 +2,7 @@ import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
+import { STUDIO_RABBIT } from './studio/rabbit.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 
@@ -140,15 +141,22 @@ export function isSpeciesId(value: string): value is SpeciesId {
 
 /** The parameters of each species (design 4.3, 4.5). */
 export const SPECIES = {
-  /** Rabbit, the first violins (reference image). */
+  /**
+   * Rabbit, the first violins (reference image). It has the studio body of `lowpoly-studio/`
+   * (design 4.4), seated as the violinist of the studio, and standing as a soloist. Its head
+   * height is the head of the studio, and its chair fits its legs: the seat height is the seat of
+   * the studio body, in H.
+   */
   rabbit: {
-    ears: 'long',
-    snout: 'short',
-    tail: 'puff',
+    body: 'studio-rabbit',
     size: 1,
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
-    facePattern: 'none',
+    violinScale: 0.3,
+    proportions: {
+      headHeight: STUDIO_RABBIT.headHeight,
+      seatHeight: STUDIO_RABBIT.seatHeight / STUDIO_RABBIT.headHeight,
+    },
   },
   /** Red-orange fox with a white face, the second violins (reference image). */
   'fox-red': {

@@ -275,11 +275,11 @@ its own skeleton:
   uses rabbits again, and a fourth uses red-orange foxes.
 
 The shape parameters of each species of the parametric biped (4.5 gives the colors). The penguin
-has its egg body, and the bear and the polar bear have studio bodies (4.4), so they have no row:
+has its egg body, and the rabbit, the bear, and the polar bear have studio bodies (4.4), so they
+have no row:
 
 | Species | ears | snout | tail | facePattern |
 |---|---|---|---|---|
-| rabbit | long | short | puff | none |
 | fox (both colors) | pointed | long | bushy | none |
 | wolf | pointed | long | bushy | none |
 | elephant | large-flap | trunk | thin | none |

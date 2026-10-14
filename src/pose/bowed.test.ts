@@ -12,6 +12,11 @@ import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { createBowPlaces, instrumentAt, poseBowed } from './bowed.ts';
 import { SECTION_SPECIES } from '../models/cast.ts';
+import { placePoint } from '../models/instruments/hold.ts';
+import { VIOLIN } from '../models/instruments/strings.ts';
+import { SPECIES } from '../models/species.ts';
+import type { SpeciesParams } from '../models/species.ts';
+import { poseShoulder } from './ik.ts';
 import { BOWED_HOLDS, bowedRig, holdOf } from './bowed-rig.ts';
 import type { BowedHold, BowedInstrument } from './bowed-rig.ts';
 import { BIND_ROTATIONS } from './frames.ts';
@@ -222,10 +227,61 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     expect(shoulder.rise).toBeLessThan(chin.rise);
   });
 
+  it('sizes the violin of a species with a violin scale by the rule of real violins (design 4.6)', () => {
+    // In the play position with the left arm extended, the scroll lies in the middle of the
+    // palm: a violin shop sizes a violin so (2026-10-13-studio-rabbit.md).
+    const sized = players.filter((player) => {
+      const species: SpeciesParams =
+        SPECIES[scene.layout.players[player.index]?.cast.species ?? 'fox-red'];
+      return player.instrument === 'violin' && species.violinScale !== undefined;
+    });
+    expect(sized.length).toBeGreaterThan(0);
+    for (const player of sized) {
+      const rig = bowedRig(player.model, 'violin', holdOfPlayer(scene, player));
+      const lean = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -rig.hold.lean);
+      const spine = v(rig.spineBind);
+      const frames = {
+        root: { rotation: new Quaternion(), position: new Vector3() },
+        chest: {
+          rotation: lean,
+          position: v(rig.chestBind).sub(spine).applyQuaternion(lean).add(spine),
+        },
+      };
+      const { place } = createBowPlaces();
+      instrumentAt(rig, frames, 1, place);
+      // The scroll: the far end of the violin from the tail end, on the line of the strings.
+      const length = VIOLIN.length / VIOLIN.nut;
+      const nut = v(
+        placePoint(player.model.pieces, {
+          bone: 'instrument',
+          at: target(player.model, 'fingerboard').from,
+        }),
+      );
+      const tail = v(rig.pivot);
+      const scroll = nut.sub(tail).multiplyScalar(length).add(tail);
+      const posedScroll = scroll.sub(tail).applyQuaternion(place.rotation).add(place.pivot);
+      const shoulder = poseShoulder(
+        rig.armL,
+        frames.chest,
+        rig.chestBind,
+        new Quaternion(),
+      ).position;
+      const at = (bone: BoneName): Vector3 =>
+        v(player.model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0]);
+      const arm =
+        at('upperArmL').distanceTo(at('forearmL')) +
+        at('forearmL').distanceTo(at('handL')) +
+        at('handL').distanceTo(v(player.model.body.palmL));
+      expect(Math.abs(posedScroll.distanceTo(shoulder) - arm)).toBeLessThan(0.01);
+    }
+  });
+
   it('puts the left fingers on the strings and the left palm under them', () => {
     // The first palm was 0.063 m below the strings at the violin model size (0.08 m on the
-    // violin), with the fingers beside the neck, so the hand did not touch the fingerboard.
-    for (const player of players) {
+    // violin), with the fingers beside the neck, so the hand did not touch the fingerboard. The
+    // distances fit the mitten of the parametric biped and the violin of the app. The studio
+    // rabbit is not here: its violin is 0.3 of that size (2026-10-13-studio-rabbit.md).
+    for (const player of players.filter((p) => !p.model.studio)) {
       for (const t of [0.3, 1.3, 2.25, 2.75]) {
         const posed = posedAt(scene, player, t);
         const label = `${player.instrument} at ${t}`;
@@ -411,7 +467,9 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
   });
 
   it('rests the violin and the viola upright on the left thigh (user report of 2026-10-06)', () => {
-    for (const player of players.slice(0, 2)) {
+    const lapped = players.slice(0, 2).filter((p) => !holdOfPlayer(scene, p).restAtSide);
+    expect(lapped.length).toBeGreaterThan(0);
+    for (const player of lapped) {
       const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
       const h = player.model.body.headHeight;
       // The tail end stands on the top of the thigh, and the scroll points up.
@@ -423,6 +481,24 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
       const board = target(player.model, 'fingerboard');
       const nut = v(posedPiecePoint(posed, { bone: 'instrument', at: board.from }));
       expect(nut.sub(tail).normalize().y, player.instrument).toBeGreaterThan(0.85);
+    }
+  });
+
+  it('holds the violin at the left side in the rest pose of a body with no lap (design 5.2)', () => {
+    const sided = players.filter((p) => holdOfPlayer(scene, p).restAtSide);
+    expect(sided.length).toBeGreaterThan(0);
+    for (const player of sided) {
+      const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
+      // The tail end is beside the body, out of the left shoulder joint and below it, and the
+      // scroll points forward, near the level.
+      const tail = positionOf(posed, 'instrument');
+      const shoulder = positionOf(posed, 'upperArmL');
+      expect(tail.x).toBeLessThan(shoulder.x);
+      expect(tail.y).toBeLessThan(shoulder.y);
+      const board = target(player.model, 'fingerboard');
+      const nut = v(posedPiecePoint(posed, { bone: 'instrument', at: board.from }));
+      const axis = nut.sub(tail).normalize();
+      expect(axis.z).toBeLessThan(-0.8);
     }
   });
 
@@ -527,10 +603,12 @@ function turnBetween(a: Float32Array, b: Float32Array, bone: number): number {
 }
 
 describe('the bow hand in the lift (design 5.2, 5.3)', () => {
-  it('turns the bow hand and the bow at most 1000° a second', async () => {
+  it('turns the bow hand and the bow at most 1500° a second', async () => {
     // While the elbow turned to the back of the hand, the roll of the hand snapped near the line
     // of the stick: the hand of a violin turned 103,000° a second in the lift of the default
-    // demo, and the cello hand 7.5° in 2 ms (2026-10-07).
+    // demo, and the cello hand 7.5° in 2 ms (2026-10-07). The limit finds such a snap. The bow
+    // paw of the studio rabbit hangs at its side in the rest pose, and the lift turns it to the
+    // hold at up to 1,138° a second, with no snap (2026-10-13-studio-rabbit.md).
     const scene = await demoSceneOf('boulanger-matin.mid');
     const bones = [boneIndex('handR'), boneIndex('bow')];
     const step = 0.001;
@@ -558,7 +636,7 @@ describe('the bow hand in the lift (design 5.2, 5.3)', () => {
         }
         [last, next] = [next, last];
       }
-      if (worst > 1000) {
+      if (worst > 1500) {
         fast.push(`${label}: ${worst.toFixed(0)}° a second`);
       }
     }

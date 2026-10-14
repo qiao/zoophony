@@ -169,9 +169,14 @@ describe('the bow in the right hand (design 4.6, 5.3)', () => {
   });
 
   it('lays the stick in the fingers, against the palm and the finger block', () => {
-    // A small file: each bowed section plays four quarter notes.
+    // A small file: each bowed section plays four quarter notes. The band of the gap fits the
+    // mitten of the parametric biped and the stick of the bow of the app. The studio rabbit is
+    // not here: its bow is 0.3 of that size, and its paw has the skin of the studio
+    // (2026-10-13-studio-rabbit.md).
     const scene = sceneOf(STRINGS);
-    for (const player of bowedPlayers(scene)) {
+    const parametric = bowedPlayers(scene).filter((player) => !player.model.studio);
+    expect(parametric.length).toBeGreaterThan(2);
+    for (const player of parametric) {
       const pose = poseAt(scene.plan, 1.2, 10, PLAYING, []).players[player.index];
       if (!pose) {
         throw new Error('The player has no pose.');
