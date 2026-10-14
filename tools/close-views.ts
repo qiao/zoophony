@@ -88,10 +88,16 @@ export interface RoleViews {
  * A role with a close view: the bear conductor, the polar bear pianist, the rabbit violinist, or
  * the red fox violinist.
  */
-export type CloseRole = 'conductor' | 'pianist' | 'violinist' | 'fox-violinist';
+export type CloseRole = 'conductor' | 'pianist' | 'violinist' | 'fox-violinist' | 'flutist';
 
 /** The roles with a close view, in the order of the usage text. */
-const CLOSE_ROLES: readonly CloseRole[] = ['conductor', 'pianist', 'violinist', 'fox-violinist'];
+const CLOSE_ROLES: readonly CloseRole[] = [
+  'conductor',
+  'pianist',
+  'violinist',
+  'fox-violinist',
+  'flutist',
+];
 
 /**
  * The close views of the roles (design 7.1):
@@ -203,6 +209,24 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
     camera: { kind: 'body', zoom: 1, elevation: 20 },
     // The test notes of the violinist.
     notes: ['0.5 2 A4', '3 0.25 G3', '3.25 0.25 E5', '3.5 0.25 G3'].join('\n'),
+  },
+  flutist: {
+    species: 'fox-tan',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'note', time: 0.6, rest: false },
+      { name: 'between', time: 1.75, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      { name: 'stand', time: 0.6, rest: false, stand: true },
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // A long A5, a rest, then a short phrase with the right paw fingers closed (C5) and open (C6).
+    notes: ['0.5 1 A5', '2 0.25 C5', '2.25 0.25 C6', '2.5 0.25 E5'].join('\n'),
   },
 };
 
