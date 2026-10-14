@@ -32,8 +32,11 @@ that makes the animal 300 px high. The pixels are boxes inside the fur of the to
 the legs, with a color rule that drops the props and the eyes (`measure.py`). An RMS in place of
 the median followed the shadow edges under the arms, and it did not change with the angle.
 
-The renders come from a Vite dev server of the branch on port 4293. `set-crease.sh <angle|flat>`
-puts a temporary crease angle into the three modules. Then `crease-shots.ts` writes the sheet page
+The renders come from a Vite dev server of the branch on port 4293, at commit c0871c39 (08:34 to
+08:41), before the fix of the rabbit colors. `set-crease.sh <angle|flat>` puts a temporary crease
+angle into the three modules. At c0871c39, a module with no crease angle still took the copy of
+the material with flat shading, so the "flat" row of the tables is the flat look of main. From
+commit bcff8c92 on, the scene has no flat path, and the script refuses "flat". Then `crease-shots.ts` writes the sheet page
 of each body (`views.html?sheet=<id>`, at the size and the scale of its sheet) and the play frame
 of `boulanger-matin` at 2880 × 1800, 3.5 s after a seek to 30 s:
 
