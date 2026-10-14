@@ -15,10 +15,11 @@ import type { BipedParams, SpeciesParams } from './species.ts';
 export const SEAT = 0.45;
 
 /**
- * The tan fox: the sample body of the tests of the parametric parts. The rabbit has a studio body
- * since 2026-10-13, and the red fox since 2026-10-14 (design 4.4).
+ * The wolf: the sample body of the tests of the parametric parts. It keeps the parametric biped, and
+ * it has the pointed ears, the long snout, and the bushy tail of the parametric fox, the sample body
+ * until the tan fox got the studio body of the fox mesh (design 4.4).
  */
-const SAMPLE = SPECIES['fox-tan'];
+const SAMPLE = SPECIES.wolf;
 
 /** The head height `H` of the sample body (design 4.5, body proportions). */
 export const H = proportionsOf(SAMPLE).headHeight;
