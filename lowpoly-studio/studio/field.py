@@ -147,7 +147,7 @@ def head_table(c, views):
     """Builds the loft table of the head ball.
 
     c: the config section field.head. The width follows the front and back masks from the cheeks
-    to the temples, where the outline is the head. Below the cheeks a quarter ellipse closes the
+    to the temples, where the outline is the head (or width_points, when the config gives them). Below the cheeks a quarter ellipse closes the
     head at the chin (bottom), so the head outline is close to a circle; above the temples a
     quarter ellipse makes the dome to the top. The front follows face_points beside the snout,
     then the side mask on the forehead; the back follows back_points, then the side mask.
@@ -155,7 +155,13 @@ def head_table(c, views):
     ys = np.round(np.arange(c.bottom, c.top + 1e-6, c.step), 4)
     side = views['side']['profile']
     yc, ac = c.cheek
-    a_temple = mask_half_width(views, c.temple)
+
+    def width(y):
+        if c.width_points:
+            return float(_interp(y, c.width_points))
+        return mask_half_width(views, y)
+
+    a_temple = width(c.temple)
     a = np.zeros_like(ys)
     zb = np.zeros_like(ys)
     zf = np.zeros_like(ys)
@@ -168,7 +174,7 @@ def head_table(c, views):
             t = (yc - y) / (yc - c.bottom)
             a[i] = ac * math.sqrt(max(1.0 - t * t, 0.0))
         elif y <= c.temple:
-            a[i] = mask_half_width(views, y)
+            a[i] = width(y)
         else:
             t = (y - c.temple) / (c.top - c.temple)
             a[i] = a_temple * math.sqrt(max(1.0 - t * t, 0.0))

@@ -161,6 +161,9 @@ HEAD = T('The head ball: a loft of its own, so the head reads as a ball above th
     'bottom': F('num', 'Height of the chin, where the head closes below.', todo=True),
     'cheek': F('vec2', '[height, half width] of the widest point (the cheeks).', todo=True),
     'temple': F('num', 'Height up to which the width follows the masks.', todo=True),
+    'width_points': F('pairs', 'Half width [height, half width] from the cheeks to the temples, in place '
+                               'of the mean of the front and back masks (not given: the masks).',
+                      default=()),
     'cap': F('num', 'Height above which the width and the depth shrink together (a round dome).',
              todo=True),
     'top': F('num', 'Height of the top of the dome.', todo=True),

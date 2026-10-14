@@ -1585,6 +1585,7 @@ The head ball: a loft of its own, so the head reads as a ball above the shoulder
 | `bottom` | num | measure | Height of the chin, where the head closes below. |
 | `cheek` | vec2 | measure | [height, half width] of the widest point (the cheeks). |
 | `temple` | num | measure | Height up to which the width follows the masks. |
+| `width_points` | pairs | optional | Half width [height, half width] from the cheeks to the temples, in place of the mean of the front and back masks (not given: the masks). |
 | `cap` | num | measure | Height above which the width and the depth shrink together (a round dome). |
 | `top` | num | measure | Height of the top of the dome. |
 | `blend` | num | measure | Blend width with the trunk: a soft groove under the head. |
