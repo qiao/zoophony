@@ -1,28 +1,15 @@
 {
-  "run": "20261013-192034-21697",
-  "command": "build rabbit --all-seeds --jobs 2",
-  "started": "2026-10-13T19:20:34-0700",
-  "seed": 5,
+  "run": "20261013-204240-56686",
+  "command": "build rabbit --jobs 2",
+  "started": "2026-10-13T20:42:40-0700",
+  "seed": 8,
   "shots": true,
   "until": null,
-  "glb": "520bd6d849f735a5cd0e0fcdea70e9a27907899558cd7c8a20835f798cac5fb3",
+  "glb": "29a682d8e052a02008a3e6532835d0d99e787260cd61c4a9ef21d089b17458cf",
   "model": {
-    "seed": 6,
-    "log": "animals/rabbit/out/model/stages/blender-seed6.log",
-    "tried": [
-      {
-        "seed": 3,
-        "why": "the remesh gate fails (slit_faces 6)"
-      },
-      {
-        "seed": 1,
-        "why": "the remesh gate fails (slivers 0.0157)"
-      },
-      {
-        "seed": 5,
-        "why": "the remesh gate fails (slit_faces 4)"
-      }
-    ],
-    "glb": "b0d393a3d9050cce68f422eacdcba48768234112b423b55a7e1fe3a2371d861d"
+    "seed": 3,
+    "log": "animals/rabbit/out/model/stages/blender-seed3.log",
+    "tried": [],
+    "glb": "b5a3d2dbb245448f48f57f22c181fdbd6556b6a1b5d170dbc58323d23dac5ee0"
   }
 }

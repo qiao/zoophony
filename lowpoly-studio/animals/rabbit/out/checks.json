@@ -1,28 +1,32 @@
 {
   "animal": "rabbit",
   "role": "violinist",
-  "seed": 5,
+  "seed": 8,
   "gate_pass": true,
   "pass": false,
   "failed": [
     "iou.front",
     "iou.side",
-    "fur_hue.side",
     "iou.back",
     "iou.three_quarter",
+    "eye_outline.front.1",
     "eye_outline.three_quarter.0",
     "eye_outline.three_quarter.1",
     "eye_y.three_quarter.1",
     "ear_dark.front.left_in_image",
     "ear_width.side.ear",
     "nose_height.front.0",
-    "nose_x.side.0",
-    "nose_y.side.0"
+    "nose_y.side.0",
+    "nose_width.side.0",
+    "nose_height.side.0"
   ],
   "near": [
-    "slivers",
-    "remesh_gate.slivers",
-    "eye_outline.front.1",
+    "folds.ready",
+    "folds.play",
+    "folds.rest",
+    "folds.stand_play",
+    "folds.performance",
+    "eye_outline.front.0",
     "eye_y.three_quarter.0",
     "belly_width.front.belly",
     "claw_count.front.left_in_image",
@@ -62,12 +66,52 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": false,
-      "gate": true
+      "near": true,
+      "gate": true,
+      "where": {
+        "clip": "ready",
+        "frame": 60,
+        "time_s": 2.0,
+        "face": 805,
+        "faces": [
+          805
+        ],
+        "bone": "upper_arm_L",
+        "side": "L",
+        "region": "upper arm, side, left",
+        "position": [
+          0.0661,
+          0.3934,
+          0.0781
+        ],
+        "rest_position": [
+          0.089,
+          0.4473,
+          0.0716
+        ],
+        "angle_deg": 97.1,
+        "weights": [
+          [
+            "upper_arm_L",
+            0.505
+          ],
+          [
+            "spine1",
+            0.285
+          ],
+          [
+            "chest",
+            0.121
+          ]
+        ],
+        "smallest_angle_deg": 15.9,
+        "rest_dot": 0.931,
+        "crop": "diag/fold-805-ready.png"
+      }
     },
     {
       "name": "scene.ready",
-      "value": 0.0048,
+      "value": 0.0047,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -76,7 +120,7 @@
     },
     {
       "name": "seat.ready",
-      "value": 0.0089,
+      "value": 0.0079,
       "op": "in",
       "limit": [
         -0.015,
@@ -101,12 +145,52 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": false,
-      "gate": true
+      "near": true,
+      "gate": true,
+      "where": {
+        "clip": "play",
+        "frame": 90,
+        "time_s": 3.0,
+        "face": 805,
+        "faces": [
+          805
+        ],
+        "bone": "upper_arm_L",
+        "side": "L",
+        "region": "upper arm, side, left",
+        "position": [
+          0.0661,
+          0.393,
+          0.0782
+        ],
+        "rest_position": [
+          0.089,
+          0.4473,
+          0.0716
+        ],
+        "angle_deg": 97.8,
+        "weights": [
+          [
+            "upper_arm_L",
+            0.505
+          ],
+          [
+            "spine1",
+            0.285
+          ],
+          [
+            "chest",
+            0.121
+          ]
+        ],
+        "smallest_angle_deg": 15.9,
+        "rest_dot": 0.931,
+        "crop": "diag/fold-805-play.png"
+      }
     },
     {
       "name": "scene.play",
-      "value": 0.0,
+      "value": 0.0027,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -115,7 +199,7 @@
     },
     {
       "name": "seat.play",
-      "value": 0.0089,
+      "value": 0.0079,
       "op": "in",
       "limit": [
         -0.015,
@@ -140,12 +224,52 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": false,
-      "gate": true
+      "near": true,
+      "gate": true,
+      "where": {
+        "clip": "rest",
+        "frame": 0,
+        "time_s": 0.0,
+        "face": 805,
+        "faces": [
+          805
+        ],
+        "bone": "upper_arm_L",
+        "side": "L",
+        "region": "upper arm, side, left",
+        "position": [
+          0.0661,
+          0.3934,
+          0.0781
+        ],
+        "rest_position": [
+          0.089,
+          0.4473,
+          0.0716
+        ],
+        "angle_deg": 97.1,
+        "weights": [
+          [
+            "upper_arm_L",
+            0.505
+          ],
+          [
+            "spine1",
+            0.285
+          ],
+          [
+            "chest",
+            0.121
+          ]
+        ],
+        "smallest_angle_deg": 15.9,
+        "rest_dot": 0.931,
+        "crop": "diag/fold-805-rest.png"
+      }
     },
     {
       "name": "scene.rest",
-      "value": 0.0048,
+      "value": 0.0047,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -154,7 +278,7 @@
     },
     {
       "name": "seat.rest",
-      "value": 0.0089,
+      "value": 0.0079,
       "op": "in",
       "limit": [
         -0.015,
@@ -179,8 +303,48 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": false,
-      "gate": true
+      "near": true,
+      "gate": true,
+      "where": {
+        "clip": "stand_play",
+        "frame": 0,
+        "time_s": 0.0,
+        "face": 805,
+        "faces": [
+          805
+        ],
+        "bone": "upper_arm_L",
+        "side": "L",
+        "region": "upper arm, side, left",
+        "position": [
+          0.0661,
+          0.4275,
+          0.0781
+        ],
+        "rest_position": [
+          0.089,
+          0.4473,
+          0.0716
+        ],
+        "angle_deg": 97.1,
+        "weights": [
+          [
+            "upper_arm_L",
+            0.505
+          ],
+          [
+            "spine1",
+            0.285
+          ],
+          [
+            "chest",
+            0.121
+          ]
+        ],
+        "smallest_angle_deg": 15.9,
+        "rest_dot": 0.931,
+        "crop": "diag/fold-805-stand_play.png"
+      }
     },
     {
       "name": "contact.performance",
@@ -197,12 +361,52 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": false,
-      "gate": true
+      "near": true,
+      "gate": true,
+      "where": {
+        "clip": "performance",
+        "frame": 150,
+        "time_s": 5.0,
+        "face": 805,
+        "faces": [
+          805
+        ],
+        "bone": "upper_arm_L",
+        "side": "L",
+        "region": "upper arm, side, left",
+        "position": [
+          0.0661,
+          0.393,
+          0.0782
+        ],
+        "rest_position": [
+          0.089,
+          0.4473,
+          0.0716
+        ],
+        "angle_deg": 97.8,
+        "weights": [
+          [
+            "upper_arm_L",
+            0.505
+          ],
+          [
+            "spine1",
+            0.285
+          ],
+          [
+            "chest",
+            0.121
+          ]
+        ],
+        "smallest_angle_deg": 15.9,
+        "rest_dot": 0.931,
+        "crop": "diag/fold-805-performance.png"
+      }
     },
     {
       "name": "scene.performance",
-      "value": 0.0048,
+      "value": 0.0047,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -211,7 +415,7 @@
     },
     {
       "name": "seat.performance",
-      "value": 0.0089,
+      "value": 0.0079,
       "op": "in",
       "limit": [
         -0.015,
@@ -232,7 +436,7 @@
     },
     {
       "name": "body_triangles",
-      "value": 1204,
+      "value": 1112,
       "op": "in",
       "limit": [
         900.0,
@@ -244,38 +448,12 @@
     },
     {
       "name": "slivers",
-      "value": 0.0083,
+      "value": 0.0036,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
-      "near": true,
-      "gate": false,
-      "where": {
-        "face": 314,
-        "faces": [
-          314,
-          359,
-          495,
-          517,
-          596,
-          916,
-          961,
-          1098,
-          1119,
-          1199
-        ],
-        "bone": "hips",
-        "side": "R",
-        "region": "hips, under, right",
-        "rest_position": [
-          -0.0197,
-          0.1413,
-          0.0042
-        ],
-        "smallest_angle_deg": 0.6,
-        "rest_dot": 0.465,
-        "crop": "diag/face-314.png"
-      }
+      "near": false,
+      "gate": false
     },
     {
       "name": "unpaired_vertices",
@@ -288,7 +466,7 @@
     },
     {
       "name": "remesh_gate.quads",
-      "value": 840,
+      "value": 788,
       "op": "in",
       "limit": [
         546,
@@ -309,11 +487,11 @@
     },
     {
       "name": "remesh_gate.slivers",
-      "value": 0.0083,
+      "value": 0.0036,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
-      "near": true,
+      "near": false,
       "gate": true
     },
     {
@@ -336,7 +514,7 @@
     },
     {
       "name": "iou.front",
-      "value": 0.9244,
+      "value": 0.8905,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -355,7 +533,7 @@
     {
       "name": "fur_hue.front",
       "value": [
-        32.7,
+        32.6,
         32.9
       ],
       "op": "abs<=",
@@ -368,7 +546,7 @@
     {
       "name": "fur_saturation.front",
       "value": [
-        0.152,
+        0.155,
         0.146
       ],
       "op": "abs<=",
@@ -381,7 +559,7 @@
     {
       "name": "fur_value.front",
       "value": [
-        0.882,
+        0.878,
         0.882
       ],
       "op": "abs<=",
@@ -393,7 +571,7 @@
     },
     {
       "name": "iou.side",
-      "value": 0.9016,
+      "value": 0.9061,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -408,24 +586,20 @@
     {
       "name": "fur_hue.side",
       "value": [
-        33.5,
+        32.7,
         32.1
       ],
       "op": "abs<=",
       "limit": 1.0,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
-      "where": {
-        "view": "side",
-        "crop": "report/views/side.jpg"
-      },
       "look": true
     },
     {
       "name": "fur_saturation.side",
       "value": [
-        0.151,
+        0.152,
         0.14
       ],
       "op": "abs<=",
@@ -450,7 +624,7 @@
     },
     {
       "name": "iou.back",
-      "value": 0.9159,
+      "value": 0.8833,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -506,7 +680,7 @@
     },
     {
       "name": "iou.three_quarter",
-      "value": 0.8528,
+      "value": 0.8412,
       "op": ">=",
       "limit": 0.91,
       "pass": false,
@@ -534,7 +708,7 @@
     {
       "name": "fur_hue.three_quarter",
       "value": [
-        32.9,
+        32.6,
         33.3
       ],
       "op": "abs<=",
@@ -547,7 +721,7 @@
     {
       "name": "fur_saturation.three_quarter",
       "value": [
-        0.153,
+        0.154,
         0.149
       ],
       "op": "abs<=",
@@ -573,27 +747,34 @@
     {
       "name": "eye_outline.front.0",
       "value": [
-        0.0232,
+        0.0218,
         0.0232
       ],
       "op": "rel<=",
       "limit": 0.08,
       "pass": true,
-      "near": false,
+      "near": true,
       "gate": false,
       "floor": 0.00155,
+      "where": {
+        "feature": "eyes",
+        "view": "front",
+        "region": "eye",
+        "item": 0,
+        "crop": "report/features/eyes_front_eye.png"
+      },
       "look": true
     },
     {
       "name": "eye_outline.front.1",
       "value": [
-        0.0232,
+        0.0218,
         0.0247
       ],
       "op": "rel<=",
       "limit": 0.08,
-      "pass": true,
-      "near": true,
+      "pass": false,
+      "near": false,
       "gate": false,
       "floor": 0.00155,
       "where": {
@@ -608,7 +789,7 @@
     {
       "name": "eye_y.front.0",
       "value": [
-        0.6669,
+        0.6662,
         0.6705
       ],
       "op": "abs<=",
@@ -622,7 +803,7 @@
     {
       "name": "eye_y.front.1",
       "value": [
-        0.6669,
+        0.6662,
         0.6705
       ],
       "op": "abs<=",
@@ -636,7 +817,7 @@
     {
       "name": "eye_outline.three_quarter.0",
       "value": [
-        0.0292,
+        0.0277,
         0.0408
       ],
       "op": "rel<=",
@@ -657,7 +838,7 @@
     {
       "name": "eye_outline.three_quarter.1",
       "value": [
-        0.016,
+        0.0146,
         0.0044
       ],
       "op": "rel<=",
@@ -734,7 +915,7 @@
     {
       "name": "ear_height.front.left_in_image",
       "value": [
-        0.1959,
+        0.1974,
         0.1974
       ],
       "op": "rel<=",
@@ -963,28 +1144,21 @@
     {
       "name": "nose_x.side.0",
       "value": [
-        0.1574,
+        0.1857,
         0.1872
       ],
       "op": "abs<=",
       "limit": 0.01,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
       "floor": 0.00156,
-      "where": {
-        "feature": "nose",
-        "view": "side",
-        "region": "nose",
-        "item": 0,
-        "crop": "report/features/nose_side_nose.png"
-      },
       "look": true
     },
     {
       "name": "nose_y.side.0",
       "value": [
-        0.6601,
+        0.6252,
         0.6463
       ],
       "op": "abs<=",
@@ -1005,35 +1179,49 @@
     {
       "name": "nose_width.side.0",
       "value": [
-        0.0146,
+        0.0131,
         0.016
       ],
       "op": "rel<=",
       "limit": 0.15,
-      "pass": true,
+      "pass": false,
       "near": false,
       "gate": false,
       "floor": 0.00156,
+      "where": {
+        "feature": "nose",
+        "view": "side",
+        "region": "nose",
+        "item": 0,
+        "crop": "report/features/nose_side_nose.png"
+      },
       "look": true
     },
     {
       "name": "nose_height.side.0",
       "value": [
-        0.0189,
+        0.0073,
         0.0204
       ],
       "op": "rel<=",
       "limit": 0.15,
-      "pass": true,
+      "pass": false,
       "near": false,
       "gate": false,
       "floor": 0.00156,
+      "where": {
+        "feature": "nose",
+        "view": "side",
+        "region": "nose",
+        "item": 0,
+        "crop": "report/features/nose_side_nose.png"
+      },
       "look": true
     },
     {
       "name": "belly_y.front.belly",
       "value": [
-        0.3987,
+        0.3898,
         0.3795
       ],
       "op": "abs<=",
@@ -1047,7 +1235,7 @@
     {
       "name": "belly_width.front.belly",
       "value": [
-        0.0784,
+        0.0798,
         0.0958
       ],
       "op": "rel<=",
@@ -1120,7 +1308,7 @@
     {
       "name": "facet_contrast",
       "value": [
-        2.88,
+        3.22,
         3.02
       ],
       "op": "rel<=",
@@ -1135,11 +1323,11 @@
   "look": {
     "current": true,
     "reason": null,
-    "run": "20261013-192034-21697",
-    "look_run": "20261013-192034-21697",
-    "made": "2026-10-13T19:21:09-0700",
+    "run": "20261013-204240-56686",
+    "look_run": "20261013-204240-56686",
+    "made": "2026-10-13T20:43:04-0700",
     "compare": "model",
-    "model_seed": 6
+    "model_seed": 3
   },
   "sheet": {
     "warnings": [
@@ -1151,7 +1339,7 @@
   "diagnostics": {
     "folds": "diag/folds.json",
     "contacts": "diag/contacts.json",
-    "faces": 10,
+    "faces": 5,
     "contacts_found": 0
   }
 }

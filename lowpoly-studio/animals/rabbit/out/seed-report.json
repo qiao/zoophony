@@ -1,16 +1,16 @@
 {
   "animal": "rabbit",
   "role": "violinist",
-  "run": "20261013-192034-21697",
-  "made": "2026-10-13T19:20:54-0700",
-  "role_key": "87fa90c2fc6e249f",
-  "reason": "--all-seeds",
+  "run": "20261013-204240-56686",
+  "made": "2026-10-13T20:42:53-0700",
+  "role_key": "2970eab3a206eca9",
+  "reason": "a role check: the role pack, the template, or the clips changed since the last seed report",
   "require": "kept",
-  "kept": 5,
-  "robust": true,
+  "kept": 8,
+  "robust": false,
   "rule_pass": true,
-  "meshes": 3,
-  "robust_seeds": 3,
+  "meshes": 2,
+  "robust_seeds": 1,
   "seeds": [
     {
       "seed": 3,
@@ -18,7 +18,8 @@
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "slivers 0.0121"
+        "slivers 0.0145",
+        "slit_faces 2"
       ],
       "clips": {}
     },
@@ -28,36 +29,43 @@
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "inward_faces 2",
-        "slivers 0.0108",
-        "slit_faces 4"
+        "inward_faces 1",
+        "slit_faces 2"
       ],
       "clips": {}
     },
     {
       "seed": 5,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "play": [],
-        "rest": [],
-        "stand_play": [],
-        "performance": []
-      }
-    },
-    {
-      "seed": 6,
       "status": "gate",
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "slivers 0.0109"
+        "slivers 0.0165"
       ],
       "clips": {}
+    },
+    {
+      "seed": 6,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [
+          "seat gap 3.01 cm"
+        ],
+        "play": [
+          "seat gap 3.01 cm"
+        ],
+        "rest": [
+          "seat gap 3.01 cm"
+        ],
+        "stand_play": [],
+        "performance": [
+          "seat gap 3.01 cm"
+        ]
+      }
     },
     {
       "seed": 2,
@@ -65,25 +73,19 @@
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "inward_faces 2",
-        "slit_faces 2"
+        "slit_faces 4"
       ],
       "clips": {}
     },
     {
       "seed": 4,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "play": [],
-        "rest": [],
-        "stand_play": [],
-        "performance": []
-      }
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slivers 0.0112"
+      ],
+      "clips": {}
     },
     {
       "seed": 7,
@@ -91,7 +93,9 @@
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "slivers 0.0105"
+        "inward_faces 2",
+        "slivers 0.0206",
+        "slit_faces 2"
       ],
       "clips": {}
     },
