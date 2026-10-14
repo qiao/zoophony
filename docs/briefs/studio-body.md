@@ -281,7 +281,8 @@ decisions, and the measured gains in a research report.
 ## 7. A mesh with no skeleton
 
 The user can give a textured mesh with no skeleton, as the rabbit
-`assets/models/rabbit/rabbit-4.glb` of 2026-10-13. `pnpm rig-mesh <animal>` rigs it into the GLB
+`assets/models/rabbit/rabbit-4.glb` of 2026-10-13 and the fox `assets/models/fox/fox.glb` of
+2026-10-14. `pnpm rig-mesh <animal>` rigs it into the GLB
 format of a studio body ("A mesh with no skeleton into route 3" of `AGENTS.md`). That task took
 five agent rounds ([`2026-10-14-rabbit-mesh-retro.md`](../research/2026-10-14-rabbit-mesh-retro.md)).
 Add these items to the briefs of the rig round and of the app round.
@@ -290,7 +291,9 @@ Add these items to the briefs of the rig round and of the app round.
   the thin faces (`check.thin`). Then run `pnpm rig-mesh <animal> --check` before the question to
   the user about the arms. Its first line
   gives the shoulder joint, the reach with no factor, and the factor of the target reach. Ask
-  with that measured factor. For the rabbit, the manager estimated 1.25 from a render, and the
+  with that measured factor. Choose the landmark of the scale before the question: for the fox,
+  the factor of the rabbit reach was 1.41 at the shoulders of the parametric fox and 1.078 at its
+  head top. For the rabbit, the manager estimated 1.25 from a render, and the
   measure gave 1.445.
 - **The faces.** Permit rings at the joints from the start (`refine.rings` of the config). Also
   permit edge flips of faces that lie almost on one plane (`refine.flip`). `--check` lists the thin faces near
@@ -329,4 +332,7 @@ Add these items to the briefs of the rig round and of the app round.
 
   A new body changes their target, and they find no fault. Since 2026-10-14, `bowed.test.ts` is a
   paused test (`docs/decisions/2026-10-14-test-pause.md`), and a round does not fix it.
-  `studio-rig.test.ts` stays in `pnpm test`.
+  `studio-rig.test.ts` stays in `pnpm test`. A new body in a section also changes the layout, so
+  a kept test of a shot plan can change: the fox moved the check of the choir shots of the Ode to
+  Joy into the paused file `src/shots/choir-theme.test.ts`. A test that takes a species as the
+  sample of a parametric body moves to a species that keeps it, as the tan fox.
