@@ -40,11 +40,13 @@ scale. Without an entry, `--inspect` assumes the shoulders at 1 m. Then run
 `pnpm studio-body <animal> --inspect` for the arms. For a violin or a viola, also run
 `pnpm studio-body <animal>`, add the module to `STUDIO_BODIES`, and give the species the body in
 `SPECIES`. Then run `pnpm hold-reach <species>`. It gives the reached parts of the fingerboard and
-the bow, and the scale of the rule of a violin shop. When the rule gives an instrument outside
-the real sizes, ask the user before the round. Give the measures and the choices, such as longer
-arms in the studio or a smaller instrument. The rabbit of 2026-10-13 had arms of 0.27 m, and the
-rule gave a violin of 0.15 m, less than half of the smallest real violin (0.33 m). The app agent found it at minute 14 of its round, and
-the user saw it only after the round, then chose longer arms
+the bow, and the scale of the rule of a violin shop. When the rule gives a violin outside the
+real sizes, ask the user before the round. The tool gives no real viola sizes, and the app has no
+viola scale. So for a viola, a rule scale below 1 is a question to the user. Give the measures
+and the choices, such as longer arms in the studio or a smaller instrument. The rabbit of
+2026-10-13 had arms of 0.27 m, and the rule gave a violin of 0.15 m, less than half of the
+smallest real violin (0.33 m). The app agent found it at minute 14 of its round, and the user saw
+it only after the round, then chose longer arms
 ([`2026-10-13-rabbit-retro.md`](../research/2026-10-13-rabbit-retro.md)).
 
 Finish the look rounds of the studio before the app round starts. A merge of a studio round
