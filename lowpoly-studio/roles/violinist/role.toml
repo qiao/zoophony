@@ -40,26 +40,28 @@ material = { roughness = 0.6, specular = 0.3 }
 # The violin in the left paw: the neck lies across the palm at the base of the finger, the scroll
 # toward the index side, and the top plate toward the finger. The clips turn the paw so that the
 # violin lies between the chin and the left collarbone. The violin touches the chin and the
-# collarbone, so the contact check does not test it. The short arms of the animal reach the neck
-# of a violin of 0.85 arm reaches.
+# collarbone, so the contact check does not test it. The violin of the rabbit is 0.234 long: about
+# 0.28 m at the scale of the app (1.198 m for each unit), the size that the app gives to the arms of
+# round 4 (the user, 2026-10-13: "Arms x1.4, violin 28 cm"). That is 0.80 arm reaches.
 [[props]]
 name = "violin"
 kind = "violin"
 attach = { bone = "hand", side = "L" }
 grip = [0.0, 0.008, 0.02]
 direction = [-1.0, 0.0, 0.0]
-strings = { length = 0.17, top = [0.0, 1.0, 0.25], neck = 0.68 }
+strings = { length = 0.234, top = [0.0, 1.0, 0.25], neck = 0.68 }
 material = { roughness = 0.35, specular = 0.6 }
 contact = "none"
 
-# The bow in the right paw: the stick across the palm, the hair toward the palm.
+# The bow in the right paw: the stick across the palm, the hair toward the palm. The bow is 1.25
+# violins long (the rule of the prop library).
 [[props]]
 name = "bow"
 kind = "bow"
 attach = { bone = "hand", side = "R" }
 grip = [0.0, 0.01, 0.018]
 direction = [-1.0, 0.15, 0.0]
-strings = { length = 0.225, hair = [0.0, 0.0, 1.0], bow_for = "violin" }
+strings = { length = 0.29, hair = [0.0, 0.0, 1.0], bow_for = "violin" }
 material = { roughness = 0.4, specular = 0.5 }
 cast_shadow = false
 contact = "bow"
@@ -79,7 +81,7 @@ stand_play = "Standing, as a soloist: the violin up, a short stroke down and up 
 # used. These are the values of the rabbit.
 [targets]
 shoulder = [0.07, 0.485, 0.025]
-reach = 0.2
+reach = 0.29
 
 [checks]
 contact_depth = 0.01
