@@ -784,8 +784,9 @@ by eye. Both are look checks of the model build, and each failure gets the featu
 | `ear_lean.side.ear` | The lean of the back edge of the ear from the vertical: a least-squares line over the rows of `notch_span` below the top, less 10% at each end. The window does not use the notch, because an oval ear moves the notch up. | `abs<=` 5 degrees | 9.82 | -7.19 | 9.51 |
 
 The limits come from these measures: each limit is less than a third of the round 1 gap, and
-more than 4 times the gap of the current rabbit. The probe `python3 studio report rabbit --measure --no-serve
---out <dir>` measured the renders of round 1 (copied into `<dir>/compare/`) and of the current rabbit (round 4: the ears of round 3).
+more than 4 times the gap of the current rabbit. The probe
+`python3 studio report rabbit --measure --no-serve --out <dir>` measured the renders of round 1
+(copied into `<dir>/compare/`) and of the current rabbit (round 4: the ears of round 3).
 
 The lean fit reads all rows of `notch_span` below the top, also the rows below the notch. Set
 `notch_span` of the feature near the ear length of the sheet (the rabbit: 0.198, with the
