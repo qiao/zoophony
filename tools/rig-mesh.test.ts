@@ -16,6 +16,7 @@ import {
   parseConfig,
   reachLine,
   checkTable,
+  configChanges,
   rigSettings,
   setConfig,
   targetFactor,
@@ -238,7 +239,8 @@ describe('setConfig', () => {
   });
 
   it('keeps the other values', () => {
-    expect(JSON.parse(setConfig(text, ''))).toEqual(JSON.parse(text));
+    const changed = JSON.parse(setConfig(text, 'armFactor=1.2'));
+    expect({ ...changed, armFactor: 1 }).toEqual(JSON.parse(text));
   });
 
   it('stops on an unknown path or a value of another kind', () => {
@@ -295,5 +297,20 @@ describe('checkTable', () => {
       { variant: 'weld=1', measures: null, error: 'Blender failed.' },
     ]);
     expect(lines[3]).toMatch(/^\| weld=1 \| failed: Blender failed\. \| - \|/);
+  });
+});
+
+describe('configChanges', () => {
+  it('reads each change of a variant, separated by ;', () => {
+    expect(configChanges(' armFactor=1.1 ;weights.line.angle=150;')).toEqual([
+      { path: 'armFactor', text: '1.1' },
+      { path: 'weights.line.angle', text: '150' },
+    ]);
+  });
+
+  it('stops on a variant with no change', () => {
+    expect(() => configChanges('')).toThrow(/has no change/);
+    expect(() => configChanges(';')).toThrow(/has no change/);
+    expect(() => configChanges(' ; ')).toThrow(/has no change/);
   });
 });

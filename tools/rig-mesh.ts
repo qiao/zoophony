@@ -202,17 +202,12 @@ function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigV
  * text for another list or an object.
  *
  * @param config The config.
- * @param change The change, as `<path>=<value>`.
+ * @param change The change.
  * @throws Error if the path names no value of the config, or if the value does not fit the old
  *   value.
  */
-function setConfigValue(config: ConfigObject, change: string): void {
-  const equals = change.indexOf('=');
-  if (equals < 1) {
-    throw new Error(`The change "${change}" is not <path>=<value>.`);
-  }
-  const path = change.slice(0, equals);
-  const text = change.slice(equals + 1);
+function setConfigValue(config: ConfigObject, change: ConfigChange): void {
+  const { path, text } = change;
   const keys = path.split('.');
   let node: ConfigValue = config;
   for (const [i, key] of keys.entries()) {
@@ -257,6 +252,39 @@ function setChild(node: ConfigValue, key: string, value: ConfigValue): void {
   }
 }
 
+/** One change of a config: the path of a value and the text of its new value. */
+export interface ConfigChange {
+  /** The path, such as `weights.haunch.height`. */
+  readonly path: string;
+  /** The text of the new value, such as `0.16,0.27`. */
+  readonly text: string;
+}
+
+/**
+ * Reads the changes of a variant of `--set`, separated by `;`.
+ *
+ * @param list The changes, such as `weights.haunch.height=0.16,0.27;armFactor=1.08`.
+ * @returns The changes, in their order.
+ * @throws Error if a change is not `<path>=<value>`, or if the variant has no change.
+ */
+export function configChanges(list: string): ConfigChange[] {
+  const changes = list
+    .split(';')
+    .map((change) => change.trim())
+    .filter((change) => change !== '')
+    .map((change) => {
+      const equals = change.indexOf('=');
+      if (equals < 1) {
+        throw new Error(`The change "${change}" is not <path>=<value>.`);
+      }
+      return { path: change.slice(0, equals), text: change.slice(equals + 1) };
+    });
+  if (changes.length === 0) {
+    throw new Error(`The variant "${list}" has no change. Each --set needs <path>=<value>.`);
+  }
+  return changes;
+}
+
 /**
  * Applies a list of changes, separated by `;`, to the JSON text of a config, as
  * {@link setConfigValue} does. The text of the input does not change.
@@ -264,14 +292,14 @@ function setChild(node: ConfigValue, key: string, value: ConfigValue): void {
  * @param text The JSON text of the config.
  * @param list The changes, such as `weights.haunch.height=0.16,0.27;armFactor=1.08`.
  * @returns The JSON text of the changed config.
- * @throws Error if a change names no value of the config, or if a value does not fit the old
- *   value.
+ * @throws Error if the list has no change, if a change names no value of the config, or if a
+ *   value does not fit the old value.
  */
 export function setConfig(text: string, list: string): string {
   // SAFETY: a config file of tools/mesh-rigs/ holds one JSON object.
   const config = JSON.parse(text) as ConfigObject;
-  for (const change of list.split(';').filter((c) => c.trim() !== '')) {
-    setConfigValue(config, change.trim());
+  for (const change of configChanges(list)) {
+    setConfigValue(config, change);
   }
   return `${JSON.stringify(config, null, 2)}\n`;
 }
