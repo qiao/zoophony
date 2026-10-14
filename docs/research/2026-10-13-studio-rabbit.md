@@ -3,8 +3,10 @@
 On 2026-10-13 the user gave a new four-view sheet of a low-poly rabbit and asked: "create a
 low-poly model for the rabbit following this reference image and replace the main-app's rabbit
 by this new one". The studio built the rabbit violinist (`lowpoly-studio/animals/rabbit/`, round
-1, round 2 `rabbit-look`, and round 3 `rabbit-ears`). Round 3 changed only the ears. This report gives the measures of the branch `rabbit-app`, which
-puts the studio rabbit into the app by route 3 of `AGENTS.md`. The decisions are in
+1, round 2 `rabbit-look`, round 3 `rabbit-ears`, and round 4 with the longer arms). Round 3
+changed only the ears. This report gives the measures of the branch `rabbit-app`, which puts the
+studio rabbit into the app by route 3 of `AGENTS.md`. Sections 1 to 8 give the round 3 body, and
+section 9 gives the longer arms of round 4. The decisions are in
 [`2026-10-13-studio-rabbit.md`](../decisions/2026-10-13-studio-rabbit.md). The probes are in
 [`2026-10-13-studio-rabbit/`](2026-10-13-studio-rabbit/). Run each probe from the root of the
 repository with `node docs/research/2026-10-13-studio-rabbit/<probe>.ts`.
@@ -18,7 +20,7 @@ repository with `node docs/research/2026-10-13-studio-rabbit/<probe>.ts`.
  studioRig(body, false): seated          studioRig(body, true): standingBody()
  (violin section, chair)                 (soloist, legs of the sheet, soles on the floor)
      |                                   |
-     +------- poseStudioBones(): the violin hold of the app, the violin at 0.3 size -------+
+     +--- poseStudioBones(): the violin hold of the app, the violin at the size of the rule ---+
 ```
 
 ## 1. The body
@@ -103,7 +105,8 @@ round 4, the standing rabbit has the limits of the seated rabbits (`VIOLINIST_SW
 `pose/test-sweep-roles.ts`).
 
 Open problem: the standing rabbit has a dark pinch behind each knee, under the haunch. The review of
-the branch found it in the "stand" tiles of the close views on `119c63da` (`violinist-views.webp`).
+the branch found it in the "stand" tiles of the close views on `119c63da` (`violinist-views.webp`
+of that commit).
 `stand-knee-pinch.webp` holds the crops: the back view on the left, and the left view on the right,
 with dark horizontal streaks between the haunch and the shins, and a dark notch behind the knee. The
 fold test of the standing skin passes: no face flips, and the faces near the haunch pinch. The
@@ -205,5 +208,86 @@ cue centers of the two seats move, and the cues of the conductor change in these
 
 ## 8. Images
 
-- Close views: `pnpm close-views violinist <dir>` on `119c63da` (`violinist-views.webp`).
+- Close views: `pnpm close-views violinist <dir>` on `9ed4c683`, the round 4 body
+  (`violinist-views.webp`).
 - Snapshot: `docs/snapshots/2026-10-13-9ed4c683/` (the round 4 body).
+
+## 9. The longer arms of round 4
+
+With the short arms of rounds 1 to 3, the rule of section 5 gave a violin of 0.15 m, and it was
+almost hidden on the stage. The manager offered: "B. Longer arms, real small violin: the arms
+become about 1.4 times as long as on your sheet, and the rabbit holds a 1/16 violin (about
+0.36 m)". The user answered "B". The rule needs about 1.7 times the arm for a violin of 0.36 m,
+so the manager corrected the estimate and asked again. The user chose: "Arms x1.4, violin 28 cm".
+The studio round 4 made the reach from the shoulder joint to the middle of the palm 1.4 times as
+long, with the same shoulder joints, and remeshed the body with the role seed 8.
+
+`pnpm studio-body rabbit --inspect` and `pnpm studio-body rabbit` on the GLB file of round 4
+(sha256 29a682d8):
+
+| Measure | Round 3 (520bd6d8) | Round 4 (29a682d8) |
+|---|---:|---:|
+| Faces of the body | 3,012 | 2,920 |
+| Head height `H` | 0.230 m | 0.224 m |
+| Seat height | 0.133 m | 0.126 m |
+| Chair depth (`chairDepth`) | 0.190 m | 0.167 m |
+| Triangles of the scene of `perf-60.mid` | 166,278 | 165,726 (`scene-triangles.ts`) |
+| First download (`pnpm build && pnpm size`) | 364,645 B | 363,294 B |
+
+The size of the violin (`violin-round4.txt`, the output of `violin-rule.ts rabbit 0.3,0.5,0.55`
+and of `violin-solve.ts`):
+
+| Measure | Round 3 | Round 4 |
+|---|---:|---:|
+| Arm from the shoulder joint to the middle of the palm | 0.269 m | 0.377 m (1.40 times) |
+| Scale of the rule at 45° to the left of the front | 0.310 | 0.549 |
+| Scale of the rule at 50°, 55°, and 60° | 0.322, 0.336, 0.351 | 0.563, 0.579, 0.595 |
+| `violinScale` of the rabbit | 0.3 | 0.55 |
+| Violin length | 0.152 m | 0.279 m |
+| Bow length | 0.171 m | 0.314 m |
+
+At the scale of 0.55, the scroll lies 0.377 m from the left shoulder joint, at the middle of the
+palm. The violin of 0.28 m is smaller than the 1/32 violin of the table of section 5 (33 cm).
+
+The hold. With the arms of round 4, the paws and the forearms stay out of the body in each sample
+set of each demo, with each hold below. `pnpm pose-depth violinist --set ...` gives the depths
+(`depth-round4-variants.txt`), and `fold-set.ts` gives the folds of the studio skin
+(`fold-round4.txt`). The depths are the largest values over the demos, in cm:
+
+| Right arm of the hold | Play upper arms in body | Lowering upper arms in body | Lift forearms in violin | Play samples with a fold |
+|---|---:|---:|---:|---:|
+| Shoulder hold of round 3: elbow (1.5, 0.6, -1), tip elbow (1, -1, -1), turn 45° | 0.2 | 0.3 | 1.3 | 0% |
+| Chin hold: elbow (1, -1, -1), tip elbow (0.5, 1, -1), turn 30° | 0.2 | 0.5 | 1.3 | 1.3%, at most 2 faces |
+| Chosen: elbow (1, -1, -1), tip elbow (1, -1, -1), turn 30° | 0.4 | 0.5 | 1.3 | 0% |
+
+The chosen hold keeps the elbow and the shoulder turn of the chin hold, as the red fox plays, and
+the elbow of the tip of the old shoulder hold. With the tip elbow up, one or two faces of the right
+upper arm folded in a play. `depth-round4.txt` gives the sweep of the chosen hold with `--gaps`:
+each pair stays within the contact depth of 1.5 cm, and the bow target error is 0.00 mm. The gap
+of the head to the violin is 0.0 cm (0.9 cm in round 3): the jaw rests on the larger violin. The
+head goes 0.1 cm into the violin (`depth-round4-head.txt`, `pnpm pose-depth violinist --bones
+head,neck,chest --into violin`).
+
+The accepted limits of rounds 1 to 3, measured again on the chosen hold:
+
+| Limit | Round 3 | Round 4 | Result |
+|---|---:|---:|---|
+| Paws in the body in the lowering (accepted 2.5 cm) | 1.9 cm | 0.0 cm (`depth-round4.txt`) | removed |
+| Paws and forearms in the body in the lift of the standing rabbit (accepted 2.5 cm) | 1.9 cm, 1.5 cm | 0.0 cm, 0.0 cm (`standing-sweep-round4.txt`) | removed |
+| Turn of the bow paw in the lift of the Boulanger demo (1,500° a second on a studio body) | 1,030° a second | 764° a second (`limits-round4.txt`) | the limit of 1,000° a second for each player |
+| Rest bow in the trunk and the arms (touch of 1 mm on a studio body) | 0.3 mm | 0.53 mm in the arms, 0 in the trunk (`limits-round4.txt`) | kept |
+
+With the shoulder hold of round 3 on the round 4 body, the bow paw turns 730° a second
+(`limits-round4-old-hold.txt`). The finger block of the studio paw still stays under the plane of
+the strings: with the rabbit in the finger block check of `pose/bowed.test.ts`, its highest point
+is 3.8 mm under the plane (the check asks 5.5 mm above). The palm checks keep the rabbit.
+
+`pnpm fold-probe violinist` on the chosen hold: no fold in the play samples, and one face of the
+right upper arm folds in each rest sample and in 22.6% of the lift samples (`fold-round4.txt`).
+Round 3 had no fold in the rest and the lift. The fold is in the hanging right arm of the side
+rest, so it comes from the remesh of round 4. It is open for the studio.
+
+`pnpm body-probe --base main` (`body-probe-round4.txt`): 90 of 95 bodies, 22 of 23 players, and
+555 of 672 pose sets equal. These are the counts of round 3. The pose sets of the other players
+that change are the same as in section 7: the red foxes 6 and 7 and the conductor in Beethoven 8
+and K. 315, from the layout.
