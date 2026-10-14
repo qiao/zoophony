@@ -185,7 +185,8 @@ fox, and the batons and the top face of the podium of the bear.
 - Each sheet page shows the pose of its sheet (`SHEET_MOMENTS` of `src/gallery/sheet-poses.ts`):
   `poseAt()` (5.1) at a moment of test notes, in a seat of its own, with the head to the front.
   A species with its own hold on the stage (5.3) keeps it on its sheet: the rabbit holds the
-  violin on the left shoulder with the scroll down. The violin of the fox lies on the left
+  violin on the left collarbone under the jaw with the scroll about level, as a real violinist
+  does. The violin of the fox lies on the left
   shoulder under the chin. Its hold moves the violin 0.25 H to the left and 0.05 H up from the
   hold of the stage, turns it 25° toward the front (45° to the left of the front), and tilts the
   scroll up 15° (`BowedHold.playTurn`, 5.3).
