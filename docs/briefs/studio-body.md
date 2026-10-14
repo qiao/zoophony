@@ -27,15 +27,18 @@ makes a baseline worktree.
 | The meshes, joints, digits, morph targets, clips, props, bind hips, and lowest skin point of the GLB file | `pnpm studio-body <animal> --inspect` |
 | The same facts of the last studio body, for the section "What is new" | `pnpm studio-body bear --inspect` |
 | The depth of each part and the note errors of a role that exists | `pnpm pose-depth <role>` |
-| The folded faces of the studio bodies | `pnpm fold-probe <role>` |
+| The folded faces of the studio bodies | `pnpm fold-probe <role>`, with `--glb <file>` for a new GLB file of the body of the role |
 | The smallest gaps of the head to the instrument and of the paws to the body | `pnpm pose-depth <role> --gaps` |
-| The reach of the arms against the instrument | `pnpm studio-body <animal> --inspect` for the arms, and `pnpm hold-reach <species>` for a violin or a viola. Both run on a scratch copy with an entry in `ANIMALS`. |
+| The reach of the arms against the instrument | `pnpm studio-body <animal> --inspect` for the arms, and `pnpm hold-reach <species>` for a violin or a viola. For a new GLB file of a species with a studio body, add `--glb <file>`. For a species with no studio body, use a scratch copy with an entry in `ANIMALS` (below). |
 | The size of the first download | `pnpm build && pnpm size` |
 | The posture of a real player of the instrument at rest, when ready, and in a play | a source on the web, and the clips of the studio: `python3 studio view <animal>`, then the viewer query `shot&view=free&clip=<clip>&t=<s>&az=<deg>` |
 
-Compare the reach of the arms with the instrument before the round. Make a scratch copy of the
-body in a scratch worktree. First, add the animal to `ANIMALS` of `tools/studio-body.ts` with the
-landmark of its scale. The meters of `--inspect` and of `pnpm hold-reach` hold only at that
+Compare the reach of the arms with the instrument before the round. When the species already has
+a studio body and the round gives it a new GLB file, run `pnpm studio-body <animal> --inspect
+--glb <file>` and `pnpm hold-reach <species> --glb <file>`. They use the settings of the animal in
+`ANIMALS` and the body that the export makes from the file, with no edit. Else make a scratch copy
+of the body in a scratch worktree. First, add the animal to `ANIMALS` of `tools/studio-body.ts`
+with the landmark of its scale. The meters of `--inspect` and of `pnpm hold-reach` hold only at that
 scale. Without an entry, `--inspect` assumes the shoulders at 1 m. Then run
 `pnpm studio-body <animal> --inspect` for the arms. For a violin or a viola, also run
 `pnpm studio-body <animal>`, add the module to `STUDIO_BODIES`, and give the species the body in
@@ -246,3 +249,41 @@ Merge with `tools/merge-branch.sh <branch> <worktree>` from the main checkout. T
 agent of the round, with `SendMessage`, what would make the next similar task faster. Decide,
 and apply the items that are worth the cost (user rule of 2026-10-12). Record the times, the
 decisions, and the measured gains in a research report.
+
+## 7. A mesh with no skeleton
+
+The user can give a textured mesh with no skeleton, as the rabbit
+`assets/models/rabbit/rabbit-4.glb` of 2026-10-13. `pnpm rig-mesh <animal>` rigs it into the GLB
+format of a studio body ("A mesh with no skeleton into route 3" of `AGENTS.md`). That task took
+five agent rounds ([`2026-10-14-rabbit-mesh-retro.md`](../research/2026-10-14-rabbit-mesh-retro.md)).
+Add these items to the briefs of the rig round and of the app round.
+
+- **The arms.** Write a first config with the measured joints and `armFactor` 1. Then run
+  `pnpm rig-mesh <animal> --check` before the question to the user about the arms. Its first line
+  gives the shoulder joint, the reach with no factor, and the factor of the target reach. Ask
+  with that measured factor. For the rabbit, the manager estimated 1.25 from a render, and the
+  measure gave 1.445.
+- **The faces.** Permit rings at the joints (`refine.rings` of the config) and edge flips of faces
+  that lie almost on one plane (`refine.flip`) from the start. `--check` lists the thin faces near
+  the joints of the limbs as candidates for a ring. The rule "keep the faces of the source"
+  stopped the app round of the rabbit at 45% play folds.
+- **The order of the goals.** When two goals conflict, keep this order:
+  1. the clearance of the sweeps (`pnpm pose-depth <role>`);
+  2. the play folds, at most 1% of the play samples (`pnpm fold-probe <role>`);
+  3. the range of the instrument (`pnpm hold-reach <species>`);
+  4. the look of the hold.
+
+  The folds and the violin size of the rabbit pulled against each other.
+- **The checks before the docs.** Run each check of the app before the first docs commit:
+  `pnpm rig-mesh <animal> --check` gives the triangles, the module size, the seat, the chair, H,
+  the reach, the standing body, the violin rule, and the folds. Then look at the close views.
+  Write the docs last. The rig round of the rabbit found the seat of 0 m after its docs commits.
+- **The probes.** Probe a rig before the swap with `--glb <file>` of `pnpm studio-body --inspect`,
+  `pnpm hold-reach`, and `pnpm fold-probe`. Do not edit `ANIMALS` for a probe.
+- **The GLB file.** Commit each rule of the rig script with the GLB file unchanged. Only the last
+  commit of a series of rig commits writes the GLB file again. The rig GLB files of the rabbit
+  rounds put about 4.4 MB into the history: three extra files of 0.9 MB in the rig round, and six
+  files of about 334 KB in the app round.
+- **The look tests.** Name the look tests that can change with the new body, such as the test
+  "scroll down, as its sheet" of `src/pose/bowed.test.ts` and the leg angle of
+  `src/models/studio-rig.test.ts`. A new body changes their target, and they find no fault.
