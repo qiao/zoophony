@@ -21,6 +21,12 @@ export interface TorsoFrames {
   readonly chest: Frame;
 }
 
+/**
+ * The part of a turn of the head around y that the neck bone turns (design 5.1). The head bone
+ * turns the rest, so the head turns by the whole angle.
+ */
+export const NECK_SHARE = 0.4;
+
 /** The rotations of the bind pose: no rotation on any bone (design 4.7). */
 export const BIND_ROTATIONS: Float32Array = new Float32Array(
   BONE_NAMES.flatMap(() => [0, 0, 0, 1]),

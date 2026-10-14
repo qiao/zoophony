@@ -15,7 +15,7 @@ import type { CountIn } from './count-in.ts';
 import { poseChoir } from './choir.ts';
 import { CHOIR_MOTION, choirStateAt, createChoirState } from './choir-notes.ts';
 import type { ChoirState } from './choir-notes.ts';
-import { BIND_ROTATIONS, chainFrames, createFrame, setBoneRotation } from './frames.ts';
+import { BIND_ROTATIONS, NECK_SHARE, chainFrames, createFrame, setBoneRotation } from './frames.ts';
 import type { Frame, TorsoFrames } from './frames.ts';
 import { createHandState, handStateAt } from './hand-notes.ts';
 import { poseHands } from './hands.ts';
@@ -58,7 +58,7 @@ export const BODY_MOTION = {
   /** The largest side sway of the spine with the beat, for a gesture size of 1. */
   sway: 2 * MathUtils.DEG2RAD,
   /** The part of a look that the neck turns. The head turns the rest. */
-  lookNeck: 0.4,
+  lookNeck: NECK_SHARE,
   /** The turn of each ear at the top of a twitch. */
   ear: 12 * MathUtils.DEG2RAD,
   /** The turns of the two tail bones at the end of a sway. */
