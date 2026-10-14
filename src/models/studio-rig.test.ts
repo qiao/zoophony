@@ -292,8 +292,13 @@ describe('studioRig for a seated body that also stands (design 4.4)', () => {
         expect(down.y, side).toBeLessThan(-Math.cos((25 * Math.PI) / 180));
       }
     }
-    // The shoulders stand at the landmark of the export, above the seated shoulders.
-    expect(standing.positions.upperArmL[1]).toBeGreaterThan(seated.positions.upperArmL[1]);
+    // The trunk keeps its form: the shoulders stand as high above the hip joints as on the seat.
+    // The seat of the rabbit is higher than its legs since 2026-10-14, so the seated shoulders
+    // can be higher than the standing shoulders.
+    expect(standing.positions.upperArmL[1] - standing.positions.thighL[1]).toBeCloseTo(
+      seated.positions.upperArmL[1] - seated.positions.thighL[1],
+      6,
+    );
   });
 
   it('turns no face of the legs over against the mean turn of its corners', () => {

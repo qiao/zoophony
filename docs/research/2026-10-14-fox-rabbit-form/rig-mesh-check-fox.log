@@ -30,14 +30,14 @@ rig_mesh: chair: front edge at z 0.05 u, the shins and the feet from z 0.1546 u
 rig_mesh: chair: seat top 0.2683 u, lowest point of the body 0.0856 u
 rig_mesh: tail: the lowest point 0.1191 u above the soles, the farthest point back at z -0.3586 u, the widest at |x| 0.1042 u
 rig_mesh: triangles: 3135 (57 gloss)
-rig_mesh: wrote /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-HvTSPb/fox.rig.glb: 432456 bytes
+rig_mesh: wrote /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-FsTOKk/fox.rig.glb: 432456 bytes
 Rig: 432456 B, sha256 c450e7b55070cb10dd7de7bb77c276e3e7266c26bad6c79b5eb607ab961a97ca.
 Triangles: 3135 of the budget of 3200 of a studio body.
-Finished in 5ms on 1 files using 10 threads.
-Module: 50,131 B, 29,756 B after gzip. Packed mesh: 28,491 B after gzip, budget 32,000 B (src/models/studio-size.test.ts).
-Scale 1.5504 m for each unit. Head height H 0.323 m. Seat height 0.300 m. Chair depth 0.326 m.
+Finished in 11ms on 1 files using 10 threads.
+Module: 50,132 B, 29,754 B after gzip. Packed mesh: 28,491 B after gzip, budget 32,000 B (src/models/studio-size.test.ts).
+Scale 1.5504 m for each unit. Head height H 0.323 m. Seat height 0.360 m. Chair depth 0.326 m.
 Arm from the shoulder joint to the middle of the palm: L 0.490 m, R 0.490 m.
-Lowest point above the floor, seated bind (seat height 0.300 m): leg L 0.017 m, leg R 0.017 m, tail 0.201 m. Standing body: leg L 0.000 m, leg R 0.001 m, tail 0.154 m.
+Lowest point above the floor, seated bind (seat height 0.360 m): leg L 0.077 m, leg R 0.077 m, tail 0.262 m. Standing body: leg L 0.000 m, leg R 0.001 m, tail 0.154 m.
 Standing body against the long-armed source: 0.228 mm at most (limit 1.000 mm), 0.228 mm back, 1570 vertices, 26 eye vertices left out.
 Thin faces near the joints of the limbs (corner below 10°, longest edge from 0.08 u, joint within 0.1 u), candidates for a ring:
   elbow L: 980 (5.8°, 0.140 m, 0.130 m from the joint), 1800 (8.6°, 0.146 m, 0.069 m from the joint)
@@ -76,5 +76,4 @@ Folded faces of all samples by the main studio bone: upper_arm_R 1253, forearm_t
 
 | Variant | Triangles | Mesh gzip B | Seat m | Chair m | Reach L m | Reach R m | Standing mm | fox-violinist play | fox-violinist lift | fox-violinist rest |
 |---|---|---|---|---|---|---|---|---|---|---|
-| base | 3135 | 28491 | 0.300 | 0.326 | 0.490 | 0.490 | 0.228 | 3.4% | 22.8% | 100.0% |
-exit 0
+| base | 3135 | 28491 | 0.360 | 0.326 | 0.490 | 0.490 | 0.228 | 3.4% | 22.8% | 100.0% |

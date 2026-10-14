@@ -1,6 +1,6 @@
 bach-bwv1047.mid 11.016
 bach-bwv1048.mid 11.016
-bach-bwv1050.mid 9.471
+bach-bwv1050.mid 9.491
 beethoven-1.mid 9.982
 beethoven-8-4.mid 10.007
 beethoven-8.mid 9.934
