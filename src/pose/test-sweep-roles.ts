@@ -52,11 +52,12 @@ const BODY_BONES = [
 const BODY_LOOPS = 2;
 
 /**
- * The open loops of {@link BODY_BONES} of the rabbit, the body of the mesh of the user
- * (`pnpm rig-mesh rabbit`): the cuts to the two upper arms, the edge of the gloss fan over each eye,
- * and two open edges of the whiskers of the mesh. A cap closes each eye fan behind it, in the head.
+ * The open loops of {@link BODY_BONES} of the rabbit and of the red fox, the bodies of the meshes of
+ * the user (`pnpm rig-mesh <animal>`): the cuts to the two upper arms, the edge of the gloss fan
+ * over each eye, and two open edges of each mesh, at the whiskers of the rabbit. A cap closes each
+ * eye fan behind it, in the head.
  */
-const RABBIT_BODY_LOOPS = 6;
+const MESH_BODY_LOOPS = 6;
 
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
@@ -130,14 +131,14 @@ function bodySurface(posed: PosedSkeleton): ClosedSurface {
 }
 
 /**
- * The closed surface of the body of the rabbit violinist: {@link BODY_BONES} with a cap on each
- * open loop ({@link RABBIT_BODY_LOOPS}).
+ * The closed surface of the body of a violinist, the rabbit or the red fox: {@link BODY_BONES} with
+ * a cap on each open loop ({@link MESH_BODY_LOOPS}).
  *
  * @param posed The posed skeleton.
  * @returns The surface.
  */
-function rabbitBodySurface(posed: PosedSkeleton): ClosedSurface {
-  return closedPart(posed, BODY_BONES, RABBIT_BODY_LOOPS);
+function violinistBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, MESH_BODY_LOOPS);
 }
 
 /**
@@ -483,7 +484,7 @@ function violinistTargets(scene: TestScene, index: number): NoteTarget[] {
     return [];
   }
   const { note: layer, timeOffset } = plan;
-  const species = scene.layout.players[index]?.cast.species ?? VIOLINIST;
+  const species = scene.layout.players[index]?.cast.species ?? 'rabbit';
   const params: SpeciesParams = SPECIES[species];
   const halfWidth = (VIOLIN.stringsWidth / 2) * STRING_SCALES.violin * (params.violinScale ?? 1);
   return layer.strokes.flatMap((stroke): NoteTarget[] =>
@@ -500,9 +501,10 @@ function violinistTargets(scene: TestScene, index: number): NoteTarget[] {
 }
 
 /**
- * Tells if a player of a scene is in the sweep of the violinist: the first rabbit of the violin
- * section, which sits, and each rabbit soloist, which stands. The violin seats alternate the
- * rabbit and the red fox (`models/cast.ts`), so a demo shows many rabbits with one model.
+ * Tells if a player of a scene is in the sweep of the violinist: the first seated player of each
+ * species of {@link VIOLINISTS}, and each soloist of these species, which stands. The violin seats
+ * alternate the rabbit and the red fox (`models/cast.ts`), so a demo shows many violinists of
+ * each species with one model.
  *
  * @param scene The scene.
  * @param index The index of the player.
@@ -510,7 +512,7 @@ function violinistTargets(scene: TestScene, index: number): NoteTarget[] {
  */
 function sweptViolinist(scene: TestScene, index: number): boolean {
   const { cast } = scene.layout.players[index] ?? {};
-  if (cast?.species !== VIOLINIST || cast.instrument !== 'violin') {
+  if (!cast || !VIOLINISTS.has(cast.species) || cast.instrument !== 'violin') {
     return false;
   }
   if (cast.support === 'stand') {
@@ -518,25 +520,27 @@ function sweptViolinist(scene: TestScene, index: number): boolean {
   }
   const first = scene.layout.players.findIndex(
     (p) =>
-      p.cast.species === VIOLINIST && p.cast.instrument === 'violin' && p.cast.support !== 'stand',
+      p.cast.species === cast.species &&
+      p.cast.instrument === 'violin' &&
+      p.cast.support !== 'stand',
   );
   return first === index;
 }
 
-/** The species of the violinist with a studio body. */
-const VIOLINIST: SpeciesId = 'rabbit';
+/** The species of the violinists with a studio body of a mesh of the user. */
+const VIOLINISTS: ReadonlySet<SpeciesId> = new Set(['rabbit', 'fox-red']);
 
 /**
  * The sweep of the violinist (design 5.3): the arms and the bow against the body and the violin,
  * in a full play, in the lift of the violin at the play start, in the rest pose before the first
- * play, and in the lowering after the song end. The first seated rabbit of each demo and each
- * standing rabbit soloist play it.
+ * play, and in the lowering after the song end. The first seated rabbit and the first seated red
+ * fox of each demo, and each standing soloist of these species, play it.
  */
 export const VIOLINIST_SWEEP: RoleSweep = {
   role: 'violinist',
   parts: [...ARM_PARTS, { name: 'bow', bones: ['bow'] }],
   obstacles: [
-    { name: 'body', surface: rabbitBodySurface },
+    { name: 'body', surface: violinistBodySurface },
     { name: 'violin', surface: violinSurface },
   ],
   contact: CONTACT,
