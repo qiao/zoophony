@@ -264,8 +264,8 @@ Add these items to the briefs of the rig round and of the app round.
   gives the shoulder joint, the reach with no factor, and the factor of the target reach. Ask
   with that measured factor. For the rabbit, the manager estimated 1.25 from a render, and the
   measure gave 1.445.
-- **The faces.** Permit rings at the joints (`refine.rings` of the config) and edge flips of faces
-  that lie almost on one plane (`refine.flip`) from the start. `--check` lists the thin faces near
+- **The faces.** Permit rings at the joints from the start (`refine.rings` of the config). Also
+  permit edge flips of faces that lie almost on one plane (`refine.flip`). `--check` lists the thin faces near
   the joints of the limbs as candidates for a ring. The rule "keep the faces of the source"
   stopped the app round of the rabbit at 45% play folds.
 - **The order of the goals.** When two goals conflict, keep this order:
@@ -275,9 +275,9 @@ Add these items to the briefs of the rig round and of the app round.
   4. the look of the hold.
 
   The folds and the violin size of the rabbit pulled against each other.
-- **The checks before the docs.** Run each check of the app before the first docs commit:
-  `pnpm rig-mesh <animal> --check` gives the triangles, the module size, the seat, the chair, H,
-  the reach, the standing body, the violin rule, and the folds. Then look at the close views.
+- **The checks before the docs.** Run each check of the app before the first docs commit.
+  `pnpm rig-mesh <animal> --check` gives the triangles, the module size, the seat, the chair, and
+  H. It also gives the reach, the standing body, the violin rule, and the folds. Then look at the close views.
   Write the docs last. The rig round of the rabbit found the seat of 0 m after its docs commits.
 - **The probes.** Look at a rig with `pnpm rig-mesh <animal> --check --preview <dir>`, which
   writes no file into the repository. A plain `--preview` writes the GLB file. Probe a rig before
@@ -294,7 +294,9 @@ Add these items to the briefs of the rig round and of the app round.
   git log --format=%h -- $F | while read h; do echo "$h $(git cat-file -s $h:$F)"; done
   ```
 - **The look tests.** Name the look tests that can change with the new body. The app round of the
-  rabbit changed two: the hold of the violin in `src/pose/bowed.test.ts` (now "holds the violin
-  of a rabbit on the left shoulder about level, as a real violinist", before "scroll down, as its
-  sheet"), and the leg angle of "straightens the legs under the hips" in
-  `src/models/studio-rig.test.ts`. A new body changes their target, and they find no fault.
+  rabbit changed two of them:
+  - `src/pose/bowed.test.ts`: "holds the violin of a rabbit on the left shoulder about level, as
+    a real violinist". Its old title was "scroll down, as its sheet".
+  - `src/models/studio-rig.test.ts`: the leg angle of "straightens the legs under the hips".
+
+  A new body changes their target, and they find no fault.
