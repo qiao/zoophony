@@ -227,7 +227,7 @@ near = { part = "snout", within = 0.01 }
 
 # The colors of the faces and of the details.
 [paint.palette]
-fur = [219, 208, 192]  # python3 studio calibrate (rabbit GLB)
+fur = [220, 208, 192]
 belly = [236, 228, 214]
 muzzle = [226, 216, 200]  # python3 studio calibrate (rabbit GLB)
 ear = [217, 205, 190]  # python3 studio calibrate (rabbit GLB)
@@ -238,12 +238,12 @@ sclera = [236, 228, 216]
 catchlight = [255, 255, 255]
 nose = [214, 150, 134]
 mouth = [96, 72, 60]
-brow = [219, 208, 192]  # python3 studio calibrate (rabbit GLB)
+brow = [220, 208, 192]
 claw = [176, 124, 108]
 
 [paint.belly]
 center_y = 0.38
-radii = [0.075, 0.085]
+radii = [0.075, 0.10]
 edge = [0.0, 1.6]
 facing = [-0.1, 0.6]
 min_z = -0.05
@@ -262,7 +262,7 @@ lift = 0.22
 occlusion = 0.2
 
 [paint.occlusion]
-strength = 0.25
+strength = 0.12
 ramp = [0.05, 0.6]
 moving = 0.3
 
@@ -289,11 +289,11 @@ radius_arch = 0.0003
 [details.nose]
 at = [0.0, 0.612]
 ray_z = 0.3
-size = [0.026, 0.018, 0.022]
+size = [0.021, 0.016, 0.026]
 taper = 0.5
 taper_clip = [0.55, 1.3]
 tilt = 0.004
-sink = 0.006
+sink = 0.004
 
 [details.mouth]
 out = 0.0008
@@ -366,7 +366,7 @@ materials = { fur = { roughness = 0.7, specular = 0.35 }, gloss = { roughness = 
 
 [look.light]
 hemi = 3.85  # python3 studio calibrate (rabbit GLB)
-key = 0.24  # python3 studio calibrate (rabbit GLB)
+key = 0.1
 fill = 0.6
 rim = 0.35
 key_dir = [-1.2, 3.5, 3.5]

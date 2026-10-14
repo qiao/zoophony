@@ -7,7 +7,6 @@
   "failed": [
     "iou.front",
     "iou.side",
-    "fur_hue.side",
     "iou.back",
     "iou.three_quarter",
     "eye_outline.three_quarter.0",
@@ -17,22 +16,22 @@
     "ear_dark.front.left_in_image",
     "ear_width.side.ear",
     "ear_height.side.ear",
-    "nose_width.front.0",
+    "nose_x.side.0",
     "nose_y.side.0",
     "nose_width.side.0",
     "nose_height.side.0",
-    "belly_height.front.belly",
+    "belly_width.front.belly",
     "facet_contrast"
   ],
   "near": [
     "folds.ready",
     "folds.rest",
     "folds.performance",
-    "fur_hue.back",
     "eye_outline.front.0",
     "nose_height.front.0",
-    "nose_x.side.0",
-    "claw_count.front.left_in_image"
+    "belly_height.front.belly",
+    "claw_count.front.left_in_image",
+    "claw_count.front.right_in_image"
   ],
   "checks": [
     {
@@ -458,7 +457,7 @@
     {
       "name": "fur_hue.front",
       "value": [
-        33.5,
+        32.7,
         32.9
       ],
       "op": "abs<=",
@@ -471,7 +470,7 @@
     {
       "name": "fur_saturation.front",
       "value": [
-        0.151,
+        0.153,
         0.146
       ],
       "op": "abs<=",
@@ -496,7 +495,7 @@
     },
     {
       "name": "iou.side",
-      "value": 0.8831,
+      "value": 0.8817,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -511,24 +510,20 @@
     {
       "name": "fur_hue.side",
       "value": [
-        33.8,
+        32.7,
         32.1
       ],
       "op": "abs<=",
       "limit": 1.0,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
-      "where": {
-        "view": "side",
-        "crop": "report/views/side.jpg"
-      },
       "look": true
     },
     {
       "name": "fur_saturation.side",
       "value": [
-        0.148,
+        0.152,
         0.14
       ],
       "op": "abs<=",
@@ -541,7 +536,7 @@
     {
       "name": "fur_value.side",
       "value": [
-        0.902,
+        0.898,
         0.89
       ],
       "op": "abs<=",
@@ -571,24 +566,20 @@
     {
       "name": "fur_hue.back",
       "value": [
-        33.5,
+        32.6,
         32.7
       ],
       "op": "abs<=",
       "limit": 1.0,
       "pass": true,
-      "near": true,
+      "near": false,
       "gate": false,
-      "where": {
-        "view": "back",
-        "crop": "report/views/back.jpg"
-      },
       "look": true
     },
     {
       "name": "fur_saturation.back",
       "value": [
-        0.147,
+        0.151,
         0.138
       ],
       "op": "abs<=",
@@ -601,7 +592,7 @@
     {
       "name": "fur_value.back",
       "value": [
-        0.91,
+        0.898,
         0.91
       ],
       "op": "abs<=",
@@ -641,7 +632,7 @@
     {
       "name": "fur_hue.three_quarter",
       "value": [
-        33.5,
+        32.6,
         33.3
       ],
       "op": "abs<=",
@@ -654,7 +645,7 @@
     {
       "name": "fur_saturation.three_quarter",
       "value": [
-        0.15,
+        0.154,
         0.149
       ],
       "op": "abs<=",
@@ -667,7 +658,7 @@
     {
       "name": "fur_value.three_quarter",
       "value": [
-        0.886,
+        0.882,
         0.89
       ],
       "op": "abs<=",
@@ -916,7 +907,7 @@
     {
       "name": "ear_width.side.ear",
       "value": [
-        0.0946,
+        0.0932,
         0.0611
       ],
       "op": "rel<=",
@@ -1042,22 +1033,15 @@
     {
       "name": "nose_width.front.0",
       "value": [
-        0.0552,
+        0.0435,
         0.0406
       ],
       "op": "rel<=",
       "limit": 0.15,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
       "floor": 0.00155,
-      "where": {
-        "feature": "nose",
-        "view": "front",
-        "region": "nose",
-        "item": 0,
-        "crop": "report/features/nose_front_nose.png"
-      },
       "look": true
     },
     {
@@ -1084,13 +1068,13 @@
     {
       "name": "nose_x.side.0",
       "value": [
-        0.1959,
+        0.2017,
         0.1872
       ],
       "op": "abs<=",
       "limit": 0.01,
-      "pass": true,
-      "near": true,
+      "pass": false,
+      "near": false,
       "gate": false,
       "floor": 0.00156,
       "where": {
@@ -1105,7 +1089,7 @@
     {
       "name": "nose_y.side.0",
       "value": [
-        0.6252,
+        0.6245,
         0.6463
       ],
       "op": "abs<=",
@@ -1147,7 +1131,7 @@
     {
       "name": "nose_height.side.0",
       "value": [
-        0.0073,
+        0.0058,
         0.0204
       ],
       "op": "rel<=",
@@ -1168,7 +1152,7 @@
     {
       "name": "belly_y.front.belly",
       "value": [
-        0.3902,
+        0.395,
         0.3795
       ],
       "op": "abs<=",
@@ -1182,22 +1166,8 @@
     {
       "name": "belly_width.front.belly",
       "value": [
-        0.0842,
+        0.0711,
         0.0958
-      ],
-      "op": "rel<=",
-      "limit": 0.2,
-      "pass": true,
-      "near": false,
-      "gate": false,
-      "floor": 0.00155,
-      "look": true
-    },
-    {
-      "name": "belly_height.front.belly",
-      "value": [
-        0.0856,
-        0.1103
       ],
       "op": "rel<=",
       "limit": 0.2,
@@ -1215,9 +1185,30 @@
       "look": true
     },
     {
+      "name": "belly_height.front.belly",
+      "value": [
+        0.0914,
+        0.1103
+      ],
+      "op": "rel<=",
+      "limit": 0.2,
+      "pass": true,
+      "near": true,
+      "gate": false,
+      "floor": 0.00155,
+      "where": {
+        "feature": "belly",
+        "view": "front",
+        "region": "belly",
+        "item": 0,
+        "crop": "report/features/belly_front_belly.png"
+      },
+      "look": true
+    },
+    {
       "name": "claw_count.front.left_in_image",
       "value": [
-        2,
+        4,
         3
       ],
       "op": "abs<=",
@@ -1236,20 +1227,26 @@
     {
       "name": "claw_count.front.right_in_image",
       "value": [
-        3,
+        4,
         3
       ],
       "op": "abs<=",
       "limit": 1.0,
       "pass": true,
-      "near": false,
+      "near": true,
       "gate": false,
+      "where": {
+        "feature": "claws",
+        "view": "front",
+        "region": "right_in_image",
+        "crop": "report/features/claws_front_right_in_image.png"
+      },
       "look": true
     },
     {
       "name": "facet_contrast",
       "value": [
-        3.84,
+        3.7,
         3.02
       ],
       "op": "rel<=",
@@ -1264,9 +1261,9 @@
   "look": {
     "current": true,
     "reason": null,
-    "run": "20261013-175019-63376",
-    "look_run": "20261013-175019-63376",
-    "made": "2026-10-13T17:51:04-0700",
+    "run": "20261013-175953-73895",
+    "look_run": "20261013-175953-73895",
+    "made": "2026-10-13T18:00:17-0700",
     "compare": "model",
     "model_seed": 1
   },
