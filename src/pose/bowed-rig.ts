@@ -255,18 +255,20 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  * Holding the violin", 2026-10-14-fox-rabbit-form decisions): the tail end on the left
  * collarbone against the left side of the neck, under the jaw, the jaw on the violin, the violin
  * about 38° to the left of the front, and the scroll a little up, so that the strings are about
- * level. The violin of the rule of this hold with the longer arms of 2026-10-14 is 0.96 of the
- * app violin, and it sits 0.045 H lower than the smaller violin before, so that it keeps off the
- * jaw (2026-10-14-neck-violin decisions). The back stays
- * straight. The bow lies nearly square across the strings. The right arm has the shoulder turn of
- * the chin hold. At the frog, the right elbow points out, forward, and less down than in the chin
- * hold, nearer to the level of the bow, and the bow keeps 0.06 m of free hair at each end: with
- * the violin of the rule of this hold, the bow paw went 3.2 cm into the body at the frog, and
- * 1.9 cm with this elbow and this free hair. The right elbow points down at the tip too: up, as in
- * the chin hold, the skin of the studio rabbit folded at the right upper arm
- * (`pnpm fold-probe violinist`). The left elbow keeps the pole of the chin hold: a pole further in
- * put the elbow under the violin, and turned over faces of the left upper arm of the rabbit mesh
- * in each play sample (2026-10-13-mesh-rabbit decisions).
+ * level. The violin is 0.96 of the app violin, and it sits 0.045 H lower than the smaller violin
+ * before, so that it keeps off the jaw (2026-10-14-neck-violin decisions). With the shorter arms
+ * of 2026-10-14, it sits 0.039 H further back, so that the left paw reaches the nut: at the old
+ * place, the paw reached the fingerboard from 0.06 of its length. A turn of the scroll further to
+ * the left also reached the nut, but folded the skin of the left arm in 76% to 100% of the play
+ * samples (2026-10-14-arms-rest decisions). The back stays straight. The bow lies nearly square
+ * across the strings. The right arm has the shoulder turn of the chin hold. At the frog, the right
+ * elbow points out, forward, and less down than in the chin hold, nearer to the level of the bow,
+ * and the bow keeps 0.06 m of free hair at each end: with the larger violin, the bow paw went
+ * 3.2 cm into the body at the frog, and 1.9 cm with this elbow and this free hair. The right
+ * elbow points down at the tip too: up, as in the chin hold, the skin of the studio rabbit folded
+ * at the right upper arm (`pnpm fold-probe violinist`). The left elbow keeps the pole of the chin
+ * hold: a pole further in put the elbow under the violin, and turned over faces of the left upper
+ * arm of the rabbit mesh in each play sample (2026-10-13-mesh-rabbit decisions).
  *
  * The rest pose is the rest of a seated violinist between the passages (violinspiration.com,
  * "Violin posture": "the violin resting on your left leg with the neck in your left hand", "the
@@ -279,7 +281,7 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
-  playShift: [-0.054, -0.05, 0.151],
+  playShift: [-0.054, -0.05, 0.19],
   playTurn: violinTurn(-25, 5),
   poleR: [1.5, -0.7, -1],
   freeHair: 0.06,
@@ -299,13 +301,20 @@ const SHOULDER_HOLD = {
  * The hold of the violin on the left shoulder, for the red fox (design 4.6, 5.3): the hold of the
  * rabbit, with the tail end against the left side of the short neck of the fox, under its long
  * jaw, 0.087 H further back and 0.035 H higher than on the collarbone of 2026-10-14, where the
- * violin kept 2.4 cm from the neck (2026-10-14-neck-violin decisions). The bow slants 12° and the
- * right shoulder turns 15°, and the right elbow at the tip points less down: with the bow of the
- * rabbit (5°, 30°), the skin of the right shoulder of the fox mesh folded in 18% of the play
- * samples (`pnpm fold-probe fox-violinist`), and with the full violin and the longer arms, the
- * turn of 15° folds fewer samples than 25°. At the frog, the right
- * elbow points further out than the elbow of the rabbit, with 0.06 m of free hair: the bow paw
- * went 3.6 cm into the body, and 2.4 cm with this elbow and this free hair.
+ * violin kept 2.4 cm from the neck (2026-10-14-neck-violin decisions). With the shorter arms of
+ * 2026-10-14, the violin sits 0.07 H further back and 0.016 H further left, so that the left paw
+ * reaches the nut: at the old place, the paw reached the fingerboard from 0.09 of its length.
+ * Straight back by 0.06 H, the violin went 1.3 cm into the neck, and with this place 1.1 cm
+ * (`violin-probe.txt` of the research folder of the decisions). A turn of the scroll further
+ * to the left also reached the nut, but folded the skin of the right shoulder in 25% to 64% of the
+ * play samples (2026-10-14-arms-rest decisions). The bow slants 12° and the right shoulder turns
+ * 15°, and the right elbow at the tip points less down: with the bow of the rabbit (5°, 30°), the
+ * skin of the right shoulder of the fox mesh folded in 18% of the play samples
+ * (`pnpm fold-probe fox-violinist`), and with the full violin, the turn of 15° folds fewer samples
+ * than 25°. At the frog, the right elbow points further out than the elbow of the rabbit, and the
+ * bow keeps 0.1 m of free hair at each end: with 0.08 m and the violin further back, the bow paw
+ * went 3.7 cm into the body at the frog, and 3.2 cm with 0.1 m. With 0.12 m, more play samples
+ * folded. The bow paw reaches 0.305 m of the hair.
  *
  * In the rest pose, the arms of the fox do not reach its thighs: the shoulder joints are 0.65 m
  * above the top of the thighs, and each arm reaches 0.49 m. The violin stands upright on the left
@@ -316,11 +325,11 @@ const SHOULDER_HOLD = {
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
   poleR: [1.4, -0.7, -1],
-  playShift: [-0.054, 0.03, 0.18],
+  playShift: [-0.07, 0.03, 0.25],
   slant: -12 * MathUtils.DEG2RAD,
   reach: 15 * MathUtils.DEG2RAD,
   poleTipR: [1, -0.85, -1],
-  freeHair: 0.06,
+  freeHair: 0.1,
   restPoleL: [-1, -1, 0],
   restPoleR: [1, -0.4, 0.3],
   rest: {

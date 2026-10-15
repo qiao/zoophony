@@ -387,21 +387,23 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     shoulder as a real violinist does (`SHOULDER_HOLD`): the tail end lies on the left collarbone
     against the left side of the neck, under the jaw, and the jaw lies on the violin. The violin
     may touch the body, at most 1 cm deep. The violin turns toward the front, and the
-    scroll rises a little, so that the strings are about level. The bow lies nearly square across
+    scroll rises a little, so that the strings are about level. With the shorter arms of
+    2026-10-14, each violin sits further back toward the neck, so that the left paw reaches the
+    nut. A turn of the scroll to the front, as Simon Fischer advises for short arms, moved the
+    scroll away from the left shoulder joint, and a turn to the left folded the skin of the arms. The bow lies nearly square across
     the strings. The back stays straight. The left elbow keeps the direction of the chin hold, a
     little out of the plane of the violin: further in, the thin faces of the left upper arm of the
     rabbit mesh turned over. The right arm has the shoulder turn of the chin hold. At the frog,
     the right elbow points out and less down than in the chin hold, nearer to the level of the
     bow, and the bow keeps a longer free hair at each end (`BowedHold.freeHair` of
-    `pose/bowed-rig.ts`): the larger violin and bow of the rule of this hold put the bow paw into
-    the body at the frog. At the tip, the right elbow also points down: up, the skin of the studio
+    `pose/bowed-rig.ts`): the larger violin and bow put the bow paw into the body at the frog. At the tip, the right elbow also points down: up, the skin of the studio
     rabbit folded at the upper arm. In the rest pose, the
     violin stands upright on the left thigh, held at its neck, and the bow stands on the right
     thigh, up and forward, as a seated violinist rests between the passages: the longer legs of
     2026-10-14 give the rabbit a lap. The red foxes take the shoulder hold
     of the rabbits (`FOX_HOLD`), with the tail end against the left side of the short neck under the
     long jaw, the bow slanted 12°, the right shoulder turned 15°, the right elbow at the tip less
-    down, and the right elbow at the frog further out. With the bow of the rabbit, the skin of the
+    down, the right elbow at the frog further out, and a longer free hair of the bow. With the bow of the rabbit, the skin of the
     right shoulder of the fox mesh folded in 18% of the play samples. The paws of the fox did not reach its thighs before its longer arms of 2026-10-14, so its violin stands on the
     left thigh nearer to the hip, and its right paw holds the bow beside the right thigh, with the
     tip down. `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
