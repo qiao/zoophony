@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtempSync } from 'node:fs';
+import { copyFileSync, mkdtempSync } from 'node:fs';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
@@ -1128,9 +1128,11 @@ export function formLines(rows: readonly CheckRow[], base: FormJson | null): str
 
 /**
  * Measures the form of the players of an animal and the stage sides on the commit
- * {@link FORM_BASE}: `tools/rig-form.ts` runs in a probe tree of the commit
- * (`tools/ref-tree.ts`). It runs before the first rig, so that only the stop of the probe tree is
- * on during the run.
+ * {@link FORM_BASE}: `tools/rig-form.ts` of the working tree runs in a probe tree of the commit
+ * (`tools/ref-tree.ts`), in place of the script of the commit. The script imports only the code of
+ * the app and the demo patches, so it runs on the source of the commit, and both tables have one
+ * format with the same measures. It runs before the first rig, so that only the stop of the probe
+ * tree is on during the run.
  *
  * @param args The players of the roles ({@link playerArgs}).
  * @returns The form, or `null` when the probe fails. The message of the failure goes to the
@@ -1141,6 +1143,7 @@ async function baseForm(args: readonly string[]): Promise<FormJson | null> {
     return await withProbeTree(
       FORM_BASE,
       async (dir) => {
+        copyFileSync(join(ROOT, 'tools', 'rig-form.ts'), join(dir, 'tools', 'rig-form.ts'));
         const file = join(dir, 'form.json');
         await runChild(
           process.execPath,
