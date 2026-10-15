@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 
-import { Box3, Matrix4, Quaternion, Vector3 } from 'three';
+import { Box3, MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import type { Finish } from '../src/models/mesh.ts';
@@ -331,6 +331,11 @@ interface Gltf {
        * config of the mesh rig). The file has no factor when the head keeps its size.
        */
       readonly headFactor?: number;
+      /**
+       * The factor by which the rig shortens the neck between its joints (`neckFactor` of the
+       * config of the mesh rig). The file has no factor when the neck keeps its length.
+       */
+      readonly neckFactor?: number;
     };
   };
 }
@@ -357,23 +362,105 @@ export function headFactorOf(glb: Glb): number {
 }
 
 /**
- * Gives the place of a vertex of a grown head before the growth of the rig. The rig moves each
- * vertex from the neck joint by its share of the growth: `p' = neck + (1 + share (factor - 1))
- * (p - neck)`, with the weight of the head and the ears as the share. Only the bones of the head
- * grow, so the inverse is exact.
+ * Gives the factor by which the rig of a GLB file shortens the neck (`pnpm rig-mesh`).
+ *
+ * @param glb The file.
+ * @returns The factor, or 1 when the file has none.
+ * @throws Error if the factor is not a positive number.
+ */
+export function neckFactorOf(glb: Glb): number {
+  const factor = glb.json.asset?.extras?.neckFactor ?? 1;
+  if (!Number.isFinite(factor) || factor <= 0) {
+    throw new Error(`The neck factor ${factor} of the file is not a positive number.`);
+  }
+  return factor;
+}
+
+/**
+ * The facts of a rig that grows the head and shortens the neck (`pnpm rig-mesh`), in the bind pose
+ * of the file. The rig grows the head and the ears around the neck joint by the head factor, then
+ * moves them by {@link HeadRig.drop}. The neck stretches by the neck factor between the neck joint
+ * and the head joint of the source, so a point of the neck moves along the neck by the neck
+ * factor less 1 times its place along the neck, and a point beyond the head joint by the whole
+ * drop of the neck.
+ */
+export interface HeadRig {
+  /** The neck joint. */
+  readonly neck: Vector3;
+  /** The unit direction of the neck, from the neck joint to the head joint. */
+  readonly axis: Vector3;
+  /** The length of the neck of the source, before the head factor and the neck factor. */
+  readonly length: number;
+  /** The head factor. */
+  readonly headFactor: number;
+  /** The neck factor. */
+  readonly neckFactor: number;
+  /** The move of the head and the ears along the neck after the growth, 0 for the factor 1. */
+  readonly drop: Vector3;
+}
+
+/**
+ * Gives the facts of the head and the neck of a rig from its joints in the bind pose of the file.
+ * The neck of the file is the neck of the source times the head factor and the neck factor.
+ *
+ * @param neck The neck joint.
+ * @param head The head joint.
+ * @param headFactor The head factor of the rig.
+ * @param neckFactor The neck factor of the rig.
+ * @returns The facts.
+ */
+export function headRig(
+  neck: Vector3,
+  head: Vector3,
+  headFactor: number,
+  neckFactor: number,
+): HeadRig {
+  const span = head.clone().sub(neck);
+  return {
+    neck,
+    axis: span.clone().normalize(),
+    length: span.length() / (headFactor * neckFactor),
+    headFactor,
+    neckFactor,
+    drop: span.clone().multiplyScalar((neckFactor - 1) / neckFactor),
+  };
+}
+
+/**
+ * Gives the place of a vertex of a grown head before the growth of the rig, on the short neck.
+ * The rig moves each vertex by the moves of its bones, blended by its weights: `p' = p + head
+ * ((factor - 1) (p - neck) + drop) + neck (neck factor - 1) along(p) axis`, with `along(p)` the
+ * place of the source point along the neck, clamped from 0 at the neck joint to the length of the
+ * neck. The drop lies along the neck, so the place along the neck of `p'` gives `along(p)` on
+ * each of the three pieces of the clamp. The inverse then adds the whole drop, so the head before
+ * the growth sits on the short neck. The inverse is exact for the vertices of the head, of the
+ * neck, and of the bones that do not move.
  *
  * @param place The place of the vertex in the bind pose of the file.
- * @param neck The neck joint in the bind pose of the file.
- * @param share The weight of the vertex on the head and the ears.
- * @param factor The head factor of the rig.
- * @returns The place before the growth.
+ * @param shares The weight of the vertex on the head and the ears, and on the neck.
+ * @param rig The facts of the head and the neck of the rig.
+ * @returns The place before the growth, on the short neck.
  */
-export function ungrown(place: Vector3, neck: Vector3, share: number, factor: number): Vector3 {
+export function ungrown(
+  place: Vector3,
+  shares: { readonly head: number; readonly neck: number },
+  rig: HeadRig,
+): Vector3 {
+  const { neck, axis, length, headFactor, neckFactor, drop } = rig;
+  const grow = 1 + shares.head * (headFactor - 1);
+  const stretch = shares.neck * (neckFactor - 1);
+  const along = place.clone().sub(neck).dot(axis) - shares.head * drop.dot(axis);
+  // The place along the neck of `p'` grows with the place of `p` on each piece, so the clamp of
+  // the place of the middle piece gives the clamped place of `p`.
+  const clamped = MathUtils.clamp(along / (grow + stretch), 0, length);
   return place
     .clone()
+    .addScaledVector(axis, -stretch * clamped)
+    .addScaledVector(drop, -shares.head)
     .sub(neck)
-    .divideScalar(1 + share * (factor - 1))
-    .add(neck);
+    .divideScalar(grow)
+    .add(neck)
+    .add(drop);
 }
 
 /**
@@ -1289,8 +1376,12 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   // holds are in head heights and start at the head center, so a head that the rig grows keeps
   // the head height and the center of the head before its factor, and the holds keep their places
   // (design 4.4).
-  const factor = headFactorOf(glb);
-  const neck = headOf(skeleton, 'neck');
+  const rig = headRig(
+    headOf(skeleton, 'neck'),
+    headOf(skeleton, 'head'),
+    headFactorOf(glb),
+    neckFactorOf(glb),
+  );
   let top = -Infinity;
   let chin = Infinity;
   const box = {
@@ -1304,7 +1395,8 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       const share = vertex.skin
         .filter(([bone]) => bone === 'head' || bone === 'ear_L' || bone === 'ear_R')
         .reduce((sum, [, w]) => sum + w, 0);
-      const place = ungrown(vertex.position, neck, share, factor);
+      const neckShare = vertex.skin.find(([bone]) => bone === 'neck')?.[1] ?? 0;
+      const place = ungrown(vertex.position, { head: share, neck: neckShare }, rig);
       top = Math.max(top, place.y);
       chin = Math.min(chin, place.y);
       box.min.min(place);

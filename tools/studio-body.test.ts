@@ -12,6 +12,8 @@ import type { AnimalSettings } from './studio-body.ts';
 import {
   ANIMALS,
   headFactorOf,
+  headRig,
+  neckFactorOf,
   inspectStudioGlb,
   inspectionLines,
   ownBone,
@@ -553,17 +555,20 @@ describe('studioGlbPath', () => {
  * Writes a GLB file again with a head factor of `pnpm rig-mesh` in the extras of its asset.
  *
  * @param bytes The GLB file.
- * @param factor The head factor.
+ * @param extras The facts of the rig: the head factor and the neck factor.
  * @returns The new file.
  */
-function withHeadFactor(bytes: Uint8Array, factor: number): Uint8Array {
+function withExtras(
+  bytes: Uint8Array,
+  extras: { readonly headFactor?: number; readonly neckFactor?: number },
+): Uint8Array {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const jsonLength = view.getUint32(12, true);
   // SAFETY: the JSON chunk of a GLB file holds one JSON object.
   const json = JSON.parse(new TextDecoder().decode(bytes.subarray(20, 20 + jsonLength))) as {
-    asset: { extras?: { headFactor: number } };
+    asset: { extras?: { readonly headFactor?: number; readonly neckFactor?: number } };
   };
-  json.asset.extras = { headFactor: factor };
+  json.asset.extras = extras;
   let text = JSON.stringify(json);
   text += ' '.repeat((4 - (text.length % 4)) % 4);
   const chunk = new TextEncoder().encode(text);
@@ -594,18 +599,47 @@ describe('pnpm studio-body with a head that the rig grows (design 4.4)', async (
   it('moves each vertex of a grown head back by its share of the growth', () => {
     const neck = new Vector3(0, 0.6, 0.05);
     const source = new Vector3(0.02, 0.8, 0.2);
+    const rig = headRig(neck, new Vector3(0, 0.75, 0.05), 1.5, 1);
+    expect(rig.drop.length()).toBe(0);
     for (const share of [0, 0.4, 1]) {
       const grown = source
         .clone()
         .sub(neck)
         .multiplyScalar(1 + share * 0.5)
         .add(neck);
-      expect(ungrown(grown, neck, share, 1.5).distanceTo(source)).toBeLessThan(1e-12);
+      expect(ungrown(grown, { head: share, neck: 1 - share }, rig).distanceTo(source)).toBeLessThan(
+        1e-12,
+      );
+    }
+  });
+
+  it('keeps the move of the head along a short neck, and removes the growth and the neck stretch', () => {
+    const neck = new Vector3(0, 0.6, 0.05);
+    // A neck of 0.1 units, a head factor of 1.2, and a neck factor of 0.5: the head joint of the
+    // file is 0.06 units above the neck joint, and the head moves 0.06 units down.
+    const rig = headRig(neck, new Vector3(0, 0.66, 0.05), 1.2, 0.5);
+    expect(rig.drop.distanceTo(new Vector3(0, -0.06, 0))).toBeLessThan(1e-12);
+    expect(rig.length).toBeCloseTo(0.1, 12);
+    // A point beyond the head joint and a point of the neck halfway along it.
+    for (const source of [new Vector3(0.02, 0.8, 0.2), new Vector3(0.05, 0.65, 0.08)]) {
+      const along = Math.min(Math.max(source.y - neck.y, 0), 0.1);
+      for (const [head, share] of [
+        [0, 1],
+        [0.4, 0.6],
+        [1, 0],
+      ] as const) {
+        const moved = source
+          .clone()
+          .addScaledVector(source.clone().sub(neck).multiplyScalar(0.2).add(rig.drop), head)
+          .add(new Vector3(0, -0.5 * along * share, 0));
+        const back = ungrown(moved, { head, neck: share }, rig);
+        expect(back.distanceTo(source.clone().add(rig.drop))).toBeLessThan(1e-9);
+      }
     }
   });
 
   it('keeps the head height and the head center of the holds from the head before the factor', () => {
-    const grown = withHeadFactor(bytes, 1.5);
+    const grown = withExtras(bytes, { headFactor: 1.5 });
     expect(headFactorOf(readGlb(bytes))).toBe(1);
     expect(headFactorOf(readGlb(grown))).toBe(1.5);
     // The head of the bear keeps its size, so the head before the factor is about 1.5 times
@@ -619,7 +653,15 @@ describe('pnpm studio-body with a head that the rig grows (design 4.4)', async (
   });
 
   it('refuses a head factor that is not a positive number', () => {
-    expect(() => headFactorOf(readGlb(withHeadFactor(bytes, 0)))).toThrow(/positive/);
+    expect(() => headFactorOf(readGlb(withExtras(bytes, { headFactor: 0 })))).toThrow(/positive/);
+  });
+
+  it('reads the neck factor of the rig, 1 when the file has none', () => {
+    expect(neckFactorOf(readGlb(bytes))).toBe(1);
+    expect(neckFactorOf(readGlb(withExtras(bytes, { headFactor: 1.2, neckFactor: 0.65 })))).toBe(
+      0.65,
+    );
+    expect(() => neckFactorOf(readGlb(withExtras(bytes, { neckFactor: -1 })))).toThrow(/positive/);
   });
 });
 
