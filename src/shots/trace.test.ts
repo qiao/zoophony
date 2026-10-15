@@ -12,7 +12,8 @@ import {
 } from '../midi/test-smf.ts';
 import type { TestEvent } from '../midi/test-smf.ts';
 import { violinPianoDuoFile } from '../models/test-chamber.ts';
-import { CLOSE_DISTANCE_SHARE, traceShots } from './prepare.ts';
+import { viewAngle } from './camera-keys.ts';
+import { CLOSE_DISTANCE_SHARE, JUMP_CUT, traceShots } from './prepare.ts';
 import { TEST_SEED, shotSceneOf } from './test-shots.ts';
 import type { ShotScene } from './test-shots.ts';
 import type { CutTrace, ShotTrace, TraceRange } from './trace.ts';
@@ -163,6 +164,34 @@ describe('traceShots() (design 5.6)', () => {
       expect(cut.fill.at(-1)?.found).toBe(true);
       expect(cut.candidates.every((c) => c.attempts.every((a) => !a.found))).toBe(true);
     }
+  });
+
+  it('accepts the camera of the shot, and refuses a jump cut only near the previous view', () => {
+    let jumps = 0;
+    for (const [i, scene] of SCENES.entries()) {
+      for (const cut of (TRACES[i]?.cuts ?? []).filter((c) => c.outcome === 'candidate')) {
+        const at = scene.plan.shots.findIndex((s) => Math.abs(s.startSec - cut.cutSec) < 1e-9);
+        const shot = scene.plan.shots[at];
+        const previous = scene.plan.shots[at - 1];
+        const chosen = cut.candidates.findLast((c) => c.attempts.length > 0);
+        const searches = chosen?.attempts.at(-1)?.searches ?? [];
+        const accepted = searches.at(-1)?.cameras.at(-1);
+        if (searches.length > 0) {
+          expect(accepted?.refusal).toBeNull();
+          expect(accepted?.azimuth).toBe(shot?.from.azimuth);
+          expect(accepted?.elevation).toBe(shot?.from.elevation);
+        }
+        const cameras = cut.candidates.flatMap((c) =>
+          c.attempts.flatMap((a) => a.searches.flatMap((search) => search.cameras)),
+        );
+        for (const camera of cameras.filter((c) => c.refusal === 'jump')) {
+          jumps++;
+          const key = { azimuth: camera.azimuth, elevation: camera.elevation, zoom: 1, fov: 30 };
+          expect(previous && viewAngle(previous.to, key)).toBeLessThan(JUMP_CUT.angle);
+        }
+      }
+    }
+    expect(jumps).toBeGreaterThan(0);
   });
 
   it('gives the share of the distance of each camera that the distance refuses', () => {
