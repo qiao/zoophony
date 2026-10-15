@@ -9,18 +9,22 @@
  * Usage: pnpm test:paused [--base <ref>] [<path>]...
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, realpathSync, symlinkSync } from 'node:fs';
+import { existsSync, symlinkSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 
 import { ROOT, runChildren, shortHash, withRefTree } from './ref-tree.ts';
 import type { ChildEnd } from './ref-tree.ts';
+import type { PausedReport } from './paused-reporter.ts';
 
 /** The usage text of `pnpm test:paused`. */
 const USAGE = 'Usage: pnpm test:paused [--base <ref>] [<path>]...';
 
 /** The script of Vitest in the packages of the working tree. */
 const VITEST = join(ROOT, 'node_modules', 'vitest', 'vitest.mjs');
+
+/** The reporter of the working tree, which both runs use (`tools/paused-reporter.ts`). */
+const REPORTER = join(ROOT, 'tools', 'paused-reporter.ts');
 
 /**
  * The paths of a commit that the paused tests read: the source, the tools and the demo files that
@@ -77,9 +81,10 @@ export function parsePausedArgs(args: readonly string[]): PausedArgs {
 }
 
 /**
- * Gives the arguments of Vitest for a run of the paused tests with the JSON report.
+ * Gives the arguments of Vitest for a run of the paused tests with the report of the reporter of
+ * the tool (`tools/paused-reporter.ts`).
  *
- * @param json The file of the JSON report.
+ * @param json The file of the report.
  * @param paths The test files, or none for all paused test files.
  * @returns The arguments after the script of Vitest. A path that the tree does not have runs no
  *   file, and the run passes with no test (`--passWithNoTests`).
@@ -89,66 +94,57 @@ export function vitestArgs(json: string, paths: readonly string[]): string[] {
     'run',
     '--project',
     'paused',
-    '--reporter=json',
+    `--reporter=${REPORTER}`,
     `--outputFile=${json}`,
     '--passWithNoTests',
     ...paths,
   ];
 }
 
-/** One test of the JSON report of Vitest. */
-interface ReportTest {
-  /** The names of the blocks and of the test, joined with spaces. */
-  readonly fullName?: string;
-  /** The status: `passed`, `failed`, `skipped`, and so on. */
-  readonly status?: string;
-}
-
-/** One test file of the JSON report of Vitest. */
-interface ReportFile {
-  /** The absolute path of the file. */
-  readonly name?: string;
-  /** The status of the file: `failed` also when the file does not load. */
-  readonly status?: string;
-  /** The tests of the file. */
-  readonly assertionResults?: readonly ReportTest[];
-}
-
 /**
- * Gives the failed tests of a JSON report of Vitest, each as `<file> > <full name>` with the path
- * of the file from the root of its tree. A file that fails with no failed test, such as a file
- * that does not load, gives `<file> > (the file fails with no failed test)`.
+ * Reads the report of one run (`tools/paused-reporter.ts`).
  *
  * @param text The JSON text of the report.
- * @param root The root of the tree of the run, with no link in it: Vitest gives the real path of
- *   each file, and the temporary folder of macOS is under a link.
- * @returns The failed tests, in the order of the report.
- * @throws Error if the text has no list of test files.
+ * @returns The report.
+ * @throws Error if the text has no list of failed tests or of unhandled errors.
  */
-export function failedTests(text: string, root: string): string[] {
-  // SAFETY: the text is the JSON report of Vitest, and the check below reads the list of files.
-  const report = JSON.parse(text) as { readonly testResults?: readonly ReportFile[] };
-  if (!Array.isArray(report.testResults)) {
-    throw new Error('The JSON report of Vitest has no list of test files.');
+export function readReport(text: string): PausedReport {
+  // SAFETY: the reporter of the tool wrote the text, and the check below reads its lists.
+  const report = JSON.parse(text) as Partial<PausedReport>;
+  if (!Array.isArray(report.failed) || !Array.isArray(report.unhandled)) {
+    throw new Error('The report of the paused tests has no list of failed tests or of errors.');
   }
-  return report.testResults.flatMap((file) => {
-    const path = relative(root, file.name ?? '');
-    const tests: readonly ReportTest[] = file.assertionResults ?? [];
-    const failed = tests.filter((test) => test.status === 'failed');
-    if (failed.length === 0) {
-      return file.status === 'failed' ? [`${path} > (the file fails with no failed test)`] : [];
-    }
-    return failed.map((test) => `${path} > ${test.fullName ?? ''}`);
-  });
+  return { reason: report.reason ?? '', failed: report.failed, unhandled: report.unhandled };
 }
 
 /**
- * Gives the tests that fail on the working tree alone: each failed test of the working tree that
- * does not fail on the commit, such as a test that passes on the commit or that the commit does
- * not have.
+ * Gives the failed tests and the errors of one run: each failed test as
+ * `<file> > <suite> > <test>`, each unhandled error, and the exit code when the run ends with a
+ * code other than 0 and the report gives no failed test and no error. A crash of a run thus shows
+ * too.
  *
- * @param base The failed tests of the commit ({@link failedTests}).
- * @param tree The failed tests of the working tree.
+ * @param report The report of the run.
+ * @param status The exit code of the run, or `null` when a signal ended it.
+ * @returns The failed tests and the errors, in the order of the report.
+ */
+export function runIssues(report: PausedReport, status: number | null): string[] {
+  const issues = [
+    ...report.failed.map((path) => path.join(' > ')),
+    ...report.unhandled.map((error) => `(unhandled error) ${error}`),
+  ];
+  if (issues.length === 0 && status !== 0) {
+    issues.push(`(exit code ${String(status)} with no failed test and no error)`);
+  }
+  return issues;
+}
+
+/**
+ * Gives the tests that fail and the errors on the working tree alone: each issue of the working
+ * tree that the commit does not have, such as a test that passes on the commit or that the commit
+ * does not have.
+ *
+ * @param base The failed tests and the errors of the commit ({@link runIssues}).
+ * @param tree The failed tests and the errors of the working tree.
  * @returns The tests, in the order of the working tree.
  */
 export function newFailures(base: readonly string[], tree: readonly string[]): string[] {
@@ -157,28 +153,22 @@ export function newFailures(base: readonly string[], tree: readonly string[]): s
 }
 
 /**
- * Reads the failed tests of one run.
+ * Reads the failed tests and the errors of one run ({@link runIssues}).
  *
  * @param name The name of the tree, for the message.
  * @param end The end of the run of Vitest.
- * @param json The file of the JSON report.
- * @param root The root of the tree of the run.
- * @returns The failed tests.
+ * @param json The file of the report.
+ * @returns The failed tests and the errors.
  * @throws Error if the run wrote no report, with the cause from the error output.
  */
-async function runFailures(
-  name: string,
-  end: ChildEnd,
-  json: string,
-  root: string,
-): Promise<string[]> {
+async function runFailures(name: string, end: ChildEnd, json: string): Promise<string[]> {
   if (!existsSync(json)) {
     const cause = end.errors.trim().split('\n').slice(-20).join('\n');
     throw new Error(
       `The paused tests of ${name} wrote no report (exit code ${String(end.status)}):\n${cause}`,
     );
   }
-  return failedTests(await readFile(json, 'utf8'), root);
+  return runIssues(readReport(await readFile(json, 'utf8')), end.status);
 }
 
 /**
@@ -191,7 +181,7 @@ async function runFailures(
  *
  * @param ref The commit, the branch, or the tag.
  * @param paths The test files, or none for all paused test files.
- * @returns The exit code: 1 when a test fails on the working tree alone, else 0.
+ * @returns The exit code: 1 when a test fails or an error comes on the working tree alone, else 0.
  * @throws Error if git does not know the ref, or if a run writes no report.
  */
 async function compareBase(ref: string, paths: readonly string[]): Promise<number> {
@@ -211,16 +201,16 @@ async function compareBase(ref: string, paths: readonly string[]): Promise<numbe
       if (!baseEnd || !treeEnd) {
         throw new Error('A run of the paused tests gave no end.');
       }
-      const base = await runFailures(label, baseEnd, files.base, realpathSync(dir));
-      const tree = await runFailures('the working tree', treeEnd, files.tree, realpathSync(ROOT));
+      const base = await runFailures(label, baseEnd, files.base);
+      const tree = await runFailures('the working tree', treeEnd, files.tree);
       const fresh = newFailures(base, tree);
       const seconds = ((performance.now() - started) / 1000).toFixed(1);
       console.log(
         [
-          `${label}: ${base.length} failed tests. The working tree: ${tree.length} failed tests. ${seconds} s.`,
+          `${label}: ${base.length} failed tests and errors. The working tree: ${tree.length} failed tests and errors. ${seconds} s.`,
           fresh.length > 0
-            ? `Tests that fail on the working tree alone (${fresh.length}):`
-            : 'No test fails on the working tree alone.',
+            ? `Tests that fail and errors on the working tree alone (${fresh.length}):`
+            : 'No test fails and no error comes on the working tree alone.',
           ...fresh.map((test) => `  ${test}`),
         ].join('\n'),
       );

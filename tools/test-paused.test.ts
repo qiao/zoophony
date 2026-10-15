@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import {
   PAUSED_PATHS,
-  failedTests,
   newFailures,
   parsePausedArgs,
+  readReport,
+  runIssues,
   vitestArgs,
 } from './test-paused.ts';
 
@@ -26,16 +27,11 @@ describe('parsePausedArgs', () => {
 });
 
 describe('vitestArgs', () => {
-  it('runs the project paused once with the JSON report, and passes with no test file', () => {
-    expect(vitestArgs('/t/base.json', ['a.test.ts'])).toEqual([
-      'run',
-      '--project',
-      'paused',
-      '--reporter=json',
-      '--outputFile=/t/base.json',
-      '--passWithNoTests',
-      'a.test.ts',
-    ]);
+  it('runs the project paused once with the reporter of the tool, and passes with no test file', () => {
+    const args = vitestArgs('/t/base.json', ['a.test.ts']);
+    expect(args.slice(0, 3)).toEqual(['run', '--project', 'paused']);
+    expect(args[3]).toMatch(/^--reporter=.*tools\/paused-reporter\.ts$/);
+    expect(args.slice(4)).toEqual(['--outputFile=/t/base.json', '--passWithNoTests', 'a.test.ts']);
   });
 
   it('copies the source, the tools, the demos, the design, and the config of Vitest', () => {
@@ -45,31 +41,31 @@ describe('vitestArgs', () => {
   });
 });
 
-describe('failedTests', () => {
-  const report = JSON.stringify({
-    testResults: [
-      {
-        name: '/r/src/a.test.ts',
-        status: 'failed',
-        assertionResults: [
-          { fullName: 'a passes', status: 'passed' },
-          { fullName: 'a fails', status: 'failed' },
-        ],
-      },
-      { name: '/r/src/b.test.ts', status: 'failed', assertionResults: [] },
-      { name: '/r/src/c.test.ts', status: 'passed', assertionResults: [{ status: 'skipped' }] },
-    ],
-  });
+describe('readReport and runIssues', () => {
+  const report = readReport(
+    JSON.stringify({
+      reason: 'failed',
+      failed: [['src/a.test.ts', 'a', 'fails']],
+      unhandled: ['Error: lost'],
+    }),
+  );
 
-  it('gives each failed test with its file from the root, and a file that fails with no test', () => {
-    expect(failedTests(report, '/r')).toEqual([
-      'src/a.test.ts > a fails',
-      'src/b.test.ts > (the file fails with no failed test)',
+  it('gives each failed test by its title path and each unhandled error', () => {
+    expect(runIssues(report, 1)).toEqual([
+      'src/a.test.ts > a > fails',
+      '(unhandled error) Error: lost',
     ]);
   });
 
-  it('stops on a report with no list of test files', () => {
-    expect(() => failedTests('{}', '/r')).toThrow('no list of test files');
+  it('gives the exit code of a run that fails with no failed test and no error', () => {
+    const empty = { reason: 'failed', failed: [], unhandled: [] };
+    expect(runIssues(empty, 1)).toEqual(['(exit code 1 with no failed test and no error)']);
+    expect(runIssues(empty, null)).toEqual(['(exit code null with no failed test and no error)']);
+    expect(runIssues(empty, 0)).toEqual([]);
+  });
+
+  it('stops on a report with no lists', () => {
+    expect(() => readReport('{}')).toThrow('no list of failed tests');
   });
 });
 
