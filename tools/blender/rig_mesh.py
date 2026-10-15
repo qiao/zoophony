@@ -107,10 +107,6 @@ CHAIR_COLOR = (0.55, 0.42, 0.3)
 #: The size of one view of a preview, in pixels.
 VIEW = 500
 
-# The half width of the band around the plane |x| = armSplit over which the stretch of the upper
-# arm fades out toward the middle, in units.
-STRETCH_RAMP = 0.02
-
 
 def log(text):
     """Prints a line that `tools/rig-mesh.ts` shows."""
@@ -987,14 +983,14 @@ def move(rotation, src, dst):
     return np.concatenate([rotation, (dst - rotation @ src)[:, None]], axis=1)
 
 
-def stretch(verts, weights, heads, ends, children, factors, split):
+def stretch(verts, weights, heads, ends, children, factors, rules):
     """Makes the limbs longer, the head larger, and the neck shorter by the factors of the config:
     `arm`, `leg`, `head`, and `neck`. The upper arm and the forearm of each side grow by `arm`
     along their axes from the shoulder joint out, and the paw moves with the wrist and keeps its
-    size. Only the free arm beyond the plane |x| = `split` stretches with the upper arm: the share
-    of the stretch fades from the plane over STRETCH_RAMP on each side, so that the trunk beside
-    and below the armpit keeps its form, and a point on the inner side of the shoulder joint does
-    not move with the upper arm. The thigh and the shin
+    size. A point on the inner side of the shoulder joint does not move with the upper arm. With a
+    ramp (`weights.stretchRamp` of the config, in units), only the free arm beyond the plane |x| =
+    `armSplit` stretches with the upper arm: the share of the stretch fades from 0 to 1 over the
+    ramp on each side of the plane, so that the trunk beside and below the armpit keeps its form. The thigh and the shin
     grow by `leg` along their axes, and the foot moves with the ankle and keeps its size. The head
     and the ears grow by `head` around the neck joint. The neck takes `neck` between its joints,
     and the head and the ears move along the neck by the move of the head joint, so that the neck
@@ -1025,8 +1021,12 @@ def stretch(verts, weights, heads, ends, children, factors, split):
         # The upper arm stretches from the shoulder joint out. A point of the trunk on the inner
         # side of the shoulder joint keeps its place, so that a small arm weight on the throat or
         # the chest does not pull it across the middle.
-        sign = 1.0 if side == 'L' else -1.0
-        share = smoothstep(verts[:, 0] * sign, split - STRETCH_RAMP, split + STRETCH_RAMP)
+        share = np.ones(len(verts))
+        ramp = rules.get('stretchRamp')
+        if ramp:
+            sign = 1.0 if side == 'L' else -1.0
+            split = rules['armSplit']
+            share = smoothstep(verts[:, 0] * sign, split - ramp, split + ramp)
         halves[BONES.index(f'upper_arm_{side}')] = (s, unit(e - s), factor, share)
         shift = wrist2 - wrist
         for name in ('hand', 'fingers'):
@@ -1685,7 +1685,7 @@ def main():
     factors = {'arm': config['armFactor'], 'leg': config.get('legFactor', 1),
                'head': config.get('headFactor', 1), 'neck': config.get('neckFactor', 1)}
     long_verts, long_heads, long_ends, rise, drop = stretch(verts, weights, heads, ends, children,
-                                                             factors, rules['armSplit'])
+                                                             factors, rules)
     meters = config['app']['shoulders'] / long_heads['upper_arm_L'][1]
     for side in 'LR':
         before, after = reach(heads, side) * meters, reach(long_heads, side) * meters
