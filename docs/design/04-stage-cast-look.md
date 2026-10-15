@@ -508,7 +508,11 @@ quarter of the folded faces.
   and the forearm longer. The thigh and the shin stretch only between their joints, the feet keep
   their size, and the body rises so that the soles stay on the floor. The rig takes the bind arms
   of the studio rabbit and the seat of its config: a seat of a long thigh, with the thigh about
-  level on the seat and the shin under the knee. The head factor grows the head and the ears
+  level on the seat and the shin under the knee. The buttocks of an image mesh curve up behind the
+  hip joints, so they stay above the seat when the thighs lie level on it. A config can lower the
+  underside of the haunch behind the hip joints onto the seat in the seated bind (`sit` of the
+  config, `sit()` of `tools/blender/rig_mesh.py`). The corrective shapes give the source back, so
+  a soloist who stands keeps the form of the mesh. The head factor grows the head and the ears
   around the neck joint, and the weights blend the growth over the neck. The export measures the
   head height and the head center of the holds on the head before the growth, so the holds in `H`
   keep their places (`ungrown()` of `tools/studio-body.ts`). The neck factor shortens the neck

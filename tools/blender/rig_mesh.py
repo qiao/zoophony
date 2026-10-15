@@ -30,7 +30,8 @@ reads it (route 3 of `AGENTS.md`). The steps:
    go to the bind arms of the studio, and the bones of a tail of two bones go to the bind
    directions of the config, back through the open back of the chair. The skin of the
    long-armed source in this pose is the bind mesh. Where the pose turns faces over, as at the
-   haunch, their vertices relax toward their neighbors.
+   haunch, their vertices relax toward their neighbors. With `sit` of the config, the underside
+   of the haunch behind the hip joints goes down onto the seat (`sit()`).
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. The faces under it take the fur color, so that a blink
    shows no hole. The faces of the nose become gloss. Each face takes the nearest color of a
@@ -1363,6 +1364,156 @@ def relax(src, bind, tris, weights, matrices, rounds=60):
     return out, rounds
 
 
+def seat_masks(points, weights, chair):
+    """Gives the masks of the seat of a seated body, as `chair_mesh()` reads them: the vertices
+    over the seat, the vertices of the shins and the feet that hang in front of it, and the
+    vertices of the tail. Gives also the share of each vertex on these hanging bones and on the
+    tail and arm bones."""
+    hw, front, back = chair['halfWidth'], chair['front'], chair['back']
+    lower = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
+    tails = [BONES.index(b) for b in ('tail', TAIL_TIP) if b in BONES]
+    arms = [BONES.index(f'{b}_{s}') for b in ARM for s in 'LR']
+    hanging = weights[:, lower].sum(axis=1)
+    tail = weights[:, tails].sum(axis=1)
+    free = hanging + tail + weights[:, arms].sum(axis=1)
+    seat = (np.abs(points[:, 0]) <= hw) & (points[:, 2] >= back) & (points[:, 2] <= front)
+    return seat, hanging > 0.5, tail > 0.5, np.clip(free, 0.0, 1.0)
+
+
+def column_bottoms(points, tris, xs, zs):
+    """Gives the lowest crossing of the faces with each vertical line of a grid: one line for each
+    x of `xs` and each z of `zs`. A line that crosses no face gives infinity."""
+    gx, gz = np.meshgrid(xs, zs, indexing='ij')
+    q = np.stack([gx.ravel(), gz.ravel()], axis=1)
+    out = np.full(len(q), np.inf)
+    p = points[tris]
+    a, b, c = p[:, 0][:, [0, 2]], p[:, 1][:, [0, 2]], p[:, 2][:, [0, 2]]
+    v0, v1 = b - a, c - a
+    den = v0[:, 0] * v1[:, 1] - v0[:, 1] * v1[:, 0]
+    low = np.minimum(np.minimum(a, b), c)
+    high = np.maximum(np.maximum(a, b), c)
+    near = ((np.abs(den) > 1e-12) & (high[:, 0] >= xs[0]) & (low[:, 0] <= xs[-1])
+            & (high[:, 1] >= zs[0]) & (low[:, 1] <= zs[-1]))
+    for k in np.nonzero(near)[0]:
+        box = ((q[:, 0] >= low[k, 0]) & (q[:, 0] <= high[k, 0]) & (q[:, 1] >= low[k, 1])
+               & (q[:, 1] <= high[k, 1]))
+        ids = np.nonzero(box)[0]
+        if len(ids) == 0:
+            continue
+        r = q[ids] - a[k]
+        u = (r[:, 0] * v1[k, 1] - r[:, 1] * v1[k, 0]) / den[k]
+        v = (v0[k, 0] * r[:, 1] - v0[k, 1] * r[:, 0]) / den[k]
+        inside = (u >= -1e-9) & (v >= -1e-9) & (u + v <= 1 + 1e-9)
+        y = p[k, 0, 1] + u * (p[k, 1, 1] - p[k, 0, 1]) + v * (p[k, 2, 1] - p[k, 0, 1])
+        hit = ids[inside]
+        out[hit] = np.minimum(out[hit], y[inside])
+    return out.reshape(gx.shape)
+
+
+def grid_value(grid, xs, zs, points):
+    """Reads a grid at the x and the z of each point, with a bilinear blend of the four nearest
+    lines. A point outside the grid takes the nearest line at the edge."""
+    fx = np.clip((points[:, 0] - xs[0]) / (xs[1] - xs[0]), 0, len(xs) - 1.000001)
+    fz = np.clip((points[:, 2] - zs[0]) / (zs[1] - zs[0]), 0, len(zs) - 1.000001)
+    i, j = fx.astype(int), fz.astype(int)
+    tx, tz = fx - i, fz - j
+    return ((1 - tx) * (1 - tz) * grid[i, j] + tx * (1 - tz) * grid[i + 1, j]
+            + (1 - tx) * tz * grid[i, j + 1] + tx * tz * grid[i + 1, j + 1])
+
+
+def fill_holes(grid, pick):
+    """Fills the holes (NaN) of a grid with the value that `pick` (`np.max` or `np.min`) takes of
+    the values of the eight neighbors, in rounds, until no hole has a neighbor with a value."""
+    out = grid.copy()
+    while True:
+        holes = np.isnan(out)
+        padded = np.pad(out, 1, constant_values=np.nan)
+        around = np.stack([padded[1 + di:padded.shape[0] - 1 + di, 1 + dj:padded.shape[1] - 1 + dj]
+                           for di in (-1, 0, 1) for dj in (-1, 0, 1)])
+        known = ~np.isnan(around)
+        fill = holes & known.any(axis=0)
+        if not fill.any():
+            return out
+        empty = np.inf if pick is np.min else -np.inf
+        out[fill] = pick(np.where(known, around, empty), axis=0)[fill]
+
+
+def seat_gaps(points, tris, weights, chair, hip, step, height):
+    """Measures the underside of a seated body behind the hip joints: the lowest crossing of each
+    vertical line over the seat, on a grid of `step` units, less the seat top. The faces of the
+    shins, the feet, the tail, and the arms do not count, and neither do the faces with a corner
+    more than `height` units above the seat top. Gives the seat top, the x and the z of
+    the lines, and the gap of each line (infinity where no face crosses it)."""
+    seat, hanging, tail, free = seat_masks(points, weights, chair)
+    top = float(points[seat & ~hanging & ~tail, 1].min())
+    low = points[:, 1] <= top + height
+    body = tris[((free[tris] <= 0.5) & low[tris]).all(axis=1)]
+    hw = chair['halfWidth']
+    xs = np.arange(-hw, hw + step / 2, step)
+    zs = np.arange(chair['back'], hip + step / 2, step)
+    return top, xs, zs, column_bottoms(points, body, xs, zs) - top
+
+
+def silhouette_gap(xs, zs, gaps, end):
+    """Gives the largest gap of the side view of the underside behind the hip joints: for each z,
+    the smallest gap over x. The last `end` units of the haunch at its back do not count, because
+    each round haunch curves up there."""
+    side = np.where(np.isfinite(gaps), gaps, np.inf).min(axis=0)
+    hit = np.nonzero(np.isfinite(side))[0]
+    if len(hit) == 0:
+        return 0.0
+    keep = zs >= zs[hit[0]] + end
+    return float(side[keep & np.isfinite(side)].max(initial=0.0))
+
+
+def sit(bind, tris, weights, chair, rule, hip):
+    """Lowers the underside of the haunch behind the hip joints onto the seat. The buttocks of an
+    image mesh curve up behind the hip joints, so they stay above the seat when the thighs lie
+    level on it. Each vertical line over the seat behind the hip joints takes a drop: the gap of
+    its lowest crossing over the seat top, less `gap` of the rule, and at most `most` units, so that
+    the round back of the haunch near a tail ball keeps its form. The drop fades to 0 over `ramp`
+    units before the hip joints, and over the last `end` units of the haunch at its back. The drop
+    of a line with no crossing takes the largest drop of its
+    neighbors, and the drops take the mean of their neighbors in `smooth` rounds. Each vertex over
+    the seat moves down by the drop at its x and z, fully at the underside and less with its height
+    above the lowest crossing, to 0 at `band` units above it. Only the faces and the vertices up
+    to two bands above the seat top count, so that the ears and the head do not. The shins, the feet, the tail, and the
+    arms do not move, and a vertex with a part of its weight on them moves by the rest. The vertices
+    never go below the seat top. The corrective shapes give the source back, so the standing body
+    keeps its form. Gives the moved bind mesh, the number of moved vertices, the largest drop, and
+    the largest gap of the side view before and after."""
+    step = rule['step']
+    top, xs, zs, gaps = seat_gaps(bind, tris, weights, chair, hip, step, 2 * rule['band'])
+    before = silhouette_gap(xs, zs, gaps, rule['end'])
+    drop = np.where(np.isfinite(gaps), np.clip(gaps - rule['gap'], 0.0, rule['most']), np.nan)
+    drop *= 1.0 - smoothstep(zs, hip - rule['ramp'], hip)[None, :]
+    hit = np.nonzero(np.isfinite(gaps).any(axis=0))[0]
+    if len(hit):
+        drop *= smoothstep(zs, zs[hit[0]], zs[hit[0]] + rule['end'])[None, :]
+    drop = np.nan_to_num(fill_holes(drop, np.max), nan=0.0)
+    for _ in range(rule['smooth']):
+        padded = np.pad(drop, 1, mode='edge')
+        drop = sum(padded[1 + di:padded.shape[0] - 1 + di, 1 + dj:padded.shape[1] - 1 + dj]
+                   for di in (-1, 0, 1) for dj in (-1, 0, 1)) / 9.0
+    # A line with no crossing, as beyond the back edge of the haunch, takes the lowest crossing of
+    # its nearest lines.
+    bottoms = fill_holes(np.where(np.isfinite(gaps), gaps + top, np.nan), np.min)
+    _, _, _, free = seat_masks(bind, weights, chair)
+    near = ((np.abs(bind[:, 0]) <= chair['halfWidth']) & (bind[:, 2] <= hip)
+            & (bind[:, 2] >= chair['back'] - rule['band']) & (bind[:, 1] <= top + 2 * rule['band']))
+    ids = np.nonzero(near & (free < 1.0))[0]
+    p = bind[ids]
+    d = grid_value(drop, xs, zs, p)
+    floor = np.minimum(grid_value(np.nan_to_num(bottoms, nan=top), xs, zs, p), p[:, 1])
+    share = 1.0 - smoothstep(p[:, 1] - floor, 0.0, rule['band'])
+    move = d * share * (1.0 - free[ids])
+    out = bind.copy()
+    out[ids, 1] = np.maximum(p[:, 1] - move, np.minimum(p[:, 1], top))
+    _, _, _, after_gaps = seat_gaps(out, tris, weights, chair, hip, step, 2 * rule['band'])
+    after = silhouette_gap(xs, zs, after_gaps, rule['end'])
+    return out, int((move > 1e-6).sum()), float(move.max(initial=0.0)), before, after
+
+
 def boundary_loop(tris):
     """Gives the longest closed loop of the open edges of a patch of faces, in the order of the
     faces (counterclockwise from outside for faces in that order). Two parts of a patch can touch
@@ -1874,6 +2025,15 @@ def main():
     bind, rounds = relax(long_verts, bind, tris, weights, matrices)
     dots = turn_dots(long_verts, bind, tris, weights, matrices)
     log(f'bind: after {rounds} rounds of relaxing, {int((dots < 0).sum())} faces turn over')
+    if 'sit' in config:
+        hip = float(bind_heads['thigh_L'][2])
+        bind, moved, largest, before, after = sit(bind, tris, weights, config['chair'],
+                                                  config['sit'], hip)
+        dots = turn_dots(long_verts, bind, tris, weights, matrices)
+        log(f'sit: {moved} vertices of the haunch move down, at most {largest:.4f} u '
+            f'({largest * meters * 100:.2f} cm). The side view of the underside behind the hip '
+            f'joints is at most {before * meters * 100:.2f} cm above the seat before and '
+            f'{after * meters * 100:.2f} cm after. {int((dots < 0).sum())} faces turn over')
 
     src_all, bind_all, tris_all, colors_all, materials = add_eye_shells(
         long_verts, bind, tris, colors, eyes, config['eyeShell'])
