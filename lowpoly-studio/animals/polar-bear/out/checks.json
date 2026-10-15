@@ -19,7 +19,6 @@
     "ear_height.back.right_in_image",
     "nose_y.front.0",
     "nose_height.front.0",
-    "nose_x.side.0",
     "nose_y.side.0",
     "nose_width.side.0",
     "belly_width.front.belly",
@@ -27,12 +26,11 @@
     "facet_contrast"
   ],
   "near": [
-    "folds.chord",
     "folds.rest",
     "folds.performance",
     "iou.three_quarter",
-    "nose_height.side.0",
-    "belly_y.front.belly"
+    "nose_x.side.0",
+    "nose_height.side.0"
   ],
   "checks": [
     {
@@ -73,7 +71,7 @@
     },
     {
       "name": "scene.ready",
-      "value": 0.0,
+      "value": 0.0007,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -82,7 +80,7 @@
     },
     {
       "name": "seat.ready",
-      "value": 0.0007,
+      "value": -0.0045,
       "op": "in",
       "limit": [
         -0.015,
@@ -112,7 +110,7 @@
     },
     {
       "name": "scene.play",
-      "value": 0.0,
+      "value": 0.0007,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -121,7 +119,7 @@
     },
     {
       "name": "seat.play",
-      "value": 0.0007,
+      "value": -0.0045,
       "op": "in",
       "limit": [
         -0.015,
@@ -155,53 +153,12 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": true,
-      "gate": true,
-      "where": {
-        "clip": "chord",
-        "frame": 75,
-        "time_s": 2.5,
-        "face": 591,
-        "faces": [
-          591,
-          940
-        ],
-        "bone": "forearm_twist_L",
-        "side": "L",
-        "region": "forearm, under, left",
-        "position": [
-          0.13,
-          0.5974,
-          0.3163
-        ],
-        "rest_position": [
-          0.3626,
-          0.6452,
-          0.2906
-        ],
-        "angle_deg": 99.3,
-        "weights": [
-          [
-            "forearm_twist_L",
-            0.305
-          ],
-          [
-            "finger4_L",
-            0.27
-          ],
-          [
-            "finger2_L",
-            0.261
-          ]
-        ],
-        "smallest_angle_deg": 20.1,
-        "rest_dot": 0.728,
-        "crop": "diag/fold-591-chord.png"
-      }
+      "near": false,
+      "gate": true
     },
     {
       "name": "scene.chord",
-      "value": 0.0,
+      "value": 0.0007,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -210,7 +167,7 @@
     },
     {
       "name": "seat.chord",
-      "value": 0.0007,
+      "value": -0.0045,
       "op": "in",
       "limit": [
         -0.015,
@@ -248,49 +205,51 @@
       "gate": true,
       "where": {
         "clip": "rest",
-        "frame": 21,
-        "time_s": 0.7,
-        "face": 591,
+        "frame": 90,
+        "time_s": 3.0,
+        "face": 374,
         "faces": [
-          591,
-          617
+          374,
+          894,
+          1038,
+          518
         ],
-        "bone": "forearm_twist_L",
-        "side": "L",
-        "region": "forearm, under, left",
+        "bone": "upper_arm_R",
+        "side": "R",
+        "region": "upper arm, front, right",
         "position": [
-          0.185,
-          0.6016,
-          0.2895
+          -0.1922,
+          0.4472,
+          0.1025
         ],
         "rest_position": [
-          0.3626,
-          0.6452,
-          0.2906
+          -0.1683,
+          0.6042,
+          0.143
         ],
-        "angle_deg": 94.9,
+        "angle_deg": 102.6,
         "weights": [
           [
-            "forearm_twist_L",
-            0.305
+            "upper_arm_R",
+            0.374
           ],
           [
-            "finger4_L",
-            0.27
+            "spine",
+            0.367
           ],
           [
-            "finger2_L",
-            0.261
+            "clavicle_R",
+            0.097
           ]
         ],
-        "smallest_angle_deg": 20.1,
-        "rest_dot": 0.728,
-        "crop": "diag/fold-591-rest.png"
+        "smallest_angle_deg": 32.6,
+        "rest_dot": 0.967,
+        "crop": "diag/fold-374-rest.png"
       }
     },
     {
       "name": "scene.rest",
-      "value": 0.0023,
+      "value": 0.0028,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -299,7 +258,7 @@
     },
     {
       "name": "seat.rest",
-      "value": 0.0007,
+      "value": -0.0045,
       "op": "in",
       "limit": [
         -0.015,
@@ -328,50 +287,51 @@
       "gate": true,
       "where": {
         "clip": "performance",
-        "frame": 375,
-        "time_s": 12.5,
-        "face": 591,
+        "frame": 480,
+        "time_s": 16.0,
+        "face": 374,
         "faces": [
-          591,
-          940,
-          617
+          374,
+          894,
+          1038,
+          518
         ],
-        "bone": "forearm_twist_L",
-        "side": "L",
-        "region": "forearm, under, left",
+        "bone": "upper_arm_R",
+        "side": "R",
+        "region": "upper arm, front, right",
         "position": [
-          0.13,
-          0.5974,
-          0.3163
+          -0.1922,
+          0.4472,
+          0.1025
         ],
         "rest_position": [
-          0.3626,
-          0.6452,
-          0.2906
+          -0.1683,
+          0.6042,
+          0.143
         ],
-        "angle_deg": 99.3,
+        "angle_deg": 102.6,
         "weights": [
           [
-            "forearm_twist_L",
-            0.305
+            "upper_arm_R",
+            0.374
           ],
           [
-            "finger4_L",
-            0.27
+            "spine",
+            0.367
           ],
           [
-            "finger2_L",
-            0.261
+            "clavicle_R",
+            0.097
           ]
         ],
-        "smallest_angle_deg": 20.1,
-        "rest_dot": 0.728,
-        "crop": "diag/fold-591-performance.png"
+        "smallest_angle_deg": 32.6,
+        "rest_dot": 0.967,
+        "crop": "diag/fold-374-performance.png"
       }
     },
     {
       "name": "scene.performance",
-      "value": 0.0023,
+      "value": 0.0028,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -380,7 +340,7 @@
     },
     {
       "name": "seat.performance",
-      "value": 0.0007,
+      "value": -0.0045,
       "op": "in",
       "limit": [
         -0.015,
@@ -401,7 +361,7 @@
     },
     {
       "name": "body_triangles",
-      "value": 1162,
+      "value": 1040,
       "op": "in",
       "limit": [
         900.0,
@@ -413,7 +373,7 @@
     },
     {
       "name": "slivers",
-      "value": 0.0034,
+      "value": 0.0038,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -431,7 +391,7 @@
     },
     {
       "name": "remesh_gate.quads",
-      "value": 808,
+      "value": 726,
       "op": "in",
       "limit": [
         546,
@@ -452,7 +412,7 @@
     },
     {
       "name": "remesh_gate.slivers",
-      "value": 0.0034,
+      "value": 0.0038,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -479,7 +439,7 @@
     },
     {
       "name": "iou.front",
-      "value": 0.9047,
+      "value": 0.9067,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -510,7 +470,7 @@
     {
       "name": "fur_saturation.front",
       "value": [
-        0.168,
+        0.167,
         0.164
       ],
       "op": "abs<=",
@@ -535,7 +495,7 @@
     },
     {
       "name": "iou.side",
-      "value": 0.8864,
+      "value": 0.895,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -550,7 +510,7 @@
     {
       "name": "fur_hue.side",
       "value": [
-        36,
+        36.4,
         36
       ],
       "op": "abs<=",
@@ -563,7 +523,7 @@
     {
       "name": "fur_saturation.side",
       "value": [
-        0.167,
+        0.165,
         0.167
       ],
       "op": "abs<=",
@@ -576,7 +536,7 @@
     {
       "name": "fur_value.side",
       "value": [
-        0.827,
+        0.824,
         0.824
       ],
       "op": "abs<=",
@@ -588,7 +548,7 @@
     },
     {
       "name": "iou.back",
-      "value": 0.9115,
+      "value": 0.9129,
       "op": ">=",
       "limit": 0.94,
       "pass": false,
@@ -619,7 +579,7 @@
     {
       "name": "fur_saturation.back",
       "value": [
-        0.167,
+        0.169,
         0.161
       ],
       "op": "abs<=",
@@ -632,7 +592,7 @@
     {
       "name": "fur_value.back",
       "value": [
-        0.835,
+        0.831,
         0.824
       ],
       "op": "abs<=",
@@ -644,7 +604,7 @@
     },
     {
       "name": "iou.three_quarter",
-      "value": 0.9214,
+      "value": 0.9203,
       "op": ">=",
       "limit": 0.9,
       "pass": true,
@@ -661,7 +621,7 @@
     },
     {
       "name": "head_turn.three_quarter",
-      "value": 3,
+      "value": 4,
       "op": "in",
       "limit": [
         0.0,
@@ -742,7 +702,7 @@
     {
       "name": "eye_y.front.0",
       "value": [
-        0.932,
+        0.9329,
         0.9258
       ],
       "op": "abs<=",
@@ -756,7 +716,7 @@
     {
       "name": "eye_y.front.1",
       "value": [
-        0.932,
+        0.9329,
         0.9267
       ],
       "op": "abs<=",
@@ -770,7 +730,7 @@
     {
       "name": "eye_outline.three_quarter.0",
       "value": [
-        0.0123,
+        0.0141,
         0.0194
       ],
       "op": "rel<=",
@@ -794,7 +754,7 @@
     {
       "name": "eye_outline.three_quarter.1",
       "value": [
-        0.0106,
+        0.0141,
         0.007
       ],
       "op": "rel<=",
@@ -818,7 +778,7 @@
     {
       "name": "eye_y.three_quarter.0",
       "value": [
-        0.9296,
+        0.9313,
         0.9243
       ],
       "op": "abs<=",
@@ -832,7 +792,7 @@
     {
       "name": "eye_y.three_quarter.1",
       "value": [
-        0.9278,
+        0.9296,
         0.9269
       ],
       "op": "abs<=",
@@ -846,7 +806,7 @@
     {
       "name": "ear_width.front.left_in_image",
       "value": [
-        0.0394,
+        0.0376,
         0.0447
       ],
       "op": "rel<=",
@@ -870,7 +830,7 @@
     {
       "name": "ear_height.front.left_in_image",
       "value": [
-        0.0787,
+        0.0751,
         0.0787
       ],
       "op": "rel<=",
@@ -884,7 +844,7 @@
     {
       "name": "ear_dark.front.left_in_image",
       "value": [
-        0.112,
+        0.121,
         0.147
       ],
       "op": "abs<=",
@@ -921,7 +881,7 @@
     {
       "name": "ear_height.front.right_in_image",
       "value": [
-        0.0751,
+        0.0769,
         0.0787
       ],
       "op": "rel<=",
@@ -935,7 +895,7 @@
     {
       "name": "ear_dark.front.right_in_image",
       "value": [
-        0.114,
+        0.119,
         0.149
       ],
       "op": "abs<=",
@@ -972,7 +932,7 @@
     {
       "name": "ear_height.side.ear",
       "value": [
-        0.026,
+        0.0225,
         0.0346
       ],
       "op": "rel<=",
@@ -996,7 +956,7 @@
     {
       "name": "ear_width.back.left_in_image",
       "value": [
-        0.0416,
+        0.0398,
         0.0416
       ],
       "op": "rel<=",
@@ -1034,7 +994,7 @@
     {
       "name": "ear_width.back.right_in_image",
       "value": [
-        0.0416,
+        0.0398,
         0.0488
       ],
       "op": "rel<=",
@@ -1096,7 +1056,7 @@
     {
       "name": "nose_y.front.0",
       "value": [
-        0.8784,
+        0.8801,
         0.8667
       ],
       "op": "abs<=",
@@ -1152,13 +1112,13 @@
     {
       "name": "nose_x.side.0",
       "value": [
-        0.2161,
+        0.2567,
         0.2645
       ],
       "op": "abs<=",
       "limit": 0.01,
-      "pass": false,
-      "near": false,
+      "pass": true,
+      "near": true,
       "gate": false,
       "floor": 0.00183,
       "where": {
@@ -1194,7 +1154,7 @@
     {
       "name": "nose_width.side.0",
       "value": [
-        0.0415,
+        0.0398,
         0.0346
       ],
       "op": "rel<=",
@@ -1236,28 +1196,21 @@
     {
       "name": "belly_y.front.belly",
       "value": [
-        0.546,
+        0.5359,
         0.5206
       ],
       "op": "abs<=",
       "limit": 0.03,
       "pass": true,
-      "near": true,
+      "near": false,
       "gate": false,
       "floor": 0.00189,
-      "where": {
-        "feature": "belly",
-        "view": "front",
-        "region": "belly",
-        "item": 0,
-        "crop": "report/features/belly_front_belly.png"
-      },
       "look": true
     },
     {
       "name": "belly_width.front.belly",
       "value": [
-        0.22,
+        0.1932,
         0.1377
       ],
       "op": "rel<=",
@@ -1278,7 +1231,7 @@
     {
       "name": "belly_height.front.belly",
       "value": [
-        0.0733,
+        0.127,
         0.0966
       ],
       "op": "rel<=",
@@ -1325,7 +1278,7 @@
     {
       "name": "facet_contrast",
       "value": [
-        2.88,
+        3.28,
         2.48
       ],
       "op": "rel<=",
@@ -1340,11 +1293,11 @@
   "look": {
     "current": true,
     "reason": null,
-    "run": "20261014-221304-24192",
-    "look_run": "20261014-221304-24192",
-    "made": "2026-10-14T22:15:02-0700",
+    "run": "20261014-223406-78692",
+    "look_run": "20261014-223406-78692",
+    "made": "2026-10-14T22:34:33-0700",
     "compare": "model",
-    "model_seed": 3
+    "model_seed": 8
   },
   "sheet": {
     "warnings": [

@@ -1,15 +1,15 @@
 {
   "animal": "polar-bear",
   "role": "pianist",
-  "run": "20261014-221304-24192",
-  "made": "2026-10-14T22:14:50-0700",
-  "role_key": "d9e56a28054ea29b",
+  "run": "20261014-222730-505",
+  "made": "2026-10-14T22:29:10-0700",
+  "role_key": "1d655560531e640e",
   "reason": "a role check: the role pack, the template, or the clips changed since the last seed report",
   "require": "kept",
-  "kept": 6,
+  "kept": 7,
   "robust": false,
   "rule_pass": true,
-  "meshes": 3,
+  "meshes": 4,
   "robust_seeds": 1,
   "seeds": [
     {
@@ -18,31 +18,43 @@
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "slivers 0.0114"
+        "slivers 0.0148",
+        "slit_faces 2"
       ],
       "clips": {}
     },
     {
       "seed": 1,
-      "status": "contacts",
+      "status": "gate",
       "pass": false,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "play": [],
-        "chord": [],
-        "rest": [
-          "folds 2"
-        ],
-        "performance": [
-          "folds 2"
-        ]
-      }
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slit_faces 2"
+      ],
+      "clips": {}
     },
     {
       "seed": 5,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slivers 0.0115"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 6,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slit_faces 2"
+      ],
+      "clips": {}
+    },
+    {
+      "seed": 2,
       "status": "contacts",
       "pass": false,
       "remesh_gate": true,
@@ -53,15 +65,42 @@
         "play": [],
         "chord": [],
         "rest": [
-          "folds 1"
+          "folds 2"
         ],
         "performance": [
-          "folds 1"
+          "folds 2"
         ]
       }
     },
     {
-      "seed": 6,
+      "seed": 4,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [
+          "folds 1"
+        ],
+        "ready": [
+          "folds 2"
+        ],
+        "play": [
+          "folds 2"
+        ],
+        "chord": [
+          "folds 2"
+        ],
+        "rest": [
+          "folds 2"
+        ],
+        "performance": [
+          "folds 2"
+        ]
+      }
+    },
+    {
+      "seed": 7,
       "status": "pass",
       "pass": true,
       "remesh_gate": true,
@@ -76,44 +115,29 @@
       }
     },
     {
-      "seed": 2,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slit_faces 2"
-      ],
-      "clips": {}
-    },
-    {
-      "seed": 4,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "open_edges 4"
-      ],
-      "clips": {}
-    },
-    {
-      "seed": 7,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "open_edges 4"
-      ],
-      "clips": {}
-    },
-    {
       "seed": 8,
-      "status": "gate",
+      "status": "contacts",
       "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slit_faces 2"
-      ],
-      "clips": {}
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [
+          "folds 1"
+        ],
+        "play": [
+          "folds 1"
+        ],
+        "chord": [
+          "folds 1"
+        ],
+        "rest": [
+          "folds 1"
+        ],
+        "performance": [
+          "folds 1"
+        ]
+      }
     }
   ]
 }

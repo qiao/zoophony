@@ -1,13 +1,13 @@
 {
   "seed": 6,
   "quads": 780,
-  "body_triangles": 1162,
-  "median_edge_px": 30.7,
+  "body_triangles": 1040,
+  "median_edge_px": 32.9,
   "edge_quartiles_px": [
-    24.1,
-    40.5
+    23.1,
+    43.0
   ],
-  "sliver_share": 0.0034,
+  "sliver_share": 0.0038,
   "folded_faces": 0,
   "bones": 36,
   "clips": [
@@ -19,16 +19,16 @@
     "performance"
   ],
   "corrective": {
-    "region_vertices": 393,
+    "region_vertices": 329,
     "inverted_before": 2,
     "inverted_after": 2,
-    "inward_after": 12,
-    "max_delta": 0.0284,
+    "inward_after": 8,
+    "max_delta": 0.0347,
     "legs_straight": {
-      "region_vertices": 241,
+      "region_vertices": 187,
       "inverted_before": 2,
       "inverted_after": 0,
-      "max_delta": 0.0191
+      "max_delta": 0.0153
     }
   },
   "fold_repairs": [
@@ -55,25 +55,25 @@
         "folded_faces": 0,
         "pass": true,
         "scene": {
-          "depth": 0.0,
+          "depth": 0.0007,
           "prop": "bench",
-          "piece": "top0_0",
+          "piece": "top2_5",
           "frame": 0,
           "time_s": 0.0,
           "position": [
-            -0.1522,
-            0.1673,
-            -0.0899
+            -0.152,
+            0.1272,
+            0.0008
           ],
           "bone": "hips"
         },
         "seat": {
-          "gap": 0.0007,
-          "part": "trunk",
+          "gap": -0.0045,
+          "part": "thighs",
           "frame": 60,
           "time_s": 2.0,
-          "trunk": 0.0007,
-          "thighs": 0.0003
+          "trunk": 0.0016,
+          "thighs": -0.0045
         }
       },
       "play": {
@@ -85,25 +85,25 @@
         "folded_faces": 0,
         "pass": true,
         "scene": {
-          "depth": 0.0,
+          "depth": 0.0007,
           "prop": "bench",
-          "piece": "top0_0",
+          "piece": "top2_5",
           "frame": 0,
           "time_s": 0.0,
           "position": [
-            -0.1522,
-            0.1673,
-            -0.0899
+            -0.152,
+            0.1272,
+            0.0008
           ],
           "bone": "hips"
         },
         "seat": {
-          "gap": 0.0007,
-          "part": "trunk",
+          "gap": -0.0045,
+          "part": "thighs",
           "frame": 120,
           "time_s": 4.0,
-          "trunk": 0.0007,
-          "thighs": 0.0003
+          "trunk": 0.0016,
+          "thighs": -0.0045
         },
         "hands": {
           "distance": 0.0,
@@ -118,29 +118,29 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 2,
+        "turned_faces": 0,
         "folded_faces": 0,
         "pass": true,
         "scene": {
-          "depth": 0.0,
+          "depth": 0.0007,
           "prop": "bench",
-          "piece": "top0_0",
+          "piece": "top2_5",
           "frame": 0,
           "time_s": 0.0,
           "position": [
-            -0.1522,
-            0.1673,
-            -0.0899
+            -0.152,
+            0.1272,
+            0.0008
           ],
           "bone": "hips"
         },
         "seat": {
-          "gap": 0.0007,
-          "part": "trunk",
+          "gap": -0.0045,
+          "part": "thighs",
           "frame": 90,
           "time_s": 3.0,
-          "trunk": 0.0007,
-          "thighs": 0.0003
+          "trunk": 0.0016,
+          "thighs": -0.0045
         },
         "hands": {
           "distance": 0.0,
@@ -155,29 +155,29 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 2,
+        "turned_faces": 4,
         "folded_faces": 0,
         "pass": true,
         "scene": {
-          "depth": 0.0023,
+          "depth": 0.0028,
           "prop": "piano",
           "piece": "keybed",
-          "frame": 39,
-          "time_s": 1.3,
+          "frame": 41,
+          "time_s": 1.367,
           "position": [
-            -0.2966,
-            0.4361,
-            0.2903
+            -0.3069,
+            0.4313,
+            0.2908
           ],
           "bone": "finger2_R"
         },
         "seat": {
-          "gap": 0.0007,
-          "part": "trunk",
+          "gap": -0.0045,
+          "part": "thighs",
           "frame": 90,
           "time_s": 3.0,
-          "trunk": 0.0007,
-          "thighs": 0.0003
+          "trunk": 0.0016,
+          "thighs": -0.0045
         }
       },
       "performance": {
@@ -185,32 +185,32 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 2,
+        "turned_faces": 4,
         "folded_faces": 0,
         "pass": true,
         "scene": {
-          "depth": 0.0023,
+          "depth": 0.0028,
           "prop": "piano",
           "piece": "keybed",
-          "frame": 429,
-          "time_s": 14.3,
+          "frame": 431,
+          "time_s": 14.367,
           "position": [
-            -0.2966,
-            0.4361,
-            0.2903
+            -0.3069,
+            0.4313,
+            0.2908
           ],
           "bone": "finger2_R"
         },
         "seat": {
-          "gap": 0.0007,
-          "part": "trunk",
+          "gap": -0.0045,
+          "part": "thighs",
           "frame": 480,
           "time_s": 16.0,
-          "trunk": 0.0007,
-          "thighs": 0.0003
+          "trunk": 0.0016,
+          "thighs": -0.0045
         }
       }
     }
   },
-  "total_triangles": 2730
+  "total_triangles": 2608
 }
