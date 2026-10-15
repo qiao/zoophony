@@ -787,8 +787,12 @@ export interface CheckMeasures {
   readonly triangles: number;
   /** The size of the packed mesh after gzip, in bytes. */
   readonly meshGzip: number;
+  /** The meters for each unit of the rig. */
+  readonly scale: number;
   /** The height of the seat, in meters, or `null` for a body that stands. */
   readonly seat: number | null;
+  /** The seat that fits the legs, in meters, or `null` for a body that stands. */
+  readonly legSeat: number | null;
   /** The depth of the chair, in meters, or `null`. */
   readonly chair: number | null;
   /** The arm of each side from the shoulder joint to the middle of the palm, in meters. */
@@ -811,7 +815,8 @@ export interface CheckRow {
 
 /**
  * Writes the table of the variants of `--check`: one row for each variant, with the triangles, the
- * gzip size of the packed mesh, the seat, the chair depth, the reach of each arm, the error of the
+ * gzip size of the packed mesh, the scale, the seat, the seat of the legs, the chair depth, the
+ * reach of each arm, the error of the
  * standing body, the share of the samples with a fold in the play, the lift, and the rest pose
  * of each role, and the main bones of the most folded faces of each role with their face-samples
  * ({@link foldBones}). A variant that failed gives its message.
@@ -828,7 +833,9 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
     'Variant',
     'Triangles',
     'Mesh gzip B',
+    'Scale m/u',
     'Seat m',
+    'Leg seat m',
     'Chair m',
     'Reach L m',
     'Reach R m',
@@ -863,7 +870,9 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
       variant || 'base',
       String(measures.triangles),
       String(measures.meshGzip),
+      measures.scale.toFixed(4),
       m(measures.seat),
+      m(measures.legSeat),
       m(measures.chair),
       m(measures.reach.L),
       m(measures.reach.R),
@@ -948,7 +957,9 @@ async function checkRig(
     const result = {
       triangles: measures.triangles,
       meshGzip: gzipSize(measures.body.mesh),
+      scale: measures.body.scale,
       seat: measures.body.seatHeight,
+      legSeat: measures.legSeat,
       chair: measures.body.chairDepth,
       reach: measures.arms,
       standing: measures.standing.worst,

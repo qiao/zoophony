@@ -7,6 +7,7 @@ import type { Vec3 } from '../src/models/tuples.ts';
 import {
   LIMB_JOINTS,
   chainLows,
+  legSettings,
   objVertices,
   standingError,
   thinFaces,
@@ -14,6 +15,7 @@ import {
 } from './rig-mesh-check.ts';
 import type { ThinRule } from './rig-mesh-check.ts';
 import { STUDIO_TRIANGLE_BUDGET } from './studio-budgets.ts';
+import { ANIMALS } from './studio-body.ts';
 
 /** The rule of the test: a corner below 10°, an edge of 0.1 u or more, and 0.05 u to the joint. */
 const RULE: ThinRule = { angle: 10, length: 0.1, near: 0.05 };
@@ -189,5 +191,17 @@ describe('the standing check', () => {
     expect(() => standingError(new Uint8Array(), STUDIO_BODIES['studio-bear'], '')).toThrow(
       'does not stand',
     );
+  });
+});
+
+describe('legSettings', () => {
+  it('takes the seat of ANIMALS out, and keeps each other setting', () => {
+    const fox = ANIMALS.get('fox');
+    const bear = ANIMALS.get('bear');
+    expect(fox?.seat).toBeDefined();
+    const legs = fox ? legSettings(fox) : null;
+    expect(legs).not.toHaveProperty('seat');
+    expect({ ...legs, seat: fox?.seat }).toEqual(fox);
+    expect(bear ? legSettings(bear) : null).toBe(bear);
   });
 });

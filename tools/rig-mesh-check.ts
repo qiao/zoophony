@@ -311,6 +311,11 @@ export interface RigMeasures {
   readonly triangles: number;
   /** The studio body with the settings of the animal. */
   readonly body: StudioBody;
+  /**
+   * The seat that fits the legs of a seated body, in meters: the seat height of the export with no
+   * seat of `ANIMALS` ({@link legSettings}), or `null` for a body that stands.
+   */
+  readonly legSeat: number | null;
   /** The arm of each side from the shoulder joint to the middle of the palm, in meters. */
   readonly arms: Readonly<Record<'L' | 'R', number | null>>;
   /** The error of the standing body against the long-armed source. */
@@ -354,6 +359,9 @@ export function measureRig(
   return {
     triangles: mesh.corners.length / 3,
     body,
+    legSeat: settings.seated
+      ? studioBody(bytes, source, legSettings(settings)).body.seatHeight
+      : null,
     arms: { L: meters(facts.arms.L), R: meters(facts.arms.R) },
     standing: standingError(bytes, standing, obj),
     floor: {
@@ -362,6 +370,19 @@ export function measureRig(
     },
     thin: thinFaces(mesh, body.heads, rule, body.scale),
   };
+}
+
+/**
+ * Gives the settings of an animal with no seat height. The export then drops the seated body until
+ * its lowest point is on the floor, and the seat fits its legs (design 4.4), as the seat of a
+ * form change before the seat of `ANIMALS`.
+ *
+ * @param settings The settings of the animal.
+ * @returns The settings with no `seat`.
+ */
+export function legSettings(settings: AnimalSettings): AnimalSettings {
+  const { seat, ...legs } = settings;
+  return seat === undefined ? settings : legs;
 }
 
 /**
@@ -402,7 +423,7 @@ export function measureLines(measures: RigMeasures, module: string, rule: ThinRu
   const bytes = (value: number): string => `${value.toLocaleString('en-US')} B`;
   const lines = [
     `Module: ${bytes(module.length)}, ${bytes(gzipSize(module))} after gzip. Packed mesh: ${bytes(gzipSize(body.mesh))} after gzip, budget ${bytes(STUDIO_MESH_GZIP_BUDGET)} (src/models/studio-size.test.ts).`,
-    `Scale ${body.scale} m for each unit. Head height H ${m(body.headHeight)}. Seat height ${m(body.seatHeight)}. Chair depth ${m(body.chairDepth)}.`,
+    `Scale ${body.scale} m for each unit. Head height H ${m(body.headHeight)}. Seat height ${m(body.seatHeight)}, ${m(measures.legSeat)} with no seat of ANIMALS (the seat of the legs). Chair depth ${m(body.chairDepth)}.`,
     `Arm from the shoulder joint to the middle of the palm: L ${m(measures.arms.L)}, R ${m(measures.arms.R)}.`,
     `Lowest point above the floor, seated bind (seat height ${m(body.seatHeight)}): ${chainText(measures.floor.seated)}. Standing body: ${chainText(measures.floor.standing)}.`,
     `Standing body against the long-armed source: ${mm(standing.worst)} at most (limit ${mm(STANDING_LIMIT)}), ${mm(standing.back)} back, ${standing.vertices} vertices, ${standing.shells} eye vertices left out.${standing.worst > STANDING_LIMIT ? ' ABOVE THE LIMIT.' : ''}`,

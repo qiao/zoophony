@@ -286,7 +286,9 @@ describe('checkTable', () => {
   const measures: CheckMeasures = {
     triangles: 3135,
     meshGzip: 27673,
-    seat: 0.126,
+    scale: 1.5504,
+    seat: 0.36,
+    legSeat: 0.283,
     chair: 0.25,
     reach: { L: 0.377, R: 0.3771 },
     standing: 0.000228,
@@ -312,10 +314,10 @@ describe('checkTable', () => {
       { variant: 'armFactor=1.1', measures: { ...measures, triangles: 3136 }, error: null },
     ]);
     expect(lines[0]).toBe(
-      '| Variant | Triangles | Mesh gzip B | Seat m | Chair m | Reach L m | Reach R m | Standing mm | fox-violinist play | fox-violinist lift | fox-violinist rest | fox-violinist bones |',
+      '| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | fox-violinist play | fox-violinist lift | fox-violinist rest | fox-violinist bones |',
     );
     expect(lines[2]).toBe(
-      '| base | 3135 | 27673 | 0.126 | 0.250 | 0.377 | 0.377 | 0.228 | 3.3% | 20.3% | 100.0% | upper_arm_R 120, neck 13 |',
+      '| base | 3135 | 27673 | 1.5504 | 0.360 | 0.283 | 0.250 | 0.377 | 0.377 | 0.228 | 3.3% | 20.3% | 100.0% | upper_arm_R 120, neck 13 |',
     );
     expect(lines[3]).toMatch(/^\| armFactor=1\.1 \| 3136 \| /);
   });
