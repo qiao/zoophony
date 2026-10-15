@@ -3,6 +3,9 @@
 ## 9.1 Repository
 
 - Git, with the branch `main`. Each step of the work has many fine-grained commits.
+- `.gitattributes` merges `docs/design.md` with the union driver of git. Two rounds that each add
+  the line of a decision file then do not conflict. A line that both sides change stays two
+  times, so the agent of a round that changes a line of `docs/design.md` reads the merged file.
 - The code license is MIT.
 - The user creates the empty GitHub repository `zoophony` (or installs `gh`) before the first deploy. Until
   then, all commits stay local.
