@@ -8,13 +8,17 @@ import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
 import {
   FIT_DEMOS,
   FIT_STEP,
+  GRID_LIMIT,
   chooseDemos,
   fitSweep,
   fitJson,
   fitTable,
   foldShares,
+  gridChanges,
+  gridVariants,
   parseFitOptions,
   readFit,
+  sortFitRows,
   worstPairs,
 } from './hold-fit.ts';
 import type { FitRow } from './hold-fit.ts';
@@ -95,6 +99,26 @@ describe('parseFitOptions', () => {
     expect(parseFitOptions(['pianist', '--json', 'out.json']).json).toBe('out.json');
   });
 
+  it('adds the variants of the grids after the variants of --set', () => {
+    const options = parseFitOptions([
+      'pianist',
+      '--set',
+      'piano.lean=16deg',
+      '--grid',
+      'piano.lean=10deg:20deg:10deg',
+    ]);
+    expect(options.variants).toEqual([
+      '',
+      'piano.lean=16deg',
+      'piano.lean=10deg',
+      'piano.lean=20deg',
+    ]);
+    expect(options.grids).toEqual(['piano.lean=10deg:20deg:10deg']);
+    expect(() => parseFitOptions(['pianist', '--grid', 'piano.nothing=1:2:1'])).toThrow(
+      /not known/,
+    );
+  });
+
   it('stops on --base with --json', () => {
     expect(() => parseFitOptions(['pianist', '--base', 'main', '--json', 'out.json'])).toThrow(
       'do not go together',
@@ -107,6 +131,51 @@ describe('parseFitOptions', () => {
     expect(() => parseFitOptions(['pianist', '--set', 'piano.nothing=1'])).toThrow(/not known/);
     expect(() => parseFitOptions(['pianist', '--step', '0'])).toThrow(/above 0/);
     expect(() => parseFitOptions(['pianist', '--demo'])).toThrow(/no value/);
+  });
+});
+
+describe('gridChanges', () => {
+  it('gives each value from the first to the last at each step, with both ends and the unit', () => {
+    expect(gridChanges('piano.lean=10deg:20deg:5deg')).toEqual([
+      'piano.lean=10deg',
+      'piano.lean=15deg',
+      'piano.lean=20deg',
+    ]);
+    expect(gridChanges('piano.curl=0.3:0.1:0.1')).toEqual([
+      'piano.curl=0.3',
+      'piano.curl=0.2',
+      'piano.curl=0.1',
+    ]);
+    expect(gridChanges('piano.curl=0:0.25:0.1')).toEqual([
+      'piano.curl=0',
+      'piano.curl=0.1',
+      'piano.curl=0.2',
+    ]);
+  });
+
+  it('stops on a grid that is not <path>=<a>:<b>:<step>, a mixed unit, or a step of 0', () => {
+    expect(() => gridChanges('piano.lean=10:20')).toThrow(/not <path>/);
+    expect(() => gridChanges('piano.lean=10deg:20:5deg')).toThrow(/unit deg/);
+    expect(() => gridChanges('piano.lean=10:x:5')).toThrow(/not a number/);
+    expect(() => gridChanges('piano.lean=10:20:0')).toThrow(/above 0/);
+  });
+});
+
+describe('gridVariants', () => {
+  it('gives the product of the grids, the first grid outermost', () => {
+    expect(gridVariants(['a.x=1:2:1', 'b.y=0:1:1'])).toEqual([
+      'a.x=1;b.y=0',
+      'a.x=1;b.y=1',
+      'a.x=2;b.y=0',
+      'a.x=2;b.y=1',
+    ]);
+    expect(gridVariants([])).toEqual([]);
+  });
+
+  it('stops on more variants than the limit, and states the count', () => {
+    expect(GRID_LIMIT).toBe(40);
+    expect(() => gridVariants(['a.x=1:7:1', 'b.y=1:6:1'])).toThrow('7 × 6 = 42 variants');
+    expect(gridVariants(['a.x=1:8:1', 'b.y=1:5:1'])).toHaveLength(40);
   });
 });
 
@@ -228,6 +297,22 @@ describe('fitTable', () => {
       rows: [{ ...row, depths: [{ set: 'play', demo: 'a', pair: none, limit: 0.015 }], results }],
     };
     expect(readFit(fitJson(run))).toEqual(run);
+  });
+
+  it('sorts the variants by the play folds, then by the deepest point, after the base', () => {
+    const variant = (name: string, withFold: number, depth: number): FitRow => ({
+      ...row,
+      variant: name,
+      folds: { play: { samples: 100, withFold }, lift: { samples: 10, withFold: 0 } },
+      depths: [{ set: 'play', demo: 'a', pair: pair('paws', 'body', depth), limit: 0.015 }],
+    });
+    const rows = [
+      variant('', 9, 0),
+      variant('a', 3, 0.02),
+      variant('b', 1, 0.03),
+      variant('c', 3, 0.01),
+    ];
+    expect(sortFitRows(rows).map((r) => r.variant)).toEqual(['', 'b', 'c', 'a']);
   });
 
   it('adds the rule scale, the violin length, and the reached ranges for a violin role', () => {

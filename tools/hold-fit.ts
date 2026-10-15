@@ -5,12 +5,17 @@
  * `pnpm hold-reach`. It prints one table with one row for each variant. The source files do not
  * change.
  *
+ * `--grid '<path>=<a>:<b>:<step>'` adds the variants of a range of values, and several `--grid`
+ * options give the product of their ranges, up to {@link GRID_LIMIT} variants. A run with a grid
+ * sorts the rows of the variants by the play folds, then by the deepest point.
+ *
  * With `--base <ref>`, the commit and the working tree run at the same time, each in a child
  * process. The table then starts with the row of the commit, and one compare of the deepest
  * points in the H of each body follows for each variant.
  *
- * Usage: pnpm hold-fit <role> [--set <path>=<value>[;<path>=<value>]...]... [--demo <id>|all]...
- * [--step <seconds>] [--base <ref>] [--json <file>]
+ * Usage: pnpm hold-fit <role> [--set <path>=<value>[;<path>=<value>]...]...
+ * [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]... [--step <seconds>] [--base <ref>]
+ * [--json <file>]
  */
 import { writeFileSync } from 'node:fs';
 
@@ -53,8 +58,78 @@ export const FIT_STEP = 1;
  */
 export const PLAY_FOLD_GOAL = 0.01;
 
+/** The largest number of variants of the grids of a run. One variant takes 45 s to 90 s. */
+export const GRID_LIMIT = 40;
+
 /** The usage text of `pnpm hold-fit`. */
-const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--demo <id>|all]... [--step <seconds>] [--base <ref>] [--json <file>]`;
+const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]... [--step <seconds>] [--base <ref>] [--json <file>]`;
+
+/**
+ * Gives the values of one grid: from the first value to the last value at each step, with both
+ * ends. A value with the unit `deg` is an angle in degrees, as in `--set`.
+ *
+ * @param grid The grid, as `<path>=<a>:<b>:<step>`, such as `violin@fox-red.lean=10deg:20deg:5deg`.
+ * @returns The changes, one for each value, such as `violin@fox-red.lean=10deg`.
+ * @throws Error if the grid is not `<path>=<a>:<b>:<step>`, if a number is not a number, if the
+ *   numbers mix the unit `deg` with no unit, or if the step is not above 0.
+ */
+export function gridChanges(grid: string): string[] {
+  const equals = grid.indexOf('=');
+  const parts = grid.slice(equals + 1).split(':');
+  if (equals < 1 || parts.length !== 3) {
+    throw new Error(`The grid "${grid}" is not <path>=<a>:<b>:<step>.`);
+  }
+  const path = grid.slice(0, equals);
+  const degrees = parts.map((part) => part.endsWith('deg'));
+  if (degrees.some((d) => d !== degrees[0])) {
+    throw new Error(`The numbers of the grid "${grid}" all have the unit deg, or none has it.`);
+  }
+  const unit = degrees[0] ? 'deg' : '';
+  const [a = Number.NaN, b = Number.NaN, step = Number.NaN] = parts.map((part) =>
+    part.trim() === '' ? Number.NaN : Number(unit ? part.slice(0, -3) : part),
+  );
+  if (!Number.isFinite(a) || !Number.isFinite(b) || !Number.isFinite(step)) {
+    throw new Error(`The grid "${grid}" has a value that is not a number.`);
+  }
+  if (!(step > 0)) {
+    throw new Error(`The step of the grid "${grid}" must be above 0.`);
+  }
+
+  const count = Math.floor(Math.abs(b - a) / step + 1e-9) + 1;
+  const direction = b < a ? -1 : 1;
+  return Array.from({ length: count }, (...[, i]) => {
+    const value = Number((a + direction * i * step).toFixed(9));
+    return `${path}=${value}${unit}`;
+  });
+}
+
+/**
+ * Gives the variants of the grids of a run: the product of the values of each grid, with the
+ * changes of each variant separated by `;`.
+ *
+ * @param grids The grids ({@link gridChanges}).
+ * @returns The variants, the first grid outermost, or none with no grid.
+ * @throws Error if a grid does not fit, or if the product has more than {@link GRID_LIMIT}
+ *   variants.
+ */
+export function gridVariants(grids: readonly string[]): string[] {
+  if (grids.length === 0) {
+    return [];
+  }
+  const ranges = grids.map(gridChanges);
+  const total = ranges.reduce((product, range) => product * range.length, 1);
+  if (total > GRID_LIMIT) {
+    throw new Error(
+      `The grids give ${ranges.map((range) => range.length).join(' × ')} = ${total} variants, more than the limit of ${GRID_LIMIT}.`,
+    );
+  }
+  return ranges
+    .reduce<string[]>(
+      (variants, range) => variants.flatMap((variant) => range.map((c) => `${variant};${c}`)),
+      [''],
+    )
+    .map((variant) => variant.slice(1));
+}
 
 /** The options of `pnpm hold-fit`. */
 export interface FitOptions {
@@ -62,8 +137,13 @@ export interface FitOptions {
   readonly name: string;
   /** The role. */
   readonly role: RoleSource;
-  /** The variants: each is a list of changes of the holds. The first is the base, with none. */
+  /**
+   * The variants: each is a list of changes of the holds. The first is the base, with none, then
+   * the variants of `--set`, then the variants of the grids.
+   */
   readonly variants: readonly string[];
+  /** The grids of `--grid`, as `<path>=<a>:<b>:<step>`. */
+  readonly grids: readonly string[];
   /**
    * The demos, by the name of the file with no `.mid`, or `all`. The demos of {@link FIT_DEMOS}
    * when empty.
@@ -93,6 +173,7 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
     throw new Error(USAGE);
   }
   const variants = [''];
+  const grids: string[] = [];
   const demos: string[] = [];
   let step = FIT_STEP;
   let json: string | null = null;
@@ -105,6 +186,9 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
     switch (rest[i]) {
       case '--set':
         variants.push(value);
+        break;
+      case '--grid':
+        grids.push(value);
         break;
       case '--demo':
         demos.push(value.replace(/\.mid$/, ''));
@@ -125,13 +209,14 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
         throw new Error(`The option "${rest[i]}" is not known.\n${USAGE}`);
     }
   }
+  variants.push(...gridVariants(grids));
   for (const variant of variants) {
     setHolds(variant).undo();
   }
   if (base !== null && json !== null) {
     throw new Error(`The options --base and --json do not go together.\n${USAGE}`);
   }
-  return { name, role, variants, demos, step, json, base };
+  return { name, role, variants, grids, demos, step, json, base };
 }
 
 /**
@@ -365,6 +450,42 @@ export function fitTable(rows: readonly FitRow[]): string[] {
 }
 
 /**
+ * Sorts the rows of a run: the base first, then the variants by the share of the play samples
+ * with a fold, and at the same share by the deepest point: the largest depth less its limit over
+ * the sample sets. A variant with no sweep has the deepest point 0.
+ *
+ * @param rows The rows, the base first.
+ * @returns The sorted rows.
+ */
+export function sortFitRows(rows: readonly FitRow[]): FitRow[] {
+  const [base, ...variants] = rows;
+  const share = (row: FitRow): number =>
+    row.folds.play.withFold / Math.max(1, row.folds.play.samples);
+  const margin = (row: FitRow): number =>
+    row.depths.length > 0 ? Math.max(...row.depths.map((d) => d.pair.depth - d.limit)) : 0;
+  return [
+    ...(base ? [base] : []),
+    ...variants.toSorted((a, b) => share(a) - share(b) || margin(a) - margin(b)),
+  ];
+}
+
+/**
+ * Writes the size of the grids of a run.
+ *
+ * @param grids The grids.
+ * @returns The text, such as `Grids: 3 × 4 = 12 variants (the limit is 40).`, or empty with no
+ *   grid.
+ */
+function gridText(grids: readonly string[]): string {
+  if (grids.length === 0) {
+    return '';
+  }
+  const counts = grids.map((grid) => gridChanges(grid).length);
+  const total = counts.reduce((product, n) => product * n, 1);
+  return `Grids: ${counts.join(' × ')} = ${total} variants (the limit is ${GRID_LIMIT}), sorted by the play folds, then by the deepest point.`;
+}
+
+/**
  * Gives the instrument under the chin of a role, for the reach of `pnpm hold-reach`.
  *
  * @param role The role.
@@ -465,7 +586,7 @@ async function compareFit(options: FitOptions, ref: string): Promise<void> {
   const texts = await probeBeside(
     ref,
     'hold-fit.ts',
-    { base: withoutOptions(args, ['--set']), tree: args },
+    { base: withoutOptions(args, ['--set', '--grid']), tree: args },
     { prefix: 'hold-fit-' },
   );
   const base = readFit(texts.base);
@@ -474,14 +595,19 @@ async function compareFit(options: FitOptions, ref: string): Promise<void> {
   console.log(`Hold fit of the ${options.name} on ${label} and on the working tree: ${seconds} s.`);
   console.log(`Demos of ${label}: ${base.demos.join(', ')}`);
   console.log(`Demos of the working tree: ${tree.demos.join(', ')}`);
+  const grid = gridText(options.grids);
+  if (grid) {
+    console.log(grid);
+  }
   const [first] = base.rows;
-  for (const row of tree.rows) {
+  const rows = options.grids.length > 0 ? sortFitRows(tree.rows) : [...tree.rows];
+  for (const row of rows) {
     printRow(row);
   }
   console.log(
-    ['', ...fitTable([...(first ? [{ ...first, variant: label }] : []), ...tree.rows])].join('\n'),
+    ['', ...fitTable([...(first ? [{ ...first, variant: label }] : []), ...rows])].join('\n'),
   );
-  for (const { variant, results } of tree.rows) {
+  for (const { variant, results } of rows) {
     console.log(`\nThe depths of ${label} and of the working tree with ${variant || 'no change'}:`);
     console.log(compareDepths(label, first?.results ?? [], results).join('\n'));
   }
@@ -502,19 +628,23 @@ async function main(): Promise<void> {
     `Hold fit of the ${options.name}: play folds at a step of ${options.step} s, ${sweep ? `the sweep of the ${sweep.role} with the bodies of the role` : 'no sweep (folds only)'}${chin ? `, and the reach of ${chin.species} with the ${chin.instrument}` : ''}.`,
   );
   console.log(`Demos: ${ids.join(', ')}`);
+  const grid = gridText(options.grids);
+  if (grid) {
+    console.log(grid);
+  }
 
   const rows: FitRow[] = [];
   for (const variant of options.variants) {
     const started = performance.now();
     const { undo, text } = setHolds(variant);
     try {
-      const folds = foldShares(probeFolds(options.role, demos, options.step));
+      const report = probeFolds(options.role, demos, options.step);
       const results = sweep
         ? await sweepDemos({ demos: ids, times: null, gaps: false }, sweep)
         : [];
       const row: FitRow = {
         variant: text,
-        folds,
+        folds: foldShares(report),
         depths: sweep ? worstPairs(sweep, results) : [],
         reach: chin ? holdReach(chin.species, chin.instrument, 'chair') : null,
         seconds: (performance.now() - started) / 1000,
@@ -526,7 +656,8 @@ async function main(): Promise<void> {
       undo();
     }
   }
-  console.log(['', ...fitTable(rows)].join('\n'));
+  const table = options.grids.length > 0 ? sortFitRows(rows) : rows;
+  console.log(['', ...fitTable(table)].join('\n'));
   if (options.json !== null) {
     writeFileSync(options.json, fitJson({ demos: ids, rows }));
   }
