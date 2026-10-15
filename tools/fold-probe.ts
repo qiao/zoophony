@@ -34,7 +34,7 @@ import {
   skinStudioMesh,
   studioOffsets,
 } from '../src/models/studio-rig.ts';
-import type { StudioPose } from '../src/models/studio-rig.ts';
+import type { StudioPose, StudioRig } from '../src/models/studio-rig.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { countInAt } from '../src/pose/count-in.ts';
 import { createScenePose, poseAt } from '../src/pose/pose-at.ts';
@@ -480,14 +480,35 @@ function emptyCount(): FoldCount {
 }
 
 /**
+ * Gets each posed studio body of {@link probeFolds}: the rig, the pose of its bones, the posed
+ * places, the folded faces, and the sample set.
+ */
+export type FoldVisit = (
+  rig: StudioRig,
+  studio: StudioPose,
+  posed: Float32Array,
+  folded: readonly number[],
+  set: SampleSet,
+) => void;
+
+/**
  * Counts the folded faces of one posed body into a count.
  *
  * @param model The player model with its studio rig.
  * @param pose The pose of the player.
  * @param label The demo and the time of the sample.
  * @param count The count to update.
+ * @param set The sample set, for the visit.
+ * @param visit Gets the posed body, or `undefined` for none.
  */
-function countPose(model: PlayerModel, pose: AnimalPose, label: string, count: FoldCount): void {
+function countPose(
+  model: PlayerModel,
+  pose: AnimalPose,
+  label: string,
+  count: FoldCount,
+  set: SampleSet,
+  visit?: FoldVisit,
+): void {
   const rig = model.studio;
   if (!rig) {
     return;
@@ -502,6 +523,7 @@ function countPose(model: PlayerModel, pose: AnimalPose, label: string, count: F
   );
   const posed = skinStudioMesh(rig.mesh, studio);
   const folded = foldedFaces(rig.mesh, studio.matrices, posed);
+  visit?.(rig, studio, posed, folded, set);
   for (const face of folded) {
     const bone = mainBone(rig.mesh, face);
     count.bones.set(bone, (count.bones.get(bone) ?? 0) + 1);
@@ -565,9 +587,15 @@ export function roleBodies(role: RoleSource, scene: TestScene): RoleBody[] {
  * @param role The role.
  * @param demos The demos. A demo with no body of the role adds nothing.
  * @param step The step of the song time of the play, in seconds.
+ * @param visit Gets each posed body, such as the turn probe of `--turns`.
  * @returns The report.
  */
-export function probeFolds(role: RoleSource, demos: readonly DemoFile[], step: number): FoldReport {
+export function probeFolds(
+  role: RoleSource,
+  demos: readonly DemoFile[],
+  step: number,
+  visit?: FoldVisit,
+): FoldReport {
   const report: FoldReport = {
     demos: [],
     faces: 0,
@@ -604,7 +632,7 @@ export function probeFolds(role: RoleSource, demos: readonly DemoFile[], step: n
         const pose = index === null ? frame.conductor : frame.players[index];
         const who = bodies.length > 1 ? ` player ${index ?? ''}` : '';
         if (pose) {
-          countPose(model, pose, `${demo.file}${who} ${label}`, report.sets[set]);
+          countPose(model, pose, `${demo.file}${who} ${label}`, report.sets[set], set, visit);
         }
       }
     }
