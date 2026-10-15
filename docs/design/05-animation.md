@@ -510,7 +510,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     of `pose/winds.ts`), as a species can hold a bowed string. The tan fox, with the studio body of
     the fox mesh, holds the flute as a real flutist (Debost, Flute Talk, May/June 1996): the head
     turns to the left, the flute lies square to the face with a small slope down to the right, and
-    the shoulders stay square and low, with no forward turn of the right shoulder. A long muzzle
+    the shoulders stay square and low, with no forward turn of the right shoulder. The shorter arms
+    of 2026-10-14 turn the right end of the flute of the fox a little back from square, so that the
+    right paw reaches its grip and the skin of the right shoulder does not fold. A long muzzle
     reaches past the mouth, so the lip plate sits under it (`WindHold.lipShift`). At rest, the
     flute stands on the right thigh with the foot joint down, as a real flutist rests it (George,
     The Instrumentalist, December 2018), and both paws stay on it. The angles, the poles, and the

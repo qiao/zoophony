@@ -8,7 +8,7 @@ import type { Vec3 } from '../models/tuples.ts';
 import { posedAt, posedPiecePoint, posedPoint } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, firstPlayers, sceneOf } from './test-scene.ts';
-import { windHoldOf } from './winds.ts';
+import { FOX_FLUTE_BACK, windHoldOf } from './winds.ts';
 
 /** A flute on its own: eighth notes at 120 BPM for 4 s. */
 const FLUTE: TestFile = {
@@ -76,13 +76,15 @@ describe('the head turn of a wind hold (design 5.3)', () => {
     }
   });
 
-  it('puts the flute square to the turned face', () => {
+  it('turns the right end of the flute back from square to the turned face by the hold', () => {
     const posed = posedAt(scene, player, 1.3);
     const lip = new Vector3(...posedPiecePoint(posed, { bone: 'instrument', at: [0, 0, 0] }));
     const foot = new Vector3(...posedPiecePoint(posed, { bone: 'instrument', at: [0.5, 0, 0] }));
     const along = foot.sub(lip).setY(0).normalize();
-    // The sway of the chest tilts both a little, so the level directions differ by less than 1°.
-    expect(Math.abs(along.dot(facing(posed, 'head')))).toBeLessThan(0.015);
+    // Square to the face, the level direction of the flute is at right angles to the facing of
+    // the head. The sway of the chest tilts both a little, by less than 1°.
+    const back = Math.sin(FOX_FLUTE_BACK * MathUtils.DEG2RAD);
+    expect(Math.abs(along.dot(facing(posed, 'head')) + back)).toBeLessThan(0.015);
   });
 
   it('keeps the head square to the chest in the rest pose', () => {

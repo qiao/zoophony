@@ -273,27 +273,39 @@ export const WIND_HOLDS = {
 const FOX_HEAD_TURN = 30;
 
 /**
+ * The turn of the right end of the flute of the flutist fox back from square to the face, in
+ * degrees. Square to the face, the shorter arms of 2026-10-14 reach the right grip with 0.8 cm to
+ * spare, and two faces of the front of the right shoulder fold in each play sample. The turns from
+ * 7° to 11° back, with the flute 8° to 10° down, fold 0.7% of the play samples, and 5° or 12° back,
+ * or 12° down, fold each sample again, so the hold takes the middle (`2026-10-14-arms-rest`
+ * decisions).
+ */
+export const FOX_FLUTE_BACK = 9;
+
+/**
  * The flute hold of the tan fox (design 5.3), the hold of a real flutist (decisions
  * `2026-10-14-fox-flute.md`). The head turns 30° to the left while the fox plays, as Debost
- * writes, and the flute lies square to the face, 10° down to the right. The lip plate sits 0.05 H
+ * writes, and the flute lies 9° back from square to the face, 8° down to the right
+ * ({@link FOX_FLUTE_BACK}). The lip plate sits 0.05 H
  * below the mouth, under the long muzzle: at the mouth, the jaw touched the flute. The shoulders
  * stay square and low, with no forward turn of the right shoulder. The left elbow points down and
  * out, and the right elbow out to the side, in line with the shoulder. In the rest pose, the flute
  * leans from in front of the chest down to the right knee, with the foot joint down, and both paws
  * stay on it. Upright on the right thigh, as a real flutist rests it, the left upper arm went 2.5
- * cm to 3.2 cm into the body (`pnpm hold-fit flutist`). The left elbow points out to the side at
- * rest.
+ * cm to 3.2 cm into the body (`pnpm hold-fit flutist`). The left elbow points out, down, and
+ * forward at rest: out to the side, the left upper arm of the shorter arms of 2026-10-14 went
+ * 2.6 cm into the body, and 1.5 cm with this elbow.
  */
 const FOX_FLUTE = {
   ...WOODWIND,
   headTurn: FOX_HEAD_TURN * MathUtils.DEG2RAD,
   lipShift: [0, -0.05, 0],
-  play: fluteTurn(FOX_HEAD_TURN, 10),
+  play: fluteTurn(FOX_HEAD_TURN - FOX_FLUTE_BACK, 8),
   poleL: [-1, -1, -0.3],
   poleR: [1, -0.8, 0],
   rest: fluteTurn(-22, 59, [0, 0, -1]),
   restShift: [0, -0.5, -0.19],
-  restPoleL: [-1, 0, 0],
+  restPoleL: [-1, -0.5, -0.5],
   restPoleR: [1, -0.5, 0.5],
 } as const satisfies WindHold;
 
