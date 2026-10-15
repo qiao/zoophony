@@ -273,11 +273,15 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  * The rest pose is the rest of a seated violinist between the passages (violinspiration.com,
  * "Violin posture": "the violin resting on your left leg with the neck in your left hand", "the
  * bow will also be pointing up"): the violin stands upright on the left thigh, held at its neck,
- * and the bow stands on the right thigh, up and forward at 45°. Straight up, the bow went 5.4 cm
- * into the body during the lift and the lowering. The right elbow points out, down, and forward,
- * so that the upper arm keeps off the trunk. The left elbow points out, down, and a little back:
- * with the elbow of the chin hold, the left forearm went 1.9 cm into the larger violin of
- * 2026-10-14 at rest, and 1.2 cm with this elbow.
+ * and the bow points up and forward at 45°. Straight up, the bow went 5.4 cm into the body during
+ * the lift and the lowering. The right paw holds the bow 0.5 H out from the right thigh, 0.5 H
+ * above it, and 0.6 H forward, so that the long right arm hangs down and forward, nearly
+ * straight. With the paw on the thigh (0.25 H out, 0.06 H up), the bent arm stood out to the side
+ * with the paw at the hip, and faces of the side of the trunk below the right armpit turned over
+ * in each rest sample (the user: "the rabbit's arm is deformed", 2026-10-14-fox-rabbit-fix
+ * decisions). The right elbow points out, down, and forward. The left elbow points out, down, and
+ * a little back: with the elbow of the chin hold, the left forearm went 1.9 cm into the larger
+ * violin of 2026-10-14 at rest, and 1.2 cm with this elbow.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
@@ -291,7 +295,7 @@ const SHOULDER_HOLD = {
   restPoleR: [1, -0.9, -0.5],
   restPoleL: [-0.5, -1, 0.3],
   restBow: {
-    lap: { along: 0.8, offset: [0.25, 0.06, -0.1] },
+    lap: { along: 0.8, offset: [0.5, 0.5, -0.6] },
     tip: [0.1, 0.8, -0.8],
     hair: [-1, 0, 0],
   },

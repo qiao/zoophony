@@ -398,9 +398,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     bow, and the bow keeps a longer free hair at each end (`BowedHold.freeHair` of
     `pose/bowed-rig.ts`): the larger violin and bow put the bow paw into the body at the frog. At the tip, the right elbow also points down: up, the skin of the studio
     rabbit folded at the upper arm. In the rest pose, the
-    violin stands upright on the left thigh, held at its neck, and the bow stands on the right
-    thigh, up and forward, as a seated violinist rests between the passages: the longer legs of
-    2026-10-14 give the rabbit a lap. The red foxes take the shoulder hold
+    violin stands upright on the left thigh, held at its neck, and the bow points up and forward,
+    as a seated violinist rests between the passages: the longer legs of 2026-10-14 give the rabbit
+    a lap. The right paw holds the bow out and forward over the right knee, so that the long arm
+    hangs nearly straight: with the paw at the hip, the bent arm stood out to the side, and the
+    side of the trunk below the right armpit folded. The red foxes take the shoulder hold
     of the rabbits (`FOX_HOLD`), with the tail end against the left side of the short neck under the
     long jaw, the bow slanted 12°, the right shoulder turned 15°, the right elbow at the tip less
     down, the right elbow at the frog further out, and a longer free hair of the bow. With the bow of the rabbit, the skin of the
