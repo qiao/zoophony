@@ -889,33 +889,52 @@ export function readFaceJson(text: string): FaceJson {
 export const SAME_FACE_DISTANCE = 0.01;
 
 /**
- * Finds the face of another body that is the same face as a face of a body. Two bodies with the
- * same corners give each face the same index. Else the same face is the folded face of the other
- * body with the nearest middle in the bind pose, at most {@link SAME_FACE_DISTANCE} away.
+ * Pairs the folded faces of two bodies one to one: each face goes into one pair at most. Two
+ * bodies with the same corners give each face the same index, so a pair holds the faces of one
+ * index. Else the pairs go in the order of the distance of the middles of their faces in the bind
+ * pose, the nearest first, up to {@link SAME_FACE_DISTANCE}. A pair whose face of either body is in
+ * a nearer pair does not count. Of two pairs at the same distance, the pair with the lower index
+ * of the face of the first body goes first, then the pair with the lower index of the face of the
+ * second body.
  *
- * @param record The face of the body.
- * @param other The folds of the other body.
- * @param topology The hash of the corners of the body.
- * @returns The folded face of the other body, or `null` when it does not fold.
+ * @param first The folds of the first body.
+ * @param second The folds of the second body.
+ * @returns The face of the second body of each face of the first body that has a pair, by the
+ *   index of the face of the first body.
  */
-export function sameFace(record: FaceRecord, other: FaceJson, topology: string): FaceRecord | null {
-  if (topology === other.topology) {
-    return other.faces.find((face) => face.face === record.face) ?? null;
+export function sameFaces(first: FaceJson, second: FaceJson): Map<number, FaceRecord> {
+  const pairs = new Map<number, FaceRecord>();
+  if (first.topology === second.topology) {
+    const byIndex = new Map(second.faces.map((face) => [face.face, face]));
+    for (const face of first.faces) {
+      const other = byIndex.get(face.face);
+      if (other) {
+        pairs.set(face.face, other);
+      }
+    }
+    return pairs;
   }
-  let best: FaceRecord | null = null;
-  let nearest = SAME_FACE_DISTANCE;
-  for (const face of other.faces) {
-    const distance = Math.hypot(
-      face.middle[0] - record.middle[0],
-      face.middle[1] - record.middle[1],
-      face.middle[2] - record.middle[2],
-    );
-    if (distance <= nearest) {
-      nearest = distance;
-      best = face;
+
+  const candidates = first.faces.flatMap((a) =>
+    second.faces.flatMap((b) => {
+      const distance = Math.hypot(
+        a.middle[0] - b.middle[0],
+        a.middle[1] - b.middle[1],
+        a.middle[2] - b.middle[2],
+      );
+      return distance <= SAME_FACE_DISTANCE ? [{ a, b, distance }] : [];
+    }),
+  );
+  const taken = new Set<number>();
+  for (const { a, b } of candidates.toSorted(
+    (x, y) => x.distance - y.distance || x.a.face - y.a.face || x.b.face - y.b.face,
+  )) {
+    if (!pairs.has(a.face) && !taken.has(b.face)) {
+      pairs.set(a.face, b);
+      taken.add(b.face);
     }
   }
-  return best;
+  return pairs;
 }
 
 /**
@@ -932,7 +951,7 @@ function totalFolds(record: FaceRecord): number {
  * Writes the folded faces of a commit and of the working tree side by side: the `count` faces
  * that fold in the most samples of the working tree, then the `count` faces of the commit that the
  * rows do not hold yet. Each row gives the share of the samples of each set in which the face
- * folds on both trees ({@link sameFace}), a mark `new` for a face that folds only on the working
+ * folds on both trees ({@link sameFaces}), a mark `new` for a face that folds only on the working
  * tree and `gone` for a face that folds only on the commit, the main bone, and the worst fold with
  * the bone whose turn changes the normal most.
  *
@@ -952,12 +971,16 @@ export function faceCompareLines(
     folds.faces
       .toSorted((a, b) => totalFolds(b) - totalFolds(a) || a.face - b.face)
       .slice(0, count);
+  const pairs = sameFaces(tree, base);
+  const back = new Map([...pairs].map(([face, record]) => [record.face, face]));
+  const treeFaces = new Map(tree.faces.map((record) => [record.face, record]));
   const rows: { readonly tree: FaceRecord | null; readonly base: FaceRecord | null }[] = top(
     tree,
-  ).map((record) => ({ tree: record, base: sameFace(record, base, tree.topology) }));
+  ).map((record) => ({ tree: record, base: pairs.get(record.face) ?? null }));
   for (const record of top(base)) {
     if (!rows.some((row) => row.base === record)) {
-      rows.push({ tree: sameFace(record, tree, base.topology), base: record });
+      const face = back.get(record.face);
+      rows.push({ tree: face === undefined ? null : (treeFaces.get(face) ?? null), base: record });
     }
   }
   if (rows.length === 0) {
@@ -972,7 +995,7 @@ export function faceCompareLines(
   const lines = [
     tree.topology === base.topology
       ? `The faces of ${label} and of the working tree have the same corners, so a face keeps its index.`
-      : `The faces of ${label} and of the working tree have other corners, so the same face is the folded face with the nearest middle within ${SAME_FACE_DISTANCE} m.`,
+      : `The faces of ${label} and of the working tree have other corners, so the faces pair one to one by the nearest middles within ${SAME_FACE_DISTANCE} m.`,
     '',
     `| Face (tree) | Face (${label}) | ${label}: rest / play / lift | Working tree: rest / play / lift | Mark | Main bone | Worst sample, angle, bone of the fold |`,
     '|---:|---:|---|---|---|---|---|',

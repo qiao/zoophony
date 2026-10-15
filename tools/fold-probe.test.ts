@@ -17,7 +17,7 @@ import {
   readFaceJson,
   readFoldJson,
   roleAnimal,
-  sameFace,
+  sameFaces,
   turnBone,
   worstFold,
 } from './fold-probe.ts';
@@ -238,12 +238,35 @@ function folds(topology: string, faces: FaceRecord[]): FaceJson {
   return { sets: { rest: set, play: set, lift: set }, topology, faces };
 }
 
-describe('sameFace', () => {
+describe('sameFaces', () => {
   it('takes the same index when the corners are the same, else the nearest middle within 1 cm', () => {
     const other = folds('b', [record(7, 1, [0.005, 0, 0]), record(4, 1, [0.3, 0, 0])]);
-    expect(sameFace(record(4, 1), other, 'b')?.face).toBe(4);
-    expect(sameFace(record(4, 1), other, 'a')?.face).toBe(7);
-    expect(sameFace(record(4, 1, [0.1, 0, 0]), other, 'a')).toBeNull();
+    expect(sameFaces(folds('b', [record(4, 1)]), other).get(4)?.face).toBe(4);
+    expect(sameFaces(folds('a', [record(4, 1)]), other).get(4)?.face).toBe(7);
+    expect(sameFaces(folds('a', [record(4, 1, [0.1, 0, 0])]), other).size).toBe(0);
+  });
+
+  it('pairs each face of the other corners one time at most, the nearest pair first', () => {
+    const tree = folds('a', [record(1, 1, [0, 0, 0]), record(2, 1, [0.004, 0, 0])]);
+    const base = folds('b', [record(11, 1, [0.002, 0, 0]), record(12, 1, [0.009, 0, 0])]);
+    const pairs = sameFaces(tree, base);
+    expect([...pairs].map(([face, other]) => [face, other.face])).toEqual([
+      [1, 11],
+      [2, 12],
+    ]);
+
+    const rows = faceCompareLines('main', base, tree, 5).filter((line) => /^\| [\d-]/.test(line));
+    expect(
+      rows.map((row) =>
+        row
+          .split('|')
+          .slice(1, 3)
+          .map((cell) => cell.trim()),
+      ),
+    ).toEqual([
+      ['1', '11'],
+      ['2', '12'],
+    ]);
   });
 });
 
