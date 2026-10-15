@@ -464,6 +464,11 @@ The tuning of the rest clip (the paws out by 2.1 and forward by 1.3 knee radii, 
 and back in the first half of the way down, a deeper lean) came from a probe that runs the
 contact stage of the build on the stored mesh of each seed (`docs/handoff-props.md`).
 
+Since 2026-10-14, the polar bear has shins 0.072 units longer than its sheet (`field.lift`), so
+that its feet stand on the floor beside the bench of 0.25 m of the app, and `facets.seeds` puts
+seed 6 first (`docs/decisions/2026-10-14-polar-fix.md` of the repository). The results below are
+the results of 2026-10-12, before that change.
+
 The results on the polar bear: the role seed is 3, the first seed of `facets.seeds` that passes
 every gate (main kept seed 1). Every gate passes. The seed report (`out/seed-report.json`): each
 of the 7 seeds that pass the remesh gate passes every clip (main: seed 1 only). Seed 6 fails the

@@ -84,7 +84,10 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
    (`docs/research/2026-10-12-studio-polar-bear.md` of the repository). The app scales the bear by
    the keys of its studio piano, drops it onto a bench that fits its legs, and gives the four
    digits of each paw to one finger bone. Up to 15 faces fold at the neck and the head in the
-   pianist poses of the app: a neck corrective shape of the studio could help.
+   pianist poses of the app: a neck corrective shape of the studio could help. Since 2026-10-14,
+   the bear sits on a bench of 0.25 m, its shins are 0.072 units longer than the sheet
+   (`field.lift`), so its feet stand on the floor, and the studio keeps seed 6, whose faces fold
+   least in the poses of the app (`docs/decisions/2026-10-14-polar-fix.md` of the repository).
 5. **The studio rabbit in the app.** Done on 2026-10-13, and replaced the same day by the rigged
    mesh of the user (`docs/decisions/2026-10-13-mesh-rabbit.md` of the repository). The facts
    below hold for the studio rabbit
