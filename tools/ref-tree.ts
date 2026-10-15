@@ -59,6 +59,56 @@ export function run(command: string, args: readonly string[], cwd: string): void
 /** The child processes of {@link runChild} that run now. A stop ends them first. */
 const running = new Set<ChildProcess>();
 
+/** The end of a child process of {@link runChildStatus}. */
+export interface ChildEnd {
+  /** The exit code, or `null` when a signal ended the child. */
+  readonly status: number | null;
+  /** The error output of the child. */
+  readonly errors: string;
+}
+
+/** A child process of {@link spawnTracked} and the promise of its end. */
+interface TrackedChild {
+  /** The child process. */
+  readonly child: ChildProcess;
+  /** A promise of the end of the child, which rejects only when the command cannot start. */
+  readonly ended: Promise<ChildEnd>;
+}
+
+/**
+ * Starts a command in a process group of its own, and keeps the child in the set that a stop ends
+ * until the child ends.
+ *
+ * @param command The command.
+ * @param args The arguments.
+ * @param cwd The folder of the command.
+ * @returns The child and the promise of its end.
+ */
+function spawnTracked(command: string, args: readonly string[], cwd: string): TrackedChild {
+  const child = spawn(command, args, {
+    cwd,
+    detached: true,
+    stdio: ['ignore', 'ignore', 'pipe'],
+  });
+  running.add(child);
+  const ended = new Promise<ChildEnd>((resolve, reject) => {
+    let errors = '';
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', (text: string) => {
+      errors += text;
+    });
+    child.on('error', (error) => {
+      running.delete(child);
+      reject(error);
+    });
+    child.on('close', (status) => {
+      running.delete(child);
+      resolve({ status, errors });
+    });
+  });
+  return { child, ended };
+}
+
 /** A child process of {@link startChild} and the promise of its end. */
 interface StartedChild {
   /** The child process. */
@@ -77,32 +127,35 @@ interface StartedChild {
  * @returns The child and the promise of its end.
  */
 function startChild(command: string, args: readonly string[], cwd: string): StartedChild {
-  const child = spawn(command, args, {
-    cwd,
-    detached: true,
-    stdio: ['ignore', 'ignore', 'pipe'],
-  });
-  running.add(child);
-  const done = new Promise<void>((resolve, reject) => {
-    let errors = '';
-    child.stderr.setEncoding('utf8');
-    child.stderr.on('data', (text: string) => {
-      errors += text;
-    });
-    child.on('error', (error) => {
-      running.delete(child);
-      reject(error);
-    });
-    child.on('close', (status) => {
-      running.delete(child);
-      if (status === 0) {
-        resolve();
-        return;
-      }
-      reject(new Error(`${command} ${args.join(' ')} failed:\n${errorCause(errors)}`));
-    });
+  const { child, ended } = spawnTracked(command, args, cwd);
+  const done = ended.then(({ status, errors }) => {
+    if (status !== 0) {
+      throw new Error(`${command} ${args.join(' ')} failed:\n${errorCause(errors)}`);
+    }
   });
   return { child, done };
+}
+
+/** A promise that never settles: the end of a child that a stop ended, for its caller. */
+const NEVER = new Promise<never>(() => undefined);
+
+/**
+ * Starts a command as {@link runChild} does, and gives a promise of its exit code and its error
+ * output. An exit code other than 0 is no failure, such as the code of a test run with a failed
+ * test. A stop of {@link withRefTree} ends the group of the child first. Then the promise never
+ * settles, so the caller starts no work after the stop, and the stop ends the tool.
+ *
+ * @param command The command.
+ * @param args The arguments.
+ * @param cwd The folder of the command.
+ * @returns A promise of the end of the child.
+ */
+export function runChildStatus(
+  command: string,
+  args: readonly string[],
+  cwd: string,
+): Promise<ChildEnd> {
+  return spawnTracked(command, args, cwd).ended.then((end) => (stopping ? NEVER : end));
 }
 
 /**

@@ -27,6 +27,7 @@ import {
   probeBeside,
   probeScripts,
   refRoleKeys,
+  runChildStatus,
   shortHash,
   withProbeTree,
   withRefBuild,
@@ -295,6 +296,21 @@ describe('checkFormat', () => {
   });
 });
 
+describe('runChildStatus', () => {
+  it('gives the exit code and the error output of a child, also for a code other than 0', async () => {
+    const end = await runChildStatus(
+      process.execPath,
+      ['-e', 'console.error("one test failed"); process.exit(3)'],
+      ROOT,
+    );
+    expect(end).toEqual({ status: 3, errors: 'one test failed\n' });
+    expect(await runChildStatus(process.execPath, ['-e', ''], ROOT)).toEqual({
+      status: 0,
+      errors: '',
+    });
+  });
+});
+
 describe('withoutOptions', () => {
   it('removes each option with its value and each flag, and keeps the other arguments', () => {
     const args = ['violinist', '--set', 'a=1', '--gaps', '--demo', 'x', '--base', 'main'];
@@ -364,8 +380,8 @@ interface Holder {
 }
 
 /**
- * Starts a Node child that runs a script with `withRefTree()`, `runChild()`, and `refRoleKeys()` of
- * this module.
+ * Starts a Node child that runs a script with `withRefTree()`, `runChild()`, `runChildStatus()`,
+ * and `refRoleKeys()` of this module.
  *
  * @param script The body of the script. It reads the parent folder from `REF_TREE_PARENT`.
  * @param parent The folder that holds the temporary folder.
@@ -374,7 +390,7 @@ interface Holder {
  */
 function hold(script: string, parent: string, path = process.env['PATH'] ?? ''): Holder {
   const module = JSON.stringify(join(import.meta.dirname, 'ref-tree.ts'));
-  const code = `import { refRoleKeys, runChild, withRefTree } from ${module};\n${script}`;
+  const code = `import { refRoleKeys, runChild, runChildStatus, withRefTree } from ${module};\n${script}`;
   const child = spawn(process.execPath, ['--input-type=module', '-e', code], {
     cwd: join(import.meta.dirname, '..'),
     env: { ...process.env, PATH: path, REF_TREE_PARENT: parent },
@@ -474,6 +490,36 @@ describe('withRefTree after Ctrl-C', () => {
       expect(await holder.closed).toBe(130);
       expect(holder.output()).toBe('');
       expect(readdirSync(parent).filter((name) => name.startsWith('ref-'))).toEqual([]);
+    } finally {
+      await rm(parent, { recursive: true, force: true });
+    }
+  });
+
+  it('ends a child of runChildStatus, removes the folder, and exits with 130', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'ref-tree-stop-'));
+    const marker = `ref-tree-status-${process.pid}-${Date.now()}`;
+    try {
+      const wait = `setTimeout(() => {}, 20000) // ${marker}`;
+      const holder = hold(
+        [
+          "await withRefTree('HEAD', async (dir) => {",
+          `  const waiting = runChildStatus(process.execPath, ['-e', '${wait}'], dir);`,
+          '  console.log(dir);',
+          '  await waiting;',
+          "  console.log('ended');",
+          "}, { parent: process.env.REF_TREE_PARENT, paths: ['package.json'] });",
+        ].join('\n'),
+        parent,
+      );
+      await waitFor(() => holder.output().includes(parent) && runs(marker));
+      const dir = holder.output().trim();
+      expect(existsSync(dir)).toBe(true);
+
+      process.kill(-(holder.child.pid ?? 0), 'SIGINT');
+      expect(await holder.closed).toBe(130);
+      expect(holder.output()).not.toContain('ended');
+      expect(existsSync(dir)).toBe(false);
+      expect(runs(marker)).toBe(false);
     } finally {
       await rm(parent, { recursive: true, force: true });
     }
