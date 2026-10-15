@@ -61,9 +61,11 @@ export const SUBJECT_SIZES = {
    * the piano of a duo needed a camera 0.45 of the default distance away, beyond the limit of the
    * close shots (design 5.6). With 0.5 m, the deeper footprint of the standing rabbit with the
    * longer legs of 2026-10-14 put the two players 2 cm further apart, and the only clear camera
-   * stood 0.4415 of the default distance away, beyond the limit of 0.44.
+   * stood 0.4415 of the default distance away, beyond the limit of 0.44. With 0.48 m, the polar
+   * bear 5.2 cm further from its keys put each camera at least 0.4414 of the default distance
+   * away (`docs/decisions/2026-10-14-polar-fix.md`).
    */
-  twoShotMargin: 0.48,
+  twoShotMargin: 0.46,
   /** The largest sphere of a section shot. */
   sectionMaxRadius: 2.6,
   /**

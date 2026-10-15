@@ -620,10 +620,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     down onto the keys. A hand moves to its next keys in at most 0.15 s and in at most 0.6 of the
     time from its last note. It lifts up to 0.03 m times the gesture size in the move, strikes
     the keys at the note start, and stays on them until its next move. The elbows point out,
-    a little down, and back (`poleL` and `poleR` of `HANDS_HOLDS`). The pianist leans forward
+    down, and back (`poleL` and `poleR` of `HANDS_HOLDS`). The pianist leans forward
     while it plays (`lean` of `HANDS_HOLDS`), so that its paws reach the keys in front of its
     round belly, also the middle keys from its high bench (4.5, the piano bench, and 4.6, the
-    piano). A real pianist sits with the forearms parallel to the floor. The polar bear sits
+    piano). The keys stand far enough in front of it that its muzzle keeps 5 cm from the front
+    edge of the open lid while it plays (`docs/decisions/2026-10-14-polar-fix.md`). A real pianist sits with the forearms parallel to the floor. The polar bear sits
     higher, as the user asked, and its forearms slope a little down to the keys
     (`docs/decisions/2026-10-14-polar-bench.md`).
   - The harp palm is 0.03 m from the strings, at the middle of the string of its note: the left
@@ -1480,11 +1481,13 @@ solo. The agent chose the details on 2026-10-06:
   conductor shot, also when it has a conductor.
 - The two-shot is a section shot of all players on the stage, also of a seat that rests, with
   the group `ensemble`. A group with one player has no two-shot. Its score is the score of a
-  section shot of all seats. Its sphere holds each player plus 0.48 m in the stage plane, in place
+  section shot of all seats. Its sphere holds each player plus 0.46 m in the stage plane, in place
   of 0.75 m: with 0.75 m, each camera of the two-shot of the duo test file was 0.45 to 0.46 of the
   default distance away, beyond the limit of 0.44 of the close shots, so the duo had no two-shot.
   With 0.5 m, the standing rabbit with the longer legs of 2026-10-14 put its only clear camera
-  0.4415 of the default distance away (`SUBJECT_SIZES.twoShotMargin` of `shots/subjects.ts`).
+  0.4415 of the default distance away. With 0.48 m, the polar bear further from its keys of
+  2026-10-14 put each camera at least 0.4414 away (`SUBJECT_SIZES.twoShotMargin` of
+  `shots/subjects.ts`).
 - With one seat, rules 1 and 2 do not stop a solo shot of that seat after a solo shot of the same
   seat. The jump cut rule and the rule of no repeat of a framing keep the two cameras at least
   20° apart. Thus a piano solo shows the pianist from several sides between its wide shots.

@@ -100,33 +100,34 @@ export type RestingHand =
 
 /** The holds of the piano and the harp. */
 export const HANDS_HOLDS = {
-  // The paw of the studio polar bear is longer than a white key, so the palm is 0.02 m in front
+  // The paw of the studio polar bear is longer than a white key, so the palm is 0.06 m in front
   // of the front edge of the keys and 0.065 m above them, and the curled claws lie on the keys
   // (`pianoKeyFront()`). Further back, the claws went into the fallboard, and lower, into the
-  // key bed. The spine leans 26° forward: the keys stand far enough in front of the round belly
-  // that the paws reach only the middle keys with the lean. On the bench of 0.25 m, a lean of
-  // 24° left 1.4% of the notes out of reach, and 28° put the head 2 mm from the case
-  // (`docs/research/2026-10-14-polar-bench.md`). The paws reach from A0 to B♭4 with the left
-  // paw and from C4 to C8 with the right paw (`pose/hands.test.ts`), so a melody changes paws
-  // between them. The elbows point out more than down: with the poles of the low bench (-0.6
-  // down, 0.4 forward), a face folded in 30% of the play samples, mostly on the upper arms. The
-  // wrists go up and a little forward over the case between the lap and the keys (`restArc`):
-  // with no arc forward, the claws went 1.6 cm into the belly when the paws lowered. With the
-  // paws in the lap, an arc of 0.5 H out stood the upper arms 61° out from the trunk in the lift.
-  // With no arc out, they stand out at most as far as in a play.
+  // key bed. The keys stand far in front of the round belly (`PIANO_FRONT_H`), so that the muzzle
+  // keeps 5 cm from the front edge of the open lid. The spine leans 27° forward, so that the paws
+  // reach the middle keys. With the palm 0.05 m in front of the keys, 0.3% of the notes stayed out
+  // of reach, and with a lean of 28°, the belly folded over the thighs. The elbows point out,
+  // down, and back: with the poles (±1, -0.55, 0.5), the play folds rose from 14.6% to 29.7% of
+  // the samples, mostly on the right upper arm (`docs/research/2026-10-14-polar-fix.md`). The paws
+  // reach from A0 to B♭4 with the left paw and from C4 to C8 with the right paw
+  // (`pose/hands.test.ts`), so a melody changes paws between them. The wrists go up and a little
+  // forward over the case between the lap and the keys (`restArc`): with no arc forward, the
+  // claws went 1.6 cm into the belly when the paws lowered. With the paws in the lap, an arc of
+  // 0.5 H out stood the upper arms 61° out from the trunk in the lift. With no arc out, they
+  // stand out at most as far as in a play.
   piano: {
     action: 'strike',
     keyPoint: pianoKeyFront,
-    palmL: [0, 0.065, 0.02],
-    palmR: [0, 0.065, 0.02],
+    palmL: [0, 0.065, 0.06],
+    palmR: [0, 0.065, 0.06],
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
-    lean: 26 * MathUtils.DEG2RAD,
+    lean: 27 * MathUtils.DEG2RAD,
     restLean: 8 * MathUtils.DEG2RAD,
     restHeadLift: 8 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
-    poleL: [-1, -0.4, 0.2],
-    poleR: [1, -0.4, 0.2],
+    poleL: [-1, -0.5, 0.5],
+    poleR: [1, -0.5, 0.5],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
     restArc: [0, 0.4, 0.1],
