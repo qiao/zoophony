@@ -294,6 +294,10 @@ These traps of route 3 each cost a round:
   0.16 m above them, so its rest holds the bow beside the thigh with the tip down.
 - A new body changes the footprints, so the layout of a section, the looks of the other players,
   and the cues of the conductor change with it. `pnpm body-probe --base main` names them.
+- The shot test of `src/shots/prepare.test.ts` reacts to moves of the footprints of about 2 cm.
+  A change that moves a body, such as a seat, a rig, or a hold, runs `pnpm test src/shots/` before
+  its commit. When a shot drops out, `pnpm shot-trace <demo> --base main --from <s> --to <s>`
+  gives the test that refuses each camera of the cut, such as the distance share of a two-shot.
 - Bone heat gives a part of the arm weight to the side of the trunk when the arm of a mesh hangs
   near it. The raised bind arms then drag the trunk, and the fold probe finds folds at the
   shoulder. Keep the arm weights on the free arm (`armSplit` of the config of `pnpm rig-mesh`).
