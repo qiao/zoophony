@@ -33,6 +33,18 @@ import {
   soloSubject,
 } from './subjects.ts';
 import type { SectionGroup, StageSide, StageSubjects, Subject } from './subjects.ts';
+import type {
+  AttemptTrace,
+  CameraRefusal,
+  CandidateTrace,
+  ChoiceRule,
+  CutTrace,
+  KeptRefusal,
+  SearchTrace,
+  ShotTrace,
+  TierName,
+  TraceRange,
+} from './trace.ts';
 import type { Shot, ShotKey, ShotKind, ShotPlan } from './types.ts';
 import {
   DEFAULT_AZIMUTH,
@@ -405,6 +417,14 @@ const TIERS = { other: 0, entry: 1, soloist: 2, forced: 3 } as const;
 /** The rank of a candidate before its score. */
 type Tier = (typeof TIERS)[keyof typeof TIERS];
 
+/** The name of each rank of a candidate, for a trace. */
+const TIER_NAMES: Readonly<Record<Tier, TierName>> = {
+  [TIERS.other]: 'other',
+  [TIERS.entry]: 'entry',
+  [TIERS.soloist]: 'soloist',
+  [TIERS.forced]: 'forced',
+};
+
 /** A shot of the plan, with the data of the choice of the next shot. */
 interface PlannedShot {
   readonly shot: Shot;
@@ -465,6 +485,34 @@ interface Planner {
    * other side.
    */
   fullSearch: boolean;
+  /** The trace of the choice, or `null` for a plan with no trace. */
+  readonly trace: TraceSink | null;
+}
+
+/** The result of a kept test of a camera that refuses it, for a trace. */
+interface KeptResult {
+  /** The refusal. */
+  readonly refusal: KeptRefusal;
+  /** The largest share of the default distance for a refusal by the distance, else `null`. */
+  readonly share: number | null;
+}
+
+/** The trace that the planner writes during a plan (`traceShots()`). */
+interface TraceSink {
+  /** The range of the traced cuts. */
+  readonly range: TraceRange;
+  /** The traced cuts, in their order. */
+  readonly cuts: CutTrace[];
+  /**
+   * The refusal of each camera that failed a kept test at any cut, also outside the range: one map
+   * for each map of `Planner.moveCache`, by the same key of the camera. A camera that failed before
+   * fails again with no test, and its trace takes the old refusal.
+   */
+  readonly kept: Map<string, Map<number, KeptResult>>;
+  /** The cut that the planner traces now, or `null` outside the range. */
+  cut: CutTrace | null;
+  /** The try that the planner traces now, or `null`. */
+  attempt: AttemptTrace | null;
 }
 
 /** The keys and the subject of a new shot, before its times. */
@@ -577,11 +625,17 @@ export function keyPosition(
   return out;
 }
 
+/** A refusal of the tests of the camera of a move. */
+type MoveRefusal = Extract<
+  KeptRefusal,
+  'beamEdge' | 'distance' | 'beamSide' | 'camera' | 'sight' | 'line'
+>;
+
 /**
- * Tells if a move keeps its camera clear (design 5.6) at the samples of the move, from the
- * nearest to the farthest camera. The camera also stays inside or outside the cone of the visible
- * beam for the full move, because the beam draws only its outer faces, and it stays nearer to the
- * stage center than 0.44 of the default distance.
+ * Tests if a move keeps its camera clear (design 5.6) at the samples of the move, from the nearest
+ * to the farthest camera. The camera also stays inside or outside the cone of the visible beam for
+ * the full move, because the beam draws only its outer faces, and it stays nearer to the stage
+ * center than 0.44 of the default distance.
  *
  * @param planner The planner.
  * @param target The target.
@@ -591,9 +645,10 @@ export function keyPosition(
  * @param held The boxes of the body of the subject.
  * @param sights The lines of sight to the head, the hands, and the instrument of a solo or a
  *   conductor shot, or `null`. Each camera of the move sees them (design 5.6).
- * @returns True if the move is clear.
+ * @returns `null` if the move is clear, else the first test that fails: the beam at the start,
+ *   the distance, the side of the beam, the camera, the sight lines, or the line to the target.
  */
-function moveClear(
+function moveRefusal(
   planner: Planner,
   target: Vec3,
   radius: number,
@@ -601,7 +656,7 @@ function moveClear(
   to: ShotKey,
   held: ReadonlySet<ClearBox>,
   sights: SubjectSightLines | null,
-): boolean {
+): MoveRefusal | null {
   const S = planner.stageSide;
   // A camera that crosses the cone of the beam in a shot sees the beam come or go at once. For
   // each tested aspect, the camera stays on one side for the full move, with a margin.
@@ -609,44 +664,77 @@ function moveClear(
     beamSide(S, keyPosition(S, target, radius, from, aspect)),
   );
   if (sides.includes('edge')) {
-    return false;
+    return 'beamEdge';
   }
   // The cheap tests of all samples come first, so that a camera that fails them costs little.
   const keys = MOVE_SAMPLES.map((u) => mixKeys(from, to, u));
-  const outside = keys.some((key) =>
-    BEAM_ASPECTS.some((aspect, i) => {
+  for (const key of keys) {
+    for (let i = 0; i < BEAM_ASPECTS.length; i++) {
+      const aspect = BEAM_ASPECTS[i] ?? TEST_ASPECTS.near;
       const camera = keyPosition(S, target, radius, key, aspect);
       const share = Math.hypot(camera[0], camera[1], camera[2]) / defaultDistance(S, aspect);
-      return share > CLOSE_DISTANCE_SHARE || beamSide(S, camera) !== sides[i];
-    }),
-  );
-  if (outside) {
-    return false;
+      if (share > CLOSE_DISTANCE_SHARE) {
+        return 'distance';
+      }
+      if (beamSide(S, camera) !== sides[i]) {
+        return 'beamSide';
+      }
+    }
   }
-  const clear = keys.every((key, k) => {
+  for (let k = 0; k < keys.length; k++) {
+    const key = keys[k] ?? from;
     const near = keyPosition(S, target, radius, key, TEST_ASPECTS.near);
     const far = keyPosition(S, target, radius, key, TEST_ASPECTS.far);
     if (!cameraClear(planner.clearance, target, near, far, held)) {
-      return false;
+      return 'camera';
     }
-    return (
-      !sights ||
-      !SIGHT_MOVE_SAMPLES.has(MOVE_SAMPLES[k] ?? -1) ||
-      (sightsClear(planner.clearance, sights, near) && sightsClear(planner.clearance, sights, far))
-    );
-  });
+    if (
+      sights &&
+      SIGHT_MOVE_SAMPLES.has(MOVE_SAMPLES[k] ?? -1) &&
+      !(sightsClear(planner.clearance, sights, near) && sightsClear(planner.clearance, sights, far))
+    ) {
+      return 'sight';
+    }
+  }
   // The farthest camera has the longest line of sight on the ray.
-  return (
-    clear &&
-    LINE_SAMPLES.every((u) =>
-      targetLineClear(
-        planner.clearance,
-        target,
-        keyPosition(S, target, radius, mixKeys(from, to, u), TEST_ASPECTS.far),
-        held,
-      ),
-    )
-  );
+  for (const u of LINE_SAMPLES) {
+    const far = keyPosition(S, target, radius, mixKeys(from, to, u), TEST_ASPECTS.far);
+    if (!targetLineClear(planner.clearance, target, far, held)) {
+      return 'line';
+    }
+  }
+  return null;
+}
+
+/**
+ * Gives the largest share of the default distance of the cameras of a move, over the samples of
+ * the move and the aspects of the beam test. A close camera stays at or below
+ * {@link CLOSE_DISTANCE_SHARE}. Only a trace reads it.
+ *
+ * @param stageSide The stage side `S`.
+ * @param target The target.
+ * @param radius The radius of the subject.
+ * @param from The key at the start.
+ * @param to The key at the end.
+ * @returns The largest share.
+ */
+function moveShare(
+  stageSide: number,
+  target: Vec3,
+  radius: number,
+  from: ShotKey,
+  to: ShotKey,
+): number {
+  let largest = 0;
+  for (const u of MOVE_SAMPLES) {
+    for (const aspect of BEAM_ASPECTS) {
+      const camera = keyPosition(stageSide, target, radius, mixKeys(from, to, u), aspect);
+      const share =
+        Math.hypot(camera[0], camera[1], camera[2]) / defaultDistance(stageSide, aspect);
+      largest = Math.max(largest, share);
+    }
+  }
+  return largest;
 }
 
 /**
@@ -779,14 +867,21 @@ function moveForeground(
  * the band. At each elevation, a full search then tries each place of the grid with the seeded
  * arc, and then with the arc to the other side. The camera stays within 75° of the front of the
  * subject. A camera that makes a jump cut does not count, and a camera with a head or another
- * large object in the foreground does not count.
+ * large object in the foreground does not count. In a traced try, each tested camera goes into the
+ * trace with its refusal.
  *
  * @param planner The planner.
  * @param subject The subject.
  * @param move The move of the shot.
+ * @param name The name of the subject in a trace, such as `solo 3` or `conductor back`.
  * @returns The framing, or `null` with no clear camera.
  */
-function searchClose(planner: Planner, subject: Subject, move: CloseMove): Framing | null {
+function searchClose(
+  planner: Planner,
+  subject: Subject,
+  move: CloseMove,
+  name: string,
+): Framing | null {
   const { held, sights } = subjectLines(planner, subject);
   const moveKey = `${subjectKey(subject)} ${subject.radius} ${move.pushIn} ${move.fov}`;
   const known = planner.moveCache.get(moveKey) ?? new Map<number, boolean>();
@@ -796,13 +891,50 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
   // The band moves up with the lift of a piano shot.
   const bottom = planner.band[0] + subject.lift;
   const top = planner.band[1] + subject.lift;
+  const sink = planner.trace;
+  const kept = sink ? (sink.kept.get(moveKey) ?? new Map<number, KeptResult>()) : null;
+  if (sink && kept) {
+    sink.kept.set(moveKey, kept);
+  }
+  const search: SearchTrace | null = sink?.attempt
+    ? {
+        subject: name,
+        front: subject.front,
+        wantedAzimuth: move.wantedAzimuth,
+        band: [bottom, top],
+        full: planner.fullSearch,
+        outsideFront: 0,
+        cameras: [],
+      }
+    : null;
+  if (search) {
+    sink?.attempt?.searches.push(search);
+  }
+  // Writes a refused camera into the trace of the search, if any.
+  const refuse = (
+    azimuth: number,
+    elevation: number,
+    arc: number,
+    refusal: CameraRefusal,
+    old = false,
+    share: number | null = null,
+  ): null => {
+    search?.cameras.push({ azimuth, elevation, arc, refusal, kept: old, share });
+    return null;
+  };
   const tryCamera = (azimuth: number, elevation: number, otherArc: boolean): Framing | null => {
     if (Math.abs(angleDifference(azimuth, subject.front)) > move.maxFromFront) {
+      if (search) {
+        search.outsideFront++;
+      }
       return null;
     }
     let arc = otherArc ? -move.arc : move.arc;
     if (Math.abs(angleDifference(azimuth + arc, subject.front)) > move.maxFromFront) {
       if (otherArc) {
+        if (search) {
+          search.outsideFront++;
+        }
         return null;
       }
       arc = -arc;
@@ -814,28 +946,39 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
       ((onFront + 32) * 1000 + Math.round((elevation / DEG) * 10)) * 2 + (arc > 0 ? 1 : 0);
     let clear = known.get(key);
     if (clear === false) {
-      return null;
+      const old = kept?.get(key);
+      return old ? refuse(azimuth, elevation, arc, old.refusal, true, old.share) : null;
     }
     const from: ShotKey = { azimuth, elevation, zoom: 1, fov: move.fov };
     const to: ShotKey = { azimuth: azimuth + arc, elevation, zoom: move.pushIn, fov: move.fov };
     if (jumpCut(previous, from, subject.radius)) {
-      return null;
+      return refuse(azimuth, elevation, arc, 'jump');
     }
     // N7: no repeat of the framing of the last shot of the subject.
     if (move.avoid !== null && Math.abs(angleDifference(azimuth, move.avoid)) < s.repeatAngle) {
-      return null;
+      return refuse(azimuth, elevation, arc, 'repeat');
     }
     if (clear === undefined) {
       // The cheap test of the heads comes first, and the cover of the objects last.
-      clear =
-        !moveForeground(planner, subject, from, to, 'heads') &&
-        moveClear(planner, subject.target, subject.radius, from, to, held, sights) &&
-        !moveForeground(planner, subject, from, to, 'objects');
+      const refusal: KeptRefusal | null = moveForeground(planner, subject, from, to, 'heads')
+        ? 'head'
+        : (moveRefusal(planner, subject.target, subject.radius, from, to, held, sights) ??
+          (moveForeground(planner, subject, from, to, 'objects') ? 'object' : null));
+      clear = refusal === null;
       known.set(key, clear);
+      if (kept && refusal) {
+        const share =
+          refusal === 'distance'
+            ? moveShare(planner.stageSide, subject.target, subject.radius, from, to)
+            : null;
+        kept.set(key, { refusal, share });
+        refuse(azimuth, elevation, arc, refusal, false, share);
+      }
     }
     if (!clear) {
       return null;
     }
+    search?.cameras.push({ azimuth, elevation, arc, refusal: null, kept: false, share: null });
     return {
       target: subject.target,
       radius: subject.radius,
@@ -970,28 +1113,38 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
       conductor,
       activeMiddle(subjects, window.activity),
     );
-    return searchClose(planner, subject, {
-      wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
-      elevation: k.elevation * DEG,
-      arc: 0,
-      pushIn: k.pushIn,
-      fov: k.fov,
-      avoid: null,
-      maxFromFront: KEY_SEARCH.maxFromFront,
-    });
+    return searchClose(
+      planner,
+      subject,
+      {
+        wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
+        elevation: k.elevation * DEG,
+        arc: 0,
+        pushIn: k.pushIn,
+        fov: k.fov,
+        avoid: null,
+        maxFromFront: KEY_SEARCH.maxFromFront,
+      },
+      'conductor back',
+    );
   };
   const close = (): Framing | null => {
     const k = SHOT_KEYS.conductor;
     const subject = conductorCloseSubject(conductor);
-    return searchClose(planner, subject, {
-      wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
-      elevation: k.elevation * DEG,
-      arc: 0,
-      pushIn: k.pushIn,
-      fov: k.fov,
-      avoid: null,
-      maxFromFront: KEY_SEARCH.maxFromFront,
-    });
+    return searchClose(
+      planner,
+      subject,
+      {
+        wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
+        elevation: k.elevation * DEG,
+        arc: 0,
+        pushIn: k.pushIn,
+        fov: k.fov,
+        avoid: null,
+        maxFromFront: KEY_SEARCH.maxFromFront,
+      },
+      'conductor close',
+    );
   };
   return planner.conductorShots % 2 === 0 ? (back() ?? close()) : (close() ?? back());
 }
@@ -1033,15 +1186,20 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
       if (!subject) {
         return null;
       }
-      return searchClose(planner, subject, {
-        wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
-        elevation: k.elevation * DEG,
-        arc: signOf(random) * k.arc * DEG,
-        pushIn: k.pushIn,
-        fov: k.fov,
-        avoid: planner.lastAzimuth.get(framingSubject(candidate)) ?? null,
-        maxFromFront: KEY_SEARCH.sideFromFront,
-      });
+      return searchClose(
+        planner,
+        subject,
+        {
+          wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
+          elevation: k.elevation * DEG,
+          arc: signOf(random) * k.arc * DEG,
+          pushIn: k.pushIn,
+          fov: k.fov,
+          avoid: planner.lastAzimuth.get(framingSubject(candidate)) ?? null,
+          maxFromFront: KEY_SEARCH.sideFromFront,
+        },
+        candidate.id,
+      );
     }
     case 'section': {
       const k = SHOT_KEYS.section;
@@ -1054,16 +1212,21 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
       if (!subject) {
         return null;
       }
-      return searchClose(planner, subject, {
-        wantedAzimuth:
-          subject.front + signOf(random) * onGrid(between(random, k.offset) * subject.spread),
-        elevation: (k.elevation + k.backRise * subject.back) * DEG + subject.lift,
-        arc: signOf(random) * k.arc * DEG,
-        pushIn: k.pushIn,
-        fov: k.fov,
-        avoid: planner.lastAzimuth.get(framingSubject(candidate)) ?? null,
-        maxFromFront: KEY_SEARCH.maxFromFront,
-      });
+      return searchClose(
+        planner,
+        subject,
+        {
+          wantedAzimuth:
+            subject.front + signOf(random) * onGrid(between(random, k.offset) * subject.spread),
+          elevation: (k.elevation + k.backRise * subject.back) * DEG + subject.lift,
+          arc: signOf(random) * k.arc * DEG,
+          pushIn: k.pushIn,
+          fov: k.fov,
+          avoid: planner.lastAzimuth.get(framingSubject(candidate)) ?? null,
+          maxFromFront: KEY_SEARCH.maxFromFront,
+        },
+        candidate.id,
+      );
     }
     case 'solo': {
       const k = SHOT_KEYS.solo;
@@ -1071,16 +1234,21 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
       if (!subject) {
         return null;
       }
-      return searchClose(planner, subject, {
-        wantedAzimuth:
-          subject.front + signOf(random) * onGrid(between(random, k.offset) * subject.spread),
-        elevation: (k.elevation + k.backRise * subject.back) * DEG + subject.lift,
-        arc: signOf(random) * k.arc * DEG,
-        pushIn: k.pushIn,
-        fov: k.fov,
-        avoid: planner.lastAzimuth.get(framingSubject(candidate)) ?? null,
-        maxFromFront: KEY_SEARCH.maxFromFront,
-      });
+      return searchClose(
+        planner,
+        subject,
+        {
+          wantedAzimuth:
+            subject.front + signOf(random) * onGrid(between(random, k.offset) * subject.spread),
+          elevation: (k.elevation + k.backRise * subject.back) * DEG + subject.lift,
+          arc: signOf(random) * k.arc * DEG,
+          pushIn: k.pushIn,
+          fov: k.fov,
+          avoid: planner.lastAzimuth.get(framingSubject(candidate)) ?? null,
+          maxFromFront: KEY_SEARCH.maxFromFront,
+        },
+        candidate.id,
+      );
     }
   }
 }
@@ -1286,6 +1454,11 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   // A player alone can have two solo shots in a row, from two cameras: the jump cut rule and the
   // rule of no repeat of a framing keep them apart.
   const alone = staged.length === 1;
+  const dropped = planner.trace?.cut?.dropped ?? null;
+  // Writes a candidate that a rule drops into the trace of the cut, if any.
+  const drop = (candidate: Candidate, rule: ChoiceRule): void => {
+    dropped?.push({ id: candidate.id, kind: candidate.kind, rule });
+  };
   const scored: Candidate[] = [];
   for (const candidate of list) {
     const close = candidate.kind === 'section' || candidate.kind === 'solo';
@@ -1294,23 +1467,28 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     const again = alone && candidate.kind === 'solo';
     // Rule 1: no repeat of the kind and the subject.
     if (previous && candidate.id === previous.id && !again) {
+      drop(candidate, 'subject');
       continue;
     }
     // Rule 2: no section or solo shot of the group of the previous shot.
     if (close && previous?.group === candidate.group && !again) {
+      drop(candidate, 'group');
       continue;
     }
     // Rule 3: three other shots between two wide or high shots, also from the start, and room for
     // them before the last shot. Thus the wide and high shots after the opening are at most 25%.
     if (wideKind && (planner.sinceWide < SHOT_TIMES.wideSpacing || !wideRoom)) {
+      drop(candidate, planner.sinceWide < SHOT_TIMES.wideSpacing ? 'wideSpacing' : 'wideRoom');
       continue;
     }
     // Rule 3b: five other shots between two conductor shots, also from the start.
     if (candidate.kind === 'conductor' && planner.sinceConductor < SHOT_TIMES.conductorSpacing) {
+      drop(candidate, 'conductorSpacing');
       continue;
     }
     // Rule 3c: three other shots between two side views, also from the start.
     if (candidate.kind === 'side' && planner.sinceSide < SHOT_TIMES.sideSpacing) {
+      drop(candidate, 'sideSpacing');
       continue;
     }
     let score = candidate.score;
@@ -1732,26 +1910,51 @@ function lastStartOf(music: ScoreMusic, durationSec: number): number {
 }
 
 /**
- * Calculates the shots of a score (design 5.6): the cut points, the subjects, and the clear
- * cameras. Pure: the same score, layout, and seed give the same plan.
+ * Makes a new trace of a cut.
  *
- * - The first shot is the default view from `-Infinity`. It holds for the count-in, and it pushes
- *   in over the first phrase.
- * - Each cut falls on a downbeat. A shot lasts 4 to 14 s, and a wide or high shot up to 18 s.
- * - The music after each cut selects its subject.
- * - The last shot is a wide shot that pulls out, and it holds after the song end.
+ * @param cutSec The cut, in song seconds.
+ * @returns The trace, with no candidates and the outcome `candidate`.
+ */
+function cutTrace(cutSec: number): CutTrace {
+  return { cutSec, dropped: [], candidates: [], fill: [], outcome: 'candidate' };
+}
+
+/**
+ * Starts the trace of a try, and makes it the try that the planner traces now.
+ *
+ * @param sink The trace of the plan.
+ * @param attempts The tries of the candidate or of the fill.
+ * @param band The index of the band, or `null` for all bands.
+ * @returns The trace of the try.
+ */
+function startAttempt(
+  sink: TraceSink,
+  attempts: AttemptTrace[],
+  band: number | null,
+): AttemptTrace {
+  const attempt: AttemptTrace = { band, searches: [], found: false };
+  attempts.push(attempt);
+  sink.attempt = attempt;
+  return attempt;
+}
+
+/**
+ * Calculates the shots of a score (design 5.6), and writes the choice at each cut of the range
+ * of a trace into the trace.
  *
  * @param score The score.
  * @param layout The layout of the score, from `layoutScene()`.
  * @param seed The seed of the plan.
- * @param models The player models of the score, which the layout shares. A new cache by default.
+ * @param models The player models of the score, which the layout shares.
+ * @param trace The trace to write, or `null` for a plan with no trace.
  * @returns The plan for `cameraAt()`.
  */
-export function prepareShots(
+function planShots(
   score: Score,
   layout: SceneLayout,
   seed: number,
-  models = new ModelCache(),
+  models: ModelCache,
+  trace: TraceSink | null,
 ): ShotPlan {
   const music = prepareMusic(score);
   const subjects = prepareSubjects(score, layout, models);
@@ -1775,6 +1978,7 @@ export function prepareShots(
     lastAzimuth: new Map(),
     band: [-Infinity, KEY_SEARCH.bands[0]],
     fullSearch: false,
+    trace,
   };
 
   // The opening: the default view of the first screen holds for the count-in, then it pushes in
@@ -1791,6 +1995,17 @@ export function prepareShots(
     planner.cut = cut;
     const window = musicIn(music, cut, cut + SHOT_TIMES.choiceWindowSec);
     let chosen: { candidate: Candidate; framing: Framing } | null = null;
+    const traced =
+      trace && cut >= trace.range.fromSec - 1e-9 && cut <= trace.range.toSec + 1e-9
+        ? cutTrace(cut)
+        : null;
+    if (trace) {
+      trace.cut = traced;
+      trace.attempt = null;
+      if (traced) {
+        trace.cuts.push(traced);
+      }
+    }
     const scored = candidatesAt(planner, cut, window);
     // The framings of the entry of the best candidate: each candidate that shows a seat that
     // enters with it. They come first, so that the entry keeps its shot when the best framing has
@@ -1798,12 +2013,21 @@ export function prepareShots(
     const entry = new Set(scored[0]?.entering);
     const ofEntry = (c: Candidate): boolean => c.entering.some((seat) => entry.has(seat));
     const candidates = [...scored.filter(ofEntry), ...scored.filter((c) => !ofEntry(c))];
+    const traces: CandidateTrace[] = candidates.map((c) => ({
+      id: c.id,
+      kind: c.kind,
+      score: c.score,
+      tier: TIER_NAMES[c.tier],
+      entering: c.entering,
+      attempts: [],
+    }));
+    traced?.candidates.push(...traces);
     // The lowest elevation band first. A candidate near the best score gets the second band too.
     // The other candidates get the higher bands only after all candidates failed (N4).
     const lead = (scored[0]?.score ?? 0) - KEY_SEARCH.bandMargin;
     const bands = KEY_SEARCH.bands.length;
     for (const higher of [false, true]) {
-      for (const candidate of candidates) {
+      for (const [index, candidate] of candidates.entries()) {
         // The first pass: the first band, the second band for a candidate near the best, and all
         // bands for the best candidate at its entry. Each candidate that shows an entering seat
         // gets the second band and a full search. The second pass: the bands that the candidate
@@ -1814,7 +2038,12 @@ export function prepareShots(
         planner.fullSearch = entering;
         for (let band = higher ? first : 0; band < (higher ? bands : first); band++) {
           planner.band = [KEY_SEARCH.bands[band - 1] ?? -Infinity, KEY_SEARCH.bands[band] ?? 0];
+          const attempt =
+            trace && traced ? startAttempt(trace, traces[index]?.attempts ?? [], band) : null;
           const framing = framingOf(planner, candidate, window);
+          if (attempt) {
+            attempt.found = framing !== null;
+          }
           if (framing) {
             chosen = { candidate, framing };
             break;
@@ -1831,6 +2060,9 @@ export function prepareShots(
     // A conductor shot that fills the time searches all bands.
     planner.band = [-Infinity, KEY_SEARCH.bands[bands - 1] ?? 0];
     planner.fullSearch = false;
+    if (trace) {
+      trace.attempt = null;
+    }
     if (!chosen) {
       // No subject fits, for example in a rest of all seats. The previous shot holds on while it
       // stays within its longest length, so that no wide shot comes just before the last shot.
@@ -1838,6 +2070,9 @@ export function prepareShots(
       // Else a wide shot fills the time.
       const held = holdPrevious(planner, cut);
       if (held !== null) {
+        if (traced) {
+          traced.outcome = 'hold';
+        }
         cut = held;
         continue;
       }
@@ -1855,7 +2090,17 @@ export function prepareShots(
       // After a conductor shot, the other framing of the conductor fills the time. The jump cut
       // rule keeps the two views apart. A small group shows no conductor.
       const small = planner.staged.length < SMALL_GROUP_SEATS;
+      const attempt = trace && traced && !small ? startAttempt(trace, traced.fill, null) : null;
       const framing = small ? null : conductorFraming(planner, window);
+      if (attempt) {
+        attempt.found = framing !== null;
+      }
+      if (trace) {
+        trace.attempt = null;
+      }
+      if (traced) {
+        traced.outcome = framing ? 'conductor' : 'wide';
+      }
       if (framing) {
         chosen = { candidate: conductor, framing };
       } else {
@@ -1906,10 +2151,73 @@ export function prepareShots(
       blendSec: 0,
     },
   );
+  if (trace) {
+    trace.cut = null;
+    trace.attempt = null;
+  }
   const shots = planner.planned.map((p) => p.shot);
   return {
     stageSide: layout.stageSide,
     shots,
     starts: Float64Array.from(shots, (s) => s.startSec),
   };
+}
+
+/**
+ * Calculates the shots of a score (design 5.6): the cut points, the subjects, and the clear
+ * cameras. Pure: the same score, layout, and seed give the same plan.
+ *
+ * - The first shot is the default view from `-Infinity`. It holds for the count-in, and it pushes
+ *   in over the first phrase.
+ * - Each cut falls on a downbeat. A shot lasts 4 to 14 s, and a wide or high shot up to 18 s.
+ * - The music after each cut selects its subject.
+ * - The last shot is a wide shot that pulls out, and it holds after the song end.
+ *
+ * @param score The score.
+ * @param layout The layout of the score, from `layoutScene()`.
+ * @param seed The seed of the plan.
+ * @param models The player models of the score, which the layout shares. A new cache by default.
+ * @returns The plan for `cameraAt()`.
+ */
+export function prepareShots(
+  score: Score,
+  layout: SceneLayout,
+  seed: number,
+  models = new ModelCache(),
+): ShotPlan {
+  return planShots(score, layout, seed, models, null);
+}
+
+/**
+ * Calculates the shots of a score as {@link prepareShots} does, with the choice at each cut of a
+ * range (design 5.6). Pure: the same inputs give the same trace.
+ *
+ * - The plan is the same as the plan of {@link prepareShots}.
+ * - The trace holds each cut from the start to the end of the range, with both ends, in the order
+ *   of the cuts. A cut at which the previous shot holds on is a cut too.
+ * - Each cut gives the candidates that the rules of the choice drop, each with its rule, and the
+ *   other candidates in the order of the search, with their scores and ranks.
+ * - Each try of a candidate in an elevation band gives its searches, and each search gives each
+ *   tested camera with its refusal. A refusal by the distance gives the largest share of the
+ *   default distance, above {@link CLOSE_DISTANCE_SHARE}.
+ * - A camera that failed a test at an earlier cut keeps the refusal of that test, so the trace of a
+ *   cut does not depend on the range.
+ *
+ * @param score The score.
+ * @param layout The layout of the score, from `layoutScene()`.
+ * @param seed The seed of the plan.
+ * @param range The range of the traced cuts, in song seconds.
+ * @param models The player models of the score, which the layout shares. A new cache by default.
+ * @returns The plan and the trace of each cut of the range.
+ */
+export function traceShots(
+  score: Score,
+  layout: SceneLayout,
+  seed: number,
+  range: TraceRange,
+  models = new ModelCache(),
+): ShotTrace {
+  const sink: TraceSink = { range, cuts: [], kept: new Map(), cut: null, attempt: null };
+  const plan = planShots(score, layout, seed, models, sink);
+  return { plan, cuts: sink.cuts };
 }
