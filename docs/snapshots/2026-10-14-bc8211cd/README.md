@@ -1,6 +1,6 @@
 # Snapshot of 2026-10-14
 
-Commit `40631fe9`: fix(pose): point the left elbow of the resting flutist fox out. `pnpm snapshot` made these images.
+Commit `bc8211cd`: fix(pose): fit the flute hold of the tan fox on the final fox form. `pnpm snapshot` made these images.
 
 | File | View |
 |---|---|
