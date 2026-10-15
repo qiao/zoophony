@@ -8,7 +8,7 @@ import { spawn } from 'node:child_process';
 import { cpSync, mkdtempSync, symlinkSync } from 'node:fs';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 
 import { SPECIES, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
@@ -27,6 +27,23 @@ const COPIED = ['src', 'package.json'] as const;
 
 /** The folders of the working tree that the copy links: the packages and the demo files. */
 const LINKED = ['node_modules', 'demos'] as const;
+
+/** The folder of the configs of the mesh rigs, which `pnpm hold-reach --size` reads. */
+const RIG_CONFIGS = join(ROOT, 'tools', 'mesh-rigs');
+
+/**
+ * Tells if the copy of {@link withGlbBody} holds a path of `tools/`: each script, and the configs
+ * of the mesh rigs, so that `pnpm hold-reach --size --glb <file>` gives the arm factor of the rig.
+ *
+ * @param source The absolute path in `tools/` of the working tree.
+ * @returns True for the folder `tools/`, a script, the folder of the rig configs, or a config.
+ */
+export function copiedTool(source: string): boolean {
+  if (source === join(ROOT, 'tools') || source === RIG_CONFIGS) {
+    return true;
+  }
+  return source.endsWith('.ts') || (dirname(source) === RIG_CONFIGS && source.endsWith('.json'));
+}
 
 /** The arguments of a probe with the option `--glb` taken out. */
 export interface GlbArgs {
@@ -148,10 +165,11 @@ export function glbModule(animal: string, file: string, bytes: Uint8Array): GlbM
 
 /**
  * Makes a copy of the working tree in which the studio body of an animal comes from another GLB
- * file, runs a work in it, and removes it. The copy holds `src/`, `package.json`, and the scripts
- * of `tools/`, with links to `node_modules/` and `demos/`. Its module of the animal is the export
- * of the file. The folder goes away at the end, also after a failure. After a stop (INT or TERM),
- * `tools/stop-cleanup.ts` stops the children of {@link runTool} first, then removes the folder.
+ * file, runs a work in it, and removes it. The copy holds `src/`, `package.json`, the scripts of
+ * `tools/`, and the configs of the mesh rigs ({@link copiedTool}), with links to `node_modules/`
+ * and `demos/`. Its module of the animal is the export of the file. The folder goes away at the
+ * end, also after a failure. After a stop (INT or TERM), `tools/stop-cleanup.ts` stops the
+ * children of {@link runTool} first, then removes the folder.
  *
  * @param animal The animal of `ANIMALS`.
  * @param file The absolute path of the GLB file.
@@ -173,10 +191,7 @@ export async function withGlbBody<T>(
     for (const path of COPIED) {
       cpSync(join(ROOT, path), join(dir, path), { recursive: true });
     }
-    cpSync(join(ROOT, 'tools'), join(dir, 'tools'), {
-      recursive: true,
-      filter: (source) => source === join(ROOT, 'tools') || source.endsWith('.ts'),
-    });
+    cpSync(join(ROOT, 'tools'), join(dir, 'tools'), { recursive: true, filter: copiedTool });
     for (const path of LINKED) {
       symlinkSync(join(ROOT, path), join(dir, path), 'dir');
     }

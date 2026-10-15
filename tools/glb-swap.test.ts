@@ -15,6 +15,7 @@ import { STUDIO_BODIES } from '../src/models/studio-body.ts';
 import type { StudioBodyName } from '../src/models/studio-body.ts';
 import {
   animalSpecies,
+  copiedTool,
   runTool,
   speciesAnimal,
   studioAnimal,
@@ -75,6 +76,18 @@ describe('the animal of a studio body', () => {
   });
 });
 
+describe('copiedTool', () => {
+  it('copies the scripts and the configs of the mesh rigs, and no other file of tools/', () => {
+    const tools = join(ROOT, 'tools');
+    expect(copiedTool(tools)).toBe(true);
+    expect(copiedTool(join(tools, 'hold-reach.ts'))).toBe(true);
+    expect(copiedTool(join(tools, 'mesh-rigs'))).toBe(true);
+    expect(copiedTool(join(tools, 'mesh-rigs', 'fox.json'))).toBe(true);
+    expect(copiedTool(join(tools, 'glb-bodies', 'bear.json'))).toBe(false);
+    expect(copiedTool(join(tools, 'blender'))).toBe(false);
+  });
+});
+
 describe('withGlbBody', () => {
   const parent = mkdtempSync(join(tmpdir(), 'glb-swap-test-'));
   afterAll(() => rmSync(parent, { recursive: true, force: true }));
@@ -84,12 +97,14 @@ describe('withGlbBody', () => {
     copyFileSync(studioGlbPath('rabbit', ANIMALS.get('rabbit')), file);
     const out = join(parent, 'source.txt');
     let copy = '';
+    let configs = '';
 
     const code = await withGlbBody(
       'rabbit',
       file,
       async (dir) => {
         copy = dir;
+        configs = readFileSync(join(dir, 'tools', 'mesh-rigs', 'rabbit.json'), 'utf8');
         writeFileSync(
           join(dir, 'tools', 'print-source.ts'),
           [
@@ -105,6 +120,7 @@ describe('withGlbBody', () => {
 
     expect(code).toBe(0);
     expect(readFileSync(out, 'utf8')).toBe(relative(ROOT, file));
+    expect(configs).toBe(readFileSync(join(ROOT, 'tools', 'mesh-rigs', 'rabbit.json'), 'utf8'));
     expect(STUDIO_BODIES['studio-rabbit'].source).not.toBe(relative(ROOT, file));
     expect(copy).not.toBe('');
     expect(existsSync(copy)).toBe(false);
