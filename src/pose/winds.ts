@@ -77,9 +77,21 @@ export interface WindHold {
    * the left thigh of a seated player, the side of the palm, and the direction of the fingers. The
    * left arm of a standing player hangs (`hangingArm()`). The lift and the lowering move the left
    * paw between its rest place and its grip by the weight of the playing pose, the weight that
-   * also moves the instrument. `null` keeps the left palm on its grip, also in the rest pose.
+   * also moves the instrument, with the arc of the paw. `null` keeps the left palm on its grip,
+   * also in the rest pose.
    */
-  readonly restFreeL: LapHand | null;
+  readonly restFreeL: FreePaw | null;
+}
+
+/** The left paw of a wind hold that leaves its grip in the rest pose (`WindHold.restFreeL`). */
+export interface FreePaw extends LapHand {
+  /**
+   * The move of the wrist away from the straight line from its rest place to its grip, at the
+   * middle of the lift and the lowering, in head heights: out to the left, up, and forward. The
+   * move grows and shrinks with `4 w (1 - w)` of the weight `w` of the playing pose, so that the
+   * paw passes in front of a round belly.
+   */
+  readonly arc: Vec3;
 }
 
 /**
@@ -366,7 +378,7 @@ const BONES = {
 } as const;
 
 /** The left paw of a wind player in the rest pose, off its grip (`WindHold.restFreeL`). */
-export type FreeRest =
+export type FreeRest = (
   | {
       /** A paw on the left thigh of a seated player. */
       readonly kind: 'lap';
@@ -380,7 +392,14 @@ export type FreeRest =
       readonly kind: 'hang';
       /** The wrist, the hand, and the elbow of the hanging arm. */
       readonly hang: HangingArm;
-    };
+    }
+) & {
+  /**
+   * The move of the wrist away from the straight line to its grip at the middle of the change, in
+   * meters in the model axes, with the root in its bind pose ({@link FreePaw.arc}).
+   */
+  readonly arc: Vec3;
+};
 
 /** One side of the body of a wind player in the bind pose. */
 interface WindSide {
@@ -441,14 +460,17 @@ function gripPoint(model: PlayerModel, grip: PiecePoint | null): Vec3 {
  *
  * @param model The player model.
  * @param arm The left arm.
- * @param rest The paw on the thigh.
+ * @param rest The free paw of the hold.
  * @returns The paw.
  */
-function freeRestOf(model: PlayerModel, arm: ArmRig, rest: LapHand): FreeRest {
+function freeRestOf(model: PlayerModel, arm: ArmRig, rest: FreePaw): FreeRest {
+  const h = model.body.headHeight;
+  const [out, up, forward] = rest.arc;
+  const arc: Vec3 = [-out * h, up * h, -forward * h];
   if (model.support === 'stand') {
-    return { kind: 'hang', hang: hangingArm(model, arm) };
+    return { kind: 'hang', hang: hangingArm(model, arm), arc };
   }
-  return { kind: 'lap', ...lapHand(model, arm, rest) };
+  return { kind: 'lap', ...lapHand(model, arm, rest), arc };
 }
 
 /**
@@ -579,6 +601,7 @@ const hand = new Quaternion();
 const palm = new Vector3();
 const restWrist = new Vector3();
 const restHand = new Quaternion();
+const arcMove = new Vector3();
 const ORIGIN = [0, 0, 0] as const;
 
 /**
@@ -628,6 +651,12 @@ function poseSide(
       hangingHand(free.hang, shoulder, restHand);
     }
     wrist.lerpVectors(restWrist, wrist, weight);
+    wrist.add(
+      arcMove
+        .fromArray(free.arc)
+        .applyQuaternion(root.rotation)
+        .multiplyScalar(4 * weight * (1 - weight)),
+    );
     mixRotation(restHand, hand, weight, hand);
   }
 
@@ -745,7 +774,8 @@ export function windGrips(rig: WindRig, weight: number): Readonly<Record<'L' | '
  * Writes the arms, the fingers, the instrument, and the slide of a wind player (design 5.3,
  * 4.7). The mouthpiece stays at the mouth, because the head and the instrument both follow the
  * chest. The palms stay on their grips, also in the rest pose, and the two-bone IK places each
- * arm. A hold can free the left paw in the rest pose (`WindHold.restFreeL`). The fingers close for the pitch. The trombone slide moves along its axis.
+ * arm. A hold can free the left paw in the rest pose (`WindHold.restFreeL`). The fingers close
+ * for the pitch. The trombone slide moves along its axis.
  *
  * The caller writes the breath into the spine, and the head lift of the rest pose into the neck
  * and the head, before it calculates the frames.

@@ -24,6 +24,7 @@ const FREE: WindHold = {
     lap: { along: 0.6, offset: [0, 0.03, 0] },
     palm: [0, -1, 0.2],
     fingers: [0.2, 0, -1],
+    arc: [0.1, 0.2, 0.3],
   },
 };
 
@@ -146,10 +147,16 @@ describe('the free left paw of a wind hold in the rest pose (design 5.3)', () =>
 
   it('moves the left wrist from its rest place to its grip by the weight of the instrument', () => {
     const rest = boneAt(poseAtWeight(seated, free, 0), 'handL');
+    const h = seated.body.headHeight;
+    // The arc goes out to the left (-x), up, and forward (-z), turned by the root.
+    const arc = new Vector3(-0.1 * h, 0.2 * h, -0.3 * h).applyQuaternion(SWAY);
     for (const weight of [0.25, 0.5, 0.75]) {
       const posed = poseAtWeight(seated, free, weight);
       const onGrip = poseAtWeight(seated, held, weight);
-      const expected = rest.clone().lerp(boneAt(onGrip, 'handL'), weight);
+      const expected = rest
+        .clone()
+        .lerp(boneAt(onGrip, 'handL'), weight)
+        .addScaledVector(arc, 4 * weight * (1 - weight));
 
       expect(boneAt(posed, 'handL').distanceTo(expected), `weight ${weight}`).toBeLessThan(1e-4);
       // The instrument and the right arm do not change.
