@@ -7,6 +7,7 @@ import { FOLD_ROLES, roleBodies } from './fold-probe.ts';
 import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
 import {
   FIT_DEMOS,
+  FIT_FORMAT,
   FIT_STEP,
   GRID_LIMIT,
   chooseDemos,
@@ -26,6 +27,7 @@ import type { FitRow } from './hold-fit.ts';
 import type { HoldReach } from './hold-reach.ts';
 import { patchedDemo } from './patch-demos.ts';
 import type { DemoResult } from './pose-depth.ts';
+import { formatVersion } from './ref-tree.ts';
 
 /**
  * Gives a role of `FOLD_ROLES`.
@@ -304,6 +306,7 @@ describe('fitTable', () => {
       rows: [{ ...row, depths: [{ set: 'play', demo: 'a', pair: none, limit: 0.015 }], results }],
     };
     expect(readFit(fitJson(run))).toEqual(run);
+    expect(formatVersion(fitJson(run))).toBe(FIT_FORMAT);
   });
 
   it('sorts the variants by the play folds, then by the deepest point, after the base', () => {

@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest';
 
 import type { CameraTrace, CutTrace, SearchTrace } from '../src/shots/trace.ts';
 import type { Shot } from '../src/shots/types.ts';
-import { cutLines, parseTraceOptions, searchSummary, shotRows } from './shot-trace.ts';
+import { formatVersion } from './ref-tree.ts';
+import {
+  TRACE_FORMAT,
+  cutLines,
+  parseTraceOptions,
+  searchSummary,
+  shotRows,
+  traceJson,
+} from './shot-trace.ts';
 
 /** Degrees to radians. */
 const DEG = Math.PI / 180;
@@ -154,5 +162,14 @@ describe('cutLines()', () => {
     expect(lines.some((line) => line.startsWith('      band 1: two-shot'))).toBe(true);
     expect(lines).toContain('        87.0° 17.0° arc 6.0°: the camera of the shot');
     expect(lines).toContain('  2. solo 1: score 0.30, other, entering 1, not tried');
+  });
+});
+
+describe('traceJson', () => {
+  it('writes the output with its format version', () => {
+    const output = { traced: true, shots: ['| row |'], cuts: [] };
+    const text = traceJson(output);
+    expect(formatVersion(text)).toBe(TRACE_FORMAT);
+    expect(JSON.parse(text)).toEqual({ version: TRACE_FORMAT, ...output });
   });
 });

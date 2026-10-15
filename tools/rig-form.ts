@@ -72,6 +72,13 @@ export interface DemoStage {
   readonly side: number;
 }
 
+/**
+ * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
+ * change of the format takes the next version, so that the form tables of `pnpm rig-mesh --check`
+ * stop on two formats.
+ */
+export const FORM_FORMAT = 1;
+
 /** The form of the players and the stages of a source tree, as `--json` writes it. */
 export interface FormJson {
   /** The form of each player of `--player`, in their order. */
@@ -156,6 +163,16 @@ export function parsePlayer(text: string): FormPlayer {
 }
 
 /**
+ * Writes the form as the JSON text of `--json`, with the format version {@link FORM_FORMAT}.
+ *
+ * @param form The form.
+ * @returns The text.
+ */
+export function formJson(form: FormJson): string {
+  return JSON.stringify({ version: FORM_FORMAT, ...form });
+}
+
+/**
  * Reads the JSON text of `--json`.
  *
  * @param text The JSON text.
@@ -202,7 +219,7 @@ async function main(): Promise<void> {
     side: layoutScene(scoreOf(demo.bytes), new ModelCache()).stageSide,
   }));
   const form: FormJson = { players: players.map(playerForm), stages };
-  writeFileSync(json, JSON.stringify(form));
+  writeFileSync(json, formJson(form));
 }
 
 if (import.meta.main) {

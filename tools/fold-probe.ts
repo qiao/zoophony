@@ -841,8 +841,16 @@ export interface FaceJson {
 }
 
 /**
- * Writes the folds of a report as the JSON text of `--json`: the counts of each sample set, the
- * hash of the corners of the mesh, and each folded face ({@link FaceRecord}).
+ * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
+ * change of the format takes the next version, so that a compare with `--base` stops on two
+ * formats.
+ */
+export const FOLD_FORMAT = 1;
+
+/**
+ * Writes the folds of a report as the JSON text of `--json`: the format version
+ * ({@link FOLD_FORMAT}), the counts of each sample set, the hash of the corners of the mesh, and
+ * each folded face ({@link FaceRecord}).
  *
  * @param report The report.
  * @returns The JSON text.
@@ -878,7 +886,7 @@ export function foldJson(report: FoldReport): string {
         )
         .digest('hex')
     : '';
-  return JSON.stringify({ sets, topology, faces });
+  return JSON.stringify({ version: FOLD_FORMAT, sets, topology, faces });
 }
 
 /**

@@ -23,14 +23,17 @@ import {
   meshChange,
   meshHash,
   poseValues,
+  PROBE_FORMAT,
   probeBodies,
   probeRef,
+  probeText,
   probeScenePoses,
   round,
   stepHash,
   summarize,
 } from './body-probe.ts';
 import type { DemoPoses, Probe } from './body-probe.ts';
+import { formatVersion } from './ref-tree.ts';
 
 /**
  * Builds a mesh of one triangle.
@@ -308,6 +311,7 @@ describe('summarize', () => {
       players: {},
       poses: { demo: { samples: {}, players: { '0 viola/cat/viola': sets, conductor: sets } } },
     };
+    expect(formatVersion(probeText(probe))).toBe(PROBE_FORMAT);
     const json = JSON.stringify(probe);
     expect(summarize(probe, json)).toEqual([
       'species 1, bodies 2, players 0, demos 1, pose sets 4',

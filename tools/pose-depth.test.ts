@@ -6,6 +6,7 @@ import type { RoleSweep, SweepSample } from '../src/pose/test-sweep.ts';
 import { patchedDemos } from './patch-demos.ts';
 import {
   DEPTH_STEP,
+  ROWS_FORMAT,
   SWEEP_ROLE_TABLE,
   compareDepths,
   parseOptions,
@@ -15,7 +16,7 @@ import {
   sweepDemos,
 } from './pose-depth.ts';
 import type { DemoResult } from './pose-depth.ts';
-import { ROOT, refRoleKeys } from './ref-tree.ts';
+import { ROOT, formatVersion, refRoleKeys } from './ref-tree.ts';
 
 /**
  * Gives the bytes of a demo with its patches, as the sweep reads it.
@@ -130,6 +131,7 @@ describe('rowsJson', () => {
   it('gives back NaN and the infinite gaps of the rows that it writes', () => {
     const rows = [{ variant: '', seconds: 1, results: [resultOf('rabbit', 0.3, { paws: 0 })] }];
     expect(readRows(rowsJson(rows))).toEqual(rows);
+    expect(formatVersion(rowsJson(rows))).toBe(ROWS_FORMAT);
   });
 });
 

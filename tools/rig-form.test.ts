@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
 import { boneIndex } from '../src/models/rig.ts';
-import { headExtent, parsePlayer, playerForm, readFormJson } from './rig-form.ts';
+import { formatVersion } from './ref-tree.ts';
+import {
+  FORM_FORMAT,
+  formJson,
+  headExtent,
+  parsePlayer,
+  playerForm,
+  readFormJson,
+} from './rig-form.ts';
 
 describe('headExtent', () => {
   it('gives the highest and the lowest corner of the head bone only', () => {
@@ -44,5 +52,8 @@ describe('readFormJson', () => {
     const text = JSON.stringify({ players: [], stages: [{ demo: 'a.mid', side: 9 }] });
     expect(readFormJson(text).stages).toEqual([{ demo: 'a.mid', side: 9 }]);
     expect(() => readFormJson('{}')).toThrow('no list of players or of stages');
+    const form = { players: [], stages: [{ demo: 'a.mid', side: 9 }] };
+    expect(formatVersion(formJson(form))).toBe(FORM_FORMAT);
+    expect(readFormJson(formJson(form))).toEqual(form);
   });
 });

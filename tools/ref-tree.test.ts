@@ -18,7 +18,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   ROOT,
+  checkFormat,
   errorCause,
+  formatVersion,
   optionValue,
   overlayPaths,
   overlayTree,
@@ -267,6 +269,30 @@ describe('probeBeside', () => {
       await rm(parent, { recursive: true, force: true });
     }
   }, 30_000);
+});
+
+describe('formatVersion', () => {
+  it('gives the field version, and 1 for a text with no version', () => {
+    expect(formatVersion('{"version":3,"rows":[]}')).toBe(3);
+    expect(formatVersion('{"rows":[]}')).toBe(1);
+  });
+
+  it('refuses a text with no object, and a version that is not a whole number above 0', () => {
+    expect(() => formatVersion('[1]')).not.toThrow();
+    expect(() => formatVersion('null')).toThrow('holds no object');
+    expect(() => formatVersion('{"version":0}')).toThrow('has the version 0');
+    expect(() => formatVersion('{"version":1.5}')).toThrow('has the version 1.5');
+    expect(() => formatVersion('{"version":"2"}')).toThrow('has the version 2');
+  });
+});
+
+describe('checkFormat', () => {
+  it('passes one version, and stops on two versions with both in the message', () => {
+    expect(() => checkFormat('hold-fit.ts', 'main', 2, 2)).not.toThrow();
+    expect(() => checkFormat('hold-fit.ts', 'main', 1, 2)).toThrow(
+      'The JSON of tools/hold-fit.ts on main has the format version 1, and the working tree has the format version 2.',
+    );
+  });
 });
 
 describe('withoutOptions', () => {

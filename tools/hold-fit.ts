@@ -358,13 +358,20 @@ export interface FitRun {
 }
 
 /**
- * Writes the rows of a run as JSON (`--json`).
+ * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
+ * change of the format takes the next version, so that a compare with `--base` stops on two
+ * formats.
+ */
+export const FIT_FORMAT = 1;
+
+/**
+ * Writes the rows of a run as JSON (`--json`), with the format version {@link FIT_FORMAT}.
  *
  * @param run The demos and the rows.
  * @returns The text.
  */
 export function fitJson(run: FitRun): string {
-  return JSON.stringify(run);
+  return JSON.stringify({ version: FIT_FORMAT, ...run });
 }
 
 /**

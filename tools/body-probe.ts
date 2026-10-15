@@ -38,7 +38,7 @@ import { NOT_STARTED, PLAYING, allAudible, sceneOf } from '../src/pose/test-scen
 import type { TestScene } from '../src/pose/test-scene.ts';
 import type { AnimalPose, Transport } from '../src/pose/types.ts';
 import { patchedDemos } from './patch-demos.ts';
-import { runChild, withProbeTree } from './ref-tree.ts';
+import { checkFormat, formatVersion, runChild, withProbeTree } from './ref-tree.ts';
 
 /** The supports of each species in the probe: each seat, and standing. */
 export const PROBE_SUPPORTS = [
@@ -727,14 +727,40 @@ export function compareProbes(base: Probe, next: Probe): ProbeComparison {
 }
 
 /**
+ * The format version of the JSON of `--out` (`formatVersion()` of `tools/ref-tree.ts`). A change
+ * of the format takes the next version, so that a compare stops on two formats.
+ */
+export const PROBE_FORMAT = 1;
+
+/**
+ * Writes a probe as the JSON of `--out`, with the format version {@link PROBE_FORMAT}. The JSON of
+ * the same code is the same, byte for byte.
+ *
+ * @param probe The probe.
+ * @returns The text, with a line end at the end.
+ */
+export function probeText(probe: Probe): string {
+  return `${JSON.stringify({ version: PROBE_FORMAT, ...probe }, null, 1)}\n`;
+}
+
+/** A probe file and the format version of its JSON. */
+interface ProbeFile {
+  /** The probe. */
+  readonly probe: Probe;
+  /** The format version of the JSON. */
+  readonly version: number;
+}
+
+/**
  * Reads a probe file that this tool wrote.
  *
  * @param file The path of the file.
- * @returns The probe.
+ * @returns The probe and the format version of its JSON.
  */
-async function readProbe(file: string): Promise<Probe> {
+async function readProbe(file: string): Promise<ProbeFile> {
+  const text = await readFile(file, 'utf8');
   // SAFETY: the file is the output of this tool, which writes a Probe as JSON.
-  return JSON.parse(await readFile(file, 'utf8')) as Probe;
+  return { probe: JSON.parse(text) as Probe, version: formatVersion(text) };
 }
 
 /**
@@ -748,7 +774,8 @@ async function readProbe(file: string): Promise<Probe> {
  * @param parent The folder that holds the temporary folder.
  * @param poses False to probe only the bodies and the players, as `--no-poses` does.
  * @returns The probe of the commit.
- * @throws Error if git does not know the ref, or the probe fails on the code of the commit.
+ * @throws Error if git does not know the ref, if the probe fails on the code of the commit, or if
+ *   its JSON has another format version than {@link PROBE_FORMAT}.
  */
 export function probeRef(ref: string, parent: string = tmpdir(), poses = true): Promise<Probe> {
   return withProbeTree(
@@ -758,7 +785,9 @@ export function probeRef(ref: string, parent: string = tmpdir(), poses = true): 
       const out = join(dir, 'probe.json');
       const args = [join('tools', 'body-probe.ts'), '--out', out, ...(poses ? [] : ['--no-poses'])];
       await runChild(process.execPath, args, dir);
-      return await readProbe(out);
+      const { probe, version } = await readProbe(out);
+      checkFormat('body-probe.ts', ref, version, PROBE_FORMAT);
+      return probe;
     },
     { parent, prefix: 'body-probe-' },
   );
@@ -822,12 +851,18 @@ if (import.meta.main) {
     if (!baseFile || !nextFile) {
       throw new Error('Usage: pnpm body-probe --compare <base.json> <new.json>');
     }
-    printComparison(null, compareProbes(await readProbe(baseFile), await readProbe(nextFile)));
+    const [base, next] = [await readProbe(baseFile), await readProbe(nextFile)];
+    if (base.version !== next.version) {
+      throw new Error(
+        `The probe file ${baseFile} has the format version ${base.version}, and ${nextFile} has the format version ${next.version}. A compare of two formats gives false differences.`,
+      );
+    }
+    printComparison(null, compareProbes(base.probe, next.probe));
   }
   // The JSON is about 1 MB, so only --out writes it. The summary is a few lines.
   const outIndex = args.indexOf('--out');
   const probe: Probe = args.includes('--no-poses') ? probeBodies() : await runProbe();
-  const text = `${JSON.stringify(probe, null, 1)}\n`;
+  const text = probeText(probe);
   const out = outIndex >= 0 ? args[outIndex + 1] : undefined;
   if (out) {
     await writeFile(out, text);

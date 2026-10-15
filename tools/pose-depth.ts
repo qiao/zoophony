@@ -416,14 +416,22 @@ interface StoredRows {
 }
 
 /**
- * Writes the rows of a run as JSON (`--json`). JSON writes the place `NaN` of a depth with no
- * bone and the infinite gap of a set with no sample as `null`.
+ * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
+ * change of the format takes the next version, so that a compare with `--base` stops on two
+ * formats.
+ */
+export const ROWS_FORMAT = 1;
+
+/**
+ * Writes the rows of a run as JSON (`--json`), with the format version {@link ROWS_FORMAT}. JSON
+ * writes the place `NaN` of a depth with no bone and the infinite gap of a set with no sample as
+ * `null`.
  *
  * @param rows The rows.
  * @returns The text.
  */
 export function rowsJson(rows: readonly SweepRow[]): string {
-  return JSON.stringify({ rows });
+  return JSON.stringify({ version: ROWS_FORMAT, rows });
 }
 
 /**

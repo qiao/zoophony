@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { patchedDemo } from './patch-demos.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import {
+  FOLD_FORMAT,
   FOLD_ROLES,
   FOLD_ROLE_TABLE,
   SAMPLE_SETS,
@@ -23,7 +24,7 @@ import {
   worstFold,
 } from './fold-probe.ts';
 import type { FaceJson, FaceRecord, FaceWorst, FoldCount, FoldReport } from './fold-probe.ts';
-import { ROOT, refRoleKeys } from './ref-tree.ts';
+import { ROOT, formatVersion, refRoleKeys } from './ref-tree.ts';
 import { ANIMALS } from './studio-body.ts';
 
 /** The identity matrix, column by column. */
@@ -300,6 +301,7 @@ describe('foldJson and readFaceJson', () => {
       sets: { rest: countOf(1, []), play: countOf(10, [[1, 3]]), lift: countOf(5, [[1, 1]]) },
     };
     report.sets.play.faceWorst.set(1, fold(130));
+    expect(formatVersion(foldJson(report))).toBe(FOLD_FORMAT);
     const read = readFaceJson(foldJson(report));
     expect(read.topology).toMatch(/^[0-9a-f]{64}$/);
     expect(read.faces).toEqual([

@@ -333,6 +333,13 @@ export function cutLines(cuts: readonly CutTrace[], cameras: boolean): string[] 
   return lines;
 }
 
+/**
+ * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
+ * change of the format takes the next version, so that a compare with `--base` stops on two
+ * formats.
+ */
+export const TRACE_FORMAT = 1;
+
 /** The output of one tree, as `--json` writes it. */
 export interface TraceOutput {
   /** True when the tree has `traceShots()`. */
@@ -341,6 +348,17 @@ export interface TraceOutput {
   readonly shots: readonly string[];
   /** The lines of the trace ({@link cutLines}), or none with no `traceShots()`. */
   readonly cuts: readonly string[];
+}
+
+/**
+ * Writes the output of one tree as the JSON text of `--json`, with the format version
+ * {@link TRACE_FORMAT}.
+ *
+ * @param output The output.
+ * @returns The text.
+ */
+export function traceJson(output: TraceOutput): string {
+  return JSON.stringify({ version: TRACE_FORMAT, ...output });
 }
 
 /**
@@ -474,7 +492,7 @@ async function main(): Promise<void> {
   }
   const output = await traceDemo(options);
   if (options.json !== null) {
-    writeFileSync(options.json, JSON.stringify(output));
+    writeFileSync(options.json, traceJson(output));
     return;
   }
   console.log(

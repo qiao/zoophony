@@ -411,19 +411,63 @@ export interface BesideTexts {
 }
 
 /**
+ * Gives the format version of the JSON text of a probe: its field `version`. Each probe that a
+ * `--base` compare reads writes the version of its format, and a change of the format takes the
+ * next version. A text with no field has the version 1, the format of the probes before the field
+ * (2026-10-15).
+ *
+ * @param text The JSON text of one object.
+ * @returns The version.
+ * @throws Error if the text holds no object, or a version that is not a whole number above 0.
+ */
+export function formatVersion(text: string): number {
+  // SAFETY: the text comes from the --json output of a probe, and the checks below read the field.
+  const parsed = JSON.parse(text) as { readonly version?: unknown } | null;
+  if (!(parsed instanceof Object)) {
+    throw new Error('The JSON text of the probe holds no object.');
+  }
+  const version = parsed.version ?? 1;
+  if (!Number.isInteger(version) || Number(version) < 1) {
+    throw new Error(`The JSON text of the probe has the version ${String(version)}.`);
+  }
+  return Number(version);
+}
+
+/**
+ * Checks that the JSON texts of a probe on a commit and on the working tree have one format. Since
+ * 94c6ace9, each side runs its own tool, so a branch that changes the format of a probe would give
+ * false differences.
+ *
+ * @param script The script of the probe, such as `hold-fit.ts`.
+ * @param ref The commit, the branch, or the tag, for the message.
+ * @param base The format version of the text of the commit ({@link formatVersion}).
+ * @param tree The format version of the text of the working tree.
+ * @throws Error if the versions differ, with both versions.
+ */
+export function checkFormat(script: string, ref: string, base: number, tree: number): void {
+  if (base !== tree) {
+    throw new Error(
+      `The JSON of tools/${script} on ${ref} has the format version ${base}, and the working tree has the format version ${tree}. A compare of two formats gives false differences, so compare with a commit whose tools/${script} writes the format version ${tree}.`,
+    );
+  }
+}
+
+/**
  * Runs a script of `tools/` on the code of a commit and on the working tree at the same time,
  * each in a child process of {@link runChild}. The first child runs in the folder of
  * {@link withProbeTree}, and the second child runs in the repository. Each child writes its
  * results into a file of the folder, which the option `--json <file>` names. The caller only
  * waits, so a stop (INT or TERM) ends both children at once, and removes the folder. A failure of
- * one child ends the other child at once.
+ * one child ends the other child at once. The two texts must have one format version
+ * ({@link checkFormat}).
  *
  * @param ref The commit, a branch, or a tag.
  * @param script The script, such as `pose-depth.ts`.
  * @param args The arguments of each child, with no `--json`.
  * @param options The parent folder and the start of the name of the folder.
  * @returns The text of the file of each child.
- * @throws Error if git does not know the ref, or a child fails. Both children end first.
+ * @throws Error if git does not know the ref, if a child fails, or if the two texts have other
+ *   format versions. Both children end first.
  */
 export function probeBeside(
   ref: string,
@@ -467,10 +511,12 @@ export function probeBeside(
       if (tree.status === 'rejected') {
         throw tree.reason;
       }
-      return {
+      const texts = {
         base: await readFile(files.base, 'utf8'),
         tree: await readFile(files.tree, 'utf8'),
       };
+      checkFormat(script, ref, formatVersion(texts.base), formatVersion(texts.tree));
+      return texts;
     },
     options,
   );

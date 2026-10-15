@@ -11,9 +11,9 @@ import { FOLD_ROLES, SAMPLE_SETS, readFaceJson, roleAnimal, roleSpecies } from '
 import type { FaceRecord, FoldCounts } from './fold-probe.ts';
 import { animalSpecies, runTool, withGlbBody } from './glb-swap.ts';
 import { measureLines, measureRig, triangleLine } from './rig-mesh-check.ts';
-import { readFormJson } from './rig-form.ts';
+import { FORM_FORMAT, readFormJson } from './rig-form.ts';
 import type { FormJson, PlayerForm } from './rig-form.ts';
-import { runChild, withProbeTree } from './ref-tree.ts';
+import { checkFormat, formatVersion, runChild, withProbeTree } from './ref-tree.ts';
 import { trackChild, trackFolder } from './stop-cleanup.ts';
 import { gzipSize } from './studio-budgets.ts';
 import type { ThinRule } from './rig-mesh-check.ts';
@@ -1041,7 +1041,9 @@ async function baseForm(args: readonly string[]): Promise<FormJson | null> {
           [join('tools', 'rig-form.ts'), ...args, '--json', file],
           dir,
         );
-        return readFormJson(await readFile(file, 'utf8'));
+        const text = await readFile(file, 'utf8');
+        checkFormat('rig-form.ts', FORM_BASE, formatVersion(text), FORM_FORMAT);
+        return readFormJson(text);
       },
       { prefix: 'rig-form-' },
     );
