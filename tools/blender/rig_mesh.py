@@ -18,7 +18,7 @@ reads it (route 3 of `AGENTS.md`). The steps:
    along a tail of two bones), the haunch, one set of weights for the corners of each short thin
    face, and the weights of the line for the middle corner of each long thin face. Each vertex
    keeps four bones, in steps of 1/255. With `smooth` of the config, the vertices inside a box
-   then move toward the middle of their neighbors (`smooth_box()`).
+   first move toward the middle of their neighbors (`smooth_box()`), before the weights.
 4. Make the upper arm and the forearm longer by the arm factor of the config, and the thigh and
    the shin by the leg factor. Each bone scales along its axis, and the weights blend the stretch
    to 0 at the shoulder and at the hip. The paws and the feet keep their size, and the body rises
@@ -1990,15 +1990,15 @@ def main():
         BONES = BONES + (TAIL_TIP,)
 
     verts, source_tris, uvs, texture = load_mesh(config)
+    if 'smooth' in config:
+        verts, count, largest = smooth_box(verts, source_tris, config['smooth'])
+        log(f'smooth: {count} vertices in the box, the largest move {largest:.4f} u')
     heads, ends, rolls, children = joints_of(config)
     weights = apply_rules(verts, source_tris, bone_heat(verts, source_tris, heads, ends, rolls),
                           rules, heads, ends)
     weights = straight_slivers(verts, source_tris,
                                rigid_slivers(verts, source_tris, weights, rules), rules)
     weights = limit(weights)
-    if 'smooth' in config:
-        verts, count, largest = smooth_box(verts, source_tris, config['smooth'])
-        log(f'smooth: {count} vertices in the box, the largest move {largest:.4f} u')
 
     # The long arms, the long legs, and the large head. The scale of the app comes from the
     # shoulder joints after the rise of the legs.
