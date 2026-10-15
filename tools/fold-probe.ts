@@ -7,14 +7,18 @@
  * Then it prints the main bone of the folded faces. With `--faces <n>`, it also prints the `n`
  * faces that fold in the most samples, with their places, their corner angles, and the weights of
  * their corners. With `--json <file>`, it also writes the counts of each sample set into the file
- * for `pnpm rig-mesh --check`. The method comes from
+ * for `pnpm rig-mesh --check`. With `--turns <face>`, it also prints the mean turn of the upper arm
+ * of the side of the face in the axes of the chest in the samples in which the face folds, and the
+ * share of the samples with a fold by the angle from that turn. The method comes from
  * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
- * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--json <file>]
- * [--glb <file>]
+ * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>]
+ * [--json <file>] [--glb <file>]
  */
 import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
+
+import { Matrix4, Quaternion, Vector3 } from 'three';
 
 import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
@@ -27,7 +31,7 @@ import type { InstrumentId } from '../src/models/instruments/types.ts';
 import type { PlayerModel } from '../src/models/player.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { STUDIO_BONES, STUDIO_PARENTS } from '../src/models/studio-format.ts';
-import type { StudioMesh } from '../src/models/studio-format.ts';
+import type { Side, StudioMesh } from '../src/models/studio-format.ts';
 import {
   createStudioPose,
   poseStudioBones,
@@ -35,7 +39,8 @@ import {
   studioOffsets,
 } from '../src/models/studio-rig.ts';
 import type { StudioPose, StudioRig } from '../src/models/studio-rig.ts';
-import type { Vec3 } from '../src/models/tuples.ts';
+import { toVec3 } from '../src/models/tuples.ts';
+import type { Quat, Vec3 } from '../src/models/tuples.ts';
 import { countInAt } from '../src/pose/count-in.ts';
 import { createScenePose, poseAt } from '../src/pose/pose-at.ts';
 import { NOT_STARTED, PLAYING, allAudible, sceneOf } from '../src/pose/test-scene.ts';
@@ -830,6 +835,230 @@ export function faceLines(report: FoldReport, count: number): string[] {
   ];
 }
 
+/** The width of an angle bin of the turn probe of `--turns`, in degrees. */
+export const TURN_BIN = 10;
+
+/**
+ * Gives the side of the body of a face: the side of its middle in the bind pose. The animal faces
+ * -z, and its left side is -x, so a face of the chest near the right shoulder is on the right.
+ *
+ * @param mesh The places and the triangles of the studio mesh in the bind pose.
+ * @param face The index of the triangle.
+ * @returns `L` for a middle at x < 0, else `R`.
+ */
+export function faceSide(mesh: Pick<StudioMesh, 'positions' | 'corners'>, face: number): Side {
+  let x = 0;
+  for (let k = 0; k < 3; k++) {
+    x += mesh.positions[(mesh.corners[face * 3 + k] ?? 0) * 3] ?? 0;
+  }
+  return x < 0 ? 'L' : 'R';
+}
+
+/**
+ * Gives the turn of a bone from its bind pose in the bind axes of another bone, from the skin
+ * matrices of a pose: the turn of the other bone from its bind pose comes off first. For the
+ * upper arm and the chest, it is the turn of the arm in the axes of the chest, with no lean of
+ * the body.
+ *
+ * @param matrices The skin matrices, 16 numbers for each bone, column by column.
+ * @param bone The index of the bone.
+ * @param frame The index of the other bone, such as the chest.
+ * @returns The turn.
+ */
+export function relativeTurn(matrices: ArrayLike<number>, bone: number, frame: number): Quat {
+  const turnOf = (index: number): Quaternion =>
+    new Quaternion().setFromRotationMatrix(
+      new Matrix4().fromArray(
+        Array.from({ length: 16 }, (...[, k]) => matrices[index * 16 + k] ?? 0),
+      ),
+    );
+  const q = turnOf(frame).invert().multiply(turnOf(bone));
+  return [q.x, q.y, q.z, q.w];
+}
+
+/**
+ * Gives the angle between two turns: the angle of the turn from one to the other.
+ *
+ * @param a The first turn.
+ * @param b The second turn.
+ * @returns The angle, in degrees, from 0 to 180.
+ */
+export function turnAngle(a: Quat, b: Quat): number {
+  const dot = Math.abs(a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]);
+  return 2 * Math.acos(Math.min(1, dot)) * (180 / Math.PI);
+}
+
+/**
+ * Gives the mean of some turns: the sum of the turns, each with the sign of the quaternion that is
+ * nearest to the first turn, made a unit quaternion. For turns near each other, it is the middle
+ * turn.
+ *
+ * @param turns The turns.
+ * @returns The mean, or `null` with no turn.
+ */
+export function meanTurn(turns: readonly Quat[]): Quat | null {
+  const [first] = turns;
+  if (!first) {
+    return null;
+  }
+  const sum = [0, 0, 0, 0];
+  for (const turn of turns) {
+    const dot = turn[0] * first[0] + turn[1] * first[1] + turn[2] * first[2] + turn[3] * first[3];
+    const sign = dot < 0 ? -1 : 1;
+    for (let k = 0; k < 4; k++) {
+      sum[k] = (sum[k] ?? 0) + sign * (turn[k] ?? 0);
+    }
+  }
+  const [x = 0, y = 0, z = 0, w = 1] = sum;
+  const length = Math.hypot(x, y, z, w);
+  return [x / length, y / length, z / length, w / length];
+}
+
+/** One sample of the turn probe: the turn of the upper arm in the axes of the chest. */
+export interface TurnSample {
+  /** The turn of the upper arm from its bind pose, in the bind axes of the chest. */
+  readonly turn: Quat;
+  /** True when the face folds in the sample. */
+  readonly folded: boolean;
+}
+
+/** The samples of one bin of the angle from the mean turn. */
+export interface TurnBin {
+  /** The smallest angle of the bin, in degrees. */
+  readonly from: number;
+  /** The samples in the bin. */
+  readonly samples: number;
+  /** The samples in the bin in which the face folds. */
+  readonly withFold: number;
+}
+
+/**
+ * Sorts the samples into bins of the angle of their turn from a mean turn, from 0° up to the bin
+ * of the largest angle.
+ *
+ * @param samples The samples.
+ * @param mean The mean turn.
+ * @param width The width of a bin, in degrees.
+ * @returns The bins, the smallest angles first. A bin with no sample stays in the list.
+ */
+export function turnBins(
+  samples: readonly TurnSample[],
+  mean: Quat,
+  width: number = TURN_BIN,
+): TurnBin[] {
+  const counts: { samples: number; withFold: number }[] = [];
+  for (const { turn, folded } of samples) {
+    const bin = Math.min(Math.floor(turnAngle(turn, mean) / width), Math.ceil(180 / width) - 1);
+    for (let k = counts.length; k <= bin; k++) {
+      counts.push({ samples: 0, withFold: 0 });
+    }
+    const count = counts[bin];
+    if (count) {
+      count.samples += 1;
+      count.withFold += folded ? 1 : 0;
+    }
+  }
+  return counts.map((count, k) => ({
+    from: k * width,
+    samples: count.samples,
+    withFold: count.withFold,
+  }));
+}
+
+/**
+ * Writes the turn probe of a face (`--turns`): the mean turn of the upper arm of the side of the
+ * face in the axes of the chest over the samples in which the face folds, the mean direction of
+ * the upper arm in these samples, and the share of the samples with a fold by the angle of the
+ * turn from that mean ({@link turnBins}).
+ *
+ * @param face The index of the face.
+ * @param side The side of the face ({@link faceSide}).
+ * @param samples The turn of each sample, and if the face folds in it.
+ * @param bind The direction of the upper arm in the bind pose: from its joint to the elbow.
+ * @returns The lines.
+ */
+export function turnLines(
+  face: number,
+  side: Side,
+  samples: readonly TurnSample[],
+  bind: Vec3,
+): string[] {
+  const folded = samples.filter((sample) => sample.folded);
+  const mean = meanTurn(folded.map((sample) => sample.turn));
+  const head = `Turn probe of face ${face}: the upper arm ${side} in the bind axes of the chest (x to the right side of the animal, y up, z to its back).`;
+  if (!mean) {
+    return [head, `The face folds in none of the ${samples.length} samples.`];
+  }
+
+  const q = new Quaternion(...mean);
+  const angle = 2 * Math.acos(Math.min(1, Math.abs(q.w))) * (180 / Math.PI);
+  const sign = q.w < 0 ? -1 : 1;
+  const axis = new Vector3(q.x, q.y, q.z).multiplyScalar(sign).normalize();
+  const direction = new Vector3(...bind).normalize().applyQuaternion(q);
+  const out = side === 'R' ? direction.x : -direction.x;
+  const n = (value: number): string => value.toFixed(2);
+  return [
+    head,
+    `The face folds in ${folded.length} of ${samples.length} samples. Mean turn of the upper arm from its bind pose in these samples: ${angle.toFixed(1)}° around (${n(axis.x)}, ${n(axis.y)}, ${n(axis.z)}).`,
+    `Mean direction of the upper arm in these samples: out ${n(out)}, up ${n(direction.y)}, forward ${n(-direction.z)}.`,
+    '',
+    '| Angle from the mean turn | Samples | With a fold | Share |',
+    '|---|---:|---:|---:|',
+    ...turnBins(samples, mean).map(
+      (bin) =>
+        `| ${bin.from}° to ${bin.from + TURN_BIN}° | ${bin.samples} | ${bin.withFold} | ${bin.samples > 0 ? `${((100 * bin.withFold) / bin.samples).toFixed(1)}%` : '-'} |`,
+    ),
+  ];
+}
+
+/** The turn probe of a face: a visit of {@link probeFolds} and the lines of its result. */
+export interface TurnProbe {
+  /** Keeps the turn of the upper arm and the fold of the face in each sample. */
+  readonly visit: FoldVisit;
+  /**
+   * Writes the lines of the probe ({@link turnLines}).
+   *
+   * @throws Error if the mesh of the role has no such face.
+   */
+  readonly lines: () => string[];
+}
+
+/**
+ * Starts the turn probe of a face: a visit of {@link probeFolds} that keeps the turn of the upper
+ * arm of the side of the face in the axes of the chest in each sample, and if the face folds.
+ *
+ * @param face The index of the face.
+ * @returns The visit, and a function that writes the lines of the probe ({@link turnLines}).
+ */
+export function turnProbe(face: number): TurnProbe {
+  const samples: TurnSample[] = [];
+  let found: { readonly side: Side; readonly bind: Vec3 } | null = null;
+  let faces = 0;
+  const visit: FoldVisit = (rig, studio, ...[, folded]) => {
+    faces = rig.mesh.corners.length / 3;
+    if (face >= faces) {
+      return;
+    }
+    const side = faceSide(rig.mesh, face);
+    const joint = new Vector3(...rig.body.heads[`upper_arm_${side}`]);
+    const bind = toVec3(new Vector3(...rig.body.heads[`forearm_${side}`]).sub(joint));
+    found ??= { side, bind };
+    const turn = relativeTurn(
+      studio.matrices,
+      STUDIO_BONES.indexOf(`upper_arm_${side}`),
+      STUDIO_BONES.indexOf('chest'),
+    );
+    samples.push({ turn, folded: folded.includes(face) });
+  };
+  const lines = (): string[] => {
+    if (!found) {
+      throw new Error(`The studio body of the role has ${faces} faces, so it has no face ${face}.`);
+    }
+    return turnLines(face, found.side, samples, found.bind);
+  };
+  return { visit, lines };
+}
+
 /** The samples and the samples with a fold of one sample set. */
 export interface SetCount {
   /** The number of posed bodies. */
@@ -1133,7 +1362,7 @@ async function main(): Promise<void> {
   const role = FOLD_ROLES.get(name);
   if (!role) {
     throw new Error(
-      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--json <file>] [--glb <file>] [--base <ref>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
+      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>] [--json <file>] [--glb <file>] [--base <ref>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
     );
   }
   const baseAt = args.indexOf('--base');
@@ -1141,8 +1370,8 @@ async function main(): Promise<void> {
   if (baseAt >= 0 && (!ref || ref.startsWith('--'))) {
     throw new Error('The option --base takes a commit, a branch, or a tag.');
   }
-  if (ref && (glb || args.includes('--json'))) {
-    throw new Error('The option --base goes with neither --glb nor --json.');
+  if (ref && (glb || args.includes('--json') || args.includes('--turns'))) {
+    throw new Error('The option --base goes with none of --glb, --json, and --turns.');
   }
   if (glb) {
     process.exitCode = await withGlbBody(roleAnimal(role), glb, (dir) =>
@@ -1164,6 +1393,11 @@ async function main(): Promise<void> {
   if (!Number.isInteger(faces) || faces < 0) {
     throw new Error('The option --faces takes a whole number of faces.');
   }
+  const turnsAt = args.indexOf('--turns');
+  const turnFace = turnsAt >= 0 ? Number(args[turnsAt + 1]) : null;
+  if (turnFace !== null && (!Number.isInteger(turnFace) || turnFace < 0)) {
+    throw new Error('The option --turns takes the index of a face.');
+  }
 
   if (ref) {
     await compareFolds(name, ref, withoutOptions(args, ['--base']), faces);
@@ -1176,10 +1410,14 @@ async function main(): Promise<void> {
     throw new Error(`No demo has the name ${unknown.join(', ')}.`);
   }
   const demos = chosen.length > 0 ? all.filter((demo) => chosen.includes(demo.file)) : all;
-  const report = probeFolds(role, demos, step);
+  const turns = turnFace === null ? null : turnProbe(turnFace);
+  const report = probeFolds(role, demos, step, turns?.visit);
   console.log(foldLines(name, report, step).join('\n'));
   if (faces > 0) {
     console.log(['', ...faceLines(report, faces)].join('\n'));
+  }
+  if (turns) {
+    console.log(['', ...turns.lines()].join('\n'));
   }
   const jsonAt = args.indexOf('--json');
   const json = jsonAt >= 0 ? args[jsonAt + 1] : undefined;

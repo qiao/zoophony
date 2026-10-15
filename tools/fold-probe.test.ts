@@ -1,3 +1,4 @@
+import { Matrix4, Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { patchedDemo } from './patch-demos.ts';
@@ -9,23 +10,38 @@ import {
   SAMPLE_SETS,
   faceCompareLines,
   faceFacts,
+  faceSide,
   faceLines,
   foldAngle,
   foldJson,
   foldLines,
   foldedFaces,
   mainBone,
+  meanTurn,
   probeFolds,
   readFaceJson,
   readFoldJson,
+  relativeTurn,
   roleAnimal,
   sameFaces,
+  turnAngle,
+  turnBins,
   turnBone,
+  turnLines,
+  turnProbe,
   worstFold,
 } from './fold-probe.ts';
-import type { FaceJson, FaceRecord, FaceWorst, FoldCount, FoldReport } from './fold-probe.ts';
+import type {
+  FaceJson,
+  FaceRecord,
+  FaceWorst,
+  FoldCount,
+  FoldReport,
+  TurnSample,
+} from './fold-probe.ts';
 import { ROOT, formatVersion, refRoleKeys } from './ref-tree.ts';
 import { ANIMALS } from './studio-body.ts';
+import type { Quat } from '../src/models/tuples.ts';
 
 /** The identity matrix, column by column. */
 const IDENTITY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
@@ -394,4 +410,128 @@ describe('FOLD_ROLE_TABLE', () => {
     const keys = refRoleKeys(ROOT, { ...FOLD_ROLE_TABLE, name: 'flutist' });
     expect(keys).toEqual([...FOLD_ROLES.keys()]);
   });
+});
+
+/**
+ * Gives a turn around an axis.
+ *
+ * @param axis The axis.
+ * @param degrees The angle, in degrees.
+ * @returns The turn.
+ */
+function turnOf(axis: readonly [number, number, number], degrees: number): Quat {
+  const q = new Quaternion().setFromAxisAngle(
+    new Vector3(...axis).normalize(),
+    (degrees * Math.PI) / 180,
+  );
+  return [q.x, q.y, q.z, q.w];
+}
+
+describe('faceSide', () => {
+  it('gives the side of the middle of a face: the left side of the animal at x < 0', () => {
+    const mesh = {
+      positions: new Float32Array([-1, 0, 0, -0.5, 1, 0, 0.2, 0, 0, 1, 1, 0]),
+      corners: new Uint32Array([0, 1, 2, 1, 2, 3]),
+    };
+    expect(faceSide(mesh, 0)).toBe('L');
+    expect(faceSide(mesh, 1)).toBe('R');
+  });
+});
+
+describe('relativeTurn', () => {
+  it('takes the turn of the frame bone off the turn of the bone', () => {
+    const chest = new Matrix4().makeRotationY(Math.PI / 6).setPosition(1, 2, 3);
+    const arm = new Matrix4()
+      .makeRotationY(Math.PI / 6)
+      .multiply(new Matrix4().makeRotationZ(Math.PI / 2));
+    const matrices = [...IDENTITY, ...chest.toArray(), ...arm.toArray()];
+    expect(turnAngle(relativeTurn(matrices, 2, 1), turnOf([0, 0, 1], 90))).toBeCloseTo(0, 4);
+    expect(turnAngle(relativeTurn(matrices, 1, 0), turnOf([0, 1, 0], 30))).toBeCloseTo(0, 4);
+  });
+});
+
+describe('turnAngle and meanTurn', () => {
+  it('gives the angle between two turns with no regard to the sign of the quaternion', () => {
+    const a = turnOf([1, 0, 0], 40);
+    expect(turnAngle(a, turnOf([1, 0, 0], 10))).toBeCloseTo(30, 6);
+    expect(turnAngle(a, [-a[0], -a[1], -a[2], -a[3]])).toBeCloseTo(0, 4);
+  });
+
+  it('gives the middle turn of turns near each other, also with quaternions of the other sign', () => {
+    const b = turnOf([0, 1, 0], 60);
+    const mean = meanTurn([
+      turnOf([0, 1, 0], 50),
+      [-b[0], -b[1], -b[2], -b[3]],
+      turnOf([0, 1, 0], 55),
+    ]);
+    expect(mean && turnAngle(mean, turnOf([0, 1, 0], 55))).toBeCloseTo(0, 4);
+    expect(meanTurn([])).toBeNull();
+  });
+});
+
+describe('turnBins', () => {
+  it('counts the samples and the folds in each bin of the angle from the mean, from 0°', () => {
+    const mean = turnOf([0, 0, 1], 0);
+    const samples: TurnSample[] = [
+      { turn: turnOf([0, 0, 1], 5), folded: true },
+      { turn: turnOf([0, 0, 1], 8), folded: false },
+      { turn: turnOf([1, 0, 0], 25), folded: false },
+      { turn: turnOf([0, 1, 0], 180), folded: true },
+    ];
+    expect(turnBins(samples, mean, 10)).toEqual([
+      { from: 0, samples: 2, withFold: 1 },
+      { from: 10, samples: 0, withFold: 0 },
+      { from: 20, samples: 1, withFold: 0 },
+      ...Array.from({ length: 14 }, (...[, k]) => ({ from: 30 + k * 10, samples: 0, withFold: 0 })),
+      { from: 170, samples: 1, withFold: 1 },
+    ]);
+  });
+});
+
+describe('turnLines', () => {
+  it('gives the mean turn of the folds, the mean direction of the arm, and the share by angle', () => {
+    // The right arm hangs down in the bind pose, and the folds come with the arm out to the side.
+    const out = turnOf([0, 0, 1], 90);
+    const samples: TurnSample[] = [
+      { turn: out, folded: true },
+      { turn: turnOf([0, 0, 1], 85), folded: true },
+      { turn: turnOf([0, 0, 1], 95), folded: false },
+      { turn: turnOf([0, 0, 1], 20), folded: false },
+    ];
+    const lines = turnLines(389, 'R', samples, [0, -1, 0]);
+    expect(lines[1]).toBe(
+      'The face folds in 2 of 4 samples. Mean turn of the upper arm from its bind pose in these samples: 87.5° around (0.00, 0.00, 1.00).',
+    );
+    expect(lines[2]).toBe(
+      'Mean direction of the upper arm in these samples: out 1.00, up -0.04, forward 0.00.',
+    );
+    expect(lines).toContain('| 0° to 10° | 3 | 2 | 66.7% |');
+    expect(lines).toContain('| 60° to 70° | 1 | 0 | 0.0% |');
+    // The left arm out to the left side of the animal, -x, is out too.
+    const left = turnLines(7, 'L', [{ turn: turnOf([0, 0, 1], -90), folded: true }], [0, -1, 0]);
+    expect(left[2]).toBe(
+      'Mean direction of the upper arm in these samples: out 1.00, up -0.00, forward 0.00.',
+    );
+    expect(turnLines(1, 'L', [{ turn: out, folded: false }], [0, -1, 0])[1]).toBe(
+      'The face folds in none of the 1 samples.',
+    );
+  });
+});
+
+describe('turnProbe', async () => {
+  const pianist = FOLD_ROLES.get('pianist');
+  const demo = await patchedDemo('boulanger-matin.mid');
+
+  it('keeps one turn for each sample of the probe, and stops on a face that the body has not', () => {
+    if (!pianist) {
+      throw new Error('The pianist has no role.');
+    }
+    const probe = turnProbe(0);
+    const report = probeFolds(pianist, [demo], 8, probe.visit);
+    const all = report.sets.rest.samples + report.sets.play.samples + report.sets.lift.samples;
+    expect(probe.lines()[1]).toMatch(new RegExp(` ${all} samples`));
+    const none = turnProbe(10_000_000);
+    probeFolds(pianist, [demo], 1000, none.visit);
+    expect(() => none.lines()).toThrow(/has \d+ faces, so it has no face 10000000/);
+  }, 30_000);
 });
