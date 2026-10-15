@@ -56,7 +56,15 @@ function pair(part: string, into: string, depth: number): PairDepth {
  * @returns The count.
  */
 function count(samples: number, withFold: number): FoldCount {
-  return { samples, withFold, most: 0, worst: '', bones: new Map(), byFace: new Map() };
+  return {
+    samples,
+    withFold,
+    most: 0,
+    worst: '',
+    bones: new Map(),
+    byFace: new Map(),
+    faceWorst: new Map(),
+  };
 }
 
 /** A report of folds with 2% play folds and 10% lift folds. */

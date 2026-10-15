@@ -7,6 +7,7 @@ import {
   SAMPLE_SETS,
   faceFacts,
   faceLines,
+  foldAngle,
   foldJson,
   foldLines,
   foldedFaces,
@@ -14,8 +15,10 @@ import {
   probeFolds,
   readFoldJson,
   roleAnimal,
+  turnBone,
+  worstFold,
 } from './fold-probe.ts';
-import type { FoldCount, FoldReport } from './fold-probe.ts';
+import type { FaceWorst, FoldCount, FoldReport } from './fold-probe.ts';
 import { ANIMALS } from './studio-body.ts';
 
 /** The identity matrix, column by column. */
@@ -50,6 +53,44 @@ describe('foldedFaces', () => {
   });
 });
 
+describe('foldAngle', () => {
+  it('gives 0° in the bind pose and 180° for a face whose corner crosses the opposite edge', () => {
+    const mesh = triangle();
+    expect(foldAngle(mesh, [...IDENTITY, ...IDENTITY], mesh.positions, 0)).toBeCloseTo(0, 6);
+    const moved = [...IDENTITY.slice(0, 12), 0, -2, 0, 1];
+    const posed = new Float32Array([0, 0, 0, 1, 0, 0, 0, -1, 0]);
+    expect(foldAngle(mesh, [...IDENTITY, ...moved], posed, 0)).toBeCloseTo(180, 6);
+  });
+});
+
+describe('turnBone', () => {
+  /** The triangle of the folded pose, with bone 2 (spine, a child of hips) on the third corner. */
+  const mesh = {
+    ...triangle(),
+    joints: new Uint8Array([1, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0]),
+    colors: new Float32Array(),
+    finishes: new Uint8Array(),
+    correctives: [],
+  };
+
+  it('names the bone whose turn from its parent folds the face', () => {
+    // Bones 0 (root) and 1 (hips) stay. Bone 2 (spine) moves the third corner 2 m down.
+    const moved = [...IDENTITY.slice(0, 12), 0, -2, 0, 1];
+    const matrices = new Float32Array([...IDENTITY, ...IDENTITY, ...moved]);
+    const turn = turnBone(mesh, { matrices, correctives: new Float32Array() }, 0);
+    expect(turn.bone).toBe(STUDIO_BONES[2]);
+    expect(turn.turn).toBeCloseTo(180, 6);
+  });
+
+  it('names no bone in the bind pose', () => {
+    const matrices = new Float32Array([...IDENTITY, ...IDENTITY, ...IDENTITY]);
+    expect(turnBone(mesh, { matrices, correctives: new Float32Array() }, 0)).toEqual({
+      bone: '',
+      turn: 0,
+    });
+  });
+});
+
 describe('mainBone', () => {
   it('gives the studio bone with the largest weight over the corners', () => {
     expect(mainBone(triangle(), 0)).toBe(STUDIO_BONES[0]);
@@ -79,7 +120,15 @@ function twoTriangles(): Parameters<typeof faceFacts>[0] {
  * @returns The count.
  */
 function countOf(samples: number, byFace: readonly [number, number][]): FoldCount {
-  return { samples, withFold: 0, most: 0, worst: '', bones: new Map(), byFace: new Map(byFace) };
+  return {
+    samples,
+    withFold: 0,
+    most: 0,
+    worst: '',
+    bones: new Map(),
+    byFace: new Map(byFace),
+    faceWorst: new Map(),
+  };
 }
 
 describe('faceFacts', () => {
@@ -135,6 +184,33 @@ describe('faceLines', () => {
   });
 });
 
+/**
+ * Makes a worst fold.
+ *
+ * @param angle The angle of the fold, in degrees.
+ * @param label The sample.
+ * @returns The worst fold.
+ */
+function fold(angle: number, label = 'a.mid 1.00 s'): FaceWorst {
+  return { label, angle, bone: 'neck', turn: 40 };
+}
+
+describe('worstFold', () => {
+  it('gives the fold with the largest angle over all sets', () => {
+    const report: FoldReport = {
+      demos: [],
+      faces: 2,
+      mesh: null,
+      sets: { rest: countOf(1, []), play: countOf(1, []), lift: countOf(1, []) },
+    };
+    report.sets.play.faceWorst.set(1, fold(120, 'play'));
+    report.sets.lift.faceWorst.set(1, fold(150, 'lift'));
+    report.sets.rest.faceWorst.set(1, fold(100, 'rest'));
+    expect(worstFold(report, 1)?.label).toBe('lift');
+    expect(worstFold(report, 0)).toBeNull();
+  });
+});
+
 describe('foldJson and readFoldJson', () => {
   it('write and read the samples and the samples with a fold of each set', () => {
     const report: FoldReport = {
@@ -179,6 +255,14 @@ describe('probeFolds', async () => {
       expect(Math.max(0, ...count.byFace.values()), set).toBeLessThanOrEqual(count.withFold);
       for (const bone of count.bones.keys()) {
         expect(STUDIO_BONES, bone).toContain(bone);
+      }
+      expect(
+        [...count.faceWorst.keys()].toSorted((a, b) => a - b),
+        set,
+      ).toEqual([...count.byFace.keys()].toSorted((a, b) => a - b));
+      for (const worst of count.faceWorst.values()) {
+        expect(worst.angle, set).toBeGreaterThan(90);
+        expect(STUDIO_BONES, set).toContain(worst.bone);
       }
     }
 

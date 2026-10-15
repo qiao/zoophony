@@ -23,7 +23,7 @@ import type { PlayingSection } from '../src/models/cast.ts';
 import type { InstrumentId } from '../src/models/instruments/types.ts';
 import type { PlayerModel } from '../src/models/player.ts';
 import type { SpeciesId } from '../src/models/species.ts';
-import { STUDIO_BONES } from '../src/models/studio-format.ts';
+import { STUDIO_BONES, STUDIO_PARENTS } from '../src/models/studio-format.ts';
 import type { StudioMesh } from '../src/models/studio-format.ts';
 import {
   createStudioPose,
@@ -31,6 +31,7 @@ import {
   skinStudioMesh,
   studioOffsets,
 } from '../src/models/studio-rig.ts';
+import type { StudioPose } from '../src/models/studio-rig.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { countInAt } from '../src/pose/count-in.ts';
 import { createScenePose, poseAt } from '../src/pose/pose-at.ts';
@@ -122,6 +123,23 @@ export interface FoldCount {
   readonly bones: Map<string, number>;
   /** The number of samples in which each folded face folds, by the index of the face. */
   readonly byFace: Map<number, number>;
+  /** The worst fold of each folded face in the set, by the index of the face. */
+  readonly faceWorst: Map<number, FaceWorst>;
+}
+
+/** The worst fold of a face: the sample in which its normal turns farthest. */
+export interface FaceWorst {
+  /** The demo and the time of the sample. */
+  readonly label: string;
+  /**
+   * The angle between the posed normal of the face and its bind normal moved by the mean skin
+   * matrix of its corners, in degrees. A folded face has more than 90°.
+   */
+  readonly angle: number;
+  /** The studio bone whose turn changes the normal of the face most in the sample ({@link turnBone}). */
+  readonly bone: string;
+  /** The change of the normal by the turn of that bone, in degrees. */
+  readonly turn: number;
 }
 
 /** The folds of a role over its demos. */
@@ -174,6 +192,90 @@ function cofactor(m: readonly number[], n: Vec3): Vec3 {
   ];
 }
 
+/** The posed normal of a face, and its bind normal moved by the mean skin matrix of its corners. */
+interface FaceNormals {
+  /** The bind normal, moved by the mean of the skin matrices of the corners. */
+  readonly expected: Vec3;
+  /** The normal of the posed face. */
+  readonly now: Vec3;
+}
+
+/**
+ * Writes the mean of the linear parts of the skin matrices of the corners of a face.
+ *
+ * @param mesh The studio mesh in the bind pose.
+ * @param matrices The skin matrices, 16 numbers for each bone, column by column.
+ * @param corners The three corners of the face.
+ * @param linear The 9 numbers of the mean, column by column, which the function writes.
+ * @returns `linear`.
+ */
+function meanLinear(
+  mesh: Pick<StudioMesh, 'joints' | 'weights'>,
+  matrices: ArrayLike<number>,
+  corners: readonly number[],
+  linear: number[],
+): number[] {
+  linear.fill(0);
+  for (const v of corners) {
+    for (let k = 0; k < 4; k++) {
+      const w = mesh.weights[v * 4 + k] ?? 0;
+      const j = (mesh.joints[v * 4 + k] ?? 0) * 16;
+      for (let col = 0; col < 3; col++) {
+        for (let row = 0; row < 3; row++) {
+          linear[col * 3 + row] =
+            (linear[col * 3 + row] ?? 0) + (w / 3) * (matrices[j + col * 4 + row] ?? 0);
+        }
+      }
+    }
+  }
+  return linear;
+}
+
+/**
+ * Gives the posed normal of a face and its bind normal moved by the mean of the skin matrices of
+ * its corners.
+ *
+ * @param mesh The studio mesh in the bind pose.
+ * @param matrices The skin matrices, 16 numbers for each bone, column by column.
+ * @param posed The posed places, three numbers for each vertex.
+ * @param face The index of the triangle.
+ * @param linear A scratch array of 9 numbers, which the function writes before it reads it.
+ * @returns The two normals.
+ */
+function faceNormals(
+  mesh: Pick<StudioMesh, 'positions' | 'joints' | 'weights' | 'corners'>,
+  matrices: ArrayLike<number>,
+  posed: ArrayLike<number>,
+  face: number,
+  linear: number[] = Array.from({ length: 9 }, () => 0),
+): FaceNormals {
+  const corners = [0, 1, 2].map((k) => mesh.corners[face * 3 + k] ?? 0);
+  const [a = 0, b = 0, c = 0] = corners;
+  return {
+    expected: cofactor(
+      meanLinear(mesh, matrices, corners, linear),
+      normal(mesh.positions, a, b, c),
+    ),
+    now: normal(posed, a, b, c),
+  };
+}
+
+/**
+ * Gives the angle between two directions.
+ *
+ * @param u The first direction.
+ * @param v The second direction.
+ * @returns The angle, in degrees, from 0 to 180. A direction of length 0 gives 0.
+ */
+function angleOf(u: Vec3, v: Vec3): number {
+  const lengths = Math.hypot(...u) * Math.hypot(...v);
+  if (lengths === 0) {
+    return 0;
+  }
+  const cos = (u[0] * v[0] + u[1] * v[1] + u[2] * v[2]) / lengths;
+  return Math.acos(Math.min(1, Math.max(-1, cos))) * (180 / Math.PI);
+}
+
 /**
  * Finds the folded faces of a posed studio mesh. The bind normal of a face moves by the mean of
  * the skin matrices of its corners. The face is folded when its posed normal is more than 90°
@@ -192,28 +294,136 @@ export function foldedFaces(
   const folded: number[] = [];
   const linear = Array.from({ length: 9 }, () => 0);
   for (let t = 0; t < mesh.corners.length / 3; t++) {
-    const corners = [0, 1, 2].map((k) => mesh.corners[t * 3 + k] ?? 0);
-    linear.fill(0);
-    for (const v of corners) {
-      for (let k = 0; k < 4; k++) {
-        const w = mesh.weights[v * 4 + k] ?? 0;
-        const j = (mesh.joints[v * 4 + k] ?? 0) * 16;
-        for (let col = 0; col < 3; col++) {
-          for (let row = 0; row < 3; row++) {
-            linear[col * 3 + row] =
-              (linear[col * 3 + row] ?? 0) + (w / 3) * (matrices[j + col * 4 + row] ?? 0);
-          }
-        }
-      }
-    }
-    const [a = 0, b = 0, c = 0] = corners;
-    const expected = cofactor(linear, normal(mesh.positions, a, b, c));
-    const now = normal(posed, a, b, c);
+    const { expected, now } = faceNormals(mesh, matrices, posed, t, linear);
     if (now[0] * expected[0] + now[1] * expected[1] + now[2] * expected[2] < 0) {
       folded.push(t);
     }
   }
   return folded;
+}
+
+/**
+ * Gives the angle of the fold of a face: the angle between its posed normal and its bind normal
+ * moved by the mean of the skin matrices of its corners ({@link foldedFaces}).
+ *
+ * @param mesh The studio mesh in the bind pose.
+ * @param matrices The skin matrices, 16 numbers for each bone, column by column.
+ * @param posed The posed places, three numbers for each vertex.
+ * @param face The index of the triangle.
+ * @returns The angle, in degrees: more than 90 for a folded face.
+ */
+export function foldAngle(
+  mesh: Pick<StudioMesh, 'positions' | 'joints' | 'weights' | 'corners'>,
+  matrices: ArrayLike<number>,
+  posed: ArrayLike<number>,
+  face: number,
+): number {
+  const { expected, now } = faceNormals(mesh, matrices, posed, face);
+  return angleOf(expected, now);
+}
+
+/**
+ * Skins one vertex of a studio mesh as `skinStudioMesh()` does: the corrective shapes by their
+ * weights, then the blend of up to four bones. The vertex can take the skin matrix of another
+ * bone in place of the matrix of one bone.
+ *
+ * @param mesh The studio mesh.
+ * @param pose The pose of the bones.
+ * @param v The index of the vertex.
+ * @param swap The bone whose matrix the vertex does not take, and the bone whose matrix it takes
+ *   in its place, or `null` for no change.
+ * @returns The posed place.
+ */
+function skinVertex(
+  mesh: StudioMesh,
+  pose: Pick<StudioPose, 'matrices' | 'correctives'>,
+  v: number,
+  swap: readonly [from: number, to: number] | null,
+): Vec3 {
+  const bind = [0, 1, 2].map((axis) => {
+    let x = mesh.positions[v * 3 + axis] ?? 0;
+    for (const [c, corrective] of mesh.correctives.entries()) {
+      x += (pose.correctives[c] ?? 0) * (corrective[v * 3 + axis] ?? 0);
+    }
+    return x;
+  });
+  const [x = 0, y = 0, z = 0] = bind;
+  const m = pose.matrices;
+  const out = [0, 0, 0].map((...[, row]) => {
+    let sum = 0;
+    for (let k = 0; k < 4; k++) {
+      const w = mesh.weights[v * 4 + k] ?? 0;
+      const joint = mesh.joints[v * 4 + k] ?? 0;
+      if (w === 0) {
+        continue;
+      }
+      const b = (swap && joint === swap[0] ? swap[1] : joint) * 16;
+      sum +=
+        w *
+        ((m[b + row] ?? 0) * x +
+          (m[b + 4 + row] ?? 0) * y +
+          (m[b + 8 + row] ?? 0) * z +
+          (m[b + 12 + row] ?? 0));
+    }
+    return sum;
+  });
+  const [px = 0, py = 0, pz = 0] = out;
+  return [px, py, pz];
+}
+
+/** The bone whose turn changes the normal of a face most, with the change. */
+export interface FaceTurn {
+  /** The name of the studio bone, or empty when no bone of the face has a parent. */
+  readonly bone: string;
+  /** The change of the normal, in degrees. */
+  readonly turn: number;
+}
+
+/**
+ * Finds the studio bone whose turn changes the normal of a posed face most. For each bone of the
+ * corners of the face, the corners take the skin matrix of its parent in place of its own matrix:
+ * the face then moves as if the bone had no turn from its parent. The bone whose loss turns the
+ * normal of the face farthest is the bone of the fold.
+ *
+ * @param mesh The studio mesh in the bind pose.
+ * @param pose The pose of the bones.
+ * @param face The index of the triangle.
+ * @returns The bone and the change of the normal.
+ */
+export function turnBone(
+  mesh: StudioMesh,
+  pose: Pick<StudioPose, 'matrices' | 'correctives'>,
+  face: number,
+): FaceTurn {
+  const corners = [0, 1, 2].map((k) => mesh.corners[face * 3 + k] ?? 0);
+  const normalWith = (swap: readonly [number, number] | null): Vec3 =>
+    normal(
+      corners.flatMap((v) => skinVertex(mesh, pose, v, swap)),
+      0,
+      1,
+      2,
+    );
+  const posed = normalWith(null);
+  const bones = new Set(
+    corners.flatMap((v) =>
+      [0, 1, 2, 3].flatMap((k) =>
+        (mesh.weights[v * 4 + k] ?? 0) > 0 ? [mesh.joints[v * 4 + k] ?? 0] : [],
+      ),
+    ),
+  );
+  let best: FaceTurn = { bone: '', turn: 0 };
+  for (const bone of [...bones].toSorted((a, b) => a - b)) {
+    const name = STUDIO_BONES[bone];
+    const parent = name ? STUDIO_PARENTS[name] : null;
+    if (!name || !parent) {
+      continue;
+    }
+    const turn = angleOf(posed, normalWith([bone, STUDIO_BONES.indexOf(parent)]));
+    if (turn > best.turn) {
+      best = { bone: name, turn };
+    }
+  }
+  return best;
 }
 
 /**
@@ -245,7 +455,15 @@ export function mainBone(
  * @returns The count.
  */
 function emptyCount(): FoldCount {
-  return { samples: 0, withFold: 0, most: 0, worst: '', bones: new Map(), byFace: new Map() };
+  return {
+    samples: 0,
+    withFold: 0,
+    most: 0,
+    worst: '',
+    bones: new Map(),
+    byFace: new Map(),
+    faceWorst: new Map(),
+  };
 }
 
 /**
@@ -269,11 +487,16 @@ function countPose(model: PlayerModel, pose: AnimalPose, label: string, count: F
     1,
     createStudioPose(),
   );
-  const folded = foldedFaces(rig.mesh, studio.matrices, skinStudioMesh(rig.mesh, studio));
+  const posed = skinStudioMesh(rig.mesh, studio);
+  const folded = foldedFaces(rig.mesh, studio.matrices, posed);
   for (const face of folded) {
     const bone = mainBone(rig.mesh, face);
     count.bones.set(bone, (count.bones.get(bone) ?? 0) + 1);
     count.byFace.set(face, (count.byFace.get(face) ?? 0) + 1);
+    const angle = foldAngle(rig.mesh, studio.matrices, posed, face);
+    if (angle > (count.faceWorst.get(face)?.angle ?? 0)) {
+      count.faceWorst.set(face, { label, angle, ...turnBone(rig.mesh, studio, face) });
+    }
   }
   count.samples += 1;
   if (folded.length > 0) {
@@ -488,9 +711,42 @@ export function faceFacts(
 }
 
 /**
+ * Gives the worst fold of a face over all sample sets of a report: the fold with the largest angle.
+ *
+ * @param report The report.
+ * @param face The index of the face.
+ * @returns The worst fold, or `null` when the face does not fold.
+ */
+export function worstFold(report: FoldReport, face: number): FaceWorst | null {
+  let worst: FaceWorst | null = null;
+  for (const set of SAMPLE_SETS) {
+    const fold = report.sets[set].faceWorst.get(face);
+    if (fold && fold.angle > (worst?.angle ?? 0)) {
+      worst = fold;
+    }
+  }
+  return worst;
+}
+
+/**
+ * Writes a worst fold: the sample, the angle, and the bone of the fold.
+ *
+ * @param worst The worst fold, or `null`.
+ * @returns The text, such as `beethoven-8.mid 12.00 s, 134°, turn of neck 41°`.
+ */
+export function worstText(worst: FaceWorst | null): string {
+  if (!worst) {
+    return '-';
+  }
+  const turn = worst.bone ? `, turn of ${worst.bone} ${worst.turn.toFixed(0)}°` : '';
+  return `${worst.label}, ${worst.angle.toFixed(0)}°${turn}`;
+}
+
+/**
  * Writes the faces that fold in the most samples of all sample sets as a table: for each face,
- * its index, the share of the samples of each set in which it folds, and its facts
- * ({@link faceFacts}).
+ * its index, the share of the samples of each set in which it folds, its facts
+ * ({@link faceFacts}), and its worst fold with the bone whose turn changes its normal most
+ * ({@link worstFold}).
  *
  * @param report The report.
  * @param count The number of faces.
@@ -519,8 +775,8 @@ export function faceLines(report: FoldReport, count: number): string[] {
   return [
     `The ${top.length} faces that fold in the most samples, with the places and the weights of the bind pose:`,
     '',
-    `| Face | ${SAMPLE_SETS.map((set) => `${set[0]?.toUpperCase()}${set.slice(1)}`).join(' | ')} | Main bone | Middle (m) | Corner angles | Corner weights |`,
-    `|---:|${SAMPLE_SETS.map(() => '---:|').join('')}---|---|---|---|`,
+    `| Face | ${SAMPLE_SETS.map((set) => `${set[0]?.toUpperCase()}${set.slice(1)}`).join(' | ')} | Main bone | Middle (m) | Corner angles | Corner weights | Worst sample, angle, bone of the fold |`,
+    `|---:|${SAMPLE_SETS.map(() => '---:|').join('')}---|---|---|---|---|`,
     ...top.map((face) => {
       const facts = faceFacts(mesh, face);
       const middle = facts.middle.map((x) => x.toFixed(3)).join(', ');
@@ -528,7 +784,7 @@ export function faceLines(report: FoldReport, count: number): string[] {
       const weights = facts.weights
         .map((corner) => corner.map((w) => `${w.bone} ${w.weight.toFixed(2)}`).join(' '))
         .join(' / ');
-      return `| ${face} | ${SAMPLE_SETS.map((set) => share(set, face)).join(' | ')} | ${facts.bone} | ${middle} | ${angles} | ${weights} |`;
+      return `| ${face} | ${SAMPLE_SETS.map((set) => share(set, face)).join(' | ')} | ${facts.bone} | ${middle} | ${angles} | ${weights} | ${worstText(worstFold(report, face))} |`;
     }),
   ];
 }
