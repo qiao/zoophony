@@ -517,10 +517,14 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     of 2026-10-14 turn the right end of the flute of the fox a little back from square, so that the
     right paw reaches its grip and the skin of the right shoulder does not fold. A long muzzle
     reaches past the mouth, so the lip plate sits under it (`WindHold.lipShift`). At rest, the
-    flute stands on the right thigh with the foot joint down, as a real flutist rests it (George,
-    The Instrumentalist, December 2018), and both paws stay on it. The angles, the poles, and the
-    place of the lip plate are in `pose/winds.ts`, and their measures in
-    `docs/research/2026-10-14-fox-flute.md`.
+    flute stands upright on the right leg with the foot joint down, and the right paw holds it at
+    the right-hand keys, as a real flutist rests it (George, The Instrumentalist, December 2018).
+    The foot joint touches the outer side of the right knee: on the top of the knee, the right
+    upper arm went into the body. The left paw leaves its grip and rests on the outer side of the
+    left thigh, and both arms hang down along the sides with the elbows down. With the elbows out
+    to the side, the skin of the left shoulder folded more faces. The angles, the poles, the
+    places, and the place of the lip plate are in `pose/winds.ts`, and their measures in
+    `docs/research/2026-10-14-fox-flute.md` and `docs/research/2026-10-15-flute-rest.md`.
   - A rest of at least 0.5 s ends a phrase. The player breathes in during the 0.4 s before a
     phrase: the spine leans back by up to 3° times the amplitude of the player. It breathes out
     over the phrase, in at least 1 s.
@@ -552,8 +556,13 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     to 30°. Most shifts go 0.13 to 0.19 H to the side, and the horn comes up 0.29 H, so that its
     bell sits on the right thigh. The elbows have their own rest directions. A random search
     gave the values of `WIND_HOLDS` with the old gap of 0.01 H. Since 2026-10-10, most rest
-    elbows point down. The palms keep their grips, the fingers relax to the
-    hold curl, and the slide closes. The first rest pose kept the instruments at the mouth, and
+    elbows point down. The palms keep their grips, unless the hold frees the left paw
+    (`WindHold.restFreeL`). Then the left palm of a seated player rests on its left thigh
+    (`lapHand()` of `pose/lap.ts`), and the left arm of a standing player hangs (5.2). The lift
+    and the lowering move the free paw between the thigh and its grip by the weight that moves the
+    instrument, so the pose stays stateless. The wrist goes out, up, and forward from the straight
+    line between them (`FreePaw.arc`), so that the paw passes in front of a round belly. The
+    fingers relax to the hold curl, and the slide closes. The first rest pose kept the instruments at the mouth, and
     the arms went up to 0.18 H into the torso and 0.29 H into the thighs.
 - Mallets and percussion: the mallet lifts before the note and strikes at the note start.
 - **Percussion in detail** (`pose/strikes.ts`, `pose/percussion-rig.ts`, `pose/percussion.ts`):
