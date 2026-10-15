@@ -517,9 +517,10 @@ export interface FitRun {
 /**
  * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
  * change of the format takes the next version, so that a compare with `--base` stops on two
- * formats.
+ * formats. Version 2 added the rest faces by side, and version 3 the instrument in the body, the
+ * rest gaps, and the reach shares of the free paws.
  */
-export const FIT_FORMAT = 2;
+export const FIT_FORMAT = 3;
 
 /**
  * Writes the rows of a run as JSON (`--json`), with the format version {@link FIT_FORMAT}.
