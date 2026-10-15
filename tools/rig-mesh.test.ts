@@ -19,6 +19,7 @@ import {
   checkTable,
   checkTexts,
   configChanges,
+  foldBones,
   printedOnly,
   rigSettings,
   setConfig,
@@ -27,6 +28,7 @@ import {
 } from './rig-mesh.ts';
 import type { CheckMeasures } from './rig-mesh.ts';
 import { FOLD_ROLES, roleAnimal } from './fold-probe.ts';
+import type { FaceRecord } from './fold-probe.ts';
 import { ANIMALS } from './studio-body.ts';
 import type { MeshRigConfig, MeshRigJoint } from './rig-mesh.ts';
 
@@ -295,6 +297,10 @@ describe('checkTable', () => {
           play: { samples: 17788, withFold: 588 },
           lift: { samples: 434, withFold: 88 },
         },
+        bones: [
+          { bone: 'upper_arm_R', samples: 120 },
+          { bone: 'neck', samples: 13 },
+        ],
       },
     ],
   };
@@ -305,10 +311,10 @@ describe('checkTable', () => {
       { variant: 'armFactor=1.1', measures: { ...measures, triangles: 3136 }, error: null },
     ]);
     expect(lines[0]).toBe(
-      '| Variant | Triangles | Mesh gzip B | Seat m | Chair m | Reach L m | Reach R m | Standing mm | fox-violinist play | fox-violinist lift | fox-violinist rest |',
+      '| Variant | Triangles | Mesh gzip B | Seat m | Chair m | Reach L m | Reach R m | Standing mm | fox-violinist play | fox-violinist lift | fox-violinist rest | fox-violinist bones |',
     );
     expect(lines[2]).toBe(
-      '| base | 3135 | 27673 | 0.126 | 0.250 | 0.377 | 0.377 | 0.228 | 3.3% | 20.3% | 100.0% |',
+      '| base | 3135 | 27673 | 0.126 | 0.250 | 0.377 | 0.377 | 0.228 | 3.3% | 20.3% | 100.0% | upper_arm_R 120, neck 13 |',
     );
     expect(lines[3]).toMatch(/^\| armFactor=1\.1 \| 3136 \| /);
   });
@@ -319,6 +325,41 @@ describe('checkTable', () => {
       { variant: 'weld=1', measures: null, error: 'Blender failed.' },
     ]);
     expect(lines[3]).toMatch(/^\| weld=1 \| failed: Blender failed\. \| - \|/);
+  });
+});
+
+describe('foldBones', () => {
+  /**
+   * Makes a folded face.
+   *
+   * @param index The index of the face.
+   * @param bone The main bone.
+   * @param play The play samples with a fold.
+   * @param lift The lift samples with a fold.
+   * @returns The face.
+   */
+  function face(index: number, bone: string, play: number, lift = 0): FaceRecord {
+    return { face: index, folds: { rest: 0, play, lift }, bone, middle: [0, 0, 0], worst: null };
+  }
+
+  it('gives the bones with the most face-samples of all sets, the most first', () => {
+    const faces = [
+      face(1, 'neck', 13),
+      face(2, 'upper_arm_R', 70, 10),
+      face(3, 'upper_arm_R', 40),
+      face(4, 'forearm_L', 2, 2),
+      face(5, 'hand_L', 1),
+      face(6, 'chest', 0),
+    ];
+    expect(foldBones(faces)).toEqual([
+      { bone: 'upper_arm_R', samples: 120 },
+      { bone: 'neck', samples: 13 },
+      { bone: 'forearm_L', samples: 4 },
+    ]);
+    expect(foldBones([face(1, 'neck', 3), face(2, 'chest', 3)], 1)).toEqual([
+      { bone: 'chest', samples: 3 },
+    ]);
+    expect(foldBones([face(6, 'chest', 0)])).toEqual([]);
   });
 });
 

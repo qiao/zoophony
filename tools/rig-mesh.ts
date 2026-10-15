@@ -7,8 +7,8 @@ import { join } from 'node:path';
 
 import type { Side } from '../src/models/studio-format.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
-import { FOLD_ROLES, SAMPLE_SETS, readFoldJson, roleAnimal, roleSpecies } from './fold-probe.ts';
-import type { FoldCounts } from './fold-probe.ts';
+import { FOLD_ROLES, SAMPLE_SETS, readFaceJson, roleAnimal, roleSpecies } from './fold-probe.ts';
+import type { FaceRecord, FoldCounts } from './fold-probe.ts';
 import { animalSpecies, runTool, withGlbBody } from './glb-swap.ts';
 import { measureLines, measureRig, triangleLine } from './rig-mesh-check.ts';
 import { trackChild, trackFolder } from './stop-cleanup.ts';
@@ -710,12 +710,48 @@ export function animalRoles(animal: string): AnimalRole[] {
   });
 }
 
+/** The face-samples of the folded faces of one main bone. */
+export interface BoneFolds {
+  /** The main studio bone of the faces, as `pnpm fold-probe` gives it. */
+  readonly bone: string;
+  /** The total over the faces of the samples of all sets in which each face folds. */
+  readonly samples: number;
+}
+
 /** The folds of one role of the app with the body of a rig. */
 export interface RoleFolds {
   /** The role, a key of `FOLD_ROLES`. */
   readonly role: string;
   /** The counts of each sample set of `pnpm fold-probe`. */
   readonly counts: FoldCounts;
+  /** The main bones of the most folded faces ({@link foldBones}). */
+  readonly bones: readonly BoneFolds[];
+}
+
+/** The number of main bones of the folds of each role in the table of `--check`. */
+export const FOLD_BONES = 3;
+
+/**
+ * Gives the main bones of the folded faces of a role with the most face-samples: for each main
+ * bone, the total over its faces of the samples of all sets in which each face folds. Thus the
+ * table of the variants shows which bone gives the new folds of a variant.
+ *
+ * @param faces The folded faces of `pnpm fold-probe --json`.
+ * @param count The number of bones.
+ * @returns The bones with the most face-samples, the most first, and of two bones with the same
+ *   total, the first name in alphabetical order first.
+ */
+export function foldBones(faces: readonly FaceRecord[], count = FOLD_BONES): BoneFolds[] {
+  const totals = new Map<string, number>();
+  for (const face of faces) {
+    const samples = SAMPLE_SETS.reduce((sum, set) => sum + face.folds[set], 0);
+    totals.set(face.bone, (totals.get(face.bone) ?? 0) + samples);
+  }
+  return [...totals]
+    .filter(([, samples]) => samples > 0)
+    .map(([bone, samples]) => ({ bone, samples }))
+    .toSorted((a, b) => b.samples - a.samples || a.bone.localeCompare(b.bone))
+    .slice(0, count);
 }
 
 /** The measures of one rig of `--check`, for the table of the variants. */
@@ -749,8 +785,9 @@ export interface CheckRow {
 /**
  * Writes the table of the variants of `--check`: one row for each variant, with the triangles, the
  * gzip size of the packed mesh, the seat, the chair depth, the reach of each arm, the error of the
- * standing body, and the share of the samples with a fold in the play, the lift, and the rest pose
- * of each role. A variant that failed gives its message.
+ * standing body, the share of the samples with a fold in the play, the lift, and the rest pose
+ * of each role, and the main bones of the most folded faces of each role with their face-samples
+ * ({@link foldBones}). A variant that failed gives its message.
  *
  * @param rows The rows, the base first.
  * @returns The lines.
@@ -770,6 +807,7 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
     'Reach R m',
     'Standing mm',
     ...roles.flatMap((role) => sets.map((set) => `${role} ${set}`)),
+    ...roles.map((role) => `${role} bones`),
   ];
   const m = (value: number | null): string => (value === null ? 'none' : value.toFixed(3));
   const lines = [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`];
@@ -787,6 +825,13 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
         return count ? `${((100 * count.withFold) / Math.max(1, count.samples)).toFixed(1)}%` : '-';
       }),
     );
+    const bones = roles.map((role) => {
+      const fold = measures.folds.find((f) => f.role === role);
+      if (!fold) {
+        return '-';
+      }
+      return fold.bones.map(({ bone, samples }) => `${bone} ${samples}`).join(', ') || 'none';
+    });
     const cells = [
       variant || 'base',
       String(measures.triangles),
@@ -797,6 +842,7 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
       m(measures.reach.R),
       (measures.standing * 1000).toFixed(3),
       ...folds,
+      ...bones,
     ];
     lines.push(`| ${cells.join(' | ')} |`);
   }
@@ -895,7 +941,8 @@ async function checkRig(
             throw new Error(`${script} failed with the status ${code}.`);
           }
         }
-        folds.push({ role, counts: readFoldJson(await readFile(json, 'utf8')) });
+        const read = readFaceJson(await readFile(json, 'utf8'));
+        folds.push({ role, counts: read.sets, bones: foldBones(read.faces) });
       }
     });
     return { ...result, folds };
