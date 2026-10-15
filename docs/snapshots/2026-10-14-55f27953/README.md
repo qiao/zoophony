@@ -1,8 +1,6 @@
 # Snapshot of 2026-10-14
 
-Commit `a83f6b0c`: docs(decisions): give the folds and the depths of the shorter arms. `pnpm snapshot` made these images.
-
-The working tree had changes that were not committed.
+Commit `55f27953`: docs(agents): keep the size of a violin that the user sets, and the fox rest. `pnpm snapshot` made these images.
 
 | File | View |
 |---|---|
