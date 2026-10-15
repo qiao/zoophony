@@ -518,7 +518,8 @@ quarter of the folded faces.
   smoothing moves the head center of the holds forward. The rig writes the move back into the file
   (`head_shift()`), and the export keeps the head center of the head before the smoothing
   (`headShiftOf()` of `tools/studio-body.ts`), so that the holds, the instruments, and the
-  footprints keep their places. The head factor grows the head and the ears
+  footprints keep their places. The fox config smooths the back of the neck and the bottom of the
+  back of the head. The head factor grows the head and the ears
   around the neck joint, and the weights blend the growth over the neck. The export measures the
   head height and the head center of the holds on the head before the growth, so the holds in `H`
   keep their places (`ungrown()` of `tools/studio-body.ts`). The neck factor shortens the neck

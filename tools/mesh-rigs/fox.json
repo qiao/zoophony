@@ -134,5 +134,11 @@
     "end": 0.0065,
     "most": 0.12,
     "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), because the buttocks of the mesh curve up behind the hip joints. The manager found the back of the haunch 3 to 11 cm above the seat on 2026-10-14. The drop of each vertical line over the seat is its gap less gap, at most most, and it fades over ramp units before the hip joints and over the last end units of the haunch. The drops take the mean of their neighbors in smooth rounds on a grid of step units, and each vertex moves by the drop less its height above the underside, to 0 at band units. The side view of the underside is 10.5 cm above the seat at most before, and 1.4 cm after. With a band of 0.1 units, a face of the right side of the haunch turned over (docs/research/2026-10-14-fox-rabbit-fix.md). The corrective shapes give the source back, so the standing body keeps its form."
+  },
+  "smooth": {
+    "box": [[-0.11, 0.66, -0.2], [0.11, 0.78, 0.03]],
+    "rounds": 12,
+    "share": 0.5,
+    "note": "The fur spikes at the bottom of the back of the head hang over the back of the neck, and with the head factor 1.2 and the neck factor 0.65 they made a dark jagged band under the head from the back and the sides (the manager on 2026-10-14). The band shows also with the factors 1 (docs/research/2026-10-14-fox-rabbit-fix.md), so the rig smooths the source inside the box before the growth: the back of the neck and the bottom of the back of the head (x from -0.11 to 0.11, y from 0.66 to 0.78, behind z 0.03). The muzzle, the jaw, the eyes, the cheek fur at the sides, and the ears stay outside the box. Each vertex inside moves 0.5 of the way to the middle of its neighbors in 12 rounds, at most 0.035 units. The spikes set the back of the box of the head, so the smoothing moves the head center of the holds 0.011 units (1.71 cm) forward, and with it the violin. The violin box then came nearer to the stands and the neighbors, and the stages of four demos grew by 0.2% to 4.6%. The rig writes the move back into the file (head_shift()), and the export keeps the head center of the head before the smoothing, so the holds, the footprints, and the stages keep their places (docs/research/2026-10-15-fox-rig2.md)."
   }
 }
