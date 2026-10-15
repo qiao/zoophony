@@ -193,19 +193,23 @@ describe('pnpm studio-body with a seated body (design 4.4)', async () => {
   const mesh = unpackStudioMesh(body.mesh);
   const at = (v: number, k: number): number => mesh.positions[v * 3 + k] ?? 0;
   const count = mesh.positions.length / 3;
+  // The polar bear sits on a bench of its own height (`seat`). With no seat height, the export
+  // drops the body to the floor, and the studio fitted the keys to the elbows of that body.
+  const floor = studioBody(bytes, source, onFloor(settings)).body;
 
   it('drops the seated body so that its soles are on the floor', () => {
+    const { positions } = unpackStudioMesh(floor.mesh);
     let low = Infinity;
-    for (let v = 0; v < count; v++) {
-      low = Math.min(low, at(v, 1));
+    for (let v = 1; v < positions.length; v += 3) {
+      low = Math.min(low, positions[v] ?? 0);
     }
     expect(low).toBeCloseTo(0, 3);
-    expect(body.heads.hips[1]).toBeGreaterThan(body.heads.thigh_L[1] - 0.05);
+    expect(floor.heads.hips[1]).toBeGreaterThan(floor.heads.thigh_L[1] - 0.05);
   });
 
   it('puts the keys of the app a little below the elbows of the seated bind pose', () => {
     for (const side of ['L', 'R'] as const) {
-      const elbow = body.heads[`forearm_${side}`][1];
+      const elbow = floor.heads[`forearm_${side}`][1];
       expect(elbow - PIANO.keyTop, side).toBeGreaterThan(0);
       expect(elbow - PIANO.keyTop, side).toBeLessThan(0.2);
     }
