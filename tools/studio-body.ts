@@ -100,9 +100,7 @@ export interface AnimalSettings {
 
 /** The animals of the studio that the app shows, by their ids in `lowpoly-studio/animals/`. */
 export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
-  // The bear conductor keeps the shoulder joints of the parametric bear of 2026-10-11, 1.0 m
-  // above the floor, because the conductor stand and the places of the hands fit them (design
-  // 4.5, 5.4).
+  // The bear conductor: decisions/2026-10-12-studio-bear.md.
   [
     'bear',
     {
@@ -114,10 +112,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       crease: 15,
     },
   ],
-  // The polar bear pianist keeps the keys of its studio piano at the keys of the piano of the app,
-  // because the studio fitted its seated arms to them (design 4.4, 5.3). It sits on a bench of
-  // 0.25 m, about twice the bench that fits its legs, because the user asked for a higher seat on
-  // 2026-10-14. Its feet hang above the floor.
+  // The polar bear pianist: decisions/2026-10-12-studio-polar-bear.md, 2026-10-14-polar-bench.md.
   [
     'polar-bear',
     {
@@ -130,12 +125,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       crease: 15,
     },
   ],
-  // The violinist rabbit has 1.2 times the scale that put its standing shoulder joints at the
-  // shoulder joints of the parametric rabbit (0.581 m), because the user asked for a rabbit 1.2
-  // times the size on 2026-10-14. Its longer legs (`legFactor` of `tools/mesh-rigs/rabbit.json`)
-  // raise the shoulder joints, and the scale stays (design 4.4, 4.5). It sits in the violin
-  // section and stands as a soloist. Its round back already keeps only the gap of the chair back,
-  // so its move back grows the chair 3 cm forward under its thighs.
+  // The violinist rabbit: decisions/2026-10-14-fox-rabbit-form.md, 2026-10-14-neck-violin.md.
   [
     'rabbit',
     {
@@ -150,14 +140,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/rabbit/rabbit-4.rig.glb',
     },
   ],
-  // The fox has 1.3 times the scale that puts its standing head top at the head top of the
-  // parametric fox (1.083 m, shoulder joints at 0.7454 m), because the user asked for a fox 1.3
-  // times the size on 2026-10-14. Its longer legs (`legFactor` of `tools/mesh-rigs/fox.json`)
-  // raise the shoulder joints, and the scale stays. It sits in the second violins and in the
-  // flutes, and stands as a soloist. It is a mesh of an image model of the user, as the rabbit, so
-  // it takes the crease angle of the rabbit. It moves 4 cm back on its chair, so that its haunch is
-  // near the chair back. The red foxes keep the colors of the mesh, and the tan foxes of the flutes
-  // take the tan palette: the colors of the red fox moved to the colors of the tan fox.
+  // The red and the tan foxes: decisions/2026-10-14-fox-flute.md and the files that it names.
   [
     'fox',
     {
