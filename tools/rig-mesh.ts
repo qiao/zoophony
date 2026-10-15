@@ -5,6 +5,7 @@ import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 
+import type { Bounds } from '../src/models/bounds.ts';
 import type { Side } from '../src/models/studio-format.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { FOLD_ROLES, SAMPLE_SETS, readFaceJson, roleAnimal, roleSpecies } from './fold-probe.ts';
@@ -933,11 +934,92 @@ function againstBase(value: number, base: number | undefined): string {
 }
 
 /**
+ * The move of a hold anchor from the commit {@link FORM_BASE} above which the table of the anchors
+ * marks it, in meters. The layout change of the fox rig of 2026-10-15 came from a move of the head
+ * center of 1.71 cm, which took the violin with it.
+ */
+export const ANCHOR_MARK = 0.001;
+
+/**
+ * Gives the move of a point from its place on the commit.
+ *
+ * @param point The point, or `null`.
+ * @param old The point on the commit, or `null` or `undefined` when the commit has none.
+ * @returns The distance, in meters, or `null` when either point is missing.
+ */
+export function pointMove(point: Vec3 | null, old: Vec3 | null | undefined): number | null {
+  return point && old ? distance(point, old) : null;
+}
+
+/**
+ * Gives the move of a box from its place on the commit: the larger move of its two corners.
+ *
+ * @param box The box, or `null`.
+ * @param old The box on the commit, or `null` or `undefined` when the commit has none.
+ * @returns The move, in meters, or `null` when either box is missing.
+ */
+export function boxMove(box: Bounds | null, old: Bounds | null | undefined): number | null {
+  return box && old ? Math.max(distance(box.min, old.min), distance(box.max, old.max)) : null;
+}
+
+/**
+ * Writes the move of a hold anchor in millimeters, with the mark `MOVED` above
+ * {@link ANCHOR_MARK}.
+ *
+ * @param move The move, in meters, or `null` with no value of the commit.
+ * @param sign True to write the sign of a change of a length.
+ * @returns The text, such as ` (17.1 mm MOVED)`, or empty with no move.
+ */
+function moveText(move: number | null, sign = false): string {
+  if (move === null) {
+    return '';
+  }
+  const mark = Math.abs(move) > ANCHOR_MARK ? ' MOVED' : '';
+  const plus = sign && move >= 0 ? '+' : '';
+  return ` (${plus}${(move * 1000).toFixed(1)} mm${mark})`;
+}
+
+/**
+ * Writes a point in meters.
+ *
+ * @param point The point.
+ * @returns The text, such as `(0.000, 1.234, -0.056)`.
+ */
+function pointText(point: Vec3): string {
+  return `(${point.map((x) => x.toFixed(3)).join(', ')})`;
+}
+
+/**
+ * Writes the hold anchors of a player against the commit: the head center, the head height, the
+ * nose, and the box of the instrument (`tools/rig-form.ts`), each with its move from the commit
+ * and the mark `MOVED` above {@link ANCHOR_MARK}. A point moves by its distance, a box by the
+ * larger move of its corners, and the head height by its change.
+ *
+ * @param player The form of the player.
+ * @param old The form of the same player on the commit, or `undefined` for none.
+ * @returns The four cells.
+ */
+export function anchorCells(player: PlayerForm, old: PlayerForm | undefined): string[] {
+  const box = player.instrumentBox;
+  return [
+    `${pointText(player.headCenter)}${moveText(pointMove(player.headCenter, old?.headCenter))}`,
+    `${player.headHeight.toFixed(3)}${moveText(old ? player.headHeight - old.headHeight : null, true)}`,
+    player.nose
+      ? `${pointText(player.nose)}${moveText(pointMove(player.nose, old?.nose))}`
+      : 'none',
+    box
+      ? `${pointText(box.min)} to ${pointText(box.max)}${moveText(boxMove(box, old?.instrumentBox))}`
+      : 'none',
+  ];
+}
+
+/**
  * Writes the form of the players and the stage sides of the variants of `--check` against the
  * commit {@link FORM_BASE}: a table of the seat, the visible head, the standing and the seated
- * head tops, and the footprint of each player, and a table of the stage side of each demo, with
- * the largest change of each variant (`none` below 0.05%). Each value has its difference from the
- * commit. A variant with no form has no rows.
+ * head tops, and the footprint of each player, a table of the hold anchors of each player
+ * ({@link anchorCells}), and a table of the stage side of each demo, with the largest change of
+ * each variant (`none` below 0.05%). Each value has its difference from the commit. A variant
+ * with no form has no rows.
  *
  * @param rows The rows of the variants, the base first.
  * @param base The form of the commit, or `null` when its probe failed.
@@ -969,6 +1051,30 @@ export function formLines(rows: readonly CheckRow[], base: FormJson | null): str
     for (const player of form.players) {
       lines.push(
         playerRow(
+          variant,
+          player,
+          base?.players.find((p) => same(p, player)),
+        ),
+      );
+    }
+  }
+
+  lines.push(
+    '',
+    `Hold anchors of the seated players against ${label} (each move from ${label} in mm, MOVED above ${ANCHOR_MARK * 1000} mm):`,
+    '',
+    '| Variant | Player | Head center m | Head height m | Nose m | Instrument box m |',
+    '|---|---|---|---|---|---|',
+  );
+  const anchorRow = (variant: string, player: PlayerForm, old: PlayerForm | undefined): string =>
+    `| ${variant} | ${player.species} ${player.instrument} | ${anchorCells(player, old).join(' | ')} |`;
+  for (const player of base?.players ?? []) {
+    lines.push(anchorRow(FORM_BASE, player, undefined));
+  }
+  for (const { variant, form } of forms) {
+    for (const player of form.players) {
+      lines.push(
+        anchorRow(
           variant,
           player,
           base?.players.find((p) => same(p, player)),

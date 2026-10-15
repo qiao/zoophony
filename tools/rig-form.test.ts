@@ -4,6 +4,7 @@ import { boneIndex } from '../src/models/rig.ts';
 import { formatVersion } from './ref-tree.ts';
 import {
   FORM_FORMAT,
+  boneBox,
   formJson,
   headExtent,
   parsePlayer,
@@ -22,6 +23,17 @@ describe('headExtent', () => {
     expect(extent.top).toBeCloseTo(1.5, 6);
     expect(extent.chin).toBeCloseTo(1.2, 6);
     expect(() => headExtent(mesh, head + 2)).toThrow('no corner on the head bone');
+  });
+});
+
+describe('boneBox', () => {
+  it('gives the box of the corners on the bones only, or null with no such corner', () => {
+    const mesh = {
+      positions: new Float32Array([0, 1, 2, -1, 3, 0.5, 9, 9, 9]),
+      bones: new Uint8Array([4, 4, 5]),
+    };
+    expect(boneBox(mesh, new Set([4]))).toEqual({ min: [-1, 1, 0.5], max: [0, 3, 2] });
+    expect(boneBox(mesh, new Set([6]))).toBeNull();
   });
 });
 
@@ -44,6 +56,17 @@ describe('playerForm (design 4.4)', () => {
     expect(form.standingTop).toBeGreaterThan(form.visibleHead);
     expect(form.width).toBeGreaterThan(0);
     expect(form.depth).toBeGreaterThan(0);
+  });
+
+  it('gives the hold anchors: the head center in the head, the nose, and the violin box', () => {
+    const form = playerForm({ species: 'fox-red', instrument: 'violin' });
+    expect(form.headHeight).toBeGreaterThan(0);
+    expect(form.headCenter[1]).toBeLessThan(form.seatedTop);
+    expect(form.headCenter[1]).toBeGreaterThan(form.seatedTop - form.visibleHead);
+    // The fox faces -z, so its nose is in front of the head center.
+    expect(form.nose?.[2]).toBeLessThan(form.headCenter[2]);
+    const box = form.instrumentBox;
+    expect(box && box.max[0] - box.min[0]).toBeGreaterThan(0.1);
   });
 });
 

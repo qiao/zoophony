@@ -1,25 +1,28 @@
 /**
  * Measures the form of the players of a studio body in the app of a source tree, for the table of
  * `pnpm rig-mesh --check` (route 3 of `AGENTS.md`): for each player, the visible head, the
- * standing and the seated head tops, and the footprint, and the stage side of each demo. The check
- * runs it as a child in the copy of `tools/glb-swap.ts` with the body of each variant, and in a
- * probe tree of `main` (`tools/ref-tree.ts`). It imports only the code of the app and the demo
- * patches, so that it also runs on the tools of an older commit.
+ * standing and the seated head tops, the footprint, and the hold anchors (the head center, the
+ * head height, the nose, and the box of the instrument), and the stage side of each demo. The
+ * check runs it as a child in the copy of `tools/glb-swap.ts` with the body of each variant, and
+ * in a probe tree of `main` (`tools/ref-tree.ts`). It imports only the code of the app and the
+ * demo patches, so the check runs this script of the working tree also on the source of `main`.
  *
  * Usage: node tools/rig-form.ts --player <species>:<instrument>... --json <file>
  */
 import { writeFileSync } from 'node:fs';
 
+import type { Bounds } from '../src/models/bounds.ts';
 import { layoutScene } from '../src/models/layout-scene.ts';
 import { ModelCache } from '../src/models/model-cache.ts';
 import { playerFootprint } from '../src/models/footprint.ts';
 import { INSTRUMENT_SUPPORTS, buildPlayer } from '../src/models/player.ts';
 import type { PlayerModel } from '../src/models/player.ts';
 import { boneIndex } from '../src/models/rig.ts';
+import type { Vec3 } from '../src/models/tuples.ts';
 import { isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { INSTRUMENT_IDS } from '../src/models/instruments/catalog.ts';
-import type { InstrumentId } from '../src/models/instruments/types.ts';
+import type { InstrumentBone, InstrumentId } from '../src/models/instruments/types.ts';
 import { scoreOf } from '../src/score/test-score.ts';
 import { patchedDemos } from './patch-demos.ts';
 
@@ -62,6 +65,21 @@ export interface PlayerForm {
   readonly width: number;
   /** The size of the footprint of the seated player from the front to the back, in meters. */
   readonly depth: number;
+  /**
+   * The center of the head of the seated player, in meters (`BodyBones.headCenter`). The holds of
+   * the instruments under the chin and of the winds take their places from it.
+   */
+  readonly headCenter: Vec3;
+  /** The head height H of the holds of the seated player, in meters. */
+  readonly headHeight: number;
+  /** The tip of the nose of the studio body of the seated player, or `null` with no studio body. */
+  readonly nose: Vec3 | null;
+  /**
+   * The box of the instrument of the seated player in its bind pose: the corners of the mesh on
+   * the bones of the instrument ({@link INSTRUMENT_BONES}), in meters. It is `null` when no corner
+   * is on these bones. The footprint and the layout take the instrument from the same corners.
+   */
+  readonly instrumentBox: Bounds | null;
 }
 
 /** The stage side of one demo. */
@@ -77,7 +95,47 @@ export interface DemoStage {
  * change of the format takes the next version, so that the form tables of `pnpm rig-mesh --check`
  * stop on two formats.
  */
-export const FORM_FORMAT = 1;
+export const FORM_FORMAT = 2;
+
+/** The bones that carry the pieces of an instrument (design 4.7). */
+export const INSTRUMENT_BONES = [
+  'instrument',
+  'slide',
+  'bow',
+  'malletL',
+  'malletR',
+  'baton',
+] as const satisfies readonly InstrumentBone[];
+
+/**
+ * Finds the box of the corners of a mesh on some bones.
+ *
+ * @param mesh The places and the bone of each corner of the mesh.
+ * @param bones The indices of the bones.
+ * @returns The box, or `null` when no corner is on the bones.
+ */
+export function boneBox(
+  mesh: Pick<PlayerModel['mesh'], 'positions' | 'bones'>,
+  bones: ReadonlySet<number>,
+): Bounds | null {
+  const min = [Infinity, Infinity, Infinity];
+  const max = [-Infinity, -Infinity, -Infinity];
+  let found = false;
+  for (let c = 0; c < mesh.bones.length; c++) {
+    if (!bones.has(mesh.bones[c] ?? -1)) {
+      continue;
+    }
+    found = true;
+    for (let k = 0; k < 3; k++) {
+      const value = mesh.positions[c * 3 + k] ?? 0;
+      min[k] = Math.min(min[k] ?? Infinity, value);
+      max[k] = Math.max(max[k] ?? -Infinity, value);
+    }
+  }
+  const [x0 = 0, y0 = 0, z0 = 0] = min;
+  const [x1 = 0, y1 = 0, z1 = 0] = max;
+  return found ? { min: [x0, y0, z0], max: [x1, y1, z1] } : null;
+}
 
 /** The form of the players and the stages of a source tree, as `--json` writes it. */
 export interface FormJson {
@@ -123,7 +181,8 @@ export function headExtent(
 }
 
 /**
- * Measures the form of one player: the seat, the visible head, the head tops, and the footprint.
+ * Measures the form of one player: the seat, the visible head, the head tops, the footprint, and
+ * the hold anchors.
  *
  * @param player The species and the instrument.
  * @returns The form.
@@ -144,6 +203,10 @@ export function playerForm(player: FormPlayer): PlayerForm {
     seatedTop: sitting.top,
     width: (bounds.max[0] ?? 0) - (bounds.min[0] ?? 0),
     depth: (bounds.max[2] ?? 0) - (bounds.min[2] ?? 0),
+    headCenter: seated.body.headCenter,
+    headHeight: seated.body.headHeight,
+    nose: seated.studio?.body.nose ?? null,
+    instrumentBox: boneBox(seated.mesh, new Set(INSTRUMENT_BONES.map((bone) => boneIndex(bone)))),
   };
 }
 

@@ -7,8 +7,11 @@ import type { Vec3 } from '../src/models/tuples.ts';
 import {
   CONFIG_JOINTS,
   REACH_TOLERANCE,
+  ANCHOR_MARK,
+  anchorCells,
   animalRoles,
   armReach,
+  boxMove,
   blenderArgs,
   checkReach,
   jointHead,
@@ -23,6 +26,7 @@ import {
   formLines,
   keptHeight,
   playerArgs,
+  pointMove,
   printedOnly,
   rigSettings,
   setConfig,
@@ -358,6 +362,10 @@ describe('formLines', () => {
     seatedTop: top - 0.065,
     width,
     depth: 1.172,
+    headCenter: [0, top - 0.25, -0.1],
+    headHeight: 0.236,
+    nose: [0, top - 0.3, -0.3],
+    instrumentBox: { min: [-0.2, top - 0.4, -0.5], max: [0.1, top - 0.3, -0.2] },
   });
   const form = (top: number, k525: number): FormJson => ({
     players: [player(top, 0.776)],
@@ -398,6 +406,22 @@ describe('formLines', () => {
     expect(lines.at(-1)).toBe('| Largest change | | none | +6.0% mozart-k525.mid |');
   });
 
+  it('gives the hold anchors of each player with each move from main, and marks a move above 1 mm', () => {
+    const lines = formLines(
+      [row('', 1.587, 7.546), row('neckFactor=1.1', 1.6041, 7.546)],
+      form(1.587, 7.546),
+    );
+    expect(lines).toContain(
+      '| main | fox-red violin | (0.000, 1.337, -0.100) | 0.236 | (0.000, 1.287, -0.300) | (-0.200, 1.187, -0.500) to (0.100, 1.287, -0.200) |',
+    );
+    expect(lines).toContain(
+      '| base | fox-red violin | (0.000, 1.337, -0.100) (0.0 mm) | 0.236 (+0.0 mm) | (0.000, 1.287, -0.300) (0.0 mm) | (-0.200, 1.187, -0.500) to (0.100, 1.287, -0.200) (0.0 mm) |',
+    );
+    expect(lines).toContain(
+      '| neckFactor=1.1 | fox-red violin | (0.000, 1.354, -0.100) (17.1 mm MOVED) | 0.236 (+0.0 mm) | (0.000, 1.304, -0.300) (17.1 mm MOVED) | (-0.200, 1.204, -0.500) to (0.100, 1.304, -0.200) (17.1 mm MOVED) |',
+    );
+  });
+
   it('gives the values with no difference when the probe of main failed, and no lines with no form', () => {
     const lines = formLines([row('', 1.587, 7.546)], null);
     expect(lines).toContain('| Demo | base |');
@@ -406,6 +430,50 @@ describe('formLines', () => {
     expect(formLines([{ variant: '', measures: null, error: 'Blender failed.' }], null)).toEqual(
       [],
     );
+  });
+});
+
+describe('anchorCells', () => {
+  const form: PlayerForm = {
+    species: 'fox-red',
+    instrument: 'violin',
+    seat: 0.36,
+    visibleHead: 0.386,
+    standingTop: 1.587,
+    seatedTop: 1.522,
+    width: 0.776,
+    depth: 1.172,
+    headCenter: [0, 1.3, -0.1],
+    headHeight: 0.236,
+    nose: null,
+    instrumentBox: null,
+  };
+
+  it('marks a move above 1 mm only, and gives the sign of a change of the head height', () => {
+    const near: PlayerForm = { ...form, headCenter: [0, 1.3 + ANCHOR_MARK * 0.9, -0.1] };
+    const far: PlayerForm = { ...form, headCenter: [0, 1.3 + ANCHOR_MARK * 1.1, -0.1] };
+    const lower: PlayerForm = { ...form, headHeight: 0.234 };
+    expect(anchorCells(near, form)[0]).toBe('(0.000, 1.301, -0.100) (0.9 mm)');
+    expect(anchorCells(far, form)[0]).toBe('(0.000, 1.301, -0.100) (1.1 mm MOVED)');
+    expect(anchorCells(lower, form)[1]).toBe('0.234 (-2.0 mm MOVED)');
+    expect(anchorCells(form, undefined)).toEqual([
+      '(0.000, 1.300, -0.100)',
+      '0.236',
+      'none',
+      'none',
+    ]);
+  });
+
+  it('moves a box by the larger move of its corners, and a missing point or box by nothing', () => {
+    const corner: Vec3 = [0, 0, 0];
+    const far: Vec3 = [1, 1, 1];
+    const box = { min: corner, max: far };
+    expect(boxMove({ min: [0, 0.003, 0], max: [1, 1, 1.004] }, box)).toBeCloseTo(0.004, 9);
+    expect(boxMove(box, null)).toBeNull();
+    expect(boxMove(null, box)).toBeNull();
+    expect(pointMove([0, 0, 0], [0, 0.003, 0.004])).toBeCloseTo(0.005, 9);
+    expect(pointMove(null, [0, 0, 0])).toBeNull();
+    expect(pointMove([0, 0, 0], undefined)).toBeNull();
   });
 });
 
