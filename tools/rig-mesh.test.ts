@@ -20,14 +20,17 @@ import {
   checkTexts,
   configChanges,
   foldBones,
+  formLines,
   keptHeight,
+  playerArgs,
   printedOnly,
   rigSettings,
   setConfig,
   targetFactor,
   variantText,
 } from './rig-mesh.ts';
-import type { CheckMeasures } from './rig-mesh.ts';
+import type { CheckMeasures, CheckRow } from './rig-mesh.ts';
+import type { FormJson, PlayerForm } from './rig-form.ts';
 import { FOLD_ROLES, roleAnimal } from './fold-probe.ts';
 import type { FaceRecord } from './fold-probe.ts';
 import { ANIMALS } from './studio-body.ts';
@@ -306,6 +309,7 @@ describe('checkTable', () => {
         ],
       },
     ],
+    form: null,
   };
 
   it('gives one row for each variant with the measures and the folds of each role', () => {
@@ -328,6 +332,79 @@ describe('checkTable', () => {
       { variant: 'weld=1', measures: null, error: 'Blender failed.' },
     ]);
     expect(lines[3]).toMatch(/^\| weld=1 \| failed: Blender failed\. \| - \|/);
+  });
+});
+
+describe('playerArgs', () => {
+  it('gives one player for each role of a player, and none for the conductor', () => {
+    expect(playerArgs(animalRoles('fox'))).toEqual([
+      '--player',
+      'fox-red:violin',
+      '--player',
+      'fox-tan:flute',
+    ]);
+    expect(playerArgs([{ role: 'conductor', species: 'bear' }])).toEqual([]);
+  });
+});
+
+describe('formLines', () => {
+  const player = (top: number, width: number): PlayerForm => ({
+    species: 'fox-red',
+    instrument: 'violin',
+    seat: 0.36,
+    visibleHead: 0.386,
+    standingTop: top,
+    seatedTop: top - 0.065,
+    width,
+    depth: 1.172,
+  });
+  const form = (top: number, k525: number): FormJson => ({
+    players: [player(top, 0.776)],
+    stages: [
+      { demo: 'bach-bwv1047.mid', side: 11.422 },
+      { demo: 'mozart-k525.mid', side: k525 },
+    ],
+  });
+  const row = (variant: string, top: number, k525: number): CheckRow => ({
+    variant,
+    measures: {
+      triangles: 3135,
+      meshGzip: 27673,
+      scale: 1.5504,
+      seat: 0.36,
+      legSeat: 0.283,
+      chair: 0.326,
+      reach: { L: 0.604, R: 0.604 },
+      standing: 0.0002,
+      folds: [],
+      form: form(top, k525),
+    },
+    error: null,
+  });
+
+  it('gives each player and each stage side with its difference from main', () => {
+    const lines = formLines(
+      [row('', 1.587, 7.546), row('legFactor=1.6', 1.637, 8.0)],
+      form(1.587, 7.546),
+    );
+    expect(lines).toContain(
+      '| legFactor=1.6 | fox-red violin | 0.360 (+0.000) | 0.386 (+0.000) | 1.637 (+0.050) | 1.572 (+0.050) | 0.776 (+0.000) by 1.172 (+0.000) |',
+    );
+    expect(lines).toContain(
+      '| main | fox-red violin | 0.360 | 0.386 | 1.587 | 1.522 | 0.776 by 1.172 |',
+    );
+    expect(lines).toContain('| mozart-k525.mid | 7.546 | 7.546 (+0.0%) | 8.000 (+6.0%) |');
+    expect(lines.at(-1)).toBe('| Largest change | | none | +6.0% mozart-k525.mid |');
+  });
+
+  it('gives the values with no difference when the probe of main failed, and no lines with no form', () => {
+    const lines = formLines([row('', 1.587, 7.546)], null);
+    expect(lines).toContain('| Demo | base |');
+    expect(lines).toContain('| mozart-k525.mid | 7.546 |');
+    expect(lines.some((line) => line.startsWith('| Largest change'))).toBe(false);
+    expect(formLines([{ variant: '', measures: null, error: 'Blender failed.' }], null)).toEqual(
+      [],
+    );
   });
 });
 

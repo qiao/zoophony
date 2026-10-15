@@ -11,6 +11,9 @@ import { FOLD_ROLES, SAMPLE_SETS, readFaceJson, roleAnimal, roleSpecies } from '
 import type { FaceRecord, FoldCounts } from './fold-probe.ts';
 import { animalSpecies, runTool, withGlbBody } from './glb-swap.ts';
 import { measureLines, measureRig, triangleLine } from './rig-mesh-check.ts';
+import { readFormJson } from './rig-form.ts';
+import type { FormJson, PlayerForm } from './rig-form.ts';
+import { runChild, withProbeTree } from './ref-tree.ts';
 import { trackChild, trackFolder } from './stop-cleanup.ts';
 import { gzipSize } from './studio-budgets.ts';
 import type { ThinRule } from './rig-mesh-check.ts';
@@ -801,6 +804,11 @@ export interface CheckMeasures {
   readonly standing: number;
   /** The folds of each role of the animal. */
   readonly folds: readonly RoleFolds[];
+  /**
+   * The form of the players of each role and the stage side of each demo in the app with the body
+   * of the rig (`tools/rig-form.ts`), or `null` when no role of the app has the body.
+   */
+  readonly form: FormJson | null;
 }
 
 /** One row of the table of `--check`: a variant and its measures or its failure. */
@@ -883,6 +891,161 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
     lines.push(`| ${cells.join(' | ')} |`);
   }
   return lines;
+}
+
+/** The commit that the form of the players and the stage sides of `--check` compare with. */
+export const FORM_BASE = 'main';
+
+/**
+ * Gives the arguments of `tools/rig-form.ts` for the roles of an animal: one `--player` with the
+ * species and the instrument of each role of a player. The conductor has no instrument, so it has
+ * no player.
+ *
+ * @param roles The roles of the animal ({@link animalRoles}).
+ * @returns The arguments, such as `--player fox-red:violin`.
+ */
+export function playerArgs(roles: readonly AnimalRole[]): string[] {
+  return roles.flatMap(({ role, species }) => {
+    const source = FOLD_ROLES.get(role);
+    return source?.kind === 'player' ? ['--player', `${species}:${source.instrument}`] : [];
+  });
+}
+
+/**
+ * Writes a value in meters with its difference from the value of the commit.
+ *
+ * @param value The value.
+ * @param base The value of the commit, or `undefined` with no commit.
+ * @returns The text, such as `1.637 (+0.050)`.
+ */
+function againstBase(value: number, base: number | undefined): string {
+  if (base === undefined) {
+    return value.toFixed(3);
+  }
+  const change = value - base;
+  return `${value.toFixed(3)} (${change >= 0 ? '+' : '-'}${Math.abs(change).toFixed(3)})`;
+}
+
+/**
+ * Writes the form of the players and the stage sides of the variants of `--check` against the
+ * commit {@link FORM_BASE}: a table of the seat, the visible head, the standing and the seated
+ * head tops, and the footprint of each player, and a table of the stage side of each demo, with
+ * the largest change of each variant (`none` below 0.05%). Each value has its difference from the
+ * commit. A variant with no form has no rows.
+ *
+ * @param rows The rows of the variants, the base first.
+ * @param base The form of the commit, or `null` when its probe failed.
+ * @returns The lines, or none when no row has a form.
+ */
+export function formLines(rows: readonly CheckRow[], base: FormJson | null): string[] {
+  const forms = rows.flatMap((row) =>
+    row.measures?.form ? [{ variant: row.variant || 'base', form: row.measures.form }] : [],
+  );
+  if (forms.length === 0) {
+    return [];
+  }
+
+  const label = base ? FORM_BASE : 'no commit';
+  const lines = [
+    `Form of the players against ${label} (each value with its difference from ${label}):`,
+    '',
+    '| Variant | Player | Seat m | Visible head m | Standing head top m | Seated head top m | Footprint m |',
+    '|---|---|---|---|---|---|---|',
+  ];
+  const same = (a: PlayerForm, b: PlayerForm): boolean =>
+    a.species === b.species && a.instrument === b.instrument;
+  const playerRow = (variant: string, player: PlayerForm, old: PlayerForm | undefined): string =>
+    `| ${variant} | ${player.species} ${player.instrument} | ${againstBase(player.seat, old?.seat)} | ${againstBase(player.visibleHead, old?.visibleHead)} | ${againstBase(player.standingTop, old?.standingTop)} | ${againstBase(player.seatedTop, old?.seatedTop)} | ${againstBase(player.width, old?.width)} by ${againstBase(player.depth, old?.depth)} |`;
+  for (const player of base?.players ?? []) {
+    lines.push(playerRow(FORM_BASE, player, undefined));
+  }
+  for (const { variant, form } of forms) {
+    for (const player of form.players) {
+      lines.push(
+        playerRow(
+          variant,
+          player,
+          base?.players.find((p) => same(p, player)),
+        ),
+      );
+    }
+  }
+
+  const demos = forms[0]?.form.stages.map((stage) => stage.demo) ?? [];
+  const sideOf = (form: FormJson | null | undefined, demo: string): number | undefined =>
+    form?.stages.find((stage) => stage.demo === demo)?.side;
+  const share = (side: number, old: number | undefined): number | null =>
+    old === undefined ? null : (100 * (side - old)) / old;
+  const percent = (value: number): string =>
+    `${value >= 0 ? '+' : '-'}${Math.abs(value).toFixed(1)}%`;
+  const shareText = (value: number | null): string =>
+    value === null ? '' : ` (${percent(value)})`;
+  lines.push(
+    '',
+    `Stage side of each demo against ${label}:`,
+    '',
+    `| Demo | ${base ? `${FORM_BASE} m | ` : ''}${forms.map((f) => f.variant).join(' | ')} |`,
+    `|---|${base ? '---|' : ''}${forms.map(() => '---').join('|')}|`,
+  );
+  for (const demo of demos) {
+    const old = sideOf(base, demo);
+    const cells = forms.map(({ form }) => {
+      const side = sideOf(form, demo);
+      return side === undefined ? '-' : `${side.toFixed(3)}${shareText(share(side, old))}`;
+    });
+    lines.push(
+      `| ${demo} | ${base ? `${old === undefined ? '-' : old.toFixed(3)} | ` : ''}${cells.join(' | ')} |`,
+    );
+  }
+  if (base) {
+    const largest = forms.map(({ form }) => {
+      const changes = form.stages.flatMap((stage) => {
+        const value = share(stage.side, sideOf(base, stage.demo));
+        return value === null ? [] : [{ demo: stage.demo, value }];
+      });
+      const [top] = changes.toSorted((a, b) => Math.abs(b.value) - Math.abs(a.value));
+      if (!top) {
+        return '-';
+      }
+      return Math.abs(top.value) < 0.05 ? 'none' : `${percent(top.value)} ${top.demo}`;
+    });
+    lines.push(`| Largest change | | ${largest.join(' | ')} |`);
+  }
+  return lines;
+}
+
+/**
+ * Measures the form of the players of an animal and the stage sides on the commit
+ * {@link FORM_BASE}: `tools/rig-form.ts` runs in a probe tree of the commit
+ * (`tools/ref-tree.ts`). It runs before the first rig, so that only the stop of the probe tree is
+ * on during the run.
+ *
+ * @param args The players of the roles ({@link playerArgs}).
+ * @returns The form, or `null` when the probe fails. The message of the failure goes to the
+ *   error output.
+ */
+async function baseForm(args: readonly string[]): Promise<FormJson | null> {
+  try {
+    return await withProbeTree(
+      FORM_BASE,
+      async (dir) => {
+        const file = join(dir, 'form.json');
+        await runChild(
+          process.execPath,
+          [join('tools', 'rig-form.ts'), ...args, '--json', file],
+          dir,
+        );
+        return readFormJson(await readFile(file, 'utf8'));
+      },
+      { prefix: 'rig-form-' },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(
+      `The form of ${FORM_BASE} failed, so the tables have no values of it: ${message}`,
+    );
+    return null;
+  }
 }
 
 /**
@@ -968,10 +1131,21 @@ async function checkRig(
     const roles = known ? animalRoles(animal) : [];
     if (roles.length === 0) {
       console.log(`No role of the app has the body of ${animal}, so the app checks do not run.`);
-      return { ...result, folds: [] };
+      return { ...result, folds: [], form: null };
     }
     const folds: RoleFolds[] = [];
+    let form: FormJson | null = null;
     await withGlbBody(animal, output, async (copy) => {
+      const formFile = join(dir, 'form.json');
+      const formCode = await runTool(copy, 'rig-form.ts', [
+        ...playerArgs(roles),
+        '--json',
+        formFile,
+      ]);
+      if (formCode !== 0) {
+        throw new Error(`rig-form.ts failed with the status ${formCode}.`);
+      }
+      form = readFormJson(await readFile(formFile, 'utf8'));
       for (const { role, species } of roles) {
         const json = join(dir, `folds-${role}.json`);
         const runs: [string, string[]][] = [['fold-probe.ts', [role, '--json', json]]];
@@ -990,7 +1164,7 @@ async function checkRig(
         folds.push({ role, counts: read.sets, bones: foldBones(read.faces) });
       }
     });
-    return { ...result, folds };
+    return { ...result, folds, form };
   } finally {
     await rm(dir, { recursive: true, force: true });
     release();
@@ -1000,8 +1174,11 @@ async function checkRig(
 /**
  * Checks the base and each variant of the config of an animal, one rig at a time, and prints the
  * table of the variants ({@link checkTable}). Each variant must fit ({@link variantText}) before
- * the first rig, and it keeps the meters for each unit of the base ({@link keptHeight}). A variant
- * whose rig or probe fails prints its message, and the next variant runs.
+ * the first rig, and it keeps the meters for each unit of the base ({@link keptHeight}). Before the
+ * first rig, the form of the players on the commit {@link FORM_BASE} comes from a probe tree, and
+ * the tables of the form and of the stage sides follow the table of the variants
+ * ({@link formLines}). A variant whose rig or probe fails prints its message, and the next variant
+ * runs.
  *
  * @param animal The animal.
  * @param text The JSON text of the config, read one time at the start.
@@ -1019,6 +1196,8 @@ async function checkVariants(
 ): Promise<boolean> {
   const texts = checkTexts(text, sets, ANIMALS.has(animal));
   const base = parseConfig(text);
+  const players = ANIMALS.has(animal) ? playerArgs(animalRoles(animal)) : [];
+  const form = players.length > 0 ? await baseForm(players) : null;
   const rows: CheckRow[] = [];
   for (const [k, variant] of ['', ...sets].entries()) {
     if (sets.length > 0) {
@@ -1036,7 +1215,7 @@ async function checkVariants(
       rows.push({ variant, measures: null, error: message });
     }
   }
-  console.log(['', ...checkTable(rows)].join('\n'));
+  console.log(['', ...checkTable(rows), '', ...formLines(rows, form)].join('\n'));
   return rows.every((row) => row.measures);
 }
 
