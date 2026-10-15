@@ -91,9 +91,10 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   and the layout from the footprints of the bodies, with a shot plan that the layout of one demo
   decides. `pnpm test` runs the project `unit`, which
   skips them. Thus CI, `tools/check-commits.sh`, and `tools/merge-branch.sh` skip them too.
-  `pnpm test:paused` runs them for information. The typecheck and the lint still read them, and
-  each test helper stays. A section of this design that names a paused test as the check of a
-  rule keeps the rule, and the check waits for the end of the pause.
+  `pnpm test:paused` runs them for information. `pnpm test:paused --base <ref>` also runs them on
+  a commit, and lists only the tests that fail on the working tree alone. The typecheck and the
+  lint still read them, and each test helper stays. A section of this design that names a paused
+  test as the check of a rule keeps the rule, and the check waits for the end of the pause.
 - Node tests render audio offline with spessasynth_core.
 - The demo tests of 8.3 and 8.5.
 - A speed test (`*-speed.test.ts`) compares the time of its work with a fixed reference work in
