@@ -9,7 +9,6 @@ import {
   copyFileSync,
   cpSync,
   lstatSync,
-  mkdirSync,
   mkdtempSync,
   readdirSync,
   rmSync,
@@ -255,8 +254,10 @@ export async function withRefTree<T>(
 }
 
 /**
- * The paths of a commit that a probe of the code of the commit reads: the source, the demos, and
- * the rules of the demo patches.
+ * The paths of a commit that a probe of the code of the commit reads: the source, the demos, the
+ * rules of the demo patches, and the tools. The tools of the commit fit its source, such as the
+ * export of the studio bodies of `tools/studio-body.ts`, which a newer tool can import from a
+ * newer source.
  */
 export const PROBE_PATHS: readonly string[] = [
   'src',
@@ -264,21 +265,31 @@ export const PROBE_PATHS: readonly string[] = [
   'demos/src',
   'demos/patches.json',
   'demos/README.md',
-  'tools/patch-demos.ts',
+  'tools',
 ];
 
 /**
  * Gives the scripts of `tools/` of the working tree that a probe of a commit copies: each script
- * that is not a test and that {@link PROBE_PATHS} does not take from the commit.
+ * that is not a test and that the commit does not have, such as a new probe of the working tree.
  *
- * @param files The names of the files of `tools/`.
+ * @param files The names of the files of `tools/` of the working tree.
+ * @param own The names of the files of `tools/` of the commit.
  * @returns The names of the scripts to copy, in their order.
  */
-export function probeScripts(files: readonly string[]): string[] {
+export function probeScripts(files: readonly string[], own: readonly string[]): string[] {
   return files.filter(
-    (file) =>
-      file.endsWith('.ts') && !file.endsWith('.test.ts') && !PROBE_PATHS.includes(`tools/${file}`),
+    (file) => file.endsWith('.ts') && !file.endsWith('.test.ts') && !own.includes(file),
   );
+}
+
+/** A table of roles of a tool, which a probe of a commit checks for its role. */
+export interface RefRole {
+  /** The role of the probe, such as `flutist`. */
+  readonly name: string;
+  /** The module of the table, relative to the tree, such as `tools/fold-probe.ts`. */
+  readonly module: string;
+  /** The exported table of the roles: a `Map` or an object with a key for each role. */
+  readonly table: string;
 }
 
 /** The options of {@link withProbeTree}. */
@@ -287,22 +298,70 @@ export interface ProbeTreeOptions {
   readonly parent?: string;
   /** The start of the name of the temporary folder, such as `body-probe-`. */
   readonly prefix: string;
+  /** The role of the probe, which the commit must have ({@link checkRefRole}). */
+  readonly role?: RefRole;
+}
+
+/**
+ * Reads the keys of a table of roles of a tree in a child process, so that the code of the commit
+ * stays out of the process of the tool.
+ *
+ * @param dir The folder of the tree.
+ * @param role The module and the table.
+ * @returns The keys, or `null` when the tree has no such module or table, or the import fails.
+ */
+export function refRoleKeys(dir: string, role: RefRole): string[] | null {
+  const code = [
+    `const table = (await import(${JSON.stringify(`./${role.module}`)}))[${JSON.stringify(role.table)}];`,
+    'if (!table) { process.exit(2); }',
+    'process.stdout.write(JSON.stringify(table instanceof Map ? [...table.keys()] : Object.keys(table)));',
+  ].join('\n');
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', code], {
+    cwd: dir,
+    encoding: 'utf8',
+  });
+  if (result.status !== 0) {
+    return null;
+  }
+  // SAFETY: the child writes a JSON list of the keys of the table.
+  const keys = JSON.parse(result.stdout) as unknown[];
+  return keys.map(String);
+}
+
+/**
+ * Checks that the tree of a commit has the role of a probe, before the probe starts.
+ *
+ * @param dir The folder of the tree of the commit.
+ * @param ref The commit, a branch, or a tag, for the message.
+ * @param role The role and its table.
+ * @throws Error if the table of the commit has no such role. A tree with no such table passes,
+ *   and the probe of the commit gives its own failure.
+ */
+export function checkRefRole(dir: string, ref: string, role: RefRole): void {
+  const keys = refRoleKeys(dir, role);
+  if (keys && !keys.includes(role.name)) {
+    throw new Error(
+      `The ref ${ref} has no role ${role.name}. Its roles are: ${keys.join(', ') || 'none'}.`,
+    );
+  }
 }
 
 /**
  * Extracts {@link PROBE_PATHS} of a commit into a new temporary folder with {@link withRefTree},
- * and gives the folder to a function. The folder also gets a copy of the scripts of `tools/` of
- * the working tree ({@link probeScripts}), and a link to the `node_modules` of the repository.
- * Thus a tool of the working tree runs there, in a child process of {@link runChild}, on the code
- * and the demos of the commit. The copy and the start of the function run before the first
- * `await`, so the child runs beside the code of the caller. The folder goes away at the end, also
- * after a failure or a stop (INT or TERM).
+ * and gives the folder to a function. The tools come from the commit, so that each tool runs on
+ * the source that it fits. The folder also gets a copy of each script of `tools/` of the working
+ * tree that the commit does not have ({@link probeScripts}), and a link to the `node_modules` of
+ * the repository. With a role, the commit must have it ({@link checkRefRole}). Thus a tool runs
+ * there, in a child process of {@link runChild}, on the code and the demos of the commit. The copy
+ * and the start of the function run before the first `await`, so the child runs beside the code of
+ * the caller. The folder goes away at the end, also after a failure or a stop (INT or TERM).
  *
  * @param ref The commit, a branch, or a tag.
  * @param use The function that runs the probe in the folder.
- * @param options The parent folder and the start of the name.
+ * @param options The parent folder, the start of the name, and the role.
  * @returns The result of the function.
- * @throws Error if git does not know the ref, or the function fails.
+ * @throws Error if git does not know the ref, if the commit has no role of the options, or if the
+ *   function fails.
  */
 export function withProbeTree<T>(
   ref: string,
@@ -315,11 +374,14 @@ export function withProbeTree<T>(
   return withRefTree(
     ref,
     (dir) => {
-      mkdirSync(join(dir, 'tools'), { recursive: true });
-      for (const file of probeScripts(readdirSync(join(ROOT, 'tools')))) {
+      const own = readdirSync(join(dir, 'tools'));
+      for (const file of probeScripts(readdirSync(join(ROOT, 'tools')), own)) {
         copyFileSync(join(ROOT, 'tools', file), join(dir, 'tools', file));
       }
       symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
+      if (options.role) {
+        checkRefRole(dir, ref, options.role);
+      }
       return use(dir);
     },
     tree,

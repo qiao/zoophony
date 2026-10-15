@@ -614,9 +614,10 @@ function printRow(row: FitRow): void {
 
 /**
  * Fits the commit of `--base` and the working tree at the same time, each in a child process
- * (`probeBeside()`). The commit runs the base with no change. Then the tool writes the table with
- * the row of the commit first, and one compare of the deepest points of each variant with the
- * commit, in the H of each body (`compareDepths()`).
+ * (`probeBeside()`). The commit runs the base with no change, with the tools of the commit. A role
+ * that the commit does not have stops the run before the probes (`checkRefRole()`). Then the tool
+ * writes the table with the row of the commit first, and one compare of the deepest points of each
+ * variant with the commit, in the H of each body (`compareDepths()`).
  *
  * @param options The options.
  * @param ref The commit, the branch, or the tag.
@@ -629,7 +630,10 @@ async function compareFit(options: FitOptions, ref: string): Promise<void> {
     ref,
     'hold-fit.ts',
     { base: withoutOptions(args, ['--set', '--grid']), tree: args },
-    { prefix: 'hold-fit-' },
+    {
+      prefix: 'hold-fit-',
+      role: { name: options.name, module: 'tools/fold-probe.ts', table: 'FOLD_ROLES' },
+    },
   );
   const base = readFit(texts.base);
   const tree = readFit(texts.tree);

@@ -17,12 +17,14 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import {
+  ROOT,
   errorCause,
   optionValue,
   overlayPaths,
   overlayTree,
   probeBeside,
   probeScripts,
+  refRoleKeys,
   shortHash,
   withProbeTree,
   withRefBuild,
@@ -89,20 +91,22 @@ describe('withRefTree', () => {
 });
 
 describe('probeScripts', () => {
-  it('copies each script of tools/ with no test and with no path of the commit', () => {
+  it('copies each script of the working tree that the commit does not have, with no test', () => {
     const files = [
       'body-probe.ts',
       'body-probe.test.ts',
       'blender',
-      'patch-demos.ts',
-      'ref-tree.ts',
+      'rig-form.ts',
+      'rig-form.test.ts',
+      'studio-body.ts',
     ];
-    expect(probeScripts(files)).toEqual(['body-probe.ts', 'ref-tree.ts']);
+    const own = ['blender', 'body-probe.ts', 'body-probe.test.ts', 'studio-body.ts'];
+    expect(probeScripts(files, own)).toEqual(['rig-form.ts']);
   });
 });
 
 describe('withProbeTree', () => {
-  it('gives the code of a commit with the scripts and the node_modules of the working tree', async () => {
+  it('gives the code and the tools of a commit with the node_modules of the working tree', async () => {
     const parent = await mkdtemp(join(tmpdir(), 'probe-tree-test-'));
     try {
       await withProbeTree(
@@ -112,7 +116,9 @@ describe('withProbeTree', () => {
           expect(existsSync(join(dir, 'demos', 'patches.json'))).toBe(true);
           expect(existsSync(join(dir, 'tools', 'patch-demos.ts'))).toBe(true);
           expect(existsSync(join(dir, 'tools', 'pose-depth.ts'))).toBe(true);
-          expect(existsSync(join(dir, 'tools', 'ref-tree.test.ts'))).toBe(false);
+          // Only the tree of the commit has the tests and the rig configs of tools/.
+          expect(existsSync(join(dir, 'tools', 'ref-tree.test.ts'))).toBe(true);
+          expect(existsSync(join(dir, 'tools', 'mesh-rigs', 'fox.json'))).toBe(true);
           expect(existsSync(join(dir, 'node_modules', 'three', 'package.json'))).toBe(true);
           return Promise.resolve();
         },
@@ -122,6 +128,41 @@ describe('withProbeTree', () => {
     } finally {
       await rm(parent, { recursive: true, force: true });
     }
+  });
+
+  it('stops before the probe when the commit has no role of the probe', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'probe-tree-test-'));
+    const role = { module: 'tools/fold-probe.ts', table: 'FOLD_ROLES' };
+    try {
+      let ran = false;
+      const missing = withProbeTree(
+        'HEAD',
+        () => {
+          ran = true;
+          return Promise.resolve();
+        },
+        { parent, prefix: 'probe-tree-', role: { ...role, name: 'kazoo-player' } },
+      );
+      await expect(missing).rejects.toThrow(/^The ref HEAD has no role kazoo-player\. Its roles/);
+      expect(ran).toBe(false);
+
+      const keys = await withProbeTree(
+        'HEAD',
+        (dir) => Promise.resolve(refRoleKeys(dir, { ...role, name: 'flutist' })),
+        { parent, prefix: 'probe-tree-', role: { ...role, name: 'flutist' } },
+      );
+      expect(keys).toContain('flutist');
+      expect(await readdir(parent)).toEqual([]);
+    } finally {
+      await rm(parent, { recursive: true, force: true });
+    }
+  }, 20_000);
+
+  it('gives no keys of a module or a table that the tree does not have', () => {
+    expect(refRoleKeys(ROOT, { name: 'x', module: 'tools/no-such.ts', table: 'X' })).toBeNull();
+    expect(
+      refRoleKeys(ROOT, { name: 'x', module: 'tools/fold-probe.ts', table: 'NO_SUCH' }),
+    ).toBeNull();
   });
 });
 
