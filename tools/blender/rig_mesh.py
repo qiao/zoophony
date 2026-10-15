@@ -1761,8 +1761,9 @@ def main():
         # The neck views keep the shoulders in place, so that the views of two neck factors
         # compare.
         shoulders = bind_heads['upper_arm_L']
-        neck_seated = np.array([0, shoulders[1] + 0.1, bind_heads['neck'][2]])
-        neck_standing = np.array([0, long_heads['upper_arm_L'][1] + 0.1, long_heads['neck'][2]])
+        neck_seated = np.array([0, shoulders[1] + 0.12, bind_heads['neck'][2] + 0.05])
+        neck_standing = np.array([0, long_heads['upper_arm_L'][1] + 0.12,
+                                  long_heads['neck'][2] + 0.05])
         neck_views = [('right', 90, 0), ('front', 0, 0), ('q', 35, 10)]
         preview(preview_dir, [
             ('seated', [(bind_all, tris_all, colors_all), chair_part],
@@ -1778,9 +1779,9 @@ def main():
               ('left', 270, 0, knees, 0.4 + rise),
               ('front', 0, 10, knees, 0.4 + rise)]),
             ('neck', [(bind_all, tris_all, colors_all), chair_part],
-             [(v, a, e, neck_seated, 0.5) for v, a, e in neck_views]),
+             [(v, a, e, neck_seated, 0.6) for v, a, e in neck_views]),
             ('neck-standing', [(src_all, tris_all, colors_all)],
-             [(v, a, e, neck_standing, 0.5) for v, a, e in neck_views]),
+             [(v, a, e, neck_standing, 0.6) for v, a, e in neck_views]),
             ('bones', [(bind_all, tris_all, bones)],
              [(v, a, e, seated_center, 1.1 * tall) for v, a, e in four]),
             ('bones-standing', [(src_all, tris_all, bones)],
