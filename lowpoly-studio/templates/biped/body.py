@@ -17,7 +17,8 @@ import math
 
 import numpy as np
 
-from studio.field import Part, box_of_points, field_at, head_table, trunk_table
+from studio.field import (Part, box_of_points, field_at, head_table, lifted_views,
+                          trunk_table)
 from studio.sdf import ellipsoid, frame_from, loft, rot_axis, round_cone, smax
 
 # The field parts of each arm: they move with the arm, so the occlusion and the correctives
@@ -48,8 +49,8 @@ class Body:
         """Stores the config, the row profiles of the sheet views (measure.json), and the bind
         pose of the role."""
         self.cfg = cfg
-        self.views = views
         self.f = cfg.field
+        self.views = lifted_views(views, self.f.lift)
         self.bind = bind
         self.legs_straight = (bind.hip_flex == 0.0 and bind.knee_flex == 0.0
                               and bind.hip_abduct == 0.0)

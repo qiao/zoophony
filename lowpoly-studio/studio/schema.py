@@ -191,6 +191,9 @@ HEAD = T('The head ball: a loft of its own, so the head reads as a ball above th
 FIELD = T('The body field: measured parts that blend into one signed distance field '
           '(template "biped").', {
     'step': F('num', 'Grid step of the field for the dense mesh (surface nets).', default=0.004),
+    'lift': F('num', 'Height by which the parts above the knees stand higher than on the sheet '
+              '(longer shins than the sheet): the measures of the masks read the sheet this much '
+              'lower. The heights of the config above the knees include it.', default=0.0),
     'trunk': TRUNK,
     'head': HEAD,
     'brow': blob('The brow ridge: an ellipsoid on the head.', center=True),

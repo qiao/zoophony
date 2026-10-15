@@ -1657,6 +1657,7 @@ The body field: measured parts that blend into one signed distance field (templa
 | Field | Kind | Default | Meaning |
 |---|---|---|---|
 | `step` | num | `0.004` | Grid step of the field for the dense mesh (surface nets). |
+| `lift` | num | `0.0` | Height by which the parts above the knees stand higher than on the sheet (longer shins than the sheet): the measures of the masks read the sheet this much lower. The heights of the config above the knees include it. |
 
 #### `[field.trunk]`
 

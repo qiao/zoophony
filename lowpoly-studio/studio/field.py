@@ -77,6 +77,16 @@ def smooth(values, ys, sigma):
     return np.convolve(padded, k, mode='valid')
 
 
+def lifted_views(views, lift):
+    """Moves the row profiles of the sheet views up by lift (field.lift): the parts above the knees
+    stand this much higher than on the sheet, so the measures of the masks read the sheet this much
+    lower. No lift gives the views as they are."""
+    if not lift:
+        return views
+    return {name: {**view, 'profile': [{**row, 'y': row['y'] + lift} for row in view['profile']]}
+            for name, view in views.items()}
+
+
 def _interp(y, ctrl):
     """Interpolates control points [(height, value), ...] at height y."""
     return np.interp(y, [c[0] for c in ctrl], [c[1] for c in ctrl])
