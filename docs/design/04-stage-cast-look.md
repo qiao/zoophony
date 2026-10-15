@@ -507,7 +507,12 @@ quarter of the folded faces.
   level on the seat and the shin under the knee. The head factor grows the head and the ears
   around the neck joint, and the weights blend the growth over the neck. The export measures the
   head height and the head center of the holds on the head before the growth, so the holds in `H`
-  keep their places (`ungrown()` of `tools/studio-body.ts`). The corrective shapes of the rig give the source
+  keep their places (`ungrown()` of `tools/studio-body.ts`). The neck factor shortens the neck
+  between its joints, and the head and the ears move down the neck with the head joint. The
+  export puts the head center of the holds on the short neck, and the head height stays, so an
+  instrument under the jaw goes down with the jaw (`headRig()`). The upper arm stretches by the
+  arm factor only from the shoulder joint out and only on the free arm, so that a small arm weight
+  of the throat or of the trunk below the armpit does not pull the trunk with the longer arm. The corrective shapes of the rig give the source
   mesh back when the body stands with the arms of the source. Each face takes the nearest color of a
   palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan over its dark faces,
   so that the body keeps the triangle budget of a studio body (4.5) and a small module. A face takes
@@ -563,7 +568,10 @@ quarter of the folded faces.
   floor, and moves it so that the front edge of the seat of the studio (the bench or the chair)
   meets the front edge of the seat of the app. A seated role with a seat height in `ANIMALS` (the
   rabbits and the red foxes, since the user said on 2026-10-14 that hanging feet may be cuter)
-  then rises until its seat is at that height, and its feet hang above the floor. `StudioBody.floor` is the point on the floor under
+  then rises until its seat is at that height, and its feet hang above the floor. A seated role
+  with a move back in `ANIMALS` (`seatBack`) then moves back toward the chair back, up to the gap
+  of the chair back, and the chair grows forward under it by the rest of the move: the user saw
+  the rabbits and the red foxes "sitting on the edge of the chair" on 2026-10-14. `StudioBody.floor` is the point on the floor under
   the body, and the piano stands in front of it (4.6). `StudioBody.seatHeight` is the height of a
   flat seat under the body: the lowest point of the body over the seat, so that the body rests on
   it and no part goes into it. The seat height of the skeleton of the species is that height, so
@@ -1481,7 +1489,8 @@ the rabbit of the reference image, so that they keep their size relative to the 
 with short arms plays a smaller violin and bow (`SpeciesParams.violinScale`), as a child plays a
 fractional size. A violin shop sizes a violin so that, in the play position with the left arm
 extended, the scroll lies in the middle of the palm. The rabbit and the red fox have this scale
-in their hold on the collarbone (5.3), and `pose/bowed.test.ts` checks the rule (`docs/research/2026-10-13-studio-rabbit.md`,
+in their hold at the neck (5.3), with the arms that the user made longer for a full violin, so
+their violins are almost the violin of the app, and `pose/bowed.test.ts` checks the rule (`docs/research/2026-10-13-studio-rabbit.md`,
 `docs/research/2026-10-13-rabbit-mesh.md`). The chairs, the stands, the
 podium, and the steps keep their sizes in meters. The bodies of the bowed strings are plates
 with round edges and an arched top (`plate()` of `models/primitives.ts`), with two f-holes beside

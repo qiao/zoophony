@@ -147,14 +147,15 @@ export const SPECIES = {
    * `assets/models/rabbit/rabbit-4.glb`, which `pnpm rig-mesh rabbit` rigs (design 4.4), seated
    * with the bind pose of the studio rabbit, and standing as a soloist. Its head height is the
    * head of the studio body, and its chair fits its legs: the seat height is the seat of the
-   * studio body, in H.
+   * studio body, in H. Its violin follows the rule of a violin shop for its arms, which the
+   * user had made longer for a full violin (2026-10-14-neck-violin decisions).
    */
   rabbit: {
     body: 'studio-rabbit',
     size: 1,
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
-    violinScale: 0.74,
+    violinScale: 0.958,
     proportions: {
       headHeight: STUDIO_RABBIT.headHeight,
       seatHeight: STUDIO_RABBIT.seatHeight / STUDIO_RABBIT.headHeight,
@@ -165,14 +166,16 @@ export const SPECIES = {
    * of the mesh of the user, `assets/models/fox/fox.glb`, which `pnpm rig-mesh fox` rigs (design
    * 4.4), seated with its long thighs on the seat and its tail back through the chair, and
    * standing as a soloist. Its head height is the head of the studio body, and its chair fits its
-   * legs: the seat height is the seat of the studio body, in H.
+   * legs: the seat height is the seat of the studio body, in H. Its violin follows the rule of a
+   * violin shop for its arms, which the user had made longer for a full violin
+   * (2026-10-14-neck-violin decisions).
    */
   'fox-red': {
     body: 'studio-fox',
     size: 1,
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['feet'],
-    violinScale: 0.7,
+    violinScale: 0.998,
     proportions: {
       headHeight: STUDIO_FOX.headHeight,
       seatHeight: STUDIO_FOX.seatHeight / STUDIO_FOX.headHeight,

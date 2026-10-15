@@ -121,7 +121,8 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
   // shoulder joints of the parametric rabbit (0.581 m), because the user asked for a rabbit 1.2
   // times the size on 2026-10-14. Its longer legs (`legFactor` of `tools/mesh-rigs/rabbit.json`)
   // raise the shoulder joints, and the scale stays (design 4.4, 4.5). It sits in the violin
-  // section and stands as a soloist.
+  // section and stands as a soloist. Its round back already keeps only the gap of the chair back,
+  // so its move back grows the chair 3 cm forward under its thighs.
   [
     'rabbit',
     {
@@ -130,6 +131,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       seated: true,
       soloist: true,
       seat: 0.36,
+      seatBack: 0.03,
       constant: 'STUDIO_RABBIT',
       crease: 35,
       glb: 'assets/models/rabbit/rabbit-4.rig.glb',
@@ -140,7 +142,8 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
   // 1.3 times the size on 2026-10-14. Its longer legs (`legFactor` of `tools/mesh-rigs/fox.json`)
   // raise the shoulder joints, and the scale stays. It sits in the second violins and stands as a
   // soloist. It is a mesh of an image model of the user, as the rabbit, so it takes the crease
-  // angle of the rabbit.
+  // angle of the rabbit. It moves 4 cm back on its chair, so that its haunch is near the chair
+  // back.
   [
     'fox',
     {
@@ -149,6 +152,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       seated: true,
       soloist: true,
       seat: 0.36,
+      seatBack: 0.04,
       constant: 'STUDIO_FOX',
       crease: 35,
       glb: 'assets/models/fox/fox.rig.glb',

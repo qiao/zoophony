@@ -253,8 +253,11 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  * The hold of the violin on the left shoulder, for the rabbit (design 4.6, 5.3), as a real
  * violinist holds it (violinonline.com, "How to hold the violin", and Simon Fischer, "Basics:
  * Holding the violin", 2026-10-14-fox-rabbit-form decisions): the tail end on the left
- * collarbone next to the neck, under the left side of the jaw, the violin about 38° to the left
- * of the front, and the scroll a little up, so that the strings are about level. The back stays
+ * collarbone against the left side of the neck, under the jaw, the jaw on the violin, the violin
+ * about 38° to the left of the front, and the scroll a little up, so that the strings are about
+ * level. The violin of the rule of this hold with the longer arms of 2026-10-14 is 0.96 of the
+ * app violin, and it sits 0.045 H lower than the smaller violin before, so that it keeps off the
+ * jaw (2026-10-14-neck-violin decisions). The back stays
  * straight. The bow lies nearly square across the strings. The right arm has the shoulder turn of
  * the chin hold. At the frog, the right elbow points out, forward, and less down than in the chin
  * hold, nearer to the level of the bow, and the bow keeps 0.06 m of free hair at each end: with
@@ -270,11 +273,13 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  * bow will also be pointing up"): the violin stands upright on the left thigh, held at its neck,
  * and the bow stands on the right thigh, up and forward at 45°. Straight up, the bow went 5.4 cm
  * into the body during the lift and the lowering. The right elbow points out, down, and forward,
- * so that the upper arm keeps off the trunk.
+ * so that the upper arm keeps off the trunk. The left elbow points out, down, and a little back:
+ * with the elbow of the chin hold, the left forearm went 1.9 cm into the larger violin of
+ * 2026-10-14 at rest, and 1.2 cm with this elbow.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
-  playShift: [-0.054, -0.005, 0.151],
+  playShift: [-0.054, -0.05, 0.151],
   playTurn: violinTurn(-25, 5),
   poleR: [1.5, -0.7, -1],
   freeHair: 0.06,
@@ -282,6 +287,7 @@ const SHOULDER_HOLD = {
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
   restPoleR: [1, -0.9, -0.5],
+  restPoleL: [-0.5, -1, 0.3],
   restBow: {
     lap: { along: 0.8, offset: [0.25, 0.06, -0.1] },
     tip: [0.1, 0.8, -0.8],
@@ -291,10 +297,13 @@ const SHOULDER_HOLD = {
 
 /**
  * The hold of the violin on the left shoulder, for the red fox (design 4.6, 5.3): the hold of the
- * rabbit, with the tail end on the collarbone of the deeper chest of the fox, under its long
- * jaw. The bow slants 12° and the right shoulder turns 25°, and the right elbow at the tip points
- * less down: with the bow of the rabbit (5°, 30°), the skin of the right shoulder of the fox mesh
- * folded in 18% of the play samples (`pnpm fold-probe fox-violinist`). At the frog, the right
+ * rabbit, with the tail end against the left side of the short neck of the fox, under its long
+ * jaw, 0.087 H further back and 0.035 H higher than on the collarbone of 2026-10-14, where the
+ * violin kept 2.4 cm from the neck (2026-10-14-neck-violin decisions). The bow slants 12° and the
+ * right shoulder turns 15°, and the right elbow at the tip points less down: with the bow of the
+ * rabbit (5°, 30°), the skin of the right shoulder of the fox mesh folded in 18% of the play
+ * samples (`pnpm fold-probe fox-violinist`), and with the full violin and the longer arms, the
+ * turn of 15° folds fewer samples than 25°. At the frog, the right
  * elbow points further out than the elbow of the rabbit, with 0.06 m of free hair: the bow paw
  * went 3.6 cm into the body, and 2.4 cm with this elbow and this free hair.
  *
@@ -307,9 +316,9 @@ const SHOULDER_HOLD = {
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
   poleR: [1.4, -0.7, -1],
-  playShift: [-0.054, -0.005, 0.093],
+  playShift: [-0.054, 0.03, 0.18],
   slant: -12 * MathUtils.DEG2RAD,
-  reach: 25 * MathUtils.DEG2RAD,
+  reach: 15 * MathUtils.DEG2RAD,
   poleTipR: [1, -0.85, -1],
   freeHair: 0.06,
   restPoleL: [-1, -1, 0],

@@ -385,7 +385,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     30° (20° before), so that the bow arm still reaches the tip. A species can hold a bowed string
     in its own way (`holdOf()` of `pose/bowed-rig.ts`). The rabbits hold the violin on the left
     shoulder as a real violinist does (`SHOULDER_HOLD`): the tail end lies on the left collarbone
-    next to the neck, under the left side of the jaw, the violin turns toward the front, and the
+    against the left side of the neck, under the jaw, and the jaw lies on the violin. The violin
+    may touch the body, at most 1 cm deep. The violin turns toward the front, and the
     scroll rises a little, so that the strings are about level. The bow lies nearly square across
     the strings. The back stays straight. The left elbow keeps the direction of the chin hold, a
     little out of the plane of the violin: further in, the thin faces of the left upper arm of the
@@ -398,10 +399,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     violin stands upright on the left thigh, held at its neck, and the bow stands on the right
     thigh, up and forward, as a seated violinist rests between the passages: the longer legs of
     2026-10-14 give the rabbit a lap. The red foxes take the shoulder hold
-    of the rabbits (`FOX_HOLD`), with the tail end on the collarbone of the deeper chest under the
-    long jaw, the bow slanted 12°, the right shoulder turned 25°, the right elbow at the tip less
+    of the rabbits (`FOX_HOLD`), with the tail end against the left side of the short neck under the
+    long jaw, the bow slanted 12°, the right shoulder turned 15°, the right elbow at the tip less
     down, and the right elbow at the frog further out. With the bow of the rabbit, the skin of the
-    right shoulder of the fox mesh folded in 18% of the play samples. The paws of the fox do not reach its thighs, so its violin stands on the
+    right shoulder of the fox mesh folded in 18% of the play samples. The paws of the fox did not reach its thighs before its longer arms of 2026-10-14, so its violin stands on the
     left thigh nearer to the hip, and its right paw holds the bow beside the right thigh, with the
     tip down. `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
     `pnpm fold-probe fox-violinist` measure each change
