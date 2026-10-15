@@ -102,3 +102,27 @@ The left fingers over the strings (`fingers`) change no depth of the rabbit. The
 red fox keeps the violin within 1.0 cm of the neck, and the play and the lift go 0.3 cm and 0.8 cm
 less deep than on `main`. The depths over 1.5 cm stay open: the left paw of the rabbit in the
 violin, and the bow paw and the right upper arm of the red fox in the body.
+
+## The neck band of the red fox
+
+The fur spikes at the bottom of the back of the head of the fox mesh hang over the back of the
+neck. From the back and the sides, the gaps between the spikes and the shadow under them show as a
+dark jagged band under the head (`neck-back.webp`, upper row). The band shows also with the head
+factor 1 and the neck factor 1, so the source makes it, and the head factor 1.2 makes it taller.
+The stretch check of `pnpm rig-mesh fox --check` lists no face of the neck
+(`rig-mesh-check-fox-main.log`), and no face of the back of the neck turns over in the bind.
+
+`smooth_box()` of `tools/blender/rig_mesh.py` smooths the vertices of the source inside a box
+before the weights. `fox-smooth-config.json` gives the box of the back of the neck and the bottom
+of the back of the head. With it, the neck line is clean from the back and the sides
+(`neck-back.webp`, lower row), the standing body stays within 0.302 mm of the long-armed source,
+and the folds of each role stay (`rig-mesh-check-fox-smooth.log`). After the weights, the same
+box folded the tan flute fox in each play sample, because its head turns 30°
+(`rig-mesh-check-fox-smooth-after-weights.log`).
+
+The smoothing also changes the layout of four demos. The stage side grows by 2.2% (the two Bach
+demos BWV 1047 and 1048), 0.2% (Mozart K. 191), and 4.6% (Mozart K. 525). Two tests of the shot
+planner in `src/shots/trace.test.ts` fail, and the paused test of the neighbors of a row in
+`src/models/layout-scene.test.ts` fails. A box below the head line (y up to 0.725 units) changes
+the stages too (`rig-mesh-check-fox-smooth.log`). The seats, the head tops, and the footprints
+of the form table do not change at 1 mm. So the configs keep no box, and the band stays open.
