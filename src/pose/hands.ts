@@ -16,8 +16,8 @@ import type { TorsoFrames } from './frames.ts';
 import { HAND_MOTION, NO_REACH_LIMIT, buildHandTrack, splitHands } from './hand-notes.ts';
 import type { HandAction, HandReach, HandState, HandTrack } from './hand-notes.ts';
 import { armRig, limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
-import { lapPoint } from './lap.ts';
-import type { LapPlace } from './lap.ts';
+import { lapHand } from './lap.ts';
+import type { LapHand } from './lap.ts';
 import type { ArmRig } from './ik.ts';
 
 /** The instruments that the two hands play on keys or strings: the piano and the harp. */
@@ -77,17 +77,11 @@ export interface HandsHold {
  * in the playing pose (`string`).
  */
 export type RestingHand =
-  | {
+  | (LapHand & {
       readonly kind: 'lap';
-      /** The place of the palm. */
-      readonly lap: LapPlace;
-      /** The side of the palm: down onto a thigh, or back and down onto a round belly. */
-      readonly palm: Vec3;
-      /** The direction of the fingers. The pose keeps only its part in the plane of the palm. */
-      readonly fingers: Vec3;
       /** The direction to which the elbow points, out to the side of the body. */
       readonly pole: Vec3;
-    }
+    })
   | {
       readonly kind: 'string';
       /** The key of the string. */
@@ -254,19 +248,7 @@ function restingHand(
     };
   }
 
-  // The bind palm faces the body: +x on the left and -x on the right. The fingers point down.
-  const side = new Vector3(...rest.palm).normalize();
-  const back = new Vector3(...rest.fingers);
-  back.addScaledVector(side, -back.dot(side)).normalize().negate();
-  side.multiplyScalar(arm.side === 'L' ? 1 : -1);
-  const rotation = setFromBasis(new Quaternion(), side, back);
-  const palm = new Vector3(...lapPoint(model, arm.side, rest.lap));
-
-  return {
-    wrist: toVec3(palm.sub(new Vector3(...arm.palm).applyQuaternion(rotation))),
-    rotation: toQuat(rotation),
-    pole: rest.pole,
-  };
+  return { ...lapHand(model, arm, rest), pole: rest.pole };
 }
 
 /** The points of a piano or harp player in the bind pose that the pose needs. */

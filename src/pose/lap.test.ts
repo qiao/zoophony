@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { Vector3 } from 'three';
+import { Quaternion, Vector3 } from 'three';
 
 import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { BIND_ROTATIONS } from './frames.ts';
-import { lapPoint } from './lap.ts';
+import { armRig } from './ik.ts';
+import { lapHand, lapPoint } from './lap.ts';
 import { posedPart, signedDistance } from './test-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
 
@@ -44,5 +45,44 @@ describe('lapPoint', () => {
       expect.closeTo(0.2, 9),
       expect.closeTo(0, 9),
     ]);
+  });
+});
+
+describe('lapHand', () => {
+  const model = buildPlayer('wolf', 'harp');
+  const rest = {
+    lap: { along: 0.6, offset: [-0.1, 0.05, 0] },
+    palm: [0.2, -1, 0.1],
+    fingers: [0.3, 0.4, -1],
+  } as const;
+
+  it('puts the middle of the palm at the lap place', () => {
+    for (const side of ['L', 'R'] as const) {
+      const arm = armRig(model, side);
+      const hand = lapHand(model, arm, rest);
+      const palm = new Vector3(...arm.palm)
+        .applyQuaternion(new Quaternion(...hand.rotation))
+        .add(new Vector3(...hand.wrist));
+
+      expect(palm.distanceTo(new Vector3(...lapPoint(model, side, rest.lap))), side).toBeLessThan(
+        1e-9,
+      );
+    }
+  });
+
+  it('turns the palm to its side and the fingers in the plane of the palm', () => {
+    const palm = new Vector3(...rest.palm).normalize();
+    const fingers = new Vector3(...rest.fingers);
+    fingers.addScaledVector(palm, -fingers.dot(palm)).normalize();
+    for (const side of ['L', 'R'] as const) {
+      const turn = new Quaternion(...lapHand(model, armRig(model, side), rest).rotation);
+      // The bind palm faces the body, +x on the left and -x on the right, and the fingers point
+      // down.
+      const face = new Vector3(side === 'L' ? 1 : -1, 0, 0).applyQuaternion(turn);
+      const down = new Vector3(0, -1, 0).applyQuaternion(turn);
+
+      expect(face.distanceTo(palm), side).toBeLessThan(1e-6);
+      expect(down.distanceTo(fingers), side).toBeLessThan(1e-6);
+    }
   });
 });

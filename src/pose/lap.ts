@@ -1,9 +1,11 @@
-import { Vector3 } from 'three';
+import { Quaternion, Vector3 } from 'three';
 
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
-import { toVec3 } from '../models/tuples.ts';
-import type { Vec3 } from '../models/tuples.ts';
+import { toQuat, toVec3 } from '../models/tuples.ts';
+import type { Quat, Vec3 } from '../models/tuples.ts';
+import { setFromBasis } from './frames.ts';
+import type { ArmRig } from './ik.ts';
 
 /** A place on the top of a thigh of a seated player. */
 export interface LapPlace {
@@ -78,4 +80,47 @@ export function lapPoint(model: PlayerModel, side: 'L' | 'R', lap: LapPlace): Ve
   const point = hip.lerp(knee, lap.along);
   point.y = legTop(model, side, point);
   return toVec3(point.addScaledVector(new Vector3(...lap.offset), h));
+}
+
+/** A paw that rests on the top of a thigh of a seated player (design 5.3). */
+export interface LapHand {
+  /** The place of the palm. */
+  readonly lap: LapPlace;
+  /** The side of the palm: down onto a thigh, or back and down onto a round belly. */
+  readonly palm: Vec3;
+  /** The direction of the fingers. The pose keeps only its part in the plane of the palm. */
+  readonly fingers: Vec3;
+}
+
+/** The `hand` bone of a paw that rests on a thigh, in the bind pose. */
+export interface LapHandPlace {
+  /** The place of the `hand` bone, in the model axes. */
+  readonly wrist: Vec3;
+  /** The world rotation of the `hand` bone. */
+  readonly rotation: Quat;
+}
+
+/**
+ * Finds the `hand` bone of a paw that rests on a thigh: the middle of the palm is at the lap place
+ * ({@link lapPoint}), the palm faces the side of the rest hand, and the fingers point in the plane
+ * of the palm.
+ *
+ * @param model The player model.
+ * @param arm The arm of the paw. The paw rests on the thigh of the same side.
+ * @param rest The place of the palm, the side of the palm, and the direction of the fingers.
+ * @returns The place and the world rotation of the `hand` bone.
+ */
+export function lapHand(model: PlayerModel, arm: ArmRig, rest: LapHand): LapHandPlace {
+  // The bind palm faces the body: +x on the left and -x on the right. The fingers point down.
+  const side = new Vector3(...rest.palm).normalize();
+  const back = new Vector3(...rest.fingers);
+  back.addScaledVector(side, -back.dot(side)).normalize().negate();
+  side.multiplyScalar(arm.side === 'L' ? 1 : -1);
+  const rotation = setFromBasis(new Quaternion(), side, back);
+  const palm = new Vector3(...lapPoint(model, arm.side, rest.lap));
+
+  return {
+    wrist: toVec3(palm.sub(new Vector3(...arm.palm).applyQuaternion(rotation))),
+    rotation: toQuat(rotation),
+  };
 }
