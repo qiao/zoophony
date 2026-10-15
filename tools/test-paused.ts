@@ -118,24 +118,41 @@ export function readReport(text: string): PausedReport {
 }
 
 /**
- * Gives the failed tests and the errors of one run: each failed test as
- * `<file> > <suite> > <test>`, each unhandled error, and the exit code when the run ends with a
- * code other than 0 and the report gives no failed test and no error. A crash of a run thus shows
- * too.
+ * A failed test or an error of a run, by its title path: the file, the suites, and the test, or a
+ * kind of error and its message. The parts stay apart, so that two paths whose names join to the
+ * same text stay two issues.
+ */
+export type Issue = readonly string[];
+
+/**
+ * Gives the failed tests and the errors of one run: each failed test by its title path, each
+ * unhandled error, and the exit code when the run ends with a code other than 0 and the report
+ * gives no failed test and no error. A crash of a run thus shows too.
  *
  * @param report The report of the run.
  * @param status The exit code of the run, or `null` when a signal ended it.
- * @returns The failed tests and the errors, in the order of the report.
+ * @returns The failed tests and the errors, in the order of the report. A test that fails two
+ *   times gives two issues.
  */
-export function runIssues(report: PausedReport, status: number | null): string[] {
-  const issues = [
-    ...report.failed.map((path) => path.join(' > ')),
-    ...report.unhandled.map((error) => `(unhandled error) ${error}`),
+export function runIssues(report: PausedReport, status: number | null): Issue[] {
+  const issues: Issue[] = [
+    ...report.failed,
+    ...report.unhandled.map((error) => ['(unhandled error)', error]),
   ];
   if (issues.length === 0 && status !== 0) {
-    issues.push(`(exit code ${String(status)} with no failed test and no error)`);
+    issues.push([`(exit code ${String(status)} with no failed test and no error)`]);
   }
   return issues;
+}
+
+/**
+ * Writes an issue as one line: the parts of its title path with ` > `.
+ *
+ * @param issue The issue.
+ * @returns The line.
+ */
+export function issueText(issue: Issue): string {
+  return issue.join(' > ');
 }
 
 /**
@@ -145,11 +162,22 @@ export function runIssues(report: PausedReport, status: number | null): string[]
  *
  * @param base The failed tests and the errors of the commit ({@link runIssues}).
  * @param tree The failed tests and the errors of the working tree.
- * @returns The tests, in the order of the working tree.
+ * @returns The issues, in the order of the working tree. Each issue counts: a test of the working
+ *   tree that fails one time more than on the commit, such as a name that repeats in its file,
+ *   gives one issue.
  */
-export function newFailures(base: readonly string[], tree: readonly string[]): string[] {
-  const old = new Set(base);
-  return tree.filter((test) => !old.has(test));
+export function newFailures(base: readonly Issue[], tree: readonly Issue[]): Issue[] {
+  const left = new Map<string, number>();
+  for (const issue of base) {
+    const key = JSON.stringify(issue);
+    left.set(key, (left.get(key) ?? 0) + 1);
+  }
+  return tree.filter((issue) => {
+    const key = JSON.stringify(issue);
+    const count = left.get(key) ?? 0;
+    left.set(key, count - 1);
+    return count <= 0;
+  });
 }
 
 /**
@@ -161,7 +189,7 @@ export function newFailures(base: readonly string[], tree: readonly string[]): s
  * @returns The failed tests and the errors.
  * @throws Error if the run wrote no report, with the cause from the error output.
  */
-async function runFailures(name: string, end: ChildEnd, json: string): Promise<string[]> {
+async function runFailures(name: string, end: ChildEnd, json: string): Promise<Issue[]> {
   if (!existsSync(json)) {
     const cause = end.errors.trim().split('\n').slice(-20).join('\n');
     throw new Error(
@@ -211,7 +239,7 @@ async function compareBase(ref: string, paths: readonly string[]): Promise<numbe
           fresh.length > 0
             ? `Tests that fail and errors on the working tree alone (${fresh.length}):`
             : 'No test fails and no error comes on the working tree alone.',
-          ...fresh.map((test) => `  ${test}`),
+          ...fresh.map((issue) => `  ${issueText(issue)}`),
         ].join('\n'),
       );
       return fresh.length > 0 ? 1 : 0;

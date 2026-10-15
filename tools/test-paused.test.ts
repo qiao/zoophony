@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   PAUSED_PATHS,
+  issueText,
   newFailures,
   parsePausedArgs,
   readReport,
@@ -52,15 +53,15 @@ describe('readReport and runIssues', () => {
 
   it('gives each failed test by its title path and each unhandled error', () => {
     expect(runIssues(report, 1)).toEqual([
-      'src/a.test.ts > a > fails',
-      '(unhandled error) Error: lost',
+      ['src/a.test.ts', 'a', 'fails'],
+      ['(unhandled error)', 'Error: lost'],
     ]);
   });
 
   it('gives the exit code of a run that fails with no failed test and no error', () => {
     const empty = { reason: 'failed', failed: [], unhandled: [] };
-    expect(runIssues(empty, 1)).toEqual(['(exit code 1 with no failed test and no error)']);
-    expect(runIssues(empty, null)).toEqual(['(exit code null with no failed test and no error)']);
+    expect(runIssues(empty, 1)).toEqual([['(exit code 1 with no failed test and no error)']]);
+    expect(runIssues(empty, null)).toEqual([['(exit code null with no failed test and no error)']]);
     expect(runIssues(empty, 0)).toEqual([]);
   });
 
@@ -71,10 +72,38 @@ describe('readReport and runIssues', () => {
 
 describe('newFailures', () => {
   it('gives the failed tests of the working tree that do not fail on the commit', () => {
-    expect(newFailures(['a > x', 'b > y'], ['b > y', 'c > z', 'a > w'])).toEqual([
-      'c > z',
-      'a > w',
+    expect(
+      newFailures(
+        [
+          ['a', 'x'],
+          ['b', 'y'],
+        ],
+        [
+          ['b', 'y'],
+          ['c', 'z'],
+          ['a', 'w'],
+        ],
+      ),
+    ).toEqual([
+      ['c', 'z'],
+      ['a', 'w'],
     ]);
-    expect(newFailures(['a > x'], [])).toEqual([]);
+    expect(newFailures([['a', 'x']], [])).toEqual([]);
+  });
+
+  it('counts a test that fails more times on the working tree, and keeps the title path apart', () => {
+    // The name repeats in one file: it fails one time on the commit and two times on the tree.
+    expect(
+      newFailures(
+        [['f', 's', 't']],
+        [
+          ['f', 's', 't'],
+          ['f', 's', 't'],
+        ],
+      ),
+    ).toEqual([['f', 's', 't']]);
+    // A suite "s > t" and a suite "s" with a test "t" join to the same text.
+    expect(newFailures([['f', 's > t']], [['f', 's', 't']])).toEqual([['f', 's', 't']]);
+    expect(issueText(['f', 's', 't'])).toBe('f > s > t');
   });
 });
