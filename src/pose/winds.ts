@@ -11,8 +11,12 @@ import { mixDirection, mixRotation } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
 import { NECK_SHARE, createFrame, posePoint, setBoneRotation, setFromBasis } from './frames.ts';
 import type { Frame, TorsoFrames } from './frames.ts';
+import { hangingArm, hangingHand, hangingWrist } from './hang.ts';
+import type { HangingArm } from './hang.ts';
 import { armRig, handToward, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
+import { lapHand } from './lap.ts';
+import type { LapHand } from './lap.ts';
 import { BRASS_FUNDAMENTALS } from './wind-notes.ts';
 import type { Fingering, WindState } from './wind-notes.ts';
 
@@ -68,6 +72,14 @@ export interface WindHold {
    * (0, 0, 0) keeps the mouthpiece at the mouth.
    */
   readonly lipShift: Vec3;
+  /**
+   * The left paw in the rest pose when it leaves its grip (design 5.3): the place of the palm on
+   * the left thigh of a seated player, the side of the palm, and the direction of the fingers. The
+   * left arm of a standing player hangs (`hangingArm()`). The lift and the lowering move the left
+   * paw between its rest place and its grip by the weight of the playing pose, the weight that
+   * also moves the instrument. `null` keeps the left palm on its grip, also in the rest pose.
+   */
+  readonly restFreeL: LapHand | null;
 }
 
 /**
@@ -92,6 +104,7 @@ const WOODWIND = {
   fundamental: 0,
   headTurn: 0,
   lipShift: [0, 0, 0],
+  restFreeL: null,
 } as const satisfies WindHold;
 
 /** The rotation that changes nothing. Nothing writes it. */
@@ -352,6 +365,23 @@ const BONES = {
   instrument: boneIndex('instrument'),
 } as const;
 
+/** The left paw of a wind player in the rest pose, off its grip (`WindHold.restFreeL`). */
+export type FreeRest =
+  | {
+      /** A paw on the left thigh of a seated player. */
+      readonly kind: 'lap';
+      /** The place of the `hand` bone, in the model axes. */
+      readonly wrist: Vec3;
+      /** The world rotation of the `hand` bone, with the root in its bind pose. */
+      readonly rotation: Quat;
+    }
+  | {
+      /** The hanging arm of a standing player. */
+      readonly kind: 'hang';
+      /** The wrist, the hand, and the elbow of the hanging arm. */
+      readonly hang: HangingArm;
+    };
+
 /** One side of the body of a wind player in the bind pose. */
 interface WindSide {
   readonly arm: ArmRig;
@@ -379,6 +409,8 @@ export interface WindRig {
   readonly lip: Vec3;
   readonly left: WindSide;
   readonly right: WindSide;
+  /** The left paw in the rest pose, or `null` when it stays on its grip. */
+  readonly freeL: FreeRest | null;
   /** The unit direction of the trombone slide from the first position, or (0, 0, 0). */
   readonly slideAxis: Vec3;
   /**
@@ -401,6 +433,22 @@ function gripPoint(model: PlayerModel, grip: PiecePoint | null): Vec3 {
     throw new Error(`The ${model.instrument.id} has no grip of a palm.`);
   }
   return placePoint(model.pieces, grip);
+}
+
+/**
+ * Finds the left paw of a wind player in the rest pose, off its grip: on the left thigh of a
+ * seated player, or at the end of the hanging arm of a standing player.
+ *
+ * @param model The player model.
+ * @param arm The left arm.
+ * @param rest The paw on the thigh.
+ * @returns The paw.
+ */
+function freeRestOf(model: PlayerModel, arm: ArmRig, rest: LapHand): FreeRest {
+  if (model.support === 'stand') {
+    return { kind: 'hang', hang: hangingArm(model, arm) };
+  }
+  return { kind: 'lap', ...lapHand(model, arm, rest) };
 }
 
 /**
@@ -476,6 +524,7 @@ export function windRig(
   const slideAt = (point: Vec3): Vector3 =>
     new Vector3(...placePoint(model.pieces, { bone: 'slide', at: point }));
   const travelVector = slide ? slideAt(slide.to).sub(slideAt(slide.from)) : new Vector3();
+  const left = side('L');
   const rig = {
     hold,
     pivot: at(BONES.instrument),
@@ -484,8 +533,9 @@ export function windRig(
     neckBind: at(BONES.neck),
     headBind: at(BONES.head),
     lip: toVec3(new Vector3(...hold.lipShift).multiplyScalar(model.body.headHeight)),
-    left: side('L'),
+    left,
     right: side('R'),
+    freeL: hold.restFreeL ? freeRestOf(model, left.arm, hold.restFreeL) : null,
     slideAxis: toVec3(travelVector.clone().normalize()),
   };
   return { ...rig, slideReach: slideReachOf(rig, travelVector.length()) };
@@ -527,27 +577,36 @@ const shoulder = createFrame();
 const grip = new Vector3();
 const hand = new Quaternion();
 const palm = new Vector3();
+const restWrist = new Vector3();
+const restHand = new Quaternion();
+const ORIGIN = [0, 0, 0] as const;
 
 /**
- * Writes one arm and its fingers on the grip of the instrument.
+ * Writes one arm and its fingers on the grip of the instrument. A paw that is free in the rest pose
+ * moves from its rest place to its grip by the weight of the playing pose.
  *
  * @param rig The points of the player.
  * @param side The side of the body.
- * @param chest The posed frame of the chest.
+ * @param frames The posed frames of the root and of the chest.
  * @param turn The local rotation of the `shoulder` bone.
  * @param pole The direction to which the elbow points.
  * @param curl The curl of the fingers.
+ * @param free The paw in the rest pose off its grip, or `null` for a palm that stays on its grip.
+ * @param weight The eased weight of the playing pose: 0 is the rest pose.
  * @param rotations The rotations of the pose to write.
  */
 function poseSide(
   rig: WindRig,
   side: WindSide,
-  chest: Frame,
+  frames: TorsoFrames,
   turn: Quaternion,
   pole: Vec3,
   curl: number,
+  free: FreeRest | null,
+  weight: number,
   rotations: Float32Array,
 ): void {
+  const { chest, root } = frames;
   grip.fromArray(side.grip);
   if (side.onSlide) {
     grip.add(slide);
@@ -555,17 +614,24 @@ function poseSide(
   grip.sub(pivotBind.fromArray(rig.pivot)).applyQuaternion(rotation).add(pivot);
   poseShoulder(side.arm, chest, rig.chestBind, turn, shoulder);
   handToward(shoulder, grip, hand);
-  writeArm(
-    {
-      arm: side.arm,
-      shoulder,
-      wrist: grip.sub(palm.fromArray(side.arm.palm).applyQuaternion(hand)),
-      hand,
-      pole,
-    },
-    chest.rotation,
-    rotations,
-  );
+  const wrist = grip.sub(palm.fromArray(side.arm.palm).applyQuaternion(hand));
+
+  // In the playing pose, the paw is on its grip with no mix, so that the pose is the pose of the
+  // grip with no free paw.
+  if (free && weight < 1) {
+    // A paw on the thigh follows the root, and a hanging arm follows its shoulder.
+    if (free.kind === 'lap') {
+      posePoint(root, ORIGIN, free.wrist, restWrist);
+      restHand.fromArray(free.rotation).premultiply(root.rotation);
+    } else {
+      hangingWrist(free.hang, shoulder, restWrist);
+      hangingHand(free.hang, shoulder, restHand);
+    }
+    wrist.lerpVectors(restWrist, wrist, weight);
+    mixRotation(restHand, hand, weight, hand);
+  }
+
+  writeArm({ arm: side.arm, shoulder, wrist, hand, pole }, chest.rotation, rotations);
   setBoneRotation(rotations, side.arm.bones.shoulder, turn);
   writeCurl(side.arm, curl, rotations);
 }
@@ -679,7 +745,7 @@ export function windGrips(rig: WindRig, weight: number): Readonly<Record<'L' | '
  * Writes the arms, the fingers, the instrument, and the slide of a wind player (design 5.3,
  * 4.7). The mouthpiece stays at the mouth, because the head and the instrument both follow the
  * chest. The palms stay on their grips, also in the rest pose, and the two-bone IK places each
- * arm. The fingers close for the pitch. The trombone slide moves along its axis.
+ * arm. A hold can free the left paw in the rest pose (`WindHold.restFreeL`). The fingers close for the pitch. The trombone slide moves along its axis.
  *
  * The caller writes the breath into the spine, and the head lift of the rest pose into the neck
  * and the head, before it calculates the frames.
@@ -701,13 +767,15 @@ export function poseWind(
   placeWind(rig, chest, weight);
   slide.fromArray(rig.slideAxis).multiplyScalar(state.slide * rig.slideReach * weight);
   const { hold } = rig;
+  const { freeL } = rig;
   const left = curlOf(state.fingersL, weight);
-  const poleL = mixPole(hold.restPoleL, hold.poleL, weight);
-  poseSide(rig, rig.left, chest, NO_TURN, poleL, left, out.rotations);
+  const restPoleL = freeL?.kind === 'hang' ? freeL.hang.pole : hold.restPoleL;
+  const poleL = mixPole(restPoleL, hold.poleL, weight);
+  poseSide(rig, rig.left, frames, NO_TURN, poleL, left, freeL, weight, out.rotations);
   const right = curlOf(state.fingersR, weight);
   rightShoulderTurn(hold, rightTurn);
   const poleR = mixPole(hold.restPoleR, hold.poleR, weight);
-  poseSide(rig, rig.right, chest, rightTurn, poleR, right, out.rotations);
+  poseSide(rig, rig.right, frames, rightTurn, poleR, right, null, weight, out.rotations);
   setBoneRotation(out.rotations, BONES.instrument, local);
   slide.toArray(out.slideOffset);
   shift.toArray(out.instrumentOffset);
