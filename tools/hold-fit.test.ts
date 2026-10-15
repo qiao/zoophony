@@ -10,6 +10,7 @@ import {
   FIT_STEP,
   GRID_LIMIT,
   chooseDemos,
+  faceSections,
   fitSweep,
   fitJson,
   fitTable,
@@ -99,13 +100,15 @@ describe('parseFitOptions', () => {
     expect(parseFitOptions(['pianist', '--json', 'out.json']).json).toBe('out.json');
   });
 
-  it('adds the variants of the grids after the variants of --set', () => {
+  it('adds the variants of the grids after the variants of --set, and takes --faces', () => {
     const options = parseFitOptions([
       'pianist',
       '--set',
       'piano.lean=16deg',
       '--grid',
       'piano.lean=10deg:20deg:10deg',
+      '--faces',
+      '5',
     ]);
     expect(options.variants).toEqual([
       '',
@@ -114,6 +117,9 @@ describe('parseFitOptions', () => {
       'piano.lean=20deg',
     ]);
     expect(options.grids).toEqual(['piano.lean=10deg:20deg:10deg']);
+    expect(options.faces).toBe(5);
+    expect(parseFitOptions(['pianist']).faces).toBe(0);
+    expect(() => parseFitOptions(['pianist', '--faces', '0'])).toThrow(/above 0/);
     expect(() => parseFitOptions(['pianist', '--grid', 'piano.nothing=1:2:1'])).toThrow(
       /not known/,
     );
@@ -269,6 +275,7 @@ describe('fitTable', () => {
     reach: null,
     seconds: 1,
     results: [],
+    faces: [],
   };
 
   it('marks a depth over its limit and play folds over the goal of 1%', () => {
@@ -313,6 +320,29 @@ describe('fitTable', () => {
       variant('c', 3, 0.01),
     ];
     expect(sortFitRows(rows).map((r) => r.variant)).toEqual(['', 'b', 'c', 'a']);
+  });
+
+  it('writes the faces of the base and of the best variant', () => {
+    const rows: FitRow[] = [
+      { ...row, faces: ['base face'] },
+      { ...row, variant: 'a', folds: { ...row.folds, play: { samples: 100, withFold: 5 } } },
+      {
+        ...row,
+        variant: 'b',
+        folds: { ...row.folds, play: { samples: 100, withFold: 1 } },
+        faces: ['b face'],
+      },
+    ];
+    expect(faceSections(rows[0], 'main', rows)).toEqual([
+      '',
+      'Faces of main:',
+      '',
+      'base face',
+      '',
+      'Faces of the best variant, b:',
+      '',
+      'b face',
+    ]);
   });
 
   it('adds the rule scale, the violin length, and the reached ranges for a violin role', () => {

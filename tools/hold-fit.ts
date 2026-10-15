@@ -7,19 +7,21 @@
  *
  * `--grid '<path>=<a>:<b>:<step>'` adds the variants of a range of values, and several `--grid`
  * options give the product of their ranges, up to {@link GRID_LIMIT} variants. A run with a grid
- * sorts the rows of the variants by the play folds, then by the deepest point.
+ * sorts the rows of the variants by the play folds, then by the deepest point. With `--faces <n>`,
+ * the faces that fold most in the base and in the best variant follow the table, as
+ * `pnpm fold-probe --faces` writes them.
  *
  * With `--base <ref>`, the commit and the working tree run at the same time, each in a child
  * process. The table then starts with the row of the commit, and one compare of the deepest
  * points in the H of each body follows for each variant.
  *
  * Usage: pnpm hold-fit <role> [--set <path>=<value>[;<path>=<value>]...]...
- * [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]... [--step <seconds>] [--base <ref>]
- * [--json <file>]
+ * [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]... [--step <seconds>] [--faces <n>]
+ * [--base <ref>] [--json <file>]
  */
 import { writeFileSync } from 'node:fs';
 
-import { FOLD_ROLES, probeFolds, roleBodies } from './fold-probe.ts';
+import { FOLD_ROLES, faceLines, probeFolds, roleBodies } from './fold-probe.ts';
 import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
 import { holdReach, rangeTexts, ruleSize } from './hold-reach.ts';
 import type { ChinInstrument, HoldReach } from './hold-reach.ts';
@@ -62,7 +64,7 @@ export const PLAY_FOLD_GOAL = 0.01;
 export const GRID_LIMIT = 40;
 
 /** The usage text of `pnpm hold-fit`. */
-const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]... [--step <seconds>] [--base <ref>] [--json <file>]`;
+const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>]`;
 
 /**
  * Gives the values of one grid: from the first value to the last value at each step, with both
@@ -144,6 +146,8 @@ export interface FitOptions {
   readonly variants: readonly string[];
   /** The grids of `--grid`, as `<path>=<a>:<b>:<step>`. */
   readonly grids: readonly string[];
+  /** The number of faces of `--faces` for the base and the best variant, or 0 for none. */
+  readonly faces: number;
   /**
    * The demos, by the name of the file with no `.mid`, or `all`. The demos of {@link FIT_DEMOS}
    * when empty.
@@ -176,6 +180,7 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   const grids: string[] = [];
   const demos: string[] = [];
   let step = FIT_STEP;
+  let faces = 0;
   let json: string | null = null;
   let base: string | null = null;
   for (let i = 0; i < rest.length; i += 2) {
@@ -189,6 +194,12 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
         break;
       case '--grid':
         grids.push(value);
+        break;
+      case '--faces':
+        faces = Number(value);
+        if (!Number.isInteger(faces) || faces < 1) {
+          throw new Error('The option --faces takes a whole number of faces above 0.');
+        }
         break;
       case '--demo':
         demos.push(value.replace(/\.mid$/, ''));
@@ -216,7 +227,7 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   if (base !== null && json !== null) {
     throw new Error(`The options --base and --json do not go together.\n${USAGE}`);
   }
-  return { name, role, variants, grids, demos, step, json, base };
+  return { name, role, variants, grids, faces, demos, step, json, base };
 }
 
 /**
@@ -318,6 +329,8 @@ export interface FitRow {
   readonly seconds: number;
   /** The results of the sweep in each demo, for the compare of `--base`. */
   readonly results: readonly DemoResult[];
+  /** The table of the faces that fold most (`faceLines()` of `pnpm fold-probe`), or none. */
+  readonly faces: readonly string[];
 }
 
 /** The JSON text of {@link fitJson}. JSON writes the place `NaN` of a depth as `null`. */
@@ -378,6 +391,7 @@ export function readFit(text: string): FitRun {
       reach: row.reach,
       seconds: row.seconds,
       results: row.results.map(restoreResult),
+      faces: row.faces,
     })),
   };
 }
@@ -467,6 +481,34 @@ export function sortFitRows(rows: readonly FitRow[]): FitRow[] {
     ...(base ? [base] : []),
     ...variants.toSorted((a, b) => share(a) - share(b) || margin(a) - margin(b)),
   ];
+}
+
+/**
+ * Writes the faces of `--faces` for the base and for the best variant: the first variant of
+ * {@link sortFitRows}.
+ *
+ * @param base The row of the base, such as the row of the commit of `--base`.
+ * @param baseName The name of the base.
+ * @param rows The rows of the working tree, the base first.
+ * @returns The lines, or none when no row has faces.
+ */
+export function faceSections(
+  base: FitRow | undefined,
+  baseName: string,
+  rows: readonly FitRow[],
+): string[] {
+  const best = sortFitRows(rows)[1];
+  const sections: [string, FitRow | undefined][] = [
+    [baseName, base],
+    [`the best variant, ${best?.variant ?? ''}`, best],
+  ];
+  const lines: string[] = [];
+  for (const [name, row] of sections) {
+    if (row && row.faces.length > 0) {
+      lines.push('', `Faces of ${name}:`, '', ...row.faces);
+    }
+  }
+  return lines;
 }
 
 /**
@@ -607,6 +649,9 @@ async function compareFit(options: FitOptions, ref: string): Promise<void> {
   console.log(
     ['', ...fitTable([...(first ? [{ ...first, variant: label }] : []), ...rows])].join('\n'),
   );
+  if (options.faces > 0) {
+    console.log(faceSections(first, label, tree.rows).join('\n'));
+  }
   for (const { variant, results } of rows) {
     console.log(`\nThe depths of ${label} and of the working tree with ${variant || 'no change'}:`);
     console.log(compareDepths(label, first?.results ?? [], results).join('\n'));
@@ -649,6 +694,7 @@ async function main(): Promise<void> {
         reach: chin ? holdReach(chin.species, chin.instrument, 'chair') : null,
         seconds: (performance.now() - started) / 1000,
         results,
+        faces: options.faces > 0 ? faceLines(report, options.faces) : [],
       };
       rows.push(row);
       printRow(row);
@@ -658,6 +704,9 @@ async function main(): Promise<void> {
   }
   const table = options.grids.length > 0 ? sortFitRows(rows) : rows;
   console.log(['', ...fitTable(table)].join('\n'));
+  if (options.faces > 0) {
+    console.log(faceSections(rows[0], 'the base', rows).join('\n'));
+  }
   if (options.json !== null) {
     writeFileSync(options.json, fitJson({ demos: ids, rows }));
   }
