@@ -493,7 +493,8 @@ quarter of the folded faces.
 ```
 
 - `pnpm studio-body <animal>` reads the GLB file with no Blender. It welds the faces of the fur
-  and the gloss, keeps the skin, the arm-down corrective shapes, and the bind pose of the bones,
+  and the gloss, keeps the skin, the arm-down corrective shapes, the shape of a raised arm of a
+  mesh rig with its pose (`raiseOf()`), and the bind pose of the bones,
   turns the animal to face -z, and scales it. It drops the props and the clips of the studio (the
   baton, the violin and the bow that the paws hold, the bench, the chair, and the piano): the app
   keeps its own props (4.5, 4.6) and its own motion. The four digits of a paw of the pianist become

@@ -1,19 +1,20 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { Vector3 } from 'three';
+import { Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
 import type { RequiredStudioBone, StudioBody } from '../src/models/studio-format.ts';
 import { PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
-import type { AnimalSettings } from './studio-body.ts';
+import type { AnimalSettings, Glb } from './studio-body.ts';
 import {
   ANIMALS,
   headFactorOf,
   headRig,
   headShiftOf,
+  keptCorrectives,
   neckFactorOf,
   inspectStudioGlb,
   inspectionLines,
@@ -21,6 +22,7 @@ import {
   studioBody,
   studioGlbPath,
   studioModule,
+  raiseOf,
   readGlb,
   ungrown,
 } from './studio-body.ts';
@@ -566,23 +568,38 @@ interface RigExtras {
   readonly neckFactor?: number;
   /** The move of the head center back to the head before the smoothing, in studio units. */
   readonly headShift?: readonly number[];
+  /** The pose of the shape of a raised arm: the side, the turn, and the fade in degrees. */
+  readonly raise?: {
+    readonly side: string;
+    readonly turn: readonly number[];
+    readonly fade: readonly number[];
+  };
+}
+
+/** The parts of the JSON chunk of a GLB file that the tests change. */
+interface GlbJson {
+  /** The asset, with the extras of a rig. */
+  asset: { extras?: RigExtras };
+  /** The meshes, with the names of their morph targets and the targets of each primitive. */
+  meshes: {
+    extras?: { targetNames?: string[] };
+    primitives: { targets?: Record<string, number>[] }[];
+  }[];
 }
 
 /**
- * Writes a GLB file again with the facts of a rig of `pnpm rig-mesh` in the extras of its asset.
+ * Writes a GLB file again with a change of its JSON chunk.
  *
  * @param bytes The GLB file.
- * @param extras The facts of the rig.
+ * @param edit Changes the JSON chunk.
  * @returns The new file.
  */
-function withExtras(bytes: Uint8Array, extras: RigExtras): Uint8Array {
+function withJson(bytes: Uint8Array, edit: (json: GlbJson) => void): Uint8Array {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const jsonLength = view.getUint32(12, true);
-  // SAFETY: the JSON chunk of a GLB file holds one JSON object.
-  const json = JSON.parse(new TextDecoder().decode(bytes.subarray(20, 20 + jsonLength))) as {
-    asset: { extras?: RigExtras };
-  };
-  json.asset.extras = extras;
+  // SAFETY: the JSON chunk of a GLB file holds one JSON object with an asset and the meshes.
+  const json = JSON.parse(new TextDecoder().decode(bytes.subarray(20, 20 + jsonLength))) as GlbJson;
+  edit(json);
   let text = JSON.stringify(json);
   text += ' '.repeat((4 - (text.length % 4)) % 4);
   const chunk = new TextEncoder().encode(text);
@@ -597,6 +614,44 @@ function withExtras(bytes: Uint8Array, extras: RigExtras): Uint8Array {
   out.set(chunk, 20);
   out.set(bin, 20 + chunk.length);
   return out;
+}
+
+/**
+ * Writes a GLB file again with the facts of a rig of `pnpm rig-mesh` in the extras of its asset.
+ *
+ * @param bytes The GLB file.
+ * @param extras The facts of the rig.
+ * @returns The new file.
+ */
+function withExtras(bytes: Uint8Array, extras: RigExtras): Uint8Array {
+  return withJson(bytes, (json) => {
+    json.asset.extras = extras;
+  });
+}
+
+/**
+ * Writes the GLB file of the studio bear again with a shape of a raised right arm: a copy of the
+ * shape `arm_down_R`, first in the order of the morph targets, and its pose in the extras.
+ *
+ * @param bytes The GLB file of the studio bear.
+ * @param raise The pose of the shape.
+ * @returns The new file.
+ */
+function withRaise(bytes: Uint8Array, raise: NonNullable<RigExtras['raise']>): Uint8Array {
+  return withJson(bytes, (json) => {
+    json.asset.extras = { raise };
+    for (const mesh of json.meshes) {
+      if (mesh.extras?.targetNames) {
+        mesh.extras.targetNames = ['arm_raise_R', 'arm_down_L', 'arm_down_R'];
+        for (const primitive of mesh.primitives) {
+          const [left, right] = primitive.targets ?? [];
+          if (left && right) {
+            primitive.targets = [right, left, right];
+          }
+        }
+      }
+    }
+  });
 }
 
 describe('pnpm studio-body with a head that the rig grows (design 4.4)', async () => {
@@ -698,6 +753,61 @@ describe('pnpm studio-body with a head that the rig grows (design 4.4)', async (
       0.65,
     );
     expect(() => neckFactorOf(readGlb(withExtras(bytes, { neckFactor: -1 })))).toThrow(/positive/);
+  });
+});
+
+describe('pnpm studio-body with the shape of a raised arm (design 4.4)', async () => {
+  const bytes = new Uint8Array(await readFile(join(import.meta.dirname, '..', SOURCE)));
+  const settings = {
+    landmark: 'shoulders',
+    height: 1,
+    seated: false,
+    soloist: false,
+    constant: 'STUDIO_BEAR',
+    crease: 15,
+  } as const;
+  const turn = new Quaternion().setFromAxisAngle(new Vector3(1, 2, 3).normalize(), 0.7);
+  const raise = { side: 'R', turn: [turn.x, turn.y, turn.z, turn.w], fade: [10, 20] };
+
+  it('keeps each shape by its name, with the shape of a raised arm after the arm-down shapes', () => {
+    const plain = unpackStudioMesh(studioBody(bytes, SOURCE, settings).body.mesh).correctives;
+    const raised = unpackStudioMesh(
+      studioBody(withRaise(bytes, raise), SOURCE, settings).body.mesh,
+    ).correctives;
+    expect(plain).toHaveLength(2);
+    expect(raised).toHaveLength(3);
+    expect(raised[0]).toEqual(plain[0]);
+    expect(raised[1]).toEqual(plain[1]);
+    expect(raised[2]).toEqual(plain[1]);
+    expect(keptCorrectives({ ...settings, soloist: true }, ['arm_raise_R'])).toEqual([
+      'arm_down_L',
+      'arm_down_R',
+      'arm_raise_R',
+      'legs_straight_L',
+      'legs_straight_R',
+    ]);
+  });
+
+  it('turns the pose of the raised arm into the model axes, with the fade in radians', () => {
+    expect(studioBody(bytes, SOURCE, settings).body.raise).toBeUndefined();
+    const body = studioBody(withRaise(bytes, raise), SOURCE, settings).body;
+    // The studio animal faces +z and the model faces -z: a half circle around y.
+    const model = new Quaternion(-turn.x, turn.y, -turn.z, turn.w);
+    expect(body.raise?.side).toBe('R');
+    expect(new Quaternion(...(body.raise?.turn ?? [0, 0, 0, 1])).angleTo(model)).toBeLessThan(1e-5);
+    expect(body.raise?.fade[0]).toBeCloseTo((10 * Math.PI) / 180, 6);
+    expect(body.raise?.fade[1]).toBeCloseTo((20 * Math.PI) / 180, 6);
+  });
+
+  it('refuses a pose of a raised arm with a wrong side, turn, or fade, or with no shape', () => {
+    const glb = (changed: Partial<typeof raise>): Glb =>
+      readGlb(withRaise(bytes, { ...raise, ...changed }));
+    expect(() => raiseOf(glb({ side: 'X' }))).toThrow(/not L or R/);
+    expect(() => raiseOf(glb({ turn: [0, 0, 0, 2] }))).toThrow(/unit quaternion/);
+    expect(() => raiseOf(glb({ turn: [0, 0, 1] }))).toThrow(/unit quaternion/);
+    expect(() => raiseOf(glb({ fade: [20, 10] }))).toThrow(/do not fade/);
+    expect(() => raiseOf(glb({ fade: [10] }))).toThrow(/do not fade/);
+    expect(() => raiseOf(glb({ side: 'L' }))).toThrow(/no morph target arm_raise_L/);
   });
 });
 

@@ -26,6 +26,7 @@ import type {
   StudioHeads,
   StudioLegBone,
   StudioPalette,
+  StudioRaise,
   StudioStanding,
   StudioTailBone,
   StudioTriangle,
@@ -230,13 +231,37 @@ export const CORRECTIVE_NAMES = ['arm_down_L', 'arm_down_R'] as const;
 export const LEG_CORRECTIVE_NAMES = ['legs_straight_L', 'legs_straight_R'] as const;
 
 /**
- * Gives the corrective shapes that the export keeps for an animal.
+ * The corrective shape of a raised arm of a rig of `pnpm rig-mesh` (`raise` of its config), by
+ * the side of the arm. It follows {@link CORRECTIVE_NAMES} in the packed mesh.
+ */
+export const RAISE_NAMES = { L: 'arm_raise_L', R: 'arm_raise_R' } as const;
+
+/**
+ * Gives the corrective shapes that the export keeps for an animal: the arm-down shapes, the shape
+ * of a raised arm when the file has one, and the leg shapes of a seated body that also stands.
  *
  * @param settings The settings of the animal.
+ * @param targets The names of the morph targets of the file.
  * @returns The names, in their order in the packed mesh.
  */
-export function keptCorrectives(settings: AnimalSettings): readonly string[] {
-  return settings.soloist ? [...CORRECTIVE_NAMES, ...LEG_CORRECTIVE_NAMES] : CORRECTIVE_NAMES;
+export function keptCorrectives(
+  settings: AnimalSettings,
+  targets: readonly string[],
+): readonly string[] {
+  const raised = Object.values(RAISE_NAMES).filter((name) => targets.includes(name));
+  return [...CORRECTIVE_NAMES, ...raised, ...(settings.soloist ? LEG_CORRECTIVE_NAMES : [])];
+}
+
+/**
+ * Gives the names of the morph targets of the skinned mesh of a GLB file.
+ *
+ * @param glb The file.
+ * @returns The names, in their order.
+ */
+function targetNamesOf(glb: Glb): readonly string[] {
+  const node = glb.json.nodes.find((n) => n.mesh !== undefined && n.skin !== undefined);
+  const mesh = node?.mesh === undefined ? undefined : glb.json.meshes[node.mesh];
+  return mesh?.extras?.targetNames ?? [];
 }
 
 /** A seat prop of the studio, and the size of the seat of the app that takes its place. */
@@ -352,6 +377,17 @@ interface Gltf {
        * file has no move when the rig smooths no part of the mesh.
        */
       readonly headShift?: readonly number[];
+      /**
+       * The pose of the corrective shape of a raised arm (`raise` of the config of the mesh rig):
+       * the side, the world turn of the upper arm from the bind pose as x, y, z, w in the axes of
+       * the studio, and the angles of the turn from that turn, in degrees, at which the weight of
+       * the shape starts to fall and reaches 0. The file has none with no such shape.
+       */
+      readonly raise?: {
+        readonly side?: string;
+        readonly turn?: readonly number[];
+        readonly fade?: readonly number[];
+      };
     };
   };
 }
@@ -408,6 +444,49 @@ export function headShiftOf(glb: Glb): Vector3 {
     throw new Error(`The head shift ${JSON.stringify(shift)} of the file is not three numbers.`);
   }
   return new Vector3(...shift);
+}
+
+/**
+ * Gives the pose of the corrective shape of a raised arm of the rig of a GLB file (`pnpm
+ * rig-mesh`) in the model axes (design 4.4): the turn of the upper arm turns by a half circle
+ * around y, and the angles go to radians.
+ *
+ * @param glb The file.
+ * @returns The pose, or `null` when the file has no such shape.
+ * @throws Error if the side is not `L` or `R`, if the turn is not four finite numbers of length
+ *   1, if the angles are not two numbers with 0 <= first < second, or if the file has no morph
+ *   target of the shape.
+ */
+export function raiseOf(glb: Glb): StudioRaise | null {
+  const raise = glb.json.asset?.extras?.raise;
+  if (!raise) {
+    return null;
+  }
+  const { side, turn = [], fade = [] } = raise;
+  if (side !== 'L' && side !== 'R') {
+    throw new Error(`The side ${String(side)} of the raised arm is not L or R.`);
+  }
+  const [x = 0, y = 0, z = 0, w = 0] = turn;
+  if (
+    turn.length !== 4 ||
+    !turn.every((v) => Number.isFinite(v)) ||
+    Math.abs(Math.hypot(x, y, z, w) - 1) > 1e-4
+  ) {
+    throw new Error(`The turn ${JSON.stringify(turn)} of the raised arm is not a unit quaternion.`);
+  }
+  const [full = NaN, none = NaN] = fade;
+  if (fade.length !== 2 || !(full >= 0 && none > full)) {
+    throw new Error(`The angles ${JSON.stringify(fade)} of the raised arm do not fade.`);
+  }
+  if (!targetNamesOf(glb).includes(RAISE_NAMES[side])) {
+    throw new Error(`The file has no morph target ${RAISE_NAMES[side]}.`);
+  }
+  // The turn of a half circle around y moves a rotation into the model axes: x and z change sign.
+  return {
+    side,
+    turn: [round(-x), round(y), round(-z), round(w)],
+    fade: [round(full * MathUtils.DEG2RAD), round(none * MathUtils.DEG2RAD)],
+  };
 }
 
 /**
@@ -778,8 +857,9 @@ export function weldMesh(glb: Glb, kept: readonly string[]): SourceMesh {
     throw new Error('The file has no skinned mesh.');
   }
   const names = mesh.extras?.targetNames ?? [];
-  if (kept.some((name, i) => names[i] !== name)) {
-    throw new Error(`The shapes are ${names.join(', ')}, not ${kept.join(', ')}.`);
+  const targets = kept.map((name) => names.indexOf(name));
+  if (targets.some((t) => t < 0)) {
+    throw new Error(`The shapes are ${names.join(', ')}, with no ${kept.join(', ')}.`);
   }
 
   const jointNames = skin.joints.map((j) => ownBone(glb.json.nodes[j]?.name ?? ''));
@@ -797,7 +877,7 @@ export function weldMesh(glb: Glb, kept: readonly string[]): SourceMesh {
     const weights = at('WEIGHTS_0');
     const colors = at('COLOR_0');
     const colorSize = colors.length / (positions.length / 3);
-    const moves = (primitive.targets ?? []).map((t) => readAccessor(glb, t['POSITION'] ?? -1));
+    const moves = targets.map((t) => readAccessor(glb, primitive.targets?.[t]?.['POSITION'] ?? -1));
     const indices = readAccessor(glb, primitive.indices);
 
     const welded = new Map<string, number>();
@@ -1361,8 +1441,9 @@ interface Export {
 export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSettings): Export {
   const glb = readGlb(bytes);
   const skeleton = readSkeleton(glb);
-  const kept = keptCorrectives(settings);
+  const kept = keptCorrectives(settings, targetNamesOf(glb));
   const mesh = weldMesh(glb, kept);
+  const raise = raiseOf(glb);
   const frame = sceneFrame(glb, skeleton, mesh, settings);
   const scale = frame.scale;
   const model = (p: Vector3): Vec3 => toModelAxes(p.clone().add(frame.offset), scale);
@@ -1459,7 +1540,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   );
   const sheet = sheetArms(glb, skeleton);
 
-  const body: StudioBody = {
+  let body: StudioBody = {
     source,
     sha256: createHash('sha256').update(bytes).digest('hex'),
     scale: round(scale),
@@ -1482,6 +1563,9 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     crease: settings.crease,
     mesh: packStudioMesh(vertices, ordered.faces, correctives),
   };
+  if (raise) {
+    body = { ...body, raise };
+  }
   if (settings.palettes) {
     const palettes = Object.entries(settings.palettes).map(
       ([name, map]) => [name, packStudioPalette(ordered.faces, paletteMap(map))] as const,
@@ -1806,7 +1890,7 @@ export function inspectStudioGlb(
   const animal = skinned?.mesh === undefined ? undefined : gltf.meshes[skinned.mesh];
   const targets = (animal?.extras?.targetNames ?? []).map((name) => ({
     name,
-    kept: keptCorrectives(used).includes(name),
+    kept: keptCorrectives(used, animal?.extras?.targetNames ?? []).includes(name),
   }));
   const lowest = new Vector3(0, Infinity, 0);
   for (const primitive of animal?.primitives ?? []) {
