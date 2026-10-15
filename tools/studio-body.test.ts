@@ -5,7 +5,7 @@ import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
-import type { RequiredStudioBone } from '../src/models/studio-format.ts';
+import type { RequiredStudioBone, StudioBody } from '../src/models/studio-format.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import type { AnimalSettings } from './studio-body.ts';
@@ -689,5 +689,32 @@ describe('pnpm studio-body with a seat height in the settings (design 4.4)', asy
     // The packed mesh keeps each place within 0.1 mm.
     expect(lowest(low)).toBeCloseTo(0, 3);
     expect(lowest(high)).toBeCloseTo(0.3 - (low.seatHeight ?? 0), 3);
+  });
+});
+
+describe('pnpm studio-body with a move back on the chair in the settings (design 4.4)', async () => {
+  const settings = ANIMALS.get('fox');
+  if (!settings?.glb) {
+    throw new Error('The fox has no settings with a GLB file.');
+  }
+  const bytes = await readFile(join(import.meta.dirname, '..', settings.glb));
+  const at = (seatBack: number): StudioBody =>
+    studioBody(bytes, settings.glb ?? '', { ...settings, seatBack }).body;
+  const plain = at(0);
+  // The move of the hips back (+z in the model axes) and the growth of the chair.
+  const back = (body: StudioBody): number => body.heads.hips[2] - plain.heads.hips[2];
+  const growth = (body: StudioBody): number => (body.chairDepth ?? 0) - (plain.chairDepth ?? 0);
+
+  it('moves the body back on its chair, and the chair keeps its depth', () => {
+    const near = at(0.01);
+    expect(back(near)).toBeCloseTo(0.01, 6);
+    expect(growth(near)).toBeCloseTo(0, 6);
+  });
+
+  it('moves the body back to the clearance of the back posts, and grows the chair forward by the rest', () => {
+    const far = at(0.2);
+    expect(back(far)).toBeGreaterThan(0.01);
+    expect(back(far)).toBeLessThan(0.1);
+    expect(back(far) + growth(far)).toBeCloseTo(0.2, 6);
   });
 });
