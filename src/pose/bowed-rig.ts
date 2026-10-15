@@ -322,8 +322,12 @@ const SHOULDER_HOLD = {
  *
  * The rest pose is the rest of the cat violas, which the user asked for (2026-10-14-arms-rest
  * decisions): the violin stands upright on the lap in the middle between the knees, 0.4 H in from
- * the left thigh, held at its neck, with the left elbow out to the side. With the left elbow of
- * the cats, the left arm went 7.0 cm into the body at rest. The bow lies across the lap in
+ * the left thigh, held at its neck, with the left elbow out to the side. Its tail end is 0.3 H
+ * above the thigh, and it leans only a little forward, so that the scroll is at the height of the
+ * chest, as for the cats of the screenshot of the user: with the axis of the chin hold and the
+ * tail end 0.06 H above the thigh, the violin leaned and the scroll was low
+ * (2026-10-14-fox-rabbit-fix decisions). With the left elbow of the cats, the left arm went 7.0 cm
+ * into the body at rest. The bow lies across the lap in
  * the right paw, level, with the tip to the left and forward, so that the stick passes in front of
  * the violin. The grip is 0.2 H out from the right thigh and 0.3 H above it: 0.15 H out and 0.2 H
  * above, the right upper arm went 4.0 cm into the body while the arms lowered, and 3.1 cm at this
@@ -341,9 +345,9 @@ const FOX_HOLD = {
   restPoleL: [-1, -1, 0],
   restPoleR: [1, -0.4, 0.3],
   rest: {
-    axis: CHIN_HOLD.rest.axis,
+    axis: [0, 1, -0.15],
     top: CHIN_HOLD.rest.top,
-    lap: { along: 0.85, offset: [0.4, 0.06, 0] },
+    lap: { along: 0.85, offset: [0.4, 0.3, 0] },
   },
   restBow: {
     lap: { along: 0.6, offset: [0.2, 0.3, 0] },
