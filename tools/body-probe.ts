@@ -738,10 +738,11 @@ async function readProbe(file: string): Promise<Probe> {
 }
 
 /**
- * Probes the bodies and the poses of a commit. The folder of `withProbeTree()` holds the code and
- * the demos of the commit, and a copy of this tool. The probe runs there in a child process, so
- * that the caller can probe the working tree at the same time. The folder goes away at the end,
- * also after a failure or a stop (INT or TERM).
+ * Probes the bodies and the poses of a commit. The folder of `withProbeTree()` holds the code, the
+ * demos, and the tools of the commit, so the probe runs `tools/body-probe.ts` of the commit. A
+ * commit with no such script gets the script of the working tree. The probe runs there in a child
+ * process, so that the caller can probe the working tree at the same time. The folder goes away
+ * at the end, also after a failure or a stop (INT or TERM).
  *
  * @param ref The commit, a branch, or a tag.
  * @param parent The folder that holds the temporary folder.
