@@ -23,10 +23,12 @@ import {
 } from '../src/pose/test-sweep.ts';
 import type {
   AcceptedDepth,
+  GapPair,
   PairDepth,
   PairGap,
   RoleSweep,
   SampleSet,
+  SweepPlayer,
   TargetError,
 } from '../src/pose/test-sweep.ts';
 import { SWEEP_ROLES, playSample } from '../src/pose/test-sweep-roles.ts';
@@ -169,9 +171,18 @@ export interface SetResult {
   readonly name: string;
   /** The deepest point of each pair of a moving part and an obstacle. */
   readonly pairs: readonly PairDepth[];
-  /** The smallest gap of each pair of {@link gapPairs}, or none with no `--gaps`. */
+  /**
+   * The smallest gap of each pair of {@link gapPairs}, or of the pairs of `gapsOf` of
+   * {@link sweepDemos}, or none with neither.
+   */
   readonly gaps: readonly PairGap[];
 }
+
+/**
+ * Gives the gap pairs of one sample set of one player, such as the free paw of a flutist in the
+ * rest (`pnpm hold-fit`).
+ */
+export type GapsOf = (set: string, player: SweepPlayer) => readonly GapPair[];
 
 /**
  * Finds the species of the model of a player in a scene. The models of a scene come from one
@@ -214,12 +225,13 @@ export function playerLabel(name: string, species: SpeciesId | null): string {
  * Sweeps the players of the role in the demos with the holds of now. Each player gets the sample
  * sets of the role. `pnpm hold-fit` runs it too.
  *
- * @param options The demos, the song times, and the flag of the gaps.
+ * @param options The demos, the song times, and the flag of the gaps. With no flag, `gapsOf` can
+ *   give the gap pairs of each set of each player.
  * @param role The role, with the parts and the obstacles of the options.
  * @returns The results of each demo.
  */
 export async function sweepDemos(
-  options: Pick<Options, 'demos' | 'times' | 'gaps'>,
+  options: Pick<Options, 'demos' | 'times' | 'gaps'> & { readonly gapsOf?: GapsOf },
   role: RoleSweep,
 ): Promise<DemoResult[]> {
   const results: DemoResult[] = [];
@@ -244,7 +256,8 @@ export async function sweepDemos(
         species,
         headHeight: player.model.body.headHeight,
         sets: sets.map(({ name, samples }) => {
-          const gaps = options.gaps ? gapSweep(gapPairs(role)) : null;
+          const pairs = options.gaps ? gapPairs(role) : (options.gapsOf?.(name, player) ?? []);
+          const gaps = pairs.length > 0 ? gapSweep(pairs) : null;
           return {
             name,
             pairs: sweepDepths(role, player, samples, gaps?.visit),

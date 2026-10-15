@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { sceneOf } from '../src/pose/test-scene.ts';
 import { SWEEP_ROLES, VIOLINIST_SWEEP, playSample } from '../src/pose/test-sweep-roles.ts';
-import type { RoleSweep, SweepSample } from '../src/pose/test-sweep.ts';
+import type { GapPair, RoleSweep, SweepSample } from '../src/pose/test-sweep.ts';
 import { patchedDemos } from './patch-demos.ts';
 import {
   DEPTH_STEP,
@@ -190,6 +190,42 @@ describe('sweepDemos', () => {
     expect(new Set(results.map((result) => result.species))).toEqual(
       new Set(['rabbit', 'fox-red']),
     );
+  }, 30_000);
+
+  it('measures the gap pairs of gapsOf in each set of each player', async () => {
+    const role: RoleSweep = {
+      ...VIOLINIST_SWEEP,
+      parts: [],
+      obstacles: VIOLINIST_SWEEP.obstacles.filter((obstacle) => obstacle.name === 'body'),
+      sampleSets: (scene) => [
+        { name: 'rest', samples: [playSample(scene, 1)] },
+        { name: 'play', samples: [playSample(scene, 2)] },
+      ],
+    };
+    const paw: GapPair = { part: { name: 'paw L', bones: ['handL', 'fingersL'] }, into: 'body' };
+    // Only the first player gets the pair, and only in the rest.
+    let first: string | null = null;
+    const results = await sweepDemos(
+      {
+        demos: ['brahms-2'],
+        times: null,
+        gaps: false,
+        gapsOf: (set, player) => {
+          first ??= player.name;
+          return set === 'rest' && player.name === first ? [paw] : [];
+        },
+      },
+      role,
+    );
+    expect(results.length).toBeGreaterThan(1);
+    for (const [i, result] of results.entries()) {
+      const [rest, play] = result.sets;
+      expect(
+        rest?.gaps.map((gap) => gap.part),
+        result.demo,
+      ).toEqual(i === 0 ? ['paw L'] : []);
+      expect(play?.gaps, result.demo).toEqual([]);
+    }
   }, 30_000);
 });
 
