@@ -2,6 +2,7 @@
  * Prints the choice of the shot planner at each cut of a time range (design 5.6): the shots that
  * start in the range, the candidates that a rule drops, with the rule, and the other candidates in
  * the order of the search, with their scores, their ranks, and their tries in each elevation band.
+ * The candidate whose try found the camera of the shot has the mark `chosen`.
  * Each try gives the counts of the refusals of its cameras, and the nearest refusal by the
  * distance against `CLOSE_DISTANCE_SHARE`. With `--cameras`, each tested camera follows with its
  * refusal. The plan comes from `traceShots()` of `src/shots/prepare.ts`, with the seed of the app.
@@ -303,7 +304,8 @@ function attemptLines(attempts: readonly AttemptTrace[], cameras: boolean): stri
 
 /**
  * Writes the trace of the cuts as lines: for each cut, its end, the dropped candidates with their
- * rules, and the other candidates in the order of the search with their tries.
+ * rules, and the other candidates in the order of the search with their tries. The candidate whose
+ * try found the camera of the shot (`CutTrace.chosen`) has the mark `chosen`.
  *
  * @param cuts The traced cuts.
  * @param cameras True to write each tested camera.
@@ -320,8 +322,9 @@ export function cutLines(cuts: readonly CutTrace[], cameras: boolean): string[] 
       const entering =
         candidate.entering.length > 0 ? `, entering ${candidate.entering.join(', ')}` : '';
       const tries = candidate.attempts.length > 0 ? '' : ', not tried';
+      const chosen = cut.chosen === i ? ', chosen' : '';
       lines.push(
-        `  ${i + 1}. ${candidate.id}: score ${candidate.score.toFixed(2)}, ${candidate.tier}${entering}${tries}`,
+        `  ${i + 1}. ${candidate.id}: score ${candidate.score.toFixed(2)}, ${candidate.tier}${entering}${tries}${chosen}`,
       );
       lines.push(...attemptLines(candidate.attempts, cameras));
     }

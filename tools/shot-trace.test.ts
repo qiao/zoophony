@@ -162,6 +162,7 @@ describe('cutLines()', () => {
     expect(lines).toContain('  Dropped solo 0: rule 1, the subject of the previous shot.');
     expect(lines.some((line) => line.startsWith('      band 1: two-shot'))).toBe(true);
     expect(lines).toContain('        87.0° 17.0° arc 6.0°: the camera of the shot');
+    expect(lines).toContain('  1. two-shot: score 3.27, other, chosen');
     expect(lines).toContain('  2. solo 1: score 0.30, other, entering 1, not tried');
   });
 });
