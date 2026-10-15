@@ -485,7 +485,7 @@ quarter of the folded faces.
  bind pose of the player, two bones of          |
  the player for each corner (footprints,        v
  hanging arms, tests)                       poseStudioBones(): 33 studio bones + 38 bones of
-                                            the player, 2 corrective weights
+                                            the player, the corrective weights
                                                 |
                                                 v
                                             the scene: one SkinnedMesh, 4 bones and morph
@@ -639,7 +639,12 @@ quarter of the folded faces.
   toward the baton. The fingers of the studio curl around their own axis by the curl of the
   player. `docs/research/2026-10-12-studio-bear.md` gives the bends of the wrists. The corrective
   shape of each arm takes the weight of the driver of the studio: the place of the upper arm
-  between the bind pose of the studio and the pose of its sheet. The instrument and the slide
+  between the bind pose of the studio and the pose of its sheet. A mesh rig can add the shape of a
+  raised arm after the two arm-down shapes (`StudioBody.raise`). It has its full weight while the
+  turn of its upper arm from the bind pose, in the axes of the chest, is near the turn of the
+  shape, and its weight falls with a smooth step over a range of angles from that turn
+  (`raiseWeight()`). The weight comes from the pose alone, so the rule of stateless poses holds.
+  The instrument and the slide
   move by the offsets of the pose, as the scene moves them on a parametric player (5.1).
 - The scene draws the body in the bind pose of the studio, with four bones for each vertex and the
   corrective shapes as morph targets, and the instrument on the bones of the player. The colors of
@@ -1650,7 +1655,8 @@ bones:
   `shin`, and the foot on `foot`. No pose turns the legs.
 - A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
   studio, two eye bones, and the optional tip of a tail of two bones (`tail_tip`, the red fox).
-  Each vertex follows up to four of them, and two corrective shapes move the skin of the arms. The scene gives the mesh one bone for each studio bone and one for
+  Each vertex follows up to four of them, and two corrective shapes move the skin of the arms. A
+  third shape moves the skin of a raised arm of a mesh rig. The scene gives the mesh one bone for each studio bone and one for
   each bone of the player, and `poseStudioBones()` writes their matrices from the pose of the
   player. The bones of the player keep the list below, so the pose code drives a studio body as
   each other body.

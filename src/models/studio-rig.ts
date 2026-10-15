@@ -16,6 +16,7 @@ import type {
   StudioBone,
   StudioHeads,
   StudioMesh,
+  StudioRaise,
   StudioStanding,
 } from './studio-format.ts';
 import { toVec3 } from './tuples.ts';
@@ -160,7 +161,11 @@ export interface StudioPose {
    * pose, in the model axes. The studio bones come first, then the bones of `BONE_NAMES`.
    */
   readonly matrices: Float32Array;
-  /** The weight of the corrective shape of each arm, from 0 to 1: the left arm, then the right. */
+  /**
+   * The weight of each arm corrective shape, from 0 to 1, in the order of the shapes of a packed
+   * studio mesh: the left arm down, the right arm down, and the raised arm. The weight of the
+   * raised arm is 0 for a body with no such shape.
+   */
   readonly correctives: Float32Array;
 }
 
@@ -213,6 +218,9 @@ const SLIDE = boneIndex('slide');
 /** The number of matrices of a {@link StudioPose}. */
 export const STUDIO_POSE_BONES = STUDIO_BONES.length + BONE_NAMES.length;
 
+/** The index of the weight of the shape of a raised arm in {@link StudioPose.correctives}. */
+const RAISED = 2;
+
 /**
  * Makes a studio pose to write.
  *
@@ -223,7 +231,7 @@ export function createStudioPose(): StudioPose {
   for (let b = 0; b < STUDIO_POSE_BONES; b++) {
     matrices.set([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], b * 16);
   }
-  return { matrices, correctives: new Float32Array(2) };
+  return { matrices, correctives: new Float32Array(RAISED + 1) };
 }
 
 /**
@@ -358,8 +366,16 @@ export interface PosedStudioBody {
   readonly mesh: StudioMesh;
 }
 
-/** The number of the arm corrective shapes, the first shapes of a packed studio mesh. */
-const ARM_CORRECTIVES = 2;
+/**
+ * Gives the number of the arm corrective shapes of a studio body, the first shapes of its packed
+ * mesh: the two arm-down shapes, and the shape of a raised arm when the body has one.
+ *
+ * @param body The studio body.
+ * @returns The number.
+ */
+function armCorrectives(body: StudioBody): number {
+  return body.raise ? RAISED + 1 : RAISED;
+}
 
 /**
  * Makes the standing body of a seated studio body that also stands, such as the violinist rabbit
@@ -401,7 +417,7 @@ export function standingBody(body: StudioBody, mesh: StudioMesh): PosedStudioBod
     heads[bone] = toVec3(to);
     writeMatrix(pose.matrices, STUDIO_BONES.indexOf(bone), turn, from, to);
   }
-  const weights = new Float32Array(mesh.correctives.length).fill(1, ARM_CORRECTIVES);
+  const weights = new Float32Array(mesh.correctives.length).fill(1, armCorrectives(body));
   const positions = skinStudioMesh(mesh, { matrices: pose.matrices, correctives: weights });
 
   // The body stands with its lowest point, a sole, on the floor. The straight legs of the sheet
@@ -436,7 +452,7 @@ export function standingBody(body: StudioBody, mesh: StudioMesh): PosedStudioBod
       seatHeight: null,
       standing: null,
     },
-    mesh: { ...mesh, positions, correctives: mesh.correctives.slice(0, ARM_CORRECTIVES) },
+    mesh: { ...mesh, positions, correctives: mesh.correctives.slice(0, armCorrectives(body)) },
   };
 }
 
@@ -456,7 +472,7 @@ export function studioRig(seated: StudioBody, stands = false): StudioRig {
       ? standingBody(seated, unpacked)
       : {
           body: seated,
-          mesh: { ...unpacked, correctives: unpacked.correctives.slice(0, ARM_CORRECTIVES) },
+          mesh: { ...unpacked, correctives: unpacked.correctives.slice(0, armCorrectives(seated)) },
         };
   const h = body.heads;
   const unit = (from: Vec3, to: Vec3): Vector3 =>
@@ -583,8 +599,10 @@ function writeMatrix(
  * player, turned in the plane of its palm toward the forearm by up to {@link PAW_TURN} (the right
  * paw only toward the baton), and the forearm twist bone takes {@link TWIST_SHARE} of the twist
  * from the forearm to the paw. The fingers of the studio curl around their own axis by the curl
- * of the fingers of the player. The corrective shape of each arm takes its weight from the direction of the upper arm
- * between the bind pose of the studio and the pose of the sheet, as in the studio. The eyes
+ * of the fingers of the player. The arm-down shape of each arm takes its weight from the
+ * direction of the upper arm between the bind pose of the studio and the pose of the sheet, as in
+ * the studio. The shape of a raised arm takes its weight from the turn of its upper arm
+ * ({@link raiseWeight}). The eyes
  * scale on y for a blink. The bones of the player follow, for the instrument, with the offsets of
  * the instrument and of the slide, as the scene moves them (design 5.1).
  *
@@ -653,6 +671,8 @@ export function poseStudioBones(
   }
 
   chestInverse.copy(rotations[boneIndex('chest')] ?? new Quaternion()).invert();
+  const raise = rig.body.raise;
+  out.correctives[RAISED] = 0;
   for (const arm of [rig.arms.L, rig.arms.R]) {
     poseArm(rig, arm, pose, out);
     // The corrective weight: the place of the upper arm on the way from the bind pose of the
@@ -661,8 +681,36 @@ export function poseStudioBones(
     span.fromArray(arm.sheet).sub(upperBind.fromArray(arm.upper));
     const weight = current.sub(upperBind).dot(span) / span.lengthSq();
     out.correctives[arm.side === 'L' ? 0 : 1] = Math.min(1, Math.max(0, weight));
+    if (raise?.side === arm.side) {
+      relative.copy(chestInverse).multiply(upperTurn);
+      out.correctives[RAISED] = raiseWeight(raise, [
+        relative.x,
+        relative.y,
+        relative.z,
+        relative.w,
+      ]);
+    }
   }
   return out;
+}
+
+/**
+ * Gives the weight of the corrective shape of a raised arm from the turn of its upper arm (design
+ * 4.4): 1 while the turn is at most the first angle of the fade from the turn of the shape, 0
+ * from the second angle, and a smooth step between them. The angle of a turn is the angle of the
+ * rotation from one turn to the other, so a quaternion and its negative give one weight.
+ *
+ * @param raise The pose of the shape.
+ * @param turn The world turn of the upper arm from the bind pose, in the axes of the chest.
+ * @returns The weight, from 0 to 1.
+ */
+export function raiseWeight(raise: StudioRaise, turn: Quat): number {
+  const [x, y, z, w] = raise.turn;
+  const dot = Math.abs(x * turn[0] + y * turn[1] + z * turn[2] + w * turn[3]);
+  const angle = 2 * Math.acos(Math.min(1, dot));
+  const [full, none] = raise.fade;
+  const t = Math.min(1, Math.max(0, (none - angle) / (none - full)));
+  return t * t * (3 - 2 * t);
 }
 
 /**

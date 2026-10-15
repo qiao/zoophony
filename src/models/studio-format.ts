@@ -169,6 +169,27 @@ export const STUDIO_PALETTES = ['tan'] as const;
 export type StudioPalette = (typeof STUDIO_PALETTES)[number];
 
 /**
+ * The pose of the corrective shape of a raised arm of a mesh rig (design 4.4, `raise` of the config
+ * of `pnpm rig-mesh`). The shape relaxes the faces that the skin turns over near that pose, such as
+ * the front of the right shoulder of the red fox, whose bow arm is out to the side and down. Its
+ * weight comes from the turn of the upper arm alone (`raiseWeight()` of `models/studio-rig.ts`).
+ */
+export interface StudioRaise {
+  /** The arm of the shape. */
+  readonly side: Side;
+  /**
+   * The world turn of the upper arm from the bind pose, in the axes of the chest, at which the
+   * shape has its full weight.
+   */
+  readonly turn: Quat;
+  /**
+   * The angles of the turn of the upper arm from {@link StudioRaise.turn}, in radians: the shape
+   * has its full weight up to the first angle and no weight from the second angle.
+   */
+  readonly fade: readonly [full: number, none: number];
+}
+
+/**
  * A body from the studio (design 4.4): the mesh of a GLB file of `lowpoly-studio/` in its bind
  * pose, with its own skeleton, its skin of up to four bones for each vertex, and its corrective
  * shapes. `pnpm studio-body <animal>` writes the module of an animal. The axes are the axes of
@@ -231,6 +252,11 @@ export interface StudioBody {
    * stance of its role.
    */
   readonly standing: StudioStanding | null;
+  /**
+   * The pose of the corrective shape of a raised arm. The packed mesh then holds that shape after
+   * the two arm-down shapes, before the leg shapes. A body with no such shape has none.
+   */
+  readonly raise?: StudioRaise;
   /**
    * The crease angle of the smooth normals of the fur, in degrees (design 4.5), from the settings
    * of the animal.

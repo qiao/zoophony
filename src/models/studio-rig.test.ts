@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { STUDIO_BONES, STUDIO_LEG_BONES } from './studio-format.ts';
-import type { RequiredStudioBone, StudioBone } from './studio-format.ts';
+import type { RequiredStudioBone, StudioBone, StudioRaise } from './studio-format.ts';
+import type { Quat } from './tuples.ts';
 import {
   NO_OFFSETS,
   PAW_TURN,
@@ -12,6 +13,7 @@ import {
   TWIST_SHARE,
   createStudioPose,
   poseStudioBones,
+  raiseWeight,
   studioRig,
   twistAngle,
 } from './studio-rig.ts';
@@ -198,6 +200,76 @@ describe('poseStudioBones (design 4.4)', () => {
     const above = eye.clone().add(new Vector3(0, 0.01, 0));
     expect(above.clone().applyMatrix4(matrixOf(open, 'eye_L')).y - eye.y).toBeCloseTo(0.01, 6);
     expect(above.clone().applyMatrix4(matrixOf(closed, 'eye_L')).y - eye.y).toBeCloseTo(0.0005, 6);
+  });
+});
+
+describe('raiseWeight (design 4.4)', () => {
+  const turn = new Quaternion().setFromAxisAngle(new Vector3(1, -2, 0.5).normalize(), 1.1);
+  const raise: StudioRaise = {
+    side: 'R',
+    turn: [turn.x, turn.y, turn.z, turn.w],
+    fade: [(10 * Math.PI) / 180, (20 * Math.PI) / 180],
+  };
+  const axis = new Vector3(0.3, 1, -0.2).normalize();
+  /** Gives the turn at an angle in degrees from the turn of the shape. */
+  const away = (degrees: number): Quat => {
+    const q = new Quaternion().setFromAxisAngle(axis, (degrees * Math.PI) / 180).multiply(turn);
+    return [q.x, q.y, q.z, q.w];
+  };
+
+  it('gives the full weight up to the first angle of the fade', () => {
+    expect(raiseWeight(raise, away(0))).toBeCloseTo(1, 6);
+    expect(raiseWeight(raise, away(9.9))).toBeCloseTo(1, 6);
+  });
+
+  it('gives no weight from the second angle of the fade', () => {
+    expect(raiseWeight(raise, away(20.1))).toBe(0);
+    expect(raiseWeight(raise, away(90))).toBe(0);
+  });
+
+  it('falls with a smooth step between the angles', () => {
+    expect(raiseWeight(raise, away(15))).toBeCloseTo(0.5, 6);
+    expect(raiseWeight(raise, away(12.5))).toBeCloseTo(0.84375, 6);
+    expect(raiseWeight(raise, away(17.5))).toBeCloseTo(0.15625, 6);
+  });
+
+  it('gives one weight for a quaternion and its negative', () => {
+    const [x, y, z, w] = away(12.5);
+    expect(raiseWeight(raise, [-x, -y, -z, -w])).toBeCloseTo(raiseWeight(raise, away(12.5)), 9);
+  });
+});
+
+describe('poseStudioBones with the shape of a raised arm (design 4.4)', () => {
+  // The bear with a shape of the raised right arm of a conductor: the turn of its upper arm from
+  // the bind pose of the studio in the pose of raisedArm().
+  const raisedPose = pose(localPose(raisedArm()));
+  const upper = turnOf(raisedPose, 'upper_arm_R');
+  const raise: StudioRaise = {
+    side: 'R',
+    turn: [upper.x, upper.y, upper.z, upper.w],
+    fade: [0.1, 0.3],
+  };
+  const raisedRig = studioRig({ ...STUDIO_BEAR, raise });
+  const poseRaised = (rotations: Float32Array) =>
+    poseStudioBones(raisedRig, skeleton, rotations, NO_OFFSETS, 1, createStudioPose());
+
+  it('gives the shape its weight from the turn of the upper arm in the axes of the chest', () => {
+    expect(poseRaised(localPose(raisedArm())).correctives[2]).toBeCloseTo(1, 5);
+    expect(poseRaised(localPose(new Map())).correctives[2]).toBe(0);
+    // The whole body leans forward: the arm keeps its turn in the axes of the chest.
+    const lean = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), 0.4);
+    const leaning = new Map<BoneName, Quaternion>([
+      ['root', lean],
+      ...[...raisedArm()].map(([bone, q]): [BoneName, Quaternion] => [
+        bone,
+        lean.clone().multiply(q),
+      ]),
+    ]);
+    expect(poseRaised(localPose(leaning)).correctives[2]).toBeCloseTo(1, 5);
+  });
+
+  it('gives no weight to the shape of a body with no such shape', () => {
+    expect(raisedPose.correctives[2]).toBe(0);
   });
 });
 
