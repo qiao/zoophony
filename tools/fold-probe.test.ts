@@ -206,10 +206,10 @@ describe('worstFold', () => {
       mesh: null,
       sets: { rest: countOf(1, []), play: countOf(1, []), lift: countOf(1, []) },
     };
-    report.sets.play.faceWorst.set(1, fold(120, 'play'));
-    report.sets.lift.faceWorst.set(1, fold(150, 'lift'));
+    report.sets.play.faceWorst.set(1, fold(150, 'play'));
+    report.sets.lift.faceWorst.set(1, fold(120, 'lift'));
     report.sets.rest.faceWorst.set(1, fold(100, 'rest'));
-    expect(worstFold(report, 1)?.label).toBe('lift');
+    expect(worstFold(report, 1)?.label).toBe('play');
     expect(worstFold(report, 0)).toBeNull();
   });
 });
