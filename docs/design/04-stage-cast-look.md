@@ -532,8 +532,10 @@ quarter of the folded faces.
   shoulders and the paws. The long thin faces of an image mesh fold when a joint bends, so the rig
   may change the faces of the arms, the shoulders, and the hands. A ring of new vertices at a joint
   splits the faces that it crosses, and the long edge of a face that is thin in the seated bind
-  flips. A split keeps the surface, a flip moves it at most 2 mm, and each new face takes its color
-  from the texture. The head, the ears, the eyes, the whiskers, the legs, and the trunk keep their
+  flips. The radius of a ring is a length in units, or a part of the arm part that ends at its
+  joint, so that it grows with the arm factor (`ring_radius()` of `tools/blender/rig_mesh.py`). A
+  split keeps the surface, a flip moves it at most 2 mm, and each new face takes its color from
+  the texture. The head, the ears, the eyes, the whiskers, the legs, and the trunk keep their
   faces. The shoulders give their head weight to the neck. A config can also fade the clavicle
   weight out below the clavicles and the arm weight out up the neck, and let the line rule take
   the corners of the head, as the fox config does: these rules remove folds of the right
