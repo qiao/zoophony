@@ -4,6 +4,7 @@ import { patchedDemo } from './patch-demos.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import {
   FOLD_ROLES,
+  FOLD_ROLE_TABLE,
   SAMPLE_SETS,
   faceCompareLines,
   faceFacts,
@@ -22,6 +23,7 @@ import {
   worstFold,
 } from './fold-probe.ts';
 import type { FaceJson, FaceRecord, FaceWorst, FoldCount, FoldReport } from './fold-probe.ts';
+import { ROOT, refRoleKeys } from './ref-tree.ts';
 import { ANIMALS } from './studio-body.ts';
 
 /** The identity matrix, column by column. */
@@ -382,5 +384,12 @@ describe('roleAnimal', () => {
     for (const [name, role] of FOLD_ROLES) {
       expect(ANIMALS.has(roleAnimal(role)), name).toBe(true);
     }
+  });
+});
+
+describe('FOLD_ROLE_TABLE', () => {
+  it('names the module and the table of the roles, for the role check of --base', () => {
+    const keys = refRoleKeys(ROOT, { ...FOLD_ROLE_TABLE, name: 'flutist' });
+    expect(keys).toEqual([...FOLD_ROLES.keys()]);
   });
 });

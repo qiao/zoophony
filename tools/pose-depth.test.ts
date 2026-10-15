@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { sceneOf } from '../src/pose/test-scene.ts';
-import { VIOLINIST_SWEEP, playSample } from '../src/pose/test-sweep-roles.ts';
+import { SWEEP_ROLES, VIOLINIST_SWEEP, playSample } from '../src/pose/test-sweep-roles.ts';
 import type { RoleSweep, SweepSample } from '../src/pose/test-sweep.ts';
 import { patchedDemos } from './patch-demos.ts';
 import {
   DEPTH_STEP,
+  SWEEP_ROLE_TABLE,
   compareDepths,
   parseOptions,
   playerLabel,
@@ -14,6 +15,7 @@ import {
   sweepDemos,
 } from './pose-depth.ts';
 import type { DemoResult } from './pose-depth.ts';
+import { ROOT, refRoleKeys } from './ref-tree.ts';
 
 /**
  * Gives the bytes of a demo with its patches, as the sweep reads it.
@@ -187,4 +189,11 @@ describe('sweepDemos', () => {
       new Set(['rabbit', 'fox-red']),
     );
   }, 30_000);
+});
+
+describe('SWEEP_ROLE_TABLE', () => {
+  it('names the module and the table of the sweep roles, for the role check of --base', () => {
+    const keys = refRoleKeys(ROOT, { ...SWEEP_ROLE_TABLE, name: 'flutist' });
+    expect(keys).toEqual(Object.keys(SWEEP_ROLES));
+  }, 20_000);
 });

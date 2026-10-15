@@ -3,6 +3,7 @@ import { writeFileSync } from 'node:fs';
 import { patchedDemos } from './patch-demos.ts';
 import { setHolds } from './hold-sets.ts';
 import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
+import type { RefRole } from './ref-tree.ts';
 import { scoreOf } from '../src/score/test-score.ts';
 import { CONDUCTOR } from '../src/models/cast.ts';
 import type { PlayerModel } from '../src/models/player.ts';
@@ -624,9 +625,19 @@ async function sweepRows(options: Options, role: RoleSweep): Promise<SweepRow[]>
 }
 
 /**
+ * The table of the sweep roles, which the commit of `--base` must hold with the role of the sweep
+ * (`checkRefRole()` of `tools/ref-tree.ts`).
+ */
+export const SWEEP_ROLE_TABLE: Omit<RefRole, 'name'> = {
+  module: 'src/pose/test-sweep-roles.ts',
+  table: 'SWEEP_ROLES',
+};
+
+/**
  * Sweeps the commit of `--base` and the working tree at the same time, each in a child process
- * (`probeBeside()`). The commit runs the base with no change. Then the tool writes the details
- * and the table of the working tree, and one compare of each variant with the commit
+ * (`probeBeside()`). The commit runs the base with no change. A role that the commit does not have
+ * stops the run before the probes (`checkRefRole()`). Then the tool writes the details and the
+ * table of the working tree, and one compare of each variant with the commit
  * ({@link compareDepths}).
  *
  * @param role The role of the options.
@@ -640,7 +651,7 @@ async function compareRef(role: RoleSweep, ref: string): Promise<void> {
     ref,
     'pose-depth.ts',
     { base: withoutOptions(args, ['--set'], ['--gaps']), tree: args },
-    { prefix: 'pose-depth-' },
+    { prefix: 'pose-depth-', role: { ...SWEEP_ROLE_TABLE, name: role.role } },
   );
   const [base] = readRows(texts.base);
   const rows = readRows(texts.tree);

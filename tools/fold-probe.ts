@@ -18,6 +18,7 @@ import { writeFile } from 'node:fs/promises';
 
 import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
+import type { RefRole } from './ref-tree.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from '../src/models/cast.ts';
@@ -67,6 +68,15 @@ export const FOLD_ROLES: ReadonlyMap<string, RoleSource> = new Map<string, RoleS
   ['fox-violinist', { kind: 'player', instrument: 'violin', species: ['fox-red'] }],
   ['flutist', { kind: 'player', instrument: 'flute', species: ['fox-tan'] }],
 ]);
+
+/**
+ * The table of {@link FOLD_ROLES}, which the commit of `--base` must hold with the role of the
+ * probe (`checkRefRole()` of `tools/ref-tree.ts`). `pnpm hold-fit --base` checks it too.
+ */
+export const FOLD_ROLE_TABLE: Omit<RefRole, 'name'> = {
+  module: 'tools/fold-probe.ts',
+  table: 'FOLD_ROLES',
+};
 
 /**
  * Gives the species of a role: the conductor, or the species of the role in each section with the
@@ -1035,7 +1045,8 @@ export function readFoldJson(text: string): FoldCounts {
 /**
  * Probes the folds of a commit and of the working tree at the same time, each in a child process
  * (`probeBeside()`), and writes the share of the samples with a fold of each set on both trees.
- * With `faces` above 0, the table of the faces of {@link faceCompareLines} follows.
+ * A role that the commit does not have stops the run before the probes (`checkRefRole()`). With
+ * `faces` above 0, the table of the faces of {@link faceCompareLines} follows.
  *
  * @param name The name of the role.
  * @param ref The commit, the branch, or the tag.
@@ -1054,7 +1065,7 @@ async function compareFolds(
     ref,
     'fold-probe.ts',
     { base: args, tree: args },
-    { prefix: 'fold-probe-' },
+    { prefix: 'fold-probe-', role: { ...FOLD_ROLE_TABLE, name } },
   );
   const base = readFaceJson(texts.base);
   const tree = readFaceJson(texts.tree);

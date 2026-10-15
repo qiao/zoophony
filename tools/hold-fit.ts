@@ -21,7 +21,7 @@
  */
 import { writeFileSync } from 'node:fs';
 
-import { FOLD_ROLES, faceLines, probeFolds, roleBodies } from './fold-probe.ts';
+import { FOLD_ROLES, FOLD_ROLE_TABLE, faceLines, probeFolds, roleBodies } from './fold-probe.ts';
 import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
 import { holdReach, rangeTexts, ruleSize } from './hold-reach.ts';
 import type { ChinInstrument, HoldReach } from './hold-reach.ts';
@@ -632,7 +632,7 @@ async function compareFit(options: FitOptions, ref: string): Promise<void> {
     { base: withoutOptions(args, ['--set', '--grid']), tree: args },
     {
       prefix: 'hold-fit-',
-      role: { name: options.name, module: 'tools/fold-probe.ts', table: 'FOLD_ROLES' },
+      role: { ...FOLD_ROLE_TABLE, name: options.name },
     },
   );
   const base = readFit(texts.base);
