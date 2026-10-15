@@ -14,6 +14,9 @@ import { createBowPlaces, instrumentAt } from '../src/pose/bowed.ts';
 import { poseShoulder } from '../src/pose/ik.ts';
 import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { armReach, parseConfig } from './rig-mesh.ts';
 
 /** An instrument that the player holds under the chin. */
 export type ChinInstrument = 'violin' | 'viola';
@@ -117,6 +120,52 @@ export function holdReach(
   instrument: ChinInstrument,
   support: ReachSupport,
 ): HoldReach {
+  const { model, rig, size, tail, scroll, shoulder } = posedViolin(species, instrument, support);
+  const arms = { L: armLength(model, 'L'), R: armLength(model, 'R') };
+
+  return {
+    arms,
+    length: VIOLIN.length * size,
+    scale: size / STRING_SCALES[instrument],
+    scroll: scroll.distanceTo(shoulder),
+    stopRange: rig.stopRange,
+    bowRange: rig.bowRange,
+    hairLength: rig.hairLength,
+    ruleFactor: ruleFactor(toVec3(tail), toVec3(scroll), toVec3(shoulder), arms.L),
+  };
+}
+
+/** The player with its instrument under the chin, in the playing pose of its hold. */
+interface PosedViolin {
+  /** The player. */
+  readonly model: PlayerModel;
+  /** The rig of the hold. */
+  readonly rig: ReturnType<typeof bowedRig>;
+  /** The size of the piece of the instrument, as a factor of `VIOLIN`. */
+  readonly size: number;
+  /** The tail end, in the playing pose. */
+  readonly tail: Vector3;
+  /** The scroll, in the playing pose. */
+  readonly scroll: Vector3;
+  /** The left shoulder joint, in the playing pose. */
+  readonly shoulder: Vector3;
+}
+
+/**
+ * Poses a species with its violin or viola in the playing pose of its hold (`holdOf()`), with no
+ * idle motion.
+ *
+ * @param species The species.
+ * @param instrument The instrument.
+ * @param support The support of the player.
+ * @returns The player, the rig, the size of the instrument, and the posed points.
+ * @throws Error if the instrument has no fingerboard.
+ */
+function posedViolin(
+  species: SpeciesId,
+  instrument: ChinInstrument,
+  support: ReachSupport,
+): PosedViolin {
   const model = buildPlayer(species, instrument, 4, support);
   const rig = bowedRig(model, instrument, holdOf(species, instrument));
   const frames = playingFrames(rig);
@@ -138,18 +187,7 @@ export function holdReach(
   const tail = posed([0, 0, 0]);
   const scroll = posed([VIOLIN.length * size, VIOLIN.stringHeight * size, 0]);
   const shoulder = poseShoulder(rig.armL, frames.chest, rig.chestBind, new Quaternion()).position;
-  const arms = { L: armLength(model, 'L'), R: armLength(model, 'R') };
-
-  return {
-    arms,
-    length: VIOLIN.length * size,
-    scale: size / STRING_SCALES[instrument],
-    scroll: scroll.distanceTo(shoulder),
-    stopRange: rig.stopRange,
-    bowRange: rig.bowRange,
-    hairLength: rig.hairLength,
-    ruleFactor: ruleFactor(toVec3(tail), toVec3(scroll), toVec3(shoulder), arms.L),
-  };
+  return { model, rig, size, tail, scroll, shoulder };
 }
 
 /**
@@ -175,6 +213,216 @@ export function violinReachAt(species: SpeciesId, support: ReachSupport, scale: 
       Reflect.deleteProperty(params, 'violinScale');
     }
   }
+}
+
+/**
+ * Gives the distance from the shoulder joint to the scroll of a longer or shorter instrument: the
+ * tail end stays in its place, and the instrument grows along its axis.
+ *
+ * @param tail The tail end, in the playing pose.
+ * @param scroll The scroll at the current length, in the playing pose.
+ * @param shoulder The left shoulder joint, in the playing pose.
+ * @param factor The factor of the current length.
+ * @returns The distance from the shoulder joint to `tail + factor (scroll - tail)`.
+ */
+export function scrollReach(tail: Vec3, scroll: Vec3, shoulder: Vec3, factor: number): number {
+  return new Vector3(...scroll)
+    .sub(new Vector3(...tail))
+    .multiplyScalar(factor)
+    .add(new Vector3(...tail))
+    .distanceTo(new Vector3(...shoulder));
+}
+
+/**
+ * Gives the factor of the upper arm and the forearm that gives an arm a reach: the paw keeps its
+ * size, as the arm factor of `pnpm rig-mesh` does.
+ *
+ * @param reach The reach to give, from the shoulder joint to the middle of the palm.
+ * @param arm The current reach of the arm.
+ * @param paw The part of the arm from the wrist to the middle of the palm.
+ * @returns The factor.
+ */
+export function armFactorFor(reach: number, arm: number, paw: number): number {
+  return (reach - paw) / (arm - paw);
+}
+
+/** The reach that one size of the violin needs in the hold of a species. */
+export interface SizeReach {
+  /** The scale of the violin, as a factor of the violin of the app (`violinScale`). */
+  readonly scale: number;
+  /** The length of the violin from the tail end to the scroll, in meters. */
+  readonly length: number;
+  /**
+   * The reach that puts the scroll in the middle of the palm of the extended left arm: the
+   * distance from the left shoulder joint to the scroll, with the tail end in its place in the
+   * playing pose and the violin longer or shorter along its axis ({@link scrollReach}).
+   */
+  readonly reach: number;
+  /**
+   * The distance from the left shoulder joint to the scroll with the player rebuilt at the scale,
+   * as a check of `reach`.
+   */
+  readonly rebuilt: number;
+  /** The factor of the current upper arm and forearm that gives the reach ({@link armFactorFor}). */
+  readonly factor: number;
+  /**
+   * The arm factor of the mesh rig of the species (`pnpm rig-mesh`) that gives the reach, or
+   * `null` with no config of a mesh rig.
+   */
+  readonly rigFactor: number | null;
+}
+
+/** The arm of a mesh rig, in the meters of the app. */
+export interface RigArm {
+  /** The config file, relative to the repository. */
+  readonly file: string;
+  /** The arm factor of the config. */
+  readonly armFactor: number;
+  /** The reach of the left arm with the factor 1. */
+  readonly short: number;
+  /** The part of the left arm from the wrist to the middle of the palm. */
+  readonly paw: number;
+}
+
+/**
+ * Reads the arm of the mesh rig of a species from `tools/mesh-rigs/<animal>.json`.
+ *
+ * @param species The species.
+ * @returns The arm, or `null` when the species has no mesh rig config next to this script, as in
+ *   the copy of `--glb`.
+ */
+function rigArm(species: SpeciesId): RigArm | null {
+  const animal = speciesAnimal(species);
+  const path = animal ? join(import.meta.dirname, 'mesh-rigs', `${animal}.json`) : '';
+  if (!animal || !existsSync(path)) {
+    return null;
+  }
+  const config = parseConfig(readFileSync(path, 'utf8'));
+  return {
+    file: `tools/mesh-rigs/${animal}.json`,
+    armFactor: config.armFactor,
+    short: armReach(config, 'L', 1),
+    paw: armReach(config, 'L', 0),
+  };
+}
+
+/** The reach that each size of the violin needs in the hold of a species. */
+export interface SizeReport {
+  /** The reach of the left arm now, from the shoulder joint to the middle of the palm. */
+  readonly arm: number;
+  /** The part of the left arm from the wrist to the middle of the palm. */
+  readonly paw: number;
+  /** The scale of the violin now (`violinScale`). */
+  readonly scale: number;
+  /** The length of the violin now, in meters. */
+  readonly length: number;
+  /** The arm of the mesh rig of the species, or `null`. */
+  readonly rig: RigArm | null;
+  /** The reach of each size, in the order of the scales. */
+  readonly sizes: readonly SizeReach[];
+}
+
+/**
+ * Measures the reach and the arm factor that each size of the violin needs in the hold of a
+ * species (`--size`). The violin grows from its tail end along its axis in the playing pose, and
+ * its scroll comes to the middle of the palm of the extended left arm, the rule of a violin shop.
+ * A check rebuilds the player at each scale. With `--glb`, the body of the file gives the arm, so
+ * the factor of the current arm is 1 at the size that the arm of the file fits.
+ *
+ * @param species The species.
+ * @param support The support of the player.
+ * @param scales The scales of the violin (`violinScale`).
+ * @returns The report.
+ */
+export function sizeReach(
+  species: SpeciesId,
+  support: ReachSupport,
+  scales: readonly number[],
+): SizeReport {
+  const { model, size, tail, scroll, shoulder } = posedViolin(species, 'violin', support);
+  const arm = armLength(model, 'L');
+  const paw = new Vector3(
+    ...(model.skeleton.positions[boneIndex('handL')] ?? [0, 0, 0]),
+  ).distanceTo(new Vector3(...model.body.palmL));
+  const scale = size / STRING_SCALES.violin;
+  const rig = rigArm(species);
+  const sizes: SizeReach[] = scales.map((wanted) => {
+    const reach = scrollReach(toVec3(tail), toVec3(scroll), toVec3(shoulder), wanted / scale);
+    return {
+      scale: wanted,
+      length: (VIOLIN.length * size * wanted) / scale,
+      reach,
+      rebuilt: violinReachAt(species, support, wanted).scroll,
+      factor: armFactorFor(reach, arm, paw),
+      rigFactor: rig ? armFactorFor(reach, rig.short, rig.paw) : null,
+    };
+  });
+  return { arm, paw, scale, length: VIOLIN.length * size, rig, sizes };
+}
+
+/**
+ * Writes the report of `--size` ({@link sizeReach}).
+ *
+ * @param species The species.
+ * @param support The support of the player.
+ * @param scales The scales of the violin (`violinScale`).
+ * @returns The lines.
+ */
+export function sizeReachLines(
+  species: SpeciesId,
+  support: ReachSupport,
+  scales: readonly number[],
+): string[] {
+  const { arm, paw, scale, length, rig, sizes } = sizeReach(species, support, scales);
+  const m = (value: number): string => `${value.toFixed(3)} m`;
+  return [
+    `Violin sizes of ${species} on the ${support} (--size): the tail end stays in its place in the playing pose, and the violin grows along its axis.`,
+    `  Arm L now ${m(arm)}, with a paw of ${m(paw)} from the wrist to the middle of the palm. Violin now ${m(length)}, scale ${scale.toFixed(3)}.`,
+    rig
+      ? `  Mesh rig ${rig.file}: arm factor ${rig.armFactor}, arm L ${m(rig.short)} with the factor 1, paw ${m(rig.paw)}.`
+      : '  No config of a mesh rig next to the script (the copy of --glb holds none), so the table gives only the factor of the current arm: 1 at the size that the arm fits.',
+    '',
+    '| Scale | Violin m | Reach m | Rebuilt m | Arm factor of the rig | Factor of the current arm |',
+    '|---:|---:|---:|---:|---:|---:|',
+    ...sizes.map(
+      (row) =>
+        `| ${row.scale.toFixed(3)} | ${row.length.toFixed(3)} | ${row.reach.toFixed(3)} | ${row.rebuilt.toFixed(3)} | ${row.rigFactor === null ? '-' : row.rigFactor.toFixed(3)} | ${row.factor.toFixed(3)} |`,
+    ),
+  ];
+}
+
+/** The arguments of `pnpm hold-reach` with the option `--size` taken out. */
+export interface SizeArgs {
+  /** The scales of `--size`, or none with no option. */
+  readonly sizes: readonly number[];
+  /** The other arguments, in their order. */
+  readonly rest: readonly string[];
+}
+
+/**
+ * Takes the option `--size <scale>[,<scale>]...` out of the arguments of `pnpm hold-reach`.
+ *
+ * @param args The arguments.
+ * @returns The scales and the other arguments.
+ * @throws Error if the option has no value, comes more than one time, or has a scale that is not
+ *   a number above 0.
+ */
+export function takeSizes(args: readonly string[]): SizeArgs {
+  const at = args.indexOf('--size');
+  if (at < 0) {
+    return { sizes: [], rest: args };
+  }
+
+  const text = args[at + 1];
+  const rest = args.filter((...[, i]) => i !== at && i !== at + 1);
+  if (text === undefined || text.startsWith('--') || rest.includes('--size')) {
+    throw new Error('The option --size comes one time, with scales of the violin, such as 0.85,1.');
+  }
+  const sizes = text.split(',').map((part) => (part.trim() === '' ? Number.NaN : Number(part)));
+  if (!sizes.every((size) => Number.isFinite(size) && size > 0)) {
+    throw new Error(`The option --size takes scales above 0, and "${text}" has another value.`);
+  }
+  return { sizes, rest };
 }
 
 /** The size of the instrument by the rule of a violin shop. */
@@ -387,7 +635,11 @@ async function main(): Promise<void> {
   }
 
   const { glb, rest } = takeGlb(args);
-  const options = parseReachOptions(rest);
+  const { sizes, rest: others } = takeSizes(rest);
+  const options = parseReachOptions(others);
+  if (sizes.length > 0 && options.instrument !== 'violin') {
+    throw new Error('The option --size takes the violin only.');
+  }
   if (glb) {
     const animal = speciesAnimal(species);
     if (!animal) {
@@ -399,6 +651,9 @@ async function main(): Promise<void> {
     return;
   }
   console.log(holdReachVariantLines(species, options).join('\n'));
+  if (sizes.length > 0) {
+    console.log(['', ...sizeReachLines(species, options.support, sizes)].join('\n'));
+  }
 }
 
 if (import.meta.main) {

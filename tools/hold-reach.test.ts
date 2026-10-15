@@ -3,11 +3,16 @@ import { describe, expect, it } from 'vitest';
 import { SPECIES } from '../src/models/species.ts';
 import { SPECIES_HOLDS } from '../src/pose/bowed-rig.ts';
 import {
+  armFactorFor,
+  holdReach,
   holdReachLines,
   holdReachVariantLines,
   parseReachOptions,
   ruleFactor,
   ruleSize,
+  scrollReach,
+  sizeReach,
+  takeSizes,
   violinReachAt,
 } from './hold-reach.ts';
 import type { HoldReach } from './hold-reach.ts';
@@ -156,5 +161,63 @@ describe('holdReachVariantLines', () => {
         sets: ['violin@rabbit.nothing=1'],
       }),
     ).toThrow('is not known');
+  });
+});
+
+describe('scrollReach and armFactorFor', () => {
+  it('grows the instrument from its tail end along its axis', () => {
+    // The tail end 0.3 m beside the shoulder joint, and the scroll 0.4 m along the axis.
+    expect(scrollReach([0, 0.3, 0], [0.4, 0.3, 0], [0, 0, 0], 1)).toBeCloseTo(0.5, 12);
+    expect(scrollReach([0, 0.3, 0], [0.4, 0.3, 0], [0, 0, 0], 0)).toBeCloseTo(0.3, 12);
+    expect(scrollReach([0, 0.3, 0], [0.2, 0.3, 0], [0, 0, 0], 2)).toBeCloseTo(0.5, 12);
+  });
+
+  it('makes the upper arm and the forearm longer, and keeps the paw', () => {
+    // An arm of 0.5 m with a paw of 0.1 m reaches 0.9 m with the factor 2.
+    expect(armFactorFor(0.9, 0.5, 0.1)).toBeCloseTo(2, 12);
+    expect(armFactorFor(0.5, 0.5, 0.1)).toBeCloseTo(1, 12);
+  });
+});
+
+describe('takeSizes', () => {
+  it('takes the scales of --size out of the arguments', () => {
+    expect(takeSizes(['--support', 'stand', '--size', '0.85,1'])).toEqual({
+      sizes: [0.85, 1],
+      rest: ['--support', 'stand'],
+    });
+    expect(takeSizes(['--support', 'stand'])).toEqual({ sizes: [], rest: ['--support', 'stand'] });
+  });
+
+  it('stops on no value, a second --size, or a scale that is not above 0', () => {
+    expect(() => takeSizes(['--size'])).toThrow(/one time/);
+    expect(() => takeSizes(['--size', '1', '--size', '0.9'])).toThrow(/one time/);
+    expect(() => takeSizes(['--size', '0.85,0'])).toThrow(/above 0/);
+    expect(() => takeSizes(['--size', '0.85,,1'])).toThrow(/above 0/);
+  });
+});
+
+describe('sizeReach (design 4.6)', () => {
+  it('needs the reach of the arm at the size of the rule, and the arm factor of the rig there', () => {
+    const now = holdReach('rabbit', 'violin', 'chair');
+    const rule = ruleSize(now);
+    if (!rule) {
+      throw new Error('The rule gives no violin for the rabbit.');
+    }
+    const report = sizeReach('rabbit', 'chair', [rule.scale, 1]);
+    const [fit, full] = report.sizes;
+    expect(report.arm).toBeCloseTo(now.arms.L, 9);
+    // At the size of the rule, the scroll lies in the palm of the current arm.
+    expect(fit?.reach).toBeCloseTo(report.arm, 6);
+    expect(fit?.factor).toBeCloseTo(1, 6);
+    // The arm of the app comes from the rig within 1% (pnpm rig-mesh --check).
+    const rig = report.rig;
+    expect(rig?.file).toBe('tools/mesh-rigs/rabbit.json');
+    expect(Math.abs((fit?.rigFactor ?? 0) / (rig?.armFactor ?? 1) - 1)).toBeLessThan(0.02);
+    // The player rebuilt at each scale keeps its tail end, so the check agrees within 1 mm.
+    for (const size of report.sizes) {
+      expect(Math.abs(size.rebuilt - size.reach)).toBeLessThan(0.001);
+    }
+    expect(full?.length).toBeGreaterThan(fit?.length ?? Infinity);
+    expect(full?.reach).toBeGreaterThan(fit?.reach ?? Infinity);
   });
 });
