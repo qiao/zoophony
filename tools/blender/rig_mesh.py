@@ -41,10 +41,13 @@ reads it (route 3 of `AGENTS.md`). The steps:
    palette in Oklab, and the faces go in the order of a walk over their shared edges.
 8. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
-   and the other vertices give `legs_straight_L` and `legs_straight_R`.
+   and the other vertices give `legs_straight_L` and `legs_straight_R`. With `raise` of the
+   config, the shape of a raised arm follows (`arm_raise_R`): the move that relaxes the faces
+   which the skin turns over in the pose of the rule (`raise_shape()`).
 9. Write the GLB file with the code of this script: the materials `fur`, `gloss`, and `chair`,
-   the skinned mesh with its morph targets, the skeleton, the clip `reference` with one key, and
-   a chair under the seated body. The bytes depend only on the config and the source file.
+   the skinned mesh with its morph targets, the skeleton, the clip `reference` with one key, a
+   chair under the seated body, and the facts that `pnpm studio-body` reads in the extras of the
+   asset. The bytes depend only on the config and the source file.
 
 With `--preview`, the script also renders the seated bind and the standing body from four sides,
 the knees of the seated body from the side, the neck from four sides, and the main bone of each
@@ -103,7 +106,9 @@ LEG = ('thigh', 'shin', 'foot', 'toes')
 INFLUENCES = 4
 WEIGHT_STEPS = 255
 
-#: The corrective shapes, in their order in the mesh (`tools/studio-body.ts`).
+#: The corrective shapes, in their order in the mesh (`tools/studio-body.ts`). The clip
+#: `reference` gives each one its full weight. A config with `raise` adds the shape of the raised
+#: arm after them, with the weight 0 in that clip.
 SHAPES = ('arm_down_L', 'arm_down_R', 'legs_straight_L', 'legs_straight_R')
 
 #: The roughness of each material, as the materials of the studio rabbit.
@@ -1338,18 +1343,20 @@ def turn_dots(src, posed, tris, weights, matrices):
     return np.sum(face_normals(posed, tris) * expected, axis=1)
 
 
-def relax(src, bind, tris, weights, matrices, rounds=60):
+def relax(src, bind, tris, weights, matrices, rounds=60, moving=None, below=0.1):
     """Cleans the bind mesh where the bind pose pinches it: each vertex of a face that turns over
-    (or nearly) against the source moves halfway to the middle of its neighbors, in rounds, until
-    no face turns over. Only the vertices that an arm bone, a thigh, a shin, or a tail of two bones
-    moves can move, and the paws and the feet keep their form. The corrective shapes give the
-    source back. Gives the cleaned bind mesh and the number of rounds."""
-    moving = np.zeros(len(src), bool)
-    for side in 'LR':
-        for bone in ('upper_arm', 'forearm', 'forearm_twist', 'thigh', 'shin'):
-            moving |= weights[:, BONES.index(f'{bone}_{side}')] > 0
-    if TAIL_TIP in BONES:
-        moving |= tail_mask(weights)
+    (or nearly: the cosine of `turn_dots()` below `below`) against the source moves halfway to the
+    middle of its neighbors, in rounds, until no face turns over. Only the vertices of `moving` can
+    move: by default the vertices that an arm bone, a thigh, a shin, or a tail of two bones moves,
+    so that the paws and the feet keep their form. The corrective shapes give the source back.
+    Gives the cleaned bind mesh and the number of rounds."""
+    if moving is None:
+        moving = np.zeros(len(src), bool)
+        for side in 'LR':
+            for bone in ('upper_arm', 'forearm', 'forearm_twist', 'thigh', 'shin'):
+                moving |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+        if TAIL_TIP in BONES:
+            moving |= tail_mask(weights)
     neighbors = [set() for _ in range(len(src))]
     for a, b, c in tris:
         neighbors[a].update((b, c))
@@ -1358,7 +1365,7 @@ def relax(src, bind, tris, weights, matrices, rounds=60):
     neighbors = [np.array(sorted(n)) for n in neighbors]
     out = bind.copy()
     for done in range(rounds):
-        bad = np.nonzero(turn_dots(src, out, tris, weights, matrices) < 0.1)[0]
+        bad = np.nonzero(turn_dots(src, out, tris, weights, matrices) < below)[0]
         ids = np.unique(tris[bad])
         ids = ids[moving[ids]]
         if len(ids) == 0:
@@ -1710,7 +1717,51 @@ def split_shapes(moves, weights, bind):
         part = moves * mask[:, None]
         out[f'{kind}_L'] = part * side[:, None]
         out[f'{kind}_R'] = part * (1 - side)[:, None]
-    return out
+    return {name: out[name] for name in SHAPES}
+
+
+def raise_shape(rule, bind, tris, weights, heads, down, sheet):
+    """Finds the corrective shape of a raised arm (`raise` of the config): the move of each vertex
+    in the bind pose that relaxes the faces which the skin turns over in the pose of the rule. In
+    that pose, the clavicle and the upper arm of the side take the world turns of the rule from
+    the seated bind pose, the bones after the upper arm turn with it, and the arm-down shape of the
+    side (`down`) has the weight that the app gives it: the place of the upper arm on the way from
+    its bind direction to its direction in the pose of the source (`sheet`). Each vertex of a face
+    whose cosine of `turn_dots()` is below `below` of the rule moves halfway to the middle of its
+    neighbors, as `relax()` cleans the bind mesh, but only the vertices of the clavicle and of the
+    upper arm of the side. The move of each relaxed vertex goes back to the bind pose through the
+    inverse of its skin. Gives the shape, the weight of the arm-down shape, the faces that turn
+    over before and after, the rounds, and the moved vertices."""
+    side = rule['side']
+    turns = {name: np.eye(3) for name in BONES}
+    upper = quat_matrix(rule['turns']['upper_arm'])
+    turns[f'clavicle_{side}'] = quat_matrix(rule['turns']['clavicle'])
+    for bone in ARM:
+        turns[f'{bone}_{side}'] = upper
+    posed_at = posed_heads(heads, turns)
+    matrices = [move(turns[n], heads[n], posed_at[n]) for n in BONES]
+
+    rest = unit(heads[f'forearm_{side}'] - heads[f'upper_arm_{side}'])
+    span = unit(sheet) - rest
+    down_weight = float(np.clip((upper @ rest - rest) @ span / (span @ span), 0.0, 1.0))
+    base = bind + down_weight * down
+    posed = skin(weights, matrices, base)
+    region = ((weights[:, BONES.index(f'upper_arm_{side}')] > 0)
+              | (weights[:, BONES.index(f'clavicle_{side}')] > 0))
+    before = int((turn_dots(bind, posed, tris, weights, matrices) < 0).sum())
+    relaxed, rounds = relax(bind, posed, tris, weights, matrices, moving=region,
+                            below=rule['below'])
+    after = int((turn_dots(bind, relaxed, tris, weights, matrices) < 0).sum())
+
+    a = np.zeros((len(bind), 3, 3))
+    b = np.zeros((len(bind), 3))
+    for k, m in enumerate(matrices):
+        a += weights[:, k, None, None] * m[:, :3]
+        b += weights[:, k, None] * m[:, 3]
+    moved = np.linalg.norm(relaxed - posed, axis=1) > 0
+    shape = np.zeros_like(bind)
+    shape[moved] = np.linalg.solve(a[moved], (relaxed - b)[moved][:, :, None])[:, :, 0] - base[moved]
+    return shape, down_weight, before, after, rounds, int(moved.sum())
 
 
 def chair_mesh(rule, bind, weights):
@@ -1815,15 +1866,17 @@ def primitive_arrays(points, tris, colors, materials, weights, shapes, name):
             values[i, j] = weights[v, k]
     return {
         'position': points[vertex], 'color': color, 'joints': joints, 'weights': values,
-        'shapes': [shapes[s][vertex] for s in SHAPES], 'indices': np.array(corners, np.uint32),
+        'shapes': [shape[vertex] for shape in shapes.values()],
+        'indices': np.array(corners, np.uint32),
     }
 
 
 def write_glb(path, config, bind, tris, colors, materials, weights, shapes, bind_frames,
               bind_heads, src_frames, src_heads, chair, extras):
     """Writes the rig as a GLB file in the format of a studio body, with the extras of the asset
-    for `pnpm studio-body`."""
+    for `pnpm studio-body`. The morph targets are the shapes, in their order."""
     w = GlbWriter()
+    shape_names = list(shapes)
     mats = [{'name': name, 'doubleSided': True,
              'pbrMetallicRoughness': {'metallicFactor': 0.0, 'roughnessFactor': rough}}
             for name, rough in MATERIALS]
@@ -1890,7 +1943,8 @@ def write_glb(path, config, bind, tris, colors, materials, weights, shapes, bind
                              'interpolation': 'LINEAR'})
             channels.append({'sampler': len(samplers) - 1,
                              'target': {'node': joint_index[name], 'path': target}})
-    samplers.append({'input': times, 'output': w.floats(np.ones(len(SHAPES)), 'SCALAR'),
+    reference = [0.0 if name.startswith('arm_raise') else 1.0 for name in shape_names]
+    samplers.append({'input': times, 'output': w.floats(np.array(reference), 'SCALAR'),
                      'interpolation': 'LINEAR'})
     channels.append({'sampler': len(samplers) - 1, 'target': {'node': 1, 'path': 'weights'}})
 
@@ -1904,7 +1958,7 @@ def write_glb(path, config, bind, tris, colors, materials, weights, shapes, bind
         'meshes': [
             {'name': 'chair', 'primitives': [chair_prim]},
             {'name': config['name'], 'primitives': primitives,
-             'weights': [0.0] * len(SHAPES), 'extras': {'targetNames': list(SHAPES)}},
+             'weights': [0.0] * len(shape_names), 'extras': {'targetNames': shape_names}},
         ],
         'skins': [{'name': f"{config['name']}Rig", 'joints': [joint_index[n] for n in BONES],
                    'skeleton': joint_index['root'],
@@ -2105,9 +2159,23 @@ def main():
     log(f'corrective: the clip gives the source back within {error:.2e} u '
         f'({error * meters * 1000:.4f} mm)')
     shapes = split_shapes(moves, weights_all, bind_all)
-    for name in SHAPES:
-        log(f'shape {name}: {int((np.abs(shapes[name]).max(axis=1) > 1e-6).sum())} vertices, '
-            f'largest move {np.abs(shapes[name]).max():.4f} u')
+    raised = None
+    if 'raise' in config:
+        rule = config['raise']
+        side = rule['side']
+        sheet = long_heads[f'forearm_{side}'] - long_heads[f'upper_arm_{side}']
+        shape, down_weight, before, after, rounds, count = raise_shape(
+            rule, bind_all, tris_all, weights_all, bind_heads, shapes[f'arm_down_{side}'], sheet)
+        shapes[f'arm_raise_{side}'] = shape
+        raised = {'side': side, 'turn': [round(float(x), 6) + 0.0
+                                         for x in unit(rule['turns']['upper_arm'])],
+                  'fade': [float(x) for x in rule['fade']]}
+        log(f'raise {side}: the arm-down shape has the weight {down_weight:.3f} in the pose, '
+            f'{before} faces turn over before and {after} after {rounds} rounds of relaxing, '
+            f'{count} vertices move')
+    for name, shape in shapes.items():
+        log(f'shape {name}: {int((np.abs(shape).max(axis=1) > 1e-6).sum())} vertices, '
+            f'largest move {np.abs(shape).max():.4f} u')
 
     chair = chair_mesh(config['chair'], bind_all, weights_all)
     log(f'chair: seat top {chair[2]:.4f} u, lowest point of the body {bind_all[:, 1].min():.4f} u')
@@ -2122,6 +2190,8 @@ def main():
     # the move of the head center by the smoothing.
     extras = {key: config[key] for key in ('headFactor', 'neckFactor')
               if config.get(key, 1) != 1}
+    if raised:
+        extras['raise'] = raised
     if 'smooth' in config:
         shift = head_shift(unsmoothed, verts, weights_all, tris_all, materials)
         extras['headShift'] = [round(float(x), 6) + 0.0 for x in shift]

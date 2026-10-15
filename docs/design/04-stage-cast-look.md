@@ -531,7 +531,11 @@ quarter of the folded faces.
   pull the throat across the middle. A config can also fade the stretch over the trunk below the
   armpit (`weights.stretchRamp`). No config has a fade now: with the holds of the shorter arms of
   2026-10-14, the fade of the red fox folded more play samples than no fade. The corrective shapes of the rig give the source
-  mesh back when the body stands with the arms of the source. Each face takes the nearest color of a
+  mesh back when the body stands with the arms of the source. A config can add the shape of a
+  raised arm (`raise` of the config, `raise_shape()`): in the pose of the rule, the faces that the
+  skin turns over relax toward their neighbors, as the faces that the seated bind turns over, and
+  the relaxed places go back to the bind pose through the inverse of the skin. The rig writes the
+  turn of the upper arm and the fade of the rule into the file for the weight of the app. Each face takes the nearest color of a
   palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan over its dark faces,
   so that the body keeps the triangle budget of a studio body (4.5) and a small module. A face takes
   the mean of its texture samples that are not dark, so that the black gaps between the islands of
