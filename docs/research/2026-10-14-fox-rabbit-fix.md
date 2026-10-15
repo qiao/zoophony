@@ -62,3 +62,43 @@ corrective shapes give the source back: the standing body stays within 0.302 mm 
 0.324 mm (rabbit) of the long-armed source, and the fold, seat, head, and footprint tables of the
 check do not change. `hips-on-seat.webp` shows the seated bind of each rig from the right, `main`
 above the branch.
+
+## The rest of the red fox
+
+The screenshot of the user shows the cat violas with the viola upright on the lap and the scroll
+near the chest (`S/ref-crops/user-cat-rest.png` of the manager, `fox-rest-beside-user.webp`). On
+`main`, the violin of the red fox took the axis of the chin hold, (-0.17, 0.95, -0.26), with its
+tail end 0.06 H above the thigh, so it leaned to the left and its scroll was at the belly.
+`rest-fit-fox.txt` gives the rest, the lift, and the lowering of three heights of the tail end with
+the axis (0, 1, -0.15). Each height keeps the folds. 0.3 H puts the scroll at the chest.
+
+| Tail end above the thigh | Axis | Rest | Lowering | Log |
+|---|---|---|---|---|
+| 0.06 H (`main`) | (-0.17, 0.95, -0.26) | 1.1 cm, left paw in the violin | 3.1 cm, right upper arm in the body | `hold-fit` base of `main` |
+| 0.2 H | (0, 1, -0.15) | 0.9 cm, right upper arm in the body | 2.8 cm, bow in the body | `rest-fit-fox.txt` |
+| 0.3 H (chosen) | (0, 1, -0.15) | 0.9 cm | 2.6 cm, right upper arm in the body | `rest-fit-fox.txt` |
+| 0.35 H | (0, 1, -0.15) | 0.9 cm | 2.6 cm | `rest-fit-fox.txt` |
+
+## The clipping of the violinists
+
+`pnpm hold-fit <role> --grid` fits the holds at a step of 1 s on the demos of `FIT_DEMOS`
+(`hold-fit-violinist-grid1.txt`, `hold-fit-violinist-grid2.txt`, and
+`hold-fit-fox-violinist-grid1.txt`). `violin-probe.ts` of `docs/research/2026-10-14-arms-rest/`
+measures the violins against the neck and the trunk on the Beethoven 9 demo every 2 s
+(`violin-probe-variants.txt`, `violin-probe.txt`). The depths of a row are play, lift, and lowering.
+
+| Body | Hold | Play folds | Depths (cm) | Violin into the neck | Log |
+|---|---|---:|---|---|---|
+| Rabbit | `main` (left elbow (-0.5, -1, -1)) | 3.8% | 2.3, 1.6, 1.8 | 0.2 cm | `hold-fit-violinist-grid1.txt` |
+| Rabbit | left elbow (-1, -1, -1) | 0.3% | 2.0, 1.4, 1.9 | | `hold-fit-violinist-grid1.txt` |
+| Rabbit | left elbow (-1.5, -1, -1) | 13.1% | 2.0, 1.4, 2.0 | | `hold-fit-violinist-grid2.txt` |
+| Rabbit | left elbow (-1, -1, -0.5) (chosen) | 0.3% | 2.0, 1.4, 1.9 | 0.2 cm | `hold-fit-violinist-branch.txt` |
+| Red fox | `main` (free hair 0.1 m, right elbow (1.4, -0.7, -1)) | 17.4% | 3.0, 2.8, 2.6 | 1.1 cm | `hold-fit-fox-violinist-grid1.txt` |
+| Red fox | free hair 0.12 m, right elbow (1.8, -0.7, -1) | 17.4% | 2.4, 2.0, 2.6 | 1.1 cm | `hold-fit-fox-violinist-grid1.txt` |
+| Red fox | the same, slant 8° | 20.1% | 2.4, 2.0, 2.6 | | `hold-fit-fox-violinist-grid1.txt` |
+| Red fox | the same as the second row, violin 0.01 H higher (chosen) | 16.1% | 2.7, 2.2, 2.6 | 1.0 cm | `hold-fit-fox-violinist-branch.txt` |
+
+The left fingers over the strings (`fingers`) change no depth of the rabbit. The chosen hold of the
+red fox keeps the violin within 1.0 cm of the neck, and the play and the lift go 0.3 cm and 0.8 cm
+less deep than on `main`. The depths over 1.5 cm stay open: the left paw of the rabbit in the
+violin, and the bow paw and the right upper arm of the red fox in the body.

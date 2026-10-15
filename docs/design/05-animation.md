@@ -391,9 +391,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     2026-10-14, each violin sits further back toward the neck, so that the left paw reaches the
     nut. A turn of the scroll to the front, as Simon Fischer advises for short arms, moved the
     scroll away from the left shoulder joint, and a turn to the left folded the skin of the arms. The bow lies nearly square across
-    the strings. The back stays straight. The left elbow keeps the direction of the chin hold, a
-    little out of the plane of the violin: further in, the thin faces of the left upper arm of the
-    rabbit mesh turned over. The right arm has the shoulder turn of the chin hold. At the frog,
+    the strings. The back stays straight. The left elbow of the rabbit points further out than in the
+    chin hold, so that the left paw keeps off the violin and fewer play samples fold: further in,
+    the thin faces of the left upper arm of the rabbit mesh turned over. The right arm has the shoulder turn of the chin hold. At the frog,
     the right elbow points out and less down than in the chin hold, nearer to the level of the
     bow, and the bow keeps a longer free hair at each end (`BowedHold.freeHair` of
     `pose/bowed-rig.ts`): the larger violin and bow put the bow paw into the body at the frog. At the tip, the right elbow also points down: up, the skin of the studio
