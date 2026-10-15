@@ -67,6 +67,7 @@ function count(samples: number, withFold: number): FoldCount {
     samples,
     withFold,
     most: 0,
+    split: { L: 0, R: 0, other: 0 },
     worst: '',
     bones: new Map(),
     byFace: new Map(),

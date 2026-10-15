@@ -24,6 +24,8 @@ import {
   relativeTurn,
   roleAnimal,
   sameFaces,
+  sideSplit,
+  splitText,
   turnAngle,
   turnBins,
   turnBone,
@@ -146,6 +148,7 @@ function countOf(samples: number, byFace: readonly [number, number][]): FoldCoun
     samples,
     withFold: 0,
     most: 0,
+    split: { L: 0, R: 0, other: 0 },
     worst: '',
     bones: new Map(),
     byFace: new Map(byFace),
@@ -253,7 +256,7 @@ function record(face: number, play: number, middle: FaceRecord['middle'] = [0, 0
  * @returns The folds, with 100 play samples.
  */
 function folds(topology: string, faces: FaceRecord[]): FaceJson {
-  const set = { samples: 100, withFold: 0 };
+  const set = { samples: 100, withFold: 0, most: 0, split: { L: 0, R: 0, other: 0 } };
   return { sets: { rest: set, play: set, lift: set }, topology, faces };
 }
 
@@ -341,16 +344,23 @@ describe('foldJson and readFoldJson', () => {
       sets: { rest: countOf(1, [[0, 1]]), play: countOf(200, []), lift: countOf(30, []) },
     };
     report.sets.rest.withFold = 1;
+    report.sets.rest.most = 13;
+    report.sets.rest.split = { L: 11, R: 0, other: 2 };
     report.sets.play.withFold = 7;
+    const none = { L: 0, R: 0, other: 0 };
     expect(readFoldJson(foldJson(report))).toEqual({
-      rest: { samples: 1, withFold: 1 },
-      play: { samples: 200, withFold: 7 },
-      lift: { samples: 30, withFold: 0 },
+      rest: { samples: 1, withFold: 1, most: 13, split: { L: 11, R: 0, other: 2 } },
+      play: { samples: 200, withFold: 7, most: 0, split: none },
+      lift: { samples: 30, withFold: 0, most: 0, split: none },
     });
   });
 
   it('stops on a set with no whole counts', () => {
-    expect(() => readFoldJson('{"sets":{"rest":{"samples":1,"withFold":0}}}')).toThrow(/play/);
+    const set = '{"samples":1,"withFold":0,"most":0,"split":{"L":0,"R":0,"other":0}}';
+    expect(() => readFoldJson(`{"sets":{"rest":${set}}}`)).toThrow(/play/);
+    expect(() =>
+      readFoldJson('{"sets":{"rest":{"samples":1,"withFold":0,"most":0,"split":{"L":0}}}}'),
+    ).toThrow(/rest/);
     expect(() => readFoldJson('{}')).toThrow(/rest/);
   });
 });
@@ -374,6 +384,7 @@ describe('probeFolds', async () => {
       expect(count.samples, set).toBeGreaterThan(0);
       expect(count.withFold, set).toBeLessThanOrEqual(count.samples);
       expect(Math.max(0, ...count.byFace.values()), set).toBeLessThanOrEqual(count.withFold);
+      expect(count.split.L + count.split.R + count.split.other, set).toBe(count.most);
       for (const bone of count.bones.keys()) {
         expect(STUDIO_BONES, bone).toContain(bone);
       }
@@ -534,4 +545,12 @@ describe('turnProbe', async () => {
     probeFolds(pianist, [demo], 1000, none.visit);
     expect(() => none.lines()).toThrow(/has \d+ faces, so it has no face 10000000/);
   }, 30_000);
+});
+
+describe('sideSplit', () => {
+  it('splits the faces by the side of their main bone: _L, _R, and the middle', () => {
+    const split = sideSplit(['upper_arm_L', 'ear_L', 'hand_R', 'chest', 'neck', 'L', 'R']);
+    expect(split).toEqual({ L: 2, R: 1, other: 4 });
+    expect(splitText(split)).toBe('L 2 / R 1 / other 4');
+  });
 });

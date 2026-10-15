@@ -127,6 +127,39 @@ export const SAMPLE_SETS = ['rest', 'play', 'lift'] as const;
 /** One set of samples. */
 export type SampleSet = (typeof SAMPLE_SETS)[number];
 
+/** The folded faces of one posed body by the side of their main studio bone. */
+export interface SideSplit {
+  /** The faces whose main bone is a bone of the left side, such as `upper_arm_L`. */
+  readonly L: number;
+  /** The faces whose main bone is a bone of the right side. */
+  readonly R: number;
+  /** The faces whose main bone is a bone of the middle, such as `chest` or `neck`. */
+  readonly other: number;
+}
+
+/**
+ * Splits folded faces by the side of their main studio bone: a name that ends with `_L` is on the
+ * left, a name that ends with `_R` is on the right, and the other names are in the middle.
+ *
+ * @param bones The main bone of each folded face ({@link mainBone}).
+ * @returns The faces of each side.
+ */
+export function sideSplit(bones: readonly string[]): SideSplit {
+  const L = bones.filter((bone) => bone.endsWith('_L')).length;
+  const R = bones.filter((bone) => bone.endsWith('_R')).length;
+  return { L, R, other: bones.length - L - R };
+}
+
+/**
+ * Writes a split of folded faces.
+ *
+ * @param split The split.
+ * @returns The text, such as `L 11 / R 0 / other 2`.
+ */
+export function splitText(split: SideSplit): string {
+  return `L ${split.L} / R ${split.R} / other ${split.other}`;
+}
+
 /** The folds of one set of samples. */
 export interface FoldCount {
   /** The number of posed bodies. */
@@ -135,6 +168,8 @@ export interface FoldCount {
   withFold: number;
   /** The most folded faces of one posed body. */
   most: number;
+  /** The folded faces of the posed body with the most folded faces, by the side of their bone. */
+  split: SideSplit;
   /** The demo and the time of the posed body with the most folded faces. */
   worst: string;
   /** The folded faces of all samples, by the main studio bone of the face. */
@@ -477,6 +512,7 @@ function emptyCount(): FoldCount {
     samples: 0,
     withFold: 0,
     most: 0,
+    split: { L: 0, R: 0, other: 0 },
     worst: '',
     bones: new Map(),
     byFace: new Map(),
@@ -529,8 +565,10 @@ function countPose(
   const posed = skinStudioMesh(rig.mesh, studio);
   const folded = foldedFaces(rig.mesh, studio.matrices, posed);
   visit?.(rig, studio, posed, folded, set);
+  const bones: string[] = [];
   for (const face of folded) {
     const bone = mainBone(rig.mesh, face);
+    bones.push(bone);
     count.bones.set(bone, (count.bones.get(bone) ?? 0) + 1);
     count.byFace.set(face, (count.byFace.get(face) ?? 0) + 1);
     const angle = foldAngle(rig.mesh, studio.matrices, posed, face);
@@ -544,6 +582,7 @@ function countPose(
   }
   if (folded.length > count.most) {
     count.most = folded.length;
+    count.split = sideSplit(bones);
     count.worst = label;
   }
 }
@@ -661,6 +700,7 @@ export function foldLines(name: string, report: FoldReport, step: number): strin
     all.withFold += count.withFold;
     if (count.most > all.most) {
       all.most = count.most;
+      all.split = count.split;
       all.worst = count.worst;
     }
     for (const [bone, n] of count.bones) {
@@ -669,14 +709,14 @@ export function foldLines(name: string, report: FoldReport, step: number): strin
   }
   const row = (set: string, count: FoldCount): string => {
     const share = (100 * count.withFold) / Math.max(1, count.samples);
-    return `| ${set} | ${count.samples} | ${count.withFold} | ${share.toFixed(1)}% | ${count.most} | ${count.worst || '-'} |`;
+    return `| ${set} | ${count.samples} | ${count.withFold} | ${share.toFixed(1)}% | ${count.most} (${splitText(count.split)}) | ${count.worst || '-'} |`;
   };
   const bones = [...all.bones].toSorted((a, b) => b[1] - a[1]).map(([bone, n]) => `${bone} ${n}`);
   return [
     `Folded faces of the studio body of the ${name} (${report.faces} faces), play step ${step} s.`,
     `Demos: ${report.demos.join(', ') || 'none'}`,
     '',
-    '| Set | Samples | With a fold | Share | Most faces | Worst sample |',
+    '| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |',
     '|---|---:|---:|---:|---:|---|',
     ...SAMPLE_SETS.map((set) => row(set, report.sets[set])),
     row('all', all),
@@ -1059,12 +1099,16 @@ export function turnProbe(face: number): TurnProbe {
   return { visit, lines };
 }
 
-/** The samples and the samples with a fold of one sample set. */
+/** The samples, the samples with a fold, and the most folded faces of one sample set. */
 export interface SetCount {
   /** The number of posed bodies. */
   readonly samples: number;
   /** The number of posed bodies with one folded face or more. */
   readonly withFold: number;
+  /** The most folded faces of one posed body. */
+  readonly most: number;
+  /** The folded faces of the posed body with the most folded faces, by the side of their bone. */
+  readonly split: SideSplit;
 }
 
 /** The counts of the folds of each sample set, as `--json` writes them. */
@@ -1102,7 +1146,7 @@ export interface FaceJson {
  * change of the format takes the next version, so that a compare with `--base` stops on two
  * formats.
  */
-export const FOLD_FORMAT = 1;
+export const FOLD_FORMAT = 2;
 
 /**
  * Writes the folds of a report as the JSON text of `--json`: the format version
@@ -1115,8 +1159,8 @@ export const FOLD_FORMAT = 1;
 export function foldJson(report: FoldReport): string {
   const sets = Object.fromEntries(
     SAMPLE_SETS.map((set) => {
-      const { samples, withFold } = report.sets[set];
-      return [set, { samples, withFold }];
+      const { samples, withFold, most, split } = report.sets[set];
+      return [set, { samples, withFold, most, split }];
     }),
   );
   const mesh = report.mesh;
@@ -1295,21 +1339,30 @@ export function faceCompareLines(
 export function readFoldJson(text: string): FoldCounts {
   // SAFETY: the text comes from foldJson(), and the loop below checks each count that it reads.
   const parsed = JSON.parse(text) as {
-    readonly sets?: Partial<Record<SampleSet, Partial<SetCount>>>;
+    readonly sets?: Partial<
+      Record<SampleSet, Partial<Omit<SetCount, 'split'> & { split: Partial<SideSplit> }>>
+    >;
   };
   const count = (set: SampleSet): SetCount => {
-    const { samples, withFold } = parsed.sets?.[set] ?? {};
-    if (!Number.isInteger(samples) || !Number.isInteger(withFold)) {
+    const { samples, withFold, most, split } = parsed.sets?.[set] ?? {};
+    const counts = [samples, withFold, most, split?.L, split?.R, split?.other];
+    if (!counts.every((n) => Number.isInteger(n))) {
       throw new Error(`The fold counts have no whole counts of the set ${set}.`);
     }
-    return { samples: samples ?? 0, withFold: withFold ?? 0 };
+    return {
+      samples: samples ?? 0,
+      withFold: withFold ?? 0,
+      most: most ?? 0,
+      split: { L: split?.L ?? 0, R: split?.R ?? 0, other: split?.other ?? 0 },
+    };
   };
   return { rest: count('rest'), play: count('play'), lift: count('lift') };
 }
 
 /**
  * Probes the folds of a commit and of the working tree at the same time, each in a child process
- * (`probeBeside()`), and writes the share of the samples with a fold of each set on both trees.
+ * (`probeBeside()`), and writes the share of the samples with a fold of each set on both trees,
+ * with the most folded faces of one sample split by the side of their main bone ({@link sideSplit}).
  * A role that the commit does not have stops the run before the probes (`checkRefRole()`). With
  * `faces` above 0, the table of the faces of {@link faceCompareLines} follows.
  *
@@ -1336,7 +1389,7 @@ async function compareFolds(
   const tree = readFaceJson(texts.tree);
   const seconds = ((performance.now() - started) / 1000).toFixed(1);
   const cell = (count: SetCount): string =>
-    `${((100 * count.withFold) / Math.max(1, count.samples)).toFixed(1)}% (${count.withFold}/${count.samples})`;
+    `${((100 * count.withFold) / Math.max(1, count.samples)).toFixed(1)}% (${count.withFold}/${count.samples}), most ${count.most} (${splitText(count.split)})`;
   const lines = [
     `Folded faces of the studio body of the ${name} on ${label} and on the working tree: ${seconds} s.`,
     '',

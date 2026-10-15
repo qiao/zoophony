@@ -338,9 +338,9 @@ describe('checkTable', () => {
       {
         role: 'fox-violinist',
         counts: {
-          rest: { samples: 14, withFold: 14 },
-          play: { samples: 17788, withFold: 588 },
-          lift: { samples: 434, withFold: 88 },
+          rest: { samples: 14, withFold: 14, most: 13, split: { L: 0, R: 11, other: 2 } },
+          play: { samples: 17788, withFold: 588, most: 9, split: { L: 0, R: 9, other: 0 } },
+          lift: { samples: 434, withFold: 88, most: 13, split: { L: 0, R: 11, other: 2 } },
         },
         bones: [
           { bone: 'upper_arm_R', samples: 120 },
