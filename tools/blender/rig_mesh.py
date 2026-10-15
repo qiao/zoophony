@@ -107,6 +107,10 @@ CHAIR_COLOR = (0.55, 0.42, 0.3)
 #: The size of one view of a preview, in pixels.
 VIEW = 500
 
+# The half width of the band around the plane |x| = armSplit over which the stretch of the upper
+# arm fades out toward the middle, in units.
+STRETCH_RAMP = 0.02
+
 
 def log(text):
     """Prints a line that `tools/rig-mesh.ts` shows."""
@@ -983,10 +987,14 @@ def move(rotation, src, dst):
     return np.concatenate([rotation, (dst - rotation @ src)[:, None]], axis=1)
 
 
-def stretch(verts, weights, heads, ends, children, factors):
+def stretch(verts, weights, heads, ends, children, factors, split):
     """Makes the limbs longer, the head larger, and the neck shorter by the factors of the config:
     `arm`, `leg`, `head`, and `neck`. The upper arm and the forearm of each side grow by `arm`
-    along their axes, and the paw moves with the wrist and keeps its size. The thigh and the shin
+    along their axes from the shoulder joint out, and the paw moves with the wrist and keeps its
+    size. Only the free arm beyond the plane |x| = `split` stretches with the upper arm: the share
+    of the stretch fades from the plane over STRETCH_RAMP on each side, so that the trunk beside
+    and below the armpit keeps its form, and a point on the inner side of the shoulder joint does
+    not move with the upper arm. The thigh and the shin
     grow by `leg` along their axes, and the foot moves with the ankle and keeps its size. The head
     and the ears grow by `head` around the neck joint. The neck takes `neck` between its joints,
     and the head and the ears move along the neck by the move of the head joint, so that the neck
@@ -998,6 +1006,7 @@ def stretch(verts, weights, heads, ends, children, factors):
     new_heads = {k: v.copy() for k, v in heads.items()}
     new_ends = {k: v.copy() for k, v in ends.items()}
     matrices = [move(np.eye(3), np.zeros(3), np.zeros(3)) for _ in BONES]
+    halves = {}
 
     for side in 'LR':
         factor = factors['arm']
@@ -1007,13 +1016,18 @@ def stretch(verts, weights, heads, ends, children, factors):
         e2 = s + factor * (e - s)
         wrist2 = e2 + factor * (wrist - e)
         for name, origin, start, axis in (
-            ('upper_arm', s, s, e - s),
             ('forearm', e, e2, wrist - e),
             ('forearm_twist', e, e2, wrist - e),
         ):
             y = unit(axis)
             scale = np.eye(3) + (factor - 1) * np.outer(y, y)
             matrices[BONES.index(f'{name}_{side}')] = move(scale, origin, start)
+        # The upper arm stretches from the shoulder joint out. A point of the trunk on the inner
+        # side of the shoulder joint keeps its place, so that a small arm weight on the throat or
+        # the chest does not pull it across the middle.
+        sign = 1.0 if side == 'L' else -1.0
+        share = smoothstep(verts[:, 0] * sign, split - STRETCH_RAMP, split + STRETCH_RAMP)
+        halves[BONES.index(f'upper_arm_{side}')] = (s, unit(e - s), factor, share)
         shift = wrist2 - wrist
         for name in ('hand', 'fingers'):
             matrices[BONES.index(f'{name}_{side}')] = move(np.eye(3), np.zeros(3), shift)
@@ -1072,12 +1086,22 @@ def stretch(verts, weights, heads, ends, children, factors):
             if name != 'root':
                 new_heads[name] = new_heads[name] + up
                 new_ends[name] = new_ends[name] + up
-    for k in segments:
+    for k in (*segments, *halves):
         matrices[k] = np.zeros((3, 4))
     out = skin(weights, matrices, verts)
     for k, (origin, start, end, factor) in segments.items():
         out += weights[:, k, None] * (segment_stretch(verts, origin, start, end, factor) + up)
+    for k, (origin, axis, factor, share) in halves.items():
+        out += weights[:, k, None] * (outward_stretch(verts, origin, axis, factor, share) + up)
     return out, new_heads, new_ends, rise, drop
+
+
+def outward_stretch(points, head, axis, factor, share):
+    """Stretches points along a bone from `head` along the unit `axis` by a factor, each point by
+    its share of the stretch. A point before the head keeps its place, and a point beyond it moves
+    by its place along the bone, as in a linear stretch from the head."""
+    along = np.maximum((points - head) @ axis, 0.0) * share
+    return points + (factor - 1) * along[:, None] * axis
 
 
 def segment_stretch(points, head, start, end, factor):
@@ -1661,7 +1685,7 @@ def main():
     factors = {'arm': config['armFactor'], 'leg': config.get('legFactor', 1),
                'head': config.get('headFactor', 1), 'neck': config.get('neckFactor', 1)}
     long_verts, long_heads, long_ends, rise, drop = stretch(verts, weights, heads, ends, children,
-                                                             factors)
+                                                             factors, rules['armSplit'])
     meters = config['app']['shoulders'] / long_heads['upper_arm_L'][1]
     for side in 'LR':
         before, after = reach(heads, side) * meters, reach(long_heads, side) * meters
