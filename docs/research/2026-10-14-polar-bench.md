@@ -7,8 +7,8 @@ polar bear fits its legs, and its top is 0.118 m high. The keys of the piano are
 they set the scale of the bear (`ANIMALS` of `tools/studio-body.ts`). The manager set the target:
 the bench height of a real pianist, with the forearms about level with the keys. This report
 measures the elbows of the playing pose for eight bench heights. The bench of the rule is 0.18 m.
-The brief stops the round when the bench of the rule is below 0.20 m, so `ANIMALS` does not
-change.
+The brief stopped the round there, because the bench of the rule was below 0.20 m. The manager
+then chose a bench of 0.25 m and a fit of the piano hold (section 6).
 
 ## 1. The rule of a real pianist
 
@@ -130,3 +130,90 @@ turns around the box of the body, so each cell frames the bear at the same size.
 
 In the level view, the forearm of `main` rises to the paw, the forearm at 0.18 m is level, and the
 forearms at 0.25 m and 0.32 m slope down to the keys.
+
+## 6. The fit of the bench of 0.25 m
+
+The manager: "the user asked for a higher seat, and 0.18 m (+6 cm) is too small to see. Use the
+bench of 0.25 m (about twice main), and fit the piano hold to it." The goals, in this order: the
+palms on their keys (less than 1% of the notes more than 1 mm off), the depths within the accepted
+limits, and the play folds at most 25%.
+
+### 6.1 The lean
+
+At 0.25 m with the hold of `main`, each note that misses is near the middle of the keyboard
+(`reach-leans.txt`, the lines `x0.0`). There, the keys are 0.25 m to 0.29 m from the shoulder of
+the paw to the middle, and the wrist target is 0.563 m from the shoulder joint, the reach of the arm
+(`limitReach()` of `src/pose/ik.ts`). A larger lean moves the shoulders forward and down
+(`node docs/research/2026-10-14-polar-bench/reach-probe.ts <changes>...`, `reach-leans.txt`):
+
+| Lean | Notes more than 1 mm off | Largest miss | Elbow joint above the key top | Forearm slope |
+|---|---:|---:|---:|---:|
+| 20° (`main`) | 7.08% | 3.9 cm | 13.7 cm | 18.5° |
+| 24° | 1.38% | 1.3 cm | 11.2 cm | 11.9° |
+| 25° | 0.33% | 0.6 cm | 10.6 cm | 10.3° |
+| 26° | 0.00% | 0.0 cm | 10.0 cm | 8.8° |
+| 28° | 0.00% | 0.0 cm | 8.8 cm | 5.7° |
+
+The head comes near the case of the piano with the lean (`pnpm pose-depth pianist --gaps --demo
+boulanger-matin --set ...`, `pose-depth-gaps-lean.txt`, and `pose-depth-gaps-base-main.txt`). The
+smallest gap of the head to the case in a play is 10.6 cm on `main`
+(`pose-depth-gaps-main.txt`). At 0.25 m, it is 6.7 cm with 20°, 3.9 cm with 24°, 2.2 cm with
+26°, and 0.2 cm with 28°. The paused test of the pianist clearance asks for 1 cm. So the lean is
+26°.
+
+### 6.2 The elbows and the arc of the paws
+
+`pnpm hold-fit pianist --demo all --set ...` over the four demos with a piano:
+
+| Hold | Play folds | Play: deepest point (limit) | Lower: deepest point (limit) | Log |
+|---|---:|---|---|---|
+| `main`, bench 0.118 m | 16.1% | forearms 8.0 cm (9.0) | forearms 8.1 cm (9.0) | `hold-fit-all-base-main.txt` |
+| bench 0.25 m, hold of `main` | 61.0% | upper arms 3.9 cm (4.0) | forearms 9.2 cm (9.0), over | `hold-fit-all-lean-28-base-main.txt` |
+| lean 28°, arc 0.1 H forward | 30.2% | upper arms 3.5 cm (4.0) | upper arms 3.5 cm (4.0) | `hold-fit-all-lean-28-base-main.txt` |
+| lean 28°, poles (±1, -0.5, 0.3) | 16.5% | forearms 8.2 cm (9.0) | forearms 8.1 cm (9.0) | `hold-fit-pole-lean-28-b.txt` |
+| lean 26°, poles of `main` | 30.3% | upper arms 3.2 cm (4.0) | forearms 8.2 cm (9.0) | `hold-fit-pole-lean-26.txt` (base row) |
+| lean 26°, poles (±1, -0.4, 0.3) | 27.2% | forearms 8.1 cm (9.0) | forearms 8.2 cm (9.0) | `hold-fit-pole-lean-26.txt` |
+| lean 26°, poles (±1, -0.5, 0.2) | 29.3% | forearms 8.0 cm (9.0) | forearms 8.3 cm (9.0) | `hold-fit-pole-lean-26.txt` |
+| lean 26°, poles (±1, -0.4, 0.2) | 23.6% | forearms 8.3 cm (9.0) | forearms 8.3 cm (9.0) | `hold-fit-pole-lean-26.txt` |
+| lean 26°, poles (±1, -0.3, 0.3) | 21.9% | forearms 8.4 cm (9.0) | forearms 8.3 cm (9.0) | `hold-fit-pole-lean-26.txt` |
+
+The rows with a lean have the arc 0.1 H forward. A deepest point is the pair with the largest depth
+less its limit.
+
+Of the poles tried with the lean of 26°, (±1, -0.4, 0.2) are the poles nearest to the poles of
+`main` that keep the play folds below 25%. The poles (±1, -0.3, 0.3) fold less, with the elbows
+further out.
+
+With no move forward in the arc of the paws (`restArc`), the claws of the left paw went 1.6 cm
+(lean 26°) and 1.9 cm (lean 28°) into the belly when the paws lowered after the song end of
+`boulanger-matin` (`hold-fit-lean.txt`). With 0.1 H or 0.2 H forward, the lowering stays within
+its limits, and an arc of 0.55 H up put the claws 5.3 cm into the belly (`hold-fit-arc.txt`).
+
+### 6.3 The result
+
+The hold of the branch: the lean 26°, the poles (±1, -0.4, 0.2), and the arc (0, 0.4, 0.1) H.
+`elbow-branch.txt`, `hold-fit-all-base-main.txt`, `pose-depth-gaps-base-main.txt`,
+`fold-probe.txt`, and `fold-probe-main.txt`:
+
+| Measure | `main` | Branch |
+|---|---|---|
+| Bench | 0.118 m | 0.25 m |
+| Elbow joint above the key top | 2.2 cm | 10.0 cm |
+| Forearm slope | -10.9° (up to the paw) | 8.8° (down to the paw) |
+| Elbow skin bottom above the key top | -11.7 cm | -4.3 cm |
+| Head top at rest | 1.609 m | 1.741 m |
+| Notes with the palm more than 1 mm off | 0% | 0% |
+| Play: forearms and upper arms in the body | 8.0 cm and 2.9 cm | 8.3 cm and 2.5 cm |
+| Lower: forearms and upper arms in the body | 8.1 cm and 2.7 cm | 8.3 cm and 2.5 cm |
+| Rest and lift: forearms in the body | 2.8 cm | 2.8 cm |
+| Smallest gap of the head to the case in a play | 10.6 cm | 2.2 cm |
+| Play folds (`pnpm fold-probe pianist`, step 0.25 s) | 17.0% | 23.5% |
+| Lift folds | 15.3% | 15.3% |
+| Folded faces by main bone, all samples | head 1455, neck 1436, clavicle R 518, upper arm R 182, upper arm L 168 | head 1455, neck 1435, clavicle R 499, upper arm R 431, clavicle L 303, upper arm L 268 |
+
+`pnpm body-probe --base main` (`body-probe-base-main.txt`): only the bodies of the polar bear, its
+player, and its 16 pose sets differ. `pnpm size --base main` (`size.txt`): +19 B after gzip.
+
+`main-branch.webp` shows the close views of `pnpm close-views pianist <dir> --base main`: from the
+left and low from the left at a chord, from the right at rest, and the level view from the left of
+section 5 at a chord and at rest. The row of `main` is at the top.
