@@ -128,16 +128,16 @@ describe('traceShots() (design 5.6)', () => {
     expect(subjects).toBeGreaterThan(0);
   });
 
-  it('ends the search of a cut with the candidate of the shot', () => {
+  it('ends the search of a cut with the chosen candidate, the candidate of the shot', () => {
     for (const [i, scene] of SCENES.entries()) {
       for (const cut of (TRACES[i]?.cuts ?? []).filter((c) => c.outcome === 'candidate')) {
         // The second pass gives a candidate its higher bands after each candidate failed in its
         // first bands, so a candidate after the chosen one can have tries.
+        const chosen = cut.chosen === null ? undefined : cut.candidates[cut.chosen];
         const found = cut.candidates.filter((c) => c.attempts.some((a) => a.found));
-        const chosen = found[0];
         const shot = scene.plan.shots.find((s) => Math.abs(s.startSec - cut.cutSec) < 1e-9);
         const label = `${scene.file} ${cut.cutSec}`;
-        expect(found, label).toHaveLength(1);
+        expect(found, label).toEqual(chosen ? [chosen] : []);
         expect(chosen?.kind, label).toBe(shot?.kind);
         expect(chosen?.attempts.at(-1)?.found, label).toBe(true);
         const failed = cut.candidates.flatMap((c) =>
@@ -158,6 +158,7 @@ describe('traceShots() (design 5.6)', () => {
     expect(holds.length).toBeGreaterThan(0);
     for (const cut of holds) {
       expect(scene?.plan.starts.includes(cut.cutSec)).toBe(false);
+      expect(cut.chosen).toBeNull();
       expect(cut.candidates.every((c) => c.attempts.every((a) => !a.found))).toBe(true);
     }
   });
@@ -167,6 +168,7 @@ describe('traceShots() (design 5.6)', () => {
     expect(fills.length).toBeGreaterThan(0);
     for (const cut of fills) {
       expect(cut.fill.at(-1)?.found).toBe(true);
+      expect(cut.chosen).toBeNull();
       expect(cut.candidates.every((c) => c.attempts.every((a) => !a.found))).toBe(true);
     }
   });
@@ -178,7 +180,7 @@ describe('traceShots() (design 5.6)', () => {
         const at = scene.plan.shots.findIndex((s) => Math.abs(s.startSec - cut.cutSec) < 1e-9);
         const shot = scene.plan.shots[at];
         const previous = scene.plan.shots[at - 1];
-        const chosen = cut.candidates.find((c) => c.attempts.some((a) => a.found));
+        const chosen = cut.chosen === null ? undefined : cut.candidates[cut.chosen];
         const searches = chosen?.attempts.at(-1)?.searches ?? [];
         const accepted = searches.at(-1)?.cameras.at(-1);
         if (searches.length > 0) {

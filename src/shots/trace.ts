@@ -152,6 +152,12 @@ export interface CutTrace {
   readonly dropped: DroppedTrace[];
   /** The other candidates, in the order of the search. */
   readonly candidates: CandidateTrace[];
+  /**
+   * The index in `candidates` of the candidate whose try found the camera of the shot, or `null`
+   * when no candidate fits. The second pass gives the higher bands to each candidate after all
+   * candidates failed in their first bands, so the order of the tries does not show this index.
+   */
+  chosen: number | null;
   /** The tries of the conductor that fills the time, when no candidate fits. */
   readonly fill: AttemptTrace[];
   /** The end of the choice. */

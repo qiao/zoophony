@@ -1913,10 +1913,10 @@ function lastStartOf(music: ScoreMusic, durationSec: number): number {
  * Makes a new trace of a cut.
  *
  * @param cutSec The cut, in song seconds.
- * @returns The trace, with no candidates and the outcome `candidate`.
+ * @returns The trace, with no candidates, no chosen candidate, and the outcome `candidate`.
  */
 function cutTrace(cutSec: number): CutTrace {
-  return { cutSec, dropped: [], candidates: [], fill: [], outcome: 'candidate' };
+  return { cutSec, dropped: [], candidates: [], chosen: null, fill: [], outcome: 'candidate' };
 }
 
 /**
@@ -2046,6 +2046,9 @@ function planShots(
           }
           if (framing) {
             chosen = { candidate, framing };
+            if (traced) {
+              traced.chosen = index;
+            }
             break;
           }
         }

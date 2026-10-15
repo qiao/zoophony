@@ -153,6 +153,7 @@ describe('cutLines()', () => {
         },
         { id: 'solo 1', kind: 'solo', score: 0.3, tier: 'other', entering: [1], attempts: [] },
       ],
+      chosen: 0,
       fill: [],
       outcome: 'candidate',
     };
