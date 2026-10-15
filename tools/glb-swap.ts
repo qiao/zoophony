@@ -155,10 +155,17 @@ export interface GlbModule {
  * @param animal The animal of `ANIMALS`.
  * @param file The absolute path of the GLB file.
  * @param bytes The bytes of the file.
+ * @param settings The settings of the export: by default the entry of the animal in `ANIMALS`
+ *   with the file ({@link glbSettings}). A variant of `pnpm rig-mesh --check` gives its own
+ *   landmark height, so that it keeps the meters for each unit of the base.
  * @returns The body and the text of its module.
  */
-export function glbModule(animal: string, file: string, bytes: Uint8Array): GlbModule {
-  const settings = glbSettings(animal, file);
+export function glbModule(
+  animal: string,
+  file: string,
+  bytes: Uint8Array,
+  settings: AnimalSettings = glbSettings(animal, file),
+): GlbModule {
   const { body } = studioBody(bytes, settings.glb ?? '', settings);
   return { body, text: studioModule(animal, settings.constant, body) };
 }
@@ -175,6 +182,7 @@ export function glbModule(animal: string, file: string, bytes: Uint8Array): GlbM
  * @param file The absolute path of the GLB file.
  * @param work The work, which gets the folder of the copy.
  * @param parent The folder that holds the temporary folder.
+ * @param settings The settings of the export ({@link glbModule}).
  * @returns The result of the work.
  * @throws Error if the file does not exist, or if the export of the file fails.
  */
@@ -183,8 +191,9 @@ export async function withGlbBody<T>(
   file: string,
   work: (dir: string) => Promise<T>,
   parent: string = tmpdir(),
+  settings: AnimalSettings = glbSettings(animal, file),
 ): Promise<T> {
-  const { text } = glbModule(animal, file, new Uint8Array(await readFile(file)));
+  const { text } = glbModule(animal, file, new Uint8Array(await readFile(file)), settings);
   const dir = mkdtempSync(join(parent, 'glb-swap-'));
   const release = trackFolder(dir);
   try {

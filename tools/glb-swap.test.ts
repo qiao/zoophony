@@ -16,6 +16,7 @@ import type { StudioBodyName } from '../src/models/studio-body.ts';
 import {
   animalSpecies,
   copiedTool,
+  glbModule,
   runTool,
   speciesAnimal,
   studioAnimal,
@@ -88,6 +89,20 @@ describe('copiedTool', () => {
   });
 });
 
+describe('glbModule', () => {
+  it('takes the landmark height of the settings that it gets, else the height of ANIMALS', () => {
+    const rabbit = ANIMALS.get('rabbit');
+    const file = studioGlbPath('rabbit', rabbit);
+    const bytes = new Uint8Array(readFileSync(file));
+    const base = glbModule('rabbit', file, bytes).body;
+    const settings = rabbit ? { ...rabbit, glb: relative(ROOT, file) } : null;
+    const tall = settings
+      ? glbModule('rabbit', file, bytes, { ...settings, height: settings.height * 1.1 })
+      : null;
+    expect((tall?.body.scale ?? 0) / base.scale).toBeCloseTo(1.1, 5);
+  });
+});
+
 describe('withGlbBody', () => {
   const parent = mkdtempSync(join(tmpdir(), 'glb-swap-test-'));
   afterAll(() => rmSync(parent, { recursive: true, force: true }));
@@ -124,5 +139,36 @@ describe('withGlbBody', () => {
     expect(STUDIO_BODIES['studio-rabbit'].source).not.toBe(relative(ROOT, file));
     expect(copy).not.toBe('');
     expect(existsSync(copy)).toBe(false);
+  });
+
+  it('writes the module of the copy with the settings that it gets', async () => {
+    const rabbit = ANIMALS.get('rabbit');
+    const file = studioGlbPath('rabbit', rabbit);
+    const out = join(parent, 'scale.txt');
+    const settings = rabbit ? { ...rabbit, height: rabbit.height * 1.1 } : undefined;
+
+    const code = await withGlbBody(
+      'rabbit',
+      file,
+      async (dir) => {
+        writeFileSync(
+          join(dir, 'tools', 'print-scale.ts'),
+          [
+            "import { writeFileSync } from 'node:fs';",
+            "import { STUDIO_BODIES } from '../src/models/studio-body.ts';",
+            `writeFileSync(${JSON.stringify(out)}, String(STUDIO_BODIES['studio-rabbit'].scale));`,
+          ].join('\n'),
+        );
+        return runTool(dir, 'print-scale.ts', []);
+      },
+      parent,
+      settings,
+    );
+
+    expect(code).toBe(0);
+    expect(Number(readFileSync(out, 'utf8')) / STUDIO_BODIES['studio-rabbit'].scale).toBeCloseTo(
+      1.1,
+      5,
+    );
   });
 });

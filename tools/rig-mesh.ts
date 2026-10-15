@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { mkdtempSync } from 'node:fs';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 
 import type { Side } from '../src/models/studio-format.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
@@ -1135,35 +1135,44 @@ async function checkRig(
     }
     const folds: RoleFolds[] = [];
     let form: FormJson | null = null;
-    await withGlbBody(animal, output, async (copy) => {
-      const formFile = join(dir, 'form.json');
-      const formCode = await runTool(copy, 'rig-form.ts', [
-        ...playerArgs(roles),
-        '--json',
-        formFile,
-      ]);
-      if (formCode !== 0) {
-        throw new Error(`rig-form.ts failed with the status ${formCode}.`);
-      }
-      form = readFormJson(await readFile(formFile, 'utf8'));
-      for (const { role, species } of roles) {
-        const json = join(dir, `folds-${role}.json`);
-        const runs: [string, string[]][] = [['fold-probe.ts', [role, '--json', json]]];
-        const source = FOLD_ROLES.get(role);
-        if (source?.kind === 'player' && source.instrument === 'violin') {
-          runs.unshift(['hold-reach.ts', [species]]);
+    // The copy takes the settings of the measures, so that the app checks of a variant keep the
+    // meters for each unit of the base too.
+    const own = { ...settings, glb: relative(ROOT, output) };
+    await withGlbBody(
+      animal,
+      output,
+      async (copy) => {
+        const formFile = join(dir, 'form.json');
+        const formCode = await runTool(copy, 'rig-form.ts', [
+          ...playerArgs(roles),
+          '--json',
+          formFile,
+        ]);
+        if (formCode !== 0) {
+          throw new Error(`rig-form.ts failed with the status ${formCode}.`);
         }
-        for (const [script, args] of runs) {
-          console.log(`\n${script.replace('.ts', '')} ${args[0]} with the body of the rig:`);
-          const code = await runTool(copy, script, args);
-          if (code !== 0) {
-            throw new Error(`${script} failed with the status ${code}.`);
+        form = readFormJson(await readFile(formFile, 'utf8'));
+        for (const { role, species } of roles) {
+          const json = join(dir, `folds-${role}.json`);
+          const runs: [string, string[]][] = [['fold-probe.ts', [role, '--json', json]]];
+          const source = FOLD_ROLES.get(role);
+          if (source?.kind === 'player' && source.instrument === 'violin') {
+            runs.unshift(['hold-reach.ts', [species]]);
           }
+          for (const [script, args] of runs) {
+            console.log(`\n${script.replace('.ts', '')} ${args[0]} with the body of the rig:`);
+            const code = await runTool(copy, script, args);
+            if (code !== 0) {
+              throw new Error(`${script} failed with the status ${code}.`);
+            }
+          }
+          const read = readFaceJson(await readFile(json, 'utf8'));
+          folds.push({ role, counts: read.sets, bones: foldBones(read.faces) });
         }
-        const read = readFaceJson(await readFile(json, 'utf8'));
-        folds.push({ role, counts: read.sets, bones: foldBones(read.faces) });
-      }
-    });
+      },
+      tmpdir(),
+      own,
+    );
     return { ...result, folds, form };
   } finally {
     await rm(dir, { recursive: true, force: true });
