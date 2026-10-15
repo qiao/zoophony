@@ -309,6 +309,7 @@ export interface ProbeTreeOptions {
  * @param dir The folder of the tree.
  * @param role The module and the table.
  * @returns The keys, or `null` when the tree has no such module or table, or the import fails.
+ *   After INT or TERM, the tool removes each temporary folder and exits, as {@link run} does.
  */
 export function refRoleKeys(dir: string, role: RefRole): string[] | null {
   const code = [
@@ -320,6 +321,11 @@ export function refRoleKeys(dir: string, role: RefRole): string[] | null {
     cwd: dir,
     encoding: 'utf8',
   });
+  if (result.signal === 'SIGINT' || result.signal === 'SIGTERM') {
+    // The signal of a stop reached the child too, as in run(). The tool stops here, so that no
+    // probe starts after the stop.
+    stopNow(result.signal);
+  }
   if (result.status !== 0) {
     return null;
   }

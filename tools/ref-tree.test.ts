@@ -338,7 +338,8 @@ interface Holder {
 }
 
 /**
- * Starts a Node child that runs a script with `withRefTree()` and `runChild()` of this module.
+ * Starts a Node child that runs a script with `withRefTree()`, `runChild()`, and `refRoleKeys()` of
+ * this module.
  *
  * @param script The body of the script. It reads the parent folder from `REF_TREE_PARENT`.
  * @param parent The folder that holds the temporary folder.
@@ -347,7 +348,7 @@ interface Holder {
  */
 function hold(script: string, parent: string, path = process.env['PATH'] ?? ''): Holder {
   const module = JSON.stringify(join(import.meta.dirname, 'ref-tree.ts'));
-  const code = `import { runChild, withRefTree } from ${module};\n${script}`;
+  const code = `import { refRoleKeys, runChild, withRefTree } from ${module};\n${script}`;
   const child = spawn(process.execPath, ['--input-type=module', '-e', code], {
     cwd: join(import.meta.dirname, '..'),
     env: { ...process.env, PATH: path, REF_TREE_PARENT: parent },
@@ -441,6 +442,37 @@ describe('withRefTree after Ctrl-C', () => {
         `${bin}:${process.env['PATH'] ?? ''}`,
       );
       await waitFor(() => existsSync(join(bin, 'started')));
+      expect(readdirSync(parent).filter((name) => name.startsWith('ref-'))).toHaveLength(1);
+
+      process.kill(-(holder.child.pid ?? 0), 'SIGINT');
+      expect(await holder.closed).toBe(130);
+      expect(holder.output()).toBe('');
+      expect(readdirSync(parent).filter((name) => name.startsWith('ref-'))).toEqual([]);
+    } finally {
+      await rm(parent, { recursive: true, force: true });
+    }
+  });
+
+  it('starts no probe after Ctrl-C during the read of the roles of a commit', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'ref-tree-stop-'));
+    const roles = join(parent, 'roles');
+    try {
+      // A module of roles whose import waits, so that the stop comes during the read of its keys.
+      mkdirSync(roles);
+      writeFileSync(
+        join(roles, 'slow.mjs'),
+        `import { writeFileSync } from 'node:fs';\nwriteFileSync(${JSON.stringify(join(roles, 'started'))}, 'started');\nawait new Promise((resolve) => setTimeout(resolve, 20000));\nexport const ROLES = { flutist: 1 };\n`,
+      );
+      const holder = hold(
+        [
+          "await withRefTree('HEAD', async (dir) => {",
+          `  refRoleKeys(${JSON.stringify(roles)}, { name: 'flutist', module: 'slow.mjs', table: 'ROLES' });`,
+          "  console.log('probe started');",
+          "}, { parent: process.env.REF_TREE_PARENT, paths: ['package.json'] });",
+        ].join('\n'),
+        parent,
+      );
+      await waitFor(() => existsSync(join(roles, 'started')));
       expect(readdirSync(parent).filter((name) => name.startsWith('ref-'))).toHaveLength(1);
 
       process.kill(-(holder.child.pid ?? 0), 'SIGINT');
