@@ -21,7 +21,14 @@
  */
 import { writeFileSync } from 'node:fs';
 
-import { FOLD_ROLES, FOLD_ROLE_TABLE, faceLines, probeFolds, roleBodies } from './fold-probe.ts';
+import {
+  FOLD_ROLES,
+  FOLD_ROLE_TABLE,
+  faceLines,
+  probeFolds,
+  roleBodies,
+  splitText,
+} from './fold-probe.ts';
 import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
 import { holdReach, rangeTexts, ruleSize } from './hold-reach.ts';
 import type { ChinInstrument, HoldReach } from './hold-reach.ts';
@@ -298,20 +305,39 @@ export function worstPairs(role: RoleSweep, results: readonly DemoResult[]): Set
 /** The samples of a set and the samples with a fold. */
 export type FoldShare = Readonly<Pick<FoldCount, 'samples' | 'withFold'>>;
 
-/** The shares of the samples with a fold in the play and in the lift. */
-export type FoldShares = Readonly<Record<'play' | 'lift', FoldShare>>;
+/**
+ * The most folded faces of one rest sample, split by the side of their main bone (`sideSplit()` of
+ * `pnpm fold-probe`). The rest folds in each sample on `main`, so the share of the samples cannot
+ * show a change of the rest, and the faces can.
+ */
+export type RestFolds = Readonly<Pick<FoldCount, 'most' | 'split'>>;
+
+/**
+ * The shares of the samples with a fold in the play and in the lift, and the most folded faces of
+ * one rest sample.
+ */
+export interface FoldShares {
+  /** The samples of the play and the samples with a fold. */
+  readonly play: FoldShare;
+  /** The samples of the lift and the samples with a fold. */
+  readonly lift: FoldShare;
+  /** The most folded faces of one rest sample, by side. */
+  readonly rest: RestFolds;
+}
 
 /**
  * Gives the shares of the samples with a fold of a fold report, in plain numbers.
  *
  * @param report The folds.
- * @returns The samples and the samples with a fold of the play and of the lift.
+ * @returns The samples and the samples with a fold of the play and of the lift, and the most
+ *   folded faces of one rest sample by side.
  */
 export function foldShares(report: FoldReport): FoldShares {
-  const { play, lift } = report.sets;
+  const { play, lift, rest } = report.sets;
   return {
     play: { samples: play.samples, withFold: play.withFold },
     lift: { samples: lift.samples, withFold: lift.withFold },
+    rest: { most: rest.most, split: { ...rest.split } },
   };
 }
 
@@ -362,7 +388,7 @@ export interface FitRun {
  * change of the format takes the next version, so that a compare with `--base` stops on two
  * formats.
  */
-export const FIT_FORMAT = 1;
+export const FIT_FORMAT = 2;
 
 /**
  * Writes the rows of a run as JSON (`--json`), with the format version {@link FIT_FORMAT}.
@@ -420,9 +446,9 @@ function foldCell(folds: FoldShares, set: 'play' | 'lift', goal: number | null):
 
 /**
  * Writes the table of `pnpm hold-fit`: one row for each variant, with the play folds and the lift
- * folds, the deepest point of each sample set in cm with its pair and its limit, and the reach of
- * a violin role. A mark `OVER` follows a depth over its limit and play folds over
- * {@link PLAY_FOLD_GOAL}.
+ * folds, the most folded faces of one rest sample by side, the deepest point of each sample set in
+ * cm with its pair and its limit, and the reach of a violin role. A mark `OVER` follows a depth
+ * over its limit and play folds over {@link PLAY_FOLD_GOAL}.
  *
  * @param rows The rows, the base first.
  * @returns The lines.
@@ -434,6 +460,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
     'Variant',
     'Play folds',
     'Lift folds',
+    'Rest faces (by side)',
     ...sets.map((set) => `${set} depth cm (limit)`),
     ...(violin ? ['Rule scale', 'Violin m', 'stopRange', 'bowRange'] : []),
   ];
@@ -455,6 +482,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
       row.variant || 'base',
       foldCell(row.folds, 'play', PLAY_FOLD_GOAL),
       foldCell(row.folds, 'lift', null),
+      `${row.folds.rest.most} (${splitText(row.folds.rest.split)})`,
       ...depths,
       ...(violin
         ? [

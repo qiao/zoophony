@@ -75,12 +75,16 @@ function count(samples: number, withFold: number): FoldCount {
   };
 }
 
-/** A report of folds with 2% play folds and 10% lift folds. */
+/** A report of folds with 2% play folds, 10% lift folds, and 13 faces in the worst rest sample. */
 const FOLDS: FoldReport = {
   demos: ['a.mid'],
   faces: 10,
   mesh: null,
-  sets: { rest: count(1, 0), play: count(100, 2), lift: count(10, 1) },
+  sets: {
+    rest: { ...count(1, 1), most: 13, split: { L: 11, R: 0, other: 2 } },
+    play: count(100, 2),
+    lift: count(10, 1),
+  },
 };
 
 describe('parseFitOptions', () => {
@@ -284,10 +288,10 @@ describe('fitTable', () => {
   it('marks a depth over its limit and play folds over the goal of 1%', () => {
     const [header, , base] = fitTable([row]);
     expect(header).toBe(
-      '| Variant | Play folds | Lift folds | play depth cm (limit) | lift depth cm (limit) |',
+      '| Variant | Play folds | Lift folds | Rest faces (by side) | play depth cm (limit) | lift depth cm (limit) |',
     );
     expect(base).toBe(
-      '| base | 2.0% (2/100) OVER | 10.0% (1/10) | 2.0 paws>body (1.5) OVER | 1.0 bow>violin (1.5) |',
+      '| base | 2.0% (2/100) OVER | 10.0% (1/10) | 13 (L 11 / R 0 / other 2) | 2.0 paws>body (1.5) OVER | 1.0 bow>violin (1.5) |',
     );
   });
 
@@ -314,7 +318,7 @@ describe('fitTable', () => {
     const variant = (name: string, withFold: number, depth: number): FitRow => ({
       ...row,
       variant: name,
-      folds: { play: { samples: 100, withFold }, lift: { samples: 10, withFold: 0 } },
+      folds: { ...row.folds, play: { samples: 100, withFold } },
       depths: [{ set: 'play', demo: 'a', pair: pair('paws', 'body', depth), limit: 0.015 }],
     });
     const rows = [
