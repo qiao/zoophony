@@ -10,7 +10,7 @@
     "typecheck": "tsc",
     "test": "vitest run --project unit",
     "test:perf": "vitest run --project perf",
-    "test:paused": "vitest run --project paused",
+    "test:paused": "node tools/test-paused.ts",
     "test:e2e": "playwright test",
     "lint": "oxlint --type-aware .",
     "format": "oxfmt 'src/**' 'tools/*.ts' 'e2e/*.ts' package.json tsconfig.json vite.config.ts playwright.config.ts .oxlintrc.json .oxfmtrc.json",
