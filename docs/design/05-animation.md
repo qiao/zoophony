@@ -1136,6 +1136,12 @@ The camera is a pure function of the song time, as the pose is (5.1). `prepareSh
 shot plan one time for each score, and `cameraAt()` gives the camera of each frame. Thus a seek,
 a pause, and a speed change are always correct, and the same piece gives the same film.
 
+`traceShots()` makes the same plan and gives the choice at each cut of a time range as plain
+data: the candidates that a rule drops, with the rule, the other candidates in the order of the
+search, and each tested camera with the test that refuses it. A camera that failed a test at an
+earlier cut keeps the refusal of that test, so the trace of a cut does not depend on the range.
+`pnpm shot-trace` prints it, also for a commit beside the working tree.
+
 ```text
  score ──> layoutScene() ──> layout ──┬──> preparePoses() ──> PosePlan ──> poseAt() ───┐
    │                                  │                                                │
