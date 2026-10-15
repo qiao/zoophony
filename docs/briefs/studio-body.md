@@ -318,7 +318,7 @@ Add these items to the briefs of the rig round and of the app round.
   fox round lost about 45 minutes to hand probes between these tools
   ([`2026-10-14-fox-retro.md`](../research/2026-10-14-fox-retro.md)).
 - **The size of a body.** A change of the size of a body keeps the values of the pose in meters,
-  such as the free hair of the bow (`HAIR_END`), the lift of the bow, and the contact limits of
+  such as the free hair of the bow (`freeHair` of each bowed hold), the lift of the bow, and the contact limits of
   the sweep. The trap of a body size in route 3 of `AGENTS.md` lists them with their files.
   Compare the folds and the depths in the H of each body first, with
   `pnpm hold-fit <role> --base main` and `pnpm pose-depth <role> --base main`. Then probe these
