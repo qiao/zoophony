@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
 import type { RequiredStudioBone, StudioBody } from '../src/models/studio-format.ts';
-import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
+import { PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import type { AnimalSettings } from './studio-body.ts';
 import {
@@ -207,11 +207,13 @@ describe('pnpm studio-body with a seated body (design 4.4)', async () => {
     expect(floor.heads.hips[1]).toBeGreaterThan(floor.heads.thigh_L[1] - 0.05);
   });
 
-  it('puts the keys of the app a little below the elbows of the seated bind pose', () => {
+  it('puts the keys of the studio a little below the elbows of the seated bind pose', () => {
+    // The landmark height is the height of the keys of the studio in the app. The longer shins of
+    // 2026-10-14 raise them above the keys of the piano of the app.
     for (const side of ['L', 'R'] as const) {
       const elbow = floor.heads[`forearm_${side}`][1];
-      expect(elbow - PIANO.keyTop, side).toBeGreaterThan(0);
-      expect(elbow - PIANO.keyTop, side).toBeLessThan(0.2);
+      expect(elbow - settings.height, side).toBeGreaterThan(0);
+      expect(elbow - settings.height, side).toBeLessThan(0.2);
     }
   });
 
@@ -322,7 +324,7 @@ describe('pnpm studio-body --inspect (design 4.4)', async () => {
     expect(keys.front).toBeLessThan(
       polar.props.find((prop) => prop.name === 'piano_key_*')?.box.max[2] ?? 0,
     );
-    expect(keys.top * polar.scale).toBeCloseTo(PIANO.keyTop, 5);
+    expect(keys.top * polar.scale).toBeCloseTo(ANIMALS.get('polar-bear')?.height ?? 0, 5);
     expect(polarText).toContain('Key front');
   });
 

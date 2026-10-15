@@ -567,9 +567,14 @@ quarter of the folded faces.
   folded faces of the studio skin in the poses of the app over the demos of the role.
 - The scale keeps a landmark that the scene depends on (`ANIMALS` in `tools/studio-body.ts`). The
   bear conductor keeps the shoulder joints of the parametric bear of 2026-10-11, because the
-  conductor stand and the beat fit the shoulders (4.5, 5.4). The polar bear pianist keeps the
+  conductor stand and the beat fit the shoulders (4.5, 5.4). The polar bear pianist first kept the
   keys of its studio piano at the keys of the piano of the app, because the studio fitted its
-  seated arms to its keys. The rabbit violinist first had the standing shoulder joints of the
+  seated arms to its keys. On 2026-10-14, the user asked for longer legs, so that its feet stand
+  on the floor beside its bench. The studio makes its shins longer and moves each part above the
+  knees up by the same height (`field.lift` of `lowpoly-studio/`), so the studio seats the body
+  and its keys higher. `ANIMALS` raises the keys of the studio piano by the same growth, so the
+  scale stays, and the trunk, the head, and the arms keep their meters
+  (`docs/decisions/2026-10-14-polar-fix.md`). The piano of the app keeps its keys. The rabbit violinist first had the standing shoulder joints of the
   parametric rabbit, so that the violin section and the music stands kept their fit. On
   2026-10-14, the user asked for 1.2 times its size, and `ANIMALS` gives 1.2 times these shoulder
   joints. The red violin fox first had the standing head top of the parametric fox: at the
@@ -591,7 +596,8 @@ quarter of the folded faces.
   meets the front edge of the seat of the app. A seated role with a seat height in `ANIMALS` (the
   rabbits and the red foxes, since the user said on 2026-10-14 that hanging feet may be cuter,
   and the polar bear, since the user said on 2026-10-14 that its seat was too low) then rises
-  until its seat is at that height, and its feet hang above the floor. A seated role
+  until its seat is at that height. The feet of the rabbits and the red foxes hang above the
+  floor. The polar bear has shins long enough for its seat, so its soles touch the floor. A seated role
   with a move back in `ANIMALS` (`seatBack`) then moves back toward the chair back, up to the gap
   of the chair back, and the chair grows forward under it by the rest of the move: the user saw
   the rabbits and the red foxes "sitting on the edge of the chair" on 2026-10-14. `StudioBody.floor` is the point on the floor under
@@ -1535,7 +1541,7 @@ code of each instrument (`models/instruments/`) holds its sizes and the offsets 
 | Contrabass | The cello at 1.6 scale, with the cello bow. | At the left side, in front of the seat. The axis leans back to the player and to the left, so that the neck passes the left of the head. The top plate faces the front and to the right. |
 | Harp | 24 strings that show the 47 strings of a concert harp, C1 to G7. | Between the knees. The harp leans back to the player and turns around the vertical, so that the top of the soundbox comes to the right shoulder, and the neck passes the right side of the face. With no turn, the neck went through the face of the deer (review of step 5, U1). The left hand plays from the left side of the strings, and the right hand from the right side. |
 | Piano | A case with an open lid, white and black keys, and a desk with sheet music. The lid opens less than the lid of `mockup.png`, because a wider lid hid the heads of the players behind the piano in the default view. | The front of the keys stands `PIANO_FRONT_H` head heights and 0.05 m in front of the floor point of the pianist (`models/instruments/piano.ts`), clear of the round belly of the studio polar bear (5.3). |
-| Piano bench | A seat of `PIANO_BENCH` at the height of the seat of the pianist, as a chair: the studio polar bear sits on a bench at the height of `seat` of its entry in `ANIMALS`, about twice the bench at its legs, and its feet hang above the floor (4.4, `StudioBody.seatHeight`). The user asked for a higher seat on 2026-10-14. The bench at its legs was low, because the studio fitted short legs to a round body. Under a parametric body, the bench keeps the height of `PIANO_BENCH`. The legs of the studio body are not stretched (user rule of 2026-10-10). | A static prop under the pianist, as a chair. |
+| Piano bench | A seat of `PIANO_BENCH` at the height of the seat of the pianist, as a chair: the studio polar bear sits on a bench at the height of `seat` of its entry in `ANIMALS`, about twice the bench at the legs of the sheet (4.4, `StudioBody.seatHeight`). The user asked for a higher seat on 2026-10-14. The bench at the legs of the sheet was low, because the studio fitted short legs to a round body. Later that day, the user asked for longer legs, so that the feet touch the floor: the studio makes the shins longer by the hang of the soles over the floor. Under a parametric body, the bench keeps the height of `PIANO_BENCH`. The app does not stretch the legs of a studio body (user rule of 2026-10-10): the studio makes them longer when the user asks. | A static prop under the pianist, as a chair. |
 | Choir folder | Two open covers, with pages in the sheet music color. | In both hands, below the head center and in front of it. It leans back, so that the pages face the eyes. |
 | Flute | A silver tube. | The hole of the lip plate is at the mouth. The flute points to the right, a little to the front and down. |
 | Oboe | A thin dark tube with a small bell and metal keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |

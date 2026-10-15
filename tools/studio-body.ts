@@ -112,12 +112,12 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       crease: 15,
     },
   ],
-  // The polar bear pianist: decisions/2026-10-12-studio-polar-bear.md, 2026-10-14-polar-bench.md.
+  // The polar bear pianist: decisions/2026-10-14-polar-bench.md and 2026-10-14-polar-fix.md.
   [
     'polar-bear',
     {
       landmark: 'keys',
-      height: PIANO.keyTop,
+      height: PIANO.keyTop + 0.1309,
       seated: true,
       soloist: false,
       seat: 0.25,
