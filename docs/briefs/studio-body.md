@@ -69,6 +69,12 @@ runs on each commit again. In the rabbit task, this took about 10 minutes for ea
 studio work and the app work must overlap, put the studio round on the app branch. Then one agent
 works after the other, as for the arms of the rabbit (round 4).
 
+Start a hold round of a body only after each form or scale round of the same body has merged. A
+form change moves the shoulder joints, the arms, and the head, so the holds need a new fit. The
+tan flute fox of 2026-10-14 got its flute hold on the fox form of the size round, and a second
+fit on the final fox form (commit `763037b2`). When the manager knows of a form change of the body,
+the brief names it as a dependency, and the hold round waits for its merge.
+
 Make the worktree: `git worktree add .claude/worktrees/<branch> -b <branch> main`. Copy the
 common rules of the agents into the scratch folder (section 5).
 
@@ -104,6 +110,11 @@ Done when:
 6. `pnpm snapshot` ran after the last code commit.
 7. The docs below are true.
 
+## Dependencies
+
+<each form or scale round of the same body that has not merged, or "none". The round starts
+after the merge of each one.>
+
 ## Facts of the source
 
 <the output of `pnpm studio-body <animal> --inspect`>
@@ -130,6 +141,9 @@ attachment. Name the code that each one touches.>
   instrument: <the posture, with its source>. A clip of the studio fits the body, so take the
   lean, the reach, and the clearance from it. Its look can be wrong: a rest pose after the rest clip of
   the polar bear leaned 22° forward, and the user found it strange (2026-10-13).
+- Before a fit, check that the pose code can show the rest pose and the hold of the source, such
+  as a head turn to the side of a flute. When a part of the posture has no mechanism, add the
+  mechanism first, with values that change nothing. Then fit.
 
 ## Range and stop
 
@@ -190,6 +204,9 @@ a violin of 0.15 m.>
   Try a cheap fix first. List each removed check in its commit message with the reason. A paused
   test (`PAUSED_TESTS` of `vite.config.ts`) needs no fix. Run it with `pnpm test:paused <path>`
   only when the change needs its check.
+- A test compares no value of one body with a value of another body, such as "the fox arm is
+  shorter than the wolf arm". Each form change of one body breaks such a test, and the test finds
+  no fault. Test each body against its own rule, such as the reach of its instrument.
 - For each new test, give in the report one command that breaks the code that it covers, and
   the failure that it gives. For a new pure function, give one command for each rule of its
   TSDoc. Run each command with `tools/break-test.sh '<perl expr>' <file> <test files>`.
