@@ -131,13 +131,18 @@ describe('traceShots() (design 5.6)', () => {
   it('ends the search of a cut with the candidate of the shot', () => {
     for (const [i, scene] of SCENES.entries()) {
       for (const cut of (TRACES[i]?.cuts ?? []).filter((c) => c.outcome === 'candidate')) {
-        const tried = cut.candidates.filter((c) => c.attempts.length > 0);
-        const chosen = tried.at(-1);
+        // The second pass gives a candidate its higher bands after each candidate failed in its
+        // first bands, so a candidate after the chosen one can have tries.
+        const found = cut.candidates.filter((c) => c.attempts.some((a) => a.found));
+        const chosen = found[0];
         const shot = scene.plan.shots.find((s) => Math.abs(s.startSec - cut.cutSec) < 1e-9);
         const label = `${scene.file} ${cut.cutSec}`;
+        expect(found, label).toHaveLength(1);
         expect(chosen?.kind, label).toBe(shot?.kind);
         expect(chosen?.attempts.at(-1)?.found, label).toBe(true);
-        const failed = tried.flatMap((c) => (c === chosen ? c.attempts.slice(0, -1) : c.attempts));
+        const failed = cut.candidates.flatMap((c) =>
+          c === chosen ? c.attempts.slice(0, -1) : c.attempts,
+        );
         expect(
           failed.every((attempt) => !attempt.found),
           label,
@@ -173,7 +178,7 @@ describe('traceShots() (design 5.6)', () => {
         const at = scene.plan.shots.findIndex((s) => Math.abs(s.startSec - cut.cutSec) < 1e-9);
         const shot = scene.plan.shots[at];
         const previous = scene.plan.shots[at - 1];
-        const chosen = cut.candidates.findLast((c) => c.attempts.length > 0);
+        const chosen = cut.candidates.find((c) => c.attempts.some((a) => a.found));
         const searches = chosen?.attempts.at(-1)?.searches ?? [];
         const accepted = searches.at(-1)?.cameras.at(-1);
         if (searches.length > 0) {

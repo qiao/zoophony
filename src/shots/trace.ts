@@ -102,7 +102,11 @@ export interface CandidateTrace {
   readonly tier: TierName;
   /** The seats of the subject that enter at the cut. */
   readonly entering: readonly number[];
-  /** The tries, in their order. A candidate after the chosen one has none. */
+  /**
+   * The tries, in their order. The first pass of a cut tries the lower bands of each candidate,
+   * and the second pass tries their higher bands. Thus a candidate after the chosen one has no
+   * tries of the second pass, but it can have failed tries of the first pass.
+   */
   readonly attempts: AttemptTrace[];
 }
 
