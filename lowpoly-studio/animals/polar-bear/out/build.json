@@ -1,15 +1,15 @@
 {
-  "run": "20261012-203806-36737",
+  "run": "20261014-221304-24192",
   "command": "build polar-bear",
-  "started": "2026-10-12T20:38:06-0700",
-  "seed": 3,
+  "started": "2026-10-14T22:13:04-0700",
+  "seed": 6,
   "shots": true,
   "until": null,
-  "glb": "cc2e3a7a1852e477a0a9eef50280517c2a675233958909c82b579cab2a713b18",
+  "glb": "11df8afbf31a185b780f48cb793c719b7a9a244d6189f95a9777c1dbeef8b4dc",
   "model": {
     "seed": 3,
     "log": "animals/polar-bear/out/model/stages/blender-seed3.log",
     "tried": [],
-    "glb": "41a16640291a81e8f870c6913a45d1bd5518dd7205f954dcb6ae51c430b730ea"
+    "glb": "44ad9c5df4631ae1879ec643919159491985301b20d8eff1101906d728be8f58"
   }
 }

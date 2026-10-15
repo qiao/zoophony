@@ -1,75 +1,67 @@
 {
   "animal": "polar-bear",
   "role": "pianist",
-  "run": "20261012-203806-36737",
-  "made": "2026-10-12T20:39:09-0700",
-  "role_key": "684693094c7bc401",
+  "run": "20261014-221304-24192",
+  "made": "2026-10-14T22:14:50-0700",
+  "role_key": "d9e56a28054ea29b",
   "reason": "a role check: the role pack, the template, or the clips changed since the last seed report",
   "require": "kept",
-  "kept": 3,
-  "robust": true,
+  "kept": 6,
+  "robust": false,
   "rule_pass": true,
-  "meshes": 7,
-  "robust_seeds": 7,
+  "meshes": 3,
+  "robust_seeds": 1,
   "seeds": [
     {
       "seed": 3,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "play": [],
-        "chord": [],
-        "rest": [],
-        "performance": []
-      }
-    },
-    {
-      "seed": 1,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "play": [],
-        "chord": [],
-        "rest": [],
-        "performance": []
-      }
-    },
-    {
-      "seed": 5,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "play": [],
-        "chord": [],
-        "rest": [],
-        "performance": []
-      }
-    },
-    {
-      "seed": 6,
       "status": "gate",
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "slivers 0.0118",
-        "slit_faces 6"
+        "slivers 0.0114"
       ],
       "clips": {}
     },
     {
-      "seed": 2,
+      "seed": 1,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [
+          "folds 2"
+        ],
+        "performance": [
+          "folds 2"
+        ]
+      }
+    },
+    {
+      "seed": 5,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [
+          "folds 1"
+        ],
+        "performance": [
+          "folds 1"
+        ]
+      }
+    },
+    {
+      "seed": 6,
       "status": "pass",
       "pass": true,
       "remesh_gate": true,
@@ -82,51 +74,46 @@
         "rest": [],
         "performance": []
       }
+    },
+    {
+      "seed": 2,
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slit_faces 2"
+      ],
+      "clips": {}
     },
     {
       "seed": 4,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "play": [],
-        "chord": [],
-        "rest": [],
-        "performance": []
-      }
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "open_edges 4"
+      ],
+      "clips": {}
     },
     {
       "seed": 7,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "play": [],
-        "chord": [],
-        "rest": [],
-        "performance": []
-      }
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "open_edges 4"
+      ],
+      "clips": {}
     },
     {
       "seed": 8,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "play": [],
-        "chord": [],
-        "rest": [],
-        "performance": []
-      }
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slit_faces 2"
+      ],
+      "clips": {}
     }
   ]
 }
