@@ -111,10 +111,19 @@ export function vitestArgs(json: string, paths: readonly string[]): string[] {
 export function readReport(text: string): PausedReport {
   // SAFETY: the reporter of the tool wrote the text, and the check below reads its lists.
   const report = JSON.parse(text) as Partial<PausedReport>;
-  if (!Array.isArray(report.failed) || !Array.isArray(report.unhandled)) {
+  if (
+    !Array.isArray(report.failed) ||
+    !Array.isArray(report.errors) ||
+    !Array.isArray(report.unhandled)
+  ) {
     throw new Error('The report of the paused tests has no list of failed tests or of errors.');
   }
-  return { reason: report.reason ?? '', failed: report.failed, unhandled: report.unhandled };
+  return {
+    reason: report.reason ?? '',
+    failed: report.failed,
+    errors: report.errors,
+    unhandled: report.unhandled,
+  };
 }
 
 /**
@@ -125,8 +134,8 @@ export function readReport(text: string): PausedReport {
 export type Issue = readonly string[];
 
 /**
- * Gives the failed tests and the errors of one run: each failed test by its title path, each
- * unhandled error, and the exit code when the run ends with a code other than 0 and the report
+ * Gives the failed tests and the errors of one run: each failed test by its title path, each error
+ * of a test file or a suite outside its tests, each unhandled error, and the exit code when the run ends with a code other than 0 and the report
  * gives no failed test and no error. A crash of a run thus shows too.
  *
  * @param report The report of the run.
@@ -137,6 +146,7 @@ export type Issue = readonly string[];
 export function runIssues(report: PausedReport, status: number | null): Issue[] {
   const issues: Issue[] = [
     ...report.failed,
+    ...report.errors,
     ...report.unhandled.map((error) => ['(unhandled error)', error]),
   ];
   if (issues.length === 0 && status !== 0) {

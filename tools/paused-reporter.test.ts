@@ -19,7 +19,7 @@ describe('messageLine', () => {
 });
 
 describe('the paused reporter', () => {
-  it('writes each failed test by its title path and each unhandled error of a run', async () => {
+  it('writes each failed test by its title path, the errors of the hooks, and each unhandled error', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'paused-reporter-'));
     try {
       symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
@@ -30,11 +30,13 @@ describe('the paused reporter', () => {
       writeFileSync(
         join(dir, 'a.test.mjs'),
         [
-          "import { describe, it } from 'vitest';",
+          "import { afterAll, describe, it } from 'vitest';",
           "describe('s', () => {",
           "  it('fails', () => { throw new Error('x'); });",
           "  it('passes', () => {});",
+          "  afterAll(() => { throw new Error('the suite ends badly'); });",
           '});',
+          "afterAll(() => { throw new Error('the file ends badly'); });",
           "it('loses a rejection', () => { void Promise.reject(new Error('lost')); });",
         ].join('\n'),
       );
@@ -50,6 +52,11 @@ describe('the paused reporter', () => {
       const report = readReport(readFileSync(json, 'utf8'));
       expect(report.reason).toBe('failed');
       expect(report.failed).toEqual([['a.test.mjs', 's', 'fails']]);
+      // The file has a failed test, and it keeps the errors of its hooks.
+      expect(report.errors).toEqual([
+        ['a.test.mjs', '(error of the file)', 'the file ends badly'],
+        ['a.test.mjs', 's', '(error of the suite)', 'the suite ends badly'],
+      ]);
       expect(report.unhandled).toEqual(['Error: lost']);
     } finally {
       await rm(dir, { recursive: true, force: true });

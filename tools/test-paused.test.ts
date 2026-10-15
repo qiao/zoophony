@@ -47,19 +47,21 @@ describe('readReport and runIssues', () => {
     JSON.stringify({
       reason: 'failed',
       failed: [['src/a.test.ts', 'a', 'fails']],
+      errors: [['src/a.test.ts', '(error of the file)', 'afterAll threw']],
       unhandled: ['Error: lost'],
     }),
   );
 
-  it('gives each failed test by its title path and each unhandled error', () => {
+  it('gives each failed test by its title path, each error of a file, and each unhandled error', () => {
     expect(runIssues(report, 1)).toEqual([
       ['src/a.test.ts', 'a', 'fails'],
+      ['src/a.test.ts', '(error of the file)', 'afterAll threw'],
       ['(unhandled error)', 'Error: lost'],
     ]);
   });
 
   it('gives the exit code of a run that fails with no failed test and no error', () => {
-    const empty = { reason: 'failed', failed: [], unhandled: [] };
+    const empty = { reason: 'failed', failed: [], errors: [], unhandled: [] };
     expect(runIssues(empty, 1)).toEqual([['(exit code 1 with no failed test and no error)']]);
     expect(runIssues(empty, null)).toEqual([['(exit code null with no failed test and no error)']]);
     expect(runIssues(empty, 0)).toEqual([]);
