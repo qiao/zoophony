@@ -9,7 +9,7 @@
  * Usage: pnpm test:paused [--base <ref>] [<path>]...
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, symlinkSync } from 'node:fs';
+import { existsSync, symlinkSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -80,20 +80,46 @@ export function parsePausedArgs(args: readonly string[]): PausedArgs {
   return { base, paths };
 }
 
+/** The config file of the run on the copy of a commit ({@link baseConfig}), in the copy. */
+const BASE_CONFIG = 'paused-base.config.ts';
+
+/**
+ * Gives the text of the config file of the run on the copy of a commit: the Vitest config of the
+ * commit with a cache folder in the copy. The copy reads the packages of the working tree through
+ * a link, so the default cache folder, `node_modules/.vite`, is the cache of the working tree.
+ *
+ * @param cacheDir The cache folder, in the copy.
+ * @returns The text of the file, which goes next to `vite.config.ts` of the copy.
+ */
+export function baseConfig(cacheDir: string): string {
+  return [
+    "import { mergeConfig } from 'vitest/config';",
+    "import config from './vite.config.ts';",
+    `export default mergeConfig(config, { cacheDir: ${JSON.stringify(cacheDir)} });`,
+    '',
+  ].join('\n');
+}
+
 /**
  * Gives the arguments of Vitest for a run of the paused tests with the report of the reporter of
  * the tool (`tools/paused-reporter.ts`).
  *
  * @param json The file of the report.
  * @param paths The test files, or none for all paused test files.
+ * @param config The config file of the run, or `null` for the config of the tree.
  * @returns The arguments after the script of Vitest. A path that the tree does not have runs no
  *   file, and the run passes with no test (`--passWithNoTests`).
  */
-export function vitestArgs(json: string, paths: readonly string[]): string[] {
+export function vitestArgs(
+  json: string,
+  paths: readonly string[],
+  config: string | null = null,
+): string[] {
   return [
     'run',
     '--project',
     'paused',
+    ...(config === null ? [] : [`--config=${config}`]),
     `--reporter=${REPORTER}`,
     `--outputFile=${json}`,
     '--passWithNoTests',
@@ -213,8 +239,8 @@ async function runFailures(name: string, end: ChildEnd, json: string): Promise<I
  * Runs the paused tests on a copy of a commit and on the working tree at the same time, each in a
  * child process of `runChildren()`, and prints the tests that fail on the working tree alone. When
  * one run cannot start, the other run ends first.
- * The copy holds {@link PAUSED_PATHS} of the commit and a link to the `node_modules` of the
- * working tree. The copy goes away at the end, also after a failure and after a stop (INT or
+ * The copy holds {@link PAUSED_PATHS} of the commit, a link to the `node_modules` of the working
+ * tree, and a config file with a cache folder of its own ({@link baseConfig}). The copy goes away at the end, also after a failure and after a stop (INT or
  * TERM), which ends both runs first.
  *
  * @param ref The commit, the branch, or the tag.
@@ -230,10 +256,15 @@ async function compareBase(ref: string, paths: readonly string[]): Promise<numbe
     ref,
     async (dir) => {
       symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
+      writeFileSync(join(dir, BASE_CONFIG), baseConfig(join(dir, '.vite-cache')));
       const files = { base: join(dir, 'base.json'), tree: join(dir, 'tree.json') };
       // Both runs start before the first await, so a stop ends both.
       const [baseEnd, treeEnd] = await runChildren([
-        { command: process.execPath, args: [VITEST, ...vitestArgs(files.base, paths)], cwd: dir },
+        {
+          command: process.execPath,
+          args: [VITEST, ...vitestArgs(files.base, paths, BASE_CONFIG)],
+          cwd: dir,
+        },
         { command: process.execPath, args: [VITEST, ...vitestArgs(files.tree, paths)], cwd: ROOT },
       ]);
       if (!baseEnd || !treeEnd) {
