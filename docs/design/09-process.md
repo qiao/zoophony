@@ -142,7 +142,8 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   each phrase. The entry is a contract of contact that the look accepts, with a margin over the
   measure. `pnpm pose-depth <role>` prints the same depths. With `--base <ref>`, it also compares
   the deepest point of each species with a commit, in cm and in the H of each body, because a body
-  that grows keeps its depths in H. `pnpm pose-depth <role> --gaps` also
+  that grows keeps its depths in H. Each probe of a commit runs on the source and the tools of the
+  commit (`withProbeTree()` of `tools/ref-tree.ts`). `pnpm pose-depth <role> --gaps` also
   prints the smallest gap in each sample set from the head to each obstacle except the body, and
   from each paw to the body (`surfaceGap()` of `pose/test-clearance.ts`). A gap is 0 when the
   parts touch.
