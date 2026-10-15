@@ -17,7 +17,8 @@ reads it (route 3 of `AGENTS.md`). The steps:
    the paw, the head and the shoulders, the ears, the tail (a ball on one tail bone, or a ramp
    along a tail of two bones), the haunch, one set of weights for the corners of each short thin
    face, and the weights of the line for the middle corner of each long thin face. Each vertex
-   keeps four bones, in steps of 1/255.
+   keeps four bones, in steps of 1/255. With `smooth` of the config, the vertices inside a box
+   then move toward the middle of their neighbors (`smooth_box()`).
 4. Make the upper arm and the forearm longer by the arm factor of the config, and the thigh and
    the shin by the leg factor. Each bone scales along its axis, and the weights blend the stretch
    to 0 at the shoulder and at the hip. The paws and the feet keep their size, and the body rises
@@ -44,8 +45,9 @@ reads it (route 3 of `AGENTS.md`). The steps:
    a chair under the seated body. The bytes depend only on the config and the source file.
 
 With `--preview`, the script also renders the seated bind and the standing body from four sides,
-the knees of the seated body from the side, and the main bone of each face, and it writes the
-long-armed source as `source-long-arms.obj` for the probes of `docs/research/`. With `--obj`, it
+the knees of the seated body from the side, the neck from four sides, and the main bone of each
+face, and it writes the long-armed source as `source-long-arms.obj` for the probes of
+`docs/research/`. With `--obj`, it
 writes only the long-armed source, into the file, for `pnpm rig-mesh --check`. With `--check`, it
 also lists the faces that the stretch turns or squeezes (`stretch_faces()`) and the long thin faces
 across an arm joint that no ring cuts (`uncut_faces()`), before the fold probe of the check. The
@@ -1364,6 +1366,29 @@ def relax(src, bind, tris, weights, matrices, rounds=60):
     return out, rounds
 
 
+def smooth_box(verts, tris, rule):
+    """Smooths the vertices inside a box of the source: each vertex inside moves `share` of the way
+    to the middle of its neighbors, in `rounds` rounds, and the vertices outside keep their places.
+    The fur spikes of the head of the fox mesh hang over the back of its neck, and the larger head
+    makes them a dark jagged band under the head. Gives the smoothed vertices, the number of the
+    vertices inside, and the largest move."""
+    low, high = np.asarray(rule['box'][0], float), np.asarray(rule['box'][1], float)
+    inside = np.all((verts >= low) & (verts <= high), axis=1)
+    neighbors = [set() for _ in range(len(verts))]
+    for a, b, c in tris:
+        neighbors[a].update((b, c))
+        neighbors[b].update((a, c))
+        neighbors[c].update((a, b))
+    ids = np.nonzero(inside)[0]
+    rings = [np.array(sorted(neighbors[i])) for i in ids]
+    out = verts.copy()
+    for _ in range(rule['rounds']):
+        mids = np.array([out[r].mean(axis=0) for r in rings])
+        out[ids] = (1.0 - rule['share']) * out[ids] + rule['share'] * mids
+    moves = np.linalg.norm(out - verts, axis=1)
+    return out, len(ids), float(moves.max(initial=0.0))
+
+
 def seat_masks(points, weights, chair):
     """Gives the masks of the seat of a seated body, as `chair_mesh()` reads them: the vertices
     over the seat, the vertices of the shins and the feet that hang in front of it, and the
@@ -1971,6 +1996,9 @@ def main():
     weights = straight_slivers(verts, source_tris,
                                rigid_slivers(verts, source_tris, weights, rules), rules)
     weights = limit(weights)
+    if 'smooth' in config:
+        verts, count, largest = smooth_box(verts, source_tris, config['smooth'])
+        log(f'smooth: {count} vertices in the box, the largest move {largest:.4f} u')
 
     # The long arms, the long legs, and the large head. The scale of the app comes from the
     # shoulder joints after the rise of the legs.
@@ -2095,7 +2123,7 @@ def main():
         neck_seated = np.array([0, shoulders[1] + 0.12, bind_heads['neck'][2] + 0.05])
         neck_standing = np.array([0, long_heads['upper_arm_L'][1] + 0.12,
                                   long_heads['neck'][2] + 0.05])
-        neck_views = [('right', 90, 0), ('front', 0, 0), ('q', 35, 10)]
+        neck_views = [('right', 90, 0), ('front', 0, 0), ('q', 35, 10), ('back', 180, 0)]
         preview(preview_dir, [
             ('seated', [(bind_all, tris_all, colors_all), chair_part],
              [(v, a, e, seated_center, 1.1 * tall) for v, a, e in four]),

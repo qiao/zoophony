@@ -512,7 +512,9 @@ quarter of the folded faces.
   hip joints, so they stay above the seat when the thighs lie level on it. A config can lower the
   underside of the haunch behind the hip joints onto the seat in the seated bind (`sit` of the
   config, `sit()` of `tools/blender/rig_mesh.py`). The corrective shapes give the source back, so
-  a soloist who stands keeps the form of the mesh. The head factor grows the head and the ears
+  a soloist who stands keeps the form of the mesh. A config can also smooth the vertices inside a
+  box of the source (`smooth` of the config, `smooth_box()`), such as the fur spikes at the back of
+  the head that hang over the neck. The head factor grows the head and the ears
   around the neck joint, and the weights blend the growth over the neck. The export measures the
   head height and the head center of the holds on the head before the growth, so the holds in `H`
   keep their places (`ungrown()` of `tools/studio-body.ts`). The neck factor shortens the neck
