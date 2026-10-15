@@ -1,25 +1,76 @@
 import { describe, expect, it } from 'vitest';
 
 import { patchedDemo } from '../../tools/patch-demos.ts';
-import { writeSmf } from '../midi/test-smf.ts';
+import {
+  noteOff,
+  noteOn,
+  programChange,
+  tempo,
+  timeSignature,
+  track,
+  writeSmf,
+} from '../midi/test-smf.ts';
+import type { TestEvent } from '../midi/test-smf.ts';
 import { violinPianoDuoFile } from '../models/test-chamber.ts';
 import { CLOSE_DISTANCE_SHARE, traceShots } from './prepare.ts';
 import { TEST_SEED, shotSceneOf } from './test-shots.ts';
 import type { ShotScene } from './test-shots.ts';
 import type { CutTrace, ShotTrace, TraceRange } from './trace.ts';
 
+/** A bar of 4/4 in ticks: 2 s at 120 BPM. */
+const BAR = 480 * 4;
+
+/**
+ * Makes one note in each bar of a range.
+ *
+ * @param channel The channel.
+ * @param key The key.
+ * @param from The first bar.
+ * @param to The bar after the last bar.
+ * @returns The events.
+ */
+function bars(channel: number, key: number, from: number, to: number): TestEvent[] {
+  const events: TestEvent[] = [];
+  for (let bar = from; bar < to; bar++) {
+    events.push(noteOn(bar * BAR, channel, key, 64), noteOff(bar * BAR + BAR - 10, channel, key));
+  }
+  return events;
+}
+
+/**
+ * Makes a file in which four seats play 20 bars, rest 16 bars, and play one more bar, as the test
+ * of the hold in `prepare.test.ts`. No subject fits at the cuts in the rest.
+ *
+ * @returns The bytes of the file.
+ */
+function restFile(): Uint8Array {
+  return writeSmf({
+    tracks: [
+      [tempo(0, 120), timeSignature(0, 4, 4)],
+      ...[40, 41, 42, 43].map((program, channel) =>
+        track(
+          [programChange(0, channel, program)],
+          [...bars(channel, 60 + channel, 0, 20), ...bars(channel, 60 + channel, 36, 37)],
+        ),
+      ),
+    ],
+  });
+}
+
 /** The range of a trace of all cuts. */
 const ALL: TraceRange = { fromSec: -Infinity, toSec: Infinity };
 
 /**
  * The scenes of the tests: the K. 525 demo, whose plan refuses close cameras by the distance, the
- * Beethoven 1 demo, whose plan has a conductor shot that fills the time, and the violin and piano
- * duo of the chamber test files.
+ * Beethoven 1 demo, whose plan has a conductor shot that fills the time, the violin and piano duo
+ * of the chamber test files, and a file with a rest of all seats, in which the previous shot holds
+ * on.
  */
 const SCENES: readonly ShotScene[] = [
   shotSceneOf('mozart-k525.mid', (await patchedDemo('mozart-k525.mid')).bytes),
   shotSceneOf('beethoven-1.mid', (await patchedDemo('beethoven-1.mid')).bytes),
   shotSceneOf('violin-piano.mid', writeSmf(violinPianoDuoFile())),
+  shotSceneOf('rest.mid', restFile()),
 ];
 
 /**
@@ -91,6 +142,17 @@ describe('traceShots() (design 5.6)', () => {
           label,
         ).toBe(true);
       }
+    }
+  });
+
+  it('traces a cut at which the previous shot holds on', () => {
+    const scene = SCENES.at(-1);
+    const cuts = TRACES.at(-1)?.cuts ?? [];
+    const holds = cuts.filter((cut) => cut.outcome === 'hold');
+    expect(holds.length).toBeGreaterThan(0);
+    for (const cut of holds) {
+      expect(scene?.plan.starts.includes(cut.cutSec)).toBe(false);
+      expect(cut.candidates.every((c) => c.attempts.every((a) => !a.found))).toBe(true);
     }
   });
 
