@@ -126,3 +126,35 @@ planner in `src/shots/trace.test.ts` fail, and the paused test of the neighbors 
 `src/models/layout-scene.test.ts` fails. A box below the head line (y up to 0.725 units) changes
 the stages too (`rig-mesh-check-fox-smooth.log`). The seats, the head tops, and the footprints
 of the form table do not change at 1 mm. So the configs keep no box, and the band stays open.
+
+## Measures against `main`
+
+`pnpm hold-fit <role> --base main` (`hold-fit-*-base-main.txt`, a step of 1 s on the demos of
+`FIT_DEMOS`) and `pnpm fold-probe <role> --faces 10 --base main` (`fold-probe-*-base-main.txt`,
+all demos at a step of 0.25 s) give the depths and the folds. The limit of each depth is 1.5 cm.
+
+| Measure | `main` | Branch |
+|---|---|---|
+| Rabbit: play, lift, rest, lowering depth | 2.3, 1.6, 1.3, 2.7 cm | 2.0, 1.4, 1.3, 1.9 cm |
+| Rabbit: play, lift, rest folds | 1.2%, 29.0%, 100% | 0.2%, 9.7%, 0.0% |
+| Red fox: play, lift, rest, lowering depth | 3.0, 2.8, 1.1, 3.1 cm | 2.7, 2.2, 0.9, 2.6 cm |
+| Red fox: play, lift, rest folds | 14.0%, 23.0%, 100% | 13.2%, 23.0%, 100% |
+| Red fox: violin into the trunk and the neck | 1.1 cm | 1.0 cm |
+| Tan fox: play, lift, rest, lowering depth | 1.2, 1.5, 1.5, 1.5 cm | the same |
+| Tan fox: play, lift, rest folds | 0.8%, 22.9%, 100% | the same |
+| Haunch over the seat, side view (red fox, rabbit) | 10.5, 3.7 cm | 1.6, 0.8 cm |
+| First download | 405,456 B | 405,725 B (+269 B, `size.txt`) |
+
+`pnpm body-probe --base main` (`body-probe-base-main.txt`): 80 of 95 bodies, 20 of 23 players, and
+1,020 of 1,492 pose sets stay. Only the sets of the rabbits and the red foxes change.
+
+## Images
+
+- `rabbit-rest-beside-user.webp`: the screenshot of the user beside the rabbit at rest from the
+  back right, the back, and the front, `main` above the branch.
+- `hips-on-seat.webp`: the seated bind of each rig from the right, `main` above the branch.
+- `fox-rest-beside-user.webp`: the screenshot of the cat violas beside the red fox at rest, `main`
+  above the branch.
+- `neck-back.webp`: the back of the neck of the red fox, with and without the smoothing box.
+- `close-views-violinist.webp`, `close-views-fox-violinist.webp`, `close-views-flutist.webp`:
+  `pnpm close-views <role> <dir> --base main`, `main` above the branch.
