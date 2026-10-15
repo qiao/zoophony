@@ -98,9 +98,9 @@ function playerSkins(rig: StudioRig): CornerSkin[] {
  * keep the bind pose of the studio. Each corner follows the two bones of the player with the
  * largest weights, for the readers of the bind mesh. The scene draws the body with the skin of the
  * studio (`StudioRig`). A studio body keeps the stance of its role on each support: the bear
- * conductor stands, and the polar bear pianist sits on a bench that fits its legs
- * (`StudioBody.seatHeight`). A seated body that also stands, such as the violinist rabbit, sits
- * on a seat and stands as a soloist ({@link studioRigOf}).
+ * conductor stands, and the polar bear pianist sits on its bench (`StudioBody.seatHeight`). A
+ * seated body that also stands, such as the violinist rabbit, sits on a seat and stands as a
+ * soloist ({@link studioRigOf}).
  *
  * @param builder The mesh that gets the triangles.
  * @param name The studio body.

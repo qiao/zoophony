@@ -599,8 +599,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     down onto the keys. A hand moves to its next keys in at most 0.15 s and in at most 0.6 of the
     time from its last note. It lifts up to 0.03 m times the gesture size in the move, strikes
     the keys at the note start, and stays on them until its next move. The elbows point out,
-    down, and back, (±1, -0.6, 0.4). The pianist leans forward while it plays (`lean` of
-    `HANDS_HOLDS`), so that its paws reach the keys in front of its round belly (4.6, the piano).
+    a little down, and back (`poleL` and `poleR` of `HANDS_HOLDS`). The pianist leans forward
+    while it plays (`lean` of `HANDS_HOLDS`), so that its paws reach the keys in front of its
+    round belly, also the middle keys from its high bench (4.5, the piano bench, and 4.6, the
+    piano). A real pianist sits with the forearms parallel to the floor. The polar bear sits
+    higher, as the user asked, and its forearms slope a little down to the keys
+    (`docs/decisions/2026-10-14-polar-bench.md`).
   - The harp palm is 0.03 m from the strings, at the middle of the string of its note: the left
     hand on the left side of the strings, and the right hand on the right side. The palm faces
     the strings. A hand moves to its next string in at most 0.15 s, and rests on it for up to
@@ -630,8 +634,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     `HANDS_HOLDS` of `pose/hands.ts`). The paws stay at least 5 cm from the case of the piano.
     Paws higher in front of the belly, with the elbows forward, looked as if the bear held them up
     at the keys (review of 2026-10-13). Between the rest pose and the playing pose, the wrists of
-    the pianist go up over the case, with no move out, so the upper arms stand out no further than
-    in a play (`restArc`). The harp stands at the right knee of the harp player, so its right
+    the pianist go up over the case and a little forward, with no move out, so the upper arms
+    stand out no further than in a play, and the claws pass in front of the belly (`restArc`). The harp stands at the right knee of the harp player, so its right
     hand rests on the string of C4, 0.02 m further from the strings than in the playing pose, and
     its elbow points down. A place on the right thigh put the hand into the harp or the forearm
     into the belly. The elbows bend, and the harp player sits up. The first rest pose hung the

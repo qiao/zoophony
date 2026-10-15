@@ -567,8 +567,9 @@ quarter of the folded faces.
   standing height. The export drops such a body until the lowest point of its skin is on the
   floor, and moves it so that the front edge of the seat of the studio (the bench or the chair)
   meets the front edge of the seat of the app. A seated role with a seat height in `ANIMALS` (the
-  rabbits and the red foxes, since the user said on 2026-10-14 that hanging feet may be cuter)
-  then rises until its seat is at that height, and its feet hang above the floor. A seated role
+  rabbits and the red foxes, since the user said on 2026-10-14 that hanging feet may be cuter,
+  and the polar bear, since the user said on 2026-10-14 that its seat was too low) then rises
+  until its seat is at that height, and its feet hang above the floor. A seated role
   with a move back in `ANIMALS` (`seatBack`) then moves back toward the chair back, up to the gap
   of the chair back, and the chair grows forward under it by the rest of the move: the user saw
   the rabbits and the red foxes "sitting on the edge of the chair" on 2026-10-14. `StudioBody.floor` is the point on the floor under
@@ -1510,7 +1511,7 @@ code of each instrument (`models/instruments/`) holds its sizes and the offsets 
 | Contrabass | The cello at 1.6 scale, with the cello bow. | At the left side, in front of the seat. The axis leans back to the player and to the left, so that the neck passes the left of the head. The top plate faces the front and to the right. |
 | Harp | 24 strings that show the 47 strings of a concert harp, C1 to G7. | Between the knees. The harp leans back to the player and turns around the vertical, so that the top of the soundbox comes to the right shoulder, and the neck passes the right side of the face. With no turn, the neck went through the face of the deer (review of step 5, U1). The left hand plays from the left side of the strings, and the right hand from the right side. |
 | Piano | A case with an open lid, white and black keys, and a desk with sheet music. The lid opens less than the lid of `mockup.png`, because a wider lid hid the heads of the players behind the piano in the default view. | The front of the keys stands `PIANO_FRONT_H` head heights and 0.05 m in front of the floor point of the pianist (`models/instruments/piano.ts`), clear of the round belly of the studio polar bear (5.3). |
-| Piano bench | A seat of `PIANO_BENCH` at the height of the legs of the pianist, as a chair: the studio polar bear sits on its bench as the pianist of the studio, and its bench is low, because the studio fitted short legs to a round body (4.4, `StudioBody.seatHeight`). Under a parametric body, the bench keeps the height of `PIANO_BENCH`. The legs of the studio body are not stretched (user rule of 2026-10-10). | A static prop under the pianist, as a chair. |
+| Piano bench | A seat of `PIANO_BENCH` at the height of the seat of the pianist, as a chair: the studio polar bear sits on a bench at the height of `seat` of its entry in `ANIMALS`, about twice the bench at its legs, and its feet hang above the floor (4.4, `StudioBody.seatHeight`). The user asked for a higher seat on 2026-10-14. The bench at its legs was low, because the studio fitted short legs to a round body. Under a parametric body, the bench keeps the height of `PIANO_BENCH`. The legs of the studio body are not stretched (user rule of 2026-10-10). | A static prop under the pianist, as a chair. |
 | Choir folder | Two open covers, with pages in the sheet music color. | In both hands, below the head center and in front of it. It leans back, so that the pages face the eyes. |
 | Flute | A silver tube. | The hole of the lip plate is at the mouth. The flute points to the right, a little to the front and down. |
 | Oboe | A thin dark tube with a small bell and metal keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |

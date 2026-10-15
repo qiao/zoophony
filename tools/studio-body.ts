@@ -105,7 +105,9 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     },
   ],
   // The polar bear pianist keeps the keys of its studio piano at the keys of the piano of the app,
-  // because the studio fitted its seated arms to them (design 4.4, 5.3).
+  // because the studio fitted its seated arms to them (design 4.4, 5.3). It sits on a bench of
+  // 0.25 m, about twice the bench that fits its legs, because the user asked for a higher seat on
+  // 2026-10-14. Its feet hang above the floor.
   [
     'polar-bear',
     {
@@ -113,6 +115,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       height: PIANO.keyTop,
       seated: true,
       soloist: false,
+      seat: 0.25,
       constant: 'STUDIO_POLAR_BEAR',
       crease: 15,
     },

@@ -103,13 +103,17 @@ export const HANDS_HOLDS = {
   // The paw of the studio polar bear is longer than a white key, so the palm is 0.02 m in front
   // of the front edge of the keys and 0.065 m above them, and the curled claws lie on the keys
   // (`pianoKeyFront()`). Further back, the claws went into the fallboard, and lower, into the
-  // key bed. The spine leans 20° forward: the clips of the pianist of the studio lean 12°
-  // (`lowpoly-studio/roles/pianist/`), and the keys stand far enough in front of the round
-  // belly that the paws reach only the middle keys with the lean. The paws reach from A0 to
-  // B♭4 with the left paw and from C4 to C8 with the right paw (`pose/hands.test.ts`), so a
-  // melody changes paws between them. The wrists go up over the case between the lap and the keys
-  // (`restArc`). With the paws in the lap, an arc of 0.5 H out stood the upper arms 61° out from
-  // the trunk in the lift. With no arc out, they stand out at most as far as in a play.
+  // key bed. The spine leans 26° forward: the keys stand far enough in front of the round belly
+  // that the paws reach only the middle keys with the lean. On the bench of 0.25 m, a lean of
+  // 24° left 1.4% of the notes out of reach, and 28° put the head 2 mm from the case
+  // (`docs/research/2026-10-14-polar-bench.md`). The paws reach from A0 to B♭4 with the left
+  // paw and from C4 to C8 with the right paw (`pose/hands.test.ts`), so a melody changes paws
+  // between them. The elbows point out more than down: with the poles of the low bench (-0.6
+  // down, 0.4 forward), a face folded in 30% of the play samples, mostly on the upper arms. The
+  // wrists go up and a little forward over the case between the lap and the keys (`restArc`):
+  // with no arc forward, the claws went 1.6 cm into the belly when the paws lowered. With the
+  // paws in the lap, an arc of 0.5 H out stood the upper arms 61° out from the trunk in the lift.
+  // With no arc out, they stand out at most as far as in a play.
   piano: {
     action: 'strike',
     keyPoint: pianoKeyFront,
@@ -117,15 +121,15 @@ export const HANDS_HOLDS = {
     palmR: [0, 0.065, 0.02],
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
-    lean: 20 * MathUtils.DEG2RAD,
+    lean: 26 * MathUtils.DEG2RAD,
     restLean: 8 * MathUtils.DEG2RAD,
     restHeadLift: 8 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
-    poleL: [-1, -0.6, 0.4],
-    poleR: [1, -0.6, 0.4],
+    poleL: [-1, -0.4, 0.2],
+    poleR: [1, -0.4, 0.2],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
-    restArc: [0, 0.4, 0],
+    restArc: [0, 0.4, 0.1],
     // The rest pose is the rest position of a pianist before a performance: the trunk sits tall
     // with a slight lean toward the piano, the head is up, and the hands rest in the lap
     // (`docs/research/2026-10-13-pianist-lap.md`). The rest lean is the lean of the `ready` clip
