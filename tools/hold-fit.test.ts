@@ -11,8 +11,11 @@ import {
   FIT_STEP,
   GRID_LIMIT,
   chooseDemos,
+  HELD_PART,
   faceSections,
   fitSweep,
+  freeGaps,
+  holdsInstrument,
   fitJson,
   fitTable,
   foldShares,
@@ -20,7 +23,9 @@ import {
   gridVariants,
   parseFitOptions,
   readFit,
+  restGaps,
   sortFitRows,
+  splitHeld,
   worstPairs,
 } from './hold-fit.ts';
 import type { FitRow } from './hold-fit.ts';
@@ -283,6 +288,9 @@ describe('fitTable', () => {
     seconds: 1,
     results: [],
     faces: [],
+    held: null,
+    gaps: [],
+    free: [],
   };
 
   it('marks a depth over its limit and play folds over the goal of 1%', () => {
@@ -293,6 +301,22 @@ describe('fitTable', () => {
     expect(base).toBe(
       '| base | 2.0% (2/100) OVER | 10.0% (1/10) | 13 (L 11 / R 0 / other 2) | 2.0 paws>body (1.5) OVER | 1.0 bow>violin (1.5) |',
     );
+  });
+
+  it('adds the instrument in the body, the rest gap, and the rest reach of each free paw', () => {
+    const flute: FitRow = {
+      ...row,
+      held: { set: 'lower', demo: 'a', pair: pair('instrument', 'body', 0.016), limit: 0.015 },
+      gaps: [{ paw: 'paw L', gap: 0.004, demo: 'a' }],
+      free: [{ side: 'L', share: 1.042 }],
+    };
+    const lines = fitTable([{ ...row, free: [{ side: 'L', share: 0.995 }] }, flute]);
+    expect(lines[0]).toMatch(
+      /\| lift depth cm \(limit\) \| Instrument in body cm \(limit\) \| Rest gap paw L cm \| Rest reach L \|$/,
+    );
+    expect(lines[2]).toMatch(/\| - \| - \| 0\.995 \|$/);
+    expect(lines[3]).toMatch(/\| 1\.6 lower \(1\.5\) OVER \| 0\.4 \| 1\.042 OVER \|$/);
+    expect(fitTable([row])[0]).not.toContain('Instrument');
   });
 
   it('gives back the rows of its JSON text, with NaN for a depth with no bone', () => {
@@ -308,7 +332,16 @@ describe('fitTable', () => {
     ];
     const run = {
       demos: ['a'],
-      rows: [{ ...row, depths: [{ set: 'play', demo: 'a', pair: none, limit: 0.015 }], results }],
+      rows: [
+        {
+          ...row,
+          depths: [{ set: 'play', demo: 'a', pair: none, limit: 0.015 }],
+          results,
+          held: { set: 'rest', demo: 'a', pair: none, limit: 0.015 },
+          gaps: [{ paw: 'paw L', gap: 0, demo: 'a' }],
+          free: [{ side: 'L' as const, share: null }],
+        },
+      ],
     };
     expect(readFit(fitJson(run))).toEqual(run);
     expect(formatVersion(fitJson(run))).toBe(FIT_FORMAT);
@@ -393,5 +426,90 @@ describe('fitSweep', async () => {
     expect(rabbitPlayers.length).toBeGreaterThan(0);
     expect(foxPlayers.every((player) => foxModels.has(player.model))).toBe(true);
     expect(rabbitPlayers.every((player) => rabbitModels.has(player.model))).toBe(true);
+  });
+});
+
+describe('splitHeld', () => {
+  it('gives the instrument in the body nearest to its limit, and takes each pair of it out', () => {
+    const results: DemoResult[] = [
+      {
+        demo: 'a flutist 3 (fox-tan, chair)',
+        species: 'fox-tan',
+        headHeight: 0.32,
+        sets: [
+          {
+            name: 'rest',
+            pairs: [
+              pair('upper arms', 'body', 0.01),
+              pair(HELD_PART.name, 'body', 0.004),
+              pair(HELD_PART.name, 'flute', 0.2),
+            ],
+            gaps: [],
+          },
+          { name: 'lower', pairs: [pair(HELD_PART.name, 'body', 0.007)], gaps: [] },
+        ],
+        targets: [],
+      },
+    ];
+    const { held, results: kept } = splitHeld(VIOLINIST_SWEEP, results);
+    expect(held?.set).toBe('lower');
+    expect(held?.pair.depth).toBe(0.007);
+    expect(kept[0]?.sets.map((set) => set.pairs.map((p) => p.part))).toEqual([['upper arms'], []]);
+    expect(splitHeld(VIOLINIST_SWEEP, []).held).toBeNull();
+  });
+});
+
+describe('restGaps', () => {
+  it('gives the largest smallest gap of each paw in the rest over the players', () => {
+    const gap = (part: string, value: number) => ({
+      part,
+      into: 'body',
+      gap: value,
+      song: 0,
+      wall: 10,
+      bone: null,
+    });
+    const result = (demo: string, rest: number, play: number): DemoResult => ({
+      demo,
+      species: 'fox-tan',
+      headHeight: 0.32,
+      sets: [
+        { name: 'rest', pairs: [], gaps: [gap('paw L', rest)] },
+        { name: 'play', pairs: [], gaps: [gap('paw L', play)] },
+      ],
+      targets: [],
+    });
+    expect(
+      restGaps([result('a', 0, 0.5), result('b', 0.012, 0.5), result('c', Infinity, 0.5)]),
+    ).toEqual([{ paw: 'paw L', gap: 0.012, demo: 'b' }]);
+    expect(restGaps([])).toEqual([]);
+  });
+});
+
+describe('freeGaps and holdsInstrument', async () => {
+  const scene = sceneOf((await patchedDemo('beethoven-8.mid')).bytes);
+
+  it('measures the free paw of a seated flutist in the rest only, and no paw of a violinist', () => {
+    const flutist = foldRole('flutist');
+    const sweep = fitSweep(flutist, scene);
+    const [player] = sweep?.players(scene) ?? [];
+    if (!player) {
+      throw new Error('The demo has no flutist.');
+    }
+    const gaps = freeGaps(flutist);
+    expect(gaps('rest', player).map((p) => [p.part.name, p.into])).toEqual([['paw L', 'body']]);
+    expect(gaps('play', player)).toEqual([]);
+    const standing = { ...player, model: { ...player.model, support: 'stand' as const } };
+    expect(gaps('rest', standing)).toEqual([]);
+    expect(freeGaps(foldRole('fox-violinist'))('rest', player)).toEqual([]);
+  });
+
+  it('adds the instrument part to the sweep of a role that holds its instrument', () => {
+    expect(holdsInstrument(foldRole('flutist'))).toBe(true);
+    expect(holdsInstrument(foldRole('fox-violinist'))).toBe(true);
+    expect(holdsInstrument(foldRole('pianist'))).toBe(false);
+    expect(holdsInstrument(foldRole('conductor'))).toBe(false);
+    const parts = fitSweep(foldRole('flutist'), scene)?.parts.map((part) => part.name) ?? [];
+    expect(parts).toContain(HELD_PART.name);
   });
 });

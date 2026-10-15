@@ -1,9 +1,12 @@
 /**
  * Fits the hold of a role of a studio body in one run (route 3 of `AGENTS.md`): for the base and
- * for each variant of `--set`, it gives the folds of `pnpm fold-probe`, the deepest point of each
- * sample set of the sweep of `pnpm pose-depth`, and, for a violin role, the reach of
- * `pnpm hold-reach`. It prints one table with one row for each variant. The source files do not
- * change.
+ * for each variant of `--set`, it gives the folds of `pnpm fold-probe` with the most folded faces
+ * of one rest sample by side, the deepest point of each sample set of the sweep of
+ * `pnpm pose-depth`, and, for a violin role, the reach of `pnpm hold-reach`. For a role that holds
+ * its instrument in its paws, it gives the deepest point of the instrument in the body. For a wind
+ * role with a paw that leaves its grip in the rest pose (`WindHold.restFreeL`), it gives the gap
+ * of that paw to the body in the rest and the reach share of its rest place. It prints one table
+ * with one row for each variant. The source files do not change.
  *
  * `--grid '<path>=<a>:<b>:<step>'` adds the variants of a range of values, and several `--grid`
  * options give the product of their ranges, up to {@link GRID_LIMIT} variants. A run with a grid
@@ -30,20 +33,23 @@ import {
   splitText,
 } from './fold-probe.ts';
 import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
-import { holdReach, rangeTexts, ruleSize } from './hold-reach.ts';
+import { freeRestReach, holdReach, rangeTexts, reachShare, ruleSize } from './hold-reach.ts';
 import type { ChinInstrument, HoldReach } from './hold-reach.ts';
 import { setHolds } from './hold-sets.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { compareDepths, restoreDepth, restoreResult, sweepDemos } from './pose-depth.ts';
-import type { DemoResult, StoredDepth, StoredResult } from './pose-depth.ts';
+import type { DemoResult, GapsOf, StoredDepth, StoredResult } from './pose-depth.ts';
 import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { sceneOf } from '../src/pose/test-scene.ts';
 import type { TestScene } from '../src/pose/test-scene.ts';
 import { SWEEP_ROLES } from '../src/pose/test-sweep-roles.ts';
-import { depthLimit, pairText } from '../src/pose/test-sweep.ts';
-import type { PairDepth, RoleSweep } from '../src/pose/test-sweep.ts';
+import { BODY_OBSTACLE, PAW_PARTS, depthLimit, pairText } from '../src/pose/test-sweep.ts';
+import type { PairDepth, RoleSweep, SweepPart } from '../src/pose/test-sweep.ts';
+import { isInFamily } from '../src/pose/family.ts';
+import { windHoldOf } from '../src/pose/winds.ts';
+import type { WindInstrument } from '../src/pose/winds.ts';
 
 /**
  * The demos of a run with no `--demo`: the demos of the deepest point of each sample set of the
@@ -238,10 +244,18 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
 }
 
 /**
+ * The part of the instrument that the sweep of a role that holds its instrument measures in the
+ * body: the bones of the instrument and of its slide. Only its pair with the body counts
+ * ({@link splitHeld}).
+ */
+export const HELD_PART: SweepPart = { name: 'instrument', bones: ['instrument', 'slide'] };
+
+/**
  * Gives the sweep of a fold role: the role of `SWEEP_ROLES` whose players in a scene are bodies of
  * the fold role, with only these players. The violinist sweep holds the rabbits and the red foxes,
  * so the fold role `fox-violinist` sweeps only the red foxes. A new role of both tables thus needs
- * no entry here.
+ * no entry here. For a role that holds its instrument in its paws ({@link holdsInstrument}), the
+ * sweep also measures {@link HELD_PART}.
  *
  * @param role The fold role.
  * @param scene A scene with a body of the role.
@@ -257,11 +271,117 @@ export function fitSweep(role: RoleSource, scene: TestScene): RoleSweep | null {
   }
   return {
     ...sweep,
+    parts: holdsInstrument(role) ? [...sweep.parts, HELD_PART] : sweep.parts,
     players: (other) => {
       const own = new Set(roleBodies(role, other).map((body) => body.model));
       return sweep.players(other).filter((player) => own.has(player.model));
     },
   };
+}
+
+/** The results of a sweep with the instrument in the body taken out. */
+export interface HeldSplit {
+  /** The pair of the instrument in the body nearest to its limit, or most over it, or `null`. */
+  readonly held: SetWorst | null;
+  /** The results with no pair of {@link HELD_PART}, for the deepest points of the role. */
+  readonly results: DemoResult[];
+}
+
+/**
+ * Takes the pairs of {@link HELD_PART} out of the results of a sweep, and gives the pair of the
+ * instrument in the body that is nearest to its limit (`depthLimit()`), or most over it, over each
+ * sample set. The instrument is inside its own shells, so its pairs with the other obstacles do
+ * not count.
+ *
+ * @param role The sweep.
+ * @param results The results of each demo.
+ * @returns The pair of the instrument in the body, and the results with no pair of the instrument.
+ */
+export function splitHeld(role: RoleSweep, results: readonly DemoResult[]): HeldSplit {
+  let held: SetWorst | null = null;
+  const kept = results.map((result): DemoResult => ({
+    demo: result.demo,
+    species: result.species,
+    headHeight: result.headHeight,
+    sets: result.sets.map((set) => {
+      for (const pair of set.pairs) {
+        if (pair.part !== HELD_PART.name || pair.into !== BODY_OBSTACLE) {
+          continue;
+        }
+        const limit = depthLimit(role, pair, set.name).depth;
+        if (!held || pair.depth - limit > held.pair.depth - held.limit) {
+          held = { set: set.name, demo: result.demo, pair, limit };
+        }
+      }
+      return {
+        name: set.name,
+        pairs: set.pairs.filter((pair) => pair.part !== HELD_PART.name),
+        gaps: set.gaps,
+      };
+    }),
+    targets: result.targets,
+  }));
+  return { held, results: kept };
+}
+
+/** The gap of a paw that leaves its grip in the rest pose to the body. */
+export interface PawGap {
+  /** The name of the paw, such as `paw L`. */
+  readonly paw: string;
+  /**
+   * The largest gap over the seated players of the smallest gap in the rest, in meters: 0 when the
+   * paw touches the body of each player.
+   */
+  readonly gap: number;
+  /** The demo and the player of the largest gap. */
+  readonly demo: string;
+}
+
+/**
+ * Gives the gap of each free paw to the body in the rest: for each paw, the largest over the
+ * results of the smallest gap of the rest set. Each seated player measures the gap of its free
+ * paws ({@link freeGaps}), and a result with no gap of a paw does not count.
+ *
+ * @param results The results of each demo.
+ * @returns The gap of each paw, in the order of their first result.
+ */
+export function restGaps(results: readonly DemoResult[]): PawGap[] {
+  const gaps = new Map<string, PawGap>();
+  for (const { demo, sets } of results) {
+    for (const gap of sets.find((set) => set.name === 'rest')?.gaps ?? []) {
+      const known = gaps.get(gap.part);
+      if (Number.isFinite(gap.gap) && gap.into === BODY_OBSTACLE && gap.gap >= (known?.gap ?? -1)) {
+        gaps.set(gap.part, { paw: gap.part, gap: gap.gap, demo });
+      }
+    }
+  }
+  return [...gaps.values()];
+}
+
+/**
+ * Gives the gap pairs of the sweep of a wind role with a free paw: each paw that leaves its grip in
+ * the rest pose (`WindHold.restFreeL`) to the body, in the rest set of each seated player. The
+ * free paw of a seated player rests on its thigh, and the paw of a standing player hangs.
+ *
+ * @param role The fold role.
+ * @returns The gap pairs of each set of each player.
+ */
+export function freeGaps(role: RoleSource): GapsOf {
+  const wind = windOf(role);
+  const free = wind && windHoldOf(wind.species, wind.instrument).restFreeL ? ['paw L'] : [];
+  const pairs = PAW_PARTS.filter((part) => free.includes(part.name)).map((part) => ({
+    part,
+    into: BODY_OBSTACLE,
+  }));
+  return (set, player) => (set === 'rest' && player.model.support !== 'stand' ? pairs : []);
+}
+
+/** The reach share of the rest place of a free paw (`reachShare()` of `pnpm hold-reach`). */
+export interface FreeShare {
+  /** The side of the paw. */
+  readonly side: 'L' | 'R';
+  /** The share of the arm, or `null` for a hanging arm. Above 1, the arm cannot reach the place. */
+  readonly share: number | null;
 }
 
 /** The pair of a sample set that is nearest to its limit, or most over it. */
@@ -357,19 +477,30 @@ export interface FitRow {
   readonly results: readonly DemoResult[];
   /** The table of the faces that fold most (`faceLines()` of `pnpm fold-probe`), or none. */
   readonly faces: readonly string[];
+  /** The pair of the instrument in the body ({@link splitHeld}), or `null`. */
+  readonly held: SetWorst | null;
+  /** The gap of each free paw to the body in the rest ({@link restGaps}). */
+  readonly gaps: readonly PawGap[];
+  /** The reach share of the rest place of each free paw on the chair, or none. */
+  readonly free: readonly FreeShare[];
 }
+
+/** A pair of a set of the JSON text of {@link fitJson}. */
+type StoredWorst = Omit<SetWorst, 'pair'> & {
+  /** The deepest point of the pair. */
+  readonly pair: StoredDepth;
+};
 
 /** The JSON text of {@link fitJson}. JSON writes the place `NaN` of a depth as `null`. */
 interface StoredFit {
   /** The demos of the run. */
   readonly demos: readonly string[];
   /** The rows, the base first. */
-  readonly rows: readonly (Omit<FitRow, 'depths' | 'results'> & {
+  readonly rows: readonly (Omit<FitRow, 'depths' | 'results' | 'held'> & {
     /** The deepest point of each sample set. */
-    readonly depths: readonly (Omit<SetWorst, 'pair'> & {
-      /** The deepest point of the pair. */
-      readonly pair: StoredDepth;
-    })[];
+    readonly depths: readonly StoredWorst[];
+    /** The pair of the instrument in the body, or `null`. */
+    readonly held: StoredWorst | null;
     /** The results of the sweep in each demo. */
     readonly results: readonly StoredResult[];
   })[];
@@ -410,21 +541,25 @@ export function readFit(text: string): FitRun {
   // SAFETY: the text comes from fitJson() of this tool, in the probe of a commit or of the
   // working tree.
   const stored = JSON.parse(text) as StoredFit;
+  const restore = (worst: StoredWorst): SetWorst => ({
+    set: worst.set,
+    demo: worst.demo,
+    pair: restoreDepth(worst.pair),
+    limit: worst.limit,
+  });
   return {
     demos: stored.demos,
     rows: stored.rows.map((row) => ({
       variant: row.variant,
       folds: row.folds,
-      depths: row.depths.map((worst) => ({
-        set: worst.set,
-        demo: worst.demo,
-        pair: restoreDepth(worst.pair),
-        limit: worst.limit,
-      })),
+      depths: row.depths.map(restore),
       reach: row.reach,
       seconds: row.seconds,
       results: row.results.map(restoreResult),
       faces: row.faces,
+      held: row.held ? restore(row.held) : null,
+      gaps: row.gaps,
+      free: row.free,
     })),
   };
 }
@@ -447,8 +582,10 @@ function foldCell(folds: FoldShares, set: 'play' | 'lift', goal: number | null):
 /**
  * Writes the table of `pnpm hold-fit`: one row for each variant, with the play folds and the lift
  * folds, the most folded faces of one rest sample by side, the deepest point of each sample set in
- * cm with its pair and its limit, and the reach of a violin role. A mark `OVER` follows a depth
- * over its limit and play folds over {@link PLAY_FOLD_GOAL}.
+ * cm with its pair and its limit, the instrument in the body with its set, the gap of each free
+ * paw to the body in the rest in cm, the reach share of the rest place of each free paw, and the
+ * reach of a violin role. A mark `OVER` follows a depth over its limit, play folds over
+ * {@link PLAY_FOLD_GOAL}, and a reach share above 1.
  *
  * @param rows The rows, the base first.
  * @returns The lines.
@@ -456,12 +593,18 @@ function foldCell(folds: FoldShares, set: 'play' | 'lift', goal: number | null):
 export function fitTable(rows: readonly FitRow[]): string[] {
   const sets = [...new Set(rows.flatMap((row) => row.depths.map((d) => d.set)))];
   const violin = rows.some((row) => row.reach);
+  const held = rows.some((row) => row.held);
+  const paws = [...new Set(rows.flatMap((row) => row.gaps.map((gap) => gap.paw)))];
+  const sides = [...new Set(rows.flatMap((row) => row.free.map((free) => free.side)))];
   const header = [
     'Variant',
     'Play folds',
     'Lift folds',
     'Rest faces (by side)',
     ...sets.map((set) => `${set} depth cm (limit)`),
+    ...(held ? ['Instrument in body cm (limit)'] : []),
+    ...paws.map((paw) => `Rest gap ${paw} cm`),
+    ...sides.map((side) => `Rest reach ${side}`),
     ...(violin ? ['Rule scale', 'Violin m', 'stopRange', 'bowRange'] : []),
   ];
   const lines = [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`];
@@ -475,6 +618,22 @@ export function fitTable(rows: readonly FitRow[]): string[] {
       const mark = pair.depth > limit ? ' OVER' : '';
       return `${(pair.depth * 100).toFixed(1)} ${pair.part}>${pair.into} (${(limit * 100).toFixed(1)})${mark}`;
     });
+    const heldCell = row.held
+      ? `${(row.held.pair.depth * 100).toFixed(1)} ${row.held.set} (${(row.held.limit * 100).toFixed(1)})${row.held.pair.depth > row.held.limit ? ' OVER' : ''}`
+      : '-';
+    const gapCells = paws.map((paw) => {
+      const gap = row.gaps.find((g) => g.paw === paw);
+      return gap ? (gap.gap * 100).toFixed(1) : '-';
+    });
+    const reachCells = sides.map((side) => {
+      const free = row.free.find((f) => f.side === side);
+      if (!free) {
+        return '-';
+      }
+      return free.share === null
+        ? 'hangs'
+        : `${free.share.toFixed(3)}${free.share > 1 ? ' OVER' : ''}`;
+    });
     const reach = row.reach;
     const rule = reach ? ruleSize(reach) : null;
     const ranges = reach ? rangeTexts(reach) : null;
@@ -484,6 +643,9 @@ export function fitTable(rows: readonly FitRow[]): string[] {
       foldCell(row.folds, 'lift', null),
       `${row.folds.rest.most} (${splitText(row.folds.rest.split)})`,
       ...depths,
+      ...(held ? [heldCell] : []),
+      ...gapCells,
+      ...reachCells,
       ...(violin
         ? [
             rule ? rule.scale.toFixed(3) : 'none',
@@ -582,6 +744,51 @@ function chinOf(
 }
 
 /**
+ * Gives the wind instrument of a role, for the free paws of its hold.
+ *
+ * @param role The role.
+ * @returns The species and the instrument, or `null` for a role with no woodwind or brass.
+ */
+function windOf(
+  role: RoleSource,
+): { readonly species: SpeciesId; readonly instrument: WindInstrument } | null {
+  if (role.kind !== 'player' || !isInFamily(role.instrument, ['woodwind', 'brass'])) {
+    return null;
+  }
+  const [species] = role.species;
+  return species ? { species, instrument: role.instrument } : null;
+}
+
+/**
+ * Tells if a role holds its instrument in its paws: a violin, a viola, or a wind instrument. The
+ * sweep of such a role measures the instrument in the body ({@link HELD_PART}).
+ *
+ * @param role The role.
+ * @returns True for a role with an instrument under the chin or a wind instrument.
+ */
+export function holdsInstrument(role: RoleSource): boolean {
+  return chinOf(role) !== null || windOf(role) !== null;
+}
+
+/**
+ * Gives the reach share of the rest place of each free paw of a wind role on the chair
+ * (`freeRestReach()` of `pnpm hold-reach`).
+ *
+ * @param role The role.
+ * @returns The share of each free paw, or none for a role with no free paw.
+ */
+function freeShares(role: RoleSource): FreeShare[] {
+  const wind = windOf(role);
+  if (!wind) {
+    return [];
+  }
+  return freeRestReach(wind.species, wind.instrument, 'chair').map((reach) => ({
+    side: reach.side,
+    share: reachShare(reach),
+  }));
+}
+
+/**
  * Chooses the demo ids of a run.
  *
  * @param asked The demos of `--demo`, with no `.mid`, or `all`.
@@ -647,6 +854,12 @@ function printRow(row: FitRow): void {
   console.log(`${row.variant || 'base'} (${row.seconds.toFixed(1)} s):`);
   for (const { set, demo, pair } of row.depths) {
     console.log(`  ${set}: ${pairText(pair)}, ${demo}`);
+  }
+  if (row.held) {
+    console.log(`  ${row.held.set}: ${pairText(row.held.pair)}, ${row.held.demo}`);
+  }
+  for (const { paw, gap, demo } of row.gaps) {
+    console.log(`  rest: ${paw} to body: ${(gap * 100).toFixed(1)} cm, ${demo}`);
   }
 }
 
@@ -726,9 +939,13 @@ async function main(): Promise<void> {
     const { undo, text } = setHolds(variant);
     try {
       const report = probeFolds(options.role, demos, options.step);
-      const results = sweep
-        ? await sweepDemos({ demos: ids, times: null, gaps: false }, sweep)
+      const swept = sweep
+        ? await sweepDemos(
+            { demos: ids, times: null, gaps: false, gapsOf: freeGaps(options.role) },
+            sweep,
+          )
         : [];
+      const { held, results } = sweep ? splitHeld(sweep, swept) : { held: null, results: swept };
       const row: FitRow = {
         variant: text,
         folds: foldShares(report),
@@ -737,6 +954,9 @@ async function main(): Promise<void> {
         seconds: (performance.now() - started) / 1000,
         results,
         faces: options.faces > 0 ? faceLines(report, options.faces) : [],
+        held,
+        gaps: restGaps(results),
+        free: freeShares(options.role),
       };
       rows.push(row);
       printRow(row);
