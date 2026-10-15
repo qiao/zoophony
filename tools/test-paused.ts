@@ -13,7 +13,7 @@ import { existsSync, realpathSync, symlinkSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
-import { ROOT, runChildStatus, shortHash, withRefTree } from './ref-tree.ts';
+import { ROOT, runChildren, shortHash, withRefTree } from './ref-tree.ts';
 import type { ChildEnd } from './ref-tree.ts';
 
 /** The usage text of `pnpm test:paused`. */
@@ -183,7 +183,8 @@ async function runFailures(
 
 /**
  * Runs the paused tests on a copy of a commit and on the working tree at the same time, each in a
- * child process of `runChildStatus()`, and prints the tests that fail on the working tree alone.
+ * child process of `runChildren()`, and prints the tests that fail on the working tree alone. When
+ * one run cannot start, the other run ends first.
  * The copy holds {@link PAUSED_PATHS} of the commit and a link to the `node_modules` of the
  * working tree. The copy goes away at the end, also after a failure and after a stop (INT or
  * TERM), which ends both runs first.
@@ -203,11 +204,13 @@ async function compareBase(ref: string, paths: readonly string[]): Promise<numbe
       symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
       const files = { base: join(dir, 'base.json'), tree: join(dir, 'tree.json') };
       // Both runs start before the first await, so a stop ends both.
-      const runs = {
-        base: runChildStatus(process.execPath, [VITEST, ...vitestArgs(files.base, paths)], dir),
-        tree: runChildStatus(process.execPath, [VITEST, ...vitestArgs(files.tree, paths)], ROOT),
-      };
-      const [baseEnd, treeEnd] = await Promise.all([runs.base, runs.tree]);
+      const [baseEnd, treeEnd] = await runChildren([
+        { command: process.execPath, args: [VITEST, ...vitestArgs(files.base, paths)], cwd: dir },
+        { command: process.execPath, args: [VITEST, ...vitestArgs(files.tree, paths)], cwd: ROOT },
+      ]);
+      if (!baseEnd || !treeEnd) {
+        throw new Error('A run of the paused tests gave no end.');
+      }
       const base = await runFailures(label, baseEnd, files.base, realpathSync(dir));
       const tree = await runFailures('the working tree', treeEnd, files.tree, realpathSync(ROOT));
       const fresh = newFailures(base, tree);

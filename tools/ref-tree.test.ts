@@ -27,7 +27,7 @@ import {
   probeBeside,
   probeScripts,
   refRoleKeys,
-  runChildStatus,
+  runChildren,
   shortHash,
   withProbeTree,
   withRefBuild,
@@ -296,18 +296,36 @@ describe('checkFormat', () => {
   });
 });
 
-describe('runChildStatus', () => {
-  it('gives the exit code and the error output of a child, also for a code other than 0', async () => {
-    const end = await runChildStatus(
-      process.execPath,
-      ['-e', 'console.error("one test failed"); process.exit(3)'],
-      ROOT,
-    );
-    expect(end).toEqual({ status: 3, errors: 'one test failed\n' });
-    expect(await runChildStatus(process.execPath, ['-e', ''], ROOT)).toEqual({
-      status: 0,
-      errors: '',
-    });
+describe('runChildren', () => {
+  it('gives the exit code and the error output of each child, also for a code other than 0', async () => {
+    const ends = await runChildren([
+      {
+        command: process.execPath,
+        args: ['-e', 'console.error("one test failed"); process.exit(3)'],
+        cwd: ROOT,
+      },
+      { command: process.execPath, args: ['-e', ''], cwd: ROOT },
+    ]);
+    expect(ends).toEqual([
+      { status: 3, errors: 'one test failed\n' },
+      { status: 0, errors: '' },
+    ]);
+  });
+
+  it('ends the other children when one command cannot start, and rejects', async () => {
+    const marker = `ref-tree-orphan-${process.pid}-${Date.now()}`;
+    const started = Date.now();
+    const ending = runChildren([
+      {
+        command: process.execPath,
+        args: ['-e', `setTimeout(() => {}, 20000) // ${marker}`],
+        cwd: ROOT,
+      },
+      { command: join(ROOT, 'no-such-command'), args: [], cwd: ROOT },
+    ]);
+    await expect(ending).rejects.toThrow(/ENOENT/);
+    expect(Date.now() - started).toBeLessThan(10_000);
+    expect(runs(marker)).toBe(false);
   });
 });
 
@@ -380,8 +398,8 @@ interface Holder {
 }
 
 /**
- * Starts a Node child that runs a script with `withRefTree()`, `runChild()`, `runChildStatus()`,
- * and `refRoleKeys()` of this module.
+ * Starts a Node child that runs a script with `withRefTree()`, `runChild()`, `runChildren()`, and
+ * `refRoleKeys()` of this module.
  *
  * @param script The body of the script. It reads the parent folder from `REF_TREE_PARENT`.
  * @param parent The folder that holds the temporary folder.
@@ -390,7 +408,7 @@ interface Holder {
  */
 function hold(script: string, parent: string, path = process.env['PATH'] ?? ''): Holder {
   const module = JSON.stringify(join(import.meta.dirname, 'ref-tree.ts'));
-  const code = `import { refRoleKeys, runChild, runChildStatus, withRefTree } from ${module};\n${script}`;
+  const code = `import { refRoleKeys, runChild, runChildren, withRefTree } from ${module};\n${script}`;
   const child = spawn(process.execPath, ['--input-type=module', '-e', code], {
     cwd: join(import.meta.dirname, '..'),
     env: { ...process.env, PATH: path, REF_TREE_PARENT: parent },
@@ -495,7 +513,7 @@ describe('withRefTree after Ctrl-C', () => {
     }
   });
 
-  it('ends a child of runChildStatus, removes the folder, and exits with 130', async () => {
+  it('ends a child of runChildren, removes the folder, and exits with 130', async () => {
     const parent = await mkdtemp(join(tmpdir(), 'ref-tree-stop-'));
     const marker = `ref-tree-status-${process.pid}-${Date.now()}`;
     try {
@@ -503,7 +521,7 @@ describe('withRefTree after Ctrl-C', () => {
       const holder = hold(
         [
           "await withRefTree('HEAD', async (dir) => {",
-          `  const waiting = runChildStatus(process.execPath, ['-e', '${wait}'], dir);`,
+          `  const waiting = runChildren([{ command: process.execPath, args: ['-e', '${wait}'], cwd: dir }]);`,
           '  console.log(dir);',
           '  await waiting;',
           "  console.log('ended');",

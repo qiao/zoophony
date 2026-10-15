@@ -59,7 +59,7 @@ export function run(command: string, args: readonly string[], cwd: string): void
 /** The child processes of {@link runChild} that run now. A stop ends them first. */
 const running = new Set<ChildProcess>();
 
-/** The end of a child process of {@link runChildStatus}. */
+/** The end of a child process of {@link runChildren}. */
 export interface ChildEnd {
   /** The exit code, or `null` when a signal ended the child. */
   readonly status: number | null;
@@ -139,23 +139,50 @@ function startChild(command: string, args: readonly string[], cwd: string): Star
 /** A promise that never settles: the end of a child that a stop ended, for its caller. */
 const NEVER = new Promise<never>(() => undefined);
 
+/** One command of {@link runChildren}. */
+export interface ChildRun {
+  /** The command. */
+  readonly command: string;
+  /** The arguments. */
+  readonly args: readonly string[];
+  /** The folder of the command. */
+  readonly cwd: string;
+}
+
 /**
- * Starts a command as {@link runChild} does, and gives a promise of its exit code and its error
- * output. An exit code other than 0 is no failure, such as the code of a test run with a failed
- * test. A stop of {@link withRefTree} ends the group of the child first. Then the promise never
- * settles, so the caller starts no work after the stop, and the stop ends the tool.
+ * Starts commands at the same time, each in a process group of its own as {@link runChild} does,
+ * and gives a promise of the exit code and the error output of each. An exit code other than 0 is
+ * no failure, such as the code of a test run with a failed test. All children start before the
+ * first `await`. When one command cannot start, the other children end first, and the promise
+ * rejects, so that no child stays as an orphan. A stop of {@link withRefTree} ends the group of
+ * each child first. Then the promise never settles, so the caller starts no work after the stop,
+ * and the stop ends the tool.
  *
- * @param command The command.
- * @param args The arguments.
- * @param cwd The folder of the command.
- * @returns A promise of the end of the child.
+ * @param runs The commands.
+ * @returns A promise of the end of each child, in the order of the commands.
+ * @throws Error if a command cannot start, after the other children end.
  */
-export function runChildStatus(
-  command: string,
-  args: readonly string[],
-  cwd: string,
-): Promise<ChildEnd> {
-  return spawnTracked(command, args, cwd).ended.then((end) => (stopping ? NEVER : end));
+export async function runChildren(runs: readonly ChildRun[]): Promise<ChildEnd[]> {
+  const started = runs.map(({ command, args, cwd }) => spawnTracked(command, args, cwd));
+  const ends = await Promise.allSettled(
+    started.map(({ child, ended }) =>
+      ended.catch(async (error: Error) => {
+        await Promise.all(
+          started.filter((other) => other.child !== child).map((other) => endChild(other.child)),
+        );
+        throw error;
+      }),
+    ),
+  );
+  if (stopping) {
+    return NEVER;
+  }
+  return ends.map((end) => {
+    if (end.status === 'rejected') {
+      throw end.reason;
+    }
+    return end.value;
+  });
 }
 
 /**
