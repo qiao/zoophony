@@ -5,6 +5,7 @@ import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import {
   FOLD_ROLES,
   SAMPLE_SETS,
+  faceCompareLines,
   faceFacts,
   faceLines,
   foldAngle,
@@ -13,12 +14,14 @@ import {
   foldedFaces,
   mainBone,
   probeFolds,
+  readFaceJson,
   readFoldJson,
   roleAnimal,
+  sameFace,
   turnBone,
   worstFold,
 } from './fold-probe.ts';
-import type { FaceWorst, FoldCount, FoldReport } from './fold-probe.ts';
+import type { FaceJson, FaceRecord, FaceWorst, FoldCount, FoldReport } from './fold-probe.ts';
 import { ANIMALS } from './studio-body.ts';
 
 /** The identity matrix, column by column. */
@@ -208,6 +211,81 @@ describe('worstFold', () => {
     report.sets.rest.faceWorst.set(1, fold(100, 'rest'));
     expect(worstFold(report, 1)?.label).toBe('lift');
     expect(worstFold(report, 0)).toBeNull();
+  });
+});
+
+/**
+ * Makes a folded face of the JSON text.
+ *
+ * @param face The index of the face.
+ * @param play The play samples with a fold.
+ * @param middle The middle of the face.
+ * @returns The face.
+ */
+function record(face: number, play: number, middle: FaceRecord['middle'] = [0, 0, 0]): FaceRecord {
+  return { face, folds: { rest: 0, play, lift: 0 }, bone: 'neck', middle, worst: fold(120) };
+}
+
+/**
+ * Makes the folds of a tree.
+ *
+ * @param topology The hash of the corners.
+ * @param faces The folded faces.
+ * @returns The folds, with 100 play samples.
+ */
+function folds(topology: string, faces: FaceRecord[]): FaceJson {
+  const set = { samples: 100, withFold: 0 };
+  return { sets: { rest: set, play: set, lift: set }, topology, faces };
+}
+
+describe('sameFace', () => {
+  it('takes the same index when the corners are the same, else the nearest middle within 1 cm', () => {
+    const other = folds('b', [record(7, 1, [0.005, 0, 0]), record(4, 1, [0.3, 0, 0])]);
+    expect(sameFace(record(4, 1), other, 'b')?.face).toBe(4);
+    expect(sameFace(record(4, 1), other, 'a')?.face).toBe(7);
+    expect(sameFace(record(4, 1, [0.1, 0, 0]), other, 'a')).toBeNull();
+  });
+});
+
+describe('faceCompareLines', () => {
+  it('gives the shares of both trees, and marks the new and the gone faces', () => {
+    const base = folds('t', [record(1, 10), record(2, 5)]);
+    const tree = folds('t', [record(1, 20), record(3, 8)]);
+    const rows = faceCompareLines('main', base, tree, 5).filter((line) => /^\| [\d-]/.test(line));
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toMatch(
+      /^\| 1 \| 1 \| 0\.0% \/ 10\.0% \/ 0\.0% \| 0\.0% \/ 20\.0% \/ 0\.0% \|  \|/,
+    );
+    expect(rows[1]).toMatch(/^\| 3 \| - \| .* \| new \|/);
+    expect(rows[2]).toMatch(/^\| - \| 2 \| .* \| gone \|/);
+  });
+});
+
+describe('foldJson and readFaceJson', () => {
+  it('write and read each folded face with its worst fold and the hash of the corners', () => {
+    const report: FoldReport = {
+      demos: ['a.mid'],
+      faces: 2,
+      mesh: {
+        ...twoTriangles(),
+        colors: new Float32Array(),
+        finishes: new Uint8Array(),
+        correctives: [],
+      },
+      sets: { rest: countOf(1, []), play: countOf(10, [[1, 3]]), lift: countOf(5, [[1, 1]]) },
+    };
+    report.sets.play.faceWorst.set(1, fold(130));
+    const read = readFaceJson(foldJson(report));
+    expect(read.topology).toMatch(/^[0-9a-f]{64}$/);
+    expect(read.faces).toEqual([
+      {
+        face: 1,
+        folds: { rest: 0, play: 3, lift: 1 },
+        bone: mainBone(twoTriangles(), 1),
+        middle: faceFacts(twoTriangles(), 1).middle,
+        worst: fold(130),
+      },
+    ]);
   });
 });
 

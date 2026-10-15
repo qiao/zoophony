@@ -13,9 +13,11 @@
  * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--json <file>]
  * [--glb <file>]
  */
+import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 
 import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
+import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from '../src/models/cast.ts';
@@ -800,8 +802,36 @@ export interface SetCount {
 /** The counts of the folds of each sample set, as `--json` writes them. */
 export type FoldCounts = Readonly<Record<SampleSet, SetCount>>;
 
+/** One folded face of a report, as `--json` writes it. */
+export interface FaceRecord {
+  /** The index of the triangle in the mesh. */
+  readonly face: number;
+  /** The number of samples of each set in which the face folds. */
+  readonly folds: Readonly<Record<SampleSet, number>>;
+  /** The main studio bone of the face ({@link mainBone}). */
+  readonly bone: string;
+  /** The middle of the face in the bind pose, in meters. */
+  readonly middle: Vec3;
+  /** The worst fold of the face over all sample sets ({@link worstFold}). */
+  readonly worst: FaceWorst | null;
+}
+
+/** The folds of a report, as `--json` writes them. */
+export interface FaceJson {
+  /** The counts of each sample set. */
+  readonly sets: FoldCounts;
+  /**
+   * The SHA-256 of the corners of the faces of the mesh, or empty with no mesh. Two bodies with
+   * the same corners give each face the same index.
+   */
+  readonly topology: string;
+  /** Each face that folds in a sample, by its index. */
+  readonly faces: readonly FaceRecord[];
+}
+
 /**
- * Writes the counts of the folds of each sample set of a report as the JSON text of `--json`.
+ * Writes the folds of a report as the JSON text of `--json`: the counts of each sample set, the
+ * hash of the corners of the mesh, and each folded face ({@link FaceRecord}).
  *
  * @param report The report.
  * @returns The JSON text.
@@ -813,7 +843,147 @@ export function foldJson(report: FoldReport): string {
       return [set, { samples, withFold }];
     }),
   );
-  return JSON.stringify({ sets });
+  const mesh = report.mesh;
+  const folded = new Set(SAMPLE_SETS.flatMap((set) => [...report.sets[set].byFace.keys()]));
+  const faces: FaceRecord[] = mesh
+    ? [...folded]
+        .toSorted((a, b) => a - b)
+        .map((face) => ({
+          face,
+          folds: {
+            rest: report.sets.rest.byFace.get(face) ?? 0,
+            play: report.sets.play.byFace.get(face) ?? 0,
+            lift: report.sets.lift.byFace.get(face) ?? 0,
+          },
+          bone: mainBone(mesh, face),
+          middle: faceFacts(mesh, face).middle,
+          worst: worstFold(report, face),
+        }))
+    : [];
+  const topology = mesh
+    ? createHash('sha256')
+        .update(
+          new Uint8Array(mesh.corners.buffer, mesh.corners.byteOffset, mesh.corners.byteLength),
+        )
+        .digest('hex')
+    : '';
+  return JSON.stringify({ sets, topology, faces });
+}
+
+/**
+ * Reads the folded faces of the JSON text of `--json` ({@link foldJson}).
+ *
+ * @param text The JSON text.
+ * @returns The counts of each sample set, the hash of the corners, and the folded faces.
+ * @throws Error if a sample set has no whole counts.
+ */
+export function readFaceJson(text: string): FaceJson {
+  // SAFETY: the text comes from foldJson() of this tool in a child process, and readFoldJson()
+  // checks the counts.
+  const parsed = JSON.parse(text) as Partial<FaceJson>;
+  return { sets: readFoldJson(text), topology: parsed.topology ?? '', faces: parsed.faces ?? [] };
+}
+
+/** The largest distance of the middles of one face in two bodies with other corners, in meters. */
+export const SAME_FACE_DISTANCE = 0.01;
+
+/**
+ * Finds the face of another body that is the same face as a face of a body. Two bodies with the
+ * same corners give each face the same index. Else the same face is the folded face of the other
+ * body with the nearest middle in the bind pose, at most {@link SAME_FACE_DISTANCE} away.
+ *
+ * @param record The face of the body.
+ * @param other The folds of the other body.
+ * @param topology The hash of the corners of the body.
+ * @returns The folded face of the other body, or `null` when it does not fold.
+ */
+export function sameFace(record: FaceRecord, other: FaceJson, topology: string): FaceRecord | null {
+  if (topology === other.topology) {
+    return other.faces.find((face) => face.face === record.face) ?? null;
+  }
+  let best: FaceRecord | null = null;
+  let nearest = SAME_FACE_DISTANCE;
+  for (const face of other.faces) {
+    const distance = Math.hypot(
+      face.middle[0] - record.middle[0],
+      face.middle[1] - record.middle[1],
+      face.middle[2] - record.middle[2],
+    );
+    if (distance <= nearest) {
+      nearest = distance;
+      best = face;
+    }
+  }
+  return best;
+}
+
+/**
+ * Gives the total of the samples of all sets in which a face folds.
+ *
+ * @param record The face.
+ * @returns The total.
+ */
+function totalFolds(record: FaceRecord): number {
+  return SAMPLE_SETS.reduce((sum, set) => sum + record.folds[set], 0);
+}
+
+/**
+ * Writes the folded faces of a commit and of the working tree side by side: the `count` faces
+ * that fold in the most samples of the working tree, then the `count` faces of the commit that the
+ * rows do not hold yet. Each row gives the share of the samples of each set in which the face
+ * folds on both trees ({@link sameFace}), a mark `new` for a face that folds only on the working
+ * tree and `gone` for a face that folds only on the commit, the main bone, and the worst fold with
+ * the bone whose turn changes the normal most.
+ *
+ * @param label The name of the commit.
+ * @param base The folds of the commit.
+ * @param tree The folds of the working tree.
+ * @param count The number of faces of each tree.
+ * @returns The lines.
+ */
+export function faceCompareLines(
+  label: string,
+  base: FaceJson,
+  tree: FaceJson,
+  count: number,
+): string[] {
+  const top = (folds: FaceJson): FaceRecord[] =>
+    folds.faces
+      .toSorted((a, b) => totalFolds(b) - totalFolds(a) || a.face - b.face)
+      .slice(0, count);
+  const rows: { readonly tree: FaceRecord | null; readonly base: FaceRecord | null }[] = top(
+    tree,
+  ).map((record) => ({ tree: record, base: sameFace(record, base, tree.topology) }));
+  for (const record of top(base)) {
+    if (!rows.some((row) => row.base === record)) {
+      rows.push({ tree: sameFace(record, tree, base.topology), base: record });
+    }
+  }
+  if (rows.length === 0) {
+    return ['No face folds on either tree.'];
+  }
+
+  const shares = (folds: FaceJson, record: FaceRecord | null): string =>
+    SAMPLE_SETS.map((set) => {
+      const share = (100 * (record?.folds[set] ?? 0)) / Math.max(1, folds.sets[set].samples);
+      return `${share.toFixed(1)}%`;
+    }).join(' / ');
+  const lines = [
+    tree.topology === base.topology
+      ? `The faces of ${label} and of the working tree have the same corners, so a face keeps its index.`
+      : `The faces of ${label} and of the working tree have other corners, so the same face is the folded face with the nearest middle within ${SAME_FACE_DISTANCE} m.`,
+    '',
+    `| Face (tree) | Face (${label}) | ${label}: rest / play / lift | Working tree: rest / play / lift | Mark | Main bone | Worst sample, angle, bone of the fold |`,
+    '|---:|---:|---|---|---|---|---|',
+  ];
+  for (const row of rows) {
+    const mark = !row.base ? 'new' : !row.tree ? 'gone' : '';
+    const record = row.tree ?? row.base;
+    lines.push(
+      `| ${row.tree?.face ?? '-'} | ${row.base?.face ?? '-'} | ${shares(base, row.base)} | ${shares(tree, row.tree)} | ${mark} | ${record?.bone ?? '-'} | ${worstText(record?.worst ?? null)} |`,
+    );
+  }
+  return lines;
 }
 
 /**
@@ -839,9 +1009,52 @@ export function readFoldJson(text: string): FoldCounts {
 }
 
 /**
+ * Probes the folds of a commit and of the working tree at the same time, each in a child process
+ * (`probeBeside()`), and writes the share of the samples with a fold of each set on both trees.
+ * With `faces` above 0, the table of the faces of {@link faceCompareLines} follows.
+ *
+ * @param name The name of the role.
+ * @param ref The commit, the branch, or the tag.
+ * @param args The arguments of the children, with no `--base`.
+ * @param faces The number of faces of each tree in the table of the faces, or 0 for no table.
+ */
+async function compareFolds(
+  name: string,
+  ref: string,
+  args: readonly string[],
+  faces: number,
+): Promise<void> {
+  const label = `${ref} (${shortHash(ref)})`;
+  const started = performance.now();
+  const texts = await probeBeside(
+    ref,
+    'fold-probe.ts',
+    { base: args, tree: args },
+    { prefix: 'fold-probe-' },
+  );
+  const base = readFaceJson(texts.base);
+  const tree = readFaceJson(texts.tree);
+  const seconds = ((performance.now() - started) / 1000).toFixed(1);
+  const cell = (count: SetCount): string =>
+    `${((100 * count.withFold) / Math.max(1, count.samples)).toFixed(1)}% (${count.withFold}/${count.samples})`;
+  const lines = [
+    `Folded faces of the studio body of the ${name} on ${label} and on the working tree: ${seconds} s.`,
+    '',
+    `| Set | ${label} | Working tree |`,
+    '|---|---:|---:|',
+    ...SAMPLE_SETS.map((set) => `| ${set} | ${cell(base.sets[set])} | ${cell(tree.sets[set])} |`),
+  ];
+  if (faces > 0) {
+    lines.push('', ...faceCompareLines(label, base, tree, faces));
+  }
+  console.log(lines.join('\n'));
+}
+
+/**
  * Runs the probe: `node tools/fold-probe.ts <role> [--demo <id>]... [--step <seconds>]`. With
  * `--glb <file>`, the role gets the studio body that the export makes from the file, in a copy of
- * `src/` (`tools/glb-swap.ts`).
+ * `src/` (`tools/glb-swap.ts`). With `--base <ref>`, the probe of the commit and of the working
+ * tree run at the same time ({@link compareFolds}).
  */
 async function main(): Promise<void> {
   const { glb, rest: args } = takeGlb(process.argv.slice(2));
@@ -849,8 +1062,16 @@ async function main(): Promise<void> {
   const role = FOLD_ROLES.get(name);
   if (!role) {
     throw new Error(
-      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--json <file>] [--glb <file>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
+      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--json <file>] [--glb <file>] [--base <ref>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
     );
+  }
+  const baseAt = args.indexOf('--base');
+  const ref = baseAt >= 0 ? args[baseAt + 1] : undefined;
+  if (baseAt >= 0 && (!ref || ref.startsWith('--'))) {
+    throw new Error('The option --base takes a commit, a branch, or a tag.');
+  }
+  if (ref && (glb || args.includes('--json'))) {
+    throw new Error('The option --base goes with neither --glb nor --json.');
   }
   if (glb) {
     process.exitCode = await withGlbBody(roleAnimal(role), glb, (dir) =>
@@ -871,6 +1092,11 @@ async function main(): Promise<void> {
   const faces = facesAt >= 0 ? Number(args[facesAt + 1]) : 0;
   if (!Number.isInteger(faces) || faces < 0) {
     throw new Error('The option --faces takes a whole number of faces.');
+  }
+
+  if (ref) {
+    await compareFolds(name, ref, withoutOptions(args, ['--base']), faces);
+    return;
   }
 
   const all = await patchedDemos();
