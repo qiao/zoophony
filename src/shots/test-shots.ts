@@ -5,7 +5,6 @@ import { pianoSoloFile } from '../score/test-audit-files.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import { ModelCache } from '../models/model-cache.ts';
-import { mulberry32 } from '../pose/random.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { Score } from '../score/types.ts';
 import { prepareShots } from './prepare.ts';
@@ -91,29 +90,4 @@ export function chamberShotScenes(): ShotScene[] {
       ['wind-quintet.mid', windQuintetFile()],
     ] as const
   ).map(([file, events]) => shotSceneOf(file, writeSmf(events)));
-}
-
-/**
- * Moves each player of a layout by a distance in a seeded direction in the stage plane. Its
- * footprint boxes, its head, and its sight points move with it. The cast branch of 2026-10-06
- * moved the players and their boxes by 1 to 2 cm.
- *
- * @param layout The layout.
- * @param seed The seed of the directions.
- * @param distance The distance, in meters.
- * @returns The layout with the moved players.
- */
-export function movePlayers(layout: SceneLayout, seed: number, distance: number): SceneLayout {
-  const random = mulberry32(seed);
-  return {
-    ...layout,
-    players: layout.players.map((place) => {
-      const angle = random() * 2 * Math.PI;
-      const [x, y, z] = place.position;
-      return {
-        ...place,
-        position: [x + distance * Math.cos(angle), y, z + distance * Math.sin(angle)],
-      };
-    }),
-  };
 }

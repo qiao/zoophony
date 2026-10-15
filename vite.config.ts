@@ -36,14 +36,13 @@ const PAUSED_TESTS = [
   'src/models/face-patterns.test.ts',
   'src/models/penguin/penguin-body.test.ts',
   // The layout from the footprints of the bodies: the growth of the stages, the gaps between
-  // the players, the heads that hide behind larger animals, a shot plan that the layout of one
-  // demo decides, and the share of the cuts that the plans of the demos keep after small moves.
+  // the players, the heads that hide behind larger animals, and a shot plan that the layout of
+  // one demo decides.
   'src/models/layout-scene.test.ts',
   'src/scene/hidden-heads.test.ts',
   'src/shots/choir-theme.test.ts',
   'src/shots/plan-counts.test.ts',
   'src/shots/opening-drawer.test.ts',
-  'src/shots/shot-stability.test.ts',
 ];
 
 /**
