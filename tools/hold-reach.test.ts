@@ -1,15 +1,20 @@
 import { describe, expect, it } from 'vitest';
 
 import { SPECIES } from '../src/models/species.ts';
+import { buildPlayer } from '../src/models/player.ts';
 import { SPECIES_HOLDS } from '../src/pose/bowed-rig.ts';
+import { lapPoint } from '../src/pose/lap.ts';
+import { windHoldOf } from '../src/pose/winds.ts';
 import {
   armFactorFor,
   fluteReach,
   fluteReachLines,
+  freeRestReach,
   holdReach,
   holdReachLines,
   holdReachVariantLines,
   parseReachOptions,
+  reachShare,
   ruleFactor,
   ruleSize,
   scrollReach,
@@ -117,6 +122,44 @@ describe('pnpm hold-reach --instrument flute (design 4.6)', () => {
     for (const part of ['L: arm', 'R: arm', 'Playing pose', 'Rest pose', 'to spare']) {
       expect(text, part).toContain(part);
     }
+  });
+
+  it('gives the rest place of a paw that leaves its grip, and no rest grip of that paw', () => {
+    // The tan fox frees its left paw in the rest pose, and the wolf keeps both paws on the flute.
+    expect(freeRestReach('wolf', 'flute', 'chair')).toEqual([]);
+    const [seated] = freeRestReach('fox-tan', 'flute', 'chair');
+    expect(seated?.side).toBe('L');
+    expect(seated?.kind).toBe('lap');
+    // The middle of the palm is at the lap place of the hold.
+    const lap = windHoldOf('fox-tan', 'flute').restFreeL?.lap;
+    const model = buildPlayer('fox-tan', 'flute', 4, 'chair');
+    const place = lap ? lapPoint(model, 'L', lap) : [0, 0, 0];
+    for (const k of [0, 1, 2] as const) {
+      expect(seated?.palm?.[k]).toBeCloseTo(place[k], 5);
+    }
+    const share = seated ? reachShare(seated) : null;
+    expect(share).toBeGreaterThan(0.5);
+    expect(share).toBeLessThan(1.5);
+    const [standing] = freeRestReach('fox-tan', 'flute', 'stand');
+    expect(standing && reachShare(standing)).toBeNull();
+
+    const lines = fluteReachLines('fox-tan', 'chair');
+    const rest = lines.filter((line) => line.includes('Rest pose'));
+    expect(rest).toHaveLength(2);
+    expect(rest[0]).toMatch(/^ {4}Rest pose: the paw leaves its grip for the thigh \(restFreeL\)/);
+    expect(rest[1]).toMatch(/^ {4}Rest pose: shoulder joint to the grip/);
+    expect(fluteReachLines('fox-tan', 'stand').join('\n')).toContain('the arm hangs down');
+  });
+
+  it('marks a rest place out of the reach of the arm', () => {
+    const lines = holdReachVariantLines('fox-tan', {
+      instrument: 'flute',
+      support: 'chair',
+      sets: ['flute@fox-tan.restFreeL.lap.offset=-0.6,-0.13,0.1'],
+    });
+    const rest = lines.filter((line) => line.includes('for the thigh'));
+    expect(rest[0]).not.toContain('out of reach');
+    expect(rest[1]).toMatch(/, 1\.\d{3} of the arm, out of reach$/);
   });
 });
 

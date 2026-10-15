@@ -13,6 +13,7 @@ import { SPECIES_HOLDS, bowedRig, holdOf, playingFrames } from '../src/pose/bowe
 import { createBowPlaces, instrumentAt } from '../src/pose/bowed.ts';
 import { poseShoulder } from '../src/pose/ik.ts';
 import { SPECIES_WIND_HOLDS, windGrips, windHoldOf, windRig } from '../src/pose/winds.ts';
+import type { WindInstrument } from '../src/pose/winds.ts';
 import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { existsSync, readFileSync } from 'node:fs';
@@ -489,8 +490,78 @@ export function fluteReach(
   return { L: side('L'), R: side('R') };
 }
 
+/** The reach of an arm to the rest place of a paw that leaves its grip in the rest pose. */
+export interface FreeRestReach {
+  /** The side of the paw. */
+  readonly side: 'L' | 'R';
+  /**
+   * The rest of the paw (`WindHold.restFreeL`): on the thigh of a seated player, or at the end of
+   * the hanging arm of a standing player.
+   */
+  readonly kind: 'lap' | 'hang';
+  /** The arm from the shoulder joint over the elbow and the wrist to the middle of the palm. */
+  readonly arm: number;
+  /**
+   * The middle of the palm at its rest place on the thigh, in the model axes, or `null` for a
+   * hanging arm.
+   */
+  readonly palm: Vec3 | null;
+  /**
+   * The distance from the shoulder joint to the middle of the palm at its rest place, with the
+   * chest in its bind pose, or `null` for a hanging arm, which always reaches its rest place.
+   */
+  readonly distance: number | null;
+}
+
 /**
- * Writes the report of `pnpm hold-reach <species> --instrument flute`.
+ * Measures the reach of each arm to the rest place of its paw, for each paw of the wind hold of a
+ * species that leaves its grip in the rest pose (`WindHold.restFreeL`, design 5.3). The chest is in
+ * its bind pose, as for the grips of {@link fluteReach}.
+ *
+ * @param species The species.
+ * @param instrument The wind instrument.
+ * @param support The support of the player.
+ * @returns The reach of each free paw, or none when each paw stays on its grip.
+ */
+export function freeRestReach(
+  species: SpeciesId,
+  instrument: WindInstrument,
+  support: ReachSupport,
+): FreeRestReach[] {
+  const model = buildPlayer(species, instrument, 4, support);
+  const rig = windRig(model, instrument, windHoldOf(species, instrument));
+  const free = rig.freeL;
+  if (!free) {
+    return [];
+  }
+  const arm = armLength(model, 'L');
+  if (free.kind === 'hang') {
+    return [{ side: 'L', kind: 'hang', arm, palm: null, distance: null }];
+  }
+  const chest = { rotation: new Quaternion(), position: new Vector3(...rig.chestBind) };
+  const joint = poseShoulder(rig.left.arm, chest, rig.chestBind, new Quaternion()).position;
+  const palm = new Vector3(...rig.left.arm.palm)
+    .applyQuaternion(new Quaternion(...free.rotation))
+    .add(new Vector3(...free.wrist));
+  return [{ side: 'L', kind: 'lap', arm, palm: toVec3(palm), distance: palm.distanceTo(joint) }];
+}
+
+/**
+ * Gives the reach share of a rest place: the distance from the shoulder joint to the middle of the
+ * palm at the rest place over the arm. Above 1, the arm cannot reach the place, and the paw stops
+ * short of it.
+ *
+ * @param reach The reach of the free paw.
+ * @returns The share, or `null` for a hanging arm.
+ */
+export function reachShare(reach: FreeRestReach): number | null {
+  return reach.distance === null ? null : reach.distance / reach.arm;
+}
+
+/**
+ * Writes the report of `pnpm hold-reach <species> --instrument flute`. A paw that leaves its grip
+ * in the rest pose gives the reach of its rest place ({@link freeRestReach}) in place of the reach
+ * of its grip.
  *
  * @param species The species.
  * @param support The support of the player.
@@ -498,6 +569,7 @@ export function fluteReach(
  */
 export function fluteReachLines(species: SpeciesId, support: ReachSupport): string[] {
   const reach = fluteReach(species, support);
+  const free = freeRestReach(species, 'flute', support);
   const own = SPECIES_WIND_HOLDS[species]?.flute !== undefined;
   const m = (value: number): string => `${value.toFixed(3)} m`;
   const miss = (distance: number, arm: number): string =>
@@ -509,13 +581,32 @@ export function fluteReachLines(species: SpeciesId, support: ReachSupport): stri
   ];
   for (const s of ['L', 'R'] as const) {
     const { arm, play, rest } = reach[s];
+    const freed = free.find((paw) => paw.side === s);
     lines.push(
       `  ${s}: arm ${m(arm)} from the shoulder joint to the middle of the palm`,
       `    Playing pose: shoulder joint to the grip ${m(play)}, the palm ${miss(play, arm)}`,
-      `    Rest pose: shoulder joint to the grip ${m(rest)}, the palm ${miss(rest, arm)}`,
+      freed
+        ? freeRestLine(freed)
+        : `    Rest pose: shoulder joint to the grip ${m(rest)}, the palm ${miss(rest, arm)}`,
     );
   }
   return lines;
+}
+
+/**
+ * Writes the line of the rest pose of a paw that leaves its grip in the rest pose.
+ *
+ * @param reach The reach of the free paw.
+ * @returns The line, such as `    Rest pose: the paw leaves its grip for the thigh (restFreeL),
+ *   shoulder joint to the middle of the palm 0.520 m, 0.954 of the arm`.
+ */
+function freeRestLine(reach: FreeRestReach): string {
+  const share = reachShare(reach);
+  if (reach.distance === null || share === null) {
+    return '    Rest pose: the paw leaves its grip (restFreeL), and the arm hangs down.';
+  }
+  const over = share > 1 ? ', out of reach' : '';
+  return `    Rest pose: the paw leaves its grip for the thigh (restFreeL), shoulder joint to the middle of the palm ${reach.distance.toFixed(3)} m, ${share.toFixed(3)} of the arm${over}`;
 }
 
 /** The texts of the reached parts of a reach. */
