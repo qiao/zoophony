@@ -15,6 +15,8 @@ import type { Vec3 } from '../models/tuples.ts';
 import { BIND_ROTATIONS } from '../pose/frames.ts';
 import { poseSkeleton } from '../pose/test-kinematics.ts';
 import { posedCorner } from '../pose/test-skin.ts';
+import { poseAt } from '../pose/pose-at.ts';
+import { PLAYING, allAudible, demoSceneOf } from '../pose/test-scene.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import { createMaterials } from './geometry.ts';
 import {
@@ -248,6 +250,39 @@ describe('createPlayerMesh', () => {
         expect(mesh.getVertexPosition(v, vertex).distanceTo(first)).toBeLessThan(1e-9);
       }
     });
+  });
+});
+
+describe('a studio body with the shape of a raised arm (design 4.4)', async () => {
+  // The bow arm of the first red fox of K. 525 at 3.1 s, which gives the shape its full weight.
+  const scene = await demoSceneOf('mozart-k525.mid');
+  const index = scene.layout.players.findIndex((p) => p.cast.species === 'fox-red');
+  const cast = scene.layout.players[index]?.cast;
+  if (!cast) {
+    throw new Error('K. 525 has no red fox.');
+  }
+  const model = scene.models.get(cast.species, cast.instrument, cast.kettles, cast.support);
+  const frame = poseAt(scene.plan, 3.1, 20, PLAYING, allAudible(scene.score));
+  const pose = frame.players[index];
+
+  it('gives the shape its weight as a third morph target, as posedCorner() of the tests skins it', () => {
+    if (!pose) {
+      throw new Error('The red fox has no pose.');
+    }
+    const geometry = createPlayerGeometry(model);
+    expect(geometry.morphAttributes['position']).toHaveLength(3);
+    const mesh = createPlayerMesh(model, geometry, createMaterials());
+    applyPose(mesh, pose);
+    mesh.updateMatrixWorld(true);
+    expect(mesh.morphTargetInfluences?.[2]).toBeGreaterThan(0.5);
+    const posed = poseSkeleton(model, pose);
+    const vertex = new Vector3();
+    let largest = 0;
+    for (let v = 0; v < model.mesh.bones.length; v++) {
+      mesh.getVertexPosition(v, vertex);
+      largest = Math.max(largest, vertex.distanceTo(new Vector3(...posedCorner(posed, v))));
+    }
+    expect(largest).toBeLessThan(1e-5);
   });
 });
 

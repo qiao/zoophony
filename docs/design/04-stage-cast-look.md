@@ -535,7 +535,9 @@ quarter of the folded faces.
   raised arm (`raise` of the config, `raise_shape()`): in the pose of the rule, the faces that the
   skin turns over relax toward their neighbors, as the faces that the seated bind turns over, and
   the relaxed places go back to the bind pose through the inverse of the skin. The rig writes the
-  turn of the upper arm and the fade of the rule into the file for the weight of the app. Each face takes the nearest color of a
+  turn of the upper arm and the fade of the rule into the file for the weight of the app. The fox
+  config gives the raised bow arm of the red fox such a shape. The tan fox shares the rig, and its
+  arms stay out of the fade. Each face takes the nearest color of a
   palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan over its dark faces,
   so that the body keeps the triangle budget of a studio body (4.5) and a small module. A face takes
   the mean of its texture samples that are not dark, so that the black gaps between the islands of

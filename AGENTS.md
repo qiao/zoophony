@@ -240,7 +240,7 @@ of the entry of the animal in `ANIMALS`.
  assets/models/<s>/<file>.glb + tools/mesh-rigs/<animal>.json
         | pnpm rig-mesh <animal> --preview <dir> (Blender)
         v
- <output>.glb (fur, gloss, chair, 30 joints, 4 shapes, clip reference) --> pnpm studio-body
+ <output>.glb (fur, gloss, chair, 30 joints, 4 or 5 shapes, clip reference) --> pnpm studio-body
 ```
 
 1. Measure the joints on cuts of the mesh, as `docs/research/2026-10-13-rabbit-mesh/sections.py`
@@ -342,6 +342,14 @@ These traps of route 3 each cost a round:
   of the folds. Look at the weights of the corners of the faces that fold most often before you
   add a ring or a smoothing: for the fox, the rules `clavicleFrom` and `armTop` helped, and a
   smoothing of the shoulder weights folded more faces.
+- A face that folds in one region of the poses of an arm, such as the front of the right shoulder
+  of the red fox with the bow arm out to the side and down, needs a corrective shape when no weight
+  rule or ring removes the fold (`raise` of the config of `pnpm rig-mesh`). The whole turn of the
+  upper arm finds the region: all play samples within 5° of the mean turn of the folded samples
+  folded, and the direction of the upper arm alone separated them less. Run
+  `docs/research/2026-10-15-fox-rig2/arm-dirs.ts` and `raise-turn.py` for the mean turn. A rule
+  that relaxed more faces in the pose of the shape (`raise.below` 0.5 and 0.7 against 0.3) folded
+  more play samples.
 - A linear stretch of the upper arm moves each vertex by its upper arm weight. With the longer arms
   of 2026-10-14, a throat face of the red fox with 0.09 of each upper arm weight went across the
   middle, and the trunk below the right armpit folded in 30% of the play samples. The upper arm now

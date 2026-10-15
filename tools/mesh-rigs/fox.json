@@ -140,5 +140,15 @@
     "rounds": 12,
     "share": 0.5,
     "note": "The fur spikes at the bottom of the back of the head hang over the back of the neck, and with the head factor 1.2 and the neck factor 0.65 they made a dark jagged band under the head from the back and the sides (the manager on 2026-10-14). The band shows also with the factors 1 (docs/research/2026-10-14-fox-rabbit-fix.md), so the rig smooths the source inside the box before the growth: the back of the neck and the bottom of the back of the head (x from -0.11 to 0.11, y from 0.66 to 0.78, behind z 0.03). The muzzle, the jaw, the eyes, the cheek fur at the sides, and the ears stay outside the box. Each vertex inside moves 0.5 of the way to the middle of its neighbors in 12 rounds, at most 0.035 units. The spikes set the back of the box of the head, so the smoothing moves the head center of the holds 0.011 units (1.71 cm) forward, and with it the violin. The violin box then came nearer to the stands and the neighbors, and the stages of four demos grew by 0.2% to 4.6%. The rig writes the move back into the file (head_shift()), and the export keeps the head center of the head before the smoothing, so the holds, the footprints, and the stages keep their places (docs/research/2026-10-15-fox-rig2.md)."
+  },
+  "raise": {
+    "side": "R",
+    "turns": {
+      "clavicle": [0, 0.13053, 0, 0.99144],
+      "upper_arm": [0.6087, 0.1918, -0.2492, 0.7284]
+    },
+    "fade": [14, 23],
+    "below": 0.3,
+    "note": "The shape of the raised bow arm of the red fox (raise_shape() of tools/blender/rig_mesh.py). With the bow arm out to the side and down, faces 389 and 390 at the front of the right shoulder folded in 3.7% and 11.0% of the play samples, and no weight rule or ring removed the fold. The whole turn of the right upper arm in the axes of the chest finds the folds: each play sample within 5 degrees of the mean turn of the folded samples folded, 81% from 5 to 10 degrees, 18% from 10 to 15 degrees, and none beyond (raise-turn-main.txt of docs/research/2026-10-15-fox-rig2/). The turns are in the axes of the studio: the clavicle turns 15 degrees around y, as the shoulder of the player in the violin hold. A shape at that mean turn with the fade 10 to 20 degrees left folds of faces 389 and 359 about 12 degrees away, so the upper arm takes the mean turn of the samples in which face 389 still folded (raise-turn-first-shape.txt). Of the fades 10-20, 12-22, 14-24, and 16-23 degrees, 14-24 folded the fewest play samples, and the end of 23 degrees keeps the shape away from the rest of the tan fox, whose right upper arm stays 23.6 degrees from the turn. A face relaxes below the cosine 0.3: the cosines 0.2, 0.4, 0.5, and 0.7 folded more play samples (rig-mesh-check-fox-raise-variants*.log)."
   }
 }

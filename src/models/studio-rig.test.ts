@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import { STUDIO_BONES, STUDIO_LEG_BONES } from './studio-format.ts';
+import { STUDIO_BONES, STUDIO_LEG_BONES, unpackStudioMesh } from './studio-format.ts';
 import type { RequiredStudioBone, StudioBone, StudioRaise } from './studio-format.ts';
 import type { Quat } from './tuples.ts';
 import {
@@ -18,6 +18,7 @@ import {
   twistAngle,
 } from './studio-rig.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
+import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
 
 const rig = studioRig(STUDIO_BEAR);
@@ -420,6 +421,39 @@ describe('studioRig for a seated body that also stands (design 4.4)', () => {
   it('keeps the arm corrective shapes only', () => {
     expect(seated.mesh.correctives).toHaveLength(2);
     expect(standing.mesh.correctives).toHaveLength(2);
+  });
+});
+
+describe('studioRig for a body with the shape of a raised arm (design 4.4)', () => {
+  const packed = unpackStudioMesh(STUDIO_FOX.mesh).correctives;
+  const seated = studioRig(STUDIO_FOX);
+  const standing = studioRig(STUDIO_FOX, true);
+
+  it('keeps the shape of the raised arm after the arm-down shapes, also when it stands', () => {
+    for (const { mesh } of [seated, standing]) {
+      expect(mesh.correctives).toHaveLength(3);
+      expect(mesh.correctives[2]).toEqual(packed[2]);
+    }
+  });
+
+  it('stands with the leg shapes and with no part of the shape of the raised arm', () => {
+    // The trunk moves only by the lift of the standing body, so each vertex of the raised arm
+    // shape keeps its seated place plus the lift.
+    const lift = new Vector3(...standing.body.headCenter).sub(
+      new Vector3(...seated.body.headCenter),
+    );
+    const raised = packed[2] ?? new Float32Array();
+    let checked = 0;
+    for (let v = 0; v < raised.length / 3; v++) {
+      if (Math.hypot(raised[v * 3] ?? 0, raised[v * 3 + 1] ?? 0, raised[v * 3 + 2] ?? 0) > 0) {
+        const before = new Vector3().fromArray(seated.mesh.positions, v * 3).add(lift);
+        expect(
+          new Vector3().fromArray(standing.mesh.positions, v * 3).distanceTo(before),
+        ).toBeLessThan(1e-6);
+        checked++;
+      }
+    }
+    expect(checked).toBeGreaterThan(0);
   });
 });
 
