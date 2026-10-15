@@ -270,25 +270,24 @@ export const WIND_HOLDS = {
 } as const satisfies Readonly<Record<WindInstrument, WindHold>>;
 
 /** The turn of the head of the flutist fox to the left while it plays, in degrees. */
-const FOX_HEAD_TURN = 25;
+const FOX_HEAD_TURN = 30;
 
 /**
  * The flute hold of the tan fox (design 5.3), the hold of a real flutist (decisions
- * `2026-10-14-fox-flute.md`). The head turns 25° to the left while the fox plays, and the flute
- * lies square to the face, 10° down to the right. The lip plate sits under the long muzzle, 0.3 H
- * behind and 0.25 H below the mouth at its front: at the mouth, both shoulders folded in each play
- * sample (`pnpm hold-fit flutist`). The shoulders stay square and low, with no forward turn of the
- * right shoulder. The left elbow points down and out, and the right elbow out to the side, in line
- * with the shoulder. In the rest pose, the flute stands on the right thigh with the foot joint
- * down, as a real flutist rests it, and leans to the left and to the front, so that the left paw
- * holds it in front of the chest. Upright at the side of the thigh, the left forearm went 15 cm
- * into the belly. Both paws stay on it, and the left elbow points out to the side: down, the left
- * upper arm went 4.5 cm into the side of the belly.
+ * `2026-10-14-fox-flute.md`). The head turns 30° to the left while the fox plays, as Debost
+ * writes, and the flute lies square to the face, 10° down to the right. The lip plate sits 0.05 H
+ * below the mouth, under the long muzzle: at the mouth, the jaw touched the flute. The shoulders
+ * stay square and low, with no forward turn of the right shoulder. The left elbow points down and
+ * out, and the right elbow out to the side, in line with the shoulder. In the rest pose, the flute
+ * leans from in front of the chest down to the right knee, with the foot joint down, and both paws
+ * stay on it. Upright on the right thigh, as a real flutist rests it, the left upper arm went 2.5
+ * cm to 3.2 cm into the body (`pnpm hold-fit flutist`). The left elbow points out to the side at
+ * rest.
  */
 const FOX_FLUTE = {
   ...WOODWIND,
   headTurn: FOX_HEAD_TURN * MathUtils.DEG2RAD,
-  lipShift: [0, -0.25, 0.3],
+  lipShift: [0, -0.05, 0],
   play: fluteTurn(FOX_HEAD_TURN, 10),
   poleL: [-1, -1, -0.3],
   poleR: [1, -0.8, 0],
