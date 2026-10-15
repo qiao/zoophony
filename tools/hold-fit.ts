@@ -519,8 +519,9 @@ export function sortFitRows(rows: readonly FitRow[]): FitRow[] {
 }
 
 /**
- * Writes the faces of `--faces` for the base and for the best variant: the first variant of
- * {@link sortFitRows}.
+ * Writes the faces of `--faces` for the base, for the working tree with no change when the base is
+ * another row, such as the row of the commit of `--base`, and for the best variant: the first
+ * variant of {@link sortFitRows}.
  *
  * @param base The row of the base, such as the row of the commit of `--base`.
  * @param baseName The name of the base.
@@ -532,11 +533,13 @@ export function faceSections(
   baseName: string,
   rows: readonly FitRow[],
 ): string[] {
+  const [own] = rows;
   const best = sortFitRows(rows)[1];
-  const sections: [string, FitRow | undefined][] = [
-    [baseName, base],
-    [`the best variant, ${best?.variant ?? ''}`, best],
-  ];
+  const sections: [string, FitRow | undefined][] = [[baseName, base]];
+  if (own !== base) {
+    sections.push(['the working tree', own]);
+  }
+  sections.push([`the best variant, ${best?.variant ?? ''}`, best]);
   const lines: string[] = [];
   for (const [name, row] of sections) {
     if (row && row.faces.length > 0) {

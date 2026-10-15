@@ -341,15 +341,27 @@ describe('fitTable', () => {
         faces: ['b face'],
       },
     ];
-    expect(faceSections(rows[0], 'main', rows)).toEqual([
+    expect(faceSections(rows[0], 'the base', rows)).toEqual([
       '',
-      'Faces of main:',
+      'Faces of the base:',
       '',
       'base face',
       '',
       'Faces of the best variant, b:',
       '',
       'b face',
+    ]);
+    // With --base, the row of the commit is the base, and the working tree follows it.
+    const commit: FitRow = { ...row, variant: 'main', faces: ['main face'] };
+    expect(faceSections(commit, 'main', rows.slice(0, 1))).toEqual([
+      '',
+      'Faces of main:',
+      '',
+      'main face',
+      '',
+      'Faces of the working tree:',
+      '',
+      'base face',
     ]);
   });
 
