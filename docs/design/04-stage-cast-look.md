@@ -134,7 +134,7 @@ interface CommonParams {
   accentParts: readonly AccentPart[];
   /** The skeleton (below). Each value that it does not give has its default. */
   proportions?: Partial<BodyProportions>;
-  /** The scale of the violin and its bow for a species with short arms (4.6). 1 by default. */
+  /** The scale of the violin and its bow for a species (4.6). 1 by default. */
   violinScale?: number;
 }
 
@@ -362,8 +362,11 @@ since then (`assets/models/fox/fox.glb`), rigged as the rabbit mesh, and the tan
 the same rig since the same day, with a tan palette of its faces
 (`docs/decisions/2026-10-14-fox-flute.md`). The user chose "1.08x, rabbit reach": the arms reached as far as the arms of the rabbits
 (`docs/decisions/2026-10-14-mesh-fox.md`). Later that day, the user asked for a fox of 1.3 times
-the size, and the arms grew with the body (`docs/decisions/2026-10-14-animal-size.md`). The
-user chose these bodies again on 2026-10-09, in
+the size, and the arms grew with the body (`docs/decisions/2026-10-14-animal-size.md`). Then the
+user asked for full violins for the rabbit and the red fox, and their arms grew for the violins
+(`docs/decisions/2026-10-14-neck-violin.md`). Later, the user asked for shorter arms with the same
+violins, and the arms reach about halfway between the two (`docs/decisions/2026-10-14-arms-rest.md`).
+The user chose these bodies again on 2026-10-09, in
 place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
 code after `fox-views.png`, the bear a body built in code after `bear-views.png` and then the
@@ -512,8 +515,10 @@ quarter of the folded faces.
   between its joints, and the head and the ears move down the neck with the head joint. The
   export puts the head center of the holds on the short neck, and the head height stays, so an
   instrument under the jaw goes down with the jaw (`headRig()`). The upper arm stretches by the
-  arm factor only from the shoulder joint out and only on the free arm, so that a small arm weight
-  of the throat or of the trunk below the armpit does not pull the trunk with the longer arm. The corrective shapes of the rig give the source
+  arm factor only from the shoulder joint out, so that a small arm weight of the throat does not
+  pull the throat across the middle. A config can also fade the stretch over the trunk below the
+  armpit (`weights.stretchRamp`). No config has a fade now: with the holds of the shorter arms of
+  2026-10-14, the fade of the red fox folded more play samples than no fade. The corrective shapes of the rig give the source
   mesh back when the body stands with the arms of the source. Each face takes the nearest color of a
   palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan over its dark faces,
   so that the body keeps the triangle budget of a studio body (4.5) and a small module. A face takes
@@ -1498,12 +1503,14 @@ declare function castScore(score: Score): PlayerCast[];
 The instruments follow the reference image and the polished images, and their sizes fit the
 animals of the reference image. The builder scales the violin and its bow by the head height of
 the rabbit of the reference image, so that they keep their size relative to the animals. A species
-with short arms plays a smaller violin and bow (`SpeciesParams.violinScale`), as a child plays a
-fractional size. A violin shop sizes a violin so that, in the play position with the left arm
-extended, the scroll lies in the middle of the palm. The rabbit and the red fox have this scale
-in their hold at the neck (5.3), with the arms that the user made longer for a full violin, so
-their violins are almost the violin of the app, and `pose/bowed.test.ts` checks the rule (`docs/research/2026-10-13-studio-rabbit.md`,
-`docs/research/2026-10-13-rabbit-mesh.md`). The chairs, the stands, the
+can play a smaller violin and bow (`SpeciesParams.violinScale`), as a child plays a fractional
+size. A violin shop sizes a violin so that, in the play position with the left arm extended, the
+scroll lies in the middle of the palm (`docs/research/2026-10-13-studio-rabbit.md`,
+`docs/research/2026-10-13-rabbit-mesh.md`). The rabbit and the red fox play almost the violin of
+the app, the size that the user chose: the user made their arms longer for a full violin, and
+then shorter with the same violin. Their arms are shorter than the rule needs, so their holds put
+the violin nearer to the left shoulder, and the left paw still reaches the nut (5.3). The paused
+check of the rule in `pose/bowed.test.ts` fails for these two species. The chairs, the stands, the
 podium, and the steps keep their sizes in meters. The bodies of the bowed strings are plates
 with round edges and an arched top (`plate()` of `models/primitives.ts`), with two f-holes beside
 the bridge, as the instruments of the polished images.

@@ -39,9 +39,11 @@ interface CommonParams {
   readonly proportions?: Partial<BodyProportions>;
   /**
    * The scale of the violin and its bow for the species, as a factor of the violin of the app
-   * (design 4.6). It is 1 when it is not given. A species with short arms plays a smaller
-   * violin, as a child plays a fractional size: with the violin under the chin and the left arm
-   * extended, the scroll lies in the middle of the palm.
+   * (design 4.6). It is 1 when it is not given. A species can play a smaller violin, as a child
+   * plays a fractional size. The rule of a violin shop sizes a violin for the arms: with the
+   * violin under the chin and the left arm extended, the scroll lies in the middle of the palm.
+   * The rabbit and the red fox keep the size that the user chose, which is larger than the rule
+   * gives for their arms (2026-10-14-arms-rest decisions).
    */
   readonly violinScale?: number;
 }
@@ -153,8 +155,9 @@ export const SPECIES = {
    * `assets/models/rabbit/rabbit-4.glb`, which `pnpm rig-mesh rabbit` rigs (design 4.4), seated
    * with the bind pose of the studio rabbit, and standing as a soloist. Its head height is the
    * head of the studio body, and its chair fits its legs: the seat height is the seat of the
-   * studio body, in H. Its violin follows the rule of a violin shop for its arms, which the
-   * user had made longer for a full violin (2026-10-14-neck-violin decisions).
+   * studio body, in H. Its violin is almost the violin of the app, the size that the user chose:
+   * the user made its arms longer for a full violin, and then shorter with the same violin
+   * (2026-10-14-arms-rest decisions).
    */
   rabbit: {
     body: 'studio-rabbit',
@@ -172,9 +175,9 @@ export const SPECIES = {
    * of the mesh of the user, `assets/models/fox/fox.glb`, which `pnpm rig-mesh fox` rigs (design
    * 4.4), seated with its long thighs on the seat and its tail back through the chair, and
    * standing as a soloist. Its head height is the head of the studio body, and its chair fits its
-   * legs: the seat height is the seat of the studio body, in H. Its violin follows the rule of a
-   * violin shop for its arms, which the user had made longer for a full violin
-   * (2026-10-14-neck-violin decisions).
+   * legs: the seat height is the seat of the studio body, in H. Its violin is almost the violin of
+   * the app, the size that the user chose: the user made its arms longer for a full violin, and
+   * then shorter with the same violin (2026-10-14-arms-rest decisions).
    */
   'fox-red': {
     body: 'studio-fox',
