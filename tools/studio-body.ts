@@ -117,7 +117,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     'polar-bear',
     {
       landmark: 'keys',
-      height: PIANO.keyTop + 0.1309,
+      height: PIANO.keyTop + 0.13,
       seated: true,
       soloist: false,
       seat: 0.25,
