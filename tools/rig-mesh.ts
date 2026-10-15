@@ -357,7 +357,25 @@ export function printedOnly(path: string, known: boolean): string | null {
 }
 
 /**
- * Gives the JSON text of a variant of `--set` of `--check`.
+ * Gives the factor of the landmark height of a variant of `--check` that keeps the meters for each
+ * unit of the base: the height of the standing shoulder joints of the variant over the height of
+ * the shoulder joints of the base, after the rise of the legs ({@link shoulderHeight}). A variant
+ * of `legFactor` raises the shoulder joints, and the landmark rises with them, so that the trunk,
+ * the head, and the arms keep their meters. A variant of `headFactor` or `neckFactor` keeps the
+ * shoulder joints, so its factor is 1.
+ *
+ * @param base The config of the base.
+ * @param variant The config of the variant.
+ * @returns The factor, exactly 1 when the variant keeps the shoulder joints.
+ */
+export function keptHeight(base: MeshRigConfig, variant: MeshRigConfig): number {
+  return shoulderHeight(variant) / shoulderHeight(base);
+}
+
+/**
+ * Gives the JSON text of a variant of `--set` of `--check`. The variant keeps the meters for each
+ * unit of the base: `app.shoulders` takes the factor of {@link keptHeight}, so that the reach line
+ * and the scale of an animal that is not in `ANIMALS` follow the rise of the legs.
  *
  * @param text The JSON text of the config.
  * @param list The changes of the variant ({@link setConfig}).
@@ -375,8 +393,11 @@ export function variantText(text: string, list: string, known: boolean): string 
     }
   }
   const changed = setConfig(text, list);
-  parseConfig(changed);
-  return changed;
+  const variant = parseConfig(changed);
+  const factor = keptHeight(parseConfig(text), variant);
+  return factor === 1
+    ? changed
+    : setConfig(changed, `app.shoulders=${variant.app.shoulders * factor}`);
 }
 
 /**
@@ -671,12 +692,18 @@ export interface AnimalRole {
  *
  * @param animal The animal.
  * @param config The config.
+ * @param factor The factor of the landmark height of a variant ({@link keptHeight}), so that the
+ *   variant keeps the meters for each unit of the base. The config of a variant already holds the
+ *   factor in `app.shoulders` ({@link variantText}), so only the height of `ANIMALS` takes it.
  * @returns The settings, and true when they come from `ANIMALS`.
  */
-export function rigSettings(animal: string, config: MeshRigConfig): RigSettings {
+export function rigSettings(animal: string, config: MeshRigConfig, factor = 1): RigSettings {
   const known = ANIMALS.get(animal);
   if (known) {
-    return { settings: known, known: true };
+    return {
+      settings: factor === 1 ? known : { ...known, height: known.height * factor },
+      known: true,
+    };
   }
   const constant = `STUDIO_${animal.toUpperCase().replaceAll('-', '_')}`;
   return {
@@ -875,6 +902,7 @@ export function checkTexts(text: string, sets: readonly string[], known: boolean
  * @param animal The animal.
  * @param text The JSON text of the config of the base or of a variant ({@link variantText}).
  * @param preview The folder of the preview images, or `null`.
+ * @param factor The factor of the landmark height of the variant ({@link keptHeight}).
  * @returns The measures.
  * @throws Error if the config has no rule of the thin faces, if the rig fails, if it is above the
  *   triangle budget, or if a probe fails.
@@ -883,6 +911,7 @@ async function checkRig(
   animal: string,
   text: string,
   preview: string | null,
+  factor: number,
 ): Promise<CheckMeasures> {
   const config = parseConfig(text);
   const thin = config.check?.thin;
@@ -901,9 +930,14 @@ async function checkRig(
     await runBlender(blenderArgs(path, output, preview, obj));
     const bytes = new Uint8Array(await readFile(output));
     console.log(`Rig: ${bytes.byteLength} B, sha256 ${sha256(bytes)}.`);
-    const { settings, known } = rigSettings(animal, config);
+    const { settings, known } = rigSettings(animal, config, factor);
     if (!known) {
       console.log(`ANIMALS has no ${animal}, so the check takes a seated role that also stands.`);
+    }
+    if (factor !== 1) {
+      console.log(
+        `The shoulder joints move by the factor ${factor.toFixed(4)}, and the landmark of the scale moves with them to ${settings.height.toFixed(4)} m, so the variant keeps the meters for each unit of the base.`,
+      );
     }
 
     const measures = measureRig(bytes, config.output, settings, await readFile(obj, 'utf8'), thin);
@@ -955,7 +989,8 @@ async function checkRig(
 /**
  * Checks the base and each variant of the config of an animal, one rig at a time, and prints the
  * table of the variants ({@link checkTable}). Each variant must fit ({@link variantText}) before
- * the first rig. A variant whose rig or probe fails prints its message, and the next variant runs.
+ * the first rig, and it keeps the meters for each unit of the base ({@link keptHeight}). A variant
+ * whose rig or probe fails prints its message, and the next variant runs.
  *
  * @param animal The animal.
  * @param text The JSON text of the config, read one time at the start.
@@ -972,6 +1007,7 @@ async function checkVariants(
   preview: string | null,
 ): Promise<boolean> {
   const texts = checkTexts(text, sets, ANIMALS.has(animal));
+  const base = parseConfig(text);
   const rows: CheckRow[] = [];
   for (const [k, variant] of ['', ...sets].entries()) {
     if (sets.length > 0) {
@@ -980,7 +1016,8 @@ async function checkVariants(
     const folder =
       preview && sets.length > 0 ? join(preview, k === 0 ? 'base' : `variant-${k}`) : preview;
     try {
-      const measures = await checkRig(animal, texts[k] ?? text, folder);
+      const own = texts[k] ?? text;
+      const measures = await checkRig(animal, own, folder, keptHeight(base, parseConfig(own)));
       rows.push({ variant, measures, error: null });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

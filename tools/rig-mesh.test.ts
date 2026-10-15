@@ -20,6 +20,7 @@ import {
   checkTexts,
   configChanges,
   foldBones,
+  keptHeight,
   printedOnly,
   rigSettings,
   setConfig,
@@ -411,6 +412,46 @@ describe('variantText', () => {
     expect(() => variantText(text, 'output=x.glb', false)).toThrow(/--set output/);
     expect(() => variantText(text, ';', true)).toThrow(/has no change/);
     expect(() => variantText(text, 'armFactor=0', true)).toThrow(/positive numbers/);
+  });
+});
+
+describe('keptHeight and the kept meters of a variant', () => {
+  const joints = {
+    ...figure(1).joints,
+    thigh_L: { head: [0.05, 0.2, 0], tail: 'shin_L' },
+    foot_L: { head: [0.05, 0.05, 0], tail: 'toes_L' },
+  } satisfies Record<string, MeshRigJoint>;
+  const short: MeshRigConfig = {
+    ...figure(1),
+    joints,
+    legFactor: 1,
+    headFactor: 1,
+    neckFactor: 1,
+  };
+  const text = JSON.stringify(short);
+
+  it('moves the landmark with the shoulder joints, so a longer leg keeps the meters', () => {
+    // The thigh and the shin span 0.15 units: the factor 2 raises the shoulder joints from 0.5 to
+    // 0.65 units, and the landmark from 0.5 m to 0.65 m.
+    expect(keptHeight(short, { ...short, legFactor: 2 })).toBeCloseTo(1.3, 12);
+    expect(keptHeight(short, { ...short, headFactor: 1.2, neckFactor: 0.8 })).toBe(1);
+
+    const variant = parseConfig(variantText(text, 'legFactor=2', true));
+    expect(variant.app.shoulders).toBeCloseTo(0.65, 12);
+    expect(armReach(variant, 'L')).toBeCloseTo(armReach(short, 'L'), 12);
+    expect(reachLine(variant)).toContain('1.0000 m for each unit');
+    expect(parseConfig(variantText(text, 'headFactor=1.2', true)).app.shoulders).toBe(0.5);
+  });
+
+  it('gives the height of ANIMALS the factor, and keeps the entry with the factor 1', () => {
+    const rabbit = ANIMALS.get('rabbit');
+    expect(rigSettings('rabbit', short, 1).settings).toBe(rabbit);
+    expect(rigSettings('rabbit', short, 1.3).settings.height).toBeCloseTo(
+      (rabbit?.height ?? 0) * 1.3,
+      12,
+    );
+    const variant = parseConfig(variantText(text, 'legFactor=2', false));
+    expect(rigSettings('red-panda', variant, 1.3).settings.height).toBeCloseTo(0.65, 12);
   });
 });
 
