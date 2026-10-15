@@ -34,6 +34,7 @@ import {
   rigSettings,
   setConfig,
   targetFactor,
+  topFaces,
   variantText,
 } from './rig-mesh.ts';
 import type { CheckMeasures, CheckRow } from './rig-mesh.ts';
@@ -160,14 +161,18 @@ describe('the arguments of pnpm rig-mesh', () => {
       'beethoven-8.mid',
       '--demo',
       'mozart-k525',
+      '--faces',
+      '5',
     ]);
     expect(args.probe).toEqual({
       roles: ['fox-violinist', 'flutist'],
       step: 1,
       demos: ['beethoven-8', 'mozart-k525'],
+      faces: 5,
     });
     expect(() => parseArgs(['fox', '--roles', 'flutist'])).toThrow(/Usage/);
     expect(() => parseArgs(['fox', '--check', '--step', '0'])).toThrow(/above 0/);
+    expect(() => parseArgs(['fox', '--check', '--faces', '1.5'])).toThrow(/whole number/);
   });
 
   it('gives the usage for other arguments', () => {
@@ -341,6 +346,7 @@ describe('checkTable', () => {
           { bone: 'upper_arm_R', samples: 120 },
           { bone: 'neck', samples: 13 },
         ],
+        faces: [],
       },
     ],
     form: null,
@@ -358,6 +364,24 @@ describe('checkTable', () => {
       '| base | 3135 | 27673 | 1.5504 | 0.360 | 0.283 | 0.250 | 0.377 | 0.377 | 0.228 | 3.3% | 20.3% | 100.0% | upper_arm_R 120, neck 13 |',
     );
     expect(lines[3]).toMatch(/^\| armFactor=1\.1 \| 3136 \| /);
+  });
+
+  it('adds a column of the most folded faces of each role with --faces', () => {
+    const [fold] = measures.folds;
+    const faces = [
+      { face: 812, samples: 52 },
+      { face: 90, samples: 40 },
+    ];
+    const lines = checkTable([
+      {
+        variant: '',
+        measures: { ...measures, folds: fold ? [{ ...fold, faces }] : [] },
+        error: null,
+      },
+    ]);
+    expect(lines[0]).toMatch(/\| fox-violinist bones \| fox-violinist faces \|$/);
+    expect(lines[2]).toMatch(/\| upper_arm_R 120, neck 13 \| 812 52, 90 40 \|$/);
+    expect(checkTable([{ variant: '', measures, error: null }])[0]).not.toContain('faces');
   });
 
   it('gives the message of a variant that failed', () => {
@@ -390,6 +414,25 @@ describe('foldArgs', () => {
     expect(foldArgs('flutist', 'f.json', { ...DEFAULT_PROBE, step: 1, demos: ['a', 'b'] })).toEqual(
       ['flutist', '--json', 'f.json', '--step', '1', '--demo', 'a', '--demo', 'b'],
     );
+  });
+});
+
+describe('topFaces', () => {
+  it('gives the faces with the most samples of all sets, and the lower index first on a tie', () => {
+    const face = (index: number, rest: number, play: number, lift: number): FaceRecord => ({
+      face: index,
+      folds: { rest, play, lift },
+      bone: 'neck',
+      middle: [0, 0, 0],
+      worst: null,
+    });
+    const faces = [face(9, 1, 2, 0), face(3, 0, 3, 0), face(7, 0, 5, 1), face(1, 0, 0, 0)];
+    expect(topFaces(faces, 2)).toEqual([
+      { face: 7, samples: 6 },
+      { face: 3, samples: 3 },
+    ]);
+    expect(topFaces(faces, 9).map((f) => f.face)).toEqual([7, 3, 9]);
+    expect(topFaces(faces, 0)).toEqual([]);
   });
 });
 

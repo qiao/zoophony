@@ -542,7 +542,7 @@ export function reachLine(config: MeshRigConfig): string {
 
 /**
  * The options of the app checks of `--check`, which make one variant faster: the roles, the play
- * step, and the demos of the fold probes.
+ * step, and the demos of the fold probes, and the faces of the table of the variants.
  */
 export interface CheckProbe {
   /** The roles of `--roles` (keys of `FOLD_ROLES`), or `null` for each role of the animal. */
@@ -551,10 +551,12 @@ export interface CheckProbe {
   readonly step: number | null;
   /** The demos of `--demo` for `pnpm fold-probe`, or none for all demos. */
   readonly demos: readonly string[];
+  /** The number of faces of `--faces` of each role in the table of the variants, or 0. */
+  readonly faces: number;
 }
 
-/** The app checks of `--check` with no option: each role and all demos. */
-export const DEFAULT_PROBE: CheckProbe = { roles: null, step: null, demos: [] };
+/** The app checks of `--check` with no option: each role, all demos, and no faces. */
+export const DEFAULT_PROBE: CheckProbe = { roles: null, step: null, demos: [], faces: 0 };
 
 /** The arguments of `pnpm rig-mesh`. */
 export interface RigMeshArgs {
@@ -575,10 +577,10 @@ export interface RigMeshArgs {
 
 /** The usage text of `pnpm rig-mesh`. */
 const USAGE =
-  'Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <path>=<value>[;<path>=<value>]...]... [--roles <role>[,<role>]...] [--step <seconds>] [--demo <id>]...]';
+  'Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <path>=<value>[;<path>=<value>]...]... [--roles <role>[,<role>]...] [--step <seconds>] [--demo <id>]... [--faces <n>]]';
 
 /** The options of `pnpm rig-mesh` that take a value. */
-const VALUED = ['--preview', '--set', '--roles', '--step', '--demo'] as const;
+const VALUED = ['--preview', '--set', '--roles', '--step', '--demo', '--faces'] as const;
 
 /**
  * Tells if an argument is an option of `pnpm rig-mesh` that takes a value.
@@ -592,13 +594,14 @@ function isValued(arg: string): arg is (typeof VALUED)[number] {
 
 /**
  * Reads the arguments of `pnpm rig-mesh <animal> [--preview <dir>] [--check] [--set <changes>]...`
- * and the options of the app checks of `--check`: `--roles`, `--step`, and `--demo`.
+ * and the options of the app checks of `--check`: `--roles`, `--step`, `--demo`, and `--faces`.
  *
  * @param args The arguments after the script.
  * @returns The animal, the preview folder, the check flag, the variants, and the options of the
  *   app checks.
  * @throws Error with the usage for other arguments, for `--set` or an option of the app checks
- *   with no `--check`, or for a step that is not above 0.
+ *   with no `--check`, for a step that is not above 0, or for a count of faces that is not a whole
+ *   number above 0.
  */
 export function parseArgs(args: readonly string[]): RigMeshArgs {
   let preview: string | null = null;
@@ -608,6 +611,7 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
   let roles: string[] | null = null;
   let step: number | null = null;
   const demos: string[] = [];
+  let faces = 0;
   let checkOnly = false;
   for (let i = 0; i < args.length; i++) {
     const arg = args[i] ?? '';
@@ -644,13 +648,19 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
       case '--demo':
         demos.push(value.replace(/\.mid$/, ''));
         break;
+      case '--faces':
+        faces = Number(value);
+        if (!Number.isInteger(faces) || faces < 1) {
+          throw new Error(`The option --faces takes a whole number of faces above 0.\n${USAGE}`);
+        }
+        break;
     }
   }
   const [animal] = rest;
   if (!animal || rest.length !== 1 || animal.startsWith('--') || (checkOnly && !check)) {
     throw new Error(USAGE);
   }
-  return { animal, preview, check, sets, probe: { roles, step, demos } };
+  return { animal, preview, check, sets, probe: { roles, step, demos, faces } };
 }
 
 /**
@@ -852,6 +862,14 @@ export interface BoneFolds {
   readonly samples: number;
 }
 
+/** A folded face with the samples of all sets in which it folds. */
+export interface FaceFolds {
+  /** The index of the triangle in the packed mesh, as `pnpm fold-probe` counts the faces. */
+  readonly face: number;
+  /** The samples of all sets in which the face folds. */
+  readonly samples: number;
+}
+
 /** The folds of one role of the app with the body of a rig. */
 export interface RoleFolds {
   /** The role, a key of `FOLD_ROLES`. */
@@ -860,6 +878,8 @@ export interface RoleFolds {
   readonly counts: FoldCounts;
   /** The main bones of the most folded faces ({@link foldBones}). */
   readonly bones: readonly BoneFolds[];
+  /** The faces that fold in the most samples, for `--faces` ({@link topFaces}), or none. */
+  readonly faces: readonly FaceFolds[];
 }
 
 /** The number of main bones of the folds of each role in the table of `--check`. */
@@ -885,6 +905,25 @@ export function foldBones(faces: readonly FaceRecord[], count = FOLD_BONES): Bon
     .filter(([, samples]) => samples > 0)
     .map(([bone, samples]) => ({ bone, samples }))
     .toSorted((a, b) => b.samples - a.samples || a.bone.localeCompare(b.bone))
+    .slice(0, count);
+}
+
+/**
+ * Gives the faces that fold in the most samples of all sets, for the column of `--faces`.
+ *
+ * @param faces The folded faces of `pnpm fold-probe --json`.
+ * @param count The number of faces.
+ * @returns The faces, the most samples first, and of two faces with the same samples, the lower
+ *   index first.
+ */
+export function topFaces(faces: readonly FaceRecord[], count: number): FaceFolds[] {
+  return faces
+    .map((face) => ({
+      face: face.face,
+      samples: SAMPLE_SETS.reduce((sum, set) => sum + face.folds[set], 0),
+    }))
+    .filter((face) => face.samples > 0)
+    .toSorted((a, b) => b.samples - a.samples || a.face - b.face)
     .slice(0, count);
 }
 
@@ -931,7 +970,8 @@ export interface CheckRow {
  * reach of each arm, the error of the
  * standing body, the share of the samples with a fold in the play, the lift, and the rest pose
  * of each role, and the main bones of the most folded faces of each role with their face-samples
- * ({@link foldBones}). A variant that failed gives its message.
+ * ({@link foldBones}). With `--faces`, a column of each role gives the faces that fold in the most
+ * samples ({@link topFaces}). A variant that failed gives its message.
  *
  * @param rows The rows, the base first.
  * @returns The lines.
@@ -941,6 +981,7 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
     ...new Set(rows.flatMap((row) => row.measures?.folds.map((fold) => fold.role) ?? [])),
   ];
   const sets = ['play', 'lift', 'rest'] as const satisfies readonly (typeof SAMPLE_SETS)[number][];
+  const withFaces = rows.some((row) => row.measures?.folds.some((fold) => fold.faces.length > 0));
   const header = [
     'Variant',
     'Triangles',
@@ -954,6 +995,7 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
     'Standing mm',
     ...roles.flatMap((role) => sets.map((set) => `${role} ${set}`)),
     ...roles.map((role) => `${role} bones`),
+    ...(withFaces ? roles.map((role) => `${role} faces`) : []),
   ];
   const m = (value: number | null): string => (value === null ? 'none' : value.toFixed(3));
   const lines = [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`];
@@ -978,6 +1020,13 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
       }
       return fold.bones.map(({ bone, samples }) => `${bone} ${samples}`).join(', ') || 'none';
     });
+    const faces = roles.map((role) => {
+      const fold = measures.folds.find((f) => f.role === role);
+      if (!fold) {
+        return '-';
+      }
+      return fold.faces.map(({ face, samples }) => `${face} ${samples}`).join(', ') || 'none';
+    });
     const cells = [
       variant || 'base',
       String(measures.triangles),
@@ -991,6 +1040,7 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
       (measures.standing * 1000).toFixed(3),
       ...folds,
       ...bones,
+      ...(withFaces ? faces : []),
     ];
     lines.push(`| ${cells.join(' | ')} |`);
   }
@@ -1289,7 +1339,7 @@ export function checkTexts(text: string, sets: readonly string[], known: boolean
  * @param text The JSON text of the config of the base or of a variant ({@link variantText}).
  * @param preview The folder of the preview images, or `null`.
  * @param factor The factor of the landmark height of the variant ({@link keptHeight}).
- * @param probe The options of the app checks: the roles, the play step, and the demos.
+ * @param probe The options of the app checks: the roles, the play step, the demos, and the faces.
  * @returns The measures.
  * @throws Error if the config has no rule of the thin faces, if the rig fails, if it is above the
  *   triangle budget, or if a probe fails.
@@ -1387,6 +1437,7 @@ async function checkRig(
             role,
             counts: read.sets,
             bones: foldBones(read.faces),
+            faces: topFaces(read.faces, probe.faces),
           });
         }
       },
