@@ -157,13 +157,14 @@ describe('the arguments of pnpm rig-mesh', () => {
     expect(blenderArgs('c.json', 'o.glb', null).slice(6)).toEqual(['--', 'c.json', 'o.glb']);
   });
 
-  it('asks the Blender script for the long-armed source of the check', () => {
+  it('asks the Blender script for the long-armed source and the stretch check of --check', () => {
     expect(blenderArgs('c.json', 'o.glb', null, 's.obj').slice(6)).toEqual([
       '--',
       'c.json',
       'o.glb',
       '--obj',
       's.obj',
+      '--check',
     ]);
   });
 });

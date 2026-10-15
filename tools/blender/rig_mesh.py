@@ -1,7 +1,7 @@
 """Rigs a textured mesh with no skeleton into the GLB format of a studio body (design 4.4).
 
     blender -b --factory-startup --python tools/blender/rig_mesh.py -- <config.json> <out.glb> \
-        [--preview <dir>] [--obj <file>]
+        [--preview <dir>] [--obj <file>] [--check]
 
 `pnpm rig-mesh <animal>` runs this script with `tools/mesh-rigs/<animal>.json`. The output has
 the format of `lowpoly-studio/animals/<animal>/out/<animal>.glb`, so that `pnpm studio-body`
@@ -45,7 +45,10 @@ reads it (route 3 of `AGENTS.md`). The steps:
 With `--preview`, the script also renders the seated bind and the standing body from four sides,
 the knees of the seated body from the side, and the main bone of each face, and it writes the
 long-armed source as `source-long-arms.obj` for the probes of `docs/research/`. With `--obj`, it
-writes only the long-armed source, into the file, for `pnpm rig-mesh --check`.
+writes only the long-armed source, into the file, for `pnpm rig-mesh --check`. With `--check`, it
+also lists the faces that the stretch turns or squeezes (`stretch_faces()`) and the long thin faces
+across an arm joint that no ring cuts (`uncut_faces()`), before the fold probe of the check. The
+flag changes no byte of the rig.
 """
 
 import colorsys
@@ -107,6 +110,23 @@ CHAIR_COLOR = (0.55, 0.42, 0.3)
 #: The size of one view of a preview, in pixels.
 VIEW = 500
 
+#: The radius of a ring with no `radius`, as a part of the length of the arm part that ends at its
+#: joint (`ring_radius()`). The ring of 0.13 units at each elbow of the rabbit with the arm factor
+#: 1.81 is 0.75 of its upper arm, so a ring of this part grows with the arm factor.
+RING_PART = 0.75
+
+#: The arm joints of the check of the faces across a joint (`uncut_faces()`): the bone that starts
+#: at the joint, and the name of the joint.
+ARM_JOINTS = (('upper_arm', 'shoulder'), ('forearm', 'elbow'), ('hand', 'wrist'))
+
+#: The turn of the normal of a face from the source to the long-armed source, in degrees, above
+#: which the check lists the face (`stretch_faces()`).
+STRETCH_TURN = 45.0
+
+#: The part of the shortest edge of a face that the long-armed source keeps, below which the check
+#: lists the face (`stretch_faces()`).
+STRETCH_EDGE = 0.5
+
 
 def log(text):
     """Prints a line that `tools/rig-mesh.ts` shows."""
@@ -114,8 +134,11 @@ def log(text):
 
 
 def args():
-    """Reads the config path, the output path, the preview folder, and the OBJ file after `--`."""
+    """Reads the config path, the output path, the preview folder, the OBJ file, and the flag
+    `--check` after `--`."""
     rest = sys.argv[sys.argv.index('--') + 1 :]
+    check = '--check' in rest
+    rest = [arg for arg in rest if arg != '--check']
     options = {'--preview': None, '--obj': None}
     for flag in options:
         if flag in rest:
@@ -124,8 +147,8 @@ def args():
             rest = rest[:at] + rest[at + 2 :]
     if len(rest) != 2:
         raise SystemExit('Usage: blender -b --python rig_mesh.py -- <config> <out.glb> '
-                         '[--preview <dir>] [--obj <file>]')
-    return rest[0], rest[1], options['--preview'], options['--obj']
+                         '[--preview <dir>] [--obj <file>] [--check]')
+    return rest[0], rest[1], options['--preview'], options['--obj'], check
 
 
 def to_blender(v):
@@ -840,17 +863,41 @@ def flip_edges(verts, bind, tris, uvs, weights, rule):
     return tris, uvs, flips, largest
 
 
-def ring_cuts(verts, tris, weights, heads, ends, ring, side):
-    """Finds the edges that a ring of one joint cuts: the plane through the joint, at right
-    angles to the mean direction of the bone before it and the bone after it. An edge counts when
-    both corners lie within `radius` of the joint, an arm bone of the side moves one corner, it is
-    at least `minEdge` long, and the plane cuts it at least `ends` of its length from each
-    corner. Gives the place of the cut along each edge, by the sorted pair of its corners."""
-    joint = f"{ring['joint']}_{side}"
-    parent = PARENTS[joint]
+def arm_part(heads, joint):
+    """Gives the length of the arm part that ends at a joint: the clavicle for the shoulder
+    joint, the upper arm from the shoulder joint for the elbow, and the forearm from the elbow for
+    the wrist. Each other joint takes the bone of its parent."""
+    side = joint[-1]
+    start = {'forearm': f'upper_arm_{side}', 'hand': f'forearm_{side}'}.get(joint[:-2],
+                                                                          PARENTS[joint])
+    return float(np.linalg.norm(heads[joint] - heads[start]))
+
+
+def ring_radius(ring, heads, side):
+    """Gives the radius of a ring at the joint of one side, in units: its `radius`, or else its
+    `part` (by default `RING_PART`) of the arm part that ends at the joint (`arm_part()`), so that
+    the ring grows with the arm factor."""
+    if 'radius' in ring:
+        return ring['radius']
+    return ring.get('part', RING_PART) * arm_part(heads, f"{ring['joint']}_{side}")
+
+
+def joint_plane(heads, ends, joint):
+    """Gives the point and the unit normal of the plane of a ring at a joint: through the joint,
+    at right angles to the mean direction of the bone before it and the bone after it."""
     point = heads[joint]
-    normal = unit(unit(point - heads[parent]) + unit(ends[joint] - point))
-    near = np.linalg.norm(verts - point, axis=1) <= ring['radius']
+    return point, unit(unit(point - heads[PARENTS[joint]]) + unit(ends[joint] - point))
+
+
+def ring_cuts(verts, tris, weights, heads, ends, ring, side):
+    """Finds the edges that a ring of one joint cuts: the plane of `joint_plane()`. An edge counts
+    when both corners lie within the radius of the ring (`ring_radius()`) of the joint, an arm bone
+    of the side moves one corner, it is at least `minEdge` long, and the plane cuts it at least
+    `ends` of its length from each corner. Gives the place of the cut along each edge, by the
+    sorted pair of its corners."""
+    joint = f"{ring['joint']}_{side}"
+    point, normal = joint_plane(heads, ends, joint)
+    near = np.linalg.norm(verts - point, axis=1) <= ring_radius(ring, heads, side)
     arm = np.zeros(len(verts), bool)
     for bone in ARM:
         arm |= weights[:, BONES.index(f'{bone}_{side}')] > 0
@@ -940,6 +987,100 @@ def refine(verts, tris, uvs, weights, heads, ends, matrices, rule):
     tris, uvs, flips, largest = flip_edges(verts, skin(weights, matrices, verts), tris, uvs,
                                            weights, rule['flip'])
     return verts, tris, uvs, weights, flips, largest, len(cuts)
+
+
+def shortest_edges(points, tris):
+    """Gives the length of the shortest edge of each face."""
+    edges = [np.linalg.norm(points[tris[:, (k + 1) % 3]] - points[tris[:, k]], axis=1)
+             for k in range(3)]
+    return np.minimum(np.minimum(edges[0], edges[1]), edges[2])
+
+
+def stretch_faces(source, long, tris):
+    """Finds the faces that the stretch of the limbs, the head, and the neck turns or squeezes:
+    each face whose normal turns more than `STRETCH_TURN` degrees from the source to the
+    long-armed source, or whose shortest edge keeps less than `STRETCH_EDGE` of its length. Such a
+    face can fold in each pose, as the throat face that the linear stretch of the arms pulled
+    across the middle of the fox. Gives the index, the turn in degrees, and the kept part of the
+    shortest edge of each face, by index."""
+    dots = np.sum(face_normals(source, tris) * face_normals(long, tris), axis=1)
+    turn = np.degrees(np.arccos(np.clip(dots, -1.0, 1.0)))
+    kept = shortest_edges(long, tris) / np.maximum(shortest_edges(source, tris), 1e-12)
+    found = np.nonzero((turn > STRETCH_TURN) | (kept < STRETCH_EDGE))[0]
+    return [(int(f), float(turn[f]), float(kept[f])) for f in found]
+
+
+def uncut_faces(verts, tris, heads, ends, rule):
+    """Finds the long thin faces across an arm joint that no ring cuts: each face with a smallest
+    corner angle below `angle` of the rule `check.thin` and a longest edge of at least `length`,
+    whose longest edge crosses the plane of a ring at the joint (`joint_plane()`) within `near` of
+    the joint. A ring splits each edge that it cuts at the plane, so a face that a ring cut has no
+    edge across the plane. A fixed radius of a ring can miss the faces of a longer arm, as at the
+    elbows of the fox with the arm factor 1.35. Gives the index, the joint, the smallest corner
+    angle, the longest edge, and the distance of the crossing from the joint of each face, by
+    joint in the order of `ARM_JOINTS` with the left side first."""
+    angles = min_angles(verts, tris)
+    corners = [verts[tris[:, k]] for k in range(3)]
+    edges = np.stack([np.linalg.norm(corners[(k + 2) % 3] - corners[(k + 1) % 3], axis=1)
+                      for k in range(3)], axis=1)
+    wide = edges.argmax(axis=1)
+    rows = np.arange(len(tris))
+    a = np.stack(corners, axis=1)[rows, (wide + 1) % 3]
+    b = np.stack(corners, axis=1)[rows, (wide + 2) % 3]
+    longest = edges[rows, wide]
+    thin = (angles < rule['angle']) & (longest >= rule['length'])
+    found = []
+    for bone, name in ARM_JOINTS:
+        for side in 'LR':
+            point, normal = joint_plane(heads, ends, f'{bone}_{side}')
+            ha, hb = (a - point) @ normal, (b - point) @ normal
+            across = thin & (ha * hb < 0)
+            t = ha / np.where(across, ha - hb, 1.0)
+            gap = np.linalg.norm(a + t[:, None] * (b - a) - point, axis=1)
+            for f in np.nonzero(across & (gap <= rule['near']))[0]:
+                found.append((int(f), f'{name} {side}', float(angles[f]), float(longest[f]),
+                              float(gap[f])))
+    return found
+
+
+def module_faces(order, materials):
+    """Gives the index in the module of `pnpm studio-body` of each face before the walk order, as
+    `pnpm fold-probe` counts the faces: the export reads the fur faces, then the gloss faces, each
+    in the order of the file. `order` gives the walk order, and `materials` the material of each
+    face in the walk order."""
+    rank = np.full(len(order), -1)
+    k = 0
+    for name in ('fur', 'gloss'):
+        for p in np.nonzero(materials == name)[0]:
+            rank[p] = k
+            k += 1
+    position = np.empty(len(order), int)
+    position[order] = np.arange(len(order))
+    return rank[position]
+
+
+#: The most faces of each list of the check that the log prints.
+CHECK_LINES = 30
+
+
+def log_check(stretched, uncut, index, bones, rule):
+    """Prints the faces of `stretch_faces()` and of `uncut_faces()`, at most `CHECK_LINES` of each
+    list, with the index of the face in the module (`module_faces()`) and its main bone. A face
+    that a ring splits keeps its index for its first part."""
+    log(f'stretch: {len(stretched)} faces turn more than {STRETCH_TURN:g}° or keep less than '
+        f'{STRETCH_EDGE:g} of the shortest edge from the source to the long-armed source')
+    for f, turn, kept in stretched[:CHECK_LINES]:
+        log(f'  face {index[f]} ({BONES[bones[f]]}): turn {turn:.1f}°, shortest edge {kept:.2f}')
+    if len(stretched) > CHECK_LINES:
+        log(f'  and {len(stretched) - CHECK_LINES} more')
+    log(f'uncut: {len(uncut)} long thin faces across an arm joint with no ring (corner below '
+        f"{rule['angle']}°, longest edge from {rule['length']} u, the plane of the joint within "
+        f"{rule['near']} u)")
+    for f, joint, angle, length, gap in uncut[:CHECK_LINES]:
+        log(f'  {joint}: face {index[f]} ({BONES[bones[f]]}), {angle:.1f}°, {length:.3f} u, '
+            f'{gap:.3f} u from the joint')
+    if len(uncut) > CHECK_LINES:
+        log(f'  and {len(uncut) - CHECK_LINES} more')
 
 
 def weight_steps(row):
@@ -1664,7 +1805,7 @@ def write_obj(path, verts, tris):
 
 
 def main():
-    config_path, out_path, preview_dir, obj_path = args()
+    config_path, out_path, preview_dir, obj_path, check = args()
     with open(config_path) as f:
         config = json.load(f)
     rules = config['weights']
@@ -1686,6 +1827,7 @@ def main():
                'head': config.get('headFactor', 1), 'neck': config.get('neckFactor', 1)}
     long_verts, long_heads, long_ends, rise, drop = stretch(verts, weights, heads, ends, children,
                                                              factors, rules)
+    stretched = stretch_faces(verts, long_verts, source_tris) if check else []
     meters = config['app']['shoulders'] / long_heads['upper_arm_L'][1]
     for side in 'LR':
         before, after = reach(heads, side) * meters, reach(long_heads, side) * meters
@@ -1714,6 +1856,8 @@ def main():
         long_verts, source_tris, uvs, weights, long_heads, long_ends, matrices, config['refine'])
     log(f'refine: {flips} flips, the largest move {largest * meters * 1000:.3f} mm, {cuts} cut '
         f'edges, {len(tris) - len(source_tris)} new faces')
+    thin_rule = config['check']['thin'] if check else None
+    uncut = uncut_faces(long_verts, tris, long_heads, long_ends, thin_rule) if thin_rule else []
     colors, dark = face_colors(tris, uvs, texture, config['colors'])
     eyes, nose = features(long_verts, tris, colors, dark,
                           moved_boxes(config['colors'], heads['neck'], factors['head'], rise,
@@ -1739,6 +1883,9 @@ def main():
         f'from its color {mean_color:.4f} on the mean, {worst_color:.4f} at most')
     order = locality_order(tris_all)
     tris_all, colors_all, materials = tris_all[order], colors_all[order], materials[order]
+    if thin_rule:
+        log_check(stretched, uncut, module_faces(order, materials),
+                  weights[tris].sum(axis=1).argmax(axis=1), thin_rule)
     extra = len(src_all) - len(long_verts)
     head_only = np.zeros((extra, len(BONES)))
     head_only[:, BONES.index('head')] = 1.0

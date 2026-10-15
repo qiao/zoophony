@@ -604,7 +604,9 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
  * @param config The path of the config.
  * @param output The path of the rigged GLB file.
  * @param preview The folder of the preview images, or `null`.
- * @param obj The OBJ file of the long-armed source, or `null` for none.
+ * @param obj The OBJ file of the long-armed source of `--check`, or `null` for a rig with no
+ *   check. With a file, the script also gets `--check`, and it lists the faces that the stretch
+ *   turns or squeezes and the long thin faces across an arm joint that no ring cuts.
  * @returns The arguments of `blender`.
  */
 export function blenderArgs(
@@ -626,7 +628,11 @@ export function blenderArgs(
     config,
     output,
   ];
-  return [...args, ...(preview ? ['--preview', preview] : []), ...(obj ? ['--obj', obj] : [])];
+  return [
+    ...args,
+    ...(preview ? ['--preview', preview] : []),
+    ...(obj ? ['--obj', obj, '--check'] : []),
+  ];
 }
 
 /**
