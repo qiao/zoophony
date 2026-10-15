@@ -316,11 +316,15 @@ const SHOULDER_HOLD = {
  * went 3.7 cm into the body at the frog, and 3.2 cm with 0.1 m. With 0.12 m, more play samples
  * folded. The bow paw reaches 0.305 m of the hair.
  *
- * In the rest pose, the arms of the fox do not reach its thighs: the shoulder joints are 0.65 m
- * above the top of the thighs, and each arm reaches 0.49 m. The violin stands upright on the left
- * thigh nearer to the hip and further out, held at its neck, with the left elbow out to the side,
- * and the right paw holds the bow at the frog beside the right thigh, with the tip down and
- * forward. With the rest of the rabbit, the right upper arm went 6.5 cm into the body.
+ * The rest pose is the rest of the cat violas, which the user asked for (2026-10-14-arms-rest
+ * decisions): the violin stands upright on the lap in the middle between the knees, 0.4 H in from
+ * the left thigh, held at its neck, with the left elbow out to the side. With the left elbow of
+ * the cats, the left arm went 7.0 cm into the body at rest. The bow lies across the lap in
+ * the right paw, level, with the tip to the left and forward, so that the stick passes in front of
+ * the violin. The grip is 0.2 H out from the right thigh and 0.3 H above it: 0.15 H out and 0.2 H
+ * above, the right upper arm went 4.0 cm into the body while the arms lowered, and 3.1 cm at this
+ * grip. The tip points 0.5 to the front: with 0.35, the bow went 2.2 cm into the body while the
+ * arms lowered, and 0.9 cm with 0.5.
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
@@ -335,12 +339,12 @@ const FOX_HOLD = {
   rest: {
     axis: CHIN_HOLD.rest.axis,
     top: CHIN_HOLD.rest.top,
-    lap: { along: 0.7, offset: [-0.15, 0.06, 0] },
+    lap: { along: 0.85, offset: [0.4, 0.06, 0] },
   },
   restBow: {
-    lap: { along: 0.6, offset: [0.25, 0.5, -0.1] },
-    tip: [0.2, -0.6, -1],
-    hair: [-1, 0, 0],
+    lap: { along: 0.6, offset: [0.2, 0.3, 0] },
+    tip: [-1, 0, -0.5],
+    hair: [0, -1, 0.2],
   },
 } as const satisfies BowedHold;
 

@@ -404,9 +404,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     of the rabbits (`FOX_HOLD`), with the tail end against the left side of the short neck under the
     long jaw, the bow slanted 12°, the right shoulder turned 15°, the right elbow at the tip less
     down, the right elbow at the frog further out, and a longer free hair of the bow. With the bow of the rabbit, the skin of the
-    right shoulder of the fox mesh folded in 18% of the play samples. The paws of the fox did not reach its thighs before its longer arms of 2026-10-14, so its violin stands on the
-    left thigh nearer to the hip, and its right paw holds the bow beside the right thigh, with the
-    tip down. `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
+    right shoulder of the fox mesh folded in 18% of the play samples. In the rest pose, the red fox
+    rests as the cat violas, as the user asked on 2026-10-14: the violin stands upright on the lap
+    in the middle between the knees, held at its neck, and the bow lies across the lap in the right
+    paw, about level, with the tip to the left and forward, in front of the violin. `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
     `pnpm fold-probe fox-violinist` measure each change
     (`docs/research/2026-10-13-studio-rabbit.md`, `docs/research/2026-10-13-rabbit-mesh.md`,
     `docs/research/2026-10-14-fox-rig.md`). A test keeps the rest bow of each violinist out
