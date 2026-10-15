@@ -124,5 +124,15 @@
     "back": -0.16,
     "backHeight": 0.15,
     "note": "The chair is wider than the chair of the rabbit rig, because the haunch of the fox is x ±0.17. Its front edge lies behind the heels of the seated bind (z 0.155 with the leg factor), so that the long thighs lie on the seat. The seat top is the lowest point of the seated body over the seat, with no shin, foot, or tail."
+  },
+  "sit": {
+    "gap": 0.004,
+    "band": 0.2,
+    "ramp": 0.03,
+    "step": 0.005,
+    "smooth": 6,
+    "end": 0.0065,
+    "most": 0.12,
+    "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), because the buttocks of the mesh curve up behind the hip joints. The manager found the back of the haunch 3 to 11 cm above the seat on 2026-10-14. The drop of each vertical line over the seat is its gap less gap, at most most, and it fades over ramp units before the hip joints and over the last end units of the haunch. The drops take the mean of their neighbors in smooth rounds on a grid of step units, and each vertex moves by the drop less its height above the underside, to 0 at band units. The side view of the underside is 10.5 cm above the seat at most before, and 1.4 cm after. With a band of 0.1 units, a face of the right side of the haunch turned over (docs/research/2026-10-14-fox-rabbit-fix.md). The corrective shapes give the source back, so the standing body keeps its form."
   }
 }
