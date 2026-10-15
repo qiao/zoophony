@@ -540,6 +540,22 @@ export function reachLine(config: MeshRigConfig): string {
   ].join(' ');
 }
 
+/**
+ * The options of the app checks of `--check`, which make one variant faster: the roles, the play
+ * step, and the demos of the fold probes.
+ */
+export interface CheckProbe {
+  /** The roles of `--roles` (keys of `FOLD_ROLES`), or `null` for each role of the animal. */
+  readonly roles: readonly string[] | null;
+  /** The play step of `pnpm fold-probe` of `--step`, in seconds, or `null` for its default. */
+  readonly step: number | null;
+  /** The demos of `--demo` for `pnpm fold-probe`, or none for all demos. */
+  readonly demos: readonly string[];
+}
+
+/** The app checks of `--check` with no option: each role and all demos. */
+export const DEFAULT_PROBE: CheckProbe = { roles: null, step: null, demos: [] };
+
 /** The arguments of `pnpm rig-mesh`. */
 export interface RigMeshArgs {
   /** The id of the animal: the name of its config in `tools/mesh-rigs/`. */
@@ -553,31 +569,53 @@ export interface RigMeshArgs {
    * `;` ({@link setConfig}). The check runs the base first, then each variant.
    */
   readonly sets: readonly string[];
+  /** The options of the app checks of `--check`. */
+  readonly probe: CheckProbe;
 }
 
 /** The usage text of `pnpm rig-mesh`. */
 const USAGE =
-  'Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <path>=<value>[;<path>=<value>]...]...]';
+  'Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <path>=<value>[;<path>=<value>]...]... [--roles <role>[,<role>]...] [--step <seconds>] [--demo <id>]...]';
+
+/** The options of `pnpm rig-mesh` that take a value. */
+const VALUED = ['--preview', '--set', '--roles', '--step', '--demo'] as const;
 
 /**
- * Reads the arguments of `pnpm rig-mesh <animal> [--preview <dir>] [--check] [--set <changes>]...`.
+ * Tells if an argument is an option of `pnpm rig-mesh` that takes a value.
+ *
+ * @param arg The argument.
+ * @returns True for an option of {@link VALUED}.
+ */
+function isValued(arg: string): arg is (typeof VALUED)[number] {
+  return VALUED.some((option) => option === arg);
+}
+
+/**
+ * Reads the arguments of `pnpm rig-mesh <animal> [--preview <dir>] [--check] [--set <changes>]...`
+ * and the options of the app checks of `--check`: `--roles`, `--step`, and `--demo`.
  *
  * @param args The arguments after the script.
- * @returns The animal, the preview folder, the check flag, and the variants.
- * @throws Error with the usage for other arguments, or for `--set` with no `--check`.
+ * @returns The animal, the preview folder, the check flag, the variants, and the options of the
+ *   app checks.
+ * @throws Error with the usage for other arguments, for `--set` or an option of the app checks
+ *   with no `--check`, or for a step that is not above 0.
  */
 export function parseArgs(args: readonly string[]): RigMeshArgs {
   let preview: string | null = null;
   let check = false;
   const sets: string[] = [];
   const rest: string[] = [];
+  let roles: string[] | null = null;
+  let step: number | null = null;
+  const demos: string[] = [];
+  let checkOnly = false;
   for (let i = 0; i < args.length; i++) {
     const arg = args[i] ?? '';
     if (arg === '--check') {
       check = true;
       continue;
     }
-    if (arg !== '--preview' && arg !== '--set') {
+    if (!isValued(arg)) {
       rest.push(arg);
       continue;
     }
@@ -586,17 +624,76 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
       throw new Error(USAGE);
     }
     i++;
-    if (arg === '--preview') {
-      preview = value;
-    } else {
-      sets.push(value);
+    checkOnly ||= arg !== '--preview';
+    switch (arg) {
+      case '--preview':
+        preview = value;
+        break;
+      case '--set':
+        sets.push(value);
+        break;
+      case '--roles':
+        roles = value.split(',').map((role) => role.trim());
+        break;
+      case '--step':
+        step = Number(value);
+        if (!(step > 0)) {
+          throw new Error(`The option --step takes seconds above 0.\n${USAGE}`);
+        }
+        break;
+      case '--demo':
+        demos.push(value.replace(/\.mid$/, ''));
+        break;
     }
   }
   const [animal] = rest;
-  if (!animal || rest.length !== 1 || animal.startsWith('--') || (sets.length > 0 && !check)) {
+  if (!animal || rest.length !== 1 || animal.startsWith('--') || (checkOnly && !check)) {
     throw new Error(USAGE);
   }
-  return { animal, preview, check, sets };
+  return { animal, preview, check, sets, probe: { roles, step, demos } };
+}
+
+/**
+ * Chooses the roles of the app checks of `--check`: the roles of the animal, or the roles of
+ * `--roles` in the order of the roles of the animal.
+ *
+ * @param roles The roles of the animal ({@link animalRoles}).
+ * @param asked The roles of `--roles`, or `null` for each role.
+ * @returns The roles.
+ * @throws Error if a role of `--roles` is not a role of the animal.
+ */
+export function chooseRoles(
+  roles: readonly AnimalRole[],
+  asked: readonly string[] | null,
+): AnimalRole[] {
+  if (!asked) {
+    return [...roles];
+  }
+  const unknown = asked.filter((name) => !roles.some(({ role }) => role === name));
+  if (unknown.length > 0) {
+    throw new Error(
+      `The roles ${unknown.join(', ')} are not roles of the animal. Its roles are: ${roles.map(({ role }) => role).join(', ') || 'none'}.`,
+    );
+  }
+  return roles.filter(({ role }) => asked.includes(role));
+}
+
+/**
+ * Gives the arguments of `pnpm fold-probe` for a role of the app checks of `--check`.
+ *
+ * @param role The role.
+ * @param json The file of `--json`.
+ * @param probe The options of the app checks.
+ * @returns The arguments, such as `fox-violinist --json f.json --step 1 --demo beethoven-8`.
+ */
+export function foldArgs(role: string, json: string, probe: CheckProbe): string[] {
+  return [
+    role,
+    '--json',
+    json,
+    ...(probe.step === null ? [] : ['--step', String(probe.step)]),
+    ...probe.demos.flatMap((demo) => ['--demo', demo]),
+  ];
 }
 
 /**
@@ -1192,6 +1289,7 @@ export function checkTexts(text: string, sets: readonly string[], known: boolean
  * @param text The JSON text of the config of the base or of a variant ({@link variantText}).
  * @param preview The folder of the preview images, or `null`.
  * @param factor The factor of the landmark height of the variant ({@link keptHeight}).
+ * @param probe The options of the app checks: the roles, the play step, and the demos.
  * @returns The measures.
  * @throws Error if the config has no rule of the thin faces, if the rig fails, if it is above the
  *   triangle budget, or if a probe fails.
@@ -1201,6 +1299,7 @@ async function checkRig(
   text: string,
   preview: string | null,
   factor: number,
+  probe: CheckProbe,
 ): Promise<CheckMeasures> {
   const config = parseConfig(text);
   const thin = config.check?.thin;
@@ -1245,7 +1344,7 @@ async function checkRig(
       standing: measures.standing.worst,
     };
 
-    const roles = known ? animalRoles(animal) : [];
+    const roles = known ? chooseRoles(animalRoles(animal), probe.roles) : [];
     if (roles.length === 0) {
       console.log(`No role of the app has the body of ${animal}, so the app checks do not run.`);
       return { ...result, folds: [], form: null };
@@ -1271,7 +1370,7 @@ async function checkRig(
         form = readFormJson(await readFile(formFile, 'utf8'));
         for (const { role, species } of roles) {
           const json = join(dir, `folds-${role}.json`);
-          const runs: [string, string[]][] = [['fold-probe.ts', [role, '--json', json]]];
+          const runs: [string, string[]][] = [['fold-probe.ts', foldArgs(role, json, probe)]];
           const source = FOLD_ROLES.get(role);
           if (source?.kind === 'player' && source.instrument === 'violin') {
             runs.unshift(['hold-reach.ts', [species]]);
@@ -1284,7 +1383,11 @@ async function checkRig(
             }
           }
           const read = readFaceJson(await readFile(json, 'utf8'));
-          folds.push({ role, counts: read.sets, bones: foldBones(read.faces) });
+          folds.push({
+            role,
+            counts: read.sets,
+            bones: foldBones(read.faces),
+          });
         }
       },
       tmpdir(),
@@ -1311,18 +1414,23 @@ async function checkRig(
  * @param sets The variants of `--set`.
  * @param preview The folder of the preview images, or `null`. With variants, each rig writes into
  *   a folder of its own in it: `base`, `variant-1`, and so on.
+ * @param probe The options of the app checks. The roles of `--roles` also choose the players of
+ *   the form tables.
  * @returns True when each variant passed.
- * @throws Error if a variant does not fit, before the first rig.
+ * @throws Error if a variant does not fit, or if a role of `--roles` is not a role of the animal,
+ *   before the first rig.
  */
 async function checkVariants(
   animal: string,
   text: string,
   sets: readonly string[],
   preview: string | null,
+  probe: CheckProbe,
 ): Promise<boolean> {
   const texts = checkTexts(text, sets, ANIMALS.has(animal));
   const base = parseConfig(text);
-  const players = ANIMALS.has(animal) ? playerArgs(animalRoles(animal)) : [];
+  const roles = chooseRoles(animalRoles(animal), probe.roles);
+  const players = ANIMALS.has(animal) ? playerArgs(roles) : [];
   const form = players.length > 0 ? await baseForm(players) : null;
   const rows: CheckRow[] = [];
   for (const [k, variant] of ['', ...sets].entries()) {
@@ -1333,7 +1441,13 @@ async function checkVariants(
       preview && sets.length > 0 ? join(preview, k === 0 ? 'base' : `variant-${k}`) : preview;
     try {
       const own = texts[k] ?? text;
-      const measures = await checkRig(animal, own, folder, keptHeight(base, parseConfig(own)));
+      const measures = await checkRig(
+        animal,
+        own,
+        folder,
+        keptHeight(base, parseConfig(own)),
+        probe,
+      );
       rows.push({ variant, measures, error: null });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -1356,12 +1470,12 @@ async function checkVariants(
  * Blender comes from the environment variable `BLENDER`, or `blender` on the path.
  */
 async function main(): Promise<void> {
-  const { animal, preview, check, sets } = parseArgs(process.argv.slice(2));
+  const { animal, preview, check, sets, probe } = parseArgs(process.argv.slice(2));
   const configPath = join(CONFIG_DIR, `${animal}.json`);
   const text = await readFile(configPath, 'utf8');
   const config = parseConfig(text);
   if (check) {
-    if (!(await checkVariants(animal, text, sets, preview))) {
+    if (!(await checkVariants(animal, text, sets, preview, probe))) {
       process.exitCode = 1;
     }
     return;

@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import type { Vec3 } from '../src/models/tuples.ts';
 import {
   CONFIG_JOINTS,
+  DEFAULT_PROBE,
   REACH_TOLERANCE,
   ANCHOR_MARK,
   anchorCells,
@@ -21,7 +22,9 @@ import {
   reachLine,
   checkTable,
   checkTexts,
+  chooseRoles,
   configChanges,
+  foldArgs,
   foldBones,
   formLines,
   keptHeight,
@@ -107,18 +110,21 @@ describe('the arguments of pnpm rig-mesh', () => {
       preview: null,
       check: false,
       sets: [],
+      probe: DEFAULT_PROBE,
     });
     expect(parseArgs(['rabbit', '--preview', '/tmp/x'])).toEqual({
       animal: 'rabbit',
       preview: '/tmp/x',
       check: false,
       sets: [],
+      probe: DEFAULT_PROBE,
     });
     expect(parseArgs(['--preview', '/tmp/x', 'rabbit'])).toEqual({
       animal: 'rabbit',
       preview: '/tmp/x',
       check: false,
       sets: [],
+      probe: DEFAULT_PROBE,
     });
   });
 
@@ -129,6 +135,7 @@ describe('the arguments of pnpm rig-mesh', () => {
       preview: 'p',
       check: true,
       sets: [],
+      probe: DEFAULT_PROBE,
     });
   });
 
@@ -139,6 +146,28 @@ describe('the arguments of pnpm rig-mesh', () => {
     ).toEqual(['armFactor=1.1', 'weld=0.001;armFactor=1']);
     expect(() => parseArgs(['fox', '--set', 'armFactor=1.1'])).toThrow(/Usage/);
     expect(() => parseArgs(['fox', '--check', '--set'])).toThrow(/Usage/);
+  });
+
+  it('reads the options of the app checks of --check', () => {
+    const args = parseArgs([
+      'fox',
+      '--check',
+      '--roles',
+      'fox-violinist,flutist',
+      '--step',
+      '1',
+      '--demo',
+      'beethoven-8.mid',
+      '--demo',
+      'mozart-k525',
+    ]);
+    expect(args.probe).toEqual({
+      roles: ['fox-violinist', 'flutist'],
+      step: 1,
+      demos: ['beethoven-8', 'mozart-k525'],
+    });
+    expect(() => parseArgs(['fox', '--roles', 'flutist'])).toThrow(/Usage/);
+    expect(() => parseArgs(['fox', '--check', '--step', '0'])).toThrow(/above 0/);
   });
 
   it('gives the usage for other arguments', () => {
@@ -337,6 +366,30 @@ describe('checkTable', () => {
       { variant: 'weld=1', measures: null, error: 'Blender failed.' },
     ]);
     expect(lines[3]).toMatch(/^\| weld=1 \| failed: Blender failed\. \| - \|/);
+  });
+});
+
+describe('chooseRoles', () => {
+  it('keeps the roles of --roles in the order of the animal, and stops on another role', () => {
+    const roles = animalRoles('fox');
+    expect(chooseRoles(roles, null)).toEqual(roles);
+    expect(chooseRoles(roles, ['flutist']).map((r) => r.role)).toEqual(['flutist']);
+    expect(chooseRoles(roles, ['flutist', 'fox-violinist']).map((r) => r.role)).toEqual([
+      'fox-violinist',
+      'flutist',
+    ]);
+    expect(() => chooseRoles(roles, ['pianist'])).toThrow(
+      'The roles pianist are not roles of the animal. Its roles are: fox-violinist, flutist.',
+    );
+  });
+});
+
+describe('foldArgs', () => {
+  it('gives the step and the demos to pnpm fold-probe', () => {
+    expect(foldArgs('flutist', 'f.json', DEFAULT_PROBE)).toEqual(['flutist', '--json', 'f.json']);
+    expect(foldArgs('flutist', 'f.json', { ...DEFAULT_PROBE, step: 1, demos: ['a', 'b'] })).toEqual(
+      ['flutist', '--json', 'f.json', '--step', '1', '--demo', 'a', '--demo', 'b'],
+    );
   });
 });
 
