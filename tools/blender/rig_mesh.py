@@ -18,7 +18,9 @@ reads it (route 3 of `AGENTS.md`). The steps:
    along a tail of two bones), the haunch, one set of weights for the corners of each short thin
    face, and the weights of the line for the middle corner of each long thin face. Each vertex
    keeps four bones, in steps of 1/255. With `smooth` of the config, the vertices inside a box
-   first move toward the middle of their neighbors (`smooth_box()`), before the weights.
+   first move toward the middle of their neighbors (`smooth_box()`), before the weights. The file
+   then gives the move of the head center back to the head before the smoothing (`head_shift()`),
+   so that the holds keep their places.
 4. Make the upper arm and the forearm longer by the arm factor of the config, and the thigh and
    the shin by the leg factor. Each bone scales along its axis, and the weights blend the stretch
    to 0 at the shoulder and at the hip. The paws and the feet keep their size, and the body rises
@@ -1389,6 +1391,24 @@ def smooth_box(verts, tris, rule):
     return out, len(ids), float(moves.max(initial=0.0))
 
 
+def head_shift(before, after, weights, tris, materials):
+    """Gives the move that takes the head center of the holds back to the head before the
+    smoothing (`smooth_box()`): the middle of the box of the head before the smoothing less the
+    middle after it. `pnpm studio-body` measures the head center of the holds as the middle of the
+    box of the fur vertices with more than half of their weight on the head. The fur spikes at the
+    back of the head of the fox mesh set the back of that box, so the smoothing moves the center
+    forward, and with it the violin, which the holds place from the head center. With the move,
+    the holds keep their places."""
+    fur = np.unique(tris[materials == 'fur'])
+    fur = fur[fur < len(before)]
+    ids = fur[weights[fur, BONES.index('head')] > 0.5]
+
+    def middle(points):
+        return 0.5 * (points[ids].min(axis=0) + points[ids].max(axis=0))
+
+    return middle(before) - middle(after)
+
+
 def seat_masks(points, weights, chair):
     """Gives the masks of the seat of a seated body, as `chair_mesh()` reads them: the vertices
     over the seat, the vertices of the shins and the feet that hang in front of it, and the
@@ -1800,8 +1820,9 @@ def primitive_arrays(points, tris, colors, materials, weights, shapes, name):
 
 
 def write_glb(path, config, bind, tris, colors, materials, weights, shapes, bind_frames,
-              bind_heads, src_frames, src_heads, chair):
-    """Writes the rig as a GLB file in the format of a studio body."""
+              bind_heads, src_frames, src_heads, chair, extras):
+    """Writes the rig as a GLB file in the format of a studio body, with the extras of the asset
+    for `pnpm studio-body`."""
     w = GlbWriter()
     mats = [{'name': name, 'doubleSided': True,
              'pbrMetallicRoughness': {'metallicFactor': 0.0, 'roughnessFactor': rough}}
@@ -1892,10 +1913,6 @@ def write_glb(path, config, bind, tris, colors, materials, weights, shapes, bind
         'bufferViews': w.views,
         'buffers': [{'byteLength': len(w.bin)}],
     }
-    # `pnpm studio-body` measures the head height of the holds before the head factor, and moves
-    # the head center of the holds with the drop of the head along the neck.
-    extras = {key: config[key] for key in ('headFactor', 'neckFactor')
-              if config.get(key, 1) != 1}
     if extras:
         gltf['asset']['extras'] = extras
     text = json.dumps(gltf, separators=(',', ':')).encode()
@@ -1990,6 +2007,7 @@ def main():
         BONES = BONES + (TAIL_TIP,)
 
     verts, source_tris, uvs, texture = load_mesh(config)
+    unsmoothed = verts
     if 'smooth' in config:
         verts, count, largest = smooth_box(verts, source_tris, config['smooth'])
         log(f'smooth: {count} vertices in the box, the largest move {largest:.4f} u')
@@ -2099,8 +2117,18 @@ def main():
             f'the soles, the farthest point back at z {bind_all[tail, 2].min():.4f} u, the widest '
             f'at |x| {np.abs(bind_all[tail, 0]).max():.4f} u')
     log(f'triangles: {len(tris_all)} ({int((materials == "gloss").sum())} gloss)')
+    # `pnpm studio-body` measures the head height of the holds before the head factor, and moves
+    # the head center of the holds with the drop of the head along the neck. It also takes back
+    # the move of the head center by the smoothing.
+    extras = {key: config[key] for key in ('headFactor', 'neckFactor')
+              if config.get(key, 1) != 1}
+    if 'smooth' in config:
+        shift = head_shift(unsmoothed, verts, weights_all, tris_all, materials)
+        extras['headShift'] = [round(float(x), 6) + 0.0 for x in shift]
+        log(f'smooth: the head center of the holds moves back by {np.linalg.norm(shift):.4f} u '
+            f'({np.linalg.norm(shift) * meters * 100:.2f} cm), to the head before the smoothing')
     write_glb(out_path, config, bind_all, tris_all, colors_all, materials, weights_all, shapes,
-              bind_frames, bind_heads, src_frames, long_heads, chair)
+              bind_frames, bind_heads, src_frames, long_heads, chair, extras)
 
     if obj_path:
         write_obj(obj_path, long_verts, tris)

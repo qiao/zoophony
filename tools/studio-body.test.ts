@@ -13,6 +13,7 @@ import {
   ANIMALS,
   headFactorOf,
   headRig,
+  headShiftOf,
   neckFactorOf,
   inspectStudioGlb,
   inspectionLines,
@@ -557,22 +558,29 @@ describe('studioGlbPath', () => {
   });
 });
 
+/** The extras of the asset of a rig of `pnpm rig-mesh`, for {@link withExtras}. */
+interface RigExtras {
+  /** The head factor. */
+  readonly headFactor?: number;
+  /** The neck factor. */
+  readonly neckFactor?: number;
+  /** The move of the head center back to the head before the smoothing, in studio units. */
+  readonly headShift?: readonly number[];
+}
+
 /**
- * Writes a GLB file again with a head factor of `pnpm rig-mesh` in the extras of its asset.
+ * Writes a GLB file again with the facts of a rig of `pnpm rig-mesh` in the extras of its asset.
  *
  * @param bytes The GLB file.
- * @param extras The facts of the rig: the head factor and the neck factor.
+ * @param extras The facts of the rig.
  * @returns The new file.
  */
-function withExtras(
-  bytes: Uint8Array,
-  extras: { readonly headFactor?: number; readonly neckFactor?: number },
-): Uint8Array {
+function withExtras(bytes: Uint8Array, extras: RigExtras): Uint8Array {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const jsonLength = view.getUint32(12, true);
   // SAFETY: the JSON chunk of a GLB file holds one JSON object.
   const json = JSON.parse(new TextDecoder().decode(bytes.subarray(20, 20 + jsonLength))) as {
-    asset: { extras?: { readonly headFactor?: number; readonly neckFactor?: number } };
+    asset: { extras?: RigExtras };
   };
   json.asset.extras = extras;
   let text = JSON.stringify(json);
@@ -660,6 +668,28 @@ describe('pnpm studio-body with a head that the rig grows (design 4.4)', async (
 
   it('refuses a head factor that is not a positive number', () => {
     expect(() => headFactorOf(readGlb(withExtras(bytes, { headFactor: 0 })))).toThrow(/positive/);
+  });
+
+  it('moves the head center of the holds by the head shift of the rig', () => {
+    expect(headShiftOf(readGlb(bytes)).length()).toBe(0);
+    const plain = studioBody(bytes, SOURCE, settings).body;
+    const shifted = studioBody(
+      withExtras(bytes, { headShift: [0.01, 0.02, 0.03] }),
+      SOURCE,
+      settings,
+    ).body;
+    // The studio animal faces +z and the model faces -z. The center stays on the middle plane.
+    expect(shifted.headCenter[0]).toBe(0);
+    expect(shifted.headCenter[1] - plain.headCenter[1]).toBeCloseTo(0.02 * plain.scale, 5);
+    expect(shifted.headCenter[2] - plain.headCenter[2]).toBeCloseTo(-0.03 * plain.scale, 5);
+    expect(shifted.headHeight).toBe(plain.headHeight);
+    expect(shifted.nose).toEqual(plain.nose);
+  });
+
+  it('refuses a head shift that is not three numbers', () => {
+    expect(() => headShiftOf(readGlb(withExtras(bytes, { headShift: [0, 1] })))).toThrow(
+      /three numbers/,
+    );
   });
 
   it('reads the neck factor of the rig, 1 when the file has none', () => {

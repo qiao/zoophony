@@ -346,6 +346,12 @@ interface Gltf {
        * config of the mesh rig). The file has no factor when the neck keeps its length.
        */
       readonly neckFactor?: number;
+      /**
+       * The move of the head center of the holds back to the head before the smoothing of the rig
+       * (`smooth` of the config of the mesh rig), in the units and the axes of the studio. The
+       * file has no move when the rig smooths no part of the mesh.
+       */
+      readonly headShift?: readonly number[];
     };
   };
 }
@@ -384,6 +390,24 @@ export function neckFactorOf(glb: Glb): number {
     throw new Error(`The neck factor ${factor} of the file is not a positive number.`);
   }
   return factor;
+}
+
+/**
+ * Gives the move of the head center of the holds back to the head before the smoothing of the rig
+ * of a GLB file (`pnpm rig-mesh`). The smoothing removes the fur spikes at the back of the head of
+ * the fox mesh, which set the back of the box of the head, so the move keeps the holds in their
+ * places (design 4.4).
+ *
+ * @param glb The file.
+ * @returns The move, in the units and the axes of the studio, or no move when the file has none.
+ * @throws Error if the move is not three finite numbers.
+ */
+export function headShiftOf(glb: Glb): Vector3 {
+  const shift = glb.json.asset?.extras?.headShift ?? [0, 0, 0];
+  if (!Array.isArray(shift) || shift.length !== 3 || !shift.every((x) => Number.isFinite(x))) {
+    throw new Error(`The head shift ${JSON.stringify(shift)} of the file is not three numbers.`);
+  }
+  return new Vector3(...shift);
 }
 
 /**
@@ -1391,7 +1415,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   // The head: the faces of the fur that follow the head bone most. The ears follow ear bones. The
   // holds are in head heights and start at the head center, so a head that the rig grows keeps
   // the head height and the center of the head before its factor, and the holds keep their places
-  // (design 4.4).
+  // (design 4.4). A head that the rig smooths keeps the center of the head before the smoothing.
   const rig = headRig(
     headOf(skeleton, 'neck'),
     headOf(skeleton, 'head'),
@@ -1422,7 +1446,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       nose = vertex.position;
     }
   }
-  const center = box.min.clone().add(box.max).multiplyScalar(0.5).setX(0);
+  const center = box.min.clone().add(box.max).multiplyScalar(0.5).add(headShiftOf(glb)).setX(0);
 
   // The studio animal faces +z, so its moves turn as its points do.
   const ordered = orderByFirstUse(mesh);
