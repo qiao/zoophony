@@ -65,6 +65,11 @@ export interface MeshRigConfig {
   readonly legFactor?: number;
   /** The factor of the size of the head around the neck joint, 1 when it is not given. */
   readonly headFactor?: number;
+  /**
+   * The factor of the length of the neck between its joints, 1 when it is not given. The head
+   * keeps its size and moves along the neck with the head joint.
+   */
+  readonly neckFactor?: number;
   /** The joints of the middle and of the left side. The right side mirrors the left side. */
   readonly joints: Readonly<Record<string, MeshRigJoint>>;
   /** The rules of `--check`. */
@@ -113,12 +118,13 @@ export function parseConfig(text: string): MeshRigConfig {
     config.armFactor,
     config.legFactor ?? 1,
     config.headFactor ?? 1,
+    config.neckFactor ?? 1,
     config.app.shoulders,
     config.app.reach,
   ];
   if (!numbers.every((n) => Number.isFinite(n) && n > 0)) {
     throw new Error(
-      'The arm factor, the leg factor, the head factor, app.shoulders, and app.reach must be positive numbers.',
+      'The arm factor, the leg factor, the head factor, the neck factor, app.shoulders, and app.reach must be positive numbers.',
     );
   }
   const missing = CONFIG_JOINTS.filter((name) => config.joints[name]?.head.length !== 3);

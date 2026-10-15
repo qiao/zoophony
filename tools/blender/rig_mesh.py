@@ -364,16 +364,17 @@ def in_box(points, box):
     return np.all((points >= lo) & (points <= hi), axis=1)
 
 
-def moved_boxes(rules, pivot, factor, rise):
+def moved_boxes(rules, pivot, factor, rise, drop):
     """Gives the color rules with the eye box and the nose box of the source moved with the head:
-    each box grows by the head factor around the neck joint, then rises with the body. The
-    vertices of the eyes and the nose follow the head only, so the faces in a box stay in it."""
-    if factor == 1 and not rise:
+    each box grows by the head factor around the neck joint, moves down the neck by the drop of
+    the neck factor, then rises with the body. The vertices of the eyes and the nose follow the
+    head only, so the faces in a box stay in it."""
+    if factor == 1 and not rise and not drop.any():
         return rules
     out = dict(rules)
     for key in ('eyeBox', 'noseBox'):
         box = np.asarray(rules[key], float)
-        out[key] = (pivot + factor * (box - pivot) + [0.0, rise, 0.0]).tolist()
+        out[key] = (pivot + factor * (box - pivot) + drop + [0.0, rise, 0.0]).tolist()
     return out
 
 
@@ -983,14 +984,17 @@ def move(rotation, src, dst):
 
 
 def stretch(verts, weights, heads, ends, children, factors):
-    """Makes the limbs longer and the head larger by the factors of the config: `arm`, `leg`, and
-    `head`. The upper arm and the forearm of each side grow by `arm` along their axes, and the paw
-    moves with the wrist and keeps its size. The thigh and the shin grow by `leg` along their
-    axes, and the foot moves with the ankle and keeps its size. The head and the ears grow by
-    `head` around the neck joint. Then the body rises by the growth of the legs, so that the soles
-    stay at y = 0. The root stays on the floor. Each vertex blends the moves of its bones by its
-    weights, so that a growth fades over the joint at its start. Gives the moved vertices, heads,
-    and tails, and the rise of the body."""
+    """Makes the limbs longer, the head larger, and the neck shorter by the factors of the config:
+    `arm`, `leg`, `head`, and `neck`. The upper arm and the forearm of each side grow by `arm`
+    along their axes, and the paw moves with the wrist and keeps its size. The thigh and the shin
+    grow by `leg` along their axes, and the foot moves with the ankle and keeps its size. The head
+    and the ears grow by `head` around the neck joint. The neck takes `neck` between its joints,
+    and the head and the ears move along the neck by the move of the head joint, so that the neck
+    of the rig is `neck` times the neck of the grown head. Then the body rises by the growth of the
+    legs, so that the soles stay at y = 0. The root stays on the floor. Each vertex blends the
+    moves of its bones by its weights, so that a growth fades over the joint at its start. Gives
+    the moved vertices, heads, and tails, the rise of the body, and the drop of the head along the
+    neck."""
     new_heads = {k: v.copy() for k, v in heads.items()}
     new_ends = {k: v.copy() for k, v in ends.items()}
     matrices = [move(np.eye(3), np.zeros(3), np.zeros(3)) for _ in BONES]
@@ -1042,14 +1046,20 @@ def stretch(verts, weights, heads, ends, children, factors):
             new_ends[f'toes_{side}'] = ends[f'toes_{side}'] + shift
             rise = -float(shift[1])
 
-    if factors['head'] != 1:
+    # The neck stretches only between its joints too, and the head and the ears move with the
+    # head joint: the head grows around the neck joint, then moves down the grown neck.
+    drop = np.zeros(3)
+    if factors['head'] != 1 or factors['neck'] != 1:
         factor = factors['head']
         pivot = heads['neck']
+        drop = factor * (factors['neck'] - 1) * (heads['head'] - pivot)
         for name in ('head', 'ear_L', 'ear_R'):
-            matrices[BONES.index(name)] = move(factor * np.eye(3), pivot, pivot)
-            new_heads[name] = pivot + factor * (heads[name] - pivot)
+            matrices[BONES.index(name)] = move(factor * np.eye(3), pivot, pivot + drop)
+            new_heads[name] = pivot + factor * (heads[name] - pivot) + drop
             if not children[name]:
-                new_ends[name] = pivot + factor * (ends[name] - pivot)
+                new_ends[name] = pivot + factor * (ends[name] - pivot) + drop
+        if factors['neck'] != 1:
+            segments[BONES.index('neck')] = (pivot, pivot, heads['head'], factors['neck'])
 
     for name in BONES:
         if children[name]:
@@ -1067,7 +1077,7 @@ def stretch(verts, weights, heads, ends, children, factors):
     out = skin(weights, matrices, verts)
     for k, (origin, start, end, factor) in segments.items():
         out += weights[:, k, None] * (segment_stretch(verts, origin, start, end, factor) + up)
-    return out, new_heads, new_ends, rise
+    return out, new_heads, new_ends, rise, drop
 
 
 def segment_stretch(points, head, start, end, factor):
@@ -1541,10 +1551,12 @@ def write_glb(path, config, bind, tris, colors, materials, weights, shapes, bind
         'bufferViews': w.views,
         'buffers': [{'byteLength': len(w.bin)}],
     }
-    head = config.get('headFactor', 1)
-    if head != 1:
-        # `pnpm studio-body` measures the head height of the holds before the head factor.
-        gltf['asset']['extras'] = {'headFactor': head}
+    # `pnpm studio-body` measures the head height of the holds before the head factor, and moves
+    # the head center of the holds with the drop of the head along the neck.
+    extras = {key: config[key] for key in ('headFactor', 'neckFactor')
+              if config.get(key, 1) != 1}
+    if extras:
+        gltf['asset']['extras'] = extras
     text = json.dumps(gltf, separators=(',', ':')).encode()
     text += b' ' * (-len(text) % 4)
     data = bytes(w.bin) + b'\0' * (-len(w.bin) % 4)
@@ -1647,9 +1659,9 @@ def main():
     # The long arms, the long legs, and the large head. The scale of the app comes from the
     # shoulder joints after the rise of the legs.
     factors = {'arm': config['armFactor'], 'leg': config.get('legFactor', 1),
-               'head': config.get('headFactor', 1)}
-    long_verts, long_heads, long_ends, rise = stretch(verts, weights, heads, ends, children,
-                                                       factors)
+               'head': config.get('headFactor', 1), 'neck': config.get('neckFactor', 1)}
+    long_verts, long_heads, long_ends, rise, drop = stretch(verts, weights, heads, ends, children,
+                                                             factors)
     meters = config['app']['shoulders'] / long_heads['upper_arm_L'][1]
     for side in 'LR':
         before, after = reach(heads, side) * meters, reach(long_heads, side) * meters
@@ -1660,6 +1672,11 @@ def main():
             f"shoulder joint to {long_heads['upper_arm_L'][1]:.4f} u "
             f"({long_heads['upper_arm_L'][1] * meters:.4f} m), and the head factor "
             f"{factors['head']} grows the head around the neck joint")
+    if factors['neck'] != 1:
+        neck = np.linalg.norm(long_heads['head'] - long_heads['neck'])
+        log(f"neck: the neck factor {factors['neck']} moves the head {np.linalg.norm(drop):.4f} u "
+            f"({np.linalg.norm(drop) * meters * 100:.2f} cm) down the neck, and the neck joint is "
+            f"{neck:.4f} u ({neck * meters * 100:.2f} cm) from the head joint")
 
     src_frames = {n: frame(long_heads[n], long_ends[n], rolls[n]) for n in BONES}
     turns = bind_turns(config, long_heads, long_ends, rolls)
@@ -1675,7 +1692,8 @@ def main():
         f'edges, {len(tris) - len(source_tris)} new faces')
     colors, dark = face_colors(tris, uvs, texture, config['colors'])
     eyes, nose = features(long_verts, tris, colors, dark,
-                          moved_boxes(config['colors'], heads['neck'], factors['head'], rise))
+                          moved_boxes(config['colors'], heads['neck'], factors['head'], rise,
+                                      drop))
 
     bind = skin(weights, matrices, long_verts)
     dots = turn_dots(long_verts, bind, tris, weights, matrices)
@@ -1740,6 +1758,12 @@ def main():
         standing_center = np.array([0, 0.5 * tall, 0])
         low = np.array([0, 0.25 + rise, -0.15])
         knees = np.array([0, 0.17 + rise, 0.02])
+        # The neck views keep the shoulders in place, so that the views of two neck factors
+        # compare.
+        shoulders = bind_heads['upper_arm_L']
+        neck_seated = np.array([0, shoulders[1] + 0.1, bind_heads['neck'][2]])
+        neck_standing = np.array([0, long_heads['upper_arm_L'][1] + 0.1, long_heads['neck'][2]])
+        neck_views = [('right', 90, 0), ('front', 0, 0), ('q', 35, 10)]
         preview(preview_dir, [
             ('seated', [(bind_all, tris_all, colors_all), chair_part],
              [(v, a, e, seated_center, 1.1 * tall) for v, a, e in four]),
@@ -1753,6 +1777,10 @@ def main():
              [('right', 90, 0, knees, 0.4 + rise),
               ('left', 270, 0, knees, 0.4 + rise),
               ('front', 0, 10, knees, 0.4 + rise)]),
+            ('neck', [(bind_all, tris_all, colors_all), chair_part],
+             [(v, a, e, neck_seated, 0.5) for v, a, e in neck_views]),
+            ('neck-standing', [(src_all, tris_all, colors_all)],
+             [(v, a, e, neck_standing, 0.5) for v, a, e in neck_views]),
             ('bones', [(bind_all, tris_all, bones)],
              [(v, a, e, seated_center, 1.1 * tall) for v, a, e in four]),
             ('bones-standing', [(src_all, tris_all, bones)],

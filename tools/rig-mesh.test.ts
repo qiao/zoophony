@@ -187,6 +187,7 @@ describe('the check of pnpm rig-mesh', () => {
     expect(reachLine(long)).toContain('Shoulder joint at 0.65 u, 1.0000 m for each unit');
     expect(() => parseConfig(JSON.stringify({ ...long, legFactor: 0 }))).toThrow(/leg factor/);
     expect(() => parseConfig(JSON.stringify({ ...long, headFactor: -1 }))).toThrow(/head factor/);
+    expect(() => parseConfig(JSON.stringify({ ...long, neckFactor: 0 }))).toThrow(/neck factor/);
   });
 
   it('takes the settings of ANIMALS, or a seated role that also stands at the shoulders of the config', () => {
