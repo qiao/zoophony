@@ -289,12 +289,16 @@ These traps of route 3 each cost a round:
 - Short arms do not reach the instrument of the app. Size the instrument by the rule of real
   players, and keep the limbs of the studio (user rule of 2026-10-10). Make the arms longer in
   the studio only when the user asks, as for the rabbit on 2026-10-13, and for the full violins of
-  the rabbit and the red fox on 2026-10-14. The violin of the rabbit
-  follows the rule (`SpeciesParams.violinScale`).
+  the rabbit and the red fox on 2026-10-14. When the user sets the size of an instrument, as for
+  the violins of the rabbit and the red fox after their shorter arms of 2026-10-14
+  (`SpeciesParams.violinScale`), the size stays, and the hold moves the instrument until the paws
+  reach it: the violins moved back toward the neck, so that the left paws reach the nut.
 - A round belly can cover short thighs, so the lap place of a hold lands on the belly. The rabbit
   rested the violin at its side (`BowedHold.restAtSide`) until its longer legs of 2026-10-14 gave
-  it a lap. Short arms on a long trunk may not reach the thighs: the paws of the red fox hang
-  0.16 m above them, so its rest holds the bow beside the thigh with the tip down.
+  it a lap. Short arms on a long trunk may not reach the thighs: before its longer arms of
+  2026-10-14, the paws of the red fox hung 0.16 m above them. With the arms of 2026-10-14, the
+  red fox rests as the cat violas, with the violin upright in the middle of the lap and the bow
+  across it.
 - A new body changes the footprints, so the layout of a section, the looks of the other players,
   and the cues of the conductor change with it. `pnpm body-probe --base main` names them.
 - The shot test of `src/shots/prepare.test.ts` reacts to moves of the footprints of about 2 cm.
