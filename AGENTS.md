@@ -16,10 +16,8 @@ reference images, and record the conflict as a row in your decision file. Then u
 file in the same commit as the change.
 
 Take the next task from `TODO.md`, and follow the rules at its top. A step is done only when its
-"done" criterion is true and its review is done (design 9.8). A review agent runs only for a
-change of tool code that deletes files, starts processes, or changes the git state. It also runs
-for a change of a rule of the pure core. The manager reviews each other round from the report and
-the images.
+"done" criterion is true and its review is done (design 9.8). The manager reviews each round from
+the report and the images. No round gets a review agent since 2026-10-16.
 
 A decision file in `docs/decisions/` holds the details that one agent session decided after the
 design session (section 10 of `docs/design.md`). Treat each row as decided, unless a newer
@@ -179,8 +177,7 @@ rabbit violinist since 2026-10-13, and the red violin fox since 2026-10-14 (desi
 builds the GLB file, or `pnpm rig-mesh` rigs a mesh of the user into it, as for the rabbit and the
 fox (below). The app keeps its own motion and drives the bones of the studio from the pose of the
 player on each frame (`poseStudioBones()` of `src/models/studio-rig.ts`). A manager briefs the
-implementation of a round from `docs/briefs/studio-body.md`. A review and a fix follow only for the
-code that design 9.8 names.
+implementation of a round from `docs/briefs/studio-body.md`.
 
 ```text
  python3 studio build <animal> --> lowpoly-studio/animals/<animal>/out/<animal>.glb
@@ -506,8 +503,8 @@ the end of the pause.
 - Commit each verified change. Leave no verified work in the working tree.
 - Before your report, run `tools/check-commits.sh --tip main` one time in your worktree, with a
   clean tree. It checks each commit of the branch and the full suite on the last commit. It keeps
-  each passed result in the cache by tree. Then the merge, and a review agent when one runs, get
-  a `hit` for each commit. Only the script writes an entry, and a claim in a report is no entry.
+  each passed result in the cache by tree. Then the merge gets a `hit` for each commit. Only the
+  script writes an entry, and a claim in a report is no entry.
 - After a commit that moves code between files, or a commit made while other changes are
   stashed, run `tools/check-commits.sh HEAD~1` before the next commit. It checks that one commit
   and writes its cache entry. The fox round checked such a commit with the lint and the
@@ -546,9 +543,6 @@ Follow these rules when another agent works on the repository at the same time.
     a branch that is not merged.
 - A rebase is finished when the folder `$(git rev-parse --git-path rebase-merge)` does not exist.
   `REBASE_HEAD` can stay after a finished rebase, so it does not show the state.
-- A review agent (design 9.8) checks the tip only. It runs `tools/check-commits.sh --tip main` in
-  a worktree of the branch. Each commit that the agent checked prints `hit`, and only a tree with
-  no entry runs its checks. It does not check each commit again in a copy of the tree.
 - Let the agent that wrote a branch do a long rebase, because it knows the intent of each commit.
 - A rebase with `--exec` runs its command in the tree of each commit. An old commit has an old
   copy of a script or none. Copy a script of the branch to a temporary path first, and run the
