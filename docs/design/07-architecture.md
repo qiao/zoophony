@@ -92,7 +92,10 @@ player.
   the back (5.3), around its body. Its moments are the frog and the tip of a whole bow, a string
   crossing, the rest pose, and the standing soloist at the frog. With `--base <ref>`, the tool
   puts the grid of a commit above the grid of the working tree, so a round shows the change of
-  a body with no worktree of `main`.
+  a body with no worktree of `main`. The mode `species` of the tool shows named species alone
+  on their seats, around their bodies, at named views. The low side view shows the knees, the
+  seat, and the soles. Thus a round of a body gets these images with no image script of its own
+  (9.8).
 - The query `stand` gives each player of the species page the support `stand`, as a soloist who
   stands (4.5). With no `stand`, each player has the support of its instrument.
 - The query `rest` shows the players in the rest pose of 5.2, before the first play. With no

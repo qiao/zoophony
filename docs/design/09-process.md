@@ -578,9 +578,14 @@ load, the message of a failed load with the drawer open, and the full-page messa
 with no WebGL2. `pnpm screenshots <dir> --shots` adds, for each demo at both sizes, one frame of
 each kind of camera shot of 5.6 in its plan: it plays the demo, seeks into the first shot of the
 kind, and waits 1.5 s. The play shots of `--play`, `--ui`, and `--drawer` show the automatic
-camera of 2.5. For the UI of step 6, `pnpm keyboard` (`tools/keyboard-check.ts`) also checks each
-control with the keyboard alone at both sizes, and prints a table of the results. Give the images
-to the manager with the report, and name the targets of the step with their results.
+camera of 2.5. For a round of a body, `pnpm close-views species <species,...> <dir>` shows the
+species alone on their seats at named views (7.1). `pnpm close-views play <dir>` shows a demo
+during play at the default view of "Reset view". `--camera violins` shows it low from the front
+left, close to the violins, as the frame of the user of 2026-10-16. With `--base main`, both
+modes put the images of `main` above the images of the branch. For the UI of step 6,
+`pnpm keyboard` (`tools/keyboard-check.ts`) also checks each control with the keyboard alone at both
+sizes, and prints a table of the results. Give the images to the manager with the report, and
+name the targets of the step with their results.
 
 When a step is done, start the next step. Do not wait for the user. After the last step, the
 user examines all steps together, with the screenshots and the GIFs of each step.
