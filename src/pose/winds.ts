@@ -318,8 +318,10 @@ export const FOX_FLUTE_BACK = 9;
  * stands upright on the right leg with the foot joint down, and the right paw holds it at the
  * right-hand keys, as a real flutist rests it (decisions `2026-10-15-flute-rest.md`). The foot
  * joint touches the outer side of the right knee, and the top leans about 10° out and forward.
- * The left paw leaves its grip and rests on the outer side of the left thigh near the knee
- * ({@link WindHold.restFreeL}), and both arms hang down along the sides. On the top of the knee,
+ * The left paw leaves its grip and rests on the outer side of the left thigh, at 0.6 of the way
+ * to the knee ({@link WindHold.restFreeL}), and both arms hang down along the sides. The thighs
+ * slope down to the knees (2026-10-16-hip-open decisions), so at 0.66 of the way the paw did not
+ * reach its place, and the left forearm went 2.8 cm into the body. On the top of the knee,
  * 4° from vertical, the right upper arm went 1.6 cm into the body (limit 1.5 cm). With the elbows
  * out to the side, the upper arms folded more faces of the skin than the rest of 2026-10-14
  * (`docs/research/2026-10-15-flute-rest.md`).
@@ -336,7 +338,7 @@ const FOX_FLUTE = {
   restPoleL: [-0.15, -1, 0.38],
   restPoleR: [0.69, -1, -0.21],
   restFreeL: {
-    lap: { along: 0.66, offset: [-0.39, -0.13, 0.1] },
+    lap: { along: 0.6, offset: [-0.45, -0.16, 0.1] },
     palm: [0.23, -1, 0.15],
     fingers: [-0.05, -0.22, -1],
     arc: [0.57, 0.04, 0.31],
