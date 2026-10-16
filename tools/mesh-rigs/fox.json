@@ -47,9 +47,9 @@
   "studio": {
     "legTurns": {
       "thigh": [0.734347, -0.039127, -0.103206, 0.66974],
-      "shin": [0, 0, 0, 1],
-      "foot": [-0.173023, -0.006241, 0.008414, 0.984862],
-      "toes": [-0.173023, -0.006241, 0.008414, 0.984862]
+      "shin": [0.172788, 0.021713, 0.049229, 0.983488],
+      "foot": [0, 0, 0, 1],
+      "toes": [0, 0, 0, 1]
     },
     "bindArms": {
       "upper_arm": [0.813873, -0.143043, 0.563161],
@@ -60,7 +60,7 @@
       "tail": [0, -0.12, -1],
       "tail_tip": [0, -1.4, -1]
     },
-    "note": "The studio has no fox. The seat is the seat of a long thigh: legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The thigh lies level on the seat, 8 degrees out, so that the haunch and the back of the thigh rest on the seat (the user saw the fox sitting on the edge of the chair on 2026-10-14), and the shin keeps the turn of the source, so that it hangs under the knee. With 15 degrees below the level, the haunch perched above the back of the seat. The foot and the toes turn 20 degrees further down than in the source, as relaxed feet that hang above the floor (docs/research/2026-10-14-fox-rabbit-form/leg_turns.py). The seat of the studio rabbit turned the thigh 57 degrees, and the long thigh of the fox stood almost upright on the chair. The bind arms are the bind arms of the studio rabbit (tools/mesh-rigs/rabbit.json, docs/research/2026-10-13-rabbit-mesh/studio-targets.ts): the unit direction of each left arm bone in the bind pose. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back over the seat, 7 degrees below the level, and the tip hangs back and down behind the chair, 54 degrees below the level. Then the tail goes at most 0.0005 units over the seat top, and its lowest point is 0.037 units above the soles."
+    "note": "The studio has no fox. The seat is the seat of a long thigh: legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The thigh lies level on the seat, 8 degrees out, so that the haunch and the back of the thigh rest on the seat (the user saw the fox sitting on the edge of the chair on 2026-10-14). With 15 degrees below the level, the haunch perched above the back of the seat. The shin slants 23.8 degrees forward of vertical, so that the knee angle from the side is 113.8 degrees (93.8 degrees with the shin of the source) and the feet stand in front of the knees, as the seated posture of the OSHA eTool of computer workstations: \"Knees are about the same height as the hips with the feet slightly forward\". The user said \"The fox's legs are too bent\" on 2026-10-16, and the angle is 20 degrees more than before, the middle of the variants 10, 20, and 30 degrees. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor (docs/research/2026-10-16-seat-rest/leg_turns.py). The seat of the studio rabbit turned the thigh 57 degrees, and the long thigh of the fox stood almost upright on the chair. The bind arms are the bind arms of the studio rabbit (tools/mesh-rigs/rabbit.json, docs/research/2026-10-13-rabbit-mesh/studio-targets.ts): the unit direction of each left arm bone in the bind pose. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back over the seat, 7 degrees below the level, and the tip hangs back and down behind the chair, 54 degrees below the level. Then the tail goes at most 0.0005 units over the seat top, and its lowest point is 0.038 units above the soles."
   },
   "weights": {
     "armSplit": 0.1,
