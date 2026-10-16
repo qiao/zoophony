@@ -2,12 +2,9 @@
 
 A manager uses these templates to put an animal of `lowpoly-studio/` into the app for a role, by
 route 3 of `AGENTS.md`. Examples are a violinist rabbit and a cellist dog. A round has one
-implementation agent. A review agent and a fix agent follow only when the round changes code of
-the kinds that design 9.8 names. These are tool code that deletes files, starts processes, or
-changes the git state, and a rule of the pure core. The model work of a round gets no review
-agent. The manager reads the report and the close views, and the merge script runs the checks.
-Copy each template to the scratch folder of the session, replace each `<...>`, and delete the
-notes in parentheses.
+implementation agent, and no review agent follows it (design 9.8). The manager reads the report
+and the close views, and the merge script runs the checks. Copy each template to the scratch
+folder of the session, replace each `<...>`, and delete the notes in parentheses.
 
 Since 2026-10-16, all tests are paused
 ([`2026-10-16-all-tests-pause.md`](../decisions/2026-10-16-all-tests-pause.md)). Until the user
@@ -19,19 +16,12 @@ The polar bear pianist of 2026-10-12 took about 2.3 hours. The retrospective of 
 the tools that these templates name ([`2026-10-13-route-3-retro.md`](../research/2026-10-13-route-3-retro.md)).
 
 ```text
- manager            agents                                   manager
- +-----------+      +----------------+                       +-------+   +-------+
- | baseline, | ---> | implementation | --------------------> | merge | > | retro |
- | inspect,  |      | sweep, probes  |                       | cache |   |       |
- | brief     |      +----------------+                       | hits  |   +-------+
- +-----------+              |                                +-------+
-                            | only for the code of design 9.8    ^
-                            v                                    |
-                      +-----------+   +-----+                    |
-                      |  review   | > | fix | -------------------+
-                      | 10 min,   |   |     |
-                      | code only |   +-----+
-                      +-----------+
+ manager            agent                    manager
+ +-----------+      +----------------+       +--------------+   +-------+
+ | baseline, | ---> | implementation | ----> | report,      | > | retro |
+ | inspect,  |      | sweep, probes  |       | close views, |   |       |
+ | brief     |      +----------------+       | merge (hits) |   +-------+
+ +-----------+                               +--------------+
 ```
 
 ## 1. Before the brief
@@ -228,51 +218,13 @@ branch |); Decisions; Removed or changed tests (| Test | Reason |); Break comman
 Command | Failure |); Commits; Images to review; Open problems and the next step.
 ```
 
-## 3. Review brief (optional)
+## 3. Review brief (not used)
 
-Use this brief only when the round changes code of the kinds of design 9.8, such as a tool that
-removes a folder or starts a server. Name that code in `<paths>`. The review takes about 10
-minutes and reads the code only.
+No round uses this brief since 2026-10-16 ([`2026-10-16-no-review.md`](../decisions/2026-10-16-no-review.md)).
 
-```markdown
-You are the independent review agent of the branch `<branch>` (design 9.8), in the worktree
-`<path>`. Do not edit, commit, merge, or push. Write files only into `<scratch>/review/`.
-Time box 10 minutes. Review only the code of `<paths>`: <the tool code that deletes files,
-starts processes, or changes the git state, or the rule of the pure core>. Read
-`<scratch>/rules-common.md`, the brief `<path>`, `AGENTS.md`, and the diff of that code:
-`git log -p main..<branch> -- <paths>`.
+## 4. Fix brief (not used)
 
-1. Run `tools/check-commits.sh --tip main` one time, in the background, with no edits during the
-   run. It reads the results of the implementer from the cache. Do not check each commit again
-   in another way.
-2. Run each break command of the report for that code with `tools/break-test.sh`, and read the
-   test that fails. The script restores the file.
-3. Check the correctness, the rules of `AGENTS.md`, and the edge cases. For a tool, these are the
-   stop paths (a failure, and Ctrl-C through pnpm), the removed files, the ports, and the git
-   state. For the pure core, these are the rules of its design section.
-4. Run no image tool and no probe of a body. The manager reads the close views, the snapshot, and
-   the probes of the report.
-
-Reply with only: Verdict; Findings (| # | Severity | File:line | Finding | Evidence | Fix |);
-Checks run (| Check | Result |).
-```
-
-## 4. Fix brief (after a review)
-
-Use this brief when the review finds a fault. The fixes get no second review (design 9.8). The
-manager reads the report of the fixes, and the merge script runs the checks.
-
-```markdown
-Fix round of the branch `<branch>`. Read `<scratch>/rules-common.md`, the brief `<path>`, the
-handoff `<path>`, and `AGENTS.md`. Fix each finding in its own commit, after you check it
-against the code. When a finding is wrong, give the reason. Tune with `pnpm pose-depth --set`.
-At the end, run `tools/check-commits.sh --tip main` one time in the background.
-
-| # | File:line | Finding | Fix |
-
-Reply with only: Result; Findings (| # | Verdict | Commit | Note |); Checks run; Commits; Open
-problems.
-```
+No round uses this brief since 2026-10-16, because no review agent finds faults to fix.
 
 ## 5. Common rules of the agents
 
