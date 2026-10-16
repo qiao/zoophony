@@ -398,19 +398,18 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     bow, and the bow keeps a longer free hair at each end (`BowedHold.freeHair` of
     `pose/bowed-rig.ts`): the larger violin and bow put the bow paw into the body at the frog. At the tip, the right elbow also points down: up, the skin of the studio
     rabbit folded at the upper arm. In the rest pose, the
-    violin stands upright on the left thigh, held at its neck, and the bow points up and forward,
-    as a seated violinist rests between the passages: the longer legs of 2026-10-14 give the rabbit
-    a lap. The right paw holds the bow out and forward over the right knee, so that the long arm
-    hangs nearly straight: with the paw at the hip, the bent arm stood out to the side, and the
-    side of the trunk below the right armpit folded. The red foxes take the shoulder hold
+    rabbits and the red foxes rest as the cat violas, as the user asked for the red fox on
+    2026-10-14 and for both on 2026-10-16: the violin stands upright on the lap, with its lower
+    end on the thighs, held at its neck, and the bow lies across the lap in the right paw, about
+    level, with the tip to the left, behind the knees. The lap of each species gives its own
+    places and elbows (`SHOULDER_HOLD` and `FOX_HOLD` of `pose/bowed-rig.ts`). The right paw of
+    the rabbit holds the bow out and up from the right thigh, so that the long arm hangs nearly
+    straight: with the paw at the hip, the bent arm stood out to the side, and the side of the
+    trunk below the right armpit folded. The red foxes take the shoulder hold
     of the rabbits (`FOX_HOLD`), with the tail end against the left side of the short neck under the
     long jaw, the bow slanted 12°, the right shoulder turned 15°, the right elbow at the tip less
     down, the right elbow at the frog further out, and a longer free hair of the bow. With the bow of the rabbit, the skin of the
-    right shoulder of the fox mesh folded in 18% of the play samples. In the rest pose, the red fox
-    rests as the cat violas, as the user asked on 2026-10-14: the violin stands upright on the lap
-    in the middle between the knees, held at its neck, with the scroll at the height of the chest,
-    and the bow lies across the lap in the right
-    paw, about level, with the tip to the left and forward, in front of the violin. `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
+    right shoulder of the fox mesh folded in 18% of the play samples. `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
     `pnpm fold-probe fox-violinist` measure each change
     (`docs/research/2026-10-13-studio-rabbit.md`, `docs/research/2026-10-13-rabbit-mesh.md`,
     `docs/research/2026-10-14-fox-rig.md`). A test keeps the rest bow of each violinist out

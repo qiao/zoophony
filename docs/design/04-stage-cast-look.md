@@ -621,13 +621,18 @@ quarter of the folded faces.
   standing height. The export drops such a body until the lowest point of its skin is on the
   floor, and moves it so that the front edge of the seat of the studio (the bench or the chair)
   meets the front edge of the seat of the app. A seated role with a seat height in `ANIMALS` (the
-  rabbits and the red foxes, since the user said on 2026-10-14 that hanging feet may be cuter,
-  and the polar bear, since the user said on 2026-10-14 that its seat was too low) then rises
-  until its seat is at that height. The feet of the rabbits and the red foxes hang above the
-  floor. The polar bear has shins long enough for its seat, so its soles touch the floor. A seated role
+  polar bear, since the user said on 2026-10-14 that its seat was too low) then rises until its
+  seat is at that height. The polar bear has shins long enough for its seat, so its soles touch
+  the floor. The rabbits and the red foxes have no seat height: the user asked on 2026-10-16 for
+  chairs low enough that their feet touch the floor, so their chairs fit their legs. Their shins
+  slant forward of vertical, so that the knees open and the feet stand in front of the knees, and
+  the soles stand flat on the floor (`studio.legTurns` of `tools/mesh-rigs/<animal>.json`). A seated role
   with a move back in `ANIMALS` (`seatBack`) then moves back toward the chair back, up to the gap
   of the chair back, and the chair grows forward under it by the rest of the move: the user saw
-  the rabbits and the red foxes "sitting on the edge of the chair" on 2026-10-14. `StudioBody.floor` is the point on the floor under
+  the rabbits and the red foxes "sitting on the edge of the chair" on 2026-10-14. The chair of
+  the rig of the rabbit and of the red fox reaches forward to the move back plus 4.5 cm behind the
+  back of the knees, so that the seat of the app ends 4.5 cm behind the back of the knees and the
+  thighs lie on it: the user said "let the fox and rabbit sit in more" on 2026-10-16. `StudioBody.floor` is the point on the floor under
   the body, and the piano stands in front of it (4.6). `StudioBody.seatHeight` is the height of a
   flat seat under the body: the lowest point of the body over the seat, so that the body rests on
   it and no part goes into it. The seat height of the skeleton of the species is that height, so
