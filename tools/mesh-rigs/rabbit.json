@@ -38,16 +38,16 @@
   "studio": {
     "legTurns": {
       "thigh": [0.644927, 0.033118, -0.090639, 0.758127],
-      "shin": [0.170381, 0, 0.034076, 0.984789],
-      "foot": [-0.172681, -0.006863, 0.011069, 0.984892],
-      "toes": [-0.172681, -0.006863, 0.011069, 0.984892]
+      "shin": [0.369524, 0.014585, 0.033068, 0.928518],
+      "foot": [0, 0, 0, 1],
+      "toes": [0, 0, 0, 1]
     },
     "bindArms": {
       "upper_arm": [0.813873, -0.143043, 0.563161],
       "forearm": [0.316246, 0.757051, 0.571719],
       "hand": [-0.078782, 0.677317, 0.731461]
     },
-    "note": "The seat of a long thigh, made with docs/research/2026-10-14-fox-rabbit-form/leg_turns.py: legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The thigh lies level on the seat, 8 degrees out, so that the haunch and the back of the thigh rest on the seat (the user saw the rabbit sitting on the edge of the chair on 2026-10-14), the shin hangs straight down under the knee (the shin of the source slants 20 degrees back), and the foot and the toes turn 20 degrees further down than in the source, as relaxed feet that hang above the floor. The seat of the studio rabbit (a thigh turn of 57 degrees) left the longer thighs slanted down, with the knees low in front of the chair. The bind arms are the bind arms of the studio rabbit (lowpoly-studio/animals/rabbit/out/rabbit.glb), from docs/research/2026-10-13-rabbit-mesh/studio-targets.ts: the unit direction of each left arm bone in the bind pose."
+    "note": "The seat of a long thigh, made with docs/research/2026-10-16-seat-rest/leg_turns.py: legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The thigh lies level on the seat, 8 degrees out, so that the haunch and the back of the thigh rest on the seat (the user saw the rabbit sitting on the edge of the chair on 2026-10-14). The shin slants 23.8 degrees forward of vertical (the shin of the source slants 20 degrees back), so that the knee angle from the side is 113.8 degrees, as the knee of the red fox (tools/mesh-rigs/fox.json), and the feet stand in front of the knees (90 degrees before). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The seat of the studio rabbit (a thigh turn of 57 degrees) left the longer thighs slanted down, with the knees low in front of the chair. The bind arms are the bind arms of the studio rabbit (lowpoly-studio/animals/rabbit/out/rabbit.glb), from docs/research/2026-10-13-rabbit-mesh/studio-targets.ts: the unit direction of each left arm bone in the bind pose."
   },
   "weights": {
     "armSplit": 0.106,
