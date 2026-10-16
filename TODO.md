@@ -525,7 +525,7 @@ the mockup is out of scope.
 - [x] Move the spotlight to the soloed seat: when the user turns on "S" (solo) for one or more
       seats, the key light and its pool move to light the players of those seats, and they move
       back when no seat is soloed (user request of 2026-10-07, design 2.4 and 4.5). Keep the
-      rule "Stateless poses": the light comes from the solo state, not from a timer.
+      rule "Stateless poses": the light comes only from the solo state, and no timer moves it.
 - [x] Make the bottom of the first spotlight wider: the pool of the key light on the stage, as
       the user sees it on the first screen (user request of 2026-10-07, design 4.5).
 - [x] Shorten the arms of the bear (the conductor), as the user asked on 2026-10-07. Keep the
