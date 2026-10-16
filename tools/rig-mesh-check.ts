@@ -192,10 +192,25 @@ export function chainLows(mesh: Pick<StudioMesh, 'positions' | 'joints' | 'weigh
   });
 }
 
+/** The posed vertex of the standing body with the largest error against the source. */
+export interface WorstVertex {
+  /** The index of the vertex in the packed mesh of the studio body. */
+  readonly index: number;
+  /** The distance of the vertex from the nearest vertex of the source, in meters. */
+  readonly error: number;
+  /** The bones of the skin of the vertex with their weights, the largest weight first. */
+  readonly bones: readonly (readonly [StudioBone, number])[];
+}
+
 /** The error of the standing body of the app against the long-armed source of the rig. */
 export interface StandingError {
   /** The largest distance of a posed vertex from the nearest vertex of the source, in meters. */
   readonly worst: number;
+  /**
+   * The posed vertex with the largest error, so that a probe of the cause starts at it, or `null`
+   * with no posed vertex.
+   */
+  readonly worstVertex: WorstVertex | null;
   /** The largest distance of a vertex of the source from the nearest posed vertex, in meters. */
   readonly back: number;
   /** The posed vertices that count. */
@@ -289,20 +304,56 @@ export function standingError(bytes: Uint8Array, body: StudioBody, obj: string):
   // The vertices of the eye shells follow the eye bones.
   const eyes = new Set([STUDIO_BONES.indexOf('eye_L'), STUDIO_BONES.indexOf('eye_R')]);
   const mine: Vector3[] = [];
+  const indices: number[] = [];
   let shells = 0;
   for (let v = 0; v < positions.length / 3; v++) {
     if (eyes.has(rig.mesh.joints[v * 4] ?? -1) && (rig.mesh.weights[v * 4] ?? 0) > 0.5) {
       shells++;
     } else {
       mine.push(new Vector3().fromArray(positions, v * 3));
+      indices.push(v);
     }
   }
+
   const target = objVertices(obj, body.scale);
   const nearest = (p: Vector3, set: readonly Vector3[]): number =>
     set.reduce((best, q) => Math.min(best, p.distanceToSquared(q)), Infinity);
-  const worst = Math.sqrt(mine.reduce((m, p) => Math.max(m, nearest(p, target)), 0));
+  let worst = 0;
+  let worstAt = -1;
+  for (const [k, p] of mine.entries()) {
+    const error = Math.sqrt(nearest(p, target));
+    if (error > worst || worstAt < 0) {
+      worst = error;
+      worstAt = k;
+    }
+  }
   const back = Math.sqrt(target.reduce((m, q) => Math.max(m, nearest(q, mine)), 0));
-  return { worst, back, vertices: mine.length, shells };
+  const index = indices[worstAt];
+  const worstVertex =
+    index === undefined ? null : { index, error: worst, bones: skinOf(rig.mesh, index) };
+  return { worst, worstVertex, back, vertices: mine.length, shells };
+}
+
+/**
+ * Gives the bones of the skin of a vertex with their weights.
+ *
+ * @param mesh The skin of the mesh.
+ * @param v The index of the vertex.
+ * @returns The bones with a weight above 0, the largest weight first.
+ */
+function skinOf(
+  mesh: Pick<StudioMesh, 'joints' | 'weights'>,
+  v: number,
+): (readonly [StudioBone, number])[] {
+  const bones: (readonly [StudioBone, number])[] = [];
+  for (let k = 0; k < 4; k++) {
+    const bone = STUDIO_BONES[mesh.joints[v * 4 + k] ?? -1];
+    const weight = mesh.weights[v * 4 + k] ?? 0;
+    if (bone && weight > 0) {
+      bones.push([bone, weight]);
+    }
+  }
+  return bones.toSorted((a, b) => b[1] - a[1]);
 }
 
 /** The measures of a rig for `--check`. */
@@ -427,6 +478,7 @@ export function measureLines(measures: RigMeasures, module: string, rule: ThinRu
     `Arm from the shoulder joint to the middle of the palm: L ${m(measures.arms.L)}, R ${m(measures.arms.R)}.`,
     `Lowest point above the floor, seated bind (seat height ${m(body.seatHeight)}): ${chainText(measures.floor.seated)}. Standing body: ${chainText(measures.floor.standing)}.`,
     `Standing body against the long-armed source: ${mm(standing.worst)} at most (limit ${mm(STANDING_LIMIT)}), ${mm(standing.back)} back, ${standing.vertices} vertices, ${standing.shells} eye vertices left out.${standing.worst > STANDING_LIMIT ? ' ABOVE THE LIMIT.' : ''}`,
+    `Worst standing vertex: ${worstText(standing.worstVertex)}.`,
     `Thin faces near the joints of the limbs (corner below ${rule.angle}°, longest edge from ${rule.length} u, joint within ${rule.near} u), candidates for a ring:`,
   ];
   for (const [bone, joint] of LIMB_JOINTS) {
@@ -445,6 +497,20 @@ export function measureLines(measures: RigMeasures, module: string, rule: ThinRu
     lines.push('  none');
   }
   return lines;
+}
+
+/**
+ * Writes the posed vertex of the standing body with the largest error.
+ *
+ * @param vertex The vertex, or `null`.
+ * @returns The text, such as `4021, 0.312 mm, bones spine1 0.620, chest 0.380`.
+ */
+function worstText(vertex: WorstVertex | null): string {
+  if (!vertex) {
+    return 'none';
+  }
+  const bones = vertex.bones.map(([bone, weight]) => `${bone} ${weight.toFixed(3)}`).join(', ');
+  return `${vertex.index}, ${(vertex.error * 1000).toFixed(3)} mm, bones ${bones}`;
 }
 
 /**
