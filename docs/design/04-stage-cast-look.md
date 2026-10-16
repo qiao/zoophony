@@ -499,8 +499,17 @@ quarter of the folded faces.
   baton, the violin and the bow that the paws hold, the bench, the chair, and the piano): the app
   keeps its own props (4.5, 4.6) and its own motion. The four digits of a paw of the pianist become
   the one `fingers` bone of the paw, so that they curl together. The rabbit has one finger bone on
-  each paw. The eyes are the gloss shells of the head out of the middle plane, and they get eye
-  bones of their own, so that they blink (5.1).
+  each paw. The export drops the eyes of the mesh: the gloss shells of the head out of the middle
+  plane (the studio eyes of the bears and the gloss fans of a mesh rig). The app puts the pea eyes
+  of the parametric bodies in their places (`addEye()` of `models/eyes.ts`, `StudioBody.eyes`), as
+  the user asked on 2026-10-15. Each eye has an eye bone of its own, so that it blinks (5.1). The
+  eye bone goes into the fur of the head under the middle of the old eye, as on a parametric head
+  (`eyeMiddle()`). The eye faces out from the middle of the box of the head that shows, as an eye
+  on the round head of a parametric body does. The surface under the eye of the bear faces 39° up,
+  so an eye along the normal of the surface hid behind the muzzle in the front view. Then the eye
+  moves out along that direction until the head covers no part of its front face (`eyePush()` of
+  `tools/studio-body.ts`): the muzzle of the bear rises in front of the lower part of its eyes. The
+  eye takes its size from the head that shows, so the eyes of a grown head (`headFactor`) fit it.
 - `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format of a studio body
   with Blender (`tools/blender/rig_mesh.py`), and `AnimalSettings.glb` names its output for
   `pnpm studio-body`. The config `tools/mesh-rigs/<animal>.json` gives the joints, measured on cuts
@@ -539,7 +548,10 @@ quarter of the folded faces.
   config gives the raised bow arm of the red fox such a shape. The tan fox shares the rig, and its
   arms stay out of the fade. Each face takes the nearest color of a
   palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan over its dark faces,
-  so that the body keeps the triangle budget of a studio body (4.5) and a small module. A face takes
+  which marks the eye for the export. After the palette, the faces of the old eye (the dark faces
+  and the faces near them, such as the white of the almond eye of the fox) take the color with the
+  largest area in the ring of faces around them (`recolor_old_eyes()`), so that no outline of the
+  old eye shows around the pea eye. A face takes
   the mean of its texture samples that are not dark, so that the black gaps between the islands of
   the texture do not darken a face at the edge of an island. A studio body can hold other palettes
   of the same faces (`StudioBody.palettes`), and a species selects one (`SpeciesParams.palette`).
@@ -662,8 +674,9 @@ quarter of the folded faces.
   `models/studio-normals.ts`). Each face counts with the angle of its corner. The app makes the
   normals when it loads the body, so the module holds no normal. A corrective shape turns the
   normals of the skin that it moves, so the geometry adds the changes of the normals as morph
-  normals, and the GPU skin turns the normals with the bones. The gloss of the eyes, of the nose,
-  and of the claws keeps flat faces, and the instrument keeps the crease normals of its finishes.
+  normals, and the GPU skin turns the normals with the bones. The gloss of the nose and of the
+  claws keeps flat faces. The pea eyes and the instrument keep the crease normals of their
+  finishes.
   Each body has its own crease angle. The angle of a bear is the angle whose facet contrast is
   nearest to its reference images. The reference rabbits have more facet contrast than each render
   of the app rabbit, so the manager chose its angle from the play frames
@@ -1208,7 +1221,7 @@ The table gives the parts of the parametric body (4.4). The decision files of th
 | Torso and neck | `models/trunk.ts` | A round pear torso with the belly forward, as the animals of `animals.webp`. Its top is under the chin, and a short thick neck joins it to the head, so that the torso and the head hide almost all of the neck. The part below the `chest` bone follows `spine`, and the part above follows `chest` (4.7). |
 | Arms and hands | `models/arms.ts` | Today two thin limbs for each arm, and a round mitten of two faceted balls for the palm and the fingers. The target is the arms of the reference images: thick arms with large flat facets, which lie close to the body and hold the instrument against it (`animals.webp`, `lowpoly-animals.png`). The upper arm starts in a dome around the shoulder joint, so that the shoulder is a round ball that sinks into the torso in each pose (`SHOULDER_JOINT` of `models/body-frame.ts`). The shoulder is about 0.6 of the seated height from the middle of the palm, as the reference image shows. |
 | Legs and feet | `models/legs.ts` | A round thigh that rests on the seat and slopes a little down to the knee, a faceted ball at the knee near the height of the seat, a shin that goes straight down and narrows little to the ankle, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The skeleton sets the height of the chair and of the foot ring, so it sets the length of the shin (4.3, short legs). The stool of the harp keeps its height for the strings, so its player has longer shins. The piano bench fits the legs of the studio polar bear (props, below). A standing leg is a straight column with no step at the knee. The radii come from the reference images (4.3, short legs). The toes keep clear of the legs of the shared music stands. |
-| Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. No mouth: only the egg body of the penguin has a lower beak on `jaw` (4.4, 4.7). |
+| Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. The studio bodies have the same eyes (`addEye()`), sized by the head that shows and placed by `StudioBody.eyes` (4.4). No mouth: only the egg body of the penguin has a lower beak on `jaw` (4.4, 4.7). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). The long and the pointed ears are flat plates with a sharp outline and an inner plate, as in `animals.webp`. The large-round ears sit high and out to the sides, so that the mouse does not look like the bear. The large-flap ear points back and out, so that two elephants on neighbor seats keep apart. |
 | Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long muzzle starts high on the face, so that its top continues the forehead. The tip of the trunk is the nose. The parametric beak of the penguin left the app on 2026-10-11 with the egg body, which has a beak of its own (4.4). |
 | Tails | `models/tails.ts` | The tail type of the species (4.3). A long tail leaves the body at the seat, goes back through the open back of the chair under its top rail, and hangs down. The puff sits low on the back, so that it shows at the seat in the back view, as in `animals.webp`. |
@@ -1245,11 +1258,13 @@ through the open back. A floor instrument, such as the cello, moves with the bod
   and the left half of a loft is the mirror image of its right half. The target is the facets of
   the reference images: large, flat, and clean facets that follow the form of each animal
   (design 1, `lowpoly-animals.png` and `animals.webp`).
-- A body has at most 2,600 triangles. A studio body keeps the faces of its GLB file, so it has a
-  budget of its own of 3,200. The rabbit and the red fox play in the violin sections, so many
-  studio bodies share the scene, and the budget of the full scene holds the frame. The fox mesh of
-  the user needs 3,135 triangles with its eye fans, so the manager raised the budget from 3,100 on
-  2026-10-14. An instrument has
+- A body has at most 2,600 triangles. A studio body keeps the faces of its GLB file, so its GLB
+  file has a budget of its own of 3,200 faces. The rabbit and the red fox play in the violin
+  sections, so many studio bodies share the scene, and the budget of the full scene holds the
+  frame. The fox mesh of the user needs 3,135 triangles with its eye fans, so the manager raised
+  the budget from 3,100 on 2026-10-14. The pea eyes add their 144 triangles to a studio body, as
+  the eyes of a parametric body count in its budget, so the app body of the rabbit and of the fox
+  has more than 3,200 triangles (`docs/decisions/2026-10-15-pea-eyes.md`). An instrument has
   at most 800, except the timpani (1,200)
   and the piano (2,000). A chair or the piano bench has at most 120, and a stand at most 80. The
   full scene with 60 players has at most 200,000 triangles. The frame cost of `perf-60.mid` on
@@ -1661,12 +1676,14 @@ bones:
   parts on `tail1` and `tail2`. The leg is the thigh on `thigh`, the knee ball and the shin on
   `shin`, and the foot on `foot`. No pose turns the legs.
 - A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
-  studio, two eye bones, and the optional tip of a tail of two bones (`tail_tip`, the red fox).
+  studio, two eye bones for the pea eyes, and the optional tip of a tail of two bones (`tail_tip`,
+  the red fox).
   Each vertex follows up to four of them, and two corrective shapes move the skin of the arms. A
   third shape moves the skin of a raised arm of a mesh rig. The scene gives the mesh one bone for each studio bone and one for
   each bone of the player, and `poseStudioBones()` writes their matrices from the pose of the
   player. The bones of the player keep the list below, so the pose code drives a studio body as
-  each other body.
+  each other body. The pea eyes are on the eye bones of the player, and the render mesh moves them
+  with the eye bones of the studio, which the blink scales (`studioRenderMesh()`).
 - The egg body of the penguin (4.4) is rigid too. Its body is two parts on `spine` and `chest`,
   its head with the upper beak is on `head`, and its lower beak is on `jaw`. Each flipper is three
   parts on `upperArm`, `forearm`, and `hand`. Its feet are on `foot`, and its thighs and shins
