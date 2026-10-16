@@ -16,9 +16,11 @@ import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import {
   OPTIONAL_STUDIO_BONES,
+  STUDIO_ARM_BONES,
   STUDIO_BONES,
   STUDIO_LEG_BONES,
   STUDIO_TAIL_BONES,
+  STUDIO_TRUNK_BONES,
   packStudioMesh,
   packStudioPalette,
 } from '../src/models/studio-format.ts';
@@ -28,11 +30,9 @@ import type {
   StudioBone,
   StudioEyes,
   StudioHeads,
-  StudioLegBone,
   StudioPalette,
   StudioRaise,
   StudioStanding,
-  StudioTailBone,
   StudioTriangle,
   StudioVertex,
 } from '../src/models/studio-format.ts';
@@ -379,6 +379,12 @@ interface Gltf {
        * file has no move when the rig smooths no part of the mesh.
        */
       readonly headShift?: readonly number[];
+      /**
+       * The turn of the pelvis by which the rig reclines the trunk of the seated bind pose, in
+       * degrees (`studio.trunk` of the config of the mesh rig). The file has none when the trunk
+       * keeps the form of the source.
+       */
+      readonly trunk?: number;
       /**
        * The pose of the corrective shape of a raised arm (`raise` of the config of the mesh rig):
        * the side, the world turn of the upper arm from the bind pose as x, y, z, w in the axes of
@@ -1338,6 +1344,37 @@ function seatOf(glb: Glb): SeatProp {
 }
 
 /**
+ * Gives the height of the left shoulder joint of the standing body, the landmark of the scale of
+ * an animal on its shoulders (design 4.4): the head of the joint in the bind pose, or in the clip
+ * `reference` when a rig reclines the trunk of the seated bind pose (`studio.trunk` of
+ * `pnpm rig-mesh`, {@link reclines}), so that the recline does not change the scale.
+ *
+ * @param glb The file.
+ * @param skeleton The bind pose.
+ * @returns The height, in the units of the studio.
+ */
+function standingShoulder(glb: Glb, skeleton: SourceSkeleton): number {
+  if (!reclines(glb)) {
+    return headOf(skeleton, 'upper_arm_L').y;
+  }
+  const posed = worldMatrices(glb.json, firstKeys(glb, 'reference').nodes);
+  return new Vector3().setFromMatrixPosition(
+    posed[skeleton.nodes.get('upper_arm_L') ?? -1] ?? new Matrix4(),
+  ).y;
+}
+
+/**
+ * Finds if the rig of a GLB file reclines the trunk of its seated bind pose (`studio.trunk` of
+ * the config of the mesh rig): the clip `reference` then turns the trunk upright.
+ *
+ * @param glb The file.
+ * @returns True for a reclined trunk.
+ */
+function reclines(glb: Glb): boolean {
+  return (glb.json.asset?.extras?.trunk ?? 0) !== 0;
+}
+
+/**
  * Finds the scale and the move of the studio animal in the app (design 4.4). A standing body keeps
  * its place: the soles of the studio are on the floor. A seated body drops until the lowest point
  * of its mesh, a sole, is on the floor, and moves forward so that the front edge of the seat of
@@ -1361,7 +1398,7 @@ function sceneFrame(
 ): SceneFrame {
   const landmark =
     settings.landmark === 'shoulders'
-      ? headOf(skeleton, 'upper_arm_L').y
+      ? standingShoulder(glb, skeleton)
       : propBox(glb, (name) => name.startsWith('piano_key_')).max.y;
   const scale = settings.height / landmark;
   if (!settings.seated) {
@@ -1487,34 +1524,40 @@ function standingOf(glb: Glb, skeleton: SourceSkeleton, frame: SceneFrame): Stud
   const hips = new Vector3().setFromMatrixPosition(
     posed[skeleton.nodes.get('hips') ?? -1] ?? new Matrix4(),
   );
+  const reclined = reclines(glb);
   if (
-    hips.distanceTo(headOf(skeleton, 'hips')) > 1e-4 ||
-    turn('hips').angleTo(new Quaternion()) > 1e-3
+    !reclined &&
+    (hips.distanceTo(headOf(skeleton, 'hips')) > 1e-4 ||
+      turn('hips').angleTo(new Quaternion()) > 1e-3)
   ) {
     throw new Error('The hips move in the pose of the sheet, so the legs alone do not make it.');
   }
   // The turn of a half circle around y moves a rotation into the model axes: x and z change sign.
   const model = (q: Quaternion): Quat => [round(-q.x), round(q.y), round(-q.z), round(q.w)];
+  const turns = <T extends string>(bones: readonly T[]): Record<T, Quat> =>
+    // SAFETY: the entries hold each bone of the list one time.
+    Object.fromEntries(bones.map((bone) => [bone, model(turn(bone))])) as Record<T, Quat>;
+  const two = skeleton.binds.has('tail_tip');
   const standing: StudioStanding = {
     lift: toModelAxes(frame.offset.clone().negate(), frame.scale),
-    // SAFETY: the entries hold each bone of STUDIO_LEG_BONES one time.
-    turns: Object.fromEntries(STUDIO_LEG_BONES.map((bone) => [bone, model(turn(bone))])) as Record<
-      StudioLegBone,
-      Quat
-    >,
+    turns: turns(STUDIO_LEG_BONES),
   };
-  if (!skeleton.binds.has('tail_tip')) {
-    return standing;
+  // A rig with a reclined trunk (`studio.trunk` of `pnpm rig-mesh`) turns the trunk upright
+  // around the head of the hips, and the arms of the sheet solve the arm shapes of the standing
+  // body again (`StudioStanding.armTurns`).
+  const upright: StudioStanding = reclined
+    ? {
+        ...standing,
+        trunkTurns: turns([...STUDIO_TRUNK_BONES, ...(two ? [] : (['tail'] as const))]),
+        armTurns: turns(STUDIO_ARM_BONES),
+      }
+    : standing;
+  if (!two) {
+    return upright;
   }
   // A tail of two bones goes back through the chair in the bind pose, and it hangs in the pose of
   // the sheet.
-  return {
-    ...standing,
-    // SAFETY: the entries hold each bone of STUDIO_TAIL_BONES one time.
-    tailTurns: Object.fromEntries(
-      STUDIO_TAIL_BONES.map((bone) => [bone, model(turn(bone))]),
-    ) as Record<StudioTailBone, Quat>,
-  };
+  return { ...upright, tailTurns: turns(STUDIO_TAIL_BONES) };
 }
 
 /** The output of the export of a studio body. */
@@ -1935,8 +1978,10 @@ export function inspectStudioGlb(
     constant: '',
     crease: 0,
   };
+  // The export takes the shoulders of the standing body, as the clip `reference` gives them for a
+  // rig with a reclined trunk (`standingShoulder()`).
   const landmark =
-    used.landmark === 'shoulders' ? heightOf(nodeOf('upper_arm_L'), worlds) : keys?.box.max.y;
+    used.landmark === 'shoulders' ? standingShoulder(glb, readSkeleton(glb)) : keys?.box.max.y;
   if (landmark === undefined) {
     throw new Error('The file has no keys `piano_key_*` for the landmark of the settings.');
   }
