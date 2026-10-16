@@ -42,6 +42,8 @@
       "foot": [0, 0, 0, 1],
       "toes": [0, 0, 0, 1]
     },
+    "trunk": { "open": 0, "shares": { "hips": 1, "spine": 1, "spine1": 1, "chest": 0.667, "neck": 0.333, "head": 0 } },
+    "trunkNote": "The recline of the trunk in the seated bind (trunk_turn() of tools/blender/rig_mesh.py): the pelvis turns back around the head of the hips until the hip angle from the side opens by open degrees, and each trunk bone takes its share of that turn as its world turn. The shares fall from the spine1 to the head, so that the chest, the neck, and the head share the counter turn, and the head stays level. The haunch and the root of the tail rise onto the seat top of the upright body (seat_lift()). The value 0 keeps the trunk of the source.",
     "bindArms": {
       "upper_arm": [0.813873, -0.143043, 0.563161],
       "forearm": [0.316246, 0.757051, 0.571719],
