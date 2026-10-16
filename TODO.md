@@ -13,8 +13,7 @@ each section.
 3. Do the task in one or more small commits (AGENTS.md). Ship the tests in the same commits.
 4. In the last commit of the task, change its `[ ]` to `[x]`.
 5. At the end of a step, check its "Done when" list. Then do the review of design 9.8. The
-   manager reads the report and the images. A short review agent runs only for the code that 9.8
-   names. After "Review:", write the date and the kind of review: "agent review" or "manager
+   manager reads the report and the images. After "Review:", write the date and "manager
    review". Then start the next step.
 6. If a task is blocked, add a line `Blocked: <reason>` under it, and ask the user.
 7. If the work shows a new task, add it under its step, unchecked, with one line on the reason.
