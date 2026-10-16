@@ -13,7 +13,6 @@ import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import { STUDIO_BODIES } from './studio-body.ts';
-import type { StudioBody } from './studio-format.ts';
 
 /**
  * The colors of the stage, the steps, the podium, and the choir risers (design 4.5, scene
@@ -72,10 +71,7 @@ export const CHAIR = {
 
 /** The heights of a seat (design 4.5, props). */
 export interface SeatHeights {
-  /**
-   * The height of the top of the seat above the floor, in meters. A seat top that slopes forward
-   * has this height at its back edge.
-   */
+  /** The height of the top of the seat above the floor, in meters. */
   readonly seatHeight: number;
   /**
    * The height of the rest under the feet, in meters: 0 for the floor, or the height of the foot
@@ -88,13 +84,6 @@ export interface SeatHeights {
    * under the parametric biped, keep their own depth.
    */
   readonly seatDepth?: number;
-  /**
-   * The forward tilt of the seat top of a chair under a studio body, in radians
-   * (`StudioBody.seatTilt`): the seat top slopes down from its back edge toward its front edge,
-   * under the thighs that slope down from the hips to the knees (design 5.2). The other seats
-   * are level.
-   */
-  readonly seatTilt?: number;
 }
 
 /**
@@ -215,22 +204,12 @@ export function seatHeights(support: Support, species: SpeciesParams): SeatHeigh
   const legs = proportions.seatHeight * proportions.headHeight;
   switch (support) {
     case 'chair': {
-      // A studio body sits on a chair as deep as the chair of the studio, with the tilt of the
-      // seat of its rig (design 4.4).
-      const body: StudioBody | null =
-        species.body && species.body !== 'penguin' ? STUDIO_BODIES[species.body] : null;
-      if (!body || body.chairDepth === null) {
-        return { seatHeight: legs, footHeight: 0 };
-      }
-      if (body.seatTilt === undefined) {
-        return { seatHeight: legs, footHeight: 0, seatDepth: body.chairDepth };
-      }
-      return {
-        seatHeight: legs,
-        footHeight: 0,
-        seatDepth: body.chairDepth,
-        seatTilt: body.seatTilt,
-      };
+      // A studio body sits on a chair as deep as the chair of the studio (design 4.4).
+      const depth =
+        species.body && species.body !== 'penguin' ? STUDIO_BODIES[species.body].chairDepth : null;
+      return depth === null
+        ? { seatHeight: legs, footHeight: 0 }
+        : { seatHeight: legs, footHeight: 0, seatDepth: depth };
     }
     case 'stool':
       return { seatHeight: STOOL.seatHeight, footHeight: 0 };
@@ -288,42 +267,27 @@ function addBox(builder: MeshBuilder, part: Bounds, color: Rgb): void {
 /**
  * Builds a chair: a seat, four legs, two back posts, and a wide top rail (design 4.5). The seat
  * center of the chair of design 4.5 is above the origin, and the back is at +z. A shorter seat
- * keeps the back, and its front edge is further back (`StudioBody.chairDepth`). A tilted seat
- * keeps its height at its back edge, and its top slopes down toward the front edge
- * (`StudioBody.seatTilt`).
+ * keeps the back, and its front edge is further back (`StudioBody.chairDepth`).
  *
- * @param seatHeight The height of the seat at its back edge, in meters.
+ * @param seatHeight The height of the seat, in meters.
  * @param seatDepth The depth of the seat, in meters.
- * @param seatTilt The forward tilt of the seat top, in radians.
  * @returns The mesh data, with all vertices on bone 0.
  */
-export function buildChair(
-  seatHeight: number,
-  seatDepth: number = CHAIR.seatDepth,
-  seatTilt = 0,
-): MeshData {
+export function buildChair(seatHeight: number, seatDepth: number = CHAIR.seatDepth): MeshData {
   const c = { ...CHAIR, seatHeight };
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.chair;
   const x = c.seatWidth / 2 - CHAIR_LEG / 2;
   const center = (c.seatDepth - seatDepth) / 2;
   const z = seatDepth / 2 - CHAIR_LEG / 2 - center;
-  const slope = Math.tan(seatTilt);
-  // The height of the seat top at a z: it falls toward the front edge (-z).
-  const topAt = (pz: number): number => c.seatHeight - (c.seatDepth / 2 - pz) * slope;
-  // The seat turns around x, so that its back edge rises: the axis -seatTilt.
-  const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -seatTilt);
-  const up = new Vector3(0, 1, 0).applyQuaternion(tilt);
-  builder.add(box(c.seatWidth, 0.04, seatDepth / Math.cos(seatTilt)), {
+  addBox(
+    builder,
+    centeredBox([0, c.seatHeight - 0.02, center], [c.seatWidth, 0.04, seatDepth]),
     color,
-    at: transform(
-      toVec3(new Vector3(0, topAt(center), center).addScaledVector(up, -0.02)),
-      toQuat(tilt),
-    ),
-  });
+  );
   for (const side of [-1, 1]) {
     // A front leg up to the seat. The back legs are the posts of the back.
-    const legHeight = topAt(-z) - 0.04;
+    const legHeight = c.seatHeight - 0.04;
     addBox(
       builder,
       centeredBox([side * x, legHeight / 2, -z], [CHAIR_LEG, legHeight, CHAIR_LEG]),
@@ -448,7 +412,7 @@ export function buildSupport(support: Support, seat: SeatHeights | null): MeshDa
 
   switch (support) {
     case 'chair':
-      return buildChair(seat.seatHeight, seat.seatDepth, seat.seatTilt);
+      return buildChair(seat.seatHeight, seat.seatDepth);
     case 'stool':
       return buildStool(false, seat);
     case 'high-stool':
@@ -619,13 +583,7 @@ export function buildSceneProps(layout: SceneLayout): MeshData {
   for (const player of layout.players) {
     const { support, species } = player.cast;
     const heights = seatHeights(support, SPECIES[species]);
-    const key = [
-      support,
-      heights?.seatHeight,
-      heights?.footHeight,
-      heights?.seatDepth,
-      heights?.seatTilt,
-    ].join(' ');
+    const key = `${support} ${String(heights?.seatHeight)} ${String(heights?.footHeight)}`;
     if (!seats.has(key)) {
       seats.set(key, buildSupport(support, heights));
     }
