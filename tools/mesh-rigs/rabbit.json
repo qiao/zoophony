@@ -108,6 +108,7 @@
     "front": 0.0518,
     "back": -0.16,
     "backHeight": 0.15,
+    "tilt": 0,
     "note": "Its front edge lies 0.051 units (7.5 cm) behind the back of the knees of the seated bind (the shins from z 0.103, pnpm rig-mesh prints it), so that no shin lies over the seat, and the haunch (z -0.04 to -0.19) and the thighs sit on it. The chair of the app is 0.03 m deeper at the front (seatBack of ANIMALS), so that its front edge is 4.5 cm behind the back of the knees, as on a real chair. The user said \"let the fox and rabbit sit in more\" on 2026-10-16. The seat top is the lowest point of the seated body over the seat: the thighs near the knees, 0.021 units below the seat top of the chair that ended behind the heels."
   },
   "sit": {
