@@ -5,7 +5,7 @@ import { chromium } from '@playwright/test';
 import type { Browser, Page } from '@playwright/test';
 import { preview } from 'vite';
 
-import { DEFAULT_DEMO, DEMO_IDS } from '../src/app/demos.ts';
+import { DEFAULT_DEMO, DEMOS, DEMO_IDS } from '../src/app/demos.ts';
 import type { DemoId } from '../src/app/demos.ts';
 import { BAR_HIDE_SEC } from '../src/app/bar-rules.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
@@ -1210,7 +1210,7 @@ export function playCamera(text: string): PlayCamera {
  * @param args The arguments after the script.
  * @returns The command line, or `null` when the first argument is not `play`.
  * @throws Error that lists the correct names, for an unknown demo or camera, and an error for a
- *   wrong time, a wrong option, or a missing word.
+ *   wrong time, a time at or after the end of the demo, a wrong option, or a missing word.
  */
 export function playArgs(args: readonly string[]): PlayArgs | null {
   if (args[0] !== 'play') {
@@ -1232,6 +1232,13 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
   const time = Number(timeText);
   if (!/^\d+(?:\.\d+)?$/.test(timeText) || !Number.isFinite(time)) {
     throw new Error(`The time "${timeText}" is not a song time in seconds, such as 6 or 30.5.`);
+  }
+  // The seek bar does not pass the end, and the bar shows when the music stops.
+  const { lengthSec } = DEMOS[demo];
+  if (time >= lengthSec) {
+    throw new Error(
+      `The time ${time} s is not before the end of the demo ${demo} (${lengthSec} s).`,
+    );
   }
   const cameras = (line.options.get('--camera') ?? ['default']).map(playCamera);
   const url = line.options.get('--url')?.[0] ?? null;
