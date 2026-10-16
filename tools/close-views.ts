@@ -804,6 +804,45 @@ async function lineupViews(
   );
 }
 
+/** The first argument that only checks the command line: the tool then builds and renders nothing. */
+export const CHECK_FLAG = '--check';
+
+/** The command line of one mode of the tool. */
+export type CloseMode =
+  | {
+      /** The close view of a role. */
+      readonly kind: 'role';
+      /** The command line of the role. */
+      readonly args: CloseViewsArgs;
+    }
+  | {
+      /** A lineup of species. */
+      readonly kind: 'lineup';
+      /** The command line of the lineup. */
+      readonly args: LineupArgs;
+    };
+
+/**
+ * Reads the command line of one mode of the tool.
+ *
+ * @param args The arguments after the script, with no {@link CHECK_FLAG}.
+ * @returns The mode, or `null` when no mode matches.
+ */
+export function closeModeArgs(args: readonly string[]): CloseMode | null {
+  const lineup = lineupArgs(args);
+  if (lineup) {
+    return { kind: 'lineup', args: lineup };
+  }
+  const role = closeViewsArgs(args);
+  return role ? { kind: 'role', args: role } : null;
+}
+
+/** The usage text of the tool. */
+const USAGE = [
+  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--url <url>] [--base <ref>]`,
+  '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
+].join('\n');
+
 /**
  * Renders the close view of a role:
  * `node tools/close-views.ts <role> <dir> [--url <url>] [--base <ref>]` (design 7.1), or a lineup
@@ -811,33 +850,32 @@ async function lineupViews(
  * the animal of the role at each moment from each view into `<dir>`, and the grid of all cells as
  * `<role>-views.png` and `<role>-views.webp`. With `--url`, it uses a running site, such as the
  * dev server, in place of the built site. With `--base`, it also builds the commit in a temporary
- * folder, and writes the grid of the commit above the grid of the working tree.
+ * folder, and writes the grid of the commit above the grid of the working tree. With
+ * {@link CHECK_FLAG} first, it only checks the command line and the commit, so that the script of
+ * `package.json` stops before the build on a wrong command line.
  */
 async function main(): Promise<void> {
-  const argv = process.argv.slice(2);
-  const lineup = lineupArgs(argv);
-  const args = lineup ? null : closeViewsArgs(argv);
-  const asked = lineup ?? args;
-  if (!asked) {
-    console.error(
-      [
-        `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--url <url>] [--base <ref>]`,
-        '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
-      ].join('\n'),
-    );
+  const all = process.argv.slice(2);
+  const check = all[0] === CHECK_FLAG;
+  const mode = closeModeArgs(check ? all.slice(1) : all);
+  if (!mode) {
+    console.error(USAGE);
     process.exit(1);
   }
-  if (asked.base !== null) {
+  if (mode.args.base !== null) {
     // An unknown commit stops the tool before the first render.
     try {
-      shortHash(asked.base);
+      shortHash(mode.args.base);
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));
       process.exit(1);
     }
   }
+  if (check) {
+    return;
+  }
 
-  const { out, url } = asked;
+  const { out, url } = mode.args;
   await mkdir(out, { recursive: true });
   const site = url
     ? {
@@ -847,18 +885,18 @@ async function main(): Promise<void> {
       }
     : await startSite(ROOT, SERVER_PORT);
   try {
-    if (lineup) {
-      await lineupViews(lineup, site);
-    } else if (args) {
-      const { role: name } = args;
+    if (mode.kind === 'lineup') {
+      await lineupViews(mode.args, site);
+    } else {
+      const { role: name } = mode.args;
       const role = ROLE_VIEWS[name];
       const views = await renderViews(site.browser, site.base, name, out, `${name}-`);
       const sheet = await grid(site.browser, views.cells, views.labels, role.views.length);
       await writeFile(join(out, `${name}-views.png`), sheet);
       await writeFile(join(out, `${name}-views.webp`), await toWebp(site.browser, sheet));
       console.log(join(out, `${name}-views.png`));
-      if (args.base !== null) {
-        await renderBase(site.browser, args.base, name, out, views);
+      if (mode.args.base !== null) {
+        await renderBase(site.browser, mode.args.base, name, out, views);
       }
     }
   } finally {
