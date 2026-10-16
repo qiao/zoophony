@@ -127,7 +127,6 @@
     "front": 0.1145,
     "back": -0.16,
     "backHeight": 0.15,
-    "tilt": 0,
     "note": "The chair is wider than the chair of the rabbit rig, because the haunch of the fox is x ±0.17. Its front edge lies 0.055 units (8.5 cm) behind the back of the knees of the seated bind (the shins from z 0.169, pnpm rig-mesh prints it), so that the long thighs lie on the seat and no shin lies over it. The chair of the app is 0.04 m deeper at the front (seatBack of ANIMALS), so that its front edge is 4.5 cm behind the back of the knees, as on a real chair. The user said \"let the fox and rabbit sit in more\" on 2026-10-16. The seat top is the lowest point of the seated body over the seat, with no shin, foot, or tail."
   },
   "sit": {
