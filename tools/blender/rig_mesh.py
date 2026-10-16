@@ -38,7 +38,8 @@ reads it (route 3 of `AGENTS.md`). The steps:
    the trunk then reclines: the pelvis turns back around the head of the hips until the hip
    angle opens by `open` degrees (`trunk_turn()`), each trunk bone takes its share of the turn,
    the haunch and the root of the tail rise onto the seat top (`seat_lift()`), and the tip of a
-   tail of two bones keeps the height of its end.
+   tail of two bones keeps the height of its end. With `crease`, the bind is smoothed across the
+   crease where the belly meets the top of each thigh (`crease_relax()`).
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. `pnpm studio-body` finds each eye by its fan, drops the
    fan, and puts the pea eye of the app at its place (design 4.5). The faces of the nose become
@@ -1495,6 +1496,57 @@ def default_moving(weights):
     return moving
 
 
+def crease_relax(bind, tris, weights, hip, rule):
+    """Smooths the seated bind across the crease where the belly meets the top of each thigh. The
+    sloped thighs and the upright trunk fold the mesh there, and the faces of the fold face away
+    from the light, so a dark line shows. The seam is each vertex of both a face of the trunk
+    (main bone `hips`, `spine`, or `spine1`) and a face of a thigh, in front of the hip joints
+    (`z` above `hip[2]` less `back` units) and above the seat (`y` above `hip[1]` less `below`
+    units). The region is the seam and `rings` rings of its neighbors. Each vertex of the region
+    moves `share` of the way to the middle of its neighbors in each of `rounds` rounds, times a
+    weight that falls from 1 on the seam to 0 beyond the last ring, and less its share of the
+    weight of the shins, the feet, the arms, and the tail, which keep their places. The corrective
+    shapes give the source back, so the standing body keeps its form. Gives the smoothed bind, the
+    number of the seam vertices, the number of the moved vertices, and the largest move."""
+    main = weights[tris].sum(axis=1).argmax(axis=1)
+    trunk = [BONES.index(b) for b in ('hips', 'spine', 'spine1')]
+    thighs = [BONES.index(f'thigh_{s}') for s in 'LR']
+    on_trunk = np.zeros(len(bind), bool)
+    on_thigh = np.zeros(len(bind), bool)
+    on_trunk[tris[np.isin(main, trunk)].ravel()] = True
+    on_thigh[tris[np.isin(main, thighs)].ravel()] = True
+    seam = (on_trunk & on_thigh & (bind[:, 2] > hip[2] - rule['back'])
+            & (bind[:, 1] > hip[1] - rule['below']))
+    neighbors = [set() for _ in range(len(bind))]
+    for a, b, c in tris:
+        neighbors[a].update((b, c))
+        neighbors[b].update((a, c))
+        neighbors[c].update((a, b))
+    ring = np.full(len(bind), -1)
+    ring[seam] = 0
+    front = list(np.nonzero(seam)[0])
+    for k in range(1, rule['rings'] + 1):
+        grown = []
+        for i in front:
+            for j in neighbors[i]:
+                if ring[j] < 0:
+                    ring[j] = k
+                    grown.append(j)
+        front = grown
+    fixed = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') + ARM for s in 'LR']
+    fixed += [BONES.index(b) for b in ('tail', TAIL_TIP) if b in BONES]
+    free = 1.0 - np.clip(weights[:, fixed].sum(axis=1), 0.0, 1.0)
+    ids = np.nonzero(ring >= 0)[0]
+    w = (1.0 - ring[ids] / (rule['rings'] + 1.0)) * free[ids] * rule['share']
+    rings = [np.array(sorted(neighbors[i])) for i in ids]
+    out = bind.copy()
+    for _ in range(rule['rounds']):
+        mids = np.array([out[r].mean(axis=0) for r in rings])
+        out[ids] += w[:, None] * (mids - out[ids])
+    moves = np.linalg.norm(out - bind, axis=1)
+    return out, int(seam.sum()), int((moves > 1e-6).sum()), float(moves.max(initial=0.0))
+
+
 def haunch_mask(weights):
     """Gives the vertices that the hips or the tail move: the haunch, which a recline turns into
     the seat (`seat_lift()`), and the root of the tail."""
@@ -2409,6 +2461,14 @@ def main():
             f'{top:.4f} u of the upright body, at most {most:.4f} u ({most * meters * 100:.2f} cm). '
             f'The lowest point over the seat is {seat_top(bind, weights, config["chair"]):.4f} u. '
             f'After {rounds} rounds of relaxing, {int((dots < 0).sum())} faces turn over'
+            f'{turned_on(dots, main_bone)}')
+
+    if config.get('crease', {}).get('rounds', 0) > 0:
+        bind, seam, moved, largest = crease_relax(bind, tris, weights, bind_heads['thigh_L'],
+                                                  config['crease'])
+        dots = turn_dots(long_verts, bind, tris, weights, matrices)
+        log(f'crease: {seam} seam vertices, {moved} vertices move, at most {largest:.4f} u '
+            f'({largest * meters * 100:.2f} cm). {int((dots < 0).sum())} faces turn over'
             f'{turned_on(dots, main_bone)}')
 
     src_all, bind_all, tris_all, colors_all, materials, old_eyes, near_dark = add_eye_shells(
