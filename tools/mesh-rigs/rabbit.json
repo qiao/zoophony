@@ -98,7 +98,8 @@
     "lift": 0.002,
     "points": 12,
     "reach": 1,
-    "note": "Each eye shell is a fan from the middle of the dark faces of the eye to at most this number of points of their edge, lifted this far (units) along the normal of the eye, so that the shells keep the triangles within the budget of a studio body. pnpm studio-body finds each eye by its fan, drops the fan, and the app puts its pea eye there (design 4.5). The old eye is the dark faces and each face whose middle lies within reach times the radius of their edge, seen along the normal of the eye. After the palette, the faces of the old eye take the color with the largest area in the ring of faces that share a corner with it, so that no outline of the old eye shows around the pea eye. The value of reach is the value of the fox."
+    "darkReach": 2,
+    "note": "Each eye shell is a fan from the middle of the dark faces of the eye to at most this number of points of their edge, lifted this far (units) along the normal of the eye, so that the shells keep the triangles within the budget of a studio body. pnpm studio-body finds each eye by its fan, drops the fan, and the app puts its pea eye there (design 4.5). The old eye is the dark faces and each face whose middle lies within reach times the radius of their edge, seen along the normal of the eye. After the palette, the faces of the old eye take the color with the largest area in the ring of faces that share a corner with it, so that no outline of the old eye shows around the pea eye. Then each patch of dark faces (the faces that share corners) that no old eye holds, with its middle within darkReach times the radius of the edge and within half the radius of its plane, takes the color with the largest area in the ring of faces that share a corner with the patch. The values of reach and darkReach are the values of the fox."
   },
   "chair": {
     "halfWidth": 0.16,

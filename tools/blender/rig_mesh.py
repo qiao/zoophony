@@ -41,7 +41,9 @@ reads it (route 3 of `AGENTS.md`). The steps:
    gloss. Each face takes the nearest color of a palette in Oklab. Then each face of the old eye
    (the dark faces and the faces near them, such as the white of the eye, `old_eye_faces()`) takes
    the color with the largest area in the ring of faces around the old eye (`recolor_old_eyes()`),
-   so that no outline of the old eye shows. The faces go in the order of a walk over their shared
+   so that no outline of the old eye shows. Each patch of dark faces near an old eye that no old
+   eye holds, such as the end of the upper lid line of the fox, takes the color of its own ring in
+   the same way (`dark_faces_near()`). The faces go in the order of a walk over their shared
    edges.
 8. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
@@ -1641,12 +1643,38 @@ def old_eye_faces(points, tris, faces, loop, normal, rule):
     return np.union1d(faces, np.nonzero(near)[0])
 
 
+def dark_faces_near(points, tris, dark, taken, loop, normal, rule):
+    """Finds the dark faces near the old eye of one side that no old eye holds, such as the end of
+    the black upper lid line of the almond eye of the fox above its inner corner: each dark face
+    (`face_colors()`) whose middle lies within `darkReach` times the radius of the edge of the
+    dark faces of the eye from the middle of the edge, seen along the normal of the eye, and within
+    half that radius of the plane of the edge. The faces in `taken` do not count. Gives the faces
+    in patches: the faces of a patch share corners, and the faces of two patches share none."""
+    ring = points[loop]
+    center = ring.mean(axis=0)
+    radius = np.linalg.norm(np.cross(ring - center, normal), axis=1).max()
+    mids = points[tris].mean(axis=1) - center
+    across = np.linalg.norm(np.cross(mids, normal), axis=1)
+    near = (dark & (across <= rule['darkReach'] * radius)
+            & (np.abs(mids @ normal) <= 0.5 * radius))
+    near[np.asarray(list(taken), int)] = False
+    patches = []
+    for f in np.nonzero(near)[0]:
+        corners = set(int(c) for c in tris[f])
+        joined = [p for p in patches if corners & p[1]]
+        faces = [int(f)] + [g for p in joined for g in p[0]]
+        corners |= set(c for p in joined for c in p[1])
+        patches = [p for p in patches if p not in joined] + [(faces, corners)]
+    return [np.array(sorted(faces)) for faces, _ in patches]
+
+
 def recolor_old_eyes(colors, tris, points, old):
-    """Gives each face of an old eye the color of the fur around it, so that no outline of the old
-    eye shows around the pea eye of the app (design 4.5): the color with the largest area in the
-    ring of faces that share a corner with the old eye. A single color keeps the lid shading of the
-    ring, such as the brown faces above the right eye of the fox, out of the old eye. Gives the new
-    colors and the share of the area of the ring that has the color."""
+    """Gives each face of an old eye, or of a patch of dark faces near it (`dark_faces_near()`),
+    the color of the fur around it, so that no outline of the old eye shows around the pea eye of
+    the app (design 4.5): the color with the largest area in the ring of faces that share a corner
+    with the faces. A single color keeps the lid shading of the ring, such as the brown faces above
+    the right eye of the fox, out of the old eye. Gives the new colors and the share of the area of
+    the ring that has the color."""
     inside = set(int(f) for f in old)
     corners = set(int(c) for f in old for c in tris[f])
     ring = [f for f, t in enumerate(tris)
@@ -1663,20 +1691,21 @@ def recolor_old_eyes(colors, tris, points, old):
     return out, totals[color] / sum(totals.values())
 
 
-def add_eye_shells(verts, bind, tris, colors, eyes, rule):
+def add_eye_shells(verts, bind, tris, colors, dark, eyes, rule):
     """Adds a gloss shell over each eye: a fan from the middle of the eye to at most `points`
     points of the edge of the dark faces, lifted along the normal of the eye in the bind mesh. The
     fan needs fewer faces than a copy of the faces of the eye. The faces under it take the mean
     fur color of their neighbors, as an input of the palette. `pnpm studio-body` finds the eye by
     its fan, drops the fan, and the app puts the pea eye at its place (design 4.5). Gives the new
-    vertices of the source and of the bind mesh, the triangles, the colors, the materials, and the
-    faces of each old eye (`old_eye_faces()`)."""
+    vertices of the source and of the bind mesh, the triangles, the colors, the materials, the
+    faces of each old eye (`old_eye_faces()`), and the patches of the dark faces near each old eye
+    (`dark_faces_near()`)."""
     lift, points = rule['lift'], rule['points']
     material = np.array(['fur'] * len(tris), dtype=object)
     new_src, new_bind, new_tris, new_colors = [verts], [bind], [tris], [colors.copy()]
     count = len(verts)
     eye_faces = np.concatenate([eyes['L'], eyes['R']])
-    old = {}
+    old, edges, near = {}, {}, {}
     neighbors = {}
     for f, t in enumerate(tris):
         for k in range(3):
@@ -1698,6 +1727,7 @@ def add_eye_shells(verts, bind, tris, colors, eyes, rule):
         normal = unit(normal)
         corners = np.unique(tris[faces])
         old[side] = old_eye_faces(bind, tris, faces, loop, normal, rule)
+        edges[side] = (loop, normal)
         fan = [[0, 1 + k, 1 + (k + 1) % n] for k in range(n)]
         for target, place in ((new_src, verts), (new_bind, bind)):
             # The eye bulges, so the middle of the fan goes to the top of the dark faces, and the
@@ -1722,11 +1752,15 @@ def add_eye_shells(verts, bind, tris, colors, eyes, rule):
         around -= set(eye_faces.tolist())
         fur = colors[sorted(around)].mean(axis=0) if around else colors[faces].mean(axis=0)
         new_colors[0][faces] = fur
+    taken = set(int(f) for faces in old.values() for f in faces)
+    for side, (loop, normal) in edges.items():
+        near[side] = dark_faces_near(bind, tris, dark, taken, loop, normal, rule)
+        taken |= set(int(f) for patch in near[side] for f in patch)
     tris_out = np.concatenate(new_tris)
     material = np.concatenate([material, np.array(['gloss'] * (len(tris_out) - len(tris)),
                                                   dtype=object)])
     return (np.concatenate(new_src), np.concatenate(new_bind), tris_out,
-            np.concatenate(new_colors), material, old)
+            np.concatenate(new_colors), material, old, near)
 
 
 def correctives(src, bind, weights, turns, src_heads, bind_heads):
@@ -2180,8 +2214,8 @@ def main():
             f'joints is at most {before * meters * 100:.2f} cm above the seat before and '
             f'{after * meters * 100:.2f} cm after. {int((dots < 0).sum())} faces turn over')
 
-    src_all, bind_all, tris_all, colors_all, materials, old_eyes = add_eye_shells(
-        long_verts, bind, tris, colors, eyes, config['eyeShell'])
+    src_all, bind_all, tris_all, colors_all, materials, old_eyes, near_dark = add_eye_shells(
+        long_verts, bind, tris, colors, dark, eyes, config['eyeShell'])
     materials[nose] = 'gloss'
     colors_all, worst_color, mean_color = palette(colors_all, config['colors']['palette'])
     log(f'palette: {len(np.unique(colors_all, axis=0))} colors, the Oklab distance of a face '
@@ -2191,6 +2225,13 @@ def main():
             colors_all, share = recolor_old_eyes(colors_all, tris, bind, old_eyes[side])
             log(f'eye {side}: the {len(old_eyes[side])} faces of the old eye take the color of '
                 f'{share:.0%} of the area of the faces around it')
+    for side in 'LR':
+        for patch in near_dark.get(side, []):
+            colors_all, share = recolor_old_eyes(colors_all, tris, bind, patch)
+            mids = ', '.join('(' + ', '.join(f'{x:.3f}' for x in bind[tris[f]].mean(axis=0)) + ')'
+                             for f in patch)
+            log(f'eye {side}: the patch of {len(patch)} dark face(s) near the old eye at {mids} u '
+                f'takes the color of {share:.0%} of the area of the faces around it')
     order = locality_order(tris_all)
     tris_all, colors_all, materials = tris_all[order], colors_all[order], materials[order]
     if thin_rule:
