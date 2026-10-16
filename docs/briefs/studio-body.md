@@ -9,6 +9,12 @@ agent. The manager reads the report and the close views, and the merge script ru
 Copy each template to the scratch folder of the session, replace each `<...>`, and delete the
 notes in parentheses.
 
+Since 2026-10-16, all tests are paused
+([`2026-10-16-all-tests-pause.md`](../decisions/2026-10-16-all-tests-pause.md)). Until the user
+ends the pause, delete each step of a template that adds, breaks, or runs a test: the shard files
+of a sweep, the break commands, `pnpm test src/shots/`, and `pnpm test:e2e`. Keep the probe tools,
+such as `SWEEP_ROLES` for `pnpm pose-depth`, and keep `tools/check-commits.sh --tip main`.
+
 The polar bear pianist of 2026-10-12 took about 2.3 hours. The retrospective of that task made
 the tools that these templates name ([`2026-10-13-route-3-retro.md`](../research/2026-10-13-route-3-retro.md)).
 
