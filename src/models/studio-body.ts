@@ -2,7 +2,7 @@ import { Vector3 } from 'three';
 
 import type { BodyBones } from './biped.ts';
 import type { CornerSkin, MeshBuilder, MeshData } from './mesh.ts';
-import { BONE_NAMES } from './rig.ts';
+import { BONE_NAMES, boneIndex } from './rig.ts';
 import { makeSkeleton } from './rig.ts';
 import { STUDIO_BONES, STUDIO_INFLUENCES, unpackStudioMesh } from './studio-format.ts';
 import type { StudioBody, StudioPalette } from './studio-format.ts';
@@ -261,9 +261,32 @@ function smoothNormals(rig: StudioRig, crease: number, total: number): SmoothNor
 }
 
 /**
+ * The eye bone of the studio for each eye bone of the player. A part of the mesh of the player on
+ * an eye bone of the player follows the eye bone of the studio, so that it closes in a blink
+ * (design 5.1): the scene scales only the eye bones of the studio (`poseStudioBones()`).
+ */
+const STUDIO_EYES: ReadonlyMap<number, number> = new Map([
+  [boneIndex('eyeL'), STUDIO_BONES.indexOf('eye_L')],
+  [boneIndex('eyeR'), STUDIO_BONES.indexOf('eye_R')],
+]);
+
+/**
+ * Gives the index of a bone of the player in the matrices of a `StudioPose`: the eye bone of the
+ * studio for an eye bone of the player ({@link STUDIO_EYES}), or the bone of the player after the
+ * bones of the studio.
+ *
+ * @param bone The bone of the player.
+ * @returns The index of the matrix.
+ */
+function playerJoint(bone: number): number {
+  return STUDIO_EYES.get(bone) ?? STUDIO_BONES.length + bone;
+}
+
+/**
  * Makes the mesh of a player with a studio body as the GPU draws it. The triangles of the body
- * come first in the mesh of the player (`buildStudioBody()`), and the triangles of the instrument
- * follow.
+ * come first in the mesh of the player (`buildStudioBody()`), and the parts on the bones of the
+ * player follow, such as the instrument. A part on an eye bone of the player follows the eye bone
+ * of the studio ({@link STUDIO_EYES}).
  *
  * @param rig The studio rig.
  * @param mesh The mesh of the player in its bind pose.
@@ -290,8 +313,8 @@ export function studioRenderMesh(rig: StudioRig, mesh: MeshData): StudioRenderMe
       }
     } else {
       const blend = mesh.blendWeights[c] ?? 0;
-      cornerJoints[c * STUDIO_INFLUENCES] = STUDIO_BONES.length + (mesh.bones[c] ?? 0);
-      cornerJoints[c * STUDIO_INFLUENCES + 1] = STUDIO_BONES.length + (mesh.blendBones[c] ?? 0);
+      cornerJoints[c * STUDIO_INFLUENCES] = playerJoint(mesh.bones[c] ?? 0);
+      cornerJoints[c * STUDIO_INFLUENCES + 1] = playerJoint(mesh.blendBones[c] ?? 0);
       cornerWeights[c * STUDIO_INFLUENCES] = 1 - blend;
       cornerWeights[c * STUDIO_INFLUENCES + 1] = blend;
     }

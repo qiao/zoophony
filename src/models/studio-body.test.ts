@@ -1,13 +1,15 @@
+import { Matrix4, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { SPECIES_COLORS } from './colors.ts';
-import { FINISH_ORDER, MeshBuilder, srgb } from './mesh.ts';
+import { FINISH_ORDER, MeshBuilder, srgb, transform } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 import { box } from './primitives.ts';
-import { boneIndex } from './rig.ts';
+import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import { STUDIO_BONES } from './studio-format.ts';
 import { buildStudioBody, studioRenderMesh, studioRigOf } from './studio-body.ts';
 import { studioNormals } from './studio-normals.ts';
+import { NO_OFFSETS, createStudioPose, poseStudioBones } from './studio-rig.ts';
 
 describe('buildStudioBody (design 4.4)', () => {
   const builder = new MeshBuilder();
@@ -120,6 +122,70 @@ describe('studioRenderMesh (design 4.4)', () => {
     expect(render.joints[bodyCorners * 4]).toBe(STUDIO_BONES.length + baton);
     expect(render.weights[bodyCorners * 4]).toBe(1);
     expect(render.correctives[0]?.[bodyCorners * 3]).toBe(0);
+  });
+});
+
+describe('studioRenderMesh with a part on an eye bone (design 4.4, 5.1)', () => {
+  const builder = new MeshBuilder();
+  const body = buildStudioBody(builder, 'studio-bear', true);
+  const rig = studioRigOf('studio-bear', true);
+  const eye = new Vector3(...rig.body.heads.eye_L);
+  const first = builder.build().bones.length;
+  builder.add(box(0.02, 0.03, 0.01), {
+    color: [0, 0, 0],
+    bone: boneIndex('eyeL'),
+    at: transform(rig.body.heads.eye_L),
+  });
+  const render = studioRenderMesh(rig, builder.build());
+  const skeleton = makeSkeleton(
+    {
+      ...body.positions,
+      instrument: body.positions.chest,
+      bow: body.positions.handR,
+      malletL: body.positions.handL,
+      malletR: body.positions.handR,
+      baton: body.positions.handR,
+      slide: body.positions.chest,
+    },
+    'chest',
+  );
+  const bind = new Float32Array(BONE_NAMES.length * 4).map((_, i) => (i % 4 === 3 ? 1 : 0));
+
+  /**
+   * Gives the place of a corner of the render mesh in the bind pose of the player with a blink.
+   *
+   * @param c The corner.
+   * @param eyeScale The scale of the eyes on y: 1 is open.
+   * @returns The place.
+   */
+  const posed = (c: number, eyeScale: number): Vector3 => {
+    const pose = poseStudioBones(rig, skeleton, bind, NO_OFFSETS, eyeScale, createStudioPose());
+    const place = new Vector3().fromArray(render.data.positions, c * 3);
+    const out = new Vector3();
+    for (let k = 0; k < 4; k++) {
+      const w = render.weights[c * 4 + k] ?? 0;
+      const matrix = new Matrix4().fromArray(pose.matrices, (render.joints[c * 4 + k] ?? 0) * 16);
+      out.addScaledVector(place.clone().applyMatrix4(matrix), w);
+    }
+    return out;
+  };
+
+  it('puts the part on the eye bone of the studio', () => {
+    expect(render.joints[first * 4]).toBe(STUDIO_BONES.indexOf('eye_L'));
+    expect(render.weights[first * 4]).toBe(1);
+  });
+
+  it('closes the part on y around the eye bone in a blink', () => {
+    for (let c = first; c < render.data.bones.length; c++) {
+      const open = posed(c, 1);
+      const closed = posed(c, 0.05);
+      expect(open.distanceTo(new Vector3().fromArray(render.data.positions, c * 3))).toBeLessThan(
+        1e-6,
+      );
+      expect(closed.y - eye.y).toBeCloseTo(0.05 * (open.y - eye.y), 6);
+      expect(closed.x).toBeCloseTo(open.x, 6);
+      expect(closed.z).toBeCloseTo(open.z, 6);
+    }
   });
 });
 
