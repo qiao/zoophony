@@ -20,15 +20,21 @@ GitHub Actions runs these checks:
 | Oxlint, with `.oxlintrc.json` and the anti-slop plugin in `tools/oxlint/anti-slop/` | yes |
 | oxfmt format check | yes |
 | Vitest (`pnpm test`, with no paused test, 9.3) | yes |
-| Vitest speed tests (`pnpm test:perf`, 9.3) | yes |
+| Vitest speed tests (`pnpm test:perf`, 9.3) | paused since 2026-10-16 (9.3) |
 | Size check (7.2) | yes |
-| Playwright in Chromium | yes |
-| Playwright in WebKit and Firefox | no, until the runs are stable |
+| Playwright in Chromium | paused since 2026-10-16 (9.3) |
+| Playwright in WebKit and Firefox | paused since 2026-10-16 (9.3) |
 | Keyboard check (`pnpm keyboard`) | not in CI |
 | Paused Vitest tests (`pnpm test:paused`, 9.3) | not in CI |
 
 Headless WebKit and Firefox on Linux have weak support for WebGL2 and for audio output. Thus their
 runs do not block a merge.
+
+Since 2026-10-16, all tests are paused (9.3). `pnpm test` runs no test. The step `pnpm test:perf`
+and the job `playwright` have `if: false`, and the Pages workflow skips its end-to-end test. Thus
+the checks of CI are the typecheck, the lint, the format check, the build, and the size check. To
+end the pause, remove each `if: false`
+([`2026-10-16-all-tests-pause.md`](../decisions/2026-10-16-all-tests-pause.md)).
 
 - `.github/workflows/ci.yml` has two jobs. The job `check` runs the checks of the table up to the
   size check. The job `playwright` runs one time for each browser: `chromium`, `firefox`, and
@@ -52,7 +58,8 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
 - `.github/workflows/pages.yml` deploys the site. It starts when a CI run of a push to `main`
   passes (`workflow_run`), or when a person starts it by hand. Thus a red commit does not deploy.
 - The workflow checks out the commit of that CI run, and builds with `ZOOPHONY_BASE=/zoophony/`.
-  Then it runs `pnpm test:e2e --project=chromium` under `/zoophony/`. Then
+  Then it runs `pnpm test:e2e --project=chromium` under `/zoophony/` (paused since 2026-10-16,
+  with the install of Chromium). Then
   `actions/upload-pages-artifact` uploads `dist/`, and `actions/deploy-pages` deploys it to the
   environment `github-pages`.
 - One deploy runs at a time (the concurrency group `pages`).
@@ -95,13 +102,22 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   a commit, and lists only the tests that fail on the working tree alone. The typecheck and the
   lint still read them, and each test helper stays. A section of this design that names a paused
   test as the check of a rule keeps the rule, and the check waits for the end of the pause.
+- Since 2026-10-16, all tests are paused
+  ([`2026-10-16-all-tests-pause.md`](../decisions/2026-10-16-all-tests-pause.md)). The user asked
+  for the pause, because the tests took too long while the project changes fast. The switch
+  `ALL_TESTS_PAUSED` of `vite.config.ts` makes each unit test file a paused test. `pnpm test` then
+  runs no test and passes, so `tools/check-commits.sh`, `tools/merge-branch.sh`, and CI run no
+  unit test. `pnpm test:paused` runs each unit test for information. The merge script and CI run
+  no end-to-end test and no speed test (9.2, 9.8). While the pause lasts, a change adds no test,
+  unless the user asks. The rules of this section stay, and their checks wait for the end of the
+  pause.
 - Node tests render audio offline with spessasynth_core.
 - The demo tests of 8.3 and 8.5.
 - A speed test (`*-speed.test.ts`) compares the time of its work with a fixed reference work in
   the same run (`src/test-speed.ts`), and keeps the least time of each over many rounds. No test
   compares a wall time with an absolute limit. Heavy load can still make a speed test fail, so
   the speed tests are a separate Vitest project. `pnpm test:perf` runs them one file at a time,
-  in CI and on demand. `pnpm test` runs the other tests, which check only the behavior, except
+  in CI and on demand. Since 2026-10-16, CI does not run them (above). `pnpm test` runs the other tests, which check only the behavior, except
   the paused tests (above).
 - The timeout of each test is 60 s, because the slowest tests take up to 13 s at a load average
   of 300.
@@ -516,7 +532,8 @@ manager replaced the review of each step with the rule below
 
 `tools/merge-branch.sh` checks each commit with the lint, the typecheck, the format check, and
 the tests that the commit reaches. Then it runs the full `pnpm test`, the build, the size check,
-and the end-to-end tests. The user judges the look from the images. A review agent thus runs
+and the end-to-end tests. Since 2026-10-16, all tests are paused (9.3): `pnpm test` runs no test,
+and the merge script skips the end-to-end tests. The user judges the look from the images. A review agent thus runs
 only for code whose faults these checks and the images do not show:
 
 | Kind of round | Review |
