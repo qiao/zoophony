@@ -329,7 +329,7 @@ async function render(
 
 /**
  * Puts the cells in a grid: one row for each moment, one column for each view, with the name of
- * the moment and of the view in each cell.
+ * the moment and of the view in each cell, in white on a dark box.
  *
  * @param browser The browser.
  * @param cells The image of each cell, row by row.
@@ -369,8 +369,12 @@ async function grid(
           const x = (i % across) * size.width;
           const y = Math.floor(i / across) * size.height;
           context.drawImage(image, x, y, size.width, size.height);
+          // A dark box keeps the label legible over a light scene or the text of the app.
+          const name = names[i] ?? '';
+          context.fillStyle = 'rgba(0, 0, 0, 0.65)';
+          context.fillRect(x, y, context.measureText(name).width + 20, 34);
           context.fillStyle = '#ffffff';
-          context.fillText(names[i] ?? '', x + 10, y + 24);
+          context.fillText(name, x + 10, y + 24);
         }
         return canvas.toDataURL('image/png');
       },
