@@ -34,7 +34,11 @@ reads it (route 3 of `AGENTS.md`). The steps:
    directions of the config, back through the open back of the chair. The skin of the
    long-armed source in this pose is the bind mesh. Where the pose turns faces over, as at the
    haunch, their vertices relax toward their neighbors. With `sit` of the config, the underside
-   of the haunch behind the hip joints goes down onto the seat (`sit()`).
+   of the haunch behind the hip joints goes down onto the seat (`sit()`). With `studio.trunk`,
+   the trunk then reclines: the pelvis turns back around the head of the hips until the hip
+   angle opens by `open` degrees (`trunk_turn()`), each trunk bone takes its share of the turn,
+   the haunch and the root of the tail rise onto the seat top (`seat_lift()`), and the tip of a
+   tail of two bones keeps the height of its end.
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. `pnpm studio-body` finds each eye by its fan, drops the
    fan, and puts the pea eye of the app at its place (design 4.5). The faces of the nose become
@@ -1281,21 +1285,73 @@ def reach(heads, side):
     return np.linalg.norm(e - s) + np.linalg.norm(w - e) + np.linalg.norm(palm - w)
 
 
-def bind_turns(config, heads, ends, rolls):
+#: The bones that turn with each trunk bone of the shares of `studio.trunk`: the clavicles with
+#: the chest, and the ears with the head.
+TRUNK_FOLLOWERS = {'clavicle_L': 'chest', 'clavicle_R': 'chest', 'ear_L': 'head', 'ear_R': 'head'}
+
+
+def recline(angle):
+    """Gives the turn around the x axis that moves the top of a trunk back by `angle` degrees: the
+    up direction goes toward -z, the back of the studio axes."""
+    a = np.radians(angle)
+    return np.array([[1, 0, 0], [0, np.cos(a), np.sin(a)], [0, -np.sin(a), np.cos(a)]])
+
+
+def hip_angle(heads):
+    """Gives the hip angle from the side, in degrees: the angle between the trunk axis from the
+    middle of the hip joints to the neck joint and the thigh axis from the left hip joint to the
+    left knee joint, as `hip-probe.ts` of `docs/research/2026-10-16-seat-rest/` measures it."""
+    hip = (heads['thigh_L'] + heads['thigh_R']) / 2
+    trunk = (heads['neck'] - hip)[[2, 1]]
+    thigh = (heads['shin_L'] - heads['thigh_L'])[[2, 1]]
+    cos = trunk @ thigh / np.linalg.norm(trunk) / np.linalg.norm(thigh)
+    return float(np.degrees(np.arccos(np.clip(cos, -1.0, 1.0))))
+
+
+def trunk_turn(config, heads, ends, rolls):
+    """Finds the recline of the seated bind pose (`studio.trunk`): the turn of the pelvis, in
+    degrees, that opens the hip angle (`hip_angle()`) by `open` degrees. Each trunk bone takes its
+    share of the turn as its world turn, so that the counter turn of the upper trunk keeps the
+    head about level. Gives 0 with no rule."""
+    rule = config['studio'].get('trunk')
+    if not rule or rule['open'] == 0:
+        return 0.0
+    upright = hip_angle(posed_heads(heads, bind_turns(config, heads, ends, rolls)))
+    low, high = 0.0, 3.0 * rule['open']
+    for _ in range(50):
+        mid = (low + high) / 2
+        turns = bind_turns(config, heads, ends, rolls, mid)
+        if hip_angle(posed_heads(heads, turns)) - upright < rule['open']:
+            low = mid
+        else:
+            high = mid
+    return (low + high) / 2
+
+
+def bind_turns(config, heads, ends, rolls, turn=0.0):
     """Gives the world turn of each bone from the pose of the source to the seated bind pose. The
     legs take the inverse of the turns of the studio from its bind pose to its clip `reference`.
-    Each arm bone turns the least way onto its bind direction after the turn of its parent, so
-    that the arm does not twist. The bones of a tail of two bones turn so onto the directions of
-    `tailBind`. The other bones do not turn."""
+    With a recline (`turn` degrees, `trunk_turn()`), each trunk bone of the shares of
+    `studio.trunk` takes its share of it (`recline()`), the clavicles turn with the chest, and the
+    ears with the head. Each arm bone turns the least way onto its bind direction after the turn
+    of its parent, so that the arm does not twist. The bones of a tail of two bones turn so onto
+    the directions of `tailBind`. With a recline, the tip of the tail turns until its end is at the
+    height of the upright bind. The other bones do not turn."""
     studio = config['studio']
     turns = {name: np.eye(3) for name in BONES}
+    rule = studio.get('trunk')
+    if rule and turn:
+        for name, share in rule['shares'].items():
+            turns[name] = recline(turn * share)
+        for name, leader in TRUNK_FOLLOWERS.items():
+            turns[name] = turns[leader]
     for side in 'LR':
         for bone in LEG:
             q = np.asarray(studio['legTurns'][bone], float)
             if side == 'R':
                 q = q * [1, -1, -1, 1]
             turns[f'{bone}_{side}'] = quat_matrix(q).T
-        parent = np.eye(3)
+        parent = turns[f'clavicle_{side}']
         for bone in ARM:
             name = f'{bone}_{side}'
             if bone in ('forearm_twist', 'fingers'):
@@ -1315,6 +1371,20 @@ def bind_turns(config, heads, ends, rolls):
             now = parent @ unit(ends[name] - heads[name])
             turns[name] = swing(now, np.asarray(studio['tailBind'][name], float)) @ parent
             parent = turns[name]
+        if rule and turn:
+            # A recline moves the root of the tail down with the pelvis, and the root keeps its
+            # direction, so that its underside lies on the seat (`seat_lift()`). The tip turns up
+            # or down in its vertical plane until its end is at the height of the end of the tail
+            # of the upright bind, so that it hangs behind the chair as before.
+            straight = bind_turns(config, heads, ends, rolls)
+            tip = ends[TAIL_TIP] - heads[TAIL_TIP]
+            end = posed_heads(heads, straight)[TAIL_TIP] + straight[TAIL_TIP] @ tip
+            head = posed_heads(heads, turns)[TAIL_TIP]
+            now = turns[TAIL_TIP] @ unit(tip)
+            rise = float(np.clip((end[1] - head[1]) / np.linalg.norm(tip), -1.0, 1.0))
+            flat = unit(np.array([now[0], 0.0, now[2]]))
+            target = flat * np.sqrt(1.0 - rise * rise) + np.array([0.0, rise, 0.0])
+            turns[TAIL_TIP] = swing(now, target) @ turns[TAIL_TIP]
     return turns
 
 
@@ -1328,6 +1398,57 @@ def posed_heads(heads, turns):
         else:
             out[name] = out[parent] + turns[parent] @ (heads[name] - heads[parent])
     return out
+
+
+def after_upright(m, u):
+    """Gives the (3 × 4) matrix that moves a point of the upright seated bind to the reclined one:
+    the matrix `m` from the source after the inverse of the upright matrix `u`."""
+    r = m[:, :3] @ u[:, :3].T
+    return np.concatenate([r, (m[:, 3] - r @ u[:, 3])[:, None]], axis=1)
+
+
+def seat_lift(points, tris, weights, chair, rule, top, hip):
+    """Lifts the underside of a reclined haunch and of the root of the tail onto the seat top of
+    the upright body (`top`): the turn of the pelvis moves the haunch behind the hip joints down
+    into the seat. Each vertical line over the seat behind the hip joints takes a lift: the depth
+    of its lowest crossing below the seat top. The lift fades to 0 over `ramp` units before the
+    hip joints and over `band` units behind the back edge of the seat, the lift of a line with no
+    crossing takes the largest lift of its neighbors, and the lifts take the mean of their
+    neighbors in `smooth` rounds. Each vertex moves up by the lift at its x and z, fully at the
+    underside and less with its height above the lowest crossing, to 0 at `band` units above it,
+    so that the haunch flattens on the seat as a seated body does. The rule is `sit` of the
+    config. The shins, the feet, and the arms do not move, and a vertex with a part of its weight
+    on them moves by the rest. Gives the moved mesh, the number of moved vertices, and the largest
+    lift."""
+    step, band = rule['step'], rule['band']
+    hw, back = chair['halfWidth'], chair['back']
+    lower = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
+    arms = [BONES.index(f'{b}_{s}') for b in ARM for s in 'LR']
+    fixed = np.clip(weights[:, lower + arms].sum(axis=1), 0.0, 1.0)
+    low = points[:, 1] <= top + 2 * band
+    body = tris[((fixed[tris] <= 0.5) & low[tris]).all(axis=1)]
+    xs = np.arange(-hw, hw + step / 2, step)
+    zs = np.arange(back, hip + step / 2, step)
+    bottoms = column_bottoms(points, body, xs, zs)
+    lift = np.where(np.isfinite(bottoms), np.clip(top - bottoms, 0.0, None), np.nan)
+    lift *= 1.0 - smoothstep(zs, hip - rule['ramp'], hip)[None, :]
+    lift = np.nan_to_num(fill_holes(lift, np.max), nan=0.0)
+    for _ in range(rule['smooth']):
+        padded = np.pad(lift, 1, mode='edge')
+        lift = sum(padded[1 + di:padded.shape[0] - 1 + di, 1 + dj:padded.shape[1] - 1 + dj]
+                   for di in (-1, 0, 1) for dj in (-1, 0, 1)) / 9.0
+    floors = fill_holes(np.where(np.isfinite(bottoms), bottoms, np.nan), np.min)
+    near = ((np.abs(points[:, 0]) <= hw) & (points[:, 2] <= hip) & (points[:, 2] >= back - band)
+            & (points[:, 1] <= top + 2 * band))
+    ids = np.nonzero(near & (fixed < 1.0))[0]
+    p = points[ids]
+    d = grid_value(lift, xs, zs, p) * smoothstep(p[:, 2], back - band, back)
+    floor = np.minimum(grid_value(np.nan_to_num(floors, nan=top), xs, zs, p), p[:, 1])
+    share = 1.0 - smoothstep(p[:, 1] - floor, 0.0, band)
+    move = d * share * (1.0 - fixed[ids])
+    out = points.copy()
+    out[ids, 1] += move
+    return out, int((move > 1e-6).sum()), float(move.max(initial=0.0))
 
 
 def face_normals(points, tris):
@@ -1362,6 +1483,32 @@ def turned_on(dots, main_bone):
     return ', on the bones ' + ', '.join(f'{n} {c}' for n, c in sorted(counts.items()))
 
 
+def default_moving(weights):
+    """Gives the vertices that `relax()` moves by default: the vertices that an arm bone, a thigh,
+    a shin, or a tail of two bones moves."""
+    moving = np.zeros(len(weights), bool)
+    for side in 'LR':
+        for bone in ('upper_arm', 'forearm', 'forearm_twist', 'thigh', 'shin'):
+            moving |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+    if TAIL_TIP in BONES:
+        moving |= tail_mask(weights)
+    return moving
+
+
+def haunch_mask(weights):
+    """Gives the vertices that the hips or the tail move: the haunch, which a recline turns into
+    the seat (`seat_lift()`), and the root of the tail."""
+    bones = [BONES.index(b) for b in ('hips', 'tail', TAIL_TIP) if b in BONES]
+    return weights[:, bones].sum(axis=1) > 0
+
+
+def seat_top(points, weights, chair):
+    """Gives the seat top of a seated body: the lowest point over the seat with no hanging shin,
+    foot, or tail, as `chair_mesh()` puts the seat."""
+    seat, hanging, tail, _ = seat_masks(points, weights, chair)
+    return float(points[seat & ~hanging & ~tail, 1].min())
+
+
 def relax(src, bind, tris, weights, matrices, rounds=60, moving=None, below=0.1):
     """Cleans the bind mesh where the bind pose pinches it: each vertex of a face that turns over
     (or nearly: the cosine of `turn_dots()` below `below`) against the source moves halfway to the
@@ -1370,12 +1517,7 @@ def relax(src, bind, tris, weights, matrices, rounds=60, moving=None, below=0.1)
     so that the paws and the feet keep their form. The corrective shapes give the source back.
     Gives the cleaned bind mesh and the number of rounds."""
     if moving is None:
-        moving = np.zeros(len(src), bool)
-        for side in 'LR':
-            for bone in ('upper_arm', 'forearm', 'forearm_twist', 'thigh', 'shin'):
-                moving |= weights[:, BONES.index(f'{bone}_{side}')] > 0
-        if TAIL_TIP in BONES:
-            moving |= tail_mask(weights)
+        moving = default_moving(weights)
     neighbors = [set() for _ in range(len(src))]
     for a, b, c in tris:
         neighbors[a].update((b, c))
@@ -2188,15 +2330,31 @@ def main():
             f"{neck:.4f} u ({neck * meters * 100:.2f} cm) from the head joint")
 
     src_frames = {n: frame(long_heads[n], long_ends[n], rolls[n]) for n in BONES}
-    turns = bind_turns(config, long_heads, long_ends, rolls)
+    # The upright seated bind keeps the trunk of the source. A recline (`studio.trunk`) turns the
+    # trunk back from it around the head of the hips, which keeps the hip joints, the thighs, and
+    # the feet in place.
+    upright_turns = bind_turns(config, long_heads, long_ends, rolls)
+    upright_heads = posed_heads(long_heads, upright_turns)
+    upright_matrices = [move(upright_turns[n], long_heads[n], upright_heads[n]) for n in BONES]
+    trunk = trunk_turn(config, long_heads, long_ends, rolls)
+    turns = bind_turns(config, long_heads, long_ends, rolls, trunk)
     bind_heads = posed_heads(long_heads, turns)
     bind_frames = {n: turns[n] @ src_frames[n] for n in BONES}
     matrices = [move(turns[n], long_heads[n], bind_heads[n]) for n in BONES]
+    if trunk:
+        rule = config['studio']['trunk']
+        head = np.degrees(np.arccos(np.clip(turns['head'][1, 1], -1.0, 1.0)))
+        log(f"trunk: the pelvis turns {trunk:.2f} degrees back, so that the hip angle opens "
+            f"{rule['open']} degrees, from {hip_angle(upright_heads):.1f} to "
+            f"{hip_angle(bind_heads):.1f} degrees. The shares of the turn: {rule['shares']}. The "
+            f"head turns {head:.2f} degrees")
 
     # The faces of the arms change so that they bend at the joints. The head, the trunk, and the
-    # legs keep their faces, their vertices, and their weights.
+    # legs keep their faces, their vertices, and their weights. The arms of the upright bind give
+    # the thin faces, so that a recline does not change the faces.
     long_verts, tris, uvs, weights, flips, largest, cuts = refine(
-        long_verts, source_tris, uvs, weights, long_heads, long_ends, matrices, config['refine'])
+        long_verts, source_tris, uvs, weights, long_heads, long_ends, upright_matrices,
+        config['refine'])
     log(f'refine: {flips} flips, the largest move {largest * meters * 1000:.3f} mm, {cuts} cut '
         f'edges, {len(tris) - len(source_tris)} new faces')
     thin_rule = config['check']['thin'] if check else None
@@ -2206,27 +2364,51 @@ def main():
                           moved_boxes(config['colors'], heads['neck'], factors['head'], rise,
                                       drop))
 
-    bind = skin(weights, matrices, long_verts)
-    dots = turn_dots(long_verts, bind, tris, weights, matrices)
+    # The upright seated bind: the trunk of the source on the seat. The sit lowers its haunch onto
+    # the seat. A reclined trunk then turns from it (`studio.trunk`).
+    bind = skin(weights, upright_matrices, long_verts)
+    dots = turn_dots(long_verts, bind, tris, weights, upright_matrices)
     main_bone = weights[tris].sum(axis=1).argmax(axis=1)
     turned = np.nonzero(dots < 0)[0]
     names = sorted({BONES[main_bone[f]] for f in turned})
     free = int(free_arm(verts, source_tris, rules['armSplit'], ends['fingers_L'], 1.0).sum())
     log(f'arm: {free} vertices in the free left arm beyond |x| = {rules["armSplit"]}')
     log(f'bind: {len(turned)} faces turn over from the source, on the bones {names}')
-    bind, rounds = relax(long_verts, bind, tris, weights, matrices)
-    dots = turn_dots(long_verts, bind, tris, weights, matrices)
+    bind, rounds = relax(long_verts, bind, tris, weights, upright_matrices)
+    dots = turn_dots(long_verts, bind, tris, weights, upright_matrices)
     log(f'bind: after {rounds} rounds of relaxing, {int((dots < 0).sum())} faces turn over'
         f'{turned_on(dots, main_bone)}')
     if 'sit' in config:
-        hip = float(bind_heads['thigh_L'][2])
+        hip = float(upright_heads['thigh_L'][2])
         bind, moved, largest, before, after = sit(bind, tris, weights, config['chair'],
                                                   config['sit'], hip)
-        dots = turn_dots(long_verts, bind, tris, weights, matrices)
+        dots = turn_dots(long_verts, bind, tris, weights, upright_matrices)
         log(f'sit: {moved} vertices of the haunch move down, at most {largest:.4f} u '
             f'({largest * meters * 100:.2f} cm). The side view of the underside behind the hip '
             f'joints is at most {before * meters * 100:.2f} cm above the seat before and '
             f'{after * meters * 100:.2f} cm after. {int((dots < 0).sum())} faces turn over'
+            f'{turned_on(dots, main_bone)}')
+    if trunk:
+        top = float(seat_top(bind, weights, config['chair']))
+        bind = skin(weights, [after_upright(m, u) for m, u in zip(matrices, upright_matrices)],
+                    bind)
+        hip = float(bind_heads['thigh_L'][2])
+        # The smoothing of the lifts leaves a part of the deepest lift, so the lift repeats until
+        # the lowest point over the seat is within 1 mm of the seat top (at most 6 rounds).
+        lifted, most = 0, 0.0
+        for _ in range(6):
+            bind, count, largest = seat_lift(bind, tris, weights, config['chair'], config['sit'],
+                                             top, hip)
+            lifted, most = max(lifted, count), most + largest
+            if top - seat_top(bind, weights, config['chair']) < 0.001 / meters:
+                break
+        moving = haunch_mask(weights) | default_moving(weights)
+        bind, rounds = relax(long_verts, bind, tris, weights, matrices, moving=moving)
+        dots = turn_dots(long_verts, bind, tris, weights, matrices)
+        log(f'trunk: {lifted} vertices of the haunch and the tail rise toward the seat top '
+            f'{top:.4f} u of the upright body, at most {most:.4f} u ({most * meters * 100:.2f} cm). '
+            f'The lowest point over the seat is {seat_top(bind, weights, config["chair"]):.4f} u. '
+            f'After {rounds} rounds of relaxing, {int((dots < 0).sum())} faces turn over'
             f'{turned_on(dots, main_bone)}')
 
     src_all, bind_all, tris_all, colors_all, materials, old_eyes, near_dark = add_eye_shells(
@@ -2298,6 +2480,10 @@ def main():
               if config.get(key, 1) != 1}
     if raised:
         extras['raise'] = raised
+    if trunk:
+        # `pnpm studio-body` takes the scale of the standing shoulders from the clip `reference`
+        # of a rig whose trunk reclines in the seated bind pose.
+        extras['trunk'] = round(float(trunk), 6)
     if 'smooth' in config:
         shift = head_shift(unsmoothed, verts, weights_all, tris_all, materials)
         extras['headShift'] = [round(float(x), 6) + 0.0 for x in shift]
