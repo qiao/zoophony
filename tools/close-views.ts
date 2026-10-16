@@ -5,7 +5,7 @@ import { chromium } from '@playwright/test';
 import type { Browser } from '@playwright/test';
 import { preview } from 'vite';
 
-import { GALLERY_FOV_DEG } from '../src/gallery/items.ts';
+import { GALLERY_FOV_DEG, speciesItems } from '../src/gallery/items.ts';
 import { SPECIES } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { chromiumArgs } from './chromium-args.ts';
@@ -803,6 +803,278 @@ async function lineupViews(
   );
 }
 
+/** The command line of a mode after its name: its words and the values of its options. */
+export interface ModeLine {
+  /** The arguments that are not options or values of options, in their order. */
+  readonly words: readonly string[];
+  /** The values of each option that the command line gives, in their order. */
+  readonly options: ReadonlyMap<string, readonly string[]>;
+}
+
+/**
+ * Splits the command line of a mode into its words and its options. Each option takes one value.
+ * A value can start with one `-`, such as the drag `-120,40,3`, but not with `--`.
+ *
+ * @param args The arguments after the name of the mode.
+ * @param known The options of the mode, such as `--url`.
+ * @param repeated The options of the mode that can come more than one time.
+ * @returns The words and the options.
+ * @throws Error for an option that the mode does not know, an option with no value, or an option
+ *   that comes two times and cannot repeat.
+ */
+export function modeLine(
+  args: readonly string[],
+  known: readonly string[],
+  repeated: readonly string[] = [],
+): ModeLine {
+  const words: string[] = [];
+  const options = new Map<string, string[]>();
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i] ?? '';
+    if (!arg.startsWith('--')) {
+      words.push(arg);
+      continue;
+    }
+
+    if (!known.includes(arg)) {
+      throw new Error(`The option ${arg} is not known. The options are: ${known.join(', ')}.`);
+    }
+    const value = args[i + 1];
+    if (value === undefined || value.startsWith('--')) {
+      throw new Error(`The option ${arg} has no value.`);
+    }
+    const values = options.get(arg) ?? [];
+    if (values.length > 0 && !repeated.includes(arg)) {
+      throw new Error(`The option ${arg} comes two times.`);
+    }
+    values.push(value);
+    options.set(arg, values);
+    i++;
+  }
+  return { words, options };
+}
+
+/**
+ * Gives the item of a list that has a name.
+ *
+ * @param name The name from the command line.
+ * @param items The items, each with its name.
+ * @param kind The kind of the items in the message, such as `view`.
+ * @returns The item.
+ * @throws Error that lists the names of the items, for a name that no item has.
+ */
+export function namedItem<T extends { readonly name: string }>(
+  name: string,
+  items: readonly T[],
+  kind: string,
+): T {
+  const item = items.find((candidate) => candidate.name === name);
+  if (!item) {
+    const names = items.map((candidate) => candidate.name).join(', ');
+    throw new Error(`The ${kind} "${name}" is not known. The correct names are: ${names}.`);
+  }
+  return item;
+}
+
+/**
+ * The views of the mode `species`, around the body of the animal (the gallery query `body`). The
+ * azimuth turns the camera to the right side of the animal, from its front at 0°. The views from
+ * the sides are low (3°), so that the knees, the seat, and the soles show from the side. The
+ * views from the front and the back are a little higher (10°), so that the lap shows. `side` and
+ * `front35` are the views of the probe `views.ts` of the round of the seats
+ * (`docs/research/2026-10-16-seat-rest/`). `above35` looks down 35° from the front, as the
+ * default view of the stage looks down at the players that face it.
+ */
+export const SPECIES_VIEWS: readonly CloseViewAngle[] = [
+  { name: 'front', azimuth: 0, elevation: 10 },
+  { name: 'front35', azimuth: 35, elevation: 10 },
+  { name: 'left', azimuth: -90, elevation: 3 },
+  { name: 'side', azimuth: 90, elevation: 3 },
+  { name: 'back', azimuth: 180, elevation: 10 },
+  { name: 'above35', azimuth: 0, elevation: 35 },
+];
+
+/** The views of the mode `species` with no `--views`. */
+export const DEFAULT_SPECIES_VIEWS: readonly string[] = ['side', 'front35'];
+
+/**
+ * The moments of the mode `species`: `play`, the playing pose at the time 0 of the default test
+ * notes of the gallery, and `rest`, the rest pose of design 5.2 (the gallery query `rest`).
+ */
+export const SPECIES_MOMENTS: readonly CloseMoment[] = [
+  { name: 'play', time: 0, rest: false },
+  { name: 'rest', time: 0, rest: true },
+];
+
+/**
+ * The camera of the mode `species`: around the body of the animal, which shows whole. Each view
+ * gives its own elevation.
+ */
+const SPECIES_CAMERA: BodyCamera = { kind: 'body', zoom: 1, elevation: 10 };
+
+/** The command line of the mode `species`. */
+export interface SpeciesArgs {
+  /** The species, one row of the grid each. */
+  readonly species: readonly SpeciesId[];
+  /** The views, one column of the grid each. */
+  readonly views: readonly CloseViewAngle[];
+  /** The moment of all cells. */
+  readonly moment: CloseMoment;
+  /** The output directory. */
+  readonly out: string;
+  /** The URL of a running site of the working tree, or `null` for the built site. */
+  readonly url: string | null;
+  /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
+  readonly base: string | null;
+}
+
+/**
+ * Gives the species of the species page of the gallery, in the order of the page.
+ *
+ * @returns The species, each one time.
+ */
+export function gallerySpecies(): SpeciesId[] {
+  return [...new Set(speciesItems().map((item) => item.species))];
+}
+
+/**
+ * Reads the command line of the mode `species`:
+ * `species <species,...> <dir> [--views <view,...>] [--moment <play|rest>] [--url <url>] [--base <ref>]`.
+ *
+ * @param args The arguments after the script.
+ * @returns The command line, or `null` when the first argument is not `species`.
+ * @throws Error that lists the correct names, for an unknown species, view, or moment, and an
+ *   error for a wrong option or a missing word.
+ */
+export function speciesArgs(args: readonly string[]): SpeciesArgs | null {
+  if (args[0] !== 'species') {
+    return null;
+  }
+  const line = modeLine(args.slice(1), ['--views', '--moment', '--url', '--base']);
+  const [names, out, ...extra] = line.words;
+  if (!names || !out || extra.length > 0) {
+    throw new Error(
+      'The mode species takes a list of species and an output directory, such as: species fox-red,rabbit scratch/views',
+    );
+  }
+
+  const known = gallerySpecies().map((name) => ({ name }));
+  const species = names.split(',').map((name) => namedItem(name, known, 'species').name);
+  const viewNames = line.options.get('--views')?.[0]?.split(',') ?? DEFAULT_SPECIES_VIEWS;
+  const views = viewNames.map((name) => namedItem(name, SPECIES_VIEWS, 'view'));
+  const moment = namedItem(line.options.get('--moment')?.[0] ?? 'play', SPECIES_MOMENTS, 'moment');
+  const url = line.options.get('--url')?.[0] ?? null;
+  const base = line.options.get('--base')?.[0] ?? null;
+  return { species, views, moment, out, url, base };
+}
+
+/**
+ * Gives the close view of one species of the mode `species`: the species on the support of its
+ * instrument, alone and whole, at the views and the moment of the command line, with the default
+ * test notes of the gallery.
+ *
+ * @param species The species.
+ * @param args The command line.
+ * @returns The views, the moment, and the camera.
+ */
+export function speciesRole(species: SpeciesId, args: SpeciesArgs): RoleViews {
+  return {
+    species,
+    views: args.views,
+    moments: [args.moment],
+    camera: SPECIES_CAMERA,
+    notes: null,
+  };
+}
+
+/**
+ * Puts the rows of a grid of a commit and of a grid of the working tree in turns: each row of the
+ * commit comes directly above the same row of the working tree.
+ *
+ * @param before The cells of the commit, row by row.
+ * @param after The cells of the working tree, row by row, as many as `before`.
+ * @param columns The number of columns.
+ * @returns The cells of both grids, row by row.
+ */
+export function rowsInTurns<T>(before: readonly T[], after: readonly T[], columns: number): T[] {
+  const cells: T[] = [];
+  for (let start = 0; start < after.length; start += columns) {
+    cells.push(...before.slice(start, start + columns), ...after.slice(start, start + columns));
+  }
+  return cells;
+}
+
+/**
+ * Renders the cells of the mode `species` on one site: one row for each species, one column for
+ * each view. It writes each cell as `<prefix><species>-<moment>-<view>.png`.
+ *
+ * @param browser The browser.
+ * @param site The URL of the site.
+ * @param args The command line.
+ * @param prefix The start of the file names, such as `species-`.
+ * @returns The cells and their labels, row by row.
+ */
+async function renderSpecies(
+  browser: Browser,
+  site: string,
+  args: SpeciesArgs,
+  prefix: string,
+): Promise<RenderedViews> {
+  const cells: Buffer[] = [];
+  const labels: string[] = [];
+  for (const species of args.species) {
+    const views = await renderViews(
+      browser,
+      site,
+      speciesRole(species, args),
+      args.out,
+      `${prefix}${species}-`,
+    );
+    cells.push(...views.cells);
+    labels.push(...views.labels.map((label) => `${species}, ${label}`));
+  }
+  return { cells, labels };
+}
+
+/**
+ * Renders the mode `species` into `<dir>`: each species of the gallery alone on its support, at
+ * each view, as `species-views.png` and `.webp`. With `--base`, it also builds the commit in a
+ * temporary folder ({@link withRefSite}), and writes each cell of the commit as
+ * `species-base-<species>-<moment>-<view>.png`. The grid `species-base-views.png` and `.webp`
+ * then puts the row of the commit above the row of the working tree for each species.
+ *
+ * @param args The command line.
+ * @param site The site of the working tree, with its browser.
+ */
+async function speciesViews(
+  args: SpeciesArgs,
+  site: { readonly base: string; readonly browser: Browser },
+): Promise<void> {
+  const { browser } = site;
+  const columns = args.views.length;
+  const after = await renderSpecies(browser, site.base, args, 'species-');
+  const sheet = await grid(browser, after.cells, after.labels, columns);
+  await writeImage(browser, sheet, join(args.out, 'species-views'));
+  const ref = args.base;
+  if (ref === null) {
+    return;
+  }
+
+  const label = `${ref} (${shortHash(ref)})`;
+  await withRefSite(ref, label, async (other) => {
+    const before = await renderSpecies(browser, other, args, 'species-base-');
+    const labels = baseGridLabels(after.labels, label);
+    const cells = rowsInTurns(before.cells, after.cells, columns);
+    const turns = rowsInTurns(
+      labels.slice(0, after.labels.length),
+      labels.slice(after.labels.length),
+      columns,
+    );
+    const both = await grid(browser, cells, turns, columns);
+    await writeImage(browser, both, join(args.out, 'species-base-views'));
+  });
+}
+
 /** The first argument that only checks the command line: the tool then builds and renders nothing. */
 export const CHECK_FLAG = '--check';
 
@@ -819,6 +1091,12 @@ export type CloseMode =
       readonly kind: 'lineup';
       /** The command line of the lineup. */
       readonly args: LineupArgs;
+    }
+  | {
+      /** Species alone on their supports, at named views. */
+      readonly kind: 'species';
+      /** The command line of the mode. */
+      readonly args: SpeciesArgs;
     };
 
 /**
@@ -826,8 +1104,13 @@ export type CloseMode =
  *
  * @param args The arguments after the script, with no {@link CHECK_FLAG}.
  * @returns The mode, or `null` when no mode matches.
+ * @throws Error that lists the correct names, for a wrong value of the mode `species`.
  */
 export function closeModeArgs(args: readonly string[]): CloseMode | null {
+  const species = speciesArgs(args);
+  if (species) {
+    return { kind: 'species', args: species };
+  }
   const lineup = lineupArgs(args);
   if (lineup) {
     return { kind: 'lineup', args: lineup };
@@ -840,12 +1123,15 @@ export function closeModeArgs(args: readonly string[]): CloseMode | null {
 const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--url <url>] [--base <ref>]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
+  `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest>] [--url <url>] [--base <ref>]`,
 ].join('\n');
 
 /**
  * Renders the close view of a role:
- * `node tools/close-views.ts <role> <dir> [--url <url>] [--base <ref>]` (design 7.1), or a lineup
- * of species: `node tools/close-views.ts lineup <species,...> <dir>` ({@link lineupViews}). It writes
+ * `node tools/close-views.ts <role> <dir> [--url <url>] [--base <ref>]` (design 7.1), a lineup
+ * of species: `node tools/close-views.ts lineup <species,...> <dir>` ({@link lineupViews}), or
+ * species at named views: `node tools/close-views.ts species <species,...> <dir>`
+ * ({@link speciesViews}). It writes
  * the animal of the role at each moment from each view into `<dir>`, and the grid of all cells as
  * `<role>-views.png` and `<role>-views.webp`. With `--url`, it uses a running site, such as the
  * dev server, in place of the built site. With `--base`, it also builds the commit in a temporary
@@ -856,7 +1142,13 @@ const USAGE = [
 async function main(): Promise<void> {
   const all = process.argv.slice(2);
   const check = all[0] === CHECK_FLAG;
-  const mode = closeModeArgs(check ? all.slice(1) : all);
+  let mode: CloseMode | null = null;
+  try {
+    mode = closeModeArgs(check ? all.slice(1) : all);
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
   if (!mode) {
     console.error(USAGE);
     process.exit(1);
@@ -886,6 +1178,8 @@ async function main(): Promise<void> {
   try {
     if (mode.kind === 'lineup') {
       await lineupViews(mode.args, site);
+    } else if (mode.kind === 'species') {
+      await speciesViews(mode.args, site);
     } else {
       const { role: name } = mode.args;
       const role = ROLE_VIEWS[name];
