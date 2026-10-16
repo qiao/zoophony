@@ -1349,6 +1349,19 @@ def turn_dots(src, posed, tris, weights, matrices):
     return np.sum(face_normals(posed, tris) * expected, axis=1)
 
 
+def turned_on(dots, main_bone):
+    """Gives the text of the main bones of the faces that turn over (a negative dot), with the
+    count of each bone, so that the log shows if a seat or a leg turns faces of the knees over.
+    Gives an empty text when no face turns over."""
+    counts = {}
+    for f in np.nonzero(dots < 0)[0]:
+        name = BONES[main_bone[f]]
+        counts[name] = counts.get(name, 0) + 1
+    if not counts:
+        return ''
+    return ', on the bones ' + ', '.join(f'{n} {c}' for n, c in sorted(counts.items()))
+
+
 def relax(src, bind, tris, weights, matrices, rounds=60, moving=None, below=0.1):
     """Cleans the bind mesh where the bind pose pinches it: each vertex of a face that turns over
     (or nearly: the cosine of `turn_dots()` below `below`) against the source moves halfway to the
@@ -2203,7 +2216,8 @@ def main():
     log(f'bind: {len(turned)} faces turn over from the source, on the bones {names}')
     bind, rounds = relax(long_verts, bind, tris, weights, matrices)
     dots = turn_dots(long_verts, bind, tris, weights, matrices)
-    log(f'bind: after {rounds} rounds of relaxing, {int((dots < 0).sum())} faces turn over')
+    log(f'bind: after {rounds} rounds of relaxing, {int((dots < 0).sum())} faces turn over'
+        f'{turned_on(dots, main_bone)}')
     if 'sit' in config:
         hip = float(bind_heads['thigh_L'][2])
         bind, moved, largest, before, after = sit(bind, tris, weights, config['chair'],
@@ -2212,7 +2226,8 @@ def main():
         log(f'sit: {moved} vertices of the haunch move down, at most {largest:.4f} u '
             f'({largest * meters * 100:.2f} cm). The side view of the underside behind the hip '
             f'joints is at most {before * meters * 100:.2f} cm above the seat before and '
-            f'{after * meters * 100:.2f} cm after. {int((dots < 0).sum())} faces turn over')
+            f'{after * meters * 100:.2f} cm after. {int((dots < 0).sum())} faces turn over'
+            f'{turned_on(dots, main_bone)}')
 
     src_all, bind_all, tris_all, colors_all, materials, old_eyes, near_dark = add_eye_shells(
         long_verts, bind, tris, colors, dark, eyes, config['eyeShell'])
