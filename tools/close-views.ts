@@ -14,8 +14,8 @@ import { openShot, startSite, toWebp } from './screenshots.ts';
 
 /** One view of a close view: the turn of the gallery camera around the animal. */
 export interface CloseViewAngle {
-  /** The name of the view in the file names and the labels. */
-  readonly name: 'front' | 'side' | 'left' | 'right' | 'back' | 'keys';
+  /** The name of the view in the file names and the labels, such as `front` or `keys`. */
+  readonly name: string;
   /**
    * The turn of the camera to the right side of the animal, in degrees. Around a body, 0 is the
    * front of the animal. Around a line, 0 is the +z side of the gallery.
@@ -491,7 +491,7 @@ interface RenderedViews {
  *
  * @param browser The browser.
  * @param base The URL of the site.
- * @param name The role.
+ * @param role The views, the moments, and the camera of the role.
  * @param out The output directory.
  * @param prefix The start of the file names, such as `violinist-`.
  * @returns The cells and their labels.
@@ -499,11 +499,10 @@ interface RenderedViews {
 async function renderViews(
   browser: Browser,
   base: string,
-  name: CloseRole,
+  role: RoleViews,
   out: string,
   prefix: string,
 ): Promise<RenderedViews> {
-  const role = ROLE_VIEWS[name];
   const cells: Buffer[] = [];
   const labels: string[] = [];
   for (const moment of role.moments) {
@@ -538,7 +537,7 @@ async function renderBase(
 ): Promise<void> {
   const label = `${ref} (${shortHash(ref)})`;
   await withRefSite(ref, label, async (site) => {
-    const before = await renderViews(browser, site, name, out, `${name}-base-`);
+    const before = await renderViews(browser, site, ROLE_VIEWS[name], out, `${name}-base-`);
     const cells = [...before.cells, ...views.cells];
     const labels = baseGridLabels(views.labels, label);
     const sheet = await grid(browser, cells, labels, ROLE_VIEWS[name].views.length);
@@ -890,7 +889,7 @@ async function main(): Promise<void> {
     } else {
       const { role: name } = mode.args;
       const role = ROLE_VIEWS[name];
-      const views = await renderViews(site.browser, site.base, name, out, `${name}-`);
+      const views = await renderViews(site.browser, site.base, role, out, `${name}-`);
       const sheet = await grid(site.browser, views.cells, views.labels, role.views.length);
       await writeFile(join(out, `${name}-views.png`), sheet);
       await writeFile(join(out, `${name}-views.webp`), await toWebp(site.browser, sheet));
