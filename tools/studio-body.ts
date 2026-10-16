@@ -1560,6 +1560,61 @@ function standingOf(glb: Glb, skeleton: SourceSkeleton, frame: SceneFrame): Stud
   return { ...upright, tailTurns: turns(STUDIO_TAIL_BONES) };
 }
 
+/** The head of a mesh in the clip `reference`, for the measures of the head. */
+interface ClipHead {
+  /** The place of each vertex in the clip, in the units and the axes of the studio. */
+  readonly places: readonly Vector3[];
+  /** The neck joint in the clip. */
+  readonly neck: Vector3;
+  /** The head joint in the clip. */
+  readonly head: Vector3;
+  /** The move of a point of the head from the clip back to the bind pose. */
+  readonly back: Matrix4;
+}
+
+/**
+ * Gives the head of a mesh in the clip `reference`, the form of the source: the place of each
+ * vertex with each corrective shape at its full weight except the shape of a raised arm, the neck
+ * and the head joints, and the move of the head bone from the clip back to the bind pose.
+ *
+ * @param glb The file.
+ * @param skeleton The bind pose.
+ * @param mesh The welded mesh, with the moves of the corrective shapes of `kept`.
+ * @param kept The names of the corrective shapes of the mesh, in their order.
+ * @returns The head in the clip.
+ */
+function clipHead(
+  glb: Glb,
+  skeleton: SourceSkeleton,
+  mesh: SourceMesh,
+  kept: readonly string[],
+): ClipHead {
+  const posed = worldMatrices(glb.json, firstKeys(glb, 'reference').nodes);
+  const worldOf = (bone: string): Matrix4 => posed[skeleton.nodes.get(bone) ?? -1] ?? new Matrix4();
+  const moves = new Map<string, Matrix4>();
+  for (const [bone, bind] of skeleton.binds) {
+    moves.set(bone, worldOf(bone).clone().multiply(bind.clone().invert()));
+  }
+  const shares = kept.map((name) => (name.startsWith('arm_raise') ? 0 : 1));
+  const places = mesh.vertices.map((vertex) => {
+    const p = vertex.position.clone();
+    for (const [s, move] of vertex.moves.entries()) {
+      p.addScaledVector(move, shares[s] ?? 0);
+    }
+    const out = new Vector3();
+    for (const [bone, w] of vertex.skin) {
+      out.addScaledVector(p.clone().applyMatrix4(moves.get(bone) ?? new Matrix4()), w);
+    }
+    return out;
+  });
+  return {
+    places,
+    neck: new Vector3().setFromMatrixPosition(worldOf('neck')),
+    head: new Vector3().setFromMatrixPosition(worldOf('head')),
+    back: (moves.get('head') ?? new Matrix4()).clone().invert(),
+  };
+}
+
 /** The output of the export of a studio body. */
 interface Export {
   readonly body: StudioBody;
@@ -1643,12 +1698,19 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   // holds are in head heights and start at the head center, so a head that the rig grows keeps
   // the head height and the center of the head before its factor, and the holds keep their places
   // (design 4.4). A head that the rig smooths keeps the center of the head before the smoothing.
+  // A rig with a reclined trunk turns the neck and the head by different shares in the seated
+  // bind pose, and the vertices of the chin with a part of the neck weight move against the head.
+  // The head then takes its measures in the clip `reference`, the form of the source
+  // (`clipHead()`), and the head center and the middle of the pea eyes move back onto the head
+  // bone of the bind pose, so that the head height and the pea eyes keep their sizes.
+  const clip = reclines(glb) ? clipHead(glb, skeleton, mesh, kept) : null;
   const rig = headRig(
-    headOf(skeleton, 'neck'),
-    headOf(skeleton, 'head'),
+    clip?.neck ?? headOf(skeleton, 'neck'),
+    clip?.head ?? headOf(skeleton, 'head'),
     headFactorOf(glb),
     neckFactorOf(glb),
   );
+  const toBind = (p: Vector3): Vector3 => (clip ? p.applyMatrix4(clip.back) : p);
   let top = -Infinity;
   let chin = Infinity;
   // The box of the head that shows, after the growth, which sizes and turns the pea eyes.
@@ -1665,10 +1727,11 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
         .filter(([bone]) => bone === 'head' || bone === 'ear_L' || bone === 'ear_R')
         .reduce((sum, [, w]) => sum + w, 0);
       const neckShare = vertex.skin.find(([bone]) => bone === 'neck')?.[1] ?? 0;
-      const place = ungrown(vertex.position, { head: share, neck: neckShare }, rig);
+      const position = clip?.places[v] ?? vertex.position;
+      const place = ungrown(position, { head: share, neck: neckShare }, rig);
       top = Math.max(top, place.y);
       chin = Math.min(chin, place.y);
-      shown.expandByPoint(vertex.position);
+      shown.expandByPoint(position);
       box.min.min(place);
       box.max.max(place);
     }
@@ -1676,14 +1739,16 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       nose = vertex.position;
     }
   }
-  const center = box.min.clone().add(box.max).multiplyScalar(0.5).add(headShiftOf(glb)).setX(0);
+  const center = toBind(box.min.clone().add(box.max).multiplyScalar(0.5))
+    .add(headShiftOf(glb))
+    .setX(0);
 
   // Each pea eye bone lies in the head surface under the middle of the old eye, as the eye bones
   // of the parametric bodies do (`eyeMiddle()` of `models/eyes.ts`). Each eye faces out from the
   // middle of the head that shows, as an eye on the round head of a parametric body does. Then it
   // moves out along that direction until its front face shows (`eyePush()`).
   const eyeHeight = (shown.max.y - shown.min.y) * scale;
-  const middle = shown.getCenter(new Vector3());
+  const middle = toBind(shown.getCenter(new Vector3()));
   const eyeAt = (side: Side) => {
     const old = eyeCenter(side);
     const point = eyeOnHead(withoutEyes, old);
