@@ -309,10 +309,17 @@ export interface StudioBody {
    */
   readonly floor: Vec3;
   /**
-   * The height of the top of a flat seat under a seated body: the lowest point of the body over
-   * the seat of the app (the piano bench or the chair). It is `null` for a body that stands.
+   * The height of the seat top under a seated body at the back edge of the seat: the lowest level
+   * of the body over the plane of the seat top of the app (the piano bench or the chair). It is
+   * `null` for a body that stands.
    */
   readonly seatHeight: number | null;
+  /**
+   * The forward tilt of the seat top of the chair under a seated body, in radians: the seat top
+   * slopes down from its back edge toward its front edge, under the thighs that slope down from
+   * the hips to the knees (design 4.4, 5.2). A body on a level seat has none.
+   */
+  readonly seatTilt?: number;
   /**
    * The depth of the chair under a body that sits on a chair: the depth of the chair of the
    * studio, so that the body sits on the whole seat. The back of the chair keeps a gap behind the
