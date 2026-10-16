@@ -268,6 +268,10 @@ export function standingError(bytes: Uint8Array, body: StudioBody, obj: string):
   };
   const arm = (bone: string): boolean =>
     /^(clavicle|upper_arm|forearm|forearm_twist|hand|fingers)_/.test(bone);
+  // The arms of the standing body turn with a reclined chest (`StudioStanding.trunkTurns`), so the
+  // turn to the clip starts after the turn of the chest.
+  const chest = body.standing.trunkTurns?.chest;
+  const undo = chest ? new Quaternion(...chest).invert() : new Quaternion();
 
   // Each arm bone turns around its head, and its children follow it from the chest out.
   const pose = createStudioPose();
@@ -290,7 +294,7 @@ export function standingError(bytes: Uint8Array, body: StudioBody, obj: string):
             .applyQuaternion(parentTurn)
             .add(parentHead)
         : from.clone();
-    const turn = arm(bone) ? turnOf(bone) : new Quaternion();
+    const turn = arm(bone) ? turnOf(bone).multiply(undo) : new Quaternion();
     heads.set(bone, to);
     turns.set(bone, turn);
     const matrix = new Matrix4().makeRotationFromQuaternion(turn);

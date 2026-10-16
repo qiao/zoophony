@@ -140,6 +140,39 @@ export const STUDIO_TAIL_BONES = ['tail', 'tail_tip'] as const;
 export type StudioTailBone = (typeof STUDIO_TAIL_BONES)[number];
 
 /**
+ * The trunk bones of a studio body, which turn when a seated body with a reclined trunk stands
+ * (design 4.4): the rig of a mesh reclines the trunk on the seat (`studio.trunk` of
+ * `pnpm rig-mesh`), and the standing trunk is upright again.
+ */
+export const STUDIO_TRUNK_BONES = ['hips', 'spine', 'spine1', 'chest', 'neck', 'head'] as const;
+
+/** A trunk bone of a studio body. */
+export type StudioTrunkBone = (typeof STUDIO_TRUNK_BONES)[number];
+
+/**
+ * The arm bones of a studio body, from the clavicle out, the left side first. The standing pose of
+ * a seated body with a reclined trunk keeps the turn of each one in the pose of the sheet
+ * ({@link StudioStanding.armTurns}).
+ */
+export const STUDIO_ARM_BONES = [
+  'clavicle_L',
+  'upper_arm_L',
+  'forearm_L',
+  'forearm_twist_L',
+  'hand_L',
+  'fingers_L',
+  'clavicle_R',
+  'upper_arm_R',
+  'forearm_R',
+  'forearm_twist_R',
+  'hand_R',
+  'fingers_R',
+] as const;
+
+/** An arm bone of a studio body. */
+export type StudioArmBone = (typeof STUDIO_ARM_BONES)[number];
+
+/**
  * The standing pose of a seated studio body that also stands, such as the violinist rabbit as a
  * soloist (design 4.4): the legs of the pose of the sheet, with the leg corrective shapes of the
  * studio at their full weight.
@@ -157,6 +190,22 @@ export interface StudioStanding {
    * a tail of two bones. A body with one tail bone keeps the tail of its bind pose.
    */
   readonly tailTurns?: Readonly<Record<StudioTailBone, Quat>>;
+  /**
+   * The world turn of each trunk bone from the bind pose to the pose of the sheet, for a body
+   * whose rig reclines the trunk on the seat, and of the tail of a body with one tail bone. The
+   * export adds the move of the hips to the {@link StudioStanding.lift}. Each bone with no turn of
+   * its own, such as an arm or an ear, turns with its parent.
+   */
+  readonly trunkTurns?: Readonly<Partial<Record<StudioTrunkBone | 'tail', Quat>>>;
+  /**
+   * The world turn of each arm bone from the bind pose to the pose of the sheet, for a body whose
+   * rig reclines the trunk on the seat. The standing body turns its trunk upright, and a pose then
+   * turns its arms: two blends of the skin in a row, which miss the one blend of the clip of the
+   * sheet at a vertex with the weights of an arm bone and of trunk bones with other turns. The
+   * standing body solves its arm corrective shapes again with these turns
+   * (`standingBody()` of `models/studio-rig.ts`), so that the arms of the sheet give the source.
+   */
+  readonly armTurns?: Readonly<Record<StudioArmBone, Quat>>;
 }
 
 /**

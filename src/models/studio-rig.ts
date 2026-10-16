@@ -1,9 +1,10 @@
-import { Matrix4, Quaternion, Vector3 } from 'three';
+import { Matrix3, Matrix4, Quaternion, Vector3 } from 'three';
 
 import type { BodyBoneName } from './biped.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { Skeleton } from './rig.ts';
 import {
+  STUDIO_ARM_BONES,
   STUDIO_BONES,
   STUDIO_LEG_BONES,
   STUDIO_PARENTS,
@@ -12,6 +13,7 @@ import {
 } from './studio-format.ts';
 import type {
   Side,
+  StudioArmBone,
   StudioBody,
   StudioBone,
   StudioHeads,
@@ -346,16 +348,38 @@ function playerPositions(body: StudioBody): Record<BodyBoneName, Vec3> {
 }
 
 /**
- * Gives the turns of the standing pose of a seated studio body, in parent order: each leg bone,
- * then each bone of a tail of two bones.
+ * Gives the turns of the standing pose of a seated studio body: each leg bone, each bone of a tail
+ * of two bones, and each bone of a reclined trunk.
  *
  * @param standing The standing pose.
- * @returns The bone and its world turn from the bind pose, for each turned bone.
+ * @returns The world turn from the bind pose of each bone that has a turn of its own.
  */
-function standingTurns(standing: StudioStanding): (readonly [StudioBone, Quat])[] {
-  const legs = STUDIO_LEG_BONES.map((bone) => [bone, standing.turns[bone]] as const);
+function standingTurns(standing: StudioStanding): Map<StudioBone, Quat> {
+  const turns = new Map<StudioBone, Quat>(
+    STUDIO_LEG_BONES.map((bone) => [bone, standing.turns[bone]] as const),
+  );
   const tail = standing.tailTurns;
-  return tail ? [...legs, ...STUDIO_TAIL_BONES.map((bone) => [bone, tail[bone]] as const)] : legs;
+  if (tail) {
+    for (const bone of STUDIO_TAIL_BONES) {
+      turns.set(bone, tail[bone]);
+    }
+  }
+  for (const [bone, turn] of Object.entries(standing.trunkTurns ?? {})) {
+    if (turn && isStudioBone(bone)) {
+      turns.set(bone, turn);
+    }
+  }
+  return turns;
+}
+
+/**
+ * Finds if a text names a bone of a studio body.
+ *
+ * @param name The text.
+ * @returns True for a bone of `STUDIO_BONES`.
+ */
+function isStudioBone(name: string): name is StudioBone {
+  return STUDIO_BONES.some((bone) => bone === name);
 }
 
 /** A studio body with its unpacked mesh, in the stance of a player. */
@@ -377,12 +401,185 @@ function armCorrectives(body: StudioBody): number {
   return body.raise ? RAISED + 1 : RAISED;
 }
 
+/** The bones of a studio body in a pose of world turns from the bind pose. */
+interface ChainPose {
+  /** The matrix of each bone, in the order of `STUDIO_BONES`. */
+  readonly matrices: Float32Array;
+  /** The posed head of each bone that has a head. */
+  readonly heads: Partial<Record<StudioBone, Vec3>>;
+  /** The world turn of each turned bone from the bind pose. */
+  readonly turns: ReadonlyMap<StudioBone, Quaternion>;
+}
+
+/**
+ * Poses the bones of a studio body by world turns from the bind pose: each bone with a turn of its
+ * own turns around its head, each other bone turns with its parent, and the heads follow their
+ * parents from the root out. A bone with no turn of its own and no turned parent keeps its place.
+ *
+ * @param body The studio body.
+ * @param own The world turn of each bone that has a turn of its own.
+ * @returns The pose.
+ */
+function chainPose(body: StudioBody, own: ReadonlyMap<StudioBone, Quat>): ChainPose {
+  const pose = createStudioPose();
+  const heads: Partial<Record<StudioBone, Vec3>> = { ...body.heads };
+  const turns = new Map<StudioBone, Quaternion>();
+  for (const bone of STUDIO_BONES) {
+    const parent = STUDIO_PARENTS[bone];
+    const parentTurn = parent ? turns.get(parent) : undefined;
+    const quat = own.get(bone);
+    const turn = quat ? new Quaternion(...quat) : parentTurn?.clone();
+    const place = body.heads[bone];
+    if (!turn || !place) {
+      continue;
+    }
+    const from = new Vector3(...place);
+    const to =
+      parent && parentTurn
+        ? from
+            .clone()
+            .sub(new Vector3(...(body.heads[parent] ?? [0, 0, 0])))
+            .applyQuaternion(parentTurn)
+            .add(new Vector3(...(heads[parent] ?? [0, 0, 0])))
+        : from.clone();
+    turns.set(bone, turn);
+    heads[bone] = toVec3(to);
+    writeMatrix(pose.matrices, STUDIO_BONES.indexOf(bone), turn, from, to);
+  }
+  return { matrices: pose.matrices.slice(0, STUDIO_BONES.length * 16), heads, turns };
+}
+
+/**
+ * Solves the arm corrective shapes of a standing body again (`StudioStanding.armTurns`): the move
+ * of each vertex of an arm shape in the standing bind pose that the arms of the pose of the sheet
+ * take to the one blend of the clip of the sheet. That blend is the seated bind with all corrective
+ * shapes, except the shape of a raised arm, and the world turns of the standing pose and of the arms
+ * of the sheet. The vertex blends the moves of its bones from the standing bind to the sheet, and
+ * the solve inverts that blend, as `correctives()` of `tools/blender/rig_mesh.py` does for the
+ * seated bind. Each move splits into the left and the right shape as the shapes of the export
+ * split it. The shape of a raised arm turns with the blend of the standing turns of its vertex.
+ *
+ * @param body The seated studio body.
+ * @param mesh The unpacked mesh of the body.
+ * @param own The world turn of each bone with a turn of its own in the standing pose.
+ * @param stand The standing pose.
+ * @param standing The skin of the standing pose with the leg shapes, before its lift.
+ * @param arms The world turn of each arm bone in the pose of the sheet.
+ * @returns The arm corrective shapes of the standing body.
+ */
+function standingArmCorrectives(
+  body: StudioBody,
+  mesh: StudioMesh,
+  own: ReadonlyMap<StudioBone, Quat>,
+  stand: ChainPose,
+  standing: Float32Array,
+  arms: Readonly<Record<StudioArmBone, Quat>>,
+): Float32Array[] {
+  const sheetTurns = new Map(own);
+  for (const bone of STUDIO_ARM_BONES) {
+    sheetTurns.set(bone, arms[bone]);
+  }
+  const sheet = chainPose(body, sheetTurns);
+  const all = new Float32Array(mesh.correctives.length).fill(1);
+  if (body.raise) {
+    all[RAISED] = 0;
+  }
+  const target = skinStudioMesh(mesh, { matrices: sheet.matrices, correctives: all });
+
+  // The move of each bone from the standing bind to the sheet, and the turn of each bone from the
+  // seated bind to the standing bind.
+  const second = STUDIO_BONES.map((_, b) =>
+    new Matrix4()
+      .fromArray(sheet.matrices, b * 16)
+      .multiply(new Matrix4().fromArray(stand.matrices, b * 16).invert()),
+  );
+  const first = STUDIO_BONES.map((_, b) => new Matrix4().fromArray(stand.matrices, b * 16));
+
+  const moves = mesh.correctives.slice(0, armCorrectives(body)).map((part) => part.slice());
+  const [left, right] = moves;
+  const raised = body.raise ? moves[RAISED] : undefined;
+  if (!left || !right) {
+    return moves;
+  }
+  const blend = new Matrix4();
+  const part = new Matrix4();
+  const move = new Vector3();
+  const total = new Vector3();
+  const leftMove = new Vector3();
+  for (let v = 0; v < standing.length / 3; v++) {
+    const at = v * 3;
+    total.set(
+      (left[at] ?? 0) + (right[at] ?? 0),
+      (left[at + 1] ?? 0) + (right[at + 1] ?? 0),
+      (left[at + 2] ?? 0) + (right[at + 2] ?? 0),
+    );
+    const raise = raised ? new Vector3().fromArray(raised, at) : null;
+    if (total.lengthSq() === 0 && (!raise || raise.lengthSq() === 0)) {
+      continue;
+    }
+    if (raise && raise.lengthSq() > 0) {
+      raise.applyMatrix3(new Matrix3().setFromMatrix4(blended(mesh, v, first, blend, part)));
+      raise.toArray(raised ?? [], at);
+    }
+    if (total.lengthSq() === 0) {
+      continue;
+    }
+    // d = A⁻¹ (target − b) − p, with the blend A p + b of the moves of the bones of the vertex.
+    blended(mesh, v, second, blend, part);
+    move
+      .fromArray(target, at)
+      .sub(new Vector3().setFromMatrixPosition(blend))
+      .applyMatrix3(new Matrix3().setFromMatrix4(blend).invert())
+      .sub(new Vector3().fromArray(standing, at));
+    const share = Math.min(
+      1,
+      Math.max(0, leftMove.fromArray(left, at).dot(total) / total.lengthSq()),
+    );
+    move.clone().multiplyScalar(share).toArray(left, at);
+    move.multiplyScalar(1 - share).toArray(right, at);
+  }
+  return moves;
+}
+
+/**
+ * Writes the blend of the matrices of the bones of a vertex by its weights.
+ *
+ * @param mesh The skin of the mesh.
+ * @param v The index of the vertex.
+ * @param matrices The matrix of each bone, in the order of `STUDIO_BONES`.
+ * @param out The matrix to write.
+ * @param part A scratch matrix.
+ * @returns `out`.
+ */
+function blended(
+  mesh: Pick<StudioMesh, 'joints' | 'weights'>,
+  v: number,
+  matrices: readonly Matrix4[],
+  out: Matrix4,
+  part: Matrix4,
+): Matrix4 {
+  out.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  for (let k = 0; k < 4; k++) {
+    const w = mesh.weights[v * 4 + k] ?? 0;
+    const m = matrices[mesh.joints[v * 4 + k] ?? 0];
+    if (w > 0 && m) {
+      part.copy(m).multiplyScalar(w);
+      for (let e = 0; e < 16; e++) {
+        out.elements[e] = (out.elements[e] ?? 0) + (part.elements[e] ?? 0);
+      }
+    }
+  }
+  return out;
+}
+
 /**
  * Makes the standing body of a seated studio body that also stands, such as the violinist rabbit
  * as a soloist (design 4.4). The legs take the turns of the pose of the sheet, with the leg
  * corrective shapes of the studio at their full weight, and the body moves from its seat to stand
- * over the origin. The bind places of the mesh and of the bones become the standing places, so
- * that the rig poses the standing body as it poses a body that the studio built standing.
+ * over the origin. A body with a reclined trunk also turns its trunk upright, and solves its arm
+ * corrective shapes again ({@link StudioStanding.armTurns}). The bind places of the mesh, of the
+ * bones, and of the points of the holds become the standing places, so that the rig poses the
+ * standing body as it poses a body that the studio built standing.
  *
  * @param body The seated studio body, with its standing pose.
  * @param mesh The unpacked mesh of the body, with the leg corrective shapes after the arm shapes.
@@ -395,30 +592,13 @@ export function standingBody(body: StudioBody, mesh: StudioMesh): PosedStudioBod
     throw new Error('The studio body has no standing pose.');
   }
 
-  // Each leg bone and each bone of a tail of two bones turns around its head, and its children
-  // follow it from the hips down.
-  const pose = createStudioPose();
-  const heads: Partial<Record<StudioBone, Vec3>> = { ...body.heads };
-  const turnOf = new Map<StudioBone, Quaternion>();
-  for (const [bone, quat] of standingTurns(standing)) {
-    const turn = new Quaternion(...quat);
-    const parent = STUDIO_PARENTS[bone];
-    const parentTurn = parent ? turnOf.get(parent) : undefined;
-    const from = new Vector3(...(body.heads[bone] ?? [0, 0, 0]));
-    const to =
-      parent && parentTurn
-        ? from
-            .clone()
-            .sub(new Vector3(...(body.heads[parent] ?? [0, 0, 0])))
-            .applyQuaternion(parentTurn)
-            .add(new Vector3(...(heads[parent] ?? [0, 0, 0])))
-        : from.clone();
-    turnOf.set(bone, turn);
-    heads[bone] = toVec3(to);
-    writeMatrix(pose.matrices, STUDIO_BONES.indexOf(bone), turn, from, to);
-  }
+  const own = standingTurns(standing);
+  const stand = chainPose(body, own);
   const weights = new Float32Array(mesh.correctives.length).fill(1, armCorrectives(body));
-  const positions = skinStudioMesh(mesh, { matrices: pose.matrices, correctives: weights });
+  const positions = skinStudioMesh(mesh, { matrices: stand.matrices, correctives: weights });
+  const correctives = standing.armTurns
+    ? standingArmCorrectives(body, mesh, own, stand, positions, standing.armTurns)
+    : mesh.correctives.slice(0, armCorrectives(body));
 
   // The body stands with its lowest point, a sole, on the floor. The straight legs of the sheet
   // can put a heel a little below the seated soles, which the lift of the export puts on the floor.
@@ -434,6 +614,13 @@ export function standingBody(body: StudioBody, mesh: StudioMesh): PosedStudioBod
     positions[v + 1] = (positions[v + 1] ?? 0) + lift.y;
     positions[v + 2] = (positions[v + 2] ?? 0) + lift.z;
   }
+
+  // The points of the holds move with their bones: the head center and the nose with the head,
+  // and each finger tip and palm with its fingers.
+  const moved = (bone: StudioBone, p: Vec3): Vec3 =>
+    lifted(toVec3(new Vector3(...p).applyMatrix4(boneMatrix(stand, bone))));
+  const turned = (bone: StudioBone, d: Vec3): Vec3 =>
+    toVec3(new Vector3(...d).applyQuaternion(stand.turns.get(bone) ?? new Quaternion()));
   return {
     body: {
       ...body,
@@ -441,19 +628,41 @@ export function standingBody(body: StudioBody, mesh: StudioMesh): PosedStudioBod
       // head.
       heads: Object.fromEntries(
         STUDIO_BONES.flatMap((bone) => {
-          const place = heads[bone];
+          const place = stand.heads[bone];
           return place ? [[bone, lifted(place)]] : [];
         }),
       ) as StudioHeads,
-      fingerTips: { L: lifted(body.fingerTips.L), R: lifted(body.fingerTips.R) },
-      headCenter: lifted(body.headCenter),
-      nose: lifted(body.nose),
+      palms: { L: turned('fingers_L', body.palms.L), R: turned('fingers_R', body.palms.R) },
+      fingerTips: {
+        L: moved('fingers_L', body.fingerTips.L),
+        R: moved('fingers_R', body.fingerTips.R),
+      },
+      headCenter: moved('head', body.headCenter),
+      nose: moved('head', body.nose),
+      eyes: {
+        ...body.eyes,
+        directions: {
+          L: turned('eye_L', body.eyes.directions.L),
+          R: turned('eye_R', body.eyes.directions.R),
+        },
+      },
       floor: [0, 0, 0],
       seatHeight: null,
       standing: null,
     },
-    mesh: { ...mesh, positions, correctives: mesh.correctives.slice(0, armCorrectives(body)) },
+    mesh: { ...mesh, positions, correctives },
   };
+}
+
+/**
+ * Gives the matrix of a bone of a chain pose.
+ *
+ * @param pose The pose.
+ * @param bone The bone.
+ * @returns The matrix.
+ */
+function boneMatrix(pose: ChainPose, bone: StudioBone): Matrix4 {
+  return new Matrix4().fromArray(pose.matrices, STUDIO_BONES.indexOf(bone) * 16);
 }
 
 /**
