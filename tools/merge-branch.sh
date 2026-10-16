@@ -16,6 +16,10 @@
 # branch onto main, but it does not change main, and it keeps the branch and the
 # worktree.
 #
+# The end-to-end tests are paused with all tests (decision
+# 2026-10-16-all-tests-pause.md), so the script does not run them. MERGE_E2E=1
+# runs them.
+#
 # The end-to-end tests fail on a busy machine (a load average above about 30),
 # and main fails in the same way. Before each run of these tests, the script waits
 # until the 1-minute load average is at most MERGE_E2E_MAX_LOAD (default 20) and
@@ -69,6 +73,7 @@ if [ -z "$WORKTREE" ]; then
   git worktree add -q "$WORKTREE" "$BRANCH"
 fi
 
+E2E_RUN=${MERGE_E2E:-0}
 E2E_MAX_LOAD=${MERGE_E2E_MAX_LOAD:-20}
 E2E_WAIT=${MERGE_E2E_WAIT:-900}
 E2E_CMD=${MERGE_E2E_CMD:-pnpm -s test:e2e --project=chromium}
@@ -193,26 +198,30 @@ else
     exit 5
   }
   tail -2 "$MERGE_TMP/size.log"
-  # CI blocks a merge on the Chromium end-to-end tests (design 9.2). The merge of step 8
-  # broke three of them, because no branch ran them (review of step 8, H1).
-  # A failure on a busy machine can pass on a second run. A real failure fails two times.
-  if run_e2e 1; then
-    E2E_LOG=$MERGE_TMP/e2e-1.log
-  else
-    tail -15 "$MERGE_TMP/e2e-1.log"
-    echo "Run 1 of the end-to-end tests failed (the log tail is above). The tests run again."
-    if run_e2e 2; then
-      E2E_LOG=$MERGE_TMP/e2e-2.log
-      echo "Run 2 of the end-to-end tests passed."
+  if [ "$E2E_RUN" = 1 ]; then
+    # CI blocks a merge on the Chromium end-to-end tests (design 9.2). The merge of step 8
+    # broke three of them, because no branch ran them (review of step 8, H1).
+    # A failure on a busy machine can pass on a second run. A real failure fails two times.
+    if run_e2e 1; then
+      E2E_LOG=$MERGE_TMP/e2e-1.log
     else
-      tail -30 "$MERGE_TMP/e2e-2.log"
-      echo "The Chromium end-to-end tests failed two times. The logs are" \
-        "$MERGE_TMP/e2e-1.log and $MERGE_TMP/e2e-2.log."
-      exit 6
+      tail -15 "$MERGE_TMP/e2e-1.log"
+      echo "Run 1 of the end-to-end tests failed (the log tail is above). The tests run again."
+      if run_e2e 2; then
+        E2E_LOG=$MERGE_TMP/e2e-2.log
+        echo "Run 2 of the end-to-end tests passed."
+      else
+        tail -30 "$MERGE_TMP/e2e-2.log"
+        echo "The Chromium end-to-end tests failed two times. The logs are" \
+          "$MERGE_TMP/e2e-1.log and $MERGE_TMP/e2e-2.log."
+        exit 6
+      fi
     fi
+    tail -2 "$E2E_LOG"
+    echo "Ran the build, size, and end-to-end checks at ${SECONDS}s."
+  else
+    echo "Ran the build and size checks at ${SECONDS}s. The end-to-end tests are paused."
   fi
-  tail -2 "$E2E_LOG"
-  echo "Ran the build, size, and end-to-end checks at ${SECONDS}s."
 fi
 
 if [ "$CHECK_ONLY" = 1 ]; then
