@@ -386,12 +386,6 @@ interface Gltf {
        */
       readonly trunk?: number;
       /**
-       * The forward tilt of the seat top of the chair under the seated bind pose, in degrees
-       * (`tilt` of the chair of the config of the mesh rig): the seat top slopes down toward the
-       * front. The file has none when the seat top is level.
-       */
-      readonly seatTilt?: number;
-      /**
        * The pose of the corrective shape of a raised arm (`raise` of the config of the mesh rig):
        * the side, the world turn of the upper arm from the bind pose as x, y, z, w in the axes of
        * the studio, and the angles of the turn from that turn, in degrees, at which the weight of
@@ -1370,17 +1364,6 @@ function standingShoulder(glb: Glb, skeleton: SourceSkeleton): number {
 }
 
 /**
- * Gives the drop of the seat top of a seated body for each unit forward: the tangent of the
- * forward tilt of the seat of the rig (`seatTilt` of the extras of the file), 0 for a level seat.
- *
- * @param glb The file.
- * @returns The drop for each unit forward.
- */
-function seatSlope(glb: Glb): number {
-  return Math.tan(((glb.json.asset?.extras?.seatTilt ?? 0) * Math.PI) / 180);
-}
-
-/**
  * Finds if the rig of a GLB file reclines the trunk of its seated bind pose (`studio.trunk` of
  * the config of the mesh rig): the clip `reference` then turns the trunk upright.
  *
@@ -1427,8 +1410,7 @@ function sceneFrame(
   const box = propBox(glb, (name) => name === seat.name);
   const front = box.max.z;
   const back = seat.name === 'chair' ? (settings.seatBack ?? 0) : 0;
-  const depth =
-    seat.name === 'chair' ? chairDepthOf(mesh, box, scale, back, seatSlope(glb)) : seat.depth;
+  const depth = seat.name === 'chair' ? chairDepthOf(mesh, box, scale, back) : seat.depth;
   // The front edge of the seat of the app, in the axes of the studio: a chair keeps its back at
   // the back of the chair of design 4.5, and a shorter seat ends further back. The body lies the
   // move back behind it.
@@ -1461,19 +1443,11 @@ function sceneFrame(
  * @param chair The box of the chair of the studio, in the axes and the units of the studio.
  * @param scale The meters for each unit.
  * @param move The move of the body back on the chair, in meters (`AnimalSettings.seatBack`).
- * @param slope The drop of the seat top for each unit forward ({@link seatSlope}).
  * @returns The depth, in meters.
  */
-function chairDepthOf(
-  mesh: SourceMesh,
-  chair: Box3,
-  scale: number,
-  move: number,
-  slope: number,
-): number {
-  // The back of the chair of the app reaches its height above the seat top at its back edge: the
-  // lowest level of the body over the plane of the seat top of the studio. The tail goes back
-  // over the seat, so it does not count.
+function chairDepthOf(mesh: SourceMesh, chair: Box3, scale: number, move: number): number {
+  // The back of the chair of the app reaches its height above the seat: the lowest point of the
+  // body over the chair of the studio. The tail goes back over the seat, so it does not count.
   let seat = Infinity;
   for (const vertex of mesh.vertices) {
     const p = vertex.position;
@@ -1483,7 +1457,7 @@ function chairDepthOf(
       p.z >= chair.min.z &&
       p.z <= chair.max.z
     ) {
-      seat = Math.min(seat, p.y + (p.z - chair.min.z) * slope);
+      seat = Math.min(seat, p.y);
     }
   }
   const top = seat + CHAIR.back / scale;
@@ -1499,12 +1473,10 @@ function chairDepthOf(
 }
 
 /**
- * Finds the height of the seat top under a seated studio body at the back edge of the seat (design
- * 4.4, 4.5): the lowest level of the mesh over the plane of the seat top of the app (the piano
- * bench or the chair), so that the body rests on the seat and no part of it goes into the seat. A
- * seat top that slopes forward ({@link seatSlope}) is lower at its front edge. A tail goes back
- * over the seat and through the open back of the chair, so it does not count: the seat is under
- * the haunch.
+ * Finds the height of a flat seat under a seated studio body (design 4.4, 4.5): the lowest point
+ * of the mesh over the seat of the app (the piano bench or the chair), so that the body rests on
+ * the seat and no part of it goes into the seat. A tail goes back over the seat and through the
+ * open back of the chair, so it does not count: the seat is under the haunch.
  *
  * @param glb The file.
  * @param mesh The welded mesh.
@@ -1518,13 +1490,12 @@ function seatHeightOf(glb: Glb, mesh: SourceMesh, frame: SceneFrame): number {
   // 4.5 to its front edge, and the bench around the origin.
   const back = frame.chairDepth === null ? -seat.depth / 2 : -CHAIR.seatDepth / 2;
   const depth = frame.chairDepth ?? seat.depth;
-  const slope = seatSlope(glb);
   let low = Infinity;
   for (const vertex of mesh.vertices) {
     const p = vertex.position.clone().add(frame.offset);
     const z = p.z * frame.scale;
     if (!onTail(vertex) && Math.abs(p.x) <= halfX && z >= back && z <= back + depth) {
-      low = Math.min(low, p.y + ((z - back) / frame.scale) * slope);
+      low = Math.min(low, p.y);
     }
   }
   return round(low * frame.scale);
@@ -1845,10 +1816,6 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   };
   if (raise) {
     body = { ...body, raise };
-  }
-  const tilt = glb.json.asset?.extras?.seatTilt ?? 0;
-  if (settings.seated && tilt !== 0) {
-    body = { ...body, seatTilt: round((tilt * Math.PI) / 180) };
   }
   if (settings.palettes) {
     const palettes = Object.entries(settings.palettes).map(
