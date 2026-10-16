@@ -46,6 +46,17 @@ const PAUSED_TESTS = [
 ];
 
 /**
+ * The switch of the pause of all tests (design 9.3, decision `2026-10-16-all-tests-pause.md`).
+ * While it is true, each unit test file is a paused test: `pnpm test` runs no test and passes,
+ * and `pnpm test:paused` runs each unit test for information. Set it to false to end the pause.
+ * Then `PAUSED_TESTS` gives the paused files again.
+ */
+const ALL_TESTS_PAUSED: boolean = true;
+
+/** The test files of the project `paused`: each unit test file, or the files of `PAUSED_TESTS`. */
+const PAUSED_FILES = ALL_TESTS_PAUSED ? ['**/*.test.ts'] : PAUSED_TESTS;
+
+/**
  * The base path of the site. The Pages workflow sets `ZOOPHONY_BASE=/zoophony/`, the name of the
  * repository (design 9.2), for the build and for `vite preview`. Without it, the site is at `/`.
  */
@@ -79,10 +90,12 @@ export default defineConfig({
     // 300. The default limit of 5 s failed a test under load. A test that does not end fails
     // after 60 s.
     testTimeout: 60_000,
+    // While all tests are paused, the project `unit` has no file, and `pnpm test` passes.
+    passWithNoTests: ALL_TESTS_PAUSED,
     projects: [
       {
         extends: true,
-        test: { name: 'unit', exclude: [SPEED_TESTS, ...PAUSED_TESTS] },
+        test: { name: 'unit', exclude: [SPEED_TESTS, ...PAUSED_FILES] },
       },
       {
         // The speed tests compare times, so load on the machine can make them fail. They run
@@ -92,7 +105,7 @@ export default defineConfig({
       },
       {
         extends: true,
-        test: { name: 'paused', include: PAUSED_TESTS },
+        test: { name: 'paused', include: PAUSED_FILES, exclude: [SPEED_TESTS] },
       },
     ],
   },
