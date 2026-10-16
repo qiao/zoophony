@@ -186,7 +186,7 @@ export function buildStudioBody(
     addEye(
       builder,
       EYE_COLORS,
-      { point: body.heads[`eye_${side}`], normal: body.eyes.normals[side] },
+      { point: body.heads[`eye_${side}`], normal: body.eyes.directions[side] },
       body.eyes.headHeight,
       boneIndex(`eye${side}`),
     );

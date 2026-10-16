@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { Quaternion, Vector3 } from 'three';
+import { Box3, Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
@@ -12,7 +12,7 @@ import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import type { AnimalSettings, Glb } from './studio-body.ts';
 import {
   ANIMALS,
-  eyeSurface,
+  eyeOnHead,
   eyeVertices,
   headFactorOf,
   headRig,
@@ -104,22 +104,32 @@ describe('pnpm studio-body (design 4.4)', async () => {
     const h = body.eyes.headHeight;
     // The head of the bear does not grow, so the eyes take the head height of the holds.
     expect(h).toBe(body.headHeight);
+    // The studio faces +z with its left side at +x, and the app faces -z.
+    const toApp = (p: Vector3): Vector3 => new Vector3(-p.x, p.y, -p.z).multiplyScalar(body.scale);
+    const head = new Box3();
+    for (const vertex of welded.vertices) {
+      const share = vertex.skin.find(([bone]) => bone === 'head')?.[1] ?? 0;
+      if (vertex.material === 'fur' && share > 0.5) {
+        head.expandByPoint(toApp(vertex.position));
+      }
+    }
+    const middleOfHead = head.getCenter(new Vector3());
     for (const side of ['L', 'R'] as const) {
       const old = new Vector3();
       for (const v of eyes[side]) {
         old.add(welded.vertices[v]?.position ?? new Vector3());
       }
-      old.divideScalar(eyes[side].size).multiplyScalar(body.scale);
-      // The studio faces +z with its left side at +x, and the app faces -z.
-      const middle = new Vector3(-old.x, old.y, -old.z);
+      const middle = toApp(old.divideScalar(eyes[side].size));
       const eye = new Vector3(...body.heads[`eye_${side}`]);
-      const normal = new Vector3(...body.eyes.normals[side]);
+      const facing = new Vector3(...body.eyes.directions[side]);
       expect(eye.distanceTo(middle) / h).toBeLessThan(0.1);
-      expect(normal.length()).toBeCloseTo(1, 5);
-      // The eye faces out of the head, forward and to its own side.
-      expect(normal.dot(eye.clone().sub(new Vector3(...body.headCenter)))).toBeGreaterThan(0);
-      expect(normal.z).toBeLessThan(0);
-      expect(Math.sign(normal.x)).toBe(side === 'L' ? -1 : 1);
+      expect(facing.length()).toBeCloseTo(1, 5);
+      // The middle of the eye lies 0.01 H into the head, and the eye faces out from the middle
+      // of the head, forward and to its own side.
+      const surface = eye.clone().addScaledVector(facing, 0.01 * h);
+      expect(surface.sub(middleOfHead).normalize().dot(facing)).toBeGreaterThan(0.99999);
+      expect(facing.z).toBeLessThan(0);
+      expect(Math.sign(facing.x)).toBe(side === 'L' ? -1 : 1);
     }
   });
 
@@ -535,6 +545,28 @@ describe('pnpm studio-body with a tail of two bones (design 4.4)', async () => {
   const tip = STUDIO_BONES.indexOf('tail_tip');
   const root = STUDIO_BONES.indexOf('tail');
 
+  it('turns both pea eyes of the uneven mesh out from one point (design 4.5)', () => {
+    const h = body.eyes.headHeight;
+    const line = (side: 'L' | 'R') => {
+      const facing = new Vector3(...body.eyes.directions[side]);
+      const eye = new Vector3(...body.heads[`eye_${side}`]).addScaledVector(facing, 0.01 * h);
+      return { eye, facing };
+    };
+    const left = line('L');
+    const right = line('R');
+    // The nearest points of the two lines through the eyes.
+    const w = left.eye.clone().sub(right.eye);
+    const b = left.facing.dot(right.facing);
+    const d = left.facing.dot(w);
+    const e = right.facing.dot(w);
+    const t = (b * e - d) / (1 - b * b);
+    const u = (e - b * d) / (1 - b * b);
+    const onLeft = left.eye.clone().addScaledVector(left.facing, t);
+    const onRight = right.eye.clone().addScaledVector(right.facing, u);
+    expect(onLeft.distanceTo(onRight)).toBeLessThan(1e-4);
+    expect(t).toBeLessThan(0);
+  });
+
   it('keeps the tip of the tail behind its root, with the vertices of the tip on it', () => {
     const head = body.heads.tail_tip;
     if (!head) {
@@ -582,7 +614,7 @@ describe('pnpm studio-body with a tail of two bones (design 4.4)', async () => {
   });
 });
 
-describe('eyeSurface (design 4.5)', () => {
+describe('eyeOnHead (design 4.5)', () => {
   /**
    * Makes a vertex of a test mesh.
    *
@@ -637,19 +669,16 @@ describe('eyeSurface (design 4.5)', () => {
     ],
   };
 
-  it('finds the nearest point of the fur of the head, with the mean normal of the faces near it', () => {
-    const { point, normal } = eyeSurface(mesh, new Vector3(0, 0, 2), 0.5);
+  it('finds the nearest point of the fur of the head', () => {
+    const point = eyeOnHead(mesh, new Vector3(0, 0, 2));
     expect(point.distanceTo(new Vector3(0, 0, 1))).toBeLessThan(1e-9);
-    expect(normal.distanceTo(new Vector3(0, 0, 1))).toBeLessThan(1e-9);
-  });
-
-  it('takes the normal only from the faces within the radius', () => {
-    const { normal } = eyeSurface(mesh, new Vector3(-1.5, 0, 0.5), 0.5);
-    expect(normal.distanceTo(new Vector3(-1, 0, 1).normalize())).toBeLessThan(1e-9);
+    expect(
+      eyeOnHead(mesh, new Vector3(-1.5, 0, 0.5)).distanceTo(new Vector3(-1, 0, 0)),
+    ).toBeLessThan(1e-9);
   });
 
   it('refuses a head with no fur face', () => {
-    expect(() => eyeSurface({ vertices, faces: [face(6, 7, 8)] }, new Vector3(), 1)).toThrow(
+    expect(() => eyeOnHead({ vertices, faces: [face(6, 7, 8)] }, new Vector3())).toThrow(
       /no fur face/,
     );
   });

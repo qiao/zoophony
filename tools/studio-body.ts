@@ -7,7 +7,7 @@ import { join, relative, resolve } from 'node:path';
 import { Box3, MathUtils, Matrix4, Quaternion, Triangle, Vector3 } from 'three';
 
 import { SPECIES_COLORS } from '../src/models/colors.ts';
-import { EYE, eyeMiddle } from '../src/models/eyes.ts';
+import { eyeMiddle } from '../src/models/eyes.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
@@ -1095,63 +1095,39 @@ export function eyeVertices(mesh: SourceMesh): Readonly<Record<Side, ReadonlySet
   return out;
 }
 
-/** The place of a pea eye on the head, in the axes and the units of the studio. */
-export interface EyeSurface {
-  /** The nearest point of the fur of the head to the middle of the old eye. */
-  readonly point: Vector3;
-  /** The unit normal of the head surface around the point. */
-  readonly normal: Vector3;
-}
-
 /**
  * Finds the place of a pea eye on the head (design 4.5): the nearest point of the fur faces of the
- * head to the middle of the old eye, and the mean normal of the fur faces of the head that come
- * within a radius of that point, weighted by their areas. Thus the eye lies flat on the facets
- * under it. A fur face of the head has each corner more than half on the head bone.
+ * head to the middle of the old eye. A fur face of the head has each corner more than half on the
+ * head bone.
  *
  * @param mesh The welded mesh.
- * @param middle The middle of the old eye.
- * @param radius The radius of the faces of the normal, such as half the height of the eye.
- * @returns The point and the normal.
+ * @param middle The middle of the old eye, in the axes and the units of the studio.
+ * @returns The point, in the axes and the units of the studio.
  * @throws Error if the head has no fur face.
  */
-export function eyeSurface(mesh: SourceMesh, middle: Vector3, radius: number): EyeSurface {
-  const triangles = mesh.faces.flatMap((face) => {
+export function eyeOnHead(mesh: SourceMesh, middle: Vector3): Vector3 {
+  const point = new Vector3();
+  const near = new Vector3();
+  const triangle = new Triangle();
+  let best = Infinity;
+  for (const face of mesh.faces) {
     const corners = face.corners.map((c) => mesh.vertices[c]);
     const onHead = corners.every(
       (v) => v?.material === 'fur' && (v.skin.find(([bone]) => bone === 'head')?.[1] ?? 0) > 0.5,
     );
     const [a, b, c] = corners;
-    return onHead && a && b && c ? [new Triangle(a.position, b.position, c.position)] : [];
-  });
-  if (triangles.length === 0) {
+    if (onHead && a && b && c) {
+      triangle.set(a.position, b.position, c.position).closestPointToPoint(middle, near);
+      if (near.distanceTo(middle) < best) {
+        best = near.distanceTo(middle);
+        point.copy(near);
+      }
+    }
+  }
+  if (best === Infinity) {
     throw new Error('The head has no fur face.');
   }
-
-  const point = new Vector3();
-  const near = new Vector3();
-  let best = Infinity;
-  for (const triangle of triangles) {
-    triangle.closestPointToPoint(middle, near);
-    const distance = near.distanceTo(middle);
-    if (distance < best) {
-      best = distance;
-      point.copy(near);
-    }
-  }
-
-  // The cross product of two edges is twice the area of the face along its normal.
-  const normal = new Vector3();
-  const edge = new Vector3();
-  const cross = new Vector3();
-  for (const triangle of triangles) {
-    if (triangle.closestPointToPoint(point, near).distanceTo(point) <= radius) {
-      edge.subVectors(triangle.c, triangle.a);
-      cross.subVectors(triangle.b, triangle.a).cross(edge);
-      normal.add(cross);
-    }
-  }
-  return { point, normal: normal.normalize() };
+  return point;
 }
 
 /** The arms of the pose of the sheet. */
@@ -1573,9 +1549,8 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   );
   let top = -Infinity;
   let chin = Infinity;
-  // The top and the chin of the head that shows, after the growth, which size the pea eyes.
-  let shownTop = -Infinity;
-  let shownChin = Infinity;
+  // The box of the head that shows, after the growth, which sizes and turns the pea eyes.
+  const shown = new Box3();
   const box = {
     min: new Vector3(Infinity, Infinity, Infinity),
     max: new Vector3(-Infinity, -Infinity, -Infinity),
@@ -1591,8 +1566,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       const place = ungrown(vertex.position, { head: share, neck: neckShare }, rig);
       top = Math.max(top, place.y);
       chin = Math.min(chin, place.y);
-      shownTop = Math.max(shownTop, vertex.position.y);
-      shownChin = Math.min(shownChin, vertex.position.y);
+      shown.expandByPoint(vertex.position);
       box.min.min(place);
       box.max.max(place);
     }
@@ -1603,19 +1577,18 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   const center = box.min.clone().add(box.max).multiplyScalar(0.5).add(headShiftOf(glb)).setX(0);
 
   // Each pea eye bone lies in the head surface under the middle of the old eye, as the eye bones
-  // of the parametric bodies do (`eyeMiddle()` of `models/eyes.ts`).
-  const eyeHeight = (shownTop - shownChin) * scale;
+  // of the parametric bodies do (`eyeMiddle()` of `models/eyes.ts`). Each eye faces out from the
+  // middle of the head that shows, as an eye on the round head of a parametric body does.
+  const eyeHeight = (shown.max.y - shown.min.y) * scale;
+  const middle = shown.getCenter(new Vector3());
   const eyeAt = (side: Side) => {
     const old = eyeCenter(side);
-    const surface = eyeSurface(withoutEyes, old, (0.5 * EYE[1] * eyeHeight) / scale);
-    const { point } = eyeMiddle(
-      { point: model(surface.point), normal: direction(surface.normal) },
-      eyeHeight,
-      false,
-    );
-    const shift = new Vector3(...point).distanceTo(new Vector3(...model(old))) / eyeHeight;
-    const head: Vec3 = [round(point[0]), round(point[1]), round(point[2])];
-    return { head, normal: direction(surface.normal), shift };
+    const point = eyeOnHead(withoutEyes, old);
+    const facing = direction(point.clone().sub(middle));
+    const eye = eyeMiddle({ point: model(point), normal: facing }, eyeHeight, false).point;
+    const shift = new Vector3(...eye).distanceTo(new Vector3(...model(old))) / eyeHeight;
+    const head: Vec3 = [round(eye[0]), round(eye[1]), round(eye[2])];
+    return { head, facing, shift };
   };
   const eyeL = eyeAt('L');
   const eyeR = eyeAt('R');
@@ -1623,7 +1596,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   heads['eye_R'] = eyeR.head;
   const peaEyes: StudioEyes = {
     headHeight: round(eyeHeight),
-    normals: { L: eyeL.normal, R: eyeR.normal },
+    directions: { L: eyeL.facing, R: eyeR.facing },
   };
 
   // The studio animal faces +z, so its moves turn as its points do.

@@ -192,8 +192,8 @@ export interface StudioRaise {
 /**
  * The pea eyes of a studio body (design 4.4, 4.5): the eyes of the parametric bodies (`addEye()` of
  * `models/eyes.ts`), which replace the eyes of the mesh. Each eye lies at the bind place of its eye
- * bone, half in the head surface (`eyeMiddle()` of `models/eyes.ts`), and faces out along the
- * normal of the head surface there.
+ * bone, half in the head surface (`eyeMiddle()` of `models/eyes.ts`), and faces out from the
+ * middle of the head, as an eye on the round head of a parametric body does.
  */
 export interface StudioEyes {
   /**
@@ -202,8 +202,12 @@ export interface StudioEyes {
    * (`headFactor` of `pnpm rig-mesh`), so that the eyes fit the larger head.
    */
   readonly headHeight: number;
-  /** The unit normal of the head surface at each eye, in the bind pose. */
-  readonly normals: Readonly<Record<Side, Vec3>>;
+  /**
+   * The unit direction in which each eye faces, in the bind pose: from the middle of the box of the
+   * head that shows through the eye. The head surface under the eye of the bear faces 39° up, so an
+   * eye along the normal of the surface hid behind the muzzle in the front view.
+   */
+  readonly directions: Readonly<Record<Side, Vec3>>;
 }
 
 /**
