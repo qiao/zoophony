@@ -56,8 +56,12 @@ export type Support = 'chair' | 'stool' | 'high-stool' | 'bench' | 'stand' | 'ri
 export const CHAIR = {
   seatWidth: 0.42,
   seatDepth: 0.4,
-  /** The height of the top of the back above the seat. A lower seat has a lower back. */
-  back: 0.5,
+  /**
+   * The height of the top of the back above the seat. A lower seat has a lower back. The top rail
+   * starts above the tail of the red fox, which passes the back posts up to 0.34 m above the seat
+   * (`docs/research/2026-10-16-seat-rest/seat-probe.ts`).
+   */
+  back: 0.45,
   /**
    * The height of the one wide top rail of the back. The rail ends at the back top, and the back
    * is open below it, as on the chairs of `animals.webp`.
