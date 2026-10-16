@@ -129,6 +129,14 @@
     "backHeight": 0.15,
     "note": "The chair is wider than the chair of the rabbit rig, because the haunch of the fox is x ±0.17. The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. Its front edge ends where the thighs, which slope down, leave the seat top at the haunch: with the front edge 0.01 units further forward, the seat top fell 1.2 cm under the thighs (docs/research/2026-10-16-hip-open.md). So the seat of the app is 0.335 m deep, and its front edge is 12.8 cm behind the back of the knees. The back edge lies 0.0258 units (4 cm) forward of the back edge of 2026-10-16 (-0.16 units), so that the body keeps its place 1 cm in front of the back posts (the user said \"let the fox and rabbit sit in more\" on 2026-10-16), and the seat of the app ends at the front edge of this chair (no seatBack in ANIMALS)."
   },
+  "crease": {
+    "rings": 2,
+    "rounds": 8,
+    "share": 0.5,
+    "back": 0.1,
+    "below": 0.03,
+    "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh (crease_relax() of tools/blender/rig_mesh.py). The user said \"there's an obvious fold/gap between the trunk and the thigh, can that be made less obvious?\" on 2026-10-16. The cause is the geometry: the upright trunk over the sloped thighs folds the mesh there, the faces of the fold face away from the light, and the render with a flat light and the face colors shows no line (docs/research/2026-10-16-hip-open.md). The seam is each vertex of both a trunk face and a thigh face, up to back units behind the hip joints and above below units under them, and the region adds rings rings of neighbors. Each vertex moves share of the way to the middle of its neighbors in rounds rounds, with a weight that falls from the seam out. Of 3, 8, and 20 rounds, the middle one is the moderate step. The corrective shapes give the source back, so the standing body keeps its form."
+  },
   "sit": {
     "gap": 0.004,
     "band": 0.2,
