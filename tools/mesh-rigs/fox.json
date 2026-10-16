@@ -116,7 +116,8 @@
   "eyeShell": {
     "lift": 0.002,
     "points": 12,
-    "note": "Each eye shell is a fan from the middle of the dark faces of the eye to at most this number of points of their edge, lifted this far (units) along the normal of the eye. The values are the values of the rabbit."
+    "reach": 1,
+    "note": "Each eye shell is a fan from the middle of the dark faces of the eye to at most this number of points of their edge, lifted this far (units) along the normal of the eye. pnpm studio-body finds each eye by its fan, drops the fan, and the app puts its pea eye there (design 4.5). The old eye is the dark faces and each face whose middle lies within reach times the radius of their edge, seen along the normal of the eye: the white of the almond eye and the brown lid shading under the right eye lie within 0.24 to 0.70 of that radius. After the palette, the faces of the old eye take the color with the largest area in the ring of faces that share a corner with it, so that no outline of the old eye shows around the pea eye. The values of lift and points are the values of the rabbit."
   },
   "chair": {
     "halfWidth": 0.2,
