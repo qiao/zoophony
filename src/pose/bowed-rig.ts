@@ -250,6 +250,16 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
 }
 
 /**
+ * The violin upright on the lap in the rest pose of the rabbit and the red fox: the scroll up and
+ * a little forward, the top plate to the front, as the cat violas of the screenshot of the user
+ * (2026-10-14-arms-rest and 2026-10-16-seat-rest decisions).
+ */
+const LAP_VIOLIN = { axis: [0, 1, -0.15], top: CHIN_HOLD.rest.top } as const;
+
+/** The direction from the frog to the tip of the bow across the lap in the rest pose. */
+const LAP_BOW_TIP = [-1, 0, -0.05] as const satisfies Vec3;
+
+/**
  * The hold of the violin on the left shoulder, for the rabbit (design 4.6, 5.3), as a real
  * violinist holds it (violinonline.com, "How to hold the violin", and Simon Fischer, "Basics:
  * Holding the violin", 2026-10-14-fox-rabbit-form decisions): the tail end on the left
@@ -273,18 +283,17 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  * under the violin, and turned over faces of the left upper arm of the rabbit mesh in each play
  * sample (2026-10-13-mesh-rabbit decisions).
  *
- * The rest pose is the rest of a seated violinist between the passages (violinspiration.com,
- * "Violin posture": "the violin resting on your left leg with the neck in your left hand", "the
- * bow will also be pointing up"): the violin stands upright on the left thigh, held at its neck,
- * and the bow points up and forward at 45°. Straight up, the bow went 5.4 cm into the body during
- * the lift and the lowering. The right paw holds the bow 0.5 H out from the right thigh, 0.5 H
- * above it, and 0.6 H forward, so that the long right arm hangs down and forward, nearly
- * straight. With the paw on the thigh (0.25 H out, 0.06 H up), the bent arm stood out to the side
- * with the paw at the hip, and faces of the side of the trunk below the right armpit turned over
- * in each rest sample (the user: "the rabbit's arm is deformed", 2026-10-14-fox-rabbit-fix
- * decisions). The right elbow points out, down, and forward. The left elbow points out, down, and
- * a little back: with the elbow of the chin hold, the left forearm went 1.9 cm into the larger
- * violin of 2026-10-14 at rest, and 1.2 cm with this elbow.
+ * The rest pose is the rest of the cat violas, which the user asked for (2026-10-14-arms-rest and
+ * 2026-10-16-seat-rest decisions): the violin stands upright on the lap in the middle between the
+ * thighs, with its lower end on them, held at its neck, and the bow lies across the lap, about
+ * level, in the right paw, with the tip to the left. The violin stands 0.4 H in from the left
+ * thigh at 0.7 of the way to the knee, 0.3 H down and 0.3 H forward, so that its lower end is 1.7
+ * cm from the skin of the thighs. The right paw holds the bow 0.5 H out from the right thigh, 0.5 H
+ * above it, and 0.3 H forward, so that the long right arm hangs down, nearly straight: with the
+ * paw on the thigh, faces of the side of the trunk below the right armpit turned over in each
+ * rest sample (the user: "the rabbit's arm is deformed", 2026-10-14-fox-rabbit-fix decisions).
+ * The right elbow points out, down, and forward, and the left elbow out, down, and a little
+ * forward.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
@@ -296,12 +305,13 @@ const SHOULDER_HOLD = {
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
-  restPoleR: [1, -0.9, -0.5],
-  restPoleL: [-0.5, -1, 0.3],
+  restPoleL: [-1, -1, -0.3],
+  restPoleR: [1.5, -0.5, -0.5],
+  rest: { ...LAP_VIOLIN, lap: { along: 0.7, offset: [0.4, -0.3, -0.3] } },
   restBow: {
-    lap: { along: 0.8, offset: [0.5, 0.5, -0.6] },
-    tip: [0.1, 0.8, -0.8],
-    hair: [-1, 0, 0],
+    lap: { along: 0.8, offset: [0.5, 0.5, -0.3] },
+    tip: LAP_BOW_TIP,
+    hair: [0, -1, 0.2],
   },
 } as const satisfies BowedHold;
 
@@ -327,19 +337,14 @@ const SHOULDER_HOLD = {
  * (1.4, -0.7, -1) 3.0 cm, and with this hold 2.4 cm, with the same share of folded play samples
  * (2026-10-14-fox-rabbit-fix decisions). The bow paw reaches 0.265 m of the hair, more than half.
  *
- * The rest pose is the rest of the cat violas, which the user asked for (2026-10-14-arms-rest
- * decisions): the violin stands upright on the lap in the middle between the knees, 0.4 H in from
- * the left thigh, held at its neck, with the left elbow out to the side. Its tail end is 0.3 H
- * above the thigh, and it leans only a little forward, so that the scroll is at the height of the
- * chest, as for the cats of the screenshot of the user: with the axis of the chin hold and the
- * tail end 0.06 H above the thigh, the violin leaned and the scroll was low
- * (2026-10-14-fox-rabbit-fix decisions). With the left elbow of the cats, the left arm went 7.0 cm
- * into the body at rest. The bow lies across the lap in
- * the right paw, level, with the tip to the left and forward, so that the stick passes in front of
- * the violin. The grip is 0.2 H out from the right thigh and 0.3 H above it: 0.15 H out and 0.2 H
- * above, the right upper arm went 4.0 cm into the body while the arms lowered, and 3.1 cm at this
- * grip. The tip points 0.5 to the front: with 0.35, the bow went 2.2 cm into the body while the
- * arms lowered, and 0.9 cm with 0.5.
+ * The rest pose is the rest of the cat violas, as for the rabbit (2026-10-16-seat-rest
+ * decisions): the violin stands upright on the lap, its lower end on the inner left thigh 0.15 H
+ * in from the thigh at 0.8 of the way to the knee, 0.35 H down and 0.3 H forward, 1.4 cm from the
+ * skin, held at its neck, with the left elbow out to the side. The bow lies across the lap in the
+ * right paw, about level, with the tip to the left and a little forward, behind the knees. The grip
+ * is 0.2 H out from the right thigh and 0.3 H above it, at 0.6 of the way to the knee: 0.15 H out
+ * and 0.2 H above, the right upper arm went 4.0 cm into the body while the arms lowered
+ * (2026-10-14-arms-rest decisions).
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
@@ -352,14 +357,10 @@ const FOX_HOLD = {
   freeHair: 0.12,
   restPoleL: [-1, -1, 0],
   restPoleR: [1, -0.4, 0.3],
-  rest: {
-    axis: [0, 1, -0.15],
-    top: CHIN_HOLD.rest.top,
-    lap: { along: 0.85, offset: [0.4, 0.3, 0] },
-  },
+  rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0.15, -0.35, -0.3] } },
   restBow: {
     lap: { along: 0.6, offset: [0.2, 0.3, 0] },
-    tip: [-1, 0, -0.5],
+    tip: LAP_BOW_TIP,
     hair: [0, -1, 0.2],
   },
 } as const satisfies BowedHold;
