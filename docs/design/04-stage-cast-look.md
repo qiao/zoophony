@@ -551,7 +551,10 @@ quarter of the folded faces.
   which marks the eye for the export. After the palette, the faces of the old eye (the dark faces
   and the faces near them, such as the white of the almond eye of the fox) take the color with the
   largest area in the ring of faces around them (`recolor_old_eyes()`), so that no outline of the
-  old eye shows around the pea eye. A face takes
+  old eye shows around the pea eye. Then each patch of dark faces near an old eye that no old eye
+  holds takes the color with the largest area in its own ring (`dark_faces_near()`), such as the
+  black end of the upper lid line above the inner corner of the left eye of the fox. The reach of
+  the rule (`darkReach` of the config) keeps the dark faces of the mouth. A face takes
   the mean of its texture samples that are not dark, so that the black gaps between the islands of
   the texture do not darken a face at the edge of an island. A studio body can hold other palettes
   of the same faces (`StudioBody.palettes`), and a species selects one (`SpeciesParams.palette`).
