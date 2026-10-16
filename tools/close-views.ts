@@ -2,9 +2,13 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { chromium } from '@playwright/test';
-import type { Browser } from '@playwright/test';
+import type { Browser, Page } from '@playwright/test';
 import { preview } from 'vite';
 
+import { DEFAULT_DEMO, DEMO_IDS } from '../src/app/demos.ts';
+import type { DemoId } from '../src/app/demos.ts';
+import { BAR_HIDE_SEC } from '../src/app/bar-rules.ts';
+import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { GALLERY_FOV_DEG, speciesItems } from '../src/gallery/items.ts';
 import { SPECIES } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
@@ -1075,6 +1079,282 @@ async function speciesViews(
   });
 }
 
+/**
+ * A camera of the mode `play`: a drag across the stage and wheel steps of the orbit controls
+ * after "Reset view" (design 2.5), as the probe `user-camera.ts` of the round of the seats
+ * (`docs/research/2026-10-16-seat-rest/`) moved it. A drag of the height of the canvas turns the
+ * camera 360° (the rotate speed 1 of the orbit controls).
+ */
+export interface PlayCamera {
+  /** The name of the camera in the file names and the labels. */
+  readonly name: string;
+  /** The drag to the right, in CSS pixels. A drag to the right moves the camera to the left. */
+  readonly dx: number;
+  /** The drag down, in CSS pixels. A drag up moves the camera lower. */
+  readonly dy: number;
+  /** The wheel steps of -100 pixels, each a zoom in. A negative count zooms out. */
+  readonly wheel: number;
+}
+
+/**
+ * The named cameras of the mode `play`:
+ *
+ * - `default`: the default view of "Reset view", as the play frame of `pnpm snapshot`.
+ * - `violins`: low from the front left, close to the first and the second violins, with the back
+ *   of the conductor on the right. It is the camera of the frame of the user of 2026-10-16
+ *   (`docs/research/2026-10-16-seat-rest/user-camera.webp`). The drag up of 60 px puts the camera
+ *   at the lowest elevation of the orbit limits (10°).
+ */
+export const PLAY_CAMERAS: readonly PlayCamera[] = [
+  { name: 'default', dx: 0, dy: 0, wheel: 0 },
+  { name: 'violins', dx: 45, dy: -60, wheel: 12 },
+];
+
+/** The song time of the play frame with no `--time`, in seconds, as `pnpm screenshots --play`. */
+export const PLAY_TIME_SEC = 6;
+
+/** The size of a play frame, in CSS pixels: the size of the reference images of the scene. */
+export const PLAY_FRAME = { width: 1440, height: 900 } as const;
+
+/** The size of a play frame in the grid, in CSS pixels: two thirds of the frame. */
+const PLAY_CELL = { width: 960, height: 600 } as const;
+
+/** The point where the drag of a camera starts, in CSS pixels: on the stage. */
+const DRAG_START = { x: 720, y: 400 } as const;
+
+/**
+ * The time of play from the seek to the play frame, in seconds. It is longer than the time after
+ * which the bar hides (design 2.3), so the frame shows the scene only.
+ */
+const SEEK_LEAD_SEC = BAR_HIDE_SEC + 1;
+
+/** The command line of the mode `play`. */
+export interface PlayArgs {
+  /** The demo. */
+  readonly demo: DemoId;
+  /** The song time of the play frame, in seconds. */
+  readonly time: number;
+  /** The cameras, one frame each. */
+  readonly cameras: readonly PlayCamera[];
+  /** The output directory. */
+  readonly out: string;
+  /** The URL of a running site of the working tree, or `null` for the built site. */
+  readonly url: string | null;
+  /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
+  readonly base: string | null;
+}
+
+/**
+ * Reads a camera of the command line: a name of {@link PLAY_CAMERAS}, or `<dx>,<dy>,<wheel>` with
+ * the drag in CSS pixels and a whole number of wheel steps. The name of such a camera is
+ * `drag<dx>_<dy>_<wheel>`.
+ *
+ * @param text The camera.
+ * @returns The camera.
+ * @throws Error that lists the names of the cameras, for a text that is not a camera.
+ */
+export function playCamera(text: string): PlayCamera {
+  const drag = /^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?),(-?\d+)$/.exec(text);
+  if (drag) {
+    const [dx, dy, wheel] = [Number(drag[1]), Number(drag[2]), Number(drag[3])];
+    return { name: `drag${dx}_${dy}_${wheel}`, dx, dy, wheel };
+  }
+  const named = PLAY_CAMERAS.find((camera) => camera.name === text);
+  if (named) {
+    return named;
+  }
+  const names = PLAY_CAMERAS.map((camera) => camera.name).join(', ');
+  throw new Error(
+    `The camera "${text}" is not known. The correct names are: ${names}. A camera can also be <dx>,<dy>,<wheel>, such as 45,-60,12.`,
+  );
+}
+
+/**
+ * Reads the command line of the mode `play`:
+ * `play <dir> [--demo <id>] [--time <s>] [--camera <name>|<dx>,<dy>,<wheel>]... [--url <url>] [--base <ref>]`.
+ * With no `--camera`, the camera is `default`.
+ *
+ * @param args The arguments after the script.
+ * @returns The command line, or `null` when the first argument is not `play`.
+ * @throws Error that lists the correct names, for an unknown demo or camera, and an error for a
+ *   wrong time, a wrong option, or a missing word.
+ */
+export function playArgs(args: readonly string[]): PlayArgs | null {
+  if (args[0] !== 'play') {
+    return null;
+  }
+  const line = modeLine(
+    args.slice(1),
+    ['--demo', '--time', '--camera', '--url', '--base'],
+    ['--camera'],
+  );
+  const [out, ...extra] = line.words;
+  if (!out || extra.length > 0) {
+    throw new Error('The mode play takes one output directory, such as: play scratch/play');
+  }
+
+  const demos = DEMO_IDS.map((name) => ({ name }));
+  const demo = namedItem(line.options.get('--demo')?.[0] ?? DEFAULT_DEMO, demos, 'demo').name;
+  const timeText = line.options.get('--time')?.[0] ?? String(PLAY_TIME_SEC);
+  const time = Number(timeText);
+  if (!/^\d+(?:\.\d+)?$/.test(timeText) || !Number.isFinite(time)) {
+    throw new Error(`The time "${timeText}" is not a song time in seconds, such as 6 or 30.5.`);
+  }
+  const cameras = (line.options.get('--camera') ?? ['default']).map(playCamera);
+  const url = line.options.get('--url')?.[0] ?? null;
+  const base = line.options.get('--base')?.[0] ?? null;
+  return { demo, time, cameras, out, url, base };
+}
+
+/**
+ * Moves the seek bar of the app to a song time, as a drag of its thumb does.
+ *
+ * @param page The page of the app.
+ * @param sec The song time, in seconds.
+ */
+async function seekTo(page: Page, sec: number): Promise<void> {
+  await page.$eval(
+    '.seek',
+    (element, value) => {
+      if (element instanceof HTMLInputElement) {
+        element.value = String(value);
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+        element.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    },
+    sec,
+  );
+}
+
+/**
+ * Renders one play frame of a site: it plays the demo, closes the drawer, moves the camera to
+ * the default view with "Reset view", and drags and turns the wheel of the camera. Then it seeks
+ * to {@link SEEK_LEAD_SEC} before the time, waits until the seek bar reaches the time, and
+ * waits until the bar hides. A seek keeps the free camera of "Reset view" (design 2.5).
+ *
+ * @param browser The browser.
+ * @param site The URL of the site.
+ * @param args The command line.
+ * @param camera The camera.
+ * @returns The PNG image, and the song time of the bar at the frame, such as `0:06`.
+ */
+async function playFrame(
+  browser: Browser,
+  site: string,
+  args: PlayArgs,
+  camera: PlayCamera,
+): Promise<{ readonly image: Buffer; readonly clock: string }> {
+  const path = `/#demo=${args.demo}`;
+  const page = await openShot(browser, new URL(path.slice(1), site).href, {
+    file: '',
+    path,
+    ...PLAY_FRAME,
+    ready: SAMPLES_READY,
+  });
+  try {
+    await page.click(FIRST_PLAY);
+    await page.waitForTimeout(1500);
+    // The open drawer keeps the bar and covers the right side of the stage (design 2.8).
+    await page.click('.close-drawer');
+    await page.getByRole('button', { name: 'Reset view' }).click();
+    if (camera.dx !== 0 || camera.dy !== 0) {
+      await page.mouse.move(DRAG_START.x, DRAG_START.y);
+      await page.mouse.down();
+      await page.mouse.move(DRAG_START.x + camera.dx, DRAG_START.y + camera.dy, { steps: 20 });
+      await page.mouse.up();
+    }
+    for (let i = 0; i < Math.abs(camera.wheel); i++) {
+      await page.mouse.wheel(0, camera.wheel > 0 ? -100 : 100);
+      await page.waitForTimeout(30);
+    }
+    // The pointer leaves the bar, so that the bar hides.
+    await page.mouse.move(PLAY_FRAME.width / 2, PLAY_FRAME.height / 2);
+
+    const whole = Math.floor(args.time);
+    await seekTo(page, Math.max(0, whole - SEEK_LEAD_SEC));
+    // The seek bar shows the whole seconds of the song time.
+    await page.waitForFunction(
+      (sec) => {
+        const seek = document.querySelector('.seek');
+        return seek instanceof HTMLInputElement && Number(seek.value) >= sec;
+      },
+      whole,
+      { polling: 20, timeout: 60_000 },
+    );
+    await page.waitForTimeout((args.time - whole) * 1000);
+    await page.waitForSelector('.bar.is-hidden', { state: 'attached', timeout: 10_000 });
+    // The bar fades out in 0.2 s.
+    await page.waitForTimeout(300);
+    const image = await page.screenshot({ type: 'png' });
+    const clock = await page.$eval('.bar .time', (element) => element.textContent ?? '');
+    return { image, clock };
+  } finally {
+    await page.close();
+  }
+}
+
+/**
+ * Renders the play frame of each camera on one site, and writes each frame as
+ * `<prefix><camera>.png`.
+ *
+ * @param browser The browser.
+ * @param site The URL of the site.
+ * @param args The command line.
+ * @param prefix The start of the file names, such as `play-`.
+ * @returns The frames and their labels, one for each camera.
+ */
+async function renderPlay(
+  browser: Browser,
+  site: string,
+  args: PlayArgs,
+  prefix: string,
+): Promise<RenderedViews> {
+  const cells: Buffer[] = [];
+  const labels: string[] = [];
+  for (const camera of args.cameras) {
+    const frame = await playFrame(browser, site, args, camera);
+    const file = join(args.out, `${prefix}${camera.name}.png`);
+    await writeFile(file, frame.image);
+    console.log(`${file}: song time ${frame.clock}`);
+    cells.push(frame.image);
+    labels.push(`${camera.name}, ${args.demo} at ${args.time} s`);
+  }
+  return { cells, labels };
+}
+
+/**
+ * Renders the mode `play` into `<dir>`: the play frame of a demo at each camera, and the grid of
+ * the frames with one column for each camera, as `play-views.png` and `.webp`. With `--base`, it
+ * also builds the commit in a temporary folder ({@link withRefSite}), writes each frame of the
+ * commit as `play-base-<camera>.png`, and puts the row of the commit above the row of the working
+ * tree in `play-base-views.png` and `.webp`.
+ *
+ * @param args The command line.
+ * @param site The site of the working tree, with its browser.
+ */
+async function playViews(
+  args: PlayArgs,
+  site: { readonly base: string; readonly browser: Browser },
+): Promise<void> {
+  const { browser } = site;
+  const columns = args.cameras.length;
+  const after = await renderPlay(browser, site.base, args, 'play-');
+  const sheet = await grid(browser, after.cells, after.labels, columns, PLAY_CELL);
+  await writeImage(browser, sheet, join(args.out, 'play-views'));
+  const ref = args.base;
+  if (ref === null) {
+    return;
+  }
+
+  const label = `${ref} (${shortHash(ref)})`;
+  await withRefSite(ref, label, async (other) => {
+    const before = await renderPlay(browser, other, args, 'play-base-');
+    const labels = baseGridLabels(after.labels, label);
+    const both = await grid(browser, [...before.cells, ...after.cells], labels, columns, PLAY_CELL);
+    await writeImage(browser, both, join(args.out, 'play-base-views'));
+  });
+}
+
 /** The first argument that only checks the command line: the tool then builds and renders nothing. */
 export const CHECK_FLAG = '--check';
 
@@ -1097,6 +1377,12 @@ export type CloseMode =
       readonly kind: 'species';
       /** The command line of the mode. */
       readonly args: SpeciesArgs;
+    }
+  | {
+      /** Play frames of a demo at named cameras. */
+      readonly kind: 'play';
+      /** The command line of the mode. */
+      readonly args: PlayArgs;
     };
 
 /**
@@ -1104,12 +1390,16 @@ export type CloseMode =
  *
  * @param args The arguments after the script, with no {@link CHECK_FLAG}.
  * @returns The mode, or `null` when no mode matches.
- * @throws Error that lists the correct names, for a wrong value of the mode `species`.
+ * @throws Error that lists the correct names, for a wrong value of the mode `species` or `play`.
  */
 export function closeModeArgs(args: readonly string[]): CloseMode | null {
   const species = speciesArgs(args);
   if (species) {
     return { kind: 'species', args: species };
+  }
+  const play = playArgs(args);
+  if (play) {
+    return { kind: 'play', args: play };
   }
   const lineup = lineupArgs(args);
   if (lineup) {
@@ -1124,6 +1414,7 @@ const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--url <url>] [--base <ref>]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest>] [--url <url>] [--base <ref>]`,
+  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--url <url>] [--base <ref>]`,
 ].join('\n');
 
 /**
@@ -1131,7 +1422,8 @@ const USAGE = [
  * `node tools/close-views.ts <role> <dir> [--url <url>] [--base <ref>]` (design 7.1), a lineup
  * of species: `node tools/close-views.ts lineup <species,...> <dir>` ({@link lineupViews}), or
  * species at named views: `node tools/close-views.ts species <species,...> <dir>`
- * ({@link speciesViews}). It writes
+ * ({@link speciesViews}), or play frames of a demo: `node tools/close-views.ts play <dir>`
+ * ({@link playViews}). It writes
  * the animal of the role at each moment from each view into `<dir>`, and the grid of all cells as
  * `<role>-views.png` and `<role>-views.webp`. With `--url`, it uses a running site, such as the
  * dev server, in place of the built site. With `--base`, it also builds the commit in a temporary
@@ -1180,6 +1472,8 @@ async function main(): Promise<void> {
       await lineupViews(mode.args, site);
     } else if (mode.kind === 'species') {
       await speciesViews(mode.args, site);
+    } else if (mode.kind === 'play') {
+      await playViews(mode.args, site);
     } else {
       const { role: name } = mode.args;
       const role = ROLE_VIEWS[name];
