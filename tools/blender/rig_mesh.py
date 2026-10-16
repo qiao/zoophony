@@ -34,7 +34,9 @@ reads it (route 3 of `AGENTS.md`). The steps:
    directions of the config, back through the open back of the chair. The skin of the
    long-armed source in this pose is the bind mesh. Where the pose turns faces over, as at the
    haunch, their vertices relax toward their neighbors. With `sit` of the config, the underside
-   of the haunch behind the hip joints goes down onto the seat (`sit()`). With `studio.trunk`,
+   of the haunch behind the hip joints goes down onto the seat (`sit()`). With `tilt` of the
+   chair, the seat top slopes down toward the front, and each height over the seat is a height
+   over its plane (`seat_level()`). With `studio.trunk`,
    the trunk then reclines: the pelvis turns back around the head of the hips until the hip
    angle opens by `open` degrees (`trunk_turn()`), each trunk bone takes its share of the turn,
    the haunch and the root of the tail rise onto the seat top (`seat_lift()`), and the tip of a
@@ -1425,12 +1427,14 @@ def seat_lift(points, tris, weights, chair, rule, top, hip):
     lower = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
     arms = [BONES.index(f'{b}_{s}') for b in ARM for s in 'LR']
     fixed = np.clip(weights[:, lower + arms].sum(axis=1), 0.0, 1.0)
-    low = points[:, 1] <= top + 2 * band
+    level = seat_level(points, chair)
+    low = level <= top + 2 * band
     body = tris[((fixed[tris] <= 0.5) & low[tris]).all(axis=1)]
     xs = np.arange(-hw, hw + step / 2, step)
     zs = np.arange(back, hip + step / 2, step)
     bottoms = column_bottoms(points, body, xs, zs)
-    lift = np.where(np.isfinite(bottoms), np.clip(top - bottoms, 0.0, None), np.nan)
+    rise = ((zs - back) * seat_slope(chair))[None, :]
+    lift = np.where(np.isfinite(bottoms), np.clip(top - bottoms - rise, 0.0, None), np.nan)
     lift *= 1.0 - smoothstep(zs, hip - rule['ramp'], hip)[None, :]
     lift = np.nan_to_num(fill_holes(lift, np.max), nan=0.0)
     for _ in range(rule['smooth']):
@@ -1439,7 +1443,7 @@ def seat_lift(points, tris, weights, chair, rule, top, hip):
                    for di in (-1, 0, 1) for dj in (-1, 0, 1)) / 9.0
     floors = fill_holes(np.where(np.isfinite(bottoms), bottoms, np.nan), np.min)
     near = ((np.abs(points[:, 0]) <= hw) & (points[:, 2] <= hip) & (points[:, 2] >= back - band)
-            & (points[:, 1] <= top + 2 * band))
+            & (level <= top + 2 * band))
     ids = np.nonzero(near & (fixed < 1.0))[0]
     p = points[ids]
     d = grid_value(lift, xs, zs, p) * smoothstep(p[:, 2], back - band, back)
@@ -1502,11 +1506,25 @@ def haunch_mask(weights):
     return weights[:, bones].sum(axis=1) > 0
 
 
+def seat_slope(chair):
+    """Gives the drop of the seat top for each unit forward: the tangent of the forward tilt of the
+    seat top (`tilt` of the chair rule, in degrees, 0 by default)."""
+    return math.tan(math.radians(chair.get('tilt', 0.0)))
+
+
+def seat_level(points, chair):
+    """Gives the height of each point over the plane of the seat top, plus the height of the seat
+    top at its back edge. The seat top slopes down toward the front (+z) by `seat_slope()`, so the
+    lowest level over the seat is the height of the seat top at its back edge."""
+    return points[:, 1] + (points[:, 2] - chair['back']) * seat_slope(chair)
+
+
 def seat_top(points, weights, chair):
-    """Gives the seat top of a seated body: the lowest point over the seat with no hanging shin,
-    foot, or tail, as `chair_mesh()` puts the seat."""
+    """Gives the seat top of a seated body at the back edge of the seat: the lowest level
+    (`seat_level()`) over the seat with no hanging shin, foot, or tail, as `chair_mesh()` puts
+    the seat."""
     seat, hanging, tail, _ = seat_masks(points, weights, chair)
-    return float(points[seat & ~hanging & ~tail, 1].min())
+    return float(seat_level(points, chair)[seat & ~hanging & ~tail].min())
 
 
 def relax(src, bind, tris, weights, matrices, rounds=60, moving=None, below=0.1):
@@ -1655,16 +1673,20 @@ def seat_gaps(points, tris, weights, chair, hip, step, height):
     """Measures the underside of a seated body behind the hip joints: the lowest crossing of each
     vertical line over the seat, on a grid of `step` units, less the seat top. The faces of the
     shins, the feet, the tail, and the arms do not count, and neither do the faces with a corner
-    more than `height` units above the seat top. Gives the seat top, the x and the z of
-    the lines, and the gap of each line (infinity where no face crosses it)."""
+    more than `height` units above the seat top. The seat top and the gaps are levels over the
+    plane of a seat top that slopes forward (`seat_level()`). Gives the seat top at the back
+    edge, the x and the z of the lines, and the gap of each line (infinity where no face crosses
+    it)."""
     seat, hanging, tail, free = seat_masks(points, weights, chair)
-    top = float(points[seat & ~hanging & ~tail, 1].min())
-    low = points[:, 1] <= top + height
+    level = seat_level(points, chair)
+    top = float(level[seat & ~hanging & ~tail].min())
+    low = level <= top + height
     body = tris[((free[tris] <= 0.5) & low[tris]).all(axis=1)]
     hw = chair['halfWidth']
     xs = np.arange(-hw, hw + step / 2, step)
     zs = np.arange(chair['back'], hip + step / 2, step)
-    return top, xs, zs, column_bottoms(points, body, xs, zs) - top
+    rise = ((zs - chair['back']) * seat_slope(chair))[None, :]
+    return top, xs, zs, column_bottoms(points, body, xs, zs) + rise - top
 
 
 def silhouette_gap(xs, zs, gaps, end):
@@ -1709,19 +1731,22 @@ def sit(bind, tris, weights, chair, rule, hip):
         drop = sum(padded[1 + di:padded.shape[0] - 1 + di, 1 + dj:padded.shape[1] - 1 + dj]
                    for di in (-1, 0, 1) for dj in (-1, 0, 1)) / 9.0
     # A line with no crossing, as beyond the back edge of the haunch, takes the lowest crossing of
-    # its nearest lines.
+    # its nearest lines. The crossings are levels over the plane of the seat top.
     bottoms = fill_holes(np.where(np.isfinite(gaps), gaps + top, np.nan), np.min)
     _, _, _, free = seat_masks(bind, weights, chair)
     near = ((np.abs(bind[:, 0]) <= chair['halfWidth']) & (bind[:, 2] <= hip)
-            & (bind[:, 2] >= chair['back'] - rule['band']) & (bind[:, 1] <= top + 2 * rule['band']))
+            & (bind[:, 2] >= chair['back'] - rule['band'])
+            & (seat_level(bind, chair) <= top + 2 * rule['band']))
     ids = np.nonzero(near & (free < 1.0))[0]
     p = bind[ids]
+    under = top - seat_level(p, chair) + p[:, 1]
     d = grid_value(drop, xs, zs, p)
-    floor = np.minimum(grid_value(np.nan_to_num(bottoms, nan=top), xs, zs, p), p[:, 1])
+    floor = np.minimum(grid_value(np.nan_to_num(bottoms, nan=top), xs, zs, p) - top + under,
+                       p[:, 1])
     share = 1.0 - smoothstep(p[:, 1] - floor, 0.0, rule['band'])
     move = d * share * (1.0 - free[ids])
     out = bind.copy()
-    out[ids, 1] = np.maximum(p[:, 1] - move, np.minimum(p[:, 1], top))
+    out[ids, 1] = np.maximum(p[:, 1] - move, np.minimum(p[:, 1], under))
     _, _, _, after_gaps = seat_gaps(out, tris, weights, chair, hip, step, 2 * rule['band'])
     after = silhouette_gap(xs, zs, after_gaps, rule['end'])
     return out, int((move > 1e-6).sum()), float(move.max(initial=0.0)), before, after
@@ -1999,10 +2024,11 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet):
 
 
 def chair_mesh(rule, bind, weights):
-    """Makes the chair under the seated body: a seat whose top is the lowest point of the body
-    over the seat, four legs, and a back. The shins and the feet hang in front of the seat, and
-    the tail goes back over it, so they do not count. Gives the vertices, the triangles, and the
-    seat top."""
+    """Makes the chair under the seated body: a seat whose top touches the lowest level of the
+    body over the seat (`seat_level()`), four legs, and a back. The seat top slopes down toward
+    the front by `tilt` of the rule, and the front legs end under it. The shins and the feet hang
+    in front of the seat, and the tail goes back over it, so they do not count. Gives the
+    vertices, the triangles, and the seat top at its back edge."""
     hw, front, back = rule['halfWidth'], rule['front'], rule['back']
     lower = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
     hanging = weights[:, lower].sum(axis=1) > 0.5
@@ -2010,9 +2036,10 @@ def chair_mesh(rule, bind, weights):
     tail = weights[:, tails].sum(axis=1) > 0.5
     seat = (np.abs(bind[:, 0]) <= hw) & (bind[:, 2] >= back) & (bind[:, 2] <= front)
     over = seat & ~hanging & ~tail
-    top = float(bind[over, 1].min())
+    level = seat_level(bind, rule)
+    top = float(level[over].min())
     if (seat & tail).any():
-        log(f'chair: the tail goes {bind[seat & tail, 1].min() - top:.4f} u over the seat top at '
+        log(f'chair: the tail goes {level[seat & tail].min() - top:.4f} u over the seat top at '
             f'its lowest point over the seat')
     # `pnpm studio-body` finds the seat height as the lowest point of the body over the seat, so
     # a foot over the seat puts the seat on the floor.
@@ -2032,10 +2059,15 @@ def chair_mesh(rule, bind, weights):
     ]
     verts, faces = [], []
     quads = ((0, 2, 3, 1), (4, 5, 7, 6), (0, 1, 5, 4), (2, 6, 7, 3), (0, 4, 6, 2), (1, 3, 7, 5))
-    for lo, hi in boxes:
+    slope = seat_slope(rule)
+    for k, (lo, hi) in enumerate(boxes):
         base = len(verts)
         for i in range(8):
-            verts.append([(lo, hi)[i >> 2 & 1][0], (lo, hi)[i >> 1 & 1][1], (lo, hi)[i & 1][2]])
+            p = [(lo, hi)[i >> 2 & 1][0], (lo, hi)[i >> 1 & 1][1], (lo, hi)[i & 1][2]]
+            if k in (0, 3, 4) and p[1] > 0:
+                # The seat and the top of each front leg slope down toward the front.
+                p[1] -= (p[2] - back) * slope
+            verts.append(p)
         for a, b, c, d in quads:
             faces += [[base + a, base + b, base + c], [base + a, base + c, base + d]]
     return np.array(verts, float), np.array(faces), top
@@ -2478,6 +2510,8 @@ def main():
     # the move of the head center by the smoothing.
     extras = {key: config[key] for key in ('headFactor', 'neckFactor')
               if config.get(key, 1) != 1}
+    if config['chair'].get('tilt', 0) != 0:
+        extras['seatTilt'] = config['chair']['tilt']
     if raised:
         extras['raise'] = raised
     if trunk:
