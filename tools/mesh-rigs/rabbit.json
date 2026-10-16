@@ -42,8 +42,8 @@
       "foot": [0, 0, 0, 1],
       "toes": [0, 0, 0, 1]
     },
-    "trunk": { "open": 0, "shares": { "hips": 1, "spine": 1, "spine1": 1, "chest": 0.667, "neck": 0.333, "head": 0 } },
-    "trunkNote": "The recline of the trunk in the seated bind (trunk_turn() of tools/blender/rig_mesh.py): the pelvis turns back around the head of the hips until the hip angle from the side opens by open degrees, and each trunk bone takes its share of that turn as its world turn. The shares fall from the spine1 to the head, so that the chest, the neck, and the head share the counter turn, and the head stays level. The haunch and the root of the tail rise onto the seat top of the upright body (seat_lift()). The value 0 keeps the trunk of the source.",
+    "trunk": { "open": 0, "shares": { "hips": 1, "spine": 1, "spine1": 0.7, "chest": 0.45, "neck": 0.25, "head": 0.1 } },
+    "trunkNote": "The recline of the trunk in the seated bind (trunk_turn() of tools/blender/rig_mesh.py): the pelvis turns back around the head of the hips until the hip angle from the side opens by open degrees, and each trunk bone takes its share of that turn as its world turn. The shares fall from the spine1 to the head, so that the joints from the spine to the head share the counter turn, and the head turns at most 4 degrees back. Of the shares that pnpm rig-mesh fox --check --roles fox-violinist --step 1 tried at open 20, these folded 5.0% of the play samples, against 14.8% with the chest 0.667, the neck 0.333, and the head 0, and 4.8% with the head 0.15, which turns the head 5.6 degrees at open 30. The haunch and the root of the tail rise onto the seat top of the upright body (seat_lift()). The value 0 keeps the trunk of the source.",
     "bindArms": {
       "upper_arm": [0.813873, -0.143043, 0.563161],
       "forearm": [0.316246, 0.757051, 0.571719],
