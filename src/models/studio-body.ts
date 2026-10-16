@@ -1,6 +1,9 @@
 import { Vector3 } from 'three';
 
 import type { BodyBones } from './biped.ts';
+import { addEye } from './eyes.ts';
+import type { EyeColors } from './eyes.ts';
+import { srgb } from './mesh.ts';
 import type { CornerSkin, MeshBuilder, MeshData } from './mesh.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import { makeSkeleton } from './rig.ts';
@@ -19,6 +22,7 @@ import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
+import { EYE_COLOR, EYE_LIGHT_COLOR } from './species.ts';
 import type { Vec3 } from './tuples.ts';
 
 /** The studio bodies that a species can have (design 4.4), by the value of `SpeciesParams.body`. */
@@ -84,6 +88,9 @@ function colorsWith(name: StudioBodyName, palette: StudioPalette): Float32Array 
 /** The place of the mouth below the tip of the nose, in H. */
 const MOUTH_DROP = 0.08;
 
+/** The colors of the pea eyes: the eyes of all species (design 4.5). */
+const EYE_COLORS: EyeColors = { eye: srgb(EYE_COLOR), eyeLight: srgb(EYE_LIGHT_COLOR) };
+
 /**
  * Gives the skin of each vertex of a studio body on the bones of the player: the two bones of the
  * player with the largest sums of the weights of their studio bones (design 4.7). The readers of
@@ -122,8 +129,9 @@ function playerSkins(rig: StudioRig): CornerSkin[] {
  * 4.4). The arms of the studio come down from their bind pose to hang straight, with the skin and
  * the corrective shapes of the studio, as the GPU poses them. The trunk, the head, and the legs
  * keep the bind pose of the studio. Each corner follows the two bones of the player with the
- * largest weights, for the readers of the bind mesh. The scene draws the body with the skin of the
- * studio (`StudioRig`). A studio body keeps the stance of its role on each support: the bear
+ * largest weights, for the readers of the bind mesh. The pea eyes of the parametric bodies follow
+ * the triangles of the body, each on its eye bone (`StudioBody.eyes`, design 4.5). The scene draws
+ * the body with the skin of the studio (`StudioRig`). A studio body keeps the stance of its role on each support: the bear
  * conductor stands, and the polar bear pianist sits on its bench (`StudioBody.seatHeight`). A
  * seated body that also stands, such as the violinist rabbit, sits on a seat and stands as a
  * soloist ({@link studioRigOf}). A species can take another palette of the faces, as the tan
@@ -172,6 +180,17 @@ export function buildStudioBody(
     const skin = skins[corners[c] ?? 0];
     return skin ?? { bone: 0, blendBone: 0, blendWeight: 0 };
   });
+  // The head keeps the bind pose of the studio, so each pea eye goes to the bind place of its eye
+  // bone. The eyes blink with the eye bones of the studio (`studioRenderMesh()`).
+  for (const side of ['L', 'R'] as const) {
+    addEye(
+      builder,
+      EYE_COLORS,
+      { point: body.heads[`eye_${side}`], normal: body.eyes.normals[side] },
+      body.eyes.headHeight,
+      boneIndex(`eye${side}`),
+    );
+  }
 
   const midpoint = (a: Vec3, b: Vec3): Vec3 => [
     (a[0] + b[0]) / 2,

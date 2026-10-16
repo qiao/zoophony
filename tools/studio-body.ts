@@ -4,9 +4,10 @@ import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 
-import { Box3, MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
+import { Box3, MathUtils, Matrix4, Quaternion, Triangle, Vector3 } from 'three';
 
 import { SPECIES_COLORS } from '../src/models/colors.ts';
+import { EYE, eyeMiddle } from '../src/models/eyes.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
@@ -23,6 +24,7 @@ import type {
   Side,
   StudioBody,
   StudioBone,
+  StudioEyes,
   StudioHeads,
   StudioLegBone,
   StudioPalette,
@@ -1042,8 +1044,10 @@ function axisOf(skeleton: SourceSkeleton, bone: string, axis: number): Vector3 {
 }
 
 /**
- * Finds the parts of the eyes: the shells of the gloss material on the head that are out of the
- * middle plane. Each eye is a few nested shells and a light.
+ * Finds the parts of the eyes of the mesh: the shells of the gloss material on the head that are
+ * out of the middle plane. Each eye of the studio is a few nested shells and a light, and each eye
+ * of a rig of `pnpm rig-mesh` is one gloss fan over the dark faces of the eye. The export drops
+ * them, and the app adds the pea eyes at their places (design 4.5).
  *
  * @param mesh The welded mesh.
  * @returns The vertices of the eye of each side.
@@ -1089,6 +1093,65 @@ export function eyeVertices(mesh: SourceMesh): Readonly<Record<Side, ReadonlySet
     }
   }
   return out;
+}
+
+/** The place of a pea eye on the head, in the axes and the units of the studio. */
+export interface EyeSurface {
+  /** The nearest point of the fur of the head to the middle of the old eye. */
+  readonly point: Vector3;
+  /** The unit normal of the head surface around the point. */
+  readonly normal: Vector3;
+}
+
+/**
+ * Finds the place of a pea eye on the head (design 4.5): the nearest point of the fur faces of the
+ * head to the middle of the old eye, and the mean normal of the fur faces of the head that come
+ * within a radius of that point, weighted by their areas. Thus the eye lies flat on the facets
+ * under it. A fur face of the head has each corner more than half on the head bone.
+ *
+ * @param mesh The welded mesh.
+ * @param middle The middle of the old eye.
+ * @param radius The radius of the faces of the normal, such as half the height of the eye.
+ * @returns The point and the normal.
+ * @throws Error if the head has no fur face.
+ */
+export function eyeSurface(mesh: SourceMesh, middle: Vector3, radius: number): EyeSurface {
+  const triangles = mesh.faces.flatMap((face) => {
+    const corners = face.corners.map((c) => mesh.vertices[c]);
+    const onHead = corners.every(
+      (v) => v?.material === 'fur' && (v.skin.find(([bone]) => bone === 'head')?.[1] ?? 0) > 0.5,
+    );
+    const [a, b, c] = corners;
+    return onHead && a && b && c ? [new Triangle(a.position, b.position, c.position)] : [];
+  });
+  if (triangles.length === 0) {
+    throw new Error('The head has no fur face.');
+  }
+
+  const point = new Vector3();
+  const near = new Vector3();
+  let best = Infinity;
+  for (const triangle of triangles) {
+    triangle.closestPointToPoint(middle, near);
+    const distance = near.distanceTo(middle);
+    if (distance < best) {
+      best = distance;
+      point.copy(near);
+    }
+  }
+
+  // The cross product of two edges is twice the area of the face along its normal.
+  const normal = new Vector3();
+  const edge = new Vector3();
+  const cross = new Vector3();
+  for (const triangle of triangles) {
+    if (triangle.closestPointToPoint(point, near).distanceTo(point) <= radius) {
+      edge.subVectors(triangle.c, triangle.a);
+      cross.subVectors(triangle.b, triangle.a).cross(edge);
+      normal.add(cross);
+    }
+  }
+  return { point, normal: normal.normalize() };
 }
 
 /** The arms of the pose of the sheet. */
@@ -1426,6 +1489,11 @@ interface Export {
   readonly body: StudioBody;
   /** The weights of the corrective shapes in the pose of the sheet, for the report. */
   readonly sheetWeights: readonly number[];
+  /**
+   * The distance of each pea eye bone from the middle of the old eye, in `H` of the eyes, for the
+   * report.
+   */
+  readonly eyeShifts: Readonly<Record<Side, number>>;
 }
 
 /**
@@ -1449,7 +1517,9 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   const model = (p: Vector3): Vec3 => toModelAxes(p.clone().add(frame.offset), scale);
   const direction = (d: Vector3): Vec3 => toModelAxes(d.clone().normalize(), 1);
 
-  // The eyes follow eye bones of their own, so that they blink.
+  // The old eyes of the mesh go away, and the app adds the pea eyes at the eye bones (design
+  // 4.5). The faces under the gloss fan of a rig of `pnpm rig-mesh` have the color of the fur
+  // around the eye.
   const eyes = eyeVertices(mesh);
   const eyeCenter = (side: Side): Vector3 => {
     const center = new Vector3();
@@ -1458,19 +1528,17 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     }
     return center.divideScalar(Math.max(1, eyes[side].size));
   };
-  for (const side of ['L', 'R'] as const) {
-    for (const v of eyes[side]) {
-      const vertex = mesh.vertices[v];
-      if (vertex) {
-        vertex.skin = [[`eye_${side}`, 1]];
-      }
-    }
-  }
+  const inEye = (v: number): boolean => eyes.L.has(v) || eyes.R.has(v);
+  const withoutEyes: SourceMesh = {
+    vertices: mesh.vertices,
+    faces: mesh.faces.filter((face) => !face.corners.every(inEye)),
+  };
 
   const heads = Object.fromEntries(
     STUDIO_BONES.flatMap((bone): [StudioBone, Vec3][] => {
       if (bone === 'eye_L' || bone === 'eye_R') {
-        return [[bone, model(eyeCenter(bone === 'eye_L' ? 'L' : 'R'))]];
+        // The pea eyes give the eye bones their places below.
+        return [];
       }
       if (!skeleton.binds.has(bone)) {
         // An optional bone, such as the tip of a tail of two bones.
@@ -1505,12 +1573,15 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   );
   let top = -Infinity;
   let chin = Infinity;
+  // The top and the chin of the head that shows, after the growth, which size the pea eyes.
+  let shownTop = -Infinity;
+  let shownChin = Infinity;
   const box = {
     min: new Vector3(Infinity, Infinity, Infinity),
     max: new Vector3(-Infinity, -Infinity, -Infinity),
   };
   let nose = new Vector3(0, 0, -Infinity);
-  for (const vertex of mesh.vertices) {
+  for (const [v, vertex] of mesh.vertices.entries()) {
     const head = vertex.skin.find(([bone]) => bone === 'head')?.[1] ?? 0;
     if (vertex.material === 'fur' && head > 0.5) {
       const share = vertex.skin
@@ -1520,17 +1591,43 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       const place = ungrown(vertex.position, { head: share, neck: neckShare }, rig);
       top = Math.max(top, place.y);
       chin = Math.min(chin, place.y);
+      shownTop = Math.max(shownTop, vertex.position.y);
+      shownChin = Math.min(shownChin, vertex.position.y);
       box.min.min(place);
       box.max.max(place);
     }
-    if (vertex.material === 'gloss' && head === 1 && vertex.position.z > nose.z) {
+    if (vertex.material === 'gloss' && head === 1 && !inEye(v) && vertex.position.z > nose.z) {
       nose = vertex.position;
     }
   }
   const center = box.min.clone().add(box.max).multiplyScalar(0.5).add(headShiftOf(glb)).setX(0);
 
+  // Each pea eye bone lies in the head surface under the middle of the old eye, as the eye bones
+  // of the parametric bodies do (`eyeMiddle()` of `models/eyes.ts`).
+  const eyeHeight = (shownTop - shownChin) * scale;
+  const eyeAt = (side: Side) => {
+    const old = eyeCenter(side);
+    const surface = eyeSurface(withoutEyes, old, (0.5 * EYE[1] * eyeHeight) / scale);
+    const { point } = eyeMiddle(
+      { point: model(surface.point), normal: direction(surface.normal) },
+      eyeHeight,
+      false,
+    );
+    const shift = new Vector3(...point).distanceTo(new Vector3(...model(old))) / eyeHeight;
+    const head: Vec3 = [round(point[0]), round(point[1]), round(point[2])];
+    return { head, normal: direction(surface.normal), shift };
+  };
+  const eyeL = eyeAt('L');
+  const eyeR = eyeAt('R');
+  heads['eye_L'] = eyeL.head;
+  heads['eye_R'] = eyeR.head;
+  const peaEyes: StudioEyes = {
+    headHeight: round(eyeHeight),
+    normals: { L: eyeL.normal, R: eyeR.normal },
+  };
+
   // The studio animal faces +z, so its moves turn as its points do.
-  const ordered = orderByFirstUse(mesh);
+  const ordered = orderByFirstUse(withoutEyes);
   const vertices: StudioVertex[] = ordered.vertices.map((v) => ({
     position: model(v.position),
     skin: v.skin.map(([bone, w]) => [boneIndexOf(bone), w] as const),
@@ -1556,6 +1653,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     headHeight: round((top - chin) * scale),
     headCenter: model(center),
     nose: model(nose),
+    eyes: peaEyes,
     floor: toModelAxes(new Vector3(0, 0, frame.offset.z), scale),
     seatHeight: settings.seated ? seatHeightOf(glb, mesh, frame) : null,
     chairDepth: frame.chairDepth,
@@ -1570,12 +1668,9 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     const palettes = Object.entries(settings.palettes).map(
       ([name, map]) => [name, packStudioPalette(ordered.faces, paletteMap(map))] as const,
     );
-    return {
-      body: { ...body, palettes: Object.fromEntries(palettes) },
-      sheetWeights: sheet.weights,
-    };
+    body = { ...body, palettes: Object.fromEntries(palettes) };
   }
-  return { body, sheetWeights: sheet.weights };
+  return { body, sheetWeights: sheet.weights, eyeShifts: { L: eyeL.shift, R: eyeR.shift } };
 }
 
 /** A box in the axes and the units of the studio. */
@@ -2133,13 +2228,20 @@ async function main(): Promise<void> {
 
   const file = studioGlbPath(animal, settings);
   const source = relative(ROOT, file);
-  const { body, sheetWeights } = studioBody(await readStudioGlb(file, animal), source, settings);
+  const { body, sheetWeights, eyeShifts } = studioBody(
+    await readStudioGlb(file, animal),
+    source,
+    settings,
+  );
   await mkdir(STUDIO_DIR, { recursive: true });
   const out = join(STUDIO_DIR, `${animal}.ts`);
   await writeStudioModule(out, animal, settings.constant, body);
   console.log(`Wrote ${relative(ROOT, out)} from ${source} (sha256 ${body.sha256.slice(0, 12)}).`);
   console.log(`Scale ${body.scale} m for each unit, head height ${body.headHeight} m.`);
   console.log(`Corrective weights of the sheet pose: ${sheetWeights.join(', ')}.`);
+  console.log(
+    `Pea eyes: head height ${body.eyes.headHeight} m. Each eye bone lies ${eyeShifts.L.toFixed(3)} H (left) and ${eyeShifts.R.toFixed(3)} H (right) from the middle of the old eye.`,
+  );
 }
 
 if (import.meta.main) {

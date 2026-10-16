@@ -190,6 +190,23 @@ export interface StudioRaise {
 }
 
 /**
+ * The pea eyes of a studio body (design 4.4, 4.5): the eyes of the parametric bodies (`addEye()` of
+ * `models/eyes.ts`), which replace the eyes of the mesh. Each eye lies at the bind place of its eye
+ * bone, half in the head surface (`eyeMiddle()` of `models/eyes.ts`), and faces out along the
+ * normal of the head surface there.
+ */
+export interface StudioEyes {
+  /**
+   * The head height that sizes the eyes, in meters: the head that shows, from the chin to the top
+   * of the skull. It is larger than {@link StudioBody.headHeight} when the rig grows the head
+   * (`headFactor` of `pnpm rig-mesh`), so that the eyes fit the larger head.
+   */
+  readonly headHeight: number;
+  /** The unit normal of the head surface at each eye, in the bind pose. */
+  readonly normals: Readonly<Record<Side, Vec3>>;
+}
+
+/**
  * A body from the studio (design 4.4): the mesh of a GLB file of `lowpoly-studio/` in its bind
  * pose, with its own skeleton, its skin of up to four bones for each vertex, and its corrective
  * shapes. `pnpm studio-body <animal>` writes the module of an animal. The axes are the axes of
@@ -229,6 +246,8 @@ export interface StudioBody {
   readonly headCenter: Vec3;
   /** The tip of the nose. */
   readonly nose: Vec3;
+  /** The pea eyes, at the eye bones `eye_L` and `eye_R` of {@link StudioBody.heads}. */
+  readonly eyes: StudioEyes;
   /**
    * The point on the floor under the middle of the body: the origin of the studio. A seated body
    * sits in front of the center of its seat, so that the seat of the studio (a bench or a chair)

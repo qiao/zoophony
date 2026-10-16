@@ -53,11 +53,11 @@ const BODY_LOOPS = 2;
 
 /**
  * The open loops of {@link BODY_BONES} of the rabbit and of the foxes, the bodies of the meshes of
- * the user (`pnpm rig-mesh <animal>`): the cuts to the two upper arms, the edge of the gloss fan
- * over each eye, and two open edges of each mesh, at the whiskers of the rabbit. A cap closes each
- * eye fan behind it, in the head.
+ * the user (`pnpm rig-mesh <animal>`): the cuts to the two upper arms, and two open edges of each
+ * mesh, at the whiskers of the rabbit. The export drops the gloss fan over each eye of the rig, and
+ * the pea eyes of the app are not in the skin of the studio (design 4.5).
  */
-const MESH_BODY_LOOPS = 6;
+const MESH_BODY_LOOPS = 4;
 
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [

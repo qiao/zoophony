@@ -6,11 +6,14 @@ import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
 import type { RequiredStudioBone, StudioBody } from '../src/models/studio-format.ts';
+import type { Vec3 } from '../src/models/tuples.ts';
 import { PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import type { AnimalSettings, Glb } from './studio-body.ts';
 import {
   ANIMALS,
+  eyeSurface,
+  eyeVertices,
   headFactorOf,
   headRig,
   headShiftOf,
@@ -25,6 +28,7 @@ import {
   raiseOf,
   readGlb,
   ungrown,
+  weldMesh,
 } from './studio-body.ts';
 
 /** The GLB file of the studio bear. */
@@ -73,7 +77,7 @@ describe('pnpm studio-body (design 4.4)', async () => {
     }
   });
 
-  it('keeps the body and the eyes, and drops the baton of the studio', () => {
+  it('keeps the body, and drops the eyes and the baton of the studio', () => {
     expect(mesh.corners.length / 3).toBeGreaterThan(2000);
     const used = new Set<number>();
     for (let v = 0; v < mesh.weights.length; v++) {
@@ -81,9 +85,42 @@ describe('pnpm studio-body (design 4.4)', async () => {
         used.add(mesh.joints[v] ?? 0);
       }
     }
-    expect(used.has(STUDIO_BONES.indexOf('eye_L'))).toBe(true);
-    expect(used.has(STUDIO_BONES.indexOf('eye_R'))).toBe(true);
+    // The app adds the pea eyes on the eye bones (design 4.5).
+    expect(used.has(STUDIO_BONES.indexOf('eye_L'))).toBe(false);
+    expect(used.has(STUDIO_BONES.indexOf('eye_R'))).toBe(false);
     expect(Math.max(...used)).toBeLessThan(STUDIO_BONES.length);
+    const welded = weldMesh(readGlb(bytes), []);
+    const eyes = eyeVertices(welded);
+    const eyeFaces = welded.faces.filter((face) =>
+      face.corners.every((c) => eyes.L.has(c) || eyes.R.has(c)),
+    ).length;
+    expect(eyeFaces).toBeGreaterThan(0);
+    expect(mesh.corners.length / 3).toBe(welded.faces.length - eyeFaces);
+  });
+
+  it('puts each eye bone in the head surface under the old eye, facing out (design 4.5)', () => {
+    const welded = weldMesh(readGlb(bytes), []);
+    const eyes = eyeVertices(welded);
+    const h = body.eyes.headHeight;
+    // The head of the bear does not grow, so the eyes take the head height of the holds.
+    expect(h).toBe(body.headHeight);
+    for (const side of ['L', 'R'] as const) {
+      const old = new Vector3();
+      for (const v of eyes[side]) {
+        old.add(welded.vertices[v]?.position ?? new Vector3());
+      }
+      old.divideScalar(eyes[side].size).multiplyScalar(body.scale);
+      // The studio faces +z with its left side at +x, and the app faces -z.
+      const middle = new Vector3(-old.x, old.y, -old.z);
+      const eye = new Vector3(...body.heads[`eye_${side}`]);
+      const normal = new Vector3(...body.eyes.normals[side]);
+      expect(eye.distanceTo(middle) / h).toBeLessThan(0.1);
+      expect(normal.length()).toBeCloseTo(1, 5);
+      // The eye faces out of the head, forward and to its own side.
+      expect(normal.dot(eye.clone().sub(new Vector3(...body.headCenter)))).toBeGreaterThan(0);
+      expect(normal.z).toBeLessThan(0);
+      expect(Math.sign(normal.x)).toBe(side === 'L' ? -1 : 1);
+    }
   });
 
   it('gives each vertex weights that add up to 1', () => {
@@ -421,7 +458,13 @@ describe('pnpm studio-body with a seated body that also stands (design 4.4)', as
     expect(facts.joints.unknown).toEqual([]);
     const animal = facts.nodes.find((node) => node.kind === 'skinned mesh');
     const kept = ['fur', 'gloss'].reduce((sum, m) => sum + (animal?.faces.get(m) ?? 0), 0);
-    expect(mesh.corners.length / 3).toBe(kept);
+    // The export also drops the eyes of the studio (design 4.5).
+    const welded = weldMesh(readGlb(bytes), []);
+    const eyes = eyeVertices(welded);
+    const eyeFaces = welded.faces.filter((face) =>
+      face.corners.every((c) => eyes.L.has(c) || eyes.R.has(c)),
+    ).length;
+    expect(mesh.corners.length / 3).toBe(kept - eyeFaces);
   });
 
   it('rests the seated body on a chair that fits its legs and its seat', () => {
@@ -536,6 +579,79 @@ describe('pnpm studio-body with a tail of two bones (design 4.4)', async () => {
     }
     // The seated tail goes back, and the standing tail hangs down as in the source.
     expect(2 * Math.acos(Math.min(1, Math.abs(turns.tail[3])))).toBeGreaterThan(Math.PI / 6);
+  });
+});
+
+describe('eyeSurface (design 4.5)', () => {
+  /**
+   * Makes a vertex of a test mesh.
+   *
+   * @param x The x of the place.
+   * @param y The y of the place.
+   * @param z The z of the place.
+   * @param material The material.
+   * @param head The weight of the head bone. The neck takes the rest.
+   * @returns The vertex.
+   */
+  const vertex = (x: number, y: number, z: number, material = 'fur', head = 1) => ({
+    position: new Vector3(x, y, z),
+    skin:
+      head < 1 ? [['head', head] as const, ['neck', 1 - head] as const] : [['head', 1] as const],
+    moves: [],
+    material,
+  });
+  // A roof of two planes that meet at the ridge x = 0, z = 1. A gloss face and a face of the neck
+  // lie nearer to the point than the roof, and a fur face of the head lies far away.
+  const vertices = [
+    vertex(-1, -1, 0),
+    vertex(-1, 1, 0),
+    vertex(0, -1, 1),
+    vertex(0, 1, 1),
+    vertex(1, -1, 0),
+    vertex(1, 1, 0),
+    vertex(-0.1, -0.1, 1.5, 'gloss'),
+    vertex(0.1, -0.1, 1.5, 'gloss'),
+    vertex(0, 0.1, 1.5, 'gloss'),
+    vertex(-0.1, -0.1, 1.8, 'fur', 0.4),
+    vertex(0.1, -0.1, 1.8, 'fur', 0.4),
+    vertex(0, 0.1, 1.8, 'fur', 0.4),
+    vertex(10, 0, 1),
+    vertex(10, 1, 1),
+    vertex(11, 0, 1),
+  ];
+  const face = (a: number, b: number, c: number) => ({
+    corners: [a, b, c] satisfies [number, number, number],
+    color: [1, 1, 1] satisfies Vec3,
+    finish: 'matte' as const,
+  });
+  const mesh = {
+    vertices,
+    faces: [
+      face(0, 2, 3),
+      face(0, 3, 1),
+      face(2, 4, 5),
+      face(2, 5, 3),
+      face(6, 7, 8),
+      face(9, 10, 11),
+      face(12, 14, 13),
+    ],
+  };
+
+  it('finds the nearest point of the fur of the head, with the mean normal of the faces near it', () => {
+    const { point, normal } = eyeSurface(mesh, new Vector3(0, 0, 2), 0.5);
+    expect(point.distanceTo(new Vector3(0, 0, 1))).toBeLessThan(1e-9);
+    expect(normal.distanceTo(new Vector3(0, 0, 1))).toBeLessThan(1e-9);
+  });
+
+  it('takes the normal only from the faces within the radius', () => {
+    const { normal } = eyeSurface(mesh, new Vector3(-1.5, 0, 0.5), 0.5);
+    expect(normal.distanceTo(new Vector3(-1, 0, 1).normalize())).toBeLessThan(1e-9);
+  });
+
+  it('refuses a head with no fur face', () => {
+    expect(() => eyeSurface({ vertices, faces: [face(6, 7, 8)] }, new Vector3(), 1)).toThrow(
+      /no fur face/,
+    );
   });
 });
 
@@ -719,6 +835,14 @@ describe('pnpm studio-body with a head that the rig grows (design 4.4)', async (
     expect(shrunk.headHeight).toBeGreaterThan(plain.headHeight / 1.6);
     expect(shrunk.headCenter[1]).toBeLessThan(plain.headCenter[1]);
     expect(shrunk.nose).toEqual(plain.nose);
+  });
+
+  it('sizes the pea eyes by the head that shows, after the factor (design 4.5)', () => {
+    const grown = withExtras(bytes, { headFactor: 1.5 });
+    const plain = studioBody(bytes, SOURCE, settings).body;
+    const shrunk = studioBody(grown, SOURCE, settings).body;
+    expect(shrunk.eyes.headHeight).toBe(plain.eyes.headHeight);
+    expect(shrunk.eyes.headHeight).toBeGreaterThan(1.4 * shrunk.headHeight);
   });
 
   it('refuses a head factor that is not a positive number', () => {
