@@ -1,5 +1,7 @@
 # Checks of design 9.2. Each step of the job "check" blocks a merge. The Playwright job blocks a
-# merge in Chromium only.
+# merge in Chromium only. While all tests are paused (decision 2026-10-16-all-tests-pause.md),
+# `pnpm test` runs no test, and a step or a job with `if: false` does not run. Remove each
+# `if: false` to end the pause.
 name: CI
 
 on:
@@ -26,7 +28,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm format:check
       - run: pnpm test
-      - run: pnpm test:perf
+      - if: false
+        run: pnpm test:perf
       - run: pnpm build
       - run: pnpm size
 
@@ -34,6 +37,7 @@ jobs:
   # support for WebGL2 and for audio output, so their runs do not block a merge.
   playwright:
     name: playwright (${{ matrix.browser }})
+    if: false
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.browser != 'chromium' }}
     strategy:
