@@ -130,7 +130,8 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       crease: 15,
     },
   ],
-  // The violinist rabbit: decisions/2026-10-14-fox-rabbit-form.md, 2026-10-14-neck-violin.md.
+  // The violinist rabbit: decisions/2026-10-14-fox-rabbit-form.md, 2026-10-14-neck-violin.md,
+  // and 2026-10-16-hip-open.md.
   [
     'rabbit',
     {
@@ -138,13 +139,13 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       height: 0.8513179,
       seated: true,
       soloist: true,
-      seatBack: 0.03,
       constant: 'STUDIO_RABBIT',
       crease: 35,
       glb: 'assets/models/rabbit/rabbit-4.rig.glb',
     },
   ],
-  // The red and the tan foxes: decisions/2026-10-14-fox-flute.md and the files that it names.
+  // The red and the tan foxes: decisions/2026-10-14-fox-flute.md and the files that it names,
+  // and 2026-10-16-hip-open.md.
   [
     'fox',
     {
@@ -152,7 +153,6 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       height: 1.108536,
       seated: true,
       soloist: true,
-      seatBack: 0.04,
       constant: 'STUDIO_FOX',
       crease: 35,
       glb: 'assets/models/fox/fox.rig.glb',
