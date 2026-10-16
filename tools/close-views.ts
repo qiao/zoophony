@@ -14,7 +14,7 @@ import { SPECIES } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { chromiumArgs } from './chromium-args.ts';
 import { ROOT, optionValue, shortHash, withRefBuild } from './ref-tree.ts';
-import { openShot, startSite, toWebp } from './screenshots.ts';
+import { MAX_WEBP_BYTES, openShot, startSite, toWebp } from './screenshots.ts';
 
 /** One view of a close view: the turn of the gallery camera around the animal. */
 export interface CloseViewAngle {
@@ -748,7 +748,8 @@ async function renderLineup(
 }
 
 /**
- * Writes a PNG image and its WebP image.
+ * Writes a PNG image and its WebP image, and warns when the WebP image is larger than
+ * {@link MAX_WEBP_BYTES} at the lowest quality of `toWebp()`.
  *
  * @param browser The browser that encodes the WebP image.
  * @param image The PNG image.
@@ -756,8 +757,14 @@ async function renderLineup(
  */
 async function writeImage(browser: Browser, image: Buffer, file: string): Promise<void> {
   await writeFile(`${file}.png`, image);
-  await writeFile(`${file}.webp`, await toWebp(browser, image));
+  const webp = await toWebp(browser, image);
+  await writeFile(`${file}.webp`, webp);
   console.log(`${file}.png`);
+  if (webp.byteLength > MAX_WEBP_BYTES) {
+    console.warn(
+      `${file}.webp has ${webp.byteLength} B, more than ${MAX_WEBP_BYTES} B at the lowest quality.`,
+    );
+  }
 }
 
 /**
@@ -1120,8 +1127,30 @@ export const PLAY_TIME_SEC = 6;
 /** The size of a play frame, in CSS pixels: the size of the reference images of the scene. */
 export const PLAY_FRAME = { width: 1440, height: 900 } as const;
 
-/** The size of a play frame in the grid, in CSS pixels: two thirds of the frame. */
-const PLAY_CELL = { width: 960, height: 600 } as const;
+/** The size of one cell of a grid, in CSS pixels. */
+export interface CellSize {
+  /** The width. */
+  readonly width: number;
+  /** The height. */
+  readonly height: number;
+}
+
+/**
+ * Gives the size of a play frame in the grid of the mode `play`: two thirds of the frame for one
+ * or two cameras, and smaller for more cameras, so that the grid is at most 1920 px wide. A grid
+ * of two cameras with `--base` then gives a WebP file of about 260 kB, below
+ * {@link MAX_WEBP_BYTES}.
+ *
+ * @param columns The number of cameras.
+ * @returns The size of one cell, in CSS pixels.
+ */
+export function playCell(columns: number): CellSize {
+  const scale = Math.min(2 / 3, 4 / 3 / Math.max(1, columns));
+  return {
+    width: Math.round(PLAY_FRAME.width * scale),
+    height: Math.round(PLAY_FRAME.height * scale),
+  };
+}
 
 /** The point where the drag of a camera starts, in CSS pixels: on the stage. */
 const DRAG_START = { x: 720, y: 400 } as const;
@@ -1343,7 +1372,7 @@ async function playViews(
   const { browser } = site;
   const columns = args.cameras.length;
   const after = await renderPlay(browser, site.base, args, 'play-');
-  const sheet = await grid(browser, after.cells, after.labels, columns, PLAY_CELL);
+  const sheet = await grid(browser, after.cells, after.labels, columns, playCell(columns));
   await writeImage(browser, sheet, join(args.out, 'play-views'));
   const ref = args.base;
   if (ref === null) {
@@ -1354,7 +1383,8 @@ async function playViews(
   await withRefSite(ref, label, async (other) => {
     const before = await renderPlay(browser, other, args, 'play-base-');
     const labels = baseGridLabels(after.labels, label);
-    const both = await grid(browser, [...before.cells, ...after.cells], labels, columns, PLAY_CELL);
+    const cells = [...before.cells, ...after.cells];
+    const both = await grid(browser, cells, labels, columns, playCell(columns));
     await writeImage(browser, both, join(args.out, 'play-base-views'));
   });
 }
