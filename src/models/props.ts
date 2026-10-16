@@ -569,8 +569,8 @@ export function buildRisers(levels: readonly RiserLevel[], podium: Vec3): MeshDa
 
 /**
  * Builds the static props of a layout as one mesh: the seat of each player, each music stand,
- * and the choir risers (design 4.4). Each kind of seat at each height and each stand at each
- * desk height is built one time.
+ * and the choir risers (design 4.4). Each kind of seat at each height and depth and each stand
+ * at each desk height is built one time.
  *
  * @param layout The layout of a score.
  * @returns The mesh data in the stage axes, with all vertices on bone 0.
@@ -583,7 +583,7 @@ export function buildSceneProps(layout: SceneLayout): MeshData {
   for (const player of layout.players) {
     const { support, species } = player.cast;
     const heights = seatHeights(support, SPECIES[species]);
-    const key = `${support} ${String(heights?.seatHeight)} ${String(heights?.footHeight)}`;
+    const key = [support, heights?.seatHeight, heights?.footHeight, heights?.seatDepth].join(' ');
     if (!seats.has(key)) {
       seats.set(key, buildSupport(support, heights));
     }
