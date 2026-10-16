@@ -192,8 +192,9 @@ export interface StudioRaise {
 /**
  * The pea eyes of a studio body (design 4.4, 4.5): the eyes of the parametric bodies (`addEye()` of
  * `models/eyes.ts`), which replace the eyes of the mesh. Each eye lies at the bind place of its eye
- * bone, half in the head surface (`eyeMiddle()` of `models/eyes.ts`), and faces out from the
- * middle of the head, as an eye on the round head of a parametric body does.
+ * bone and faces out from the middle of the head, as an eye on the round head of a parametric body
+ * does. The bone lies half in the head surface (`eyeMiddle()` of `models/eyes.ts`), or further out
+ * when the head covers the front of the eye there (`eyePush()` of `tools/studio-body.ts`).
  */
 export interface StudioEyes {
   /**

@@ -7,8 +7,10 @@ import { join, relative, resolve } from 'node:path';
 import { Box3, MathUtils, Matrix4, Quaternion, Triangle, Vector3 } from 'three';
 
 import { SPECIES_COLORS } from '../src/models/colors.ts';
-import { eyeMiddle } from '../src/models/eyes.ts';
+import { EYE, addEye, eyeMiddle } from '../src/models/eyes.ts';
+import type { SurfacePoint } from '../src/models/head.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
+import { MeshBuilder } from '../src/models/mesh.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
@@ -1130,6 +1132,63 @@ export function eyeOnHead(mesh: SourceMesh, middle: Vector3): Vector3 {
   return point;
 }
 
+/** The step of the move of a pea eye out of the head, in `H` of the eyes ({@link eyePush}). */
+const EYE_PUSH_STEP = 0.001;
+
+/** The largest move of a pea eye out of the head, in `H` of the eyes ({@link eyePush}). */
+const EYE_PUSH_LIMIT = 0.1;
+
+/**
+ * Finds how far a pea eye moves out along its direction, so that its front face shows (design
+ * 4.5): the smallest move, in steps of {@link EYE_PUSH_STEP}, that puts each corner of the oval
+ * more than a quarter of its depth in front of its middle outside the head. A corner is outside
+ * when it lies on the outer side of the nearest face of the head. The rim of the oval stays in the
+ * head, as the rim of an eye of a parametric body does. The muzzle of the bear rises in front of
+ * the lower part of its eyes, so its eyes move out.
+ *
+ * @param triangles The faces of the head near the eye, counterclockwise from outside.
+ * @param eye The middle of the eye ({@link eyeMiddle}) and the direction in which it faces.
+ * @param h The head height that sizes the eye.
+ * @returns The move, in the units of `h`.
+ * @throws Error if no move up to {@link EYE_PUSH_LIMIT} puts the front face outside the head.
+ */
+export function eyePush(triangles: readonly Triangle[], eye: SurfacePoint, h: number): number {
+  const builder = new MeshBuilder();
+  addEye(builder, { eye: [0, 0, 0], eyeLight: [1, 1, 1] }, eye, h, 0);
+  const oval = builder.build();
+  const middle = new Vector3(...eye.point);
+  const facing = new Vector3(...eye.normal);
+  const front: Vector3[] = [];
+  for (let c = 0; c < oval.bones.length; c++) {
+    const p = new Vector3().fromArray(oval.positions, c * 3);
+    if (oval.colors[c * 3] === 0 && p.clone().sub(middle).dot(facing) > 0.25 * EYE[2] * h) {
+      front.push(p);
+    }
+  }
+
+  const near = new Vector3();
+  const normal = new Vector3();
+  const outside = (p: Vector3): boolean => {
+    let best = Infinity;
+    let side = 1;
+    for (const triangle of triangles) {
+      triangle.closestPointToPoint(p, near);
+      if (near.distanceTo(p) < best) {
+        best = near.distanceTo(p);
+        side = p.clone().sub(near).dot(triangle.getNormal(normal));
+      }
+    }
+    return side >= 0;
+  };
+  for (let step = 0; step * EYE_PUSH_STEP <= EYE_PUSH_LIMIT + 1e-12; step++) {
+    const push = step * EYE_PUSH_STEP * h;
+    if (front.every((p) => outside(p.clone().addScaledVector(facing, push)))) {
+      return push;
+    }
+  }
+  throw new Error(`No move up to ${EYE_PUSH_LIMIT} H puts the front of the eye out of the head.`);
+}
+
 /** The arms of the pose of the sheet. */
 interface SheetPose {
   /** The direction of each upper arm in the axes of the chest, in the axes of the studio. */
@@ -1470,6 +1529,8 @@ interface Export {
    * report.
    */
   readonly eyeShifts: Readonly<Record<Side, number>>;
+  /** The move of each pea eye out of the head ({@link eyePush}), in `H` of the eyes. */
+  readonly eyePushes: Readonly<Record<Side, number>>;
 }
 
 /**
@@ -1578,17 +1639,30 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
 
   // Each pea eye bone lies in the head surface under the middle of the old eye, as the eye bones
   // of the parametric bodies do (`eyeMiddle()` of `models/eyes.ts`). Each eye faces out from the
-  // middle of the head that shows, as an eye on the round head of a parametric body does.
+  // middle of the head that shows, as an eye on the round head of a parametric body does. Then it
+  // moves out along that direction until its front face shows (`eyePush()`).
   const eyeHeight = (shown.max.y - shown.min.y) * scale;
   const middle = shown.getCenter(new Vector3());
   const eyeAt = (side: Side) => {
     const old = eyeCenter(side);
     const point = eyeOnHead(withoutEyes, old);
     const facing = direction(point.clone().sub(middle));
-    const eye = eyeMiddle({ point: model(point), normal: facing }, eyeHeight, false).point;
-    const shift = new Vector3(...eye).distanceTo(new Vector3(...model(old))) / eyeHeight;
-    const head: Vec3 = [round(eye[0]), round(eye[1]), round(eye[2])];
-    return { head, facing, shift };
+    const eye = eyeMiddle({ point: model(point), normal: facing }, eyeHeight, false);
+    const near = withoutEyes.faces.flatMap((face) => {
+      const [a, b, c] = face.corners.map((k) => mesh.vertices[k]?.position ?? new Vector3());
+      const triangle = new Triangle(
+        new Vector3(...model(a ?? new Vector3())),
+        new Vector3(...model(b ?? new Vector3())),
+        new Vector3(...model(c ?? new Vector3())),
+      );
+      const reach = triangle.closestPointToPoint(new Vector3(...eye.point), new Vector3());
+      return reach.distanceTo(new Vector3(...eye.point)) < 0.3 * eyeHeight ? [triangle] : [];
+    });
+    const push = eyePush(near, eye, eyeHeight);
+    const moved = new Vector3(...eye.point).addScaledVector(new Vector3(...facing), push);
+    const shift = moved.distanceTo(new Vector3(...model(old))) / eyeHeight;
+    const head: Vec3 = [round(moved.x), round(moved.y), round(moved.z)];
+    return { head, facing, shift, push: push / eyeHeight };
   };
   const eyeL = eyeAt('L');
   const eyeR = eyeAt('R');
@@ -1643,7 +1717,12 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     );
     body = { ...body, palettes: Object.fromEntries(palettes) };
   }
-  return { body, sheetWeights: sheet.weights, eyeShifts: { L: eyeL.shift, R: eyeR.shift } };
+  return {
+    body,
+    sheetWeights: sheet.weights,
+    eyeShifts: { L: eyeL.shift, R: eyeR.shift },
+    eyePushes: { L: eyeL.push, R: eyeR.push },
+  };
 }
 
 /** A box in the axes and the units of the studio. */
@@ -2201,7 +2280,7 @@ async function main(): Promise<void> {
 
   const file = studioGlbPath(animal, settings);
   const source = relative(ROOT, file);
-  const { body, sheetWeights, eyeShifts } = studioBody(
+  const { body, sheetWeights, eyeShifts, eyePushes } = studioBody(
     await readStudioGlb(file, animal),
     source,
     settings,
@@ -2213,7 +2292,7 @@ async function main(): Promise<void> {
   console.log(`Scale ${body.scale} m for each unit, head height ${body.headHeight} m.`);
   console.log(`Corrective weights of the sheet pose: ${sheetWeights.join(', ')}.`);
   console.log(
-    `Pea eyes: head height ${body.eyes.headHeight} m. Each eye bone lies ${eyeShifts.L.toFixed(3)} H (left) and ${eyeShifts.R.toFixed(3)} H (right) from the middle of the old eye.`,
+    `Pea eyes: head height ${body.eyes.headHeight} m. Each eye moves ${eyePushes.L.toFixed(3)} H (left) and ${eyePushes.R.toFixed(3)} H (right) out of the head, and its bone lies ${eyeShifts.L.toFixed(3)} H (left) and ${eyeShifts.R.toFixed(3)} H (right) from the middle of the old eye.`,
   );
 }
 

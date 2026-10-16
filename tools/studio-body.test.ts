@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { Box3, Quaternion, Vector3 } from 'three';
+import { Box3, Quaternion, Triangle, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
@@ -13,6 +13,7 @@ import type { AnimalSettings, Glb } from './studio-body.ts';
 import {
   ANIMALS,
   eyeOnHead,
+  eyePush,
   eyeVertices,
   headFactorOf,
   headRig,
@@ -130,6 +131,24 @@ describe('pnpm studio-body (design 4.4)', async () => {
       expect(surface.sub(middleOfHead).normalize().dot(facing)).toBeGreaterThan(0.99999);
       expect(facing.z).toBeLessThan(0);
       expect(Math.sign(facing.x)).toBe(side === 'L' ? -1 : 1);
+    }
+  });
+
+  it('moves each pea eye out until the head covers no part of its front face (design 4.5)', () => {
+    const packed = unpackStudioMesh(body.mesh);
+    const at = (v: number): Vector3 => new Vector3().fromArray(packed.positions, v * 3);
+    const faces = Array.from(
+      { length: packed.corners.length / 3 },
+      (_, t) =>
+        new Triangle(
+          at(packed.corners[t * 3] ?? 0),
+          at(packed.corners[t * 3 + 1] ?? 0),
+          at(packed.corners[t * 3 + 2] ?? 0),
+        ),
+    );
+    for (const side of ['L', 'R'] as const) {
+      const eye = { point: body.heads[`eye_${side}`], normal: body.eyes.directions[side] };
+      expect(eyePush(faces, eye, body.eyes.headHeight)).toBe(0);
     }
   });
 
@@ -681,6 +700,51 @@ describe('eyeOnHead (design 4.5)', () => {
     expect(() => eyeOnHead({ vertices, faces: [face(6, 7, 8)] }, new Vector3())).toThrow(
       /no fur face/,
     );
+  });
+});
+
+describe('eyePush (design 4.5)', () => {
+  /**
+   * Makes a square of two faces through the origin, with a unit normal.
+   *
+   * @param normal The normal of the square.
+   * @param at The place of the middle of the square.
+   * @returns The two faces, counterclockwise from outside.
+   */
+  const square = (normal: Vector3, at = new Vector3()): Triangle[] => {
+    const u = new Vector3(1, 0, 0).cross(normal).normalize();
+    const w = normal.clone().cross(u);
+    const corner = (a: number, b: number): Vector3 =>
+      at.clone().addScaledVector(u, a).addScaledVector(w, b);
+    return [
+      new Triangle(corner(-1, -1), corner(1, -1), corner(1, 1)),
+      new Triangle(corner(-1, -1), corner(1, 1), corner(-1, 1)),
+    ];
+  };
+  const facing: Vec3 = [0, 0, 1];
+  const h = 0.3;
+  const middle: Vec3 = [0, 0, -0.01 * h];
+
+  it('keeps an eye whose front face shows in place', () => {
+    expect(eyePush(square(new Vector3(0, 0, 1)), { point: middle, normal: facing }, h)).toBe(0);
+  });
+
+  it('moves an eye out by the smallest step that shows its front face', () => {
+    // A surface that faces 40° up covers the lower front of an eye that faces forward.
+    const tilted = square(new Vector3(0, Math.sin(0.7), Math.cos(0.7)));
+    const push = eyePush(tilted, { point: middle, normal: facing }, h);
+    expect(push).toBeGreaterThan(0);
+    const moved = (by: number): Vec3 => [0, 0, middle[2] + by];
+    expect(eyePush(tilted, { point: moved(push), normal: facing }, h)).toBe(0);
+    expect(eyePush(tilted, { point: moved(push - 0.001 * h), normal: facing }, h)).toBeCloseTo(
+      0.001 * h,
+      9,
+    );
+  });
+
+  it('refuses an eye that no move up to 0.1 H takes out of the head', () => {
+    const wall = square(new Vector3(0, 0, 1), new Vector3(0, 0, h));
+    expect(() => eyePush(wall, { point: middle, normal: facing }, h)).toThrow(/No move/);
   });
 });
 
