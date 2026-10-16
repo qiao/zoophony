@@ -1277,6 +1277,30 @@ async function seekTo(page: Page, sec: number): Promise<void> {
   );
 }
 
+/** The longest wait for the seek bar to reach the time of a play frame, in milliseconds. */
+const SEEK_WAIT_MS = 60_000;
+
+/** The longest wait for the bar to hide before a play frame, in milliseconds. */
+const BAR_WAIT_MS = 10_000;
+
+/**
+ * Runs one wait of a play frame. A failure of the wait, such as a timeout of Playwright, then
+ * names the frame: the tree, the camera, the demo, and the time.
+ *
+ * @param what The event of the wait, such as `the bar to hide in 10 s`.
+ * @param frame The name of the frame.
+ * @param wait The wait.
+ * @returns The result of the wait.
+ * @throws Error that names the wait and the frame, with the failure of the wait as its cause.
+ */
+async function playWait<T>(what: string, frame: string, wait: () => Promise<T>): Promise<T> {
+  try {
+    return await wait();
+  } catch (cause) {
+    throw new Error(`The wait for ${what} failed on the frame of ${frame}.`, { cause });
+  }
+}
+
 /**
  * Renders one play frame of a site: it plays the demo, closes the drawer, moves the camera to
  * the default view with "Reset view", and drags and turns the wheel of the camera. Then it seeks
@@ -1287,13 +1311,17 @@ async function seekTo(page: Page, sec: number): Promise<void> {
  * @param site The URL of the site.
  * @param args The command line.
  * @param camera The camera.
+ * @param tree The name of the tree of the site, such as `the working tree` or `main (cc83899c)`.
  * @returns The PNG image, and the song time of the bar at the frame, such as `0:06`.
+ * @throws Error that names the tree, the camera, the demo, and the time, when the seek bar does
+ *   not reach the time in {@link SEEK_WAIT_MS} or the bar does not hide in {@link BAR_WAIT_MS}.
  */
 async function playFrame(
   browser: Browser,
   site: string,
   args: PlayArgs,
   camera: PlayCamera,
+  tree: string,
 ): Promise<{ readonly image: Buffer; readonly clock: string }> {
   const path = `/#demo=${args.demo}`;
   const page = await openShot(browser, new URL(path.slice(1), site).href, {
@@ -1321,19 +1349,28 @@ async function playFrame(
     // The pointer leaves the bar, so that the bar hides.
     await page.mouse.move(PLAY_FRAME.width / 2, PLAY_FRAME.height / 2);
 
+    const frame = `${tree}, camera ${camera.name}, demo ${args.demo}, time ${args.time} s`;
     const whole = Math.floor(args.time);
-    await seekTo(page, Math.max(0, whole - SEEK_LEAD_SEC));
-    // The seek bar shows the whole seconds of the song time.
-    await page.waitForFunction(
-      (sec) => {
-        const seek = document.querySelector('.seek');
-        return seek instanceof HTMLInputElement && Number(seek.value) >= sec;
+    await playWait(
+      `the seek bar to reach ${whole} s in ${SEEK_WAIT_MS / 1000} s`,
+      frame,
+      async () => {
+        await seekTo(page, Math.max(0, whole - SEEK_LEAD_SEC));
+        // The seek bar shows the whole seconds of the song time.
+        await page.waitForFunction(
+          (sec) => {
+            const seek = document.querySelector('.seek');
+            return seek instanceof HTMLInputElement && Number(seek.value) >= sec;
+          },
+          whole,
+          { polling: 20, timeout: SEEK_WAIT_MS },
+        );
       },
-      whole,
-      { polling: 20, timeout: 60_000 },
     );
     await page.waitForTimeout((args.time - whole) * 1000);
-    await page.waitForSelector('.bar.is-hidden', { state: 'attached', timeout: 10_000 });
+    await playWait(`the bar to hide in ${BAR_WAIT_MS / 1000} s`, frame, () =>
+      page.waitForSelector('.bar.is-hidden', { state: 'attached', timeout: BAR_WAIT_MS }),
+    );
     // The bar fades out in 0.2 s.
     await page.waitForTimeout(300);
     const image = await page.screenshot({ type: 'png' });
@@ -1352,6 +1389,7 @@ async function playFrame(
  * @param site The URL of the site.
  * @param args The command line.
  * @param prefix The start of the file names, such as `play-`.
+ * @param tree The name of the tree of the site, for the message of a failed wait.
  * @returns The frames and their labels, one for each camera.
  */
 async function renderPlay(
@@ -1359,11 +1397,12 @@ async function renderPlay(
   site: string,
   args: PlayArgs,
   prefix: string,
+  tree: string,
 ): Promise<RenderedViews> {
   const cells: Buffer[] = [];
   const labels: string[] = [];
   for (const camera of args.cameras) {
-    const frame = await playFrame(browser, site, args, camera);
+    const frame = await playFrame(browser, site, args, camera, tree);
     const file = join(args.out, `${prefix}${camera.name}.png`);
     await writeFile(file, frame.image);
     console.log(`${file}: song time ${frame.clock}`);
@@ -1389,7 +1428,7 @@ async function playViews(
 ): Promise<void> {
   const { browser } = site;
   const columns = args.cameras.length;
-  const after = await renderPlay(browser, site.base, args, 'play-');
+  const after = await renderPlay(browser, site.base, args, 'play-', 'the working tree');
   const sheet = await grid(browser, after.cells, after.labels, columns, playCell(columns));
   await writeImage(browser, sheet, join(args.out, 'play-views'));
   const ref = args.base;
@@ -1399,7 +1438,7 @@ async function playViews(
 
   const label = `${ref} (${shortHash(ref)})`;
   await withRefSite(ref, label, async (other) => {
-    const before = await renderPlay(browser, other, args, 'play-base-');
+    const before = await renderPlay(browser, other, args, 'play-base-', label);
     const labels = baseGridLabels(after.labels, label);
     const cells = [...before.cells, ...after.cells];
     const both = await grid(browser, cells, labels, columns, playCell(columns));
