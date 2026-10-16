@@ -527,42 +527,22 @@ A review checks the work of a step or a round before its merge. On 2026-10-04, t
 a review agent for each step. On 2026-10-14, the user asked: "is the review round really useful?
 skip it if not necessary". The three reviews of that day found old claims in docs, wording, one
 missing test, and three faults of tools. No finding was a fault that shows in the app. Thus the
-manager replaced the review of each step with the rule below
-([`2026-10-14-review-rule.md`](../decisions/2026-10-14-review-rule.md)).
+manager kept a short review agent only for two kinds of code
+([`2026-10-14-review-rule.md`](../decisions/2026-10-14-review-rule.md)). These were tool code that
+deletes files, starts processes, or changes the git state, and a rule of the pure core. On
+2026-10-16, the user said: "no need for the review agent for future sessions". Since then, no
+round gets a review agent ([`2026-10-16-no-review.md`](../decisions/2026-10-16-no-review.md)).
 
-`tools/merge-branch.sh` checks each commit with the lint, the typecheck, the format check, and
-the tests that the commit reaches. Then it runs the full `pnpm test`, the build, the size check,
-and the end-to-end tests. Since 2026-10-16, all tests are paused (9.3): `pnpm test` runs no test,
-and the merge script skips the end-to-end tests. The user judges the look from the images. A review agent thus runs
-only for code whose faults these checks and the images do not show:
+The manager reviews each round. The manager reads the report and looks at the images, and
+`tools/merge-branch.sh` runs the checks. The merge script checks each commit with the lint, the
+typecheck, the format check, and the tests that the commit reaches. Then it runs the full
+`pnpm test`, the build, the size check, and the end-to-end tests. Since 2026-10-16, all tests are
+paused (9.3): `pnpm test` runs no test, and the merge script skips the end-to-end tests. The user
+judges the look from the images.
 
-| Kind of round | Review |
-|---|---|
-| The look of the scene, the UI, or a model, a docs round, or a change of the test setup | No review agent. The manager reads the report and looks at the images. The merge script runs the checks. |
-| A change of tool code that deletes files, starts processes, or changes the git state | A short review agent, about 10 minutes, on the code only. |
-| A change of a rule of the pure core: `midi/`, `score/`, the timing of `pose/`, or the synth | A short review agent, about 10 minutes, on the code only. |
-
-The timing of `pose/` is the time of each motion against the notes and the transport. Examples
-are the note times, the lift, the lowering, and the pose after a seek. The synth includes the
-worklet, the block scheduler, and the clock. `models/`, `shots/`, and the look of a pose are pure
-modules too. Their faults show in the gallery, the shot frames, and the close views, so they get
-no review agent. A round of more than one kind gets the short review agent for the code of the
-last two rows.
-
-A review agent is an independent agent that did not do the work of the round. It does these
-checks:
-
-1. It runs `tools/check-commits.sh --tip main` in a worktree of the branch (`AGENTS.md`).
-2. It reads the diff of the code of its kind. It checks the correctness, the rules of
-   `AGENTS.md`, and the edge cases. For a tool, these are the stop paths, the removed files, the
-   ports, and the git state. For the pure core, these are the rules of its design section.
-3. It runs the break command of each new test with `tools/break-test.sh`, and reads the test
-   that fails.
-4. It reports each finding with its file and line. It runs no image tool and no probe of a body.
-
-The implementation agent or a fix agent makes each change that the review requests as a commit
+The implementation agent or a fix agent makes each change that the manager requests as a commit
 on the same branch. The manager reads the report of the fixes, and the merge script runs the
-checks. A second review runs only when the manager asks for it.
+checks.
 
 The manager and the user judge the look from images. At the end of a step or a round of the
 look, take the images with Playwright at 1440 × 900 and at 390 × 844. `pnpm screenshots <dir>`
