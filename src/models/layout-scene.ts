@@ -3,12 +3,12 @@ import { castScore, chamberFormOf, CONDUCTOR } from './cast.ts';
 import type { ChamberForm, PlayerCast, PlayingSection } from './cast.ts';
 import { centeredBox } from './bounds.ts';
 import {
-  STAND_FOOTPRINT,
   footprintOf,
   obstacleOf,
   obstaclesTouch,
   placeFootprint,
   playerFootprint,
+  standFootprint,
 } from './footprint.ts';
 import type { Footprint, Obstacle, PlacedBox } from './footprint.ts';
 import { FIRST_ROW_RADIUS, SEATED_ARC, STAND_DISTANCE, seatAt } from './layout.ts';
@@ -16,7 +16,8 @@ import type { ConductorPlace, PlayerPlace, RiserLevel, SceneLayout, StandPlace }
 import type { Vec3 } from './tuples.ts';
 import { ModelCache } from './model-cache.ts';
 import type { PlayerModel } from './player.ts';
-import { RISER, riserStepsDepth } from './props.ts';
+import { RISER, riserStepsDepth, standDeskHeight } from './props.ts';
+import { boneIndex } from './rig.ts';
 import { CONDUCTOR_STAND, PODIUM_FROM_FRONT, PODIUM_SIZE, keepsStageMargin } from './stage.ts';
 import { pieceBounds } from './instruments/piece.ts';
 
@@ -223,6 +224,11 @@ interface Member {
   /** The smallest arc of the player: 0.95 m, or 0.6 m for a singer. */
   readonly arc: number;
   readonly stand: StandUse;
+  /**
+   * The height of the lower eye of the model above the floor, in meters. The desk of each stand
+   * that the player reads stays below it ({@link standDeskHeight}).
+   */
+  readonly eye: number;
   /** The distance of its own stand in front of the player, in meters. */
   readonly standDistance: number;
   /** True for a violinist. The first violins sit to the left of 0° in row 0. */
@@ -278,21 +284,29 @@ function placePlayer(member: Member, angle: number, radius: number, height = 0):
 }
 
 /**
- * Places a music stand in front of a row. Its readers face the podium, and so does the stand.
+ * Places a music stand in front of a row. Its readers face the podium, and so does the stand. Its
+ * desk stays below the eyes of its readers ({@link standDeskHeight}).
  *
  * @param angle The angle of the stand.
  * @param distance The radius of the stand.
  * @param owner The index of the player that has it as its own stand, or -1.
+ * @param readers The players who read from the stand.
  * @returns The place and the obstacle.
  */
-function placeStand(angle: number, distance: number, owner: number): PlacedStand {
+function placeStand(
+  angle: number,
+  distance: number,
+  owner: number,
+  readers: readonly Member[],
+): PlacedStand {
   const spot = seatAt(CENTER, angle, distance);
+  const deskHeight = standDeskHeight(readers.map((reader) => reader.eye));
   return {
     owner,
-    place: { position: spot.position, facing: spot.facing },
+    place: { position: spot.position, facing: spot.facing, deskHeight },
     obstacle: obstacleOf(
       `stand at ${((angle * 180) / Math.PI).toFixed(1)}°`,
-      placeFootprint(STAND_FOOTPRINT, spot.position, spot.facing),
+      placeFootprint(standFootprint(deskHeight), spot.position, spot.facing),
     ),
   };
 }
@@ -302,14 +316,16 @@ function placeStand(angle: number, distance: number, owner: number): PlacedStand
  * further until the stand keeps the gap to the player and its instrument.
  *
  * @param footprint The footprint of the player.
+ * @param deskHeight The height of the middle of the desk of the stand, in meters.
  * @returns The distance, in meters.
  */
-function ownStandDistance(footprint: Footprint): number {
+function ownStandDistance(footprint: Footprint, deskHeight: number): number {
   const player = obstacleOf('player', placeFootprint(footprint, CENTER, 0));
+  const desk = standFootprint(deskHeight);
   let distance = STAND_DISTANCE;
   for (;;) {
     // In the model axes, the player faces -z, and the stand faces the player.
-    const stand = obstacleOf('stand', placeFootprint(STAND_FOOTPRINT, [0, 0, -distance], 0));
+    const stand = obstacleOf('stand', placeFootprint(desk, [0, 0, -distance], 0));
     if (!obstaclesTouch(player, stand, FOOTPRINT_GAP)) {
       return distance;
     }
@@ -361,23 +377,27 @@ function spacing(left: Member, right: Member, radius: number): number {
     const b = placePlayer(right, angle, radius);
     const stands: PlacedStand[] = [];
     if (left.stand === 'own') {
-      stands.push(placeStand(0, radius - left.standDistance, left.index));
+      stands.push(placeStand(0, radius - left.standDistance, left.index, [left]));
     }
     if (right.stand === 'own') {
-      stands.push(placeStand(angle, radius - right.standDistance, right.index));
+      stands.push(placeStand(angle, radius - right.standDistance, right.index, [right]));
     }
     if (sharesWith(left, right)) {
-      stands.push(placeStand(angle / 2, radius - STAND_DISTANCE, -1));
+      stands.push(placeStand(angle / 2, radius - STAND_DISTANCE, -1, [left, right]));
     } else if (standsAlone(left, right)) {
       const alone = aloneStandArc(left, radius) / radius;
-      stands.push(placeStand(alone, radius - STAND_DISTANCE, left.index));
+      stands.push(placeStand(alone, radius - STAND_DISTANCE, left.index, [left]));
     }
     // The right player starts a desk: its stand stands to its right, at half the arc to a
     // partner of its seat. The string quartet put the stands of the second violin and the viola
     // into each other (2026-10-14).
     const next =
       right.stand === 'shared' && right.cast.player % 2 === 0 && !sharesWith(left, right)
-        ? [placeStand(angle + aloneStandArc(right, radius) / radius, radius - STAND_DISTANCE, -1)]
+        ? [
+            placeStand(angle + aloneStandArc(right, radius) / radius, radius - STAND_DISTANCE, -1, [
+              right,
+            ]),
+          ]
         : [];
     const clear =
       !obstaclesTouch(a.obstacle, b.obstacle, FOOTPRINT_GAP) &&
@@ -514,12 +534,19 @@ function placeRow(
     const angle = angles[i] ?? 0;
     const next = members[i + 1];
     if (member.stand === 'own') {
-      stands.push(placeStand(angle, radius - member.standDistance, member.index));
-    } else if (sharesWith(member, next)) {
-      stands.push(placeStand((angle + (angles[i + 1] ?? angle)) / 2, radius - STAND_DISTANCE, -1));
+      stands.push(placeStand(angle, radius - member.standDistance, member.index, [member]));
+    } else if (next && sharesWith(member, next)) {
+      stands.push(
+        placeStand((angle + (angles[i + 1] ?? angle)) / 2, radius - STAND_DISTANCE, -1, [
+          member,
+          next,
+        ]),
+      );
     } else if (standsAlone(member, next)) {
       const arc = aloneStandArc(member, radius);
-      stands.push(placeStand(angle + arc / radius, radius - STAND_DISTANCE, member.index));
+      stands.push(
+        placeStand(angle + arc / radius, radius - STAND_DISTANCE, member.index, [member]),
+      );
     }
   });
   return { players, stands };
@@ -810,7 +837,10 @@ export function layoutObstacles(layout: SceneLayout, models = new ModelCache()):
     );
   });
   const stands = layout.stands.map((stand, i) =>
-    obstacleOf(`stand ${i}`, placeFootprint(STAND_FOOTPRINT, stand.position, stand.facing)),
+    obstacleOf(
+      `stand ${i}`,
+      placeFootprint(standFootprint(stand.deskHeight), stand.position, stand.facing),
+    ),
   );
   const risers = layout.risers.map((level) => riserObstacle(level, layout.podium));
   // The levels of the risers stand against each other, so they form one obstacle.
@@ -865,6 +895,11 @@ function memberOf(
   const model = models.get(cast.species, cast.instrument, cast.kettles, cast.support);
   const footprint = turned ? quarterTurn(playerFootprint(model)) : playerFootprint(model);
   const stand = STAND_USE[section];
+  const eye = Math.min(
+    ...(['eyeL', 'eyeR'] as const).map(
+      (bone) => model.skeleton.positions[boneIndex(bone)]?.[1] ?? Infinity,
+    ),
+  );
   return {
     index,
     cast,
@@ -878,7 +913,9 @@ function memberOf(
           ? SINGER_ARC
           : SEATED_ARC,
     stand,
-    standDistance: stand === 'own' ? ownStandDistance(footprint) : STAND_DISTANCE,
+    eye,
+    standDistance:
+      stand === 'own' ? ownStandDistance(footprint, standDeskHeight([eye])) : STAND_DISTANCE,
     violin: section === 'violin',
   };
 }
@@ -1205,6 +1242,7 @@ function layoutChamber(
     stands: stands.map((stand): StandPlace => ({
       position: move(stand.place.position),
       facing: stand.place.facing,
+      deskHeight: stand.place.deskHeight,
     })),
     risers: [],
   };
@@ -1615,6 +1653,7 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
       .map((stand): StandPlace => ({
         position: move(stand.place.position),
         facing: stand.place.facing,
+        deskHeight: stand.place.deskHeight,
       })),
     risers,
   };

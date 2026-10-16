@@ -149,12 +149,40 @@ export function riserStepsDepth(): number {
 export const MUSIC_STAND = {
   deskWidth: 0.5,
   deskDepth: 0.35,
+  /**
+   * The highest height of the middle of the desk above the floor, in meters. The desk of each
+   * stand comes down from it for its readers ({@link standDeskHeight}).
+   */
   deskHeight: 1.05,
+  /**
+   * The gap from the lowest eye of the readers of a stand down to the top edge of its desk, in
+   * meters: the gap of the seated red fox to the desk of 1.05 m before the seats of 2026-10-16,
+   * from its lower eye bone at 1.325 m to the top edge at 1.202 m.
+   */
+  eyeGap: 0.123,
+  /** The lowest height of the middle of the desk above the floor, in meters. */
+  lowestDesk: 0.6,
   /** The tilt of the desk toward the reader. */
   tilt: 30 * MathUtils.DEG2RAD,
   /** The length of each leg of the tripod base. */
   legLength: 0.24,
 } as const;
+
+/**
+ * Gives the height of the desk of a music stand from the eyes of its readers (design 4.5, props):
+ * the top edge of the desk lies {@link MUSIC_STAND} `eyeGap` below the lowest eye, so that the
+ * desk never hides the eyes of its players. The middle of the desk stays from `lowestDesk` to
+ * `deskHeight`.
+ *
+ * @param eyes The heights of the eyes of the readers above the floor, in meters.
+ * @returns The height of the middle of the desk above the floor, in meters.
+ */
+export function standDeskHeight(eyes: readonly number[]): number {
+  const s = MUSIC_STAND;
+  const top = Math.min(...eyes) - s.eyeGap;
+  const middle = top - (s.deskDepth / 2) * Math.cos(s.tilt);
+  return Math.min(s.deskHeight, Math.max(s.lowestDesk, middle));
+}
 
 /** The width of the legs and of the back posts of the chair. */
 export const CHAIR_LEG = 0.035;
@@ -276,10 +304,12 @@ export function buildChair(seatHeight: number, seatDepth: number = CHAIR.seatDep
  * Builds a music stand: a tripod base, a post, a tilted desk, and a white sheet (design 4.5).
  * The post stands on the origin. The reader is at +z, so the desk faces +z.
  *
+ * @param deskHeight The height of the middle of the desk above the floor, in meters
+ *   ({@link standDeskHeight}).
  * @returns The mesh data, with all vertices on bone 0.
  */
-export function buildMusicStand(): MeshData {
-  const s = MUSIC_STAND;
+export function buildMusicStand(deskHeight: number = MUSIC_STAND.deskHeight): MeshData {
+  const s = { ...MUSIC_STAND, deskHeight };
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.stand;
   for (let i = 0; i < 3; i++) {
@@ -539,7 +569,8 @@ export function buildRisers(levels: readonly RiserLevel[], podium: Vec3): MeshDa
 
 /**
  * Builds the static props of a layout as one mesh: the seat of each player, each music stand,
- * and the choir risers (design 4.4). Each kind of seat at each height is built one time.
+ * and the choir risers (design 4.4). Each kind of seat at each height and each stand at each
+ * desk height is built one time.
  *
  * @param layout The layout of a score.
  * @returns The mesh data in the stage axes, with all vertices on bone 0.
@@ -561,11 +592,11 @@ export function buildSceneProps(layout: SceneLayout): MeshData {
       builder.addMesh(seat, place(player.position, player.facing));
     }
   }
-  if (layout.stands.length > 0) {
-    const stand = buildMusicStand();
-    for (const at of layout.stands) {
-      builder.addMesh(stand, place(at.position, at.facing));
-    }
+  const stands = new Map<number, MeshData>();
+  for (const at of layout.stands) {
+    const stand = stands.get(at.deskHeight) ?? buildMusicStand(at.deskHeight);
+    stands.set(at.deskHeight, stand);
+    builder.addMesh(stand, place(at.position, at.facing));
   }
   if (layout.risers.length > 0) {
     builder.addMesh(buildRisers(layout.risers, layout.podium), transform());

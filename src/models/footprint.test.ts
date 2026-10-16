@@ -5,18 +5,18 @@ import { centeredBox } from './bounds.ts';
 import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from './cast.ts';
 import type { PlayingSection } from './cast.ts';
 import {
-  STAND_FOOTPRINT,
   boxesTouch,
   footprintOf,
   obstacleOf,
   obstaclesTouch,
   placeFootprint,
   playerFootprint,
+  standFootprint,
 } from './footprint.ts';
 import type { Footprint } from './footprint.ts';
 import type { MeshData } from './mesh.ts';
 import { buildPlayer } from './player.ts';
-import { CHAIR, HIGH_STOOL, buildMusicStand, buildSupport } from './props.ts';
+import { CHAIR, HIGH_STOOL, MUSIC_STAND, buildMusicStand, buildSupport } from './props.ts';
 import type { SpeciesId } from './species.ts';
 import type { KettleCount } from './instruments/percussion.ts';
 import type { InstrumentId } from './instruments/types.ts';
@@ -148,15 +148,16 @@ describe('playerFootprint', () => {
   });
 });
 
-describe('STAND_FOOTPRINT', () => {
+describe('standFootprint', () => {
   it('has a box for each leg, the post, and the desk', () => {
-    expect(STAND_FOOTPRINT.boxes).toHaveLength(5);
-    const heights = STAND_FOOTPRINT.boxes.map((b) => b.max[1]).toSorted((a, b) => a - b);
+    const footprint = standFootprint(MUSIC_STAND.deskHeight);
+    expect(footprint.boxes).toHaveLength(5);
+    const heights = footprint.boxes.map((b) => b.max[1]).toSorted((a, b) => a - b);
     expect(heights[2]).toBeLessThan(0.15);
     expect(heights[4]).toBeGreaterThan(1.1);
   });
 
   it('holds each vertex of the music stand (review of step 4, F5)', () => {
-    expect(verticesOutside(buildMusicStand(), STAND_FOOTPRINT)).toEqual([]);
+    expect(verticesOutside(buildMusicStand(), standFootprint(MUSIC_STAND.deskHeight))).toEqual([]);
   });
 });

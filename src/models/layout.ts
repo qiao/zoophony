@@ -15,6 +15,11 @@ export interface StandPlace {
   readonly position: Vec3;
   /** Radians around y: the facing of the players who read from it. */
   readonly facing: number;
+  /**
+   * The height of the middle of the desk above the floor, in meters, from the eyes of the players
+   * who read from it (`standDeskHeight()` of `models/props.ts`).
+   */
+  readonly deskHeight: number;
 }
 
 /**

@@ -125,16 +125,30 @@ export function playerFootprint(player: PlayerModel): Footprint {
   return footprint;
 }
 
+/** The footprint of the music stand of each desk height. */
+const standFootprints = new Map<number, Footprint>();
+
 /**
- * The footprint of a music stand: one box for each leg of the tripod, the post, and the desk with
- * its sheet. The reader is at +z.
+ * Gives the footprint of a music stand: one box for each leg of the tripod, the post, and the desk
+ * with its sheet. The reader is at +z.
+ *
+ * @param deskHeight The height of the middle of the desk above the floor, in meters.
+ * @returns The footprint.
  */
-export const STAND_FOOTPRINT: Footprint = (() => {
+export function standFootprint(deskHeight: number): Footprint {
+  const known = standFootprints.get(deskHeight);
+  if (known) {
+    return known;
+  }
   // `buildMusicStand()` adds three legs, the post, and the desk as boxes of 12 triangles, then
   // the sheet.
   const parts = 4;
-  return footprintOf(groupBoxes(buildMusicStand(), (t) => Math.min(Math.floor(t / 12), parts)));
-})();
+  const footprint = footprintOf(
+    groupBoxes(buildMusicStand(deskHeight), (t) => Math.min(Math.floor(t / 12), parts)),
+  );
+  standFootprints.set(deskHeight, footprint);
+  return footprint;
+}
 
 /**
  * Places the boxes of a footprint on the stage.
