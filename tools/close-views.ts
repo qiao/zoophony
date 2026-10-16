@@ -1165,7 +1165,10 @@ const SEEK_LEAD_SEC = BAR_HIDE_SEC + 1;
 export interface PlayArgs {
   /** The demo. */
   readonly demo: DemoId;
-  /** The song time of the play frame, in seconds. */
+  /**
+   * The song time of the play frame, in seconds: at least {@link SEEK_LEAD_SEC}, and before the
+   * end of the demo.
+   */
   readonly time: number;
   /** The cameras, one frame each. */
   readonly cameras: readonly PlayCamera[];
@@ -1210,7 +1213,8 @@ export function playCamera(text: string): PlayCamera {
  * @param args The arguments after the script.
  * @returns The command line, or `null` when the first argument is not `play`.
  * @throws Error that lists the correct names, for an unknown demo or camera, and an error for a
- *   wrong time, a time at or after the end of the demo, a wrong option, or a missing word.
+ *   wrong time, a time below {@link SEEK_LEAD_SEC}, a time at or after the end of the demo, a
+ *   wrong option, or a missing word.
  */
 export function playArgs(args: readonly string[]): PlayArgs | null {
   if (args[0] !== 'play') {
@@ -1232,6 +1236,13 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
   const time = Number(timeText);
   if (!/^\d+(?:\.\d+)?$/.test(timeText) || !Number.isFinite(time)) {
     throw new Error(`The time "${timeText}" is not a song time in seconds, such as 6 or 30.5.`);
+  }
+  // Below the seek lead, the seek goes to 0 s, and the frame comes when the bar hides, at about
+  // 3.3 s.
+  if (time < SEEK_LEAD_SEC) {
+    throw new Error(
+      `The time ${time} s is below ${SEEK_LEAD_SEC} s, the smallest time of the mode play. The tool seeks to ${SEEK_LEAD_SEC} s before the time, so that the bar hides before the frame.`,
+    );
   }
   // The seek bar does not pass the end, and the bar shows when the music stops.
   const { lengthSec } = DEMOS[demo];
