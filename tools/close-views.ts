@@ -437,6 +437,47 @@ export function baseGridLabels(labels: readonly string[], base: string): string[
   ];
 }
 
+/**
+ * Builds a commit in a temporary folder (`withRefBuild()`), serves its site with `vite preview`
+ * from {@link SERVER_PORT} up, and gives the URL of the site to a function. The server stops at
+ * the end, also after a failure of the function.
+ *
+ * @param ref The commit, the branch, or the tag.
+ * @param label The name of the commit in the messages, such as `main (cc83899c)`.
+ * @param use The function that reads the site.
+ * @param overlay The paths of the working tree that replace the paths of the commit, such as
+ *   `src/gallery`.
+ * @returns The result of the function.
+ * @throws Error if the build fails, the server has no URL, or the function fails.
+ */
+function withRefSite<T>(
+  ref: string,
+  label: string,
+  use: (site: string) => Promise<T>,
+  overlay: readonly string[] = [],
+): Promise<T> {
+  return withRefBuild(
+    ref,
+    async (dir) => {
+      const server = await preview({
+        root: dir,
+        preview: { port: SERVER_PORT, strictPort: false, open: false },
+      });
+      try {
+        const site = server.resolvedUrls?.local[0];
+        if (!site) {
+          throw new Error(`The preview server of ${label} has no URL.`);
+        }
+        return await use(site);
+      } finally {
+        await server.close();
+      }
+    },
+    undefined,
+    overlay,
+  );
+}
+
 /** The cells of the close view of a role, row by row, with their labels. */
 interface RenderedViews {
   /** The PNG image of each cell. */
@@ -496,26 +537,14 @@ async function renderBase(
   views: RenderedViews,
 ): Promise<void> {
   const label = `${ref} (${shortHash(ref)})`;
-  await withRefBuild(ref, async (dir) => {
-    const server = await preview({
-      root: dir,
-      preview: { port: SERVER_PORT, strictPort: false, open: false },
-    });
-    try {
-      const site = server.resolvedUrls?.local[0];
-      if (!site) {
-        throw new Error(`The preview server of ${label} has no URL.`);
-      }
-      const before = await renderViews(browser, site, name, out, `${name}-base-`);
-      const cells = [...before.cells, ...views.cells];
-      const labels = baseGridLabels(views.labels, label);
-      const sheet = await grid(browser, cells, labels, ROLE_VIEWS[name].views.length);
-      await writeFile(join(out, `${name}-base-views.png`), sheet);
-      await writeFile(join(out, `${name}-base-views.webp`), await toWebp(browser, sheet));
-      console.log(join(out, `${name}-base-views.png`));
-    } finally {
-      await server.close();
-    }
+  await withRefSite(ref, label, async (site) => {
+    const before = await renderViews(browser, site, name, out, `${name}-base-`);
+    const cells = [...before.cells, ...views.cells];
+    const labels = baseGridLabels(views.labels, label);
+    const sheet = await grid(browser, cells, labels, ROLE_VIEWS[name].views.length);
+    await writeFile(join(out, `${name}-base-views.png`), sheet);
+    await writeFile(join(out, `${name}-base-views.webp`), await toWebp(browser, sheet));
+    console.log(join(out, `${name}-base-views.png`));
   });
 }
 
@@ -757,32 +786,20 @@ async function lineupViews(
   }
 
   const label = `${ref} (${shortHash(ref)})`;
-  await withRefBuild(
+  await withRefSite(
     ref,
-    async (dir) => {
-      const server = await preview({
-        root: dir,
-        preview: { port: SERVER_PORT, strictPort: false, open: false },
-      });
-      try {
-        const other = server.resolvedUrls?.local[0];
-        if (!other) {
-          throw new Error(`The preview server of ${label} has no URL.`);
-        }
-        const camera = lineupCamera([tree, await rowBox(browser, other, args.species)], aspect);
-        say(camera);
-        const after = await renderLineup(browser, site.base, args.species, camera);
-        const before = await renderLineup(browser, other, args.species, camera);
-        await writeImage(browser, after, join(args.out, 'lineup'));
-        await writeFile(join(args.out, 'lineup-base.png'), before);
-        const labels = baseGridLabels(['lineup'], label);
-        const sheet = await grid(browser, [before, after], labels, 1, LINEUP);
-        await writeImage(browser, sheet, join(args.out, 'lineup-base-views'));
-      } finally {
-        await server.close();
-      }
+    label,
+    async (other) => {
+      const camera = lineupCamera([tree, await rowBox(browser, other, args.species)], aspect);
+      say(camera);
+      const after = await renderLineup(browser, site.base, args.species, camera);
+      const before = await renderLineup(browser, other, args.species, camera);
+      await writeImage(browser, after, join(args.out, 'lineup'));
+      await writeFile(join(args.out, 'lineup-base.png'), before);
+      const labels = baseGridLabels(['lineup'], label);
+      const sheet = await grid(browser, [before, after], labels, 1, LINEUP);
+      await writeImage(browser, sheet, join(args.out, 'lineup-base-views'));
     },
-    undefined,
     ['src/gallery'],
   );
 }
