@@ -73,8 +73,9 @@ export interface WindHold {
    */
   readonly lipShift: Vec3;
   /**
-   * The left paw in the rest pose when it leaves its grip (design 5.3): the place of the palm on
-   * the left thigh of a seated player, the side of the palm, and the direction of the fingers. The
+   * The left paw in the rest pose when it leaves its grip (design 5.2, 5.3): the place of the palm
+   * of a seated player from the top of its left thigh (on the thigh, or beside it with the arm
+   * hanging, as for the tan fox), the side of the palm, and the direction of the fingers. The
    * left arm of a standing player hangs (`hangingArm()`). The lift and the lowering move the left
    * paw between its rest place and its grip by the weight of the playing pose, the weight that
    * also moves the instrument, with the arc of the paw. `null` keeps the left palm on its grip,
