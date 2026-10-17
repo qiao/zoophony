@@ -475,7 +475,10 @@ of each role.
     and slows to a stop in its last note, so the turn of the bow at the next bow is sharp. Its
     length is `0.1 + 0.4 × duration` of the bow range, from 0.06 to 0.8, with the duration of the
     whole bow, times `0.7 + 0.3 × gesture size`: a louder note moves the bow a little faster, and
-    the sounding point and the force change more, as for real players. A rest of at least 0.5 s ends a phrase: the next bow is a
+    the sounding point and the force change more, as for real players. A bow whose next bow
+    starts within 0.25 s (at least 4 notes a second) is fast, and moves toward the balance point
+    and the middle of the bow: the middle of the bow moves 0.2 of the way to 0.45 of the bow
+    range (`balanceShift()`), as real players play fast strokes at the balance point. A rest of at least 0.5 s ends a phrase: the next bow is a
     down-bow from 12% of the bow range, and the bow moves there in the rest.
   - In a rest, the bow lifts up to 0.03 m (fully after 0.4 s of rest) in at most 0.1 s, and lands
     in at most 0.15 s before the next note.

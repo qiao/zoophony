@@ -48,12 +48,24 @@ export const BOW_MOTION = {
   crossShare: 0.3,
   crossLeadSec: 0.01,
   /**
+   * A stroke whose next stroke starts within this time is fast: at least 4 notes a second, the
+   * lower end of the fast patterns of 4 to 8 notes a second (`docs/reference/string-technique.md`,
+   * section 2.3). A fast bow moves toward the balance point.
+   */
+  fastSec: 0.25,
+  /**
    * The slur rule (`docs/reference/string-technique.md`, section 2.5). The MIDI files have no
    * slurs, so two to `notes` normal strokes in one beat join into one bow when each is shorter
    * than `maxSec` and each gap is shorter than `gapSec`. A note that starts at most `beatSlackSec`
    * before a beat belongs to that beat.
    */
   slur: { notes: 4, maxSec: 0.25, gapSec: 0.03, beatSlackSec: 0.03 },
+  /**
+   * The fast bows move toward the balance point and the middle of the bow
+   * (`docs/reference/string-technique.md`, section 2.5): the middle of each fast bow moves `share`
+   * of the way to `place` of the bow range.
+   */
+  balance: { place: 0.45, share: 0.2 },
   /** The change between the bow and pizzicato starts this long before the note. */
   techniqueLeadSec: 0.3,
   /** The change between the bow and pizzicato ends this long before the note. */
@@ -354,6 +366,23 @@ export function slurSizes(strokes: readonly SlurNote[], beats: Float64Array): nu
 }
 
 /**
+ * Gives the change of the move of a fast bow toward the balance point and the middle of the bow
+ * (design 5.3, `docs/reference/string-technique.md`, section 2.5): the middle of the bow moves
+ * `BOW_MOTION.balance.share` of the way to the target. The change is at most half of the move, so
+ * the bow keeps its direction.
+ *
+ * @param from The place of the strings on the hair at the start of the bow, in meters.
+ * @param travel The move of the bow without the change, in meters: positive to the tip.
+ * @param target The place of the balance point on the hair, in meters.
+ * @returns The change of the move, in meters.
+ */
+export function balanceShift(from: number, travel: number, target: number): number {
+  const most = 0.5 * Math.abs(travel);
+  const shift = BOW_MOTION.balance.share * (target - (from + travel / 2));
+  return Math.min(most, Math.max(-most, shift));
+}
+
+/**
  * Gives the place of the strings on the hair in a bow. The bow starts at its full speed, keeps it
  * until its last note, and slows to a stop in its last note, so the change of direction at the
  * next bow is sharp. A separate note slows down from its start. The notes of a slur share one
@@ -383,8 +412,8 @@ function bowInSlur(slur: BowSlur, time: number): number {
  * its string, its position, and its finger: the hand keeps its position, and the fingers play
  * the notes. The bow changes direction on each bow: a note, or a slur of short notes in one beat
  * ({@link slurSizes}). A phrase starts with a down-bow at the frog. The length of a bow comes
- * from its length in time, and a little from the gesture size. Pizzicato strokes keep the bow
- * where it is. A tremolo
+ * from its length in time, and a little from the gesture size, and a fast bow moves toward the
+ * balance point ({@link balanceShift}). Pizzicato strokes keep the bow where it is. A tremolo
  * stroke makes short fast strokes around the place of the bow. A stopped bowed note of at least
  * `LEFT_HAND.vibrato.minSec` gets vibrato.
  *
@@ -455,7 +484,11 @@ export function buildStrokes(
       const duration = Math.max(0, last.end - p.start);
       const gesture = gestureSize(p.loudness, amplitude);
       const part = Math.min(l.max, Math.max(l.min, l.base + l.perSecond * duration));
-      const travel = direction * part * span * (1 - l.loudness + l.loudness * gesture);
+      let travel = direction * part * span * (1 - l.loudness + l.loudness * gesture);
+      const next = pitches[k + count];
+      if (next && next.start - p.start < m.fastSec) {
+        travel += balanceShift(from, travel, low + m.balance.place * span);
+      }
       to = Math.min(high, Math.max(low, from + travel));
       bowed = true;
     }

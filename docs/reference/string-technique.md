@@ -372,6 +372,12 @@ A round that changes the motion updates the items.
   of section 2.4. The loudness changes the length only a little: the length is multiplied by
   `0.7 + 0.3 ×` the gesture size, because real players change the sounding point and the force
   more than the bow speed. Before round `bow-arm`, the gesture size multiplied the length.
+- **Fast bows move to the balance point** (section 2.5). A bow whose next bow starts within
+  0.25 s (`BOW_MOTION.fastSec`, at least 4 notes a second, the lower end of the fast patterns of
+  section 2.3) moves toward the balance point and the middle of the bow: `balanceShift()` of
+  `pose/strokes.ts` moves the middle of the bow 0.2 of the way to 0.45 of the bow range
+  (`BOW_MOTION.balance`), and keeps the direction of the bow. A long note keeps the length of its
+  rule.
 
 ## 4. Sources
 
