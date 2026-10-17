@@ -338,8 +338,9 @@ A round that changes the motion updates the items.
   the fifth position, `leftTilt()` of `pose/bowed.ts` tilts the left hand further over the neck
   by `BowedHold.highTilt`, and the wrist comes up beside the upper bout. The finger block keeps its
   place. The app starts the tilt one position earlier than a real hand, because the left forearm
-  of the cat touches the upper bout from the third position. Only the cat tilts. Its wrist then
-  bends more than the straight wrist of a real player (decisions
+  of the cat touches the upper bout from the third position. Only the cat tilts, and only so far
+  that its fingers still point down to the strings. Its wrist then bends more than the straight
+  wrist of a real player (decisions
   [`2026-10-17-cat-hand.md`](../decisions/2026-10-17-cat-hand.md)).
 
 ### 3.2 The bow arm
