@@ -545,22 +545,29 @@ interface StoredRows {
 }
 
 /**
- * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
- * change of the format takes the next version, so that a compare with `--base` stops on two
- * formats.
+ * The format version of the JSON text of `--json` (`ProbeFormat` of `tools/ref-tree.ts`). A
+ * change of the format takes the next version.
  */
 export const ROWS_FORMAT = 1;
 
 /**
- * Writes the rows of a run as JSON (`--json`), with the format version {@link ROWS_FORMAT}. JSON
- * writes the place `NaN` of a depth with no bone and the infinite gap of a set with no sample as
- * `null`.
+ * The oldest format version that {@link ROWS_FORMAT} only adds fields to (`ProbeFormat.since` of
+ * `tools/ref-tree.ts`): a compare with `--base` reads a text of each version from it to
+ * {@link ROWS_FORMAT}. A change that only adds fields keeps it, and a change of a field sets it to
+ * the new version.
+ */
+export const ROWS_SINCE = 1;
+
+/**
+ * Writes the rows of a run as JSON (`--json`), with the format version {@link ROWS_FORMAT} and
+ * {@link ROWS_SINCE}. JSON writes the place `NaN` of a depth with no bone and the infinite gap of
+ * a set with no sample as `null`.
  *
  * @param rows The rows.
  * @returns The text.
  */
 export function rowsJson(rows: readonly SweepRow[]): string {
-  return JSON.stringify({ version: ROWS_FORMAT, rows });
+  return JSON.stringify({ version: ROWS_FORMAT, since: ROWS_SINCE, rows });
 }
 
 /**

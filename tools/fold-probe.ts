@@ -1288,11 +1288,18 @@ export interface FaceJson {
 }
 
 /**
- * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
- * change of the format takes the next version, so that a compare with `--base` stops on two
- * formats.
+ * The format version of the JSON text of `--json` (`ProbeFormat` of `tools/ref-tree.ts`). A
+ * change of the format takes the next version.
  */
 export const FOLD_FORMAT = 2;
+
+/**
+ * The oldest format version that {@link FOLD_FORMAT} only adds fields to (`ProbeFormat.since` of
+ * `tools/ref-tree.ts`): a compare with `--base` reads a text of each version from it to
+ * {@link FOLD_FORMAT}. A change that only adds fields keeps it, and a change of a field sets it to
+ * the new version.
+ */
+export const FOLD_SINCE = 2;
 
 /**
  * Gives the fields of a worst fold that the JSON text of `--json` holds: the sample, the angle,
@@ -1311,8 +1318,8 @@ function foldOnly(worst: FaceWorst | null): FaceWorst | null {
 
 /**
  * Writes the folds of a report as the JSON text of `--json`: the format version
- * ({@link FOLD_FORMAT}), the counts of each sample set, the hash of the corners of the mesh, and
- * each folded face ({@link FaceRecord}).
+ * ({@link FOLD_FORMAT} and {@link FOLD_SINCE}), the counts of each sample set, the hash of the
+ * corners of the mesh, and each folded face ({@link FaceRecord}).
  *
  * @param report The report.
  * @returns The JSON text.
@@ -1348,7 +1355,7 @@ export function foldJson(report: FoldReport): string {
         )
         .digest('hex')
     : '';
-  return JSON.stringify({ version: FOLD_FORMAT, sets, topology, faces });
+  return JSON.stringify({ version: FOLD_FORMAT, since: FOLD_SINCE, sets, topology, faces });
 }
 
 /**
