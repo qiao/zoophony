@@ -577,7 +577,12 @@ quarter of the folded faces.
   shoulder joint, each leg at its hip joint, and the tail at its root. The neck joint lies on the
   line, so the neck and the head do not move. The cat config takes the girth factors that make
   its belly, its hips, and the depth of its trunk meet `cat-views.png` in head heights. The sheet
-  is the upper bound. The upper arm stretches by the
+  is the upper bound. The arm girth factors make the cross-section of the upper arm and of the
+  forearm smaller across their axes (`armGirth`, `arm_slim()` and `fore_slim()`). The factor of
+  the upper arm fades in from the shoulder joint over a share of the upper arm
+  (`ARM_GIRTH_FADE`), and the factor of the forearm fades out from the elbow joint to the wrist,
+  so that the shoulders and the paws keep their form and the elbow takes the whole factor. A
+  config with no factors keeps its rig. The upper arm stretches by the
   arm factor only from the shoulder joint out, so that a small arm weight of the throat does not
   pull the throat across the middle. A config can also fade the stretch over the trunk below the
   armpit (`weights.stretchRamp`). No config has a fade now: with the holds of the shorter arms of
