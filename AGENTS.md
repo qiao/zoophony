@@ -394,6 +394,10 @@ These traps of route 3 each cost a round:
   of a sloped thigh can pass under that seat top near the front edge: with the thighs 25° down,
   one triangle of the red fox, 15 cm long, goes 1.3 cm into the seat at its front corner.
   `seat-dip.ts` of `docs/research/2026-10-17-fox-form/` finds the deepest triangle point.
+- The rest columns of `pnpm hold-fit` give the reach of a free paw only. A grip of a rest that the
+  paw cannot reach shows in `pnpm hold-reach <species> --instrument flute`: on the lower knees of
+  2026-10-17, a resting flute 0.06 H lower met each depth goal, but the right palm missed its grip
+  by 1.7 cm. Run `pnpm hold-reach` after each change of a rest place of a held instrument.
 - A linear stretch of the upper arm moves each vertex by its upper arm weight. With the longer arms
   of 2026-10-14, a throat face of the red fox with 0.09 of each upper arm weight went across the
   middle, and the trunk below the right armpit folded in 30% of the play samples. The upper arm now
