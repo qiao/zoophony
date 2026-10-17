@@ -1,5 +1,60 @@
 # 5. Animation
 
+## Pose index
+
+The table lists each role of the app. A role is a kind of player with a pose of its own: an
+instrument with the species of its section (`SECTION_SPECIES` of `models/cast.ts`). A species
+with a hold of its own is a role of its own (`SPECIES_HOLDS` of `pose/bowed-rig.ts`,
+`SPECIES_WIND_HOLDS` of `pose/winds.ts`). The code holds the values of each hold, so the table
+gives no angle and no length.
+
+- **Support.** A role that "stands as a soloist" stands when it is the soloist of an orchestra, a
+  player alone, or the partner of a pianist in a recital (`supportOf()` of `models/player.ts`,
+  4.2, 4.5). Its rest cell also gives the standing rest when it differs.
+- **Source.** The real player that the pose follows, with the file that holds the source. The word
+  "none" means that the repository holds no real player for the pose. Each seated role also
+  follows the seated posture of 5.2 and its sources.
+- **Play and rest.** The playing pose and the rest pose (5.2), each in one short phrase.
+- **Code.** The hold constant and its file in `src/`.
+- **Docs.** The design text and the newest decision file of the pose in `docs/decisions/`. "5.3
+  bowed strings" names the paragraph "Bowed strings in detail" of 5.3, and the same for the other
+  families.
+- **View.** A command that shows the pose. `pnpm close-views species <species> <dir>` shows a
+  species on its support during play, and `--moment rest` shows its rest pose (7.1). A query opens
+  `/gallery.html` of `pnpm dev` at one percussion instrument of the badger.
+
+Each new role and each new hold adds its row to this table in the same commit.
+
+| Role | Support | Source | Play | Rest | Code | Docs | View |
+|---|---|---|---|---|---|---|---|
+| Conductor, bear | Stands on the podium | none | Beats the patterns of 5.4 with the baton, turns to cue each entry, and shows the dynamics with the left paw | The arms hang a little out to the sides | `CONDUCTOR_HOLD`, `pose/conductor.ts` | 5.2, 5.4, `2026-10-12-studio-bear.md` | `pnpm close-views conductor <dir>` |
+| Piano, polar bear | Bench | Play: the forearm rule of Prodigies and "Fundamentals of Piano Practice", on a higher bench that the user asked for (`2026-10-14-polar-bench.md`). Rest: a Suzuki checklist (`docs/research/2026-10-13-pianist-lap.md`) | Leans toward the keys, with the palms down at the front of the keys and the elbows out, down, and back | Sits tall with a small lean to the piano and the head up, with the paws on the low belly over the thighs | `HANDS_HOLDS.piano`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-14-polar-fix.md` | `pnpm close-views pianist <dir>` |
+| Harp, deer | Stool | none | Leans forward, and each palm faces the strings and plucks the string of its note | Sits up, with the left palm on the left thigh and the right hand on a string | `HANDS_HOLDS.harp`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-11-short-legs.md` | `pnpm close-views species deer <dir>` |
+| Violin, rabbit | Chair, stands as a soloist | Play: violinonline.com and Simon Fischer (`docs/research/2026-10-14-fox-rabbit-form.md`). Rest: the cat violas that the user chose (`2026-10-16-seat-rest.md`) | Holds the violin on the left shoulder under the jaw, with the back straight and the bow nearly square | The violin stands upright on the lap, held at its neck, and the bow lies across the lap. A soloist holds the violin at its left side | `SHOULDER_HOLD` and `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-16-hip-open.md` | `pnpm close-views violinist <dir>` |
+| Violin, red fox | Chair, stands as a soloist | The sources of the rabbit | The hold of the rabbit, with the tail end against the left side of the short neck under the long jaw | The rest of the rabbit | `FOX_HOLD` and `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-16-hip-open.md` | `pnpm close-views fox-violinist <dir>` |
+| Viola, cat | Chair, stands as a soloist | none | Holds the viola under the chin (the chin hold), with the right elbow out | The viola stands on the left thigh, and the bow lies on the outer side of the right knee. A soloist holds the viola at its left side | `BOWED_HOLDS.viola` and `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-11-short-legs.md` | `pnpm close-views species cat <dir>` |
+| Cello, dog | Chair | none | The cello stands on the floor (the floor hold), the player leans forward, the right elbow points out and up, and the left arm hugs the cello | The cello stays on the floor, and the bow lies on the outer side of the right knee | `BOWED_HOLDS.cello`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-11-low-seats.md` | `pnpm close-views species dog <dir>` |
+| Contrabass, hippo | High stool | none | The floor hold of the cello | The rest of the cello | `BOWED_HOLDS.contrabass`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-10-arms-close.md` | `pnpm close-views species hippo <dir>` |
+| Flute, tan fox | Chair, stands as a soloist | Play: Michel Debost, Flute Talk, May/June 1996 (`2026-10-14-fox-flute.md`). Rest: Patricia George, The Instrumentalist, December 2018 (`2026-10-15-flute-rest.md`) | Turns the head to the left, with the flute nearly square to the face and the shoulders square and low | The flute stands upright on the right leg in the right paw, and the left paw rests on the left thigh. A soloist hangs the left arm | `FOX_FLUTE`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-16-hip-open.md` | `pnpm close-views flutist <dir>` |
+| Oboe, mouse | Chair, stands as a soloist | none | Holds the oboe at the mouth with both paws on their grips and the right shoulder turned forward | The oboe moves off the mouth and tilts, the head lifts, and the paws keep their grips | `WIND_HOLDS.oboe`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-short-legs.md` | `pnpm close-views species mouse <dir>` |
+| Clarinet, wolf | Chair, stands as a soloist | none | Holds the clarinet at the mouth with both paws on their grips and the right shoulder turned forward | The clarinet moves off the mouth and tilts, the head lifts, and the paws keep their grips | `WIND_HOLDS.clarinet`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-short-legs.md` | `pnpm close-views species wolf <dir>` |
+| Bassoon, beaver | Chair | none | The bassoon turns its lower end forward and to the right, and the right elbow points down | The bassoon moves off the mouth and tilts, the head lifts, and the paws keep their grips | `WIND_HOLDS.bassoon`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-short-legs.md` | `pnpm close-views species beaver <dir>` |
+| Horn, pig | Chair, stands as a soloist | none | The left hand presses the valves, and the right elbow points down | The horn comes up, so that its bell sits on the right thigh | `WIND_HOLDS.horn`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-low-seats.md` | `pnpm close-views species pig <dir>` |
+| Trumpet, monkey | Chair, stands as a soloist | none | The right hand presses the valves, and the elbows point down | The trumpet moves off the mouth and turns down and to the side | `WIND_HOLDS.trumpet`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-low-seats.md` | `pnpm close-views species monkey <dir>` |
+| Trombone, panda | Chair, stands as a soloist | none | The right arm moves the slide with the pitch, with the right shoulder turned forward | The trombone moves off the mouth and turns down | `WIND_HOLDS.trombone`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-low-seats.md` | `pnpm close-views species panda <dir>` |
+| Tuba, rhino | Chair | none | The right hand presses the valves, and the elbows point down | The tuba moves off the mouth and tilts | `WIND_HOLDS.tuba`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-low-seats.md` | `pnpm close-views species rhino <dir>` |
+| Timpani, elephant | Stands | none | Two mallets strike the kettle of each note, and a roll alternates the hands | The arms hang a little out to the sides | `PERCUSSION_HOLDS.timpani`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-10-arms-close.md` | `pnpm close-views species elephant <dir>` |
+| Bass drum, badger | Stands | none | The beater in the right hand strikes the right head, and the left arm hangs | The rest of the timpani | `PERCUSSION_HOLDS['bass-drum']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-10-arms-close.md` | `pnpm close-views species badger <dir>` |
+| Snare drum, badger | Stands | none | Two mallets strike the head, and a roll alternates the hands, with the elbows nearer to the body | The rest of the timpani | `PERCUSSION_HOLDS['snare-drum']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-10-arms-close.md` | `?page=species&only=snare-drum&body` |
+| Cymbals, badger | Stands | none | The inner faces of the two cymbals meet in front of the shoulders at the note start | The rest of the timpani | `PERCUSSION_HOLDS.cymbals`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-10-arms-close.md` | `?page=species&only=cymbals&body` |
+| Small percussion, badger | Stands | none | The left hand holds the triangle up, and the beater in the right hand strikes the triangle or the tambourine | The rest of the timpani | `PERCUSSION_HOLDS['small-percussion']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-10-arms-close.md` | `?page=species&only=small-percussion&body` |
+| Xylophone, badger | Stands | none | Two mallets strike the bar of each key, and a hand does not cross the other hand | The rest of the timpani | `PERCUSSION_HOLDS.xylophone`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-10-arms-close.md` | `?page=species&only=xylophone&body` |
+| Choir, penguin | Stands on a riser | none | The beak opens with each note, the chest turns from side to side in a phrase, and the flippers hold the folder close | The beak closes, the chest stops its turn, and the flippers keep the folder | `CHOIR_HOLD`, `pose/choir.ts` | 5.3 choir, `2026-10-11-penguin-body.md` | `pnpm close-views species penguin <dir>` |
+
+`BOWED_HOLDS.violin` (the chin hold) and `WIND_HOLDS.flute` have no row. No player of the cast
+uses them, because each species of the violin and the flute sections has a hold of its own. A new
+species of these sections takes them.
+
 ## 5.1 Pose function
 
 The pose of each animal is a **pure function** of its inputs. The app keeps no state that events
