@@ -18,15 +18,20 @@
  * process. The table then starts with the row of the commit, and one compare of the deepest
  * points in the H of each body follows for each variant.
  *
+ * `--sets <set>[,<set>]...` takes only the named sample sets of {@link FIT_SETS}, such as
+ * `--sets lift,rest,lower` for the rest mode: the run then skips the play samples of the folds
+ * and of the sweep, which take most of its time.
+ *
  * Usage: pnpm hold-fit <role> [--set <path>=<value>[;<path>=<value>]...]...
- * [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]... [--step <seconds>] [--faces <n>]
- * [--base <ref>] [--json <file>]
+ * [--grid <path>=<a>:<b>:<step>]... [--sets <set>[,<set>]...] [--demo <id>|all]...
+ * [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>]
  */
 import { writeFileSync } from 'node:fs';
 
 import {
   FOLD_ROLES,
   FOLD_ROLE_TABLE,
+  SAMPLE_SETS,
   faceLines,
   probeFolds,
   roleBodies,
@@ -76,8 +81,49 @@ export const PLAY_FOLD_GOAL = 0.01;
 /** The largest number of variants of the grids of a run. One variant takes 45 s to 90 s. */
 export const GRID_LIMIT = 40;
 
+/**
+ * The sample sets of a run: the play, the lift of the arms at the start, the rest pose before the
+ * start, and the lowering after the song end. The folds have no lowering, and a role with no sweep
+ * has the folds only.
+ */
+export const FIT_SETS = ['play', 'lift', 'rest', 'lower'] as const;
+
+/** A sample set of a run ({@link FIT_SETS}). */
+export type FitSet = (typeof FIT_SETS)[number];
+
 /** The usage text of `pnpm hold-fit`. */
-const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>]`;
+const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>]`;
+
+/**
+ * Tells if a text is the name of a sample set of a run.
+ *
+ * @param name The text.
+ * @returns True for a name of {@link FIT_SETS}.
+ */
+function isFitSet(name: string): name is FitSet {
+  return FIT_SETS.some((set) => set === name);
+}
+
+/**
+ * Reads the sample sets of `--sets`.
+ *
+ * @param value The names, separated by commas, such as `lift,rest,lower`.
+ * @returns The sets, in the order of {@link FIT_SETS}.
+ * @throws Error if a name is not a set of {@link FIT_SETS}, or if the list is empty.
+ */
+export function parseSets(value: string): FitSet[] {
+  const names = value
+    .split(',')
+    .map((name) => name.trim())
+    .filter((name) => name !== '');
+  const unknown = names.filter((name) => !isFitSet(name));
+  if (names.length === 0 || unknown.length > 0) {
+    throw new Error(
+      `The option --sets takes the names ${FIT_SETS.join(', ')}, and "${value}" has ${unknown.length > 0 ? unknown.join(', ') : 'none'}.`,
+    );
+  }
+  return FIT_SETS.filter((set) => names.includes(set));
+}
 
 /**
  * Gives the values of one grid: from the first value to the last value at each step, with both
@@ -168,6 +214,8 @@ export interface FitOptions {
   readonly demos: readonly string[];
   /** The step of the song time of the play folds, in seconds. */
   readonly step: number;
+  /** The sample sets of the run: all of {@link FIT_SETS}, or the sets of `--sets`. */
+  readonly sets: readonly FitSet[];
   /** The file into which the tool writes its rows as JSON, or `null` for none. */
   readonly json: string | null;
   /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
@@ -181,7 +229,7 @@ export interface FitOptions {
  * @param args The arguments after the script.
  * @returns The options.
  * @throws Error if the role or an option is not known, if an option has no value, if the step is
- *   not above 0, or if a change of `--set` does not fit a hold.
+ *   not above 0, if a set of `--sets` is not known, or if a change of `--set` does not fit a hold.
  */
 export function parseFitOptions(args: readonly string[]): FitOptions {
   const [name = '', ...rest] = args;
@@ -193,6 +241,7 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   const grids: string[] = [];
   const demos: string[] = [];
   let step = FIT_STEP;
+  let sets: readonly FitSet[] = FIT_SETS;
   let faces = 0;
   let json: string | null = null;
   let base: string | null = null;
@@ -207,6 +256,9 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
         break;
       case '--grid':
         grids.push(value);
+        break;
+      case '--sets':
+        sets = parseSets(value);
         break;
       case '--faces':
         faces = Number(value);
@@ -240,7 +292,7 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   if (base !== null && json !== null) {
     throw new Error(`The options --base and --json do not go together.\n${USAGE}`);
   }
-  return { name, role, variants, grids, faces, demos, step, json, base };
+  return { name, role, variants, grids, faces, demos, step, sets, json, base };
 }
 
 /**
@@ -259,9 +311,14 @@ export const HELD_PART: SweepPart = { name: 'instrument', bones: ['instrument', 
  *
  * @param role The fold role.
  * @param scene A scene with a body of the role.
+ * @param sets The sample sets to sweep, all of {@link FIT_SETS} by default.
  * @returns The sweep, or `null` when no sweep role has a body of the role.
  */
-export function fitSweep(role: RoleSource, scene: TestScene): RoleSweep | null {
+export function fitSweep(
+  role: RoleSource,
+  scene: TestScene,
+  sets: readonly FitSet[] = FIT_SETS,
+): RoleSweep | null {
   const models = new Set(roleBodies(role, scene).map((body) => body.model));
   const sweep = Object.values(SWEEP_ROLES).find((candidate) =>
     candidate.players(scene).some((player) => models.has(player.model)),
@@ -272,6 +329,8 @@ export function fitSweep(role: RoleSource, scene: TestScene): RoleSweep | null {
   return {
     ...sweep,
     parts: holdsInstrument(role) ? [...sweep.parts, HELD_PART] : sweep.parts,
+    sampleSets: (other) =>
+      sweep.sampleSets(other).filter((set) => sets.some((name) => name === set.name)),
     players: (other) => {
       const own = new Set(roleBodies(role, other).map((body) => body.model));
       return sweep.players(other).filter((player) => own.has(player.model));
@@ -426,11 +485,12 @@ export function worstPairs(role: RoleSweep, results: readonly DemoResult[]): Set
 export type FoldShare = Readonly<Pick<FoldCount, 'samples' | 'withFold'>>;
 
 /**
- * The most folded faces of one rest sample, split by the side of their main bone (`sideSplit()` of
- * `pnpm fold-probe`). The rest folds in each sample on `main`, so the share of the samples cannot
- * show a change of the rest, and the faces can.
+ * The rest samples, and the most folded faces of one rest sample, split by the side of their main
+ * bone (`sideSplit()` of `pnpm fold-probe`). The rest folds in each sample on `main`, so the share
+ * of the samples cannot show a change of the rest, and the faces can. A run with no rest set has
+ * no rest sample.
  */
-export type RestFolds = Readonly<Pick<FoldCount, 'most' | 'split'>>;
+export type RestFolds = Readonly<Pick<FoldCount, 'samples' | 'most' | 'split'>>;
 
 /**
  * The shares of the samples with a fold in the play and in the lift, and the most folded faces of
@@ -457,7 +517,7 @@ export function foldShares(report: FoldReport): FoldShares {
   return {
     play: { samples: play.samples, withFold: play.withFold },
     lift: { samples: lift.samples, withFold: lift.withFold },
-    rest: { most: rest.most, split: { ...rest.split } },
+    rest: { samples: rest.samples, most: rest.most, split: { ...rest.split } },
   };
 }
 
@@ -517,10 +577,10 @@ export interface FitRun {
 /**
  * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
  * change of the format takes the next version, so that a compare with `--base` stops on two
- * formats. Version 2 added the rest faces by side, and version 3 the instrument in the body, the
- * rest gaps, and the reach shares of the free paws.
+ * formats. Version 2 added the rest faces by side, version 3 the instrument in the body, the
+ * rest gaps, and the reach shares of the free paws, and version 4 the rest samples of the folds.
  */
-export const FIT_FORMAT = 3;
+export const FIT_FORMAT = 4;
 
 /**
  * Writes the rows of a run as JSON (`--json`), with the format version {@link FIT_FORMAT}.
@@ -571,11 +631,14 @@ export function readFit(text: string): FitRun {
  * @param folds The folds.
  * @param set The sample set.
  * @param goal The largest share without a mark, or `null` for no mark.
- * @returns The text, such as `2.3% (103/4454) OVER`.
+ * @returns The text, such as `2.3% (103/4454) OVER`, or `-` for a set that the run skips.
  */
 function foldCell(folds: FoldShares, set: 'play' | 'lift', goal: number | null): string {
   const { withFold, samples } = folds[set];
-  const share = withFold / Math.max(1, samples);
+  if (samples === 0) {
+    return '-';
+  }
+  const share = withFold / samples;
   const mark = goal !== null && share > goal ? ' OVER' : '';
   return `${(100 * share).toFixed(1)}% (${withFold}/${samples})${mark}`;
 }
@@ -642,7 +705,9 @@ export function fitTable(rows: readonly FitRow[]): string[] {
       row.variant || 'base',
       foldCell(row.folds, 'play', PLAY_FOLD_GOAL),
       foldCell(row.folds, 'lift', null),
-      `${row.folds.rest.most} (${splitText(row.folds.rest.split)})`,
+      row.folds.rest.samples > 0
+        ? `${row.folds.rest.most} (${splitText(row.folds.rest.split)})`
+        : '-',
       ...depths,
       ...(held ? [heldCell] : []),
       ...gapCells,
@@ -893,6 +958,9 @@ async function compareFit(options: FitOptions, ref: string): Promise<void> {
   console.log(`Hold fit of the ${options.name} on ${label} and on the working tree: ${seconds} s.`);
   console.log(`Demos of ${label}: ${base.demos.join(', ')}`);
   console.log(`Demos of the working tree: ${tree.demos.join(', ')}`);
+  if (options.sets.length < FIT_SETS.length) {
+    console.log(`Sample sets: ${options.sets.join(', ')}.`);
+  }
   const grid = gridText(options.grids);
   if (grid) {
     console.log(grid);
@@ -922,13 +990,16 @@ async function main(): Promise<void> {
     return;
   }
   const { demos, first } = await fitDemos(options);
-  const sweep = fitSweep(options.role, first);
+  const sweep = fitSweep(options.role, first, options.sets);
   const chin = chinOf(options.role);
   const ids = demos.map((demo) => demo.file.replace(/\.mid$/, ''));
   console.log(
     `Hold fit of the ${options.name}: play folds at a step of ${options.step} s, ${sweep ? `the sweep of the ${sweep.role} with the bodies of the role` : 'no sweep (folds only)'}${chin ? `, and the reach of ${chin.species} with the ${chin.instrument}` : ''}.`,
   );
   console.log(`Demos: ${ids.join(', ')}`);
+  if (options.sets.length < FIT_SETS.length) {
+    console.log(`Sample sets: ${options.sets.join(', ')}.`);
+  }
   const grid = gridText(options.grids);
   if (grid) {
     console.log(grid);
@@ -939,7 +1010,13 @@ async function main(): Promise<void> {
     const started = performance.now();
     const { undo, text } = setHolds(variant);
     try {
-      const report = probeFolds(options.role, demos, options.step);
+      const report = probeFolds(
+        options.role,
+        demos,
+        options.step,
+        undefined,
+        SAMPLE_SETS.filter((set) => options.sets.some((name) => name === set)),
+      );
       const swept = sweep
         ? await sweepDemos(
             { demos: ids, times: null, gaps: false, gapsOf: freeGaps(options.role) },
