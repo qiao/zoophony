@@ -26,7 +26,9 @@ reads it (route 3 of `AGENTS.md`). The steps:
    the shin by the leg factor. Each bone scales along its axis, and the weights blend the stretch
    to 0 at the shoulder and at the hip. The paws and the feet keep their size, and the body rises
    so that the soles stay at y = 0. The head and the ears grow by the head factor around the neck
-   joint, and the weights blend the growth over the neck.
+   joint, and the weights blend the growth over the neck. The trunk takes the trunk factor
+   between the hips joint and the neck joint (`trunk_moves()`), and the head, the arms, the legs,
+   and the tail move with it and keep their sizes.
 5. Change the faces of the arms so that they bend at the joints: a ring of new vertices at each
    joint of the config splits the faces that it crosses, and the long edge of a face that is
    thin in the seated bind pose flips. Each face then takes its color from the texture again.
@@ -113,6 +115,10 @@ ARM = ('upper_arm', 'forearm', 'forearm_twist', 'hand', 'fingers')
 
 #: The leg bones of each side, from the hips down.
 LEG = ('thigh', 'shin', 'foot', 'toes')
+
+#: The trunk bones from the hips joint up to the neck joint, which the trunk factor shortens
+#: (`trunk_moves()`).
+TRUNK = ('hips', 'spine', 'spine1', 'chest')
 
 #: The largest number of bones of a vertex, and the steps of a weight (design 4.4).
 INFLUENCES = 4
@@ -432,8 +438,8 @@ def in_box(points, box):
 def moved_boxes(rules, pivot, factor, rise, drop):
     """Gives the color rules with the eye box and the nose box of the source moved with the head:
     each box grows by the head factor around the neck joint, moves down the neck by the drop of
-    the neck factor, then rises with the body. The vertices of the eyes and the nose follow the
-    head only, so the faces in a box stay in it."""
+    the neck factor and of the trunk factor, then rises with the body. The vertices of the eyes
+    and the nose follow the head only, so the faces in a box stay in it."""
     if factor == 1 and not rise and not drop.any():
         return rules
     out = dict(rules)
@@ -1298,21 +1304,23 @@ def move(rotation, src, dst):
 
 
 def stretch(verts, weights, heads, ends, children, factors, rules):
-    """Makes the limbs longer, the head larger, and the neck shorter by the factors of the config:
-    `arm`, `leg`, `head`, and `neck`. The upper arm and the forearm of each side grow by `arm`
-    along their axes from the shoulder joint out, and the paw moves with the wrist and keeps its
-    size. A point on the inner side of the shoulder joint does not move with the upper arm. With a
-    ramp (`weights.stretchRamp` of the config, in units), only the free arm beyond the plane |x| =
-    `armSplit` stretches with the upper arm: the share of the stretch fades from 0 to 1 over the
-    ramp on each side of the plane, so that the trunk beside and below the armpit keeps its form. The thigh and the shin
-    grow by `leg` along their axes, and the foot moves with the ankle and keeps its size. The head
-    and the ears grow by `head` around the neck joint. The neck takes `neck` between its joints,
+    """Makes the limbs longer, the head larger, and the neck and the trunk shorter by the factors of
+    the config: `arm`, `leg`, `head`, `neck`, and `trunk`. The upper arm and the forearm of each
+    side grow by `arm` along their axes from the shoulder joint out, and the paw moves with the
+    wrist and keeps its size. A point on the inner side of the shoulder joint does not move with
+    the upper arm. With a ramp (`weights.stretchRamp` of the config, in units), only the free arm
+    beyond the plane |x| = `armSplit` stretches with the upper arm: the share of the stretch fades
+    from 0 to 1 over the ramp on each side of the plane, so that the trunk beside and below the
+    armpit keeps its form. The thigh and the shin grow by `leg` along their axes, and the foot
+    moves with the ankle and keeps its size. The head and the ears grow by `head` around the neck
+    joint. The neck takes `neck` between its joints,
     and the head and the ears move along the neck by the move of the head joint, so that the neck
-    of the rig is `neck` times the neck of the grown head. Then the body rises by the growth of the
-    legs, so that the soles stay at y = 0. The root stays on the floor. Each vertex blends the
-    moves of its bones by its weights, so that a growth fades over the joint at its start. Gives
-    the moved vertices, heads, and tails, the rise of the body, and the drop of the head along the
-    neck."""
+    of the rig is `neck` times the neck of the grown head. The trunk takes `trunk` between the hips
+    joint and the neck joint, and each other bone moves with it as a whole (`trunk_moves()`). Then
+    the body rises by the growth of the legs, so that the soles stay at y = 0. The root stays on
+    the floor. Each vertex blends the moves of its bones by its weights, so that a growth fades
+    over the joint at its start. Gives the moved vertices, heads, and tails, the rise of the body,
+    the drop of the head along the neck, and the move of the neck joint by the trunk factor."""
     new_heads = {k: v.copy() for k, v in heads.items()}
     new_ends = {k: v.copy() for k, v in ends.items()}
     matrices = [move(np.eye(3), np.zeros(3), np.zeros(3)) for _ in BONES]
@@ -1389,6 +1397,24 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
         if factors['neck'] != 1:
             segments[BONES.index('neck')] = (pivot, pivot, heads['head'], factors['neck'])
 
+    # The trunk shortens between the hips joint and the neck joint. The other bones move with the
+    # trunk as a whole, after their own stretch.
+    lower = np.zeros(3)
+    shifts = {}
+    if factors['trunk'] != 1:
+        segment, moves = trunk_moves(heads, factors['trunk'])
+        lower = moves['neck']
+        for name, shift in moves.items():
+            k = BONES.index(name)
+            shifts[k] = shift
+            matrices[k][:, 3] += shift
+            new_heads[name] = new_heads[name] + shift
+            if not children[name]:
+                new_ends[name] = new_ends[name] + shift
+        for name in TRUNK:
+            segments[BONES.index(name)] = segment
+            new_heads[name] = segment_stretch(heads[name][None, :], *segment)[0]
+
     for name in BONES:
         if children[name]:
             new_ends[name] = new_heads[children[name]]
@@ -1404,10 +1430,41 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
         matrices[k] = np.zeros((3, 4))
     out = skin(weights, matrices, verts)
     for k, (origin, start, end, factor) in segments.items():
-        out += weights[:, k, None] * (segment_stretch(verts, origin, start, end, factor) + up)
+        moved = segment_stretch(verts, origin, start, end, factor) + up
+        if k in shifts:
+            moved += shifts[k]
+        out += weights[:, k, None] * moved
     for k, (origin, axis, factor, share) in halves.items():
-        out += weights[:, k, None] * (outward_stretch(verts, origin, axis, factor, share) + up)
-    return out, new_heads, new_ends, rise, drop
+        moved = outward_stretch(verts, origin, axis, factor, share) + up
+        if k in shifts:
+            moved += shifts[k]
+        out += weights[:, k, None] * moved
+    return out, new_heads, new_ends, rise, drop, lower
+
+
+def trunk_moves(heads, factor):
+    """Gives the moves of the trunk factor. The trunk bones shorten by `factor` along the line from
+    the hips joint to the neck joint (`segment_stretch()`): a point before the hips joint keeps its
+    place, a point between the joints moves by its place along the line, and a point beyond the
+    neck joint moves by the whole drop of the neck joint. So the trunk keeps its width and its
+    depth, and the faces of the belly keep their colors and become shorter along the trunk. Each
+    other bone moves as a whole with the point of the line at the head of the first bone of its
+    chain after the trunk: the neck, the head, and the ears with the neck joint, each arm with its
+    clavicle joint, each leg with its hip joint, and the tail with its root. So the head, the arms,
+    the legs, and the tail keep their sizes, and a vertex with weights on the trunk and on another
+    bone blends two moves of nearly the same size. Gives the segment of the trunk bones (the head,
+    the moved head, the end, and the factor) and the move of each other bone by its name, with no
+    move of the root."""
+    segment = (heads['hips'], heads['hips'], heads['neck'], factor)
+    moves = {}
+    for name in BONES:
+        if name in TRUNK or PARENTS[name] is None:
+            continue
+        first = name
+        while PARENTS[first] not in TRUNK:
+            first = PARENTS[first]
+        moves[name] = segment_stretch(heads[first][None, :], *segment)[0] - heads[first]
+    return segment, moves
 
 
 def outward_stretch(points, head, axis, factor, share):
@@ -2525,12 +2582,13 @@ def main():
                                rigid_slivers(verts, source_tris, weights, rules), rules)
     weights = limit(weights)
 
-    # The long arms, the long legs, and the large head. The scale of the app comes from the
-    # shoulder joints after the rise of the legs.
+    # The long arms, the long legs, the large head, and the short trunk. The scale of the app comes
+    # from the shoulder joints after the rise of the legs and the drop of the trunk.
     factors = {'arm': config['armFactor'], 'leg': config.get('legFactor', 1),
-               'head': config.get('headFactor', 1), 'neck': config.get('neckFactor', 1)}
-    long_verts, long_heads, long_ends, rise, drop = stretch(verts, weights, heads, ends, children,
-                                                             factors, rules)
+               'head': config.get('headFactor', 1), 'neck': config.get('neckFactor', 1),
+               'trunk': config.get('trunkFactor', 1)}
+    long_verts, long_heads, long_ends, rise, drop, lower = stretch(verts, weights, heads, ends,
+                                                                    children, factors, rules)
     stretched = stretch_faces(verts, long_verts, source_tris) if check else []
     meters = config['app']['shoulders'] / long_heads['upper_arm_L'][1]
     for side in 'LR':
@@ -2547,6 +2605,15 @@ def main():
         log(f"neck: the neck factor {factors['neck']} moves the head {np.linalg.norm(drop):.4f} u "
             f"({np.linalg.norm(drop) * meters * 100:.2f} cm) down the neck, and the neck joint is "
             f"{neck:.4f} u ({neck * meters * 100:.2f} cm) from the head joint")
+    if factors['trunk'] != 1:
+        trunk = np.linalg.norm(long_heads['neck'] - long_heads['hips'])
+        log(f"trunk: the trunk factor {factors['trunk']} moves the neck joint "
+            f"{np.linalg.norm(lower):.4f} u ({np.linalg.norm(lower) * meters * 100:.2f} cm) down the "
+            f"trunk, the neck joint is {trunk:.4f} u ({trunk * meters * 100:.2f} cm) from the hips "
+            f"joint, and the shoulder joint is "
+            f"{long_heads['upper_arm_L'][1] - long_heads['hips'][1]:.4f} u "
+            f"({(long_heads['upper_arm_L'][1] - long_heads['hips'][1]) * meters * 100:.2f} cm) "
+            f"above it")
 
     src_frames = {n: frame(long_heads[n], long_ends[n], rolls[n]) for n in BONES}
     # The upright seated bind keeps the trunk of the source. A recline (`studio.trunk`) turns the
@@ -2581,7 +2648,7 @@ def main():
     colors, dark = face_colors(tris, uvs, texture, config['colors'])
     eyes, nose = features(long_verts, tris, colors, dark,
                           moved_boxes(config['colors'], heads['neck'], factors['head'], rise,
-                                      drop))
+                                      drop + lower if factors['trunk'] != 1 else drop))
 
     # The upright seated bind: the trunk of the source on the seat. The sit lowers its haunch onto
     # the seat. A reclined trunk then turns from it (`studio.trunk`).
