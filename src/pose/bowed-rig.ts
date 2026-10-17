@@ -304,6 +304,16 @@ const UPRIGHT_BOW = {
 } as const satisfies { readonly tip: Vec3; readonly hair: Vec3; readonly via: BowVia };
 
 /**
+ * The bow of the standing rest of a soloist who hangs it from the right paw with the tip down, a
+ * little forward and out (design 5.2, {@link BowedHold.standBow}). With the bow of the bind pose
+ * of the hand, the long forearms of the cat, the rabbit, and the red fox held the bow up in front
+ * of the face.
+ */
+const HANGING_BOW = { tip: [0.15, -1, -0.3], hair: [0, 0, 1] } as const satisfies NonNullable<
+  BowedHold['standBow']
+>;
+
+/**
  * The hold of the violin on the left shoulder, for the rabbit (design 4.6, 5.3), as a real
  * violinist holds it (violinonline.com, "How to hold the violin", and Simon Fischer, "Basics:
  * Holding the violin", 2026-10-14-fox-rabbit-form decisions): the tail end on the left
@@ -356,6 +366,7 @@ const SHOULDER_HOLD = {
     hair: UPRIGHT_BOW.hair,
     via: UPRIGHT_BOW.via,
   },
+  standBow: HANGING_BOW,
 } as const satisfies BowedHold;
 
 /**
@@ -463,7 +474,7 @@ const CAT_HOLD = {
     hair: [0, -1, 0.2],
     via: { ...UPRIGHT_BOW.via, reach: [0, 0, -0.6] },
   },
-  standBow: { tip: [0.15, -1, -0.3], hair: [0, 0, 1] },
+  standBow: HANGING_BOW,
 } as const satisfies BowedHold;
 
 /**
