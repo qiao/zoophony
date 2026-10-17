@@ -159,12 +159,12 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       palettes: { tan: { from: SPECIES_COLORS['fox-red'], to: SPECIES_COLORS['fox-tan'] } },
     },
   ],
-  // The viola cat: decisions/2026-10-16-mesh-cat.md.
+  // The viola cat: decisions/2026-10-16-mesh-cat.md and decisions/2026-10-16-cat-trunk.md.
   [
     'cat',
     {
       landmark: 'shoulders',
-      height: 1.161345,
+      height: 1.16494,
       seated: true,
       soloist: true,
       constant: 'STUDIO_CAT',
