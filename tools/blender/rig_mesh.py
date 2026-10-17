@@ -625,6 +625,120 @@ def tail_weights(verts, tris, w, rule, heads, ends):
     return out
 
 
+def curve_samples(points, steps=40):
+    """Gives the samples of a Catmull-Rom curve through the points, `steps` on each span, and the
+    length along the curve at each sample."""
+    p = np.asarray(points, float)
+    ext = np.vstack([2 * p[0] - p[1], p, 2 * p[-1] - p[-2]])
+    out = []
+    for i in range(len(p) - 1):
+        p0, p1, p2, p3 = ext[i:i + 4]
+        for t in np.linspace(0.0, 1.0, steps + 1)[:-1]:
+            out.append(0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t
+                              + (3 * p1 - p0 - 3 * p2 + p3) * t ** 3))
+    out.append(p[-1])
+    out = np.asarray(out)
+    return out, np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(out, axis=0), axis=1))])
+
+
+def line_samples(points, step=0.001):
+    """Gives the samples of a line of segments at about `step` units, with the direction of the
+    segment of each sample, and the length along the line at each sample."""
+    out, dirs, lengths, start = [], [], [], 0.0
+    for a, b in zip(points, points[1:]):
+        length = float(np.linalg.norm(b - a))
+        count = max(int(np.ceil(length / step)), 1)
+        for k in range(count):
+            out.append(a + (b - a) * k / count)
+            dirs.append((b - a) / length)
+            lengths.append(start + length * k / count)
+        start += length
+    out.append(points[-1])
+    dirs.append(dirs[-1])
+    lengths.append(start)
+    return np.asarray(out), np.asarray(dirs), np.asarray(lengths)
+
+
+def moving_frames(samples, tangents, normal):
+    """Gives the rotation-minimizing frame of each sample of a curve, by the double reflection of
+    Wang, Jüttler, Zheng, and Liu (2008): the columns are the normal, the binormal, and the
+    tangent. The first normal is `normal`, made normal to the first tangent."""
+    r = normal - (normal @ tangents[0]) * tangents[0]
+    r = unit(r)
+    out = []
+    for i in range(len(samples)):
+        t = tangents[i]
+        out.append(np.stack([r, np.cross(t, r), t], axis=1))
+        if i + 1 == len(samples):
+            break
+        v1 = samples[i + 1] - samples[i]
+        c1 = v1 @ v1
+        if c1 < 1e-16:
+            continue
+        r_l = r - (2.0 / c1) * (v1 @ r) * v1
+        t_l = t - (2.0 / c1) * (v1 @ t) * v1
+        v2 = tangents[i + 1] - t_l
+        c2 = v2 @ v2
+        r = r_l if c2 < 1e-16 else r_l - (2.0 / c2) * (v2 @ r_l) * v2
+    return np.asarray(out)
+
+
+def curl_line(rule, root):
+    """Gives the samples of the curled tail of the seated bind (`studio.tailCurl`): a Catmull-Rom
+    curve from the root of the tail through `points`, the places relative to the root in the
+    units of the studio. Gives the samples, their tangents, and the length at each sample."""
+    samples, lengths = curve_samples(np.vstack([[0.0, 0.0, 0.0],
+                                                np.asarray(rule['points'], float)]) + root)
+    tangents = np.gradient(samples, axis=0)
+    tangents /= np.linalg.norm(tangents, axis=1)[:, None]
+    return samples, tangents, lengths
+
+
+def curl_directions(rule, heads, ends):
+    """Gives the bind direction of each tail bone on the curled tail (`studio.tailCurl`): the root
+    bone points from the root to the place of the bend along the curve, and the tip bone from its
+    head to the place of the tip along the curve."""
+    root, bend, tip = heads['tail'], heads[TAIL_TIP], ends[TAIL_TIP]
+    first = float(np.linalg.norm(bend - root))
+    total = first + float(np.linalg.norm(tip - bend))
+    samples, _, lengths = curl_line(rule, np.zeros(3))
+    at = [np.array([np.interp(s, lengths, samples[:, k]) for k in range(3)])
+          for s in (first, total)]
+    head = first * unit(at[0])
+    return {'tail': unit(at[0]), TAIL_TIP: unit(at[1] - head)}
+
+
+def tail_curl(src, bind, weights, heads, ends, root, rule):
+    """Curls the tail of the seated bind along a curve (`studio.tailCurl`), as a sitting cat
+    curls its tail on the seat. Each tail vertex keeps its place along the line of the tail of the
+    source (from the root over the bend to the tip) and its offset from the line, and moves to
+    the same place along the curve, with the offset turned by the moving frames of the two lines
+    (`moving_frames()`). A vertex with a part of its weight on the tail moves by that part, so
+    that the root has no hard edge. The corrective shapes give the source back, so the standing
+    body keeps the tail of the source. Gives the moved bind mesh and the count of moved
+    vertices."""
+    share = weights[:, BONES.index('tail')] + weights[:, BONES.index(TAIL_TIP)]
+    ids = np.nonzero(share > 0)[0]
+    line = np.asarray([heads['tail'], heads[TAIL_TIP], ends[TAIL_TIP]], float)
+    s_points, s_dirs, s_lengths = line_samples(line)
+    c_points, c_dirs, c_lengths = curl_line(rule, root)
+    # The first normal of the curve is the first normal of the line, turned the least way onto
+    # the first tangent of the curve.
+    first = np.array([1.0, 0.0, 0.0])
+    s_frames = moving_frames(s_points, s_dirs, first)
+    c_frames = moving_frames(c_points, c_dirs, swing(s_dirs[0], c_dirs[0]) @ first)
+    place, _ = polyline_place(src[ids], line)
+    s_at = np.clip(np.searchsorted(s_lengths, place, side='right') - 1, 0, len(s_lengths) - 1)
+    c_at = np.clip(np.searchsorted(c_lengths, place, side='right') - 1, 0, len(c_lengths) - 1)
+    near = s_points[s_at] + s_dirs[s_at] * (place - s_lengths[s_at])[:, None]
+    offset = np.einsum('nji,nj->ni', s_frames[s_at], src[ids] - near)
+    curled = (c_points[c_at] + c_dirs[c_at] * (place - c_lengths[c_at])[:, None]
+              + np.einsum('nij,nj->ni', c_frames[c_at], offset))
+    out = bind.copy()
+    out[ids] = bind[ids] + share[ids, None] * (curled - bind[ids])
+    return out, len(ids)
+
+
 def apply_rules(verts, tris, weights, rules, heads, ends):
     """Applies the weight rules of the config: the arms, the haunch on the hips, the tail, the ears
     on their bones, and the head only above the head line."""
@@ -1403,9 +1517,11 @@ def bind_turns(config, heads, ends, rolls, turn=0.0):
     if TAIL_TIP in BONES:
         # Each tail bone turns the least way onto its bind direction after the turn of its parent.
         parent = np.eye(3)
+        targets = (curl_directions(studio['tailCurl'], heads, ends) if 'tailCurl' in studio
+                   else studio['tailBind'])
         for name in ('tail', TAIL_TIP):
             now = parent @ unit(ends[name] - heads[name])
-            turns[name] = swing(now, np.asarray(studio['tailBind'][name], float)) @ parent
+            turns[name] = swing(now, np.asarray(targets[name], float)) @ parent
             parent = turns[name]
         if rule and turn:
             # A recline moves the root of the tail down with the pelvis, and the root keeps its
@@ -2463,6 +2579,10 @@ def main():
     # The upright seated bind: the trunk of the source on the seat. The sit lowers its haunch onto
     # the seat. A reclined trunk then turns from it (`studio.trunk`).
     bind = skin(weights, upright_matrices, long_verts)
+    if 'tailCurl' in config['studio']:
+        bind, count = tail_curl(long_verts, bind, weights, long_heads, long_ends,
+                                upright_heads['tail'], config['studio']['tailCurl'])
+        log(f'tail: {count} vertices curl along the curve of tailCurl')
     dots = turn_dots(long_verts, bind, tris, weights, upright_matrices)
     main_bone = weights[tris].sum(axis=1).argmax(axis=1)
     turned = np.nonzero(dots < 0)[0]
