@@ -344,7 +344,10 @@ const HANGING_BOW = { tip: [0.15, -1, -0.3], hair: [0, 0, 1] } as const satisfie
  * 0.05 H up, and 0.1 H forward, where the top of the lap is in front of the belly: at 0.65 of the
  * way, the end was 17 cm above it. With the thighs 25° down of 2026-10-17, the place of 2026-10-16
  * (0.8 of the way and 0.1 H down) put the violin 2.5 cm into the body (2026-10-17-fox-form
- * decisions). The left elbow points down and a little back.
+ * decisions). The left elbow points down, a little out, and a little back, (-0.6, -1, 0.3): with
+ * the pole (-0.3, -1, 0.3), the left upper arm went 0.8 cm into the violin in the rest, the lift,
+ * and the lowering, and with this pole it touches the violin 0.0 cm deep (2026-10-17-rabbit-pose
+ * decisions).
  *
  * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
  * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
@@ -366,7 +369,7 @@ const SHOULDER_HOLD = {
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
-  restPoleL: [-0.3, -1, 0.3],
+  restPoleL: [-0.6, -1, 0.3],
   restPoleR: [0.3, -1, 1],
   rest: { ...LAP_VIOLIN, lap: { along: 0.85, offset: [0.15, 0.05, -0.1] } },
   restBow: {
