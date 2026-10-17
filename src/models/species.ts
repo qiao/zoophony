@@ -258,8 +258,8 @@ export const SPECIES = {
    * The stick of the bow passes through the middle of the closed right paw (2026-10-17-cat-bow
    * decisions). The paw of the studio turns in the plane of its palm toward the forearm by 0° to 70°
    * (`PAW_TURN` of `studio-rig.ts`), and its middle moves on an arc around the wrist. The stick
-   * lies along the chord of that arc, 39° from square toward the wrist, so that the paw slides
-   * along the stick and keeps it in each turn. With the grip of `BOW_GRIP`, the stick lay 4.3 cm
+   * lies along the line nearest to that arc, 50° from square toward the wrist, so that the paw
+   * slides along the stick and keeps it in each turn. With the grip of `BOW_GRIP`, the stick lay 4.3 cm
    * out from the middle of the paw on the palm side, under the paw.
    */
   cat: {
@@ -268,7 +268,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.cat,
     accentParts: ['inner-ears', 'nose'],
     seatedTail: 'curl',
-    bowGrip: { at: [-0.002, 0.022, -0.07], turn: 39 * (Math.PI / 180) },
+    bowGrip: { at: [-0.002, 0.007, -0.079], turn: 50 * (Math.PI / 180) },
     proportions: {
       headHeight: STUDIO_CAT.headHeight,
       seatHeight: STUDIO_CAT.seatHeight / STUDIO_CAT.headHeight,
