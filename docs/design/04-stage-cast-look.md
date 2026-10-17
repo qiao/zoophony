@@ -587,8 +587,11 @@ quarter of the folded faces.
   the relaxed places go back to the bind pose through the inverse of the skin. The rig writes the
   turn of the upper arm and the fade of the rule into the file for the weight of the app. The fox
   config gives the raised bow arm of the red fox such a shape. The tan fox shares the rig, and its
-  arms stay out of the fade. Each face takes the nearest color of a
-  palette in Oklab, from the texture of the mesh. A config can move the faces of the plain fur in
+  arms stay out of the fade. The rabbit config gives the right arm of the seated rest such a
+  shape, and its relaxing also moves one ring of the neighbors of the arm vertices (`grow`), so
+  that a corner of the trunk under the armpit can move
+  (`docs/decisions/2026-10-17-rabbit-pose.md`). Each face takes the nearest color of a palette in
+  Oklab, from the texture of the mesh. A config can move the faces of the plain fur in
   Oklab after the palette (`colors.tone`, `tone()`), so that the warm stage light does not turn a
   gray fur brown: the cat config moves its gray fur and its cream belly half of the way to the
   gray of its sheet under the stage light, as the user chose on 2026-10-16. The paws, the
@@ -700,7 +703,12 @@ quarter of the folded faces.
   near the chair back: the user said "let the fox and rabbit sit in more" on 2026-10-16. A seated
   role with a move back in `ANIMALS` (`seatBack`) moves back toward the chair back, up to the gap
   of the chair back, and the chair grows forward under it by the rest of the move. No role uses
-  it now: the seat of the app would then reach past the chair of the rig, under the thighs. The
+  it now: the seat of the app would then reach past the chair of the rig, under the thighs. A
+  seated role with room behind the back in `ANIMALS` (`backRoom`) keeps that room between its back
+  and the back posts, beyond the gap of the chair back: the chair grows back, and the body keeps
+  its place at the front edge of the seat, so that it sits further forward on a deeper seat. The
+  rabbit keeps such room, as a seated string player sits on the front half of the chair with the
+  back off the chair back (`docs/decisions/2026-10-17-rabbit-pose.md`). The
   cat sits with the thighs 25° down and vertical shins since the user asked for a taller chair and
   legs more perpendicular to the floor on 2026-10-16 (`docs/decisions/2026-10-16-cat-form.md`).
   `StudioBody.floor` is the point on the floor under
@@ -709,7 +717,8 @@ quarter of the folded faces.
   it and no part goes into it. The seat height of the skeleton of the species is that height, so
   the piano bench and the chair fit the legs (4.5, props). The chair under a studio body also has
   the depth of the chair of the studio (`StudioBody.chairDepth`), grown until its back posts keep
-  a gap behind the trunk. It keeps the back of the chair of 4.5, and its front edge moves back.
+  a gap behind the trunk and the room of `backRoom`. It keeps the back of the chair of 4.5, and its
+  front edge moves back.
   A seated body with a wide haunch sits on a wider chair (`seatWidth` of `ANIMALS`,
   `StudioBody.chairWidth`): the seat height is the lowest point of the body over the wider seat,
   and the legs and the back posts stand at its side edges. The seat of the cat is wide enough that
@@ -1372,7 +1381,7 @@ risers. `models/stage.ts` holds the sizes of the stage, the podium, and the cond
 
 | Item | Rules |
 |---|---|
-| Chair | A seat, a back of two posts and one wide top rail, open below the rail, and four legs (`CHAIR`), as the chairs of `animals.webp`. The seat fits the legs of the species: it is the `seatHeight` of the skeleton above the floor (`seatHeights()`, 4.3). Thus each species has a chair of its own height, and the scene builds one chair for each height. Under a studio body, the seat also has the depth of the chair of the studio (`StudioBody.chairDepth`, 4.4): it keeps the back, and its front edge moves back. Under a studio body with a wide haunch, such as the cat, the seat is wider (`StudioBody.chairWidth`, 4.4), and the legs and the back posts stand at its side edges. The back keeps its height above the seat. The thighs rest on the seat, the knees are near its height, and the feet rest on the floor. On 2026-10-06, one chair of 0.35 m gave the small species long legs. |
+| Chair | A seat, a back of two posts and one wide top rail, open below the rail, and four legs (`CHAIR`), as the chairs of `animals.webp`. The seat fits the legs of the species: it is the `seatHeight` of the skeleton above the floor (`seatHeights()`, 4.3). Thus each species has a chair of its own height, and the scene builds one chair for each height. Under a studio body, the seat also has the depth of the chair of the studio (`StudioBody.chairDepth`, 4.4): it keeps the back, and its front edge moves back. The seat of the rabbit is deeper, so that its back keeps off the chair back (`backRoom`, 4.4). Under a studio body with a wide haunch, such as the cat, the seat is wider (`StudioBody.chairWidth`, 4.4), and the legs and the back posts stand at its side edges. The back keeps its height above the seat. The thighs rest on the seat, the knees are near its height, and the feet rest on the floor. On 2026-10-06, one chair of 0.35 m gave the small species long legs. |
 | Stool | For the harp: four legs and no back (`STOOL`). It keeps the height of the chair of 2026-10-06 for the strings of the harp: on a lower stool at the legs of the deer, the left hand did not reach the highest strings. |
 | High stool | For the contrabass: a high seat, four legs, a foot ring, and no back (`HIGH_STOOL`). The seat keeps its height for the contrabass, and the foot ring is the `seatHeight` of the skeleton below it. The feet rest on the ring. |
 | Music stand | A tripod base, a post, and a desk that tilts to the player, with a white sheet (`MUSIC_STAND`). The desk never hides the eyes of its players: its top edge lies `eyeGap` below the lowest seated eye of the players who read from it, the gap of the seated red fox to the desk before its seat of 2026-10-16. The desk stays from `lowestDesk` to `deskHeight` (`standDeskHeight()`), so each section has the desk of its species, and the scene builds one stand for each desk height. The user saw the faces of the rabbits behind the desks after their lower seats of 2026-10-16. The conductor stand keeps its desk. |
