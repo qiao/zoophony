@@ -1,0 +1,143 @@
+{
+  "source": "assets/models/cat/cat.glb",
+  "output": "assets/models/cat/cat.rig.glb",
+  "name": "Cat",
+  "weld": 1e-5,
+  "app": {
+    "shoulders": 0.55233,
+    "reach": 0.617,
+    "note": "The scale puts the standing shoulder joints 0.55233 m above the floor, the shoulder joints of the parametric cat of main, so that the section layout stays near main (docs/research/2026-10-16-cat-mesh/landmark-probe.txt). That is 0.8684 m for each unit, so the cat is 0.868 m high to the ear tips. The parametric cat is 1.160 m high to its ear tips, the red fox of the app 1.758 m, and the rabbit of the app 1.622 m. The reach is the distance from the left shoulder joint to the scroll in the playing pose of the viola hold of the app (BOWED_HOLDS.viola) at this scale: pnpm hold-reach cat --instrument viola measured 0.617 m (hold-reach-cat-viola.txt). The user chooses the arm factor (arm-factors.txt). With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+  },
+  "armFactor": 1,
+  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. The first config has the factor 1. pnpm rig-mesh cat --check measured 0.2538 m with no factor. The factor 2.551 gives the viola reach of 0.617 m, 2.2444 the reach of the red fox (0.5452 m), and 2.0753 the reach of the rabbit (0.5056 m) (docs/research/2026-10-16-cat-mesh/arm-factors.txt).",
+  "joints": {
+    "root": { "head": [0, 0, 0], "tail": [0, 0, 0.1], "roll": [0, 1, 0] },
+    "hips": { "head": [0, 0.21, 0.045], "tail": "spine" },
+    "spine": { "head": [0, 0.32, 0.05], "tail": "spine1" },
+    "spine1": { "head": [0, 0.435, 0.06], "tail": "chest" },
+    "chest": { "head": [0, 0.55, 0.065], "tail": "neck" },
+    "neck": { "head": [0, 0.66, 0.065], "tail": "head" },
+    "head": { "head": [0, 0.705, 0.075], "tail": [0, 0.9, 0.09] },
+    "ear_L": { "head": [0.068, 0.89, 0.079], "tail": [0.12, 1.0, 0.115] },
+    "clavicle_L": { "head": [0.02, 0.645, 0.055], "tail": "upper_arm_L" },
+    "upper_arm_L": { "head": [0.06, 0.636, 0.05], "tail": "forearm_L", "roll": "palm" },
+    "forearm_L": { "head": [0.136, 0.526, 0.055], "tail": "forearm_twist_L", "roll": "palm" },
+    "forearm_twist_L": { "head": [0.174, 0.471, 0.067], "tail": "hand_L", "roll": "palm" },
+    "hand_L": { "head": [0.212, 0.416, 0.079], "tail": "fingers_L", "roll": "palm" },
+    "fingers_L": { "head": [0.238, 0.379, 0.081], "tail": [0.244, 0.349, 0.087], "roll": "palm" },
+    "thigh_L": { "head": [0.07, 0.19, 0.065], "tail": "shin_L" },
+    "shin_L": { "head": [0.07, 0.115, 0.058], "tail": "foot_L" },
+    "foot_L": { "head": [0.073, 0.045, 0.055], "tail": "toes_L", "roll": [0, 1, 0] },
+    "toes_L": { "head": [0.088, 0.02, 0.1], "tail": [0.088, 0.01, 0.133], "roll": [0, 1, 0] },
+    "tail": { "head": [0, 0.3, -0.045], "tail": "tail_tip", "roll": [0, 1, 0] },
+    "tail_tip": { "head": [0, 0.08, -0.08], "tail": [0, 0.03, -0.215], "roll": [0, 1, 0] }
+  },
+  "palm": [-0.88, -0.47, -0.07],
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the ear tips, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-16-cat-mesh/. sections.py gives the cuts at each height (sections-y.txt): the feet below y 0.04 (the toes forward to z 0.135), the thin shins from 0.045 to 0.105, the wide thighs from 0.11 to the crotch at 0.19, the body from 0.19 to 0.52 with the round belly forward to z 0.178, the shoulders from 0.525 (x ±0.172) to 0.655, the narrow neck at 0.685 to 0.705 (x ±0.06), the head from 0.705 with the muzzle to z 0.224, and the ears apart from 0.915. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut, as in the fox, from the hips over the crotch to the chest 0.086 below the shoulder joint. The thigh joint lies at the crotch, a little behind the middle of the leg cut, the knee where the thin shin meets the wide thigh, the ankle where the foot starts, and the toes at the ball of the foot. The ear joint lies on the line of the middles of the ear cuts at 0.915 and 0.955, at the top of the head (0.89), and its tail at the ear tip. The cuts across the axis of the free arm (arm-axis.txt) give its middle line, which leaves the body between x 0.083 and 0.087. The shoulder joint lies on that line, 0.025 inside the root (x 0.06). The wrist lies at the narrowest cut, where the paw starts (s -0.02 to -0.01), the elbow halfway from the shoulder joint to the wrist and 0.01 behind the line, and the finger joint at the knuckles, 0.03 before the tip of the paw. The tail is a chain of two bones (sections-y.txt and sections-z.txt). The tail joint lies at the middle of the root of the tail, between its top on the back (y 0.35, z -0.04) and its bottom on the thighs (y 0.24, z -0.026). The tail hangs straight down to the bend at y 0.08, and its end goes back along the floor to the tip (y 0.03, z -0.215). The tail_tip joint lies at the bend, 0.223 units from the root. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw, inward and down (facts.txt).",
+  "studio": {
+    "legTurns": {
+      "thigh": [0.638643, 0.008171, -0.087544, 0.764464],
+      "shin": [0.226952, 0.008865, 0.0201, 0.973658],
+      "foot": [0, 0, 0, 1],
+      "toes": [0, 0, 0, 1]
+    },
+    "trunk": {
+      "open": 1,
+      "shares": { "hips": 1, "spine": 1, "spine1": 0.75, "chest": 0.5, "neck": 0.25, "head": 0 }
+    },
+    "trunkNote": "The trunk of the seated bind sits upright (trunk_turn() of tools/blender/rig_mesh.py): the pelvis turns back around the head of the hips until the hip angle from the side opens by open degrees, and each trunk bone takes its share of that turn as its world turn. The trunk axis of the cat from the hip joints to the neck joint is vertical in the source. So with open 0, it leans 0.6 degrees forward in the play pose, and with open 3, the value of the red fox, it leans 2.4 degrees back (docs/research/2026-10-16-cat-mesh/hip-probe-open0.txt and hip-probe-open3.txt). With open 1, it leans 0.4 degrees back (hip-probe.txt), and no face turns over after the crease. With open 0, the crease turned over 4 faces. The shares are the shares of the fox and the rabbit.",
+    "bindArms": {
+      "upper_arm": [0.813873, -0.143043, 0.563161],
+      "forearm": [0.316246, 0.757051, 0.571719],
+      "hand": [-0.078782, 0.677317, 0.731461]
+    },
+    "tailBind": {
+      "tail": [0, -0.36, -1],
+      "tail_tip": [0, -1.4, -1]
+    },
+    "note": "The studio has no cat. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The seat is the seat of the fox and the rabbit (docs/decisions/2026-10-16-hip-open.md): the thigh slopes 15 degrees down from the hip to the knee, 8 degrees out, and the shin slants 23.8 degrees forward of vertical, so that the knee angle from the side is 128.9 degrees. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor (docs/research/2026-10-16-cat-mesh/leg_turns.py <config> 15 8 23.8, leg-turns.txt). The source shin slants 2.5 degrees back. The feet stand 2.5 cm in front of the knees (seat-probe.txt). The bind arms are the bind arms of the fox and the rabbit. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back over the seat, 20 degrees below the level, and passes the back posts of the chair of the app 7.0 cm to 13.4 cm above the seat, under the top rail. The tip hangs back and down behind the chair, 54.5 degrees below the level, as the tip of the fox. Its lowest point is 0.0296 units (2.6 cm) above the soles, and the tail ends 0.24 units behind the back edge of the chair of the rig (rig-mesh-cat-preview.log). With the root 7 degrees below the level, as the fox, and the tip up, as the curl of the sheet, the tail went back over the top of the chair back of the rig, and its end was 0.29 units behind the chair."
+  },
+  "weights": {
+    "armSplit": 0.085,
+    "stretchRamp": 0,
+    "stretchRampNote": "With a ramp, the upper arm stretches by the arm factor only on the free arm: the share of the stretch fades from 0 to 1 over this many units on each side of the plane |x| = armSplit. 0 gives no ramp, as for the fox and the rabbit.",
+    "headFrom": 0.71,
+    "earBase": [0.875, 0.91],
+    "tail": { "radius": 0.06, "behind": -0.028, "root": [-0.02, 0.05], "bend": 0.04, "smooth": 3 },
+    "sliver": { "angle": 10, "longest": 0.03, "note": "The corners of each thin face share one set of weights, so that the face moves rigidly and does not turn over at a bent joint. A thin face has a corner angle below angle (degrees) and a longest edge below longest (units). The values are the values of the fox and the rabbit. The rule takes 177 faces in 16 groups (rig-mesh-cat-preview.log)." },
+    "line": { "angle": 150, "head": true, "note": "The middle corner of each long thin face (a corner angle above angle, in degrees) takes the mix of the weights of its two other corners by its place along their line, so that it does not lag behind the line when a joint bends. With head, the corners of the head take the rule too. The values are the values of the fox. The rule takes 172 corners." },
+    "clavicleFrom": [0.595, 0.64],
+    "clavicleFromNote": "The share of the clavicle weight that a vertex keeps grows from 0 at the lower height to 1 at the upper height (units), and the chest takes the rest. This is the rule of the fox, moved with the clavicle joint of the cat (y 0.645 against 0.635), so that a small face of the chest does not take a clavicle weight that the bow arm turns far.",
+    "armTop": [0.655, 0.7],
+    "armTopNote": "The share of the weight of the clavicles and of the upper arms that a vertex keeps falls from 1 at the lower height to 0 at the upper height (units), and the neck takes the rest. The shoulders of the cat end at y 0.655, and the neck is narrowest at 0.685 to 0.705 (sections-y.txt). The rule of the fox keeps a raised bow arm from a drag of the side of the neck.",
+    "shoulderHead": [0.03, 0.054],
+    "shoulderHeadNote": "Below headFrom, the share of the head weight that goes to the neck grows from 0 at the smaller distance from the middle plane to all at the larger distance (units). The values are the values of the fox, scaled by the neck of the cat (x ±0.06 against ±0.089).",
+    "fingers": 0.5,
+    "fingersNote": "The fingers keep this share of their bone heat weight, and the hand takes the rest, as in the fox and the rabbit.",
+    "haunch": { "height": [0.14, 0.22], "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips and the thigh turns onto the seat. This is the ramp of the fox (0.16 to 0.27), scaled by the thigh of the cat: it starts 0.025 units above the knee and ends 0.03 units above the thigh joint. The thigh of the cat is 0.075 units long, and the thigh of the fox 0.105." },
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.087 out (sections-x.txt). Above headFrom, each vertex except the ears follows the head only: the neck is narrowest at y 0.685 to 0.705, and the chin starts at 0.705. The whiskers follow the head. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail has two bones (tail): the vertices within radius of the line from the root over the bend to the tip, and behind the plane z = behind, follow the tail bones. The share of the tail bones grows from 0 to 1 over the places of root along the line (units from the root), the share of the tip within the tail grows from 0 to 1 over bend units on each side of the bend, and the share of the tail bones takes the mean of its neighbors in smooth rounds. The radius holds each cut of the tail (x ±0.037 at most, facts.txt), and the plane keeps the backs of the thighs (z -0.025 at y 0.235) out of it. The rule takes 127 vertices, and 193 vertices have a tail weight after the smooth rounds."
+  },
+  "refine": {
+    "rings": [],
+    "ringsNote": "The first config has no rings. pnpm rig-mesh cat --check lists the thin faces near the joints as candidates for a ring (check.thin). With the factor 1, it lists 10 faces at the wrists and one at the right elbow (rig-mesh-check-cat.log). With the factors of the reach of the rabbit, the red fox, and the viola, it lists more faces at the shoulders, the elbows, and the wrists, and 29 to 36 long thin faces across the planes of the elbows and the wrists that no ring cuts (docs/research/2026-10-16-cat-mesh/rig-mesh-check-cat-arms.log). The fold probe of the role chooses the rings after the arm factor.",
+    "flip": {
+      "angle": 150,
+      "normals": 60,
+      "move": 0.0016,
+      "rounds": 4,
+      "note": "The long edge of a face of the arms with a corner angle above angle (degrees) in the seated bind mesh flips to the corner of the face on its other side, when the two faces lie almost on one plane (normals, degrees) and the surface moves at most move (units). The values are the values of the fox and the rabbit. The rule flips 9 edges, with a move of at most 0.75 mm."
+    }
+  },
+  "check": {
+    "thin": { "angle": 10, "length": 0.08, "near": 0.1 },
+    "note": "pnpm rig-mesh --check lists the faces of the seated bind mesh with a corner angle below angle (degrees) and a longest edge of at least length (units), when that edge passes within near (units) of a joint of the arms or the legs. These faces are candidates for a ring (refine.rings). The values are the values of the fox and the rabbit."
+  },
+  "colors": {
+    "samples": 6,
+    "palette": 48,
+    "dark": 0.05,
+    "eyeShare": 0.34,
+    "eyeBox": [
+      [0.015, 0.78, 0.12],
+      [0.095, 0.85, 0.21]
+    ],
+    "noseBox": [
+      [-0.02, 0.762, 0.205],
+      [0.02, 0.79, 0.23]
+    ],
+    "nose": [0.74, 0.54, 0.49],
+    "note": "Each face takes the mean sRGB color of the texture at the samples of a grid of the given steps on the face. A face is dark when its share of samples with a linear luminance below dark is at least eyeShare, and then it takes the mean of its dark samples. Each other face takes the mean of its samples that are not dark. A dark face in the eye box (the left eye at x 0.032 to 0.084, y 0.806 to 0.833 in the front view, mirrored for the right eye) is a face of an eye: 19 faces on the left and 25 on the right (docs/research/2026-10-16-cat-mesh/head-colors.txt). A face in the nose box whose color is nearer to the nose color than to white is a face of the nose: the pink nose of the cat (19 faces at y 0.768 to 0.782, z 0.214 to 0.222) and its two dark nostrils. The box starts above the three dark faces of the mouth at y 0.752. The nose color is the mean of the pink faces. Then each face takes the nearest color of a palette of palette colors, from k-means in Oklab. The values of samples, palette, dark, and eyeShare are the values of the fox."
+  },
+  "eyeShell": {
+    "lift": 0.002,
+    "points": 12,
+    "reach": 1,
+    "darkReach": 2,
+    "note": "Each eye shell is a fan from the middle of the dark faces of the eye to at most this number of points of their edge, lifted this far (units) along the normal of the eye. pnpm studio-body finds each eye by its fan, drops the fan, and the app puts its pea eye there (design 4.5). The old eye is the dark faces and each face whose middle lies within reach times the radius of their edge, seen along the normal of the eye: 67 faces on the left and 66 on the right, with the few green faces of the irises. After the palette, the faces of the old eye take the color with the largest area in the ring of faces that share a corner with it: 50% of the area of the ring of the left eye and 35% of the right eye. Then each patch of dark faces near an old eye takes the color of its own ring. The cat has no such patch within darkReach: the nearest dark faces, the nostrils and the mouth, lie in front of the plane of the eye. The values are the values of the fox."
+  },
+  "chair": {
+    "halfWidth": 0.17,
+    "front": 0.08,
+    "back": -0.111,
+    "backHeight": 0.15,
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the cat (x ±0.14). The front edge ends where the thighs, which slope down, leave the seat top at the haunch: with the front edge 0.01 units further forward, the seat top falls 0.6 mm under the thighs, the next 0.01 units give no more fall, and the shins start at z 0.118 (docs/research/2026-10-16-cat-mesh/rig-mesh-check-cat-chair.log). So the seat of the app is 0.166 m deep and 0.075 m high, and its front edge is 3.3 cm behind the back of the knees. The back edge keeps the back of the haunch 1.0 cm in front of the back posts of the chair of the app, as for the red fox (seat-probe.txt). The back edge of -0.12 units kept it 1.8 cm in front."
+  },
+  "crease": {
+    "rings": 2,
+    "rounds": 8,
+    "share": 0.5,
+    "back": 0.1,
+    "below": 0.03,
+    "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh (crease_relax() of tools/blender/rig_mesh.py), with the values of the fox and the rabbit (docs/decisions/2026-10-16-hip-open.md). The seam has 16 vertices, 121 vertices move, at most 1.91 cm, and no face turns over. The corrective shapes give the source back, so the standing body keeps its form."
+  },
+  "sit": {
+    "gap": 0.004,
+    "band": 0.2,
+    "ramp": 0.03,
+    "step": 0.005,
+    "smooth": 6,
+    "end": 0.0065,
+    "most": 0.12,
+    "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), with the values of the fox. The side view of the underside is 6.74 cm above the seat at most before, and 2.99 cm after (rig-mesh-cat-preview.log). The corrective shapes give the source back, so the standing body keeps its form."
+  }
+}
