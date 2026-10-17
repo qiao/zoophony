@@ -583,6 +583,30 @@ async function renderBase(
   });
 }
 
+/**
+ * Renders the close view of a role into `<dir>`: each cell as `<role>-<moment>-<view>.png`, and
+ * the grid of all cells as `<role>-views.png` and `.webp`. With `--base`, it also renders the
+ * commit ({@link renderBase}).
+ *
+ * @param args The command line.
+ * @param site The site of the working tree, with its browser.
+ */
+async function roleViews(
+  args: CloseViewsArgs,
+  site: { readonly base: string; readonly browser: Browser },
+): Promise<void> {
+  const { role: name, out } = args;
+  const role = ROLE_VIEWS[name];
+  const views = await renderViews(site.browser, site.base, role, out, `${name}-`);
+  const sheet = await grid(site.browser, views.cells, views.labels, role.views.length);
+  await writeFile(join(out, `${name}-views.png`), sheet);
+  await writeFile(join(out, `${name}-views.webp`), await toWebp(site.browser, sheet));
+  console.log(join(out, `${name}-views.png`));
+  if (args.base !== null) {
+    await renderBase(site.browser, args.base, name, out, views);
+  }
+}
+
 /** The size of the lineup image of one tree, in CSS pixels. */
 export const LINEUP = { width: 1440, height: 720 } as const;
 
@@ -1594,16 +1618,7 @@ async function main(): Promise<void> {
     } else if (mode.kind === 'play') {
       await playViews(mode.args, site);
     } else {
-      const { role: name } = mode.args;
-      const role = ROLE_VIEWS[name];
-      const views = await renderViews(site.browser, site.base, role, out, `${name}-`);
-      const sheet = await grid(site.browser, views.cells, views.labels, role.views.length);
-      await writeFile(join(out, `${name}-views.png`), sheet);
-      await writeFile(join(out, `${name}-views.webp`), await toWebp(site.browser, sheet));
-      console.log(join(out, `${name}-views.png`));
-      if (mode.args.base !== null) {
-        await renderBase(site.browser, mode.args.base, name, out, views);
-      }
+      await roleViews(mode.args, site);
     }
   } finally {
     if (url) {
