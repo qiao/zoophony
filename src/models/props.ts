@@ -13,6 +13,7 @@ import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import { STUDIO_BODIES } from './studio-body.ts';
+import type { StudioBody } from './studio-format.ts';
 
 /**
  * The colors of the stage, the steps, the podium, and the choir risers (design 4.5, scene
@@ -84,6 +85,11 @@ export interface SeatHeights {
    * under the parametric biped, keep their own depth.
    */
   readonly seatDepth?: number;
+  /**
+   * The width of the seat of a chair under a studio body with a wide haunch, in meters
+   * (`StudioBody.chairWidth`). The legs and the back posts stay at the side edges of the seat.
+   */
+  readonly seatWidth?: number;
 }
 
 /**
@@ -204,12 +210,15 @@ export function seatHeights(support: Support, species: SpeciesParams): SeatHeigh
   const legs = proportions.seatHeight * proportions.headHeight;
   switch (support) {
     case 'chair': {
-      // A studio body sits on a chair as deep as the chair of the studio (design 4.4).
-      const depth =
-        species.body && species.body !== 'penguin' ? STUDIO_BODIES[species.body].chairDepth : null;
-      return depth === null
-        ? { seatHeight: legs, footHeight: 0 }
-        : { seatHeight: legs, footHeight: 0, seatDepth: depth };
+      // A studio body sits on a chair as deep as the chair of the studio (design 4.4), and a wide
+      // studio body on a wider chair.
+      const studio: StudioBody | null =
+        species.body && species.body !== 'penguin' ? STUDIO_BODIES[species.body] : null;
+      if (!studio || studio.chairDepth === null) {
+        return { seatHeight: legs, footHeight: 0 };
+      }
+      const seat = { seatHeight: legs, footHeight: 0, seatDepth: studio.chairDepth };
+      return studio.chairWidth === undefined ? seat : { ...seat, seatWidth: studio.chairWidth };
     }
     case 'stool':
       return { seatHeight: STOOL.seatHeight, footHeight: 0 };
@@ -236,16 +245,17 @@ export function seatHeights(support: Support, species: SpeciesParams): SeatHeigh
  * above the origin, and the back is at +z.
  *
  * @param seatHeight The height of the seat, in meters.
+ * @param seatWidth The width of the seat, in meters (`SeatHeights.seatWidth`).
  * @returns The boxes.
  */
-export function chairBack(seatHeight: number): Bounds[] {
+export function chairBack(seatHeight: number, seatWidth: number = CHAIR.seatWidth): Bounds[] {
   const c = CHAIR;
   const top = seatHeight + c.back;
-  const x = c.seatWidth / 2 - CHAIR_LEG / 2;
+  const x = seatWidth / 2 - CHAIR_LEG / 2;
   const z = c.seatDepth / 2 - CHAIR_LEG / 2;
   return [
     ...[-x, x].map((px) => centeredBox([px, top / 2, z], [CHAIR_LEG, top, CHAIR_LEG])),
-    centeredBox([0, top - c.rail / 2, z], [c.seatWidth - 2 * CHAIR_LEG, c.rail, 0.025]),
+    centeredBox([0, top - c.rail / 2, z], [seatWidth - 2 * CHAIR_LEG, c.rail, 0.025]),
   ];
 }
 
@@ -267,14 +277,20 @@ function addBox(builder: MeshBuilder, part: Bounds, color: Rgb): void {
 /**
  * Builds a chair: a seat, four legs, two back posts, and a wide top rail (design 4.5). The seat
  * center of the chair of design 4.5 is above the origin, and the back is at +z. A shorter seat
- * keeps the back, and its front edge is further back (`StudioBody.chairDepth`).
+ * keeps the back, and its front edge is further back (`StudioBody.chairDepth`). A wider seat keeps
+ * its legs and its back posts at its side edges (`StudioBody.chairWidth`).
  *
  * @param seatHeight The height of the seat, in meters.
  * @param seatDepth The depth of the seat, in meters.
+ * @param seatWidth The width of the seat, in meters.
  * @returns The mesh data, with all vertices on bone 0.
  */
-export function buildChair(seatHeight: number, seatDepth: number = CHAIR.seatDepth): MeshData {
-  const c = { ...CHAIR, seatHeight };
+export function buildChair(
+  seatHeight: number,
+  seatDepth: number = CHAIR.seatDepth,
+  seatWidth: number = CHAIR.seatWidth,
+): MeshData {
+  const c = { ...CHAIR, seatHeight, seatWidth };
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.chair;
   const x = c.seatWidth / 2 - CHAIR_LEG / 2;
@@ -294,7 +310,7 @@ export function buildChair(seatHeight: number, seatDepth: number = CHAIR.seatDep
       color,
     );
   }
-  for (const part of chairBack(seatHeight)) {
+  for (const part of chairBack(seatHeight, seatWidth)) {
     addBox(builder, part, color);
   }
   return builder.build();
@@ -412,7 +428,7 @@ export function buildSupport(support: Support, seat: SeatHeights | null): MeshDa
 
   switch (support) {
     case 'chair':
-      return buildChair(seat.seatHeight, seat.seatDepth);
+      return buildChair(seat.seatHeight, seat.seatDepth, seat.seatWidth);
     case 'stool':
       return buildStool(false, seat);
     case 'high-stool':
@@ -583,7 +599,13 @@ export function buildSceneProps(layout: SceneLayout): MeshData {
   for (const player of layout.players) {
     const { support, species } = player.cast;
     const heights = seatHeights(support, SPECIES[species]);
-    const key = [support, heights?.seatHeight, heights?.footHeight, heights?.seatDepth].join(' ');
+    const key = [
+      support,
+      heights?.seatHeight,
+      heights?.footHeight,
+      heights?.seatDepth,
+      heights?.seatWidth,
+    ].join(' ');
     if (!seats.has(key)) {
       seats.set(key, buildSupport(support, heights));
     }

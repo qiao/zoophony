@@ -320,6 +320,12 @@ export interface StudioBody {
    */
   readonly chairDepth: number | null;
   /**
+   * The width of the seat of the chair under a body that sits on a chair, in meters, when the
+   * chair of design 4.5 is too narrow for its haunch (`seatWidth` of `ANIMALS` of
+   * `tools/studio-body.ts`). A body with no width sits on the chair of design 4.5.
+   */
+  readonly chairWidth?: number;
+  /**
    * The standing pose of a seated body that also stands. The packed mesh then holds the leg
    * corrective shapes after the arm corrective shapes. It is `null` for a body that keeps the
    * stance of its role.
