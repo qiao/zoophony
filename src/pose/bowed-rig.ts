@@ -438,10 +438,15 @@ const SHOULDER_HOLD = {
  * forward) put the lower end 13.8 cm above the thigh (2026-10-17-fox-form decisions). The long
  * right arm of the fox reaches the right thigh only nearly straight, and its line from the
  * shoulder to a paw on the top of the thigh passes through the side of the belly: with the grip
- * 0.15 H out at 0.65 of the way, the right upper arm went 6.2 cm into the body. So the grip is
- * 0.3 H out and 0.15 H forward at 0.55 of the way, at the outer side of the thigh, and the upper
- * arm goes 3.2 cm into the body (`pnpm hold-fit fox-violinist --sets lift,rest,lower`). The right
- * elbow points down and a little out and back, and the left elbow down and a little back.
+ * 0.15 H out at 0.65 of the way, the right upper arm went 6.2 cm into the body. So the grip is at
+ * the outer side of the thigh at 0.55 of the way, 0.15 H forward. The stick through the paw of
+ * 2026-10-17 moves the hand about 4 cm on the bow, and with the grip 0.3 H out, the right upper arm
+ * went 3.9 cm into the body at rest and 5.0 cm while the arms lowered (3.4 cm and 3.7 cm before).
+ * The grip is 0.5 H out, and in the middle of the lift and of the lowering it moves 0.2 H out,
+ * 0.2 H up, and 0.4 H to the front (the via of `UPRIGHT_BOW` with its own reach): the upper arm
+ * goes 3.3 cm into the body in each set (`pnpm hold-fit fox-violinist --base main --sets
+ * lift,rest,lower`, 2026-10-17-grip-all decisions). The right elbow points down and a little out
+ * and back, and the left elbow down and a little back.
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
@@ -457,10 +462,10 @@ const FOX_HOLD = {
   restPoleR: [0.3, -1, 0.3],
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   restBow: {
-    lap: { along: 0.55, offset: [0.3, -0.1, -0.15] },
+    lap: { along: 0.55, offset: [0.5, -0.1, -0.15] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
-    via: UPRIGHT_BOW.via,
+    via: { ...UPRIGHT_BOW.via, reach: [0.2, 0.2, -0.4] },
   },
 } as const satisfies BowedHold;
 
