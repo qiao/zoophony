@@ -20,7 +20,7 @@ in `design/04-stage-cast-look.md`. Read only the files of your area.
 | [`02-product.md`](design/02-product.md) | 2. Product: input, first screen, layout, play and keyboard, camera, quality tiers, privacy, and UI spec (2.1 to 2.8) |
 | [`03-midi-to-seats.md`](design/03-midi-to-seats.md) | 3. From MIDI to seats: pipeline, data model, file rules, ports and channels, program map, channel 10, seats, and players (3.1 to 3.8) |
 | [`04-stage-cast-look.md`](design/04-stage-cast-look.md) | 4. Stage, cast, and look: look, layout, species, models, visual values, model inventory, and rig (4.1 to 4.7) |
-| [`05-animation.md`](design/05-animation.md) | 5. Animation: pose function, rest pose, instrument motion, conductor, silent seats, and camera shots (5.1 to 5.6) |
+| [`05-animation.md`](design/05-animation.md) | 5. Animation: pose index, pose function, rest pose, instrument motion, conductor, silent seats, and camera shots (5.1 to 5.6) |
 | [`06-audio.md`](design/06-audio.md) | 6. Audio: engine, SoundFont, load flow, block scheduler, seek and pause, mute and solo, clock, and interfaces (6.1 to 6.8) |
 | [`07-architecture.md`](design/07-architecture.md) | 7. Architecture: modules, first download, and third-party licenses (7.1 to 7.3) |
 | [`08-demos.md`](design/08-demos.md) | 8. Demos: license rules, list, changes to the files, OpenScore files, and demo tests (8.1 to 8.5) |
