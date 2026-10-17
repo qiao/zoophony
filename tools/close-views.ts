@@ -52,6 +52,21 @@ export interface CloseMoment {
 }
 
 /**
+ * Gives the moments of the lift and of the lowering of a role (design 5.2), halfway through each
+ * move: `lift50` and `lower50`. The slider stays at the time of the first moment of the role, so
+ * that the lift goes from the rest pose to that moment, and the lowering goes back.
+ *
+ * @param time The time of the first moment of the role, in seconds.
+ * @returns The two moments.
+ */
+function halfMoves(time: number): CloseMoment[] {
+  return [
+    { name: 'lift50', time, rest: false, move: { kind: 'lift', share: 0.5 } },
+    { name: 'lower50', time, rest: false, move: { kind: 'lower', share: 0.5 } },
+  ];
+}
+
+/**
  * The camera of a close view around the body of the animal (the query `body`). The box of the
  * body gives the vertical line, the target, and the distance at the zoom 1. A new role needs no
  * other value.
@@ -129,12 +144,16 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  *   keys is low from the left, 15° to the front.
  * - The violinist: the front, both sides, and the back. The moments are the frog and the tip of a
  *   whole bow on the A string, a string crossing from the G string to the E string, the rest
- *   pose, and the standing soloist at the frog.
+ *   pose, halfway through the lift and the lowering at the frog ({@link halfMoves}), and the
+ *   standing soloist at the frog.
  * - The red fox violinist of the second violins: the views and the moments of the violinist. The
  *   side views and the back view also show the tail, which goes back over the seat and through
  *   the open back of the chair.
  * - The cat violist of the violas: the views and the moments of the violinist, with a whole
  *   down-bow on the A string and a string crossing from the C string to the A string.
+ * - The tan fox flutist: the front, both sides, and the back. The moments are a long note, a time
+ *   between two phrases, the rest pose, halfway through the lift and the lowering at the note,
+ *   and the standing soloist at the note.
  *
  * A new role gives its species, its views, its moments, and its test notes, with the camera
  * `{ kind: 'body', zoom: 1, elevation }`.
@@ -205,6 +224,7 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
       { name: 'tip', time: 2.4, rest: false },
       { name: 'crossing', time: 3.25, rest: false },
       { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.55),
       { name: 'stand', time: 0.55, rest: false, stand: true },
     ],
     camera: { kind: 'body', zoom: 1, elevation: 20 },
@@ -224,6 +244,7 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
       { name: 'tip', time: 2.4, rest: false },
       { name: 'crossing', time: 3.25, rest: false },
       { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.55),
       { name: 'stand', time: 0.55, rest: false, stand: true },
     ],
     camera: { kind: 'body', zoom: 1, elevation: 20 },
@@ -243,6 +264,7 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
       { name: 'tip', time: 2.4, rest: false },
       { name: 'crossing', time: 3.25, rest: false },
       { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.55),
       { name: 'stand', time: 0.55, rest: false, stand: true },
     ],
     camera: { kind: 'body', zoom: 1, elevation: 20 },
@@ -261,6 +283,7 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
       { name: 'note', time: 0.6, rest: false },
       { name: 'between', time: 1.75, rest: false },
       { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.6),
       { name: 'stand', time: 0.6, rest: false, stand: true },
     ],
     camera: { kind: 'body', zoom: 1, elevation: 20 },
