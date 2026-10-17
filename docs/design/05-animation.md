@@ -424,8 +424,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 The pose index at the top of this file gives the hold constant, the source, and the view command
 of each role.
 
-- Bowed strings: the bow changes direction on each note. The bow speed comes from the note
-  length. The left hand keeps a position on the neck, and the fingers play the notes of the
+- Bowed strings: the bow changes direction on each note, or on each slur of short notes. The bow
+  speed comes from the note length. The left hand keeps a position on the neck, and the fingers play the notes of the
   position. The hand shifts only when the notes leave its position.
 - Pizzicato plucks the string. Tremolo makes short fast strokes.
 - **Bowed strings in detail** (`pose/fingering.ts`, `pose/strokes.ts`, `pose/bowed-rig.ts`,
@@ -466,9 +466,15 @@ of each role.
     under the strings at the size of the violin model (0.08 m on the violin and 0.30 m on the
     contrabass), with the fingers beside the neck. Thus the hand did not touch the fingerboard
     (user report of 2026-10-06).
-  - A stroke starts at its full speed and slows to a stop at its end, so the turn of the bow at
-    the next note is sharp. Its length is `0.1 + 0.4 × duration` of the bow range, from 0.06 to
-    0.8, times the gesture size. A rest of at least 0.5 s ends a phrase: the next stroke is a
+  - **Slurs** (`slurSizes()` of `pose/strokes.ts`). The MIDI files have no slurs, so the app
+    guesses them: two to four normal notes of a player in one conducted beat join into one bow
+    when each note is shorter than 0.25 s, each gap is shorter than 0.03 s, and each note changes
+    the pitch. A longer run in one beat splits into slurs of nearly equal size. The bow keeps one
+    direction over the notes of a slur, and the left hand plays each note.
+  - A bow (a note, or the notes of a slur) starts at its full speed, keeps it until its last note,
+    and slows to a stop in its last note, so the turn of the bow at the next bow is sharp. Its
+    length is `0.1 + 0.4 × duration` of the bow range, from 0.06 to 0.8, times the gesture size,
+    with the duration of the whole bow. A rest of at least 0.5 s ends a phrase: the next bow is a
     down-bow from 12% of the bow range, and the bow moves there in the rest.
   - In a rest, the bow lifts up to 0.03 m (fully after 0.4 s of rest) in at most 0.1 s, and lands
     in at most 0.15 s before the next note.

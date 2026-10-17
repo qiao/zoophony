@@ -210,6 +210,8 @@ export interface PlayerInputs {
   readonly notes: readonly PlayerNote[];
   /** The loudness of each note, from 0 to 1, in the order of `notes` (design 5.3). */
   readonly loudness: readonly number[];
+  /** The times of the conducted beats, sorted (`Score.beats`). The slurs of a bow read them. */
+  readonly beats: Float64Array;
   /**
    * The point that the head turns to in the idle looks (5.1): the head of the conductor, or in a
    * chamber group the head of the leader, or the middle of the heads of the others for the leader.
@@ -329,6 +331,7 @@ function notesOfPlayers(score: Score, layout: SceneLayout, loudness: Float32Arra
  * @param loudness The loudness of each note.
  * @param amplitude The seeded amplitude of the player.
  * @param seed The seed of the player. The rate of the vibrato of a bowed string comes from it.
+ * @param beats The times of the conducted beats, sorted. The slurs of a bowed string read them.
  * @returns The note layer of the motion family of the instrument.
  */
 function noteLayerOf(
@@ -340,13 +343,22 @@ function noteLayerOf(
   loudness: readonly number[],
   amplitude: number,
   seed: number,
+  beats: Float64Array,
 ): NoteLayer {
   if (isInFamily(instrument, ['bowed'])) {
     const rig = cached(rigs.bowedRigs, model, () =>
       bowedRig(model, instrument, holdOf(species, instrument)),
     );
     const vibratoHz = vibratoRate(instrument, hashUnit(seed, 2));
-    const strokes = buildStrokes(notes, loudness, rig.bowRange, amplitude, instrument, vibratoHz);
+    const strokes = buildStrokes(
+      notes,
+      loudness,
+      rig.bowRange,
+      amplitude,
+      instrument,
+      vibratoHz,
+      beats,
+    );
     return { family: 'bowed', rig, strokes, starts: Float64Array.from(strokes, (s) => s.start) };
   }
   if (isInFamily(instrument, ['woodwind', 'brass'])) {
@@ -421,7 +433,7 @@ export function preparePlayer(
   seed: number,
   rigs = createRigCache(),
 ): PlayerPlan {
-  const { model, place, notes, loudness } = inputs;
+  const { model, place, notes, loudness, beats } = inputs;
   const next = mulberry32(seed);
   const timeOffset = (next() * 2 - 1) * PLAYER_OFFSETS.timeSec;
   const amplitude = 1 + (next() * 2 - 1) * PLAYER_OFFSETS.amplitude;
@@ -458,6 +470,7 @@ export function preparePlayer(
       loudness,
       amplitude,
       seed,
+      beats,
     ),
   };
 }
@@ -669,6 +682,7 @@ export function preparePoses(
   }
   const loudness = noteLoudness(score);
   const notes = notesOfPlayers(score, layout, loudness);
+  const beats = Float64Array.from(score.beats, (b) => b.timeSec);
   const players = layout.players.map((place, index): PlayerPlan => {
     const { cast } = place;
     const own = notes[index] ?? { notes: [], loudness: [] };
@@ -678,6 +692,7 @@ export function preparePoses(
         place,
         notes: own.notes,
         loudness: own.loudness,
+        beats,
         lookTarget: looks[index] ?? layout.podium,
         seatSeed: seatSeedOf(seed, cast.seatIndex),
       },
@@ -703,7 +718,7 @@ export function preparePoses(
     players,
     conductor,
     leader,
-    beats: Float64Array.from(score.beats, (b) => b.timeSec),
+    beats,
     endSec: score.durationSec,
   };
 }

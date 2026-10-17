@@ -132,6 +132,7 @@ export function sheetPose(
       },
       notes,
       loudness: notes.map(() => loudnessOf(TEST_VELOCITY)),
+      beats: Float64Array.from(testBeats(moment.notes), (b) => b.timeSec),
       lookTarget: ahead,
       seatSeed: seatSeedOf(1, 0),
     },

@@ -350,10 +350,16 @@ A round that changes the motion updates the items.
   the bow to the string of the next note in at most 0.08 s, and in at most 0.3 of the time from
   the note start to the next note (`BOW_MOTION.crossSec` and `crossShare`). The turn ends 0.01 s
   before the next note (`BOW_MOTION.crossLeadSec`), as a real crossing leads the bow change by
-  about 15° of the phase of a stroke pair, about 11 ms at 7.5 notes a second. Before round `bow-arm`, the
-  app turned the bow in the last 0.1 s before the note.
-- **The bow changes on each note.** The app has no slur, so a fast passage reverses the bow on each
-  note (section 2.5).
+  about 15° of the phase of a stroke pair, about 11 ms at 7.5 notes a second. Before round
+  `bow-arm`, the app turned the bow in the last 0.1 s before the note.
+- **Slurs** (section 2.5). The MIDI files have no slurs, so `slurSizes()` of `pose/strokes.ts`
+  guesses them from the score: two to four normal notes in one beat join into one bow when each
+  note is shorter than 0.25 s, each gap is shorter than 0.03 s, and each note changes the pitch
+  (`BOW_MOTION.slur`). A longer run in one beat splits into slurs of nearly equal size. A repeated
+  pitch takes a new bow, because the file plays it as a new note. The bow keeps one direction
+  over the notes of a slur, and its length follows the time of the whole slur. It moves at one
+  speed until the last note, and slows to a stop in the last note. The left hand still plays each
+  note. Before round `bow-arm`, the bow changed direction on each note.
 - **The sounding point does not change.** The bow of the app plays at one contact point for each
   loudness. Real players move the bow toward the bridge for a loud note (section 2.4).
 - **The stick tilts toward the fingerboard** (section 2.1). `bowAt()` of `pose/bowed.ts` turns the

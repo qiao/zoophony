@@ -341,6 +341,7 @@ describe('preparePlayer and prepareConductor (design 5.1, 5.4)', () => {
           place,
           notes: own.map((o) => o.note),
           loudness: own.map((o) => o.loudness),
+          beats: Float64Array.from(score.beats, (b) => b.timeSec),
           lookTarget: headOf(bear, ofConductor(layout.conductor)),
           seatSeed: seatSeedOf(1, cast.seatIndex),
         },

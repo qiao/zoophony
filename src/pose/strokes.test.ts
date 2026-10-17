@@ -35,6 +35,7 @@ function strokesOf(
     1,
     instrument,
     5.5,
+    Float64Array.from(score.beats, (b) => b.timeSec),
   );
 }
 

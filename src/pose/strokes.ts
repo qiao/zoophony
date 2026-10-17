@@ -17,9 +17,9 @@ export const BOW_MOTION = {
   /** The place on the bow of a tremolo after a rest, as a part of the bow range. */
   tremoloStart: 0.6,
   /**
-   * The length of a stroke, as a part of the bow range: `base + perSecond × duration`, from
-   * `min` to `max`, multiplied by the gesture size. A long note uses more bow, and a short note
-   * moves the bow faster for its length.
+   * The length of a bow, as a part of the bow range: `base + perSecond × duration`, from `min` to
+   * `max`, multiplied by the gesture size. A long note uses more bow, and a short note moves the
+   * bow faster for its length.
    */
   length: { base: 0.1, perSecond: 0.4, min: 0.06, max: 0.8 },
   /** The highest lift of the bow off the strings in a rest, in meters. */
@@ -45,6 +45,13 @@ export const BOW_MOTION = {
   crossSec: 0.08,
   crossShare: 0.3,
   crossLeadSec: 0.01,
+  /**
+   * The slur rule (`docs/reference/string-technique.md`, section 2.5). The MIDI files have no
+   * slurs, so two to `notes` normal strokes in one beat join into one bow when each is shorter
+   * than `maxSec` and each gap is shorter than `gapSec`. A note that starts at most `beatSlackSec`
+   * before a beat belongs to that beat.
+   */
+  slur: { notes: 4, maxSec: 0.25, gapSec: 0.03, beatSlackSec: 0.03 },
   /** The change between the bow and pizzicato starts this long before the note. */
   techniqueLeadSec: 0.3,
   /** The change between the bow and pizzicato ends this long before the note. */
@@ -100,6 +107,28 @@ export const LEFT_HAND = {
 /** The part of the bow hair that a player uses, in meters from the frog end of the hair. */
 export type BowRange = readonly [low: number, high: number];
 
+/**
+ * The motion of one bow: a note, or the notes of a slur in one bow direction (design 5.3). The
+ * strokes of a slur share one bow.
+ */
+export interface BowSlur {
+  /** The note start of the first note, in song seconds. */
+  readonly start: number;
+  /**
+   * The note start of the last note, in song seconds. The bow moves at one speed until this
+   * time, and slows to a stop in the last note.
+   */
+  readonly lastStart: number;
+  /** The end of the sound of the last note, in song seconds. */
+  readonly end: number;
+  /** The place of the strings on the hair at the start of the bow, in meters from the frog. */
+  readonly from: number;
+  /** The place of the strings on the hair at the end of the bow, in meters from the frog. */
+  readonly to: number;
+  /** The number of notes in the bow: 1 for a separate bow. */
+  readonly notes: number;
+}
+
 /** One bow stroke: a note or a double stop of one player, from its start to the next stroke. */
 export interface Stroke {
   /** The note start, in song seconds. */
@@ -126,6 +155,8 @@ export interface Stroke {
   /** The place of the strings on the hair at the start and at the end, in meters from the frog. */
   readonly bowFrom: number;
   readonly bowTo: number;
+  /** The bow of the stroke: its own bow, or the bow of its slur. */
+  readonly slur: BowSlur;
   /** The tremolo amplitude in meters. 0 for the other techniques. */
   readonly tremolo: number;
   /** Whether the bow moves to `bowFrom` in the rest before the stroke, off the strings. */
@@ -267,14 +298,93 @@ function strokePitches(notes: readonly PlayerNote[], loudness: readonly number[]
   });
 }
 
+/** The times, the pitches, and the technique of a stroke, for the slur rule. */
+export type SlurNote = StrokePitch & { readonly technique: Technique };
+
+/**
+ * Gives the slurs of the strokes of one player (design 5.3, `docs/reference/string-technique.md`,
+ * section 2.5). The MIDI files have no slurs, so the rule guesses them: two to
+ * `BOW_MOTION.slur.notes` normal strokes in one beat join into one bow when each stroke is shorter
+ * than `BOW_MOTION.slur.maxSec`, each gap is shorter than `BOW_MOTION.slur.gapSec`, and each
+ * stroke changes the pitch. A longer run splits into slurs of nearly equal size. A repeated pitch
+ * takes a new bow, because the file plays it as a new note. With no beats, each stroke takes its
+ * own bow.
+ *
+ * @param strokes The strokes of the player, sorted by start.
+ * @param beats The times of the beats, sorted.
+ * @returns For each stroke, the number of notes of the slur that starts at it, 0 for a stroke
+ *   inside a slur, and 1 for a separate bow.
+ */
+export function slurSizes(strokes: readonly SlurNote[], beats: Float64Array): number[] {
+  const rule = BOW_MOTION.slur;
+  const sizes = strokes.map(() => 1);
+  if (beats.length === 0) {
+    return sizes;
+  }
+
+  const beatOf = (time: number): number => lastAtOrBefore(beats, time + rule.beatSlackSec);
+  const joins = (a: SlurNote | undefined, b: SlurNote | undefined): boolean =>
+    a !== undefined &&
+    b !== undefined &&
+    a.technique === 'normal' &&
+    b.technique === 'normal' &&
+    a.end - a.start < rule.maxSec &&
+    b.end - b.start < rule.maxSec &&
+    b.start - a.end < rule.gapSec &&
+    (a.low !== b.low || a.high !== b.high) &&
+    beatOf(a.start) === beatOf(b.start);
+  let first = 0;
+  for (let k = 1; k <= strokes.length; k++) {
+    if (k === strokes.length || !joins(strokes[k - 1], strokes[k])) {
+      // The run from `first` to `k - 1` splits into slurs of nearly equal size.
+      const count = k - first;
+      const slurs = Math.ceil(count / rule.notes);
+      for (let j = 0; j < slurs; j++) {
+        const a = first + Math.floor((j * count) / slurs);
+        const b = first + Math.floor(((j + 1) * count) / slurs);
+        sizes.fill(0, a, b);
+        sizes[a] = b - a;
+      }
+      first = k;
+    }
+  }
+  return sizes;
+}
+
+/**
+ * Gives the place of the strings on the hair in a bow. The bow starts at its full speed, keeps it
+ * until its last note, and slows to a stop in its last note, so the change of direction at the
+ * next bow is sharp. A separate note slows down from its start. The notes of a slur share one
+ * bow, so the bow does not stop between them.
+ *
+ * @param slur The bow.
+ * @param time The song time.
+ * @returns The place, in meters from the frog end of the hair.
+ */
+function bowInSlur(slur: BowSlur, time: number): number {
+  const even = Math.max(0, slur.lastStart - slur.start);
+  const last = Math.max(0, slur.end - slur.lastStart);
+  // The bow moves `even` at the full speed and `last / 2` while it slows to a stop.
+  const total = even + last / 2;
+  if (total <= 0) {
+    return slur.to;
+  }
+  const dt = time - slur.start;
+  const x = last > 0 ? clamp01((dt - even) / last) : 1;
+  const done = dt <= even ? Math.max(0, dt) : even + last * (x - (x * x) / 2);
+  return slur.from + ((slur.to - slur.from) * done) / total;
+}
+
 /**
  * Builds the bow strokes of one bowed string player (design 5.3). Notes that start together
  * form one stroke, a double stop. The plan of the left hand ({@link planHand}) gives each stroke
  * its string, its position, and its finger: the hand keeps its position, and the fingers play
- * the notes. The bow changes direction on each stroke. A phrase starts with a down-bow at the
- * frog. The length of a stroke comes from the note length and the gesture size. Pizzicato
- * strokes keep the bow where it is. A tremolo stroke makes short fast strokes around the place of
- * the bow. A stopped bowed note of at least `LEFT_HAND.vibrato.minSec` gets vibrato.
+ * the notes. The bow changes direction on each bow: a note, or a slur of short notes in one beat
+ * ({@link slurSizes}). A phrase starts with a down-bow at the frog. The length of a bow comes
+ * from its length in time and the gesture size. Pizzicato strokes keep the bow where it is. A
+ * tremolo
+ * stroke makes short fast strokes around the place of the bow. A stopped bowed note of at least
+ * `LEFT_HAND.vibrato.minSec` gets vibrato.
  *
  * @param notes The notes of the player, sorted by start.
  * @param loudness The loudness of each note, in the order of `notes` (design 5.3).
@@ -283,6 +393,7 @@ function strokePitches(notes: readonly PlayerNote[], loudness: readonly number[]
  * @param amplitude The seeded amplitude of the player, near 1.
  * @param instrument The bowed string of the player.
  * @param vibratoHz The rate of the vibrato of the player, from {@link vibratoRate}.
+ * @param beats The times of the conducted beats, sorted. The slur rule reads them.
  * @returns The strokes, sorted by start, with no overlap.
  */
 export function buildStrokes(
@@ -292,10 +403,12 @@ export function buildStrokes(
   amplitude: number,
   instrument: Bowed,
   vibratoHz: number,
+  beats: Float64Array,
 ): Stroke[] {
   const m = BOW_MOTION;
   const pitches = strokePitches(notes, loudness);
   const plan = planHand(pitches, TUNINGS[instrument], HAND_FRAMES[instrument], FINGERING_COSTS);
+  const sizes = slurSizes(pitches, beats);
 
   const strokes: Stroke[] = [];
   const [low, high] = range;
@@ -304,14 +417,15 @@ export function buildStrokes(
   let direction = -1;
   let previousEnd = -Infinity;
   let bowed = false;
-  for (const [k, p] of pitches.entries()) {
-    const fingered = plan[k];
-    if (!fingered) {
-      continue;
+  let k = 0;
+  while (k < pitches.length) {
+    const p = pitches[k];
+    if (!p) {
+      break;
     }
     const technique = p.technique;
-    const duration = Math.max(0, p.end - p.start);
-    const gesture = gestureSize(p.loudness, amplitude);
+    const count = technique === 'normal' ? Math.max(1, sizes[k] ?? 1) : 1;
+    const last = pitches[k + count - 1] ?? p;
     const phrase = p.start - previousEnd >= PHRASE_GAP_SEC;
     let from = bow;
     let to = bow;
@@ -322,6 +436,8 @@ export function buildStrokes(
         from = low + m.tremoloStart * span;
         retake = true;
       }
+      const duration = Math.max(0, p.end - p.start);
+      const gesture = gestureSize(p.loudness, amplitude);
       tremolo = Math.max(0, Math.min(m.tremoloAmplitude * gesture, from - low, high - from));
       to = from + tremolo * Math.sin(2 * Math.PI * m.tremoloHz * duration);
       bowed = true;
@@ -334,50 +450,71 @@ export function buildStrokes(
         direction = -direction;
       }
       const l = m.length;
+      const duration = Math.max(0, last.end - p.start);
+      const gesture = gestureSize(p.loudness, amplitude);
       const part = Math.min(l.max, Math.max(l.min, l.base + l.perSecond * duration));
-      to = Math.min(high, Math.max(low, from + direction * part * span * gesture));
+      const travel = direction * part * span * gesture;
+      to = Math.min(high, Math.max(low, from + travel));
       bowed = true;
     }
-    const vibrato =
-      technique !== 'pizzicato' && duration >= LEFT_HAND.vibrato.minSec
-        ? vibratoWidth(instrument, fingered.hand, p.loudness)
-        : 0;
-    strokes.push({
+
+    const slur: BowSlur = {
       start: p.start,
-      end: p.end,
-      technique,
-      string: fingered.string,
-      hand: fingered.hand,
-      vibrato,
-      vibratoHz,
-      gesture,
-      bowFrom: from,
-      bowTo: to,
-      tremolo,
-      retake,
-    });
+      lastStart: last.start,
+      end: last.end,
+      from,
+      to,
+      notes: count,
+    };
+    for (let j = k; j < k + count; j++) {
+      const own = pitches[j];
+      const fingered = plan[j];
+      if (!own || !fingered) {
+        continue;
+      }
+      const duration = Math.max(0, own.end - own.start);
+      const vibrato =
+        technique !== 'pizzicato' && duration >= LEFT_HAND.vibrato.minSec
+          ? vibratoWidth(instrument, fingered.hand, own.loudness)
+          : 0;
+      const single = count === 1;
+      strokes.push({
+        start: own.start,
+        end: own.end,
+        technique,
+        string: fingered.string,
+        hand: fingered.hand,
+        vibrato,
+        vibratoHz,
+        gesture: gestureSize(own.loudness, amplitude),
+        bowFrom: single ? from : bowInSlur(slur, own.start),
+        bowTo: single ? to : bowInSlur(slur, own.end),
+        slur,
+        tremolo,
+        retake: retake && j === k,
+      });
+    }
     bow = to;
-    previousEnd = p.end;
+    previousEnd = last.end;
+    k += count;
   }
   return strokes;
 }
 
 /**
- * Gives the place of the strings on the hair during a stroke. A stroke starts at its full speed
- * and slows to a stop at its end, so the change of direction at the next note is sharp.
+ * Gives the place of the strings on the hair during a stroke. A stroke moves with its bow
+ * ({@link bowInSlur}), and a tremolo stroke makes short fast strokes around its place.
  *
  * @param stroke The stroke.
  * @param time The song time, from the start to the end of the stroke.
  * @returns The place, in meters from the frog end of the hair.
  */
 function bowInStroke(stroke: Stroke, time: number): number {
-  const dt = time - stroke.start;
   if (stroke.technique === 'tremolo') {
+    const dt = time - stroke.start;
     return stroke.bowFrom + stroke.tremolo * Math.sin(2 * Math.PI * BOW_MOTION.tremoloHz * dt);
   }
-  const duration = stroke.end - stroke.start;
-  const x = duration > 0 ? clamp01(dt / duration) : 1;
-  return stroke.bowFrom + (stroke.bowTo - stroke.bowFrom) * (1 - (1 - x) * (1 - x));
+  return bowInSlur(stroke.slur, time);
 }
 
 /**
@@ -537,9 +674,13 @@ export function bowStateAt(
     return;
   }
 
-  // The bow on the strings, and the lift and the retake in a rest.
+  // The bow on the strings, and the lift and the retake in a rest. In a slur, the bow moves on
+  // between its notes.
   if (time <= current.end) {
     out.bow = bowInStroke(current, time);
+    out.lift = 0;
+  } else if (next && next.slur === current.slur) {
+    out.bow = bowInSlur(current.slur, time);
     out.lift = 0;
   } else if (!next) {
     out.bow = current.bowTo;

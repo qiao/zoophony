@@ -105,6 +105,8 @@ export function galleryPlan(
   const rigs = createRigCache();
   const loudness = loudnessOf(TEST_VELOCITY);
   const all: PlayerNote[] = [];
+  const beats = testBeats(notes);
+  const beatTimes = Float64Array.from(beats, (b) => b.timeSec);
   const plans = players.map((animal, i) => {
     const own = testPlayerNotes(notes, animal.place.cast.seatIndex);
     all.push(...own);
@@ -114,6 +116,7 @@ export function galleryPlan(
         place: animal.place,
         notes: own,
         loudness: own.map(() => loudness),
+        beats: beatTimes,
         lookTarget: aheadOf(animal),
         seatSeed: seatSeedOf(GALLERY_SEED, animal.place.cast.seatIndex),
       },
@@ -121,7 +124,6 @@ export function galleryPlan(
       rigs,
     );
   });
-  const beats = testBeats(notes);
   const sorted = all.toSorted((a, b) => a.startSec - b.startSec);
   return {
     players: plans,
@@ -140,7 +142,7 @@ export function galleryPlan(
         )
       : null,
     leader: null,
-    beats: Float64Array.from(beats, (b) => b.timeSec),
+    beats: beatTimes,
     // The gallery has no song end, so the conductor does not bow.
     endSec: Infinity,
   };
