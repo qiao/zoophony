@@ -80,6 +80,13 @@ export interface AnimalSettings {
    * that clearance. 0 when it is not given.
    */
   readonly seatBack?: number;
+  /**
+   * The width of the seat of the chair of the app under a seated body on a chair, in meters, when
+   * its haunch is wider than the chair of design 4.5 (`StudioBody.chairWidth`). The seat height
+   * of the body is the lowest point over this seat. With no value, the body sits on the chair of
+   * design 4.5.
+   */
+  readonly seatWidth?: number;
   /** The name of the constant of the module. */
   readonly constant: string;
   /**
@@ -1306,6 +1313,11 @@ interface SceneFrame {
   readonly offset: Vector3;
   /** The depth of the chair of the app under a body on a chair, in meters, or `null`. */
   readonly chairDepth: number | null;
+  /**
+   * The width of the chair of the app under a body on a chair, in meters, or `null` for the width
+   * of the chair of design 4.5 (`AnimalSettings.seatWidth`).
+   */
+  readonly chairWidth: number | null;
 }
 
 /**
@@ -1415,7 +1427,7 @@ function sceneFrame(
       : propBox(glb, (name) => name.startsWith('piano_key_')).max.y;
   const scale = settings.height / landmark;
   if (!settings.seated) {
-    return { scale, offset: new Vector3(), chairDepth: null };
+    return { scale, offset: new Vector3(), chairDepth: null, chairWidth: null };
   }
 
   const drop = Math.min(...mesh.vertices.map((v) => v.position.y));
@@ -1432,6 +1444,7 @@ function sceneFrame(
     scale,
     offset: new Vector3(0, -drop, (appFront - back) / scale - front),
     chairDepth: seat.name === 'chair' ? round(depth) : null,
+    chairWidth: seat.name === 'chair' ? (settings.seatWidth ?? null) : null,
   };
   if (settings.seat === undefined) {
     return frame;
@@ -1498,7 +1511,7 @@ function chairDepthOf(mesh: SourceMesh, chair: Box3, scale: number, move: number
  */
 function seatHeightOf(glb: Glb, mesh: SourceMesh, frame: SceneFrame): number {
   const seat = seatOf(glb);
-  const halfX = seat.width / 2 / frame.scale;
+  const halfX = (frame.chairWidth ?? seat.width) / 2 / frame.scale;
   // The seat in the axes of the studio: a chair from its back at the back of the chair of design
   // 4.5 to its front edge, and the bench around the origin.
   const back = frame.chairDepth === null ? -seat.depth / 2 : -CHAIR.seatDepth / 2;
@@ -1829,6 +1842,9 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   };
   if (raise) {
     body = { ...body, raise };
+  }
+  if (frame.chairWidth !== null) {
+    body = { ...body, chairWidth: frame.chairWidth };
   }
   if (settings.palettes) {
     const palettes = Object.entries(settings.palettes).map(
