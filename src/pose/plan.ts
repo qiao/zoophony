@@ -42,7 +42,6 @@ import { mixHash, mulberry32 } from './random.ts';
 import { CONDUCTOR_MOTION, restMotion } from './rest.ts';
 import type { RestMotion } from './rest.ts';
 import type { StrikeTrack } from './strikes.ts';
-import { TUNINGS } from './fingering.ts';
 import { buildStrokes } from './strokes.ts';
 import type { Stroke } from './strokes.ts';
 import { buildWindTrack } from './wind-notes.ts';
@@ -344,8 +343,7 @@ function noteLayerOf(
     const rig = cached(rigs.bowedRigs, model, () =>
       bowedRig(model, instrument, holdOf(species, instrument)),
     );
-    const tuning = TUNINGS[instrument];
-    const strokes = buildStrokes(notes, loudness, rig.bowRange, amplitude, tuning);
+    const strokes = buildStrokes(notes, loudness, rig.bowRange, amplitude, instrument);
     return { family: 'bowed', rig, strokes, starts: Float64Array.from(strokes, (s) => s.start) };
   }
   if (isInFamily(instrument, ['woodwind', 'brass'])) {

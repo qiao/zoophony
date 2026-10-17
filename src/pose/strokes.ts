@@ -1,9 +1,14 @@
 import type { PlayerNote, Technique } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
-import { FINGERBOARD_SEMITONES, fingerboardPlace } from './fingering.ts';
+import type { InstrumentOf } from './family.ts';
 import { gestureSize } from './loudness.ts';
+import { FINGERING_COSTS, HAND_FRAMES, TUNINGS, fingerboardPlace, planHand } from './fingering.ts';
+import type { HandStep, StrokePitch } from './fingering.ts';
 import { CHORD_SEC, PHRASE_GAP_SEC, groupChords } from './note-groups.ts';
 import { clamp01, smoothstep } from './rest.ts';
+
+/** The bowed strings of design 4.6. */
+type Bowed = InstrumentOf<'bowed'>;
 
 /** The values of the bow motion of the bowed strings (design 5.3). */
 export const BOW_MOTION = {
@@ -31,7 +36,7 @@ export const BOW_MOTION = {
   tremoloHz: 7,
   /** The amplitude of the tremolo strokes in meters, multiplied by the gesture size. */
   tremoloAmplitude: 0.02,
-  /** The most time that the left hand takes to move to the next note, and the bow to change strings. */
+  /** The most time that the bow takes to change strings before the next note. */
   shiftSec: 0.1,
   /** The change between the bow and pizzicato starts this long before the note. */
   techniqueLeadSec: 0.3,
@@ -47,6 +52,21 @@ export const BOW_MOTION = {
   pressSec: 0.12,
 } as const;
 
+/**
+ * The values of the left hand of the bowed strings (design 5.3,
+ * `docs/reference/string-technique.md`, section 1.5). The hand keeps its position, and the
+ * fingers play the notes. A shift takes a part of the note before it, and it ends when the finger
+ * of the new note lands, before the bow change.
+ */
+export const LEFT_HAND = {
+  /** The finger of a new note lands this long before the note, and a shift ends then. */
+  landSec: 0.03,
+  /** A shift starts at the earliest after this share of the time from the note before to the note. */
+  shiftShare: 0.5,
+  /** The most time of a shift. Six professional violinists took 0.29 s to 0.46 s. */
+  shiftSec: 0.35,
+} as const;
+
 /** The part of the bow hair that a player uses, in meters from the frog end of the hair. */
 export type BowRange = readonly [low: number, high: number];
 
@@ -57,10 +77,13 @@ export interface Stroke {
   /** The end of the sound, in song seconds. It is not later than the start of the next stroke. */
   readonly end: number;
   readonly technique: Technique;
-  /** The string of the stroke, from 0 (the lowest) to 3. A double stop lies between two strings. */
+  /**
+   * The string of the bow, from 0 (the lowest) to 3. A double stop lies between two strings. The
+   * plan of the left hand chooses it ({@link planHand}).
+   */
   readonly string: number;
-  /** The place of the left hand on the target `fingerboard`: 0 at the nut, 1 at the end. */
-  readonly fingerboard: number;
+  /** The plan of the left hand: the position, the hand place, and the finger of the note. */
+  readonly hand: HandStep;
   /** The gesture size: the loudness of design 5.3 and the amplitude of the player. */
   readonly gesture: number;
   /** The place of the strings on the hair at the start and at the end, in meters from the frog. */
@@ -82,9 +105,12 @@ export interface BowState {
   pizzicato: number;
   /** The place of the plucking finger across the strings, from -1 to 1. */
   pluck: number;
-  /** The string, from 0 to 3. */
+  /** The string of the bow, from 0 to 3. */
   string: number;
-  /** The place of the left hand on the fingerboard, from 0 to 1. */
+  /**
+   * The middle of the hand frame on the target `fingerboard`, from 0 to 1. It changes only in a
+   * shift.
+   */
   fingerboard: number;
   /** The press of the left fingers, 1 at the note start, then less. */
   press: number;
@@ -110,72 +136,63 @@ export function createBowState(): BowState {
   };
 }
 
-/** The string and the semitones above the open string of a note. */
-interface Stop {
-  readonly string: number;
-  readonly semitones: number;
+/** The pitches, the times, the technique, and the loudness of one stroke. */
+interface StrokeNotes extends StrokePitch {
+  /** The technique of the first note of the stroke. */
+  readonly technique: Technique;
+  /** The highest loudness of the notes that start the stroke. */
+  readonly loudness: number;
 }
 
 /**
- * Finds the string of a note: the highest open string at or below the pitch.
+ * Gives the pitches and the times of the strokes of one player. Notes that start together form
+ * one stroke, and an earlier note that still sounds at a new stroke joins it: two pitches make a
+ * double stop. A stroke ends at the start of the next stroke at the latest.
  *
- * @param pitch The MIDI key.
- * @param tuning The open strings, low to high.
- * @returns The string and the semitones above it, at most {@link FINGERBOARD_SEMITONES}.
+ * @param notes The notes of the player, sorted by start.
+ * @param loudness The loudness of each note, in the order of `notes`.
+ * @returns One entry for each stroke, with its technique and its loudness.
  */
-function stopOf(pitch: number, tuning: readonly number[]): Stop {
-  let string = 0;
-  for (let s = 1; s < tuning.length; s++) {
-    if ((tuning[s] ?? Infinity) <= pitch) {
-      string = s;
+function strokePitches(notes: readonly PlayerNote[], loudness: readonly number[]): StrokeNotes[] {
+  const groups = groupChords(notes, loudness);
+  // The notes of the earlier strokes that may still sound.
+  let sounding: readonly PlayerNote[] = [];
+  return groups.map((g, k): StrokeNotes => {
+    const next = groups[k + 1];
+    sounding = sounding.filter((held) => held.endSec > g.start + CHORD_SEC);
+    let low = g.low;
+    let high = g.high;
+    for (const held of sounding) {
+      low = Math.min(low, held.pitch);
+      high = Math.max(high, held.pitch);
     }
-  }
-  const semitones = Math.min(FINGERBOARD_SEMITONES, Math.max(0, pitch - (tuning[string] ?? pitch)));
-  return { string, semitones };
-}
-
-/** The string of a stroke and the place of the left hand. */
-interface StringPlace {
-  readonly string: number;
-  readonly fingerboard: number;
-}
-
-/**
- * Gives the string and the hand place of a stroke. The high note of a double stop takes its own
- * string, and the low note takes the string below it. The bow lies between the two strings, and
- * the hand lies between the two stops.
- *
- * @param low The lowest pitch of the stroke.
- * @param high The highest pitch of the stroke.
- * @param tuning The open strings.
- * @returns The string coordinate and the hand place.
- */
-function stringsOf(low: number, high: number, tuning: readonly number[]): StringPlace {
-  const top = stopOf(high, tuning);
-  if (high === low) {
-    return { string: top.string, fingerboard: fingerboardPlace(top.semitones) };
-  }
-  const lower = Math.max(0, top.string - 1);
-  const semitones = Math.min(FINGERBOARD_SEMITONES, Math.max(0, low - (tuning[lower] ?? low)));
-  return {
-    string: top.string > 0 ? top.string - 0.5 : 0.5,
-    fingerboard: fingerboardPlace((semitones + top.semitones) / 2),
-  };
+    sounding = [...sounding, ...notes.slice(g.first, g.first + g.count)];
+    return {
+      start: g.start,
+      end: next ? Math.min(g.end, next.start) : g.end,
+      low,
+      high,
+      technique: notes[g.first]?.technique ?? 'normal',
+      loudness: g.loudness,
+    };
+  });
 }
 
 /**
  * Builds the bow strokes of one bowed string player (design 5.3). Notes that start together
- * form one stroke, a double stop. The bow changes direction on each stroke. A phrase starts
- * with a down-bow at the frog. The length of a stroke comes from the note length and the
- * gesture size. Pizzicato strokes keep the bow where it is. A tremolo stroke makes short fast
- * strokes around the place of the bow.
+ * form one stroke, a double stop. The plan of the left hand ({@link planHand}) gives each stroke
+ * its string, its position, and its finger: the hand keeps its position, and the fingers play
+ * the notes. The bow changes direction on each stroke. A phrase starts with a down-bow at the
+ * frog. The length of a stroke comes from the note length and the gesture size. Pizzicato
+ * strokes keep the bow where it is. A tremolo stroke makes short fast strokes around the place of
+ * the bow.
  *
  * @param notes The notes of the player, sorted by start.
  * @param loudness The loudness of each note, in the order of `notes` (design 5.3).
  * @param range The part of the bow hair that the player uses, in meters from the frog end of the
  *   hair. A small player cannot reach the tip of a long bow.
  * @param amplitude The seeded amplitude of the player, near 1.
- * @param tuning The open strings of the instrument.
+ * @param instrument The bowed string of the player.
  * @returns The strokes, sorted by start, with no overlap.
  */
 export function buildStrokes(
@@ -183,10 +200,11 @@ export function buildStrokes(
   loudness: readonly number[],
   range: BowRange,
   amplitude: number,
-  tuning: readonly number[],
+  instrument: Bowed,
 ): Stroke[] {
   const m = BOW_MOTION;
-  const groups = groupChords(notes, loudness);
+  const pitches = strokePitches(notes, loudness);
+  const plan = planHand(pitches, TUNINGS[instrument], HAND_FRAMES[instrument], FINGERING_COSTS);
 
   const strokes: Stroke[] = [];
   const [low, high] = range;
@@ -195,24 +213,15 @@ export function buildStrokes(
   let direction = -1;
   let previousEnd = -Infinity;
   let bowed = false;
-  // The notes of the earlier strokes that may still sound.
-  let sounding: readonly PlayerNote[] = [];
-  for (const [k, g] of groups.entries()) {
-    const next = groups[k + 1];
-    const technique: Technique = notes[g.first]?.technique ?? 'normal';
-    // Earlier notes that still sound make a double stop with the new note.
-    sounding = sounding.filter((held) => held.endSec > g.start + CHORD_SEC);
-    let lowPitch = g.low;
-    let highPitch = g.high;
-    for (const held of sounding) {
-      lowPitch = Math.min(lowPitch, held.pitch);
-      highPitch = Math.max(highPitch, held.pitch);
+  for (const [k, p] of pitches.entries()) {
+    const fingered = plan[k];
+    if (!fingered) {
+      continue;
     }
-    sounding = [...sounding, ...notes.slice(g.first, g.first + g.count)];
-    const end = next ? Math.min(g.end, next.start) : g.end;
-    const duration = Math.max(0, end - g.start);
-    const gesture = gestureSize(g.loudness, amplitude);
-    const phrase = g.start - previousEnd >= PHRASE_GAP_SEC;
+    const technique = p.technique;
+    const duration = Math.max(0, p.end - p.start);
+    const gesture = gestureSize(p.loudness, amplitude);
+    const phrase = p.start - previousEnd >= PHRASE_GAP_SEC;
     let from = bow;
     let to = bow;
     let tremolo = 0;
@@ -239,10 +248,11 @@ export function buildStrokes(
       bowed = true;
     }
     strokes.push({
-      start: g.start,
-      end,
+      start: p.start,
+      end: p.end,
       technique,
-      ...stringsOf(lowPitch, highPitch, tuning),
+      string: fingered.string,
+      hand: fingered.hand,
       gesture,
       bowFrom: from,
       bowTo: to,
@@ -250,7 +260,7 @@ export function buildStrokes(
       retake,
     });
     bow = to;
-    previousEnd = end;
+    previousEnd = p.end;
   }
   return strokes;
 }
@@ -284,11 +294,50 @@ function pizzicatoOf(stroke: Stroke): number {
 }
 
 /**
+ * Gives the quintic ease `10x³ − 15x⁴ + 6x⁵`: its speed is a bell with no jump at the ends.
+ *
+ * @param x The time share, clamped to 0 to 1.
+ * @returns The share of the move.
+ */
+function quintic(x: number): number {
+  const t = clamp01(x);
+  return t * t * t * (10 + t * (6 * t - 15));
+}
+
+/**
+ * Gives the place of the left hand of a bowed string player at one time (design 5.3). The hand
+ * frame keeps its place in a position, and moves only in a shift to the next position. A shift
+ * takes the second part of the note before it, at most `LEFT_HAND.shiftSec`, with a quintic ease,
+ * and it ends when the finger of the next note lands, `LEFT_HAND.landSec` before the note. In a
+ * rest, it takes the end of the rest.
+ *
+ * @param current The stroke at the time.
+ * @param next The next stroke, or `undefined` after the last stroke.
+ * @param time The song time, at or after the start of `current`.
+ * @returns The middle of the hand frame on the target `fingerboard`.
+ */
+function handPlaceAt(current: Stroke, next: Stroke | undefined, time: number): number {
+  const l = LEFT_HAND;
+  const hand = current.hand;
+  if (!next || next.hand.position === hand.position) {
+    return hand.place;
+  }
+  const interval = next.start - current.start;
+  const landed = next.start - Math.min(l.landSec, 0.25 * interval);
+  const from = Math.max(
+    landed - l.shiftSec,
+    Math.min(current.start + l.shiftShare * interval, current.end),
+  );
+  return hand.place + (next.hand.place - hand.place) * quintic((time - from) / (landed - from));
+}
+
+/**
  * Calculates the bow and the hands of a bowed string player at one time (design 5.3). The
  * state is a function of the strokes and the time only. Each note event happens at the note
  * start: the stroke of the bow starts, or the finger plucks. The motion before the note (the
- * landing of the bow, the retake, the shift of the left hand, and the return of the plucking
- * finger) ends at the note start.
+ * landing of the bow, the retake, and the return of the plucking finger) ends at the note start.
+ * The shift of the left hand and the finger of the note end a little earlier, when the finger
+ * lands (`LEFT_HAND.landSec`).
  *
  * @param strokes The strokes of the player, from {@link buildStrokes}.
  * @param starts The starts of the strokes.
@@ -324,7 +373,7 @@ export function bowStateAt(
     out.pizzicato = pizzicatoOf(first);
     out.pluck = -1;
     out.string = first.string;
-    out.fingerboard = first.fingerboard;
+    out.fingerboard = first.hand.place;
     out.press = 0;
     out.gesture = first.gesture;
     return;
@@ -354,15 +403,14 @@ export function bowStateAt(
     }
   }
 
-  // The left hand and the string of the bow move to the next note just before it.
+  // The string of the bow moves to the next note just before it.
   out.string = current.string;
-  out.fingerboard = current.fingerboard;
   if (next) {
     const shift = Math.min(m.shiftSec, 0.5 * (next.start - current.start));
     const x = shift > 0 ? smoothstep((time - (next.start - shift)) / shift) : 0;
     out.string += (next.string - current.string) * x;
-    out.fingerboard += (next.fingerboard - current.fingerboard) * x;
   }
+  out.fingerboard = handPlaceAt(current, next, time);
 
   // The change between the bow and pizzicato.
   out.pizzicato = pizzicatoOf(current);

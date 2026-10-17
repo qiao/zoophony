@@ -10,7 +10,9 @@ round that changes the string motion of the app updates this file in the same co
 decision file [`2026-10-17-string-hands.md`](../decisions/2026-10-17-string-hands.md) records
 this rule. The research report
 [`2026-10-17-string-hands.md`](../research/2026-10-17-string-hands.md) holds the measures of the
-app, the prototype of a position planner, and the motion spec of the code round.
+app, the prototype of a position planner, and the motion spec of the code round. The report
+[`2026-10-17-left-hand.md`](../research/2026-10-17-left-hand.md) measures the left hand of the
+app after the code round.
 
 **Source marks.** Each fact names its source by a number of section 4. "(abstract)" marks a fact
 from an abstract or a search summary, because the full text did not open. "(secondary)" marks a
@@ -293,27 +295,42 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
 
 ## 3. Use in the app
 
-The app does not follow this reference yet (2026-10-17). The research report
-[`2026-10-17-string-hands.md`](../research/2026-10-17-string-hands.md) measures the faults, and its
-section 5 gives the motion spec of the code round. A round that changes the motion replaces each
-item below with the rule of the app and its code.
+Since 2026-10-17 (round `left-hand`), the left hand of the app keeps its position and shifts as
+this reference gives: the position plan and the shift of section 5.2 of the research report
+[`2026-10-17-string-hands.md`](../research/2026-10-17-string-hands.md). The report
+[`2026-10-17-left-hand.md`](../research/2026-10-17-left-hand.md) gives the measures. The fingers,
+vibrato, the left elbow, and the bow arm do not follow the reference yet, and the items in bold
+that start with "No" or "The ... does not" list where they differ. A round that changes the motion
+replaces each such item with the rule of the app and its code.
 
-- **The left hand moves on each new pitch.** `stopOf()` of `pose/strokes.ts` takes the highest
-  open string at or below the pitch, and `fingerboardPlace()` puts the middle of the finger block on
-  the place of each note. A real player keeps the frame of section 1.2 and moves the fingers. In
-  the demos, 65% of the violin strokes and 55% to 73% of the strokes of the other instruments move
-  the left hand of the app. A position plan with the rules of section 1.4 moves it on 1.9% of the
-  violin strokes, 0.5% of the viola strokes, 4.6% of the cello strokes, and 10% of the contrabass
-  strokes.
-- **The shift is short and late.** The hand of the app moves in the last 0.1 s before the note
-  (`BOW_MOTION.shiftSec`). A real shift takes about 0.3 s to 0.45 s from the end of the note before
-  it, and the finger lands before the bow change (section 1.5).
+### 3.1 The left hand
+
+- **The hand keeps its position.** `planHand()` of `pose/fingering.ts` plans the position, the
+  string, and the finger of each stroke from the score, with the frames of section 1.2
+  (`HAND_FRAMES`) and the rules of section 1.4 (`FINGERING_COSTS`). Each player takes the
+  orchestral style: low positions and open strings (section 1.3). The middle of the finger block
+  stays at the middle of the frame of the position, and the hand moves only in a shift. In the
+  demos, the hand moves on 1.9% of the violin strokes, 0.5% of the viola strokes, 4.6% of the cello
+  strokes, and 10.0% of the contrabass strokes (65.4%, 55.1%, 72.8%, and 70.1% before).
+- **The shift** (section 1.5). `bowStateAt()` of `pose/strokes.ts` moves the hand in the second
+  half of the note before the shift, in at most 0.35 s, with a quintic ease. The shift ends when
+  the finger of the new note lands, 0.03 s before the note (`LEFT_HAND`). The app has no guide
+  finger that slides, because the four fingers are one block.
+- **The fingers press at the note start.** The finger block of the app presses at the note start,
+  also on an open string, and it does not turn toward the finger or move to its string
+  (section 1.6).
 - **No vibrato.** The left hand of the app does not move during a long note (section 1.7).
 - **The left elbow does not follow the string.** The left elbow keeps the direction of its hold on
   each string (`poleL` of `BowedHold`, section 1.8).
+
+### 3.2 The bow arm
+
 - **The string planes are too close.** The bow of the app turns 9° for each string, and 7° on the
   contrabass (`stringTurn` of `BowedHold`). Real string planes are about 16° to 18° apart on the
   violin, and about 25° on the double bass (section 2.2).
+- **The string crossing is late.** The bow of the app changes the string in the last 0.1 s before
+  the note (`BOW_MOTION.shiftSec`). A real crossing leads the bow change by about 15° of the phase
+  of a stroke pair (section 2.3).
 - **The bow changes on each note.** The app has no slur, so a fast passage reverses the bow on each
   note (section 2.5).
 - **The sounding point does not change.** The bow of the app plays at one contact point for each

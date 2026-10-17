@@ -508,8 +508,9 @@ function liftVia(rig: RigPoints, frames: TorsoFrames, weight: number, bow: BowPl
  * Writes the arms and the instrument of a bowed string player (design 5.3, 4.7). The bow plays
  * on the strings at the place of the bow state, on the string of the stroke, and lifts in a rest.
  * Pizzicato moves the right hand over the strings near the end of the fingerboard to pluck. The
- * middle of the left finger block presses the strings at the place of the note on the
- * fingerboard. The two-bone IK places each arm. In the rest pose (design 5.2), the violin and
+ * middle of the left finger block presses the strings at the middle of the hand frame of the
+ * position on the fingerboard, and the hand moves only in a shift. The two-bone IK places each
+ * arm. In the rest pose (design 5.2), the violin and
  * the viola stand on the left thigh, and the left fingers keep the strings. The right hand holds
  * the bow on the right thigh.
  *
@@ -672,8 +673,8 @@ export function poseBowed(
     bowLocal.setFromAxisAngle(stickBind.fromArray(rig.stick), -angle),
   );
 
-  // The left fingers press the strings at the place of the note, in the part of the fingerboard
-  // that the arm reaches. In the rest pose, they keep the place of the rest. The press of a note
+  // The left fingers press the strings at the middle of the hand frame, in the part of the
+  // fingerboard that the arm reaches. In the rest pose, they keep the place of the rest. The press of a note
   // curls the fingers more, but it does not move the hand.
   const [low, high] = rig.stopRange;
   const note = low + state.fingerboard * (high - low);

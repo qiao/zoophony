@@ -4,7 +4,7 @@ import { chord, note, noteOff, noteOn, programChange, tempo, track } from '../mi
 import type { TestEvent } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { SectionSize } from '../score/types.ts';
-import { TUNINGS, fingerboardPlace } from './fingering.ts';
+import { fingerboardPlace } from './fingering.ts';
 import { noteLoudness } from './loudness.ts';
 import { BOW_MOTION, bowStateAt, buildStrokes, createBowState } from './strokes.ts';
 import type { BowState, Stroke } from './strokes.ts';
@@ -27,13 +27,13 @@ function strokesOf(
   const indices = score.notes.flatMap((n, i) => (n.player === player ? [i] : []));
   const notes = indices.map((i) => score.notes[i]).filter((n) => n !== undefined);
   const section = score.seats[0]?.section;
-  const tuning = section === 'cello' ? TUNINGS.cello : TUNINGS.violin;
+  const instrument = section === 'cello' ? 'cello' : 'violin';
   return buildStrokes(
     notes,
     indices.map((i) => loudness[i] ?? 0),
     RANGE,
     1,
-    tuning,
+    instrument,
   );
 }
 
@@ -101,7 +101,7 @@ describe('buildStrokes (design 5.3)', () => {
     expect(strokes).toHaveLength(1);
     // 60 is on the A string (3), and 57 on the D string (2) as its fifth.
     expect(strokes[0]?.string).toBe(2.5);
-    expect(strokes[0]?.fingerboard).toBeCloseTo(fingerboardPlace(5), 9);
+    expect(strokes[0]?.hand.place).toBeCloseTo(fingerboardPlace(5), 9);
   });
 
   it('keeps a held note in the double stop of each later stroke while it sounds', () => {
@@ -124,8 +124,8 @@ describe('buildStrokes (design 5.3)', () => {
   it('gives a single note the highest open string at or below its pitch', () => {
     const strokes = strokesOf([...note(0, 0, 55), ...note(480, 0, 64), ...note(960, 0, 88)]);
     expect(strokes.map((s) => s.string)).toEqual([0, 1, 3]);
-    expect(strokes[1]?.fingerboard).toBeCloseTo(fingerboardPlace(2), 9);
-    expect(strokes[2]?.fingerboard).toBeCloseTo(fingerboardPlace(12), 9);
+    expect(strokes[1]?.hand.place).toBeCloseTo(fingerboardPlace(2), 9);
+    expect(strokes[2]?.hand.place).toBeCloseTo(fingerboardPlace(12), 9);
   });
 
   it('keeps the bow in place for pizzicato, and makes tremolo strokes around it', () => {
@@ -196,10 +196,10 @@ describe('bowStateAt (design 5.3)', () => {
     }
     const early = stateAt(strokes, second.start - BOW_MOTION.shiftSec - 0.01);
     expect(early.string).toBe(0);
-    expect(early.fingerboard).toBe(strokes[0]?.fingerboard);
+    expect(early.fingerboard).toBe(strokes[0]?.hand.place);
     const at = stateAt(strokes, second.start);
     expect(at.string).toBe(3);
-    expect(at.fingerboard).toBeCloseTo(second.fingerboard, 9);
+    expect(at.fingerboard).toBeCloseTo(second.hand.place, 9);
   });
 
   it('plucks a pizzicato note at its start, after the finger rests on the string', () => {

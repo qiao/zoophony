@@ -425,26 +425,39 @@ The pose index at the top of this file gives the hold constant, the source, and 
 of each role.
 
 - Bowed strings: the bow changes direction on each note. The bow speed comes from the note
-  length. The left hand moves along the neck with the pitch.
+  length. The left hand keeps a position on the neck, and the fingers play the notes of the
+  position. The hand shifts only when the notes leave its position.
 - Pizzicato plucks the string. Tremolo makes short fast strokes.
-- **Bowed strings in detail** (`pose/strokes.ts`, `pose/bowed-rig.ts`, `pose/bowed.ts`):
+- **Bowed strings in detail** (`pose/fingering.ts`, `pose/strokes.ts`, `pose/bowed-rig.ts`,
+  `pose/bowed.ts`):
   - `docs/reference/string-technique.md` is the target of the motion of the hands and the bow of
-    the four instruments, with the source of each fact, and its section 3 lists where the app
-    differs from it.
+    the four instruments, with the source of each fact. Its section 3 gives the rules of the app
+    that follow it, and lists where the app differs from it.
   - Notes of a player that start within 50 ms of each other form one stroke, as a chord of 3.8.
     A note that still sounds at a new stroke joins it. Two pitches in a stroke are a double
     stop: the high note takes its string, the low note the string below, and the bow lies
     between the two strings.
-  - A note takes the highest open string at or below its pitch. The open strings are G3 D4 A4 E5
-    (violin), C3 G3 D4 A4 (viola), C2 G2 D3 A3 (cello), and E1 A1 D2 G2 (contrabass). The bow
-    turns 9° around the strings for each string (7° on the contrabass), to the bass side for a
-    low string.
-  - The middle of the left finger block presses the strings at the place of the note on the
-    target `fingerboard`, with the string length: one octave is half of the string, and the end
-    of the fingerboard is 20 semitones above the open string. The fingers point up from the
-    strings, tilted 30° over the neck to the side of the fingers, and the palm faces the neck
-    from below. The fingers curl 40°, and 15° more at the note start (the press). The press
-    does not move the hand. The places of the notes map evenly into the part of the fingerboard
+  - **Position plan** (`planHand()` of `pose/fingering.ts`). A position plan from the score
+    gives each stroke its string, its position, and its finger, before the play, so the pose after
+    a seek is the same. The open strings are G3 D4 A4 E5 (violin), C3 G3 D4 A4 (viola), C2 G2 D3
+    A3 (cello), and E1 A1 D2 G2 (contrabass). The plan is a search (Viterbi) over the candidates
+    of each stroke: each string that has the note, and each position whose hand frame reaches it
+    (`HAND_FRAMES`). The frame of the violin and the viola reaches a perfect fourth from the first
+    finger to the fourth finger, the cello a minor third, and the contrabass a whole tone, with
+    extensions and a thumb position from the octave on the cello and the contrabass. A double stop
+    takes two neighbor strings in one position. The cost of a plan (`FINGERING_COSTS`) counts each
+    shift and its semitones, more in a fast passage and less after an open string or a rest, a
+    high position, an extension, an open string of a long note, and each string that the bow
+    crosses. Each player takes the orchestral style: low positions and open strings. An open
+    string keeps the position, the reach, and the string of the finger of the stroke before it.
+    The bow turns 9° around the strings for each string (7° on the contrabass), to the bass side
+    for a low string.
+  - The middle of the left finger block presses the strings at the middle of the hand frame of
+    the position on the target `fingerboard`, with the string length: one octave is half of the
+    string, and the end of the fingerboard is 20 semitones above the open string. The fingers
+    point up from the strings, tilted 30° over the neck to the side of the fingers, and the palm
+    faces the neck from below. The fingers curl 40°, and 15° more at the note start (the press). The
+    press does not move the hand. The places of the hand map evenly into the part of the fingerboard
     that the left arm reaches with 97% of its length: the full fingerboard of the violin, the
     viola, and the cello, and 0.13 to 1 of it on the contrabass of the hippo. Its nut is 1.09
     of the arm length from the shoulder. The first left palm held the neck from below, 0.063 m
@@ -456,8 +469,15 @@ of each role.
     0.8, times the gesture size. A rest of at least 0.5 s ends a phrase: the next stroke is a
     down-bow from 12% of the bow range, and the bow moves there in the rest.
   - In a rest, the bow lifts up to 0.03 m (fully after 0.4 s of rest) in at most 0.1 s, and lands
-    in at most 0.15 s before the next note. The left hand and the string of the bow move to the
-    next note in the last 0.1 s before it.
+    in at most 0.15 s before the next note. The string of the bow moves to the next note in the
+    last 0.1 s before it.
+  - **Shift** (`LEFT_HAND` and `bowStateAt()` of `pose/strokes.ts`). The hand moves along the
+    neck only between two strokes with different positions, as one piece. The shift ends when the
+    finger of the new note lands, 0.03 s before the note, as the finger of a violinist lands 26 ms
+    to 41 ms before the bow change. It starts in the second half of the note before it, as Simon
+    Fischer advises, and takes at most 0.35 s, the time of six professional violinists for a
+    shift of a third. It follows the quintic ease `10x³ − 15x⁴ + 6x⁵`, so its speed has no jump
+    at the ends. In a rest, the shift takes the end of the rest.
   - Tremolo strokes run at 7 cycles a second with an amplitude of 0.02 m times the gesture size.
     Pizzicato keeps the bow in the hand with its tip up. The right palm is 0.035 m above the
     strings and flicks 0.012 m across them in 0.06 s at the note start. Between two plucks, the
