@@ -145,7 +145,8 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     },
   ],
   // The violinist rabbit: decisions/2026-10-14-fox-rabbit-form.md, 2026-10-14-neck-violin.md,
-  // 2026-10-16-hip-open.md, and 2026-10-17-fox-form.md.
+  // 2026-10-16-hip-open.md, 2026-10-17-fox-form.md, and 2026-10-17-rabbit-pose.md. The rabbit
+  // sits 4 cm further forward on a seat 4 cm deeper, so that its back keeps off the chair back.
   [
     'rabbit',
     {
@@ -153,6 +154,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       height: 0.8513179,
       seated: true,
       soloist: true,
+      backRoom: 0.04,
       constant: 'STUDIO_RABBIT',
       crease: 35,
       glb: 'assets/models/rabbit/rabbit-4.rig.glb',
