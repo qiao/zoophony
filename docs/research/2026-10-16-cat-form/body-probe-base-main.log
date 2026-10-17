@@ -159,7 +159,7 @@ pose boulanger-matin 14 contrabass/hippo/contrabass: play from sample 30 of 565 
 pose boulanger-matin 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 565 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 140.33 s, wall 10.00 s)
 pose boulanger-matin 16 harp/deer/harp: play from sample 12 of 565 (song 3.88 s, wall 15.50 s)
 pose boulanger-matin 17 piano/polar-bear/piano: play from sample 25 of 565 (song 10.38 s, wall 22.00 s)
-pose boulanger-matin 18 flute/fox-tan/flute: rest from sample 2 of 4 (song -1.62 s, wall 11.00 s), lower from sample 9 of 58 (song 140.33 s, wall 13.20 s)
+pose boulanger-matin 18 flute/fox-tan/flute: rest from sample 2 of 4 (song -1.62 s, wall 11.00 s), lower from sample 10 of 58 (song 140.33 s, wall 13.30 s)
 pose boulanger-matin 23 oboe/mouse/oboe: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s)
 pose boulanger-matin 24 clarinet/wolf/clarinet: rest from sample 3 of 4 (song -1.62 s, wall 12.00 s), lower from sample 8 of 58 (song 140.33 s, wall 13.10 s)
 pose boulanger-matin 25 clarinet/wolf/clarinet: lower from sample 13 of 58 (song 140.33 s, wall 13.60 s)

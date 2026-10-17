@@ -2,17 +2,17 @@
 > zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/cat-form
 > node tools/fold-probe.ts violist --base main --faces 8
 
-Folded faces of the studio body of the violist on main (7d7fca49) and on the working tree: 42.0 s.
+Folded faces of the studio body of the violist on main (71f8a428) and on the working tree: 51.4 s.
 
-| Set | main (7d7fca49) | Working tree |
+| Set | main (71f8a428) | Working tree |
 |---|---:|---:|
 | rest | 100.0% (14/14), most 9 (L 5 / R 4 / other 0) | 100.0% (14/14), most 16 (L 6 / R 10 / other 0) |
 | play | 100.0% (17788/17788), most 23 (L 11 / R 11 / other 1) | 100.0% (17788/17788), most 17 (L 3 / R 14 / other 0) |
 | lift | 100.0% (434/434), most 11 (L 5 / R 6 / other 0) | 100.0% (434/434), most 16 (L 6 / R 10 / other 0) |
 
-The faces of main (7d7fca49) and of the working tree have other corners, so the faces pair one to one by the nearest middles within 0.01 m.
+The faces of main (71f8a428) and of the working tree have other corners, so the faces pair one to one by the nearest middles within 0.01 m.
 
-| Face (tree) | Face (main (7d7fca49)) | main (7d7fca49): rest / play / lift | Working tree: rest / play / lift | Mark | Main bone | Worst sample, angle, bone of the fold |
+| Face (tree) | Face (main (71f8a428)) | main (71f8a428): rest / play / lift | Working tree: rest / play / lift | Mark | Main bone | Worst sample, angle, bone of the fold |
 |---:|---:|---|---|---|---|---|
 | 2116 | 1173 | 0.0% / 0.0% / 18.9% | 0.0% / 100.0% / 81.1% |  | hand_L | boulanger-matin.mid 278.13 s, 151°, turn of hand_L 159° |
 | 332 | - | 0.0% / 0.0% / 0.0% | 100.0% / 79.9% / 81.1% | new | forearm_R | mozart-k525.mid rest, 118°, turn of forearm_R 115° |
