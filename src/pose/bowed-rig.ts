@@ -487,7 +487,13 @@ export const BOWED_HOLDS = {
  *
  * The deeper chest of the cat form of 2026-10-17 (2026-10-16-cat-form decisions) took the room of
  * the left elbow: with the left elbow pole of the chin hold, the left upper arm went 5.5 cm into
- * the body in the play. The left elbow points out as far as down, and less forward.
+ * the body in the play. The left elbow points out as far as down, and less forward. The stick of
+ * the bow passes through the middle of the paw since 2026-10-17 (`SpeciesParams.bowGrip`), and the
+ * hand sits about 4 cm further out on the bow, so the right elbow of the play points a little
+ * further out than the elbow of the chin hold: with that elbow, the right upper arm went 0.6 cm
+ * into the body (0.0 cm before the grip), and with (1.1, -1, -1) 0.3 cm. The pole (1.2, -1, -1)
+ * gave 0.0 cm, but folded face 187 of the right clavicle in more play samples (2026-10-17-cat-bow
+ * decisions).
  *
  * The rest pose is the upright rest of the rabbit and the red fox, as a seated violinist
  * (2026-10-17-cat-bow decisions): the viola stands upright on the left thigh at 0.7 of the way to
@@ -512,6 +518,7 @@ const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
   playShift: [0.05, -0.05, 0.17],
   poleL: [-1, -1, -0.75],
+  poleR: [1.1, -1, -1],
   restPoleR: [1, -1, 2],
   restPoleL: [-1, -1, 0.5],
   rest: { ...LAP_VIOLIN, lap: { along: 0.7, offset: [0, 0, 0] } },
