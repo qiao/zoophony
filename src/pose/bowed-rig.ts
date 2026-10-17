@@ -419,9 +419,15 @@ export const BOWED_HOLDS = {
 } as const satisfies Readonly<Record<BowedInstrument, BowedHold>>;
 
 /**
+ * The hold of the viola under the chin, for the cat mesh (design 4.6, 5.3): the viola hold of
+ * {@link BOWED_HOLDS}.
+ */
+const CAT_HOLD = { ...BOWED_HOLDS.viola } as const satisfies BowedHold;
+
+/**
  * The holds of the species that hold a bowed string in their own way, in place of
  * {@link BOWED_HOLDS}: the rabbits and the red foxes hold the violin on the left shoulder, as in
- * `rabbit-views.png`.
+ * `rabbit-views.png`, and the cat holds the viola with its own hold.
  * The tools change them in memory with `--set '<instrument>@<species>.<path>=<value>'`
  * (`tools/hold-sets.ts`).
  */
@@ -430,6 +436,7 @@ export const SPECIES_HOLDS: Partial<
 > = {
   rabbit: { violin: SHOULDER_HOLD },
   'fox-red': { violin: FOX_HOLD },
+  cat: { viola: CAT_HOLD },
 };
 
 /**
