@@ -4,15 +4,9 @@ import { chord, note, noteOff, noteOn, programChange, tempo, track } from '../mi
 import type { TestEvent } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { SectionSize } from '../score/types.ts';
+import { TUNINGS, fingerboardPlace } from './fingering.ts';
 import { noteLoudness } from './loudness.ts';
-import {
-  BOW_MOTION,
-  TUNINGS,
-  bowStateAt,
-  buildStrokes,
-  createBowState,
-  fingerboardPlace,
-} from './strokes.ts';
+import { BOW_MOTION, bowStateAt, buildStrokes, createBowState } from './strokes.ts';
 import type { BowState, Stroke } from './strokes.ts';
 
 /** The bow range of the tests: a hair of 0.5 m with 0.03 m kept free at each end. */

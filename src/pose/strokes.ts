@@ -1,6 +1,6 @@
 import type { PlayerNote, Technique } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
-import type { InstrumentOf } from './family.ts';
+import { FINGERBOARD_SEMITONES, fingerboardPlace } from './fingering.ts';
 import { gestureSize } from './loudness.ts';
 import { CHORD_SEC, PHRASE_GAP_SEC, groupChords } from './note-groups.ts';
 import { clamp01, smoothstep } from './rest.ts';
@@ -46,20 +46,6 @@ export const BOW_MOTION = {
   /** The time constant of the press of the left fingers at each note. */
   pressSec: 0.12,
 } as const;
-
-/**
- * The semitones from the open string to the end of the fingerboard. The left hand reaches the
- * end of the target `fingerboard` at this interval.
- */
-export const FINGERBOARD_SEMITONES = 20;
-
-/** The open strings of each bowed string, low to high, as MIDI keys (design 4.6). */
-export const TUNINGS = {
-  violin: [55, 62, 69, 76],
-  viola: [48, 55, 62, 69],
-  cello: [36, 43, 50, 57],
-  contrabass: [28, 33, 38, 43],
-} as const satisfies Readonly<Record<InstrumentOf<'bowed'>, readonly number[]>>;
 
 /** The part of the bow hair that a player uses, in meters from the frog end of the hair. */
 export type BowRange = readonly [low: number, high: number];
@@ -146,18 +132,6 @@ function stopOf(pitch: number, tuning: readonly number[]): Stop {
   }
   const semitones = Math.min(FINGERBOARD_SEMITONES, Math.max(0, pitch - (tuning[string] ?? pitch)));
   return { string, semitones };
-}
-
-/**
- * Gives the place of the left hand on the fingerboard for a stop. The place follows the string
- * length: one octave is half of the string.
- *
- * @param semitones The semitones above the open string.
- * @returns 0 at the nut, 1 at the end of the fingerboard.
- */
-export function fingerboardPlace(semitones: number): number {
-  const k = Math.max(1, semitones);
-  return (1 - 2 ** (-k / 12)) / (1 - 2 ** (-FINGERBOARD_SEMITONES / 12));
 }
 
 /** The string of a stroke and the place of the left hand. */
