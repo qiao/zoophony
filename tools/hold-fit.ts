@@ -29,9 +29,17 @@
  * tilt of the violin, the place of the left palm on it, the upright bow at the right side, and the
  * place of the right elbow (`tools/lap-rest.ts`).
  *
+ * `--scan` scans variants of the rest of a role with a lap rest in a part of the time: for each
+ * variant, it builds only the rig of one seated player again, and measures one rest sample at the
+ * wall time `SCAN_WALL` of `tools/lap-rest.ts`, or one sample at each wall time of `--walls`
+ * ({@link scanHolds}). With no `--demo`, the sample is the first seated body of the role in the
+ * first demo of the run. It goes with `--set`, `--grid` (up to {@link SCAN_GRID_LIMIT} variants),
+ * and `--demo`.
+ *
  * Usage: pnpm hold-fit <role> [--set <path>=<value>[;<path>=<value>]...]...
  * [--grid <path>=<a>:<b>:<step>]... [--sets <set>[,<set>]...] [--demo <id>|all]...
- * [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>]
+ * [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>], or pnpm hold-fit <role> --scan
+ * [--walls <seconds>[,<seconds>]...] [--set <changes>]... [--grid <grid>]... [--demo <id>|all]...
  */
 import { writeFileSync } from 'node:fs';
 
@@ -44,12 +52,12 @@ import {
   roleBodies,
   splitText,
 } from './fold-probe.ts';
-import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
+import type { FoldCount, FoldReport, RoleSource, SideSplit } from './fold-probe.ts';
 import { freeRestReach, holdReach, rangeTexts, reachShare, ruleSize } from './hold-reach.ts';
 import type { ChinInstrument, HoldReach } from './hold-reach.ts';
 import { setHolds } from './hold-sets.ts';
-import { PAW_PLACES, probeLaps } from './lap-rest.ts';
-import type { LapWorst, LapWorsts } from './lap-rest.ts';
+import { PAW_PLACES, SCAN_WALL, lapWorsts, probeLaps, scanRest, scanSamples } from './lap-rest.ts';
+import type { LapWorst, LapWorsts, ScanSample } from './lap-rest.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { compareDepths, restoreDepth, restoreResult, sweepDemos } from './pose-depth.ts';
@@ -89,6 +97,12 @@ export const PLAY_FOLD_GOAL = 0.01;
 
 /** The largest number of variants of the grids of a run. One variant takes 45 s to 90 s. */
 export const GRID_LIMIT = 40;
+
+/**
+ * The largest number of variants of the grids of a scan (`--scan`). One variant of the violinist
+ * takes about 0.04 s for each rest sample.
+ */
+export const SCAN_GRID_LIMIT = 1000;
 
 /**
  * The sample sets of a run: the play, the lift of the arms at the start, the rest pose before the
@@ -166,7 +180,8 @@ export const UPPER_ARM_GOAL = 35;
 export const LEG_RESTS: ReadonlySet<string> = new Set(['flute@fox-tan']);
 
 /** The usage text of `pnpm hold-fit`. */
-const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>]`;
+const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>]
+       pnpm hold-fit <role> --scan [--walls <seconds>[,<seconds>]...] [--set <changes>]... [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]...`;
 
 /**
  * Tells if a text is the name of a sample set of a run.
@@ -311,6 +326,28 @@ export interface FitOptions {
   readonly json: string | null;
   /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
   readonly base: string | null;
+  /** True for the scan of `--scan` ({@link scanHolds}). */
+  readonly scan: boolean;
+  /** The wall times of the rest samples of the scan, in seconds: `--walls`, or `SCAN_WALL`. */
+  readonly walls: readonly number[];
+}
+
+/** The options that do not go with `--scan`: the scan has one sample set and no sweep. */
+const SCAN_REFUSES: readonly string[] = ['--base', '--json', '--faces', '--sets', '--step'];
+
+/**
+ * Reads the wall times of `--walls`.
+ *
+ * @param value The times in seconds, separated by commas, such as `10,21.1`.
+ * @returns The times.
+ * @throws Error if a time is not a number of 0 or more, or if the list is empty.
+ */
+export function parseWalls(value: string): number[] {
+  const walls = value.split(',').map((text) => (text.trim() === '' ? Number.NaN : Number(text)));
+  if (walls.length === 0 || walls.some((wall) => !Number.isFinite(wall) || wall < 0)) {
+    throw new Error(`The option --walls takes wall times of 0 s or more, and "${value}" has none.`);
+  }
+  return walls;
 }
 
 /**
@@ -320,7 +357,8 @@ export interface FitOptions {
  * @param args The arguments after the script.
  * @returns The options.
  * @throws Error if the role or an option is not known, if an option has no value, if the step is
- *   not above 0, if a set of `--sets` is not known, or if a change of `--set` does not fit a hold.
+ *   not above 0, if a set of `--sets` is not known, if a change of `--set` does not fit a hold, if
+ *   `--scan` comes with an option of {@link SCAN_REFUSES}, or if `--walls` comes with no `--scan`.
  */
 export function parseFitOptions(args: readonly string[]): FitOptions {
   const [name = '', ...rest] = args;
@@ -331,17 +369,27 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   const sets: string[] = [];
   const grids: string[] = [];
   const demos: string[] = [];
+  const given = new Set<string>();
   let step = FIT_STEP;
   let samples: readonly FitSet[] = FIT_SETS;
   let faces = 0;
   let json: string | null = null;
   let base: string | null = null;
-  for (let i = 0; i < rest.length; i += 2) {
+  let scan = false;
+  let walls: readonly number[] | null = null;
+  for (let i = 0; i < rest.length; i++) {
+    const option = rest[i] ?? '';
+    given.add(option);
+    if (option === '--scan') {
+      scan = true;
+      continue;
+    }
     const value = rest[i + 1];
     if (value === undefined) {
-      throw new Error(`The option "${rest[i]}" has no value.\n${USAGE}`);
+      throw new Error(`The option "${option}" has no value.\n${USAGE}`);
     }
-    switch (rest[i]) {
+    i++;
+    switch (option) {
       case '--set':
         sets.push(value);
         break;
@@ -372,12 +420,23 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
           throw new Error('The step must be a number of seconds above 0.');
         }
         break;
+      case '--walls':
+        walls = parseWalls(value);
+        break;
       default:
-        throw new Error(`The option "${rest[i]}" is not known.\n${USAGE}`);
+        throw new Error(`The option "${option}" is not known.\n${USAGE}`);
     }
   }
+  const refused = SCAN_REFUSES.filter((option) => given.has(option));
+  if (scan && refused.length > 0) {
+    throw new Error(`The option --scan goes with none of ${refused.join(', ')}.\n${USAGE}`);
+  }
+  if (!scan && walls !== null) {
+    throw new Error(`The option --walls needs --scan.\n${USAGE}`);
+  }
   const bases = sets.length > 0 ? sets : [''];
-  const variants = ['', ...(grids.length > 0 ? gridVariants(grids, bases) : sets)];
+  const limit = scan ? SCAN_GRID_LIMIT : GRID_LIMIT;
+  const variants = ['', ...(grids.length > 0 ? gridVariants(grids, bases, limit) : sets)];
   for (const variant of variants) {
     setHolds(variant).undo();
   }
@@ -396,6 +455,8 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
     sets: samples,
     json,
     base,
+    scan,
+    walls: walls ?? [SCAN_WALL],
   };
 }
 
@@ -899,6 +960,33 @@ function lapCells(lap: LapWorsts | null, bow: boolean): string[] {
 }
 
 /**
+ * Writes the header cells of the lap rest ({@link lapCells}).
+ *
+ * @param bow True for a table with the violin columns.
+ * @returns The cells.
+ */
+function lapHeader(bow: boolean): string[] {
+  return [
+    'Rest end gap cm (in body)',
+    ...(bow
+      ? [
+          'Rest violin in body cm',
+          'Rest violin tilt °',
+          'Rest paw L place',
+          'Rest bow tilt °',
+          'Rest frog gap cm (in body)',
+          'Rest bow in body cm',
+          'Rest bow in arms cm',
+          'Rest elbow R rise cm',
+          'Rest elbow R back cm',
+          'Rest elbow R out cm',
+          'Rest upper arm R °',
+        ]
+      : []),
+  ];
+}
+
+/**
  * Writes the table of `pnpm hold-fit`: one row for each variant, with the play folds and the lift
  * folds, the most folded faces of one rest sample by side, the deepest point of each sample set in
  * cm with its pair and its limit, the instrument in the body with its set, the gap of each free
@@ -934,22 +1022,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
     ...(held ? ['Instrument in body cm (limit)'] : []),
     ...paws.map((paw) => `Rest gap ${paw} cm`),
     ...sides.map((side) => `Rest reach ${side}`),
-    ...(lap ? ['Rest end gap cm (in body)'] : []),
-    ...(bow
-      ? [
-          'Rest violin in body cm',
-          'Rest violin tilt °',
-          'Rest paw L place',
-          'Rest bow tilt °',
-          'Rest frog gap cm (in body)',
-          'Rest bow in body cm',
-          'Rest bow in arms cm',
-          'Rest elbow R rise cm',
-          'Rest elbow R back cm',
-          'Rest elbow R out cm',
-          'Rest upper arm R °',
-        ]
-      : []),
+    ...(lap ? lapHeader(bow) : []),
     ...(violin ? ['Rule scale', 'Violin m', 'stopRange', 'bowRange'] : []),
   ];
   const lines = [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`];
@@ -1006,6 +1079,92 @@ export function fitTable(rows: readonly FitRow[]): string[] {
     lines.push(`| ${cells.join(' | ')} |`);
   }
   return lines;
+}
+
+/** The rest of one variant in one rest sample of a scan (`--scan`). */
+export interface ScanRow {
+  /** The text of the changes, or empty for the base. */
+  readonly variant: string;
+  /** The rest sample ({@link ScanSample.sample}). */
+  readonly sample: string;
+  /** The folded faces of the studio skin by the side of their main bone. */
+  readonly folds: SideSplit;
+  /** The lap rest of the sample, as the largest values of one sample, or `null` for none. */
+  readonly lap: LapWorsts | null;
+}
+
+/**
+ * Counts the goals of the lap rest that a scan row misses: the cells of {@link lapCells} with the
+ * mark `OVER`.
+ *
+ * @param row The row.
+ * @param bow True for a table with the violin columns.
+ * @returns The number of cells with the mark.
+ */
+export function scanMisses(row: ScanRow, bow: boolean): number {
+  return lapCells(row.lap, bow).filter((cell) => cell.includes('OVER')).length;
+}
+
+/**
+ * Writes the table of a scan: one row for each variant and rest sample, with the folded faces of
+ * the studio skin by side, the goals that the row misses ({@link scanMisses}), and the cells of the
+ * lap rest of the rest columns of a run ({@link lapCells}). A run with one sample has no column of
+ * the sample.
+ *
+ * @param rows The rows, the base first.
+ * @returns The lines.
+ */
+export function scanTable(rows: readonly ScanRow[]): string[] {
+  const samples = new Set(rows.map((row) => row.sample)).size > 1;
+  const bow = rows.some((row) => row.lap?.bowTilt);
+  const header = [
+    'Variant',
+    ...(samples ? ['Sample'] : []),
+    'Rest faces (by side)',
+    'Goals missed',
+    ...lapHeader(bow),
+  ];
+  const lines = [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`];
+  for (const row of rows) {
+    const { L, R, other } = row.folds;
+    const cells = [
+      row.variant || 'base',
+      ...(samples ? [row.sample] : []),
+      `${L + R + other} (${splitText(row.folds)})`,
+      String(scanMisses(row, bow)),
+      ...lapCells(row.lap, bow),
+    ];
+    lines.push(`| ${cells.join(' | ')} |`);
+  }
+  return lines;
+}
+
+/**
+ * Sorts the rows of a scan by variant: the base first, then the variants by the goals that they
+ * miss over their samples ({@link scanMisses}), and at the same count by their folded faces. The
+ * rows of one variant stay together, in the order of the samples.
+ *
+ * @param rows The rows, the base first, the rows of each variant together.
+ * @returns The sorted rows.
+ */
+export function sortScanRows(rows: readonly ScanRow[]): ScanRow[] {
+  const bow = rows.some((row) => row.lap?.bowTilt);
+  const groups = new Map<string, ScanRow[]>();
+  for (const row of rows) {
+    const group = groups.get(row.variant) ?? [];
+    group.push(row);
+    groups.set(row.variant, group);
+  }
+  const sum = (group: readonly ScanRow[], value: (row: ScanRow) => number): number =>
+    group.reduce((total, row) => total + value(row), 0);
+  const misses = (group: readonly ScanRow[]): number => sum(group, (row) => scanMisses(row, bow));
+  const folds = (group: readonly ScanRow[]): number =>
+    sum(group, (row) => row.folds.L + row.folds.R + row.folds.other);
+  const [base, ...variants] = [...groups.values()];
+  return [
+    ...(base ?? []),
+    ...variants.toSorted((a, b) => misses(a) - misses(b) || folds(a) - folds(b)).flat(),
+  ];
 }
 
 /**
@@ -1065,17 +1224,23 @@ export function faceSections(
  * @param grids The grids.
  * @param bases The number of variants of `--set` that the grids go on top of: 1 with no `--set`.
  * @param limit The largest number of variants of the grids.
- * @returns The text, such as `Grids: 3 × 4 = 12 variants (the limit is 40).`, or empty with no
- *   grid.
+ * @param order The order of the sorted rows.
+ * @returns The text, such as `Grids: 3 × 4 = 12 variants (the limit is 40), sorted by ...`, or
+ *   empty with no grid.
  */
-function gridText(grids: readonly string[], bases: number, limit: number = GRID_LIMIT): string {
+function gridText(
+  grids: readonly string[],
+  bases: number,
+  limit: number = GRID_LIMIT,
+  order = 'the play folds, then by the deepest point',
+): string {
   if (grids.length === 0) {
     return '';
   }
   const counts = grids.map((grid) => gridChanges(grid).length);
   const total = counts.reduce((product, n) => product * n, 1);
   const on = bases > 1 ? ` on top of each of ${bases} --set variants, ${total * bases} in all` : '';
-  return `Grids: ${counts.join(' × ')} = ${total} variants${on} (the limit is ${limit}), sorted by the play folds, then by the deepest point.`;
+  return `Grids: ${counts.join(' × ')} = ${total} variants${on} (the limit is ${limit}), sorted by ${order}.`;
 }
 
 /**
@@ -1315,9 +1480,100 @@ async function compareFit(options: FitOptions, ref: string): Promise<void> {
   }
 }
 
+/**
+ * Finds the rest samples of a scan ({@link scanSamples}): with `--demo`, the first seated body of
+ * the role in each demo of the run, and with no `--demo`, only in the first demo of the run with a
+ * seated body of the role.
+ *
+ * @param options The options.
+ * @param demos The demos of the run.
+ * @returns The samples.
+ * @throws Error if no demo of the run has a seated body of the role.
+ */
+function scanSamplesOf(options: FitOptions, demos: readonly DemoFile[]): ScanSample[] {
+  if (options.demos.length > 0) {
+    return scanSamples(options.role, demos, options.walls);
+  }
+  for (const demo of demos) {
+    const samples = scanSamples(options.role, [demo], options.walls);
+    if (samples.length > 0) {
+      return samples;
+    }
+  }
+  throw new Error(`No demo of the run has a seated body of the ${options.name}.`);
+}
+
+/**
+ * Scans the variants of the rest of a role with a lap rest (`--scan`). For each variant, it builds
+ * only the rig of the player of each rest sample again (`scanRest()` of `tools/lap-rest.ts`), in
+ * place of the scenes of each demo, and writes one row for each variant and sample: the folded
+ * faces of the studio skin by side and the cells of the lap rest of the rest columns. With a
+ * grid, the rows are sorted by {@link sortScanRows}. It prints its samples and its time.
+ *
+ * @param options The options.
+ * @throws Error if the role has no lap rest or no sweep with a body, or if no demo of the run has
+ *   a seated body of the role.
+ */
+async function scanHolds(options: FitOptions): Promise<void> {
+  if (!hasLapRest(options.role)) {
+    throw new Error(
+      `The scan measures the lap rest, and the ${options.name} has no lap rest: only a violin, a viola, or a wind hold of LEG_RESTS has one.`,
+    );
+  }
+  const started = performance.now();
+  const { demos, first } = await fitDemos(options);
+  const body = fitSweep(options.role, first, ['rest'])?.obstacles.find(
+    (obstacle) => obstacle.name === BODY_OBSTACLE,
+  );
+  if (!body) {
+    throw new Error(`The ${options.name} has no sweep with the obstacle ${BODY_OBSTACLE}.`);
+  }
+  const samples = scanSamplesOf(options, demos);
+  console.log(
+    `Hold scan of the ${options.name}: the lap rest and the folded faces by side of ${samples.length} rest sample${samples.length > 1 ? 's' : ''}. Each variant builds only the rig of the player again.`,
+  );
+  for (const { sample } of samples) {
+    console.log(`Rest sample: ${sample}`);
+  }
+  const grid = gridText(
+    options.grids,
+    options.gridBases,
+    SCAN_GRID_LIMIT,
+    'the goals missed, then by the folded faces',
+  );
+  if (grid) {
+    console.log(grid);
+  }
+
+  const scanned = performance.now();
+  const rows: ScanRow[] = [];
+  for (const variant of options.variants) {
+    const { undo, text } = setHolds(variant);
+    try {
+      for (const sample of samples) {
+        const rest = scanRest(sample, body);
+        const lap = rest.lap ? lapWorsts([{ sample: rest.sample, rest: rest.lap }]) : null;
+        rows.push({ variant: text, sample: rest.sample, folds: rest.folds, lap });
+      }
+    } finally {
+      undo();
+    }
+  }
+  const done = performance.now();
+  console.log(['', ...scanTable(options.grids.length > 0 ? sortScanRows(rows) : rows)].join('\n'));
+  const count = options.variants.length;
+  console.log(
+    `\nScan of ${count} variants × ${samples.length} samples: ${((done - scanned) / 1000).toFixed(1)} s, ${((done - scanned) / 1000 / count).toFixed(3)} s for each variant, and ${((scanned - started) / 1000).toFixed(1)} s for the scenes of the demos.`,
+  );
+}
+
 /** Runs the tool: `node tools/hold-fit.ts <role> [options]`. */
 async function main(): Promise<void> {
   const options = parseFitOptions(process.argv.slice(2));
+  if (options.scan) {
+    await scanHolds(options);
+    return;
+  }
   if (options.base !== null) {
     await compareFit(options, options.base);
     return;
