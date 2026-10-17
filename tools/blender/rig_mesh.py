@@ -14,9 +14,10 @@ reads it (route 3 of `AGENTS.md`). The steps:
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones, and give the weights with bone heat. Then the
    rules of the config: the free arm, the clavicles below the shoulders and the arms up the neck,
-   the paw, the head and the shoulders, the ears, the tail (a ball on one tail bone, or a ramp
-   along a tail of two bones), the haunch, one set of weights for the corners of each short thin
-   face, and the weights of the line for the middle corner of each long thin face. Each vertex
+   the clavicles over the top of the shoulders (`shoulderRamp`), the paw, the head and the
+   shoulders, the ears, the tail (a ball on one tail bone, or a ramp along a tail of two bones),
+   the haunch, one set of weights for the corners of each short thin face, and the weights of the
+   line for the middle corner of each long thin face. Each vertex
    keeps four bones, in steps of 1/255. With `smooth` of the config, the vertices inside a box
    first move toward the middle of their neighbors (`smooth_box()`), before the weights. The file
    then gives the move of the head center back to the head before the smoothing (`head_shift()`),
@@ -648,6 +649,20 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
                 taken = w[:, col[f'{bone}_{side}']] * (1.0 - keep)
                 w[:, col[f'{bone}_{side}']] -= taken
                 w[:, col['neck']] += taken
+
+    # The top of the shoulder: above the heights of `y`, the share of the upper arm weight that a
+    # vertex keeps grows from 0 at the distance x[0] from the middle plane to 1 at x[1], and the
+    # clavicle of its side takes the rest. Thus the faces from the neck to the root of the arm
+    # bend over several rings of faces, and no face spans the whole turn of a lowered arm.
+    if 'shoulderRamp' in rules:
+        rule = rules['shoulderRamp']
+        above = smoothstep(y, *rule['y'])
+        keep = 1.0 - (1.0 - smoothstep(np.abs(verts[:, 0]), *rule['x'])) * above
+        for side, sign in (('L', 1.0), ('R', -1.0)):
+            mine = verts[:, 0] * sign > 0
+            taken = w[:, col[f'upper_arm_{side}']] * (1.0 - keep) * mine
+            w[:, col[f'upper_arm_{side}']] -= taken
+            w[:, col[f'clavicle_{side}']] += taken
 
     # The paw: the fingers keep a share of their weight, and the hand takes the rest.
     for side in 'LR':
