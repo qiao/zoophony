@@ -2,6 +2,7 @@ import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
 import type { StudioPalette } from './studio-format.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
+import { STUDIO_CAT } from './studio/cat.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
@@ -239,15 +240,23 @@ export const SPECIES = {
     accentParts: ['snout'],
     proportions: { headHeight: STUDIO_BEAR.headHeight },
   },
-  /** Cat, the violas. */
+  /**
+   * Gray cat with a cream belly, the violas (`cat-views.png`). It has the studio body of the mesh
+   * of the user, `assets/models/cat/cat.glb`, which `pnpm rig-mesh cat` rigs (design 4.4), with the
+   * size, the reach, and the leg factor of the red fox that the user chose (2026-10-16-mesh-cat
+   * decisions). It sits with its tail back through the chair, and stands as a soloist. Its head
+   * height is the head of the studio body, and its chair fits its legs: the seat height is the seat
+   * of the studio body, in H.
+   */
   cat: {
-    ears: 'pointed',
-    snout: 'short',
-    tail: 'thin',
-    size: 0.95,
+    body: 'studio-cat',
+    size: 1,
     colors: SPECIES_COLORS.cat,
-    accentParts: ['face-pattern'],
-    facePattern: 'forehead-stripes',
+    accentParts: ['inner-ears', 'nose'],
+    proportions: {
+      headHeight: STUDIO_CAT.headHeight,
+      seatHeight: STUDIO_CAT.seatHeight / STUDIO_CAT.headHeight,
+    },
   },
   /** Hippo, the contrabasses. */
   hippo: {
