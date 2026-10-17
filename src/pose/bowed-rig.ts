@@ -399,7 +399,9 @@ const SHOULDER_HOLD = {
  * (2026-10-14-fox-rabbit-fix decisions). The bow paw reaches 0.265 m of the hair, more than half.
  *
  * The rest pose is the upright rest of the rabbit (2026-10-16-bow-rest decisions): the violin
- * stands on the left thigh at 0.65 of the way to the knee, 0.24 H down and 0.3 H forward. The long
+ * stands on the left thigh at 0.8 of the way to the knee, 0.18 H down and 0.2 H forward. With the
+ * thighs 25° down of 2026-10-17, the place of 2026-10-16 (0.65 of the way, 0.24 H down, and 0.3 H
+ * forward) put the lower end 13.8 cm above the thigh (2026-10-17-fox-form decisions). The long
  * right arm of the fox reaches the right thigh only nearly straight, and its line from the
  * shoulder to a paw on the top of the thigh passes through the side of the belly: with the grip
  * 0.15 H out at 0.65 of the way, the right upper arm went 6.2 cm into the body. So the grip is
@@ -418,7 +420,7 @@ const FOX_HOLD = {
   freeHair: 0.12,
   restPoleL: [-0.3, -1, 0.3],
   restPoleR: [0.3, -1, 0.3],
-  rest: { ...LAP_VIOLIN, lap: { along: 0.65, offset: [0, -0.24, -0.3] } },
+  rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   restBow: {
     lap: { along: 0.55, offset: [0.3, -0.1, -0.15] },
     tip: UPRIGHT_BOW.tip,
