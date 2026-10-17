@@ -234,13 +234,15 @@ function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigV
 
 /**
  * The optional rules of a config that a variant of `--set` can add, by their path, each with a
- * value of the kind of its value: the trunk factor (`trunkFactor`), the girth factor
- * (`girthFactor`), the root share of the tail in
+ * value of the kind of its value: the head factor (`headFactor`), the neck factor (`neckFactor`),
+ * the trunk factor (`trunkFactor`), the girth factor (`girthFactor`), the root share of the tail in
  * the sit of the haunch (`sit.root`), the fixed seat top of the sit (`sit.top`), the curve of the
  * curled seated tail (`studio.tailCurl`), and the move of the colors of the plain fur
  * (`colors.tone`). `tools/blender/rig_mesh.py` describes each rule.
  */
 const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, ConfigValue>([
+  ['headFactor', 1],
+  ['neckFactor', 1],
   ['trunkFactor', 1],
   ['girthFactor', 1],
   ['sit.root', [0, 1]],
