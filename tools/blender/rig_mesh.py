@@ -1903,12 +1903,16 @@ def sit(bind, tris, weights, chair, rule, hip):
     arms do not move, and a vertex with a part of its weight on them moves by the rest. The vertices
     never go below the seat top. With `root` (two shares of the tail), the vertices of the root of
     the tail, which share their weight with the hips, move and count as the haunch
-    (`seat_masks()`). The corrective shapes give the source back, so the standing body keeps its
-    form. Gives the moved bind mesh, the number of moved vertices, the largest drop, and the
+    (`seat_masks()`). With `top` (units), the drop goes to that seat top in place of the lowest
+    point over the seat, so that a change of the tail does not move the seat. The corrective
+    shapes give the source back, so the standing body keeps its form. Gives the moved bind mesh, the number of moved vertices, the largest drop, and the
     largest gap of the side view before and after."""
     step = rule['step']
     root = rule.get('root')
     top, xs, zs, gaps = seat_gaps(bind, tris, weights, chair, hip, step, 2 * rule['band'], root)
+    if 'top' in rule:
+        gaps = gaps + top - rule['top']
+        top = rule['top']
     before = silhouette_gap(xs, zs, gaps, rule['end'])
     drop = np.where(np.isfinite(gaps), np.clip(gaps - rule['gap'], 0.0, rule['most']), np.nan)
     drop *= 1.0 - smoothstep(zs, hip - rule['ramp'], hip)[None, :]

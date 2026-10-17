@@ -222,11 +222,13 @@ function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigV
 /**
  * The optional rules of a config that a variant of `--set` can add, by their path, each with a
  * value of the kind of its value: the root share of the tail in the sit of the haunch
- * (`sit.root`), the curve of the curled seated tail (`studio.tailCurl`), and the move of the
- * colors of the plain fur (`colors.tone`). `tools/blender/rig_mesh.py` describes each rule.
+ * (`sit.root`), the fixed seat top of the sit (`sit.top`), the curve of the curled seated tail
+ * (`studio.tailCurl`), and the move of the colors of the plain fur (`colors.tone`).
+ * `tools/blender/rig_mesh.py` describes each rule.
  */
 const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, ConfigValue>([
   ['sit.root', [0, 1]],
+  ['sit.top', 0],
   ['studio.tailCurl', { points: [[0, 0, 0]] }],
   ['colors.tone', { chroma: 0, light: [0, 1], keep: [], points: [[0, 0, 0, 0]] }],
 ]);
