@@ -3,7 +3,10 @@
  * violist of a demo at some song times, for `arm-render.py` (research of 2026-10-17, round
  * `cat-hand`). The points are in meters in the model axes of the player (it faces -z, its left is
  * -x), from the posed left wrist. `--set` takes the changes of `pnpm pose-depth --set`, such as
- * `viola@cat.highTilt=0deg` for the paw of `main`.
+ * `viola@cat.highTilt=0deg` for the paw of `main`. For each time, it also writes the depth of the
+ * left forearm in the viola, in meters, as the sweep measures it (`closedDepth()`), and the bend of
+ * the wrist: the angle in degrees between the forearm (elbow to wrist) and the paw (wrist to the
+ * finger joint).
  *
  * Usage, from the root of the tree:
  *
@@ -13,6 +16,7 @@ import { writeFileSync } from 'node:fs';
 import { Vector3 } from 'three';
 
 import { boneIndex } from '../../../src/models/rig.ts';
+import { closedDepth } from '../../../src/pose/test-clearance.ts';
 import { poseSkeleton } from '../../../src/pose/test-kinematics.ts';
 import { sceneOf } from '../../../src/pose/test-scene.ts';
 import { posedCorner } from '../../../src/pose/test-skin.ts';
@@ -62,7 +66,20 @@ for (const time of times) {
       kind === 'arm' ? 1 : kind === 'viola' ? 2 : 0,
     ]);
   }
-  result[time] = { tris };
+  const viola = VIOLIST_SWEEP.obstacles.find((o) => o.name === 'viola')?.surface(posed);
+  const forearm: Vector3[] = [];
+  for (let c = 0; c < bones.length; c++) {
+    if (bones[c] === boneIndex('forearmL')) {
+      forearm.push(new Vector3(...posedCorner(posed, c)));
+    }
+  }
+  const depth = viola ? closedDepth(forearm, viola).depth : Number.NaN;
+  const at = (bone: 'forearmL' | 'handL' | 'fingersL'): Vector3 =>
+    posed.frames[boneIndex(bone)]?.position.clone() ?? new Vector3();
+  const bend = at('handL')
+    .sub(at('forearmL'))
+    .angleTo(at('fingersL').sub(at('handL')));
+  result[time] = { tris, depth, bend: (bend * 180) / Math.PI };
 }
 writeFileSync(out, JSON.stringify(result));
 restore?.();

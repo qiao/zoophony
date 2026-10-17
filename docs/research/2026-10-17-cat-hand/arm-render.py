@@ -5,7 +5,8 @@ uv run --no-project --with matplotlib --with numpy --with pillow python -I arm-r
 
 wrist-views.webp: the left arm, the paw, the chest, the head, and the viola of the first cat violist
 of mozart-k191 at 223.3 s (fifth position), boulanger-matin at 59.13 s (fourth position), and
-bach-bwv1048 at 265.5 s (third position). "main" is the branch with viola@cat.highTilt=0deg, which
+bach-bwv1048 at 265.5 s (third position). "branch" is the first value of the branch,
+viola@cat.highTilt=45deg. "main" is the branch with viola@cat.highTilt=0deg, which
 poses the cat as main does (body-probe.txt of the rule commit: no pose set changes). The axes are the
 model axes of the player: it faces -z, and its left is -x. The left arm and the paw have their own
 colors, the body is gray, and the viola is brown. Each view is 0.22 m wide around the left wrist (the red cross).
