@@ -452,10 +452,12 @@ export const BOWED_HOLDS = {
  * The rest pose keeps the rest of the cat violas: the viola stands on the left thigh, and the bow
  * lies along the outer side of the right knee. The thighs of the cat mesh are long, so the bow
  * paw does not reach the knee: with the grip at the knee, the straight right arm went 6.9 cm into
- * the body. The grip is 0.35 H out from the right thigh at half of the way to the knee, and the
+ * the body. The grip is 0.35 H out from the right thigh at 0.4 of the way to the knee, and the
  * bow runs forward and a little down along the thigh past the outer side of the knee. The viola
- * stands 0.35 H lower and 0.15 H further forward on the left thigh, so that its lower end is near
- * the thigh. In the lift and the lowering, the bow turns through the front with the grip 0.6 H to
+ * stands at 0.95 of the way to the knee, 0.4 H lower and 0.15 H further forward on the left thigh,
+ * so that its lower end is near the thigh. With the longer thighs of the trunk of the red fox
+ * (2026-10-16-cat-trunk decisions), the grip at half of the way went 5.1 cm into the body with
+ * the right forearm, and the viola at 0.85 of the way 2.7 cm into the body. In the lift and the lowering, the bow turns through the front with the grip 0.6 H to
  * the front, as the upright bow of the violins (`UPRIGHT_BOW`). With a direct mix, the right
  * forearm went 7.4 cm into the body while the arms lowered.
  *
@@ -467,9 +469,9 @@ const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
   playShift: [0.05, -0.05, 0.17],
   restPoleR: [1, -1, 0],
-  rest: { ...CHIN_HOLD.rest, lap: { along: 0.85, offset: [0, -0.35, -0.15] } },
+  rest: { ...CHIN_HOLD.rest, lap: { along: 0.95, offset: [0, -0.4, -0.15] } },
   restBow: {
-    lap: { along: 0.5, offset: [0.35, -0.1, -0.1] },
+    lap: { along: 0.4, offset: [0.35, -0.1, -0.1] },
     tip: [0.1, -0.27, -1],
     hair: [0, -1, 0.2],
     via: { ...UPRIGHT_BOW.via, reach: [0, 0, -0.6] },
