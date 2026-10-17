@@ -552,59 +552,66 @@ async function renderViews(
   return { cells, labels };
 }
 
+/** The site of the working tree, with the browser of the tool. */
+interface TreeSite {
+  /** The URL of the site. */
+  readonly base: string;
+  /** The browser. */
+  readonly browser: Browser;
+}
+
 /**
- * Builds a commit in a temporary folder, serves its site, and renders the close view of a role
- * there. Then it writes the grid of the commit above the grid of the working tree as
- * `<role>-base-views.png` and `<role>-base-views.webp`, and each cell of the commit as
- * `<role>-base-<moment>-<view>.png`.
- *
- * @param browser The browser.
- * @param ref The commit, the branch, or the tag.
- * @param name The role.
- * @param out The output directory.
- * @param views The cells of the working tree.
+ * The renders of a mode on the site of a commit, after the renders of the working tree. It gets
+ * the URL of the site of the commit and the name of the commit, such as `main (cc83899c)`, and
+ * writes the images of the commit and the grids of both trees.
  */
-async function renderBase(
-  browser: Browser,
-  ref: string,
-  name: CloseRole,
-  out: string,
-  views: RenderedViews,
-): Promise<void> {
-  const label = `${ref} (${shortHash(ref)})`;
-  await withRefSite(ref, label, async (site) => {
-    const before = await renderViews(browser, site, ROLE_VIEWS[name], out, `${name}-base-`);
-    const cells = [...before.cells, ...views.cells];
-    const labels = baseGridLabels(views.labels, label);
-    const sheet = await grid(browser, cells, labels, ROLE_VIEWS[name].views.length);
-    await writeFile(join(out, `${name}-base-views.png`), sheet);
-    await writeFile(join(out, `${name}-base-views.webp`), await toWebp(browser, sheet));
-    console.log(join(out, `${name}-base-views.png`));
-  });
+type CommitRender = (site: string, label: string) => Promise<void>;
+
+/** The renders of one mode of the tool: first on the working tree, then on a commit. */
+interface ModeRender {
+  /**
+   * The paths of the working tree that the build of the commit takes in place of the paths of the
+   * commit, such as `src/gallery` (`withRefBuild()`).
+   */
+  readonly overlay: readonly string[];
+  /**
+   * Renders the mode on the site of the working tree, and writes its images.
+   *
+   * @param site The site of the working tree.
+   * @returns The renders of the commit. The tool calls them only with `--base`.
+   */
+  readonly tree: (site: TreeSite) => Promise<CommitRender>;
 }
 
 /**
  * Renders the close view of a role into `<dir>`: each cell as `<role>-<moment>-<view>.png`, and
- * the grid of all cells as `<role>-views.png` and `.webp`. With `--base`, it also renders the
- * commit ({@link renderBase}).
+ * the grid of all cells as `<role>-views.png` and `.webp`. The renders of the commit write each
+ * cell of the commit as `<role>-base-<moment>-<view>.png`, and the grid of the commit above the
+ * grid of the working tree as `<role>-base-views.png` and `.webp`.
  *
  * @param args The command line.
- * @param site The site of the working tree, with its browser.
+ * @param site The site of the working tree.
+ * @returns The renders of the commit.
  */
-async function roleViews(
-  args: CloseViewsArgs,
-  site: { readonly base: string; readonly browser: Browser },
-): Promise<void> {
+async function roleViews(args: CloseViewsArgs, site: TreeSite): Promise<CommitRender> {
+  const { browser } = site;
   const { role: name, out } = args;
   const role = ROLE_VIEWS[name];
-  const views = await renderViews(site.browser, site.base, role, out, `${name}-`);
-  const sheet = await grid(site.browser, views.cells, views.labels, role.views.length);
+  const views = await renderViews(browser, site.base, role, out, `${name}-`);
+  const sheet = await grid(browser, views.cells, views.labels, role.views.length);
   await writeFile(join(out, `${name}-views.png`), sheet);
-  await writeFile(join(out, `${name}-views.webp`), await toWebp(site.browser, sheet));
+  await writeFile(join(out, `${name}-views.webp`), await toWebp(browser, sheet));
   console.log(join(out, `${name}-views.png`));
-  if (args.base !== null) {
-    await renderBase(site.browser, args.base, name, out, views);
-  }
+
+  return async (other, label) => {
+    const before = await renderViews(browser, other, role, out, `${name}-base-`);
+    const cells = [...before.cells, ...views.cells];
+    const labels = baseGridLabels(views.labels, label);
+    const both = await grid(browser, cells, labels, role.views.length);
+    await writeFile(join(out, `${name}-base-views.png`), both);
+    await writeFile(join(out, `${name}-base-views.webp`), await toWebp(browser, both));
+    console.log(join(out, `${name}-base-views.png`));
+  };
 }
 
 /** The size of the lineup image of one tree, in CSS pixels. */
@@ -821,19 +828,19 @@ async function writeImage(browser: Browser, image: Buffer, file: string): Promis
 
 /**
  * Renders a lineup of species of the working tree into `<dir>/lineup.png` and `.webp`. With
- * `--base`, it also builds the commit in a temporary folder with the gallery of the working tree
- * (`withRefBuild()` with the overlay `src/gallery`), and reads the box of the models of both
- * sites. One camera ({@link lineupCamera}) then shows the tallest model of both whole. It writes
- * the lineup of the commit as `lineup-base.png`, and the lineup of the commit above the lineup of
- * the working tree as `lineup-base-views.png` and `.webp`.
+ * `--base`, the working tree only gives the box of its models, and the renders of the commit
+ * write both lineups. The build of the commit takes the gallery of the working tree (the overlay
+ * `src/gallery` of {@link modeRender}). The renders of the commit read the box of the models of
+ * the commit. One camera ({@link lineupCamera}) then shows the tallest model of both whole. They
+ * write the lineup of the working tree, the lineup of the commit as `lineup-base.png`, and the
+ * lineup of the commit above the lineup of the working tree as `lineup-base-views.png` and
+ * `.webp`.
  *
  * @param args The command line.
- * @param site The site of the working tree, with its browser.
+ * @param site The site of the working tree.
+ * @returns The renders of the commit.
  */
-async function lineupViews(
-  args: LineupArgs,
-  site: { readonly base: string; readonly browser: Browser },
-): Promise<void> {
+async function lineupViews(args: LineupArgs, site: TreeSite): Promise<CommitRender> {
   const { browser } = site;
   const aspect = LINEUP.width / LINEUP.height;
   const tree = await rowBox(browser, site.base, args.species);
@@ -842,32 +849,24 @@ async function lineupViews(
       `Lineup camera: target ${camera.target} m, distance ${camera.distance} m, elevation ${LINEUP_ELEVATION} degrees.`,
     );
   };
-  const ref = args.base;
-  if (ref === null) {
+  if (args.base === null) {
     const camera = lineupCamera([tree], aspect);
     say(camera);
     const image = await renderLineup(browser, site.base, args.species, camera);
     await writeImage(browser, image, join(args.out, 'lineup'));
-    return;
   }
 
-  const label = `${ref} (${shortHash(ref)})`;
-  await withRefSite(
-    ref,
-    label,
-    async (other) => {
-      const camera = lineupCamera([tree, await rowBox(browser, other, args.species)], aspect);
-      say(camera);
-      const after = await renderLineup(browser, site.base, args.species, camera);
-      const before = await renderLineup(browser, other, args.species, camera);
-      await writeImage(browser, after, join(args.out, 'lineup'));
-      await writeFile(join(args.out, 'lineup-base.png'), before);
-      const labels = baseGridLabels(['lineup'], label);
-      const sheet = await grid(browser, [before, after], labels, 1, LINEUP);
-      await writeImage(browser, sheet, join(args.out, 'lineup-base-views'));
-    },
-    ['src/gallery'],
-  );
+  return async (other, label) => {
+    const camera = lineupCamera([tree, await rowBox(browser, other, args.species)], aspect);
+    say(camera);
+    const after = await renderLineup(browser, site.base, args.species, camera);
+    const before = await renderLineup(browser, other, args.species, camera);
+    await writeImage(browser, after, join(args.out, 'lineup'));
+    await writeFile(join(args.out, 'lineup-base.png'), before);
+    const labels = baseGridLabels(['lineup'], label);
+    const sheet = await grid(browser, [before, after], labels, 1, LINEUP);
+    await writeImage(browser, sheet, join(args.out, 'lineup-base-views'));
+  };
 }
 
 /** The command line of a mode after its name: its words and the values of its options. */
@@ -1105,30 +1104,22 @@ async function renderSpecies(
 
 /**
  * Renders the mode `species` into `<dir>`: each species of the gallery alone on its support, at
- * each view, as `species-views.png` and `.webp`. With `--base`, it also builds the commit in a
- * temporary folder ({@link withRefSite}), and writes each cell of the commit as
- * `species-base-<species>-<moment>-<view>.png`. The grid `species-base-views.png` and `.webp`
- * then puts the row of the commit above the row of the working tree for each species.
+ * each view, as `species-views.png` and `.webp`. The renders of the commit write each cell of the
+ * commit as `species-base-<species>-<moment>-<view>.png`. The grid `species-base-views.png` and
+ * `.webp` then puts the row of the commit above the row of the working tree for each species.
  *
  * @param args The command line.
- * @param site The site of the working tree, with its browser.
+ * @param site The site of the working tree.
+ * @returns The renders of the commit.
  */
-async function speciesViews(
-  args: SpeciesArgs,
-  site: { readonly base: string; readonly browser: Browser },
-): Promise<void> {
+async function speciesViews(args: SpeciesArgs, site: TreeSite): Promise<CommitRender> {
   const { browser } = site;
   const columns = args.views.length;
   const after = await renderSpecies(browser, site.base, args, 'species-');
   const sheet = await grid(browser, after.cells, after.labels, columns);
   await writeImage(browser, sheet, join(args.out, 'species-views'));
-  const ref = args.base;
-  if (ref === null) {
-    return;
-  }
 
-  const label = `${ref} (${shortHash(ref)})`;
-  await withRefSite(ref, label, async (other) => {
+  return async (other, label) => {
     const before = await renderSpecies(browser, other, args, 'species-base-');
     const labels = baseGridLabels(after.labels, label);
     const cells = rowsInTurns(before.cells, after.cells, columns);
@@ -1139,7 +1130,7 @@ async function speciesViews(
     );
     const both = await grid(browser, cells, turns, columns);
     await writeImage(browser, both, join(args.out, 'species-base-views'));
-  });
+  };
 }
 
 /**
@@ -1466,36 +1457,28 @@ async function renderPlay(
 
 /**
  * Renders the mode `play` into `<dir>`: the play frame of a demo at each camera, and the grid of
- * the frames with one column for each camera, as `play-views.png` and `.webp`. With `--base`, it
- * also builds the commit in a temporary folder ({@link withRefSite}), writes each frame of the
- * commit as `play-base-<camera>.png`, and puts the row of the commit above the row of the working
- * tree in `play-base-views.png` and `.webp`.
+ * the frames with one column for each camera, as `play-views.png` and `.webp`. The renders of the
+ * commit write each frame of the commit as `play-base-<camera>.png`, and put the row of the commit
+ * above the row of the working tree in `play-base-views.png` and `.webp`.
  *
  * @param args The command line.
- * @param site The site of the working tree, with its browser.
+ * @param site The site of the working tree.
+ * @returns The renders of the commit.
  */
-async function playViews(
-  args: PlayArgs,
-  site: { readonly base: string; readonly browser: Browser },
-): Promise<void> {
+async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> {
   const { browser } = site;
   const columns = args.cameras.length;
   const after = await renderPlay(browser, site.base, args, 'play-', 'the working tree');
   const sheet = await grid(browser, after.cells, after.labels, columns, playCell(columns));
   await writeImage(browser, sheet, join(args.out, 'play-views'));
-  const ref = args.base;
-  if (ref === null) {
-    return;
-  }
 
-  const label = `${ref} (${shortHash(ref)})`;
-  await withRefSite(ref, label, async (other) => {
+  return async (other, label) => {
     const before = await renderPlay(browser, other, args, 'play-base-', label);
     const labels = baseGridLabels(after.labels, label);
     const cells = [...before.cells, ...after.cells];
     const both = await grid(browser, cells, labels, columns, playCell(columns));
     await writeImage(browser, both, join(args.out, 'play-base-views'));
-  });
+  };
 }
 
 /** The first argument that only checks the command line: the tool then builds and renders nothing. */
@@ -1550,6 +1533,93 @@ export function closeModeArgs(args: readonly string[]): CloseMode | null {
   }
   const role = closeViewsArgs(args);
   return role ? { kind: 'role', args: role } : null;
+}
+
+/**
+ * Gives the renders of a mode. The lineup takes the gallery of the working tree into the build of
+ * the commit, so that an older gallery gets the camera code of the query `distance`.
+ *
+ * @param mode The command line of the mode.
+ * @returns The renders of the mode.
+ */
+function modeRender(mode: CloseMode): ModeRender {
+  switch (mode.kind) {
+    case 'role':
+      return { overlay: [], tree: (site) => roleViews(mode.args, site) };
+    case 'lineup':
+      return { overlay: ['src/gallery'], tree: (site) => lineupViews(mode.args, site) };
+    case 'species':
+      return { overlay: [], tree: (site) => speciesViews(mode.args, site) };
+    case 'play':
+      return { overlay: [], tree: (site) => playViews(mode.args, site) };
+  }
+}
+
+/** The renders of the modes that one build of a commit serves. */
+export interface CommitBuild<T> {
+  /** The paths of the working tree that the build takes in place of the paths of the commit. */
+  readonly overlay: readonly string[];
+  /** The renders, in the order of the modes. */
+  readonly renders: readonly T[];
+}
+
+/**
+ * Groups the renders of the modes by the build of the commit that they need: one build for each
+ * list of overlay paths, in the order of the first mode of each list.
+ *
+ * @param modes The overlay paths and the renders of the commit of each mode.
+ * @returns The builds, each with its renders.
+ */
+export function commitBuilds<T>(
+  modes: readonly { readonly overlay: readonly string[]; readonly render: T }[],
+): CommitBuild<T>[] {
+  const builds = new Map<string, { overlay: readonly string[]; renders: T[] }>();
+  for (const mode of modes) {
+    const key = mode.overlay.join('\n');
+    const build = builds.get(key) ?? { overlay: mode.overlay, renders: [] };
+    build.renders.push(mode.render);
+    builds.set(key, build);
+  }
+  return [...builds.values()];
+}
+
+/**
+ * Renders modes on the site of the working tree, in their order. With a commit, it then builds
+ * the commit one time for each list of overlay paths ({@link commitBuilds}), serves it
+ * ({@link withRefSite}), and runs the renders of the commit of each mode there. The site of the
+ * working tree stays open, because the lineup renders the working tree again at its common
+ * camera.
+ *
+ * @param modes The renders of each mode.
+ * @param site The site of the working tree.
+ * @param ref The commit, the branch, or the tag of `--base`, or `null`.
+ */
+async function renderModes(
+  modes: readonly ModeRender[],
+  site: TreeSite,
+  ref: string | null,
+): Promise<void> {
+  const commits: { readonly overlay: readonly string[]; readonly render: CommitRender }[] = [];
+  for (const mode of modes) {
+    commits.push({ overlay: mode.overlay, render: await mode.tree(site) });
+  }
+  if (ref === null) {
+    return;
+  }
+
+  const label = `${ref} (${shortHash(ref)})`;
+  for (const build of commitBuilds(commits)) {
+    await withRefSite(
+      ref,
+      label,
+      async (other) => {
+        for (const commitRender of build.renders) {
+          await commitRender(other, label);
+        }
+      },
+      build.overlay,
+    );
+  }
 }
 
 /** The usage text of the tool. */
@@ -1611,15 +1681,7 @@ async function main(): Promise<void> {
       }
     : await startSite(ROOT, SERVER_PORT);
   try {
-    if (mode.kind === 'lineup') {
-      await lineupViews(mode.args, site);
-    } else if (mode.kind === 'species') {
-      await speciesViews(mode.args, site);
-    } else if (mode.kind === 'play') {
-      await playViews(mode.args, site);
-    } else {
-      await roleViews(mode.args, site);
-    }
+    await renderModes([modeRender(mode)], site, mode.args.base);
   } finally {
     if (url) {
       await site.browser.close();
