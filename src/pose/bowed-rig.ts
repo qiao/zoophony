@@ -621,6 +621,14 @@ export const BOWED_HOLDS = {
  * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
  * the chin hold, the left upper arm went 1.5 cm into the deep chest in the play (0.3 cm on `main`),
  * and with 2° 0.0 cm (2026-10-17-left-hand decisions).
+ *
+ * From the second position to the fifth position, the left paw tilts 45° further over the neck, so
+ * that the wrist comes up beside the upper bout (`highTilt`, `leftTilt()` of `pose/bowed.ts`). The
+ * viola sits back toward the neck, so the left forearm runs from the wrist back under the viola,
+ * and with no tilt it went 2.7 cm into the upper bout near the wrist in the fifth position at the
+ * end of `mozart-k191`, also while the arms lowered. A turn of the left elbow did not change it,
+ * because the forearm leaves the wrist toward the shoulder. With 40°, it went 1.0 cm into the
+ * viola, and with 45° 0.4 cm (2026-10-17-cat-hand decisions).
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
@@ -628,6 +636,7 @@ const CAT_HOLD = {
   playShift: [0.05, -0.05, 0.17],
   poleL: [-1, -1, -0.75],
   elbowPerString: 2 * MathUtils.DEG2RAD,
+  highTilt: 45 * MathUtils.DEG2RAD,
   poleR: [1.1, -1, -1],
   restPoleR: [1, -1, 2],
   restPoleL: [-1, -1, 0.5],
