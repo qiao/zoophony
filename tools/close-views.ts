@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -829,8 +830,8 @@ async function writeImage(browser: Browser, image: Buffer, file: string): Promis
 /**
  * Renders a lineup of species of the working tree into `<dir>/lineup.png` and `.webp`. With
  * `--base`, the working tree only gives the box of its models, and the renders of the commit
- * write both lineups. The build of the commit takes the gallery of the working tree (the overlay
- * `src/gallery` of {@link modeRender}). The renders of the commit read the box of the models of
+ * write both lineups. The build of the commit takes the gallery of the working tree when the two
+ * galleries differ (the overlay `src/gallery` of {@link modeRender}). The renders of the commit read the box of the models of
  * the commit. One camera ({@link lineupCamera}) then shows the tallest model of both whole. They
  * write the lineup of the working tree, the lineup of the commit as `lineup-base.png`, and the
  * lineup of the commit above the lineup of the working tree as `lineup-base-views.png` and
@@ -1565,18 +1566,24 @@ export interface CommitBuild<T> {
 
 /**
  * Groups the renders of the modes by the build of the commit that they need: one build for each
- * list of overlay paths, in the order of the first mode of each list.
+ * list of overlay paths, in the order of the first mode of each list. An overlay path that is the
+ * same in the working tree and in the commit changes no file of the build, so it does not count.
+ * Thus the modes of a branch that does not change `src/gallery` share one build of the commit,
+ * also with a lineup.
  *
  * @param modes The overlay paths and the renders of the commit of each mode.
- * @returns The builds, each with its renders.
+ * @param same Tells if a path is the same in the working tree and in the commit.
+ * @returns The builds, each with its renders and the overlay paths that differ.
  */
 export function commitBuilds<T>(
   modes: readonly { readonly overlay: readonly string[]; readonly render: T }[],
+  same: (path: string) => boolean,
 ): CommitBuild<T>[] {
   const builds = new Map<string, { overlay: readonly string[]; renders: T[] }>();
   for (const mode of modes) {
-    const key = mode.overlay.join('\n');
-    const build = builds.get(key) ?? { overlay: mode.overlay, renders: [] };
+    const overlay = mode.overlay.filter((path) => !same(path));
+    const key = overlay.join('\n');
+    const build = builds.get(key) ?? { overlay, renders: [] };
     build.renders.push(mode.render);
     builds.set(key, build);
   }
@@ -1584,8 +1591,26 @@ export function commitBuilds<T>(
 }
 
 /**
+ * Tells if a path is the same in the working tree and in a commit: git finds no change of a
+ * tracked file against the commit, and no file that git does not track, ignored files included.
+ * A failed git command counts as a change, so that the tool then builds with the overlay.
+ *
+ * @param ref The commit, the branch, or the tag.
+ * @param path The path, relative to the root of the repository, such as `src/gallery`.
+ * @returns True when the overlay of the path changes no file of the build of the commit.
+ */
+function sameInCommit(ref: string, path: string): boolean {
+  const diff = spawnSync('git', ['diff', '--quiet', ref, '--', path], { cwd: ROOT });
+  const others = spawnSync('git', ['ls-files', '--others', '--', path], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  });
+  return diff.status === 0 && others.status === 0 && others.stdout.trim() === '';
+}
+
+/**
  * Renders modes on the site of the working tree, in their order. With a commit, it then builds
- * the commit one time for each list of overlay paths ({@link commitBuilds}), serves it
+ * the commit one time for each list of overlay paths that differ ({@link commitBuilds}), serves it
  * ({@link withRefSite}), and runs the renders of the commit of each mode there. The site of the
  * working tree stays open, because the lineup renders the working tree again at its common
  * camera.
@@ -1608,7 +1633,13 @@ async function renderModes(
   }
 
   const label = `${ref} (${shortHash(ref)})`;
-  for (const build of commitBuilds(commits)) {
+  const builds = commitBuilds(commits, (path) => sameInCommit(ref, path));
+  for (const build of builds) {
+    if (build.overlay.length > 0) {
+      console.log(
+        `The build of ${label} takes ${build.overlay.join(', ')} of the working tree, because the paths differ.`,
+      );
+    }
     await withRefSite(
       ref,
       label,
