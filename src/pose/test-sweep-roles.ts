@@ -59,6 +59,13 @@ const BODY_LOOPS = 2;
  */
 const MESH_BODY_LOOPS = 4;
 
+/**
+ * The open loops of {@link BODY_BONES} of the cat mesh: the cuts to the two upper arms, and one
+ * open edge pair of 1.4 cm at a whisker (`loops-probe.txt` of
+ * `docs/research/2026-10-16-cat-mesh/`).
+ */
+const CAT_BODY_LOOPS = 3;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -139,6 +146,17 @@ function bodySurface(posed: PosedSkeleton): ClosedSurface {
  */
 function meshBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, MESH_BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the cat mesh: {@link BODY_BONES} with a cap on each open loop
+ * ({@link CAT_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function catBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, CAT_BODY_LOOPS);
 }
 
 /**
@@ -542,6 +560,9 @@ function sweptBowed(
 /** The species of the violinists with a studio body of a mesh of the user. */
 const VIOLINISTS: ReadonlySet<SpeciesId> = new Set(['rabbit', 'fox-red']);
 
+/** The species of the violists with a studio body of a mesh of the user. */
+const VIOLISTS: ReadonlySet<SpeciesId> = new Set(['cat']);
+
 /**
  * Gives the swept players of a bowed role in a scene ({@link sweptBowed}).
  *
@@ -719,10 +740,26 @@ export const FLUTIST_SWEEP: RoleSweep = {
   sampleSets: (scene) => VIOLINIST_SWEEP.sampleSets(scene),
 };
 
+/**
+ * The sweep of the violist (design 5.3): the sweep of the violinist with the viola. The first
+ * seated cat of each demo, and each standing cat soloist, play it.
+ */
+export const VIOLIST_SWEEP: RoleSweep = {
+  ...VIOLINIST_SWEEP,
+  role: 'violist',
+  obstacles: [
+    { name: 'body', surface: catBodySurface },
+    { name: 'viola', surface: instrumentSurface },
+  ],
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'viola'),
+  players: (scene) => bowedPlayers(scene, 'viola', VIOLISTS),
+};
+
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,
   pianist: PIANIST_SWEEP,
   violinist: VIOLINIST_SWEEP,
+  violist: VIOLIST_SWEEP,
   flutist: FLUTIST_SWEEP,
 } as const;
