@@ -24,7 +24,8 @@
  *
  * A run with the rest set gives the lap rest of a seated role with a lap rest ({@link hasLapRest}):
  * the gap of the lower end of the instrument to the skin of the thighs, and for a violin role the
- * rise of the bow tip above the frog and its reach past the knees (`tools/lap-rest.ts`).
+ * tilt of the violin, the place of the left palm on it, and the upright bow at the right side
+ * (`tools/lap-rest.ts`).
  *
  * Usage: pnpm hold-fit <role> [--set <path>=<value>[;<path>=<value>]...]...
  * [--grid <path>=<a>:<b>:<step>]... [--sets <set>[,<set>]...] [--demo <id>|all]...
@@ -45,7 +46,7 @@ import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
 import { freeRestReach, holdReach, rangeTexts, reachShare, ruleSize } from './hold-reach.ts';
 import type { ChinInstrument, HoldReach } from './hold-reach.ts';
 import { setHolds } from './hold-sets.ts';
-import { probeLaps } from './lap-rest.ts';
+import { PAW_PLACES, probeLaps } from './lap-rest.ts';
 import type { LapWorst, LapWorsts } from './lap-rest.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
@@ -98,20 +99,37 @@ export const FIT_SETS = ['play', 'lift', 'rest', 'lower'] as const;
 export type FitSet = (typeof FIT_SETS)[number];
 
 /**
- * The largest gap of the lower end of the instrument to the skin of the thighs in the rest
- * without the mark `OVER`, in meters: the goal of the lap rest of the violin
- * (`docs/decisions/2026-10-16-seat-rest.md`).
+ * The largest gap of the lower end of the instrument to the skin under it in the rest without the
+ * mark `OVER`, in meters: the goal of the lap rest (`docs/decisions/2026-10-16-bow-rest.md`).
  */
 export const LAP_GAP_GOAL = 0.02;
 
-/** The largest height of the bow tip above the frog in the rest without the mark `OVER`, in meters. */
-export const TIP_RISE_GOAL = 0.05;
+/**
+ * The deepest corner of the lower end of a violin in the body in the rest without the mark `OVER`,
+ * in meters.
+ */
+export const END_DEPTH_GOAL = 0.01;
 
 /**
- * The largest reach of the bow tip past the front of the knees in the rest without the mark
- * `OVER`, in meters: the tip stays behind the knees, away from the music stand.
+ * The deepest corner of a violin in the body in the rest without the mark `OVER`, in meters: the
+ * violin may touch the body, at most 1 cm deep (design 5.3).
  */
-export const TIP_PAST_GOAL = 0;
+export const HELD_DEPTH_GOAL = 0.01;
+
+/** The largest tilt of the violin and of the bow from the vertical in the rest without the mark `OVER`, in degrees. */
+export const TILT_GOAL = 15;
+
+/** The largest gap of the frog end of the bow to the right thigh in the rest without the mark `OVER`, in meters. */
+export const FROG_GAP_GOAL = 0.03;
+
+/** The deepest corner of the frog end of the bow in the body in the rest without the mark `OVER`, in meters. */
+export const FROG_DEPTH_GOAL = 0.01;
+
+/**
+ * The deepest point of the bow in the body or in the arms in the rest without the mark `OVER`, in
+ * meters.
+ */
+export const BOW_DEPTH_GOAL = 0.005;
 
 /**
  * The wind holds whose rest stands the instrument on a leg, by the root of `--set`: the flute of
@@ -612,10 +630,10 @@ export interface FitRun {
  * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
  * change of the format takes the next version, so that a compare with `--base` stops on two
  * formats. Version 2 added the rest faces by side, version 3 the instrument in the body, the
- * rest gaps, and the reach shares of the free paws, version 4 the rest samples of the folds, and
- * version 5 the lap rest.
+ * rest gaps, and the reach shares of the free paws, version 4 the rest samples of the folds,
+ * version 5 the lap rest, and version 6 the upright rest of the violin.
  */
-export const FIT_FORMAT = 5;
+export const FIT_FORMAT = 6;
 
 /**
  * Writes the rows of a run as JSON (`--json`), with the format version {@link FIT_FORMAT}.
@@ -680,17 +698,78 @@ function foldCell(folds: FoldShares, set: 'play' | 'lift', goal: number | null):
 }
 
 /**
- * Writes a measure of the lap rest in cm.
+ * Writes a length of the lap rest in cm.
  *
  * @param worst The largest value of the measure, or `null`.
- * @param goal The largest value without the mark `OVER`, in meters.
+ * @param goal The largest value without the mark `OVER`, in meters, or `null` for no mark.
  * @returns The text, such as `2.4 OVER`, or `-` with no value.
  */
-function lapCell(worst: LapWorst | null | undefined, goal: number): string {
+function lapCell(worst: LapWorst | null | undefined, goal: number | null): string {
   if (!worst) {
     return '-';
   }
-  return `${(worst.value * 100).toFixed(1)}${worst.value > goal ? ' OVER' : ''}`;
+  return `${(worst.value * 100).toFixed(1)}${goal !== null && worst.value > goal ? ' OVER' : ''}`;
+}
+
+/**
+ * Writes a tilt of the lap rest in degrees.
+ *
+ * @param worst The largest tilt, or `null`.
+ * @returns The text, such as `18 OVER`, or `-` with no value.
+ */
+function tiltCell(worst: LapWorst | null | undefined): string {
+  if (!worst) {
+    return '-';
+  }
+  return `${worst.value.toFixed(0)}${worst.value > TILT_GOAL ? ' OVER' : ''}`;
+}
+
+/**
+ * Writes the place of the left palm along the violin in the rest.
+ *
+ * @param worst The place farthest from the middle of `PAW_PLACES`, or `null`.
+ * @returns The text, such as `0.38 OVER`, or `-` with no value.
+ */
+function placeCell(worst: LapWorst | null | undefined): string {
+  if (!worst) {
+    return '-';
+  }
+  const out = worst.value < PAW_PLACES[0] || worst.value > PAW_PLACES[1];
+  return `${worst.value.toFixed(2)}${out ? ' OVER' : ''}`;
+}
+
+/**
+ * Writes the cells of the lap rest of a row: the gap of the lower end with its depth in the body,
+ * and for a violin role the deepest corner of the violin in the body, the tilt of the violin, the place of the left palm, the tilt of the bow,
+ * the gap of the frog end with its depth in the body, and the deepest points of the bow in the
+ * body and in the arms.
+ *
+ * @param lap The lap rest of the row, or `null`.
+ * @param bow True for a table with the violin columns.
+ * @returns The cells.
+ */
+function lapCells(lap: LapWorsts | null, bow: boolean): string[] {
+  if (!lap) {
+    return ['-', ...(bow ? ['-', '-', '-', '-', '-', '-', '-'] : [])];
+  }
+  const violin = lap.bowTilt !== null;
+  const end = `${lapCell(lap.endGap, LAP_GAP_GOAL)} (${lapCell(lap.endDepth, violin ? END_DEPTH_GOAL : null)})`;
+  if (!bow) {
+    return [end];
+  }
+  const frog = lap.frogGap
+    ? `${lapCell(lap.frogGap, FROG_GAP_GOAL)} (${lapCell(lap.frogDepth, FROG_DEPTH_GOAL)})`
+    : '-';
+  return [
+    end,
+    lapCell(lap.heldDepth, HELD_DEPTH_GOAL),
+    tiltCell(lap.tilt),
+    placeCell(lap.pawPlace),
+    tiltCell(lap.bowTilt),
+    frog,
+    lapCell(lap.bowBody, BOW_DEPTH_GOAL),
+    lapCell(lap.bowArms, BOW_DEPTH_GOAL),
+  ];
 }
 
 /**
@@ -698,11 +777,14 @@ function lapCell(worst: LapWorst | null | undefined, goal: number): string {
  * folds, the most folded faces of one rest sample by side, the deepest point of each sample set in
  * cm with its pair and its limit, the instrument in the body with its set, the gap of each free
  * paw to the body in the rest in cm, the reach share of the rest place of each free paw, the lap
- * rest in cm, and the reach of a violin role. The lap rest gives the gap of the lower end of the
- * instrument to the thighs with the depth of its deepest corner in the body, and with a bow the
- * rise of the bow tip above the frog and its reach past the knees. A mark `OVER` follows a depth
- * over its limit, play folds over {@link PLAY_FOLD_GOAL}, a reach share above 1, and a lap
- * measure over its goal ({@link LAP_GAP_GOAL}, {@link TIP_RISE_GOAL}, {@link TIP_PAST_GOAL}).
+ * rest, and the reach of a violin role. The lap rest gives the gap of the lower end of the
+ * instrument to the skin under it with the depth of its deepest corner in the body, and with a bow
+ * the depth of the violin in the body, the tilt of the violin, the place of the left palm on it, the tilt of the bow, the gap of the
+ * frog end to the right thigh with its depth in the body, and the deepest points of the bow in the
+ * body and in the arms ({@link lapCells}). A mark `OVER` follows a depth over its limit, play folds
+ * over {@link PLAY_FOLD_GOAL}, a reach share above 1, and a lap measure outside its goal
+ * ({@link LAP_GAP_GOAL}, {@link END_DEPTH_GOAL}, {@link HELD_DEPTH_GOAL}, {@link TILT_GOAL}, `PAW_PLACES`,
+ * {@link FROG_GAP_GOAL}, {@link FROG_DEPTH_GOAL}, {@link BOW_DEPTH_GOAL}).
  *
  * @param rows The rows, the base first.
  * @returns The lines.
@@ -714,7 +796,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
   const paws = [...new Set(rows.flatMap((row) => row.gaps.map((gap) => gap.paw)))];
   const sides = [...new Set(rows.flatMap((row) => row.free.map((free) => free.side)))];
   const lap = rows.some((row) => row.lap);
-  const bow = rows.some((row) => row.lap?.tipRise);
+  const bow = rows.some((row) => row.lap?.bowTilt);
   const header = [
     'Variant',
     'Play folds',
@@ -724,8 +806,18 @@ export function fitTable(rows: readonly FitRow[]): string[] {
     ...(held ? ['Instrument in body cm (limit)'] : []),
     ...paws.map((paw) => `Rest gap ${paw} cm`),
     ...sides.map((side) => `Rest reach ${side}`),
-    ...(lap ? ['Rest end to thighs cm (in body)'] : []),
-    ...(bow ? ['Rest bow tip rise cm', 'Rest bow tip past knees cm'] : []),
+    ...(lap ? ['Rest end gap cm (in body)'] : []),
+    ...(bow
+      ? [
+          'Rest violin in body cm',
+          'Rest violin tilt °',
+          'Rest paw L place',
+          'Rest bow tilt °',
+          'Rest frog gap cm (in body)',
+          'Rest bow in body cm',
+          'Rest bow in arms cm',
+        ]
+      : []),
     ...(violin ? ['Rule scale', 'Violin m', 'stopRange', 'bowRange'] : []),
   ];
   const lines = [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`];
@@ -755,13 +847,6 @@ export function fitTable(rows: readonly FitRow[]): string[] {
         ? 'hangs'
         : `${free.share.toFixed(3)}${free.share > 1 ? ' OVER' : ''}`;
     });
-    const lapCells = row.lap
-      ? [`${lapCell(row.lap.endGap, LAP_GAP_GOAL)} (${(row.lap.endDepth.value * 100).toFixed(1)})`]
-      : ['-'];
-    const bowCells = [
-      lapCell(row.lap?.tipRise, TIP_RISE_GOAL),
-      lapCell(row.lap?.tipPast, TIP_PAST_GOAL),
-    ];
     const reach = row.reach;
     const rule = reach ? ruleSize(reach) : null;
     const ranges = reach ? rangeTexts(reach) : null;
@@ -776,8 +861,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
       ...(held ? [heldCell] : []),
       ...gapCells,
       ...reachCells,
-      ...(lap ? lapCells : []),
-      ...(bow ? bowCells : []),
+      ...(lap ? lapCells(row.lap, bow) : []),
       ...(violin
         ? [
             rule ? rule.scale.toFixed(3) : 'none',
@@ -990,6 +1074,16 @@ async function fitDemos(
 }
 
 /**
+ * Writes a length in cm.
+ *
+ * @param value The length, in meters.
+ * @returns The text, such as `1.5 cm`.
+ */
+function cmText(value: number): string {
+  return `${(value * 100).toFixed(1)} cm`;
+}
+
+/**
  * Writes the time and the deepest point of each sample set of a row.
  *
  * @param row The row.
@@ -1006,14 +1100,25 @@ function printRow(row: FitRow): void {
     console.log(`  rest: ${paw} to body: ${(gap * 100).toFixed(1)} cm, ${demo}`);
   }
   const lap = row.lap;
-  const cm = (worst: LapWorst): string => `${(worst.value * 100).toFixed(1)} cm, ${worst.sample}`;
-  if (lap) {
-    console.log(`  rest: lower end to the thighs: ${cm(lap.endGap)}`);
-    console.log(`  rest: lower end in the body: ${cm(lap.endDepth)}`);
+  if (!lap) {
+    return;
   }
-  if (lap?.tipRise && lap.tipPast) {
-    console.log(`  rest: bow tip above the frog: ${cm(lap.tipRise)}`);
-    console.log(`  rest: bow tip past the knees: ${cm(lap.tipPast)}`);
+  const lines: [string, LapWorst | null, (value: number) => string][] = [
+    ['lower end to the skin', lap.endGap, cmText],
+    ['lower end in the body', lap.endDepth, cmText],
+    ['instrument in the body', lap.heldDepth, cmText],
+    ['tilt of the instrument', lap.tilt, (v) => `${v.toFixed(1)}°`],
+    ['place of the left palm', lap.pawPlace, (v) => v.toFixed(2)],
+    ['tilt of the bow', lap.bowTilt, (v) => `${v.toFixed(1)}°`],
+    ['frog end to the right thigh', lap.frogGap, cmText],
+    ['frog end in the body', lap.frogDepth, cmText],
+    ['bow in the body', lap.bowBody, cmText],
+    ['bow in the arms', lap.bowArms, cmText],
+  ];
+  for (const [name, worst, text] of lines) {
+    if (worst) {
+      console.log(`  rest: ${name}: ${text(worst.value)}, ${worst.sample}`);
+    }
   }
 }
 
