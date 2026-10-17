@@ -88,10 +88,14 @@ const restPivot = new Vector3();
 const parentInverse = new Quaternion();
 const pivotFromParent = new Vector3();
 const pivotBind = new Vector3();
+const liftReach = new Vector3();
 
 /**
  * Places the instrument: the violin and the viola go down in the rest pose. While the player
- * plays, the instrument has the play shift and the play turn of its hold.
+ * plays, the instrument has the play shift and the play turn of its hold. In the lift and the
+ * lowering, the rest place moves by `4 × weight` times the reach of the hold
+ * (`BowedHold.liftReach`), so that the mixed place moves by the reach at the weight 0.5, and by 0
+ * at the rest and at the play, as the via of the bow (design 5.2).
  *
  * @param rig The points of the player.
  * @param frames The posed frames of the torso.
@@ -118,6 +122,13 @@ export function instrumentAt(
 
   // The lap does not move with the chest, so the rest place follows the root.
   posePoint(frames.root, ORIGIN, rig.restPivot, restPivot);
+  const [x, y, z] = rig.liftReach;
+  if (weight > 0 && weight < 1 && (x !== 0 || y !== 0 || z !== 0)) {
+    restPivot.addScaledVector(
+      liftReach.fromArray(rig.liftReach).applyQuaternion(frames.root.rotation),
+      4 * weight,
+    );
+  }
   out.pivot.lerpVectors(restPivot, out.pivot, weight);
   out.offset
     .copy(out.pivot)

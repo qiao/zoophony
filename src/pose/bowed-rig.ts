@@ -119,6 +119,13 @@ export interface BowedHold {
     readonly lap: LapPlace;
   } | null;
   /**
+   * The largest move of the instrument in the middle of the lift and of the lowering, in head
+   * heights, in the axes of the root: a via of the instrument (design 5.2). It keeps a violin or a
+   * viola on its way between the lap and the chin off the belly. `[0, 0, 0]` mixes the rest place
+   * and the playing place directly.
+   */
+  readonly liftReach: Vec3;
+  /**
    * True when the left paw holds the instrument at the left side in the rest pose and the bow
    * hangs from the right paw, also on a seat, as for a soloist who stands (design 5.2). A body with
    * no lap, such as the rabbit, whose round belly covers its short thighs, rests so.
@@ -212,6 +219,7 @@ const CHIN_HOLD = {
     top: [0, 0, -1],
     lap: { along: 0.85, offset: [0, 0.06, 0] },
   },
+  liftReach: [0, 0, 0],
   restAtSide: false,
   restBow: {
     lap: { along: 1, offset: [0.18, 0.08, 0] },
@@ -253,6 +261,7 @@ const FLOOR_HOLD = {
   restPlace: 0.4,
   pluckPlace: 0.3,
   rest: null,
+  liftReach: [0, 0, 0],
   restAtSide: false,
   restBow: {
     lap: { along: 1, offset: [0.2, 0.08, 0] },
@@ -607,6 +616,11 @@ export interface BowedRig {
   readonly playShift: Vec3;
   /** The place of the `instrument` bone in the rest pose, in the model axes. */
   readonly restPivot: Vec3;
+  /**
+   * The move of the instrument in the middle of the lift and of the lowering, in meters, in the
+   * axes of the root (`BowedHold.liftReach`).
+   */
+  readonly liftReach: Vec3;
   /** The direction to which the right elbow points in the rest pose, in the axes of the root. */
   readonly restPoleR: Vec3;
   /** The direction to which the left elbow points in the rest pose, in the axes of the chest. */
@@ -886,6 +900,7 @@ export function bowedRig(
     restRotation: toQuat(restRotation),
     playShift: toVec3(new Vector3(...hold.playShift).multiplyScalar(model.body.headHeight)),
     restPivot: hold.rest && !atSide ? lapPoint(model, 'L', hold.rest.lap) : at(BONES.instrument),
+    liftReach: toVec3(new Vector3(...hold.liftReach).multiplyScalar(model.body.headHeight)),
     restPoleR: hold.restPoleR,
     restPoleL: hold.restPoleL,
     restBow: {
