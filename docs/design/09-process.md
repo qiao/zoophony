@@ -137,8 +137,8 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   with a piano seat (`pose/pianist-clearance-<k>.test.ts`, `pose/test-pianist-clearance.ts`). The
   test of the violinist clearance reads the patched demos with a violin seat
   (`pose/violinist-clearance-<k>.test.ts`, `pose/test-violinist-clearance.ts`). It sweeps the
-  first seated rabbit of each demo and each standing rabbit soloist, because a demo has many
-  rabbits with one model. The demos have no standing rabbit, so a solo violin test file stands
+  first seated rabbit and the first seated red fox of each demo, and each standing soloist of the
+  two species, because a demo has many players with one model. The demos have no standing rabbit, so a solo violin test file stands
   one for its own sweep (`pose/violinist-standing-clearance.test.ts`). The test of the flutist
   clearance reads the patched demos with a flute seat (`pose/flutist-clearance-<k>.test.ts`,
   `pose/test-flutist-clearance.ts`). It sweeps the first seated tan fox of each demo and each

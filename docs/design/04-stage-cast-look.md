@@ -1628,7 +1628,9 @@ the app, the size that the user chose: the user made their arms longer for a ful
 then shorter with the same violin. Their arms are shorter than the rule needs, so their holds put
 the violin nearer to the left shoulder, and the left paw still reaches the nut (5.3). The cat has
 the reach of the red fox and plays the viola of the app, and its hold puts the viola nearer to the
-neck for the nut in the same way (`docs/decisions/2026-10-16-mesh-cat.md`). The paused
+neck for the nut in the same way (`docs/decisions/2026-10-16-mesh-cat.md`). The tan fox plays the
+flute of the app, and each palm reaches its grip in the play and in the rest
+(`pnpm hold-reach fox-tan --instrument flute`, `docs/decisions/2026-10-17-fox-form.md`). The paused
 check of the rule in `pose/bowed.test.ts` fails for these two species. The chairs, the stands, the
 podium, and the steps keep their sizes in meters. The bodies of the bowed strings are plates
 with round edges and an arched top (`plate()` of `models/primitives.ts`), with two f-holes beside

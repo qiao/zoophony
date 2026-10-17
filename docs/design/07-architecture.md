@@ -91,8 +91,12 @@ player.
   into the notes field of the page. The rabbit violinist shows from the front, both sides, and
   the back (5.3), around its body. Its moments are the frog and the tip of a whole bow, a string
   crossing, the rest pose, the middle of the lift and of the lowering at the frog, and the
-  standing soloist at the frog. The cat violist has the views and the moments of the violinist,
-  with its own test notes. With `--base <ref>`, the tool
+  standing soloist at the frog. The red fox violinist (`fox-violinist`) has the views and the
+  moments of the rabbit, with its tail on the chair in the side views and the back view. The cat
+  violist has the views and the moments of the violinist, with its own test notes. The tan fox
+  flutist shows from the front, both sides, and the back, at a long note, between two phrases, in
+  the rest pose, in the middle of the lift and of the lowering at the note, and standing at the
+  note. With `--base <ref>`, the tool
   puts the grid of a commit above the grid of the working tree, so a round shows the change of
   a body with no worktree of `main`. The mode `species` of the tool shows named species alone
   on their seats, around their bodies, at named views, in the playing pose, in the rest pose, or
