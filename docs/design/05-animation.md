@@ -452,8 +452,10 @@ of each role.
     string keeps the position, the reach, and the string of the finger of the stroke before it.
     The bow turns around the strings for each string by `BowedHold.stringTurn`, to the bass side
     for a low string: 17° on the violin, the viola, and the cello, and 25° on the contrabass, as the
-    string planes of the reference (11° on the viola of the cat, the largest angle with which its
-    bow arm still reaches the full hair).
+    string planes of the reference. The mesh rigs stay below: 11° on the viola of the cat, the
+    largest angle with which its bow arm still reaches the full hair, and 10° on the rabbit and 9°
+    on the red fox (with the stick leaned 15°), because larger turns fold the skin of their right
+    arms.
   - The middle of the left finger block presses the strings at the middle of the hand frame of
     the position on the target `fingerboard`, with the string length: one octave is half of the
     string, and the end of the fingerboard is 20 semitones above the open string. The fingers

@@ -342,8 +342,11 @@ A round that changes the motion updates the items.
   to 18° of a violinist in motion capture, and 25° on the contrabass. No source gives the angle of
   the viola and the cello, so they take the angle of the violin. Each angle is the real angle, or
   the largest angle below it with which the bow arm still reaches the full hair (`bowRangeOf()`).
-  Only the viola of the cat stays below, at 11°: with the stick leaned 30°, its arm reaches the
-  full hair up to 11°. The app had 9° (7° on the contrabass) before. The arm levels come from the
+  The bodies of the mesh rigs stay below. The viola of the cat turns 11°: with the stick leaned
+  30°, its arm reaches the full hair up to 11°. The rabbit turns 10°, and the red fox 9° with the
+  stick leaned 15°: larger turns fold the skin of their right arms in more play samples
+  (`pnpm hold-fit`), and put the bow paw of the rabbit into the violin at the frog on the E string.
+  The app had 9° (7° on the contrabass) before. The arm levels come from the
   geometry: the bow plane of the string turns the hand, and the arm follows it, higher for the
   lower strings of the violin and the viola.
 - **The string crossing leads the note** (section 2.3). `bowStateAt()` of `pose/strokes.ts` turns

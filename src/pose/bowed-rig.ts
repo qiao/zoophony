@@ -414,6 +414,12 @@ const HANGING_BOW = {
  * pole further in put the elbow under the violin, and turned over faces of the left upper arm of
  * the rabbit mesh in each play sample (2026-10-13-mesh-rabbit decisions).
  *
+ * The string planes of the rabbit are 10° apart, below the 17° of the chin hold. A larger turn
+ * folds the skin of the right arm and puts the bow paw into the violin at the frog on the E string:
+ * the play folded in 2.5% of the samples at 10°, 3.9% at 11°, and 11.1% at 17° (1.7% on `main`),
+ * and the paw went 1.7 cm into the violin at 10° and 2.0 cm at 11° (1.4 cm on `main`,
+ * 2026-10-17-bow-arm decisions).
+ *
  * The rest pose is the rest of the seated violinist of the image of the user (2026-10-16-bow-rest
  * decisions): the violin stands upright on the left thigh, held at the bottom of its neck, and the
  * bow stands upright at the right side, with the frog in the right paw. The round belly of the
@@ -448,6 +454,7 @@ const SHOULDER_HOLD = {
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
+  stringTurn: 10 * MathUtils.DEG2RAD,
   restPoleL: [-0.6, -1, 0.3],
   restPoleR: [0.3, -1, 1],
   rest: { ...LAP_VIOLIN, lap: { along: 0.85, offset: [0.15, 0.05, -0.1] } },
@@ -508,6 +515,11 @@ const SHOULDER_HOLD = {
  * the chin hold, the left forearm went 2.4 cm into the violin in the middle of the lift and of the
  * lowering (1.6 cm and 1.9 cm on `main`), and with 2° 1.9 cm and 2.1 cm (2026-10-17-left-hand
  * decisions).
+ *
+ * The string planes of the red fox stay 9° apart, and the stick leans 15°. A larger turn or tilt
+ * folds the skin of the right arm of the fox mesh: the play folded in 21.7% of the samples at 17°
+ * and 30°, 7.0% at 9° and 30°, 6.1% at 9° and 15°, and 6.0% at 10° and no tilt (5.4% on `main`,
+ * 2026-10-17-bow-arm decisions).
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
@@ -516,6 +528,8 @@ const FOX_HOLD = {
   poleR: [1.8, -0.7, -1],
   playShift: [-0.07, 0.05, 0.25],
   slant: -12 * MathUtils.DEG2RAD,
+  stringTurn: 9 * MathUtils.DEG2RAD,
+  bowTilt: 15 * MathUtils.DEG2RAD,
   reach: 15 * MathUtils.DEG2RAD,
   poleTipR: [1, -0.85, -1],
   freeHair: 0.12,
