@@ -8,20 +8,36 @@
  */
 import { MathUtils, Ray, Triangle, Vector3 } from 'three';
 
-import { roleBodies } from './fold-probe.ts';
-import type { RoleSource } from './fold-probe.ts';
+import { foldedFaces, mainBone, roleBodies, sideSplit } from './fold-probe.ts';
+import type { RoleSource, SideSplit } from './fold-probe.ts';
 import type { DemoFile } from './patch-demos.ts';
+import type { InstrumentId } from '../src/models/instruments/types.ts';
+import type { PlayerModel } from '../src/models/player.ts';
 import { BONE_NAMES, boneIndex } from '../src/models/rig.ts';
 import type { BoneName } from '../src/models/rig.ts';
+import type { SpeciesId } from '../src/models/species.ts';
+import {
+  createStudioPose,
+  poseStudioBones,
+  skinStudioMesh,
+  studioOffsets,
+} from '../src/models/studio-rig.ts';
+import { bowedRig, holdOf } from '../src/pose/bowed-rig.ts';
 import { countInAt } from '../src/pose/count-in.ts';
+import { isInFamily } from '../src/pose/family.ts';
 import { createScenePose, poseAt } from '../src/pose/pose-at.ts';
+import type { ScenePoseBuffer } from '../src/pose/pose-at.ts';
+import type { NoteLayer, PosePlan } from '../src/pose/plan.ts';
 import { closeSurface, closedDepth, openLoops, posedPart } from '../src/pose/test-clearance.ts';
 import type { ClosedSurface } from '../src/pose/test-clearance.ts';
 import { poseSkeleton, posedPiecePoint, posedPoint } from '../src/pose/test-kinematics.ts';
 import type { PosedSkeleton } from '../src/pose/test-kinematics.ts';
 import { NOT_STARTED, allAudible, sceneOf } from '../src/pose/test-scene.ts';
+import type { TestScene } from '../src/pose/test-scene.ts';
 import { posedCorner } from '../src/pose/test-skin.ts';
 import type { SweepObstacle } from '../src/pose/test-sweep.ts';
+import type { AnimalPose, SeatAudibility } from '../src/pose/types.ts';
+import { windHoldOf, windRig } from '../src/pose/winds.ts';
 
 /**
  * The wall times of the rest samples of the lap rest, in seconds, before the first play: the times
@@ -656,4 +672,203 @@ export function probeLaps(
     }
   }
   return lapWorsts(samples);
+}
+
+/**
+ * The wall time of the rest sample of a scan of `pnpm hold-fit --scan` by default, in seconds: one
+ * of {@link REST_WALLS}, the time of the scan probe of the round rabbit-arm
+ * (`docs/research/2026-10-16-rabbit-arm/rest-scan.ts`).
+ */
+export const SCAN_WALL = 21.1;
+
+/** A rest sample of a scan: one seated body of a role in the scene of a demo at one wall time. */
+export interface ScanSample {
+  /** The demo, the player, and the wall time, as {@link LapWorst.sample}. */
+  readonly sample: string;
+  /** The scene of the demo, with the plan of the holds of the start of the run. */
+  readonly scene: TestScene;
+  /** The index of the player in the layout. */
+  readonly index: number;
+  /** The player model, with its studio rig. */
+  readonly model: PlayerModel;
+  /** The species of the player. */
+  readonly species: SpeciesId;
+  /** The wall time of the sample, in seconds, before the first play. */
+  readonly wall: number;
+  /** The audibility of each seat: all audible. */
+  readonly audible: readonly SeatAudibility[];
+  /** The pose buffer of the scene, which each pose of the sample writes before it reads it. */
+  readonly buffer: ScenePoseBuffer;
+}
+
+/**
+ * Finds the rest samples of a scan: the first seated body of the role in each demo
+ * (`roleBodies()` of `pnpm fold-probe`), at each wall time. A standing player, such as a soloist,
+ * has no lap and does not count.
+ *
+ * @param role The role.
+ * @param demos The demos. A demo with no seated body of the role adds nothing.
+ * @param walls The wall times of the rest pose before the first play, in seconds.
+ * @returns The samples, by demo, then by wall time.
+ */
+export function scanSamples(
+  role: RoleSource,
+  demos: readonly DemoFile[],
+  walls: readonly number[],
+): ScanSample[] {
+  const samples: ScanSample[] = [];
+  for (const demo of demos) {
+    const scene = sceneOf(demo.bytes);
+    const seated = roleBodies(role, scene).find(
+      (body) => body.index !== null && scene.layout.players[body.index]?.cast.support !== 'stand',
+    );
+    if (!seated || seated.index === null) {
+      continue;
+    }
+    const cast = scene.layout.players[seated.index]?.cast;
+    if (!cast) {
+      continue;
+    }
+    const id = demo.file.replace(/\.mid$/, '');
+    const audible = allAudible(scene.score);
+    const buffer = createScenePose(scene.plan);
+    for (const wall of walls) {
+      samples.push({
+        sample: `${id} player ${seated.index} (${cast.species}, ${cast.support}) wall ${wall} s`,
+        scene,
+        index: seated.index,
+        model: seated.model,
+        species: cast.species,
+        wall,
+        audible,
+        buffer,
+      });
+    }
+  }
+  return samples;
+}
+
+/**
+ * Builds the note layer of a player again with the holds of now (`holdOf()` and `windHoldOf()`),
+ * as `noteLayerOf()` of `pose/plan.ts` builds it. Only the rig changes: the strokes of a bowed
+ * player and the track of a wind player keep the rig of the old layer, and the rest pose before
+ * the first play does not read them.
+ *
+ * @param note The note layer of the plan.
+ * @param model The player model.
+ * @param species The species of the player.
+ * @param instrument The instrument of the player.
+ * @returns The note layer with the new rig.
+ * @throws Error for an instrument that is not a bowed string or a wind instrument.
+ */
+function rebuiltNote(
+  note: NoteLayer,
+  model: PlayerModel,
+  species: SpeciesId,
+  instrument: InstrumentId,
+): NoteLayer {
+  if (note.family === 'bowed' && isInFamily(instrument, ['bowed'])) {
+    return { ...note, rig: bowedRig(model, instrument, holdOf(species, instrument)) };
+  }
+  if (
+    (note.family === 'woodwind' || note.family === 'brass') &&
+    isInFamily(instrument, ['woodwind', 'brass'])
+  ) {
+    return { ...note, rig: windRig(model, instrument, windHoldOf(species, instrument)) };
+  }
+  throw new Error(
+    `The scan builds the rig of a bowed string or a wind instrument again, and the ${instrument} has the motion family ${note.family}.`,
+  );
+}
+
+/**
+ * Gives a pose plan with the rig of one player built again with the holds of now
+ * ({@link rebuiltNote}). The other players keep their plans. The scene keeps its layout, because
+ * no layout rule reads a hold.
+ *
+ * @param plan The plan of the scene.
+ * @param index The index of the player.
+ * @param model The player model.
+ * @param species The species of the player.
+ * @returns The new plan.
+ * @throws Error if the plan has no player at the index, or the player has no bowed string or wind
+ *   instrument.
+ */
+export function rebuiltRig(
+  plan: PosePlan,
+  index: number,
+  model: PlayerModel,
+  species: SpeciesId,
+): PosePlan {
+  const player = plan.players[index];
+  if (!player) {
+    throw new Error(`The plan has no player ${index}.`);
+  }
+  const note = rebuiltNote(player.note, model, species, player.instrument);
+  return {
+    ...plan,
+    players: plan.players.map((other, i) => (i === index ? { ...other, note } : other)),
+  };
+}
+
+/**
+ * Counts the folded faces of the studio skin of a posed player by the side of their main bone, as
+ * `countPose()` of `pnpm fold-probe` finds them (`foldedFaces()`).
+ *
+ * @param model The player model.
+ * @param pose The pose of the player.
+ * @returns The folded faces by side, or none for a model with no studio rig.
+ */
+export function studioFolds(model: PlayerModel, pose: AnimalPose): SideSplit {
+  const rig = model.studio;
+  if (!rig) {
+    return { L: 0, R: 0, other: 0 };
+  }
+  const studio = poseStudioBones(
+    rig,
+    model.skeleton,
+    pose.rotations,
+    studioOffsets(pose),
+    1,
+    createStudioPose(),
+  );
+  const posed = skinStudioMesh(rig.mesh, studio);
+  return sideSplit(foldedFaces(rig.mesh, studio.matrices, posed).map((f) => mainBone(rig.mesh, f)));
+}
+
+/** The rest of one scan sample with the holds of now. */
+export interface ScanRest {
+  /** The name of the sample ({@link ScanSample.sample}). */
+  readonly sample: string;
+  /** The lap rest of the sample ({@link lapRest}), or `null` for a player with no instrument. */
+  readonly lap: LapRest | null;
+  /** The folded faces of the studio skin by the side of their main bone ({@link studioFolds}). */
+  readonly folds: SideSplit;
+}
+
+/**
+ * Measures one rest sample with the holds of now: it builds the rig of the player again
+ * ({@link rebuiltRig}), poses the scene in the rest before the first play at the wall time of the
+ * sample, and measures the lap rest and the folded faces of the player. The scene, the layout, and
+ * the other players stay, so a variant of a hold takes a part of the time of `sceneOf()`.
+ *
+ * @param sample The sample ({@link scanSamples}).
+ * @param body The obstacle of the body of the sweep of the role.
+ * @returns The rest of the sample.
+ * @throws Error if the pose has no player at the index of the sample.
+ */
+export function scanRest(sample: ScanSample, body: SweepObstacle): ScanRest {
+  const { scene, index, model, species, wall } = sample;
+  const plan = rebuiltRig(scene.plan, index, model, species);
+  const start = -countInAt(plan.beats, 0).lengthSec;
+  const pose = poseAt(plan, start, wall, NOT_STARTED, sample.audible, sample.buffer).players[index];
+  if (!pose) {
+    throw new Error(`The pose has no player ${index}.`);
+  }
+  const posed = poseSkeleton(model, pose);
+  return {
+    sample: sample.sample,
+    lap: lapRest(posed, body.surface(posed)),
+    folds: studioFolds(model, pose),
+  };
 }
