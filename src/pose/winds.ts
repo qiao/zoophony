@@ -328,10 +328,12 @@ export const FOX_FLUTE_BACK = 9;
  *
  * With the thighs 25° down and the vertical shins of 2026-10-17, the knees are lower, and the rest
  * of 2026-10-16 put the left upper arm 3.6 cm into the body and the foot joint 5.4 cm above the
- * right leg (2026-10-17-fox-form decisions). The flute now moves 0.06 H further out and 0.06 H lower,
- * the right elbow points out and down with no turn back, and the left paw rests 0.5 H out and
- * 0.24 H down from the top of the left thigh. A flute nearer to the leg put the right upper arm
- * into the body: with the foot joint 2.0 cm above the leg, it went 3.7 cm into the body.
+ * right leg (2026-10-17-fox-form decisions). The flute now moves 0.06 H further out and 0.13 H
+ * back toward the body, the right elbow points out and down with no turn back, and the left paw
+ * rests 0.5 H out and 0.24 H down from the top of the left thigh. The right palm keeps 1.2 cm of
+ * reach to its grip (`pnpm hold-reach fox-tan --instrument flute`): with the flute 0.06 H lower,
+ * it missed the grip by 1.7 cm. A flute nearer to the leg put the right upper arm into the body:
+ * with the foot joint 2.0 cm above the leg, it went 3.7 cm into the body.
  */
 const FOX_FLUTE = {
   ...WOODWIND,
@@ -341,7 +343,7 @@ const FOX_FLUTE = {
   poleL: [-1, -1, -0.3],
   poleR: [1, -0.8, 0],
   rest: fluteTurn(-136, 80, [-0.545, 0, 0.839]),
-  restShift: [0.95, -0.85, 0.35],
+  restShift: [0.95, -0.8, 0.45],
   restPoleL: [-0.15, -1, 0.38],
   restPoleR: [0.69, -1, -0.01],
   restFreeL: {
