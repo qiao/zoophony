@@ -122,6 +122,15 @@
     "darkReach": 2,
     "note": "Each eye shell is a fan from the middle of the dark faces of the eye to at most this number of points of their edge, lifted this far (units) along the normal of the eye. pnpm studio-body finds each eye by its fan, drops the fan, and the app puts its pea eye there (design 4.5). The old eye is the dark faces and each face whose middle lies within reach times the radius of their edge, seen along the normal of the eye: 67 faces on the left and 66 on the right, with the few green faces of the irises. After the palette, the faces of the old eye take the color with the largest area in the ring of faces that share a corner with it: 50% of the area of the ring of the left eye and 41% of the right eye. Then each patch of dark faces near an old eye takes the color of its own ring. The cat has no such patch within darkReach: the nearest dark faces, the nostrils and the mouth, lie in front of the plane of the eye. The values are the values of the fox."
   },
+  "smooth": {
+    "box": [
+      [-0.12, 0.65, -0.2],
+      [0.12, 0.74, 0.12]
+    ],
+    "rounds": 12,
+    "share": 0.5,
+    "note": "The big head of the cat hangs over its thin neck, and in the app the underside of the head faces down into the shadow of the head: a black band under the head from the back and the sides, and a thin dark line under the chin from the front. The face colors there are the cream and the gray of the fur, and a render with a flat light shows no line (docs/research/2026-10-16-cat-mesh/chin-blender.png). So the rig smooths the source inside the box before the weights, as for the dark band at the back of the neck of the fox: the neck and the bottom of the head from the back to the front of the neck (x from -0.12 to 0.12, y from 0.65 to 0.74, behind z 0.12). The chin, the jaw, the muzzle, and the eyes stay outside the box. Each vertex inside moves 0.5 of the way to the middle of its neighbors in 12 rounds: 34 vertices, at most 0.031 units. The head height H, the head center of the holds, the seat, and the footprint stay. A box to z 0.25 also smoothed the chin and changed H from 0.339 m to 0.352 m (rig-mesh-check-cat-smooth-1.log and -2.log)."
+  },
   "chair": {
     "halfWidth": 0.17,
     "front": 0.1,
