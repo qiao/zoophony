@@ -218,12 +218,19 @@ export const STUDIO_PALETTES = ['tan'] as const;
 export type StudioPalette = (typeof STUDIO_PALETTES)[number];
 
 /**
- * The pose of the corrective shape of a raised arm of a mesh rig (design 4.4, `raise` of the config
+ * The largest number of corrective shapes of a raised arm or of a bent wrist of one studio body
+ * ({@link StudioBody.raises}, `RAISE_LIMIT` of `tools/blender/rig_mesh.py`).
+ */
+export const STUDIO_RAISES = 4;
+
+/**
+ * The pose of a corrective shape of a raised arm of a mesh rig (design 4.4, `raise` of the config
  * of `pnpm rig-mesh`). The shape relaxes the faces that the skin turns over near that pose, such as
  * the front of the right shoulder of the red fox, whose bow arm is out to the side and down. Its
  * weight comes from the turn of the upper arm alone (`raiseWeight()` of `models/studio-rig.ts`).
  * The shape of a bent wrist takes its weight from the turn of the paw from the forearm, as the
- * left wrist of the cat, whose paw stays near one turn on the fingerboard.
+ * left wrist of the cat, whose paw stays near one turn on the fingerboard. A body can have up to
+ * {@link STUDIO_RAISES} such shapes, and each one takes its weight from its own turn.
  */
 export interface StudioRaise {
   /** The arm of the shape. */
@@ -340,10 +347,11 @@ export interface StudioBody {
    */
   readonly standing: StudioStanding | null;
   /**
-   * The pose of the corrective shape of a raised arm. The packed mesh then holds that shape after
-   * the two arm-down shapes, before the leg shapes. A body with no such shape has none.
+   * The poses of the corrective shapes of a raised arm or of a bent wrist, at most
+   * {@link STUDIO_RAISES}. The packed mesh holds these shapes in this order after the two arm-down
+   * shapes, before the leg shapes. A body with no such shape has none.
    */
-  readonly raise?: StudioRaise;
+  readonly raises?: readonly StudioRaise[];
   /**
    * The crease angle of the smooth normals of the fur, in degrees (design 4.5), from the settings
    * of the animal.

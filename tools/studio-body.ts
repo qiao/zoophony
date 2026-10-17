@@ -19,6 +19,7 @@ import {
   STUDIO_ARM_BONES,
   STUDIO_BONES,
   STUDIO_LEG_BONES,
+  STUDIO_RAISES,
   STUDIO_TAIL_BONES,
   STUDIO_TRUNK_BONES,
   packStudioMesh,
@@ -266,24 +267,31 @@ export const CORRECTIVE_NAMES = ['arm_down_L', 'arm_down_R'] as const;
 export const LEG_CORRECTIVE_NAMES = ['legs_straight_L', 'legs_straight_R'] as const;
 
 /**
- * The corrective shape of a raised arm of a rig of `pnpm rig-mesh` (`raise` of its config), by
- * the side of the arm. It follows {@link CORRECTIVE_NAMES} in the packed mesh.
+ * The corrective shape of a raised arm or of a bent wrist of a rig of `pnpm rig-mesh` (`raise` of
+ * its config) whose pose names no morph target, by the side of the arm: the one shape of a file
+ * with one pose. A file with a list of poses names the target of each pose, such as `arm_raise_R2`
+ * for the second shape of the right arm. These shapes follow {@link CORRECTIVE_NAMES} in the packed
+ * mesh.
  */
 export const RAISE_NAMES = { L: 'arm_raise_L', R: 'arm_raise_R' } as const;
 
+/** The form of the name of the morph target of a shape of a raised arm or of a bent wrist. */
+const RAISE_TARGET = /^arm_raise_[LR]\d*$/;
+
 /**
- * Gives the corrective shapes that the export keeps for an animal: the arm-down shapes, the shape
- * of a raised arm when the file has one, and the leg shapes of a seated body that also stands.
+ * Gives the corrective shapes that the export keeps for an animal: the arm-down shapes, the shapes
+ * of a raised arm or of a bent wrist of the file, and the leg shapes of a seated body that also
+ * stands.
  *
  * @param settings The settings of the animal.
- * @param targets The names of the morph targets of the file.
+ * @param raised The morph targets of the shapes of a raised arm or of a bent wrist, in the order of
+ *   their poses ({@link raisesOf}).
  * @returns The names, in their order in the packed mesh.
  */
 export function keptCorrectives(
   settings: AnimalSettings,
-  targets: readonly string[],
+  raised: readonly string[],
 ): readonly string[] {
-  const raised = Object.values(RAISE_NAMES).filter((name) => targets.includes(name));
   return [...CORRECTIVE_NAMES, ...raised, ...(settings.soloist ? LEG_CORRECTIVE_NAMES : [])];
 }
 
@@ -419,20 +427,38 @@ interface Gltf {
        */
       readonly trunk?: number;
       /**
-       * The pose of the corrective shape of a raised arm (`raise` of the config of the mesh rig):
-       * the side, the world turn of the upper arm from the bind pose as x, y, z, w in the axes of
-       * the studio, and the angles of the turn from that turn, in degrees, at which the weight of
-       * the shape starts to fall and reaches 0. With the bone `hand`, the turn is the turn of the
-       * paw from the forearm. The file has none with no such shape.
+       * The pose of the corrective shape of a raised arm or of a bent wrist (`raise` of the config
+       * of the mesh rig), or a list of such poses. The file has none with no such shape.
        */
-      readonly raise?: {
-        readonly side?: string;
-        readonly bone?: string;
-        readonly turn?: readonly number[];
-        readonly fade?: readonly number[];
-      };
+      readonly raise?: RaiseExtras | readonly RaiseExtras[];
     };
   };
+}
+
+/**
+ * The pose of a corrective shape of a raised arm or of a bent wrist in the extras of a GLB file of
+ * `pnpm rig-mesh` (`raise` of its config), in the axes of the studio.
+ */
+export interface RaiseExtras {
+  /** The side of the arm: `L` or `R`. */
+  readonly side?: string;
+  /** The bone of the turn: `hand` for a bent wrist, or none for the upper arm. */
+  readonly bone?: string;
+  /**
+   * The turn at which the shape has its full weight, as x, y, z, w: the world turn of the upper
+   * arm from the bind pose, or with the bone `hand` the turn of the paw from the forearm.
+   */
+  readonly turn?: readonly number[];
+  /**
+   * The angles of the turn from {@link RaiseExtras.turn}, in degrees, at which the weight of the
+   * shape starts to fall and reaches 0.
+   */
+  readonly fade?: readonly number[];
+  /**
+   * The morph target of the shape. A pose in a list names it, and the one pose of a file takes
+   * the name of its side in {@link RAISE_NAMES}.
+   */
+  readonly target?: string;
 }
 
 /** A GLB file: its JSON part and its binary part. */
@@ -489,54 +515,85 @@ export function headShiftOf(glb: Glb): Vector3 {
   return new Vector3(...shift);
 }
 
+/** A corrective shape of a raised arm or of a bent wrist of a GLB file. */
+export interface FileRaise {
+  /** The pose of the shape in the model axes. */
+  readonly pose: StudioRaise;
+  /** The morph target of the shape. */
+  readonly target: string;
+}
+
 /**
- * Gives the pose of the corrective shape of a raised arm of the rig of a GLB file (`pnpm
- * rig-mesh`) in the model axes (design 4.4): the turn of the upper arm turns by a half circle
- * around y, and the angles go to radians.
+ * Gives the poses of the corrective shapes of a raised arm or of a bent wrist of the rig of a GLB
+ * file (`pnpm rig-mesh`) in the model axes (design 4.4), in their order in the file: the turn turns
+ * by a half circle around y, and the angles go to radians. The file holds one pose, or a list of
+ * up to {@link STUDIO_RAISES} poses.
  *
  * @param glb The file.
- * @returns The pose, or `null` when the file has no such shape.
- * @throws Error if the side is not `L` or `R`, if the bone is given and is not `hand`, if the
- *   turn is not four finite numbers of length 1, if the angles are not two numbers with
- *   0 <= first < second, or if the file has no morph target of the shape.
+ * @returns The shapes, or none when the file has no such shape.
+ * @throws Error if the file has more than {@link STUDIO_RAISES} poses, if a side is not `L` or
+ *   `R`, if a bone is given and is not `hand`, if a turn is not four finite numbers of length 1,
+ *   if the angles are not two numbers with 0 <= first < second, if a target does not have the form
+ *   `arm_raise_<side>`, if two poses name one target, or if the file has no morph target of a
+ *   shape.
  */
-export function raiseOf(glb: Glb): StudioRaise | null {
-  const raise = glb.json.asset?.extras?.raise;
-  if (!raise) {
-    return null;
+export function raisesOf(glb: Glb): FileRaise[] {
+  const extras = glb.json.asset?.extras?.raise;
+  if (!extras) {
+    return [];
   }
-  const { side, bone, turn = [], fade = [] } = raise;
-  if (side !== 'L' && side !== 'R') {
-    throw new Error(`The side ${String(side)} of the raised arm is not L or R.`);
+  const list: readonly RaiseExtras[] = Array.isArray(extras) ? extras : [extras];
+  if (list.length > STUDIO_RAISES) {
+    throw new Error(`The file has ${list.length} raised arms, more than ${STUDIO_RAISES}.`);
   }
-  if (bone !== undefined && bone !== 'hand') {
-    throw new Error(`The bone ${bone} of the raised arm is not hand.`);
+  const targets = targetNamesOf(glb);
+  const out: FileRaise[] = [];
+  for (const raise of list) {
+    const { side, bone, turn = [], fade = [] } = raise;
+    if (side !== 'L' && side !== 'R') {
+      throw new Error(`The side ${String(side)} of the raised arm is not L or R.`);
+    }
+    if (bone !== undefined && bone !== 'hand') {
+      throw new Error(`The bone ${bone} of the raised arm is not hand.`);
+    }
+    const [x = 0, y = 0, z = 0, w = 0] = turn;
+    if (
+      turn.length !== 4 ||
+      !turn.every((v) => Number.isFinite(v)) ||
+      Math.abs(Math.hypot(x, y, z, w) - 1) > 1e-4
+    ) {
+      throw new Error(
+        `The turn ${JSON.stringify(turn)} of the raised arm is not a unit quaternion.`,
+      );
+    }
+    const [full = NaN, none = NaN] = fade;
+    if (fade.length !== 2 || !(full >= 0 && none > full)) {
+      throw new Error(`The angles ${JSON.stringify(fade)} of the raised arm do not fade.`);
+    }
+    const target = raise.target ?? RAISE_NAMES[side];
+    if (!RAISE_TARGET.test(target)) {
+      throw new Error(`The target ${target} of the raised arm is not arm_raise_<side>.`);
+    }
+    if (out.some((other) => other.target === target)) {
+      throw new Error(`Two raised arms have the morph target ${target}.`);
+    }
+    if (!targets.includes(target)) {
+      throw new Error(`The file has no morph target ${target}.`);
+    }
+    // The turn of a half circle around y moves a rotation into the model axes: x and z change
+    // sign.
+    const model: Quat = [round(-x), round(y), round(-z), round(w)];
+    const angles: [number, number] = [
+      round(full * MathUtils.DEG2RAD),
+      round(none * MathUtils.DEG2RAD),
+    ];
+    const pose: StudioRaise =
+      bone === 'hand'
+        ? { side, bone, turn: model, fade: angles }
+        : { side, turn: model, fade: angles };
+    out.push({ pose, target });
   }
-  const [x = 0, y = 0, z = 0, w = 0] = turn;
-  if (
-    turn.length !== 4 ||
-    !turn.every((v) => Number.isFinite(v)) ||
-    Math.abs(Math.hypot(x, y, z, w) - 1) > 1e-4
-  ) {
-    throw new Error(`The turn ${JSON.stringify(turn)} of the raised arm is not a unit quaternion.`);
-  }
-  const [full = NaN, none = NaN] = fade;
-  if (fade.length !== 2 || !(full >= 0 && none > full)) {
-    throw new Error(`The angles ${JSON.stringify(fade)} of the raised arm do not fade.`);
-  }
-  if (!targetNamesOf(glb).includes(RAISE_NAMES[side])) {
-    throw new Error(`The file has no morph target ${RAISE_NAMES[side]}.`);
-  }
-  // The turn of a half circle around y moves a rotation into the model axes: x and z change sign.
-  const pose: StudioRaise = {
-    side,
-    turn: [round(-x), round(y), round(-z), round(w)],
-    fade: [round(full * MathUtils.DEG2RAD), round(none * MathUtils.DEG2RAD)],
-  };
-  if (bone === 'hand') {
-    return { side, bone, turn: pose.turn, fade: pose.fade };
-  }
-  return pose;
+  return out;
 }
 
 /**
@@ -1636,7 +1693,8 @@ interface ClipHead {
 
 /**
  * Gives the head of a mesh in the clip `reference`, the form of the source: the place of each
- * vertex with each corrective shape at its full weight except the shape of a raised arm, the neck
+ * vertex with each corrective shape at its full weight except the shapes of a raised arm or of a
+ * bent wrist, the neck
  * and the head joints, and the move of the head bone from the clip back to the bind pose.
  *
  * @param glb The file.
@@ -1704,9 +1762,12 @@ interface Export {
 export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSettings): Export {
   const glb = readGlb(bytes);
   const skeleton = readSkeleton(glb);
-  const kept = keptCorrectives(settings, targetNamesOf(glb));
+  const raises = raisesOf(glb);
+  const kept = keptCorrectives(
+    settings,
+    raises.map((raise) => raise.target),
+  );
   const mesh = weldMesh(glb, kept);
-  const raise = raiseOf(glb);
   const frame = sceneFrame(glb, skeleton, mesh, settings);
   const scale = frame.scale;
   const model = (p: Vector3): Vec3 => toModelAxes(p.clone().add(frame.offset), scale);
@@ -1876,8 +1937,8 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     crease: settings.crease,
     mesh: packStudioMesh(vertices, ordered.faces, correctives),
   };
-  if (raise) {
-    body = { ...body, raise };
+  if (raises.length > 0) {
+    body = { ...body, raises: raises.map((raise) => raise.pose) };
   }
   if (frame.chairWidth !== null) {
     body = { ...body, chairWidth: frame.chairWidth };
@@ -2210,7 +2271,10 @@ export function inspectStudioGlb(
   const animal = skinned?.mesh === undefined ? undefined : gltf.meshes[skinned.mesh];
   const targets = (animal?.extras?.targetNames ?? []).map((name) => ({
     name,
-    kept: keptCorrectives(used, animal?.extras?.targetNames ?? []).includes(name),
+    kept: keptCorrectives(
+      used,
+      raisesOf(glb).map((raise) => raise.target),
+    ).includes(name),
   }));
   const lowest = new Vector3(0, Infinity, 0);
   for (const primitive of animal?.primitives ?? []) {

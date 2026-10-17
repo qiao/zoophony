@@ -8,6 +8,7 @@ import {
   STUDIO_BONES,
   STUDIO_LEG_BONES,
   STUDIO_PARENTS,
+  STUDIO_RAISES,
   STUDIO_TAIL_BONES,
   unpackStudioMesh,
 } from './studio-format.ts';
@@ -165,8 +166,9 @@ export interface StudioPose {
   readonly matrices: Float32Array;
   /**
    * The weight of each arm corrective shape, from 0 to 1, in the order of the shapes of a packed
-   * studio mesh: the left arm down, the right arm down, and the raised arm. The weight of the
-   * raised arm is 0 for a body with no such shape.
+   * studio mesh: the left arm down, the right arm down, and the shapes of
+   * {@link StudioBody.raises} in their order. It holds {@link STUDIO_RAISES} weights after the two
+   * arm-down shapes, and each weight past the shapes of the body is 0.
    */
   readonly correctives: Float32Array;
 }
@@ -220,7 +222,10 @@ const SLIDE = boneIndex('slide');
 /** The number of matrices of a {@link StudioPose}. */
 export const STUDIO_POSE_BONES = STUDIO_BONES.length + BONE_NAMES.length;
 
-/** The index of the weight of the shape of a raised arm in {@link StudioPose.correctives}. */
+/**
+ * The index of the weight of the first shape of a raised arm or of a bent wrist in
+ * {@link StudioPose.correctives}.
+ */
 const RAISED = 2;
 
 /**
@@ -233,7 +238,7 @@ export function createStudioPose(): StudioPose {
   for (let b = 0; b < STUDIO_POSE_BONES; b++) {
     matrices.set([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], b * 16);
   }
-  return { matrices, correctives: new Float32Array(RAISED + 1) };
+  return { matrices, correctives: new Float32Array(RAISED + STUDIO_RAISES) };
 }
 
 /**
@@ -392,13 +397,13 @@ export interface PosedStudioBody {
 
 /**
  * Gives the number of the arm corrective shapes of a studio body, the first shapes of its packed
- * mesh: the two arm-down shapes, and the shape of a raised arm when the body has one.
+ * mesh: the two arm-down shapes, and the shapes of a raised arm or of a bent wrist of the body.
  *
  * @param body The studio body.
  * @returns The number.
  */
 function armCorrectives(body: StudioBody): number {
-  return body.raise ? RAISED + 1 : RAISED;
+  return RAISED + (body.raises?.length ?? 0);
 }
 
 /** The bones of a studio body in a pose of world turns from the bind pose. */
@@ -453,11 +458,12 @@ function chainPose(body: StudioBody, own: ReadonlyMap<StudioBone, Quat>): ChainP
  * Solves the arm corrective shapes of a standing body again (`StudioStanding.armTurns`): the move
  * of each vertex of an arm shape in the standing bind pose that the arms of the pose of the sheet
  * take to the one blend of the clip of the sheet. That blend is the seated bind with all corrective
- * shapes, except the shape of a raised arm, and the world turns of the standing pose and of the arms
- * of the sheet. The vertex blends the moves of its bones from the standing bind to the sheet, and
- * the solve inverts that blend, as `correctives()` of `tools/blender/rig_mesh.py` does for the
- * seated bind. Each move splits into the left and the right shape as the shapes of the export
- * split it. The shape of a raised arm turns with the blend of the standing turns of its vertex.
+ * shapes, except the shapes of a raised arm or of a bent wrist, and the world turns of the standing
+ * pose and of the arms of the sheet. The vertex blends the moves of its bones from the standing
+ * bind to the sheet, and the solve inverts that blend, as `correctives()` of
+ * `tools/blender/rig_mesh.py` does for the seated bind. Each move splits into the left and the
+ * right shape as the shapes of the export split it. Each shape of a raised arm or of a bent wrist
+ * turns with the blend of the standing turns of its vertex.
  *
  * @param body The seated studio body.
  * @param mesh The unpacked mesh of the body.
@@ -481,9 +487,7 @@ function standingArmCorrectives(
   }
   const sheet = chainPose(body, sheetTurns);
   const all = new Float32Array(mesh.correctives.length).fill(1);
-  if (body.raise) {
-    all[RAISED] = 0;
-  }
+  all.fill(0, RAISED, armCorrectives(body));
   const target = skinStudioMesh(mesh, { matrices: sheet.matrices, correctives: all });
 
   // The move of each bone from the standing bind to the sheet, and the turn of each bone from the
@@ -496,8 +500,7 @@ function standingArmCorrectives(
   const first = STUDIO_BONES.map((_, b) => new Matrix4().fromArray(stand.matrices, b * 16));
 
   const moves = mesh.correctives.slice(0, armCorrectives(body)).map((part) => part.slice());
-  const [left, right] = moves;
-  const raised = body.raise ? moves[RAISED] : undefined;
+  const [left, right, ...raised] = moves;
   if (!left || !right) {
     return moves;
   }
@@ -506,6 +509,7 @@ function standingArmCorrectives(
   const move = new Vector3();
   const total = new Vector3();
   const leftMove = new Vector3();
+  const raise = new Vector3();
   for (let v = 0; v < standing.length / 3; v++) {
     const at = v * 3;
     total.set(
@@ -513,13 +517,13 @@ function standingArmCorrectives(
       (left[at + 1] ?? 0) + (right[at + 1] ?? 0),
       (left[at + 2] ?? 0) + (right[at + 2] ?? 0),
     );
-    const raise = raised ? new Vector3().fromArray(raised, at) : null;
-    if (total.lengthSq() === 0 && (!raise || raise.lengthSq() === 0)) {
-      continue;
-    }
-    if (raise && raise.lengthSq() > 0) {
-      raise.applyMatrix3(new Matrix3().setFromMatrix4(blended(mesh, v, first, blend, part)));
-      raise.toArray(raised ?? [], at);
+    let turn: Matrix3 | null = null;
+    for (const extra of raised) {
+      raise.fromArray(extra, at);
+      if (raise.lengthSq() > 0) {
+        turn ??= new Matrix3().setFromMatrix4(blended(mesh, v, first, blend, part));
+        raise.applyMatrix3(turn).toArray(extra, at);
+      }
     }
     if (total.lengthSq() === 0) {
       continue;
@@ -810,8 +814,8 @@ function writeMatrix(
  * from the forearm to the paw. The fingers of the studio curl around their own axis by the curl
  * of the fingers of the player. The arm-down shape of each arm takes its weight from the
  * direction of the upper arm between the bind pose of the studio and the pose of the sheet, as in
- * the studio. The shape of a raised arm takes its weight from the turn of its upper arm
- * ({@link raiseWeight}). The eyes
+ * the studio. Each shape of a raised arm takes its weight from the turn of its upper arm, and each
+ * shape of a bent wrist from the turn of its paw from the forearm ({@link raiseWeight}). The eyes
  * scale on y for a blink. The bones of the player follow, for the instrument, with the offsets of
  * the instrument and of the slide, as the scene moves them (design 5.1).
  *
@@ -880,8 +884,8 @@ export function poseStudioBones(
   }
 
   chestInverse.copy(rotations[boneIndex('chest')] ?? new Quaternion()).invert();
-  const raise = rig.body.raise;
-  out.correctives[RAISED] = 0;
+  const raises = rig.body.raises ?? [];
+  out.correctives.fill(0, RAISED);
   for (const arm of [rig.arms.L, rig.arms.R]) {
     poseArm(rig, arm, pose, out);
     // The corrective weight: the place of the upper arm on the way from the bind pose of the
@@ -890,7 +894,10 @@ export function poseStudioBones(
     span.fromArray(arm.sheet).sub(upperBind.fromArray(arm.upper));
     const weight = current.sub(upperBind).dot(span) / span.lengthSq();
     out.correctives[arm.side === 'L' ? 0 : 1] = Math.min(1, Math.max(0, weight));
-    if (raise?.side === arm.side) {
+    for (const [k, raise] of raises.entries()) {
+      if (raise.side !== arm.side) {
+        continue;
+      }
       // The shape of a bent wrist reads the turn of the paw from the forearm, and the shape of a
       // raised arm the turn of the upper arm in the axes of the chest.
       if (raise.bone === 'hand') {
@@ -898,7 +905,7 @@ export function poseStudioBones(
       } else {
         relative.copy(chestInverse).multiply(upperTurn);
       }
-      out.correctives[RAISED] = raiseWeight(raise, [
+      out.correctives[RAISED + k] = raiseWeight(raise, [
         relative.x,
         relative.y,
         relative.z,

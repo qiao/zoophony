@@ -26,7 +26,7 @@ import {
   studioBody,
   studioGlbPath,
   studioModule,
-  raiseOf,
+  raisesOf,
   readGlb,
   ungrown,
   weldMesh,
@@ -1006,25 +1006,27 @@ describe('pnpm studio-body with the shape of a raised arm (design 4.4)', async (
   });
 
   it('turns the pose of the raised arm into the model axes, with the fade in radians', () => {
-    expect(studioBody(bytes, SOURCE, settings).body.raise).toBeUndefined();
+    expect(studioBody(bytes, SOURCE, settings).body.raises).toBeUndefined();
     const body = studioBody(withRaise(bytes, raise), SOURCE, settings).body;
     // The studio animal faces +z and the model faces -z: a half circle around y.
     const model = new Quaternion(-turn.x, turn.y, -turn.z, turn.w);
-    expect(body.raise?.side).toBe('R');
-    expect(new Quaternion(...(body.raise?.turn ?? [0, 0, 0, 1])).angleTo(model)).toBeLessThan(1e-5);
-    expect(body.raise?.fade[0]).toBeCloseTo((10 * Math.PI) / 180, 6);
-    expect(body.raise?.fade[1]).toBeCloseTo((20 * Math.PI) / 180, 6);
+    const [pose] = body.raises ?? [];
+    expect(body.raises).toHaveLength(1);
+    expect(pose?.side).toBe('R');
+    expect(new Quaternion(...(pose?.turn ?? [0, 0, 0, 1])).angleTo(model)).toBeLessThan(1e-5);
+    expect(pose?.fade[0]).toBeCloseTo((10 * Math.PI) / 180, 6);
+    expect(pose?.fade[1]).toBeCloseTo((20 * Math.PI) / 180, 6);
   });
 
   it('refuses a pose of a raised arm with a wrong side, turn, or fade, or with no shape', () => {
     const glb = (changed: Partial<typeof raise>): Glb =>
       readGlb(withRaise(bytes, { ...raise, ...changed }));
-    expect(() => raiseOf(glb({ side: 'X' }))).toThrow(/not L or R/);
-    expect(() => raiseOf(glb({ turn: [0, 0, 0, 2] }))).toThrow(/unit quaternion/);
-    expect(() => raiseOf(glb({ turn: [0, 0, 1] }))).toThrow(/unit quaternion/);
-    expect(() => raiseOf(glb({ fade: [20, 10] }))).toThrow(/do not fade/);
-    expect(() => raiseOf(glb({ fade: [10] }))).toThrow(/do not fade/);
-    expect(() => raiseOf(glb({ side: 'L' }))).toThrow(/no morph target arm_raise_L/);
+    expect(() => raisesOf(glb({ side: 'X' }))).toThrow(/not L or R/);
+    expect(() => raisesOf(glb({ turn: [0, 0, 0, 2] }))).toThrow(/unit quaternion/);
+    expect(() => raisesOf(glb({ turn: [0, 0, 1] }))).toThrow(/unit quaternion/);
+    expect(() => raisesOf(glb({ fade: [20, 10] }))).toThrow(/do not fade/);
+    expect(() => raisesOf(glb({ fade: [10] }))).toThrow(/do not fade/);
+    expect(() => raisesOf(glb({ side: 'L' }))).toThrow(/no morph target arm_raise_L/);
   });
 });
 

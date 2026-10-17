@@ -250,7 +250,7 @@ describe('poseStudioBones with the shape of a raised arm (design 4.4)', () => {
     turn: [upper.x, upper.y, upper.z, upper.w],
     fade: [0.1, 0.3],
   };
-  const raisedRig = studioRig({ ...STUDIO_BEAR, raise });
+  const raisedRig = studioRig({ ...STUDIO_BEAR, raises: [raise] });
   const poseRaised = (rotations: Float32Array) =>
     poseStudioBones(raisedRig, skeleton, rotations, NO_OFFSETS, 1, createStudioPose());
 

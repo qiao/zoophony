@@ -260,7 +260,8 @@ function applyStudioPose(mesh: SkinnedMesh, pose: AnimalPose): boolean {
   }
   const influences = mesh.morphTargetInfluences;
   if (influences) {
-    // The body with a raised arm shape has three morph targets, and the others have two.
+    // A body has two morph targets for the arms down, and one more for each shape of a raised
+    // arm or of a bent wrist.
     for (let i = 0; i < influences.length; i++) {
       influences[i] = correctives[i] ?? 0;
     }
