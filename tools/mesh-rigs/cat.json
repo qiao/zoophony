@@ -4,12 +4,14 @@
   "name": "Cat",
   "weld": 1e-5,
   "app": {
-    "shoulders": 0.55233,
-    "reach": 0.617,
-    "note": "The scale puts the standing shoulder joints 0.55233 m above the floor, the shoulder joints of the parametric cat of main, so that the section layout stays near main (docs/research/2026-10-16-cat-mesh/landmark-probe.txt). That is 0.8684 m for each unit, so the cat is 0.868 m high to the ear tips. The parametric cat is 1.160 m high to its ear tips, the red fox of the app 1.758 m, and the rabbit of the app 1.622 m. The reach is the distance from the left shoulder joint to the scroll in the playing pose of the viola hold of the app (BOWED_HOLDS.viola) at this scale: pnpm hold-reach cat --instrument viola measured 0.617 m (hold-reach-cat-viola.txt). The user chooses the arm factor (arm-factors.txt). With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "shoulders": 1.161345,
+    "reach": 0.5452,
+    "note": "The scale puts the standing ear tips 1.758 m above the floor, the ear tips of the red fox of the app, because the user chose the size of the fox on 2026-10-16 (\"1.76 m, as the fox\"). The leg factor raises the ear tips from 1 to 1.0725 units, so the scale is 1.639161 m for each unit, and the standing shoulder joints are 0.7085 units, 1.161345 m, above the floor (docs/research/2026-10-16-cat-mesh/arm-factors-legs.txt). At the shoulder joints of the parametric cat of main (0.55233 m), the cat was 0.868 m high to the ear tips (landmark-probe.txt). The reach is the reach of the red fox of the app, 0.5452 m from the left shoulder joint to the middle of the palm, because the user chose it on 2026-10-16 (\"Fox reach\"), as for the fox (\"1.08x, rabbit reach\"). The viola hold of the cat moves the viola back toward the neck until the left paw reaches the nut. With no --check, pnpm rig-mesh stops when the reach is more than 1% from this reach."
   },
-  "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. The first config has the factor 1. pnpm rig-mesh cat --check measured 0.2538 m with no factor. The factor 2.551 gives the viola reach of 0.617 m, 2.2444 the reach of the red fox (0.5452 m), and 2.0753 the reach of the rabbit (0.5056 m) (docs/research/2026-10-16-cat-mesh/arm-factors.txt).",
+  "armFactor": 1.1496,
+  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh cat --check measured 0.4791 m with no factor at this scale, so the factor of the reach of the red fox (0.5452 m) is 1.1496. With the leg factor 1 and the ear tips at 1.758 m, the factor was 1.0662, because the shorter body had a larger scale. At the shoulder joints of the parametric cat with the leg factor 1, the reach with no factor was 0.2538 m, and the factor of the reach of the red fox 2.2444 (docs/research/2026-10-16-cat-mesh/arm-factors.txt, arm-factors-legs.txt).",
+  "legFactor": 1.5,
+  "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.0725 units, so that the soles stay at y 0. The user chose the longer legs of the fox on 2026-10-16 (\"Longer legs, 1.5x\"): with the factor 1, the thigh was 0.075 units long and the seat 0.075 m high at the shoulder joints of the parametric cat.",
   "joints": {
     "root": { "head": [0, 0, 0], "tail": [0, 0, 0.1], "roll": [0, 1, 0] },
     "hips": { "head": [0, 0.21, 0.045], "tail": "spine" },
