@@ -438,6 +438,16 @@ export const BOWED_HOLDS = {
  * red fox (2026-10-16-mesh-cat decisions). At the place of the viola hold, the paw reached the
  * fingerboard from 0.29 of its length (`pnpm hold-reach cat --instrument viola`).
  *
+ * The rest pose keeps the rest of the cat violas: the viola stands on the left thigh, and the bow
+ * lies along the outer side of the right knee. The thighs of the cat mesh are long, so the bow
+ * paw does not reach the knee: with the grip at the knee, the straight right arm went 6.9 cm into
+ * the body. The grip is 0.35 H out from the right thigh at half of the way to the knee, and the
+ * bow runs forward and a little down along the thigh past the outer side of the knee. The viola
+ * stands 0.35 H lower and 0.15 H further forward on the left thigh, so that its lower end is near
+ * the thigh. In the lift and the lowering, the bow turns through the front with the grip 0.6 H to
+ * the front, as the upright bow of the violins (`UPRIGHT_BOW`). With a direct mix, the right
+ * forearm went 7.4 cm into the body while the arms lowered.
+ *
  * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
  * out. With the bow of the bind pose of the hand, the long forearm held the bow up in front of the
  * face.
@@ -445,6 +455,14 @@ export const BOWED_HOLDS = {
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
   playShift: [0.05, -0.05, 0.17],
+  restPoleR: [1, -1, 0],
+  rest: { ...CHIN_HOLD.rest, lap: { along: 0.85, offset: [0, -0.35, -0.15] } },
+  restBow: {
+    lap: { along: 0.5, offset: [0.35, -0.1, -0.1] },
+    tip: [0.1, -0.27, -1],
+    hair: [0, -1, 0.2],
+    via: { ...UPRIGHT_BOW.via, reach: [0, 0, -0.6] },
+  },
   standBow: { tip: [0.15, -1, -0.3], hair: [0, 0, 1] },
 } as const satisfies BowedHold;
 
