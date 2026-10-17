@@ -321,12 +321,15 @@ const UPRIGHT_BOW = {
  * The bow of the standing rest of a soloist who hangs it from the right paw with the tip down, a
  * little forward and out (design 5.2, {@link BowedHold.standBow}). With the bow of the bind pose
  * of the hand, the long forearms of the cat, the rabbit, and the red fox held the bow up in front
- * of the face.
+ * of the face. In the lift and the lowering, the tip turns through the front, as the tip of the
+ * upright bow, and the grip moves 0.3 H out and 0.6 H to the front (2026-10-17-cat-bow
+ * decisions): with a direct mix of the hanging bow and the playing bow, the bow went 4.1 cm (cat),
+ * 3.9 cm (rabbit), and 3.3 cm (red fox) into the arms (`pnpm pose-depth <role> --soloist`).
  */
 const HANGING_BOW = {
   tip: [0.15, -1, -0.3],
   hair: [0, 0, 1],
-  via: null,
+  via: { ...UPRIGHT_BOW.via, reach: [0.3, 0, -0.6] },
 } as const satisfies NonNullable<BowedHold['standBow']>;
 
 /**
@@ -503,10 +506,7 @@ export const BOWED_HOLDS = {
  * into the body while the arms lowered (`pnpm hold-fit violist --sets lower`).
  *
  * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
- * out. With the bow of the bind pose of the hand, the long forearm held the bow up in front of the
- * face. In the lift and the lowering, the hanging bow turns through the front with the grip 0.3 H
- * out and 0.6 H to the front: with a direct mix, the bow went 4.1 cm into the arms
- * (`pnpm pose-depth violist --soloist cat`).
+ * out, and turns it through the front in the lift and the lowering (`HANGING_BOW`).
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
@@ -522,7 +522,7 @@ const CAT_HOLD = {
     hair: UPRIGHT_BOW.hair,
     via: { ...UPRIGHT_BOW.via, reach: [0.4, 0, -0.9] },
   },
-  standBow: { ...HANGING_BOW, via: { ...UPRIGHT_BOW.via, reach: [0.3, 0, -0.6] } },
+  standBow: HANGING_BOW,
 } as const satisfies BowedHold;
 
 /**
