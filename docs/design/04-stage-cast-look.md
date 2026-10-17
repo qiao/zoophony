@@ -152,6 +152,8 @@ interface BipedParams extends CommonParams {
 /** A body of its own in place of the parametric biped (4.4): the penguin, or a studio body. */
 interface OwnBodyParams extends CommonParams {
   body: 'penguin' | 'studio-bear' | 'studio-cat' | 'studio-fox' | 'studio-polar-bear' | 'studio-rabbit';
+  /** A seated tail that lies curled on the seat, and does not sway (5.1): the cat. */
+  seatedTail?: 'curl';
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -523,7 +525,11 @@ quarter of the folded faces.
   slope down from the hips to the knees and the shins that slant forward (`studio.legTurns`). The
   buttocks of an image mesh curve up behind the hip joints, so they stay above the seat. A config
   can lower the underside of the haunch behind the hip joints onto the seat in the seated bind
-  (`sit` of the config, `sit()` of `tools/blender/rig_mesh.py`). A config can turn the trunk of
+  (`sit` of the config, `sit()` of `tools/blender/rig_mesh.py`). The vertices at the root of a
+  tail share their weight with the hips. The sit can count them as the haunch (`sit.root`), so
+  that they move down with it, and it can drop the haunch to a fixed seat top (`sit.top`), so
+  that a change of the tail does not move the seat. The cat config does both: with the root of
+  the tail as free, the side view of its haunch stayed 5.2 cm above the seat. A config can turn the trunk of
   the seated bind upright (`studio.trunk`, `trunk_turn()`): the pelvis turns back around the head
   of the hips, each trunk bone takes a share of the turn, and the shares fall to 0 at the head, so
   that the head stays level. The haunch and the root of the tail then rise onto the seat top
@@ -558,7 +564,11 @@ quarter of the folded faces.
   turn of the upper arm and the fade of the rule into the file for the weight of the app. The fox
   config gives the raised bow arm of the red fox such a shape. The tan fox shares the rig, and its
   arms stay out of the fade. Each face takes the nearest color of a
-  palette in Oklab, from the texture of the mesh, and each eye gets a gloss fan over its dark faces,
+  palette in Oklab, from the texture of the mesh. A config can move the faces of the plain fur in
+  Oklab after the palette (`colors.tone`, `tone()`), so that the warm stage light does not turn a
+  gray fur brown: the cat config moves its gray fur and its cream belly half of the way to the
+  gray of its sheet under the stage light, as the user chose on 2026-10-16. The paws, the
+  whiskers, the nose, and the inner ears keep their colors. Each eye gets a gloss fan over its dark faces,
   which marks the eye for the export. After the palette, the faces of the old eye (the dark faces
   and the faces near them, such as the white of the almond eye of the fox) take the color with the
   largest area in the ring of faces around them (`recolor_old_eyes()`), so that no outline of the
@@ -600,7 +610,16 @@ quarter of the folded faces.
   seat and the tip back and down behind the chair, through the open back under the top rail
   (4.5, props). The standing pose of a soloist turns the two tail bones back to the source
   (`StudioStanding.tailTurns`). The chair rule of the rig and the seat of the export skip the
-  tail, so that the seat stays under the haunch.
+  tail, so that the seat stays under the haunch. A config can curl the seated tail along a curve
+  in place of the two straight bones (`studio.tailCurl`, `tail_curl()`): each tail vertex keeps
+  its place along the line of the source tail and its offset from that line, and moves to the
+  same place along the curve, with the offset turned by the moving frames of the two lines. The
+  tail bones take the chords of the curve, and the corrective shapes give the standing tail
+  back. The cat config curls the seated tail on the seat around the left side of the haunch, as
+  the user chose on 2026-10-16 (`docs/decisions/2026-10-16-cat-seat.md`): its root bone is 0.37 m
+  long, so two straight bones went into the body, into the seat, or off the seat. The haunch of
+  the cat is about as wide as the seat, so the curl lies partly outside the side edge of the seat.
+  A curled tail does not sway on a seat (5.1).
 - `pnpm studio-body <animal> --inspect` writes no file. It prints the facts of the GLB file that
   a new body needs. These are the nodes, the joints with the digits of each paw, the morph
   targets, and the clips. They also hold the hips, the length of each arm from the shoulder joint
