@@ -1499,8 +1499,8 @@ async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> 
 /** The first argument that only checks the command line: the tool then builds and renders nothing. */
 export const CHECK_FLAG = '--check';
 
-/** The command line of one mode of the tool. */
-export type CloseMode =
+/** The command line of one mode of the tool that renders images: a role, a lineup, or a view. */
+export type SingleMode =
   | {
       /** The close view of a role. */
       readonly kind: 'role';
@@ -1526,14 +1526,176 @@ export type CloseMode =
       readonly args: PlayArgs;
     };
 
+/** The command line of the mode `batch`: single modes that share one build of each tree. */
+export interface BatchArgs {
+  /** The single modes, in their order, each with its own folder under the output directory. */
+  readonly parts: readonly SingleMode[];
+  /** The output directory. */
+  readonly out: string;
+  /** The URL of a running site of the working tree, or `null` for the built site. */
+  readonly url: string | null;
+  /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
+  readonly base: string | null;
+}
+
+/** The command line of the tool: one single mode, or a batch of single modes. */
+export type CloseMode =
+  | SingleMode
+  | {
+      /** Single modes that share one build of each tree. */
+      readonly kind: 'batch';
+      /** The command line of the batch. */
+      readonly args: BatchArgs;
+    };
+
+/** The moments of the species of a batch with no `--moments`: the playing pose and the rest pose. */
+export const DEFAULT_BATCH_MOMENTS: readonly string[] = ['play', 'rest'];
+
 /**
- * Reads the command line of one mode of the tool.
+ * Checks that each name of a list comes one time, because two parts with one name write the same
+ * files.
+ *
+ * @param names The names.
+ * @param kind The kind of the names in the message, such as `moment`.
+ * @returns The names.
+ * @throws Error for a name that comes two times.
+ */
+function onceEach(names: readonly string[], kind: string): readonly string[] {
+  const twice = names.find((name, i) => names.indexOf(name) !== i);
+  if (twice !== undefined) {
+    throw new Error(`The ${kind} "${twice}" comes two times.`);
+  }
+  return names;
+}
+
+/**
+ * Reads the command line of one part of a batch with the reader of its single mode.
+ *
+ * @param args The command line of the single mode, such as `species cat dir/species-play`.
+ * @returns The single mode.
+ * @throws Error that lists the correct names, from the reader of the mode, and an error when no
+ *   single mode matches.
+ */
+function partMode(args: readonly string[]): SingleMode {
+  const mode = closeModeArgs(args);
+  if (!mode || mode.kind === 'batch') {
+    throw new Error(`The part "${args.join(' ')}" of the batch is not a command line of a mode.`);
+  }
+  return mode;
+}
+
+/**
+ * Reads the command line of the mode `batch`:
+ * `batch <dir> [--species <species,...>] [--moments <moment,...>] [--views <view,...>] [--role <role>]... [--lineup] [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]`.
+ * Each part is the command line of a single mode with the folder of the part in `<dir>`, and
+ * the reader of that mode reads it:
+ *
+ * - `--species`: the mode `species` at each moment of `--moments` ({@link DEFAULT_BATCH_MOMENTS}
+ *   by default) and at the views of `--views`, into `species-<moment>/`.
+ * - `--role`: the close view of each role, into `<role>/`.
+ * - `--lineup`: the lineup of the species of `--species`, into `lineup/`.
+ * - `--camera`: the mode `play` at each camera, with `--demo` and `--time`, into `play/`.
+ *
+ * `--url` and `--base` go to each part.
+ *
+ * @param args The arguments after the script.
+ * @returns The command line, or `null` when the first argument is not `batch`.
+ * @throws Error that lists the correct names, for an unknown species, view, moment, role, demo,
+ *   or camera, and an error for a wrong option, a name that comes two times, an option with no
+ *   part, a batch with no part, or a missing word.
+ */
+export function batchArgs(args: readonly string[]): BatchArgs | null {
+  if (args[0] !== 'batch') {
+    return null;
+  }
+  const line = modeLine(
+    args.slice(1),
+    [
+      '--species',
+      '--moments',
+      '--views',
+      '--role',
+      '--camera',
+      '--demo',
+      '--time',
+      '--url',
+      '--base',
+    ],
+    ['--role', '--camera'],
+    ['--lineup'],
+  );
+  const [out, ...extra] = line.words;
+  if (!out || extra.length > 0) {
+    throw new Error(
+      'The mode batch takes one output directory, such as: batch scratch/views --species cat,rabbit --base main',
+    );
+  }
+  const one = (name: string): string | null => line.options.get(name)?.[0] ?? null;
+  const url = one('--url');
+  const base = one('--base');
+  const shared = [
+    ...(url === null ? [] : ['--url', url]),
+    ...(base === null ? [] : ['--base', base]),
+  ];
+
+  const parts: SingleMode[] = [];
+  const species = one('--species');
+  const views = one('--views');
+  const moments = one('--moments');
+  if (species === null && (views !== null || moments !== null || line.flags.has('--lineup'))) {
+    throw new Error('The options --moments, --views, and --lineup need --species.');
+  }
+  if (species !== null) {
+    for (const moment of onceEach(moments?.split(',') ?? DEFAULT_BATCH_MOMENTS, 'moment')) {
+      const viewOption = views === null ? [] : ['--views', views];
+      const dir = join(out, `species-${moment}`);
+      parts.push(partMode(['species', species, dir, '--moment', moment, ...viewOption, ...shared]));
+    }
+  }
+
+  const roles = CLOSE_ROLES.map((name) => ({ name }));
+  for (const name of onceEach(line.options.get('--role') ?? [], 'role')) {
+    const role = namedItem(name, roles, 'role').name;
+    parts.push(partMode([role, join(out, role), ...shared]));
+  }
+
+  if (species !== null && line.flags.has('--lineup')) {
+    parts.push(partMode(['lineup', species, join(out, 'lineup'), ...shared]));
+  }
+
+  const cameras = line.options.get('--camera') ?? [];
+  const demo = one('--demo');
+  const time = one('--time');
+  if (cameras.length === 0 && (demo !== null || time !== null)) {
+    throw new Error('The options --demo and --time need --camera.');
+  }
+  if (cameras.length > 0) {
+    const cameraOptions = cameras.flatMap((camera) => ['--camera', camera]);
+    const demoOption = demo === null ? [] : ['--demo', demo];
+    const timeOption = time === null ? [] : ['--time', time];
+    const dir = join(out, 'play');
+    parts.push(partMode(['play', dir, ...cameraOptions, ...demoOption, ...timeOption, ...shared]));
+  }
+
+  if (parts.length === 0) {
+    throw new Error('The mode batch takes at least one of --species, --role, and --camera.');
+  }
+  return { parts, out, url, base };
+}
+
+/**
+ * Reads the command line of one mode of the tool, or of a batch of modes.
  *
  * @param args The arguments after the script, with no {@link CHECK_FLAG}.
  * @returns The mode, or `null` when no mode matches.
- * @throws Error that lists the correct names, for a wrong value of the mode `species` or `play`.
+ * @throws Error that lists the correct names, for a wrong value of the mode `species`, `play`, or
+ *   `batch`.
  */
 export function closeModeArgs(args: readonly string[]): CloseMode | null {
+  const batch = batchArgs(args);
+  if (batch) {
+    return { kind: 'batch', args: batch };
+  }
   const species = speciesArgs(args);
   if (species) {
     return { kind: 'species', args: species };
@@ -1557,7 +1719,7 @@ export function closeModeArgs(args: readonly string[]): CloseMode | null {
  * @param mode The command line of the mode.
  * @returns The renders of the mode.
  */
-function modeRender(mode: CloseMode): ModeRender {
+function modeRender(mode: SingleMode): ModeRender {
   switch (mode.kind) {
     case 'role':
       return { overlay: [], tree: (site) => roleViews(mode.args, site) };
@@ -1673,6 +1835,7 @@ const USAGE = [
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--url <url>] [--base <ref>]`,
+  '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest,...>] [--views <view,...>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
 /**
@@ -1681,7 +1844,8 @@ const USAGE = [
  * of species: `node tools/close-views.ts lineup <species,...> <dir>` ({@link lineupViews}), or
  * species at named views: `node tools/close-views.ts species <species,...> <dir>`
  * ({@link speciesViews}), or play frames of a demo: `node tools/close-views.ts play <dir>`
- * ({@link playViews}). It writes
+ * ({@link playViews}), or a batch of these modes: `node tools/close-views.ts batch <dir>`
+ * ({@link batchArgs}), which builds and serves each tree one time for all its parts. It writes
  * the animal of the role at each moment from each view into `<dir>`, and the grid of all cells as
  * `<role>-views.png` and `<role>-views.webp`. With `--url`, it uses a running site, such as the
  * dev server, in place of the built site. With `--base`, it also builds the commit in a temporary
@@ -1716,8 +1880,11 @@ async function main(): Promise<void> {
     return;
   }
 
-  const { out, url } = mode.args;
-  await mkdir(out, { recursive: true });
+  const { url } = mode.args;
+  const modes = mode.kind === 'batch' ? mode.args.parts : [mode];
+  for (const part of modes) {
+    await mkdir(part.args.out, { recursive: true });
+  }
   const site = url
     ? {
         base: url,
@@ -1726,7 +1893,7 @@ async function main(): Promise<void> {
       }
     : await startSite(ROOT, SERVER_PORT);
   try {
-    await renderModes([modeRender(mode)], site, mode.args.base);
+    await renderModes(modes.map(modeRender), site, mode.args.base);
   } finally {
     if (url) {
       await site.browser.close();
