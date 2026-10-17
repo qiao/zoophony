@@ -287,8 +287,11 @@ const LAP_BOW_TIP = [-1, 0, -0.05] as const satisfies Vec3;
  * 2026-10-16-seat-rest decisions): the violin stands upright on the lap in the middle between the
  * thighs, with its lower end on them, held at its neck, and the bow lies across the lap, about
  * level, in the right paw, with the tip to the left. The violin stands 0.4 H in from the left
- * thigh at 0.7 of the way to the knee, 0.3 H down and 0.3 H forward, so that its lower end is 1.7
- * cm from the skin of the thighs. The right paw holds the bow 0.5 H out from the right thigh, 0.5 H
+ * thigh at 0.65 of the way to the knee, 0.25 H down and 0.3 H forward, so that its lower end is
+ * 1.5 cm from the skin of the thighs. The thighs slope down to the knees (2026-10-16-hip-open
+ * decisions): at 0.7 of the way and 0.3 H down, the lower end was 2.5 cm from the skin, and the
+ * lift folded the left shoulder in 19.4% of the samples at a step of 1 s (16.1% now, 14.5% with the
+ * level thighs). The right paw holds the bow 0.5 H out from the right thigh, 0.5 H
  * above it, and 0.3 H forward, so that the long right arm hangs down, nearly straight: with the
  * paw on the thigh, faces of the side of the trunk below the right armpit turned over in each
  * rest sample (the user: "the rabbit's arm is deformed", 2026-10-14-fox-rabbit-fix decisions).
@@ -307,7 +310,7 @@ const SHOULDER_HOLD = {
   slant: -5 * MathUtils.DEG2RAD,
   restPoleL: [-1, -1, -0.3],
   restPoleR: [1.5, -0.5, -0.5],
-  rest: { ...LAP_VIOLIN, lap: { along: 0.7, offset: [0.4, -0.3, -0.3] } },
+  rest: { ...LAP_VIOLIN, lap: { along: 0.65, offset: [0.4, -0.25, -0.3] } },
   restBow: {
     lap: { along: 0.8, offset: [0.5, 0.5, -0.3] },
     tip: LAP_BOW_TIP,
@@ -339,12 +342,14 @@ const SHOULDER_HOLD = {
  *
  * The rest pose is the rest of the cat violas, as for the rabbit (2026-10-16-seat-rest
  * decisions): the violin stands upright on the lap, its lower end on the inner left thigh 0.15 H
- * in from the thigh at 0.8 of the way to the knee, 0.35 H down and 0.3 H forward, 1.4 cm from the
- * skin, held at its neck, with the left elbow out to the side. The bow lies across the lap in the
- * right paw, about level, with the tip to the left and a little forward, behind the knees. The grip
- * is 0.2 H out from the right thigh and 0.3 H above it, at 0.6 of the way to the knee: 0.15 H out
- * and 0.2 H above, the right upper arm went 4.0 cm into the body while the arms lowered
- * (2026-10-14-arms-rest decisions).
+ * in from the thigh at 0.65 of the way to the knee, 0.35 H down and 0.3 H forward, 1.0 cm from
+ * the skin, held at its neck, with the left elbow out to the side. The bow lies across the lap in
+ * the right paw, about level, with the tip to the left and a little forward, behind the knees. The
+ * grip is 0.2 H out from the right thigh and 0.45 H above it, at 0.45 of the way to the knee. The
+ * thighs slope down to the knees (2026-10-16-hip-open decisions): with the places of the level
+ * thighs (0.8 of the way for the violin, and 0.3 H above at 0.6 of the way for the bow), the left
+ * upper arm went 2.9 cm into the body in the rest, and the right upper arm 4.9 cm while the arms
+ * lowered (2.2 cm and 2.9 cm now, `pnpm hold-fit fox-violinist`).
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
@@ -357,9 +362,9 @@ const FOX_HOLD = {
   freeHair: 0.12,
   restPoleL: [-1, -1, 0],
   restPoleR: [1, -0.4, 0.3],
-  rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0.15, -0.35, -0.3] } },
+  rest: { ...LAP_VIOLIN, lap: { along: 0.65, offset: [0.15, -0.35, -0.3] } },
   restBow: {
-    lap: { along: 0.6, offset: [0.2, 0.3, 0] },
+    lap: { along: 0.45, offset: [0.2, 0.45, 0] },
     tip: LAP_BOW_TIP,
     hair: [0, -1, 0.2],
   },
