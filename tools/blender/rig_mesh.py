@@ -714,7 +714,8 @@ def tail_curl(src, bind, weights, heads, ends, root, rule):
     source (from the root over the bend to the tip) and its offset from the line, and moves to
     the same place along the curve, with the offset turned by the moving frames of the two lines
     (`moving_frames()`). A vertex with a part of its weight on the tail moves by that part, so
-    that the root has no hard edge. The corrective shapes give the source back, so the standing
+    that the root has no hard edge. With `blend` (two shares of the tail), a vertex moves by the
+    smoothstep of its tail share over them, so that the root of the tail stays with the haunch. The corrective shapes give the source back, so the standing
     body keeps the tail of the source. Gives the moved bind mesh and the count of moved
     vertices."""
     share = weights[:, BONES.index('tail')] + weights[:, BONES.index(TAIL_TIP)]
@@ -734,6 +735,8 @@ def tail_curl(src, bind, weights, heads, ends, root, rule):
     offset = np.einsum('nji,nj->ni', s_frames[s_at], src[ids] - near)
     curled = (c_points[c_at] + c_dirs[c_at] * (place - c_lengths[c_at])[:, None]
               + np.einsum('nij,nj->ni', c_frames[c_at], offset))
+    if 'blend' in rule:
+        share = smoothstep(share, *rule['blend'])
     out = bind.copy()
     out[ids] = bind[ids] + share[ids, None] * (curled - bind[ids])
     return out, len(ids)
