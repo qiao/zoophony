@@ -298,10 +298,11 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
 Since 2026-10-17 (round `left-hand`), the left hand of the app follows this reference: the position
 plan, the shift, the fingers, vibrato, and the left elbow of section 5.2 of the research report
 [`2026-10-17-string-hands.md`](../research/2026-10-17-string-hands.md). The report
-[`2026-10-17-left-hand.md`](../research/2026-10-17-left-hand.md) gives the measures. The bow arm
-does not follow the reference yet, and the items after "The bow arm" below list where it differs.
-A round that changes the motion replaces each item of the bow arm with the rule of the app and its
-code.
+[`2026-10-17-left-hand.md`](../research/2026-10-17-left-hand.md) gives the measures. Since round
+`bow-arm` of the same day, the bow arm follows the motion spec B1 to B8 of section 5.3 of that
+report, and the report [`2026-10-17-bow-arm.md`](../research/2026-10-17-bow-arm.md) gives the
+measures. Each item of 3.2 gives the rule of the app and its code, or where the app still differs.
+A round that changes the motion updates the items.
 
 ### 3.1 The left hand
 
@@ -346,6 +347,10 @@ code.
   note (section 2.5).
 - **The sounding point does not change.** The bow of the app plays at one contact point for each
   loudness. Real players move the bow toward the bridge for a loud note (section 2.4).
+- **The stick tilts toward the fingerboard** (section 2.1). `bowAt()` of `pose/bowed.ts` turns the
+  bow around its hair by `BowedHold.bowTilt` of `pose/bowed-rig.ts`: 30° on the violin and the
+  viola, 20° on the cello, and 10° on the contrabass. The hair stays on the contact point, and the
+  right hand turns with the stick.
 - **The bow length follows the measures.** The stroke of the app is `0.1 + 0.4 × duration` of the
   bow range (`BOW_MOTION.length`). On a bow range of 0.6 m, that is 6 cm plus 24 cm for each
   second, near the stroke lengths of section 2.4.

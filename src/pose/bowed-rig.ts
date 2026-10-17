@@ -98,6 +98,12 @@ export interface BowedHold {
    */
   readonly stringTurn: number;
   /**
+   * The turn of the bow around its hair, so that the stick leans toward the fingerboard and the
+   * hair touches the strings with its edge: about 30° on the violin, and less on the lower
+   * instruments (`docs/reference/string-technique.md`, section 2.1).
+   */
+  readonly bowTilt: number;
+  /**
    * The turn of the bow in the plane of the strings, from square across them. The frog comes
    * nearer to the right shoulder, so that the short arms of the animals reach the strings.
    */
@@ -233,6 +239,7 @@ const CHIN_HOLD = {
   restPoleL: [0, -1, 0.5],
   pizzicatoTip: [0.3, 1, 0.4],
   stringTurn: 9 * MathUtils.DEG2RAD,
+  bowTilt: 30 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
   freeHair: FREE_HAIR,
@@ -282,6 +289,7 @@ const FLOOR_HOLD = {
   restPoleL: [0.3, -1, 0],
   pizzicatoTip: [-1, 1, 0],
   stringTurn: 9 * MathUtils.DEG2RAD,
+  bowTilt: 20 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
   freeHair: FREE_HAIR,
@@ -513,6 +521,7 @@ export const BOWED_HOLDS = {
   contrabass: {
     ...FLOOR_HOLD,
     stringTurn: 7 * MathUtils.DEG2RAD,
+    bowTilt: 10 * MathUtils.DEG2RAD,
     lean: 5 * MathUtils.DEG2RAD,
     poleR: [0.5, 1, 0.5],
     poleTipR: [0.5, 1, 0.5],

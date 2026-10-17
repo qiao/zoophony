@@ -507,7 +507,9 @@ of each role.
   - The arms of the animals are a little short for their instruments (4.5). In the playing
     pose, the right shoulder bone turns forward (30° violin, viola, and contrabass, 45° cello),
     the bow slants 20° from square in the plane of the strings with the frog to the right
-    shoulder, and the cello and the contrabass players lean forward 8° and 5°. The cellist had
+    shoulder, the stick leans toward the fingerboard around the hair (`BowedHold.bowTilt`: 30° on
+    the violin and the viola, 20° on the cello, and 10° on the contrabass, as the reference gives
+    about 30° on the violin and less on the lower instruments), and the cello and the contrabass players lean forward 8° and 5°. The cellist had
     40° and 10° until the low seats of 2026-10-11: on its lower chair, the cello stands higher at
     its body, and its head and its right forearm came too near the neck and the bow stick. The bow
     range is the part of the hair that the arm reaches on all strings with 97% of its length.

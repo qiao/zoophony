@@ -209,11 +209,15 @@ const down = new Vector3();
 const along = new Vector3();
 const bowAlign = new Quaternion();
 const hairStart = new Vector3();
+const tiltTurn = new Quaternion();
+const tiltSide = new Vector3();
 
 /**
  * Places the bow so that its hair lies on a string, with a place of the hair on the contact
  * point. The string turns the bow around the strings, and the slant turns it in the plane of the
- * strings.
+ * strings. The bow then turns around its hair by `BowedHold.bowTilt`, so that the stick leans
+ * toward the fingerboard and the hair stays on the contact point
+ * (`docs/reference/string-technique.md`, section 2.1).
  *
  * @param rig The points of the player.
  * @param strings The strings at their posed place.
@@ -239,6 +243,13 @@ export function bowAt(
   setFromBasis(out.rotation, along, down.copy(turnedTop).negate()).multiply(
     bowAlign.fromArray(rig.bowAlign),
   );
+  const tilt = rig.hold.bowTilt;
+  if (tilt !== 0) {
+    // A turn around the hair moves the stick, on the side `turnedTop` of the hair, to the side
+    // `along × turnedTop`. The fingerboard is on the side of the axis, toward the scroll.
+    const side = tiltSide.crossVectors(along, turnedTop).dot(strings.axis) < 0 ? -1 : 1;
+    out.rotation.premultiply(tiltTurn.setFromAxisAngle(along, side * tilt));
+  }
   out.grip
     .copy(strings.contact)
     .addScaledVector(turnedTop, lift)
