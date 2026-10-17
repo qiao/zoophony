@@ -876,26 +876,32 @@ export interface ModeLine {
   readonly words: readonly string[];
   /** The values of each option that the command line gives, in their order. */
   readonly options: ReadonlyMap<string, readonly string[]>;
+  /** The options with no value that the command line gives. */
+  readonly flags: ReadonlySet<string>;
 }
 
 /**
- * Splits the command line of a mode into its words and its options. Each option takes one value.
- * A value can start with one `-`, such as the drag `-120,40,3`, but not with `--`.
+ * Splits the command line of a mode into its words and its options. Each option takes one value,
+ * and a flag takes none. A value can start with one `-`, such as the drag `-120,40,3`, but not
+ * with `--`.
  *
  * @param args The arguments after the name of the mode.
- * @param known The options of the mode, such as `--url`.
+ * @param known The options of the mode with a value, such as `--url`.
  * @param repeated The options of the mode that can come more than one time.
- * @returns The words and the options.
+ * @param flags The options of the mode with no value, such as `--lineup`.
+ * @returns The words, the options, and the flags.
  * @throws Error for an option that the mode does not know, an option with no value, or an option
- *   that comes two times and cannot repeat.
+ *   or a flag that comes two times and cannot repeat.
  */
 export function modeLine(
   args: readonly string[],
   known: readonly string[],
   repeated: readonly string[] = [],
+  flags: readonly string[] = [],
 ): ModeLine {
   const words: string[] = [];
   const options = new Map<string, string[]>();
+  const given = new Set<string>();
   for (let i = 0; i < args.length; i++) {
     const arg = args[i] ?? '';
     if (!arg.startsWith('--')) {
@@ -903,8 +909,16 @@ export function modeLine(
       continue;
     }
 
+    if (flags.includes(arg)) {
+      if (given.has(arg)) {
+        throw new Error(`The option ${arg} comes two times.`);
+      }
+      given.add(arg);
+      continue;
+    }
     if (!known.includes(arg)) {
-      throw new Error(`The option ${arg} is not known. The options are: ${known.join(', ')}.`);
+      const names = [...known, ...flags].join(', ');
+      throw new Error(`The option ${arg} is not known. The options are: ${names}.`);
     }
     const value = args[i + 1];
     if (value === undefined || value.startsWith('--')) {
@@ -918,7 +932,7 @@ export function modeLine(
     options.set(arg, values);
     i++;
   }
-  return { words, options };
+  return { words, options, flags: given };
 }
 
 /**
