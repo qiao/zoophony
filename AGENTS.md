@@ -74,6 +74,10 @@ Open these files for these kinds of work:
   4.4). The configs keep the forms of 2026-10-10: the bear keeps the form and the limb lengths
   of its model, and the rabbit takes the form of `rabbit-views.png` through the `shape` and the
   `haunch` of its config.
+- Motion of the string players (the left hand, the fingers, and the bow arm of the violin, the
+  viola, the cello, and the double bass): read `docs/reference/string-technique.md`, the target of
+  the string motion, with a source for each fact. A change of the string motion updates its section
+  3 "Use in the app" in the same commit (`docs/decisions/2026-10-17-string-hands.md`).
 - UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
   Design 2.8 gives the tokens and the exact message texts.
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
