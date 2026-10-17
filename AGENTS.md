@@ -414,6 +414,17 @@ These traps of route 3 each cost a round:
   that arc (`SpeciesParams.bowGrip`, `docs/research/2026-10-17-cat-bow/stick-line.ts`), and read
   the grip with `stickGrip()` of `tools/bow-grip.ts`. The turned hand moves against the bow, so
   read the depths of the bow arm and the folds of the right forearm after a change of the grip.
+- The place of the grip along the stick does not change the gap, but it moves the wrist and twists
+  the upper arm. With the stick at the middle of the line fit, the right upper arm of the rabbit
+  folded in 3.4% of the play samples, and with the paw 2.3 cm nearer to the tip in 1.3%. Scan the
+  place along the stick with the folds (`grip-cands.ts` and `fold-scan.ts` of
+  `docs/research/2026-10-17-grip-all/`, which set a grip in memory), and move each rest grip out
+  by the move of the hand on the bow.
+- The paw of a mesh with a long wrist, such as the red fox, is not one rigid piece. The skin of the
+  wrist moved the middle of the closed paw by up to 3.8 cm on the bone of the paw
+  (`paw-rigid.ts`), so no straight stick kept it within 1 cm. A bent wrist moves it most, as the
+  plucking paw in pizzicato did: read the gap of each sample in order (`gap-seq.ts`), and turn the
+  bow of that moment (`pizzicatoTip`) before a new grip.
 - A shorter neck (`neckFactor`) moves the vertices of the top of the shoulder next to the neck
   down by their neck weight, and the shape of a raised arm can then turn their faces over. With
   the neck factor 0.5, faces 1074 and 473 of the red fox (0.26 of the neck weight) folded in 22%
