@@ -13,6 +13,7 @@ import { buildBaton } from './baton.ts';
 import { buildBrass } from './brass.ts';
 import { buildChoirFolder } from './folder.ts';
 import { buildBowedString } from './strings.ts';
+import type { BowGrip } from './strings.ts';
 import { buildWoodwind } from './woodwinds.ts';
 import type { InstrumentId, InstrumentModel } from './types.ts';
 
@@ -51,20 +52,24 @@ export const INSTRUMENT_IDS = [
  *   ignore it.
  * @param violinScale The scale of the violin and its bow for the species of the player
  *   (`SpeciesParams.violinScale`). The other instruments ignore it.
+ * @param bowGrip The grip of the bow in the right paw of the species of the player
+ *   (`SpeciesParams.bowGrip`), or `undefined` for the grip of the bind pose of the bow. The
+ *   instruments with no bow ignore it.
  * @returns The model.
  */
 export function buildInstrument(
   id: InstrumentId,
   kettles: KettleCount = 4,
   violinScale = 1,
+  bowGrip?: BowGrip,
 ): InstrumentModel {
   switch (id) {
     case 'violin':
-      return buildBowedString(id, violinScale);
+      return buildBowedString(id, violinScale, bowGrip);
     case 'viola':
     case 'cello':
     case 'contrabass':
-      return buildBowedString(id);
+      return buildBowedString(id, 1, bowGrip);
     case 'harp':
       return buildHarp();
     case 'piano':

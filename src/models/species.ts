@@ -1,3 +1,4 @@
+import type { BowGrip } from './instruments/strings.ts';
 import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
 import type { StudioPalette } from './studio-format.ts';
@@ -47,6 +48,11 @@ interface CommonParams {
    * gives for their arms (2026-10-14-arms-rest decisions).
    */
   readonly violinScale?: number;
+  /**
+   * The grip of the bow in the right paw of the species (design 4.6): the place of the stick and
+   * its turn in the palm. The grip of the bind pose of the bow (`BOW_GRIP`) when it is not given.
+   */
+  readonly bowGrip?: BowGrip;
 }
 
 /** The parameters of a species with the parametric biped (design 4.3): the shape of its parts. */
@@ -248,6 +254,13 @@ export const SPECIES = {
    * (2026-10-16-cat-seat decisions), and stands as a soloist. Its head
    * height is the head of the studio body, and its chair fits its legs: the seat height is the seat
    * of the studio body, in H.
+   *
+   * The stick of the bow passes through the middle of the closed right paw (2026-10-17-cat-bow
+   * decisions). The paw of the studio turns in the plane of its palm toward the forearm by 0° to 70°
+   * (`PAW_TURN` of `studio-rig.ts`), and its middle moves on an arc around the wrist. The stick
+   * lies along the chord of that arc, 39° from square toward the wrist, so that the paw slides
+   * along the stick and keeps it in each turn. With the grip of `BOW_GRIP`, the stick lay 4.3 cm
+   * out from the middle of the paw on the palm side, under the paw.
    */
   cat: {
     body: 'studio-cat',
@@ -255,6 +268,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.cat,
     accentParts: ['inner-ears', 'nose'],
     seatedTail: 'curl',
+    bowGrip: { at: [-0.002, 0.022, -0.07], turn: 39 * (Math.PI / 180) },
     proportions: {
       headHeight: STUDIO_CAT.headHeight,
       seatHeight: STUDIO_CAT.seatHeight / STUDIO_CAT.headHeight,

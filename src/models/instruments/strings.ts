@@ -322,15 +322,34 @@ export type BowedStringId = 'violin' | 'viola' | 'cello' | 'contrabass';
 export const BOW_GRIP = [-0.127, 0.005, 0] as const satisfies Vec3;
 
 /**
+ * The grip of the bow in the right paw of a species (`SpeciesParams.bowGrip`, design 4.6), in the
+ * axes of the hanging right paw of the bind pose: the palm faces -x, and the fingers point down.
+ */
+export interface BowGrip {
+  /** The place of the stick at the grip, from the middle of the right palm, in head heights. */
+  readonly at: Vec3;
+  /**
+   * The turn of the stick around the normal of the palm, in radians. A positive turn moves the tip
+   * from the side of the thumb (-z) toward the wrist (+y).
+   */
+  readonly turn: number;
+}
+
+/** The grip of the bow of each species with no grip of its own: {@link BOW_GRIP}, square. */
+const SQUARE_GRIP: BowGrip = { at: BOW_GRIP, turn: 0 };
+
+/**
  * Builds the bow piece. In the piece axes, the grip is at the origin, the bow runs along +x to
  * the tip, and the hair is below the stick (-y). In the bind pose, the stick lies across the
- * fingers of the hanging right hand at {@link BOW_GRIP}: the tip points to the side of the thumb
- * (-z), and the hair faces away from the palm (-x).
+ * fingers of the hanging right hand at the place of the grip: the tip points to the side of the
+ * thumb (-z), turned toward the fingers by the turn of the grip, and the hair faces away from the
+ * palm (-x).
  *
  * @param size The scale of the bow model.
+ * @param grip The grip of the bow in the right paw.
  * @returns The piece and its targets.
  */
-function buildBow(size: number): BowPiece {
+function buildBow(size: number, grip: BowGrip): BowPiece {
   const b = BOW;
   const piece = new PieceBuilder(size);
   addBowParts(piece, transform([-b.grip, 0, 0]));
@@ -339,9 +358,13 @@ function buildBow(size: number): BowPiece {
   const xAxis = new Vector3(0, 0, -1);
   const yAxis = new Vector3(1, 0, 0);
   const basis = new Matrix4().makeBasis(xAxis, yAxis, new Vector3().crossVectors(xAxis, yAxis));
-  const rotation = toQuat(new Quaternion().setFromRotationMatrix(basis));
+  const rotation = toQuat(
+    new Quaternion()
+      .setFromAxisAngle(new Vector3(1, 0, 0), grip.turn)
+      .multiply(new Quaternion().setFromRotationMatrix(basis)),
+  );
   return {
-    piece: piece.build('bow', hold('palmR', BOW_GRIP, rotation)),
+    piece: piece.build('bow', hold('palmR', grip.at, rotation)),
     targets: [
       {
         kind: 'bow-hair',
@@ -368,9 +391,14 @@ function buildBow(size: number): BowPiece {
  *
  * @param id The instrument.
  * @param scale The scale of the instrument and its bow, as a factor of {@link STRING_SCALES}.
+ * @param grip The grip of the bow in the right paw of the species.
  * @returns The model.
  */
-export function buildBowedString(id: BowedStringId, scale = 1): InstrumentModel {
+export function buildBowedString(
+  id: BowedStringId,
+  scale = 1,
+  grip: BowGrip = SQUARE_GRIP,
+): InstrumentModel {
   const v = VIOLIN;
   const s = STRING_SCALES[id] * scale;
   const upright = id === 'cello' || id === 'contrabass';
@@ -404,7 +432,7 @@ export function buildBowedString(id: BowedStringId, scale = 1): InstrumentModel 
       ? hold('floor', UPRIGHT_HOLDS[id].offsetH, uprightRotation(id), UPRIGHT_HOLDS[id].offset)
       : hold('head', CHIN_HOLD.offsetH, chinRotation());
   const instrument = piece.build('instrument', instrumentHold);
-  const bow = buildBow((upright ? LOW_BOW_SCALE : INSTRUMENT_SCALE) * scale);
+  const bow = buildBow((upright ? LOW_BOW_SCALE : INSTRUMENT_SCALE) * scale, grip);
   const stringsY = v.stringHeight;
   return {
     id,
