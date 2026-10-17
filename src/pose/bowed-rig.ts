@@ -271,14 +271,24 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
 }
 
 /**
- * The violin upright on the lap in the rest pose of the rabbit and the red fox: the scroll up and
- * a little forward, the top plate to the front, as the cat violas of the screenshot of the user
- * (2026-10-14-arms-rest and 2026-10-16-seat-rest decisions).
+ * The violin upright on the left thigh in the rest pose of the rabbit and the red fox: the scroll
+ * up and a little forward, the top plate to the front, as the seated violinist of the image of the
+ * user (2026-10-16-bow-rest decisions).
  */
 const LAP_VIOLIN = { axis: [0, 1, -0.15], top: CHIN_HOLD.rest.top } as const;
 
-/** The direction from the frog to the tip of the bow across the lap in the rest pose. */
-const LAP_BOW_TIP = [-1, 0, -0.05] as const satisfies Vec3;
+/**
+ * The upright bow at the right side in the rest pose of the rabbit and the red fox, as the seated
+ * violinist of the image of the user (2026-10-16-bow-rest decisions): the tip up and a little out,
+ * the hair to the front. In the lift and the lowering, the tip turns through the front, and the grip
+ * moves 0.4 H to the front (`BowVia`): with a direct mix, the tip turned through the head, and the
+ * bow went up to 14.8 cm into the body of the red fox while the arms lowered.
+ */
+const UPRIGHT_BOW = {
+  tip: [0.1, 1, 0],
+  hair: [0, 0, -1],
+  via: { tip: [-0.3, 0.3, -1], hair: [0, -1, 0], reach: [0, 0, -0.4] },
+} as const satisfies { readonly tip: Vec3; readonly hair: Vec3; readonly via: BowVia };
 
 /**
  * The hold of the violin on the left shoulder, for the rabbit (design 4.6, 5.3), as a real
@@ -304,20 +314,15 @@ const LAP_BOW_TIP = [-1, 0, -0.05] as const satisfies Vec3;
  * under the violin, and turned over faces of the left upper arm of the rabbit mesh in each play
  * sample (2026-10-13-mesh-rabbit decisions).
  *
- * The rest pose is the rest of the cat violas, which the user asked for (2026-10-14-arms-rest and
- * 2026-10-16-seat-rest decisions): the violin stands upright on the lap in the middle between the
- * thighs, with its lower end on them, held at its neck, and the bow lies across the lap, about
- * level, in the right paw, with the tip to the left. The violin stands 0.4 H in from the left
- * thigh at 0.65 of the way to the knee, 0.25 H down and 0.3 H forward, so that its lower end is
- * 1.5 cm from the skin of the thighs. The thighs slope down to the knees (2026-10-16-hip-open
- * decisions): at 0.7 of the way and 0.3 H down, the lower end was 2.5 cm from the skin, and the
- * lift folded the left shoulder in 19.4% of the samples at a step of 1 s (16.1% now, 14.5% with the
- * level thighs). The right paw holds the bow 0.5 H out from the right thigh, 0.5 H
- * above it, and 0.3 H forward, so that the long right arm hangs down, nearly straight: with the
- * paw on the thigh, faces of the side of the trunk below the right armpit turned over in each
- * rest sample (the user: "the rabbit's arm is deformed", 2026-10-14-fox-rabbit-fix decisions).
- * The right elbow points out, down, and forward, and the left elbow out, down, and a little
- * forward.
+ * The rest pose is the rest of the seated violinist of the image of the user (2026-10-16-bow-rest
+ * decisions): the violin stands upright on the left thigh, held at the bottom of its neck, and the
+ * bow stands upright at the right side, with the frog in the right paw on the right thigh. The
+ * round belly of the rabbit covers the top of its thighs, so the violin stands 0.8 of the way to
+ * the knee, 0.15 H in, 0.1 H down, and 0.1 H forward, where the top of the lap is in front of the
+ * belly: at 0.65 of the way, the end was 17 cm above it. The grip is 0.15 H out from the right
+ * thigh at 0.65 of the way. The right elbow points out and down, (1, -0.5, 0): with the elbow down
+ * and back, the right forearm went 6 cm into the body. The left elbow points down and a little
+ * back.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
@@ -329,14 +334,14 @@ const SHOULDER_HOLD = {
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
-  restPoleL: [-1, -1, -0.3],
-  restPoleR: [1.5, -0.5, -0.5],
-  rest: { ...LAP_VIOLIN, lap: { along: 0.65, offset: [0.4, -0.25, -0.3] } },
+  restPoleL: [-0.3, -1, 0.3],
+  restPoleR: [1, -0.5, 0],
+  rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0.15, -0.1, -0.1] } },
   restBow: {
-    lap: { along: 0.8, offset: [0.5, 0.5, -0.3] },
-    tip: LAP_BOW_TIP,
-    hair: [0, -1, 0.2],
-    via: null,
+    lap: { along: 0.65, offset: [0.15, 0, 0] },
+    tip: UPRIGHT_BOW.tip,
+    hair: UPRIGHT_BOW.hair,
+    via: UPRIGHT_BOW.via,
   },
 } as const satisfies BowedHold;
 
@@ -362,16 +367,14 @@ const SHOULDER_HOLD = {
  * (1.4, -0.7, -1) 3.0 cm, and with this hold 2.4 cm, with the same share of folded play samples
  * (2026-10-14-fox-rabbit-fix decisions). The bow paw reaches 0.265 m of the hair, more than half.
  *
- * The rest pose is the rest of the cat violas, as for the rabbit (2026-10-16-seat-rest
- * decisions): the violin stands upright on the lap, its lower end on the inner left thigh 0.15 H
- * in from the thigh at 0.65 of the way to the knee, 0.35 H down and 0.3 H forward, 1.0 cm from
- * the skin, held at its neck, with the left elbow out to the side. The bow lies across the lap in
- * the right paw, about level, with the tip to the left and a little forward, behind the knees. The
- * grip is 0.2 H out from the right thigh and 0.45 H above it, at 0.45 of the way to the knee. The
- * thighs slope down to the knees (2026-10-16-hip-open decisions): with the places of the level
- * thighs (0.8 of the way for the violin, and 0.3 H above at 0.6 of the way for the bow), the left
- * upper arm went 2.9 cm into the body in the rest, and the right upper arm 4.9 cm while the arms
- * lowered (2.2 cm and 2.9 cm now, `pnpm hold-fit fox-violinist`).
+ * The rest pose is the upright rest of the rabbit (2026-10-16-bow-rest decisions): the violin
+ * stands on the left thigh at 0.65 of the way to the knee, 0.24 H down and 0.3 H forward. The long
+ * right arm of the fox reaches the right thigh only nearly straight, and its line from the
+ * shoulder to a paw on the top of the thigh passes through the side of the belly: with the grip
+ * 0.15 H out at 0.65 of the way, the right upper arm went 6.2 cm into the body. So the grip is
+ * 0.3 H out and 0.15 H forward at 0.55 of the way, at the outer side of the thigh, and the upper
+ * arm goes 3.2 cm into the body (`pnpm hold-fit fox-violinist --sets lift,rest,lower`). The right
+ * elbow points down and a little out and back, and the left elbow down and a little back.
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
@@ -382,14 +385,14 @@ const FOX_HOLD = {
   reach: 15 * MathUtils.DEG2RAD,
   poleTipR: [1, -0.85, -1],
   freeHair: 0.12,
-  restPoleL: [-1, -1, 0],
-  restPoleR: [1, -0.4, 0.3],
-  rest: { ...LAP_VIOLIN, lap: { along: 0.65, offset: [0.15, -0.35, -0.3] } },
+  restPoleL: [-0.3, -1, 0.3],
+  restPoleR: [0.3, -1, 0.3],
+  rest: { ...LAP_VIOLIN, lap: { along: 0.65, offset: [0, -0.24, -0.3] } },
   restBow: {
-    lap: { along: 0.45, offset: [0.2, 0.45, 0] },
-    tip: LAP_BOW_TIP,
-    hair: [0, -1, 0.2],
-    via: null,
+    lap: { along: 0.55, offset: [0.3, -0.1, -0.15] },
+    tip: UPRIGHT_BOW.tip,
+    hair: UPRIGHT_BOW.hair,
+    via: UPRIGHT_BOW.via,
   },
 } as const satisfies BowedHold;
 
