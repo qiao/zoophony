@@ -30,7 +30,11 @@ reads it (route 3 of `AGENTS.md`). The steps:
    between the hips joint and the neck joint (`trunk_moves()`), and the head, the arms, the legs,
    and the tail move with it and keep their sizes. The trunk and the clavicles take the girth
    factors across the trunk axis, one for the width and one for the depth (`girth_moves()`), and
-   the arms, the legs, and the tail move out with their joints and keep their sizes.
+   the arms, the legs, and the tail move out with their joints and keep their sizes. With
+   `armGirth` of the config, the upper arm and the forearm take its factors across their axes
+   (`arm_slim()`, `fore_slim()`): the factor of the upper arm fades in from the shoulder joint,
+   and the factor of the forearm fades out to the wrist, so that the shoulders and the paws keep
+   their form.
 5. Change the faces of the arms so that they bend at the joints: a ring of new vertices at each
    joint of the config splits the faces that it crosses, and the long edge of a face that is
    thin in the seated bind pose flips. Each face then takes its color from the texture again.
@@ -126,6 +130,11 @@ LEG = ('thigh', 'shin', 'foot', 'toes')
 #: The trunk bones from the hips joint up to the neck joint, which the trunk factor shortens
 #: (`trunk_moves()`).
 TRUNK = ('hips', 'spine', 'spine1', 'chest')
+
+#: The share of the upper arm from the shoulder joint over which the factor of the cross-section
+#: of the upper arm (`armGirth` of the config) grows from 0 to all (`arm_slim()`), so that the
+#: shoulder and the side of the trunk next to the shoulder joint keep their form.
+ARM_GIRTH_FADE = 0.4
 
 #: The bones whose vertices the girth factors widen around the trunk axis (`girth_moves()`): the
 #: trunk bones and the clavicles, which hold the tops of the shoulders.
@@ -1321,9 +1330,10 @@ def move(rotation, src, dst):
 def stretch(verts, weights, heads, ends, children, factors, rules):
     """Makes the limbs longer, the head larger, the neck and the trunk shorter, and the trunk wider
     by the factors of the config: `arm`, `leg`, `head`, `neck`, `trunk`, and `girth` (the width
-    and the depth). The upper
+    and the depth), and `armGirth` (the upper arm and the forearm). The upper
     arm and the forearm of each side grow by `arm` along their axes from the shoulder joint out,
-    and the paw moves with the wrist and keeps its size. A point on the inner side of the shoulder
+    and the paw moves with the wrist and keeps its size. With `armGirth`, the upper arm and the
+    forearm take its two factors across their axes (`arm_slim()`, `fore_slim()`). A point on the inner side of the shoulder
     joint does not move with the upper arm. With a ramp (`weights.stretchRamp` of the config, in units), only the free arm
     beyond the plane |x| = `armSplit` stretches with the upper arm: the share of the stretch fades
     from 0 to 1 over the ramp on each side of the plane, so that the trunk beside and below the
@@ -1343,7 +1353,9 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
     new_ends = {k: v.copy() for k, v in ends.items()}
     matrices = [move(np.eye(3), np.zeros(3), np.zeros(3)) for _ in BONES]
     halves = {}
+    fores = {}
 
+    slim_upper, slim_fore = factors.get('armGirth', (1, 1))
     for side in 'LR':
         factor = factors['arm']
         s = heads[f'upper_arm_{side}']
@@ -1358,6 +1370,9 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
             y = unit(axis)
             scale = np.eye(3) + (factor - 1) * np.outer(y, y)
             matrices[BONES.index(f'{name}_{side}')] = move(scale, origin, start)
+            if slim_fore != 1:
+                fores[BONES.index(f'{name}_{side}')] = (origin, y, slim_fore,
+                                                        np.linalg.norm(axis))
         # The upper arm stretches from the shoulder joint out. A point of the trunk on the inner
         # side of the shoulder joint keeps its place, so that a small arm weight on the throat or
         # the chest does not pull it across the middle.
@@ -1367,7 +1382,8 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
             sign = 1.0 if side == 'L' else -1.0
             split = rules['armSplit']
             share = smoothstep(verts[:, 0] * sign, split - ramp, split + ramp)
-        halves[BONES.index(f'upper_arm_{side}')] = (s, unit(e - s), factor, share)
+        halves[BONES.index(f'upper_arm_{side}')] = (s, unit(e - s), factor, share,
+                                                    slim_upper, np.linalg.norm(e - s))
         shift = wrist2 - wrist
         for name in ('hand', 'fingers'):
             matrices[BONES.index(f'{name}_{side}')] = move(np.eye(3), np.zeros(3), shift)
@@ -1462,7 +1478,8 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
             if name != 'root':
                 new_heads[name] = new_heads[name] + up
                 new_ends[name] = new_ends[name] + up
-    for k in (*segments, *halves):
+    kept = {k: matrices[k].copy() for k in fores}
+    for k in (*segments, *halves, *fores):
         matrices[k] = np.zeros((3, 4))
     plain = [np.zeros((3, 4)) if k in wide else m for k, m in enumerate(matrices)]
     out = skin(weights, plain, verts)
@@ -1475,8 +1492,12 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
         if k in shifts:
             moved += shifts[k]
         out += weights[:, k, None] * moved
-    for k, (origin, axis, factor, share) in halves.items():
-        moved = outward_stretch(verts, origin, axis, factor, share) + up
+    for k, (origin, axis, slim, length) in fores.items():
+        points = fore_slim(verts, origin, axis, slim, length)
+        out += weights[:, k, None] * (points @ kept[k][:, :3].T + kept[k][:, 3])
+    for k, (origin, axis, factor, share, slim, length) in halves.items():
+        points = verts if slim == 1 else arm_slim(verts, origin, axis, slim, share, length)
+        moved = outward_stretch(points, origin, axis, factor, share) + up
         if k in shifts:
             moved += shifts[k]
         out += weights[:, k, None] * moved
@@ -1546,6 +1567,31 @@ def outward_stretch(points, head, axis, factor, share):
     by its place along the bone, as in a linear stretch from the head."""
     along = np.maximum((points - head) @ axis, 0.0) * share
     return points + (factor - 1) * along[:, None] * axis
+
+
+def arm_slim(points, head, axis, factor, share, length):
+    """Moves points toward the axis of the upper arm, the line from `head` along the unit `axis`:
+    the part of each point across the axis takes the factor of the cross-section. The share of the
+    factor grows from 0 at the shoulder joint to all at `ARM_GIRTH_FADE` of the upper arm
+    (`length`), times the share of the stretch of each point. So a point on the inner side of the
+    shoulder joint keeps its place, and the shoulder keeps its form."""
+    rel = points - head
+    along = rel @ axis
+    across = rel - along[:, None] * axis
+    fade = smoothstep(along, 0.0, ARM_GIRTH_FADE * length) * share
+    return points - ((1 - factor) * fade)[:, None] * across
+
+
+def fore_slim(points, head, axis, factor, length):
+    """Moves points toward the axis of the forearm, the line from the elbow joint `head` along the
+    unit `axis`: the part of each point across the axis takes the factor of the cross-section. The
+    share of the factor falls from all at the elbow joint to 0 at the wrist (`length` from the
+    elbow), so that the wrist keeps the width of the paw."""
+    rel = points - head
+    along = rel @ axis
+    across = rel - along[:, None] * axis
+    fade = 1 - smoothstep(along, 0.0, length)
+    return points - ((1 - factor) * fade)[:, None] * across
 
 
 def segment_stretch(points, head, start, end, factor):
@@ -2761,7 +2807,8 @@ def main():
     factors = {'arm': config['armFactor'], 'leg': config.get('legFactor', 1),
                'head': config.get('headFactor', 1), 'neck': config.get('neckFactor', 1),
                'trunk': config.get('trunkFactor', 1),
-               'girth': config.get('girthFactor', [1, 1])}
+               'girth': config.get('girthFactor', [1, 1]),
+               'armGirth': config.get('armGirth', [1, 1])}
     long_verts, long_heads, long_ends, rise, drop, lower = stretch(verts, weights, heads, ends,
                                                                     children, factors, rules)
     stretched = stretch_faces(verts, long_verts, source_tris) if check else []
