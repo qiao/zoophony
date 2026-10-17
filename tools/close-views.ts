@@ -1727,13 +1727,14 @@ function partMode(args: readonly string[]): SingleMode {
 
 /**
  * Reads the command line of the mode `batch`:
- * `batch <dir> [--species <species,...>] [--moments <moment,...>] [--views <view,...>] [--zoom <n>] [--elevation <deg>] [--role <role>]... [--lineup] [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]`.
+ * `batch <dir> [--species <species,...>] [--moments <moment,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--role <role>]... [--lineup] [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]`.
  * Each part is the command line of a single mode with the folder of the part in `<dir>`, and
  * the reader of that mode reads it:
  *
- * - `--species`: the mode `species` at each moment of `--moments` ({@link DEFAULT_BATCH_MOMENTS}
- *   by default), at the views of `--views`, and with `--zoom` and `--elevation`, into
- *   `species-<moment>/`.
+ * - `--species`: the mode `species` at each zoom of `--zoom` (1 by default) and at each moment of
+ *   `--moments` ({@link DEFAULT_BATCH_MOMENTS} by default), at the views of `--views`, and with
+ *   `--elevation`, into `species-<moment>/` at the zoom 1 and `species-<moment>-zoom<n>/` at
+ *   another zoom.
  * - `--role`: the close view of each role, into `<role>/`.
  * - `--lineup`: the lineup of the species of `--species`, into `lineup/`.
  * - `--camera`: the mode `play` at each camera, with `--demo` and `--time`, into `play/`.
@@ -1743,8 +1744,8 @@ function partMode(args: readonly string[]): SingleMode {
  * @param args The arguments after the script.
  * @returns The command line, or `null` when the first argument is not `batch`.
  * @throws Error that lists the correct names, for an unknown species, view, moment, role, demo,
- *   or camera, and an error for a wrong option, a name that comes two times, an option with no
- *   part, a batch with no part, or a missing word.
+ *   or camera, and an error for a wrong option, a name or a zoom that comes two times, an option
+ *   with no part, a batch with no part, or a missing word.
  */
 export function batchArgs(args: readonly string[]): BatchArgs | null {
   if (args[0] !== 'batch') {
@@ -1765,7 +1766,7 @@ export function batchArgs(args: readonly string[]): BatchArgs | null {
       '--url',
       '--base',
     ],
-    ['--role', '--camera'],
+    ['--role', '--camera', '--zoom'],
     ['--lineup'],
   );
   const [out, ...extra] = line.words;
@@ -1786,10 +1787,10 @@ export function batchArgs(args: readonly string[]): BatchArgs | null {
   const species = one('--species');
   const views = one('--views');
   const moments = one('--moments');
-  const zoom = one('--zoom');
+  const zooms = line.options.get('--zoom') ?? [];
   const elevation = one('--elevation');
-  const speciesOnly = [views, moments, zoom, elevation].some((value) => value !== null);
-  if (species === null && (speciesOnly || line.flags.has('--lineup'))) {
+  const speciesOnly = [views, moments, elevation].some((value) => value !== null);
+  if (species === null && (speciesOnly || zooms.length > 0 || line.flags.has('--lineup'))) {
     throw new Error(
       'The options --moments, --views, --zoom, --elevation, and --lineup need --species.',
     );
@@ -1797,14 +1798,19 @@ export function batchArgs(args: readonly string[]): BatchArgs | null {
   if (species !== null) {
     const cameraOptions = [
       ...(views === null ? [] : ['--views', views]),
-      ...(zoom === null ? [] : ['--zoom', zoom]),
       ...(elevation === null ? [] : ['--elevation', elevation]),
     ];
-    for (const moment of onceEach(moments?.split(',') ?? DEFAULT_BATCH_MOMENTS, 'moment')) {
-      const dir = join(out, `species-${moment}`);
-      parts.push(
-        partMode(['species', species, dir, '--moment', moment, ...cameraOptions, ...shared]),
-      );
+    const zoomNames = onceEach(
+      (zooms.length > 0 ? zooms : ['1']).map((text) => String(zoomOf(text))),
+      'zoom',
+    );
+    const momentNames = onceEach(moments?.split(',') ?? DEFAULT_BATCH_MOMENTS, 'moment');
+    for (const zoom of zoomNames) {
+      for (const moment of momentNames) {
+        const dir = join(out, `species-${moment}${zoom === '1' ? '' : `-zoom${zoom}`}`);
+        const options = ['--moment', moment, '--zoom', zoom, ...cameraOptions, ...shared];
+        parts.push(partMode(['species', species, dir, ...options]));
+      }
     }
   }
 
@@ -1990,7 +1996,7 @@ const USAGE = [
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--url <url>] [--base <ref>]`,
-  '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>] [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
+  '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
 /**
