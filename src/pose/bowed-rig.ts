@@ -486,38 +486,43 @@ export const BOWED_HOLDS = {
  * the left elbow: with the left elbow pole of the chin hold, the left upper arm went 5.5 cm into
  * the body in the play. The left elbow points out as far as down, and less forward.
  *
- * The rest pose keeps the rest of the cat violas: the viola stands on the left thigh, and the bow
- * lies along the outer side of the right knee. The thighs of the cat mesh are long, so the bow
- * paw does not reach the knee: with the grip at the knee, the straight right arm went 6.9 cm into
- * the body. The grip is 0.35 H out from the right thigh at 0.4 of the way to the knee, and the
- * bow runs forward and a little down along the thigh past the outer side of the knee. The thighs
- * slope 25 degrees down since 2026-10-17, and the place of 2026-10-16 (0.95 of the way to the
- * knee, 0.4 H lower, and 0.15 H further forward) put the viola in front of the knee, with its
- * lower end over no part of the lap. The viola stands at 0.7 of the way to the knee, 0.1 H lower,
- * so that its lower end is 1.5 cm above the thigh. The left elbow then points out, so that the
- * left upper arm stays out of the belly: with the rest elbow pole of the chin hold, it went
- * 4.4 cm into the body. In the lift and the lowering, the bow turns through the front with the
- * grip 0.6 H to the front, as the upright bow of the violins (`UPRIGHT_BOW`). With a direct mix,
- * the right forearm went 7.4 cm into the body while the arms lowered.
+ * The rest pose is the upright rest of the rabbit and the red fox, as a seated violinist
+ * (2026-10-17-cat-bow decisions): the viola stands upright on the left thigh at 0.7 of the way to
+ * the knee, held at the bottom of its neck, and the bow stands upright at the right side, with the
+ * frog in the right paw at the outer side of the right thigh. The grip is 0.87 H out, 0.25 H down,
+ * and 0.125 H back at 0.57 of the way to the knee, and the right elbow points out, down, and back,
+ * so that it hangs near the side of the deep belly: the upper arm hangs 35° from the vertical, and
+ * the elbow is 6.9 cm out from the side. A grip further out turned the upper arm further from the
+ * vertical, and a grip nearer to the thigh put the right upper arm into the belly. The level bow
+ * of 2026-10-16 ran forward past the knees, and a real violist rests as a violinist.
+ *
+ * In the lift and the lowering, the viola moves 0.2 H out and 0.3 H to the front in the middle of
+ * the move (`liftReach`): with a direct mix, it went 5.6 cm into the deep belly on its way from the
+ * thigh to the chin. The bow turns through the front with the grip 0.4 H out and 0.9 H to the
+ * front (the via of `UPRIGHT_BOW`): with the grip 0.6 H to the front, the right forearm went 3.0 cm
+ * into the body while the arms lowered (`pnpm hold-fit violist --sets lower`).
  *
  * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
  * out. With the bow of the bind pose of the hand, the long forearm held the bow up in front of the
- * face.
+ * face. In the lift and the lowering, the hanging bow turns through the front with the grip 0.3 H
+ * out and 0.6 H to the front: with a direct mix, the bow went 4.1 cm into the arms
+ * (`pnpm pose-depth violist --soloist cat`).
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
   playShift: [0.05, -0.05, 0.17],
   poleL: [-1, -1, -0.75],
-  restPoleR: [1, -1, 0],
+  restPoleR: [1, -1, 2],
   restPoleL: [-1, -1, 0.5],
-  rest: { ...CHIN_HOLD.rest, lap: { along: 0.7, offset: [0, -0.1, 0] } },
+  rest: { ...LAP_VIOLIN, lap: { along: 0.7, offset: [0, 0, 0] } },
+  liftReach: [0.2, 0, -0.3],
   restBow: {
-    lap: { along: 0.4, offset: [0.35, -0.1, -0.1] },
-    tip: [0.1, -0.27, -1],
-    hair: [0, -1, 0.2],
-    via: { ...UPRIGHT_BOW.via, reach: [0, 0, -0.6] },
+    lap: { along: 0.57, offset: [0.87, -0.25, 0.125] },
+    tip: UPRIGHT_BOW.tip,
+    hair: UPRIGHT_BOW.hair,
+    via: { ...UPRIGHT_BOW.via, reach: [0.4, 0, -0.9] },
   },
-  standBow: HANGING_BOW,
+  standBow: { ...HANGING_BOW, via: { ...UPRIGHT_BOW.via, reach: [0.3, 0, -0.6] } },
 } as const satisfies BowedHold;
 
 /**
