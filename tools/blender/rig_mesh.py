@@ -28,7 +28,9 @@ reads it (route 3 of `AGENTS.md`). The steps:
    so that the soles stay at y = 0. The head and the ears grow by the head factor around the neck
    joint, and the weights blend the growth over the neck. The trunk takes the trunk factor
    between the hips joint and the neck joint (`trunk_moves()`), and the head, the arms, the legs,
-   and the tail move with it and keep their sizes.
+   and the tail move with it and keep their sizes. The trunk and the clavicles take the girth
+   factor across the trunk axis (`girth_moves()`), and the arms, the legs, and the tail move out
+   with their joints and keep their sizes.
 5. Change the faces of the arms so that they bend at the joints: a ring of new vertices at each
    joint of the config splits the faces that it crosses, and the long edge of a face that is
    thin in the seated bind pose flips. Each face then takes its color from the texture again.
@@ -119,6 +121,10 @@ LEG = ('thigh', 'shin', 'foot', 'toes')
 #: The trunk bones from the hips joint up to the neck joint, which the trunk factor shortens
 #: (`trunk_moves()`).
 TRUNK = ('hips', 'spine', 'spine1', 'chest')
+
+#: The bones whose vertices the girth factor widens around the trunk axis (`girth_moves()`): the
+#: trunk bones and the clavicles, which hold the tops of the shoulders.
+GIRTH = TRUNK + ('clavicle_L', 'clavicle_R')
 
 #: The largest number of bones of a vertex, and the steps of a weight (design 4.4).
 INFLUENCES = 4
@@ -1304,11 +1310,11 @@ def move(rotation, src, dst):
 
 
 def stretch(verts, weights, heads, ends, children, factors, rules):
-    """Makes the limbs longer, the head larger, and the neck and the trunk shorter by the factors of
-    the config: `arm`, `leg`, `head`, `neck`, and `trunk`. The upper arm and the forearm of each
-    side grow by `arm` along their axes from the shoulder joint out, and the paw moves with the
-    wrist and keeps its size. A point on the inner side of the shoulder joint does not move with
-    the upper arm. With a ramp (`weights.stretchRamp` of the config, in units), only the free arm
+    """Makes the limbs longer, the head larger, the neck and the trunk shorter, and the trunk wider
+    by the factors of the config: `arm`, `leg`, `head`, `neck`, `trunk`, and `girth`. The upper
+    arm and the forearm of each side grow by `arm` along their axes from the shoulder joint out,
+    and the paw moves with the wrist and keeps its size. A point on the inner side of the shoulder
+    joint does not move with the upper arm. With a ramp (`weights.stretchRamp` of the config, in units), only the free arm
     beyond the plane |x| = `armSplit` stretches with the upper arm: the share of the stretch fades
     from 0 to 1 over the ramp on each side of the plane, so that the trunk beside and below the
     armpit keeps its form. The thigh and the shin grow by `leg` along their axes, and the foot
@@ -1316,11 +1322,13 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
     joint. The neck takes `neck` between its joints,
     and the head and the ears move along the neck by the move of the head joint, so that the neck
     of the rig is `neck` times the neck of the grown head. The trunk takes `trunk` between the hips
-    joint and the neck joint, and each other bone moves with it as a whole (`trunk_moves()`). Then
-    the body rises by the growth of the legs, so that the soles stay at y = 0. The root stays on
-    the floor. Each vertex blends the moves of its bones by its weights, so that a growth fades
-    over the joint at its start. Gives the moved vertices, heads, and tails, the rise of the body,
-    the drop of the head along the neck, and the move of the neck joint by the trunk factor."""
+    joint and the neck joint, and each other bone moves with it as a whole (`trunk_moves()`). The
+    vertices of the trunk and of the clavicles take `girth` across the trunk axis, and each other
+    bone moves as a whole with its joint (`girth_moves()`). Then the body rises by the growth of
+    the legs, so that the soles stay at y = 0. The root stays on the floor. Each vertex blends the
+    moves of its bones by its weights, so that a growth fades over the joint at its start. Gives
+    the moved vertices, heads, and tails, the rise of the body, the drop of the head along the
+    neck, and the move of the neck joint by the trunk factor."""
     new_heads = {k: v.copy() for k, v in heads.items()}
     new_ends = {k: v.copy() for k, v in ends.items()}
     matrices = [move(np.eye(3), np.zeros(3), np.zeros(3)) for _ in BONES]
@@ -1415,6 +1423,24 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
             segments[BONES.index(name)] = segment
             new_heads[name] = segment_stretch(heads[name][None, :], *segment)[0]
 
+    # The trunk grows wider and deeper across its axis. The other bones move out with their
+    # joints, after the trunk factor: the girth moves are across the axis, and the trunk factor
+    # moves along it, so the order does not change the result.
+    wide = {}
+    if factors['girth'] != 1:
+        widen, moves = girth_moves(heads, factors['girth'])
+        for name, shift in moves.items():
+            k = BONES.index(name)
+            shifts[k] = shifts.get(k, np.zeros(3)) + shift
+            matrices[k][:, 3] += shift
+            new_heads[name] = new_heads[name] + shift
+            if not children[name]:
+                new_ends[name] = new_ends[name] + shift
+        for name in GIRTH:
+            wide[BONES.index(name)] = True
+            new_heads[name] = new_heads[name] + widen(heads[name][None, :])[0] - heads[name]
+        wide_verts = widen(verts)
+
     for name in BONES:
         if children[name]:
             new_ends[name] = new_heads[children[name]]
@@ -1428,9 +1454,14 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
                 new_ends[name] = new_ends[name] + up
     for k in (*segments, *halves):
         matrices[k] = np.zeros((3, 4))
-    out = skin(weights, matrices, verts)
+    plain = [np.zeros((3, 4)) if k in wide else m for k, m in enumerate(matrices)]
+    out = skin(weights, plain, verts)
+    if wide:
+        out += skin(weights, [m if k in wide else np.zeros((3, 4))
+                              for k, m in enumerate(matrices)], wide_verts)
     for k, (origin, start, end, factor) in segments.items():
-        moved = segment_stretch(verts, origin, start, end, factor) + up
+        points = wide_verts if k in wide else verts
+        moved = segment_stretch(points, origin, start, end, factor) + up
         if k in shifts:
             moved += shifts[k]
         out += weights[:, k, None] * moved
@@ -1465,6 +1496,35 @@ def trunk_moves(heads, factor):
             first = PARENTS[first]
         moves[name] = segment_stretch(heads[first][None, :], *segment)[0] - heads[first]
     return segment, moves
+
+
+def girth_moves(heads, factor):
+    """Gives the moves of the girth factor. The vertices of the trunk bones and of the clavicles
+    (`GIRTH`) move away from the trunk axis, the line through the hips joint and the neck joint, by
+    `factor` times their distance across it: the trunk grows wider and deeper, and keeps its length
+    and the places of its joints along the axis. Each other bone moves as a whole by the move of
+    the joint at the start of its chain after the girth bones: each arm with its shoulder joint,
+    each leg with its hip joint, and the tail with its root. The neck joint lies on the axis, so
+    the neck and the head do not move. So the arms, the legs, and the tail keep their sizes and
+    move out with the wider trunk. Gives the function that moves points of the girth bones, and
+    the move of each other bone by its name, with no move of the root."""
+    hips = heads['hips']
+    axis = unit(heads['neck'] - hips)
+
+    def widen(points):
+        rel = points - hips
+        across = rel - (rel @ axis)[:, None] * axis
+        return points + (factor - 1) * across
+
+    moves = {}
+    for name in BONES:
+        if name in GIRTH or PARENTS[name] is None:
+            continue
+        first = name
+        while PARENTS[first] not in GIRTH:
+            first = PARENTS[first]
+        moves[name] = widen(heads[first][None, :])[0] - heads[first]
+    return widen, moves
 
 
 def outward_stretch(points, head, axis, factor, share):
@@ -2586,7 +2646,7 @@ def main():
     # from the shoulder joints after the rise of the legs and the drop of the trunk.
     factors = {'arm': config['armFactor'], 'leg': config.get('legFactor', 1),
                'head': config.get('headFactor', 1), 'neck': config.get('neckFactor', 1),
-               'trunk': config.get('trunkFactor', 1)}
+               'trunk': config.get('trunkFactor', 1), 'girth': config.get('girthFactor', 1)}
     long_verts, long_heads, long_ends, rise, drop, lower = stretch(verts, weights, heads, ends,
                                                                     children, factors, rules)
     stretched = stretch_faces(verts, long_verts, source_tris) if check else []
@@ -2615,6 +2675,17 @@ def main():
             f"({(long_heads['upper_arm_L'][1] - long_heads['hips'][1]) * meters * 100:.2f} cm) "
             f"above it")
 
+    if factors['girth'] != 1:
+        hips = long_heads['hips']
+        axis = unit(long_heads['neck'] - hips)
+        across = {}
+        for name in ('upper_arm_L', 'thigh_L', 'tail'):
+            rel = long_heads[name] - hips
+            across[name] = np.linalg.norm(rel - (rel @ axis) * axis)
+        log(f"girth: the girth factor {factors['girth']} widens the trunk across its axis. The "
+            f"shoulder joint is {across['upper_arm_L']:.4f} u, the hip joint "
+            f"{across['thigh_L']:.4f} u, and the root of the tail {across['tail']:.4f} u from the "
+            f"axis")
     src_frames = {n: frame(long_heads[n], long_ends[n], rolls[n]) for n in BONES}
     # The upright seated bind keeps the trunk of the source. A recline (`studio.trunk`) turns the
     # trunk back from it around the head of the hips, which keeps the hip joints, the thighs, and
