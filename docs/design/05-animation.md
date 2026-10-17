@@ -32,7 +32,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Harp, deer | Stool | none | Leans forward, and each palm faces the strings and plucks the string of its note | Sits up, with the left palm on the left thigh and the right hand on a string | `HANDS_HOLDS.harp`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-11-short-legs.md` | `pnpm close-views species deer <dir>` |
 | Violin, rabbit | Chair, stands as a soloist | Play: violinonline.com and Simon Fischer (`docs/research/2026-10-14-fox-rabbit-form.md`). Rest: the image of a seated violinist that the user gave (`docs/research/2026-10-16-bow-rest.md`) | Holds the violin on the left shoulder under the jaw, with the back straight and the bow nearly square | The violin stands upright on the left thigh, held at the bottom of its neck, and the bow stands upright at the right side. The right elbow hangs at the side, and the paw holds the frog at the outer side of the right knee. The left elbow points a little out. The body sits on the front of a deeper seat. A soloist holds the violin at its left side and hangs the bow with the tip down | `SHOULDER_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-16-bow-rest.md`, `2026-10-16-rabbit-arm.md`, `2026-10-16-cat-seat.md`, `2026-10-17-fox-form.md`, `2026-10-17-rabbit-pose.md` | `pnpm close-views violinist <dir>` |
 | Violin, red fox | Chair, stands as a soloist | The sources of the rabbit | The hold of the rabbit, with the tail end against the left side of the short neck under the long jaw, a little higher for the shorter neck | The rest of the rabbit, with the frog at the outer side of the right thigh. A soloist hangs the bow with the tip down | `FOX_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-16-bow-rest.md`, `2026-10-16-cat-seat.md`, `2026-10-17-fox-form.md` | `pnpm close-views fox-violinist <dir>` |
-| Viola, cat | Chair, stands as a soloist | none | Holds the viola under the chin (the chin hold), with the viola back toward the neck so that the left paw reaches the nut, the left elbow out as far as down past the deep chest, and the right elbow out | The viola stands on the left thigh, with the left elbow out, and the bow lies along the outer side of the right knee, with the grip at the outer side of the right thigh. A soloist holds the viola at its left side and hangs the bow with the tip down | `CAT_HOLD`, `UPRIGHT_BOW` (the via of the bow), `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-16-mesh-cat.md`, `2026-10-16-cat-seat.md`, `2026-10-16-cat-trunk.md`, `2026-10-16-cat-form.md` | `pnpm close-views violist <dir>` |
+| Viola, cat | Chair, stands as a soloist | Rest: the image of a seated violinist that the user gave (`docs/research/2026-10-16-bow-rest.md`) | Holds the viola under the chin (the chin hold), with the viola back toward the neck so that the left paw reaches the nut, the left elbow out as far as down past the deep chest, and the right elbow out. The stick passes through the middle of the closed right paw | The rest of the rabbit: the viola stands upright on the left thigh, held at the bottom of its neck, and the bow stands upright at the right side, with the paw at the outer side of the right thigh and the right elbow near the side. A soloist holds the viola at its left side and hangs the bow with the tip down | `CAT_HOLD`, `LAP_VIOLIN`, `UPRIGHT_BOW`, `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts`, and `bowGrip` of the cat, `models/species.ts` | 5.2, 5.3 bowed strings, `2026-10-16-mesh-cat.md`, `2026-10-16-cat-form.md`, `2026-10-17-cat-bow.md` | `pnpm close-views violist <dir>` |
 | Cello, dog | Chair | none | The cello stands on the floor (the floor hold), the player leans forward, the right elbow points out and up, and the left arm hugs the cello | The cello stays on the floor, and the bow lies on the outer side of the right knee | `BOWED_HOLDS.cello`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-11-low-seats.md` | `pnpm close-views species dog <dir>` |
 | Contrabass, hippo | High stool | none | The floor hold of the cello | The rest of the cello | `BOWED_HOLDS.contrabass`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-10-arms-close.md` | `pnpm close-views species hippo <dir>` |
 | Flute, tan fox | Chair, stands as a soloist | Play: Michel Debost, Flute Talk, May/June 1996 (`2026-10-14-fox-flute.md`). Rest: Patricia George, The Instrumentalist, December 2018 (`2026-10-15-flute-rest.md`) | Turns the head to the left, with the flute nearly square to the face and the shoulders square and low | The flute stands upright on the right leg in the right paw, and the left arm hangs near the side with a soft bend, with the paw beside the haunch. A soloist hangs the left arm | `FOX_FLUTE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-17-fox-form.md`, `2026-10-17-tan-rest.md` | `pnpm close-views flutist <dir>` |
@@ -382,9 +382,14 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   rest columns of `pnpm hold-fit` measure the rest with a point at each 1 cm along the bow,
   because the sweep measures the corners of its boxes only, and the middle of the stick went
   through the thighs and the arms unseen. They also measure the place of the right elbow against
-  the trunk and the angle of the right upper arm (`armRest()` of `tools/lap-rest.ts`). The seated cats rest with the viola upright on the left
-  thigh, and their bow lies forward along the right thigh. Their bow turns through the front in
-  the lift and the lowering with the via of the upright bow (`CAT_HOLD`, 5.3).
+  the trunk and the angle of the right upper arm (`armRest()` of `tools/lap-rest.ts`). The seated
+  cats rest as the violinists too, with the viola upright on the left thigh and the bow upright at
+  the outer side of the right thigh (`CAT_HOLD`, 5.3): a real violist rests as a violinist, and
+  the level bow forward past the knees of 2026-10-16 looked unnatural
+  (`docs/decisions/2026-10-17-cat-bow.md`). In the lift and the lowering, the viola of the cat
+  moves out and to the front in the middle of the move (`BowedHold.liftReach`), as the grip of the
+  via of the bow moves, so that it passes in front of the deep belly: with a direct mix of the
+  rest place and the playing place, it went 5.6 cm into the belly.
 - **Free arm of the flute.** The seated tan fox rests the flute upright on the right leg in the right
   paw (5.3), and its free left arm hangs near the side with a soft bend of the elbow, with the paw
   beside the haunch and the palm toward the body. A seated flutist at rest lays the left hand on
@@ -476,7 +481,9 @@ of each role.
     holds of step 4 put the neck through the face, and the leans of 15° and 20° moved the head
     further into it (review of step 5, F2).
   - The stick lies in the fingers of the right hand (4.6), and the fingers curl 45° around it,
-    also in the rest pose. The hand can roll around the stick and keep its grip, and the `bow`
+    also in the rest pose. The stick of the cat passes through the middle of its closed paw in each
+    moment, at most 0.9 cm from it (`stickGrip()` of `tools/bow-grip.ts`,
+    `docs/decisions/2026-10-17-cat-bow.md`). The hand can roll around the stick and keep its grip, and the `bow`
     bone turns back by the roll, so that the hair stays on the strings. The hand rolls so that
     its back points to the elbow, from -120° to 100°: past this range, the hair at the frog goes
     into the palm or the fingers. The roll fades to 0 when the elbow is near the far side of the
@@ -587,10 +594,11 @@ of each role.
     The right hand holds the bow on the outer side of the right knee: the grip is 0.08 H above
     the top of the leg at the knee, 0.18 H to the outer side, and the bow lies across the knees
     to the left and 0.3 to the front, away from the scroll, with the hair down. The cat of the
-    mesh of 2026-10-16 has long thighs, and its bow paw does not reach the knee: its hold puts the
-    grip at the outer side of the right thigh, the bow runs forward along the thigh past the knee,
-    and the bow turns through the front in the lift and the lowering, as the upright bow of the
-    violins (`CAT_HOLD`). The cello and the contrabass stay on the floor, and the bow
+    mesh of 2026-10-16 has long thighs and a deep belly. It rests as the violinists: the viola
+    upright on the left thigh, and the bow upright at the right side, with the paw at the outer side
+    of the right thigh and the right elbow 35° from the vertical near the side of the belly. In
+    the lift and the lowering, the bow turns through the front with the grip further out and
+    forward than the grip of the violins (`CAT_HOLD`, `docs/decisions/2026-10-17-cat-bow.md`). The cello and the contrabass stay on the floor, and the bow
     lies on the outer side of the right knee, 0.08 H above it and 0.2 H out, and points to the
     front, with the hair down, (0, -1, 0.3). On the dog of 2026-10-06, the hair down and out,
     (1, -1, 0.3), turned the hand so that the wrist hung beside the knee, and the forearm went
@@ -607,7 +615,10 @@ of each role.
     rest its own direction (`BowedHold.standBow`): the long forearms of the cat mesh, the rabbit
     mesh, and the fox mesh held the bow of the bind pose up in front of the face, so the three
     hang the bow with the tip down, a little forward and out (`HANGING_BOW`,
-    `docs/decisions/2026-10-16-mesh-cat.md`, `docs/decisions/2026-10-16-cat-seat.md`). With the scroll up, the body of the
+    `docs/decisions/2026-10-16-mesh-cat.md`, `docs/decisions/2026-10-16-cat-seat.md`). In the lift
+    and the lowering, the hanging bow turns through the front, as the upright bow (the via of
+    `BowedHold.standBow`): with a direct mix of the hanging bow and the playing bow, the bow went
+    3.3 cm to 4.1 cm into the arms (`docs/decisions/2026-10-17-cat-bow.md`). With the scroll up, the body of the
     instrument hung below the hand and went into the floor. A test keeps each player and its
     instrument above the floor at rest and while it plays. The first rest pose turned the violin
     down around its bone under the chin, so it hung from the chin in front of the chest, the left

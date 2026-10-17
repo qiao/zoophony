@@ -590,7 +590,11 @@ quarter of the folded faces.
   arms stay out of the fade. The rabbit config gives the right arm of the seated rest such a
   shape, and its relaxing also moves one ring of the neighbors of the arm vertices (`grow`), so
   that a corner of the trunk under the armpit can move
-  (`docs/decisions/2026-10-17-rabbit-pose.md`). Each face takes the nearest color of a palette in
+  (`docs/decisions/2026-10-17-rabbit-pose.md`). A rule with the bone `hand` gives the shape of a
+  bent wrist: the paw of the side turns, the forearm twist bone takes half of its twist, and the
+  vertices of the paw, the fingers, and the twist bone relax. The cat config gives the bent left
+  wrist of the violist such a shape, because the turn of its paw from the forearm stays near one
+  turn while it plays (`docs/decisions/2026-10-17-cat-bow.md`). Each face takes the nearest color of a palette in
   Oklab, from the texture of the mesh. A config can move the faces of the plain fur in
   Oklab after the palette (`colors.tone`, `tone()`), so that the warm stage light does not turn a
   gray fur brown: the cat config moves its gray fur and its cream belly half of the way to the
@@ -762,7 +766,8 @@ quarter of the folded faces.
   raised arm after the two arm-down shapes (`StudioBody.raise`). It has its full weight while the
   turn of its upper arm from the bind pose, in the axes of the chest, is near the turn of the
   shape, and its weight falls with a smooth step over a range of angles from that turn
-  (`raiseWeight()`). The weight comes from the pose alone, so the rule of stateless poses holds.
+  (`raiseWeight()`). The shape of a bent wrist (`StudioRaise.bone`) reads the turn of the paw
+  from the forearm in place of the turn of the upper arm. The weight comes from the pose alone, so the rule of stateless poses holds.
   The instrument and the slide
   move by the offsets of the pose, as the scene moves them on a parametric player (5.1).
 - The scene draws the body in the bind pose of the studio, with four bones for each vertex and the
@@ -1674,7 +1679,7 @@ code of each instrument (`models/instruments/`) holds its sizes and the offsets 
 
 | Instrument | Model | Hold in the bind pose |
 |---|---|---|
-| Violin | A body with an arched top, a neck, a scroll, and a bow. | Under the chin on the left shoulder, to the left of the head center and below it. The violin points to the left of the front and a little down, and its top plate turns to the front, so the audience sees it. The bow plays between the bridge and the fingerboard. The stick lies in the fingers of the hanging right hand, in the crease between the palm ball and the finger ball, and points to the front. A grip in front of the palm put the stick through the hand and the frog end into the forearm (user report of 2026-10-06). |
+| Violin | A body with an arched top, a neck, a scroll, and a bow. | Under the chin on the left shoulder, to the left of the head center and below it. The violin points to the left of the front and a little down, and its top plate turns to the front, so the audience sees it. The bow plays between the bridge and the fingerboard. The stick lies in the fingers of the hanging right hand, in the crease between the palm ball and the finger ball, and points to the front. A grip in front of the palm put the stick through the hand and the frog end into the forearm (user report of 2026-10-06). A species can give the grip of its bow (`SpeciesParams.bowGrip`): the place of the stick and its turn in the palm. The stick of the cat passes through the middle of its closed right paw, along the line nearest to the path of the middle of the paw while the studio paw turns toward the forearm (4.4), 50° from square toward the wrist. With the grip of the other species, the stick lay 4.3 cm from the middle of the cat paw, under the paw (`docs/decisions/2026-10-17-cat-bow.md`). The rabbit and the red fox keep that grip, and their stick lies 3.7 cm to 5.1 cm from the middle of the paw. |
 | Viola | The violin at 1.15 scale, with the violin bow. | As the violin. |
 | Cello | A body with an end pin, and a bow. | The end pin stands in front of the seat and a little to the right. The cello leans back to the chest and to the left, so that its neck passes the left of the head, as in `animals.webp`. The top plate faces the front and a little to the right. The bow as on the violin. |
 | Contrabass | The cello at 1.6 scale, with the cello bow. | At the left side, in front of the seat. The axis leans back to the player and to the left, so that the neck passes the left of the head. The top plate faces the front and to the right. |
