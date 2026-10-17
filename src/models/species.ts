@@ -194,6 +194,13 @@ export const SPECIES = {
    * legs: the seat height is the seat of the studio body, in H. Its violin is almost the violin of
    * the app, the size that the user chose: the user made its arms longer for a full violin, and
    * then shorter with the same violin (2026-10-14-arms-rest decisions).
+   *
+   * The stick of the bow passes through the closed right paw (2026-10-17-grip-all decisions), 50°
+   * from square toward the wrist, along the line nearest to the middles of the turned paw. The
+   * skin of the long wrist of the fox moves the middle of the paw by up to 3.5 cm on its bone, so
+   * one line keeps the seated paw within 1.2 cm and the hanging paw of a soloist within 2.2 cm. A
+   * turn of 60° folded face 184 of the right arm in 43% of the play samples. With the grip of
+   * `BOW_GRIP`, the stick lay 4.0 cm to 5.0 cm out from the middle of the paw, under the paw.
    */
   'fox-red': {
     body: 'studio-fox',
@@ -201,6 +208,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['feet'],
     violinScale: 0.998,
+    bowGrip: { at: [-0.0045, -0.0298, -0.1025], turn: 50 * (Math.PI / 180) },
     proportions: {
       headHeight: STUDIO_FOX.headHeight,
       seatHeight: STUDIO_FOX.seatHeight / STUDIO_FOX.headHeight,
