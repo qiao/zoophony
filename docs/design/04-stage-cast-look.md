@@ -368,7 +368,9 @@ violins, and the arms reach about halfway between the two (`docs/decisions/2026-
 On 2026-10-16, the user gave the sheet `cat-views.png` and a cat mesh: "this is the model for cat".
 The viola cat has that mesh since then (`assets/models/cat/cat.glb`), rigged as the fox mesh, with
 the pea eyes of the app. The user chose the size of the red fox, the reach of the red fox, and the
-leg factor of the fox (`docs/decisions/2026-10-16-mesh-cat.md`).
+leg factor of the fox (`docs/decisions/2026-10-16-mesh-cat.md`). Later that day, the user said that
+the cat was too long and its chair too low, and chose the trunk of the red fox with longer legs
+(`docs/decisions/2026-10-16-cat-trunk.md`).
 The user chose these bodies again on 2026-10-09, in
 place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
@@ -552,7 +554,15 @@ quarter of the folded faces.
   keep their places (`ungrown()` of `tools/studio-body.ts`). The neck factor shortens the neck
   between its joints, and the head and the ears move down the neck with the head joint. The
   export puts the head center of the holds on the short neck, and the head height stays, so an
-  instrument under the jaw goes down with the jaw (`headRig()`). The upper arm stretches by the
+  instrument under the jaw goes down with the jaw (`headRig()`). The trunk factor shortens the
+  trunk along the line from the hips joint to the neck joint (`trunkFactor`, `trunk_moves()`).
+  The trunk keeps its width and its depth, and the faces keep their colors, so a belly pattern
+  becomes shorter with the trunk. Each other chain moves as a whole with the point of that line at
+  its first joint: the neck and the head, each arm at its clavicle, each leg at its hip, and the
+  tail at its root. So the head, the arms, the legs, and the tail keep their sizes, and a vertex
+  with weights on the trunk and on an arm blends two moves of nearly the same size. The cat config
+  takes the trunk of the red fox, as the user chose on 2026-10-16, and longer legs that keep the
+  standing ear tips (`docs/decisions/2026-10-16-cat-trunk.md`). The upper arm stretches by the
   arm factor only from the shoulder joint out, so that a small arm weight of the throat does not
   pull the throat across the middle. A config can also fade the stretch over the trunk below the
   armpit (`weights.stretchRamp`). No config has a fade now: with the holds of the shorter arms of
@@ -649,7 +659,9 @@ quarter of the folded faces.
   arms keep their meters (`docs/decisions/2026-10-14-fox-rabbit-form.md`). The viola cat has the
   size of the red fox, as the user chose on 2026-10-16: `ANIMALS` gives its standing shoulder
   joints at the height that puts its standing ear tips at the ear tips of the red fox, 1.758 m,
-  after the leg factor of the fox (`docs/decisions/2026-10-16-mesh-cat.md`). The module of
+  after the leg factor of the fox (`docs/decisions/2026-10-16-mesh-cat.md`). Its shorter trunk
+  lowers the ear tips, and its longer legs raise them by the same length, so the scale stays and
+  `ANIMALS` keeps the meters of each unit (`docs/decisions/2026-10-16-cat-trunk.md`). The module of
   each body (`src/models/studio/<animal>.ts`) holds its
   scale and its head height `H`, and the research reports
   (`docs/research/2026-10-12-studio-bear.md`, `docs/research/2026-10-12-studio-polar-bear.md`)
