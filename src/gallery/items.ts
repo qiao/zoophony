@@ -8,6 +8,8 @@ import type { SpeciesId } from '../models/species.ts';
 import { INSTRUMENT_IDS } from '../models/instruments/catalog.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { boneIndex } from '../models/rig.ts';
+import { REST_TIMES, liftScale } from '../pose/rest.ts';
+import type { RestMotion } from '../pose/rest.ts';
 import type { Transport } from '../pose/types.ts';
 
 /** One model of the gallery: a species with an instrument, or an instrument alone. */
@@ -256,6 +258,81 @@ export function gallerySupport(search: URLSearchParams, instrument: InstrumentId
  */
 export function galleryTransport(search: URLSearchParams): Transport {
   return search.has('rest') ? REST : PLAYING;
+}
+
+/**
+ * A move of the instruments of the gallery between the rest pose and the playing pose (design
+ * 5.2, 7.1): a point of the lift or of the lowering.
+ */
+export interface GalleryMove {
+  /** The lift before the first note, or the lowering after a pause. */
+  readonly kind: 'lift' | 'lower';
+  /**
+   * The share of the time of the move, from 0 at its start to 1 at its end. The seeded delay of
+   * the move comes before its start, so the share 0 is the last instant before the move.
+   */
+  readonly share: number;
+}
+
+/**
+ * Reads a move of the instruments from the query of the gallery (design 7.1): `lift=<share>`
+ * shows each animal at that share of its lift, and `lower=<share>` at that share of its lowering.
+ * A share below 0 or above 1 goes to the nearest end. The query `lift` comes before `lower`, and
+ * both come before `rest`. A value that is not a number gives no move.
+ *
+ * @param search The query of the page.
+ * @returns The move, or `null` when the query has none.
+ */
+export function galleryMove(search: URLSearchParams): GalleryMove | null {
+  for (const kind of ['lift', 'lower'] as const) {
+    const text = search.get(kind)?.trim() ?? '';
+    const share = Number(text);
+    if (text !== '' && Number.isFinite(share)) {
+      return { kind, share: Math.min(1, Math.max(0, share)) };
+    }
+  }
+  return null;
+}
+
+/**
+ * Gives the transport that puts an animal at the share of a move at a wall time (design 5.2), so
+ * that `poseAt()` gives the pose of the app at that point of the move. The lift starts from the
+ * rest pose, as the first play does. The transport plays from a change before the wall time by
+ * the delay of the lift and the share of its duration. It has no count-in limit, so the lift keeps
+ * its own times. The lowering ends a play that lifted each animal. The transport pauses at a
+ * change before the wall time by the hold of the pause, the delay of the lowering, and the share
+ * of its duration.
+ *
+ * @param move The move and its share.
+ * @param motion The seeded rest motion of the animal (`PlayerPlan.motion`).
+ * @param wallTime The wall clock time of the pose, in seconds.
+ * @returns The transport.
+ */
+export function moveTransport(move: GalleryMove, motion: RestMotion, wallTime: number): Transport {
+  if (move.kind === 'lift') {
+    const leadSec = Number.POSITIVE_INFINITY;
+    const { delaySec, durationSec } = motion.lift;
+    const elapsed = (delaySec + move.share * durationSec) * liftScale(motion, leadSec);
+    return {
+      playing: true,
+      changedAtWall: wallTime - elapsed,
+      before: null,
+      startSec: 0,
+      holdSec: REST_TIMES.hold,
+      leadSec,
+    };
+  }
+
+  const { delaySec, durationSec } = motion.lower;
+  const elapsed = REST_TIMES.hold + delaySec + move.share * durationSec;
+  return {
+    playing: false,
+    changedAtWall: wallTime - elapsed,
+    before: PLAYING,
+    startSec: 0,
+    holdSec: REST_TIMES.hold,
+    leadSec: Number.POSITIVE_INFINITY,
+  };
 }
 
 /**
