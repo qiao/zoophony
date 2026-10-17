@@ -995,7 +995,7 @@ const SPECIES_CAMERA: BodyCamera = { kind: 'body', zoom: 1, elevation: 10 };
 
 /**
  * The largest elevation of `--elevation`, in degrees: the gallery limits the elevation of a close
- * view to 0° to 89° (`closeViewOf()` of `src/gallery/items.ts`).
+ * view to 0° to 89° (`closeView()` of `src/gallery/items.ts`).
  */
 export const MAX_ELEVATION = 89;
 
