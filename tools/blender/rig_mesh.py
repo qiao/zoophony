@@ -2303,9 +2303,11 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet):
     its bind direction to its direction in the pose of the source (`sheet`). Each vertex of a face
     whose cosine of `turn_dots()` is below `below` of the rule moves halfway to the middle of its
     neighbors, as `relax()` cleans the bind mesh, but only the vertices of the clavicle and of the
-    upper arm of the side. The move of each relaxed vertex goes back to the bind pose through the
-    inverse of its skin. Gives the shape, the weight of the arm-down shape, the faces that turn
-    over before and after, the rounds, and the moved vertices."""
+    upper arm of the side, and `grow` rings of their neighbors (0 when the rule has none). A ring
+    lets a corner of the trunk under the armpit move, when a long face from it to the arm turns
+    over. The move of each relaxed vertex goes back to the bind pose through the inverse of its
+    skin. Gives the shape, the weight of the arm-down shape, the faces that turn over before and
+    after, the rounds, and the moved vertices."""
     side = rule['side']
     turns = {name: np.eye(3) for name in BONES}
     upper = quat_matrix(rule['turns']['upper_arm'])
@@ -2322,6 +2324,8 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet):
     posed = skin(weights, matrices, base)
     region = ((weights[:, BONES.index(f'upper_arm_{side}')] > 0)
               | (weights[:, BONES.index(f'clavicle_{side}')] > 0))
+    for _ in range(rule.get('grow', 0)):
+        region[tris[region[tris].any(axis=1)].ravel()] = True
     before = int((turn_dots(bind, posed, tris, weights, matrices) < 0).sum())
     relaxed, rounds = relax(bind, posed, tris, weights, matrices, moving=region,
                             below=rule['below'])
