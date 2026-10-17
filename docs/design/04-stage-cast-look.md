@@ -502,8 +502,9 @@ quarter of the folded faces.
 ```
 
 - `pnpm studio-body <animal>` reads the GLB file with no Blender. It welds the faces of the fur
-  and the gloss, keeps the skin, the arm-down corrective shapes, the shape of a raised arm of a
-  mesh rig with its pose (`raiseOf()`), and the bind pose of the bones,
+  and the gloss, keeps the skin, the arm-down corrective shapes, the shapes of a raised arm, a bent
+  elbow, or a bent wrist of a mesh rig with their poses (`raisesOf()`), and the bind pose of the
+  bones,
   turns the animal to face -z, and scales it. It drops the props and the clips of the studio (the
   baton, the violin and the bow that the paws hold, the bench, the chair, and the piano): the app
   keeps its own props (4.5, 4.6) and its own motion. The four digits of a paw of the pianist become
@@ -594,7 +595,15 @@ quarter of the folded faces.
   bent wrist: the paw of the side turns, the forearm twist bone takes half of its twist, and the
   vertices of the paw, the fingers, and the twist bone relax. The cat config gives the bent left
   wrist of the violist such a shape, because the turn of its paw from the forearm stays near one
-  turn while it plays (`docs/decisions/2026-10-17-cat-bow.md`). Each face takes the nearest color of a palette in
+  turn while it plays (`docs/decisions/2026-10-17-cat-bow.md`). A rule with the bone `forearm`
+  gives the shape of a bent elbow: the clavicle, the upper arm, and the forearm take the turns of
+  the rule, and the vertices of the clavicle, the upper arm, the forearm, and the twist bone relax.
+  A rule of a raised arm can also bend the elbow as in the play (`turns.forearm`). `raise` holds
+  one rule, or a list of up to four rules (`raise_rules()`), and each rule gives one shape. Each
+  rule relaxes the skin with the shapes of the rules before it on the same side at their weights
+  in its pose, so that the shapes add up as in the app. The cat config gives the violist four
+  shapes: the bent left wrist, the bent right elbow, the raised right arm with the bent elbow of
+  the play, and the bent left elbow (`docs/decisions/2026-10-17-multi-shape.md`). Each face takes the nearest color of a palette in
   Oklab, from the texture of the mesh. A config can move the faces of the plain fur in
   Oklab after the palette (`colors.tone`, `tone()`), so that the warm stage light does not turn a
   gray fur brown: the cat config moves its gray fur and its cream belly half of the way to the
@@ -762,12 +771,15 @@ quarter of the folded faces.
   toward the baton. The fingers of the studio curl around their own axis by the curl of the
   player. `docs/research/2026-10-12-studio-bear.md` gives the bends of the wrists. The corrective
   shape of each arm takes the weight of the driver of the studio: the place of the upper arm
-  between the bind pose of the studio and the pose of its sheet. A mesh rig can add the shape of a
-  raised arm after the two arm-down shapes (`StudioBody.raise`). It has its full weight while the
-  turn of its upper arm from the bind pose, in the axes of the chest, is near the turn of the
-  shape, and its weight falls with a smooth step over a range of angles from that turn
-  (`raiseWeight()`). The shape of a bent wrist (`StudioRaise.bone`) reads the turn of the paw
-  from the forearm in place of the turn of the upper arm. The weight comes from the pose alone, so the rule of stateless poses holds.
+  between the bind pose of the studio and the pose of its sheet. A mesh rig can add up to four
+  shapes of a raised arm after the two arm-down shapes (`StudioBody.raises`, `STUDIO_RAISES`).
+  Each shape has its full weight while the turn of its upper arm from the bind pose, in the axes of
+  the chest, is near the turn of the shape, and its weight falls with a smooth step over a range
+  of angles from that turn (`raiseWeight()`). The shape of a bent elbow (`StudioRaise.bone`
+  `forearm`) reads the turn of the forearm from the upper arm, and the shape of a bent wrist
+  (`hand`) the turn of the paw from the forearm, in place of the turn of the upper arm. Each shape
+  takes its weight from its own turn. The weight comes from the pose alone, so the rule of
+  stateless poses holds.
   The instrument and the slide
   move by the offsets of the pose, as the scene moves them on a parametric player (5.1).
 - The scene draws the body in the bind pose of the studio, with four bones for each vertex and the
@@ -1790,8 +1802,8 @@ bones:
 - A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
   studio, two eye bones for the pea eyes, and the optional tip of a tail of two bones (`tail_tip`,
   the red fox, the tan fox, and the cat).
-  Each vertex follows up to four of them, and two corrective shapes move the skin of the arms. A
-  third shape moves the skin of a raised arm of a mesh rig. The scene gives the mesh one bone for each studio bone and one for
+  Each vertex follows up to four of them, and two corrective shapes move the skin of the arms. Up
+  to four more shapes move the skin of a raised arm, a bent elbow, or a bent wrist of a mesh rig. The scene gives the mesh one bone for each studio bone and one for
   each bone of the player, and `poseStudioBones()` writes their matrices from the pose of the
   player. The bones of the player keep the list below, so the pose code drives a studio body as
   each other body. The pea eyes are on the eye bones of the player, and the render mesh moves them
