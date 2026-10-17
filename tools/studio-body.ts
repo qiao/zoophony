@@ -81,6 +81,13 @@ export interface AnimalSettings {
    */
   readonly seatBack?: number;
   /**
+   * The room that a seated body on a chair keeps behind its back, beyond
+   * {@link CHAIR_BACK_CLEARANCE}, in meters (design 4.4, 4.5). The chair grows back by it, and the
+   * body keeps its place at the front edge of the seat, so that it sits further forward on a deeper
+   * seat, as a seated string player sits on the front half of the chair. 0 when it is not given.
+   */
+  readonly backRoom?: number;
+  /**
    * The width of the seat of the chair of the app under a seated body on a chair, in meters, when
    * its haunch is wider than the chair of design 4.5 (`StudioBody.chairWidth`). The seat height
    * of the body is the lowest point over this seat. With no value, the body sits on the chair of
@@ -1437,7 +1444,10 @@ function sceneFrame(
   const box = propBox(glb, (name) => name === seat.name);
   const front = box.max.z;
   const back = seat.name === 'chair' ? (settings.seatBack ?? 0) : 0;
-  const depth = seat.name === 'chair' ? chairDepthOf(mesh, box, scale, back) : seat.depth;
+  const depth =
+    seat.name === 'chair'
+      ? chairDepthOf(mesh, box, scale, back, settings.backRoom ?? 0)
+      : seat.depth;
   // The front edge of the seat of the app, in the axes of the studio: a chair keeps its back at
   // the back of the chair of design 4.5, and a shorter seat ends further back. The body lies the
   // move back behind it.
@@ -1462,18 +1472,26 @@ function sceneFrame(
  * the chair of the studio, so that the body sits on the whole seat, as in the studio. The chair
  * grows back until its back posts keep {@link CHAIR_BACK_CLEARANCE} behind the trunk, as the
  * chair of the parametric biped does (`chairForward()` of `models/player.ts`), and then by the
- * move of the body back on it. The body lies the move behind the front edge of the chair of the
- * studio, so it moves back up to that clearance, and the chair grows forward under it by the
- * rest of the move. The tail goes back through the open back under the top rail, so it does not
- * count.
+ * room behind the back and the move of the body back on it. The body lies the move behind the
+ * front edge of the chair of the studio, so it moves back up to that clearance, and the chair
+ * grows forward under it by the rest of the move. The tail goes back through the open back under
+ * the top rail, so it does not count.
  *
  * @param mesh The welded mesh.
  * @param chair The box of the chair of the studio, in the axes and the units of the studio.
  * @param scale The meters for each unit.
  * @param move The move of the body back on the chair, in meters (`AnimalSettings.seatBack`).
+ * @param room The room behind the back beyond the clearance, in meters
+ *   (`AnimalSettings.backRoom`).
  * @returns The depth, in meters.
  */
-function chairDepthOf(mesh: SourceMesh, chair: Box3, scale: number, move: number): number {
+function chairDepthOf(
+  mesh: SourceMesh,
+  chair: Box3,
+  scale: number,
+  move: number,
+  room: number,
+): number {
   // The back of the chair of the app reaches its height above the seat: the lowest point of the
   // body over the chair of the studio. The tail goes back over the seat, so it does not count.
   let seat = Infinity;
@@ -1497,7 +1515,10 @@ function chairDepthOf(mesh: SourceMesh, chair: Box3, scale: number, move: number
     }
   }
   const studio = (chair.max.z - chair.min.z) * scale;
-  return Math.max(studio, (chair.max.z - back) * scale + CHAIR_LEG + CHAIR_BACK_CLEARANCE + move);
+  return Math.max(
+    studio,
+    (chair.max.z - back) * scale + CHAIR_LEG + CHAIR_BACK_CLEARANCE + room + move,
+  );
 }
 
 /**
