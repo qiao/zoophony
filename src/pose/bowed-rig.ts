@@ -433,13 +433,18 @@ export const BOWED_HOLDS = {
 
 /**
  * The hold of the viola under the chin, for the cat mesh (design 4.6, 5.3): the viola hold of
- * {@link BOWED_HOLDS}. A cat soloist who stands rests as a real violist who stands: the bow
- * hangs from the right paw with the tip down, a little forward and out. With the bow of the bind
- * pose of the hand, the long forearm held the bow up in front of the face (2026-10-16-mesh-cat
- * decisions).
+ * {@link BOWED_HOLDS}, with the viola 0.05 H further right and 0.21 H further back, toward the
+ * neck, so that the left paw reaches the nut, as the user asked for the arms of the reach of the
+ * red fox (2026-10-16-mesh-cat decisions). At the place of the viola hold, the paw reached the
+ * fingerboard from 0.29 of its length (`pnpm hold-reach cat --instrument viola`).
+ *
+ * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
+ * out. With the bow of the bind pose of the hand, the long forearm held the bow up in front of the
+ * face.
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
+  playShift: [0.05, -0.05, 0.17],
   standBow: { tip: [0.15, -1, -0.3], hair: [0, 0, 1] },
 } as const satisfies BowedHold;
 
