@@ -524,14 +524,16 @@ quarter of the folded faces.
   and the forearm longer. The thigh and the shin stretch only between their joints, the feet keep
   their size, and the body rises so that the soles stay on the floor. The rig takes the bind arms
   of the studio rabbit and the seat of its config: the seated posture of 5.2, with the thighs that
-  slope down from the hips to the knees and the shins that slant forward (`studio.legTurns`). The
+  slope down from the hips to the knees and the vertical shins (`studio.legTurns`). The
   buttocks of an image mesh curve up behind the hip joints, so they stay above the seat. A config
   can lower the underside of the haunch behind the hip joints onto the seat in the seated bind
   (`sit` of the config, `sit()` of `tools/blender/rig_mesh.py`). The vertices at the root of a
   tail share their weight with the hips. The sit can count them as the haunch (`sit.root`), so
   that they move down with it, and it can drop the haunch to a fixed seat top (`sit.top`), so
   that a change of the tail does not move the seat. The cat config does both: with the root of
-  the tail as free, the side view of its haunch stayed 5.2 cm above the seat. A config can turn the trunk of
+  the tail as free, the side view of its haunch stayed 5.2 cm above the seat. The fox config
+  counts the root of its tail as the haunch too: with the thighs of 5.2, the root kept the side
+  view of its haunch 2.6 cm above the seat (`docs/decisions/2026-10-17-fox-form.md`). A config can turn the trunk of
   the seated bind upright (`studio.trunk`, `trunk_turn()`): the pelvis turns back around the head
   of the hips, each trunk bone takes a share of the turn, and the shares fall to 0 at the head, so
   that the head stays level. The haunch and the root of the tail then rise onto the seat top
@@ -545,7 +547,9 @@ quarter of the folded faces.
   (`head_shift()`), and the export keeps the head center of the head before the smoothing
   (`headShiftOf()` of `tools/studio-body.ts`), so that the holds, the instruments, and the
   footprints keep their places. The fox config smooths the back of the neck and the bottom of the
-  back of the head. The big head of the cat hangs over its thin neck, and the underside of the
+  back of the head. The rabbit config smooths the back of its narrow neck and the bottom of the
+  back of its big head, below the head center: from the back, the underside of the head made a
+  dark band, so that the head looked like a cap. The big head of the cat hangs over its thin neck, and the underside of the
   head faced down into its shadow: a black band under the head and a dark line under the chin.
   The cat config smooths the neck and the bottom of the head all around the neck, behind the
   chin, so that the head height and the head center keep their places. The head factor grows the head and the ears
@@ -676,8 +680,8 @@ quarter of the folded faces.
   chairs low enough that their feet touch the floor, so their chairs fit their legs. The cats of
   the mesh of 2026-10-16 have no seat height either. They sit in
   the posture of 5.2: the trunk is upright, the thighs slope down from the hips to the knees, the
-  shins slant forward of vertical, so that the feet stand in front of the knees, and the soles
-  stand flat on the floor (`studio.legTurns` of `tools/mesh-rigs/<animal>.json`). Their seats are
+  shins are vertical, so that the ankles are under the knees, and the soles stand flat on the floor
+  (`studio.legTurns` of `tools/mesh-rigs/<animal>.json`). Their seats are
   level, and each seat ends where the thighs leave the seat top at the haunch (`chair.front` of
   the rig config): a longer level seat meets the sloped thighs under the seat top of the haunch,
   and the haunch then hangs above the seat. The back edge of the chair of each rig keeps the body
