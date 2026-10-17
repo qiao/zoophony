@@ -988,10 +988,16 @@ export const SPECIES_MOMENTS: readonly CloseMoment[] = [
 ];
 
 /**
- * The camera of the mode `species`: around the body of the animal, which shows whole. Each view
- * gives its own elevation.
+ * The camera of the mode `species` with no `--zoom`: around the body of the animal, which shows
+ * whole. Each view gives its own elevation.
  */
 const SPECIES_CAMERA: BodyCamera = { kind: 'body', zoom: 1, elevation: 10 };
+
+/**
+ * The largest elevation of `--elevation`, in degrees: the gallery limits the elevation of a close
+ * view to 0° to 89° (`closeViewOf()` of `src/gallery/items.ts`).
+ */
+export const MAX_ELEVATION = 89;
 
 /** The command line of the mode `species`. */
 export interface SpeciesArgs {
@@ -1001,12 +1007,62 @@ export interface SpeciesArgs {
   readonly views: readonly CloseViewAngle[];
   /** The moment of all cells. */
   readonly moment: CloseMoment;
+  /**
+   * The zoom of the camera around the body (`--zoom`), 1 or more: 1 shows the whole body, and 3
+   * shows the middle third of its box, such as the armpits and the lap of a seated player.
+   */
+  readonly zoom: number;
+  /**
+   * The angle of the camera above the floor of all views (`--elevation`), in degrees, or `null`
+   * for the elevation of each view of {@link SPECIES_VIEWS}.
+   */
+  readonly elevation: number | null;
   /** The output directory. */
   readonly out: string;
   /** The URL of a running site of the working tree, or `null` for the built site. */
   readonly url: string | null;
   /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
   readonly base: string | null;
+}
+
+/**
+ * Reads the zoom of `--zoom`.
+ *
+ * @param value The text of the option, or `undefined` with no option.
+ * @returns The zoom: 1 with no option.
+ * @throws Error if the zoom is not a number of 1 or more.
+ */
+export function zoomOf(value: string | undefined): number {
+  if (value === undefined) {
+    return 1;
+  }
+  const zoom = Number(value);
+  if (!Number.isFinite(zoom) || zoom < 1) {
+    throw new Error(
+      `The option --zoom takes a number of 1 or more, such as 3, and not "${value}".`,
+    );
+  }
+  return zoom;
+}
+
+/**
+ * Reads the elevation of `--elevation`.
+ *
+ * @param value The text of the option, or `undefined` with no option.
+ * @returns The elevation in degrees, or `null` with no option.
+ * @throws Error if the elevation is not a number from 0 to {@link MAX_ELEVATION}.
+ */
+export function elevationOf(value: string | undefined): number | null {
+  if (value === undefined) {
+    return null;
+  }
+  const elevation = Number(value);
+  if (!Number.isFinite(elevation) || elevation < 0 || elevation > MAX_ELEVATION) {
+    throw new Error(
+      `The option --elevation takes a number of degrees from 0 to ${MAX_ELEVATION}, and not "${value}".`,
+    );
+  }
+  return elevation;
 }
 
 /**
@@ -1020,18 +1076,25 @@ export function gallerySpecies(): SpeciesId[] {
 
 /**
  * Reads the command line of the mode `species`:
- * `species <species,...> <dir> [--views <view,...>] [--moment <play|rest>] [--url <url>] [--base <ref>]`.
+ * `species <species,...> <dir> [--views <view,...>] [--moment <play|rest>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`.
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when the first argument is not `species`.
  * @throws Error that lists the correct names, for an unknown species, view, or moment, and an
- *   error for a wrong option or a missing word.
+ *   error for a wrong option, a zoom or an elevation that does not fit, or a missing word.
  */
 export function speciesArgs(args: readonly string[]): SpeciesArgs | null {
   if (args[0] !== 'species') {
     return null;
   }
-  const line = modeLine(args.slice(1), ['--views', '--moment', '--url', '--base']);
+  const line = modeLine(args.slice(1), [
+    '--views',
+    '--moment',
+    '--zoom',
+    '--elevation',
+    '--url',
+    '--base',
+  ]);
   const [names, out, ...extra] = line.words;
   if (!names || !out || extra.length > 0) {
     throw new Error(
@@ -1044,28 +1107,44 @@ export function speciesArgs(args: readonly string[]): SpeciesArgs | null {
   const viewNames = line.options.get('--views')?.[0]?.split(',') ?? DEFAULT_SPECIES_VIEWS;
   const views = viewNames.map((name) => namedItem(name, SPECIES_VIEWS, 'view'));
   const moment = namedItem(line.options.get('--moment')?.[0] ?? 'play', SPECIES_MOMENTS, 'moment');
+  const zoom = zoomOf(line.options.get('--zoom')?.[0]);
+  const elevation = elevationOf(line.options.get('--elevation')?.[0]);
   const url = line.options.get('--url')?.[0] ?? null;
   const base = line.options.get('--base')?.[0] ?? null;
-  return { species, views, moment, out, url, base };
+  return { species, views, moment, zoom, elevation, out, url, base };
 }
 
 /**
  * Gives the close view of one species of the mode `species`: the species on the support of its
- * instrument, alone and whole, at the views and the moment of the command line, with the default
- * test notes of the gallery.
+ * instrument, alone, at the views and the moment of the command line, with the default test notes
+ * of the gallery. The camera turns around the middle of the box of the body. `--zoom` takes it
+ * nearer to that middle, and `--elevation` gives each view one angle above the floor.
  *
  * @param species The species.
  * @param args The command line.
  * @returns The views, the moment, and the camera.
  */
 export function speciesRole(species: SpeciesId, args: SpeciesArgs): RoleViews {
+  const { elevation } = args;
   return {
     species,
-    views: args.views,
+    views: elevation === null ? args.views : args.views.map((view) => ({ ...view, elevation })),
     moments: [args.moment],
-    camera: SPECIES_CAMERA,
+    camera: { ...SPECIES_CAMERA, zoom: args.zoom },
     notes: null,
   };
+}
+
+/**
+ * Writes the camera of the mode `species` for the labels, when the command line changes it.
+ *
+ * @param args The command line.
+ * @returns The text, such as `, zoom 3, 20°`, or empty with no `--zoom` and no `--elevation`.
+ */
+export function speciesCameraText(args: Pick<SpeciesArgs, 'zoom' | 'elevation'>): string {
+  const zoom = args.zoom === 1 ? '' : `, zoom ${args.zoom}`;
+  const elevation = args.elevation === null ? '' : `, ${args.elevation}°`;
+  return `${zoom}${elevation}`;
 }
 
 /**
@@ -1112,7 +1191,7 @@ async function renderSpecies(
       `${prefix}${species}-`,
     );
     cells.push(...views.cells);
-    labels.push(...views.labels.map((label) => `${species}, ${label}`));
+    labels.push(...views.labels.map((label) => `${species}, ${label}${speciesCameraText(args)}`));
   }
   return { cells, labels };
 }
@@ -1586,12 +1665,13 @@ function partMode(args: readonly string[]): SingleMode {
 
 /**
  * Reads the command line of the mode `batch`:
- * `batch <dir> [--species <species,...>] [--moments <moment,...>] [--views <view,...>] [--role <role>]... [--lineup] [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]`.
+ * `batch <dir> [--species <species,...>] [--moments <moment,...>] [--views <view,...>] [--zoom <n>] [--elevation <deg>] [--role <role>]... [--lineup] [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]`.
  * Each part is the command line of a single mode with the folder of the part in `<dir>`, and
  * the reader of that mode reads it:
  *
  * - `--species`: the mode `species` at each moment of `--moments` ({@link DEFAULT_BATCH_MOMENTS}
- *   by default) and at the views of `--views`, into `species-<moment>/`.
+ *   by default), at the views of `--views`, and with `--zoom` and `--elevation`, into
+ *   `species-<moment>/`.
  * - `--role`: the close view of each role, into `<role>/`.
  * - `--lineup`: the lineup of the species of `--species`, into `lineup/`.
  * - `--camera`: the mode `play` at each camera, with `--demo` and `--time`, into `play/`.
@@ -1614,6 +1694,8 @@ export function batchArgs(args: readonly string[]): BatchArgs | null {
       '--species',
       '--moments',
       '--views',
+      '--zoom',
+      '--elevation',
       '--role',
       '--camera',
       '--demo',
@@ -1642,14 +1724,25 @@ export function batchArgs(args: readonly string[]): BatchArgs | null {
   const species = one('--species');
   const views = one('--views');
   const moments = one('--moments');
-  if (species === null && (views !== null || moments !== null || line.flags.has('--lineup'))) {
-    throw new Error('The options --moments, --views, and --lineup need --species.');
+  const zoom = one('--zoom');
+  const elevation = one('--elevation');
+  const speciesOnly = [views, moments, zoom, elevation].some((value) => value !== null);
+  if (species === null && (speciesOnly || line.flags.has('--lineup'))) {
+    throw new Error(
+      'The options --moments, --views, --zoom, --elevation, and --lineup need --species.',
+    );
   }
   if (species !== null) {
+    const cameraOptions = [
+      ...(views === null ? [] : ['--views', views]),
+      ...(zoom === null ? [] : ['--zoom', zoom]),
+      ...(elevation === null ? [] : ['--elevation', elevation]),
+    ];
     for (const moment of onceEach(moments?.split(',') ?? DEFAULT_BATCH_MOMENTS, 'moment')) {
-      const viewOption = views === null ? [] : ['--views', views];
       const dir = join(out, `species-${moment}`);
-      parts.push(partMode(['species', species, dir, '--moment', moment, ...viewOption, ...shared]));
+      parts.push(
+        partMode(['species', species, dir, '--moment', moment, ...cameraOptions, ...shared]),
+      );
     }
   }
 
@@ -1833,9 +1926,9 @@ async function renderModes(
 const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--url <url>] [--base <ref>]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
-  `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest>] [--url <url>] [--base <ref>]`,
+  `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--url <url>] [--base <ref>]`,
-  '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest,...>] [--views <view,...>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
+  '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest,...>] [--views <view,...>] [--zoom <n>] [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
 /**
