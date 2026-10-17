@@ -334,6 +334,13 @@ A round that changes the motion updates the items.
   lower strings of the cello and the contrabass, for each string below the highest string
   (`BowedHold.elbowPerString`). From the fourth to the sixth position, it turns a little further
   (`BowedHold.highElbow`, section 1.5). No source gives the angles, so the holds tune them.
+- **The hand goes over the shoulder of the instrument** (section 1.5). From the second position to
+  the fifth position, `leftTilt()` of `pose/bowed.ts` tilts the left hand further over the neck
+  by `BowedHold.highTilt`, and the wrist comes up beside the upper bout. The finger block keeps its
+  place. The app starts the tilt one position earlier than a real hand, because the left forearm
+  of the cat touches the upper bout from the third position. Only the cat tilts. Its wrist then
+  bends more than the straight wrist of a real player (decisions
+  [`2026-10-17-cat-hand.md`](../decisions/2026-10-17-cat-hand.md)).
 
 ### 3.2 The bow arm
 
