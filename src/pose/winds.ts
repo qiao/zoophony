@@ -318,22 +318,29 @@ export const FOX_FLUTE_BACK = 9;
  * stands upright on the right leg with the foot joint down, and the right paw holds it at the
  * right-hand keys, as a real flutist rests it (decisions `2026-10-15-flute-rest.md`). The foot
  * joint stands at the outer side of the right knee, and the top leans about 10° out and forward.
- * The left paw leaves its grip and rests on the outer side of the left thigh, at 0.6 of the way
- * to the knee ({@link WindHold.restFreeL}), and both arms hang down along the sides. The thighs
- * slope down to the knees (2026-10-16-hip-open decisions), so at 0.66 of the way the paw did not
- * reach its place, and the left forearm went 2.8 cm into the body. On the top of the knee,
- * 4° from vertical, the right upper arm went 1.6 cm into the body (limit 1.5 cm). With the elbows
- * out to the side, the upper arms folded more faces of the skin than the rest of 2026-10-14
- * (`docs/research/2026-10-15-flute-rest.md`).
+ * The left paw leaves its grip ({@link WindHold.restFreeL}), and both arms hang down along the
+ * sides. On the thighs of 2026-10-16, which slope down to the knees, the paw at 0.66 of the way to
+ * the knee did not reach its place, and the left forearm went 2.8 cm into the body. On the top of
+ * the knee, 4° from vertical, the right upper arm went 1.6 cm into the body (limit 1.5 cm). With
+ * the elbows out to the side, the upper arms folded more faces of the skin than the rest of
+ * 2026-10-14 (`docs/research/2026-10-15-flute-rest.md`).
  *
  * With the thighs 25° down and the vertical shins of 2026-10-17, the knees are lower, and the rest
  * of 2026-10-16 put the left upper arm 3.6 cm into the body and the foot joint 5.4 cm above the
  * right leg (2026-10-17-fox-form decisions). The flute now moves 0.06 H further out and 0.13 H
- * back toward the body, the right elbow points out and down with no turn back, and the left paw
- * rests 0.5 H out and 0.24 H down from the top of the left thigh. The right palm keeps 1.2 cm of
- * reach to its grip (`pnpm hold-reach fox-tan --instrument flute`): with the flute 0.06 H lower,
- * it missed the grip by 1.7 cm. A flute nearer to the leg put the right upper arm into the body:
- * with the foot joint 2.0 cm above the leg, it went 3.7 cm into the body.
+ * back toward the body, and the right elbow points out and down with no turn back. The right palm
+ * keeps 1.2 cm of reach to its grip (`pnpm hold-reach fox-tan --instrument flute`): with the flute
+ * 0.06 H lower, it missed the grip by 1.7 cm. A flute nearer to the leg put the right upper arm
+ * into the body: with the foot joint 2.0 cm above the leg, it went 3.7 cm into the body.
+ *
+ * The top of the left thigh is out of reach of the left arm: the nearest place of the palm on it
+ * is 0.582 m from the shoulder joint, and the arm is 0.545 m (2026-10-17-tan-rest decisions). So
+ * the left arm hangs near the side with a soft bend, as a seated flutist lets the free arm hang. The
+ * paw hangs about 4 cm out from the outer side of the haunch, with the palm toward the body. The
+ * lap place takes the top of the belly over the thigh at 0.45 of the way to the knee, and the paw
+ * hangs 0.45 H out, 0.55 H down, and 0.12 H forward from it. Out at 0.5 H from the top of the
+ * thigh, the straight arm stood out from the body. With the paw nearer to the haunch or the elbow
+ * more bent, the inner elbow went further into the side of the trunk.
  */
 const FOX_FLUTE = {
   ...WOODWIND,
@@ -347,9 +354,9 @@ const FOX_FLUTE = {
   restPoleL: [-0.15, -1, 0.38],
   restPoleR: [0.69, -1, -0.01],
   restFreeL: {
-    lap: { along: 0.6, offset: [-0.5, -0.24, 0.1] },
-    palm: [0.23, -1, 0.15],
-    fingers: [-0.05, -0.22, -1],
+    lap: { along: 0.45, offset: [-0.45, -0.55, -0.12] },
+    palm: [0.85, -0.37, 0.38],
+    fingers: [0, -1, -0.3],
     arc: [0.57, 0.04, 0.31],
   },
 } as const satisfies WindHold;
