@@ -90,7 +90,6 @@ The user can change any of them. Then update the section that holds it.
 | The trunk has no nose ball, the flat nose has two nostrils, and the beak has a lower half on `jaw` | 4.5 |
 | The flat nose is 0.4 H wide and 0.3 H tall, in place of 0.2 H wide | 4.5 |
 | The path of a tail of two bones under the chair back | 4.5 |
-| The face pattern `forehead-stripes` of the cat, so that `stripe` names only the stripe of the badger | 4.3 |
 | The seated body of step 4: the head top 2.4 H above the seat (in place of 2.6), a torso 1.45 H tall, and a neck that the torso and the head hide. The agent of the animal views changed the widths and the legs (below) | 4.5 |
 | The ear types `antlered` (the deer) and `side-round` (the monkey), and the face pattern `face-disc` (the monkey) | 4.3 |
 | The trunk starts 0.3 H below the head center and curls up. The horn is 0.26 H wide at its base | 4.5 |
@@ -98,5 +97,4 @@ The user can change any of them. Then update the section that holds it.
 | The mouse has a pointed snout of 0.3 H and large round ears of 0.7 H, set high and out to the sides (review of step 4, the weak species) | 4.3, 4.5 |
 | The beaver has the snout `buck-teeth`: two front teeth in `#f1ead9` below the muzzle. Its flat tail is 0.45 H wide (review of step 4, the weak species) | 4.3, 4.5 |
 | The dog has a cream coat `#e6dfd1` with belly `#f3eee4`, and its floppy ears and the new face pattern `eye-patch` (one patch around the left eye) are `#8a5a36` (review of step 4, the weak species) | 4.3, 4.5 |
-| The cat has two forehead stripes of 0.03 H in place of three of 0.05 H (review of step 4, the weak species) | 4.3 |
 | A wind player shows one note: the last note that started, and the highest note of a chord (notes within 50 ms) (second re-review of step 2, P1) | 5.3 |

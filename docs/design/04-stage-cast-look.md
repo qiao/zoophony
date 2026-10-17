@@ -145,7 +145,7 @@ interface BipedParams extends CommonParams {
     | 'horn';
   tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Face pattern, for example the eye patches of the panda. */
-  facePattern: 'none' | 'eye-patches' | 'cap' | 'stripe' | 'forehead-stripes' | 'face-disc';
+  facePattern: 'none' | 'eye-patches' | 'cap' | 'stripe' | 'face-disc';
   body?: undefined;
 }
 
@@ -285,14 +285,13 @@ its own skeleton:
   uses rabbits again, and a fourth uses red-orange foxes.
 
 The shape parameters of each species of the parametric biped (4.5 gives the colors). The penguin
-has its egg body, and the rabbit, the two foxes, the bear, and the polar bear have studio bodies
-(4.4), so they have no row:
+has its egg body, and the rabbit, the two foxes, the cat, the bear, and the polar bear have studio
+bodies (4.4), so they have no row:
 
 | Species | ears | snout | tail | facePattern |
 |---|---|---|---|---|
 | wolf | pointed | long | bushy | none |
 | elephant | large-flap | trunk | thin | none |
-| cat | pointed | short | thin | forehead-stripes |
 | hippo | small | broad | thin | none |
 | deer | antlered | long | puff | none |
 | panda | round | short | puff | eye-patches |
@@ -306,8 +305,6 @@ has its egg body, and the rabbit, the two foxes, the bear, and the polar bear ha
 
 The face patterns of the head (`models/face-patterns.ts`):
 
-- `forehead-stripes` (the cat) are two thin short stripes on the forehead in the accent color.
-  Wider stripes looked like a grille (review of step 4, the weak species).
 - `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
   over the eyes.
 - `eye-patches` (the panda) are two ovals around the eyes, with their lower ends out.

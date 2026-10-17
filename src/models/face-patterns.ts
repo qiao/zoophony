@@ -182,22 +182,6 @@ export function addFacePattern(
         );
       }
       return;
-    case 'forehead-stripes':
-      // Two thin short stripes on the forehead. Three wide stripes looked like a grille.
-      for (const side of [-0.14, 0.14]) {
-        addStripe(
-          builder,
-          color,
-          h,
-          headCenter,
-          side,
-          0.03,
-          35 * MathUtils.DEG2RAD,
-          65 * MathUtils.DEG2RAD,
-          2,
-        );
-      }
-      return;
     case 'face-disc':
       // A large face of the belly color around each eye, which joins the face below the eyes.
       addPatches(builder, colors.belly, h, headCenter, EYE_DIRECTION, [0.4, 0.44], 0);
