@@ -195,7 +195,10 @@ describe('bowStateAt (design 5.3)', () => {
     if (!second) {
       throw new Error('The test file needs two strokes.');
     }
-    const early = stateAt(strokes, second.start - BOW_MOTION.shiftSec - 0.01);
+    const early = stateAt(
+      strokes,
+      second.start - BOW_MOTION.crossLeadSec - BOW_MOTION.crossSec - 0.01,
+    );
     expect(early.string).toBe(0);
     expect(early.fingerboard).toBe(strokes[0]?.hand.place);
     const at = stateAt(strokes, second.start);

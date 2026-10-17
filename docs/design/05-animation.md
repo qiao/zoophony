@@ -471,8 +471,11 @@ of each role.
     0.8, times the gesture size. A rest of at least 0.5 s ends a phrase: the next stroke is a
     down-bow from 12% of the bow range, and the bow moves there in the rest.
   - In a rest, the bow lifts up to 0.03 m (fully after 0.4 s of rest) in at most 0.1 s, and lands
-    in at most 0.15 s before the next note. The string of the bow moves to the next note in the
-    last 0.1 s before it.
+    in at most 0.15 s before the next note.
+  - **String crossing** (`BOW_MOTION` and `bowStateAt()` of `pose/strokes.ts`). The bow turns to
+    the string of the next note in at most 0.08 s, and in at most 0.3 of the time from the note
+    start to the next note. The turn ends 0.01 s before the next note, as the crossing of a
+    violinist leads the bow change by about 15° of the phase of a stroke pair.
   - **Shift** (`LEFT_HAND` and `bowStateAt()` of `pose/strokes.ts`). The hand moves along the
     neck only between two strokes with different positions, as one piece. The shift ends when the
     finger of the new note lands, 0.03 s before the note, as the finger of a violinist lands 26 ms

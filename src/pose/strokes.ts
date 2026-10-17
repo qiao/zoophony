@@ -36,8 +36,15 @@ export const BOW_MOTION = {
   tremoloHz: 7,
   /** The amplitude of the tremolo strokes in meters, multiplied by the gesture size. */
   tremoloAmplitude: 0.02,
-  /** The most time that the bow takes to change strings before the next note. */
-  shiftSec: 0.1,
+  /**
+   * The string crossing (`docs/reference/string-technique.md`, section 2.3). The turn of the bow
+   * to the string of the next note takes at most `crossSec`, and at most `crossShare` of the time
+   * from the note start to the next note. It ends `crossLeadSec` before the next note, as the
+   * crossing of a violinist leads the bow change by about 15° of the phase of a stroke pair.
+   */
+  crossSec: 0.08,
+  crossShare: 0.3,
+  crossLeadSec: 0.01,
   /** The change between the bow and pizzicato starts this long before the note. */
   techniqueLeadSec: 0.3,
   /** The change between the bow and pizzicato ends this long before the note. */
@@ -481,7 +488,8 @@ function leftHandAt(current: Stroke, next: Stroke | undefined, time: number, out
  * start: the stroke of the bow starts, or the finger plucks. The motion before the note (the
  * landing of the bow, the retake, and the return of the plucking finger) ends at the note start.
  * The shift of the left hand and the finger of the note end a little earlier, when the finger
- * lands (`LEFT_HAND.landSec`).
+ * lands (`LEFT_HAND.landSec`), and the string crossing of the bow ends `BOW_MOTION.crossLeadSec`
+ * before the note.
  *
  * @param strokes The strokes of the player, from {@link buildStrokes}.
  * @param starts The starts of the strokes.
@@ -553,11 +561,13 @@ export function bowStateAt(
     }
   }
 
-  // The string of the bow moves to the next note just before it.
+  // The bow crosses to the string of the next note just before it.
   out.string = current.string;
   if (next) {
-    const shift = Math.min(m.shiftSec, 0.5 * (next.start - current.start));
-    const x = shift > 0 ? smoothstep((time - (next.start - shift)) / shift) : 0;
+    const interval = next.start - current.start;
+    const cross = Math.min(m.crossSec, m.crossShare * interval);
+    const end = next.start - Math.min(m.crossLeadSec, 0.1 * interval);
+    const x = cross > 0 ? smoothstep((time - (end - cross)) / cross) : 0;
     out.string += (next.string - current.string) * x;
   }
   leftHandAt(current, next, time, out);

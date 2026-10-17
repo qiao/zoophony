@@ -346,9 +346,12 @@ A round that changes the motion updates the items.
   full hair up to 11°. The app had 9° (7° on the contrabass) before. The arm levels come from the
   geometry: the bow plane of the string turns the hand, and the arm follows it, higher for the
   lower strings of the violin and the viola.
-- **The string crossing is late.** The bow of the app changes the string in the last 0.1 s before
-  the note (`BOW_MOTION.shiftSec`). A real crossing leads the bow change by about 15° of the phase
-  of a stroke pair (section 2.3).
+- **The string crossing leads the note** (section 2.3). `bowStateAt()` of `pose/strokes.ts` turns
+  the bow to the string of the next note in at most 0.08 s, and in at most 0.3 of the time from
+  the note start to the next note (`BOW_MOTION.crossSec` and `crossShare`). The turn ends 0.01 s
+  before the next note (`BOW_MOTION.crossLeadSec`), as a real crossing leads the bow change by
+  about 15° of the phase of a stroke pair, about 11 ms at 7.5 notes a second. Before round `bow-arm`, the
+  app turned the bow in the last 0.1 s before the note.
 - **The bow changes on each note.** The app has no slur, so a fast passage reverses the bow on each
   note (section 2.5).
 - **The sounding point does not change.** The bow of the app plays at one contact point for each
