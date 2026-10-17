@@ -110,6 +110,17 @@
     "backHeight": 0.15,
     "note": "The seat is level, and its top is the lowest point of the seated body over the seat. Its front edge ends where the thighs, which slope down, leave the seat top at the haunch: with the front edge 0.01 units further forward, the seat top fell 1.9 cm under the thighs (front-scan-rabbit.txt of docs/research/2026-10-17-fox-form/). The chair of the app grows back until its back posts keep 1 cm behind the trunk, and by the room of 4 cm behind the back (backRoom of ANIMALS of tools/studio-body.ts, docs/decisions/2026-10-17-rabbit-pose.md), so the seat of the app is 0.285 m deep. The back edge lies 0.0204 units (3 cm) forward of the back edge of 2026-10-16 (-0.16 units), so that the body keeps its place on the chair (the user said \"let the fox and rabbit sit in more\" on 2026-10-16), and the seat of the app ends at the front edge of this chair (no seatBack in ANIMALS)."
   },
+  "raise": {
+    "side": "R",
+    "turns": {
+      "clavicle": [0, 0, 0, 1],
+      "upper_arm": [0.45305, 0.08468, 0.21515, 0.86098]
+    },
+    "fade": [15, 30],
+    "below": 0.5,
+    "grow": 1,
+    "note": "The shape of the right arm in the seated rest (raise_shape() of tools/blender/rig_mesh.py). The right elbow hangs at the side in the rest (docs/decisions/2026-10-16-rabbit-arm.md), the arm-down shape has its full weight there, and faces 224, 225, 372, 373, 374, and 581 at the front of the right armpit turned over in each rest sample. The upper arm takes the turn of the rest, which is the same in each rest sample, and the clavicle does not turn (rest-turn.py of docs/research/2026-10-17-rabbit-pose/). Each play sample stays 34 degrees or more from that turn, so the fade from 15 to 30 degrees keeps the weight 0 in the play. With the relaxing of the clavicle and the upper arm only, faces 372 and 373 kept a corner on the trunk under the armpit (spine 0.65, hips 0.21) and stayed turned over. One ring of neighbors (grow) lets that corner move, and each face below the cosine 0.5 relaxes: no face turns over in a rest sample. The cosines 0.3 and 0.4 left 2 and 1 faces turned over in the pose of the rule, and 0.7 left 4 faces and folded each rest sample (rig-check-raise*.log of the research folder)."
+  },
   "crease": {
     "rings": 2,
     "rounds": 8,
