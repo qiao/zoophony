@@ -1644,17 +1644,21 @@ def head_shift(before, after, weights, tris, materials):
     return middle(before) - middle(after)
 
 
-def seat_masks(points, weights, chair):
+def seat_masks(points, weights, chair, root=None):
     """Gives the masks of the seat of a seated body, as `chair_mesh()` reads them: the vertices
     over the seat, the vertices of the shins and the feet that hang in front of it, and the
     vertices of the tail. Gives also the share of each vertex on these hanging bones and on the
-    tail and arm bones."""
+    tail and arm bones. With `root` (two shares of the tail), the tail share of a vertex counts
+    only by its smoothstep over these shares, so that the vertices of the root of the tail, which
+    share their weight with the hips, count as the haunch."""
     hw, front, back = chair['halfWidth'], chair['front'], chair['back']
     lower = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
     tails = [BONES.index(b) for b in ('tail', TAIL_TIP) if b in BONES]
     arms = [BONES.index(f'{b}_{s}') for b in ARM for s in 'LR']
     hanging = weights[:, lower].sum(axis=1)
     tail = weights[:, tails].sum(axis=1)
+    if root:
+        tail = smoothstep(tail, *root)
     free = hanging + tail + weights[:, arms].sum(axis=1)
     seat = (np.abs(points[:, 0]) <= hw) & (points[:, 2] >= back) & (points[:, 2] <= front)
     return seat, hanging > 0.5, tail > 0.5, np.clip(free, 0.0, 1.0)
@@ -1718,14 +1722,16 @@ def fill_holes(grid, pick):
         out[fill] = pick(np.where(known, around, empty), axis=0)[fill]
 
 
-def seat_gaps(points, tris, weights, chair, hip, step, height):
+def seat_gaps(points, tris, weights, chair, hip, step, height, root=None):
     """Measures the underside of a seated body behind the hip joints: the lowest crossing of each
     vertical line over the seat, on a grid of `step` units, less the seat top. The faces of the
     shins, the feet, the tail, and the arms do not count, and neither do the faces with a corner
-    more than `height` units above the seat top. Gives the seat top, the x and the z of
-    the lines, and the gap of each line (infinity where no face crosses it)."""
-    seat, hanging, tail, free = seat_masks(points, weights, chair)
+    more than `height` units above the seat top. `root` goes to `seat_masks()`. Gives the seat
+    top, the x and the z of the lines, and the gap of each line (infinity where no face crosses
+    it)."""
+    seat, hanging, tail, _ = seat_masks(points, weights, chair)
     top = float(points[seat & ~hanging & ~tail, 1].min())
+    _, _, _, free = seat_masks(points, weights, chair, root)
     low = points[:, 1] <= top + height
     body = tris[((free[tris] <= 0.5) & low[tris]).all(axis=1)]
     hw = chair['halfWidth']
@@ -1759,11 +1765,14 @@ def sit(bind, tris, weights, chair, rule, hip):
     above the lowest crossing, to 0 at `band` units above it. Only the faces and the vertices up
     to two bands above the seat top count, so that the ears and the head do not. The shins, the feet, the tail, and the
     arms do not move, and a vertex with a part of its weight on them moves by the rest. The vertices
-    never go below the seat top. The corrective shapes give the source back, so the standing body
-    keeps its form. Gives the moved bind mesh, the number of moved vertices, the largest drop, and
-    the largest gap of the side view before and after."""
+    never go below the seat top. With `root` (two shares of the tail), the vertices of the root of
+    the tail, which share their weight with the hips, move and count as the haunch
+    (`seat_masks()`). The corrective shapes give the source back, so the standing body keeps its
+    form. Gives the moved bind mesh, the number of moved vertices, the largest drop, and the
+    largest gap of the side view before and after."""
     step = rule['step']
-    top, xs, zs, gaps = seat_gaps(bind, tris, weights, chair, hip, step, 2 * rule['band'])
+    root = rule.get('root')
+    top, xs, zs, gaps = seat_gaps(bind, tris, weights, chair, hip, step, 2 * rule['band'], root)
     before = silhouette_gap(xs, zs, gaps, rule['end'])
     drop = np.where(np.isfinite(gaps), np.clip(gaps - rule['gap'], 0.0, rule['most']), np.nan)
     drop *= 1.0 - smoothstep(zs, hip - rule['ramp'], hip)[None, :]
@@ -1778,7 +1787,7 @@ def sit(bind, tris, weights, chair, rule, hip):
     # A line with no crossing, as beyond the back edge of the haunch, takes the lowest crossing of
     # its nearest lines.
     bottoms = fill_holes(np.where(np.isfinite(gaps), gaps + top, np.nan), np.min)
-    _, _, _, free = seat_masks(bind, weights, chair)
+    _, _, _, free = seat_masks(bind, weights, chair, root)
     near = ((np.abs(bind[:, 0]) <= chair['halfWidth']) & (bind[:, 2] <= hip)
             & (bind[:, 2] >= chair['back'] - rule['band']) & (bind[:, 1] <= top + 2 * rule['band']))
     ids = np.nonzero(near & (free < 1.0))[0]
@@ -1789,7 +1798,7 @@ def sit(bind, tris, weights, chair, rule, hip):
     move = d * share * (1.0 - free[ids])
     out = bind.copy()
     out[ids, 1] = np.maximum(p[:, 1] - move, np.minimum(p[:, 1], top))
-    _, _, _, after_gaps = seat_gaps(out, tris, weights, chair, hip, step, 2 * rule['band'])
+    _, _, _, after_gaps = seat_gaps(out, tris, weights, chair, hip, step, 2 * rule['band'], root)
     after = silhouette_gap(xs, zs, after_gaps, rule['end'])
     return out, int((move > 1e-6).sum()), float(move.max(initial=0.0)), before, after
 
@@ -2485,6 +2494,16 @@ def main():
         log(f'crease: {seam} seam vertices, {moved} vertices move, at most {largest:.4f} u '
             f'({largest * meters * 100:.2f} cm). {int((dots < 0).sum())} faces turn over'
             f'{turned_on(dots, main_bone)}')
+    if 'sit' in config:
+        # The gap of the final bind: the recline, the lift, and the crease move the haunch after
+        # the sit.
+        rule = config['sit']
+        _, xs, zs, gaps = seat_gaps(bind, tris, weights, config['chair'],
+                                    float(bind_heads['thigh_L'][2]), rule['step'],
+                                    2 * rule['band'], rule.get('root'))
+        log(f'seat: the side view of the underside of the final bind behind the hip joints is at '
+            f'most {silhouette_gap(xs, zs, gaps, rule["end"]) * meters * 100:.2f} cm above the '
+            f'seat top')
 
     src_all, bind_all, tris_all, colors_all, materials, old_eyes, near_dark = add_eye_shells(
         long_verts, bind, tris, colors, dark, eyes, config['eyeShell'])
