@@ -340,9 +340,11 @@ const HANGING_BOW = { tip: [0.15, -1, -0.3], hair: [0, 0, 1] } as const satisfie
  * The rest pose is the rest of the seated violinist of the image of the user (2026-10-16-bow-rest
  * decisions): the violin stands upright on the left thigh, held at the bottom of its neck, and the
  * bow stands upright at the right side, with the frog in the right paw. The round belly of the
- * rabbit covers the top of its thighs, so the violin stands 0.8 of the way to the knee, 0.15 H in,
- * 0.1 H down, and 0.1 H forward, where the top of the lap is in front of the belly: at 0.65 of the
- * way, the end was 17 cm above it. The left elbow points down and a little back.
+ * rabbit covers the top of its thighs, so the violin stands 0.85 of the way to the knee, 0.15 H in,
+ * 0.05 H up, and 0.1 H forward, where the top of the lap is in front of the belly: at 0.65 of the
+ * way, the end was 17 cm above it. With the thighs 25° down of 2026-10-17, the place of 2026-10-16
+ * (0.8 of the way and 0.1 H down) put the violin 2.5 cm into the body (2026-10-17-fox-form
+ * decisions). The left elbow points down and a little back.
  *
  * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
  * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
@@ -366,7 +368,7 @@ const SHOULDER_HOLD = {
   slant: -5 * MathUtils.DEG2RAD,
   restPoleL: [-0.3, -1, 0.3],
   restPoleR: [0.3, -1, 1],
-  rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0.15, -0.1, -0.1] } },
+  rest: { ...LAP_VIOLIN, lap: { along: 0.85, offset: [0.15, 0.05, -0.1] } },
   restBow: {
     lap: { along: 1, offset: [0.55, 0.3, -0.3] },
     tip: UPRIGHT_BOW.tip,
