@@ -45,7 +45,8 @@ export interface HoldChange {
   readonly after: string;
   /**
    * The other paths that the change moves too. A hold that copies another hold with a spread
-   * shares its nested objects, such as `violin.restBow` and `viola.restBow`.
+   * shares its nested objects, such as `violin.restBow` and `viola.restBow`. A change of the own
+   * hold of a species moves no other path ({@link copyPath}).
    */
   readonly also: readonly string[];
 }
@@ -118,10 +119,57 @@ function pathsTo(target: object): string[] {
   return found;
 }
 
+/** The copies of the objects on the path of a change ({@link copyPath}). */
+interface PathCopy {
+  /** The copy of the last object of the path, which gets the change. */
+  readonly target: object;
+  /** Puts each shared object back in its parent. */
+  readonly undo: () => void;
+}
+
+/**
+ * Copies each object and each list on a path below a hold before a change, so that the change
+ * reaches only that hold. A hold that copies another hold with a spread shares its nested objects
+ * and lists, such as the `restBow` of two species, or a list of a module constant. Each copy is
+ * shallow, and it takes the place of the shared object in its parent.
+ *
+ * @param hold The hold, the root of the path.
+ * @param keys The keys from the hold to the object that holds the value, with no last key.
+ * @returns The copy of the last object of the path, or the hold with no key, and a function that
+ *   puts each shared object back in its parent.
+ */
+// oxlint-disable-next-line anti-slop/no-object-parameters -- a `--set` path is an I/O boundary that walks any hold.
+function copyPath(hold: object, keys: readonly string[]): PathCopy {
+  const copies: [parent: object, key: string, shared: object][] = [];
+  let target = hold;
+  for (const key of keys) {
+    const shared = entryOf(target, key)?.[1];
+    if (!(shared instanceof Object)) {
+      break;
+    }
+    const copy = Array.isArray(shared) ? [...shared] : { ...shared };
+    Reflect.set(target, key, copy);
+    copies.push([target, key, shared]);
+    target = copy;
+  }
+  return {
+    target,
+    undo: () => {
+      for (const [parent, key, shared] of copies.toReversed()) {
+        Reflect.set(parent, key, shared);
+      }
+    },
+  };
+}
+
 /**
  * Changes one value of a hold in memory, such as `piano.lean=16deg` or
  * `piano.restL.lap.offset=-0.75,0.1,0`. The path names the keys from a hold of {@link HOLDS}. The
- * new value has the type of the old value: a number, or a list of numbers of the same length.
+ * new value has the type of the old value: a number, or a list of numbers of the same length. A
+ * change of the own hold of a species, with the root `<instrument>@<species>`, first copies each
+ * object on its path ({@link copyPath}), so that it changes only that species. A change with the
+ * root of an instrument, such as `violin.restBow.lap.along`, changes the shared object, and gives
+ * the other paths that it moves too, such as `viola.restBow.lap.along`.
  *
  * @param change The change, as `<path>=<value>`.
  * @returns A function that puts the old value back, the texts of the old and the new value, and
@@ -136,17 +184,17 @@ export function setHold(change: string): HoldChange {
   const path = change.slice(0, equals);
   const text = change.slice(equals + 1);
   const [first = '', ...keys] = path.split('.');
-  const hold = entryOf(HOLDS, first);
-  if (!hold || keys.length === 0) {
+  const hold = entryOf(HOLDS, first)?.[1];
+  if (!(hold instanceof Object) || keys.length === 0) {
     throw new Error(
       `The path ${path} names no hold value. The holds are ${HOLD_NAMES.join(', ')}.`,
     );
   }
 
   // oxlint-disable-next-line anti-slop/no-known-value-widening -- the walk goes down into each hold.
-  let node: object = HOLDS;
-  let key = first;
-  for (const next of keys) {
+  let node: object = hold;
+  let [key = ''] = keys;
+  for (const next of keys.slice(1)) {
     const child = entryOf(node, key)?.[1];
     if (!(child instanceof Object)) {
       throw new Error(`The key "${key}" of ${path} has no keys.`);
@@ -171,11 +219,17 @@ export function setHold(change: string): HoldChange {
   } else {
     throw new Error(`The value of ${path} is not a number or a list of numbers.`);
   }
-  const target = node;
+  const copied: PathCopy = first.includes('@')
+    ? copyPath(hold, keys.slice(0, -1))
+    : { target: node, undo: () => {} };
+  const target = copied.target;
   Reflect.set(target, key, value);
   const parent = [first, ...keys.slice(0, -1)].join('.');
   return {
-    undo: () => Reflect.set(target, key, old),
+    undo: () => {
+      Reflect.set(target, key, old);
+      copied.undo();
+    },
     before: String(old),
     after: String(value),
     also: pathsTo(target)
