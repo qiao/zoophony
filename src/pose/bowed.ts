@@ -792,8 +792,10 @@ export function poseBowed(
       holdPole,
     );
   }
-  // In a fast run across two strings, the elbow keeps the mean string of the run.
-  const crossShare = weight * (1 - pizzicato);
+  // In a fast run across two strings, the elbow keeps the mean string of the run. In the lift and
+  // the lowering, the rule fades in over the second half of the move, because the arm then comes
+  // from the rest pose and not from the bow of the mean string.
+  const crossShare = smoothstep(2 * weight - 1) * (1 - pizzicato);
   if (state.crossMean !== state.string && crossShare > 0) {
     mixDirection(
       holdPole,

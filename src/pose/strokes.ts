@@ -402,9 +402,10 @@ export interface CrossNote {
  * `docs/reference/string-technique.md`, section 2.3). In a fast run across two neighbor strings,
  * the upper arm moves little: the elbow keeps the mean string, and the forearm and the wrist make
  * the rest of the crossing. A run is fast when each stroke but the last starts the next stroke
- * within `BOW_MOTION.fastSec`, and no stroke is pizzicato. The rule takes a run when its strings
- * take two values at most one string apart and it changes the string at least twice. Each other
- * stroke follows its own string.
+ * within `BOW_MOTION.fastSec`, and no stroke is pizzicato. The rule takes the part of a run on
+ * two strings at most one string apart in which each stroke has a change of the string just
+ * before or after it, when that part changes the string at least twice. A stroke of a run that
+ * stays on its string follows its own string, as each other stroke.
  *
  * @param strokes The strokes of the player, sorted by start.
  * @returns The string of the elbow of each stroke, from 0 to 3.
@@ -451,7 +452,26 @@ export function crossStrings(strokes: readonly CrossNote[]): number[] {
     }
 
     if (changes >= 2) {
-      out.fill((low + high) / 2, k, m + 1);
+      // Only the strokes next to a change cross. The strokes that stay on one string keep it.
+      const crosses = (i: number): boolean => {
+        const own = strokes[i]?.string;
+        return (
+          (i > k && strokes[i - 1]?.string !== own) || (i < m && strokes[i + 1]?.string !== own)
+        );
+      };
+      let i = k;
+      while (i <= m) {
+        let j = i;
+        let turns = 0;
+        while (j <= m && crosses(j)) {
+          turns += j > i && strokes[j - 1]?.string !== strokes[j]?.string ? 1 : 0;
+          j += 1;
+        }
+        if (turns >= 2) {
+          out.fill((low + high) / 2, i, j);
+        }
+        i = Math.max(i + 1, j);
+      }
       k = m + 1;
     } else {
       // A run that starts at the last change can still reach a second string.
