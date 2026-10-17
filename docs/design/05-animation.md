@@ -261,6 +261,20 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   `transport.startSec` keeps the start point of the last play for the count-in of the pose. A
   seek during play moves it to the seek point (6.5).
 - The rest pose comes from `transport`, so the pose function still keeps no state.
+- **Seated posture.** Each seated player sits tall, with a straight upright back that does not
+  lean on the chair back, the hips above the knees with the thighs sloped down from the hips to
+  the knees, and the soles flat on the floor, on a level seat whose height fits the legs and whose
+  front edge ends where the thighs leave it. Real seated string players sit so: "The main point is
+  that your hips are higher than your knees" (violinist.com, discussion 9372); chairs "high
+  enough to allow your knees to be below your waist" (Internet Cello Society, tim14); a
+  forward-sloping seat and a seat height that adjusts (The Strad, "Sitting pretty: chairs for
+  musicians"); the hips rotated forward and the natural lumbar curve (Wenger, musician chair
+  LT0020). The user refused a tilted seat on 2026-10-16, so the seat stays level and the thighs
+  alone slope down. The rig of a mesh makes the posture: the turn of the trunk of the seated bind
+  (`studio.trunk`), the slope of the thighs (`studio.legTurns`), the level chair of the rig that
+  ends under the thighs (`chair` of the rig config), and the chair of the app that fits the legs
+  (`seatHeights()` and `buildChair()` of `models/props.ts`), 4.4 and 4.5
+  (`docs/decisions/2026-10-16-hip-open.md`).
 - **Seated lean.** The pianist sits tall in the rest pose, as a real pianist before a
   performance: the trunk leans a little toward the piano, less than in a play, as the `ready`
   clip of the studio polar bear does (`restLean` of `HANDS_HOLDS` in `pose/hands.ts`). The hands

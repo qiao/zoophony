@@ -517,11 +517,17 @@ quarter of the folded faces.
   chair. The leg factor makes the thigh and the shin longer, as the arm factor makes the upper arm
   and the forearm longer. The thigh and the shin stretch only between their joints, the feet keep
   their size, and the body rises so that the soles stay on the floor. The rig takes the bind arms
-  of the studio rabbit and the seat of its config: a seat of a long thigh, with the thigh about
-  level on the seat and the shin under the knee. The buttocks of an image mesh curve up behind the
-  hip joints, so they stay above the seat when the thighs lie level on it. A config can lower the
-  underside of the haunch behind the hip joints onto the seat in the seated bind (`sit` of the
-  config, `sit()` of `tools/blender/rig_mesh.py`). The corrective shapes give the source back, so
+  of the studio rabbit and the seat of its config: the seated posture of 5.2, with the thighs that
+  slope down from the hips to the knees and the shins that slant forward (`studio.legTurns`). The
+  buttocks of an image mesh curve up behind the hip joints, so they stay above the seat. A config
+  can lower the underside of the haunch behind the hip joints onto the seat in the seated bind
+  (`sit` of the config, `sit()` of `tools/blender/rig_mesh.py`). A config can turn the trunk of
+  the seated bind upright (`studio.trunk`, `trunk_turn()`): the pelvis turns back around the head
+  of the hips, each trunk bone takes a share of the turn, and the shares fall to 0 at the head, so
+  that the head stays level. The haunch and the root of the tail then rise onto the seat top
+  (`seat_lift()`). Where the belly meets the top of each thigh, the turned trunk over the sloped
+  thighs folds the mesh, and the faces of the fold face away from the light. A config can smooth
+  the seated bind across that crease (`crease`, `crease_relax()`). The corrective shapes give the source back, so
   a soloist who stands keeps the form of the mesh. A config can also smooth the vertices inside a
   box of the source (`smooth` of the config, `smooth_box()`), such as the fur spikes at the back of
   the head that hang over the neck. The spikes set the back of the box of the head, so the
@@ -624,15 +630,17 @@ quarter of the folded faces.
   polar bear, since the user said on 2026-10-14 that its seat was too low) then rises until its
   seat is at that height. The polar bear has shins long enough for its seat, so its soles touch
   the floor. The rabbits and the red foxes have no seat height: the user asked on 2026-10-16 for
-  chairs low enough that their feet touch the floor, so their chairs fit their legs. Their shins
-  slant forward of vertical, so that the knees open and the feet stand in front of the knees, and
-  the soles stand flat on the floor (`studio.legTurns` of `tools/mesh-rigs/<animal>.json`). A seated role
-  with a move back in `ANIMALS` (`seatBack`) then moves back toward the chair back, up to the gap
-  of the chair back, and the chair grows forward under it by the rest of the move: the user saw
-  the rabbits and the red foxes "sitting on the edge of the chair" on 2026-10-14. The chair of
-  the rig of the rabbit and of the red fox reaches forward to the move back plus 4.5 cm behind the
-  back of the knees, so that the seat of the app ends 4.5 cm behind the back of the knees and the
-  thighs lie on it: the user said "let the fox and rabbit sit in more" on 2026-10-16. `StudioBody.floor` is the point on the floor under
+  chairs low enough that their feet touch the floor, so their chairs fit their legs. They sit in
+  the posture of 5.2: the trunk is upright, the thighs slope down from the hips to the knees, the
+  shins slant forward of vertical, so that the feet stand in front of the knees, and the soles
+  stand flat on the floor (`studio.legTurns` of `tools/mesh-rigs/<animal>.json`). Their seats are
+  level, and each seat ends where the thighs leave the seat top at the haunch (`chair.front` of
+  the rig config): a longer level seat meets the sloped thighs under the seat top of the haunch,
+  and the haunch then hangs above the seat. The back edge of the chair of each rig keeps the body
+  near the chair back: the user said "let the fox and rabbit sit in more" on 2026-10-16. A seated
+  role with a move back in `ANIMALS` (`seatBack`) moves back toward the chair back, up to the gap
+  of the chair back, and the chair grows forward under it by the rest of the move. No role uses
+  it now: the seat of the app would then reach past the chair of the rig, under the thighs. `StudioBody.floor` is the point on the floor under
   the body, and the piano stands in front of it (4.6). `StudioBody.seatHeight` is the height of a
   flat seat under the body: the lowest point of the body over the seat, so that the body rests on
   it and no part goes into it. The seat height of the skeleton of the species is that height, so
@@ -647,7 +655,13 @@ quarter of the folded faces.
   fox, keeps the leg corrective shapes of its GLB file and the leg turns of the pose of its sheet
   (`StudioBody.standing`), and the turns of a tail of two bones. For a player that stands,
   `standingBody()` of `models/studio-rig.ts` turns the legs and the tail, gives the leg shapes their
-  full weight, and moves the body over the origin with its lowest point on the floor. That standing
+  full weight, and moves the body over the origin with its lowest point on the floor. A rig that
+  turns the trunk of the seated bind gives the standing body the trunk turns of the pose of its
+  sheet (`StudioStanding.trunkTurns`), so that the standing trunk has the form of the mesh. The
+  arm shapes of the rig are solved in the seated axes, and a vertex with the weights of the trunk
+  and of an arm then takes two blends in a row. So the export also writes the arm turns of that
+  pose (`StudioStanding.armTurns`), and `standingArmCorrectives()` solves the arm shapes again for
+  the standing bind. The standing body then stays within 1 mm of the source. That standing
   mesh is the bind mesh of the standing rig, so the retarget poses it as a body that the studio
   built standing. The pianist never stands, so its leg shapes stay out.
 - The skeleton of the player for a studio body has the joints of the studio for the trunk, the
