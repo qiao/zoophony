@@ -9,6 +9,7 @@ import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
 import {
   BOWED_HANDS,
+  MIDDLE_FINGER,
   bowAt,
   createBowPlaces,
   gripHand,
@@ -817,6 +818,7 @@ function stopRangeOf(rig: RigPoints): readonly [low: number, high: number] {
       strings,
       stop,
       BOWED_HANDS.curlL,
+      MIDDLE_FINGER,
       hand,
     ).wrist.distanceTo(shoulder);
     if (distance < nearestDistance) {
@@ -1005,7 +1007,7 @@ function standingRest(
   const { place, strings } = createBowPlaces();
   instrumentAt(rig, frames, 0, place);
   stringsAt(rig, place, strings);
-  const hand = stopHandAt(rig, place, strings, rig.hold.restPlace, 0, {
+  const hand = stopHandAt(rig, place, strings, rig.hold.restPlace, 0, MIDDLE_FINGER, {
     wrist: new Vector3(),
     rotation: new Quaternion(),
   });

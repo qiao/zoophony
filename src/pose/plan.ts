@@ -38,11 +38,11 @@ import type { Passages } from './passages.ts';
 import { percussionTracks } from './percussion.ts';
 import { percussionRig } from './percussion-rig.ts';
 import type { PercussionRig } from './percussion-rig.ts';
-import { mixHash, mulberry32 } from './random.ts';
+import { hashUnit, mixHash, mulberry32 } from './random.ts';
 import { CONDUCTOR_MOTION, restMotion } from './rest.ts';
 import type { RestMotion } from './rest.ts';
 import type { StrikeTrack } from './strikes.ts';
-import { buildStrokes } from './strokes.ts';
+import { buildStrokes, vibratoRate } from './strokes.ts';
 import type { Stroke } from './strokes.ts';
 import { buildWindTrack } from './wind-notes.ts';
 import type { WindTrack } from './wind-notes.ts';
@@ -328,6 +328,7 @@ function notesOfPlayers(score: Score, layout: SceneLayout, loudness: Float32Arra
  * @param notes The notes of the player, sorted by start.
  * @param loudness The loudness of each note.
  * @param amplitude The seeded amplitude of the player.
+ * @param seed The seed of the player. The rate of the vibrato of a bowed string comes from it.
  * @returns The note layer of the motion family of the instrument.
  */
 function noteLayerOf(
@@ -338,12 +339,14 @@ function noteLayerOf(
   notes: readonly PlayerNote[],
   loudness: readonly number[],
   amplitude: number,
+  seed: number,
 ): NoteLayer {
   if (isInFamily(instrument, ['bowed'])) {
     const rig = cached(rigs.bowedRigs, model, () =>
       bowedRig(model, instrument, holdOf(species, instrument)),
     );
-    const strokes = buildStrokes(notes, loudness, rig.bowRange, amplitude, instrument);
+    const vibratoHz = vibratoRate(instrument, hashUnit(seed, 2));
+    const strokes = buildStrokes(notes, loudness, rig.bowRange, amplitude, instrument, vibratoHz);
     return { family: 'bowed', rig, strokes, starts: Float64Array.from(strokes, (s) => s.start) };
   }
   if (isInFamily(instrument, ['woodwind', 'brass'])) {
@@ -454,6 +457,7 @@ export function preparePlayer(
       notes,
       loudness,
       amplitude,
+      seed,
     ),
   };
 }

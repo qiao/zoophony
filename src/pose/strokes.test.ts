@@ -34,6 +34,7 @@ function strokesOf(
     RANGE,
     1,
     instrument,
+    5.5,
   );
 }
 

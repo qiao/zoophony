@@ -478,6 +478,21 @@ of each role.
     Fischer advises, and takes at most 0.35 s, the time of six professional violinists for a
     shift of a third. It follows the quintic ease `10x³ − 15x⁴ + 6x⁵`, so its speed has no jump
     at the ends. In a rest, the shift takes the end of the rest.
+  - **Fingers.** The paws have one finger bone, so the four fingers are one block. The finger of
+    a stopped note lands 0.03 s before the note and presses at the note start, and the press then
+    fades. An open string has no press, and a shift lifts the press to a light contact. The hand
+    turns a little around the normal of the strings toward the finger of the note
+    (`BOWED_HANDS.reachTurn` of `pose/bowed.ts`), and rolls around the middle of the neck to the
+    string of the finger (`BOWED_HANDS.rollL`). The finger changes its reach and its string with
+    the shift, or in at most 0.08 s before the landing.
+  - **Vibrato.** A stopped bowed note of at least 0.35 s gets vibrato after 0.15 s, with a fade in
+    of 0.2 s: the hand moves along the strings with the sine of the rate from the note start, so
+    the pose has no state. The rate is 5.5 Hz on the violin, the viola, and the cello, and 5 Hz on
+    the contrabass, with a seeded change of each player of up to 0.4 Hz. The width is 20 cents to
+    each side on the violin and the viola and 15 cents on the cello and the contrabass, up to 50%
+    wider in a high position and in a loud note. In mm, it is the width of the cents at the place
+    of the note: about 3 mm on a real violin. An open string, a pizzicato note, and a shift have
+    no vibrato. The vibrato stops 0.1 s before the end of the note or the start of a shift.
   - Tremolo strokes run at 7 cycles a second with an amplitude of 0.02 m times the gesture size.
     Pizzicato keeps the bow in the hand with its tip up. The right palm is 0.035 m above the
     strings and flicks 0.012 m across them in 0.06 s at the note start. Between two plucks, the

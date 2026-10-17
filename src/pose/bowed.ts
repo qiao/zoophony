@@ -24,6 +24,26 @@ export const BOWED_HANDS = {
    * the other side.
    */
   tiltL: 30 * MathUtils.DEG2RAD,
+  /**
+   * The turn of the left hand around the normal of the strings toward the finger of the note, at
+   * a reach of 1 (`BowState.reach`). The four fingers are one block, so the hand turns in place
+   * of a finger that reaches.
+   */
+  reachTurn: 8 * MathUtils.DEG2RAD,
+  /**
+   * The roll of the left hand around the neck for each string from the middle of the strings, to
+   * the string of the finger (`BowState.stopString`). On the depth of the neck, it moves the
+   * finger block across the strip of the strings of the violin model by half of the space between
+   * two strings (2.7 mm). The roll of the full space put the left forearm of the red fox 2.4 cm
+   * into the violin in the play (1.9 cm on `main`), and this roll 2.2 cm.
+   */
+  rollL: 2.5 * MathUtils.DEG2RAD,
+  /**
+   * The depth of the axis of the roll below the strings, as a part of the length of the target
+   * `fingerboard`: the middle of the neck of the violin model is 30 mm below the strings, and the
+   * target is 165 mm long.
+   */
+  neckDepth: 0.18,
   /** The curl of the right fingers around the bow stick (design 4.6). */
   curlR: 45 * MathUtils.DEG2RAD,
 } as const;
@@ -307,6 +327,17 @@ export interface StopHand {
   readonly rotation: Quaternion;
 }
 
+/** The finger of the left hand on the strings: its reach and its string. */
+export interface StopFinger {
+  /** The reach of the finger from the middle of the hand frame, from -1 to 1. */
+  readonly reach: number;
+  /** The string under the finger, from 0 to 3. 1.5 is the middle of the strings. */
+  readonly stopString: number;
+}
+
+/** The finger in the middle of the hand frame and of the strings: no turn and no roll. */
+export const MIDDLE_FINGER: StopFinger = { reach: 0, stopString: 1.5 };
+
 const Z_AXIS = new Vector3(0, 0, 1);
 const neck = new Vector3();
 const fingers = new Vector3();
@@ -314,17 +345,24 @@ const fingersUp = new Vector3();
 const palmSide = new Vector3();
 const curl = new Quaternion();
 const block = new Vector3();
+const stopPoint = new Vector3();
+const handTurn = new Quaternion();
+const rollPivot = new Vector3();
+const rollAxis = new Vector3();
 
 /**
  * Places the left hand so that the middle of its finger block presses the strings at a place
  * on the fingerboard. The fingers point up from the strings, tilted over the neck, and the palm
- * faces the neck from below.
+ * faces the neck from below. The hand turns around the normal of the strings toward the finger of
+ * the note, by `BOWED_HANDS.reachTurn` at a reach of 1, and it rolls around the neck to the
+ * string of the finger, by `BOWED_HANDS.rollL` for each string from the middle of the strings.
  *
  * @param rig The points of the player.
  * @param place The place of the instrument.
  * @param strings The strings at their posed place.
  * @param stop The place on the target `fingerboard`: 0 at the nut, 1 at the end.
  * @param curlAngle The curl of the fingers, in radians.
+ * @param finger The reach and the string of the finger. {@link MIDDLE_FINGER} gives no turn.
  * @param out The hand to write.
  * @returns `out`, with the wrist and the rotation of the hand.
  */
@@ -334,13 +372,14 @@ export function stopHandAt(
   strings: StringsPlace,
   stop: number,
   curlAngle: number,
+  finger: StopFinger,
   out: StopHand,
 ): StopHand {
   const tilt = BOWED_HANDS.tiltL;
   onInstrument(
     rig,
     place,
-    out.wrist.fromArray(rig.nut).addScaledVector(neck.fromArray(rig.neck), stop),
+    stopPoint.fromArray(rig.nut).addScaledVector(neck.fromArray(rig.neck), stop),
   );
   fingers.fromArray(rig.fingers).applyQuaternion(place.rotation);
   fingersUp
@@ -353,9 +392,33 @@ export function stopHandAt(
     .addScaledVector(strings.top, -Math.sin(tilt));
   // The bind hand hangs: its fingers point to -y, and its palm faces +x.
   setFromBasis(out.rotation, palmSide, fingersUp.negate());
+  // The turn toward the finger keeps the middle of the finger block on the stop.
+  if (finger.reach !== 0) {
+    out.rotation.premultiply(
+      handTurn.setFromAxisAngle(
+        rollAxis.copy(strings.top).normalize(),
+        BOWED_HANDS.reachTurn * finger.reach,
+      ),
+    );
+  }
   curl.setFromAxisAngle(Z_AXIS, curlAngle);
   block.fromArray(rig.fingerBlock).applyQuaternion(curl).add(neck.fromArray(rig.knuckles));
-  out.wrist.sub(block.applyQuaternion(out.rotation));
+  out.wrist.copy(stopPoint).sub(block.applyQuaternion(out.rotation));
+
+  // The roll around the middle of the neck, below the strings. A positive roll moves the
+  // fingers to the high strings, away from the bass side (`top × axis`).
+  const rollAngle = BOWED_HANDS.rollL * (finger.stopString - 1.5);
+  if (rollAngle !== 0) {
+    rollAxis.copy(strings.axis).normalize();
+    handTurn.setFromAxisAngle(rollAxis, rollAngle);
+    rollPivot
+      .copy(strings.top)
+      .normalize()
+      .multiplyScalar(-BOWED_HANDS.neckDepth * neck.fromArray(rig.neck).length())
+      .add(stopPoint);
+    out.wrist.sub(rollPivot).applyQuaternion(handTurn).add(rollPivot);
+    out.rotation.premultiply(handTurn);
+  }
   return out;
 }
 
@@ -504,13 +567,16 @@ function liftVia(rig: RigPoints, frames: TorsoFrames, weight: number, bow: BowPl
   );
 }
 
+/** The finger of the left hand that the pose writes before each use. */
+const finger = { reach: 0, stopString: 1.5 } satisfies StopFinger;
+
 /**
  * Writes the arms and the instrument of a bowed string player (design 5.3, 4.7). The bow plays
  * on the strings at the place of the bow state, on the string of the stroke, and lifts in a rest.
  * Pizzicato moves the right hand over the strings near the end of the fingerboard to pluck. The
  * middle of the left finger block presses the strings at the middle of the hand frame of the
- * position on the fingerboard, and the hand moves only in a shift. The two-bone IK places each
- * arm. In the rest pose (design 5.2), the violin and
+ * position on the fingerboard, and the hand moves only in a shift and in the vibrato. The block
+ * turns toward the finger of the note and rolls to its string. The two-bone IK places each arm. In the rest pose (design 5.2), the violin and
  * the viola stand on the left thigh, and the left fingers keep the strings. The right hand holds
  * the bow on the right thigh.
  *
@@ -673,13 +739,16 @@ export function poseBowed(
     bowLocal.setFromAxisAngle(stickBind.fromArray(rig.stick), -angle),
   );
 
-  // The left fingers press the strings at the middle of the hand frame, in the part of the
-  // fingerboard that the arm reaches. In the rest pose, they keep the place of the rest. The press of a note
-  // curls the fingers more, but it does not move the hand.
+  // The left hand keeps the place of its hand frame on the fingerboard, in the part of the
+  // fingerboard that the arm reaches, and moves with the vibrato. It turns toward the finger of
+  // the note and rolls to its string. In the rest pose, it keeps the place of the rest. The press
+  // of a note curls the fingers more, but it does not move the hand.
   const [low, high] = rig.stopRange;
-  const note = low + state.fingerboard * (high - low);
+  const note = low + (state.fingerboard + state.vibrato) * (high - low);
   const stop = rig.hold.restPlace + (note - rig.hold.restPlace) * weight;
-  stopHandAt(rig, place, strings, stop, h.curlL * weight, handL);
+  finger.reach = state.reach * weight;
+  finger.stopString = MIDDLE_FINGER.stopString + (state.stopString - 1.5) * weight;
+  stopHandAt(rig, place, strings, stop, h.curlL * weight, finger, handL);
   writeArm(
     {
       arm: rig.armL,

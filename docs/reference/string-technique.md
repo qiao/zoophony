@@ -295,11 +295,12 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
 
 ## 3. Use in the app
 
-Since 2026-10-17 (round `left-hand`), the left hand of the app keeps its position and shifts as
-this reference gives: the position plan and the shift of section 5.2 of the research report
+Since 2026-10-17 (round `left-hand`), the left hand of the app keeps its position, shifts, and
+moves its fingers as this reference gives: the position plan, the shift, the fingers, and vibrato
+of section 5.2 of the research report
 [`2026-10-17-string-hands.md`](../research/2026-10-17-string-hands.md). The report
-[`2026-10-17-left-hand.md`](../research/2026-10-17-left-hand.md) gives the measures. The fingers,
-vibrato, the left elbow, and the bow arm do not follow the reference yet, and the items in bold
+[`2026-10-17-left-hand.md`](../research/2026-10-17-left-hand.md) gives the measures. The left
+elbow and the bow arm do not follow the reference yet, and the items in bold
 that start with "No" or "The ... does not" list where they differ. A round that changes the motion
 replaces each such item with the rule of the app and its code.
 
@@ -315,11 +316,19 @@ replaces each such item with the rule of the app and its code.
 - **The shift** (section 1.5). `bowStateAt()` of `pose/strokes.ts` moves the hand in the second
   half of the note before the shift, in at most 0.35 s, with a quintic ease. The shift ends when
   the finger of the new note lands, 0.03 s before the note (`LEFT_HAND`). The app has no guide
-  finger that slides, because the four fingers are one block.
-- **The fingers press at the note start.** The finger block of the app presses at the note start,
-  also on an open string, and it does not turn toward the finger or move to its string
-  (section 1.6).
-- **No vibrato.** The left hand of the app does not move during a long note (section 1.7).
+  finger that slides, because the four fingers are one block: the press lifts to a light contact.
+- **The fingers** (section 1.6). The paws have one finger bone. The finger of each stopped note
+  lands 0.03 s before the note and presses at the note start. An open string has no press. The
+  hand turns a little toward the finger of the note and rolls around the neck to the string of
+  the finger (`BOWED_HANDS.reachTurn` and `BOWED_HANDS.rollL` of `pose/bowed.ts`). The fingers do
+  not stay down for the lower notes, and the next finger is not prepared, because the block cannot
+  show single fingers.
+- **Vibrato** (section 1.7). A stopped bowed note of at least 0.35 s gets vibrato after 0.15 s:
+  5.5 Hz on the violin, the viola, and the cello, 5 Hz on the contrabass (no source, the rate of
+  the lower end of the measures), with a seeded change of each player of up to 0.4 Hz. The width
+  is 20 cents to each side on the violin and the viola and 15 cents on the cello and the
+  contrabass, up to 50% wider in a high position and in a loud note. The whole hand moves, as a
+  forearm vibrato.
 - **The left elbow does not follow the string.** The left elbow keeps the direction of its hold on
   each string (`poleL` of `BowedHold`, section 1.8).
 
