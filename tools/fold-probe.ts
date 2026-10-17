@@ -632,6 +632,8 @@ export function roleBodies(role: RoleSource, scene: TestScene): RoleBody[] {
  * @param demos The demos. A demo with no body of the role adds nothing.
  * @param step The step of the song time of the play, in seconds.
  * @param visit Gets each posed body, such as the turn probe of `--turns`.
+ * @param sets The sample sets to count, all by default. A set that is not in the list keeps no
+ *   sample, such as the play in the rest mode of `pnpm hold-fit --sets`.
  * @returns The report.
  */
 export function probeFolds(
@@ -639,6 +641,7 @@ export function probeFolds(
   demos: readonly DemoFile[],
   step: number,
   visit?: FoldVisit,
+  sets: readonly SampleSet[] = SAMPLE_SETS,
 ): FoldReport {
   const report: FoldReport = {
     demos: [],
@@ -670,7 +673,8 @@ export function probeFolds(
       const song = Math.min(0, start + wall - 10);
       samples.push(['lift', song, wall, lift, `wall ${(wall - 10).toFixed(1)} s`]);
     }
-    for (const [set, song, wall, transport, label] of samples) {
+    const kept = samples.filter(([set]) => sets.includes(set));
+    for (const [set, song, wall, transport, label] of kept) {
       const frame = poseAt(scene.plan, song, wall, transport, audible, buffer);
       for (const { index, model } of bodies) {
         const pose = index === null ? frame.conductor : frame.players[index];
