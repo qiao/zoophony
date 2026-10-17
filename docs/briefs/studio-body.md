@@ -258,10 +258,11 @@ decisions, and the measured gains in a research report.
 ## 7. A mesh with no skeleton
 
 The user can give a textured mesh with no skeleton, as the rabbit
-`assets/models/rabbit/rabbit-4.glb` of 2026-10-13 and the fox `assets/models/fox/fox.glb` of
-2026-10-14. `pnpm rig-mesh <animal>` rigs it into the GLB
-format of a studio body ("A mesh with no skeleton into route 3" of `AGENTS.md`). That task took
-five agent rounds ([`2026-10-14-rabbit-mesh-retro.md`](../research/2026-10-14-rabbit-mesh-retro.md)).
+`assets/models/rabbit/rabbit-4.glb` of 2026-10-13, the fox `assets/models/fox/fox.glb` of
+2026-10-14, and the cat `assets/models/cat/cat.glb` of 2026-10-16. `pnpm rig-mesh <animal>` rigs
+it into the GLB format of a studio body ("A mesh with no skeleton into route 3" of `AGENTS.md`).
+The rabbit mesh took five agent rounds
+([`2026-10-14-rabbit-mesh-retro.md`](../research/2026-10-14-rabbit-mesh-retro.md)).
 Add these items to the briefs of the rig round and of the app round.
 
 - **The arms.** Write a first config with the measured joints, `armFactor` 1, and the rule of
