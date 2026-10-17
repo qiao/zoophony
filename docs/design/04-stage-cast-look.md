@@ -582,7 +582,10 @@ quarter of the folded faces.
   the upper arm fades in from the shoulder joint over a share of the upper arm
   (`ARM_GIRTH_FADE`), and the factor of the forearm fades out from the elbow joint to the wrist,
   so that the shoulders and the paws keep their form and the elbow takes the whole factor. A
-  config with no factors keeps its rig. The upper arm stretches by the
+  config with no factors keeps its rig. The cat config takes the arm girth factors that make its
+  elbows in the play meet the elbow of `cat-views.png` in head heights. In the bind, its elbows and
+  forearms met the sheet, but the bent elbows of the play grew past it, and the user said that
+  the arms looked too muscular (`docs/decisions/2026-10-17-cat-look.md`). The upper arm stretches by the
   arm factor only from the shoulder joint out, so that a small arm weight of the throat does not
   pull the throat across the middle. A config can also fade the stretch over the trunk below the
   armpit (`weights.stretchRamp`). No config has a fade now: with the holds of the shorter arms of
