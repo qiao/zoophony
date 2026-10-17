@@ -396,7 +396,7 @@ A new species with a studio body:
 | `docs/design/04-stage-cast-look.md` | "4.4 Models", "Studio bodies" | each studio body with its decision file, the landmark of its scale in `ANIMALS`, its seat or chair, the bodies that also stand (`soloist`), the crease angle and the support of each body, and the rules of its rig config | |
 | `docs/design/04-stage-cast-look.md` | "4.5 Visual values", "Species colors" | the accent of each species, as `models/species.ts` gives it | |
 | `docs/design/04-stage-cast-look.md` | "4.5 Visual values", "Facets and triangle budgets" | the studio bodies of the sections and the triangles of the pea eyes | |
-| `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "Sizes and holds" | the scale of the instrument and the reach of each species | |
+| `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the scale of the instrument and the reach of each species | |
 | `docs/design/04-stage-cast-look.md` | "4.7 Rig" | the optional bones of a rig, such as `tail_tip` | |
 | `docs/design/07-architecture.md` | "7.1 Modules", the text of `VIEW_SHEETS` | the sheet pages of `views.html` (`VIEW_SHEETS`), only for a species with a sheet page | |
 | `AGENTS.md` | "Design" | each studio body with its mesh or its studio animal, its decision files, and its role of `pnpm close-views` | |
@@ -425,7 +425,7 @@ A new hold:
 | `docs/design/05-animation.md` | "Pose index" | the support, the source, the play, the rest, the code, and the docs of the role | |
 | `docs/design/05-animation.md` | "5.2 Rest pose" | the rest of the instrument and of the bow, such as the upright bow and its via | |
 | `docs/design/05-animation.md` | "5.3 Instrument motion", "Bowed strings in detail" | the play hold of each species, the rest bow, and the bow of a soloist who stands (`standBow`) | |
-| `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "Sizes and holds" | the reach of the nut, or of the grip of a wind instrument | |
+| `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the reach of the nut, or of the grip of a wind instrument | |
 | `AGENTS.md` | "Design" | the hold of each studio body | |
 | `docs/decisions/<date>-<topic>.md` | the whole file | the decision file of the hold | |
 | `docs/design.md` | "10. Decisions to confirm" | the line of the decision file at the end of the list | |
