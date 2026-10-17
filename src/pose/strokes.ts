@@ -67,6 +67,8 @@ export const BOW_MOTION = {
    * of the way to `place` of the bow range.
    */
   balance: { place: 0.45, share: 0.2 },
+  /** The time constant of the loudness that the sounding point follows, in seconds. */
+  loudnessSec: 0.2,
   /** The change between the bow and pizzicato starts this long before the note. */
   techniqueLeadSec: 0.3,
   /** The change between the bow and pizzicato ends this long before the note. */
@@ -177,6 +179,13 @@ export interface Stroke {
    * strings ({@link crossStrings}), else {@link Stroke.string}.
    */
   readonly crossMean: number;
+  /** The loudness of the stroke, from 0 to 1. The sounding point follows it. */
+  readonly loudness: number;
+  /**
+   * The loudness that the sounding point follows at the start of the stroke: the loudness of the
+   * strokes before it, with the time constant `BOW_MOTION.loudnessSec`.
+   */
+  readonly loudnessFrom: number;
   /** The tremolo amplitude in meters. 0 for the other techniques. */
   readonly tremolo: number;
   /** Whether the bow moves to `bowFrom` in the rest before the stroke, off the strings. */
@@ -197,6 +206,11 @@ export interface BowState {
   string: number;
   /** The string that the right elbow follows, from 0 to 3 ({@link Stroke.crossMean}). */
   crossMean: number;
+  /**
+   * The loudness that the sounding point follows, from 0 to 1: the loudness of the strokes with
+   * the time constant `BOW_MOTION.loudnessSec`.
+   */
+  loudness: number;
   /**
    * The middle of the hand frame on the target `fingerboard`, from 0 to 1. It changes only in a
    * shift.
@@ -230,6 +244,7 @@ export function createBowState(): BowState {
     pluck: -1,
     string: 0,
     crossMean: 0,
+    loudness: 0,
     fingerboard: 0,
     reach: 0,
     stopString: 0,
@@ -464,6 +479,20 @@ export function balanceShift(from: number, travel: number, target: number): numb
 }
 
 /**
+ * Gives the loudness that the sounding point follows (design 5.3): it moves from its value at the
+ * start of a stroke to the loudness of the stroke, with the time constant
+ * `BOW_MOTION.loudnessSec`.
+ *
+ * @param from The value at the start of the stroke.
+ * @param loudness The loudness of the stroke.
+ * @param dt The time since the start of the stroke, in seconds.
+ * @returns The value, from 0 to 1.
+ */
+export function followLoudness(from: number, loudness: number, dt: number): number {
+  return loudness + (from - loudness) * Math.exp(-Math.max(0, dt) / BOW_MOTION.loudnessSec);
+}
+
+/**
  * Gives the place of the strings on the hair in a bow. The bow starts at its full speed, keeps it
  * until its last note, and slows to a stop in its last note, so the change of direction at the
  * next bow is sharp. A separate note slows down from its start. The notes of a slur share one
@@ -529,6 +558,20 @@ export function buildStrokes(
       string: plan[k]?.string ?? 0,
     })),
   );
+
+  // The loudness that the sounding point follows, at the start of each stroke.
+  const levels = pitches.map((p) => clamp01(p.loudness));
+  const levelsFrom: number[] = [];
+  for (const [k, p] of pitches.entries()) {
+    const before = pitches[k - 1];
+    const level = levels[k] ?? 0;
+    const from = levelsFrom[k - 1];
+    levelsFrom.push(
+      before && from !== undefined
+        ? followLoudness(from, levels[k - 1] ?? level, p.start - before.start)
+        : level,
+    );
+  }
 
   const strokes: Stroke[] = [];
   const [low, high] = range;
@@ -615,6 +658,8 @@ export function buildStrokes(
         bowTo: single ? to : bowInSlur(slur, own.end),
         slur,
         crossMean: arms[j] ?? fingered.string,
+        loudness: levels[j] ?? 0,
+        loudnessFrom: levelsFrom[j] ?? 0,
         tremolo,
         retake: retake && j === k,
       });
@@ -776,6 +821,7 @@ export function bowStateAt(
     out.pluck = -1;
     out.string = 1.5;
     out.crossMean = 1.5;
+    out.loudness = 0;
     out.fingerboard = fingerboardPlace(2);
     out.reach = 0;
     out.stopString = 1.5;
@@ -792,6 +838,7 @@ export function bowStateAt(
     out.pluck = -1;
     out.string = first.string;
     out.crossMean = first.crossMean;
+    out.loudness = first.loudnessFrom;
     out.fingerboard = first.hand.place;
     out.reach = first.hand.reach;
     out.stopString = first.hand.stopString;
@@ -830,7 +877,7 @@ export function bowStateAt(
   }
 
   // The bow crosses to the string of the next note just before it, and the right elbow follows
-  // the string of its arm.
+  // the string of its arm. The sounding point follows the loudness.
   out.string = current.string;
   out.crossMean = current.crossMean;
   if (next) {
@@ -841,6 +888,7 @@ export function bowStateAt(
     out.string += (next.string - current.string) * x;
     out.crossMean += (next.crossMean - current.crossMean) * x;
   }
+  out.loudness = followLoudness(current.loudnessFrom, current.loudness, time - current.start);
   leftHandAt(current, next, time, out);
 
   // The change between the bow and pizzicato.

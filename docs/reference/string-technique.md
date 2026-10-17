@@ -367,8 +367,15 @@ A round that changes the motion updates the items.
   over the notes of a slur, and its length follows the time of the whole slur. It moves at one
   speed until the last note, and slows to a stop in the last note. The left hand still plays each
   note. Before round `bow-arm`, the bow changed direction on each note.
-- **The sounding point does not change.** The bow of the app plays at one contact point for each
-  loudness. Real players move the bow toward the bridge for a loud note (section 2.4).
+- **The sounding point follows the loudness** (section 2.4). `soundingPointAt()` of
+  `pose/bowed.ts` moves the contact point of the bow along the strings, from
+  `BowedHold.soundingPoint[0]` of the string length from the bridge in piano to
+  `BowedHold.soundingPoint[1]` in forte: 1/8 to 1/18 on the violin and the viola, as the two
+  violinists of Askenfelt, and 1/9 to 1/15 on the cello and the contrabass, near the mean sounding
+  points of six cellists (1/9 and 1/12). No source measures the contrabass. The loudness of the
+  score sets the place, and the bow follows a change of the loudness with a time constant of 0.2 s
+  (`followLoudness()` of `pose/strokes.ts`). Before round `bow-arm`, the bow played at 1/16 of the
+  string length on each instrument and at each loudness.
 - **The stick tilts toward the fingerboard** (section 2.1). `bowAt()` of `pose/bowed.ts` turns the
   bow around its hair by `BowedHold.bowTilt` of `pose/bowed-rig.ts`: 30° on the violin and the
   viola, 20° on the cello, and 10° on the contrabass. The hair stays on the contact point, and the

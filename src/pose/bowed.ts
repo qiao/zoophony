@@ -477,6 +477,28 @@ function elbowPole(
   return out.multiplyScalar(1 - share).addScaledVector(backOfHand, share / side);
 }
 
+/**
+ * Moves the contact point of the bow along the strings to the sounding point of the loudness
+ * (design 5.3): from `BowedHold.soundingPoint[0]` of the string length from the bridge in piano to
+ * `BowedHold.soundingPoint[1]` in forte. A louder note plays nearer to the bridge
+ * (`docs/reference/string-technique.md`, section 2.4).
+ *
+ * @param rig The points of the player.
+ * @param loudness The loudness that the sounding point follows, from 0 to 1.
+ * @param strings The strings at their posed place. The function moves the contact point in place.
+ * @returns `strings`.
+ */
+export function soundingPointAt(
+  rig: RigPoints,
+  loudness: number,
+  strings: StringsPlace,
+): StringsPlace {
+  const [piano, forte] = rig.hold.soundingPoint;
+  const share = piano + (forte - piano) * loudness;
+  strings.contact.addScaledVector(strings.axis, (share - rig.contactShare) * rig.stringLength);
+  return strings;
+}
+
 const meanBow: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
 const meanHand: BowHand = { wrist: new Vector3(), rotation: new Quaternion() };
 const meanArm = createArmPose();
@@ -710,7 +732,7 @@ export function poseBowed(
   const chest = frames.chest;
   const { place, strings, bow, hand: heldHand } = places;
   instrumentAt(rig, frames, weight, place);
-  stringsAt(rig, place, strings);
+  soundingPointAt(rig, state.loudness, stringsAt(rig, place, strings));
   bowAt(rig, strings, state.string, state.bow, state.lift, bow);
 
   // Pizzicato: the right palm above the strings, with the bow tip up.

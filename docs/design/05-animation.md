@@ -482,6 +482,13 @@ of each role.
     down-bow from 12% of the bow range, and the bow moves there in the rest.
   - In a rest, the bow lifts up to 0.03 m (fully after 0.4 s of rest) in at most 0.1 s, and lands
     in at most 0.15 s before the next note.
+  - **Sounding point** (`soundingPointAt()` of `pose/bowed.ts`). The bow plays nearer to the
+    bridge in a loud note: the contact point moves along the strings from
+    `BowedHold.soundingPoint[0]` of the string length from the bridge at the loudness 0 to
+    `BowedHold.soundingPoint[1]` at the loudness 1, as real players change the sounding point
+    more than the bow speed. The place follows the loudness of the strokes with a time constant of
+    0.2 s (`followLoudness()` of `pose/strokes.ts`), so a change of the loudness does not make the
+    bow jump.
   - **String crossing** (`BOW_MOTION` and `bowStateAt()` of `pose/strokes.ts`). The bow turns to
     the string of the next note in at most 0.08 s, and in at most 0.3 of the time from the note
     start to the next note. The turn ends 0.01 s before the next note, as the crossing of a

@@ -157,7 +157,9 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   depth of the role in each obstacle. A depth past it is a named entry with its reason and its
   decision row. A note target gives the distance of a hand, or of the part that it holds, from
   its target: the palm of the pianist on its keys, the bow hair of the violinist on the
-  strings in the middle of each stroke, and each palm of the flutist on its grip at the start of
+  strings in the middle of each stroke (the distance of the line of the hair from the middle line
+  of the strings, because the sounding point of 5.3 moves the bow along the strings), and each
+  palm of the flutist on its grip at the start of
   each phrase. The entry is a contract of contact that the look accepts, with a margin over the
   measure. `pnpm pose-depth <role>` prints the same depths. With `--base <ref>`, it also compares
   the deepest point of each species with a commit, in cm and in the H of each body, because a body

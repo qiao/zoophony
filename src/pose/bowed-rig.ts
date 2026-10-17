@@ -4,6 +4,7 @@ import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { SpeciesId } from '../models/species.ts';
 import { placePoint } from '../models/instruments/hold.ts';
+import { VIOLIN } from '../models/instruments/strings.ts';
 import type { PlayTarget, PlayTargetKind } from '../models/instruments/types.ts';
 import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
@@ -106,6 +107,12 @@ export interface BowedHold {
    * instruments (`docs/reference/string-technique.md`, section 2.1).
    */
   readonly bowTilt: number;
+  /**
+   * The sounding point: the place of the bow on the strings, as a share of the string length from
+   * the bridge, in piano (loudness 0) and in forte (loudness 1). A louder note moves the bow
+   * toward the bridge (`docs/reference/string-technique.md`, section 2.4).
+   */
+  readonly soundingPoint: readonly [piano: number, forte: number];
   /**
    * The turn of the bow in the plane of the strings, from square across them. The frog comes
    * nearer to the right shoulder, so that the short arms of the animals reach the strings.
@@ -222,7 +229,8 @@ const FREE_HAIR = 0.03;
  * The string planes are 17° apart, the lower end of the 17° to 18° of a violinist in motion
  * capture (`docs/reference/string-technique.md`, section 2.2). The reference has no angle of the
  * viola, so the viola takes the angle of the violin. The stick leans 30° toward the fingerboard
- * (section 2.1).
+ * (section 2.1). The bow plays at 1/8 of the string length from the bridge in piano and at 1/18
+ * in forte, as two violinists of Askenfelt (section 2.4).
  *
  * In the rest pose, the instrument stands at 0.85 of the way to the knee, and the bow grip is
  * 0.18 H out from the knee and 0.08 H above it. The left elbow points down and a little back, so
@@ -248,6 +256,7 @@ const CHIN_HOLD = {
   pizzicatoTip: [0.3, 1, 0.4],
   stringTurn: 17 * MathUtils.DEG2RAD,
   bowTilt: 30 * MathUtils.DEG2RAD,
+  soundingPoint: [1 / 8, 1 / 18],
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
   freeHair: FREE_HAIR,
@@ -283,7 +292,9 @@ const CHIN_HOLD = {
  * The string planes of the cello are 17° apart, the angle of the violin, because the reference
  * has no angle of the cello (`docs/reference/string-technique.md`, section 2.2). The contrabass
  * takes its own 25°. The stick leans 20° toward the fingerboard on the cello and 10° on the
- * contrabass, less than on the violin (section 2.1).
+ * contrabass, less than on the violin (section 2.1). The bow plays at 1/9 of the string length
+ * from the bridge in piano and at 1/15 in forte: the mean sounding points of six cellists were
+ * 1/9 and 1/12 of the string (section 2.4), and no source measures the contrabass.
  */
 const FLOOR_HOLD = {
   tip: [-1, 0, 0],
@@ -303,6 +314,7 @@ const FLOOR_HOLD = {
   pizzicatoTip: [-1, 1, 0],
   stringTurn: 17 * MathUtils.DEG2RAD,
   bowTilt: 20 * MathUtils.DEG2RAD,
+  soundingPoint: [1 / 9, 1 / 15],
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
   freeHair: FREE_HAIR,
@@ -670,8 +682,12 @@ export interface BowedRig {
   /** The bind positions of the `spine` and the `chest` bones. */
   readonly spineBind: Vec3;
   readonly chestBind: Vec3;
-  /** The point on the strings where the bow plays. */
+  /** The point on the strings where the bow plays in the model. */
   readonly contact: Vec3;
+  /** The length of the strings from the bridge to the nut. */
+  readonly stringLength: number;
+  /** The place of {@link BowedRig.contact} as a share of the string length from the bridge. */
+  readonly contactShare: number;
   /** The unit direction from the tail end to the scroll. */
   readonly axis: Vec3;
   /** The unit normal of the top plate, to the strings. */
@@ -930,6 +946,8 @@ export function bowedRig(
   const hair = targetOf(model, 'bow-hair');
 
   const contact = placed('instrument', contactTarget.from);
+  // The model of each bowed string is the violin model at its scale.
+  const contactShare = (VIOLIN.bowContact - VIOLIN.bridge) / (VIOLIN.nut - VIOLIN.bridge);
   const top = new Vector3(...contactTarget.normal)
     .applyQuaternion(pieceRotation('instrument'))
     .normalize();
@@ -972,6 +990,8 @@ export function bowedRig(
     spineBind: at(BONES.spine),
     chestBind: at(BONES.chest),
     contact: toVec3(contact),
+    stringLength: contact.distanceTo(nut) / (1 - contactShare),
+    contactShare,
     axis: toVec3(axis),
     top: toVec3(top),
     across: toSide(strings, hold.tip),

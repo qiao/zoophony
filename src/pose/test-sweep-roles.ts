@@ -470,9 +470,11 @@ function instrumentSurface(posed: PosedSkeleton): ClosedSurface {
 }
 
 /**
- * Gives the distance of the bow hair from the strings at the bow contact point: the distance of
- * the middle of the strings from the line of the hair, less half the width of the strings. The
- * hair crosses the strings at the string of the note, so it touches the strip of the strings.
+ * Gives the distance of the bow hair from the strings: the distance of the line of the hair from
+ * the middle line of the strings, less half the width of the strings. The hair crosses the strings
+ * at the string of the note, so it touches the strip of the strings. The sounding point moves the
+ * bow along the strings with the loudness (design 5.3), so the measure takes the line of the
+ * strings, through the bow contact point of the model along the fingerboard.
  *
  * @param posed The posed skeleton.
  * @param halfWidth Half the width of the strip of the strings, in meters.
@@ -482,15 +484,23 @@ function hairOffStrings(posed: PosedSkeleton, halfWidth: number): number {
   const { targets } = posed.model.instrument;
   const contact = targets.find((t) => t.kind === 'bow-contact');
   const hair = targets.find((t) => t.kind === 'bow-hair');
-  if (!contact || !hair) {
-    throw new Error('The violin has no bow contact or no bow hair.');
+  const board = targets.find((t) => t.kind === 'fingerboard');
+  if (!contact || !hair || !board) {
+    throw new Error('The violin has no bow contact, no bow hair, or no fingerboard.');
   }
   const point = new Vector3(...posedPiecePoint(posed, { bone: 'instrument', at: contact.from }));
+  const along = new Vector3(...posedPiecePoint(posed, { bone: 'instrument', at: board.to }))
+    .sub(new Vector3(...posedPiecePoint(posed, { bone: 'instrument', at: board.from })))
+    .normalize();
   const from = new Vector3(...posedPiecePoint(posed, { bone: 'bow', at: hair.from }));
   const to = new Vector3(...posedPiecePoint(posed, { bone: 'bow', at: hair.to }));
   const axis = to.clone().sub(from).normalize();
+  const normal = new Vector3().crossVectors(axis, along);
   const off = point.clone().sub(from);
-  const distance = off.addScaledVector(axis, -off.dot(axis)).length();
+  const distance =
+    normal.lengthSq() > 1e-12
+      ? Math.abs(off.dot(normal.normalize()))
+      : off.addScaledVector(axis, -off.dot(axis)).length();
   return Math.max(0, distance - halfWidth);
 }
 
