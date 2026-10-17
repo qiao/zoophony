@@ -181,12 +181,26 @@
     "top": 0.2673,
     "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py). The vertices at the root of the tail share their weight with the hips (0.45 to 0.51 of the tail), so with the values of the fox they moved by half of the drop, and the side view of the underside of the final bind stayed 5.22 cm above the seat. With root, a vertex counts its tail share only by its smoothstep from 0.7 to 0.95, so the root of the tail moves with the haunch. With no gap, a ramp of 0.015 units before the hip joints, a drop of at most 0.2 units, and 2 rounds of smoothing, the side view of the final bind was 1.93 cm above the seat at most with the hanging tail. The root of the hanging tail pulled a few vertices down and set the seat top, 0.2157 units. The curled tail does not pull them, and the seat top rose 0.8 to 1.2 cm, so top keeps it. With the curled tail of studio.tailCurl, the side view is 0.16 cm above the seat at most. With the trunk factor and the leg factor 1.94168, the seat top of the hanging tail is 0.2746 units, and the side view is 0.13 cm above the seat at most (docs/research/2026-10-16-cat-trunk/). With the leg factor 1.5, the seat is 1 mm lower, the chair 2 mm deeper, and the standing body stays within 0.248 mm of the source. The thighs 25 degrees down and the shorter, wider, and deeper trunk of 2026-10-17 put the seat top of the hanging tail at 0.2673 units, and the round back of the deeper haunch stayed 1.68 cm above the seat with 2 rounds of smoothing. With 8 rounds, the side view is 0.84 cm above the seat at most with the tail curl of 2026-10-16 (3 rounds 1.12 cm, 4 rounds 1.02 cm), and 0.58 cm with the lifted curl (docs/research/2026-10-16-cat-form/seat-fit.txt). The red fox keeps 2.0 cm. The retro values gap 0 and ramp 0.015 alone gave 5.00 cm, and the haunch ramp 0.12 to 0.2 gave 5.40 cm (pnpm rig-mesh cat --check with these values as --set variants). The corrective shapes give the source back, so the standing body keeps its form."
   },
-  "raise": {
-    "side": "L",
-    "bone": "hand",
-    "turns": { "hand": [0.1096, 0.8501, 0.4982, 0.1305] },
-    "fade": [10, 35],
-    "below": 0.3,
-    "note": "The shape of the bent left wrist of the cat violist (raise_shape() of tools/blender/rig_mesh.py, 2026-10-17-cat-bow decisions). In each play sample, faces 2116 and 2007 of the left wrist folded, and the turn of hand_L from forearm_L stayed within 10 degrees of the mean turn of 153.7 degrees (wrist-turn.txt of docs/research/2026-10-17-cat-bow/). At that turn, 1 face turns over in the pose of the rule, and the folded face-samples of hand_L fell from 6774 to 1576. The turn of the rule is the same axis at 165 degrees, so that the pose of the rule turns over the faces of the app: 114 face-samples (175 degrees: 4938). The fade 10 to 35 degrees folds the fewest (102), and the cosines 0.25, 0.5, and 0.7 fold as many or more (rig-mesh-check-wrist.log)."
-  }
+  "raise": [
+    {
+      "side": "L",
+      "bone": "hand",
+      "turns": { "hand": [0.1096, 0.8501, 0.4982, 0.1305] },
+      "fade": [10, 35],
+      "below": 0.3,
+      "note": "The shape of the bent left wrist of the cat violist (raise_shape() of tools/blender/rig_mesh.py, 2026-10-17-cat-bow decisions). In each play sample, faces 2116 and 2007 of the left wrist folded, and the turn of hand_L from forearm_L stayed within 10 degrees of the mean turn of 153.7 degrees (wrist-turn.txt of docs/research/2026-10-17-cat-bow/). At that turn, 1 face turns over in the pose of the rule, and the folded face-samples of hand_L fell from 6774 to 1576. The turn of the rule is the same axis at 165 degrees, so that the pose of the rule turns over the faces of the app: 114 face-samples (175 degrees: 4938). The fade 10 to 35 degrees folds the fewest (102), and the cosines 0.25, 0.5, and 0.7 fold as many or more (rig-mesh-check-wrist.log)."
+    },
+    {
+      "side": "R",
+      "bone": "forearm",
+      "turns": {
+        "clavicle": [0, 0.2588, 0, 0.9659],
+        "upper_arm": [0.3454, 0.3099, -0.4091, 0.7857],
+        "forearm": [-0.2187, 0.1236, -0.2847, 0.9251]
+      },
+      "fade": [20, 40],
+      "below": 0.3,
+      "note": "The shape of the bent right elbow of the cat violist (raise_shape() of tools/blender/rig_mesh.py, 2026-10-17-multi-shape decisions). On main, faces 235, 332, and 338 across the right elbow folded in 92.6%, 87.7%, and 31.2% of the play samples, and the turn of forearm_R from upper_arm_R stayed within 10 degrees of one turn of 44.6 degrees in 3830 of 4426 play samples at a step of 1 s, while the turn of the upper arm spread over 90 degrees (elbow-235.txt and turns-235.txt of docs/research/2026-10-17-multi-shape/). The forearm takes that mean turn from the upper arm. The clavicle takes its turn of 30 degrees around y, the same in each play sample (clavicle-shoulder.txt), and the upper arm the mean turn of 76.4 degrees of the samples in which the faces of the right shoulder fold (upper-shoulder.txt). With the fade 20 to 40 degrees and the cosine 0.3, the play folds of the cat fall from 100% to 43.5% at a step of 1 s, and the folded face-samples of forearm_R to 29. The cosine 0.5, the fade 10 to 30 degrees, and one ring (grow 1) folded 43.4% to 43.8% (rig-check-elbow1.log)."
+    }
+  ]
 }
