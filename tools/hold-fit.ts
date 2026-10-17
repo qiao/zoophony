@@ -22,6 +22,10 @@
  * `--sets lift,rest,lower` for the rest mode: the run then skips the play samples of the folds
  * and of the sweep, which take most of its time.
  *
+ * A run with the rest set gives the lap rest of a seated role with a lap rest ({@link hasLapRest}):
+ * the gap of the lower end of the instrument to the skin of the thighs, and for a violin role the
+ * rise of the bow tip above the frog and its reach past the knees (`tools/lap-rest.ts`).
+ *
  * Usage: pnpm hold-fit <role> [--set <path>=<value>[;<path>=<value>]...]...
  * [--grid <path>=<a>:<b>:<step>]... [--sets <set>[,<set>]...] [--demo <id>|all]...
  * [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>]
@@ -41,6 +45,8 @@ import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
 import { freeRestReach, holdReach, rangeTexts, reachShare, ruleSize } from './hold-reach.ts';
 import type { ChinInstrument, HoldReach } from './hold-reach.ts';
 import { setHolds } from './hold-sets.ts';
+import { probeLaps } from './lap-rest.ts';
+import type { LapWorst, LapWorsts } from './lap-rest.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { compareDepths, restoreDepth, restoreResult, sweepDemos } from './pose-depth.ts';
@@ -90,6 +96,29 @@ export const FIT_SETS = ['play', 'lift', 'rest', 'lower'] as const;
 
 /** A sample set of a run ({@link FIT_SETS}). */
 export type FitSet = (typeof FIT_SETS)[number];
+
+/**
+ * The largest gap of the lower end of the instrument to the skin of the thighs in the rest
+ * without the mark `OVER`, in meters: the goal of the lap rest of the violin
+ * (`docs/decisions/2026-10-16-seat-rest.md`).
+ */
+export const LAP_GAP_GOAL = 0.02;
+
+/** The largest height of the bow tip above the frog in the rest without the mark `OVER`, in meters. */
+export const TIP_RISE_GOAL = 0.05;
+
+/**
+ * The largest reach of the bow tip past the front of the knees in the rest without the mark
+ * `OVER`, in meters: the tip stays behind the knees, away from the music stand.
+ */
+export const TIP_PAST_GOAL = 0;
+
+/**
+ * The wind holds whose rest stands the instrument on a leg, by the root of `--set`: the flute of
+ * the tan fox stands upright on the right leg (decisions `2026-10-15-flute-rest.md`). Each other
+ * wind role has no lap rest.
+ */
+export const LEG_RESTS: ReadonlySet<string> = new Set(['flute@fox-tan']);
 
 /** The usage text of `pnpm hold-fit`. */
 const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>]`;
@@ -543,6 +572,11 @@ export interface FitRow {
   readonly gaps: readonly PawGap[];
   /** The reach share of the rest place of each free paw on the chair, or none. */
   readonly free: readonly FreeShare[];
+  /**
+   * The largest value of each measure of the lap rest over the rest samples (`probeLaps()` of
+   * `tools/lap-rest.ts`), or `null` for a role with no lap rest or a run with no rest set.
+   */
+  readonly lap: LapWorsts | null;
 }
 
 /** A pair of a set of the JSON text of {@link fitJson}. */
@@ -578,9 +612,10 @@ export interface FitRun {
  * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
  * change of the format takes the next version, so that a compare with `--base` stops on two
  * formats. Version 2 added the rest faces by side, version 3 the instrument in the body, the
- * rest gaps, and the reach shares of the free paws, and version 4 the rest samples of the folds.
+ * rest gaps, and the reach shares of the free paws, version 4 the rest samples of the folds, and
+ * version 5 the lap rest.
  */
-export const FIT_FORMAT = 4;
+export const FIT_FORMAT = 5;
 
 /**
  * Writes the rows of a run as JSON (`--json`), with the format version {@link FIT_FORMAT}.
@@ -621,6 +656,7 @@ export function readFit(text: string): FitRun {
       held: row.held ? restore(row.held) : null,
       gaps: row.gaps,
       free: row.free,
+      lap: row.lap,
     })),
   };
 }
@@ -644,12 +680,29 @@ function foldCell(folds: FoldShares, set: 'play' | 'lift', goal: number | null):
 }
 
 /**
+ * Writes a measure of the lap rest in cm.
+ *
+ * @param worst The largest value of the measure, or `null`.
+ * @param goal The largest value without the mark `OVER`, in meters.
+ * @returns The text, such as `2.4 OVER`, or `-` with no value.
+ */
+function lapCell(worst: LapWorst | null | undefined, goal: number): string {
+  if (!worst) {
+    return '-';
+  }
+  return `${(worst.value * 100).toFixed(1)}${worst.value > goal ? ' OVER' : ''}`;
+}
+
+/**
  * Writes the table of `pnpm hold-fit`: one row for each variant, with the play folds and the lift
  * folds, the most folded faces of one rest sample by side, the deepest point of each sample set in
  * cm with its pair and its limit, the instrument in the body with its set, the gap of each free
- * paw to the body in the rest in cm, the reach share of the rest place of each free paw, and the
- * reach of a violin role. A mark `OVER` follows a depth over its limit, play folds over
- * {@link PLAY_FOLD_GOAL}, and a reach share above 1.
+ * paw to the body in the rest in cm, the reach share of the rest place of each free paw, the lap
+ * rest in cm, and the reach of a violin role. The lap rest gives the gap of the lower end of the
+ * instrument to the thighs with the depth of its deepest corner in the body, and with a bow the
+ * rise of the bow tip above the frog and its reach past the knees. A mark `OVER` follows a depth
+ * over its limit, play folds over {@link PLAY_FOLD_GOAL}, a reach share above 1, and a lap
+ * measure over its goal ({@link LAP_GAP_GOAL}, {@link TIP_RISE_GOAL}, {@link TIP_PAST_GOAL}).
  *
  * @param rows The rows, the base first.
  * @returns The lines.
@@ -660,6 +713,8 @@ export function fitTable(rows: readonly FitRow[]): string[] {
   const held = rows.some((row) => row.held);
   const paws = [...new Set(rows.flatMap((row) => row.gaps.map((gap) => gap.paw)))];
   const sides = [...new Set(rows.flatMap((row) => row.free.map((free) => free.side)))];
+  const lap = rows.some((row) => row.lap);
+  const bow = rows.some((row) => row.lap?.tipRise);
   const header = [
     'Variant',
     'Play folds',
@@ -669,6 +724,8 @@ export function fitTable(rows: readonly FitRow[]): string[] {
     ...(held ? ['Instrument in body cm (limit)'] : []),
     ...paws.map((paw) => `Rest gap ${paw} cm`),
     ...sides.map((side) => `Rest reach ${side}`),
+    ...(lap ? ['Rest end to thighs cm (in body)'] : []),
+    ...(bow ? ['Rest bow tip rise cm', 'Rest bow tip past knees cm'] : []),
     ...(violin ? ['Rule scale', 'Violin m', 'stopRange', 'bowRange'] : []),
   ];
   const lines = [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`];
@@ -698,6 +755,13 @@ export function fitTable(rows: readonly FitRow[]): string[] {
         ? 'hangs'
         : `${free.share.toFixed(3)}${free.share > 1 ? ' OVER' : ''}`;
     });
+    const lapCells = row.lap
+      ? [`${lapCell(row.lap.endGap, LAP_GAP_GOAL)} (${(row.lap.endDepth.value * 100).toFixed(1)})`]
+      : ['-'];
+    const bowCells = [
+      lapCell(row.lap?.tipRise, TIP_RISE_GOAL),
+      lapCell(row.lap?.tipPast, TIP_PAST_GOAL),
+    ];
     const reach = row.reach;
     const rule = reach ? ruleSize(reach) : null;
     const ranges = reach ? rangeTexts(reach) : null;
@@ -712,6 +776,8 @@ export function fitTable(rows: readonly FitRow[]): string[] {
       ...(held ? [heldCell] : []),
       ...gapCells,
       ...reachCells,
+      ...(lap ? lapCells : []),
+      ...(bow ? bowCells : []),
       ...(violin
         ? [
             rule ? rule.scale.toFixed(3) : 'none',
@@ -837,6 +903,18 @@ export function holdsInstrument(role: RoleSource): boolean {
 }
 
 /**
+ * Tells if a seated player of a role rests its instrument on the lap: a violin or a viola, which
+ * stands upright on the thighs (design 5.2), or a wind instrument of {@link LEG_RESTS}.
+ *
+ * @param role The role.
+ * @returns True for a role whose rest the lap columns measure.
+ */
+export function hasLapRest(role: RoleSource): boolean {
+  const wind = windOf(role);
+  return chinOf(role) !== null || (!!wind && LEG_RESTS.has(`${wind.instrument}@${wind.species}`));
+}
+
+/**
  * Gives the reach share of the rest place of each free paw of a wind role on the chair
  * (`freeRestReach()` of `pnpm hold-reach`).
  *
@@ -927,6 +1005,16 @@ function printRow(row: FitRow): void {
   for (const { paw, gap, demo } of row.gaps) {
     console.log(`  rest: ${paw} to body: ${(gap * 100).toFixed(1)} cm, ${demo}`);
   }
+  const lap = row.lap;
+  const cm = (worst: LapWorst): string => `${(worst.value * 100).toFixed(1)} cm, ${worst.sample}`;
+  if (lap) {
+    console.log(`  rest: lower end to the thighs: ${cm(lap.endGap)}`);
+    console.log(`  rest: lower end in the body: ${cm(lap.endDepth)}`);
+  }
+  if (lap?.tipRise && lap.tipPast) {
+    console.log(`  rest: bow tip above the frog: ${cm(lap.tipRise)}`);
+    console.log(`  rest: bow tip past the knees: ${cm(lap.tipPast)}`);
+  }
 }
 
 /**
@@ -992,6 +1080,7 @@ async function main(): Promise<void> {
   const { demos, first } = await fitDemos(options);
   const sweep = fitSweep(options.role, first, options.sets);
   const chin = chinOf(options.role);
+  const laps = hasLapRest(options.role) && options.sets.includes('rest');
   const ids = demos.map((demo) => demo.file.replace(/\.mid$/, ''));
   console.log(
     `Hold fit of the ${options.name}: play folds at a step of ${options.step} s, ${sweep ? `the sweep of the ${sweep.role} with the bodies of the role` : 'no sweep (folds only)'}${chin ? `, and the reach of ${chin.species} with the ${chin.instrument}` : ''}.`,
@@ -1024,6 +1113,7 @@ async function main(): Promise<void> {
           )
         : [];
       const { held, results } = sweep ? splitHeld(sweep, swept) : { held: null, results: swept };
+      const body = laps ? sweep?.obstacles.find((o) => o.name === BODY_OBSTACLE) : undefined;
       const row: FitRow = {
         variant: text,
         folds: foldShares(report),
@@ -1035,6 +1125,7 @@ async function main(): Promise<void> {
         held,
         gaps: restGaps(results),
         free: freeShares(options.role),
+        lap: body ? probeLaps(options.role, demos, body) : null,
       };
       rows.push(row);
       printRow(row);
