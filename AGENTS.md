@@ -224,6 +224,7 @@ implementation of a round from `docs/briefs/studio-body.md`.
    `--gaps` when the change moves the head or the paws near the instrument or the body. Run
    `pnpm body-probe --base main` when the change touches shared pose or model code, to show that
    the poses of the other players do not change.
+   A new role or a new hold adds its row to the pose index of design 5 in the same commit.
 4. Run `pnpm snapshot`, and record the measures in a research report and the decisions in a
    decision file.
 
