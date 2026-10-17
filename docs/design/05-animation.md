@@ -30,7 +30,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Conductor, bear | Stands on the podium | none | Beats the patterns of 5.4 with the baton, turns to cue each entry, and shows the dynamics with the left paw | The arms hang a little out to the sides | `CONDUCTOR_HOLD`, `pose/conductor.ts` | 5.2, 5.4, `2026-10-12-studio-bear.md` | `pnpm close-views conductor <dir>` |
 | Piano, polar bear | Bench | Play: the forearm rule of Prodigies and "Fundamentals of Piano Practice", on a higher bench that the user asked for (`2026-10-14-polar-bench.md`). Rest: a Suzuki checklist (`docs/research/2026-10-13-pianist-lap.md`) | Leans toward the keys, with the palms down at the front of the keys and the elbows out, down, and back | Sits tall with a small lean to the piano and the head up, with the paws on the low belly over the thighs | `HANDS_HOLDS.piano`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-14-polar-fix.md` | `pnpm close-views pianist <dir>` |
 | Harp, deer | Stool | none | Leans forward, and each palm faces the strings and plucks the string of its note | Sits up, with the left palm on the left thigh and the right hand on a string | `HANDS_HOLDS.harp`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-11-short-legs.md` | `pnpm close-views species deer <dir>` |
-| Violin, rabbit | Chair, stands as a soloist | Play: violinonline.com and Simon Fischer (`docs/research/2026-10-14-fox-rabbit-form.md`). Rest: the image of a seated violinist that the user gave (`docs/research/2026-10-16-bow-rest.md`) | Holds the violin on the left shoulder under the jaw, with the back straight and the bow nearly square | The violin stands upright on the left thigh, held at the bottom of its neck, and the bow stands upright at the right side, with the frog on the right thigh. A soloist holds the violin at its left side and hangs the bow with the tip down | `SHOULDER_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-16-bow-rest.md`, `2026-10-16-cat-seat.md` | `pnpm close-views violinist <dir>` |
+| Violin, rabbit | Chair, stands as a soloist | Play: violinonline.com and Simon Fischer (`docs/research/2026-10-14-fox-rabbit-form.md`). Rest: the image of a seated violinist that the user gave (`docs/research/2026-10-16-bow-rest.md`) | Holds the violin on the left shoulder under the jaw, with the back straight and the bow nearly square | The violin stands upright on the left thigh, held at the bottom of its neck, and the bow stands upright at the right side. The right elbow hangs at the side, and the paw holds the frog at the outer side of the right knee. A soloist holds the violin at its left side and hangs the bow with the tip down | `SHOULDER_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-16-bow-rest.md`, `2026-10-16-rabbit-arm.md`, `2026-10-16-cat-seat.md` | `pnpm close-views violinist <dir>` |
 | Violin, red fox | Chair, stands as a soloist | The sources of the rabbit | The hold of the rabbit, with the tail end against the left side of the short neck under the long jaw | The rest of the rabbit, with the frog at the outer side of the right thigh. A soloist hangs the bow with the tip down | `FOX_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-16-bow-rest.md`, `2026-10-16-cat-seat.md` | `pnpm close-views fox-violinist <dir>` |
 | Viola, cat | Chair, stands as a soloist | none | Holds the viola under the chin (the chin hold), with the viola back toward the neck so that the left paw reaches the nut, and the right elbow out | The viola stands on the left thigh, and the bow lies along the outer side of the right knee, with the grip at the outer side of the right thigh. A soloist holds the viola at its left side and hangs the bow with the tip down | `CAT_HOLD`, `UPRIGHT_BOW` (the via of the bow), `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-16-mesh-cat.md`, `2026-10-16-cat-seat.md`, `2026-10-16-cat-trunk.md` | `pnpm close-views violist <dir>` |
 | Cello, dog | Chair | none | The cello stands on the floor (the floor hold), the player leans forward, the right elbow points out and up, and the left arm hugs the cello | The cello stays on the floor, and the bow lies on the outer side of the right knee | `BOWED_HOLDS.cello`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-11-low-seats.md` | `pnpm close-views species dog <dir>` |
@@ -359,12 +359,17 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   clipping in rest mode").
 - **Upright bow.** The seated rabbits and red foxes rest as a seated violinist: the violin stands
   upright on the left thigh, and the bow stands upright at the right side, with the frog in the
-  right paw on the right thigh (5.3, `docs/decisions/2026-10-16-bow-rest.md`). In the lift and the
+  right paw (5.3, `docs/decisions/2026-10-16-bow-rest.md`). The right elbow hangs near the side,
+  as the elbows of the violinist. The round belly keeps the right paw off the top of the right
+  thigh, so the paw holds the frog at the outer side of the thigh (red fox) or of the knee (rabbit,
+  `docs/decisions/2026-10-16-rabbit-arm.md`). With the paw on the belly over the thigh, the bent
+  right arm of the rabbit stood out to the side as a wing, and the skin of the arm folded. In the lift and the
   lowering, the tip of the upright bow turns through the front and the grip moves to the front, so
   that the bow passes in front of the head and the belly (`BowVia` of `pose/bowed-rig.ts`). The
   rest columns of `pnpm hold-fit` measure the rest with a point at each 1 cm along the bow,
   because the sweep measures the corners of its boxes only, and the middle of the stick went
-  through the thighs and the arms unseen. The seated cats rest with the viola upright on the left
+  through the thighs and the arms unseen. They also measure the place of the right elbow against
+  the trunk and the angle of the right upper arm (`armRest()` of `tools/lap-rest.ts`). The seated cats rest with the viola upright on the left
   thigh, and their bow lies forward along the right thigh. Their bow turns through the front in
   the lift and the lowering with the via of the upright bow (`CAT_HOLD`, 5.3).
 - **Hanging arms.** A standing player without a lap hangs its arms (`pose/hang.ts`): the upper
@@ -487,11 +492,14 @@ of each role.
     2026-10-16 (`docs/research/2026-10-16-bow-rest.md`): the violin stands upright on the left
     thigh, with its lower end on the thigh, the scroll up, and the top plate to the front, held
     at the bottom of its neck. The bow stands upright at the right side, with the tip up and the
-    frog in the right paw on the right thigh, and the stick passes outside the body and the arm,
+    frog in the right paw beside the right thigh, and the stick passes outside the body and the arm,
     in front of the shoulder. The elbows hang near the sides. The lap of each species gives its
     own places and elbows (`SHOULDER_HOLD`, `FOX_HOLD`, and `UPRIGHT_BOW` of
     `pose/bowed-rig.ts`). The round belly of the rabbit covers the top of its thighs, so its
-    violin stands near the knee, in front of the belly. The long right arm of the red fox reaches
+    violin stands near the knee, in front of the belly. The belly is widest below the right
+    elbow, so the hanging right arm of the rabbit goes out around it, and the paw holds the frog
+    at the outer side of the right knee, with the frog end a little above the knee
+    (`docs/decisions/2026-10-16-rabbit-arm.md`). The long right arm of the red fox reaches
     its thigh only nearly straight, and the line from the shoulder to the top of the thigh passes
     through the side of the belly, so its paw holds the frog at the outer side of the thigh. In
     the lift and the lowering, the tip of the bow turns through the front, and the grip moves to
