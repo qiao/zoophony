@@ -286,32 +286,34 @@ function stopNow(signal: NodeJS.Signals): never {
 }
 
 /** The options of {@link withRefTree}. */
-export interface RefTreeOptions {
-  /** The folder that holds the temporary folder. The default is the temporary folder of the OS. */
-  readonly parent?: string;
-  /** The start of the name of the temporary folder, such as `body-probe-`. */
-  readonly prefix?: string;
+export interface RefTreeOptions extends TempFolderOptions {
   /** The paths of the commit to extract. The default is the whole tree. */
   readonly paths?: readonly string[];
 }
 
+/** The options of {@link withTempFolder}. */
+export interface TempFolderOptions {
+  /** The folder that holds the temporary folder. The default is the temporary folder of the OS. */
+  readonly parent?: string;
+  /** The start of the name of the temporary folder, such as `body-probe-`. */
+  readonly prefix?: string;
+}
+
 /**
- * Extracts the tree of a commit into a new temporary folder, and gives the folder to a function.
- * The extraction and the start of the function run before the first `await`, so a child process
- * that the function starts at once runs beside the code of the caller. The folder goes away at
- * the end, also after a failure or a stop (INT or TERM). A stop first ends each child of
- * {@link runChild} and waits for it, so that no child writes into the folder during its removal.
+ * Makes a new temporary folder, and gives it to a function. The start of the function runs before
+ * the first `await`, so a child process that the function starts at once runs beside the code of
+ * the caller. The folder goes away at the end, also after a failure or a stop (INT or TERM). A
+ * stop first ends each child of {@link runChild} and waits for it, so that no child writes into
+ * the folder during its removal.
  *
- * @param ref The commit, a branch, or a tag.
  * @param use The function that reads the folder.
- * @param options The parent folder, the start of the name, and the paths.
+ * @param options The parent folder and the start of the name.
  * @returns The result of the function.
- * @throws Error if git does not know the ref, or the function fails.
+ * @throws Error if the function fails.
  */
-export async function withRefTree<T>(
-  ref: string,
+export async function withTempFolder<T>(
   use: (dir: string) => Promise<T>,
-  options: RefTreeOptions = {},
+  options: TempFolderOptions = {},
 ): Promise<T> {
   const dir = mkdtempSync(join(options.parent ?? tmpdir(), options.prefix ?? 'ref-'));
   held.add(dir);
@@ -321,9 +323,6 @@ export async function withRefTree<T>(
   process.on('SIGINT', stop);
   process.on('SIGTERM', stop);
   try {
-    run('git', ['archive', '--output', join(dir, 'ref.tar'), ref, ...(options.paths ?? [])], ROOT);
-    run('tar', ['-xf', 'ref.tar'], dir);
-    rmSync(join(dir, 'ref.tar'));
     return await use(dir);
   } finally {
     process.off('SIGINT', stop);
@@ -331,6 +330,37 @@ export async function withRefTree<T>(
     await rm(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
     held.delete(dir);
   }
+}
+
+/**
+ * Extracts the tree of a commit into a new temporary folder of {@link withTempFolder}, and gives
+ * the folder to a function. The extraction and the start of the function run before the first
+ * `await`. The folder goes away at the end, also after a failure or a stop (INT or TERM).
+ *
+ * @param ref The commit, a branch, or a tag.
+ * @param use The function that reads the folder.
+ * @param options The parent folder, the start of the name, and the paths.
+ * @returns The result of the function.
+ * @throws Error if git does not know the ref, or the function fails.
+ */
+export function withRefTree<T>(
+  ref: string,
+  use: (dir: string) => Promise<T>,
+  options: RefTreeOptions = {},
+): Promise<T> {
+  return withTempFolder(
+    (dir) => {
+      run(
+        'git',
+        ['archive', '--output', join(dir, 'ref.tar'), ref, ...(options.paths ?? [])],
+        ROOT,
+      );
+      run('tar', ['-xf', 'ref.tar'], dir);
+      rmSync(join(dir, 'ref.tar'));
+      return use(dir);
+    },
+    { prefix: 'ref-', ...options },
+  );
 }
 
 /**
