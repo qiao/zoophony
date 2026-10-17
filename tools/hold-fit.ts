@@ -634,11 +634,19 @@ type StoredLapWorst = Omit<LapWorst, 'value'> & {
   readonly value: number | null;
 };
 
+/**
+ * The measures of the lap rest that the format versions after {@link FIT_SINCE} added: the text of
+ * the version {@link FIT_SINCE} does not have them.
+ */
+type AddedLaps = 'elbowRise' | 'elbowBack' | 'elbowOut' | 'upperArm';
+
 /** The largest values of the lap rest in the JSON text. */
 type StoredLaps = {
-  readonly [K in keyof LapWorsts]: null extends LapWorsts[K]
+  readonly [K in Exclude<keyof LapWorsts, AddedLaps>]: null extends LapWorsts[K]
     ? StoredLapWorst | null
     : StoredLapWorst;
+} & {
+  readonly [K in AddedLaps]?: StoredLapWorst | null;
 };
 
 /** The JSON text of {@link fitJson}. JSON writes the place `NaN` of a depth as `null`. */
@@ -667,23 +675,33 @@ export interface FitRun {
 }
 
 /**
- * The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). A
- * change of the format takes the next version, so that a compare with `--base` stops on two
- * formats. Version 2 added the rest faces by side, version 3 the instrument in the body, the
- * rest gaps, and the reach shares of the free paws, version 4 the rest samples of the folds,
- * version 5 the lap rest, version 6 the upright rest of the violin, and version 7 the right arm in
- * the rest.
+ * The format version of the JSON text of `--json` (`ProbeFormat` of `tools/ref-tree.ts`). A
+ * change of the format takes the next version. Version 2 added the rest faces by side, version 3
+ * the instrument in the body, the rest gaps, and the reach shares of the free paws, version 4 the
+ * rest samples of the folds, version 5 the lap rest, version 6 the upright rest of the violin, and
+ * version 7 the right arm in the rest.
  */
 export const FIT_FORMAT = 7;
 
 /**
- * Writes the rows of a run as JSON (`--json`), with the format version {@link FIT_FORMAT}.
+ * The oldest format version that {@link FIT_FORMAT} only adds fields to (`ProbeFormat.since` of
+ * `tools/ref-tree.ts`), so that a compare with `--base` reads a text of each version from it to
+ * {@link FIT_FORMAT}. Version 6 removed the measures of the bow tip and changed the gap of the
+ * lower end of a violin, and version 7 only added the right arm ({@link AddedLaps}). A change of a
+ * field sets it to the new version. An added field that the reader gives as `-` on an older text
+ * is an optional field of the stored types.
+ */
+export const FIT_SINCE = 6;
+
+/**
+ * Writes the rows of a run as JSON (`--json`), with the format version {@link FIT_FORMAT} and
+ * {@link FIT_SINCE}.
  *
  * @param run The demos and the rows.
  * @returns The text.
  */
 export function fitJson(run: FitRun): string {
-  return JSON.stringify({ version: FIT_FORMAT, ...run });
+  return JSON.stringify({ version: FIT_FORMAT, since: FIT_SINCE, ...run });
 }
 
 /**
@@ -722,7 +740,8 @@ export function readFit(text: string): FitRun {
 
 /**
  * Reads the largest values of the lap rest from the JSON text, with `Infinity` in place of `null`:
- * a frog or a lower end that is not over the top of the lap.
+ * a frog or a lower end that is not over the top of the lap. A measure that the text of an older
+ * format version does not have ({@link AddedLaps}) is `null`, and its cell is `-`.
  *
  * @param stored The values of the JSON text.
  * @returns The values.
@@ -741,10 +760,10 @@ function restoreLaps(stored: StoredLaps): LapWorsts {
     frogDepth: maybe(stored.frogDepth),
     bowBody: maybe(stored.bowBody),
     bowArms: maybe(stored.bowArms),
-    elbowRise: maybe(stored.elbowRise),
-    elbowBack: maybe(stored.elbowBack),
-    elbowOut: maybe(stored.elbowOut),
-    upperArm: maybe(stored.upperArm),
+    elbowRise: maybe(stored.elbowRise ?? null),
+    elbowBack: maybe(stored.elbowBack ?? null),
+    elbowOut: maybe(stored.elbowOut ?? null),
+    upperArm: maybe(stored.upperArm ?? null),
   };
 }
 
