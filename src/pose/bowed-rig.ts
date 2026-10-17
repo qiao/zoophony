@@ -595,15 +595,24 @@ export const BOWED_HOLDS = {
  * gave 0.0 cm, but folded face 187 of the right clavicle in more play samples (2026-10-17-cat-bow
  * decisions).
  *
- * The rest pose is the upright rest of the rabbit and the red fox, as a seated violinist
- * (2026-10-17-cat-bow decisions): the viola stands upright on the left thigh at 0.7 of the way to
- * the knee, held at the bottom of its neck, and the bow stands upright at the right side, with the
- * frog in the right paw at the outer side of the right thigh. The grip is 0.87 H out, 0.25 H down,
- * and 0.125 H back at 0.57 of the way to the knee, and the right elbow points out, down, and back,
- * so that it hangs near the side of the deep belly: the upper arm hangs 35° from the vertical, and
- * the elbow is 6.9 cm out from the side. A grip further out turned the upper arm further from the
- * vertical, and a grip nearer to the thigh put the right upper arm into the belly. The level bow
- * of 2026-10-16 ran forward past the knees, and a real violist rests as a violinist.
+ * The rest pose is the upright rest of the rabbit and the red fox, as the seated violinist of the
+ * image of the user (2026-10-17-cat-bow and 2026-10-17-cat-look decisions): the viola stands
+ * upright on the left thigh at 0.7 of the way to the knee, and the bow stands upright at the right
+ * side, with the frog in the right paw at the outer side of the right thigh. Both elbows hang near
+ * the sides. The left paw holds the viola at the top of the upper bout, at 0.5 of the fingerboard
+ * from the nut (`restPlace`), and the left elbow points down, a little out, and a little back: the
+ * elbow is 6.5 cm out from the side (11.6 cm with the elbow of the chin hold). With the elbow
+ * further in, (-0.5, -1, 0.3), it was 5.0 cm out, and the left upper arm went 1.9 cm into the
+ * body. A place further down the upper bout put the left forearm 2.4 cm to 2.8 cm into the viola. The grip of the bow is 0.7 H
+ * out, 0.15 H down, and 0.1 H back at 0.55 of the way to the knee, and the right elbow points down,
+ * a little out, and back. The upper arm hangs 28° from the vertical, the elbow is 4.2 cm out from
+ * the side, and it bends to 143°, so the forearm comes forward and out to the paw at the outer side
+ * of the thigh. The arm of the cat, with the reach of the red fox, reaches the top of the thigh
+ * only nearly straight: with the grip of 2026-10-17 (0.87 H out), the arm hung straight, down and
+ * out to the side, with the paw far from the body, and the user said that the pose looked weird.
+ * A grip in front of the belly bent the elbow to about 100°, but the paw floated 12 cm or more
+ * above the thigh. The level bow of 2026-10-16 ran forward past the knees, and a real violist
+ * rests as a violinist.
  *
  * In the lift and the lowering, the viola moves 0.2 H out and 0.3 H to the front in the middle of
  * the move (`liftReach`): with a direct mix, it went 5.6 cm into the deep belly on its way from the
@@ -641,12 +650,13 @@ const CAT_HOLD = {
   elbowPerString: 2 * MathUtils.DEG2RAD,
   highTilt: 20 * MathUtils.DEG2RAD,
   poleR: [1.1, -1, -1],
-  restPoleR: [1, -1, 2],
-  restPoleL: [-1, -1, 0.5],
+  restPoleR: [0.3, -1, 1],
+  restPoleL: [-0.6, -1, 0.3],
+  restPlace: 0.5,
   rest: { ...LAP_VIOLIN, lap: { along: 0.7, offset: [0, 0, 0] } },
   liftReach: [0.2, 0, -0.3],
   restBow: {
-    lap: { along: 0.57, offset: [0.87, -0.25, 0.125] },
+    lap: { along: 0.55, offset: [0.7, -0.15, 0.1] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
     via: { ...UPRIGHT_BOW.via, reach: [0.4, 0, -0.9] },
