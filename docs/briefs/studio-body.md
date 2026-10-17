@@ -186,6 +186,8 @@ a violin of 0.15 m.>
   Remove or cut each row that the branch replaces, in the commit of the change.
 - A new research report `docs/research/<date>-studio-<animal>.md`.
 - `AGENTS.md` ("Model work"), `lowpoly-studio/docs/handoff.md`, and `lowpoly-studio/README.md`.
+- Each place of section 8 of `docs/briefs/studio-body.md` for a new body, a new role, or a new
+  hold.
 
 ## Values to keep
 
@@ -344,3 +346,67 @@ Add these items to the briefs of the rig round and of the app round.
   and the layout changes the shot plans of the camera. Run `pnpm test src/shots/` early in a
   round that changes a body, before the fit of the holds. A shot test of the size round failed on
   the new layout, and its agent read the planner for 12 minutes to find the cause.
+
+## 8. Docs of a new body, role, or hold
+
+The docs name each studio body, each role, and each hold in many places. The cat round of
+2026-10-16 found them by hand, and its docs took about 40 minutes. Use this list in the section
+"Docs" of a brief. A new species with a studio body also adds its role and its hold, so its round
+reads all three lists. The places of the last species of the same route show the form of each
+item. This command lists them:
+
+```bash
+grep -rnE 'red fox|fox-red|fox-violinist|the cat|violist' AGENTS.md docs/design docs/briefs
+```
+
+A new species with a studio body:
+
+| File | Heading | The place lists |
+|---|---|---|
+| `docs/design/01-goals.md` | "1. Goals and budgets" | each reference sheet `docs/reference/<s>-views.png`, and the image that wins over it, such as a mesh of the user |
+| `docs/design/04-stage-cast-look.md` | "4.3 Species", first paragraph | the species with a body of their own, with the date of each body |
+| `docs/design/04-stage-cast-look.md` | "4.3 Species", the type `OwnBodyParams` | the union of the bodies (`body`) |
+| `docs/design/04-stage-cast-look.md` | "4.3 Species", the notes of the skeleton | the mesh species, and the seat heights that `models/species.ts` reads from their studio bodies |
+| `docs/design/04-stage-cast-look.md` | "4.3 Species", the text over the table of the shape parameters | the species with no row in the table |
+| `docs/design/04-stage-cast-look.md` | "4.4 Models", first paragraphs | the bodies that are not the parametric body, and the decisions of the user on each body |
+| `docs/design/04-stage-cast-look.md` | "4.4 Models", "Studio bodies" | each studio body with its decision file, the landmark of its scale in `ANIMALS`, its seat or chair, the bodies that also stand (`soloist`), the crease angle and the support of each body, and the rules of its rig config |
+| `docs/design/04-stage-cast-look.md` | "4.5 Visual values", "Species colors" | the accent of each species, as `models/species.ts` gives it |
+| `docs/design/04-stage-cast-look.md` | "4.5 Visual values", "Facets and triangle budgets" | the studio bodies of the sections and the triangles of the pea eyes |
+| `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "Sizes and holds" | the scale of the instrument and the reach of each species |
+| `docs/design/04-stage-cast-look.md` | "4.7 Rig" | the optional bones of a rig, such as `tail_tip` |
+| `docs/design/07-architecture.md` | "7.1 Modules" | the sheet pages of `views.html` (`VIEW_SHEETS`), only for a species with a sheet page |
+| `AGENTS.md` | "Design" | each studio body with its mesh or its studio animal, its decision files, and its role of `pnpm close-views` |
+| `AGENTS.md` | "Model work", "Route 3: a studio body" and "A mesh with no skeleton into route 3." | the bodies of route 3, and the meshes of the user |
+| `AGENTS.md` | "Model work", "These traps of route 3 each cost a round" | each trap that cost the round a step |
+| `AGENTS.md` | "Commands", the row of `pnpm studio-body` | the landmark of the scale of each animal in `ANIMALS` |
+| `docs/briefs/studio-body.md` | "7. A mesh with no skeleton" | the example meshes of the user |
+| `assets/models/<s>/README.md` | the whole file | the source, the license, and the checksum of a mesh of the user |
+| `lowpoly-studio/docs/handoff.md` and `lowpoly-studio/README.md` | the animals | only a body that the studio builds |
+
+A new role:
+
+| File | Heading | The place lists |
+|---|---|---|
+| `docs/design/05-animation.md` | "Pose index" | one row for each role, in the commit of the role |
+| `docs/design/07-architecture.md` | "7.1 Modules", the text of `pnpm close-views` | the views and the moments of each role (`ROLE_VIEWS`) |
+| `docs/design/09-process.md` | "9.3 Tests" | the sweep of each role (`SWEEP_ROLES`) and its clearance test, or the reason for no test |
+| `AGENTS.md` | "Design" | the commands `pnpm close-views <role> <dir>` |
+| `AGENTS.md` | "Commands", the rows of `pnpm pose-depth`, `pnpm close-views`, and `pnpm fold-probe` | the roles of each tool, with the species of each role |
+
+A new hold:
+
+| File | Heading | The place lists |
+|---|---|---|
+| `docs/design/05-animation.md` | "Pose index" | the support, the source, the play, the rest, the code, and the docs of the role |
+| `docs/design/05-animation.md` | "5.2 Rest pose" | the rest of the instrument and of the bow, such as the upright bow and its via |
+| `docs/design/05-animation.md` | "5.3 Instrument motion", the text of the family, such as "Bowed strings in detail" | the play hold of each species, the rest bow, and the bow of a soloist who stands (`standBow`) |
+| `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "Sizes and holds" | the reach of the nut, or of the grip of a wind instrument |
+| `AGENTS.md` | "Design" | the hold of each studio body |
+| `docs/decisions/<date>-<topic>.md` and `docs/design.md` | "10. Decisions to confirm" | the decision file, and its line at the end of the list |
+
+The code has its own lists, which the brief of section 2 names: `ANIMALS` of
+`tools/studio-body.ts`, `STUDIO_BODIES` of `src/models/studio-body.ts`, `SPECIES` of
+`src/models/species.ts`, `SWEEP_ROLES` of `src/pose/test-sweep-roles.ts`, `ROLE_VIEWS` of
+`tools/close-views.ts`, `FOLD_ROLES` of `tools/fold-probe.ts`, `SPECIES_HOLDS` of
+`src/pose/bowed-rig.ts`, and `SPECIES_WIND_HOLDS` of `src/pose/winds.ts` with `LEG_RESTS` of
+`tools/hold-fit.ts` for a wind hold.
