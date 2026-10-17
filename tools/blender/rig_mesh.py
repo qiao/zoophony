@@ -582,11 +582,26 @@ def free_arm(verts, tris, split, tip, sign):
     """Finds the vertices of the free arm of one side: the part of the mesh beyond the plane
     |x| = split that holds the vertex nearest to the finger tip. The haunch beside the body is
     beyond that plane too, and it is not a part of the arm."""
-    beyond = verts[:, 0] * sign > split
+    return connected_part(verts, tris, verts[:, 0] * sign > split, tip)
+
+
+def hanging_ear(verts, tris, rule, sign):
+    """Finds the vertices of the flap of a hanging ear of one side (`earFlap`): the part of the
+    mesh below the height `cut` and farther than `apart` from the middle plane that holds the
+    vertex nearest to `tip` (the left ear, mirrored for the right ear). Below the cut, the flap
+    hangs apart from the side of the head."""
+    inside = (verts[:, 1] < rule['cut']) & (verts[:, 0] * sign > rule['apart'])
+    tip = np.asarray(rule['tip'], float) * [sign, 1.0, 1.0]
+    return connected_part(verts, tris, inside, tip)
+
+
+def connected_part(verts, tris, inside, tip):
+    """Finds the part of the mesh inside a set of vertices that holds the vertex nearest to a
+    point: the vertices that edges with both corners inside join to that vertex."""
     neighbors = [[] for _ in range(len(verts))]
     for t in tris:
         for a, b in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
-            if beyond[a] and beyond[b]:
+            if inside[a] and inside[b]:
                 neighbors[a].append(b)
                 neighbors[b].append(a)
     start = int(np.argmin(np.linalg.norm(verts - tip, axis=1)))
@@ -875,6 +890,23 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
         mine = above & (verts[:, 0] * sign > 0.01) & (ear > 0)
         w[mine, col[f'ear_{side}']] = ear[mine]
         w[mine, col['head']] = 1.0 - ear[mine]
+
+    # A hanging ear: the flap of each ear hangs down beside the head and the neck, past the head
+    # line. Bone heat gives its lower part to the neck and the chest, and a turn of the head then
+    # tears the flap from the head. Each vertex of the flap follows the head and its ear bone:
+    # the share of the ear bone falls from 1 at the height hang[0] to 0 at hang[1], so that the
+    # flap bends at its root, and the measures of the head of `pnpm studio-body` leave it out.
+    if 'earFlap' in rules:
+        rule = rules['earFlap']
+        share = 1.0 - smoothstep(y, *rule['hang'])
+        for side, sign in (('L', 1.0), ('R', -1.0)):
+            flap = hanging_ear(verts, tris, rule, sign)
+            w[flap] = 0.0
+            w[flap, col[f'ear_{side}']] = share[flap]
+            w[flap, col['head']] = 1.0 - share[flap]
+            log(f'ear {side}: {int(flap.sum())} vertices of the hanging flap, the lowest at y '
+                f'{verts[flap, 1].min():.4f} u, {int((share[flap] > 0.5).sum())} with the most '
+                f'weight on the ear bone')
     return w
 
 
