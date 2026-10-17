@@ -111,6 +111,22 @@ about 1,150 triangles for the rabbit.
   it longer arms, as the user chose. The violin pose of the rabbit follows a real violinist
   (5.3).
 
+The reference image [`reference/cat-views.png`](../reference/cat-views.png) (1536 × 1024 px)
+shows the gray cat of the violas standing, from the front, the left side, the back, and three
+quarters. The user added it on 2026-10-16 for the cat model. It wins for the cat, except for the
+form of the mesh of the user of the same day (the last item below).
+
+- The head is large, with large pointed ears with pink insides, large green eyes, a small pink
+  nose, white whiskers, and a white muzzle and chin.
+- The fur is cool gray, with a cream belly and chest, and white paws.
+- The long tail curls up behind the body when the cat stands.
+- On 2026-10-16, the user gave the mesh `assets/models/cat/cat.glb` for the viola cats
+  (`docs/decisions/2026-10-16-mesh-cat.md`). The mesh of the user is the target of the form of
+  the cat, and it wins over this image where they differ. The app gives it the pea eyes of the
+  app, the size, the reach, and the leg factor of the red fox, and a gray fur that keeps its
+  look under the warm stage light (4.4). A seated cat curls its tail on the seat
+  (`docs/decisions/2026-10-16-cat-seat.md`).
+
 The reference image [`reference/dog-views.png`](../reference/dog-views.png) (1280 × 720 px)
 shows the dog of the cellos from the front, the side, and the back, on a chair, with a scale in
 meters. The user added it on 2026-10-07 for the dog model. It wins for the dog.

@@ -112,13 +112,13 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 ## 4.3 Species
 
 All animals except the penguins, the bear conductor, the polar bear pianist, the rabbit
-violinist, and the two foxes use one parametric biped body (4.4). Each species has one
+violinist, the two foxes, and the viola cats use one parametric biped body (4.4). Each species has one
 `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A species
 can have a body of its own in place of the biped (`body`): the penguins have the egg body of
 `models/penguin/` since 2026-10-11, the bear and the polar bear have studio bodies of
-`lowpoly-studio/` since 2026-10-12, the rabbit has a studio body since 2026-10-13, and the two
-foxes since 2026-10-14: meshes of the user, which `pnpm rig-mesh` rigs (4.4, bodies of their own
-and studio bodies). The two foxes share one rig, and the tan fox takes another palette of its
+`lowpoly-studio/` since 2026-10-12, the rabbit has a studio body since 2026-10-13, the two
+foxes since 2026-10-14, and the cat since 2026-10-16: meshes of the user, which `pnpm rig-mesh`
+rigs (4.4, bodies of their own and studio bodies). The two foxes share one rig, and the tan fox takes another palette of its
 faces (`palette`). A species with a body of its own has no shape parameters, because its body has
 its own parts.
 
@@ -215,12 +215,12 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
   `animals.webp` and `bear-views.png`. The egg body of the penguin (4.4) shows no legs and reads
   no standing value of the skeleton.
 - The bear conductor and the polar bear pianist have studio bodies of `lowpoly-studio/` (4.4),
-  with the trunks and the legs that the studio fitted to their sheets. The rabbit violinist and
-  the two foxes have the meshes of the user, which `pnpm rig-mesh <animal>` rigs into the format
+  with the trunks and the legs that the studio fitted to their sheets. The rabbit violinist, the
+  two foxes, and the viola cat have the meshes of the user, which `pnpm rig-mesh <animal>` rigs into the format
   of a studio body (4.4), with the trunks and the legs of the meshes. These skeletons have the
   bones of the studio, and no value of this table applies to them, except the head height `H` and
-  the seat heights of the polar bear, the rabbit, and the foxes, which `models/species.ts` reads
-  from their studio bodies.
+  the seat heights of the polar bear, the rabbit, the foxes, and the cat, which
+  `models/species.ts` reads from their studio bodies.
 - The legs have the form of the reference images (`SEATED_LEG` and `STANDING_LEG` of
   `models/legs.ts`). A seated thigh has the thickness of the thighs of the model sheets, and a
   shin narrows little to the ankle, as the shins of the sheets. A standing leg is a straight
@@ -627,7 +627,10 @@ quarter of the folded faces.
   follow (`docs/decisions/2026-10-14-animal-size.md`). Later that day, the user asked for longer
   legs and a higher seat. The leg factor of a rig raises the standing shoulder joints, and
   `ANIMALS` raises them by the same growth, so the scale stays, and the trunk, the head, and the
-  arms keep their meters (`docs/decisions/2026-10-14-fox-rabbit-form.md`). The module of
+  arms keep their meters (`docs/decisions/2026-10-14-fox-rabbit-form.md`). The viola cat has the
+  size of the red fox, as the user chose on 2026-10-16: `ANIMALS` gives its standing shoulder
+  joints at the height that puts its standing ear tips at the ear tips of the red fox, 1.758 m,
+  after the leg factor of the fox (`docs/decisions/2026-10-16-mesh-cat.md`). The module of
   each body (`src/models/studio/<animal>.ts`) holds its
   scale and its head height `H`, and the research reports
   (`docs/research/2026-10-12-studio-bear.md`, `docs/research/2026-10-12-studio-polar-bear.md`)
@@ -712,8 +715,8 @@ quarter of the folded faces.
   Each body has its own crease angle. The angle of a bear is the angle whose facet contrast is
   nearest to its reference images. The reference rabbits have more facet contrast than each render
   of the app rabbit, so the manager chose its angle from the play frames
-  (`docs/research/2026-10-14-rabbit-smooth.md`). The red fox takes the angle of the rabbit, because
-  both are meshes of image models of the user.
+  (`docs/research/2026-10-14-rabbit-smooth.md`). The red fox and the cat take the angle of the
+  rabbit, because the three are meshes of image models of the user.
 - `buildStudioBody()` gives the mesh of the player in the bind pose of the player, with the two
   bones of the player with the largest weights for each corner. The footprints, the hanging
   arms, the budgets, and the tests read it. In the tests, `posedCorner()` poses a studio body
@@ -721,7 +724,9 @@ quarter of the folded faces.
 - A studio body keeps the stance of its role on each support. The bear conductor stands, and the
   cast gives it only the stand of the conductor. The polar bear pianist sits, and the cast gives it
   only the piano bench. The rabbit violinist and the red violin fox sit on their chairs in the
-  violin sections, and stand as soloists (`supportOf()` of `models/player.ts`).
+  violin sections, the viola cat sits on its chair in the viola section, and the three stand as
+  soloists (`supportOf()` of `models/player.ts`). Their entries in `ANIMALS` mark them as seated
+  roles that also stand (`soloist`).
 - `models/studio-rig.test.ts`, `models/studio-body.test.ts`, `tools/studio-body.test.ts`, the
   test of the conductor clearance (5.4), and the tests of the pianist clearance and of the
   violinist clearance (5.3) check the behavior: the elbow on the joints of the player, the twist
@@ -915,7 +920,7 @@ fox in `animals.webp`.
 
 | Species | Accent parts | Species | Accent parts |
 |---|---|---|---|
-| rabbit | inner-ears, nose | cat | face-pattern |
+| rabbit | inner-ears, nose | cat | inner-ears, nose |
 | fox, violins | feet | hippo | nose, inner-ears |
 | fox, flutes | ears, feet | deer | nose, feet |
 | wolf | inner-ears | panda | face-pattern, ears, arms, hands, legs, feet |
@@ -1292,11 +1297,12 @@ through the open back. A floor instrument, such as the cello, moves with the bod
   (design 1, `lowpoly-animals.png` and `animals.webp`).
 - A body has at most 2,600 triangles. A studio body keeps the faces of its GLB file, so its GLB
   file has a budget of its own of 3,200 faces. The rabbit and the red fox play in the violin
-  sections, so many studio bodies share the scene, and the budget of the full scene holds the
+  sections, and the cat in the viola section, so many studio bodies share the scene, and the budget of the full scene holds the
   frame. The fox mesh of the user needs 3,135 triangles with its eye fans, so the manager raised
   the budget from 3,100 on 2026-10-14. The pea eyes add their 144 triangles to a studio body, as
   the eyes of a parametric body count in its budget, so the app body of the rabbit and of the fox
-  has more than 3,200 triangles (`docs/decisions/2026-10-15-pea-eyes.md`). An instrument has
+  has more than 3,200 triangles (`docs/decisions/2026-10-15-pea-eyes.md`). The cat mesh has
+  3,157 triangles with the rings of its arms and its eye fans. An instrument has
   at most 800, except the timpani (1,200)
   and the piano (2,000). A chair or the piano bench has at most 120, and a stand at most 80. The
   full scene with 60 players has at most 200,000 triangles. The frame cost of `perf-60.mid` on
@@ -1711,7 +1717,7 @@ bones:
   `shin`, and the foot on `foot`. No pose turns the legs.
 - A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
   studio, two eye bones for the pea eyes, and the optional tip of a tail of two bones (`tail_tip`,
-  the red fox).
+  the red fox, the tan fox, and the cat).
   Each vertex follows up to four of them, and two corrective shapes move the skin of the arms. A
   third shape moves the skin of a raised arm of a mesh rig. The scene gives the mesh one bone for each studio bone and one for
   each bone of the player, and `poseStudioBones()` writes their matrices from the pose of the
