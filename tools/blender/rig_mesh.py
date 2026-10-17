@@ -370,6 +370,26 @@ def palette(colors, size, rounds=40):
     return srgb_of_oklab(centers)[label], float(error.max()), float(error.mean())
 
 
+def tone(colors, main_bone, rule):
+    """Moves the faces of the plain fur in Oklab (`colors.tone` of the config), so that a fur
+    that the warm stage light colors keeps the look of its sheet. A face takes the move when its
+    Oklab chroma is at most `chroma`, its lightness is below `light` (the move fades to 0 over
+    the range), and its main bone is not one of `keep`: the pink nose and inner ears have more
+    chroma, and the white paws and whiskers keep their colors. The move (lightness, a, b) is the
+    linear blend of the rows of `points` by the lightness of the face, as [L, dL, da, db], and
+    the move of the first or the last row outside them. Gives the new colors and the count of
+    the moved faces."""
+    lab = oklab(colors)
+    points = np.asarray(rule['points'], float)
+    keep = [BONES.index(b) for b in BONES if b.rsplit('_', 1)[0] in rule['keep']]
+    chroma = np.hypot(lab[:, 1], lab[:, 2])
+    share = ((chroma <= rule['chroma']) & ~np.isin(main_bone, keep)) * (
+        1.0 - smoothstep(lab[:, 0], *rule['light']))
+    for k in range(3):
+        lab[:, k] += share * np.interp(lab[:, 0], points[:, 0], points[:, k + 1])
+    return srgb_of_oklab(lab), int((share > 0).sum())
+
+
 def locality_order(tris):
     """Gives an order of the faces in which each face follows a neighbor where it can: a walk
     from face to face over the shared edges, which goes back to the oldest face with a free
@@ -2523,6 +2543,12 @@ def main():
                              for f in patch)
             log(f'eye {side}: the patch of {len(patch)} dark face(s) near the old eye at {mids} u '
                 f'takes the color of {share:.0%} of the area of the faces around it')
+    if 'tone' in config['colors']:
+        main_all = weights[tris].sum(axis=1).argmax(axis=1)
+        main_all = np.concatenate([main_all, np.full(len(tris_all) - len(tris),
+                                                      BONES.index('head'))])
+        colors_all, count = tone(colors_all, main_all, config['colors']['tone'])
+        log(f'tone: {count} faces of the plain fur move in Oklab')
     order = locality_order(tris_all)
     tris_all, colors_all, materials = tris_all[order], colors_all[order], materials[order]
     if thin_rule:
