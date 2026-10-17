@@ -151,7 +151,7 @@ interface BipedParams extends CommonParams {
 
 /** A body of its own in place of the parametric biped (4.4): the penguin, or a studio body. */
 interface OwnBodyParams extends CommonParams {
-  body: 'penguin' | 'studio-bear' | 'studio-fox' | 'studio-polar-bear' | 'studio-rabbit';
+  body: 'penguin' | 'studio-bear' | 'studio-cat' | 'studio-fox' | 'studio-polar-bear' | 'studio-rabbit';
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -334,8 +334,8 @@ border follows the edges of the triangles.
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
-Each body except the penguin's, the bear's, the polar bear's, the rabbit's, and the foxes' is
-the parametric body: `buildBiped()` of
+Each body except the penguin's, the bear's, the polar bear's, the rabbit's, the foxes', and the
+cat's is the parametric body: `buildBiped()` of
 `models/biped.ts` builds it from the parts of 4.5 (body proportions) on the skeleton of 4.3. A
 species with a `body` gets a body of its own from `buildBiped()` in its place. On 2026-10-12, the
 user decided: "use the studio bear in the app". The bear conductor has the studio body of
@@ -363,6 +363,10 @@ the size, and the arms grew with the body (`docs/decisions/2026-10-14-animal-siz
 user asked for full violins for the rabbit and the red fox, and their arms grew for the violins
 (`docs/decisions/2026-10-14-neck-violin.md`). Later, the user asked for shorter arms with the same
 violins, and the arms reach about halfway between the two (`docs/decisions/2026-10-14-arms-rest.md`).
+On 2026-10-16, the user gave the sheet `cat-views.png` and a cat mesh: "this is the model for cat".
+The viola cat has that mesh since then (`assets/models/cat/cat.glb`), rigged as the fox mesh, with
+the pea eyes of the app. The user chose the size of the red fox, the reach of the red fox, and the
+leg factor of the fox (`docs/decisions/2026-10-16-mesh-cat.md`).
 The user chose these bodies again on 2026-10-09, in
 place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
@@ -462,7 +466,8 @@ bear since 2026-10-12, and the polar bear pianist the studio polar bear since th
 user since 2026-10-13 (`docs/decisions/2026-10-13-mesh-rabbit.md`), after the studio rabbit of the
 same day (`docs/decisions/2026-10-13-studio-rabbit.md`). The red violin fox has the rigged fox mesh
 of the user since 2026-10-14 (`docs/decisions/2026-10-14-mesh-fox.md`), and the tan flute fox the
-same rig with a tan palette (`docs/decisions/2026-10-14-fox-flute.md`). The app keeps its own
+same rig with a tan palette (`docs/decisions/2026-10-14-fox-flute.md`). The viola cat has the
+rigged cat mesh of the user since 2026-10-16 (`docs/decisions/2026-10-16-mesh-cat.md`). The app keeps its own
 conductor motion (5.4), its own pianist motion, and its own violin motion (5.3), so it drives the
 bones of the studio from the pose of the player each frame: the retarget.
 `docs/research/2026-10-12-studio-bear.md` compares this route with the route of the rigged bodies of
@@ -532,7 +537,10 @@ quarter of the folded faces.
   (`head_shift()`), and the export keeps the head center of the head before the smoothing
   (`headShiftOf()` of `tools/studio-body.ts`), so that the holds, the instruments, and the
   footprints keep their places. The fox config smooths the back of the neck and the bottom of the
-  back of the head. The head factor grows the head and the ears
+  back of the head. The big head of the cat hangs over its thin neck, and the underside of the
+  head faced down into its shadow: a black band under the head and a dark line under the chin.
+  The cat config smooths the neck and the bottom of the head all around the neck, behind the
+  chin, so that the head height and the head center keep their places. The head factor grows the head and the ears
   around the neck joint, and the weights blend the growth over the neck. The export measures the
   head height and the head center of the holds on the head before the growth, so the holds in `H`
   keep their places (`ungrown()` of `tools/studio-body.ts`). The neck factor shortens the neck
@@ -580,7 +588,11 @@ quarter of the folded faces.
   faces. The shoulders give their head weight to the neck. A config can also fade the clavicle
   weight out below the clavicles and the arm weight out up the neck, and let the line rule take
   the corners of the head, as the fox config does: these rules remove folds of the right
-  shoulder and of the jaw in the play of the violin.
+  shoulder and of the jaw in the play of the violin. A config can also fade the upper arm weight
+  over the top of the shoulder from the root of the arm to the neck, with the rest on the
+  clavicle (`shoulderRamp`). The cat config does so: bone heat gave the upper arm almost all the
+  weight of the top of its narrow shoulders next to the thin neck, and faces from there to the
+  neck turned over with each lowered arm.
 - A config with the joint `tail_tip` gives the mesh a tail of two bones: the root and the tip,
   each with smooth weights along the line of the tail. The studio format has `tail_tip` as an
   optional bone after the eye bones (`OPTIONAL_STUDIO_BONES` of `models/studio-format.ts`), so
@@ -627,7 +639,8 @@ quarter of the folded faces.
   polar bear, since the user said on 2026-10-14 that its seat was too low) then rises until its
   seat is at that height. The polar bear has shins long enough for its seat, so its soles touch
   the floor. The rabbits and the red foxes have no seat height: the user asked on 2026-10-16 for
-  chairs low enough that their feet touch the floor, so their chairs fit their legs. They sit in
+  chairs low enough that their feet touch the floor, so their chairs fit their legs. The cats of
+  the mesh of 2026-10-16 have no seat height either. They sit in
   the posture of 5.2: the trunk is upright, the thighs slope down from the hips to the knees, the
   shins slant forward of vertical, so that the feet stand in front of the knees, and the soles
   stand flat on the floor (`studio.legTurns` of `tools/mesh-rigs/<animal>.json`). Their seats are
@@ -1572,7 +1585,9 @@ scroll lies in the middle of the palm (`docs/research/2026-10-13-studio-rabbit.m
 `docs/research/2026-10-13-rabbit-mesh.md`). The rabbit and the red fox play almost the violin of
 the app, the size that the user chose: the user made their arms longer for a full violin, and
 then shorter with the same violin. Their arms are shorter than the rule needs, so their holds put
-the violin nearer to the left shoulder, and the left paw still reaches the nut (5.3). The paused
+the violin nearer to the left shoulder, and the left paw still reaches the nut (5.3). The cat has
+the reach of the red fox and plays the viola of the app, and its hold puts the viola nearer to the
+neck for the nut in the same way (`docs/decisions/2026-10-16-mesh-cat.md`). The paused
 check of the rule in `pose/bowed.test.ts` fails for these two species. The chairs, the stands, the
 podium, and the steps keep their sizes in meters. The bodies of the bowed strings are plates
 with round edges and an arched top (`plate()` of `models/primitives.ts`), with two f-holes beside

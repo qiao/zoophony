@@ -142,7 +142,9 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   one for its own sweep (`pose/violinist-standing-clearance.test.ts`). The test of the flutist
   clearance reads the patched demos with a flute seat (`pose/flutist-clearance-<k>.test.ts`,
   `pose/test-flutist-clearance.ts`). It sweeps the first seated tan fox of each demo and each
-  standing tan fox soloist, such as the soloist of K. 315.
+  standing tan fox soloist, such as the soloist of K. 315. The sweep of the violist has no test
+  file, because it came while all tests are paused: `pnpm pose-depth violist` sweeps the first
+  seated cat of each demo with a viola seat and each standing cat soloist (`VIOLIST_SWEEP`).
 - The clearance tests of the roles share one sweep (`pose/test-sweep.ts`,
   `pose/test-role-clearance.ts`). They are paused tests (above), and the sweep stays for
   `pnpm pose-depth`. `pose/test-sweep-roles.ts` gives each role its moving parts,

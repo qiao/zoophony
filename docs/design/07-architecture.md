@@ -90,7 +90,8 @@ player.
   conductor keeps its fixed line. The pianist plays test notes of its own, which the tool writes
   into the notes field of the page. The rabbit violinist shows from the front, both sides, and
   the back (5.3), around its body. Its moments are the frog and the tip of a whole bow, a string
-  crossing, the rest pose, and the standing soloist at the frog. With `--base <ref>`, the tool
+  crossing, the rest pose, and the standing soloist at the frog. The cat violist has the views and
+  the moments of the violinist, with its own test notes. With `--base <ref>`, the tool
   puts the grid of a commit above the grid of the working tree, so a round shows the change of
   a body with no worktree of `main`. The mode `species` of the tool shows named species alone
   on their seats, around their bodies, at named views. The low side view shows the knees, the
