@@ -428,6 +428,9 @@ const SHOULDER_HOLD = {
  * further back, the bow paw went 3.7 cm into the body at the frog, with 0.1 m and the elbow
  * (1.4, -0.7, -1) 3.0 cm, and with this hold 2.4 cm, with the same share of folded play samples
  * (2026-10-14-fox-rabbit-fix decisions). The bow paw reaches 0.265 m of the hair, more than half.
+ * In pizzicato, the bow tip points up, back, and a little out, (0.3, 0.5, 1): with the tip of the
+ * chin hold, (0.3, 1, 0.4), the bent wrist of the plucking paw moved the middle of the paw 2.1 cm
+ * from the stick, and with this tip 1.2 cm (2026-10-17-grip-all decisions).
  *
  * The rest pose is the upright rest of the rabbit (2026-10-16-bow-rest decisions): the violin
  * stands on the left thigh at 0.8 of the way to the knee, 0.18 H down and 0.2 H forward. With the
@@ -449,6 +452,7 @@ const FOX_HOLD = {
   reach: 15 * MathUtils.DEG2RAD,
   poleTipR: [1, -0.85, -1],
   freeHair: 0.12,
+  pizzicatoTip: [0.3, 0.5, 1],
   restPoleL: [-0.3, -1, 0.3],
   restPoleR: [0.3, -1, 0.3],
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
