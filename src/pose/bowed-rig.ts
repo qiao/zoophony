@@ -388,6 +388,9 @@ const SHOULDER_HOLD = {
  * Straight back by 0.06 H, the violin went 1.3 cm into the neck, and with the place of the arms
  * round 1.1 cm (`violin-probe.txt` of the research folder of the decisions). It sits 0.01 H
  * higher, and goes 1.0 cm into the trunk and the neck (2026-10-14-fox-rabbit-fix decisions). The
+ * shorter neck of 2026-10-17 moves the head and the violin 1.7 cm down, and the violin went 2.4 cm
+ * into the body in the play (1.7 cm before), so it sits 0.01 H higher again (2026-10-17-fox-form
+ * decisions). The
  * left elbow keeps the pole of the chin hold. A turn of the scroll further
  * to the left also reached the nut, but folded the skin of the right shoulder in 25% to 64% of the
  * play samples (2026-10-14-arms-rest decisions). The bow slants 12° and the right shoulder turns
@@ -415,7 +418,7 @@ const FOX_HOLD = {
   ...SHOULDER_HOLD,
   poleL: CHIN_HOLD.poleL,
   poleR: [1.8, -0.7, -1],
-  playShift: [-0.07, 0.04, 0.25],
+  playShift: [-0.07, 0.05, 0.25],
   slant: -12 * MathUtils.DEG2RAD,
   reach: 15 * MathUtils.DEG2RAD,
   poleTipR: [1, -0.85, -1],
