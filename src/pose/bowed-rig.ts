@@ -433,9 +433,15 @@ export const BOWED_HOLDS = {
 
 /**
  * The hold of the viola under the chin, for the cat mesh (design 4.6, 5.3): the viola hold of
- * {@link BOWED_HOLDS}.
+ * {@link BOWED_HOLDS}. A cat soloist who stands rests as a real violist who stands: the bow
+ * hangs from the right paw with the tip down, a little forward and out. With the bow of the bind
+ * pose of the hand, the long forearm held the bow up in front of the face (2026-10-16-mesh-cat
+ * decisions).
  */
-const CAT_HOLD = { ...BOWED_HOLDS.viola } as const satisfies BowedHold;
+const CAT_HOLD = {
+  ...BOWED_HOLDS.viola,
+  standBow: { tip: [0.15, -1, -0.3], hair: [0, 0, 1] },
+} as const satisfies BowedHold;
 
 /**
  * The holds of the species that hold a bowed string in their own way, in place of
