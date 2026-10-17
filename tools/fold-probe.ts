@@ -5,14 +5,14 @@
  * face is folded when its posed normal is more than 90° from that normal. For each sample set,
  * the tool prints the samples, the samples with a fold, their share, and the most folded faces.
  * Then it prints the main bone of the folded faces. With `--faces <n>`, it also prints the `n`
- * faces that fold in the most samples, with their places and their corner angles. A table of their
- * corners in the worst fold of each face follows: the places in the bind pose and in the posed
- * skin, the moves of the corrective shapes, and the weights. With `--json <file>`, it also writes
- * the counts of each sample set into the file for `pnpm rig-mesh --check`. With `--turns <face>`,
- * it also prints the mean turn of the upper arm of the side of the face in the axes of the chest
- * in the samples in which the face folds, and the share of the samples with a fold by the angle
- * from that turn. The method comes from
- * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
+ * faces that fold in the most samples, with their places, their corner angles, and the mark `ALL`
+ * of a face that folds in each sample. A table of their corners in the worst fold of each face
+ * follows: the places in the bind pose and in the posed skin, the moves of the corrective shapes,
+ * and the weights. With `--json <file>`, it also writes the counts of each sample set into the
+ * file for `pnpm rig-mesh --check`. With `--turns <face>`, it also prints the mean turn of the
+ * upper arm of the side of the face in the axes of the chest in the samples in which the face
+ * folds, and the share of the samples with a fold by the angle from that turn. The method comes
+ * from `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
  * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>]
  * [--json <file>] [--glb <file>]
@@ -912,6 +912,22 @@ export function worstText(worst: FaceWorst | null): string {
 }
 
 /**
+ * Tells if a face folds in each sample of each sample set that has samples: the mark `ALL` of the
+ * table of the faces ({@link faceLines}).
+ *
+ * @param report The report.
+ * @param face The index of the face.
+ * @returns True when each set with samples has the face folded in all its samples. A report with
+ *   no samples gives false.
+ */
+export function foldsInAll(report: FoldReport, face: number): boolean {
+  const counts = SAMPLE_SETS.map((set) => report.sets[set]).filter((count) => count.samples > 0);
+  return (
+    counts.length > 0 && counts.every((count) => (count.byFace.get(face) ?? 0) === count.samples)
+  );
+}
+
+/**
  * Writes the corners of each face in its worst fold ({@link worstFold}) as a table, one row for
  * each corner: the vertex, its place in the bind pose and in the posed skin, the move of each
  * corrective shape at its full weight with the weight of the shape in the sample, the move of all
@@ -958,9 +974,10 @@ export function cornerLines(report: FoldReport, faces: readonly number[]): strin
 
 /**
  * Writes the faces that fold in the most samples of all sample sets as a table: for each face,
- * its index, the share of the samples of each set in which it folds, its main bone, its middle,
- * its corner angles ({@link faceFacts}), and its worst fold with the bone whose turn changes its
- * normal most ({@link worstFold}). The table of the corners of each face in its worst sample
+ * its index, the share of the samples of each set in which it folds, the mark `ALL` when it folds
+ * in each sample ({@link foldsInAll}), its main bone, its middle, its corner angles
+ * ({@link faceFacts}), and its worst fold with the bone whose turn changes its normal most
+ * ({@link worstFold}). The table of the corners of each face in its worst sample
  * ({@link cornerLines}) follows it.
  *
  * @param report The report.
@@ -989,15 +1006,16 @@ export function faceLines(report: FoldReport, count: number): string[] {
   const mesh = report.mesh;
   const corners = cornerLines(report, top);
   return [
-    `The ${top.length} faces that fold in the most samples, with the places of the bind pose.`,
+    `The ${top.length} faces that fold in the most samples, with the places of the bind pose. The mark ALL shows a face that folds in each sample of each set with samples.`,
     '',
-    `| Face | ${SAMPLE_SETS.map((set) => `${set[0]?.toUpperCase()}${set.slice(1)}`).join(' | ')} | Main bone | Middle (m) | Corner angles | Worst sample, angle, bone of the fold |`,
-    `|---:|${SAMPLE_SETS.map(() => '---:|').join('')}---|---|---|---|`,
+    `| Face | ${SAMPLE_SETS.map((set) => `${set[0]?.toUpperCase()}${set.slice(1)}`).join(' | ')} | Mark | Main bone | Middle (m) | Corner angles | Worst sample, angle, bone of the fold |`,
+    `|---:|${SAMPLE_SETS.map(() => '---:|').join('')}---|---|---|---|---|`,
     ...top.map((face) => {
       const facts = faceFacts(mesh, face);
       const middle = facts.middle.map((x) => x.toFixed(3)).join(', ');
       const angles = facts.angles.map((a) => `${a.toFixed(1)}°`).join(', ');
-      return `| ${face} | ${SAMPLE_SETS.map((set) => share(set, face)).join(' | ')} | ${facts.bone} | ${middle} | ${angles} | ${worstText(worstFold(report, face))} |`;
+      const mark = foldsInAll(report, face) ? 'ALL' : '';
+      return `| ${face} | ${SAMPLE_SETS.map((set) => share(set, face)).join(' | ')} | ${mark} | ${facts.bone} | ${middle} | ${angles} | ${worstText(worstFold(report, face))} |`;
     }),
     ...(corners.length > 0 ? ['', ...corners] : []),
   ];
