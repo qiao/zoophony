@@ -891,7 +891,13 @@ export function poseStudioBones(
     const weight = current.sub(upperBind).dot(span) / span.lengthSq();
     out.correctives[arm.side === 'L' ? 0 : 1] = Math.min(1, Math.max(0, weight));
     if (raise?.side === arm.side) {
-      relative.copy(chestInverse).multiply(upperTurn);
+      // The shape of a bent wrist reads the turn of the paw from the forearm, and the shape of a
+      // raised arm the turn of the upper arm in the axes of the chest.
+      if (raise.bone === 'hand') {
+        relative.copy(foreTurn).invert().multiply(handTurn);
+      } else {
+        relative.copy(chestInverse).multiply(upperTurn);
+      }
       out.correctives[RAISED] = raiseWeight(raise, [
         relative.x,
         relative.y,

@@ -115,6 +115,10 @@ PARENTS = {
 #: The arm bones of each side, from the shoulder out. The clavicle does not move.
 ARM = ('upper_arm', 'forearm', 'forearm_twist', 'hand', 'fingers')
 
+#: The share of the twist from the forearm to the paw that the forearm twist bone takes, as
+#: `TWIST_SHARE` of `src/models/studio-rig.ts`.
+TWIST_SHARE = 0.5
+
 #: The leg bones of each side, from the hips down.
 LEG = ('thigh', 'shin', 'foot', 'toes')
 
@@ -2307,23 +2311,45 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet):
     lets a corner of the trunk under the armpit move, when a long face from it to the arm turns
     over. The move of each relaxed vertex goes back to the bind pose through the inverse of its
     skin. Gives the shape, the weight of the arm-down shape, the faces that turn over before and
-    after, the rounds, and the moved vertices."""
+    after, the rounds, and the moved vertices.
+
+    A rule with `bone` "hand" is the shape of a bent wrist: the paw and the fingers of the side
+    take the turn `turns.hand` from the seated bind pose, the forearm twist bone takes
+    `TWIST_SHARE` of its twist around the forearm, as `poseStudioBones()` turns them, and the arm
+    keeps the bind pose. The arm-down shape has no weight, and the relaxed vertices are the
+    vertices of the paw, the fingers, and the forearm twist bone of the side."""
     side = rule['side']
     turns = {name: np.eye(3) for name in BONES}
-    upper = quat_matrix(rule['turns']['upper_arm'])
-    turns[f'clavicle_{side}'] = quat_matrix(rule['turns']['clavicle'])
-    for bone in ARM:
-        turns[f'{bone}_{side}'] = upper
+    wrist = rule.get('bone') == 'hand'
+    if wrist:
+        hand = quat_matrix(rule['turns']['hand'])
+        axis = unit(heads[f'hand_{side}'] - heads[f'forearm_{side}'])
+        x, y, z, w = unit(rule['turns']['hand'])
+        twist = 2 * np.arctan2(np.array([x, y, z]) @ axis, w)
+        twist = (twist + np.pi) % (2 * np.pi) - np.pi
+        half = TWIST_SHARE * twist / 2
+        turns[f'forearm_twist_{side}'] = quat_matrix([*(np.sin(half) * axis), np.cos(half)])
+        turns[f'hand_{side}'] = hand
+        turns[f'fingers_{side}'] = hand
+        upper = np.eye(3)
+    else:
+        upper = quat_matrix(rule['turns']['upper_arm'])
+        turns[f'clavicle_{side}'] = quat_matrix(rule['turns']['clavicle'])
+        for bone in ARM:
+            turns[f'{bone}_{side}'] = upper
     posed_at = posed_heads(heads, turns)
     matrices = [move(turns[n], heads[n], posed_at[n]) for n in BONES]
 
     rest = unit(heads[f'forearm_{side}'] - heads[f'upper_arm_{side}'])
     span = unit(sheet) - rest
-    down_weight = float(np.clip((upper @ rest - rest) @ span / (span @ span), 0.0, 1.0))
+    down_weight = (0.0 if wrist else
+                   float(np.clip((upper @ rest - rest) @ span / (span @ span), 0.0, 1.0)))
     base = bind + down_weight * down
     posed = skin(weights, matrices, base)
-    region = ((weights[:, BONES.index(f'upper_arm_{side}')] > 0)
-              | (weights[:, BONES.index(f'clavicle_{side}')] > 0))
+    moving = ('hand', 'fingers', 'forearm_twist') if wrist else ('upper_arm', 'clavicle')
+    region = np.zeros(len(bind), dtype=bool)
+    for bone in moving:
+        region |= weights[:, BONES.index(f'{bone}_{side}')] > 0
     for _ in range(rule.get('grow', 0)):
         region[tris[region[tris].any(axis=1)].ravel()] = True
     before = int((turn_dots(bind, posed, tris, weights, matrices) < 0).sum())
@@ -2849,9 +2875,12 @@ def main():
         shape, down_weight, before, after, rounds, count = raise_shape(
             rule, bind_all, tris_all, weights_all, bind_heads, shapes[f'arm_down_{side}'], sheet)
         shapes[f'arm_raise_{side}'] = shape
+        key = 'hand' if rule.get('bone') == 'hand' else 'upper_arm'
         raised = {'side': side, 'turn': [round(float(x), 6) + 0.0
-                                         for x in unit(rule['turns']['upper_arm'])],
+                                         for x in unit(rule['turns'][key])],
                   'fade': [float(x) for x in rule['fade']]}
+        if key == 'hand':
+            raised['bone'] = 'hand'
         log(f'raise {side}: the arm-down shape has the weight {down_weight:.3f} in the pose, '
             f'{before} faces turn over before and {after} after {rounds} rounds of relaxing, '
             f'{count} vertices move')

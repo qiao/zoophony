@@ -422,10 +422,12 @@ interface Gltf {
        * The pose of the corrective shape of a raised arm (`raise` of the config of the mesh rig):
        * the side, the world turn of the upper arm from the bind pose as x, y, z, w in the axes of
        * the studio, and the angles of the turn from that turn, in degrees, at which the weight of
-       * the shape starts to fall and reaches 0. The file has none with no such shape.
+       * the shape starts to fall and reaches 0. With the bone `hand`, the turn is the turn of the
+       * paw from the forearm. The file has none with no such shape.
        */
       readonly raise?: {
         readonly side?: string;
+        readonly bone?: string;
         readonly turn?: readonly number[];
         readonly fade?: readonly number[];
       };
@@ -494,18 +496,21 @@ export function headShiftOf(glb: Glb): Vector3 {
  *
  * @param glb The file.
  * @returns The pose, or `null` when the file has no such shape.
- * @throws Error if the side is not `L` or `R`, if the turn is not four finite numbers of length
- *   1, if the angles are not two numbers with 0 <= first < second, or if the file has no morph
- *   target of the shape.
+ * @throws Error if the side is not `L` or `R`, if the bone is given and is not `hand`, if the
+ *   turn is not four finite numbers of length 1, if the angles are not two numbers with
+ *   0 <= first < second, or if the file has no morph target of the shape.
  */
 export function raiseOf(glb: Glb): StudioRaise | null {
   const raise = glb.json.asset?.extras?.raise;
   if (!raise) {
     return null;
   }
-  const { side, turn = [], fade = [] } = raise;
+  const { side, bone, turn = [], fade = [] } = raise;
   if (side !== 'L' && side !== 'R') {
     throw new Error(`The side ${String(side)} of the raised arm is not L or R.`);
+  }
+  if (bone !== undefined && bone !== 'hand') {
+    throw new Error(`The bone ${bone} of the raised arm is not hand.`);
   }
   const [x = 0, y = 0, z = 0, w = 0] = turn;
   if (
@@ -523,11 +528,15 @@ export function raiseOf(glb: Glb): StudioRaise | null {
     throw new Error(`The file has no morph target ${RAISE_NAMES[side]}.`);
   }
   // The turn of a half circle around y moves a rotation into the model axes: x and z change sign.
-  return {
+  const pose: StudioRaise = {
     side,
     turn: [round(-x), round(y), round(-z), round(w)],
     fade: [round(full * MathUtils.DEG2RAD), round(none * MathUtils.DEG2RAD)],
   };
+  if (bone === 'hand') {
+    return { side, bone, turn: pose.turn, fade: pose.fade };
+  }
+  return pose;
 }
 
 /**
