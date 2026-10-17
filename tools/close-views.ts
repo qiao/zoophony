@@ -11,6 +11,7 @@ import type { DemoId } from '../src/app/demos.ts';
 import { BAR_HIDE_SEC } from '../src/app/bar-rules.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { GALLERY_FOV_DEG, speciesItems } from '../src/gallery/items.ts';
+import type { GalleryMove } from '../src/gallery/items.ts';
 import { SPECIES } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { chromiumArgs } from './chromium-args.ts';
@@ -32,7 +33,7 @@ export interface CloseViewAngle {
 
 /**
  * One moment of a close view: a time of the gallery time slider in the test notes of the role,
- * or the rest pose of design 5.2.
+ * the rest pose of design 5.2, or a point of the lift or of the lowering between them.
  */
 export interface CloseMoment {
   /** The name of the moment in the file names and the labels. */
@@ -43,6 +44,11 @@ export interface CloseMoment {
   readonly rest: boolean;
   /** True for a player who stands as a soloist (the gallery query `stand`, design 4.5). */
   readonly stand?: boolean;
+  /**
+   * A point of the lift or of the lowering of the instruments at the time of the slider (the
+   * gallery query `lift` or `lower`, design 7.1), or none for the playing pose or the rest pose.
+   */
+  readonly move?: GalleryMove;
 }
 
 /**
@@ -302,6 +308,9 @@ export function closeViewPath(role: RoleViews, view: CloseViewAngle, moment: Clo
   }
   if (moment.stand) {
     query.set('stand', '');
+  }
+  if (moment.move) {
+    query.set(moment.move.kind, String(moment.move.share));
   }
   return `/gallery.html?${query.toString()}`;
 }
@@ -987,6 +996,36 @@ export const SPECIES_MOMENTS: readonly CloseMoment[] = [
   { name: 'rest', time: 0, rest: true },
 ];
 
+/** The names of the moves of the mode `species` with a share in percent, such as `lift50`. */
+const MOVE_MOMENT = /^(lift|lower)(0|[1-9]\d?|100)$/;
+
+/**
+ * Reads a moment of the mode `species`: a name of {@link SPECIES_MOMENTS}, or a point of a move
+ * of the instruments at the time 0 of the default test notes (design 5.2). `lift<p>` is the lift
+ * from the rest pose to the playing pose at the whole percent `p` of its time, from 0 to 100, and
+ * `lower<p>` is the lowering back. Thus `lift0` and `lower100` show the rest pose, and `lift100`
+ * and `lower0` the playing pose.
+ *
+ * @param name The name of the moment, such as `play` or `lift33`.
+ * @returns The moment.
+ * @throws Error that lists the correct names, for a name that is not a moment.
+ */
+export function speciesMoment(name: string): CloseMoment {
+  const named = SPECIES_MOMENTS.find((moment) => moment.name === name);
+  if (named) {
+    return named;
+  }
+  const match = MOVE_MOMENT.exec(name);
+  if (match?.[1] === 'lift' || match?.[1] === 'lower') {
+    const share = Number(match[2]) / 100;
+    return { name, time: 0, rest: false, move: { kind: match[1], share } };
+  }
+  const names = SPECIES_MOMENTS.map((moment) => moment.name).join(', ');
+  throw new Error(
+    `The moment "${name}" is not known. The correct names are: ${names}, lift<p>, and lower<p>, with a whole percent p from 0 to 100, such as lift50.`,
+  );
+}
+
 /**
  * The camera of the mode `species` with no `--zoom`: around the body of the animal, which shows
  * whole. Each view gives its own elevation.
@@ -1076,7 +1115,7 @@ export function gallerySpecies(): SpeciesId[] {
 
 /**
  * Reads the command line of the mode `species`:
- * `species <species,...> <dir> [--views <view,...>] [--moment <play|rest>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`.
+ * `species <species,...> <dir> [--views <view,...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`.
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when the first argument is not `species`.
@@ -1106,7 +1145,7 @@ export function speciesArgs(args: readonly string[]): SpeciesArgs | null {
   const species = names.split(',').map((name) => namedItem(name, known, 'species').name);
   const viewNames = line.options.get('--views')?.[0]?.split(',') ?? DEFAULT_SPECIES_VIEWS;
   const views = viewNames.map((name) => namedItem(name, SPECIES_VIEWS, 'view'));
-  const moment = namedItem(line.options.get('--moment')?.[0] ?? 'play', SPECIES_MOMENTS, 'moment');
+  const moment = speciesMoment(line.options.get('--moment')?.[0] ?? 'play');
   const zoom = zoomOf(line.options.get('--zoom')?.[0]);
   const elevation = elevationOf(line.options.get('--elevation')?.[0]);
   const url = line.options.get('--url')?.[0] ?? null;
@@ -1926,9 +1965,9 @@ async function renderModes(
 const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--url <url>] [--base <ref>]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
-  `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
+  `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--url <url>] [--base <ref>]`,
-  '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest,...>] [--views <view,...>] [--zoom <n>] [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
+  '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>] [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
 /**
