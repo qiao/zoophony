@@ -337,9 +337,15 @@ A round that changes the motion updates the items.
 
 ### 3.2 The bow arm
 
-- **The string planes are too close.** The bow of the app turns 9° for each string, and 7° on the
-  contrabass (`stringTurn` of `BowedHold`). Real string planes are about 16° to 18° apart on the
-  violin, and about 25° on the double bass (section 2.2).
+- **The string planes** (section 2.2). The bow turns around the strings by `BowedHold.stringTurn`
+  of `pose/bowed-rig.ts` for each string: 17° on the violin and the viola, the lower end of the 17°
+  to 18° of a violinist in motion capture, and 25° on the contrabass. No source gives the angle of
+  the viola and the cello, so they take the angle of the violin. Each angle is the real angle, or
+  the largest angle below it with which the bow arm still reaches the full hair (`bowRangeOf()`).
+  Only the viola of the cat stays below, at 11°: with the stick leaned 30°, its arm reaches the
+  full hair up to 11°. The app had 9° (7° on the contrabass) before. The arm levels come from the
+  geometry: the bow plane of the string turns the hand, and the arm follows it, higher for the
+  lower strings of the violin and the viola.
 - **The string crossing is late.** The bow of the app changes the string in the last 0.1 s before
   the note (`BOW_MOTION.shiftSec`). A real crossing leads the bow change by about 15° of the phase
   of a stroke pair (section 2.3).

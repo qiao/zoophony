@@ -450,8 +450,10 @@ of each role.
     high position, an extension, an open string of a long note, and each string that the bow
     crosses. Each player takes the orchestral style: low positions and open strings. An open
     string keeps the position, the reach, and the string of the finger of the stroke before it.
-    The bow turns 9° around the strings for each string (7° on the contrabass), to the bass side
-    for a low string.
+    The bow turns around the strings for each string by `BowedHold.stringTurn`, to the bass side
+    for a low string: 17° on the violin, the viola, and the cello, and 25° on the contrabass, as the
+    string planes of the reference (11° on the viola of the cat, the largest angle with which its
+    bow arm still reaches the full hair).
   - The middle of the left finger block presses the strings at the middle of the hand frame of
     the position on the target `fingerboard`, with the string length: one octave is half of the
     string, and the end of the fingerboard is 20 semitones above the open string. The fingers

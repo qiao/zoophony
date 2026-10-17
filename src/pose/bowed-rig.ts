@@ -92,9 +92,12 @@ export interface BowedHold {
   /** The bow tip points to this side in pizzicato, as the plucking hand holds it. */
   readonly pizzicatoTip: Vec3;
   /**
-   * The turn of the bow around the strings from one string to the next. A positive turn moves
-   * the bow to the low strings on the bass side: `top × axis`, the left of the strings for a
-   * viewer at the bridge who looks to the scroll with the top plate up.
+   * The turn of the bow around the strings from one string to the next: the angle between two
+   * neighbor string planes. A positive turn moves the bow to the low strings on the bass side:
+   * `top × axis`, the left of the strings for a viewer at the bridge who looks to the scroll with
+   * the top plate up. Each hold takes the real angle of `docs/reference/string-technique.md`,
+   * section 2.2, or the largest angle below it with which the bow arm still reaches the full hair
+   * (`bowRangeOf()`).
    */
   readonly stringTurn: number;
   /**
@@ -216,6 +219,11 @@ const FREE_HAIR = 0.03;
  * elbow forward and down at the frog, the bow arm went 0.065 H into the chest at the frog on the
  * highest string.
  *
+ * The string planes are 17° apart, the lower end of the 17° to 18° of a violinist in motion
+ * capture (`docs/reference/string-technique.md`, section 2.2). The reference has no angle of the
+ * viola, so the viola takes the angle of the violin. The stick leans 30° toward the fingerboard
+ * (section 2.1).
+ *
  * In the rest pose, the instrument stands at 0.85 of the way to the knee, and the bow grip is
  * 0.18 H out from the knee and 0.08 H above it. The left elbow points down and a little back, so
  * that the upper arm hangs at the side. The right elbow points out and a little forward, so that
@@ -238,7 +246,7 @@ const CHIN_HOLD = {
   restPoleR: [1, -0.9, -0.5],
   restPoleL: [0, -1, 0.5],
   pizzicatoTip: [0.3, 1, 0.4],
-  stringTurn: 9 * MathUtils.DEG2RAD,
+  stringTurn: 17 * MathUtils.DEG2RAD,
   bowTilt: 30 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
@@ -271,6 +279,11 @@ const CHIN_HOLD = {
  * forward and to the right, so that the bow hand at the tip of a down-bow on the lowest string
  * stays off the right thigh. With the elbow back, (0.5, 0, 1), and the bow tip up and to the
  * right in pizzicato, the bow arm went up to 0.44 H into the torso (2026-10-07).
+ *
+ * The string planes of the cello are 17° apart, the angle of the violin, because the reference
+ * has no angle of the cello (`docs/reference/string-technique.md`, section 2.2). The contrabass
+ * takes its own 25°. The stick leans 20° toward the fingerboard on the cello and 10° on the
+ * contrabass, less than on the violin (section 2.1).
  */
 const FLOOR_HOLD = {
   tip: [-1, 0, 0],
@@ -288,7 +301,7 @@ const FLOOR_HOLD = {
   restPoleR: [1, -0.6, -0.5],
   restPoleL: [0.3, -1, 0],
   pizzicatoTip: [-1, 1, 0],
-  stringTurn: 9 * MathUtils.DEG2RAD,
+  stringTurn: 17 * MathUtils.DEG2RAD,
   bowTilt: 20 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
@@ -520,7 +533,7 @@ export const BOWED_HOLDS = {
   // the hippo, and a move to the right put the neck 0.028 m from its head.
   contrabass: {
     ...FLOOR_HOLD,
-    stringTurn: 7 * MathUtils.DEG2RAD,
+    stringTurn: 25 * MathUtils.DEG2RAD,
     bowTilt: 10 * MathUtils.DEG2RAD,
     lean: 5 * MathUtils.DEG2RAD,
     poleR: [0.5, 1, 0.5],
@@ -565,12 +578,17 @@ export const BOWED_HOLDS = {
  * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
  * out, and turns it through the front in the lift and the lowering (`HANGING_BOW`).
  *
+ * The string planes of the cat are 11° apart, below the 17° of the chin hold: with the stick
+ * leaned 30°, the bow arm reaches the full hair up to 11° (0.030 m to 0.475 m in the steps of the
+ * search), and at 12° only to 0.470 m (2026-10-17-bow-arm decisions).
+ *
  * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
  * the chin hold, the left upper arm went 1.5 cm into the deep chest in the play (0.3 cm on `main`),
  * and with 2° 0.0 cm (2026-10-17-left-hand decisions).
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
+  stringTurn: 11 * MathUtils.DEG2RAD,
   playShift: [0.05, -0.05, 0.17],
   poleL: [-1, -1, -0.75],
   elbowPerString: 2 * MathUtils.DEG2RAD,
