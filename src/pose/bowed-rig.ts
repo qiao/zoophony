@@ -371,12 +371,14 @@ const HANGING_BOW = {
  * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
  * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
  * paw does not reach the top of the right thigh. The grip is at the outer side of the right knee,
- * 0.55 H out from the top of the knee, 0.3 H above it, and 0.3 H forward, and the right elbow
- * points down and back. The frog end hangs about 6 cm above the top of the knee. With the grip on
- * the belly over the right thigh, the paw was 25 cm from the shoulder joint, so the bent arm put
- * the elbow 19 cm out from the side, the upper arm turned 81° from the vertical, and 20 faces of
- * the right arm turned over. Each grip nearer to the thigh put the forearm into the belly or turned
- * more faces over.
+ * 0.65 H out from the top of the knee, 0.3 H above it, and 0.3 H forward, and the right elbow
+ * points down and back. The frog end hangs about 6 cm above the top of the knee. With the stick
+ * through the middle of the paw of 2026-10-17, the grip 0.55 H out turned face 372 of the right
+ * upper arm over in each rest sample, and 0.65 H out turns no face over (2026-10-17-grip-all
+ * decisions). With the grip on the belly over the right thigh, the paw was 25 cm from the
+ * shoulder joint, so the bent arm put the elbow 19 cm out from the side, the upper arm turned 81°
+ * from the vertical, and 20 faces of the right arm turned over. Each grip nearer to the thigh put
+ * the forearm into the belly or turned more faces over.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
@@ -392,7 +394,7 @@ const SHOULDER_HOLD = {
   restPoleR: [0.3, -1, 1],
   rest: { ...LAP_VIOLIN, lap: { along: 0.85, offset: [0.15, 0.05, -0.1] } },
   restBow: {
-    lap: { along: 1, offset: [0.55, 0.3, -0.3] },
+    lap: { along: 1, offset: [0.65, 0.3, -0.3] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
     via: UPRIGHT_BOW.via,
