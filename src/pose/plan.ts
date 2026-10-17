@@ -10,7 +10,8 @@ import type { InstrumentId } from '../models/instruments/types.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { Beat, PlayerNote, Score, SectionId } from '../score/types.ts';
-import type { SpeciesId } from '../models/species.ts';
+import { SPECIES } from '../models/species.ts';
+import type { SpeciesId, SpeciesParams } from '../models/species.ts';
 import { bowedRig, holdOf } from './bowed-rig.ts';
 import type { BowedRig } from './bowed-rig.ts';
 import { choirRig } from './choir.ts';
@@ -141,6 +142,12 @@ export interface PlayerPlan {
    */
   readonly motion: RestMotion;
   readonly idle: IdleParams;
+  /**
+   * The share of the idle sway of the tail (design 5.1): 0 for a seated tail that lies curled on
+   * the seat (`OwnBodyParams.seatedTail`), so that it does not swing into the haunch and the
+   * thighs, and 1 for each other tail.
+   */
+  readonly tailSway: number;
   /** The turn of the head to the conductor, around y then around x, in radians. */
   readonly lookYaw: number;
   readonly lookPitch: number;
@@ -383,6 +390,20 @@ export function seatSeedOf(seed: number, seatIndex: number): number {
 }
 
 /**
+ * Gives the share of the idle sway of the tail of a player (design 5.1): 0 for a seated player
+ * whose species has a tail that lies curled on the seat (`OwnBodyParams.seatedTail`), and 1 for
+ * each other player.
+ *
+ * @param model The player model. A seated model has a seat.
+ * @param species The species of the player.
+ * @returns The share, 0 or 1.
+ */
+function tailSwayOf(model: PlayerModel, species: SpeciesId): number {
+  const params: SpeciesParams = SPECIES[species];
+  return model.seat && params.body !== undefined && params.seatedTail === 'curl' ? 0 : 1;
+}
+
+/**
  * Calculates the data of one player that the pose needs at each frame (design 5.1, 5.3): the
  * seeded offsets, the seeded rest motion (5.2), the idle values, the look at the conductor, the
  * passages, and the note layer. Pure: the same inputs give the same plan.
@@ -422,6 +443,7 @@ export function preparePlayer(
     amplitude,
     motion,
     idle: idleParams(mixHash(seed, 1)),
+    tailSway: tailSwayOf(model, place.cast.species),
     lookYaw,
     lookPitch,
     passages: buildPassages(notes, loudness),
@@ -521,6 +543,7 @@ export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerP
     amplitude: 1,
     motion: CONDUCTOR_MOTION,
     idle: idleParams(mixHash(seed, 1)),
+    tailSway: 1,
     lookYaw: 0,
     lookPitch: 0,
     passages: buildPassages([], []),

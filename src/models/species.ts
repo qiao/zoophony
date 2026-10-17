@@ -99,6 +99,12 @@ export interface OwnBodyParams extends CommonParams {
    * of the fox mesh. The colors of the mesh when it is not given.
    */
   readonly palette?: StudioPalette;
+  /**
+   * The seated tail of a studio body: `curl` when it lies curled on the seat
+   * (`studio.tailCurl` of the rig config), so that it does not sway in the idle motion on a seat
+   * (design 5.1). A tail that hangs behind the chair sways when it is not given.
+   */
+  readonly seatedTail?: 'curl';
 }
 
 /** The parameters of one species (design 4.3): the parametric biped, or a body of its own. */
@@ -238,7 +244,8 @@ export const SPECIES = {
    * Gray cat with a cream belly, the violas (`cat-views.png`). It has the studio body of the mesh
    * of the user, `assets/models/cat/cat.glb`, which `pnpm rig-mesh cat` rigs (design 4.4), with the
    * size, the reach, and the leg factor of the red fox that the user chose (2026-10-16-mesh-cat
-   * decisions). It sits with its tail back through the chair, and stands as a soloist. Its head
+   * decisions). It sits with its tail curled on the seat around the left side of the haunch
+   * (2026-10-16-cat-seat decisions), and stands as a soloist. Its head
    * height is the head of the studio body, and its chair fits its legs: the seat height is the seat
    * of the studio body, in H.
    */
@@ -247,6 +254,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS.cat,
     accentParts: ['inner-ears', 'nose'],
+    seatedTail: 'curl',
     proportions: {
       headHeight: STUDIO_CAT.headHeight,
       seatHeight: STUDIO_CAT.seatHeight / STUDIO_CAT.headHeight,

@@ -220,8 +220,9 @@ function writeBody(pose: WritablePose, player: PlayerPlan, scratch: FrameScratch
   }
   setBoneRotation(r, BONES.earL, turn.setFromAxisAngle(Z_AXIS, idle.ear * m.ear));
   setBoneRotation(r, BONES.earR, turn.setFromAxisAngle(Z_AXIS, -idle.ear * m.ear));
-  setBoneRotation(r, BONES.tail1, turn.setFromAxisAngle(Y_AXIS, idle.tail * m.tail1));
-  setBoneRotation(r, BONES.tail2, turn.setFromAxisAngle(Y_AXIS, idle.tail * m.tail2));
+  const tail = idle.tail * player.tailSway;
+  setBoneRotation(r, BONES.tail1, turn.setFromAxisAngle(Y_AXIS, tail * m.tail1));
+  setBoneRotation(r, BONES.tail2, turn.setFromAxisAngle(Y_AXIS, tail * m.tail2));
   pose.blink = idle.blink;
   chainFrames(player.skeleton, r, scratch.chain);
 }
