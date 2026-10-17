@@ -156,6 +156,11 @@ export interface BowedHold {
     readonly tip: Vec3;
     /** The side of the hair, from the stick. */
     readonly hair: Vec3;
+    /**
+     * The bow in the middle of the lift and of the lowering of the standing rest
+     * ({@link BowedHold.restBow}). `null` mixes the hanging bow and the playing bow directly.
+     */
+    readonly via: BowVia | null;
   } | null;
 }
 
@@ -318,9 +323,11 @@ const UPRIGHT_BOW = {
  * of the hand, the long forearms of the cat, the rabbit, and the red fox held the bow up in front
  * of the face.
  */
-const HANGING_BOW = { tip: [0.15, -1, -0.3], hair: [0, 0, 1] } as const satisfies NonNullable<
-  BowedHold['standBow']
->;
+const HANGING_BOW = {
+  tip: [0.15, -1, -0.3],
+  hair: [0, 0, 1],
+  via: null,
+} as const satisfies NonNullable<BowedHold['standBow']>;
 
 /**
  * The hold of the violin on the left shoulder, for the rabbit (design 4.6, 5.3), as a real
@@ -915,7 +922,20 @@ export function bowedRig(
     },
   };
   const standBow = hold.standBow ? bowRotation(hold.standBow.tip, hold.standBow.hair) : null;
-  const rest = atSide ? standingRest(model, rig, standBow) : rig;
+  const standVia = hold.standBow?.via;
+  const rest = atSide
+    ? standingRest(
+        model,
+        rig,
+        standBow,
+        standVia
+          ? {
+              rotation: bowRotation(standVia.tip, standVia.hair),
+              reach: toVec3(new Vector3(...standVia.reach).multiplyScalar(model.body.headHeight)),
+            }
+          : null,
+      )
+    : rig;
   return { ...rest, bowRange: bowRangeOf(rest), stopRange: stopRangeOf(rest) };
 }
 
@@ -942,9 +962,16 @@ function bindFrames(rig: RigPoints): TorsoFrames {
  * @param rig The points of the player, with the instrument turned for the rest pose.
  * @param standBow The turn of the bow of {@link BowedHold.standBow} in the model axes, or `null`
  *   for the turn of the hanging hand.
+ * @param via The bow in the middle of the lift and of the lowering, in the model axes, or `null`
+ *   for a direct mix of the hanging bow and the playing bow.
  * @returns The points, with the rest place of the instrument and the bow.
  */
-function standingRest(model: PlayerModel, rig: RigPoints, standBow: Quat | null): RigPoints {
+function standingRest(
+  model: PlayerModel,
+  rig: RigPoints,
+  standBow: Quat | null,
+  via: BowedRig['restBow']['via'],
+): RigPoints {
   const hangL = hangingArm(model, rig.armL);
   const hangR = hangingArm(model, rig.armR);
 
@@ -971,7 +998,7 @@ function standingRest(model: PlayerModel, rig: RigPoints, standBow: Quat | null)
     restBow: {
       grip: toVec3(new Vector3(...rig.grip).applyQuaternion(bowHand).add(wristR)),
       rotation: toQuat(bowHand),
-      via: null,
+      via,
     },
   };
 }
