@@ -131,7 +131,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     },
   ],
   // The violinist rabbit: decisions/2026-10-14-fox-rabbit-form.md, 2026-10-14-neck-violin.md,
-  // and 2026-10-16-hip-open.md.
+  // 2026-10-16-hip-open.md, and 2026-10-17-fox-form.md.
   [
     'rabbit',
     {
@@ -145,7 +145,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     },
   ],
   // The red and the tan foxes: decisions/2026-10-14-fox-flute.md and the files that it names,
-  // and 2026-10-16-hip-open.md.
+  // 2026-10-16-hip-open.md, and 2026-10-17-fox-form.md.
   [
     'fox',
     {
