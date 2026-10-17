@@ -18,10 +18,12 @@ export const BOW_MOTION = {
   tremoloStart: 0.6,
   /**
    * The length of a bow, as a part of the bow range: `base + perSecond × duration`, from `min` to
-   * `max`, multiplied by the gesture size. A long note uses more bow, and a short note moves the
-   * bow faster for its length.
+   * `max`, multiplied by `1 - loudness + loudness × gesture` with the gesture size. A long note
+   * uses more bow, and a short note moves the bow faster for its length. The gesture size changes
+   * the length only a little, because real players change the sounding point and the force more
+   * than the bow speed for a louder note (`docs/reference/string-technique.md`, section 2.4).
    */
-  length: { base: 0.1, perSecond: 0.4, min: 0.06, max: 0.8 },
+  length: { base: 0.1, perSecond: 0.4, min: 0.06, max: 0.8, loudness: 0.3 },
   /** The highest lift of the bow off the strings in a rest, in meters. */
   lift: 0.03,
   /** A rest of at least this length lifts the bow fully. A shorter rest lifts it less. */
@@ -381,8 +383,8 @@ function bowInSlur(slur: BowSlur, time: number): number {
  * its string, its position, and its finger: the hand keeps its position, and the fingers play
  * the notes. The bow changes direction on each bow: a note, or a slur of short notes in one beat
  * ({@link slurSizes}). A phrase starts with a down-bow at the frog. The length of a bow comes
- * from its length in time and the gesture size. Pizzicato strokes keep the bow where it is. A
- * tremolo
+ * from its length in time, and a little from the gesture size. Pizzicato strokes keep the bow
+ * where it is. A tremolo
  * stroke makes short fast strokes around the place of the bow. A stopped bowed note of at least
  * `LEFT_HAND.vibrato.minSec` gets vibrato.
  *
@@ -453,7 +455,7 @@ export function buildStrokes(
       const duration = Math.max(0, last.end - p.start);
       const gesture = gestureSize(p.loudness, amplitude);
       const part = Math.min(l.max, Math.max(l.min, l.base + l.perSecond * duration));
-      const travel = direction * part * span * gesture;
+      const travel = direction * part * span * (1 - l.loudness + l.loudness * gesture);
       to = Math.min(high, Math.max(low, from + travel));
       bowed = true;
     }

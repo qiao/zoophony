@@ -366,9 +366,12 @@ A round that changes the motion updates the items.
   bow around its hair by `BowedHold.bowTilt` of `pose/bowed-rig.ts`: 30° on the violin and the
   viola, 20° on the cello, and 10° on the contrabass. The hair stays on the contact point, and the
   right hand turns with the stick.
-- **The bow length follows the measures.** The stroke of the app is `0.1 + 0.4 × duration` of the
-  bow range (`BOW_MOTION.length`). On a bow range of 0.6 m, that is 6 cm plus 24 cm for each
-  second, near the stroke lengths of section 2.4.
+- **The bow length follows the measures** (section 2.4). A bow of the app is `0.1 + 0.4 ×
+  duration` of the bow range (`BOW_MOTION.length`), with the duration of the note or of the whole
+  slur. On a bow range of 0.6 m, that is 6 cm plus 24 cm for each second, near the stroke lengths
+  of section 2.4. The loudness changes the length only a little: the length is multiplied by
+  `0.7 + 0.3 ×` the gesture size, because real players change the sounding point and the force
+  more than the bow speed. Before round `bow-arm`, the gesture size multiplied the length.
 
 ## 4. Sources
 

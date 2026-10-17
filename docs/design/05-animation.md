@@ -473,8 +473,9 @@ of each role.
     direction over the notes of a slur, and the left hand plays each note.
   - A bow (a note, or the notes of a slur) starts at its full speed, keeps it until its last note,
     and slows to a stop in its last note, so the turn of the bow at the next bow is sharp. Its
-    length is `0.1 + 0.4 × duration` of the bow range, from 0.06 to 0.8, times the gesture size,
-    with the duration of the whole bow. A rest of at least 0.5 s ends a phrase: the next bow is a
+    length is `0.1 + 0.4 × duration` of the bow range, from 0.06 to 0.8, with the duration of the
+    whole bow, times `0.7 + 0.3 × gesture size`: a louder note moves the bow a little faster, and
+    the sounding point and the force change more, as for real players. A rest of at least 0.5 s ends a phrase: the next bow is a
     down-bow from 12% of the bow range, and the bow moves there in the rest.
   - In a rest, the bow lifts up to 0.03 m (fully after 0.4 s of rest) in at most 0.1 s, and lands
     in at most 0.15 s before the next note.
