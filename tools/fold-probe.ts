@@ -964,7 +964,7 @@ export function cornerLines(report: FoldReport, faces: readonly number[]): strin
     return [];
   }
   return [
-    'The corners of each face in its worst sample. Each shape move gives the move of the corner by one corrective shape at its full weight, then the weight of the shape in the sample. The shapes are in the order of the mesh: the left arm down, the right arm down, and the raised arm of a body with that shape. The move in the sample is the move of all shapes at their weights.',
+    'The corners of each face in its worst sample. Each shape move gives the move of the corner by one corrective shape at its full weight, then the weight of the shape in the sample. The shapes are in the order of the mesh: the left arm down, the right arm down, and the shapes of a raised arm, a bent elbow, or a bent wrist of a body with such shapes. The move in the sample is the move of all shapes at their weights.',
     '',
     '| Face | Vertex | Bind (m) | Posed (m) | Shape moves (mm) × weights | Move in the sample (mm) | Bones and weights |',
     '|---:|---:|---|---|---|---:|---|',
