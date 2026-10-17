@@ -212,6 +212,17 @@
       "fade": [30, 50],
       "below": 0.3,
       "note": "The shape of the raised right arm of the cat violist with the bent elbow of the play (turns.forearm, 2026-10-17-multi-shape decisions). After the shape of the elbow, faces 162, 206, and 254 of the right shoulder folded only with the upper arm forward and up: within 30, 25, and 20 degrees of turns of 111.9, 125.6, and 138.4 degrees around one axis (elbow-turns-162.txt, elbow-turns-206.txt, and elbow-turns-254.txt). The upper arm takes the mean turn of face 162, and the clavicle and the forearm the turns of the shape of the elbow, so that this shape is solved on top of it. With the fade 30 to 50 degrees and the cosine 0.3, the play folds of the cat at a step of 1 s fall from 43.5% with the shape of the elbow alone to 33.7%. At the mean turn of face 206, the fades 20 to 40 and 30 to 50 degrees folded 41.1% and 39.4%, and one ring (grow 1) changed nothing (rig-check-shoulder1.log). At this turn, the fades 20 to 40 and 25 to 45 degrees and the cosine 0.5 also folded 33.6% to 33.7%, and the fade 30 to 50 degrees folded the fewest face-samples of the right shoulder (rig-check-shoulder2.log)."
+    },
+    {
+      "side": "L",
+      "bone": "forearm",
+      "turns": {
+        "upper_arm": [0.1786, -0.02, -0.2142, 0.9601],
+        "forearm": [-0.0754, -0.0426, 0.0981, 0.9914]
+      },
+      "fade": [5, 10],
+      "below": 0.3,
+      "note": "The shape of the bent left elbow of the cat violist (2026-10-17-multi-shape decisions). After the shapes of the right arm, face 1292 at the front of the left upper arm folded in 22.5% of the play samples (fold-probe-elbow-faces12.txt). It folds in 924 of the 1127 play samples in which the turn of the upper arm in the axes of the chest and the turn of the forearm from the upper arm are both within 5 degrees of their means over the folded samples, and in 98 of the other 3299 samples (keys-1292.txt). The turn of the forearm alone separates them: 82% of the samples within 5 degrees of it fold, and 7% of the samples 5 to 10 degrees away. The upper arm and the forearm take these mean turns, and the clavicle keeps its bind turn, as in each play sample (clavicle-1292.txt). With the fade 5 to 10 degrees and the cosine 0.3, the play folds at a step of 1 s fall from 33.7% to 16.1%, and face 1292 folds in 86 samples (1104 before). The fade 4 to 8 degrees and the cosine 0.5 also folded 16.1%, and the fade 3 to 6 degrees 16.7% (rig-check-left1.log)."
     }
   ]
 }
