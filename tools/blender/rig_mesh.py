@@ -2322,7 +2322,39 @@ def raise_rules(config):
     return out
 
 
-def raise_shape(rule, bind, tris, weights, heads, down, sheet):
+#: The bone whose turn gives the weight of the shape of a rule of `raise`, by the `bone` of the
+#: rule: the upper arm in the axes of the chest by default, the forearm from the upper arm for a
+#: bent elbow, and the paw from the forearm for a bent wrist (`poseStudioBones()` of
+#: `src/models/studio-rig.ts`).
+RAISE_KEYS = {None: 'upper_arm', 'forearm': 'forearm', 'hand': 'hand'}
+
+
+def rule_key_turns(rule):
+    """Gives the turn of the key bone of each kind of rule of `raise` in the pose of a rule: the
+    upper arm in the axes of the chest, the forearm from the upper arm, and the paw from the
+    forearm, as rotation matrices. The pose of a rule turns no trunk bone."""
+    turns = rule['turns']
+    bone = rule.get('bone')
+    if bone == 'hand':
+        return {'upper_arm': np.eye(3), 'forearm': np.eye(3), 'hand': quat_matrix(turns['hand'])}
+    upper = quat_matrix(turns['upper_arm']) if 'upper_arm' in turns else np.eye(3)
+    fore = quat_matrix(turns['forearm']) if 'forearm' in turns else np.eye(3)
+    return {'upper_arm': upper, 'forearm': fore, 'hand': np.eye(3)}
+
+
+def raise_weight(rule, turn):
+    """Gives the weight of the shape of a rule of `raise` at a turn of its key bone, as
+    `raiseWeight()` of `src/models/studio-rig.ts` gives it: 1 up to the first angle of the fade
+    from the turn of the rule, 0 from the second angle, and a smooth step between them."""
+    key = RAISE_KEYS[rule.get('bone')]
+    rest = quat_matrix(rule['turns'][key])
+    angle = np.degrees(np.arccos(np.clip((np.trace(rest.T @ turn) - 1) / 2, -1.0, 1.0)))
+    full, none = rule['fade']
+    t = float(np.clip((none - angle) / (none - full), 0.0, 1.0))
+    return t * t * (3 - 2 * t)
+
+
+def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=()):
     """Finds the corrective shape of a raised arm (`raise` of the config): the move of each vertex
     in the bind pose that relaxes the faces which the skin turns over in the pose of the rule. In
     that pose, the clavicle and the upper arm of the side take the world turns of the rule from
@@ -2341,10 +2373,24 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet):
     take the turn `turns.hand` from the seated bind pose, the forearm twist bone takes
     `TWIST_SHARE` of its twist around the forearm, as `poseStudioBones()` turns them, and the arm
     keeps the bind pose. The arm-down shape has no weight, and the relaxed vertices are the
-    vertices of the paw, the fingers, and the forearm twist bone of the side."""
+    vertices of the paw, the fingers, and the forearm twist bone of the side.
+
+    A rule of a raised arm can also give the turn `turns.forearm` of the forearm from the upper arm,
+    so that the elbow bends as in the play: then the bones after the forearm turn with it.
+
+    A rule with `bone` "forearm" is the shape of a bent elbow: the clavicle and the upper arm take
+    the world turns `turns.clavicle` and `turns.upper_arm` when the rule gives them, the forearm
+    takes the turn `turns.forearm` from the upper arm, and the bones after the forearm turn with
+    it. The relaxed vertices are the vertices of the clavicle, the upper arm, the forearm, and the
+    forearm twist bone of the side.
+
+    The shapes of the rules before this rule on the same side (`earlier`, each a rule and its
+    shape) have their weights in the pose of this rule (`raise_weight()`), as in the app, so that
+    the shapes add up to the relaxed places."""
     side = rule['side']
     turns = {name: np.eye(3) for name in BONES}
     wrist = rule.get('bone') == 'hand'
+    elbow = rule.get('bone') == 'forearm'
     if wrist:
         hand = quat_matrix(rule['turns']['hand'])
         axis = unit(heads[f'hand_{side}'] - heads[f'forearm_{side}'])
@@ -2357,10 +2403,14 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet):
         turns[f'fingers_{side}'] = hand
         upper = np.eye(3)
     else:
-        upper = quat_matrix(rule['turns']['upper_arm'])
-        turns[f'clavicle_{side}'] = quat_matrix(rule['turns']['clavicle'])
-        for bone in ARM:
-            turns[f'{bone}_{side}'] = upper
+        keys = rule_key_turns(rule)
+        upper = keys['upper_arm']
+        if 'clavicle' in rule['turns'] or not elbow:
+            turns[f'clavicle_{side}'] = quat_matrix(rule['turns']['clavicle'])
+        turns[f'upper_arm_{side}'] = upper
+        fore = upper @ keys['forearm'] if 'forearm' in rule['turns'] else upper
+        for bone in ARM[1:]:
+            turns[f'{bone}_{side}'] = fore
     posed_at = posed_heads(heads, turns)
     matrices = [move(turns[n], heads[n], posed_at[n]) for n in BONES]
 
@@ -2369,8 +2419,14 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet):
     down_weight = (0.0 if wrist else
                    float(np.clip((upper @ rest - rest) @ span / (span @ span), 0.0, 1.0)))
     base = bind + down_weight * down
+    keys = rule_key_turns(rule)
+    for other, moves in earlier:
+        if other['side'] == side:
+            base = base + raise_weight(other, keys[RAISE_KEYS[other.get('bone')]]) * moves
     posed = skin(weights, matrices, base)
-    moving = ('hand', 'fingers', 'forearm_twist') if wrist else ('upper_arm', 'clavicle')
+    moving = (('hand', 'fingers', 'forearm_twist') if wrist else
+              ('upper_arm', 'clavicle', 'forearm', 'forearm_twist') if elbow else
+              ('upper_arm', 'clavicle'))
     region = np.zeros(len(bind), dtype=bool)
     for bone in moving:
         region |= weights[:, BONES.index(f'{bone}_{side}')] > 0
@@ -2892,18 +2948,21 @@ def main():
         f'({error * meters * 1000:.4f} mm)')
     shapes = split_shapes(moves, weights_all, bind_all)
     raised = []
+    earlier = []
     for rule, target in raise_rules(config):
         side = rule['side']
         sheet = long_heads[f'forearm_{side}'] - long_heads[f'upper_arm_{side}']
         shape, down_weight, before, after, rounds, count = raise_shape(
-            rule, bind_all, tris_all, weights_all, bind_heads, shapes[f'arm_down_{side}'], sheet)
+            rule, bind_all, tris_all, weights_all, bind_heads, shapes[f'arm_down_{side}'], sheet,
+            earlier)
         shapes[target] = shape
-        key = 'hand' if rule.get('bone') == 'hand' else 'upper_arm'
+        earlier.append((rule, shape))
+        key = RAISE_KEYS[rule.get('bone')]
         entry = {'side': side, 'turn': [round(float(x), 6) + 0.0
                                         for x in unit(rule['turns'][key])],
                  'fade': [float(x) for x in rule['fade']]}
-        if key == 'hand':
-            entry['bone'] = 'hand'
+        if key != 'upper_arm':
+            entry['bone'] = key
         if isinstance(config['raise'], list):
             entry['target'] = target
         raised.append(entry)
