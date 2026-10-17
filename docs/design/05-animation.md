@@ -535,7 +535,9 @@ of each role.
     A real hand goes up and over the shoulder of the instrument from the third position to the
     sixth position. The tilt starts one position earlier, because the left forearm of the cat
     touches the upper bout from the third position. Only the cat tilts (`CAT_HOLD`): its viola
-    sits back toward the neck, so its forearm runs from the wrist back under the viola.
+    sits back toward the neck, so its forearm runs from the wrist back under the viola. The tilt
+    stays small enough that the fingers point down to the strings, so the forearm of the cat still
+    touches the upper bout. A larger tilt laid the paw flat across the fingerboard.
   - Tremolo strokes run at 7 cycles a second with an amplitude of 0.02 m times the gesture size.
     Pizzicato keeps the bow in the hand with its tip up. The right palm is 0.035 m above the
     strings and flicks 0.012 m across them in 0.06 s at the note start. Between two plucks, the
