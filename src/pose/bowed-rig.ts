@@ -339,13 +339,20 @@ const HANGING_BOW = { tip: [0.15, -1, -0.3], hair: [0, 0, 1] } as const satisfie
  *
  * The rest pose is the rest of the seated violinist of the image of the user (2026-10-16-bow-rest
  * decisions): the violin stands upright on the left thigh, held at the bottom of its neck, and the
- * bow stands upright at the right side, with the frog in the right paw on the right thigh. The
- * round belly of the rabbit covers the top of its thighs, so the violin stands 0.8 of the way to
- * the knee, 0.15 H in, 0.1 H down, and 0.1 H forward, where the top of the lap is in front of the
- * belly: at 0.65 of the way, the end was 17 cm above it. The grip is 0.15 H out from the right
- * thigh at 0.65 of the way. The right elbow points out and down, (1, -0.5, 0): with the elbow down
- * and back, the right forearm went 6 cm into the body. The left elbow points down and a little
- * back.
+ * bow stands upright at the right side, with the frog in the right paw. The round belly of the
+ * rabbit covers the top of its thighs, so the violin stands 0.8 of the way to the knee, 0.15 H in,
+ * 0.1 H down, and 0.1 H forward, where the top of the lap is in front of the belly: at 0.65 of the
+ * way, the end was 17 cm above it. The left elbow points down and a little back.
+ *
+ * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
+ * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
+ * paw does not reach the top of the right thigh. The grip is at the outer side of the right knee,
+ * 0.55 H out from the top of the knee, 0.3 H above it, and 0.3 H forward, and the right elbow
+ * points down and back. The frog end hangs about 6 cm above the top of the knee. With the grip on
+ * the belly over the right thigh, the paw was 25 cm from the shoulder joint, so the bent arm put
+ * the elbow 19 cm out from the side, the upper arm turned 81° from the vertical, and 20 faces of
+ * the right arm turned over. Each grip nearer to the thigh put the forearm into the belly or turned
+ * more faces over.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
@@ -358,10 +365,10 @@ const SHOULDER_HOLD = {
   lean: 0,
   slant: -5 * MathUtils.DEG2RAD,
   restPoleL: [-0.3, -1, 0.3],
-  restPoleR: [1, -0.5, 0],
+  restPoleR: [0.3, -1, 1],
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0.15, -0.1, -0.1] } },
   restBow: {
-    lap: { along: 0.65, offset: [0.15, 0, 0] },
+    lap: { along: 1, offset: [0.55, 0.3, -0.3] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
     via: UPRIGHT_BOW.via,
