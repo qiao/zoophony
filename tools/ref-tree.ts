@@ -491,18 +491,41 @@ export interface BesideTexts {
 }
 
 /**
- * Gives the format version of the JSON text of a probe: its field `version`. Each probe that a
- * `--base` compare reads writes the version of its format, and a change of the format takes the
- * next version. A text with no field has the version 1, the format of the probes before the field
- * (2026-10-15).
+ * The format of the JSON text of a probe that a `--base` compare reads. The rule of the versions:
+ *
+ * - A change that removes a field, renames it, or changes its meaning or its unit takes the next
+ *   version, and sets `since` to that new version.
+ * - A change that only adds fields, also inside a nested object, takes the next version, and keeps
+ *   `since`.
+ * - Thus each version from `since` to `version` holds the fields of the version `since`, with the
+ *   same meaning. A reader ignores each field that it does not know, and gives `-` for a field of
+ *   its version that an older text does not have.
+ */
+export interface ProbeFormat {
+  /** The format version: the field `version`, or 1 for a text with no field (before 2026-10-15). */
+  readonly version: number;
+  /**
+   * The oldest format version that this version only adds fields to: the field `since`, or the
+   * version for a text with no field `since`, such as the text of a commit before the field.
+   */
+  readonly since: number;
+}
+
+/**
+ * Gives the format of the JSON text of a probe: its fields `version` and `since`
+ * ({@link ProbeFormat}).
  *
  * @param text The JSON text of one object.
- * @returns The version.
- * @throws Error if the text holds no object, or a version that is not a whole number above 0.
+ * @returns The format.
+ * @throws Error if the text holds no object, a version that is not a whole number above 0, or a
+ *   `since` that is not a whole number from 1 to the version.
  */
-export function formatVersion(text: string): number {
-  // SAFETY: the text comes from the --json output of a probe, and the checks below read the field.
-  const parsed = JSON.parse(text) as { readonly version?: unknown } | null;
+export function probeFormat(text: string): ProbeFormat {
+  // SAFETY: the text comes from the --json output of a probe, and the checks below read the fields.
+  const parsed = JSON.parse(text) as {
+    readonly version?: unknown;
+    readonly since?: unknown;
+  } | null;
   if (!(parsed instanceof Object)) {
     throw new Error('The JSON text of the probe holds no object.');
   }
@@ -510,26 +533,85 @@ export function formatVersion(text: string): number {
   if (!Number.isInteger(version) || Number(version) < 1) {
     throw new Error(`The JSON text of the probe has the version ${String(version)}.`);
   }
-  return Number(version);
+  const since = parsed.since ?? version;
+  if (!Number.isInteger(since) || Number(since) < 1 || Number(since) > Number(version)) {
+    throw new Error(
+      `The JSON text of the probe has the version ${String(version)} and the field since ${String(since)}, which must be a whole number from 1 to the version.`,
+    );
+  }
+  return { version: Number(version), since: Number(since) };
 }
 
 /**
- * Checks that the JSON texts of a probe on a commit and on the working tree have one format. Since
- * 94c6ace9, each side runs its own tool, so a branch that changes the format of a probe would give
- * false differences.
+ * Gives the format version of the JSON text of a probe: its field `version` ({@link probeFormat}).
+ * Each probe that a `--base` compare reads writes the version of its format.
+ *
+ * @param text The JSON text of one object.
+ * @returns The version.
+ * @throws Error if the text holds no object, or a version or a `since` that does not fit.
+ */
+export function formatVersion(text: string): number {
+  return probeFormat(text).version;
+}
+
+/**
+ * Checks that the JSON texts of a probe on a commit and on the working tree can compare, and gives
+ * a note when their versions differ. Since 94c6ace9, each side runs its own tool, so a branch that
+ * changes a field of a probe would give false differences. Two versions compare when the newer
+ * version only adds fields to the older version: its `since` is the older version or lower
+ * ({@link ProbeFormat}). When the working tree is newer, its reader gives `-` for each field that
+ * the commit does not have. When the commit is newer, the reader of the working tree ignores the
+ * fields that it does not know, and the compare shows the fields of the older version.
  *
  * @param script The script of the probe, such as `hold-fit.ts`.
+ * @param ref The commit, the branch, or the tag, for the messages.
+ * @param base The format of the text of the commit ({@link probeFormat}).
+ * @param tree The format of the text of the working tree.
+ * @returns A note on the two versions when they differ and compare, or `null` for one version.
+ * @throws Error if the newer version changes or removes a field of the older version, with both
+ *   versions.
+ */
+export function formatNote(
+  script: string,
+  ref: string,
+  base: ProbeFormat,
+  tree: ProbeFormat,
+): string | null {
+  if (base.version === tree.version) {
+    return null;
+  }
+  const treeNewer = tree.version > base.version;
+  const [older, newer] = treeNewer ? [base, tree] : [tree, base];
+  if (newer.since > older.version) {
+    const range =
+      newer.since === newer.version
+        ? `the format version ${newer.version}`
+        : `a format version from ${newer.since} to ${newer.version}`;
+    const fix = treeNewer
+      ? `compare with a commit whose tools/${script} writes ${range}`
+      : `rebase the working tree onto ${ref}`;
+    throw new Error(
+      `The JSON of tools/${script} on ${ref} has the format version ${base.version}, and the working tree has the format version ${tree.version}. The field since of the version ${newer.version} is ${newer.since}, so the version ${newer.version} can change or remove a field of the version ${older.version}, and a compare can give false differences. To fix it, ${fix}.`,
+    );
+  }
+  return treeNewer
+    ? `The JSON of tools/${script} on the working tree has the format version ${tree.version}, which only adds fields to the version ${base.version} of ${ref}. The compare gives - for each new field on ${ref}.`
+    : `The JSON of tools/${script} on ${ref} has the format version ${base.version}, which only adds fields to the version ${tree.version} of the working tree. The compare shows the fields of the version ${tree.version}.`;
+}
+
+/**
+ * Checks that the JSON texts of a probe on a commit and on the working tree have one format
+ * version, for a probe whose texts give no `since` ({@link formatNote} with `since` equal to each
+ * version).
+ *
+ * @param script The script of the probe, such as `body-probe.ts`.
  * @param ref The commit, the branch, or the tag, for the message.
  * @param base The format version of the text of the commit ({@link formatVersion}).
  * @param tree The format version of the text of the working tree.
  * @throws Error if the versions differ, with both versions.
  */
 export function checkFormat(script: string, ref: string, base: number, tree: number): void {
-  if (base !== tree) {
-    throw new Error(
-      `The JSON of tools/${script} on ${ref} has the format version ${base}, and the working tree has the format version ${tree}. A compare of two formats gives false differences, so compare with a commit whose tools/${script} writes the format version ${tree}.`,
-    );
-  }
+  formatNote(script, ref, { version: base, since: base }, { version: tree, since: tree });
 }
 
 /**
@@ -538,16 +620,17 @@ export function checkFormat(script: string, ref: string, base: number, tree: num
  * {@link withProbeTree}, and the second child runs in the repository. Each child writes its
  * results into a file of the folder, which the option `--json <file>` names. The caller only
  * waits, so a stop (INT or TERM) ends both children at once, and removes the folder. A failure of
- * one child ends the other child at once. The two texts must have one format version
- * ({@link checkFormat}).
+ * one child ends the other child at once. The two texts must have one format version, or a newer
+ * version that only adds fields to the older version. Then the tool prints the note of
+ * {@link formatNote}.
  *
  * @param ref The commit, a branch, or a tag.
  * @param script The script, such as `pose-depth.ts`.
  * @param args The arguments of each child, with no `--json`.
  * @param options The parent folder and the start of the name of the folder.
  * @returns The text of the file of each child.
- * @throws Error if git does not know the ref, if a child fails, or if the two texts have other
- *   format versions. Both children end first.
+ * @throws Error if git does not know the ref, if a child fails, or if the newer format version
+ *   of the two texts changes or removes a field of the older version. Both children end first.
  */
 export function probeBeside(
   ref: string,
@@ -595,7 +678,10 @@ export function probeBeside(
         base: await readFile(files.base, 'utf8'),
         tree: await readFile(files.tree, 'utf8'),
       };
-      checkFormat(script, ref, formatVersion(texts.base), formatVersion(texts.tree));
+      const note = formatNote(script, ref, probeFormat(texts.base), probeFormat(texts.tree));
+      if (note !== null) {
+        console.log(note);
+      }
       return texts;
     },
     options,
