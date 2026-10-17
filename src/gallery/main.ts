@@ -25,6 +25,8 @@ import { buildSupport } from '../models/props.ts';
 import type { PosePlan } from '../pose/plan.ts';
 import { createScenePose, poseAt } from '../pose/pose-at.ts';
 import type { ScenePoseBuffer } from '../pose/pose-at.ts';
+import type { RestMotion } from '../pose/rest.ts';
+import type { AnimalPose, ScenePose } from '../pose/types.ts';
 import { createMaterials } from '../scene/geometry.ts';
 import { createLights } from '../scene/lights.ts';
 import {
@@ -41,10 +43,12 @@ import {
   bodyBoundsOf,
   boundsOf,
   closeView,
+  galleryMove,
   gallerySupport,
   galleryTransport,
   gridPlaces,
   instrumentItems,
+  moveTransport,
   selectItems,
   speciesItems,
 } from './items.ts';
@@ -248,6 +252,7 @@ if (spot) {
 const camera = new PerspectiveCamera(GALLERY_FOV_DEG, 1, 0.1, 10 * floorSide);
 const controls = new OrbitControls(camera, canvas);
 const transport = galleryTransport(search);
+const move = galleryMove(search);
 
 /**
  * Gives the box of the body of the first animal in the axes of the gallery, for a close view
@@ -410,9 +415,83 @@ function galleryCast(): GalleryCast | null {
   };
 }
 
+/** The plan of one animal alone, for a move of the query `lift` or `lower`. */
+interface AnimalAlone {
+  /** The plan of the gallery with only this animal. */
+  readonly plan: PosePlan;
+  /** The seeded rest motion of the animal, which gives the times of its move. */
+  readonly motion: RestMotion;
+  /** The poses that each frame writes. */
+  readonly buffer: ScenePoseBuffer;
+}
+
+/** The pose plan of the test notes, with the poses that each frame writes. */
+interface GalleryPoses {
+  /** The plan of all animals. */
+  readonly plan: PosePlan;
+  /** The poses of all animals that each frame writes. */
+  readonly buffer: ScenePoseBuffer;
+  /**
+   * The plan of each animal alone: each player, then the conductor. Each animal of a move has a
+   * transport of its own, so that each animal shows the same share of its own move.
+   */
+  readonly alone: readonly AnimalAlone[];
+}
+
+/**
+ * Splits the plan of the gallery into one plan for each animal. Each part keeps the beats and
+ * the note layer of its animal, so `poseAt()` gives the same pose of the animal for the same
+ * transport.
+ *
+ * @param plan The plan of all animals.
+ * @returns The plan of each player alone, then of the conductor alone.
+ */
+function aloneOf(plan: PosePlan): AnimalAlone[] {
+  const parts: Omit<AnimalAlone, 'buffer'>[] = plan.players.map((player) => ({
+    plan: { ...plan, players: [player], conductor: null },
+    motion: player.motion,
+  }));
+  if (plan.conductor) {
+    parts.push({
+      plan: { ...plan, players: [], conductor: plan.conductor },
+      motion: plan.conductor.motion,
+    });
+  }
+  return parts.map(({ plan: one, motion }) => ({
+    plan: one,
+    motion,
+    buffer: createScenePose(one),
+  }));
+}
+
+/**
+ * Calculates the poses of the gallery. With no move, one transport of the query poses all
+ * animals. With the query `lift` or `lower`, each animal gets the transport that puts it at the
+ * share of its own move ({@link moveTransport}).
+ *
+ * @param state The plan and the poses to write.
+ * @param songTime The song time of the slider, in seconds.
+ * @param wallTime The wall clock time, in seconds.
+ * @returns The poses of the players and of the conductor.
+ */
+function galleryPose(state: GalleryPoses, songTime: number, wallTime: number): ScenePose {
+  if (!move) {
+    return poseAt(state.plan, songTime, wallTime, transport, [], state.buffer);
+  }
+  const players: AnimalPose[] = [];
+  let conductor: AnimalPose | null = null;
+  for (const one of state.alone) {
+    const at = moveTransport(move, one.motion, wallTime);
+    const pose = poseAt(one.plan, songTime, wallTime, at, [], one.buffer);
+    players.push(...pose.players);
+    conductor = pose.conductor ?? conductor;
+  }
+  return { players, conductor };
+}
+
 const cast = galleryCast();
 /** The pose plan of the test notes, and the poses that each frame writes. */
-let poses: { readonly plan: PosePlan; readonly buffer: ScenePoseBuffer } | null = null;
+let poses: GalleryPoses | null = null;
 
 /** Shows the time and the notes that sound at it. */
 function updateTime(notes: readonly TestNote[]): void {
@@ -440,7 +519,7 @@ function updateNotes(): void {
   notes = result.notes;
   if (cast) {
     const plan = galleryPlan(cast.players, cast.conductor, notes);
-    poses = { plan, buffer: createScenePose(plan) };
+    poses = { plan, buffer: createScenePose(plan), alone: move ? aloneOf(plan) : [] };
   }
   updateTime(notes);
 }
@@ -459,14 +538,14 @@ const projected = new Vector3();
 
 /**
  * Poses the players at the time of the slider, with the idle motion of the wall clock time
- * (design 5.1), and renders the gallery.
+ * (design 5.1), at the move of the query `lift` or `lower` when it has one, and renders the
+ * gallery.
  */
 function frame(): void {
   if (poses) {
-    const { plan, buffer } = poses;
     applyScenePose(
       cast?.meshes ?? [],
-      poseAt(plan, Number(time.value), performance.now() / 1000, transport, [], buffer),
+      galleryPose(poses, Number(time.value), performance.now() / 1000),
     );
   }
   controls.update();
