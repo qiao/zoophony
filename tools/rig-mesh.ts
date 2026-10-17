@@ -79,6 +79,12 @@ export interface MeshRigConfig {
    * not given. The head, the arms, the legs, and the tail keep their sizes and move with the trunk.
    */
   readonly trunkFactor?: number;
+  /**
+   * The factor of the width and the depth of the trunk and of the clavicles across the trunk axis,
+   * 1 when it is not given. The arms, the legs, and the tail keep their sizes and move out with
+   * their joints.
+   */
+  readonly girthFactor?: number;
   /** The joints of the middle and of the left side. The right side mirrors the left side. */
   readonly joints: Readonly<Record<string, MeshRigJoint>>;
   /** The rules of `--check`. */
@@ -129,6 +135,7 @@ export function parseConfig(text: string): MeshRigConfig {
     config.headFactor ?? 1,
     config.neckFactor ?? 1,
     config.trunkFactor ?? 1,
+    config.girthFactor ?? 1,
     config.app.shoulders,
     config.app.reach,
   ];
@@ -227,13 +234,15 @@ function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigV
 
 /**
  * The optional rules of a config that a variant of `--set` can add, by their path, each with a
- * value of the kind of its value: the trunk factor (`trunkFactor`), the root share of the tail in
+ * value of the kind of its value: the trunk factor (`trunkFactor`), the girth factor
+ * (`girthFactor`), the root share of the tail in
  * the sit of the haunch (`sit.root`), the fixed seat top of the sit (`sit.top`), the curve of the
  * curled seated tail (`studio.tailCurl`), and the move of the colors of the plain fur
  * (`colors.tone`). `tools/blender/rig_mesh.py` describes each rule.
  */
 const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, ConfigValue>([
   ['trunkFactor', 1],
+  ['girthFactor', 1],
   ['sit.root', [0, 1]],
   ['sit.top', 0],
   ['studio.tailCurl', { points: [[0, 0, 0]] }],
@@ -386,8 +395,8 @@ export function printedOnly(path: string, known: boolean): string | null {
  * Gives the factor of the landmark height of a variant of `--check` that keeps the meters for each
  * unit of the base: the height of the standing shoulder joints of the variant over the height of
  * the shoulder joints of the base, after the rise of the legs and the drop of the trunk
- * ({@link shoulderHeight}). A variant of `legFactor` raises the shoulder joints, and a variant of
- * `trunkFactor` lowers them. The landmark moves with them, so that the trunk, the head, and the
+ * ({@link shoulderHeight}). A variant of `legFactor` raises the shoulder joints, a variant of
+ * `trunkFactor` lowers them, and a variant of `girthFactor` moves them a little. The landmark moves with them, so that the trunk, the head, and the
  * arms keep their meters. A variant of `headFactor` or `neckFactor` keeps the shoulder joints, so
  * its factor is 1.
  *
@@ -500,14 +509,40 @@ export function trunkDrop(config: MeshRigConfig): number {
 }
 
 /**
- * Gives the height of the standing shoulder joint of a rig, after the rise of the legs and the
- * drop of the trunk.
+ * Gives the rise of the left shoulder joint by the girth factor, as `girth_moves()` of
+ * `tools/blender/rig_mesh.py` gives it: the arm moves with its shoulder joint, which moves away
+ * from the trunk axis through the hips joint and the neck joint by the factor less 1 times its
+ * distance across the axis.
+ *
+ * @param config The config.
+ * @returns The rise, in the units of the studio: small, because the axis is nearly vertical.
+ */
+export function girthRise(config: MeshRigConfig): number {
+  const hips = jointHead(config, 'hips');
+  const neck = jointHead(config, 'neck');
+  const shoulder = jointHead(config, 'upper_arm_L');
+  const length = distance(hips, neck);
+  const axis: Vec3 = [
+    (neck[0] - hips[0]) / length,
+    (neck[1] - hips[1]) / length,
+    (neck[2] - hips[2]) / length,
+  ];
+  const rel: Vec3 = [shoulder[0] - hips[0], shoulder[1] - hips[1], shoulder[2] - hips[2]];
+  const along = rel[0] * axis[0] + rel[1] * axis[1] + rel[2] * axis[2];
+  return ((config.girthFactor ?? 1) - 1) * (rel[1] - along * axis[1]);
+}
+
+/**
+ * Gives the height of the standing shoulder joint of a rig, after the rise of the legs, the drop
+ * of the trunk, and the move of the girth.
  *
  * @param config The config.
  * @returns The height, in the units of the studio.
  */
 export function shoulderHeight(config: MeshRigConfig): number {
-  return jointHead(config, 'upper_arm_L')[1] + legRise(config) + trunkDrop(config);
+  return (
+    jointHead(config, 'upper_arm_L')[1] + legRise(config) + trunkDrop(config) + girthRise(config)
+  );
 }
 
 /**
