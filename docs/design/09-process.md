@@ -561,10 +561,12 @@ camera of 2.5. For a round of a body, `pnpm close-views species <species,...> <d
 species alone on their seats at named views (7.1). `pnpm close-views play <dir>` shows a demo
 during play at the default view of "Reset view". `--camera violins` shows it low from the front
 left, close to the violins, as the frame of the user of 2026-10-16. With `--base main`, both
-modes put the images of `main` above the images of the branch. For the UI of step 6,
-`pnpm keyboard` (`tools/keyboard-check.ts`) also checks each control with the keyboard alone at both
-sizes, and prints a table of the results. Give the images to the manager with the report, and
-name the targets of the step with their results.
+modes put the images of `main` above the images of the branch. `pnpm close-views batch <dir>`
+makes the species views, the role views, the lineup, and the play frames of a round in one run,
+with one build of each tree. Each part writes the files of its single mode into its own folder.
+For the UI of step 6, `pnpm keyboard` (`tools/keyboard-check.ts`) also checks each control with
+the keyboard alone at both sizes, and prints a table of the results. Give the images to the
+manager with the report, and name the targets of the step with their results.
 
 When a step is done, start the next step. Do not wait for the user. After the last step, the
 user examines all steps together, with the screenshots and the GIFs of each step.
