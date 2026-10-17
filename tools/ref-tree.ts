@@ -1,22 +1,38 @@
 /**
  * Puts the tree of a commit into a temporary folder, so that a tool can compare the working tree
  * with a commit, a branch, or a tag (`--base <ref>` of `pnpm body-probe`, `pnpm pose-depth`,
- * `pnpm hold-fit`, `pnpm size`, and `pnpm close-views`).
+ * `pnpm hold-fit`, `pnpm size`, and `pnpm close-views`). The probes of `pnpm hold-fit`,
+ * `pnpm pose-depth`, and `pnpm fold-probe` keep the JSON text of the commit in a cache by tree
+ * (`baseCacheFile()`).
  */
 import { spawn, spawnSync } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import {
   copyFileSync,
   cpSync,
+  existsSync,
   lstatSync,
+  mkdirSync,
   mkdtempSync,
+  readFileSync,
   readdirSync,
+  renameSync,
   rmSync,
   symlinkSync,
+  writeFileSync,
 } from 'node:fs';
 import { readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { isAbsolute, join, relative, resolve as resolvePath, sep } from 'node:path';
+import {
+  basename,
+  dirname,
+  isAbsolute,
+  join,
+  relative,
+  resolve as resolvePath,
+  sep,
+} from 'node:path';
 
 /** The repository root. */
 export const ROOT = join(import.meta.dirname, '..');
@@ -410,6 +426,11 @@ export interface ProbeTreeOptions {
   readonly prefix: string;
   /** The role of the probe, which the commit must have ({@link checkRefRole}). */
   readonly role?: RefRole;
+  /**
+   * True to keep the JSON text of the probe of the commit in the cache of {@link baseCacheFile},
+   * and to read it in place of a new probe of the commit when the key is the same.
+   */
+  readonly cache?: boolean;
 }
 
 /**
@@ -645,24 +666,142 @@ export function checkFormat(script: string, ref: string, base: number, tree: num
 }
 
 /**
+ * The parts of the cache key of the probe of a commit ({@link baseCacheKey}). The probe of the
+ * commit reads only these inputs, so a change of one part gives a new key.
+ */
+export interface BaseKeyParts {
+  /** The script of the probe, such as `hold-fit.ts`. */
+  readonly script: string;
+  /**
+   * The entry of each path of {@link PROBE_PATHS} in the commit, as `git ls-tree` writes it: the
+   * mode, the kind, and the hash of each path. It holds the tree of the tools of the commit.
+   */
+  readonly trees: string;
+  /**
+   * The name and the SHA-256 of each script of the working tree that the probe tree of the commit
+   * copies ({@link probeScripts}).
+   */
+  readonly copies: readonly (readonly [name: string, hash: string])[];
+  /** The arguments of the probe of the commit, with no `--json`. */
+  readonly args: readonly string[];
+  /** The version, the platform, and the architecture of Node. */
+  readonly node: string;
+  /** The SHA-256 of the lockfile of the installed `node_modules`, or `none` with no install. */
+  readonly modules: string;
+}
+
+/**
+ * Gives the cache key of the probe of a commit: the SHA-256 of its parts.
+ *
+ * @param parts The parts.
+ * @returns The key, in hex.
+ */
+export function baseCacheKey(parts: BaseKeyParts): string {
+  const fields = [
+    'probe-cache 1',
+    parts.script,
+    parts.trees,
+    parts.copies,
+    parts.args,
+    parts.node,
+    parts.modules,
+  ];
+  return createHash('sha256').update(JSON.stringify(fields)).digest('hex');
+}
+
+/** The environment variable that turns off the cache of {@link baseCacheFile} when it is `1`. */
+export const PROBE_NO_CACHE = 'PROBE_NO_CACHE';
+
+/**
+ * Runs git in the repository, and gives its output.
+ *
+ * @param args The arguments of git.
+ * @returns The output, with no newline at the end.
+ * @throws Error if git fails, with its error output.
+ */
+function gitText(args: readonly string[]): string {
+  const result = spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' });
+  if (result.status !== 0) {
+    throw new Error(`git ${args.join(' ')} failed: ${result.stderr.trim()}`);
+  }
+  return result.stdout.trimEnd();
+}
+
+/**
+ * Gives the SHA-256 of a file.
+ *
+ * @param path The path of the file.
+ * @returns The hash, in hex.
+ */
+function fileHash(path: string): string {
+  return createHash('sha256').update(readFileSync(path)).digest('hex');
+}
+
+/**
+ * Gives the file of the cache of the probe of a commit: `probe-cache/<key>.json` in the common
+ * folder of git, which each worktree shares, as the cache of `tools/check-commits.sh` does. The
+ * key ({@link baseCacheKey}) holds the trees of {@link PROBE_PATHS} of the commit, the scripts of
+ * the working tree that the probe copies, the arguments of the probe, Node, and the lockfile of
+ * `node_modules`. A branch that moves to a new commit with new code thus gets a new key, and a
+ * commit with a change outside these paths, such as a docs commit, keeps the key.
+ *
+ * @param ref The commit, a branch, or a tag.
+ * @param script The script of the probe, such as `hold-fit.ts`.
+ * @param args The arguments of the probe of the commit, with no `--json`.
+ * @returns The path of the file.
+ * @throws Error if git does not know the ref.
+ */
+export function baseCacheFile(ref: string, script: string, args: readonly string[]): string {
+  const commit = `${ref}^{commit}`;
+  const own = gitText(['ls-tree', '--name-only', commit, 'tools/'])
+    .split('\n')
+    .map((path) => path.slice('tools/'.length));
+  const copies = probeScripts(readdirSync(join(ROOT, 'tools')), own).map(
+    (name): readonly [string, string] => [name, fileHash(join(ROOT, 'tools', name))],
+  );
+  const lock = join(ROOT, 'node_modules', '.pnpm', 'lock.yaml');
+  const key = baseCacheKey({
+    script,
+    trees: gitText(['ls-tree', commit, '--', ...PROBE_PATHS]),
+    copies,
+    args,
+    node: `${process.version} ${process.platform} ${process.arch}`,
+    modules: existsSync(lock) ? fileHash(lock) : 'none',
+  });
+  const common = gitText(['rev-parse', '--path-format=absolute', '--git-common-dir']);
+  return join(common, 'probe-cache', `${key}.json`);
+}
+
+/**
+ * Writes the text of the probe of a commit into its cache file. The text goes into a part file
+ * first, so that a stop or a second run at the same time leaves no half file.
+ *
+ * @param file The cache file ({@link baseCacheFile}).
+ * @param text The JSON text of the probe of the commit.
+ */
+function storeBase(file: string, text: string): void {
+  mkdirSync(dirname(file), { recursive: true });
+  const part = `${file}.${process.pid}.part`;
+  writeFileSync(part, text);
+  renameSync(part, file);
+}
+
+/**
  * Runs a script of `tools/` on the code of a commit and on the working tree at the same time,
  * each in a child process of {@link runChild}. The first child runs in the folder of
  * {@link withProbeTree}, and the second child runs in the repository. Each child writes its
  * results into a file of the folder, which the option `--json <file>` names. The caller only
  * waits, so a stop (INT or TERM) ends both children at once, and removes the folder. A failure of
- * one child ends the other child at once. The two texts must have one format version, or a newer
- * version that only adds fields to the older version. Then the tool prints the note of
- * {@link formatNote}.
+ * one child ends the other child at once.
  *
  * @param ref The commit, a branch, or a tag.
  * @param script The script, such as `pose-depth.ts`.
  * @param args The arguments of each child, with no `--json`.
- * @param options The parent folder and the start of the name of the folder.
+ * @param options The parent folder, the start of the name of the folder, and the role.
  * @returns The text of the file of each child.
- * @throws Error if git does not know the ref, if a child fails, or if the newer format version
- *   of the two texts changes or removes a field of the older version. Both children end first.
+ * @throws Error if git does not know the ref, or if a child fails. Both children end first.
  */
-export function probeBeside(
+function probeBoth(
   ref: string,
   script: string,
   args: BesideArgs,
@@ -704,18 +843,88 @@ export function probeBeside(
       if (tree.status === 'rejected') {
         throw tree.reason;
       }
-      const texts = {
+      return {
         base: await readFile(files.base, 'utf8'),
         tree: await readFile(files.tree, 'utf8'),
       };
-      const note = formatNote(script, ref, probeFormat(texts.base), probeFormat(texts.tree));
-      if (note !== null) {
-        console.log(note);
-      }
-      return texts;
     },
     options,
   );
+}
+
+/**
+ * Runs a script of `tools/` on the working tree alone, in a child process of {@link runChild},
+ * which writes its results into a file of a temporary folder ({@link withTempFolder}).
+ *
+ * @param script The script, such as `pose-depth.ts`.
+ * @param args The arguments of the child, with no `--json`.
+ * @param options The parent folder and the start of the name of the folder.
+ * @returns The text of the file of the child.
+ * @throws Error if the child fails.
+ */
+function probeTree(
+  script: string,
+  args: readonly string[],
+  options: ProbeTreeOptions,
+): Promise<string> {
+  const folder: TempFolderOptions = options.parent
+    ? { parent: options.parent, prefix: options.prefix }
+    : { prefix: options.prefix };
+  return withTempFolder(async (dir) => {
+    const file = join(dir, 'tree.json');
+    await runChild(process.execPath, [join('tools', script), ...args, '--json', file], ROOT);
+    return await readFile(file, 'utf8');
+  }, folder);
+}
+
+/**
+ * Runs a script of `tools/` on the code of a commit and on the working tree at the same time,
+ * each in a child process, and gives the JSON text of each (`--json <file>` of the script). A stop
+ * (INT or TERM) ends both children at once, and removes the temporary folder. A failure of one
+ * child ends the other child at once.
+ *
+ * With `options.cache`, the text of the commit goes into its cache file ({@link baseCacheFile}),
+ * and a run with the same key reads that file, prints `base: cached`, and runs only the working
+ * tree. The variable {@link PROBE_NO_CACHE} set to `1` runs the commit again.
+ *
+ * The two texts must have one format version, or a newer version that only adds fields to the
+ * older version. Then the tool prints the note of {@link formatNote}.
+ *
+ * @param ref The commit, a branch, or a tag.
+ * @param script The script, such as `pose-depth.ts`.
+ * @param args The arguments of each child, with no `--json`.
+ * @param options The parent folder, the start of the name of the folder, the role, and the cache.
+ * @returns The text of the file of each child.
+ * @throws Error if git does not know the ref, if a child fails, or if the newer format version
+ *   of the two texts changes or removes a field of the older version. Both children end first.
+ */
+export async function probeBeside(
+  ref: string,
+  script: string,
+  args: BesideArgs,
+  options: ProbeTreeOptions,
+): Promise<BesideTexts> {
+  const cache =
+    options.cache && process.env[PROBE_NO_CACHE] !== '1'
+      ? baseCacheFile(ref, script, args.base)
+      : null;
+  const cached = cache && existsSync(cache) ? readFileSync(cache, 'utf8') : null;
+  let texts: BesideTexts;
+  if (cache && cached !== null) {
+    console.log(`base: cached (${ref}, ${basename(cache, '.json').slice(0, 12)})`);
+    texts = { base: cached, tree: await probeTree(script, args.tree, options) };
+  } else {
+    texts = await probeBoth(ref, script, args, options);
+    if (cache) {
+      storeBase(cache, texts.base);
+    }
+  }
+
+  const note = formatNote(script, ref, probeFormat(texts.base), probeFormat(texts.tree));
+  if (note !== null) {
+    console.log(note);
+  }
+  return texts;
 }
 
 /**
