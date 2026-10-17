@@ -471,13 +471,15 @@ export const BOWED_HOLDS = {
  * lies along the outer side of the right knee. The thighs of the cat mesh are long, so the bow
  * paw does not reach the knee: with the grip at the knee, the straight right arm went 6.9 cm into
  * the body. The grip is 0.35 H out from the right thigh at 0.4 of the way to the knee, and the
- * bow runs forward and a little down along the thigh past the outer side of the knee. The viola
- * stands at 0.95 of the way to the knee, 0.4 H lower and 0.15 H further forward on the left thigh,
- * so that its lower end is near the thigh. With the longer thighs of the trunk of the red fox
- * (2026-10-16-cat-trunk decisions), the grip at half of the way went 5.1 cm into the body with
- * the right forearm, and the viola at 0.85 of the way 2.7 cm into the body. In the lift and the lowering, the bow turns through the front with the grip 0.6 H to
- * the front, as the upright bow of the violins (`UPRIGHT_BOW`). With a direct mix, the right
- * forearm went 7.4 cm into the body while the arms lowered.
+ * bow runs forward and a little down along the thigh past the outer side of the knee. The thighs
+ * slope 25 degrees down since 2026-10-17, and the place of 2026-10-16 (0.95 of the way to the
+ * knee, 0.4 H lower, and 0.15 H further forward) put the viola in front of the knee, with its
+ * lower end over no part of the lap. The viola stands at 0.7 of the way to the knee, 0.1 H lower,
+ * so that its lower end is 1.5 cm above the thigh. The left elbow then points out, so that the
+ * left upper arm stays out of the belly: with the rest elbow pole of the chin hold, it went
+ * 4.4 cm into the body. In the lift and the lowering, the bow turns through the front with the
+ * grip 0.6 H to the front, as the upright bow of the violins (`UPRIGHT_BOW`). With a direct mix,
+ * the right forearm went 7.4 cm into the body while the arms lowered.
  *
  * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
  * out. With the bow of the bind pose of the hand, the long forearm held the bow up in front of the
@@ -488,7 +490,8 @@ const CAT_HOLD = {
   playShift: [0.05, -0.05, 0.17],
   poleL: [-1, -1, -0.75],
   restPoleR: [1, -1, 0],
-  rest: { ...CHIN_HOLD.rest, lap: { along: 0.95, offset: [0, -0.4, -0.15] } },
+  restPoleL: [-1, -1, 0.5],
+  rest: { ...CHIN_HOLD.rest, lap: { along: 0.7, offset: [0, -0.1, 0] } },
   restBow: {
     lap: { along: 0.4, offset: [0.35, -0.1, -0.1] },
     tip: [0.1, -0.27, -1],
