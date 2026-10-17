@@ -1247,6 +1247,7 @@ async function compareFit(options: FitOptions, ref: string): Promise<void> {
     {
       prefix: 'hold-fit-',
       role: { ...FOLD_ROLE_TABLE, name: options.name },
+      cache: true,
     },
   );
   const base = readFit(texts.base);

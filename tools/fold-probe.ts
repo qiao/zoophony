@@ -1551,7 +1551,7 @@ async function compareFolds(
     ref,
     'fold-probe.ts',
     { base: args, tree: args },
-    { prefix: 'fold-probe-', role: { ...FOLD_ROLE_TABLE, name } },
+    { prefix: 'fold-probe-', role: { ...FOLD_ROLE_TABLE, name }, cache: true },
   );
   const base = readFaceJson(texts.base);
   const tree = readFaceJson(texts.tree);

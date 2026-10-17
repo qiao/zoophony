@@ -795,7 +795,7 @@ async function compareRef(role: RoleSweep, ref: string): Promise<void> {
     ref,
     'pose-depth.ts',
     { base: withoutOptions(args, ['--set'], ['--gaps']), tree: args },
-    { prefix: 'pose-depth-', role: { ...SWEEP_ROLE_TABLE, name: role.role } },
+    { prefix: 'pose-depth-', role: { ...SWEEP_ROLE_TABLE, name: role.role }, cache: true },
   );
   const [base] = readRows(texts.base);
   const rows = readRows(texts.tree);
