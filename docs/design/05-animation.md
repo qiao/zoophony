@@ -35,7 +35,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Viola, cat | Chair, stands as a soloist | none | Holds the viola under the chin (the chin hold), with the viola back toward the neck so that the left paw reaches the nut, the left elbow out as far as down past the deep chest, and the right elbow out | The viola stands on the left thigh, with the left elbow out, and the bow lies along the outer side of the right knee, with the grip at the outer side of the right thigh. A soloist holds the viola at its left side and hangs the bow with the tip down | `CAT_HOLD`, `UPRIGHT_BOW` (the via of the bow), `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-16-mesh-cat.md`, `2026-10-16-cat-seat.md`, `2026-10-16-cat-trunk.md`, `2026-10-16-cat-form.md` | `pnpm close-views violist <dir>` |
 | Cello, dog | Chair | none | The cello stands on the floor (the floor hold), the player leans forward, the right elbow points out and up, and the left arm hugs the cello | The cello stays on the floor, and the bow lies on the outer side of the right knee | `BOWED_HOLDS.cello`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-11-low-seats.md` | `pnpm close-views species dog <dir>` |
 | Contrabass, hippo | High stool | none | The floor hold of the cello | The rest of the cello | `BOWED_HOLDS.contrabass`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-10-arms-close.md` | `pnpm close-views species hippo <dir>` |
-| Flute, tan fox | Chair, stands as a soloist | Play: Michel Debost, Flute Talk, May/June 1996 (`2026-10-14-fox-flute.md`). Rest: Patricia George, The Instrumentalist, December 2018 (`2026-10-15-flute-rest.md`) | Turns the head to the left, with the flute nearly square to the face and the shoulders square and low | The flute stands upright on the right leg in the right paw, and the left paw rests on the left thigh. A soloist hangs the left arm | `FOX_FLUTE`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-17-fox-form.md` | `pnpm close-views flutist <dir>` |
+| Flute, tan fox | Chair, stands as a soloist | Play: Michel Debost, Flute Talk, May/June 1996 (`2026-10-14-fox-flute.md`). Rest: Patricia George, The Instrumentalist, December 2018 (`2026-10-15-flute-rest.md`) | Turns the head to the left, with the flute nearly square to the face and the shoulders square and low | The flute stands upright on the right leg in the right paw, and the left arm hangs near the side with a soft bend, with the paw beside the haunch. A soloist hangs the left arm | `FOX_FLUTE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-17-fox-form.md`, `2026-10-17-tan-rest.md` | `pnpm close-views flutist <dir>` |
 | Oboe, mouse | Chair, stands as a soloist | none | Holds the oboe at the mouth with both paws on their grips and the right shoulder turned forward | The oboe moves off the mouth and tilts, the head lifts, and the paws keep their grips | `WIND_HOLDS.oboe`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-short-legs.md` | `pnpm close-views species mouse <dir>` |
 | Clarinet, wolf | Chair, stands as a soloist | none | Holds the clarinet at the mouth with both paws on their grips and the right shoulder turned forward | The clarinet moves off the mouth and tilts, the head lifts, and the paws keep their grips | `WIND_HOLDS.clarinet`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-short-legs.md` | `pnpm close-views species wolf <dir>` |
 | Bassoon, beaver | Chair | none | The bassoon turns its lower end forward and to the right, and the right elbow points down | The bassoon moves off the mouth and tilts, the head lifts, and the paws keep their grips | `WIND_HOLDS.bassoon`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-short-legs.md` | `pnpm close-views species beaver <dir>` |
@@ -385,6 +385,17 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   the trunk and the angle of the right upper arm (`armRest()` of `tools/lap-rest.ts`). The seated cats rest with the viola upright on the left
   thigh, and their bow lies forward along the right thigh. Their bow turns through the front in
   the lift and the lowering with the via of the upright bow (`CAT_HOLD`, 5.3).
+- **Free arm of the flute.** The seated tan fox rests the flute upright on the right leg in the right
+  paw (5.3), and its free left arm hangs near the side with a soft bend of the elbow, with the paw
+  beside the haunch and the palm toward the body. A seated flutist at rest lays the left hand on
+  the left thigh, or lets the left arm hang near the side. The top of the left thigh is out of
+  reach of the short arm of the fox on its long seated trunk, so the arm hangs
+  (`docs/decisions/2026-10-17-tan-rest.md`). Before, the paw stood out from the top of the thigh,
+  and the straight arm stood out from the body. The inner elbow touches the side of the trunk: a
+  paw nearer to the haunch or a more bent elbow put it deeper, and an elbow out to the side turned
+  the upper arm and put the skin of the armpit into the chest. The lower end of the flute stays a
+  few centimeters above the leg, because a flute nearer to the leg put the right upper arm deeper
+  into the body.
 - **Hanging arms.** A standing player without a lap hangs its arms (`pose/hang.ts`): the upper
   arm swings forward and out to the side by the smallest angle at which it and the elbow touch
   the side of the torso and the legs of the mesh, seen along x (`HANG`). Then the forearm and
@@ -644,8 +655,9 @@ of each role.
     The foot joint stands at the outer side of the right knee: on the top of the knee, the right
     upper arm went into the body. With the lower knees of the thighs 25° down, the foot joint stays
     a few centimeters above the leg, because a flute nearer to the leg put the right upper arm
-    deeper into the body (`docs/decisions/2026-10-17-fox-form.md`). The left paw leaves its grip and rests on the outer side of the
-    left thigh, and both arms hang down along the sides with the elbows down. With the elbows out
+    deeper into the body (`docs/decisions/2026-10-17-fox-form.md`). The left paw leaves its grip, and both arms hang down
+    along the sides with the elbows down. The top of the left thigh is out of reach of the left
+    arm, so the left paw hangs beside the haunch (5.2, `docs/decisions/2026-10-17-tan-rest.md`). With the elbows out
     to the side, the skin of the left shoulder folded more faces. The angles, the poles, the
     places, and the place of the lip plate are in `pose/winds.ts`, and their measures in
     `docs/research/2026-10-14-fox-flute.md` and `docs/research/2026-10-15-flute-rest.md`.
@@ -681,8 +693,9 @@ of each role.
     bell sits on the right thigh. The elbows have their own rest directions. A random search
     gave the values of `WIND_HOLDS` with the old gap of 0.01 H. Since 2026-10-10, most rest
     elbows point down. The palms keep their grips, unless the hold frees the left paw
-    (`WindHold.restFreeL`). Then the left palm of a seated player rests on its left thigh
-    (`lapHand()` of `pose/lap.ts`), and the left arm of a standing player hangs (5.2). The lift
+    (`WindHold.restFreeL`). Then the left palm of a seated player goes to a place from the top
+    of its left thigh (`lapHand()` of `pose/lap.ts`): on the thigh, or beside it with the arm
+    hanging, as for the tan fox, and the left arm of a standing player hangs (5.2). The lift
     and the lowering move the free paw between the thigh and its grip by the weight that moves the
     instrument, so the pose stays stateless. The wrist goes out, up, and forward from the straight
     line between them (`FreePaw.arc`), so that the paw passes in front of a round belly. The
