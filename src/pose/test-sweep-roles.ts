@@ -1,13 +1,18 @@
 import { Vector3 } from 'three';
 
 import { CONDUCTOR } from '../models/cast.ts';
+import { layoutScene } from '../models/layout-scene.ts';
+import { ModelCache } from '../models/model-cache.ts';
+import { violinPianoDuoFile } from '../models/test-chamber.ts';
 import { PIANO } from '../models/instruments/piano.ts';
 import { STRING_SCALES, VIOLIN } from '../models/instruments/strings.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { BoneName } from '../models/rig.ts';
 import { SPECIES } from '../models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../models/species.ts';
+import { scoreOf } from '../score/test-score.ts';
 import { countInAt } from './count-in.ts';
+import { preparePoses } from './plan.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { LOWER_MAX_SEC } from './rest.ts';
@@ -754,6 +759,57 @@ export const VIOLIST_SWEEP: RoleSweep = {
   hasRole: (score) => score.seats.some((seat) => seat.section === 'viola'),
   players: (scene) => bowedPlayers(scene, 'viola', VIOLISTS),
 };
+
+/**
+ * The bowed roles whose species can stand as the soloist of the violin and piano duo
+ * ({@link soloistScene}): the instrument of each role and its species. No demo has a standing
+ * violin soloist, so the sweep of a demo never poses one.
+ */
+export const SOLOIST_ROLES = {
+  violinist: { instrument: 'violin', species: VIOLINISTS },
+  violist: { instrument: 'viola', species: VIOLISTS },
+} as const;
+
+/** A bowed role of {@link SOLOIST_ROLES}. */
+export type SoloistRole = keyof typeof SOLOIST_ROLES;
+
+/** The name of the violin and piano duo in the chamber test files of the shot tests. */
+export const SOLOIST_FILE = 'violin-piano';
+
+/**
+ * Builds the scene of the violin and piano duo of the chamber test files (design 4.2, the recital
+ * form, `chamberShotScenes()` of `shots/test-shots.ts`), with a species of a bowed role as the
+ * standing soloist in the place of the violinist, with the instrument of the role. The place keeps
+ * the footprint of the rabbit. The players of the role in the scene (`RoleSweep.players`) then
+ * hold the soloist.
+ *
+ * @param role The bowed role.
+ * @param species The species of the soloist: a species of the role.
+ * @param seed The seed of the pose.
+ * @returns The scene.
+ * @throws Error if the species is not a species of the role, or the duo has no violinist.
+ */
+export function soloistScene(role: SoloistRole, species: SpeciesId, seed = 1): TestScene {
+  const { instrument, species: allowed } = SOLOIST_ROLES[role];
+  if (!allowed.has(species)) {
+    throw new Error(
+      `The species ${species} is not a species of the ${role}: ${[...allowed].join(', ')}.`,
+    );
+  }
+
+  const score = scoreOf(violinPianoDuoFile());
+  const models = new ModelCache();
+  const duo = layoutScene(score, models);
+  const index = duo.players.findIndex((place) => place.cast.instrument === 'violin');
+  const violinist = duo.players[index];
+  if (!violinist) {
+    throw new Error('The violin and piano duo has no violinist.');
+  }
+  const players = [...duo.players];
+  players[index] = { ...violinist, cast: { ...violinist.cast, species, instrument } };
+  const layout = { ...duo, players };
+  return { score, layout, plan: preparePoses(score, layout, seed, models), models };
+}
 
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
