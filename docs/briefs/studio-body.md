@@ -187,7 +187,8 @@ a violin of 0.15 m.>
 - A new research report `docs/research/<date>-studio-<animal>.md`.
 - `AGENTS.md` ("Model work"), `lowpoly-studio/docs/handoff.md`, and `lowpoly-studio/README.md`.
 - Each place of section 8 of `docs/briefs/studio-body.md` for a new body, a new role, or a new
-  hold.
+  hold. `pnpm docs-species <species>` lists each place that does not name the species yet. At the
+  end of the round, it lists no miss.
 
 ## Values to keep
 
