@@ -1,5 +1,6 @@
 import { writeFileSync } from 'node:fs';
 
+import { BOW_PART, bowSweep } from './bow-sweep.ts';
 import { patchedDemos } from './patch-demos.ts';
 import { setHolds } from './hold-sets.ts';
 import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
@@ -9,6 +10,7 @@ import { CONDUCTOR } from '../src/models/cast.ts';
 import type { PlayerModel } from '../src/models/player.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import type { BoneName } from '../src/models/rig.ts';
+import { isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { sceneOf } from '../src/pose/test-scene.ts';
 import type { TestScene } from '../src/pose/test-scene.ts';
@@ -29,9 +31,17 @@ import type {
   RoleSweep,
   SampleSet,
   SweepPlayer,
+  SweepVisit,
   TargetError,
 } from '../src/pose/test-sweep.ts';
-import { SWEEP_ROLES, playSample } from '../src/pose/test-sweep-roles.ts';
+import {
+  SOLOIST_FILE,
+  SOLOIST_ROLES,
+  SWEEP_ROLES,
+  playSample,
+  soloistScene,
+} from '../src/pose/test-sweep-roles.ts';
+import type { SoloistRole } from '../src/pose/test-sweep-roles.ts';
 
 /** The options of the command. */
 export interface Options {
@@ -56,10 +66,48 @@ export interface Options {
   readonly json: string | null;
   /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
   readonly base: string | null;
+  /**
+   * The species of the standing soloist of the violin and piano duo in place of the demos
+   * (`soloistScene()`), or `null` for the demos.
+   */
+  readonly soloist: SpeciesId | null;
 }
 
 /** The text of the usage. */
-const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--base <ref>] [--json <file>]`;
+const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--base <ref>] [--json <file>]`;
+
+/**
+ * Tells if a role name is a bowed role with a soloist ({@link SOLOIST_ROLES}).
+ *
+ * @param name The name of the role.
+ * @returns True for a role of the table.
+ */
+function isSoloistRole(name: string): name is SoloistRole {
+  return Object.keys(SOLOIST_ROLES).includes(name);
+}
+
+/**
+ * Reads the species of the option `--soloist`: a species of the bowed role.
+ *
+ * @param role The name of the role.
+ * @param value The value of the option.
+ * @returns The species.
+ * @throws Error if the role has no soloist, or the species is not a species of the role.
+ */
+function soloistOf(role: string, value: string): SpeciesId {
+  if (!isSoloistRole(role)) {
+    throw new Error(
+      `The option --soloist goes only with a bowed role: ${Object.keys(SOLOIST_ROLES).join(', ')}.`,
+    );
+  }
+  const allowed = SOLOIST_ROLES[role].species;
+  if (!isSpeciesId(value) || !allowed.has(value)) {
+    throw new Error(
+      `The species "${value}" is not a species of the ${role}: ${[...allowed].join(', ')}.`,
+    );
+  }
+  return value;
+}
 
 /**
  * Tells if a text is the name of a bone.
@@ -91,6 +139,7 @@ export function parseOptions(args: readonly string[]): Options {
   let times: number[] | null = null;
   let json: string | null = null;
   let base: string | null = null;
+  let soloist: SpeciesId | null = null;
   // The flag --gaps has no value. Each other option has one.
   const gaps = rest.includes('--gaps');
   const valued = rest.filter((arg) => arg !== '--gaps');
@@ -131,6 +180,9 @@ export function parseOptions(args: readonly string[]): Options {
       case '--base':
         base = value;
         break;
+      case '--soloist':
+        soloist = soloistOf(role.role, value);
+        break;
       case '--times':
         times = list.map(Number);
         if (times.some((t) => !Number.isFinite(t))) {
@@ -148,7 +200,10 @@ export function parseOptions(args: readonly string[]): Options {
   if (base !== null && json !== null) {
     throw new Error(`The options --base and --json do not go together.\n${USAGE}`);
   }
-  return { role, demos, variants, bones, into, times, gaps, json, base };
+  if (soloist !== null && demos.length > 0) {
+    throw new Error(`The options --soloist and --demo do not go together.\n${USAGE}`);
+  }
+  return { role, demos, variants, bones, into, times, gaps, json, base, soloist };
 }
 
 /** The results of one variant in one demo. */
@@ -221,19 +276,103 @@ export function playerLabel(name: string, species: SpeciesId | null): string {
   return inner ? `${inner[1]} (${species}, ${inner[2]})` : `${name} (${species})`;
 }
 
+/** The options of a sweep of {@link sweepDemos}. */
+export type SweepOptions = Pick<Options, 'demos' | 'times' | 'gaps'> & {
+  /** Gives the gap pairs of each set of each player, with no flag of the gaps. */
+  readonly gapsOf?: GapsOf;
+  /** The species of the standing soloist of the duo in place of the demos, or `null`. */
+  readonly soloist?: SpeciesId | null;
+};
+
+/**
+ * Joins the visits of a sweep into one visit.
+ *
+ * @param visits The visits, or `undefined` for none.
+ * @returns The visit, or `undefined` with no visit.
+ */
+function joinVisits(...visits: readonly (SweepVisit | undefined)[]): SweepVisit | undefined {
+  const given = visits.filter((visit) => visit !== undefined);
+  if (given.length === 0) {
+    return undefined;
+  }
+  return (posed, sample, surfaces) => {
+    for (const visit of given) {
+      visit(posed, sample, surfaces);
+    }
+  };
+}
+
+/**
+ * Sweeps the players of the role in one scene. Each player gets the sample sets of the role. With
+ * the bow points, the bow of the role (the part {@link BOW_PART}) takes a point at each 1 cm along
+ * each edge in place of its corners (`bowSweep()` of `tools/bow-sweep.ts`): its depth in each
+ * obstacle and in the arms, and its lowest point as a gap to the floor.
+ *
+ * @param id The name of the scene, such as the demo file with no `.mid`.
+ * @param scene The scene.
+ * @param options The song times, the flag of the gaps, and the gap pairs of each set.
+ * @param role The role.
+ * @param bowPoints True to measure the bow at each 1 cm.
+ * @returns The results of each player.
+ */
+function sweepScene(
+  id: string,
+  scene: TestScene,
+  options: SweepOptions,
+  role: RoleSweep,
+  bowPoints: boolean,
+): DemoResult[] {
+  const bowed = bowPoints && role.parts.some((part) => part.name === BOW_PART);
+  const swept: RoleSweep = bowed
+    ? { ...role, parts: role.parts.filter((part) => part.name !== BOW_PART) }
+    : role;
+  const times = options.times;
+  return role.players(scene).map((player) => {
+    // Each player gets its own sample sets: a set can be a generator, which one sweep uses up.
+    const sets: readonly SampleSet[] = times
+      ? [{ name: 'play', samples: times.map((song) => playSample(scene, song)) }]
+      : role.sampleSets(scene);
+    const species = speciesOf(scene, player.model);
+    return {
+      demo: `${id} ${playerLabel(player.name, species)}`,
+      species,
+      headHeight: player.model.body.headHeight,
+      sets: sets.map(({ name, samples }) => {
+        const pairs = options.gaps ? gapPairs(role) : (options.gapsOf?.(name, player) ?? []);
+        const gaps = pairs.length > 0 ? gapSweep(pairs) : null;
+        const bow = bowed ? bowSweep() : null;
+        const depths = sweepDepths(swept, player, samples, joinVisits(gaps?.visit, bow?.visit));
+        const smallest = gaps?.gaps() ?? [];
+        if (bow) {
+          depths.push(...bow.depths());
+          smallest.push(bow.floor());
+        }
+        return { name, pairs: depths, gaps: smallest };
+      }),
+      targets: times ? [] : targetErrors(player),
+    };
+  });
+}
+
 /**
  * Sweeps the players of the role in the demos with the holds of now. Each player gets the sample
- * sets of the role. `pnpm hold-fit` runs it too.
+ * sets of the role. With a soloist, it sweeps the soloist of the violin and piano duo
+ * (`soloistScene()`) in place of the demos, with the bow at each 1 cm ({@link sweepScene}).
+ * `pnpm hold-fit` runs it too.
  *
- * @param options The demos, the song times, and the flag of the gaps. With no flag, `gapsOf` can
- *   give the gap pairs of each set of each player.
+ * @param options The demos, the song times, the flag of the gaps, and the soloist. With no flag,
+ *   `gapsOf` can give the gap pairs of each set of each player.
  * @param role The role, with the parts and the obstacles of the options.
  * @returns The results of each demo.
+ * @throws Error if the role has no soloist.
  */
-export async function sweepDemos(
-  options: Pick<Options, 'demos' | 'times' | 'gaps'> & { readonly gapsOf?: GapsOf },
-  role: RoleSweep,
-): Promise<DemoResult[]> {
+export async function sweepDemos(options: SweepOptions, role: RoleSweep): Promise<DemoResult[]> {
+  if (options.soloist) {
+    if (!isSoloistRole(role.role)) {
+      throw new Error(`The ${role.role} has no soloist.`);
+    }
+    return sweepScene(SOLOIST_FILE, soloistScene(role.role, options.soloist), options, role, true);
+  }
   const results: DemoResult[] = [];
   for (const demo of await patchedDemos()) {
     const id = demo.file.replace(/\.mid$/, '');
@@ -243,30 +382,7 @@ export async function sweepDemos(
     if (!role.hasRole(scoreOf(demo.bytes))) {
       continue;
     }
-    const scene = sceneOf(demo.bytes);
-    const times = options.times;
-    for (const player of role.players(scene)) {
-      // Each player gets its own sample sets: a set can be a generator, which one sweep uses up.
-      const sets: readonly SampleSet[] = times
-        ? [{ name: 'play', samples: times.map((song) => playSample(scene, song)) }]
-        : role.sampleSets(scene);
-      const species = speciesOf(scene, player.model);
-      results.push({
-        demo: `${id} ${playerLabel(player.name, species)}`,
-        species,
-        headHeight: player.model.body.headHeight,
-        sets: sets.map(({ name, samples }) => {
-          const pairs = options.gaps ? gapPairs(role) : (options.gapsOf?.(name, player) ?? []);
-          const gaps = pairs.length > 0 ? gapSweep(pairs) : null;
-          return {
-            name,
-            pairs: sweepDepths(role, player, samples, gaps?.visit),
-            gaps: gaps?.gaps() ?? [],
-          };
-        }),
-        targets: times ? [] : targetErrors(player),
-      });
-    }
+    results.push(...sweepScene(id, sceneOf(demo.bytes), options, role, false));
   }
   return results;
 }
