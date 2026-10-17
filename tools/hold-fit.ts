@@ -603,12 +603,27 @@ type StoredWorst = Omit<SetWorst, 'pair'> & {
   readonly pair: StoredDepth;
 };
 
+/** A largest value of the lap rest in the JSON text: JSON writes `Infinity` as `null`. */
+type StoredLapWorst = Omit<LapWorst, 'value'> & {
+  /** The value, or `null` for `Infinity`. */
+  readonly value: number | null;
+};
+
+/** The largest values of the lap rest in the JSON text. */
+type StoredLaps = {
+  readonly [K in keyof LapWorsts]: null extends LapWorsts[K]
+    ? StoredLapWorst | null
+    : StoredLapWorst;
+};
+
 /** The JSON text of {@link fitJson}. JSON writes the place `NaN` of a depth as `null`. */
 interface StoredFit {
   /** The demos of the run. */
   readonly demos: readonly string[];
   /** The rows, the base first. */
-  readonly rows: readonly (Omit<FitRow, 'depths' | 'results' | 'held'> & {
+  readonly rows: readonly (Omit<FitRow, 'depths' | 'results' | 'held' | 'lap'> & {
+    /** The largest values of the lap rest, or `null`. */
+    readonly lap: StoredLaps | null;
     /** The deepest point of each sample set. */
     readonly depths: readonly StoredWorst[];
     /** The pair of the instrument in the body, or `null`. */
@@ -674,8 +689,32 @@ export function readFit(text: string): FitRun {
       held: row.held ? restore(row.held) : null,
       gaps: row.gaps,
       free: row.free,
-      lap: row.lap,
+      lap: row.lap ? restoreLaps(row.lap) : null,
     })),
+  };
+}
+
+/**
+ * Reads the largest values of the lap rest from the JSON text, with `Infinity` in place of `null`:
+ * a frog or a lower end that is not over the top of the lap.
+ *
+ * @param stored The values of the JSON text.
+ * @returns The values.
+ */
+function restoreLaps(stored: StoredLaps): LapWorsts {
+  const one = (worst: StoredLapWorst): LapWorst => ({ ...worst, value: worst.value ?? Infinity });
+  const maybe = (worst: StoredLapWorst | null): LapWorst | null => (worst ? one(worst) : null);
+  return {
+    endGap: one(stored.endGap),
+    endDepth: one(stored.endDepth),
+    heldDepth: one(stored.heldDepth),
+    tilt: maybe(stored.tilt),
+    pawPlace: maybe(stored.pawPlace),
+    bowTilt: maybe(stored.bowTilt),
+    frogGap: maybe(stored.frogGap),
+    frogDepth: maybe(stored.frogDepth),
+    bowBody: maybe(stored.bowBody),
+    bowArms: maybe(stored.bowArms),
   };
 }
 
