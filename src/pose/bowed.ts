@@ -477,6 +477,55 @@ function elbowPole(
   return out.multiplyScalar(1 - share).addScaledVector(backOfHand, share / side);
 }
 
+const meanBow: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
+const meanHand: BowHand = { wrist: new Vector3(), rotation: new Quaternion() };
+const meanArm = createArmPose();
+
+/**
+ * Gives the direction of the right elbow in a fast run across two strings (design 5.3,
+ * `docs/reference/string-technique.md`, section 2.3): the direction to the elbow of the bow on the
+ * string of the arm (`BowState.crossMean`), the mean string of the run. With this direction, the
+ * elbow stays as near to that elbow as the place of the wrist lets it, so the upper arm moves less
+ * in a crossing, and the forearm and the wrist make the rest.
+ *
+ * @param rig The points of the player.
+ * @param strings The strings at their posed place.
+ * @param state The bow state.
+ * @param shoulder The posed shoulder joint and the rotation of the `shoulder` bone.
+ * @param hold The direction of the elbow of the hold, in the model axes.
+ * @param out The direction to write, in the model axes. It must not be `hold`.
+ * @returns `out`.
+ */
+function crossPole(
+  rig: RigPoints,
+  strings: StringsPlace,
+  state: BowState,
+  shoulder: { readonly position: Vector3; readonly rotation: Quaternion },
+  hold: Vector3,
+  out: Vector3,
+): Vector3 {
+  bowAt(rig, strings, state.crossMean, state.bow, state.lift, meanBow);
+  gripHand(rig, meanBow, 0, meanHand);
+  let elbow = solveArm(
+    rig.armR.bind,
+    shoulder.position,
+    shoulder.rotation,
+    meanHand.wrist,
+    hold,
+    meanArm,
+  ).elbow;
+  gripHand(rig, meanBow, rollToward(rig, meanBow, elbow), meanHand);
+  elbow = solveArm(
+    rig.armR.bind,
+    shoulder.position,
+    shoulder.rotation,
+    meanHand.wrist,
+    hold,
+    meanArm,
+  ).elbow;
+  return out.subVectors(elbow, shoulder.position).normalize();
+}
+
 /** The places that the bow pose writes. */
 export interface BowPlaces {
   /** The instrument. */
@@ -718,6 +767,16 @@ export function poseBowed(
       holdPole,
       tipPole.fromArray(rig.hold.polePizzicato).applyQuaternion(chest.rotation),
       pizzicato * weight,
+      holdPole,
+    );
+  }
+  // In a fast run across two strings, the elbow keeps the mean string of the run.
+  const crossShare = weight * (1 - pizzicato);
+  if (state.crossMean !== state.string && crossShare > 0) {
+    mixDirection(
+      holdPole,
+      crossPole(rig, strings, state, shoulder, holdPole, tipPole),
+      crossShare,
       holdPole,
     );
   }

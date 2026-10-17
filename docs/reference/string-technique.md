@@ -352,6 +352,13 @@ A round that changes the motion updates the items.
   before the next note (`BOW_MOTION.crossLeadSec`), as a real crossing leads the bow change by
   about 15° of the phase of a stroke pair, about 11 ms at 7.5 notes a second. Before round
   `bow-arm`, the app turned the bow in the last 0.1 s before the note.
+- **The upper arm moves little in a fast crossing** (section 2.3). In a fast run across two
+  neighbor strings (each next note within 0.25 s, at least two changes of the string),
+  `crossStrings()` of `pose/strokes.ts` gives the run the mean of its two strings. `poseBowed()` of
+  `pose/bowed.ts` then turns the right elbow toward the elbow of the bow on that mean string
+  (`crossPole()`), so the elbow stays near it, and the forearm and the wrist make the rest of the
+  crossing. The bow itself turns the full angle to each string. Before round `bow-arm`, the elbow
+  followed the wrist in each crossing.
 - **Slurs** (section 2.5). The MIDI files have no slurs, so `slurSizes()` of `pose/strokes.ts`
   guesses them from the score: two to four normal notes in one beat join into one bow when each
   note is shorter than 0.25 s, each gap is shorter than 0.03 s, and each note changes the pitch

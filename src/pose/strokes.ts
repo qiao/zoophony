@@ -50,7 +50,8 @@ export const BOW_MOTION = {
   /**
    * A stroke whose next stroke starts within this time is fast: at least 4 notes a second, the
    * lower end of the fast patterns of 4 to 8 notes a second (`docs/reference/string-technique.md`,
-   * section 2.3). A fast bow moves toward the balance point.
+   * section 2.3). In a fast run across two strings, the right elbow keeps the mean string, and a
+   * fast bow moves toward the balance point.
    */
   fastSec: 0.25,
   /**
@@ -171,6 +172,11 @@ export interface Stroke {
   readonly bowTo: number;
   /** The bow of the stroke: its own bow, or the bow of its slur. */
   readonly slur: BowSlur;
+  /**
+   * The string that the right elbow follows: the mean of the two strings of a fast run across two
+   * strings ({@link crossStrings}), else {@link Stroke.string}.
+   */
+  readonly crossMean: number;
   /** The tremolo amplitude in meters. 0 for the other techniques. */
   readonly tremolo: number;
   /** Whether the bow moves to `bowFrom` in the rest before the stroke, off the strings. */
@@ -189,6 +195,8 @@ export interface BowState {
   pluck: number;
   /** The string of the bow, from 0 to 3. */
   string: number;
+  /** The string that the right elbow follows, from 0 to 3 ({@link Stroke.crossMean}). */
+  crossMean: number;
   /**
    * The middle of the hand frame on the target `fingerboard`, from 0 to 1. It changes only in a
    * shift.
@@ -221,6 +229,7 @@ export function createBowState(): BowState {
     pizzicato: 0,
     pluck: -1,
     string: 0,
+    crossMean: 0,
     fingerboard: 0,
     reach: 0,
     stopString: 0,
@@ -365,6 +374,78 @@ export function slurSizes(strokes: readonly SlurNote[], beats: Float64Array): nu
   return sizes;
 }
 
+/** The start, the technique, and the string of the bow of a stroke, for the crossing rule. */
+export interface CrossNote {
+  readonly start: number;
+  readonly technique: Technique;
+  /** The string of the bow, from 0 to 3. */
+  readonly string: number;
+}
+
+/**
+ * Gives the string that the right elbow follows for each stroke (design 5.3,
+ * `docs/reference/string-technique.md`, section 2.3). In a fast run across two neighbor strings,
+ * the upper arm moves little: the elbow keeps the mean string, and the forearm and the wrist make
+ * the rest of the crossing. A run is fast when each stroke but the last starts the next stroke
+ * within `BOW_MOTION.fastSec`, and no stroke is pizzicato. The rule takes a run when its strings
+ * take two values at most one string apart and it changes the string at least twice. Each other
+ * stroke follows its own string.
+ *
+ * @param strokes The strokes of the player, sorted by start.
+ * @returns The string of the elbow of each stroke, from 0 to 3.
+ */
+export function crossStrings(strokes: readonly CrossNote[]): number[] {
+  const out = strokes.map((s) => s.string);
+  let k = 0;
+  while (k < strokes.length) {
+    const head = strokes[k];
+    if (!head) {
+      break;
+    }
+
+    // The longest fast run from `k` on at most two neighbor strings.
+    let low = head.string;
+    let high = head.string;
+    let changes = 0;
+    let changedAt = k;
+    let m = k;
+    for (;;) {
+      const here = strokes[m];
+      const next = strokes[m + 1];
+      if (
+        !here ||
+        !next ||
+        here.technique === 'pizzicato' ||
+        next.technique === 'pizzicato' ||
+        next.start - here.start >= BOW_MOTION.fastSec
+      ) {
+        break;
+      }
+      const string = next.string;
+      const wider = Math.max(high, string) - Math.min(low, string);
+      if (string !== low && string !== high && (low !== high || wider > 1)) {
+        break;
+      }
+      low = Math.min(low, string);
+      high = Math.max(high, string);
+      if (string !== here.string) {
+        changes += 1;
+        changedAt = m + 1;
+      }
+      m += 1;
+    }
+
+    if (changes >= 2) {
+      out.fill((low + high) / 2, k, m + 1);
+      k = m + 1;
+    } else {
+      // A run that starts at the last change can still reach a second string.
+      k = changes === 0 ? m + 1 : Math.max(k + 1, changedAt);
+    }
+  }
+  return out;
+}
+
 /**
  * Gives the change of the move of a fast bow toward the balance point and the middle of the bow
  * (design 5.3, `docs/reference/string-technique.md`, section 2.5): the middle of the bow moves
@@ -413,7 +494,8 @@ function bowInSlur(slur: BowSlur, time: number): number {
  * the notes. The bow changes direction on each bow: a note, or a slur of short notes in one beat
  * ({@link slurSizes}). A phrase starts with a down-bow at the frog. The length of a bow comes
  * from its length in time, and a little from the gesture size, and a fast bow moves toward the
- * balance point ({@link balanceShift}). Pizzicato strokes keep the bow where it is. A tremolo
+ * balance point ({@link balanceShift}). In a fast run across two strings, the right elbow keeps
+ * the mean string ({@link crossStrings}). Pizzicato strokes keep the bow where it is. A tremolo
  * stroke makes short fast strokes around the place of the bow. A stopped bowed note of at least
  * `LEFT_HAND.vibrato.minSec` gets vibrato.
  *
@@ -440,6 +522,13 @@ export function buildStrokes(
   const pitches = strokePitches(notes, loudness);
   const plan = planHand(pitches, TUNINGS[instrument], HAND_FRAMES[instrument], FINGERING_COSTS);
   const sizes = slurSizes(pitches, beats);
+  const arms = crossStrings(
+    pitches.map((p, k) => ({
+      start: p.start,
+      technique: p.technique,
+      string: plan[k]?.string ?? 0,
+    })),
+  );
 
   const strokes: Stroke[] = [];
   const [low, high] = range;
@@ -525,6 +614,7 @@ export function buildStrokes(
         bowFrom: single ? from : bowInSlur(slur, own.start),
         bowTo: single ? to : bowInSlur(slur, own.end),
         slur,
+        crossMean: arms[j] ?? fingered.string,
         tremolo,
         retake: retake && j === k,
       });
@@ -685,6 +775,7 @@ export function bowStateAt(
     out.pizzicato = 0;
     out.pluck = -1;
     out.string = 1.5;
+    out.crossMean = 1.5;
     out.fingerboard = fingerboardPlace(2);
     out.reach = 0;
     out.stopString = 1.5;
@@ -700,6 +791,7 @@ export function bowStateAt(
     out.pizzicato = pizzicatoOf(first);
     out.pluck = -1;
     out.string = first.string;
+    out.crossMean = first.crossMean;
     out.fingerboard = first.hand.place;
     out.reach = first.hand.reach;
     out.stopString = first.hand.stopString;
@@ -737,14 +829,17 @@ export function bowStateAt(
     }
   }
 
-  // The bow crosses to the string of the next note just before it.
+  // The bow crosses to the string of the next note just before it, and the right elbow follows
+  // the string of its arm.
   out.string = current.string;
+  out.crossMean = current.crossMean;
   if (next) {
     const interval = next.start - current.start;
     const cross = Math.min(m.crossSec, m.crossShare * interval);
     const end = next.start - Math.min(m.crossLeadSec, 0.1 * interval);
     const x = cross > 0 ? smoothstep((time - (end - cross)) / cross) : 0;
     out.string += (next.string - current.string) * x;
+    out.crossMean += (next.crossMean - current.crossMean) * x;
   }
   leftHandAt(current, next, time, out);
 

@@ -485,7 +485,12 @@ of each role.
   - **String crossing** (`BOW_MOTION` and `bowStateAt()` of `pose/strokes.ts`). The bow turns to
     the string of the next note in at most 0.08 s, and in at most 0.3 of the time from the note
     start to the next note. The turn ends 0.01 s before the next note, as the crossing of a
-    violinist leads the bow change by about 15° of the phase of a stroke pair.
+    violinist leads the bow change by about 15° of the phase of a stroke pair. In a fast run
+    across two neighbor strings (each next note within 0.25 s, and at least two changes of the
+    string), the right elbow keeps the mean string of the run (`crossStrings()`): its direction
+    turns toward the elbow of the bow on the mean string (`crossPole()` of `pose/bowed.ts`), and the
+    forearm and the wrist make the rest of the crossing, as a small forearm turn replaces a large
+    move of the upper arm.
   - **Shift** (`LEFT_HAND` and `bowStateAt()` of `pose/strokes.ts`). The hand moves along the
     neck only between two strokes with different positions, as one piece. The shift ends when the
     finger of the new note lands, 0.03 s before the note, as the finger of a violinist lands 26 ms
