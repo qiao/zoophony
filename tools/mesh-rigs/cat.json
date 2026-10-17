@@ -147,13 +147,14 @@
     "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh (crease_relax() of tools/blender/rig_mesh.py), with the values of the fox and the rabbit (docs/decisions/2026-10-16-hip-open.md). The seam has 15 vertices, 117 vertices move, at most 5.26 cm, and no face turns over (rig-mesh-check-cat-final.log). The corrective shapes give the source back, so the standing body keeps its form."
   },
   "sit": {
-    "gap": 0.004,
+    "gap": 0,
     "band": 0.2,
-    "ramp": 0.03,
+    "ramp": 0.015,
     "step": 0.005,
-    "smooth": 6,
+    "smooth": 2,
     "end": 0.0065,
-    "most": 0.12,
-    "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), with the values of the fox. The side view of the underside is 14.35 cm above the seat at most before, and 5.95 cm after (rig-mesh-check-cat-final.log). The fox keeps 2.0 cm. Its gap in units, 0.036, is the gap of the leg factor 1 (0.034 units). The corrective shapes give the source back, so the standing body keeps its form."
+    "most": 0.2,
+    "root": [0.7, 0.95],
+    "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py). The vertices at the root of the tail share their weight with the hips (0.45 to 0.51 of the tail), so with the values of the fox they moved by half of the drop, and the side view of the underside of the final bind stayed 5.22 cm above the seat. With root, a vertex counts its tail share only by its smoothstep from 0.7 to 0.95, so the root of the tail moves with the haunch. With no gap, a ramp of 0.015 units before the hip joints, a drop of at most 0.2 units, and 2 rounds of smoothing, the side view of the final bind is 1.93 cm above the seat at most. The seat is 1 mm lower, the chair 2 mm deeper, and the standing body stays within 0.248 mm of the source. The red fox keeps 2.0 cm. The retro values gap 0 and ramp 0.015 alone gave 5.00 cm, and the haunch ramp 0.12 to 0.2 gave 5.40 cm (pnpm rig-mesh cat --check with these values as --set variants). The corrective shapes give the source back, so the standing body keeps its form."
   }
 }
