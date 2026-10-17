@@ -9,8 +9,10 @@
  * with one row for each variant. The source files do not change.
  *
  * `--grid '<path>=<a>:<b>:<step>'` adds the variants of a range of values, and several `--grid`
- * options give the product of their ranges, up to {@link GRID_LIMIT} variants. A run with a grid
- * sorts the rows of the variants by the play folds, then by the deepest point. With `--faces <n>`,
+ * options give the product of their ranges. With `--set`, the grids go on top of each variant of
+ * `--set`, and the run has no row of a `--set` variant alone. The limit is {@link GRID_LIMIT}
+ * variants. A run with a grid sorts the rows of the variants by the play folds, then by the
+ * deepest point. With `--faces <n>`,
  * the faces that fold most in the base and in the best variant follow the table, as
  * `pnpm fold-probe --faces` writes them.
  *
@@ -237,31 +239,45 @@ export function gridChanges(grid: string): string[] {
 }
 
 /**
- * Gives the variants of the grids of a run: the product of the values of each grid, with the
- * changes of each variant separated by `;`.
+ * Gives the variants of the grids of a run: the product of the values of each grid on top of each
+ * base variant, with the changes of each variant separated by `;`. The changes of a grid come
+ * after the changes of its base, so a grid of a path that the base changes too wins.
  *
  * @param grids The grids ({@link gridChanges}).
- * @returns The variants, the first grid outermost, or none with no grid.
- * @throws Error if a grid does not fit, or if the product has more than {@link GRID_LIMIT}
- *   variants.
+ * @param bases The variants of `--set` that the grids go on top of, or the base with no change
+ *   (`''`) when the run has no `--set`.
+ * @param limit The largest number of variants, {@link GRID_LIMIT} by default.
+ * @returns The variants, the first base and the first grid outermost, or none with no grid.
+ * @throws Error if a grid does not fit, or if the product of the grids on top of the bases has
+ *   more than `limit` variants.
  */
-export function gridVariants(grids: readonly string[]): string[] {
+export function gridVariants(
+  grids: readonly string[],
+  bases: readonly string[] = [''],
+  limit: number = GRID_LIMIT,
+): string[] {
   if (grids.length === 0) {
     return [];
   }
   const ranges = grids.map(gridChanges);
-  const total = ranges.reduce((product, range) => product * range.length, 1);
-  if (total > GRID_LIMIT) {
+  const product = ranges.reduce((count, range) => count * range.length, 1);
+  const total = product * bases.length;
+  if (total > limit) {
+    const sizes = ranges.map((range) => range.length).join(' × ');
+    const on =
+      bases.length > 1 ? ` on each of ${bases.length} --set variants, ${total} in all,` : '';
     throw new Error(
-      `The grids give ${ranges.map((range) => range.length).join(' × ')} = ${total} variants, more than the limit of ${GRID_LIMIT}.`,
+      `The grids give ${sizes} = ${product} variants${on} more than the limit of ${limit}.`,
     );
   }
-  return ranges
-    .reduce<string[]>(
-      (variants, range) => variants.flatMap((variant) => range.map((c) => `${variant};${c}`)),
-      [''],
-    )
-    .map((variant) => variant.slice(1));
+  return bases.flatMap((base) =>
+    ranges
+      .reduce<string[]>(
+        (variants, range) => variants.flatMap((variant) => range.map((c) => `${variant};${c}`)),
+        [base],
+      )
+      .map((variant) => (base === '' ? variant.slice(1) : variant)),
+  );
 }
 
 /** The options of `pnpm hold-fit`. */
@@ -271,12 +287,15 @@ export interface FitOptions {
   /** The role. */
   readonly role: RoleSource;
   /**
-   * The variants: each is a list of changes of the holds. The first is the base, with none, then
-   * the variants of `--set`, then the variants of the grids.
+   * The variants: each is a list of changes of the holds. The first is the base, with none. With
+   * no grid, the variants of `--set` follow. With grids, the variants of the grids on top of each
+   * variant of `--set`, or on top of the base with no `--set`, follow ({@link gridVariants}).
    */
   readonly variants: readonly string[];
   /** The grids of `--grid`, as `<path>=<a>:<b>:<step>`. */
   readonly grids: readonly string[];
+  /** The number of variants of `--set` that the grids go on top of: 1 with no `--set`. */
+  readonly gridBases: number;
   /** The number of faces of `--faces` for the base and the best variant, or 0 for none. */
   readonly faces: number;
   /**
@@ -309,11 +328,11 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   if (!role) {
     throw new Error(USAGE);
   }
-  const variants = [''];
+  const sets: string[] = [];
   const grids: string[] = [];
   const demos: string[] = [];
   let step = FIT_STEP;
-  let sets: readonly FitSet[] = FIT_SETS;
+  let samples: readonly FitSet[] = FIT_SETS;
   let faces = 0;
   let json: string | null = null;
   let base: string | null = null;
@@ -324,13 +343,13 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
     }
     switch (rest[i]) {
       case '--set':
-        variants.push(value);
+        sets.push(value);
         break;
       case '--grid':
         grids.push(value);
         break;
       case '--sets':
-        sets = parseSets(value);
+        samples = parseSets(value);
         break;
       case '--faces':
         faces = Number(value);
@@ -357,14 +376,27 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
         throw new Error(`The option "${rest[i]}" is not known.\n${USAGE}`);
     }
   }
-  variants.push(...gridVariants(grids));
+  const bases = sets.length > 0 ? sets : [''];
+  const variants = ['', ...(grids.length > 0 ? gridVariants(grids, bases) : sets)];
   for (const variant of variants) {
     setHolds(variant).undo();
   }
   if (base !== null && json !== null) {
     throw new Error(`The options --base and --json do not go together.\n${USAGE}`);
   }
-  return { name, role, variants, grids, faces, demos, step, sets, json, base };
+  return {
+    name,
+    role,
+    variants,
+    grids,
+    gridBases: bases.length,
+    faces,
+    demos,
+    step,
+    sets: samples,
+    json,
+    base,
+  };
 }
 
 /**
@@ -1031,16 +1063,19 @@ export function faceSections(
  * Writes the size of the grids of a run.
  *
  * @param grids The grids.
+ * @param bases The number of variants of `--set` that the grids go on top of: 1 with no `--set`.
+ * @param limit The largest number of variants of the grids.
  * @returns The text, such as `Grids: 3 × 4 = 12 variants (the limit is 40).`, or empty with no
  *   grid.
  */
-function gridText(grids: readonly string[]): string {
+function gridText(grids: readonly string[], bases: number, limit: number = GRID_LIMIT): string {
   if (grids.length === 0) {
     return '';
   }
   const counts = grids.map((grid) => gridChanges(grid).length);
   const total = counts.reduce((product, n) => product * n, 1);
-  return `Grids: ${counts.join(' × ')} = ${total} variants (the limit is ${GRID_LIMIT}), sorted by the play folds, then by the deepest point.`;
+  const on = bases > 1 ? ` on top of each of ${bases} --set variants, ${total * bases} in all` : '';
+  return `Grids: ${counts.join(' × ')} = ${total} variants${on} (the limit is ${limit}), sorted by the play folds, then by the deepest point.`;
 }
 
 /**
@@ -1259,7 +1294,7 @@ async function compareFit(options: FitOptions, ref: string): Promise<void> {
   if (options.sets.length < FIT_SETS.length) {
     console.log(`Sample sets: ${options.sets.join(', ')}.`);
   }
-  const grid = gridText(options.grids);
+  const grid = gridText(options.grids, options.gridBases);
   if (grid) {
     console.log(grid);
   }
@@ -1299,7 +1334,7 @@ async function main(): Promise<void> {
   if (options.sets.length < FIT_SETS.length) {
     console.log(`Sample sets: ${options.sets.join(', ')}.`);
   }
-  const grid = gridText(options.grids);
+  const grid = gridText(options.grids, options.gridBases);
   if (grid) {
     console.log(grid);
   }
