@@ -90,11 +90,13 @@ player.
   conductor keeps its fixed line. The pianist plays test notes of its own, which the tool writes
   into the notes field of the page. The rabbit violinist shows from the front, both sides, and
   the back (5.3), around its body. Its moments are the frog and the tip of a whole bow, a string
-  crossing, the rest pose, and the standing soloist at the frog. The cat violist has the views and
-  the moments of the violinist, with its own test notes. With `--base <ref>`, the tool
+  crossing, the rest pose, the middle of the lift and of the lowering at the frog, and the
+  standing soloist at the frog. The cat violist has the views and the moments of the violinist,
+  with its own test notes. With `--base <ref>`, the tool
   puts the grid of a commit above the grid of the working tree, so a round shows the change of
   a body with no worktree of `main`. The mode `species` of the tool shows named species alone
-  on their seats, around their bodies, at named views. The low side view shows the knees, the
+  on their seats, around their bodies, at named views, in the playing pose, in the rest pose, or
+  at a share of the lift or of the lowering. The low side view shows the knees, the
   seat, and the soles. Thus a round of a body gets these images with no image script of its own
   (9.8).
 - The query `stand` gives each player of the species page the support `stand`, as a soloist who
@@ -102,6 +104,14 @@ player.
 - The query `rest` shows the players in the rest pose of 5.2, before the first play. With no
   `rest`, the players play. For example, `?page=species&only=rabbit&zoom=2.5&target=1.1&rest`
   shows a close view of the rest pose of the rabbit.
+- The query `lift=<share>` shows each animal at that share of its lift from the rest pose to the
+  playing pose (5.2), and `lower=<share>` at that share of its lowering after a pause. The share
+  is a part of the time of the move after its seeded delay, from 0 to 1. Each animal gets the
+  transport that puts it at the share of its own move (`moveTransport()` of
+  `src/gallery/items.ts`), so `poseAt()` gives the pose of the app at that point. Thus `lift=0`
+  shows the rest pose, and `lift=1` the playing pose at the time of the slider. The instrument
+  and the bow move with the same weight of the playing pose as the arms. For example,
+  `?page=species&only=cat&body&lift=0.5` shows the cat halfway through its lift.
 - The models stand in rows, and the camera looks down at them at 35°. A model hides the floor
   behind it for its height / tan 35°, so the gap in front of a row is at least the height of the
   tallest model of the next row / tan 35°, and at least 0.8 m. With a fixed gap of 0.8 m, the
