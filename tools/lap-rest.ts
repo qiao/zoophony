@@ -253,7 +253,7 @@ function heightAbove(points: readonly Vector3[], skin: readonly Triangle[]): num
  * @param posed The posed skeleton.
  * @returns The closed surface.
  */
-function armSurface(posed: PosedSkeleton): ClosedSurface {
+export function armSurface(posed: PosedSkeleton): ClosedSurface {
   const { triangles } = posedPart(posed, ARM_BONES);
   return closeSurface(triangles, openLoops(triangles));
 }
