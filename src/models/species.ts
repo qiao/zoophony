@@ -197,10 +197,11 @@ export const SPECIES = {
    *
    * The stick of the bow passes through the closed right paw (2026-10-17-grip-all decisions), 50°
    * from square toward the wrist, along the line nearest to the middles of the turned paw. The
-   * skin of the long wrist of the fox moves the middle of the paw by up to 3.5 cm on its bone, so
-   * one line keeps the seated paw within 1.2 cm and the hanging paw of a soloist within 2.2 cm. A
-   * turn of 60° folded face 184 of the right arm in 43% of the play samples. With the grip of
-   * `BOW_GRIP`, the stick lay 4.0 cm to 5.0 cm out from the middle of the paw, under the paw.
+   * skin of the long wrist of the fox moves the middle of the paw by up to 3.8 cm on its bone
+   * (2.1 cm with this grip), so one line keeps the seated paw within 1.2 cm and the hanging paw of a
+   * soloist within 2.2 cm. A turn of 60° folded face 184 of the right arm in 43% of the play
+   * samples. With the grip of `BOW_GRIP`, the stick lay 4.0 cm to 5.3 cm out from the middle of the
+   * paw, under the paw.
    */
   'fox-red': {
     body: 'studio-fox',
