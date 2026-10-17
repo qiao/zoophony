@@ -374,6 +374,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 
 ## 5.3 Instrument motion
 
+The pose index at the top of this file gives the hold constant, the source, and the view command
+of each role.
+
 - Bowed strings: the bow changes direction on each note. The bow speed comes from the note
   length. The left hand moves along the neck with the pitch.
 - Pizzicato plucks the string. Tremolo makes short fast strokes.
