@@ -132,7 +132,26 @@ export interface BowedHold {
     readonly tip: Vec3;
     /** The side of the hair, from the stick. */
     readonly hair: Vec3;
+    /**
+     * The bow in the middle of the lift and of the lowering, for a bow that rests upright: the
+     * tip turns through this side, and the grip moves out of the way of the body. `null` mixes
+     * the rest bow and the playing bow directly (design 5.2).
+     */
+    readonly via: BowVia | null;
   };
+}
+
+/**
+ * The bow in the middle of the lift and of the lowering ({@link BowedHold}). The directions are
+ * in the model axes of the bind pose.
+ */
+export interface BowVia {
+  /** The direction from the frog to the tip. */
+  readonly tip: Vec3;
+  /** The side of the hair, from the stick. */
+  readonly hair: Vec3;
+  /** The largest move of the grip in the middle of the move, in head heights. */
+  readonly reach: Vec3;
 }
 
 /** The free part of the bow hair at each end in the holds of the stage, in meters. */
@@ -187,6 +206,7 @@ const CHIN_HOLD = {
     lap: { along: 1, offset: [0.18, 0.08, 0] },
     tip: [-1, 0, -0.3],
     hair: [0, -1, 0.2],
+    via: null,
   },
 } as const satisfies BowedHold;
 
@@ -226,6 +246,7 @@ const FLOOR_HOLD = {
     lap: { along: 1, offset: [0.2, 0.08, 0] },
     tip: [-0.1, -0.1, -1],
     hair: [0, -1, 0.3],
+    via: null,
   },
 } as const satisfies BowedHold;
 
@@ -315,6 +336,7 @@ const SHOULDER_HOLD = {
     lap: { along: 0.8, offset: [0.5, 0.5, -0.3] },
     tip: LAP_BOW_TIP,
     hair: [0, -1, 0.2],
+    via: null,
   },
 } as const satisfies BowedHold;
 
@@ -367,6 +389,7 @@ const FOX_HOLD = {
     lap: { along: 0.45, offset: [0.2, 0.45, 0] },
     tip: LAP_BOW_TIP,
     hair: [0, -1, 0.2],
+    via: null,
   },
 } as const satisfies BowedHold;
 
@@ -504,6 +527,12 @@ export interface BowedRig {
     readonly grip: Vec3;
     /** The rotation of the `bow` bone from the bind pose. */
     readonly rotation: Quat;
+    /**
+     * The bow in the middle of the lift and of the lowering ({@link BowVia}): the rotation of the
+     * `bow` bone from the bind pose, and the move of the grip in meters, in the model axes.
+     * `null` mixes the rest bow and the playing bow directly.
+     */
+    readonly via: { readonly rotation: Quat; readonly reach: Vec3 } | null;
   };
   /** The part of the bow hair that the bow arm reaches on all strings (design 5.3). */
   readonly bowRange: BowRange;
@@ -728,9 +757,14 @@ export function bowedRig(
     );
   }
   const restBow = hold.restBow;
-  const bowTip = new Vector3(...restBow.tip).normalize();
-  const bowHair = new Vector3(...restBow.hair);
-  bowHair.addScaledVector(bowTip, -bowHair.dot(bowTip)).normalize();
+  const bowBind = setFromBasis(new Quaternion(), hairAxis, hairNormal).invert();
+  const bowRotation = (tip: Vec3, side: Vec3): Quat => {
+    const t = new Vector3(...tip).normalize();
+    const n = new Vector3(...side);
+    n.addScaledVector(t, -n.dot(t)).normalize();
+    return toQuat(setFromBasis(new Quaternion(), t, n).multiply(bowBind));
+  };
+  const via = restBow.via;
   const strings = new Vector3().crossVectors(top, axis);
   const rig: RigPoints = {
     hold,
@@ -766,11 +800,13 @@ export function bowedRig(
     restPoleL: hold.restPoleL,
     restBow: {
       grip: lapPoint(model, 'R', restBow.lap),
-      rotation: toQuat(
-        setFromBasis(new Quaternion(), bowTip, bowHair).multiply(
-          setFromBasis(new Quaternion(), hairAxis, hairNormal).invert(),
-        ),
-      ),
+      rotation: bowRotation(restBow.tip, restBow.hair),
+      via: via
+        ? {
+            rotation: bowRotation(via.tip, via.hair),
+            reach: toVec3(new Vector3(...via.reach).multiplyScalar(model.body.headHeight)),
+          }
+        : null,
     },
   };
   const rest = atSide ? standingRest(model, rig) : rig;
@@ -826,6 +862,7 @@ function standingRest(model: PlayerModel, rig: RigPoints): RigPoints {
     restBow: {
       grip: toVec3(new Vector3(...rig.grip).applyQuaternion(bowHand).add(wristR)),
       rotation: toQuat(bowHand),
+      via: null,
     },
   };
 }

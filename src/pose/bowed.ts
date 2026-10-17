@@ -437,6 +437,8 @@ const pluckBow: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
 const pluckHand: BowHand = { wrist: new Vector3(), rotation: new Quaternion() };
 const palmOffset = new Vector3();
 const restBow: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
+const viaRotation = new Quaternion();
+const viaReach = new Vector3();
 const held: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
 const stickBind = new Vector3();
 const pluckPalm = new Vector3();
@@ -463,6 +465,33 @@ const tipPole = new Vector3();
 const poleL = new Vector3();
 const restPole = new Vector3();
 const handL: StopHand = { wrist: new Vector3(), rotation: new Quaternion() };
+
+/**
+ * Moves the rest bow of a hold with a via ({@link BowedRig}) for the lift and the lowering (design
+ * 5.2): the pose mixes the moved rest bow and the playing bow by the weight of the playing pose.
+ * The rest bow turns toward the via, all the way at the weight 0.5, so that the tip of an upright
+ * bow turns through the side of the via and not through the head. The grip moves by
+ * `4 × weight` times the reach of the via, so that the mixed grip moves by the reach at the weight
+ * 0.5, and by 0 at the rest and at the play.
+ *
+ * @param rig The points of the player.
+ * @param frames The posed frames of the torso.
+ * @param weight The eased weight of the playing pose: 0 is the rest pose.
+ * @param bow The rest bow, in the posed axes. The function changes it in place.
+ */
+function liftVia(rig: RigPoints, frames: TorsoFrames, weight: number, bow: BowPlace): void {
+  const via = rig.restBow.via;
+  if (!via || weight <= 0 || weight >= 1) {
+    return;
+  }
+  const share = Math.sin(Math.min(Math.PI / 2, Math.PI * weight));
+  viaRotation.fromArray(via.rotation).premultiply(frames.root.rotation);
+  mixRotation(bow.rotation, viaRotation, share, bow.rotation);
+  bow.grip.addScaledVector(
+    viaReach.fromArray(via.reach).applyQuaternion(frames.root.rotation),
+    4 * weight,
+  );
+}
 
 /**
  * Writes the arms and the instrument of a bowed string player (design 5.3, 4.7). The bow plays
@@ -524,6 +553,7 @@ export function poseBowed(
   // In the rest pose, the hand holds the bow on the right thigh.
   restBow.rotation.fromArray(rig.restBow.rotation).premultiply(frames.root.rotation);
   posePoint(frames.root, ORIGIN, rig.restBow.grip, restBow.grip);
+  liftVia(rig, frames, weight, restBow);
 
   // First the hand keeps the hold of the bind pose, and the elbow the direction of the hold.
   mixRotation(restBow.rotation, bow.rotation, weight, held.rotation);
