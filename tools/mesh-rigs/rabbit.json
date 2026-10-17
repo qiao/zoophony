@@ -127,5 +127,11 @@
     "end": 0.02,
     "most": 0.045,
     "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind, with the rule of the fox (sit of tools/mesh-rigs/fox.json). The manager found the back of the haunch 2 to 5 cm above the seat on 2026-10-14. The drop is at most 0.045 units, and it fades over the last 0.02 units of the haunch, because the round back of the haunch meets the tail ball there: with no limit, 17 faces between the haunch and the ball turned over (docs/research/2026-10-14-fox-rabbit-fix.md). With the thighs 25 degrees down of 2026-10-17 and the limit 0.03 units of 2026-10-14, the side view of the final bind, with no part of the last 0.02 units, was 1.73 cm above the seat at most (2.12 cm with the thighs of 2026-10-16). With 0.04, 0.045, and 0.05 units, it is 1.24, 1.03, and 0.86 cm, and no face turns over (docs/research/2026-10-17-fox-form.md)."
+  },
+  "smooth": {
+    "box": [[-0.13, 0.5, -0.2], [0.13, 0.62, 0.03]],
+    "rounds": 12,
+    "share": 0.5,
+    "note": "The big head of the rabbit hangs over its narrow neck (x ±0.077 at y 0.55), and in the app the underside of the back of the head faces down into the shadow of the head: a dark band under the head from the back, so that the head looks like a cap (the manager on 2026-10-16, item 3 of the user: \"the rabbit's pose looks weird from behind and side\"). So the rig smooths the source inside the box before the weights, as for the fox and the cat: the back of the neck and the bottom of the back of the head (x from -0.13 to 0.13, y from 0.5 to 0.62, behind z 0.03), below the head center. The muzzle, the cheeks, the eyes, and the ears stay outside the box. Each vertex inside moves 0.5 of the way to the middle of its neighbors in 12 rounds: 47 vertices, at most 0.0297 units. The darkest row of the back view at the zoom 2.5 has the mean luminance 212 (66 on main), and 140 body pixels have a luminance below 150 (5029 on main). A smaller box (y from 0.52 to 0.6, behind z 0) left 2052 pixels, and a taller box (y to 0.64) put a dark crease at the side of the neck. The rig writes the move of the head center (0.60 cm) back into the file (head_shift()), and the head height H stays (docs/research/2026-10-17-fox-form.md)."
   }
 }
