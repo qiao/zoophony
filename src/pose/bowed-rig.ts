@@ -463,6 +463,10 @@ export const BOWED_HOLDS = {
  * red fox (2026-10-16-mesh-cat decisions). At the place of the viola hold, the paw reached the
  * fingerboard from 0.29 of its length (`pnpm hold-reach cat --instrument viola`).
  *
+ * The deeper chest of the cat form of 2026-10-17 (2026-10-16-cat-form decisions) took the room of
+ * the left elbow: with the left elbow pole of the chin hold, the left upper arm went 5.5 cm into
+ * the body in the play. The left elbow points out as far as down, and less forward.
+ *
  * The rest pose keeps the rest of the cat violas: the viola stands on the left thigh, and the bow
  * lies along the outer side of the right knee. The thighs of the cat mesh are long, so the bow
  * paw does not reach the knee: with the grip at the knee, the straight right arm went 6.9 cm into
@@ -482,6 +486,7 @@ export const BOWED_HOLDS = {
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
   playShift: [0.05, -0.05, 0.17],
+  poleL: [-1, -1, -0.75],
   restPoleR: [1, -1, 0],
   rest: { ...CHIN_HOLD.rest, lap: { along: 0.95, offset: [0, -0.4, -0.15] } },
   restBow: {
