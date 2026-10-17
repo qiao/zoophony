@@ -295,14 +295,13 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
 
 ## 3. Use in the app
 
-Since 2026-10-17 (round `left-hand`), the left hand of the app keeps its position, shifts, and
-moves its fingers as this reference gives: the position plan, the shift, the fingers, and vibrato
-of section 5.2 of the research report
+Since 2026-10-17 (round `left-hand`), the left hand of the app follows this reference: the position
+plan, the shift, the fingers, vibrato, and the left elbow of section 5.2 of the research report
 [`2026-10-17-string-hands.md`](../research/2026-10-17-string-hands.md). The report
-[`2026-10-17-left-hand.md`](../research/2026-10-17-left-hand.md) gives the measures. The left
-elbow and the bow arm do not follow the reference yet, and the items in bold
-that start with "No" or "The ... does not" list where they differ. A round that changes the motion
-replaces each such item with the rule of the app and its code.
+[`2026-10-17-left-hand.md`](../research/2026-10-17-left-hand.md) gives the measures. The bow arm
+does not follow the reference yet, and the items after "The bow arm" below list where it differs.
+A round that changes the motion replaces each item of the bow arm with the rule of the app and its
+code.
 
 ### 3.1 The left hand
 
@@ -329,8 +328,11 @@ replaces each such item with the rule of the app and its code.
   is 20 cents to each side on the violin and the viola and 15 cents on the cello and the
   contrabass, up to 50% wider in a high position and in a loud note. The whole hand moves, as a
   forearm vibrato.
-- **The left elbow does not follow the string.** The left elbow keeps the direction of its hold on
-  each string (`poleL` of `BowedHold`, section 1.8).
+- **The left elbow follows the string** (section 1.8). `leftElbow()` of `pose/bowed.ts` turns the
+  left elbow toward the body for the lower strings of the violin and the viola, and up for the
+  lower strings of the cello and the contrabass, for each string below the highest string
+  (`BowedHold.elbowPerString`). From the fourth to the sixth position, it turns a little further
+  (`BowedHold.highElbow`, section 1.5). No source gives the angles, so the holds tune them.
 
 ### 3.2 The bow arm
 

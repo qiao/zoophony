@@ -41,8 +41,24 @@ export interface BowedHold {
   readonly tip: Vec3;
   /** The left fingers tilt over the neck to this side of the strings. */
   readonly fingers: Vec3;
-  /** The direction to which the left elbow points while the player plays. */
+  /**
+   * The direction to which the left elbow points while the player plays, with the finger on the
+   * highest string, below the fourth position.
+   */
   readonly poleL: Vec3;
+  /**
+   * The direction toward which the left elbow turns for the lower strings and the high positions
+   * (design 5.3): toward the body on the violin and the viola, and up on the cello and the
+   * contrabass (`docs/reference/string-technique.md`, section 1.8).
+   */
+  readonly elbowToward: Vec3;
+  /** The turn of the left elbow toward {@link BowedHold.elbowToward} for each lower string. */
+  readonly elbowPerString: number;
+  /**
+   * The further turn of the left elbow toward {@link BowedHold.elbowToward} from the fourth
+   * position to the sixth position (`docs/reference/string-technique.md`, section 1.5).
+   */
+  readonly highElbow: number;
   /** The direction to which the right elbow points while the bow plays at the frog. */
   readonly poleR: Vec3;
   /**
@@ -204,6 +220,9 @@ const CHIN_HOLD = {
   tip: [0, 1, 0],
   fingers: [0, 1, 0],
   poleL: [-0.5, -1, -1],
+  elbowToward: [1, 0, 0],
+  elbowPerString: 5 * MathUtils.DEG2RAD,
+  highElbow: 4 * MathUtils.DEG2RAD,
   poleR: [1, -1, -1],
   poleTipR: [0.5, 1, -1],
   polePizzicato: [1, -0.5, -1],
@@ -250,6 +269,9 @@ const FLOOR_HOLD = {
   tip: [-1, 0, 0],
   fingers: [1, 0, 0],
   poleL: [-0.6, -1, -0.2],
+  elbowToward: [0, 1, 0],
+  elbowPerString: 10 * MathUtils.DEG2RAD,
+  highElbow: 6 * MathUtils.DEG2RAD,
   poleR: [1, 1.4, -0.3],
   poleTipR: [1, 1.4, -0.3],
   polePizzicato: [1, 0, 0],
@@ -448,10 +470,16 @@ const SHOULDER_HOLD = {
  * goes 3.3 cm into the body in each set (`pnpm hold-fit fox-violinist --base main --sets
  * lift,rest,lower`, 2026-10-17-grip-all decisions). The right elbow points down and a little out
  * and back, and the left elbow down and a little back.
+ *
+ * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
+ * the chin hold, the left forearm went 2.4 cm into the violin in the middle of the lift and of the
+ * lowering (1.6 cm and 1.9 cm on `main`), and with 2° 1.9 cm and 2.1 cm (2026-10-17-left-hand
+ * decisions).
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
   poleL: CHIN_HOLD.poleL,
+  elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [1.8, -0.7, -1],
   playShift: [-0.07, 0.05, 0.25],
   slant: -12 * MathUtils.DEG2RAD,
@@ -527,11 +555,16 @@ export const BOWED_HOLDS = {
  *
  * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
  * out, and turns it through the front in the lift and the lowering (`HANGING_BOW`).
+ *
+ * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
+ * the chin hold, the left upper arm went 1.5 cm into the deep chest in the play (0.3 cm on `main`),
+ * and with 2° 0.0 cm (2026-10-17-left-hand decisions).
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
   playShift: [0.05, -0.05, 0.17],
   poleL: [-1, -1, -0.75],
+  elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [1.1, -1, -1],
   restPoleR: [1, -1, 2],
   restPoleL: [-1, -1, 0.5],

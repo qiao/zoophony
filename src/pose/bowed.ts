@@ -2,9 +2,10 @@ import { MathUtils, Quaternion, Vector3 } from 'three';
 
 import { boneIndex } from '../models/rig.ts';
 import { mixDirection, mixRotation } from './blend.ts';
-import type { BowedRig, RigPoints } from './bowed-rig.ts';
+import type { BowedHold, BowedRig, RigPoints } from './bowed-rig.ts';
 import { createFrame, posePoint, setBoneRotation, setFromBasis } from './frames.ts';
 import type { TorsoFrames } from './frames.ts';
+import { HAND_FRAMES, handPlaceOf } from './fingering.ts';
 import { createArmPose, poseShoulder, solveArm, writeArm, writeCurl } from './ik.ts';
 import { smoothstep } from './rest.ts';
 import type { BowState } from './strokes.ts';
@@ -571,12 +572,54 @@ function liftVia(rig: RigPoints, frames: TorsoFrames, weight: number, bow: BowPl
 const finger = { reach: 0, stopString: 1.5 } satisfies StopFinger;
 
 /**
+ * The places of the hand frame of the violin in the fourth and in the sixth positions, on the
+ * target `fingerboard`. Between them, the left elbow turns by `BowedHold.highElbow`: on the
+ * violin and the viola, the hand goes over the shoulder of the instrument, and the elbow swings a
+ * little toward the body (`docs/reference/string-technique.md`, section 1.5).
+ */
+const HIGH_ELBOW = [
+  handPlaceOf(HAND_FRAMES.violin, 7),
+  handPlaceOf(HAND_FRAMES.violin, 10),
+] as const;
+
+const turnAxis = new Vector3();
+const elbowToward = new Vector3();
+
+/**
+ * Gives the direction of the left elbow while the player plays (design 5.3): the direction of
+ * the hold, turned toward `BowedHold.elbowToward` by `BowedHold.elbowPerString` for each string
+ * of the finger below the highest string, and by `BowedHold.highElbow` from the fourth position
+ * to the sixth position. The violin and the viola bring the elbow toward the body for the low
+ * strings, and the cello and the contrabass raise it (`docs/reference/string-technique.md`,
+ * section 1.8).
+ *
+ * @param hold The hold of the instrument.
+ * @param state The bow state: the string of the finger and the place of the hand.
+ * @param out The direction to write, in the axes of the chest.
+ * @returns `out`.
+ */
+export function leftElbow(hold: BowedHold, state: BowState, out: Vector3): Vector3 {
+  out.fromArray(hold.poleL);
+  const [from, to] = HIGH_ELBOW;
+  const angle =
+    hold.elbowPerString * (3 - state.stopString) +
+    hold.highElbow * smoothstep((state.fingerboard - from) / (to - from));
+  turnAxis.crossVectors(out, elbowToward.fromArray(hold.elbowToward));
+  const length = turnAxis.length();
+  if (angle === 0 || length < 1e-9) {
+    return out;
+  }
+  return out.applyAxisAngle(turnAxis.multiplyScalar(1 / length), angle);
+}
+
+/**
  * Writes the arms and the instrument of a bowed string player (design 5.3, 4.7). The bow plays
  * on the strings at the place of the bow state, on the string of the stroke, and lifts in a rest.
  * Pizzicato moves the right hand over the strings near the end of the fingerboard to pluck. The
  * middle of the left finger block presses the strings at the middle of the hand frame of the
  * position on the fingerboard, and the hand moves only in a shift and in the vibrato. The block
- * turns toward the finger of the note and rolls to its string. The two-bone IK places each arm. In the rest pose (design 5.2), the violin and
+ * turns toward the finger of the note and rolls to its string, and the left elbow follows the
+ * string. The two-bone IK places each arm. In the rest pose (design 5.2), the violin and
  * the viola stand on the left thigh, and the left fingers keep the strings. The right hand holds
  * the bow on the right thigh.
  *
@@ -749,18 +792,16 @@ export function poseBowed(
   finger.reach = state.reach * weight;
   finger.stopString = MIDDLE_FINGER.stopString + (state.stopString - 1.5) * weight;
   stopHandAt(rig, place, strings, stop, h.curlL * weight, finger, handL);
+  leftElbow(rig.hold, state, poleL);
   writeArm(
     {
       arm: rig.armL,
       shoulder: poseShoulder(rig.armL, chest, rig.chestBind, NO_TURN, shoulderL),
       wrist: handL.wrist,
       hand: handL.rotation,
-      pole: mixDirection(
-        poleL.fromArray(rig.restPoleL),
-        holdPole.fromArray(rig.hold.poleL),
-        weight,
-        poleL,
-      ).toArray(poleTuple),
+      pole: mixDirection(holdPole.fromArray(rig.restPoleL), poleL, weight, poleL).toArray(
+        poleTuple,
+      ),
     },
     chest.rotation,
     rotations,
