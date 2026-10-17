@@ -60,6 +60,14 @@ export interface BowedHold {
    * position to the sixth position (`docs/reference/string-technique.md`, section 1.5).
    */
   readonly highElbow: number;
+  /**
+   * The further tilt of the left hand over the neck, to the side of {@link BowedHold.fingers},
+   * from the second position to the fifth position (`leftTilt()` of `pose/bowed.ts`): the hand
+   * goes up and over the shoulder of the instrument, and the wrist comes up beside it
+   * (`docs/reference/string-technique.md`, section 1.5). The finger block keeps its place on the
+   * strings.
+   */
+  readonly highTilt: number;
   /** The direction to which the right elbow points while the bow plays at the frog. */
   readonly poleR: Vec3;
   /**
@@ -245,6 +253,7 @@ const CHIN_HOLD = {
   elbowToward: [1, 0, 0],
   elbowPerString: 5 * MathUtils.DEG2RAD,
   highElbow: 4 * MathUtils.DEG2RAD,
+  highTilt: 0,
   poleR: [1, -1, -1],
   poleTipR: [0.5, 1, -1],
   polePizzicato: [1, -0.5, -1],
@@ -303,6 +312,7 @@ const FLOOR_HOLD = {
   elbowToward: [0, 1, 0],
   elbowPerString: 10 * MathUtils.DEG2RAD,
   highElbow: 6 * MathUtils.DEG2RAD,
+  highTilt: 0,
   poleR: [1, 1.4, -0.3],
   poleTipR: [1, 1.4, -0.3],
   polePizzicato: [1, 0, 0],
@@ -909,6 +919,7 @@ function stopRangeOf(rig: RigPoints): readonly [low: number, high: number] {
       strings,
       stop,
       BOWED_HANDS.curlL,
+      0,
       MIDDLE_FINGER,
       hand,
     ).wrist.distanceTo(shoulder);
@@ -1102,7 +1113,7 @@ function standingRest(
   const { place, strings } = createBowPlaces();
   instrumentAt(rig, frames, 0, place);
   stringsAt(rig, place, strings);
-  const hand = stopHandAt(rig, place, strings, rig.hold.restPlace, 0, MIDDLE_FINGER, {
+  const hand = stopHandAt(rig, place, strings, rig.hold.restPlace, 0, 0, MIDDLE_FINGER, {
     wrist: new Vector3(),
     rotation: new Quaternion(),
   });

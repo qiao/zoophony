@@ -419,8 +419,9 @@ const rollAxis = new Vector3();
 
 /**
  * Places the left hand so that the middle of its finger block presses the strings at a place
- * on the fingerboard. The fingers point up from the strings, tilted over the neck, and the palm
- * faces the neck from below. The hand turns around the normal of the strings toward the finger of
+ * on the fingerboard. The fingers point up from the strings, tilted over the neck by
+ * `BOWED_HANDS.tiltL` and the further tilt of a high position, and the palm faces the neck from
+ * below. The hand turns around the normal of the strings toward the finger of
  * the note, by `BOWED_HANDS.reachTurn` at a reach of 1, and it rolls around the neck to the
  * string of the finger, by `BOWED_HANDS.rollL` for each string from the middle of the strings.
  *
@@ -429,6 +430,7 @@ const rollAxis = new Vector3();
  * @param strings The strings at their posed place.
  * @param stop The place on the target `fingerboard`: 0 at the nut, 1 at the end.
  * @param curlAngle The curl of the fingers, in radians.
+ * @param tilt The further tilt of the hand over the neck, in radians ({@link leftTilt}).
  * @param finger The reach and the string of the finger. {@link MIDDLE_FINGER} gives no turn.
  * @param out The hand to write.
  * @returns `out`, with the wrist and the rotation of the hand.
@@ -439,10 +441,11 @@ export function stopHandAt(
   strings: StringsPlace,
   stop: number,
   curlAngle: number,
+  tilt: number,
   finger: StopFinger,
   out: StopHand,
 ): StopHand {
-  const tilt = BOWED_HANDS.tiltL;
+  const fullTilt = BOWED_HANDS.tiltL + tilt;
   onInstrument(
     rig,
     place,
@@ -451,12 +454,12 @@ export function stopHandAt(
   fingers.fromArray(rig.fingers).applyQuaternion(place.rotation);
   fingersUp
     .copy(strings.top)
-    .multiplyScalar(Math.cos(tilt))
-    .addScaledVector(fingers, Math.sin(tilt));
+    .multiplyScalar(Math.cos(fullTilt))
+    .addScaledVector(fingers, Math.sin(fullTilt));
   palmSide
     .copy(fingers)
-    .multiplyScalar(Math.cos(tilt))
-    .addScaledVector(strings.top, -Math.sin(tilt));
+    .multiplyScalar(Math.cos(fullTilt))
+    .addScaledVector(strings.top, -Math.sin(fullTilt));
   // The bind hand hangs: its fingers point to -y, and its palm faces +x.
   setFromBasis(out.rotation, palmSide, fingersUp.negate());
   // The turn toward the finger keeps the middle of the finger block on the stop.
@@ -721,6 +724,33 @@ const HIGH_ELBOW = [
   handPlaceOf(HAND_FRAMES.violin, 10),
 ] as const;
 
+/**
+ * The places of the hand frame of the violin in the second and in the fifth positions (the first
+ * finger 3 and 8 semitones above the open string), on the target `fingerboard`. Between them, the
+ * left hand tilts further over the neck by `BowedHold.highTilt`. A real hand goes up and over the
+ * shoulder of the instrument from the third position to the sixth position
+ * (`docs/reference/string-technique.md`, section 1.5). The tilt starts and ends one position
+ * earlier, because the left forearm of the cat touches the upper bout of the viola from the third
+ * position (2026-10-17-cat-hand decisions).
+ */
+const HIGH_HAND = [handPlaceOf(HAND_FRAMES.violin, 3), handPlaceOf(HAND_FRAMES.violin, 8)] as const;
+
+/**
+ * Gives the further tilt of the left hand over the neck while the player plays (design 5.3): 0
+ * up to the second position, `BowedHold.highTilt` from the fifth position, and a smooth change
+ * between them ({@link HIGH_HAND}). The wrist comes up beside the shoulder of the instrument,
+ * and the finger block keeps its place on the strings.
+ *
+ * @param hold The hold of the instrument.
+ * @param fingerboard The place of the hand frame on the target `fingerboard`: 0 at the nut, 1 at
+ *   the end.
+ * @returns The tilt, in radians.
+ */
+export function leftTilt(hold: BowedHold, fingerboard: number): number {
+  const [from, to] = HIGH_HAND;
+  return hold.highTilt * smoothstep((fingerboard - from) / (to - from));
+}
+
 const turnAxis = new Vector3();
 const elbowToward = new Vector3();
 
@@ -757,8 +787,8 @@ export function leftElbow(hold: BowedHold, state: BowState, out: Vector3): Vecto
  * Pizzicato moves the right hand over the strings near the end of the fingerboard to pluck. The
  * middle of the left finger block presses the strings at the middle of the hand frame of the
  * position on the fingerboard, and the hand moves only in a shift and in the vibrato. The block
- * turns toward the finger of the note and rolls to its string, and the left elbow follows the
- * string. The two-bone IK places each arm. In the rest pose (design 5.2), the violin and
+ * turns toward the finger of the note and rolls to its string, the hand tilts further over the
+ * neck in a high position, and the left elbow follows the string. The two-bone IK places each arm. In the rest pose (design 5.2), the violin and
  * the viola stand on the left thigh, and the left fingers keep the strings. The right hand holds
  * the bow on the right thigh.
  *
@@ -940,14 +970,16 @@ export function poseBowed(
 
   // The left hand keeps the place of its hand frame on the fingerboard, in the part of the
   // fingerboard that the arm reaches, and moves with the vibrato. It turns toward the finger of
-  // the note and rolls to its string. In the rest pose, it keeps the place of the rest. The press
-  // of a note curls the fingers more, but it does not move the hand.
+  // the note and rolls to its string, and in a high position it tilts further over the neck. In
+  // the rest pose, it keeps the place of the rest. The press of a note curls the fingers more, but
+  // it does not move the hand.
   const [low, high] = rig.stopRange;
   const note = low + (state.fingerboard + state.vibrato) * (high - low);
   const stop = rig.hold.restPlace + (note - rig.hold.restPlace) * weight;
   finger.reach = state.reach * weight;
   finger.stopString = MIDDLE_FINGER.stopString + (state.stopString - 1.5) * weight;
-  stopHandAt(rig, place, strings, stop, h.curlL * weight, finger, handL);
+  const handTilt = leftTilt(rig.hold, state.fingerboard) * weight;
+  stopHandAt(rig, place, strings, stop, h.curlL * weight, handTilt, finger, handL);
   leftElbow(rig.hold, state, poleL);
   writeArm(
     {
