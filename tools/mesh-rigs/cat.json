@@ -122,10 +122,10 @@
   },
   "chair": {
     "halfWidth": 0.17,
-    "front": 0.08,
+    "front": 0.1,
     "back": -0.111,
     "backHeight": 0.15,
-    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the cat (x ±0.14). The front edge ends where the thighs, which slope down, leave the seat top at the haunch: with the front edge 0.01 units further forward, the seat top falls 0.6 mm under the thighs, the next 0.01 units give no more fall, and the shins start at z 0.118 (docs/research/2026-10-16-cat-mesh/rig-mesh-check-cat-chair.log). So the seat of the app is 0.166 m deep and 0.075 m high, and its front edge is 3.3 cm behind the back of the knees. The back edge keeps the back of the haunch 1.0 cm in front of the back posts of the chair of the app, as for the red fox (seat-probe.txt). The back edge of -0.12 units kept it 1.8 cm in front."
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the cat (x ±0.14). The front edge ends where the thighs, which slope down, leave the seat top at the haunch. With the leg factor 1.5, the seat top stays at 0.216 units with the front edge from 0.08 to 0.1 units, and it falls 0.0013 units under the thighs with 0.11 and 0.12 units. The shins start at z 0.160 units (docs/research/2026-10-16-cat-mesh/rig-mesh-check-cat-front.log). So the seat of the app is 0.203 m high and 0.346 m deep. With the leg factor 1, the front edge was 0.08 units (rig-mesh-check-cat-chair.log). The back edge keeps the back of the haunch 1.0 cm in front of the back posts of the chair of the app, as for the red fox (seat-probe.txt). The back edge of -0.12 units kept it 1.8 cm in front."
   },
   "crease": {
     "rings": 2,
