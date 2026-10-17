@@ -345,16 +345,18 @@ const HANGING_BOW = {
  * the left also reached the nut, but folded the skin of the left arm in 76% to 100% of the play
  * samples (2026-10-14-arms-rest decisions). The back stays straight. The bow lies nearly square
  * across the strings. The right arm has the shoulder turn of the chin hold. At the frog, the right
- * elbow points out, forward, and less down than in the chin hold, nearer to the level of the bow,
- * and the bow keeps 0.06 m of free hair at each end: with the larger violin, the bow paw went
- * 3.2 cm into the body at the frog, and 1.9 cm with this elbow and this free hair. The right
- * elbow points down at the tip too: up, as in the chin hold, the skin of the studio rabbit folded
- * at the right upper arm (`pnpm fold-probe violinist`). The left elbow points out, down, and a
- * little forward, (-1, -1, -0.5), further out than the pole of the chin hold: with that pole, the
- * left paw went 2.3 cm into the violin and the play folded in 3.8% of the samples, and with this
- * pole 2.0 cm and 0.3% (2026-10-14-fox-rabbit-fix decisions). A pole further in put the elbow
- * under the violin, and turned over faces of the left upper arm of the rabbit mesh in each play
- * sample (2026-10-13-mesh-rabbit decisions).
+ * elbow points out, forward, and down, (1.5, -1.5, -1), and the bow keeps 0.06 m of free hair at
+ * each end: with the larger violin, the bow paw went 3.2 cm into the body at the frog, and 1.9 cm
+ * with the elbow (1.5, -0.7, -1), nearer to the level of the bow, and this free hair. With the
+ * stick through the middle of the paw of 2026-10-17, that elbow put the right paw 2.1 cm into the
+ * violin at the first note after the lift (1.2 cm before), and this elbow 1.4 cm
+ * (2026-10-17-grip-all decisions). The right elbow points down at the tip too: up, as in the chin
+ * hold, the skin of the studio rabbit folded at the right upper arm (`pnpm fold-probe violinist`).
+ * The left elbow points out, down, and a little forward, (-1, -1, -0.5), further out than the pole
+ * of the chin hold: with that pole, the left paw went 2.3 cm into the violin and the play folded in
+ * 3.8% of the samples, and with this pole 2.0 cm and 0.3% (2026-10-14-fox-rabbit-fix decisions). A
+ * pole further in put the elbow under the violin, and turned over faces of the left upper arm of
+ * the rabbit mesh in each play sample (2026-10-13-mesh-rabbit decisions).
  *
  * The rest pose is the rest of the seated violinist of the image of the user (2026-10-16-bow-rest
  * decisions): the violin stands upright on the left thigh, held at the bottom of its neck, and the
@@ -385,7 +387,7 @@ const SHOULDER_HOLD = {
   poleL: [-1, -1, -0.5],
   playShift: [-0.054, -0.05, 0.19],
   playTurn: violinTurn(-25, 5),
-  poleR: [1.5, -0.7, -1],
+  poleR: [1.5, -1.5, -1],
   freeHair: 0.06,
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
