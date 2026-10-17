@@ -814,8 +814,9 @@ function writeMatrix(
  * from the forearm to the paw. The fingers of the studio curl around their own axis by the curl
  * of the fingers of the player. The arm-down shape of each arm takes its weight from the
  * direction of the upper arm between the bind pose of the studio and the pose of the sheet, as in
- * the studio. Each shape of a raised arm takes its weight from the turn of its upper arm, and each
- * shape of a bent wrist from the turn of its paw from the forearm ({@link raiseWeight}). The eyes
+ * the studio. Each shape of a raised arm takes its weight from the turn of its upper arm, each
+ * shape of a bent elbow from the turn of its forearm from the upper arm, and each shape of a bent
+ * wrist from the turn of its paw from the forearm ({@link raiseWeight}). The eyes
  * scale on y for a blink. The bones of the player follow, for the instrument, with the offsets of
  * the instrument and of the slide, as the scene moves them (design 5.1).
  *
@@ -898,10 +899,13 @@ export function poseStudioBones(
       if (raise.side !== arm.side) {
         continue;
       }
-      // The shape of a bent wrist reads the turn of the paw from the forearm, and the shape of a
-      // raised arm the turn of the upper arm in the axes of the chest.
+      // The shape of a bent wrist reads the turn of the paw from the forearm, the shape of a bent
+      // elbow the turn of the forearm from the upper arm, and the shape of a raised arm the turn
+      // of the upper arm in the axes of the chest.
       if (raise.bone === 'hand') {
         relative.copy(foreTurn).invert().multiply(handTurn);
+      } else if (raise.bone === 'forearm') {
+        relative.copy(upperTurn).invert().multiply(foreTurn);
       } else {
         relative.copy(chestInverse).multiply(upperTurn);
       }

@@ -228,22 +228,26 @@ export const STUDIO_RAISES = 4;
  * of `pnpm rig-mesh`). The shape relaxes the faces that the skin turns over near that pose, such as
  * the front of the right shoulder of the red fox, whose bow arm is out to the side and down. Its
  * weight comes from the turn of the upper arm alone (`raiseWeight()` of `models/studio-rig.ts`).
- * The shape of a bent wrist takes its weight from the turn of the paw from the forearm, as the
- * left wrist of the cat, whose paw stays near one turn on the fingerboard. A body can have up to
- * {@link STUDIO_RAISES} such shapes, and each one takes its weight from its own turn.
+ * The shape of a bent elbow takes its weight from the turn of the forearm from the upper arm, as
+ * the right elbow of the cat, which stays near one bend in the bow strokes. The shape of a bent
+ * wrist takes its weight from the turn of the paw from the forearm, as the left wrist of the cat,
+ * whose paw stays near one turn on the fingerboard. A body can have up to {@link STUDIO_RAISES}
+ * such shapes, and each one takes its weight from its own turn.
  */
 export interface StudioRaise {
   /** The arm of the shape. */
   readonly side: Side;
   /**
-   * The bone whose turn gives the weight: `hand` for the paw, whose turn from the forearm gives
-   * the weight of the shape of a bent wrist. The upper arm when it is not given.
+   * The bone whose turn gives the weight: `forearm` for the forearm, whose turn from the upper arm
+   * gives the weight of the shape of a bent elbow, and `hand` for the paw, whose turn from the
+   * forearm gives the weight of the shape of a bent wrist. The upper arm when it is not given.
    */
-  readonly bone?: 'hand';
+  readonly bone?: 'forearm' | 'hand';
   /**
    * The turn at which the shape has its full weight: the world turn of the upper arm from the bind
-   * pose, in the axes of the chest, or for the paw the world turn of the paw from the bind pose
-   * after the inverse of the world turn of the forearm.
+   * pose, in the axes of the chest. For the forearm, it is the world turn of the forearm from the
+   * bind pose after the inverse of the world turn of the upper arm. For the paw, it is the world
+   * turn of the paw from the bind pose after the inverse of the world turn of the forearm.
    */
   readonly turn: Quat;
   /**

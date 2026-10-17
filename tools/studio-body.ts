@@ -442,11 +442,15 @@ interface Gltf {
 export interface RaiseExtras {
   /** The side of the arm: `L` or `R`. */
   readonly side?: string;
-  /** The bone of the turn: `hand` for a bent wrist, or none for the upper arm. */
+  /**
+   * The bone of the turn: `forearm` for a bent elbow, `hand` for a bent wrist, or none for the
+   * upper arm.
+   */
   readonly bone?: string;
   /**
    * The turn at which the shape has its full weight, as x, y, z, w: the world turn of the upper
-   * arm from the bind pose, or with the bone `hand` the turn of the paw from the forearm.
+   * arm from the bind pose, with the bone `forearm` the turn of the forearm from the upper arm,
+   * or with the bone `hand` the turn of the paw from the forearm.
    */
   readonly turn?: readonly number[];
   /**
@@ -532,7 +536,7 @@ export interface FileRaise {
  * @param glb The file.
  * @returns The shapes, or none when the file has no such shape.
  * @throws Error if the file has more than {@link STUDIO_RAISES} poses, if a side is not `L` or
- *   `R`, if a bone is given and is not `hand`, if a turn is not four finite numbers of length 1,
+ *   `R`, if a bone is given and is not `forearm` or `hand`, if a turn is not four finite numbers of length 1,
  *   if the angles are not two numbers with 0 <= first < second, if a target does not have the form
  *   `arm_raise_<side>`, if two poses name one target, or if the file has no morph target of a
  *   shape.
@@ -553,8 +557,8 @@ export function raisesOf(glb: Glb): FileRaise[] {
     if (side !== 'L' && side !== 'R') {
       throw new Error(`The side ${String(side)} of the raised arm is not L or R.`);
     }
-    if (bone !== undefined && bone !== 'hand') {
-      throw new Error(`The bone ${bone} of the raised arm is not hand.`);
+    if (bone !== undefined && bone !== 'forearm' && bone !== 'hand') {
+      throw new Error(`The bone ${bone} of the raised arm is not forearm or hand.`);
     }
     const [x = 0, y = 0, z = 0, w = 0] = turn;
     if (
@@ -588,9 +592,9 @@ export function raisesOf(glb: Glb): FileRaise[] {
       round(none * MathUtils.DEG2RAD),
     ];
     const pose: StudioRaise =
-      bone === 'hand'
-        ? { side, bone, turn: model, fade: angles }
-        : { side, turn: model, fade: angles };
+      bone === undefined
+        ? { side, turn: model, fade: angles }
+        : { side, bone, turn: model, fade: angles };
     out.push({ pose, target });
   }
   return out;
