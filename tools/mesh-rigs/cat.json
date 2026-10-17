@@ -201,6 +201,17 @@
       "fade": [20, 40],
       "below": 0.3,
       "note": "The shape of the bent right elbow of the cat violist (raise_shape() of tools/blender/rig_mesh.py, 2026-10-17-multi-shape decisions). On main, faces 235, 332, and 338 across the right elbow folded in 92.6%, 87.7%, and 31.2% of the play samples, and the turn of forearm_R from upper_arm_R stayed within 10 degrees of one turn of 44.6 degrees in 3830 of 4426 play samples at a step of 1 s, while the turn of the upper arm spread over 90 degrees (elbow-235.txt and turns-235.txt of docs/research/2026-10-17-multi-shape/). The forearm takes that mean turn from the upper arm. The clavicle takes its turn of 30 degrees around y, the same in each play sample (clavicle-shoulder.txt), and the upper arm the mean turn of 76.4 degrees of the samples in which the faces of the right shoulder fold (upper-shoulder.txt). With the fade 20 to 40 degrees and the cosine 0.3, the play folds of the cat fall from 100% to 43.5% at a step of 1 s, and the folded face-samples of forearm_R to 29. The cosine 0.5, the fade 10 to 30 degrees, and one ring (grow 1) folded 43.4% to 43.8% (rig-check-elbow1.log)."
+    },
+    {
+      "side": "R",
+      "turns": {
+        "clavicle": [0, 0.2588, 0, 0.9659],
+        "upper_arm": [0.4908, 0.1165, -0.6572, 0.56],
+        "forearm": [-0.2187, 0.1236, -0.2847, 0.9251]
+      },
+      "fade": [30, 50],
+      "below": 0.3,
+      "note": "The shape of the raised right arm of the cat violist with the bent elbow of the play (turns.forearm, 2026-10-17-multi-shape decisions). After the shape of the elbow, faces 162, 206, and 254 of the right shoulder folded only with the upper arm forward and up: within 30, 25, and 20 degrees of turns of 111.9, 125.6, and 138.4 degrees around one axis (elbow-turns-162.txt, elbow-turns-206.txt, and elbow-turns-254.txt). The upper arm takes the mean turn of face 162, and the clavicle and the forearm the turns of the shape of the elbow, so that this shape is solved on top of it. With the fade 30 to 50 degrees and the cosine 0.3, the play folds of the cat at a step of 1 s fall from 43.5% with the shape of the elbow alone to 33.7%. At the mean turn of face 206, the fades 20 to 40 and 30 to 50 degrees folded 41.1% and 39.4%, and one ring (grow 1) changed nothing (rig-check-shoulder1.log). At this turn, the fades 20 to 40 and 25 to 45 degrees and the cosine 0.5 also folded 33.6% to 33.7%, and the fade 30 to 50 degrees folded the fewest face-samples of the right shoulder (rig-check-shoulder2.log)."
     }
   ]
 }
