@@ -398,7 +398,7 @@ A new species with a studio body:
 | `docs/design/04-stage-cast-look.md` | "4.5 Visual values", "Facets and triangle budgets" | the studio bodies of the sections and the triangles of the pea eyes | |
 | `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the scale of the instrument and the reach of each species | |
 | `docs/design/04-stage-cast-look.md` | "4.7 Rig" | the optional bones of a rig, such as `tail_tip` | |
-| `docs/design/07-architecture.md` | "7.1 Modules", the text of `VIEW_SHEETS` | the sheet pages of `views.html` (`VIEW_SHEETS`), only for a species with a sheet page | |
+| `docs/design/07-architecture.md` | "7.1 Modules", the text of `VIEW_SHEETS` | the sheet pages of `views.html` (`VIEW_SHEETS`), only for a species with a sheet page | `cat` |
 | `AGENTS.md` | "Design" | each studio body with its mesh or its studio animal, its decision files, and its role of `pnpm close-views` | |
 | `AGENTS.md` | "Model work", "Route 3: a studio body" | the bodies of route 3 | |
 | `AGENTS.md` | "Model work", "A mesh with no skeleton into route 3." | the meshes of the user | |
@@ -406,7 +406,7 @@ A new species with a studio body:
 | `AGENTS.md` | "Commands", the row of `pnpm studio-body` | the landmark of the scale of each animal in `ANIMALS` | |
 | `docs/briefs/studio-body.md` | "7. A mesh with no skeleton" | the example meshes of the user | |
 | `assets/models/<s>/README.md` | the whole file | the source, the license, and the checksum of a mesh of the user | |
-| `lowpoly-studio/docs/handoff.md` and `lowpoly-studio/README.md` | the whole files | only a body that the studio builds | |
+| `lowpoly-studio/docs/handoff.md` and `lowpoly-studio/README.md` | the whole files | only a body that the studio builds | `rabbit`, `fox-red`, `fox-tan`, `cat` |
 
 A new role:
 
@@ -424,7 +424,8 @@ A new hold:
 |---|---|---|---|
 | `docs/design/05-animation.md` | "Pose index" | the support, the source, the play, the rest, the code, and the docs of the role | |
 | `docs/design/05-animation.md` | "5.2 Rest pose" | the rest of the instrument and of the bow, such as the upright bow and its via | |
-| `docs/design/05-animation.md` | "5.3 Instrument motion", "Bowed strings in detail" | the play hold of each species, the rest bow, and the bow of a soloist who stands (`standBow`) | |
+| `docs/design/05-animation.md` | "5.3 Instrument motion", "Bowed strings in detail" | the play hold of each species with a bow, the rest bow, and the bow of a soloist who stands (`standBow`) | `fox-tan` |
+| `docs/design/05-animation.md` | "5.3 Instrument motion", "Woodwinds and brass in detail" | the hold of each species with a wind instrument | `rabbit`, `fox-red`, `cat` |
 | `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the reach of the nut, or of the grip of a wind instrument | |
 | `AGENTS.md` | "Design" | the hold of each studio body | |
 | `docs/decisions/<date>-<topic>.md` | the whole file | the decision file of the hold | |
