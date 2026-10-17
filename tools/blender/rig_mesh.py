@@ -58,8 +58,9 @@ reads it (route 3 of `AGENTS.md`). The steps:
 8. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
    and the other vertices give `legs_straight_L` and `legs_straight_R`. With `raise` of the
-   config, the shape of a raised arm follows (`arm_raise_R`): the move that relaxes the faces
-   which the skin turns over in the pose of the rule (`raise_shape()`).
+   config, the shape of each rule follows, such as `arm_raise_R` (`raise_rules()`): the move
+   that relaxes the faces which the skin turns over in the pose of the rule (`raise_shape()`).
+   `raise` holds one rule, or a list of up to four rules for a raised arm or a bent wrist.
 9. Write the GLB file with the code of this script: the materials `fur`, `gloss`, and `chair`,
    the skinned mesh with its morph targets, the skeleton, the clip `reference` with one key, a
    chair under the seated body, and the facts that `pnpm studio-body` reads in the extras of the
@@ -135,9 +136,13 @@ INFLUENCES = 4
 WEIGHT_STEPS = 255
 
 #: The corrective shapes, in their order in the mesh (`tools/studio-body.ts`). The clip
-#: `reference` gives each one its full weight. A config with `raise` adds the shape of the raised
-#: arm after them, with the weight 0 in that clip.
+#: `reference` gives each one its full weight. A config with `raise` adds the shape of each rule
+#: after them, with the weight 0 in that clip (`raise_rules()`).
 SHAPES = ('arm_down_L', 'arm_down_R', 'legs_straight_L', 'legs_straight_R')
+
+#: The largest number of rules of `raise` of a config: the shapes of a raised arm or of a bent
+#: wrist of one body (`STUDIO_RAISES` of `src/models/studio-format.ts`).
+RAISE_LIMIT = 4
 
 #: The roughness of each material, as the materials of the studio rabbit.
 MATERIALS = (('chair', 0.6), ('fur', 0.7), ('gloss', 0.42))
@@ -2298,6 +2303,25 @@ def split_shapes(moves, weights, bind):
     return {name: out[name] for name in SHAPES}
 
 
+def raise_rules(config):
+    """Gives the rules of the corrective shapes of `raise` of the config, each with the name of its
+    morph target. `raise` holds one rule, or a list of rules. The first rule of a side makes the
+    shape `arm_raise_<side>`, and the next rules of the side make `arm_raise_<side>2`,
+    `arm_raise_<side>3`, and so on. A config with no `raise` gives no rule."""
+    rules = config.get('raise', [])
+    if isinstance(rules, dict):
+        rules = [rules]
+    if len(rules) > RAISE_LIMIT:
+        raise SystemExit(f'The config has {len(rules)} rules in raise, more than {RAISE_LIMIT}.')
+    seen = {'L': 0, 'R': 0}
+    out = []
+    for rule in rules:
+        side = rule['side']
+        seen[side] += 1
+        out.append((rule, f'arm_raise_{side}' + (str(seen[side]) if seen[side] > 1 else '')))
+    return out
+
+
 def raise_shape(rule, bind, tris, weights, heads, down, sheet):
     """Finds the corrective shape of a raised arm (`raise` of the config): the move of each vertex
     in the bind pose that relaxes the faces which the skin turns over in the pose of the rule. In
@@ -2867,21 +2891,23 @@ def main():
     log(f'corrective: the clip gives the source back within {error:.2e} u '
         f'({error * meters * 1000:.4f} mm)')
     shapes = split_shapes(moves, weights_all, bind_all)
-    raised = None
-    if 'raise' in config:
-        rule = config['raise']
+    raised = []
+    for rule, target in raise_rules(config):
         side = rule['side']
         sheet = long_heads[f'forearm_{side}'] - long_heads[f'upper_arm_{side}']
         shape, down_weight, before, after, rounds, count = raise_shape(
             rule, bind_all, tris_all, weights_all, bind_heads, shapes[f'arm_down_{side}'], sheet)
-        shapes[f'arm_raise_{side}'] = shape
+        shapes[target] = shape
         key = 'hand' if rule.get('bone') == 'hand' else 'upper_arm'
-        raised = {'side': side, 'turn': [round(float(x), 6) + 0.0
-                                         for x in unit(rule['turns'][key])],
-                  'fade': [float(x) for x in rule['fade']]}
+        entry = {'side': side, 'turn': [round(float(x), 6) + 0.0
+                                        for x in unit(rule['turns'][key])],
+                 'fade': [float(x) for x in rule['fade']]}
         if key == 'hand':
-            raised['bone'] = 'hand'
-        log(f'raise {side}: the arm-down shape has the weight {down_weight:.3f} in the pose, '
+            entry['bone'] = 'hand'
+        if isinstance(config['raise'], list):
+            entry['target'] = target
+        raised.append(entry)
+        log(f'raise {target}: the arm-down shape has the weight {down_weight:.3f} in the pose, '
             f'{before} faces turn over before and {after} after {rounds} rounds of relaxing, '
             f'{count} vertices move')
     for name, shape in shapes.items():
@@ -2902,7 +2928,9 @@ def main():
     extras = {key: config[key] for key in ('headFactor', 'neckFactor')
               if config.get(key, 1) != 1}
     if raised:
-        extras['raise'] = raised
+        # One rule writes one pose, as the files before the list of rules did, so that their bytes
+        # stay.
+        extras['raise'] = raised if isinstance(config['raise'], list) else raised[0]
     if trunk:
         # `pnpm studio-body` takes the scale of the standing shoulders from the clip `reference`
         # of a rig whose trunk reclines in the seated bind pose.
