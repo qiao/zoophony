@@ -165,6 +165,14 @@ export const SPECIES = {
    * studio body, in H. Its violin is almost the violin of the app, the size that the user chose:
    * the user made its arms longer for a full violin, and then shorter with the same violin
    * (2026-10-14-arms-rest decisions).
+   *
+   * The stick of the bow passes through the middle of the closed right paw (2026-10-17-grip-all
+   * decisions), as for the cat. The stick lies 40° from square toward the wrist, near the line of
+   * the middles of the turned paw, so that the paw keeps the stick in each turn. The paw holds the
+   * stick 2.3 cm nearer to the tip than the grip of `BOW_GRIP`: at the place of that grip along the
+   * stick, the skin of the right upper arm folded in 2.3% of the play samples (0.7% before), and
+   * at this place in 1.3%. With the grip of `BOW_GRIP`, the stick lay 3.7 cm to 5.3 cm out from the
+   * middle of the paw on the palm side, under the paw.
    */
   rabbit: {
     body: 'studio-rabbit',
@@ -172,6 +180,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
     violinScale: 0.958,
+    bowGrip: { at: [-0.0084, -0.04, 0.0553], turn: 40 * (Math.PI / 180) },
     proportions: {
       headHeight: STUDIO_RABBIT.headHeight,
       seatHeight: STUDIO_RABBIT.seatHeight / STUDIO_RABBIT.headHeight,
