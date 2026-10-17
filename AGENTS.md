@@ -306,7 +306,10 @@ These traps of route 3 each cost a round:
   red fox rest as a seated violinist, with the violin upright on the left thigh and the bow upright
   at the right side. The long arm of the red fox reaches its thigh only nearly straight, and the
   line from the shoulder to the top of the thigh passes through the side of the belly, so its paw
-  holds the frog at the outer side of the thigh.
+  holds the frog at the outer side of the thigh. The belly of the rabbit is widest below its
+  elbow, so its hanging right arm holds the frog at the outer side of the knee: a paw on the belly
+  over the thigh bent the arm out as a wing and turned 20 faces of the arm over. The rest columns
+  of `pnpm hold-fit` give the right elbow against the trunk and the angle of the upper arm.
 - The sweep measures a part by the corners of its triangles. The stick of the bow is one long box,
   so its middle went 6.3 cm into the body of the red fox in the rest with no depth in the sweep.
   The rest columns of `pnpm hold-fit` take a point at each 1 cm along the bow (`bowPoints()` of
