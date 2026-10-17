@@ -1,15 +1,17 @@
 /**
  * Measures the rest of a seated player on its lap (design 5.2, 5.3): the lower end of the
  * instrument on the skin of the thighs, the tilt of the instrument, the place of the left paw on
- * it, and the upright bow at the right side. The goals of the upright rest of the violin are in
- * `docs/decisions/2026-10-16-bow-rest.md`. `pnpm hold-fit` gives them in its rest columns.
+ * it, the upright bow at the right side, and the right arm that holds the bow. The goals of the
+ * upright rest of the violin are in `docs/decisions/2026-10-16-bow-rest.md`, and the goals of the
+ * right arm in `docs/decisions/2026-10-16-rabbit-arm.md`. `pnpm hold-fit` gives them in its rest
+ * columns.
  */
 import { MathUtils, Ray, Triangle, Vector3 } from 'three';
 
 import { roleBodies } from './fold-probe.ts';
 import type { RoleSource } from './fold-probe.ts';
 import type { DemoFile } from './patch-demos.ts';
-import { boneIndex } from '../src/models/rig.ts';
+import { BONE_NAMES, boneIndex } from '../src/models/rig.ts';
 import type { BoneName } from '../src/models/rig.ts';
 import { countInAt } from '../src/pose/count-in.ts';
 import { createScenePose, poseAt } from '../src/pose/pose-at.ts';
@@ -49,6 +51,12 @@ const TOP_BONES: readonly BoneName[] = ['thighL', 'thighR', 'shinL', 'shinR', 'h
 const ARM_BONES: readonly BoneName[] = ['upperArmL', 'forearmL', 'upperArmR', 'forearmR'];
 
 /**
+ * The bones of the trunk whose skin gives the back and the right side of the trunk at the height
+ * of the right elbow.
+ */
+const TRUNK_BONES: readonly BoneName[] = ['hips', 'spine', 'chest'];
+
+/**
  * The height of the lower end of an instrument, in meters: each corner of the instrument less
  * than this above its lowest corner is a corner of the lower end. The same length along the bow
  * from its frog end gives the corners of the frog end.
@@ -81,6 +89,33 @@ export interface BowRest {
   readonly armDepth: number;
 }
 
+/**
+ * The right arm of a seated player in one rest sample, in the axes of the model (the player faces
+ * -z, and its right is +x). The joints are the posed heads of the `upperArmR` bone (the shoulder
+ * joint) and of the `forearmR` bone (the elbow joint).
+ */
+export interface ArmRest {
+  /** The height of the elbow joint above the shoulder joint, in meters: negative below it. */
+  readonly rise: number;
+  /**
+   * The distance of the elbow joint behind the back of the trunk at the height of the elbow, in
+   * meters: negative in front of the back, and `Infinity` when no triangle of the skin of the
+   * trunk crosses that height.
+   */
+  readonly back: number;
+  /**
+   * The distance of the elbow joint out from the right side of the trunk at the height of the
+   * elbow, seen from the front, in meters: negative inside the side, and `Infinity` when no
+   * triangle of the skin of the trunk crosses that height.
+   */
+  readonly out: number;
+  /**
+   * The angle of the upper arm from the vertical, from the shoulder joint down to the elbow joint,
+   * in degrees.
+   */
+  readonly upperArm: number;
+}
+
 /** The lap rest of a seated player in one rest sample. */
 export interface LapRest {
   /**
@@ -106,6 +141,8 @@ export interface LapRest {
   readonly pawPlace: number | null;
   /** The bow, or `null` for a player with no bow, such as a flutist. */
   readonly bow: BowRest | null;
+  /** The right arm that holds the bow, or `null` for a player with no bow. */
+  readonly arm: ArmRest | null;
 }
 
 /**
@@ -292,6 +329,96 @@ function bowRest(
 }
 
 /**
+ * Gives the points where a horizontal plane cuts the edges of some triangles.
+ *
+ * @param triangles The triangles.
+ * @param height The height of the plane.
+ * @returns The points.
+ */
+function sectionPoints(triangles: readonly Triangle[], height: number): Vector3[] {
+  const points: Vector3[] = [];
+  for (const t of triangles) {
+    const corners = [t.a, t.b, t.c];
+    for (let k = 0; k < 3; k++) {
+      const a = corners[k];
+      const b = corners[(k + 1) % 3];
+      if (!a || !b || a.y === b.y || (a.y - height) * (b.y - height) > 0) {
+        continue;
+      }
+      points.push(new Vector3().lerpVectors(a, b, (height - a.y) / (b.y - a.y)));
+    }
+  }
+  return points;
+}
+
+/**
+ * Gives the triangles of the trunk of a posed player, each moved by its main bone alone: the bone
+ * of its first corner, one of {@link TRUNK_BONES}. The skin of a studio body gives the side of the
+ * trunk under the armpit a part of the weight of the upper arm, so a raised arm drags that skin
+ * out. On the rabbit in the rest of 2026-10-16, the posed skin of the trunk reached 26 cm out from
+ * the middle at the height of the right elbow, and the trunk moved by its main bones 14 cm.
+ *
+ * @param posed The posed skeleton of the player.
+ * @returns The triangles, in the model axes.
+ */
+function trunkTriangles(posed: PosedSkeleton): Triangle[] {
+  const { positions, bones } = posed.model.mesh;
+  const trunk = new Set(TRUNK_BONES.map(boneIndex));
+  const triangles: Triangle[] = [];
+  for (let c = 0; c + 2 < bones.length; c += 3) {
+    const bone = BONE_NAMES[bones[c] ?? -1];
+    if (!bone || !trunk.has(bones[c] ?? -1)) {
+      continue;
+    }
+    const [a, b, d] = [0, 1, 2].map(
+      (k) =>
+        new Vector3(
+          ...posedPoint(posed, bone, [
+            positions[(c + k) * 3] ?? 0,
+            positions[(c + k) * 3 + 1] ?? 0,
+            positions[(c + k) * 3 + 2] ?? 0,
+          ]),
+        ),
+    );
+    if (a && b && d) {
+      triangles.push(new Triangle(a, b, d));
+    }
+  }
+  return triangles;
+}
+
+/**
+ * Measures the right arm of a posed player ({@link ArmRest}). The plane at the height of the
+ * elbow joint cuts the trunk ({@link trunkTriangles}). The back of the trunk is the cut point
+ * farthest back (+z), and the right side is the cut point farthest to the right (+x).
+ *
+ * @param posed The posed skeleton of the player.
+ * @returns The right arm.
+ * @throws Error if a bone of the arm has no frame.
+ */
+export function armRest(posed: PosedSkeleton): ArmRest {
+  const at = (bone: BoneName): Vector3 => {
+    const frame = posed.frames[boneIndex(bone)];
+    if (!frame) {
+      throw new Error(`The bone "${bone}" has no frame.`);
+    }
+    return frame.position;
+  };
+  const shoulder = at('upperArmR');
+  const elbow = at('forearmR');
+  const cut = sectionPoints(trunkTriangles(posed), elbow.y);
+  const back = cut.length > 0 ? elbow.z - Math.max(...cut.map((p) => p.z)) : Infinity;
+  const out = cut.length > 0 ? elbow.x - Math.max(...cut.map((p) => p.x)) : Infinity;
+  const upper = elbow.clone().sub(shoulder);
+  return {
+    rise: upper.y,
+    back,
+    out,
+    upperArm: MathUtils.radToDeg(upper.angleTo(new Vector3(0, -1, 0))),
+  };
+}
+
+/**
  * Measures the lap rest of a seated player in one rest sample, in the axes of the model (the
  * player faces -z). The lower end of the instrument is each corner of the `instrument` bone less
  * than {@link END_HEIGHT} above its lowest corner, and its depth is the depth of its deepest corner
@@ -303,7 +430,7 @@ function bowRest(
  * ({@link TOP_BONES}), and the gap of the frog end is its height above the right side (+x). With no
  * bow, the gap of the lower end is its distance to the nearest triangle of the skin of
  * {@link LAP_BONES}. The depths of the bow take a point at each {@link BOW_STEP} along each edge
- * of the bow.
+ * of the bow. A player with a bow also gets the measures of its right arm ({@link armRest}).
  *
  * @param posed The posed skeleton of the player.
  * @param body The closed surface of the body, such as the obstacle `body` of the sweep.
@@ -373,6 +500,7 @@ export function lapRest(posed: PosedSkeleton, body: ClosedSurface): LapRest | nu
     tilt,
     pawPlace,
     bow: bowRest(posed, bow, body, right),
+    arm: bow.length > 0 ? armRest(posed) : null,
   };
 }
 
@@ -409,6 +537,14 @@ export interface LapWorsts {
   readonly bowBody: LapWorst | null;
   /** The deepest point of the bow in the upper arms and the forearms, or `null` with no bow. */
   readonly bowArms: LapWorst | null;
+  /** The highest right elbow joint above the right shoulder joint, or `null` with no bow. */
+  readonly elbowRise: LapWorst | null;
+  /** The right elbow joint farthest behind the back of the trunk, or `null` with no bow. */
+  readonly elbowBack: LapWorst | null;
+  /** The right elbow joint farthest out from the right side of the trunk, or `null` with no bow. */
+  readonly elbowOut: LapWorst | null;
+  /** The largest angle of the right upper arm from the vertical, or `null` with no bow. */
+  readonly upperArm: LapWorst | null;
 }
 
 /**
@@ -469,6 +605,10 @@ export function lapWorsts(samples: readonly LapSample[]): LapWorsts | null {
     frogDepth: largest((rest) => rest.bow?.frogDepth),
     bowBody: largest((rest) => rest.bow?.bodyDepth),
     bowArms: largest((rest) => rest.bow?.armDepth),
+    elbowRise: largest((rest) => rest.arm?.rise),
+    elbowBack: largest((rest) => rest.arm?.back),
+    elbowOut: largest((rest) => rest.arm?.out),
+    upperArm: largest((rest) => rest.arm?.upperArm),
   };
 }
 

@@ -24,8 +24,8 @@
  *
  * A run with the rest set gives the lap rest of a seated role with a lap rest ({@link hasLapRest}):
  * the gap of the lower end of the instrument to the skin of the thighs, and for a violin role the
- * tilt of the violin, the place of the left palm on it, and the upright bow at the right side
- * (`tools/lap-rest.ts`).
+ * tilt of the violin, the place of the left palm on it, the upright bow at the right side, and the
+ * place of the right elbow (`tools/lap-rest.ts`).
  *
  * Usage: pnpm hold-fit <role> [--set <path>=<value>[;<path>=<value>]...]...
  * [--grid <path>=<a>:<b>:<step>]... [--sets <set>[,<set>]...] [--demo <id>|all]...
@@ -130,6 +130,31 @@ export const FROG_DEPTH_GOAL = 0.01;
  * meters.
  */
 export const BOW_DEPTH_GOAL = 0.005;
+
+/**
+ * The highest right elbow joint above the right shoulder joint in the rest without the mark
+ * `OVER`, in meters: the elbow hangs below the shoulder, as the elbows of the seated violinist of
+ * the image of the user (`docs/decisions/2026-10-16-rabbit-arm.md`).
+ */
+export const ELBOW_RISE_GOAL = 0;
+
+/**
+ * The right elbow joint farthest behind the back of the trunk at its height in the rest without
+ * the mark `OVER`, in meters.
+ */
+export const ELBOW_BACK_GOAL = 0.05;
+
+/**
+ * The right elbow joint farthest out from the right side of the trunk at its height, seen from the
+ * front, in the rest without the mark `OVER`, in meters.
+ */
+export const ELBOW_OUT_GOAL = 0.08;
+
+/**
+ * The largest angle of the right upper arm from the vertical in the rest without the mark `OVER`,
+ * in degrees.
+ */
+export const UPPER_ARM_GOAL = 35;
 
 /**
  * The wind holds whose rest stands the instrument on a leg, by the root of `--set`: the flute of
@@ -646,9 +671,10 @@ export interface FitRun {
  * change of the format takes the next version, so that a compare with `--base` stops on two
  * formats. Version 2 added the rest faces by side, version 3 the instrument in the body, the
  * rest gaps, and the reach shares of the free paws, version 4 the rest samples of the folds,
- * version 5 the lap rest, and version 6 the upright rest of the violin.
+ * version 5 the lap rest, version 6 the upright rest of the violin, and version 7 the right arm in
+ * the rest.
  */
-export const FIT_FORMAT = 6;
+export const FIT_FORMAT = 7;
 
 /**
  * Writes the rows of a run as JSON (`--json`), with the format version {@link FIT_FORMAT}.
@@ -715,6 +741,10 @@ function restoreLaps(stored: StoredLaps): LapWorsts {
     frogDepth: maybe(stored.frogDepth),
     bowBody: maybe(stored.bowBody),
     bowArms: maybe(stored.bowArms),
+    elbowRise: maybe(stored.elbowRise),
+    elbowBack: maybe(stored.elbowBack),
+    elbowOut: maybe(stored.elbowOut),
+    upperArm: maybe(stored.upperArm),
   };
 }
 
@@ -754,13 +784,14 @@ function lapCell(worst: LapWorst | null | undefined, goal: number | null): strin
  * Writes a tilt of the lap rest in degrees.
  *
  * @param worst The largest tilt, or `null`.
+ * @param goal The largest tilt without the mark `OVER`, in degrees.
  * @returns The text, such as `18 OVER`, or `-` with no value.
  */
-function tiltCell(worst: LapWorst | null | undefined): string {
+function tiltCell(worst: LapWorst | null | undefined, goal: number = TILT_GOAL): string {
   if (!worst) {
     return '-';
   }
-  return `${worst.value.toFixed(0)}${worst.value > TILT_GOAL ? ' OVER' : ''}`;
+  return `${worst.value.toFixed(0)}${worst.value > goal ? ' OVER' : ''}`;
 }
 
 /**
@@ -780,8 +811,9 @@ function placeCell(worst: LapWorst | null | undefined): string {
 /**
  * Writes the cells of the lap rest of a row: the gap of the lower end with its depth in the body,
  * and for a violin role the deepest corner of the violin in the body, the tilt of the violin, the place of the left palm, the tilt of the bow,
- * the gap of the frog end with its depth in the body, and the deepest points of the bow in the
- * body and in the arms.
+ * the gap of the frog end with its depth in the body, the deepest points of the bow in the
+ * body and in the arms, the rise of the right elbow above the shoulder, its distances behind the
+ * back and out from the side of the trunk, and the angle of the right upper arm.
  *
  * @param lap The lap rest of the row, or `null`.
  * @param bow True for a table with the violin columns.
@@ -789,7 +821,7 @@ function placeCell(worst: LapWorst | null | undefined): string {
  */
 function lapCells(lap: LapWorsts | null, bow: boolean): string[] {
   if (!lap) {
-    return ['-', ...(bow ? ['-', '-', '-', '-', '-', '-', '-'] : [])];
+    return ['-', ...(bow ? ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'] : [])];
   }
   const violin = lap.bowTilt !== null;
   const end = `${lapCell(lap.endGap, LAP_GAP_GOAL)} (${lapCell(lap.endDepth, violin ? END_DEPTH_GOAL : null)})`;
@@ -808,6 +840,10 @@ function lapCells(lap: LapWorsts | null, bow: boolean): string[] {
     frog,
     lapCell(lap.bowBody, BOW_DEPTH_GOAL),
     lapCell(lap.bowArms, BOW_DEPTH_GOAL),
+    lapCell(lap.elbowRise, ELBOW_RISE_GOAL),
+    lapCell(lap.elbowBack, ELBOW_BACK_GOAL),
+    lapCell(lap.elbowOut, ELBOW_OUT_GOAL),
+    tiltCell(lap.upperArm, UPPER_ARM_GOAL),
   ];
 }
 
@@ -819,11 +855,13 @@ function lapCells(lap: LapWorsts | null, bow: boolean): string[] {
  * rest, and the reach of a violin role. The lap rest gives the gap of the lower end of the
  * instrument to the skin under it with the depth of its deepest corner in the body, and with a bow
  * the depth of the violin in the body, the tilt of the violin, the place of the left palm on it, the tilt of the bow, the gap of the
- * frog end to the right thigh with its depth in the body, and the deepest points of the bow in the
- * body and in the arms ({@link lapCells}). A mark `OVER` follows a depth over its limit, play folds
+ * frog end to the right thigh with its depth in the body, the deepest points of the bow in the
+ * body and in the arms, and the place of the right elbow and the angle of the right upper arm
+ * ({@link lapCells}). A mark `OVER` follows a depth over its limit, play folds
  * over {@link PLAY_FOLD_GOAL}, a reach share above 1, and a lap measure outside its goal
  * ({@link LAP_GAP_GOAL}, {@link END_DEPTH_GOAL}, {@link HELD_DEPTH_GOAL}, {@link TILT_GOAL}, `PAW_PLACES`,
- * {@link FROG_GAP_GOAL}, {@link FROG_DEPTH_GOAL}, {@link BOW_DEPTH_GOAL}).
+ * {@link FROG_GAP_GOAL}, {@link FROG_DEPTH_GOAL}, {@link BOW_DEPTH_GOAL}, {@link ELBOW_RISE_GOAL},
+ * {@link ELBOW_BACK_GOAL}, {@link ELBOW_OUT_GOAL}, {@link UPPER_ARM_GOAL}).
  *
  * @param rows The rows, the base first.
  * @returns The lines.
@@ -855,6 +893,10 @@ export function fitTable(rows: readonly FitRow[]): string[] {
           'Rest frog gap cm (in body)',
           'Rest bow in body cm',
           'Rest bow in arms cm',
+          'Rest elbow R rise cm',
+          'Rest elbow R back cm',
+          'Rest elbow R out cm',
+          'Rest upper arm R °',
         ]
       : []),
     ...(violin ? ['Rule scale', 'Violin m', 'stopRange', 'bowRange'] : []),
@@ -1153,6 +1195,10 @@ function printRow(row: FitRow): void {
     ['frog end in the body', lap.frogDepth, cmText],
     ['bow in the body', lap.bowBody, cmText],
     ['bow in the arms', lap.bowArms, cmText],
+    ['right elbow above the shoulder', lap.elbowRise, cmText],
+    ['right elbow behind the back', lap.elbowBack, cmText],
+    ['right elbow out from the side', lap.elbowOut, cmText],
+    ['right upper arm from the vertical', lap.upperArm, (v) => `${v.toFixed(1)}°`],
   ];
   for (const [name, worst, text] of lines) {
     if (worst) {
