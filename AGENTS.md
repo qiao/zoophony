@@ -387,6 +387,19 @@ These traps of route 3 each cost a round:
   `docs/research/2026-10-15-fox-rig2/arm-dirs.ts` and `raise-turn.py` for the mean turn. A rule
   that relaxed more faces in the pose of the shape (`raise.below` 0.5 and 0.7 against 0.3) folded
   more play samples.
+- A wrist that folds while its paw stays near one turn from the forearm, such as the left wrist of
+  the cat violist on the fingerboard, needs a corrective shape keyed on the paw (`raise.bone`
+  `hand`). The pose of the rule in Blender turns over fewer faces than the app at the same turn:
+  at the mean turn of 153.7°, 1 face turned over in the rule, and face 2116 still folded in 30% of
+  the play samples. Turn the rule further on the same axis (165°), and read the folded
+  face-samples of the paw in the line of the main bones of `pnpm rig-mesh --check`
+  (`docs/research/2026-10-17-cat-bow/wrist-turn.ts`).
+- The studio paw turns in the plane of its palm toward the forearm (`PAW_TURN`), and its middle
+  moves on an arc around the wrist. A bow stick across the palm then leaves the turned paw: the
+  stick of the cat lay 4 cm from the middle of its paw. Put the stick along the line nearest to
+  that arc (`SpeciesParams.bowGrip`, `docs/research/2026-10-17-cat-bow/stick-line.ts`), and read
+  the grip with `stickGrip()` of `tools/bow-grip.ts`. The turned hand moves against the bow, so
+  read the depths of the bow arm and the folds of the right forearm after a change of the grip.
 - A shorter neck (`neckFactor`) moves the vertices of the top of the shoulder next to the neck
   down by their neck weight, and the shape of a raised arm can then turn their faces over. With
   the neck factor 0.5, faces 1074 and 473 of the red fox (0.26 of the neck weight) folded in 22%
