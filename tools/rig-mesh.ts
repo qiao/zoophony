@@ -220,6 +220,18 @@ function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigV
 }
 
 /**
+ * The optional rules of a config that a variant of `--set` can add, by their path, each with a
+ * value of the kind of its value: the root share of the tail in the sit of the haunch
+ * (`sit.root`), the curve of the curled seated tail (`studio.tailCurl`), and the move of the
+ * colors of the plain fur (`colors.tone`). `tools/blender/rig_mesh.py` describes each rule.
+ */
+const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, ConfigValue>([
+  ['sit.root', [0, 1]],
+  ['studio.tailCurl', { points: [[0, 0, 0]] }],
+  ['colors.tone', { chroma: 0, light: [0, 1], keep: [], points: [[0, 0, 0, 0]] }],
+]);
+
+/**
  * Changes one value of a config in place, such as `weights.haunch.height=0.16,0.27` or
  * `armFactor=1.08`. The path names the keys from the top of the config, and the index of an item
  * of a list is a key too. The new value has the kind of the old value: a number, `true` or
@@ -236,7 +248,8 @@ function setConfigValue(config: ConfigObject, change: ConfigChange): void {
   const keys = path.split('.');
   let node: ConfigValue = config;
   for (const [i, key] of keys.entries()) {
-    const old = childOf(node, key);
+    const optional = i === keys.length - 1 ? OPTIONAL_VALUES.get(path) : undefined;
+    const old: ConfigValue | undefined = childOf(node, key) ?? optional;
     if (old === undefined) {
       throw new Error(`The key "${key}" of ${path} is not known.`);
     }
