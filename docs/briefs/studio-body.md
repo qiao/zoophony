@@ -317,6 +317,19 @@ Add these items to the briefs of the rig round and of the app round.
 - **The seat and the tail.** Give the seat height and the lowest point of the tail of
   `pnpm rig-mesh <animal> --check` before a plan of a tail. The brief of the fox asked for a tail
   tip down behind the chair, and the seat of 0.126 m does not give room for a tip of 0.31 m.
+- **The images.** Make the images of the round with one batch of `pnpm close-views`:
+
+  ```bash
+  pnpm close-views batch <dir> --species <species,...> --role <role> --lineup \
+    --camera default --camera violins --base main
+  ```
+
+  It builds each tree one time. It writes the species in the play and the rest pose into
+  `species-play/` and `species-rest/`, the close views of the role into `<role>/`, the lineup into
+  `lineup/`, and the play frames into `play/`. Each folder holds the files of the single mode, so
+  a brief names a grid by its folder, such as `<dir>/species-rest/species-base-views.webp`. The
+  image set of the round `cat-trunk` took 90 s in one batch and 115 s in five runs. Use a single
+  mode for one probe, such as the lineup of each variant.
 - **The end of the round.** Run `pnpm snapshot` after the last check of the code. Give the line of
   `pnpm size --base main` in the commit that adds the body.
 - **The probes.** Look at a rig with `pnpm rig-mesh <animal> --check --preview <dir>`, which
