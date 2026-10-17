@@ -139,6 +139,17 @@ export interface BowedHold {
      */
     readonly via: BowVia | null;
   };
+  /**
+   * The bow in the rest pose of a soloist who stands, and of a player who rests at the side
+   * ({@link BowedHold.restAtSide}), in the model axes of the bind pose (design 5.2). `null` keeps
+   * the bow in the right hand as in the bind pose.
+   */
+  readonly standBow: {
+    /** The direction from the frog to the tip. */
+    readonly tip: Vec3;
+    /** The side of the hair, from the stick. */
+    readonly hair: Vec3;
+  } | null;
 }
 
 /**
@@ -208,6 +219,7 @@ const CHIN_HOLD = {
     hair: [0, -1, 0.2],
     via: null,
   },
+  standBow: null,
 } as const satisfies BowedHold;
 
 /**
@@ -248,6 +260,7 @@ const FLOOR_HOLD = {
     hair: [0, -1, 0.3],
     via: null,
   },
+  standBow: null,
 } as const satisfies BowedHold;
 
 /**
@@ -819,7 +832,8 @@ export function bowedRig(
         : null,
     },
   };
-  const rest = atSide ? standingRest(model, rig) : rig;
+  const standBow = hold.standBow ? bowRotation(hold.standBow.tip, hold.standBow.hair) : null;
+  const rest = atSide ? standingRest(model, rig, standBow) : rig;
   return { ...rest, bowRange: bowRangeOf(rest), stopRange: stopRangeOf(rest) };
 }
 
@@ -839,13 +853,16 @@ function bindFrames(rig: RigPoints): TorsoFrames {
 /**
  * Gives the rest pose of a soloist who stands (design 5.2): the arms hang a little out to the
  * sides, the left hand holds the instrument at the rest place of the fingers, and the right hand
- * holds the bow as in the bind pose.
+ * holds the bow at the hanging wrist, as in the bind pose or with the turn of
+ * {@link BowedHold.standBow}.
  *
  * @param model The player model.
  * @param rig The points of the player, with the instrument turned for the rest pose.
+ * @param standBow The turn of the bow of {@link BowedHold.standBow} in the model axes, or `null`
+ *   for the turn of the hanging hand.
  * @returns The points, with the rest place of the instrument and the bow.
  */
-function standingRest(model: PlayerModel, rig: RigPoints): RigPoints {
+function standingRest(model: PlayerModel, rig: RigPoints, standBow: Quat | null): RigPoints {
   const hangL = hangingArm(model, rig.armL);
   const hangR = hangingArm(model, rig.armR);
 
@@ -860,8 +877,8 @@ function standingRest(model: PlayerModel, rig: RigPoints): RigPoints {
   });
   const wristL = new Vector3(...rig.armL.bind.shoulder).add(new Vector3(...hangL.wrist));
 
-  // The right hand holds the bow as in the bind pose.
-  const bowHand = new Quaternion(...hangR.hand);
+  // The right hand holds the bow at the hanging wrist, as in the bind pose or with its own turn.
+  const bowHand = standBow ? new Quaternion(...standBow) : new Quaternion(...hangR.hand);
   const wristR = new Vector3(...rig.armR.bind.shoulder).add(new Vector3(...hangR.wrist));
 
   return {
