@@ -5,11 +5,13 @@
  * face is folded when its posed normal is more than 90° from that normal. For each sample set,
  * the tool prints the samples, the samples with a fold, their share, and the most folded faces.
  * Then it prints the main bone of the folded faces. With `--faces <n>`, it also prints the `n`
- * faces that fold in the most samples, with their places, their corner angles, and the weights of
- * their corners. With `--json <file>`, it also writes the counts of each sample set into the file
- * for `pnpm rig-mesh --check`. With `--turns <face>`, it also prints the mean turn of the upper arm
- * of the side of the face in the axes of the chest in the samples in which the face folds, and the
- * share of the samples with a fold by the angle from that turn. The method comes from
+ * faces that fold in the most samples, with their places and their corner angles. A table of their
+ * corners in the worst fold of each face follows: the places in the bind pose and in the posed
+ * skin, the moves of the corrective shapes, and the weights. With `--json <file>`, it also writes
+ * the counts of each sample set into the file for `pnpm rig-mesh --check`. With `--turns <face>`,
+ * it also prints the mean turn of the upper arm of the side of the face in the axes of the chest
+ * in the samples in which the face folds, and the share of the samples with a fold by the angle
+ * from that turn. The method comes from
  * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
  * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>]
@@ -178,7 +180,7 @@ export interface FoldCount {
   /** The number of samples in which each folded face folds, by the index of the face. */
   readonly byFace: Map<number, number>;
   /** The worst fold of each folded face in the set, by the index of the face. */
-  readonly faceWorst: Map<number, FaceWorst>;
+  readonly faceWorst: Map<number, WorstSample>;
 }
 
 /** The worst fold of a face: the sample in which its normal turns farthest. */
@@ -194,6 +196,34 @@ export interface FaceWorst {
   readonly bone: string;
   /** The change of the normal by the turn of that bone, in degrees. */
   readonly turn: number;
+}
+
+/** One corner of a face in a posed sample ({@link cornerSamples}). */
+export interface CornerSample {
+  /** The index of the vertex in the mesh. */
+  readonly vertex: number;
+  /** The place of the vertex in the bind pose, in meters. */
+  readonly bind: Vec3;
+  /** The place of the vertex in the posed skin, in meters. */
+  readonly posed: Vec3;
+  /**
+   * The length of the move of the vertex by each corrective shape at its full weight, in meters,
+   * in the order of the shapes of the mesh.
+   */
+  readonly fullMoves: readonly number[];
+  /** The length of the move of the vertex by all corrective shapes at their weights, in meters. */
+  readonly move: number;
+}
+
+/**
+ * The worst fold of a face in a sample set, with the corners of the face in the sample of the
+ * fold. The JSON text of `--json` holds only the fields of {@link FaceWorst}.
+ */
+export interface WorstSample extends FaceWorst {
+  /** The weight of each corrective shape of the mesh in the sample, from 0 to 1. */
+  readonly correctiveWeights: readonly number[];
+  /** The three corners of the face in the sample, in the order of the corners of the face. */
+  readonly corners: readonly CornerSample[];
 }
 
 /** The folds of a role over its demos. */
@@ -481,6 +511,45 @@ export function turnBone(
 }
 
 /**
+ * Gives the three corners of a face in a posed sample: the index of each vertex, its place in the
+ * bind pose and in the posed skin, the length of the move of each corrective shape at its full
+ * weight, and the length of the move of all shapes at their weights in the sample, as
+ * `skinStudioMesh()` adds them before the blend of the bones.
+ *
+ * @param mesh The studio mesh in the bind pose.
+ * @param correctiveWeights The weight of each corrective shape of the mesh in the sample.
+ * @param posed The posed places, three numbers for each vertex.
+ * @param face The index of the triangle.
+ * @returns The corners, in the order of the corners of the face.
+ */
+export function cornerSamples(
+  mesh: Pick<StudioMesh, 'positions' | 'corners' | 'correctives'>,
+  correctiveWeights: ArrayLike<number>,
+  posed: ArrayLike<number>,
+  face: number,
+): CornerSample[] {
+  const point = (places: ArrayLike<number>, v: number): Vec3 => [
+    places[v * 3] ?? 0,
+    places[v * 3 + 1] ?? 0,
+    places[v * 3 + 2] ?? 0,
+  ];
+  return [0, 1, 2].map((k) => {
+    const vertex = mesh.corners[face * 3 + k] ?? 0;
+    const moves = mesh.correctives.map((corrective) => point(corrective, vertex));
+    const sum = [0, 1, 2].map((axis) =>
+      moves.reduce((total, move, c) => total + (correctiveWeights[c] ?? 0) * (move[axis] ?? 0), 0),
+    );
+    return {
+      vertex,
+      bind: point(mesh.positions, vertex),
+      posed: point(posed, vertex),
+      fullMoves: moves.map((move) => Math.hypot(...move)),
+      move: Math.hypot(...sum),
+    };
+  });
+}
+
+/**
  * Gives the main studio bone of a face: the bone with the largest weight over its three corners.
  *
  * @param mesh The studio mesh.
@@ -574,7 +643,16 @@ function countPose(
     count.byFace.set(face, (count.byFace.get(face) ?? 0) + 1);
     const angle = foldAngle(rig.mesh, studio.matrices, posed, face);
     if (angle > (count.faceWorst.get(face)?.angle ?? 0)) {
-      count.faceWorst.set(face, { label, angle, ...turnBone(rig.mesh, studio, face) });
+      const correctiveWeights = Array.from(
+        studio.correctives.subarray(0, rig.mesh.correctives.length),
+      );
+      count.faceWorst.set(face, {
+        label,
+        angle,
+        ...turnBone(rig.mesh, studio, face),
+        correctiveWeights,
+        corners: cornerSamples(rig.mesh, correctiveWeights, posed, face),
+      });
     }
   }
   count.samples += 1;
@@ -806,10 +884,10 @@ export function faceFacts(
  *
  * @param report The report.
  * @param face The index of the face.
- * @returns The worst fold, or `null` when the face does not fold.
+ * @returns The worst fold with the corners of its sample, or `null` when the face does not fold.
  */
-export function worstFold(report: FoldReport, face: number): FaceWorst | null {
-  let worst: FaceWorst | null = null;
+export function worstFold(report: FoldReport, face: number): WorstSample | null {
+  let worst: WorstSample | null = null;
   for (const set of SAMPLE_SETS) {
     const fold = report.sets[set].faceWorst.get(face);
     if (fold && fold.angle > (worst?.angle ?? 0)) {
@@ -834,10 +912,56 @@ export function worstText(worst: FaceWorst | null): string {
 }
 
 /**
+ * Writes the corners of each face in its worst fold ({@link worstFold}) as a table, one row for
+ * each corner: the vertex, its place in the bind pose and in the posed skin, the move of each
+ * corrective shape at its full weight with the weight of the shape in the sample, the move of all
+ * shapes in the sample, and the bones and the weights of the corner.
+ *
+ * @param report The report.
+ * @param faces The indices of the faces.
+ * @returns The lines, or none when no face has a worst fold.
+ */
+export function cornerLines(report: FoldReport, faces: readonly number[]): string[] {
+  const mesh = report.mesh;
+  if (!mesh) {
+    return [];
+  }
+
+  const place = (p: Vec3): string => p.map((x) => x.toFixed(3)).join(', ');
+  const mm = (meters: number): string => (meters * 1000).toFixed(1);
+  const rows = faces.flatMap((face) => {
+    const worst = worstFold(report, face);
+    if (!worst) {
+      return [];
+    }
+    const { weights } = faceFacts(mesh, face);
+    return worst.corners.map((corner, k) => {
+      const moves =
+        corner.fullMoves
+          .map((length, c) => `${mm(length)} × ${(worst.correctiveWeights[c] ?? 0).toFixed(2)}`)
+          .join(' / ') || '-';
+      const bones = (weights[k] ?? []).map((w) => `${w.bone} ${w.weight.toFixed(2)}`).join(' ');
+      return `| ${face} | ${corner.vertex} | ${place(corner.bind)} | ${place(corner.posed)} | ${moves} | ${mm(corner.move)} | ${bones} |`;
+    });
+  });
+  if (rows.length === 0) {
+    return [];
+  }
+  return [
+    'The corners of each face in its worst sample. Each shape move gives the move of the corner by one corrective shape at its full weight, then the weight of the shape in the sample. The shapes are in the order of the mesh: the left arm down, the right arm down, and the raised arm of a body with that shape. The move in the sample is the move of all shapes at their weights.',
+    '',
+    '| Face | Vertex | Bind (m) | Posed (m) | Shape moves (mm) × weights | Move in the sample (mm) | Bones and weights |',
+    '|---:|---:|---|---|---|---:|---|',
+    ...rows,
+  ];
+}
+
+/**
  * Writes the faces that fold in the most samples of all sample sets as a table: for each face,
- * its index, the share of the samples of each set in which it folds, its facts
- * ({@link faceFacts}), and its worst fold with the bone whose turn changes its normal most
- * ({@link worstFold}).
+ * its index, the share of the samples of each set in which it folds, its main bone, its middle,
+ * its corner angles ({@link faceFacts}), and its worst fold with the bone whose turn changes its
+ * normal most ({@link worstFold}). The table of the corners of each face in its worst sample
+ * ({@link cornerLines}) follows it.
  *
  * @param report The report.
  * @param count The number of faces.
@@ -863,20 +987,19 @@ export function faceLines(report: FoldReport, count: number): string[] {
     return `${((100 * (byFace.get(face) ?? 0)) / Math.max(1, samples)).toFixed(1)}%`;
   };
   const mesh = report.mesh;
+  const corners = cornerLines(report, top);
   return [
-    `The ${top.length} faces that fold in the most samples, with the places and the weights of the bind pose:`,
+    `The ${top.length} faces that fold in the most samples, with the places of the bind pose.`,
     '',
-    `| Face | ${SAMPLE_SETS.map((set) => `${set[0]?.toUpperCase()}${set.slice(1)}`).join(' | ')} | Main bone | Middle (m) | Corner angles | Corner weights | Worst sample, angle, bone of the fold |`,
-    `|---:|${SAMPLE_SETS.map(() => '---:|').join('')}---|---|---|---|---|`,
+    `| Face | ${SAMPLE_SETS.map((set) => `${set[0]?.toUpperCase()}${set.slice(1)}`).join(' | ')} | Main bone | Middle (m) | Corner angles | Worst sample, angle, bone of the fold |`,
+    `|---:|${SAMPLE_SETS.map(() => '---:|').join('')}---|---|---|---|`,
     ...top.map((face) => {
       const facts = faceFacts(mesh, face);
       const middle = facts.middle.map((x) => x.toFixed(3)).join(', ');
       const angles = facts.angles.map((a) => `${a.toFixed(1)}°`).join(', ');
-      const weights = facts.weights
-        .map((corner) => corner.map((w) => `${w.bone} ${w.weight.toFixed(2)}`).join(' '))
-        .join(' / ');
-      return `| ${face} | ${SAMPLE_SETS.map((set) => share(set, face)).join(' | ')} | ${facts.bone} | ${middle} | ${angles} | ${weights} | ${worstText(worstFold(report, face))} |`;
+      return `| ${face} | ${SAMPLE_SETS.map((set) => share(set, face)).join(' | ')} | ${facts.bone} | ${middle} | ${angles} | ${worstText(worstFold(report, face))} |`;
     }),
+    ...(corners.length > 0 ? ['', ...corners] : []),
   ];
 }
 
@@ -1154,6 +1277,21 @@ export interface FaceJson {
 export const FOLD_FORMAT = 2;
 
 /**
+ * Gives the fields of a worst fold that the JSON text of `--json` holds: the sample, the angle,
+ * and the bone of the fold, with no corners.
+ *
+ * @param worst The worst fold, or `null`.
+ * @returns The fields, or `null`.
+ */
+function foldOnly(worst: FaceWorst | null): FaceWorst | null {
+  if (!worst) {
+    return null;
+  }
+  const { label, angle, bone, turn } = worst;
+  return { label, angle, bone, turn };
+}
+
+/**
  * Writes the folds of a report as the JSON text of `--json`: the format version
  * ({@link FOLD_FORMAT}), the counts of each sample set, the hash of the corners of the mesh, and
  * each folded face ({@link FaceRecord}).
@@ -1182,7 +1320,7 @@ export function foldJson(report: FoldReport): string {
           },
           bone: mainBone(mesh, face),
           middle: faceFacts(mesh, face).middle,
-          worst: worstFold(report, face),
+          worst: foldOnly(worstFold(report, face)),
         }))
     : [];
   const topology = mesh

@@ -40,6 +40,7 @@ import type {
   FoldCount,
   FoldReport,
   TurnSample,
+  WorstSample,
 } from './fold-probe.ts';
 import { ROOT, formatVersion, refRoleKeys } from './ref-tree.ts';
 import { ANIMALS } from './studio-body.ts';
@@ -220,6 +221,17 @@ function fold(angle: number, label = 'a.mid 1.00 s'): FaceWorst {
   return { label, angle, bone: 'neck', turn: 40 };
 }
 
+/**
+ * Makes a worst fold of a sample set, with no corners.
+ *
+ * @param angle The angle of the fold, in degrees.
+ * @param label The sample.
+ * @returns The worst fold.
+ */
+function sampleFold(angle: number, label?: string): WorstSample {
+  return { ...fold(angle, label), correctiveWeights: [], corners: [] };
+}
+
 describe('worstFold', () => {
   it('gives the fold with the largest angle over all sets', () => {
     const report: FoldReport = {
@@ -228,9 +240,9 @@ describe('worstFold', () => {
       mesh: null,
       sets: { rest: countOf(1, []), play: countOf(1, []), lift: countOf(1, []) },
     };
-    report.sets.play.faceWorst.set(1, fold(150, 'play'));
-    report.sets.lift.faceWorst.set(1, fold(120, 'lift'));
-    report.sets.rest.faceWorst.set(1, fold(100, 'rest'));
+    report.sets.play.faceWorst.set(1, sampleFold(150, 'play'));
+    report.sets.lift.faceWorst.set(1, sampleFold(120, 'lift'));
+    report.sets.rest.faceWorst.set(1, sampleFold(100, 'rest'));
     expect(worstFold(report, 1)?.label).toBe('play');
     expect(worstFold(report, 0)).toBeNull();
   });
@@ -319,7 +331,7 @@ describe('foldJson and readFaceJson', () => {
       },
       sets: { rest: countOf(1, []), play: countOf(10, [[1, 3]]), lift: countOf(5, [[1, 1]]) },
     };
-    report.sets.play.faceWorst.set(1, fold(130));
+    report.sets.play.faceWorst.set(1, sampleFold(130));
     expect(formatVersion(foldJson(report))).toBe(FOLD_FORMAT);
     const read = readFaceJson(foldJson(report));
     expect(read.topology).toMatch(/^[0-9a-f]{64}$/);
