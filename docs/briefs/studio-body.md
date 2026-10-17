@@ -36,6 +36,7 @@ makes a baseline worktree.
 | The depth of each part and the note errors of a role that exists | `pnpm pose-depth <role>` |
 | The folded faces of the studio bodies | `pnpm fold-probe <role>`, with `--glb <file>` for a new GLB file of the body of the role |
 | The smallest gaps of the head to the instrument and of the paws to the body | `pnpm pose-depth <role> --gaps` |
+| The depths and the lowest point of the bow of a bowed species that stands as a soloist, which no demo has | `pnpm pose-depth <role> --soloist <species>` |
 | The reach of the arms against the instrument | `pnpm studio-body <animal> --inspect` for the arms, and `pnpm hold-reach <species>` for a violin or a viola. For a new GLB file of a species with a studio body, add `--glb <file>`. For a species with no studio body, use a scratch copy with an entry in `ANIMALS` (below). |
 | The size of the first download | `pnpm build && pnpm size` |
 | The posture of a real player of the instrument at rest, when ready, and in a play | a source on the web, and the clips of the studio: `python3 studio view <animal>`, then the viewer query `shot&view=free&clip=<clip>&t=<s>&az=<deg>` |
