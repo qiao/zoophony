@@ -380,8 +380,10 @@ A round that changes the motion updates the items.
   string length on each instrument and at each loudness.
 - **The stick tilts toward the fingerboard** (section 2.1). `bowAt()` of `pose/bowed.ts` turns the
   bow around its hair by `BowedHold.bowTilt` of `pose/bowed-rig.ts`: 30° on the violin and the
-  viola, 20° on the cello, and 10° on the contrabass. The hair stays on the contact point, and the
-  right hand turns with the stick.
+  viola, 20° on the cello, and 10° on the contrabass. The hair stays on the contact point. The
+  fingers turn the stick in the paw by the tilt, and the hand keeps the turn of the bow with no
+  tilt (`heldBowAt()`), because the paws have one finger bone and the skin of the arm folds with a
+  turned hand.
 - **The bow length follows the measures** (section 2.4). A bow of the app is `0.1 + 0.4 ×
   duration` of the bow range (`BOW_MOTION.length`), with the duration of the note or of the whole
   slur. On a bow range of 0.6 m, that is 6 cm plus 24 cm for each second, near the stroke lengths

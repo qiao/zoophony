@@ -235,6 +235,62 @@ export function bowAt(
   lift: number,
   out: BowPlace,
 ): BowPlace {
+  placeBow(rig, strings, string, bow, lift, rig.hold.bowTilt, out);
+  return out;
+}
+
+/**
+ * Places the bow as {@link bowAt}, and gives the bow that the right hand holds: the bow with no
+ * tilt, at the grip of the tilted bow. The fingers turn the stick around its line by the tilt
+ * (`BowedHold.bowTilt`), so the hand keeps the turn of the bow with no tilt, and the skin of the
+ * bow arm does not take the turn of the tilt.
+ *
+ * @param rig The points of the player.
+ * @param strings The strings at their posed place.
+ * @param string The string, from 0 (the lowest) to 3.
+ * @param bow The place of the contact point on the hair, in meters from the frog end.
+ * @param lift The distance of the hair above the strings.
+ * @param out The bow to write, with its tilt.
+ * @param held The bow of the hand to write: the rotation with no tilt, at the grip of `out`.
+ * @returns The turn of the bow in the hand around the stick (`BowedRig.stick`), in radians.
+ */
+export function heldBowAt(
+  rig: RigPoints,
+  strings: StringsPlace,
+  string: number,
+  bow: number,
+  lift: number,
+  out: BowPlace,
+  held: BowPlace,
+): number {
+  const turn = placeBow(rig, strings, string, bow, lift, rig.hold.bowTilt, out);
+  placeBow(rig, strings, string, bow, lift, 0, held);
+  held.grip.copy(out.grip);
+  return turn;
+}
+
+/**
+ * Places the bow on a string with a tilt around its hair ({@link bowAt}).
+ *
+ * @param rig The points of the player.
+ * @param strings The strings at their posed place.
+ * @param string The string, from 0 (the lowest) to 3.
+ * @param bow The place of the contact point on the hair, in meters from the frog end.
+ * @param lift The distance of the hair above the strings.
+ * @param tilt The tilt of the stick toward the fingerboard, in radians.
+ * @param out The bow to write.
+ * @returns The signed turn of the tilt around the hair: the turn of the bow around the stick
+ *   from the bow with no tilt, in radians.
+ */
+function placeBow(
+  rig: RigPoints,
+  strings: StringsPlace,
+  string: number,
+  bow: number,
+  lift: number,
+  tilt: number,
+  out: BowPlace,
+): number {
   turnedAxis.copy(strings.axis).normalize();
   stringTurn.setFromAxisAngle(turnedAxis, (string - 1.5) * rig.hold.stringTurn);
   turnedTop.copy(strings.top).applyQuaternion(stringTurn);
@@ -243,11 +299,10 @@ export function bowAt(
   setFromBasis(out.rotation, along, down.copy(turnedTop).negate()).multiply(
     bowAlign.fromArray(rig.bowAlign),
   );
-  const tilt = rig.hold.bowTilt;
+  // A turn around the hair moves the stick, on the side `turnedTop` of the hair, to the side
+  // `along × turnedTop`. The fingerboard is on the side of the axis, toward the scroll.
+  const side = tiltSide.crossVectors(along, turnedTop).dot(strings.axis) < 0 ? -1 : 1;
   if (tilt !== 0) {
-    // A turn around the hair moves the stick, on the side `turnedTop` of the hair, to the side
-    // `along × turnedTop`. The fingerboard is on the side of the axis, toward the scroll.
-    const side = tiltSide.crossVectors(along, turnedTop).dot(strings.axis) < 0 ? -1 : 1;
     out.rotation.premultiply(tiltTurn.setFromAxisAngle(along, side * tilt));
   }
   out.grip
@@ -255,7 +310,7 @@ export function bowAt(
     .addScaledVector(turnedTop, lift)
     .sub(hairStart.fromArray(rig.hairStart).applyQuaternion(out.rotation))
     .addScaledVector(along, -bow);
-  return out;
+  return side * tilt;
 }
 
 const stick = new Vector3();
@@ -499,6 +554,7 @@ export function soundingPointAt(
   return strings;
 }
 
+const meanTilted: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
 const meanBow: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
 const meanHand: BowHand = { wrist: new Vector3(), rotation: new Quaternion() };
 const meanArm = createArmPose();
@@ -526,7 +582,7 @@ function crossPole(
   hold: Vector3,
   out: Vector3,
 ): Vector3 {
-  bowAt(rig, strings, state.crossMean, state.bow, state.lift, meanBow);
+  heldBowAt(rig, strings, state.crossMean, state.bow, state.lift, meanTilted, meanBow);
   gripHand(rig, meanBow, 0, meanHand);
   let elbow = solveArm(
     rig.armR.bind,
@@ -585,6 +641,7 @@ export function createBowPlaces(): BowPlaces {
 }
 
 const places = createBowPlaces();
+const tilted: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
 const shoulderR = createFrame();
 const shoulderL = createFrame();
 const turn = new Quaternion();
@@ -733,7 +790,8 @@ export function poseBowed(
   const { place, strings, bow, hand: heldHand } = places;
   instrumentAt(rig, frames, weight, place);
   soundingPointAt(rig, state.loudness, stringsAt(rig, place, strings));
-  bowAt(rig, strings, state.string, state.bow, state.lift, bow);
+  // The hand holds the bow with no tilt, and the fingers turn the stick by the tilt.
+  const tilt = heldBowAt(rig, strings, state.string, state.bow, state.lift, tilted, bow);
 
   // Pizzicato: the right palm above the strings, with the bow tip up.
   tip.fromArray(rig.hold.pizzicatoTip).applyQuaternion(chest.rotation);
@@ -869,11 +927,15 @@ export function poseBowed(
     rotations,
   );
 
-  // The bow turns back in the hand by the roll, so that its hair keeps its side.
+  // The bow turns back in the hand by the roll, so that its hair keeps its side, and the fingers
+  // turn it by the tilt while the bow plays.
   setBoneRotation(
     rotations,
     BONES.bow,
-    bowLocal.setFromAxisAngle(stickBind.fromArray(rig.stick), -angle),
+    bowLocal.setFromAxisAngle(
+      stickBind.fromArray(rig.stick),
+      tilt * weight * (1 - pizzicato) - angle,
+    ),
   );
 
   // The left hand keeps the place of its hand frame on the fingerboard, in the part of the

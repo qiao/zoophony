@@ -537,7 +537,10 @@ of each role.
     the bow slants 20° from square in the plane of the strings with the frog to the right
     shoulder, the stick leans toward the fingerboard around the hair (`BowedHold.bowTilt`: 30° on
     the violin and the viola, 20° on the cello, and 10° on the contrabass, as the reference gives
-    about 30° on the violin and less on the lower instruments), and the cello and the contrabass players lean forward 8° and 5°. The cellist had
+    about 30° on the violin and less on the lower instruments). The fingers turn the stick in the
+    paw by the tilt, and the hand keeps the turn of the bow with no tilt (`heldBowAt()` of
+    `pose/bowed.ts`): with the hand turned with the stick, the bow of the rabbit went 1.7 cm into
+    the violin in the lowering of `brahms-2`. The cello and the contrabass players lean forward 8° and 5°. The cellist had
     40° and 10° until the low seats of 2026-10-11: on its lower chair, the cello stands higher at
     its body, and its head and its right forearm came too near the neck and the bow stick. The bow
     range is the part of the hair that the arm reaches on all strings with 97% of its length.

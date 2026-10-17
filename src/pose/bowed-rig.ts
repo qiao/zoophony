@@ -11,9 +11,9 @@ import type { Quat, Vec3 } from '../models/tuples.ts';
 import {
   BOWED_HANDS,
   MIDDLE_FINGER,
-  bowAt,
   createBowPlaces,
   gripHand,
+  heldBowAt,
   instrumentAt,
   rollToward,
   shoulderTurn,
@@ -817,6 +817,7 @@ export function playingFrames(rig: RigPoints): TorsoFrames {
 function bowRangeOf(rig: RigPoints): BowRange {
   const frames = playingFrames(rig);
   const { place, strings, bow: placed, hand } = createBowPlaces();
+  const tilted = { grip: new Vector3(), rotation: new Quaternion() };
   stringsAt(rig, instrumentAt(rig, frames, 1, place), strings);
   const pole = new Vector3(...rig.hold.poleR).applyQuaternion(frames.chest.rotation);
   const shoulder = poseShoulder(
@@ -827,7 +828,7 @@ function bowRangeOf(rig: RigPoints): BowRange {
   );
   // The hand rolls so that its back points to the elbow of the hold, as in the pose.
   const wristAt = (string: number, at: number): Vector3 => {
-    bowAt(rig, strings, string, at, 0, placed);
+    heldBowAt(rig, strings, string, at, 0, tilted, placed);
     const wrist = gripHand(rig, placed, 0, hand).wrist;
     const { elbow } = solveArm(rig.armR.bind, shoulder.position, shoulder.rotation, wrist, pole);
     return gripHand(rig, placed, rollToward(rig, placed, elbow), hand).wrist;
