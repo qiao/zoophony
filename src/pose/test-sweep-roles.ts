@@ -472,22 +472,26 @@ function hairOffStrings(posed: PosedSkeleton, halfWidth: number): number {
 }
 
 /**
- * Gives the note targets of the bow of a violinist: the bow hair is on the strings in the middle
- * of each bowed stroke (design 5.3), in a play that started at the count-in.
+ * Gives the note targets of the bow of a violinist or a violist: the bow hair is on the strings in
+ * the middle of each bowed stroke (design 5.3), in a play that started at the count-in.
  *
  * @param scene The scene.
- * @param index The index of the violinist.
+ * @param index The index of the player.
  * @returns The targets.
  */
-function violinistTargets(scene: TestScene, index: number): NoteTarget[] {
+function bowedTargets(scene: TestScene, index: number): NoteTarget[] {
   const plan = scene.plan.players[index];
-  if (plan?.note.family !== 'bowed') {
+  const cast = scene.layout.players[index]?.cast;
+  if (
+    plan?.note.family !== 'bowed' ||
+    (cast?.instrument !== 'violin' && cast?.instrument !== 'viola')
+  ) {
     return [];
   }
   const { note: layer, timeOffset } = plan;
-  const species = scene.layout.players[index]?.cast.species ?? 'rabbit';
-  const params: SpeciesParams = SPECIES[species];
-  const halfWidth = (VIOLIN.stringsWidth / 2) * STRING_SCALES.violin * (params.violinScale ?? 1);
+  const params: SpeciesParams = SPECIES[cast.species];
+  const scale = cast.instrument === 'violin' ? (params.violinScale ?? 1) : 1;
+  const halfWidth = (VIOLIN.stringsWidth / 2) * STRING_SCALES[cast.instrument] * scale;
   return layer.strokes.flatMap((stroke): NoteTarget[] =>
     stroke.technique === 'pizzicato'
       ? []
@@ -502,18 +506,25 @@ function violinistTargets(scene: TestScene, index: number): NoteTarget[] {
 }
 
 /**
- * Tells if a player of a scene is in the sweep of the violinist: the first seated player of each
- * species of {@link VIOLINISTS}, and each soloist of these species, which stands. The violin seats
- * alternate the rabbit and the red fox (`models/cast.ts`), so a demo shows many violinists of
- * each species with one model.
+ * Tells if a player of a scene is in the sweep of a bowed role: the first seated player of each
+ * species of the role with the instrument of the role, and each soloist of these species, which
+ * stands. The violin seats alternate the rabbit and the red fox (`models/cast.ts`), so a demo
+ * shows many violinists of each species with one model.
  *
  * @param scene The scene.
  * @param index The index of the player.
+ * @param instrument The instrument of the role.
+ * @param species The species of the role.
  * @returns True for a player of the sweep.
  */
-function sweptViolinist(scene: TestScene, index: number): boolean {
+function sweptBowed(
+  scene: TestScene,
+  index: number,
+  instrument: 'violin' | 'viola',
+  species: ReadonlySet<SpeciesId>,
+): boolean {
   const { cast } = scene.layout.players[index] ?? {};
-  if (!cast || !VIOLINISTS.has(cast.species) || cast.instrument !== 'violin') {
+  if (!cast || !species.has(cast.species) || cast.instrument !== instrument) {
     return false;
   }
   if (cast.support === 'stand') {
@@ -522,7 +533,7 @@ function sweptViolinist(scene: TestScene, index: number): boolean {
   const first = scene.layout.players.findIndex(
     (p) =>
       p.cast.species === cast.species &&
-      p.cast.instrument === 'violin' &&
+      p.cast.instrument === instrument &&
       p.cast.support !== 'stand',
   );
   return first === index;
@@ -530,6 +541,44 @@ function sweptViolinist(scene: TestScene, index: number): boolean {
 
 /** The species of the violinists with a studio body of a mesh of the user. */
 const VIOLINISTS: ReadonlySet<SpeciesId> = new Set(['rabbit', 'fox-red']);
+
+/**
+ * Gives the swept players of a bowed role in a scene ({@link sweptBowed}).
+ *
+ * @param scene The scene.
+ * @param instrument The instrument of the role.
+ * @param species The species of the role.
+ * @returns The players.
+ */
+function bowedPlayers(
+  scene: TestScene,
+  instrument: 'violin' | 'viola',
+  species: ReadonlySet<SpeciesId>,
+): ReturnType<RoleSweep['players']> {
+  const label = instrument === 'violin' ? 'violinist' : 'violist';
+  return scene.layout.players.flatMap((place, index) => {
+    if (!sweptBowed(scene, index, instrument, species)) {
+      return [];
+    }
+    const { kettles, support } = place.cast;
+    const buffer = createScenePose(scene.plan);
+    const audible = allAudible(scene.score);
+    return [
+      {
+        name: `${label} ${index} (${support})`,
+        model: scene.models.get(place.cast.species, instrument, kettles, support),
+        poseAt: ([song, wall, transport]: SweepSample) => {
+          const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+          if (!pose) {
+            throw new Error(`The pose has no player ${index}.`);
+          }
+          return pose;
+        },
+        targets: () => bowedTargets(scene, index),
+      },
+    ];
+  });
+}
 
 /**
  * The sweep of the violinist (design 5.3): the arms and the bow against the body and the violin,
@@ -548,29 +597,7 @@ export const VIOLINIST_SWEEP: RoleSweep = {
   accepted: [],
   targetError: 1e-3,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'violin'),
-  players: (scene) =>
-    scene.layout.players.flatMap((place, index) => {
-      if (!sweptViolinist(scene, index)) {
-        return [];
-      }
-      const { species, instrument, kettles, support } = place.cast;
-      const buffer = createScenePose(scene.plan);
-      const audible = allAudible(scene.score);
-      return [
-        {
-          name: `violinist ${index} (${support})`,
-          model: scene.models.get(species, instrument, kettles, support),
-          poseAt: ([song, wall, transport]: SweepSample) => {
-            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
-            if (!pose) {
-              throw new Error(`The pose has no player ${index}.`);
-            }
-            return pose;
-          },
-          targets: () => violinistTargets(scene, index),
-        },
-      ];
-    }),
+  players: (scene) => bowedPlayers(scene, 'violin', VIOLINISTS),
   sampleSets: (scene) => {
     const start = -countInAt(scene.plan.beats, 0).lengthSec;
     const play: Transport = { ...PLAYING, changedAtWall: 10 };
