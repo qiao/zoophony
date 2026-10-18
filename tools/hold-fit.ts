@@ -461,8 +461,8 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
 }
 
 /**
- * The part of the instrument that the sweep of a role that holds its instrument measures in the
- * body: the bones of the instrument and of its slide. Only its pair with the body counts
+ * The part of the instrument that the sweep of a role that holds its instrument against its body
+ * measures in the body: the bones of the instrument and of its slide. Only its pair with the body counts
  * ({@link splitHeld}).
  */
 export const HELD_PART: SweepPart = { name: 'instrument', bones: ['instrument', 'slide'] };
@@ -471,8 +471,8 @@ export const HELD_PART: SweepPart = { name: 'instrument', bones: ['instrument', 
  * Gives the sweep of a fold role: the role of `SWEEP_ROLES` whose players in a scene are bodies of
  * the fold role, with only these players. The violinist sweep holds the rabbits and the red foxes,
  * so the fold role `fox-violinist` sweeps only the red foxes. A new role of both tables thus needs
- * no entry here. For a role that holds its instrument in its paws ({@link holdsInstrument}), the
- * sweep also measures {@link HELD_PART}.
+ * no entry here. For a role that holds its instrument against its body ({@link holdsInstrument}),
+ * the sweep also measures {@link HELD_PART}.
  *
  * @param role The fold role.
  * @param scene A scene with a body of the role.
@@ -1276,14 +1276,16 @@ function windOf(
 }
 
 /**
- * Tells if a role holds its instrument in its paws: a violin, a viola, or a wind instrument. The
- * sweep of such a role measures the instrument in the body ({@link HELD_PART}).
+ * Tells if a role holds its instrument against its body: a violin, a viola, or a wind instrument
+ * in its paws, or a cello between its knees and against its chest (design 5.3). The sweep of such
+ * a role measures the instrument in the body ({@link HELD_PART}).
  *
  * @param role The role.
- * @returns True for a role with an instrument under the chin or a wind instrument.
+ * @returns True for a role with an instrument under the chin, a wind instrument, or a cello.
  */
 export function holdsInstrument(role: RoleSource): boolean {
-  return chinOf(role) !== null || windOf(role) !== null;
+  const cello = role.kind === 'player' && role.instrument === 'cello';
+  return cello || chinOf(role) !== null || windOf(role) !== null;
 }
 
 /**

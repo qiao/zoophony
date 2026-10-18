@@ -112,7 +112,7 @@ export interface RoleViews {
 
 /**
  * A role with a close view: the bear conductor, the polar bear pianist, the rabbit violinist, the
- * red fox violinist, the cat violist, or the tan fox flutist.
+ * red fox violinist, the cat violist, the dog cellist, or the tan fox flutist.
  */
 export type CloseRole =
   | 'conductor'
@@ -120,6 +120,7 @@ export type CloseRole =
   | 'violinist'
   | 'fox-violinist'
   | 'violist'
+  | 'cellist'
   | 'flutist';
 
 /** The roles with a close view, in the order of the usage text. */
@@ -129,6 +130,7 @@ const CLOSE_ROLES: readonly CloseRole[] = [
   'violinist',
   'fox-violinist',
   'violist',
+  'cellist',
   'flutist',
 ];
 
@@ -151,6 +153,10 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  *   the open back of the chair.
  * - The cat violist of the violas: the views and the moments of the violinist, with a whole
  *   down-bow on the A string and a string crossing from the C string to the A string.
+ * - The dog cellist of the cellos: the front, both sides, and the back. The moments are the frog
+ *   and the tip of a whole down-bow on the A string, a string crossing from the C string to the A
+ *   string, the rest pose, and halfway through the lift and the lowering at the frog. A cellist
+ *   does not stand.
  * - The tan fox flutist: the front, both sides, and the back. The moments are a long note, a time
  *   between two phrases, the rest pose, halfway through the lift and the lowering at the note,
  *   and the standing soloist at the note.
@@ -270,6 +276,25 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
     camera: { kind: 'body', zoom: 1, elevation: 20 },
     // A whole down-bow on A4, then a string crossing from C3 to A4.
     notes: ['0.5 2 A4', '3 0.25 C3', '3.25 0.25 A4', '3.5 0.25 C3'].join('\n'),
+  },
+  cellist: {
+    species: 'dog',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'frog', time: 0.55, rest: false },
+      { name: 'tip', time: 2.4, rest: false },
+      { name: 'crossing', time: 3.25, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.55),
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // A whole down-bow on A3, then a string crossing from C2 to A3.
+    notes: ['0.5 2 A3', '3 0.25 C2', '3.25 0.25 A3', '3.5 0.25 C2'].join('\n'),
   },
   flutist: {
     species: 'fox-tan',

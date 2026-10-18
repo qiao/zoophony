@@ -71,6 +71,13 @@ const MESH_BODY_LOOPS = 4;
  */
 const CAT_BODY_LOOPS = 3;
 
+/**
+ * The open loops of {@link BODY_BONES} of the dog mesh: the cuts to the two upper arms, two open
+ * edge pairs of 3 cm at the muzzle, and two of 1.5 cm to 1.9 cm at the toes (`loops-probe.txt` of
+ * `docs/research/2026-10-17-dog-mesh/`).
+ */
+const DOG_BODY_LOOPS = 6;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -162,6 +169,17 @@ function meshBodySurface(posed: PosedSkeleton): ClosedSurface {
  */
 function catBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, CAT_BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the dog mesh: {@link BODY_BONES} with a cap on each open loop
+ * ({@link DOG_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function dogBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, DOG_BODY_LOOPS);
 }
 
 /**
@@ -504,9 +522,13 @@ function hairOffStrings(posed: PosedSkeleton, halfWidth: number): number {
   return Math.max(0, distance - halfWidth);
 }
 
+/** A bowed string of a bowed role of the sweep. */
+type SweptBowed = 'violin' | 'viola' | 'cello';
+
 /**
- * Gives the note targets of the bow of a violinist or a violist: the bow hair is on the strings in
- * the middle of each bowed stroke (design 5.3), in a play that started at the count-in.
+ * Gives the note targets of the bow of a violinist, a violist, or a cellist: the bow hair is on
+ * the strings in the middle of each bowed stroke (design 5.3), in a play that started at the
+ * count-in.
  *
  * @param scene The scene.
  * @param index The index of the player.
@@ -517,7 +539,7 @@ function bowedTargets(scene: TestScene, index: number): NoteTarget[] {
   const cast = scene.layout.players[index]?.cast;
   if (
     plan?.note.family !== 'bowed' ||
-    (cast?.instrument !== 'violin' && cast?.instrument !== 'viola')
+    (cast?.instrument !== 'violin' && cast?.instrument !== 'viola' && cast?.instrument !== 'cello')
   ) {
     return [];
   }
@@ -553,7 +575,7 @@ function bowedTargets(scene: TestScene, index: number): NoteTarget[] {
 function sweptBowed(
   scene: TestScene,
   index: number,
-  instrument: 'violin' | 'viola',
+  instrument: SweptBowed,
   species: ReadonlySet<SpeciesId>,
 ): boolean {
   const { cast } = scene.layout.players[index] ?? {};
@@ -578,6 +600,12 @@ const VIOLINISTS: ReadonlySet<SpeciesId> = new Set(['rabbit', 'fox-red']);
 /** The species of the violists with a studio body of a mesh of the user. */
 const VIOLISTS: ReadonlySet<SpeciesId> = new Set(['cat']);
 
+/** The species of the cellists with a studio body of a mesh of the user. */
+const CELLISTS: ReadonlySet<SpeciesId> = new Set(['dog']);
+
+/** The name of the players of each bowed role in the sweep. */
+const BOWED_LABELS = { violin: 'violinist', viola: 'violist', cello: 'cellist' } as const;
+
 /**
  * Gives the swept players of a bowed role in a scene ({@link sweptBowed}).
  *
@@ -588,10 +616,10 @@ const VIOLISTS: ReadonlySet<SpeciesId> = new Set(['cat']);
  */
 function bowedPlayers(
   scene: TestScene,
-  instrument: 'violin' | 'viola',
+  instrument: SweptBowed,
   species: ReadonlySet<SpeciesId>,
 ): ReturnType<RoleSweep['players']> {
-  const label = instrument === 'violin' ? 'violinist' : 'violist';
+  const label = BOWED_LABELS[instrument];
   return scene.layout.players.flatMap((place, index) => {
     if (!sweptBowed(scene, index, instrument, species)) {
       return [];
@@ -771,6 +799,21 @@ export const VIOLIST_SWEEP: RoleSweep = {
 };
 
 /**
+ * The sweep of the cellist (design 5.3): the sweep of the violinist with the cello. The first
+ * seated dog of each demo plays it. A cellist does not stand as a soloist (4.2).
+ */
+export const CELLIST_SWEEP: RoleSweep = {
+  ...VIOLINIST_SWEEP,
+  role: 'cellist',
+  obstacles: [
+    { name: 'body', surface: dogBodySurface },
+    { name: 'cello', surface: instrumentSurface },
+  ],
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'cello'),
+  players: (scene) => bowedPlayers(scene, 'cello', CELLISTS),
+};
+
+/**
  * The bowed roles whose species can stand as the soloist of the violin and piano duo
  * ({@link soloistScene}): the instrument of each role and its species. No demo has a standing
  * violin soloist, so the sweep of a demo never poses one.
@@ -827,5 +870,6 @@ export const SWEEP_ROLES = {
   pianist: PIANIST_SWEEP,
   violinist: VIOLINIST_SWEEP,
   violist: VIOLIST_SWEEP,
+  cellist: CELLIST_SWEEP,
   flutist: FLUTIST_SWEEP,
 } as const;
