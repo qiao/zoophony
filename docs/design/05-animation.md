@@ -475,8 +475,9 @@ of each role.
     string planes of the reference. The mesh rigs stay below: 11° on the viola of the cat, the
     largest angle with which its bow arm still reaches the full hair, 10° on the rabbit and 9°
     on the red fox (with the stick leaned 15°), because larger turns fold the skin of their right
-    arms, and 12° on the cello of the dog, because a larger turn put its right upper arm into the
-    side of the chest at the tip on the C string.
+    arms, and 6° on the cello of the dog, because a larger turn put its paw into the right rim of
+    the cello on the C string. The short arms of the dog play no hair within 0.12 m of the frog
+    (`BowedHold.frogHair`), where the forearm crossed the rim.
   - The middle of the left finger block presses the strings at the middle of the hand frame of
     the position on the target `fingerboard`, with the string length: one octave is half of the
     string, and the end of the fingerboard is 20 semitones above the open string. The fingers
@@ -672,7 +673,7 @@ of each role.
     1 cm behind the front of its belly, so the cello stands vertical and leans 11° to the left,
     and the knees stay 2.0 cm and 2.9 cm behind the sides of the lower bout. A cello that leans back
     stood with its lower bout in front of the knees. The trunk leans only 3°, because the belly then
-    pushes into the cello. The left paw tilts 60° over the neck (`BowedHold.tiltL`, 30° on the other
+    pushes into the cello. The left paw tilts 55° over the neck (`BowedHold.tiltL`, 30° on the other
     holds), as the hand of a cellist comes over the fingerboard from the bass side: with 30°, the
     thick paw went 3.0 cm into the neck. The left elbow points out to the left and down, past the
     upper bout, and turns up 2° for each lower string. The right shoulder turns 30°, the turn of the

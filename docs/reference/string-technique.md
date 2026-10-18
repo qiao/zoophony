@@ -381,8 +381,9 @@ A round that changes the motion updates the items.
   30°, its arm reaches the full hair up to 11°. The rabbit turns 10°, and the red fox 9° with the
   stick leaned 15°: larger turns fold the skin of their right arms in more play samples
   (`pnpm hold-fit`), and put the bow paw of the rabbit into the violin at the frog on the E string.
-  The cello of the dog turns 12°: at the tip on the C string, the right upper arm went 1.9 cm into
-  the side of the chest with 17°.
+  The cello of the dog turns 6°: with its short arms, a larger turn put the paw into the right rim
+  of the cello on the C string. It also plays no hair within 0.12 m of the frog
+  (`BowedHold.frogHair`), where its forearm crossed the rim.
   The app had 9° (7° on the contrabass) before. The arm levels come from the
   geometry: the bow plane of the string turns the hand, and the arm follows it, higher for the
   lower strings of the violin and the viola.
@@ -448,7 +449,7 @@ A round that changes the motion updates the items.
 - **The angle** (section 2.7). The cello stands vertical and leans 11° to the left. A cello that
   leans back stood with its lower bout further in front of the knees. The source permits a more
   vertical cello.
-- **The left hand over the neck.** The left paw tilts 60° over the neck from the bass side
+- **The left hand over the neck.** The left paw tilts 55° over the neck from the bass side
   (`BowedHold.tiltL`, 30° on the other holds), so that the thick paw keeps off the fingerboard.
 - **The rest** (section 2.7). The cello stays between the knees, the left paw holds its neck, and
   the right paw holds the bow upright with the frog over the right knee (`UPRIGHT_BOW`), as the
