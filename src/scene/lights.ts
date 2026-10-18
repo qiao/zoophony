@@ -38,27 +38,32 @@ export const KEY_LIGHT = {
 } as const;
 
 /**
- * The side lights (design 4.5): two soft warm spotlights from the front corners of the hall, high
- * at the sides. Each one crosses the stage and lights the section on the other side, because the
+ * The side lights (design 4.5): two warm spotlights from the front corners of the hall, high at
+ * the sides. Each one crosses the stage and lights the section on the other side, because the
  * players of a section face the conductor in the middle. Thus the fronts of the players are
  * bright, and the back of the conductor gets the light at a low angle and stays a darker brown,
- * as in `mockup.png`. They cast no shadow. The light at the left is the mirror of the light at
- * the right. The first lights were a rim light behind the orchestra and a front light above the
- * audience. The key light from behind now draws the rims.
+ * as in `mockup.png`. The light at the left is the mirror of the light at the right. The first
+ * lights were a rim light behind the orchestra and a front light above the audience. The key
+ * light from behind now draws the rims.
+ *
+ * The cone is narrow and the light is high, so the section below the light stays outside the
+ * cone. A wide, low cone of 28° lit that section from the camera side too, about as bright as the
+ * far section, because it is nearer to the light. Thus each body got light from two sides, and
+ * its shade side was gone (user, 2026-10-18).
  */
 export const SIDE_LIGHT = {
   /** The color, in sRGB. */
   color: '#ffd2a0',
   /** The position of the light at the right, in stage sides. */
-  position: [1.1, 0.7, 0.7],
+  position: [1.1, 1.4, 0.7],
   /** The aim of the light at the right, in stage sides: the middle of the section at the left. */
   target: [-0.3, 0, 0.1],
   /** The illuminance at the aim point, on a face that looks at the light, in lux. */
-  illuminance: 2.1,
+  illuminance: 2.7,
   /** The half angle of the cone. */
-  angle: 28 * MathUtils.DEG2RAD,
+  angle: 14 * MathUtils.DEG2RAD,
   /** The penumbra of the cone. */
-  penumbra: 0.8,
+  penumbra: 0.5,
 } as const;
 
 /**
