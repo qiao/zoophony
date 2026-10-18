@@ -1,6 +1,5 @@
 import { smoothstep } from '../pose/rest.ts';
 import type { Vec3 } from '../models/tuples.ts';
-import { FREE_BEAM_FADE } from './beam-opacity.ts';
 import type { ShotKind } from './types.ts';
 import { defaultDistance } from './view.ts';
 
@@ -13,7 +12,8 @@ export const SHOT_LIGHT = {
   wide: 0,
   high: 0,
   conductor: 1,
-  side: 1,
+  // A side shot shows a large part of the orchestra, so it keeps half of the light of the stage.
+  side: 0.5,
   section: 1,
   solo: 1,
 } as const satisfies Record<ShotKind, number>;
@@ -32,9 +32,19 @@ export const SHOT_SPOT = {
 } as const satisfies Record<ShotKind, number>;
 
 /**
+ * The range of the fade of the light of a close shot in Free mode (design 2.5, 4.5): the distance
+ * from the camera to the stage center, as a factor of the default distance. The section and the
+ * solo shots of the planner stand at 0.25 or less, so a change from Cinematic to Free mode keeps
+ * their light. The default view stands at about 0.56, and a view of the whole stage at about
+ * 0.43. The fade of the beam (`FREE_BEAM_FADE`, 0.45 to 0.5) gave such a view half of the close
+ * light.
+ */
+export const FREE_LIGHT_FADE = [0.25, 0.4] as const;
+
+/**
  * Calculates the weight of the light of a close shot for a camera in Free mode (design 2.5, 4.5).
- * It follows the distance to the stage center as the beam does (`freeBeamOpacity()`), so a change
- * from Cinematic to Free mode keeps the light.
+ * It follows the distance to the stage center with a smoothstep, so an orbit or a zoom changes it
+ * with no jump.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param aspect The width of the viewport divided by its height.
@@ -43,7 +53,7 @@ export const SHOT_SPOT = {
  */
 export function freeShotLight(stageSide: number, aspect: number, position: Vec3): number {
   const ratio = Math.hypot(...position) / defaultDistance(stageSide, aspect);
-  const [near, far] = FREE_BEAM_FADE;
+  const [near, far] = FREE_LIGHT_FADE;
   return 1 - smoothstep((ratio - near) / (far - near));
 }
 
