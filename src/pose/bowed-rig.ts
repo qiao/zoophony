@@ -703,9 +703,9 @@ const CAT_HOLD = {
  * plucks over the fingerboard (`pluckPlace` -0.6), nearer to the shoulder, with the elbow forward.
  *
  * In the rest pose, the right paw holds the bow over the right knee, 0.25 H out and 0.5 H above
- * the top of the thigh at 0.9 of the way to the knee, with the tip up and leaned forward, and the
- * right elbow points out, down, and back. The short arm then bends softly at the elbow, and the
- * wrist bends 25° with the palm toward the body. With the grip 0.4 H out of the knee, the arm was
+ * the top of the thigh at 0.9 of the way to the knee, with the tip up and leaned out and forward,
+ * away from the cello, and the right elbow points out, down, and back. The short arm then bends
+ * softly at the elbow, and the wrist bends 22° with the palm toward the body. With the grip 0.4 H out of the knee, the arm was
  * straight and the wrist bent 66° with the palm to the front. The left paw holds the cello at 0.6
  * of the fingerboard with the elbow down and out, 5.8 cm out from the side of the trunk (12.0 cm
  * at 0.4). In the lift and the lowering, the bow turns through the front, and the grip moves 0.3 H
@@ -731,7 +731,7 @@ const DOG_HOLD = {
   restPoleR: [0.6, -1, 0.75],
   restBow: {
     lap: { along: 0.9, offset: [0.25, 0.5, 0] },
-    tip: [0.2, 1, -0.7],
+    tip: [0.6, 1, -0.6],
     hair: UPRIGHT_BOW.hair,
     via: { ...UPRIGHT_BOW.via, reach: [0.3, 0, -0.4] },
   },
