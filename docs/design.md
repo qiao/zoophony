@@ -4,15 +4,12 @@ This document records the design of a WebGL MIDI player for orchestral music. Lo
 play the music on a small stage. The design was confirmed on 2026-10-04, before the first line
 of code.
 
-The facts behind the decisions are in [`research/`](research/README.md). Section 10 lists the
-decision files of [`decisions/`](decisions/): the details that agents decided after the design
-session, for the user to confirm.
-
-The design is the single source of truth for the product and design decisions. The text of
-sections 1 to 9 is in [`design/`](design/), in one file for each section. The two-digit number at
-the start of a file name is the number of its section. Thus a pointer "design X.Y" names the
-heading "X.Y" in the file of section X. For example, design 4.5 is the heading "4.5 Visual values"
-in `design/04-stage-cast-look.md`. Read only the files of your area.
+The design is the single source of truth for the product and design decisions. The facts behind
+the decisions are in [`research/`](research/README.md). The text of sections 1 to 9 is in
+[`design/`](design/), in one file for each section. The two-digit number at the start of a file
+name is the number of its section. Thus a pointer "design X.Y" names the heading "X.Y" in the file
+of section X. For example, design 4.5 is the heading "4.5 Visual values" in
+`design/04-stage-cast-look.md`. Read only the files of your area.
 
 | File | Section and scope |
 |---|---|
@@ -28,16 +25,15 @@ in `design/04-stage-cast-look.md`. Read only the files of your area.
 
 ## 10. Decisions to confirm
 
-After the design session of 2026-10-04, agents decided more details, so that a fresh agent can
-build with no guess. The user did not review them one by one. Treat them as decided, unless a
-newer decision of the user or a newer row replaces them. A decision
-file in [`decisions/`](decisions/) holds the details of one agent session in one table, with a
-row for each decision. The Section column of a row names the section of this design that holds
-the decision.
+After the design session, agents decided more details, so that a fresh agent can build with no
+guess. Treat each decision as decided, unless a newer decision of the user or a newer row replaces
+it. A decision file in [`decisions/`](decisions/) holds the decisions of one agent session in one
+table, with one row for each decision. The Section column of a row names the section of this
+design that holds the decision.
 
 - **New decisions.** An agent that decides details adds a new file
-  `decisions/<YYYY-MM-DD>-<topic>.md`. The file has a title, one paragraph that tells who decided
-  and why, and the table. Add the file to the list below.
+  `decisions/<YYYY-MM-DD>-<topic>.md` with the template of
+  [`agents/writing.md`](agents/writing.md), and adds its line to the list below.
 - **Old files.** Keep the file of another session as it is. The only change to it is the removal
   of a row that the user reversed, or that a newer decision or the code replaced.
 - **Reversal.** The user can reverse each decision. Then update the section of this design that
@@ -48,171 +44,167 @@ the decision.
 The decision files:
 
 - [`2026-10-04-design-session.md`](decisions/2026-10-04-design-session.md): the design session.
+- [`2026-10-05-animal-views-checks.md`](decisions/2026-10-05-animal-views-checks.md): the checks of the animal views.
+- [`2026-10-05-animal-views-round-3.md`](decisions/2026-10-05-animal-views-round-3.md): the third round of the animal views.
+- [`2026-10-05-animal-views.md`](decisions/2026-10-05-animal-views.md): the animal views.
+- [`2026-10-05-cheerful-demos.md`](decisions/2026-10-05-cheerful-demos.md): the cheerful demos.
+- [`2026-10-05-cinematic-camera.md`](decisions/2026-10-05-cinematic-camera.md): the cinematic camera.
+- [`2026-10-05-conductor-cues.md`](decisions/2026-10-05-conductor-cues.md): the conductor cues.
+- [`2026-10-05-count-in.md`](decisions/2026-10-05-count-in.md): the count-in.
 - [`2026-10-05-manager-review-advice.md`](decisions/2026-10-05-manager-review-advice.md): the manager on the advice of a review.
+- [`2026-10-05-natural-lift.md`](decisions/2026-10-05-natural-lift.md): the natural lift.
+- [`2026-10-05-pose-code-audit.md`](decisions/2026-10-05-pose-code-audit.md): the pose code audit.
+- [`2026-10-05-professional-seating.md`](decisions/2026-10-05-professional-seating.md): the professional seating.
+- [`2026-10-05-room-and-mix.md`](decisions/2026-10-05-room-and-mix.md): the room and the mix.
+- [`2026-10-05-score-build-test.md`](decisions/2026-10-05-score-build-test.md): the score build test.
+- [`2026-10-05-soundfont.md`](decisions/2026-10-05-soundfont.md): the SoundFont.
+- [`2026-10-05-step-2-processor.md`](decisions/2026-10-05-step-2-processor.md): the step 2 processor tasks.
 - [`2026-10-05-step-2.md`](decisions/2026-10-05-step-2.md): the step 2 agent.
 - [`2026-10-05-step-4-instruments.md`](decisions/2026-10-05-step-4-instruments.md): the step 4 instruments.
 - [`2026-10-05-step-4-layout.md`](decisions/2026-10-05-step-4-layout.md): the step 4 layout.
 - [`2026-10-05-step-4-scene-gallery.md`](decisions/2026-10-05-step-4-scene-gallery.md): the step 4 scene and gallery.
-- [`2026-10-05-step-5-motion.md`](decisions/2026-10-05-step-5-motion.md): the step 5 motion.
-- [`2026-10-05-step-5-winds-brass.md`](decisions/2026-10-05-step-5-winds-brass.md): the step 5 winds and brass.
-- [`2026-10-05-pose-code-audit.md`](decisions/2026-10-05-pose-code-audit.md): the pose code audit.
-- [`2026-10-05-animal-views.md`](decisions/2026-10-05-animal-views.md): the animal views.
-- [`2026-10-05-animal-views-checks.md`](decisions/2026-10-05-animal-views-checks.md): the checks of the animal views.
-- [`2026-10-05-step-5-piano-harp-choir.md`](decisions/2026-10-05-step-5-piano-harp-choir.md): the step 5 piano, harp, and choir.
-- [`2026-10-05-step-5-percussion-conductor.md`](decisions/2026-10-05-step-5-percussion-conductor.md): the step 5 percussion and conductor.
-- [`2026-10-05-animal-views-round-3.md`](decisions/2026-10-05-animal-views-round-3.md): the third round of the animal views.
 - [`2026-10-05-step-5-app-wiring.md`](decisions/2026-10-05-step-5-app-wiring.md): the step 5 app wiring.
-- [`2026-10-05-step-5-review-fixes.md`](decisions/2026-10-05-step-5-review-fixes.md): the fixes of the step 5 review.
-- [`2026-10-05-step-2-processor.md`](decisions/2026-10-05-step-2-processor.md): the step 2 processor tasks.
-- [`2026-10-05-professional-seating.md`](decisions/2026-10-05-professional-seating.md): the professional seating.
-- [`2026-10-05-count-in.md`](decisions/2026-10-05-count-in.md): the count-in.
+- [`2026-10-05-step-5-motion.md`](decisions/2026-10-05-step-5-motion.md): the step 5 motion.
+- [`2026-10-05-step-5-percussion-conductor.md`](decisions/2026-10-05-step-5-percussion-conductor.md): the step 5 percussion and conductor.
+- [`2026-10-05-step-5-piano-harp-choir.md`](decisions/2026-10-05-step-5-piano-harp-choir.md): the step 5 piano, harp, and choir.
 - [`2026-10-05-step-5-re-review-processor.md`](decisions/2026-10-05-step-5-re-review-processor.md): the processor findings of the step 5 re-review.
+- [`2026-10-05-step-5-review-fixes.md`](decisions/2026-10-05-step-5-review-fixes.md): the fixes of the step 5 review.
+- [`2026-10-05-step-5-winds-brass.md`](decisions/2026-10-05-step-5-winds-brass.md): the step 5 winds and brass.
 - [`2026-10-05-step-6-bar-first-screen.md`](decisions/2026-10-05-step-6-bar-first-screen.md): the step 6 bar, first screen, and demo list.
-- [`2026-10-05-natural-lift.md`](decisions/2026-10-05-natural-lift.md): the natural lift.
-- [`2026-10-05-step-6-file-seats-settings.md`](decisions/2026-10-05-step-6-file-seats-settings.md): the step 6 file button, seat list, and settings.
 - [`2026-10-05-step-6-credits-messages-keys.md`](decisions/2026-10-05-step-6-credits-messages-keys.md): the step 6 credits, messages, keys, and phone layout.
-- [`2026-10-05-step-6-review-fixes.md`](decisions/2026-10-05-step-6-review-fixes.md): the fixes of the step 6 review.
+- [`2026-10-05-step-6-file-seats-settings.md`](decisions/2026-10-05-step-6-file-seats-settings.md): the step 6 file button, seat list, and settings.
 - [`2026-10-05-step-6-re-review-fixes.md`](decisions/2026-10-05-step-6-re-review-fixes.md): the fixes of the step 6 re-review.
-- [`2026-10-05-score-build-test.md`](decisions/2026-10-05-score-build-test.md): the score build test.
-- [`2026-10-05-room-and-mix.md`](decisions/2026-10-05-room-and-mix.md): the room and the mix.
-- [`2026-10-05-conductor-cues.md`](decisions/2026-10-05-conductor-cues.md): the conductor cues.
-- [`2026-10-05-soundfont.md`](decisions/2026-10-05-soundfont.md): the SoundFont.
-- [`2026-10-05-cinematic-camera.md`](decisions/2026-10-05-cinematic-camera.md): the cinematic camera.
-- [`2026-10-05-cheerful-demos.md`](decisions/2026-10-05-cheerful-demos.md): the cheerful demos.
+- [`2026-10-05-step-6-review-fixes.md`](decisions/2026-10-05-step-6-review-fixes.md): the fixes of the step 6 review.
 - [`2026-10-05-step-7-tests-deploy.md`](decisions/2026-10-05-step-7-tests-deploy.md): the step 7 tests and deploy.
-- [`2026-10-06-ux-audit-sound.md`](decisions/2026-10-06-ux-audit-sound.md): the sound findings of the UX audit.
-- [`2026-10-06-ux-audit-camera-stage.md`](decisions/2026-10-06-ux-audit-camera-stage.md): the camera and stage findings of the UX audit.
-- [`2026-10-06-ux-audit-ui-app-flow.md`](decisions/2026-10-06-ux-audit-ui-app-flow.md): the UI and app flow findings of the UX audit.
-- [`2026-10-06-ux-audit-manager.md`](decisions/2026-10-06-ux-audit-manager.md): the manager on the UX audit.
-- [`2026-10-06-portrait-soloist.md`](decisions/2026-10-06-portrait-soloist.md): the portrait view and the soloist.
-- [`2026-10-06-ux-audit-2-layout-score-choir.md`](decisions/2026-10-06-ux-audit-2-layout-score-choir.md): the layout, score, and choir findings of the second UX audit.
-- [`2026-10-06-ux-audit-2-ui.md`](decisions/2026-10-06-ux-audit-2-ui.md): the UI findings of the second UX audit.
-- [`2026-10-06-ux-audit-2-shots.md`](decisions/2026-10-06-ux-audit-2-shots.md): the shot composition findings of the second UX audit.
+- [`2026-10-06-arm-and-hand-contact.md`](decisions/2026-10-06-arm-and-hand-contact.md): the join of the arm and the torso, and the hands on the bowed strings.
+- [`2026-10-06-beam-clear-view.md`](decisions/2026-10-06-beam-clear-view.md): the beam that keeps the orchestra clear.
+- [`2026-10-06-beam-to-stage.md`](decisions/2026-10-06-beam-to-stage.md): the beam that reaches the stage and keeps the players clear.
 - [`2026-10-06-chamber-groups.md`](decisions/2026-10-06-chamber-groups.md): the chamber groups with no conductor.
-- [`2026-10-06-polished-ui.md`](decisions/2026-10-06-polished-ui.md): the UI of the polished mockup.
+- [`2026-10-06-choir-shots.md`](decisions/2026-10-06-choir-shots.md): the choir as a subject of the shots.
+- [`2026-10-06-conductor-left-arm.md`](decisions/2026-10-06-conductor-left-arm.md): the conductor stand, and the left arm of the conductor.
+- [`2026-10-06-fur-shading.md`](decisions/2026-10-06-fur-shading.md): the crease normals and the baked occlusion.
+- [`2026-10-06-joyful-ode.md`](decisions/2026-10-06-joyful-ode.md): the joyful excerpt of the Ode to Joy.
+- [`2026-10-06-planner-stability.md`](decisions/2026-10-06-planner-stability.md): the shot planner that stays stable against small moves of the players.
+- [`2026-10-06-polar-bear-pianist.md`](decisions/2026-10-06-polar-bear-pianist.md): the polar bear at the piano.
 - [`2026-10-06-polished-camera.md`](decisions/2026-10-06-polished-camera.md): the camera of the polished look.
 - [`2026-10-06-polished-cast.md`](decisions/2026-10-06-polished-cast.md): the animals and the instruments of the polished reference images.
 - [`2026-10-06-polished-look.md`](decisions/2026-10-06-polished-look.md): the hall, the stage, the light, the beam, and the post effects of the polished look.
-- [`2026-10-06-planner-stability.md`](decisions/2026-10-06-planner-stability.md): the shot planner that stays stable against small moves of the players.
-- [`2026-10-06-arm-and-hand-contact.md`](decisions/2026-10-06-arm-and-hand-contact.md): the join of the arm and the torso, and the hands on the bowed strings.
-- [`2026-10-06-beam-clear-view.md`](decisions/2026-10-06-beam-clear-view.md): the beam that keeps the orchestra clear.
-- [`2026-10-06-conductor-left-arm.md`](decisions/2026-10-06-conductor-left-arm.md): the conductor stand in front of the podium, and the motion of the left arm of the conductor.
-- [`2026-10-06-step-8-review-fixes.md`](decisions/2026-10-06-step-8-review-fixes.md): the fixes of the review of step 8 in the UI, the camera frame, and the shots.
-- [`2026-10-06-polar-bear-pianist.md`](decisions/2026-10-06-polar-bear-pianist.md): the polar bear at the piano.
-- [`2026-10-06-beam-to-stage.md`](decisions/2026-10-06-beam-to-stage.md): the beam that reaches the stage and keeps the players clear.
-- [`2026-10-06-fur-shading.md`](decisions/2026-10-06-fur-shading.md): the crease normals and the baked occlusion. The soft edge of the fur is gone (2026-10-07).
-- [`2026-10-06-joyful-ode.md`](decisions/2026-10-06-joyful-ode.md): the traditional and joyful excerpt of the Ode to Joy.
-- [`2026-10-06-skinned-bodies.md`](decisions/2026-10-06-skinned-bodies.md): the skin of two bones at a joint, the area modules of the body, and the user decisions on the cute bodies that stay (no fur, no blush, the head height).
-- [`2026-10-06-choir-shots.md`](decisions/2026-10-06-choir-shots.md): the choir as a subject of the shots, and the test of the first voice.
+- [`2026-10-06-polished-ui.md`](decisions/2026-10-06-polished-ui.md): the UI of the polished mockup.
+- [`2026-10-06-portrait-soloist.md`](decisions/2026-10-06-portrait-soloist.md): the portrait view and the soloist.
 - [`2026-10-06-rest-arms-and-bow.md`](decisions/2026-10-06-rest-arms-and-bow.md): the rest pose with held arms, and the bow stick in the fingers.
+- [`2026-10-06-skinned-bodies.md`](decisions/2026-10-06-skinned-bodies.md): the skin of two bones at a joint, and the cute bodies that stay.
+- [`2026-10-06-step-8-review-fixes.md`](decisions/2026-10-06-step-8-review-fixes.md): the fixes of the review of step 8.
+- [`2026-10-06-ux-audit-2-layout-score-choir.md`](decisions/2026-10-06-ux-audit-2-layout-score-choir.md): the layout, score, and choir findings of the second UX audit.
+- [`2026-10-06-ux-audit-2-shots.md`](decisions/2026-10-06-ux-audit-2-shots.md): the shot composition findings of the second UX audit.
+- [`2026-10-06-ux-audit-2-ui.md`](decisions/2026-10-06-ux-audit-2-ui.md): the UI findings of the second UX audit.
+- [`2026-10-06-ux-audit-camera-stage.md`](decisions/2026-10-06-ux-audit-camera-stage.md): the camera and stage findings of the UX audit.
+- [`2026-10-06-ux-audit-manager.md`](decisions/2026-10-06-ux-audit-manager.md): the manager on the UX audit.
+- [`2026-10-06-ux-audit-sound.md`](decisions/2026-10-06-ux-audit-sound.md): the sound findings of the UX audit.
+- [`2026-10-06-ux-audit-ui-app-flow.md`](decisions/2026-10-06-ux-audit-ui-app-flow.md): the UI and app flow findings of the UX audit.
+- [`2026-10-07-anatomy-track.md`](decisions/2026-10-07-anatomy-track.md): the rest places of the instruments on the lap.
+- [`2026-10-07-blender-sculpts.md`](decisions/2026-10-07-blender-sculpts.md): the step of a packed coordinate, and the light of the views page.
+- [`2026-10-07-camera-angle.md`](decisions/2026-10-07-camera-angle.md): the target of the default view.
+- [`2026-10-07-camera-bugs.md`](decisions/2026-10-07-camera-bugs.md): the zoom of the first screen, the near orbit limit, and the focus of Free mode.
+- [`2026-10-07-cast-colors.md`](decisions/2026-10-07-cast-colors.md): the species colors in `models/colors.ts`.
+- [`2026-10-07-conductor-pose.md`](decisions/2026-10-07-conductor-pose.md): the raised arms of the conductor.
+- [`2026-10-07-credits-modal.md`](decisions/2026-10-07-credits-modal.md): the link "Credits" and its modal dialog.
+- [`2026-10-07-entry-shots.md`](decisions/2026-10-07-entry-shots.md): the cuts at an entry.
+- [`2026-10-07-neck-seams.md`](decisions/2026-10-07-neck-seams.md): the dark seams at the neck, and the short muzzle of the bear.
+- [`2026-10-07-play-clearance.md`](decisions/2026-10-07-play-clearance.md): the arms of the playing pose that stay out of the body.
+- [`2026-10-07-proportions.md`](decisions/2026-10-07-proportions.md): the proportions of each species.
 - [`2026-10-07-rest-clearance.md`](decisions/2026-10-07-rest-clearance.md): the arms of the rest pose that stay out of the body.
-- [`2026-10-07-scene-polish.md`](decisions/2026-10-07-scene-polish.md): the light from behind, the walnut stage, the hall lamps, the beam shaft, and the grade of the scene polish.
-- [`2026-10-07-title-shade.md`](decisions/2026-10-07-title-shade.md): the shade of each title line, with a level from the frame behind its text.
-- [`2026-10-07-cast-colors.md`](decisions/2026-10-07-cast-colors.md): the move of the species colors into `models/colors.ts`, and the samples of the colors that the revert of 2026-10-09 replaced.
-- [`2026-10-07-play-clearance.md`](decisions/2026-10-07-play-clearance.md): the arms of the playing pose that stay out of the body, the holds of the bowed strings and the winds, and the horn.
-- [`2026-10-07-credits-modal.md`](decisions/2026-10-07-credits-modal.md): the link "Credits" at the end of the drawer, the modal dialog that it opens, and the link to GitHub after the logo.
-- [`2026-10-07-conductor-pose.md`](decisions/2026-10-07-conductor-pose.md): the raised arms of the conductor, with both hands beside the head from behind, and the beat plane square to the baton.
-- [`2026-10-07-camera-angle.md`](decisions/2026-10-07-camera-angle.md): the target of the default view 0.25 m below the stage top, and the wide shots and Free mode on that target.
-- [`2026-10-07-scene-details.md`](decisions/2026-10-07-scene-details.md): the light on the stage wood behind the podium, the darker planks, the hall lamps behind the stage, and the inside of the open piano.
-- [`2026-10-07-neck-seams.md`](decisions/2026-10-07-neck-seams.md): the cause of the dark seams at the neck, the dark lens on the head of the conductor, and the short muzzle that the bear keeps.
-- [`2026-10-07-spotlight-pool.md`](decisions/2026-10-07-spotlight-pool.md): the pool of the stage lights on the conductor and the middle of the orchestra, the key light on the axis of the stage, and the end of the fall-off of the wood alone.
-- [`2026-10-07-anatomy-track.md`](decisions/2026-10-07-anatomy-track.md): the rest places of the violin, the viola, the bow, the piano, and the harp on the lap.
-- [`2026-10-07-camera-bugs.md`](decisions/2026-10-07-camera-bugs.md): no zoom on the first screen, the near orbit limit outside the box of the stage and the players, and the focus of Free mode on the middle of the frame.
-- [`2026-10-07-scene-latest.md`](decisions/2026-10-07-scene-latest.md): the default view of `orchestra-latest.png` at 33° above a target 0.7 m behind the stage center, the low hall lamps 60° from the back, the stage with cut corners and a raised lip, the podium with cut corners and framed panels, and the wide wooden risers with steps.
-- [`2026-10-07-blender-sculpts.md`](decisions/2026-10-07-blender-sculpts.md): the step of a packed coordinate, and the light, the tone mapping, and the pose of the views page. The rows of the recipes and the sculpts went with the sculpt tools.
-- [`2026-10-07-spotlight.md`](decisions/2026-10-07-spotlight.md): the wider pool of the key light on the first screen, from a rough and stronger gloss of the stage wood and a wider hot spot, and the spotlight that moves to the soloed seats: the key light, its pool, and the leaning beam.
-- [`2026-10-07-entry-shots.md`](decisions/2026-10-07-entry-shots.md): the measure of the cuts at an entry, the rest of 4 s and the passage of an entry, the cut in the reach of the first entry after the shortest length, the ranks of a wide view that cannot wait, a soloist, and an entering seat, and no shot of a seat before its entry.
-- [`2026-10-07-proportions.md`](decisions/2026-10-07-proportions.md): the table of the proportions of each species with its defaults, and the shots that read the chest bone.
-- [`2026-10-08-views-page.md`](decisions/2026-10-08-views-page.md): the views page of each model sheet at the size, the scale, and the camera of the sheet, the light and the AgX tone mapping of the views page, and the sheet poses of the violin on the shoulder, the cello, and the piano.
-- [`2026-10-08-spike-fox-gated.md`](decisions/2026-10-08-spike-fox-gated.md): the silhouette gate of a model against the matte of its sheet. The other rows went with the tools of route B.
-- [`2026-10-08-fox-arms.md`](decisions/2026-10-08-fox-arms.md): the bow arm of the violin and the sheet moment in the middle of the bow. The rows of the rig of the route B fox went with the tools of route B.
-- [`2026-10-08-cleanup.md`](decisions/2026-10-08-cleanup.md): the tests and the design rules that pinned tuned values or the old body, and the limit of the shot plan test.
+- [`2026-10-07-scene-details.md`](decisions/2026-10-07-scene-details.md): the stage wood, the hall lamps, and the inside of the open piano.
+- [`2026-10-07-scene-latest.md`](decisions/2026-10-07-scene-latest.md): the default view, the stage, the podium, and the risers of `orchestra-latest.png`.
+- [`2026-10-07-scene-polish.md`](decisions/2026-10-07-scene-polish.md): the light from behind, the walnut stage, the hall lamps, and the beam shaft.
+- [`2026-10-07-spotlight-pool.md`](decisions/2026-10-07-spotlight-pool.md): the pool of the stage lights.
+- [`2026-10-07-spotlight.md`](decisions/2026-10-07-spotlight.md): the pool of the key light, and the spotlight on the soloed seats.
+- [`2026-10-07-title-shade.md`](decisions/2026-10-07-title-shade.md): the shade of each title line.
+- [`2026-10-08-cleanup.md`](decisions/2026-10-08-cleanup.md): the tests and the design rules that pinned tuned values or the old body.
+- [`2026-10-08-fox-arms.md`](decisions/2026-10-08-fox-arms.md): the bow arm of the violin and the sheet moment.
 - [`2026-10-08-fox-feet.md`](decisions/2026-10-08-fox-feet.md): the test of the feet of each seated body.
-- [`2026-10-09-body-revert.md`](decisions/2026-10-09-body-revert.md): the revert of the animal bodies to 2026-10-06 18:58: the parametric bodies, the skeletons, and the colors of that time, and the pose that fits the old bodies.
-- [`2026-10-09-test-trim.md`](decisions/2026-10-09-test-trim.md): the removal of the meerkat and of the tip help of a short bow arm, the steps of the slow sweeps, and the split of the slow test files.
-- [`2026-10-10-reference-target.md`](decisions/2026-10-10-reference-target.md): the reference images as the target of the animal bodies, the anatomy of each species, the contact between the arms and the body, and the facets and the arms of `animals.webp`.
-- [`2026-10-10-arms-close.md`](decisions/2026-10-10-arms-close.md): the arms of the players close to the body and the instruments, and the elbow directions that the old gap had forced out.
+- [`2026-10-08-spike-fox-gated.md`](decisions/2026-10-08-spike-fox-gated.md): the silhouette gate of a model against the matte of its sheet.
+- [`2026-10-08-views-page.md`](decisions/2026-10-08-views-page.md): the views page of each model sheet, and the sheet poses.
+- [`2026-10-09-body-revert.md`](decisions/2026-10-09-body-revert.md): the revert of the animal bodies to 2026-10-06 18:58.
+- [`2026-10-09-test-trim.md`](decisions/2026-10-09-test-trim.md): the removal of the meerkat, and the split of the slow tests.
+- [`2026-10-10-arms-close.md`](decisions/2026-10-10-arms-close.md): the arms of the players close to the body and the instruments.
+- [`2026-10-10-bear-body.md`](decisions/2026-10-10-bear-body.md): the conductor of `bear-views.png`: the baton, the holds, and the podium.
+- [`2026-10-10-bear-glb.md`](decisions/2026-10-10-bear-glb.md): the bear from the rigged GLB file of the user, and `pnpm glb-init`.
 - [`2026-10-10-fox-body.md`](decisions/2026-10-10-fox-body.md): the silhouette check of the sheet page of the fox.
-- [`2026-10-10-bear-body.md`](decisions/2026-10-10-bear-body.md): the conductor of `bear-views.png`: the one baton, the holds, the paws of the ready gesture at the height of the chin, the podium, and the sheet page. The rows of its code-built body went with the rigged bear.
-- [`2026-10-10-rabbit-glb.md`](decisions/2026-10-10-rabbit-glb.md): the packer of the rigged GLB file of the rabbit, the bones that the file lacks, two bones for each vertex, and the tests that the user removed.
-- [`2026-10-10-bear-glb.md`](decisions/2026-10-10-bear-glb.md): the bear from the rigged GLB file of the user, the limbs that keep their lengths, the size of the rabbit, the palette of the face colors, the tests that the user removed, `pnpm glb-init`, and the faster bow hold sweep.
-- [`2026-10-10-trim.md`](decisions/2026-10-10-trim.md): the trim audit of 2026-10-10: the tools of route B and the sculpt tools go, because `pnpm rig-body` and `pnpm glb-init` replace them.
-- [`2026-10-10-glb-skins.md`](decisions/2026-10-10-glb-skins.md): the skins of the rigged rabbit and bear, baked from the textures of their GLB files with the colors of the reference images, the eye plates that carry the eyes of the textures, the white corner for the parts with no skin, the skin materials, the tail of the bear, and the size check of the skins.
-- [`2026-10-10-rabbit-sheet.md`](decisions/2026-10-10-rabbit-sheet.md): the rabbit of `rabbit-views.png`: the shape of a GLB body in its config, its dark eyes and tail, the eye plates of one UV island, the smooth and the collapse, the shoulder hold of the violin, and the matte of the sheet.
-- [`2026-10-10-rabbit-knees.md`](decisions/2026-10-10-rabbit-knees.md): the seated knees of the rabbit: the haunch on the hips against the older rule, and the shape of the rabbit with its longer limbs against the older rule.
-- [`2026-10-11-body-revert.md`](decisions/2026-10-11-body-revert.md): the second revert of the animal bodies to 2026-10-06 18:58: the parametric bodies of all species, the removal of the body code that no species uses, the tools that stay, the props and pose features that stay, and the body probe.
-- [`2026-10-11-penguin-body.md`](decisions/2026-10-11-penguin-body.md): the egg body of the penguin after the choir of `orchestra-latest.png` and `orchestra-side.png`, its bones, its colors, its flippers and feet, the higher folder hold, the parametric parts of the penguin that stay, the shared parts that came back, and `pnpm choir-check`.
-- [`2026-10-11-short-legs.md`](decisions/2026-10-11-short-legs.md): the short legs of the reference images: the seated knee near the height of the seat, the chair and the foot ring at the legs of each species, the short standing legs of the default skeleton, the props of the standing players, and the pose fits.
-- [`2026-10-11-low-seats.md`](decisions/2026-10-11-low-seats.md): the user decision of the low seats of 0.75 head heights, the high stool, the harp stool, and the bench, and the pose fits of the cello and the horn.
-- [`2026-10-12-studio-bear.md`](decisions/2026-10-12-studio-bear.md): the studio bear of `lowpoly-studio/` as the conductor, the retarget of the pose of the player to its bones, the scale at the shoulders, the export command, the new hold of the baton and the ready gesture, the hanging arms, the conductor stand, and the checks that went. The row of the clearance test went to `2026-10-13-role-sweep.md`.
-- [`2026-10-12-studio-polar-bear.md`](decisions/2026-10-12-studio-polar-bear.md): the studio polar bear of `lowpoly-studio/` as the pianist, the four digits on one finger bone, the scale at the keys, the seated body on the floor, the reach of the paws, the accepted limits, `pnpm close-views`, and the checks that went. The row of the clearance test went to `2026-10-13-role-sweep.md`, the rows of the rest place and of the arc of the paws to `2026-10-13-pianist-rest.md`, the rows of the bench and of the lean to `2026-10-14-polar-bench.md`, and the row of the keys in front of the belly to `2026-10-14-polar-fix.md`.
-- [`2026-10-13-role-sweep.md`](decisions/2026-10-13-role-sweep.md): the sweep of the clearance tests of each role: the closed body with the shoulders, the bone of a point, the accepted depths of the forearms and the upper arms, the note targets of the pianist, the case of the piano, and the tests of the conductor and the pianist clearance on the sweep.
-- [`2026-10-13-pianist-rest.md`](decisions/2026-10-13-pianist-rest.md): the rest lean of the hold of the piano and the harp. The rows of the target of the look, the rest lean of the pianist, the paws, the elbows, the head lift, and the arc of the paws went to `2026-10-13-pianist-lap.md`.
-- [`2026-10-13-pianist-lap.md`](decisions/2026-10-13-pianist-lap.md): the rest pose of the pianist as a real pianist before a performance: the tall trunk with the lean of the `ready` clip, the head up, the side of the palm of a rest hand, the paws on the low front of the belly over the thighs, the elbows by the sides, the accepted depths of the arms at rest, and the changed tests. The row of the arc of the paws went to `2026-10-14-polar-bench.md`.
-- [`2026-10-13-frame-time.md`](decisions/2026-10-13-frame-time.md): the GPU time of the frame target with no frame cap in a Metal System Trace, `pnpm frame` with its exit codes, the read of the title backdrop at the start of a frame with a new pixel buffer, the scene target with no depth resolve, and the switches that did not go into the code. The row of the load limit went to `2026-10-13-frame-tools.md`.
-- [`2026-10-13-frame-tools.md`](decisions/2026-10-13-frame-tools.md): the CPU gate of the main-thread phase of `pnpm frame`, the guard of the GPU phase with one more record, `--gpu-only`, the share of the "Maximum" state, the self-check of the GPU row, the seeks to fixed song times, `run.json`, and the console warnings.
-- [`2026-10-13-straight-baton.md`](decisions/2026-10-13-straight-baton.md): the user decision of the straight baton of the two newest reference images in place of the bent tip of `bear-views.png`.
-- [`2026-10-13-studio-rabbit.md`](decisions/2026-10-13-studio-rabbit.md): the studio rabbit of `lowpoly-studio/` as the violinist, seated on a chair of its own depth and standing as a soloist, the two sheets, the scale at the standing shoulders, the violin by the rule of real violins, the shoulder hold with no lean and the side rest, the instrument offsets of the retarget, the sweep of the violinist, the budget of a studio body, the accepted limits, and the changed tests.
-- [`2026-10-13-mesh-rabbit.md`](decisions/2026-10-13-mesh-rabbit.md): the rabbit mesh of the user as the violinist, rigged in the format of a studio body: the longer arms and their factor, `AnimalSettings.glb`, one color for each face from a palette in Oklab, the seated bind of the studio rabbit, the GLB file of `pnpm rig-mesh`, the measured joints, the weight rules for thin faces and the fingers, the eye fans and the triangle budget, the relax of the bind mesh, the chair, the swap in the app, the level violin hold with the bow elbow of the 14 demos, the accepted folds of the shoulders, the accepted limits, the dark band under the head, and the changed tests.
-- [`2026-10-14-cheerful-demos.md`](decisions/2026-10-14-cheerful-demos.md): the curated library of cheerful orchestral pieces in `demos/curated/` and the addition of 8 cheerful orchestral demos to the live player (demos #7 to #14).
-- [`2026-10-14-mesh-rig-retro.md`](decisions/2026-10-14-mesh-rig-retro.md): the retro items of the rabbit mesh rig: the gzip budget of a studio body mesh, `--glb` of the probes on a copy of `src/`, `pnpm rig-mesh --check` with no write, its stop above the triangle budget, its thin faces near the joints and its app checks, and section 7 of the brief template.
-- [`2026-10-14-rabbit-smooth.md`](decisions/2026-10-14-rabbit-smooth.md): the smooth normals of the three studio bodies with a crease angle for each body, the measure of the facet contrast that chose the angles of the two bears, the angle of the rabbit that the manager chose from the play frames, the morph normals of the corrective shapes, the flat gloss, the end of the flat path, and the fur colors of a mesh rig that skip the black gaps of the texture.
-- [`2026-10-14-test-pause.md`](decisions/2026-10-14-test-pause.md): the pause of the tests of the look, the fit, and the clearance of the bodies and of the layout from their footprints, the rule of the choice, the list in the Vitest project `paused`, the way back, and the pause of the frame rule.
-- [`2026-10-14-smooth-retro.md`](decisions/2026-10-14-smooth-retro.md): the retro items of the smooth studio bodies: `--base <ref>` of `pnpm size` and `pnpm close-views` with `tools/ref-tree.ts`, `--url <url>` of `pnpm close-views`, the hash of each field of a mesh in `pnpm body-probe` with the corrective shapes and the normals of a studio body, `tools/break-test.sh` with its exit codes, the rules of `AGENTS.md`, and the range check of the brief template.
-- [`2026-10-14-size-retro.md`](decisions/2026-10-14-size-retro.md): the retro items of the size round: `--base <ref>` and `--json <file>` of `pnpm pose-depth` and `pnpm hold-fit` with two child processes, the probe folder of a commit, the compare of the depths of each species in the H of each body with the mark `GROWS`, the species in the label of each player, the gallery query `distance`, and the lineup of `pnpm close-views` with the gallery of the working tree.
-- [`2026-10-14-probe-retro.md`](decisions/2026-10-14-probe-retro.md): the probe items of the retro of the form and neck rounds: `traceShots()` beside `prepareShots()` with the kept refusals and the share of the distance, `pnpm shot-trace` with a chamber test file and `--base`, the grid and the best variant of `pnpm hold-fit`, the bone of a fold and the same face of two trees in `pnpm fold-probe`, and the violin sizes of `pnpm hold-reach`.
-- [`2026-10-14-review-rule.md`](decisions/2026-10-14-review-rule.md): the review rule that replaced the review of each step with the check of the manager, the "Review" lines of the steps, and the kind of review in `TODO.md`. Its rows of the short review agent of the code and of the optional review brief of a studio body went on 2026-10-16.
-- [`2026-10-14-mesh-fox.md`](decisions/2026-10-14-mesh-fox.md): the fox mesh of the user on the red violin foxes: the arm factor of the rabbit reach, the tail of two bones, the seat of a long thigh, the triangle budget of 3,200, the eye loop and the nose box, the weight rules of the shoulders and the jaw, the hold of the fox, the accepted folds, the role of the fox in the tools, the paused shot test, and the changes of the scene.
-- [`2026-10-14-animal-size.md`](decisions/2026-10-14-animal-size.md): the red violin fox at 1.3 times and the rabbit at 1.2 times the size that the user asked for, with a linear scale of each body and the arm factors that stay, the head ratio of a seated rabbit and a seated red fox, and the violins of both by the rule of a violin shop.
-- [`2026-10-14-fox-rabbit-form.md`](decisions/2026-10-14-fox-rabbit-form.md): the larger head of the red fox, the longer legs, and the higher seats of the red fox and the rabbit that the user asked for and then made smaller: the head factor and the leg factor of the rig, the head of the holds before the growth, the seat with level thighs, the seat of 0.36 m with hanging and relaxed feet, the scale that keeps the meters, the seated head tops, the tail over the seat, the folds of the rigs, the music stands of a row, the growth of the stages, the stretch between the joints, the violin on the collarbone of a real violinist, the violins of its rule and the arm options, the free hair of the bow, the rest on the lap, the open folds and depths, and the changed tests. The row of the margin of the two-shot of a duo went to `2026-10-14-polar-fix.md`.
-- [`2026-10-14-neck-violin.md`](decisions/2026-10-14-neck-violin.md): the short neck of the red fox, the violins at the neck, and the seat place that the user asked for: the seat move back on the chair, the short neck and the head of the holds on it, the level thighs, the longer arms, the stretch of the free upper arm, the rings at both elbows of the rabbit, the place of the violins at the neck, the size of the violins, and the open folds and depths.
-- [`2026-10-14-polar-bench.md`](decisions/2026-10-14-polar-bench.md): the bench of the polar bear pianist at about twice the height of its legs, the rule of a real pianist, the arc of the paws for the higher bench, and the changed test. The rows of the lean, of the elbows, and of the depths went to `2026-10-14-polar-fix.md`.
-- [`2026-10-14-fox-flute.md`](decisions/2026-10-14-fox-flute.md): the fox mesh on the tan flute foxes with a tan palette of the same faces, the flute hold of a real flutist with a head turn of 30° and the lip plate under the long muzzle, the wind hold of a species, the roles of the flutist in the tools, the wolf as the sample body, the paused counts of the shot plans, and the changes of the scene.
-- [`2026-10-14-rig-retro.md`](decisions/2026-10-14-rig-retro.md): the rig items of the retro of the form and neck rounds and four items of the retro of the flute round: the union merge of `docs/design.md`, the order of the form rounds and the hold rounds, the check of the pose code before a fit, no test that compares two bodies, the kept meters of a variant of `pnpm rig-mesh --check`, the seat of the legs, the form and the stage sides against `main`, the bones of the folds, the one-to-one faces of two trees, the rig configs in the copy of `--glb`, the stretch check, the ring radius as a part of the arm, the one-line comments of `ANIMALS`, and the tools of a commit in its probe tree with the check of the role.
-- [`2026-10-14-arms-rest.md`](decisions/2026-10-14-arms-rest.md): the shorter arms of the rabbit and the red fox with the violins of the same size that the user asked for, the end of the rule of a violin shop for their size, the rings of the rabbit rig, the stretch of the red fox rig with no fade, the violins further back, so that the left paws reach the nut, the rest of the cat violas for the red fox, and the flute of the tan fox a little back from square to the face.
-- [`2026-10-14-fox-rabbit-fix.md`](decisions/2026-10-14-fox-rabbit-fix.md): the fixes of the red fox and the rabbit after the list of the manager: the rest of the right arm of the rabbit, which the user found deformed, the haunch of both rigs lowered onto the seat, the upright rest violin of the red fox, the holds of both violinists fitted for less clipping, and the smoothing box of a rig, which the foxes use since `2026-10-15-fox-rig2.md`.
-- [`2026-10-14-polar-fix.md`](decisions/2026-10-14-polar-fix.md): the fixes of the polar bear pianist: the shot check of the small moves in the paused list.
-- [`2026-10-14-polar-fix.md`](decisions/2026-10-14-polar-fix.md): the fixes of the polar bear pianist: the longer shins of the studio with the lift of the parts above the knees, the soles on the floor, the scale at the raised keys of the studio, the knees under the keys, the changed tests, and the shot check of the small moves in the paused list.
-- [`2026-10-14-polar-fix.md`](decisions/2026-10-14-polar-fix.md): the fixes of the polar bear pianist: the longer shins of the studio with the lift of the parts above the knees, the soles on the floor, the seed of the fewest folds, the scale at the raised keys of the studio, the head height of the new mesh, the changed tests, and the shot check of the small moves in the paused list.
-- [`2026-10-14-polar-fix.md`](decisions/2026-10-14-polar-fix.md): the fixes of the polar bear pianist: the longer shins of the studio with the lift of the parts above the knees, the soles on the floor, the seed of the fewest folds, the scale at the raised keys of the studio, the head height of the new mesh, the piano further from the bear, the lean, the palm, and the elbows of the fit, the tries, the depths, the knees under the keys, the margin of the two-shot, the changed tests, and the shot check of the small moves in the paused list.
-- [`2026-10-14-polar-fix.md`](decisions/2026-10-14-polar-fix.md): the fixes of the polar bear pianist: the longer shins of the studio with the lift of the parts above the knees, the soles on the floor, the seed of the fewest folds, the scale at the raised keys of the studio, the head height of the new mesh, the piano further from the bear, the lean, the palm, and the elbows of the fit, the tries, the depths, the knees under the keys, the margin of the two-shot, and the changed tests.
-- [`2026-10-15-fox-rig2.md`](decisions/2026-10-15-fox-rig2.md): the second round of the fox rig: the smoothed back of the neck of the foxes with the head center of the holds before the smoothing, the chosen candidate of the trace tests of the shot planner, the corrective shape of the raised bow arm of the red fox with its pose and its fade, the accepted limits, and the body probe.
-- [`2026-10-15-flute-rest.md`](decisions/2026-10-15-flute-rest.md): the free left paw of a wind hold in the rest pose with its arc, the flute of the tan fox upright on the right leg with the left paw on the left thigh, the left arm that hangs straight, the elbows down, the paw on a thigh of `pose/lap.ts`, and the paused tests that fail.
-- [`2026-10-15-fit-retro.md`](decisions/2026-10-15-fit-retro.md): the tool items of the retro of the fix waves: no hill climb in `pnpm hold-fit`, the format version of each probe JSON of a `--base` compare, the form of `main` with the `tools/rig-form.ts` of the working tree, the hold anchors of the form table, `--roles` of `pnpm rig-mesh --check`, the turn probe and the split of the folds of `pnpm fold-probe`, `CutTrace.chosen`, the rest place of a free paw, the instrument and the free paw columns of `pnpm hold-fit`, the copy of `pnpm test:paused --base`, and `runChildren()` after a failed start and after a stop.
-- [`2026-10-15-pea-eyes.md`](decisions/2026-10-15-pea-eyes.md): the pea eyes of the parametric bodies on the four studio bodies: the size in the head that shows, the eye bone in the fur under the old eye, the direction out from the middle of the head, the move out until the front face shows, the colors of the old eyes of a mesh rig, the blink on the eye bones of the studio, and the triangle budget of a studio body with its pea eyes.
-- [`2026-10-16-all-tests-pause.md`](decisions/2026-10-16-all-tests-pause.md): the pause of all tests: the switch of the Vitest config, the merge script and CI with no end-to-end test and no speed test, no new test while the pause lasts, and the way back.
-- [`2026-10-16-close-modes.md`](decisions/2026-10-16-close-modes.md): the modes `species` and `play` of `pnpm close-views`: the check of the command line before the build, the named views and cameras, the drag and the wheel of the camera `violins`, the seek before the play frame, the rows of the commit and the working tree in turns, and the labels on a dark box.
-- [`2026-10-16-fox-brow.md`](decisions/2026-10-16-fox-brow.md): the black mark above the left eye of the fox, the fur color of each patch of dark faces near an old eye of a mesh rig, the reach of 2 radii that keeps the mouth, and the brown lid shading that stays.
-- [`2026-10-16-seat-rest.md`](decisions/2026-10-16-seat-rest.md): the seats of the rabbit and the red fox that fit their legs, with the soles flat on the floor, the slanted shins, the chair back of 0.45 m, the desks of the music stands below the eyes of their players, and the rest of the violin on the lap with the bow across it, which `2026-10-16-bow-rest.md` replaces.
-- [`2026-10-16-hip-open.md`](decisions/2026-10-16-hip-open.md): the seated posture of the red fox and the rabbit: the upright trunk that does not lean on the chair back, the thighs that slope down to open knees, the short level seat with no tilt that ends where the thighs leave it, the place of the body on the chair, the smoothed crease of the belly and the thighs, the standing body of a turned trunk, the refit of the holds, and the quotes of the user.
-- [`2026-10-16-no-review.md`](decisions/2026-10-16-no-review.md): the end of the review agent of each round that the user asked for, the check of the manager, the review brief and the fix brief that no round uses, and two fixes of the mode `play` of `pnpm close-views`: the smallest time and the message of a failed wait.
-- [`2026-10-16-pose-index.md`](decisions/2026-10-16-pose-index.md): the pose index at the top of design 5: one row for each role of the cast, the soloist who stands in the row of its seated role, one row for each percussion hold, the roles with no real-player source, the newest decision file of each pose, the view commands, and the rule of a new row.
-- [`2026-10-16-fit-rest.md`](decisions/2026-10-16-fit-rest.md): the rest mode `--sets` of `pnpm hold-fit`, the lap rest columns of a violin role and of the flute of the tan fox with their rest samples and their goals, the copies of a `--set` with the root of a species, and the compare of `--base` with a commit whose tool does not know `--sets`.
-- [`2026-10-16-bow-rest.md`](decisions/2026-10-16-bow-rest.md): the upright rest of the violin on the left thigh and of the bow at the right side of the seated rabbit and red fox, after the image of the user, the via of the bow in the lift and the lowering, the rest columns of `pnpm hold-fit` with a point at each 1 cm along the bow, the top of the lap, the places and the elbows of each species, and the open limits of the arms and the frog of the red fox.
-- [`2026-10-16-mesh-cat.md`](decisions/2026-10-16-mesh-cat.md): the cat mesh of the user as the viola cat: the quotes and the choices of the user (the size, the reach, and the legs of the red fox), the pea eyes, the seat and the chair, the rings, the ramp of the clavicle over the top of the shoulders, the smoothed neck that removes the dark line under the chin, the role `violist` of the tools, the viola hold with the nut in reach, the rest along the long thighs, and the hanging bow of the standing soloist.
-- [`2026-10-16-retro-cat.md`](decisions/2026-10-16-retro-cat.md): the tool changes of the retro of the cat round: the table of the corners of the folded faces of `pnpm fold-probe --faces` and its mark `ALL`, and the JSON text of a `--set` for a field that is `null` or an object.
-- [`2026-10-16-cat-seat.md`](decisions/2026-10-16-cat-seat.md): the seated cat and the standing bow: the quotes and the choices of the user, the half step of the gray fur under the stage light (`colors.tone`), the tail curled on the left of the seat (`studio.tailCurl`) with its contacts and its blend at the root, the haunch on the seat (`sit.root`, `sit.top`), no idle sway of a curled seated tail, the move of the seated cat on its deeper chair, the hanging standing bow of the rabbit and the red fox, the holds that stay, and the accepted folds.
-- [`2026-10-16-cat-trunk.md`](decisions/2026-10-16-cat-trunk.md): the shorter trunk of the cat: the quote and the choice of the user (the trunk of the red fox), the trunk factor of the rig (`trunkFactor`, `trunk_moves()`), the longer legs that keep the ear tips, the seat top of the sit, the curled tail on the higher seat, the turned face of the right ankle, the rest of the viola and the bow on the longer thighs, and the cause of the larger stages.
-- [`2026-10-16-retro-seat.md`](decisions/2026-10-16-retro-seat.md): the tool changes of the retro of the round cat-seat: the docs check `pnpm docs-species` with the anchors of the cells of the list of section 8 of `docs/briefs/studio-body.md`, its column "Not for", and the names of a species, the place of the reach in 4.6, and the standing soloist of the violin and piano duo in `pnpm pose-depth --soloist` with the bow at each 1 cm.
-- [`2026-10-16-views-batch.md`](decisions/2026-10-16-views-batch.md): the mode `batch` of `pnpm close-views`: the parts and their options, the flag `--lineup`, the folder of each part, the renders of the commit of each mode, one build of each tree with a second build for a lineup when the galleries differ, and the times of the image set of a round.
-- [`2026-10-16-rabbit-arm.md`](decisions/2026-10-16-rabbit-arm.md): the right arm of the seated rabbit in the rest after the quote of the user: the right elbow at the side, the right elbow columns of `pnpm hold-fit` with the trunk of the main bones, the grip at the outer side of the right knee, the open goal of the frog, and the fit against `main`.
-- [`2026-10-16-retro-arm.md`](decisions/2026-10-16-retro-arm.md): the tool changes of the retros of the rounds rabbit-arm and cat-trunk: the rest scan `--scan` of `pnpm hold-fit` with only the rig built again, its sample, its sort, and its times, the grids on top of each `--set` variant, the cache by tree of the probe of the commit of `--base`, the field `since` of the format of a probe JSON with the rule of the versions, and `--zoom` and `--elevation` of `pnpm close-views species`.
-- [`2026-10-16-review-views.md`](decisions/2026-10-16-review-views.md): the moves of the gallery and of `pnpm close-views`: the queries `lift` and `lower` with the share of the time of the move after its delay, the transport of the app for each animal, the plan of each animal alone, the equal poses at the ends, the moments `lift<p>` and `lower<p>`, the rows `lift50` and `lower50` of the string and flute roles, the repeated `--zoom` of the mode `batch`, and the review set of the round.
-- [`2026-10-17-fox-form.md`](decisions/2026-10-17-fox-form.md): the seated posture of the red fox, the tan fox, and the rabbit after the quote of the user of 2026-10-16: the thighs 25° down and the vertical shins on taller chairs, the front edges of the chairs, the root of the tail of the red fox in the sit and the drop of the rabbit haunch, the fox neck factor 0.5 with the rule of the shape of the raised bow arm and the higher play violin, the smoothed nape of the rabbit, the rests on the steeper thighs, the open points of the rabbit from the side and of the long thigh triangle of the red fox, and the fit against `main`.
-- [`2026-10-16-cat-form.md`](decisions/2026-10-16-cat-form.md): the cat form after the quote of the user of 2026-10-16 23:10 and the choices of the manager: the thighs 25° down with vertical shins, the trunk 0.8 of its trunk, the girth factors of the rig (`girthFactor`, `girth_moves()`) with the width and the depth that meet the sheet, the neck factor of the fox, the wider chair of the cat (`StudioBody.chairWidth`), the seat and the tail curl of the new form, the left elbow of the play and of the rest, the viola on the sloped thigh, and the accepted depths of the lift and of the standing soloist.
-- [`2026-10-17-rabbit-pose.md`](decisions/2026-10-17-rabbit-pose.md): the rabbit from the side and from behind after the quote of the user of 2026-10-16 and the choice of the manager: the body 4 cm further forward on a deeper seat (`backRoom` of `ANIMALS`) in place of a lean of the trunk, the open lap, the shape of the right arm in the rest with a ring of trunk corners (`raise.grow`), the left elbow a little out from the violin, and the fit against `main`.
-- [`2026-10-17-tan-rest.md`](decisions/2026-10-17-tan-rest.md): the rest of the tan fox after the quote of the user of 2026-10-16 and the review of the manager: the top of the left thigh out of reach, the free left arm that hangs near the side with a soft bend, the inner elbow against the side of the trunk, the arc of the free paw, the flute end that keeps its place of `main`, the wider chair of the foxes (`seatWidth` of `ANIMALS`), and the fit against `main`.
-- [`2026-10-17-cat-bow.md`](decisions/2026-10-17-cat-bow.md): the bow hold of the cat after item 4 of the quote of the user of 2026-10-16 and the goals of the manager: the grip measure (`stickGrip()`), the stick through the middle of the cat paw (`SpeciesParams.bowGrip`), the upright rest of the seated cat, the via of the viola (`BowedHold.liftReach`) and of the hanging bow of each soloist (`standBow.via`), the shape of the bent left wrist (`raise.bone`), the open folds of the right arm and the open left paw at rest, and the fit against `main`.
-- [`2026-10-17-multi-shape.md`](decisions/2026-10-17-multi-shape.md): the list of up to four corrective shapes of the kind `raise` in a mesh rig (`StudioBody.raises`), each weighted by its own turn, the shape of a bent elbow keyed on the turn of the forearm from the upper arm, the solve of each shape on top of the shapes before it, and the shapes of the right elbow, the raised right arm, and the left elbow of the cat violist after the goals of the manager, with the open folds of the neck and the right shoulder
-- [`2026-10-17-grip-all.md`](decisions/2026-10-17-grip-all.md): the bow grip of the red fox and the rabbit after item 4 of the quote of the user of 2026-10-16 and the goals of the manager: the stick through the closed right paw of each species (`SpeciesParams.bowGrip`), the place of the grip along the stick that keeps the folds of the right upper arm, the rest grip and the right elbow of the rabbit, the pizzicato tip, the rest grip, and the bow via of the red fox, the open gap of the red fox paw whose wrist skin moves its middle, and the fit against `main`.
-- [`2026-10-17-string-hands.md`](decisions/2026-10-17-string-hands.md): the quotes of the user of 2026-10-17 on the hands of the string players, the reference of the professional movements `docs/reference/string-technique.md` with its rule of upkeep, the measure of the moves of the left hand in mm on a real instrument, and the motion spec of the report as the plan of the code round with the defaults of its open questions.
-- [`2026-10-17-bow-arm.md`](decisions/2026-10-17-bow-arm.md): the bow arm of the string players after the quotes of the user of 2026-10-17 and the defaults of the manager: the string planes at the real angle that keeps the full hair (11° on the viola of the cat), the tilt of the stick, the lead of the string crossing, the elbow on the mean string of a fast crossing run, the slurs guessed from the beats, the bow length, the fast bows at the balance point, the sounding point by loudness, the note target of the bow in the sweep, and the fit against `main`.
-- [`2026-10-17-left-hand.md`](decisions/2026-10-17-left-hand.md): the left hand of the violin, the viola, the cello, and the contrabass after the quotes of the user of 2026-10-17 and the plan of the manager: the position plan of `planHand()` with the frames and the weights of the prototype, the shift, the finger block that presses, turns, and rolls to the string of the finger, vibrato with a seeded rate, the left elbow for each string and in the high positions, and the fit against `main`.
-- [`2026-10-17-cat-hand.md`](decisions/2026-10-17-cat-hand.md): the left arm of the cat violist in high positions after the open point of `2026-10-17-left-hand.md` and the goals of the manager: the further tilt of the left paw over the upper bout from the second position to the fifth position (`BowedHold.highTilt`, `leftTilt()`) in place of a turn of the left elbow, the range one position earlier than a real hand, the tilt of the cat alone with the choice of the manager of the look over the depth (20° in place of 45°), the bend of the wrist, the depth of the left forearm at the upper bout that stays accepted until the user decides, and the fit against `main`.
-- [`2026-10-17-cat-look.md`](decisions/2026-10-17-cat-look.md): the slim arms and the rest of the cat after the quote of the user of 2026-10-17 14:17 and the choice of the manager: the cause of the thick arms (the elbow grows in the play, and the bind matches the sheet), the arm girth factors of a mesh rig (`armGirth`, `arm_slim()`, `fore_slim()`) and 0.85 for the cat, the wider sliver rule of the cat for face 1248 of the left armpit, the open play folds of face 73 of the right wrist, and the rest with both elbows near the sides: the grip of the bow over the outer side of the right thigh with the right elbow bent to 103°, and the left paw at the top of the upper bout (`restPlace`)
-- [`2026-10-17-mesh-dog.md`](decisions/2026-10-17-mesh-dog.md): the dog mesh of the user as the cellist after the quote of the user of 2026-10-17 and the four choices of the user (the head height of the red fox, the arm factor of the cello reach, the leg factor 1.5, and the cello between the knees): the scale, the knees 30° out, the arm factor 1.75, the floor instrument at its playing place in the rest, the tilt of the left hand of each hold, the string planes 12° apart, the upright rest bow on the right knee, the hanging ears with no twitch, the fur with no tone rule, the rule of a hanging ear, the seat, the role `cellist`, and the open folds.
-- [`2026-10-17-dog-tail.md`](decisions/2026-10-17-dog-tail.md): the thin hanging tail of the dog after the quote of the user of 2026-10-17 and the choice "V1, thin and hanging": the curve of the tail with the new rule `thin` of a curled tail, the blend of the root against the seat and the chair, and the measures in the app.
-- [`2026-10-17-dog-rest.md`](decisions/2026-10-17-dog-rest.md): the rest of the dog cellist after the quotes of the user of 2026-10-17 on the wrist and the pose: the rest bow over the right knee with the tip leaned out and forward and a soft right elbow, the left paw lower on the cello with the elbow near the side, the wrist measures of the dog, the red fox, and the cat, and the cello that leans back 25° with its accepted folds and contacts.
-- [`2026-10-17-dog-arms.md`](decisions/2026-10-17-dog-arms.md): the arms, the cello size, and the tail of the dog after the quotes and the three choices of the user of 2026-10-17 (the arm factor 1.35 with a 1/2 cello, the tail that hangs down, and less bow at the frog): the cello size with its longer end pin, the hanging tail and its seat, the frog hair of a hold, the refit of the hold, and the open folds and contacts.
-- [`2026-10-17-dog-folds.md`](decisions/2026-10-17-dog-folds.md): the corrective shapes of the dog cellist after the choice of the user "Lean it, fix folds later": the four shapes of `raise` with the turn of the paw (`turns.hand`), the rigid face of the right armpit (`weights.rigid`), the folds against `914da25c`, the hold trials, and the open depths, bow reach, and ear contact.
-- [`2026-10-17-docs-length.md`](decisions/2026-10-17-docs-length.md): the length of the docs after the quote of the user of 2026-10-17: the small `AGENTS.md` with an index of the modules of `docs/agents/`, the limit of each kind of doc, the table "Bodies and roles", and the old pointers that stay.
+- [`2026-10-10-glb-skins.md`](decisions/2026-10-10-glb-skins.md): the skins of the rigged rabbit and bear.
+- [`2026-10-10-rabbit-glb.md`](decisions/2026-10-10-rabbit-glb.md): the packer of the rigged GLB file of the rabbit.
+- [`2026-10-10-rabbit-knees.md`](decisions/2026-10-10-rabbit-knees.md): the seated knees of the rabbit.
+- [`2026-10-10-rabbit-sheet.md`](decisions/2026-10-10-rabbit-sheet.md): the rabbit of `rabbit-views.png`.
+- [`2026-10-10-reference-target.md`](decisions/2026-10-10-reference-target.md): the reference images as the target of the animal bodies.
+- [`2026-10-10-trim.md`](decisions/2026-10-10-trim.md): the trim audit of 2026-10-10.
+- [`2026-10-11-body-revert.md`](decisions/2026-10-11-body-revert.md): the second revert of the animal bodies to 2026-10-06 18:58.
+- [`2026-10-11-low-seats.md`](decisions/2026-10-11-low-seats.md): the low seats and the stools that the user decided.
+- [`2026-10-11-penguin-body.md`](decisions/2026-10-11-penguin-body.md): the egg body of the penguin, and `pnpm choir-check`.
+- [`2026-10-11-short-legs.md`](decisions/2026-10-11-short-legs.md): the short legs of the reference images.
+- [`2026-10-12-studio-bear.md`](decisions/2026-10-12-studio-bear.md): the studio bear of `lowpoly-studio/` as the conductor.
+- [`2026-10-12-studio-polar-bear.md`](decisions/2026-10-12-studio-polar-bear.md): the studio polar bear of `lowpoly-studio/` as the pianist.
+- [`2026-10-13-frame-time.md`](decisions/2026-10-13-frame-time.md): the GPU time of the frame target in a Metal System Trace.
+- [`2026-10-13-frame-tools.md`](decisions/2026-10-13-frame-tools.md): the guards and the checks of `pnpm frame`.
+- [`2026-10-13-mesh-rabbit.md`](decisions/2026-10-13-mesh-rabbit.md): the rabbit mesh of the user as the violinist, rigged as a studio body.
+- [`2026-10-13-pianist-lap.md`](decisions/2026-10-13-pianist-lap.md): the rest pose of the pianist as a real pianist before a performance.
+- [`2026-10-13-pianist-rest.md`](decisions/2026-10-13-pianist-rest.md): the rest lean of the hold of the piano and the harp.
+- [`2026-10-13-role-sweep.md`](decisions/2026-10-13-role-sweep.md): the sweep of the clearance tests of each role.
+- [`2026-10-13-straight-baton.md`](decisions/2026-10-13-straight-baton.md): the straight baton of the two newest reference images.
+- [`2026-10-13-studio-rabbit.md`](decisions/2026-10-13-studio-rabbit.md): the studio rabbit of `lowpoly-studio/` as the violinist.
+- [`2026-10-14-animal-size.md`](decisions/2026-10-14-animal-size.md): the larger red fox and rabbit that the user asked for.
+- [`2026-10-14-arms-rest.md`](decisions/2026-10-14-arms-rest.md): the shorter arms of the rabbit and the red fox.
+- [`2026-10-14-cheerful-demos.md`](decisions/2026-10-14-cheerful-demos.md): the curated cheerful pieces, and the demos 7 to 14.
+- [`2026-10-14-fox-flute.md`](decisions/2026-10-14-fox-flute.md): the fox mesh on the tan flute foxes.
+- [`2026-10-14-fox-rabbit-fix.md`](decisions/2026-10-14-fox-rabbit-fix.md): the fixes of the red fox and the rabbit.
+- [`2026-10-14-fox-rabbit-form.md`](decisions/2026-10-14-fox-rabbit-form.md): the larger head and the longer legs of the red fox and the rabbit.
+- [`2026-10-14-mesh-fox.md`](decisions/2026-10-14-mesh-fox.md): the fox mesh of the user on the red violin foxes.
+- [`2026-10-14-mesh-rig-retro.md`](decisions/2026-10-14-mesh-rig-retro.md): the retro items of the rabbit mesh rig.
+- [`2026-10-14-neck-violin.md`](decisions/2026-10-14-neck-violin.md): the short neck of the red fox, and the violins at the neck.
+- [`2026-10-14-polar-bench.md`](decisions/2026-10-14-polar-bench.md): the bench of the polar bear pianist.
+- [`2026-10-14-polar-fix.md`](decisions/2026-10-14-polar-fix.md): the fixes of the polar bear pianist.
+- [`2026-10-14-probe-retro.md`](decisions/2026-10-14-probe-retro.md): the probe items of the retro of the form and neck rounds.
+- [`2026-10-14-rabbit-smooth.md`](decisions/2026-10-14-rabbit-smooth.md): the smooth normals of the studio bodies with a crease angle for each body.
+- [`2026-10-14-review-rule.md`](decisions/2026-10-14-review-rule.md): the review rule of 2026-10-14.
+- [`2026-10-14-rig-retro.md`](decisions/2026-10-14-rig-retro.md): the rig items of the retros of the form, neck, and flute rounds.
+- [`2026-10-14-size-retro.md`](decisions/2026-10-14-size-retro.md): the retro items of the size round.
+- [`2026-10-14-smooth-retro.md`](decisions/2026-10-14-smooth-retro.md): the retro items of the smooth studio bodies.
+- [`2026-10-14-test-pause.md`](decisions/2026-10-14-test-pause.md): the pause of the tests of the look, the fit, and the clearance of the bodies.
+- [`2026-10-15-fit-retro.md`](decisions/2026-10-15-fit-retro.md): the tool items of the retro of the fix waves.
+- [`2026-10-15-flute-rest.md`](decisions/2026-10-15-flute-rest.md): the free left paw of a wind hold in the rest pose.
+- [`2026-10-15-fox-rig2.md`](decisions/2026-10-15-fox-rig2.md): the second round of the fox rig.
+- [`2026-10-15-pea-eyes.md`](decisions/2026-10-15-pea-eyes.md): the pea eyes on the studio bodies.
+- [`2026-10-16-all-tests-pause.md`](decisions/2026-10-16-all-tests-pause.md): the pause of all tests.
+- [`2026-10-16-bow-rest.md`](decisions/2026-10-16-bow-rest.md): the upright rest of the violin and the bow of the seated rabbit and red fox.
+- [`2026-10-16-cat-form.md`](decisions/2026-10-16-cat-form.md): the form of the cat.
+- [`2026-10-16-cat-seat.md`](decisions/2026-10-16-cat-seat.md): the seated cat and the standing bow.
+- [`2026-10-16-cat-trunk.md`](decisions/2026-10-16-cat-trunk.md): the shorter trunk of the cat.
+- [`2026-10-16-close-modes.md`](decisions/2026-10-16-close-modes.md): the modes `species` and `play` of `pnpm close-views`.
+- [`2026-10-16-fit-rest.md`](decisions/2026-10-16-fit-rest.md): the rest mode `--sets` of `pnpm hold-fit`.
+- [`2026-10-16-fox-brow.md`](decisions/2026-10-16-fox-brow.md): the black mark above the left eye of the fox.
+- [`2026-10-16-hip-open.md`](decisions/2026-10-16-hip-open.md): the seated posture of the red fox and the rabbit.
+- [`2026-10-16-mesh-cat.md`](decisions/2026-10-16-mesh-cat.md): the cat mesh of the user as the viola cat.
+- [`2026-10-16-no-review.md`](decisions/2026-10-16-no-review.md): the end of the review agents.
+- [`2026-10-16-pose-index.md`](decisions/2026-10-16-pose-index.md): the pose index at the top of design 5.
+- [`2026-10-16-rabbit-arm.md`](decisions/2026-10-16-rabbit-arm.md): the right arm of the seated rabbit in the rest.
+- [`2026-10-16-retro-arm.md`](decisions/2026-10-16-retro-arm.md): the tool changes of the retros of the rounds rabbit-arm and cat-trunk.
+- [`2026-10-16-retro-cat.md`](decisions/2026-10-16-retro-cat.md): the tool changes of the retro of the cat round.
+- [`2026-10-16-retro-seat.md`](decisions/2026-10-16-retro-seat.md): the tool changes of the retro of the round cat-seat, and `pnpm docs-species`.
+- [`2026-10-16-review-views.md`](decisions/2026-10-16-review-views.md): the moves of the gallery and of `pnpm close-views`.
+- [`2026-10-16-seat-rest.md`](decisions/2026-10-16-seat-rest.md): the seats of the rabbit and the red fox that fit their legs.
+- [`2026-10-16-views-batch.md`](decisions/2026-10-16-views-batch.md): the mode `batch` of `pnpm close-views`.
+- [`2026-10-17-bow-arm.md`](decisions/2026-10-17-bow-arm.md): the bow arm of the string players.
+- [`2026-10-17-cat-bow.md`](decisions/2026-10-17-cat-bow.md): the bow hold of the cat.
+- [`2026-10-17-cat-hand.md`](decisions/2026-10-17-cat-hand.md): the left arm of the cat violist in high positions.
+- [`2026-10-17-cat-look.md`](decisions/2026-10-17-cat-look.md): the slim arms and the rest of the cat.
+- [`2026-10-17-docs-length.md`](decisions/2026-10-17-docs-length.md): the length of the docs, and the modules of `docs/agents/`.
+- [`2026-10-17-dog-arms.md`](decisions/2026-10-17-dog-arms.md): the arms, the cello size, and the tail of the dog.
+- [`2026-10-17-dog-folds.md`](decisions/2026-10-17-dog-folds.md): the corrective shapes of the dog cellist.
+- [`2026-10-17-dog-rest.md`](decisions/2026-10-17-dog-rest.md): the rest of the dog cellist.
+- [`2026-10-17-dog-tail.md`](decisions/2026-10-17-dog-tail.md): the thin hanging tail of the dog.
+- [`2026-10-17-fox-form.md`](decisions/2026-10-17-fox-form.md): the seated posture of the red fox, the tan fox, and the rabbit.
+- [`2026-10-17-grip-all.md`](decisions/2026-10-17-grip-all.md): the bow grip of the red fox and the rabbit.
+- [`2026-10-17-left-hand.md`](decisions/2026-10-17-left-hand.md): the left hand of the violin, the viola, the cello, and the contrabass.
+- [`2026-10-17-mesh-dog.md`](decisions/2026-10-17-mesh-dog.md): the dog mesh of the user as the cellist.
+- [`2026-10-17-multi-shape.md`](decisions/2026-10-17-multi-shape.md): the corrective shapes of the kind `raise` in a mesh rig.
+- [`2026-10-17-rabbit-pose.md`](decisions/2026-10-17-rabbit-pose.md): the rabbit from the side and from behind.
+- [`2026-10-17-string-hands.md`](decisions/2026-10-17-string-hands.md): the hands of the string players, and `docs/reference/string-technique.md`.
+- [`2026-10-17-tan-rest.md`](decisions/2026-10-17-tan-rest.md): the rest of the tan fox.
