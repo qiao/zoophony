@@ -42,8 +42,11 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    go to the bind arms of the studio, and the bones of a tail of two bones go to the bind
    directions of the config, back through the open back of the chair. The skin of the
    long-armed source in this pose is the bind mesh. Where the pose turns faces over, as at the
-   haunch, their vertices relax toward their neighbors. With `sit` of the config, the underside
-   of the haunch behind the hip joints goes down onto the seat (`sit()`). With `studio.trunk`,
+   haunch, their vertices relax toward their neighbors. The log then gives the gap from the
+   lowest point of the haunch behind the hips joint to the seat top, and above 5 cm a warning
+   with a front edge of the chair that puts the seat under the haunch (`haunch_gap()`). With
+   `sit` of the config, the underside of the haunch behind the hip joints goes down onto the seat
+   (`sit()`). With `studio.trunk`,
    the trunk then reclines: the pelvis turns back around the head of the hips until the hip
    angle opens by `open` degrees (`trunk_turn()`), each trunk bone takes its share of the turn,
    the haunch and the root of the tail rise onto the seat top (`seat_lift()`), and the tip of a
@@ -179,10 +182,24 @@ STRETCH_TURN = 45.0
 #: lists the face (`stretch_faces()`).
 STRETCH_EDGE = 0.5
 
+#: The gap from the lowest point of the haunch to the seat top before the sit, in meters, above
+#: which the log warns that the thighs set the seat top (`haunch_gap()`). The short thighs of the
+#: panda of 2026-10-18 put the seat top 6.8 cm below the haunch, and the sit pulled the haunch
+#: down into a sheet behind the seat.
+SEAT_WARNING = 0.05
+
+#: The step of the front edge of the chair that the warning of the seat proposes, in units.
+FRONT_STEP = 0.005
+
 
 def log(text):
     """Prints a line that `tools/rig-mesh.ts` shows."""
     print(f'rig_mesh: {text}', flush=True)
+
+
+def warn(text):
+    """Prints a warning line of the log, which starts with `rig_mesh: warning:`."""
+    log(f'warning: {text}')
 
 
 def args():
@@ -2034,6 +2051,34 @@ def seat_masks(points, weights, chair, root=None):
     return seat, hanging > 0.5, tail > 0.5, np.clip(free, 0.0, 1.0)
 
 
+def haunch_gap(points, weights, chair, rule, hips):
+    """Measures the haunch of a seated body before the sit. A vertex is of the haunch when the
+    hips carry more than half of its weight. With `root` of the sit rule (two shares of the
+    tail), the tail share of a vertex counts for the haunch by 1 less its smoothstep over these
+    shares, as the sit counts the root of the tail (`seat_masks()`). Gives the seat top
+    (`seat_top()`), the lowest point of the haunch behind the hips joint (z at most `hips`) over
+    the seat, and the front edge of the chair that puts no point of the seat below that point:
+    the z of the first point below it from the back edge, rounded back to a step of
+    `FRONT_STEP`. The front edge is None when no point lies below. The thighs of a short leg can
+    set the seat top far below the round haunch, and the sit then pulls the haunch down into a
+    sheet behind the seat."""
+    seat, hanging, tail, _ = seat_masks(points, weights, chair)
+    top = float(points[seat & ~hanging & ~tail, 1].min())
+    tails = [BONES.index(b) for b in ('tail', TAIL_TIP) if b in BONES]
+    share = weights[:, tails].sum(axis=1)
+    haunch = weights[:, BONES.index('hips')]
+    if rule.get('root'):
+        haunch = haunch + share * (1.0 - smoothstep(share, *rule['root']))
+    over = ((np.abs(points[:, 0]) <= chair['halfWidth']) & (points[:, 2] >= chair['back'])
+            & ~hanging)
+    low = float(points[over & (haunch > 0.5) & (points[:, 2] <= hips), 1].min())
+    below = over & ~tail & (points[:, 1] < low)
+    if not below.any():
+        return top, low, None
+    first = float(points[below, 2].min())
+    return top, low, round(math.floor((first - 1e-9) / FRONT_STEP) * FRONT_STEP, 6)
+
+
 def column_bottoms(points, tris, xs, zs):
     """Gives the lowest crossing of the faces with each vertical line of a grid: one line for each
     x of `xs` and each z of `zs`. A line that crosses no face gives infinity."""
@@ -2977,6 +3022,16 @@ def main():
     dots = turn_dots(long_verts, bind, tris, weights, upright_matrices)
     log(f'bind: after {rounds} rounds of relaxing, {int((dots < 0).sum())} faces turn over'
         f'{turned_on(dots, main_bone)}')
+    top, low, front = haunch_gap(bind, weights, config['chair'], config.get('sit', {}),
+                                 float(upright_heads['hips'][2]))
+    gap = (low - top) * meters
+    log(f'seat: before the sit, the lowest point of the haunch behind the hips joint is '
+        f'{abs(gap) * 100:.2f} cm {"above" if gap >= 0 else "below"} the seat top {top:.4f} u')
+    if gap > SEAT_WARNING:
+        warn(f'seat: the haunch is {gap * 100:.2f} cm above the seat top, so the thighs set the '
+             f'seat top and the sit pulls the haunch down. The front edge of the chair at z '
+             f'{front} u (chair.front, now {config["chair"]["front"]}) puts the seat under the '
+             f'haunch.')
     if 'sit' in config:
         hip = float(upright_heads['thigh_L'][2])
         bind, moved, largest, before, after = sit(bind, tris, weights, config['chair'],
