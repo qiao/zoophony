@@ -7,11 +7,13 @@ import {
   NoColorSpace,
   RGBAFormat,
 } from 'three';
+import type { WebGLProgramParametersWithUniforms } from 'three';
 
 import { FINISHES, FINISH_ORDER } from '../models/mesh.ts';
 import type { MeshData } from '../models/mesh.ts';
 import { shadeMesh } from '../models/shading.ts';
 import { addLightPool } from './light-pool.ts';
+import { FILL } from './lights.ts';
 import type { PoolUniforms } from './light-pool.ts';
 import { addShotLight } from './shot-light.ts';
 import type { ShotUniforms } from './shot-light.ts';
@@ -36,6 +38,23 @@ function createFinishTexture(): DataTexture {
   texture.colorSpace = NoColorSpace;
   texture.needsUpdate = true;
   return texture;
+}
+
+/**
+ * Scales the fill light and the diffuse light of the environment of a material by `FILL.players`
+ * (design 4.5). Call it in `onBeforeCompile`.
+ *
+ * @param shader The shader of the material.
+ * @throws Error if the shader has no light chunk of three.js that the patch knows.
+ */
+function addPlayerFill(shader: WebGLProgramParametersWithUniforms): void {
+  if (!shader.fragmentShader.includes('#include <lights_fragment_end>')) {
+    throw new Error('The shader has no light chunk of three.js. Update addPlayerFill().');
+  }
+  shader.fragmentShader = shader.fragmentShader.replace(
+    '#include <lights_fragment_end>',
+    `#include <lights_fragment_end>\nreflectedLight.indirectDiffuse *= ${FILL.players.toFixed(3)};`,
+  );
 }
 
 /**
@@ -64,6 +83,7 @@ export function createMaterials(
   if (pool) {
     material.onBeforeCompile = (shader) => {
       addLightPool(shader, pool);
+      addPlayerFill(shader);
       if (shot) {
         addShotLight(shader, shot);
       }

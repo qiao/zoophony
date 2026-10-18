@@ -72,9 +72,11 @@ export const SIDE_LIGHT = {
 
 /**
  * The fill light (design 4.5): warm and low, so that the shadows stay deep and warm. The ground
- * color is the light from the lit stage.
+ * color is the light from the lit stage. The players and the props take the part `players` of
+ * the fill light and of the diffuse light of the environment, so their shade sides stay dark
+ * (user, 2026-10-18). The stage takes all of it, so its shadows keep their tone.
  */
-export const FILL = { sky: '#302a26', ground: '#2c241e', intensity: 5 } as const;
+export const FILL = { sky: '#302a26', ground: '#2c241e', intensity: 5, players: 0.6 } as const;
 
 /**
  * The normal bias of the shadow, in texels of the shadow map at the stage, beyond the blur radius
