@@ -616,8 +616,13 @@ the mockup is out of scope.
       above the stage has a luma p90 of 22 against 49.
 - [ ] Give the players the shadows of the props on their bodies again, such as the shadow of a
       chair seat on the shins. The bake took the props out of the shadow map.
-- [ ] The white fur of the rabbit is more yellow than in `orchestra-latest.png`: a hue of 32°
-      against 19°, and a saturation of 0.44 against 0.30 (`pnpm look-lab`).
+- [ ] The white fur of the rabbit is more yellow than in `orchestra-latest.png`: a hue of 29°
+      against 19°, and a saturation of 0.49 against 0.30 (`pnpm look-lab`, after the narrow side
+      lights).
+- [x] Give the bodies a shade side and shadows (user, 2026-10-18: "no shadow on the animals. They
+      look plain, over-exposed, low-contrast"). The side lights stand higher with narrow cones, so
+      each lights only the far section, and they cast the shadows of the players on the players.
+      The players take 0.6 of the fill light. Measures: `docs/research/2026-10-18-body-shade.md`.
 
 Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
 passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
