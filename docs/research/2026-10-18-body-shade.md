@@ -46,6 +46,24 @@ reference is `orchestra-latest.png`.
 `before-after.webp` shows the frames of the cameras `orchestra` and `violins` at the start and
 after the change.
 
+### 2.3 The frame time
+
+`frame_shade.sh` measures the start (A, `0c7ab083`) and the change (B, `03216576`) in turns, A B
+A B, with `node tools/measure-frame.ts --no-metal`, as in
+[`2026-10-18-light-frame-cost.md`](2026-10-18-light-frame-cost.md) (`logs/`). The time of a frame
+is 1000 ms divided by the frame rate with no frame cap.
+
+| Run | Frame rate with no cap | Time of a frame | Main thread p50 / p95 |
+|---|---|---|---|
+| A, round 1 | 180.7 fps | 5.53 ms | 4.57 / 5.72 ms |
+| B, round 1 | 155.2 fps | 6.44 ms | 5.05 / 6.13 ms |
+| A, round 2 | 181.7 fps | 5.50 ms | 4.63 / 5.78 ms |
+| B, round 2 | 156.1 fps | 6.41 ms | 5.01 / 6.35 ms |
+
+The two shadow maps of the side lights add about 0.9 ms of GPU time and 0.4 ms of main-thread
+time in each frame of `perf-60.mid` on the high tier. Each map draws each player in its cone one
+more time.
+
 ## 3. The result
 
 The side lights stand at 1.4 S with a cone of 14°, so each one lights only the section on the far
