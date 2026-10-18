@@ -649,7 +649,11 @@ quarter of the folded faces.
   than 1 KB to it. The corners of each short thin face
   share one set of weights, and the fingers keep only a share of their bone heat weight
   (`weights.fingers` of the config), with the rest on the hand, so that fewer faces turn over at the
-  shoulders and the paws. The long thin faces of an image mesh fold when a joint bends, so the rig
+  shoulders and the paws. A config can also give the corners of single faces the mean of their
+  weights (`weights.rigid`, `rigid_faces()`): each point of the list takes the face of the source
+  whose middle lies nearest to it. The dog config does so for one face of the right armpit at the
+  plane of `armSplit`, whose corners had upper arm weights from 0.45 to 0.70 and which turned over
+  in each rest pose (`docs/decisions/2026-10-17-dog-folds.md`). The long thin faces of an image mesh fold when a joint bends, so the rig
   may change the faces of the arms, the shoulders, and the hands. A ring of new vertices at a joint
   splits the faces that it crosses, and the long edge of a face that is thin in the seated bind
   flips. The radius of a ring is a length in units, or a part of the arm part that ends at its

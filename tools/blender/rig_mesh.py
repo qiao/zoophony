@@ -976,6 +976,24 @@ def rigid_slivers(verts, tris, weights, rules):
     return out
 
 
+def rigid_faces(verts, tris, weights, rules):
+    """Gives the corners of single faces one set of weights: the mean of their weights. `rigid` of
+    the rules lists points in the units of the source, and the rule takes the face whose middle
+    lies nearest to each point. A face at the edge of the plane of `armSplit` can get corners with
+    upper arm weights that differ by 0.25, and it turns over when the arm hangs. With one set of
+    weights, the face moves rigidly. A config with no `rigid` changes no weight."""
+    out = weights.copy()
+    middles = verts[tris].mean(axis=1)
+    for point in rules.get('rigid', []):
+        f = int(np.argmin(np.linalg.norm(middles - np.asarray(point, float), axis=1)))
+        corners = tris[f]
+        change = np.abs(weights[corners] - weights[corners].mean(axis=0)).max()
+        out[corners] = weights[corners].mean(axis=0)
+        log(f'rigid: the face at ({", ".join(f"{x:.4f}" for x in middles[f])}) u takes the mean '
+            f'of the weights of its corners, the largest change {change:.3f}')
+    return out
+
+
 def straight_slivers(verts, tris, weights, rules):
     """Gives the middle corner of each long thin face the weights of the line between its two
     other corners: the mix of their weights by the place of the middle corner along that line. A
@@ -2852,7 +2870,7 @@ def main():
                           rules, heads, ends)
     weights = straight_slivers(verts, source_tris,
                                rigid_slivers(verts, source_tris, weights, rules), rules)
-    weights = limit(weights)
+    weights = limit(rigid_faces(verts, source_tris, weights, rules))
 
     # The long arms, the long legs, the large head, and the short trunk. The scale of the app comes
     # from the shoulder joints after the rise of the legs and the drop of the trunk.
