@@ -420,9 +420,11 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       shading of the seam where the hanging arm of the mesh touches the trunk. A corrective shape
       of the trunk side does not remove them, because the normals of the seam corners turn with
       their upper arm weight. Trunk weights at the seam remove them, but faces 93 and 2115 then fold
-      in each sample. Ask the user: new vertices at the seam (most of the 54 free triangles), or
-      the trunk weights with a fix of these two folds (`streak-variants.webp`,
-      `2026-10-18-panda-marks.md`).
+      in each sample. The manager chose the trunk weights with a fix of the folds, then new
+      vertices: both failed (`docs/research/2026-10-18-panda-seam.md`, `seam-variants.webp`). The
+      corners that join the forearm to the belly also top the streak faces. Ask the user: keep the
+      streaks, or allow a vertex move of the mesh that opens a gap between each forearm and the
+      belly (user rule of 2026-10-10).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
