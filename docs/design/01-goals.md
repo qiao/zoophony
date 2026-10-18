@@ -137,6 +137,12 @@ meters. The user added it on 2026-10-07 for the dog model. It wins for the dog.
   chair as a feathered plume.
 - The scale gives the seated dog about 1.6 m to the top of the head. The seat is about 0.45 m
   high, and the paws are large and rest on the floor.
+- On 2026-10-17, the user gave the mesh `assets/models/dog/dog.glb` for the cello dogs
+  (`docs/decisions/2026-10-17-mesh-dog.md`). The mesh of the user is the target of the form and
+  the colors of the dog, and it wins over this image where they differ: the mesh is a beagle with
+  brown fur, a white muzzle, chest, and paws, and long hanging ears. The app gives it the pea eyes
+  of the app, the head height of the red fox, the arms of the cello reach, longer legs, and knees
+  spread around the lower bout of the cello (4.4).
 
 The reference image [`reference/polar-bear-views.png`](../reference/polar-bear-views.png)
 (1280 × 720 px) shows the polar bear at the grand piano from the front, the side, and the back,

@@ -111,16 +111,16 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 
 ## 4.3 Species
 
-All animals except the penguins, the bear conductor, the polar bear pianist, the rabbit
-violinist, the two foxes, and the viola cats use one parametric biped body (4.4). Each species has one
-`SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A species
-can have a body of its own in place of the biped (`body`): the penguins have the egg body of
+All animals except the penguins, the bear conductor, the polar bear pianist, the rabbit violinist,
+the two foxes, the viola cats, and the cello dogs use one parametric biped body (4.4). Each species
+has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A
+species can have a body of its own in place of the biped (`body`): the penguins have the egg body of
 `models/penguin/` since 2026-10-11, the bear and the polar bear have studio bodies of
-`lowpoly-studio/` since 2026-10-12, the rabbit has a studio body since 2026-10-13, the two
-foxes since 2026-10-14, and the cat since 2026-10-16: meshes of the user, which `pnpm rig-mesh`
-rigs (4.4, bodies of their own and studio bodies). The two foxes share one rig, and the tan fox takes another palette of its
-faces (`palette`). A species with a body of its own has no shape parameters, because its body has
-its own parts.
+`lowpoly-studio/` since 2026-10-12, the rabbit has a studio body since 2026-10-13, the two foxes
+since 2026-10-14, the cat since 2026-10-16, and the dog since 2026-10-17: meshes of the user, which
+`pnpm rig-mesh` rigs (4.4, bodies of their own and studio bodies). The two foxes share one rig, and
+the tan fox takes another palette of its faces (`palette`). A species with a body of its own has no
+shape parameters, because its body has its own parts.
 
 ```typescript
 /** The parametric biped, or a body of its own. */
@@ -151,9 +151,12 @@ interface BipedParams extends CommonParams {
 
 /** A body of its own in place of the parametric biped (4.4): the penguin, or a studio body. */
 interface OwnBodyParams extends CommonParams {
-  body: 'penguin' | 'studio-bear' | 'studio-cat' | 'studio-fox' | 'studio-polar-bear' | 'studio-rabbit';
+  body: 'penguin' | 'studio-bear' | 'studio-cat' | 'studio-dog' | 'studio-fox'
+    | 'studio-polar-bear' | 'studio-rabbit';
   /** A seated tail that lies curled on the seat, and does not sway (5.1): the cat. */
   seatedTail?: 'curl';
+  /** Ears that hang beside the head, and do not twitch (5.1): the dog. */
+  hangingEars?: true;
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -218,11 +221,11 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
   no standing value of the skeleton.
 - The bear conductor and the polar bear pianist have studio bodies of `lowpoly-studio/` (4.4),
   with the trunks and the legs that the studio fitted to their sheets. The rabbit violinist, the
-  two foxes, and the viola cat have the meshes of the user, which `pnpm rig-mesh <animal>` rigs into the format
-  of a studio body (4.4), with the trunks and the legs of the meshes. These skeletons have the
-  bones of the studio, and no value of this table applies to them, except the head height `H` and
-  the seat heights of the polar bear, the rabbit, the foxes, and the cat, which
-  `models/species.ts` reads from their studio bodies.
+  two foxes, the viola cat, and the cello dog have the meshes of the user, which
+  `pnpm rig-mesh <animal>` rigs into the format of a studio body (4.4), with the trunks and the
+  legs of the meshes. These skeletons have the bones of the studio, and no value of this table
+  applies to them, except the head height `H` and the seat heights of the polar bear, the rabbit,
+  the foxes, the cat, and the dog, which `models/species.ts` reads from their studio bodies.
 - The legs have the form of the reference images (`SEATED_LEG` and `STANDING_LEG` of
   `models/legs.ts`). A seated thigh has the thickness of the thighs of the model sheets, and a
   shin narrows little to the ankle, as the shins of the sheets. A standing leg is a straight
@@ -287,8 +290,8 @@ its own skeleton:
   uses rabbits again, and a fourth uses red-orange foxes.
 
 The shape parameters of each species of the parametric biped (4.5 gives the colors). The penguin
-has its egg body, and the rabbit, the two foxes, the cat, the bear, and the polar bear have studio
-bodies (4.4), so they have no row:
+has its egg body, and the rabbit, the two foxes, the cat, the dog, the bear, and the polar bear
+have studio bodies (4.4), so they have no row:
 
 | Species | ears | snout | tail | facePattern |
 |---|---|---|---|---|
@@ -299,7 +302,6 @@ bodies (4.4), so they have no row:
 | panda | round | short | puff | eye-patches |
 | mouse | large-round | pointed | thin | none |
 | beaver | small | buck-teeth | flat | none |
-| dog | floppy | blunt | thin | cap |
 | monkey | side-round | short | thin | face-disc |
 | pig | pointed | flat-nose | thin | none |
 | rhino | small | horn | thin | none |
@@ -310,8 +312,9 @@ The face patterns of the head (`models/face-patterns.ts`):
 - `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
   over the eyes.
 - `eye-patches` (the panda) are two ovals around the eyes, with their lower ends out.
-- `cap` (the dog) is the accent color over the head down to below the eyes, with a blaze of the
-  belly color down the middle of the face, as the beagles of `mockup.png`. The cap colors the faces
+- `cap` (the parametric dog until the dog mesh of 2026-10-17, and no species since) is the accent
+  color over the head down to below the eyes, with a blaze of the belly color down the middle of
+  the face, as the beagles of `mockup.png`. The cap colors the faces
   of the head itself and adds no part. The cream dog with brown floppy ears does not look like the
   tan fox (review of step 4, the weak species).
 - `face-disc` (the monkey) is a large face of the belly color around the eyes.
@@ -336,8 +339,8 @@ border follows the edges of the triangles.
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
-Each body except the penguin's, the bear's, the polar bear's, the rabbit's, the foxes', and the
-cat's is the parametric body: `buildBiped()` of
+Each body except the penguin's, the bear's, the polar bear's, the rabbit's, the foxes', the
+cat's, and the dog's is the parametric body: `buildBiped()` of
 `models/biped.ts` builds it from the parts of 4.5 (body proportions) on the skeleton of 4.3. A
 species with a `body` gets a body of its own from `buildBiped()` in its place. On 2026-10-12, the
 user decided: "use the studio bear in the app". The bear conductor has the studio body of
@@ -373,7 +376,12 @@ the cat was too long and its chair too low, and chose the trunk of the red fox w
 (`docs/decisions/2026-10-16-cat-trunk.md`). Then the user said that the body of the cat was too
 long and too skinny, and that its neck was too long. Since then, the cat has a shorter, wider,
 and deeper trunk and a shorter neck, and it sits with the thighs 25° down and vertical shins
-(`docs/decisions/2026-10-16-cat-form.md`).
+(`docs/decisions/2026-10-16-cat-form.md`). On 2026-10-17, the user said: "once you're done, create
+and use the dog mesh at @~/Downloads/Meshy_AI_Smiling_Dog_3K_Triang_1016213136_texture.glb". The
+cello dog has that mesh since then (`assets/models/dog/dog.glb`), rigged as the cat mesh, with the
+pea eyes of the app. The user chose the head height of the red fox, the arms of the cello reach,
+the leg factor 1.5 of the fox, and the cello between the knees, with the knees spread out
+(`docs/decisions/2026-10-17-mesh-dog.md`).
 The user chose these bodies again on 2026-10-09, in
 place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
@@ -473,10 +481,11 @@ bear since 2026-10-12, and the polar bear pianist the studio polar bear since th
 user since 2026-10-13 (`docs/decisions/2026-10-13-mesh-rabbit.md`), after the studio rabbit of the
 same day (`docs/decisions/2026-10-13-studio-rabbit.md`). The red violin fox has the rigged fox mesh
 of the user since 2026-10-14 (`docs/decisions/2026-10-14-mesh-fox.md`), and the tan flute fox the
-same rig with a tan palette (`docs/decisions/2026-10-14-fox-flute.md`). The viola cat has the
-rigged cat mesh of the user since 2026-10-16 (`docs/decisions/2026-10-16-mesh-cat.md`). The app keeps its own
-conductor motion (5.4), its own pianist motion, and its own violin motion (5.3), so it drives the
-bones of the studio from the pose of the player each frame: the retarget.
+same rig with a tan palette (`docs/decisions/2026-10-14-fox-flute.md`). The viola cat has the rigged
+cat mesh of the user since 2026-10-16 (`docs/decisions/2026-10-16-mesh-cat.md`), and the cello dog
+the rigged dog mesh of the user since 2026-10-17 (`docs/decisions/2026-10-17-mesh-dog.md`). The app
+keeps its own conductor motion (5.4), its own pianist motion, and its own string motion (5.3), so it
+drives the bones of the studio from the pose of the player each frame: the retarget.
 `docs/research/2026-10-12-studio-bear.md` compares this route with the route of the rigged bodies of
 2026-10-10 (below), which keeps two bones of the player for each vertex. The retarget had about a
 quarter of the folded faces.
@@ -650,7 +659,16 @@ quarter of the folded faces.
   over the top of the shoulder from the root of the arm to the neck, with the rest on the
   clavicle (`shoulderRamp`). The cat config does so: bone heat gave the upper arm almost all the
   weight of the top of its narrow shoulders next to the thin neck, and faces from there to the
-  neck turned over with each lowered arm.
+  neck turned over with each lowered arm. The long ears of a dog hang beside the head and the
+  neck, apart from the head below the head line. A config can give each hanging ear flap to the
+  head and its ear bone (`weights.earFlap`, `hanging_ear()`): the flap is the part of the mesh
+  below a cut and away from the middle plane that holds the vertex nearest to the ear tip, and the
+  share of the ear bone fades from the root of the flap to its tip. The measures of the head and
+  the size of the pea eyes then leave the flaps out: with the flaps on the head, the head height H
+  of the dog grew from 0.229 to 0.259 units. The dog config does so, and its ears do not twitch
+  (`OwnBodyParams.hangingEars`, 5.1). The dog config gives the cellist one shape of the raised
+  right arm with the bent elbow of the play, and no rings: the rings of the cat and longer sliver
+  groups folded more faces of the dog mesh (`docs/decisions/2026-10-17-mesh-dog.md`).
 - A config with the joint `tail_tip` gives the mesh a tail of two bones: the root and the tip,
   each with smooth weights along the line of the tail. The studio format has `tail_tip` as an
   optional bone after the eye bones (`OPTIONAL_STUDIO_BONES` of `models/studio-format.ts`), so
@@ -701,7 +719,11 @@ quarter of the folded faces.
   lowers the ear tips, and its longer legs raise them by the same length, so the scale stays and
   `ANIMALS` keeps the meters of each unit (`docs/decisions/2026-10-16-cat-trunk.md`). The trunk of
   `docs/decisions/2026-10-16-cat-form.md` keeps the legs, so `ANIMALS` lowers the shoulder joints
-  with the trunk, the scale stays, and the cat is shorter than the red fox. The module of
+  with the trunk, the scale stays, and the cat is shorter than the red fox. The cello dog has the
+  head height of the red fox, as the user chose on 2026-10-17: `ANIMALS` gives its standing
+  shoulder joints at the height that puts its standing head top at the head top of the red fox,
+  1.570 m, after the leg factor 1.5 of the fox (`docs/decisions/2026-10-17-mesh-dog.md`). The
+  long ears of the dog hang, so the head top is the top of the skull. The module of
   each body (`src/models/studio/<animal>.ts`) holds its
   scale and its head height `H`, and the research reports
   (`docs/research/2026-10-12-studio-bear.md`, `docs/research/2026-10-12-studio-polar-bear.md`)
@@ -714,7 +736,7 @@ quarter of the folded faces.
   seat is at that height. The polar bear has shins long enough for its seat, so its soles touch
   the floor. The rabbits and the red foxes have no seat height: the user asked on 2026-10-16 for
   chairs low enough that their feet touch the floor, so their chairs fit their legs. The cats of
-  the mesh of 2026-10-16 have no seat height either. They sit in
+  the mesh of 2026-10-16 and the dogs of the mesh of 2026-10-17 have no seat height either. They sit in
   the posture of 5.2: the trunk is upright, the thighs slope down from the hips to the knees, the
   shins are vertical, so that the ankles are under the knees, and the soles stand flat on the floor
   (`studio.legTurns` of `tools/mesh-rigs/<animal>.json`). Their seats are
@@ -732,6 +754,8 @@ quarter of the folded faces.
   back off the chair back (`docs/decisions/2026-10-17-rabbit-pose.md`). The
   cat sits with the thighs 25° down and vertical shins since the user asked for a taller chair and
   legs more perpendicular to the floor on 2026-10-16 (`docs/decisions/2026-10-16-cat-form.md`).
+  The thighs of the cello dog also turn 30° out, so that the knees spread around the lower bout of
+  the cello, as the user chose on 2026-10-17 (`docs/decisions/2026-10-17-mesh-dog.md`).
   `StudioBody.floor` is the point on the floor under
   the body, and the piano stands in front of it (4.6). `StudioBody.seatHeight` is the height of a
   flat seat under the body: the lowest point of the body over the seat, so that the body rests on
@@ -805,8 +829,8 @@ quarter of the folded faces.
   Each body has its own crease angle. The angle of a bear is the angle whose facet contrast is
   nearest to its reference images. The reference rabbits have more facet contrast than each render
   of the app rabbit, so the manager chose its angle from the play frames
-  (`docs/research/2026-10-14-rabbit-smooth.md`). The red fox and the cat take the angle of the
-  rabbit, because the three are meshes of image models of the user.
+  (`docs/research/2026-10-14-rabbit-smooth.md`). The red fox, the cat, and the dog take the angle
+  of the rabbit, because the four are meshes of image models of the user.
 - `buildStudioBody()` gives the mesh of the player in the bind pose of the player, with the two
   bones of the player with the largest weights for each corner. The footprints, the hanging
   arms, the budgets, and the tests read it. In the tests, `posedCorner()` poses a studio body
@@ -816,7 +840,8 @@ quarter of the folded faces.
   only the piano bench. The rabbit violinist and the red violin fox sit on their chairs in the
   violin sections, the viola cat sits on its chair in the viola section, and the three stand as
   soloists (`supportOf()` of `models/player.ts`). Their entries in `ANIMALS` mark them as seated
-  roles that also stand (`soloist`).
+  roles that also stand (`soloist`). The cello dog sits on its chair in the cello section, and a
+  cellist does not stand as a soloist (4.2), so its entry marks it as a seated role only.
 - `models/studio-rig.test.ts`, `models/studio-body.test.ts`, `tools/studio-body.test.ts`, the
   test of the conductor clearance (5.4), and the tests of the pianist clearance and of the
   violinist clearance (5.3) check the behavior: the elbow on the joints of the player, the twist
@@ -1387,12 +1412,14 @@ through the open back. A floor instrument, such as the cello, moves with the bod
   (design 1, `lowpoly-animals.png` and `animals.webp`).
 - A body has at most 2,600 triangles. A studio body keeps the faces of its GLB file, so its GLB
   file has a budget of its own of 3,200 faces. The rabbit and the red fox play in the violin
-  sections, and the cat in the viola section, so many studio bodies share the scene, and the budget of the full scene holds the
+  sections, the cat in the viola section, and the dog in the cello section, so many studio bodies
+  share the scene, and the budget of the full scene holds the
   frame. The fox mesh of the user needs 3,135 triangles with its eye fans, so the manager raised
   the budget from 3,100 on 2026-10-14. The pea eyes add their 144 triangles to a studio body, as
   the eyes of a parametric body count in its budget, so the app body of the rabbit and of the fox
   has more than 3,200 triangles (`docs/decisions/2026-10-15-pea-eyes.md`). The cat mesh has
-  3,157 triangles with the rings of its arms and its eye fans. An instrument has
+  3,157 triangles with the rings of its arms and its eye fans, and the dog mesh 3,159 with its eye
+  fans. An instrument has
   at most 800, except the timpani (1,200)
   and the piano (2,000). A chair or the piano bench has at most 120, and a stand at most 80. The
   full scene with 60 players has at most 200,000 triangles. The frame cost of `perf-60.mid` on
@@ -1683,7 +1710,10 @@ the app, the size that the user chose: the user made their arms longer for a ful
 then shorter with the same violin. Their arms are shorter than the rule needs, so their holds put
 the violin nearer to the left shoulder, and the left paw still reaches the nut (5.3). The cat has
 the reach of the red fox and plays the viola of the app, and its hold puts the viola nearer to the
-neck for the nut in the same way (`docs/decisions/2026-10-16-mesh-cat.md`). The tan fox plays the
+neck for the nut in the same way (`docs/decisions/2026-10-16-mesh-cat.md`). The dog plays the
+cello of the app between its knees, and its arms have the reach that the user chose: the left paw
+reaches the whole fingerboard from the nut, and the bow paw the whole hair
+(`docs/decisions/2026-10-17-mesh-dog.md`). The tan fox plays the
 flute of the app, and each palm reaches its grip in the play and in the rest
 (`pnpm hold-reach fox-tan --instrument flute`, `docs/decisions/2026-10-17-fox-form.md`). The paused
 check of the rule in `pose/bowed.test.ts` fails for these two species. The chairs, the stands, the
@@ -1809,7 +1839,7 @@ bones:
   `shin`, and the foot on `foot`. No pose turns the legs.
 - A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
   studio, two eye bones for the pea eyes, and the optional tip of a tail of two bones (`tail_tip`,
-  the red fox, the tan fox, and the cat).
+  the red fox, the tan fox, the cat, and the dog).
   Each vertex follows up to four of them, and two corrective shapes move the skin of the arms. Up
   to four more shapes move the skin of a raised arm, a bent elbow, or a bent wrist of a mesh rig. The scene gives the mesh one bone for each studio bone and one for
   each bone of the player, and `poseStudioBones()` writes their matrices from the pose of the
