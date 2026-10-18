@@ -361,10 +361,13 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
     joints (`refine.rings`) keep the faces from a fold. The corrective shapes give the source back
     in the standing pose, and up to four shapes of `raise` relax the faces that turn over in a bent
-    arm.
+    arm. When a grip far in front of a deep chest turns the upper arm so far that no rule removes
+    the fold at the front of the shoulder, the hold shares the turn with the shoulder bone (5.3).
   - Colors. Each face takes the nearest palette color of the texture, and the faces of the old
-    eyes take the color of the fur around them. The tan palette of the fox mesh
-    (`StudioBody.palettes`) lets one module serve both foxes.
+    eyes take the color of the fur around them. A rule can move the plain fur in Oklab toward the
+    color of the reference after a choice of the user (`colors.tone`): the cat takes half of the
+    move to its sheet, and the white fur of the panda takes the white of `SPECIES_COLORS.panda`.
+    The tan palette of the fox mesh (`StudioBody.palettes`) lets one module serve both foxes.
   - Tail. `tail_tip` gives a tail of two bones (`OPTIONAL_STUDIO_BONES`), and `studio.tailCurl`
     bends the seated tail: the cat curls it on the seat, and the dog hangs it down behind the seat
     (`docs/decisions/2026-10-17-dog-tail.md`). A curled tail does not sway (5.1). A short round
@@ -466,7 +469,8 @@ black desks were the largest shapes of some close shots.
 `SPECIES_COLORS` of `models/colors.ts` gives each species three colors: the fur, the belly and
 the face, and the accent. The models and the seat dots of the UI read them through `SPECIES`
 (`models/species.ts`). Each studio body keeps the colors of the faces of its GLB file (4.4), so
-its colors and its accent parts here color no part of its body.
+its colors and its accent parts here color no part of its body. The rig of the panda moves its
+white fur to the fur color here (4.4).
 
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR`), and a dark nose
   (`NOSE_COLOR`), unless their accent parts include the nose. The open beak of the penguin shows a
