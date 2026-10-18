@@ -91,6 +91,13 @@ export interface CameraPose {
    * free area above the bar and left of the open drawer (design 4.5, 5.6).
    */
   readonly close: boolean;
+  /**
+   * The weight of the light of a close shot, from 0 (the light of the stage) to 1 (design 4.5,
+   * 5.6). It is constant in a shot, and it changes at a cut or over a blend.
+   */
+  readonly light: number;
+  /** The weight of the follow-spot of a solo shot, from 0 to 1, as {@link CameraPose.light}. */
+  readonly spot: number;
 }
 
 /** A `CameraPose` with writable values. `cameraAt()` writes each frame into it. */
@@ -100,6 +107,8 @@ export interface CameraPoseBuffer {
   fov: number;
   beam: number;
   close: boolean;
+  light: number;
+  spot: number;
 }
 
 /** The view of one frame. */

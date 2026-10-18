@@ -58,7 +58,7 @@ describe('StageCamera (design 2.5, 5.6)', () => {
   it('keeps the camera of the last shot at the first update in Free mode, also at 4 m', () => {
     const camera = new StageCamera(null, SIDE, false);
     camera.resize(1440, 900);
-    camera.follow({ position, target, fov: 24, beam: 1, close: true });
+    camera.follow({ position, target, fov: 24, beam: 1, close: true, light: 1, spot: 0 });
     expect(camera.target).toEqual(target);
     camera.update(1000);
     expectShotPosition(camera);
@@ -71,7 +71,7 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     // and the camera stayed among the stands (UX audit 2026-10-06, N19).
     const camera = new StageCamera(null, SIDE, false);
     camera.resize(1440, 900);
-    camera.follow({ position, target, fov: 24, beam: 1, close: true });
+    camera.follow({ position, target, fov: 24, beam: 1, close: true, light: 1, spot: 0 });
     camera.update(1000);
     for (const k of [0, 1, 2]) {
       expect(camera.target[k]).toBeCloseTo(target[k] ?? 0, 9);
@@ -98,7 +98,7 @@ describe('StageCamera (design 2.5, 5.6)', () => {
   it('moves the target and the camera at once with reduced motion, and keeps a wide view', () => {
     const reduced = new StageCamera(null, SIDE, true);
     reduced.resize(1440, 900);
-    reduced.follow({ position, target, fov: 24, beam: 1, close: true });
+    reduced.follow({ position, target, fov: 24, beam: 1, close: true, light: 1, spot: 0 });
     reduced.update(1000);
     expect(reduced.target.map((v, k) => Math.abs(v - (DEFAULT_TARGET[k] ?? NaN)) < 1e-9)).toEqual([
       true,
@@ -111,7 +111,15 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     // A wide shot looks at the stage center already, from far away.
     const wide = new StageCamera(null, SIDE, false);
     wide.resize(1440, 900);
-    wide.follow({ position: [20, 10, 30], target: [0, 0, -0.5], fov: 30, beam: 1, close: false });
+    wide.follow({
+      position: [20, 10, 30],
+      target: [0, 0, -0.5],
+      fov: 30,
+      beam: 1,
+      close: false,
+      light: 0,
+      spot: 0,
+    });
     wide.update(1000);
     wide.update(2000);
     expect(wide.target).toEqual([0, 0, -0.5]);
@@ -148,7 +156,15 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     const camera = new StageCamera(null, SIDE, false, 2.5);
     camera.resize(1440, 900);
     const shot = [0, 1.5, 3.6] as const;
-    camera.follow({ position: shot, target: DEFAULT_TARGET, fov: 24, beam: 1, close: true });
+    camera.follow({
+      position: shot,
+      target: DEFAULT_TARGET,
+      fov: 24,
+      beam: 1,
+      close: true,
+      light: 1,
+      spot: 0,
+    });
     camera.update(1000);
     // The first frame keeps the camera of the shot, so the change of mode does not jump.
     expect(camera.camera.position.distanceTo(new Vector3(...shot))).toBeLessThan(1e-9);
@@ -163,7 +179,15 @@ describe('StageCamera (design 2.5, 5.6)', () => {
   it('gives the default view and the field of view of 4.5 on "Reset view"', () => {
     const camera = new StageCamera(null, SIDE, false);
     camera.resize(1440, 900);
-    camera.follow({ position: [2, 3, 4], target: [0, 1, 0], fov: 24, beam: 1, close: true });
+    camera.follow({
+      position: [2, 3, 4],
+      target: [0, 1, 0],
+      fov: 24,
+      beam: 1,
+      close: true,
+      light: 1,
+      spot: 0,
+    });
     camera.reset();
     const view = defaultView(SIDE, 1440, 900);
     const p = camera.camera.position;
@@ -178,7 +202,15 @@ describe('StageCamera (design 2.5, 5.6)', () => {
   it('keeps the view of a shot on a resize', () => {
     const camera = new StageCamera(null, SIDE, false);
     camera.resize(1440, 900);
-    camera.follow({ position: [2, 3, 4], target: [0, 1, 0], fov: 24, beam: 1, close: true });
+    camera.follow({
+      position: [2, 3, 4],
+      target: [0, 1, 0],
+      fov: 24,
+      beam: 1,
+      close: true,
+      light: 1,
+      spot: 0,
+    });
     camera.resize(390, 844);
     expect(camera.camera.position.toArray()).toEqual([2, 3, 4]);
   });
@@ -212,13 +244,21 @@ describe('StageCamera (design 2.5, 5.6)', () => {
   it('fits the frame of a close shot above the bar, and leaves the fit in Free mode in 0.4 s', () => {
     const camera = new StageCamera(null, SIDE, false);
     camera.resize(1440, 900);
-    camera.follow({ position, target, fov: 24, beam: 0.15, close: true });
+    camera.follow({ position, target, fov: 24, beam: 0.15, close: true, light: 1, spot: 0 });
     // The frame of 900 px fits into the 832 px above the bar (review of step 8, M4).
     expect(camera.frame.scale).toBeCloseTo(832 / 900, 9);
     expect(camera.frame.y).toBe(416);
-    camera.follow({ position: [20, 10, 30], target: [0, 0, 0], fov: 30, beam: 1, close: false });
+    camera.follow({
+      position: [20, 10, 30],
+      target: [0, 0, 0],
+      fov: 30,
+      beam: 1,
+      close: false,
+      light: 0,
+      spot: 0,
+    });
     expect(camera.frame.scale).toBe(1);
-    camera.follow({ position, target, fov: 24, beam: 0.15, close: true });
+    camera.follow({ position, target, fov: 24, beam: 0.15, close: true, light: 1, spot: 0 });
     camera.update(1000);
     expect(camera.frame.scale).toBeCloseTo(832 / 900, 9);
     camera.update(1200);
@@ -227,7 +267,7 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     expect(camera.frame.scale).toBe(1);
     const reduced = new StageCamera(null, SIDE, true);
     reduced.resize(1440, 900);
-    reduced.follow({ position, target, fov: 24, beam: 0.15, close: true });
+    reduced.follow({ position, target, fov: 24, beam: 0.15, close: true, light: 1, spot: 0 });
     reduced.update(1000);
     expect(reduced.frame.scale).toBe(1);
   });

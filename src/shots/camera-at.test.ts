@@ -34,6 +34,8 @@ function cameraOf(
     fov: pose.fov,
     beam: pose.beam,
     close: pose.close,
+    light: pose.light,
+    spot: pose.spot,
   };
 }
 

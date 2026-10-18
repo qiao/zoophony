@@ -4,6 +4,7 @@ import { smoothstep } from '../pose/rest.ts';
 import type { Transport } from '../pose/types.ts';
 import { SHOT_BEAM_OPACITY } from './beam-opacity.ts';
 import { keyDistance, writeKeyPosition } from './camera-keys.ts';
+import { SHOT_LIGHT, SHOT_SPOT } from './shot-light.ts';
 import { isCloseShot } from './types.ts';
 import type { CameraPose, CameraPoseBuffer, CameraView, Shot, ShotKey, ShotPlan } from './types.ts';
 import { FIELD_OF_VIEW, defaultView, wideView } from './view.ts';
@@ -14,7 +15,15 @@ import { FIELD_OF_VIEW, defaultView, wideView } from './view.ts';
  * @returns A buffer at the origin.
  */
 export function createCameraPose(): CameraPoseBuffer {
-  return { position: [0, 0, 0], target: [0, 0, 0], fov: FIELD_OF_VIEW, beam: 1, close: false };
+  return {
+    position: [0, 0, 0],
+    target: [0, 0, 0],
+    fov: FIELD_OF_VIEW,
+    beam: 1,
+    close: false,
+    light: 0,
+    spot: 0,
+  };
 }
 
 /** The key of the frame, which `cameraAt()` writes before it reads it. */
@@ -95,6 +104,8 @@ function copyPoint(from: Vec3, out: [number, number, number]): void {
  * 5. The factor of the beam opacity comes from the kind of the shot, so it is constant in a
  *    shot. A blend blends it with the camera. The default view has the full beam.
  * 6. A close shot sets `close`, so that its full frame stands in the free area of the page.
+ * 7. The weights of the light of a close shot and of the follow-spot come from the kind of the
+ *    shot, as the factor of the beam. The default view has the light of the stage.
  *
  * @param plan The plan from `prepareShots()`.
  * @param songTime The song time, in seconds.
@@ -121,6 +132,8 @@ export function cameraAt(
     out.fov = FIELD_OF_VIEW;
     out.beam = 1;
     out.close = false;
+    out.light = 0;
+    out.spot = 0;
     return out;
   }
   // The move of the first shot starts at the downbeat: its count-in holds the first camera.
@@ -130,6 +143,8 @@ export function cameraAt(
   out.fov = writeShotCamera(plan, current, u, aspect, out.position);
   copyPoint(current.target, out.target);
   out.beam = SHOT_BEAM_OPACITY[current.kind];
+  out.light = SHOT_LIGHT[current.kind];
+  out.spot = SHOT_SPOT[current.kind];
   // A blend joins two close shots, so the kind of the current shot holds for the blend.
   out.close = isCloseShot(current.kind);
   const previous = plan.shots[i - 1];
@@ -148,5 +163,9 @@ export function cameraAt(
   out.fov = fov + (out.fov - fov) * w;
   const beam = SHOT_BEAM_OPACITY[previous.kind];
   out.beam = beam + (out.beam - beam) * w;
+  const light = SHOT_LIGHT[previous.kind];
+  out.light = light + (out.light - light) * w;
+  const spot = SHOT_SPOT[previous.kind];
+  out.spot = spot + (out.spot - spot) * w;
   return out;
 }
