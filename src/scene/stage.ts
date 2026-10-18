@@ -1,4 +1,5 @@
-import { Group, Mesh, MeshPhysicalMaterial, Vector3 } from 'three';
+import { Group, Mesh, MeshPhysicalMaterial, ShaderChunk, Vector3 } from 'three';
+import type { Texture } from 'three';
 
 import { STAGE_COLORS } from '../models/props.ts';
 import type { Vec3 } from '../models/tuples.ts';
@@ -6,6 +7,7 @@ import { STAGE_CORNER_CUT, STAGE_LIP, buildStage } from '../models/stage.ts';
 import { createGeometry } from './geometry.ts';
 import { addLightPool } from './light-pool.ts';
 import type { PoolUniforms } from './light-pool.ts';
+import { noBakeTexture } from './stage-bake.ts';
 
 /**
  * The finish of the stage wood (design 4.5, materials): walnut with a soft sheen under a thin
@@ -71,6 +73,7 @@ export const SIDE_GLOW = {
  */
 const GRAIN_GLSL = /* glsl */ `
 varying vec3 vWoodPosition;
+varying vec3 vWoodNormal;
 uniform float uGrain;
 uniform float uGrainRoughness;
 uniform float uHalfSide;
@@ -79,6 +82,7 @@ uniform vec3 uSideGlow;
 uniform float uSpecular;
 uniform vec3 uSeamColor;
 uniform vec3 uPlank;
+uniform sampler2D uStageBake;
 
 float woodHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -114,6 +118,41 @@ float seamOf(vec3 color) {
   return 1.0 - step(1e-4, max(d.r, max(d.g, d.b)));
 }
 
+// The bake of the static props at a point of the stage (scene/stage-bake.ts): a bilinear mean of
+// the four nearest texels that hold the surface of the point. A texel holds the highest surface
+// at its place, so at the edge of the podium, the floor must not read the lit podium top. A point
+// with no texel of its surface is under an overhang, such as the floor below the edge of the
+// podium top, or on a side. One texel is the texture of a stage with no bake.
+vec2 stageBakeAt(vec3 p, vec3 n) {
+  ivec2 texels = textureSize(uStageBake, 0);
+  if (texels.x == 1) {
+    return vec2(1.0);
+  }
+  vec2 size = vec2(texels);
+  vec2 st = (p.xz / (2.0 * uHalfSide) + 0.5) * size - 0.5;
+  vec2 base = floor(st);
+  vec2 f = st - base;
+  vec3 sum = vec3(0.0);
+  for (int j = 0; j < 2; j++) {
+    for (int i = 0; i < 2; i++) {
+      vec2 at = clamp(base + vec2(float(i), float(j)), vec2(0.0), size - 1.0);
+      vec4 texel = texelFetch(uStageBake, ivec2(at), 0);
+      float w = (i == 0 ? 1.0 - f.x : f.x) * (j == 0 ? 1.0 - f.y : f.y);
+      w *= step(abs(texel.b - p.y), 0.005);
+      sum += vec3(texel.rg * w, w);
+    }
+  }
+  if (sum.z > 1e-4) {
+    return sum.xy / sum.z;
+  }
+  // Under an overhang, the key light does not reach the point, and half the sky does.
+  if (abs(n.y) > 0.5) {
+    return vec2(0.0, 0.5);
+  }
+  // A side reads the bake 4 cm in front of it, past the overhang of the podium top.
+  return texture2D(uStageBake, (p.xz + normalize(n.xz) * 0.04) / (2.0 * uHalfSide) + 0.5).rg;
+}
+
 // The grain from -1 to 1: long streaks along x, with a finer noise on them.
 float woodGrain(vec3 p) {
   float streaks = woodOctave(vec2(p.x * 0.7, p.z * 26.0 + p.y * 26.0));
@@ -142,10 +181,13 @@ totalEmissiveRadiance += diffuseColor.rgb * sideGlow * sideFade * onSide;
 `;
 
 /**
- * The GLSL of the gloss of the wood ({@link STAGE_FINISH}): the factor of the direct gloss, the
- * gloss of each plank, and the small gloss of the seams.
+ * The GLSL after the lights: the sky of the bake on the fill light and the reflections
+ * (`scene/stage-bake.ts`), and the gloss of the wood ({@link STAGE_FINISH}): the factor of the
+ * direct gloss, the gloss of each plank, and the small gloss of the seams.
  */
 const GLOSS_GLSL = /* glsl */ `
+reflectedLight.indirectDiffuse *= stageBake.g;
+reflectedLight.indirectSpecular *= stageBake.g;
 float seamGloss = mix(1.0, uPlank.z, stageSeam);
 reflectedLight.directSpecular *= uSpecular * (1.0 + uPlank.y * (stagePlank - 0.5)) * seamGloss;
 reflectedLight.indirectSpecular *= seamGloss;
@@ -156,15 +198,87 @@ clearcoatSpecularIndirect *= seamGloss;
 `;
 
 /**
- * The GLSL of the grain and of the number of each plank, after the vertex colors. The grain of
- * each plank starts at its own place, so the grain does not run on across a joint.
+ * The GLSL of the bake, the grain, and the number of each plank, after the vertex colors. The
+ * grain of each plank starts at its own place, so the grain does not run on across a joint.
  */
 const PLANK_GLSL = /* glsl */ `
+vec2 stageBake = stageBakeAt(vWoodPosition, normalize(vWoodNormal));
 float stagePlank = plankNumber(vColor.rgb);
 float stageSeam = seamOf(vColor.rgb);
 float grain = woodGrain(vWoodPosition + vec3(stagePlank * 41.0, 0.0, stagePlank * 0.37));
 diffuseColor.rgb *= 1.0 + uGrain * grain;
 `;
+
+/** The shadow of the key light in the light chunk of three.js r186. */
+const KEY_SHADOW =
+  /(directLight\.color \*= \( directLight\.visible && receiveShadow \) \? )(getShadow\( spotShadowMap\[ i \][^;]*\)) : 1\.0;/;
+
+/**
+ * Adds the bake of the static props (`scene/stage-bake.ts`) to the lights of the stage shader,
+ * after {@link addLightPool}: the key light takes the smaller of its shadow map (the players) and
+ * R (the props), and the other spotlights take G, the open sky of the props.
+ *
+ * @param fragmentShader The fragment shader with the light chunk of the pool.
+ * @returns The fragment shader.
+ * @throws Error if the light chunk has no shadow of a spotlight that the patch knows, for example
+ *   after an update of three.js.
+ */
+function addBakeToLights(fragmentShader: string): string {
+  if (!KEY_SHADOW.test(fragmentShader)) {
+    throw new Error('The light chunk of three.js changed. Update addBakeToLights().');
+  }
+  return fragmentShader
+    .replace(KEY_SHADOW, '$1min( $2, stageBake.r ) : stageBake.r;')
+    .replace(
+      'directLight.color *= lightPool;',
+      'directLight.color *= lightPool;\n\t\t#if ( UNROLLED_LOOP_INDEX >= NUM_SPOT_LIGHT_SHADOWS )\n\t\tdirectLight.color *= stageBake.g;\n\t\t#endif',
+    );
+}
+
+/** The uniforms of the bake of a stage, which `StageScene` sets after the bake. */
+export interface StageBakeUniforms {
+  /** The texture of `bakeStage()`, or one white texel with no bake. */
+  readonly uStageBake: { value: Texture };
+  /**
+   * The part of the normal bias of the key shadow that the stage takes: 1 with no bake, 0 with
+   * the bake. The bias moves each point 6.5 cm up on the high tier before the shadow test, so
+   * that a caster does not shadow itself. The baked stage casts no shadow in the map, and the
+   * bias made a bright gap between the feet of the bear and their shadow on the podium.
+   */
+  readonly uShadowLift: { value: number };
+}
+
+/**
+ * Creates the uniforms of a stage with no bake.
+ *
+ * @returns New uniforms.
+ */
+export function noBakeUniforms(): StageBakeUniforms {
+  return {
+    uStageBake: { value: noBakeTexture() },
+    uShadowLift: { value: 1 },
+  };
+}
+
+/** The normal bias of the spot shadows in the vertex chunk of three.js r186. */
+const SPOT_NORMAL_BIAS =
+  'shadowWorldPosition.xyz += shadowWorldNormal * spotLightShadows[ i ].shadowNormalBias;';
+
+/**
+ * Gives the vertex chunk of the shadows with a scale of the normal bias of the spot shadows
+ * ({@link StageBakeUniforms}).
+ *
+ * @returns The chunk.
+ * @throws Error if the chunk of three.js has no normal bias that the patch knows, for example
+ *   after an update of three.js.
+ */
+function liftedShadowVertex(): string {
+  const chunk = ShaderChunk.shadowmap_vertex;
+  if (!chunk.includes(SPOT_NORMAL_BIAS)) {
+    throw new Error('The shadow chunk of three.js changed. Update liftedShadowVertex().');
+  }
+  return chunk.replace(SPOT_NORMAL_BIAS, SPOT_NORMAL_BIAS.replace(';', ' * uShadowLift;'));
+}
 
 /**
  * Creates the material of the stage: the vertex colors of the planks with flat shading, a
@@ -173,9 +287,15 @@ diffuseColor.rgb *= 1.0 + uGrain * grain;
  *
  * @param stageSide The stage side `S`, in meters, for the fade of the baked light.
  * @param pool The uniforms of the pool of the stage lights (design 4.5).
+ * @param bake The uniforms of the bake of the static props. With no bake, all light reaches each
+ *   point.
  * @returns The material.
  */
-export function createStageMaterial(stageSide: number, pool: PoolUniforms): MeshPhysicalMaterial {
+export function createStageMaterial(
+  stageSide: number,
+  pool: PoolUniforms,
+  bake: StageBakeUniforms = noBakeUniforms(),
+): MeshPhysicalMaterial {
   const material = new MeshPhysicalMaterial({
     vertexColors: true,
     flatShading: true,
@@ -199,14 +319,20 @@ export function createStageMaterial(stageSide: number, pool: PoolUniforms): Mesh
         STAGE_FINISH.seamGloss,
       ),
     };
+    shader.uniforms['uStageBake'] = bake.uStageBake;
+    shader.uniforms['uShadowLift'] = bake.uShadowLift;
     shader.uniforms['uSideGlow'] = {
       value: new Vector3(SIDE_GLOW.skirt, SIDE_GLOW.edge, SIDE_GLOW.fade),
     };
     shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nvarying vec3 vWoodPosition;')
+      .replace(
+        '#include <common>',
+        '#include <common>\nvarying vec3 vWoodPosition;\nvarying vec3 vWoodNormal;\nuniform float uShadowLift;',
+      )
+      .replace('#include <shadowmap_vertex>', liftedShadowVertex())
       .replace(
         '#include <project_vertex>',
-        '#include <project_vertex>\nvWoodPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;',
+        '#include <project_vertex>\nvWoodPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvWoodNormal = mat3(modelMatrix) * objectNormal;',
       );
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', `#include <common>\n${GRAIN_GLSL}`)
@@ -220,6 +346,7 @@ export function createStageMaterial(stageSide: number, pool: PoolUniforms): Mesh
         `#include <emissivemap_fragment>\n${SIDE_GLOW_GLSL}`,
       )
       .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>\n${GLOSS_GLSL}`);
+    shader.fragmentShader = addBakeToLights(shader.fragmentShader);
   };
   material.customProgramCacheKey = () => 'stage-wood';
   return material;
@@ -232,12 +359,18 @@ export function createStageMaterial(stageSide: number, pool: PoolUniforms): Mesh
  * @param stageSide The stage side `S`, in meters.
  * @param podium The podium center of the layout, or `null` for a layout with no podium.
  * @param pool The uniforms of the pool of the stage lights (design 4.5).
+ * @param bake The uniforms of the bake of the static props.
  * @returns A group with the stage mesh. The mesh has its own material.
  */
-export function createStage(stageSide: number, podium: Vec3 | null, pool: PoolUniforms): Group {
+export function createStage(
+  stageSide: number,
+  podium: Vec3 | null,
+  pool: PoolUniforms,
+  bake: StageBakeUniforms = noBakeUniforms(),
+): Group {
   const stage = new Mesh(
     createGeometry(buildStage(stageSide, podium)),
-    createStageMaterial(stageSide, pool),
+    createStageMaterial(stageSide, pool, bake),
   );
   stage.castShadow = true;
   stage.receiveShadow = true;

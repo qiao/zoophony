@@ -25,7 +25,7 @@ import type { Focus, FocusSpot } from './focus.ts';
 import { createMaterials } from './geometry.ts';
 import { createHall, setHallCamera } from './hall.ts';
 import { BeamDepth, setBeamFrame } from './beam.ts';
-import { aimKeyLight, createLights, setLightsTier } from './lights.ts';
+import { aimKeyLight, createLights, keyLightPosition, setLightsTier } from './lights.ts';
 import { createPoolUniforms, defaultAim, setPoolAim } from './light-pool.ts';
 import type { LightAim } from './light-pool.ts';
 import { pickPlayer } from './pick.ts';
@@ -36,7 +36,9 @@ import type { PlayerSpot } from './player.ts';
 import { PostPipeline, targetFormatOf } from './post.ts';
 import { createRenderer, probeTargetFormat } from './renderer.ts';
 import { aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
-import { createStage } from './stage.ts';
+import { createStage, noBakeUniforms } from './stage.ts';
+import type { StageBakeUniforms } from './stage.ts';
+import { bakeStage } from './stage-bake.ts';
 
 /** The inputs of {@link StageScene}. */
 export interface StageSceneOptions {
@@ -133,6 +135,22 @@ interface LayoutView {
   readonly hall: Group;
   /** The light effects that write no depth, such as the visible beam (scene/post.ts). */
   readonly effects: readonly Object3D[];
+  /** The bake of the static props, or `null` for a GPU with no target of floats (design 4.5). */
+  readonly bake: LayoutBake | null;
+}
+
+/** The bake of the static props of a layout, which a restored WebGL context makes again. */
+interface LayoutBake {
+  /** The stage side `S`, in meters. */
+  readonly stageSide: number;
+  /** The stage mesh: a caster and the receiver. */
+  readonly stage: Mesh;
+  /** The merged props of the layout: a caster. */
+  readonly props: Mesh;
+  /** The uniforms of the stage material that hold the bake. */
+  readonly uniforms: StageBakeUniforms;
+  /** The target that holds the bake. */
+  target: WebGLRenderTarget;
 }
 
 /**
@@ -272,10 +290,13 @@ export class StageScene {
     const podium = layout.conductor ? layout.podium : null;
     const aim = defaultAim(layout.stageSide, podium);
     setPoolAim(this.#pool, aim);
-    scene.add(createStage(layout.stageSide, podium, this.#pool));
+    const bakeUniforms = noBakeUniforms();
+    const stageGroup = createStage(layout.stageSide, podium, this.#pool, bakeUniforms);
+    scene.add(stageGroup);
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
-    scene.add(createStaticMesh(buildSceneProps(layout), materials));
+    const props = createStaticMesh(buildSceneProps(layout), materials);
+    scene.add(props);
     const players = createPlayers(playerSpots(layout), materials, models);
     scene.add(new Group().add(...players));
     const camera = new StageCamera(
@@ -286,6 +307,9 @@ export class StageScene {
     );
     camera.resize(this.#width, this.#height);
     camera.allowZoom(this.#zoomAllowed);
+    const stage = stageGroup.children.find((child) => child instanceof Mesh);
+    const bake =
+      this.#post && stage ? this.#bake(scene, layout.stageSide, stage, props, bakeUniforms) : null;
     // The new scene takes its shader programs before the old scene frees its materials, so the
     // renderer keeps the programs that both use.
     this.#renderer.compile(scene, camera.camera);
@@ -305,7 +329,41 @@ export class StageScene {
       players,
       hall,
       effects: lightEffects(scene),
+      bake,
     };
+  }
+
+  /**
+   * Bakes the light of the static props on the stage top (`scene/stage-bake.ts`, design 4.5). The
+   * stage and the props then cast no shadow in the shadow map of each frame, so their shadows
+   * come only from the bake, and the players keep the shadow map.
+   *
+   * @param scene The scene of the layout.
+   * @param stageSide The stage side `S`, in meters.
+   * @param stage The stage mesh.
+   * @param props The merged props.
+   * @param uniforms The uniforms of the stage material that get the bake.
+   * @returns The bake of the layout.
+   */
+  #bake(
+    scene: Scene,
+    stageSide: number,
+    stage: Mesh,
+    props: Mesh,
+    uniforms: StageBakeUniforms,
+  ): LayoutBake {
+    scene.updateMatrixWorld(true);
+    const target = bakeStage(this.#renderer, {
+      stageSide,
+      keyPosition: keyLightPosition(stageSide),
+      casters: [stage, props],
+      receiver: stage,
+    });
+    uniforms.uStageBake.value = target.texture;
+    uniforms.uShadowLift.value = 0;
+    stage.castShadow = false;
+    props.castShadow = false;
+    return { stageSide, stage, props, uniforms, target };
   }
 
   /**
@@ -578,12 +636,27 @@ export class StageScene {
     this.#renderer.dispose();
   }
 
-  /** Makes the environment of the reflections again after a restored WebGL context. */
+  /**
+   * Makes the environment of the reflections and the bake of the static props again after a
+   * restored WebGL context.
+   */
   #restoreEnvironment(): void {
     this.#environment.dispose();
     this.#environment = createEnvironment(this.#renderer);
     if (this.#view) {
       this.#view.scene.environment = this.#environment.texture;
+    }
+    const bake = this.#view?.bake;
+    if (this.#view && bake) {
+      bake.target.dispose();
+      const { target } = this.#bake(
+        this.#view.scene,
+        bake.stageSide,
+        bake.stage,
+        bake.props,
+        bake.uniforms,
+      );
+      bake.target = target;
     }
   }
 
@@ -591,6 +664,7 @@ export class StageScene {
     if (!this.#view) {
       return;
     }
+    this.#view.bake?.target.dispose();
     disposeTree(this.#view.scene, new Set(this.#materials));
     this.#view.camera.dispose();
     this.#view = null;

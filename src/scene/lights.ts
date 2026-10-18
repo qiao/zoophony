@@ -317,6 +317,17 @@ function spotlight(color: string, position: Vec3, target: Vec3, illuminance: num
 }
 
 /**
+ * Gives the position of the key light of a stage ({@link KEY_LIGHT}).
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @returns The position, in meters.
+ */
+export function keyLightPosition(stageSide: number): Vec3 {
+  const [kx, ky, kz] = KEY_LIGHT.position;
+  return [kx * stageSide, ky * stageSide, kz * stageSide];
+}
+
+/**
  * Creates the key light of a stage (design 4.5), with its shadow camera.
  *
  * @param stageSide The stage side `S`, in meters.
@@ -331,8 +342,7 @@ function createKeyLight(
   conductor: ConductorPlace | null,
 ): SpotLight {
   const key = KEY_LIGHT;
-  const [kx, ky, kz] = key.position;
-  const position: Vec3 = [kx * stageSide, ky * stageSide, kz * stageSide];
+  const position = keyLightPosition(stageSide);
   const target: Vec3 = conductor
     ? [conductor.position[0] * key.aimToPodium, 0, conductor.position[2] * key.aimToPodium]
     : [0, 0, 0];
