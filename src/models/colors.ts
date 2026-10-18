@@ -42,7 +42,11 @@ export const SPECIES_COLORS = {
 /** The colors of the stage and the props (design 4.5, scene colors), in linear values. */
 export const SCENE_COLORS = {
   stageTop: srgb('#7a6359'),
-  chair: srgb('#cdb27a'),
+  /**
+   * A honey wood, as the chairs of `orchestra-latest.png`. The pale `#cdb27a` lit to a saturation
+   * of about 0.48 against 0.65 under the warm white side lights.
+   */
+  chair: srgb('#c47c22'),
   stand: srgb('#1e1a16'),
   /**
    * The two large faces of the desk of a stand: a warm gray, so that the desk reads as an object
