@@ -156,6 +156,10 @@
     },
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.18 out, and the free left arm has 178 vertices. Above headFrom, each vertex follows the head only: the chin starts at y 0.72. The ears stay on the head: their roots (y 0.90 to 0.93) lie below the top of the skull (0.986), so the height rule of earBase would also take the top of the head, and earBase lies above the head, as for the dog. clavicleFrom, armTop, and shoulderHead are the rules of the cat and the dog, moved with the shoulder joint (y 0.609) and the neck (x ±0.155) of the panda. The tail ball holds the round tail: the vertices within radius of center and behind the plane z = behind follow the tail bone only (measures.txt: the tail from z -0.19 to -0.238, y 0.22 to 0.33)."
   },
+  "raise": [
+    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.1897, 0.428, -0.0195, 0.8834], "forearm": [-0.0478, 0.0271, -0.0623, 0.9965]}, "fade": [10, 20], "below": 0.0, "note": "The shape of the right arm on the slide of the trombone, with the mean turns of the play samples (keys-read.ts of docs/research/2026-10-18-panda-mesh/): the clavicle turns 45 degrees forward, as the reach of the trombone hold. Face 467 at the front of the right shoulder folded in each play sample. In the pose of the rule, it turns over and relaxes in 1 round."},
+    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.2075, 0.5231, -0.2535, 0.7868], "forearm": [-0.0048, 0.0027, -0.0062, 1.0]}, "fade": [10, 20], "below": 0.0, "note": "The shape of the right arm in the rest pose, with the mean turns of the rest samples. Faces 466 and 467 folded in each rest sample and in 18% of the lift samples. In the pose of the rule, face 467 relaxes in 2 rounds."}
+  ],
   "refine": {
     "rings": [],
     "flip": {
