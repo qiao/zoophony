@@ -648,8 +648,9 @@ tests are paused (below), `pnpm test` runs no test, and the rule of `pnpm test:p
 the end of the pause.
 
 - Commit each verified change. Leave no verified work in the working tree.
-- Before your report, run `tools/check-commits.sh --tip main` one time in your worktree, with a
-  clean tree. It checks each commit of the branch and the full suite on the last commit. It keeps
+- Before your report, run `tools/check-commits.sh --tip <base>` one time, with a clean tree.
+  `<base>` is `main` on a branch, or the commit of `main` where your work started when you work on
+  `main` (see "Parallel work"). It checks each commit and the full suite on the last commit. It keeps
   each passed result in the cache by tree. Then the merge gets a `hit` for each commit. Only the
   script writes an entry, and a claim in a report is no entry.
 - After a commit that moves code between files, or a commit made while other changes are
@@ -671,6 +672,11 @@ the end of the pause.
   the tests first, then remove the old code.
 
 ### Parallel work
+
+By default, an agent that works alone commits on `main` in the main checkout, so that the user can
+check each commit at once in the running app (user, 2026-10-17). It needs no merge. It pushes
+nothing, and it runs the check script on the commits of its round. An agent uses its own branch and
+worktree only when another agent works on the repository at the same time.
 
 Follow these rules when another agent works on the repository at the same time.
 
