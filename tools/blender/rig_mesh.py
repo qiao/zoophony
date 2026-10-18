@@ -63,9 +63,10 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    so that no outline of the old eye shows. Each patch of dark faces near an old eye that no old
    eye holds, such as the end of the upper lid line of the fox, takes the color of its own ring in
    the same way (`dark_faces_near()`). With `colors.tone`, the plain fur moves in Oklab
-   (`tone()`). Then `colors.patch` makes each eye patch round (`patch_shape()`), and
-   `colors.smile` draws a smile line in the dark of the patches (`smile_line()`). The faces go in
-   the order of a walk over their shared edges.
+   (`tone()`). With `colors.border`, each dark face of a box whose texture is mostly light takes
+   the color of the nearest light face (`border_faces()`). Then `colors.patch` makes each eye
+   patch round (`patch_shape()`), and `colors.smile` draws a smile line in the dark of the
+   patches (`smile_line()`). The faces go in the order of a walk over their shared edges.
 8. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
    and the other vertices give `legs_straight_L` and `legs_straight_R`. With `raise` of the
@@ -351,15 +352,17 @@ def linear(srgb):
 
 
 def face_colors(tris, uvs, texture, rules):
-    """Gives the sRGB color of each face, and a flag for each dark face. A face with a share of
-    dark samples of at least `eyeShare` is dark, and takes the mean of its dark samples. Each
-    other face takes the mean of its samples that are not dark, so that the black gaps between
-    the islands of the texture do not darken a face at the edge of an island."""
+    """Gives the sRGB color of each face, a flag for each dark face, and the share of the dark
+    samples of each face. A face with a share of dark samples of at least `eyeShare` is dark, and
+    takes the mean of its dark samples. Each other face takes the mean of its samples that are
+    not dark, so that the black gaps between the islands of the texture do not darken a face at
+    the edge of an island."""
     n = rules['samples']
     grid = np.array([(i / n, j / n, (n - i - j) / n) for i in range(n + 1) for j in range(n + 1 - i)])
     height, width, _ = texture.shape
     colors = np.zeros((len(tris), 3))
     dark = np.zeros(len(tris), bool)
+    share = np.zeros(len(tris))
     for f in range(len(tris)):
         at = grid @ uvs[f]
         x = np.clip(((at[:, 0] % 1.0) * width).astype(int), 0, width - 1)
@@ -367,12 +370,13 @@ def face_colors(tris, uvs, texture, rules):
         samples = texture[y, x]
         lum = linear(samples) @ [0.2126, 0.7152, 0.0722]
         low = lum < rules['dark']
-        if low.mean() >= rules['eyeShare']:
+        share[f] = low.mean()
+        if share[f] >= rules['eyeShare']:
             dark[f] = True
             colors[f] = samples[low].mean(axis=0)
         else:
             colors[f] = samples[~low].mean(axis=0)
-    return colors, dark
+    return colors, dark, share
 
 
 def oklab(srgb):
@@ -439,6 +443,26 @@ def tone(colors, main_bone, rule):
     for k in range(3):
         lab[:, k] += share * np.interp(lab[:, 0], points[:, 0], points[:, k + 1])
     return srgb_of_oklab(lab), int((share > 0).sum())
+
+
+def border_faces(corners, colors, fur, share, rule):
+    """Gives the faces at the border of a black fur region the color of most of their texture
+    (`colors.border` of the config). Each dark fur face (Oklab lightness below `dark`) with its
+    center in `box`, whose share of dark texture samples (`face_colors()`) is below `share`,
+    takes the color of the nearest light fur face. A face takes black from the share `eyeShare`
+    of dark samples, so that the small dark faces of an eye stay dark. On the large faces of the
+    torso of the panda, this gave the border of the black band teeth, and a raised arm stretched
+    them into black wedges on the white side. `corners` gives the corners of each face in the
+    units of the source (`head_source()`), with the stretch of the arm factor on the faces of the
+    arms. Gives the new colors and the changed faces."""
+    centers = corners.mean(axis=1)
+    dark = oklab(colors)[:, 0] < rule['dark']
+    changed = fur & dark & in_box(centers, rule['box']) & (share < rule['share'])
+    light = np.nonzero(fur & ~dark)[0]
+    out = colors.copy()
+    for f in np.nonzero(changed)[0]:
+        out[f] = colors[light[np.argmin(np.linalg.norm(centers[light] - centers[f], axis=1))]]
+    return out, np.nonzero(changed)[0]
 
 
 def head_source(points, pivot, factor, rise, drop):
@@ -3085,7 +3109,7 @@ def main():
         f'edges, {len(tris) - len(source_tris)} new faces')
     thin_rule = config['check']['thin'] if check else None
     uncut = uncut_faces(long_verts, tris, long_heads, long_ends, thin_rule) if thin_rule else []
-    colors, dark = face_colors(tris, uvs, texture, config['colors'])
+    colors, dark, dark_share = face_colors(tris, uvs, texture, config['colors'])
     # The move of the head from the source: the pivot, the head factor, the rise, and the drop.
     head_move = (heads['neck'], factors['head'], rise,
                  drop + lower if factors['trunk'] != 1 else drop)
@@ -3206,9 +3230,18 @@ def main():
                                                       BONES.index('head'))])
         colors_all, count = tone(colors_all, main_all, config['colors']['tone'])
         log(f'tone: {count} faces of the plain fur move in Oklab')
+    corners = head_source(src_all[tris_all], *head_move)
+    fur_all = materials == 'fur'
+    if 'border' in config['colors']:
+        # The faces of the eye shells come after the faces of the body, with no texture samples.
+        share_all = np.concatenate([dark_share, np.ones(len(tris_all) - len(tris))])
+        colors_all, changed = border_faces(corners, colors_all, fur_all, share_all,
+                                           config['colors']['border'])
+        border_changed = changed
+        sides = (corners[changed].mean(axis=1)[:, 0] > 0).sum()
+        log(f'border: {len(changed)} dark faces ({sides} left, {len(changed) - sides} right) take '
+            f'the color of the nearest light fur face')
     if 'patch' in config['colors']:
-        corners = head_source(src_all[tris_all], *head_move)
-        fur_all = materials == 'fur'
         colors_all, changed, patch_dark = patch_shape(corners, colors_all, fur_all,
                                                       config['colors']['patch'])
         sides = (corners[changed].mean(axis=1)[:, 0] > 0).sum()
@@ -3226,6 +3259,9 @@ def main():
                          'colors.patch.')
     order = locality_order(tris_all)
     tris_all, colors_all, materials = tris_all[order], colors_all[order], materials[order]
+    if 'border' in config['colors']:
+        log(f'border: the faces of the module '
+            f'{sorted(module_faces(order, materials)[border_changed].tolist())}')
     if thin_rule:
         log_check(stretched, uncut, module_faces(order, materials),
                   weights[tris].sum(axis=1).argmax(axis=1), thin_rule)
