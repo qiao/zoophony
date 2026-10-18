@@ -154,8 +154,9 @@ export interface BowedHold {
   readonly pluckPlace: number;
   /**
    * The rest pose of the instrument: its axis, the side of its top plate, and the place of its
-   * bone (the tail end) on the left thigh. `null` keeps the instrument in its playing place, as
-   * the cello and the contrabass stand on the floor.
+   * bone (the tail end) on the left thigh. `null` keeps the instrument in its playing place, with
+   * {@link BowedHold.playShift} and {@link BowedHold.playTurn}, as the cello and the contrabass
+   * stand on the floor.
    */
   readonly rest: {
     /** The direction from the tail end to the scroll. */
@@ -974,6 +975,30 @@ function stopRangeOf(rig: RigPoints): readonly [low: number, high: number] {
 }
 
 /**
+ * Gives the place of the `instrument` bone in the rest pose (design 5.2), in the model axes.
+ *
+ * @param model The player model.
+ * @param hold The hold of the instrument.
+ * @param atSide True when the left hand holds the instrument at the side in the rest pose.
+ * @param pivot The bind position of the `instrument` bone.
+ * @param playShift The move of the instrument while the player plays, in meters.
+ * @returns The place on the left thigh, the bind place for an instrument at the side (the rest
+ *   at the side moves it later), or the playing place for an instrument on the floor.
+ */
+function restPivotOf(
+  model: PlayerModel,
+  hold: BowedHold,
+  atSide: boolean,
+  pivot: Vec3,
+  playShift: Vector3,
+): Vec3 {
+  if (!hold.rest) {
+    return toVec3(new Vector3(...pivot).add(playShift));
+  }
+  return atSide ? pivot : lapPoint(model, 'L', hold.rest.lap);
+}
+
+/**
  * Finds the points of a bowed string player that the pose needs.
  *
  * @param model A player with a violin, a viola, a cello, or a contrabass.
@@ -1028,6 +1053,9 @@ export function bowedRig(
     setFromBasis(restRotation, restAxis, restTop).multiply(
       setFromBasis(new Quaternion(), axis, top).invert(),
     );
+  } else {
+    // An instrument on the floor rests at its playing place.
+    restRotation.fromArray(hold.playTurn);
   }
   const restBow = hold.restBow;
   const bowBind = setFromBasis(new Quaternion(), hairAxis, hairNormal).invert();
@@ -1039,9 +1067,11 @@ export function bowedRig(
   };
   const via = restBow.via;
   const strings = new Vector3().crossVectors(top, axis);
+  const playShift = new Vector3(...hold.playShift).multiplyScalar(model.body.headHeight);
+  const pivot = at(BONES.instrument);
   const rig: RigPoints = {
     hold,
-    pivot: at(BONES.instrument),
+    pivot,
     parent,
     parentBind: at(parent),
     spineBind: at(BONES.spine),
@@ -1069,8 +1099,8 @@ export function bowedRig(
     armL: armRig(model, 'L'),
     armR: armRig(model, 'R'),
     restRotation: toQuat(restRotation),
-    playShift: toVec3(new Vector3(...hold.playShift).multiplyScalar(model.body.headHeight)),
-    restPivot: hold.rest && !atSide ? lapPoint(model, 'L', hold.rest.lap) : at(BONES.instrument),
+    playShift: toVec3(playShift),
+    restPivot: restPivotOf(model, hold, atSide, pivot, playShift),
     liftReach: toVec3(new Vector3(...hold.liftReach).multiplyScalar(model.body.headHeight)),
     restPoleR: hold.restPoleR,
     restPoleL: hold.restPoleL,
