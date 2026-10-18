@@ -218,7 +218,10 @@ const KEY_SHADOW =
 /**
  * Adds the bake of the static props (`scene/stage-bake.ts`) to the lights of the stage shader,
  * after {@link addLightPool}: the key light takes the smaller of its shadow map (the players) and
- * R (the props), and the other spotlights take G, the open sky of the props.
+ * R (the props), and the other spotlights take G, the open sky of the props. The stage takes no
+ * shadow map of the side lights, so the floor keeps the shadows of the key light alone. three.js
+ * puts the spotlights with a shadow first, in the order of the scene, so the key light, the first
+ * light of `createLights()`, is spotlight 0.
  *
  * @param fragmentShader The fragment shader with the light chunk of the pool.
  * @returns The fragment shader.
@@ -235,11 +238,11 @@ function addBakeToLights(fragmentShader: string): string {
         'spotLightShadow.shadowRadius',
         'spotLightShadow.shadowRadius * uStageBlur',
       );
-      return `${head}min( ${wide}, stageBake.r ) : stageBake.r;`;
+      return `#if ( UNROLLED_LOOP_INDEX == 0 )\n\t\t${head}min( ${wide}, stageBake.r ) : stageBake.r;\n\t\t#endif`;
     })
     .replace(
       'directLight.color *= lightPool;',
-      'directLight.color *= lightPool;\n\t\t#if ( UNROLLED_LOOP_INDEX >= NUM_SPOT_LIGHT_SHADOWS )\n\t\tdirectLight.color *= stageBake.g;\n\t\t#endif',
+      'directLight.color *= lightPool;\n\t\t#if ( UNROLLED_LOOP_INDEX > 0 )\n\t\tdirectLight.color *= stageBake.g;\n\t\t#endif',
     );
 }
 

@@ -3,8 +3,13 @@ export type QualityTier = 'high' | 'medium' | 'low';
 
 /** The render values of one quality tier. MSAA is on in all tiers. */
 export interface TierSettings {
-  /** The width and the height of the shadow map, in texels. */
+  /** The width and the height of the shadow map of the key light, in texels. */
   readonly shadowMapSize: number;
+  /**
+   * The width and the height of the shadow map of each side light, in texels, or 0 for side
+   * lights with no shadow. Their maps hold the players only, in a narrow cone.
+   */
+  readonly sideShadowMapSize: number;
   /**
    * The blur radius of the `PCFShadowMap` filter, in texels. three.js r186 replaces
    * `PCFSoftShadowMap` with `PCFShadowMap`, so a larger radius makes the soft shadows of the high
@@ -26,11 +31,13 @@ export interface TierSettings {
 /**
  * The values of each tier (design 2.6). The low tier keeps the final pass of the post effects
  * (the tone mapping, the color grade, the vignette, and the grain), because it costs one sample
- * for each pixel. It drops the bloom, the depth of field, and the dust motes.
+ * for each pixel. It drops the bloom, the depth of field, the dust motes, and the shadows of the
+ * side lights.
  */
 export const TIER_SETTINGS = {
   high: {
     shadowMapSize: 2048,
+    sideShadowMapSize: 1024,
     shadowRadius: 3,
     maxPixelRatio: 2,
     bloomLevels: 6,
@@ -40,6 +47,7 @@ export const TIER_SETTINGS = {
   },
   medium: {
     shadowMapSize: 1024,
+    sideShadowMapSize: 512,
     shadowRadius: 1,
     maxPixelRatio: 1.5,
     bloomLevels: 5,
@@ -49,6 +57,7 @@ export const TIER_SETTINGS = {
   },
   low: {
     shadowMapSize: 512,
+    sideShadowMapSize: 0,
     shadowRadius: 1,
     maxPixelRatio: 1,
     bloomLevels: 0,

@@ -8,8 +8,8 @@ import { TIER_SETTINGS } from './quality.ts';
 import type { QualityTier } from './quality.ts';
 
 /**
- * The key light (design 4.5): the stage spotlight, and the only light that casts shadows. It
- * stands behind the orchestra on the axis of the stage, high, so that the shadows fall to the
+ * The key light (design 4.5): the stage spotlight, and the only light that casts shadows on the
+ * stage. It stands behind the orchestra on the axis of the stage, high, so that the shadows fall to the
  * front and fan out to the sides, as the shadows of the chairs in `mockup.png`. It aims between
  * the stage center and the podium, so its gloss on the planks lies on both sides of the podium.
  * The first key stood above the stage center, and its short shadows did not show under the
@@ -50,6 +50,10 @@ export const KEY_LIGHT = {
  * cone. A wide, low cone of 28° lit that section from the camera side too, about as bright as the
  * far section, because it is nearer to the light. Thus each body got light from two sides, and
  * its shade side was gone (user, 2026-10-18).
+ *
+ * The side lights cast the shadows of the players on the players, such as the shadow of an arm on
+ * the chest, because they light the fronts that the camera sees. The stage takes no shadow of
+ * them (scene/stage.ts), so the floor keeps the shadows of the key light alone.
  */
 export const SIDE_LIGHT = {
   /** The color, in sRGB. */
@@ -86,7 +90,7 @@ export const SHADOW_TOP = 3;
 /** The extra angle of the shadow map beyond the lit stage, for the blur of the edge. */
 export const SHADOW_MARGIN = 3 * MathUtils.DEG2RAD;
 
-/** The view of the shadow camera of the key light. */
+/** The view of the shadow camera of a spotlight. */
 export interface ShadowFrustum {
   /** The near plane, in meters along the axis of the light. */
   readonly near: number;
@@ -97,7 +101,8 @@ export interface ShadowFrustum {
 }
 
 /**
- * Calculates the view of the shadow camera of the key light (design 4.5). The view holds each
+ * Calculates the view of the shadow camera of a spotlight, such as the key light (design 4.5).
+ * The view holds each
  * point of the stage that the cone lights, from the stage top up to {@link SHADOW_TOP}: the half
  * angle is the angle of the farthest corner of the stage, at most the cone angle, plus
  * {@link SHADOW_MARGIN}. The near and the far planes hold the corners with a margin of 0.5 m.
@@ -210,32 +215,64 @@ export function createConductorLight(conductor: ConductorPlace): SpotLight {
   return light;
 }
 
+/** The name of the key light in the group of {@link createLights}. */
+const KEY_NAME = 'key';
+
+/** The name of each side light in the group of {@link createLights}. */
+const SIDE_NAME = 'side';
+
 /**
- * Sets the shadow map size and the shadow blur of the key light for a quality tier (design 2.6).
- * The renderer makes a new shadow map of the new size at the next render.
+ * Sets the shadow map size and the shadow blur of a spotlight (design 2.6). The renderer makes a
+ * new shadow map of the new size at the next render.
+ *
+ * @param spot The spotlight.
+ * @param mapSize The width and the height of the shadow map, in texels.
+ * @param radius The blur radius, in texels.
+ */
+function setShadowMap(spot: SpotLight, mapSize: number, radius: number): void {
+  if (spot.shadow.mapSize.x !== mapSize) {
+    spot.shadow.mapSize.set(mapSize, mapSize);
+    spot.shadow.map?.dispose();
+    spot.shadow.map = null;
+  }
+  spot.shadow.radius = radius;
+  spot.shadow.normalBias = spotNormalBias(spot);
+}
+
+/**
+ * Sets the shadow of the key light for a quality tier (design 2.6).
  *
  * @param spot The key light.
  * @param tier The quality tier.
  */
-function setSpotTier(spot: SpotLight, tier: QualityTier): void {
+function setKeyTier(spot: SpotLight, tier: QualityTier): void {
   const settings = TIER_SETTINGS[tier];
-  if (spot.shadow.mapSize.x !== settings.shadowMapSize) {
-    spot.shadow.mapSize.set(settings.shadowMapSize, settings.shadowMapSize);
-    spot.shadow.map?.dispose();
-    spot.shadow.map = null;
-  }
-  spot.shadow.radius = settings.shadowRadius;
-  spot.shadow.normalBias = keyNormalBias(spot);
+  setShadowMap(spot, settings.shadowMapSize, settings.shadowRadius);
 }
 
 /**
- * Calculates the normal bias of the shadow of the key light for its aim, its shadow map, and its
+ * Sets the shadow of a side light for a quality tier (design 2.6). A tier with no shadow map of
+ * the side lights turns their shadow off.
+ *
+ * @param spot The side light.
+ * @param tier The quality tier.
+ */
+function setSideTier(spot: SpotLight, tier: QualityTier): void {
+  const settings = TIER_SETTINGS[tier];
+  spot.castShadow = settings.sideShadowMapSize > 0;
+  if (spot.castShadow) {
+    setShadowMap(spot, settings.sideShadowMapSize, settings.shadowRadius);
+  }
+}
+
+/**
+ * Calculates the normal bias of the shadow of a spotlight for its aim, its shadow map, and its
  * blur ({@link shadowNormalBias}).
  *
- * @param spot The key light.
+ * @param spot The spotlight.
  * @returns The normal bias, in meters.
  */
-function keyNormalBias(spot: SpotLight): number {
+function spotNormalBias(spot: SpotLight): number {
   return shadowNormalBias(
     spot.position.distanceTo(spot.target.position),
     spot.angle * spot.shadow.focus,
@@ -245,13 +282,13 @@ function keyNormalBias(spot: SpotLight): number {
 }
 
 /**
- * Fits the shadow camera of the key light to its aim ({@link keyShadowFrustum}): the angle, the
- * near and the far plane, and the normal bias.
+ * Fits the shadow camera of a spotlight to its aim ({@link keyShadowFrustum}): the angle, the near
+ * and the far plane, and the normal bias.
  *
- * @param spot The key light.
+ * @param spot The spotlight.
  * @param stageSide The stage side `S`, in meters.
  */
-function fitKeyShadow(spot: SpotLight, stageSide: number): void {
+function fitShadow(spot: SpotLight, stageSide: number): void {
   const frustum = keyShadowFrustum(
     stageSide,
     spot.position.toArray(),
@@ -263,7 +300,7 @@ function fitKeyShadow(spot: SpotLight, stageSide: number): void {
   spot.shadow.camera.far = frustum.far;
   // three.js updates the projection for a new angle or far plane, but not for a new near plane.
   spot.shadow.camera.updateProjectionMatrix();
-  spot.shadow.normalBias = keyNormalBias(spot);
+  spot.shadow.normalBias = spotNormalBias(spot);
 }
 
 /**
@@ -278,24 +315,26 @@ function fitKeyShadow(spot: SpotLight, stageSide: number): void {
  */
 export function aimKeyLight(lights: Group, stageSide: number, x: number, z: number): void {
   for (const child of lights.children) {
-    if (child instanceof SpotLight && child.castShadow) {
+    if (child instanceof SpotLight && child.name === KEY_NAME) {
       child.target.position.set(x, 0, z);
-      fitKeyShadow(child, stageSide);
+      fitShadow(child, stageSide);
     }
   }
 }
 
 /**
- * Sets the lights of the stage for a new quality tier (design 2.6): the shadow of the key light,
- * and the haze samples and the dust motes of the visible beam.
+ * Sets the lights of the stage for a new quality tier (design 2.6): the shadows of the key light
+ * and of the side lights, and the haze samples and the dust motes of the visible beam.
  *
  * @param lights The group of {@link createLights}.
  * @param tier The quality tier.
  */
 export function setLightsTier(lights: Group, tier: QualityTier): void {
   for (const child of lights.children) {
-    if (child instanceof SpotLight && child.castShadow) {
-      setSpotTier(child, tier);
+    if (child instanceof SpotLight && child.name === KEY_NAME) {
+      setKeyTier(child, tier);
+    } else if (child instanceof SpotLight && child.name === SIDE_NAME) {
+      setSideTier(child, tier);
     } else if (child instanceof Group) {
       setBeamTier(child, tier);
     }
@@ -353,13 +392,14 @@ function createKeyLight(
     : [0, 0, 0];
 
   const spot = spotlight(key.color, position, target, key.illuminance);
+  spot.name = KEY_NAME;
   spot.angle = key.angle;
   spot.penumbra = key.penumbra;
   spot.castShadow = true;
 
   spot.shadow.bias = -0.0005;
-  setSpotTier(spot, tier);
-  fitKeyShadow(spot, stageSide);
+  setKeyTier(spot, tier);
+  fitShadow(spot, stageSide);
   return spot;
 }
 
@@ -378,7 +418,7 @@ export interface LightOptions {
  * the stage.
  *
  * @param stageSide The stage side `S`, in meters.
- * @param tier The quality tier. It sets the shadow map size and the shadow blur.
+ * @param tier The quality tier. It sets the shadow map sizes and the shadow blur.
  * @param conductor The place of the conductor, or `null` for a view with no conductor, such as
  *   the gallery.
  * @param options The options.
@@ -408,8 +448,12 @@ export function createLights(
       [sign * tx * stageSide, ty * stageSide, tz * stageSide],
       side.illuminance,
     );
+    light.name = SIDE_NAME;
     light.angle = side.angle;
     light.penumbra = side.penumbra;
+    light.shadow.bias = -0.0005;
+    setSideTier(light, tier);
+    fitShadow(light, stageSide);
     group.add(light, light.target);
   }
 
