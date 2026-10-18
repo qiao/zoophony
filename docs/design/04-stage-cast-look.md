@@ -674,9 +674,11 @@ quarter of the folded faces.
   share of the ear bone fades from the root of the flap to its tip. The measures of the head and
   the size of the pea eyes then leave the flaps out: with the flaps on the head, the head height H
   of the dog grew from 0.229 to 0.259 units. The dog config does so, and its ears do not twitch
-  (`OwnBodyParams.hangingEars`, 5.1). The dog config gives the cellist one shape of the raised
-  right arm with the bent elbow of the play, and no rings: the rings of the cat and longer sliver
-  groups folded more faces of the dog mesh (`docs/decisions/2026-10-17-mesh-dog.md`).
+  (`OwnBodyParams.hangingEars`, 5.1). The dog config gives the cellist four shapes: the bent right
+  elbow of the play, the raised left arm of the play, and the left arm of the rest and of the lift
+  with the turn of the paw (`docs/decisions/2026-10-17-dog-folds.md`). It has no rings: the rings
+  of the cat and longer sliver groups folded more faces of the dog mesh
+  (`docs/decisions/2026-10-17-mesh-dog.md`).
 - A config with the joint `tail_tip` gives the mesh a tail of two bones: the root and the tip,
   each with smooth weights along the line of the tail. The studio format has `tail_tip` as an
   optional bone after the eye bones (`OPTIONAL_STUDIO_BONES` of `models/studio-format.ts`), so
