@@ -55,6 +55,21 @@ rate with no cap.
 A second run of `81826385` gave 169.7 fps (`logs/steps-runs.log`), and the start gave 210.1 to
 212.0 fps in three runs, so the drift between the runs is below 0.05 ms.
 
+### 2.3 The shot light as a shader term
+
+`7a83caac` turns the two lamps of the shot light into a diffuse term of the material of the
+players and the props, which a uniform skips in a wide shot. `frame_term.sh` measures `2c00d8d7`
+(lamps) and `7a83caac` (term) in turns, two times (`logs/term-runs-1.log`, `logs/term-runs-2.log`).
+
+| Version | Frame rate with no cap | Mean | Time of a frame |
+|---|---|---|---|
+| Lamps | 170.0, 170.5, 172.3, 170.8 fps | 170.9 fps | 5.85 ms |
+| Term | 184.4, 185.1, 184.8 fps | 184.8 fps | 5.41 ms |
+
+One run of the term gave 166.1 fps, with a load of 14.2 in its GPU phase, 24.3 at its end, and a
+timer query of 26.6 ms at most. Another session made a worktree during that run, so the table
+leaves the run out.
+
 ## 3. The result
 
 - The round costs about 1.1 ms of GPU time in each frame of `perf-60.mid` on the high tier
@@ -66,6 +81,7 @@ A second run of `81826385` gave 169.7 fps (`logs/steps-runs.log`), and the start
   in place of 12 for each pixel. It also took the props out of the shadow map, which saves time.
 - The floor and the grade cost 0.16 ms, the lens 0.06 ms, and the haze 0.08 ms. The capture
   costs nothing in each frame.
+- The shader term saves 0.44 ms, so the round now costs about 0.67 ms (4.75 ms to 5.41 ms).
 - The frame target of 9.7 failed before the round, with a GPU p95 of 4.76 ms in the Metal trace
   of 2026-10-13. The round makes the gap larger.
 
