@@ -588,6 +588,23 @@ the mockup is out of scope.
       current frame.
       Waits for the user: on 2026-10-13, the user asked to record these options and to choose
       no path yet.
+- [x] Cinematic light, steps P0 to P2 of `docs/research/2026-10-17-cinematic-lighting.md` (user
+      request of 2026-10-17, design 4.5): the look lab (`pnpm look-lab`), the band-limited grain
+      and the planks, the lacquer and the lighter walnut, the grade of a 3D lookup table, and the
+      bake of the static props. Measures: `docs/research/2026-10-18-cinematic-light.md`.
+- [ ] Cinematic light, step P3: capture the hall and the lit stage as the environment, and add
+      the bounce of the pool if the look lab still needs it (D3, approved on 2026-10-17). The
+      floor shadows are darker than in the reference: luma p90 / p5 of 4.0 and 6.5 against 2.6
+      and 4.7.
+- [ ] Cinematic light, step P4: the light preset of each shot kind, the diffusion, the halation,
+      the vignette of each shot, and the room haze (D4 and D5, approved on 2026-10-17).
+- [ ] Measure the frame cost of the cinematic light when the frame test returns: the clearcoat of
+      the stage, the 4 bake reads and the 20 shadow samples of each stage pixel, and the lookup
+      table of the final pass.
+- [ ] Give the players the shadows of the props on their bodies again, such as the shadow of a
+      chair seat on the shins. The bake took the props out of the shadow map.
+- [ ] The white fur of the rabbit is more yellow than in `orchestra-latest.png`: a hue of 32°
+      against 19°, and a saturation of 0.44 against 0.30 (`pnpm look-lab`).
 
 Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
 passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
