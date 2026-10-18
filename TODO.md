@@ -432,9 +432,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       vertices: both failed (`docs/research/2026-10-18-panda-seam.md`, `seam-variants.webp`). The
       corners that join the forearm to the belly also top the streak faces. The user permitted a
       gap between each forearm and the belly: a gap of 1 cm to 2 cm keeps the faces that join them
-      and their folds (`gap-variants.webp`, section 4 of the seam report). Ask the user: keep the
-      streaks, or cut the mesh at the seam (new vertices and faces that close the forearm and the
-      belly, inside the 54 free triangles).
+      and their folds (`gap-variants.webp`, section 4 of the seam report). The trunk weights do
+      not ship as a hidden fold: faces 93 and 2115 show in up to 190 pixels (`hidden-probe.webp`,
+      section 5). Ask the user: keep the streaks, or cut the mesh at the seam (new vertices and
+      faces that close the forearm and the belly, inside the 54 free triangles).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
