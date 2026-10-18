@@ -120,7 +120,9 @@ the status of the work.
 **Step 0. Project skeleton**
 
 - Work: Vite, TypeScript with the compiler options of `docs/agents/code.md`, Vitest, Oxlint with
-  the anti-slop plugin, oxfmt, the size check, the third-party license file, and CI.
+  the anti-slop plugin, oxfmt, the size check, the third-party license file, and CI. oxfmt formats
+  `src`, the root config files, and the TypeScript files of `e2e/` and of `tools/` outside
+  `tools/oxlint/`, because the anti-slop plugin keeps its own style.
 - Done when: a clean clone runs `pnpm install`, `pnpm lint`, `pnpm typecheck`, `pnpm test`,
   `pnpm format:check`, `pnpm build`, and `pnpm size` with no error, and CI runs the same commands.
 
