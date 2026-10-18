@@ -20,6 +20,7 @@ import {
 import type { StudioRig } from './studio-rig.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_CAT } from './studio/cat.ts';
+import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
@@ -30,6 +31,7 @@ import type { Vec3 } from './tuples.ts';
 export const STUDIO_BODIES = {
   'studio-bear': STUDIO_BEAR,
   'studio-cat': STUDIO_CAT,
+  'studio-dog': STUDIO_DOG,
   'studio-fox': STUDIO_FOX,
   'studio-polar-bear': STUDIO_POLAR_BEAR,
   'studio-rabbit': STUDIO_RABBIT,

@@ -4,6 +4,7 @@ import type { StudioBodyName } from './studio-body.ts';
 import type { StudioPalette } from './studio-format.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_CAT } from './studio/cat.ts';
+import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
@@ -349,15 +350,25 @@ export const SPECIES = {
     accentParts: ['tail'],
     facePattern: 'none',
   },
-  /** Dog, the cellos: a beagle with a brown cap and brown ears, as in `mockup.png`. */
+  /**
+   * Dog, the cellos: a beagle with brown ears and a brown back. It has the studio body of the mesh
+   * of the user, `assets/models/dog/dog.glb`, which `pnpm rig-mesh dog` rigs (design 4.4), with the
+   * head height of the red fox, longer legs, and the reach of the cello that the user chose
+   * (2026-10-17-mesh-dog decisions). It sits with the knees apart around the lower bout of the
+   * cello, and its tail hangs back through the chair. Its ears hang, so they do not twitch. Its
+   * head height is the head of the studio body, and its chair fits its legs: the seat height is
+   * the seat of the studio body, in H.
+   */
   dog: {
-    ears: 'floppy',
-    snout: 'blunt',
-    tail: 'thin',
-    size: 1.05,
+    body: 'studio-dog',
+    size: 1,
     colors: SPECIES_COLORS.dog,
-    accentParts: ['ears', 'face-pattern'],
-    facePattern: 'cap',
+    accentParts: ['ears', 'nose'],
+    hangingEars: true,
+    proportions: {
+      headHeight: STUDIO_DOG.headHeight,
+      seatHeight: STUDIO_DOG.seatHeight / STUDIO_DOG.headHeight,
+    },
   },
   /** Monkey, the trumpets. */
   monkey: {
