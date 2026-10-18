@@ -417,7 +417,6 @@ A new species with a studio body:
 | `docs/design/07-architecture.md` | "7.1 Modules", the text of `VIEW_SHEETS` | the sheet pages of `views.html` (`VIEW_SHEETS`), only for a species with a sheet page | `cat` |
 | `docs/agents/model-work.md` | "Bodies and roles" | each body of its own with its source, its main decision file, and its role | |
 | `docs/agents/model-traps.md` | the whole file | each trap that cost the round a step | |
-| `docs/agents/commands.md` | the row of `pnpm studio-body` | the landmark of the scale of each animal in `ANIMALS` | |
 | `docs/briefs/studio-body.md` | "7. A mesh with no skeleton" | the example meshes of the user | |
 | `assets/models/<s>/README.md` | the whole file | the source, the license, and the checksum of a mesh of the user | |
 | `lowpoly-studio/docs/handoff.md` and `lowpoly-studio/README.md` | the whole files | only a body that the studio builds | `rabbit`, `fox-red`, `fox-tan`, `cat`, `dog` |
@@ -430,7 +429,6 @@ A new role:
 | `docs/design/07-architecture.md` | "7.1 Modules", the text of `pnpm close-views` | the views and the moments of each role (`ROLE_VIEWS`) | |
 | `docs/design/09-process.md` | "9.3 Tests" | the sweep of each role (`SWEEP_ROLES`) and its clearance test, or the reason for no test | |
 | `docs/agents/model-work.md` | "Bodies and roles" | the role of the species for the tools | |
-| `docs/agents/commands.md` | the rows of `pnpm pose-depth`, `pnpm close-views`, and `pnpm fold-probe` | the roles of each tool, with the species of each role | |
 
 A new hold:
 
