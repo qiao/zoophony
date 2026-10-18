@@ -140,6 +140,13 @@ export interface BowedHold {
    * the tip, so the strokes come no nearer to the ends.
    */
   readonly freeHair: number;
+  /**
+   * The hair at the frog that the bow plays no part of, in meters, when it is longer than
+   * {@link BowedHold.freeHair}. A short arm reaches the frog only nearly straight, and then the
+   * forearm crosses the rim of a floor instrument. The reached part of the hair starts at this
+   * distance from the frog. 0 keeps the free hair.
+   */
+  readonly frogHair: number;
   /** The forward lean of the spine. It brings the shoulders nearer to a floor instrument. */
   readonly lean: number;
   /**
@@ -277,6 +284,7 @@ const CHIN_HOLD = {
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
   freeHair: FREE_HAIR,
+  frogHair: 0,
   lean: 0,
   restPlace: 0.4,
   pluckPlace: 0.9,
@@ -337,6 +345,7 @@ const FLOOR_HOLD = {
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
   freeHair: FREE_HAIR,
+  frogHair: 0,
   lean: 10 * MathUtils.DEG2RAD,
   restPlace: 0.4,
   pluckPlace: 0.3,
@@ -911,8 +920,9 @@ export function playingFrames(rig: RigPoints): TorsoFrames {
 }
 
 /**
- * Finds the part of the bow hair that the bow arm reaches on all strings in the playing pose. A
- * small player cannot reach the tip of a long bow.
+ * Finds the part of the bow hair that the bow arm reaches on all strings in the playing pose, from
+ * the frog hair of the hold (`BowedHold.frogHair`) on. A small player cannot reach the tip of a
+ * long bow.
  *
  * @param rig The points of the player.
  * @returns The longest reached part of the hair, in meters from the frog end. If the arm reaches
@@ -939,12 +949,13 @@ export function bowRangeOf(rig: RigPoints): BowRange {
   };
   const reach = rig.armR.reach;
   const free = rig.hold.freeHair;
+  const frog = Math.max(free, rig.hold.frogHair);
   const end = rig.hairLength - free + 1e-9;
   let best: [number, number] | null = null;
   let start = -1;
-  let nearest = free;
+  let nearest = frog;
   let nearestDistance = Infinity;
-  for (let bow = free; bow <= end; bow += BOW_STEP) {
+  for (let bow = frog; bow <= end; bow += BOW_STEP) {
     const distance = Math.max(
       wristAt(0, bow).distanceTo(shoulder.position),
       wristAt(3, bow).distanceTo(shoulder.position),
