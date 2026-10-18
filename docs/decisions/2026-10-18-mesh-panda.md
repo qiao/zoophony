@@ -19,5 +19,5 @@ and the images. The user can reverse each decision. Then update its section, and
 | The round tail is a ball on one bone, the ears follow the head, the crease angle is 35°, and the panda stands as the trombone soloist (`weights.tailBall`, `earBase`, `ANIMALS`). | 4.4 |
 | The slide turns 20° right and 25° down around the mouthpiece, the least turn that keeps the trombone out of the body, and the arm reaches 0.155 m of the travel (`PANDA_TROMBONE` of `src/pose/winds.ts`). | 5.3 |
 | The slide reach takes the playing turn of the hold and the turned head (`slideReachOf()`). The slide check asks for more than 0.15 m (`src/pose/winds.test.ts`, user rule of 2026-10-10). | 5.3 |
-| Two raise rules relax the right shoulder on the slide and at rest (`raise`). The left shoulder folds stay open (`TODO.md`). | 4.4 |
+| Two raise rules relax the right shoulder on the slide and at rest (`raise`). | 4.4 |
 | The rest of `main` stays: the trombone stands upright at the right side, so it needs no leg rest (`LEG_RESTS`). | 5.2 |
