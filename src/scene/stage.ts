@@ -279,9 +279,10 @@ export function noBakeUniforms(): StageBakeUniforms {
  * The soft edge of the shadows of the players on a baked stage (design 4.5): the blur radius of
  * the tier times `radius`, with `samples` samples. The edge of the bake of the props is about
  * 7 cm to 20 cm wide, and the edge of the tier alone was 7.8 cm on the high tier. The stage casts
- * no shadow in the map, so a wider blur gives it no self-shadow.
+ * no shadow in the map, so a wider blur gives it no self-shadow. The shadows of the players in
+ * `orchestra-latest.png` are soft, and the radius 2 gave harder edges.
  */
-export const STAGE_SHADOW = { radius: 2, samples: 20 } as const;
+export const STAGE_SHADOW = { radius: 3, samples: 20 } as const;
 
 /** The normal bias of the spot shadows in the vertex chunk of three.js r186. */
 const SPOT_NORMAL_BIAS =
