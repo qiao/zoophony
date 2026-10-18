@@ -416,9 +416,9 @@ A new species with a studio body:
 | `docs/design/04-stage-cast-look.md` | "4.7 Rig" | the optional bones of a rig, such as `tail_tip` | |
 | `docs/design/07-architecture.md` | "7.1 Modules", the text of `VIEW_SHEETS` | the sheet pages of `views.html` (`VIEW_SHEETS`), only for a species with a sheet page | `cat` |
 | `AGENTS.md` | "Design" | each studio body with its mesh or its studio animal, its decision files, and its role of `pnpm close-views` | |
-| `AGENTS.md` | "Model work", "Route 3: a studio body" | the bodies of route 3 | |
-| `AGENTS.md` | "Model work", "A mesh with no skeleton into route 3." | the meshes of the user | |
-| `AGENTS.md` | "Model work", "These traps of route 3 each cost a round" | each trap that cost the round a step | |
+| `docs/agents/model-work.md` | "Route 3: a studio body" | the bodies of route 3 | |
+| `docs/agents/model-work.md` | "A mesh with no skeleton into route 3." | the meshes of the user | |
+| `docs/agents/model-work.md` | "These traps of route 3 each cost a round" | each trap that cost the round a step | |
 | `docs/agents/commands.md` | the row of `pnpm studio-body` | the landmark of the scale of each animal in `ANIMALS` | |
 | `docs/briefs/studio-body.md` | "7. A mesh with no skeleton" | the example meshes of the user | |
 | `assets/models/<s>/README.md` | the whole file | the source, the license, and the checksum of a mesh of the user | |
