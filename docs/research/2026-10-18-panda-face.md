@@ -68,3 +68,34 @@ of the reference patch (3.0% to 3.5%) lies between the old patch (4.3%) and the 
 Width 2 is the chosen smile. Width 1 reads as a closed smile from the front, but the mouthpiece and
 the paw hide most of it in the play pose. The corners of width 2 rise 4.4 cm and show beside the
 mouthpiece. From 30° above, the mouthpiece and the paws hide the mouth at both widths.
+
+## 4. The mouth corner (round `panda-mouth`)
+
+The user said on 2026-10-18: "The corner of the mouth has a big area of black". The second band of
+`colors.smile` took 13 faces under the upper lip at the corners. Seven of them turn to the side
+(the x of the normal away from the middle plane 0.69 to 0.85, one face of 7.4 cm²), so they show as
+a dark block in a side view. The new band option `outward` limits the x of the normal. With 0.6,
+the band takes 6 faces that point down or forward (`mouth-rig-log.txt`).
+
+Dark pixels of the gallery shots at zoom 5 (`mouth-counts.txt`): the line is the forward faces on
+the lower lip, and the corner is the other dark faces of the mouth.
+
+| View | main line | main corner | round line | round corner |
+|---|---|---|---|---|
+| rest, front | 314 | 216 | 269 | 15 |
+| rest, 35° right | 262 | 444 | 265 | 0 |
+| rest, 60° right | 167 | 497 | 165 | 0 |
+| rest, side right | 81 | 409 | 81 | 0 |
+| rest, 60° left | 533 | 408 | 412 | 17 |
+| rest, side left | 353 | 355 | 265 | 0 |
+| play, 60° right | 192 | 439 | 189 | 0 |
+| play, side right | 102 | 391 | 102 | 0 |
+| stage side shot (Brahms 2, 700 s) | 122 | 61 | 109 | 0 |
+
+`mouth-marker.ts` writes a module with the line in green and the corner in blue, and
+`mouth_count.py` counts these pixels in a shot. The shots of the normal colors have 0 marker
+pixels. The geometric split counts one face of the old corner band as line on `main`. In each view,
+the corner of the round is at most 17 px, below the line of the same view. From the front, the
+line keeps its ends a little up and reads as a closed smile (`mouth-before-after.webp`). The rigs
+of the fox, the rabbit, the cat, and the dog keep their bytes, and the first download grows by 1 B
+(`pnpm size --base d6485c4d`).
