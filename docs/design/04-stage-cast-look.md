@@ -573,7 +573,8 @@ solo.
   the full cone veiled the orchestra. The beam comes from the key light, so the light has a
   visible source: the haze cone leans from its foot toward the key light, and its tip stands low
   on that line (`hazeTip()`). The default view then sees the narrow top of the cone, and the beam
-  opens as a fan toward the stage, as in `orchestra-latest.png`. The shot planner keeps its own
+  opens as a fan toward the stage, as in `orchestra-latest.png`. The tip takes the key light
+  turned onto the stage axis, so the beam stands upright in the frontal view (user, 2026-10-18). The shot planner keeps its own
   upright cone around the stage center (`insideBeam()`, 5.6), which holds the haze near the
   stage. The beam fades toward the stage with no edge. A depth pass
   (`BeamDepth`) gives no haze to an item on the stage, so the beam shows between the players
