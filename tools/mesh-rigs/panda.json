@@ -203,6 +203,13 @@
       "dark": 0.5,
       "note": "The user chose \"1: Round patches, no smile\" on 2026-10-18 (docs/decisions/2026-10-18-panda-face.md). The sharp upper inner point of each eye patch read as raised inner brows, a sad face. Each dark fur face in the box, or in its mirror, with a corner outside the circle of radius 0.0475 around the middle of the patch takes the color of the nearest light fur face: 18 faces, 9 on each side. The left patch goes from 23% x 38% to 23% x 18% of the head width, and the right patch to 22% x 22%. The circle holds the old eye, so the pea eyes keep their places, and the patches get no light hole (docs/research/2026-10-18-panda-face.md)."
     },
+    "smile": {
+      "bands": [
+        {"x": [0, 0.0627], "y": [0.7525, 0.7696], "rise": 0, "front": 0.165, "normalY": [-0.3, 1], "facing": 0.5},
+        {"x": [0.0528, 0.0792], "y": [0.7591, 0.7822], "rise": 0, "front": 0.165, "normalY": [-1, -0.25], "facing": -1}
+      ],
+      "note": "The user chose \"Thin smile line\" on 2026-10-18. The line takes the dark color of the patches. The first band takes the faces on the top of the lower lip, along the crease between the lips: 18 faces. The second band takes the faces under the upper lip at the corners, so that the corners turn up: 13 faces. The line is 22.5 cm wide in the app, and its corners rise 4.4 cm. No face of the line shares a corner with the nose or with an eye patch. The first band alone reads as a closed smile from the front, but the mouthpiece hides most of it in the play pose. The corners of the second band show beside the mouthpiece (docs/research/2026-10-18-panda-face.md)."
+    },
     "tone": {
       "chroma": 0.08,
       "light": [0.999, 1.0],
