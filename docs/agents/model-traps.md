@@ -33,6 +33,10 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - A reach factor far above the text of the option that the user chose goes back to the user
   before the merge. The dog got the arm factor 1.75 for "about 1.4x", and the user called the arms
   much too long.
+- A reach measured in the shoulder and grip places of another body misses the mouth of a big head.
+  The panda mouth lies 0.40 m in front of its shoulders, so the slide was out of reach with the
+  hold of `main`. Measure `slideReach` on the new body before the user chooses the arms, and turn
+  the slide toward the right shoulder (`docs/research/2026-10-18-panda-mesh/slide-hold.ts`).
 - A round belly can cover short thighs, so a lap place lands on the belly. `lapPoint()` also
   takes the skin of the hips and the spine, so near the hip it is the side of the belly. Measure
   the reach from the shoulder joint to the top of the thigh before a scan of a lap place
@@ -132,6 +136,9 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 
 - A long thigh needs a seat of its own (`studio.legTurns`, `weights.haunch`). A large tail needs
   two bones (`tail_tip`).
+- Short thighs under a round belly put the back of the thighs below the haunch, so they set the
+  seat top, and the sit pulls the haunch into a sheet behind the seat. End the seat behind the
+  thighs (`chair.front`), and keep the drop of the sit small, as for the panda.
 - A level seat under thighs that slope down meets the thighs before the haunch. End the seat where
   the thighs leave the seat top at the haunch (`chair.front`), and move the back edge of the chair
   forward by the old move (`chair.back`).
@@ -160,6 +167,9 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - The texture of an image mesh has black gaps between its islands. A face takes the mean of its
   samples that are not dark. Read `colors.py` of `docs/research/2026-10-14-rabbit-smooth/` after a
   change of the color rules.
+- An eye in a dark patch has almost the color of the patch, so a dark rule cannot split them. A
+  wide eye box takes the patch as the eye, and the color of the old eye puts light holes in it.
+  Keep the eye box on the eye, and set `eyeShell.darkReach` to 0, as for the panda.
 
 ## Probe tools
 

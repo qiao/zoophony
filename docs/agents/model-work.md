@@ -22,6 +22,7 @@ fox together.
 | fox-tan | the rig of the red fox with a tan palette | `2026-10-14-fox-flute.md` | `flutist` |
 | cat | the mesh `assets/models/cat/cat.glb`, rigged by `pnpm rig-mesh cat` | `2026-10-16-mesh-cat.md` | `violist` |
 | dog | the mesh `assets/models/dog/dog.glb`, rigged by `pnpm rig-mesh dog` | `2026-10-17-mesh-dog.md` | `cellist` |
+| panda | the mesh `assets/models/panda/panda.glb`, rigged by `pnpm rig-mesh panda` | `2026-10-18-mesh-panda.md` | `trombonist` |
 | penguin | an egg body in code, `src/models/penguin/` (route 2) | `2026-10-11-penguin-body.md` | none |
 
 Each other species has the parametric body of 2026-10-06 18:58
