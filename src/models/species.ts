@@ -381,7 +381,7 @@ export const SPECIES = {
    * of the user, `assets/models/dog/dog.glb`, which `pnpm rig-mesh dog` rigs (design 4.4), with the
    * head height of the red fox and longer legs (2026-10-17-mesh-dog decisions), and the arms that
    * the user chose (2026-10-17-dog-arms decisions). It sits with the knees apart around the lower
-   * bout of the cello, and its tail hangs down behind the seat between the back posts of the
+   * bout of the cello, and its thin tail hangs down behind the seat between the back posts of the
    * chair. Its ears hang, so they do not twitch. Its
    * head height is the head of the studio body, and its chair fits its legs: the seat height is
    * the seat of the studio body, in H. It plays a 1/2 cello, the size that the user chose with its

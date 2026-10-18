@@ -690,7 +690,11 @@ quarter of the folded faces.
   A curled tail does not sway on a seat (5.1). The dog config hangs the seated tail down behind
   the seat between the back posts, with a soft bend, as the user chose on 2026-10-17
   (`docs/decisions/2026-10-17-dog-arms.md`): the tail of two straight bones stuck out level and
-  stiff behind the chair. The hanging tail sways.
+  stiff behind the chair. The tail of the dog mesh is a wedge as thick as a thigh at its root, so
+  the dog config hangs it on a curve (`studio.tailCurl`), and the offset of each tail vertex from
+  the line shrinks after the root (`thin`), as the user chose on 2026-10-17
+  (`docs/decisions/2026-10-17-dog-tail.md`). Weights alone kept the thick root on the hips, under
+  the seat. The hanging tail sways.
 - `pnpm studio-body <animal> --inspect` writes no file. It prints the facts of the GLB file that
   a new body needs. These are the nodes, the joints with the digits of each paw, the morph
   targets, and the clips. They also hold the hips, the length of each arm from the shoulder joint
