@@ -2263,14 +2263,20 @@ def dark_faces_near(points, tris, dark, taken, loop, normal, rule):
     near = (dark & (across <= rule['darkReach'] * radius)
             & (np.abs(mids @ normal) <= 0.5 * radius))
     near[np.asarray(list(taken), int)] = False
+    return corner_patches(tris, np.nonzero(near)[0])
+
+
+def corner_patches(tris, faces):
+    """Splits faces into patches: the faces of a patch share corners, and the faces of two patches
+    share none. Gives the faces of each patch, in the order in which its last face comes."""
     patches = []
-    for f in np.nonzero(near)[0]:
+    for f in faces:
         corners = set(int(c) for c in tris[f])
         joined = [p for p in patches if corners & p[1]]
-        faces = [int(f)] + [g for p in joined for g in p[0]]
+        members = [int(f)] + [g for p in joined for g in p[0]]
         corners |= set(c for p in joined for c in p[1])
-        patches = [p for p in patches if p not in joined] + [(faces, corners)]
-    return [np.array(sorted(faces)) for faces, _ in patches]
+        patches = [p for p in patches if p not in joined] + [(members, corners)]
+    return [np.array(sorted(members)) for members, _ in patches]
 
 
 def recolor_old_eyes(colors, tris, points, old):
