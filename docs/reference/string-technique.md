@@ -305,7 +305,9 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
 - **The feet and the hips.** Both feet are flat on the floor, shoulder-width apart, and point
   forward. The pelvis is a little higher than the knees [60].
 - **The angle.** Some players prefer a shorter endpin and a more vertical cello. Others play with
-  a longer endpin and a more forward angle [60].
+  a longer endpin and a more forward angle [60]. A teaching handout puts the cello at 55° to 65°
+  from the floor [65] (abstract). The cellist sits upright, or leans a little forward into the
+  cello, and does not lean back [66] (abstract).
 - **The size.** The total length of a cello is 121.9 cm for a 4/4, 114.3 cm for a 3/4, and
   106.6 cm for a 1/2 [62] (abstract). Thus a 3/4 is 0.94 and a 1/2 is 0.87 of the length of a
   4/4 (derived). The back of a 4/4 is at least 30 in long, of a 3/4 26 in to 27.25 in, and of a
@@ -600,3 +602,9 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
     https://hidersine.com/education/blog/item/112-what-size-cello-do-i-need
 64. Stringers Music, "Cello Size Guide".
     https://www.stringersmusic.com/pages/cello-size-guide
+65. "Cello Posture and Technique Guide" (curriculum example, Scribd). The text did not open in
+    full on 2026-10-17, and the fact comes from the summary of the manager of the session.
+    https://www.scribd.com/document/397158821/curriculum-example
+66. Cellofun, "The spike (endpin)", seating posture. The page gave the HTTP status 502 on
+    2026-10-17, and the fact comes from the summary of the manager of the session.
+    https://cellofun.eu/home/cello-blog-encyclopaedia/mechanics-technique/basic-principles-of-technique/seating-posture/the-spike-endpin/
