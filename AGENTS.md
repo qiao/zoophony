@@ -66,7 +66,8 @@ Open these files for these kinds of work:
   stands over the right knee in the rest (`docs/decisions/2026-10-17-dog-rest.md`). Its hanging ears do not twitch
   (`docs/decisions/2026-10-17-mesh-dog.md`). Since round `dog-arms`, it has the arm factor 1.35, a
   1/2 cello, and a tail that hangs down behind the seat (`docs/decisions/2026-10-17-dog-arms.md`),
-  thin since round `dog-tail` (`docs/decisions/2026-10-17-dog-tail.md`).
+  thin since round `dog-tail` (`docs/decisions/2026-10-17-dog-tail.md`). Since that round, the cello
+  leans back 25° (`docs/decisions/2026-10-17-dog-rest.md`).
   `pnpm close-views conductor <dir>`, `pnpm close-views pianist <dir>`,
   `pnpm close-views violinist <dir>`, `pnpm close-views fox-violinist <dir>`,
   `pnpm close-views violist <dir>`, `pnpm close-views cellist <dir>`, and
@@ -518,7 +519,7 @@ These traps of route 3 each cost a round:
 - Short thighs on a deep trunk end behind the front of the belly. The knees of the dog mesh with
   the leg factor 1.5 stay 1 cm behind the front of its belly and chest, so a cello against the
   chest stands with its lower bout in front of the knees, and a cello that leans back stands
-  further from them. Measure the front of the trunk and the knees (`dog-profile.ts` and
+  further from them: 21 cm with the 25° of 2026-10-17. Measure the front of the trunk and the knees (`dog-profile.ts` and
   `cello-contact.ts` of `docs/research/2026-10-17-dog-mesh/`) before a plan of the knee spread.
 - `pnpm rig-mesh --check --set` changes only a key that the config has: the first rule of `raise`
   of the dog stopped the tool with "The key raise of raise is not known". Write such a variant
