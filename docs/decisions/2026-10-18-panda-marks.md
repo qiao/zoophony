@@ -12,7 +12,6 @@ remove its row.
 | Decision | Section |
 |---|---|
 | The user: "there's unexpected black marks on the torso. fix that". The 7 faces at the lower border of the black band under the arms with less than half dark texture samples take the color of the nearest light fur face, so that the black wedges go (`colors.border` of `tools/mesh-rigs/panda.json`). | 4.4, 4.5 |
-| The manager: trunk weights at the seam with a fix of the folds, then new vertices. Both failed, so the gray streaks stay: the corners that join the forearm to the belly also top the streak faces (`docs/research/2026-10-18-panda-seam.md`). | 4.4 |
-| The user: "Move vertices, open a gap (Recommended)", in place of the rule of 2026-10-10 for the seam vertices of the panda. A gap of 1 cm to 2 cm keeps the faces that join the forearm to the belly and their folds, so no vertex moves (section 4 of the seam report). | 4.4 |
-| The manager: ship the trunk weights at the seam when the faces that they turn over do not show. A visibility probe finds faces 93 and 2115 in up to 190 pixels at 1440 x 900, so the weights do not ship (section 5 of the seam report). | 4.4 |
+| The user: "Cut the mesh (Recommended)". Below the height 0.58, the faces that join each forearm to the belly go, and new faces close both holes, so that the gray streaks go and no vertex moves (`cut`, `colors.border.teeth`, `docs/research/2026-10-18-panda-cut.md`). | 4.4 |
+| Conflict: the cut replaces the user rule of 2026-10-10 ("keep the mesh of the user as it is") for the arm seam of the panda only. `assets/models/panda/panda.glb` stays as it is, and the cut is a step of the rig. | 4.4 |
 | The dark band across the belly in the front view of the play pose and the other dark areas beside the arms are cast shadows of the arms and paws, and they stay. | 4.4 |

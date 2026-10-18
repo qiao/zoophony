@@ -372,14 +372,13 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
     small faces of an eye stay dark. On the large faces of a trunk, the border of a black region
     then gets teeth, and a raised arm stretches them into black wedges. `colors.border` gives each
     dark face of a box with less than half dark samples the color of the nearest light face, as
-    under the arms of the panda (`docs/decisions/2026-10-18-panda-marks.md`). The faces under an
-    armpit where the hanging arm of the mesh touches the trunk stretch when the arm rises, and
-    they shade darker. The normals of the seam corners turn with their upper arm weight, so a
-    corrective shape does not remove this shading. A weight fade there removes it, but the same
-    corners join the forearm to the trunk, and those faces fold. A cut of those faces moves the
-    fold, new vertices on the long faces keep the shading, and a gap of a few centimeters between
-    the forearm and the trunk keeps the faces that join them. The folded faces show in the gallery
-    and on the stage, so this shading stays.
+    under the arms of the panda (`docs/decisions/2026-10-18-panda-marks.md`). Its option `teeth`
+    also gives the white to a dark face with two or more light neighbors.
+  - Arm seam. Where the hanging forearm of a mesh touches the belly, short faces join the two.
+    When the arm rises, those faces turn over and show, or the belly faces under them shade dark.
+    No weight rule, corrective shape, or vertex move fixes both. `cut` removes the faces that join
+    the forearm to the belly below a height and closes both holes with new faces, with no move of
+    a vertex, after a choice of the user. The caps of the belly take its white.
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
     raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
