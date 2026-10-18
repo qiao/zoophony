@@ -526,6 +526,11 @@ These traps of route 3 each cost a round:
   into a scratch config, rig it with a direct run of Blender, and count its folds with
   `pnpm fold-probe <role> --glb <file>` (`rig.sh` and `raise-trials.txt` of
   `docs/research/2026-10-17-dog-mesh/`).
+- A shape of `raise` fits the arm turns of one hold. A move of the cello of the dog by 1.5 cm or 1°,
+  with a shoulder turn of 36°, moved the left arm out of the fade of its shapes, and the play folds
+  of the fit demos rose from 12.3% to 15.1% or more (`docs/decisions/2026-10-17-dog-folds.md`). Fit
+  the hold first, or fit the hold and the shapes in one loop. The rig log names the faces that each
+  rule relaxes, and a rule that runs 60 rounds cannot relax one of them.
 - A ring at a joint of a mesh with many thin faces at the paw can add thin faces that fold in each
   sample: a ring at the left elbow or the left wrist of the dog folded new faces of the left paw
   in each play sample. Read the faces of the paw in `pnpm fold-probe --faces` after each ring.
