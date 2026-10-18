@@ -41,6 +41,9 @@ Open these files for these kinds of work:
   viola, the cello, and the double bass). `docs/reference/string-technique.md` is the target, with
   a source for each fact. A change of the string motion updates its section 3 "Use in the app" in
   the same commit.
+- **Motion of the wind and brass players** (the hold, the trombone slide, the hands, the breath,
+  and the rest). `docs/reference/wind-technique.md` is the target, with a source for each fact. A
+  change of the wind motion updates its section 4 "Use in the app" in the same commit.
 - **UI.** Open `docs/prototype/ui.html` in a browser, or read its screenshots in
   `docs/prototype/`. Design 2.8 gives the tokens and the exact message texts.
 - **Assets.** `demos/README.md` gives the sources, the licenses, the checksums, and the reason for
