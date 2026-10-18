@@ -9,23 +9,29 @@ import type { QualityTier } from './quality.ts';
 
 /**
  * The key light (design 4.5): the stage spotlight, and the only light that casts shadows on the
- * stage. It stands behind the orchestra on the axis of the stage, high, so that the shadows fall to the
- * front and fan out to the sides, as the shadows of the chairs in `mockup.png`. It aims between
- * the stage center and the podium, so its gloss on the planks lies on both sides of the podium.
- * The first key stood above the stage center, and its short shadows did not show under the
- * chairs. A key 0.15 S to the right put the gloss right of the podium only.
+ * stage. It stands far behind the orchestra, a little to the right, and high (`KEY_PLACE` of
+ * `models/beam.ts`), so that the shadows fall to the front left, parallel and short, as in
+ * `orchestra-latest.png`. It aims between the stage center and the podium, so its gloss on the
+ * planks lies on both sides of the podium. The visible beam comes from it.
  */
 export const KEY_LIGHT = {
   /** Warm orange. In `mockup.png`, the white rabbits show a hue of about 20. */
   color: '#ffca98',
-  /** The aim, as a part of the way from the stage center to the podium center. */
-  aimToPodium: 0.5,
+  /**
+   * The aim, as a part of the way from the stage center to the podium center. The key light far
+   * at the back lights the back row less than a near light, so the aim is nearer to the stage
+   * center than the first 0.5, and the back row gets about half of the light of the pool center.
+   */
+  aimToPodium: 0.3,
   /**
    * The half angle of the cone. three.js dims the cone from `angle × (1 - penumbra)` to `angle`.
-   * With the full penumbra, the light falls off from the axis on, and the back corners of the
-   * stage, about 35° from the axis, get no light.
+   * With the full penumbra, the light falls off from the axis on. The light stands about 2.5 S
+   * from its aim, and the angle keeps the dark stage edges of `mockup.png`: the middles of the
+   * side edges get about 0.6 of the light of the pool center, the front corners about 0.4, and
+   * the back corners almost none. A cone of 21.6°, as wide as the first key light of 34° at
+   * 1.47 S, lit the side edges with 0.67 to 0.77.
    */
-  angle: 34 * MathUtils.DEG2RAD,
+  angle: 19 * MathUtils.DEG2RAD,
   /** The full penumbra, for a soft pool of light. */
   penumbra: 1,
   /** The illuminance at the aim point, on a face that looks at the light, in lux. */

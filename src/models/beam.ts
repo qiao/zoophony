@@ -1,16 +1,22 @@
+import { MathUtils } from 'three';
+
 import type { Vec3 } from './tuples.ts';
 
 /**
  * The place of the key light (design 4.5), seen from the stage center on the stage top. The key
- * light is the spotlight of the stage, and the visible beam comes from it.
+ * light is the spotlight of the stage, and the visible beam comes from it. It stands far behind
+ * the orchestra, a little to the right, and high, so its shadows fall to the front left, parallel
+ * and short, as in `orchestra-latest.png`. A key light 1.4 S from the stage center on the stage
+ * axis cast shadows that fanned out from the middle, and on the right side they pointed to the
+ * front right (user, 2026-10-18).
  */
 export const KEY_PLACE = {
   /** The distance from the stage center, in stage sides. */
-  distance: Math.hypot(1.2, 0.7),
+  distance: 2.45,
   /** The turn from the back of the stage axis toward the right side, in radians. */
-  azimuth: 0,
+  azimuth: 18 * MathUtils.DEG2RAD,
   /** The angle above the stage top, in radians. */
-  elevation: Math.atan2(1.2, 0.7),
+  elevation: 66 * MathUtils.DEG2RAD,
 } as const;
 
 /**

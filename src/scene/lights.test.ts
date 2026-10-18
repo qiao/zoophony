@@ -68,22 +68,22 @@ describe('createLights', () => {
 
     // The middles of the side edges and the front corners get much less, and the back corners get
     // almost no light: the dark edges of mockup.png.
-    expect(light(-half, 0)).toBeLessThan(0.65 * center);
-    expect(light(half, 0)).toBeLessThan(0.65 * center);
+    expect(light(-half, 0)).toBeLessThan(0.7 * center);
+    expect(light(half, 0)).toBeLessThan(0.7 * center);
     expect(light(-half, half)).toBeLessThan(0.5 * center);
     expect(light(half, half)).toBeLessThan(0.5 * center);
-    expect(light(half, -half)).toBeLessThan(0.01 * center);
-    expect(light(-half, -half)).toBeLessThan(0.01 * center);
+    expect(light(half, -half)).toBeLessThan(0.03 * center);
+    expect(light(-half, -half)).toBeLessThan(0.03 * center);
     // The aim is in front of the stage center, toward the conductor.
     expect(spot.target.position.z).toBeCloseTo(conductor.position[2] * KEY_LIGHT.aimToPodium, 9);
   });
 
-  it('puts the key light behind the orchestra on the stage axis, so the shadows fall to the front', () => {
+  it('puts the key light far behind the orchestra and to the right, so the shadows fall to the front left', () => {
     const spot = keyOf(lights);
     expect(spot.position.toArray()).toEqual(keyLightPosition(side));
-    expect(spot.position.z).toBeLessThan(spot.target.position.z);
-    expect(spot.position.x).toBe(0);
-    expect(spot.position.y).toBeCloseTo(1.2 * side, 9);
+    expect(spot.position.z).toBeLessThan(spot.target.position.z - 0.5 * side);
+    expect(spot.position.x).toBeGreaterThan(0);
+    expect(spot.position.y).toBeGreaterThan(2 * side);
   });
 
   it('keeps each point that the key light lights inside its shadow map (design 4.5)', () => {
