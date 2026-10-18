@@ -402,10 +402,14 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       place of the lean back of 3° (`docs/research/2026-10-18-wind-technique.md`).
 - [ ] Wind motion spec T5: in a fast run, the trombone takes the alternate position that moves the
       slide less, such as B♭3 in 5 and F4 in 4 or 6 (`docs/research/2026-10-18-wind-technique.md`).
-- [ ] Horn valves above the written C5: the horn takes the 9th, 11th, 13th, and 14th partials of
+- [x] Horn valves above the written C5: the horn takes the 9th, 11th, 13th, and 14th partials of
       the shared `PARTIALS`, so C♯5, D5, F♯5, A♭5, A5, and B♭5 get one or two valves too few.
       Options: a horn list of partials as the single F horn chart, or the B♭ side of a double horn
-      above the written G4 (`2026-10-18-horn-fundamental.md`).
+      above the written G4 (`2026-10-18-horn-fundamental.md`). Done: the manager chose the horn
+      list (`HORN_PARTIALS`).
+- [ ] Double horn: advanced players use the B♭ side above the written G4, but the app has a single
+      F horn. The B♭ side needs a thumb valve and a second fundamental, B♭1
+      (`docs/reference/wind-technique.md` 2.2, `2026-10-18-horn-fundamental.md`).
 - [x] Panda trombonist: faces 717, 1147, and 1148 at the front of the left shoulder fold in each
       play, lift, and rest sample. A raise rule of the left arm does not relax them
       (`2026-10-18-mesh-panda.md`). Done: the left shoulder turns forward
