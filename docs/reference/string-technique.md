@@ -453,9 +453,10 @@ A round that changes the motion updates the items.
   vertical cello.
 - **The left hand over the neck.** The left paw tilts 55° over the neck from the bass side
   (`BowedHold.tiltL`, 30° on the other holds), so that the thick paw keeps off the fingerboard.
-- **The rest** (section 2.7). The cello stays between the knees, the left paw holds its neck, and
-  the right paw holds the bow upright with the frog over the right knee (`UPRIGHT_BOW`), as the
-  first lesson of the source. The source gives no rest of an orchestral cellist.
+- **The rest** (section 2.7). The cello stays between the knees, the left paw holds it at 0.6 of
+  the fingerboard, and the right paw holds the bow over the right knee with the tip up, as the
+  first lesson of the source. The short arm of the dog does not reach the knee, so the grip is
+  above the thigh and the tip leans forward. The source gives no rest of an orchestral cellist.
 
 ## 4. Sources
 
