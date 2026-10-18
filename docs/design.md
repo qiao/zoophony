@@ -195,6 +195,7 @@ The decision files:
 - [`2026-10-17-cat-bow.md`](decisions/2026-10-17-cat-bow.md): the bow hold of the cat.
 - [`2026-10-17-cat-hand.md`](decisions/2026-10-17-cat-hand.md): the left arm of the cat violist in high positions.
 - [`2026-10-17-cat-look.md`](decisions/2026-10-17-cat-look.md): the slim arms and the rest of the cat.
+- [`2026-10-17-design-condense.md`](decisions/2026-10-17-design-condense.md): the condensed design files.
 - [`2026-10-17-docs-length.md`](decisions/2026-10-17-docs-length.md): the length of the docs, and the modules of `docs/agents/`.
 - [`2026-10-17-dog-arms.md`](decisions/2026-10-17-dog-arms.md): the arms, the cello size, and the tail of the dog.
 - [`2026-10-17-dog-folds.md`](decisions/2026-10-17-dog-folds.md): the corrective shapes of the dog cellist.
