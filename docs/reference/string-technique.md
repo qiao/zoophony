@@ -293,6 +293,23 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
   the open G string of a violin [41 (secondary)].
 - **The left hand.** The new finger lands 26 ms to 41 ms before the bow change (section 1.5) [23].
 
+### 2.7 The cello on the chair and at rest
+
+- **The contacts.** The cellist sits, and the endpin carries the weight of the cello. The cello is
+  steadied on the lower bout between the knees, and on the upper bout against the upper chest
+  [59]. The inside of each knee touches the cello [60], and the legs press it gently [61].
+- **The neck.** The neck of the cello is above the left shoulder, and the C-string peg is just
+  behind the left ear [59]. The cello rests against the chest a little to the left of the middle,
+  so that its neck is near the neck of the player, and the peg is behind the ear or brushes the
+  neck [60].
+- **The feet and the hips.** Both feet are flat on the floor, shoulder-width apart, and point
+  forward. The pelvis is a little higher than the knees [60].
+- **The angle.** Some players prefer a shorter endpin and a more vertical cello. Others play with
+  a longer endpin and a more forward angle [60].
+- **The bow at rest.** In a first lesson, the screw of the frog stands on top of the right knee,
+  so that the bow points up at the ceiling, and the left hand rests on the left knee [61]. No
+  source of this file gives the rest of an orchestral cellist between pieces.
+
 ## 3. Use in the app
 
 Since 2026-10-17 (round `left-hand`), the left hand of the app follows this reference: the position
@@ -333,7 +350,9 @@ A round that changes the motion updates the items.
   left elbow toward the body for the lower strings of the violin and the viola, and up for the
   lower strings of the cello and the contrabass, for each string below the highest string
   (`BowedHold.elbowPerString`). From the fourth to the sixth position, it turns a little further
-  (`BowedHold.highElbow`, section 1.5). No source gives the angles, so the holds tune them.
+  (`BowedHold.highElbow`, section 1.5). No source gives the angles, so the holds tune them. The
+  cello of the dog turns 2° for each string (10° on the floor hold), because a larger turn folded
+  the skin of the left arm of the dog mesh in more play samples.
 - **The hand goes over the shoulder of the instrument** (section 1.5). From the second position to
   the fifth position, `leftTilt()` of `pose/bowed.ts` tilts the left hand further over the neck
   by `BowedHold.highTilt`, and the wrist comes up beside the upper bout. The finger block keeps its
@@ -354,6 +373,8 @@ A round that changes the motion updates the items.
   30°, its arm reaches the full hair up to 11°. The rabbit turns 10°, and the red fox 9° with the
   stick leaned 15°: larger turns fold the skin of their right arms in more play samples
   (`pnpm hold-fit`), and put the bow paw of the rabbit into the violin at the frog on the E string.
+  The cello of the dog turns 12°: at the tip on the C string, the right upper arm went 1.9 cm into
+  the side of the chest with 17°.
   The app had 9° (7° on the contrabass) before. The arm levels come from the
   geometry: the bow plane of the string turns the hand, and the arm follows it, higher for the
   lower strings of the violin and the viola.
@@ -407,6 +428,23 @@ A round that changes the motion updates the items.
   `pose/strokes.ts` moves the middle of the bow 0.2 of the way to 0.45 of the bow range
   (`BOW_MOTION.balance`), and keeps the direction of the bow. A long note keeps the length of its
   rule.
+
+### 3.3 The cello on the chair and at rest
+
+- **The contacts** (section 2.7). The dog holds the cello between its knees with its own hold
+  (`DOG_HOLD` of `pose/bowed-rig.ts`): the endpin on the floor in front of the chair, the back of
+  the cello against the belly and the chest, and the neck at the left of the head, above the left
+  shoulder. Its thighs turn 30° out around the lower bout. The app differs from the source: the
+  short thighs of the dog mesh end about 1 cm behind the front of its belly, so the knees stay
+  2.0 cm and 2.9 cm behind the sides of the lower bout and do not touch it.
+- **The angle** (section 2.7). The cello stands vertical and leans 11° to the left. A cello that
+  leans back stood with its lower bout further in front of the knees. The source permits a more
+  vertical cello.
+- **The left hand over the neck.** The left paw tilts 60° over the neck from the bass side
+  (`BowedHold.tiltL`, 30° on the other holds), so that the thick paw keeps off the fingerboard.
+- **The rest** (section 2.7). The cello stays between the knees, the left paw holds its neck, and
+  the right paw holds the bow upright with the frog over the right knee (`UPRIGHT_BOW`), as the
+  first lesson of the source. The source gives no rest of an orchestral cellist.
 
 ## 4. Sources
 
@@ -542,3 +580,8 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
     Figure 2. https://viennatalk.mdw.ac.at/papers/Pap_01_20_Guettler.pdf
 58. J. Verrel, M. Woollacott, U. Lindenberger, Frontiers in Human Neuroscience (2014).
     https://pmc.ncbi.nlm.nih.gov/articles/PMC4137756/
+59. Wikipedia, "Cello technique". https://en.wikipedia.org/wiki/Cello_technique
+60. A. McDonagh, "Cello Basics 01: How to Sit Properly with the Cello".
+    https://www.ailbhemcdonagh.com/cello-basics-01-how-to-sit-properly-with-the-cello.html
+61. R. Hirschl, S. Strohm Mullins, "First Lessons on Cello", The Instrumentalist, May 2009.
+    https://theinstrumentalist.com/may-2009/first-lessons-on-cello/
