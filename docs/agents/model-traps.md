@@ -192,6 +192,9 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - An eye in a dark patch has almost the color of the patch, so a dark rule cannot split them. A
   wide eye box takes the patch as the eye, and the color of the old eye puts light holes in it.
   Keep the eye box on the eye, and set `eyeShell.darkReach` to 0, as for the panda.
+- A face rule that looks right from the front can paint a large face that turns to the side, and
+  that face shows as a dark block in a side view. Check a face rule from the front, at 60°, and
+  from each side, and limit the normal of its faces (`outward` of `colors.smile`).
 
 ## Probe tools
 
