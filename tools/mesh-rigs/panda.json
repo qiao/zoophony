@@ -4,13 +4,13 @@
   "name": "Panda",
   "weld": 1e-5,
   "app": {
-    "shoulders": 0.80294,
-    "reach": 0.6521,
-    "note": "The first config puts the standing head top at 1.300 m, the head top of the parametric panda of main (size option A of scratch/panda-phase1/sizes.txt of the worktree panda-mesh (phase 1, until phase 2 moves the probes to docs/research/)): 1.318458 m for each unit, with the top of the skull at 0.986 u and the standing shoulder joints at 0.80294 m. The head top leaves out the ears (1.0 u), as the head top of the parametric panda and of the red fox does. The parametric panda of main stands 1.300 m high to the head top, with the shoulder joints at 0.6977 m and H 0.456 m, and sits on a seat of 0.342 m (landmark-probe.txt). The reach is the reach of the right arm of the parametric panda from the shoulder joint to the middle of the palm, 0.6521 m (slide-probe.txt). The user chooses the size, the arm factor, and the leg factor. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "shoulders": 0.998678,
+    "reach": 0.5778,
+    "note": "The user chose the head height of the red fox on 2026-10-18 (\"Fox head height (Recommended)\"): the scale puts the standing head top at 1.570 m, the head top of the red fox of main. The head top is the top of the skull, 0.986 u in the source, with no ear, as the head top of the red fox, and the ear tips are at 1.591 m. With the leg factor 1.5, the skull top is 1.036 u above the soles, so the scale is 1.515445 m for each unit, with the standing shoulder joints at 0.998678 m (the entry of the panda in ANIMALS). The parametric panda of main stands 1.300 m high to the head top and sits on a seat of 0.342 m (docs/research/2026-10-18-panda-mesh/landmark-probe.txt). The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
-  "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. The first config has the factor 1: 0.3504 m at this scale, 0.63 of the trunk from the hips joint to the middle of the shoulder joints (the red fox 0.91, the dog 0.92). The factor 1.984 gives the reach of the parametric panda, and the factor 1.497 the ratio of the red fox at each size. The slide of the trombone needs the factor 2.306 for half of the travel and 3.186 for the whole travel, in the shoulder and grip places of the parametric panda (sizes.txt).",
-  "legFactor": 1,
+  "armFactor": 1.497,
+  "armFactorNote": "The factor of the upper arm and the forearm. The user chose \"1.5x, as the fox (Recommended)\" on 2026-10-18: the arm is 0.91 of the trunk from the hips joint to the middle of the shoulder joints, as the red fox (0.91) and the dog (0.92). The reach from the shoulder joint to the middle of the palm is 0.5778 m (0.4027 m with no factor). The parametric panda of main reaches 0.6521 m. The factor 1.704 gives that reach, and the factors 1.987 and 2.753 give half and all of the slide travel in the shoulder and grip places of the parametric panda (docs/research/2026-10-18-panda-mesh/sizes.txt).",
+  "legFactor": 1.5,
   "joints": {
     "root": {
       "head": [0, 0, 0],
@@ -99,7 +99,7 @@
     }
   },
   "palm": [-0.868, -0.307, -0.389],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are scratch/panda-phase1/sections.py and measures.py of the worktree panda-mesh (phase 1, until phase 2 moves the probes to docs/research/) (sections-*.txt, measures.txt): the feet below y 0.06 (the toes forward to z 0.084, the heel back to z -0.097), the narrowest leg cut at the ankle at y 0.07, the legs apart up to the crotch at y 0.157, the round body from 0.17 to 0.69 with the belly forward to z 0.204, the narrowest neck cut at 0.69 to 0.71 (x ±0.155), the head from the chin at 0.72 with the muzzle to z 0.237, and the round ears beside the top of the skull (0.986) from 0.90 to 1.0. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The thigh joint lies just above the crotch, a little behind the middle of the leg cut, the knee at y 0.115, where the leg cut grows fastest above the ankle, the ankle at the narrowest cut, where the foot starts, and the toes at the ball of the foot. The cuts of the arm in vertical planes (x 0.18 to 0.33) give its middle line, (0.54, -0.77, 0.35) down the arm. The arm is apart from the body from x 0.18 out. The shoulder joint lies on that line, 0.045 inside the root, the wrist where the cut across the arm stops to narrow before the claws (s -0.02 of measures.txt), the elbow and the forearm twist on the middle line at a half and three quarters of the way to the wrist, and the finger joint 0.03 before the tip of the claws. The ear joint lies at the root of the ear on the head, and its tail at the edge of the ear. The tail is one bone through the tail ball. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back (measures.txt).",
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are docs/research/2026-10-18-panda-mesh/sections.py and measures.py (sections-*.txt, measures.txt): the feet below y 0.06 (the toes forward to z 0.084, the heel back to z -0.097), the narrowest leg cut at the ankle at y 0.07, the legs apart up to the crotch at y 0.157, the round body from 0.17 to 0.69 with the belly forward to z 0.204, the narrowest neck cut at 0.69 to 0.71 (x ±0.155), the head from the chin at 0.72 with the muzzle to z 0.237, and the round ears beside the top of the skull (0.986) from 0.90 to 1.0. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The thigh joint lies just above the crotch, a little behind the middle of the leg cut, the knee at y 0.115, where the leg cut grows fastest above the ankle, the ankle at the narrowest cut, where the foot starts, and the toes at the ball of the foot. The cuts of the arm in vertical planes (x 0.18 to 0.33) give its middle line, (0.54, -0.77, 0.35) down the arm. The arm is apart from the body from x 0.18 out. The shoulder joint lies on that line, 0.045 inside the root, the wrist where the cut across the arm stops to narrow before the claws (s -0.02 of measures.txt), the elbow and the forearm twist on the middle line at a half and three quarters of the way to the wrist, and the finger joint 0.03 before the tip of the claws. The ear joint lies at the root of the ear on the head, and its tail at the edge of the ear. The tail is one bone through the tail ball. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back (measures.txt).",
   "studio": {
     "legTurns": {
       "thigh": [0.529851, 0.031791, -0.059496, 0.845403],
@@ -124,7 +124,7 @@
       "forearm": [0.316246, 0.757051, 0.571719],
       "hand": [-0.078782, 0.677317, 0.731461]
     },
-    "note": "The studio has no panda. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it (scratch/panda-phase1/leg_turns.py <config> 25 8 0). The posture is the posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, 8 degrees out, and the shin is vertical, so that the knee angle from the side is 115 degrees. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The source shin slants 14.6 degrees back. The bind arms are the bind arms of the fox, the rabbit, the cat, and the dog. The tail has one bone, as the tail ball of the rabbit, so it needs no bind direction."
+    "note": "The studio has no panda. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it (docs/research/2026-10-18-panda-mesh/leg_turns.py <config> 25 8 0). The posture is the posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, 8 degrees out, and the shin is vertical, so that the knee angle from the side is 115 degrees. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The source shin slants 14.6 degrees back. The bind arms are the bind arms of the fox, the rabbit, the cat, and the dog. The tail has one bone, as the tail ball of the rabbit, so it needs no bind direction."
   },
   "weights": {
     "armSplit": 0.185,
@@ -181,29 +181,29 @@
     "dark": 0.05,
     "eyeShare": 0.34,
     "eyeBox": [
-      [0.03, 0.83, 0.12],
-      [0.1, 0.9, 0.18]
+      [0.05, 0.848, 0.14],
+      [0.072, 0.872, 0.165]
     ],
     "noseBox": [
       [-0.04, 0.79, 0.19],
       [0.04, 0.83, 0.24]
     ],
     "nose": [0.05, 0.05, 0.05],
-    "note": "The values of samples, palette, dark, and eyeShare are the values of the fox, the cat, and the dog. The eyes lie in dark eye patches of almost the same color: the darkest faces of the eyes have the Oklab lightness 0.125 to 0.136, and the faces of the patches 0.14 to 0.147 (head-colors.txt). The left patch has 46 dark faces at x 0.043 to 0.109 and y 0.809 to 0.902, and the eye box takes 38 of them as the eye. The nose is a patch of 62 dark faces at x ±0.03 and y 0.789 to 0.830. A face in the nose box whose color is nearer to the nose color than to white takes the gloss: 60 faces."
+    "note": "The values of samples, palette, dark, and eyeShare are the values of the fox, the cat, and the dog. The eyes lie in dark eye patches of almost the same color: the darkest faces of the eyes have the Oklab lightness 0.125 to 0.136, and the faces of the patches 0.14 to 0.147 (docs/research/2026-10-18-panda-mesh/head-colors.txt), so a dark threshold cannot split them. The eye box holds only the eye in the middle of the patch: 19 dark faces on the left and 16 on the right. The box of 2026-10-18 phase 1 (x 0.03 to 0.1, y 0.83 to 0.9) took 38 of the 46 dark faces of the left patch, and the color of the old eye left light holes in the patches. The nose is a patch of 62 dark faces at x ±0.03 and y 0.789 to 0.830. A face in the nose box whose color is nearer to the nose color than to white takes the gloss: 60 faces."
   },
   "eyeShell": {
     "lift": 0.002,
     "points": 12,
     "reach": 1,
-    "darkReach": 2,
-    "note": "The values are the values of the fox, the cat, and the dog. The fan of the left eye has 10 faces over 38 dark faces, and the right eye 8 faces over 32. The old eye of each side is 52 and 48 faces, most of the eye patch, and they take the color of 26% and 32% of the area of the faces around them, so the patches lose a part of their black."
+    "darkReach": 0,
+    "note": "The values of lift, points, and reach are the values of the fox, the cat, and the dog. The fan of the left eye has 11 faces over 19 dark faces, and the right eye 8 faces over 16. The old eye of each side is 31 and 17 faces inside the black patch, and they take the black of 37% and 62% of the area of the faces around them. darkReach is 0, so that no dark face of the patch around the old eye takes the color of its own ring: with 2, the rest of each patch took the white of the fur around it."
   },
   "chair": {
     "halfWidth": 0.22,
-    "front": -0.045,
+    "front": -0.1,
     "back": -0.2,
     "backHeight": 0.15,
-    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the panda (x ±0.21). The short thighs put the shins and the feet from z -0.037 with the leg factor 1, -0.0126 with 1.5, and 0.0118 with 2, so the front edge lies behind them. The back edge holds the back of the haunch."
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the panda (x ±0.21). The short thighs end under the round belly, and the shins and the feet start at z -0.016. With the front edge at -0.045, the lowest point over the seat was the back of the thighs, 0.1 u below the round haunch, and the sit pulled the haunch down into a flat sheet behind the seat. With the front edge at -0.1, the seat lies under the haunch behind the thighs, the thighs slope down in front of it, and the seat of the legs is 0.278 m (0.265 m with -0.075 and 0.318 m with -0.12, docs/research/2026-10-18-panda-mesh/check-seat.log). The back edge holds the back of the haunch."
   },
   "crease": {
     "rings": 2,
@@ -211,7 +211,7 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh, with the values of the cat and the dog. The seam has 25 vertices, 138 vertices move, and 2 faces of the hips turn over."
+    "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh, with the values of the cat and the dog. The seam has 41 vertices, 189 vertices move, and no face turns over."
   },
   "sit": {
     "gap": 0,
@@ -220,8 +220,8 @@
     "step": 0.005,
     "smooth": 8,
     "end": 0.0065,
-    "most": 0.2,
-    "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), with the values of the cat. The round haunch hangs low behind the short thighs, so the sit moves 163 vertices down, at most 0.1885 units, and the side view of the underside is 4.43 cm above the seat top at this scale. The large move pulls the haunch into a sheet behind the seat (preview-base/seated.png)."
+    "most": 0.03,
+    "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), with the values of the cat, except most. most keeps the drop small: 130 vertices move down, at most 0.03 units (4.55 cm), no face turns over, and the side view of the underside is 5.95 cm above the seat top, where the round haunch curves up at its back. With most 0.2 and the front edge at -0.045, the sit moved the haunch down 0.187 units (28.3 cm) into a flat sheet behind the seat, and 32 faces turned over. With no drop, the side view is 6.95 cm above the seat top."
   },
-  "legFactorNote": "The factor of the thigh and the shin. The first config keeps the legs of the mesh: the seat of the legs is 0.103 m high at this scale, with the chair 0.264 m deep. At the head top of the red fox (1.570 m), the seat is 0.124 m with the factor 1, 0.180 m with 1.5, and 0.221 m with 2 (sizes.txt and check-*.log of scratch/panda-phase1/)."
+  "legFactorNote": "The factor of the thigh and the shin. The user chose \"1.5x, as fox and dog (Recommended)\" on 2026-10-18. The seat of the legs at the front edge of the chair below is 0.278 m high at this scale. With the chair front edge at -0.045, the seat of the legs was 0.180 m, the factor 1 gave 0.124 m, and the factor 2 gave 0.221 m at the same head top (docs/research/2026-10-18-panda-mesh/sizes.txt)."
 }
