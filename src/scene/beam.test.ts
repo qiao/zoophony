@@ -120,7 +120,7 @@ describe('hazeProfile (design 4.5)', () => {
     expect(axis?.[0]).toBe(0);
     expect(axis?.[1]).toBeLessThan(0);
     expect(bottom).toEqual([hazeRadius(side, axis?.[1] ?? 0), axis?.[1]]);
-    expect(top).toEqual([BEAM_TOP_RADIUS_IN_SIDES * side, height]);
+    expect(top).toEqual([BEAM_LOOK.tipRadius * side, height]);
     // The haze cone is narrower than the light cone of models/beam.ts at each height.
     for (let y = 0; y < height; y += 0.1) {
       const cone =

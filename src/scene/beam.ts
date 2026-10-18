@@ -24,7 +24,7 @@ import {
 } from 'three';
 import type { Camera, Object3D, PerspectiveCamera, Scene } from 'three';
 
-import { BEAM_TOP_RADIUS_IN_SIDES, keyLightPlace } from '../models/beam.ts';
+import { keyLightPlace } from '../models/beam.ts';
 import { plankHash } from '../models/stage.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { StagePair } from './light-pool.ts';
@@ -56,7 +56,7 @@ export const BEAM_LOOK = {
   core: 0.25,
   /**
    * The radius of the haze at the stage top, in stage sides. The haze fills a cone that narrows
-   * from this radius to the radius of the light cone at its tip (the haze cone), inside the cone
+   * from this radius to {@link BEAM_LOOK}.tipRadius at its tip (the haze cone), inside the cone
    * of `models/beam.ts`. The cone is 0.75 S wide at the stage, and a haze in the full cone veiled
    * the full orchestra in the frontal default view, before the haze left out the items on the
    * stage. With the tip of {@link BEAM_LOOK}.tip, 0.5 S opens the fan of `orchestra-latest.png`:
@@ -74,6 +74,8 @@ export const BEAM_LOOK = {
    * not fanned out").
    */
   tip: 0.55,
+  /** The radius of the haze cone at its tip, in stage sides. */
+  tipRadius: 0.02,
   /**
    * The density in the haze at the stage. The density grows with the concentration of the light,
    * where the haze cone is narrow: (column / radius)^0.8, at most
@@ -178,7 +180,7 @@ export function hazeTip(stageSide: number, foot: StagePair): Vec3 {
 export function hazeRadius(stageSide: number, y: number): number {
   const height = BEAM_LOOK.tip * stageSide;
   const bottom = BEAM_LOOK.column * stageSide;
-  return bottom + (BEAM_TOP_RADIUS_IN_SIDES * stageSide - bottom) * (y / height);
+  return bottom + (BEAM_LOOK.tipRadius * stageSide - bottom) * (y / height);
 }
 
 /** The size of the tiling noise texture of the beam, in texels on each side. */
@@ -466,7 +468,7 @@ export function hazeProfile(stageSide: number): [number, number][] {
   return [
     [0, HAZE_BASE],
     [hazeRadius(stageSide, HAZE_BASE), HAZE_BASE],
-    [BEAM_TOP_RADIUS_IN_SIDES * stageSide, height],
+    [BEAM_LOOK.tipRadius * stageSide, height],
   ];
 }
 
@@ -495,7 +497,7 @@ function coneUniforms(stageSide: number) {
   return {
     uColor: { value: new Color(BEAM_LOOK.color) },
     uHeight: { value: BEAM_LOOK.tip * stageSide },
-    uTopRadius: { value: BEAM_TOP_RADIUS_IN_SIDES * stageSide },
+    uTopRadius: { value: BEAM_LOOK.tipRadius * stageSide },
     uCore: { value: BEAM_LOOK.core },
     uColumn: { value: BEAM_LOOK.column * stageSide },
     uFloor: { value: BEAM_LOOK.floor },
