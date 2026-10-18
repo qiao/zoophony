@@ -147,10 +147,10 @@ code.
    - its row in the table "Bodies and roles" above, and in the pose index of design 5.
 
    Then tune with the probes of [`commands.md`](commands.md): `pnpm hold-fit <role> --set` for
-   each variant, `pnpm hold-reach <species>` for a violin or a viola, and `pnpm pose-depth <role>`
-   when the arms, the paws, the instrument, or the body move. Add `--gaps` near the head or the
-   paws. Run `pnpm body-probe --base main` after a change of shared pose or model code: the poses
-   of the other players do not change.
+   each variant, `pnpm hold-reach <species>` for a violin, a viola, or a wind instrument, and
+   `pnpm pose-depth <role>` when the arms, the paws, the instrument, or the body move. Add
+   `--gaps` near the head or the paws. Run `pnpm body-probe --base main` after a change of shared
+   pose or model code: the poses of the other players do not change.
 4. Run `pnpm snapshot`. Record the measures in a research report and the decisions in a decision
    file.
 
@@ -169,11 +169,19 @@ of route 3 follow.
 
 1. Measure the joints on cuts of the mesh, as `docs/research/2026-10-13-rabbit-mesh/sections.py`
    does, and write them in the config with a note on each measure. The right side mirrors the
-   left side.
-2. Start with the arm factor 1 and the rule of the thin faces (`check.thin`). Run
-   `pnpm rig-mesh <animal> --check`. Its first line gives the factor of the target reach. Ask the
-   user about longer arms with this measured factor, then set it. With no `--check`, the tool
-   stops when the reach misses the target by more than 1%.
+   left side. Start with the arm factor 1, the leg factor 1, and the rule of the thin faces
+   (`check.thin`). The first line of `pnpm rig-mesh <animal> --check` gives the arm factor of the
+   target reach (`app.reach`).
+2. Make the mid-report with one command:
+   `pnpm mesh-options <animal> <dir> --size <label>=<head top>... --legs <f>,... --arms <f>,...
+   --instrument <id>`. Take each size from the head top of a body of `main`, and each arm factor
+   from a target, such as the reach of the body of `main` or the arm to trunk ratio of another
+   mesh. The table gives the reach of the hold on the real body for each arm factor. Ask the user
+   about the size, the arms, and the legs with `options.md` and `options.png`, then set them. To
+   probe a rig of `<dir>/rigs/` further, such as with
+   `pnpm hold-reach <species> --instrument <id> --set <changes> --glb <file>`, set `app.shoulders`
+   of the config to the value of its row first. With no `--check`, `pnpm rig-mesh` stops when the
+   reach misses the target by more than 1%.
 3. Look at the seated bind, the standing body, the knees, and the main bones with
    `--check --preview <dir>`. Before a change of a weight rule, read the weights of the faces that
    fold with `pnpm fold-probe <role> --faces <n>`. Try each variant with
