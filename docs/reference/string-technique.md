@@ -306,6 +306,14 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
   forward. The pelvis is a little higher than the knees [60].
 - **The angle.** Some players prefer a shorter endpin and a more vertical cello. Others play with
   a longer endpin and a more forward angle [60].
+- **The size.** The total length of a cello is 121.9 cm for a 4/4, 114.3 cm for a 3/4, and
+  106.6 cm for a 1/2 [62] (abstract). Thus a 3/4 is 0.94 and a 1/2 is 0.87 of the length of a
+  4/4 (derived). The back of a 4/4 is at least 30 in long, of a 3/4 26 in to 27.25 in, and of a
+  1/2 23 in to 26 in [63] (abstract). A size guide chooses the size from the height, the arm
+  length, and the finger span of the player, and two of the three must match: a 1/2 for a player
+  of 4 ft 0 in to 4 ft 6 in with an arm length of 20 in to 22 in, and a 4/4 for a player of at
+  least 5 ft 0 in with an arm length of at least 24 in [64]. The guide does not say how it
+  measures the arm.
 - **The bow at rest.** In a first lesson, the screw of the frog stands on top of the right knee,
   so that the bow points up at the ceiling, and the left hand rests on the left knee [61]. No
   source of this file gives the rest of an orchestral cellist between pieces.
@@ -585,3 +593,9 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
     https://www.ailbhemcdonagh.com/cello-basics-01-how-to-sit-properly-with-the-cello.html
 61. R. Hirschl, S. Strohm Mullins, "First Lessons on Cello", The Instrumentalist, May 2009.
     https://theinstrumentalist.com/may-2009/first-lessons-on-cello/
+62. Bax Music, "Cellos", the total length of each size (search summary).
+    https://bax-shop.co.uk/string-instruments/cello
+63. Hidersine, "What size cello do I need?", the back length of each size (search summary).
+    https://hidersine.com/education/blog/item/112-what-size-cello-do-i-need
+64. Stringers Music, "Cello Size Guide".
+    https://www.stringersmusic.com/pages/cello-size-guide
