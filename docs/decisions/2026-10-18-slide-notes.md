@@ -13,3 +13,4 @@ decision. Then update its section, and remove its row.
 |---|---|
 | The user: "is the pandas' motion professionally accurate?", then "Research, then fix (Recommended)". This round makes T2 and T4, which change only the notes of the slide and the valves. T1 (the slide angle) waits for the rig round of the panda | 5.3 |
 | The partials of all brass tubes skip the seventh partial, because it is about 31 cents flat. The trombone plays F♯4, G4, and A♭4 in positions 5, 4, and 3, and the trumpet plays the written A5 with 1-2 (`PARTIALS` of `pose/wind-notes.ts`) | 5.3 |
+| The slide positions keep the ratio of the real distances in `slideReach`: position n is at `(2^((n - 1) / 12) - 1) / (2^(6/12) - 1)` of the reach, so the steps grow from 14.4% to 19.2% of the reach (`slideTravel()`) | 5.3 |

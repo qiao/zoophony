@@ -399,7 +399,8 @@ The code constants of each family hold the times, the angles, and the lengths of
     to 3 valves for 1 to 6 semitones below it (`BRASS_FUNDAMENTALS`). The partials skip the
     seventh partial, because it is flat and real players do not use it (`PARTIALS`). The trombone
     slide takes the position of the pitch, mapped into the part of the travel that the arm
-    reaches.
+    reaches. The steps keep the ratio of the real distances, so each step is longer than the step
+    before (`slideTravel()`).
   - In the rest pose, the head lifts, and the instrument moves off the mouth and tilts. The horn
     bell sits on the right thigh. A hold that frees the left paw (`WindHold.restFreeL`) puts it on
     or beside the left thigh (`lapHand()` of `pose/lap.ts`) on a path in front of the belly

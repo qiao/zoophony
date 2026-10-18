@@ -219,4 +219,4 @@ The decision files:
 - [`2026-10-18-panda-face.md`](decisions/2026-10-18-panda-face.md): the round eye patches and the thin smile line of the panda.
 - [`2026-10-18-panda-marks.md`](decisions/2026-10-18-panda-marks.md): the light border of the black band under the arms of the panda, and the gray streaks and the shadows that stay.
 - [`2026-10-18-wind-technique.md`](decisions/2026-10-18-wind-technique.md): the reference of the wind and brass technique, and the motion spec of the trombone of the panda.
-- [`2026-10-18-slide-notes.md`](decisions/2026-10-18-slide-notes.md): the brass partials with no seventh partial.
+- [`2026-10-18-slide-notes.md`](decisions/2026-10-18-slide-notes.md): the brass partials with no seventh partial, and the real spacing of the trombone slide positions.

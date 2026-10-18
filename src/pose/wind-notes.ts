@@ -70,6 +70,19 @@ export function slidePosition(key: number): number {
 }
 
 /**
+ * Gives the distance of a slide position from the first position, as a part of the distance of
+ * the seventh position (design 5.3). Each position lowers the pitch by one semitone, so the tube
+ * of position n is 2^((n - 1) / 12) times the tube of the first position. The slide moves by half
+ * of the added tube, so each step is longer than the step before, as on a real slide.
+ *
+ * @param position The position, from 1 to 7.
+ * @returns The part, from 0 at the first position to 1 at the seventh position.
+ */
+function slideTravel(position: number): number {
+  return (2 ** ((position - 1) / 12) - 1) / (2 ** (MAX_LOWER / 12) - 1);
+}
+
+/**
  * Gives how closed the hands of a woodwind player are for a key, from 0 (open) to 1 (closed).
  * A low note of an octave closes the holes of both hands. Up the octave, the right hand opens
  * first, then the left hand. Thus each pitch class has its own shape of the hands.
@@ -141,7 +154,7 @@ export interface WindTrack {
   /** The close of the left and the right fingers for each note, from 0 to 1, or -1 to hold. */
   readonly fingersL: Float32Array;
   readonly fingersR: Float32Array;
-  /** The trombone slide position of each note: 0 is the first position, 1 the seventh. */
+  /** The part of the slide travel of each note: 0 at the first position, 1 at the seventh. */
   readonly slide: Float32Array;
   /** The time of the move to each note: it ends at the note start. */
   readonly fingerMove: Float32Array;
@@ -178,7 +191,7 @@ export function buildWindTrack(
     fingersL: Float32Array.from(shown, (n) => fingersOf(n.pitch, fingering, fundamental)[0]),
     fingersR: Float32Array.from(shown, (n) => fingersOf(n.pitch, fingering, fundamental)[1]),
     slide: Float32Array.from(shown, (n) =>
-      fingering === 'slide' ? (slidePosition(n.pitch) - 1) / MAX_LOWER : 0,
+      fingering === 'slide' ? slideTravel(slidePosition(n.pitch)) : 0,
     ),
     fingerMove: Float32Array.from(shown, (_, i) => Math.min(m.fingerSec, gapBefore(i))),
     slideMove: Float32Array.from(shown, (_, i) => Math.min(m.slideSec, gapBefore(i))),
@@ -192,7 +205,7 @@ export interface WindState {
   /** The close of the left and the right fingers, from 0 to 1, or -1 to hold. */
   fingersL: number;
   fingersR: number;
-  /** The slide position: 0 is the first position, 1 the seventh. */
+  /** The part of the slide travel: 0 at the first position, 1 at the seventh. */
   slide: number;
   /** The breath: 1 at the start of a phrase, after the breath in. */
   breath: number;
