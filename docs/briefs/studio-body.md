@@ -261,7 +261,8 @@ decisions, and the measured gains in a research report.
 
 The user can give a textured mesh with no skeleton, as the rabbit
 `assets/models/rabbit/rabbit-4.glb` of 2026-10-13, the fox `assets/models/fox/fox.glb` of
-2026-10-14, and the cat `assets/models/cat/cat.glb` of 2026-10-16. `pnpm rig-mesh <animal>` rigs
+2026-10-14, the cat `assets/models/cat/cat.glb` of 2026-10-16, and the dog
+`assets/models/dog/dog.glb` of 2026-10-17. `pnpm rig-mesh <animal>` rigs
 it into the GLB format of a studio body ("A mesh with no skeleton into route 3" of `AGENTS.md`).
 The rabbit mesh took five agent rounds
 ([`2026-10-14-rabbit-mesh-retro.md`](../research/2026-10-14-rabbit-mesh-retro.md)).
@@ -421,7 +422,7 @@ A new species with a studio body:
 | `AGENTS.md` | "Commands", the row of `pnpm studio-body` | the landmark of the scale of each animal in `ANIMALS` | |
 | `docs/briefs/studio-body.md` | "7. A mesh with no skeleton" | the example meshes of the user | |
 | `assets/models/<s>/README.md` | the whole file | the source, the license, and the checksum of a mesh of the user | |
-| `lowpoly-studio/docs/handoff.md` and `lowpoly-studio/README.md` | the whole files | only a body that the studio builds | `rabbit`, `fox-red`, `fox-tan`, `cat` |
+| `lowpoly-studio/docs/handoff.md` and `lowpoly-studio/README.md` | the whole files | only a body that the studio builds | `rabbit`, `fox-red`, `fox-tan`, `cat`, `dog` |
 
 A new role:
 
@@ -440,7 +441,7 @@ A new hold:
 | `docs/design/05-animation.md` | "Pose index" | the support, the source, the play, the rest, the code, and the docs of the role | |
 | `docs/design/05-animation.md` | "5.2 Rest pose" | the rest of the instrument and of the bow, such as the upright bow and its via | |
 | `docs/design/05-animation.md` | "5.3 Instrument motion", "Bowed strings in detail" | the play hold of each species with a bow, the rest bow, and the bow of a soloist who stands (`standBow`) | `fox-tan` |
-| `docs/design/05-animation.md` | "5.3 Instrument motion", "Woodwinds and brass in detail" | the hold of each species with a wind instrument | `rabbit`, `fox-red`, `cat` |
+| `docs/design/05-animation.md` | "5.3 Instrument motion", "Woodwinds and brass in detail" | the hold of each species with a wind instrument | `rabbit`, `fox-red`, `cat`, `dog` |
 | `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the reach of the nut, or of the grip of a wind instrument | |
 | `AGENTS.md` | "Design" | the hold of each studio body | |
 | `docs/decisions/<date>-<topic>.md` | the whole file | the decision file of the hold | |
