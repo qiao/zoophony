@@ -702,10 +702,14 @@ const CAT_HOLD = {
  * because the paw at the frog and on the C string went into the right rim of the cello. Pizzicato
  * plucks over the fingerboard (`pluckPlace` -0.6), nearer to the shoulder, with the elbow forward.
  *
- * In the rest pose, the left paw holds the neck at 0.4 of the fingerboard, and the right paw holds
- * the bow upright with the frog over the right knee, 0.4 H out (`UPRIGHT_BOW`). In the lift and
- * the lowering, the bow turns through the front, and the grip moves 0.3 H out, away from the
- * cello.
+ * In the rest pose, the right paw holds the bow over the right knee, 0.25 H out and 0.5 H above
+ * the top of the thigh at 0.9 of the way to the knee, with the tip up and leaned forward, and the
+ * right elbow points out, down, and back. The short arm then bends softly at the elbow, and the
+ * wrist bends 25° with the palm toward the body. With the grip 0.4 H out of the knee, the arm was
+ * straight and the wrist bent 66° with the palm to the front. The left paw holds the cello at 0.6
+ * of the fingerboard with the elbow down and out, 5.8 cm out from the side of the trunk (12.0 cm
+ * at 0.4). In the lift and the lowering, the bow turns through the front, and the grip moves 0.3 H
+ * out, away from the cello (2026-10-17-dog-rest decisions).
  */
 const DOG_HOLD = {
   ...BOWED_HOLDS.cello,
@@ -722,11 +726,12 @@ const DOG_HOLD = {
   poleTipR: [1, -0.5, -0.5],
   pluckPlace: -0.6,
   polePizzicato: [1, -0.5, -1],
-  restPoleL: [-1, -1, 0],
-  restPoleR: [1, -1, 1],
+  restPlace: 0.6,
+  restPoleL: [-0.5, -1, 0],
+  restPoleR: [0.6, -1, 0.75],
   restBow: {
-    lap: { along: 1, offset: [0.4, 0.1, 0] },
-    tip: UPRIGHT_BOW.tip,
+    lap: { along: 0.9, offset: [0.25, 0.5, 0] },
+    tip: [0.2, 1, -0.7],
     hair: UPRIGHT_BOW.hair,
     via: { ...UPRIGHT_BOW.via, reach: [0.3, 0, -0.4] },
   },
