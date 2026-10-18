@@ -20,7 +20,7 @@ import {
   windRig,
 } from '../src/pose/winds.ts';
 import type { WindInstrument } from '../src/pose/winds.ts';
-import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
+import { glbAnimal, runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -865,7 +865,8 @@ export function holdReachVariantLines(species: SpeciesId, options: ReachOptions)
 /**
  * Runs the tool: `node tools/hold-reach.ts <species> [options]`. With `--glb <file>`, the species
  * gets the studio body that the export makes from the file, in a copy of `src/`
- * (`tools/glb-swap.ts`).
+ * (`tools/glb-swap.ts`). A species with no studio body takes the body when it has a rig config
+ * (`glbAnimal()` of `tools/glb-swap.ts`).
  */
 async function main(): Promise<void> {
   const [species = '', ...args] = process.argv.slice(2);
@@ -881,9 +882,11 @@ async function main(): Promise<void> {
     throw new Error('The option --size takes the violin only.');
   }
   if (glb) {
-    const animal = speciesAnimal(species);
+    const animal = glbAnimal(species);
     if (!animal) {
-      throw new Error(`The species ${species} has no studio body, so --glb does not apply.`);
+      throw new Error(
+        `The species ${species} has no studio body and no rig config tools/mesh-rigs/${species}.json, so --glb does not apply.`,
+      );
     }
     process.exitCode = await withGlbBody(animal, glb, (dir) =>
       runTool(dir, 'hold-reach.ts', [species, ...rest]),
