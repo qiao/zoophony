@@ -685,59 +685,50 @@ const CAT_HOLD = {
 
 /**
  * The hold of the cello between the knees, for the dog mesh (design 4.6, 5.3), as a real cellist
- * holds it (`docs/reference/string-technique.md`, section 2.7, 2026-10-17-mesh-dog decisions): the
- * endpin on the floor in front of the chair, the lower bout between the knees, the back of the
- * cello against the belly and the chest, and the neck at the left of the head, above the left
- * shoulder. The endpin is 0.06 m right of the middle and 0.305 m in front of the floor point of
- * the seat. The cello stands vertical and leans 11° to the left, with the top plate to the front.
- * The short thighs of the dog end about 1 cm behind the front of its belly, so a cello that leans
- * back stood with its lower bout in front of the knees, and the knees stay behind the sides of the
- * lower bout. With a lean of 10°, or with the top plate turned 5° to the right, the head came 1.7 cm
- * to 2.0 cm to the neck in the looks at the conductor, and with 12°, the right upper arm went 2.0
- * cm into the body. The trunk does not lean, because the belly then pushes into the cello. The
- * cello keeps this place in the rest pose (`BowedHold.rest` null). The user chose these arms and
- * this hold again after the shorter arms of the 2026-10-17-dog-arms decisions.
+ * holds it (`docs/reference/string-technique.md`, section 2.7): the endpin on the floor 0.06 m
+ * right of the middle and 0.305 m in front of the floor point of the seat, the back of the cello
+ * against the belly and the chest, and the neck at the left of the head. The cello stands
+ * vertical and leans 11° to the left. It keeps this place in the rest pose (`BowedHold.rest`
+ * null). The reasons of the values are in the 2026-10-17-mesh-dog and 2026-10-17-dog-arms
+ * decisions.
  *
- * The left paw tilts 60° over the neck (`tiltL`), as the hand of a cellist comes over the
- * fingerboard from the bass side: with the 30° of the other holds, the thick paw went 3.0 cm into
- * the neck and the left forearm 3.3 cm into the upper bout. The left elbow points out to the left
- * and down, past the upper bout, and turns up 2° for each lower string: with the elbow of the floor
- * hold, the left upper arm went 3.8 cm into the upper bout, and with the 10° of the floor hold, the
- * left arm folded in more play samples. The right shoulder turns 30°, the turn of the violin, and
- * the right elbow points out at the frog and out, a little up, and forward at the tip: with the
- * turn of 45° and the raised elbow of the floor hold, the skin of the right shoulder folded in each
- * play sample.
+ * The left paw tilts 55° over the neck (`tiltL`), and the left elbow points out to the left and
+ * down, past the upper bout, and turns up 2° for each lower string. The right shoulder turns 30°.
  *
- * The string planes of the dog are 12° apart, below the 17° of the floor hold: at the tip on the C
- * string, the right upper arm went 1.9 cm into the side of the chest at the armpit with 17°, 1.5 cm
- * with 13°, and 1.4 cm with 12° (`pnpm pose-depth cellist`, all demos).
+ * The short arms of 2026-10-17 reach the strings only nearly straight. The trunk leans 3° forward,
+ * so that the shoulders come nearer to the strings, and the right elbow points out and down, near
+ * the body. With the elbow out and level, the right shoulder folded in 92% of the play samples.
+ * The bow plays no hair within 0.12 m of the frog (`frogHair`), and the string planes are 6° apart,
+ * because the paw at the frog and on the C string went into the right rim of the cello. Pizzicato
+ * plucks over the fingerboard (`pluckPlace` -0.6), nearer to the shoulder, with the elbow forward.
  *
- * In the rest pose, the left paw holds the neck at 0.4 of the fingerboard with the elbow out to
- * the left, and the right paw holds the bow upright at the right side, with the frog over the right
- * knee, 0.4 H out (`UPRIGHT_BOW`), as a cellist in a first lesson stands the screw of the frog on
- * the right knee with the bow up. The right elbow points out, down, and back. With the grip on the
- * top of the knee, the right upper arm went 4.1 cm into the side of the belly. In the lift and the
- * lowering, the bow turns through the front (the via of `UPRIGHT_BOW`).
+ * In the rest pose, the left paw holds the neck at 0.4 of the fingerboard, and the right paw holds
+ * the bow upright with the frog over the right knee, 0.4 H out (`UPRIGHT_BOW`). In the lift and
+ * the lowering, the bow turns through the front, and the grip moves 0.3 H out, away from the
+ * cello.
  */
 const DOG_HOLD = {
   ...BOWED_HOLDS.cello,
-  lean: 0,
+  lean: 3 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
-  stringTurn: 12 * MathUtils.DEG2RAD,
+  stringTurn: 6 * MathUtils.DEG2RAD,
+  frogHair: 0.12,
   playShift: [-0.076, 0, 0.748],
   playTurn: [-0.2565, 0.1002, -0.0786, 0.9581],
-  tiltL: 60 * MathUtils.DEG2RAD,
+  tiltL: 55 * MathUtils.DEG2RAD,
   poleL: [-1, -0.8, -0.2],
   elbowPerString: 2 * MathUtils.DEG2RAD,
-  poleR: [1, 0, -0.3],
-  poleTipR: [1, 0.3, -1],
+  poleR: [1, -1.2, -0.3],
+  poleTipR: [1, -0.5, -0.5],
+  pluckPlace: -0.6,
+  polePizzicato: [1, -0.5, -1],
   restPoleL: [-1, -1, 0],
   restPoleR: [1, -1, 1],
   restBow: {
     lap: { along: 1, offset: [0.4, 0.1, 0] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
-    via: UPRIGHT_BOW.via,
+    via: { ...UPRIGHT_BOW.via, reach: [0.3, 0, -0.4] },
   },
 } as const satisfies BowedHold;
 
