@@ -13,10 +13,10 @@ This module of `AGENTS.md` gives the rules of the TypeScript code and its style.
 - **Index signatures.** Read a key of an index signature with brackets: `counts['violin']`.
 - **Oxlint.** `pnpm lint` runs `oxlint --type-aware .`, which needs `oxlint-tsgolint`. The
   `correctness`, `suspicious`, and `perf` categories are errors. Use `toSorted()` in place of
-  `sort()`. `.oxlintrc.json` lists each rule that is off, and the commit that turned it off
-  gives the reason. The
-  anti-slop plugin in `tools/oxlint/anti-slop/` adds 15 rules. For example, a symbol name must
-  not contain "shape", and only an I/O boundary may use a `typeof` check.
+  `sort()`. `.oxlintrc.json` lists each rule that is off, and the commit that turned it off gives
+  the reason. The anti-slop plugin adds the rules of `tools/oxlint/anti-slop/rules/`. For
+  example, a symbol name must not contain "shape", and only an I/O boundary may use a `typeof`
+  check.
 - **Record types.** Give the exact keys when you know them. When the keys are dynamic, type the
   values. Use a specific value type in place of `Record<string, unknown>`.
 - **Casts.** Narrow a type with a `value is T` type guard or a generic. The anti-slop rules
