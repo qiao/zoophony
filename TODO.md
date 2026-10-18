@@ -592,10 +592,10 @@ the mockup is out of scope.
       request of 2026-10-17, design 4.5): the look lab (`pnpm look-lab`), the band-limited grain
       and the planks, the lacquer and the lighter walnut, the grade of a 3D lookup table, and the
       bake of the static props. Measures: `docs/research/2026-10-18-cinematic-light.md`.
-- [ ] Cinematic light, step P3: capture the hall and the lit stage as the environment, and add
-      the bounce of the pool if the look lab still needs it (D3, approved on 2026-10-17). The
-      floor shadows are darker than in the reference: luma p90 / p5 of 4.0 and 6.5 against 2.6
-      and 4.7.
+- [x] Cinematic light, step P3: capture the hall and the lit stage as the environment of each
+      layout (D3, approved on 2026-10-17, user "do it" on 2026-10-18). The bounce term of the plan
+      waits, because the back of the conductor reached a luma of 50 against 52 in the reference.
+      The floor in front of the podium is at a luma p90 / p5 of 5.6 against 4.7.
 - [ ] Cinematic light, step P4: the light preset of each shot kind, the diffusion, the halation,
       the vignette of each shot, and the room haze (D4 and D5, approved on 2026-10-17).
 - [ ] Measure the frame cost of the cinematic light when the frame test returns: the clearcoat of

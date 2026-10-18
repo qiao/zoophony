@@ -550,10 +550,13 @@ solo.
 - **Solo light** (`soloAim()`, user, 2026-10-07). When the user solos seats (2.4, 6.6), the key
   light, its pool, and the beam turn to the soloed players, and ease back after the solo. The aim
   comes from the solo flags and the layout alone.
-- An environment map of a dark room with warm lamps gives the reflections
-  (`scene/environment.ts`). Tone mapping is AgX, because ACES moved the dark wood to red. With
-  reduced motion, the noise, the motes, and the grain stand still, and the lights move at once
-  (2.5).
+- **Captured environment** (`captureEnvironment()`). Each layout renders its hall and its lit
+  stage into a cube, with no players, no props, and no beam, from above the middle of the pool of
+  light. The brass and the lacquer reflect the real lamps and the lit floor, and the shadow sides
+  of the players get the warm light of the floor below them, as in `orchestra-latest.png`. A GPU
+  with no target of floats keeps a fixed environment of a dark room with warm lamps.
+- Tone mapping is AgX, because ACES moved the dark wood to red. With reduced motion, the noise,
+  the motes, and the grain stand still, and the lights move at once (2.5).
 
 **Hall**
 

@@ -19,7 +19,8 @@ import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
-import { ENVIRONMENT, createEnvironment } from './environment.ts';
+import { CAPTURE, ENVIRONMENT, captureEnvironment, createEnvironment } from './environment.ts';
+import type { CaptureOptions } from './environment.ts';
 import { FREE_LENS, focusOf, freeFocusDistance, freeFocusOf } from './focus.ts';
 import type { Focus, FocusSpot } from './focus.ts';
 import { createMaterials } from './geometry.ts';
@@ -137,6 +138,20 @@ interface LayoutView {
   readonly effects: readonly Object3D[];
   /** The bake of the static props, or `null` for a GPU with no target of floats (design 4.5). */
   readonly bake: LayoutBake | null;
+  /** The captured environment, or `null` for a GPU with no target of floats (design 4.5). */
+  readonly capture: LayoutCapture | null;
+}
+
+/** The captured environment of a layout, which a restored WebGL context makes again. */
+interface LayoutCapture {
+  /** The target that holds the environment texture. */
+  target: WebGLRenderTarget;
+  /** The hall of the layout. */
+  readonly hall: Group;
+  /** The stage side `S`, in meters. */
+  readonly stageSide: number;
+  /** The point of the capture and the hidden objects. */
+  readonly options: CaptureOptions;
 }
 
 /** The bake of the static props of a layout, which a restored WebGL context makes again. */
@@ -298,7 +313,8 @@ export class StageScene {
     const props = createStaticMesh(buildSceneProps(layout), materials);
     scene.add(props);
     const players = createPlayers(playerSpots(layout), materials, models);
-    scene.add(new Group().add(...players));
+    const playerGroup = new Group().add(...players);
+    scene.add(playerGroup);
     const camera = new StageCamera(
       this.#canvas,
       layout.stageSide,
@@ -310,6 +326,13 @@ export class StageScene {
     const stage = stageGroup.children.find((child) => child instanceof Mesh);
     const bake =
       this.#post && stage ? this.#bake(scene, layout.stageSide, stage, props, bakeUniforms) : null;
+    const beam = lights.children.find((child) => child instanceof Group);
+    const capture = this.#post
+      ? this.#capture(scene, hall, layout.stageSide, {
+          position: [aim.center[0], CAPTURE.height, aim.center[1]],
+          hidden: beam ? [playerGroup, props, beam] : [playerGroup, props],
+        })
+      : null;
     // The new scene takes its shader programs before the old scene frees its materials, so the
     // renderer keeps the programs that both use.
     this.#renderer.compile(scene, camera.camera);
@@ -330,7 +353,30 @@ export class StageScene {
       hall,
       effects: lightEffects(scene),
       bake,
+      capture,
     };
+  }
+
+  /**
+   * Captures the environment of a layout (`captureEnvironment()`, design 4.5): the hall and the
+   * lit stage, with no players, no props, and no beam, from above the middle of the pool of light.
+   * During the capture, the reflections use the environment of the renderer, and the hall shows
+   * in full from the point of the capture.
+   *
+   * @param scene The scene of the layout.
+   * @param hall The hall of the layout.
+   * @param stageSide The stage side `S`, in meters.
+   * @param options The point of the capture and the hidden objects.
+   * @returns The capture of the layout. The scene then uses it as its environment.
+   */
+  #capture(scene: Scene, hall: Group, stageSide: number, options: CaptureOptions): LayoutCapture {
+    scene.environment = this.#environment.texture;
+    scene.environmentIntensity = ENVIRONMENT.intensity;
+    setHallCamera(hall, stageSide, new Vector3(...options.position), CAPTURE.size);
+    const target = captureEnvironment(this.#renderer, scene, options);
+    scene.environment = target.texture;
+    scene.environmentIntensity = CAPTURE.intensity;
+    return { target, hall, stageSide, options };
   }
 
   /**
@@ -638,8 +684,8 @@ export class StageScene {
   }
 
   /**
-   * Makes the environment of the reflections and the bake of the static props again after a
-   * restored WebGL context.
+   * Makes the environment of the reflections, the bake of the static props, and the captured
+   * environment again after a restored WebGL context.
    */
   #restoreEnvironment(): void {
     this.#environment.dispose();
@@ -659,6 +705,17 @@ export class StageScene {
       );
       bake.target = target;
     }
+    const capture = this.#view?.capture;
+    if (this.#view && capture) {
+      capture.target.dispose();
+      const { target } = this.#capture(
+        this.#view.scene,
+        capture.hall,
+        capture.stageSide,
+        capture.options,
+      );
+      capture.target = target;
+    }
   }
 
   #disposeView(): void {
@@ -666,6 +723,7 @@ export class StageScene {
       return;
     }
     this.#view.bake?.target.dispose();
+    this.#view.capture?.target.dispose();
     disposeTree(this.#view.scene, new Set(this.#materials));
     this.#view.camera.dispose();
     this.#view = null;
