@@ -623,16 +623,23 @@ the mockup is out of scope.
       0.67 ms in each frame of `perf-60.mid`. The bake step costs 0.42 ms, with 20 shadow samples
       of the baked stage in place of 12.
 - [ ] The glow of the haze around the beam is weaker than in `orchestra-latest.png`: the hall
-      above the stage has a luma p90 of 22 against 49.
+      above the stage has a luma p90 of 27 against 49 in the camera `orchestra`, after the haze of
+      1.5 times. Free mode dims the beam there, as in a close shot.
 - [ ] Give the players the shadows of the props on their bodies again, such as the shadow of a
       chair seat on the shins. The bake took the props out of the shadow map.
-- [ ] The white fur of the rabbit is more yellow than in `orchestra-latest.png`: a hue of 29°
-      against 19°, and a saturation of 0.49 against 0.30 (`pnpm look-lab`, after the narrow side
-      lights).
+- [ ] The white fur of the rabbit is a little more yellow than in `orchestra-latest.png`: a hue
+      of 26° against 19°, and a saturation of 0.32 against 0.30 (`pnpm look-lab`, after the warm
+      white side lights).
 - [x] Give the bodies a shade side and shadows (user, 2026-10-18: "no shadow on the animals. They
       look plain, over-exposed, low-contrast"). The side lights stand higher with narrow cones, so
       each lights only the far section, and they cast the shadows of the players on the players.
       The players take 0.6 of the fill light. Measures: `docs/research/2026-10-18-body-shade.md`.
+- [x] Steps 1 to 4 of the compare with `orchestra-latest.png` (user "do 1-4" on 2026-10-18): warm
+      white side lights and a neutral fill, an amber wood of finer planks, honey chairs, softer and
+      lighter floor shadows, and a brighter haze and beam. Measures:
+      `docs/research/2026-10-18-light-color.md`.
+- [ ] The chairs have a lit saturation of 0.53 against 0.65 in `orchestra-latest.png`, and the
+      stage of the camera `orchestra` a median luma of 124 against 107 outside the pool of light.
 - [ ] Cut the frame cost of the shadows of the side lights in the performance sweep: about 0.9 ms
       of GPU time and 0.4 ms of main-thread time in each frame of `perf-60.mid` on the high tier.
       Options: smaller maps, or a new map only every second frame.
