@@ -842,6 +842,20 @@ export function blenderArgs(
   ];
 }
 
+/** The start of a warning line of the log of `tools/blender/rig_mesh.py` (`warn()`). */
+export const RIG_WARNING = 'rig_mesh: warning:';
+
+/**
+ * Gives the warning lines of a log of the rig script: the seat that the thighs set and the eye box
+ * in a dark patch.
+ *
+ * @param log The text of the log.
+ * @returns The lines that start with {@link RIG_WARNING}, in their order.
+ */
+export function rigWarnings(log: string): string[] {
+  return log.split('\n').filter((line) => line.startsWith(RIG_WARNING));
+}
+
 /**
  * Runs the rig script of Blender, and prints the lines of its log. A stop signal (INT or TERM)
  * stops Blender first (`tools/stop-cleanup.ts`).

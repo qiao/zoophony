@@ -14,12 +14,12 @@
  * (`tools/glb-swap.ts`): the slide reach of a trombone, the spare reach of each palm to its grip on
  * another wind instrument, or the scale of the rule of a violin shop.
  *
- * The tool writes into `<dir>`: `options.md` with the table of the measures, `options.png` with
- * the image, and `rigs/` with the config, the GLB file, the long-armed source, the preview images,
- * and the log of Blender of each variant. The scale of a variant GLB file is the value of the
- * column "Shoulder joints m" (`app.shoulders`). It writes no file of the repository. Blender comes
- * from the environment variable `BLENDER`, or `blender` on the path, and the image from Python with
- * Pillow (`uv run`).
+ * The tool writes into `<dir>`: `options.md` with the table of the measures and the warnings of
+ * the rigs (`warningLines()`), `options.png` with the image, and `rigs/` with the config, the GLB
+ * file, the long-armed source, the preview images, and the log of Blender of each variant. The
+ * scale of a variant GLB file is the value of the column "Shoulder joints m" (`app.shoulders`).
+ * It writes no file of the repository. Blender comes from the environment variable `BLENDER`, or
+ * `blender` on the path, and the image from Python with Pillow (`uv run`).
  */
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
@@ -47,7 +47,15 @@ import {
   windReach,
 } from './hold-reach.ts';
 import type { ReachInstrument } from './hold-reach.ts';
-import { blenderArgs, jointHead, legRise, parseConfig, shoulderHeight } from './rig-mesh.ts';
+import {
+  blenderArgs,
+  jointHead,
+  legRise,
+  parseConfig,
+  RIG_WARNING,
+  rigWarnings,
+  shoulderHeight,
+} from './rig-mesh.ts';
 import type { MeshRigConfig } from './rig-mesh.ts';
 import { measureRig } from './rig-mesh-check.ts';
 import type { ThinRule } from './rig-mesh-check.ts';
@@ -514,10 +522,10 @@ export function workingBody(species: SpeciesId, instrument: ReachInstrument | nu
  *
  * @param args The arguments of `blender` (`blenderArgs()` of `tools/rig-mesh.ts`).
  * @param log The path of the log file.
- * @returns A promise of the end of the run.
+ * @returns A promise of the text of the log.
  * @throws Error if Blender fails.
  */
-function runBlender(args: readonly string[], log: string): Promise<void> {
+function runBlender(args: readonly string[], log: string): Promise<string> {
   const blender = process.env['BLENDER'] ?? 'blender';
   return new Promise((done, fail) => {
     const child = trackChild(
@@ -536,7 +544,7 @@ function runBlender(args: readonly string[], log: string): Promise<void> {
     child.on('close', (code) => {
       void writeFile(log, out).then(() => {
         if (code === 0) {
-          done();
+          done(out);
         } else {
           fail(new Error(`${blender} failed with the status ${String(code)}. The log: ${log}`));
         }
@@ -555,6 +563,8 @@ export interface RiggedVariant {
   readonly preview: string;
   /** The highest point of the standing source, in the units of the studio. */
   readonly tall: number;
+  /** The warning lines of the log of the rig (`rigWarnings()` of `tools/rig-mesh.ts`). */
+  readonly warnings: readonly string[];
 }
 
 /**
@@ -578,7 +588,7 @@ async function rigVariant(
   const obj = `${base}.obj`;
   const preview = `${base}-preview`;
   await writeFile(configFile, text);
-  await runBlender(blenderArgs(configFile, glb, preview, obj), `${base}.log`);
+  const log = await runBlender(blenderArgs(configFile, glb, preview, obj), `${base}.log`);
 
   const config = parseConfig(text);
   const known = ANIMALS.get(args.animal);
@@ -637,6 +647,7 @@ async function rigVariant(
     },
     preview,
     tall: tops.top,
+    warnings: rigWarnings(log),
   };
 }
 
@@ -694,6 +705,20 @@ export function optionsTable(
         `| ${variant.name} | ${variant.size.label} (${variant.size.top} m) | ${variant.leg} | ${variant.arm} | ${cells(measures).join(' | ')} |`,
     ),
   ];
+}
+
+/**
+ * Writes the warnings of the rigs of the variants for `options.md`: the seat that the thighs set
+ * and the eye box in a dark patch (`tools/blender/rig_mesh.py`).
+ *
+ * @param rows The rigged variants.
+ * @returns The lines: a heading and one item for each warning, or none with no warning.
+ */
+export function warningLines(rows: readonly RiggedVariant[]): string[] {
+  const items = rows.flatMap(({ variant, warnings }) =>
+    warnings.map((warning) => `- ${variant.name}: ${warning.slice(RIG_WARNING.length).trim()}`),
+  );
+  return items.length > 0 ? ['## Warnings of the rigs', '', ...items, ''] : [];
 }
 
 /** One cell of the image: a preview tile or the body of the working tree, with its labels. */
@@ -899,6 +924,9 @@ async function main(): Promise<void> {
     console.log(
       `${variant.name}: head top ${row.measures.headTop.toFixed(3)} m, H ${row.measures.headHeight.toFixed(3)} m, seat ${row.measures.seat?.toFixed(3) ?? '-'} m, reach ${row.measures.reach.toFixed(3)} m${row.measures.hold ? `, ${row.measures.hold}` : ''} (${((Date.now() - at) / 1000).toFixed(1)} s)`,
     );
+    for (const warning of row.warnings) {
+      console.log(`  ${warning}`);
+    }
   }
 
   const table = optionsTable(args.species, working, rows);
@@ -909,6 +937,7 @@ async function main(): Promise<void> {
     '',
     ...table,
     '',
+    ...warningLines(rows),
   ];
   await writeFile(join(args.dir, 'options.md'), report.join('\n'));
   const planFile = join(args.dir, 'plot.json');
