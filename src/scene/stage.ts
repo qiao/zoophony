@@ -76,10 +76,17 @@ float woodNoise(vec2 p) {
   return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
+// The value of one octave of the grain, faded to its mean 0.5 when one cell of the noise covers
+// less than about 4 pixels. The finer cells shimmered as streaks in a moving camera.
+float woodOctave(vec2 q) {
+  vec2 w = fwidth(q);
+  return mix(woodNoise(q), 0.5, smoothstep(0.12, 0.3, max(w.x, w.y)));
+}
+
 // The grain from -1 to 1: long streaks along x, with a finer noise on them.
 float woodGrain(vec3 p) {
-  float streaks = woodNoise(vec2(p.x * 0.7, p.z * 26.0 + p.y * 26.0));
-  float fine = woodNoise(vec2(p.x * 3.0, p.z * 90.0 + p.y * 90.0));
+  float streaks = woodOctave(vec2(p.x * 0.7, p.z * 26.0 + p.y * 26.0));
+  float fine = woodOctave(vec2(p.x * 3.0, p.z * 90.0 + p.y * 90.0));
   return (streaks * 0.7 + fine * 0.3) * 2.0 - 1.0;
 }
 `;
