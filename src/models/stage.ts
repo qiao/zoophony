@@ -12,15 +12,17 @@ export const STAGE_THICKNESS = 0.4;
 
 /**
  * The width of one plank of the stage top. The planks run from the left to the right, as in
- * `mockup.png`, and each row has planks of several lengths with staggered joints.
+ * `mockup.png`, and each row has planks of several lengths with staggered joints. The boards of
+ * `orchestra-latest.png` are about 0.1 m wide and 0.5 m long, against the podium top of 1.05 m,
+ * so the planks are a step finer than the first planks of 0.22 m by 2.4 m to 4.8 m.
  */
-export const PLANK_WIDTH = 0.22;
+export const PLANK_WIDTH = 0.14;
 
 /** The width of the dark line between two planks. */
 export const PLANK_LINE_WIDTH = 0.012;
 
 /** The shortest plank and the length that a plank can add to it, in meters. */
-export const PLANK_LENGTH = { min: 2.4, extra: 2.4 } as const;
+export const PLANK_LENGTH = { min: 0.9, extra: 1.2 } as const;
 
 /** The largest change of the tone of one plank from the mean plank color, as a factor. */
 export const PLANK_TONE = 0.2;
