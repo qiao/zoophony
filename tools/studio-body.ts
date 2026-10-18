@@ -193,6 +193,19 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/cat/cat.rig.glb',
     },
   ],
+  // The cello dog: decisions/2026-10-17-mesh-dog.md.
+  [
+    'dog',
+    {
+      landmark: 'shoulders',
+      height: 1.00078,
+      seated: true,
+      soloist: false,
+      constant: 'STUDIO_DOG',
+      crease: 35,
+      glb: 'assets/models/dog/dog.rig.glb',
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
