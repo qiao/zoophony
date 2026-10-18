@@ -377,7 +377,7 @@ export function largestDiffs(
  * @param png The PNG image.
  * @returns The width and four values for each pixel.
  */
-async function rgbaPixels(
+export async function rgbaPixels(
   browser: Browser,
   png: Buffer,
 ): Promise<{ width: number; rgba: Uint8Array }> {

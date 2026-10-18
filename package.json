@@ -34,6 +34,7 @@
     "close-views": "sh -c 'node tools/close-views.ts --check \"$@\" && pnpm build && node tools/close-views.ts \"$@\"' close-views",
     "fold-probe": "node tools/fold-probe.ts",
     "shot-trace": "node tools/shot-trace.ts",
+    "look-lab": "node tools/look-lab.ts",
     "docs-species": "node tools/docs-species.ts",
     "frame": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && node tools/measure-frame.ts"
   },
