@@ -61,10 +61,11 @@ Open these files for these kinds of work:
   sits with the thighs 25° down and vertical shins on a wider chair
   (`docs/decisions/2026-10-16-cat-form.md`). Since 2026-10-17, the cello dog has the mesh of the
   user `assets/models/dog/dog.glb`, rigged by `pnpm rig-mesh dog` with the head height of the red
-  fox, the arms of the cello reach, the leg factor 1.5, and the knees spread 30° around the lower
-  bout of the cello. Its hold puts the cello between the knees against the chest, as real
-  cellists hold it, and the bow stands upright on the right knee in the rest. Its hanging ears do
-  not twitch (`docs/decisions/2026-10-17-mesh-dog.md`).
+  fox, the leg factor 1.5, and the knees spread 30° around the lower bout of the cello. Its hold
+  puts the cello between the knees against the chest, as real cellists hold it, and the bow
+  stands upright on the right knee in the rest. Its hanging ears do not twitch
+  (`docs/decisions/2026-10-17-mesh-dog.md`). Since round `dog-arms`, it has the arm factor 1.35, a
+  1/2 cello, and a tail that hangs down behind the seat (`docs/decisions/2026-10-17-dog-arms.md`).
   `pnpm close-views conductor <dir>`, `pnpm close-views pianist <dir>`,
   `pnpm close-views violinist <dir>`, `pnpm close-views fox-violinist <dir>`,
   `pnpm close-views violist <dir>`, `pnpm close-views cellist <dir>`, and
@@ -511,6 +512,8 @@ These traps of route 3 each cost a round:
   the hold that the clearance asked for (the cello place, the shoulder turn, the string turn) cost
   a new rig. Fit the hold with the arms of a first factor, measure the reach with
   `docs/research/2026-10-17-dog-mesh/cello-reach.ts`, and rig the final factor once.
+- A reach factor far above the option text of the user goes back to the user before the merge: the
+  dog went to the arm factor 1.75 for "about 1.4x", and the user called the arms way too long.
 - Short thighs on a deep trunk end behind the front of the belly. The knees of the dog mesh with
   the leg factor 1.5 stay 1 cm behind the front of its belly and chest, so a cello against the
   chest stands with its lower bout in front of the knees, and a cello that leans back stands
