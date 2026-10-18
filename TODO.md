@@ -685,8 +685,19 @@ the mockup is out of scope.
       stage of the camera `orchestra` a median luma of 130 against 107 outside the pool of light.
 - [ ] A cool fill (`#282c34`) against the warm keys waits for the user: it makes the shade of the
       white fur a little grayer (`docs/research/2026-10-18-key-beam.md`).
-- [ ] Measure the back rows after the far key light. If they stay too dark against
-      `orchestra-latest.png`, add a top light over them (about 0.2 ms in each frame).
+- [x] Measure the back rows after the far key light, and light them when they stay too dark
+      (user "do it" on 2026-10-18, after "the back rows of the stage are too dark"): two back-row
+      lights from the front corners, and a pool that reaches far toward the back on the players.
+      Measures: `docs/research/2026-10-18-back-light.md`.
+- [ ] The hot spot of the key light also multiplies the side lights on the high and medium tiers,
+      because they cast shadows there (`SPOT_POOL_GLSL` of `scene/light-pool.ts`). There, the first
+      row gets about 1.3 times the light of the low tier, and the back row only 0.63 to 0.77 of the
+      first row (`docs/research/2026-10-18-back-light.md`). A hot spot on the key light alone dims
+      the front rows of the high tier.
+- [ ] The floor at the back of the stage has a luma p50 of 52, against 39 before the back-row
+      lights and 41 in `orchestra-latest.png` (`docs/research/2026-10-18-back-light.md`).
+- [ ] Measure the frame cost of the two back-row lights in the performance sweep: two more
+      spotlights in the light loop of each pixel of the players, the props, and the stage.
 - [ ] Cut the frame cost of the shadows of the side lights in the performance sweep: about 0.9 ms
       of GPU time and 0.4 ms of main-thread time in each frame of `perf-60.mid` on the high tier.
       Options: smaller maps, or a new map only every second frame.
