@@ -368,6 +368,14 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
     color of the reference after a choice of the user (`colors.tone`): the cat takes half of the
     move to its sheet, and the white fur of the panda takes the white of `SPECIES_COLORS.panda`.
     The tan palette of the fox mesh (`StudioBody.palettes`) lets one module serve both foxes.
+  - Borders of black fur. A face takes black from a third of dark texture samples, so that the
+    small faces of an eye stay dark. On the large faces of a trunk, the border of a black region
+    then gets teeth, and a raised arm stretches them into black wedges. `colors.border` gives each
+    dark face of a box with less than half dark samples the color of the nearest light face, as
+    under the arms of the panda (`docs/decisions/2026-10-18-panda-marks.md`). The faces under an
+    armpit where the hanging arm of the mesh touches the trunk stretch when the arm rises, and
+    they shade darker. A weight fade there folds the faces from the trunk to the forearm, so this
+    shading stays.
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
     raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
@@ -476,7 +484,8 @@ black desks were the largest shapes of some close shots.
 the face, and the accent. The models and the seat dots of the UI read them through `SPECIES`
 (`models/species.ts`). Each studio body keeps the colors of the faces of its GLB file (4.4), so
 its colors and its accent parts here color no part of its body. The rig of the panda moves its
-white fur to the fur color here, and its smile line takes the dark of its eye patches (4.4).
+white fur to the fur color here, its smile line takes the dark of its eye patches, and the border
+of its black band under the arms takes the white of its fur (4.4).
 
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR`), and a dark nose
   (`NOSE_COLOR`), unless their accent parts include the nose. The open beak of the penguin shows a
