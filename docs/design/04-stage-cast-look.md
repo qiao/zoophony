@@ -378,7 +378,8 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
     corrective shape does not remove this shading. A weight fade there removes it, but the same
     corners join the forearm to the trunk, and those faces fold. A cut of those faces moves the
     fold, new vertices on the long faces keep the shading, and a gap of a few centimeters between
-    the forearm and the trunk keeps the faces that join them, so this shading stays.
+    the forearm and the trunk keeps the faces that join them. The folded faces show in the gallery
+    and on the stage, so this shading stays.
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
     raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
