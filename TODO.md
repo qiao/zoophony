@@ -388,14 +388,20 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `boulanger-matin` (18.96 s) (`2026-10-17-mesh-dog.md`).
 - [ ] The paused shot test of the choir of the Ode to Joy fails since the larger cats
       (`2026-10-16-mesh-cat.md`).
-- [ ] Panda trombonist: faces 717, 1147, and 1148 at the front of the left shoulder fold in each
+- [x] Panda trombonist: faces 717, 1147, and 1148 at the front of the left shoulder fold in each
       play, lift, and rest sample. A raise rule of the left arm does not relax them
-      (`2026-10-18-mesh-panda.md`).
+      (`2026-10-18-mesh-panda.md`). Done: the left shoulder turns 15° forward
+      (`2026-10-18-panda-folds.md`).
 - [ ] The paused shot test of the moves of 2 cm keeps 71.8% of the shots (limit 75%) since the
       panda mesh (`docs/research/2026-10-18-panda-mesh.md`).
-- [ ] Panda: the white fur of the mesh has three times the chroma of `SPECIES_COLORS.panda` (0.042
+- [x] Panda: the white fur of the mesh has three times the chroma of `SPECIES_COLORS.panda` (0.042
       against 0.013). Ask the user about a move of the fur colors, as the cat got
-      (`docs/research/2026-10-18-panda-mesh.md`).
+      (`docs/research/2026-10-18-panda-mesh.md`). Done: the user chose the reference white
+      (`2026-10-18-panda-folds.md`).
+- [ ] Panda trombonist: face 467 at the front of the right shoulder folds in 2.2% of the lift
+      samples, and the shadow of the left arm crosses the belly in the gallery front view of the
+      first position. Show the user the images of `docs/research/2026-10-18-panda-folds/`
+      (`2026-10-18-panda-folds.md`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
