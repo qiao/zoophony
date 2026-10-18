@@ -524,7 +524,8 @@ function rightShoulderTurn(hold: WindHold, out: Quaternion): Quaternion {
 
 /**
  * Finds the length of the slide travel that the right arm reaches in the playing pose, in steps
- * of 5 mm.
+ * of 5 mm, with the chest in its bind pose. The slide turns with the playing rotation of the hold
+ * around the mouthpiece, and the mouthpiece follows the mouth of a turned head ({@link placeWind}).
  *
  * @param rig The points of the player.
  * @param travel The full travel of the slide, in meters.
@@ -539,11 +540,14 @@ function slideReachOf(rig: Omit<WindRig, 'slideReach'>, travel: number): number 
   const turn = rightShoulderTurn(rig.hold, new Quaternion());
   const joint = poseShoulder(arm, chest, rig.chestBind, turn).position;
   const reach = arm.reach + new Vector3(...arm.palm).length();
+  placeWind(rig, chest, 1);
   const grip = new Vector3();
   const axis = new Vector3(...rig.slideAxis);
+  const bind = new Vector3(...rig.pivot);
   let reached = 0;
   for (let s = 0; s <= travel + 1e-9; s += 0.005) {
-    if (grip.fromArray(rig.right.grip).addScaledVector(axis, s).distanceTo(joint) > reach) {
+    grip.fromArray(rig.right.grip).addScaledVector(axis, s).sub(bind);
+    if (grip.applyQuaternion(rotation).add(pivot).distanceTo(joint) > reach) {
       break;
     }
     reached = s;
@@ -731,7 +735,7 @@ function mixPole(rest: Vec3, play: Vec3, weight: number): Vec3 {
  * @param chest The posed frame of the chest.
  * @param weight The eased weight of the playing pose: 0 is the rest pose.
  */
-function placeWind(rig: WindRig, chest: Frame, weight: number): void {
+function placeWind(rig: Omit<WindRig, 'slideReach'>, chest: Frame, weight: number): void {
   mixRotation(local.fromArray(rig.hold.rest), playTurn.fromArray(rig.hold.play), weight, local);
   rotation.multiplyQuaternions(chest.rotation, local);
   // In the rest pose, the instrument comes down from the mouth to the lap. While the player
@@ -760,7 +764,7 @@ const mouthTuple: [number, number, number] = [0, 0, 0];
  * @param yaw The turn of the head to the left, in radians.
  * @returns The place, in a module tuple that the next call writes again.
  */
-function turnedMouth(rig: WindRig, yaw: number): Vec3 {
+function turnedMouth(rig: Omit<WindRig, 'slideReach'>, yaw: number): Vec3 {
   neckTurn.setFromAxisAngle(Y_AXIS, yaw * NECK_SHARE);
   headTurn.setFromAxisAngle(Y_AXIS, yaw);
   neckBind.fromArray(rig.neckBind);
