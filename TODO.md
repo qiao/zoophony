@@ -607,9 +607,11 @@ the mockup is out of scope.
       The main thread does not change.
 - [ ] Measure the GPU row of the frame target again with the Metal trace. On 2026-10-18,
       `xctrace` could not connect to DTServiceHub, so `pnpm frame` ran with `--no-metal`.
-- [ ] Cut the frame cost of the cinematic light in the performance sweep. The two lamps of the
-      shot light cost 0.45 ms in each frame, also in a wide shot. The baked stage takes 20 shadow
-      samples in place of 12.
+- [x] Cut the cost of the shot light (user "do 2" on 2026-10-18): a diffuse term of the material
+      of the players and the props in place of two spotlights saves 0.44 ms in each frame.
+- [ ] Cut the rest of the frame cost of the cinematic light in the performance sweep: about
+      0.67 ms in each frame of `perf-60.mid`. The bake step costs 0.42 ms, with 20 shadow samples
+      of the baked stage in place of 12.
 - [ ] The glow of the haze around the beam is weaker than in `orchestra-latest.png`: the hall
       above the stage has a luma p90 of 22 against 49.
 - [ ] Give the players the shadows of the props on their bodies again, such as the shadow of a
