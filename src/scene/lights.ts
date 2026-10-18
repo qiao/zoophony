@@ -56,8 +56,13 @@ export const KEY_LIGHT = {
  * them (scene/stage.ts), so the floor keeps the shadows of the key light alone.
  */
 export const SIDE_LIGHT = {
-  /** The color, in sRGB. */
-  color: '#ffd2a0',
+  /**
+   * The color, in sRGB: a warm white. The side lights give most of the light on the fronts of the
+   * players, and the orange `#ffd2a0` gave the white fur a saturation of 0.47 against 0.30 in
+   * `orchestra-latest.png`, so each species turned orange-brown (`pnpm look-lab`). The key light
+   * keeps its orange, because it gives the amber of the floor.
+   */
+  color: '#ffe6d2',
   /** The position of the light at the right, in stage sides. */
   position: [1.1, 1.4, 0.7],
   /** The aim of the light at the right, in stage sides: the middle of the section at the left. */
@@ -71,12 +76,13 @@ export const SIDE_LIGHT = {
 } as const;
 
 /**
- * The fill light (design 4.5): warm and low, so that the shadows stay deep and warm. The ground
- * color is the light from the lit stage. The players and the props take the part `players` of
+ * The fill light (design 4.5): low, so that the shadows stay deep. The sky is a neutral gray, so
+ * the shade sides of white and gray fur stay gray, as in `orchestra-latest.png`. The ground
+ * color is the warm light from the lit stage. The players and the props take the part `players` of
  * the fill light and of the diffuse light of the environment, so their shade sides stay dark
  * (user, 2026-10-18). The stage takes all of it, so its shadows keep their tone.
  */
-export const FILL = { sky: '#302a26', ground: '#2c241e', intensity: 5, players: 0.6 } as const;
+export const FILL = { sky: '#2c2c2e', ground: '#2c241e', intensity: 5, players: 0.6 } as const;
 
 /**
  * The normal bias of the shadow, in texels of the shadow map at the stage, beyond the blur radius
