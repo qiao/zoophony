@@ -596,11 +596,15 @@ the mockup is out of scope.
       layout (D3, approved on 2026-10-17, user "do it" on 2026-10-18). The bounce term of the plan
       waits, because the back of the conductor reached a luma of 50 against 52 in the reference.
       The floor in front of the podium is at a luma p90 / p5 of 5.6 against 4.7.
-- [ ] Cinematic light, step P4: the light preset of each shot kind, the diffusion, the halation,
-      the vignette of each shot, and the room haze (D4 and D5, approved on 2026-10-17).
+- [x] Cinematic light, step P4: the light of each shot kind, the diffusion, the halation, the
+      vignette of each shot, and the room haze (D4 and D5, approved on 2026-10-17, user "yes" on
+      2026-10-18). The chromatic shift is left out. Measures:
+      `docs/research/2026-10-18-shot-light-lens-haze.md`.
 - [ ] Measure the frame cost of the cinematic light when the frame test returns: the clearcoat of
-      the stage, the 4 bake reads and the 20 shadow samples of each stage pixel, and the lookup
-      table of the final pass.
+      the stage, the 4 bake reads and the 20 shadow samples of each stage pixel, the 2 lamps of
+      the shot light in each lit pixel, and the lookup table and the room haze of the final pass.
+- [ ] The glow of the haze around the beam is weaker than in `orchestra-latest.png`: the hall
+      above the stage has a luma p90 of 22 against 49.
 - [ ] Give the players the shadows of the props on their bodies again, such as the shadow of a
       chair seat on the shins. The bake took the props out of the shadow map.
 - [ ] The white fur of the rabbit is more yellow than in `orchestra-latest.png`: a hue of 32°
