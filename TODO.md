@@ -623,6 +623,9 @@ the mockup is out of scope.
       look plain, over-exposed, low-contrast"). The side lights stand higher with narrow cones, so
       each lights only the far section, and they cast the shadows of the players on the players.
       The players take 0.6 of the fill light. Measures: `docs/research/2026-10-18-body-shade.md`.
+- [ ] Cut the frame cost of the shadows of the side lights in the performance sweep: about 0.9 ms
+      of GPU time and 0.4 ms of main-thread time in each frame of `perf-60.mid` on the high tier.
+      Options: smaller maps, or a new map only every second frame.
 
 Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
 passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
