@@ -424,18 +424,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       samples, and the shadow of the left arm crosses the belly in the gallery front view of the
       first position, smaller since the 9° turn (`turn-9.webp`). Show the user the images of
       `docs/research/2026-10-18-panda-folds/` (`2026-10-18-panda-folds.md`).
-- [ ] Panda trombonist: gray streaks under both arms (marks 3 and 4 of `marks-main.webp`) are the
-      shading of the seam where the hanging arm of the mesh touches the trunk. A corrective shape
-      of the trunk side does not remove them, because the normals of the seam corners turn with
-      their upper arm weight. Trunk weights at the seam remove them, but faces 93 and 2115 then fold
-      in each sample. The manager chose the trunk weights with a fix of the folds, then new
-      vertices: both failed (`docs/research/2026-10-18-panda-seam.md`, `seam-variants.webp`). The
-      corners that join the forearm to the belly also top the streak faces. The user permitted a
-      gap between each forearm and the belly: a gap of 1 cm to 2 cm keeps the faces that join them
-      and their folds (`gap-variants.webp`, section 4 of the seam report). The trunk weights do
-      not ship as a hidden fold: faces 93 and 2115 show in up to 190 pixels (`hidden-probe.webp`,
-      section 5). Ask the user: keep the streaks, or cut the mesh at the seam (new vertices and
-      faces that close the forearm and the belly, inside the 54 free triangles).
+- [x] Panda trombonist: gray streaks under both arms (marks 3 and 4 of `marks-main.webp`) are the
+      shading of the seam where the hanging arm of the mesh touches the belly. Done: the user chose
+      a cut of the mesh at the seam, and the streak share goes from 16.4% to 3.7%
+      (`docs/research/2026-10-18-panda-cut.md`, `2026-10-18-panda-marks.md`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
