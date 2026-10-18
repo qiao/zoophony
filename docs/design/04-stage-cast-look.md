@@ -454,11 +454,12 @@ value can match the reference.
 
 `SCENE_COLORS` of `models/colors.ts` holds the colors of the chairs, the music stands, and the
 sheet music, `STAGE_COLORS` of `models/props.ts` the stage, the risers, and the podium, and
-`HALL_COLORS` of `scene/hall.ts` the hall. The hall is a dark, warm room, and the stage a walnut
-with a tone for each plank and dark seams, as in `orchestra-latest.png`. The lip and the risers
-are a little lighter than the planks, and a baked light (`SIDE_GLOW`) keeps the sides of the stage
-from black. The chairs are a pale yellow wood, and the music stands are black with a warm gray
-desk, because black desks were the largest shapes of some close shots.
+`HALL_COLORS` of `scene/hall.ts` the hall. The hall is a dark, warm room, and the stage an amber
+wood of fine planks with a tone for each plank and dark seams, as in `orchestra-latest.png`. The
+side lights are a warm white, so the wood holds the amber itself. The lip and the risers are a
+little lighter than the planks, and a baked light (`SIDE_GLOW`) keeps the sides of the stage from
+black. The chairs are a honey wood, and the music stands are black with a warm gray desk, because
+black desks were the largest shapes of some close shots.
 
 **Species colors**
 
@@ -545,6 +546,9 @@ solo.
   players, such as an arm on the chest. The stage takes no shadow of them, and the low tier has
   none (2.6). The players and the props take only a part of the fill and of the diffuse light of
   the environment (`FILL.players`), so their shade sides stay dark.
+- **Light color** (user, 2026-10-18). The side lights are a warm white and the sky of the fill a
+  neutral gray, so white, gray, and purple fur keep their colors, as in `orchestra-latest.png`.
+  The key light stays orange, because it gives the amber of the floor and the warm rims.
 - **Bake of the static props** (`scene/stage-bake.ts`). The props and the stage do not move during
   a song, and the key light keeps its place, so each layout bakes their light on the stage top
   one time: the soft shadow of a large key light, and the part of the sky that the near props
