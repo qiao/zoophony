@@ -685,31 +685,31 @@ const CAT_HOLD = {
 
 /**
  * The hold of the cello between the knees, for the dog mesh (design 4.6, 5.3), as a real cellist
- * holds it (`docs/reference/string-technique.md`, section 2.7): the endpin on the floor 0.06 m
- * right of the middle and 0.305 m in front of the floor point of the seat, the back of the cello
- * against the belly and the chest, and the neck at the left of the head. The cello stands
- * vertical and leans 11° to the left. It keeps this place in the rest pose (`BowedHold.rest`
- * null). The reasons of the values are in the 2026-10-17-mesh-dog and 2026-10-17-dog-arms
- * decisions.
+ * holds it (`docs/reference/string-technique.md`, section 2.7): the cello leans back 25° from the
+ * vertical, as the user chose, with the back of the upper bout at the chest, the neck at the left
+ * of the head, and the endpin on the floor 0.06 m right of the middle and 0.66 m in front of the
+ * floor point of the seat. It leans 14° to the left, and its top plate turns 6° to the right. It
+ * keeps this place in the rest pose (`BowedHold.rest` null). The short thighs end far behind the
+ * lower bout, so the knees do not touch the cello. The reasons of the values are in the
+ * 2026-10-17-mesh-dog, 2026-10-17-dog-arms, and 2026-10-17-dog-rest decisions.
  *
  * The left paw tilts 55° over the neck (`tiltL`), and the left elbow points out to the left and
- * down, past the upper bout, and turns up 2° for each lower string. The right shoulder turns 30°.
+ * nearly level, because the leaned neck comes near the left shoulder, and turns up 2° for each
+ * lower string. The right shoulder turns 30°.
  *
  * The short arms of 2026-10-17 reach the strings only nearly straight. The trunk leans 3° forward,
  * so that the shoulders come nearer to the strings, and the right elbow points out and down, near
- * the body. With the elbow out and level, the right shoulder folded in 92% of the play samples.
- * The bow plays no hair within 0.12 m of the frog (`frogHair`), and the string planes are 6° apart,
- * because the paw at the frog and on the C string went into the right rim of the cello. Pizzicato
- * plucks over the fingerboard (`pluckPlace` -0.6), nearer to the shoulder, with the elbow forward.
+ * the body. The bow plays no hair within 0.12 m of the frog (`frogHair`), and the string planes
+ * are 6° apart, because the paw at the frog and on the C string went into the right rim of the
+ * cello. Pizzicato plucks over the fingerboard (`pluckPlace` -0.3), nearer to the shoulder.
  *
  * In the rest pose, the right paw holds the bow over the right knee, 0.25 H out and 0.5 H above
  * the top of the thigh at 0.9 of the way to the knee, with the tip up and leaned out and forward,
  * away from the cello, and the right elbow points out, down, and back. The short arm then bends
- * softly at the elbow, and the wrist bends 22° with the palm toward the body. With the grip 0.4 H out of the knee, the arm was
- * straight and the wrist bent 66° with the palm to the front. The left paw holds the cello at 0.6
- * of the fingerboard with the elbow down and out, 5.8 cm out from the side of the trunk (12.0 cm
- * at 0.4). In the lift and the lowering, the bow turns through the front, and the grip moves 0.3 H
- * out, away from the cello (2026-10-17-dog-rest decisions).
+ * softly at the elbow, and the wrist bends 22° with the palm toward the body. The left paw holds
+ * the cello at 0.6 of the fingerboard with the elbow down and out, near the side. In the lift and
+ * the lowering, the bow turns through the front, and the grip moves 0.3 H out, away from the
+ * cello (2026-10-17-dog-rest decisions).
  */
 const DOG_HOLD = {
   ...BOWED_HOLDS.cello,
@@ -717,14 +717,14 @@ const DOG_HOLD = {
   reach: 30 * MathUtils.DEG2RAD,
   stringTurn: 6 * MathUtils.DEG2RAD,
   frogHair: 0.12,
-  playShift: [-0.076, 0, 0.748],
-  playTurn: [-0.2565, 0.1002, -0.0786, 0.9581],
+  playShift: [-0.076, 0, -0.34],
+  playTurn: [-0.0371, 0.1049, -0.0435, 0.9928],
   tiltL: 55 * MathUtils.DEG2RAD,
-  poleL: [-1, -0.8, -0.2],
+  poleL: [-1, -0.15, 0],
   elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [1, -1.2, -0.3],
   poleTipR: [1, -0.5, -0.5],
-  pluckPlace: -0.6,
+  pluckPlace: -0.3,
   polePizzicato: [1, -0.5, -1],
   restPlace: 0.6,
   restPoleL: [-0.5, -1, 0],
