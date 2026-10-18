@@ -1,0 +1,227 @@
+{
+  "source": "assets/models/panda/panda.glb",
+  "output": "assets/models/panda/panda.rig.glb",
+  "name": "Panda",
+  "weld": 1e-5,
+  "app": {
+    "shoulders": 0.80294,
+    "reach": 0.6521,
+    "note": "The first config puts the standing head top at 1.300 m, the head top of the parametric panda of main (size option A of scratch/panda-phase1/sizes.txt of the worktree panda-mesh (phase 1, until phase 2 moves the probes to docs/research/)): 1.318458 m for each unit, with the top of the skull at 0.986 u and the standing shoulder joints at 0.80294 m. The head top leaves out the ears (1.0 u), as the head top of the parametric panda and of the red fox does. The parametric panda of main stands 1.300 m high to the head top, with the shoulder joints at 0.6977 m and H 0.456 m, and sits on a seat of 0.342 m (landmark-probe.txt). The reach is the reach of the right arm of the parametric panda from the shoulder joint to the middle of the palm, 0.6521 m (slide-probe.txt). The user chooses the size, the arm factor, and the leg factor. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+  },
+  "armFactor": 1,
+  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. The first config has the factor 1: 0.3504 m at this scale, 0.63 of the trunk from the hips joint to the middle of the shoulder joints (the red fox 0.91, the dog 0.92). The factor 1.984 gives the reach of the parametric panda, and the factor 1.497 the ratio of the red fox at each size. The slide of the trombone needs the factor 2.306 for half of the travel and 3.186 for the whole travel, in the shoulder and grip places of the parametric panda (sizes.txt).",
+  "legFactor": 1,
+  "joints": {
+    "root": {
+      "head": [0, 0, 0],
+      "tail": [0, 0, 0.1],
+      "roll": [0, 1, 0]
+    },
+    "hips": {
+      "head": [0, 0.19, -0.015],
+      "tail": "spine"
+    },
+    "spine": {
+      "head": [0, 0.3, -0.015],
+      "tail": "spine1"
+    },
+    "spine1": {
+      "head": [0, 0.41, -0.01],
+      "tail": "chest"
+    },
+    "chest": {
+      "head": [0, 0.52, -0.01],
+      "tail": "neck"
+    },
+    "neck": {
+      "head": [0, 0.665, -0.03],
+      "tail": "head"
+    },
+    "head": {
+      "head": [0, 0.705, -0.03],
+      "tail": [0, 0.97, -0.01]
+    },
+    "ear_L": {
+      "head": [0.1, 0.93, 0.005],
+      "tail": [0.15, 0.99, 0.015]
+    },
+    "clavicle_L": {
+      "head": [0.03, 0.635, -0.02],
+      "tail": "upper_arm_L"
+    },
+    "upper_arm_L": {
+      "head": [0.158, 0.609, -0.024],
+      "tail": "forearm_L",
+      "roll": "palm"
+    },
+    "forearm_L": {
+      "head": [0.222, 0.5225, 0.02],
+      "tail": "forearm_twist_L",
+      "roll": "palm"
+    },
+    "forearm_twist_L": {
+      "head": [0.254, 0.4793, 0.042],
+      "tail": "hand_L",
+      "roll": "palm"
+    },
+    "hand_L": {
+      "head": [0.286, 0.436, 0.064],
+      "tail": "fingers_L",
+      "roll": "palm"
+    },
+    "fingers_L": {
+      "head": [0.304, 0.378, 0.091],
+      "tail": [0.3125, 0.3515, 0.103],
+      "roll": "palm"
+    },
+    "thigh_L": {
+      "head": [0.115, 0.165, -0.02],
+      "tail": "shin_L"
+    },
+    "shin_L": {
+      "head": [0.118, 0.115, -0.02],
+      "tail": "foot_L"
+    },
+    "foot_L": {
+      "head": [0.119, 0.065, -0.033],
+      "tail": "toes_L",
+      "roll": [0, 1, 0]
+    },
+    "toes_L": {
+      "head": [0.13, 0.025, 0.04],
+      "tail": [0.131, 0.015, 0.084],
+      "roll": [0, 1, 0]
+    },
+    "tail": {
+      "head": [0, 0.28, -0.185],
+      "tail": [0, 0.28, -0.238],
+      "roll": [0, 1, 0]
+    }
+  },
+  "palm": [-0.868, -0.307, -0.389],
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are scratch/panda-phase1/sections.py and measures.py of the worktree panda-mesh (phase 1, until phase 2 moves the probes to docs/research/) (sections-*.txt, measures.txt): the feet below y 0.06 (the toes forward to z 0.084, the heel back to z -0.097), the narrowest leg cut at the ankle at y 0.07, the legs apart up to the crotch at y 0.157, the round body from 0.17 to 0.69 with the belly forward to z 0.204, the narrowest neck cut at 0.69 to 0.71 (x ±0.155), the head from the chin at 0.72 with the muzzle to z 0.237, and the round ears beside the top of the skull (0.986) from 0.90 to 1.0. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The thigh joint lies just above the crotch, a little behind the middle of the leg cut, the knee at y 0.115, where the leg cut grows fastest above the ankle, the ankle at the narrowest cut, where the foot starts, and the toes at the ball of the foot. The cuts of the arm in vertical planes (x 0.18 to 0.33) give its middle line, (0.54, -0.77, 0.35) down the arm. The arm is apart from the body from x 0.18 out. The shoulder joint lies on that line, 0.045 inside the root, the wrist where the cut across the arm stops to narrow before the claws (s -0.02 of measures.txt), the elbow and the forearm twist on the middle line at a half and three quarters of the way to the wrist, and the finger joint 0.03 before the tip of the claws. The ear joint lies at the root of the ear on the head, and its tail at the edge of the ear. The tail is one bone through the tail ball. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back (measures.txt).",
+  "studio": {
+    "legTurns": {
+      "thigh": [0.529851, 0.031791, -0.059496, 0.845403],
+      "shin": [0.126824, 0.0, 0.009756, 0.991877],
+      "foot": [0, 0, 0, 1],
+      "toes": [0, 0, 0, 1]
+    },
+    "trunk": {
+      "open": 1,
+      "shares": {
+        "hips": 1,
+        "spine": 1,
+        "spine1": 0.75,
+        "chest": 0.5,
+        "neck": 0.25,
+        "head": 0
+      }
+    },
+    "trunkNote": "The trunk turns back by the share of each trunk bone until the hip angle opens by open degrees, with the shares of the cat and the dog. The pelvis turns 1.25 degrees, and the hip angle of the seated bind opens from 116.4 to 117.4 degrees.",
+    "bindArms": {
+      "upper_arm": [0.813873, -0.143043, 0.563161],
+      "forearm": [0.316246, 0.757051, 0.571719],
+      "hand": [-0.078782, 0.677317, 0.731461]
+    },
+    "note": "The studio has no panda. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it (scratch/panda-phase1/leg_turns.py <config> 25 8 0). The posture is the posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, 8 degrees out, and the shin is vertical, so that the knee angle from the side is 115 degrees. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The source shin slants 14.6 degrees back. The bind arms are the bind arms of the fox, the rabbit, the cat, and the dog. The tail has one bone, as the tail ball of the rabbit, so it needs no bind direction."
+  },
+  "weights": {
+    "armSplit": 0.185,
+    "stretchRamp": 0,
+    "headFrom": 0.72,
+    "earBase": [1.1, 1.2],
+    "tailBall": {
+      "center": [0, 0.28, -0.2],
+      "radius": 0.065,
+      "behind": -0.19
+    },
+    "sliver": {
+      "angle": 10,
+      "longest": 0.03,
+      "note": "The corners of each thin face share one set of weights, so that the face moves rigidly and does not turn over at a bent joint. The values are the values of the fox, the rabbit, the cat, and the dog. The rule takes 12 faces in 7 groups."
+    },
+    "line": {
+      "angle": 150,
+      "head": true,
+      "note": "The middle corner of each long thin face takes the mix of the weights of its two other corners by its place along their line. The values are the values of the fox, the cat, and the dog. The rule takes 48 corners."
+    },
+    "clavicleFrom": [0.565, 0.61],
+    "armTop": [0.67, 0.71],
+    "shoulderHead": [0.09, 0.155],
+    "fingers": 0.5,
+    "haunch": {
+      "height": [0.145, 0.195],
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the cat and the dog, moved with the joints of the panda: it starts 0.03 units above the knee and ends 0.03 units above the thigh joint."
+    },
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.18 out, and the free left arm has 178 vertices. Above headFrom, each vertex follows the head only: the chin starts at y 0.72. The ears stay on the head: their roots (y 0.90 to 0.93) lie below the top of the skull (0.986), so the height rule of earBase would also take the top of the head, and earBase lies above the head, as for the dog. clavicleFrom, armTop, and shoulderHead are the rules of the cat and the dog, moved with the shoulder joint (y 0.609) and the neck (x ±0.155) of the panda. The tail ball holds the round tail: the vertices within radius of center and behind the plane z = behind follow the tail bone only (measures.txt: the tail from z -0.19 to -0.238, y 0.22 to 0.33)."
+  },
+  "refine": {
+    "rings": [],
+    "flip": {
+      "angle": 150,
+      "normals": 60,
+      "move": 0.0016,
+      "rounds": 4,
+      "note": "The long edge of a face of the arms with a corner angle above angle (degrees) in the seated bind mesh flips to the corner of the face on its other side, when the two faces lie almost on one plane and the surface moves at most move (units). The values are the values of the fox, the rabbit, the cat, and the dog. The rule flips 13 edges."
+    },
+    "ringsNote": "The first config has no rings. pnpm rig-mesh panda --check lists the thin faces near the joints as candidates for a ring (check.thin): with the factor 1, faces at the elbows and the right ankle. The fold probe of the role chooses the rings after the arm factor."
+  },
+  "check": {
+    "thin": {
+      "angle": 10,
+      "length": 0.08,
+      "near": 0.1
+    },
+    "note": "pnpm rig-mesh --check lists the faces of the seated bind mesh with a corner angle below angle (degrees) and a longest edge of at least length (units), when that edge passes within near (units) of a joint of the arms or the legs. The values are the values of the fox, the cat, and the dog."
+  },
+  "colors": {
+    "samples": 6,
+    "palette": 48,
+    "dark": 0.05,
+    "eyeShare": 0.34,
+    "eyeBox": [
+      [0.03, 0.83, 0.12],
+      [0.1, 0.9, 0.18]
+    ],
+    "noseBox": [
+      [-0.04, 0.79, 0.19],
+      [0.04, 0.83, 0.24]
+    ],
+    "nose": [0.05, 0.05, 0.05],
+    "note": "The values of samples, palette, dark, and eyeShare are the values of the fox, the cat, and the dog. The eyes lie in dark eye patches of almost the same color: the darkest faces of the eyes have the Oklab lightness 0.125 to 0.136, and the faces of the patches 0.14 to 0.147 (head-colors.txt). The left patch has 46 dark faces at x 0.043 to 0.109 and y 0.809 to 0.902, and the eye box takes 38 of them as the eye. The nose is a patch of 62 dark faces at x ±0.03 and y 0.789 to 0.830. A face in the nose box whose color is nearer to the nose color than to white takes the gloss: 60 faces."
+  },
+  "eyeShell": {
+    "lift": 0.002,
+    "points": 12,
+    "reach": 1,
+    "darkReach": 2,
+    "note": "The values are the values of the fox, the cat, and the dog. The fan of the left eye has 10 faces over 38 dark faces, and the right eye 8 faces over 32. The old eye of each side is 52 and 48 faces, most of the eye patch, and they take the color of 26% and 32% of the area of the faces around them, so the patches lose a part of their black."
+  },
+  "chair": {
+    "halfWidth": 0.22,
+    "front": -0.045,
+    "back": -0.2,
+    "backHeight": 0.15,
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the panda (x ±0.21). The short thighs put the shins and the feet from z -0.037 with the leg factor 1, -0.0126 with 1.5, and 0.0118 with 2, so the front edge lies behind them. The back edge holds the back of the haunch."
+  },
+  "crease": {
+    "rings": 2,
+    "rounds": 8,
+    "share": 0.5,
+    "back": 0.1,
+    "below": 0.03,
+    "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh, with the values of the cat and the dog. The seam has 25 vertices, 138 vertices move, and 2 faces of the hips turn over."
+  },
+  "sit": {
+    "gap": 0,
+    "band": 0.2,
+    "ramp": 0.015,
+    "step": 0.005,
+    "smooth": 8,
+    "end": 0.0065,
+    "most": 0.2,
+    "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), with the values of the cat. The round haunch hangs low behind the short thighs, so the sit moves 163 vertices down, at most 0.1885 units, and the side view of the underside is 4.43 cm above the seat top at this scale. The large move pulls the haunch into a sheet behind the seat (preview-base/seated.png)."
+  },
+  "legFactorNote": "The factor of the thigh and the shin. The first config keeps the legs of the mesh: the seat of the legs is 0.103 m high at this scale, with the chair 0.264 m deep. At the head top of the red fox (1.570 m), the seat is 0.124 m with the factor 1, 0.180 m with 1.5, and 0.221 m with 2 (sizes.txt and check-*.log of scratch/panda-phase1/)."
+}
