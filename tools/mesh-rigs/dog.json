@@ -249,11 +249,11 @@
     "band": 0.2,
     "ramp": 0.015,
     "step": 0.005,
-    "smooth": 8,
-    "end": 0.0065,
-    "most": 0.2,
+    "smooth": 6,
+    "end": 0.0055,
+    "most": 0.25,
     "root": [0.7, 0.95],
-    "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), with the values of the cat. The thigh weight of the round haunch turns it up with the thighs, so the sit moves 95 vertices down, at most 0.130 units. The side view of the underside is 1.21 cm above the seat at most at the scale of the red fox. root counts the root of the tail as the haunch. With no root, the side view stayed 6.07 cm above the seat."
+    "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), with the values of the cat, except end, most, and smooth. The thigh weight of the round haunch turns it up with the thighs, so the sit moves 93 vertices down, at most 0.14 units. root counts the root of the tail as the haunch. With the values of the cat (end 0.0065, most 0.2, smooth 8), the side view of the underside stayed 1.21 cm above the seat top, and with end 0.0055, most 0.25, and smooth 6, it is 1.00 cm (sit-trials.txt of docs/research/2026-10-17-dog-mesh/). The gap jumps above 2 cm with end 0.005 and below, and grows with end 0.007 and above."
   },
   "legFactorNote": "The factor of the thigh and the shin. The user chose 1.5, the leg factor of the fox, on 2026-10-17. With the thighs 25 degrees down and 30 degrees out, the seat of the legs is 0.266 m high at this scale, and the chair is 0.259 m deep (sizes.txt has the sizes of the mid-report)."
 }
