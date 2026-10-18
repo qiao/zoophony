@@ -48,3 +48,28 @@ side (`kw5`: 6.8% to 14.7% in the right boxes) and folds a face on the left in e
 vertices on the streak faces (`a3w7`) keep the folds, but the short faces near the seam take the
 turn and shade as dark as before. `seam-variants.webp` shows `main`, `kw5`, and `a3w7` in the views
 of `streak-variants.webp`.
+
+## 4. A gap between the forearms and the belly
+
+On 2026-10-18 the user chose "Move vertices, open a gap (Recommended)". Round `panda-gap` tried a
+rig step before the weights (`gap` in `gap/gap-options.patch`): each vertex of the free arm below
+the elbow that shares an edge with a vertex outside the free arm moves away from the mean of those
+neighbors. The step moves 13 vertices (7 on the left, 6 on the right, `gap/rig-log-gap.txt`), and
+64 faces change their shape. `gap/folds.txt`, `gap/streak-shares.txt`, and `gap/variants.txt` give
+the measures.
+
+| Variant | Change | Streak share | Folds rest / play / lift |
+|---|---|---:|---|
+| `main` | none | 16.4% | 0% / 0% / 2.2% |
+| `g2` | a gap of 0.0132 u (2.0 cm) | 16.4% | 0% / 100% / 77.4% |
+| `g1af` | a gap of 0.0066 u (1.0 cm), and trunk weights at the seam | not measured | 100% / 100% / 100% |
+| `g2af` | a gap of 2.0 cm, and trunk weights at the seam | 3.6% | 100% / 100% / 100% |
+| `g1kw`, `g2kw` | the gaps, trunk weights, and the corners of the edges to a forearm on the arm | not measured | 100% / 100% / 100% |
+| `g2afr` | `g2af`, and relax rules of `raise` on both sides | not measured | 100% / 100% / 100% |
+
+The gap alone keeps the streaks, because the corners on the belly keep their upper arm weight. It
+also folds face 1223 of the left arm, a thin face at a moved vertex. With the trunk weights, the
+streaks go (`gap/gap-variants.webp`), but faces 93, 2116, 2119, 308, and 92 between the trunk and
+the forearm turn over in each sample. A move of a vertex keeps the faces that join the forearm to
+the belly. Only a cut of the mesh at the seam separates the two: new vertices for the faces of the
+forearm, and new faces that close the forearm and the belly. That cut needs the choice of the user.
