@@ -65,7 +65,8 @@ Open these files for these kinds of work:
   puts the cello between the knees against the chest, as real cellists hold it, and the bow
   stands over the right knee in the rest (`docs/decisions/2026-10-17-dog-rest.md`). Its hanging ears do not twitch
   (`docs/decisions/2026-10-17-mesh-dog.md`). Since round `dog-arms`, it has the arm factor 1.35, a
-  1/2 cello, and a tail that hangs down behind the seat (`docs/decisions/2026-10-17-dog-arms.md`).
+  1/2 cello, and a tail that hangs down behind the seat (`docs/decisions/2026-10-17-dog-arms.md`),
+  thin since round `dog-tail` (`docs/decisions/2026-10-17-dog-tail.md`).
   `pnpm close-views conductor <dir>`, `pnpm close-views pianist <dir>`,
   `pnpm close-views violinist <dir>`, `pnpm close-views fox-violinist <dir>`,
   `pnpm close-views violist <dir>`, `pnpm close-views cellist <dir>`, and
