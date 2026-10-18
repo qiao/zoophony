@@ -58,10 +58,10 @@ first download stays below 1 MB (7.2). The sources and their licenses are in
   us not to link to the download files of the author, so the site serves its own copy.
 - The orchestral presets come from two CC0 sample libraries of Versilian Studios: VSCO 2 CE
   (strings, winds, brass, orchestra kit) and VCSL (piano, harpsichord, harp, timpani, mallets,
-  recorder, ocarina). `tools/soundfont-recipes.ts` holds the choice for each program and the cut
-  of the loops, and `tools/build-soundfont.ts` the layers and the encoding. Each other preset is GeneralUser GS, and so is
-  each key outside the range of the new samples. No source with a usable license has a choir, a
-  celesta, or a section of basses.
+  recorder, ocarina). `tools/soundfont-recipes.ts` holds the choice for each program and the cut of
+  the loops, and `tools/build-soundfont.ts` the layers and the encoding. Each other preset is
+  GeneralUser GS, and so is each key outside the range of the new samples. No source with a usable
+  license has a choir, a celesta, or a section of basses.
 - The build downloads each source at a fixed commit and checks it with the SHA-256 of
   `tools/soundfont-lock.json`. Two builds write the same bytes.
 - Each new preset matches the level of the GeneralUser GS preset that it replaces. The sample
