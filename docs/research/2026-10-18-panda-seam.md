@@ -99,3 +99,9 @@ from the back left). `hidden/count.py` counts the pixels of each color (`hidden/
 The red bin of face 98 also counts the bass drum on the stage, so only its gallery count holds.
 `hidden/hidden-probe.webp` shows faces 93, 2115, and 308. Faces 93 and 2115 show in 15 and 41 of
 the 142 frames, far above the limit of 2 pixels, so `af` does not ship.
+
+## 6. The cut
+
+On 2026-10-18 the user chose "Cut the mesh (Recommended)". Round `panda-cut` removed the faces that
+join each forearm to the belly and closed both holes. The gray streaks go, and the folds stay in
+their limits ([`2026-10-18-panda-cut.md`](2026-10-18-panda-cut.md)).
