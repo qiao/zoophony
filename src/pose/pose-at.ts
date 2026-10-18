@@ -218,8 +218,9 @@ function writeBody(pose: WritablePose, player: PlayerPlan, scratch: FrameScratch
     turn.setFromAxisAngle(Y_AXIS, yaw * part);
     setBoneRotation(r, bone, turn.multiply(second.setFromAxisAngle(X_AXIS, pitch * part)));
   }
-  setBoneRotation(r, BONES.earL, turn.setFromAxisAngle(Z_AXIS, idle.ear * m.ear));
-  setBoneRotation(r, BONES.earR, turn.setFromAxisAngle(Z_AXIS, -idle.ear * m.ear));
+  const ear = idle.ear * player.earTwitch * m.ear;
+  setBoneRotation(r, BONES.earL, turn.setFromAxisAngle(Z_AXIS, ear));
+  setBoneRotation(r, BONES.earR, turn.setFromAxisAngle(Z_AXIS, -ear));
   const tail = idle.tail * player.tailSway;
   setBoneRotation(r, BONES.tail1, turn.setFromAxisAngle(Y_AXIS, tail * m.tail1));
   setBoneRotation(r, BONES.tail2, turn.setFromAxisAngle(Y_AXIS, tail * m.tail2));

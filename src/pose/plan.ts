@@ -148,6 +148,11 @@ export interface PlayerPlan {
    * thighs, and 1 for each other tail.
    */
   readonly tailSway: number;
+  /**
+   * The share of the idle twitch of the ears (design 5.1): 0 for a species whose ears hang
+   * (`OwnBodyParams.hangingEars`), and 1 for each other species and the conductor.
+   */
+  readonly earTwitch: number;
   /** The turn of the head to the conductor, around y then around x, in radians. */
   readonly lookYaw: number;
   readonly lookPitch: number;
@@ -418,6 +423,18 @@ function tailSwayOf(model: PlayerModel, species: SpeciesId): number {
 }
 
 /**
+ * Gives the share of the idle twitch of the ears of a species (design 5.1): 0 for a species whose
+ * ears hang (`OwnBodyParams.hangingEars`), and 1 for each other species.
+ *
+ * @param species The species of the player.
+ * @returns The share, 0 or 1.
+ */
+function earTwitchOf(species: SpeciesId): number {
+  const params: SpeciesParams = SPECIES[species];
+  return params.body !== undefined && params.hangingEars ? 0 : 1;
+}
+
+/**
  * Calculates the data of one player that the pose needs at each frame (design 5.1, 5.3): the
  * seeded offsets, the seeded rest motion (5.2), the idle values, the look at the conductor, the
  * passages, and the note layer. Pure: the same inputs give the same plan.
@@ -458,6 +475,7 @@ export function preparePlayer(
     motion,
     idle: idleParams(mixHash(seed, 1)),
     tailSway: tailSwayOf(model, place.cast.species),
+    earTwitch: earTwitchOf(place.cast.species),
     lookYaw,
     lookPitch,
     passages: buildPassages(notes, loudness),
@@ -560,6 +578,7 @@ export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerP
     motion: CONDUCTOR_MOTION,
     idle: idleParams(mixHash(seed, 1)),
     tailSway: 1,
+    earTwitch: 1,
     lookYaw: 0,
     lookPitch: 0,
     passages: buildPassages([], []),

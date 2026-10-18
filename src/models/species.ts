@@ -111,6 +111,13 @@ export interface OwnBodyParams extends CommonParams {
    * (design 5.1). A tail that hangs behind the chair sways when it is not given.
    */
   readonly seatedTail?: 'curl';
+  /**
+   * True for a studio body whose ears hang beside the head and the neck (`earFlap` of the rig
+   * config), so that they do not twitch to the side in the idle motion (design 5.1). A real
+   * hanging ear does not twitch to the side, and the twitch of standing ears pushed the tips of
+   * the hanging ears of the dog into its cheeks. The ears twitch when it is not given.
+   */
+  readonly hangingEars?: true;
 }
 
 /** The parameters of one species (design 4.3): the parametric biped, or a body of its own. */
