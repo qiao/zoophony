@@ -113,11 +113,11 @@ export const BEAM_LOOK = {
 } as const;
 
 /**
- * Gives a point in the axes of the beam (design 2.4, 4.5). The beam leans from the light above the
- * stage center to its foot on the stage top, which a solo moves to the soloed players. Each
- * height keeps its circle of the cone, and the circle moves with the axis: at the stage top by
- * the foot, and at the light by 0. In the axes of the beam, the cone stands straight around the
- * y axis, so the formulas of the haze hold there. The shaders of the beam use the same formula.
+ * Gives a point in the axes of the beam (design 2.4, 4.5). The beam leans from the key light
+ * (`keyLightPlace()`) to its foot on the stage top, which a solo moves to the soloed players.
+ * Each height keeps its circle of the cone, and the center of the circle moves on the line from
+ * the foot to the light. In the axes of the beam, the cone stands straight around the y axis, so
+ * the formulas of the haze hold there. The shaders of the beam use the same formula.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param point The point, in the stage axes.
@@ -126,8 +126,9 @@ export const BEAM_LOOK = {
  */
 export function beamAxes(stageSide: number, point: Vec3, foot: StagePair): Vec3 {
   const [x, y, z] = point;
-  const lean = 1 - y / keyLightPlace(stageSide)[1];
-  return [x - foot[0] * lean, y, z - foot[1] * lean];
+  const [lightX, height, lightZ] = keyLightPlace(stageSide);
+  const t = y / height;
+  return [x - foot[0] * (1 - t) - lightX * t, y, z - foot[1] * (1 - t) - lightZ * t];
 }
 
 /**
@@ -259,13 +260,15 @@ uniform float uNoiseScale;
 uniform vec3 uDrift;
 uniform sampler3D uNoiseTexture;
 uniform vec2 uFoot;
+uniform vec2 uApex;
 varying vec3 vWorld;
 varying float vViewZ;
 ${FADES}
 // A point in the axes of the beam, which leans from the light to its foot (beamAxes() in
 // TypeScript).
 vec3 beamAxes(vec3 p) {
-  return p - vec3(uFoot.x, 0.0, uFoot.y) * (1.0 - p.y / uHeight);
+  vec2 axis = mix(uFoot, uApex, p.y / uHeight);
+  return p - vec3(axis.x, 0.0, axis.y);
 }
 
 // The radius of the haze cone (hazeRadius() in TypeScript).
@@ -302,7 +305,8 @@ void main() {
   float far = hit;
   // The view ray in the axes of the beam. A distance along it is the distance along the view ray.
   vec3 beamOrigin = beamAxes(origin);
-  vec3 beamDir = dir + vec3(uFoot.x, 0.0, uFoot.y) * (dir.y / uHeight);
+  vec2 lean = (uApex - uFoot) / uHeight;
+  vec3 beamDir = dir - vec3(lean.x, 0.0, lean.y) * dir.y;
   if (front) {
     // The haze cone: x² + z² = (b + k y)², with the radius b at the stage and the slope k. The
     // ray leaves it at the first root after the entry and below the light. The equation also
@@ -363,6 +367,7 @@ uniform float uColumn;
 uniform float uFloor;
 uniform vec2 uRise;
 uniform vec2 uFoot;
+uniform vec2 uApex;
 varying float vLight;
 varying vec3 vWorld;
 varying float vViewZ;
@@ -376,7 +381,7 @@ void main() {
   vec3 p = vec3(r * cos(angle), y, r * sin(angle));
   p += 0.15 * vec3(sin(uTime * 0.31 + seed.w * 40.0), sin(uTime * 0.23 + seed.x * 30.0), cos(uTime * 0.27 + seed.y * 20.0));
   // The beam leans from the light to its foot (beamAxes() in TypeScript).
-  p.xz += uFoot * (1.0 - p.y / uHeight);
+  p.xz += mix(uFoot, uApex, p.y / uHeight);
   vec4 view = viewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * view;
   gl_PointSize = clamp(uSize * projectionMatrix[1][1] * uPixels * 0.5 / -view.z, 1.0, 6.0);
@@ -470,6 +475,7 @@ function coneUniforms(stageSide: number) {
     uNear: { value: 0.1 },
     uFar: { value: 100 },
     uFoot: { value: new Vector2(0, 0) },
+    uApex: { value: new Vector2(keyLightPlace(stageSide)[0], keyLightPlace(stageSide)[2]) },
   };
 }
 
@@ -764,9 +770,9 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
 }
 
 /**
- * Leans the mesh of the haze cone to the foot of the beam ({@link beamAxes}): a shear that keeps
- * the light in its place and moves the foot. The depth pass of the frame already updated the
- * world matrices, so the cone updates its own.
+ * Leans the mesh of the haze cone from the key light to the foot of the beam ({@link beamAxes}):
+ * a shear of the straight cone of {@link hazeProfile}, which stands on the stage center. The depth
+ * pass of the frame already updated the world matrices, so the cone updates its own.
  *
  * @param cone The mesh of the haze cone.
  * @param stageSide The stage side `S`, in meters.
@@ -774,9 +780,11 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
  */
 function leanCone(cone: Mesh, stageSide: number, foot: StagePair): void {
   const [fx, fz] = foot;
-  const height = keyLightPlace(stageSide)[1];
+  const [lightX, height, lightZ] = keyLightPlace(stageSide);
+  const leanX = (lightX - fx) / height;
+  const leanZ = (lightZ - fz) / height;
   cone.matrixAutoUpdate = false;
-  cone.matrix.set(1, -fx / height, 0, fx, 0, 1, 0, 0, 0, -fz / height, 1, fz, 0, 0, 0, 1);
+  cone.matrix.set(1, leanX, 0, fx, 0, 1, 0, 0, 0, leanZ, 1, fz, 0, 0, 0, 1);
   cone.updateMatrixWorld(true);
 }
 

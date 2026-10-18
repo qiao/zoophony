@@ -30,16 +30,24 @@ export function keyLightPlace(stageSide: number): Vec3 {
   ];
 }
 
-/** The radius of the visible beam on the stage, in stage sides (design 4.5). */
+/**
+ * The height of the cone that the shot planner keeps clear of cameras, in stage sides (design
+ * 5.6). The cone stands upright on the stage center and holds the haze of the visible beam near
+ * the stage, also when the beam leans to the key light.
+ */
+export const BEAM_HEIGHT_IN_SIDES = 1.2;
+
+/** The radius of the cone of the shot planner on the stage, in stage sides (design 4.5). */
 export const BEAM_RADIUS_IN_SIDES = 0.75;
 
 /** The radius of the visible beam at the light, in stage sides. */
 export const BEAM_TOP_RADIUS_IN_SIDES = 0.02;
 
 /**
- * Tells if a point is inside the cone of the visible beam (design 4.5): from the light circle on
- * the stage top to the light, around the stage center. The beam draws only its outer faces, so a
- * camera inside the cone sees no beam, and a camera outside sees it (design 5.6).
+ * Tells if a point is inside the cone of the visible beam that the shot planner keeps clear
+ * (design 4.5, 5.6): an upright cone from the light circle on the stage top around the stage
+ * center up to {@link BEAM_HEIGHT_IN_SIDES}. The beam draws only its outer faces, so a camera
+ * inside the haze sees the beam in another way than a camera outside.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param point The point, in the stage axes.
@@ -48,7 +56,7 @@ export const BEAM_TOP_RADIUS_IN_SIDES = 0.02;
  * @returns True inside the cone.
  */
 export function insideBeam(stageSide: number, point: Vec3, margin = 0): boolean {
-  const height = keyLightPlace(stageSide)[1];
+  const height = BEAM_HEIGHT_IN_SIDES * stageSide;
   const [x, y, z] = point;
   if (y < 0 || y >= height - margin) {
     return false;

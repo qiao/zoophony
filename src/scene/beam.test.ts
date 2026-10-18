@@ -72,6 +72,15 @@ function rounded(point: readonly number[]): number[] {
   return point.map((v) => Math.round(v * 1e9) / 1e9);
 }
 
+/**
+ * Gives a point near the axis of a beam with its foot at the stage center: the axis goes from the
+ * stage center to the key light.
+ */
+function onAxis(side: number, y: number, dx = 0, dz = 0): [number, number, number] {
+  const [lightX, height, lightZ] = keyLightPlace(side);
+  return [(lightX * y) / height + dx, y, (lightZ * y) / height + dz];
+}
+
 describe('beamAxes (design 2.4, 4.5)', () => {
   const side = 11.19;
   const height = keyLightPlace(side)[1];
@@ -79,14 +88,17 @@ describe('beamAxes (design 2.4, 4.5)', () => {
 
   it('leans the beam from the light to its foot on the stage top', () => {
     // The foot is the axis at the stage top, and the light stays in its place.
+    const [lightX, , lightZ] = keyLightPlace(side);
     expect(rounded(beamAxes(side, [3.9, 0, 3.2], foot))).toEqual([0, 0, 0]);
-    expect(rounded(beamAxes(side, [0, height, 0], foot))).toEqual(rounded([0, height, 0]));
+    expect(rounded(beamAxes(side, [lightX, height, lightZ], foot))).toEqual(
+      rounded([0, height, 0]),
+    );
     expect(rounded(beamAxes(side, [4.9, 0, 3.2], foot))).toEqual([1, 0, 0]);
     // Halfway up, the axis is halfway between the foot and the light.
-    const middle = beamAxes(side, [1.95, height / 2, 1.6], foot);
+    const middle = beamAxes(side, [(3.9 + lightX) / 2, height / 2, (3.2 + lightZ) / 2], foot);
     expect(rounded(middle)).toEqual(rounded([0, height / 2, 0]));
-    // With no lean, the axes are the stage axes.
-    expect(beamAxes(side, [2, 5, -1], [0, 0])).toEqual([2, 5, -1]);
+    // At the stage top, a foot at the stage center keeps the stage axes.
+    expect(beamAxes(side, [2, 0, -1], [0, 0])).toEqual([2, 0, -1]);
   });
 
   it('tells a point in the leaning haze cone from a point outside it', () => {
@@ -117,10 +129,10 @@ describe('hazeProfile (design 4.5)', () => {
 
   it('tells a point in the haze cone from a point in the light cone outside it', () => {
     const side = 11.19;
-    expect(insideHaze(side, [0, 7, 0])).toBe(true);
-    expect(insideHaze(side, [0, 2, 0])).toBe(true);
-    expect(insideHaze(side, [2, 7, 0])).toBe(false);
-    expect(insideHaze(side, [0.5 * side, 7, 0])).toBe(false);
+    expect(insideHaze(side, onAxis(side, 7))).toBe(true);
+    expect(insideHaze(side, onAxis(side, 2))).toBe(true);
+    expect(insideHaze(side, onAxis(side, 7, 2))).toBe(false);
+    expect(insideHaze(side, onAxis(side, 7, 0.5 * side))).toBe(false);
     expect(insideHaze(side, [0, -0.5, 0])).toBe(false);
   });
 });
@@ -308,7 +320,7 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
     const bottom = new Vector3(0, 0, 0).applyMatrix4(cone.matrixWorld);
     const top = new Vector3(0, height, 0).applyMatrix4(cone.matrixWorld);
     expect(rounded(bottom.toArray())).toEqual([3.9, 0, 3.2]);
-    expect(rounded(top.toArray())).toEqual(rounded([0, height, 0]));
+    expect(rounded(top.toArray())).toEqual(rounded(keyLightPlace(side)));
 
     // A camera just above the foot is inside the haze cone.
     camera.position.set(3.9, 1, 3.2);
@@ -322,12 +334,12 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
     frame(1, [0, 20, 40]);
     expect(uniforms(Mesh)['uInside']?.value).toBe(0);
     expect(material(Mesh).depthTest).toBe(true);
-    frame(1, [0.5, 8, 0.5]);
+    frame(1, onAxis(side, 8, 0.5, 0.5));
     expect(uniforms(Mesh)['uInside']?.value).toBe(1);
     expect(material(Mesh).depthTest).toBe(false);
-    frame(1, [1, 2, 1]);
+    frame(1, onAxis(side, 2, 1, 1));
     expect(uniforms(Mesh)['uInside']?.value).toBe(1);
-    frame(1, [0.4 * side, 2, 0]);
+    frame(1, onAxis(side, 2, 0.4 * side));
     expect(uniforms(Mesh)['uInside']?.value).toBe(0);
     expect(material(Mesh).depthTest).toBe(true);
   });
