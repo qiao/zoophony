@@ -98,7 +98,9 @@ player.
   no standing soloist, because a cellist does not stand. The tan fox
   flutist shows from the front, both sides, and the back, at a long note, between two phrases, in
   the rest pose, in the middle of the lift and of the lowering at the note, and standing at the
-  note. With `--base <ref>`, the tool
+  note. The panda trombonist (`trombonist`) shows from the same four sides, at a note in the
+  first position and a note in the seventh position, in the rest pose, in the middle of the lift
+  and of the lowering at the first note, and standing. With `--base <ref>`, the tool
   puts the grid of a commit above the grid of the working tree, so a round shows the change of
   a body with no worktree of `main`. The mode `species` of the tool shows named species alone
   on their seats, around their bodies, at named views, in the playing pose, in the rest pose, or
