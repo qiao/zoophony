@@ -33,8 +33,8 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Violin, rabbit | Chair, stands as a soloist | Play: violinonline.com and Simon Fischer (`docs/research/2026-10-14-fox-rabbit-form.md`). Rest: the image of a seated violinist that the user gave (`docs/research/2026-10-16-bow-rest.md`). Hands and bow in play: `docs/reference/string-technique.md`, the target: both hands follow it | Holds the violin on the left shoulder under the jaw, with the back straight and the bow nearly square. The stick passes through the middle of the closed right paw | The violin stands upright on the left thigh, held at the bottom of its neck, and the bow stands upright at the right side. The right elbow hangs at the side, and the paw holds the frog at the outer side of the right knee. The left elbow points a little out. The body sits on the front of a deeper seat. A soloist holds the violin at its left side and hangs the bow with the tip down | `SHOULDER_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts`, and `bowGrip` of the rabbit, `models/species.ts` | 5.2, 5.3 bowed strings, `2026-10-16-bow-rest.md`, `2026-10-16-rabbit-arm.md`, `2026-10-16-cat-seat.md`, `2026-10-17-fox-form.md`, `2026-10-17-rabbit-pose.md`, `2026-10-17-grip-all.md`, `2026-10-17-left-hand.md`, `2026-10-17-bow-arm.md` | `pnpm close-views violinist <dir>` |
 | Violin, red fox | Chair, stands as a soloist | The sources of the rabbit, with its target of the hands and the bow | The hold of the rabbit, with the tail end against the left side of the short neck under the long jaw, a little higher for the shorter neck. The stick passes through the closed right paw, and in pizzicato the bow tip points up and back | The rest of the rabbit, with the frog at the outer side of the right thigh. A soloist hangs the bow with the tip down | `FOX_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts`, and `bowGrip` of the red fox, `models/species.ts` | 5.2, 5.3 bowed strings, `2026-10-16-bow-rest.md`, `2026-10-16-cat-seat.md`, `2026-10-17-fox-form.md`, `2026-10-17-grip-all.md`, `2026-10-17-left-hand.md`, `2026-10-17-bow-arm.md` | `pnpm close-views fox-violinist <dir>` |
 | Viola, cat | Chair, stands as a soloist | Rest: the image of a seated violinist that the user gave (`docs/research/2026-10-16-bow-rest.md`). Hands and bow in play: `docs/reference/string-technique.md`, the target: both hands follow it | Holds the viola under the chin (the chin hold), with the viola back toward the neck so that the left paw reaches the nut, the left elbow out as far as down past the deep chest, and the right elbow out. In the high positions, the left paw tilts over the upper bout. The stick passes through the middle of the closed right paw | The rest of the rabbit: the viola stands upright on the left thigh, held at the top of the upper bout with the left elbow near the side, and the bow stands upright at the right side, with the right elbow near the side and bent, and the paw over the outer side of the right thigh. A soloist holds the viola at its left side and hangs the bow with the tip down | `CAT_HOLD`, `LAP_VIOLIN`, `UPRIGHT_BOW`, `HANGING_BOW`, and `STANDING_REST`, `pose/bowed-rig.ts`, and `bowGrip` of the cat, `models/species.ts` | 5.2, 5.3 bowed strings, `2026-10-16-mesh-cat.md`, `2026-10-16-cat-form.md`, `2026-10-17-cat-bow.md`, `2026-10-17-left-hand.md`, `2026-10-17-bow-arm.md`, `2026-10-17-cat-hand.md`, `2026-10-17-cat-look.md` | `pnpm close-views violist <dir>` |
-| Cello, dog | Chair | Hands and bow in play: `docs/reference/string-technique.md`, the target: both hands follow it | The cello stands on the floor (the floor hold), the player leans forward, the right elbow points out and up, and the left arm hugs the cello | The cello stays on the floor, and the bow lies on the outer side of the right knee | `BOWED_HOLDS.cello`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-11-low-seats.md`, `2026-10-17-left-hand.md`, `2026-10-17-bow-arm.md` | `pnpm close-views species dog <dir>` |
-| Contrabass, hippo | High stool | Hands and bow in play: `docs/reference/string-technique.md`, the target: both hands follow it | The floor hold of the cello | The rest of the cello | `BOWED_HOLDS.contrabass`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-10-arms-close.md`, `2026-10-17-left-hand.md`, `2026-10-17-bow-arm.md` | `pnpm close-views species hippo <dir>` |
+| Cello, dog | Chair | Play and rest: the cellists of `docs/reference/string-technique.md`, section 2.7 (the contacts, the neck, and the bow on the right knee). Hands and bow in play: `docs/reference/string-technique.md`, the target: both hands follow it | The cello stands vertical between the knees, against the belly and the chest, with the neck at the left of the head. The trunk does not lean. The left paw tilts over the neck from the bass side, the left elbow points out past the upper bout, and the right elbow points out | The cello stays between the knees, and the left paw holds its neck. The bow stands upright at the right side, with the frog over the right knee | `DOG_HOLD` and `UPRIGHT_BOW`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-mesh-dog.md`, `2026-10-17-left-hand.md`, `2026-10-17-bow-arm.md` | `pnpm close-views cellist <dir>` |
+| Contrabass, hippo | High stool | Hands and bow in play: `docs/reference/string-technique.md`, the target: both hands follow it | The contrabass stands on the floor at the left side (the floor hold), the player leans forward, the right elbow points out and up, and the left arm hugs the contrabass | The contrabass stays on the floor, and the bow lies on the outer side of the right knee | `BOWED_HOLDS.contrabass`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-10-arms-close.md`, `2026-10-17-left-hand.md`, `2026-10-17-bow-arm.md` | `pnpm close-views species hippo <dir>` |
 | Flute, tan fox | Chair, stands as a soloist | Play: Michel Debost, Flute Talk, May/June 1996 (`2026-10-14-fox-flute.md`). Rest: Patricia George, The Instrumentalist, December 2018 (`2026-10-15-flute-rest.md`) | Turns the head to the left, with the flute nearly square to the face and the shoulders square and low | The flute stands upright on the right leg in the right paw, and the left arm hangs near the side with a soft bend, with the paw beside the haunch. A soloist hangs the left arm | `FOX_FLUTE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-17-fox-form.md`, `2026-10-17-tan-rest.md` | `pnpm close-views flutist <dir>` |
 | Oboe, mouse | Chair, stands as a soloist | none | Holds the oboe at the mouth with both paws on their grips and the right shoulder turned forward | The oboe moves off the mouth and tilts, the head lifts, and the paws keep their grips | `WIND_HOLDS.oboe`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-short-legs.md` | `pnpm close-views species mouse <dir>` |
 | Clarinet, wolf | Chair, stands as a soloist | none | Holds the clarinet at the mouth with both paws on their grips and the right shoulder turned forward | The clarinet moves off the mouth and tilts, the head lifts, and the paws keep their grips | `WIND_HOLDS.clarinet`, `pose/winds.ts` | 5.3 woodwinds and brass, `2026-10-11-short-legs.md` | `pnpm close-views species wolf <dir>` |
@@ -51,9 +51,9 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Xylophone, badger | Stands | none | Two mallets strike the bar of each key, and a hand does not cross the other hand | The rest of the timpani | `PERCUSSION_HOLDS.xylophone`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-10-arms-close.md` | `?page=species&only=xylophone&body` |
 | Choir, penguin | Stands on a riser | none | The beak opens with each note, the chest turns from side to side in a phrase, and the flippers hold the folder close | The beak closes, the chest stops its turn, and the flippers keep the folder | `CHOIR_HOLD`, `pose/choir.ts` | 5.3 choir, `2026-10-11-penguin-body.md` | `pnpm close-views species penguin <dir>` |
 
-`BOWED_HOLDS.violin` (the chin hold) and `WIND_HOLDS.flute` have no row. No player of the cast
-uses them, because each species of the violin and the flute sections has a hold of its own. A new
-species of these sections takes them.
+`BOWED_HOLDS.violin` (the chin hold), `BOWED_HOLDS.cello`, and `WIND_HOLDS.flute` have no row. No
+player of the cast uses them, because each species of the violin, the cello, and the flute
+sections has a hold of its own. A new species of these sections takes them.
 
 ## 5.1 Pose function
 
@@ -227,7 +227,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   turns 40% of the look and the head 60%, at most 1.2 rad to the side and 0.5 rad up or down. In
   a chamber group (4.2), the players look at the head of the leader (5.4), the leader looks at
   the middle of the heads of the others, and a player alone looks ahead, to the audience.
-  40% of the windows of 6 s hold an ear twitch of 0.3 s and 12°. The tail sways 8° and 12° in
+  40% of the windows of 6 s hold an ear twitch of 0.3 s and 12°. Ears that hang beside the head
+  do not twitch (`PlayerPlan.earTwitch`, `OwnBodyParams.hangingEars`): a real hanging ear does not
+  twitch to the side, and the twitch swung the tips of the ear flaps of the dog mesh into its
+  cheeks (`docs/decisions/2026-10-17-mesh-dog.md`). The tail sways 8° and 12° in
   5.5 s. A seated tail that lies curled on the seat does not sway (`PlayerPlan.tailSway`,
   `OwnBodyParams.seatedTail`): the sway of the curled tail of the cat moved its front 12.3 cm
   across and 5.3 cm into the left thigh (`docs/decisions/2026-10-16-cat-seat.md`). A seeded time
@@ -395,6 +398,18 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   moves out and to the front in the middle of the move (`BowedHold.liftReach`), as the grip of the
   via of the bow moves, so that it passes in front of the deep belly: with a direct mix of the
   rest place and the playing place, it went 5.6 cm into the belly.
+- **Cello between the knees.** The seated dog keeps the cello at its playing place between the
+  knees in the rest pose, and the left paw holds its neck at 0.4 of the fingerboard, with the
+  elbow out to the left. A floor instrument rests at its playing place (`BowedHold.rest` null,
+  `restPivotOf()` of `pose/bowed-rig.ts`), so the cello does not move in the lift and the lowering,
+  as a seated cellist keeps it. The right paw holds the bow upright at the right side, with the
+  frog over the right knee, 0.4 H out (`UPRIGHT_BOW`): in a first lesson, a cellist stands the
+  screw of the frog on top of the right knee with the bow up (`docs/reference/string-technique.md`,
+  section 2.7). The right elbow points out, down, and back. With the grip on the top of the knee,
+  the right upper arm went 4.1 cm into the side of the belly. In the lift and the lowering, the
+  bow turns through the front, as the upright bow of the violinists, and no point of the bow goes
+  into the body (`bow-path.txt` of `docs/research/2026-10-17-dog-mesh/`,
+  `docs/decisions/2026-10-17-mesh-dog.md`).
 - **Free arm of the flute.** The seated tan fox rests the flute upright on the right leg in the right
   paw (5.3), and its free left arm hangs near the side with a soft bend of the elbow, with the paw
   beside the haunch and the palm toward the body. A seated flutist at rest lays the left hand on
@@ -458,9 +473,10 @@ of each role.
     The bow turns around the strings for each string by `BowedHold.stringTurn`, to the bass side
     for a low string: 17° on the violin, the viola, and the cello, and 25° on the contrabass, as the
     string planes of the reference. The mesh rigs stay below: 11° on the viola of the cat, the
-    largest angle with which its bow arm still reaches the full hair, and 10° on the rabbit and 9°
+    largest angle with which its bow arm still reaches the full hair, 10° on the rabbit and 9°
     on the red fox (with the stick leaned 15°), because larger turns fold the skin of their right
-    arms.
+    arms, and 12° on the cello of the dog, because a larger turn put its right upper arm into the
+    side of the chest at the tip on the C string.
   - The middle of the left finger block presses the strings at the middle of the hand frame of
     the position on the target `fingerboard`, with the string length: one octave is half of the
     string, and the end of the fingerboard is 20 semitones above the open string. The fingers
@@ -556,21 +572,23 @@ of each role.
     about 30° on the violin and less on the lower instruments). The fingers turn the stick in the
     paw by the tilt, and the hand keeps the turn of the bow with no tilt (`heldBowAt()` of
     `pose/bowed.ts`): with the hand turned with the stick, the bow of the rabbit went 1.7 cm into
-    the violin in the lowering of `brahms-2`. The cello and the contrabass players lean forward 8° and 5°. The cellist had
-    40° and 10° until the low seats of 2026-10-11: on its lower chair, the cello stands higher at
-    its body, and its head and its right forearm came too near the neck and the bow stick. The bow
-    range is the part of the hair that the arm reaches on all strings with 97% of its length.
-    With the arms of 4.5, it is the full hair from 0.03 m after the frog to 0.03 m before the
-    tip, on each of the four instruments. The first arms needed turns of 40°, 50°, 30°, and 50°,
-    and still reached only 87% to 92% of the hair of the viola, the cello, and the contrabass.
-    With the turn of 30°, the dog of the cellos reached 94.5% of the hair. A larger forward lean
-    also reaches the full hair (99.5% at 20°), but the head of the dog then touches the neck.
-    Each hold of the stage and of the views page lets the bow arm reach the full hair. A turn of
-    the torso does not help a short arm, because the violin rests on the chest and turns with
-    the shoulder.
+    the violin in the lowering of `brahms-2`. The floor holds of the cello and the contrabass lean
+    the player forward 8° and 5°, and the dog of the mesh does not lean (below). The parametric
+    cellist had 40° and 10° until the low seats of 2026-10-11: on its lower chair, the cello stands
+    higher at its body, and its head and its right forearm came too near the neck and the bow stick.
+    The bow range is the part of the hair that the arm reaches on all strings with 97% of its
+    length. With the arms of 4.5, it is the full hair from 0.03 m after the frog to 0.03 m before
+    the tip, on each of the four instruments. The first arms needed turns of 40°, 50°, 30°, and 50°,
+    and still reached only 87% to 92% of the hair of the viola, the cello, and the contrabass. With
+    the turn of 30°, the parametric dog of the cellos reached 94.5% of the hair. A larger forward
+    lean also reaches the full hair (99.5% at 20°), but the head of that dog then touched the neck.
+    Each hold of the stage and of the views page lets the bow arm reach the full hair. A turn of the
+    torso does not help a short arm, because the violin rests on the chest and turns with the
+    shoulder.
   - In the playing pose, the head keeps at least 0.03 m from the neck of the cello and of the
     contrabass, with the looks at the conductor of the demo layouts. The neck passes the left of
-    the head (4.6): 0.032 m from the head of the dog and 0.08 m from the head of the hippo. The
+    the head (4.6): 0.032 m from the head of the parametric dog, at least 0.040 m from the head of
+    the dog mesh in all demos, and 0.08 m from the head of the hippo. The
     holds of step 4 put the neck through the face, and the leans of 15° and 20° moved the head
     further into it (review of step 5, F2).
   - The stick lies in the fingers of the right hand (4.6), and the fingers curl 45° around it,
@@ -646,7 +664,21 @@ of each role.
     right shoulder of the fox mesh folded in 18% of the play samples. The cat holds the viola
     under the chin with its own hold (`CAT_HOLD`): the chin hold of the viola, with the viola
     0.05 H further right and 0.21 H further back, toward the neck, so that the left paw of the
-    reach of the red fox reaches the nut (`docs/decisions/2026-10-16-mesh-cat.md`). `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
+    reach of the red fox reaches the nut (`docs/decisions/2026-10-16-mesh-cat.md`). The dog holds
+    the cello between its knees with its own hold (`DOG_HOLD`), as real cellists hold it
+    (`docs/reference/string-technique.md`, section 2.7): the endpin on the floor in front of the
+    chair, the lower bout between the knees, the back against the belly and the chest, and the neck
+    at the left of the head, above the left shoulder. The short thighs of the dog mesh end about
+    1 cm behind the front of its belly, so the cello stands vertical and leans 11° to the left,
+    and the knees stay 2.0 cm and 2.9 cm behind the sides of the lower bout. A cello that leans back
+    stood with its lower bout in front of the knees. The trunk does not lean, because the belly then
+    pushes into the cello. The left paw tilts 60° over the neck (`BowedHold.tiltL`, 30° on the other
+    holds), as the hand of a cellist comes over the fingerboard from the bass side: with 30°, the
+    thick paw went 3.0 cm into the neck. The left elbow points out to the left and down, past the
+    upper bout, and turns up 2° for each lower string. The right shoulder turns 30°, the turn of the
+    violin, and the right elbow points out at the frog and out, a little up, and forward at the tip.
+    The left paw reaches the whole fingerboard and the bow paw the whole hair with the arms of the
+    cello reach that the user chose (`docs/decisions/2026-10-17-mesh-dog.md`). `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
     `pnpm fold-probe fox-violinist` measure each change
     (`docs/research/2026-10-13-studio-rabbit.md`, `docs/research/2026-10-13-rabbit-mesh.md`,
     `docs/research/2026-10-14-fox-rig.md`). A test keeps the rest bow of each violinist out
@@ -654,7 +686,7 @@ of each role.
     contrabass, the
     elbow points out and up, (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in pizzicato, (1, 0,
     0). The left elbow points down, out, and a little forward, so that the arm hugs the instrument:
-    level and out, (-1, 0, 0.3), the left upper arm of the dog stood 70° out from the side. The
+    level and out, (-1, 0, 0.3), the left upper arm of the parametric dog stood 70° out from the side. The
     cello moves 0.05 H forward, so that the bow hand at the tip of a down-bow on the C string stays
     off the right thigh. A hold can also turn the instrument around its bone while the player plays
     (`BowedHold.playTurn`). The holds of the stage keep the turn of the bind pose, except the
@@ -679,7 +711,7 @@ of each role.
     sampled every 5 ms, the stick and the hair stay out of the hand, the fingers, and the arm,
     with one exception: in one change to pizzicato of the cello in the Boulanger demo, the frog
     end of the stick touches the forearm, 0.003 m deep, for less than 10 ms. With the bow hand of
-    the hold, the frog end of the stick went up to 0.13 H into the forearm of the dog and 0.09 H
+    the hold, the frog end of the stick went up to 0.13 H into the forearm of the parametric dog and 0.09 H
     into the forearm of the hippo (user report of 2026-10-06).
   - The pizzicato hand plucks above the strings at 90% of the way from the end of the
     fingerboard to the bow contact on the violin and the viola, and at 30% on the cello and the
@@ -702,7 +734,9 @@ of each role.
     upright on the left thigh, and the bow upright at the right side, with the paw at the outer side
     of the right thigh and the right elbow 35° from the vertical near the side of the belly. In
     the lift and the lowering, the bow turns through the front with the grip further out and
-    forward than the grip of the violins (`CAT_HOLD`, `docs/decisions/2026-10-17-cat-bow.md`). The cello and the contrabass stay on the floor, and the bow
+    forward than the grip of the violins (`CAT_HOLD`, `docs/decisions/2026-10-17-cat-bow.md`). The
+    dog keeps the cello between its knees and holds the bow upright at the right side, with the
+    frog over the right knee (5.2, `DOG_HOLD`). The contrabass stays on the floor, and the bow
     lies on the outer side of the right knee, 0.08 H above it and 0.2 H out, and points to the
     front, with the hair down, (0, -1, 0.3). On the dog of 2026-10-06, the hair down and out,
     (1, -1, 0.3), turned the hand so that the wrist hung beside the knee, and the forearm went
