@@ -1566,6 +1566,9 @@ async function playFrame(
       await page.mouse.move(DRAG_START.x + camera.dx, DRAG_START.y + camera.dy, { steps: 20 });
       await page.mouse.up();
     }
+    // The wheel steps go to the element under the pointer, and the pointer is still on the
+    // button "Reset view" when the camera has no drag.
+    await page.mouse.move(DRAG_START.x, DRAG_START.y);
     for (let i = 0; i < Math.abs(camera.wheel); i++) {
       await page.mouse.wheel(0, camera.wheel > 0 ? -100 : 100);
       await page.waitForTimeout(30);
