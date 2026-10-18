@@ -418,7 +418,7 @@ A new species with a studio body:
 | `AGENTS.md` | "Design" | each studio body with its mesh or its studio animal, its decision files, and its role of `pnpm close-views` | |
 | `docs/agents/model-work.md` | "Route 3: a studio body" | the bodies of route 3 | |
 | `docs/agents/model-work.md` | "A mesh with no skeleton into route 3." | the meshes of the user | |
-| `docs/agents/model-work.md` | "These traps of route 3 each cost a round" | each trap that cost the round a step | |
+| `docs/agents/model-traps.md` | the whole file | each trap that cost the round a step | |
 | `docs/agents/commands.md` | the row of `pnpm studio-body` | the landmark of the scale of each animal in `ANIMALS` | |
 | `docs/briefs/studio-body.md` | "7. A mesh with no skeleton" | the example meshes of the user | |
 | `assets/models/<s>/README.md` | the whole file | the source, the license, and the checksum of a mesh of the user | |
