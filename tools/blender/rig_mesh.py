@@ -446,7 +446,7 @@ def tone(colors, main_bone, rule):
     return srgb_of_oklab(lab), int((share > 0).sum())
 
 
-def border_faces(corners, colors, fur, share, rule):
+def border_faces(corners, colors, fur, share, rule, tris=None):
     """Gives the faces at the border of a black fur region the color of most of their texture
     (`colors.border` of the config). Each dark fur face (Oklab lightness below `dark`) with its
     center in `box`, whose share of dark texture samples (`face_colors()`) is below `share`,
@@ -455,10 +455,26 @@ def border_faces(corners, colors, fur, share, rule):
     torso of the panda, this gave the border of the black band teeth, and a raised arm stretched
     them into black wedges on the white side. `corners` gives the corners of each face in the
     units of the source (`head_source()`), with the stretch of the arm factor on the faces of the
-    arms. Gives the new colors and the changed faces."""
+    arms. With `teeth` of the rule, each dark fur face of the box with at least `teeth` light
+    neighbors over its edges (`tris`) also takes the color of the nearest light fur face, after
+    the share rule. The cut of the panda (`cut_seam()`) leaves such small black teeth at the old
+    seam. Gives the new colors and the changed faces."""
     centers = corners.mean(axis=1)
     dark = oklab(colors)[:, 0] < rule['dark']
-    changed = fur & dark & in_box(centers, rule['box']) & (share < rule['share'])
+    inside = in_box(centers, rule['box'])
+    changed = fur & dark & inside & (share < rule['share'])
+    if 'teeth' in rule:
+        across = {}
+        for f, t in enumerate(tris):
+            for i in range(3):
+                across.setdefault(tuple(sorted((int(t[i]), int(t[(i + 1) % 3])))), []).append(f)
+        still = dark & ~changed
+        for f in np.nonzero(fur & still & inside)[0]:
+            t = tris[f]
+            light_sides = sum(1 for i in range(3) for g in across[tuple(sorted(
+                (int(t[i]), int(t[(i + 1) % 3]))))] if g != f and not still[g])
+            if light_sides >= rule['teeth']:
+                changed[f] = True
     light = np.nonzero(fur & ~dark)[0]
     out = colors.copy()
     for f in np.nonzero(changed)[0]:
@@ -3277,18 +3293,18 @@ def main():
     uncut = uncut_faces(long_verts, tris, long_heads, long_ends, thin_rule) if thin_rule else []
     colors, dark, dark_share = face_colors(tris, uvs, texture, config['colors'])
     if 'cut' in config:
-        # The caps of the body take the white of the belly: the color of the nearest light face
-        # that the cut keeps. The caps of the arm and the quads at the top keep the black of the
-        # arm from the faces across their edges.
+        # The caps of the body and the quads at the top take the white of the belly: the color of
+        # the nearest light face that the cut keeps. The caps of the arm keep the black of the arm
+        # from the faces across their edges.
         start = len(source_tris) - sum(len(c[2]) for c in seam_cut)
         light = oklab(colors)[:, 0] >= 0.5
         mids = long_verts[tris].mean(axis=1)
         kept = np.nonzero(light & (np.arange(len(tris)) < start))[0]
         k = start
         for side, removed, faces, arm_run, body_run in seam_cut:
-            body = set(body_run)
+            arm_side = set(arm_run)
             for f in faces:
-                if all(v in body for v in f):
+                if not all(v in arm_side for v in f):
                     colors[k] = colors[kept[np.argmin(np.linalg.norm(mids[kept] - mids[k], axis=1))]]
                     dark[k] = False
                 k += 1
@@ -3418,7 +3434,7 @@ def main():
         # The faces of the eye shells come after the faces of the body, with no texture samples.
         share_all = np.concatenate([dark_share, np.ones(len(tris_all) - len(tris))])
         colors_all, changed = border_faces(corners, colors_all, fur_all, share_all,
-                                           config['colors']['border'])
+                                           config['colors']['border'], tris_all)
         border_changed = changed
         sides = (corners[changed].mean(axis=1)[:, 0] > 0).sum()
         log(f'border: {len(changed)} dark faces ({sides} left, {len(changed) - sides} right) take '
