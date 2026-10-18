@@ -1,3 +1,4 @@
+| `pnpm look-lab <dir> [--base <ref>] [--url <url>] [--measure]` | Measures the light of the stage against `orchestra-latest.png` (design 4.5). It renders the default demo at 33.5 s at the cameras `orchestra`, `default`, and `violins` of `pnpm close-views play`, then writes `<dir>/look.md`: the luma percentiles and the saturation of the stage area of each frame, the colors of matched regions, and the contrast of the floor shadows. `--measure` only measures the frames in `<dir>`. A new layout moves the regions (`LOOK_REGIONS` of `tools/look-lab.ts`). About 90 s. |
 # Commands
 
 This module of `AGENTS.md` lists the commands of the repository and the checks of CI. Use Node 24
@@ -24,9 +25,9 @@ tools print only a one-line usage text for `--help`, so read the file.
 - **`--glb <file>`.** Gives the animal the studio body that the export makes from another GLB
   file, in a copy of `src/` (`tools/glb-swap.ts`). `ANIMALS` and `src/` do not change.
 - **Image tools.** `pnpm screenshots`, `pnpm snapshot`, `pnpm sheet-check`, `pnpm choir-check`,
-  `pnpm keyboard`, and `pnpm close-views` build the site and use headless Chromium with ANGLE on
-  Metal (`pnpm exec playwright install chromium` one time). They stop their servers and browsers
-  at the end. Do not edit the working tree while they build.
+  `pnpm keyboard`, `pnpm close-views`, and `pnpm look-lab` build the site and use headless
+  Chromium with ANGLE on Metal (`pnpm exec playwright install chromium` one time). They stop
+  their servers and browsers at the end. Do not edit the working tree while they build.
 
 ## Build and site
 
