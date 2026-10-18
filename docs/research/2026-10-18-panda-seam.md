@@ -73,3 +73,29 @@ streaks go (`gap/gap-variants.webp`), but faces 93, 2116, 2119, 308, and 92 betw
 the forearm turn over in each sample. A move of a vertex keeps the faces that join the forearm to
 the belly. Only a cut of the mesh at the seam separates the two: new vertices for the faces of the
 forearm, and new faces that close the forearm and the belly. That cut needs the choice of the user.
+
+## 5. A visibility probe of the turned faces
+
+The manager decided (2026-10-18) to ship `af` when the faces that it turns over do not show. Round
+`panda-hidden` rendered them with `hidden/probe-patch.py`: in a probe build, the panda body draws
+each turned face of `af` in a pure color (93 green, 2115 blue, 308 magenta, 92 cyan, 98 red) and
+each other face black, with no light, on both sides. The other objects keep their look, so they
+hide the panda where they stand in front of it. `hidden/probe.ts` writes 142 frames at 1440 x 900:
+46 gallery frames (each view and moment of the trombonist, the two three-quarter views, and the
+views of `streak-variants.webp`), and 96 stage frames of the three demos with a trombone (60
+moments in the planned shots and in the default view, a low view from the front, and a close view
+from the back left). `hidden/count.py` counts the pixels of each color (`hidden/count-gallery.txt`,
+`hidden/count-stage.txt`).
+
+| Face | Turned in | Largest visible pixels | View and moment |
+|---:|---|---:|---|
+| 93 | each sample | 183 | gallery, rest, right side, zoom 1.7 |
+| 2115 | each sample | 190 | gallery, rest, right side, zoom 1 |
+| 2115 | each sample | 24 | stage, close view from the back left, `brahms-2` at 598 s |
+| 308 | each rest sample, 12.9% of the lift | 62 in a rest frame | gallery, rest, right side, zoom 1.7 |
+| 92 | 4.3% of the lift | 312 | gallery, play, left three-quarter view |
+| 98 | almost no sample | 1223 | gallery, play, left three-quarter view |
+
+The red bin of face 98 also counts the bass drum on the stage, so only its gallery count holds.
+`hidden/hidden-probe.webp` shows faces 93, 2115, and 308. Faces 93 and 2115 show in 15 and 41 of
+the 142 frames, far above the limit of 2 pixels, so `af` does not ship.
