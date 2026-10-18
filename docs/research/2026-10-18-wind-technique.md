@@ -65,9 +65,9 @@ The arm factor 1.497 of the user stays. The slide check asks for a reach of more
 | Item | Target | Source | Limit on the panda |
 |---|---|---|---|
 | T1. A slide nearer to the level | The slide points toward the audience: the smallest angle below the level that keeps a reach above 0.15 m and the clearance. Candidates: 35° right and 15° down (30° below the level, reach 0.160 m), and 30° right and 20° down (35° below the level, reach 0.165 m) | Reference 1.1, 1.4 [4] [1] [18] | The mouth is 0.40 m in front of the shoulder joints. Each 5° less down costs about 0.025 m to 0.03 m of reach, and each 5° more right gives about 0.02 m back (`arm-probe.txt`). 30° right and 15° down put the arms 1.8 cm deep (limit 1.5 cm). A turn further right moves the slide to the side, and real players hold the trombone straight forward [18]. A slide nearer to the level also shortens the elbow range of 46° |
-| T2. The positions of the seventh partial | `slidePosition()` of the trombone skips the seventh partial: F♯4 in position 5, G4 in 4, A♭4 in 3 | Reference 1.2, 1.3 [8] (derived) | None. The partials of the valves are a separate question (section 5) |
+| T2. The positions of the seventh partial. Done in the round `slide-notes`, also for the valves | `slidePosition()` of the trombone skips the seventh partial: F♯4 in position 5, G4 in 4, A♭4 in 3 | Reference 1.2, 1.3 [8] (derived) | None. The partials of the valves are a separate question (section 5) |
 | T3. The breath in the chest | The chest lifts and widens and the belly goes out in the breath in, with no lean back and still shoulders. Keep 0.4 s and the end at the first note | Reference 1.6 [1] [16] | The rig has no breath shape. A small lift of the chest bone, or a `raise` shape of the studio rig, can show it. The big belly hides a small change |
-| T4. Steps that grow | Map the position by the real distance, `(2^((n−1)/12) − 1) / (2^(6/12) − 1)` of the reach, in place of `(n − 1) / 6` | Reference 1.2 [1] [8] | None. The change is at most 0.59 cm, and the paused test pins the equal steps |
+| T4. Steps that grow. Done in the round `slide-notes` (`slideTravel()`). The largest change is 0.67 cm, at position 4 (7.75 cm against 7.08 cm in section 1 of `probe.txt`), in place of 0.59 cm at position 3 | Map the position by the real distance, `(2^((n−1)/12) − 1) / (2^(6/12) − 1)` of the reach, in place of `(n − 1) / 6` | Reference 1.2 [1] [8] | None. The change is at most 0.59 cm, and the paused test pins the equal steps |
 | T5. Alternate positions | In a fast run, take the alternate that moves the slide less: B♭3 in 5 next to positions 4 to 7, F4 in 4 or 6 next to them | Reference 1.3 [8] [3] | None. The short travel makes the gain small |
 | T6. Keep the slide time | Keep `slideSec` 0.1 s, the end at the note start, and the stop in each position | Reference 1.5 [9] [13] [14] [3] | None |
 | T7. Keep the rest | Keep the rest of `WIND_HOLDS.trombone`, with the slide closed. Do not rest the trombone on the slide | Reference 1.7 [1] [6] | No source gives the place. The user can choose another place |
@@ -75,7 +75,8 @@ The arm factor 1.497 of the user stays. The slide check asks for a reach of more
 ## 5. Open points
 
 - The valve instruments use the same `PARTIALS`, so the trumpet plays the written A5 with valve 2
-  from the seventh partial, where the reference gives 1-2 (reference 2.1).
+  from the seventh partial, where the reference gives 1-2 (reference 2.1). Done in the round
+  `slide-notes`: the trumpet now plays it with 1-2.
 - The other winds differ from the reference in five rules (reference 4.2): the oboe hangs 30° from
   the vertical and the clarinet 25°, where real players hold about 45°. The tan fox faces the
   front, where a flutist turns the body 45° to the right. The right paw of the horn stays outside
