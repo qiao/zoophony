@@ -1,10 +1,12 @@
-import { Group, SpotLight } from 'three';
+import { Color, ShaderChunk, Vector3 } from 'three';
+import type { WebGLProgramParametersWithUniforms } from 'three';
 
 import type { ShotLamp, ShotRig } from '../shots/shot-light.ts';
 
 /**
  * The light of a close shot in the scene (design 4.5, 5.6), at the full weight of
- * `CameraPose.light`. The lamps cast no shadow. The wide shots keep the light of the stage.
+ * `CameraPose.light`. The lamps light the players and the props only, cast no shadow, and give
+ * diffuse light. The wide shots keep the light of the stage.
  */
 export const SHOT_LOOK = {
   /** The color of the soft key, in sRGB: warm white. */
@@ -23,70 +25,128 @@ export const SHOT_LOOK = {
   vignette: 0.6,
 } as const;
 
-/** The names of the two lamps in the group of {@link createShotLights}. */
-const LAMPS = { key: 'shot-key', kicker: 'shot-kicker' } as const;
-
 /**
- * Creates one lamp of the light of a shot: a soft spotlight with no shadow and no light.
- *
- * @param name The name of the lamp.
- * @param color The color, in sRGB.
- * @returns The lamp. Its target is not in the scene yet.
+ * The uniforms of the light of a shot in the shared material of the players and the props
+ * (`createMaterials()`). Index 0 is the soft key, and index 1 the kicker.
  */
-function lamp(name: string, color: string): SpotLight {
-  const light = new SpotLight(color, 0);
-  light.name = name;
-  light.penumbra = 1;
-  light.decay = 2;
-  light.castShadow = false;
-  return light;
+export interface ShotUniforms {
+  /** 1 while a lamp has light, else 0, so the shader skips the lamps in a wide shot. */
+  readonly uShotOn: { value: number };
+  /** The positions of the lamps, in world space. */
+  readonly uShotPosition: { value: [Vector3, Vector3] };
+  /** The unit axes of the cones, from each lamp to its target. */
+  readonly uShotAxis: { value: [Vector3, Vector3] };
+  /** The cosine of the half angle of each cone. */
+  readonly uShotCone: { value: [number, number] };
+  /** The linear color times the intensity of each lamp, as for a spotlight with decay 2. */
+  readonly uShotColor: { value: [Vector3, Vector3] };
 }
 
 /**
- * Creates the lamps of the light of a close shot (design 4.5, 5.6): the soft key and the kicker,
- * with no light until {@link setShotLights}. They stay in the scene in each shot, so a cut does
- * not change the shader programs.
+ * Creates the uniforms of the light of a shot, with no light.
  *
- * @returns A group with the two lamps and their targets.
+ * @returns The uniforms.
  */
-export function createShotLights(): Group {
-  const key = lamp(LAMPS.key, SHOT_LOOK.keyColor);
-  const kicker = lamp(LAMPS.kicker, SHOT_LOOK.kickerColor);
-  return new Group().add(key, key.target, kicker, kicker.target);
+export function createShotUniforms(): ShotUniforms {
+  return {
+    uShotOn: { value: 0 },
+    uShotPosition: { value: [new Vector3(), new Vector3()] },
+    uShotAxis: { value: [new Vector3(0, -1, 0), new Vector3(0, -1, 0)] },
+    uShotCone: { value: [1, 1] },
+    uShotColor: { value: [new Vector3(), new Vector3()] },
+  };
 }
 
+/** The linear colors of the lamps, from {@link SHOT_LOOK}. */
+const LAMP_COLORS = [new Color(SHOT_LOOK.keyColor), new Color(SHOT_LOOK.kickerColor)] as const;
+
 /**
- * Places one lamp, and gives it an illuminance at its target.
+ * Writes one lamp into the uniforms: its place, its cone, and an illuminance at its target.
  *
- * @param light The lamp.
+ * @param uniforms The uniforms.
+ * @param i The lamp: 0 for the key, 1 for the kicker.
  * @param place The place, the aim, and the cone of the lamp.
  * @param illuminance The illuminance at the target, in lux.
  */
-function placeLamp(light: SpotLight, place: ShotLamp, illuminance: number): void {
-  light.position.set(...place.position);
-  light.target.position.set(...place.target);
-  light.angle = place.angle;
-  light.intensity = illuminance * light.position.distanceToSquared(light.target.position);
+function writeLamp(uniforms: ShotUniforms, i: 0 | 1, place: ShotLamp, illuminance: number): void {
+  const position = uniforms.uShotPosition.value[i].set(...place.position);
+  const axis = uniforms.uShotAxis.value[i].set(...place.target).sub(position);
+  const distanceSquared = axis.lengthSq();
+  axis.normalize();
+  uniforms.uShotCone.value[i] = Math.cos(place.angle);
+  const { r, g, b } = LAMP_COLORS[i];
+  const intensity = illuminance * distanceSquared;
+  uniforms.uShotColor.value[i].set(r * intensity, g * intensity, b * intensity);
 }
 
 /**
- * Sets the lamps of the light of a shot for a frame (design 4.5, 5.6).
+ * Sets the light of the shot of a frame (design 4.5, 5.6).
  *
- * @param group The group of {@link createShotLights}.
+ * @param uniforms The uniforms of {@link createShotUniforms}.
  * @param rig The places of the lamps, from `shotRig()`.
  * @param light The weight of the light of a close shot, from 0 to 1.
  * @param spot The weight of the follow-spot, from 0 to 1.
  */
-export function setShotLights(group: Group, rig: ShotRig, light: number, spot: number): void {
-  for (const child of group.children) {
-    if (!(child instanceof SpotLight)) {
-      continue;
-    }
-    if (child.name === LAMPS.key) {
-      const key = SHOT_LOOK.key * (1 + (SHOT_LOOK.spot - 1) * spot);
-      placeLamp(child, rig.key, key * light);
-    } else if (child.name === LAMPS.kicker) {
-      placeLamp(child, rig.kicker, SHOT_LOOK.kicker * light);
-    }
+export function setShotLight(
+  uniforms: ShotUniforms,
+  rig: ShotRig,
+  light: number,
+  spot: number,
+): void {
+  uniforms.uShotOn.value = light > 0 ? 1 : 0;
+  const key = SHOT_LOOK.key * (1 + (SHOT_LOOK.spot - 1) * spot);
+  writeLamp(uniforms, 0, rig.key, key * light);
+  writeLamp(uniforms, 1, rig.kicker, SHOT_LOOK.kicker * light);
+}
+
+/**
+ * The GLSL of the lamps after the lights of three.js: the diffuse light of two spotlights with
+ * the full penumbra and the decay 2, and the pool of the stage lights (`addLightPool()`), as a
+ * `SpotLight` gave it. The lamps give no gloss.
+ */
+const SHOT_GLSL = /* glsl */ `
+if (uShotOn > 0.5) {
+  vec3 shotNormal = inverseTransformDirection(geometryNormal, viewMatrix);
+  for (int i = 0; i < 2; i++) {
+    vec3 toLamp = uShotPosition[i] - lightPoolWorld;
+    float distanceSquared = max(dot(toLamp, toLamp), 1e-4);
+    vec3 direction = toLamp * inversesqrt(distanceSquared);
+    float cone = smoothstep(uShotCone[i], 1.0, dot(-direction, uShotAxis[i]));
+    float facing = saturate(dot(shotNormal, direction));
+    vec3 irradiance = uShotColor[i] * (facing * cone * lightPool / distanceSquared);
+    reflectedLight.directDiffuse += irradiance * BRDF_Lambert(material.diffuseContribution);
   }
+}
+`;
+
+/**
+ * Adds the lamps of the light of a shot to the shader of a standard material, after
+ * `addLightPool()`, which gives the world position and the pool factor of the pixel. Call it in
+ * `onBeforeCompile`.
+ *
+ * @param shader The shader of the material.
+ * @param uniforms The uniforms of {@link createShotUniforms}.
+ * @throws Error if the shader has no light chunk of three.js that the patch knows.
+ */
+export function addShotLight(
+  shader: WebGLProgramParametersWithUniforms,
+  uniforms: ShotUniforms,
+): void {
+  if (!shader.fragmentShader.includes('#include <lights_fragment_end>')) {
+    throw new Error('The shader has no light chunk of three.js. Update addShotLight().');
+  }
+  if (!ShaderChunk.lights_physical_fragment.includes('material.diffuseContribution')) {
+    throw new Error('The physical material of three.js changed. Update addShotLight().');
+  }
+  shader.uniforms['uShotOn'] = uniforms.uShotOn;
+  shader.uniforms['uShotPosition'] = uniforms.uShotPosition;
+  shader.uniforms['uShotAxis'] = uniforms.uShotAxis;
+  shader.uniforms['uShotCone'] = uniforms.uShotCone;
+  shader.uniforms['uShotColor'] = uniforms.uShotColor;
+  shader.fragmentShader = shader.fragmentShader
+    .replace(
+      '#include <common>',
+      '#include <common>\nuniform float uShotOn;\nuniform vec3 uShotPosition[2];\nuniform vec3 uShotAxis[2];\nuniform float uShotCone[2];\nuniform vec3 uShotColor[2];',
+    )
+    .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>\n${SHOT_GLSL}`);
 }

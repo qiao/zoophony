@@ -13,6 +13,8 @@ import type { MeshData } from '../models/mesh.ts';
 import { shadeMesh } from '../models/shading.ts';
 import { addLightPool } from './light-pool.ts';
 import type { PoolUniforms } from './light-pool.ts';
+import { addShotLight } from './shot-light.ts';
+import type { ShotUniforms } from './shot-light.ts';
 
 /**
  * Makes the finish table of design 4.5: one texel for each finish, with the roughness in the
@@ -43,9 +45,14 @@ function createFinishTexture(): DataTexture {
  *
  * @param pool The uniforms of the pool of the stage lights (design 4.5), or `null` for a page with
  *   no pool, such as the gallery.
+ * @param shot The uniforms of the light of a close shot (design 4.5, 5.6), or `null` for a page
+ *   with no shots. It needs the pool.
  * @returns The material, in an array for the one geometry group of {@link createGeometry}.
  */
-export function createMaterials(pool: PoolUniforms | null = null): [MeshStandardMaterial] {
+export function createMaterials(
+  pool: PoolUniforms | null = null,
+  shot: ShotUniforms | null = null,
+): [MeshStandardMaterial] {
   const finishes = createFinishTexture();
   const material = new MeshStandardMaterial({
     vertexColors: true,
@@ -57,6 +64,9 @@ export function createMaterials(pool: PoolUniforms | null = null): [MeshStandard
   if (pool) {
     material.onBeforeCompile = (shader) => {
       addLightPool(shader, pool);
+      if (shot) {
+        addShotLight(shader, shot);
+      }
     };
   }
   return [material];

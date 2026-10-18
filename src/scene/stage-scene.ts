@@ -38,7 +38,7 @@ import type { PlayerSpot } from './player.ts';
 import { PostPipeline, targetFormatOf } from './post.ts';
 import type { HazeFrame } from './post.ts';
 import { POST_LOOK } from './post.ts';
-import { SHOT_LOOK, createShotLights, setShotLights } from './shot-light.ts';
+import { SHOT_LOOK, createShotUniforms, setShotLight } from './shot-light.ts';
 import { freeShotLight, shotRig } from '../shots/shot-light.ts';
 import { createRenderer, probeTargetFormat } from './renderer.ts';
 import { aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
@@ -145,8 +145,6 @@ interface LayoutView {
   readonly bake: LayoutBake | null;
   /** The captured environment, or `null` for a GPU with no target of floats (design 4.5). */
   readonly capture: LayoutCapture | null;
-  /** The lamps of the light of a close shot (design 4.5, 5.6). */
-  readonly shotLights: Group;
 }
 
 /** The captured environment of a layout, which a restored WebGL context makes again. */
@@ -251,7 +249,9 @@ export class StageScene {
   readonly #reducedMotion: boolean;
   /** The pool of the stage lights (design 4.5), which the materials of the scene share. */
   readonly #pool = createPoolUniforms();
-  readonly #materials = createMaterials(this.#pool);
+  /** The light of a close shot (design 4.5, 5.6), which the shared material reads. */
+  readonly #shot = createShotUniforms();
+  readonly #materials = createMaterials(this.#pool, this.#shot);
   #view: LayoutView | null = null;
   #width = 1;
   #height = 1;
@@ -320,8 +320,6 @@ export class StageScene {
     scene.add(stageGroup);
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
-    const shotLights = createShotLights();
-    scene.add(shotLights);
     const props = createStaticMesh(buildSceneProps(layout), materials);
     scene.add(props);
     const players = createPlayers(playerSpots(layout), materials, models);
@@ -366,7 +364,6 @@ export class StageScene {
       effects: lightEffects(scene),
       bake,
       capture,
-      shotLights,
     };
   }
 
@@ -630,7 +627,7 @@ export class StageScene {
 
   /**
    * Sets the light of the shot of a frame (design 4.5, 5.6): the lamps of a close shot around the
-   * target of the camera, and the extra exposure of a close shot.
+   * target of the camera, which light the players and the props, and the extra exposure.
    *
    * @param view The layout of the frame. Its camera has the place of the frame.
    * @param light The weight of the light of a close shot, from 0 to 1.
@@ -639,7 +636,7 @@ export class StageScene {
   #lightShot(view: LayoutView, light: number, spot: number): void {
     const camera = view.camera.camera;
     const rig = shotRig(camera.position.toArray(), view.camera.target, camera.fov, spot);
-    setShotLights(view.shotLights, rig, light, spot);
+    setShotLight(this.#shot, rig, light, spot);
     this.#renderer.toneMappingExposure = this.#exposure * 2 ** (SHOT_LOOK.exposure * light);
   }
 
