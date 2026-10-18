@@ -9,7 +9,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
 
 1. Import the source GLB file, weld the corners, and scale the mesh to 1 unit from the soles to
    the top, with the soles at y = 0. The math uses the axes of the studio: y up, +z forward, and
-   +x the left side of the animal.
+   +x the left side of the animal. With `cut` of the config, the faces that join each hanging
+   forearm to the belly go, and new faces close both holes (`cut_seam()`).
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones, and give the weights with bone heat. Then the
@@ -703,6 +704,161 @@ def nearest_bone(p, heads, ends):
         if d < best:
             best, found = d, k
     return found
+
+
+def smallest_angle(points):
+    """Gives the smallest corner angle of one triangle of three points, in degrees."""
+    return min(corner_angle(points[k], points[(k + 1) % 3], points[(k + 2) % 3]) for k in range(3))
+
+
+def clip_polygon(verts, poly):
+    """Triangulates a polygon of vertex indices, in order, by clipping at each step the ear with
+    the largest smallest angle. The tests of an ear (convex, and no other corner inside) use the
+    plane of the best fit of the corners. Gives triangles in the winding of the polygon."""
+    points = verts[poly]
+    center = points.mean(axis=0)
+    _, _, axes = np.linalg.svd(points - center)
+    flat = {i: np.array([(verts[i] - center) @ axes[0], (verts[i] - center) @ axes[1]])
+            for i in poly}
+
+    def cross(a, b, c):
+        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+
+    turn = 1.0 if sum(flat[poly[k]][0] * flat[poly[(k + 1) % len(poly)]][1]
+                      - flat[poly[(k + 1) % len(poly)]][0] * flat[poly[k]][1]
+                      for k in range(len(poly))) > 0 else -1.0
+    rest = list(poly)
+    out = []
+    while len(rest) > 3:
+        best = None
+        for k in range(len(rest)):
+            i, j, m = rest[k - 1], rest[k], rest[(k + 1) % len(rest)]
+            a, b, c = flat[i], flat[j], flat[m]
+            if cross(a, b, c) * turn <= 0:
+                continue
+            if any(cross(a, b, flat[q]) * turn > 0 and cross(b, c, flat[q]) * turn > 0
+                   and cross(c, a, flat[q]) * turn > 0 for q in rest if q not in (i, j, m)):
+                continue
+            score = smallest_angle(verts[[i, j, m]])
+            if best is None or score > best[0]:
+                best = (score, k)
+        if best is None:
+            best = max((smallest_angle(verts[[rest[k - 1], rest[k], rest[(k + 1) % len(rest)]]]),
+                        k) for k in range(len(rest)))
+        k = best[1]
+        out.append([rest[k - 1], rest[k], rest[(k + 1) % len(rest)]])
+        del rest[k]
+    return out + [rest]
+
+
+def flip_caps(verts, faces):
+    """Flips each edge between two faces of a cap when the flip makes the smaller of their
+    smallest angles larger and turns neither face over, until no flip helps."""
+    faces = [list(f) for f in faces]
+    changed = True
+    while changed:
+        changed = False
+        edges = {}
+        for k, f in enumerate(faces):
+            for i in range(3):
+                edges[(f[i], f[(i + 1) % 3])] = (k, i)
+        for (a, b), (k, i) in edges.items():
+            if (b, a) not in edges or a > b:
+                continue
+            m, j = edges[(b, a)]
+            c, d = faces[k][(i + 2) % 3], faces[m][(j + 2) % 3]
+            old = min(smallest_angle(verts[faces[k]]), smallest_angle(verts[faces[m]]))
+            new = [[c, d, b], [d, c, a]]
+            normal = (np.cross(verts[b] - verts[a], verts[c] - verts[a])
+                      + np.cross(verts[a] - verts[b], verts[d] - verts[b]))
+            if (c != d and min(smallest_angle(verts[f]) for f in new) > old + 1e-6
+                    and all(np.cross(verts[f[1]] - verts[f[0]], verts[f[2]] - verts[f[0]]) @ normal
+                            > 0 for f in new)):
+                faces[k], faces[m] = new
+                changed = True
+                break
+    return faces
+
+
+def cut_loop(tris, removed):
+    """Gives the loop of the edges between removed faces and kept faces, in the order in which
+    each loop edge runs against its kept face, so that a polygon of the loop in this order has the
+    winding of the surface."""
+    removed = set(int(k) for k in removed)
+    directed = set()
+    for k, t in enumerate(tris):
+        if k not in removed:
+            for i in range(3):
+                directed.add((int(t[i]), int(t[(i + 1) % 3])))
+    after = {}
+    for k in removed:
+        t = tris[k]
+        for i in range(3):
+            a, b = int(t[i]), int(t[(i + 1) % 3])
+            if (b, a) in directed:
+                if a in after:
+                    raise SystemExit('The cut of the seam leaves a vertex with two loop edges.')
+                after[a] = b
+    loop = [next(iter(after))]
+    while after[loop[-1]] != loop[0]:
+        loop.append(after[loop[-1]])
+    if len(loop) != len(after):
+        raise SystemExit('The cut of the seam leaves more than one loop.')
+    return loop
+
+
+def cut_seam(verts, tris, uvs, split, tip, rule):
+    """Cuts the mesh where each hanging forearm touches the belly (`cut` of the config). Each face
+    below the height `top` with a corner in the free arm (`free_arm()`) and a corner outside it
+    goes. The loop of the hole has a run of the arm and a run of the body. A cap closes each run
+    (`clip_polygon()`, `flip_caps()`), and a quad joins the ends of the two runs at the top, where
+    the arm and the body stay joined. Thus the forearm and the belly share no vertex below the
+    top, and no vertex moves. Each new face takes the UVs of the nearest kept face of its own part.
+    The user permitted the cut for the panda on 2026-10-18. Gives the triangles, the UVs, and for
+    each side the removed faces, the new faces, the run of the arm, and the run of the body."""
+    keep = np.ones(len(tris), bool)
+    added, added_uvs, report = [], [], []
+    for side, sign in (('L', 1.0), ('R', -1.0)):
+        arm = free_arm(verts, tris, split, tip * [sign, 1.0, 1.0], sign)
+        mixed = [k for k, t in enumerate(tris)
+                 if arm[t].any() and (~arm[t]).any() and (verts[t, 0] * sign > 0).all()
+                 and verts[t, 1].max() < rule['top']]
+        loop = cut_loop(tris, mixed)
+        start = next(k for k in range(len(loop)) if arm[loop[k]] and not arm[loop[k - 1]])
+        loop = loop[start:] + loop[:start]
+        count = int(arm[loop].sum())
+        if not arm[loop[:count]].all():
+            raise SystemExit(f'The loop of the cut of the side {side} has more than two runs.')
+        arm_run, body_run = loop[:count], loop[count:]
+        a1, ak, b1, bm = arm_run[0], arm_run[-1], body_run[0], body_run[-1]
+        if np.linalg.norm(verts[ak] - verts[bm]) <= np.linalg.norm(verts[b1] - verts[a1]):
+            bridge = [[ak, b1, bm], [ak, bm, a1]]
+        else:
+            bridge = [[ak, b1, a1], [b1, bm, a1]]
+        faces = (flip_caps(verts, clip_polygon(verts, arm_run))
+                 + flip_caps(verts, clip_polygon(verts, body_run)) + bridge)
+        keep[mixed] = False
+        # Each new face takes the UVs of the kept face across its loop edge, so that the cap
+        # continues the fur at its edge. A new face with no loop edge takes the UVs of the nearest
+        # new face of its part that has one.
+        across = {}
+        for k in np.nonzero(keep)[0]:
+            t = tris[k]
+            for i in range(3):
+                across[(int(t[(i + 1) % 3]), int(t[i]))] = k
+        source = [next((across[(f[i], f[(i + 1) % 3])] for i in range(3)
+                        if (f[i], f[(i + 1) % 3]) in across), None) for f in faces]
+        mids = np.array([verts[f].mean(axis=0) for f in faces])
+        for j, f in enumerate(faces):
+            if source[j] is None:
+                same = [m for m in range(len(faces)) if source[m] is not None
+                        and arm[faces[m]].all() == arm[f].all()]
+                source[j] = source[min(same, key=lambda m: np.linalg.norm(mids[m] - mids[j]))]
+            added_uvs.append(uvs[source[j]])
+        added += faces
+        report.append((side, mixed, faces, arm_run, body_run))
+    return (np.concatenate([tris[keep], np.array(added, tris.dtype)]),
+            np.concatenate([uvs[keep], np.array(added_uvs)]), report)
 
 
 def free_arm(verts, tris, split, tip, sign):
@@ -3027,6 +3183,16 @@ def main():
         verts, count, largest = smooth_box(verts, source_tris, config['smooth'])
         log(f'smooth: {count} vertices in the box, the largest move {largest:.4f} u')
     heads, ends, rolls, children = joints_of(config)
+    if 'cut' in config:
+        before = len(source_tris)
+        source_tris, uvs, seam_cut = cut_seam(verts, source_tris, uvs, rules['armSplit'],
+                                          ends['fingers_L'], config['cut'])
+        for side, removed, faces, arm_run, body_run in seam_cut:
+            angles = min_angles(verts, np.array(faces))
+            log(f'cut {side}: {len(removed)} faces go, {len(faces)} new faces close the hole '
+                f'(smallest angle {angles.min():.1f} degrees, median {np.median(angles):.1f}), '
+                f'the arm run {arm_run}, the body run {body_run}')
+        log(f'cut: {before} triangles before, {len(source_tris)} after')
     weights = apply_rules(verts, source_tris, bone_heat(verts, source_tris, heads, ends, rolls),
                           rules, heads, ends)
     weights = straight_slivers(verts, source_tris,
@@ -3110,6 +3276,22 @@ def main():
     thin_rule = config['check']['thin'] if check else None
     uncut = uncut_faces(long_verts, tris, long_heads, long_ends, thin_rule) if thin_rule else []
     colors, dark, dark_share = face_colors(tris, uvs, texture, config['colors'])
+    if 'cut' in config:
+        # The caps of the body take the white of the belly: the color of the nearest light face
+        # that the cut keeps. The caps of the arm and the quads at the top keep the black of the
+        # arm from the faces across their edges.
+        start = len(source_tris) - sum(len(c[2]) for c in seam_cut)
+        light = oklab(colors)[:, 0] >= 0.5
+        mids = long_verts[tris].mean(axis=1)
+        kept = np.nonzero(light & (np.arange(len(tris)) < start))[0]
+        k = start
+        for side, removed, faces, arm_run, body_run in seam_cut:
+            body = set(body_run)
+            for f in faces:
+                if all(v in body for v in f):
+                    colors[k] = colors[kept[np.argmin(np.linalg.norm(mids[kept] - mids[k], axis=1))]]
+                    dark[k] = False
+                k += 1
     # The move of the head from the source: the pivot, the head factor, the rise, and the drop.
     head_move = (heads['neck'], factors['head'], rise,
                  drop + lower if factors['trunk'] != 1 else drop)
