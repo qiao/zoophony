@@ -10,7 +10,7 @@ import type { Side } from '../src/models/studio-format.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { FOLD_ROLES, SAMPLE_SETS, readFaceJson, roleAnimal, roleSpecies } from './fold-probe.ts';
 import type { FaceRecord, FoldCounts } from './fold-probe.ts';
-import { animalSpecies, runTool, withGlbBody } from './glb-swap.ts';
+import { animalSpecies, runTool, scratchSettings, withGlbBody } from './glb-swap.ts';
 import { measureLines, measureRig, triangleLine } from './rig-mesh-check.ts';
 import { FORM_FORMAT, readFormJson } from './rig-form.ts';
 import type { FormJson, PlayerForm } from './rig-form.ts';
@@ -903,8 +903,9 @@ export interface AnimalRole {
 }
 
 /**
- * Gives the settings of the animal of a rig: its entry of `ANIMALS`, or the settings of a seated
- * role that also stands, at the shoulders of the config.
+ * Gives the settings of the animal of a rig: its entry of `ANIMALS`, or the scratch settings of a
+ * seated role that also stands, at the shoulders of the config (`scratchSettings()` of
+ * `tools/glb-swap.ts`).
  *
  * @param animal The animal.
  * @param config The config.
@@ -921,21 +922,7 @@ export function rigSettings(animal: string, config: MeshRigConfig, factor = 1): 
       known: true,
     };
   }
-  const constant = `STUDIO_${animal.toUpperCase().replaceAll('-', '_')}`;
-  return {
-    settings: {
-      landmark: 'shoulders',
-      height: config.app.shoulders,
-      seated: true,
-      soloist: true,
-      constant,
-      // A new animal has no measured crease angle yet. The angle 0 keeps the normal of each face
-      // only in the bind pose. In a pose, the GPU skin turns the three normals of a face by
-      // different blends, so a new body needs its measured angle before it goes into the scene.
-      crease: 0,
-    },
-    known: false,
-  };
+  return { settings: scratchSettings(animal, config.app.shoulders), known: false };
 }
 
 /**

@@ -147,11 +147,12 @@ export function studioConstant(animal: string): string {
 }
 
 /**
- * Gives the scratch settings of an animal with no entry in `ANIMALS`, as `rigSettings()` of
- * `tools/rig-mesh.ts` gives them to `pnpm rig-mesh --check`: a seated role that also stands, with
- * its seat on its legs, at the landmark of its standing shoulder joints. The crease angle is 0,
- * because a new body has no measured angle yet. The angle changes only the normals, which no probe
- * reads.
+ * Gives the scratch settings of an animal with no entry in `ANIMALS`, for the swap and for
+ * `rigSettings()` of `pnpm rig-mesh --check`: a seated role that also stands, with its seat on its
+ * legs, at the landmark of its standing shoulder joints. The crease angle is 0, because a new body
+ * has no measured angle yet. The angle changes only the normals, which no probe reads. In a pose,
+ * the GPU skin turns the three normals of a face by different blends, so a new body needs its
+ * measured angle before it goes into the scene.
  *
  * @param animal The animal.
  * @param shoulders The height of the standing shoulder joints in the app, in meters.
