@@ -109,5 +109,40 @@
   "KEY_LIGHT.angle": 0.3316,
   "KEY_LIGHT.aimToPodium": 0.3,
   "FILL.sky": "#282c34"
+ },
+ "t1": {
+  "BEAM_LOOK.tip": 0.8,
+  "BEAM_LOOK.column": 0.4
+ },
+ "t2": {
+  "BEAM_LOOK.tip": 0.65,
+  "BEAM_LOOK.column": 0.45
+ },
+ "t3": {
+  "BEAM_LOOK.tip": 0.55,
+  "BEAM_LOOK.column": 0.5
+ },
+ "u1": {
+  "BEAM_LOOK.tip": 0.55,
+  "BEAM_LOOK.column": 0.5,
+  "BEAM_LOOK.core": 0.25
+ },
+ "u2": {
+  "BEAM_LOOK.tip": 0.55,
+  "BEAM_LOOK.column": 0.5,
+  "BEAM_LOOK.core": 0.25,
+  "BEAM_LOOK.rise": [
+   0.25,
+   0.8
+  ]
+ },
+ "u3": {
+  "BEAM_LOOK.tip": 0.6,
+  "BEAM_LOOK.column": 0.45,
+  "BEAM_LOOK.core": 0.25,
+  "BEAM_LOOK.rise": [
+   0.2,
+   0.7
+  ]
  }
 }
