@@ -395,6 +395,13 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `boulanger-matin` (18.96 s) (`2026-10-17-mesh-dog.md`).
 - [ ] The paused shot test of the choir of the Ode to Joy fails since the larger cats
       (`2026-10-16-mesh-cat.md`).
+- [ ] The paused test "moves the trombone slide with the pitch, within the reach of the arm" of
+      `src/pose/winds.test.ts` pins the equal steps of the slide. Since `slideTravel()`, the
+      positions keep the real spacing (`2026-10-18-slide-notes.md`).
+- [ ] Wind motion spec T3: the breath in expands the chest and the belly, with still shoulders, in
+      place of the lean back of 3° (`docs/research/2026-10-18-wind-technique.md`).
+- [ ] Wind motion spec T5: in a fast run, the trombone takes the alternate position that moves the
+      slide less, such as B♭3 in 5 and F4 in 4 or 6 (`docs/research/2026-10-18-wind-technique.md`).
 - [x] Panda trombonist: faces 717, 1147, and 1148 at the front of the left shoulder fold in each
       play, lift, and rest sample. A raise rule of the left arm does not relax them
       (`2026-10-18-mesh-panda.md`). Done: the left shoulder turns forward
