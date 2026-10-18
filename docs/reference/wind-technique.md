@@ -264,6 +264,22 @@ from the first position (derived).
 - **The rest and the ready pose.** The horn rests on the lap, with the bell to the right [25],
   and the leadpipe and the mouthpiece up on the left side [30]. Then the players "raise their
   horns into playing position" [25]. No source gives the time of the lift.
+- **The open notes.** The F horn is a tube of about 3.7 m (12 ft) [57]. Its fundamental is F1
+  (MIDI 29), written C2 [1] [56] [57]. Freund and Cutler call it "unplayable" on the F side [56].
+  Horn parts are written in F and sound a perfect fifth lower [56]. Thus the open notes are the
+  written C3, G3, C4, E4, G4, and C5: the partials 2 to 6 and 8 [1] [57].
+- **The fingering of the F horn.** The single F horn chart of Weidner lowers an open note by 1 to
+  6 semitones with the valves 2, 1, 1-2, 2-3, 1-3, and 1-2-3 [55]. Up to the written C5, each note
+  takes the nearest open note at or above it. Above the written C5, the chart takes only the 10th,
+  12th, and 16th partials (written E5, G5, and C6). It plays C♯5 with 1-2, D5 with 1, E♭5 with 2,
+  F5 with 1, F♯5 with 2, A♭5 with 2-3, A5 with 1-2, B♭5 with 1, and B5 with 2 [55].
+- **The partials out of tune.** On the F horn, the 7th, 11th, 13th, and 14th partials (written
+  B♭4, F♯5, between A♭5 and A5, and B♭5) are more than 30 cents out of tune. The 9th partial (D5)
+  is within 5 cents, and the 15th (B5) is less than 16 cents flat [57]. Patterson writes that on
+  the natural horn the written B♭4, F♯5, and A5, the 7th, 11th, and 13th partials, "sound quite
+  flat" [56 (secondary)].
+- **The double horn.** "All advanced players use the double horn" [56]. Its thumb valve changes
+  the horn from F to B♭, and "pitches above g4 utilize the Bb trigger fingerings" [1].
 
 ### 2.3 Oboe
 
@@ -384,8 +400,9 @@ the rows.
 Each source opened on 2026-10-18, except where a fact has a mark of section "Source marks".
 
 1. B. N. Weidner, *Brass Techniques and Pedagogy*, 2nd edition, PALNI Press (open textbook, CC
-   BY-NC-SA 4.0), chapters 2 "Getting Started with Posture, Breathing, and Embouchure", 11 "The
-   Trumpet", 12 "The Horn", 13 "The Trombone", and 15 "The Tuba".
+   BY-NC-SA 4.0), chapters 2 "Getting Started with Posture, Breathing, and Embouchure", 4 "Brass
+   Acoustics" (the figure "Partials of brass instruments"), 11 "The Trumpet", 12 "The Horn", 13
+   "The Trombone", and 15 "The Tuba".
    https://pressbooks.palni.org/brasstechniquesandpedagogy/
 2. pBone, "How To Hold A Trombone: A Beginners' Guide".
    https://pbonemusic.com/blogs/learn/how-to-hold-a-trombone-a-beginners-guide
@@ -496,4 +513,12 @@ Each source opened on 2026-10-18, except where a fact has a mark of section "Sou
 53. James Madison University, Brass Pedagogy, "Tuba Set-up" (2016).
     https://sites.lib.jmu.edu/brasspedagogy/?p=2668
 54. Wikipedia, "Tuba". https://en.wikipedia.org/wiki/Tuba
-
+55. B. N. Weidner, "Horn Fingering Chart", the single F horn and the double horn, *Brass
+    Techniques and Pedagogy*, PALNI Press (CC BY-NC-SA 4.0).
+    https://pressbooks.palni.org/brasstechniquesandpedagogy/wp-content/uploads/sites/4/2020/08/Horn-Fingering-Chart-Full-Score.pdf
+56. D. Freund, D. Cutler, "Brass | The Horn Family", *Extreme Orchestration*, Timbre and
+    Orchestration Resource, ACTOR Project (2024), with a quote of R. Patterson.
+    https://timbreandorchestration.org/isfee/extreme-orchestration/brass/horn-family
+57. S. Eddins, "Double Horn Fingerings, Harmonic Series, Intonation, Trills, and Horn Lengths"
+    (2023), after a chart of T. Martin in R. Gardner, *Good Vibrations: Masterclasses for Brass
+    Players*. https://horncamp.org/wp-content/uploads/2024/01/double-horn-fingering-chart-eddins.pdf
