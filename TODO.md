@@ -409,6 +409,11 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       samples, and the shadow of the left arm crosses the belly in the gallery front view of the
       first position, smaller since the 9° turn (`turn-9.webp`). Show the user the images of
       `docs/research/2026-10-18-panda-folds/` (`2026-10-18-panda-folds.md`).
+- [ ] Panda trombonist: gray streaks under both arms (marks 3 and 4 of `marks-main.webp`) are the
+      shading of the seam where the hanging arm of the mesh touches the trunk. A weight fade folded
+      faces in each sample. Show the user `marks-main.webp`, and ask if the streaks and the arm
+      shadow (mark 5) are marks. A fix needs new vertices at the seam or a corrective shape of the
+      side of the trunk (`2026-10-18-panda-marks.md`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
