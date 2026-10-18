@@ -7,6 +7,7 @@ import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_CAT } from './studio/cat.ts';
 import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
+import { STUDIO_PANDA } from './studio/panda.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
 import { SPECIES_COLORS } from './colors.ts';
@@ -346,15 +347,24 @@ export const SPECIES = {
     accentParts: ['nose', 'feet'],
     facePattern: 'none',
   },
-  /** Panda, the trombones. */
+  /**
+   * Panda, the trombones: a giant panda with black ears, eye patches, shoulders, arms, and legs. It
+   * has the studio body of the mesh of the user, `assets/models/panda/panda.glb`, which
+   * `pnpm rig-mesh panda` rigs (design 4.4), with the head height of the red fox, longer arms, and
+   * longer legs that the user chose (2026-10-18-mesh-panda decisions). Its round haunch sits on
+   * the seat behind the short thighs, and its round tail stands out through the chair back. The
+   * pea eyes sit in the black patches. Its head height is the head of the studio body, and its
+   * chair fits its legs: the seat height is the seat of the studio body, in H.
+   */
   panda: {
-    ears: 'round',
-    snout: 'short',
-    tail: 'puff',
-    size: 1.2,
+    body: 'studio-panda',
+    size: 1,
     colors: SPECIES_COLORS.panda,
-    accentParts: ['face-pattern', 'ears', 'arms', 'hands', 'legs', 'feet'],
-    facePattern: 'eye-patches',
+    accentParts: ['ears', 'nose'],
+    proportions: {
+      headHeight: STUDIO_PANDA.headHeight,
+      seatHeight: STUDIO_PANDA.seatHeight / STUDIO_PANDA.headHeight,
+    },
   },
   /** Mouse, the oboes. */
   mouse: {

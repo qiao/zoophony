@@ -22,6 +22,7 @@ import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_CAT } from './studio/cat.ts';
 import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
+import { STUDIO_PANDA } from './studio/panda.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
 import { EYE_COLOR, EYE_LIGHT_COLOR } from './species.ts';
@@ -33,6 +34,7 @@ export const STUDIO_BODIES = {
   'studio-cat': STUDIO_CAT,
   'studio-dog': STUDIO_DOG,
   'studio-fox': STUDIO_FOX,
+  'studio-panda': STUDIO_PANDA,
   'studio-polar-bear': STUDIO_POLAR_BEAR,
   'studio-rabbit': STUDIO_RABBIT,
 } as const satisfies Readonly<Record<string, StudioBody>>;
