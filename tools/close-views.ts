@@ -1339,10 +1339,13 @@ export interface PlayCamera {
  *   of the conductor on the right. It is the camera of the frame of the user of 2026-10-16
  *   (`docs/research/2026-10-16-seat-rest/user-camera.webp`). The drag up of 60 px puts the camera
  *   at the lowest elevation of the orbit limits (10°).
+ * - `orchestra`: the default view, a little lower and closer, so that the stage fills the frame
+ *   as in `orchestra-latest.png`. `pnpm look-lab` measures its regions against that image.
  */
 export const PLAY_CAMERAS: readonly PlayCamera[] = [
   { name: 'default', dx: 0, dy: 0, wheel: 0 },
   { name: 'violins', dx: 45, dy: -60, wheel: 12 },
+  { name: 'orchestra', dx: 0, dy: -15, wheel: 5 },
 ];
 
 /** The song time of the play frame with no `--time`, in seconds, as `pnpm screenshots --play`. */
