@@ -103,6 +103,9 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
   the same corners join a hanging forearm to the trunk, a cut of those faces only moves the fold,
   and a move of the forearm vertices away from the trunk keeps the faces that join them
   (`docs/research/2026-10-18-panda-seam.md`).
+- A fold probe counts each turned face, also a face that no camera sees. Before you accept a fold
+  as hidden, count the pixels of the face in a probe build that draws it in a pure color with no
+  light (`hidden/probe.ts` of `docs/research/2026-10-18-panda-seam/`).
 - A long thin face across a joint of an arm folds, and weight rules make it worse. A ring of new
   vertices at the joint fixes it (`refine.rings`). Put a ring only where `pnpm fold-probe` finds
   folds, and run `pnpm pose-depth <role>` after it: a ring can pull the inner elbow into the
