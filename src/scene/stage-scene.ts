@@ -17,6 +17,7 @@ import type { FrameCover, ScreenBox, ViewFrame } from '../shots/frame.ts';
 import type { CameraPose } from '../shots/types.ts';
 import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
+import { STAGE_THICKNESS } from '../models/stage.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
 import { CAPTURE, ENVIRONMENT, captureEnvironment, createEnvironment } from './environment.ts';
@@ -35,6 +36,7 @@ import type { QualityTier } from './quality.ts';
 import { applyScenePose, createPlayers, createStaticMesh } from './player.ts';
 import type { PlayerSpot } from './player.ts';
 import { PostPipeline, targetFormatOf } from './post.ts';
+import type { HazeFrame } from './post.ts';
 import { createRenderer, probeTargetFormat } from './renderer.ts';
 import { aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
 import { STAGE_SHADOW, createStage, noBakeUniforms } from './stage.ts';
@@ -599,12 +601,31 @@ export class StageScene {
     view.scene.matrixWorldAutoUpdate = !depthPass;
     renderScenePass(this.#renderer.shadowMap, depthPass, () => {
       if (this.#post) {
-        this.#post.render(view.scene, camera, focus, view.effects, timeSec);
+        const haze = depthPass ? this.#hazeOf(view) : null;
+        this.#post.render(view.scene, camera, focus, view.effects, timeSec, haze);
       } else {
         this.#renderer.render(view.scene, camera);
       }
     });
     view.scene.matrixWorldAutoUpdate = true;
+  }
+
+  /**
+   * Gives the room haze of a frame (design 4.5): it starts at the point that the camera looks at,
+   * so the subject and the stage in front of it stay clear.
+   *
+   * @param view The layout of the frame. The depth pass of the beam rendered its depth.
+   * @returns The haze.
+   */
+  #hazeOf(view: LayoutView): HazeFrame {
+    const camera = view.camera.camera;
+    return {
+      depth: this.#beamDepth.texture,
+      start: camera.position.distanceTo(new Vector3(...view.camera.target)),
+      stageSide: view.stageSide,
+      key: keyLightPosition(view.stageSide),
+      floorY: -STAGE_THICKNESS,
+    };
   }
 
   /**

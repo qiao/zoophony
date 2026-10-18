@@ -4,6 +4,7 @@ import {
   Float32BufferAttribute,
   HalfFloatType,
   LinearFilter,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   NoBlending,
@@ -16,9 +17,12 @@ import {
   UnsignedIntType,
   Vector2,
   Vector3,
+  Vector4,
   WebGLRenderTarget,
 } from 'three';
 import type { Object3D, PerspectiveCamera, Scene, Texture, WebGLRenderer } from 'three';
+
+import type { Vec3 } from '../models/tuples.ts';
 
 import { LENS } from './focus.ts';
 import { gradeLut } from './grade.ts';
@@ -54,6 +58,35 @@ export const POST_LOOK = {
   /** The size of the film grain, in display values. */
   grain: 0.035,
 } as const;
+
+/**
+ * The room haze of the final pass (design 4.5, light and render): thin warm air that grows with
+ * the distance behind the subject of the camera, so the back rows and the hall get an aerial
+ * depth, and the beam stands in air, as in `orchestra-latest.png`. The stage in front of the
+ * subject gets no haze, so the black point of the stage stays.
+ */
+export const ROOM_HAZE = {
+  /** The density of the haze, for each stage side of distance. */
+  density: 0.13,
+  /** The light of the haze in all directions, in linear values, before the phase. */
+  color: [0.03, 0.0175, 0.00875],
+  /** The g of the Henyey-Greenstein phase: the haze is brighter toward the key light. */
+  forward: 0.6,
+} as const;
+
+/** The room haze of one frame. */
+export interface HazeFrame {
+  /** The depth of the scene at full size, with no hall and no light effects (`BeamDepth`). */
+  readonly depth: Texture;
+  /** The distance from the camera at which the haze starts, in meters: the subject. */
+  readonly start: number;
+  /** The stage side `S`, in meters. */
+  readonly stageSide: number;
+  /** The position of the key light. */
+  readonly key: Vec3;
+  /** The height of the hall floor, in meters. */
+  readonly floorY: number;
+}
 
 /**
  * Makes the uniforms of the color grade, `GRADE_FUNCTION` of `post-shaders.ts`: the shared lookup
@@ -158,7 +191,7 @@ function floatTarget(
 }
 
 /** A value of a uniform of a pass. */
-type UniformValue = Texture | number | Vector2 | Vector3 | null;
+type UniformValue = Texture | number | Vector2 | Vector3 | Vector4 | Matrix4 | null;
 
 /** The uniforms of a pass by name. */
 type PassUniforms = Record<string, { value: UniformValue }>;
@@ -368,6 +401,7 @@ export class PostPipeline {
    * @param effects The light effects that write no depth, such as the visible beam. The depth pass
    *   hides them.
    * @param timeSec The time of the effects, in seconds, for the film grain ({@link grainSeed}).
+   * @param haze The room haze of the frame, or `null` for no haze.
    */
   render(
     scene: Scene,
@@ -375,6 +409,7 @@ export class PostPipeline {
     focus: Focus,
     effects: readonly Object3D[],
     timeSec: number,
+    haze: HazeFrame | null,
   ): void {
     const targets = this.#targets;
     if (!targets) {
@@ -394,6 +429,7 @@ export class PostPipeline {
     setUniform(final, 'uBlurOn', blur ? 1 : 0);
     this.#setFocus(final, camera, focus, this.#height / 2);
     setUniform(final, 'uAspect', this.#width / this.#height);
+    this.#setHaze(final, camera, haze);
     setUniform(final, 'uSeed', grainSeed(timeSec));
     this.#pass(final, null);
   }
@@ -517,6 +553,41 @@ export class PostPipeline {
     renderer.shadowMap.autoUpdate = shadows;
   }
 
+  /**
+   * Sets the uniforms of the room haze of a frame ({@link ROOM_HAZE}).
+   *
+   * @param material The final pass.
+   * @param camera The camera of the frame.
+   * @param haze The haze of the frame, or `null` for no haze.
+   */
+  #setHaze(material: ShaderMaterial, camera: PerspectiveCamera, haze: HazeFrame | null): void {
+    setUniform(material, 'uHazeOn', haze ? 1 : 0);
+    setUniform(material, 'uSceneDepth', haze?.depth ?? null);
+    if (!haze) {
+      return;
+    }
+    const uniforms = material.uniforms;
+    const inverse = uniforms['uHazeInverse']?.value;
+    if (inverse instanceof Matrix4) {
+      inverse.multiplyMatrices(camera.matrixWorld, camera.projectionMatrixInverse);
+    }
+    const from = uniforms['uHazeCamera']?.value;
+    if (from instanceof Vector3) {
+      from.copy(camera.position);
+    }
+    const key = uniforms['uHazeKey']?.value;
+    if (key instanceof Vector3) {
+      key
+        .set(...haze.key)
+        .sub(camera.position)
+        .normalize();
+    }
+    const values = uniforms['uHaze']?.value;
+    if (values instanceof Vector4) {
+      values.set(haze.start, ROOM_HAZE.density / haze.stageSide, ROOM_HAZE.forward, haze.floorY);
+    }
+  }
+
   #setFocus(
     material: ShaderMaterial,
     camera: PerspectiveCamera,
@@ -573,6 +644,13 @@ export class PostPipeline {
         uBlurOn: { value: 0 },
         uBloomStrength: { value: look.bloomStrength },
         uHalation: { value: new Vector3(...look.halation) },
+        uSceneDepth: { value: null },
+        uHazeOn: { value: 0 },
+        uHazeInverse: { value: new Matrix4() },
+        uHazeCamera: { value: new Vector3() },
+        uHazeKey: { value: new Vector3(0, 1, 0) },
+        uHazeColor: { value: new Vector3(...ROOM_HAZE.color) },
+        uHaze: { value: new Vector4() },
         ...gradeUniforms(),
         uVignette: { value: look.vignette },
         uAspect: { value: 1 },

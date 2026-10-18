@@ -547,6 +547,11 @@ solo.
   (`BeamDepth`) gives no haze to an item on the stage, so the beam shows between the players
   (user, 2026-10-06). The camera dims the beam in a close shot (`shots/beam-opacity.ts`, 5.6),
   because the additive beam washed out the image. Dust motes drift in the haze by the tier.
+- **Room haze** (`ROOM_HAZE`, final pass). Thin warm air starts behind the point that the camera
+  looks at and grows with the distance, brighter toward the key light. The back rows and the hall
+  get an aerial depth, and the beam stands in air, as in `orchestra-latest.png`. The stage in
+  front of the subject gets no haze, so no player is veiled, and the black point stays. The depth
+  pass of the beam has no hall, so the haze takes the distance to the hall floor for its pixels.
 - **Solo light** (`soloAim()`, user, 2026-10-07). When the user solos seats (2.4, 6.6), the key
   light, its pool, and the beam turn to the soloed players, and ease back after the solo. The aim
   comes from the solo flags and the layout alone.

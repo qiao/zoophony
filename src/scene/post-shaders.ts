@@ -189,9 +189,9 @@ vec3 grade(vec3 color) {
 `;
 
 /**
- * The final pass to the canvas (design 4.5, post effects): the depth of field, the bloom, the
- * tone mapping of the renderer, the color grade, the vignette, and the film grain. One pass does
- * all of them, so each pixel of the canvas reads the scene one time.
+ * The final pass to the canvas (design 4.5, post effects): the depth of field, the room haze, the
+ * bloom, the tone mapping of the renderer, the color grade, the vignette, and the film grain. One
+ * pass does all of them, so each pixel of the canvas reads the scene one time.
  */
 export const FINAL_FRAGMENT = /* glsl */ `
 uniform sampler2D uScene;
@@ -200,6 +200,13 @@ uniform sampler2D uBlur;
 uniform float uBlurOn;
 uniform float uBloomStrength;
 uniform vec3 uHalation;
+uniform sampler2D uSceneDepth;
+uniform float uHazeOn;
+uniform mat4 uHazeInverse;
+uniform vec3 uHazeCamera;
+uniform vec3 uHazeKey;
+uniform vec3 uHazeColor;
+uniform vec4 uHaze;
 uniform float uPixelsPerBlur;
 ${GRADE_FUNCTION}
 uniform float uVignette;
@@ -210,6 +217,27 @@ uniform float uSeed;
 ${VIEW_DEPTH}
 #endif
 varying vec2 vUv;
+
+// The room haze (design 4.5): the light of the air between the camera and the point of the
+// pixel. It starts behind the subject of the camera (uHaze.x, in meters) and grows with the
+// distance (uHaze.y, the density for each meter). Its light grows toward the key light, by the
+// Henyey-Greenstein phase with g = uHaze.z. The depth pass has no hall, so a pixel of the hall
+// gets the distance to the hall floor (y = uHaze.w) or, above the floor, the far plane.
+vec3 hazed(vec3 color) {
+  float depth = texture(uSceneDepth, vUv).x;
+  vec4 world = uHazeInverse * vec4(vUv * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
+  vec3 ray = world.xyz / world.w - uHazeCamera;
+  float distance = length(ray);
+  vec3 direction = ray / max(distance, 1e-4);
+  if (depth >= 0.99999 && direction.y < -1e-4) {
+    distance = min(distance, (uHaze.w - uHazeCamera.y) / direction.y);
+  }
+  float amount = 1.0 - exp(-uHaze.y * max(distance - uHaze.x, 0.0));
+  float g = uHaze.z;
+  float c = dot(direction, uHazeKey);
+  float phase = (1.0 - g * g) / pow(1.0 + g * g - 2.0 * g * c, 1.5);
+  return mix(color, uHazeColor * phase, amount * uHazeOn);
+}
 
 float hash(vec2 p) {
   vec3 q = fract(vec3(p.xyx) * 0.1031);
@@ -227,6 +255,7 @@ void main() {
     color = mix(color, texture(uBlur, vUv).rgb, smoothstep(0.5, 2.0, radius));
   }
 #endif
+  color = hazed(color);
 #ifdef BLOOM
   // The halation: the glow is warmer than the light, as the red glow around a light on film.
   color += texture(uBloom, vUv).rgb * uBloomStrength * uHalation;
