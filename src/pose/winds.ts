@@ -371,6 +371,9 @@ const PANDA_SLIDE_RIGHT = 20;
 /** The turn of the slide of the panda down while it plays, in degrees, after the turn right. */
 const PANDA_SLIDE_DOWN = 25;
 
+/** The forward turn of the left shoulder of the panda, in degrees. */
+const PANDA_SHOULDER_L = 15;
+
 /**
  * The trombone hold of the panda (design 5.3), the hold of a real trombonist (decisions
  * `2026-10-18-mesh-panda.md`): the left paw holds the trombone at its grip near the mouthpiece,
@@ -383,9 +386,16 @@ const PANDA_SLIDE_DOWN = 25;
  * travel (0.17 m on the parametric panda). Turned 20° right and 20° down, the arm reached 0.125 m,
  * and the trombone went 0.8 cm into the body. With no turn right, the shoulder turn of 75° reached
  * only 0.05 m (`docs/research/2026-10-18-panda-mesh/slide-hold.txt`).
+ *
+ * The left shoulder turns {@link PANDA_SHOULDER_L} degrees forward, as the shoulder blade of a
+ * real player slides forward when the arm reaches forward. With a square left shoulder, the left
+ * upper arm turned 68° from its bind direction to the grip, and three faces at the front of the
+ * left shoulder folded in each sample. Turns from 9° to 20° remove these folds
+ * (`docs/research/2026-10-18-panda-folds.md`).
  */
 const PANDA_TROMBONE = {
   ...WIND_HOLDS.trombone,
+  reachL: PANDA_SHOULDER_L * MathUtils.DEG2RAD,
   play: toQuat(
     new Quaternion()
       .setFromAxisAngle(Y_AXIS, -PANDA_SLIDE_RIGHT * MathUtils.DEG2RAD)
