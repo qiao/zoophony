@@ -209,4 +209,4 @@ The decision files:
 - [`2026-10-17-rabbit-pose.md`](decisions/2026-10-17-rabbit-pose.md): the rabbit from the side and from behind.
 - [`2026-10-17-string-hands.md`](decisions/2026-10-17-string-hands.md): the hands of the string players, and `docs/reference/string-technique.md`.
 - [`2026-10-17-tan-rest.md`](decisions/2026-10-17-tan-rest.md): the rest of the tan fox.
-- [`2026-10-18-cinematic-light.md`](decisions/2026-10-18-cinematic-light.md): the look lab, the floor, the grade, and the bake of the props.
+- [`2026-10-18-cinematic-light.md`](decisions/2026-10-18-cinematic-light.md): the look lab, the floor, the grade, the bake of the props, and the captured environment.

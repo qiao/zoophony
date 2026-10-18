@@ -5,8 +5,9 @@ each section.
 
 On 2026-10-17, the user asked: "implement the cinematic lighting, without subagents". The plan is
 [`2026-10-17-cinematic-lighting.md`](../research/2026-10-17-cinematic-lighting.md), and the
-measures are in [`2026-10-18-cinematic-light.md`](../research/2026-10-18-cinematic-light.md). The
-user can reverse each decision. Then update its section, and remove its row.
+measures are in [`2026-10-18-cinematic-light.md`](../research/2026-10-18-cinematic-light.md) and
+[`2026-10-18-captured-environment.md`](../research/2026-10-18-captured-environment.md). The user
+can reverse each decision. Then update its section, and remove its row.
 
 | Decision | Section |
 |---|---|
