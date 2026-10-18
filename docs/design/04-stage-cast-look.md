@@ -375,8 +375,9 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
     under the arms of the panda (`docs/decisions/2026-10-18-panda-marks.md`). The faces under an
     armpit where the hanging arm of the mesh touches the trunk stretch when the arm rises, and
     they shade darker. The normals of the seam corners turn with their upper arm weight, so a
-    corrective shape does not remove this shading. A weight fade there removes it, but it folds
-    the faces from the trunk to the forearm, so this shading stays.
+    corrective shape does not remove this shading. A weight fade there removes it, but the same
+    corners join the forearm to the trunk, and those faces fold. A cut of those faces moves the
+    fold, and new vertices on the long faces keep the shading, so this shading stays.
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
     raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
