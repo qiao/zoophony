@@ -12,7 +12,6 @@ The user can reverse each row. Then update the section that holds it, and remove
 
 | Decision | Section |
 |---|---|
-| The gloss of the key light on the planks sets the width of the pool in the default view. With no gloss, the wood beside the podium had a value of 58 to 61 (75th percentile), and with the gloss 173. Thus the stage wood gets a rough finish (roughness 0.6, was 0.38) with 2.0 times the direct gloss (was 0.55). The players do not change | 4.5 |
 | The hot spot of the key light is an ellipse with the radii `0.4 × S` across the stage and `0.2 × S` along it (was 2 m on each axis). It reaches from the piano to the cellos, as the pool of `orchestra-latest.png`. A first ellipse of `0.32 × S` alone raised the lit wood at the sides by 0.01 to 0.05 of the peak | 4.5 |
 | The pool of the stage lights (`0.6 × S` and `0.42 × S`) and its floor of 0.4 stay. A wider pool also lights the players at the sides more, and the dogs of the cellos were already brighter than in `orchestra-latest.png` (90th percentile 161 to 170 against 147 to 155) | 4.5 |
 | A solo moves the whole spotlight: the aim of the key light, the pool of the stage lights, the hot spot of the key light, and the foot of the visible beam. They move to the middle of the box of the places of the soloed players | 2.4, 4.5 |

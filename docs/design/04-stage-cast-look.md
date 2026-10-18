@@ -444,11 +444,11 @@ value can match the reference.
 
 `SCENE_COLORS` of `models/colors.ts` holds the colors of the chairs, the music stands, and the
 sheet music, `STAGE_COLORS` of `models/props.ts` the stage, the risers, and the podium, and
-`HALL_COLORS` of `scene/hall.ts` the hall. The hall is a dark, warm room, and the stage a dark
-walnut with a tone for each plank, as in `mockup.png`. The lip and the risers are a little lighter
-than the planks, and a baked light (`SIDE_GLOW`) keeps the sides of the stage from black. The
-chairs are a pale yellow wood, and the music stands are black with a warm gray desk, because black
-desks were the largest shapes of some close shots.
+`HALL_COLORS` of `scene/hall.ts` the hall. The hall is a dark, warm room, and the stage a walnut
+with a tone for each plank and dark seams, as in `orchestra-latest.png`. The lip and the risers
+are a little lighter than the planks, and a baked light (`SIDE_GLOW`) keeps the sides of the stage
+from black. The chairs are a pale yellow wood, and the music stands are black with a warm gray
+desk, because black desks were the largest shapes of some close shots.
 
 **Species colors**
 
@@ -657,7 +657,7 @@ risers. `models/stage.ts` holds the sizes of the stage, the podium, and the cond
 | Music stand | A tripod, a post, and a tilted desk with a white sheet (`MUSIC_STAND`). The desk stays below the eyes of its players (`standDeskHeight()`). |
 | Podium | A box with cut corners and framed panels (`PODIUM_SIZE`, `PODIUM_TRIM`), as in `orchestra-latest.png` and `bear-views.png`. |
 | Conductor stand | A desk on a post in front of the podium (`CONDUCTOR_STAND`), with its top edge at the shoulders of the bear, as in `animals.webp`. A post on the podium put the belly of the bear through the desk. |
-| Stage | A slab of side `S` (stage origin, below) with no steps, cut corners (`STAGE_CORNER_CUT`), a raised lip (`STAGE_LIP`), and planks from the left to the right. The roughness of the wood (`STAGE_FINISH`) sets the width of the pool of light. |
+| Stage | A slab of side `S` (stage origin, below) with no steps, cut corners (`STAGE_CORNER_CUT`), a raised lip (`STAGE_LIP`), and planks from the left to the right. The wood has a soft sheen under a thin lacquer (`STAGE_FINISH`), so the lit floor keeps the warm color of the wood. Each plank has its own tone and gloss, and the seams have little gloss. |
 | Choir risers | Up to three arc levels behind the orchestra, with three steps in front, as in `orchestra-latest.png` (`RISER`). |
 | Floor | The floor of the hall, with the baked spill of the stage light. |
 

@@ -1,4 +1,4 @@
-import { Group, Mesh, MeshStandardMaterial, Vector3 } from 'three';
+import { Group, Mesh, MeshPhysicalMaterial, Vector3 } from 'three';
 
 import { STAGE_COLORS } from '../models/props.ts';
 import type { Vec3 } from '../models/tuples.ts';
@@ -8,29 +8,24 @@ import { addLightPool } from './light-pool.ts';
 import type { PoolUniforms } from './light-pool.ts';
 
 /**
- * The finish of the stage wood (design 4.5, materials): polished walnut with a broad gloss. The
- * gloss of the key light gives most of the light of the planks in the default view, so its width
- * sets the width of the pool of light on the stage, as in `orchestra-latest.png`.
+ * The finish of the stage wood (design 4.5, materials): walnut with a soft sheen under a thin
+ * lacquer. The diffuse light of the wood gives most of the light of the planks, so the lit floor
+ * keeps the warm color of the wood, as in `orchestra-latest.png`. The pool of the stage lights
+ * (`addLightPool()`) sets the width of the lit area.
  */
 export const STAGE_FINISH = {
-  /**
-   * The roughness of the wood, before the grain. A rough finish spreads the gloss of the key light
-   * over most of the stage. With 0.38, the gloss made a narrow pool around the podium: the lit
-   * wood fell to 0.5 of the wood beside the podium at 0.55 of the way to the side edge, against
-   * 0.75 in `orchestra-latest.png`.
-   */
+  /** The roughness of the wood below the lacquer, before the grain: a broad, soft sheen. */
   roughness: 0.6,
   /** The largest change of the wood color by the grain, as a factor. */
   grain: 0.16,
   /** The largest change of the roughness by the grain. */
   grainRoughness: 0.12,
   /**
-   * The factor of the direct gloss of the lights on the wood. The broad gloss of the rough finish
-   * is weaker at its peak, and this factor brings the wood beside the podium back to the value
-   * of `orchestra-latest.png` (about 197 against 183 to 214). With the roughness 0.38, the factor
-   * was 0.55: the full gloss made a pale spot in front of the podium (178, saturation 0.30).
+   * The factor of the direct gloss of the lights on the wood below the lacquer. A gloss has the
+   * color of the light, and the factor 2.0 of a broad gloss made the lit floor pale: a saturation
+   * of 0.39 against 0.54 to 0.60 in `orchestra-latest.png` (`pnpm look-lab`).
    */
-  specular: 2.0,
+  specular: 0.5,
   /**
    * The largest change of the roughness from one plank to the next. Each plank has its own tone in
    * its vertex colors (`plankColor()` of `models/stage.ts`), but the gloss of the key light was the
@@ -44,6 +39,14 @@ export const STAGE_FINISH = {
    * reflects little light. With the full gloss, the seams did not show in the default view.
    */
   seamGloss: 0.35,
+  /**
+   * The strength of the lacquer layer above the wood, from 0 to 1. It gives the glare of the key
+   * light on the floor in front of the podium. With 0.6, the podium top was almost white in the
+   * default view.
+   */
+  clearcoat: 0.3,
+  /** The roughness of the lacquer layer: a soft glare of the key light. */
+  clearcoatRoughness: 0.35,
 } as const;
 
 /**
@@ -146,6 +149,10 @@ const GLOSS_GLSL = /* glsl */ `
 float seamGloss = mix(1.0, uPlank.z, stageSeam);
 reflectedLight.directSpecular *= uSpecular * (1.0 + uPlank.y * (stagePlank - 0.5)) * seamGloss;
 reflectedLight.indirectSpecular *= seamGloss;
+#ifdef USE_CLEARCOAT
+clearcoatSpecularDirect *= seamGloss;
+clearcoatSpecularIndirect *= seamGloss;
+#endif
 `;
 
 /**
@@ -161,19 +168,21 @@ diffuseColor.rgb *= 1.0 + uGrain * grain;
 
 /**
  * Creates the material of the stage: the vertex colors of the planks with flat shading, a
- * polished finish, a grain that the fragment shader adds, the baked light of the skirt and the
+ * wood finish under a thin lacquer, a grain that the fragment shader adds, the baked light of the skirt and the
  * edge, and the pool of the stage lights (design 4.5, materials).
  *
  * @param stageSide The stage side `S`, in meters, for the fade of the baked light.
  * @param pool The uniforms of the pool of the stage lights (design 4.5).
  * @returns The material.
  */
-export function createStageMaterial(stageSide: number, pool: PoolUniforms): MeshStandardMaterial {
-  const material = new MeshStandardMaterial({
+export function createStageMaterial(stageSide: number, pool: PoolUniforms): MeshPhysicalMaterial {
+  const material = new MeshPhysicalMaterial({
     vertexColors: true,
     flatShading: true,
     roughness: STAGE_FINISH.roughness,
     metalness: 0,
+    clearcoat: STAGE_FINISH.clearcoat,
+    clearcoatRoughness: STAGE_FINISH.clearcoatRoughness,
   });
   material.onBeforeCompile = (shader) => {
     addLightPool(shader, pool);

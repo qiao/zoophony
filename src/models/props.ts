@@ -20,10 +20,17 @@ import type { StudioBody } from './studio-format.ts';
  * colors), in linear values. The stage is glossy walnut, as in `mockup.png` and `scene.png`.
  */
 export const STAGE_COLORS = {
-  /** The mean color of a plank. Each plank has its own tone around it. */
-  plank: srgb('#3b2618'),
-  /** The dark line between two planks. */
-  seam: srgb('#301c0f'),
+  /**
+   * The mean color of a plank. Each plank has its own tone around it. The light of the lit floor
+   * comes mostly from the diffuse light of the wood (`STAGE_FINISH` of `scene/stage.ts`). The
+   * darker walnut `#3b2618` then gave a lit floor that was too dark and too pale.
+   */
+  plank: srgb('#5e351a'),
+  /**
+   * The dark line between two planks, at 0.68 of the plank color in linear values. The stage
+   * shader finds a seam by this color, so no plank has it.
+   */
+  seam: srgb('#4e2811'),
   /** The raised lip around the stage top, with a round top that catches the light. */
   nosing: srgb('#5e3c24'),
   /** The skirt: the front and the sides of the stage, and the step rises. */
