@@ -383,10 +383,12 @@ export const SPECIES = {
    * (2026-10-17-mesh-dog decisions). It sits with the knees apart around the lower bout of the
    * cello, and its tail hangs back through the chair. Its ears hang, so they do not twitch. Its
    * head height is the head of the studio body, and its chair fits its legs: the seat height is
-   * the seat of the studio body, in H.
+   * the seat of the studio body, in H. It plays a 1/2 cello, the size that the user chose with its
+   * shorter arms (2026-10-17-dog-arms decisions).
    */
   dog: {
     body: 'studio-dog',
+    celloScale: 0.86,
     size: 1,
     colors: SPECIES_COLORS.dog,
     accentParts: ['ears', 'nose'],
