@@ -41,6 +41,14 @@ export const POST_LOOK = {
   bloomKnee: 0.5,
   /** The part of the bloom that the final pass adds to the scene. */
   bloomStrength: 0.14,
+  /**
+   * The part of all the light that the bloom keeps below its threshold: the diffusion filter of
+   * `docs/research/2026-10-17-cinematic-lighting.md` (4.7). With the bloom strength, about 3% of
+   * the image comes back as a wide soft glow, as around the lit fur in `orchestra-latest.png`.
+   */
+  diffusion: 0.015,
+  /** The factor of the bloom for each channel: the warm halation of film around a light. */
+  halation: [1.15, 0.95, 0.8],
   /** The part of the light that the vignette takes from the corners. */
   vignette: 0.45,
   /** The size of the film grain, in display values. */
@@ -300,6 +308,7 @@ export class PostPipeline {
       uTexel: { value: new Vector2() },
       uThreshold: { value: POST_LOOK.bloomThreshold },
       uKnee: { value: POST_LOOK.bloomKnee },
+      uDiffusion: { value: POST_LOOK.diffusion },
     });
     this.#bloomPrefilter = passMaterial(BLOOM_DOWN_FRAGMENT, down(), { PREFILTER: 1 });
     this.#bloomDown = passMaterial(BLOOM_DOWN_FRAGMENT, down());
@@ -563,6 +572,7 @@ export class PostPipeline {
         uBlur: { value: null },
         uBlurOn: { value: 0 },
         uBloomStrength: { value: look.bloomStrength },
+        uHalation: { value: new Vector3(...look.halation) },
         ...gradeUniforms(),
         uVignette: { value: look.vignette },
         uAspect: { value: 1 },

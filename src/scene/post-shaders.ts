@@ -15,14 +15,16 @@ void main() {
 /**
  * The downsample of the bloom: 13 samples in five boxes, as in the bloom of "Next generation post
  * processing in Call of Duty: Advanced Warfare" (Jimenez, 2014). With `PREFILTER`, the first pass
- * also keeps only the bright parts, with a soft knee, and weights each box by its brightness, so
- * that a single bright pixel does not flicker.
+ * also keeps the bright parts, with a soft knee, and weights each box by its brightness, so that
+ * a single bright pixel does not flicker. It adds a part of all the light (`uDiffusion`), so the
+ * bloom also gives the soft glow of a diffusion filter around each light part of the image.
  */
 export const BLOOM_DOWN_FRAGMENT = /* glsl */ `
 uniform sampler2D uSource;
 uniform vec2 uTexel;
 uniform float uThreshold;
 uniform float uKnee;
+uniform float uDiffusion;
 varying vec2 vUv;
 
 vec3 tap(float x, float y) {
@@ -65,7 +67,7 @@ void main() {
   float bright = brightness(sum);
   float soft = clamp(bright - uThreshold + uKnee, 0.0, 2.0 * uKnee);
   soft = soft * soft / (4.0 * uKnee + 1e-5);
-  sum *= max(soft, bright - uThreshold) / max(bright, 1e-5);
+  sum *= max(soft, bright - uThreshold) / max(bright, 1e-5) + uDiffusion;
 #else
   vec3 sum = inner * 0.5 + (topLeft + topRight + bottomLeft + bottomRight) * 0.125;
 #endif
@@ -197,6 +199,7 @@ uniform sampler2D uBloom;
 uniform sampler2D uBlur;
 uniform float uBlurOn;
 uniform float uBloomStrength;
+uniform vec3 uHalation;
 uniform float uPixelsPerBlur;
 ${GRADE_FUNCTION}
 uniform float uVignette;
@@ -225,7 +228,8 @@ void main() {
   }
 #endif
 #ifdef BLOOM
-  color += texture(uBloom, vUv).rgb * uBloomStrength;
+  // The halation: the glow is warmer than the light, as the red glow around a light on film.
+  color += texture(uBloom, vUv).rgb * uBloomStrength * uHalation;
 #endif
 #ifdef TONE_MAPPING
   color = toneMapping(color);

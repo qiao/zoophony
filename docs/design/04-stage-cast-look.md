@@ -587,6 +587,8 @@ scene ──> [depth 1/2] ──────────────────
   sharp and skip the blur passes. The user found larger apertures too blurry, and Free mode has no
   depth of field (2026-10-07). A separate depth pass at half size gives the depth, because the
   resolve of the multisample depth cost more time (9.7).
+- The bloom keeps a small part of all the light, as a diffusion filter on a film lens, and its
+  glow is warmer than the light, as the halation of film (`POST_LOOK`).
 - The final pass does the depth of field, the bloom, the tone mapping, a grade, a vignette, and a
   grain at a fixed rate. The grade is a 3D lookup table of `gradeColor()` (`scene/grade.ts`): a
   tone curve on the luma, more saturation for the pale colors, and a split tone. AgX gives flat
