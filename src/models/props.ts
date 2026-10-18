@@ -33,8 +33,11 @@ export const STAGE_COLORS = {
    * shader finds a seam by this color, so no plank has it.
    */
   seam: srgb('#6e3f11'),
-  /** The raised lip around the stage top, with a round top that catches the light. */
-  nosing: srgb('#5e3c24'),
+  /**
+   * The raised lip around the stage top, with a round top that catches the light. The lip and the
+   * risers follow the plank color, by the same factor of each linear channel.
+   */
+  nosing: srgb('#84551f'),
   /** The skirt: the front and the sides of the stage, and the step rises. */
   skirt: srgb('#3c2416'),
   /** The grooves of the skirt panels. */
@@ -42,9 +45,9 @@ export const STAGE_COLORS = {
   /** The body of the podium, and the frames around the panels of its sides. */
   podium: srgb('#6c4429'),
   /** The boards of the treads of the choir risers, lighter than the stage, as in `orchestra-side.png`. */
-  riserTread: srgb('#553620'),
+  riserTread: srgb('#784d1b'),
   /** The lighter front edge of each tread of the choir risers. */
-  riserNosing: srgb('#7b5335'),
+  riserNosing: srgb('#ab742e'),
   /** The panels of the sides of the podium, inside their frames. */
   podiumPanel: srgb('#58371f'),
   /** The top plate of the podium and the frame of its top, a little lighter, as in `mockup.png`. */
