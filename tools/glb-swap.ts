@@ -168,6 +168,15 @@ export function scratchSettings(animal: string, shoulders: number): AnimalSettin
   };
 }
 
+/** The field of a rig config that the scratch settings read. */
+interface RigLandmark {
+  /** The landmark of the scale in the app. */
+  readonly app?: {
+    /** The height of the standing shoulder joints in the app, in meters. */
+    readonly shoulders?: number;
+  };
+}
+
 /**
  * Reads the height of the standing shoulder joints of the rig config of an animal (`app.shoulders`
  * of `tools/mesh-rigs/<animal>.json`).
@@ -179,9 +188,7 @@ export function scratchSettings(animal: string, shoulders: number): AnimalSettin
 function rigShoulders(animal: string): number {
   // SAFETY: a rig config holds the fields of `MeshRigConfig` of `tools/rig-mesh.ts`, and the check
   // below reads the one field that the scratch settings need.
-  const config = JSON.parse(readFileSync(rigConfigPath(animal), 'utf8')) as {
-    readonly app?: { readonly shoulders?: number };
-  };
+  const config = JSON.parse(readFileSync(rigConfigPath(animal), 'utf8')) as RigLandmark;
   const shoulders = config.app?.shoulders;
   if (shoulders === undefined || !Number.isFinite(shoulders) || shoulders <= 0) {
     throw new Error(`app.shoulders of tools/mesh-rigs/${animal}.json is not a positive number.`);
