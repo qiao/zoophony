@@ -1,5 +1,6 @@
 import { Group, Mesh, MeshStandardMaterial, Vector3 } from 'three';
 
+import { STAGE_COLORS } from '../models/props.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { STAGE_CORNER_CUT, STAGE_LIP, buildStage } from '../models/stage.ts';
 import { createGeometry } from './geometry.ts';
@@ -30,6 +31,19 @@ export const STAGE_FINISH = {
    * was 0.55: the full gloss made a pale spot in front of the podium (178, saturation 0.30).
    */
   specular: 2.0,
+  /**
+   * The largest change of the roughness from one plank to the next. Each plank has its own tone in
+   * its vertex colors (`plankColor()` of `models/stage.ts`), but the gloss of the key light was the
+   * same on each plank, and it hid the tones. A gloss of its own shows each plank.
+   */
+  plankRoughness: 0.2,
+  /** The largest change of the direct gloss from one plank to the next, as a factor. */
+  plankGloss: 0.6,
+  /**
+   * The part of the gloss that the dark line between two planks keeps. A seam is a groove, so it
+   * reflects little light. With the full gloss, the seams did not show in the default view.
+   */
+  seamGloss: 0.35,
 } as const;
 
 /**
@@ -60,6 +74,8 @@ uniform float uHalfSide;
 uniform float uCornerCut;
 uniform vec3 uSideGlow;
 uniform float uSpecular;
+uniform vec3 uSeamColor;
+uniform vec3 uPlank;
 
 float woodHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -81,6 +97,18 @@ float woodNoise(vec2 p) {
 float woodOctave(vec2 q) {
   vec2 w = fwidth(q);
   return mix(woodNoise(q), 0.5, smoothstep(0.12, 0.3, max(w.x, w.y)));
+}
+
+// A number from 0 to 1 for each plank. Each plank has its own tone in the vertex colors, and the
+// tone is the same at each point of the plank.
+float plankNumber(vec3 color) {
+  return fract(sin(dot(color, vec3(1271.1, 3117.7, 7451.3))) * 43758.5453);
+}
+
+// 1 on the dark line between two planks, which has the color STAGE_COLORS.seam, else 0.
+float seamOf(vec3 color) {
+  vec3 d = abs(color - uSeamColor);
+  return 1.0 - step(1e-4, max(d.r, max(d.g, d.b)));
 }
 
 // The grain from -1 to 1: long streaks along x, with a finer noise on them.
@@ -110,9 +138,25 @@ float sideGlow = vWoodPosition.y < -${STAGE_LIP.drop.toFixed(4)} ? uSideGlow.x :
 totalEmissiveRadiance += diffuseColor.rgb * sideGlow * sideFade * onSide;
 `;
 
-/** The GLSL of the part of the direct gloss that the wood keeps ({@link STAGE_FINISH}). */
+/**
+ * The GLSL of the gloss of the wood ({@link STAGE_FINISH}): the factor of the direct gloss, the
+ * gloss of each plank, and the small gloss of the seams.
+ */
 const GLOSS_GLSL = /* glsl */ `
-reflectedLight.directSpecular *= uSpecular;
+float seamGloss = mix(1.0, uPlank.z, stageSeam);
+reflectedLight.directSpecular *= uSpecular * (1.0 + uPlank.y * (stagePlank - 0.5)) * seamGloss;
+reflectedLight.indirectSpecular *= seamGloss;
+`;
+
+/**
+ * The GLSL of the grain and of the number of each plank, after the vertex colors. The grain of
+ * each plank starts at its own place, so the grain does not run on across a joint.
+ */
+const PLANK_GLSL = /* glsl */ `
+float stagePlank = plankNumber(vColor.rgb);
+float stageSeam = seamOf(vColor.rgb);
+float grain = woodGrain(vWoodPosition + vec3(stagePlank * 41.0, 0.0, stagePlank * 0.37));
+diffuseColor.rgb *= 1.0 + uGrain * grain;
 `;
 
 /**
@@ -138,6 +182,14 @@ export function createStageMaterial(stageSide: number, pool: PoolUniforms): Mesh
     shader.uniforms['uHalfSide'] = { value: stageSide / 2 };
     shader.uniforms['uCornerCut'] = { value: STAGE_CORNER_CUT * stageSide };
     shader.uniforms['uSpecular'] = { value: STAGE_FINISH.specular };
+    shader.uniforms['uSeamColor'] = { value: new Vector3(...STAGE_COLORS.seam) };
+    shader.uniforms['uPlank'] = {
+      value: new Vector3(
+        STAGE_FINISH.plankRoughness,
+        STAGE_FINISH.plankGloss,
+        STAGE_FINISH.seamGloss,
+      ),
+    };
     shader.uniforms['uSideGlow'] = {
       value: new Vector3(SIDE_GLOW.skirt, SIDE_GLOW.edge, SIDE_GLOW.fade),
     };
@@ -149,13 +201,10 @@ export function createStageMaterial(stageSide: number, pool: PoolUniforms): Mesh
       );
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', `#include <common>\n${GRAIN_GLSL}`)
-      .replace(
-        '#include <color_fragment>',
-        '#include <color_fragment>\nfloat grain = woodGrain(vWoodPosition);\ndiffuseColor.rgb *= 1.0 + uGrain * grain;',
-      )
+      .replace('#include <color_fragment>', `#include <color_fragment>\n${PLANK_GLSL}`)
       .replace(
         '#include <roughnessmap_fragment>',
-        '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor - uGrainRoughness * grain, 0.05, 1.0);',
+        '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor - uGrainRoughness * grain + uPlank.x * (stagePlank - 0.5), 0.05, 1.0);',
       )
       .replace(
         '#include <emissivemap_fragment>',
