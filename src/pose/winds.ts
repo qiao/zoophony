@@ -362,12 +362,32 @@ const FOX_FLUTE = {
   },
 } as const satisfies WindHold;
 
+/** The turn of the slide of the panda to its right while it plays, in degrees. */
+const PANDA_SLIDE_RIGHT = 20;
+
+/** The turn of the slide of the panda down while it plays, in degrees, after the turn right. */
+const PANDA_SLIDE_DOWN = 25;
+
 /**
  * The trombone hold of the panda (design 5.3), the hold of a real trombonist (decisions
- * `2026-10-18-mesh-panda.md`). It starts as the trombone hold of {@link WIND_HOLDS}.
+ * `2026-10-18-mesh-panda.md`): the left paw holds the trombone at its grip near the mouthpiece,
+ * and the right paw moves the slide. The big round head puts the mouth of the panda 0.40 m in
+ * front of its shoulder joints, so with the slide of {@link WIND_HOLDS} straight ahead and 15°
+ * down, the grip of the first position is 0.588 m from the right shoulder joint, beyond the reach
+ * of the arm, and the slide reach is 0. While the panda plays, the slide turns
+ * {@link PANDA_SLIDE_RIGHT} degrees to its right and then {@link PANDA_SLIDE_DOWN} degrees down
+ * around the mouthpiece, toward the right shoulder, so that the right arm reaches 0.155 m of the
+ * travel (0.17 m on the parametric panda). Turned 20° right and 20° down, the arm reached 0.125 m,
+ * and the trombone went 0.8 cm into the body. With no turn right, the shoulder turn of 75° reached
+ * only 0.05 m (`docs/research/2026-10-18-panda-mesh/slide-hold.txt`).
  */
 const PANDA_TROMBONE = {
   ...WIND_HOLDS.trombone,
+  play: toQuat(
+    new Quaternion()
+      .setFromAxisAngle(Y_AXIS, -PANDA_SLIDE_RIGHT * MathUtils.DEG2RAD)
+      .multiply(new Quaternion().setFromAxisAngle(X_AXIS, -PANDA_SLIDE_DOWN * MathUtils.DEG2RAD)),
+  ),
 } as const satisfies WindHold;
 
 /**
