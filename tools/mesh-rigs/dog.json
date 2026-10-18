@@ -4,13 +4,13 @@
   "name": "Dog",
   "weld": 1e-5,
   "app": {
-    "shoulders": 0.77492,
-    "reach": 0.4786,
-    "note": "The scale puts the seated head top 1.217 m above the floor, the seated head top of the parametric dog of main, so that the cellos keep their size on the stage (docs/research/2026-10-17-dog-mesh/landmark-probe.txt). That is 1.285108 m for each unit with the leg factor 1, so the standing shoulder joints are 0.77492 m and the standing head top 1.285 m above the floor. The parametric dog of main stands 1.137 m high to the head top, with the shoulder joints at 0.6105 m, and sits on a seat of 0.299 m. The reach is the reach that the cello hold of the app (BOWED_HOLDS.cello) needs at this scale: the left arm reaches the whole fingerboard with the arm factor 1.6269, and the bow arm the whole hair with 1.2849 (cello-reach.ts, cello-a1.txt). The user chooses the size and the arm factor. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "shoulders": 1.00078,
+    "reach": 0.6188,
+    "note": "The user chose the head height of the red fox on 2026-10-17: the scale puts the standing head top at 1.570 m, the head top of the red fox of main (docs/research/2026-10-17-dog-mesh/landmark-probe.txt). That is 1.433782 m for each unit, with the standing shoulder joints at 1.00078 m (the entry of the dog in ANIMALS). The parametric dog of main stands 1.137 m high to the head top and sits on a seat of 0.299 m. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
-  "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. The first config has the factor 1. pnpm rig-mesh dog --check measured 0.3105 m with no factor at this scale. The factor 1.6267 gives the cello reach of 0.4786 m, and 1.8750 the reach of the red fox (0.5452 m). With the standing head top at 1.758 m (the ear tips of the red fox) and the leg factor 1, the reach with no factor is 0.4248 m, the cello needs 1.3908, and the reach of the red fox 1.3282 (docs/research/2026-10-17-dog-mesh/sizes.txt).",
-  "legFactor": 1,
+  "armFactor": 1.91,
+  "armFactorNote": "The factor of the upper arm and the forearm. The user chose the cello reach on 2026-10-17: the arm factor that reaches the whole fingerboard with the left paw and the whole bow hair with the right paw in the cello hold of the dog (DOG_HOLD of src/pose/bowed-rig.ts). With the factor 1.91, the left paw reaches the fingerboard from the nut to the end (stopRange 0 to 1), and the bow paw the hair from 0.030 m to 0.525 m of 0.557 m, the whole hair with the free hair of 0.03 m at each end in the steps of the search (docs/research/2026-10-17-dog-mesh/cello-reach.ts, cello-reach.txt). The bow arm needs more than the left arm (0.77 of the factor reaches the whole fingerboard). With no factor, the reach is 0.3464 m, and the reach of the red fox (0.5452 m) needs 1.664.",
+  "legFactor": 1.5,
   "joints": {
     "root": {
       "head": [0, 0, 0],
@@ -107,8 +107,8 @@
   "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the head, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-17-dog-mesh/. sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt): the feet below y 0.05 (the toes forward to z 0.123), the thin shins from 0.07 to 0.13, the thighs from 0.15 to the crotch at 0.24, the body from 0.25 to 0.57 with the belly forward to z 0.20, the shoulders from 0.57 to 0.70, the narrow neck at 0.73 to 0.77 (x ±0.086), the head from the chin at 0.785 with the muzzle to z 0.303, and the hanging ears apart from the head from 0.74 to 0.90. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The thigh joint lies at the crotch, a little behind the middle of the leg cut, the knee where the thin shin meets the wide thigh, the ankle where the foot starts, and the toes at the ball of the foot. The cuts across the axis of the free arm (arm-axis.txt) give its middle line, which leaves the body at x 0.13. The arm is apart from the body from x 0.105 out. The shoulder joint lies on that line, 0.045 inside the root, the wrist at the narrowest cut, where the paw starts (s -0.02), the elbow on the middle line halfway to the wrist, where the arm bends 15 degrees forward, and the finger joint at the knuckles, 0.03 before the tip of the paw. The ear joint lies at the root of the ear on the top of the head, and its tail at the ear tip (measures.txt). The tail is a chain of two bones (tail_gap.py, measures.txt): the tail joint lies at the middle of the root of the tail, between its top on the back (y 0.42) and its bottom on the haunch (y 0.32), the tail_tip joint at the bend of its middle line (z -0.17), and its tail at the white tip. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw, inward, down, and back (measures.txt).",
   "studio": {
     "legTurns": {
-      "thigh": [0.587664, 0.010618, -0.077591, 0.805306],
-      "shin": [0.041932, 0, 0.031449, 0.998625],
+      "thigh": [0.515373, 0.037923, -0.277131, 0.810032],
+      "shin": [0.041932, 0.0, 0.031449, 0.998625],
       "foot": [0, 0, 0, 1],
       "toes": [0, 0, 0, 1]
     },
@@ -133,7 +133,7 @@
       "tail": [0, -0.18, -1],
       "tail_tip": [0, -1.4, -1]
     },
-    "note": "The studio has no dog. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, 8 degrees out, and the shin is vertical, so that the knee angle from the side is 115 degrees. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 8 0). The source shin slants 4.8 degrees back. With the leg factor 1, the inner gap of the knees is 0.097 units. The lower bout of the cello of the app is 0.41 m wide. With the leg factor 1.5 at the scale of the red fox, the inner gap is 0.168 m with the thighs 8 degrees out, 0.269 m with 30 degrees, and 0.334 m with 46 degrees, so the knees spread for the cello after the choice of the leg factor (docs/research/2026-10-17-dog-mesh/knees.txt). The bind arms are the bind arms of the fox, the rabbit, and the cat. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back over the seat, 10 degrees below the level, and the tip hangs back and down behind the chair, 54.5 degrees below the level, as the tip of the fox. With the root 20 degrees below the level, the underside of the thick root lay on the seat, and the seat of the app took it as the haunch."
+    "note": "The studio has no dog.The studio has no dog. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, and the shin is vertical, so that the knee angle from the side is 115 degrees. The thighs turn 30 degrees out, so that the knees spread around the lower bout of the cello, as the user chose on 2026-10-17 (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 30 0). The knee joints are 0.439 m apart, and the knees are 0.52 m wide outside. The lower bout of the cello of the app is 0.41 m wide. With 45 degrees, the knee joints were 0.517 m apart and 2.9 cm further back, away from the cello (docs/research/2026-10-17-dog-mesh/try-s25.txt to try-s50.txt, knees.txt). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor and the feet point forward. The source shin slants 4.8 degrees back. The bind arms are the bind arms of the fox, the rabbit, and the cat. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back over the seat, 10 degrees below the level, and the tip hangs back and down behind the chair, 54.5 degrees below the level, as the tip of the fox. With the root 20 degrees below the level, the underside of the thick root lay on the seat, and the seat of the app took it as the haunch."
   },
   "weights": {
     "armSplit": 0.11,
@@ -174,6 +174,19 @@
     },
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.105 out. Above headFrom, each vertex except the ear flaps follows the head only: the chin starts at y 0.785. clavicleFrom, armTop, and shoulderHead are the rules of the cat, moved with the shoulder joint (y 0.603) and the neck (x ±0.086) of the dog. The tail has two bones (tail): the vertices within radius of the line from the root over the bend to the tip, and behind the plane z = behind, follow the tail bones. The tail is thick at its root (y 0.23 to 0.41 at z -0.1), and 22 vertices of its top and its bottom lie 0.06 to 0.08 units from the line (tail_gap.py). With the radius 0.06, they followed the hips, the root of the seated tail lay on the seat behind the haunch, and the chair of the app grew to 0.535 m at the scale of the red fox. With 0.085, the chair is 0.307 m. The rule takes 91 vertices, and 177 vertices have a tail weight after the smooth rounds."
   },
+  "raise": [
+    {
+      "side": "R",
+      "turns": {
+        "clavicle": [0, 0.2588, 0, 0.9659],
+        "upper_arm": [0.6928, -0.0894, -0.4181, 0.5806],
+        "forearm": [-0.2485, 0.1405, -0.3235, 0.9021]
+      },
+      "fade": [20, 35],
+      "below": 0.3,
+      "note": "The shape of the raised right arm of the cellist with the bent elbow of the play (raise_shape() of tools/blender/rig_mesh.py). With no shape, faces 316, 162, 211, and 342 of the right shoulder and the right elbow folded in 13.4%, 9.5%, 4.7%, and 3.4% of the play samples at a step of 1 s. The rule takes the mean turn of the upper arm in the axes of the chest and of the forearm from the upper arm of the samples in which one of them folds (fold-keys.ts and keys-right.txt of docs/research/2026-10-17-dog-mesh/), and the turn of the clavicle of the play, 30 degrees around y (the shoulder turn of DOG_HOLD). With the fade 20 to 35 degrees, the play folds fall from 20.6% to 11.4%. The fades 15 to 30 and 10 to 25 degrees folded 11.9% and 13.9%, and a second rule at the mean turn of the folds that remain folded more (raise-trials.txt)."
+    }
+  ],
   "refine": {
     "rings": [],
     "flip": {
@@ -183,7 +196,7 @@
       "rounds": 4,
       "note": "The long edge of a face of the arms with a corner angle above angle (degrees) in the seated bind mesh flips to the corner of the face on its other side, when the two faces lie almost on one plane and the surface moves at most move (units). The values are the values of the fox, the rabbit, and the cat. The rule flips 7 edges."
     },
-    "ringsNote": "The first config has no rings. pnpm rig-mesh dog --check lists the thin faces near the joints as candidates for a ring (check.thin): with the factor 1, faces at the left elbow, the wrists, and the ankles. The fold probe of the role chooses the rings after the arm factor."
+    "ringsNote": "The rig has no rings. pnpm rig-mesh dog --check lists the thin faces near the joints as candidates for a ring (check.thin). A ring at each elbow and each wrist, the rings of the cat, folded the cellist in 56.7% of the play samples (33.3% with no ring), and a ring at the left elbow or the left wrist alone made new thin faces of the left paw that folded in each sample. A sliver rule for longer faces (longest 0.06 or 0.1) folded the cellist in each sample (docs/research/2026-10-17-dog-mesh/raise-trials.txt)."
   },
   "check": {
     "thin": {
@@ -221,7 +234,7 @@
     "front": 0.06,
     "back": -0.1,
     "backHeight": 0.15,
-    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the dog (x ±0.16). The front edge lies before the shins and the feet, which start at z 0.077 with the leg factor 1, 0.122 with 1.5, and 0.166 with 2. The front edge of 0.1, the edge of the cat, put the shins over the seat. The back edge is a first value: the round of the app fits it to the back posts of the chair of the app."
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the dog (x ±0.16). The front edge lies before the shins and the feet, which start at z 0.104 with the thighs 30 degrees out. The front edge of 0.1, the edge of the cat, put the shins over the seat. The back edge keeps the back of the haunch in front of the back posts of the chair of the app. The tail goes 0.037 units over the seat top at its lowest point over the seat, so it does not touch the seat."
   },
   "crease": {
     "rings": 2,
@@ -242,5 +255,5 @@
     "root": [0.7, 0.95],
     "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), with the values of the cat. The thigh weight of the round haunch turns it up with the thighs, so the sit moves 95 vertices down, at most 0.130 units. The side view of the underside is 1.21 cm above the seat at most at the scale of the red fox. root counts the root of the tail as the haunch. With no root, the side view stayed 6.07 cm above the seat."
   },
-  "legFactorNote": "The factor of the thigh and the shin. The first config keeps the legs of the mesh. At this scale, the seat of the legs is 0.169 m high, and the leg factor 2 gives 0.289 m at the same seated head top. At the standing head top of 1.758 m, the seat is 0.231 m with the factor 1 and 0.317 m with 1.5 (docs/research/2026-10-17-dog-mesh/sizes.txt)."
+  "legFactorNote": "The factor of the thigh and the shin. The user chose 1.5, the leg factor of the fox, on 2026-10-17. With the thighs 25 degrees down and 30 degrees out, the seat of the legs is 0.266 m high at this scale, and the chair is 0.259 m deep (sizes.txt has the sizes of the mid-report)."
 }
