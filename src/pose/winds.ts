@@ -372,7 +372,7 @@ const PANDA_SLIDE_RIGHT = 20;
 const PANDA_SLIDE_DOWN = 25;
 
 /** The forward turn of the left shoulder of the panda, in degrees. */
-const PANDA_SHOULDER_L = 15;
+const PANDA_SHOULDER_L = 9;
 
 /**
  * The trombone hold of the panda (design 5.3), the hold of a real trombonist (decisions
@@ -391,7 +391,9 @@ const PANDA_SHOULDER_L = 15;
  * real player slides forward when the arm reaches forward. With a square left shoulder, the left
  * upper arm turned 68° from its bind direction to the grip, and three faces at the front of the
  * left shoulder folded in each sample. Turns from 9° to 20° remove these folds
- * (`docs/research/2026-10-18-panda-folds.md`).
+ * (`docs/research/2026-10-18-panda-folds.md`). The user chose the smallest of them ("Try the 9°
+ * turn"): the left arm comes less far forward over the belly, so its shadow on the belly is
+ * smaller.
  */
 const PANDA_TROMBONE = {
   ...WIND_HOLDS.trombone,

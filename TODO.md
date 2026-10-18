@@ -390,7 +390,7 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-16-mesh-cat.md`).
 - [x] Panda trombonist: faces 717, 1147, and 1148 at the front of the left shoulder fold in each
       play, lift, and rest sample. A raise rule of the left arm does not relax them
-      (`2026-10-18-mesh-panda.md`). Done: the left shoulder turns 15° forward
+      (`2026-10-18-mesh-panda.md`). Done: the left shoulder turns forward
       (`2026-10-18-panda-folds.md`).
 - [ ] The paused shot test of the moves of 2 cm keeps 71.8% of the shots (limit 75%) since the
       panda mesh (`docs/research/2026-10-18-panda-mesh.md`).
