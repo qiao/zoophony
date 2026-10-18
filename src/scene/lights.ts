@@ -50,7 +50,8 @@ export const KEY_LIGHT = {
  * The cone is narrow and the light is high, so the section below the light stays outside the
  * cone. A wide, low cone of 28° lit that section from the camera side too, about as bright as the
  * far section, because it is nearer to the light. Thus each body got light from two sides, and
- * its shade side was gone (user, 2026-10-18).
+ * its shade side was gone (user, 2026-10-18). The back rows stay at the edge of the cone, so the
+ * back-row lights ({@link BACK_ROW_LIGHT}) light them.
  *
  * The side lights cast the shadows of the players on the players, such as the shadow of an arm on
  * the chest, because they light the fronts that the camera sees. The stage takes no shadow of
@@ -72,6 +73,38 @@ export const SIDE_LIGHT = {
   illuminance: 2.7,
   /** The half angle of the cone. */
   angle: 14 * MathUtils.DEG2RAD,
+  /** The penumbra of the cone. */
+  penumbra: 0.5,
+} as const;
+
+/**
+ * The back-row lights (design 4.5): two warm spotlights high at the front corners of the hall, the
+ * mirror of each other, as the side lights. Each one crosses the stage and lights the fronts of the
+ * back rows of the section on the other side, and the choir risers. The narrow cones of the side
+ * lights hold the front sections, so the back rows stayed at the edge of the cones or outside them
+ * (user, 2026-10-18: "the back rows of the stage are too dark"). The lights have the color of the
+ * side lights and cast no shadow, so they cost little GPU time.
+ */
+export const BACK_ROW_LIGHT = {
+  /**
+   * The position of the light at the right, in stage sides. It is lower than the side lights, so
+   * the light falls flatter on the floor behind the back row and more directly on the fronts of
+   * the players. From 1.7 S, the floor behind the back row got about 1.8 times as much light.
+   */
+  position: [1.2, 1.0, 0.6],
+  /**
+   * The aim of the light at the right, in stage sides: the back edge of the section at the left,
+   * at the height of the chests of the back row. The back row of each demo is 0.3 S to 0.45 S
+   * behind the stage center, inside the cone.
+   */
+  target: [-0.35, 0.15, -0.5],
+  /** The illuminance at the aim point, on a face that looks at the light, in lux. */
+  illuminance: 2.25,
+  /**
+   * The half angle of the cone. The cone holds the back rows and the choir, and the front rows stay
+   * outside it. A cone of 14° lit the second row from the back more than the first row.
+   */
+  angle: 10 * MathUtils.DEG2RAD,
   /** The penumbra of the cone. */
   penumbra: 0.5,
 } as const;
@@ -230,6 +263,9 @@ const KEY_NAME = 'key';
 /** The name of each side light in the group of {@link createLights}. */
 const SIDE_NAME = 'side';
 
+/** The name of each back-row light in the group of {@link createLights}. */
+const BACK_ROW_NAME = 'back-row';
+
 /**
  * Sets the shadow map size and the shadow blur of a spotlight (design 2.6). The renderer makes a
  * new shadow map of the new size at the next render.
@@ -369,6 +405,46 @@ function spotlight(color: string, position: Vec3, target: Vec3, illuminance: num
   return light;
 }
 
+/** The place, the aim, the light, and the cone of a pair of cross lights, in stage sides. */
+interface CrossPair {
+  /** The position of the light at the right. */
+  readonly position: Vec3;
+  /** The aim of the light at the right. */
+  readonly target: Vec3;
+  /** The illuminance at the aim point, on a face that looks at the light, in lux. */
+  readonly illuminance: number;
+  /** The half angle of the cone. */
+  readonly angle: number;
+  /** The penumbra of the cone. */
+  readonly penumbra: number;
+}
+
+/**
+ * Creates a pair of cross lights in the color of the side lights: the light at the right, and its
+ * mirror at the left.
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @param pair The place, the aim, the light, and the cone of the light at the right.
+ * @param name The name of each light.
+ * @returns The light at the right and the light at the left, with no shadow.
+ */
+function crossPair(stageSide: number, pair: CrossPair, name: string): SpotLight[] {
+  const [px, py, pz] = pair.position;
+  const [tx, ty, tz] = pair.target;
+  return [1, -1].map((sign) => {
+    const light = spotlight(
+      SIDE_LIGHT.color,
+      [sign * px * stageSide, py * stageSide, pz * stageSide],
+      [sign * tx * stageSide, ty * stageSide, tz * stageSide],
+      pair.illuminance,
+    );
+    light.name = name;
+    light.angle = pair.angle;
+    light.penumbra = pair.penumbra;
+    return light;
+  });
+}
+
 /**
  * Gives the position of the key light of a stage (`KEY_PLACE` of `models/beam.ts`).
  *
@@ -418,12 +494,17 @@ export interface LightOptions {
    * no beam.
    */
   readonly beam?: boolean;
+  /**
+   * True to add the back-row lights (the default). The gallery pages show the models in one row,
+   * so they have no back-row lights.
+   */
+  readonly backRows?: boolean;
 }
 
 /**
- * Creates the lights of the stage: the key light, the fill light, the two side lights, the
- * visible beam, and the light on the face of the conductor (design 4.5). The lights scale with
- * the stage.
+ * Creates the lights of the stage: the key light, the fill light, the two side lights, the two
+ * back-row lights, the visible beam, and the light on the face of the conductor (design 4.5). The
+ * lights scale with the stage.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param tier The quality tier. It sets the shadow map sizes and the shadow blur.
@@ -446,23 +527,16 @@ export function createLights(
 
   group.add(new HemisphereLight(FILL.sky, FILL.ground, FILL.intensity));
 
-  const side = SIDE_LIGHT;
-  for (const sign of [1, -1]) {
-    const [px, py, pz] = side.position;
-    const [tx, ty, tz] = side.target;
-    const light = spotlight(
-      side.color,
-      [sign * px * stageSide, py * stageSide, pz * stageSide],
-      [sign * tx * stageSide, ty * stageSide, tz * stageSide],
-      side.illuminance,
-    );
-    light.name = SIDE_NAME;
-    light.angle = side.angle;
-    light.penumbra = side.penumbra;
+  for (const light of crossPair(stageSide, SIDE_LIGHT, SIDE_NAME)) {
     light.shadow.bias = -0.0005;
     setSideTier(light, tier);
     fitShadow(light, stageSide);
     group.add(light, light.target);
+  }
+  if (options.backRows ?? true) {
+    for (const light of crossPair(stageSide, BACK_ROW_LIGHT, BACK_ROW_NAME)) {
+      group.add(light, light.target);
+    }
   }
 
   if (options.beam ?? true) {

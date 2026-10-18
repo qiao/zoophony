@@ -572,6 +572,12 @@ solo.
   players, such as an arm on the chest. The stage takes no shadow of them, and the low tier has
   none (2.6). The players and the props take only a part of the fill and of the diffuse light of
   the environment (`FILL.players`), so their shade sides stay dark.
+- **Back-row lights** (`BACK_ROW_LIGHT`, user, 2026-10-18). Two more spotlights at the front
+  corners, lower than the side lights, cross the stage and light the fronts of the back rows and
+  the choir of the far section, so the back rows are almost as bright as the front rows, as in
+  `orchestra-latest.png`. Their narrow cones keep the front rows outside, and each body keeps a lit
+  side and a shade side. They have the color of the side lights and cast no shadow, so they cost
+  little GPU time. The gallery has none.
 - **Light color** (user, 2026-10-18). The side lights are a warm white and the sky of the fill a
   neutral gray, so white, gray, and purple fur keep their colors, as in `orchestra-latest.png`.
   The key light stays orange, because it gives the amber of the floor and the warm rims.

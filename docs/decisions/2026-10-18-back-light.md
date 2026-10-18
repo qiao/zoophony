@@ -11,5 +11,9 @@ decision. Then update its section, and remove its row.
 
 | Decision | Section |
 |---|---|
+| The user: "do it". Two warm spotlights at the front corners cross the stage and light the fronts of the back rows and the choir of the far section (`BACK_ROW_LIGHT`). They have the color of the side lights and cast no shadow. | 4.5 |
+| The lights stand 1.0 S high and aim at the back edge at chest height, with a cone of 10°. The start values (1.7 S high, 14°) gave the first row 48% to 63% more light, and the floor behind the back row 80% more. | 4.5 |
+| A moderate middle step of three: 2.25 lux (`BACK_ROW_LIGHT`). The probe gives the back row 0.81 to 0.93 of the first row, and the white fur of the back pandas reaches 0.94 of the front rabbits against 0.96. | 4.5 |
+| The gallery has no back-row lights (`LightOptions`), so the close views of the models keep their light. | 4.5, 7.1 |
 | The pool on the players and the props reaches 1.2 S behind its center, and the stage keeps 0.42 S (`LIGHT_POOL.reachBack`). With the round pool, the back rows kept about 0.5 of each light, and the back-row lights needed 4.13 lux in place of 2.25, with 1.8 times the light on the floor behind the back row. | 4.5 |
 | The pool of a solo is round on the players too (`soloAim()`), so the back rows outside the pool step back with all lights. | 2.4, 4.5 |

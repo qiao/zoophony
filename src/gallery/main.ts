@@ -239,8 +239,8 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-// The gallery shows the models, so it has no visible beam.
-const lights = createLights(floorSide, 'high', null, { beam: false });
+// The gallery shows the models, so it has no visible beam and no back-row lights.
+const lights = createLights(floorSide, 'high', null, { beam: false, backRows: false });
 scene.add(lights);
 for (const spot of lights.children) {
   if (spot instanceof SpotLight && spot.castShadow) {
