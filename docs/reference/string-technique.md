@@ -445,12 +445,11 @@ A round that changes the motion updates the items.
 - **The contacts** (section 2.7). The dog holds the cello between its knees with its own hold
   (`DOG_HOLD` of `pose/bowed-rig.ts`): the endpin on the floor in front of the chair, the back of
   the cello against the belly and the chest, and the neck at the left of the head, above the left
-  shoulder. Its thighs turn 30° out around the lower bout. The app differs from the source: the
-  short thighs of the dog mesh end about 1 cm behind the front of its belly, so the knees stay
-  2.0 cm and 2.9 cm behind the sides of the lower bout and do not touch it.
-- **The angle** (section 2.7). The cello stands vertical and leans 11° to the left. A cello that
-  leans back stood with its lower bout further in front of the knees. The source permits a more
-  vertical cello.
+  shoulder. Its thighs turn 30° out. The app differs from the source: the short thighs of the dog
+  mesh end far behind the lower bout of the leaned cello, so the knees stay 21 cm and 22 cm from
+  it and do not touch it.
+- **The angle** (section 2.7). The cello leans back 25° from the vertical, in the range of the
+  handout [65], and 14° to the left. The dog sits upright with the lean of 3° [66].
 - **The left hand over the neck.** The left paw tilts 55° over the neck from the bass side
   (`BowedHold.tiltL`, 30° on the other holds), so that the thick paw keeps off the fingerboard.
 - **The rest** (section 2.7). The cello stays between the knees, the left paw holds it at 0.6 of
