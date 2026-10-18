@@ -2,13 +2,18 @@ import {
   BackSide,
   BoxGeometry,
   Color,
+  CubeCamera,
+  HalfFloatType,
   Mesh,
   MeshBasicMaterial,
   PMREMGenerator,
   Scene,
   SphereGeometry,
+  WebGLCubeRenderTarget,
 } from 'three';
-import type { WebGLRenderTarget, WebGLRenderer } from 'three';
+import type { Object3D, WebGLRenderTarget, WebGLRenderer } from 'three';
+
+import type { Vec3 } from '../models/tuples.ts';
 
 /**
  * The environment of the reflections (design 4.5, light and render): a dark room with warm lamps
@@ -80,5 +85,66 @@ export function createEnvironment(renderer: WebGLRenderer): WebGLRenderTarget {
       }
     }
   });
+  return target;
+}
+
+/**
+ * The values of the captured environment (design 4.5, light and render). Each layout renders its
+ * own hall and lit stage into a cube, so the brass and the lacquer reflect the real lamps and the
+ * real pool of light, and the diffuse light of the map holds the warm floor below the players.
+ */
+export const CAPTURE = {
+  /** The width of each face of the cube, in pixels. */
+  size: 256,
+  /** The height of the point of the capture above the stage top, in meters: about a seated head. */
+  height: 1.2,
+  /** The factor of the captured environment light on each material: 1 is the physical light. */
+  intensity: 1,
+} as const;
+
+/** The inputs of {@link captureEnvironment}. */
+export interface CaptureOptions {
+  /** The point of the capture. */
+  readonly position: Vec3;
+  /** The objects that the capture hides: the players, the props, and the visible beam. */
+  readonly hidden: readonly Object3D[];
+}
+
+/**
+ * Captures the environment of a layout (design 4.5, light and render): it renders the scene into
+ * a cube of half floats from one point, with some objects hidden, and makes a PMREM of the cube.
+ * The renderer gives no tone mapping to a render target, so the cube holds the linear light.
+ *
+ * @param renderer The renderer. It needs a target of half floats.
+ * @param scene The scene of the layout, with the environment that its reflections use during the
+ *   capture.
+ * @param options The point of the capture and the hidden objects.
+ * @returns The target that holds the environment texture. The caller frees it.
+ */
+export function captureEnvironment(
+  renderer: WebGLRenderer,
+  scene: Scene,
+  options: CaptureOptions,
+): WebGLRenderTarget {
+  const cube = new WebGLCubeRenderTarget(CAPTURE.size, { type: HalfFloatType });
+  const camera = new CubeCamera(0.05, 500, cube);
+  camera.position.set(...options.position);
+  camera.updateMatrixWorld();
+
+  const shown = options.hidden.map((object) => object.visible);
+  for (const object of options.hidden) {
+    object.visible = false;
+  }
+  const saved = renderer.getRenderTarget();
+  camera.update(renderer, scene);
+  renderer.setRenderTarget(saved);
+  for (const [i, object] of options.hidden.entries()) {
+    object.visible = shown[i] ?? true;
+  }
+
+  const generator = new PMREMGenerator(renderer);
+  const target = generator.fromCubemap(cube.texture);
+  generator.dispose();
+  cube.dispose();
   return target;
 }
