@@ -99,6 +99,9 @@ Open these files for these kinds of work:
 - **Docs.** A change of behavior updates its design file in the same session. Write all prose in
   ASD-STE100 Simplified Technical English, with no em dashes, and run the prose checks of
   [`writing.md`](docs/agents/writing.md).
+- **Length.** Keep each doc in its limit of [`writing.md`](docs/agents/writing.md): `AGENTS.md`
+  about 2,500 words, a module about 3,000, a decision file about 600 with rows of about 50, and a
+  research report about 1,000 words of prose. A design section holds no history and no tuned value.
 - **Processes.** Stop each server and browser that you start, and no other process.
 
 ## Modules
