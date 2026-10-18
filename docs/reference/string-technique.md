@@ -456,7 +456,7 @@ A round that changes the motion updates the items.
 - **The rest** (section 2.7). The cello stays between the knees, the left paw holds it at 0.6 of
   the fingerboard, and the right paw holds the bow over the right knee with the tip up, as the
   first lesson of the source. The short arm of the dog does not reach the knee, so the grip is
-  above the thigh and the tip leans forward. The source gives no rest of an orchestral cellist.
+  above the thigh and the tip leans out and forward. The source gives no rest of an orchestral cellist.
 
 ## 4. Sources
 
