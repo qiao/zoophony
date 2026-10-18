@@ -95,6 +95,10 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - A mesh of an image model has many thin faces. A thin face with corners of different weights
   turns over at a bent joint. The `sliver` and `line` rules remove some folds. Read
   `pnpm fold-probe` after each change of a hold, because a more bent elbow folds more faces.
+- Bone heat gives the skin where a hanging arm touches the trunk to the upper arm, and a raised
+  arm pulls it into long faces under the armpit that shade darker. A fade of the upper arm weight
+  there moves the stretch into the long faces from the trunk to the forearm, and they fold in each
+  sample (`arm-from.py` of `docs/research/2026-10-18-panda-marks/`).
 - A long thin face across a joint of an arm folds, and weight rules make it worse. A ring of new
   vertices at the joint fixes it (`refine.rings`). Put a ring only where `pnpm fold-probe` finds
   folds, and run `pnpm pose-depth <role>` after it: a ring can pull the inner elbow into the
@@ -171,6 +175,10 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - The texture of an image mesh has black gaps between its islands. A face takes the mean of its
   samples that are not dark. Read `colors.py` of `docs/research/2026-10-14-rabbit-smooth/` after a
   change of the color rules.
+- A face takes black from a third of dark texture samples (`eyeShare`), so the large faces of a
+  trunk give the border of a black region teeth, and a raised arm stretches them into black
+  wedges. List the faces with a third to a half of dark samples (`marks.py` of
+  `docs/research/2026-10-18-panda-marks/`), and make them light with `colors.border`.
 - An eye in a dark patch has almost the color of the patch, so a dark rule cannot split them. A
   wide eye box takes the patch as the eye, and the color of the old eye puts light holes in it.
   Keep the eye box on the eye, and set `eyeShell.darkReach` to 0, as for the panda.
