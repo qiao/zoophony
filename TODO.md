@@ -273,6 +273,13 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
 - [ ] Remove the unused code of the face pattern `eye-patches`: no species has it since the panda
       mesh (`2026-10-18-mesh-panda.md`).
+- [ ] Panda face: the round patches have angular edges, because the rule recolors whole faces of
+      1 cm to 2 cm. The left patch is 18% of the head width high, and the right patch 22% (the
+      reference 23% to 27%). Show the user `widths.webp`, and ask if a smoother oval is worth a
+      vertex move (`2026-10-18-panda-face.md`).
+- [ ] Panda smile: from 30° above, the mouthpiece and the paws hide the mouth at both widths of
+      the line. Check the smile in a close play frame of the stage with the user
+      (`2026-10-18-panda-face.md`).
 - [ ] Condense design 1, 3, 7, and 8, which still hold dated history
       (`2026-10-17-design-condense.md`).
 
