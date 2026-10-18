@@ -210,6 +210,7 @@ The decision files:
 - [`2026-10-17-string-hands.md`](decisions/2026-10-17-string-hands.md): the hands of the string players, and `docs/reference/string-technique.md`.
 - [`2026-10-17-tan-rest.md`](decisions/2026-10-17-tan-rest.md): the rest of the tan fox.
 - [`2026-10-18-body-shade.md`](decisions/2026-10-18-body-shade.md): the narrow side lights, their shadows on the players, and the fill light of the players.
+- [`2026-10-18-key-beam.md`](decisions/2026-10-18-key-beam.md): the far key light at the back right, and the beam as its fan.
 - [`2026-10-18-light-color.md`](decisions/2026-10-18-light-color.md): the colors of the lights, the amber wood, the floor shadows, and the haze.
 - [`2026-10-18-cinematic-light.md`](decisions/2026-10-18-cinematic-light.md): the look lab, the floor, the grade, the bake of the props, the captured environment, the shot light, the lens, and the room haze.
 - [`2026-10-18-mesh-panda.md`](decisions/2026-10-18-mesh-panda.md): the panda mesh of the user as the trombonist.

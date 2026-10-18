@@ -16,7 +16,6 @@ user can reverse each row. Then update the section that holds it, and remove its
 | The key light also gets a hot spot of `1 + 0.7 × exp(-(r / 2 m)²)` around the podium center. The wood beside the podium had 104 and 149 against 152 and 138 in `mockup.png` | 4.5 |
 | The pool is a factor in the shader, and no map of the spotlight. A map of three.js follows the cone of each light, so the low side lights would move the pool by about 2 m for each meter of height. A separate pool light cost about 0.4 ms (4.5) | 2.6, 4.5 |
 | The gallery pages have no pool, so each model gets the same light | 4.5 |
-| The key light stands on the axis of the stage, at `(0, 1.2, -0.7) × S`, and no longer 0.15 S to the right. The gloss of the wood then lies on both sides of the podium, and the shadows fan out to the left and the right, as the shadows of the chairs in `mockup.png`. This row replaces the position of the first row of `2026-10-07-scene-polish.md` | 4.5 |
 | The fall-off of the wood alone behind the podium (`STAGE_POOL`, first row of `2026-10-07-scene-details.md`) is gone. Under the pool, it did not change the back of the stage, and it kept the wood among the strings at 68 against 76 in `mockup.png` | 4.5 |
 
 Samples of the default view of the default demo during play at 1440 × 900, with the drawer open

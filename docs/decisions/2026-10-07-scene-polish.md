@@ -11,7 +11,6 @@ row. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
-| The key light stands behind the orchestra, high and a little right, at `(0.15, 1.2, -0.7) × S`, and aims at 0.5 of the way to the podium with a cone of 34°. The shadows fall to the front and the left, as in `mockup.png`. The light above the stage center gave short shadows under the chairs, and the stage looked even | 4.5 |
 | The shadow camera of the key light follows the stage corners (`keyShadowFrustum()`). The fixed near and far planes of the light above the center cut the shadows at the front of the stage | 4.5 |
 | The rim light and the front light become two side lights from the front corners of the hall. Each one crosses the stage and lights the fronts of the section on the other side. The number of lights does not change. The front light lit the back of the bear to 71 to 113 against 37 in `mockup.png` | 4.5 |
 | The key light is `#ffca98`, a little more yellow than `#ffc3a0` | 4.5 |

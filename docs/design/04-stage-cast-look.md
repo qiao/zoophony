@@ -539,8 +539,11 @@ of its finish in the roughness map and the metalness map of the material.
 `scene/beam.ts` and `models/beam.ts` the visible beam, and `scene/solo-light.ts` the light of a
 solo.
 
-- One warm `SpotLight` behind and high above the orchestra is the key light, and the only light
-  that casts shadows on the stage. Its soft penumbra keeps the stage sides dark, as in
+- **Key light** (`KEY_PLACE` of `models/beam.ts`, user, 2026-10-18). One warm `SpotLight` far
+  behind the orchestra, a little to the right, and high is the key light, and the only light that
+  casts shadows on the stage. Its shadows fall to the front left, parallel and short, as in
+  `orchestra-latest.png`, the newest target. It acts as the back light of a concert film, and the
+  side lights act as its cross keys. Its soft penumbra keeps the stage sides dark, as in
   `mockup.png`. Its intensity grows with the square of the distance to the aim point, so each
   stage size gets the same light. A low, nearly neutral fill keeps the shadows deep, and one weak
   light shows the face of the conductor.
@@ -567,7 +570,12 @@ solo.
   multiplies each spotlight (`addLightPool()`), because a separate pool light cost GPU time. The
   pool falls off only at the side edges and the front corners (user, 2026-10-07).
 - The visible beam (`BEAM_LOOK`) is haze in a narrower cone than the key light, because haze in
-  the full cone veiled the orchestra. It fades toward the stage with no edge. A depth pass
+  the full cone veiled the orchestra. The beam comes from the key light, so the light has a
+  visible source: the haze cone leans from its foot toward the key light, and its tip stands low
+  on that line (`hazeTip()`). The default view then sees the narrow top of the cone, and the beam
+  opens as a fan toward the stage, as in `orchestra-latest.png`. The shot planner keeps its own
+  upright cone around the stage center (`insideBeam()`, 5.6), which holds the haze near the
+  stage. The beam fades toward the stage with no edge. A depth pass
   (`BeamDepth`) gives no haze to an item on the stage, so the beam shows between the players
   (user, 2026-10-06). The camera dims the beam in a close shot (`shots/beam-opacity.ts`, 5.6),
   because the additive beam washed out the image. Dust motes drift in the haze by the tier.

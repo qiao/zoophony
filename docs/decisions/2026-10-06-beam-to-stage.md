@@ -13,7 +13,6 @@ section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
-| The box of the player layer, its height fade, and its ray fade are gone. The haze column goes from the stage top to the light | 4.5 |
 | The density grows with a smoothstep from 0.04 of the full density at the stage top to the full density at the light. With 0.12 and a full density at 0.55 of the light height, the column was as bright at mid-height as at the top | 4.5 |
 | A depth pass renders the depth of the scene before the scene pass, with the light effects and the hall hidden. The resolve of the depth of the multisample target cost 2.1 ms (4.5, post effects). The haze in front of the hall shows in full, so the hall needs no depth | 4.5 |
 | The depth has the size of the drawing buffer. At half size, the nearest texel gave a jagged edge of haze around each player | 4.5 |
