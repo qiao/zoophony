@@ -103,9 +103,30 @@ chroma 0.082 at the hue 66°, against 0.092 at 67° at the start, and the lightn
 29,748 B after gzip (`rig-mesh-check-tone.txt`). `pnpm size --base f65da87a` gives +31 B for the
 round (`size.txt`).
 
-## 4. The result
+## 4. The turn of 9°
 
-A forward turn of 15° of the left shoulder removes the folds of the left shoulder in each play and
-rest sample, with no change of the rig, the clearance, or the slide reach. The white fur of the
+After the images of this round, the user chose "Try the 9° turn", so that the shadow of the left
+arm on the belly gets smaller. `band.py` counts the pixels with the Oklab lightness below 0.45 in a
+box of the belly under the arms, in the front close view of the first position
+(`turn-band.txt`, `turn-9.webp`, which also shows the stage play frame at 9°). The fold probe takes
+each demo with the role, at a step of 0.25 s (`turn-fold-probe-15.txt`, `turn-fold-probe-9.txt`).
+
+| Measure | 15° | 9° |
+|---|---|---|
+| Play folds | 0.0% (0 of 4,788) | 0.0% (0 of 4,788) |
+| Lift folds | 2.2%, face 467 | 2.2%, face 467 |
+| Rest folds | 0.0% | 0.0% |
+| Dark pixels of the belly box | 40.0%, 18 rows | 18.3%, 10 rows |
+| Deepest part (`turn-pose-depth-9.txt`) | 0.5 cm | 0.5 cm, paws in trombone (upper arms 0.2 cm) |
+| `slideReach` (`turn-slide-reach-9.txt`) | 0.155 m | 0.155 m |
+
+`pnpm body-probe --base aa79fb38` finds only the 36 pose sets of the 9 panda trombonists
+different (`turn-body-probe.txt`).
+
+## 5. The result
+
+A forward turn of the left shoulder removes the folds of the left shoulder in each play and rest
+sample, with no change of the rig, the clearance, or the slide reach. The turn of 9° that the user
+chose halves the shadow band of the left arm on the belly. The white fur of the
 panda has the color of `SPECIES_COLORS.panda`, and its renders match the parametric panda of that
 color at the same lightness.
