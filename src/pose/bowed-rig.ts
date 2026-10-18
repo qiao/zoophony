@@ -698,6 +698,10 @@ const CAT_HOLD = {
  * turn of 45° and the raised elbow of the floor hold, the skin of the right shoulder folded in each
  * play sample.
  *
+ * The string planes of the dog are 12° apart, below the 17° of the floor hold: at the tip on the C
+ * string, the right upper arm went 1.9 cm into the side of the chest at the armpit with 17°, 1.5 cm
+ * with 13°, and 1.4 cm with 12° (`pnpm pose-depth cellist`, all demos).
+ *
  * In the rest pose, the left paw holds the neck at 0.4 of the fingerboard with the elbow out to
  * the left, and the right paw holds the bow upright at the right side, with the frog over the right
  * knee, 0.4 H out (`UPRIGHT_BOW`), as a cellist in a first lesson stands the screw of the frog on
@@ -709,6 +713,7 @@ const DOG_HOLD = {
   ...BOWED_HOLDS.cello,
   lean: 0,
   reach: 30 * MathUtils.DEG2RAD,
+  stringTurn: 12 * MathUtils.DEG2RAD,
   playShift: [-0.076, 0, 0.748],
   playTurn: [-0.2565, 0.1002, -0.0786, 0.9581],
   tiltL: 60 * MathUtils.DEG2RAD,
