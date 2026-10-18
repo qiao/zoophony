@@ -112,7 +112,8 @@ export interface RoleViews {
 
 /**
  * A role with a close view: the bear conductor, the polar bear pianist, the rabbit violinist, the
- * red fox violinist, the cat violist, the dog cellist, or the tan fox flutist.
+ * red fox violinist, the cat violist, the dog cellist, the tan fox flutist, or the panda
+ * trombonist.
  */
 export type CloseRole =
   | 'conductor'
@@ -121,7 +122,8 @@ export type CloseRole =
   | 'fox-violinist'
   | 'violist'
   | 'cellist'
-  | 'flutist';
+  | 'flutist'
+  | 'trombonist';
 
 /** The roles with a close view, in the order of the usage text. */
 const CLOSE_ROLES: readonly CloseRole[] = [
@@ -132,6 +134,7 @@ const CLOSE_ROLES: readonly CloseRole[] = [
   'violist',
   'cellist',
   'flutist',
+  'trombonist',
 ];
 
 /**
@@ -160,6 +163,9 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  * - The tan fox flutist: the front, both sides, and the back. The moments are a long note, a time
  *   between two phrases, the rest pose, halfway through the lift and the lowering at the note,
  *   and the standing soloist at the note.
+ * - The panda trombonist: the front, both sides, and the back. The moments are a note in the
+ *   first position, a note in the seventh position at the end of the reach of the slide, the rest
+ *   pose, halfway through the lift and the lowering at the first note, and the standing soloist.
  *
  * A new role gives its species, its views, its moments, and its test notes, with the camera
  * `{ kind: 'body', zoom: 1, elevation }`.
@@ -314,6 +320,25 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
     camera: { kind: 'body', zoom: 1, elevation: 20 },
     // A long A5, a rest, then a short phrase with the right paw fingers closed (C5) and open (C6).
     notes: ['0.5 1 A5', '2 0.25 C5', '2.25 0.25 C6', '2.5 0.25 E5'].join('\n'),
+  },
+  trombonist: {
+    species: 'panda',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'first', time: 0.6, rest: false },
+      { name: 'seventh', time: 1.9, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.6),
+      { name: 'stand', time: 0.6, rest: false, stand: true },
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // B♭2 in the first position, then E2 in the seventh, the end of the reach of the slide.
+    notes: ['0.5 1 Bb2', '1.5 1 E2'].join('\n'),
   },
 };
 

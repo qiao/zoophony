@@ -784,6 +784,109 @@ export const FLUTIST_SWEEP: RoleSweep = {
 };
 
 /**
+ * Gives the note targets of the palms of a trombonist: the left palm is on its grip at the start
+ * of each phrase, and the right palm is on the grip of the slide just after the start of each
+ * note, when the slide has reached the position of the note (design 5.3), in a play that started
+ * at the count-in.
+ *
+ * @param scene The scene.
+ * @param index The index of the trombonist.
+ * @param model The model of the trombonist.
+ * @returns The targets.
+ */
+function trombonistTargets(scene: TestScene, index: number, model: PlayerModel): NoteTarget[] {
+  const plan = scene.plan.players[index];
+  if (plan?.note.family !== 'brass') {
+    return [];
+  }
+  const { note: layer, timeOffset } = plan;
+  return (['L', 'R'] as const).flatMap((side) => {
+    const grip = side === 'L' ? model.instrument.grips.palmL : model.instrument.grips.palmR;
+    const palm = side === 'L' ? model.body.palmL : model.body.palmR;
+    if (!grip) {
+      return [];
+    }
+    const starts = side === 'L' ? layer.track.phraseStarts : layer.track.starts;
+    return Array.from(starts, (start: number): NoteTarget => ({
+      side,
+      sample: playSample(scene, start + timeOffset + 0.05),
+      error: (posed) =>
+        new Vector3(...posedPoint(posed, `hand${side}`, palm)).distanceTo(
+          new Vector3(...posedPiecePoint(posed, grip)),
+        ),
+    }));
+  });
+}
+
+/**
+ * Tells if a player of a scene is in the sweep of the trombonist: the first seated panda with a
+ * trombone, and each panda soloist, which stands (design 4.2).
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @returns True for a player of the sweep.
+ */
+function sweptTrombonist(scene: TestScene, index: number): boolean {
+  const { cast } = scene.layout.players[index] ?? {};
+  if (cast?.species !== 'panda' || cast.instrument !== 'trombone') {
+    return false;
+  }
+  if (cast.support === 'stand') {
+    return true;
+  }
+  const first = scene.layout.players.findIndex(
+    (p) =>
+      p.cast.species === 'panda' && p.cast.instrument === 'trombone' && p.cast.support !== 'stand',
+  );
+  return first === index;
+}
+
+/**
+ * The sweep of the trombonist (design 5.3): the arms against the body and the trombone, in a full
+ * play, in the lift at the play start, in the rest pose before the first play, and in the lowering
+ * after the song end, with the left palm on its grip and the right palm on the slide. The first
+ * seated panda of each demo with trombones, and each standing panda soloist, play it. The body of
+ * the panda mesh has no open edge, so its closed surface has the two cuts to the upper arms.
+ */
+export const TROMBONIST_SWEEP: RoleSweep = {
+  role: 'trombonist',
+  parts: ARM_PARTS,
+  obstacles: [
+    { name: 'body', surface: bodySurface },
+    { name: 'trombone', surface: instrumentSurface },
+  ],
+  contact: CONTACT,
+  accepted: [],
+  targetError: 1e-3,
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'trombone'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      if (!sweptTrombonist(scene, index)) {
+        return [];
+      }
+      const { species, instrument, kettles, support } = place.cast;
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles, support);
+      return [
+        {
+          name: `trombonist ${index} (${support})`,
+          model,
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => trombonistTargets(scene, index, model),
+        },
+      ];
+    }),
+  sampleSets: (scene) => VIOLINIST_SWEEP.sampleSets(scene),
+};
+
+/**
  * The sweep of the violist (design 5.3): the sweep of the violinist with the viola. The first
  * seated cat of each demo, and each standing cat soloist, play it.
  */
@@ -872,4 +975,5 @@ export const SWEEP_ROLES = {
   violist: VIOLIST_SWEEP,
   cellist: CELLIST_SWEEP,
   flutist: FLUTIST_SWEEP,
+  trombonist: TROMBONIST_SWEEP,
 } as const;
