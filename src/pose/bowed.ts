@@ -20,12 +20,6 @@ export const BOWED_HANDS = {
   curlL: 40 * MathUtils.DEG2RAD,
   pressL: 15 * MathUtils.DEG2RAD,
   /**
-   * The tilt of the left hand from the normal of the strings to the side of the fingers. The
-   * fingers point up from the strings, tilted over the neck, and the palm is below the neck, on
-   * the other side.
-   */
-  tiltL: 30 * MathUtils.DEG2RAD,
-  /**
    * The turn of the left hand around the normal of the strings toward the finger of the note, at
    * a reach of 1 (`BowState.reach`). The four fingers are one block, so the hand turns in place
    * of a finger that reaches.
@@ -420,7 +414,7 @@ const rollAxis = new Vector3();
 /**
  * Places the left hand so that the middle of its finger block presses the strings at a place
  * on the fingerboard. The fingers point up from the strings, tilted over the neck by
- * `BOWED_HANDS.tiltL` and the further tilt of a high position, and the palm faces the neck from
+ * `BowedHold.tiltL` and the further tilt of a high position, and the palm faces the neck from
  * below. The hand turns around the normal of the strings toward the finger of
  * the note, by `BOWED_HANDS.reachTurn` at a reach of 1, and it rolls around the neck to the
  * string of the finger, by `BOWED_HANDS.rollL` for each string from the middle of the strings.
@@ -445,7 +439,7 @@ export function stopHandAt(
   finger: StopFinger,
   out: StopHand,
 ): StopHand {
-  const fullTilt = BOWED_HANDS.tiltL + tilt;
+  const fullTilt = rig.hold.tiltL + tilt;
   onInstrument(
     rig,
     place,

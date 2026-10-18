@@ -43,6 +43,12 @@ export interface BowedHold {
   /** The left fingers tilt over the neck to this side of the strings. */
   readonly fingers: Vec3;
   /**
+   * The tilt of the left hand from the normal of the strings to the side of
+   * {@link BowedHold.fingers}, in the playing pose and the rest pose. The fingers point up from
+   * the strings, tilted over the neck, and the palm is below the neck, on the other side.
+   */
+  readonly tiltL: number;
+  /**
    * The direction to which the left elbow points while the player plays, with the finger on the
    * highest string, below the fourth position.
    */
@@ -249,6 +255,7 @@ const FREE_HAIR = 0.03;
 const CHIN_HOLD = {
   tip: [0, 1, 0],
   fingers: [0, 1, 0],
+  tiltL: 30 * MathUtils.DEG2RAD,
   poleL: [-0.5, -1, -1],
   elbowToward: [1, 0, 0],
   elbowPerString: 5 * MathUtils.DEG2RAD,
@@ -308,6 +315,7 @@ const CHIN_HOLD = {
 const FLOOR_HOLD = {
   tip: [-1, 0, 0],
   fingers: [1, 0, 0],
+  tiltL: 30 * MathUtils.DEG2RAD,
   poleL: [-0.6, -1, -0.2],
   elbowToward: [0, 1, 0],
   elbowPerString: 10 * MathUtils.DEG2RAD,
