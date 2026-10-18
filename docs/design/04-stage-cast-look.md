@@ -617,7 +617,9 @@ quarter of the folded faces.
   turn while it plays (`docs/decisions/2026-10-17-cat-bow.md`). A rule with the bone `forearm`
   gives the shape of a bent elbow: the clavicle, the upper arm, and the forearm take the turns of
   the rule, and the vertices of the clavicle, the upper arm, the forearm, and the twist bone relax.
-  A rule of a raised arm can also bend the elbow as in the play (`turns.forearm`). `raise` holds
+  A rule of a raised arm can also bend the elbow as in the play (`turns.forearm`), and a rule of a
+  raised arm or of a bent elbow can bend the wrist as in its pose (`turns.hand`), so that a face
+  from the elbow to the paw turns over in the pose as in the app. `raise` holds
   one rule, or a list of up to four rules (`raise_rules()`), and each rule gives one shape. Each
   rule relaxes the skin with the shapes of the rules before it on the same side at their weights
   in its pose, so that the shapes add up as in the app. The cat config gives the violist four

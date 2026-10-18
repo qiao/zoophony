@@ -2425,6 +2425,18 @@ def rule_key_turns(rule):
     return {'upper_arm': upper, 'forearm': fore, 'hand': np.eye(3)}
 
 
+def wrist_turns(hand, heads, side):
+    """Gives the turns of the forearm twist bone and of the paw for a turn `hand` of the paw from
+    the forearm, as `poseStudioBones()` turns them: the twist bone takes `TWIST_SHARE` of the twist
+    of the paw around the forearm of the seated bind pose. Gives two rotation matrices."""
+    axis = unit(heads[f'hand_{side}'] - heads[f'forearm_{side}'])
+    x, y, z, w = unit(hand)
+    twist = 2 * np.arctan2(np.array([x, y, z]) @ axis, w)
+    twist = (twist + np.pi) % (2 * np.pi) - np.pi
+    half = TWIST_SHARE * twist / 2
+    return quat_matrix([*(np.sin(half) * axis), np.cos(half)]), quat_matrix(hand)
+
+
 def raise_weight(rule, turn):
     """Gives the weight of the shape of a rule of `raise` at a turn of its key bone, as
     `raiseWeight()` of `src/models/studio-rig.ts` gives it: 1 up to the first angle of the fade
@@ -2459,7 +2471,10 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=()):
     vertices of the paw, the fingers, and the forearm twist bone of the side.
 
     A rule of a raised arm can also give the turn `turns.forearm` of the forearm from the upper arm,
-    so that the elbow bends as in the play: then the bones after the forearm turn with it.
+    so that the elbow bends as in the play: then the bones after the forearm turn with it. It can
+    also give the turn `turns.hand` of the paw from the forearm, so that the wrist bends as in the
+    pose: then the paw, the fingers, and the forearm twist bone turn as in a rule of a bent wrist,
+    after the forearm. A rule of a bent elbow can give it too.
 
     A rule with `bone` "forearm" is the shape of a bent elbow: the clavicle and the upper arm take
     the world turns `turns.clavicle` and `turns.upper_arm` when the rule gives them, the forearm
@@ -2475,13 +2490,8 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=()):
     wrist = rule.get('bone') == 'hand'
     elbow = rule.get('bone') == 'forearm'
     if wrist:
-        hand = quat_matrix(rule['turns']['hand'])
-        axis = unit(heads[f'hand_{side}'] - heads[f'forearm_{side}'])
-        x, y, z, w = unit(rule['turns']['hand'])
-        twist = 2 * np.arctan2(np.array([x, y, z]) @ axis, w)
-        twist = (twist + np.pi) % (2 * np.pi) - np.pi
-        half = TWIST_SHARE * twist / 2
-        turns[f'forearm_twist_{side}'] = quat_matrix([*(np.sin(half) * axis), np.cos(half)])
+        twist, hand = wrist_turns(rule['turns']['hand'], heads, side)
+        turns[f'forearm_twist_{side}'] = twist
         turns[f'hand_{side}'] = hand
         turns[f'fingers_{side}'] = hand
         upper = np.eye(3)
@@ -2494,6 +2504,11 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=()):
         fore = upper @ keys['forearm'] if 'forearm' in rule['turns'] else upper
         for bone in ARM[1:]:
             turns[f'{bone}_{side}'] = fore
+        if 'hand' in rule['turns']:
+            twist, hand = wrist_turns(rule['turns']['hand'], heads, side)
+            turns[f'forearm_twist_{side}'] = fore @ twist
+            turns[f'hand_{side}'] = fore @ hand
+            turns[f'fingers_{side}'] = fore @ hand
     posed_at = posed_heads(heads, turns)
     matrices = [move(turns[n], heads[n], posed_at[n]) for n in BONES]
 
