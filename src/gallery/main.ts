@@ -242,11 +242,12 @@ scene.add(floor);
 // The gallery shows the models, so it has no visible beam.
 const lights = createLights(floorSide, 'high', null, { beam: false });
 scene.add(lights);
-const spot = lights.children.find((child) => child instanceof SpotLight);
-if (spot) {
-  // The radius 3 of the high tier shows the noise of PCFShadowMap as a fine grid on each lit face
-  // in a close view. The radius 1 halves it (review of step 3, F11).
-  spot.shadow.radius = GALLERY_SHADOW_RADIUS;
+for (const spot of lights.children) {
+  if (spot instanceof SpotLight && spot.castShadow) {
+    // The radius 3 of the high tier shows the noise of PCFShadowMap as a fine grid on each lit
+    // face in a close view. The radius 1 halves it (review of step 3, F11).
+    spot.shadow.radius = GALLERY_SHADOW_RADIUS;
+  }
 }
 
 const camera = new PerspectiveCamera(GALLERY_FOV_DEG, 1, 0.1, 10 * floorSide);
