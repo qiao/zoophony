@@ -419,7 +419,7 @@ A new species with a studio body:
 | `AGENTS.md` | "Model work", "Route 3: a studio body" | the bodies of route 3 | |
 | `AGENTS.md` | "Model work", "A mesh with no skeleton into route 3." | the meshes of the user | |
 | `AGENTS.md` | "Model work", "These traps of route 3 each cost a round" | each trap that cost the round a step | |
-| `AGENTS.md` | "Commands", the row of `pnpm studio-body` | the landmark of the scale of each animal in `ANIMALS` | |
+| `docs/agents/commands.md` | the row of `pnpm studio-body` | the landmark of the scale of each animal in `ANIMALS` | |
 | `docs/briefs/studio-body.md` | "7. A mesh with no skeleton" | the example meshes of the user | |
 | `assets/models/<s>/README.md` | the whole file | the source, the license, and the checksum of a mesh of the user | |
 | `lowpoly-studio/docs/handoff.md` and `lowpoly-studio/README.md` | the whole files | only a body that the studio builds | `rabbit`, `fox-red`, `fox-tan`, `cat`, `dog` |
@@ -432,7 +432,7 @@ A new role:
 | `docs/design/07-architecture.md` | "7.1 Modules", the text of `pnpm close-views` | the views and the moments of each role (`ROLE_VIEWS`) | |
 | `docs/design/09-process.md` | "9.3 Tests" | the sweep of each role (`SWEEP_ROLES`) and its clearance test, or the reason for no test | |
 | `AGENTS.md` | "Design", the commands `pnpm close-views <role> <dir>` | the commands `pnpm close-views <role> <dir>` | |
-| `AGENTS.md` | "Commands", the rows of `pnpm pose-depth`, `pnpm close-views`, and `pnpm fold-probe` | the roles of each tool, with the species of each role | |
+| `docs/agents/commands.md` | the rows of `pnpm pose-depth`, `pnpm close-views`, and `pnpm fold-probe` | the roles of each tool, with the species of each role | |
 
 A new hold:
 
