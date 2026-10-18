@@ -93,7 +93,9 @@ player.
   crossing, the rest pose, the middle of the lift and of the lowering at the frog, and the
   standing soloist at the frog. The red fox violinist (`fox-violinist`) has the views and the
   moments of the rabbit, with its tail on the chair in the side views and the back view. The cat
-  violist has the views and the moments of the violinist, with its own test notes. The tan fox
+  violist has the views and the moments of the violinist, with its own test notes. The dog
+  cellist (`cellist`) has the views and the moments of the violinist with its own test notes, and
+  no standing soloist, because a cellist does not stand. The tan fox
   flutist shows from the front, both sides, and the back, at a long note, between two phrases, in
   the rest pose, in the middle of the lift and of the lowering at the note, and standing at the
   note. With `--base <ref>`, the tool
