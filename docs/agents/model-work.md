@@ -176,7 +176,10 @@ of route 3 follow.
    `pnpm mesh-options <animal> <dir> --size <label>=<head top>... --legs <f>,... --arms <f>,...
    --instrument <id>`. Take each size from the head top of a body of `main`, and each arm factor
    from a target, such as the reach of the body of `main` or the arm to trunk ratio of another
-   mesh. The table gives the reach of the hold on the real body for each arm factor. Ask the user
+   mesh. The table gives the reach of the hold on the real body for each arm factor. Fix each
+   warning of the rigs before the question. A seat warning gives a `chair.front` that puts the
+   seat under the haunch, because the thighs set the seat top. An eye warning means that the eye
+   box takes most of a dark patch, so make the box hold only the eye. Ask the user
    about the size, the arms, and the legs with `options.md` and `options.png`, then set them. To
    probe a rig of `<dir>/rigs/` further, such as with
    `pnpm hold-reach <species> --instrument <id> --set <changes> --glb <file>`, set `app.shoulders`
