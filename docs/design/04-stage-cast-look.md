@@ -1032,62 +1032,54 @@ declare function castScore(score: Score): PlayerCast[];
 
 The instruments follow the reference image and the polished images, and their sizes fit the
 animals of the reference image. The builder scales the violin and its bow by the head height of
-the rabbit of the reference image, so that they keep their size relative to the animals. A species
-can play a smaller violin and bow (`SpeciesParams.violinScale`), as a child plays a fractional
-size. In the same way, a species can play a smaller cello and bow (`SpeciesParams.celloScale`).
-The end pin of a smaller cello is longer, so that the top of its body stays at the place of the
-top of the full size, against the chest (`endPinLength()` of `models/instruments/strings.ts`). A
-player of a fractional cello sets the end pin in the same way. A violin shop sizes a violin so that, in the play position with the left arm extended, the
-scroll lies in the middle of the palm (`docs/research/2026-10-13-studio-rabbit.md`,
-`docs/research/2026-10-13-rabbit-mesh.md`). The rabbit and the red fox play almost the violin of
-the app, the size that the user chose: the user made their arms longer for a full violin, and
-then shorter with the same violin. Their arms are shorter than the rule needs, so their holds put
-the violin nearer to the left shoulder, and the left paw still reaches the nut (5.3). The cat has
-the reach of the red fox and plays the viola of the app, and its hold puts the viola nearer to the
-neck for the nut in the same way (`docs/decisions/2026-10-16-mesh-cat.md`). The dog plays a 1/2
-cello between its knees, the size that the user chose (`docs/decisions/2026-10-17-dog-arms.md`),
-and its arms have the length that the user chose: 0.92 of the trunk, as the red fox. With the 1/2
-cello, the left paw reaches the whole fingerboard from the nut, and the bow paw about 60% of the
-hair. The arms of the whole cello reach of `docs/decisions/2026-10-17-mesh-dog.md` were 1.16 of
-the trunk, and the user said that they were too long. The tan fox plays the
-flute of the app, and each palm reaches its grip in the play and in the rest
-(`pnpm hold-reach fox-tan --instrument flute`, `docs/decisions/2026-10-17-fox-form.md`). The paused
-check of the rule in `pose/bowed.test.ts` fails for these two species. The chairs, the stands, the
-podium, and the steps keep their sizes in meters. The bodies of the bowed strings are plates
-with round edges and an arched top (`plate()` of `models/primitives.ts`), with two f-holes beside
-the bridge, as the instruments of the polished images.
+the rabbit of the reference image. A species can play a smaller violin, viola, or cello
+(`SpeciesParams.violinScale`, `celloScale`), as a child plays a fractional size. A smaller cello
+has a longer end pin, so that its top stays against the chest (`endPinLength()` of
+`models/instruments/strings.ts`). A violin shop sizes a violin so that, with the left arm
+extended, the scroll lies in the middle of the palm (`pnpm hold-reach`,
+`docs/research/2026-10-13-rabbit-mesh.md`). The user chose the instrument sizes and the arms of
+the mesh bodies, and the holds fit them. The rabbit and the red fox play almost the violin of the
+app, and the cat plays the viola of the app. Their arms are shorter than the rule needs, so their
+holds put the instrument nearer to the neck, and the left paw still reaches the nut (5.3,
+`docs/decisions/2026-10-16-mesh-cat.md`). The dog plays a 1/2 cello between its knees, and its
+left paw reaches the whole fingerboard (`docs/decisions/2026-10-17-dog-arms.md`). The tan fox
+plays the flute of the app, and each palm reaches its grip in the play and in the rest
+(`docs/decisions/2026-10-17-fox-form.md`). The paused check of the rule in `pose/bowed.test.ts`
+fails for the short arms. The chairs, the stands, the podium, and the steps keep their sizes in
+meters. The bodies of the bowed strings are plates with round edges and an arched top (`plate()`
+of `models/primitives.ts`), with two f-holes.
 
 **Sizes and holds**
 
 The hold gives the place of each piece in the bind pose of 4.7, in the axes of the model: the
-player faces -z, and its left is -x. An offset in `H` uses the head height of the player. The
-code of each instrument (`models/instruments/`) holds its sizes and the offsets of its hold.
+player faces -z, and its left is -x. An offset in `H` uses the head height of the player. The code
+of each instrument (`models/instruments/`) holds its sizes and the offsets of its hold.
 
 | Instrument | Model | Hold in the bind pose |
 |---|---|---|
-| Violin | A body with an arched top, a neck, a scroll, and a bow. | Under the chin on the left shoulder, to the left of the head center and below it. The violin points to the left of the front and a little down, and its top plate turns to the front, so the audience sees it. The bow plays between the bridge and the fingerboard. The stick lies in the fingers of the hanging right hand, in the crease between the palm ball and the finger ball, and points to the front. A grip in front of the palm put the stick through the hand and the frog end into the forearm (user report of 2026-10-06). A species can give the grip of its bow (`SpeciesParams.bowGrip`): the place of the stick and its turn in the palm. The stick of the cat passes through the middle of its closed right paw, along the line nearest to the path of the middle of the paw while the studio paw turns toward the forearm (4.4), 50° from square toward the wrist. With the grip of the other species, the stick lay 4.3 cm from the middle of the cat paw, under the paw (`docs/decisions/2026-10-17-cat-bow.md`). The stick of the rabbit, 40° from square, and the stick of the red fox, 50° from square, pass through their closed paws in the same way. The skin of the long wrist of the red fox moves the middle of its paw, so its stick lies up to 1.2 cm from the middle of the seated paw and 2.2 cm from the paw of a standing soloist (`docs/decisions/2026-10-17-grip-all.md`). With the grip of the other species, their stick lay 3.7 cm to 5.3 cm from the middle of the paw. |
+| Violin | A body with an arched top, a neck, a scroll, and a bow. | Under the chin on the left shoulder. The violin points to the left of the front and a little down, and its top plate turns to the front, so the audience sees it. The bow plays between the bridge and the fingerboard. The stick lies in the fingers of the hanging right hand and points to the front, because a grip in front of the palm put the stick through the hand. A species can give the grip of its bow (`SpeciesParams.bowGrip`), so that the stick passes through its closed paw (`docs/decisions/2026-10-17-grip-all.md`). |
 | Viola | The violin at 1.15 scale, with the violin bow. | As the violin. |
-| Cello | A body with an end pin, and a bow. | The end pin stands in front of the seat and a little to the right. The cello leans back to the chest and to the left, so that its neck passes the left of the head, as in `animals.webp`. The top plate faces the front and a little to the right. The bow as on the violin. |
-| Contrabass | The cello at 1.6 scale, with the cello bow. | At the left side, in front of the seat. The axis leans back to the player and to the left, so that the neck passes the left of the head. The top plate faces the front and to the right. |
-| Harp | 24 strings that show the 47 strings of a concert harp, C1 to G7. | Between the knees. The harp leans back to the player and turns around the vertical, so that the top of the soundbox comes to the right shoulder, and the neck passes the right side of the face. With no turn, the neck went through the face of the deer (review of step 5, U1). The left hand plays from the left side of the strings, and the right hand from the right side. |
-| Piano | A case with an open lid, white and black keys, and a desk with sheet music. The lid opens less than the lid of `mockup.png`, because a wider lid hid the heads of the players behind the piano in the default view. | The front of the keys stands `PIANO_FRONT_H` head heights and 0.05 m in front of the floor point of the pianist (`models/instruments/piano.ts`), clear of the round belly of the studio polar bear, and far enough that its muzzle keeps 5 cm from the front edge of the open lid while it plays (5.3). |
-| Piano bench | A seat of `PIANO_BENCH` at the height of the seat of the pianist, as a chair: the studio polar bear sits on a bench at the height of `seat` of its entry in `ANIMALS`, about twice the bench at the legs of the sheet (4.4, `StudioBody.seatHeight`). The user asked for a higher seat on 2026-10-14. The bench at the legs of the sheet was low, because the studio fitted short legs to a round body. Later that day, the user asked for longer legs, so that the feet touch the floor: the studio makes the shins longer by the hang of the soles over the floor. Under a parametric body, the bench keeps the height of `PIANO_BENCH`. The app does not stretch the legs of a studio body (user rule of 2026-10-10): the studio makes them longer when the user asks. | A static prop under the pianist, as a chair. |
-| Choir folder | Two open covers, with pages in the sheet music color. | In both hands, below the head center and in front of it. It leans back, so that the pages face the eyes. |
+| Cello | A body with an end pin, and a bow. | The end pin stands in front of the seat. The cello leans back to the chest and to the left, so that its neck passes the left of the head, as in `animals.webp`. The bow as on the violin. |
+| Contrabass | The cello at 1.6 scale, with the cello bow. | At the left side, in front of the seat, with the neck past the left of the head. |
+| Harp | 24 strings that show the 47 strings of a concert harp, C1 to G7. | Between the knees. The harp leans back and turns, so that the soundbox comes to the right shoulder, and the neck passes the right side of the face. With no turn, the neck went through the face of the deer. |
+| Piano | A case with an open lid, white and black keys, and a desk with sheet music. The lid opens less than in `mockup.png`, because a wider lid hid the heads of the players behind it. | The front of the keys stands in front of the floor point of the pianist (`PIANO_FRONT_H` of `models/instruments/piano.ts`), clear of the round belly and the muzzle of the polar bear (5.3). |
+| Piano bench | A seat of `PIANO_BENCH`. Under the studio polar bear, it is at the height of `seat` of its entry in `ANIMALS`, which the user asked for (4.4, seat). The app does not stretch the legs of a studio body (user, 2026-10-10). | A static prop under the pianist, as a chair. |
+| Choir folder | Two open covers with pages. | In both hands, in front of the head and below it, leaned back so that the pages face the eyes. |
 | Flute | A silver tube. | The hole of the lip plate is at the mouth. The flute points to the right, a little to the front and down. |
-| Oboe | A thin dark tube with a small bell and metal keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |
+| Oboe | A thin dark tube with a small bell and keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |
 | Clarinet | A black tube with a mouthpiece, silver rings and keys, and a bell. | The tip of the mouthpiece is at the mouth. The clarinet hangs to the front, 25° from the vertical, as in the reference image. |
-| Bassoon | A tall wooden tube with the boot, the wing joint, and the metal bocal. | The tip of the reed is at the mouth. The bassoon leans to the left across the body, with the boot at the right hip, and its tube passes the left side of the head. |
-| Horn | A coil and a bell. | The mouthpiece is at the mouth. The coil stands low in front of the right side of the chest, and the bell opens to the right and to the back, above the right thigh. The hold turns the horn around the mouthpiece, so that the coil and the bell stay out of the right thigh and the right shin. The right palm is in the bell, and the left palm holds the coil near the valves, in the reach of the arm (review of step 4). |
+| Bassoon | A tall wooden tube with the boot, the wing joint, and the bocal. | The tip of the reed is at the mouth. The bassoon leans to the left across the body, with the boot at the right hip. |
+| Horn | A coil and a bell. | The mouthpiece is at the mouth. The coil stands low in front of the right side of the chest, and the bell opens to the right and back, clear of the right leg. The right palm is in the bell, and the left palm holds the coil near the valves. |
 | Trumpet | A tube with three valves and a forward bell. | The mouthpiece is at the mouth. The trumpet points forward and a little down. |
-| Trombone | A tube with a slide and a bell. The slide moves from the first position to the seventh. | The mouthpiece is at the mouth. The slide points forward and down, with the bell at its left. The slide is a second piece on the `slide` bone, and the right palm holds its brace. |
+| Trombone | A tube with a slide and a bell. The slide moves from the first position to the seventh. | The mouthpiece is at the mouth. The slide points forward and down. The slide is a second piece on the `slide` bone, and the right palm holds its brace. |
 | Tuba | A large tube with a bell that opens up. | The mouthpiece is at the mouth. The body stands in the lap, and the bell is at the left of the head. |
-| Timpani | Two to four kettles at 0.7 of the size of real kettles, the largest first. Two kettles when the highest timpani note is C3 or lower, three up to F3, else four (`kettleCount()`). Mallets with felt balls. | The kettles stand in an arc around the player, the largest at the left. A mallet in each hand. |
-| Bass drum | A drum on a frame, and a beater. | At the front left of the player. Its right head turns to the player, and the beater in the right hand strikes its middle, below the shoulders of the badger. |
-| Snare drum | A drum on a tripod, and two sticks. | In front of the player, with a stick in each hand. The head is below the shoulders of the badger, so the sticks slant down to it, and the wrists stay out of the belly. |
-| Cymbals | Two crash cymbals, each with a strap. | One cymbal in each hand, with the inner faces to each other. In the bind pose, the strap is above the palm, so that the rim stays above the floor (review of step 4, P1). |
-| Small percussion | A triangle with a metal beater, and a tambourine on a tripod. | The triangle hangs from the left hand, and the beater is in the right hand. In the bind pose, the triangle points forward from the hand, as a mallet does, so that it stays above the floor. The tambourine stands at the front right of the player and leans to the player. The beater in the right hand strikes it for key 54. |
-| Xylophone | 30 bars from C5 to F7 on a frame, with the natural bars in the front row and the sharp bars in the back row. | In front of the player, with a mallet in each hand. A mallet strikes a natural bar at its middle, and a sharp bar near its near end. The bars are below the shoulders of the badger, so the mallets strike them from above. |
-| Baton | A straight white stick with a handle, about 2 cm thick at the paw, as in `bear-views.png`. It tapers to the tip, as in `orchestra-latest.png` and `orchestra-side.png` (user decision of 2026-10-13). | In the right hand. |
+| Timpani | Two to four kettles at 0.7 of the size of real kettles. Two kettles when the highest timpani note is C3 or lower, three up to F3, else four (`kettleCount()`). | The kettles stand in an arc around the player, the largest at the left. A mallet in each hand. |
+| Bass drum | A drum on a frame, and a beater. | At the front left of the player, below the shoulders of the badger. |
+| Snare drum | A drum on a tripod, and two sticks. | In front of the player, below the shoulders, so that the wrists stay out of the belly. |
+| Cymbals | Two crash cymbals with straps. | One cymbal in each hand, with the inner faces to each other, above the floor. |
+| Small percussion | A triangle with a beater, and a tambourine on a tripod. | The triangle hangs from the left hand, and the beater is in the right hand. The tambourine stands at the front right of the player. The beater strikes it for key 54. |
+| Xylophone | 30 bars from C5 to F7 on a frame, the natural bars in front. | In front of the player, below the shoulders, with a mallet in each hand. |
+| Baton | A straight white stick with a handle that tapers to the tip, as in `bear-views.png` and `orchestra-latest.png` (user, 2026-10-13). | In the right hand. |
 
 In the bind pose, each mallet, stick, beater, the triangle, and the baton lies in the hanging
 hand in front of the palm, and points forward. No vertex of a player model is below the floor: a
@@ -1096,8 +1088,7 @@ test checks each species with each instrument.
 **Instrument data**
 
 `models/instruments/` builds each instrument as pure data with no scene-graph object of Three.js
-(7.1).
-`buildInstrument(id)` gives an `InstrumentModel`:
+(7.1). `buildInstrument(id)` gives an `InstrumentModel`:
 
 ```typescript
 interface InstrumentModel {
@@ -1131,68 +1122,52 @@ interface InstrumentPiece {
 ```
 
 - Each piece is rigid and follows one bone (4.4). The origin of the piece axes is the bind
-  position of its bone. Thus step 5 turns a mallet around the palm, and a bow around its grip.
+  position of its bone, so step 5 turns a mallet around the palm, and a bow around its grip.
 - `holdInstrument(model, body)` places the pieces on the points of one body: the head center,
-  the mouth, the two palms, and the floor under the middle of the body. The anchor `instrument` puts a piece in
-  the axes of the instrument piece, for the trombone slide. `attachInstrument()` also adds the
-  parts to the mesh of the player and gives the bind position of each bone. Thus one function
-  attaches each instrument to each species.
+  the mouth, the two palms, and the floor under the body. The anchor `instrument` puts a piece in
+  the axes of the instrument piece, for the trombone slide. `attachInstrument()` adds the parts to
+  the mesh of the player, so one function attaches each instrument to each species.
 - A target is a point or a line on a piece, with the unit normal of its surface. A line that
   follows the pitch, such as the piano keys, also gives the MIDI keys at its two ends.
-- The white keys of the piano and the natural bars of the xylophone are evenly spaced, so a
-  pitch is not linear along their lines. `pianoKeyPosition(key)` and `xylophoneBarPosition(key)`
-  give the point of each key and the point where a mallet strikes each bar.
-- The 24 strings of the harp show the 47 strings of a concert harp evenly. A pedal raises a
-  string by a semitone, so a sharp plays on the string of the natural below it.
-  `harpStringPosition(key)` gives the middle of the string of a key.
-- `buildInstrument('timpani', kettles)` builds the largest kettles. `kettleCount(highestKey)`
-  gives their number from the highest timpani note of the file.
-- The trombone slide moves along its axis. A bone rotation cannot move it, so the pose has a
-  move of the `slide` bone, `AnimalPose.slideOffset` (5.1), in addition to the rotations. The
-  move follows the target `slide`.
+- `pianoKeyPosition(key)`, `xylophoneBarPosition(key)`, and `harpStringPosition(key)` give the
+  point of each key, bar, or string, because a pitch is not linear along the evenly spaced white
+  keys, natural bars, and harp strings. A sharp of the harp plays on the string of the natural
+  below it, as a pedal raises it.
+- `kettleCount(highestKey)` gives the number of kettles of the timpani.
+- The trombone slide moves along its axis, which a bone rotation cannot do, so the pose has a move
+  of the `slide` bone, `AnimalPose.slideOffset` (5.1).
 
 ## 4.7 Rig
 
-Each player has one skeleton with the bones of the list below. A vertex follows one or two
-bones:
+Each player has one skeleton with the bones of the list below. A vertex of a parametric body
+follows one or two bones:
 
 - The mesh data (`MeshData` in `models/mesh.ts`) gives each corner a main bone (`bones`), a
   second bone (`blendBones`), and the weight of the second bone (`blendWeights`), from 0 to 0.5.
-  The main bone has 1 minus this weight, so it is the bone with the larger weight.
 - A rigid part follows one bone: the second bone of each corner is its main bone, with the
-  weight 0. The instrument pieces, the eyes, the ears, the hands, and the feet stay rigid.
-- A skinned part gives a skin rule (`SkinRule`). The rule reads the bind position of a corner
-  in the model axes, after the placement of the part, and gives its two bones and the weight.
-  The two bones are a parent and its child. `blendSkin()` makes the bone with the larger weight
-  the main bone.
-- The GPU blends the two bones linearly: `skinIndex` is `(bone, blendBone, 0, 0)` and
-  `skinWeight` is `(1 - w, w, 0, 0)`. The vertex shader of three.js always blends four bones, so
-  the second bone adds no shader work.
-- Each part of the body is rigid, so each vertex of a body follows one bone. The arm is two
-  limbs on `upperArm` and `forearm`. The dome over the shoulder joint is rigid on `upperArm`,
-  with no port in the torso (`docs/research/2026-10-06-shoulder-spike.md`). A long tail is two
-  parts on `tail1` and `tail2`. The leg is the thigh on `thigh`, the knee ball and the shin on
-  `shin`, and the foot on `foot`. No pose turns the legs.
+  weight 0. A skinned part gives a skin rule (`SkinRule`) that gives two bones (a parent and its
+  child) and the weight from the bind position of a corner (`blendSkin()`).
+- The GPU blends the two bones linearly. The vertex shader of three.js always blends four bones,
+  so the second bone adds no shader work.
+- Each part of the parametric body is rigid. The arm is two limbs on `upperArm` and `forearm`,
+  with a rigid dome over the shoulder joint (`docs/research/2026-10-06-shoulder-spike.md`). A long
+  tail is two parts on `tail1` and `tail2`. The leg is the thigh on `thigh`, the knee and the shin
+  on `shin`, and the foot on `foot`. No pose turns the legs.
 - A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
-  studio, two eye bones for the pea eyes, and the optional tip of a tail of two bones (`tail_tip`,
-  the red fox, the tan fox, the cat, and the dog).
-  Each vertex follows up to four of them, and two corrective shapes move the skin of the arms. Up
-  to four more shapes move the skin of a raised arm, a bent elbow, or a bent wrist of a mesh rig. The scene gives the mesh one bone for each studio bone and one for
-  each bone of the player, and `poseStudioBones()` writes their matrices from the pose of the
-  player. The bones of the player keep the list below, so the pose code drives a studio body as
-  each other body. The pea eyes are on the eye bones of the player, and the render mesh moves them
-  with the eye bones of the studio, which the blink scales (`studioRenderMesh()`).
-- The egg body of the penguin (4.4) is rigid too. Its body is two parts on `spine` and `chest`,
-  its head with the upper beak is on `head`, and its lower beak is on `jaw`. Each flipper is three
-  parts on `upperArm`, `forearm`, and `hand`. Its feet are on `foot`, and its thighs and shins
-  have no part.
+  studio, two eye bones for the pea eyes, and the optional tip of a tail of two bones (`tail_tip`:
+  the red fox, the tan fox, the cat, and the dog). Each vertex follows up to four of them, and the
+  corrective shapes move the skin of the arms. The scene gives the mesh one bone for each studio
+  bone and one for each bone of the player, and `poseStudioBones()` writes their matrices from the
+  pose of the player. The bones of the player keep the list below, so the pose code drives a
+  studio body as each other body. The blink scales the eye bones of the studio
+  (`studioRenderMesh()`).
+- The egg body of the penguin (4.4) is rigid too: its body on `spine` and `chest`, its head and
+  upper beak on `head`, its lower beak on `jaw`, its flippers on the arm bones, and its feet on
+  `foot`.
 
-For each body:
-
-- The readers of the bind mesh read the main bone: the footprints, the chair clearance, the
-  baked occlusion (4.5), the silhouettes, and the triangle budgets.
-- `posedCorner()` of `pose/test-skin.ts` poses a corner in the tests as the GPU does. A test
-  compares it with the CPU skin of three.js.
+For each body, the readers of the bind mesh read the main bone: the footprints, the chair
+clearance, the baked occlusion (4.5), the silhouettes, and the triangle budgets. `posedCorner()` of
+`pose/test-skin.ts` poses a corner in the tests as the GPU does.
 
 ```typescript
 type BoneName =
@@ -1227,13 +1202,11 @@ type BoneName =
 - The torso splits at the height of the `chest` bone. The lower part follows `spine`. The upper
   part follows `chest`, as the shoulders, the arms, and a violin do, so that a rotation of
   `chest` moves them together.
-- The skeleton of the species (4.3) gives the bind positions of the joints: the head center,
-  the shoulder joints, the elbows and the wrists, the hip joints, and the seated knees. The height
-  map of 4.3 moves the `hips`, `spine`, `chest`, and `neck` bones with the shoulder joints.
+- The skeleton of the species (4.3) gives the bind positions of the joints. The height map of 4.3
+  moves the `hips`, `spine`, `chest`, and `neck` bones with the shoulder joints.
 - Each skeleton has all bones of the list, so a bone has the same index in each player. A bone
   with no part, such as the trunk of a rabbit, moves nothing.
 - In the bind pose, no bone has a rotation. The body sits on its seat: the thighs rest on the
-  seat and point forward and a little down, the knees bend, the shins hang down, and the arms
-  hang down beside the body. The instrument is in its playing place on its bone, and the bow lies
-  in the hanging right hand. The penguin stands on its soles, and its flippers hang straight down
-  from the shoulder joints.
+  seat, the knees bend, the shins hang down, and the arms hang down beside the body. The
+  instrument is in its playing place on its bone, and the bow lies in the hanging right hand. The
+  penguin stands on its soles, and its flippers hang straight down.
