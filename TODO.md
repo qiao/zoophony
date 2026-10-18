@@ -400,8 +400,8 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-18-panda-folds.md`).
 - [ ] Panda trombonist: face 467 at the front of the right shoulder folds in 2.2% of the lift
       samples, and the shadow of the left arm crosses the belly in the gallery front view of the
-      first position. Show the user the images of `docs/research/2026-10-18-panda-folds/`
-      (`2026-10-18-panda-folds.md`).
+      first position, smaller since the 9° turn (`turn-9.webp`). Show the user the images of
+      `docs/research/2026-10-18-panda-folds/` (`2026-10-18-panda-folds.md`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
