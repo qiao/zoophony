@@ -515,10 +515,10 @@ The code constants of each family hold the times, the angles, and the lengths of
   and between the cues the left hand shows the dynamics and the held chords ("Cues" and "Left
   hand between the cues" below).
 - **Conductor in detail** (`pose/conductor-notes.ts`, `pose/cues.ts`, `pose/conductor.ts`):
-  - At each beat time, the tip of the baton is at the point of the beat in the beat plane,
-    as the conductor sees it (`BEAT_PATTERNS`). Beat 1 comes down at the bottom, the middle beats go inward and then
-    outward, and the last beat goes up. Between two beats, the tip rises in an arc and comes down
-    with its full speed, so that each beat is the low point of a bounce.
+  - At each beat time, the tip of the baton is at the point of the beat in the beat plane, as
+    the conductor sees it (`BEAT_PATTERNS`). Beat 1 comes down at the bottom, the middle beats go
+    inward and then outward, and the last beat goes up. Between two beats, the tip rises in an arc
+    and comes down with its full speed, so that each beat is the low point of a bounce.
   - **Count-in.** The user decided that a click on play does not start the music at once: the
     conductor first signals the players to get ready. The transport starts at a song time before
     the start point (6.5), so the count-in is a set of poses at those song times, and the pose
@@ -688,20 +688,16 @@ change sounds.
 
 The automatic camera of 2.5 films the piece as a concert film does. The pure module `shots/`
 holds the rules and the values (`SHOT_TIMES`, `CUT_BONUS`, `CHOICE_WEIGHTS`, `SHOT_KEYS`,
-`KEY_SEARCH`, and `BLEND_RULES` of `shots/prepare.ts`, `CLEARANCE` and `SIGHT` of
-`shots/clearance.ts`, `FOREGROUND` of `shots/foreground.ts`, and `SUBJECT_SIZES` of
-`shots/subjects.ts`). [`research/cinematic-camera.md`](../research/cinematic-camera.md) gives the
-practice of concert films with sources, the prototype, and its faults.
+`KEY_SEARCH`, and `BLEND_RULES` of `shots/prepare.ts`, `CLEARANCE` of `shots/clearance.ts`, and
+`FOREGROUND` of `shots/foreground.ts`).
+[`research/cinematic-camera.md`](../research/cinematic-camera.md) gives the practice of concert
+films with sources, the prototype, and its faults.
 
 The camera is a pure function of the song time, as the pose is (5.1). `prepareShots()` makes a
 shot plan one time for each score, and `cameraAt()` gives the camera of each frame. Thus a seek,
 a pause, and a speed change are always correct, and the same piece gives the same film.
-
-`traceShots()` makes the same plan and gives the choice at each cut of a time range as plain
-data: the candidates that a rule drops, with the rule, the other candidates in the order of the
-search, and each tested camera with the test that refuses it. A camera that failed a test at an
-earlier cut keeps the refusal of that test, so the trace of a cut does not depend on the range.
-`pnpm shot-trace` prints it, also for a commit beside the working tree.
+`traceShots()` gives the choice at each cut as plain data: the candidates that each rule drops,
+and each tested camera with the test that refuses it. `pnpm shot-trace` prints it.
 
 ```text
  score ──> layoutScene() ──> layout ──┬──> preparePoses() ──> PosePlan ──> poseAt() ───┐
@@ -747,284 +743,199 @@ motion).
 4.5 does: `position = target + d × (sin az × cos el, sin el, cos az × cos el)`. The distance `d`
 is the fit distance of the subject sphere at the current aspect, times the zoom. The fit distance
 is `radius / sin(min(v, h)) × FIT_MARGIN`, where `v` is half the vertical field of view and
-`h = atan(tan(v) × aspect)`. A phone in portrait thus gets a camera about 2 times farther away
-than a desktop. A wide shot and a high shot use the default distance of 4.5 in place of a fit.
+`h = atan(tan(v) × aspect)`. A phone in portrait thus gets a camera farther away. A wide shot and
+a high shot use the default distance of 4.5.
 
-**Kinds.** Each decision of the plan has its own seeded numbers: a hash of the seed, the time of
-the cut, and the name of the decision, such as `jitter solo 3`. Thus a change of one search does
-not change the numbers of the other decisions, and a small move of the players keeps most of the
-plan. `SHOT_KEYS` and `WIDE_VARIANTS` of `shots/prepare.ts` hold the angles and the moves.
+**Kinds.** Each decision of the plan has its own seeded numbers, from a hash of the seed, the time
+of the cut, and the name of the decision. Thus a change of one search does not change the other
+decisions, and a small move of the players keeps most of the plan.
 
 | Kind | Target | Camera | Move in the shot |
 |---|---|---|---|
-| wide | the target of the default view (4.5) | the default view, or a variant from a side or lower | a push-in, or an arc for the variants from the sides |
+| wide | the target of the default view (4.5) | the default view, or a variant from a side or lower (`WIDE_VARIANTS`) | a push-in, or an arc for the variants from the sides |
 | high | a little behind the stage center | high, near the front | an arc to the middle and past it, and a rise |
-| conductor, close | the shoulders of the bear | low, behind the bear from the audience side | a push-in |
-| conductor, over the shoulder | in front of the head of the bear, toward the players who play | behind the bear from the audience side | a push-in |
-| side | above the middle of the players of the seats of one side | low, from the front of that side | an arc and a push-in |
-| section | above the middle of the players of the group | low, from the front of the group, higher for a back row and for the piano | an arc and a push-in |
-| solo | above the principal player of the seat | low, from the front of the player to one side, higher for a back row and for the piano | a push-in and an arc |
+| conductor, close | the shoulders of the bear | low, behind the bear | a push-in |
+| conductor, over the shoulder | in front of the head of the bear, toward the players who play | behind the bear | a push-in |
+| side | above the players of the seats of one side | low, from the front of that side | an arc and a push-in |
+| section | above the players of the group | low, from the front of the group | an arc and a push-in |
+| solo | above the principal player of the seat | low, from the front of the player to one side | a push-in and an arc |
 
-- Each wide shot follows the landscape rule and the portrait rule of 4.5. In a portrait view,
-  the camera is more frontal, lower, and nearer. The first wide shot is the default view of 4.5.
-  The variants from the sides arc and do not push in, so that each player stays in the frame of
-  a landscape view. The push-in stops before the beam fade of Free mode (4.5).
-- The conductor shots take turns between two framings from the audience side. The first one,
-  and each odd one, is view 02 of `scene.png`: it looks over the shoulder of the bear at the
-  orchestra, toward the principal players of the window, weighted by their activity. The camera
-  stays behind the bear, the bear stands at the bottom middle of the frame, and the orchestra
-  fills it. The other shots are view 05: the back, the head, and the raised arms of the bear,
-  close, with the players out of focus behind it (4.5). The reference images show the conductor
-  only from behind (1). When the framing of the turn has no clear camera, the other one fills in.
+- Each wide shot follows the landscape rule and the portrait rule of 4.5, and the first one is
+  the default view. Its push-in stops before the beam fade of Free mode (4.5).
+- The conductor shots take turns between two framings from the audience side. The first one is
+  view 02 of `scene.png`: over the shoulder of the bear at the orchestra, with the bear at the
+  bottom middle of the frame. The other one is view 05: the back, the head, and the raised arms of
+  the bear, close, with the players out of focus behind it (4.5). The reference images show the
+  conductor only from behind (1).
 - The side views are views 03 and 04 of `scene.png`: one side of the stage from the front of that
-  side and low. The side of a seat is the side of its principal player, and a player near the
-  middle line has no side. A side view holds the seats of its side that play or enter in the
-  window, with 2 or more such seats, and its sphere holds about the front half of the side. All
-  players of the side and the conductor are subject players, so their heads do not count in the
-  foreground rule. The camera stays near the front of the side, so it never looks along the side
-  from behind.
-- The front of a player is the direction of its facing: `(-sin f, 0, -cos f)`. The front of a
-  group is the mean of the fronts of its players.
-- The front of a piano subject turns from the front of the pianist to its right: the side of the
-  high keys and of the open lid. Thus the camera shows the profile of the pianist and looks down
-  on the keys, because a camera in front of the player looked into the black case.
-- A back row gets a higher camera, which looks over the front rows. The close shots of
-  `scene.png` (06 to 08) look at the players almost level, so the section and solo shots start
-  low, because high cameras showed the tops of the heads and the dark area beside the stage.
-- The section groups (`SECTION_GROUPS` of `shots/subjects.ts`): violins, low strings (viola,
-  cello, contrabass), woodwinds, brass, percussion (timpani and percussion), harp, piano, and
-  choir. The two-shot of a small group has the group `ensemble` (below). A group holds its active
-  seats and the seats that enter at the cut. Its sphere holds each player and each head with a
-  margin. If the sphere is too large, the group keeps the seat with the most activity, and the
-  next seat if both still fit, so that a section shot does not look like a high wide shot.
-- A part shot is a section shot of the part of a choir seat that sings the tune (the tune of a
-  choir, below), for example the sopranos. Its group is `choir`, so rules 1 and 2 keep it apart
-  from a section shot of the full choir.
-- Each move blends the azimuth, the elevation, the zoom, and the field of view with a smoothstep
-  over the full shot, so the move starts and ends at rest. The move turns around the target, so
-  it never cuts through the subject. The plan uses no change of the field of view in a shot.
+  side and low, with 2 or more seats of the side that play or enter. The camera stays near the
+  front of the side, so it never looks along the side from behind.
+- The front of a player is the direction of its facing, and the front of a group is the mean of
+  the fronts of its players. The front of a piano subject turns to the right of the pianist, so the
+  camera shows the profile over the keys, because a camera in front looked into the black case.
+- The section and solo cameras start low, as the close shots of `scene.png` (06 to 08), and rise
+  for a back row, so that they look over the front rows.
+- The section groups (`SECTION_GROUPS` of `shots/subjects.ts`): violins, low strings, woodwinds,
+  brass, percussion, harp, piano, and choir. A group holds its active seats and the seats that
+  enter at the cut. When its sphere is too large, it keeps the most active seats, so that a
+  section shot does not look like a high wide shot.
+- A part shot is a section shot of the part of a choir seat that sings the tune, for example the
+  sopranos. Its group is `choir`, so rules 1 and 2 keep it apart from a shot of the full choir.
+- Each move blends the keys with a smoothstep over the full shot, so the move starts and ends at
+  rest. The move turns around the target, so it never cuts through the subject.
 
 **Cut points.**
 
 - A cut falls on a downbeat, or on the middle beat of a bar with an even number of beats. The
-  planner scores each such beat in a window after the start of the shot by the distance to a
-  seeded wanted length, with a bonus for a phrase line (a bar index that is a multiple of 4 or
-  2), a penalty for a middle beat, and the bonus of an entry below (`CUT_BONUS`).
-- The user asked that the automatic camera films the player who just started to play. A cut
-  near the start of an entry (`ENTRY_REACH`) is a cut at the entry, and it gets a bonus that is
-  larger than the phrase bonus and the penalty of a repeated length together. The first entry
-  with a cut point in reach after the shortest length ends the shot.
-- A cut that gives the shot the length of the previous shot gets a penalty: more than the phrase
-  bonus, and less than the entry bonus. Thus the cuts of a piece with a steady tempo do not fall
-  on a grid of equal lengths.
-- With no downbeat in the window, the cut falls on the beat nearest to the wanted time, because
-  a slow bar can be longer than the window.
-- The lengths are in song seconds, so the cuts follow the speed.
-- The first shot is a wide shot from `-Infinity` to the first cut. It is the default view of 4.5,
-  so the first screen, the count-in, and the first phrase show one view with no cut. After the
-  downbeat, it pushes in. A concert film also starts with an establishing shot, and an opening
-  on the conductor lost the full orchestra at each demo switch.
-- The last shot is a wide shot of the default view. It starts on a downbeat before the song end,
-  pulls out until the song end, and holds after it.
-- The end of each shot leaves room for the shots that rule 3 below needs before the last shot.
+  planner scores each such beat in a window by the distance to a seeded wanted length, with a
+  bonus for a phrase line and for an entry, and a penalty for a middle beat (`CUT_BONUS`).
+- The user asked that the camera films the player who just started to play. A cut near an entry
+  (`ENTRY_REACH`) gets a bonus larger than the other bonuses, and the first entry in reach after
+  the shortest length ends the shot.
+- A cut that repeats the length of the previous shot gets a penalty, so that the cuts of a piece
+  with a steady tempo do not fall on a grid.
+- With no downbeat in the window, the cut falls on the beat nearest to the wanted time. The
+  lengths are in song seconds, so the cuts follow the speed.
+- The first shot is a wide shot of the default view from `-Infinity` to the first cut, so the
+  first screen, the count-in, and the first phrase show one view with no cut, as the establishing
+  shot of a concert film. The last shot is a wide shot of the default view that pulls out until
+  the song end and holds after it. The end of each shot leaves room for the shots that rule 3
+  needs before the last shot.
 
 **Choice of the next shot.** The planner reads the music of a window after the cut from the
 `Score` (`MUSIC_RULES` of `shots/music.ts`):
 
-- The coverage of a seat is the part of the window that the merged note spans of the seat cover.
-  The loudness of a seat is the highest `noteLoudness()` of its notes in the window (5.3).
-- An active seat has players and a minimum coverage. The activity of a seat grows with its
-  coverage and its loudness, and the share of a group is its activity divided by the activity of
-  all seats.
-- An entry is the first note of a seat after a rest of at least two full bars and 4 s, or its
-  first note after the song start (`findEntries()` of `shots/entries.ts`), when a passage follows
-  it (`prepareMusic()` of `shots/music.ts`). A seat enters at a cut when its entry starts near
-  the cut. The cues of the conductor (5.4) have their own rule in `pose/cues.ts`, so a change of
-  the cues does not change the shots.
-- A seat that rests at the cut and enters later in the window is no subject of the cut: its
-  entry gets its own cut.
+- The coverage of a seat is the part of the window that its notes cover, and its loudness is the
+  highest `noteLoudness()` of its notes (5.3). An active seat has a minimum coverage. The share of
+  a group is its activity divided by the activity of all seats.
+- An entry is the first note of a seat after a rest of at least two full bars and 4 s, with a
+  passage after it (`findEntries()` of `shots/entries.ts`). A seat that rests at the cut and
+  enters later in the window is no subject of the cut: its entry gets its own cut. The cues of the
+  conductor (5.4) have their own rule, so a change of the cues does not change the shots.
 - A tutti: most of the seats with players are active and loud.
-- The lead: an active seat with a pitched instrument carries the lead when it holds the top line
-  (the highest key of the pitched seats) in half the window or more, or when it is clearly louder
-  than the other active seats. A concert film follows the instrument with the melody.
-- The tune of a choir: an active choir seat sings the tune when its top voice has the key of
-  the top line, or that key one or more octaves lower, in half the window or more, because the
-  flutes and the violins can double the sopranos an octave higher. It then carries the lead too.
-  The players of that seat that sing its top voice are the part of the tune (divisi, 3.8).
-- The first voice: at the first cut after the opening, each active seat that played its first
-  note in the opening counts as an entry at the cut, because the song start is the end of no
-  rest. `score/test-first-voice.ts` holds this case.
+- The lead: an active pitched seat carries the lead when it holds the top line in half the window
+  or more, or when it is clearly louder than the others. A concert film follows the melody. A
+  choir seat sings the tune when its top voice has the top line or that key an octave or more
+  lower, because the flutes and the violins can double the sopranos. Its players on the top voice
+  are the part of the tune (divisi, 3.8).
+- The first voice: at the first cut, each seat that started in the opening counts as an entry
+  (`score/test-first-voice.ts`).
 
-Each candidate gets a score (`CHOICE_WEIGHTS` of `shots/prepare.ts`):
+Each candidate gets a score (`CHOICE_WEIGHTS`):
 
 | Candidate | Score rises with | Only with |
 |---|---|---|
 | wide | a tutti, and a due wide view | |
 | high | a tutti, many active seats, and a due wide view | 3 or more seats |
 | conductor | many active seats | a conductor and 3 or more seats |
-| side view of a side | the share of the side, an entry of its seat at the cut, and the piano | 3 or more seats on the stage, and 2 or more seats of the side in the window |
+| side view of a side | the share of the side, an entry at the cut, and the piano | 3 or more seats, and 2 or more seats of the side in the window |
 | section of a group | the share, an entry at the cut, and the lead. It falls in a tutti | |
 | part of a choir seat that sings the tune | the score of a section shot of that seat alone | 3 or more seats, and fewer players in the part than in the seat |
 | solo of a seat (its player 0) | the share, few active seats, its own entry, the lead, and the piano and the harp. It falls in a tutti | |
 
-Before the scores, each candidate has a rank. A wide or a high shot that cannot wait for the
-next cut comes first, so that a wide view comes at least every 60 s. Then the solo shot of a
-soloist that enters at the cut: the soloist of the score (3.8), or a seat with one player that
-carries the lead. Then each other candidate that shows a seat that enters at the cut. Then the
-other candidates. The rules below change the scores in each rank. Thus the entering seat wins the
-cut over a tutti and over a wide view that is only due, and a soloist wins it over the sections
-that enter with it.
-
-A wide view is due a time after the end of the last wide or high shot (the opening counts), and
-near the end with room for a wide shot before the last shot. A close shot also ends before the
-limit of 60 s after the last wide view, when its shortest length allows it.
-
-Then these rules apply, in this order:
+Before the scores, each candidate has a rank: first a wide or a high shot that cannot wait, so
+that a wide view comes at least every 60 s, then the solo of a soloist that enters at the cut,
+then each other candidate with an entering seat, then the others. Thus the entering seat wins
+the cut over a tutti and over a wide view that is only due. Then these rules apply, in this
+order:
 
 1. No repeat: the kind and the subject of the previous shot get no score.
-2. No same group: a section or solo shot of the group of the previous shot gets no score. Without
-   this rule, the prototype gave four woodwind shots in a row.
+2. No same group: a section or solo shot of the group of the previous shot gets no score, so the
+   film does not show four woodwind shots in a row.
 3. Spacing (`SHOT_TIMES`):
-   - 3a. A wide or high shot needs at least three other shots since the last wide or high shot,
-     or since the start, and room for three shots before the last shot.
-   - 3b. A conductor shot needs at least five other shots since the last conductor shot, or since
-     the start, as the share of S1 in the report. Thus the bear shows after the opening phrase.
-   - 3c. A side view needs at least three other shots since the last side view, or since the
-     start.
-4. Variety: a subject of the last 4 shots loses score, and a side, section, or solo subject loses
-   score for each earlier use. Without this rule, the harp got 6 solo shots in the Boulanger demo.
+   - 3a. A wide or high shot needs at least three other shots since the last one, and room for
+     three shots before the last shot.
+   - 3b. A conductor shot needs at least five other shots since the last one, as the share of S1
+     in the report.
+   - 3c. A side view needs at least three other shots since the last one.
+4. Variety: a subject of the last shots, and each earlier use of a subject, lose score.
 5. Seeded jitter: each score gets a small seeded value.
-6. Clear camera: the best candidate with a clear camera wins. When no candidate has a clear
-   camera, for example when no seat is active in the window after the cut, the previous shot
-   holds on to the cut that a shot of its kind from there would get, within its own longest
-   length. Else a conductor shot fills the time, also against rule 3b, because the bear conducts
-   the rest. After a conductor shot, it has the other framing. Else a wide shot fills the time.
+6. Clear camera: the best candidate with a clear camera wins. With no clear camera, the previous
+   shot holds within its longest length, else a conductor shot fills the time, also against rule
+   3b, because the bear conducts the rest, else a wide shot.
 
-**Chamber groups and small groups.** The user decided that a chamber group (4.2) has no
-conductor, and that a group with fewer than 3 seats gets no conductor shot, because the shots of
-the back of the bear were the weakest frames of the film of a piano solo.
+**Chamber groups and small groups.** The user decided that a chamber group (4.2) has no conductor,
+and that a group with fewer than 3 seats gets no conductor shot, because the back of the bear
+gave the weakest frames of a piano solo.
 
-- A score with no conductor has no conductor shot. Where rule 6 lets a conductor shot fill the
-  time, a wide shot fills it.
+- With no conductor, a wide shot fills the time in place of a conductor shot.
 - A score with fewer than 3 seats with players (`SMALL_GROUP_SEATS`) gets only the solo shots of
-  the principal players, a two-shot, and the wide shots: no high shot, no section shot, and no
-  conductor shot, also when it has a conductor.
-- The two-shot is a section shot of all players on the stage, also of a seat that rests, with
-  the group `ensemble`. A group with one player has no two-shot. Its score is the score of a
-  section shot of all seats. Its sphere has a smaller margin (`SUBJECT_SIZES.twoShotMargin` of
-  `shots/subjects.ts`), so that its cameras stay within the close distance.
-- With one seat, rules 1 and 2 do not stop a solo shot of that seat after a solo shot of the same
-  seat. The jump cut rule and the rule of no repeat of a framing keep the two cameras apart. Thus
-  a piano solo shows the pianist from several sides between its wide shots.
-- The opening wide shot holds through the count-in of the leader (5.4), as for an orchestra.
+  the principal players, a two-shot, and the wide shots.
+- The two-shot is a section shot of all players on the stage with the group `ensemble`, with a
+  smaller margin (`SUBJECT_SIZES.twoShotMargin`), so that its cameras stay within the close
+  distance.
+- With one seat, rules 1 and 2 do not stop a solo shot of that seat, so a piano solo shows the
+  pianist from several sides.
 
 Mute and solo do not change the plan. The plan is made one time for each score, and a solo would
 need a new plan (choice C of the report).
 
 **Clearance.** The camera must never stand inside a player, and the subject must not hide behind
-an item. The obstacles are the boxes of `layoutObstacles()`: the footprints of 4.5. A player
-footprint has one box for the parts of each bone in each height band, so the body of a player is
-several boxes.
+an item. The obstacles are the boxes of `layoutObstacles()`: the footprints of 4.5, with one box
+for the parts of each bone in each height band.
 
-- The line of sight from just outside the target to the camera at the narrowest aspect crosses no
-  box. A narrower aspect moves the camera back along the same ray, so one test covers the aspects
-  from 0.46 up. The test skips the boxes near the target (the body of the subject and the
-  instrument at its chest). A far part of a large instrument, such as the piano case or the harp
-  frame, still counts.
-- A solo or a conductor shot also has sight points: the middle of the head, each palm that holds
-  the instrument, and one point of the instrument (such as the bow contact, the keys, or the harp
-  strings). The conductor has its head and the point of beat 1 (5.4) with its mirror for the left
-  hand. The line to the head crosses no box. Of the lines to the hands and the instrument, at
-  most one crosses a box. The lines are tested at the aspects 1 and 0.46, at the start, the
-  middle, and the end of the move.
-- No head of another player stands in the foreground of a close shot, at the start and at the
-  end of its move, in a desktop view (aspect 1.6) and in a phone view in portrait (aspect 0.46).
-  The plan is the same for all views, so the camera must pass in both. A head in the foreground
-  is nearer to the camera than the focus of the subject, and a part of it shows in the frame, in
-  the middle of the frame, or large on the screen (`FOREGROUND` of `shots/foreground.ts`). The
-  focus is the middle of the head of a solo player or of the conductor, or the target of a
-  section. The heads of the subject players do not count. A head counts only when more than a
-  thin cap of it shows, because a low camera shows the tops of the heads of the front rows at
-  the frame bottom.
-- A choir shot looks at the singers over the orchestra. A head with its top under the chest of
-  each singer of the subject on the screen covers no face and no music folder, so the head rules
-  skip it, and the rule of a large head still applies. All singers of the choir seat are subject
-  players.
-- No other object covers more than 15% of the frame of a close shot, at the start and at the end
-  of its move, in the same two views. The objects are each player with its instrument, the
-  conductor with the podium, and each stand. The subject players, the risers, and the neighbors at
-  the depth of the subject do not count. The planner tests the heads before the clearance, and the
-  cover of the objects after it, because the cover test costs more.
-- The size of a head in a portrait frame counts against the geometric mean of its half sides,
-  because the area of the frame sets how large a head looks.
-- The middle of the body of the bear stays out of the desktop frame of a solo shot of the
-  soloist, because the soloist stands beside the podium.
+- The line of sight from the target to the camera crosses no box, except the boxes of the subject
+  near the target. A far part of a large instrument, such as the piano case, still counts. One test
+  at the aspect 0.46 covers each wider aspect, because a narrower aspect moves the camera back
+  along the same ray.
+- A solo or a conductor shot also has sight points: the head, the palms, and the instrument. The
+  line to the head crosses no box, and at most one line to the hands and the instrument does.
+- No head of another player stands in the foreground of a close shot, at the start and at the end
+  of its move, in a desktop view (aspect 1.6) and in a phone view in portrait (aspect 0.46). The
+  plan is the same for all views, so the camera must pass in both. `FOREGROUND` gives the rule of
+  a head that is nearer than the focus and shows in the frame, in the middle, or large. A head in
+  a portrait frame counts against the geometric mean of its half sides, because the area of the
+  frame sets how large a head looks. A choir shot skips the heads below the chests of the singers
+  on the screen, because they cover no face and no folder.
+- No other object covers more than 15% of the frame of a close shot. The planner tests the heads
+  before the clearance, and the cover after it, because the cover test costs more.
+- The body of the bear stays out of a solo shot of the soloist, who stands beside the podium.
 - Each close camera stays nearer to the stage center than `CLOSE_DISTANCE_SHARE` of the default
   distance, so that a change to Free mode keeps the beam of the shot (4.5).
-- Each camera keeps a distance from each box, and a larger distance from the podium and the
-  conductor, because the arms and the baton of the bear reach out of its footprint. The camera
-  stays above the stage top.
-- The camera stays inside or outside the cone of the visible beam (4.5) for a full shot, with a
-  margin (`BEAM_MARGIN`). The beam draws only its outer faces, so a camera that crosses the cone
-  makes the image darker at once. A cut or a blend that changes the side is a hard cut.
-  `models/beam.ts` holds the cone.
-- The planner tests points along each move, and more points along the sight lines and a blend,
-  because a line between two test points crossed a box. It tries the wanted azimuth, then steps
-  to each side, then the same azimuths higher, up to the top of the elevation band
-  (`KEY_SEARCH`). A full search (below) also tries each place of the grid up to a limit from the
-  wanted azimuth. The camera stays within 75° of the front of the subject (30° for a side view),
-  so it never shows the back of a player.
-- The elevation bands: up to 30°, from 30° to 40°, and from 40° to 50°, each higher for a piano
-  shot. At a cut, each candidate first gets a search in the lowest band, so a lower camera of a
-  candidate with a lower score wins over a higher camera of a better candidate. The best candidate
-  gets all bands when a seat of it enters at the cut, and each candidate that shows an entering
-  seat or has a score near the best gets the band up to 40° and a full search, so that an entry
-  or the lead keeps its shot. The other candidates get the higher bands only when no candidate
-  has a clear camera. A conductor shot that fills the time searches all bands.
-- The shares of the UX audit (at least 60% of the section and solo cameras at 30° or lower, and
-  at most 15% above 40°) hold where no player blocks a camera. `shots/prepare.test.ts` checks
-  them on the layouts of the demos spread 3 times. In the demos, the bodies block some low
-  cameras, so a new body moves the shares, and the test of the demos checks only the limit of 50°.
-- The other framings of that entry come next, before the other candidates: each candidate that
-  shows a seat that enters with the best candidate. The full search and the other framings keep
-  the shot of an entry when a small change of the player footprints takes away one camera.
-- The seeded offset of the wanted azimuth from the front of the subject is a multiple of the grid
-  step. Thus each camera of a subject stands on one grid around its front, and the planner keeps
-  the result of the tests of each camera of each subject for the later cuts.
-- A wide or a high shot needs no test, because its camera is far outside the stage. Each player
-  stays in the frame of each wide shot, with its feet and its head. In a landscape view, the 4 top
-  corners of the stage also stay in the frame. With the drawer open (2.8), each player of the
-  opening stays in the free area left of the drawer, between the title and the bar.
+- Each camera keeps a distance from each box, more from the podium and the conductor, whose arms
+  reach out of the footprint, and stays above the stage top.
+- The camera stays inside or outside the cone of the visible beam (4.5) for a full shot, because
+  the beam draws only its outer faces and a crossing darkens the image at once
+  (`models/beam.ts`). A cut or a blend that changes the side is a hard cut.
+- The planner tests many points along each move and each sight line. It tries the wanted azimuth,
+  then steps to each side and up (`KEY_SEARCH`). The camera stays within 75° of the front of the
+  subject (30° for a side view), so it never shows the back of a player.
+- The elevation bands are up to 30°, 30° to 40°, and 40° to 50°, higher for the piano. Each
+  candidate first gets the lowest band, so a lower camera wins over a higher camera of a better
+  candidate. A candidate with an entering seat, or near the best score, also gets the band up to
+  40° and a full search of the grid, so that an entry or the lead keeps its shot. The other
+  candidates get the higher bands only when no candidate has a clear camera. Where no player
+  blocks a camera, at least 60% of the section and solo cameras are at 30° or lower, and at most
+  15% above 40° (`shots/prepare.test.ts`).
+- The seeded offset of the wanted azimuth is a multiple of the grid step, so the planner keeps the
+  test result of each camera of each subject for the later cuts.
+- A wide or a high shot needs no test. Each player stays in its frame with its feet and its head,
+  and in a landscape view the 4 top corners of the stage too. With the drawer open (2.8), each
+  player of the opening stays in the free area left of the drawer.
 
 **Jump cuts.** Two neighbor shots differ by at least 30° in the view direction, or by a factor of
-1.5 in the size of the subject (`JUMP_CUT`). A camera of the search that breaks the rule does not
-count. The conductor shots look in the direction of the section shots, so the jump cut rule
-alone keeps them apart. The two conductor framings differ in size by more than 1.5 times.
+1.5 in the size of the subject (`JUMP_CUT`). The two conductor framings differ in size by more than
+1.5 times.
 
 **No repeat of a framing.** The camera of a side, section, or solo shot stays at least 20° in
-azimuth from the camera of the last shot of the same subject (the same side, the same seat, or the
-same section group). A part shot of a choir seat has the section group of its seat, `choir`. A
-camera of the search that breaks the rule does not count.
+azimuth from the camera of the last shot of the same subject. A part shot of a choir seat has the
+section group of its seat, `choir`.
 
-**Transitions.** A hard cut is the default. A blend is a short camera move from the end of the
-previous shot to the new shot, over one beat, after the downbeat. It replaces the dissolve of a
-concert film, because a true dissolve needs two renders for each frame. A blend applies only when
-all of these are true (`BLEND_RULES`):
-
-- the beat is slow, or the window is quiet,
-- both shots are conductor, section, or solo shots,
-- the two cameras of a desktop view are near each other,
-- the straight path between them passes the clearance test at the aspects 1 and 0.46, and stays
-  on one side of the cone of the beam.
-
-With reduced motion, each cut is hard.
+**Transitions.** A hard cut is the default. A blend is a short camera move over one beat after the
+downbeat, in place of the dissolve of a concert film, because a true dissolve needs two renders
+for each frame. A blend applies only between two conductor, section, or solo shots in a slow or
+quiet window, when the cameras are near each other and the path between them passes the
+clearance and stays on one side of the beam (`BLEND_RULES`). With reduced motion, each cut is
+hard.
 
 **Frame.** `cameraAt()` marks a close shot with `close`, and the frame of a close shot fits into
-the free area above the bar and left of the open drawer (4.5). The planner tests the full frame,
-so the user sees each part of it. The camera of the shot does not change.
+the free area above the bar and left of the open drawer (4.5). The planner tests the full frame.
 
 **Beam.** The visible beam (4.5) fades in the close shots, because a close camera outside the
-cone saw the additive beam over the full image, and the close shots looked washed out.
+cone saw the additive beam over the full image. The factor comes from the kind of the shot, so the
+beam never changes in the middle of a shot. A hard cut changes it at once, and a blend blends it.
+Free mode reads the factor from the camera distance (2.5). `shots/beam-opacity.ts` holds the
+values.
 
 ```typescript
 const SHOT_BEAM_OPACITY = {
@@ -1036,13 +947,6 @@ const SHOT_BEAM_OPACITY = {
   solo: 0.15,
 } as const satisfies Record<ShotKind, number>;
 ```
-
-- The factor multiplies the opacity of the beam (4.5). It comes from the kind of the shot, so it
-  is constant in a shot, and the beam never changes in the middle of a shot.
-- A hard cut changes the factor at once. A blend blends it with the weight of the camera.
-- Free mode reads the factor from the camera distance (2.5, 4.5), so a change to Free mode keeps
-  the factor.
-- `shots/beam-opacity.ts` holds the values.
 
 **One frame.** `cameraAt()` does these steps:
 
@@ -1068,9 +972,7 @@ const SHOT_BEAM_OPACITY = {
 | Seek | The shot of the new song time shows at once. A seek is a cut |
 | Speed | All times are song times, so the cuts and the moves follow the speed |
 
-**Entry statistics.** `shots/entry-cuts.test.ts` measures the cuts at the entries with its own
-reading of the notes: an entry event is the first note of one or more seats after a rest of two
-full bars and 4 s, with a passage after it. The plan cuts to the event when the first cut near it
-shows an entering seat. The events in the last shot do not count. The test needs 50%. The stability
-tests of `shots/prepare.test.ts` keep most of the shots and the cuts when each player moves by
-2 cm.
+**Entry statistics.** `shots/entry-cuts.test.ts` counts the entry events (the first note of one or
+more seats after a rest of two full bars and 4 s, with a passage after it), and needs a cut to an
+entering seat at 50% of them. The stability tests of `shots/prepare.test.ts` keep most of the
+shots and the cuts when each player moves by 2 cm.
