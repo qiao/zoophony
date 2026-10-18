@@ -216,3 +216,4 @@ The decision files:
 - [`2026-10-18-mesh-panda.md`](decisions/2026-10-18-mesh-panda.md): the panda mesh of the user as the trombonist.
 - [`2026-10-18-mesh-retro.md`](decisions/2026-10-18-mesh-retro.md): the retro of the panda mesh round, the probes of the real body in phase 1, and `pnpm mesh-options`.
 - [`2026-10-18-panda-folds.md`](decisions/2026-10-18-panda-folds.md): the forward turn of the left shoulder of the panda and the reference white of its fur.
+- [`2026-10-18-panda-face.md`](decisions/2026-10-18-panda-face.md): the round eye patches and the thin smile line of the panda.
