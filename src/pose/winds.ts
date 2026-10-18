@@ -33,6 +33,11 @@ export interface WindHold {
    * grip: the low hands of the oboe and the clarinet, and the trombone slide.
    */
   readonly reach: number;
+  /**
+   * The forward turn of the left shoulder bone around y, so that the left upper arm does not take
+   * the whole turn to a grip far in front of the chest. 0 keeps the left shoulder square.
+   */
+  readonly reachL: number;
   /** The directions to which the elbows point. */
   readonly poleL: Vec3;
   readonly poleR: Vec3;
@@ -106,6 +111,7 @@ const POLE_R: Vec3 = [1, 0, -1];
 /** A woodwind hold with no shoulder turn and no turn in the rest pose. */
 const WOODWIND = {
   reach: 0,
+  reachL: 0,
   poleL: POLE_L,
   poleR: POLE_R,
   restPoleL: POLE_L,
@@ -119,9 +125,6 @@ const WOODWIND = {
   lipShift: [0, 0, 0],
   restFreeL: null,
 } as const satisfies WindHold;
-
-/** The rotation that changes nothing. Nothing writes it. */
-const NO_TURN = new Quaternion();
 
 const X_AXIS = new Vector3(1, 0, 0);
 const Y_AXIS = new Vector3(0, 1, 0);
@@ -531,7 +534,7 @@ function freeRestOf(model: PlayerModel, arm: ArmRig, rest: FreePaw): FreeRest {
 }
 
 /**
- * Gives the forward turn of the right shoulder bone of a hold. The left shoulder does not turn.
+ * Gives the forward turn of the right shoulder bone of a hold.
  *
  * @param hold The hold.
  * @param out The quaternion to write.
@@ -540,6 +543,19 @@ function freeRestOf(model: PlayerModel, arm: ArmRig, rest: FreePaw): FreeRest {
 function rightShoulderTurn(hold: WindHold, out: Quaternion): Quaternion {
   // A positive turn around y moves the right shoulder forward.
   return out.setFromAxisAngle(Y_AXIS, hold.reach);
+}
+
+/**
+ * Gives the forward turn of the left shoulder bone of a hold.
+ *
+ * @param hold The hold.
+ * @param out The quaternion to write.
+ * @returns `out`, with the local rotation of `shoulderL`.
+ */
+function leftShoulderTurn(hold: WindHold, out: Quaternion): Quaternion {
+  // A negative turn around y moves the left shoulder forward. The subtraction from 0 keeps a turn
+  // of 0 at +0, so that a hold with no turn writes the same rotation as no turn.
+  return out.setFromAxisAngle(Y_AXIS, 0 - hold.reachL);
 }
 
 /**
@@ -656,6 +672,7 @@ const turned = new Vector3();
 const pivotBind = new Vector3();
 const slide = new Vector3();
 const rightTurn = new Quaternion();
+const leftTurn = new Quaternion();
 const shoulder = createFrame();
 const grip = new Vector3();
 const hand = new Quaternion();
@@ -826,7 +843,7 @@ export function windGrips(rig: WindRig, weight: number): Readonly<Record<'L' | '
     return { joint: toVec3(joint), grip: toVec3(at) };
   };
   return {
-    L: side(rig.left, new Quaternion()),
+    L: side(rig.left, leftShoulderTurn(rig.hold, new Quaternion())),
     R: side(rig.right, rightShoulderTurn(rig.hold, new Quaternion())),
   };
 }
@@ -862,7 +879,8 @@ export function poseWind(
   const left = curlOf(state.fingersL, weight);
   const restPoleL = freeL?.kind === 'hang' ? freeL.hang.pole : hold.restPoleL;
   const poleL = mixPole(restPoleL, hold.poleL, weight);
-  poseSide(rig, rig.left, frames, NO_TURN, poleL, left, freeL, weight, out.rotations);
+  leftShoulderTurn(hold, leftTurn);
+  poseSide(rig, rig.left, frames, leftTurn, poleL, left, freeL, weight, out.rotations);
   const right = curlOf(state.fingersR, weight);
   rightShoulderTurn(hold, rightTurn);
   const poleR = mixPole(hold.restPoleR, hold.poleR, weight);
