@@ -28,13 +28,21 @@ export type Fingering = 'holes' | 'valves-left' | 'valves-right' | 'slide';
 export const BRASS_FUNDAMENTALS = { horn: 29, trumpet: 46, trombone: 34, tuba: 22 } as const;
 
 /**
- * The partials of a brass tube, in semitones above its fundamental: the notes that the player
- * plays with no valve and the slide in the first position. The list has no seventh partial (34
- * semitones). It is about 31 cents flat, so players play its notes from the eighth partial
- * (design 5.3). Thus the trombone plays A♭4 in the third position, and the trumpet plays the
- * written A5 with two valves.
+ * The partials of the trumpet, the trombone, and the tuba, in semitones above the fundamental:
+ * the notes that the player plays with no valve and the slide in the first position. The list
+ * has no seventh partial (34 semitones). It is about 31 cents flat, so players play its notes
+ * from the eighth partial (design 5.3). Thus the trombone plays A♭4 in the third position, and
+ * the trumpet plays the written A5 with two valves.
  */
 const PARTIALS = [0, 12, 19, 24, 28, 31, 36, 38, 40, 42, 43, 45, 46, 48] as const;
+
+/**
+ * The partials of the horn, in semitones above its fundamental: the open notes of the single F
+ * horn chart of Weidner (design 5.3). Above the eighth partial (the written C5), the chart takes
+ * only the 10th, 12th, and 16th partials. Thus the horn plays the written D5 with the valve 1, the
+ * written F♯5 with 2, and the written A5 with 1-2.
+ */
+const HORN_PARTIALS = [0, 12, 19, 24, 28, 31, 36, 40, 43, 48] as const;
 
 /** The number of pressed valves for each semitone below a partial: none, 2, 1, 1+2, 2+3, 1+3, all. */
 const VALVES = [0, 1, 1, 2, 2, 2, 3] as const;
@@ -48,17 +56,19 @@ const MAX_LOWER = 6;
  * gives the largest value.
  *
  * @param key The MIDI key.
- * @param fundamental The MIDI key of the fundamental of the tube.
+ * @param fundamental The MIDI key of the fundamental of the tube. It selects the partials of the
+ *   tube: {@link HORN_PARTIALS} for the horn, and {@link PARTIALS} for the other brass.
  * @returns The semitones, from 0 to 6.
  */
 export function semitonesBelowPartial(key: number, fundamental: number): number {
-  for (const partial of PARTIALS) {
+  const partials = fundamental === BRASS_FUNDAMENTALS.horn ? HORN_PARTIALS : PARTIALS;
+  for (const partial of partials) {
     const lower = fundamental + partial - key;
     if (lower >= 0 && lower <= MAX_LOWER) {
       return lower;
     }
   }
-  return key > fundamental + (PARTIALS.at(-1) ?? 0) ? 0 : MAX_LOWER;
+  return key > fundamental + (partials.at(-1) ?? 0) ? 0 : MAX_LOWER;
 }
 
 /**
