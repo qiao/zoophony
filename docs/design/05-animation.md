@@ -40,7 +40,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Bassoon, beaver | Chair | none | The lower end turns forward and to the right | The bassoon moves off the mouth and tilts, and the head lifts | `WIND_HOLDS.bassoon`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species beaver <dir>` |
 | Horn, pig | Chair, stands as a soloist | none | The left hand presses the valves | The bell sits on the right thigh | `WIND_HOLDS.horn`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species pig <dir>` |
 | Trumpet, monkey | Chair, stands as a soloist | none | The right hand presses the valves | The trumpet moves off the mouth and turns down | `WIND_HOLDS.trumpet`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species monkey <dir>` |
-| Trombone, panda | Chair, stands as a soloist | none | The right arm moves the slide with the pitch | The trombone moves off the mouth and turns down | `WIND_HOLDS.trombone`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species panda <dir>` |
+| Trombone, panda | Chair, stands as a soloist | Play: pBone, "How To Hold A Trombone", and Western Carolina University, "Slide Technique" (`docs/research/2026-10-18-panda-mesh.md`) | The left paw holds the weight at the grip near the mouthpiece, and the right paw moves the slide with the pitch. The slide turns right and down toward the right shoulder | The trombone moves off the mouth and stands upright at the right side | `PANDA_TROMBONE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-18-mesh-panda.md` | `pnpm close-views trombonist <dir>` |
 | Tuba, rhino | Chair | none | The right hand presses the valves | The tuba moves off the mouth and tilts | `WIND_HOLDS.tuba`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species rhino <dir>` |
 | Timpani, elephant | Stands | none | Two mallets strike the kettle of each note | The arms hang a little out to the sides | `PERCUSSION_HOLDS.timpani`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `pnpm close-views species elephant <dir>` |
 | Bass drum, badger | Stands | none | The beater in the right hand strikes the right head | The rest of the timpani | `PERCUSSION_HOLDS['bass-drum']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `pnpm close-views species badger <dir>` |
@@ -50,7 +50,8 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Xylophone, badger | Stands | none | Two mallets strike the bar of each key | The rest of the timpani | `PERCUSSION_HOLDS.xylophone`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `?page=species&only=xylophone&body` |
 | Choir, penguin | Stands on a riser | none | The beak opens with each note, and the flippers hold the folder close | The beak closes, and the flippers keep the folder | `CHOIR_HOLD`, `pose/choir.ts` | 5.3 choir, `2026-10-11-penguin-body.md` | `pnpm close-views species penguin <dir>` |
 
-`BOWED_HOLDS.violin` (the chin hold), `BOWED_HOLDS.cello`, and `WIND_HOLDS.flute` have no row.
+`BOWED_HOLDS.violin` (the chin hold), `BOWED_HOLDS.cello`, `WIND_HOLDS.flute`, and
+`WIND_HOLDS.trombone` have no row.
 Each species of these sections has a hold of its own. A new species of these sections takes them.
 
 ## 5.1 Pose function
@@ -285,6 +286,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **Free arm of the flute.** The seated tan fox rests the flute upright on the right leg in the
   right paw. Its free left arm hangs near the side with a soft bend, because the top of the left
   thigh is out of its reach (`docs/decisions/2026-10-17-tan-rest.md`).
+- **Trombone at rest.** The seated and the standing panda take the rest of the trombone of
+  `WIND_HOLDS`: the trombone moves off the mouth and stands upright at the right side, with the
+  bell down, and both paws keep their grips. It does not rest on a leg
+  (`docs/decisions/2026-10-18-mesh-panda.md`).
 - **Hanging arms.** A standing player without a lap hangs its arms (`HANG` of `pose/hang.ts`):
   each part of the arm swings out by the smallest angle at which it touches the side of the body,
   so that the palms rest at the height of the hips, as an animal of the reference images holds
@@ -377,6 +382,12 @@ The code constants of each family hold the times, the angles, and the lengths of
     (`WindHold.lipShift`). At rest, the flute stands upright on the right leg, held at the
     right-hand keys, as a real flutist rests it (George, The Instrumentalist, December 2018), and
     the left paw hangs (5.2).
+  - The panda holds the trombone as a real trombonist (`PANDA_TROMBONE` of `SPECIES_WIND_HOLDS`,
+    pBone and Western Carolina University): the left paw holds the weight at the grip near the
+    mouthpiece, and the right paw holds the slide brace. Its big round head puts the mouth far in
+    front of the shoulders, so while it plays, the slide turns to its right and down around the
+    mouthpiece, toward the right shoulder, and the right arm reaches the first part of the travel.
+    The slide reach takes this turn and the turned head (`slideReachOf()`).
   - A woodwind player closes the holes with both hands, and up the octave the right hand opens
     first. A brass player presses the valves with one hand: none on a partial of the tube, and 1
     to 3 valves for 1 to 6 semitones below it (`BRASS_FUNDAMENTALS`). The trombone slide takes the
