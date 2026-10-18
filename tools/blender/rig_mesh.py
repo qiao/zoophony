@@ -55,7 +55,9 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. `pnpm studio-body` finds each eye by its fan, drops the
    fan, and puts the pea eye of the app at its place (design 4.5). The faces of the nose become
-   gloss. Each face takes the nearest color of a palette in Oklab. Then each face of the old eye
+   gloss. The log gives each dark patch that an eye box takes only in part, and warns when the
+   box takes more than half of it (`eye_patches()`). Each face takes the nearest color of a
+   palette in Oklab. Then each face of the old eye
    (the dark faces and the faces near them, such as the white of the eye, `old_eye_faces()`) takes
    the color with the largest area in the ring of faces around the old eye (`recolor_old_eyes()`),
    so that no outline of the old eye shows. Each patch of dark faces near an old eye that no old
@@ -502,6 +504,32 @@ def features(verts, tris, colors, dark, rules):
     nose = pink & in_box(centers, rules['noseBox'])
     log(f'eyes: {left.sum()} faces left, {right.sum()} faces right, nose: {nose.sum()} faces')
     return {'L': np.nonzero(left)[0], 'R': np.nonzero(right)[0]}, np.nonzero(nose)[0]
+
+
+def eye_patches(tris, dark, eyes):
+    """Finds the dark patches that an eye box takes only in part, such as the black eye patch
+    of the panda around its eye: each patch of dark faces that share corners
+    (`corner_patches()`) with faces of the eye and dark faces outside the eye box. A patch that
+    the box takes whole is the eye itself. Gives for each side a list of the faces of the eye and
+    the other faces of each such patch. When the box takes most of a patch, the color of the old
+    eye (`recolor_old_eyes()`) leaves light holes in the patch."""
+    patches = corner_patches(tris, np.nonzero(dark)[0])
+    found = {}
+    for side, faces in eyes.items():
+        eye = set(int(f) for f in faces)
+        found[side] = []
+        for patch in patches:
+            inside = [int(f) for f in patch if int(f) in eye]
+            rest = [int(f) for f in patch if int(f) not in eye]
+            if inside and rest:
+                found[side].append((np.array(inside), np.array(rest)))
+    return found
+
+
+def lightness_text(colors):
+    """Writes the Oklab lightness of a set of sRGB colors: the range and the median."""
+    light = oklab(colors)[:, 0]
+    return f'{light.min():.3f} to {light.max():.3f} (median {np.median(light):.3f})'
 
 
 def joints_of(config):
@@ -3003,6 +3031,17 @@ def main():
     eyes, nose = features(long_verts, tris, colors, dark,
                           moved_boxes(config['colors'], heads['neck'], factors['head'], rise,
                                       drop + lower if factors['trunk'] != 1 else drop))
+    for side, found in eye_patches(tris, dark, eyes).items():
+        for inside, rest in found:
+            text = (f'eye {side}: the eye box takes {len(inside)} of the '
+                    f'{len(inside) + len(rest)} faces of a dark patch. The Oklab lightness of the '
+                    f'eye faces is {lightness_text(colors[inside])}, and of the other faces of the '
+                    f'patch {lightness_text(colors[rest])}')
+            if len(inside) > len(rest):
+                warn(f'{text}. The box takes more than half of the patch, so the color of the old '
+                     f'eye leaves light holes in it. Make colors.eyeBox hold only the eye.')
+            else:
+                log(text)
 
     # The upright seated bind: the trunk of the source on the seat. The sit lowers its haunch onto
     # the seat. A reclined trunk then turns from it (`studio.trunk`).
