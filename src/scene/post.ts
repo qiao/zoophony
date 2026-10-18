@@ -21,6 +21,7 @@ import {
 import type { Object3D, PerspectiveCamera, Scene, Texture, WebGLRenderer } from 'three';
 
 import { LENS } from './focus.ts';
+import { gradeLut } from './grade.ts';
 import type { Focus } from './focus.ts';
 import {
   BLOOM_DOWN_FRAGMENT,
@@ -40,20 +41,6 @@ export const POST_LOOK = {
   bloomKnee: 0.5,
   /** The part of the bloom that the final pass adds to the scene. */
   bloomStrength: 0.14,
-  /** The grade on the display values: the lift of the shadows, the gamma, and the gain. */
-  lift: [0.004, 0.004, 0.003],
-  gamma: [1.0, 1.0, 1.0],
-  gain: [1.0, 1.0, 0.97],
-  /** The blend to an S curve, from 0 to 1. */
-  contrast: 0.25,
-  /**
-   * The lift of the highlights toward white, from 0 to 1. AgX compresses the light parts, so
-   * white fur reached 170 at most, against 210 to 220 in `mockup.png`.
-   */
-  highlights: 1.0,
-  saturation: 1.0,
-  /** The saturation of the shadows. The warm light and the wood saturate them strongly. */
-  shadowSaturation: 0.45,
   /** The part of the light that the vignette takes from the corners. */
   vignette: 0.45,
   /** The size of the film grain, in display values. */
@@ -61,22 +48,13 @@ export const POST_LOOK = {
 } as const;
 
 /**
- * Makes the uniforms of the color grade, `GRADE_FUNCTION` of `post-shaders.ts`, with the values
- * of {@link POST_LOOK}.
+ * Makes the uniforms of the color grade, `GRADE_FUNCTION` of `post-shaders.ts`: the shared lookup
+ * table of `scene/grade.ts`.
  *
  * @returns The uniforms, new for each call.
  */
 export function gradeUniforms() {
-  const look = POST_LOOK;
-  return {
-    uLift: { value: new Vector3(...look.lift) },
-    uGamma: { value: new Vector3(...look.gamma) },
-    uGain: { value: new Vector3(...look.gain) },
-    uContrast: { value: look.contrast },
-    uHighlights: { value: look.highlights },
-    uSaturation: { value: look.saturation },
-    uShadowSaturation: { value: look.shadowSaturation },
-  };
+  return { uGradeLut: { value: gradeLut() } };
 }
 
 /** The number of samples of the multisample target of the scene (design 2.6). */

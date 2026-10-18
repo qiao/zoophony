@@ -1,3 +1,5 @@
+import { GRADE_LUT_SIZE } from './grade.ts';
+
 /**
  * The vertex shader of each full-screen pass: one triangle that covers the view (design 4.5,
  * post effects).
@@ -170,29 +172,17 @@ void main() {
 `;
 
 /**
- * The color grade of the final pass on the display values (design 4.5, post effects): lift the
- * shadows, set the gamma, scale the highlights for each channel, blend to an S curve, move the
- * highlights toward white, and set the saturation. The views page adds the same grade after the
- * tone mapping of its materials, so that its colors read as on the stage (design 7.1).
+ * The color grade of the final pass on the display values (design 4.5, post effects): a lookup in
+ * the 3D table of `scene/grade.ts`. The views page adds the same grade after the tone mapping of
+ * its materials, so that its colors read as on the stage (design 7.1).
  */
 export const GRADE_FUNCTION = /* glsl */ `
-uniform vec3 uLift;
-uniform vec3 uGamma;
-uniform vec3 uGain;
-uniform float uSaturation;
-uniform float uShadowSaturation;
-uniform float uContrast;
-uniform float uHighlights;
+uniform sampler3D uGradeLut;
 
 vec3 grade(vec3 color) {
-  vec3 c = clamp(color, 0.0, 1.0);
-  c = c * uGain + uLift * (1.0 - c);
-  c = pow(max(c, vec3(0.0)), 1.0 / uGamma);
-  c = mix(c, c * c * (3.0 - 2.0 * c), uContrast);
-  // The highlights move toward white, so that white fur reads white after AgX.
-  c += uHighlights * smoothstep(0.45, 1.0, c) * (1.0 - c);
-  float luma = dot(c, vec3(0.2126, 0.7152, 0.0722));
-  return mix(vec3(luma), c, mix(uShadowSaturation, uSaturation, smoothstep(0.05, 0.35, luma)));
+  // The middle of the first entry and of the last entry hold the grade of 0 and of 1.
+  vec3 c = clamp(color, 0.0, 1.0) * ${((GRADE_LUT_SIZE - 1) / GRADE_LUT_SIZE).toFixed(8)} + ${(0.5 / GRADE_LUT_SIZE).toFixed(8)};
+  return texture(uGradeLut, c).rgb;
 }
 `;
 
