@@ -525,10 +525,16 @@ of its finish in the roughness map and the metalness map of the material.
 solo.
 
 - One warm `SpotLight` behind and high above the orchestra is the key light, and the only light
-  that casts shadows. Its soft penumbra keeps the stage sides dark, as in `mockup.png`. Its
-  intensity grows with the square of the distance to the aim point, so each stage size gets the
-  same light. A low, nearly neutral fill keeps the shadows deep. Two side lights at the front
-  corners light the fronts of the players, and one weak light shows the face of the conductor.
+  that casts shadows on the stage. Its soft penumbra keeps the stage sides dark, as in
+  `mockup.png`. Its intensity grows with the square of the distance to the aim point, so each
+  stage size gets the same light. A low, nearly neutral fill keeps the shadows deep, and one weak
+  light shows the face of the conductor.
+- **Side lights** (`SIDE_LIGHT`, user, 2026-10-18). Two high spotlights at the front corners light
+  the fronts of the players. The narrow cone of each one holds only the section on the far side,
+  so each body has a lit side and a shade side. They cast the shadows of the players on the
+  players, such as an arm on the chest. The stage takes no shadow of them, and the low tier has
+  none (2.6). The players and the props take only a part of the fill and of the diffuse light of
+  the environment (`FILL.players`), so their shade sides stay dark.
 - **Bake of the static props** (`scene/stage-bake.ts`). The props and the stage do not move during
   a song, and the key light keeps its place, so each layout bakes their light on the stage top
   one time: the soft shadow of a large key light, and the part of the sky that the near props
