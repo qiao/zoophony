@@ -33,7 +33,7 @@ export type ChinInstrument = 'violin' | 'viola';
 export type ReachInstrument = ChinInstrument | WindInstrument;
 
 /** The instruments under the chin. */
-const CHIN_INSTRUMENTS = ['violin', 'viola'] as const satisfies readonly ChinInstrument[];
+export const CHIN_INSTRUMENTS = ['violin', 'viola'] as const satisfies readonly ChinInstrument[];
 
 /** The wind instruments, in the order of `WIND_HOLDS`. */
 export const WIND_INSTRUMENTS: readonly WindInstrument[] = Object.keys(WIND_HOLDS).filter(
@@ -123,7 +123,7 @@ export function ruleFactor(tail: Vec3, scroll: Vec3, shoulder: Vec3, arm: number
  * @param side The side of the arm.
  * @returns The length, in meters.
  */
-function armLength(model: PlayerModel, side: 'L' | 'R'): number {
+export function armLength(model: PlayerModel, side: 'L' | 'R'): number {
   const joint = (bone: 'upperArm' | 'forearm' | 'hand'): Vector3 =>
     new Vector3(...(model.skeleton.positions[boneIndex(`${bone}${side}`)] ?? [0, 0, 0]));
   const palm = new Vector3(...(side === 'L' ? model.body.palmL : model.body.palmR));
