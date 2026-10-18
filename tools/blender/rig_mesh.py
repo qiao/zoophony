@@ -518,12 +518,14 @@ def smile_line(corners, normals, colors, fur, rule, color):
     fur face that lies in a band of `bands` takes `color`, the dark of the eye patches. A face lies
     in a band when its |x| is in `x`, its center y is in `y` raised by `rise` × (|x| / the end of
     `x`)², its center z is at least `front`, the y of its normal is in `normalY`, and the z of its
-    normal is at least `facing`. A band on the lower lip gives the line, and a band on the
-    underside of the upper lip can turn its corners up. `corners` and `normals` are in the units
-    and the axes of the source (`head_source()`). Gives the new colors and the faces of each
-    band."""
+    normal is at least `facing`. With `outward`, the x of its normal away from the middle plane is
+    at most `outward` too: a face that turns to the side shows as a large dark area in a side
+    view. A band on the lower lip gives the line, and a band on the underside of the upper lip
+    can turn its corners up. `corners` and `normals` are in the units and the axes of the source
+    (`head_source()`). Gives the new colors and the faces of each band."""
     centers = corners.mean(axis=1)
     x = np.abs(centers[:, 0])
+    out_x = normals[:, 0] * np.sign(centers[:, 0])
     out = colors.copy()
     found = []
     for band in rule['bands']:
@@ -532,7 +534,7 @@ def smile_line(corners, normals, colors, fur, rule, color):
                  & (centers[:, 1] >= band['y'][0] + lift) & (centers[:, 1] <= band['y'][1] + lift)
                  & (centers[:, 2] >= band['front'])
                  & (normals[:, 1] >= band['normalY'][0]) & (normals[:, 1] <= band['normalY'][1])
-                 & (normals[:, 2] >= band['facing']))
+                 & (normals[:, 2] >= band['facing']) & (out_x <= band.get('outward', 1.0)))
         out[faces] = color
         found.append(np.nonzero(faces)[0])
     return out, found
