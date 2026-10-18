@@ -63,7 +63,7 @@ Open these files for these kinds of work:
   user `assets/models/dog/dog.glb`, rigged by `pnpm rig-mesh dog` with the head height of the red
   fox, the leg factor 1.5, and the knees spread 30° around the lower bout of the cello. Its hold
   puts the cello between the knees against the chest, as real cellists hold it, and the bow
-  stands upright on the right knee in the rest. Its hanging ears do not twitch
+  stands over the right knee in the rest (`docs/decisions/2026-10-17-dog-rest.md`). Its hanging ears do not twitch
   (`docs/decisions/2026-10-17-mesh-dog.md`). Since round `dog-arms`, it has the arm factor 1.35, a
   1/2 cello, and a tail that hangs down behind the seat (`docs/decisions/2026-10-17-dog-arms.md`).
   `pnpm close-views conductor <dir>`, `pnpm close-views pianist <dir>`,
