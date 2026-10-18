@@ -5,11 +5,11 @@
   "weld": 1e-5,
   "app": {
     "shoulders": 1.00078,
-    "reach": 0.5709,
+    "reach": 0.4512,
     "note": "The user chose the head height of the red fox on 2026-10-17: the scale puts the standing head top at 1.570 m, the head top of the red fox of main (docs/research/2026-10-17-dog-mesh/landmark-probe.txt). That is 1.433782 m for each unit, with the standing shoulder joints at 1.00078 m (the entry of the dog in ANIMALS). The parametric dog of main stands 1.137 m high to the head top and sits on a seat of 0.299 m. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
-  "armFactor": 1.75,
-  "armFactorNote": "The factor of the upper arm and the forearm. The user chose the cello reach on 2026-10-17: the arm factor that reaches the whole fingerboard with the left paw and the whole bow hair with the right paw in the cello hold of the dog (DOG_HOLD of src/pose/bowed-rig.ts). With the factor 1.75, the left paw reaches the fingerboard from the nut to the end (stopRange 0 to 1), and the bow paw the hair from 0.030 m to 0.525 m of 0.557 m, the whole hair with the free hair of 0.03 m at each end in the steps of the search, and 1.74 reached it to 0.520 m (docs/research/2026-10-17-dog-mesh/cello-reach.ts, cello-reach.txt). The bow arm needs more than the left arm (0.84 of the factor reaches the whole fingerboard). With the string planes 17 degrees apart, the bow arm needed 1.91. With no factor, the reach is 0.3464 m, and the reach of the red fox (0.5452 m) needs 1.664. The user chose the factor 1.35 with a 1/2 cello on 2026-10-17, and then said: \"the arms are weird now. the previous version of the arms is actually more natural\" (docs/decisions/2026-10-17-dog-arms.md). So the factor is 1.75 again.",
+  "armFactor": 1.35,
+  "armFactorNote": "The factor of the upper arm and the forearm. After the arms of the factor 1.75 of the cello reach, the user said on 2026-10-17: \"the dogs arms are way too long and unnatural\", and chose \"1.35 + 1/2 cello (Recommended)\" (docs/decisions/2026-10-17-dog-arms.md). With the factor 1.35, the reach from the shoulder joint to the middle of the palm is 0.4512 m (0.3464 m with no factor), and the arm is 0.92 of the trunk from the hips joint to the shoulder joints, as the red fox (0.91). With the 1/2 cello of the dog (celloScale 0.86 of src/models/species.ts) and the cello hold of 2026-10-17, the left paw reaches the whole fingerboard and the bow paw 60% of the hair between the free ends (docs/research/2026-10-17-dog-arms.md). The factor 1.75 reached the whole fingerboard and the whole hair of the 4/4 cello, and the arm was 1.16 of the trunk. The red fox has the factor 1.21, the cat 1.1496, and the rabbit 1.63.",
   "legFactor": 1.5,
   "joints": {
     "root": {
