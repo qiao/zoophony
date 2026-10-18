@@ -21,8 +21,11 @@ export const WIND_MOTION = {
  */
 export type Fingering = 'holes' | 'valves-left' | 'valves-right' | 'slide';
 
-/** The fundamental of each brass tube, as a MIDI key: F2, B♭2, B♭1, and B♭0. */
-export const BRASS_FUNDAMENTALS = { horn: 41, trumpet: 46, trombone: 34, tuba: 22 } as const;
+/**
+ * The fundamental of each brass tube, as a MIDI key: F1, B♭2, B♭1, and B♭0. The horn is a single
+ * F horn of about 3.7 m, so its written C4 is the fourth partial (design 5.3).
+ */
+export const BRASS_FUNDAMENTALS = { horn: 29, trumpet: 46, trombone: 34, tuba: 22 } as const;
 
 /**
  * The partials of a brass tube, in semitones above its fundamental: the notes that the player
