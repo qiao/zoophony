@@ -82,7 +82,7 @@ export function createMaterials(
   });
   if (pool) {
     material.onBeforeCompile = (shader) => {
-      addLightPool(shader, pool);
+      addLightPool(shader, pool, 'players');
       addPlayerFill(shader);
       if (shot) {
         addShotLight(shader, shot);

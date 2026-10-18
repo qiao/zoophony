@@ -221,4 +221,5 @@ The decision files:
 - [`2026-10-18-wind-technique.md`](decisions/2026-10-18-wind-technique.md): the reference of the wind and brass technique, and the motion spec of the trombone of the panda.
 - [`2026-10-18-slide-notes.md`](decisions/2026-10-18-slide-notes.md): the brass partials with no seventh partial, and the real spacing of the trombone slide positions.
 - [`2026-10-18-horn-fundamental.md`](decisions/2026-10-18-horn-fundamental.md): the fundamental F1 of the horn, and the partials of the single F horn chart.
+- [`2026-10-18-back-light.md`](decisions/2026-10-18-back-light.md): the reach of the pool of the stage lights toward the back rows.
 - [`2026-10-18-trombone-fit.md`](decisions/2026-10-18-trombone-fit.md): the slide angle of the panda trombone, and the forward turn of the left shoulder that it needs.

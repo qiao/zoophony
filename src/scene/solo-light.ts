@@ -39,7 +39,8 @@ export const SOLO_LIGHT = {
  * Gives the aim of the stage lights for the solo flags of the seats (design 2.4, 4.5). With a solo,
  * the pool and the hot spot of the key light have their center at the middle of the box of the
  * soloed players, and their radii cover the box with {@link SOLO_LIGHT}. A radius is at most the
- * radius of the pool with no solo. The key light aims at the center, and the beam leans to it.
+ * radius of the pool with no solo. The pool loses its long reach toward the back, so the back rows
+ * outside the pool step back too. The key light aims at the center, and the beam leans to it.
  * With no soloed seat that has players, the aim is the aim with no solo.
  *
  * @param layout The layout of the score.
@@ -69,6 +70,7 @@ export function soloAim(layout: SceneLayout, soloed: readonly boolean[]): LightA
   return {
     center,
     radius,
+    reachBack: radius[1],
     spot: center,
     spotRadius: radius,
     boost: LIGHT_POOL.spotBoost,
@@ -122,6 +124,7 @@ export function easeAim(from: LightAim, to: LightAim, share: number): LightAim {
   return {
     center: pair(from.center, to.center),
     radius: pair(from.radius, to.radius),
+    reachBack: mix(from.reachBack, to.reachBack),
     spot: pair(from.spot, to.spot),
     spotRadius: pair(from.spotRadius, to.spotRadius),
     boost: mix(from.boost, to.boost),
@@ -148,7 +151,11 @@ export function aimGap(a: LightAim, b: LightAim): number {
     [a.beam, b.beam],
   ] as const;
 
-  let gap = Math.max(Math.abs(a.boost - b.boost), Math.abs(a.floor - b.floor));
+  let gap = Math.max(
+    Math.abs(a.boost - b.boost),
+    Math.abs(a.floor - b.floor),
+    Math.abs(a.reachBack - b.reachBack),
+  );
   for (const [p, q] of pairs) {
     gap = Math.max(gap, Math.abs(p[0] - q[0]), Math.abs(p[1] - q[1]));
   }

@@ -587,7 +587,10 @@ solo.
   the floor below the edge of the podium top, gets no key light (`stageBakeAt()`).
 - The light is a pool on the conductor and the middle of the orchestra. A factor in the shaders
   multiplies each spotlight (`addLightPool()`), because a separate pool light cost GPU time. The
-  pool falls off only at the side edges and the front corners (user, 2026-10-07).
+  pool falls off only at the side edges and the front corners (user, 2026-10-07). On the players
+  and the props, it reaches far toward the back (`LIGHT_POOL`), so the back rows keep most of the
+  light, as in `orchestra-latest.png`. The stage keeps the round pool, so the floor at the back
+  stays dark.
 - The visible beam (`BEAM_LOOK`) is haze in a narrower cone than the key light, because haze in
   the full cone veiled the orchestra. The beam comes from the key light, so the light has a
   visible source: the haze cone leans from its foot toward the key light, and its tip stands low
@@ -612,7 +615,8 @@ solo.
   pass of the beam has no hall, so the haze takes the distance to the hall floor for its pixels.
 - **Solo light** (`soloAim()`, user, 2026-10-07). When the user solos seats (2.4, 6.6), the key
   light, its pool, and the beam turn to the soloed players, and ease back after the solo. The aim
-  comes from the solo flags and the layout alone.
+  comes from the solo flags and the layout alone. The pool of a solo is round on the players too,
+  so the back rows outside it step back.
 - **Captured environment** (`captureEnvironment()`). Each layout renders its hall and its lit
   stage into a cube, with no players, no props, and no beam, from above the middle of the pool of
   light. The brass and the lacquer reflect the real lamps and the lit floor, and the shadow sides

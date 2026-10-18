@@ -6,10 +6,12 @@ import type { Vec3 } from '../models/tuples.ts';
 /**
  * The pool of the stage lights (design 4.5). Each spotlight gives a place of the stage a part of
  * its light: the pool factor. The pool is bright on the conductor and the middle of the
- * orchestra, and it falls off to the sides, the front corners, and the back row, as in
- * `mockup.png`. The key light also has a hot spot on the podium. The fill light and the
- * reflections do not change. Without the pool, the side lights lit the players at the sides as
- * brightly as the players in the middle, and the key light lit the back row more brightly.
+ * orchestra, and it falls off to the sides, the front corners, and the back of the stage, as in
+ * `mockup.png`. On the players and the props, it reaches farther toward the back (`reachBack`),
+ * because the back rows of `orchestra-latest.png`, the newest target, are almost as bright as the
+ * front rows. The key light also has a hot spot on the podium. The fill light and the reflections
+ * do not change. Without the pool, the side lights lit the players at the sides as brightly as the
+ * players in the middle.
  */
 export const LIGHT_POOL = {
   /** The center of the pool, as a part of the way from the stage center to the podium. */
@@ -18,6 +20,12 @@ export const LIGHT_POOL = {
   radiusX: 0.6,
   /** The radius of the pool along the stage (z), in stage sides. */
   radiusZ: 0.42,
+  /**
+   * The radius of the pool on the players and the props behind its center (toward the back), in
+   * stage sides. It is longer than `radiusZ`, so the back rows keep most of the light, as in
+   * `orchestra-latest.png`. The stage keeps `radiusZ`, so the floor at the back stays dark.
+   */
+  reachBack: 1.2,
   /** The part of the light that a place far from the pool keeps. */
   floor: 0.4,
   /** The extra light of the key light at the podium center, as a part of its light. */
@@ -44,6 +52,11 @@ export interface LightAim {
   readonly center: StagePair;
   /** The radii of the pool across (x) and along (z) the stage. */
   readonly radius: StagePair;
+  /**
+   * The radius of the pool on the players and the props behind its center (toward -z). The stage
+   * takes the z radius of `radius` on both sides of the center.
+   */
+  readonly reachBack: number;
   /** The center of the hot spot of the key light. */
   readonly spot: StagePair;
   /** The radii of the hot spot across (x) and along (z) the stage. */
@@ -73,6 +86,7 @@ export function defaultAim(stageSide: number, podium: Vec3 | null): LightAim {
   return {
     center: [x * k, z * k],
     radius: [pool.radiusX * stageSide, pool.radiusZ * stageSide],
+    reachBack: pool.reachBack * stageSide,
     spot: [x, z],
     spotRadius: [pool.spotRadiusX * stageSide, pool.spotRadiusZ * stageSide],
     boost: podium ? pool.spotBoost : 0,
@@ -89,6 +103,8 @@ export interface PoolUniforms {
   readonly uLightPoolSpot: { value: Vector4 };
   /** The part of the light that a place far from the pool keeps, and the boost of the hot spot. */
   readonly uLightPoolLevels: { value: Vector2 };
+  /** The inverse radius of the pool on the players and the props behind its center. */
+  readonly uLightPoolBack: { value: number };
 }
 
 /**
@@ -102,6 +118,7 @@ export function createPoolUniforms(): PoolUniforms {
     uLightPool: { value: new Vector4(0, 0, 0, 0) },
     uLightPoolSpot: { value: new Vector4(0, 0, 0, 0) },
     uLightPoolLevels: { value: new Vector2(1, 0) },
+    uLightPoolBack: { value: 0 },
   };
 }
 
@@ -120,27 +137,37 @@ export function setPoolAim(uniforms: PoolUniforms, aim: LightAim): void {
   uniforms.uLightPool.value.set(cx, cz, 1 / rx, 1 / rz);
   uniforms.uLightPoolSpot.value.set(sx, sz, 1 / srx, 1 / srz);
   uniforms.uLightPoolLevels.value.set(aim.floor, aim.boost);
+  uniforms.uLightPoolBack.value = 1 / aim.reachBack;
 }
 
 /** The call of three.js r186 that gives the light of one spotlight. */
 const SPOT_INFO = 'getSpotLightInfo( spotLight, geometryPosition, directLight );';
 
 /**
+ * The surface of a material that takes the pool: the stage, or the players and the props, which
+ * take the long reach of the pool toward the back ({@link LightAim}).
+ */
+export type PoolSurface = 'stage' | 'players';
+
+/**
  * The GLSL of the pool factor and the hot spot, before the lights. `vViewPosition` holds the
  * position of the pixel in view space, so the rotation of the view matrix and the camera position
- * give its world position.
+ * give its world position. `REACH_BACK` marks the line of the long reach of the players.
  */
 const POOL_GLSL = /* glsl */ `
 vec3 lightPoolWorld = ( vec4( - vViewPosition, 0.0 ) * viewMatrix ).xyz + cameraPosition;
-vec2 lightPoolD = ( lightPoolWorld.xz - uLightPool.xy ) * uLightPool.zw;
+vec2 lightPoolStep = lightPoolWorld.xz - uLightPool.xy;
+vec2 lightPoolD = lightPoolStep * uLightPool.zw;
+REACH_BACK
 vec2 lightPoolS = ( lightPoolWorld.xz - uLightPoolSpot.xy ) * uLightPoolSpot.zw;
 float lightPool = uLightPoolLevels.x + ( 1.0 - uLightPoolLevels.x ) * exp( -dot( lightPoolD, lightPoolD ) );
 float lightPoolHot = 1.0 + uLightPoolLevels.y * exp( -dot( lightPoolS, lightPoolS ) );
 `;
 
 /**
- * The GLSL after the light of one spotlight. three.js puts the spotlights with a shadow first, and
- * the key light is the only one, so the hot spot goes to the key light alone.
+ * The GLSL after the light of one spotlight. three.js puts the spotlights with a shadow first, so
+ * the hot spot goes to the key light, and on the high and medium tiers also to the side lights,
+ * which cast shadows there (`TODO.md`).
  */
 const SPOT_POOL_GLSL = /* glsl */ `
 		directLight.color *= lightPool;
@@ -149,21 +176,28 @@ const SPOT_POOL_GLSL = /* glsl */ `
 		#endif
 `;
 
+/** The GLSL of the long reach of the pool toward the back, on the players and the props. */
+const REACH_BACK_GLSL =
+  'lightPoolD.y = lightPoolStep.y < 0.0 ? lightPoolStep.y * uLightPoolBack : lightPoolD.y;';
+
 /**
  * Adds the pool to the shader of a standard material: the shader multiplies the light of each
  * spotlight by the pool factor at the world position of the pixel, and the light of the key light
  * also by the hot spot ({@link LIGHT_POOL}). The pool factor is 1 at the pool center, with a
- * Gaussian fall-off to the floor value. The factor of the hot spot is 1 + the boost at its center,
- * with a Gaussian fall-off to 1. Call it in `onBeforeCompile`.
+ * Gaussian fall-off to the floor value. On the players and the props, the fall-off behind the
+ * center has the radius `reachBack` of {@link LightAim}. The factor of the hot spot is 1 + the
+ * boost at its center, with a Gaussian fall-off to 1. Call it in `onBeforeCompile`.
  *
  * @param shader The shader of the material.
  * @param uniforms The uniforms of the pool.
+ * @param surface The surface of the material.
  * @throws Error if the light chunk of three.js has no spotlight call that the patch knows, for
  *   example after an update of three.js.
  */
 export function addLightPool(
   shader: WebGLProgramParametersWithUniforms,
   uniforms: PoolUniforms,
+  surface: PoolSurface,
 ): void {
   const chunk = ShaderChunk.lights_fragment_begin;
   if (!chunk.includes(SPOT_INFO)) {
@@ -173,13 +207,15 @@ export function addLightPool(
   shader.uniforms['uLightPool'] = uniforms.uLightPool;
   shader.uniforms['uLightPoolSpot'] = uniforms.uLightPoolSpot;
   shader.uniforms['uLightPoolLevels'] = uniforms.uLightPoolLevels;
+  shader.uniforms['uLightPoolBack'] = uniforms.uLightPoolBack;
+  const pool = POOL_GLSL.replace('REACH_BACK', surface === 'players' ? REACH_BACK_GLSL : '');
   shader.fragmentShader = shader.fragmentShader
     .replace(
       '#include <common>',
-      '#include <common>\nuniform vec4 uLightPool;\nuniform vec4 uLightPoolSpot;\nuniform vec2 uLightPoolLevels;',
+      '#include <common>\nuniform vec4 uLightPool;\nuniform vec4 uLightPoolSpot;\nuniform vec2 uLightPoolLevels;\nuniform float uLightPoolBack;',
     )
     .replace(
       '#include <lights_fragment_begin>',
-      POOL_GLSL + chunk.replace(SPOT_INFO, SPOT_INFO + SPOT_POOL_GLSL),
+      pool + chunk.replace(SPOT_INFO, SPOT_INFO + SPOT_POOL_GLSL),
     );
 }

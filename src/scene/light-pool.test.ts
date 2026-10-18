@@ -97,7 +97,7 @@ describe('addLightPool', () => {
     const uniforms = createPoolUniforms();
     const shader = testShader();
     // SAFETY: addLightPool reads and writes only these two fields of the shader.
-    addLightPool(shader as Parameters<typeof addLightPool>[0], uniforms);
+    addLightPool(shader as Parameters<typeof addLightPool>[0], uniforms, 'stage');
 
     expect(shader.fragmentShader).not.toContain('#include <lights_fragment_begin>');
     expect(shader.fragmentShader).toContain('uniform vec4 uLightPool;');

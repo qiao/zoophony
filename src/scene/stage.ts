@@ -329,7 +329,7 @@ export function createStageMaterial(
     clearcoatRoughness: STAGE_FINISH.clearcoatRoughness,
   });
   material.onBeforeCompile = (shader) => {
-    addLightPool(shader, pool);
+    addLightPool(shader, pool, 'stage');
     shader.uniforms['uGrain'] = { value: STAGE_FINISH.grain };
     shader.uniforms['uGrainRoughness'] = { value: STAGE_FINISH.grainRoughness };
     shader.uniforms['uHalfSide'] = { value: stageSide / 2 };
