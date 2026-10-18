@@ -57,6 +57,7 @@ describe('createStageMaterial (design 4.5, materials)', () => {
       'uPlank',
       'uStageBake',
       'uShadowLift',
+      'uStageBlur',
       'uSideGlow',
     ]);
     expect(shader.fragmentShader).toContain('reflectedLight.directSpecular *= uSpecular *');

@@ -12,12 +12,22 @@ export const SHADOW_SAMPLES = 12;
 const NOISE_SAMPLING =
   /float phi = interleavedGradientNoise\( gl_FragCoord\.xy \) \* PI2;\s*shadow = \(\s*(?:texture\( shadowMap, vec3\( shadowCoord\.xy \+ vogelDiskSample\( \d, 5, phi \) \* radius, shadowCoord\.z \) \)\s*\+?\s*){5}\) \* 0\.2;/;
 
-/** The sampling with no noise. */
-const SMOOTH_SAMPLING = `shadow = 0.0;
-				for ( int i = 0; i < ${SHADOW_SAMPLES}; i ++ ) {
-					shadow += texture( shadowMap, vec3( shadowCoord.xy + vogelDiskSample( i, ${SHADOW_SAMPLES}, 0.0 ) * radius, shadowCoord.z ) );
+/**
+ * Gives the sampling of the soft shadow edge with no noise.
+ *
+ * @param samples The number of samples of the Vogel disk.
+ * @returns The GLSL.
+ */
+function smoothSampling(samples: number): string {
+  return `shadow = 0.0;
+				for ( int i = 0; i < ${samples}; i ++ ) {
+					shadow += texture( shadowMap, vec3( shadowCoord.xy + vogelDiskSample( i, ${samples}, 0.0 ) * radius, shadowCoord.z ) );
 				}
-				shadow /= ${SHADOW_SAMPLES}.0;`;
+				shadow /= ${samples}.0;`;
+}
+
+/** The sampling with no noise. */
+const SMOOTH_SAMPLING = smoothSampling(SHADOW_SAMPLES);
 
 /**
  * Replaces the noisy sampling of the soft shadow edge of `PCFShadowMap` with 12 samples of a
@@ -36,4 +46,17 @@ export function smoothShadowEdges(): void {
     throw new Error('The shadow chunk of three.js changed. Update smoothShadowEdges().');
   }
   ShaderChunk.shadowmap_pars_fragment = chunk.replace(NOISE_SAMPLING, SMOOTH_SAMPLING);
+}
+
+/**
+ * Gives the shadow chunk of {@link smoothShadowEdges} with another number of samples, for one
+ * material with a wider blur, such as the baked stage (scene/stage.ts).
+ *
+ * @param samples The number of samples of the Vogel disk.
+ * @returns The chunk.
+ * @throws Error if the chunk of three.js has no sampling that the patch knows.
+ */
+export function shadowChunkWithSamples(samples: number): string {
+  smoothShadowEdges();
+  return ShaderChunk.shadowmap_pars_fragment.replace(SMOOTH_SAMPLING, smoothSampling(samples));
 }

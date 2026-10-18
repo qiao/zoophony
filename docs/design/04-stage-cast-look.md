@@ -531,13 +531,14 @@ solo.
   corners light the fronts of the players, and one weak light shows the face of the conductor.
 - **Bake of the static props** (`scene/stage-bake.ts`). The props and the stage do not move during
   a song, and the key light keeps its place, so each layout bakes their light on the stage top
-  one time: the soft shadow of a key light 2 m wide, and the part of the sky that the near props
+  one time: the soft shadow of a large key light, and the part of the sky that the near props
   leave open. The stage shader limits the key light by the bake, and the other lights and the
   reflections by the open sky. The props and the stage then cast no shadow in the shadow map of
   each frame, and the players keep it. A GPU with no target of floats has no bake.
 - The baked stage takes no normal bias of the key shadow, so the shadow of a player starts at its
-  feet. A point of the stage under an overhang, such as the floor below the edge of the podium
-  top, gets no key light (`stageBakeAt()`).
+  feet. It blurs the shadows of the players more than the players do (`STAGE_SHADOW`), so their
+  edge on the floor is near the edge of the bake. A point of the stage under an overhang, such as
+  the floor below the edge of the podium top, gets no key light (`stageBakeAt()`).
 - The light is a pool on the conductor and the middle of the orchestra. A factor in the shaders
   multiplies each spotlight (`addLightPool()`), because a separate pool light cost GPU time. The
   pool falls off only at the side edges and the front corners (user, 2026-10-07).

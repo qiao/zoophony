@@ -36,7 +36,7 @@ import type { PlayerSpot } from './player.ts';
 import { PostPipeline, targetFormatOf } from './post.ts';
 import { createRenderer, probeTargetFormat } from './renderer.ts';
 import { aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
-import { createStage, noBakeUniforms } from './stage.ts';
+import { STAGE_SHADOW, createStage, noBakeUniforms } from './stage.ts';
 import type { StageBakeUniforms } from './stage.ts';
 import { bakeStage } from './stage-bake.ts';
 
@@ -361,6 +361,7 @@ export class StageScene {
     });
     uniforms.uStageBake.value = target.texture;
     uniforms.uShadowLift.value = 0;
+    uniforms.uStageBlur.value = STAGE_SHADOW.radius;
     stage.castShadow = false;
     props.castShadow = false;
     return { stageSide, stage, props, uniforms, target };

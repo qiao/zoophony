@@ -5,6 +5,7 @@ import { STAGE_COLORS } from '../models/props.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { STAGE_CORNER_CUT, STAGE_LIP, buildStage } from '../models/stage.ts';
 import { createGeometry } from './geometry.ts';
+import { shadowChunkWithSamples } from './shadow-chunk.ts';
 import { addLightPool } from './light-pool.ts';
 import type { PoolUniforms } from './light-pool.ts';
 import { noBakeTexture } from './stage-bake.ts';
@@ -83,6 +84,7 @@ uniform float uSpecular;
 uniform vec3 uSeamColor;
 uniform vec3 uPlank;
 uniform sampler2D uStageBake;
+uniform float uStageBlur;
 
 float woodHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -228,7 +230,13 @@ function addBakeToLights(fragmentShader: string): string {
     throw new Error('The light chunk of three.js changed. Update addBakeToLights().');
   }
   return fragmentShader
-    .replace(KEY_SHADOW, '$1min( $2, stageBake.r ) : stageBake.r;')
+    .replace(KEY_SHADOW, (_, head: string, shadow: string) => {
+      const wide = shadow.replace(
+        'spotLightShadow.shadowRadius',
+        'spotLightShadow.shadowRadius * uStageBlur',
+      );
+      return `${head}min( ${wide}, stageBake.r ) : stageBake.r;`;
+    })
     .replace(
       'directLight.color *= lightPool;',
       'directLight.color *= lightPool;\n\t\t#if ( UNROLLED_LOOP_INDEX >= NUM_SPOT_LIGHT_SHADOWS )\n\t\tdirectLight.color *= stageBake.g;\n\t\t#endif',
@@ -246,6 +254,8 @@ export interface StageBakeUniforms {
    * bias made a bright gap between the feet of the bear and their shadow on the podium.
    */
   readonly uShadowLift: { value: number };
+  /** The factor of the blur radius of the key shadow on the stage: 1, or `STAGE_SHADOW.radius`. */
+  readonly uStageBlur: { value: number };
 }
 
 /**
@@ -257,8 +267,17 @@ export function noBakeUniforms(): StageBakeUniforms {
   return {
     uStageBake: { value: noBakeTexture() },
     uShadowLift: { value: 1 },
+    uStageBlur: { value: 1 },
   };
 }
+
+/**
+ * The soft edge of the shadows of the players on a baked stage (design 4.5): the blur radius of
+ * the tier times `radius`, with `samples` samples. The edge of the bake of the props is about
+ * 7 cm to 20 cm wide, and the edge of the tier alone was 7.8 cm on the high tier. The stage casts
+ * no shadow in the map, so a wider blur gives it no self-shadow.
+ */
+export const STAGE_SHADOW = { radius: 2, samples: 20 } as const;
 
 /** The normal bias of the spot shadows in the vertex chunk of three.js r186. */
 const SPOT_NORMAL_BIAS =
@@ -321,6 +340,7 @@ export function createStageMaterial(
     };
     shader.uniforms['uStageBake'] = bake.uStageBake;
     shader.uniforms['uShadowLift'] = bake.uShadowLift;
+    shader.uniforms['uStageBlur'] = bake.uStageBlur;
     shader.uniforms['uSideGlow'] = {
       value: new Vector3(SIDE_GLOW.skirt, SIDE_GLOW.edge, SIDE_GLOW.fade),
     };
@@ -346,7 +366,10 @@ export function createStageMaterial(
         `#include <emissivemap_fragment>\n${SIDE_GLOW_GLSL}`,
       )
       .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>\n${GLOSS_GLSL}`);
-    shader.fragmentShader = addBakeToLights(shader.fragmentShader);
+    shader.fragmentShader = addBakeToLights(shader.fragmentShader).replace(
+      '#include <shadowmap_pars_fragment>',
+      shadowChunkWithSamples(STAGE_SHADOW.samples),
+    );
   };
   material.customProgramCacheKey = () => 'stage-wood';
   return material;
