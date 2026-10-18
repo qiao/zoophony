@@ -379,15 +379,17 @@ export const SPECIES = {
   /**
    * Dog, the cellos: a beagle with brown ears and a brown back. It has the studio body of the mesh
    * of the user, `assets/models/dog/dog.glb`, which `pnpm rig-mesh dog` rigs (design 4.4), with the
-   * head height of the red fox, longer legs, and the reach of the cello that the user chose
-   * (2026-10-17-mesh-dog decisions), which the user chose again after shorter arms
-   * (2026-10-17-dog-arms decisions). It plays the cello of the app. It sits with the knees apart
-   * around the lower bout of the cello, and its tail hangs down behind the seat between the back
-   * posts of the chair. Its ears hang, so they do not twitch. Its head height is the head of the
-   * studio body, and its chair fits its legs: the seat height is the seat of the studio body, in H.
+   * head height of the red fox and longer legs (2026-10-17-mesh-dog decisions), and the arms that
+   * the user chose (2026-10-17-dog-arms decisions). It sits with the knees apart around the lower
+   * bout of the cello, and its tail hangs down behind the seat between the back posts of the
+   * chair. Its ears hang, so they do not twitch. Its
+   * head height is the head of the studio body, and its chair fits its legs: the seat height is
+   * the seat of the studio body, in H. It plays a 1/2 cello, the size that the user chose with its
+   * shorter arms (2026-10-17-dog-arms decisions).
    */
   dog: {
     body: 'studio-dog',
+    celloScale: 0.86,
     size: 1,
     colors: SPECIES_COLORS.dog,
     accentParts: ['ears', 'nose'],
