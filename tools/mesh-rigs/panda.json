@@ -193,6 +193,16 @@
       [0.04, 0.83, 0.24]
     ],
     "nose": [0.05, 0.05, 0.05],
+    "tone": {
+      "chroma": 0.08,
+      "light": [0.999, 1.0],
+      "keep": ["hand", "fingers", "foot", "toes"],
+      "points": [
+        [0.5, 0, 0, 0],
+        [0.8, 0, -0.0027, -0.029]
+      ],
+      "note": "The user chose \"Reference white (Recommended)\" on 2026-10-18 (docs/decisions/2026-10-18-panda-folds.md), so the white fur takes the full step to the white of SPECIES_COLORS.panda (#e9e5dc, Oklab chroma 0.013 at the hue 87 degrees). A row is [L, dL, da, db] in Oklab: a face below the lightness 0.5 does not move, and a face above 0.8 takes the move of the second row. The black fur, the eyes, the nose, and the paws are below 0.5, so they keep their colors. The white fur of the mesh had the lightness 0.957 and the chroma 0.042 at the hue 85 degrees, and the move gives the chroma 0.013 at the hue 87 degrees with the same lightness. In a front and a back render of the gallery, the white fur then has the chroma of the parametric panda of that color at the same lightness: 0.043 against 0.044 on the front of the head, and 0.020 against 0.021 on the back of the head. 5% of the white faces get a little blue (Oklab b below -0.005). In the play frame of the stage, the heads stay warm white, not blue and not gray: the chroma 0.082 at the hue 66 degrees, against 0.092 before (docs/research/2026-10-18-panda-folds.md)."
+    },
     "note": "The values of samples, palette, dark, and eyeShare are the values of the fox, the cat, and the dog. The eyes lie in dark eye patches of almost the same color: the darkest faces of the eyes have the Oklab lightness 0.125 to 0.136, and the faces of the patches 0.14 to 0.147 (docs/research/2026-10-18-panda-mesh/head-colors.txt), so a dark threshold cannot split them. The eye box holds only the eye in the middle of the patch: 19 dark faces on the left and 16 on the right. The box of 2026-10-18 phase 1 (x 0.03 to 0.1, y 0.83 to 0.9) took 38 of the 46 dark faces of the left patch, and the color of the old eye left light holes in the patches. The nose is a patch of 62 dark faces at x ±0.03 and y 0.789 to 0.830. A face in the nose box whose color is nearer to the nose color than to white takes the gloss: 60 faces."
   },
   "eyeShell": {
