@@ -59,12 +59,11 @@ export const BEAM_LOOK = {
    * from this radius to {@link BEAM_LOOK}.tipRadius at its tip (the haze cone), inside the cone
    * of `models/beam.ts`. The cone is 0.75 S wide at the stage, and a haze in the full cone veiled
    * the full orchestra in the frontal default view, before the haze left out the items on the
-   * stage. With the tip of {@link BEAM_LOOK}.tip, 0.5 S opens the fan of `orchestra-latest.png`:
-   * in the default view, the beam is about 0.16 of the stage width at the top of the frame, and it
-   * spreads out where it meets the back of the stage. With 0.3 S and a tip of 1.0 S, the beam was
-   * 0.25 of the stage width at the top and did not spread out.
+   * stage. With the tip of {@link BEAM_LOOK}.tip, 0.38 S opens the fan of `orchestra-latest.png`:
+   * the beam spreads out where it meets the back of the stage. With 0.3 S and a tip of 1.0 S, the
+   * beam did not spread out, and with 0.5 S its bottom was too wide (user, 2026-10-18).
    */
-  column: 0.5,
+  column: 0.38,
   /**
    * The height of the tip of the haze cone, in stage sides. The tip lies on the line from the foot
    * of the beam to the key light, so the beam points at the key light. The key light stands far
@@ -74,8 +73,12 @@ export const BEAM_LOOK = {
    * not fanned out").
    */
   tip: 0.55,
-  /** The radius of the haze cone at its tip, in stage sides. */
-  tipRadius: 0.02,
+  /**
+   * The radius of the haze cone at its tip, in stage sides. With the tip of 0.02 S, the top of the
+   * beam was too narrow (user, 2026-10-18). With 0.08 S, the beam is about 0.18 of the stage width
+   * at the top of the default view.
+   */
+  tipRadius: 0.08,
   /**
    * The density in the haze at the stage. The density grows with the concentration of the light,
    * where the haze cone is narrow: (column / radius)^0.8, at most

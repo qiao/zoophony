@@ -28,7 +28,11 @@ import {
   tilingNoise,
 } from './beam.ts';
 import type { DepthRenderer } from './beam.ts';
-import { BEAM_RADIUS_IN_SIDES, BEAM_TOP_RADIUS_IN_SIDES } from '../models/beam.ts';
+import {
+  BEAM_HEIGHT_IN_SIDES,
+  BEAM_RADIUS_IN_SIDES,
+  BEAM_TOP_RADIUS_IN_SIDES,
+} from '../models/beam.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { TIER_SETTINGS } from './quality.ts';
 
@@ -121,11 +125,12 @@ describe('hazeProfile (design 4.5)', () => {
     expect(axis?.[1]).toBeLessThan(0);
     expect(bottom).toEqual([hazeRadius(side, axis?.[1] ?? 0), axis?.[1]]);
     expect(top).toEqual([BEAM_LOOK.tipRadius * side, height]);
-    // The haze cone is narrower than the light cone of models/beam.ts at each height.
+    // The haze cone is narrower than the cone of the shot planner of models/beam.ts at each height.
+    const planner = BEAM_HEIGHT_IN_SIDES * side;
     for (let y = 0; y < height; y += 0.1) {
       const cone =
         BEAM_RADIUS_IN_SIDES * side +
-        ((BEAM_TOP_RADIUS_IN_SIDES - BEAM_RADIUS_IN_SIDES) * side * y) / height;
+        ((BEAM_TOP_RADIUS_IN_SIDES - BEAM_RADIUS_IN_SIDES) * side * y) / planner;
       expect(hazeRadius(side, y)).toBeLessThanOrEqual(cone);
     }
     expect(hazeRadius(side, 0)).toBeCloseTo(BEAM_LOOK.column * side, 9);
