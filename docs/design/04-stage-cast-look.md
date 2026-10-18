@@ -383,7 +383,8 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
     raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
     of the patches along the crease between the lips, with the corners up, so that the corners
-    show beside a mouthpiece. The panda has both rules
+    show beside a mouthpiece. A band takes no face that turns to the side (`outward`), because
+    such a face shows as a dark block in a side view. The panda has both rules
     (`docs/decisions/2026-10-18-panda-face.md`).
   - Tail. `tail_tip` gives a tail of two bones (`OPTIONAL_STUDIO_BONES`), and `studio.tailCurl`
     bends the seated tail: the cat curls it on the seat, and the dog hangs it down behind the seat
