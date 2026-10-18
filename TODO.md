@@ -393,6 +393,9 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-18-mesh-panda.md`).
 - [ ] The paused shot test of the moves of 2 cm keeps 71.8% of the shots (limit 75%) since the
       panda mesh (`docs/research/2026-10-18-panda-mesh.md`).
+- [ ] Panda: the white fur of the mesh has three times the chroma of `SPECIES_COLORS.panda` (0.042
+      against 0.013). Ask the user about a move of the fur colors, as the cat got
+      (`docs/research/2026-10-18-panda-mesh.md`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
