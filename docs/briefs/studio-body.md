@@ -1,216 +1,125 @@
 # Briefs for a studio body in the app
 
-A manager uses these templates to put an animal of `lowpoly-studio/` into the app for a role, by
-route 3 of `docs/agents/model-work.md`. Examples are a violinist rabbit and a cellist dog. A round
-has one implementation agent, and no review agent follows it (design 9.8). The manager reads the
-report and the close views, and the merge script runs the checks. Copy each template to the scratch
-folder of the session, replace each `<...>`, and delete the notes in parentheses.
-
-Since 2026-10-16, all tests are paused
-([`2026-10-16-all-tests-pause.md`](../decisions/2026-10-16-all-tests-pause.md)). Until the user
-ends the pause, delete each step of a template that adds, breaks, or runs a test: the shard files
-of a sweep, the break commands, `pnpm test src/shots/`, and `pnpm test:e2e`. Keep the probe tools,
-such as `SWEEP_ROLES` for `pnpm pose-depth`, and keep `tools/check-commits.sh --tip main`.
-
-The polar bear pianist of 2026-10-12 took about 2.3 hours. The retrospective of that task made
-the tools that these templates name ([`2026-10-13-route-3-retro.md`](../research/2026-10-13-route-3-retro.md)).
+A manager uses these templates to put an animal of `lowpoly-studio/` or a mesh of the user into the
+app for a role, by route 3 of `docs/agents/model-work.md`. A round has one implementation agent and
+no review agent (design 9.8). Copy each template to the scratch folder of the session, and replace
+each `<...>`. While all tests are paused
+([`2026-10-16-all-tests-pause.md`](../decisions/2026-10-16-all-tests-pause.md)), a brief has no
+step that adds, breaks, or runs a test.
 
 ```text
  manager            agent                    manager
  +-----------+      +----------------+       +--------------+   +-------+
  | baseline, | ---> | implementation | ----> | report,      | > | retro |
- | inspect,  |      | sweep, probes  |       | close views, |   |       |
+ | inspect,  |      | sweep, probes  |       | images,      |   |       |
  | brief     |      +----------------+       | merge (hits) |   +-------+
  +-----------+                               +--------------+
 ```
 
 ## 1. Before the brief
 
-Run these commands on `main`. Put the output and the numbers into the brief, so that no agent
+Run these commands on `main`, and put the output and the numbers into the brief, so that no agent
 makes a baseline worktree.
 
 | Fact | Command |
 |---|---|
-| The meshes, joints, digits, morph targets, clips, props, bind hips, and lowest skin point of the GLB file | `pnpm studio-body <animal> --inspect` |
-| The same facts of the last studio body, for the section "What is new" | `pnpm studio-body bear --inspect` |
-| The depth of each part and the note errors of a role that exists | `pnpm pose-depth <role>` |
-| The folded faces of the studio bodies | `pnpm fold-probe <role>`, with `--glb <file>` for a new GLB file of the body of the role |
-| The smallest gaps of the head to the instrument and of the paws to the body | `pnpm pose-depth <role> --gaps` |
-| The depths and the lowest point of the bow of a bowed species that stands as a soloist, which no demo has | `pnpm pose-depth <role> --soloist <species>` |
-| The reach of the arms against the instrument | `pnpm studio-body <animal> --inspect` for the arms, and `pnpm hold-reach <species>` for a violin or a viola. For a new GLB file of a species with a studio body, add `--glb <file>`. For a species with no studio body, use a scratch copy with an entry in `ANIMALS` (below). |
+| The facts of the GLB file and of the last studio body | `pnpm studio-body <animal> --inspect` |
+| The depths, the note errors, and the gaps of a role that exists | `pnpm pose-depth <role> --gaps` |
+| The bow of a bowed species that stands as a soloist | `pnpm pose-depth <role> --soloist <species>` |
+| The folded faces | `pnpm fold-probe <role>`, with `--glb <file>` for a new GLB file |
+| The reach of the arms against a violin or a viola | `pnpm hold-reach <species>`, with `--glb <file>` for a new GLB file |
 | The size of the first download | `pnpm build && pnpm size` |
-| The posture of a real player of the instrument at rest, when ready, and in a play | a source on the web, and the clips of the studio: `python3 studio view <animal>`, then the viewer query `shot&view=free&clip=<clip>&t=<s>&az=<deg>` |
+| The posture of a real player at rest, when ready, and in a play | a source on the web, and the clips of the studio (`python3 studio view <animal>`) |
 
-Compare the reach of the arms with the instrument before the round. When the species already has
-a studio body and the round gives it a new GLB file, run `pnpm studio-body <animal> --inspect
---glb <file>` and `pnpm hold-reach <species> --glb <file>`. They use the settings of the animal in
-`ANIMALS` and the body that the export makes from the file, with no edit. Else make a scratch copy
-of the body in a scratch worktree. First, add the animal to `ANIMALS` of `tools/studio-body.ts`
-with the landmark of its scale. The meters of `--inspect` and of `pnpm hold-reach` hold only at that
-scale. Without an entry, `--inspect` assumes the shoulders at 1 m. Then run
-`pnpm studio-body <animal> --inspect` for the arms. For a violin or a viola, also run
-`pnpm studio-body <animal>`, add the module to `STUDIO_BODIES`, and give the species the body in
-`SPECIES`. Then run `pnpm hold-reach <species>`. It gives the reached parts of the fingerboard and
-the bow, and the scale of the rule of a violin shop. When the rule gives a violin outside the
-real sizes, ask the user before the round. The tool gives no real viola sizes, and the app has no
-viola scale. So for a viola, a rule scale below 1 is a question to the user. Give the measures
-and the choices, such as longer arms in the studio or a smaller instrument. The rabbit of
-2026-10-13 had arms of 0.27 m. The rule gave it a violin of 0.15 m, less than half of the smallest
-real violin (0.33 m). The app agent found it at minute 14 of its round, and the user saw it only
-after the round, then chose longer arms
-([`2026-10-13-rabbit-retro.md`](../research/2026-10-13-rabbit-retro.md)).
+For a species with no studio body, measure the reach on a scratch copy with an entry in `ANIMALS`.
+When the rule of a violin shop gives a violin outside the real sizes, or a viola scale below 1, ask
+the user before the round, with the measures and the choices (longer arms or a smaller
+instrument).
 
-Finish the look rounds of the studio before the app round starts. A merge of a studio round
-during the app round makes the app agent rebase. Each commit then gets a new tree, and the check
-runs on each commit again. In the rabbit task, this took about 10 minutes for each merge. When the
-studio work and the app work must overlap, put the studio round on the app branch. Then one agent
-works after the other, as for the arms of the rabbit (round 4).
+Finish the look rounds of the studio before the app round, or put them on the app branch. Start a
+hold round only after each form or scale round of the same body has merged, because a form change
+moves the joints and the head. The brief names each such round as a dependency.
 
-Start a hold round of a body only after each form or scale round of the same body has merged. A
-form change moves the shoulder joints, the arms, and the head, so the holds need a new fit. The
-tan flute fox of 2026-10-14 got its flute hold on the fox form of the size round, and a second
-fit on the final fox form (commit `763037b2`). When the manager knows of a form change of the body,
-the brief names it as a dependency, and the hold round waits for its merge.
-
-Make the worktree: `git worktree add .claude/worktrees/<branch> -b <branch> main`. Copy the
-common rules of the agents into the scratch folder (section 5).
+An agent beside another agent gets a worktree:
+`git worktree add .claude/worktrees/<branch> -b <branch> main`. Copy the common rules of section 5
+into the scratch folder.
 
 ## 2. Implementation brief
 
 ```markdown
 # Brief: the studio <animal> as the <role> of the app
 
-Date <date>. Manager <session>. Base commit `<hash>` of `main`.
-Worktree `<path>`, branch `<branch>`. Handoff file `<scratch>/handoff-<branch>.md`.
+Date <date>. Manager <session>. Start commit `<hash>` of `main`. <On `main` in the main checkout,
+or worktree `<path>` on branch `<branch>`>. Handoff file `scratch/handoff-<round>.md`.
 Time box <minutes>. Read `<scratch>/rules-common.md` first.
 
 ## Goal
 
-The user said: "<quote>". The <species> of the <section> gets the studio body of
-`lowpoly-studio/animals/<animal>/out/<animal>.glb` by route 3 of `docs/agents/model-work.md`.
-The app keeps its own motion, instrument, and seat. It drives the bones of the studio on each
-frame.
+The user said: "<quote>". The <species> of the <section> gets the studio body of `<glb file>` by
+route 3 of `docs/agents/model-work.md`. The app keeps its own motion, instrument, and seat.
 
 Done when:
-1. `pnpm studio-body <animal>` writes `src/models/studio/<animal>.ts`, and the species has the
-   body.
+1. `pnpm studio-body <animal>` writes `src/models/studio/<animal>.ts`, and the species has the body.
 2. <the pose claims: the seat, the feet on the floor, the hold on the instrument>.
-3. The role is in `SWEEP_ROLES` of `src/pose/test-sweep-roles.ts`, with its parts, its
-   instrument shells, its note targets, and its shard files
-   `src/pose/<role>-clearance-<k>.test.ts`. The shard files are paused tests, so `pnpm test`
-   skips them. Each accepted limit is an `AcceptedDepth` with a decision row.
-   `pnpm pose-depth <role>` shows each other part within the contact depth.
-4. `tools/check-commits.sh --tip main` passes one time before the report. Build, size, and
-   `ZOOPHONY_E2E_PORT=<port> pnpm test:e2e --project=chromium` pass on the tip.
-5. The role is in `ROLE_VIEWS` of `tools/close-views.ts` and in `FOLD_ROLES` of
-   `tools/fold-probe.ts`. `pnpm close-views <role> <dir> --base main` ran on the last pose, and
-   you compared each view with the grid of `main` above it.
-6. `pnpm snapshot` ran after the last code commit.
-7. The docs below are true.
+3. The role is in `SWEEP_ROLES`, `FOLD_ROLES`, and `ROLE_VIEWS`, and in the table "Bodies and
+   roles" of `docs/agents/model-work.md`. Each accepted limit is an `AcceptedDepth` with a decision
+   row. `pnpm pose-depth <role>` shows each other part within the contact depth.
+4. `pnpm close-views <role> <dir> --base main` ran on the last pose, and you compared each view
+   with the grid of `main`. `pnpm snapshot` ran after the last code commit.
+5. `tools/check-commits.sh --tip <base>` passed one time before the report.
+6. The docs of the section "Docs" are true.
 
 ## Dependencies
 
-<each form or scale round of the same body that has not merged, or "none". The round starts
-after the merge of each one.>
+<each form or scale round of the same body that has not merged, or "none">
 
-## Facts of the source
+## Facts and baseline
 
-<the output of `pnpm studio-body <animal> --inspect`>
+<the output and the numbers of section 1, and each difference from the last studio body, such as
+props, digits, a seated bind, or a held instrument, with the code that it touches>
 
-## What is new against the last studio body
+## Scale, seat, and poses
 
-<each difference: props in the GLB file, digits, a seated bind pose, a held instrument, a new
-attachment. Name the code that each one touches.>
-
-## Baseline
-
-<the numbers of section 1>
-
-## Scale and seat
-
-- Landmark: the shoulder joints for a standing role, the top of the keys for a pianist, or
-  <the landmark of the instrument>. Record the choice and its measure as a decision row.
-- A seat fits the legs of the body. Do not stretch the legs (user rule of 2026-10-10). Look at
-  the knees from the side.
-
-## Poses
-
-- The rest pose, the ready pose, and the play pose follow the posture of a real player of the
-  instrument: <the posture, with its source>. A clip of the studio fits the body, so take the
-  lean, the reach, and the clearance from it. Its look can be wrong: a rest pose after the rest clip of
-  the polar bear leaned 22° forward, and the user found it strange (2026-10-13).
-- Before a fit, check that the pose code can show the rest pose and the hold of the source, such
-  as a head turn to the side of a flute. When a part of the posture has no mechanism, add the
-  mechanism first, with values that change nothing. Then fit.
+- Landmark: the shoulder joints of a standing role, the top of the keys of a pianist, or <the
+  landmark of the instrument>. Record the choice and its measure as a decision row.
+- A seat fits the legs of the body. Do not stretch the legs (user rule of 2026-10-10). Look at the
+  knees from the side.
+- The poses follow a real player of the instrument: <the posture, with its source>. A clip of the
+  studio fits the body, but its look can be wrong.
 
 ## Range and stop
 
-<For each fallback rule of this brief, give the range of its result and the stop when the result
-is outside it. For example: "When the left paw cannot reach the neck, give the species a smaller
-violin. Size it by the rule of a violin shop (`pnpm hold-reach <species>`). Range: a violin of
-0.33 m (1/32) to 0.59 m (4/4). Outside it, stop, and write the measures into the handoff file.
-Then report to the manager." The fallback rule of the rabbit of 2026-10-13 had no range. It gave
-a violin of 0.15 m.>
+<For each fallback rule, the range of its result and the stop outside it, such as a violin of
+0.33 m to 0.59 m by the rule of a violin shop. Outside it, stop, and report the measures.>
 
-- When a measure chooses a value, such as a crease angle or a scale, check first that the
-  reference lies inside the range of the renders of the variants. When it does not, the measure
-  cannot choose. Stop, and send the table of the variants and the reference to the manager.
-  (The facet contrast of the rabbit references of 2026-10-14, 4.01% and 4.61%, lay above the
-  flat rabbit, 3.28% and 2.64%. The round took 10°. The manager changed it to 35°, and that
-  cost six more commits.)
-
+- When a measure chooses a value, such as a crease angle, check first that the reference lies
+  inside the range of the variants. Else stop, and send the table to the manager.
 
 ## Process
 
-- Commit the mechanism first, with values that change nothing. Then tune. Then commit the tuned
-  values with their tests.
-- Tune a hold with `pnpm pose-depth <role> --set '<path>=<value>'` and
-  `pnpm pose-probe <sheet> --set ...`. The own hold of a species is
-  `<instrument>@<species>.<path>`. Do not edit, run, and restore the source for each variant.
-- Test a new limit over all demos and over each branch of the code that it limits.
-- Put the size note of the packed body into the commit of the generated module.
-- Run `pnpm snapshot` only after the last code commit.
-- One home for each tuned number: the research report holds the measures. A decision row names
-  the code and keeps the value that made the decision. A comment gives the reason and no value
-  that the code states. A design file names the code.
-- Read each design paragraph that you change from its first sentence to its last.
-- Put probe scripts into `scratch/` of the worktree. Put each probe that gives a number of the
-  report into `docs/research/<date>-<topic>/` with the report, and give its command in the
-  report. The merge removes the worktree with its `scratch/` folder.
+- Commit the mechanism first, with values that change nothing. Then tune, and commit the tuned
+  values.
+- Tune a hold with `--set` of `pnpm hold-fit` and `pnpm pose-depth`, with no edit of the source for
+  each variant. Check a new limit over all demos.
+- One home for each tuned number: the research report holds the measures, a decision row names the
+  code, and a design file names the code.
 
 ## Docs
 
 - `docs/design/`: <sections>. Check the diff for copied values:
-  `git diff -U0 main -- docs/design | grep -nE '^\+.*([0-9]+°|[A-G][♭♯]?[0-9])'`.
-- A new decision file `docs/decisions/<date>-studio-<animal>.md`. Its first row is the decision
-  of the user, with the quote. Its line in `docs/design.md` goes into the same commit.
-- Run `tools/decision-rows.sh <species> <props> <role>` and `tools/decision-rows.sh --diff main`.
-  Remove or cut each row that the branch replaces, in the commit of the change.
-- A new research report `docs/research/<date>-studio-<animal>.md`.
-- `docs/agents/model-work.md`, `lowpoly-studio/docs/handoff.md`, and `lowpoly-studio/README.md`.
-- Each place of section 8 of `docs/briefs/studio-body.md` for a new body, a new role, or a new
-  hold. `pnpm docs-species <species>` lists each place that does not name the species yet. At the
-  end of the round, it lists no miss.
+  `git diff -U0 <base> -- docs/design | grep -nE '^\+.*([0-9]+°|[A-G][♭♯]?[0-9])'`.
+- A new decision file `docs/decisions/<date>-<topic>.md` and a new research report, in the limits
+  and the templates of `docs/agents/writing.md`. The first row is the decision of the user, with
+  the quote.
+- Remove or cut each decision row that the round replaces (`tools/decision-rows.sh --diff <base>`).
+- Each place of section 8 of `docs/briefs/studio-body.md`. At the end, `pnpm docs-species <species>`
+  lists no miss.
 
 ## Values to keep
 
-- `pnpm body-probe --base main`: each other body and player, and each pose set, stays equal.
-- The first download stays below 1 MB. Give a change of more than 5 KB in its commit message.
-  `pnpm build && pnpm size --base main` prints the change.
+- `pnpm body-probe --base main`: each other body, player, and pose set stays equal.
+- `pnpm size --base main`: the first download stays below 1 MB.
 - `pnpm fold-probe` and `pnpm pose-depth` of the other roles stay as in the baseline.
-
-## Tests
-
-- Remove each old check that was tuned on the parametric bodies and that the studio body fails.
-  Try a cheap fix first. List each removed check in its commit message with the reason. A paused
-  test (`PAUSED_TESTS` of `vite.config.ts`) needs no fix. Run it with `pnpm test:paused <path>`
-  only when the change needs its check.
-- A test compares no value of one body with a value of another body, such as "the fox arm is
-  shorter than the wolf arm". Each form change of one body breaks such a test, and the test finds
-  no fault. Test each body against its own rule, such as the reach of its instrument.
-- For each new test, give in the report one command that breaks the code that it covers, and
-  the failure that it gives. For a new pure function, give one command for each rule of its
-  TSDoc. Run each command with `tools/break-test.sh '<perl expr>' <file> <test files>`.
 
 ## Files
 
@@ -219,232 +128,145 @@ a violin of 0.15 m.>
 ## Report format
 
 Reply with these parts, in this order, and nothing else: Result; Numbers (| Measure | main |
-branch |); Decisions; Removed or changed tests (| Test | Reason |); Break commands (| Test |
-Command | Failure |); Commits; Images to review; Open problems and the next step.
+round |); Decisions; Commits; Images to review; Open problems and the next step.
 ```
+
+After the test pause, a brief also asks for the shard files of the sweep, the removal of each old
+check that the new body fails (with the reason in the commit message), and a break command for
+each new test (`docs/agents/workflow.md`, "Tests").
 
 ## 3. Review brief (not used)
 
-No round uses this brief since 2026-10-16 ([`2026-10-16-no-review.md`](../decisions/2026-10-16-no-review.md)).
+Not used since 2026-10-16 ([`2026-10-16-no-review.md`](../decisions/2026-10-16-no-review.md)).
 
 ## 4. Fix brief (not used)
 
-No round uses this brief since 2026-10-16, because no review agent finds faults to fix.
+Not used, because no review agent finds faults to fix.
 
 ## 5. Common rules of the agents
 
 Copy this list into `<scratch>/rules-common.md`, and add the report format of the round.
 
-- Work only in your worktree on your branch. Never write into the main checkout. Read
-  `AGENTS.md` of the worktree first.
-- Stage each path by its name. Never use `git add -A` or `git add .`.
-- Make very fine-grained Conventional Commits, with the body wrapped at 75 characters.
-- `grep` is a shell function that runs ugrep, so use `perl -0pi -e` for a temporary edit.
-  Vitest hides the `console.log` of a passing test, so a probe writes a file. No `timeout`, and
-  no foreground `sleep`. Read the exit code of the command itself.
-- Never take ports 5173, 5190, or 4182. Stop each process that you start, by its PID. Never
-  stop a process that you did not start, and never use `pkill -f`.
-- Do not edit the worktree while a tool builds the site or while `tools/check-commits.sh` runs.
-- No merge and no push. End with your branch checked out, no rebase in progress, and a clean
-  tree.
+- Work where the brief says: on `main` in the main checkout, or in your worktree on your branch.
+  Read `AGENTS.md` first.
+- Make very fine-grained Conventional Commits, and stage each path by its name.
+- `grep` is a shell function that runs ugrep, so use `perl -0pi -e` for a temporary edit. No
+  `timeout`, and no foreground `sleep`. Read the exit code of the command itself.
+- Never take ports 5173, 5190, or 4182. Stop each process that you start, by its PID. Never stop a
+  process that you did not start, and never use `pkill -f`.
+- Do not edit the working tree while a tool builds the site or while `tools/check-commits.sh`
+  runs.
+- No merge and no push. End with no rebase in progress and a clean tree.
 - Ask no questions when the user is not available. Record each open choice as a decision row.
-- Write all prose in ASD-STE100 Simplified Technical English, with no em dashes.
-- Keep the handoff file current after each finished step.
+- Write all prose in ASD-STE100 Simplified Technical English. Keep the handoff file current.
 
 ## 6. After the merge
 
-Merge with `tools/merge-branch.sh <branch> <worktree>` from the main checkout. Then ask each
-agent of the round, with `SendMessage`, what would make the next similar task faster. Decide,
+Merge a branch with `tools/merge-branch.sh <branch> <worktree>` from the main checkout. Then ask
+each agent of the round, with `SendMessage`, what would make the next similar task faster. Decide,
 and apply the items that are worth the cost (user rule of 2026-10-12). Record the times, the
 decisions, and the measured gains in a research report.
 
 ## 7. A mesh with no skeleton
 
-The user can give a textured mesh with no skeleton, as the rabbit
-`assets/models/rabbit/rabbit-4.glb` of 2026-10-13, the fox `assets/models/fox/fox.glb` of
-2026-10-14, the cat `assets/models/cat/cat.glb` of 2026-10-16, and the dog
-`assets/models/dog/dog.glb` of 2026-10-17. `pnpm rig-mesh <animal>` rigs it into the GLB format of a
-studio body ("A mesh with no skeleton into route 3" of `docs/agents/model-work.md`). The rabbit mesh
-took five agent rounds
-([`2026-10-14-rabbit-mesh-retro.md`](../research/2026-10-14-rabbit-mesh-retro.md)). Add these items
-to the briefs of the rig round and of the app round.
+`pnpm rig-mesh <animal>` rigs a textured mesh of the user with no skeleton into the GLB format of a
+studio body ("A mesh with no skeleton into route 3" of `docs/agents/model-work.md`). Add these
+items to the briefs of the rig round and of the app round.
 
-- **The arms.** Write a first config with the measured joints, `armFactor` 1, and the rule of
-  the thin faces (`check.thin`). Then run `pnpm rig-mesh <animal> --check` before the question to
-  the user about the arms. Its first line
-  gives the shoulder joint, the reach with no factor, and the factor of the target reach. Ask
-  with that measured factor. Choose the landmark of the scale before the question: for the fox,
-  the factor of the rabbit reach was 1.41 at the shoulders of the parametric fox and 1.078 at its
-  head top. For the rabbit, the manager estimated 1.25 from a render, and the
-  measure gave 1.445.
-- **The faces.** Permit rings at the joints from the start (`refine.rings` of the config). Also
-  permit edge flips of faces that lie almost on one plane (`refine.flip`). `--check` lists the thin faces near
-  the joints of the limbs as candidates for a ring. The rule "keep the faces of the source"
-  stopped the app round of the rabbit at 45% play folds.
+- **The arms.** Ask the user about longer arms with the measured factor of
+  `pnpm rig-mesh <animal> --check`. Choose the landmark of the scale first.
+- **The faces.** Permit rings at the joints (`refine.rings`) and edge flips of faces that lie
+  almost on one plane (`refine.flip`) from the start.
 - **The order of the goals.** When two goals conflict, keep this order:
   1. the clearance of the sweeps (`pnpm pose-depth <role>`);
   2. the play folds, at most 1% of the play samples (`pnpm fold-probe <role>`);
   3. the range of the instrument (`pnpm hold-reach <species>`);
   4. the look of the hold.
-
-  The folds and the violin size of the rabbit pulled against each other.
-- **The checks before the docs.** Run each check of the app before the first docs commit.
-  `pnpm rig-mesh <animal> --check` gives the triangles, the module size, the seat, the chair, and
-  H. It also gives the reach, the standing body, the violin rule, and the folds. Then look at the close views.
-  Write the docs last. The rig round of the rabbit found the seat of 0 m after its docs commits.
-- **The variants.** Fit each variant of a hold with `pnpm hold-fit <role> --set <changes>`. One
-  table gives the play and the lift folds, the deepest point of each sample set of the sweep,
-  and, for a violin, the rule scale, `stopRange`, and `bowRange`. Fit each variant of the rig
-  config with `pnpm rig-mesh <animal> --check --set <path>=<value>`. Before a change of a weight
-  rule, read the weights of the faces that fold with `pnpm fold-probe <role> --faces <n>`. The
-  fox round lost about 45 minutes to hand probes between these tools
-  ([`2026-10-14-fox-retro.md`](../research/2026-10-14-fox-retro.md)).
-- **A moved instrument.** A moved instrument can break a user rule, such as the reach of the nut.
-  Check the hold anchors: the table of `pnpm rig-mesh <animal> --check` gives the head center,
-  the head height H, the nose, and the box of the instrument of each player against `main`, and
-  marks each move above 1 mm. The neck of the fox rig moved the head center by 1.71 cm, and the
-  violin moved with it.
+- **The checks before the docs.** Run `pnpm rig-mesh <animal> --check`, each check of the app, and
+  the close views before the first docs commit. Write the docs last.
+- **A moved instrument.** Read the hold anchors of `pnpm rig-mesh --check` against `main`, because
+  a moved instrument can break a user rule, such as the reach of the nut.
 - **The demos of a fit.** Fit on `FIT_DEMOS`, the default of `pnpm hold-fit`, or on all demos
-  (`--demo all`), never on one demo. A candidate of the flute rest that a search fit on
-  `beethoven-8` alone gave depths of 1.63 cm and 1.80 cm on all demos, over the limit of 1.5 cm.
-- **The size of a body.** A change of the size of a body keeps the values of the pose in meters,
-  such as the free hair of the bow (`freeHair` of each bowed hold), the lift of the bow, and the
-  contact limits of the sweep. The section "Values in meters" of `docs/agents/model-traps.md` lists
-  them with their files. Compare the folds and the depths in the H of each body first, with `pnpm
-  hold-fit <role> --base main` and `pnpm pose-depth <role> --base main`. Then probe these values
-  before a fit of a hold. Compare the heights with `pnpm close-views lineup <species,...> <dir>
-  --base main`, which keeps one camera for both trees. The size round lost about 55 minutes to hand
-  probes and to these values ([`2026-10-14-size-retro.md`](../research/2026-10-14-size-retro.md)).
+  (`--demo all`), never on one demo.
+- **The size of a body.** A change of the size keeps the values of the pose in meters ("Values in
+  meters" of `docs/agents/model-traps.md`). Compare the folds and the depths in H first with
+  `--base main`, and the heights with `pnpm close-views lineup <species,...> <dir> --base main`.
 - **The seat and the tail.** Give the seat height and the lowest point of the tail of
-  `pnpm rig-mesh <animal> --check` before a plan of a tail. The brief of the fox asked for a tail
-  tip down behind the chair, and the seat of 0.126 m does not give room for a tip of 0.31 m.
-- **The images.** Make the images of the round with one batch of `pnpm close-views`:
+  `pnpm rig-mesh <animal> --check` before a plan of a tail.
+- **The images.** Make the images of the round with one batch. A brief names a grid by its folder,
+  such as `<dir>/species-rest/species-base-views.webp`.
 
   ```bash
   pnpm close-views batch <dir> --species <species,...> --role <role> --lineup \
     --camera default --camera violins --base main
   ```
 
-  It builds each tree one time. It writes the species in the play and the rest pose into
-  `species-play/` and `species-rest/`, the close views of the role into `<role>/`, the lineup into
-  `lineup/`, and the play frames into `play/`. Each folder holds the files of the single mode, so
-  a brief names a grid by its folder, such as `<dir>/species-rest/species-base-views.webp`. The
-  image set of the round `cat-trunk` took 90 s in one batch and 115 s in five runs. Use a single
-  mode for one probe, such as the lineup of each variant.
 - **The end of the round.** Run `pnpm snapshot` after the last check of the code. Give the line of
   `pnpm size --base main` in the commit that adds the body.
-- **The probes.** Look at a rig with `pnpm rig-mesh <animal> --check --preview <dir>`, which
-  writes no file into the repository. A plain `--preview` writes the GLB file. Probe a rig before
-  the swap with `--glb <file>` of `pnpm studio-body --inspect`, `pnpm hold-reach`, and
-  `pnpm fold-probe`. Do not edit `ANIMALS` for a probe.
-- **The GLB file.** Commit each rule of the rig script with the GLB file unchanged. Only the last
-  commit of a series of rig commits writes the GLB file again. The rig GLB file of the rabbit has
-  12 versions in the history, with blobs of 7,450,048 B in all. The rig round wrote five files of
-  about 0.91 MB. The app round wrote one file of 0.89 MB and five of 0.33 MB, and the folds round
-  wrote one of 0.34 MB. This command gives the sizes:
-
-  ```bash
-  F=assets/models/rabbit/rabbit-4.rig.glb
-  git log --format=%h -- $F | while read h; do echo "$h $(git cat-file -s $h:$F)"; done
-  ```
-- **The look tests.** Name the look tests that can change with the new body. The app round of the
-  rabbit changed two of them:
-  - `src/pose/bowed.test.ts`: "holds the violin of a rabbit on the left shoulder about level, as
-    a real violinist". Its old title was "scroll down, as its sheet".
-  - `src/models/studio-rig.test.ts`: the leg angle of "straightens the legs under the hips".
-
-  A new body changes their target, and they find no fault. Since 2026-10-14, `bowed.test.ts` is a
-  paused test (`docs/decisions/2026-10-14-test-pause.md`), and a round does not fix it.
-  `studio-rig.test.ts` stays in `pnpm test`. A new body in a section also changes the layout, so
-  a kept test of a shot plan can change: the fox moved the check of the choir shots of the Ode to
-  Joy into the paused file `src/shots/choir-theme.test.ts`. A test that takes a species as the
-  sample of a parametric body moves to a species that keeps it, as the tan fox.
-- **The shot plans.** A change of the footprints of a body changes the layout of the sections,
-  and the layout changes the shot plans of the camera. Run `pnpm test src/shots/` early in a
-  round that changes a body, before the fit of the holds. A shot test of the size round failed on
-  the new layout, and its agent read the planner for 12 minutes to find the cause.
+- **The GLB file.** A plain `--preview` of `pnpm rig-mesh` writes the GLB file. Only the last
+  commit of a series of rig commits writes it, because each version stays in the history.
+- **The shot plans.** A new body changes the layout, and with it the shot plans. Run
+  `pnpm test:paused src/shots/` before the fit of the holds.
 
 ## 8. Docs of a new body, role, or hold
 
-The docs name each studio body, each role, and each hold in many places. The cat round of
-2026-10-16 found them by hand, and its docs took about 40 minutes. Use this list in the section
-"Docs" of a brief. A new species with a studio body also adds its role and its hold, so its round
-reads all three lists. The places of the last species of the same route show the form of each
-item. This command prints each place of the three lists that does not name the species yet, with
-its file, its lines, and its heading:
+Use these lists in the section "Docs" of a brief. A new species with a studio body also adds its
+role and its hold, so its round reads all three lists. This command prints each place that does
+not name the species yet:
 
 ```bash
 pnpm docs-species <species>
 ```
 
-The tool reads the cells of each row. These rules let it find each place:
-
-- **File.** Each code span is one file. In a path, `<name>` stands for any part of a file name. A
-  path with more than one file names the species when one of the files names it.
-- **Heading.** Each quoted text is an anchor: the heading, the bold line, the list item, or the
-  paragraph whose text is the quote, or starts with it, inside the place of the anchor before it.
-  A heading reaches the next heading of its level or a higher level. A bold line reaches the next
-  bold line. A list item reaches the next item at its indent. A paragraph at the left edge
-  reaches the next paragraph at the left edge, so it holds the lists and the code blocks under it.
-  After the last anchor, each code span is one place: the first block that holds the code (a
-  table row in its first cell). "first paragraph" is the first block that is not a heading, and
-  "first paragraphs" are the blocks before the first heading or bold line. With none of these,
-  the place is all the text of the last anchor, or the whole file with no anchor.
-- **Not for.** The species that the place is right not to name, such as a species with no sheet
-  page for the list of the sheet pages. The tool skips the place for them. The column "The place
-  lists" gives the reason. When a place is right not to name a new species, add the species to
-  this column.
-
-The tool finds a species by its id, the id of its own body, and its English names in the docs,
-such as `fox-red`, `studio-fox`, "red fox", "fox", and "foxes" (`DOC_NAMES` of
-`tools/docs-species.ts`). A new species with other English names in the docs adds them there.
+Each code span of the cell "File" is one file, and `<name>` stands for any part of a file name. The
+TSDoc of `locatorsOf()` of `tools/docs-species.ts` gives the rules of the cell "Heading". The cell
+"Not for" names the species that the place is right not to name. The tool finds a species by its
+id, the id of its body, and its English names (`DOC_NAMES` of `tools/docs-species.ts`).
 
 A new species with a studio body:
 
 | File | Heading | The place lists | Not for |
 |---|---|---|---|
-| `docs/design/01-goals.md` | "1. Goals and budgets" | each reference sheet `docs/reference/<s>-views.png`, and the image that wins over it, such as a mesh of the user | |
-| `docs/design/04-stage-cast-look.md` | "4.3 Species", first paragraph | the species with a body of their own, with the date of each body | |
+| `docs/design/01-goals.md` | "1. Goals and budgets" | each reference sheet, and the image that wins over it | |
+| `docs/design/04-stage-cast-look.md` | "4.3 Species", first paragraph | the species with a body of their own | |
 | `docs/design/04-stage-cast-look.md` | "4.3 Species", the type `OwnBodyParams` | the union of the bodies (`body`) | |
-| `docs/design/04-stage-cast-look.md` | "4.3 Species", "Short legs.", the item of `models/species.ts` | the mesh species, and the seat heights that `models/species.ts` reads from their studio bodies | |
-| `docs/design/04-stage-cast-look.md` | "4.3 Species", "The shape parameters of each species", first paragraph | the species with no row in the table of the shape parameters | |
-| `docs/design/04-stage-cast-look.md` | "4.4 Models", first paragraphs | the bodies that are not the parametric body, and the decisions of the user on each body | |
-| `docs/design/04-stage-cast-look.md` | "4.4 Models", "Studio bodies" | each studio body with its decision file, the landmark of its scale in `ANIMALS`, its seat or chair, the bodies that also stand (`soloist`), the crease angle and the support of each body, and the rules of its rig config | |
-| `docs/design/04-stage-cast-look.md` | "4.5 Visual values", "Species colors" | the accent of each species, as `models/species.ts` gives it | |
-| `docs/design/04-stage-cast-look.md` | "4.5 Visual values", "Facets and triangle budgets" | the studio bodies of the sections and the triangles of the pea eyes | |
-| `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the scale of the instrument and the reach of each species | |
+| `docs/design/04-stage-cast-look.md` | "4.3 Species", "Short legs.", the item of `models/species.ts` | the mesh species and their seat heights | |
+| `docs/design/04-stage-cast-look.md` | "4.3 Species", "The shape parameters of each species", first paragraph | the species with no row of shape parameters | |
+| `docs/design/04-stage-cast-look.md` | "4.4 Models", first paragraphs | the bodies of their own and the decisions of the user | |
+| `docs/design/04-stage-cast-look.md` | "4.4 Models", "Studio bodies" | each studio body with its decision file, landmark, seat, crease angle, and rig rules | |
+| `docs/design/04-stage-cast-look.md` | "4.5 Visual values", "Species colors" | the accent of each species | |
+| `docs/design/04-stage-cast-look.md` | "4.5 Visual values", "Facets and triangle budgets" | the studio bodies and the triangles of the pea eyes | |
+| `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the instrument scale and the reach of each species | |
 | `docs/design/04-stage-cast-look.md` | "4.7 Rig" | the optional bones of a rig, such as `tail_tip` | |
-| `docs/design/07-architecture.md` | "7.1 Modules", the text of `VIEW_SHEETS` | the sheet pages of `views.html` (`VIEW_SHEETS`), only for a species with a sheet page | `cat` |
-| `docs/agents/model-work.md` | "Bodies and roles" | each body of its own with its source, its main decision file, and its role | |
+| `docs/design/07-architecture.md` | "7.1 Modules", the text of `VIEW_SHEETS` | the sheet pages of `views.html` | `cat` |
+| `docs/agents/model-work.md` | "Bodies and roles" | each body with its source, decision file, and role | |
 | `docs/agents/model-traps.md` | the whole file | each trap that cost the round a step | |
-| `docs/briefs/studio-body.md` | "7. A mesh with no skeleton" | the example meshes of the user | |
-| `assets/models/<s>/README.md` | the whole file | the source, the license, and the checksum of a mesh of the user | |
+| `assets/models/<s>/README.md` | the whole file | the source, license, and checksum of a mesh of the user | |
 | `lowpoly-studio/docs/handoff.md` and `lowpoly-studio/README.md` | the whole files | only a body that the studio builds | `rabbit`, `fox-red`, `fox-tan`, `cat`, `dog` |
 
 A new role:
 
 | File | Heading | The place lists | Not for |
 |---|---|---|---|
-| `docs/design/05-animation.md` | "Pose index" | one row for each role, in the commit of the role | |
+| `docs/design/05-animation.md` | "Pose index" | one row for each role | |
 | `docs/design/07-architecture.md` | "7.1 Modules", the text of `pnpm close-views` | the views and the moments of each role (`ROLE_VIEWS`) | |
-| `docs/design/09-process.md` | "9.3 Tests" | the sweep of each role (`SWEEP_ROLES`) and its clearance test, or the reason for no test | |
+| `docs/design/09-process.md` | "9.3 Tests" | the sweep of each role (`SWEEP_ROLES`), or the reason for no sweep | |
 | `docs/agents/model-work.md` | "Bodies and roles" | the role of the species for the tools | |
 
 A new hold:
 
 | File | Heading | The place lists | Not for |
 |---|---|---|---|
-| `docs/design/05-animation.md` | "Pose index" | the support, the source, the play, the rest, the code, and the docs of the role | |
-| `docs/design/05-animation.md` | "5.2 Rest pose" | the rest of the instrument and of the bow, such as the upright bow and its via | |
-| `docs/design/05-animation.md` | "5.3 Instrument motion", "Bowed strings in detail" | the play hold of each species with a bow, the rest bow, and the bow of a soloist who stands (`standBow`) | `fox-tan` |
+| `docs/design/05-animation.md` | "Pose index" | the support, source, play, rest, code, and docs of the role | |
+| `docs/design/05-animation.md` | "5.2 Rest pose" | the rest of the instrument and of the bow | |
+| `docs/design/05-animation.md` | "5.3 Instrument motion", "Bowed strings in detail" | the hold, the rest bow, and the standing bow of each species with a bow | `fox-tan` |
 | `docs/design/05-animation.md` | "5.3 Instrument motion", "Woodwinds and brass in detail" | the hold of each species with a wind instrument | `rabbit`, `fox-red`, `cat`, `dog` |
 | `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the reach of the nut, or of the grip of a wind instrument | |
 | `docs/decisions/<date>-<topic>.md` | the whole file | the decision file of the hold | |
-| `docs/design.md` | "10. Decisions to confirm" | the line of the decision file at the end of the list | |
+| `docs/design.md` | "10. Decisions to confirm" | the line of the decision file | |
 
-The code has its own lists, which the brief of section 2 names: `ANIMALS` of
-`tools/studio-body.ts`, `STUDIO_BODIES` of `src/models/studio-body.ts`, `SPECIES` of
-`src/models/species.ts`, `SWEEP_ROLES` of `src/pose/test-sweep-roles.ts`, `ROLE_VIEWS` of
-`tools/close-views.ts`, `FOLD_ROLES` of `tools/fold-probe.ts`, `SPECIES_HOLDS` of
-`src/pose/bowed-rig.ts`, and `SPECIES_WIND_HOLDS` of `src/pose/winds.ts` with `LEG_RESTS` of
-`tools/hold-fit.ts` for a wind hold.
+The code has its own lists: `ANIMALS` of `tools/studio-body.ts`, `STUDIO_BODIES` of
+`src/models/studio-body.ts`, `SPECIES` of `src/models/species.ts`, `SWEEP_ROLES` of
+`src/pose/test-sweep-roles.ts`, `ROLE_VIEWS` of `tools/close-views.ts`, `FOLD_ROLES` of
+`tools/fold-probe.ts`, `SPECIES_HOLDS` of `src/pose/bowed-rig.ts`, and `SPECIES_WIND_HOLDS` of
+`src/pose/winds.ts` with `LEG_RESTS` of `tools/hold-fit.ts` for a wind hold.
