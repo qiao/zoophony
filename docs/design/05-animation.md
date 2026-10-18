@@ -184,14 +184,11 @@ declare function poseAt(
 ): ScenePose;
 ```
 
-`poseAt()` also calculates the IK targets of 4.7 and solves the arms, so the scene only copies
-the rotations to the bones. The app calls `layoutScene()` and `preparePoses()` one time for each
-`Score`, and a `ModelCache` of `models/` lets each kind of player build its model one time.
-`preparePlayer()` and `prepareConductor()` plan one animal, so that a page with no `Score` can
-also make a plan. Each frame then only looks up the song time in sorted lists and writes into one
-buffer, so the poses of 60 players take much less than the 4 ms of the main thread (9.7). In each
-animation frame, `src/main.ts` calls `poseAt()` with the song time of `Player.now()` (6.7) and the
-wall time, and `StageScene.pose()` copies the poses to the bones.
+`poseAt()` also solves the IK of 4.7, so the scene only copies the rotations to the bones
+(`StageScene.pose()`). The app calls `layoutScene()` and `preparePoses()` one time for each
+`Score`, so each frame only looks up the song time in sorted lists and writes into one buffer.
+Thus the poses of 60 players take much less than the 4 ms of the main thread (9.7).
+`preparePlayer()` and `prepareConductor()` plan one animal for a page with no `Score`.
 
 The pose has three layers:
 
@@ -253,12 +250,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **No jump.** A move starts from the height of each player at the change. `transport.before`,
   which `changeTransport()` of `app/transport.ts` sets, keeps the transport before the change, so
   fast changes of play and pause move the instruments with no jump.
-- **Count-in.** From the song start, the slowest lift ends before the downbeat. A shorter
-  count-in in wall time, at a higher speed or on a resume, scales all lifts by one factor
-  (`liftScale()`, `transport.leadSec`). In the count-in after a pause, the note and beat layers
-  hold the song time of the pause point (`noteLayerTime()` of `pose/count-in.ts`). A pause in the
-  count-in has no hold (`transport.holdSec` 0): the instruments go down at once, and the song
-  time goes back to the start point.
+- **Count-in.** The slowest lift ends before the downbeat. A shorter count-in in wall time
+  scales all lifts by one factor (`liftScale()`). After a pause, the note and beat layers hold
+  the song time of the pause point (`noteLayerTime()`). A pause in the count-in has no hold: the
+  instruments go down at once, and the song time goes back to the start point.
 - **Seated posture.** Each seated player sits tall with a straight upright back off the chair
   back, the hips above the knees, the thighs sloping down, vertical shins, and the soles flat on
   the floor. Real seated string players sit so: "The main point is that your hips are higher
@@ -272,9 +267,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   head up, as a real pianist before a performance (`restLean` and `restHeadLift` of
   `HANDS_HOLDS`). The lift brings the hands from the lap to the keys. The harp player sits up.
 - **Arm clearance.** In the rest pose, no arm goes through the body. The forearm, the hand, and
-  the lower half of the upper arm can touch the torso, the head, and the thighs, as in the
-  reference images, up to `ARM_CONTACT_DEPTH` of `pose/test-arm-clearance.ts`. The elbows turn
-  from the rest to the hold at an even speed (`mixDirection()`).
+  the lower upper arm can touch the body, as in the reference images, up to `ARM_CONTACT_DEPTH`
+  of `pose/test-arm-clearance.ts`.
 - **Upright bow.** The seated rabbits and red foxes rest as a seated violinist: the violin
   upright on the left thigh, and the bow upright at the right side with the frog in the right paw
   (5.3, `docs/decisions/2026-10-16-bow-rest.md`). The round belly keeps the right paw at the
@@ -806,18 +800,22 @@ for the parts of each bone in each height band. The planner tests many points al
 and each sight line, in a desktop view (aspect 1.6) and in a phone view in portrait (aspect
 0.46), because the plan is the same for all views.
 
-- The line of sight from the target to the camera crosses no box, except the boxes of the subject
-  near the target. A far part of a large instrument, such as the piano case, still counts. A solo
-  or a conductor shot also has sight points: the head, which no box hides, and the palms and the
-  instrument, of which at most one is hidden.
-- No head of another player stands in the foreground of a close shot (`FOREGROUND`). A head in a
-  portrait frame counts against the geometric mean of its half sides, because the area of the
-  frame sets how large a head looks. A choir shot skips the heads below the chests of the
-  singers on the screen, because they cover no face and no folder. No other object covers more
-  than 15% of the frame. The body of the bear stays out of a solo shot of the soloist.
+- The line of sight from 0.3 m outside the target to the camera crosses no box, except the boxes
+  within 0.4 m of the target (the subject). A far part of a large instrument, such as the piano
+  case, still counts. A solo or a conductor shot also has sight points: the head, which no box
+  hides, and the palms and the instrument, of which at most one is hidden.
+- No head of another player stands in the foreground of a close shot (`FOREGROUND`). A near head
+  counts when its radius on the screen is more than 0.24 of half the frame height, or of the
+  geometric mean of the half sides of a portrait frame, because the area of the frame sets how
+  large a head looks. A choir shot skips the heads below the chests of the singers on the screen,
+  because they cover no face and no folder.
+- No other object nearer than 0.9 of the depth of the focus covers more than 15% of the frame,
+  measured on a grid of 20 × 20 cells. The body of the bear stays out of a solo shot of the
+  soloist.
 - Each close camera stays nearer to the stage center than `CLOSE_DISTANCE_SHARE` of the default
-  distance, so that a change to Free mode keeps the beam of the shot (4.5). Each camera keeps a
-  distance from each box, more from the conductor, whose arms reach out of the footprint.
+  distance, so that a change to Free mode keeps the beam of the shot (4.5). Each camera keeps
+  0.6 m from each box and 1.0 m from the podium and the conductor, whose arms reach out of the
+  footprint, and stays 0.6 m above the stage top.
 - The camera stays inside or outside the cone of the visible beam (4.5) for a full shot, because
   the beam draws only its outer faces and a crossing darkens the image at once
   (`models/beam.ts`). A cut or a blend that changes the side is a hard cut.
