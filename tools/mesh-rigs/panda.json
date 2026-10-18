@@ -216,9 +216,9 @@
     "smile": {
       "bands": [
         {"x": [0, 0.0627], "y": [0.7525, 0.7696], "rise": 0, "front": 0.165, "normalY": [-0.3, 1], "facing": 0.5},
-        {"x": [0.0528, 0.0792], "y": [0.7591, 0.7822], "rise": 0, "front": 0.165, "normalY": [-1, -0.25], "facing": -1}
+        {"x": [0.0528, 0.0792], "y": [0.7591, 0.7822], "rise": 0, "front": 0.165, "normalY": [-1, -0.25], "facing": -1, "outward": 0.6}
       ],
-      "note": "The user chose \"Thin smile line\" on 2026-10-18. The line takes the dark color of the patches. The first band takes the faces on the top of the lower lip, along the crease between the lips: 18 faces. The second band takes the faces under the upper lip at the corners, so that the corners turn up: 13 faces. The line is 22.5 cm wide in the app, and its corners rise 4.4 cm. No face of the line shares a corner with the nose or with an eye patch. The first band alone reads as a closed smile from the front, but the mouthpiece hides most of it in the play pose. The corners of the second band show beside the mouthpiece (docs/research/2026-10-18-panda-face.md)."
+      "note": "The user chose \"Thin smile line\" on 2026-10-18. The line takes the dark color of the patches. The first band takes the faces on the top of the lower lip, along the crease between the lips: 18 faces. The second band takes the faces under the upper lip at the corners that do not turn to the side (outward 0.6): 6 faces. The user said on 2026-10-18: \"The corner of the mouth has a big area of black\". With no outward limit, the band took 13 faces, and the 7 faces that turn to the side (normal x 0.69 to 0.85, one of 7.4 cm2) showed as a dark block in a side view: 409 dark px against a line of 81 px in the gallery side view, and 0 px with the limit. No face of the line shares a corner with the nose or with an eye patch (docs/research/2026-10-18-panda-face.md)."
     },
     "tone": {
       "chroma": 0.08,
