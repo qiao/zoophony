@@ -61,13 +61,15 @@ of the gamut. The warm scene does not use it.
 ### 2.4 The bake
 
 `bake_time.ts` with `bake-time.patch` times each bake with `gl.finish()`, on the development Mac.
-The output is `bake-time.txt`.
+The output is `bake-time.txt`. The size of the first download grew by the
+bake module, the grade module, and the stage shader.
 
 | Measure | Value |
 |---|---|
 | Time of one bake, 12 layouts | 11.8 ms to 14.1 ms |
 | Time of the first bake, with the compile of its shaders | 19.4 ms |
 | GPU memory of the color target of the bake (1024², RGBA16F) | 8 MiB |
+| First download (`pnpm size`) at `b6d09883` and at `d1bb9738` | 465,439 B and 470,705 B (+5,266 B) |
 
 ### 2.5 The gap under the feet of the conductor
 
