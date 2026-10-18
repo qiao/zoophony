@@ -26,9 +26,12 @@ export const BRASS_FUNDAMENTALS = { horn: 41, trumpet: 46, trombone: 34, tuba: 2
 
 /**
  * The partials of a brass tube, in semitones above its fundamental: the notes that the player
- * plays with no valve and the slide in the first position.
+ * plays with no valve and the slide in the first position. The list has no seventh partial (34
+ * semitones). It is about 31 cents flat, so players play its notes from the eighth partial
+ * (design 5.3). Thus the trombone plays A♭4 in the third position, and the trumpet plays the
+ * written A5 with two valves.
  */
-const PARTIALS = [0, 12, 19, 24, 28, 31, 34, 36, 38, 40, 42, 43, 45, 46, 48] as const;
+const PARTIALS = [0, 12, 19, 24, 28, 31, 36, 38, 40, 42, 43, 45, 46, 48] as const;
 
 /** The number of pressed valves for each semitone below a partial: none, 2, 1, 1+2, 2+3, 1+3, all. */
 const VALVES = [0, 1, 1, 2, 2, 2, 3] as const;
@@ -56,7 +59,8 @@ export function semitonesBelowPartial(key: number, fundamental: number): number 
 }
 
 /**
- * Gives the trombone slide position of a key: 1 to 7, on the partials of B♭1.
+ * Gives the trombone slide position of a key: 1 to 7, on the partials of B♭1. F♯4, G4, and A♭4
+ * take the positions 5, 4, and 3, because the partials have no seventh partial.
  *
  * @param key The MIDI key.
  * @returns The position, from 1 (closed) to 7.

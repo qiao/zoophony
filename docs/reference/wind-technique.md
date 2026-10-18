@@ -325,8 +325,7 @@ from the first position (derived).
 
 ## 4. Use in the app
 
-Since 2026-10-18, this file is the target of the wind motion of the app. No round has changed the
-wind motion since then. Each row gives the rule of the app and its code, the reference, and the
+Since 2026-10-18, this file is the target of the wind motion of the app. Each row gives the rule of the app and its code, the reference, and the
 verdict: "matches", or the difference with a measure. The research report
 [`2026-10-18-wind-technique.md`](../research/2026-10-18-wind-technique.md) gives the measures and
 the motion spec T1 to T7 of the fit round of the panda. A round that changes the motion updates
@@ -344,7 +343,7 @@ the rows.
 | Head (`headTurn` 0) | The head stays square and upright at the mouthpiece | The head up, with no slump to the left (1.1) | Matches |
 | Slide reach (`slideReachOf()`) | 0.155 m for positions 1 to 7 | 0.568 m (1.2, derived) | Differs: 27.3% of the real travel |
 | Steps (`slidePosition()`, `poseWind()`) | Equal steps of 2.58 cm | Steps that grow from 8.2 cm to 10.9 cm (1.2). Proportional steps on 0.155 m are 2.23 cm to 2.98 cm | Differs: at most 0.59 cm, at position 3 |
-| Positions (`slidePosition()`, `PARTIALS` of `pose/wind-notes.ts`) | The lowest position on the partials of B♭1, with the seventh partial. F♯4, G4, and A♭4 in positions 3, 2, and 1 | The seventh partial is 31 cents flat. From the eighth partial, positions 5, 4, and 3 (1.2, 1.3, derived) | Differs for these three notes. The other notes of D4 to B♭4 match |
+| Positions (`slidePosition()`, `PARTIALS` of `pose/wind-notes.ts`) | The lowest position on the partials of B♭1, with no seventh partial. F♯4, G4, and A♭4 in positions 5, 4, and 3 | The seventh partial is 31 cents flat. From the eighth partial, positions 5, 4, and 3 (1.2, 1.3, derived) | Matches for D4 to B♭4 |
 | Alternate positions | None | B♭3 in 5, F4 in 4 or 6, for fast passages and slurs (1.3) | Differs |
 | Arm (`armRig()`, `reach` 45° of `WIND_HOLDS.trombone`) | The two-bone IK moves the elbow most. The right elbow flexion goes from 75° at position 1 to 29° at position 7, a range of 46°, and the arm is at its full reach at position 7 | The wrist leads, the elbow takes the larger moves, and the shoulder joins at 6 and 7. One player: the right elbow went from 114° or 125° at position 1 to 28° or 17° at position 6 (1.4) | Differs: the elbow range is about half of the real range, and the elbow is about 40° more open at position 1 |
 | Slide time (`WIND_MOTION.slideSec`, `moveTo()`) | At most 0.1 s, with a smooth start and stop, and the end at the note start. The slide stops in each position | Late and fast, on time at the note start, a stop in each position. Legato changes from 1 to 5 took 98 ms (1.5) | Matches |
@@ -373,7 +372,7 @@ the rows.
 | Trumpet angle (`trumpet()` of `models/instruments/brass.ts`) | 5° below the level, straight ahead | "Angled slightly down", a little less than 90° to the face (2.1) | Matches |
 | Trumpet rest (`WIND_HOLDS.trumpet.rest`) | Off the mouth, turned down | No source (2.1) | No source |
 | Tuba (`WIND_HOLDS.tuba`, `tuba()`) | In the lap, the bell at the left of the head, the right paw on the valves | On the thigh or the chair, the right hand on the valves, the bell at the left of the head on a rotary tuba (3) | Matches |
-| Valve combinations (`VALVES`, `semitonesBelowPartial()` of `pose/wind-notes.ts`) | One valve for 1 and 2 semitones below a partial, two valves for 3 to 5, three valves for 6. The seventh partial is a partial | The written D4, C♯4, and E♭4 match. The written A5 uses 1-2 (2.1) | Differs for the written A5: the app presses one valve from the seventh partial |
+| Valve combinations (`VALVES`, `semitonesBelowPartial()` of `pose/wind-notes.ts`) | One valve for 1 and 2 semitones below a partial, two valves for 3 to 5, three valves for 6. The seventh partial is not a partial, so the trumpet plays the written A♭5, A5, and B♭5 with 2, 2, and 1 valves from the eighth partial | The written D4, C♯4, E♭4, and A5 (1-2) (2.1) | Matches. This file gives no fingering of the written A♭5 and B♭5, of the horn, and of the tuba |
 | Fingers of the woodwinds (`holesClosed()`) | Both hands close for a low note, and the right hand opens first up the octave | Only the fingers move, with the pads on the keys (2.3, 2.4) | Matches. The paws curl as one block |
 | Breath time (`WIND_MOTION`) | 0.4 s before each phrase | Reed players breathe in about 0.3 s. A breath in tempo takes one beat (2.1, 2.3, 1.6) | Matches |
 | Breath of the oboe | A breath in only | A breath out of the stale air, then a breath in (2.3) | Differs: no breath out |

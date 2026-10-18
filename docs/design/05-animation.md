@@ -396,8 +396,10 @@ The code constants of each family hold the times, the angles, and the lengths of
     not take the whole turn to the grip, and the front of the left shoulder does not fold.
   - A woodwind player closes the holes with both hands, and up the octave the right hand opens
     first. A brass player presses the valves with one hand: none on a partial of the tube, and 1
-    to 3 valves for 1 to 6 semitones below it (`BRASS_FUNDAMENTALS`). The trombone slide takes the
-    position of the pitch, mapped into the part of the travel that the arm reaches.
+    to 3 valves for 1 to 6 semitones below it (`BRASS_FUNDAMENTALS`). The partials skip the
+    seventh partial, because it is flat and real players do not use it (`PARTIALS`). The trombone
+    slide takes the position of the pitch, mapped into the part of the travel that the arm
+    reaches.
   - In the rest pose, the head lifts, and the instrument moves off the mouth and tilts. The horn
     bell sits on the right thigh. A hold that frees the left paw (`WindHold.restFreeL`) puts it on
     or beside the left thigh (`lapHand()` of `pose/lap.ts`) on a path in front of the belly
