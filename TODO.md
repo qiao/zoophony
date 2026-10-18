@@ -629,8 +629,8 @@ the mockup is out of scope.
       0.67 ms in each frame of `perf-60.mid`. The bake step costs 0.42 ms, with 20 shadow samples
       of the baked stage in place of 12.
 - [ ] The glow of the haze around the beam is weaker than in `orchestra-latest.png`: the hall
-      above the stage has a luma p90 of 27 against 49 in the camera `orchestra`, after the haze of
-      1.5 times. Free mode dims the beam there, as in a close shot.
+      above the stage has a luma p90 of 26 against 49 in the camera `orchestra`, after the fan of
+      the beam. Free mode dims the beam there, as in a close shot.
 - [ ] Give the players the shadows of the props on their bodies again, such as the shadow of a
       chair seat on the shins. The bake took the props out of the shadow map.
 - [ ] The white fur of the rabbit is a little more yellow than in `orchestra-latest.png`: a hue
@@ -644,8 +644,15 @@ the mockup is out of scope.
       white side lights and a neutral fill, an amber wood of finer planks, honey chairs, softer and
       lighter floor shadows, and a brighter haze and beam. Measures:
       `docs/research/2026-10-18-light-color.md`.
-- [ ] The chairs have a lit saturation of 0.53 against 0.65 in `orchestra-latest.png`, and the
-      stage of the camera `orchestra` a median luma of 124 against 107 outside the pool of light.
+- [x] The key light far at the back right and the beam as its fan (user "do your recommendation"
+      on 2026-10-18): parallel shadows to the front left, as in `orchestra-latest.png`, and a beam
+      that comes from the key light. Measures: `docs/research/2026-10-18-key-beam.md`.
+- [ ] The chairs have a lit saturation of 0.52 against 0.65 in `orchestra-latest.png`, and the
+      stage of the camera `orchestra` a median luma of 130 against 107 outside the pool of light.
+- [ ] A cool fill (`#282c34`) against the warm keys waits for the user: it makes the shade of the
+      white fur a little grayer (`docs/research/2026-10-18-key-beam.md`).
+- [ ] Measure the back rows after the far key light. If they stay too dark against
+      `orchestra-latest.png`, add a top light over them (about 0.2 ms in each frame).
 - [ ] Cut the frame cost of the shadows of the side lights in the performance sweep: about 0.9 ms
       of GPU time and 0.4 ms of main-thread time in each frame of `perf-60.mid` on the high tier.
       Options: smaller maps, or a new map only every second frame.
