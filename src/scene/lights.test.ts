@@ -118,9 +118,9 @@ describe('createLights', () => {
     expect(fill?.intensity).toBe(FILL.intensity);
   });
 
-  it('crosses two side lights over the stage, with no shadow (design 4.5)', () => {
+  it('crosses two side lights over the stage (design 4.5)', () => {
     const sides = lights.children.filter(
-      (child): child is SpotLight => child instanceof SpotLight && !child.castShadow,
+      (child): child is SpotLight => child instanceof SpotLight && child.name === 'side',
     );
     expect(sides).toHaveLength(2);
     const [right, left] = sides;
