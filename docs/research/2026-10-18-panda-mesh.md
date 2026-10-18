@@ -81,6 +81,12 @@ rounds, one set of weights for each face moved the fold to its neighbors, and fo
 the left elbow direction, and a head turn kept them (`fold-raise-left.txt`,
 `fold-rigid-left.txt`, `fold-bind-arms.txt`, `hold-fit-left.txt`).
 
+**Fur.** `fur_colors.py` compares the face colors of the rig with the belly of the front close
+view (`fur-colors.txt`). The white fur of the mesh has the Oklab lightness 0.957 and the chroma
+0.042, and `SPECIES_COLORS.panda` has 0.923 and 0.013. On the stage, the belly shows the chroma
+0.063 in the warm light. The cat got a move of its fur colors only after a choice of the user, so
+the panda keeps the colors of its mesh.
+
 **Other bodies.** `pnpm body-probe --base 5d1ef638` finds 90 of 95 bodies equal (the 5 panda
 bodies differ) and 22 of 23 players equal. 102 of 1,492 pose sets differ: the panda players and
 the players of the three demos with trombones, whose layout moves with the wider panda
