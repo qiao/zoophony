@@ -42,31 +42,23 @@ in a line at the back, as the Vienna Philharmonic seats them (user, 2026-10-05,
                         front of the stage
 ```
 
-- The strings sit in wedges: from left to right, the first violins, the second violins, the
-  violas, and the cellos. The first desk of each string seat (its players 0 and 1) sits in the
-  front row, and its other desks sit in the row behind it. The rows spread to the side edges, as
-  the rabbits and the flutes of the reference image do (4.5, seat geometry).
-- The woodwinds sit in a block of two rows in the middle: the flutes and the oboes in front, the
-  clarinets and the bassoons behind them. The harp sits at the left of the front woodwind row.
-  The horns sit left of the clarinets, and the trumpets right of the bassoons.
+- The strings sit in wedges. The first desk of each string seat (its players 0 and 1) sits in
+  the front row, and its other desks sit in the row behind it. The rows spread to the side edges,
+  as in the reference image (4.5, seat geometry).
 - A keyboard of the orchestra (a celesta, a harpsichord, or an organ that is not the soloist of
-  3.8) sits at the left of the harp, behind the violins, as the celesta of a professional
-  orchestra. With no harp and no woodwinds, it sits in the middle behind the strings, as a
-  continuo harpsichord. Thus its case does not stand in front of the first violins.
-- The back row holds, from left to right, the percussion, the contrabasses, the timpani, the
-  trombones, and the tuba. The choir stands on risers behind the orchestra. The vocal soloists of
-  3.8 stand in front of the choir, on the lowest level of the risers, because a place beside the
-  conductor covers the first violins or the cellos in the default view.
+  3.8) sits at the left of the harp, as the celesta of a professional orchestra. With no harp and
+  no woodwinds, it sits in the middle behind the strings, as a continuo harpsichord.
+- The vocal soloists of 3.8 stand in front of the choir, on the lowest level of the risers,
+  because a place beside the conductor covers the first violins or the cellos.
 - The soloist of 3.8 stands or sits at the front left of the conductor, as in a concerto (user,
   2026-10-06). A piano seat is always the soloist (3.8), so the piano stands there. Another
   soloist leaves its section row and stands next to the podium (4.5, seat geometry). It has no
   music stand, because a soloist plays from memory.
-- **Chamber group.** A score with at most 5 players (a solo, a duo, a trio, a quartet, or a
-  quintet) has no conductor and no podium (user, 2026-10-06), because a conductor for one pianist
-  looked wrong. The players sit in a small arc at the stage center and face each other a little,
-  as a real chamber group does. A score with 6 players or more keeps the conductor, and so does a
-  score with no players, so that the stage is not empty. `chamberFormOf()` of `models/cast.ts`
-  gives one of three forms:
+- **Chamber group.** A score with at most 5 players has no conductor and no podium (user,
+  2026-10-06), because a conductor for one pianist looked wrong. The players sit in a small arc at
+  the stage center and face each other a little, as a real chamber group does. A score with no
+  players keeps the conductor, so that the stage is not empty. `chamberFormOf()` of
+  `models/cast.ts` gives one of three forms:
 
   ```text
      solo              recital                     arc (a string quartet)
@@ -79,23 +71,18 @@ in a line at the back, as the Vienna Philharmonic seats them (user, 2026-10-05,
    V1, V2, Va, Vc: the first violin, the second violin, the viola, and the cello
   ```
 
-  - **Solo.** One player sits or stands at the stage center and faces the audience, with no music
-    stand. A pianist sits at the piano, with the case at the stage center.
-  - **Recital.** A pianist and one other player: the partner stands or sits in the crook of the
-    piano, as in a recital, and turns a little to the pianist.
-  - **Arc.** Two to five players in one arc, centered on the middle of the stage. A keyboard sits
-    at the left end, then the strings, the harp, the winds, the percussion, and the singers, in
-    the order of the rows. Thus a string quartet sits in the classic quartet half circle.
+  - **Solo.** One player at the stage center faces the audience, with no music stand.
+  - **Recital.** A pianist and a partner in the crook of the piano, as in a recital.
+  - **Arc.** Two to five players in one arc, in the order of the rows, so a string quartet sits
+    in the classic half circle. The players of an arc sit.
   - No player leaves the group as a soloist. A player alone and the partner of a pianist stand
-    when their instrument stands as a soloist (4.5, body proportions). The players of an arc sit.
-    The stage follows the rule of 4.5 (stage origin).
+    when their instrument stands as a soloist (4.5, body proportions).
 - Larger species sit farther back, so that a big animal hides no smaller animal (user,
   2026-10-05). A species of the size 1.2 or more plays only the contrabass, the timpani, the
   trombone, or the tuba. The strings have species of the size 1.05 or less, and the piano 1.1 or
   less (`docs/research/seating.md`, section 5).
-- `scene/hidden-heads.test.ts` draws the silhouettes of the players of each demo and of the choir
-  test file in the default view. A large species hides less than 10% of the head of each smaller
-  animal. The lowest riser level is high enough for this rule (4.5, seat geometry).
+- `scene/hidden-heads.test.ts` checks that a large species hides less than 10% of the head of
+  each smaller animal in the default view.
 
 ## 4.3 Species
 
@@ -174,48 +161,37 @@ interface BodyProportions {
 }
 ```
 
-The skeleton of each species (`BodyProportions`) is one table. `proportionsOf()` fills each value
-that `SpeciesParams.proportions` does not give with its default (`DEFAULT_PROPORTIONS`), and the
-frame of the body (`models/body-frame.ts`) holds the result. The trunk, the arms, the legs, and the
-seats (`seatHeights()` of `models/props.ts`, 4.5) read their joints and heights from it. The
-default `H` is `DEFAULT_HEAD_HEIGHT` times the size of the species (4.5, body proportions).
+`proportionsOf()` fills each value that `SpeciesParams.proportions` does not give with its
+default (`DEFAULT_PROPORTIONS`), and the frame of the body (`models/body-frame.ts`) holds the
+result for the trunk, the limbs, and the seats. The default skeleton is the skeleton of the bodies
+of 2026-10-06 (`docs/decisions/2026-10-11-body-revert.md`), with the short legs below. A species
+gives values of its own when its reference images show a different anatomy (design 1).
 
-The default skeleton is the skeleton of the bodies of 2026-10-06, which the user chose again
-(`docs/decisions/2026-10-11-body-revert.md`), with the short legs of the reference images (below).
-A species gives values of its own when its reference images show a different anatomy, such as the
-heavy legs of the hippos (design 1). The tests of the behavior check each skeleton: the clearance
-of the arms and the legs, the reach of the bow, the arm joints, the music stands, and the hidden
-heads.
+**Short legs.** The user said on 2026-10-11 that the legs were too long. The reference animals
+have small heads and long trunks, and our bodies keep their large heads, so the legs follow the
+trunk (`docs/research/2026-10-11-short-legs.md`):
 
-**Short legs.** The user said on 2026-10-11 that the legs of the animals were too long. The
-reference images have small heads and long trunks, so their legs are short against their trunks.
-Our bodies keep their large heads, so the legs follow the trunk
-(`docs/research/2026-10-11-short-legs.md`). Thus:
+- The seated knee is near the height of the seat, and the thigh slopes a little down to it. The
+  seat fits the legs (`seatHeight`), below the median of the reference images, so that the seated
+  legs look short (user, `docs/decisions/2026-10-11-low-seats.md`).
+- The standing legs are as short as the legs of the standing bear of `bear-views.png`, and a
+  standing leg is a straight column (`models/legs.ts`, `models/legs.test.ts`).
+- The studio bodies keep the trunks and the legs of their sources (4.4). No value of this table
+  applies to them, except the head height `H` and the seat heights of the polar bear, the rabbit,
+  the foxes, the cat, and the dog, which `models/species.ts` reads from their studio bodies.
 
-- The seated knee is near the height of the seat, and the thigh slopes a little down to it from
-  the hip joint. The thigh keeps its length, because a shorter thigh put the shin through the front
-  of the seat.
-- The seat fits the legs (`seatHeight`): the chair of each species, and the foot ring of the high
-  stool. The user chose seats below the median of the reference images, so that the seated legs
-  look clearly short in the default view (`docs/decisions/2026-10-11-low-seats.md`).
-- The standing legs of the default skeleton are as short as the legs of the standing bear of
-  `animals.webp` and `bear-views.png`. The egg body of the penguin shows no legs.
-- The studio bodies and the rigged meshes of the user keep the trunks and the legs of their
-  sources, with the bones of the studio (4.4). No value of this table applies to them, except the
-  head height `H` and the seat heights of the polar bear, the rabbit, the foxes, the cat, and the
-  dog, which `models/species.ts` reads from their studio bodies.
-- The legs have the form of the reference images (`SEATED_LEG` and `STANDING_LEG` of
-  `models/legs.ts`): a seated thigh as thick as the thighs of the model sheets, a shin that
-  narrows little to the ankle, and a standing leg that is a straight column with no step at the
-  knee. Round thick thighs above thin shins looked heavy.
-- `models/legs.test.ts` keeps each seated knee low and the standing legs short.
+A height map moves the torso of the parametric body with the joints of the table, and the head
+keeps its form:
 
-A height map moves the torso of the parametric body with the table, so that a species can give
-its own skeleton. Below the shoulder joints, each height of the torso scales with the joints.
-Above them, the top rings and the neck keep their part of the way to the `head` bone. The `head`
-bone stays 0.5 below the head center, and the head keeps its form. A `head` bone that is not above
-the joints is an error. The default skeleton keeps each height to the bit, because the map adds
-moves of 0.
+```text
+ height above the base of the torso (H)
+   headCenter -----  head center (the head keeps its form)
+       - 0.5  -----  `head` bone
+                     top rings and the neck: the same part of the way to the `head` bone
+   shoulderHeight -  shoulder joints
+                     rings, `chest`, `spine`, and `hips`: scale with the joints
+   0 --------------  base of the torso (the seat)
+```
 
 ```text
  height above the base of the torso (H)
@@ -240,20 +216,13 @@ moves of 0.
 | Percussion | badger | Choir | penguin |
 | Conductor | bear (reference) | | |
 
-- The fox plays in two sections, as in the reference image. The two fox colors of the reference
-  make the two sections look different. `SpeciesId` names them `fox-red` and `fox-tan`.
-- The penguins have black and white bodies, which look like choir robes (4.4, bodies of their
-  own).
-- The size rule of 4.2 puts the large species in the back row: the hippo plays the contrabass,
-  the elephant the timpani, the panda the trombone, and the rhino the tuba. The strings have the
-  rabbit, the red fox, the cat, and the dog. The piano has the polar bear (user, 2026-10-06).
-- The celesta, the harpsichord, the clavinet, and the organs are seats of the piano section
-  (3.8), so the polar bear plays them too. The merge rule of 3.7 gives one keyboard seat.
-- The wolves play the clarinets (user, 2026-10-05): the gray animal with a clarinet of
-  `animals.webp` is a wolf. The cast has 18 species. The bear conducts, and each other species
-  plays.
-- Further seats of a section alternate their species variants. For example, a third violin seat
-  uses rabbits again, and a fourth uses red-orange foxes.
+- The fox plays in two sections, in the two colors of the reference image (`fox-red` and
+  `fox-tan`). The penguins look like a choir in robes.
+- The size rule of 4.2 puts the large species in the back row. The polar bear plays the piano
+  (user, 2026-10-06) and each keyboard seat of 3.8. The wolf is the gray clarinet player of
+  `animals.webp` (user, 2026-10-05).
+- Further seats of a section alternate their species variants: a third violin seat uses rabbits
+  again.
 
 The shape parameters of each species of the parametric biped (4.5 gives the colors). The penguin
 has its egg body, and the rabbit, the two foxes, the cat, the dog, the bear, and the polar bear
@@ -273,31 +242,13 @@ have studio bodies (4.4), so they have no row:
 | rhino | small | horn | thin | none |
 | badger | small | long | puff | stripe |
 
-The face patterns of the head (`models/face-patterns.ts`):
-
-- `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
-  over the eyes.
-- `eye-patches` (the panda) are two ovals around the eyes, with their lower ends out.
-- `cap` (no species uses it now) is the accent color over the head down to below the eyes, with a
-  blaze of the belly color down the middle of the face. It colors the faces of the head, and adds
-  no part.
-- `face-disc` (the monkey) is a large face of the belly color around the eyes.
-- The eyes stand a little out of a patch or a disc, so that it does not hide them.
-
-`antlered` (the deer) is two ears that point out to the sides, and two antlers of the belly color
-on the head. `side-round` (the monkey) is two round ears at the sides of the head, at the height of
-the eyes. With pointed ears, the deer looked like the fox, and with round ears on the top of the
-head, the monkey looked like the bear.
-
-The belly color also colors the muzzle and the lower face: the cheeks, the jaw, and the face up to
-the eyes, as the white cheeks of the wolf in `animals.webp`. The forehead, the back of the head,
-and the top of a long muzzle keep the fur color. On the torso, the belly color is a stripe down
-the front that narrows toward the seat. A belly color on all front faces made the body look white
-in the front view.
-
-Each triangle of the body has one color: the place of its centroid or the direction of its face
-picks the color (`splitByCentroid()` and `splitByFacing()` of `models/mesh.ts`). Thus a color
-border follows the edges of the triangles.
+The face patterns (`models/face-patterns.ts`) color the faces of the head and add no part. The
+eyes stand a little out of a patch, so that it does not hide them. The deer has ears that point
+out to the sides with antlers, and the monkey round ears at the sides of the head, because with
+other ears they looked like the fox and the bear. The belly color colors the muzzle, the lower
+face, and a stripe down the front of the torso, as the white cheeks of the wolf in `animals.webp`.
+Each triangle has one color, picked by its centroid or its facing (`splitByCentroid()` and
+`splitByFacing()` of `models/mesh.ts`), so a color border follows the edges of the triangles.
 
 ## 4.4 Models
 
