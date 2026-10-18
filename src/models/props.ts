@@ -23,14 +23,16 @@ export const STAGE_COLORS = {
   /**
    * The mean color of a plank. Each plank has its own tone around it. The light of the lit floor
    * comes mostly from the diffuse light of the wood (`STAGE_FINISH` of `scene/stage.ts`). The
-   * darker walnut `#3b2618` then gave a lit floor that was too dark and too pale.
+   * darker walnut `#3b2618` then gave a lit floor that was too dark and too pale. The side lights
+   * are a warm white, so the wood holds the amber itself: `#5e351a` gave a lit floor with a
+   * saturation of 0.44 against 0.54 in `orchestra-latest.png`, and shadows that were too dark.
    */
-  plank: srgb('#5e351a'),
+  plank: srgb('#844c16'),
   /**
    * The dark line between two planks, at 0.68 of the plank color in linear values. The stage
    * shader finds a seam by this color, so no plank has it.
    */
-  seam: srgb('#4e2811'),
+  seam: srgb('#6e3f11'),
   /** The raised lip around the stage top, with a round top that catches the light. */
   nosing: srgb('#5e3c24'),
   /** The skirt: the front and the sides of the stage, and the step rises. */
