@@ -12,7 +12,13 @@ import type { Vec3 } from '../src/models/tuples.ts';
 import { SPECIES_HOLDS, bowedRig, holdOf, playingFrames } from '../src/pose/bowed-rig.ts';
 import { createBowPlaces, instrumentAt } from '../src/pose/bowed.ts';
 import { poseShoulder } from '../src/pose/ik.ts';
-import { SPECIES_WIND_HOLDS, windGrips, windHoldOf, windRig } from '../src/pose/winds.ts';
+import {
+  SPECIES_WIND_HOLDS,
+  WIND_HOLDS,
+  windGrips,
+  windHoldOf,
+  windRig,
+} from '../src/pose/winds.ts';
 import type { WindInstrument } from '../src/pose/winds.ts';
 import { runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
@@ -23,8 +29,26 @@ import { armReach, parseConfig } from './rig-mesh.ts';
 /** An instrument that the player holds under the chin. */
 export type ChinInstrument = 'violin' | 'viola';
 
-/** An instrument that `pnpm hold-reach` measures: an instrument under the chin, or the flute. */
-export type ReachInstrument = ChinInstrument | 'flute';
+/** An instrument that `pnpm hold-reach` measures: an instrument under the chin, or a wind. */
+export type ReachInstrument = ChinInstrument | WindInstrument;
+
+/** The instruments under the chin. */
+const CHIN_INSTRUMENTS = ['violin', 'viola'] as const satisfies readonly ChinInstrument[];
+
+/** The wind instruments, in the order of `WIND_HOLDS`. */
+export const WIND_INSTRUMENTS: readonly WindInstrument[] = Object.keys(WIND_HOLDS).filter(
+  (id): id is WindInstrument => Object.hasOwn(WIND_HOLDS, id),
+);
+
+/**
+ * Tells if an instrument of `pnpm hold-reach` is a wind instrument.
+ *
+ * @param instrument The instrument.
+ * @returns True for a key of `WIND_HOLDS`.
+ */
+export function isWind(instrument: ReachInstrument): instrument is WindInstrument {
+  return Object.hasOwn(WIND_HOLDS, instrument);
+}
 
 /** A support of the player that `pnpm hold-reach` takes. */
 export type ReachSupport = 'chair' | 'stand';
@@ -463,21 +487,24 @@ export interface GripReach {
 }
 
 /**
- * Measures the reach of the arms of a species to their grips on the flute (`palmL` and `palmR` of
- * `WOODWINDS`), with the lip plate at its place of the hold, in the playing pose and in the rest pose of its
- * flute hold (`windHoldOf()`), with the chest in its bind pose. A palm misses its grip by the distance
- * less the arm when the distance is longer than the arm.
+ * Measures the reach of the arms of a species to their grips on a wind instrument (`palmL` and
+ * `palmR` of the instrument), with the mouthpiece at its place of the hold, in the playing pose and
+ * in the rest pose of its hold (`windHoldOf()`), with the chest in its bind pose. A palm misses its
+ * grip by the distance less the arm when the distance is longer than the arm. The grip of the
+ * trombone slide is at the first position.
  *
  * @param species The species.
+ * @param instrument The wind instrument.
  * @param support The support of the player.
  * @returns The reach of each side.
  */
-export function fluteReach(
+export function windReach(
   species: SpeciesId,
+  instrument: WindInstrument,
   support: ReachSupport,
 ): Readonly<Record<'L' | 'R', GripReach>> {
-  const model = buildPlayer(species, 'flute', 4, support);
-  const rig = windRig(model, 'flute', windHoldOf(species, 'flute'));
+  const model = buildPlayer(species, instrument, 4, support);
+  const rig = windRig(model, instrument, windHoldOf(species, instrument));
   const play = windGrips(rig, 1);
   const rest = windGrips(rig, 0);
   const distance = (grip: { readonly joint: Vec3; readonly grip: Vec3 }): number =>
@@ -516,7 +543,7 @@ export interface FreeRestReach {
 /**
  * Measures the reach of each arm to the rest place of its paw, for each paw of the wind hold of a
  * species that leaves its grip in the rest pose (`WindHold.restFreeL`, design 5.3). The chest is in
- * its bind pose, as for the grips of {@link fluteReach}.
+ * its bind pose, as for the grips of {@link windReach}.
  *
  * @param species The species.
  * @param instrument The wind instrument.
@@ -558,26 +585,67 @@ export function reachShare(reach: FreeRestReach): number | null {
   return reach.distance === null ? null : reach.distance / reach.arm;
 }
 
+/** The slide of a trombone player: its full travel and the part that the right arm reaches. */
+export interface SlideReach {
+  /** The travel of the slide from the first to the seventh position, in meters. */
+  readonly travel: number;
+  /**
+   * The part of the travel that the right arm reaches in the playing pose (`slideReach` of
+   * `windRig()`), in meters. The slide positions map into this part (design 5.3).
+   */
+  readonly reach: number;
+}
+
 /**
- * Writes the report of `pnpm hold-reach <species> --instrument flute`. A paw that leaves its grip
- * in the rest pose gives the reach of its rest place ({@link freeRestReach}) in place of the reach
- * of its grip.
+ * Measures the slide of a wind player: the travel of the slide target of the instrument, and the
+ * part of it that the right arm reaches in the playing pose of the hold (`slideReach`).
  *
  * @param species The species.
+ * @param instrument The wind instrument.
+ * @param support The support of the player.
+ * @returns The slide, or `null` for an instrument with no slide.
+ */
+export function slideReach(
+  species: SpeciesId,
+  instrument: WindInstrument,
+  support: ReachSupport,
+): SlideReach | null {
+  const model = buildPlayer(species, instrument, 4, support);
+  const slide = model.instrument.targets.find((t) => t.kind === 'slide');
+  if (!slide) {
+    return null;
+  }
+  const rig = windRig(model, instrument, windHoldOf(species, instrument));
+  const at = (point: Vec3): Vector3 =>
+    new Vector3(...placePoint(model.pieces, { bone: 'slide', at: point }));
+  return { travel: at(slide.to).distanceTo(at(slide.from)), reach: rig.slideReach };
+}
+
+/**
+ * Writes the report of `pnpm hold-reach <species> --instrument <wind>`. A paw that leaves its grip
+ * in the rest pose gives the reach of its rest place ({@link freeRestReach}) in place of the reach
+ * of its grip. A trombone adds the reach of its slide ({@link slideReach}).
+ *
+ * @param species The species.
+ * @param instrument The wind instrument.
  * @param support The support of the player.
  * @returns The lines.
  */
-export function fluteReachLines(species: SpeciesId, support: ReachSupport): string[] {
-  const reach = fluteReach(species, support);
-  const free = freeRestReach(species, 'flute', support);
-  const own = SPECIES_WIND_HOLDS[species]?.flute !== undefined;
+export function windReachLines(
+  species: SpeciesId,
+  instrument: WindInstrument,
+  support: ReachSupport,
+): string[] {
+  const reach = windReach(species, instrument, support);
+  const free = freeRestReach(species, instrument, support);
+  const own = SPECIES_WIND_HOLDS[species]?.[instrument] !== undefined;
   const m = (value: number): string => `${value.toFixed(3)} m`;
   const miss = (distance: number, arm: number): string =>
     distance > arm
       ? `misses the grip by ${m(distance - arm)}`
       : `reaches the grip with ${m(arm - distance)} to spare`;
   const lines = [
-    `${species} with the flute on the ${support}, hold ${own ? `flute@${species} (SPECIES_WIND_HOLDS)` : 'flute (WIND_HOLDS)'}, the lip plate at its place of the hold:`,
+    `${species} with the ${instrument} on the ${support}, hold ${own ? `${instrument}@${species} (SPECIES_WIND_HOLDS)` : `${instrument} (WIND_HOLDS)`}, the mouthpiece at its place of the hold:`,
   ];
   for (const s of ['L', 'R'] as const) {
     const { arm, play, rest } = reach[s];
@@ -588,6 +656,12 @@ export function fluteReachLines(species: SpeciesId, support: ReachSupport): stri
       freed
         ? freeRestLine(freed)
         : `    Rest pose: shoulder joint to the grip ${m(rest)}, the palm ${miss(rest, arm)}`,
+    );
+  }
+  const slide = slideReach(species, instrument, support);
+  if (slide) {
+    lines.push(
+      `  Slide: the right arm reaches ${m(slide.reach)} of the travel of ${m(slide.travel)} in the playing pose (slideReach)`,
     );
   }
   return lines;
@@ -696,7 +770,7 @@ export function holdReachLines(
 
 /** The options of `pnpm hold-reach <species>`. */
 export interface ReachOptions {
-  /** The instrument under the chin, or the flute. */
+  /** The instrument under the chin, or a wind instrument. */
   readonly instrument: ReachInstrument;
   /** The support of the player. */
   readonly support: ReachSupport;
@@ -709,7 +783,7 @@ export interface ReachOptions {
 
 /** The usage text of `pnpm hold-reach`. */
 const USAGE =
-  'Usage: pnpm hold-reach <species> [--instrument violin|viola|flute] [--support chair|stand] [--set <path>=<value>[;<path>=<value>]...]... [--glb <file>]';
+  'Usage: pnpm hold-reach <species> [--instrument violin|viola|<wind>] [--support chair|stand] [--set <path>=<value>[;<path>=<value>]...]... [--size <scale>[,<scale>]...] [--glb <file>]';
 
 /**
  * Reads the options after the species. Each option has one value, and `--set` can come more than
@@ -738,7 +812,7 @@ export function parseReachOptions(args: readonly string[]): ReachOptions {
     }
     switch (flag) {
       case '--instrument':
-        instrument = pick(flag, value, ['violin', 'viola', 'flute'] as const);
+        instrument = pick(flag, value, [...CHIN_INSTRUMENTS, ...WIND_INSTRUMENTS]);
         break;
       case '--support':
         support = pick(flag, value, ['chair', 'stand'] as const);
@@ -777,8 +851,8 @@ export function holdReachVariantLines(species: SpeciesId, options: ReachOptions)
         lines.push(`${text || 'base'}:`);
       }
       lines.push(
-        ...(options.instrument === 'flute'
-          ? fluteReachLines(species, options.support)
+        ...(isWind(options.instrument)
+          ? windReachLines(species, options.instrument, options.support)
           : holdReachLines(species, options.instrument, options.support)),
       );
     } finally {

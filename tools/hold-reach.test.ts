@@ -7,8 +7,8 @@ import { lapPoint } from '../src/pose/lap.ts';
 import { windHoldOf } from '../src/pose/winds.ts';
 import {
   armFactorFor,
-  fluteReach,
-  fluteReachLines,
+  windReach,
+  windReachLines,
   freeRestReach,
   holdReach,
   holdReachLines,
@@ -106,8 +106,8 @@ describe('pnpm hold-reach (design 4.6)', () => {
 describe('pnpm hold-reach --instrument flute (design 4.6)', () => {
   it('measures each palm to its grip in the playing pose and in the rest pose', () => {
     // The wolf has the parametric biped, and the tan fox the studio body of the fox mesh.
-    const wolf = fluteReach('wolf', 'chair');
-    const fox = fluteReach('fox-tan', 'chair');
+    const wolf = windReach('wolf', 'flute', 'chair');
+    const fox = windReach('fox-tan', 'flute', 'chair');
 
     for (const side of ['L', 'R'] as const) {
       expect(wolf[side].play).toBeLessThan(wolf[side].arm);
@@ -118,7 +118,7 @@ describe('pnpm hold-reach --instrument flute (design 4.6)', () => {
   });
 
   it('reports the reach or the miss of each palm', () => {
-    const text = fluteReachLines('wolf', 'chair').join('\n');
+    const text = windReachLines('wolf', 'flute', 'chair').join('\n');
     for (const part of ['L: arm', 'R: arm', 'Playing pose', 'Rest pose', 'to spare']) {
       expect(text, part).toContain(part);
     }
@@ -143,12 +143,12 @@ describe('pnpm hold-reach --instrument flute (design 4.6)', () => {
     const [standing] = freeRestReach('fox-tan', 'flute', 'stand');
     expect(standing && reachShare(standing)).toBeNull();
 
-    const lines = fluteReachLines('fox-tan', 'chair');
+    const lines = windReachLines('fox-tan', 'flute', 'chair');
     const rest = lines.filter((line) => line.includes('Rest pose'));
     expect(rest).toHaveLength(2);
     expect(rest[0]).toMatch(/^ {4}Rest pose: the paw leaves its grip for the thigh \(restFreeL\)/);
     expect(rest[1]).toMatch(/^ {4}Rest pose: shoulder joint to the grip/);
-    expect(fluteReachLines('fox-tan', 'stand').join('\n')).toContain('the arm hangs down');
+    expect(windReachLines('fox-tan', 'flute', 'stand').join('\n')).toContain('the arm hangs down');
   });
 
   it('marks a rest place out of the reach of the arm', () => {
@@ -188,7 +188,7 @@ describe('parseReachOptions', () => {
     expect(() => parseReachOptions(['--glow', 'x'])).toThrow('is not known');
     expect(() => parseReachOptions(['--set'])).toThrow('has no value');
     expect(() => parseReachOptions(['--support', 'floor'])).toThrow('--support takes one of');
-    expect(() => parseReachOptions(['--instrument', 'oboe'])).toThrow('violin, viola, flute');
+    expect(() => parseReachOptions(['--instrument', 'cello'])).toThrow('--instrument takes one of');
   });
 });
 
