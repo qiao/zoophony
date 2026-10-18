@@ -368,6 +368,12 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
     color of the reference after a choice of the user (`colors.tone`): the cat takes half of the
     move to its sheet, and the white fur of the panda takes the white of `SPECIES_COLORS.panda`.
     The tan palette of the fox mesh (`StudioBody.palettes`) lets one module serve both foxes.
+  - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
+    vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
+    raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
+    of the patches along the crease between the lips, with the corners up, so that the corners
+    show beside a mouthpiece. The panda has both rules
+    (`docs/decisions/2026-10-18-panda-face.md`).
   - Tail. `tail_tip` gives a tail of two bones (`OPTIONAL_STUDIO_BONES`), and `studio.tailCurl`
     bends the seated tail: the cat curls it on the seat, and the dog hangs it down behind the seat
     (`docs/decisions/2026-10-17-dog-tail.md`). A curled tail does not sway (5.1). A short round
@@ -470,7 +476,7 @@ black desks were the largest shapes of some close shots.
 the face, and the accent. The models and the seat dots of the UI read them through `SPECIES`
 (`models/species.ts`). Each studio body keeps the colors of the faces of its GLB file (4.4), so
 its colors and its accent parts here color no part of its body. The rig of the panda moves its
-white fur to the fur color here (4.4).
+white fur to the fur color here, and its smile line takes the dark of its eye patches (4.4).
 
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR`), and a dark nose
   (`NOSE_COLOR`), unless their accent parts include the nose. The open beak of the penguin shows a
@@ -678,7 +684,7 @@ the head center. The table gives the parts of the parametric body (4.4).
 | Torso and neck | `models/trunk.ts` | A round pear torso with the belly forward, as in `animals.webp`, and a short neck that the torso and the head hide. |
 | Arms and hands | `models/arms.ts` | Two limbs for each arm and a round mitten. A dome around the shoulder joint sinks into the torso in each pose. |
 | Legs and feet | `models/legs.ts` | The short legs of 4.3, with round shoes on the floor or on the foot ring of a high stool. |
-| Eyes | `models/eyes.ts` | Two black upright ovals with a white light, between the front and the sides of the head, so that the side view shows them. The studio bodies have the same eyes. No mouth. |
+| Eyes | `models/eyes.ts` | Two black upright ovals with a white light, between the front and the sides of the head, so that the side view shows them. The studio bodies have the same eyes. No mouth, except the smile line of the panda mesh (4.4). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). |
 | Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long muzzle reaches past the mouthpiece of a wind instrument. |
 | Tails | `models/tails.ts` | The tail type of the species (4.3). A long tail goes back through the open back of the chair. |
