@@ -33,15 +33,19 @@ export const GRADE = {
   /**
    * The extra saturation of the pale colors: the factor grows by this value times the square of
    * 1 minus the saturation of the color. AgX takes the saturation from the lit wood, and a dark
-   * fur that is already saturated keeps its saturation.
+   * fur that is already saturated keeps its saturation. White fur is the palest color, so it got
+   * the most, and 0.9 made it cream (a saturation of 0.47 against 0.30 in `orchestra-latest.png`).
    */
-  vibrance: 0.9,
+  vibrance: 0.5,
   /** The part of the saturation that the shadows keep. */
   shadowSaturation: 0.85,
   /** The tint of the shadows, added to each channel: neutral to a little cool. */
   shadowTint: [-0.006, 0, 0.012],
-  /** The tint of the highlights, added to each channel: warm amber. */
-  highlightTint: [0.02, 0.004, -0.03],
+  /**
+   * The tint of the highlights, added to each channel: warm amber. Twice this tint made the lit
+   * white fur yellow.
+   */
+  highlightTint: [0.01, 0.002, -0.015],
 } as const;
 
 /**
