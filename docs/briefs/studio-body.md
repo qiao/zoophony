@@ -27,11 +27,11 @@ makes a baseline worktree.
 | The depths, the note errors, and the gaps of a role that exists | `pnpm pose-depth <role> --gaps` |
 | The bow of a bowed species that stands as a soloist | `pnpm pose-depth <role> --soloist <species>` |
 | The folded faces | `pnpm fold-probe <role>`, with `--glb <file>` for a new GLB file |
-| The reach of the arms against a violin or a viola | `pnpm hold-reach <species>`, with `--glb <file>` for a new GLB file |
+| The reach of the arms against the instrument | `pnpm hold-reach <species> --instrument <id>`, with `--glb <file>` for a new GLB file |
 | The size of the first download | `pnpm build && pnpm size` |
 | The posture of a real player at rest, when ready, and in a play | a source on the web, and the clips of the studio (`python3 studio view <animal>`) |
 
-For a species with no studio body, measure the reach on a scratch copy with an entry in `ANIMALS`.
+For a species with no studio body, `--glb <file>` takes the body when its rig config exists.
 When the rule of a violin shop gives a violin outside the real sizes, or a viola scale below 1, ask
 the user before the round, with the measures and the choices (longer arms or a smaller
 instrument).
@@ -173,8 +173,10 @@ decisions, and the measured gains in a research report.
 studio body ("A mesh with no skeleton into route 3" of `docs/agents/model-work.md`). Add these
 items to the briefs of the rig round and of the app round.
 
-- **The arms.** Ask the user about longer arms with the measured factor of
-  `pnpm rig-mesh <animal> --check`. Choose the landmark of the scale first.
+- **The options.** Make the mid-report with `pnpm mesh-options`: each size, each arm factor with
+  the reach of the hold on the real body, and the knees of each leg factor. Ask the user about the
+  size, the arms, and the legs with its table and its image. Choose the landmark of the scale
+  first.
 - **The faces.** Permit rings at the joints (`refine.rings`) and edge flips of faces that lie
   almost on one plane (`refine.flip`) from the start.
 - **The order of the goals.** When two goals conflict, keep this order:
