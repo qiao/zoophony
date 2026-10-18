@@ -19,6 +19,7 @@ import {
   NOISE_SIZE,
   beamAxes,
   hazeProfile,
+  hazeTip,
   createBeam,
   hazeRadius,
   insideHaze,
@@ -27,7 +28,7 @@ import {
   tilingNoise,
 } from './beam.ts';
 import type { DepthRenderer } from './beam.ts';
-import { BEAM_RADIUS_IN_SIDES, BEAM_TOP_RADIUS_IN_SIDES, keyLightPlace } from '../models/beam.ts';
+import { BEAM_RADIUS_IN_SIDES, BEAM_TOP_RADIUS_IN_SIDES } from '../models/beam.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { TIER_SETTINGS } from './quality.ts';
 
@@ -74,21 +75,21 @@ function rounded(point: readonly number[]): number[] {
 
 /**
  * Gives a point near the axis of a beam with its foot at the stage center: the axis goes from the
- * stage center to the key light.
+ * stage center to the tip of the haze.
  */
 function onAxis(side: number, y: number, dx = 0, dz = 0): [number, number, number] {
-  const [lightX, height, lightZ] = keyLightPlace(side);
-  return [(lightX * y) / height + dx, y, (lightZ * y) / height + dz];
+  const [tipX, height, tipZ] = hazeTip(side, [0, 0]);
+  return [(tipX * y) / height + dx, y, (tipZ * y) / height + dz];
 }
 
 describe('beamAxes (design 2.4, 4.5)', () => {
   const side = 11.19;
-  const height = keyLightPlace(side)[1];
   const foot = [3.9, 3.2] as const;
+  const height = hazeTip(side, foot)[1];
 
   it('leans the beam from the light to its foot on the stage top', () => {
-    // The foot is the axis at the stage top, and the light stays in its place.
-    const [lightX, , lightZ] = keyLightPlace(side);
+    // The foot is the axis at the stage top, and the tip stays on the line to the key light.
+    const [lightX, , lightZ] = hazeTip(side, foot);
     expect(rounded(beamAxes(side, [3.9, 0, 3.2], foot))).toEqual([0, 0, 0]);
     expect(rounded(beamAxes(side, [lightX, height, lightZ], foot))).toEqual(
       rounded([0, height, 0]),
@@ -111,7 +112,7 @@ describe('beamAxes (design 2.4, 4.5)', () => {
 describe('hazeProfile (design 4.5)', () => {
   it('keeps the haze cone inside the light cone, from below the stage top up to the light', () => {
     const side = 11.19;
-    const height = keyLightPlace(side)[1];
+    const height = hazeTip(side, [0, 0])[1];
     const [axis, bottom, top] = hazeProfile(side);
     expect(axis?.[0]).toBe(0);
     expect(axis?.[1]).toBeLessThan(0);
@@ -316,11 +317,11 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
     if (!cone) {
       throw new Error('The beam has no cone.');
     }
-    const height = keyLightPlace(side)[1];
+    const height = hazeTip(side, foot)[1];
     const bottom = new Vector3(0, 0, 0).applyMatrix4(cone.matrixWorld);
     const top = new Vector3(0, height, 0).applyMatrix4(cone.matrixWorld);
     expect(rounded(bottom.toArray())).toEqual([3.9, 0, 3.2]);
-    expect(rounded(top.toArray())).toEqual(rounded(keyLightPlace(side)));
+    expect(rounded(top.toArray())).toEqual(rounded(hazeTip(side, foot)));
 
     // A camera just above the foot is inside the haze cone.
     camera.position.set(3.9, 1, 3.2);

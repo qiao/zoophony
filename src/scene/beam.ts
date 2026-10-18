@@ -60,6 +60,14 @@ export const BEAM_LOOK = {
    */
   column: 0.25,
   /**
+   * The height of the tip of the haze cone, in stage sides. The tip lies on the line from the foot
+   * of the beam to the key light, so the beam points at the key light. The key light stands far
+   * away, and a haze cone up to it showed only a long, almost parallel part in the default view.
+   * A lower tip shows the narrow top of the cone, so the beam opens as a fan toward the stage, as
+   * in `orchestra-latest.png`.
+   */
+  tip: 1.2,
+  /**
    * The density in the haze at the stage. The density grows with the concentration of the light,
    * where the haze cone is narrow: (column / radius)^0.8, at most
    * {@link BEAM_LOOK}.maxConcentration times.
@@ -113,10 +121,10 @@ export const BEAM_LOOK = {
 } as const;
 
 /**
- * Gives a point in the axes of the beam (design 2.4, 4.5). The beam leans from the key light
- * (`keyLightPlace()`) to its foot on the stage top, which a solo moves to the soloed players.
- * Each height keeps its circle of the cone, and the center of the circle moves on the line from
- * the foot to the light. In the axes of the beam, the cone stands straight around the y axis, so
+ * Gives a point in the axes of the beam (design 2.4, 4.5). The beam leans from the tip of the
+ * haze ({@link hazeTip}), on the line to the key light, to its foot on the stage top, which a solo
+ * moves to the soloed players. Each height keeps its circle of the cone, and the center of the
+ * circle moves on the line from the foot to the tip. In the axes of the beam, the cone stands straight around the y axis, so
  * the formulas of the haze hold there. The shaders of the beam use the same formula.
  *
  * @param stageSide The stage side `S`, in meters.
@@ -126,9 +134,24 @@ export const BEAM_LOOK = {
  */
 export function beamAxes(stageSide: number, point: Vec3, foot: StagePair): Vec3 {
   const [x, y, z] = point;
-  const [lightX, height, lightZ] = keyLightPlace(stageSide);
+  const [tipX, height, tipZ] = hazeTip(stageSide, foot);
   const t = y / height;
-  return [x - foot[0] * (1 - t) - lightX * t, y, z - foot[1] * (1 - t) - lightZ * t];
+  return [x - foot[0] * (1 - t) - tipX * t, y, z - foot[1] * (1 - t) - tipZ * t];
+}
+
+/**
+ * Gives the tip of the haze cone (design 4.5): the point at the height {@link BEAM_LOOK}.tip on
+ * the line from the foot of the beam to the key light (`keyLightPlace()`).
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @param foot The center of the foot of the beam on the stage top, as (x, z), in meters.
+ * @returns The tip, in meters.
+ */
+export function hazeTip(stageSide: number, foot: StagePair): Vec3 {
+  const [lightX, lightY, lightZ] = keyLightPlace(stageSide);
+  const height = BEAM_LOOK.tip * stageSide;
+  const t = height / lightY;
+  return [foot[0] + (lightX - foot[0]) * t, height, foot[1] + (lightZ - foot[1]) * t];
 }
 
 /**
@@ -141,7 +164,7 @@ export function beamAxes(stageSide: number, point: Vec3, foot: StagePair): Vec3 
  * @returns The radius, in meters.
  */
 export function hazeRadius(stageSide: number, y: number): number {
-  const height = keyLightPlace(stageSide)[1];
+  const height = BEAM_LOOK.tip * stageSide;
   const bottom = BEAM_LOOK.column * stageSide;
   return bottom + (BEAM_TOP_RADIUS_IN_SIDES * stageSide - bottom) * (y / height);
 }
@@ -427,7 +450,7 @@ void main() {
  * @returns The radius and the height of each point of the outline, from the axis at the bottom up.
  */
 export function hazeProfile(stageSide: number): [number, number][] {
-  const height = keyLightPlace(stageSide)[1];
+  const height = BEAM_LOOK.tip * stageSide;
   return [
     [0, HAZE_BASE],
     [hazeRadius(stageSide, HAZE_BASE), HAZE_BASE],
@@ -448,7 +471,7 @@ const HAZE_BASE = -0.05;
  */
 export function insideHaze(stageSide: number, point: Vec3, foot: StagePair = [0, 0]): boolean {
   const [x, y, z] = beamAxes(stageSide, point, foot);
-  if (y < 0 || y >= keyLightPlace(stageSide)[1]) {
+  if (y < 0 || y >= BEAM_LOOK.tip * stageSide) {
     return false;
   }
   return Math.hypot(x, z) < hazeRadius(stageSide, y);
@@ -459,13 +482,13 @@ function coneUniforms(stageSide: number) {
   const { low, high, top, topFade, margin } = BEAM_LOOK.items;
   return {
     uColor: { value: new Color(BEAM_LOOK.color) },
-    uHeight: { value: keyLightPlace(stageSide)[1] },
+    uHeight: { value: BEAM_LOOK.tip * stageSide },
     uTopRadius: { value: BEAM_TOP_RADIUS_IN_SIDES * stageSide },
     uCore: { value: BEAM_LOOK.core },
     uColumn: { value: BEAM_LOOK.column * stageSide },
     uFloor: { value: BEAM_LOOK.floor },
     uRise: {
-      value: new Vector2(...BEAM_LOOK.rise).multiplyScalar(keyLightPlace(stageSide)[1]),
+      value: new Vector2(...BEAM_LOOK.rise).multiplyScalar(BEAM_LOOK.tip * stageSide),
     },
     uSoft: { value: BEAM_LOOK.soft * stageSide },
     uItems: { value: new Vector4(low, high, top, topFade) },
@@ -475,7 +498,7 @@ function coneUniforms(stageSide: number) {
     uNear: { value: 0.1 },
     uFar: { value: 100 },
     uFoot: { value: new Vector2(0, 0) },
-    uApex: { value: new Vector2(keyLightPlace(stageSide)[0], keyLightPlace(stageSide)[2]) },
+    uApex: { value: new Vector2(hazeTip(stageSide, [0, 0])[0], hazeTip(stageSide, [0, 0])[2]) },
   };
 }
 
@@ -749,6 +772,11 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
     if (footUniform instanceof Vector2) {
       footUniform.set(foot[0], foot[1]);
     }
+    const apex = u['uApex']?.value;
+    if (apex instanceof Vector2) {
+      const [tipX, , tipZ] = hazeTip(stageSide, foot);
+      apex.set(tipX, tipZ);
+    }
     if (child instanceof Mesh) {
       leanCone(child, stageSide, foot);
       setValue(u, 'uStrength', (BEAM_LOOK.strength / stageSide) * factor);
@@ -770,7 +798,7 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
 }
 
 /**
- * Leans the mesh of the haze cone from the key light to the foot of the beam ({@link beamAxes}):
+ * Leans the mesh of the haze cone from its tip to the foot of the beam ({@link beamAxes}):
  * a shear of the straight cone of {@link hazeProfile}, which stands on the stage center. The depth
  * pass of the frame already updated the world matrices, so the cone updates its own.
  *
@@ -780,9 +808,9 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
  */
 function leanCone(cone: Mesh, stageSide: number, foot: StagePair): void {
   const [fx, fz] = foot;
-  const [lightX, height, lightZ] = keyLightPlace(stageSide);
-  const leanX = (lightX - fx) / height;
-  const leanZ = (lightZ - fz) / height;
+  const [tipX, height, tipZ] = hazeTip(stageSide, foot);
+  const leanX = (tipX - fx) / height;
+  const leanZ = (tipZ - fz) / height;
   cone.matrixAutoUpdate = false;
   cone.matrix.set(1, leanX, 0, fx, 0, 1, 0, 0, 0, leanZ, 1, fz, 0, 0, 0, 1);
   cone.updateMatrixWorld(true);
