@@ -226,9 +226,10 @@ names the report or the images that the manager reads (9.8).
 
 **Step 0. Project skeleton**
 
-- Work: Vite, TypeScript with the compiler options of `AGENTS.md`, Vitest, Oxlint, oxfmt, the size
-  check, the third-party license file, and the CI workflow. `.oxlintrc.json`, `.oxfmtrc.json`, and
-  the anti-slop plugin are already in the repository. Install these development dependencies:
+- Work: Vite, TypeScript with the compiler options of `docs/agents/code.md`, Vitest, Oxlint,
+  oxfmt, the size check, the third-party license file, and the CI workflow. `.oxlintrc.json`,
+  `.oxfmtrc.json`, and the anti-slop plugin are already in the repository. Install these
+  development dependencies:
   the current version of `oxlint`, the same version of `@oxlint/plugins`, and the current
   version of `oxlint-tsgolint`, which the type-aware rules need.
 - `pnpm lint` runs `oxlint --type-aware .`. `pnpm format` and `pnpm format:check` run oxfmt on
@@ -337,7 +338,8 @@ names the report or the images that the manager reads (9.8).
 ## 9.6 Docs
 
 All docs, comments, commit messages, and UI text use ASD-STE100 Simplified Technical English. The
-project `AGENTS.md` holds the short rules for coding agents and links to this document.
+project `AGENTS.md` holds the short rules for coding agents, links to this document, and indexes
+the modules of `docs/agents/` with the details.
 
 ## 9.7 Targets
 

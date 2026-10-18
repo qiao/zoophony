@@ -1,9 +1,9 @@
 # Briefs for a studio body in the app
 
 A manager uses these templates to put an animal of `lowpoly-studio/` into the app for a role, by
-route 3 of `AGENTS.md`. Examples are a violinist rabbit and a cellist dog. A round has one
-implementation agent, and no review agent follows it (design 9.8). The manager reads the report
-and the close views, and the merge script runs the checks. Copy each template to the scratch
+route 3 of `docs/agents/model-work.md`. Examples are a violinist rabbit and a cellist dog. A round
+has one implementation agent, and no review agent follows it (design 9.8). The manager reads the
+report and the close views, and the merge script runs the checks. Copy each template to the scratch
 folder of the session, replace each `<...>`, and delete the notes in parentheses.
 
 Since 2026-10-16, all tests are paused
@@ -87,8 +87,9 @@ Time box <minutes>. Read `<scratch>/rules-common.md` first.
 ## Goal
 
 The user said: "<quote>". The <species> of the <section> gets the studio body of
-`lowpoly-studio/animals/<animal>/out/<animal>.glb` by route 3 of `AGENTS.md`. The app keeps its
-own motion, instrument, and seat. It drives the bones of the studio on each frame.
+`lowpoly-studio/animals/<animal>/out/<animal>.glb` by route 3 of `docs/agents/model-work.md`.
+The app keeps its own motion, instrument, and seat. It drives the bones of the studio on each
+frame.
 
 Done when:
 1. `pnpm studio-body <animal>` writes `src/models/studio/<animal>.ts`, and the species has the
@@ -186,7 +187,7 @@ a violin of 0.15 m.>
 - Run `tools/decision-rows.sh <species> <props> <role>` and `tools/decision-rows.sh --diff main`.
   Remove or cut each row that the branch replaces, in the commit of the change.
 - A new research report `docs/research/<date>-studio-<animal>.md`.
-- `AGENTS.md` ("Model work"), `lowpoly-studio/docs/handoff.md`, and `lowpoly-studio/README.md`.
+- `docs/agents/model-work.md`, `lowpoly-studio/docs/handoff.md`, and `lowpoly-studio/README.md`.
 - Each place of section 8 of `docs/briefs/studio-body.md` for a new body, a new role, or a new
   hold. `pnpm docs-species <species>` lists each place that does not name the species yet. At the
   end of the round, it lists no miss.
@@ -262,11 +263,11 @@ decisions, and the measured gains in a research report.
 The user can give a textured mesh with no skeleton, as the rabbit
 `assets/models/rabbit/rabbit-4.glb` of 2026-10-13, the fox `assets/models/fox/fox.glb` of
 2026-10-14, the cat `assets/models/cat/cat.glb` of 2026-10-16, and the dog
-`assets/models/dog/dog.glb` of 2026-10-17. `pnpm rig-mesh <animal>` rigs
-it into the GLB format of a studio body ("A mesh with no skeleton into route 3" of `AGENTS.md`).
-The rabbit mesh took five agent rounds
-([`2026-10-14-rabbit-mesh-retro.md`](../research/2026-10-14-rabbit-mesh-retro.md)).
-Add these items to the briefs of the rig round and of the app round.
+`assets/models/dog/dog.glb` of 2026-10-17. `pnpm rig-mesh <animal>` rigs it into the GLB format of a
+studio body ("A mesh with no skeleton into route 3" of `docs/agents/model-work.md`). The rabbit mesh
+took five agent rounds
+([`2026-10-14-rabbit-mesh-retro.md`](../research/2026-10-14-rabbit-mesh-retro.md)). Add these items
+to the briefs of the rig round and of the app round.
 
 - **The arms.** Write a first config with the measured joints, `armFactor` 1, and the rule of
   the thin faces (`check.thin`). Then run `pnpm rig-mesh <animal> --check` before the question to
@@ -307,14 +308,13 @@ Add these items to the briefs of the rig round and of the app round.
   (`--demo all`), never on one demo. A candidate of the flute rest that a search fit on
   `beethoven-8` alone gave depths of 1.63 cm and 1.80 cm on all demos, over the limit of 1.5 cm.
 - **The size of a body.** A change of the size of a body keeps the values of the pose in meters,
-  such as the free hair of the bow (`freeHair` of each bowed hold), the lift of the bow, and the contact limits of
-  the sweep. The trap of a body size in route 3 of `AGENTS.md` lists them with their files.
-  Compare the folds and the depths in the H of each body first, with
-  `pnpm hold-fit <role> --base main` and `pnpm pose-depth <role> --base main`. Then probe these
-  values before a fit of a hold. Compare the heights with
-  `pnpm close-views lineup <species,...> <dir> --base main`, which keeps one camera for both
-  trees. The size round lost about 55 minutes to hand probes and to these values
-  ([`2026-10-14-size-retro.md`](../research/2026-10-14-size-retro.md)).
+  such as the free hair of the bow (`freeHair` of each bowed hold), the lift of the bow, and the
+  contact limits of the sweep. The section "Values in meters" of `docs/agents/model-traps.md` lists
+  them with their files. Compare the folds and the depths in the H of each body first, with `pnpm
+  hold-fit <role> --base main` and `pnpm pose-depth <role> --base main`. Then probe these values
+  before a fit of a hold. Compare the heights with `pnpm close-views lineup <species,...> <dir>
+  --base main`, which keeps one camera for both trees. The size round lost about 55 minutes to hand
+  probes and to these values ([`2026-10-14-size-retro.md`](../research/2026-10-14-size-retro.md)).
 - **The seat and the tail.** Give the seat height and the lowest point of the tail of
   `pnpm rig-mesh <animal> --check` before a plan of a tail. The brief of the fox asked for a tail
   tip down behind the chair, and the seat of 0.126 m does not give room for a tip of 0.31 m.

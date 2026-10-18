@@ -56,15 +56,14 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
 - `seeds.require = "kept"`: the kept seed must pass all gates, and the other seeds are a
   robustness report in `out/seed-report.json`. The manager chose this default, and the user can
   change it to `"all"`.
-- The app (`src/`) uses the GLB files of the bear and of the polar bear since 2026-10-12, when
-  the user asked for them. It used the GLB file of the rabbit for a part of 2026-10-13, until
-  the rigged mesh of the user took its place (item 5 below). After a change of
-  `animals/bear/out/bear.glb` or `animals/polar-bear/out/polar-bear.glb`, run
-  `pnpm studio-body <animal>` and `pnpm test` in the root of the repository (route 3 of the model
-  work in `AGENTS.md`). The clearance tests of the conductor and of the pianist check the arms
-  and the paws against the body and the piano of the app. A change of the studio rabbit needs no
-  step in the app.
-  Another GLB of the studio goes into the app only when the user asks.
+- The app (`src/`) uses the GLB files of the bear and of the polar bear since 2026-10-12, when the
+  user asked for them. It used the GLB file of the rabbit for a part of 2026-10-13, until the rigged
+  mesh of the user took its place (item 5 below). After a change of `animals/bear/out/bear.glb` or
+  `animals/polar-bear/out/polar-bear.glb`, run `pnpm studio-body <animal>` and `pnpm test` in the
+  root of the repository (route 3 of `docs/agents/model-work.md`). The clearance tests of the
+  conductor and of the pianist check the arms and the paws against the body and the piano of the
+  app. A change of the studio rabbit needs no step in the app. Another GLB of the studio goes into
+  the app only when the user asks.
 
 ## Next steps
 

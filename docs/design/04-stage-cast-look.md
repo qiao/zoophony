@@ -414,11 +414,12 @@ Each body follows these rules:
 **Bodies of their own**
 
 A body of its own is built in code for one species, from rings of free corners, as the low-poly
-models of the reference images (route 2 of `AGENTS.md`). `SpeciesParams.body` selects it, and it
-reads only the size and the colors of the species. It places each bone of 4.7, so that the pose
-code drives it as the biped. The shared parts are `ringLoft()` of `models/primitives.ts`,
-`addPainted()` of `models/painted.ts` (a color for each triangle from its centroid and its normal),
-`limbTube()` of `models/limb-tube.ts`, and the plates of `models/face-plates.ts`.
+models of the reference images (route 2 of `docs/agents/model-work.md`). `SpeciesParams.body`
+selects it, and it reads only the size and the colors of the species. It places each bone of 4.7, so
+that the pose code drives it as the biped. The shared parts are `ringLoft()` of
+`models/primitives.ts`, `addPainted()` of `models/painted.ts` (a color for each triangle from its
+centroid and its normal), `limbTube()` of `models/limb-tube.ts`, and the plates of
+`models/face-plates.ts`.
 
 The penguin (`models/penguin/penguin-body.ts` and `penguin-parts.ts`) copies the choir of
 `orchestra-latest.png` and `orchestra-side.png`. The penguin has no model sheet, so
