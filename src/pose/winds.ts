@@ -363,6 +363,14 @@ const FOX_FLUTE = {
 } as const satisfies WindHold;
 
 /**
+ * The trombone hold of the panda (design 5.3), the hold of a real trombonist (decisions
+ * `2026-10-18-mesh-panda.md`). It starts as the trombone hold of {@link WIND_HOLDS}.
+ */
+const PANDA_TROMBONE = {
+  ...WIND_HOLDS.trombone,
+} as const satisfies WindHold;
+
+/**
  * The holds of the species that hold a wind instrument in their own way, in place of
  * {@link WIND_HOLDS} (design 5.3). The tools change them in memory with
  * `--set '<instrument>@<species>.<path>=<value>'` (`tools/hold-sets.ts`).
@@ -371,6 +379,7 @@ export const SPECIES_WIND_HOLDS: Partial<
   Record<SpeciesId, Partial<Record<WindInstrument, WindHold>>>
 > = {
   'fox-tan': { flute: FOX_FLUTE },
+  panda: { trombone: PANDA_TROMBONE },
 };
 
 /**
