@@ -415,9 +415,7 @@ A new species with a studio body:
 | `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the scale of the instrument and the reach of each species | |
 | `docs/design/04-stage-cast-look.md` | "4.7 Rig" | the optional bones of a rig, such as `tail_tip` | |
 | `docs/design/07-architecture.md` | "7.1 Modules", the text of `VIEW_SHEETS` | the sheet pages of `views.html` (`VIEW_SHEETS`), only for a species with a sheet page | `cat` |
-| `AGENTS.md` | "Design" | each studio body with its mesh or its studio animal, its decision files, and its role of `pnpm close-views` | |
-| `docs/agents/model-work.md` | "Route 3: a studio body" | the bodies of route 3 | |
-| `docs/agents/model-work.md` | "A mesh with no skeleton into route 3." | the meshes of the user | |
+| `docs/agents/model-work.md` | "Bodies and roles" | each body of its own with its source, its main decision file, and its role | |
 | `docs/agents/model-traps.md` | the whole file | each trap that cost the round a step | |
 | `docs/agents/commands.md` | the row of `pnpm studio-body` | the landmark of the scale of each animal in `ANIMALS` | |
 | `docs/briefs/studio-body.md` | "7. A mesh with no skeleton" | the example meshes of the user | |
@@ -431,7 +429,7 @@ A new role:
 | `docs/design/05-animation.md` | "Pose index" | one row for each role, in the commit of the role | |
 | `docs/design/07-architecture.md` | "7.1 Modules", the text of `pnpm close-views` | the views and the moments of each role (`ROLE_VIEWS`) | |
 | `docs/design/09-process.md` | "9.3 Tests" | the sweep of each role (`SWEEP_ROLES`) and its clearance test, or the reason for no test | |
-| `AGENTS.md` | "Design", the commands `pnpm close-views <role> <dir>` | the commands `pnpm close-views <role> <dir>` | |
+| `docs/agents/model-work.md` | "Bodies and roles" | the role of the species for the tools | |
 | `docs/agents/commands.md` | the rows of `pnpm pose-depth`, `pnpm close-views`, and `pnpm fold-probe` | the roles of each tool, with the species of each role | |
 
 A new hold:
@@ -443,7 +441,6 @@ A new hold:
 | `docs/design/05-animation.md` | "5.3 Instrument motion", "Bowed strings in detail" | the play hold of each species with a bow, the rest bow, and the bow of a soloist who stands (`standBow`) | `fox-tan` |
 | `docs/design/05-animation.md` | "5.3 Instrument motion", "Woodwinds and brass in detail" | the hold of each species with a wind instrument | `rabbit`, `fox-red`, `cat`, `dog` |
 | `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the reach of the nut, or of the grip of a wind instrument | |
-| `AGENTS.md` | "Design" | the hold of each studio body | |
 | `docs/decisions/<date>-<topic>.md` | the whole file | the decision file of the hold | |
 | `docs/design.md` | "10. Decisions to confirm" | the line of the decision file at the end of the list | |
 
