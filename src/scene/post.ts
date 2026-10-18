@@ -68,8 +68,12 @@ export const POST_LOOK = {
 export const ROOM_HAZE = {
   /** The density of the haze, for each stage side of distance. */
   density: 0.13,
-  /** The light of the haze in all directions, in linear values, before the phase. */
-  color: [0.03, 0.0175, 0.00875],
+  /**
+   * The light of the haze in all directions, in linear values, before the phase. The glow of the
+   * hall above the stage in `orchestra-latest.png` has a luma p90 of 49, and the first light of
+   * `[0.03, 0.0175, 0.00875]` gave 22.
+   */
+  color: [0.045, 0.02625, 0.013125],
   /** The g of the Henyey-Greenstein phase: the haze is brighter toward the key light. */
   forward: 0.6,
 } as const;
