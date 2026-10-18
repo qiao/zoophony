@@ -307,35 +307,28 @@ cat's, and the dog's is the parametric body: `buildBiped()` of `models/biped.ts`
 the parts of 4.5 (body proportions) on the skeleton of 4.3. A species with a `body` gets a body of
 its own from `buildBiped()` in its place.
 
-The user chose each body of its own. The table "Bodies and roles" of `docs/agents/model-work.md`
-lists them with their main decision files.
-
-- The bear conductor and the polar bear pianist have the studio bodies of `lowpoly-studio/`
-  (user, 2026-10-12: "use the studio bear in the app").
-- The rabbit violinist, the red violin fox, the viola cat, and the cello dog have meshes of the
-  user, which the app rigs itself (studio bodies, below). The tan flute fox has the rig of the red
-  fox with a tan palette. The user chose the size, the reach, and the form of each of these
-  bodies, and its decision files give each choice.
-- The penguins have the egg body of `models/penguin/`, built in code after the choir of the two
-  newest reference images, because the parametric penguin "looks off" (user, 2026-10-11).
-- Each other species has the parametric body of 2026-10-06 18:58. The user chose it again on
-  2026-10-11, in place of the sculpts of Blender and the rigged bodies of 2026-10-10
-  (`docs/decisions/2026-10-11-body-revert.md`).
+The user chose each body of its own, and the table "Bodies and roles" of
+`docs/agents/model-work.md` lists them with their decision files. The bear conductor and the polar
+bear pianist have the studio bodies of `lowpoly-studio/` (user, 2026-10-12). The rabbit violinist,
+the red violin fox, the viola cat, and the cello dog have meshes of the user that the app rigs
+itself, and the tan flute fox has the rig of the red fox with a tan palette (studio bodies, below).
+The penguins have an egg body built in code (user, 2026-10-11). Each other species has the
+parametric body of 2026-10-06 18:58, which the user chose again in place of the sculpts and the
+rigged bodies (`docs/decisions/2026-10-11-body-revert.md`).
 
 Each body follows these rules:
 
 - A body has at most 2,600 triangles, and a studio body at most 3,200 (4.5, facets and triangle
   budgets).
-- The left side of the animal is at -x, because it faces -z, and the mouth is near the middle
-  plane, below the eyes (`models/species.test.ts`).
-- The body takes the colors of its species (4.5, species colors).
-- The bones have the names of 4.7, so that the pose code of section 5 drives each body.
-- Each part follows one bone (4.7), and each triangle is on one bone. A studio body has the skin
-  of the studio instead: up to four bones for each vertex.
-- The tests of the behavior check each body: the clearance of the arms in the playing pose and in
-  the rest pose, the bow and the bow hold, the arm joints, the hidden heads, the budgets, the feet
-  on the floor, and the footprints of the layout. A body that grows its footprint moves the rows of
-  the layout, and `models/layout-scene.test.ts` limits the growth of each stage.
+- The animal faces -z, with its left side at -x, and the mouth is near the middle plane, below
+  the eyes (`models/species.test.ts`).
+- The body takes the colors of its species (4.5, species colors), and its bones have the names of
+  4.7, so that the pose code of section 5 drives each body.
+- Each part follows one bone (4.7). A studio body has the skin of the studio instead: up to four
+  bones for each vertex.
+- The tests of the behavior check each body: the clearance of the arms, the bow hold, the arm
+  joints, the hidden heads, the budgets, the feet on the floor, and the footprints of the layout.
+  `models/layout-scene.test.ts` limits the growth of each stage when a body grows its footprint.
 
 **Bodies of their own**
 
@@ -345,42 +338,27 @@ selects it, and it reads only the size and the colors of the species. It places 
 so that the pose code drives it as the biped.
 
 The penguin (`models/penguin/`) copies the choir of `orchestra-latest.png` and
-`orchestra-side.png`. It has no model sheet, so `pnpm choir-check <dir>` puts the gallery penguin
-beside one penguin of each image (7.1). `docs/research/2026-10-11-penguin-body.md` gives the
-measures.
+`orchestra-side.png`. It has no model sheet, so `pnpm choir-check <dir>` compares it with one
+penguin of each image (7.1, `docs/research/2026-10-11-penguin-body.md`).
 
-- The body is one tall egg with the head as its top, a full low belly, a slim chest, and no neck.
-  The parametric penguin had a round head on a neck, arms, and long legs, and looked like a teddy
-  bear.
-- The back, the crown, and the flippers are black. The white front is a shield from just under the
-  beak to the bottom, narrow at the top and wide at the belly. Each triangle takes its color from
-  its height and its angle from the front, so the color border follows the facets.
-- A small white patch on the head carries each black eye, so that the eye shows on the black head.
-  Larger patches looked like toy eyes. The patch stays in a blink.
-- The large orange beak points forward and a little down. Its upper half follows `head`, and its
-  lower half follows `jaw`, so that the choir pose opens it (5.3). An open beak shows a dark mouth
-  (`MOUTH_COLOR`, 4.5).
-- The body splits at the `chest` bone, behind the folder: the part below follows `spine`, and the
-  part above follows `chest` with the folder and the flippers. Each part reaches one ring into the
-  other, so that a turn of the chest shows no gap. The shots of the choir read the chest as the
-  place of the folder (5.6).
-- The head is the top of the egg on `head`, and it shares the ring of its lower edge with the
-  chest part. The `neck` and `head` bones are at the front of that edge, so a lift of the head
-  turns the edge down into the body, and no gap opens. Each part is a closed shell.
-- Each flipper is a flat, wide limb of three parts on `upperArm`, `forearm`, and `hand`. Its tip
-  holds the edge of the folder in front of the belly, and the flipper bends a little and lies
-  along the body.
-- Two small orange feet stand under the front of the egg. The thighs and the shins have no part,
-  so no legs show. On a seat, which the cast never gives it, the penguin stands on the seat top, so
-  that each support gives a valid body for the tests of all species.
-- `models/penguin/penguin-body.test.ts` and `pose/choir.test.ts` check the behavior.
+- The body is one tall egg with the head as its top, a full low belly, and no neck. The parametric
+  penguin, with a head on a neck and long legs, looked like a teddy bear.
+- The back and the flippers are black, and the white front is a shield from under the beak to the
+  bottom. A small white patch carries each black eye, so that the eye shows on the black head.
+- The upper half of the orange beak follows `head`, and its lower half `jaw`, so that the choir
+  pose opens it (5.3).
+- The body splits at the `chest` bone behind the folder, and each part reaches one ring into the
+  other, so that a turn of the chest shows no gap. The `neck` and `head` bones are at the front of
+  the lower edge of the head, so a lift of the head opens no gap.
+- Each flipper is three flat parts on the arm bones, and its tip holds the edge of the folder.
+  Two small feet stand under the egg, and no legs show.
 
 **Studio bodies**
 
 A studio body is the GLB file of an animal of `lowpoly-studio/`, or of a mesh of the user that
 `pnpm rig-mesh` rigs into the same format: one mesh of faces with one color each, a skeleton of the
-biped template with twist bones of the forearms, a skin of up to four bones for each vertex,
-arm-down corrective shapes, and the clips of its role. The studio bodies are the bear conductor
+biped template with twist bones of the forearms, a skin of up to four bones for each vertex, and
+corrective shapes. The studio bodies are the bear conductor
 (`docs/decisions/2026-10-12-studio-bear.md`), the polar bear pianist
 (`docs/decisions/2026-10-12-studio-polar-bear.md`), the rabbit violinist
 (`docs/decisions/2026-10-13-mesh-rabbit.md`), the red violin fox
@@ -388,10 +366,9 @@ arm-down corrective shapes, and the clips of its role. The studio bodies are the
 (`docs/decisions/2026-10-14-fox-flute.md`), the viola cat (`docs/decisions/2026-10-16-mesh-cat.md`),
 and the cello dog (`docs/decisions/2026-10-17-mesh-dog.md`).
 
-The app keeps its own conductor motion (5.4), its own pianist motion, and its own string motion
-(5.3). So it drives the bones of the studio from the pose of the player each frame: the retarget.
-The retarget had about a quarter of the folded faces of a skin of two bones of the player for each
-vertex (`docs/research/2026-10-12-studio-bear.md`).
+The app keeps its own motion (5.3, 5.4), so it drives the bones of the studio from the pose of the
+player each frame: the retarget. It gave about a quarter of the folded faces of a skin on the bones
+of the player (`docs/research/2026-10-12-studio-bear.md`).
 
 ```text
  lowpoly-studio/animals/bear/out/bear.glb
@@ -413,200 +390,106 @@ vertex (`docs/research/2026-10-12-studio-bear.md`).
                                             targets (scene/player.ts)
 ```
 
-- **Export.** `pnpm studio-body <animal>` reads the GLB file with no Blender. It welds the faces,
-  keeps the skin, the corrective shapes with their poses, and the bind pose of the bones, turns the
-  animal to face -z, and scales it. It drops the props and the clips of the studio, because the app
-  keeps its own props (4.5, 4.6) and its own motion. The four digits of a paw become the one
-  `fingers` bone of the paw, so that they curl together.
+- **Export.** `pnpm studio-body <animal>` reads the GLB file with no Blender, turns the animal to
+  face -z, and scales it. It drops the props and the clips of the studio, because the app keeps its
+  own. The four digits of a paw become one `fingers` bone. `--inspect` prints the facts that a new
+  body needs.
 - **Pea eyes.** The export drops the eyes of the mesh, and the app puts the pea eyes of the
-  parametric bodies in their places (`addEye()` of `models/eyes.ts`, `StudioBody.eyes`), as the
-  user asked on 2026-10-15. Each eye has an eye bone of its own, so that it blinks (5.1). The eye
-  faces out from the middle of the box of the head, as on a round parametric head. It moves out
-  until the head covers no part of its front face (`eyePush()` of `tools/studio-body.ts`), so that
-  a muzzle does not hide it. It takes its size from the head that shows.
+  parametric bodies in their places on eye bones of their own, so that they blink (user,
+  2026-10-15, `StudioBody.eyes`, `addEye()`). An eye moves out until the head covers no part of
+  it (`eyePush()`), and takes its size from the head.
 - **Mesh rig.** `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format
-  of a studio body with Blender (`tools/blender/rig_mesh.py`). The config
-  `tools/mesh-rigs/<animal>.json` gives the joints, measured on cuts of the mesh, and the rules
-  below, each with a note. The decision file of each body gives its values and their reasons, and
-  `docs/agents/model-traps.md` gives the traps of each rule.
-  - Form. The arm, leg, head, neck, trunk, and girth factors change the form of the mesh to the
-    choice of the user or to its sheet (`armFactor`, `trunkFactor`, `girthFactor`, `armGirth`,
-    and the others). Each factor moves only its part, and each other chain moves as a whole with
-    its joint, so the other parts keep their sizes. The upper arm stretches only from the
-    shoulder joint out, so that a small arm weight of the throat does not pull the throat across
-    the middle. The legs stretch between their joints, and the body rises so that the soles stay
-    on the floor.
-  - Head of the holds. The export keeps the head height and the head center of the head before a
-    growth, a smoothing, or a shorter neck (`ungrown()`, `headShiftOf()`, and `headRig()` of
-    `tools/studio-body.ts`), so that the holds in `H`, the instruments, and the footprints keep
-    their places.
-  - Seat. The rig poses the seated bind of 5.2: the thighs slope down from the hips to the knees,
-    and the shins are vertical (`studio.legTurns`). The buttocks of an image mesh curve up behind
-    the hip joints, so `sit` lowers the haunch onto the seat, with the root of the tail as a part
-    of the haunch (`sit.root`) and a fixed seat top (`sit.top`). `studio.trunk` turns the trunk
-    upright with the head level, and `crease` smooths the fold where the belly meets the thighs.
-  - Smoothing. `smooth` smooths the vertices inside a box of the source, such as fur spikes at the
-    back of the head or the underside of a big head over a thin neck, which made a dark band under
-    the stage light.
-  - Weights. Bone heat gives the weights, and rules of the config change them: the shared
-    weights of short thin faces, `weights.fingers`, `weights.rigid`, `shoulderRamp`, and the fades
-    of the clavicle and the arm. Rings of new vertices at the joints of the arms and flips of long
-    thin edges (`refine.rings`) keep the long thin faces of an image mesh from a fold. The hanging
-    ear flaps of the dog follow the head and their ear bones (`weights.earFlap`), stay out of the
-    measures of the head, and do not twitch (`OwnBodyParams.hangingEars`, 5.1).
-  - Shapes. The corrective shapes give the source back when the body stands with the arms of the
-    source. `raise` adds up to four shapes of a raised arm, a bent elbow (`forearm`), or a bent
-    wrist (`hand`). In the pose of a rule, the faces that the skin turns over relax, and the
-    relaxed places go back to the bind pose through the inverse of the skin. Each rule relaxes
-    with the shapes of the rules before it on the same side, so the shapes add up as in the app.
-  - Colors. Each face takes the nearest color of a palette in Oklab, from the mean of its texture
-    samples that are not dark, so the black gaps between the islands of the texture darken no
-    face. `colors.tone` moves the plain fur toward the color of its sheet under the stage light,
-    so that the warm light does not turn a gray fur brown (the cat). The faces of each old eye and
-    the dark patches near it take the color around them (`recolor_old_eyes()`, `darkReach`), so
-    that no outline of the old eye shows around the pea eye. The tan palette of the fox mesh
-    (`StudioBody.palettes`, `SpeciesParams.palette`, `tools/studio-palette.ts`) moves each matte
-    face from the colors of the red fox to the colors of the tan fox, so one module serves both
-    foxes.
-  - Tail. A config with the joint `tail_tip` gives the mesh a tail of two bones. The studio format
-    has `tail_tip` as an optional bone (`OPTIONAL_STUDIO_BONES` of `models/studio-format.ts`), so
-    the bodies with one tail bone keep their modules. The seated bind turns the tail back through
-    the open back of the chair (4.5, props), and the standing pose turns it back to the source
-    (`StudioStanding.tailTurns`). `studio.tailCurl` bends the seated tail along a curve: the cat
-    curls its tail on the seat at the left of the haunch
-    (`docs/decisions/2026-10-16-cat-seat.md`), and the dog hangs a thin tail (`thin`) down behind
-    the seat (`docs/decisions/2026-10-17-dog-tail.md`). A curled tail does not sway (5.1). The
-    hanging tail sways.
-- **Probes.** `pnpm studio-body <animal> --inspect` writes no file. It prints the facts of the GLB
-  file that a new body needs, and names each part that the export refuses. `pnpm fold-probe <role>`
-  counts the folded faces of the studio skin in the poses of the app.
+  of a studio body with Blender. The config `tools/mesh-rigs/<animal>.json` gives the joints,
+  measured on cuts of the mesh, and the rules, each with a note. The decision files of the body
+  give the values and their reasons, and `docs/agents/model-traps.md` gives the traps.
+  - Form. The factors of the config change the form of the mesh to the choice of the user or to
+    its sheet: the arms, the legs, the head, the neck, the trunk, and the girth. Each factor moves
+    only its part, and the other chains move as a whole with their joints. The export keeps the
+    head height and the head center of the source head, so that the holds in `H` keep their places
+    (`ungrown()` of `tools/studio-body.ts`).
+  - Seat. The rig poses the seated bind of 5.2 (`studio.legTurns`). It lowers the haunch of an
+    image mesh onto the seat (`sit`), can turn the trunk upright (`studio.trunk`), and smooths the
+    fold where the belly meets the thighs (`crease`).
+  - Weights and shapes. Bone heat gives the weights, and rules of the config change them. Rings of
+    new vertices at the joints of the arms keep the long thin faces of an image mesh from a fold
+    (`refine.rings`). The corrective shapes give the source back in the standing pose, and up to
+    four shapes of `raise` relax the faces that turn over in a raised arm, a bent elbow, or a bent
+    wrist.
+  - Colors. Each face takes the nearest color of a palette in Oklab from the texture. The faces of
+    each old eye take the color of the fur around them, so that no outline shows around the pea
+    eye. `colors.tone` keeps a gray fur gray under the warm light (the cat). The tan palette of the
+    fox mesh (`StudioBody.palettes`, `SpeciesParams.palette`) lets one module serve both foxes.
+  - Tail. `tail_tip` gives a tail of two bones, an optional bone of the studio format
+    (`OPTIONAL_STUDIO_BONES` of `models/studio-format.ts`). The seated tail goes back through the
+    open back of the chair, or `studio.tailCurl` bends it: the cat curls its tail on the seat, and
+    the dog hangs a thin tail down behind it (`docs/decisions/2026-10-17-dog-tail.md`). A curled
+    tail does not sway (5.1). The ears of the dog hang, and do not twitch
+    (`OwnBodyParams.hangingEars`).
 - **Scale.** The scale keeps a landmark that the scene depends on (`ANIMALS` in
-  `tools/studio-body.ts`): the shoulder joints of the bear conductor, for the conductor stand and
-  the beat (4.5, 5.4), the keys of the studio piano of the polar bear, and the standing shoulder
-  joints, the ear tips, or the head top that give each mesh body the size that the user chose. A
-  leg factor raises the landmark by the same growth, so the scale stays, and the trunk, the head,
-  and the arms keep their meters. The module of each body (`src/models/studio/<animal>.ts`) holds
-  its scale and its head height `H`.
-- **Seat.** A seated role binds its mesh seated. The export drops the body until the lowest point
-  of its skin is on the floor, and moves it so that the front edge of the seat of the studio meets
-  the front edge of the seat of the app. A seated role with a seat height in `ANIMALS` (`seat`,
-  the polar bear) then rises until its seat is at that height. The rabbits, the foxes, the cats,
-  and the dogs have no seat height: their chairs fit their legs, so that their feet touch the
-  floor (user, 2026-10-16). They sit in the posture of 5.2, and each level seat ends where the
-  thighs leave the seat top at the haunch (`chair.front` of the rig config). A longer level seat
-  meets the sloped thighs, and the haunch then hangs above it. The thighs of the dog turn out, so
-  that the knees spread around the lower bout of the cello (user, 2026-10-17).
-  - `StudioBody.floor` is the point on the floor under the body, and the piano stands in front of
-    it (4.6). `StudioBody.seatHeight` is the height of a flat seat under the body: the lowest point
-    of the body over the seat. The seat height of the skeleton is that height, so the bench and the
-    chair fit the legs (4.5, props).
-  - The chair under a studio body has the depth of the chair of the studio
-    (`StudioBody.chairDepth`), and a wide haunch gets a wider chair (`seatWidth` of `ANIMALS`,
-    `StudioBody.chairWidth`). `seatBack` of `ANIMALS` moves a body back toward the chair back, and
-    no role uses it now. `backRoom` keeps room between the back and the back posts: the rabbit sits
-    on the front half of a deeper seat, as a seated string player
-    (`docs/decisions/2026-10-17-rabbit-pose.md`).
-- **Soloist.** A seated body that also stands (`soloist` of `ANIMALS`) keeps the leg corrective
-  shapes of its GLB file and the leg turns, the trunk turns, and the arm turns of the pose of its
-  sheet (`StudioBody.standing`). For a player that stands, `standingBody()` of
-  `models/studio-rig.ts` turns the legs, the trunk, and the tail, and moves the body over the
-  origin with its lowest point on the floor. `standingArmCorrectives()` solves the arm shapes
-  again for the standing bind, so the standing body stays within 1 mm of the source. The pianist
-  never stands, so its leg shapes stay out.
-- **Skeleton of the player.** The skeleton of the player for a studio body has the joints of the
-  studio for the trunk, the head, and the legs. Each arm hangs straight down from the shoulder
-  joint of the studio, with the lengths of the arm of the studio, because the pose code reads a
-  hanging arm in the bind pose (4.7, 5.2).
-- **Retarget.** `poseStudioBones()` moves the trunk, the head, the ears, the legs, and the tail of
-  the studio with their bones of the player. Each arm of the studio takes the posed shoulder,
-  elbow, and wrist of the player, and turns with the elbow axis of the studio, so that the elbow
-  bends as the studio built it. The forearm twist bone takes a share of the twist of the paw
-  (`TWIST_SHARE`). Each paw turns in the plane of its palm toward the forearm, up to a limit
-  (`PAW_TURN`), because the skin of the studio bends well only near its clips. The right paw of
-  the conductor turns only toward the baton. The fingers curl by the curl of the player.
-- **Shape weights.** The arm-down shape of each arm takes the weight of the driver of the studio.
-  Each shape of `raise` (`StudioBody.raises`, `STUDIO_RAISES`) has its full weight while the turn
-  of its bone (the upper arm, the forearm from the upper arm, or the paw from the forearm) is near
-  the turn of the shape, and its weight falls with a smooth step (`raiseWeight()`). The weight
-  comes from the pose alone, so the rule of stateless poses holds. The instrument and the slide
-  move by the offsets of the pose, as on a parametric player (5.1).
-- **Render.** The scene draws the body in the bind pose of the studio, with four bones for each
-  vertex and the corrective shapes as morph targets, and the instrument on the bones of the
-  player. The colors of the studio hold its baked occlusion, so the scene adds none (4.5). The
-  body takes the shared material with smooth normals (4.5, materials): each corner of the fur gets
-  the mean normal of the fur faces at its vertex within the crease angle of the body (`crease` of
-  `ANIMALS`, `studioNormals()` of `models/studio-normals.ts`). A corrective shape adds the changes
-  of its normals as morph normals. The gloss of the nose and of the claws keeps flat faces.
-- **Crease angle.** Each body has its own crease angle. The angle of a bear is the angle whose
-  facet contrast is nearest to its reference images. The reference rabbits have more facet
-  contrast than each render of the app rabbit, so the manager chose its angle from the play frames
-  (`docs/research/2026-10-14-rabbit-smooth.md`). The red fox, the cat, and the dog take the angle
-  of the rabbit, because the four are meshes of image models of the user.
-- **Bind mesh.** `buildStudioBody()` gives the mesh of the player in the bind pose of the player,
-  with the two bones of the player with the largest weights for each corner. The footprints, the
-  hanging arms, the budgets, and the tests read it. In the tests, `posedCorner()` poses a studio
-  body with its own skin.
-- **Stance.** A studio body keeps the stance of its role on each support (`supportOf()` of
-  `models/player.ts`). The bear conductor stands on the stand of the conductor, and the polar bear
-  pianist sits on the piano bench. The rabbit violinist, the red violin fox, and the viola cat sit
-  on their chairs in their sections, and stand as soloists (`soloist`). The cello dog sits on its
-  chair, and a cellist does not stand as a soloist (4.5, body proportions).
-- **Tests.** `models/studio-rig.test.ts`, `models/studio-body.test.ts`, `tools/studio-body.test.ts`,
-  and the sweep of each role (9.3) check the behavior: the elbow on the joints of the player, the
-  twist split, the turn of a paw, the corrective weights, the blink, the soles on the floor, the
-  body on its seat, and the paws, the arms, the baton, and the bow out of the closed body and the
-  instrument. A part goes into the body past the contact depth only as an accepted depth, and
-  `docs/decisions/2026-10-13-role-sweep.md` lists each one with its reason.
+  `tools/studio-body.ts`): the shoulder joints of the bear for the conductor stand, the keys of the
+  studio piano of the polar bear, and the shoulder joints, the ear tips, or the head top that give
+  each mesh body the size that the user chose. A longer leg raises the landmark by the same height,
+  so the trunk, the head, and the arms keep their meters.
+- **Seat.** A seated role binds its mesh seated. The export drops the body onto the floor, and
+  moves it so that the front edge of the seat of the studio meets the front edge of the seat of the
+  app. The polar bear then rises to its seat height (`seat` of `ANIMALS`). The rabbits, the foxes,
+  the cats, and the dogs have chairs that fit their legs, so that their feet touch the floor (user,
+  2026-10-16). Each level seat ends where the thighs leave it at the haunch (`chair.front`), because
+  a longer seat meets the sloped thighs and the haunch hangs above it. `StudioBody.seatHeight` is
+  the lowest point of the body over the seat, and the chair also takes the depth, the width, and
+  the room behind the back of 4.5 (props) from the body (`chairDepth`, `chairWidth`, `backRoom`).
+  The knees of the dog spread around the cello (user, 2026-10-17).
+- **Soloist.** A seated body that also stands (`soloist` of `ANIMALS`) keeps the leg shapes and
+  the turns of the pose of its sheet (`StudioBody.standing`). `standingBody()` of
+  `models/studio-rig.ts` stands it within 1 mm of the source. The rabbit, the red fox, and the cat
+  stand as soloists. The dog and the polar bear never stand.
+- **Retarget.** The skeleton of the player has the joints of the studio, with each arm straight
+  down, because the pose code reads a hanging arm in the bind pose (4.7, 5.2).
+  `poseStudioBones()` moves the trunk, the head, the legs, and the tail of the studio with their
+  bones of the player. Each arm of the studio takes the posed shoulder, elbow, and wrist of the
+  player, and bends at the elbow axis of the studio. Each paw turns toward the forearm, up to a
+  limit (`PAW_TURN`), because the skin of the studio bends well only near its clips. Each shape
+  takes its weight from the pose alone (`raiseWeight()`), so the rule of stateless poses holds.
+- **Render.** The scene draws the body with four bones for each vertex and the shapes as morph
+  targets. The colors of the studio hold its baked occlusion. The fur gets smooth normals within
+  the crease angle of the body (`crease` of `ANIMALS`, `studioNormals()`, 4.5, materials).
+- **Crease angle.** The angle of a bear is the angle whose facet contrast is nearest to its
+  reference images. The renders of the rabbit had less contrast than each reference, so the
+  manager chose its angle from the play frames (`docs/research/2026-10-14-rabbit-smooth.md`). The
+  red fox, the cat, and the dog take the angle of the rabbit, because the four are meshes of image
+  models.
+- **Bind mesh.** `buildStudioBody()` gives the mesh in the bind pose of the player, with two
+  bones for each corner, for the footprints, the budgets, and the tests. The tests pose a studio
+  body with its own skin (`posedCorner()`), and the sweep of each role (9.3) keeps the parts out of
+  the body and the instrument. `docs/decisions/2026-10-13-role-sweep.md` lists each accepted depth.
 
 **Rigged bodies**
 
-No species has a rigged body since 2026-10-11 (`docs/decisions/2026-10-11-body-revert.md`), and
-the app has no code of a rigged body. The GLB files `assets/models/rabbit/rabbit.glb` and
-`assets/models/bear/bear.glb` of the user and the tools stay for a later body. Route 1 of
-`docs/agents/model-work.md` brings the code back. `pnpm rig-body <species>` packs a file into
-`src/models/rigged/<species>.ts` (`models/rigged-format.ts`, `models/packed-mesh.ts`) with a skin
-`<species>-skin.webp`:
-
-- It keeps the mesh and the weights of the file, collapses the mesh to the triangle budget, maps
-  the joints of the file onto the bones of 4.7, and keeps the two largest weights of each vertex.
-- The bones that the file does not have (the ears, the tail, and the finger blocks) take a part
-  of the weight of the head, the hips, or the hand, so that they move.
-- It bakes the texture of the file into the skin. The fur and the accent move to the colors of
-  the species in Oklab, so the shades stay (`docs/decisions/2026-10-10-glb-skins.md`).
-- A thin plate in front of each eye carries the eye of the texture and follows its eye bone, so
-  that the eye blinks (5.1).
-- A config can add a ball for a tail, smooth a bumpy mesh, keep the detail of some joints, change
-  the form toward a reference image (`shape`), and give the haunch to the hips (`haunch`).
-- The limbs keep the lengths of the model, unless the user asks for the look of a reference image
-  (user, 2026-10-10).
+No species has a rigged body since 2026-10-11, and the app has no code of it. The GLB files
+`assets/models/rabbit/rabbit.glb` and `assets/models/bear/bear.glb` of the user and the tools stay
+for a later body, and route 1 of `docs/agents/model-work.md` brings the code back.
+`pnpm rig-body <species>` packs a file into `src/models/rigged/<species>.ts` with a baked skin: it
+keeps the two largest weights of each vertex, gives the missing ear, tail, and finger bones a part
+of the weight of their parents, moves the colors of the texture to the colors of the species
+(`docs/decisions/2026-10-10-glb-skins.md`), and puts a plate on each eye, so that it blinks. The
+limbs keep the lengths of the model, unless the user asks for the look of a reference image
+(user, 2026-10-10).
 
 **Tools of Blender**
 
-Two tools prepare the rigged bodies with Blender. The app reads no output of them:
-
-- `pnpm glb-init <species> <glb>` (`tools/glb-init.ts` and `tools/blender/inspect_glb.py`)
-  starts a rigged body: it copies the file with its README, and proposes the config of
-  `pnpm rig-body` from the joints, the shape, and the colors of the mesh.
-- `pnpm rig-body <species>` (`tools/rig-body.ts`, `tools/blender/rig_body.py`, and the config
-  `tools/glb-bodies/<species>.json`) packs a rigged GLB body and bakes its skin (rigged bodies,
-  above). With `--preview`, `tools/blender/preview_rig.py` renders the skin and the main bones.
+- `pnpm glb-init <species> <glb>` starts a rigged body: it copies the file, and proposes the config
+  of `pnpm rig-body`.
+- `pnpm rig-body <species>` packs a rigged GLB body and bakes its skin (rigged bodies, above).
 
 **Meshes**
 
-- Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
-  into one mesh. A vertex follows one or two bones (4.7), or up to four bones of the studio in a
-  studio body. A rigid part follows one bone.
-- This gives one draw call for each player (4.5, materials), plus the shadow pass. One `Mesh` for
-  each part would give about 25 draw calls for each animal, which is too many for an integrated
-  GPU.
-- The static props (the stage, the chairs, the stands, and the podium) merge into a few meshes.
+- Each player is one `SkinnedMesh`: the body, the instrument, and the bow merge into one mesh.
+  This gives one draw call for each player (4.5, materials). One `Mesh` for each part would give
+  about 25 draw calls for each animal, which is too many for an integrated GPU.
+- The static props merge into a few meshes.
 - The parametric body has one module for each area: `models/trunk.ts` (the torso, the neck, and
-  the head with the eyes, the ears, the snout, and the face pattern), `models/tails.ts`,
-  `models/arms.ts`, and `models/legs.ts`. `buildBiped()` calls them in this order, so the order of
-  the parts in the mesh stays the same. The areas read their shared values from
-  `models/body-frame.ts`: the stance, the head height `H`, the joints where the limbs meet the
-  trunk, the overlap of the shoulder dome and the torso (4.7), and the skeleton of the species
-  (4.3).
+  the head), `models/tails.ts`, `models/arms.ts`, and `models/legs.ts`. `buildBiped()` calls them
+  in this order. The areas read their shared values from `models/body-frame.ts`.
 
 ## 4.5 Visual values
 
