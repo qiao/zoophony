@@ -213,3 +213,4 @@ The decision files:
 - [`2026-10-18-light-color.md`](decisions/2026-10-18-light-color.md): the colors of the lights, the amber wood, the floor shadows, and the haze.
 - [`2026-10-18-cinematic-light.md`](decisions/2026-10-18-cinematic-light.md): the look lab, the floor, the grade, the bake of the props, the captured environment, the shot light, the lens, and the room haze.
 - [`2026-10-18-mesh-panda.md`](decisions/2026-10-18-mesh-panda.md): the panda mesh of the user as the trombonist.
+- [`2026-10-18-mesh-retro.md`](decisions/2026-10-18-mesh-retro.md): the retro of the panda mesh round, the probes of the real body in phase 1, and `pnpm mesh-options`.
