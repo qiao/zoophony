@@ -41,7 +41,7 @@ grep -rnE ', not [a-z]' ${=D}              # antithesis tics
 ## Length limits
 
 The user asked on 2026-10-17 for short docs with only the high level and the most important
-details. Each agent reads `AGENTS.md` in each round,
+details (`docs/decisions/2026-10-17-docs-length.md`). Each agent reads `AGENTS.md` in each round,
 and the docs of a round cost time. These limits hold:
 
 - **`AGENTS.md`.** At most about 2,500 words: the project, the sources of the truth, the hard

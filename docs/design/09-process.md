@@ -341,6 +341,11 @@ All docs, comments, commit messages, and UI text use ASD-STE100 Simplified Techn
 project `AGENTS.md` holds the short rules for coding agents, links to this document, and indexes
 the modules of `docs/agents/` with the details.
 
+The docs keep only the high level and the most important details, because each agent reads them in
+each round (user, 2026-10-17). `docs/agents/writing.md` ("Length limits") gives the limit of each
+kind of doc: `AGENTS.md`, a module, a decision file, a research report, a design section, and the
+brief template.
+
 ## 9.7 Targets
 
 The development Mac is an Apple M1 Max with Chrome. The research timings also come from this
