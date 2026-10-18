@@ -81,18 +81,18 @@ in a line at the back, as the Vienna Philharmonic seats them (user, 2026-10-05,
   2026-10-05). A species of the size 1.2 or more plays only the contrabass, the timpani, the
   trombone, or the tuba. The strings have species of the size 1.05 or less, and the piano 1.1 or
   less (`docs/research/seating.md`, section 5).
-- `scene/hidden-heads.test.ts` checks that a large species hides less than 10% of the head of
-  each smaller animal in the default view.
+- In the default view, a large species hides less than 10% of the head of each smaller animal
+  (`scene/hidden-heads.test.ts`).
 
 ## 4.3 Species
 
 All animals except the penguins, the bear conductor, the polar bear pianist, the rabbit violinist,
 the two foxes, the viola cats, and the cello dogs use one parametric biped body (4.4). Each species
 has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A
-species can have a body of its own in place of the biped (`body`): the egg body of the penguins
-(`models/penguin/`), the studio bodies of the bear and the polar bear (`lowpoly-studio/`), and the
-meshes of the user that `pnpm rig-mesh` rigs for the rabbit, the two foxes, the cat, and the dog
-(4.4, bodies of their own and studio bodies). The two foxes share one rig, and the tan fox takes
+species can have a body of its own in place of the biped (`body`, 4.4, bodies of their own and
+studio bodies). The penguins have an egg body (`models/penguin/`), and the bear and the polar bear
+have studio bodies (`lowpoly-studio/`). The rabbit, the two foxes, the cat, and the dog have
+meshes of the user that `pnpm rig-mesh` rigs. The two foxes share one rig, and the tan fox takes
 another palette of its faces (`palette`). A species with a body of its own has no shape
 parameters, because its body has its own parts.
 
@@ -262,7 +262,7 @@ The user chose each body of its own, and the table "Bodies and roles" of
 `docs/agents/model-work.md` lists them with their decision files. The bear conductor and the polar
 bear pianist have the studio bodies of `lowpoly-studio/` (user, 2026-10-12). The rabbit violinist,
 the red violin fox, the viola cat, and the cello dog have meshes of the user that the app rigs
-itself, and the tan flute fox has the rig of the red fox with a tan palette (studio bodies, below).
+itself (studio bodies, below). The tan flute fox has the rig of the red fox with a tan palette.
 The penguins have an egg body built in code (user, 2026-10-11). Each other species has the
 parametric body of 2026-10-06 18:58, which the user chose again in place of the sculpts and the
 rigged bodies (`docs/decisions/2026-10-11-body-revert.md`).
@@ -367,9 +367,9 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
     (`docs/decisions/2026-10-17-dog-tail.md`). A curled tail does not sway (5.1). The ears of the
     dog hang and do not twitch (`OwnBodyParams.hangingEars`).
 - **Scale.** The scale keeps a landmark that the scene depends on (`ANIMALS` in
-  `tools/studio-body.ts`): the shoulders of the bear for the conductor stand, the keys of the
-  studio piano of the polar bear, and the shoulders, the ear tips, or the head top that give each
-  mesh body the size that the user chose. A longer leg raises the landmark by the same height, so
+  `tools/studio-body.ts`). The landmark is the shoulders of the bear for the conductor stand, and
+  the keys of the studio piano of the polar bear. For a mesh body, it is the shoulders, the ear
+  tips, or the head top at the size that the user chose. A longer leg raises the landmark by the same height, so
   the trunk, the head, and the arms keep their meters.
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear then rises to its seat height
@@ -403,10 +403,11 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
 No species has a rigged body since 2026-10-11, and the app has no code of it. The GLB files
 `assets/models/rabbit/rabbit.glb` and `assets/models/bear/bear.glb` of the user and the tools stay
 for a later body, and route 1 of `docs/agents/model-work.md` brings the code back.
-`pnpm rig-body <species>` packs a file into `src/models/rigged/<species>.ts` with a baked skin: it
-keeps the two largest weights of each vertex, gives the missing ear, tail, and finger bones a part
-of the weight of their parents, moves the colors of the texture to the colors of the species
-(`docs/decisions/2026-10-10-glb-skins.md`), and puts a plate on each eye, so that it blinks. The
+`pnpm rig-body <species>` packs a file into `src/models/rigged/<species>.ts` with a baked skin. It
+keeps the two largest weights of each vertex, and gives the missing ear, tail, and finger bones a
+part of the weight of their parents. It moves the colors of the texture to the colors of the
+species (`docs/decisions/2026-10-10-glb-skins.md`), and puts a plate on each eye, so that it
+blinks. The
 limbs keep the lengths of the model, unless the user asks for the look of a reference image
 (user, 2026-10-10).
 
