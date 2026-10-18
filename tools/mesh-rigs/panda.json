@@ -193,6 +193,15 @@
       [0.04, 0.83, 0.24]
     ],
     "nose": [0.05, 0.05, 0.05],
+    "border": {
+      "box": [
+        [-0.3, 0.17, -0.3],
+        [0.3, 0.69, 0.3]
+      ],
+      "share": 0.5,
+      "dark": 0.5,
+      "note": "The user said on 2026-10-18: \"there's unexpected black marks on the torso. fix that\" (docs/decisions/2026-10-18-panda-marks.md). A face takes black from the share eyeShare (0.34) of dark texture samples. Seven large faces at the lower border of the black band under the arms are mostly white in the texture (36% to 46% dark samples). They gave the band black teeth, and the raised arms stretched the teeth into black wedges on the white sides of the belly. In the box of the trunk, from the crotch (y 0.17) to the neck (0.69), each dark face with less than half dark samples takes the color of the nearest light fur face: 7 faces, 3 on the left and 4 on the right. No other face of the trunk has a share from 0.34 to 0.5 (docs/research/2026-10-18-panda-marks.md)."
+    },
     "patch": {
       "center": [0.0717, 0.8547],
       "radii": [0.0475, 0.0475],
