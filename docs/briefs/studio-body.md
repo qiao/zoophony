@@ -205,8 +205,10 @@ items to the briefs of the rig round and of the app round.
   `pnpm size --base main` in the commit that adds the body.
 - **The GLB file.** A plain `--preview` of `pnpm rig-mesh` writes the GLB file. Only the last
   commit of a series of rig commits writes it, because each version stays in the history.
-- **The shot plans.** A new body changes the layout, and with it the shot plans. Run
-  `pnpm test:paused src/shots/` before the fit of the holds.
+- **The early checks.** A new body changes the layout, and with it the shot plans and the poses of
+  other players. Directly after the commit that gives the species its body, and before the fit of
+  the hold, run `pnpm test:paused src/shots/` and `pnpm body-probe --base <base>`. Name each
+  failure in the handoff at once.
 
 ## 8. Docs of a new body, role, or hold
 
