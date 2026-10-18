@@ -573,7 +573,7 @@ of each role.
     paw by the tilt, and the hand keeps the turn of the bow with no tilt (`heldBowAt()` of
     `pose/bowed.ts`): with the hand turned with the stick, the bow of the rabbit went 1.7 cm into
     the violin in the lowering of `brahms-2`. The floor holds of the cello and the contrabass lean
-    the player forward 8° and 5°, and the dog of the mesh does not lean (below). The parametric
+    the player forward 8° and 5°, and the dog of the mesh 3° (below). The parametric
     cellist had 40° and 10° until the low seats of 2026-10-11: on its lower chair, the cello stands
     higher at its body, and its head and its right forearm came too near the neck and the bow stick.
     The bow range is the part of the hair that the arm reaches on all strings with 97% of its
@@ -671,14 +671,14 @@ of each role.
     at the left of the head, above the left shoulder. The short thighs of the dog mesh end about
     1 cm behind the front of its belly, so the cello stands vertical and leans 11° to the left,
     and the knees stay 2.0 cm and 2.9 cm behind the sides of the lower bout. A cello that leans back
-    stood with its lower bout in front of the knees. The trunk does not lean, because the belly then
+    stood with its lower bout in front of the knees. The trunk leans only 3°, because the belly then
     pushes into the cello. The left paw tilts 60° over the neck (`BowedHold.tiltL`, 30° on the other
     holds), as the hand of a cellist comes over the fingerboard from the bass side: with 30°, the
     thick paw went 3.0 cm into the neck. The left elbow points out to the left and down, past the
     upper bout, and turns up 2° for each lower string. The right shoulder turns 30°, the turn of the
-    violin, and the right elbow points out at the frog and out, a little up, and forward at the tip.
-    The left paw reaches the whole fingerboard and the bow paw the whole hair with the arms of the
-    cello reach that the user chose (`docs/decisions/2026-10-17-mesh-dog.md`). `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
+    violin. The short arms of `docs/decisions/2026-10-17-dog-arms.md` reach the strings only nearly
+    straight, so the right elbow points out and down at the frog, near the body, and pizzicato
+    plucks over the fingerboard, nearer to the shoulder. `pnpm pose-depth violinist`, `pnpm fold-probe violinist`, and
     `pnpm fold-probe fox-violinist` measure each change
     (`docs/research/2026-10-13-studio-rabbit.md`, `docs/research/2026-10-13-rabbit-mesh.md`,
     `docs/research/2026-10-14-fox-rig.md`). A test keeps the rest bow of each violinist out
