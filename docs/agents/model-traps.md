@@ -109,6 +109,10 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
   rule or ring removes the fold (`raise` of the rig config). The whole turn of the upper arm finds
   the region (`docs/research/2026-10-15-fox-rig2/arm-dirs.ts` and `raise-turn.py`). A rule that
   relaxes more faces (`raise.below`) folds more play samples.
+- A grip far in front of a deep chest can turn the upper arm about 70° at the shoulder. Then the
+  front of the shoulder moves past the clavicle and folds, and a shape of `raise` does not relax
+  it. Turn the shoulder bone forward with the arm (`WindHold.reachL`), and scan the turn with
+  `pnpm hold-fit --grid` (`docs/research/2026-10-18-panda-folds.md`).
 - A face across a joint folds by the turn of the two bones of that joint. Probe each key before a
   rule: the upper arm, the forearm from the upper arm (`raise.bone` `forearm`), and the paw from
   the forearm (`raise.bone` `hand`), with `arm-turn.ts` and `fold-keys.ts` of
