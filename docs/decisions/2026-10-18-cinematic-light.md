@@ -13,3 +13,4 @@ reverse each decision. Then update its section, and remove its row.
 | Each plank has its own roughness, gloss, and start of the grain, and a seam keeps 0.35 of the gloss. The shader finds a plank by its vertex color (`createStageMaterial()`). | 4.5 |
 | The wood has the gloss factor 0.5 and a clearcoat of 0.3, in place of the factor 2.0 (`STAGE_FINISH`). A gloss has the color of the light, and the factor 2.0 made the lit floor pale: a saturation of 0.39 against 0.54 to 0.60. | 4.5 |
 | The planks are `#5e351a` and the seams `#4e2811` (`STAGE_COLORS`). The diffuse light of the wood now gives most of the floor light, and `#3b2618` gave a lit floor that was too dark. | 4.5 |
+| The grade is a 33³ lookup table of `gradeColor()`, with no lift of the highlights. The lift made the middle tones milky and the lit floor yellow (hue 35° against 28°). The exposure stays 0.8, because more exposure makes AgX take more saturation from the lit wood. | 4.5 |

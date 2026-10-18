@@ -3,29 +3,112 @@ import { Data3DTexture, LinearFilter, NoColorSpace, RGBAFormat, UnsignedByteType
 /** A color with three channels from 0 to 1. */
 export type GradeColor = readonly [r: number, g: number, b: number];
 
+/** A point of the tone curve: the input and the output luma, as display values from 0 to 255. */
+export type CurvePoint = readonly [input: number, output: number];
+
 /**
  * The values of the color grade on the display values, after AgX (design 4.5, post effects).
- * {@link gradeColor} applies them, and the lookup table of {@link gradeLut} holds the result.
+ * {@link gradeColor} applies them, and the lookup table of {@link gradeLut} holds the result. The
+ * look lab (`pnpm look-lab`) fitted them to `orchestra-latest.png` at the exposure of
+ * `rendererSettings()` (`docs/research/2026-10-18-cinematic-light.md`).
  */
 export const GRADE = {
-  /** The lift of the shadows, for each channel. */
-  lift: [0.004, 0.004, 0.003],
-  /** The gamma, for each channel. */
-  gamma: [1.0, 1.0, 1.0],
-  /** The gain, for each channel. */
-  gain: [1.0, 1.0, 0.97],
-  /** The blend to an S curve, from 0 to 1. */
-  contrast: 0.25,
   /**
-   * The lift of the highlights toward white, from 0 to 1. AgX compresses the light parts, so
-   * white fur reached 170 at most, against 210 to 220 in `mockup.png`.
+   * The tone curve on the luma. AgX gives flat middle tones and compresses the highlights, so the
+   * curve lowers the middle tones and spreads the highlights. It scales the three channels by one
+   * factor, so it keeps the hue and the saturation. The old lift of each channel toward white
+   * made the middle tones milky, and it moved the lit floor from a hue of 28° to 35°.
    */
-  highlights: 1.0,
-  /** The saturation of the middle tones and the highlights. */
+  curve: [
+    [0, 0],
+    [31, 25],
+    [62, 57],
+    [110, 104],
+    [139, 149],
+    [172, 210],
+    [255, 255],
+  ],
+  /** The saturation of all colors, as a factor. */
   saturation: 1.0,
-  /** The saturation of the shadows. The warm light and the wood saturate them strongly. */
-  shadowSaturation: 0.45,
+  /**
+   * The extra saturation of the pale colors: the factor grows by this value times the square of
+   * 1 minus the saturation of the color. AgX takes the saturation from the lit wood, and a dark
+   * fur that is already saturated keeps its saturation.
+   */
+  vibrance: 0.9,
+  /** The part of the saturation that the shadows keep. */
+  shadowSaturation: 0.85,
+  /** The tint of the shadows, added to each channel: neutral to a little cool. */
+  shadowTint: [-0.006, 0, 0.012],
+  /** The tint of the highlights, added to each channel: warm amber. */
+  highlightTint: [0.02, 0.004, -0.03],
 } as const;
+
+/**
+ * Makes a monotone cubic curve through points (Fritsch and Carlson, 1980). The curve does not
+ * overshoot between two points, so a tone curve stays monotone.
+ *
+ * @param points The points, by increasing input. Each value is from 0 to 1.
+ * @returns The curve. It holds the first and the last output outside the inputs.
+ */
+export function monotoneCurve(points: readonly CurvePoint[]): (x: number) => number {
+  const xs = points.map((point) => point[0]);
+  const ys = points.map((point) => point[1]);
+  const n = points.length;
+  const slopes: number[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    slopes.push(((ys[i + 1] ?? 0) - (ys[i] ?? 0)) / ((xs[i + 1] ?? 0) - (xs[i] ?? 0)));
+  }
+  const tangents = xs.map((_, i) => {
+    const before = slopes[i - 1] ?? slopes[i] ?? 0;
+    const after = slopes[i] ?? before;
+    return before * after <= 0 ? 0 : (before + after) / 2;
+  });
+  for (const [i, slope] of slopes.entries()) {
+    if (slope === 0) {
+      tangents[i] = 0;
+      tangents[i + 1] = 0;
+      continue;
+    }
+    const a = (tangents[i] ?? 0) / slope;
+    const b = (tangents[i + 1] ?? 0) / slope;
+    const h = a * a + b * b;
+    if (h > 9) {
+      const t = 3 / Math.sqrt(h);
+      tangents[i] = t * a * slope;
+      tangents[i + 1] = t * b * slope;
+    }
+  }
+
+  return (x) => {
+    const first = xs[0] ?? 0;
+    const last = xs[n - 1] ?? 1;
+    if (x <= first) {
+      return ys[0] ?? 0;
+    }
+    if (x >= last) {
+      return ys[n - 1] ?? 1;
+    }
+    let i = 0;
+    while (x > (xs[i + 1] ?? last)) {
+      i++;
+    }
+    const x0 = xs[i] ?? 0;
+    const h = (xs[i + 1] ?? 1) - x0;
+    const t = (x - x0) / h;
+    const t2 = t * t;
+    const t3 = t2 * t;
+    return (
+      (2 * t3 - 3 * t2 + 1) * (ys[i] ?? 0) +
+      (t3 - 2 * t2 + t) * h * (tangents[i] ?? 0) +
+      (-2 * t3 + 3 * t2) * (ys[i + 1] ?? 0) +
+      (t3 - t2) * h * (tangents[i + 1] ?? 0)
+    );
+  };
+}
+
+/** The tone curve of {@link GRADE}, on values from 0 to 1. */
+const toneCurve = monotoneCurve(GRADE.curve.map(([x, y]) => [x / 255, y / 255]));
 
 /**
  * Calculates the smooth step of GLSL.
@@ -41,31 +124,45 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
 }
 
 /**
- * Grades one display color (design 4.5, post effects): lift the shadows, set the gamma, scale the
- * highlights for each channel, blend to an S curve, move the highlights toward white, and set the
- * saturation.
+ * Calculates the luma of a display color.
+ *
+ * @param color The color.
+ * @returns The luma, from 0 to 1.
+ */
+function lumaOf(color: GradeColor): number {
+  return 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2];
+}
+
+/**
+ * Grades one display color (design 4.5, post effects): the tone curve on the luma, the saturation
+ * with the vibrance, and the tints of the shadows and of the highlights ({@link GRADE}).
  *
  * @param color The display color after AgX, from 0 to 1 for each channel.
  * @returns The graded color.
  */
 export function gradeColor(color: GradeColor): [number, number, number] {
   const g = GRADE;
-  const c = color.map((value, i) => {
-    let v = Math.min(1, Math.max(0, value));
-    v = v * (g.gain[i] ?? 1) + (g.lift[i] ?? 0) * (1 - v);
-    v = Math.max(v, 0) ** (1 / (g.gamma[i] ?? 1));
-    v += (v * v * (3 - 2 * v) - v) * g.contrast;
-    return v + g.highlights * smoothstep(0.45, 1, v) * (1 - v);
-  });
-  const [r = 0, gr = 0, b = 0] = c;
-  const luma = 0.2126 * r + 0.7152 * gr + 0.0722 * b;
-  const saturation =
-    g.shadowSaturation + (g.saturation - g.shadowSaturation) * smoothstep(0.05, 0.35, luma);
-  return [
-    luma + (r - luma) * saturation,
-    luma + (gr - luma) * saturation,
-    luma + (b - luma) * saturation,
-  ];
+  const clamped = color.map((value) => Math.min(1, Math.max(0, value)));
+  const [r0 = 0, g0 = 0, b0 = 0] = clamped;
+  const before = lumaOf([r0, g0, b0]);
+  const factor = before > 1e-4 ? toneCurve(before) / before : 1;
+  const [r = 0, gr = 0, b = 0] = clamped.map((value) => Math.min(1, value * factor));
+
+  const luma = lumaOf([r, gr, b]);
+  const top = Math.max(r, gr, b);
+  const pale = top > 0 ? 1 - (top - Math.min(r, gr, b)) / top : 1;
+  const shadows = g.shadowSaturation + (1 - g.shadowSaturation) * smoothstep(0.03, 0.3, luma);
+  const saturation = g.saturation * (1 + g.vibrance * pale * pale) * shadows;
+
+  // The tint of the shadows fades in above black, so that black stays black.
+  const shadowWeight = (1 - smoothstep(0, 0.45, luma)) * smoothstep(0, 0.08, luma);
+  const highlightWeight = smoothstep(0.4, 1, luma);
+  const grade = (value: number, i: number): number =>
+    luma +
+    (value - luma) * saturation +
+    (g.shadowTint[i] ?? 0) * shadowWeight +
+    (g.highlightTint[i] ?? 0) * highlightWeight;
+  return [grade(r, 0), grade(gr, 1), grade(b, 2)];
 }
 
 /**
