@@ -264,6 +264,16 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       panda the trombone (4.3). The rows follow the American seating with the string wedges
       (4.2, 4.5). A test of `scene/` checks the hidden heads in the default view.
 
+Open items of the mesh rounds of 2026-10-16 and 2026-10-17 (each file is in `docs/decisions/`):
+
+- [ ] Rig the meshes of the mouse (oboe), the monkey (trumpet), the pig (horn), and the badger
+      (percussion) when the user gives them. The prompts of the sheets were given on 2026-10-17.
+- [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
+      fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
+- [ ] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
+- [ ] Condense design 1, 3, 7, and 8, which still hold dated history
+      (`2026-10-17-design-condense.md`).
+
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
 
@@ -355,6 +365,29 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       to 1.6 s, with a ripple from the principal of each seat. `Transport.before` and
       `SeatAudibility.before` replace `weightAtChange`, and the ready pause of the count-in is
       1.2 s (5.2, 5.4, 5.5).
+
+Open items of the pose rounds of 2026-10-16 and 2026-10-17 (each file is in `docs/decisions/`):
+
+- [ ] Dog cellist: the left ear touches the cello, the left forearm and paw go 2.1 cm and 1.6 cm
+      into it, the right upper arm 2.0 cm into the body, and the bow reach is 69% (goal 70%). A loop
+      that moves the cello and rebuilds the left-arm shapes (`2026-10-17-dog-folds.md`).
+- [ ] Dog cellist: the knees stay about 21 cm from the leaned cello (`2026-10-17-dog-rest.md`).
+- [ ] Cat violist: the left forearm goes 2.4 cm into the viola in the 4th and 5th positions. The
+      user decides if the viola moves forward and the paw loses the nut (`2026-10-17-cat-hand.md`).
+- [ ] Cat violist: play and lift folds 1.3 and 1.4 points over the limit since the slim arms
+      (`2026-10-17-cat-look.md`).
+- [ ] Red fox: the bow grip is 2.2 cm from the middle of the paw for the standing soloist
+      (`2026-10-17-grip-all.md`).
+- [ ] Tan fox: the flute end is 4.3 cm above the leg, and the left inner elbow goes 1.9 cm into the
+      trunk at rest (`2026-10-17-tan-rest.md`).
+- [ ] Standing soloists: the left arm goes 1.8 cm to 2.8 cm into the instrument in the lift and the
+      lowering (`2026-10-17-cat-bow.md`).
+- [ ] The change to pizzicato takes the bow hair 28.5 mm off the strings at one stroke of
+      `boulanger-matin` (18.96 s) (`2026-10-17-mesh-dog.md`).
+- [ ] The paused shot test of the choir of the Ode to Joy fails since the larger cats
+      (`2026-10-16-mesh-cat.md`).
+- [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
+      notes) (`2026-10-17-bow-arm.md`).
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
