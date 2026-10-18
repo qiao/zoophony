@@ -264,13 +264,15 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       panda the trombone (4.3). The rows follow the American seating with the string wedges
       (4.2, 4.5). A test of `scene/` checks the hidden heads in the default view.
 
-Open items of the mesh rounds of 2026-10-16 and 2026-10-17 (each file is in `docs/decisions/`):
+Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs/decisions/`):
 
 - [ ] Rig the meshes of the mouse (oboe), the monkey (trumpet), the pig (horn), and the badger
       (percussion) when the user gives them. The prompts of the sheets were given on 2026-10-17.
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
       fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
 - [ ] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
+- [ ] Remove the unused code of the face pattern `eye-patches`: no species has it since the panda
+      mesh (`2026-10-18-mesh-panda.md`).
 - [ ] Condense design 1, 3, 7, and 8, which still hold dated history
       (`2026-10-17-design-condense.md`).
 
@@ -366,7 +368,7 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       `SeatAudibility.before` replace `weightAtChange`, and the ready pause of the count-in is
       1.2 s (5.2, 5.4, 5.5).
 
-Open items of the pose rounds of 2026-10-16 and 2026-10-17 (each file is in `docs/decisions/`):
+Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs/decisions/`):
 
 - [ ] Dog cellist: the left ear touches the cello, the left forearm and paw go 2.1 cm and 1.6 cm
       into it, the right upper arm 2.0 cm into the body, and the bow reach is 69% (goal 70%). A loop
@@ -386,6 +388,11 @@ Open items of the pose rounds of 2026-10-16 and 2026-10-17 (each file is in `doc
       `boulanger-matin` (18.96 s) (`2026-10-17-mesh-dog.md`).
 - [ ] The paused shot test of the choir of the Ode to Joy fails since the larger cats
       (`2026-10-16-mesh-cat.md`).
+- [ ] Panda trombonist: faces 717, 1147, and 1148 at the front of the left shoulder fold in each
+      play, lift, and rest sample. A raise rule of the left arm does not relax them
+      (`2026-10-18-mesh-panda.md`).
+- [ ] The paused shot test of the moves of 2 cm keeps 71.8% of the shots (limit 75%) since the
+      panda mesh (`docs/research/2026-10-18-panda-mesh.md`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
