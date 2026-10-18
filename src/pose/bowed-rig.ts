@@ -675,9 +675,62 @@ const CAT_HOLD = {
 } as const satisfies BowedHold;
 
 /**
+ * The hold of the cello between the knees, for the dog mesh (design 4.6, 5.3), as a real cellist
+ * holds it (`docs/reference/string-technique.md`, section 2.7, 2026-10-17-mesh-dog decisions): the
+ * endpin on the floor in front of the chair, the lower bout between the knees, the back of the
+ * cello against the belly and the chest, and the neck at the left of the head, above the left
+ * shoulder. The endpin is 0.06 m right of the middle and 0.305 m in front of the floor point of
+ * the seat. The cello stands vertical and leans 11° to the left, with the top plate to the front.
+ * The short thighs of the dog end about 1 cm behind the front of its belly, so a cello that leans
+ * back stood with its lower bout in front of the knees, and the knees stay behind the sides of the
+ * lower bout. With a lean of 10°, or with the top plate turned 5° to the right, the head came 1.7 cm
+ * to 2.0 cm to the neck in the looks at the conductor, and with 12°, the right upper arm went 2.0
+ * cm into the body. The trunk does not lean, because the belly then pushes into the cello. The
+ * cello keeps this place in the rest pose (`BowedHold.rest` null).
+ *
+ * The left paw tilts 60° over the neck (`tiltL`), as the hand of a cellist comes over the
+ * fingerboard from the bass side: with the 30° of the other holds, the thick paw went 3.0 cm into
+ * the neck and the left forearm 3.3 cm into the upper bout. The left elbow points out to the left
+ * and down, past the upper bout, and turns up 2° for each lower string: with the elbow of the floor
+ * hold, the left upper arm went 3.8 cm into the upper bout, and with the 10° of the floor hold, the
+ * left arm folded in more play samples. The right shoulder turns 30°, the turn of the violin, and
+ * the right elbow points out at the frog and out, a little up, and forward at the tip: with the
+ * turn of 45° and the raised elbow of the floor hold, the skin of the right shoulder folded in each
+ * play sample.
+ *
+ * In the rest pose, the left paw holds the neck at 0.4 of the fingerboard with the elbow out to
+ * the left, and the right paw holds the bow upright at the right side, with the frog over the right
+ * knee, 0.4 H out (`UPRIGHT_BOW`), as a cellist in a first lesson stands the screw of the frog on
+ * the right knee with the bow up. The right elbow points out, down, and back. With the grip on the
+ * top of the knee, the right upper arm went 4.1 cm into the side of the belly. In the lift and the
+ * lowering, the bow turns through the front (the via of `UPRIGHT_BOW`).
+ */
+const DOG_HOLD = {
+  ...BOWED_HOLDS.cello,
+  lean: 0,
+  reach: 30 * MathUtils.DEG2RAD,
+  playShift: [-0.076, 0, 0.748],
+  playTurn: [-0.2565, 0.1002, -0.0786, 0.9581],
+  tiltL: 60 * MathUtils.DEG2RAD,
+  poleL: [-1, -0.8, -0.2],
+  elbowPerString: 2 * MathUtils.DEG2RAD,
+  poleR: [1, 0, -0.3],
+  poleTipR: [1, 0.3, -1],
+  restPoleL: [-1, -1, 0],
+  restPoleR: [1, -1, 1],
+  restBow: {
+    lap: { along: 1, offset: [0.4, 0.1, 0] },
+    tip: UPRIGHT_BOW.tip,
+    hair: UPRIGHT_BOW.hair,
+    via: UPRIGHT_BOW.via,
+  },
+} as const satisfies BowedHold;
+
+/**
  * The holds of the species that hold a bowed string in their own way, in place of
  * {@link BOWED_HOLDS}: the rabbits and the red foxes hold the violin on the left shoulder, as in
- * `rabbit-views.png`, and the cat holds the viola with its own hold.
+ * `rabbit-views.png`, the cat holds the viola with its own hold, and the dog holds the cello
+ * between its knees.
  * The tools change them in memory with `--set '<instrument>@<species>.<path>=<value>'`
  * (`tools/hold-sets.ts`).
  */
@@ -687,6 +740,7 @@ export const SPECIES_HOLDS: Partial<
   rabbit: { violin: SHOULDER_HOLD },
   'fox-red': { violin: FOX_HOLD },
   cat: { viola: CAT_HOLD },
+  dog: { cello: DOG_HOLD },
 };
 
 /**
