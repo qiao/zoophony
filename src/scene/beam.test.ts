@@ -70,7 +70,8 @@ describe('tilingNoise', () => {
  * @returns The rounded values.
  */
 function rounded(point: readonly number[]): number[] {
-  return point.map((v) => Math.round(v * 1e9) / 1e9);
+  // The sum with 0 turns -0 into 0, because toEqual tells them apart.
+  return point.map((v) => Math.round(v * 1e9) / 1e9 + 0);
 }
 
 /**

@@ -140,7 +140,11 @@ export function beamAxes(stageSide: number, point: Vec3, foot: StagePair): Vec3 
 
 /**
  * Gives the tip of the haze cone (design 4.5): the point at the height {@link BEAM_LOOK}.tip on
- * the line from the foot of the beam to the key light (`keyLightPlace()`).
+ * the line from the foot of the beam to the key light (`keyLightPlace()`), with the key light
+ * turned onto the stage axis at the same distance and height. The beam then leans only toward
+ * the back, so it stands upright in the frontal default view, as the fan of
+ * `orchestra-latest.png`. The key light itself stands to the right, for the shadows, and it is
+ * outside the frame (user, 2026-10-18: "why is the beam not vertical?").
  *
  * @param stageSide The stage side `S`, in meters.
  * @param foot The center of the foot of the beam on the stage top, as (x, z), in meters.
@@ -148,9 +152,10 @@ export function beamAxes(stageSide: number, point: Vec3, foot: StagePair): Vec3 
  */
 export function hazeTip(stageSide: number, foot: StagePair): Vec3 {
   const [lightX, lightY, lightZ] = keyLightPlace(stageSide);
+  const back = -Math.hypot(lightX, lightZ);
   const height = BEAM_LOOK.tip * stageSide;
   const t = height / lightY;
-  return [foot[0] + (lightX - foot[0]) * t, height, foot[1] + (lightZ - foot[1]) * t];
+  return [foot[0] * (1 - t), height, foot[1] + (back - foot[1]) * t];
 }
 
 /**
