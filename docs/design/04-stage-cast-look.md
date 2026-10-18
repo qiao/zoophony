@@ -136,6 +136,8 @@ interface CommonParams {
   proportions?: Partial<BodyProportions>;
   /** The scale of the violin and its bow for a species (4.6). 1 by default. */
   violinScale?: number;
+  /** The scale of the cello and its bow for a species (4.6). 1 by default. */
+  celloScale?: number;
 }
 
 interface BipedParams extends CommonParams {
@@ -1703,7 +1705,10 @@ The instruments follow the reference image and the polished images, and their si
 animals of the reference image. The builder scales the violin and its bow by the head height of
 the rabbit of the reference image, so that they keep their size relative to the animals. A species
 can play a smaller violin and bow (`SpeciesParams.violinScale`), as a child plays a fractional
-size. A violin shop sizes a violin so that, in the play position with the left arm extended, the
+size. In the same way, a species can play a smaller cello and bow (`SpeciesParams.celloScale`).
+The end pin of a smaller cello is longer, so that the top of its body stays at the place of the
+top of the full size, against the chest (`endPinLength()` of `models/instruments/strings.ts`). A
+player of a fractional cello sets the end pin in the same way. A violin shop sizes a violin so that, in the play position with the left arm extended, the
 scroll lies in the middle of the palm (`docs/research/2026-10-13-studio-rabbit.md`,
 `docs/research/2026-10-13-rabbit-mesh.md`). The rabbit and the red fox play almost the violin of
 the app, the size that the user chose: the user made their arms longer for a full violin, and

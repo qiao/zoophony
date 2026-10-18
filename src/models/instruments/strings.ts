@@ -65,6 +65,22 @@ export const STRING_SCALES = {
 export const CELLO_END_PIN = 0.2;
 
 /**
+ * Gives the length of the end pin of an upright bowed string below the tail end, in meters
+ * (design 4.6). A smaller cello has a longer end pin, so that the top of its body stays at the
+ * place of the top of the full size: a player of a fractional cello sets the end pin so that the
+ * upper bout rests against the chest.
+ *
+ * @param id The upright bowed string.
+ * @param scale The scale of the instrument, as a factor of its full size.
+ * @returns The length.
+ */
+export function endPinLength(id: 'cello' | 'contrabass', scale: number): number {
+  const full = STRING_SCALES[id] / STRING_SCALES.cello;
+  const body = VIOLIN.bodyLength * STRING_SCALES[id];
+  return CELLO_END_PIN * full + body * (1 - scale);
+}
+
+/**
  * The scale of the bow of the cello and of the contrabass, as a factor of the bow model: 0.63 m.
  * The violin and the viola use the bow at the {@link INSTRUMENT_SCALE}: 0.57 m (design 4.6).
  */
@@ -380,7 +396,8 @@ function buildBow(size: number, grip: BowGrip): BowPiece {
 
 /**
  * Builds a bowed string instrument and its bow (design 4.6). A species with short arms plays a
- * smaller violin and bow (`SpeciesParams.violinScale`), as a child plays a fractional violin.
+ * smaller violin or cello and bow (`SpeciesParams.violinScale`, `SpeciesParams.celloScale`), as a
+ * child plays a fractional size. A smaller cello has a longer end pin ({@link endPinLength}).
  *
  * The violin and the viola use the violin axes: the tail end is at the origin, the violin runs
  * along +x to the scroll, and the top plate faces +y. The player holds them under the chin.
@@ -402,7 +419,7 @@ export function buildBowedString(
   const v = VIOLIN;
   const s = STRING_SCALES[id] * scale;
   const upright = id === 'cello' || id === 'contrabass';
-  const pin = upright ? (CELLO_END_PIN * s) / STRING_SCALES.cello : 0;
+  const pin = upright ? endPinLength(id, scale) : 0;
   // The violin axes in the piece axes, before the scale: upright, the length is +y, the top is
   // -z, and the middle of the body depth is on the axis of the end pin.
   const lengthAxis = new Vector3(0, 1, 0);

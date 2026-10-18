@@ -1,4 +1,5 @@
 import type { BowGrip } from './instruments/strings.ts';
+import type { InstrumentId } from './instruments/types.ts';
 import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
 import type { StudioPalette } from './studio-format.ts';
@@ -49,6 +50,13 @@ interface CommonParams {
    * gives for their arms (2026-10-14-arms-rest decisions).
    */
   readonly violinScale?: number;
+  /**
+   * The scale of the cello and its bow for the species, as a factor of the cello of the app
+   * (design 4.6). It is 1 when it is not given. A species with short arms plays a smaller cello,
+   * as a child plays a fractional size: a 1/2 cello is 0.87 of the length of a 4/4 cello. The
+   * end pin grows, so that the top of the body of the cello stays at the chest of the player.
+   */
+  readonly celloScale?: number;
   /**
    * The grip of the bow in the right paw of the species (design 4.6): the place of the stick and
    * its turn in the palm. The grip of the bind pose of the bow (`BOW_GRIP`) when it is not given.
@@ -161,6 +169,24 @@ export type SpeciesId = (typeof SPECIES_IDS)[number];
  */
 export function isSpeciesId(value: string): value is SpeciesId {
   return SPECIES_IDS.some((id) => id === value);
+}
+
+/**
+ * Gives the scale of the instrument and its bow of a species (design 4.6): the violin scale for a
+ * violin, the cello scale for a cello, and 1 for each other instrument.
+ *
+ * @param params The parameters of the species.
+ * @param instrument The instrument.
+ * @returns The scale, as a factor of the instrument of the app.
+ */
+export function instrumentScale(params: SpeciesParams, instrument: InstrumentId): number {
+  if (instrument === 'violin') {
+    return params.violinScale ?? 1;
+  }
+  if (instrument === 'cello') {
+    return params.celloScale ?? 1;
+  }
+  return 1;
 }
 
 /** The parameters of each species (design 4.3, 4.5). */

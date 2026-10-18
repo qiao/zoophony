@@ -10,7 +10,7 @@ import { chairBack, seatHeights } from './props.ts';
 import type { SeatHeights, Support } from './props.ts';
 import { boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName, Skeleton } from './rig.ts';
-import { SPECIES } from './species.ts';
+import { SPECIES, instrumentScale } from './species.ts';
 import { studioRigOf } from './studio-body.ts';
 import type { StudioRig } from './studio-rig.ts';
 import type { SpeciesId, SpeciesParams } from './species.ts';
@@ -189,7 +189,12 @@ export function buildPlayer(
   const params: SpeciesParams = SPECIES[species];
   const stance = stanceOn(support, params);
   const body = buildBiped(builder, params, stance);
-  const model = buildInstrument(instrument, kettles, params.violinScale ?? 1, params.bowGrip);
+  const model = buildInstrument(
+    instrument,
+    kettles,
+    instrumentScale(params, instrument),
+    params.bowGrip,
+  );
   const placed = attachInstrument(builder, model, body);
   const positions = {
     ...body.positions,

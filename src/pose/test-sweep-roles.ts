@@ -8,7 +8,7 @@ import { PIANO } from '../models/instruments/piano.ts';
 import { STRING_SCALES, VIOLIN } from '../models/instruments/strings.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { BoneName } from '../models/rig.ts';
-import { SPECIES } from '../models/species.ts';
+import { SPECIES, instrumentScale } from '../models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../models/species.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { countInAt } from './count-in.ts';
@@ -545,7 +545,7 @@ function bowedTargets(scene: TestScene, index: number): NoteTarget[] {
   }
   const { note: layer, timeOffset } = plan;
   const params: SpeciesParams = SPECIES[cast.species];
-  const scale = cast.instrument === 'violin' ? (params.violinScale ?? 1) : 1;
+  const scale = instrumentScale(params, cast.instrument);
   const halfWidth = (VIOLIN.stringsWidth / 2) * STRING_SCALES[cast.instrument] * scale;
   return layer.strokes.flatMap((stroke): NoteTarget[] =>
     stroke.technique === 'pizzicato'
