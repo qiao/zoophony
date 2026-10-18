@@ -27,11 +27,7 @@ import {
   tilingNoise,
 } from './beam.ts';
 import type { DepthRenderer } from './beam.ts';
-import {
-  BEAM_RADIUS_IN_SIDES,
-  BEAM_TOP_RADIUS_IN_SIDES,
-  SPOT_HEIGHT_IN_SIDES,
-} from '../models/beam.ts';
+import { BEAM_RADIUS_IN_SIDES, BEAM_TOP_RADIUS_IN_SIDES, keyLightPlace } from '../models/beam.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { TIER_SETTINGS } from './quality.ts';
 
@@ -78,7 +74,7 @@ function rounded(point: readonly number[]): number[] {
 
 describe('beamAxes (design 2.4, 4.5)', () => {
   const side = 11.19;
-  const height = SPOT_HEIGHT_IN_SIDES * side;
+  const height = keyLightPlace(side)[1];
   const foot = [3.9, 3.2] as const;
 
   it('leans the beam from the light to its foot on the stage top', () => {
@@ -103,7 +99,7 @@ describe('beamAxes (design 2.4, 4.5)', () => {
 describe('hazeProfile (design 4.5)', () => {
   it('keeps the haze cone inside the light cone, from below the stage top up to the light', () => {
     const side = 11.19;
-    const height = SPOT_HEIGHT_IN_SIDES * side;
+    const height = keyLightPlace(side)[1];
     const [axis, bottom, top] = hazeProfile(side);
     expect(axis?.[0]).toBe(0);
     expect(axis?.[1]).toBeLessThan(0);
@@ -308,7 +304,7 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
     if (!cone) {
       throw new Error('The beam has no cone.');
     }
-    const height = SPOT_HEIGHT_IN_SIDES * side;
+    const height = keyLightPlace(side)[1];
     const bottom = new Vector3(0, 0, 0).applyMatrix4(cone.matrixWorld);
     const top = new Vector3(0, height, 0).applyMatrix4(cone.matrixWorld);
     expect(rounded(bottom.toArray())).toEqual([3.9, 0, 3.2]);

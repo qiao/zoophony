@@ -1,7 +1,34 @@
 import type { Vec3 } from './tuples.ts';
 
-/** The height of the spotlight above the stage center, in stage sides (design 4.5). */
-export const SPOT_HEIGHT_IN_SIDES = 1.2;
+/**
+ * The place of the key light (design 4.5), seen from the stage center on the stage top. The key
+ * light is the spotlight of the stage, and the visible beam comes from it.
+ */
+export const KEY_PLACE = {
+  /** The distance from the stage center, in stage sides. */
+  distance: Math.hypot(1.2, 0.7),
+  /** The turn from the back of the stage axis toward the right side, in radians. */
+  azimuth: 0,
+  /** The angle above the stage top, in radians. */
+  elevation: Math.atan2(1.2, 0.7),
+} as const;
+
+/**
+ * Gives the position of the key light of a stage ({@link KEY_PLACE}). The stage axes have +x to
+ * the right, +y up, and +z to the audience, so the back of the stage is at -z.
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @returns The position, in meters.
+ */
+export function keyLightPlace(stageSide: number): Vec3 {
+  const { distance, azimuth, elevation } = KEY_PLACE;
+  const flat = distance * stageSide * Math.cos(elevation);
+  return [
+    flat * Math.sin(azimuth),
+    distance * stageSide * Math.sin(elevation),
+    -flat * Math.cos(azimuth),
+  ];
+}
 
 /** The radius of the visible beam on the stage, in stage sides (design 4.5). */
 export const BEAM_RADIUS_IN_SIDES = 0.75;
@@ -21,7 +48,7 @@ export const BEAM_TOP_RADIUS_IN_SIDES = 0.02;
  * @returns True inside the cone.
  */
 export function insideBeam(stageSide: number, point: Vec3, margin = 0): boolean {
-  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
+  const height = keyLightPlace(stageSide)[1];
   const [x, y, z] = point;
   if (y < 0 || y >= height - margin) {
     return false;

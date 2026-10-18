@@ -19,6 +19,7 @@ import {
   SIDE_LIGHT,
   aimKeyLight,
   createLights,
+  keyLightPosition,
   keyShadowFrustum,
   setLightsTier,
 } from './lights.ts';
@@ -79,7 +80,7 @@ describe('createLights', () => {
 
   it('puts the key light behind the orchestra on the stage axis, so the shadows fall to the front', () => {
     const spot = keyOf(lights);
-    expect(spot.position.toArray()).toEqual(KEY_LIGHT.position.map((v) => v * side));
+    expect(spot.position.toArray()).toEqual(keyLightPosition(side));
     expect(spot.position.z).toBeLessThan(spot.target.position.z);
     expect(spot.position.x).toBe(0);
     expect(spot.position.y).toBeCloseTo(1.2 * side, 9);

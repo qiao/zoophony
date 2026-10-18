@@ -2,7 +2,7 @@ import { Group, HemisphereLight, MathUtils, SpotLight, Vector3 } from 'three';
 
 import type { ConductorPlace } from '../models/layout.ts';
 import type { Vec3 } from '../models/tuples.ts';
-import { SPOT_HEIGHT_IN_SIDES } from '../models/beam.ts';
+import { keyLightPlace } from '../models/beam.ts';
 import { createBeam, setBeamTier } from './beam.ts';
 import { TIER_SETTINGS } from './quality.ts';
 import type { QualityTier } from './quality.ts';
@@ -18,11 +18,6 @@ import type { QualityTier } from './quality.ts';
 export const KEY_LIGHT = {
   /** Warm orange. In `mockup.png`, the white rabbits show a hue of about 20. */
   color: '#ffca98',
-  /**
-   * The position, in stage sides from the stage center on the stage top. The height is the
-   * height of the visible beam, `SPOT_HEIGHT_IN_SIDES` of `models/beam.ts`.
-   */
-  position: [0, SPOT_HEIGHT_IN_SIDES, -0.7],
   /** The aim, as a part of the way from the stage center to the podium center. */
   aimToPodium: 0.5,
   /**
@@ -369,14 +364,13 @@ function spotlight(color: string, position: Vec3, target: Vec3, illuminance: num
 }
 
 /**
- * Gives the position of the key light of a stage ({@link KEY_LIGHT}).
+ * Gives the position of the key light of a stage (`KEY_PLACE` of `models/beam.ts`).
  *
  * @param stageSide The stage side `S`, in meters.
  * @returns The position, in meters.
  */
 export function keyLightPosition(stageSide: number): Vec3 {
-  const [kx, ky, kz] = KEY_LIGHT.position;
-  return [kx * stageSide, ky * stageSide, kz * stageSide];
+  return keyLightPlace(stageSide);
 }
 
 /**

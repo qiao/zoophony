@@ -16,7 +16,7 @@ import type { Vec3 } from '../models/tuples.ts';
 import { srgb } from '../models/mesh.ts';
 import type { Rgb } from '../models/mesh.ts';
 import { STAGE_THICKNESS } from '../models/stage.ts';
-import { KEY_LIGHT } from './lights.ts';
+import { KEY_LIGHT, keyLightPosition } from './lights.ts';
 
 /**
  * The concert hall around the stage (design 4.5, hall). The values are parts of the hall unit
@@ -703,7 +703,7 @@ export function createHall(stageSide: number): Group {
         uEdge: { value: new Color(HALL_FLOOR.edge) },
         uHalfSide: { value: stageSide / 2 },
         uReach: { value: HALL_FLOOR.reach * stageSide },
-        uKey: { value: new Vector3(...KEY_LIGHT.position).multiplyScalar(stageSide) },
+        uKey: { value: new Vector3(...keyLightPosition(stageSide)) },
         uGlossColor: {
           value: new Color(KEY_LIGHT.color).multiplyScalar(HALL_FLOOR.gloss),
         },

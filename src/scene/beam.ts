@@ -24,7 +24,7 @@ import {
 } from 'three';
 import type { Camera, Object3D, PerspectiveCamera, Scene } from 'three';
 
-import { BEAM_TOP_RADIUS_IN_SIDES, SPOT_HEIGHT_IN_SIDES } from '../models/beam.ts';
+import { BEAM_TOP_RADIUS_IN_SIDES, keyLightPlace } from '../models/beam.ts';
 import { plankHash } from '../models/stage.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { StagePair } from './light-pool.ts';
@@ -126,7 +126,7 @@ export const BEAM_LOOK = {
  */
 export function beamAxes(stageSide: number, point: Vec3, foot: StagePair): Vec3 {
   const [x, y, z] = point;
-  const lean = 1 - y / (SPOT_HEIGHT_IN_SIDES * stageSide);
+  const lean = 1 - y / keyLightPlace(stageSide)[1];
   return [x - foot[0] * lean, y, z - foot[1] * lean];
 }
 
@@ -140,7 +140,7 @@ export function beamAxes(stageSide: number, point: Vec3, foot: StagePair): Vec3 
  * @returns The radius, in meters.
  */
 export function hazeRadius(stageSide: number, y: number): number {
-  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
+  const height = keyLightPlace(stageSide)[1];
   const bottom = BEAM_LOOK.column * stageSide;
   return bottom + (BEAM_TOP_RADIUS_IN_SIDES * stageSide - bottom) * (y / height);
 }
@@ -422,7 +422,7 @@ void main() {
  * @returns The radius and the height of each point of the outline, from the axis at the bottom up.
  */
 export function hazeProfile(stageSide: number): [number, number][] {
-  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
+  const height = keyLightPlace(stageSide)[1];
   return [
     [0, HAZE_BASE],
     [hazeRadius(stageSide, HAZE_BASE), HAZE_BASE],
@@ -443,7 +443,7 @@ const HAZE_BASE = -0.05;
  */
 export function insideHaze(stageSide: number, point: Vec3, foot: StagePair = [0, 0]): boolean {
   const [x, y, z] = beamAxes(stageSide, point, foot);
-  if (y < 0 || y >= SPOT_HEIGHT_IN_SIDES * stageSide) {
+  if (y < 0 || y >= keyLightPlace(stageSide)[1]) {
     return false;
   }
   return Math.hypot(x, z) < hazeRadius(stageSide, y);
@@ -454,13 +454,13 @@ function coneUniforms(stageSide: number) {
   const { low, high, top, topFade, margin } = BEAM_LOOK.items;
   return {
     uColor: { value: new Color(BEAM_LOOK.color) },
-    uHeight: { value: SPOT_HEIGHT_IN_SIDES * stageSide },
+    uHeight: { value: keyLightPlace(stageSide)[1] },
     uTopRadius: { value: BEAM_TOP_RADIUS_IN_SIDES * stageSide },
     uCore: { value: BEAM_LOOK.core },
     uColumn: { value: BEAM_LOOK.column * stageSide },
     uFloor: { value: BEAM_LOOK.floor },
     uRise: {
-      value: new Vector2(...BEAM_LOOK.rise).multiplyScalar(SPOT_HEIGHT_IN_SIDES * stageSide),
+      value: new Vector2(...BEAM_LOOK.rise).multiplyScalar(keyLightPlace(stageSide)[1]),
     },
     uSoft: { value: BEAM_LOOK.soft * stageSide },
     uItems: { value: new Vector4(low, high, top, topFade) },
@@ -774,7 +774,7 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
  */
 function leanCone(cone: Mesh, stageSide: number, foot: StagePair): void {
   const [fx, fz] = foot;
-  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
+  const height = keyLightPlace(stageSide)[1];
   cone.matrixAutoUpdate = false;
   cone.matrix.set(1, -fx / height, 0, fx, 0, 1, 0, 0, 0, -fz / height, 1, fz, 0, 0, 0, 1);
   cone.updateMatrixWorld(true);
