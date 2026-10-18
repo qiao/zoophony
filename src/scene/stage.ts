@@ -26,9 +26,10 @@ export const STAGE_FINISH = {
   /**
    * The factor of the direct gloss of the lights on the wood below the lacquer. A gloss has the
    * color of the light, and the factor 2.0 of a broad gloss made the lit floor pale: a saturation
-   * of 0.39 against 0.54 to 0.60 in `orchestra-latest.png` (`pnpm look-lab`).
+   * of 0.39 against 0.54 to 0.60 in `orchestra-latest.png` (`pnpm look-lab`). The side lights
+   * are a warm white, so their gloss pales the floor more, and 0.5 gave 0.44.
    */
-  specular: 0.5,
+  specular: 0.35,
   /**
    * The largest change of the roughness from one plank to the next. Each plank has its own tone in
    * its vertex colors (`plankColor()` of `models/stage.ts`), but the gloss of the key light was the
@@ -45,9 +46,9 @@ export const STAGE_FINISH = {
   /**
    * The strength of the lacquer layer above the wood, from 0 to 1. It gives the glare of the key
    * light on the floor in front of the podium. With 0.6, the podium top was almost white in the
-   * default view.
+   * default view, and 0.3 still paled the lit floor.
    */
-  clearcoat: 0.3,
+  clearcoat: 0.18,
   /** The roughness of the lacquer layer: a soft glare of the key light. */
   clearcoatRoughness: 0.35,
 } as const;
