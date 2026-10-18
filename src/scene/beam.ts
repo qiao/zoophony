@@ -52,13 +52,12 @@ export const BEAM_LOOK = {
   core: 0.5,
   /**
    * The radius of the haze at the stage top, in stage sides. The haze fills a cone that narrows
-   * from this radius to the radius of the light cone at the light (the haze cone), inside the
-   * cone of `models/beam.ts`. The cone is 0.75 S wide at the stage, and a haze in the full cone
-   * veiled the full orchestra in the frontal default view. Until 2026-10-07, the haze filled a
-   * column of 0.3 S up to the height where the cone is narrower. In the default view, its top
-   * was 2 times as wide as the shaft of light of `mockup.png`.
+   * from this radius to the radius of the light cone at its tip (the haze cone), inside the cone
+   * of `models/beam.ts`. The cone is 0.75 S wide at the stage, and a haze in the full cone veiled
+   * the full orchestra in the frontal default view. With the tip of {@link BEAM_LOOK}.tip, 0.3 S
+   * opens the fan of `orchestra-latest.png`, and 0.35 S made it too wide.
    */
-  column: 0.25,
+  column: 0.3,
   /**
    * The height of the tip of the haze cone, in stage sides. The tip lies on the line from the foot
    * of the beam to the key light, so the beam points at the key light. The key light stands far
@@ -66,7 +65,7 @@ export const BEAM_LOOK = {
    * A lower tip shows the narrow top of the cone, so the beam opens as a fan toward the stage, as
    * in `orchestra-latest.png`.
    */
-  tip: 1.2,
+  tip: 1.0,
   /**
    * The density in the haze at the stage. The density grows with the concentration of the light,
    * where the haze cone is narrow: (column / radius)^0.8, at most
