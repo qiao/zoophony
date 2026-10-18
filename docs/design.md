@@ -215,9 +215,10 @@ The decision files:
 - [`2026-10-18-cinematic-light.md`](decisions/2026-10-18-cinematic-light.md): the look lab, the floor, the grade, the bake of the props, the captured environment, the shot light, the lens, and the room haze.
 - [`2026-10-18-mesh-panda.md`](decisions/2026-10-18-mesh-panda.md): the panda mesh of the user as the trombonist.
 - [`2026-10-18-mesh-retro.md`](decisions/2026-10-18-mesh-retro.md): the retro of the panda mesh round, the probes of the real body in phase 1, and `pnpm mesh-options`.
-- [`2026-10-18-panda-folds.md`](decisions/2026-10-18-panda-folds.md): the forward turn of the left shoulder of the panda and the reference white of its fur.
+- [`2026-10-18-panda-folds.md`](decisions/2026-10-18-panda-folds.md): the folds of the left shoulder of the panda and the reference white of its fur.
 - [`2026-10-18-panda-face.md`](decisions/2026-10-18-panda-face.md): the round eye patches and the thin smile line of the panda.
 - [`2026-10-18-panda-marks.md`](decisions/2026-10-18-panda-marks.md): the light border of the black band under the arms of the panda, and the gray streaks and the shadows that stay.
 - [`2026-10-18-wind-technique.md`](decisions/2026-10-18-wind-technique.md): the reference of the wind and brass technique, and the motion spec of the trombone of the panda.
 - [`2026-10-18-slide-notes.md`](decisions/2026-10-18-slide-notes.md): the brass partials with no seventh partial, and the real spacing of the trombone slide positions.
 - [`2026-10-18-horn-fundamental.md`](decisions/2026-10-18-horn-fundamental.md): the fundamental F1 of the horn, and the partials of the single F horn chart.
+- [`2026-10-18-trombone-fit.md`](decisions/2026-10-18-trombone-fit.md): the slide angle of the panda trombone, and the forward turn of the left shoulder that it needs.

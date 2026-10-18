@@ -40,7 +40,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Bassoon, beaver | Chair | none | The lower end turns forward and to the right | The bassoon moves off the mouth and tilts, and the head lifts | `WIND_HOLDS.bassoon`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species beaver <dir>` |
 | Horn, pig | Chair, stands as a soloist | none | The left hand presses the valves | The bell sits on the right thigh | `WIND_HOLDS.horn`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species pig <dir>` |
 | Trumpet, monkey | Chair, stands as a soloist | none | The right hand presses the valves | The trumpet moves off the mouth and turns down | `WIND_HOLDS.trumpet`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species monkey <dir>` |
-| Trombone, panda | Chair, stands as a soloist | Play: pBone, "How To Hold A Trombone", and Western Carolina University, "Slide Technique" (`docs/research/2026-10-18-panda-mesh.md`). Left shoulder: Human Kinetics (`docs/research/2026-10-18-panda-folds.md`). Technique: `docs/reference/wind-technique.md` | The left paw holds the weight at the grip near the mouthpiece, with the left shoulder forward, and the right paw moves the slide with the pitch. The slide turns right and down toward the right shoulder | The trombone moves off the mouth and stands upright at the right side | `PANDA_TROMBONE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-18-mesh-panda.md` | `pnpm close-views trombonist <dir>` |
+| Trombone, panda | Chair, stands as a soloist | Play: pBone, "How To Hold A Trombone", and Western Carolina University, "Slide Technique" (`docs/research/2026-10-18-panda-mesh.md`). Left shoulder: Human Kinetics (`docs/research/2026-10-18-panda-folds.md`). Technique: `docs/reference/wind-technique.md` | The left paw holds the weight at the grip near the mouthpiece, with the left shoulder forward, and the right paw moves the slide with the pitch. The slide turns right and down toward the right shoulder, as near to the level and to the front as the arm reaches | The trombone moves off the mouth and stands upright at the right side | `PANDA_PLAY`, `PANDA_TROMBONE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-18-mesh-panda.md`, `2026-10-18-trombone-fit.md` | `pnpm close-views trombonist <dir>` |
 | Tuba, rhino | Chair | none | The right hand presses the valves | The tuba moves off the mouth and tilts | `WIND_HOLDS.tuba`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species rhino <dir>` |
 | Timpani, elephant | Stands | none | Two mallets strike the kettle of each note | The arms hang a little out to the sides | `PERCUSSION_HOLDS.timpani`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `pnpm close-views species elephant <dir>` |
 | Bass drum, badger | Stands | none | The beater in the right hand strikes the right head | The rest of the timpani | `PERCUSSION_HOLDS['bass-drum']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `pnpm close-views species badger <dir>` |
@@ -390,10 +390,15 @@ The code constants of each family hold the times, the angles, and the lengths of
     mouthpiece, and the right paw holds the slide brace. Its big round head puts the mouth far in
     front of the shoulders, so while it plays, the slide turns to its right and down around the
     mouthpiece, toward the right shoulder, and the right arm reaches the first part of the travel.
-    The slide reach takes this turn and the turned head (`slideReachOf()`). The left shoulder turns
+    The slide reach takes this turn and the turned head (`slideReachOf()`). A real trombonist points
+    the slide toward the audience and never down to the floor (`docs/reference/wind-technique.md`
+    1.1). For the same reach, a slide less far down must turn further to the side, so the user chose
+    a slide between the most level and the most straight forward that keeps the clearance and no
+    fold (`PANDA_PLAY`, `docs/research/2026-10-18-trombone-fit.md`). The left shoulder turns
     forward, as the shoulder blade of a real player slides forward when the arm reaches forward
     (`WindHold.reachL`, `docs/research/2026-10-18-panda-folds.md`). Thus the left upper arm does
-    not take the whole turn to the grip, and the front of the left shoulder does not fold.
+    not take the whole turn to the grip, and the front of the left shoulder does not fold. The left
+    grip turns with the slide, so the left turn changes with the slide turn.
   - A woodwind player closes the holes with both hands, and up the octave the right hand opens
     first. A brass player presses the valves with one hand: none on a partial of the tube, and 1
     to 3 valves for 1 to 6 semitones below it (`BRASS_FUNDAMENTALS`). Each tube has the

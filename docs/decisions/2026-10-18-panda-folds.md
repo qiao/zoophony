@@ -12,6 +12,5 @@ its section, and remove its row.
 | Decision | Section |
 |---|---|
 | The user: "Merge now, fix folds next (Recommended)" and "Reference white (Recommended)". A short round fixes the folds of the left shoulder, and the white fur moves to the white of `SPECIES_COLORS.panda`. | 4.4, 5.3 |
-| The user: "Try the 9° turn". The left shoulder of the panda turns 9° forward with the trombone, as a real shoulder blade slides forward (`WindHold.reachL`, `PANDA_TROMBONE`). On all demos, the play folds stay 0.0%, and the arm shadow covers 18.3% of a belly box (40.0% at 15°). | 5.3 |
 | The white fur takes the full step: its faces get the chroma and the hue of `SPECIES_COLORS.panda`, with the lightness of the mesh (`colors.tone` of `tools/mesh-rigs/panda.json`). At the same lightness, the gallery renders match the parametric panda of that color. | 4.4, 4.5 |
-| The dark band across the belly in the gallery front view of the first position is the shadow of the left arm: with no received shadows, it goes. The 9° turn makes it smaller, and it stays. | 4.4 |
+| The dark band across the belly in the gallery front view of the first position is the shadow of the left arm: with no received shadows, it goes. It stays, and the left turn of `2026-10-18-trombone-fit.md` makes it larger. | 4.4 |

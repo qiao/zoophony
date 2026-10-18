@@ -365,14 +365,22 @@ const FOX_FLUTE = {
   },
 } as const satisfies WindHold;
 
-/** The turn of the slide of the panda to its right while it plays, in degrees. */
-const PANDA_SLIDE_RIGHT = 20;
-
-/** The turn of the slide of the panda down while it plays, in degrees, after the turn right. */
-const PANDA_SLIDE_DOWN = 25;
-
-/** The forward turn of the left shoulder of the panda, in degrees. */
-const PANDA_SHOULDER_L = 9;
+/**
+ * The turns of the trombone hold of the panda while it plays, in degrees (design 5.3). The user
+ * chose "B: between (Recommended)" of the round `trombone-fit`: the slide points 35° below the
+ * level and 30° to the right. Each set of turns is one change of this constant. The variant A was
+ * 35° right, 15° down, and the left shoulder 15° (30° below the level), and the hold before it was
+ * 20° right, 25° down, and the left shoulder 9° (40° below the level)
+ * (`docs/research/2026-10-18-trombone-fit.md`).
+ */
+const PANDA_PLAY = {
+  /** The turn of the slide to the right of the panda, around the mouthpiece. */
+  right: 30,
+  /** The turn of the slide down around the mouthpiece, after the turn right. */
+  down: 20,
+  /** The forward turn of the left shoulder. */
+  shoulderL: 15,
+} as const;
 
 /**
  * The trombone hold of the panda (design 5.3), the hold of a real trombonist (decisions
@@ -380,28 +388,30 @@ const PANDA_SHOULDER_L = 9;
  * and the right paw moves the slide. The big round head puts the mouth of the panda 0.40 m in
  * front of its shoulder joints, so with the slide of {@link WIND_HOLDS} straight ahead and 15°
  * down, the grip of the first position is 0.588 m from the right shoulder joint, beyond the reach
- * of the arm, and the slide reach is 0. While the panda plays, the slide turns
- * {@link PANDA_SLIDE_RIGHT} degrees to its right and then {@link PANDA_SLIDE_DOWN} degrees down
- * around the mouthpiece, toward the right shoulder, so that the right arm reaches 0.155 m of the
- * travel (0.17 m on the parametric panda). Turned 20° right and 20° down, the arm reached 0.125 m,
- * and the trombone went 0.8 cm into the body. With no turn right, the shoulder turn of 75° reached
- * only 0.05 m (`docs/research/2026-10-18-panda-mesh/slide-hold.txt`).
+ * of the arm, and the slide reach is 0. While the panda plays, the slide turns to its right and
+ * then down around the mouthpiece ({@link PANDA_PLAY}), toward the right shoulder, so that the
+ * right arm reaches 0.165 m of the travel. A real trombonist points the slide toward the audience,
+ * and never down to the floor (`docs/reference/wind-technique.md` 1.1). For the same reach, a
+ * slide nearer to the level must turn further to the right: the angle from the front stays about
+ * 45°. With 38° right and 12° down (27° below the level), 30% of the play samples folded
+ * (`docs/research/2026-10-18-trombone-fit.md`).
  *
- * The left shoulder turns {@link PANDA_SHOULDER_L} degrees forward, as the shoulder blade of a
- * real player slides forward when the arm reaches forward. With a square left shoulder, the left
- * upper arm turned 68° from its bind direction to the grip, and three faces at the front of the
- * left shoulder folded in each sample. Turns from 9° to 20° remove these folds
- * (`docs/research/2026-10-18-panda-folds.md`). The user chose the smallest of them ("Try the 9°
- * turn"): the left arm comes less far forward over the belly, so its shadow on the belly is
- * smaller.
+ * The left shoulder turns forward, as the shoulder blade of a real player slides forward when the
+ * arm reaches forward. With a square left shoulder, the left upper arm turned 68° from its bind
+ * direction to the grip, and faces at the front of the left shoulder folded in each sample
+ * (`docs/research/2026-10-18-panda-folds.md`). The left grip turns with the slide, so with the
+ * slide 30° to the right, a turn of 10° still folds faces 1290 and 1291 in each play sample, and
+ * 15° or 20° removes the folds. The user chose 9° before for a smaller shadow of the left arm on
+ * the belly ("Try the 9° turn"). With 15°, the shadow band covers 44.6% of a box of the belly in
+ * the front view, against 20.9% with 9° and the slide of the hold before.
  */
 const PANDA_TROMBONE = {
   ...WIND_HOLDS.trombone,
-  reachL: PANDA_SHOULDER_L * MathUtils.DEG2RAD,
+  reachL: PANDA_PLAY.shoulderL * MathUtils.DEG2RAD,
   play: toQuat(
     new Quaternion()
-      .setFromAxisAngle(Y_AXIS, -PANDA_SLIDE_RIGHT * MathUtils.DEG2RAD)
-      .multiply(new Quaternion().setFromAxisAngle(X_AXIS, -PANDA_SLIDE_DOWN * MathUtils.DEG2RAD)),
+      .setFromAxisAngle(Y_AXIS, -PANDA_PLAY.right * MathUtils.DEG2RAD)
+      .multiply(new Quaternion().setFromAxisAngle(X_AXIS, -PANDA_PLAY.down * MathUtils.DEG2RAD)),
   ),
 } as const satisfies WindHold;
 
