@@ -31,7 +31,6 @@ makes a baseline worktree.
 | The size of the first download | `pnpm build && pnpm size` |
 | The posture of a real player at rest, when ready, and in a play | a source on the web, and the clips of the studio (`python3 studio view <animal>`) |
 
-For a species with no studio body, `--glb <file>` takes the body when its rig config exists.
 When the rule of a violin shop gives a violin outside the real sizes, or a viola scale below 1, ask
 the user before the round, with the measures and the choices (longer arms or a smaller
 instrument).
@@ -41,8 +40,7 @@ hold round only after each form or scale round of the same body has merged, beca
 moves the joints and the head. The brief names each such round as a dependency.
 
 An agent beside another agent gets a worktree:
-`git worktree add .claude/worktrees/<branch> -b <branch> main`. Copy the common rules of section 5
-into the scratch folder.
+`git worktree add .claude/worktrees/<branch> -b <branch> main`.
 
 ## 2. Implementation brief
 
@@ -101,8 +99,6 @@ props, digits, a seated bind, or a held instrument, with the code that it touche
   values.
 - Tune a hold with `--set` of `pnpm hold-fit` and `pnpm pose-depth`, with no edit of the source for
   each variant. Check a new limit over all demos.
-- One home for each tuned number: the research report holds the measures, a decision row names the
-  code, and a design file names the code.
 
 ## Docs
 
@@ -111,7 +107,6 @@ props, digits, a seated bind, or a held instrument, with the code that it touche
 - A new decision file `docs/decisions/<date>-<topic>.md` and a new research report, in the limits
   and the templates of `docs/agents/writing.md`. The first row is the decision of the user, with
   the quote.
-- Remove or cut each decision row that the round replaces (`tools/decision-rows.sh --diff <base>`).
 - Each place of section 8 of `docs/briefs/studio-body.md`. At the end, `pnpm docs-species <species>`
   lists no miss.
 
@@ -132,8 +127,8 @@ round |); Decisions; Commits; Images to review; Open problems and the next step.
 ```
 
 After the test pause, a brief also asks for the shard files of the sweep, the removal of each old
-check that the new body fails (with the reason in the commit message), and a break command for
-each new test (`docs/agents/workflow.md`, "Tests").
+check that the new body fails, and a break command for each new test (`docs/agents/workflow.md`,
+"Tests").
 
 ## 3. Review brief (not used)
 
@@ -141,7 +136,7 @@ Not used since 2026-10-16 ([`2026-10-16-no-review.md`](../decisions/2026-10-16-n
 
 ## 4. Fix brief (not used)
 
-Not used, because no review agent finds faults to fix.
+Not used.
 
 ## 5. Common rules of the agents
 
@@ -162,21 +157,17 @@ Copy this list into `<scratch>/rules-common.md`, and add the report format of th
 
 ## 6. After the merge
 
-Merge a branch with `tools/merge-branch.sh <branch> <worktree>` from the main checkout. Then ask
-each agent of the round, with `SendMessage`, what would make the next similar task faster. Decide,
-and apply the items that are worth the cost (user rule of 2026-10-12). Record the times, the
-decisions, and the measured gains in a research report.
+After the merge of a branch, ask each agent of the round, with `SendMessage`, what would make the
+next similar task faster. Decide, and apply the items that are worth the cost (user rule of
+2026-10-12). Record the times, the decisions, and the measured gains in a research report.
 
 ## 7. A mesh with no skeleton
 
-`pnpm rig-mesh <animal>` rigs a textured mesh of the user with no skeleton into the GLB format of a
-studio body ("A mesh with no skeleton into route 3" of `docs/agents/model-work.md`). Add these
-items to the briefs of the rig round and of the app round.
+Add these items to the briefs of the rig round and of the app round of a mesh of the user ("A
+mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
 
-- **The options.** Make the mid-report with `pnpm mesh-options`: each size, each arm factor with
-  the reach of the hold on the real body, and the knees of each leg factor. Ask the user about the
-  size, the arms, and the legs with its table and its image. Choose the landmark of the scale
-  first.
+- **The options.** Choose the landmark of the scale first. Then make the mid-report and the
+  question to the user with `pnpm mesh-options` (step 2 of the route in `model-work.md`).
 - **The faces.** Permit rings at the joints (`refine.rings`) and edge flips of faces that lie
   almost on one plane (`refine.flip`) from the start.
 - **The order of the goals.** When two goals conflict, keep this order:
@@ -203,8 +194,8 @@ items to the briefs of the rig round and of the app round.
     --camera default --camera violins --base main
   ```
 
-- **The end of the round.** Run `pnpm snapshot` after the last check of the code. Give the line of
-  `pnpm size --base main` in the commit that adds the body.
+- **The end of the round.** Give the line of `pnpm size --base main` in the commit that adds the
+  body.
 - **The GLB file.** A plain `--preview` of `pnpm rig-mesh` writes the GLB file. Only the last
   commit of a series of rig commits writes it, because each version stays in the history.
 - **The early checks.** A new body changes the layout, and with it the shot plans and the poses of
@@ -222,10 +213,8 @@ not name the species yet:
 pnpm docs-species <species>
 ```
 
-Each code span of the cell "File" is one file, and `<name>` stands for any part of a file name. The
-TSDoc of `locatorsOf()` of `tools/docs-species.ts` gives the rules of the cell "Heading". The cell
-"Not for" names the species that the place is right not to name. The tool finds a species by its
-id, the id of its body, and its English names (`DOC_NAMES` of `tools/docs-species.ts`).
+`tools/docs-species.ts` reads these tables. Its TSDoc gives the rules of the cells "File",
+"Heading", and "Not for", and `DOC_NAMES` gives the names of each species.
 
 A new species with a studio body:
 
