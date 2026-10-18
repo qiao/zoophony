@@ -1,8 +1,9 @@
 /**
  * Runs a probe on the studio body that the export makes from another GLB file (`--glb <file>`),
- * with no edit of `ANIMALS` and no written module in `src/` (route 3 of `AGENTS.md`). The pure
- * core keeps no state: the probe runs in a child process on a copy of `src/` that holds the module
- * of the file, as `pnpm body-probe --base` runs the probe of a commit.
+ * with no edit of `ANIMALS` and no written module in `src/` (route 3 of
+ * `docs/agents/model-work.md`). The pure core keeps no state: the probe runs in a child process on
+ * a copy of `src/` that holds the module of the file, as `pnpm body-probe --base` runs the probe of
+ * a commit.
  */
 import { spawn } from 'node:child_process';
 import { cpSync, mkdtempSync, symlinkSync } from 'node:fs';

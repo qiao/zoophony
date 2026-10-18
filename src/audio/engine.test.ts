@@ -79,7 +79,7 @@ function harness(
 
 /** Gives the synth of an engine, for the channel state. */
 function synthOf(engine: SynthEngine): SpessaSynthProcessor {
-  // Element access reaches the TypeScript private synth (AGENTS.md "Visibility").
+  // Element access reaches the TypeScript private synth (docs/agents/code.md, "Visibility").
   return engine['synth'];
 }
 

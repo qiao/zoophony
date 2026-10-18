@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Applies one temporary break to a file, runs the named tests, restores the file, and prints the
-# tests that fail (AGENTS.md, "Tests"). The report of a new pure function gives one such command
-# for each rule that its TSDoc states.
+# tests that fail (docs/agents/workflow.md, "Tests"). The report of a new pure function gives one
+# such command for each rule that its TSDoc states.
 #
 # Usage: tools/break-test.sh '<perl expr>' <file> <test files>...
 #

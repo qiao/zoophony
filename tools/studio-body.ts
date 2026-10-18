@@ -107,8 +107,8 @@ export interface AnimalSettings {
   readonly crease: number;
   /**
    * The GLB file of the body, relative to the repository, when the studio does not build it, such
-   * as a mesh of the user that `pnpm rig-mesh` rigs (route 3 of `AGENTS.md`). With no file, the
-   * body comes from `lowpoly-studio/animals/<animal>/out/<animal>.glb`.
+   * as a mesh of the user that `pnpm rig-mesh` rigs (route 3 of `docs/agents/model-work.md`). With
+   * no file, the body comes from `lowpoly-studio/animals/<animal>/out/<animal>.glb`.
    */
   readonly glb?: string;
   /**

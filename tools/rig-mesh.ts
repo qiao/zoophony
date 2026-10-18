@@ -1611,7 +1611,8 @@ async function checkVariants(
 
 /**
  * Rigs the mesh of the user of an animal into the format of a studio body (route 3 of
- * `AGENTS.md`): `node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <changes>]...]`.
+ * `docs/agents/model-work.md`):
+ * `node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <changes>]...]`.
  * It checks the arm factor of `tools/mesh-rigs/<animal>.json`, and runs
  * `tools/blender/rig_mesh.py`, which writes the GLB file of the config. With `--preview`, the
  * script also writes the images of the rig into the folder. With `--check`, the rig goes into a

@@ -1,12 +1,12 @@
 /**
- * Fits the hold of a role of a studio body in one run (route 3 of `AGENTS.md`): for the base and
- * for each variant of `--set`, it gives the folds of `pnpm fold-probe` with the most folded faces
- * of one rest sample by side, the deepest point of each sample set of the sweep of
+ * Fits the hold of a role of a studio body in one run (route 3 of `docs/agents/model-work.md`): for
+ * the base and for each variant of `--set`, it gives the folds of `pnpm fold-probe` with the most
+ * folded faces of one rest sample by side, the deepest point of each sample set of the sweep of
  * `pnpm pose-depth`, and, for a violin role, the reach of `pnpm hold-reach`. For a role that holds
  * its instrument in its paws, it gives the deepest point of the instrument in the body. For a wind
- * role with a paw that leaves its grip in the rest pose (`WindHold.restFreeL`), it gives the gap
- * of that paw to the body in the rest and the reach share of its rest place. It prints one table
- * with one row for each variant. The source files do not change.
+ * role with a paw that leaves its grip in the rest pose (`WindHold.restFreeL`), it gives the gap of
+ * that paw to the body in the rest and the reach share of its rest place. It prints one table with
+ * one row for each variant. The source files do not change.
  *
  * `--grid '<path>=<a>:<b>:<step>'` adds the variants of a range of values, and several `--grid`
  * options give the product of their ranges. With `--set`, the grids go on top of each variant of
