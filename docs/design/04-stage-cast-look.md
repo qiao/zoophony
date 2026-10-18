@@ -687,7 +687,10 @@ quarter of the folded faces.
   the user chose on 2026-10-16 (`docs/decisions/2026-10-16-cat-seat.md`): its root bone is 0.37 m
   long, so two straight bones went into the body, into the seat, or off the seat. The haunch of
   the cat is about as wide as the seat, so the curl lies partly outside the side edge of the seat.
-  A curled tail does not sway on a seat (5.1).
+  A curled tail does not sway on a seat (5.1). The dog config hangs the seated tail down behind
+  the seat between the back posts, with a soft bend, as the user chose on 2026-10-17
+  (`docs/decisions/2026-10-17-dog-arms.md`): the tail of two straight bones stuck out level and
+  stiff behind the chair. The hanging tail sways.
 - `pnpm studio-body <animal> --inspect` writes no file. It prints the facts of the GLB file that
   a new body needs. These are the nodes, the joints with the digits of each paw, the morph
   targets, and the clips. They also hold the hips, the length of each arm from the shoulder joint
@@ -1717,8 +1720,10 @@ the violin nearer to the left shoulder, and the left paw still reaches the nut (
 the reach of the red fox and plays the viola of the app, and its hold puts the viola nearer to the
 neck for the nut in the same way (`docs/decisions/2026-10-16-mesh-cat.md`). The dog plays a 1/2
 cello between its knees, the size that the user chose (`docs/decisions/2026-10-17-dog-arms.md`),
-and its arms have the reach that the user chose: the left paw reaches the whole fingerboard from
-the nut, and the bow paw the whole hair (`docs/decisions/2026-10-17-mesh-dog.md`). The tan fox plays the
+and its arms have the length that the user chose: 0.92 of the trunk, as the red fox. With the 1/2
+cello, the left paw reaches the whole fingerboard from the nut, and the bow paw about 60% of the
+hair. The arms of the whole cello reach of `docs/decisions/2026-10-17-mesh-dog.md` were 1.16 of
+the trunk, and the user said that they were too long. The tan fox plays the
 flute of the app, and each palm reaches its grip in the play and in the rest
 (`pnpm hold-reach fox-tan --instrument flute`, `docs/decisions/2026-10-17-fox-form.md`). The paused
 check of the rule in `pose/bowed.test.ts` fails for these two species. The chairs, the stands, the
