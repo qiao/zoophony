@@ -761,8 +761,10 @@ def tail_curl(src, bind, weights, heads, ends, root, rule):
     (`moving_frames()`). A vertex with a part of its weight on the tail moves by that part, so
     that the root has no hard edge. With `blend` (two shares of the tail), a vertex moves by the
     smoothstep of its tail share over them, so that the root of the tail stays with the haunch. The corrective shapes give the source back, so the standing
-    body keeps the tail of the source. Gives the moved bind mesh and the count of moved
-    vertices."""
+    body keeps the tail of the source. With `thin` (a factor and two places along the line, in
+    units from the root), the offset from the line shrinks to the factor by the smoothstep of the
+    place over the two places, so that a thick tail of the source becomes thin on the seat. Gives
+    the moved bind mesh and the count of moved vertices."""
     share = weights[:, BONES.index('tail')] + weights[:, BONES.index(TAIL_TIP)]
     ids = np.nonzero(share > 0)[0]
     line = np.asarray([heads['tail'], heads[TAIL_TIP], ends[TAIL_TIP]], float)
@@ -778,6 +780,9 @@ def tail_curl(src, bind, weights, heads, ends, root, rule):
     c_at = np.clip(np.searchsorted(c_lengths, place, side='right') - 1, 0, len(c_lengths) - 1)
     near = s_points[s_at] + s_dirs[s_at] * (place - s_lengths[s_at])[:, None]
     offset = np.einsum('nji,nj->ni', s_frames[s_at], src[ids] - near)
+    if 'thin' in rule:
+        factor, start, end = rule['thin']
+        offset *= (1.0 - (1.0 - factor) * smoothstep(place, start, end))[:, None]
     curled = (c_points[c_at] + c_dirs[c_at] * (place - c_lengths[c_at])[:, None]
               + np.einsum('nij,nj->ni', c_frames[c_at], offset))
     if 'blend' in rule:
