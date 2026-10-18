@@ -1,6 +1,7 @@
 # Writing
 
-This module of `AGENTS.md` gives the rules of the prose: Simplified Technical English, the tells to avoid, the prose checks, and TSDoc.
+This module of `AGENTS.md` gives the rules of the prose: Simplified Technical English, the tells to
+avoid, the prose checks, and TSDoc.
 
 Write all prose in ASD-STE100 Simplified Technical English: the docs, `AGENTS.md`, comments,
 commit messages, and UI text.
@@ -31,9 +32,10 @@ semicolon check also prints TypeScript type literals, such as `{ port: number; c
 These matches are correct.
 
 ```bash
-grep -rc $'\u2014' AGENTS.md docs/design.md docs/design docs/decisions | grep -v ':0$'  # em dashes
-grep -rnE '[a-z]; [a-z]' AGENTS.md docs/design.md docs/design docs/decisions  # semicolon splices
-grep -rnE ', not [a-z]' AGENTS.md docs/design.md docs/design docs/decisions   # antithesis tics
+D='AGENTS.md docs/agents docs/briefs docs/design.md docs/design docs/decisions'
+grep -rc $'\u2014' ${=D} | grep -v ':0$'   # em dashes
+grep -rnE '[a-z]; [a-z]' ${=D}             # semicolon splices
+grep -rnE ', not [a-z]' ${=D}              # antithesis tics
 ```
 
 ## TSDoc
