@@ -100,9 +100,12 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
   there moves the stretch into the long faces from the trunk to the forearm, and they fold in each
   sample (`arm-from.py` of `docs/research/2026-10-18-panda-marks/`). A corrective shape does not
   remove the dark shading, because the app skins the normals with the weights of the corners. When
-  the same corners join a hanging forearm to the trunk, a cut of those faces only moves the fold,
-  and a move of the forearm vertices away from the trunk keeps the faces that join them
+  short faces join a hanging forearm to the trunk, only a cut of the mesh at the seam fixes the
+  shading and the folds together (`cut` of the rig config, `docs/research/2026-10-18-panda-cut.md`).
+  A fade, a split of those faces, or a move of the forearm vertices keeps the joined faces
   (`docs/research/2026-10-18-panda-seam.md`).
+- A color measure of a mark counts one range of lightness. Measure the black (Oklab lightness
+  below 0.3) beside the gray, because a fix of a gray mark can add a black one.
 - A fold probe counts each turned face, also a face that no camera sees. Before you accept a fold
   as hidden, count the pixels of the face in a probe build that draws it in a pure color with no
   light (`hidden/probe.ts` of `docs/research/2026-10-18-panda-seam/`).
