@@ -719,9 +719,6 @@ the motion.
   | 6/4 | 2 if the quarter tempo is 150 or more, else 6 |
   | all others, for example 5/4 and 7/8 | `generic`: one down-up motion for each beat unit, larger on the downbeat |
 
-  For example, the first movement of Beethoven's Symphony No. 5 (2/4 at 192) uses pattern 1,
-  and the Beethoven 8 demo (2/4 at a quarter tempo of 44) uses pattern 2. The Mozart K. 488 demo
-  (6/8 at an eighth tempo of 84) used pattern 6 until the user removed it on 2026-10-05.
 - The first bar starts at tick 0. Each time signature event starts a new bar, also inside a bar.
   The tempo at the downbeat of a bar selects the pattern of the bar, so a tempo change can change
   the pattern at the next bar. The tempo is rounded to 0.01 BPM before the comparison, because a
@@ -729,189 +726,100 @@ the motion.
 - The beats end before the last note-off (`Score.durationSec`).
 - The size of the gestures follows the loudness of all notes.
 - Between its cues, the left hand shows the dynamics and the held chords of the score, and it
-  mirrors the beat in loud passages (user report of 2026-10-06). "Left hand between the cues"
-  below gives the rules.
+  mirrors the beat in loud passages. "Left hand between the cues" below gives the rules.
 - The conductor cues each section entry, as a real conductor does (user decision of
   2026-10-05). It turns the head and the upper body to the section one beat before the entry,
   and the left hand or the baton lands on the entry. "Cues" below gives the rules.
 - If a file has no time signature or tempo events, the MIDI defaults apply: 4/4 at 120 BPM.
 - **Conductor in detail** (`pose/conductor-notes.ts`, `pose/cues.ts`, `pose/conductor.ts`):
   - At each beat time, the tip of the baton is at the point of the beat. The points follow the
-    pattern of the bar, as the conductor sees them, in units of the pattern (x to the right, y
-    up, in the beat plane). Beat 1 comes down at (0, 0). Beat 2 of four and beats 2 and 3 of six go inward, the
-    next beats outward, and the last beat goes up. A `generic` bar gives each beat (0, 0).
-
-    | Pattern | Points of the beats |
-    |---|---|
-    | 1 | (0, 0) |
-    | 2 | (0, 0), (0.35, 0.15) |
-    | 3 | (0, 0), (0.6, 0.1), (0.3, 0.3) |
-    | 4 | (0, 0), (-0.5, 0.1), (0.6, 0.1), (0.3, 0.3) |
-    | 6 | (0, 0), (-0.25, 0.05), (-0.5, 0.1), (0.45, 0.05), (0.7, 0.1), (0.3, 0.3) |
-
+    pattern of the bar, as the conductor sees them, in the beat plane (`BEAT_PATTERNS` of
+    `pose/conductor-notes.ts`). Beat 1 comes down at the bottom. Beat 2 of four and beats 2 and
+    3 of six go inward, the next beats outward, and the last beat goes up.
   - Between two beats, the tip rises in an arc and comes down into the next point with its full
-    speed, so that each beat is the low point of a bounce. The arc is 0.5 units high before a
-    downbeat and 0.3 units before another beat. Before the first beat, the baton waits at the
-    point of the last beat of the first bar, and comes to the first beat in the time of the first
-    beat. After the last beat, it goes back to that point.
-  - **Count-in.** The user decided on 2026-10-05 that a click on play does not start the music at
-    once. The conductor first signals the players to get ready, and then the music plays. The
-    transport starts at a song time before the start point (6.5). Thus the count-in is a set of
-    poses at those song times, and the pose function keeps no state. `pose/count-in.ts` holds
-    the rules, and `Transport.startSec` gives the start point of the last play (5.1).
-  - From the song start, the count-in is a ready pause of 1.2 s, then one preparatory beat. The
-    players lift their instruments in the ready pause (5.2). The preparatory beat is the first
-    conducted beat of the score (`beats[1] - beats[0]`): one beat of the pattern of the first bar
-    at the first tempo. Thus the count-in `T` is 1.617 s for the
-    Boulanger demo, the default demo (pattern 3, 0.417 s), 1.5 s for the Bach demo (pattern 4,
-    0.3 s), and 1.95 s for the Beethoven 9 demo (pattern 3, 0.75 s). The removed Beethoven 5
-    demo had 1.825 s (pattern 1 at 96 bars a minute).
-  - The preparatory beat is at most 0.9 s, also after a pause, as a conductor gives a slow beat
-    in two. Thus the count-in of the K. 315 demo (46 BPM, a beat of 1.3 s) is 2.1 s. With the
-    full beat, it was 2.5 s, and the first sound came 3.1 s after the tap on a phone (UX audit
-    2026-10-06, N11).
-  - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises to a point
-    above the point of beat 1, 0.22 units higher than the point of the last beat of the first
-    bar. The left hand rises up and outward (`readyLift` and `readyOut`), with a part of the reach
-    of the arm (`readyReach`), and closes to a loose fist. Thus both paws of the studio bear are up
-    at the same height, a little above the chin, and nearly equally far forward, as in
-    `bear-views.png`. The right paw is further out than the left paw, because a right paw further
-    in met the long muzzle in the cues to the right. `docs/research/2026-10-12-studio-bear.md`
-    gives the places. On the parametric bear, the ready point 0.4 units above the last beat put
-    the right paw 0.13 H further out and 0.11 H higher than the left paw, and the left hand at 40°
-    up was 0.31 H higher than the right paw,
-    and with the reach of a cue, it was 0.16 H further forward and showed in front of the muzzle
-    in the side view. At 5° inward, the left hand was in front of the face. At 10° inward, the
-    left forearm came 0.8 cm from the head, in the count-in of K. 525. The test keeps at least
-    2 cm (`pose/test-conductor-clearance.ts`). Both hands stay up until the downbeat. The left
-    hand goes back to its place between the cues in 0.6 s after the downbeat.
-    When the left hand also cues an entry, the cue wins by its weight: the ready direction keeps
-    the weight `ready × (1 - cue)`.
+    speed, so that each beat is the low point of a bounce. The arc before a downbeat is higher.
+    Before the first beat and after the last beat, the baton waits at the point of the last beat
+    of the first bar.
+  - **Count-in.** The user decided that a click on play does not start the music at once. The
+    conductor first signals the players to get ready, and then the music plays. The transport
+    starts at a song time before the start point (6.5). Thus the count-in is a set of poses at
+    those song times, and the pose function keeps no state. `pose/count-in.ts` holds the rules
+    (`COUNT_IN`), and `Transport.startSec` gives the start point of the last play (5.1).
+  - From the song start, the count-in is a ready pause, then one preparatory beat. The players
+    lift their instruments in the ready pause (5.2). The preparatory beat is the first conducted
+    beat of the score, with a limit, as a conductor gives a slow beat in two.
+  - **Ready gesture.** At the start of the count-in, the tip of the baton rises above the point
+    of beat 1. The left hand rises up and outward and closes to a loose fist. Thus both paws of
+    the bear are up at about the same height, a little above the chin, as in `bear-views.png`.
+    The right paw is further out than the left paw, because a right paw further in met the long
+    muzzle in the cues to the right. Both hands stay up until the downbeat. When the left hand
+    also cues an entry, the cue wins by its weight.
   - The preparatory beat: the tip leaves the ready point upward, in the arc of the downbeat, and
     comes down into the point of the first beat with its full speed at the song time 0. The
     first note sounds there (6.5).
   - After a pause in the song, the count-in is one preparatory beat with no ready pause: the
-    conducted beat at the pause point, at its tempo. The baton holds its point of the pause
-    point. In the beat, the tip rises in the arc of the next beat and comes down to that point
+    conducted beat at the pause point. The tip rises in the arc of the next beat and comes down
     with its full speed at the pause point (`resumeLift()`). A cue holds its pose of the pause
     point, as the players hold their poses (5.2).
-  - One unit is 0.5 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
-    of a beat is the highest loudness of the notes that sound in it. The first unit of 0.35 m
-    gave a small motion of the wrist (UX audit 2026-10-05, AM1).
-  - The places of the hands are in head heights `H` of the bear of the cast (4.3), in
-    `CONDUCTOR_HOLD` and `LEFT_HAND_PLACES` of `pose/conductor.ts`. Since 2026-10-12, the bear is
-    the studio bear (4.4), whose `H` is the head of `bear-views.png`. The places of the left hand
-    and the elbows keep their values in `H`, so they scale with the head and the arms. The point
-    and the pivot of the baton are new for the studio bear, because the baton keeps its length:
-    the old point put the right wrist below the shoulder
-    (`docs/research/2026-10-12-studio-bear.md`). On 2026-10-10 the places scaled by 1.6 for the
-    smaller head of the code-built bear of `bear-views.png`, and on 2026-10-11 they scaled back
-    by 1 / 1.6 for the parametric bear (0.513 m). At beat 1, the tip of the baton is at
-    `beatPoint` from the right shoulder joint: up, forward, and a little outward. The baton
-    points to the tip from `batonPivot`, a point below the shoulder joint and outward, so the
-    baton points up and a little inward. The
-    beat plane is square to the baton at beat 1: its x axis is level, and its y axis points up and
-    back. Thus the tip moves around the pivot, and the arcs and the lift of a baton cue rise in the
-    plane. The pivot is behind the wrist, as far as the wrist is behind the tip, so the wrist
-    follows about half of the motion of the tip, and the arm beats with the baton. At a soft beat
-    1, the wrist of the studio bear is a little below the chin, in front of the shoulder, and out
-    beside the head from behind, as in `mockup.png` and in views 02 and 05 of `scene.png`. A wrist
-    at the height of the shoulder and further in hid the right paw behind the body from behind,
-    and a wrist a little further in than now put the claws into the long muzzle when the head
-    turned to a section on the right. The comments of `CONDUCTOR_HOLD` and the report give the
-    places. The fingers curl around the baton (`batonCurl`). The elbows
-    point down, a
-    little out, and a little forward (`poleL` and `poleR`), so that they are below the shoulders and
-    further in than the paws, and the forearms lean out to the paws, as in `bear-views.png`. Elbows
-    level with the shoulders held the upper arms out to the sides, and elbows further out put the
-    arms outside the arms of the sheet.
-  - The beat plane turns by half of a turn of the upper body to the left, and by the whole turn to
-    the right (the cues below), around the vertical through the `spine` bone. In a turn to the
+  - The size of a beat follows the gesture size of the highest loudness of the notes that sound
+    in it (`CONDUCTOR_MOTION` of `pose/conductor-notes.ts`).
+  - **Hold of the baton.** The places of the hands are in head heights `H` of the studio bear
+    (4.3, 4.4), in `CONDUCTOR_HOLD` and `LEFT_HAND_PLACES` of `pose/conductor.ts`, so they scale
+    with the head and the arms. The baton keeps its length, so its point and pivot fit the studio
+    bear (`docs/research/2026-10-12-studio-bear.md`). At beat 1, the tip of the baton is at
+    `beatPoint` from the right shoulder joint, and the baton points to it from `batonPivot`, so
+    the baton points up and a little inward. The beat plane is square to the baton at beat 1. The
+    pivot is behind the wrist, as far as the wrist is behind the tip, so the wrist follows about
+    half of the motion of the tip, and the arm beats with the baton. At a soft beat 1, the wrist
+    is a little below the chin, in front of the shoulder, and out beside the head from behind,
+    as in `mockup.png` and in views 02 and 05 of `scene.png`. A wrist further in hid the paw
+    behind the body from behind, or put the claws into the muzzle in a turn to the right. The
+    fingers curl around the baton. The elbows point down, a little out, and a little forward
+    (`poleL` and `poleR`), so that the forearms lean out to the paws, as in `bear-views.png`.
+  - The beat plane turns by half of a turn of the upper body to the left, and by the whole turn
+    to the right (the cues below), around the vertical through the `spine` bone. In a turn to the
     right, the head turns further than the upper body, and with half of the turn, the long muzzle
-    of the studio bear came into the right paw. Thus the arm opens to the right in a turn to the
-    left. With the full turn of 30° to the left, the right hand went behind the head in the view from
-    behind.
-  - The first beat point, 0.9 H up and 1.2 H forward, with the pivot 0.6 H up, kept the hand next
-    to the head, and the beat read as a hand at the ear (UX audit 2026-10-05, AM1). The second
-    beat point, 0.45 H up and 1.3 H forward, with the pivot 0.1 H up and 0.3 H forward, kept the
-    wrist at the pivot: the baton turned in a still hand at the height of the mouth. From behind,
-    both hands were 0 to 10 px from the outline of the head, and the bear seemed to hold its
-    head (review of 2026-10-07).
+    came into the right paw.
   - In the rest pose, the arms hang a little out to the sides (5.2). In the lift and in the
-    lowering of the arms (5.2), the baton turns out to the right and down, toward
-    (0.8, -0.6, 0), by `sin(π × weight)` of the turn. Thus its tip leaves the width of the desk
-    while the hand is still high, and the baton does
-    not sweep through the desk and the score. With a straight lowering, the tip came 0.006 m near
-    the desk after the song end. A test samples a full play of each demo, and the lift, the bow,
-    and the lowering at a finer step (`pose/test-conductor-clearance.ts`, one demo in each shard
-    file). It poses the corners with the skin of the GPU, so the studio bear counts as it shows.
-    It keeps the bear 0.02 m from the stand, and it keeps each point of the paws, the claws, and
-    the baton at most 1.5 cm under the skin of the trunk and the head: the contact depth of the
-    conductor of the studio. It also keeps the left forearm and hand 0.02 m from the head, the
-    right hand, and the baton in the lift and the lowering.
-  - **View from behind.** The user removed this test on 2026-10-10, and it stays out
-    (`docs/decisions/2026-10-11-body-revert.md`). `pnpm close-views conductor` shows the bear from
-    behind at the beats of a bar (7.1). The test `pose/conductor-view.test.ts` sampled a full play
-    of each demo every 0.1 s. It looks at the bear from behind, 10° above the level (the conductor shot, 5.6) and
-    34° above it (the default view at the podium). No hand is ever inside the outline of the
-    head, the median distance of each hand from the outline is at least 0.2 H, and the median
-    height of each wrist above its shoulder joint is at least 0.35 H. The table gives the medians
-    of the six demos, in the two views.
-
-    | Hand | From the outline, before | From the outline, now | `mockup.png` | Above the shoulder, before | Above the shoulder, now |
-    |---|---|---|---|---|---|
-    | Left | -0.04 to 0.14 H | 0.23 to 0.28 H | about 0.15 H | 0.17 to 0.32 H | 0.41 to 0.50 H |
-    | Right (baton) | -0.11 to 0.11 H | 0.36 to 0.48 H | about 0.6 H | 0.24 to 0.29 H | 0.50 to 0.54 H |
-
-    Before, the left hand was inside the outline in 21% to 68% of the samples, and the baton hand
-    in 2% to 100%.
-  - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra:
-    0.8 s after the pause, while the instruments are still up (the hold of 5.2), the spine bends
-    forward 32° in 0.7 s with a smoothstep, holds 0.6 s, and comes up in 0.7 s. The head bends half of that angle more. A
-    hanging arm of the bear follows half of the bend (`HANG_FOLLOW` of `pose/conductor.ts`): with
-    the whole bend, the paws of the studio bear swung into its belly, and with no bend, the left
-    paw touched the conductor stand. The
-    bow is a function of the wall seconds since the pause at the end, so it keeps no state. A
-    pause before the end gives no bow. Nothing marked the end of a piece: the last wide shot held,
-    and the players lowered their instruments (UX audit 2026-10-05, AM2). The bear does not turn
-    to the audience, because the transport does not tell a pause at the end from a later play,
-    and a turn back at the next play would jump.
-- **Chamber group.** A chamber group of 4.2 has no conductor (user decision of 2026-10-06, UX
-  audit 2026-10-06, N9). Thus its players give the count-in, as a string quartet does, and it
-  has no cues and no bow at the song end. The agent chose these values on 2026-10-06:
-  - The count-in keeps its times: the ready pause of 1.2 s from the song start, then one
-    preparatory beat with the conducted beat of the score, at most 0.9 s. The players lift their
-    instruments in the ready pause (5.2).
+    lowering, the baton turns out to the right and down, so that it does not sweep through the
+    desk and the score. `pose/test-conductor-clearance.ts` keeps the bear off the stand, the paws
+    and the baton out of the trunk and the head, and the left hand off the head and the baton.
+  - **View from behind.** From behind, both hands show beside the head and above the shoulders,
+    as in `mockup.png`. `pnpm close-views conductor` shows the bear from behind at the beats of a
+    bar (7.1).
+  - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra,
+    while the instruments are still up (the hold of 5.2). A hanging arm of the bear follows half
+    of the bend (`HANG_FOLLOW` of `pose/conductor.ts`), because with the whole bend the paws swung
+    into the belly, and with no bend the left paw touched the stand. The bow is a function of the
+    wall seconds since the pause at the end, so it keeps no state. A pause before the end gives no
+    bow. The bear does not turn to the audience, because the transport does not tell a pause at
+    the end from a later play, and a turn back at the next play would jump.
+- **Chamber group.** A chamber group of 4.2 has no conductor (user decision of 2026-10-06). Thus
+  its players give the count-in, as a string quartet does, and it has no cues and no bow at the
+  song end.
+  - The count-in keeps its times: a ready pause, then one preparatory beat. The players lift
+    their instruments in the ready pause (5.2).
   - The leader is the principal player of the first seat of the first section of this list: the
     violins, the piano, the flutes, the oboes, the clarinets, the trumpets, and the horns. With
-    none of them, the principal player of the first seat leads. Thus the first violin leads a
-    string quartet and a violin sonata, the pianist a piano solo, and the flute a wind quintet
-    (`leaderOf()` in `pose/plan.ts`).
-  - The leader breathes in on the first half of the preparatory beat: the upper body leans back
-    4° with a smoothstep. On the second half, it nods: the upper body leans forward along a
-    quarter cosine, and reaches 6° with its full speed on the downbeat, where the first note
-    sounds. Then it comes back up in 0.4 s with a smoothstep (`leaderNodAt()` in
-    `pose/count-in.ts`). The table gives the lean with a beat of 0.5 s. A positive lean is forward.
-
-    | Song time | -0.5 s | -0.375 s | -0.25 s | -0.125 s | 0 (downbeat) | 0.2 s | 0.4 s |
-    |---|---:|---:|---:|---:|---:|---:|---:|
-    | Lean | 0° | -2° | -4° | -1.1° | 6° | 3° | 0° |
-
+    none of them, the principal player of the first seat leads (`leaderOf()` of `pose/plan.ts`).
+  - The leader breathes in on the first half of the preparatory beat, with a small lean back. On
+    the second half, it nods: the upper body leans forward and reaches its full speed on the
+    downbeat, where the first note sounds. Then it comes back up (`leaderNodAt()` and
+    `LEADER_NOD` of `pose/count-in.ts`).
   - The spine takes the lean. A pianist, a harpist, a percussion player, and a singer also nod
-    the head by the same angle, with the neck and the head as in a look (5.1). A violinist and a
-    violist hold the instrument under the chin, and a wind player holds the mouthpiece at the
-    mouth, so their head does not nod. A cello and a contrabass stand on the floor and do not
-    lean with the player, so their leader does not lean: its head lifts with the breath and
-    drops to level on the downbeat, and does not go down. A lean brought the head of a cellist
-    0.025 m from the neck of the cello, and a nod of the head down 0.029 m (5.3 keeps 0.03 m).
-  - After a pause, the nod comes on the preparatory beat at the pause point, with no ready pause.
+    the head, with the neck and the head as in a look (5.1). A violinist and a violist hold the
+    instrument under the chin, and a wind player holds the mouthpiece at the mouth, so their
+    head does not nod. A cello and a contrabass stand on the floor and do not lean with the
+    player, so their leader does not lean: its head lifts with the breath and drops to level on
+    the downbeat, because a lean or a nod brought the head too near the neck of the cello.
+  - After a pause, the nod comes on the preparatory beat at the pause point.
   - The nod follows the playing pose of the leader (5.2, 5.5). Thus the first screen shows no
     nod, and a muted leader does not nod.
-- **Cues** (`pose/cues.ts`). The user asked on 2026-10-05 for "a more realistic conductor that
-  cues each section before it plays". The first rule cued only an entry after a rest of two full
-  bars, with the left hand, toward the first seat of the entries. `findCues()` calculates the
-  cues of a score one time (`prepareConductor()`), and `cueStateAt()` gives the motion at a song
-  time. The diagram shows one cue of the left hand that lands at 0 s, with a beat of 0.5 s.
+- **Cues** (`pose/cues.ts`). The user asked for "a more realistic conductor that cues each
+  section before it plays". `findCues()` calculates the cues of a score one time
+  (`prepareConductor()`), and `cueStateAt()` gives the motion at a song time. `CUE_RULES` and
+  `CUE_MOTION` hold the values. The diagram shows one cue of the left hand that lands at 0 s,
+  with a beat of 0.5 s.
 
   ```text
   time (s)    -1.1        -0.5      0           0.6         1.2
@@ -944,89 +852,60 @@ the motion.
   ```
 
   - **Entries.** An entry is the first note of a seat with players, or a note after a rest of
-    the seat of at least one bar, from 1.2 s to 3 s. Thus a fast bar of one beat (0.625 s, as in
-    the first movement of Beethoven's Symphony No. 5) needs about two beats of rest, and a slow
-    bar of 4.8 s (as in Grieg's "Åse's Death") needs 3 s. A note after a general rest of at
-    least 0.75 of a conducted beat, in which no seat
-    sounds, is also an entry. The rest of a seat is the time from the end of all its earlier
-    notes.
-  - **Moments and groups.** Entries that start within 0.1 s of the first entry of a moment form
-    the moment. The entries of one motion family (5.1) form a group. In a tutti, at least 3 seats
-    and half of the seats with players enter, and all entries form one group.
-  - **Dense music.** The window of a moment is the two bars before it. A seat is busy when its
-    notes cover 80% of the window. When at least 3 other seats have players and 75% of them are
-    busy, the moment gets no cue. The conductor keeps the pattern.
+    the seat of at least one bar, within a lower and an upper limit in seconds. Thus a fast bar
+    needs a rest of about two beats, and a slow bar does not need a full bar. A note after a
+    general rest, in which no seat sounds, is also an entry. The rest of a seat is the time from
+    the end of all its earlier notes.
+  - **Moments and groups.** Entries that start close to the first entry of a moment form the
+    moment. The entries of one motion family (5.1) form a group. In a tutti, at least 3 seats and
+    half of the seats with players enter, and all entries form one group.
+  - **Dense music.** A seat is busy when its notes cover most of the two bars before a moment.
+    When most of the other seats are busy, the moment gets no cue, and the conductor keeps the
+    pattern.
   - **Priority.** The priority of a group is its highest loudness (5.3), plus its exposure (the
-    part of the other seats that is not busy), plus 0.25 when it holds a first entry, plus 0.5
-    in a tutti. The group with the highest priority gets the cue of the moment. At a tie, the
-    group of the first entry wins. Of two cues whose landings are less than 1.5 s apart, the cue
-    with the higher priority stays.
-  - **Hand of the cue.** The entries of the first moment of the song, when it starts before the
-    second beat, get the downbeat of the count-in: the cue lands on the first beat. A strong
-    entry (a tutti, or a loudness of at least 0.6), or an entry of a section more than 45° to the
-    right, gets the baton when it starts within 5 ms of a beat. Each other entry gets the left
-    hand.
-  - **Direction.** A cue turns to the middle of the players of its group, by the count of
-    players, 1.1 m above their places. The turn starts from the eyes of the bear (the `head`
-    bone). The upper body turns 40% of the turn, at most 30°, and the head turns the rest, at
-    most 50°. Thus the turn is at most 80°. The head also turns down or up to the players, at
-    most 25° down and 15° up. The spine and the chest each turn half of the upper body. The neck
-    turns 40% of the head turn, as in the idle look (5.1).
-  - **Times.** The preparation is the conducted beat before the landing, from 0.3 s to 0.8 s.
-    The head and the upper body turn in the 0.6 s before the preparation. Thus the eyes are on
-    the section one beat before the entry. They stay on it for 0.6 s after the landing, and turn
-    back in 0.6 s.
-  - **Left hand.** The hand rises in the 0.5 s before the preparation, to 15° above the cue
-    point at 0.75 of the reach of the arm. In the preparation, it comes down to the cue point
-    along a quarter cosine, so that it lands at its full speed at the entry. The cue point is 30°
-    up, at 0.85 of the reach, in the direction of the section from the left shoulder joint. The
-    hand points no further right than the front of the upper body, so that it does not cross the
-    body. With a limit of 20° to the right, the forearm crossed in front of the head, which turns
-    further to the section, and went through its muzzle (2026-10-06). It also points at least 25°
-    to the left of the front of the bear, so that it shows beside the head from behind. At the
-    front of the upper body, a cue to a section in the middle or at the right put the hand behind
-    the head in the view from behind (review of 2026-10-07). It stays at the cue point
-    for 0.3 s, then goes back in 0.6 s to its place between the cues (below). The fingers open to
-    10°.
-  - **Baton.** The beat plane turns by half of the turn of the upper body, around the vertical
-    through the `spine` bone. A baton cue makes the arc into its beat 1.6 times as high, so that
-    the gesture before the entry is larger. The tip still comes down to the point of the beat at the entry.
-    The downbeat of the count-in keeps its arc, because the preparatory beat is the gesture.
+    part of the other seats that is not busy), plus a bonus for a first entry and for a tutti. The
+    group with the highest priority gets the cue of the moment. At a tie, the group of the first
+    entry wins. Of two cues whose landings are close, the cue with the higher priority stays.
+  - **Hand of the cue.** The entries of the first moment of the song get the downbeat of the
+    count-in: the cue lands on the first beat. A strong entry (a tutti, or a loud entry), or an
+    entry of a section far to the right, gets the baton when it starts on a beat. Each other
+    entry gets the left hand.
+  - **Direction.** A cue turns to the middle of the players of its group, above their places. The
+    turn starts from the eyes of the bear (the `head` bone). The upper body turns a part of the
+    turn, with a limit, and the head turns the rest, with a limit. The head also turns down or up
+    to the players. The spine and the chest each turn half of the upper body, and the neck shares
+    the head turn as in the idle look (5.1).
+  - **Times.** The preparation is the conducted beat before the landing, within limits. The head
+    and the upper body turn before the preparation, so the eyes are on the section one beat
+    before the entry. They stay on it a short time after the landing, and turn back.
+  - **Left hand.** The hand rises before the preparation above the cue point. In the
+    preparation, it comes down to the cue point, so that it lands at its full speed at the entry.
+    The cue point is up and in the direction of the section from the left shoulder joint. The
+    hand points no further right than the front of the upper body, so that the forearm does not
+    cross in front of the head, which turns further to the section. It also points far enough to
+    the left of the front of the bear that it shows beside the head from behind. It holds at the
+    cue point, then goes back to its place between the cues (below), and the fingers open.
+  - **Baton.** The beat plane turns by half of the turn of the upper body. A baton cue makes a
+    higher arc into its beat, so that the gesture before the entry is larger. The tip still comes
+    down to the point of the beat at the entry. The downbeat of the count-in keeps its arc,
+    because the preparatory beat is the gesture.
   - **Overlaps.** The times of two cues can overlap. The turns are the sums of the turns of the
     cues by their weights, divided by the larger of 1 and the sum of the weights. The direction
-    of the left hand is the mean of the hands by their weights, and the hand has the largest
-    weight. Thus the motion goes from one cue to the next with no jump. In the first 60 s of the
-    Boulanger demo at 60 frames a second, the left wrist moves at most 0.022 m in a frame, and
-    the head turns at most 0.074 rad. In a full play of each demo, the left wrist moves at most
-    0.023 m in a frame (Mozart K. 315). With the places in front of the chest, it was 0.028 m and
-    0.035 m (Beethoven 9). When the hand hung at the side between the cues, the step was 0.056 m
-    in the Boulanger demo.
+    of the left hand is the mean of the hands by their weights. Thus the motion goes from one cue
+    to the next with no jump.
   - **Silent seats.** A cue has the highest audible weight of its seats (5.5). Thus a cue to
     silent seats does not show, and a cue to a group with one audible seat shows. The cue of a
     moment does not go to another group of the moment when its own seats are silent.
   - **No state.** The cues follow the song time. Thus a seek gives the same cue as an unbroken
     play. In the count-in after a pause, a cue holds its pose of the pause point (5.2). The turns
     and the hand follow the weight of the playing pose, so the rest pose has no turn.
-  - **Count.** The demos have these cues:
-
-    | Demo | Cues | Left hand | Baton | Cues each minute |
-    |---|---|---|---|---|
-    | Boulanger | 81 | 58 | 23 | 17.3 |
-    | Beethoven 9 | 30 | 24 | 6 | 9.3 |
-    | Beethoven 8 | 34 | 31 | 3 | 9.3 |
-    | Eine kleine Nachtmusik | 23 | 7 | 16 | 5.6 |
-    | Mozart K. 315 | 20 | 14 | 6 | 4.7 |
-    | Bach | 2 | 1 | 1 | 0.4 |
-
-    The Bach demo has a dense texture with no rests, so most of its moments get no cue. The demos
-    that the user removed on 2026-10-05 (8.2) had Beethoven 5 66 cues (12.5 each minute),
-    Mozart K. 488 43 (6.1), and Grieg 5 (1.4).
-- **Left hand between the cues** (`pose/conductor-left.ts`, `pose/conductor.ts`). The user
-  reported on 2026-10-06 that the left arm of the bear moved too little: it hung at the side
-  between the cues. In `scene.png` (02, 05), both arms of the bear are up. A real conductor uses
-  the left hand for the dynamics, for held notes, and for a mirror of the beat. The rules below
-  come from the score, so the pose keeps no state. `buildLeftHandTrack()` calculates the data one
-  time (`prepareConductor()`), and `leftHandAt()` gives the weights at a song time.
+- **Left hand between the cues** (`pose/conductor-left.ts`, `pose/conductor.ts`). A real
+  conductor uses the left hand for the dynamics, for held notes, and for a mirror of the beat,
+  and in `scene.png` (02, 05) both arms of the bear are up. The user reported that the left arm
+  moved too little when it hung at the side between the cues. The rules below come from the
+  score, so the pose keeps no state. `buildLeftHandTrack()` calculates the data one time
+  (`prepareConductor()`), `leftHandAt()` gives the weights at a song time, and `LEFT_HAND_RULES`
+  holds the values.
 
   ```text
   quiet place --mirror--> --swell--> --fade--> --hold--> --cue or ready--> wrist and fingers
@@ -1060,31 +939,23 @@ the motion.
 
   - **Level.** The level of a beat is the root of the sum of the squares of the loudness (5.3) of
     the notes that sound in it. Thus more players and louder notes give a higher level. Each
-    level is a part of the 95th percentile of the levels of the beats with sound, at most 1, so
-    that each song has its own loud passages. The level at a beat is the mean of the beats from
-    1 s before it to 1 s after it.
-  - **Trend.** The trend at a beat is the mean level of the beats in the 2 s after it, minus the
-    mean level of the beats in the 2 s before it.
-  - **Weights.** The mirror has a weight from 0 at the level 0.7 to 1 at the level 0.9. The
-    swell has a weight from 0 at the trend 0.06 to 1 at the trend 0.2, and the fade the same for
-    a falling trend. Each weight uses a smoothstep. Then a weight changes by at most 1.5 in 1 s
-    from beat to beat: a forward pass lowers each rise, and a backward pass lowers each fall.
-    Thus a gesture takes at least 0.67 s, and a short peak gives a smaller gesture. Between two
-    beats, the weights mix with a smoothstep. With no limit, a weight changed by up to 0.13 in a
-    frame of 1/60 s in fast music.
-  - **Held chord.** A held chord starts at the last notes before a gap of at least 1.2 s with no
-    new note, when the sound goes on for at least 1.2 s. The sound goes on until the end of all
-    earlier notes. A held chord that starts at the end of the last one, with no cut-off between
-    them, makes the last one longer, so that the palm stays up over a run of long notes. The
-    hold rises in 0.4 s and goes back in 0.5 s after its end. When the sound stops before the
-    next notes, the hand cuts it off: the fingers close to 80° in the last 0.25 s of the sound.
-    At the song end, the closed hand stays for the bow.
-  - **Places.** Each place of `LEFT_HAND_PLACES` (`pose/conductor.ts`) gives the wrist from the
-    left shoulder joint, in head heights `H`, in the model axes. The fingers point along a
-    direction, and curl by an angle. The places are out at the left of the head, and all but the fade are above the
-    shoulder, so that from behind the hand shows beside the head, as in `mockup.png`. The places
-    stay above the desk of the conductor stand. The first places were in front of the left of
-    the chest, and from behind the bear seemed to hold its head (review of 2026-10-07).
+    level is a part of a high percentile of the levels of the beats with sound, so that each song
+    has its own loud passages. The level at a beat is a mean over the beats near it.
+  - **Trend.** The trend at a beat is the mean level of the beats after it, minus the mean level
+    of the beats before it.
+  - **Weights.** The mirror grows with a high level, the swell with a rising trend, and the fade
+    with a falling trend, each with a smoothstep. A weight changes at a limited speed from beat to
+    beat, so a gesture has a minimum length and a short peak gives a smaller gesture. Between two
+    beats, the weights mix with a smoothstep.
+  - **Held chord.** A held chord starts at the last notes before a long gap with no new note,
+    when the sound goes on. A held chord that starts at the end of the last one, with no cut-off
+    between them, makes the last one longer, so that the palm stays up over a run of long notes.
+    When the sound stops before the next notes, the hand cuts it off: the fingers close at the end
+    of the sound. At the song end, the closed hand stays for the bow.
+  - **Places.** Each place of `LEFT_HAND_PLACES` gives the wrist from the left shoulder joint in
+    `H`, the direction of the fingers, and their curl. The places are out at the left of the
+    head, and all but the fade are above the shoulder, so that from behind the hand shows beside
+    the head, as in `mockup.png`. The places stay above the desk of the conductor stand.
 
     | Place | Wrist and fingers | Shows |
     |---|---|---|
@@ -1094,29 +965,18 @@ the motion.
     | `fade` | out at the side at the height of the shoulder, with the fingers forward and down and the hand open | a diminuendo: the palm presses down at the side |
     | `hold` | above the shoulder and furthest forward, with the fingers forward and up and the hand open | the open palm holds the chord |
 
-  - **Mirror.** The wrist moves by 0.45 of the motion of the tip of the baton in the beat plane,
-    as the right wrist does, mirrored from the right to the left. Thus beat 2 of a pattern of 4,
-    which goes inward with the baton, also goes inward with the left hand.
+  - **Mirror.** The wrist moves by a part of the motion of the tip of the baton in the beat plane
+    (`MIRROR_SCALE`), mirrored from the right to the left. Thus beat 2 of a pattern of 4, which
+    goes inward with the baton, also goes inward with the left hand.
   - **Turn.** The places turn with the upper body around the `spine` bone when it turns to the
-    left. In a turn to the right, they stay: a turn of 27° to the right brought the lowered hand
+    left. In a turn to the right, they stay, because a turn to the right brought the lowered hand
     of a fade into the desk.
   - **Cues and count-in.** A cue and the ready gesture mix in after the places by the larger of
-    their weights, with the rules above. Thus the left hand lands on the cue point as before,
-    and rises to a cue from its place between the cues.
+    their weights. Thus the left hand lands on the cue point, and rises to a cue from its place
+    between the cues.
   - **Rest pose and bow.** The playing pose mixes the hanging arm into the place, so the arm
     hangs in the rest pose. In the bow at the song end, the left arm comes down to the side in the
-    0.7 s of the bend, and stays down, with half of the bend (above). With the hand up, the head
-    bowed into the held palm.
-  - **Count.** The share of the play in which each weight is above 0.5, and the held chords:
-
-    | Demo | Mirror | Swell | Fade | Hold | Held chords |
-    |---|---:|---:|---:|---:|---:|
-    | Boulanger | 20% | 9% | 9% | 0% | 1 |
-    | Beethoven 9 | 8% | 11% | 8% | 8% | 5 |
-    | Beethoven 8 | 13% | 14% | 13% | 1% | 1 |
-    | Eine kleine Nachtmusik | 28% | 13% | 14% | 0% | 0 |
-    | Mozart K. 315 | 11% | 16% | 14% | 7% | 8 |
-    | Bach | 28% | 10% | 12% | 0% | 1 |
+    bend, because with the hand up, the head bowed into the held palm.
 
 ## 5.5 Silent seats
 
