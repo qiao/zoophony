@@ -88,6 +88,14 @@ export interface HazeFrame {
   readonly floorY: number;
 }
 
+/** The values of the final pass that change with each frame. */
+export interface PostFrame {
+  /** The room haze, or `null` for no haze. */
+  readonly haze: HazeFrame | null;
+  /** The part of the light that the vignette takes from the corners. */
+  readonly vignette: number;
+}
+
 /**
  * Makes the uniforms of the color grade, `GRADE_FUNCTION` of `post-shaders.ts`: the shared lookup
  * table of `scene/grade.ts`.
@@ -401,7 +409,7 @@ export class PostPipeline {
    * @param effects The light effects that write no depth, such as the visible beam. The depth pass
    *   hides them.
    * @param timeSec The time of the effects, in seconds, for the film grain ({@link grainSeed}).
-   * @param haze The room haze of the frame, or `null` for no haze.
+   * @param frame The room haze and the vignette of the frame.
    */
   render(
     scene: Scene,
@@ -409,7 +417,7 @@ export class PostPipeline {
     focus: Focus,
     effects: readonly Object3D[],
     timeSec: number,
-    haze: HazeFrame | null,
+    frame: PostFrame,
   ): void {
     const targets = this.#targets;
     if (!targets) {
@@ -429,7 +437,8 @@ export class PostPipeline {
     setUniform(final, 'uBlurOn', blur ? 1 : 0);
     this.#setFocus(final, camera, focus, this.#height / 2);
     setUniform(final, 'uAspect', this.#width / this.#height);
-    this.#setHaze(final, camera, haze);
+    this.#setHaze(final, camera, frame.haze);
+    setUniform(final, 'uVignette', frame.vignette);
     setUniform(final, 'uSeed', grainSeed(timeSec));
     this.#pass(final, null);
   }

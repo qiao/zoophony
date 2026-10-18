@@ -37,6 +37,9 @@ import { applyScenePose, createPlayers, createStaticMesh } from './player.ts';
 import type { PlayerSpot } from './player.ts';
 import { PostPipeline, targetFormatOf } from './post.ts';
 import type { HazeFrame } from './post.ts';
+import { POST_LOOK } from './post.ts';
+import { SHOT_LOOK, createShotLights, setShotLights } from './shot-light.ts';
+import { freeShotLight, shotRig } from '../shots/shot-light.ts';
 import { createRenderer, probeTargetFormat } from './renderer.ts';
 import { aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
 import { STAGE_SHADOW, createStage, noBakeUniforms } from './stage.ts';
@@ -142,6 +145,8 @@ interface LayoutView {
   readonly bake: LayoutBake | null;
   /** The captured environment, or `null` for a GPU with no target of floats (design 4.5). */
   readonly capture: LayoutCapture | null;
+  /** The lamps of the light of a close shot (design 4.5, 5.6). */
+  readonly shotLights: Group;
 }
 
 /** The captured environment of a layout, which a restored WebGL context makes again. */
@@ -236,6 +241,8 @@ export class StageScene {
   readonly #renderer: WebGLRenderer;
   /** The environment of the reflections (design 4.5). A restored WebGL context makes it again. */
   #environment: WebGLRenderTarget;
+  /** The exposure of the renderer of a wide shot (design 4.5). A close shot adds to it. */
+  readonly #exposure: number;
   /** The post effects, or `null` for a GPU that cannot render to a target of floats. */
   readonly #post: PostPipeline | null;
   /** The depth of the scene for the haze of the beam (design 4.5). */
@@ -279,6 +286,7 @@ export class StageScene {
     // (design 2.6, review of step 8, L1).
     const look = probeTargetFormat() === 'none' ? 'stage' : 'post';
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio, look);
+    this.#exposure = this.#renderer.toneMappingExposure;
     this.#environment = createEnvironment(this.#renderer);
     // The renderer listens first, and makes its state again. The PMREM of the environment is
     // rendered one time, so a lost context loses its content (review of step 8, U1).
@@ -312,6 +320,8 @@ export class StageScene {
     scene.add(stageGroup);
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
+    const shotLights = createShotLights();
+    scene.add(shotLights);
     const props = createStaticMesh(buildSceneProps(layout), materials);
     scene.add(props);
     const players = createPlayers(playerSpots(layout), materials, models);
@@ -356,6 +366,7 @@ export class StageScene {
       effects: lightEffects(scene),
       bake,
       capture,
+      shotLights,
     };
   }
 
@@ -570,14 +581,20 @@ export class StageScene {
       return;
     }
     let beam: number;
+    let light: number;
+    let spot = 0;
     if (shot) {
       view.camera.follow(shot);
       beam = shot.beam;
+      light = shot.light;
+      spot = shot.spot;
     } else {
       view.camera.update();
       const [x, y, z] = view.camera.camera.position.toArray();
       beam = freeBeamOpacity(view.stageSide, this.aspect, [x, y, z]);
+      light = freeShotLight(view.stageSide, this.aspect, [x, y, z]);
     }
+    this.#lightShot(view, light, spot);
     view.camera.frameTo(cover, ring, performance.now());
     const foot = this.#followAim(view, performance.now());
     const camera = view.camera.camera;
@@ -602,12 +619,28 @@ export class StageScene {
     renderScenePass(this.#renderer.shadowMap, depthPass, () => {
       if (this.#post) {
         const haze = depthPass ? this.#hazeOf(view) : null;
-        this.#post.render(view.scene, camera, focus, view.effects, timeSec, haze);
+        const vignette = POST_LOOK.vignette + (SHOT_LOOK.vignette - POST_LOOK.vignette) * light;
+        this.#post.render(view.scene, camera, focus, view.effects, timeSec, { haze, vignette });
       } else {
         this.#renderer.render(view.scene, camera);
       }
     });
     view.scene.matrixWorldAutoUpdate = true;
+  }
+
+  /**
+   * Sets the light of the shot of a frame (design 4.5, 5.6): the lamps of a close shot around the
+   * target of the camera, and the extra exposure of a close shot.
+   *
+   * @param view The layout of the frame. Its camera has the place of the frame.
+   * @param light The weight of the light of a close shot, from 0 to 1.
+   * @param spot The weight of the follow-spot, from 0 to 1.
+   */
+  #lightShot(view: LayoutView, light: number, spot: number): void {
+    const camera = view.camera.camera;
+    const rig = shotRig(camera.position.toArray(), view.camera.target, camera.fov, spot);
+    setShotLights(view.shotLights, rig, light, spot);
+    this.#renderer.toneMappingExposure = this.#exposure * 2 ** (SHOT_LOOK.exposure * light);
   }
 
   /**

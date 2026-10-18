@@ -670,8 +670,8 @@ interface Shot {
 
 `shots/types.ts` holds the full types: `ShotPlan` adds the stage side and the starts of the
 shots, and `cameraAt()` writes a `CameraPoseBuffer` (the position, the target, the field of view,
-and the factor of the beam opacity) for a `CameraView` (the aspect, and `still` for reduced
-motion).
+the factor of the beam opacity, and the weights of the shot light) for a `CameraView` (the
+aspect, and `still` for reduced motion).
 
 **Camera key.** Each shot keeps its camera on a sphere around its target, as the default view of
 4.5 does: `position = target + d × (sin az × cos el, sin el, cos az × cos el)`. The distance `d`
@@ -866,6 +866,13 @@ const SHOT_BEAM_OPACITY = {
   solo: 0.15,
 } as const satisfies Record<ShotKind, number>;
 ```
+
+**Shot light.** On a film set, the crew lights each setup again. A close shot gets its own soft
+key, a kicker, a little more exposure, and a stronger vignette (4.5), and a solo shot turns its
+key into a follow-spot. The weights come from the kind of the shot, as the factor of the beam,
+and a blend blends them (`SHOT_LIGHT` and `SHOT_SPOT` of `shots/shot-light.ts`). `shotRig()`
+places the lamps from the camera alone, so a seek gives the light of the shot at once. Free mode
+reads the weight from the camera distance (2.5).
 
 **One frame.** `cameraAt()` does these steps:
 

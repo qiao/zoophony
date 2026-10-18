@@ -547,6 +547,10 @@ solo.
   (`BeamDepth`) gives no haze to an item on the stage, so the beam shows between the players
   (user, 2026-10-06). The camera dims the beam in a close shot (`shots/beam-opacity.ts`, 5.6),
   because the additive beam washed out the image. Dust motes drift in the haze by the tier.
+- **Shot light** (`scene/shot-light.ts`, 5.6). A close shot adds a soft key 35° from the axis of
+  the camera and a kicker behind the subject, both on the side of the stage key light, with a
+  little more exposure and a stronger vignette. The lamps cast no shadow. The subject then reads
+  as in the close shots of `scene.png`, and the wide shots keep the light of the stage.
 - **Room haze** (`ROOM_HAZE`, final pass). Thin warm air starts behind the point that the camera
   looks at and grows with the distance, brighter toward the key light. The back rows and the hall
   get an aerial depth, and the beam stands in air, as in `orchestra-latest.png`. The stage in
