@@ -103,3 +103,33 @@ straight line, and the black fur of the shoulder band, the arms, and the legs ke
 the texture. Marks 5 and 6 are true shadows, and they stay. Marks 3 and 4 stay: no face color
 changes a shading, and the weight rule that keeps their corners on the trunk folds faces in each
 sample. A fix needs new vertices at the seam or a corrective shape of the side of the trunk.
+
+## 4. The gray streaks and a corrective shape
+
+Round `panda-streaks` tried a corrective shape of the side of the trunk for marks 3 and 4, with no
+move of a vertex of the bind mesh. The probes and their outputs are in
+[`2026-10-18-panda-marks/streaks/`](2026-10-18-panda-marks/streaks/). `streaks.py` measures the
+share of the pixels with an Oklab lightness from 0.3 to 0.62 in a box on each side of the belly,
+in nine renders of `shots.ts` (`streak-shares.txt`). The trial options of a rule of `raise`
+(`trunkSide`, `pull`, and `spread`) are in `raise-options.patch`, the rule of each variant in
+`variants.txt`, and the folds in `folds.txt`.
+
+| Variant | Left boxes | Right boxes | Folds rest / play / lift | Look |
+|---|---:|---:|---|---|
+| `main` | 15.6% | 17.4% | 0% / 0% / 2.2% | streaks |
+| left shape, relax of the arm (`l09_2`) | 2.6% | 17.4% | not measured | black band of the left side gone |
+| left shape, relax of the trunk side (`tc`) | 17.2% | 17.4% | not measured | no change |
+| left shape, pull to the trunk skin (`q10`) | 17.3% | 17.4% | not measured | no change |
+| left shape, pull of the back seam (`f10`) | 21.3% | 17.4% | not measured | a new black wedge |
+| left shape, spread of the arm offset (`s24f0`) | 10.4% | 17.4% | 66.7% / 1.6% / 16.1% | smaller streaks, white slivers |
+| seam weights on the trunk (`armfrom`) | 4.4% | 2.9% | 100% / 100% / 100% | streaks gone |
+
+The shape `q10` puts the seam corners near their places under the trunk weights, and the streaks
+stay. The weights of `armfrom` put the same corners there, and the streaks go. Thus the streaks
+come from the normals of the seam corners: the app skins each normal with the weights of its
+corner, and a corrective shape only adds a move in the bind pose. A smooth group is not in the
+format: each matte face takes the smooth normal of the crease angle of the body
+(`studioNormals()` of `src/models/studio-normals.ts`), and a flat normal also follows the weights
+of its corners. With the relax rules of `raise` on both sides, the faces 93 and 2115 from the trunk
+to the forearm of `armfrom` still fold in each sample (`c1`). `streak-variants.webp` shows `main`,
+`s24f0`, and `armfrom` in the views of `before-after.webp`.
