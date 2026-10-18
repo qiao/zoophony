@@ -200,7 +200,8 @@
       ],
       "share": 0.5,
       "dark": 0.5,
-      "note": "The user said on 2026-10-18: \"there's unexpected black marks on the torso. fix that\" (docs/decisions/2026-10-18-panda-marks.md). A face takes black from the share eyeShare (0.34) of dark texture samples. Seven large faces at the lower border of the black band under the arms are mostly white in the texture (36% to 46% dark samples). They gave the band black teeth, and the raised arms stretched the teeth into black wedges on the white sides of the belly. In the box of the trunk, from the crotch (y 0.17) to the neck (0.69), each dark face with less than half dark samples takes the color of the nearest light fur face: 7 faces, 3 on the left and 4 on the right. No other face of the trunk has a share from 0.34 to 0.5 (docs/research/2026-10-18-panda-marks.md)."
+      "teeth": 2,
+      "note": "The user said on 2026-10-18: \"there's unexpected black marks on the torso. fix that\" (docs/decisions/2026-10-18-panda-marks.md). A face takes black from the share eyeShare (0.34) of dark texture samples. Seven large faces at the lower border of the black band under the arms are mostly white in the texture (36% to 46% dark samples). They gave the band black teeth, and the raised arms stretched the teeth into black wedges on the white sides of the belly. In the box of the trunk, from the crotch (y 0.17) to the neck (0.69), each dark face with less than half dark samples takes the color of the nearest light fur face: 7 faces, 3 on the left and 4 on the right. No other face of the trunk has a share from 0.34 to 0.5 (docs/research/2026-10-18-panda-marks.md). With teeth 2, each dark face of the box with at least 2 light neighbors also takes the white: 6 small black teeth at the old seam that the cut (cut below) leaves (docs/research/2026-10-18-panda-seam.md)."
     },
     "patch": {
       "center": [0.0717, 0.8547],
@@ -237,6 +238,10 @@
     "reach": 1,
     "darkReach": 0,
     "note": "The values of lift, points, and reach are the values of the fox, the cat, and the dog. The fan of the left eye has 11 faces over 19 dark faces, and the right eye 8 faces over 16. The old eye of each side is 31 and 17 faces inside the black patch, and they take the black of 37% and 62% of the area of the faces around them. darkReach is 0, so that no dark face of the patch around the old eye takes the color of its own ring: with 2, the rest of each patch took the white of the fur around it."
+  },
+  "cut": {
+    "top": 0.58,
+    "note": "The user chose \"Cut the mesh (Recommended)\" on 2026-10-18 (docs/decisions/2026-10-18-panda-marks.md). Each hanging forearm of the source touches the belly, and short faces join the two. When the arm lifts, either those faces turn over and show, or the belly faces under them turn from the light (the gray streaks). Below the height top (source units), the faces with a corner in the free arm and a corner in the body go: 20 on the left, 17 on the right. The same number of new faces close the forearm and the belly, and no vertex moves. The bone heat of the cut mesh gives the belly side to the trunk. At top 0.56, the lift folded face 86 in 5.4% of the samples, and at 0.6, the rest folded faces 86 and 404 in each sample (docs/research/2026-10-18-panda-seam.md)."
   },
   "chair": {
     "halfWidth": 0.22,
