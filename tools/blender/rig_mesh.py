@@ -2449,8 +2449,8 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=()):
     upper arm of the side, and `grow` rings of their neighbors (0 when the rule has none). A ring
     lets a corner of the trunk under the armpit move, when a long face from it to the arm turns
     over. The move of each relaxed vertex goes back to the bind pose through the inverse of its
-    skin. Gives the shape, the weight of the arm-down shape, the faces that turn over before and
-    after, the rounds, and the moved vertices.
+    skin. Gives the shape, the weight of the arm-down shape, the indices of the faces that turn
+    over before and after, the rounds, and the moved vertices.
 
     A rule with `bone` "hand" is the shape of a bent wrist: the paw and the fingers of the side
     take the turn `turns.hand` from the seated bind pose, the forearm twist bone takes
@@ -2515,10 +2515,10 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=()):
         region |= weights[:, BONES.index(f'{bone}_{side}')] > 0
     for _ in range(rule.get('grow', 0)):
         region[tris[region[tris].any(axis=1)].ravel()] = True
-    before = int((turn_dots(bind, posed, tris, weights, matrices) < 0).sum())
+    before = np.nonzero(turn_dots(bind, posed, tris, weights, matrices) < 0)[0]
     relaxed, rounds = relax(bind, posed, tris, weights, matrices, moving=region,
                             below=rule['below'])
-    after = int((turn_dots(bind, relaxed, tris, weights, matrices) < 0).sum())
+    after = np.nonzero(turn_dots(bind, relaxed, tris, weights, matrices) < 0)[0]
 
     a = np.zeros((len(bind), 3, 3))
     b = np.zeros((len(bind), 3))
@@ -3050,9 +3050,11 @@ def main():
         if isinstance(config['raise'], list):
             entry['target'] = target
         raised.append(entry)
+        faces = module_faces(np.arange(len(tris_all)), materials)
         log(f'raise {target}: the arm-down shape has the weight {down_weight:.3f} in the pose, '
-            f'{before} faces turn over before and {after} after {rounds} rounds of relaxing, '
-            f'{count} vertices move')
+            f'{len(before)} faces turn over before and {len(after)} after {rounds} rounds of '
+            f'relaxing, {count} vertices move (faces of the module before '
+            f'{faces[before].tolist()}, after {faces[after].tolist()})')
     for name, shape in shapes.items():
         log(f'shape {name}: {int((np.abs(shape).max(axis=1) > 1e-6).sum())} vertices, '
             f'largest move {np.abs(shape).max():.4f} u')
