@@ -600,9 +600,16 @@ the mockup is out of scope.
       vignette of each shot, and the room haze (D4 and D5, approved on 2026-10-17, user "yes" on
       2026-10-18). The chromatic shift is left out. Measures:
       `docs/research/2026-10-18-shot-light-lens-haze.md`.
-- [ ] Measure the frame cost of the cinematic light when the frame test returns: the clearcoat of
-      the stage, the 4 bake reads and the 20 shadow samples of each stage pixel, the 2 lamps of
-      the shot light in each lit pixel, and the lookup table and the room haze of the final pass.
+- [x] Measure the frame cost of the cinematic light (user "do it" on 2026-10-18,
+      `docs/research/2026-10-18-light-frame-cost.md`). It adds about 1.1 ms of GPU time in each
+      frame of `perf-60.mid` on the high tier (4.75 ms to 5.86 ms): the shot light 0.45 ms, the
+      bake step 0.42 ms, the floor and the grade 0.16 ms, the haze 0.08 ms, and the lens 0.06 ms.
+      The main thread does not change.
+- [ ] Measure the GPU row of the frame target again with the Metal trace. On 2026-10-18,
+      `xctrace` could not connect to DTServiceHub, so `pnpm frame` ran with `--no-metal`.
+- [ ] Cut the frame cost of the cinematic light in the performance sweep. The two lamps of the
+      shot light cost 0.45 ms in each frame, also in a wide shot. The baked stage takes 20 shadow
+      samples in place of 12.
 - [ ] The glow of the haze around the beam is weaker than in `orchestra-latest.png`: the hall
       above the stage has a luma p90 of 22 against 49.
 - [ ] Give the players the shadows of the props on their bodies again, such as the shadow of a
