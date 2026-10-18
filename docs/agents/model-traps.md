@@ -99,7 +99,9 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
   arm pulls it into long faces under the armpit that shade darker. A fade of the upper arm weight
   there moves the stretch into the long faces from the trunk to the forearm, and they fold in each
   sample (`arm-from.py` of `docs/research/2026-10-18-panda-marks/`). A corrective shape does not
-  remove the dark shading, because the app skins the normals with the weights of the corners.
+  remove the dark shading, because the app skins the normals with the weights of the corners. When
+  the same corners join a hanging forearm to the trunk, a cut of those faces only moves the fold
+  (`docs/research/2026-10-18-panda-seam.md`).
 - A long thin face across a joint of an arm folds, and weight rules make it worse. A ring of new
   vertices at the joint fixes it (`refine.rings`). Put a ring only where `pnpm fold-probe` finds
   folds, and run `pnpm pose-depth <role>` after it: a ring can pull the inner elbow into the
