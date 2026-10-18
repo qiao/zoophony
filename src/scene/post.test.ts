@@ -55,7 +55,7 @@ describe('the final pass (design 4.5, post effects)', () => {
     expect(output).toBeGreaterThan(toneMap);
     expect(FINAL_FRAGMENT.indexOf('grade(gl_FragColor.rgb)')).toBeGreaterThan(output);
     expect(FINAL_FRAGMENT).toContain(GRADE_FUNCTION);
-    expect(GRADE_FUNCTION).toContain('c * uGain');
+    expect(GRADE_FUNCTION).toContain('texture(uGradeLut, c)');
   });
 });
 

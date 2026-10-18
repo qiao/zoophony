@@ -60,9 +60,12 @@ describe('createStageMaterial (design 4.5, materials)', () => {
       'uHalfSide',
       'uCornerCut',
       'uSpecular',
+      'uSeamColor',
+      'uPlank',
       'uSideGlow',
     ]);
-    expect(shader.fragmentShader).toContain('reflectedLight.directSpecular *= uSpecular;');
+    expect(shader.fragmentShader).toContain('reflectedLight.directSpecular *= uSpecular *');
+    expect(shader.fragmentShader).toContain('float stagePlank = plankNumber(vColor.rgb);');
     expect(shader.uniforms).toMatchObject({
       uHalfSide: { value: 4 },
       uCornerCut: { value: 0.8 },
