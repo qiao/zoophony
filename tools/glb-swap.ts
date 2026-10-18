@@ -3,10 +3,13 @@
  * with no edit of `ANIMALS` and no written module in `src/` (route 3 of
  * `docs/agents/model-work.md`). The pure core keeps no state: the probe runs in a child process on
  * a copy of `src/` that holds the module of the file, as `pnpm body-probe --base` runs the probe of
- * a commit.
+ * a commit. A species with no studio body also works when it has a rig config
+ * `tools/mesh-rigs/<species>.json`: the copy then gives the species the body, and `ANIMALS` of the
+ * copy gets a scratch entry ({@link addScratchBody}). Thus phase 1 of a mesh of the user probes
+ * the real body before the commit of the body.
  */
 import { spawn } from 'node:child_process';
-import { cpSync, mkdtempSync, symlinkSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, symlinkSync } from 'node:fs';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -112,6 +115,81 @@ export function speciesAnimal(species: SpeciesId): string | null {
 }
 
 /**
+ * Gives the path of the rig config of an animal.
+ *
+ * @param animal The animal.
+ * @returns The absolute path of `tools/mesh-rigs/<animal>.json`, which can be missing.
+ */
+export function rigConfigPath(animal: string): string {
+  return join(RIG_CONFIGS, `${animal}.json`);
+}
+
+/**
+ * Gives the animal whose studio body `--glb <file>` swaps for a species: the animal of the studio
+ * body of the species, or the species itself when it has no studio body and has a rig config
+ * ({@link rigConfigPath}), as the panda had in phase 1 of its mesh.
+ *
+ * @param species The species.
+ * @returns The animal, or `null` when the species has no studio body and no rig config.
+ */
+export function glbAnimal(species: SpeciesId): string | null {
+  return speciesAnimal(species) ?? (existsSync(rigConfigPath(species)) ? species : null);
+}
+
+/**
+ * Gives the name of the constant of the module of the studio body of an animal.
+ *
+ * @param animal The animal, such as `polar-bear`.
+ * @returns The name, such as `STUDIO_POLAR_BEAR`.
+ */
+export function studioConstant(animal: string): string {
+  return `STUDIO_${animal.toUpperCase().replaceAll('-', '_')}`;
+}
+
+/**
+ * Gives the scratch settings of an animal with no entry in `ANIMALS`, as `rigSettings()` of
+ * `tools/rig-mesh.ts` gives them to `pnpm rig-mesh --check`: a seated role that also stands, with
+ * its seat on its legs, at the landmark of its standing shoulder joints. The crease angle is 0,
+ * because a new body has no measured angle yet. The angle changes only the normals, which no probe
+ * reads.
+ *
+ * @param animal The animal.
+ * @param shoulders The height of the standing shoulder joints in the app, in meters.
+ * @returns The settings, with no GLB file.
+ */
+export function scratchSettings(animal: string, shoulders: number): AnimalSettings {
+  return {
+    landmark: 'shoulders',
+    height: shoulders,
+    seated: true,
+    soloist: true,
+    constant: studioConstant(animal),
+    crease: 0,
+  };
+}
+
+/**
+ * Reads the height of the standing shoulder joints of the rig config of an animal (`app.shoulders`
+ * of `tools/mesh-rigs/<animal>.json`).
+ *
+ * @param animal The animal.
+ * @returns The height, in meters.
+ * @throws Error if the file is missing, or if the value is not a positive number.
+ */
+function rigShoulders(animal: string): number {
+  // SAFETY: a rig config holds the fields of `MeshRigConfig` of `tools/rig-mesh.ts`, and the check
+  // below reads the one field that the scratch settings need.
+  const config = JSON.parse(readFileSync(rigConfigPath(animal), 'utf8')) as {
+    readonly app?: { readonly shoulders?: number };
+  };
+  const shoulders = config.app?.shoulders;
+  if (shoulders === undefined || !Number.isFinite(shoulders) || shoulders <= 0) {
+    throw new Error(`app.shoulders of tools/mesh-rigs/${animal}.json is not a positive number.`);
+  }
+  return shoulders;
+}
+
+/**
  * Gives the species with the studio body of an animal.
  *
  * @param animal The animal.
@@ -124,21 +202,25 @@ export function animalSpecies(animal: string): SpeciesId[] {
 }
 
 /**
- * Gives the settings of an animal of `ANIMALS` with another GLB file.
+ * Gives the settings of an animal with another GLB file: its entry of `ANIMALS`, or the scratch
+ * settings of its rig config ({@link scratchSettings}).
  *
  * @param animal The animal.
  * @param file The absolute path of the GLB file.
  * @returns The settings.
- * @throws Error if `ANIMALS` has no such animal.
+ * @throws Error if `ANIMALS` has no such animal and no rig config of the animal exists.
  */
 export function glbSettings(animal: string, file: string): AnimalSettings {
-  const settings = ANIMALS.get(animal);
-  if (!settings) {
+  const known = ANIMALS.get(animal);
+  if (known) {
+    return { ...known, glb: relative(ROOT, file) };
+  }
+  if (!existsSync(rigConfigPath(animal))) {
     throw new Error(
-      `ANIMALS of tools/studio-body.ts has no animal ${animal}. The animals are: ${[...ANIMALS.keys()].join(', ')}.`,
+      `ANIMALS of tools/studio-body.ts has no animal ${animal}, and tools/mesh-rigs/${animal}.json does not exist. The animals are: ${[...ANIMALS.keys()].join(', ')}.`,
     );
   }
-  return { ...settings, glb: relative(ROOT, file) };
+  return { ...scratchSettings(animal, rigShoulders(animal)), glb: relative(ROOT, file) };
 }
 
 /** The studio body of a GLB file, and the text of its module. */
@@ -171,21 +253,150 @@ export function glbModule(
   return { body, text: studioModule(animal, settings.constant, body) };
 }
 
+/** The line that marks each scratch addition of {@link addScratchBody} in a file of a copy. */
+const SCRATCH_MARK = '// A scratch addition of tools/glb-swap.ts for --glb.';
+
+/**
+ * Adds the studio body of an animal to the text of `src/models/studio-body.ts`: the import of its
+ * module and its entry in `STUDIO_BODIES`.
+ *
+ * @param text The text of the file.
+ * @param animal The animal, such as `panda`.
+ * @param constant The name of the constant of the module.
+ * @returns The changed text.
+ * @throws Error if the text has not exactly one start of `STUDIO_BODIES`.
+ */
+export function withStudioBody(text: string, animal: string, constant: string): string {
+  const start = 'export const STUDIO_BODIES = {';
+  if (text.split(start).length !== 2) {
+    throw new Error(`src/models/studio-body.ts has not exactly one "${start}".`);
+  }
+  return [
+    SCRATCH_MARK,
+    `import { ${constant} } from './studio/${animal}.ts';`,
+    text.replace(start, `${start}\n  ${JSON.stringify(`studio-${animal}`)}: ${constant},`),
+  ].join('\n');
+}
+
+/**
+ * Gives a species the studio body of an animal in the text of `src/models/species.ts`, as the
+ * species of a studio body has it: the body, the size 1, and the head height and the seat height
+ * of the body. The other fields stay. The change goes at the end of the file, after `SPECIES`.
+ *
+ * @param text The text of the file.
+ * @param species The species.
+ * @param animal The animal.
+ * @param constant The name of the constant of the module.
+ * @returns The changed text.
+ * @throws Error if the text has no `SPECIES`.
+ */
+export function withSpeciesBody(
+  text: string,
+  species: SpeciesId,
+  animal: string,
+  constant: string,
+): string {
+  if (!text.includes('export const SPECIES = {')) {
+    throw new Error('src/models/species.ts has no "export const SPECIES = {".');
+  }
+  const key = JSON.stringify(species);
+  return [
+    text,
+    SCRATCH_MARK,
+    `import { ${constant} as GLB_SWAP_BODY } from './studio/${animal}.ts';`,
+    'Object.assign(SPECIES, {',
+    `  [${key}]: {`,
+    `    ...SPECIES[${key}],`,
+    `    body: ${JSON.stringify(`studio-${animal}`)},`,
+    '    size: 1,',
+    '    proportions: {',
+    '      headHeight: GLB_SWAP_BODY.headHeight,',
+    '      seatHeight: (GLB_SWAP_BODY.seatHeight ?? 0) / GLB_SWAP_BODY.headHeight,',
+    '    },',
+    '  },',
+    '});',
+    '',
+  ].join('\n');
+}
+
+/**
+ * Adds an entry of `ANIMALS` to the text of `tools/studio-body.ts`, at the end of the file.
+ *
+ * @param text The text of the file.
+ * @param animal The animal.
+ * @param settings The settings of the entry, with no palettes.
+ * @returns The changed text.
+ * @throws Error if the text has no `ANIMALS`.
+ */
+export function withAnimalEntry(text: string, animal: string, settings: AnimalSettings): string {
+  if (!text.includes('export const ANIMALS')) {
+    throw new Error('tools/studio-body.ts has no "export const ANIMALS".');
+  }
+  return [
+    text,
+    SCRATCH_MARK,
+    `ANIMALS.set(${JSON.stringify(animal)}, ${JSON.stringify(settings)});`,
+    '',
+  ].join('\n');
+}
+
+/**
+ * Adds the scratch entries of an animal with no studio body to a copy ({@link withGlbBody}). An
+ * animal with no module in `STUDIO_BODIES` gets its entry there, and the species of the same id
+ * gets the body ({@link withSpeciesBody}). An animal with no entry in `ANIMALS` gets the settings
+ * of the export as its entry in `ANIMALS` of the copy. An animal with a studio body and an entry
+ * changes nothing.
+ *
+ * @param dir The folder of the copy.
+ * @param animal The animal.
+ * @param settings The settings of the export.
+ * @throws Error if the animal has no studio body and is not a species.
+ */
+export async function addScratchBody(
+  dir: string,
+  animal: string,
+  settings: AnimalSettings,
+): Promise<void> {
+  if (!Object.hasOwn(STUDIO_BODIES, `studio-${animal}`)) {
+    if (!isSpeciesId(animal)) {
+      throw new Error(
+        `The animal ${animal} has no studio body and is not a species, so no species can take its body.`,
+      );
+    }
+    const bodies = join(dir, 'src', 'models', 'studio-body.ts');
+    await writeFile(
+      bodies,
+      withStudioBody(await readFile(bodies, 'utf8'), animal, settings.constant),
+    );
+    const species = join(dir, 'src', 'models', 'species.ts');
+    await writeFile(
+      species,
+      withSpeciesBody(await readFile(species, 'utf8'), animal, animal, settings.constant),
+    );
+  }
+  if (!ANIMALS.has(animal)) {
+    const tool = join(dir, 'tools', 'studio-body.ts');
+    await writeFile(tool, withAnimalEntry(await readFile(tool, 'utf8'), animal, settings));
+  }
+}
+
 /**
  * Makes a copy of the working tree in which the studio body of an animal comes from another GLB
  * file, runs a work in it, and removes it. The copy holds `src/`, `package.json`, the scripts of
  * `tools/`, and the configs of the mesh rigs ({@link copiedTool}), with links to `node_modules/`
- * and `demos/`. Its module of the animal is the export of the file. The folder goes away at the
- * end, also after a failure. After a stop (INT or TERM), `tools/stop-cleanup.ts` stops the
- * children of {@link runTool} first, then removes the folder.
+ * and `demos/`. Its module of the animal is the export of the file. An animal with no studio body
+ * or no entry in `ANIMALS` gets scratch entries in the copy ({@link addScratchBody}). The folder
+ * goes away at the end, also after a failure. After a stop (INT or TERM), `tools/stop-cleanup.ts`
+ * stops the children of {@link runTool} first, then removes the folder.
  *
- * @param animal The animal of `ANIMALS`.
+ * @param animal The animal of `ANIMALS`, or a species with a rig config.
  * @param file The absolute path of the GLB file.
  * @param work The work, which gets the folder of the copy.
  * @param parent The folder that holds the temporary folder.
  * @param settings The settings of the export ({@link glbModule}).
  * @returns The result of the work.
- * @throws Error if the file does not exist, or if the export of the file fails.
+ * @throws Error if the file does not exist, if the export of the file fails, or if the animal has
+ *   no studio body and is not a species.
  */
 export async function withGlbBody<T>(
   animal: string,
@@ -206,6 +417,7 @@ export async function withGlbBody<T>(
       symlinkSync(join(ROOT, path), join(dir, path), 'dir');
     }
     await writeFile(join(dir, 'src', 'models', 'studio', `${animal}.ts`), text);
+    await addScratchBody(dir, animal, settings);
     return await work(dir);
   } finally {
     await rm(dir, { recursive: true, force: true });
