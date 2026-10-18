@@ -62,8 +62,10 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the color with the largest area in the ring of faces around the old eye (`recolor_old_eyes()`),
    so that no outline of the old eye shows. Each patch of dark faces near an old eye that no old
    eye holds, such as the end of the upper lid line of the fox, takes the color of its own ring in
-   the same way (`dark_faces_near()`). The faces go in the order of a walk over their shared
-   edges.
+   the same way (`dark_faces_near()`). With `colors.tone`, the plain fur moves in Oklab
+   (`tone()`). Then `colors.patch` makes each eye patch round (`patch_shape()`), and
+   `colors.smile` draws a smile line in the dark of the patches (`smile_line()`). The faces go in
+   the order of a walk over their shared edges.
 8. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
    and the other vertices give `legs_straight_L` and `legs_straight_R`. With `raise` of the
@@ -437,6 +439,62 @@ def tone(colors, main_bone, rule):
     for k in range(3):
         lab[:, k] += share * np.interp(lab[:, 0], points[:, 0], points[:, k + 1])
     return srgb_of_oklab(lab), int((share > 0).sum())
+
+
+def head_source(points, pivot, factor, rise, drop):
+    """Gives points of the head in the units of the source: the inverse of the move of the head
+    of `moved_boxes()`. The face rules (`patch_shape()`, `smile_line()`) give their shapes in the
+    source, as the eye box and the nose box do."""
+    return pivot + (np.asarray(points) - drop - [0.0, rise, 0.0] - pivot) / factor
+
+
+def patch_shape(corners, colors, fur, rule):
+    """Makes each eye patch round (`colors.patch` of the config). Each dark fur face (Oklab
+    lightness below `dark`) with its center in `box`, or in its mirror, and with a corner outside
+    the ellipse of `radii` around `center` in the front plane (|x|, y), takes the color of the
+    nearest light fur face that the rule does not change. The sharp upper inner point of the eye
+    patch of the panda reads as raised inner brows, a sad face. `corners` gives the corners of
+    each face in the units of the source (`head_source()`). Gives the new colors, the changed
+    faces, and the most common color of the dark faces that stay in the boxes."""
+    centers = corners.mean(axis=1)
+    side = np.abs(centers) * [1.0, 0.0, 0.0] + centers * [0.0, 1.0, 1.0]
+    in_patch = fur & in_box(side, rule['box'])
+    dark = oklab(colors)[:, 0] < rule['dark']
+    q = (np.abs(corners[:, :, :2]) * [1.0, 0.0] + corners[:, :, :2] * [0.0, 1.0]
+         - rule['center']) / rule['radii']
+    inside = (q ** 2).sum(axis=2).max(axis=1) <= 1.0
+    changed = in_patch & dark & ~inside
+    light = np.nonzero(fur & ~dark & ~changed)[0]
+    out = colors.copy()
+    for f in np.nonzero(changed)[0]:
+        out[f] = colors[light[np.argmin(np.linalg.norm(centers[light] - centers[f], axis=1))]]
+    kept, counts = np.unique(colors[in_patch & dark & inside], axis=0, return_counts=True)
+    return out, np.nonzero(changed)[0], kept[np.argmax(counts)]
+
+
+def smile_line(corners, normals, colors, fur, rule, color):
+    """Draws a smile line along the crease between the lips (`colors.smile` of the config). Each
+    fur face that lies in a band of `bands` takes `color`, the dark of the eye patches. A face lies
+    in a band when its |x| is in `x`, its center y is in `y` raised by `rise` × (|x| / the end of
+    `x`)², its center z is at least `front`, the y of its normal is in `normalY`, and the z of its
+    normal is at least `facing`. A band on the lower lip gives the line, and a band on the
+    underside of the upper lip can turn its corners up. `corners` and `normals` are in the units
+    and the axes of the source (`head_source()`). Gives the new colors and the faces of each
+    band."""
+    centers = corners.mean(axis=1)
+    x = np.abs(centers[:, 0])
+    out = colors.copy()
+    found = []
+    for band in rule['bands']:
+        lift = band['rise'] * (x / band['x'][1]) ** 2
+        faces = (fur & (x >= band['x'][0]) & (x <= band['x'][1])
+                 & (centers[:, 1] >= band['y'][0] + lift) & (centers[:, 1] <= band['y'][1] + lift)
+                 & (centers[:, 2] >= band['front'])
+                 & (normals[:, 1] >= band['normalY'][0]) & (normals[:, 1] <= band['normalY'][1])
+                 & (normals[:, 2] >= band['facing']))
+        out[faces] = color
+        found.append(np.nonzero(faces)[0])
+    return out, found
 
 
 def locality_order(tris):
@@ -3028,9 +3086,11 @@ def main():
     thin_rule = config['check']['thin'] if check else None
     uncut = uncut_faces(long_verts, tris, long_heads, long_ends, thin_rule) if thin_rule else []
     colors, dark = face_colors(tris, uvs, texture, config['colors'])
+    # The move of the head from the source: the pivot, the head factor, the rise, and the drop.
+    head_move = (heads['neck'], factors['head'], rise,
+                 drop + lower if factors['trunk'] != 1 else drop)
     eyes, nose = features(long_verts, tris, colors, dark,
-                          moved_boxes(config['colors'], heads['neck'], factors['head'], rise,
-                                      drop + lower if factors['trunk'] != 1 else drop))
+                          moved_boxes(config['colors'], *head_move))
     for side, found in eye_patches(tris, dark, eyes).items():
         for inside, rest in found:
             text = (f'eye {side}: the eye box takes {len(inside)} of the '
@@ -3146,6 +3206,24 @@ def main():
                                                       BONES.index('head'))])
         colors_all, count = tone(colors_all, main_all, config['colors']['tone'])
         log(f'tone: {count} faces of the plain fur move in Oklab')
+    if 'patch' in config['colors']:
+        corners = head_source(src_all[tris_all], *head_move)
+        fur_all = materials == 'fur'
+        colors_all, changed, patch_dark = patch_shape(corners, colors_all, fur_all,
+                                                      config['colors']['patch'])
+        sides = (corners[changed].mean(axis=1)[:, 0] > 0).sum()
+        log(f'patch: {len(changed)} dark faces of the eye patches ({sides} left, '
+            f'{len(changed) - sides} right) take the color of the nearest light fur face. The '
+            f'patches keep the color {np.round(patch_dark, 4).tolist()}')
+        if 'smile' in config['colors']:
+            edges = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+            normals = edges / np.maximum(np.linalg.norm(edges, axis=1, keepdims=True), 1e-12)
+            colors_all, bands = smile_line(corners, normals, colors_all, fur_all,
+                                           config['colors']['smile'], patch_dark)
+            log(f'smile: the bands take {[len(b) for b in bands]} faces')
+    elif 'smile' in config['colors']:
+        raise ValueError('colors.smile takes the dark color of colors.patch, so it needs '
+                         'colors.patch.')
     order = locality_order(tris_all)
     tris_all, colors_all, materials = tris_all[order], colors_all[order], materials[order]
     if thin_rule:

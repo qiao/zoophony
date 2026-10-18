@@ -245,8 +245,9 @@ function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigV
  * the trunk factor (`trunkFactor`), the girth factor (`girthFactor`), the factors of the
  * cross-section of the arms (`armGirth`), the root share of the tail in
  * the sit of the haunch (`sit.root`), the fixed seat top of the sit (`sit.top`), the curve of the
- * curled seated tail (`studio.tailCurl`), and the move of the colors of the plain fur
- * (`colors.tone`). `tools/blender/rig_mesh.py` describes each rule.
+ * curled seated tail (`studio.tailCurl`), the move of the colors of the plain fur
+ * (`colors.tone`), the round eye patches (`colors.patch`), and the smile line (`colors.smile`).
+ * `tools/blender/rig_mesh.py` describes each rule.
  */
 const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, ConfigValue>([
   ['headFactor', 1],
@@ -258,6 +259,19 @@ const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, Config
   ['sit.top', 0],
   ['studio.tailCurl', { points: [[0, 0, 0]] }],
   ['colors.tone', { chroma: 0, light: [0, 1], keep: [], points: [[0, 0, 0, 0]] }],
+  [
+    'colors.patch',
+    {
+      center: [0, 0],
+      radii: [1, 1],
+      box: [
+        [0, 0, 0],
+        [0, 0, 0],
+      ],
+      dark: 0.5,
+    },
+  ],
+  ['colors.smile', { bands: [] }],
 ]);
 
 /**
