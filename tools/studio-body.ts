@@ -206,6 +206,19 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/dog/dog.rig.glb',
     },
   ],
+  // The trombone panda: decisions/2026-10-18-mesh-panda.md. It stands as a soloist.
+  [
+    'panda',
+    {
+      landmark: 'shoulders',
+      height: 0.998678,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_PANDA',
+      crease: 35,
+      glb: 'assets/models/panda/panda.rig.glb',
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
