@@ -105,8 +105,10 @@ describe('beamAxes (design 2.4, 4.5)', () => {
 
   it('tells a point in the leaning haze cone from a point outside it', () => {
     expect(insideHaze(side, [3.9, 0.5, 3.2], foot)).toBe(true);
-    expect(insideHaze(side, [3.9, 0.5, 3.2])).toBe(false);
-    expect(insideHaze(side, [0, 0.5, 0], foot)).toBe(false);
+    expect(insideHaze(side, [0, 0.5, 0])).toBe(true);
+    // A point 0.6 S from the axis is outside the foot of the haze (BEAM_LOOK.column).
+    expect(insideHaze(side, [3.9 + 0.6 * side, 0.5, 3.2], foot)).toBe(false);
+    expect(insideHaze(side, [0.6 * side, 0.5, 0])).toBe(false);
   });
 });
 
@@ -131,10 +133,11 @@ describe('hazeProfile (design 4.5)', () => {
 
   it('tells a point in the haze cone from a point in the light cone outside it', () => {
     const side = 11.19;
-    expect(insideHaze(side, onAxis(side, 7))).toBe(true);
-    expect(insideHaze(side, onAxis(side, 2))).toBe(true);
-    expect(insideHaze(side, onAxis(side, 7, 2))).toBe(false);
-    expect(insideHaze(side, onAxis(side, 7, 0.5 * side))).toBe(false);
+    const top = hazeTip(side, [0, 0])[1];
+    expect(insideHaze(side, onAxis(side, 0.8 * top))).toBe(true);
+    expect(insideHaze(side, onAxis(side, 0.3 * top))).toBe(true);
+    expect(insideHaze(side, onAxis(side, 0.8 * top, 2))).toBe(false);
+    expect(insideHaze(side, onAxis(side, 0.8 * top, 0.5 * side))).toBe(false);
     expect(insideHaze(side, [0, -0.5, 0])).toBe(false);
   });
 });
@@ -336,7 +339,7 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
     frame(1, [0, 20, 40]);
     expect(uniforms(Mesh)['uInside']?.value).toBe(0);
     expect(material(Mesh).depthTest).toBe(true);
-    frame(1, onAxis(side, 8, 0.5, 0.5));
+    frame(1, onAxis(side, 0.8 * hazeTip(side, [0, 0])[1], 0.5, 0.5));
     expect(uniforms(Mesh)['uInside']?.value).toBe(1);
     expect(material(Mesh).depthTest).toBe(false);
     frame(1, onAxis(side, 2, 1, 1));

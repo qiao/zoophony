@@ -48,24 +48,32 @@ export const BEAM_LOOK = {
   strength: 4.8,
   /** The density at the outline, as a part of the density on the axis. The edge stays soft. */
   edge: 0,
-  /** The part of the radius where the density starts to fade to the outline. */
-  core: 0.5,
+  /**
+   * The part of the radius where the density starts to fade to the outline. The beam of
+   * `orchestra-latest.png` is brightest near its axis and has soft edges. With 0.5, the wide fan
+   * of 2026-10-18 was a flat veil with hard edges.
+   */
+  core: 0.25,
   /**
    * The radius of the haze at the stage top, in stage sides. The haze fills a cone that narrows
    * from this radius to the radius of the light cone at its tip (the haze cone), inside the cone
    * of `models/beam.ts`. The cone is 0.75 S wide at the stage, and a haze in the full cone veiled
-   * the full orchestra in the frontal default view. With the tip of {@link BEAM_LOOK}.tip, 0.3 S
-   * opens the fan of `orchestra-latest.png`, and 0.35 S made it too wide.
+   * the full orchestra in the frontal default view, before the haze left out the items on the
+   * stage. With the tip of {@link BEAM_LOOK}.tip, 0.5 S opens the fan of `orchestra-latest.png`:
+   * in the default view, the beam is about 0.16 of the stage width at the top of the frame, and it
+   * spreads out where it meets the back of the stage. With 0.3 S and a tip of 1.0 S, the beam was
+   * 0.25 of the stage width at the top and did not spread out.
    */
-  column: 0.3,
+  column: 0.5,
   /**
    * The height of the tip of the haze cone, in stage sides. The tip lies on the line from the foot
    * of the beam to the key light, so the beam points at the key light. The key light stands far
    * away, and a haze cone up to it showed only a long, almost parallel part in the default view.
-   * A lower tip shows the narrow top of the cone, so the beam opens as a fan toward the stage, as
-   * in `orchestra-latest.png`.
+   * A lower tip shows the narrow top of the cone in the frame, so the beam opens as a fan toward
+   * the stage, as in `orchestra-latest.png` (user, 2026-10-18: "the bottom of the beam is still
+   * not fanned out").
    */
-  tip: 1.0,
+  tip: 0.55,
   /**
    * The density in the haze at the stage. The density grows with the concentration of the light,
    * where the haze cone is narrow: (column / radius)^0.8, at most
