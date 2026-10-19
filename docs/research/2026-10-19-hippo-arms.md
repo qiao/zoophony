@@ -133,3 +133,60 @@ cells of `pnpm close-views bassist <dir> --base 16f16e44 --pairs ...`), `close-v
 base above), and `rest-lift-round.webp`. In the user view, the bow arm hangs from the shoulder and
 then comes forward to the bow, as a round arm. The slit under the arm and the wedges on the
 shoulder are gone. A dark slot stays at the front of the right armpit, at the caps of the cut.
+
+## 5. The second step
+
+Round `arms-hippo2`, base `395f3f8a`. The outputs are in
+[`2026-10-19-hippo-arms/step2/`](2026-10-19-hippo-arms/step2/). `probe-keys.ts` bins the play
+samples by the bone turns (`keys-*.txt`), and `corners.ts` gives the weights:
+
+| Faces | Place | They fold when |
+|---|---|---|
+| 116 | back of the right shoulder: one corner on the clavicle and the upper arm, two on the neck | the upper arm turns less than 70° and the elbow bends more than 60° |
+| 52 | right paw, two corners shared with the rigid face 51 | the bow wrist turns 50° to 70° |
+| 486, 897, 53, 96, 97, 195, 157 | lower right armpit and right paw | in each pizzicato sample of `boulanger-matin`: the upper arm turns 111°, the paw 131° on the forearm |
+
+`pnpm rig-mesh hippo --check --step 1` on all demos (`rig-a.txt` to `rig-j.txt`):
+
+| Variant | Play | Lift | Note |
+|---|---:|---:|---|
+| base | 30.6% | 28.7% | |
+| no shape 1 (left arm, face 1356) | 30.6% | 28.7% | the shape changes no fold |
+| no shape 0, 2, or 3 | 99.9% to 100% | 78% to 100% | |
+| `armTop` 0.62 to 0.7 | 24.7% | 14.0% | face 116 0%, faces 237 and 238 new |
+| `armTop` 0.6, 0.61, 0.615 to 0.7, or 0.62 to 0.69, with a wrist shape | 44% to 99.8% | 58% to 84% | a relax of a shape fails |
+| `armTop` 0.625 to 0.7, with a wrist shape for face 52 | 15.5% | 0% | |
+| `armTop` 0.625 to 0.7, faces 51 and 52 as one rigid group | 15.5% | 0% | faces 52 and 53 0%, no wrist shape |
+| and a shape of the bent right elbow that turns the forearm only | 13.7% | 0% | chosen: faces 232 and 233 0.3% and 2.2% |
+| the elbow shape with all arm turns of the fit | 19.6% | 0% | chest faces 463, 336, and 337 fold |
+| a shape for face 237, or rigid faces 486 and 897 | 22.3%, 16.3% | 4.7%, 9.7% | |
+
+**The pizzicato.** 35 variants of `pizzicatoTip`, `pluckPlace`, and `polePizzicato`
+(`hf-pizz-*.txt`) keep folds in about 52% of the play samples of `boulanger-matin`. A tip moves the
+folds to other paw faces, and a raised elbow moves the armpit folds to faces 602, 114, and 244. A
+shape in the pizzicato pose keeps 5 to 12 faces turned (`rig-c.txt`, `rig-g.txt`).
+
+**The look.** `probe-patch.py` swaps the material of the hippo (`slot-probe.webp`, `395f3f8a`).
+With no shadow, the slot at the front of the right armpit stays dark, and the face colors are even.
+The normals of the caps of the cut point away from the light. With faces in pure colors
+(`shoulder-faces.webp`), the light streak at the shoulder is faces 114, 115, 116, and 238, which
+the 50° shoulder turn squeezes to slivers.
+
+## 6. The result of the second step
+
+`pnpm fold-probe bassist --base 395f3f8a` (`fold-probe.txt`), `top-plate.ts` of the chest round,
+and `pnpm pose-depth bassist --base 395f3f8a`:
+
+| Measure | `16f16e44` | `395f3f8a` | Round |
+|---|---:|---:|---:|
+| Play samples with a fold | 100% | 30.0% | 13.6% |
+| Lift samples with a fold | 100% | 28.7% | 0% |
+| Rest samples with a fold | 100% | 0% | 0% |
+| Faces 116 and 52, play | | 13.7%, 11.6% | 0%, 0% |
+| Top plate in the chest, mean and max | | 0.6 cm, 1.5 cm | 0.6 cm, 1.5 cm |
+| Bow targets within 5 mm | | 99.9% | 99.9% |
+
+The chest faces 633, 634, and 337 fold in no play sample, and each depth of the sweep keeps its
+value. `pnpm body-probe` changes only the hippo, and the first download grows by 30 B. Face 237
+is new (6.5%, most in the pizzicato). `user-view.webp`, `pairs.webp`, and `batch-species.webp`
+show a smaller light wedge at the back of the right shoulder. The dark slot and the slivers stay.
