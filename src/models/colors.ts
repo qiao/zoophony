@@ -14,12 +14,13 @@ export interface SpeciesColors {
 
 /**
  * The colors of each species (design 4.5, species colors): the colors of 2026-10-06, which the
- * user chose again on 2026-10-09. The models and the seat dots of the UI read them through
- * `SPECIES`.
+ * user chose again on 2026-10-09. The fur of the red fox is the fur of its rig after the color
+ * shift of 2026-10-19 (`colors.shift` of `tools/mesh-rigs/fox.json`). The models and the seat dots
+ * of the UI read them through `SPECIES`.
  */
 export const SPECIES_COLORS = {
   rabbit: { fur: '#ece6dc', belly: '#f4f0ea', accent: '#e9a7a5' },
-  'fox-red': { fur: '#f0934c', belly: '#f6eee0', accent: '#4a3324' },
+  'fox-red': { fur: '#bd4a00', belly: '#f6eee0', accent: '#4a3324' },
   'fox-tan': { fur: '#c9a273', belly: '#e6d3b5', accent: '#9a7148' },
   wolf: { fur: '#bab2aa', belly: '#f0ece4', accent: '#8a807a' },
   elephant: { fur: '#a8a198', belly: '#b9b2a8', accent: '#b9a39a' },
