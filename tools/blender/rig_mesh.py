@@ -461,8 +461,11 @@ def shift_colors(colors, fur, rule):
     over the range `chroma`, times the smoothstep of its lightness over the range `light`. Thus
     the white, the black, and the gloss faces keep their colors, and a face between them takes a
     part of the move. The move multiplies the lightness and the chroma by the factors of `scale`
-    and turns the hue by `turn` degrees, each by the share. A face whose Oklch color does not
-    change keeps its sRGB color. Gives the new colors and the count of the moved faces."""
+    and turns the hue by `turn` degrees, each by the share. A moved color outside the sRGB gamut
+    keeps its lightness and its hue, and takes the largest chroma inside the gamut
+    (`gamut_chroma()`): a clip of each channel would turn the hue. A face whose Oklch color does
+    not change keeps its sRGB color. Gives the new colors, the count of the moved faces, and the
+    count of the faces that the gamut limits."""
     lab = oklab(colors)
     chroma = np.hypot(lab[:, 1], lab[:, 2])
     hue = np.arctan2(lab[:, 2], lab[:, 1])
@@ -471,10 +474,32 @@ def shift_colors(colors, fur, rule):
     new_chroma = chroma * (1.0 + share * (rule['scale'][1] - 1.0))
     new_hue = hue + share * math.radians(rule['turn'])
     moved = (light != lab[:, 0]) | (new_chroma != chroma) | (new_hue != hue)
+    limit = gamut_chroma(light, new_hue)
+    limited = moved & (new_chroma > limit)
+    new_chroma = np.where(limited, limit, new_chroma)
     new = np.stack([light, new_chroma * np.cos(new_hue), new_chroma * np.sin(new_hue)], axis=1)
     out = colors.copy()
     out[moved] = srgb_of_oklab(new[moved])
-    return out, int(moved.sum())
+    return out, int(moved.sum()), int(limited.sum())
+
+
+def gamut_chroma(light, hue, rounds=40):
+    """Gives the largest Oklch chroma inside the sRGB gamut at each lightness and hue (radians),
+    by bisection."""
+    low, high = np.zeros_like(light), np.full_like(light, 0.5)
+    m = np.array([[1.0, 0.3963377774, 0.2158037573],
+                  [1.0, -0.1055613458, -0.0638541728],
+                  [1.0, -0.0894841775, -1.2914855480]])
+    back = np.array([[4.0767416621, -3.3077115913, 0.2309699292],
+                     [-1.2684380046, 2.6097574011, -0.3413193965],
+                     [-0.0041960863, -0.7034186147, 1.7076147010]])
+    for _ in range(rounds):
+        mid = 0.5 * (low + high)
+        lab = np.stack([light, mid * np.cos(hue), mid * np.sin(hue)], axis=1)
+        rgb = ((lab @ m.T) ** 3) @ back.T
+        inside = (rgb.min(axis=1) >= 0.0) & (rgb.max(axis=1) <= 1.0)
+        low, high = np.where(inside, mid, low), np.where(inside, high, mid)
+    return low
 
 def border_faces(corners, colors, fur, share, rule, tris=None):
     """Gives the faces at the border of a black fur region the color of most of their texture
@@ -3531,8 +3556,10 @@ def main():
                          'colors.patch.')
     base_all = colors_all
     if 'shift' in config['colors']:
-        colors_all, count = shift_colors(colors_all, fur_all, config['colors']['shift'])
-        log(f'shift: {count} faces of the colored fur move in Oklch')
+        colors_all, count, limited = shift_colors(colors_all, fur_all,
+                                                  config['colors']['shift'])
+        log(f'shift: {count} faces of the colored fur move in Oklch, and the sRGB gamut limits '
+            f'the chroma of {limited}')
     order = locality_order(tris_all)
     tris_all, colors_all, materials = tris_all[order], colors_all[order], materials[order]
     base_all = base_all[order]
