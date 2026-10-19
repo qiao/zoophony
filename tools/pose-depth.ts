@@ -1,9 +1,17 @@
-import { writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { basename } from 'node:path';
 
 import { BOW_PART, bowSweep } from './bow-sweep.ts';
 import { patchedDemos } from './patch-demos.ts';
 import { setHolds } from './hold-sets.ts';
-import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
+import {
+  PROBE_NO_CACHE,
+  probeBeside,
+  shortHash,
+  storeBase,
+  treeCacheFile,
+  withoutOptions,
+} from './ref-tree.ts';
 import type { RefRole } from './ref-tree.ts';
 import { scoreOf } from '../src/score/test-score.ts';
 import { CONDUCTOR } from '../src/models/cast.ts';
@@ -951,8 +959,26 @@ export function compareDepths(
 }
 
 /**
+ * Gives the cache file of the base row of a run with `--set` ({@link treeCacheFile}): the tree of
+ * the working tree and the arguments with no `--set`, `--json`, and `--base`. A run with no
+ * `--set`, or with {@link PROBE_NO_CACHE} set to `1`, has none.
+ *
+ * @param options The options.
+ * @returns The file, or `null`.
+ */
+function baseRowCache(options: Options): string | null {
+  if (options.variants.length < 2 || process.env[PROBE_NO_CACHE] === '1') {
+    return null;
+  }
+  const args = withoutOptions(process.argv.slice(2), ['--set', '--json', '--base']);
+  return treeCacheFile('pose-depth.ts', [String(ROWS_FORMAT), ...args]);
+}
+
+/**
  * Sweeps each variant of the options with the holds of now, and writes the details of each
- * variant after its sweep.
+ * variant after its sweep. A run with `--set` takes the base row from its cache when the working
+ * tree and the other arguments did not change ({@link baseRowCache}), and prints
+ * `base: cached`. The sweep of the base fills the cache.
  *
  * @param options The options.
  * @param role The role of the options.
@@ -960,7 +986,16 @@ export function compareDepths(
  */
 async function sweepRows(options: Options, role: RoleSweep): Promise<SweepRow[]> {
   const rows: SweepRow[] = [];
+  const cache = baseRowCache(options);
+  const cached = cache && existsSync(cache) ? readRows(readFileSync(cache, 'utf8'))[0] : undefined;
   for (const variant of options.variants) {
+    if (variant === '' && cached) {
+      rows.push(cached);
+      console.log(`base: cached (tree, ${basename(cache ?? '', '.json').slice(5, 17)})`);
+      console.log(`base (${cached.seconds.toFixed(1)} s when swept):`);
+      printDetails(role, cached.results, options.goal);
+      continue;
+    }
     const { undo, text } = setHolds(variant);
     const started = performance.now();
     let results: DemoResult[];
@@ -971,6 +1006,9 @@ async function sweepRows(options: Options, role: RoleSweep): Promise<SweepRow[]>
     }
     const seconds = (performance.now() - started) / 1000;
     rows.push({ variant: text, seconds, results });
+    if (variant === '' && cache) {
+      storeBase(cache, rowsJson([{ variant: text, seconds, results }]));
+    }
     console.log(`${text || 'base'} (${seconds.toFixed(1)} s):`);
     printDetails(role, results, options.goal);
   }
