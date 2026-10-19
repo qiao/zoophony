@@ -266,8 +266,9 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 
 Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs/decisions/`):
 
-- [ ] Rig the meshes of the mouse (oboe), the monkey (trumpet), the pig (horn), and the badger
-      (percussion) when the user gives them. The prompts of the sheets were given on 2026-10-17.
+- [ ] Rig the meshes of the monkey (trumpet), the pig (horn), and the badger (percussion) when the
+      user gives them. The prompts of the sheets were given on 2026-10-17. The mouse and the
+      elephant got their meshes on 2026-10-19.
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
       fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
 - [ ] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
@@ -476,6 +477,11 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Mouse tail: the loop of the long tail lies on the floor up to 0.6 m behind the chair, the
       footprint is 1.418 m deep, and the stages of the demos with oboes grow up to 6.7%. Check the
       tail between the rows of the stage with the user (`2026-10-19-mesh-mouse.md`).
+- [ ] Mouse seat: the round belly hides the short thighs, and the seat is 0.147 m high, so in the
+      play frames the mouse seems to stand in front of a low chair and lean on it
+      (`species-play-base-views.webp` of `docs/research/2026-10-19-mouse-mesh/`). Show the user
+      the side view, and offer a higher seat with the feet off the floor
+      (`2026-10-19-mesh-mouse.md`).
 - [ ] Elephant timpanist: the skin folds in each sample, up to 23 faces: face 137 of the right
       armpit in 94% of the play samples, the left forearm in 61%, and the left arm that waits over
       the kettle beside the player in 37%. Four corrective shapes cut the folded face-samples from
