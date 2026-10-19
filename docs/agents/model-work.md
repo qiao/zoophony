@@ -196,8 +196,8 @@ of route 3 follow.
    `--check --preview <dir>`. Before a change of a weight rule, read the weights of the faces that
    fold with `pnpm fold-probe <role> --faces <n>`. Its column of the source middles gives the
    points of `weights.rigid`. Fit each corrective shape with
-   `pnpm raise-fit <role> --faces <list> --side <side>`, and copy its entry into `raise`. Try
-   each variant with `--check --set <path>=<value>`.
+   `pnpm raise-fit <role> --faces <list> --side <side> --json <file>`, and try its entry with
+   `--check --set 'raise+=@<file>'`. Try each other variant with `--check --set <path>=<value>`.
 4. Run `--check` after each change of the config or the script, and before the first docs commit.
    The triangles stay in the budget, the packed mesh in its gzip budget, and the standing body
    within 1 mm of the long-armed source. Read the seat, the violin rule, the folds, and the lowest
