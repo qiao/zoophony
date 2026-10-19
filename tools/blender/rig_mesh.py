@@ -68,7 +68,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    (`tone()`). With `colors.border`, each dark face of a box whose texture is mostly light takes
    the color of the nearest light face (`border_faces()`). Then `colors.patch` makes each eye
    patch round (`patch_shape()`), and `colors.smile` draws a smile line in the dark of the
-   patches (`smile_line()`). The faces go in the order of a walk over their shared edges.
+   patches (`smile_line()`). Last, `colors.shift` moves the faces of a colored fur in Oklch
+   (`shift_colors()`). The faces go in the order of a walk over their shared edges.
 8. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
    and the other vertices give `legs_straight_L` and `legs_straight_R`. With `raise` of the
@@ -78,7 +79,9 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
 9. Write the GLB file with the code of this script: the materials `fur`, `gloss`, and `chair`,
    the skinned mesh with its morph targets, the skeleton, the clip `reference` with one key, a
    chair under the seated body, and the facts that `pnpm studio-body` reads in the extras of the
-   asset. The bytes depend only on the config and the source file.
+   asset. When `colors.shift` moves a face, `COLOR_1` holds the colors before the shift, from
+   which `pnpm studio-body` maps the other palettes. The bytes depend only on the config and the
+   source file.
 
 With `--preview`, the script also renders the seated bind and the standing body from four sides,
 the knees of the seated body from the side, the neck from four sides, and the main bone of each
@@ -449,6 +452,29 @@ def tone(colors, main_bone, rule):
         lab[:, k] += share * np.interp(lab[:, 0], points[:, 0], points[:, k + 1])
     return srgb_of_oklab(lab), int((share > 0).sum())
 
+
+
+def shift_colors(colors, fur, rule):
+    """Moves the faces of a colored fur in Oklch (`colors.shift` of the config), so that the fur
+    takes the hue, the chroma, and the lightness of its reference, such as the red-orange of the
+    reference red fox. A fur face takes the move by its share: the smoothstep of its Oklab chroma
+    over the range `chroma`, times the smoothstep of its lightness over the range `light`. Thus
+    the white, the black, and the gloss faces keep their colors, and a face between them takes a
+    part of the move. The move multiplies the lightness and the chroma by the factors of `scale`
+    and turns the hue by `turn` degrees, each by the share. A face whose Oklch color does not
+    change keeps its sRGB color. Gives the new colors and the count of the moved faces."""
+    lab = oklab(colors)
+    chroma = np.hypot(lab[:, 1], lab[:, 2])
+    hue = np.arctan2(lab[:, 2], lab[:, 1])
+    share = fur * smoothstep(chroma, *rule['chroma']) * smoothstep(lab[:, 0], *rule['light'])
+    light = lab[:, 0] * (1.0 + share * (rule['scale'][0] - 1.0))
+    new_chroma = chroma * (1.0 + share * (rule['scale'][1] - 1.0))
+    new_hue = hue + share * math.radians(rule['turn'])
+    moved = (light != lab[:, 0]) | (new_chroma != chroma) | (new_hue != hue)
+    new = np.stack([light, new_chroma * np.cos(new_hue), new_chroma * np.sin(new_hue)], axis=1)
+    out = colors.copy()
+    out[moved] = srgb_of_oklab(new[moved])
+    return out, int(moved.sum())
 
 def border_faces(corners, colors, fur, share, rule, tris=None):
     """Gives the faces at the border of a black fur region the color of most of their texture
@@ -3013,16 +3039,18 @@ class GlbWriter:
         return self.add(np.asarray(array, np.float32), 5126, kind, minmax)
 
 
-def primitive_arrays(points, tris, colors, materials, weights, shapes, name):
+def primitive_arrays(points, tris, colors, materials, weights, shapes, name, base=None):
     """Gives the vertex arrays of the faces of one material: each corner with its face color is
-    one vertex, so that each face keeps one color."""
+    one vertex, so that each face keeps one color. With `base`, the colors before
+    `colors.shift`, each vertex also has the base color of its face."""
     faces = np.nonzero(materials == name)[0]
     keys, index, corners = {}, [], []
     for f in faces:
         c = tuple(np.round(linear(colors[f]), 7))
+        b = c if base is None else tuple(np.round(linear(base[f]), 7))
         row = []
         for v in tris[f]:
-            key = (int(v), c)
+            key = (int(v), c, b)
             if key not in keys:
                 keys[key] = len(index)
                 index.append(key)
@@ -3030,6 +3058,7 @@ def primitive_arrays(points, tris, colors, materials, weights, shapes, name):
         corners.append(row)
     vertex = np.array([k[0] for k in index])
     color = np.array([k[1] for k in index])
+    base_color = np.array([k[2] for k in index])
     joints = np.zeros((len(vertex), 4), np.uint8)
     values = np.zeros((len(vertex), 4), np.float32)
     for i, v in enumerate(vertex):
@@ -3038,16 +3067,18 @@ def primitive_arrays(points, tris, colors, materials, weights, shapes, name):
             joints[i, j] = k
             values[i, j] = weights[v, k]
     return {
-        'position': points[vertex], 'color': color, 'joints': joints, 'weights': values,
+        'position': points[vertex], 'color': color, 'base': base_color, 'joints': joints,
+        'weights': values,
         'shapes': [shape[vertex] for shape in shapes.values()],
         'indices': np.array(corners, np.uint32),
     }
 
 
 def write_glb(path, config, bind, tris, colors, materials, weights, shapes, bind_frames,
-              bind_heads, src_frames, src_heads, chair, extras):
+              bind_heads, src_frames, src_heads, chair, extras, base=None):
     """Writes the rig as a GLB file in the format of a studio body, with the extras of the asset
-    for `pnpm studio-body`. The morph targets are the shapes, in their order."""
+    for `pnpm studio-body`. The morph targets are the shapes, in their order. With `base`, the
+    colors before `colors.shift`, the attribute `COLOR_1` holds them."""
     w = GlbWriter()
     shape_names = list(shapes)
     mats = [{'name': name, 'doubleSided': True,
@@ -3066,14 +3097,17 @@ def write_glb(path, config, bind, tris, colors, materials, weights, shapes, bind
 
     primitives = []
     for k, name in ((1, 'fur'), (2, 'gloss')):
-        arrays = primitive_arrays(bind, tris, colors, materials, weights, shapes, name)
+        arrays = primitive_arrays(bind, tris, colors, materials, weights, shapes, name, base)
+        attributes = {
+            'POSITION': w.floats(arrays['position'], 'VEC3', minmax=True),
+            'COLOR_0': w.floats(arrays['color'], 'VEC3'),
+        }
+        if base is not None:
+            attributes['COLOR_1'] = w.floats(arrays['base'], 'VEC3')
+        attributes['JOINTS_0'] = w.add(arrays['joints'], 5121, 'VEC4')
+        attributes['WEIGHTS_0'] = w.floats(arrays['weights'], 'VEC4')
         primitives.append({
-            'attributes': {
-                'POSITION': w.floats(arrays['position'], 'VEC3', minmax=True),
-                'COLOR_0': w.floats(arrays['color'], 'VEC3'),
-                'JOINTS_0': w.add(arrays['joints'], 5121, 'VEC4'),
-                'WEIGHTS_0': w.floats(arrays['weights'], 'VEC4'),
-            },
+            'attributes': attributes,
             'indices': w.add(arrays['indices'].ravel(), 5125, 'SCALAR'),
             'material': k,
             'targets': [{'POSITION': w.floats(s, 'VEC3', minmax=True)} for s in arrays['shapes']],
@@ -3495,8 +3529,13 @@ def main():
     elif 'smile' in config['colors']:
         raise ValueError('colors.smile takes the dark color of colors.patch, so it needs '
                          'colors.patch.')
+    base_all = colors_all
+    if 'shift' in config['colors']:
+        colors_all, count = shift_colors(colors_all, fur_all, config['colors']['shift'])
+        log(f'shift: {count} faces of the colored fur move in Oklch')
     order = locality_order(tris_all)
     tris_all, colors_all, materials = tris_all[order], colors_all[order], materials[order]
+    base_all = base_all[order]
     if 'border' in config['colors']:
         log(f'border: the faces of the module '
             f'{sorted(module_faces(order, materials)[border_changed].tolist())}')
@@ -3575,7 +3614,8 @@ def main():
         log(f'smooth: the head center of the holds moves back by {np.linalg.norm(shift):.4f} u '
             f'({np.linalg.norm(shift) * meters * 100:.2f} cm), to the head before the smoothing')
     write_glb(out_path, config, bind_all, tris_all, colors_all, materials, weights_all, shapes,
-              bind_frames, bind_heads, src_frames, long_heads, chair, extras)
+              bind_frames, bind_heads, src_frames, long_heads, chair, extras,
+              base_all if (base_all != colors_all).any() else None)
 
     if obj_path:
         write_obj(obj_path, long_verts, tris)

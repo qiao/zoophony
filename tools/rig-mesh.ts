@@ -248,8 +248,8 @@ function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigV
  * the sit of the haunch (`sit.root`), the fixed seat top of the sit (`sit.top`), the curve of the
  * curled seated tail (`studio.tailCurl`), the move of the colors of the plain fur
  * (`colors.tone`), the light border of a black fur region (`colors.border`), the round eye
- * patches (`colors.patch`), the smile line (`colors.smile`), and the cut of the mesh where a
- * hanging forearm touches the belly (`cut`). `tools/blender/rig_mesh.py` describes each rule.
+ * patches (`colors.patch`), the smile line (`colors.smile`), the move of a colored fur in Oklch
+ * (`colors.shift`), and the cut of the mesh where a hanging forearm touches the belly (`cut`). `tools/blender/rig_mesh.py` describes each rule.
  */
 const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, ConfigValue>([
   ['headFactor', 1],
@@ -285,6 +285,7 @@ const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, Config
     },
   ],
   ['colors.smile', { bands: [] }],
+  ['colors.shift', { chroma: [0, 1], light: [0, 1], scale: [1, 1], turn: 0 }],
   ['cut', { top: 0 }],
 ]);
 
