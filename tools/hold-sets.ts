@@ -5,7 +5,10 @@ import type { BowVia, BowedHold } from '../src/pose/bowed-rig.ts';
 import { CONDUCTOR_HOLD, LEFT_HAND_PLACES } from '../src/pose/conductor.ts';
 import { TIMPANI } from '../src/models/instruments/percussion.ts';
 import { HANDS_HOLDS } from '../src/pose/hands.ts';
+import type { HandAction } from '../src/pose/hand-notes.ts';
 import { PERCUSSION_HOLDS, PERCUSSION_PLACES } from '../src/pose/percussion-rig.ts';
+import type { HandsRule } from '../src/pose/percussion-rig.ts';
+import type { Fingering } from '../src/pose/wind-notes.ts';
 import { SPECIES_WIND_HOLDS } from '../src/pose/winds.ts';
 import type { FreePaw } from '../src/pose/winds.ts';
 
@@ -87,6 +90,32 @@ const NULL_FIELDS: ReadonlyMap<string, HoldValue> = new Map<string, HoldValue>([
       fingers: [0, 0, 0],
       arc: [0, 0, 0],
     } satisfies FreePaw,
+  ],
+]);
+
+/**
+ * The texts that a text field of a hold takes, by the last key of its path, such as `hands` of
+ * `timpani.hands` (design 5.3). Each entry has each member of the union of its field as a key, so
+ * a change of the union stops the typecheck until the entry follows it. A field with no entry,
+ * such as `kind` of a rest place, changes with the JSON text of its object.
+ */
+const TEXT_FIELDS: ReadonlyMap<string, readonly string[]> = new Map([
+  [
+    'hands',
+    Object.keys({ alternate: true, sides: true, right: true, pair: true } satisfies Record<
+      HandsRule,
+      true
+    >),
+  ],
+  ['action', Object.keys({ strike: true, pluck: true } satisfies Record<HandAction, true>)],
+  [
+    'fingering',
+    Object.keys({
+      holes: true,
+      'valves-left': true,
+      'valves-right': true,
+      slide: true,
+    } satisfies Record<Fingering, true>),
   ],
 ]);
 
@@ -261,8 +290,9 @@ function fitJson(old: HoldValue, value: HoldValue, path: string, field: string):
 
 /**
  * Parses the text of a `--set` for a value of a hold. A number takes a number, and a list of
- * numbers takes the numbers separated by commas, with the same count. A value that is `null`, an
- * object, or another list takes JSON text, which fits the old value ({@link fitJson}).
+ * numbers takes the numbers separated by commas, with the same count. A text takes a member of
+ * the union of its field ({@link TEXT_FIELDS}), such as `timpani.hands=sides`. A value that is
+ * `null`, an object, or another list takes JSON text, which fits the old value ({@link fitJson}).
  *
  * @param old The old value.
  * @param text The text, such as `16deg`, `0,1,0`, or `{"tip":[0,1,0],"hair":[0,0,-1]}`.
@@ -282,9 +312,21 @@ function parseValue(old: HoldValue, text: string, path: string, field: string): 
   if (isNumber(old)) {
     return parseNumber(text, path);
   }
+  if (isText(old)) {
+    const members = TEXT_FIELDS.get(field.split('.').at(-1) ?? '');
+    if (!members) {
+      throw new Error(
+        `The text ${path} has no list of values in TEXT_FIELDS of tools/hold-sets.ts, so --set cannot change it.`,
+      );
+    }
+    if (!members.includes(text)) {
+      throw new Error(`${path} takes one of ${members.join(', ')}, and the value is "${text}".`);
+    }
+    return text;
+  }
   if (old !== null && !isHoldList(old) && !isHoldObject(old)) {
     throw new Error(
-      `The value of ${path} is not a number or a list of numbers, and it is not an object or null.`,
+      `The value of ${path} is not a number, a list of numbers, a text, an object, or null.`,
     );
   }
 
@@ -432,7 +474,8 @@ function copyPath(hold: object, keys: readonly string[]): PathCopy {
 /**
  * Changes one value of a hold in memory, such as `piano.lean=16deg` or
  * `piano.restL.lap.offset=-0.75,0.1,0`. The path names the keys from a hold of {@link HOLDS}. The
- * new value has the type of the old value: a number, or a list of numbers of the same length. A
+ * new value has the type of the old value: a number, a list of numbers of the same length, or a
+ * text of the union of its field, such as `timpani.hands=sides` ({@link TEXT_FIELDS}). A
  * value that is `null`, an object, or another list takes JSON text with the keys and the kinds of
  * the old value ({@link parseValue}), such as
  * `viola.restBow.via={"tip":[-0.3,0.3,-1],"hair":[0,-1,0],"reach":[0,0,-0.4]}`. A path below a
