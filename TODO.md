@@ -436,6 +436,18 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       shading of the seam where the hanging arm of the mesh touches the belly. Done: the user chose
       a cut of the mesh at the seam, and the streak share goes from 16.4% to 3.7%
       (`docs/research/2026-10-18-panda-cut.md`, `2026-10-18-panda-marks.md`).
+- [ ] Hippo bassist: the skin folds in each sample, up to 28 faces: the left paw on the neck, the
+      chest under the chin, and the front of the right shoulder. Fit corrective shapes on the mean
+      turns of `keys-read.ts` of `docs/research/2026-10-18-hippo-mesh/` (`2026-10-18-mesh-hippo.md`).
+- [ ] Hippo bassist: the thick arms go into the body in the play, the right paw up to 9.1 cm, and
+      the left forearm 3.8 cm into the contrabass. Fit the hold further, or accept the depths as
+      limits of the sweep (`2026-10-18-mesh-hippo.md`).
+- [ ] Hippo face: the brow ridge of the mesh shades a crease above each pea eye, which can read
+      stern in a close front view. Show the user the face, and offer a face rule
+      (`2026-10-18-mesh-hippo.md`).
+- [ ] Hippo seat: the short feet hang in front of the foot ring of the stool, and the wide body
+      hides the stool from the front. Offer a foot ring under the feet or a wider stool
+      (`2026-10-18-mesh-hippo.md`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
