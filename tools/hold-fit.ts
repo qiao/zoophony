@@ -1064,7 +1064,8 @@ export interface FitRun {
  * with `null` for its limit: the pair has no limit (a reader of an older version shows that limit
  * as 0), version 11 the shares of the faces of `--faces-of` and the samples over the limit of
  * each pair of the sweep, version 12 the spare reach of the grips of a wind hold, version 13 the
- * faces that fold most of each row, and version 14 the twist and the swing of each paw.
+ * faces that fold most of each row, and version 14 the twist and the swing of each paw and the
+ * phase of the sample of each deepest point of the sweep (`PairPhase` of `pnpm pose-depth`).
  */
 export const FIT_FORMAT = 14;
 

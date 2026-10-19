@@ -22,6 +22,9 @@ import { BONE_NAMES } from '../src/models/rig.ts';
 import type { BoneName } from '../src/models/rig.ts';
 import { isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
+import type { NoteLayer, PlayerPlan } from '../src/pose/plan.ts';
+import { createStrikeState, strikeStateAt } from '../src/pose/strikes.ts';
+import type { StrikeTrack } from '../src/pose/strikes.ts';
 import { sceneOf } from '../src/pose/test-scene.ts';
 import type { TestScene } from '../src/pose/test-scene.ts';
 import {
@@ -356,8 +359,8 @@ export function reachText(reach: TargetReach): string {
 export interface SetResult {
   /** The name of the set, such as `play`. */
   readonly name: string;
-  /** The deepest point of each pair of a moving part and an obstacle. */
-  readonly pairs: readonly PairDepth[];
+  /** The deepest point of each pair of a moving part and an obstacle, with its phase. */
+  readonly pairs: readonly PhasedDepth[];
   /**
    * The smallest gap of each pair of {@link gapPairs}, or of the pairs of `gapsOf` of
    * {@link sweepDemos}, or none with neither.
@@ -370,6 +373,111 @@ export interface SetResult {
  * rest (`pnpm hold-fit`).
  */
 export type GapsOf = (set: string, player: SweepPlayer) => readonly GapPair[];
+
+/** The phase of the sample of a deepest point in the notes of the player ({@link pairPhase}). */
+export interface PairPhase {
+  /**
+   * The time from the sample to the next note start of the hand of the point, such as the next
+   * strike of a mallet, in seconds, or `null` after the last note.
+   */
+  readonly next: number | null;
+  /**
+   * The height of the mallet head of the hand above its target at the sample, in meters, or
+   * `null` for a hand with no strikes.
+   */
+  readonly lift: number | null;
+}
+
+/** A deepest point of a pair, with the phase of its sample, or none for no point in an obstacle. */
+export type PhasedDepth = PairDepth & {
+  /** The phase of the sample, or none in a text before the format version 4. */
+  readonly phase?: PairPhase;
+};
+
+/**
+ * Gives the note starts of a hand in a note layer: the strikes or the notes of the hand for the
+ * percussion, the keyboard, and the harp, the strokes of a bowed player, the notes of a wind, and
+ * the beats of the conductor. With no hand, both hands count. A singer gives none.
+ *
+ * @param note The note layer.
+ * @param side The hand, or `null` for both.
+ * @returns The sorted note starts of each track, in the time of the note layer.
+ */
+function noteStarts(note: NoteLayer, side: 'L' | 'R' | null): Float64Array[] {
+  switch (note.family) {
+    case 'percussion':
+    case 'keyboard':
+    case 'harp': {
+      const tracks = [side === 'R' ? null : note.left, side === 'L' ? null : note.right];
+      return tracks.flatMap((track) => (track ? [track.starts] : []));
+    }
+    case 'bowed':
+      return [note.starts];
+    case 'woodwind':
+    case 'brass':
+      return [note.track.starts];
+    case 'conductor':
+      return [note.baton.beats];
+    case 'choir':
+      return [];
+  }
+}
+
+/**
+ * Gives the height of a mallet head above its target at a time (`strikeStateAt()`).
+ *
+ * @param track The strikes of the hand.
+ * @param time The time of the note layer, in seconds.
+ * @returns The height, in meters.
+ */
+function strikeHeight(track: StrikeTrack, time: number): number {
+  const state = createStrikeState();
+  strikeStateAt(track, time, state);
+  return state.height;
+}
+
+/**
+ * Gives the phase of the sample of a deepest point: the time to the next note start of its hand,
+ * and for a mallet the height of its head above the target, as the probe `wait.ts` of
+ * `docs/research/2026-10-19-elephant-arms/` gave them. The bone of the point gives the hand, such
+ * as `handL` or `malletR`. The note layer runs `timeOffset` later than the song time.
+ *
+ * @param plan The plan of the player.
+ * @param pair The deepest point of a pair.
+ * @returns The phase.
+ */
+export function pairPhase(plan: PlayerPlan, pair: PairDepth): PairPhase {
+  const end = pair.bone?.at(-1);
+  const side = end === 'L' || end === 'R' ? end : null;
+  const time = pair.song - plan.timeOffset;
+  const nexts = noteStarts(plan.note, side).flatMap((starts) => {
+    const start = starts.find((value) => value > time);
+    return start === undefined ? [] : [start - time];
+  });
+  const { note } = plan;
+  const track =
+    note.family === 'percussion' && side ? (side === 'L' ? note.left : note.right) : null;
+  return {
+    next: nexts.length > 0 ? Math.min(...nexts) : null,
+    lift: track ? strikeHeight(track, time) : null,
+  };
+}
+
+/**
+ * Finds the plan of a player of a sweep: the name of a player of the layout holds its index, such
+ * as `timpanist 28 (stand)`, and the conductor has the name `conductor`.
+ *
+ * @param scene The scene.
+ * @param name The name of the player in the sweep.
+ * @returns The plan, or `null` for a name with no index.
+ */
+function planOf(scene: TestScene, name: string): PlayerPlan | null {
+  if (name === 'conductor') {
+    return scene.plan.conductor;
+  }
+  const index = /^\S+ (\d+)(?: \(|$)/.exec(name)?.[1];
+  return index === undefined ? null : (scene.plan.players[Number(index)] ?? null);
+}
 
 /**
  * Finds the species of the model of a player in a scene. The models of a scene come from one
@@ -471,6 +579,7 @@ function sweepScene(
         ? [{ name: 'play', samples: times.map((song) => playSample(scene, song)) }]
         : role.sampleSets(scene);
     const species = speciesOf(scene, player.model);
+    const plan = planOf(scene, player.name);
     const measured = times ? null : measureTargets(player);
     return {
       demo: `${id} ${playerLabel(player.name, species)}`,
@@ -489,7 +598,11 @@ function sweepScene(
           depths.push(...bow.depths());
           smallest.push(bow.floor());
         }
-        return { name, pairs: depths, gaps: smallest };
+        const phased: PhasedDepth[] = [];
+        for (const pair of depths) {
+          phased.push(plan && pair.bone ? { ...pair, phase: pairPhase(plan, pair) } : pair);
+        }
+        return { name, pairs: phased, gaps: smallest };
       }),
       targets: measured?.worst ?? [],
       reached: measured?.reach ?? NO_TARGETS,
@@ -728,9 +841,25 @@ export function overText(pair: PairDepth, goal: number): string {
 }
 
 /**
+ * Writes the phase of the sample of a deepest point.
+ *
+ * @param phase The phase, or none.
+ * @returns The text, such as `; next note in 0.12 s, lift 14.8 cm`, or empty with no phase.
+ */
+export function phaseText(phase: PairPhase | undefined): string {
+  if (!phase) {
+    return '';
+  }
+  const next =
+    phase.next === null ? 'after the last note' : `next note in ${phase.next.toFixed(2)} s`;
+  const lift = phase.lift === null ? '' : `, lift ${(phase.lift * 100).toFixed(1)} cm`;
+  return `; ${next}${lift}`;
+}
+
+/**
  * Writes the results of one variant: the deepest point of each pair in each set, with its limit or
- * `no limit` for a part that the sweep only measures, such as the instrument in the body, and the
- * samples over the goal ({@link overText}), the smallest gap of each pair of `--gaps`, and the
+ * `no limit` for a part that the sweep only measures, such as the instrument in the body, the phase
+ * of its sample ({@link phaseText}), and the samples over the goal ({@link overText}), the smallest gap of each pair of `--gaps`, and the
  * largest note-target error of each hand.
  *
  * @param role The role.
@@ -748,7 +877,7 @@ function printDetails(role: RoleSweep, results: readonly DemoResult[], goal: num
           ? `limit ${(limit.depth * 100).toFixed(1)} cm${mark}`
           : 'no limit';
         const over = overText(pair, goal ?? limit.depth);
-        console.log(`    ${name}: ${pairText(pair)}; ${text}${over}`);
+        console.log(`    ${name}: ${pairText(pair)}${phaseText(pair.phase)}; ${text}${over}`);
       }
       for (const gap of gaps) {
         console.log(`    ${name}: gap of the ${gapText(gap)}`);
@@ -919,7 +1048,7 @@ export interface SweepRow {
 }
 
 /** A depth of a JSON text, such as of {@link rowsJson}. JSON writes the place `NaN` as `null`. */
-export type StoredDepth = Omit<PairDepth, 'along'> & {
+export type StoredDepth = Omit<PhasedDepth, 'along'> & {
   /** The place along the bone, or `null` for `NaN`. */
   readonly along: number | null;
 };
@@ -957,10 +1086,11 @@ interface StoredRows {
 
 /**
  * The format version of the JSON text of `--json` (`ProbeFormat` of `tools/ref-tree.ts`). A
- * change of the format takes the next version. Version 2 added the reach of the note targets, and
- * version 3 the samples over the goal of each pair.
+ * change of the format takes the next version. Version 2 added the reach of the note targets,
+ * version 3 the samples over the goal of each pair, and version 4 the phase of the sample of each
+ * deepest point ({@link PairPhase}).
  */
-export const ROWS_FORMAT = 3;
+export const ROWS_FORMAT = 4;
 
 /**
  * The oldest format version that {@link ROWS_FORMAT} only adds fields to (`ProbeFormat.since` of
@@ -1006,8 +1136,8 @@ export function readRows(text: string): SweepRow[] {
  * @param stored The depth of the text.
  * @returns The depth.
  */
-export function restoreDepth(stored: StoredDepth): PairDepth {
-  const depth: PairDepth = {
+export function restoreDepth(stored: StoredDepth): PhasedDepth {
+  const base: PairDepth = {
     part: stored.part,
     into: stored.into,
     depth: stored.depth,
@@ -1016,6 +1146,7 @@ export function restoreDepth(stored: StoredDepth): PairDepth {
     bone: stored.bone,
     along: stored.along ?? Number.NaN,
   };
+  const depth: PhasedDepth = stored.phase ? { ...base, phase: stored.phase } : base;
   if (stored.samples === undefined || stored.over === undefined) {
     return depth;
   }
