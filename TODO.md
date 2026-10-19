@@ -458,14 +458,15 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       shading of the seam where the hanging arm of the mesh touches the belly. Done: the user chose
       a cut of the mesh at the seam, and the streak share goes from 16.4% to 3.7%
       (`docs/research/2026-10-18-panda-cut.md`, `2026-10-18-panda-marks.md`).
-- [ ] Hippo bassist: the skin folds in each sample, up to 24 faces: the left paw on the neck and
-      the right upper arm. Fit corrective shapes on the mean turns of `keys-read.ts` of
-      `docs/research/2026-10-18-hippo-mesh/` (`2026-10-18-mesh-hippo.md`). The user saw the
-      deformed right arm (`2026-10-18-hippo-arm.md`): about 12 faces of the right side fold in each
-      sample, also in the rest pose. The chest under the chin and the back of the neck fold no more,
-      but faces 477, 461, and 68 of the right upper arm fold in 92%, 74%, and 16% of the play
-      samples, and face 514 of the right clavicle in 34%. A raise rule for 477 and 461 kept its
-      faces turned after the relax (`2026-10-19-hippo-chest.md`).
+- [x] Hippo bassist: the skin folded in each sample, up to 23 faces: the right armpit, the left
+      wrist on the neck, and the front of the right shoulder. The user saw twisted arms. Done: a
+      cut of both armpits, level elbows, two more shapes, and three rigid faces. The rest folds
+      in no sample (`2026-10-19-hippo-arms.md`).
+- [ ] Hippo bassist: the skin folds in 30.0% of the play samples and 28.7% of the lift samples:
+      face 116 at the back of the right shoulder (13.7%), face 52 of the right paw (11.6%), and
+      the right paw and arm in the pizzicato of `boulanger-matin` (about 5%). A dark slot stays at
+      the front of the right armpit, at the caps of the cut (`user-view.webp` of
+      `docs/research/2026-10-19-hippo-arms/`, `2026-10-19-hippo-arms.md`).
 - [ ] Hippo bassist: on the E and A strings, the roll of the bow paw stays at its low end, and the
       paw goes more than 1.5 cm into the belly in 4.6% of the play samples. A hold that moves the
       right elbow off the line of the stick, such as the slant -10°, can remove it
