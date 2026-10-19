@@ -631,16 +631,21 @@ export interface Site {
 }
 
 /**
- * Serves the build in `dist/` with `vite preview`, and starts headless Chromium with the GPU of
- * the Mac. ANGLE on Metal gives the GPU to the browser. The autoplay policy lets the click of a
- * play shot start the audio.
+ * Serves the build in `dist/`, or in another folder, with `vite preview`, and starts headless
+ * Chromium with the GPU of the Mac. ANGLE on Metal gives the GPU to the browser. The autoplay
+ * policy lets the click of a play shot start the audio.
  *
  * @param root The root of the repository.
  * @param port The first port to try. Vite takes the next free port above it.
+ * @param outDir The folder of the build, relative to the root or absolute.
  * @returns The site.
  */
-export async function startSite(root: string, port = 4179): Promise<Site> {
-  const server = await preview({ root, preview: { port, strictPort: false, open: false } });
+export async function startSite(root: string, port = 4179, outDir = 'dist'): Promise<Site> {
+  const server = await preview({
+    root,
+    build: { outDir },
+    preview: { port, strictPort: false, open: false },
+  });
   const base = server.resolvedUrls?.local[0] ?? `http://localhost:${port}/`;
   const browser = await chromium.launch({
     args: [
