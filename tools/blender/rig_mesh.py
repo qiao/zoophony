@@ -1,7 +1,7 @@
 """Rigs a textured mesh with no skeleton into the GLB format of a studio body (design 4.4).
 
     blender -b --factory-startup --python tools/blender/rig_mesh.py -- <config.json> <out.glb> \
-        [--preview <dir>] [--obj <file>] [--check]
+        [--preview <dir>] [--obj <file>] [--faces <file>] [--check]
 
 `pnpm rig-mesh <animal>` runs this script with `tools/mesh-rigs/<animal>.json`. The output has
 the format of `lowpoly-studio/animals/<animal>/out/<animal>.glb`, so that `pnpm studio-body`
@@ -87,7 +87,9 @@ face, and it writes the long-armed source as `source-long-arms.obj` for the prob
 writes only the long-armed source, into the file, for `pnpm rig-mesh --check`. With `--check`, it
 also lists the faces that the stretch turns or squeezes (`stretch_faces()`) and the long thin faces
 across an arm joint that no ring cuts (`uncut_faces()`), before the fold probe of the check. The
-flag changes no byte of the rig.
+flag changes no byte of the rig. With `--faces`, it also writes the middle of each face of the
+module in the units of the source into the file as JSON (`face_sources()`), for
+`pnpm fold-probe --faces`.
 """
 
 import colorsys
@@ -210,12 +212,12 @@ def warn(text):
 
 
 def args():
-    """Reads the config path, the output path, the preview folder, the OBJ file, and the flag
-    `--check` after `--`."""
+    """Reads the config path, the output path, the preview folder, the OBJ file, the JSON file of
+    the face sources, and the flag `--check` after `--`."""
     rest = sys.argv[sys.argv.index('--') + 1 :]
     check = '--check' in rest
     rest = [arg for arg in rest if arg != '--check']
-    options = {'--preview': None, '--obj': None}
+    options = {'--preview': None, '--obj': None, '--faces': None}
     for flag in options:
         if flag in rest:
             at = rest.index(flag)
@@ -223,8 +225,9 @@ def args():
             rest = rest[:at] + rest[at + 2 :]
     if len(rest) != 2:
         raise SystemExit('Usage: blender -b --python rig_mesh.py -- <config> <out.glb> '
-                         '[--preview <dir>] [--obj <file>] [--check]')
-    return rest[0], rest[1], options['--preview'], options['--obj'], check
+                         '[--preview <dir>] [--obj <file>] [--faces <file>] [--check]')
+    return (rest[0], rest[1], options['--preview'], options['--obj'], options['--faces'],
+            check)
 
 
 def to_blender(v):
@@ -1634,6 +1637,21 @@ def module_faces(order, materials):
     position = np.empty(len(order), int)
     position[order] = np.arange(len(order))
     return rank[position]
+
+
+def face_sources(verts, source_tris, count, order, materials):
+    """Gives the middle of each face of the module of `pnpm studio-body` in the units of the
+    source, as `rigid` of the weight rules takes it (`rigid_faces()`): the middle of the source face
+    that the face of the rig comes from. A face of the rig keeps the index of its source face, and a
+    face that a ring splits keeps it for its first part. The other parts of a split face and the
+    faces of the eye shells have no source face, and give None. `count` is the number of faces of
+    the rig before the eye shells, `order` the walk order, and `materials` the material of each
+    face in the walk order."""
+    index = module_faces(order, materials)
+    out = [None] * len(order)
+    for f in range(min(count, len(source_tris))):
+        out[int(index[f])] = [round(float(x), 4) + 0.0 for x in verts[source_tris[f]].mean(axis=0)]
+    return out
 
 
 #: The most faces of each list of the check that the log prints.
@@ -3205,7 +3223,7 @@ def write_obj(path, verts, tris):
 
 
 def main():
-    config_path, out_path, preview_dir, obj_path, check = args()
+    config_path, out_path, preview_dir, obj_path, faces_path, check = args()
     with open(config_path) as f:
         config = json.load(f)
     rules = config['weights']
@@ -3480,6 +3498,10 @@ def main():
     if 'border' in config['colors']:
         log(f'border: the faces of the module '
             f'{sorted(module_faces(order, materials)[border_changed].tolist())}')
+    if faces_path:
+        with open(faces_path, 'w') as f:
+            json.dump(face_sources(verts, source_tris, len(tris), order, materials), f)
+        log(f'faces: the source middles of {len(order)} faces of the module in {faces_path}')
     if thin_rule:
         log_check(stretched, uncut, module_faces(order, materials),
                   weights[tris].sum(axis=1).argmax(axis=1), thin_rule)
