@@ -73,8 +73,8 @@ Done when:
 
 ## Facts and baseline
 
-<the output and the numbers of section 1, and each difference from the last studio body, such as
-props, digits, a seated bind, or a held instrument, with the code that it touches>
+<the output of section 1, and each difference from the last studio body, such as a seated bind
+or a held instrument, with the code that it touches>
 
 ## Scale, seat, and poses
 
@@ -87,8 +87,8 @@ props, digits, a seated bind, or a held instrument, with the code that it touche
 
 ## Range and stop
 
-<For each fallback rule, the range of its result and the stop outside it, such as a violin of
-0.33 m to 0.59 m by the rule of a violin shop. Outside it, stop, and report the measures.>
+<For each fallback rule, the range of its result, such as a violin of 0.33 m to 0.59 m. Outside
+it, stop, and report the measures.>
 
 - When a measure chooses a value, such as a crease angle, check first that the reference lies
   inside the range of the variants. Else stop, and send the table to the manager.
@@ -132,11 +132,9 @@ check that the new body fails, and a break command for each new test (`docs/agen
 
 ## 3. Review brief (not used)
 
-Not used since 2026-10-16 ([`2026-10-16-no-review.md`](../decisions/2026-10-16-no-review.md)).
+See [`2026-10-16-no-review.md`](../decisions/2026-10-16-no-review.md).
 
 ## 4. Fix brief (not used)
-
-Not used.
 
 ## 5. Common rules of the agents
 
@@ -167,14 +165,12 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
 
 - **The options.** Choose the landmark of the scale first. Then make the mid-report and the
   question to the user with `pnpm mesh-options` (step 2 of the route in `model-work.md`).
-- **The size.** The manager measures the reference images before the brief. The brief gives the
-  pixel heights of the species and of an anchor, a neighbor that stands or sits as the species
-  does. Run `pnpm mesh-options` with the low end, the middle, and the high end of the range of
-  the reference.
-- **The elbows.** In the first hold fit, compare 3 or 4 elbow directions, and look at the upper
-  arms in the close views. An upper arm can twist into a flat band within the limits of the
-  depths and the folds. Prefer the variant with the smallest arm turns in the table of
-  `pnpm hold-fit`.
+- **The size.** The brief gives the pixel heights of the species in the reference images and of
+  an anchor that stands or sits as the species does. Run `pnpm mesh-options` at the low end, the
+  middle, and the high end of the reference range.
+- **The elbows.** In the first hold fit, compare 3 or 4 elbow directions, and prefer the smallest
+  arm turns of `pnpm hold-fit`. An upper arm can twist into a flat band within the limits of the
+  depths and the folds.
 - **The faces.** Permit rings at the joints (`refine.rings`) and edge flips of faces that lie
   almost on one plane (`refine.flip`) from the start.
 - **The order of the goals.** When two goals conflict, keep this order:
@@ -205,10 +201,9 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
   body.
 - **The GLB file.** A plain `--preview` of `pnpm rig-mesh` writes the GLB file. Only the last
   commit of a series of rig commits writes it, because each version stays in the history.
-- **The early checks.** A new body changes the layout, and with it the shot plans and the poses of
-  other players. Directly after the commit that gives the species its body, and before the fit of
-  the hold, run `pnpm test:paused src/shots/` and `pnpm body-probe --base <base>`. Name each
-  failure in the handoff at once.
+- **The early checks.** A new body moves the layout, the shot plans, and the poses of other
+  players. Directly after the commit of the body, run `pnpm test:paused src/shots/` and
+  `pnpm body-probe --base <base>`, and name each failure in the handoff.
 
 ## 8. Docs of a new body, role, or hold
 
@@ -269,4 +264,5 @@ The code has its own lists: `ANIMALS` of `tools/studio-body.ts`, `STUDIO_BODIES`
 `src/models/studio-body.ts`, `SPECIES` of `src/models/species.ts`, `SWEEP_ROLES` of
 `src/pose/test-sweep-roles.ts`, `ROLE_VIEWS` of `tools/close-views.ts`, `FOLD_ROLES` of
 `tools/fold-probe.ts`, `SPECIES_HOLDS` of `src/pose/bowed-rig.ts`, and `SPECIES_WIND_HOLDS` of
-`src/pose/winds.ts` with `LEG_RESTS` of `tools/hold-fit.ts` for a wind hold.
+`src/pose/winds.ts` with `LEG_RESTS` of `tools/hold-fit.ts` for a wind hold, and
+`PERCUSSION_HOLDS` of `src/pose/percussion-rig.ts` for a percussion hold.
