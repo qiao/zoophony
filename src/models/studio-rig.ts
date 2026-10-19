@@ -219,8 +219,24 @@ const INSTRUMENT = boneIndex('instrument');
 /** The index of the `slide` bone of the player. */
 const SLIDE = boneIndex('slide');
 
-/** The number of matrices of a {@link StudioPose}. */
-export const STUDIO_POSE_BONES = STUDIO_BONES.length + BONE_NAMES.length;
+/**
+ * The index of the matrix of the twist bone of each upper arm in a {@link StudioPose}, after the
+ * bones of the player (`StudioBody.upperTwist`).
+ */
+export const UPPER_TWIST_BONES = {
+  L: STUDIO_BONES.length + BONE_NAMES.length,
+  R: STUDIO_BONES.length + BONE_NAMES.length + 1,
+} as const satisfies Readonly<Record<Side, number>>;
+
+/** The number of matrices of a {@link StudioPose}: with the twist bones of the upper arms. */
+export const STUDIO_POSE_BONES = STUDIO_BONES.length + BONE_NAMES.length + 2;
+
+/**
+ * The places along the upper arm, from 0 at the shoulder joint to 1 at the elbow, between which
+ * the weight of the upper arm moves from the twist bone to the upper arm bone
+ * (`StudioBody.upperTwist`).
+ */
+export const UPPER_TWIST_SPAN = [0.1, 0.9] as const;
 
 /**
  * The index of the weight of the first shape of a raised arm or of a bent wrist in
@@ -687,6 +703,7 @@ export function studioRig(seated: StudioBody, stands = false): StudioRig {
           body: seated,
           mesh: { ...unpacked, correctives: unpacked.correctives.slice(0, armCorrectives(seated)) },
         };
+  const twisted = body.upperTwist === undefined ? mesh : withUpperTwist(body, mesh);
   const h = body.heads;
   const unit = (from: Vec3, to: Vec3): Vector3 =>
     new Vector3(...to).sub(new Vector3(...from)).normalize();
@@ -737,11 +754,64 @@ export function studioRig(seated: StudioBody, stands = false): StudioRig {
   };
   return {
     body,
-    mesh,
+    mesh: twisted,
     positions: playerPositions(body),
     follows: Uint8Array.from(STUDIO_BONES, (bone) => boneIndex(STUDIO_FOLLOWS[bone])),
     arms: { L: arm('L'), R: arm('R') },
   };
+}
+
+/**
+ * Moves the weight of each upper arm near the shoulder to the twist bone of the upper arm
+ * (`StudioBody.upperTwist`): the share of the twist bone falls from 1 to 0 over
+ * {@link UPPER_TWIST_SPAN}. A vertex with four bones keeps its four largest weights.
+ *
+ * @param body The studio body.
+ * @param mesh The unpacked mesh.
+ * @returns The mesh with the new joints and weights.
+ */
+function withUpperTwist(body: StudioBody, mesh: StudioMesh): StudioMesh {
+  const joints = mesh.joints.slice();
+  const weights = mesh.weights.slice();
+  const [from, to] = UPPER_TWIST_SPAN;
+  const p = new Vector3();
+  for (const side of ['L', 'R'] as const) {
+    const upperBone = STUDIO_BONES.indexOf(`upper_arm_${side}`);
+    const shoulderAt = new Vector3(...body.heads[`upper_arm_${side}`]);
+    const axis = new Vector3(...body.heads[`forearm_${side}`]).sub(shoulderAt);
+    const length = axis.length();
+    axis.normalize();
+    for (let v = 0; v < joints.length / 4; v++) {
+      const k = [0, 1, 2, 3].find(
+        (i) => joints[v * 4 + i] === upperBone && (weights[v * 4 + i] ?? 0) > 0,
+      );
+      if (k === undefined) {
+        continue;
+      }
+      const along =
+        p
+          .fromArray(mesh.positions, v * 3)
+          .sub(shoulderAt)
+          .dot(axis) / length;
+      const share = Math.min(1, Math.max(0, (to - along) / (to - from)));
+      const w = weights[v * 4 + k] ?? 0;
+      const skin: [number, number][] = [0, 1, 2, 3]
+        .filter((i) => i !== k && (weights[v * 4 + i] ?? 0) > 0)
+        .map((i) => [joints[v * 4 + i] ?? 0, weights[v * 4 + i] ?? 0]);
+      skin.push([upperBone, w * (1 - share)], [UPPER_TWIST_BONES[side], w * share]);
+      const kept = skin
+        .filter(([, weight]) => weight > 0)
+        .toSorted((a, b) => b[1] - a[1])
+        .slice(0, 4);
+      const total = kept.reduce((sum, [, weight]) => sum + weight, 0);
+      for (let i = 0; i < 4; i++) {
+        const [bone = 0, weight = 0] = kept[i] ?? [];
+        joints[v * 4 + i] = bone;
+        weights[v * 4 + i] = weight / total;
+      }
+    }
+  }
+  return { ...mesh, joints, weights };
 }
 
 /** The world rotation of each bone of the player. Each call writes them before it reads them. */
@@ -772,6 +842,9 @@ const curlTurn = new Quaternion();
 const curlAxis = new Vector3();
 const X_AXIS = new Vector3(1, 0, 0);
 const twistTurn = new Quaternion();
+const rollFrame = new Quaternion();
+const rollTurn = new Quaternion();
+const rollAxis = new Vector3();
 const relative = new Quaternion();
 const paw = new Quaternion();
 const chestInverse = new Quaternion();
@@ -1000,6 +1073,23 @@ function poseArm(rig: StudioRig, arm: StudioArm, pose: Float32Array, out: Studio
     bind.fromArray(h[`upper_arm_${side}`]),
     shoulder,
   );
+  const share = rig.body.upperTwist;
+  if (share !== undefined) {
+    // The twist bone takes the share of the roll of the upper arm from the chest: the chest swung
+    // onto the upper arm has no roll.
+    const chestTurn = rotations[boneIndex('chest')] ?? local;
+    rollFrame.setFromUnitVectors(rollAxis.copy(upperBind).applyQuaternion(chestTurn), upper);
+    rollFrame.multiply(chestTurn).invert().multiply(upperTurn);
+    const roll = twistAngle(rollFrame, upperBind);
+    rollTurn.setFromAxisAngle(upperBind, (share - 1) * roll).premultiply(upperTurn);
+    writeMatrix(
+      out.matrices,
+      UPPER_TWIST_BONES[side],
+      rollTurn,
+      bind.fromArray(h[`upper_arm_${side}`]),
+      shoulder,
+    );
+  }
   writeMatrix(out.matrices, arm.bones.fore, foreTurn, bind.fromArray(h[`forearm_${side}`]), elbow);
   head.copy(elbow).lerp(wrist, arm.twistAt);
   writeMatrix(

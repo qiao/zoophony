@@ -374,6 +374,13 @@ export interface StudioBody {
    * selects one with its `palette` (`models/species.ts`). A body with one palette has none.
    */
   readonly palettes?: Readonly<Partial<Record<StudioPalette, string>>>;
+  /**
+   * The share of the roll of each upper arm that the skin at the shoulder takes (design 4.4): a
+   * twist bone of the upper arm takes this share of the roll from the chest, and the weight of
+   * the upper arm moves to the twist bone near the shoulder. Thus the roll spreads along the upper
+   * arm, and the skin does not twist at the shoulder. A body with no share has no twist bone.
+   */
+  readonly upperTwist?: number;
 }
 
 /** The largest number of bones of a vertex of a studio body. */
