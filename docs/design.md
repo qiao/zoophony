@@ -231,3 +231,4 @@ The decision files:
 - [`2026-10-19-mesh-elephant.md`](decisions/2026-10-19-mesh-elephant.md): the elephant mesh of the user, which stands at the timpani, its size, arms, legs, trunk, ears, and colors, the place of the kettles, the playing spot and the hands of the timpani, and the open folds.
 - [`2026-10-19-mesh-retro.md`](decisions/2026-10-19-mesh-retro.md): the retro of the mouse and elephant mesh rounds, the tool of the corrective shapes, the fast checks of a hold fit, and the tip of the nose near the middle plane.
 - [`2026-10-19-mouse-size.md`](decisions/2026-10-19-mouse-size.md): the mouse at the size of the parametric mouse, its smaller oboe, the deeper reed, the rest of the oboe, and the new rest shape of the left arm.
+- [`2026-10-19-fox-red.md`](decisions/2026-10-19-fox-red.md): the redder orange fur of the red fox, the color shift of a rig with its gamut limit, the tan palette from the texture colors, and the new fur color of the red fox.
