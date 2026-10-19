@@ -1,0 +1,2 @@
+beaver status 0 in 19 s
+pig status 1 in 13 s
