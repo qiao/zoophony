@@ -81,3 +81,17 @@ manual step of about 5 minutes with one command.
 Open: `tools/hold-sets.test.ts` fails 1 of 6 tests on `1ec972db` and on the branch. The test
 expects `piano.action=pluck` to fail, and `--set` takes it as a member of the union of its field
 (`TEXT_FIELDS`). All tests are paused, so the round did not change it.
+
+## 4. The items of the hippo arm round
+
+**The fix of `--base`.** Since `0d12385f`, `pose-depth.ts` asks git for the folder of the probe
+caches (`timesFile()`). The probe of a commit runs in a temporary folder with no git, so
+`pnpm pose-depth --base` failed after 1 s with "not a git repository". Now `withProbeTree()` of
+`tools/ref-tree.ts` runs `git init` in the folder. Thus the tools of each commit run there, also
+the tools of a commit before the fix, and their times go away with the folder. No other probe of a
+commit calls git. The children of `hold-fit`, `fold-probe`, `shot-trace`, `body-probe`, and
+`rig-form` call none, `baseCacheFile()` runs only in the repository, and the base child of
+`pose-depth` gets no `--set`, so it reads no tree cache. `pnpm pose-depth bassist --demo
+boulanger-matin --base 16f16e44` now ends in 24 s (`pose-depth-base.txt`). `PROBE_NO_CACHE=1 pnpm
+fold-probe bassist --demo boulanger-matin --base 16f16e44` takes 6 s, against 5 s before the fix
+(`fold-probe-base.txt`).
