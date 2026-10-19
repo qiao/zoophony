@@ -462,11 +462,16 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       wrist on the neck, and the front of the right shoulder. The user saw twisted arms. Done: a
       cut of both armpits, level elbows, two more shapes, and three rigid faces. The rest folds
       in no sample (`2026-10-19-hippo-arms.md`).
-- [ ] Hippo bassist: the skin folds in 30.0% of the play samples and 28.7% of the lift samples:
-      face 116 at the back of the right shoulder (13.7%), face 52 of the right paw (11.6%), and
-      the right paw and arm in the pizzicato of `boulanger-matin` (about 5%). A dark slot stays at
-      the front of the right armpit, at the caps of the cut (`user-view.webp` of
-      `docs/research/2026-10-19-hippo-arms/`, `2026-10-19-hippo-arms.md`).
+- [ ] Hippo bassist: the skin folds in 13.6% of the play samples (the lift and the rest in none):
+      the pizzicato of `boulanger-matin` (6.1%), face 237 of the right shoulder top (6.5%), and
+      the inner right elbow. In pizzicato, the upper arm turns 111° and the paw 131°, and no hold
+      or shape of 35 tried removes the folds. Try a pizzicato that keeps the arm of the bow
+      (`step2/` of `docs/research/2026-10-19-hippo-arms/`, `2026-10-19-hippo-arms.md`).
+- [ ] Hippo bassist: the dark slot at the front of the right armpit is the shading of the cut
+      caps, whose normals point away from the light, and the 50° shoulder turn squeezes faces 114
+      to 116 to light slivers (`slot-probe.webp`, `shoulder-faces.webp` of
+      `docs/research/2026-10-19-hippo-arms/step2/`). Try normals over the caps from the skin
+      around them.
 - [ ] Hippo bassist: on the E and A strings, the roll of the bow paw stays at its low end, and the
       paw goes more than 1.5 cm into the belly in 4.6% of the play samples. A hold that moves the
       right elbow off the line of the stick, such as the slant -10°, can remove it
