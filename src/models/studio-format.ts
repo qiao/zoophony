@@ -333,13 +333,6 @@ export interface StudioBody {
    */
   readonly seatHeight: number | null;
   /**
-   * The height of the soles above the floor of a seated body whose seat has a height of its own
-   * (`seat` of `ANIMALS` of `tools/studio-body.ts`): the lowest point of the body. The feet of the
-   * hippo hang from the high stool, and its foot ring is at this height (`seatHeights()` of
-   * `models/props.ts`). A body whose seat fits its legs has none.
-   */
-  readonly footHeight?: number;
-  /**
    * The depth of the chair under a body that sits on a chair: the depth of the chair of the
    * studio, so that the body sits on the whole seat. The back of the chair keeps a gap behind the
    * trunk. It is `null` for a body that stands or sits on a bench.

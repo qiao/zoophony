@@ -13,7 +13,7 @@ import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
-import { CHAIR, CHAIR_LEG, HIGH_STOOL } from '../src/models/props.ts';
+import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import {
   OPTIONAL_STUDIO_BONES,
   STUDIO_ARM_BONES,
@@ -69,9 +69,8 @@ export interface AnimalSettings {
   readonly soloist: boolean;
   /**
    * The height of the seat top of a seated role above the floor, in meters (design 4.4, 4.5). The
-   * export puts the seat top at this height, the feet hang above the floor, and the module gives
-   * the height of the soles (`StudioBody.footHeight`). With no value, the body drops until its
-   * lowest point is on the floor, and the seat fits its legs.
+   * export puts the seat top at this height, and the feet hang above the floor. With no value,
+   * the body drops until its lowest point is on the floor, and the seat fits its legs.
    */
   readonly seat?: number;
   /**
@@ -220,16 +219,15 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/panda/panda.rig.glb',
     },
   ],
-  // The contrabass hippo: decisions/2026-10-18-mesh-hippo.md. It sits on the high stool, and its
-  // short legs hang to the foot ring.
+  // The contrabass hippo: decisions/2026-10-18-mesh-hippo.md. It stands at its contrabass, so the
+  // export keeps the standing pose of the rig.
   [
     'hippo',
     {
       landmark: 'shoulders',
       height: 0.888504,
       seated: true,
-      soloist: false,
-      seat: HIGH_STOOL.seatHeight,
+      soloist: true,
       constant: 'STUDIO_HIPPO',
       crease: 35,
       glb: 'assets/models/hippo/hippo.rig.glb',
@@ -1667,20 +1665,6 @@ function seatHeightOf(glb: Glb, mesh: SourceMesh, frame: SceneFrame): number {
 }
 
 /**
- * Finds the height of the soles of a seated body above the floor (design 4.4, 4.5): the lowest
- * point of its mesh in the app. A body whose seat has a height of its own
- * (`AnimalSettings.seat`) rises from the floor with its seat, so its feet hang.
- *
- * @param mesh The welded mesh.
- * @param frame The place of the animal in the app.
- * @returns The height, in meters.
- */
-function footHeightOf(mesh: SourceMesh, frame: SceneFrame): number {
-  const low = Math.min(...mesh.vertices.map((v) => v.position.y));
-  return round((low + frame.offset.y) * frame.scale);
-}
-
-/**
  * Finds the standing pose of a seated body that also stands (design 4.4): the turns of the leg
  * bones in the first key of the clip `reference`, the pose of the sheet, in which the leg
  * corrective shapes have their full weight. The trunk keeps its bind pose in that key, so the
@@ -2011,11 +1995,6 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   }
   if (frame.chairWidth !== null) {
     body = { ...body, chairWidth: frame.chairWidth };
-  }
-  // The polar bear has a seat of its own, but its soles are on the floor.
-  const feet = settings.seated && settings.seat !== undefined ? footHeightOf(mesh, frame) : 0;
-  if (feet > 0) {
-    body = { ...body, footHeight: feet };
   }
   if (settings.palettes) {
     const palettes = Object.entries(settings.palettes).map(

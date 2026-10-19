@@ -169,9 +169,9 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  *   and the tip of a whole down-bow on the A string, a string crossing from the C string to the A
  *   string, the rest pose, and halfway through the lift and the lowering at the frog. A cellist
  *   does not stand.
- * - The hippo bassist of the contrabasses on the high stool: the views and the moments of the
- *   cellist, with a whole down-bow on the G string and a string crossing from the E string to the
- *   G string. A bassist does not stand.
+ * - The hippo bassist of the contrabasses, who stands: the views and the moments of the cellist,
+ *   with a whole down-bow on the G string and a string crossing from the E string to the G
+ *   string.
  * - The tan fox flutist: the front, both sides, and the back. The moments are a long note, a time
  *   between two phrases, the rest pose, halfway through the lift and the lowering at the note,
  *   and the standing soloist at the note.

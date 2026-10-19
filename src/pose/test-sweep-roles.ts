@@ -6,6 +6,7 @@ import { ModelCache } from '../models/model-cache.ts';
 import { violinPianoDuoFile } from '../models/test-chamber.ts';
 import { PIANO } from '../models/instruments/piano.ts';
 import { STRING_SCALES, VIOLIN } from '../models/instruments/strings.ts';
+import { INSTRUMENT_SUPPORTS } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { BoneName } from '../models/rig.ts';
 import { SPECIES, instrumentScale } from '../models/species.ts';
@@ -582,10 +583,10 @@ function bowedTargets(scene: TestScene, index: number): NoteTarget[] {
 }
 
 /**
- * Tells if a player of a scene is in the sweep of a bowed role: the first seated player of each
- * species of the role with the instrument of the role, and each soloist of these species, which
- * stands. The violin seats alternate the rabbit and the red fox (`models/cast.ts`), so a demo
- * shows many violinists of each species with one model.
+ * Tells if a player of a scene is in the sweep of a bowed role: the first player of each species of
+ * the role with the instrument of the role on the support of the section, and each soloist of these
+ * species, which stands where the section sits. The violin seats alternate the rabbit and the red
+ * fox (`models/cast.ts`), so a demo shows many violinists of each species with one model.
  *
  * @param scene The scene.
  * @param index The index of the player.
@@ -603,14 +604,16 @@ function sweptBowed(
   if (!cast || !species.has(cast.species) || cast.instrument !== instrument) {
     return false;
   }
-  if (cast.support === 'stand') {
+  // A soloist stands where the section sits. The contrabass player stands in each seat.
+  const support = INSTRUMENT_SUPPORTS[instrument];
+  if (cast.support !== support) {
     return true;
   }
   const first = scene.layout.players.findIndex(
     (p) =>
       p.cast.species === cast.species &&
       p.cast.instrument === instrument &&
-      p.cast.support !== 'stand',
+      p.cast.support === support,
   );
   return first === index;
 }
@@ -947,7 +950,7 @@ export const CELLIST_SWEEP: RoleSweep = {
 
 /**
  * The sweep of the bassist (design 5.3): the sweep of the violinist with the contrabass. The first
- * hippo of each demo plays it, on the high stool. A bassist does not stand as a soloist (4.2).
+ * hippo of each demo plays it, standing, as each contrabass player stands.
  */
 export const BASSIST_SWEEP: RoleSweep = {
   ...VIOLINIST_SWEEP,

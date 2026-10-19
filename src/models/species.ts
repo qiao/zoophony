@@ -343,10 +343,10 @@ export const SPECIES = {
    * Hippo, the contrabasses: a round mauve-gray hippo with a pale belly and muzzle. It has the
    * studio body of the mesh of the user, `assets/models/hippo/hippo.glb`, which `pnpm rig-mesh
    * hippo` rigs (design 4.4), with the head height of the red fox and longer arms
-   * (2026-10-18-mesh-hippo decisions). It sits on the high stool, and its short legs hang to the
-   * foot ring: the seat height of the skeleton is the seat of the studio body less the height of
-   * its soles, in H, so that the ring of `seatHeights()` is under the soles. Its head height is the
-   * head of the studio body.
+   * (2026-10-18-mesh-hippo decisions). It stands at its contrabass, as the hippos of
+   * `orchestra-latest.png`. Its legs are so short that it stands about as high as it sits on a
+   * chair that fits them. Its head height is the head of the studio body, and the seat height is
+   * the seat of the studio body, in H.
    */
   hippo: {
     body: 'studio-hippo',
@@ -356,7 +356,7 @@ export const SPECIES = {
     accentParts: ['inner-ears', 'nose'],
     proportions: {
       headHeight: STUDIO_HIPPO.headHeight,
-      seatHeight: (STUDIO_HIPPO.seatHeight - STUDIO_HIPPO.footHeight) / STUDIO_HIPPO.headHeight,
+      seatHeight: STUDIO_HIPPO.seatHeight / STUDIO_HIPPO.headHeight,
     },
   },
   /** Deer, the harp. */

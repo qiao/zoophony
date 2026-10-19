@@ -25,7 +25,7 @@ export const INSTRUMENT_SUPPORTS = {
   violin: 'chair',
   viola: 'chair',
   cello: 'chair',
-  contrabass: 'high-stool',
+  contrabass: 'stand',
   harp: 'stool',
   piano: 'bench',
   'choir-folder': 'riser',
@@ -50,8 +50,8 @@ export const INSTRUMENT_SUPPORTS = {
  * The instruments whose soloist stands, as in a concerto (design 4.5, body proportions): the violin,
  * the viola, the flute, the oboe, the clarinet, the horn, the trumpet, and the trombone. The
  * soloist of another instrument keeps the support of {@link INSTRUMENT_SUPPORTS}: the cello, the
- * bassoon, and the tuba on a chair, the contrabass on its high stool, the harp on its stool, and
- * the piano on its bench.
+ * bassoon, and the tuba on a chair, the harp on its stool, and the piano on its bench. The
+ * contrabass player stands in each seat (`INSTRUMENT_SUPPORTS`).
  */
 const STANDING_SOLOISTS: ReadonlySet<InstrumentId> = new Set<InstrumentId>([
   'violin',

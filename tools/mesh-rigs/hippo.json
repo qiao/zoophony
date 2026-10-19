@@ -11,7 +11,7 @@
   "armFactor": 1.5,
   "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short: 0.369 m from the shoulder joint to the middle of the palm with no factor, 0.62 of the trunk from the hips joint to the shoulder joints. With 1.5, the reach is 0.539 m, and the arm is 0.94 of the trunk, as the red fox (0.91) and the dog (0.92); the panda has 1.497. The parametric hippo of main had arms of 0.734 m. The user called the arms of the dog with the factor 1.75 much too long, so the contrabass of the hippo is smaller (bassScale 0.8 of src/models/species.ts), and the hold brings it to the arms (docs/decisions/2026-10-18-mesh-hippo.md).",
   "legFactor": 1,
-  "legFactorNote": "The legs keep the length of the mesh. The hippo sits on the stool of the contrabass, and its short legs hang above the foot ring, so no seat asks for longer legs. The seat of the legs is 0.139 m.",
+  "legFactorNote": "The legs keep the length of the mesh. The hippo stands at its contrabass in the app, as the hippos of the reference images, so no seat asks for longer legs. The seat of the legs of the seated bind is 0.139 m.",
   "joints": {
     "root": {
       "head": [
@@ -421,7 +421,7 @@
     "front": -0.1,
     "back": -0.26,
     "backHeight": 0.15,
-    "note": "The chair of the rig sets the seat top under the haunch. The short thighs lie under the belly, so the seat ends behind them (front edge at z -0.1 u, the shins from z -0.095 u). The app puts the hippo on the stool of the contrabass (seat of ANIMALS), and its feet hang above the foot ring. The side view of the underside of the haunch is 15.1 cm above the seat top behind the hip joints, where the round haunch leaves the small seat."
+    "note": "The chair of the rig sets the seat top of the seated bind under the haunch. The short thighs lie under the belly, so the seat ends behind them (front edge at z -0.1 u, the shins from z -0.095 u). The hippo stands in the app (the standing pose of the rig, soloist of ANIMALS), so no player sits on this seat. The side view of the underside of the haunch is 15.1 cm above the seat top behind the hip joints, where the round haunch leaves the small seat."
   },
   "crease": {
     "rings": 2,
