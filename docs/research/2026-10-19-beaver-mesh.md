@@ -23,7 +23,7 @@ beaver, by the rule of the user for the mouse (`landmark-probe.txt`, `measures.t
 | Scale | - | 1.029 m/u |
 | H | 0.361 m | 0.310 m |
 | Seat | 0.271 m, on a chair | 0.072 m, no chair |
-| Reach, shoulder joint to the middle of the palm | 0.516 m | 0.259 m with no factor, 0.375 m with 1.5 |
+| Reach, shoulder joint to the middle of the palm | 0.516 m | 0.259 m with no factor, 0.375 m (0.81 of the trunk) with 1.5 |
 | Triangles, packed mesh after gzip | - | 3,119, 28,319 B |
 
 **Mid-report.** `pnpm mesh-options beaver <dir> --size parametric=1.029 --legs 1 --arms

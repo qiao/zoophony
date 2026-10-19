@@ -14,7 +14,7 @@ can reverse each decision. Then update its section, and remove its row.
 |---|---|
 | The user, quote above: the bassoon beavers get the mesh as a studio body (`tools/mesh-rigs/beaver.json`, `SPECIES.beaver`), with the pea eyes of the app. | 4.3, 4.4 |
 | The size rule of the user ("make it the size of the previous parametric model", `2026-10-19-mouse-size.md`): the standing skull top is at 1.029 m, the head top of the parametric beaver of `9a4613b4` (`app` of the rig config). | 4.4 |
-| Question: arms 1.6 with a bassoon of about 0.85, or arms 1.4 with 0.75? The user: "Arms 1.5, bassoon ~0.8". The arm factor is 1.5, arms of 0.81 of the trunk (`armFactor`), and the hold fit sets the bassoon scale (`bassoonScale`). | 4.4, 4.6 |
+| Question: arms 1.6 with a bassoon of about 0.85, or arms 1.4 with 0.75? The user: "Arms 1.5, bassoon ~0.8". The arm factor is 1.5 (`armFactor`), and the hold fit sets the bassoon scale (`bassoonScale`). | 4.4, 4.6 |
 | Question: the seat of the legs is 0.072 m, so keep the chair? The user: "No chair, as the mouse". The app builds no chair under the beaver (`SpeciesParams.noChair`), and the broad tail lies on the floor behind it. | 4.4, 4.5 |
 | The legs keep the mesh, with the seat of 0.072 m and the thighs 25° down and 15° out (`studio.legTurns`). The small ears follow the head, the dark nose takes the gloss, and the crease angle is 35°. | 4.4, 4.5 |
 | The two tail bones turn rigidly, 10° and 25° below the level, so that the tail end lies at the height of the soles (`studio.tailBind`). At 17.5° and 30°, the tail set the seat, and the feet hung 3 cm high. | 4.4 |
