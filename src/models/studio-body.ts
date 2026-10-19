@@ -23,6 +23,7 @@ import { STUDIO_CAT } from './studio/cat.ts';
 import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_HIPPO } from './studio/hippo.ts';
+import { STUDIO_MOUSE } from './studio/mouse.ts';
 import { STUDIO_PANDA } from './studio/panda.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
@@ -36,6 +37,7 @@ export const STUDIO_BODIES = {
   'studio-dog': STUDIO_DOG,
   'studio-fox': STUDIO_FOX,
   'studio-hippo': STUDIO_HIPPO,
+  'studio-mouse': STUDIO_MOUSE,
   'studio-panda': STUDIO_PANDA,
   'studio-polar-bear': STUDIO_POLAR_BEAR,
   'studio-rabbit': STUDIO_RABBIT,

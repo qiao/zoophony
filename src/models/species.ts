@@ -8,6 +8,7 @@ import { STUDIO_CAT } from './studio/cat.ts';
 import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_HIPPO } from './studio/hippo.ts';
+import { STUDIO_MOUSE } from './studio/mouse.ts';
 import { STUDIO_PANDA } from './studio/panda.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
@@ -388,15 +389,24 @@ export const SPECIES = {
       seatHeight: STUDIO_PANDA.seatHeight / STUDIO_PANDA.headHeight,
     },
   },
-  /** Mouse, the oboes. */
+  /**
+   * Mouse, the oboes: a gray-brown mouse with a cream belly, large round ears, and a long pink
+   * tail. It has the studio body of the mesh of the user, `assets/models/mouse/mouse.glb`, which
+   * `pnpm rig-mesh mouse` rigs (design 4.4), with the head height of the red fox and longer arms
+   * (2026-10-19-mesh-mouse decisions). It sits on a low chair that fits its short legs, its long
+   * tail goes back over the seat and lies on the floor behind the chair, and it stands as a
+   * soloist. Its head height is the head of the studio body, and the seat height is the seat of
+   * the studio body, in H.
+   */
   mouse: {
-    ears: 'large-round',
-    snout: 'pointed',
-    tail: 'thin',
-    size: 0.75,
+    body: 'studio-mouse',
+    size: 1,
     colors: SPECIES_COLORS.mouse,
-    accentParts: ['inner-ears'],
-    facePattern: 'none',
+    accentParts: ['inner-ears', 'nose'],
+    proportions: {
+      headHeight: STUDIO_MOUSE.headHeight,
+      seatHeight: STUDIO_MOUSE.seatHeight / STUDIO_MOUSE.headHeight,
+    },
   },
   /** Beaver, the bassoons. */
   beaver: {
