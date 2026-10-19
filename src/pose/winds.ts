@@ -132,14 +132,15 @@ const Z_AXIS = new Vector3(0, 0, 1);
 
 /**
  * Gives a rotation of the `instrument` bone in the rest pose or the playing pose: a turn around x,
- * then around z, after a first turn.
+ * then around z, after a first turn. The hold tools take it as the value of a `--set`, such as
+ * `bassoon@beaver.play=holdTurn(20,20)` (`tools/hold-sets.ts`).
  *
  * @param x The turn around x, in degrees. A positive turn moves the lower end forward.
  * @param z The turn around z, in degrees. A positive turn moves the lower end to the right.
  * @param first The first turn. None by default.
  * @returns The rotation.
  */
-function holdTurn(x: number, z: number, first: Quat = IDENTITY): Quat {
+export function holdTurn(x: number, z: number, first: Quat = IDENTITY): Quat {
   return toQuat(
     new Quaternion()
       .setFromAxisAngle(X_AXIS, x * MathUtils.DEG2RAD)
