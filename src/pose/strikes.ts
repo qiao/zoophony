@@ -64,10 +64,13 @@ export interface StrikeGroup {
  * left hand.
  *
  * @param groups The strikes of the player, sorted by start.
+ * @param alternateSec The longest time from the strike before in which a single target takes the
+ *   other hand, in seconds. With 0, each single target takes the hand on its side.
  * @returns The strikes of the left hand and of the right hand, sorted by start.
  */
 export function alternateHands(
   groups: readonly StrikeGroup[],
+  alternateSec: number = STRIKE_MOTION.alternateSec,
 ): readonly [left: Strike[], right: Strike[]] {
   const left: Strike[] = [];
   const right: Strike[] = [];
@@ -96,8 +99,7 @@ export function alternateHands(
       leftX = x;
       rightX = end.point[0];
     } else {
-      const alternate: boolean =
-        last !== 'both' && group.start - lastStart < STRIKE_MOTION.alternateSec;
+      const alternate: boolean = last !== 'both' && group.start - lastStart < alternateSec;
       const onSide: 'L' | 'R' = x < 0 ? 'L' : 'R';
       const chosen: 'L' | 'R' = alternate ? (last === 'L' ? 'R' : 'L') : onSide;
       const crosses: boolean = chosen === 'L' ? x > rightX : x < leftX;

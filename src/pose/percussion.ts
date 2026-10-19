@@ -63,8 +63,8 @@ export function percussionTracks(
       hold.sizes,
       amplitude,
     );
-  if (hold.hands === 'alternate') {
-    const [left, right] = alternateHands(groups);
+  if (hold.hands === 'alternate' || hold.hands === 'sides') {
+    const [left, right] = alternateHands(groups, hold.hands === 'sides' ? 0 : undefined);
     return {
       left: track(left, hold.offsetL, rig.restL),
       right: track(right, hold.offsetR, rig.restR),
