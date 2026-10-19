@@ -104,6 +104,14 @@ A push to `main` builds with pnpm and deploys to GitHub Pages under the base pat
 - `pnpm smoke` (`tools/smoke.ts`) runs the smoke test on the dev server with the dev hook
   `window.zoophony` (`src/app/dev-hook.ts`). It also checks the bow arm of the first violin and the
   camera modes of 2.5.
+- The dev server reads a look override, so that a round of the light compares variants with no
+  patch (`src/app/look-override.ts`). The query `look` holds JSON of look paths and values, such
+  as `{"BACK_ROW_LIGHT.illuminance":2.81}` (`LOOK_ROOTS` of `src/scene/look-values.ts`), and the
+  query `solo` holds seats or species. The module is the first import of `src/main.ts`, so it acts
+  before the other modules read the values at their load. It refuses an unknown path, and a path
+  that its module reads at its own load. The solo clicks the solo buttons after the load, as the
+  user does. The build gets an empty stub of the module, so the first download does not change
+  (7.2).
 
 ## 9.4 Manual test before each release
 
