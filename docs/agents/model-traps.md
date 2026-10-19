@@ -178,11 +178,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The root of a tail moves the haunch vertices that set the seat top of the sit. Give the sit a
   fixed seat top (`sit.top`), and count the root vertices as the haunch (`sit.root`). A deeper
   haunch needs more rounds of smoothing (`sit.smooth`).
-- A tail on the floor, as the broad tail of the beaver, can be the lowest point of the seated
-  bind, and then it sets the seat height and the feet hang above the floor. Turn the tip bone (`studio.tailBind`) until the line
+- A tail on the floor stays flat with rigid bone turns (`studio.tailBind`), and a curve of
+  `tailCurl` turns it into a vertical sheet. When the tail is the lowest point of the seated bind,
+  it sets the seat height, and the feet hang above the floor. Turn the tip bone until the line
   `tail: the lowest point` of the rig log gives the height of the soles.
-- A tail loop on the floor stays flat with rigid bone turns (`studio.tailBind`). A curve of
-  `tailCurl` turned it into a vertical sheet.
 - The idle sway turns the tail bones around the vertical (`pose/pose-at.ts`). A seated tail that
   lies on the seat does not sway (`OwnBodyParams.seatedTail`). Measure a seated tail over one sway
   period, 5.5 s.
