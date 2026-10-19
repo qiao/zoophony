@@ -1643,14 +1643,16 @@ def face_sources(verts, source_tris, count, order, materials):
     """Gives the middle of each face of the module of `pnpm studio-body` in the units of the
     source, as `rigid` of the weight rules takes it (`rigid_faces()`): the middle of the source face
     that the face of the rig comes from. A face of the rig keeps the index of its source face, and a
-    face that a ring splits keeps it for its first part. The other parts of a split face and the
-    faces of the eye shells have no source face, and give None. `count` is the number of faces of
-    the rig before the eye shells, `order` the walk order, and `materials` the material of each
-    face in the walk order."""
+    face that a ring splits keeps it for its first part. The other parts of a split face have no
+    source face, and give None. A face of an eye shell gives 'eye', because the export drops the
+    eye shells for the pea eyes. `count` is the number of faces of the rig before the eye shells,
+    `order` the walk order, and `materials` the material of each face in the walk order."""
     index = module_faces(order, materials)
     out = [None] * len(order)
     for f in range(min(count, len(source_tris))):
         out[int(index[f])] = [round(float(x), 4) + 0.0 for x in verts[source_tris[f]].mean(axis=0)]
+    for f in range(count, len(order)):
+        out[int(index[f])] = 'eye'
     return out
 
 
