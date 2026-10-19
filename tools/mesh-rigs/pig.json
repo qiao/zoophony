@@ -5,11 +5,11 @@
   "weld": 1e-05,
   "app": {
     "shoulders": 0.671951,
-    "reach": 0.263,
+    "reach": 0.3845,
     "note": "The size of the parametric pig of 9a4613b4 (size 1.05, H 0.399 m), which stood 1.137 m high to the head top. No reference image shows a pig, so the pig takes the size of its parametric body (user rule of 2026-10-19, docs/decisions/2026-10-19-mouse-size.md). The scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9476 u) at 1.137 m, with the standing shoulder joints at 0.671951 m. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
-  "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short: 0.263 m from the shoulder joint to the middle of the palm with no factor, 0.58 of the trunk from the hips joint to the shoulder joints. The first config keeps the factor 1, and the user chooses the factor from the mid-report (pnpm mesh-options pig).",
+  "armFactor": 1.5,
+  "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short: 0.263 m from the shoulder joint to the middle of the palm with no factor, 0.58 of the trunk from the hips joint to the shoulder joints. The user chose the factor 1.5 from the mid-report (pnpm mesh-options pig, docs/decisions/2026-10-19-mesh-pig.md): the reach is 0.385 m, and the arm is 0.84 of the trunk. The long snout puts the mouthpiece of the horn far in front of the body, so the pig plays the horn of the app with a hold of its own that turns the horn back toward the body (SPECIES_WIND_HOLDS.pig of src/pose/winds.ts).",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair).",
   "joints": {
