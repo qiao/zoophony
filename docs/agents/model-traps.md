@@ -28,18 +28,15 @@ group of your work before you plan it. A probe that a trap names is in its resea
   players, keep the limbs (user rule of 2026-10-10), and make the arms longer only when the user
   asks. A size that the user sets (`SpeciesParams.violinScale`) stays, and the hold moves the
   instrument to the paws.
-- The arm factor of a reach follows the hold: each move of the cello of the dog cost a new rig. Fit
-  the hold with the arms of a first factor, measure the reach (`cello-reach.ts` of
-  `docs/research/2026-10-17-dog-mesh/`), and rig the final factor once.
+- The arm factor of a reach follows the hold. Fit the hold with a first factor, measure the reach
+  (`cello-reach.ts` of `docs/research/2026-10-17-dog-mesh/`), and rig the final factor once.
 - An arm factor far above the option text that the user chose goes back to the user before the
   merge: the dog got 1.75 for "about 1.4x", and the user called the arms much too long.
 - A smaller body keeps its instrument in meters, so the old hold misses the grips. Scan the scale
-  and the hold with `windReach()` first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`): a
-  deeper reed gave the most reach, and a shoulder turn folded the arm.
-- A reach measured in the places of another body misses the mouth of a big head: the panda mouth
-  lies 0.40 m in front of its shoulders. Measure `slideReach` on the new body before the user
-  chooses the arms, and turn the slide toward the right shoulder (`slide-hold.ts` of
-  `docs/research/2026-10-18-panda-mesh/`).
+  and the hold with `windReach()` first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`).
+- A reach measured in the places of another body misses the mouth of a big head. Measure
+  `slideReach` on the new body before the user chooses the arms, and turn the slide toward the right
+  shoulder (`slide-hold.ts` of `docs/research/2026-10-18-panda-mesh/`).
 - A round belly can cover short thighs, and `lapPoint()` also takes the skin of the hips and the
   spine, so a lap place lands on the belly. Measure the reach from the shoulder joint to the top of
   the thigh before a scan of a lap place (`thigh-reach.ts` of `docs/research/2026-10-17-tan-rest/`).
@@ -69,9 +66,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The place of the grip along the stick moves the wrist and twists the upper arm. Scan the place
   with the folds (`grip-cands.ts` and `fold-scan.ts` of `docs/research/2026-10-17-grip-all/`), and
   move each rest grip by the move of the hand on the bow.
-- The paw of a mesh with a long wrist, such as the red fox, is not rigid: the wrist skin moved the
-  middle of the paw by up to 3.8 cm, most in pizzicato. Read the gap of each sample in order
-  (`gap-seq.ts`), and turn the bow of that moment (`pizzicatoTip`).
+- The paw of a mesh with a long wrist, such as the red fox, is not rigid: the wrist skin moves the
+  middle of the paw, most in pizzicato. Read the gap of each sample in order (`gap-seq.ts`), and
+  turn the bow of that moment (`pizzicatoTip`).
 
 ## Clearance measures
 
@@ -98,8 +95,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   Fade the upper arm weight over the top of the shoulder toward the clavicle (`shoulderRamp`).
 - Bone heat can give one corner of a small face a bone that the bow arm turns far, such as the right
   clavicle. Read the corner weights of the most folded faces (`pnpm fold-probe --faces`) before a
-  ring or a smoothing. On the fox, `clavicleFrom` and `armTop` helped, and a smoothing of the
-  shoulder weights folded more faces.
+  ring or a smoothing. On the fox, `clavicleFrom` and `armTop` helped, and a smoothing folded more
+  faces.
 - A mesh of an image model has many thin faces, and a thin face with corners of different weights
   turns over at a bent joint. The `sliver`, `line`, and `rigid` rules remove some folds (the source
   middles of `pnpm fold-probe --faces` give the points of `rigid`). A more bent elbow folds more
@@ -113,13 +110,13 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A fold probe counts each turned face, also a face that no camera sees. Before you accept a fold as
   hidden, count the pixels of the face in a probe build that draws it in a pure color with no light
   (`hidden/probe.ts` of `docs/research/2026-10-18-panda-seam/`).
-- A narrow fade of a weight rule under a far bone turn moves the fold to the faces of the fade.
-  Let the fade span several rings of faces, as `clavicleMiddle` of the hippo does.
+- A narrow fade of a weight rule under a far bone turn moves the fold to the faces of the fade. Let
+  the fade span several rings of faces, as `clavicleMiddle` of the hippo does.
 - A mesh near the budget of 3,200 triangles has no room for rings: the hippo has 3,141.
 - A long thin face across an arm joint folds, and weight rules make it worse. A ring of new vertices
-  at the joint (`refine.rings`) fixes it, after the weight rules: a forearm vertex of the mouse kept
-  the paw weight of the line rule. Put a ring only where `pnpm fold-probe` finds folds, then run
-  `pnpm pose-depth <role>`, because a ring can pull the inner elbow into the trunk or add folds.
+  at the joint (`refine.rings`) fixes it, after the weight rules. Put a ring only where `pnpm
+  fold-probe` finds folds, then run `pnpm pose-depth <role>`, because a ring can pull the inner
+  elbow into the trunk or add folds.
 - A ring reaches a fixed distance, so longer arms can put the corners of long faces beyond it. Give
   the ring a larger radius. The upper arm stretches only on the free arm and from the shoulder joint
   out (`outward_stretch()` of the rig script).
@@ -158,12 +155,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 - A long thigh needs a seat of its own (`studio.legTurns`, `weights.haunch`). A large tail needs two
   bones (`tail_tip`).
-- Short thighs under a round belly lie below the haunch and set the seat top, and the sit pulls the
-  haunch into a sheet behind the seat. End the seat behind the thighs (`chair.front`), and keep the
-  drop of the sit small, as for the panda.
-- A level seat under thighs that slope down meets the thighs before the haunch. End the seat where
-  the thighs leave the seat top at the haunch (`chair.front`), and move the back edge of the chair
-  forward by the same distance (`chair.back`).
+- Short thighs under a round belly, or thighs that slope down to a level seat, set the seat top
+  before the haunch, and the sit pulls the haunch into a sheet behind the seat. End the seat where
+  the thighs leave the seat top (`chair.front`), move the back edge of the chair forward by the same
+  distance (`chair.back`), and keep the drop of the sit small.
 - The chair of a rig takes its seat top from the corners of the body, so a long triangle of a sloped
   thigh can go into the seat (`seat-dip.ts` of `docs/research/2026-10-17-fox-form/`).
 - The chair of the app grows until its back posts keep 1 cm behind the trunk (`chairDepthOf()`).
@@ -182,8 +177,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A big head over a thin neck shows a dark band under the head. Smooth the neck and the bottom of
   the head with a box that ends behind the chin (`smooth`), because a box that holds the chin moves
   H and each hold.
-- The trunk of the elephant takes bone heat from the chest, and it set the chin of the head measures
-  (H 1.3 m in place of 0.6 m). Use `noseFront`, and `headFloor` of `ANIMALS`.
+- The trunk of the elephant takes bone heat from the chest, and it set the chin of the head
+  measures. Use `noseFront`, and `headFloor` of `ANIMALS`.
 - The tip of `earFlap` takes the nearest vertex, which can lie on the shoulder. Take it from a cut
   of the flap, and read the count of the log line `ear L`.
 
@@ -199,9 +194,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   List the faces with a third to a half of dark samples (`marks.py` of
   `docs/research/2026-10-18-panda-marks/`), and make them light with `colors.border`.
 - With no gloss nose, the export takes the front-most fur vertex of the head near the middle plane
-  as the nose tip (`NOSE_PLANE`). Read the warning of a tip off the plane in the rig check.
-- The export takes each gloss shell out of the middle plane as an eye. Gloss nostrils with no nose
-  pad, as on the hippo, became eyes. Give such a mesh no `noseBox`.
+  as the nose tip (`NOSE_PLANE`), and each gloss shell out of the middle plane as an eye. Give a
+  mesh with gloss nostrils and no nose pad, as the hippo, no `noseBox`, and read the warning of a
+  tip off the plane in the rig check.
 - A dark rule cannot split an eye from a dark patch of almost its color. A wide eye box takes the
   patch as the eye, and the color of the old eye puts light holes in it. Keep the eye box on the
   eye, and set `eyeShell.darkReach` to 0, as for the panda.
