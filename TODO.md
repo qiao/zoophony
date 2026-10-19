@@ -452,18 +452,25 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       shading of the seam where the hanging arm of the mesh touches the belly. Done: the user chose
       a cut of the mesh at the seam, and the streak share goes from 16.4% to 3.7%
       (`docs/research/2026-10-18-panda-cut.md`, `2026-10-18-panda-marks.md`).
-- [ ] Hippo bassist: the skin folds in each sample, up to 25 faces: the left paw on the neck, the
-      chest under the chin, and the front of the right shoulder. Fit corrective shapes on the mean
-      turns of `keys-read.ts` of `docs/research/2026-10-18-hippo-mesh/` (`2026-10-18-mesh-hippo.md`).
-      The user saw the deformed right arm (`2026-10-18-hippo-arm.md`): about 12 faces of the right
-      side fold in each sample, also in the rest pose.
+- [ ] Hippo bassist: the skin folds in each sample, up to 24 faces: the left paw on the neck and
+      the right upper arm. Fit corrective shapes on the mean turns of `keys-read.ts` of
+      `docs/research/2026-10-18-hippo-mesh/` (`2026-10-18-mesh-hippo.md`). The user saw the
+      deformed right arm (`2026-10-18-hippo-arm.md`): about 12 faces of the right side fold in each
+      sample, also in the rest pose. The chest under the chin and the back of the neck fold no more,
+      but the shape of the bow arm folds faces 477, 461, and 68 of the right upper arm in 93%, 34%,
+      and 25% of the play samples (`2026-10-19-hippo-chest.md`).
 - [ ] Hippo bassist: on the E and A strings, the roll of the bow paw stays at its low end, and the
       paw goes more than 1.5 cm into the belly in 4.6% of the play samples. A hold that moves the
       right elbow off the line of the stick, such as the slant -10°, can remove it
       (`2026-10-18-hippo-arm.md`).
-- [ ] Hippo bassist: the thick arms go into the body and the contrabass in the play, the right
-      upper arm up to 5.5 cm, and the left upper arm 6.7 cm into the contrabass. Fit the hold further, or accept the depths as
-      limits of the sweep (`2026-10-18-mesh-hippo.md`).
+- [ ] Hippo bassist: the thick arms go into the body and the contrabass in the play and the
+      lowering, the forearms up to 8.1 cm into the body, and the upper arms 7.4 cm into the body
+      and the contrabass. The hold that keeps the upper bout out of the chest added up to 4.8 cm,
+      most in the lowering. Fit the hold further, or accept the depths as limits of the sweep
+      (`2026-10-18-mesh-hippo.md`, `2026-10-19-hippo-chest.md`).
+- [ ] Hippo bassist: the top edge of the upper bout touches the chest under the chin, and a few
+      teeth of the skin show over it in a close view from the front (`chest-compare.webp` of
+      `docs/research/2026-10-19-hippo-chest/`, `2026-10-19-hippo-chest.md`).
 - [ ] Hippo face: the brow ridge of the mesh shades a crease above each pea eye, which can read
       stern in a close front view. Show the user the face, and offer a face rule
       (`2026-10-18-mesh-hippo.md`).
