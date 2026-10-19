@@ -24,15 +24,15 @@ group of your work before you plan it. A probe that a trap names is in its resea
 ## Reach and rest of the instrument
 
 - Short arms do not reach the instrument of the app. Size the instrument by the rule of real
-  players, keep the limbs (user rule of 2026-10-10), and make the arms longer only when the user
-  asks. A size that the user sets (`SpeciesParams.violinScale`) stays, and the hold moves the
-  instrument to the paws.
+  players, and keep the limbs (user rule of 2026-10-10) until the user asks for longer arms. A size
+  that the user sets (`SpeciesParams.violinScale`) stays, and the hold moves the instrument to the
+  paws.
 - The arm factor of a reach follows the hold. Fit the hold with a first factor, measure the reach
   (`cello-reach.ts` of `docs/research/2026-10-17-dog-mesh/`), and rig the final factor once. A
   factor far above the option text of the user goes back to the user before the merge (the dog got
   1.75 for "about 1.4x").
-- A new scale of `SpeciesParams` needs its case in `instrumentScale()` and in `buildInstrument()`
-  of `models/instruments/catalog.ts`. With no case, `--set <species>.<scale>` prints the scale and
+- A new scale of `SpeciesParams` needs its case in `instrumentScale()` and `buildInstrument()` of
+  `models/instruments/catalog.ts`. With no case, `--set <species>.<scale>` prints the scale and
   moves no grip.
 - A smaller body keeps its instrument in meters, so the old hold misses the grips: scan the scale
   and the hold with `windReach()` first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`). A
@@ -45,9 +45,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   steeper thigh slope moves a lap place near the knee off the lap, so fit the lap places again after
   a change of `studio.legTurns`.
 - A round belly in front of short arms blocks a floor instrument. Place it by targets: the contact
-  point in front of the upper belly, about 0.2 m below the shoulder joints, and the nut within the
-  reach of the left paw (`bass-solve.py` of `docs/research/2026-10-18-hippo-mesh/`). A smaller
-  instrument (`bassScale`) shortens the span.
+  point in front of the upper belly, about 0.2 m below the shoulder joints, and the nut within reach
+  of the left paw (`bass-solve.py` of `docs/research/2026-10-18-hippo-mesh/`). A smaller instrument
+  (`bassScale`) shortens the span.
 - A top plate turned to the right sends the bow back into a round belly. Turn it to the front.
 - In the violin rest, a paw that cannot reach the thigh holds the frog outside the thigh or the
   knee, because a paw on the belly bends the arm out and folds it.
