@@ -225,4 +225,4 @@ The decision files:
 - [`2026-10-18-trombone-fit.md`](decisions/2026-10-18-trombone-fit.md): the slide angle of the panda trombone, and the forward turn of the left shoulder that it needs.
 - [`2026-10-18-check-tools.md`](decisions/2026-10-18-check-tools.md): the temporary worktree of the commit checks, and the Cinematic and shot frames of `pnpm close-views play`.
 - [`2026-10-18-look-tools.md`](decisions/2026-10-18-look-tools.md): the look override of the dev server, `pnpm look-variants`, `pnpm light-probe`, and the regions of the camera `default` of `pnpm look-lab`.
-- [`2026-10-18-mesh-hippo.md`](decisions/2026-10-18-mesh-hippo.md): the hippo mesh of the user on the stool of the contrabass, its size, arms, legs, eyes, nose, and colors, the smaller contrabass and its hold, and the open folds.
+- [`2026-10-18-mesh-hippo.md`](decisions/2026-10-18-mesh-hippo.md): the hippo mesh of the user, which stands at the contrabass, its size, arms, legs, eyes, nose, and colors, the smaller contrabass and its hold, and the open folds.
