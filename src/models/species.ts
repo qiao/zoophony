@@ -1,5 +1,6 @@
 import type { BowGrip } from './instruments/strings.ts';
-import type { InstrumentId } from './instruments/types.ts';
+import { isScaledInstrument } from './instruments/types.ts';
+import type { InstrumentId, ScaledInstrument } from './instruments/types.ts';
 import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
 import type { StudioPalette } from './studio-format.ts';
@@ -206,31 +207,27 @@ export function isSpeciesId(value: string): value is SpeciesId {
 }
 
 /**
- * Gives the scale of the instrument and its bow of a species (design 4.6): the violin scale for a
- * violin, the cello scale for a cello, the bass scale for a contrabass, the oboe scale for an
- * oboe, the bassoon scale for a bassoon, and 1 for each other instrument.
+ * The parameter of the scale of each instrument of `SCALED_INSTRUMENTS` (design 4.6). A new
+ * instrument of that list stops the typecheck until it has its parameter here.
+ */
+export const SCALE_PARAMS = {
+  violin: 'violinScale',
+  cello: 'celloScale',
+  contrabass: 'bassScale',
+  oboe: 'oboeScale',
+  bassoon: 'bassoonScale',
+} as const satisfies Readonly<Record<ScaledInstrument, keyof SpeciesParams>>;
+
+/**
+ * Gives the scale of the instrument and its bow of a species (design 4.6): the parameter of
+ * {@link SCALE_PARAMS} for an instrument of `SCALED_INSTRUMENTS`, and 1 for each other instrument.
  *
  * @param params The parameters of the species.
  * @param instrument The instrument.
  * @returns The scale, as a factor of the instrument of the app.
  */
 export function instrumentScale(params: SpeciesParams, instrument: InstrumentId): number {
-  if (instrument === 'violin') {
-    return params.violinScale ?? 1;
-  }
-  if (instrument === 'cello') {
-    return params.celloScale ?? 1;
-  }
-  if (instrument === 'contrabass') {
-    return params.bassScale ?? 1;
-  }
-  if (instrument === 'oboe') {
-    return params.oboeScale ?? 1;
-  }
-  if (instrument === 'bassoon') {
-    return params.bassoonScale ?? 1;
-  }
-  return 1;
+  return isScaledInstrument(instrument) ? (params[SCALE_PARAMS[instrument]] ?? 1) : 1;
 }
 
 /** The parameters of each species (design 4.3, 4.5). */

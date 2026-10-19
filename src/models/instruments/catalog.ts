@@ -15,7 +15,8 @@ import { buildChoirFolder } from './folder.ts';
 import { buildBowedString } from './strings.ts';
 import type { BowGrip } from './strings.ts';
 import { buildWoodwind } from './woodwinds.ts';
-import type { InstrumentId, InstrumentModel } from './types.ts';
+import { isScaledInstrument } from './types.ts';
+import type { InstrumentId, InstrumentModel, ScaledInstrument } from './types.ts';
 
 /** All instruments of design 4.6, in the order of the inventory. */
 export const INSTRUMENT_IDS = [
@@ -45,14 +46,14 @@ export const INSTRUMENT_IDS = [
 
 /**
  * Builds the geometry and the play data of an instrument (design 4.6). The model holds no
- * Three.js object.
+ * Three.js object. An instrument of `SCALED_INSTRUMENTS` of `types.ts` goes to
+ * {@link buildScaled}, so a case of it here stops the typecheck.
  *
  * @param id The instrument.
  * @param kettles The number of kettles of the timpani (design 4.6). The other instruments
  *   ignore it.
- * @param scale The scale of the violin, the cello, or the contrabass and its bow, or of the
- *   oboe or the bassoon, for the species of the player (`instrumentScale()` of
- *   `models/species.ts`). The other instruments ignore it.
+ * @param scale The scale of an instrument of `SCALED_INSTRUMENTS` and its bow, for the species of
+ *   the player (`instrumentScale()` of `models/species.ts`). The other instruments ignore it.
  * @param bowGrip The grip of the bow in the right paw of the species of the player
  *   (`SpeciesParams.bowGrip`), or `undefined` for the grip of the bind pose of the bow. The
  *   instruments with no bow ignore it.
@@ -64,11 +65,10 @@ export function buildInstrument(
   scale = 1,
   bowGrip?: BowGrip,
 ): InstrumentModel {
+  if (isScaledInstrument(id)) {
+    return buildScaled(id, scale, bowGrip);
+  }
   switch (id) {
-    case 'violin':
-    case 'cello':
-    case 'contrabass':
-      return buildBowedString(id, scale, bowGrip);
     case 'viola':
       return buildBowedString(id, 1, bowGrip);
     case 'harp':
@@ -77,9 +77,6 @@ export function buildInstrument(
       return buildPiano();
     case 'choir-folder':
       return buildChoirFolder();
-    case 'oboe':
-    case 'bassoon':
-      return buildWoodwind(id, scale);
     case 'flute':
     case 'clarinet':
       return buildWoodwind(id);
@@ -105,6 +102,33 @@ export function buildInstrument(
     default: {
       const unhandled: never = id;
       throw new Error(`The instrument "${String(unhandled)}" is not known.`);
+    }
+  }
+}
+
+/**
+ * Builds an instrument of `SCALED_INSTRUMENTS` of `types.ts` at the scale of the species of the
+ * player. A new instrument of that list stops the typecheck until it has a case here.
+ *
+ * @param id The instrument.
+ * @param scale The scale of the instrument and its bow (`instrumentScale()` of
+ *   `models/species.ts`).
+ * @param bowGrip The grip of the bow in the right paw, or `undefined` for the grip of the bind
+ *   pose of the bow.
+ * @returns The model.
+ */
+function buildScaled(id: ScaledInstrument, scale: number, bowGrip?: BowGrip): InstrumentModel {
+  switch (id) {
+    case 'violin':
+    case 'cello':
+    case 'contrabass':
+      return buildBowedString(id, scale, bowGrip);
+    case 'oboe':
+    case 'bassoon':
+      return buildWoodwind(id, scale);
+    default: {
+      const unhandled: never = id;
+      throw new Error(`The scaled instrument "${String(unhandled)}" is not known.`);
     }
   }
 }

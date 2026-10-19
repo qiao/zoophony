@@ -30,6 +30,33 @@ export type InstrumentId =
   | 'xylophone'
   | 'baton';
 
+/**
+ * The instruments that a species can play at a size of its own, as a child plays a fractional
+ * violin (design 4.6). `instrumentScale()` of `models/species.ts` reads the scale of each one, and
+ * `buildInstrument()` of `catalog.ts` gives it to the builder of each one. A new scale adds its
+ * instrument here, and the typecheck then stops at each place that must read the scale.
+ */
+export const SCALED_INSTRUMENTS = [
+  'violin',
+  'cello',
+  'contrabass',
+  'oboe',
+  'bassoon',
+] as const satisfies readonly InstrumentId[];
+
+/** An instrument of {@link SCALED_INSTRUMENTS}. */
+export type ScaledInstrument = (typeof SCALED_INSTRUMENTS)[number];
+
+/**
+ * Tells if an instrument is one of {@link SCALED_INSTRUMENTS}.
+ *
+ * @param id The instrument.
+ * @returns True for an instrument with a scale of the species.
+ */
+export function isScaledInstrument(id: InstrumentId): id is ScaledInstrument {
+  return SCALED_INSTRUMENTS.some((scaled) => scaled === id);
+}
+
 /** The bones that carry the pieces of an instrument (design 4.7). */
 export type InstrumentBone = Extract<
   BoneName,
