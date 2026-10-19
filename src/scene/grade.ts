@@ -111,8 +111,15 @@ export function monotoneCurve(points: readonly CurvePoint[]): (x: number) => num
   };
 }
 
-/** The tone curve of {@link GRADE}, on values from 0 to 1. */
-const toneCurve = monotoneCurve(GRADE.curve.map(([x, y]) => [x / 255, y / 255]));
+/**
+ * Makes the tone curve of {@link GRADE}, on values from 0 to 1. It reads `GRADE.curve` at the
+ * call, so that the look override of the dev server (`src/app/look-override.ts`) reaches it.
+ *
+ * @returns The curve.
+ */
+function toneCurve(): (x: number) => number {
+  return monotoneCurve(GRADE.curve.map(([x, y]) => [x / 255, y / 255]));
+}
 
 /**
  * Calculates the smooth step of GLSL.
@@ -142,14 +149,18 @@ function lumaOf(color: GradeColor): number {
  * with the vibrance, and the tints of the shadows and of the highlights ({@link GRADE}).
  *
  * @param color The display color after AgX, from 0 to 1 for each channel.
+ * @param curve The tone curve, from {@link toneCurve}.
  * @returns The graded color.
  */
-export function gradeColor(color: GradeColor): [number, number, number] {
+export function gradeColor(
+  color: GradeColor,
+  curve: (x: number) => number,
+): [number, number, number] {
   const g = GRADE;
   const clamped = color.map((value) => Math.min(1, Math.max(0, value)));
   const [r0 = 0, g0 = 0, b0 = 0] = clamped;
   const before = lumaOf([r0, g0, b0]);
-  const factor = before > 1e-4 ? toneCurve(before) / before : 1;
+  const factor = before > 1e-4 ? curve(before) / before : 1;
   const [r = 0, gr = 0, b = 0] = clamped.map((value) => Math.min(1, value * factor));
 
   const luma = lumaOf([r, gr, b]);
@@ -184,10 +195,11 @@ export const GRADE_LUT_SIZE = 33;
  */
 export function gradeLutData(size: number = GRADE_LUT_SIZE): Uint8Array {
   const data = new Uint8Array(size * size * size * 4);
+  const curve = toneCurve();
   for (let b = 0; b < size; b++) {
     for (let g = 0; g < size; g++) {
       for (let r = 0; r < size; r++) {
-        const graded = gradeColor([r / (size - 1), g / (size - 1), b / (size - 1)]);
+        const graded = gradeColor([r / (size - 1), g / (size - 1), b / (size - 1)], curve);
         const i = ((b * size + g) * size + r) * 4;
         for (const [channel, value] of graded.entries()) {
           data[i + channel] = Math.round(Math.min(1, Math.max(0, value)) * 255);
