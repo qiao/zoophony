@@ -48,11 +48,20 @@ import {
   FOLD_ROLE_TABLE,
   SAMPLE_SETS,
   faceLines,
+  meanTurn,
   probeFolds,
   roleBodies,
   splitText,
+  turnAngle,
 } from './fold-probe.ts';
-import type { FoldCount, FoldReport, RoleSource, SideSplit } from './fold-probe.ts';
+import type {
+  FoldCount,
+  FoldReport,
+  FoldVisit,
+  RoleSource,
+  SampleSet,
+  SideSplit,
+} from './fold-probe.ts';
 import { freeRestReach, holdReach, rangeTexts, reachShare, ruleSize } from './hold-reach.ts';
 import type { ChinInstrument, HoldReach } from './hold-reach.ts';
 import { setHolds } from './hold-sets.ts';
@@ -69,7 +78,9 @@ import {
   sweepDemos,
 } from './pose-depth.ts';
 import type { DemoResult, GapsOf, StoredDepth, StoredResult } from './pose-depth.ts';
+import { armKeys } from './raise-fit.ts';
 import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
+import type { Quat } from '../src/models/tuples.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { sceneOf } from '../src/pose/test-scene.ts';
 import type { TestScene } from '../src/pose/test-scene.ts';
@@ -721,6 +732,77 @@ export interface FitRow {
    * `tools/lap-rest.ts`), or `null` for a role with no lap rest or a run with no rest set.
    */
   readonly lap: LapWorsts | null;
+  /** The mean turns of the arms ({@link armTurns}), or `null` with no sample of the folds. */
+  readonly turns: ArmTurns | null;
+}
+
+/** The angles of the mean turns of one arm, in degrees. */
+export interface ArmAngles {
+  /** The mean turn of the upper arm from its bind pose, in the axes of the chest. */
+  readonly upper: number;
+  /** The mean turn of the paw from the forearm. */
+  readonly paw: number;
+}
+
+/** The mean turns of both arms over the samples of one sample set of the folds. */
+export interface ArmTurns {
+  /** The sample set: the play, or the first set of the run with no play. */
+  readonly set: SampleSet;
+  /** The left arm. */
+  readonly L: ArmAngles;
+  /** The right arm. */
+  readonly R: ArmAngles;
+}
+
+/** The turns of the upper arms and of the paws that {@link armTurns} keeps, by sample set. */
+type TurnSamples = Map<SampleSet, { readonly upper: Quat[]; readonly paw: Quat[] }[]>;
+
+/** The probe of the arm turns of a fold probe ({@link armTurns}). */
+export interface ArmTurnProbe {
+  /** Keeps the turns of the arms in each sample. */
+  readonly visit: FoldVisit;
+  /** Gives the angles of the mean turns, or `null` with no sample. */
+  readonly turns: () => ArmTurns | null;
+}
+
+/**
+ * Starts the probe of the arm turns of a fold probe: a visit that keeps the turn of each upper arm
+ * in the axes of the chest and of each paw from its forearm in each sample (`armKeys()` of
+ * `tools/raise-fit.ts`), and a function that gives the angles of their mean turns. The mean
+ * turns of the play show an upper arm that a hold twists, as the elbows out and level of the
+ * mouse did (`docs/research/2026-10-19-mouse-mesh.md`).
+ *
+ * @returns The visit, and the function of the result.
+ */
+export function armTurns(): ArmTurnProbe {
+  const samples: TurnSamples = new Map();
+  const visit: FoldVisit = (...[, studio, , , set]) => {
+    const sides = samples.get(set) ?? [
+      { upper: [], paw: [] },
+      { upper: [], paw: [] },
+    ];
+    for (const [k, side] of (['L', 'R'] as const).entries()) {
+      const keys = armKeys(studio.matrices, side);
+      sides[k]?.upper.push(keys.upper);
+      sides[k]?.paw.push(keys.wrist);
+    }
+    samples.set(set, sides);
+  };
+  const turns = (): ArmTurns | null => {
+    const set = samples.has('play') ? 'play' : [...samples.keys()][0];
+    const sides = set === undefined ? undefined : samples.get(set);
+    if (set === undefined || !sides) {
+      return null;
+    }
+    const angle = (list: readonly Quat[]): number =>
+      turnAngle(meanTurn(list) ?? [0, 0, 0, 1], [0, 0, 0, 1]);
+    const [left, right] = sides.map((side) => ({
+      upper: angle(side.upper),
+      paw: angle(side.paw),
+    }));
+    return left && right ? { set, L: left, R: right } : null;
+  };
+  return { visit, turns };
 }
 
 /** A pair of a set of the JSON text of {@link fitJson}. */
@@ -755,9 +837,11 @@ interface StoredFit {
   /** The demos of the run. */
   readonly demos: readonly string[];
   /** The rows, the base first. */
-  readonly rows: readonly (Omit<FitRow, 'depths' | 'results' | 'held' | 'lap'> & {
+  readonly rows: readonly (Omit<FitRow, 'depths' | 'results' | 'held' | 'lap' | 'turns'> & {
     /** The largest values of the lap rest, or `null`. */
     readonly lap: StoredLaps | null;
+    /** The mean turns of the arms, or none in a text before the format version 9. */
+    readonly turns?: ArmTurns | null;
     /** The deepest point of each sample set. */
     readonly depths: readonly StoredWorst[];
     /** The pair of the instrument in the body, or `null`. */
@@ -780,9 +864,10 @@ export interface FitRun {
  * change of the format takes the next version. Version 2 added the rest faces by side, version 3
  * the instrument in the body, the rest gaps, and the reach shares of the free paws, version 4 the
  * rest samples of the folds, version 5 the lap rest, version 6 the upright rest of the violin,
- * version 7 the right arm in the rest, and version 8 the reach of the note targets of each result.
+ * version 7 the right arm in the rest, version 8 the reach of the note targets of each result, and
+ * version 9 the mean turns of the arms.
  */
-export const FIT_FORMAT = 8;
+export const FIT_FORMAT = 9;
 
 /**
  * The oldest format version that {@link FIT_FORMAT} only adds fields to (`ProbeFormat.since` of
@@ -835,6 +920,7 @@ export function readFit(text: string): FitRun {
       gaps: row.gaps,
       free: row.free,
       lap: row.lap ? restoreLaps(row.lap) : null,
+      turns: row.turns ?? null,
     })),
   };
 }
@@ -1024,6 +1110,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
   const bow = rows.some((row) => row.lap?.bowTilt);
   const reaches = rows.map((row) => joinReach(row.results));
   const targets = reaches.some((reached) => reached.samples > 0);
+  const turnSet = rows.find((row) => row.turns)?.turns?.set;
   const header = [
     'Variant',
     'Play folds',
@@ -1031,6 +1118,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
     'Rest faces (by side)',
     ...sets.map((set) => `${set} depth cm (limit)`),
     ...(targets ? [`Note targets: worst mm (within ${TARGET_REACH * 1000} mm)`] : []),
+    ...(turnSet ? [`${turnSet} turns: upper arm, paw L / R`] : []),
     ...(held ? ['Instrument in body cm (limit)'] : []),
     ...paws.map((paw) => `Rest gap ${paw} cm`),
     ...sides.map((side) => `Rest reach ${side}`),
@@ -1044,6 +1132,9 @@ export function fitTable(rows: readonly FitRow[]): string[] {
       reached && reached.samples > 0
         ? `${(reached.worst * 1000).toFixed(1)} (${((100 * reached.within) / reached.samples).toFixed(1)}%)`
         : '-';
+    const turns = row.turns;
+    const angles = (arm: ArmAngles): string => `${arm.upper.toFixed(0)}°, ${arm.paw.toFixed(0)}°`;
+    const turnCell = turns ? `${angles(turns.L)} / ${angles(turns.R)}` : '-';
     const depths = sets.map((set) => {
       const worst = row.depths.find((d) => d.set === set);
       if (!worst) {
@@ -1081,6 +1172,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
         : '-',
       ...depths,
       ...(targets ? [targetCell] : []),
+      ...(turnSet ? [turnCell] : []),
       ...(held ? [heldCell] : []),
       ...gapCells,
       ...reachCells,
@@ -1620,11 +1712,12 @@ async function main(): Promise<void> {
     const started = performance.now();
     const { undo, text } = setHolds(variant);
     try {
+      const arms = armTurns();
       const report = probeFolds(
         options.role,
         demos,
         options.step,
-        undefined,
+        arms.visit,
         SAMPLE_SETS.filter((set) => options.sets.some((name) => name === set)),
       );
       const swept = sweep
@@ -1647,6 +1740,7 @@ async function main(): Promise<void> {
         gaps: restGaps(results),
         free: freeShares(options.role),
         lap: body ? probeLaps(options.role, demos, body) : null,
+        turns: arms.turns(),
       };
       rows.push(row);
       printRow(row);
