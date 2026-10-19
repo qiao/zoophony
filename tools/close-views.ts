@@ -13,8 +13,8 @@ import { DEFAULT_DEMO, DEMOS, DEMO_IDS } from '../src/app/demos.ts';
 import type { DemoId } from '../src/app/demos.ts';
 import { BAR_HIDE_SEC } from '../src/app/bar-rules.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
-import { GALLERY_FOV_DEG, speciesItems } from '../src/gallery/items.ts';
-import type { GalleryMove } from '../src/gallery/items.ts';
+import { GALLERY_FOV_DEG, GALLERY_PROBES, speciesItems } from '../src/gallery/items.ts';
+import type { GalleryMove, GalleryProbe } from '../src/gallery/items.ts';
 import type { PlayerPlace } from '../src/models/layout.ts';
 import { layoutScene } from '../src/models/layout-scene.ts';
 import { ModelCache } from '../src/models/model-cache.ts';
@@ -495,9 +495,15 @@ export const CELL = { width: 360, height: 450 } as const;
  * @param role The role.
  * @param view The view.
  * @param moment The moment.
+ * @param probe The probe of the body (the gallery query `probe`), or `null` for none.
  * @returns The path and the query, from the root of the site.
  */
-export function closeViewPath(role: RoleViews, view: CloseViewAngle, moment: CloseMoment): string {
+export function closeViewPath(
+  role: RoleViews,
+  view: CloseViewAngle,
+  moment: CloseMoment,
+  probe: GalleryProbe | null = null,
+): string {
   const camera = role.camera;
   const query = new URLSearchParams({
     page: 'species',
@@ -522,6 +528,9 @@ export function closeViewPath(role: RoleViews, view: CloseViewAngle, moment: Clo
   if (moment.move) {
     query.set(moment.move.kind, String(moment.move.share));
   }
+  if (probe) {
+    query.set('probe', probe);
+  }
   return `/gallery.html?${query.toString()}`;
 }
 
@@ -535,6 +544,7 @@ export function closeViewPath(role: RoleViews, view: CloseViewAngle, moment: Clo
  * @param view The view.
  * @param moment The moment.
  * @param size The size of the cell, in CSS pixels.
+ * @param probe The probe of the body, or `null` for none.
  * @returns The PNG image.
  */
 async function render(
@@ -544,8 +554,9 @@ async function render(
   view: CloseViewAngle,
   moment: CloseMoment,
   size: CellSize = CELL,
+  probe: GalleryProbe | null = null,
 ): Promise<Buffer> {
-  const path = closeViewPath(role, view, moment);
+  const path = closeViewPath(role, view, moment, probe);
   const page = await openShot(browser, new URL(path.slice(1), base).href, {
     file: '',
     path,
@@ -684,6 +695,31 @@ export interface CloseViewsArgs {
   readonly glb: string | null;
   /** The hold changes of `--set` (`setHolds()` of `tools/hold-sets.ts`), or `null` for none. */
   readonly holds: string | null;
+  /**
+   * The probes of `--probe` ({@link probesOf}), one grid each, or `null` for the grid with no
+   * probe.
+   */
+  readonly probes: readonly GalleryProbe[] | null;
+}
+
+/**
+ * Reads the probes of `--probe <probe,...>`, such as `colors,normals`: each a probe of the
+ * gallery query `probe` (design 7.1), one time each.
+ *
+ * @param value The text of the option.
+ * @returns The probes, in their order.
+ * @throws Error that lists the probes, for an unknown probe or a probe that comes two times.
+ */
+export function probesOf(value: string): GalleryProbe[] {
+  const probes = value
+    .split(',')
+    .flatMap((name) => GALLERY_PROBES.filter((probe) => probe === name));
+  if (probes.length !== value.split(',').length || new Set(probes).size !== probes.length) {
+    throw new Error(
+      `The option --probe takes the probes ${GALLERY_PROBES.join(', ')}, each one time, separated by commas, and not "${value}".`,
+    );
+  }
+  return probes;
 }
 
 /**
@@ -780,12 +816,12 @@ export function scaleOf(value: string | null): number {
 
 /**
  * Reads the command line of the close views: `<role> <dir> [--zoom <n>] [--elevation <deg>]
- * [--scale <n>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs
- * <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`.
+ * [--scale <n>] [--probe <probe,...>] [--url <url>] [--glb <file>] [--set <changes>] [--base
+ * <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`.
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when it is not correct.
- * @throws Error if a zoom, an elevation, a scale, a pair, or a crop does not fit, if `--pairs`
+ * @throws Error if a zoom, an elevation, a scale, a probe, a pair, or a crop does not fit, if `--pairs`
  *   comes with no `--base`, or `--crop` with no `--pairs`, if `--set` comes more than one time,
  *   or if `--glb` or `--set` comes with `--url`.
  */
@@ -801,7 +837,8 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const crop = optionValue(args, '--crop');
   const glb = optionValue(args, '--glb');
   const holds = optionValue(args, '--set');
-  const given = [url, base, zoom, elevation, scale, pairs, crop, glb, holds];
+  const probe = optionValue(args, '--probe');
+  const given = [url, base, zoom, elevation, scale, pairs, crop, glb, holds, probe];
   if (!role || !out || out.startsWith('--') || given.includes(undefined)) {
     return null;
   }
@@ -829,6 +866,7 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
     crop: crop ? cropOf(crop) : null,
     glb: glb ? resolve(glb) : null,
     holds: holds ?? null,
+    probes: probe ? probesOf(probe) : null,
   };
 }
 
@@ -1123,6 +1161,7 @@ interface RenderedViews {
  * @param out The output directory.
  * @param prefix The start of the file names, such as `violinist-`.
  * @param size The size of one cell, in CSS pixels.
+ * @param probe The probe of the body, or `null` for none. A probe ends each label.
  * @returns The cells and their labels.
  */
 async function renderViews(
@@ -1132,15 +1171,16 @@ async function renderViews(
   out: string,
   prefix: string,
   size: CellSize = CELL,
+  probe: GalleryProbe | null = null,
 ): Promise<RenderedViews> {
   const cells: Buffer[] = [];
   const labels: string[] = [];
   for (const moment of role.moments) {
     for (const view of role.views) {
-      const cell = await render(browser, base, role, view, moment, size);
+      const cell = await render(browser, base, role, view, moment, size, probe);
       await writeFile(join(out, `${prefix}${moment.name}-${view.name}.png`), cell);
       cells.push(cell);
-      labels.push(`${moment.name}, ${view.name}`);
+      labels.push(`${moment.name}, ${view.name}${probe ? `, ${probe}` : ''}`);
     }
   }
   return { cells, labels };
@@ -1178,6 +1218,26 @@ interface ModeRender {
 }
 
 /**
+ * Renders the close view of a role into `<dir>` ({@link probeViews}): one time with no `--probe`,
+ * or one time for each probe of `--probe`, all on one site.
+ *
+ * @param args The command line.
+ * @param site The site of the working tree.
+ * @returns The renders of the commit.
+ */
+async function roleViews(args: CloseViewsArgs, site: TreeSite): Promise<CommitRender> {
+  const renders: CommitRender[] = [];
+  for (const probe of args.probes ?? [null]) {
+    renders.push(await probeViews(args, site, probe));
+  }
+  return async (other, label) => {
+    for (const commitRender of renders) {
+      await commitRender(other, label);
+    }
+  };
+}
+
+/**
  * Renders the close view of a role into `<dir>`: each cell as `<role>-<moment>-<view>.png`, and
  * the grid of all cells as `<role>-views.png` and `.webp`. The renders of the commit write each
  * cell of the commit as `<role>-base-<moment>-<view>.png`, and the grid of the commit above the
@@ -1186,16 +1246,23 @@ interface ModeRender {
  * ({@link roleCell}). Each WebP grid has the cells of {@link CELL}, so that it keeps its byte
  * limit at each scale. Each cell of `--pairs` then gets `<role>-pair-<moment>-<view>.webp`: the
  * crop of `--crop` of the cell of the commit beside the same crop of the working tree
- * ({@link pairImage}).
+ * ({@link pairImage}). A probe of `--probe` renders the cells with the gallery query `probe`,
+ * and puts the probe after the role in each file name, such as `timpanist-normals-views.png`.
  *
  * @param args The command line.
  * @param site The site of the working tree.
+ * @param probe The probe of the body, or `null` for none.
  * @returns The renders of the commit.
  */
-async function roleViews(args: CloseViewsArgs, site: TreeSite): Promise<CommitRender> {
+async function probeViews(
+  args: CloseViewsArgs,
+  site: TreeSite,
+  probe: GalleryProbe | null,
+): Promise<CommitRender> {
   const { browser } = site;
-  const { role: name, out } = args;
-  const role = roleCamera(ROLE_VIEWS[name], args);
+  const { out } = args;
+  const name = probe ? `${args.role}-${probe}` : args.role;
+  const role = roleCamera(ROLE_VIEWS[args.role], args);
   const size = roleCell(args.scale);
   if (args.zoom !== null || args.elevation !== null || args.scale !== 1) {
     console.log(
@@ -1209,14 +1276,14 @@ async function roleViews(args: CloseViewsArgs, site: TreeSite): Promise<CommitRe
     labels: readonly string[],
   ): Promise<Buffer> =>
     toWebp(browser, args.scale === 1 ? png : await grid(browser, cells, labels, role.views.length));
-  const views = await renderViews(browser, site.base, role, out, `${name}-`, size);
+  const views = await renderViews(browser, site.base, role, out, `${name}-`, size, probe);
   const sheet = await grid(browser, views.cells, views.labels, role.views.length, size);
   await writeFile(join(out, `${name}-views.png`), sheet);
   await writeFile(join(out, `${name}-views.webp`), await webp(sheet, views.cells, views.labels));
   console.log(join(out, `${name}-views.png`));
 
   return async (other, label) => {
-    const before = await renderViews(browser, other, role, out, `${name}-base-`, size);
+    const before = await renderViews(browser, other, role, out, `${name}-base-`, size, probe);
     const cells = [...before.cells, ...views.cells];
     const labels = baseGridLabels(views.labels, label);
     const both = await grid(browser, cells, labels, role.views.length, size);
@@ -2749,7 +2816,8 @@ export function closeModeArgs(args: readonly string[]): CloseMode | null {
 
 /**
  * Gives the renders of a mode. The lineup takes the gallery of the working tree into the build of
- * the commit, so that an older gallery gets the camera code of the query `distance`.
+ * the commit, so that an older gallery gets the camera code of the query `distance`. A role with
+ * `--probe` takes it for the query `probe`.
  *
  * @param mode The command line of the mode.
  * @returns The renders of the mode.
@@ -2757,7 +2825,10 @@ export function closeModeArgs(args: readonly string[]): CloseMode | null {
 function modeRender(mode: SingleMode): ModeRender {
   switch (mode.kind) {
     case 'role':
-      return { overlay: [], tree: (site) => roleViews(mode.args, site) };
+      return {
+        overlay: mode.args.probes ? ['src/gallery'] : [],
+        tree: (site) => roleViews(mode.args, site),
+      };
     case 'lineup':
       return { overlay: ['src/gallery'], tree: (site) => lineupViews(mode.args, site) };
     case 'species':
@@ -2866,7 +2937,7 @@ async function renderModes(
 
 /** The usage text of the tool. */
 const USAGE = [
-  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
+  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--url <url>] [--base <ref>]`,
@@ -2883,7 +2954,8 @@ const USAGE = [
  * ({@link batchArgs}), which builds and serves each tree one time for all its parts. It writes
  * the animal of the role at each moment from each view into `<dir>`, and the grid of all cells as
  * `<role>-views.png` and `<role>-views.webp`. `--zoom` and `--elevation` change the camera of the
- * role for each view, and `--scale` the size of each cell. With `--url`, it uses a running site,
+ * role for each view, `--scale` the size of each cell, and `--probe` renders one grid for each
+ * probe of the body ({@link probeViews}). With `--url`, it uses a running site,
  * such as the dev server, in place of the built site. With `--glb <file>` or `--set <changes>`, a
  * role renders a variant of the working tree from a build of its own ({@link startVariantSite}),
  * with no commit and no edit of a file. With `--base`, it also builds the commit in
