@@ -282,7 +282,8 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       headFloor: 0.69,
     },
   ],
-  // The bassoon beaver: decisions/2026-10-19-mesh-beaver.md. It stands as a soloist.
+  // The bassoon beaver: decisions/2026-10-19-mesh-beaver.md. A bassoon soloist keeps its seat,
+  // but the standing views of the gallery stand it up.
   [
     'beaver',
     {

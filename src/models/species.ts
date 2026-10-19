@@ -461,9 +461,9 @@ export const SPECIES = {
    * (2026-10-19-mesh-beaver decisions). It plays a smaller bassoon, the largest at which each paw
    * reaches its grip with 3 cm to spare. It has no chair, as the user chose: the round belly hides
    * the short thighs, so it stands on its hind legs with bent knees, in the seated pose at the
-   * seat height of its legs. Its broad tail goes back and lies on the floor behind it, and it
-   * stands upright as a soloist. Its head height is the head of the studio body, and the seat
-   * height is the seat of the studio body, in H.
+   * seat height of its legs. Its broad tail goes back and lies on the floor behind it. A bassoon
+   * soloist keeps its seat (`supportOf()` of `player.ts`). Its head height is the head of the
+   * studio body, and the seat height is the seat of the studio body, in H.
    */
   beaver: {
     body: 'studio-beaver',
