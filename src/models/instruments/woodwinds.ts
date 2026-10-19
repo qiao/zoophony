@@ -107,15 +107,15 @@ function hanging(angle: number): Quat {
 }
 
 /**
- * Builds the flute: a silver tube with the lip plate, the head cap, and the keys. The origin is at
- * the hole of the lip plate, and the tube runs along +x to the foot. The hole faces +y.
+ * Adds the parts of the flute: a silver tube with the lip plate, the head cap, and the keys. The
+ * origin is at the hole of the lip plate, and the tube runs along +x to the foot. The hole faces
+ * +y.
  *
- * @returns The piece builder.
+ * @param piece The piece builder.
  */
-function fluteParts(): PieceBuilder {
+function fluteParts(piece: PieceBuilder): void {
   const f = WOODWINDS.flute;
   const metal = INSTRUMENT_COLORS.silver;
-  const piece = new PieceBuilder();
   tube(
     piece,
     [
@@ -130,19 +130,17 @@ function fluteParts(): PieceBuilder {
   piece.add(box(0.03, 0.006, 0.02), metal, transform([0, 0.008, 0]), 'metal');
   piece.add(box(0.012, 0.022, 0.022), metal, transform([-0.05, 0, 0]), 'metal');
   keys(piece, 0.13, f.length - 0.09, 9, 0.01, metal);
-  return piece;
 }
 
 /**
- * Builds the oboe: a thin dark tube with the reed, metal keys, and a small bell. The origin is at
- * the tip of the reed, and the tube runs along +x to the bell.
+ * Adds the parts of the oboe: a thin dark tube with the reed, metal keys, and a small bell. The
+ * origin is at the tip of the reed, and the tube runs along +x to the bell.
  *
- * @returns The piece builder.
+ * @param piece The piece builder.
  */
-function oboeParts(): PieceBuilder {
+function oboeParts(piece: PieceBuilder): void {
   const o = WOODWINDS.oboe;
   const wood = INSTRUMENT_COLORS.oboe;
-  const piece = new PieceBuilder();
   piece.add(box(0.03, 0.002, 0.007), wood, transform([0.015, 0, 0]));
   tube(
     piece,
@@ -156,21 +154,19 @@ function oboeParts(): PieceBuilder {
     wood,
   );
   keys(piece, 0.1, o.length - 0.1, 10, 0.009, INSTRUMENT_COLORS.silver);
-  return piece;
 }
 
 /**
- * Builds the clarinet: a black tube with the black mouthpiece, silver rings at the joints, silver
- * keys, and a bell, as the clarinet of `mockup.png`. The origin is at the tip of the mouthpiece,
- * and the tube runs along +x to the bell.
+ * Adds the parts of the clarinet: a black tube with the black mouthpiece, silver rings at the
+ * joints, silver keys, and a bell, as the clarinet of `mockup.png`. The origin is at the tip of
+ * the mouthpiece, and the tube runs along +x to the bell.
  *
- * @returns The piece builder.
+ * @param piece The piece builder.
  */
-function clarinetParts(): PieceBuilder {
+function clarinetParts(piece: PieceBuilder): void {
   const c = WOODWINDS.clarinet;
   const body = INSTRUMENT_COLORS.clarinet;
   const metal = INSTRUMENT_COLORS.silver;
-  const piece = new PieceBuilder();
   tube(
     piece,
     [
@@ -206,22 +202,20 @@ function clarinetParts(): PieceBuilder {
     );
   }
   keys(piece, 0.16, c.length - 0.12, 8, 0.011, metal);
-  return piece;
 }
 
 /**
- * Builds the bassoon: a tall wooden tube with the boot, the wing joint, and the metal bocal (design
- * 4.6). The origin is at the tip of the reed. The tube runs along +y from the boot to the bell.
- * The bocal comes from the wing joint on the side of the player (+z) to the reed at the right (+x)
- * of the tube, so that the tube passes the left side of the head.
+ * Adds the parts of the bassoon: a tall wooden tube with the boot, the wing joint, and the metal
+ * bocal (design 4.6). The origin is at the tip of the reed. The tube runs along +y from the boot
+ * to the bell. The bocal comes from the wing joint on the side of the player (+z) to the reed at
+ * the right (+x) of the tube, so that the tube passes the left side of the head.
  *
- * @returns The piece builder.
+ * @param piece The piece builder.
  */
-function bassoonParts(): PieceBuilder {
+function bassoonParts(piece: PieceBuilder): void {
   const b = WOODWINDS.bassoon;
   const wood = INSTRUMENT_COLORS.bassoon;
   const metal = INSTRUMENT_COLORS.silver;
-  const piece = new PieceBuilder();
   // The axes of the drawing: the bottom of the boot is at y = 0, and the reed at `BASSOON_REED`.
   const reed = BASSOON_REED;
   const at = (p: Vec3): Vec3 => [p[0] - reed[0], p[1] - reed[1], p[2] - reed[2]];
@@ -243,7 +237,6 @@ function bassoonParts(): PieceBuilder {
   piece.rod(at([0, 0.62, 0.065]), at([0.06, 0.69, 0.09]), 0.004, 4, metal, 'metal');
   piece.rod(at([0.06, 0.69, 0.09]), at([0.16, 0.7, 0.125]), 0.004, 4, metal, 'metal');
   piece.add(box(0.006, 0.002, 0.03), wood, transform(at([0.16, 0.7, 0.14])));
-  return piece;
 }
 
 /**
@@ -285,6 +278,14 @@ function woodwindRotation(id: WoodwindId): Quat {
   }
 }
 
+/** The function that adds the parts of each woodwind. */
+const WOODWIND_PARTS = {
+  flute: fluteParts,
+  oboe: oboeParts,
+  clarinet: clarinetParts,
+  bassoon: bassoonParts,
+} as const satisfies Readonly<Record<WoodwindId, (piece: PieceBuilder) => void>>;
+
 /**
  * Builds a woodwind (design 4.6). The origin of the piece is the point at the mouth, and the
  * instrument bone hangs on the chest (4.7).
@@ -294,14 +295,8 @@ function woodwindRotation(id: WoodwindId): Quat {
  */
 export function buildWoodwind(id: WoodwindId): InstrumentModel {
   const w = WOODWINDS[id];
-  const piece =
-    id === 'flute'
-      ? fluteParts()
-      : id === 'oboe'
-        ? oboeParts()
-        : id === 'clarinet'
-          ? clarinetParts()
-          : bassoonParts();
+  const piece = new PieceBuilder();
+  WOODWIND_PARTS[id](piece);
   const instrument = piece.build('instrument', hold('mouth', [0, 0, 0], woodwindRotation(id)));
   // The palms hold the tube from below, on the side away from the keys. The bassoon tube runs
   // along +y, and the palms hold its wing joint from the side of the player.
