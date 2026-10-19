@@ -151,6 +151,9 @@ const SWEEP_DECISIONS = 'docs/decisions/2026-10-13-role-sweep.md';
 /** The decision file of the elephant mesh and its timpani. */
 const ELEPHANT_DECISIONS = 'docs/decisions/2026-10-19-mesh-elephant.md';
 
+/** The decision file of the beaver mesh and its bassoon. */
+const BEAVER_DECISIONS = 'docs/decisions/2026-10-19-mesh-beaver.md';
+
 /** The decision file of cheerful demos. */
 const CHEERFUL_DEMO_DECISIONS = 'docs/decisions/2026-10-14-cheerful-demos.md';
 
@@ -1296,6 +1299,15 @@ export const BASSOONIST_SWEEP: RoleSweep = {
     { name: 'body', surface: beaverBodySurface },
     { name: 'bassoon', surface: instrumentSurface },
   ],
+  accepted: ['lift', 'lower'].map((samples) => ({
+    part: 'paws',
+    into: 'bassoon',
+    samples,
+    depth: 0.016,
+    reason:
+      'The left paw closes on the wing joint of the smaller bassoon, and in the middle of the lift and the lowering it goes up to 1.6 cm into the tube in one sample of about 30 (design 5.3).',
+    decision: BEAVER_DECISIONS,
+  })),
   hasRole: (score) => score.seats.some((seat) => seat.section === 'bassoon'),
   players: (scene) =>
     scene.layout.players.flatMap((place, index) => {
