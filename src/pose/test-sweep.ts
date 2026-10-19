@@ -140,7 +140,18 @@ export interface PairDepth {
    * its first child. `NaN` for a bone with no child.
    */
   readonly along: number;
+  /** The number of samples of the sweep, when the sweep has a goal ({@link PairGoal}). */
+  readonly samples?: number;
+  /** The number of samples with a depth over the goal, when the sweep has a goal. */
+  readonly over?: number;
 }
+
+/**
+ * Gives the goal of a pair: the depth in meters over which a sample counts, such as the limit of
+ * the pair or `--goal` of `pnpm pose-depth`. `Infinity` counts no sample. A deepest point that goes
+ * fully through an obstacle keeps one depth, so the count shows a change that the depth hides.
+ */
+export type PairGoal = (pair: Pick<PairDepth, 'part' | 'into'>) => number;
 
 /** The largest distance from a hand, or from the part that it holds, to its note target. */
 export interface TargetError {
@@ -227,12 +238,14 @@ export type SweepVisit = (
 /**
  * Sweeps one player of a role over a set of samples: in each sample, it poses the skin of the GPU
  * (`posedCorner()`), and measures the depth of each point of each moving part in each obstacle of
- * the part (`closedDepth()`). It gives the deepest point of each pair.
+ * the part (`closedDepth()`). It gives the deepest point of each pair. With a goal, each pair also
+ * gives its samples and the samples with a depth over the goal.
  *
  * @param role The role.
  * @param player The player.
  * @param samples The samples.
  * @param visit Gets each posed sample with the surfaces of the obstacles.
+ * @param goal Gives the goal of each pair, or none for no count.
  * @returns The deepest point of each pair of a moving part and an obstacle.
  */
 export function sweepDepths(
@@ -240,6 +253,7 @@ export function sweepDepths(
   player: SweepPlayer,
   samples: Iterable<SweepSample>,
   visit?: SweepVisit,
+  goal?: PairGoal,
 ): PairDepth[] {
   const { mesh } = player.model;
   const parts = role.parts.map((part) => ({ part, points: partPoints(mesh, part.bones) }));
@@ -260,6 +274,10 @@ export function sweepDepths(
     }
   }
 
+  const goals = new Map(
+    [...deepest].map(([key, pair]) => [key, goal ? goal(pair) : Infinity] as const),
+  );
+  const counts = new Map([...deepest.keys()].map((key) => [key, { samples: 0, over: 0 }]));
   for (const sample of samples) {
     const posed = poseSkeleton(player.model, player.poseAt(sample));
     const surfaces = role.obstacles.map((obstacle) => ({
@@ -272,6 +290,11 @@ export function sweepDepths(
       for (const { name, surface } of surfaces.filter((s) => enters(part, s.name))) {
         const key = `${part.name} ${name}`;
         const { depth, index } = closedDepth(placed, surface);
+        const count = counts.get(key);
+        if (count) {
+          count.samples += 1;
+          count.over += depth > (goals.get(key) ?? Infinity) ? 1 : 0;
+        }
         const best = deepest.get(key);
         const corner = points.corners[index];
         const point = placed[index];
@@ -290,7 +313,15 @@ export function sweepDepths(
       }
     }
   }
-  return [...deepest.values()];
+  if (!goal) {
+    return [...deepest.values()];
+  }
+  const counted: PairDepth[] = [];
+  for (const [key, pair] of deepest) {
+    const count = counts.get(key);
+    counted.push({ ...pair, samples: count?.samples ?? 0, over: count?.over ?? 0 });
+  }
+  return counted;
 }
 
 /**
