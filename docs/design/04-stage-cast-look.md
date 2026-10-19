@@ -340,7 +340,7 @@ cloth and squeezes the upper arm flat. A fold count does not see this, so `pnpm 
 the twist, the flat share, and the spikes of each arm. A body can take a twist bone of each upper
 arm (`StudioBody.upperTwist`): the bone takes a share of the roll from the chest, and the weight of
 the upper arm moves to it near the shoulder, so the roll spreads along the arm. The rule comes from
-`upperTwist.share` of the config of the mesh rig. The rig solves the shapes of `raise` with the
+`upperTwist.share` of the config of the mesh rig. The rig solves its corrective shapes with the
 twist bone, and `pnpm studio-body` writes the share into the body. A body with no share has no
 twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
 
