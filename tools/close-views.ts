@@ -185,9 +185,9 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  * - The mouse oboist: the views and the moments of the flutist. The side views and the back view
  *   also show the long tail, which goes back over the seat and lies on the floor behind the chair.
  * - The elephant timpanist, who stands: the front, both sides, and the back. The moments are a
- *   strike of the left mallet on the large kettle, a strike of the right mallet on the small
- *   kettle, a time between two strikes with both mallets up, the rest pose, and halfway through
- *   the lift and the lowering at the first strike. The camera looks down 30°, as a seat of the
+ *   strike of the left mallet on the front kettle at the left of the trunk, a strike of the right
+ *   mallet on the front kettle at its right, a time between two strikes, the rest pose, and
+ *   halfway through the lift and the lowering at the first strike. The camera looks down 30°, as a seat of the
  *   hall looks at the back row.
  *
  * A new role gives its species, its views, its moments, and its test notes, with the camera
@@ -417,9 +417,9 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
       ...halfMoves(0.5),
     ],
     camera: { kind: 'body', zoom: 1, elevation: 30 },
-    // D2 on the large kettle at the left, then A2 on the small kettle at the right, 1 s apart, so
-    // that each note takes the hand on its side (design 5.3).
-    notes: ['0.5 0.5 D2', '1.5 0.5 A2', '2.5 0.5 D2', '3.5 0.5 A2'].join('\n'),
+    // A2 on the second kettle, at the left of the trunk, then C3 on the third kettle, at its
+    // right: each note takes the hand on its side (design 5.3). The gallery shows four kettles.
+    notes: ['0.5 0.5 A2', '1.5 0.5 C3', '2.5 0.5 A2', '3.5 0.5 C3'].join('\n'),
   },
 };
 
