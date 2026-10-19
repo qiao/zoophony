@@ -296,6 +296,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       A tip on the plane moves the jaw of the rig 3.0 cm up (`2026-10-19-mesh-retro.md`).
 - [ ] Brief template: `docs/briefs/studio-body.md` has 2,625 words, above its limit of about
       2,500 (2,611 before the mesh retro). Cut it in a prose pass.
+- [ ] Top plate in the sweep: the pair "instrument in body" gives the deepest corner of the
+      instrument, for the hippo the back of the upper bout (14.7 cm) against 1.5 cm of the top
+      plate. Offer a part of the visible top plate of the bowed instruments, as `top-plate.ts` of
+      the chest round measures it (`2026-10-19-hippo-retro.md`).
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
