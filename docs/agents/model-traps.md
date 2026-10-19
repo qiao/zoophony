@@ -168,30 +168,30 @@ group of your work before you plan it. A probe that a trap names is in its resea
   bones (`tail_tip`).
 - Short thighs under a round belly, or thighs that slope down to a level seat, set the seat top
   before the haunch, and the sit pulls the haunch into a sheet behind the seat. End the seat where
-  the thighs leave the seat top (`chair.front`), move the back edge of the chair forward by the same
-  distance (`chair.back`), and keep the drop of the sit small.
-- The chair of a rig takes its seat top from the corners of the body, so a long triangle of a sloped
-  thigh can go into the seat (`seat-dip.ts` of `docs/research/2026-10-17-fox-form/`).
+  the thighs leave the seat top (`chair.front`), move the chair back edge forward by the same
+  distance (`chair.back`), and keep the sit drop small.
+- The chair of a rig takes its seat top from the body corners, so a long triangle of a sloped thigh
+  can go into the seat (`seat-dip.ts` of `docs/research/2026-10-17-fox-form/`).
 - The chair of the app grows until its back posts keep 1 cm behind the trunk (`chairDepthOf()`).
   Only `backRoom` of `ANIMALS` keeps a body off the chair back.
-- The root of a tail moves the haunch vertices that set the seat top of the sit. Give the sit a
-  fixed seat top (`sit.top`), and count the root vertices as the haunch (`sit.root`). A deeper
-  haunch needs more rounds of smoothing (`sit.smooth`).
+- A tail root moves the haunch vertices that set the seat top of the sit. Give the sit a fixed seat
+  top (`sit.top`), and count the root vertices as the haunch (`sit.root`). A deeper haunch needs
+  more rounds of smoothing (`sit.smooth`).
 - A tail on the floor stays flat with rigid bone turns (`studio.tailBind`), and a curve of
   `tailCurl` turns it into a vertical sheet. When the tail is the lowest point of the seated bind,
   it sets the seat height, and the feet hang above the floor. Turn the tip bone until the line
   `tail: the lowest point` of the rig log gives the height of the soles.
-- The idle sway turns the tail bones around the vertical (`pose/pose-at.ts`). A seated tail that
-  lies on the seat does not sway (`OwnBodyParams.seatedTail`). Measure a seated tail over one sway
-  period, 5.5 s.
-- Short thighs on a deep trunk end behind the front of the belly. Measure the front of the trunk and
-  the knees (`dog-profile.ts` and `cello-contact.ts` of `docs/research/2026-10-17-dog-mesh/`) before
-  you plan the knees or an instrument between them.
-- A big head over a thin neck shows a dark band under the head. Smooth the neck and the bottom of
-  the head with a box that ends behind the chin (`smooth`), because a box that holds the chin moves
-  H and each hold.
-- The trunk of the elephant takes bone heat from the chest, and it set the chin of the head
-  measures. Use `noseFront`, and `headFloor` of `ANIMALS`.
+- The idle sway turns the tail bones around the vertical (`pose/pose-at.ts`). A tail that lies on
+  the seat does not sway (`OwnBodyParams.seatedTail`). Measure a seated tail over one sway period,
+  5.5 s.
+- Short thighs on a deep trunk end behind the front of the belly. Measure the trunk front and the
+  knees (`dog-profile.ts` and `cello-contact.ts` of `docs/research/2026-10-17-dog-mesh/`) before you
+  plan the knees or an instrument between them.
+- A big head over a thin neck shows a dark band under the head. Smooth the neck and the head bottom
+  with a box that ends behind the chin (`smooth`), because a box that holds the chin moves H and
+  each hold.
+- The elephant trunk takes bone heat from the chest, and it set the chin of the head measures. Use
+  `noseFront`, and `headFloor` of `ANIMALS`.
 - The tip of `earFlap` takes the nearest vertex, which can lie on the shoulder. Take it from a cut
   of the flap, and read the count of the log line `ear L`.
 
