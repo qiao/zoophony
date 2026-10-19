@@ -6,7 +6,7 @@ import type { StudioBody } from '../studio-format.ts';
  */
 export const STUDIO_HIPPO = {
   source: 'assets/models/hippo/hippo.rig.glb',
-  sha256: '1379641209f582f7a49e5a91034b777390ddd834b728319607573ecaac4ca359',
+  sha256: '521bdb4e2d45f8356b3e9b2d5262a5083b665761f8473dc7fc03f9508562a0fe',
   scale: 1.600908,
   heads: {
     root: [0, -0.035545, -0.292717],
@@ -129,4 +129,5 @@ export const STUDIO_HIPPO = {
       fade: [0.436332, 0.610865],
     },
   ],
+  caps: [30, 70, 73, 74, 228, 229, 1407, 1408, 1409, 1412, 1413, 2202],
 } satisfies StudioBody;
