@@ -397,7 +397,7 @@ the rows.
 | Breath of the oboe | A breath in only | A breath out of the stale air, then a breath in (2.3) | Differs: no breath out |
 | Breath motion (`WIND_BODY.breath`) | The spine leans back 3° | The chest and the abdomen expand, and the shoulders stay still (1.6, 2.1, 3) | Differs: a lean in place of an expansion |
 | Elbows (`POLE_L`, `POLE_R`, user decision of 2026-10-10) | The elbows point down and in, as far as the arms permit | The arms stay a little away from the rib cage (1.8, 2.3) | Differs: the elbows stay near the body, as the user chose |
-| Elbows of the oboe (`poleL`, `poleR` of `MOUSE_OBOE`) | Both elbows point down, out, and forward, and the paws reach forward at the height of the shoulders, because the big head of the mouse puts the reed about 0.25 m above the shoulder joints | The arms a little away from the sides, and the wrists drop (2.3) | Matches the elbows. The paws are higher than the chest of a real oboist |
+| Elbows of the oboe (`poleL`, `poleR` of `MOUSE_OBOE`) | Both elbows point down, out, and forward, and the paws reach forward at the height of the shoulders, because the big head of the mouse puts the reed about 0.13 m above the shoulder joints | The arms a little away from the sides, and the wrists drop (2.3) | Matches the elbows. The paws are higher than the chest of a real oboist |
 
 ## 5. Sources
 

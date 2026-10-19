@@ -4,14 +4,14 @@
   "name": "Mouse",
   "weld": 1e-05,
   "app": {
-    "shoulders": 0.98156,
-    "reach": 0.6289,
-    "note": "The head height of the red fox, the size that the user chose for the cat, the dog, the panda, and the hippo. No reference image shows a mouse (docs/research/2026-10-19-mouse-mesh.md), so the size of the reference does not apply. The scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9485 u) at 1.570 m, 1.655245 m for each unit, with the standing shoulder joints at 0.98156 m (the entry of the mouse in ANIMALS). The ear tips stand at 1.655 m. The parametric mouse of main stood 0.812 m high to the head top (size 0.75). The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "shoulders": 0.507635,
+    "reach": 0.3252,
+    "note": "The size of the parametric mouse of ab002346 (size 0.75, H 0.285 m), which stood 0.812 m high to the head top. The user said: \"the mouse is way too big. make it the size of the previous parametric model\" (docs/decisions/2026-10-19-mouse-size.md). The scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9485 u) at 0.812 m, 0.856045 m for each unit, with the standing shoulder joints at 0.507635 m (the entry of the mouse in ANIMALS). The ear tips stand at 0.856 m. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
   "armFactor": 1.4,
-  "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short: 0.460 m from the shoulder joint to the middle of the palm with no factor, 0.67 of the trunk from the hips joint to the shoulder joints, and the paws miss the grips of the oboe hold of main by 0.29 m (left) and 0.19 m (right) (docs/research/2026-10-19-mouse-mesh/options.md). With 1.4, the reach is 0.629 m, and the arm is 0.91 of the trunk, as the red fox (0.91), the dog (0.92), the panda, and the hippo (0.94). The user called the arms of the dog with the factor 1.75 much too long, so the oboe hold of the mouse brings the oboe to the arms (SPECIES_WIND_HOLDS.mouse of src/pose/winds.ts).",
+  "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short: 0.238 m from the shoulder joint to the middle of the palm with no factor, 0.67 of the trunk from the hips joint to the shoulder joints. With 1.4, the reach is 0.325 m, and the arm is 0.91 of the trunk, as the red fox (0.91), the dog (0.92), the panda, and the hippo (0.94). The user called the arms of the dog with the factor 1.75 much too long, so the mouse plays a smaller oboe (SpeciesParams.oboeScale), and its hold brings the oboe to the arms (SPECIES_WIND_HOLDS.mouse of src/pose/winds.ts, docs/research/2026-10-19-mouse-size.md).",
   "legFactor": 1,
-  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair). The seat of the legs of the seated bind is 0.147 m, and the chair of the app is 0.190 m deep.",
+  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair). The seat of the legs of the seated bind is 0.076 m, and the chair of the app is 0.120 m deep.",
   "joints": {
     "root": {
       "head": [

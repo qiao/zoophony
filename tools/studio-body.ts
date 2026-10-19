@@ -245,7 +245,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     'mouse',
     {
       landmark: 'shoulders',
-      height: 0.98156,
+      height: 0.507635,
       seated: true,
       soloist: true,
       constant: 'STUDIO_MOUSE',

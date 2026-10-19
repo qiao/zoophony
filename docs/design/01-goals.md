@@ -78,7 +78,8 @@ side.
 - The conductor stands on a podium with cut corners, behind a stand with an open score.
 - The hippos stand at their contrabasses, and the elephant stands behind the timpani.
 - No reference image shows a mouse or an oboe. The mesh of the user is the target of the mouse,
-  and the mouse has the head height of the red fox (`docs/decisions/2026-10-19-mesh-mouse.md`).
+  and the mouse has the size of the parametric mouse that the user chose
+  (`docs/decisions/2026-10-19-mouse-size.md`).
 
 The reference image [`reference/fox-views.png`](../reference/fox-views.png) (2494 × 1354 px)
 shows the red fox of the violins from the front, the side, and the back, on a chair. The user

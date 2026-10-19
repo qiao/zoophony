@@ -421,7 +421,9 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
   `tools/studio-body.ts`). The landmark is the shoulders of the bear for the conductor stand, and
   the keys of the studio piano of the polar bear. For a mesh body, it is the shoulders, the ear
   tips, or the head top at the size that the user chose. A longer leg raises the landmark by the same height, so
-  the trunk, the head, and the arms keep their meters.
+  the trunk, the head, and the arms keep their meters. The user chose the head height of the red
+  fox for the cat, the dog, the panda, and the hippo, and the head top of the parametric mouse
+  for the mouse, which is about half as tall (`docs/decisions/2026-10-19-mouse-size.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear then rises to its seat height
   (`seat` of `ANIMALS`). The rabbits, the foxes, the cats, the dogs, the pandas, and the mice have

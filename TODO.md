@@ -472,19 +472,16 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       turns gave 7.0%, and narrower fades 9.1%
       (`docs/research/2026-10-19-mouse-mesh/lift-shapes.txt`, `2026-10-19-mesh-mouse.md`).
 - [ ] Mouse oboist: the paws hold the oboe at the height of the shoulders, higher than a real
-      oboist, because the big head puts the reed about 0.25 m above the shoulder joints. Show the
+      oboist, because the big head puts the reed about 0.13 m above the shoulder joints. Show the
       user the close views, and offer a bowed head while the mouse plays
       (`2026-10-19-mesh-mouse.md`).
 - [ ] Mouse oboe rest: a real oboist rests the oboe on the legs, but the round belly covers the
       short thighs, so the rest of `WIND_HOLDS.oboe` stays in both paws in front of the body
       (`docs/reference/wind-technique.md` 4.2, `2026-10-19-mesh-mouse.md`).
-- [ ] Mouse size: no reference image shows a mouse, so the mouse took the head height of the red
-      fox, about twice the parametric mouse (1.570 m against 0.812 m). Show the user the lineup and
-      the play frame, and ask for the size (`2026-10-19-mesh-mouse.md`).
 - [ ] Mouse tail: the loop of the long tail lies on the floor up to 0.6 m behind the chair, the
       footprint is 1.418 m deep, and the stages of the demos with oboes grow up to 6.7%. Check the
       tail between the rows of the stage with the user (`2026-10-19-mesh-mouse.md`).
-- [ ] Mouse seat: the round belly hides the short thighs, and the seat is 0.147 m high, so in the
+- [ ] Mouse seat: the round belly hides the short thighs, and the seat is 0.076 m high, so in the
       play frames the mouse seems to stand in front of a low chair and lean on it
       (`species-play-base-views.webp` of `docs/research/2026-10-19-mouse-mesh/`). Show the user
       the side view, and offer a higher seat with the feet off the floor

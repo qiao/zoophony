@@ -412,8 +412,9 @@ export const SPECIES = {
   /**
    * Mouse, the oboes: a gray-brown mouse with a cream belly, large round ears, and a long pink
    * tail. It has the studio body of the mesh of the user, `assets/models/mouse/mouse.glb`, which
-   * `pnpm rig-mesh mouse` rigs (design 4.4), with the head height of the red fox and longer arms
-   * (2026-10-19-mesh-mouse decisions). It sits on a low chair that fits its short legs, its long
+   * `pnpm rig-mesh mouse` rigs (design 4.4), with the size of the parametric mouse and longer arms
+   * (2026-10-19-mesh-mouse and 2026-10-19-mouse-size decisions). It sits on a low chair that fits
+   * its short legs, its long
    * tail goes back over the seat and lies on the floor behind the chair, and it stands as a
    * soloist. Its head height is the head of the studio body, and the seat height is the seat of
    * the studio body, in H.
