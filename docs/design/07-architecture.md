@@ -107,7 +107,8 @@ player.
   sides, at a strike of each mallet, between two strikes, in the rest pose, and in the middle of
   the lift and of the lowering at the first strike, from a camera above the kettles. The beaver
   bassoonist (`bassoonist`) has the views and the moments of the flutist, with its own test
-  notes, and its broad tail on the floor shows in the side views and the back view. With
+  notes, and its broad tail on the floor shows in the side views and the back view. The pig
+  hornist (`hornist`) has the views and the moments of the flutist, with its own test notes. With
   `--base <ref>`, the tool
   puts the grid of a commit above the grid of the working tree, so a round shows the change of
   a body with no worktree of `main`. The mode `species` of the tool shows named species alone
