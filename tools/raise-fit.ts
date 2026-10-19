@@ -20,7 +20,8 @@
  * [--sets <set>,...] [--demo <id>|all]... [--step <seconds>] [--set <changes>]... [--json <file>]
  * [--glb <file>]
  */
-import { writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import { Matrix4, Quaternion } from 'three';
 
@@ -36,7 +37,7 @@ import type { SampleSet } from './fold-probe.ts';
 import { runTool, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { patchedDemos } from './patch-demos.ts';
-import { STUDIO_BONES } from '../src/models/studio-format.ts';
+import { STUDIO_BONES, STUDIO_RAISES } from '../src/models/studio-format.ts';
 import type { Side } from '../src/models/studio-format.ts';
 import type { Quat } from '../src/models/tuples.ts';
 
@@ -445,10 +446,51 @@ async function main(): Promise<void> {
   }
   const fit = fitRaise(samples, options);
   console.log(fit.lines.join('\n'));
+  const free = freeRaises(options.role);
+  if (free) {
+    console.log(`\n${free}`);
+  }
   if (options.json !== null) {
     console.log(`\n${writeEntry(options.json, fit, options.role)}`);
   }
   console.log(`\nRun time ${((performance.now() - started) / 1000).toFixed(1)} s.`);
+}
+
+/**
+ * Counts the rules of `raise` in a config of a mesh rig: a list of rules, one rule as an object, or
+ * none.
+ *
+ * @param text The JSON text of the config.
+ * @returns The count.
+ */
+export function raiseCount(text: string): number {
+  // SAFETY: a config file of tools/mesh-rigs/ holds one JSON object, and only `raise` is read.
+  const config = JSON.parse(text) as { readonly raise?: unknown };
+  if (Array.isArray(config.raise)) {
+    return config.raise.length;
+  }
+  return config.raise instanceof Object ? 1 : 0;
+}
+
+/**
+ * Writes how many shapes of `raise` the body of a role has free: the limit of a body
+ * (`STUDIO_RAISES`, `RAISE_LIMIT` of `tools/blender/rig_mesh.py`) less the rules of its config.
+ *
+ * @param role The name of the role.
+ * @returns The line, or `null` when the animal of the role has no config next to this script, as
+ *   in the copy of `--glb`.
+ */
+function freeRaises(role: string): string | null {
+  const source = FOLD_ROLES.get(role);
+  const animal = source ? roleAnimal(source) : '';
+  const path = join(import.meta.dirname, 'mesh-rigs', `${animal}.json`);
+  if (!animal || !existsSync(path)) {
+    return null;
+  }
+  const count = raiseCount(readFileSync(path, 'utf8'));
+  const free = Math.max(0, STUDIO_RAISES - count);
+  const full = free === 0 ? ' A new rule must take the place of a rule of the config.' : '';
+  return `Shapes: tools/mesh-rigs/${animal}.json has ${count} rules of raise, and a body has at most ${STUDIO_RAISES} (STUDIO_RAISES, RAISE_LIMIT of tools/blender/rig_mesh.py), so ${free} are free.${full}`;
 }
 
 /**
