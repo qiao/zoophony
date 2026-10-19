@@ -55,7 +55,7 @@ right paw with less than about 2 cm to spare also folded the play.
 |---|---|---|---|---|
 | Hold of `ef456e07`, scale 0.52 | 0.0% | 12.9% | 0 | 58°, 122° / 61°, 99° |
 | Reed 0.23 H, scale 0.62 | 0.0% | 19.4% | 2 | 58°, 123° / 63°, 100° |
-| and the rest 0.04 H lower, 0.02 H forward | 0.0% | 12.9% | 2 | - |
+| and the rest 0.04 H lower, 0.03 H forward (`fit5.txt`) | - | 12.9% | 2 | - |
 | and the new rest shape (final) | 0.0% | 0.0% | 0 | 58°, 123° / 63°, 100° |
 | final, elbows (-1, -1, -1) | 0.0% | 0.0% | 0 | 56°, 142° / 67°, 120° |
 | final, elbows (-0.3, -1, -0.3) | 100% | 90.3% | 0 | 62°, 111° / 63°, 88° |
