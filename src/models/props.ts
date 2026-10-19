@@ -114,12 +114,14 @@ export const STOOL = {
 } as const;
 
 /**
- * The high stool of the contrabass (design 4.5, props). Its seat keeps its height for the
- * contrabass. The feet rest on a ring between the legs, at the legs of the species below the seat
+ * The stool of the contrabass, with a foot ring (design 4.5, props). Its seat keeps its height for
+ * the contrabass: the hold of the hippo puts the contact point of the bow above the round belly, at
+ * the reach of its short arms, with the end pin on the floor (2026-10-18-mesh-hippo decisions). The
+ * feet rest on a ring between the legs, at the legs of the species below the seat
  * (`seatHeights()`).
  */
 export const HIGH_STOOL = {
-  seatHeight: 0.7,
+  seatHeight: 0.37,
   seatSize: 0.36,
 } as const;
 
