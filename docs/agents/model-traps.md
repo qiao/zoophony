@@ -31,9 +31,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   (`cello-reach.ts` of `docs/research/2026-10-17-dog-mesh/`), and rig the final factor once. A
   factor far above the option text of the user goes back to the user before the merge (the dog got
   1.75 for "about 1.4x").
-- A new scale of `SpeciesParams` needs its case in `instrumentScale()` and `buildInstrument()` of
-  `models/instruments/catalog.ts`. With no case, `--set <species>.<scale>` prints the scale and
-  moves no grip.
+- A new scale of `SpeciesParams` adds its instrument to `SCALED_INSTRUMENTS` of
+  `models/instruments/types.ts`. The typecheck then names each place that must read it.
 - A smaller body keeps its instrument in meters, so the old hold misses the grips: scan the scale
   and the hold with `windReach()` first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`). A
   reach from another body misses the mouth of a big head. Measure `slideReach` on the new body
@@ -58,8 +57,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   `PercussionHold.rim`, `sides`, and `home`, and scan them with `pnpm pose-depth --targets`.
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit
   (`left-rest.ts` of `docs/research/2026-10-17-tan-rest/`).
-- The rest columns of `pnpm hold-fit` give the reach of a free paw only, so run `pnpm hold-reach`
-  after each move of a rest place of a held instrument.
+- Read the spare reach of each grip after each move of a rest place of a wind hold. `pnpm hold-fit`
+  gives it, also with `--scan`, and a grip below 0 is a missed goal.
 - A bow that rests upright and plays across the strings turns its tip from up to the left. A direct
   mix turns the tip through the head, and a via of the rest bow (`BowVia`) through the front.
 
