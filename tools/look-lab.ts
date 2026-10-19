@@ -2,8 +2,10 @@
  * The look lab (design 4.5): it renders the default demo at {@link LOOK_TIME_SEC} at the cameras
  * of {@link LOOK_CAMERAS} with `pnpm close-views play`, and measures the frames against
  * `docs/reference/orchestra-latest.png`. It writes `<dir>/look.md`: the luma percentiles and the
- * saturation of the stage area of each frame, and the measures of the regions of
- * {@link LOOK_REGIONS}.
+ * saturation of the stage area of each frame, the measures of the regions of {@link LOOK_REGIONS}
+ * (camera `orchestra`), and the measures of the regions of the camera `default`, which come from
+ * the layout of {@link LOOK_DEMO} (`tools/look-regions.ts`). `<dir>/regions-default.png` shows
+ * these regions on the frame of the tree.
  *
  * Usage: `pnpm look-lab <dir> [--base <ref>] [--url <url>] [--measure]`
  *
