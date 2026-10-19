@@ -1,0 +1,105 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony
+> node tools/fold-probe.ts bassist --faces 20
+
+Folded faces of the studio body of the bassist (3141 faces), play step 0.25 s.
+Demos: bach-bwv1048.mid, bach-bwv1050.mid, beethoven-1.mid, beethoven-8-4.mid, beethoven-8.mid, beethoven-9.mid, boulanger-matin.mid, brahms-2.mid, mendelssohn-op61.mid
+
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 9 | 9 | 100.0% | 13 (L 3 / R 9 / other 1) | bach-bwv1048.mid rest |
+| play | 12912 | 12912 | 100.0% | 28 (L 6 / R 17 / other 5) | bach-bwv1048.mid 302.50 s |
+| lift | 279 | 279 | 100.0% | 24 (L 6 / R 14 / other 4) | bach-bwv1048.mid wall 1.6 s |
+| all | 13200 | 13200 | 100.0% | 28 (L 6 / R 17 / other 5) | bach-bwv1048.mid 302.50 s |
+
+Folded faces of all samples by the main studio bone: upper_arm_R 80969, hand_L 52507, chest 39359, clavicle_R 17961, neck 13540, upper_arm_L 12307, hand_R 12299, forearm_L 11437, forearm_twist_L 6943, forearm_twist_R 5363, forearm_R 58, spine 28
+
+The 20 faces that fold in the most samples, with the places of the bind pose. The mark ALL shows a face that folds in each sample of each set with samples.
+
+| Face | Rest | Play | Lift | Mark | Main bone | Middle (m) | Corner angles | Worst sample, angle, bone of the fold |
+|---:|---:|---:|---:|---|---|---|---|---|
+| 2213 | 0.0% | 100.0% | 90.3% |  | hand_L | -0.556, 1.250, -0.505 | 31.8°, 116.0°, 32.1° | bach-bwv1050.mid 36.30 s, 179°, turn of hand_L 145° |
+| 2225 | 0.0% | 100.0% | 90.3% |  | hand_L | -0.567, 1.258, -0.506 | 136.8°, 19.1°, 24.2° | bach-bwv1050.mid 268.30 s, 139°, turn of hand_L 161° |
+| 323 | 0.0% | 100.0% | 80.6% |  | neck | 0.265, 1.285, -0.086 | 18.8°, 78.8°, 82.4° | beethoven-8-4.mid 623.34 s, 111°, turn of clavicle_R 59° |
+| 462 | 0.0% | 100.0% | 77.8% |  | upper_arm_R | 0.311, 1.053, -0.313 | 37.0°, 113.6°, 29.5° | brahms-2.mid 464.38 s, 180°, turn of upper_arm_R 45° |
+| 618 | 0.0% | 100.0% | 77.4% |  | chest | 0.012, 1.171, -0.475 | 122.1°, 19.4°, 38.5° | brahms-2.mid 133.63 s, 113°, turn of clavicle_R 108° |
+| 617 | 0.0% | 100.0% | 74.6% |  | chest | 0.011, 1.124, -0.498 | 47.4°, 54.6°, 77.9° | brahms-2.mid 281.63 s, 117°, turn of clavicle_R 115° |
+| 522 | 0.0% | 100.0% | 71.3% |  | chest | 0.093, 1.002, 0.060 | 141.3°, 22.7°, 16.0° | beethoven-8-4.mid 595.34 s, 94°, turn of clavicle_R 82° |
+| 286 | 0.0% | 93.5% | 73.1% |  | upper_arm_R | 0.334, 1.057, -0.086 | 53.3°, 23.4°, 103.2° | bach-bwv1050.mid 146.80 s, 166°, turn of clavicle_R 165° |
+| 249 | 0.0% | 90.7% | 74.6% |  | upper_arm_R | 0.338, 1.012, -0.295 | 68.7°, 40.4°, 71.0° | brahms-2.mid 439.88 s, 162°, turn of upper_arm_R 44° |
+| 248 | 0.0% | 90.7% | 74.6% |  | upper_arm_R | 0.325, 1.030, -0.298 | 25.2°, 109.1°, 45.6° | brahms-2.mid 439.88 s, 144°, turn of upper_arm_R 73° |
+| 2214 | 0.0% | 90.3% | 90.3% |  | hand_L | -0.551, 1.245, -0.506 | 30.7°, 59.9°, 89.4° | boulanger-matin.mid 77.63 s, 110°, turn of hand_L 71° |
+| 753 | 100.0% | 87.0% | 96.8% |  | upper_arm_L | -0.444, 1.063, -0.397 | 4.0°, 171.2°, 4.8° | beethoven-9.mid wall 0.2 s, 122°, turn of upper_arm_L 24° |
+| 2181 | 0.0% | 86.8% | 83.9% |  | forearm_L | -0.620, 1.197, -0.321 | 13.3°, 127.4°, 39.3° | bach-bwv1050.mid wall 0.3 s, 175°, turn of forearm_twist_L 137° |
+| 30 | 0.0% | 79.4% | 57.7% |  | upper_arm_R | 0.455, 1.095, -0.404 | 4.8°, 170.7°, 4.5° | beethoven-8-4.mid 610.34 s, 129°, turn of upper_arm_R 63° |
+| 1464 | 0.0% | 77.4% | 71.3% |  | hand_L | -0.544, 1.252, -0.503 | 92.2°, 63.0°, 24.7° | bach-bwv1050.mid 143.30 s, 175°, turn of hand_L 160° |
+| 240 | 0.0% | 65.4% | 68.1% |  | clavicle_R | 0.347, 1.223, -0.205 | 36.3°, 74.1°, 69.5° | beethoven-8.mid 36.15 s, 100°, turn of upper_arm_R 118° |
+| 241 | 0.0% | 59.6% | 80.6% |  | upper_arm_R | 0.377, 1.194, -0.197 | 60.7°, 56.0°, 63.2° | boulanger-matin.mid 216.38 s, 170°, turn of upper_arm_R 139° |
+| 1420 | 0.0% | 52.9% | 28.7% |  | forearm_twist_L | -0.606, 1.295, -0.414 | 154.0°, 12.0°, 14.0° | bach-bwv1048.mid 71.25 s, 169°, turn of hand_L 145° |
+| 338 | 0.0% | 50.3% | 0.0% |  | clavicle_R | 0.300, 1.247, -0.272 | 28.8°, 12.3°, 138.9° | bach-bwv1048.mid 175.50 s, 112°, turn of clavicle_R 155° |
+| 232 | 0.0% | 34.4% | 55.2% |  | upper_arm_R | 0.398, 1.177, -0.234 | 67.1°, 68.6°, 44.4° | brahms-2.mid 282.38 s, 126°, turn of upper_arm_R 156° |
+
+The corners of each face in its worst sample. Each shape move gives the move of the corner by one corrective shape at its full weight, then the weight of the shape in the sample. The shapes are in the order of the mesh: the left arm down, the right arm down, and the shapes of a raised arm, a bent elbow, or a bent wrist of a body with such shapes. The move in the sample is the move of all shapes at their weights.
+
+| Face | Vertex | Bind (m) | Posed (m) | Shape moves (mm) × weights | Move in the sample (mm) | Bones and weights |
+|---:|---:|---|---|---|---:|---|
+| 2213 | 1208 | -0.563, 1.263, -0.504 | -0.183, 1.008, -0.640 | 5.0 × 0.00 / 0.0 × 0.25 | 0.0 | hand_L 0.80 forearm_twist_L 0.15 fingers_L 0.05 |
+| 2213 | 830 | -0.552, 1.250, -0.501 | -0.188, 1.022, -0.642 | 5.1 × 0.00 / 0.0 × 0.25 | 0.0 | hand_L 0.80 forearm_twist_L 0.15 fingers_L 0.05 |
+| 2213 | 841 | -0.554, 1.236, -0.510 | -0.199, 1.014, -0.644 | 10.4 × 0.00 / 0.0 × 0.25 | 0.0 | forearm_twist_L 0.57 hand_L 0.40 fingers_L 0.02 |
+| 2225 | 1208 | -0.563, 1.263, -0.504 | -0.182, 1.006, -0.639 | 5.0 × 0.00 / 0.0 × 0.16 | 0.0 | hand_L 0.80 forearm_twist_L 0.15 fingers_L 0.05 |
+| 2225 | 841 | -0.554, 1.236, -0.510 | -0.198, 1.013, -0.644 | 10.4 × 0.00 / 0.0 × 0.16 | 0.0 | forearm_twist_L 0.57 hand_L 0.40 fingers_L 0.02 |
+| 2225 | 1215 | -0.583, 1.275, -0.505 | -0.174, 0.990, -0.630 | 5.1 × 0.00 / 0.0 × 0.16 | 0.0 | hand_L 0.80 forearm_twist_L 0.15 fingers_L 0.05 |
+| 323 | 56 | 0.181, 1.352, -0.053 | 0.157, 1.373, -0.261 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | head 1.00 |
+| 323 | 195 | 0.301, 1.232, -0.083 | 0.264, 1.209, -0.400 | 0.0 × 0.00 / 6.8 × 0.00 | 0.0 | clavicle_R 0.51 neck 0.34 upper_arm_R 0.15 |
+| 323 | 54 | 0.313, 1.270, -0.123 | 0.287, 1.272, -0.324 | 0.0 × 0.00 / 1.1 × 0.00 | 0.0 | neck 0.91 clavicle_R 0.07 upper_arm_R 0.02 |
+| 462 | 272 | 0.290, 1.089, -0.332 | 0.192, 0.996, -0.546 | 0.0 × 0.00 / 6.0 × 0.00 | 0.0 | clavicle_R 0.41 upper_arm_R 0.35 spine1 0.12 chest 0.12 |
+| 462 | 156 | 0.307, 1.060, -0.294 | 0.235, 0.978, -0.542 | 0.0 × 0.00 / 6.3 × 0.00 | 0.0 | upper_arm_R 0.63 clavicle_R 0.25 chest 0.07 spine1 0.05 |
+| 462 | 158 | 0.337, 1.010, -0.313 | 0.321, 0.971, -0.486 | 0.0 × 0.00 / 57.2 × 0.00 | 0.0 | upper_arm_R 0.43 chest 0.24 spine1 0.22 spine 0.11 |
+| 618 | 364 | -0.003, 1.153, -0.486 | -0.012, 1.054, -0.618 | 0.0 × 0.00 / 0.0 × 0.14 | 0.0 | chest 0.44 head 0.20 spine1 0.18 clavicle_L 0.18 |
+| 618 | 353 | 0.001, 1.233, -0.437 | -0.034, 1.148, -0.579 | 0.0 × 0.00 / 0.0 × 0.14 | 0.0 | head 0.35 chest 0.32 neck 0.17 clavicle_R 0.16 |
+| 618 | 218 | 0.038, 1.128, -0.501 | -0.015, 1.032, -0.606 | 0.0 × 0.00 / 0.0 × 0.14 | 0.0 | chest 0.43 spine1 0.21 clavicle_R 0.21 head 0.15 |
+| 617 | 220 | -0.001, 1.090, -0.508 | 0.002, 0.989, -0.621 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | chest 0.45 spine1 0.27 spine 0.16 clavicle_L 0.12 |
+| 617 | 364 | -0.003, 1.153, -0.486 | 0.001, 1.056, -0.619 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | chest 0.44 head 0.20 spine1 0.18 clavicle_L 0.18 |
+| 617 | 218 | 0.038, 1.128, -0.501 | -0.003, 1.034, -0.607 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | chest 0.43 spine1 0.21 clavicle_R 0.21 head 0.15 |
+| 522 | 304 | 0.119, 0.999, 0.057 | 0.133, 1.043, -0.036 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | chest 0.45 spine1 0.32 spine 0.15 hips 0.07 |
+| 522 | 303 | 0.134, 1.086, 0.044 | 0.233, 1.105, -0.146 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | clavicle_R 0.55 chest 0.19 spine1 0.14 neck 0.12 |
+| 522 | 305 | 0.026, 0.920, 0.079 | 0.037, 0.973, 0.006 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | spine1 0.37 chest 0.36 spine 0.17 hips 0.10 |
+| 286 | 179 | 0.285, 1.062, -0.087 | 0.307, 1.046, -0.358 | 0.0 × 0.00 / 3.7 × 0.48 | 1.8 | clavicle_R 0.48 chest 0.28 upper_arm_R 0.24 |
+| 286 | 183 | 0.393, 1.028, -0.102 | 0.332, 1.083, -0.491 | 0.0 × 0.00 / 9.3 × 0.48 | 4.5 | upper_arm_R 0.76 chest 0.20 forearm_R 0.04 clavicle_R 0.00 |
+| 286 | 184 | 0.324, 1.081, -0.068 | 0.322, 1.068, -0.439 | 0.0 × 0.00 / 3.4 × 0.48 | 1.6 | clavicle_R 0.53 upper_arm_R 0.45 chest 0.02 |
+| 249 | 159 | 0.345, 1.006, -0.285 | 0.335, 0.949, -0.490 | 0.0 × 0.00 / 18.6 × 0.00 | 0.0 | upper_arm_R 0.71 chest 0.19 spine 0.05 spine1 0.05 |
+| 249 | 158 | 0.337, 1.010, -0.313 | 0.331, 0.953, -0.474 | 0.0 × 0.00 / 57.2 × 0.00 | 0.0 | upper_arm_R 0.43 chest 0.24 spine1 0.22 spine 0.11 |
+| 249 | 157 | 0.332, 1.021, -0.288 | 0.320, 0.956, -0.499 | 0.0 × 0.00 / 7.8 × 0.00 | 0.0 | upper_arm_R 0.71 chest 0.17 spine1 0.07 spine 0.04 |
+| 248 | 156 | 0.307, 1.060, -0.294 | 0.253, 0.972, -0.547 | 0.0 × 0.00 / 6.3 × 0.00 | 0.0 | upper_arm_R 0.63 clavicle_R 0.25 chest 0.07 spine1 0.05 |
+| 248 | 157 | 0.332, 1.021, -0.288 | 0.320, 0.956, -0.499 | 0.0 × 0.00 / 7.8 × 0.00 | 0.0 | upper_arm_R 0.71 chest 0.17 spine1 0.07 spine 0.04 |
+| 248 | 158 | 0.337, 1.010, -0.313 | 0.331, 0.953, -0.474 | 0.0 × 0.00 / 57.2 × 0.00 | 0.0 | upper_arm_R 0.43 chest 0.24 spine1 0.22 spine 0.11 |
+| 2214 | 841 | -0.554, 1.236, -0.510 | -0.170, 0.967, -0.662 | 10.4 × 0.00 / 0.0 × 0.00 | 0.0 | forearm_twist_L 0.57 hand_L 0.40 fingers_L 0.02 |
+| 2214 | 830 | -0.552, 1.250, -0.501 | -0.159, 0.974, -0.661 | 5.1 × 0.00 / 0.0 × 0.00 | 0.0 | hand_L 0.80 forearm_twist_L 0.15 fingers_L 0.05 |
+| 2214 | 831 | -0.546, 1.248, -0.507 | -0.169, 0.960, -0.665 | 12.5 × 0.00 / 0.0 × 0.00 | 0.0 | forearm_twist_L 0.49 hand_L 0.47 fingers_L 0.04 |
+| 753 | 459 | -0.495, 1.105, -0.439 | -0.409, 1.130, -0.414 | 8.9 × 0.00 / 0.0 × 0.86 | 0.0 | forearm_L 0.59 forearm_twist_L 0.31 upper_arm_L 0.08 hand_L 0.01 |
+| 753 | 458 | -0.438, 1.061, -0.397 | -0.429, 1.061, -0.384 | 18.9 × 0.00 / 0.0 × 0.86 | 0.0 | forearm_L 0.59 upper_arm_L 0.26 forearm_twist_L 0.11 chest 0.04 |
+| 753 | 457 | -0.399, 1.023, -0.356 | -0.420, 1.020, -0.356 | 6.3 × 0.00 / 0.0 × 0.86 | 0.0 | upper_arm_L 0.89 chest 0.11 |
+| 2181 | 814 | -0.617, 1.155, -0.285 | -0.477, 1.254, -0.319 | 9.5 × 0.00 / 0.0 × 0.31 | 0.0 | forearm_L 0.66 forearm_twist_L 0.21 upper_arm_L 0.11 hand_L 0.02 |
+| 2181 | 1201 | -0.613, 1.215, -0.329 | -0.402, 1.255, -0.368 | 4.5 × 0.00 / 0.0 × 0.31 | 0.0 | forearm_L 0.47 forearm_twist_L 0.42 hand_L 0.07 upper_arm_L 0.04 |
+| 2181 | 807 | -0.630, 1.222, -0.349 | -0.375, 1.253, -0.383 | 4.8 × 0.00 / 0.0 × 0.31 | 0.0 | forearm_twist_L 0.60 forearm_L 0.28 hand_L 0.10 upper_arm_L 0.02 |
+| 30 | 27 | 0.414, 1.046, -0.364 | 0.322, 0.997, -0.674 | 0.0 × 0.00 / 19.9 × 0.00 | 0.0 | upper_arm_R 0.94 chest 0.06 |
+| 30 | 28 | 0.451, 1.096, -0.405 | 0.289, 1.026, -0.687 | 0.0 × 0.00 / 11.4 × 0.00 | 0.0 | forearm_R 0.49 upper_arm_R 0.31 forearm_twist_R 0.18 chest 0.02 |
+| 30 | 29 | 0.500, 1.144, -0.444 | 0.200, 1.082, -0.653 | 0.0 × 0.00 / 36.0 × 0.00 | 0.0 | forearm_twist_R 0.71 forearm_R 0.21 hand_R 0.07 |
+| 1464 | 831 | -0.546, 1.248, -0.507 | -0.165, 0.957, -0.666 | 12.5 × 0.00 / 0.0 × 0.19 | 0.0 | forearm_twist_L 0.49 hand_L 0.47 fingers_L 0.04 |
+| 1464 | 830 | -0.552, 1.250, -0.501 | -0.153, 0.973, -0.661 | 5.1 × 0.00 / 0.0 × 0.19 | 0.0 | hand_L 0.80 forearm_twist_L 0.15 fingers_L 0.05 |
+| 1464 | 827 | -0.533, 1.258, -0.501 | -0.172, 0.948, -0.671 | 14.5 × 0.00 / 0.0 × 0.19 | 0.0 | hand_L 0.49 forearm_twist_L 0.47 fingers_L 0.04 |
+| 240 | 51 | 0.355, 1.209, -0.154 | 0.200, 1.117, -0.515 | 0.0 × 0.00 / 11.1 × 0.01 | 0.1 | clavicle_R 0.49 upper_arm_R 0.49 neck 0.02 |
+| 240 | 150 | 0.352, 1.206, -0.238 | 0.196, 1.096, -0.553 | 0.0 × 0.00 / 14.4 × 0.01 | 0.1 | clavicle_R 0.60 upper_arm_R 0.32 neck 0.06 forearm_R 0.02 |
+| 240 | 152 | 0.335, 1.254, -0.224 | 0.259, 1.204, -0.448 | 0.0 × 0.00 / 4.9 × 0.01 | 0.0 | neck 0.60 clavicle_R 0.30 upper_arm_R 0.10 |
+| 241 | 51 | 0.355, 1.209, -0.154 | 0.207, 1.137, -0.502 | 0.0 × 0.00 / 11.1 × 0.46 | 5.1 | clavicle_R 0.49 upper_arm_R 0.49 neck 0.02 |
+| 241 | 49 | 0.422, 1.168, -0.199 | 0.155, 1.088, -0.563 | 0.0 × 0.00 / 17.8 × 0.46 | 8.2 | upper_arm_R 0.75 clavicle_R 0.18 forearm_R 0.08 |
+| 241 | 150 | 0.352, 1.206, -0.238 | 0.183, 1.108, -0.545 | 0.0 × 0.00 / 14.4 × 0.46 | 6.6 | clavicle_R 0.60 upper_arm_R 0.32 neck 0.06 forearm_R 0.02 |
+| 1420 | 802 | -0.598, 1.301, -0.410 | -0.387, 1.322, -0.470 | 3.2 × 0.00 / 0.0 × 0.49 | 0.0 | forearm_twist_L 0.61 hand_L 0.28 forearm_L 0.08 fingers_L 0.03 |
+| 1420 | 799 | -0.629, 1.324, -0.472 | -0.390, 1.352, -0.522 | 7.3 × 0.00 / 0.0 × 0.49 | 0.0 | hand_L 0.75 forearm_twist_L 0.15 fingers_L 0.11 |
+| 1420 | 806 | -0.590, 1.260, -0.361 | -0.383, 1.287, -0.412 | 3.8 × 0.00 / 0.0 × 0.49 | 0.0 | forearm_twist_L 0.67 forearm_L 0.23 hand_L 0.10 |
+| 338 | 23 | 0.326, 1.191, -0.284 | 0.186, 1.081, -0.584 | 0.0 × 0.00 / 10.5 × 0.00 | 0.0 | clavicle_R 0.69 upper_arm_R 0.24 neck 0.06 forearm_R 0.01 |
+| 338 | 206 | 0.255, 1.316, -0.270 | 0.254, 1.275, -0.452 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | neck 0.95 head 0.05 |
+| 338 | 151 | 0.320, 1.233, -0.263 | 0.204, 1.135, -0.553 | 0.0 × 0.00 / 7.9 × 0.00 | 0.0 | clavicle_R 0.60 neck 0.21 upper_arm_R 0.19 |
+| 232 | 49 | 0.422, 1.168, -0.199 | 0.160, 1.069, -0.538 | 0.0 × 0.00 / 17.8 × 0.53 | 9.4 | upper_arm_R 0.75 clavicle_R 0.18 forearm_R 0.08 |
+| 232 | 21 | 0.419, 1.156, -0.264 | 0.133, 1.012, -0.559 | 0.0 × 0.00 / 21.2 × 0.53 | 11.1 | upper_arm_R 0.73 clavicle_R 0.15 forearm_R 0.11 |
+| 232 | 150 | 0.352, 1.206, -0.238 | 0.208, 1.091, -0.534 | 0.0 × 0.00 / 14.4 × 0.53 | 7.5 | clavicle_R 0.60 upper_arm_R 0.32 neck 0.06 forearm_R 0.02 |

@@ -1,0 +1,14 @@
+
+> zoophony@0.0.0 test:paused /Users/xueqiaoxu/proj/zoophony
+> node tools/test-paused.ts src/shots/
+
+
+ RUN  v5.0.3 /Users/xueqiaoxu/proj/zoophony
+
+
+ Test Files  19 passed (19)
+      Tests  311 passed (311)
+   Start at  21:28:08
+   Duration  9.48s (import 49%, tests 33%, transform 18%)
+
+shots 0

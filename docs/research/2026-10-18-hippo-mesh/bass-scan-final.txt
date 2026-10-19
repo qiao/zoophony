@@ -1,0 +1,1 @@
+0.8|: below R 0.21 stop 0.00..1.00 bow 0.030..0.415 of 0.446 | nut -0.48,1.50,-0.44 contact -0.04,0.82,-0.74 | L to nut 0.481 R to contact 0.448 reach 0.495 | contact before belly 0.107 m

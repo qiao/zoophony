@@ -1,0 +1,494 @@
+
+> zoophony@0.0.0 pose-depth /Users/xueqiaoxu/proj/zoophony
+> node tools/pose-depth.ts bassist --gaps
+
+base (186.6 s):
+  bach-bwv1048 bassist 18 (hippo, high-stool)
+    play: paws in body: 4.1 cm at song 24.00 s, wall 35.50 s (handR -1.12); limit 1.5 cm OVER
+    play: paws in contrabass: 1.5 cm at song 180.50 s, wall 192.00 s (handL 0.57); limit 1.5 cm OVER
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: forearms in body: 5.6 cm at song 27.00 s, wall 38.50 s (forearmR 0.83); limit 1.5 cm OVER
+    play: forearms in contrabass: 3.8 cm at song 302.50 s, wall 314.00 s (forearmL 0.91); limit 1.5 cm OVER
+    play: upper arms in body: 1.8 cm at song 208.25 s, wall 219.75 s (upperArmL 0.15); limit 1.5 cm OVER
+    play: upper arms in contrabass: 2.5 cm at song 208.25 s, wall 219.75 s (upperArmL 0.12); limit 1.5 cm OVER
+    play: bow in body: 1.2 cm at song 326.50 s, wall 338.00 s (bow); limit 1.5 cm
+    play: bow in contrabass: 0.2 cm at song 48.00 s, wall 59.50 s (bow); limit 1.5 cm
+    play: gap of the head to contrabass: 0.0 cm at song -1.50 s, wall 10.00 s (head)
+    play: gap of the paw L to body: 0.0 cm at song 140.50 s, wall 152.00 s (handL)
+    play: gap of the paw R to body: 0.0 cm at song 0.75 s, wall 12.25 s (handR)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: paws in contrabass: 1.4 cm at song -1.50 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in contrabass: 3.8 cm at song -0.90 s, wall 10.60 s (forearmL 0.90); limit 1.5 cm OVER
+    lift: upper arms in body: 2.3 cm at song -1.40 s, wall 10.10 s (upperArmL 0.28); limit 1.5 cm OVER
+    lift: upper arms in contrabass: 0.9 cm at song -0.60 s, wall 10.90 s (upperArmL 0.08); limit 1.5 cm
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: gap of the head to contrabass: 0.0 cm at song -1.50 s, wall 10.00 s (head)
+    lift: gap of the paw L to body: 5.4 cm at song -0.90 s, wall 10.60 s (handL)
+    lift: gap of the paw R to body: 3.8 cm at song 0.00 s, wall 11.80 s (handR)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: paws in contrabass: 1.4 cm at song -1.50 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in contrabass: 2.7 cm at song -1.50 s, wall 10.00 s (forearmL 0.94); limit 1.5 cm OVER
+    rest: upper arms in body: 2.3 cm at song -1.50 s, wall 10.00 s (upperArmL 0.29); limit 1.5 cm OVER
+    rest: upper arms in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: gap of the head to contrabass: 0.0 cm at song -1.50 s, wall 10.00 s (head)
+    rest: gap of the paw L to body: 12.9 cm at song -1.50 s, wall 10.00 s (handL)
+    rest: gap of the paw R to body: 10.8 cm at song -1.50 s, wall 10.00 s (handR)
+    lower: paws in body: 1.6 cm at song 327.30 s, wall 11.00 s (handR 1.16); limit 1.5 cm OVER
+    lower: paws in contrabass: 1.4 cm at song 327.30 s, wall 15.30 s (handL 0.37); limit 1.5 cm
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in body: 1.6 cm at song 327.30 s, wall 10.00 s (forearmR 0.82); limit 1.5 cm OVER
+    lower: forearms in contrabass: 3.8 cm at song 327.30 s, wall 13.70 s (forearmL 0.91); limit 1.5 cm OVER
+    lower: upper arms in body: 2.3 cm at song 327.30 s, wall 14.50 s (upperArmL 0.28); limit 1.5 cm OVER
+    lower: upper arms in contrabass: 0.9 cm at song 327.30 s, wall 11.00 s (upperArmL 0.08); limit 1.5 cm
+    lower: bow in body: 1.2 cm at song 327.30 s, wall 11.50 s (bow); limit 1.5 cm
+    lower: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: gap of the head to contrabass: 0.0 cm at song 327.30 s, wall 10.00 s (head)
+    lower: gap of the paw L to body: 5.5 cm at song 327.30 s, wall 13.70 s (handL)
+    lower: gap of the paw R to body: 0.0 cm at song 327.30 s, wall 10.00 s (handR)
+    target R: 0.00 mm at song 326.40 s
+  bach-bwv1050 bassist 14 (hippo, high-stool)
+    play: paws in body: 7.0 cm at song 222.55 s, wall 234.25 s (handR 1.17); limit 1.5 cm OVER
+    play: paws in contrabass: 1.5 cm at song 49.05 s, wall 60.75 s (handL 0.22); limit 1.5 cm OVER
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: forearms in body: 5.2 cm at song 49.55 s, wall 61.25 s (forearmR 0.96); limit 1.5 cm OVER
+    play: forearms in contrabass: 3.8 cm at song 179.80 s, wall 191.50 s (forearmL 0.91); limit 1.5 cm OVER
+    play: upper arms in body: 1.8 cm at song 221.80 s, wall 233.50 s (upperArmL 0.15); limit 1.5 cm OVER
+    play: upper arms in contrabass: 4.5 cm at song 142.80 s, wall 154.50 s (upperArmL 0.59); limit 1.5 cm OVER
+    play: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: gap of the head to contrabass: 0.0 cm at song -1.70 s, wall 10.00 s (head)
+    play: gap of the paw L to body: 0.0 cm at song 32.05 s, wall 43.75 s (handL)
+    play: gap of the paw R to body: 0.0 cm at song -1.70 s, wall 10.00 s (handR)
+    lift: paws in body: 0.3 cm at song -0.40 s, wall 11.30 s (handR -0.96); limit 1.5 cm
+    lift: paws in contrabass: 1.5 cm at song -0.90 s, wall 10.80 s (handL 0.57); limit 1.5 cm
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in body: 1.9 cm at song 0.00 s, wall 12.10 s (forearmR 0.83); limit 1.5 cm OVER
+    lift: forearms in contrabass: 3.5 cm at song 0.00 s, wall 12.10 s (forearmL 0.91); limit 1.5 cm OVER
+    lift: upper arms in body: 2.3 cm at song -1.70 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    lift: upper arms in contrabass: 1.6 cm at song -0.80 s, wall 10.90 s (upperArmL 0.11); limit 1.5 cm OVER
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: gap of the head to contrabass: 0.0 cm at song -1.70 s, wall 10.00 s (head)
+    lift: gap of the paw L to body: 6.6 cm at song -1.10 s, wall 10.60 s (handL)
+    lift: gap of the paw R to body: 0.0 cm at song -0.80 s, wall 10.90 s (handR)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: paws in contrabass: 1.4 cm at song -1.70 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in contrabass: 2.7 cm at song -1.70 s, wall 10.00 s (forearmL 0.94); limit 1.5 cm OVER
+    rest: upper arms in body: 2.3 cm at song -1.70 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    rest: upper arms in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: gap of the head to contrabass: 0.0 cm at song -1.70 s, wall 10.00 s (head)
+    rest: gap of the paw L to body: 12.4 cm at song -1.70 s, wall 10.00 s (handL)
+    rest: gap of the paw R to body: 10.8 cm at song -1.70 s, wall 10.00 s (handR)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: paws in contrabass: 1.4 cm at song 310.00 s, wall 15.30 s (handL 0.37); limit 1.5 cm
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in contrabass: 3.1 cm at song 310.00 s, wall 12.00 s (forearmL 0.92); limit 1.5 cm OVER
+    lower: upper arms in body: 2.3 cm at song 310.00 s, wall 14.70 s (upperArmL 0.29); limit 1.5 cm OVER
+    lower: upper arms in contrabass: 1.6 cm at song 310.00 s, wall 10.50 s (upperArmL 0.13); limit 1.5 cm OVER
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: gap of the head to contrabass: 0.0 cm at song 310.00 s, wall 10.00 s (head)
+    lower: gap of the paw L to body: 2.6 cm at song 310.00 s, wall 10.50 s (handL)
+    lower: gap of the paw R to body: 1.4 cm at song 310.00 s, wall 10.50 s (handR)
+    target R: 0.00 mm at song 309.51 s
+  beethoven-1 bassist 14 (hippo, high-stool)
+    play: paws in body: 3.6 cm at song 228.15 s, wall 240.25 s (handR -1.05); limit 1.5 cm OVER
+    play: paws in contrabass: 1.5 cm at song 185.65 s, wall 197.75 s (handL 0.50); limit 1.5 cm OVER
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: forearms in body: 4.4 cm at song 158.65 s, wall 170.75 s (forearmR 1.06); limit 1.5 cm OVER
+    play: forearms in contrabass: 3.8 cm at song 33.15 s, wall 45.25 s (forearmL 0.91); limit 1.5 cm OVER
+    play: upper arms in body: 1.8 cm at song 61.15 s, wall 73.25 s (upperArmL 0.14); limit 1.5 cm OVER
+    play: upper arms in contrabass: 2.7 cm at song 90.15 s, wall 102.25 s (upperArmL 0.12); limit 1.5 cm OVER
+    play: bow in body: 0.3 cm at song 4.90 s, wall 17.00 s (bow); limit 1.5 cm
+    play: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: gap of the head to contrabass: 0.0 cm at song -2.10 s, wall 10.00 s (head)
+    play: gap of the paw L to body: 0.0 cm at song 37.65 s, wall 49.75 s (handL)
+    play: gap of the paw R to body: 0.0 cm at song 4.15 s, wall 16.25 s (handR)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: paws in contrabass: 1.4 cm at song -2.10 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in contrabass: 3.8 cm at song -1.40 s, wall 10.70 s (forearmL 0.90); limit 1.5 cm OVER
+    lift: upper arms in body: 2.3 cm at song -2.10 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    lift: upper arms in contrabass: 0.8 cm at song -1.20 s, wall 10.90 s (upperArmL 0.08); limit 1.5 cm
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: gap of the head to contrabass: 0.0 cm at song -2.10 s, wall 10.00 s (head)
+    lift: gap of the paw L to body: 5.4 cm at song -1.50 s, wall 10.60 s (handL)
+    lift: gap of the paw R to body: 3.9 cm at song -0.00 s, wall 12.10 s (handR)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: paws in contrabass: 1.4 cm at song -2.10 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in contrabass: 2.7 cm at song -2.10 s, wall 10.00 s (forearmL 0.94); limit 1.5 cm OVER
+    rest: upper arms in body: 2.3 cm at song -2.10 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    rest: upper arms in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: gap of the head to contrabass: 0.0 cm at song -2.10 s, wall 10.00 s (head)
+    rest: gap of the paw L to body: 12.4 cm at song -2.10 s, wall 10.00 s (handL)
+    rest: gap of the paw R to body: 10.8 cm at song -2.10 s, wall 10.00 s (handR)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: paws in contrabass: 1.5 cm at song 294.33 s, wall 12.00 s (handL 0.55); limit 1.5 cm
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in contrabass: 3.8 cm at song 294.33 s, wall 13.80 s (forearmL 0.91); limit 1.5 cm OVER
+    lower: upper arms in body: 2.3 cm at song 294.33 s, wall 14.70 s (upperArmL 0.29); limit 1.5 cm OVER
+    lower: upper arms in contrabass: 1.0 cm at song 294.33 s, wall 10.50 s (upperArmL 0.09); limit 1.5 cm
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: gap of the head to contrabass: 0.0 cm at song 294.33 s, wall 10.00 s (head)
+    lower: gap of the paw L to body: 4.2 cm at song 294.33 s, wall 13.30 s (handL)
+    lower: gap of the paw R to body: 9.0 cm at song 294.33 s, wall 13.30 s (handR)
+    target R: 0.00 mm at song 294.17 s
+  beethoven-8-4 bassist 14 (hippo, high-stool)
+    play: paws in body: 7.1 cm at song 617.09 s, wall 629.00 s (handR 1.15); limit 1.5 cm OVER
+    play: paws in contrabass: 1.5 cm at song 538.09 s, wall 550.00 s (handL 0.58); limit 1.5 cm OVER
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: forearms in body: 5.5 cm at song 209.59 s, wall 221.50 s (forearmR 0.83); limit 1.5 cm OVER
+    play: forearms in contrabass: 3.8 cm at song 96.59 s, wall 108.50 s (forearmL 0.91); limit 1.5 cm OVER
+    play: upper arms in body: 1.8 cm at song 452.59 s, wall 464.50 s (upperArmL 0.15); limit 1.5 cm OVER
+    play: upper arms in contrabass: 2.7 cm at song 596.84 s, wall 608.75 s (upperArmL 0.13); limit 1.5 cm OVER
+    play: bow in body: 1.4 cm at song 620.59 s, wall 632.50 s (bow); limit 1.5 cm
+    play: bow in contrabass: 0.1 cm at song 587.84 s, wall 599.75 s (bow); limit 1.5 cm
+    play: gap of the head to contrabass: 0.0 cm at song -1.91 s, wall 10.00 s (head)
+    play: gap of the paw L to body: 0.0 cm at song 37.34 s, wall 49.25 s (handL)
+    play: gap of the paw R to body: 0.0 cm at song -0.16 s, wall 11.75 s (handR)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: paws in contrabass: 1.5 cm at song -0.91 s, wall 11.00 s (handL 0.57); limit 1.5 cm OVER
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in body: 1.3 cm at song 0.00 s, wall 12.10 s (forearmR 0.79); limit 1.5 cm
+    lift: forearms in contrabass: 3.8 cm at song -1.31 s, wall 10.60 s (forearmL 0.91); limit 1.5 cm OVER
+    lift: upper arms in body: 2.3 cm at song -1.91 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    lift: upper arms in contrabass: 1.3 cm at song -1.01 s, wall 10.90 s (upperArmL 0.10); limit 1.5 cm
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: gap of the head to contrabass: 0.0 cm at song -1.91 s, wall 10.00 s (head)
+    lift: gap of the paw L to body: 6.1 cm at song -1.31 s, wall 10.60 s (handL)
+    lift: gap of the paw R to body: 0.0 cm at song -0.21 s, wall 11.70 s (handR)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: paws in contrabass: 1.4 cm at song -1.91 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in contrabass: 2.7 cm at song -1.91 s, wall 10.00 s (forearmL 0.94); limit 1.5 cm OVER
+    rest: upper arms in body: 2.3 cm at song -1.91 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    rest: upper arms in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: gap of the head to contrabass: 0.0 cm at song -1.91 s, wall 10.00 s (head)
+    rest: gap of the paw L to body: 12.4 cm at song -1.91 s, wall 10.00 s (handL)
+    rest: gap of the paw R to body: 10.8 cm at song -1.91 s, wall 10.00 s (handR)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: paws in contrabass: 1.4 cm at song 718.93 s, wall 15.30 s (handL 0.37); limit 1.5 cm
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in contrabass: 3.8 cm at song 718.93 s, wall 13.90 s (forearmL 0.91); limit 1.5 cm OVER
+    lower: upper arms in body: 2.3 cm at song 718.93 s, wall 14.70 s (upperArmL 0.29); limit 1.5 cm OVER
+    lower: upper arms in contrabass: 1.3 cm at song 718.93 s, wall 10.50 s (upperArmL 0.09); limit 1.5 cm
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: gap of the head to contrabass: 0.0 cm at song 718.93 s, wall 10.00 s (head)
+    lower: gap of the paw L to body: 6.1 cm at song 718.93 s, wall 13.70 s (handL)
+    lower: gap of the paw R to body: 1.9 cm at song 718.93 s, wall 12.00 s (handR)
+    target R: 0.00 mm at song 718.75 s
+  beethoven-8 bassist 14 (hippo, high-stool)
+    play: paws in body: 4.1 cm at song 134.65 s, wall 146.75 s (handR -1.12); limit 1.5 cm OVER
+    play: paws in contrabass: 1.5 cm at song 173.65 s, wall 185.75 s (handL 0.54); limit 1.5 cm OVER
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: forearms in body: 5.6 cm at song 128.15 s, wall 140.25 s (forearmR 0.96); limit 1.5 cm OVER
+    play: forearms in contrabass: 3.8 cm at song 160.90 s, wall 173.00 s (forearmL 0.91); limit 1.5 cm OVER
+    play: upper arms in body: 1.8 cm at song 77.90 s, wall 90.00 s (upperArmL 0.14); limit 1.5 cm OVER
+    play: upper arms in contrabass: 2.3 cm at song 64.65 s, wall 76.75 s (upperArmL 0.12); limit 1.5 cm OVER
+    play: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: bow in contrabass: 0.2 cm at song 134.65 s, wall 146.75 s (bow); limit 1.5 cm
+    play: gap of the head to contrabass: 0.0 cm at song -2.10 s, wall 10.00 s (head)
+    play: gap of the paw L to body: 0.0 cm at song 156.15 s, wall 168.25 s (handL)
+    play: gap of the paw R to body: 0.0 cm at song 8.40 s, wall 20.50 s (handR)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: paws in contrabass: 1.4 cm at song -2.10 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in body: 0.4 cm at song -0.00 s, wall 12.10 s (forearmR 0.79); limit 1.5 cm
+    lift: forearms in contrabass: 3.7 cm at song -1.60 s, wall 10.50 s (forearmL 0.91); limit 1.5 cm OVER
+    lift: upper arms in body: 2.3 cm at song -2.10 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    lift: upper arms in contrabass: 1.2 cm at song -1.20 s, wall 10.90 s (upperArmL 0.10); limit 1.5 cm
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: gap of the head to contrabass: 0.0 cm at song -2.10 s, wall 10.00 s (head)
+    lift: gap of the paw L to body: 5.4 cm at song -1.50 s, wall 10.60 s (handL)
+    lift: gap of the paw R to body: 0.8 cm at song -0.00 s, wall 12.10 s (handR)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: paws in contrabass: 1.4 cm at song -2.10 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in contrabass: 2.7 cm at song -2.10 s, wall 10.00 s (forearmL 0.94); limit 1.5 cm OVER
+    rest: upper arms in body: 2.3 cm at song -2.10 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    rest: upper arms in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: gap of the head to contrabass: 0.0 cm at song -2.10 s, wall 10.00 s (head)
+    rest: gap of the paw L to body: 12.4 cm at song -2.10 s, wall 10.00 s (handL)
+    rest: gap of the paw R to body: 10.8 cm at song -2.10 s, wall 10.00 s (handR)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: paws in contrabass: 1.4 cm at song 220.22 s, wall 15.30 s (handL 0.37); limit 1.5 cm
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in body: 0.1 cm at song 220.22 s, wall 13.30 s (forearmR 0.46); limit 1.5 cm
+    lower: forearms in contrabass: 3.7 cm at song 220.22 s, wall 13.80 s (forearmL 0.91); limit 1.5 cm OVER
+    lower: upper arms in body: 2.3 cm at song 220.22 s, wall 14.70 s (upperArmL 0.29); limit 1.5 cm OVER
+    lower: upper arms in contrabass: 1.5 cm at song 220.22 s, wall 10.50 s (upperArmL 0.11); limit 1.5 cm OVER
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: gap of the head to contrabass: 0.0 cm at song 220.22 s, wall 10.00 s (head)
+    lower: gap of the paw L to body: 6.5 cm at song 220.22 s, wall 13.70 s (handL)
+    lower: gap of the paw R to body: 2.1 cm at song 220.22 s, wall 13.20 s (handR)
+    target R: 0.00 mm at song 219.89 s
+  beethoven-9 bassist 14 (hippo, high-stool)
+    play: paws in body: 3.4 cm at song 125.34 s, wall 137.25 s (handR -0.71); limit 1.5 cm OVER
+    play: paws in contrabass: 1.5 cm at song 105.59 s, wall 117.50 s (handL 0.53); limit 1.5 cm OVER
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: forearms in body: 4.2 cm at song 157.84 s, wall 169.75 s (forearmR 1.06); limit 1.5 cm OVER
+    play: forearms in contrabass: 3.8 cm at song 7.09 s, wall 19.00 s (forearmL 0.91); limit 1.5 cm OVER
+    play: upper arms in body: 1.8 cm at song 116.59 s, wall 128.50 s (upperArmL 0.15); limit 1.5 cm OVER
+    play: upper arms in contrabass: 2.7 cm at song 153.09 s, wall 165.00 s (upperArmL 0.12); limit 1.5 cm OVER
+    play: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: gap of the head to contrabass: 0.0 cm at song -1.91 s, wall 10.00 s (head)
+    play: gap of the paw L to body: 0.0 cm at song 4.59 s, wall 16.50 s (handL)
+    play: gap of the paw R to body: 0.0 cm at song -1.91 s, wall 10.00 s (handR)
+    lift: paws in body: 3.4 cm at song 0.00 s, wall 12.10 s (handR -1.05); limit 1.5 cm OVER
+    lift: paws in contrabass: 1.5 cm at song -1.31 s, wall 10.60 s (handL 0.51); limit 1.5 cm
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in body: 4.3 cm at song 0.00 s, wall 12.10 s (forearmR 1.06); limit 1.5 cm OVER
+    lift: forearms in contrabass: 3.7 cm at song 0.00 s, wall 12.10 s (forearmL 0.91); limit 1.5 cm OVER
+    lift: upper arms in body: 2.3 cm at song -1.91 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    lift: upper arms in contrabass: 1.1 cm at song -1.21 s, wall 10.70 s (upperArmL 0.14); limit 1.5 cm
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: gap of the head to contrabass: 0.0 cm at song -1.91 s, wall 10.00 s (head)
+    lift: gap of the paw L to body: 2.4 cm at song -1.01 s, wall 10.90 s (handL)
+    lift: gap of the paw R to body: 0.0 cm at song -1.01 s, wall 10.90 s (handR)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: paws in contrabass: 1.4 cm at song -1.91 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in contrabass: 2.7 cm at song -1.91 s, wall 10.00 s (forearmL 0.94); limit 1.5 cm OVER
+    rest: upper arms in body: 2.3 cm at song -1.91 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    rest: upper arms in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: gap of the head to contrabass: 0.0 cm at song -1.91 s, wall 10.00 s (head)
+    rest: gap of the paw L to body: 12.4 cm at song -1.91 s, wall 10.00 s (handL)
+    rest: gap of the paw R to body: 10.8 cm at song -1.91 s, wall 10.00 s (handR)
+    lower: paws in body: 0.9 cm at song 158.30 s, wall 12.00 s (handR -0.59); limit 1.5 cm
+    lower: paws in contrabass: 1.5 cm at song 158.30 s, wall 13.50 s (handL 0.56); limit 1.5 cm OVER
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in body: 0.6 cm at song 158.30 s, wall 10.50 s (forearmR 1.06); limit 1.5 cm
+    lower: forearms in contrabass: 3.1 cm at song 158.30 s, wall 13.70 s (forearmL 0.91); limit 1.5 cm OVER
+    lower: upper arms in body: 2.3 cm at song 158.30 s, wall 14.70 s (upperArmL 0.29); limit 1.5 cm OVER
+    lower: upper arms in contrabass: 2.0 cm at song 158.30 s, wall 10.50 s (upperArmL 0.12); limit 1.5 cm OVER
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: gap of the head to contrabass: 0.0 cm at song 158.30 s, wall 10.00 s (head)
+    lower: gap of the paw L to body: 6.9 cm at song 158.30 s, wall 13.70 s (handL)
+    lower: gap of the paw R to body: 0.0 cm at song 158.30 s, wall 10.00 s (handR)
+    target R: 0.00 mm at song 158.08 s
+  boulanger-matin bassist 14 (hippo, high-stool)
+    play: paws in body: 6.4 cm at song 87.63 s, wall 99.25 s (handR 1.20); limit 1.5 cm OVER
+    play: paws in contrabass: 1.5 cm at song 176.63 s, wall 188.25 s (handL 0.58); limit 1.5 cm OVER
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: forearms in body: 5.0 cm at song 253.13 s, wall 264.75 s (forearmR 0.82); limit 1.5 cm OVER
+    play: forearms in contrabass: 3.8 cm at song 106.13 s, wall 117.75 s (forearmL 0.91); limit 1.5 cm OVER
+    play: upper arms in body: 4.8 cm at song 263.13 s, wall 274.75 s (upperArmR 0.73); limit 1.5 cm OVER
+    play: upper arms in contrabass: 4.4 cm at song 83.38 s, wall 95.00 s (upperArmL 0.59); limit 1.5 cm OVER
+    play: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: bow in contrabass: 0.1 cm at song 114.13 s, wall 125.75 s (bow); limit 1.5 cm
+    play: gap of the head to contrabass: 0.0 cm at song -1.62 s, wall 10.00 s (head)
+    play: gap of the paw L to body: 0.0 cm at song 56.63 s, wall 68.25 s (handL)
+    play: gap of the paw R to body: 0.0 cm at song -1.62 s, wall 10.00 s (handR)
+    lift: paws in body: 0.3 cm at song 0.00 s, wall 12.30 s (handR -0.97); limit 1.5 cm
+    lift: paws in contrabass: 1.4 cm at song -1.62 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in body: 1.9 cm at song 0.00 s, wall 12.10 s (forearmR 0.83); limit 1.5 cm OVER
+    lift: forearms in contrabass: 3.5 cm at song 0.00 s, wall 12.10 s (forearmL 0.91); limit 1.5 cm OVER
+    lift: upper arms in body: 2.3 cm at song -1.62 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    lift: upper arms in contrabass: 1.4 cm at song -0.72 s, wall 10.90 s (upperArmL 0.11); limit 1.5 cm
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: gap of the head to contrabass: 0.0 cm at song -1.62 s, wall 10.00 s (head)
+    lift: gap of the paw L to body: 5.6 cm at song -0.82 s, wall 10.80 s (handL)
+    lift: gap of the paw R to body: 0.0 cm at song -0.72 s, wall 10.90 s (handR)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: paws in contrabass: 1.4 cm at song -1.62 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in contrabass: 2.7 cm at song -1.62 s, wall 10.00 s (forearmL 0.94); limit 1.5 cm OVER
+    rest: upper arms in body: 2.3 cm at song -1.62 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    rest: upper arms in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: gap of the head to contrabass: 0.0 cm at song -1.62 s, wall 10.00 s (head)
+    rest: gap of the paw L to body: 12.4 cm at song -1.62 s, wall 10.00 s (handL)
+    rest: gap of the paw R to body: 10.8 cm at song -1.62 s, wall 10.00 s (handR)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: paws in contrabass: 1.5 cm at song 280.67 s, wall 13.20 s (handL 0.31); limit 1.5 cm OVER
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in body: 3.6 cm at song 280.67 s, wall 12.00 s (forearmR 0.13); limit 1.5 cm OVER
+    lower: forearms in contrabass: 3.3 cm at song 280.67 s, wall 12.00 s (forearmL 0.92); limit 1.5 cm OVER
+    lower: upper arms in body: 3.9 cm at song 280.67 s, wall 12.00 s (upperArmR 0.72); limit 1.5 cm OVER
+    lower: upper arms in contrabass: 1.6 cm at song 280.67 s, wall 13.40 s (upperArmL 0.17); limit 1.5 cm OVER
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: gap of the head to contrabass: 0.0 cm at song 280.67 s, wall 10.00 s (head)
+    lower: gap of the paw L to body: 0.7 cm at song 280.67 s, wall 10.50 s (handL)
+    lower: gap of the paw R to body: 6.0 cm at song 280.67 s, wall 10.50 s (handR)
+    target R: 164.64 mm at song 95.22 s
+  brahms-2 bassist 14 (hippo, high-stool)
+    play: paws in body: 9.1 cm at song 248.88 s, wall 260.50 s (handR 1.11); limit 1.5 cm OVER
+    play: paws in contrabass: 1.5 cm at song 285.13 s, wall 296.75 s (handL 0.58); limit 1.5 cm OVER
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: forearms in body: 6.5 cm at song 248.88 s, wall 260.50 s (forearmR 1.03); limit 1.5 cm OVER
+    play: forearms in contrabass: 3.8 cm at song 36.13 s, wall 47.75 s (forearmL 0.90); limit 1.5 cm OVER
+    play: upper arms in body: 4.3 cm at song 108.88 s, wall 120.50 s (upperArmR 0.72); limit 1.5 cm OVER
+    play: upper arms in contrabass: 2.7 cm at song 163.13 s, wall 174.75 s (upperArmL 0.16); limit 1.5 cm OVER
+    play: bow in body: 2.1 cm at song 248.88 s, wall 260.50 s (bow); limit 1.5 cm OVER
+    play: bow in contrabass: 0.2 cm at song 555.38 s, wall 567.00 s (bow); limit 1.5 cm
+    play: gap of the head to contrabass: 0.0 cm at song -1.62 s, wall 10.00 s (head)
+    play: gap of the paw L to body: 0.0 cm at song 60.13 s, wall 71.75 s (handL)
+    play: gap of the paw R to body: 0.0 cm at song 1.38 s, wall 13.00 s (handR)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: paws in contrabass: 1.4 cm at song -1.62 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in contrabass: 3.8 cm at song -0.62 s, wall 11.00 s (forearmL 0.91); limit 1.5 cm OVER
+    lift: upper arms in body: 2.3 cm at song -1.62 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    lift: upper arms in contrabass: 0.9 cm at song -0.72 s, wall 10.90 s (upperArmL 0.10); limit 1.5 cm
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: gap of the head to contrabass: 0.0 cm at song -1.62 s, wall 10.00 s (head)
+    lift: gap of the paw L to body: 5.2 cm at song -0.82 s, wall 10.80 s (handL)
+    lift: gap of the paw R to body: 1.4 cm at song -0.72 s, wall 10.90 s (handR)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: paws in contrabass: 1.4 cm at song -1.62 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in contrabass: 2.7 cm at song -1.62 s, wall 10.00 s (forearmL 0.94); limit 1.5 cm OVER
+    rest: upper arms in body: 2.3 cm at song -1.62 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    rest: upper arms in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: gap of the head to contrabass: 0.0 cm at song -1.62 s, wall 10.00 s (head)
+    rest: gap of the paw L to body: 12.4 cm at song -1.62 s, wall 10.00 s (handL)
+    rest: gap of the paw R to body: 10.8 cm at song -1.62 s, wall 10.00 s (handR)
+    lower: paws in body: 1.7 cm at song 752.46 s, wall 10.50 s (handR 1.32); limit 1.5 cm OVER
+    lower: paws in contrabass: 1.5 cm at song 752.46 s, wall 13.50 s (handL 0.56); limit 1.5 cm OVER
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in body: 0.1 cm at song 752.46 s, wall 10.50 s (forearmR 1.03); limit 1.5 cm
+    lower: forearms in contrabass: 3.1 cm at song 752.46 s, wall 13.70 s (forearmL 0.91); limit 1.5 cm OVER
+    lower: upper arms in body: 2.3 cm at song 752.46 s, wall 14.70 s (upperArmL 0.29); limit 1.5 cm OVER
+    lower: upper arms in contrabass: 2.0 cm at song 752.46 s, wall 10.50 s (upperArmL 0.12); limit 1.5 cm OVER
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: gap of the head to contrabass: 0.0 cm at song 752.46 s, wall 10.00 s (head)
+    lower: gap of the paw L to body: 6.9 cm at song 752.46 s, wall 13.70 s (handL)
+    lower: gap of the paw R to body: 0.0 cm at song 752.46 s, wall 10.00 s (handR)
+    target R: 0.00 mm at song 750.80 s
+  mendelssohn-op61 bassist 14 (hippo, high-stool)
+    play: paws in body: 3.7 cm at song 118.02 s, wall 129.75 s (handR -1.06); limit 1.5 cm OVER
+    play: paws in contrabass: 1.5 cm at song 128.77 s, wall 140.50 s (handL 0.56); limit 1.5 cm OVER
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: forearms in body: 4.7 cm at song 118.02 s, wall 129.75 s (forearmR 1.06); limit 1.5 cm OVER
+    play: forearms in contrabass: 3.8 cm at song 120.27 s, wall 132.00 s (forearmL 0.91); limit 1.5 cm OVER
+    play: upper arms in body: 1.7 cm at song 82.27 s, wall 94.00 s (upperArmL 0.14); limit 1.5 cm OVER
+    play: upper arms in contrabass: 2.2 cm at song 54.77 s, wall 66.50 s (upperArmL 0.12); limit 1.5 cm OVER
+    play: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    play: gap of the head to contrabass: 0.0 cm at song -1.73 s, wall 10.00 s (head)
+    play: gap of the paw L to body: 3.4 cm at song 67.02 s, wall 78.75 s (handL)
+    play: gap of the paw R to body: 0.0 cm at song 0.02 s, wall 11.75 s (handR)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: paws in contrabass: 1.4 cm at song -1.73 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: forearms in body: 1.2 cm at song 0.00 s, wall 12.10 s (forearmR 0.79); limit 1.5 cm
+    lift: forearms in contrabass: 3.8 cm at song 0.00 s, wall 12.10 s (forearmL 0.91); limit 1.5 cm OVER
+    lift: upper arms in body: 2.3 cm at song -1.73 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    lift: upper arms in contrabass: 1.3 cm at song -0.83 s, wall 10.90 s (upperArmL 0.10); limit 1.5 cm
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lift: gap of the head to contrabass: 0.0 cm at song -1.73 s, wall 10.00 s (head)
+    lift: gap of the paw L to body: 5.8 cm at song -1.13 s, wall 10.60 s (handL)
+    lift: gap of the paw R to body: 0.0 cm at song 0.00 s, wall 11.80 s (handR)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: paws in contrabass: 1.4 cm at song -1.73 s, wall 10.00 s (handL 0.37); limit 1.5 cm
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: forearms in contrabass: 2.7 cm at song -1.73 s, wall 10.00 s (forearmL 0.94); limit 1.5 cm OVER
+    rest: upper arms in body: 2.3 cm at song -1.73 s, wall 10.00 s (upperArmL 0.28); limit 1.5 cm OVER
+    rest: upper arms in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    rest: gap of the head to contrabass: 0.0 cm at song -1.73 s, wall 10.00 s (head)
+    rest: gap of the paw L to body: 12.4 cm at song -1.73 s, wall 10.00 s (handL)
+    rest: gap of the paw R to body: 10.8 cm at song -1.73 s, wall 10.00 s (handR)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: paws in contrabass: 1.4 cm at song 148.41 s, wall 15.30 s (handL 0.37); limit 1.5 cm
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: claws in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: forearms in contrabass: 3.6 cm at song 148.41 s, wall 13.70 s (forearmL 0.91); limit 1.5 cm OVER
+    lower: upper arms in body: 2.3 cm at song 148.41 s, wall 14.70 s (upperArmL 0.29); limit 1.5 cm OVER
+    lower: upper arms in contrabass: 1.7 cm at song 148.41 s, wall 10.50 s (upperArmL 0.11); limit 1.5 cm OVER
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: bow in contrabass: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm
+    lower: gap of the head to contrabass: 0.0 cm at song 148.41 s, wall 10.00 s (head)
+    lower: gap of the paw L to body: 5.8 cm at song 148.41 s, wall 13.60 s (handL)
+    lower: gap of the paw R to body: 9.2 cm at song 148.41 s, wall 10.50 s (handR)
+    target R: 0.00 mm at song 148.33 s
+| variant | play paws>body cm | play paws>contrabass cm | play forearms>body cm | play forearms>contrabass cm | play upper arms>body cm | play upper arms>contrabass cm | play bow>body cm | play bow>contrabass cm | play head~contrabass gap cm | play paw L~body gap cm | play paw R~body gap cm | lift paws>body cm | lift paws>contrabass cm | lift forearms>body cm | lift forearms>contrabass cm | lift upper arms>body cm | lift upper arms>contrabass cm | lift head~contrabass gap cm | lift paw L~body gap cm | lift paw R~body gap cm | rest paws>contrabass cm | rest forearms>contrabass cm | rest upper arms>body cm | rest head~contrabass gap cm | rest paw L~body gap cm | rest paw R~body gap cm | lower paws>body cm | lower paws>contrabass cm | lower forearms>body cm | lower forearms>contrabass cm | lower upper arms>body cm | lower upper arms>contrabass cm | lower bow>body cm | lower head~contrabass gap cm | lower paw L~body gap cm | lower paw R~body gap cm | target R mm |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 9.1 | 1.5 | 6.5 | 3.8 | 4.8 | 4.5 | 2.1 | 0.2 | 0.0 | 0.0 | 0.0 | 3.4 | 1.5 | 4.3 | 3.8 | 2.3 | 1.6 | 0.0 | 2.4 | 0.0 | 1.4 | 2.7 | 2.3 | 0.0 | 12.4 | 10.8 | 1.7 | 1.5 | 3.6 | 3.8 | 3.9 | 2.0 | 1.2 | 0.0 | 0.7 | 0.0 | 164.6 |
