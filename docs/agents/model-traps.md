@@ -33,6 +33,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   `docs/research/2026-10-17-dog-mesh/`), and rig the final factor once.
 - An arm factor far above the option text that the user chose goes back to the user before the
   merge: the dog got 1.75 for "about 1.4x", and the user called the arms much too long.
+- A smaller body keeps its instrument in meters, so the old hold misses the grips. Scan the scale
+  and the hold with `windReach()` first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`): a
+  deeper reed gave the most reach, and a shoulder turn folded the arm.
 - A reach measured in the places of another body misses the mouth of a big head: the panda mouth
   lies 0.40 m in front of its shoulders. Measure `slideReach` on the new body before the user
   chooses the arms, and turn the slide toward the right shoulder (`slide-hold.ts` of
@@ -45,9 +48,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   reach of the left paw (`bass-solve.py` of `docs/research/2026-10-18-hippo-mesh/`). A smaller
   instrument (`bassScale`) shortens the span.
 - A top plate turned to the right sends the bow back into a round belly. Turn it to the front.
-- The rabbit and the red fox rest as a seated violinist: the violin upright on the left thigh, and
-  the bow upright at the right side. A paw that cannot reach the thigh holds the frog outside the
-  thigh or the knee, because a paw on the belly bends the arm out and folds it.
+- In the violin rest, a paw that cannot reach the thigh holds the frog outside the thigh or the
+  knee, because a paw on the belly bends the arm out and folds it.
 - The short arms of the elephant do not reach across its trunk or to the middle of a kettle. Use
   `PercussionHold.rim`, `sides`, and `home`, and scan them with `pnpm pose-depth --targets`.
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit
