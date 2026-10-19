@@ -167,6 +167,13 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
 
 - **The options.** Choose the landmark of the scale first. Then make the mid-report and the
   question to the user with `pnpm mesh-options` (step 2 of the route in `model-work.md`).
+- **The size.** The manager measures the reference images before the brief. The brief gives the
+  pixel heights of the species and of an anchor, a neighbor that stands or sits as the species
+  does. Run `pnpm mesh-options` with the low end, the middle, and the high end of the range of
+  the reference.
+- **The elbows.** In the first hold fit, compare 3 or 4 elbow directions, and look at the upper
+  arms in the close views. An upper arm can twist into a flat band within the limits of the
+  depths and the folds.
 - **The faces.** Permit rings at the joints (`refine.rings`) and edge flips of faces that lie
   almost on one plane (`refine.flip`) from the start.
 - **The order of the goals.** When two goals conflict, keep this order:
