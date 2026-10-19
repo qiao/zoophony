@@ -332,6 +332,37 @@
     },
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.207 out (161 vertices of the free left arm). The belly is wider than that plane below the arm, so the free arm is the part beyond the plane that holds the finger tip. Above headFrom, each vertex follows the head only: the chin starts at y 0.70. earBase lies above the head, so the small ears follow the head. The small tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom, armTop, and shoulderHead are the rules of the panda, moved with the shoulder joint (y 0.555) and the wide neck of the hippo."
   },
+  "raise": [
+    {
+      "side": "R",
+      "turns": {
+        "clavicle": [
+          0,
+          0.3827,
+          0,
+          0.9239
+        ],
+        "upper_arm": [
+          0.2267,
+          0.2825,
+          -0.7038,
+          0.6111
+        ],
+        "forearm": [
+          -0.0882,
+          0.0511,
+          -0.1142,
+          0.9882
+        ]
+      },
+      "fade": [
+        40,
+        50
+      ],
+      "below": 0,
+      "note": "The shape of the bow arm in the play of the bassist, with the mean turns of the samples in which face 323 folds (pnpm raise-fit bassist --faces 323 --side R): the clavicle turns 45 degrees forward, as the reach of the hold, and the upper arm 104.7 degrees from the bind. The fade covers 98% of the play samples. With the rule, faces 240, 286, and 480 of the front of the shoulder fold in 1% to 5% of the play samples (89%, 95%, and 37% before), and faces 477 and 461 of the upper arm, which turn over in the pose of the rule, in 93% and 34% (docs/research/2026-10-19-hippo-chest/fold-probe-base.txt)."
+    }
+  ],
   "refine": {
     "rings": [],
     "flip": {
