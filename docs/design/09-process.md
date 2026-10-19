@@ -83,8 +83,13 @@ A push to `main` builds with pnpm and deploys to GitHub Pages under the base pat
   sample sets, its note targets, and its limits. The sweep poses the skin of the GPU and measures
   the depth of each point of the paws, the arms, and a held part in the closed body and the closed
   shells of the instrument (`closedDepth()` of `pose/test-clearance.ts`). A depth past the contact
-  depth of the role is a named entry with its reason and its decision row. A note target gives
-  the distance of a hand or its held part from its target, such as the bow hair on the strings.
+  depth of the role is a named entry with its reason and its decision row. A role that holds its
+  instrument against its body (the bowed strings and the winds) also measures the instrument in
+  the body (`INSTRUMENT_PART` of `pose/test-sweep-roles.ts`), with no limit, because a real player
+  touches the instrument with the body: the chin rest of a violin under the jaw, or the back of a
+  contrabass on the chest. `pnpm pose-depth --base` and `pnpm hold-fit` show its depth. A note
+  target gives the distance of a hand or its held part from its target, such as the bow hair on
+  the strings.
   - Each role sweeps the first seated player of each model in each demo with its seat, and each
     standing soloist. The conductor (the bear), the pianist (the polar bear), the violinist (the
     rabbit and the red fox), and the flutist (the tan fox) have shard files
@@ -94,9 +99,7 @@ A push to `main` builds with pnpm and deploys to GitHub Pages under the base pat
     because they came while all tests are paused (`VIOLIST_SWEEP`, `CELLIST_SWEEP`,
     `BASSIST_SWEEP`, `TROMBONIST_SWEEP`, `OBOIST_SWEEP`, `TIMPANIST_SWEEP`). The sweep of the
     timpanist also moves the head, so that the trunk, the tusks, and the ears stay out of the
-    kettles. `pnpm hold-fit cellist` also measures the cello in the body, because it
-    stands between the knees against the chest, and `pnpm hold-fit trombonist` the trombone,
-    which the paws hold at the mouth.
+    kettles.
 - The Playwright smoke test (`e2e/smoke.e2e.ts`, `pnpm test:e2e`) runs on the built site, so that
   CI tests the files that it deploys. It plays the default demo for 4 s, and checks the song time
   through the count-in, the canvas, the console, and the requests. A failed request finds an
