@@ -470,7 +470,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS.beaver,
     accentParts: ['tail'],
-    bassoonScale: 0.8,
+    bassoonScale: 0.82,
     noChair: true,
     proportions: {
       headHeight: STUDIO_BEAVER.headHeight,

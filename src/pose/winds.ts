@@ -448,14 +448,31 @@ const MOUSE_OBOE = {
   poleR: [0.5, -1, -0.5],
 } as const satisfies WindHold;
 
+/** The forward turn of each shoulder bone of the bassoon beaver while it plays, in degrees. */
+const BEAVER_SHOULDER_TURN = 15;
+
 /**
- * The bassoon hold of the beaver (design 5.3), the hold of a real bassoonist
- * (`docs/reference/wind-technique.md` 3): the bassoon lies diagonal in front of the body, the left
- * paw above the right paw, and the bocal brings the reed to the mouth. It has the values of
- * {@link WIND_HOLDS}.
+ * The bassoon hold of the beaver (design 5.3), the hold of a real bassoonist (decisions
+ * `2026-10-19-mesh-beaver.md`, `docs/reference/wind-technique.md` 3): the bassoon lies diagonal
+ * in front of the body, the left paw above the right paw, and the bocal brings the reed to the
+ * mouth at a nearly level angle. The play turn and the rest are those of {@link WIND_HOLDS}.
+ *
+ * The long muzzle and the front teeth put the tip of the nose far in front of the mouth, so the
+ * reed sits 0.33 H lower and 0.25 H further back than the mouth of the bind pose, under the front
+ * teeth. The beaver keeps the arms that the user chose, so it plays a smaller bassoon
+ * (`SpeciesParams.bassoonScale`), and each shoulder bone turns {@link BEAVER_SHOULDER_TURN}°
+ * forward, as the shoulder blade of a real player slides forward when the arm reaches forward:
+ * with square shoulders, the right paw reached its grip with 3 cm to spare only on a bassoon of
+ * 0.75. Both elbows point down, out, and forward, which gave the smallest arm turns of 3 elbow
+ * directions.
  */
 const BEAVER_BASSOON = {
   ...WIND_HOLDS.bassoon,
+  reach: BEAVER_SHOULDER_TURN * MathUtils.DEG2RAD,
+  reachL: BEAVER_SHOULDER_TURN * MathUtils.DEG2RAD,
+  lipShift: [0, -0.33, 0.25],
+  poleL: [-0.5, -1, -0.5],
+  poleR: [0.5, -1, -0.5],
 } as const satisfies WindHold;
 
 /**
