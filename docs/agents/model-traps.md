@@ -220,12 +220,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 ## Probe tools
 
-- `pnpm rig-mesh --check --set` changes only a key that the config has. For a new key, rig a scratch
-  config with a direct run of Blender, and count its folds with `pnpm fold-probe <role> --glb
-  <file>` (`rig.sh` of `docs/research/2026-10-17-dog-mesh/`).
-- The rig log gives centimeters at the scale of `app.shoulders`. A direct run of Blender on a
-  variant that moves the shoulder joints needs the `app.shoulders` of `keptHeight()`, which `pnpm
-  rig-mesh --check --set` sets.
+- `pnpm rig-mesh --check --set` changes only a key that the config has, and it sets `app.shoulders`
+  from `keptHeight()`. For a new key, rig a scratch config with a direct run of Blender, and count
+  its folds with `pnpm fold-probe <role> --glb <file>` (`rig.sh` of
+  `docs/research/2026-10-17-dog-mesh/`). The rig log gives centimeters at the scale of
+  `app.shoulders`, so a direct run on a variant that moves the shoulder joints needs that value.
 - A new body moves the layout and the shot plans. The shot tests react to moves of about 2 cm: run
   `pnpm test:paused src/shots/` early, and `pnpm shot-trace <demo> --base main` when a shot drops
   out.
