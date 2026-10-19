@@ -701,6 +701,9 @@ the mockup is out of scope.
 - [ ] Cut the frame cost of the shadows of the side lights in the performance sweep: about 0.9 ms
       of GPU time and 0.4 ms of main-thread time in each frame of `perf-60.mid` on the high tier.
       Options: smaller maps, or a new map only every second frame.
+- [ ] Find the reads of the look roots at the load of a module with a saved check. Today
+      `LOAD_TIME_PATHS` of `scene/look-values.ts` lists them by hand, so a new read at load gives
+      an override with no effect and no error (`docs/decisions/2026-10-18-look-tools.md`).
 
 Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
 passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
