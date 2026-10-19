@@ -28,9 +28,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   asks. A size that the user sets (`SpeciesParams.violinScale`) stays, and the hold moves the
   instrument to the paws.
 - The arm factor of a reach follows the hold. Fit the hold with a first factor, measure the reach
-  (`cello-reach.ts` of `docs/research/2026-10-17-dog-mesh/`), and rig the final factor once.
-- An arm factor far above the option text that the user chose goes back to the user before the merge
-  (the dog got 1.75 for "about 1.4x").
+  (`cello-reach.ts` of `docs/research/2026-10-17-dog-mesh/`), and rig the final factor once. A
+  factor far above the option text of the user goes back to the user before the merge (the dog got
+  1.75 for "about 1.4x").
 - A new scale of `SpeciesParams` needs its case in `instrumentScale()` and in `buildInstrument()`
   of `models/instruments/catalog.ts`. With no case, `--set <species>.<scale>` prints the scale and
   moves no grip.
