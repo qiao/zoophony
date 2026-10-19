@@ -96,7 +96,7 @@ player.
   violist has the views and the moments of the violinist, with its own test notes. The dog
   cellist (`cellist`) has the views and the moments of the violinist with its own test notes, and
   no standing soloist, because a cellist does not stand. The hippo bassist (`bassist`) has the
-  views and the moments of the cellist on its stool, with its own test notes. The tan fox
+  views and the moments of the cellist, standing, with its own test notes. The tan fox
   flutist shows from the front, both sides, and the back, at a long note, between two phrases, in
   the rest pose, in the middle of the lift and of the lowering at the note, and standing at the
   note. The panda trombonist (`trombonist`) shows from the same four sides, at a note in the

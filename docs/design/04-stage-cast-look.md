@@ -182,9 +182,7 @@ trunk (`docs/research/2026-10-11-short-legs.md`):
 - The studio bodies keep the trunks and the legs of their sources (4.4). No value of this table
   applies to them, except the head height `H` and the seat heights of the polar bear, the rabbit,
   the foxes, the cat, the dog, the panda, and the hippo, which `models/species.ts` reads from their
-  studio bodies. The hippo sits on the stool of the contrabass, so its seat height is the seat of
-  its studio body less the height of its soles (`StudioBody.footHeight`), and the foot ring of the
-  stool is under its soles.
+  studio bodies. The hippo stands at its contrabass.
 
 A height map moves the torso of the parametric body with the joints of the table, and the head
 keeps its form:
@@ -411,8 +409,7 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
   the trunk, the head, and the arms keep their meters.
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear then rises to its seat height
-  (`seat` of `ANIMALS`), and the hippo to the seat of the stool of the contrabass, with its short
-  legs above the foot ring (`StudioBody.footHeight`). The rabbits, the foxes, the cats, the dogs, and the pandas have chairs
+  (`seat` of `ANIMALS`). The rabbits, the foxes, the cats, the dogs, and the pandas have chairs
   that fit their legs, so that their feet touch the floor (user, 2026-10-16). Each level seat ends
   where the thighs leave it at the haunch (`chair.front`), so that the haunch rests on it. Short
   thighs under a round belly, as on the panda, end the seat behind the thighs, under the haunch,
@@ -420,7 +417,7 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
   its height, depth, width, and the room behind the back from the body (`StudioBody.seatHeight`,
   `chairDepth`, `chairWidth`, `backRoom`, 4.5, props).
 - **Soloist.** A seated body that also stands (`soloist` of `ANIMALS`: the rabbit, the red fox, the
-  cat, and the panda) keeps the leg shapes and the turns of its sheet pose, and `standingBody()` of
+  cat, the panda, and the hippo, which stands in each seat of the contrabass) keeps the leg shapes and the turns of its sheet pose, and `standingBody()` of
   `models/studio-rig.ts` stands it within 1 mm of the source.
 - **Retarget.** The skeleton of the player has the joints of the studio, with each arm straight
   down, because the pose code reads a hanging arm in the bind pose (4.7, 5.2).
@@ -753,7 +750,7 @@ risers. `models/stage.ts` holds the sizes of the stage, the podium, and the cond
 |---|---|
 | Chair | A seat, two back posts, one wide top rail, open below the rail, and four legs (`CHAIR`), as in `animals.webp`. The seat is at the `seatHeight` of the skeleton (`seatHeights()`, 4.3), so each species has a chair of its own height. A studio body also gives the depth, the room, and the width of its seat (4.4, seat). |
 | Stool | For the harp, with no back (`STOOL`). It keeps its height, so that the left hand reaches the highest strings. |
-| High stool | For the contrabass, with a foot ring at the `seatHeight` of the skeleton below the seat (`HIGH_STOOL`). Its seat height puts the contact point of the bow of the hippo above its round belly with the end pin of the contrabass on the floor, and the short legs of the hippo hang to the ring (4.4, seat; 5.3). |
+| High stool | With a foot ring at the `seatHeight` of the skeleton below the seat (`HIGH_STOOL`). No player sits on it since the hippo stands at its contrabass. |
 | Music stand | A tripod, a post, and a tilted desk with a white sheet (`MUSIC_STAND`). The desk stays below the eyes of its players (`standDeskHeight()`). |
 | Podium | A box with cut corners and framed panels (`PODIUM_SIZE`, `PODIUM_TRIM`), as in `orchestra-latest.png` and `bear-views.png`. |
 | Conductor stand | A desk on a post in front of the podium (`CONDUCTOR_STAND`), with its top edge at the shoulders of the bear, as in `animals.webp`. A post on the podium put the belly of the bear through the desk. |
@@ -856,7 +853,7 @@ of the group.
 | violin | violin and bow | under the chin on the left shoulder, bow in the right hand | chair |
 | viola | the violin model at 1.15 scale | as the violin | chair |
 | cello | cello and bow | between the knees, end pin on the floor | chair |
-| contrabass | the cello model at 1.6 scale | at the left side, leaned to the left of the head, bow in the right hand | high stool |
+| contrabass | the cello model at 1.6 scale | at the left side, leaned to the left of the head, bow in the right hand | stands |
 | harp | concert harp | between the knees, both hands on the strings | stool |
 | piano | grand piano (also for the celesta and the organs) | both hands on the keys | bench |
 | flute | silver tube (also for the piccolo and other pipes) | horizontal, to the right | chair |
@@ -900,8 +897,9 @@ declare function castScore(score: Score): PlayerCast[];
 
 The instruments follow the reference image and the polished images, and their sizes fit the
 animals of the reference image. A species can play a smaller violin, cello, or contrabass
-(`SpeciesParams.violinScale`, `celloScale`, `bassScale`), as a child plays a fractional size, and
-a smaller cello or contrabass has a longer end pin (`endPinLength()`). A violin shop sizes a violin so that, with the left
+(`SpeciesParams.violinScale`, `celloScale`, `bassScale`), as a child plays a fractional size. A
+smaller cello has a longer end pin, and the contrabass keeps a short end pin at each size, because
+its hold moves it to the body (`endPinLength()`). A violin shop sizes a violin so that, with the left
 arm extended, the scroll lies in the middle of the palm (`pnpm hold-reach`). The user chose the
 instrument sizes and the arms of the mesh bodies, and the holds fit them. The rabbit and the red
 fox play almost the violin of the app, and the cat the viola of the app. Their arms are shorter
