@@ -1580,6 +1580,20 @@ export function sameFaces(first: FaceJson, second: FaceJson): Map<number, FaceRe
 }
 
 /**
+ * Writes the share of the samples of each set in which a face folds.
+ *
+ * @param folds The folds of the tree of the face.
+ * @param record The face, or `null` for a face that folds in no sample.
+ * @returns The text, such as `0.0% / 13.7% / 0.0%`, in the order of the sample sets.
+ */
+function shareCells(folds: FaceJson, record: FaceRecord | null): string {
+  return SAMPLE_SETS.map((set) => {
+    const share = (100 * (record?.folds[set] ?? 0)) / Math.max(1, folds.sets[set].samples);
+    return `${share.toFixed(1)}%`;
+  }).join(' / ');
+}
+
+/**
  * Gives the total of the samples of all sets in which a face folds.
  *
  * @param record The face.
@@ -1629,11 +1643,6 @@ export function faceCompareLines(
     return ['No face folds on either tree.'];
   }
 
-  const shares = (folds: FaceJson, record: FaceRecord | null): string =>
-    SAMPLE_SETS.map((set) => {
-      const share = (100 * (record?.folds[set] ?? 0)) / Math.max(1, folds.sets[set].samples);
-      return `${share.toFixed(1)}%`;
-    }).join(' / ');
   const lines = [
     tree.topology === base.topology
       ? `The faces of ${label} and of the working tree have the same corners, so a face keeps its index.`
@@ -1646,7 +1655,7 @@ export function faceCompareLines(
     const mark = !row.base ? 'new' : !row.tree ? 'gone' : '';
     const record = row.tree ?? row.base;
     lines.push(
-      `| ${row.tree?.face ?? '-'} | ${row.base?.face ?? '-'} | ${shares(base, row.base)} | ${shares(tree, row.tree)} | ${mark} | ${record?.bone ?? '-'} | ${worstText(record?.worst ?? null)} |`,
+      `| ${row.tree?.face ?? '-'} | ${row.base?.face ?? '-'} | ${shareCells(base, row.base)} | ${shareCells(tree, row.tree)} | ${mark} | ${record?.bone ?? '-'} | ${worstText(record?.worst ?? null)} |`,
     );
   }
   return lines;
