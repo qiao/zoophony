@@ -383,6 +383,7 @@ export const SCALE_KEYS = [
   'celloScale',
   'bassScale',
   'oboeScale',
+  'bassoonScale',
 ] as const satisfies readonly (keyof SpeciesParams)[];
 
 /**

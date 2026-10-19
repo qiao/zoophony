@@ -76,6 +76,13 @@ interface CommonParams {
    */
   readonly oboeScale?: number;
   /**
+   * The scale of the bassoon for the species, as a factor of the bassoon of the app (design 4.6).
+   * It is 1 when it is not given. A species with short arms plays a smaller bassoon, as a child
+   * plays a fractional violin. The bassoon shrinks toward the reed, so the reed stays in the
+   * mouth, and the grips of the palms come nearer to the mouth.
+   */
+  readonly bassoonScale?: number;
+  /**
    * True for a species that sits with no chair (design 4.5, props). The body keeps its seated
    * pose, its seat height, and its feet on the floor, and the app builds no chair under it
    * (`seatHeights()` and `buildSupport()` of `props.ts`). The species sits on a chair when it is
@@ -199,7 +206,7 @@ export function isSpeciesId(value: string): value is SpeciesId {
 /**
  * Gives the scale of the instrument and its bow of a species (design 4.6): the violin scale for a
  * violin, the cello scale for a cello, the bass scale for a contrabass, the oboe scale for an
- * oboe, and 1 for each other instrument.
+ * oboe, the bassoon scale for a bassoon, and 1 for each other instrument.
  *
  * @param params The parameters of the species.
  * @param instrument The instrument.
@@ -217,6 +224,9 @@ export function instrumentScale(params: SpeciesParams, instrument: InstrumentId)
   }
   if (instrument === 'oboe') {
     return params.oboeScale ?? 1;
+  }
+  if (instrument === 'bassoon') {
+    return params.bassoonScale ?? 1;
   }
   return 1;
 }

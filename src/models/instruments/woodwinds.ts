@@ -289,8 +289,8 @@ const WOODWIND_PARTS = {
 /**
  * Builds a woodwind (design 4.6). The origin of the piece is the point at the mouth, and the
  * instrument bone hangs on the chest (4.7). A species with short arms plays a smaller oboe
- * (`SpeciesParams.oboeScale`), as a child plays a fractional violin. The instrument and its grips
- * shrink toward the mouthpiece, so the mouthpiece stays at the mouth.
+ * or bassoon (`SpeciesParams.oboeScale`, `bassoonScale`), as a child plays a fractional violin.
+ * The instrument and its grips shrink toward the mouthpiece, so the mouthpiece stays at the mouth.
  *
  * @param id The woodwind.
  * @param scale The scale of the instrument, as a factor of its size in {@link WOODWINDS}.
