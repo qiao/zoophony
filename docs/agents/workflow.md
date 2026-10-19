@@ -135,6 +135,9 @@ file, because both checks still read it.
   `uv run --no-project --with pillow --with numpy --with scipy python -I <script>`. The other
   Pythons of the machine have no numpy or no Pillow.
 - Vitest hides the `console.log` output of a passing test, so a probe in a test writes a file.
+- A sweep, such as `pnpm pose-depth` or `pnpm fold-probe`, reads the modules at its start. Do not
+  edit or commit a module that it reads while it runs, because its result then belongs to no
+  commit.
 - In the shell of an agent, `grep` is a shell function that runs ugrep with `--ignore-files`, so
   it skips `scratch/` and `node_modules/`. `command grep` runs the grep of the system. Make a
   temporary edit of a file with `perl -0pi -e`, because the `sed -i` of macOS needs a suffix.
