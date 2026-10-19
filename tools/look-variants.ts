@@ -24,8 +24,11 @@
  * 3. It runs `pnpm look-lab <dir>/<name> --url <url>` for each variant, with the log in
  *    `<dir>/<name>.log`. A failed variant does not stop the others.
  * 4. It stops the server by its PID, also after a failure and after Ctrl-C.
- * 5. It prints the table of `lookSummary()` of `tools/look-lab.ts` for each variant, with the row
- *    of the reference first, and writes it to `<dir>/variants.md`.
+ * 5. It prints the tables of `lookSummary()` and `defaultSummary()` of `tools/look-lab.ts`, one
+ *    row for each variant, with the row of the reference first, and writes them to
+ *    `<dir>/variants.md`. The white fur of each variant takes the pixels of the mask of the first
+ *    variant, so the light color does not change the pixel set. The column `n` gives the count
+ *    of the own mask of the variant, so a change of the pixel set shows.
  *
  * It exits with 1 when a variant fails.
  */
@@ -45,8 +48,8 @@ import { checkLook, parseLook, soloSeats } from '../src/scene/look-values.ts';
 import type { LookChanges } from '../src/scene/look-values.ts';
 import { scoreOf } from '../src/score/test-score.ts';
 import { chromiumArgs } from './chromium-args.ts';
-import { lookSummary, readLookFrames } from './look-lab.ts';
-import type { SummaryRow } from './look-lab.ts';
+import { defaultSummary, lookRegions, lookSummary, readLookFrames } from './look-lab.ts';
+import type { LookFrame, SummaryRow } from './look-lab.ts';
 import { patchedDemo } from './patch-demos.ts';
 import { ROOT, optionValue } from './ref-tree.ts';
 import { stopChildren, trackChild } from './stop-cleanup.ts';
@@ -345,25 +348,43 @@ async function main(): Promise<void> {
   }
 
   const browser = await chromium.launch({ args: chromiumArgs(process.platform) });
-  const rows: [string, SummaryRow][] = [];
+  const regions = await lookRegions();
+  const orchestraRows: [string, SummaryRow][] = [];
+  const defaultRows: [string, SummaryRow][] = [];
+  let pixelsOf: { readonly name: string; readonly frame: LookFrame } | null = null;
   try {
     for (const variant of variants.filter((v) => !failed.includes(v.name))) {
       const frames = await readLookFrames(browser, join(args.out, variant.name));
-      const [reference] = frames;
-      if (rows.length === 0 && reference) {
-        rows.push(['reference', lookSummary(reference)]);
+      const find = (label: string): LookFrame | undefined =>
+        frames.find((frame) => frame.label === label);
+      const reference = frames[0];
+      if (orchestraRows.length === 0 && reference) {
+        orchestraRows.push(['reference', lookSummary(reference)]);
+        defaultRows.push(['reference', defaultSummary(reference, regions, null)]);
       }
-      const orchestra = frames.find((frame) => frame.label === 'tree, orchestra');
+      const orchestra = find('tree, orchestra');
       if (orchestra) {
-        rows.push([variant.name, lookSummary(orchestra)]);
+        orchestraRows.push([variant.name, lookSummary(orchestra)]);
+      }
+      const view = find('tree, default');
+      if (view) {
+        // The white fur of each variant takes the pixel set of the first variant.
+        pixelsOf ??= { name: variant.name, frame: view };
+        defaultRows.push([variant.name, defaultSummary(view, regions, pixelsOf.frame)]);
       }
     }
   } finally {
     await browser.close();
   }
-  const table = summaryTable(rows);
-  await writeFile(join(args.out, 'variants.md'), `# Look variants\n\n${table}`);
-  console.log(`\n${table}`);
+  const note = pixelsOf
+    ? `The white fur of each variant takes the pixels of the variant ${pixelsOf.name}, and n gives the count of its own mask (\`tools/look-regions.ts\`).\n`
+    : '';
+  const tables = [
+    `## Camera orchestra\n\n${summaryTable(orchestraRows)}`,
+    `## Camera default\n\n${note}\n${summaryTable(defaultRows)}`,
+  ].join('\n');
+  await writeFile(join(args.out, 'variants.md'), `# Look variants\n\n${tables}`);
+  console.log(`\n${tables}`);
   if (failed.length > 0) {
     console.log(`Failed variants: ${failed.join(', ')}.`);
     process.exitCode = 1;
