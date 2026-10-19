@@ -223,3 +223,4 @@ The decision files:
 - [`2026-10-18-horn-fundamental.md`](decisions/2026-10-18-horn-fundamental.md): the fundamental F1 of the horn, and the partials of the single F horn chart.
 - [`2026-10-18-back-light.md`](decisions/2026-10-18-back-light.md): the back-row lights, and the reach of the pool of the stage lights toward the back rows.
 - [`2026-10-18-trombone-fit.md`](decisions/2026-10-18-trombone-fit.md): the slide angle of the panda trombone, and the forward turn of the left shoulder that it needs.
+- [`2026-10-18-check-tools.md`](decisions/2026-10-18-check-tools.md): the temporary worktree of the commit checks, and the Cinematic and shot frames of `pnpm close-views play`.
