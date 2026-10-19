@@ -168,7 +168,8 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
   question to the user with `pnpm mesh-options` (step 2 of the route in `model-work.md`).
 - **The size.** The brief gives the pixel heights of the species in the reference images and of
   an anchor that stands or sits as the species does. Run `pnpm mesh-options` at the low end, the
-  middle, and the high end of the reference range.
+  middle, and the high end of the reference range. When no reference image shows the species, the
+  mesh takes the head top of the parametric body (user, 2026-10-19, `2026-10-19-mouse-size.md`).
 - **The elbows.** In the first hold fit, compare 3 or 4 elbow directions, and prefer the smallest
   arm turns of `pnpm hold-fit`. An upper arm can twist into a flat band within the limits of the
   depths and the folds.
