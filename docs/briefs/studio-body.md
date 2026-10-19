@@ -149,8 +149,7 @@ Copy this list into `<scratch>/rules-common.md`, and add the report format of th
   `timeout`, and no foreground `sleep`. Read the exit code of the command itself.
 - Never take ports 5173, 5190, or 4182. Stop each process that you start, by its PID. Never stop a
   process that you did not start, and never use `pkill -f`.
-- Do not edit the working tree while a tool builds the site or while `tools/check-commits.sh`
-  runs.
+- Do not edit the working tree while a tool builds the site.
 - No merge and no push. End with no rebase in progress and a clean tree.
 - Ask no questions when the user is not available. Record each open choice as a decision row.
 - Write all prose in ASD-STE100 Simplified Technical English. Keep the handoff file current.
