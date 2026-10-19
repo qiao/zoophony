@@ -7,6 +7,7 @@ import { join, relative, resolve } from 'node:path';
 import { Box3, MathUtils, Matrix4, Quaternion, Triangle, Vector3 } from 'three';
 
 import { SPECIES_COLORS } from '../src/models/colors.ts';
+import type { SpeciesColors } from '../src/models/colors.ts';
 import { EYE, addEye, eyeMiddle } from '../src/models/eyes.ts';
 import type { SurfacePoint } from '../src/models/head.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
@@ -126,6 +127,18 @@ export interface AnimalSettings {
   readonly headFloor?: number;
 }
 
+/**
+ * The colors of the texture of the fox mesh, from which the tan palette maps (design 4.5): the
+ * colors of the red fox before the color shift of its rig (`colors.shift` of
+ * `tools/mesh-rigs/fox.json`). The tan palette maps the face colors before the shift
+ * (`COLOR_1`), so the tan fox keeps its colors when the shift of the red fox changes.
+ */
+const FOX_TEXTURE_COLORS: SpeciesColors = {
+  fur: '#f0934c',
+  belly: '#f6eee0',
+  accent: '#4a3324',
+};
+
 /** The animals of the studio that the app shows, by their ids in `lowpoly-studio/animals/`. */
 export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
   // The bear conductor: decisions/2026-10-12-studio-bear.md.
@@ -183,7 +196,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       constant: 'STUDIO_FOX',
       crease: 35,
       glb: 'assets/models/fox/fox.rig.glb',
-      palettes: { tan: { from: SPECIES_COLORS['fox-red'], to: SPECIES_COLORS['fox-tan'] } },
+      palettes: { tan: { from: FOX_TEXTURE_COLORS, to: SPECIES_COLORS['fox-tan'] } },
     },
   ],
   // The viola cat: decisions/2026-10-16-mesh-cat.md, 2026-10-16-cat-trunk.md, and
