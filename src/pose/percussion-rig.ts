@@ -45,6 +45,12 @@ export interface PercussionHold {
   readonly poleL: Vec3;
   readonly poleR: Vec3;
   /**
+   * The move of each target of a kettle from the middle of its head toward the player, in meters
+   * on the floor plane: the playing spot of a timpanist lies between the middle and the rim
+   * nearest to the player. 0 for the other instruments.
+   */
+  readonly inward: number;
+  /**
    * The place from which a mallet points to its target, from the shoulder joint of its side, in
    * head heights `H`. Thus the wrist stays in front of the body and below the shoulder, and the
    * mallet slants down.
@@ -73,6 +79,7 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0.05, 0, 0],
     poleL: POLE_L,
     poleR: POLE_R,
+    inward: 0,
     home: MALLET_HOME,
   },
   'bass-drum': {
@@ -82,6 +89,7 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0, 0, 0],
     poleL: POLE_L,
     poleR: [0.5, -1, 0.25],
+    inward: 0,
     home: MALLET_HOME,
   },
   'snare-drum': {
@@ -91,6 +99,7 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0.04, 0, 0],
     poleL: [-0.6, -1, 0.3],
     poleR: [0.6, -1, 0.3],
+    inward: 0,
     home: MALLET_HOME,
   },
   // The lift is the half of the gap between the inner faces of the two cymbals.
@@ -101,6 +110,7 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0, 0, 0],
     poleL: POLE_L,
     poleR: POLE_R,
+    inward: 0,
     home: MALLET_HOME,
   },
   // The left hand holds the triangle up, and its elbow points out to the left.
@@ -111,6 +121,7 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0, 0, 0],
     poleL: [-1, -0.5, 0.3],
     poleR: POLE_R,
+    inward: 0,
     home: MALLET_HOME,
   },
   xylophone: {
@@ -120,6 +131,7 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0, 0, 0],
     poleL: [-0.8, -1, 0.3],
     poleR: [0.8, -1, 0.3],
+    inward: 0,
     home: MALLET_HOME,
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
@@ -319,7 +331,7 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
   switch (instrument) {
     case 'timpani':
       for (const [i, head] of heads.entries()) {
-        targets.set(i, bindTarget(model, head));
+        targets.set(i, towardPlayer(bindTarget(model, head), hold.inward));
       }
       sides = [mallet(left, 'malletL'), mallet(right, 'malletR')];
       break;
@@ -422,4 +434,21 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
 export function offsetTarget(target: StrikeTarget, offset: Vec3): StrikeTarget {
   const point = new Vector3(...target.point).add(new Vector3(...offset));
   return { point: toVec3(point), normal: target.normal };
+}
+
+/**
+ * Moves a target toward the player on the floor plane: the player stands at the origin of the
+ * model axes.
+ *
+ * @param target The target.
+ * @param distance The move, in meters.
+ * @returns The moved target, or the target with no move for a distance of 0.
+ */
+function towardPlayer(target: StrikeTarget, distance: number): StrikeTarget {
+  const [x, , z] = target.point;
+  const length = Math.hypot(x, z);
+  if (distance === 0 || length === 0) {
+    return target;
+  }
+  return offsetTarget(target, [(-x / length) * distance, 0, (-z / length) * distance]);
 }
