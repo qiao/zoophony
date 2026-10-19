@@ -57,7 +57,7 @@ import {
   shoulderHeight,
 } from './rig-mesh.ts';
 import type { MeshRigConfig } from './rig-mesh.ts';
-import { measureRig } from './rig-mesh-check.ts';
+import { measureRig, noseWarning } from './rig-mesh-check.ts';
 import type { ThinRule } from './rig-mesh-check.ts';
 import { trackChild } from './stop-cleanup.ts';
 import { ANIMALS, readAccessor, readGlb, worldMatrices } from './studio-body.ts';
@@ -563,7 +563,7 @@ export interface RiggedVariant {
   readonly preview: string;
   /** The highest point of the standing source, in the units of the studio. */
   readonly tall: number;
-  /** The warning lines of the log of the rig (`rigWarnings()` of `tools/rig-mesh.ts`). */
+  /** The warning lines of the log of the rig (`rigWarnings()` of `tools/rig-mesh.ts`) and of the nose. */
   readonly warnings: readonly string[];
 }
 
@@ -613,6 +613,7 @@ async function rigVariant(
   const tops = topsOf(points);
   const scale = measures.body.scale;
   const reach = measures.arms.L ?? 0;
+  const nose = noseWarning(measures.body);
 
   let hold: string | null = null;
   const { instrument } = args;
@@ -647,7 +648,7 @@ async function rigVariant(
     },
     preview,
     tall: tops.top,
-    warnings: rigWarnings(log),
+    warnings: nose ? [...rigWarnings(log), `${RIG_WARNING} ${nose}`] : rigWarnings(log),
   };
 }
 
@@ -709,7 +710,8 @@ export function optionsTable(
 
 /**
  * Writes the warnings of the rigs of the variants for `options.md`: the seat that the thighs set
- * and the eye box in a dark patch (`tools/blender/rig_mesh.py`).
+ * and the eye box in a dark patch (`tools/blender/rig_mesh.py`), and the tip of the nose off the
+ * middle plane (`noseWarning()` of `tools/rig-mesh-check.ts`).
  *
  * @param rows The rigged variants.
  * @returns The lines: a heading and one item for each warning, or none with no warning.

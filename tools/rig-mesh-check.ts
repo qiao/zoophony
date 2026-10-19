@@ -17,6 +17,7 @@ import {
 import type { Vec3 } from '../src/models/tuples.ts';
 import { STUDIO_MESH_GZIP_BUDGET, STUDIO_TRIANGLE_BUDGET, gzipSize } from './studio-budgets.ts';
 import {
+  NOSE_WARNING,
   firstKeys,
   inspectStudioGlb,
   readGlb,
@@ -360,6 +361,22 @@ function skinOf(
   return bones.toSorted((a, b) => b[1] - a[1]);
 }
 
+/**
+ * Gives the warning of a tip of the nose off the middle plane: the tip and the mouth below it lie
+ * more than `NOSE_WARNING` of `tools/studio-body.ts` from the plane, so a hold at the mouth, such
+ * as a reed or a mouthpiece, moves to the side.
+ *
+ * @param body The studio body.
+ * @returns The text of the warning, or `null` for a tip near the plane.
+ */
+export function noseWarning(body: Pick<StudioBody, 'nose'>): string | null {
+  const off = Math.abs(body.nose[0]);
+  if (off <= NOSE_WARNING) {
+    return null;
+  }
+  return `the tip of the nose and the mouth lie ${(off * 100).toFixed(1)} cm from the middle plane (more than ${NOSE_WARNING * 100} cm), so a hold at the mouth moves to the side.`;
+}
+
 /** The measures of a rig for `--check`. */
 export interface RigMeasures {
   /** The triangles of the packed mesh. */
@@ -483,6 +500,7 @@ export function measureLines(measures: RigMeasures, module: string, rule: ThinRu
     `Lowest point above the floor, seated bind (seat height ${m(body.seatHeight)}): ${chainText(measures.floor.seated)}. Standing body: ${chainText(measures.floor.standing)}.`,
     `Standing body against the long-armed source: ${mm(standing.worst)} at most (limit ${mm(STANDING_LIMIT)}), ${mm(standing.back)} back, ${standing.vertices} vertices, ${standing.shells} eye vertices left out.${standing.worst > STANDING_LIMIT ? ' ABOVE THE LIMIT.' : ''}`,
     `Worst standing vertex: ${worstText(standing.worstVertex)}.`,
+    `Tip of the nose: ${body.nose.map((x) => x.toFixed(3)).join(', ')} m, ${(Math.abs(body.nose[0]) * 100).toFixed(1)} cm from the middle plane.`,
     `Thin faces near the joints of the limbs (corner below ${rule.angle}°, longest edge from ${rule.length} u, joint within ${rule.near} u), candidates for a ring:`,
   ];
   for (const [bone, joint] of LIMB_JOINTS) {
@@ -499,6 +517,10 @@ export function measureLines(measures: RigMeasures, module: string, rule: ThinRu
   }
   if (measures.thin.length === 0) {
     lines.push('  none');
+  }
+  const nose = noseWarning(body);
+  if (nose) {
+    lines.push(`Warning: ${nose}`);
   }
   return lines;
 }
