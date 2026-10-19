@@ -101,7 +101,9 @@ player.
   the rest pose, in the middle of the lift and of the lowering at the note, and standing at the
   note. The panda trombonist (`trombonist`) shows from the same four sides, at a note in the
   first position and a note in the seventh position, in the rest pose, in the middle of the lift
-  and of the lowering at the first note, and standing. With `--base <ref>`, the tool
+  and of the lowering at the first note, and standing. The mouse oboist (`oboist`) has the views
+  and the moments of the flutist, with its own test notes, and its long tail on the floor shows in
+  the side views and the back view. With `--base <ref>`, the tool
   puts the grid of a commit above the grid of the working tree, so a round shows the change of
   a body with no worktree of `main`. The mode `species` of the tool shows named species alone
   on their seats, around their bodies, at named views, in the playing pose, in the rest pose, or

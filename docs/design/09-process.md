@@ -89,9 +89,10 @@ A push to `main` builds with pnpm and deploys to GitHub Pages under the base pat
     standing soloist. The conductor (the bear), the pianist (the polar bear), the violinist (the
     rabbit and the red fox), and the flutist (the tan fox) have shard files
     `pose/<role>-clearance-<k>.test.ts`.
-  - The violist (the cat), the cellist (the dog), the bassist (the hippo), and the trombonist (the
-    panda) have a sweep and no test file, because they came while all tests are paused
-    (`VIOLIST_SWEEP`, `CELLIST_SWEEP`, `BASSIST_SWEEP`, `TROMBONIST_SWEEP`). `pnpm hold-fit cellist` also measures the cello in the body, because it
+  - The violist (the cat), the cellist (the dog), the bassist (the hippo), the trombonist (the
+    panda), and the oboist (the mouse) have a sweep and no test file, because they came while all
+    tests are paused (`VIOLIST_SWEEP`, `CELLIST_SWEEP`, `BASSIST_SWEEP`, `TROMBONIST_SWEEP`,
+    `OBOIST_SWEEP`). `pnpm hold-fit cellist` also measures the cello in the body, because it
     stands between the knees against the chest, and `pnpm hold-fit trombonist` the trombone,
     which the paws hold at the mouth.
 - The Playwright smoke test (`e2e/smoke.e2e.ts`, `pnpm test:e2e`) runs on the built site, so that
