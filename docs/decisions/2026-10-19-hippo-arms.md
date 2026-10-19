@@ -24,4 +24,4 @@ user can reverse each decision. Then update its section, and remove its row.
 | Round 2: a shape of the bent right elbow on the forearm alone replaces the left arm shape, which changed no fold. Faces 232 and 233 fold in 0.3% and 2.2% (4.7%, 4.1%). | 4.4 |
 | Rejected: 35 pizzicato holds and a shape of the pizzicato pose (the folds move or stay), and the elbow shape with all arm turns (chest faces 463, 336, and 337 fold). | 4.4, 5.3 |
 | Open: 13.6% of the play samples fold: the pizzicato of `boulanger-matin` (6.1%), face 237 of the right shoulder top (6.5%), and the inner right elbow. | 4.4, 9.3 |
-| Open: the dark slot at the right armpit is the shading of the cut caps, whose normals point away from the light. The shoulder turn squeezes faces 114 to 116 to light slivers. | 4.4 |
+| Open: the shoulder turn squeezes faces 114 to 116 and 238 to light slivers. The caps of the arm take the normals of the skin since `2026-10-19-cut-caps.md`. | 4.4 |
