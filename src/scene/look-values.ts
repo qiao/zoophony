@@ -1,10 +1,12 @@
 import { MathUtils } from 'three';
 
 import { KEY_PLACE } from '../models/beam.ts';
+import type { PlayerPlace } from '../models/layout.ts';
 import { INSTRUMENT_COLORS, SCENE_COLORS, SPECIES_COLORS } from '../models/colors.ts';
 import { FINISHES, srgb } from '../models/mesh.ts';
 import { STAGE_COLORS } from '../models/props.ts';
 import { OCCLUSION } from '../models/shading.ts';
+import { SPECIES_IDS, isSpeciesId } from '../models/species.ts';
 import { FREE_BEAM_FADE, SHOT_BEAM_OPACITY } from '../shots/beam-opacity.ts';
 import { FREE_LIGHT_FADE, SHOT_LIGHT, SHOT_RIG, SHOT_SPOT } from '../shots/shot-light.ts';
 import { BEAM_LOOK } from './beam.ts';
@@ -390,4 +392,35 @@ export function applyLook(changes: LookChanges): LookChange[] {
     }
   }
   return planned.map((item) => item.change);
+}
+
+/**
+ * Gives the seats of a solo of the look tools: the query `solo` of the dev server
+ * (`src/app/look-override.ts`) and the key `solo` of `pnpm look-variants`.
+ *
+ * @param text Seat indices of `Score.seats` and species, separated by commas, such as `13` or
+ *   `panda,0`. A species gives each seat with a player of that species.
+ * @param players The players of the layout.
+ * @returns The seats, from the smallest, each one time.
+ * @throws Error that names the item, for a seat with no player or a species with no seat.
+ */
+export function soloSeats(text: string, players: readonly PlayerPlace[]): number[] {
+  const seats = new Set<number>();
+  for (const item of text.split(',').map((part) => part.trim())) {
+    const of = players.filter((p) =>
+      /^\d+$/.test(item) ? p.cast.seatIndex === Number(item) : p.cast.species === item,
+    );
+    if (of.length === 0) {
+      const kind = /^\d+$/.test(item)
+        ? 'The seat has no player.'
+        : isSpeciesId(item)
+          ? 'No player of the layout has this species.'
+          : `The species are ${SPECIES_IDS.join(', ')}.`;
+      throw new Error(`The solo "${item}" names no seat of the layout. ${kind}`);
+    }
+    for (const p of of) {
+      seats.add(p.cast.seatIndex);
+    }
+  }
+  return [...seats].toSorted((a, b) => a - b);
 }
