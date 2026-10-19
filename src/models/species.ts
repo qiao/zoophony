@@ -256,10 +256,12 @@ export const SPECIES = {
    * Red-orange fox with a white face, the second violins (reference image). It has the studio body
    * of the mesh of the user, `assets/models/fox/fox.glb`, which `pnpm rig-mesh fox` rigs (design
    * 4.4), seated with its long thighs on the seat and its tail back through the chair, and
-   * standing as a soloist. Its head height is the head of the studio body, and its chair fits its
-   * legs: the seat height is the seat of the studio body, in H. Its violin is almost the violin of
-   * the app, the size that the user chose: the user made its arms longer for a full violin, and
-   * then shorter with the same violin (2026-10-14-arms-rest decisions).
+   * standing as a soloist. The rig moves the orange fur of the texture to the red-orange of the
+   * reference foxes (`colors.shift` of `tools/mesh-rigs/fox.json`, design 4.5). Its head height is
+   * the head of the studio body, and its chair fits its legs: the seat height is the seat of the
+   * studio body, in H. Its violin is almost the violin of the app, the size that the user chose:
+   * the user made its arms longer for a full violin, and then shorter with the same violin
+   * (2026-10-14-arms-rest decisions).
    *
    * The stick of the bow passes through the closed right paw (2026-10-17-grip-all decisions), 50°
    * from square toward the wrist, along the line nearest to the middles of the turned paw. The
@@ -283,10 +285,10 @@ export const SPECIES = {
   },
   /**
    * Light tan fox, the flutes (reference image). It has the studio body of the red fox with the tan
-   * palette of the faces (design 4.4, 4.5): the colors of the mesh of the user moved from the
-   * colors of the red fox to the colors of the tan fox. It sits with its tail back through the
-   * chair, and stands as a soloist. Its head height is the head of the studio body, and its chair
-   * fits its legs.
+   * palette of the faces (design 4.4, 4.5): the colors of the texture of the mesh of the user,
+   * before the color shift of the red fox, moved to the colors of the tan fox. It sits with its
+   * tail back through the chair, and stands as a soloist. Its head height is the head of the
+   * studio body, and its chair fits its legs.
    */
   'fox-tan': {
     body: 'studio-fox',
