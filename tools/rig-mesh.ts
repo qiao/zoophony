@@ -9,7 +9,9 @@ import type { Bounds } from '../src/models/bounds.ts';
 import type { Side } from '../src/models/studio-format.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { FOLD_ROLES, SAMPLE_SETS, readFaceJson, roleAnimal, roleSpecies } from './fold-probe.ts';
-import type { FaceRecord, FoldCounts, SampleSet } from './fold-probe.ts';
+import type { FaceRecord, FoldCounts } from './fold-probe.ts';
+import { faceList, faceShares, foldShareText } from './face-shares.ts';
+import type { FaceShare } from './face-shares.ts';
 import { animalSpecies, runTool, scratchSettings, withGlbBody } from './glb-swap.ts';
 import { measureLines, measureRig, triangleLine } from './rig-mesh-check.ts';
 import { FORM_FORMAT, readFormJson } from './rig-form.ts';
@@ -895,15 +897,7 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
         }
         break;
       case '--watch':
-        for (const text of value.split(',')) {
-          const face = Number(text);
-          if (text.trim() === '' || !Number.isInteger(face) || face < 0) {
-            throw new Error(
-              `The option --watch takes the indices of faces, such as 617,618, and not "${value}".\n${USAGE}`,
-            );
-          }
-          watch.push(face);
-        }
+        watch.push(...faceList(value, '--watch'));
         break;
       case '--hold':
         holds.push(value);
@@ -1141,8 +1135,8 @@ export interface RoleFolds {
   readonly bones: readonly BoneFolds[];
   /** The faces that fold in the most samples, for `--faces` ({@link topFaces}), or none. */
   readonly faces: readonly FaceFolds[];
-  /** The faces of `--watch` with their shares of folded samples ({@link watchFaces}), or none. */
-  readonly watched: readonly WatchedFace[];
+  /** The faces of `--watch` with their shares of folded samples (`faceShares()`), or none. */
+  readonly watched: readonly FaceShare[];
   /**
    * The SHA-256 of the corners of the faces of the mesh (`FaceJson.topology` of `pnpm fold-probe`):
    * two rigs with one topology give each face the same index.
@@ -1150,17 +1144,10 @@ export interface RoleFolds {
   readonly topology: string;
 }
 
-/** A face of `--watch` with the share of the samples of each set in which it folds. */
-export interface WatchedFace {
-  /** The index of the triangle in the packed mesh, as `pnpm fold-probe` counts the faces. */
-  readonly face: number;
-  /** The share of the samples of each set in which the face folds, or `null` for a set with no sample. */
-  readonly shares: Readonly<Record<SampleSet, number | null>>;
-}
-
 /**
- * Gives the share of the samples of each set in which each face of `--watch` folds. A face that
- * folds in no sample is not in the JSON text of `pnpm fold-probe`, so its shares are 0.
+ * Gives the share of the samples of each set in which each face of `--watch` folds
+ * (`faceShares()` of `tools/face-shares.ts`). A face that folds in no sample is not in the JSON
+ * text of `pnpm fold-probe`, so its shares are 0.
  *
  * @param counts The counts of each sample set of `pnpm fold-probe --json`.
  * @param faces The folded faces of `pnpm fold-probe --json`.
@@ -1171,15 +1158,13 @@ export function watchFaces(
   counts: FoldCounts,
   faces: readonly FaceRecord[],
   watch: readonly number[],
-): WatchedFace[] {
-  return watch.map((face) => {
-    const record = faces.find((f) => f.face === face);
-    const share = (set: SampleSet): number | null => {
-      const samples = counts[set].samples;
-      return samples > 0 ? (record?.folds[set] ?? 0) / samples : null;
-    };
-    return { face, shares: { rest: share('rest'), play: share('play'), lift: share('lift') } };
-  });
+): FaceShare[] {
+  const samples = {
+    rest: counts.rest.samples,
+    play: counts.play.samples,
+    lift: counts.lift.samples,
+  };
+  return faceShares(samples, (face) => faces.find((f) => f.face === face)?.folds, watch);
 }
 
 /** The number of main bones of the folds of each role in the table of `--check`. */
@@ -1362,8 +1347,6 @@ export function watchLines(rows: readonly CheckRow[]): string[] {
     return [];
   }
 
-  const percent = (share: number | null): string =>
-    share === null ? '-' : `${(100 * share).toFixed(1)}%`;
   const header = ['Variant', 'Role', ...faces.map(({ face }) => `Face ${face}`)];
   const lines = [
     'Watched faces: the share of the samples in which each face folds (play / lift / rest).',
@@ -1377,7 +1360,7 @@ export function watchLines(rows: readonly CheckRow[]): string[] {
       const own = base.find((b) => b.role === fold.role)?.topology;
       const mark = own !== undefined && own !== fold.topology ? ' (other mesh)' : '';
       const cells = fold.watched.map(({ shares }) =>
-        (['play', 'lift', 'rest'] as const).map((set) => percent(shares[set])).join(' / '),
+        (['play', 'lift', 'rest'] as const).map((set) => foldShareText(shares[set])).join(' / '),
       );
       lines.push(`| ${variant || 'base'} | ${fold.role}${mark} | ${cells.join(' | ')} |`);
     }
