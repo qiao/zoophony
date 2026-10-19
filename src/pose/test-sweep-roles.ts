@@ -1335,6 +1335,70 @@ export const BASSOONIST_SWEEP: RoleSweep = {
     }),
 };
 
+/**
+ * Tells if a player of a scene is in the sweep of the hornist: the first seated pig with a horn,
+ * and each pig soloist, which stands (design 4.2).
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @returns True for a player of the sweep.
+ */
+function sweptHornist(scene: TestScene, index: number): boolean {
+  const { cast } = scene.layout.players[index] ?? {};
+  if (cast?.species !== 'pig' || cast.instrument !== 'horn') {
+    return false;
+  }
+  if (cast.support === 'stand') {
+    return true;
+  }
+  const first = scene.layout.players.findIndex(
+    (p) => p.cast.species === 'pig' && p.cast.instrument === 'horn' && p.cast.support !== 'stand',
+  );
+  return first === index;
+}
+
+/**
+ * The sweep of the hornist (design 5.3): the sweep of the trombonist with the horn and the pig.
+ * The first seated pig of each demo with horns, and each standing pig soloist, play it. The left
+ * palm is on its grip at the valves at the start of each phrase, and the right palm on its grip in
+ * the bell at the start of each note ({@link trombonistTargets}: the horn has no slide). The body
+ * of the pig mesh has no open edge, so its closed surface has the two cuts to the upper arms
+ * (`loops-probe.txt` of `docs/research/2026-10-19-pig-mesh/`).
+ */
+export const HORNIST_SWEEP: RoleSweep = {
+  ...TROMBONIST_SWEEP,
+  role: 'hornist',
+  obstacles: [
+    { name: 'body', surface: bodySurface },
+    { name: 'horn', surface: instrumentSurface },
+  ],
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'horn'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      if (!sweptHornist(scene, index)) {
+        return [];
+      }
+      const { species, instrument, kettles, support } = place.cast;
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles, support);
+      return [
+        {
+          name: `hornist ${index} (${support})`,
+          model,
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => trombonistTargets(scene, index, model),
+        },
+      ];
+    }),
+};
+
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,
@@ -1347,5 +1411,6 @@ export const SWEEP_ROLES = {
   trombonist: TROMBONIST_SWEEP,
   oboist: OBOIST_SWEEP,
   timpanist: TIMPANIST_SWEEP,
+  hornist: HORNIST_SWEEP,
   bassoonist: BASSOONIST_SWEEP,
 } as const;
