@@ -507,16 +507,11 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       gives the size of a smaller oboe for a child (`docs/reference/wind-technique.md` 4.2). Show
       the user the play frame with the small oboe (`2026-10-19-mouse-size.md`).
 - [x] Elephant timpanist: the skin folded in each sample, up to 23 faces. The mallet grip with
-      its top toward the shoulder, the arm cut, a ring, a rigid face, and four new shapes cut the
-      play folds to 3.9%, the lift to 12.9%, and the rest to none (`2026-10-19-elephant-arms.md`).
-- [ ] Elephant timpanist folds: the thin face 2401 of the left paw folds in 3.5% of the play,
-      and face 235 of the right armpit in 11.3% of the lift. The goal is 1% of the play. Try a
-      weight rule of the left paw that keeps the rest free of folds
-      (`docs/research/2026-10-19-elephant-arms.md`).
-- [ ] Elephant timpanist: with the new grip, the left paw goes 4.7 cm into the body in 1.9% of
-      the play of `beethoven-8-4`, where the left arm waits over the kettle beside the player
-      (`docs/research/2026-10-19-elephant-arms/pose-depth.txt`). Move the waiting place of the
-      left hand out, then fit the left elbow shape again.
+      its top toward the shoulder, the mallet home further forward, the arm cut, a ring, three
+      rigid faces, and four new shapes cut the play folds to 0.4%, the lift to 11.3%, and the rest
+      to none (`2026-10-19-elephant-arms.md`).
+- [ ] Elephant timpanist lift: face 235 at the front of the right armpit folds in 9.7% of the
+      lift samples (`docs/research/2026-10-19-elephant-arms.md`).
 - [ ] Elephant timpanist: the cap of the right armpit cut shows as a dark slot under the raised
       right arm (`pair-left-right.webp` of `docs/research/2026-10-19-elephant-arms/`). Check it
       with the probe of hidden faces of `docs/research/2026-10-18-panda-seam/`.
