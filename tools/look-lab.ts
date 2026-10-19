@@ -19,6 +19,14 @@ import { join } from 'node:path';
 
 import { chromium } from '@playwright/test';
 
+import { DEFAULT_DEMO } from '../src/app/demos.ts';
+import type { DemoId } from '../src/app/demos.ts';
+import { layoutScene } from '../src/models/layout-scene.ts';
+import { ModelCache } from '../src/models/model-cache.ts';
+import { scoreOf } from '../src/score/test-score.ts';
+import { defaultRegions } from './look-regions.ts';
+import type { DefaultRegion } from './look-regions.ts';
+import { patchedDemo } from './patch-demos.ts';
 import { ROOT } from './ref-tree.ts';
 import { rgbaPixels } from './sheet-check.ts';
 
@@ -148,6 +156,12 @@ export const LOOK_REGIONS: readonly LookRegion[] = [
 
 /** The cameras of `pnpm close-views` that the look lab renders. The first one has the regions. */
 export const LOOK_CAMERAS = ['orchestra', 'default', 'violins'] as const;
+
+/** The demo of the frames: the default demo, as `pnpm close-views play` renders it. */
+export const LOOK_DEMO: DemoId = DEFAULT_DEMO;
+
+/** The size of the frames, in pixels: `PLAY_FRAME` of `tools/close-views.ts`. */
+export const LOOK_FRAME = { width: 1440, height: 900 } as const;
 
 /** The song time of the frames, in seconds: the time of the play frame of `pnpm snapshot`. */
 export const LOOK_TIME_SEC = 33.5;
@@ -370,7 +384,12 @@ export interface LookFrame {
   readonly height: number;
   /** The kind of the boxes of the regions, or `null` for a frame with no regions. */
   readonly boxes: 'app' | 'reference' | null;
+  /** The camera of the frame, or `null` for the reference. */
+  readonly camera: LookCamera | null;
 }
+
+/** A camera of {@link LOOK_CAMERAS}. */
+export type LookCamera = (typeof LOOK_CAMERAS)[number];
 
 /**
  * Gives the box of a region in a frame.
@@ -427,9 +446,13 @@ export function measureRegions(frame: LookFrame): RegionMeasures {
  * Writes the tables of the look lab as Markdown.
  *
  * @param frames The frames.
+ * @param regions The regions of the camera `default`, from {@link lookRegions}.
  * @returns The text.
  */
-export function lookTables(frames: readonly LookFrame[]): string {
+export function lookTables(
+  frames: readonly LookFrame[],
+  regions: readonly DefaultRegion[],
+): string {
   const f = (value: number, digits = 0): string => value.toFixed(digits);
   const lines = [
     '## Stage tone',
@@ -505,6 +528,7 @@ export function lookTables(frames: readonly LookFrame[]): string {
       );
     }
   }
+  lines.push(...defaultTable(frames, regions));
   return `${lines.join('\n')}\n`;
 }
 
@@ -556,12 +580,279 @@ export function lookSummary(frame: LookFrame): SummaryRow {
 }
 
 /**
+ * Calculates the regions of the camera `default` from the layout of {@link LOOK_DEMO} in the
+ * working tree (`tools/look-regions.ts`). A frame of `--base` takes the same regions, so a change
+ * of the layout moves its regions.
+ *
+ * @returns The regions.
+ */
+export async function lookRegions(): Promise<DefaultRegion[]> {
+  const models = new ModelCache();
+  const layout = layoutScene(scoreOf((await patchedDemo(`${LOOK_DEMO}.mid`)).bytes), models);
+  return defaultRegions(layout, models, LOOK_FRAME.width, LOOK_FRAME.height);
+}
+
+/** The measure of a region of the camera `default` in one frame. */
+export interface DefaultMeasure {
+  /** The region. */
+  readonly region: DefaultRegion;
+  /** The tone of the pixels of the region, or `null` with no pixel. */
+  readonly tone: RegionTone | null;
+  /**
+   * The count of the pixels in the mask of the region in this frame. With the pixel set of
+   * another frame, it differs from the count of the tone.
+   */
+  readonly own: number;
+}
+
+/**
+ * Gives the pixels of a region in a frame: the pixels of the layout in a frame of the app, or the
+ * pixels of the boxes of the reference.
+ *
+ * @param frame The frame.
+ * @param region The region.
+ * @returns The pixels, as `y × width + x`, or `null` when the frame has no such region.
+ */
+function regionPixels(frame: LookFrame, region: DefaultRegion): Uint32Array | null {
+  if (frame.camera === 'default') {
+    return region.pixels;
+  }
+  if (frame.boxes !== 'reference' || !region.reference) {
+    return null;
+  }
+  const pixels: number[] = [];
+  for (const [left, top, right, bottom] of region.reference) {
+    for (let y = top; y < bottom; y++) {
+      for (let x = left; x < right; x++) {
+        pixels.push(y * frame.image.width + x);
+      }
+    }
+  }
+  return Uint32Array.from(pixels);
+}
+
+/**
+ * Reads the colors of pixels.
+ *
+ * @param image The image.
+ * @param pixels The pixels, as `y × width + x`.
+ * @returns The colors.
+ */
+function pixelColors(image: Pixels, pixels: Uint32Array): [number, number, number][] {
+  return Array.from(pixels, (i) => [
+    image.rgba[i * 4] ?? 0,
+    image.rgba[i * 4 + 1] ?? 0,
+    image.rgba[i * 4 + 2] ?? 0,
+  ]);
+}
+
+/**
+ * Gives the pixels of a region that are in its mask in a frame.
+ *
+ * @param frame The frame.
+ * @param region The region.
+ * @returns The pixels, or `null` when the frame has no such region.
+ */
+export function maskedPixels(frame: LookFrame, region: DefaultRegion): Uint32Array | null {
+  const pixels = regionPixels(frame, region);
+  const mask = region.mask;
+  if (!pixels || !mask) {
+    return pixels;
+  }
+  return pixels.filter((i) => {
+    const r = frame.image.rgba[i * 4] ?? 0;
+    const g = frame.image.rgba[i * 4 + 1] ?? 0;
+    const b = frame.image.rgba[i * 4 + 2] ?? 0;
+    return inMask([r, g, b], mask);
+  });
+}
+
+/**
+ * Measures the regions of the camera `default` in a frame. A region with a mask measures the
+ * pixels of the mask in `pixelsOf`, so that two frames under two lights compare on one pixel set
+ * (`docs/agents/model-traps.md`). The reference takes its own boxes and its own mask.
+ *
+ * @param frame The frame of the camera `default`, or the reference.
+ * @param regions The regions of {@link lookRegions}.
+ * @param pixelsOf The frame of the camera `default` that gives the pixels of the masks, or `null`
+ *   for the frame itself.
+ * @returns The measure of each region that the frame has.
+ */
+export function measureDefault(
+  frame: LookFrame,
+  regions: readonly DefaultRegion[],
+  pixelsOf: LookFrame | null,
+): DefaultMeasure[] {
+  const source = frame.camera === 'default' && pixelsOf ? pixelsOf : frame;
+  return regions.flatMap((region) => {
+    const own = maskedPixels(frame, region);
+    const pixels = source === frame ? own : maskedPixels(source, region);
+    if (!own || !pixels) {
+      return [];
+    }
+    return [{ region, tone: toneOf(pixelColors(frame.image, pixels)), own: own.length }];
+  });
+}
+
+/**
+ * Writes the table of the regions of the camera `default` as Markdown: the reference, each frame
+ * with its own pixel sets, and the frame of the tree with the pixel sets of the base.
+ *
+ * @param frames The frames.
+ * @param regions The regions of {@link lookRegions}.
+ * @returns The lines.
+ */
+export function defaultTable(
+  frames: readonly LookFrame[],
+  regions: readonly DefaultRegion[],
+): string[] {
+  const f = (value: number, digits = 0): string => value.toFixed(digits);
+  const base = frames.find((frame) => frame.label === 'base, default') ?? null;
+  const tree = frames.find((frame) => frame.label === 'tree, default') ?? null;
+  const rows: [string, LookFrame, LookFrame | null][] = frames
+    .filter((frame) => frame.camera === 'default' || frame.camera === null)
+    .map((frame) => [frame.label, frame, null]);
+  if (base && tree) {
+    rows.push(['tree, default, pixel sets of base', tree, base]);
+  }
+  const lines = [
+    '',
+    '## Regions of the camera default',
+    '',
+    'The regions come from the layout of the default demo (`tools/look-regions.ts`). The white fur',
+    'takes the pixels with a saturation below 0.4 and a luma above 60. Pixels gives the count of',
+    'the measured pixels, and Own the count of the own mask of the frame. Dropped gives the pixels',
+    'of the boxes of the region that nearer items cover. The reference takes the boxes of',
+    '`back_measures.py`.',
+    '',
+    '| Region | Frame | Pixels | Own | Dropped | Luma p10 | Luma p50 | Luma p90 | p10 / p90 | Hue | Saturation |',
+    '|---|---|---|---|---|---|---|---|---|---|---|',
+  ];
+  const ratios: string[] = [];
+  for (const [label, frame, pixelsOf] of rows) {
+    const measures = measureDefault(frame, regions, pixelsOf);
+    for (const { region, tone, own } of measures) {
+      const dropped = frame.camera === 'default' ? String(region.dropped) : '-';
+      lines.push(
+        tone
+          ? `| ${region.name} | ${label} | ${tone.pixels} | ${own} | ${dropped} | ${tone.luma.map((v) => f(v)).join(' | ')} | ${f(tone.luma[0] / tone.luma[2], 2)} | ${f(tone.hue)} | ${f(tone.saturation, 2)} |`
+          : `| ${region.name} | ${label} | 0 | ${own} | ${dropped} | - | - | - | - | - | - |`,
+      );
+    }
+    const fur = (name: string): number | undefined =>
+      measures.find((m) => m.region.name === name)?.tone?.luma[2];
+    const front = fur('white fur, front rows');
+    const back = fur('white fur, back rows');
+    if (front && back) {
+      ratios.push(`| ${label} | ${f(back / front, 2)} |`);
+    }
+  }
+  lines.push('', '| Frame | White fur p90, back rows against front rows |', '|---|---|', ...ratios);
+  return lines;
+}
+
+/**
+ * Gives the measures of the camera `default` in one row for `pnpm look-variants`: the luma p50
+ * and p90 of the front rows and of the back rows, the luma p50 of the back floor, and the white
+ * fur of the front rows and of the back rows with the count of the own mask.
+ *
+ * @param frame The frame of the camera `default`, or the reference.
+ * @param regions The regions of {@link lookRegions}.
+ * @param pixelsOf The frame that gives the pixels of the masks, or `null` for the frame itself.
+ * @returns The columns. A region that the frame does not have gives `-`.
+ */
+export function defaultSummary(
+  frame: LookFrame,
+  regions: readonly DefaultRegion[],
+  pixelsOf: LookFrame | null,
+): SummaryRow {
+  const f = (value: number): string => value.toFixed(0);
+  const measures = measureDefault(frame, regions, pixelsOf);
+  const of = (name: string): DefaultMeasure | undefined =>
+    measures.find((m) => m.region.name === name);
+  const rows = (name: string): string => {
+    const tone = of(name)?.tone;
+    return tone ? `${f(tone.luma[1])}/${f(tone.luma[2])}` : '-';
+  };
+  const fur = (name: string): string => {
+    const m = of(name);
+    return m?.tone ? `${f(m.tone.luma[1])}/${f(m.tone.luma[2])} n ${m.own}` : '-';
+  };
+  const front = of('white fur, front rows')?.tone?.luma[2];
+  const back = of('white fur, back rows')?.tone?.luma[2];
+  const floor = of('back floor')?.tone;
+  return [
+    ['front rows p50/p90', rows('front rows')],
+    ['back rows p50/p90', rows('back rows')],
+    ['back floor p50', floor ? f(floor.luma[1]) : '-'],
+    ['fur front p50/p90', fur('white fur, front rows')],
+    ['fur back p50/p90', fur('white fur, back rows')],
+    ['fur back/front p90', front && back ? (back / front).toFixed(2) : '-'],
+  ];
+}
+
+/** The colors of the regions in the image of {@link writeRegionsImage}, by the region index. */
+const REGION_TINTS: readonly (readonly [number, number, number])[] = [
+  [60, 120, 255],
+  [60, 220, 90],
+  [255, 220, 40],
+];
+
+/**
+ * Writes a frame of the camera `default` with its regions tinted: the front rows blue, the back
+ * rows green, and the back floor yellow. Thus a moved layout or camera shows at once.
+ *
+ * @param browser The browser that encodes the image.
+ * @param frame The frame.
+ * @param regions The regions of {@link lookRegions}.
+ * @param file The path of the PNG image.
+ */
+export async function writeRegionsImage(
+  browser: Parameters<typeof rgbaPixels>[0],
+  frame: LookFrame,
+  regions: readonly DefaultRegion[],
+  file: string,
+): Promise<void> {
+  const rgba = Uint8ClampedArray.from(frame.image.rgba);
+  for (const [k, region] of regions.slice(0, REGION_TINTS.length).entries()) {
+    const tint = REGION_TINTS[k] ?? [0, 0, 0];
+    for (const i of region.pixels) {
+      for (const [c, value] of tint.entries()) {
+        rgba[i * 4 + c] = ((rgba[i * 4 + c] ?? 0) + value) / 2;
+      }
+    }
+  }
+  const page = await browser.newPage();
+  try {
+    const url = await page.evaluate(
+      ([width, height, data]) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        if (!context) {
+          throw new Error('The canvas has no 2D context.');
+        }
+        const pixels = Uint8ClampedArray.from(atob(data), (ch) => ch.charCodeAt(0));
+        context.putImageData(new ImageData(pixels, width, height), 0, 0);
+        return canvas.toDataURL('image/png');
+      },
+      [frame.image.width, frame.height, Buffer.from(rgba).toString('base64')] as const,
+    );
+    await writeFile(file, Buffer.from(url.slice(url.indexOf(',') + 1), 'base64'));
+  } finally {
+    await page.close();
+  }
+}
+
+/**
  * Reads a PNG image as a frame.
  *
  * @param browser The browser that decodes the image.
  * @param path The path of the image.
  * @param label The label of the frame in the tables.
  * @param boxes The kind of the boxes of the regions, or `null`.
+ * @param camera The camera of the frame, or `null` for the reference.
  * @returns The frame.
  */
 export async function readFrame(
@@ -569,9 +860,10 @@ export async function readFrame(
   path: string,
   label: string,
   boxes: LookFrame['boxes'],
+  camera: LookCamera | null,
 ): Promise<LookFrame> {
   const image = await rgbaPixels(browser, await readFile(path));
-  return { label, image, height: image.rgba.length / 4 / image.width, boxes };
+  return { label, image, height: image.rgba.length / 4 / image.width, boxes, camera };
 }
 
 /**
@@ -587,7 +879,7 @@ export async function readLookFrames(
   browser: Parameters<typeof rgbaPixels>[0],
   dir: string,
 ): Promise<LookFrame[]> {
-  const frames = [await readFrame(browser, join(ROOT, REFERENCE), 'reference', 'reference')];
+  const frames = [await readFrame(browser, join(ROOT, REFERENCE), 'reference', 'reference', null)];
   for (const [prefix, tree] of [
     ['play-base-', 'base'],
     ['play-', 'tree'],
@@ -595,7 +887,8 @@ export async function readLookFrames(
     for (const [i, camera] of LOOK_CAMERAS.entries()) {
       const path = join(dir, `${prefix}${camera}.png`);
       if (existsSync(path)) {
-        frames.push(await readFrame(browser, path, `${tree}, ${camera}`, i === 0 ? 'app' : null));
+        const boxes = i === 0 ? 'app' : null;
+        frames.push(await readFrame(browser, path, `${tree}, ${camera}`, boxes, camera));
       }
     }
   }
@@ -630,7 +923,12 @@ async function main(): Promise<void> {
   const browser = await chromium.launch();
   try {
     const frames = await readLookFrames(browser, dir);
-    const text = `# Look lab\n\nThe frames of \`${dir}\` against \`${REFERENCE}\`.\n\n${lookTables(frames)}`;
+    const regions = await lookRegions();
+    const tree = frames.find((frame) => frame.label === 'tree, default');
+    if (tree) {
+      await writeRegionsImage(browser, tree, regions, join(dir, 'regions-default.png'));
+    }
+    const text = `# Look lab\n\nThe frames of \`${dir}\` against \`${REFERENCE}\`.\n\n${lookTables(frames, regions)}`;
     await writeFile(join(dir, 'look.md'), text);
     console.log(text);
   } finally {
