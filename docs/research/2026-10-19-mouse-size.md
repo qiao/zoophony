@@ -84,3 +84,29 @@ The mouse stands 0.812 m high to the skull top, and plays an oboe of 0.62 of the
 (0.34 m), the largest scale with 3 cm to spare. The reed goes 0.09 H deeper into the mouth, and
 the rest moves a little lower and forward. The new rest shape also removes the lift folds of the
 last round. In the close views, the chair back of the app now reaches the neck of the small mouse.
+
+## 4. No chair
+
+The user said: "just remove the chair for mouse". The round `mouse-chair` (base `fecc1605`) keeps
+the seated pose, the seat height of 0.076 m, and the feet on the floor, and builds no chair
+(`SpeciesParams.noChair`). The outputs are in the files `*-chair.txt`:
+
+| Measure | `fecc1605` | This round |
+|---|---|---|
+| Footprint of the seated mouse | 0.420 m by 0.764 m | 0.406 m by 0.764 m |
+| Stage side of each demo | | equal (`form-chair.txt`) |
+| Bodies, players, pose sets equal | | 95 of 95, 23 of 23, 1,492 of 1,492 |
+| Deepest part in the body or the oboe | 0.5 cm | 0.5 cm (`pose-depth-oboist-chair.txt`) |
+| `chairForward()` of the mouse | 0 m | 0 m |
+| First download | 593,788 B | 593,838 B |
+
+The chair set the width of the footprint. The oboe in front and the tail loop behind set its depth,
+so the layout does not change. The tail goes back over the place of the seat and lies on the
+floor, and no back post is near it.
+
+The grids show `fecc1605` above this round: `chair-oboist-views.webp`,
+`chair-species-play-views.webp`, `chair-species-rest-views.webp`, and `chair-play-views.webp`. The
+mouse stands on its hind legs with bent knees. In the low side view of the play, the floor shows
+under the back of the haunch, 0.076 m above it behind the heels, so the haunch seems to float a
+little. In the views from above, it reads as a crouch on the hind feet. The standing soloist and
+the lineup do not change.
