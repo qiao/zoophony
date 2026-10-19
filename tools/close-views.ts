@@ -183,7 +183,8 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  *   first position, a note in the seventh position at the end of the reach of the slide, the rest
  *   pose, halfway through the lift and the lowering at the first note, and the standing soloist.
  * - The mouse oboist: the views and the moments of the flutist. The side views and the back view
- *   also show the long tail, which goes back over the seat and lies on the floor behind the chair.
+ *   also show the long tail, which goes back from the haunch and lies on the floor behind the
+ *   mouse, which has no chair.
  * - The elephant timpanist, who stands: the front, both sides, and the back. The moments are a
  *   strike of the left mallet on the front kettle at the left of the trunk, a strike of the right
  *   mallet on the front kettle at its right, a time between two strikes, the rest pose, and
