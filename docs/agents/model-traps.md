@@ -14,8 +14,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A long muzzle turns into the paws when the head turns to a section. A round belly takes the room
   of the forearms: the pianist needed the keys further forward, a lean, a reach limit for each paw,
   and a curved path from the knees.
-- A hold can trade the folds against the clearance. Check each hold change with `pnpm hold-fit
-  --set` and `pnpm pose-depth --set` before you write it.
+- A hold can trade the folds against the clearance, and a more bent elbow folds more faces. Check
+  each hold change with `pnpm hold-fit --set` and `pnpm pose-depth --set` before you write it.
 - A big head puts the grips of a hanging instrument at the height of the shoulders, and elbows out
   and level twist the upper arms into bands: point the elbows down. A deeper trunk takes the room of
   the elbows: point them out (`poleL`, `restPoleL`). After a change of the head or the girth,
@@ -108,8 +108,7 @@ group of your work before you plan it. A probe that a trap names is in its resea
   faces.
 - A mesh of an image model has many thin faces, and a thin face with corners of different weights
   turns over at a bent joint. The `sliver`, `line`, and `rigid` rules remove some folds (the source
-  middles of `pnpm fold-probe --faces` give the points of `rigid`). A more bent elbow folds more
-  faces, so read `pnpm fold-probe` after each hold change.
+  middles of `pnpm fold-probe --faces` give the points of `rigid`).
 - A raised arm pulls the skin where a hanging arm touches the trunk into long dark faces under the
   armpit. A fade of the arm weight, a corrective shape, a split, or a move of the vertices keeps
   them dark or folds them. When short faces join a hanging forearm to the trunk, or thin faces
