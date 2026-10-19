@@ -233,6 +233,19 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/hippo/hippo.rig.glb',
     },
   ],
+  // The oboe mouse: decisions/2026-10-19-mesh-mouse.md. It stands as a soloist.
+  [
+    'mouse',
+    {
+      landmark: 'shoulders',
+      height: 0.98156,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_MOUSE',
+      crease: 35,
+      glb: 'assets/models/mouse/mouse.rig.glb',
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
