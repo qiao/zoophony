@@ -114,8 +114,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A raised arm pulls the skin where a hanging arm touches the trunk into long dark faces under the
   armpit. A fade of the arm weight, a corrective shape, a split, or a move of the vertices keeps
   them dark or folds them. When short or thin faces join a hanging arm to the trunk, only a cut at
-  the seam fixes them (`cut`, `docs/research/2026-10-18-panda-cut.md`, `2026-10-19-beaver-mesh.md`
-  4).
+  the seam fixes them (`cut`, `docs/research/2026-10-18-panda-cut.md`,
+  `2026-10-19-beaver-mesh.md` 4).
 - A color measure of a mark counts one range of lightness. Measure the black (Oklab lightness below
   0.3) beside the gray, because a fix of a gray mark can add a black one.
 - A fold probe also counts a turned face that no camera sees. Before you accept a fold as hidden,
