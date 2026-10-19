@@ -845,6 +845,7 @@ const twistTurn = new Quaternion();
 const rollFrame = new Quaternion();
 const rollTurn = new Quaternion();
 const rollAxis = new Vector3();
+const rollEnd = new Vector3();
 const relative = new Quaternion();
 const paw = new Quaternion();
 const chestInverse = new Quaternion();
@@ -874,6 +875,32 @@ function writeMatrix(
   offset.copy(from).applyQuaternion(turn);
   matrix.setPosition(to.x - offset.x, to.y - offset.y, to.z - offset.z);
   matrix.toArray(out, index * 16);
+}
+
+/**
+ * Gives the turn of the twist bone of an upper arm (`StudioBody.upperTwist`): the turn of the upper
+ * arm, less the rest of its roll from the chest. The frame with no roll is the chest swung onto the
+ * upper arm.
+ *
+ * @param armTurn The world turn of the upper arm from the bind pose.
+ * @param chestTurn The world turn of the chest from the bind pose.
+ * @param armBind The unit direction of the upper arm in the bind pose.
+ * @param share The share of the roll that the twist bone takes, from 0 to 1.
+ * @param out The quaternion to write.
+ * @returns `out`.
+ */
+export function upperTwistTurn(
+  armTurn: Quaternion,
+  chestTurn: Quaternion,
+  armBind: Vector3,
+  share: number,
+  out: Quaternion,
+): Quaternion {
+  rollAxis.copy(armBind).applyQuaternion(chestTurn);
+  rollFrame.setFromUnitVectors(rollAxis, rollEnd.copy(armBind).applyQuaternion(armTurn));
+  rollFrame.multiply(chestTurn).invert().multiply(armTurn);
+  const roll = twistAngle(rollFrame, armBind);
+  return out.setFromAxisAngle(armBind, (share - 1) * roll).premultiply(armTurn);
 }
 
 /**
@@ -1075,13 +1102,7 @@ function poseArm(rig: StudioRig, arm: StudioArm, pose: Float32Array, out: Studio
   );
   const share = rig.body.upperTwist;
   if (share !== undefined) {
-    // The twist bone takes the share of the roll of the upper arm from the chest: the chest swung
-    // onto the upper arm has no roll.
-    const chestTurn = rotations[boneIndex('chest')] ?? local;
-    rollFrame.setFromUnitVectors(rollAxis.copy(upperBind).applyQuaternion(chestTurn), upper);
-    rollFrame.multiply(chestTurn).invert().multiply(upperTurn);
-    const roll = twistAngle(rollFrame, upperBind);
-    rollTurn.setFromAxisAngle(upperBind, (share - 1) * roll).premultiply(upperTurn);
+    upperTwistTurn(upperTurn, rotations[boneIndex('chest')] ?? local, upperBind, share, rollTurn);
     writeMatrix(
       out.matrices,
       UPPER_TWIST_BONES[side],
