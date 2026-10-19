@@ -9,10 +9,12 @@ import { Matrix4, Quaternion, Vector3 } from 'three';
 import { STUDIO_BONES, STUDIO_PARENTS, unpackStudioMesh } from '../src/models/studio-format.ts';
 import type { StudioBody, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
 import {
+  UPPER_TWIST_BONES,
   createStudioPose,
   skinStudioMesh,
   standingBody,
   studioRig,
+  upperTwistTurn,
 } from '../src/models/studio-rig.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { STUDIO_MESH_GZIP_BUDGET, STUDIO_TRIANGLE_BUDGET, gzipSize } from './studio-budgets.ts';
@@ -302,6 +304,27 @@ export function standingError(bytes: Uint8Array, body: StudioBody, obj: string):
     const offset = from.clone().applyQuaternion(turn);
     matrix.setPosition(to.x - offset.x, to.y - offset.y, to.z - offset.z);
     matrix.toArray(pose.matrices, index * 16);
+  }
+  // The twist bone of each upper arm turns with its upper arm, less the rest of its roll from the
+  // chest, which keeps its bind turn here (`StudioBody.upperTwist`).
+  const share = rig.body.upperTwist;
+  for (const side of share === undefined ? [] : (['L', 'R'] as const)) {
+    const upperTurn = turns.get(`upper_arm_${side}`) ?? new Quaternion();
+    const from = new Vector3(...rig.body.heads[`upper_arm_${side}`]);
+    const to = heads.get(`upper_arm_${side}`) ?? from;
+    const upperBind = new Vector3(...rig.body.heads[`forearm_${side}`]).sub(from).normalize();
+    const turn = upperTwistTurn(
+      upperTurn,
+      new Quaternion(),
+      upperBind,
+      share ?? 1,
+      new Quaternion(),
+    );
+    const offset = from.clone().applyQuaternion(turn);
+    new Matrix4()
+      .makeRotationFromQuaternion(turn)
+      .setPosition(to.x - offset.x, to.y - offset.y, to.z - offset.z)
+      .toArray(pose.matrices, UPPER_TWIST_BONES[side] * 16);
   }
   pose.correctives.fill(1, 0, 2);
   const positions = skinStudioMesh(rig.mesh, pose);
