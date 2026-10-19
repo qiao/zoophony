@@ -103,7 +103,7 @@ export const PERCUSSION_HOLDS = {
     poleL: [-1, 0, 0.5],
     poleR: [1, 0, 0.5],
     rim: 0.055,
-    home: [0, -0.1, -0.3],
+    home: [0, -0.1, -0.4],
     top: 'shoulder',
   },
   'bass-drum': {
