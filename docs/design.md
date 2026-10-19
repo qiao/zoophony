@@ -225,7 +225,7 @@ The decision files:
 - [`2026-10-18-trombone-fit.md`](decisions/2026-10-18-trombone-fit.md): the slide angle of the panda trombone, and the forward turn of the left shoulder that it needs.
 - [`2026-10-18-check-tools.md`](decisions/2026-10-18-check-tools.md): the temporary worktree of the commit checks, and the Cinematic and shot frames of `pnpm close-views play`.
 - [`2026-10-18-look-tools.md`](decisions/2026-10-18-look-tools.md): the look override of the dev server, `pnpm look-variants`, `pnpm light-probe`, and the regions of the camera `default` of `pnpm look-lab`.
-- [`2026-10-18-mesh-hippo.md`](decisions/2026-10-18-mesh-hippo.md): the hippo mesh of the user, which stands at the contrabass, its size, arms, legs, eyes, nose, and colors, the smaller contrabass and its hold, and the open folds.
+- [`2026-10-18-mesh-hippo.md`](decisions/2026-10-18-mesh-hippo.md): the hippo mesh of the user, which stands at the contrabass, its size, arms, legs, eyes, nose, and colors, the smaller contrabass and its hold, and the open depths of the arms.
 - [`2026-10-18-hippo-arm.md`](decisions/2026-10-18-hippo-arm.md): the far side of the roll of the bow paw of the hippo, so that the paw does not flip at a string change.
 - [`2026-10-19-mesh-mouse.md`](decisions/2026-10-19-mesh-mouse.md): the mouse mesh of the user as the oboist, its arms, legs, nose, colors, and tail on the floor, and the oboe in the mouth with the elbows down.
 - [`2026-10-19-mesh-elephant.md`](decisions/2026-10-19-mesh-elephant.md): the elephant mesh of the user, which stands at the timpani, its size, arms, legs, trunk, ears, and colors, the place of the kettles, the playing spot and the hands of the timpani, and the open folds.
