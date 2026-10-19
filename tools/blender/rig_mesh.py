@@ -16,8 +16,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    optional bone `tail_tip` for a tail of two bones, and give the weights with bone heat. Then the
    rules of the config: the free arm, the clavicles below the shoulders and the arms up the neck,
    the clavicles over the top of the shoulders (`shoulderRamp`), the paw, the head and the
-   shoulders, the ears, the tail (a ball on one tail bone, or a ramp along a tail of two bones),
-   the haunch, one set of weights for the corners of each short thin face, and the weights of the
+   shoulders, the ears, a long nose in front of the chest (`noseFront`), the tail (a ball on one
+   tail bone, or a ramp along a tail of two bones), the haunch, one set of weights for the corners of each short thin face, and the weights of the
    line for the middle corner of each long thin face. Each vertex
    keeps four bones, in steps of 1/255. With `smooth` of the config, the vertices inside a box
    first move toward the middle of their neighbors (`smooth_box()`), before the weights. The file
@@ -1203,6 +1203,17 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
         mine = above & (verts[:, 0] * sign > 0.01) & (ear > 0)
         w[mine, col[f'ear_{side}']] = ear[mine]
         w[mine, col['head']] = 1.0 - ear[mine]
+
+    # A long nose that hangs below the head line in front of the chest, as the trunk and the tusks
+    # of the elephant (`noseFront`): each vertex below the head line and in front of the plane
+    # z = front follows the head only. Bone heat gives the lower nose to the chest and the spine,
+    # and a turn of the head then bends the nose at the chin.
+    if 'noseFront' in rules:
+        nose = ~above & (verts[:, 2] > rules['noseFront']['front'])
+        w[nose] = 0.0
+        w[nose, col['head']] = 1.0
+        log(f'nose: {int(nose.sum())} vertices in front of z {rules["noseFront"]["front"]} u '
+            f'follow the head, the lowest at y {verts[nose, 1].min():.4f} u')
 
     # A hanging ear: the flap of each ear hangs down beside the head and the neck, past the head
     # line. Bone heat gives its lower part to the neck and the chest, and a turn of the head then
