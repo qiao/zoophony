@@ -96,11 +96,12 @@ const HIPPO_BODY_LOOPS = 3;
 const MOUSE_BODY_LOOPS = 14;
 
 /**
- * The open loops of {@link BODY_BONES} of the elephant mesh: the cuts to the two upper arms, and
- * two open edge pairs of 7 cm and 8 cm at the ears (`loops-probe.txt` of
- * `docs/research/2026-10-19-elephant-mesh/`).
+ * The open loops of {@link BODY_BONES} of the elephant mesh: the cuts to the two upper arms, a
+ * loop of three edges and 19 cm at the front of the right armpit, where the arm cut of the rig
+ * (`cut`) leaves one corner of the shoulder on the chest, and two open edge pairs of 7 cm and 8 cm
+ * at the ears (`loops-probe.txt` of `docs/research/2026-10-19-elephant-arms/`).
  */
-const ELEPHANT_BODY_LOOPS = 4;
+const ELEPHANT_BODY_LOOPS = 5;
 
 /**
  * The open loops of {@link BODY_BONES} of the beaver mesh: the cuts to the two upper arms, and 7
