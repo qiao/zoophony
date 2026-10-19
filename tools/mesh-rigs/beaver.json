@@ -418,6 +418,8 @@
   },
   "cut": {
     "top": 0.6,
+    "skinNormals": true,
+    "skinNormalsNote": "The caps of the arm take the normals of the skin around them in the app (studioNormals()). With their own normals, they point into the gap between the arm and the trunk, away from the light, and show as a dark slot under the arms at zoom 2. With the caps of the body and the quads at the top too, the right armpit got darker (docs/research/2026-10-19-cut-caps.md).",
     "note": "The thin faces under each armpit join the upper arm to the chest. On the left, face 380 of the chest and face 706 of the front of the shoulder folded in each play sample, and rigid weights only moved the folds to the faces around them (docs/research/2026-10-19-beaver-mesh.md). Below the height top (source units), the faces with a corner in the free arm and a corner in the body go: 22 on the left, 20 on the right. The same number of new faces close the arm and the trunk, and no vertex moves. The arm and the trunk stay joined above the top, 0.015 u below the shoulder joint. At top 0.55 and at 0.62, two faces of the left side folded in the play. At 0.58, the cut left a vertex with two loop edges (docs/research/2026-10-19-beaver-mesh/arm-cut.txt)."
   },
   "chair": {

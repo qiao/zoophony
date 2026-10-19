@@ -6,7 +6,7 @@ import type { StudioBody } from '../studio-format.ts';
  */
 export const STUDIO_BEAVER = {
   source: 'assets/models/beaver/beaver.rig.glb',
-  sha256: 'e14db0d8d8332704aa7a2735ea6284b6770304b7d2faf1c3e350ead18df165f6',
+  sha256: '67124b922413fa721e715c86c41d8d00604b39e367129b333e20b0ef9b126143',
   scale: 1.029,
   heads: {
     root: [0, -0.0161, 0.020232],
@@ -115,5 +115,9 @@ export const STUDIO_BEAVER = {
       turn: [-0.193195, -0.628484, -0.114597, 0.744681],
       fade: [0.174533, 0.349066],
     },
+  ],
+  caps: [
+    58, 133, 141, 142, 203, 204, 211, 255, 256, 1205, 1206, 1207, 1211, 1704, 1705, 1706, 1707,
+    1708, 1709, 2241,
   ],
 } satisfies StudioBody;
