@@ -350,6 +350,7 @@ export const SPECIES = {
    */
   hippo: {
     body: 'studio-hippo',
+    bassScale: 0.8,
     size: 1,
     colors: SPECIES_COLORS.hippo,
     accentParts: ['inner-ears', 'nose'],

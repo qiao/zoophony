@@ -583,8 +583,8 @@ export const BOWED_HOLDS = {
   // values, its head came 0.026 m to the neck (limit 0.03 m), and the bow stick went 6.0 mm into
   // the right forearm (limit 1 mm).
   cello: { ...FLOOR_HOLD, reach: 45 * MathUtils.DEG2RAD, lean: 8 * MathUtils.DEG2RAD },
-  // The contrabass keeps its place: a move forward put the nut out of reach of the left hand of
-  // the hippo, and a move to the right put the neck 0.028 m from its head.
+  // The base of the hold of the hippo (HIPPO_HOLD), which moves and turns the contrabass to its
+  // body. The real string planes are 25° apart, and the stick leans 10°.
   contrabass: {
     ...FLOOR_HOLD,
     stringTurn: 25 * MathUtils.DEG2RAD,
@@ -738,6 +738,53 @@ const DOG_HOLD = {
 } as const satisfies BowedHold;
 
 /**
+ * The hold of the contrabass on its stool, for the hippo mesh (design 4.6, 5.3). The round belly
+ * of the hippo reaches 0.29 m in front of its shoulder joints, and its arms reach 0.54 m, so the
+ * contact point of the bow must lie in front of the upper belly, about 0.2 m below the shoulder
+ * joints, and the nut within reach of the left paw beside the head. The smaller contrabass of the
+ * hippo (`bassScale`) spans that height from the contact point to the nut. Its end pin stands on
+ * the floor 0.56 m right of the place of `UPRIGHT_HOLDS` and 0.11 m further forward
+ * (`playShift`), and it turns around the end pin (`playTurn`), so that the strings run from the
+ * contact point in front of the middle of the belly up to the nut at the left of the head: the
+ * contrabass leans 38° from the vertical, to the left and back, and its top plate faces forward.
+ * With the nut 4 cm further right, the head went 3.0 cm into the neck. With the top plate turned
+ * 29° to the right, as the hold of the parametric hippo, the bow ran back into the belly. The
+ * trunk leans 15° forward, and the right shoulder turns 45° forward: with 30°, the right forearm
+ * went 8.4 cm into the body (5.6 cm with 45°). The reasons and the measures are in the
+ * 2026-10-18-mesh-hippo decisions.
+ *
+ * The string planes are 12° apart, below the 25° of a real contrabass: with 25°, the bow paw on the
+ * lowest string went 9.1 cm into the belly. The right elbow points out and forward, so that the
+ * thick upper arm stays out of the chest (2.9 cm against 10.0 cm with the elbow of the floor
+ * hold), and the left elbow points out to the left and a little up, past the contrabass.
+ *
+ * In the rest pose, the contrabass stays at its playing place, and the left paw holds the neck. The
+ * right paw hangs beside the belly with the bow tip down (`HANGING_BOW`), and the elbow points down
+ * and out, as the arms of the mesh hang: the knee of the floor hold lies under the belly, and the
+ * right forearm went 13.8 cm into the body. In the lift and the lowering, the tip turns through the
+ * front, as the upright bow of the violinists, with the grip 0.3 H out and 0.6 H to the front.
+ */
+const HIPPO_HOLD = {
+  ...BOWED_HOLDS.contrabass,
+  lean: 15 * MathUtils.DEG2RAD,
+  reach: 45 * MathUtils.DEG2RAD,
+  playShift: [1.112, 0, -0.216],
+  playTurn: [-0.0363, 0.2494, 0.2218, 0.9419],
+  stringTurn: 12 * MathUtils.DEG2RAD,
+  poleL: [-1, 0.2, 0],
+  poleR: [1.5, 0.5, -1],
+  poleTipR: [1.5, 0.5, -1],
+  restPoleR: [1, -1, 0],
+  restPoleL: [-1, -0.5, 0],
+  restBow: {
+    lap: { along: 1, offset: [0.7, 1, -0.4] },
+    tip: HANGING_BOW.tip,
+    hair: HANGING_BOW.hair,
+    via: { ...UPRIGHT_BOW.via, reach: [0.3, 0, -0.6] },
+  },
+} as const satisfies BowedHold;
+
+/**
  * The holds of the species that hold a bowed string in their own way, in place of
  * {@link BOWED_HOLDS}: the rabbits and the red foxes hold the violin on the left shoulder, as in
  * `rabbit-views.png`, the cat holds the viola with its own hold, and the dog holds the cello
@@ -752,6 +799,7 @@ export const SPECIES_HOLDS: Partial<
   'fox-red': { violin: FOX_HOLD },
   cat: { viola: CAT_HOLD },
   dog: { cello: DOG_HOLD },
+  hippo: { contrabass: HIPPO_HOLD },
 };
 
 /**
