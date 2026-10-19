@@ -12,9 +12,16 @@ import { BAR_HIDE_SEC } from '../src/app/bar-rules.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { GALLERY_FOV_DEG, speciesItems } from '../src/gallery/items.ts';
 import type { GalleryMove } from '../src/gallery/items.ts';
-import { SPECIES } from '../src/models/species.ts';
+import type { PlayerPlace } from '../src/models/layout.ts';
+import { layoutScene } from '../src/models/layout-scene.ts';
+import { ModelCache } from '../src/models/model-cache.ts';
+import { SPECIES, SPECIES_IDS, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
+import { buildScore } from '../src/score/score.ts';
+import { SHOT_SEED, prepareShots } from '../src/shots/prepare.ts';
+import type { Shot } from '../src/shots/types.ts';
 import { chromiumArgs } from './chromium-args.ts';
+import { patchedDemo } from './patch-demos.ts';
 import { ROOT, optionValue, shortHash, withRefBuild } from './ref-tree.ts';
 import { MAX_WEBP_BYTES, openShot, startSite, toWebp } from './screenshots.ts';
 
@@ -1413,17 +1420,58 @@ const DRAG_START = { x: 720, y: 400 } as const;
  */
 const SEEK_LEAD_SEC = BAR_HIDE_SEC + 1;
 
+/**
+ * The camera of `--cinematic`: the camera of the shot plan of the app at the song time (Cinematic
+ * mode, design 2.5, 5.6), with no "Reset view", no drag, and no wheel.
+ */
+export const CINEMATIC_CAMERA: PlayCamera = { name: 'cinematic', dx: 0, dy: 0, wheel: 0 };
+
+/** The subject of `--shot`: a seat of the score, or each seat of a species. */
+export type ShotSubject =
+  | {
+      /** A seat. */
+      readonly kind: 'seat';
+      /** The index of the seat in `Score.seats`. */
+      readonly seat: number;
+    }
+  | {
+      /** Each seat whose players are of a species. */
+      readonly kind: 'species';
+      /** The species. */
+      readonly species: SpeciesId;
+    };
+
+/** The time of the frames of the mode `play`. */
+export type PlayTime =
+  | {
+      /** A song time of `--time`, or {@link PLAY_TIME_SEC}. */
+      readonly kind: 'song';
+      /**
+       * The song time, in seconds: at least {@link SEEK_LEAD_SEC}, and before the end of the
+       * demo.
+       */
+      readonly sec: number;
+    }
+  | {
+      /** The frame of the first solo or section shot of a subject (`--shot`). */
+      readonly kind: 'shot';
+      /** The subject. */
+      readonly subject: ShotSubject;
+    };
+
 /** The command line of the mode `play`. */
 export interface PlayArgs {
   /** The demo. */
   readonly demo: DemoId;
-  /**
-   * The song time of the play frame, in seconds: at least {@link SEEK_LEAD_SEC}, and before the
-   * end of the demo.
-   */
-  readonly time: number;
-  /** The cameras, one frame each. */
+  /** The time of the frames. */
+  readonly time: PlayTime;
+  /** The cameras, one frame each. In Cinematic mode, one camera with no drag and no wheel. */
   readonly cameras: readonly PlayCamera[];
+  /**
+   * True in Cinematic mode (`--cinematic` or `--shot`): the shots of the app move the camera, and
+   * the tool clicks no "Reset view".
+   */
+  readonly cinematic: boolean;
   /** The output directory. */
   readonly out: string;
   /** The URL of a running site of the working tree, or `null` for the built site. */
@@ -1458,37 +1506,14 @@ export function playCamera(text: string): PlayCamera {
 }
 
 /**
- * Reads the command line of the mode `play`:
- * `play <dir> [--demo <id>] [--time <s>] [--camera <name>|<dx>,<dy>,<wheel>]... [--url <url>] [--base <ref>]`.
- * With no `--camera`, the camera is `default`.
+ * Checks that a song time is a time of a play frame of a demo.
  *
- * @param args The arguments after the script.
- * @returns The command line, or `null` when the first argument is not `play`.
- * @throws Error that lists the correct names, for an unknown demo or camera, and an error for a
- *   wrong time, a time below {@link SEEK_LEAD_SEC}, a time at or after the end of the demo, a
- *   wrong option, or a missing word.
+ * @param time The song time, in seconds.
+ * @param demo The demo.
+ * @returns The time.
+ * @throws Error for a time below {@link SEEK_LEAD_SEC}, or a time at or after the end of the demo.
  */
-export function playArgs(args: readonly string[]): PlayArgs | null {
-  if (args[0] !== 'play') {
-    return null;
-  }
-  const line = modeLine(
-    args.slice(1),
-    ['--demo', '--time', '--camera', '--url', '--base'],
-    ['--camera'],
-  );
-  const [out, ...extra] = line.words;
-  if (!out || extra.length > 0) {
-    throw new Error('The mode play takes one output directory, such as: play scratch/play');
-  }
-
-  const demos = DEMO_IDS.map((name) => ({ name }));
-  const demo = namedItem(line.options.get('--demo')?.[0] ?? DEFAULT_DEMO, demos, 'demo').name;
-  const timeText = line.options.get('--time')?.[0] ?? String(PLAY_TIME_SEC);
-  const time = Number(timeText);
-  if (!/^\d+(?:\.\d+)?$/.test(timeText) || !Number.isFinite(time)) {
-    throw new Error(`The time "${timeText}" is not a song time in seconds, such as 6 or 30.5.`);
-  }
+function frameTime(time: number, demo: DemoId): number {
   // Below the seek lead, the seek goes to 0 s, and the frame comes when the bar hides, at about
   // 3.3 s.
   if (time < SEEK_LEAD_SEC) {
@@ -1503,10 +1528,232 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       `The time ${time} s is not before the end of the demo ${demo} (${lengthSec} s).`,
     );
   }
-  const cameras = (line.options.get('--camera') ?? ['default']).map(playCamera);
+  return time;
+}
+
+/**
+ * Reads the subject of `--shot`: a whole number is a seat, and each other text is a species.
+ *
+ * @param text The subject, such as `4` or `hippo`.
+ * @returns The subject.
+ * @throws Error that lists the species, for a text that is not a seat or a species.
+ */
+export function shotSubject(text: string): ShotSubject {
+  if (/^\d+$/.test(text)) {
+    return { kind: 'seat', seat: Number(text) };
+  }
+  if (isSpeciesId(text)) {
+    return { kind: 'species', species: text };
+  }
+  throw new Error(
+    `The subject "${text}" of --shot is not a seat or a species. A seat is a whole number, such as 4. The species are: ${SPECIES_IDS.join(', ')}.`,
+  );
+}
+
+/**
+ * Reads the command line of the mode `play`:
+ * `play <dir> [--demo <id>] [--time <s>] [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--url <url>] [--base <ref>]`.
+ * With no `--camera`, the camera is `default`. `--cinematic` renders the camera of the shot plan
+ * of the app ({@link CINEMATIC_CAMERA}). `--shot` also gives the time: the frame of the first solo
+ * or section shot of its subject ({@link chooseShot}).
+ *
+ * @param args The arguments after the script.
+ * @returns The command line, or `null` when the first argument is not `play`.
+ * @throws Error that lists the correct names, for an unknown demo, camera, or species, and an
+ *   error for a wrong time, a time below {@link SEEK_LEAD_SEC}, a time at or after the end of the
+ *   demo, `--camera` with `--cinematic` or `--shot`, `--time` with `--shot`, a wrong option, or a
+ *   missing word.
+ */
+export function playArgs(args: readonly string[]): PlayArgs | null {
+  if (args[0] !== 'play') {
+    return null;
+  }
+  const line = modeLine(
+    args.slice(1),
+    ['--demo', '--time', '--camera', '--shot', '--url', '--base'],
+    ['--camera'],
+    ['--cinematic'],
+  );
+  const [out, ...extra] = line.words;
+  if (!out || extra.length > 0) {
+    throw new Error('The mode play takes one output directory, such as: play scratch/play');
+  }
+
+  const demos = DEMO_IDS.map((name) => ({ name }));
+  const demo = namedItem(line.options.get('--demo')?.[0] ?? DEFAULT_DEMO, demos, 'demo').name;
+  const shotText = line.options.get('--shot')?.[0] ?? null;
+  const cinematic = line.flags.has('--cinematic') || shotText !== null;
+  const cameraTexts = line.options.get('--camera');
+  if (cinematic && cameraTexts) {
+    throw new Error(
+      'The options --cinematic and --shot take no --camera, because a drag or a wheel turns the camera to Free (design 2.5).',
+    );
+  }
+  const timeText = line.options.get('--time')?.[0] ?? null;
+  if (shotText !== null && timeText !== null) {
+    throw new Error('The option --shot gives the time of the frame, so it takes no --time.');
+  }
   const url = line.options.get('--url')?.[0] ?? null;
   const base = line.options.get('--base')?.[0] ?? null;
-  return { demo, time, cameras, out, url, base };
+
+  if (shotText !== null) {
+    const subject = shotSubject(shotText);
+    const name = subject.kind === 'seat' ? `seat${subject.seat}` : subject.species;
+    const camera = { ...CINEMATIC_CAMERA, name: `shot-${name}` };
+    return { demo, time: { kind: 'shot', subject }, cameras: [camera], cinematic, out, url, base };
+  }
+  const text = timeText ?? String(PLAY_TIME_SEC);
+  const sec = Number(text);
+  if (!/^\d+(?:\.\d+)?$/.test(text) || !Number.isFinite(sec)) {
+    throw new Error(`The time "${text}" is not a song time in seconds, such as 6 or 30.5.`);
+  }
+  const time: PlayTime = { kind: 'song', sec: frameTime(sec, demo) };
+  const cameras = cinematic ? [CINEMATIC_CAMERA] : (cameraTexts ?? ['default']).map(playCamera);
+  return { demo, time, cameras, cinematic, out, url, base };
+}
+
+/** The share of a shot at the frame of `--shot`: the middle, after the blend from the shot before. */
+export const SHOT_FRAME_SHARE = 0.5;
+
+/** The shot of `--shot` in the shot plan of a demo. */
+export interface ChosenShot {
+  /** The shot, from `prepareShots()` with the seed of the app. */
+  readonly shot: Shot;
+  /** The species of the players of each seat of the shot, in the order of the seats. */
+  readonly species: readonly SpeciesId[];
+  /**
+   * The song time of the frame, in seconds, at {@link SHOT_FRAME_SHARE} of the shot, to 0.1 s.
+   * The first shot starts at the song start, and the last shot ends at the end of the demo.
+   */
+  readonly frameSec: number;
+}
+
+/**
+ * Finds the first solo or section shot of a subject in a shot plan: the first shot in time whose
+ * seats hold the seat of the subject, or a seat of its species.
+ *
+ * @param shots The shots of the plan, sorted by their start.
+ * @param players The players of the layout of the score.
+ * @param subject The subject.
+ * @returns The shot, or `undefined` when no solo or section shot has the subject.
+ */
+export function firstShotOf(
+  shots: readonly Shot[],
+  players: readonly PlayerPlace[],
+  subject: ShotSubject,
+): Shot | undefined {
+  const seats = new Set(
+    subject.kind === 'seat'
+      ? [subject.seat]
+      : players
+          .filter((player) => player.cast.species === subject.species)
+          .map((player) => player.cast.seatIndex),
+  );
+  return shots.find(
+    (shot) =>
+      (shot.kind === 'solo' || shot.kind === 'section') && shot.seats.some((s) => seats.has(s)),
+  );
+}
+
+/**
+ * Writes the seats of the solo and section shots of a plan with their species, for the message
+ * of a subject with no shot.
+ *
+ * @param shots The shots of the plan.
+ * @param players The players of the layout of the score.
+ * @returns The text, such as `rabbit (seat 0), hippo (seat 4)`.
+ */
+function shotSubjectsText(shots: readonly Shot[], players: readonly PlayerPlace[]): string {
+  const seats = new Set(
+    shots
+      .filter((shot) => shot.kind === 'solo' || shot.kind === 'section')
+      .flatMap((shot) => shot.seats),
+  );
+  return [...seats]
+    .toSorted((a, b) => a - b)
+    .map((seat) => `${speciesOfSeat(players, seat)} (seat ${seat})`)
+    .join(', ');
+}
+
+/**
+ * Gives the species of the players of a seat.
+ *
+ * @param players The players of the layout of the score.
+ * @param seat The index of the seat.
+ * @returns The species of its first player.
+ * @throws Error when the layout has no player of the seat.
+ */
+function speciesOfSeat(players: readonly PlayerPlace[], seat: number): SpeciesId {
+  const player = players.find((place) => place.cast.seatIndex === seat);
+  if (!player) {
+    throw new Error(`The layout has no player of the seat ${seat}.`);
+  }
+  return player.cast.species;
+}
+
+/**
+ * Chooses the shot of `--shot` as the app plans it: the demo after `demos/patches.json`, the
+ * section size "Auto", the layout and the shots of `planScene()` of `src/app/app.ts`, and the
+ * seed of the app.
+ *
+ * @param demo The demo.
+ * @param subject The subject.
+ * @returns The shot, its species, and the time of its frame.
+ * @throws Error when the demo is not valid, when no solo or section shot has the subject, or when
+ *   the time of the frame is not a time of a play frame ({@link frameTime}).
+ */
+export async function chooseShot(demo: DemoId, subject: ShotSubject): Promise<ChosenShot> {
+  const result = buildScore((await patchedDemo(`${demo}.mid`)).bytes, 'auto');
+  if (!result.ok) {
+    throw new Error(`The demo ${demo} is not valid: ${result.error}.`);
+  }
+  const models = new ModelCache();
+  const layout = layoutScene(result.score, models);
+  const { shots } = prepareShots(result.score, layout, SHOT_SEED, models);
+
+  const shot = firstShotOf(shots, layout.players, subject);
+  if (!shot) {
+    const name = subject.kind === 'seat' ? `the seat ${subject.seat}` : subject.species;
+    throw new Error(
+      `The demo ${demo} has no solo or section shot of ${name}. Its solo and section shots show: ${shotSubjectsText(shots, layout.players)}.`,
+    );
+  }
+  const start = Math.max(0, shot.startSec);
+  const end = Math.min(DEMOS[demo].lengthSec, shot.endSec);
+  const frameSec = Math.round((start + (end - start) * SHOT_FRAME_SHARE) * 10) / 10;
+  const species = shot.seats.map((seat) => speciesOfSeat(layout.players, seat));
+  return { shot, species, frameSec: frameTime(frameSec, demo) };
+}
+
+/**
+ * Writes a chosen shot for the output of the tool.
+ *
+ * @param demo The demo.
+ * @param chosen The shot.
+ * @returns The text, such as `solo of the seat 4 (hippo), 232.03 s to 237.03 s`.
+ */
+export function chosenShotText(demo: DemoId, chosen: ChosenShot): string {
+  const { shot } = chosen;
+  const seats = shot.seats.map((seat, i) => `${seat} (${chosen.species[i] ?? '?'})`).join(', ');
+  const noun = shot.seats.length === 1 ? 'the seat' : 'the seats';
+  const end = Number.isFinite(shot.endSec) ? `${shot.endSec.toFixed(2)} s` : 'the end';
+  return `The shot of ${demo}: ${shot.kind} of ${noun} ${seats}, ${Math.max(0, shot.startSec).toFixed(2)} s to ${end}. The frame is at ${chosen.frameSec} s.`;
+}
+
+/**
+ * Gives the song time of the frames of the mode `play`. For `--shot`, it chooses the shot
+ * ({@link chooseShot}) and prints it.
+ *
+ * @param args The command line.
+ * @returns The song time, in seconds.
+ */
+async function playTimeSec(args: PlayArgs): Promise<number> {
+  if (args.time.kind === 'song') {
+    return args.time.sec;
+  }
+  const chosen = await chooseShot(args.demo, args.time.subject);
+  console.log(chosenShotText(args.demo, chosen));
+  return chosen.frameSec;
 }
 
 /**
@@ -1554,25 +1801,31 @@ async function playWait<T>(what: string, frame: string, wait: () => Promise<T>):
 }
 
 /**
- * Renders one play frame of a site: it plays the demo, closes the drawer, moves the camera to
- * the default view with "Reset view", and drags and turns the wheel of the camera. Then it seeks
- * to {@link SEEK_LEAD_SEC} before the time, waits until the seek bar reaches the time, and
- * waits until the bar hides. A seek keeps the free camera of "Reset view" (design 2.5).
+ * Renders one play frame of a site: it plays the demo, and closes the drawer. Out of Cinematic
+ * mode, it moves the camera to the default view with "Reset view", and drags and turns the wheel
+ * of the camera. A seek keeps the free camera of "Reset view" (design 2.5). In Cinematic mode, it
+ * does not touch the camera, so the shot plan of the app moves it. Then it moves the pointer onto
+ * the stage, seeks to {@link SEEK_LEAD_SEC} before the time, waits until the seek bar reaches the
+ * time, and waits until the bar hides. The bar hides {@link BAR_HIDE_SEC} after the last motion of
+ * the pointer, so the motion before the seek makes it hide before the frame.
  *
  * @param browser The browser.
  * @param site The URL of the site.
  * @param args The command line.
  * @param camera The camera.
+ * @param time The song time of the frame, in seconds.
  * @param tree The name of the tree of the site, such as `the working tree` or `main (cc83899c)`.
  * @returns The PNG image, and the song time of the bar at the frame, such as `0:06`.
  * @throws Error that names the tree, the camera, the demo, and the time, when the seek bar does
- *   not reach the time in {@link SEEK_WAIT_MS} or the bar does not hide in {@link BAR_WAIT_MS}.
+ *   not reach the time in {@link SEEK_WAIT_MS}, when the bar does not hide in {@link BAR_WAIT_MS},
+ *   or when the camera of a Cinematic frame is not in Cinematic mode.
  */
 async function playFrame(
   browser: Browser,
   site: string,
   args: PlayArgs,
   camera: PlayCamera,
+  time: number,
   tree: string,
 ): Promise<{ readonly image: Buffer; readonly clock: string }> {
   const path = `/#demo=${args.demo}`;
@@ -1587,25 +1840,30 @@ async function playFrame(
     await page.waitForTimeout(1500);
     // The open drawer keeps the bar and covers the right side of the stage (design 2.8).
     await page.click('.close-drawer');
-    await page.getByRole('button', { name: 'Reset view' }).click();
-    if (camera.dx !== 0 || camera.dy !== 0) {
+    if (!args.cinematic) {
+      await page.getByRole('button', { name: 'Reset view' }).click();
+      if (camera.dx !== 0 || camera.dy !== 0) {
+        await page.mouse.move(DRAG_START.x, DRAG_START.y);
+        await page.mouse.down();
+        await page.mouse.move(DRAG_START.x + camera.dx, DRAG_START.y + camera.dy, {
+          steps: 20,
+        });
+        await page.mouse.up();
+      }
+      // The wheel steps go to the element under the pointer, and the pointer is still on the
+      // button "Reset view" when the camera has no drag.
       await page.mouse.move(DRAG_START.x, DRAG_START.y);
-      await page.mouse.down();
-      await page.mouse.move(DRAG_START.x + camera.dx, DRAG_START.y + camera.dy, { steps: 20 });
-      await page.mouse.up();
+      for (let i = 0; i < Math.abs(camera.wheel); i++) {
+        await page.mouse.wheel(0, camera.wheel > 0 ? -100 : 100);
+        await page.waitForTimeout(30);
+      }
     }
-    // The wheel steps go to the element under the pointer, and the pointer is still on the
-    // button "Reset view" when the camera has no drag.
-    await page.mouse.move(DRAG_START.x, DRAG_START.y);
-    for (let i = 0; i < Math.abs(camera.wheel); i++) {
-      await page.mouse.wheel(0, camera.wheel > 0 ? -100 : 100);
-      await page.waitForTimeout(30);
-    }
-    // The pointer leaves the bar, so that the bar hides.
+    // The pointer leaves the bar before the seek, so that the bar hides before the frame. A
+    // motion with no press keeps the camera mode.
     await page.mouse.move(PLAY_FRAME.width / 2, PLAY_FRAME.height / 2);
 
-    const frame = `${tree}, camera ${camera.name}, demo ${args.demo}, time ${args.time} s`;
-    const whole = Math.floor(args.time);
+    const frame = `${tree}, camera ${camera.name}, demo ${args.demo}, time ${time} s`;
+    const whole = Math.floor(time);
     await playWait(
       `the seek bar to reach ${whole} s in ${SEEK_WAIT_MS / 1000} s`,
       frame,
@@ -1622,7 +1880,7 @@ async function playFrame(
         );
       },
     );
-    await page.waitForTimeout((args.time - whole) * 1000);
+    await page.waitForTimeout((time - whole) * 1000);
     await playWait(`the bar to hide in ${BAR_WAIT_MS / 1000} s`, frame, () =>
       page.waitForSelector('.bar.is-hidden', { state: 'attached', timeout: BAR_WAIT_MS }),
     );
@@ -1630,6 +1888,13 @@ async function playFrame(
     await page.waitForTimeout(300);
     const image = await page.screenshot({ type: 'png' });
     const clock = await page.$eval('.bar .time', (element) => element.textContent ?? '');
+    // The toggle "Automatic camera" is on in Cinematic mode (design 2.5).
+    const automatic = await page.$eval('button.camera', (element) =>
+      element.getAttribute('aria-pressed'),
+    );
+    if (args.cinematic && automatic !== 'true') {
+      throw new Error(`The camera of the frame of ${frame} is not in Cinematic mode.`);
+    }
     return { image, clock };
   } finally {
     await page.close();
@@ -1643,6 +1908,7 @@ async function playFrame(
  * @param browser The browser.
  * @param site The URL of the site.
  * @param args The command line.
+ * @param time The song time of the frames, in seconds.
  * @param prefix The start of the file names, such as `play-`.
  * @param tree The name of the tree of the site, for the message of a failed wait.
  * @returns The frames and their labels, one for each camera.
@@ -1651,18 +1917,19 @@ async function renderPlay(
   browser: Browser,
   site: string,
   args: PlayArgs,
+  time: number,
   prefix: string,
   tree: string,
 ): Promise<RenderedViews> {
   const cells: Buffer[] = [];
   const labels: string[] = [];
   for (const camera of args.cameras) {
-    const frame = await playFrame(browser, site, args, camera, tree);
+    const frame = await playFrame(browser, site, args, camera, time, tree);
     const file = join(args.out, `${prefix}${camera.name}.png`);
     await writeFile(file, frame.image);
     console.log(`${file}: song time ${frame.clock}`);
     cells.push(frame.image);
-    labels.push(`${camera.name}, ${args.demo} at ${args.time} s`);
+    labels.push(`${camera.name}, ${args.demo} at ${time} s`);
   }
   return { cells, labels };
 }
@@ -1671,7 +1938,8 @@ async function renderPlay(
  * Renders the mode `play` into `<dir>`: the play frame of a demo at each camera, and the grid of
  * the frames with one column for each camera, as `play-views.png` and `.webp`. The renders of the
  * commit write each frame of the commit as `play-base-<camera>.png`, and put the row of the commit
- * above the row of the working tree in `play-base-views.png` and `.webp`.
+ * above the row of the working tree in `play-base-views.png` and `.webp`. The shot of `--shot`
+ * comes from the working tree, and the commit renders the same song time.
  *
  * @param args The command line.
  * @param site The site of the working tree.
@@ -1680,12 +1948,18 @@ async function renderPlay(
 async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> {
   const { browser } = site;
   const columns = args.cameras.length;
-  const after = await renderPlay(browser, site.base, args, 'play-', 'the working tree');
+  const time = await playTimeSec(args);
+  const after = await renderPlay(browser, site.base, args, time, 'play-', 'the working tree');
   const sheet = await grid(browser, after.cells, after.labels, columns, playCell(columns));
   await writeImage(browser, sheet, join(args.out, 'play-views'));
 
   return async (other, label) => {
-    const before = await renderPlay(browser, other, args, 'play-base-', label);
+    if (args.time.kind === 'shot') {
+      console.log(
+        `${label} renders the same song time, ${time} s. Its shot plan can give another shot there.`,
+      );
+    }
+    const before = await renderPlay(browser, other, args, time, 'play-base-', label);
     const labels = baseGridLabels(after.labels, label);
     const cells = [...before.cells, ...after.cells];
     const both = await grid(browser, cells, labels, columns, playCell(columns));
@@ -2051,7 +2325,7 @@ const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--url <url>] [--base <ref>]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
-  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--url <url>] [--base <ref>]`,
+  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--url <url>] [--base <ref>]`,
   '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
@@ -2088,6 +2362,15 @@ async function main(): Promise<void> {
     // An unknown commit stops the tool before the first render.
     try {
       shortHash(mode.args.base);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  }
+  if (mode.kind === 'play' && mode.args.time.kind === 'shot') {
+    // A subject with no shot stops the tool before the build.
+    try {
+      await chooseShot(mode.args.demo, mode.args.time.subject);
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));
       process.exit(1);
