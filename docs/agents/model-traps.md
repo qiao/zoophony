@@ -41,6 +41,11 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
   takes the skin of the hips and the spine, so near the hip it is the side of the belly. Measure
   the reach from the shoulder joint to the top of the thigh before a scan of a lap place
   (`thigh-reach.ts` of `docs/research/2026-10-17-tan-rest/`).
+- A round belly in front of short arms blocks a floor instrument. Place it by targets: the contact
+  point in front of the upper belly, about 0.2 m below the shoulder joints, and the nut within the
+  reach of the left paw. `bass-solve.py` of `docs/research/2026-10-18-hippo-mesh/` gives the move
+  and the turn of the end pin. A smaller instrument (`bassScale`) shortens the span.
+- A top plate turned to the right sends the bow back into a round belly. Turn it to the front.
 - The rabbit and the red fox rest as a seated violinist: the violin upright on the left thigh, and
   the bow upright at the right side. A paw that cannot reach the thigh holds the frog at the outer
   side of the thigh or of the knee. A paw on the belly bends the arm out and folds its faces.
@@ -74,6 +79,8 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - The sweep measures a part by the corners of its triangles, so the middle of a long box, such as
   the stick of a bow, can go into the body with no depth. The rest columns of `pnpm hold-fit` take
   a point at each 1 cm along the bow (`bowPoints()` of `tools/lap-rest.ts`).
+- A thick arm that crosses the front of a round body goes into the chest: the right upper arm of the
+  hippo went 10 cm in with the elbow back. Point the elbow out and forward.
 - The depth of an open part is false near its open edge. Measure in a closed part
   (`closedPart()` with the count of its open loops), as the sweep does. Each open edge of a mesh,
   such as a whisker or a cut to an arm, opens a loop. Give the role its own count, and check that
@@ -109,6 +116,7 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - A fold probe counts each turned face, also a face that no camera sees. Before you accept a fold
   as hidden, count the pixels of the face in a probe build that draws it in a pure color with no
   light (`hidden/probe.ts` of `docs/research/2026-10-18-panda-seam/`).
+- A mesh near the budget of 3,200 triangles has no room for rings: the hippo has 3,141.
 - A long thin face across a joint of an arm folds, and weight rules make it worse. A ring of new
   vertices at the joint fixes it (`refine.rings`). Put a ring only where `pnpm fold-probe` finds
   folds, and run `pnpm pose-depth <role>` after it: a ring can pull the inner elbow into the
@@ -189,6 +197,8 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
   trunk give the border of a black region teeth, and a raised arm stretches them into black
   wedges. List the faces with a third to a half of dark samples (`marks.py` of
   `docs/research/2026-10-18-panda-marks/`), and make them light with `colors.border`.
+- The export takes each gloss shell out of the middle plane as an eye. Gloss nostrils with no nose
+  pad, as on the hippo, became eyes. Give such a mesh no `noseBox`.
 - An eye in a dark patch has almost the color of the patch, so a dark rule cannot split them. A
   wide eye box takes the patch as the eye, and the color of the old eye puts light holes in it.
   Keep the eye box on the eye, and set `eyeShell.darkReach` to 0, as for the panda.

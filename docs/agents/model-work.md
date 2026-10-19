@@ -23,6 +23,7 @@ fox together.
 | cat | the mesh `assets/models/cat/cat.glb`, rigged by `pnpm rig-mesh cat` | `2026-10-16-mesh-cat.md` | `violist` |
 | dog | the mesh `assets/models/dog/dog.glb`, rigged by `pnpm rig-mesh dog` | `2026-10-17-mesh-dog.md` | `cellist` |
 | panda | the mesh `assets/models/panda/panda.glb`, rigged by `pnpm rig-mesh panda` | `2026-10-18-mesh-panda.md` | `trombonist` |
+| hippo | the mesh `assets/models/hippo/hippo.glb`, rigged by `pnpm rig-mesh hippo`, on the stool of the contrabass | `2026-10-18-mesh-hippo.md` | `bassist` |
 | penguin | an egg body in code, `src/models/penguin/` (route 2) | `2026-10-11-penguin-body.md` | none |
 
 Each other species has the parametric body of 2026-10-06 18:58
