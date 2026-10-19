@@ -83,6 +83,9 @@ side.
 - No reference image shows a beaver or a bassoon. The mesh of the user is the target of the
   beaver, and the beaver has the size of the parametric beaver, by the rule that the user chose
   for the mouse (`docs/decisions/2026-10-19-mesh-beaver.md`).
+- No reference image shows a pig. The mesh of the user is the target of the pig, and the pig has
+  the size of the parametric pig, by the rule of the user for the mouse
+  (`docs/decisions/2026-10-19-mesh-pig.md`).
 
 The reference image [`reference/fox-views.png`](../reference/fox-views.png) (2494 × 1354 px)
 shows the red fox of the violins from the front, the side, and the back, on a chair. The user
