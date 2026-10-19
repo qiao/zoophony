@@ -86,6 +86,14 @@ const DOG_BODY_LOOPS = 6;
  */
 const HIPPO_BODY_LOOPS = 3;
 
+/**
+ * The open loops of {@link BODY_BONES} of the mouse mesh: the cuts to the two upper arms, 10 open
+ * loops of the whiskers (0.10 m to 0.57 m long, each a thin strip beside the muzzle), and two open
+ * edge pairs of 1.4 cm and 2.8 cm at the right toes (`loops-probe.txt` of
+ * `docs/research/2026-10-19-mouse-mesh/`).
+ */
+const MOUSE_BODY_LOOPS = 14;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -199,6 +207,17 @@ function dogBodySurface(posed: PosedSkeleton): ClosedSurface {
  */
 function hippoBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, HIPPO_BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the mouse mesh: {@link BODY_BONES} with a cap on each open loop
+ * ({@link MOUSE_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function mouseBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, MOUSE_BODY_LOOPS);
 }
 
 /**
@@ -716,8 +735,8 @@ export const VIOLINIST_SWEEP: RoleSweep = {
 };
 
 /**
- * Gives the note targets of the palms of a flutist: each palm is on its grip at the start of each
- * phrase (design 5.3), in a play that started at the count-in.
+ * Gives the note targets of the palms of a flutist or an oboist: each palm is on its grip at the
+ * start of each phrase (design 5.3), in a play that started at the count-in.
  *
  * @param scene The scene.
  * @param index The index of the flutist.
@@ -1014,6 +1033,67 @@ export function soloistScene(role: SoloistRole, species: SpeciesId, seed = 1): T
   return { score, layout, plan: preparePoses(score, layout, seed, models), models };
 }
 
+/**
+ * Tells if a player of a scene is in the sweep of the oboist: the first seated mouse with an oboe,
+ * and each mouse soloist, which stands (design 4.2).
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @returns True for a player of the sweep.
+ */
+function sweptOboist(scene: TestScene, index: number): boolean {
+  const { cast } = scene.layout.players[index] ?? {};
+  if (cast?.species !== 'mouse' || cast.instrument !== 'oboe') {
+    return false;
+  }
+  if (cast.support === 'stand') {
+    return true;
+  }
+  const first = scene.layout.players.findIndex(
+    (p) => p.cast.species === 'mouse' && p.cast.instrument === 'oboe' && p.cast.support !== 'stand',
+  );
+  return first === index;
+}
+
+/**
+ * The sweep of the oboist (design 5.3): the sweep of the flutist with the oboe and the mouse. The
+ * first seated mouse of each demo with oboes, and each standing mouse soloist, play it, with the
+ * palms on their grips at the start of each phrase.
+ */
+export const OBOIST_SWEEP: RoleSweep = {
+  ...FLUTIST_SWEEP,
+  role: 'oboist',
+  obstacles: [
+    { name: 'body', surface: mouseBodySurface },
+    { name: 'oboe', surface: instrumentSurface },
+  ],
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'oboe'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      if (!sweptOboist(scene, index)) {
+        return [];
+      }
+      const { species, instrument, kettles, support } = place.cast;
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles, support);
+      return [
+        {
+          name: `oboist ${index} (${support})`,
+          model,
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => flutistTargets(scene, index, model),
+        },
+      ];
+    }),
+};
+
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,
@@ -1024,4 +1104,5 @@ export const SWEEP_ROLES = {
   bassist: BASSIST_SWEEP,
   flutist: FLUTIST_SWEEP,
   trombonist: TROMBONIST_SWEEP,
+  oboist: OBOIST_SWEEP,
 } as const;
