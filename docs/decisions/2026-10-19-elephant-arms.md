@@ -20,4 +20,4 @@ user can reverse each decision. Then update its section, and remove its row.
 | Four new shapes replace the shapes of the old grip: the right and the left arm at a strike, the bent left wrist, and the bent left elbow of the waiting arm (`raise`). The waiting elbow folds in at most 0.1% of the play, so its shape stays. | 4.4 |
 | The elbow poles stay out and back. A lower elbow turns the paws further on the forearms, and a higher elbow turns the upper arms further (report, "Hold"). | 5.3 |
 | The sweep of the timpanist counts 5 open loops: the cut leaves a loop of 3 edges and 19 cm at the front of the right armpit (`ELEPHANT_BODY_LOOPS`). | 9.3 |
-| Open: face 235 of the right armpit folds in 9.7% of the lift. The cap of the right armpit cut shows dark. | 4.4, 9.3 |
+| Open: face 235 of the right armpit folds in 9.7% of the lift. In the gallery, the raised right arm casts a shadow on the chest that is darker than the base (report, section 5). | 4.4, 9.3 |
