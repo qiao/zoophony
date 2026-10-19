@@ -288,22 +288,28 @@ const WOODWIND_PARTS = {
 
 /**
  * Builds a woodwind (design 4.6). The origin of the piece is the point at the mouth, and the
- * instrument bone hangs on the chest (4.7).
+ * instrument bone hangs on the chest (4.7). A species with short arms plays a smaller oboe
+ * (`SpeciesParams.oboeScale`), as a child plays a fractional violin. The instrument and its grips
+ * shrink toward the mouthpiece, so the mouthpiece stays at the mouth.
  *
  * @param id The woodwind.
+ * @param scale The scale of the instrument, as a factor of its size in {@link WOODWINDS}.
  * @returns The model.
  */
-export function buildWoodwind(id: WoodwindId): InstrumentModel {
+export function buildWoodwind(id: WoodwindId, scale = 1): InstrumentModel {
   const w = WOODWINDS[id];
-  const piece = new PieceBuilder();
+  const piece = new PieceBuilder(scale);
   WOODWIND_PARTS[id](piece);
   const instrument = piece.build('instrument', hold('mouth', [0, 0, 0], woodwindRotation(id)));
   // The palms hold the tube from below, on the side away from the keys. The bassoon tube runs
   // along +y, and the palms hold its wing joint from the side of the player.
-  const palm = (along: number): Vec3 =>
-    id === 'bassoon'
-      ? [-BASSOON_REED[0], along - BASSOON_REED[1], 0.065 + 0.03 - BASSOON_REED[2]]
-      : [along, -0.025, 0];
+  const palm = (along: number): Vec3 => {
+    const at: Vec3 =
+      id === 'bassoon'
+        ? [-BASSOON_REED[0], along - BASSOON_REED[1], 0.065 + 0.03 - BASSOON_REED[2]]
+        : [along, -0.025, 0];
+    return [at[0] * scale, at[1] * scale, at[2] * scale];
+  };
   return {
     id,
     parent: 'chest',

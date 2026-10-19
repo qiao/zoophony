@@ -69,6 +69,13 @@ interface CommonParams {
    */
   readonly bassScale?: number;
   /**
+   * The scale of the oboe for the species, as a factor of the oboe of the app (design 4.6). It is
+   * 1 when it is not given. A species with short arms plays a smaller oboe, as a child plays a
+   * fractional violin. The oboe shrinks toward the tip of the reed, so the reed stays in the
+   * mouth, and the grips of the palms come nearer to the mouth.
+   */
+  readonly oboeScale?: number;
+  /**
    * The grip of the bow in the right paw of the species (design 4.6): the place of the stick and
    * its turn in the palm. The grip of the bind pose of the bow (`BOW_GRIP`) when it is not given.
    */
@@ -184,8 +191,8 @@ export function isSpeciesId(value: string): value is SpeciesId {
 
 /**
  * Gives the scale of the instrument and its bow of a species (design 4.6): the violin scale for a
- * violin, the cello scale for a cello, the bass scale for a contrabass, and 1 for each other
- * instrument.
+ * violin, the cello scale for a cello, the bass scale for a contrabass, the oboe scale for an
+ * oboe, and 1 for each other instrument.
  *
  * @param params The parameters of the species.
  * @param instrument The instrument.
@@ -200,6 +207,9 @@ export function instrumentScale(params: SpeciesParams, instrument: InstrumentId)
   }
   if (instrument === 'contrabass') {
     return params.bassScale ?? 1;
+  }
+  if (instrument === 'oboe') {
+    return params.oboeScale ?? 1;
   }
   return 1;
 }
