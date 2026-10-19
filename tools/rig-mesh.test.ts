@@ -169,6 +169,7 @@ describe('the arguments of pnpm rig-mesh', () => {
       step: 1,
       demos: ['beethoven-8', 'mozart-k525'],
       faces: 5,
+      hold: '',
     });
     expect(() => parseArgs(['fox', '--roles', 'flutist'])).toThrow(/Usage/);
     expect(() => parseArgs(['fox', '--check', '--step', '0'])).toThrow(/above 0/);

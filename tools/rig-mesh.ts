@@ -14,6 +14,7 @@ import { animalSpecies, runTool, scratchSettings, withGlbBody } from './glb-swap
 import { measureLines, measureRig, triangleLine } from './rig-mesh-check.ts';
 import { FORM_FORMAT, readFormJson } from './rig-form.ts';
 import type { FormJson, PlayerForm } from './rig-form.ts';
+import { setHolds } from './hold-sets.ts';
 import { checkFormat, formatVersion, runChild, withProbeTree } from './ref-tree.ts';
 import { trackChild, trackFolder } from './stop-cleanup.ts';
 import { gzipSize } from './studio-budgets.ts';
@@ -679,10 +680,15 @@ export interface CheckProbe {
   readonly demos: readonly string[];
   /** The number of faces of `--faces` of each role in the table of the variants, or 0. */
   readonly faces: number;
+  /**
+   * The changes of the holds of `--hold` for the fold probes, separated by `;`, as `--set` of the
+   * hold tools takes them, or an empty text for none.
+   */
+  readonly hold: string;
 }
 
-/** The app checks of `--check` with no option: each role, all demos, and no faces. */
-export const DEFAULT_PROBE: CheckProbe = { roles: null, step: null, demos: [], faces: 0 };
+/** The app checks of `--check` with no option: each role, all demos, no faces, and no hold change. */
+export const DEFAULT_PROBE: CheckProbe = { roles: null, step: null, demos: [], faces: 0, hold: '' };
 
 /** The arguments of `pnpm rig-mesh`. */
 export interface RigMeshArgs {
@@ -703,10 +709,10 @@ export interface RigMeshArgs {
 
 /** The usage text of `pnpm rig-mesh`. */
 const USAGE =
-  'Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <path>=<value>[;<path>=<value>]...]... [--roles <role>[,<role>]...] [--step <seconds>] [--demo <id>]... [--faces <n>]]';
+  'Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <path>=<value>[;<path>=<value>]...]... [--roles <role>[,<role>]...] [--step <seconds>] [--demo <id>]... [--faces <n>] [--hold <changes>]...]';
 
 /** The options of `pnpm rig-mesh` that take a value. */
-const VALUED = ['--preview', '--set', '--roles', '--step', '--demo', '--faces'] as const;
+const VALUED = ['--preview', '--set', '--roles', '--step', '--demo', '--faces', '--hold'] as const;
 
 /**
  * Tells if an argument is an option of `pnpm rig-mesh` that takes a value.
@@ -720,7 +726,8 @@ function isValued(arg: string): arg is (typeof VALUED)[number] {
 
 /**
  * Reads the arguments of `pnpm rig-mesh <animal> [--preview <dir>] [--check] [--set <changes>]...`
- * and the options of the app checks of `--check`: `--roles`, `--step`, `--demo`, and `--faces`.
+ * and the options of the app checks of `--check`: `--roles`, `--step`, `--demo`, `--faces`, and
+ * `--hold`, whose changes of the holds the fold probes take in memory.
  *
  * @param args The arguments after the script.
  * @returns The animal, the preview folder, the check flag, the variants, and the options of the
@@ -738,6 +745,7 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
   let step: number | null = null;
   const demos: string[] = [];
   let faces = 0;
+  const holds: string[] = [];
   let checkOnly = false;
   for (let i = 0; i < args.length; i++) {
     const arg = args[i] ?? '';
@@ -780,13 +788,21 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
           throw new Error(`The option --faces takes a whole number of faces above 0.\n${USAGE}`);
         }
         break;
+      case '--hold':
+        holds.push(value);
+        break;
     }
   }
   const [animal] = rest;
   if (!animal || rest.length !== 1 || animal.startsWith('--') || (checkOnly && !check)) {
     throw new Error(USAGE);
   }
-  return { animal, preview, check, sets, probe: { roles, step, demos, faces } };
+  // Each change must fit before the first rig, so that a typing fault stops the run at once.
+  const hold = holds.join(';');
+  if (hold) {
+    setHolds(hold).undo();
+  }
+  return { animal, preview, check, sets, probe: { roles, step, demos, faces, hold } };
 }
 
 /**
@@ -829,6 +845,7 @@ export function foldArgs(role: string, json: string, probe: CheckProbe): string[
     json,
     ...(probe.step === null ? [] : ['--step', String(probe.step)]),
     ...probe.demos.flatMap((demo) => ['--demo', demo]),
+    ...(probe.hold ? ['--set', probe.hold] : []),
   ];
 }
 
