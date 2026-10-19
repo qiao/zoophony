@@ -35,18 +35,27 @@ const LINKED = ['node_modules', 'demos'] as const;
 /** The folder of the configs of the mesh rigs, which `pnpm hold-reach --size` reads. */
 const RIG_CONFIGS = join(ROOT, 'tools', 'mesh-rigs');
 
+/** The folder of the Blender scripts, which `pnpm fold-probe --faces` runs. */
+const BLENDER_SCRIPTS = join(ROOT, 'tools', 'blender');
+
 /**
- * Tells if the copy of {@link withGlbBody} holds a path of `tools/`: each script, and the configs
- * of the mesh rigs, so that `pnpm hold-reach --size --glb <file>` gives the arm factor of the rig.
+ * Tells if the copy of {@link withGlbBody} holds a path of `tools/`: each script, the configs of
+ * the mesh rigs, so that `pnpm hold-reach --size --glb <file>` gives the arm factor of the rig, and
+ * the Blender scripts, so that `pnpm fold-probe --faces --glb <file>` gives the source middles.
  *
  * @param source The absolute path in `tools/` of the working tree.
- * @returns True for the folder `tools/`, a script, the folder of the rig configs, or a config.
+ * @returns True for the folder `tools/`, a script, the folder of the rig configs, a config, the
+ *   folder of the Blender scripts, or a Blender script.
  */
 export function copiedTool(source: string): boolean {
-  if (source === join(ROOT, 'tools') || source === RIG_CONFIGS) {
+  if (source === join(ROOT, 'tools') || source === RIG_CONFIGS || source === BLENDER_SCRIPTS) {
     return true;
   }
-  return source.endsWith('.ts') || (dirname(source) === RIG_CONFIGS && source.endsWith('.json'));
+  return (
+    source.endsWith('.ts') ||
+    (dirname(source) === RIG_CONFIGS && source.endsWith('.json')) ||
+    (dirname(source) === BLENDER_SCRIPTS && source.endsWith('.py'))
+  );
 }
 
 /** The arguments of a probe with the option `--glb` taken out. */
