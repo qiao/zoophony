@@ -207,14 +207,14 @@ group of your work before you plan it. A probe that a trap names is in its resea
   `docs/research/2026-10-14-rabbit-smooth/` after a change of the color rules.
 - With no gloss nose, the export takes the front-most fur vertex of the head near the middle plane
   as the nose tip (`NOSE_PLANE`), and each gloss shell out of the middle plane as an eye. Give a
-  mesh with gloss nostrils and no nose pad, as the hippo, no `noseBox`, and read the warning of a
-  tip off the plane in the rig check.
+  mesh with gloss nostrils and no nose pad, as the hippo, no `noseBox`, and read the rig check
+  warning of a tip off the plane.
 - A dark rule cannot split an eye from a dark patch of almost its color. A wide eye box takes the
   patch as the eye, and the color of the old eye puts light holes in it. Keep the eye box on the
   eye, and set `eyeShell.darkReach` to 0, as for the panda.
 - A face rule that looks right from the front can paint a large face that shows as a dark block from
-  the side. Check a face rule from the front, at 60°, and from each side, and limit the normal of
-  its faces (`outward` of `colors.smile`).
+  the side. Check it from the front, at 60°, and from each side, and limit the normal of its faces
+  (`outward` of `colors.smile`).
 
 ## Probe tools
 
