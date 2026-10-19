@@ -67,13 +67,13 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 - The middle of a turned paw moves on an arc around the wrist, so a bow stick across the palm leaves
   the paw. Put the stick along the line nearest to that arc (`SpeciesParams.bowGrip`,
-  `stickGrip()`). Then read the depths of the bow arm and the folds of the right forearm.
-- The place of the grip along the stick moves the wrist and twists the upper arm. Scan the place
-  with the folds (`grip-cands.ts` and `fold-scan.ts` of `docs/research/2026-10-17-grip-all/`), and
-  move each rest grip by the move of the hand on the bow.
-- The paw of a mesh with a long wrist, such as the red fox, is not rigid: the wrist skin moves the
-  middle of the paw, most in pizzicato. Read the gap of each sample in order (`gap-seq.ts`), and
-  turn the bow of that moment (`pizzicatoTip`).
+  `stickGrip()`), then read the bow arm depths and the right forearm folds.
+- The grip place along the stick moves the wrist and twists the upper arm. Scan the place with the
+  folds (`grip-cands.ts` and `fold-scan.ts` of `docs/research/2026-10-17-grip-all/`), and move each
+  rest grip by the move of the hand on the bow.
+- On a mesh with a long wrist, such as the red fox, the wrist skin moves the middle of the paw, most
+  in pizzicato. Read the gap of each sample in order (`gap-seq.ts`), and turn the bow of that moment
+  (`pizzicatoTip`).
 
 ## Clearance measures
 
