@@ -31,6 +31,13 @@ export const TIMPANI = {
   headHeight: 0.72,
   /** The distance of the kettle centers from the player. */
   arc: 0.72,
+  /**
+   * The gap on the arc at the front of the player, in meters, between the kettles at its left and
+   * at its right, so that a long nose that hangs from the head, as the trunk of the elephant,
+   * stays between them. The larger half of the kettles stands at the left of the gap. With 0, the
+   * arc of the kettles is centered on the front.
+   */
+  front: 0,
 } as const;
 
 /**
@@ -204,12 +211,18 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
   const piece = new PieceBuilder();
   const radii = t.radii.slice(0, kettles);
   // Each kettle takes the angle of its outer radius (the corners of its 8 faces) and a gap of
-  // 0.06 m on the arc. The arc is centered on the front.
+  // 0.06 m on the arc. The arc is centered on the front, or the front gap is.
   const widths = radii.map((r) => 2 * Math.asin((r / Math.cos(Math.PI / 8) + 0.03) / t.arc));
+  const split = Math.ceil(radii.length / 2);
+  const front = 2 * Math.asin(t.front / 2 / t.arc);
+  const leftWidth = widths.slice(0, split).reduce((sum, w) => sum + w, 0);
   const total = widths.reduce((sum, w) => sum + w, 0);
-  let angle = -total / 2;
+  let angle = t.front > 0 ? -(leftWidth + front / 2) : -total / 2;
   const targets: PlayTarget[] = [];
   for (const [i, r] of radii.entries()) {
+    if (i === split) {
+      angle += front;
+    }
     const w = widths[i] ?? 0;
     const a = angle + w / 2;
     angle += w;
