@@ -57,11 +57,16 @@ export function createShotUniforms(): ShotUniforms {
   };
 }
 
-/** The linear colors of the lamps, from {@link SHOT_LOOK}. */
-const LAMP_COLORS = [new Color(SHOT_LOOK.keyColor), new Color(SHOT_LOOK.kickerColor)] as const;
+/**
+ * The linear color of a lamp. Each call of {@link writeLamp} writes it before it reads it, so it
+ * holds no state.
+ */
+const lampColor = new Color();
 
 /**
- * Writes one lamp into the uniforms: its place, its cone, and an illuminance at its target.
+ * Writes one lamp into the uniforms: its place, its cone, and an illuminance at its target. It
+ * reads the color at each call, so that the look override of the dev server
+ * (`src/app/look-override.ts`) reaches the colors of {@link SHOT_LOOK}.
  *
  * @param uniforms The uniforms.
  * @param i The lamp: 0 for the key, 1 for the kicker.
@@ -74,7 +79,7 @@ function writeLamp(uniforms: ShotUniforms, i: 0 | 1, place: ShotLamp, illuminanc
   const distanceSquared = axis.lengthSq();
   axis.normalize();
   uniforms.uShotCone.value[i] = Math.cos(place.angle);
-  const { r, g, b } = LAMP_COLORS[i];
+  const { r, g, b } = lampColor.set(i === 0 ? SHOT_LOOK.keyColor : SHOT_LOOK.kickerColor);
   const intensity = illuminance * distanceSquared;
   uniforms.uShotColor.value[i].set(r * intensity, g * intensity, b * intensity);
 }
