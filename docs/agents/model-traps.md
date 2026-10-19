@@ -40,8 +40,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   `slideReach` on the new body before the user chooses the arms, and turn the slide toward the right
   shoulder (`slide-hold.ts` of `docs/research/2026-10-18-panda-mesh/`).
 - A round belly can cover short thighs, and `lapPoint()` also takes the skin of the hips and the
-  spine, so a lap place lands on the belly. Measure the reach from the shoulder joint to the top of
-  the thigh before a scan of a lap place (`thigh-reach.ts` of `docs/research/2026-10-17-tan-rest/`).
+  spine, so a lap place lands on the belly. Measure the reach from the shoulder joint to the thigh
+  top before you scan a lap place (`thigh-reach.ts` of `docs/research/2026-10-17-tan-rest/`). A
+  steeper thigh slope moves a lap place near the knee off the lap, so fit the lap places again after
+  a change of `studio.legTurns`.
 - A round belly in front of short arms blocks a floor instrument. Place it by targets: the contact
   point in front of the upper belly, about 0.2 m below the shoulder joints, and the nut within the
   reach of the left paw (`bass-solve.py` of `docs/research/2026-10-18-hippo-mesh/`). A smaller
@@ -58,8 +60,6 @@ group of your work before you plan it. A probe that a trap names is in its resea
   (`left-rest.ts` of `docs/research/2026-10-17-tan-rest/`).
 - The rest columns of `pnpm hold-fit` give the reach of a free paw only, so run `pnpm hold-reach`
   after each move of a rest place of a held instrument.
-- A steeper slope of the thighs moves a lap place near the knee off the lap. Fit the lap places
-  again after a change of `studio.legTurns`.
 - A bow that rests upright and plays across the strings turns its tip from up to the left. A direct
   mix turns the tip through the head, and a via of the rest bow (`BowVia`) through the front.
 
