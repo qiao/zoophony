@@ -1,3 +1,4 @@
+import type { Plugin } from 'vite';
 import { configDefaults, defineConfig } from 'vitest/config';
 
 /** The speed tests: each one compares the time of a work with a reference work (design 9.3). */
@@ -62,8 +63,24 @@ const PAUSED_FILES = ALL_TESTS_PAUSED ? ['**/*.test.ts'] : PAUSED_TESTS;
  */
 const BASE = process.env['ZOOPHONY_BASE'] ?? '/';
 
+/**
+ * The plugin that gives the production build an empty module in place of the look override of
+ * the dev server (`src/app/look-override.ts`, design 9.3). The override is the first import of
+ * `src/main.ts`, so that it acts before the other modules load. Its code is dead in the build, but
+ * its imports moved the modules of the look to the front of the chunk, and the new order grew
+ * the first download by about 400 B after gzip (design 7.2). The stub keeps the old order.
+ */
+const DEV_LOOK_OVERRIDE: Plugin = {
+  name: 'zoophony:dev-look-override',
+  apply: 'build',
+  load(id) {
+    return id.endsWith('/src/app/look-override.ts') ? 'export function soloFromQuery() {}' : null;
+  },
+};
+
 export default defineConfig({
   base: BASE,
+  plugins: [DEV_LOOK_OVERRIDE],
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
     manifest: true,

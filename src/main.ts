@@ -1,3 +1,6 @@
+// The look override of the dev server is the first import, so that it changes the look values
+// before the other modules read them at their load (`src/app/look-override.ts`).
+import { soloFromQuery } from './app/look-override.ts';
 import { App } from './app/app.ts';
 import { fileFromHash } from './app/demos.ts';
 import type { DevHook } from './app/dev-hook.ts';
@@ -83,6 +86,7 @@ function start(canvas: HTMLCanvasElement, scene: StageScene): void {
   watchPixelRatio(window, resize);
   if (import.meta.env.DEV) {
     installDevHook(app, scene);
+    soloFromQuery(app, scene);
   }
   // The URL hash `#demo=<id>` opens a demo (design 2.2). A change of the hash in the address bar
   // shows its demo. It is no user gesture, so the first screen waits for a click.
