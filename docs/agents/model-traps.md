@@ -34,11 +34,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A new scale of `SpeciesParams` needs its case in `instrumentScale()` and in `buildInstrument()`
   of `models/instruments/catalog.ts`. With no case, `--set <species>.<scale>` prints the scale and
   moves no grip.
-- A smaller body keeps its instrument in meters, so the old hold misses the grips. Scan the scale
-  and the hold with `windReach()` first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`).
-- A reach measured in the places of another body misses the mouth of a big head. Measure
-  `slideReach` on the new body before the user chooses the arms, and turn the slide toward the right
-  shoulder (`slide-hold.ts` of `docs/research/2026-10-18-panda-mesh/`).
+- A smaller body keeps its instrument in meters, so the old hold misses the grips: scan the scale
+  and the hold with `windReach()` first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`). A
+  big head puts the mouth out of a reach from another body: measure `slideReach` on the new body
+  before the user chooses the arms, and turn the slide toward the right shoulder (`slide-hold.ts` of
+  `docs/research/2026-10-18-panda-mesh/`).
 - A round belly can cover short thighs, and `lapPoint()` also takes the skin of the hips and the
   spine, so a lap place lands on the belly. Measure the reach from the shoulder joint to the thigh
   top before you scan a lap place (`thigh-reach.ts` of `docs/research/2026-10-17-tan-rest/`). A
