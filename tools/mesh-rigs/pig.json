@@ -325,6 +325,14 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts below the crotch and ends 0.03 u above the thigh joint."
     },
+    "rigid": [
+      [
+        0.2407,
+        0.5223,
+        0.0462
+      ]
+    ],
+    "rigidNote": "The corners of the thin face across the left elbow take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py). The point is the middle of face 1888 in the units of the source (pnpm fold-probe hornist --faces). Its corners had the upper arm weights 0.89, 0.53, and 0.39, and it folded in each play sample, also with the shape of the left arm.",
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.17 out (94 vertices of the free left arm, free-arm.txt). The round belly is wider than that plane below the arm, so the free arm is the part beyond the plane that holds the tip of the hoof. Above headFrom, each vertex follows the head only: the chin starts at y 0.67. The ears join the head from y 0.87, below the skull top (0.9476), so the height rule of earBase would also take the top of the head, and earBase lies above the head: the ears follow the head, as for the panda, the hippo, and the mouse. The small curled tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom, armTop, and shoulderHead are the rules of the hippo, moved with the shoulder joint (y 0.56) and the wide neck of the pig (x 0.14)."
   },
   "refine": {
@@ -431,5 +439,112 @@
     "end": 0.0065,
     "most": 0.03,
     "note": "The values of the panda, the hippo, and the mouse."
-  }
+  },
+  "raise": [
+    {
+      "side": "R",
+      "turns": {
+        "clavicle": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "upper_arm": [
+          0.4104,
+          -0.0269,
+          0.1114,
+          0.9047
+        ],
+        "forearm": [
+          -0.0984,
+          0.0556,
+          -0.128,
+          0.9853
+        ]
+      },
+      "fade": [
+        10,
+        20
+      ],
+      "below": 0,
+      "note": "The shape of the right arm on the horn, with the mean turns of the play samples of the hold (pnpm raise-fit hornist --faces 81,213,216,438 --side R): the upper arm 50 degrees from the bind. Four long thin faces of the right armpit folded in each play sample. In the pose of the rule, they turn over and relax."
+    },
+    {
+      "side": "L",
+      "turns": {
+        "clavicle": [
+          0,
+          -0.225,
+          0,
+          0.9744
+        ],
+        "upper_arm": [
+          0.2634,
+          -0.5582,
+          0.4197,
+          0.6654
+        ],
+        "forearm": [
+          -0.078,
+          -0.0441,
+          0.1015,
+          0.9908
+        ]
+      },
+      "fade": [
+        10,
+        20
+      ],
+      "below": 0,
+      "note": "The shape of the left arm on the valves, with the mean turns of the play samples (pnpm raise-fit hornist --faces 1169,1888,1936 --side L): the upper arm 97 degrees from the bind, with the left shoulder turned forward. Three faces of the front of the left shoulder and the armpit folded in each play sample."
+    },
+    {
+      "side": "L",
+      "bone": "hand",
+      "turns": {
+        "hand": [
+          -0.3118,
+          -0.4177,
+          -0.8441,
+          0.126
+        ]
+      },
+      "fade": [
+        15,
+        25
+      ],
+      "below": 0.3,
+      "note": "The shape of the bent left wrist on the valves (pnpm raise-fit hornist --faces 1896,2638 --side L --bone hand): the paw turns 156 degrees from the bind in the mean of the play samples, and the rule turns 10 degrees further. Two faces of the left hoof folded in each play sample."
+    },
+    {
+      "side": "R",
+      "turns": {
+        "clavicle": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "upper_arm": [
+          0.6748,
+          0.1901,
+          -0.1591,
+          0.6951
+        ],
+        "forearm": [
+          -0.0065,
+          0.0037,
+          -0.0085,
+          0.9999
+        ]
+      },
+      "fade": [
+        10,
+        20
+      ],
+      "below": 0,
+      "note": "The shape of the right arm in the rest pose of the horn, with the mean turns of the rest samples (pnpm raise-fit hornist --faces 81,213,216,438,437 --side R --sets rest): the upper arm 92 degrees from the bind. The faces of the right armpit folded in each rest sample. Four rules is the limit of a body (RAISE_LIMIT), so the right paw of the rest has no shape: faces 10 and 13 of the right hoof fold in each rest sample and in a quarter of the lift samples."
+    }
+  ]
 }
