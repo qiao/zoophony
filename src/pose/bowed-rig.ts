@@ -760,22 +760,27 @@ const DOG_HOLD = {
  * contact point, 0.30 m below the right shoulder joint. With the contact point 5 cm further back,
  * the right paw went 5.6 cm into the belly. With the top plate turned 29° to the right, as the hold
  * of the parametric hippo, the bow ran back into the belly. The trunk leans 12° forward, and the
- * right shoulder turns 45° forward: with 30°, the right forearm went 8.4 cm into the body (5.6 cm
- * with 45°). The reasons and the measures are in the 2026-10-18-mesh-hippo decisions.
+ * right shoulder turns 50° forward: with 30°, the right forearm went 8.4 cm into the body. The
+ * reasons and the measures are in the 2026-10-18-mesh-hippo decisions.
  *
  * The contrabass leans back, so its upper bout lies under the chin. With the trunk at 15° and the
  * end pin 2 cm further back, the chest under the chin covered the upper bout: the top plate went
  * 4.5 cm into the chest on the mean of the play samples. With 12° and the end pin 2 cm forward, it
- * goes at most 1.5 cm in, and the arms go up to 4.8 cm deeper into the body and the contrabass, most
- * in the lowering. With a roll of 20° to the left, the top plate went 6.2 cm into the chest. The
- * measures are in the 2026-10-19-hippo-chest decisions.
+ * goes at most 1.5 cm in. With a roll of 20° to the left, the top plate went 6.2 cm into the chest.
+ * The bow arm is then straight in its deepest samples, so no right elbow pole changes them. With
+ * the shoulder turn of 45°, the right elbow went 8.1 cm into the body. The turn of 50° brings the
+ * shoulder joint nearer to the bow (4.7 cm). With 55°, the skin of the chest under the chin folded
+ * in 94% of the play samples. The measures are in the 2026-10-19-hippo-chest decisions.
  *
  * The string planes are 12° apart, below the 25° of a real contrabass: with 25°, the bow paw on the
  * lowest string went 9.1 cm into the belly. The right elbow points out, up, and forward, so that
  * the thick upper arm stays out of the chest (2.9 cm against 10.0 cm with the elbow of the floor
  * hold). The left elbow points out to the left, up, and back, past the contrabass, and turns up 2°
  * for each lower string, as on the cello of the dog: with 10°, the thick left upper arm went
- * 7.0 cm into the contrabass (6.4 cm with 2°).
+ * 7.0 cm into the contrabass (6.4 cm with 2°). The left paw tilts 55° over the neck, as the paw of
+ * the dog: with the 30° of the floor hold, the left arm went 6.9 cm into the body (5.6 cm with 55°).
+ * In the high positions, the thick left forearm crosses the upper bout, and no left elbow, tilt, or
+ * place of the contrabass that keeps the upper bout out of the chest changed it.
  *
  * The right elbow lies near the backward line of the stick, and on the E and the A strings it lies
  * near the far side of the stick for the roll of the hand. With the far side at 180°, a change of
@@ -794,10 +799,11 @@ const DOG_HOLD = {
 const HIPPO_HOLD = {
   ...BOWED_HOLDS.contrabass,
   lean: 12 * MathUtils.DEG2RAD,
-  reach: 45 * MathUtils.DEG2RAD,
+  reach: 50 * MathUtils.DEG2RAD,
   playShift: [0.84, 0, -0.04],
   playTurn: [-0.0664, 0.2385, 0.215, 0.9447],
   stringTurn: 12 * MathUtils.DEG2RAD,
+  tiltL: 55 * MathUtils.DEG2RAD,
   poleL: [-1, 0.5, 0.3],
   elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [1.5, 1, -1],

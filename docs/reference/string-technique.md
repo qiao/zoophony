@@ -452,7 +452,8 @@ A round that changes the motion updates the items.
 - **The angle** (section 2.7). The cello leans back 25° from the vertical, in the range of the
   handout [65], and 14° to the left. The dog sits upright with the lean of 3° [66].
 - **The left hand over the neck.** The left paw tilts 55° over the neck from the bass side
-  (`BowedHold.tiltL`, 30° on the other holds), so that the thick paw keeps off the fingerboard.
+  (`BowedHold.tiltL`, 30° on the holds of the other species except the hippo), so that the thick
+  paw keeps off the fingerboard.
 - **The rest** (section 2.7). The cello stays between the knees, the left paw holds it at 0.6 of
   the fingerboard, and the right paw holds the bow over the right knee with the tip up, as the
   first lesson of the source. The short arm of the dog does not reach the knee, so the grip is
@@ -470,7 +471,13 @@ A round that changes the motion updates the items.
   and the nut is beside the head, within reach of the left paw. A real bassist leans the contrabass
   less, against the left side of the body. The app differs from that, because the bow of a real
   hold met the round belly of the hippo. The hippo leans forward less than the first hold, so that
-  the upper bout stays in front of the chest under the chin.
+  the upper bout stays in front of the chest under the chin. Its right shoulder turns further
+  forward than the shoulders of the other players, so that the straight bow arm keeps off the
+  belly.
+- **The left hand over the neck.** The thick left paw of the hippo tilts 55° over the neck, as the
+  paw of the dog (section 3.3), so that the left arm keeps off the body. In the high positions, its
+  thick forearm crosses the upper bout. No source gives the left arm of a player with such a round
+  body.
 - **The bow hand.** A real bassist holds the French bow with the palm toward the bass (section
   2.1). The app rolls the paw around the stick so that the back of the paw points to the elbow,
   within a range of the roll (`rollToward()` of `pose/bowed.ts`). The elbow of the hippo lies near
