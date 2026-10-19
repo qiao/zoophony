@@ -35,7 +35,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Cello, dog | Chair | The cellists of `docs/reference/string-technique.md`, section 2.7 | The cello leans back in front of the knees, with its neck at the left of the head. The bow plays no hair near the frog | The cello stays between the knees, and the bow stands over the right knee with the tip up | `DOG_HOLD`, `UPRIGHT_BOW`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-dog-arms.md`, `2026-10-17-dog-rest.md` | `pnpm close-views cellist <dir>` |
 | Contrabass, hippo | Stands | Hands and bow: `docs/reference/string-technique.md` | The smaller contrabass leans to the left of the head on its short end pin, the bow plays in front of the belly, and the player leans forward | The contrabass stays at its playing place with the left paw on the neck, and the bow hangs from the right paw beside the belly | `HIPPO_HOLD`, `HANGING_BOW`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-18-mesh-hippo.md` | `pnpm close-views bassist <dir>` |
 | Flute, tan fox | Chair, stands as a soloist | Play: Michel Debost, Flute Talk, May/June 1996 (`2026-10-14-fox-flute.md`). Rest: Patricia George, The Instrumentalist, December 2018 (`2026-10-15-flute-rest.md`). Technique: `docs/reference/wind-technique.md` | Turns the head to the left, with the flute about square to the face and the shoulders square and low | The flute upright on the right leg in the right paw, and the left arm hangs near the side | `FOX_FLUTE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-17-fox-form.md`, `2026-10-17-tan-rest.md` | `pnpm close-views flutist <dir>` |
-| Oboe, mouse | Chair, stands as a soloist | none | Holds the oboe at the mouth with both paws on their grips | The oboe moves off the mouth and tilts, and the head lifts | `WIND_HOLDS.oboe`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species mouse <dir>` |
+| Oboe, mouse | Chair, stands as a soloist | Technique: Cline, "Oboe for Starters", and `docs/reference/wind-technique.md` 2.3 (`docs/research/2026-10-19-mouse-mesh.md`) | Holds the oboe with the reed in the mouth under the long muzzle, at the angle of a real oboist, with both paws on their grips and the elbows down | The oboe moves off the mouth and tilts in both paws, and the head lifts. The round belly covers the thighs, so the oboe does not rest on a leg | `MOUSE_OBOE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-mouse.md` | `pnpm close-views oboist <dir>` |
 | Clarinet, wolf | Chair, stands as a soloist | none | Holds the clarinet at the mouth with both paws on their grips | The clarinet moves off the mouth and tilts, and the head lifts | `WIND_HOLDS.clarinet`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species wolf <dir>` |
 | Bassoon, beaver | Chair | none | The lower end turns forward and to the right | The bassoon moves off the mouth and tilts, and the head lifts | `WIND_HOLDS.bassoon`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species beaver <dir>` |
 | Horn, pig | Chair, stands as a soloist | none | The left hand presses the valves | The bell sits on the right thigh | `WIND_HOLDS.horn`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species pig <dir>` |
@@ -290,6 +290,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **Free arm of the flute.** The seated tan fox rests the flute upright on the right leg in the
   right paw. Its free left arm hangs near the side with a soft bend, because the top of the left
   thigh is out of its reach (`docs/decisions/2026-10-17-tan-rest.md`).
+- **Oboe at rest.** The seated and the standing mouse take the rest of the oboe of `WIND_HOLDS`:
+  the oboe moves off the mouth and tilts, and both paws keep their grips. A real oboist rests the
+  oboe on the legs, but the round belly of the mouse covers its short thighs
+  (`docs/decisions/2026-10-19-mesh-mouse.md`).
 - **Trombone at rest.** The seated and the standing panda take the rest of the trombone of
   `WIND_HOLDS`: the trombone moves off the mouth and stands upright at the right side, with the
   bell down, and both paws keep their grips. It does not rest on a leg
@@ -393,6 +397,12 @@ The code constants of each family hold the times, the angles, and the lengths of
     (`WindHold.lipShift`). At rest, the flute stands upright on the right leg, held at the
     right-hand keys, as a real flutist rests it (George, The Instrumentalist, December 2018), and
     the left paw hangs (5.2).
+  - The mouse holds the oboe as a real oboist (`MOUSE_OBOE` of `SPECIES_WIND_HOLDS`, Cline): the
+    oboe hangs from the mouth at the angle that Cline gives, and the arms stay a little away from
+    the sides with the wrists down. The long muzzle puts the tip of the nose far in front of the
+    mouth, so the reed sits back under the muzzle, in the mouth (`WindHold.lipShift`). The big head
+    puts the reed high above the shoulders, so the elbows point down, and the upper arms do not
+    turn into twisted bands.
   - The panda holds the trombone as a real trombonist (`PANDA_TROMBONE` of `SPECIES_WIND_HOLDS`,
     pBone and Western Carolina University): the left paw holds the weight at the grip near the
     mouthpiece, and the right paw holds the slide brace. Its big round head puts the mouth far in
