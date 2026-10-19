@@ -76,6 +76,13 @@ interface CommonParams {
    */
   readonly oboeScale?: number;
   /**
+   * True for a species that sits with no chair (design 4.5, props). The body keeps its seated
+   * pose, its seat height, and its feet on the floor, and the app builds no chair under it
+   * (`seatHeights()` and `buildSupport()` of `props.ts`). The species sits on a chair when it is
+   * not given.
+   */
+  readonly noChair?: true;
+  /**
    * The grip of the bow in the right paw of the species (design 4.6): the place of the stick and
    * its turn in the palm. The grip of the bind pose of the bow (`BOW_GRIP`) when it is not given.
    */

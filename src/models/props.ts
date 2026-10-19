@@ -102,6 +102,11 @@ export interface SeatHeights {
    * (`StudioBody.chairWidth`). The legs and the back posts stay at the side edges of the seat.
    */
   readonly seatWidth?: number;
+  /**
+   * True when the app builds no chair under the body (`SpeciesParams.noChair`). The body keeps its
+   * seated pose at these heights.
+   */
+  readonly noChair?: true;
 }
 
 /**
@@ -206,12 +211,32 @@ export function standDeskHeight(eyes: readonly number[]): number {
 export const CHAIR_LEG = 0.035;
 
 /**
+ * Gives the heights of the chair of a body (design 4.5, props): the seat at the legs of the
+ * species. A studio body sits on a chair as deep as the chair of the studio (design 4.4), and a
+ * wide studio body on a wider chair.
+ *
+ * @param species The species of the body.
+ * @param legs The height of the seat above the floor, in meters.
+ * @returns The heights.
+ */
+function chairHeights(species: SpeciesParams, legs: number): SeatHeights {
+  const studio: StudioBody | null =
+    species.body && species.body !== 'penguin' ? STUDIO_BODIES[species.body] : null;
+  if (!studio || studio.chairDepth === null) {
+    return { seatHeight: legs, footHeight: 0 };
+  }
+  const seat = { seatHeight: legs, footHeight: 0, seatDepth: studio.chairDepth };
+  return studio.chairWidth === undefined ? seat : { ...seat, seatWidth: studio.chairWidth };
+}
+
+/**
  * Gives the heights of the seat of a body on a support (design 4.5, props). The chair fits the
- * legs of the species: its seat is the `seatHeight` of the skeleton above the floor. The high
- * stool keeps its seat for the contrabass, and its foot ring is the `seatHeight` of the skeleton
- * below the seat. The stool of the harp keeps its height, because the strings need the body at
- * that height. The piano bench keeps its height for the parametric biped and the penguin. Under
- * a studio body, such as the polar bear, it fits the legs, as the chair does (design 4.4).
+ * legs of the species: its seat is the `seatHeight` of the skeleton above the floor. A species
+ * with no chair (`SpeciesParams.noChair`) keeps these heights, and the app builds no chair. The
+ * high stool keeps its seat for the contrabass, and its foot ring is the `seatHeight` of the
+ * skeleton below the seat. The stool of the harp keeps its height, because the strings need the
+ * body at that height. The piano bench keeps its height for the parametric biped and the penguin.
+ * Under a studio body, such as the polar bear, it fits the legs, as the chair does (design 4.4).
  *
  * @param support The support.
  * @param species The species of the body.
@@ -222,15 +247,8 @@ export function seatHeights(support: Support, species: SpeciesParams): SeatHeigh
   const legs = proportions.seatHeight * proportions.headHeight;
   switch (support) {
     case 'chair': {
-      // A studio body sits on a chair as deep as the chair of the studio (design 4.4), and a wide
-      // studio body on a wider chair.
-      const studio: StudioBody | null =
-        species.body && species.body !== 'penguin' ? STUDIO_BODIES[species.body] : null;
-      if (!studio || studio.chairDepth === null) {
-        return { seatHeight: legs, footHeight: 0 };
-      }
-      const seat = { seatHeight: legs, footHeight: 0, seatDepth: studio.chairDepth };
-      return studio.chairWidth === undefined ? seat : { ...seat, seatWidth: studio.chairWidth };
+      const seat = chairHeights(species, legs);
+      return species.noChair ? { ...seat, noChair: true } : seat;
     }
     case 'stool':
       return { seatHeight: STOOL.seatHeight, footHeight: 0 };
@@ -427,11 +445,12 @@ export function buildStool(high: boolean, seat: SeatHeights): MeshData {
 
 /**
  * Builds the seat of a player: the chair, a stool, the high stool, or the piano bench. The seat
- * center is above the origin, and the player sits on it and faces -z.
+ * center is above the origin, and the player sits on it and faces -z. A species with no chair
+ * (`SeatHeights.noChair`) gets no chair.
  *
  * @param support The support of the player.
  * @param seat The heights of the seat ({@link seatHeights}), or `null` for a standing player.
- * @returns The mesh data, or `null` for a standing player.
+ * @returns The mesh data, or `null` for a standing player or a body with no chair.
  */
 export function buildSupport(support: Support, seat: SeatHeights | null): MeshData | null {
   if (!seat) {
@@ -440,7 +459,7 @@ export function buildSupport(support: Support, seat: SeatHeights | null): MeshDa
 
   switch (support) {
     case 'chair':
-      return buildChair(seat.seatHeight, seat.seatDepth, seat.seatWidth);
+      return seat.noChair ? null : buildChair(seat.seatHeight, seat.seatDepth, seat.seatWidth);
     case 'stool':
       return buildStool(false, seat);
     case 'high-stool':
@@ -617,6 +636,7 @@ export function buildSceneProps(layout: SceneLayout): MeshData {
       heights?.footHeight,
       heights?.seatDepth,
       heights?.seatWidth,
+      heights?.noChair,
     ].join(' ');
     if (!seats.has(key)) {
       seats.set(key, buildSupport(support, heights));
