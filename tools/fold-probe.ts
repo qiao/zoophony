@@ -17,11 +17,14 @@
  * upper arm of the side of the face in the axes of the chest in the samples in which the face
  * folds, and the share of the samples with a fold by the angle from that turn. Each `--set` changes
  * the holds in memory, as `pnpm pose-depth --set` does, so that `pnpm rig-mesh --check --hold`
- * fits a corrective shape to a hold with no commit. The method comes from
+ * fits a corrective shape to a hold with no commit. With `--base <ref> --faces-of <faces>`, the
+ * faces of the commit pair with the folded faces of the working tree by their middles
+ * ({@link pairBaseFaces}). The method comes from
  * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
  * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>]
- * [--set <changes>]... [--json <file> [--middles <faces>]] [--glb <file>]
+ * [--set <changes>]... [--json <file> [--middles <faces>]] [--glb <file>] [--base <ref>
+ * [--faces-of <faces>]]
  */
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -1661,6 +1664,115 @@ export function faceCompareLines(
   return lines;
 }
 
+/** A face of `--faces-of` of the commit with its pair in the working tree ({@link pairBaseFaces}). */
+export interface BaseFacePair {
+  /** The index of the face in the mesh of the commit. */
+  readonly face: number;
+  /** The folds of the face on the commit, or `null` when it folds in no sample. */
+  readonly base: FaceRecord | null;
+  /**
+   * The index of the face of the working tree: the same index when both meshes have the same
+   * corners, else the folded face with the nearest middle within {@link SAME_FACE_DISTANCE}, or
+   * `null` when no folded face is that near.
+   */
+  readonly paired: number | null;
+  /** The folds of the face of the working tree, or `null` when it folds in no sample. */
+  readonly tree: FaceRecord | null;
+}
+
+/**
+ * Pairs the faces of `--faces-of`, as the commit numbers them, with the faces of the working tree.
+ * Two meshes with the same corners keep the index of each face. Else the pairs go in the order of
+ * the distance of the middles in the bind pose, the nearest first, up to
+ * {@link SAME_FACE_DISTANCE}, and each face goes into one pair at most, as `watchPairs()` of
+ * `pnpm rig-mesh --watch` pairs the faces after a `cut`. A named face with no pair folds in no
+ * sample of the working tree.
+ *
+ * @param base The folds of the commit, with the middles of the named faces (`--middles`).
+ * @param tree The folds of the working tree.
+ * @param faces The faces of the commit.
+ * @returns The pair of each face, in the order of the faces.
+ * @throws Error if the meshes have other corners and the commit gives no middle of a face.
+ */
+export function pairBaseFaces(
+  base: FaceJson,
+  tree: FaceJson,
+  faces: readonly number[],
+): BaseFacePair[] {
+  const baseFaces = new Map(base.faces.map((record) => [record.face, record]));
+  const treeFaces = new Map(tree.faces.map((record) => [record.face, record]));
+  if (base.topology === tree.topology) {
+    return faces.map((face) => ({
+      face,
+      base: baseFaces.get(face) ?? null,
+      paired: face,
+      tree: treeFaces.get(face) ?? null,
+    }));
+  }
+
+  const missing = faces.filter((face) => !base.middles[String(face)]);
+  if (missing.length > 0) {
+    throw new Error(
+      `The commit gives no middle of the faces ${missing.join(', ')}: its mesh has fewer faces, or its fold-probe has no --middles.`,
+    );
+  }
+  const candidates = faces.flatMap((face) =>
+    tree.faces.flatMap((record) => {
+      const [x, y, z] = base.middles[String(face)] ?? [0, 0, 0];
+      const [a, b, c] = record.middle;
+      const gap = Math.hypot(a - x, b - y, c - z);
+      return gap <= SAME_FACE_DISTANCE ? [{ face, record, gap }] : [];
+    }),
+  );
+  const pairs = new Map<number, FaceRecord>();
+  const taken = new Set<number>();
+  for (const { face, record } of candidates.toSorted(
+    (p, q) => p.gap - q.gap || p.face - q.face || p.record.face - q.record.face,
+  )) {
+    if (!pairs.has(face) && !taken.has(record.face)) {
+      pairs.set(face, record);
+      taken.add(record.face);
+    }
+  }
+  return faces.map((face) => ({
+    face,
+    base: baseFaces.get(face) ?? null,
+    paired: pairs.get(face)?.face ?? null,
+    tree: pairs.get(face) ?? null,
+  }));
+}
+
+/**
+ * Writes the faces of `--faces-of` of the commit with their pairs in the working tree
+ * ({@link pairBaseFaces}): the share of the samples of each set in which each face folds on both
+ * trees.
+ *
+ * @param label The name of the commit.
+ * @param base The folds of the commit.
+ * @param tree The folds of the working tree.
+ * @param pairs The pairs.
+ * @returns The lines.
+ */
+export function baseFaceLines(
+  label: string,
+  base: FaceJson,
+  tree: FaceJson,
+  pairs: readonly BaseFacePair[],
+): string[] {
+  return [
+    base.topology === tree.topology
+      ? `The faces of --faces-of on ${label}: the meshes have the same corners, so a face keeps its index.`
+      : `The faces of --faces-of on ${label}, each with the folded face of the working tree with the nearest middle within ${SAME_FACE_DISTANCE} m.`,
+    '',
+    `| Face (${label}) | Face (tree) | ${label}: rest / play / lift | Working tree: rest / play / lift |`,
+    '|---:|---:|---|---|',
+    ...pairs.map(
+      (pair) =>
+        `| ${pair.face} | ${pair.paired ?? 'none'} | ${shareCells(base, pair.base)} | ${shareCells(tree, pair.tree)} |`,
+    ),
+  ];
+}
+
 /**
  * Reads the JSON text of `--json` ({@link foldJson}).
  *
@@ -1696,25 +1808,30 @@ export function readFoldJson(text: string): FoldCounts {
  * (`probeBeside()`), and writes the share of the samples with a fold of each set on both trees,
  * with the most folded faces of one sample split by the side of their main bone ({@link sideSplit}).
  * A role that the commit does not have stops the run before the probes (`checkRefRole()`). With
- * `faces` above 0, the table of the faces of {@link faceCompareLines} follows.
+ * `faces` above 0, the table of the faces of {@link faceCompareLines} follows. With faces of
+ * `--faces-of`, the commit also gives their middles (`--middles`), and the table of
+ * {@link baseFaceLines} follows.
  *
  * @param name The name of the role.
  * @param ref The commit, the branch, or the tag.
- * @param args The arguments of the children, with no `--base`.
+ * @param args The arguments of the children, with no `--base` and no `--faces-of`.
  * @param faces The number of faces of each tree in the table of the faces, or 0 for no table.
+ * @param facesOf The faces of `--faces-of`, as the commit numbers them, or none.
  */
 async function compareFolds(
   name: string,
   ref: string,
   args: readonly string[],
   faces: number,
+  facesOf: readonly number[],
 ): Promise<void> {
   const label = `${ref} (${shortHash(ref)})`;
   const started = performance.now();
+  const middles = facesOf.length > 0 ? ['--middles', facesOf.join(',')] : [];
   const texts = await probeBeside(
     ref,
     'fold-probe.ts',
-    { base: args, tree: args },
+    { base: [...args, ...middles], tree: args },
     { prefix: 'fold-probe-', role: { ...FOLD_ROLE_TABLE, name }, cache: true },
   );
   const base = readFaceJson(texts.base);
@@ -1732,6 +1849,9 @@ async function compareFolds(
   if (faces > 0) {
     lines.push('', ...faceCompareLines(label, base, tree, faces));
   }
+  if (facesOf.length > 0) {
+    lines.push('', ...baseFaceLines(label, base, tree, pairBaseFaces(base, tree, facesOf)));
+  }
   console.log(lines.join('\n'));
 }
 
@@ -1747,7 +1867,7 @@ async function main(): Promise<void> {
   const role = FOLD_ROLES.get(name);
   if (!role) {
     throw new Error(
-      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>] [--set <changes>]... [--json <file>] [--glb <file>] [--base <ref>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
+      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>] [--set <changes>]... [--json <file>] [--glb <file>] [--base <ref> [--faces-of <faces>]], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
     );
   }
   const baseAt = args.indexOf('--base');
@@ -1787,8 +1907,14 @@ async function main(): Promise<void> {
     throw new Error('The option --turns takes the index of a face.');
   }
 
+  const facesOfAt = args.indexOf('--faces-of');
+  const facesOf = facesOfAt >= 0 ? faceList(args[facesOfAt + 1] ?? '', '--faces-of') : [];
+  if (facesOfAt >= 0 && !ref) {
+    throw new Error('The option --faces-of goes with --base: it names the faces of the commit.');
+  }
+
   if (ref) {
-    await compareFolds(name, ref, withoutOptions(args, ['--base']), faces);
+    await compareFolds(name, ref, withoutOptions(args, ['--base', '--faces-of']), faces, facesOf);
     return;
   }
 
