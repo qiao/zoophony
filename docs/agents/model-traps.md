@@ -32,6 +32,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   (`cello-reach.ts` of `docs/research/2026-10-17-dog-mesh/`), and rig the final factor once.
 - An arm factor far above the option text that the user chose goes back to the user before the merge
   (the dog got 1.75 for "about 1.4x").
+- A new scale of `SpeciesParams` needs its case in `instrumentScale()` and in `buildInstrument()`
+  of `models/instruments/catalog.ts`. With no case, `--set <species>.<scale>` prints the scale and
+  moves no grip.
 - A smaller body keeps its instrument in meters, so the old hold misses the grips. Scan the scale
   and the hold with `windReach()` first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`).
 - A reach measured in the places of another body misses the mouth of a big head. Measure
@@ -170,6 +173,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The root of a tail moves the haunch vertices that set the seat top of the sit. Give the sit a
   fixed seat top (`sit.top`), and count the root vertices as the haunch (`sit.root`). A deeper
   haunch needs more rounds of smoothing (`sit.smooth`).
+- A tail on the floor, as the broad tail of the beaver, can be the lowest point of the seated
+  bind, and then it sets the seat height and the feet hang above the floor. Turn the tip bone (`studio.tailBind`) until the line
+  `tail: the lowest point` of the rig log gives the height of the soles.
 - A tail loop on the floor stays flat with rigid bone turns (`studio.tailBind`). A curve of
   `tailCurl` turned it into a vertical sheet.
 - The idle sway turns the tail bones around the vertical (`pose/pose-at.ts`). A seated tail that
