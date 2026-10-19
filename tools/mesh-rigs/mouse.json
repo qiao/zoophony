@@ -390,7 +390,24 @@
         0.215
       ]
     ],
-    "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is a face of an eye: 15 faces on the left and 20 on the right, at x 0.057 to 0.084, y 0.807 to 0.856, and z 0.18 to 0.21 (colors.txt). The config has no nose box: the nose of the mesh is pink, with no dark faces, and the export takes the front of the muzzle as the tip of the nose.",
+    "noseBox": [
+      [
+        -0.025,
+        0.765,
+        0.298
+      ],
+      [
+        0.025,
+        0.8,
+        0.32
+      ]
+    ],
+    "nose": [
+      0.965,
+      0.705,
+      0.645
+    ],
+    "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is a face of an eye: 15 faces on the left and 20 on the right, at x 0.057 to 0.084, y 0.807 to 0.856, and z 0.18 to 0.21 (colors.txt). The nose is a pink pad at the front of the muzzle, at x \u00b10.022 and y 0.768 to 0.796, with no dark faces. A face in the nose box whose color is nearer to the nose color (the mean of the pink faces of the pad) than to white is a face of the nose and takes the gloss: 13 faces. With no nose box, the export took the front of the muzzle as the tip of the nose, and the front-most fur vertex of the head is the tip of a whisker, 0.2 u to the right of the middle plane, so the mouth and the oboe lay 0.33 m to the right of the head.",
     "tone": {
       "chroma": 0.05,
       "light": [
