@@ -467,6 +467,9 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the right paw and arm in the pizzicato of `boulanger-matin` (about 5%). A dark slot stays at
       the front of the right armpit, at the caps of the cut (`user-view.webp` of
       `docs/research/2026-10-19-hippo-arms/`, `2026-10-19-hippo-arms.md`).
+- [ ] `pnpm pose-depth --base <ref>` fails: the probe of the commit runs in a temporary folder
+      with no git, and `timesFile()` of `tools/pose-depth.ts` asks git for the folder of the
+      probe caches. Skip the time file there (`2026-10-19-hippo-arms.md`).
 - [ ] Hippo bassist: on the E and A strings, the roll of the bow paw stays at its low end, and the
       paw goes more than 1.5 cm into the belly in 4.6% of the play samples. A hold that moves the
       right elbow off the line of the stick, such as the slant -10°, can remove it
