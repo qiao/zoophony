@@ -21,22 +21,28 @@
  * Each sample set prints the median and the worst 5% of each value for each side, and the folds of
  * `pnpm fold-probe`. `--rings` adds the median roll and collapse of each ring. Each `--set`
  * changes the holds in memory, as `pnpm fold-probe --set` does, and `--glb <file>` gives the role
- * the studio body of the file. `--json <file>` writes the values of the table.
+ * the studio body of the file. `--json <file>` writes the values of the table. `--body
+ * <key>=<value>` sets a rule of the studio body of the role in memory, such as `upperTwist=0.5`
+ * (`StudioBody`), as a variant with no change of the body module.
  *
- * Usage: pnpm arm-shape <role> [--demo <id>]... [--step <seconds>] [--set <changes>]... [--rings]
- * [--glb <file>] [--json <file>]
+ * Usage: pnpm arm-shape <role> [--demo <id>]... [--step <seconds>] [--set <changes>]...
+ * [--body <key>=<value>]... [--rings] [--glb <file>] [--json <file>]
  */
 import { writeFile } from 'node:fs/promises';
 
 import { Matrix4, Quaternion, Vector3 } from 'three';
 
-import { FOLD_ROLES, SAMPLE_SETS, probeFolds, roleAnimal } from './fold-probe.ts';
+import { FOLD_ROLES, SAMPLE_SETS, probeFolds, roleAnimal, roleSpecies } from './fold-probe.ts';
 import type { FoldReport, SampleSet } from './fold-probe.ts';
 import { runTool, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { patchedDemos } from './patch-demos.ts';
+import { SPECIES } from '../src/models/species.ts';
+import type { SpeciesParams } from '../src/models/species.ts';
+import { STUDIO_BODIES } from '../src/models/studio-body.ts';
+import type { StudioBodyName } from '../src/models/studio-body.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
-import type { Side, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
+import type { Side, StudioBody, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
 import { twistAngle } from '../src/models/studio-rig.ts';
 import type { StudioRig } from '../src/models/studio-rig.ts';
 
@@ -730,6 +736,69 @@ export function armJson(report: ArmReport): string {
   return `${JSON.stringify({ demos: report.folds.demos, sets }, null, 1)}\n`;
 }
 
+/** The rules of a studio body that `--body` can set in memory, with the parse of each value. */
+const BODY_RULES: Readonly<Partial<Record<keyof StudioBody, (text: string) => string | number>>> = {
+  upperTwist: (text) => {
+    const share = Number(text);
+    if (!(share >= 0 && share <= 1)) {
+      throw new Error(`The rule upperTwist takes a share from 0 to 1, and not "${text}".`);
+    }
+    return share;
+  },
+};
+
+/**
+ * Sets rules of the studio bodies of a role in memory (`--body <key>=<value>`).
+ *
+ * @param bodies The studio bodies of the role.
+ * @param rules The rules, such as `upperTwist=0.5`.
+ * @returns A function that puts the old values back.
+ * @throws Error for an unknown rule or a wrong value.
+ */
+export function setBodyRules(
+  bodies: readonly StudioBodyName[],
+  rules: readonly string[],
+): () => void {
+  const undo: (() => void)[] = [];
+  for (const rule of rules) {
+    const [key = '', text = ''] = rule.split('=');
+    const parse = Object.entries(BODY_RULES).find(([k]) => k === key)?.[1];
+    if (!parse) {
+      throw new Error(
+        `The rule ${key} is not a body rule of --body: ${Object.keys(BODY_RULES).join(', ')}.`,
+      );
+    }
+    const value = parse(text);
+    for (const name of bodies) {
+      const body = STUDIO_BODIES[name];
+      const had = Object.hasOwn(body, key);
+      const old: unknown = Object.entries(body).find(([k]) => k === key)?.[1];
+      Reflect.set(body, key, value);
+      undo.push(() => (had ? Reflect.set(body, key, old) : Reflect.deleteProperty(body, key)));
+    }
+  }
+  return () => {
+    for (const step of undo.toReversed()) {
+      step();
+    }
+  };
+}
+
+/**
+ * Gives the studio bodies of the species of a role.
+ *
+ * @param role The name of a role of `FOLD_ROLES`.
+ * @returns The names of the bodies.
+ */
+function roleBodyNames(role: string): StudioBodyName[] {
+  const source = FOLD_ROLES.get(role);
+  const names = (source ? roleSpecies(source) : []).flatMap((species) => {
+    const params: SpeciesParams = SPECIES[species];
+    return params.body && params.body !== 'penguin' ? [params.body] : [];
+  });
+  return [...new Set(names)];
+}
+
 /**
  * Runs the tool from the command line. With `--glb <file>`, the role gets the studio body that
  * the export makes from the file, in a copy of `src/` (`tools/glb-swap.ts`).
@@ -740,7 +809,7 @@ async function main(): Promise<void> {
   const source = FOLD_ROLES.get(role);
   if (!source) {
     throw new Error(
-      `Usage: pnpm arm-shape <role> [--demo <id>]... [--step <seconds>] [--set <changes>]... [--rings] [--glb <file>] [--json <file>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
+      `Usage: pnpm arm-shape <role> [--demo <id>]... [--step <seconds>] [--set <changes>]... [--body <key>=<value>]... [--rings] [--glb <file>] [--json <file>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
     );
   }
   if (glb) {
@@ -771,11 +840,17 @@ async function main(): Promise<void> {
   const demos = chosen.length > 0 ? all.filter((demo) => chosen.includes(demo.file)) : all;
   const holds = args.flatMap((arg, i) => (args[i - 1] === '--set' ? [arg] : [])).join(';');
   const changes = holds ? setHolds(holds) : null;
+  const rules = args.flatMap((arg, i) => (args[i - 1] === '--body' ? [arg] : []));
+  const undoRules = setBodyRules(roleBodyNames(role), rules);
   let report: ArmReport;
   try {
     report = await probeArms(role, demos, step);
   } finally {
+    undoRules();
     changes?.undo();
+  }
+  if (rules.length > 0) {
+    console.log(`Body rules: ${rules.join(', ')}`);
   }
   if (changes) {
     console.log(`Hold changes: ${changes.text}`);
