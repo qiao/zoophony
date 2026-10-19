@@ -229,7 +229,7 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 ## Values in meters
 
-The values of the pose in meters do not change with the size of a body:
+The pose values in meters do not change with the body size:
 
 - the bow: `freeHair` of each `BowedHold` and `BOW_STEP` (`src/pose/bowed-rig.ts`), `pluckHeight`
   and `pluck` of `BOWED_HANDS` (`src/pose/bowed.ts`), and `lift` and `tremoloAmplitude` of
@@ -241,6 +241,6 @@ The values of the pose in meters do not change with the size of a body:
   (`src/pose/test-sweep-roles.ts`), `PIANIST_GAP` (`src/pose/test-pianist-clearance.ts`), and `GAP`
   (`src/pose/test-conductor-clearance.ts`).
 
-After a change of the size of a body, compare the folds and the depths in H first
-(`pnpm hold-fit <role> --base main`, `pnpm pose-depth <role> --base main`), then probe these
-values before a hold fit.
+After a change of the body size, compare the folds and the depths in H first
+(`pnpm hold-fit <role> --base main`, `pnpm pose-depth <role> --base main`), then probe these values
+before a hold fit.
