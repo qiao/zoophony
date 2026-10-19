@@ -112,16 +112,6 @@ export function monotoneCurve(points: readonly CurvePoint[]): (x: number) => num
 }
 
 /**
- * Makes the tone curve of {@link GRADE}, on values from 0 to 1. It reads `GRADE.curve` at the
- * call, so that the look override of the dev server (`src/app/look-override.ts`) reaches it.
- *
- * @returns The curve.
- */
-function toneCurve(): (x: number) => number {
-  return monotoneCurve(GRADE.curve.map(([x, y]) => [x / 255, y / 255]));
-}
-
-/**
  * Calculates the smooth step of GLSL.
  *
  * @param edge0 The value that gives 0.
@@ -149,7 +139,7 @@ function lumaOf(color: GradeColor): number {
  * with the vibrance, and the tints of the shadows and of the highlights ({@link GRADE}).
  *
  * @param color The display color after AgX, from 0 to 1 for each channel.
- * @param curve The tone curve, from {@link toneCurve}.
+ * @param curve The tone curve of `GRADE.curve`, on values from 0 to 1 ({@link monotoneCurve}).
  * @returns The graded color.
  */
 export function gradeColor(
@@ -195,7 +185,9 @@ export const GRADE_LUT_SIZE = 33;
  */
 export function gradeLutData(size: number = GRADE_LUT_SIZE): Uint8Array {
   const data = new Uint8Array(size * size * size * 4);
-  const curve = toneCurve();
+  // The curve reads `GRADE.curve` at the call, so that the look override of the dev server
+  // (`src/app/look-override.ts`) reaches it.
+  const curve = monotoneCurve(GRADE.curve.map(([x, y]) => [x / 255, y / 255]));
   for (let b = 0; b < size; b++) {
     for (let g = 0; g < size; g++) {
       for (let r = 0; r < size; r++) {
