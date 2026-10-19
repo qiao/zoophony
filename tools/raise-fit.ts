@@ -13,9 +13,15 @@
  * The method comes from `keys-dump.ts`, `keys-read.ts`, and `wrist-turn.ts` of
  * `docs/research/2026-10-19-elephant-mesh/`.
  *
+ * `--json <file>` writes the entry into a file, and
+ * `pnpm rig-mesh <animal> --check --set 'raise+=@<file>'` adds it to the list of `raise`.
+ *
  * Usage: pnpm raise-fit <role> --faces <list> --side L|R [--bone upper|forearm|hand]
- * [--sets <set>,...] [--demo <id>|all]... [--step <seconds>] [--set <changes>]... [--glb <file>]
+ * [--sets <set>,...] [--demo <id>|all]... [--step <seconds>] [--set <changes>]... [--json <file>]
+ * [--glb <file>]
  */
+import { writeFileSync } from 'node:fs';
+
 import { Matrix4, Quaternion } from 'three';
 
 import {
@@ -106,6 +112,8 @@ export interface RaiseOptions {
   readonly step: number;
   /** The changes of the holds, separated by `;`, or an empty text. */
   readonly changes: string;
+  /** The file of `--json`, into which the tool writes the entry, or `null` for none. */
+  readonly json: string | null;
 }
 
 /**
@@ -338,7 +346,7 @@ export function fitRaise(samples: readonly ArmSample[], options: RaiseOptions): 
  */
 export function parseRaiseArgs(args: readonly string[]): RaiseOptions {
   const role = args[0] ?? '';
-  const usage = `Usage: pnpm raise-fit <role> --faces <list> --side L|R [--bone upper|forearm|hand] [--sets <set>,...] [--demo <id>|all]... [--step <seconds>] [--set <changes>]... [--glb <file>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`;
+  const usage = `Usage: pnpm raise-fit <role> --faces <list> --side L|R [--bone upper|forearm|hand] [--sets <set>,...] [--demo <id>|all]... [--step <seconds>] [--set <changes>]... [--json <file>] [--glb <file>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`;
   if (!FOLD_ROLES.has(role)) {
     throw new Error(usage);
   }
@@ -373,7 +381,8 @@ export function parseRaiseArgs(args: readonly string[]): RaiseOptions {
   if (!(step > 0)) {
     throw new Error('The step must be a number of seconds above 0.');
   }
-  return { role, faces, side, bone, sets, demos, step, changes: values('--set').join(';') };
+  const json = value('--json') ?? null;
+  return { role, faces, side, bone, sets, demos, step, changes: values('--set').join(';'), json };
 }
 
 /**
@@ -434,8 +443,32 @@ async function main(): Promise<void> {
   if (options.changes) {
     console.log(`Hold changes: ${options.changes}`);
   }
-  console.log(fitRaise(samples, options).lines.join('\n'));
+  const fit = fitRaise(samples, options);
+  console.log(fit.lines.join('\n'));
+  if (options.json !== null) {
+    console.log(`\n${writeEntry(options.json, fit, options.role)}`);
+  }
   console.log(`\nRun time ${((performance.now() - started) / 1000).toFixed(1)} s.`);
+}
+
+/**
+ * Writes the entry of a fit into the file of `--json`, as JSON text that
+ * `pnpm rig-mesh <animal> --check --set 'raise+=@<file>'` adds to the list of `raise`.
+ *
+ * @param file The file.
+ * @param fit The fit, with no entry when no sample of the sets folds.
+ * @param role The name of the role, for the animal of the command.
+ * @returns The line that tells what the tool wrote.
+ */
+function writeEntry(file: string, fit: RaiseFit, role: string): string {
+  const { entry } = fit;
+  if (!entry) {
+    return `No entry, so the tool writes no file ${file}.`;
+  }
+  writeFileSync(file, `${JSON.stringify(entry, null, 2)}\n`);
+  const source = FOLD_ROLES.get(role);
+  const animal = source ? roleAnimal(source) : '<animal>';
+  return `Wrote the entry to ${file}. Check it with: pnpm rig-mesh ${animal} --check --set 'raise+=@${file}'`;
 }
 
 if (import.meta.main) {
