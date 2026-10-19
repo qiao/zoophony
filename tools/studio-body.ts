@@ -253,6 +253,21 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/mouse/mouse.rig.glb',
     },
   ],
+  // The timpani elephant: decisions/2026-10-19-mesh-elephant.md. It stands at its timpani, so the
+  // export keeps the standing pose of the rig. Its trunk follows the head below the chin.
+  [
+    'elephant',
+    {
+      landmark: 'shoulders',
+      height: 1.157,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_ELEPHANT',
+      crease: 35,
+      glb: 'assets/models/elephant/elephant.rig.glb',
+      headFloor: 0.69,
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
