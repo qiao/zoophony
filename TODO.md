@@ -512,9 +512,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       to none (`2026-10-19-elephant-arms.md`).
 - [ ] Elephant timpanist lift: face 235 at the front of the right armpit folds in 9.7% of the
       lift samples (`docs/research/2026-10-19-elephant-arms.md`).
-- [ ] Elephant timpanist: the cap of the right armpit cut shows as a dark slot under the raised
-      right arm (`pair-left-right.webp` of `docs/research/2026-10-19-elephant-arms/`). Check it
-      with the probe of hidden faces of `docs/research/2026-10-18-panda-seam/`.
+- [ ] Elephant timpanist: in the right side view of the gallery, the raised right arm casts a
+      shadow on the chest, and the area under the arm is darker than on the base (mean light
+      0.378 against 0.441). The face colors and the normals are correct. Try a lower right elbow
+      (`poleR`) with a fold probe and a sweep (`docs/research/2026-10-19-elephant-arms.md` 5).
 - [ ] Pig hornist folds: two faces of the right hoof fold in each rest sample and in 26.5% of the
       lift samples, because a body has at most four corrective shapes (`RAISE_LIMIT`). Try a
       weight rule of the right paw, or a rest with a smaller turn of the right wrist
