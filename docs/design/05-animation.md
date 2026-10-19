@@ -347,6 +347,10 @@ The code constants of each family hold the times, the angles, and the lengths of
     deeper into the body than the contact of the rest pose (5.2). Each hold of the bow (play,
     pizzicato, rest) has its own roll of the hand, and the changes mix them with no jump. At the
     tip of a down-bow on its low strings, the bow hand of the hippo still goes into its belly.
+    The hand rolls around the stick so that its back points to the elbow. At the far side of the
+    stick, the roll changes from one end of its range to the other end, so no elbow of a hold
+    stays near that side. The elbow of the hippo lies near the line of the stick, and its hold
+    moves the far side to the angles that no elbow of its play takes (`BowedHold.farSideR`).
   - **Holds of the species** (`holdOf()` and `SPECIES_HOLDS` of `pose/bowed-rig.ts`):
     - The rabbits hold the violin on the left shoulder as a real violinist does
       (`SHOULDER_HOLD`): the tail end on the collarbone under the jaw, the strings about level,
