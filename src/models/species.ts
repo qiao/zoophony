@@ -7,6 +7,7 @@ import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_CAT } from './studio/cat.ts';
 import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
+import { STUDIO_HIPPO } from './studio/hippo.ts';
 import { STUDIO_PANDA } from './studio/panda.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
@@ -338,15 +339,24 @@ export const SPECIES = {
       seatHeight: STUDIO_CAT.seatHeight / STUDIO_CAT.headHeight,
     },
   },
-  /** Hippo, the contrabasses. */
+  /**
+   * Hippo, the contrabasses: a round mauve-gray hippo with a pale belly and muzzle. It has the
+   * studio body of the mesh of the user, `assets/models/hippo/hippo.glb`, which `pnpm rig-mesh
+   * hippo` rigs (design 4.4), with the head height of the red fox and longer arms
+   * (2026-10-18-mesh-hippo decisions). It sits on the high stool, and its short legs hang to the
+   * foot ring: the seat height of the skeleton is the seat of the studio body less the height of
+   * its soles, in H, so that the ring of `seatHeights()` is under the soles. Its head height is the
+   * head of the studio body.
+   */
   hippo: {
-    ears: 'small',
-    snout: 'broad',
-    tail: 'thin',
-    size: 1.35,
+    body: 'studio-hippo',
+    size: 1,
     colors: SPECIES_COLORS.hippo,
-    accentParts: ['nose', 'inner-ears'],
-    facePattern: 'none',
+    accentParts: ['inner-ears', 'nose'],
+    proportions: {
+      headHeight: STUDIO_HIPPO.headHeight,
+      seatHeight: (STUDIO_HIPPO.seatHeight - STUDIO_HIPPO.footHeight) / STUDIO_HIPPO.headHeight,
+    },
   },
   /** Deer, the harp. */
   deer: {
