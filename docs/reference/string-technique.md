@@ -458,17 +458,18 @@ A round that changes the motion updates the items.
   first lesson of the source. The short arm of the dog does not reach the knee, so the grip is
   above the thigh and the tip leans out and forward. The source gives no rest of an orchestral cellist.
 
-### 3.4 The contrabass on the stool and at rest
+### 3.4 The standing contrabass player and the rest
 
 - **The size.** The hippo plays a smaller contrabass (`bassScale` 0.8 of `models/species.ts`), as
-  a child plays a fractional size (section 1.1 gives the string lengths of real sizes). Its arms
-  reach 0.54 m, and its round belly reaches 0.29 m in front of its shoulder joints.
-- **The contacts.** The hippo sits on the stool of the contrabass with its own hold (`HIPPO_HOLD`
-  of `pose/bowed-rig.ts`). The end pin stands on the floor in front of the stool, and the
-  contrabass leans 38° to the left and back, so that the bow plays in front of the upper belly,
-  about 0.2 m below the shoulder joints, and the nut is beside the head, within reach of the left
-  paw. A real bassist leans the contrabass less, against the left side of the body. The app
-  differs from that, because the bow of a real hold met the round belly of the hippo.
+  a child plays a fractional size (section 1.1 gives the string lengths of real sizes), with an end
+  pin of 0.2 m (`BASS_END_PIN`). Its arms reach 0.54 m, and its round belly reaches far in front of
+  its shoulder joints.
+- **The contacts.** The hippo stands, as many orchestral bassists do, with its own hold
+  (`HIPPO_HOLD` of `pose/bowed-rig.ts`). The end pin stands on the floor in front of it, and the
+  contrabass leans 37° to the left and back, so that the bow plays 0.15 m in front of the belly
+  and the nut is beside the head, within reach of the left paw. A real bassist leans the contrabass
+  less, against the left side of the body. The app differs from that, because the bow of a real
+  hold met the round belly of the hippo.
 - **The rest.** The contrabass stays at its playing place, and the left paw holds the neck. The
   right paw hangs beside the belly with the bow tip down, because the knee of the hippo is under
   its belly. No source gives the rest of an orchestral bassist.
