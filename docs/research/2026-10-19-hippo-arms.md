@@ -19,11 +19,11 @@ the depths of the arms.
 of the screenshot. `user-view.webp` puts the screenshot, the base, and the round side by side, and
 `arm-crop.webp` shows the right arm at twice the size. On the base, the bow arm is a flat band
 from the shoulder to the bow. Dark wedges stand on the shoulder, and a long dark slit runs under
-the upper arm. The slit and the wedges are the thin faces of the right armpit, which fold in each
-play sample (`fold-probe-base.txt`). The band is a twist: the right upper arm turns 107° from its
-bind on the mean of the play (`hold-fit-base.txt`). Of the mean turn of its folded samples,
-`twist.py` gives 92° of twist around the bind direction of the arm and 56° of swing
-(`raise-fit-r-cut.txt`).
+the upper arm. The slit and the wedges are thin faces of the right armpit and of the front of the
+right shoulder, which fold in 33% to 100% of the play samples (`fold-probe-base.txt`). The band
+is a twist: the right upper arm turns 107° from its bind on the mean of the play
+(`hold-fit-base.txt`). Of the mean turn of its folded samples, `twist.py` gives 92° of twist
+around the bind direction of the arm and 56° of swing (`raise-fit-r-cut.txt`).
 
 ## 3. The measures
 
