@@ -738,25 +738,27 @@ const DOG_HOLD = {
 } as const satisfies BowedHold;
 
 /**
- * The hold of the contrabass on its stool, for the hippo mesh (design 4.6, 5.3). The round belly
- * of the hippo reaches 0.29 m in front of its shoulder joints, and its arms reach 0.54 m, so the
- * contact point of the bow must lie in front of the upper belly, about 0.2 m below the shoulder
- * joints, and the nut within reach of the left paw beside the head. The smaller contrabass of the
- * hippo (`bassScale`) spans that height from the contact point to the nut. Its end pin stands on
- * the floor 0.56 m right of the place of `UPRIGHT_HOLDS` and 0.11 m further forward
- * (`playShift`), and it turns around the end pin (`playTurn`), so that the strings run from the
- * contact point in front of the middle of the belly up to the nut at the left of the head: the
- * contrabass leans 38° from the vertical, to the left and back, and its top plate faces forward.
- * With the nut 4 cm further right, the head went 3.0 cm into the neck. With the top plate turned
- * 29° to the right, as the hold of the parametric hippo, the bow ran back into the belly. The
- * trunk leans 15° forward, and the right shoulder turns 45° forward: with 30°, the right forearm
- * went 8.4 cm into the body (5.6 cm with 45°). The reasons and the measures are in the
- * 2026-10-18-mesh-hippo decisions.
+ * The hold of the contrabass of the hippo mesh, which stands (design 4.6, 5.3). The round belly
+ * of the hippo reaches far in front of its shoulder joints, and its arms reach 0.54 m, so the
+ * contact point of the bow lies in front of the belly, and the nut within reach of the left paw
+ * beside the head. The smaller contrabass of the hippo (`bassScale`) spans that height. Its end pin
+ * of 0.2 m (`BASS_END_PIN`) stands on the floor 0.42 m right of the place of `UPRIGHT_HOLDS`
+ * (`playShift`), and the contrabass turns around it (`playTurn`), so that the strings run from the
+ * contact point 0.15 m in front of the middle of the belly up to the nut 0.45 m left of the middle,
+ * beside the head: it leans 37° from the vertical, to the left and back, and its top plate faces
+ * forward. With the end pin on the floor, the lean sets the height of the contact point, 0.29 m
+ * below the right shoulder joint. With the contact point 5 cm further back, the right paw went
+ * 5.6 cm into the belly. With the top plate turned 29° to the right, as the hold of the parametric
+ * hippo, the bow ran back into the belly. The trunk leans 15° forward, and the right shoulder turns
+ * 45° forward: with 30°, the right forearm went 8.4 cm into the body (5.6 cm with 45°). The
+ * reasons and the measures are in the 2026-10-18-mesh-hippo decisions.
  *
  * The string planes are 12° apart, below the 25° of a real contrabass: with 25°, the bow paw on the
- * lowest string went 9.1 cm into the belly. The right elbow points out and forward, so that the
- * thick upper arm stays out of the chest (2.9 cm against 10.0 cm with the elbow of the floor
- * hold), and the left elbow points out to the left and a little up, past the contrabass.
+ * lowest string went 9.1 cm into the belly. The right elbow points out, up, and forward, so that
+ * the thick upper arm stays out of the chest (2.9 cm against 10.0 cm with the elbow of the floor
+ * hold). The left elbow points out to the left, up, and back, past the contrabass, and turns up 2°
+ * for each lower string, as on the cello of the dog: with 10°, the thick left upper arm went
+ * 7.0 cm into the contrabass (6.4 cm with 2°).
  *
  * In the rest pose, the contrabass stays at its playing place, and the left paw holds the neck. The
  * right paw hangs beside the belly with the bow tip down (`HANGING_BOW`), and the elbow points down
@@ -768,12 +770,13 @@ const HIPPO_HOLD = {
   ...BOWED_HOLDS.contrabass,
   lean: 15 * MathUtils.DEG2RAD,
   reach: 45 * MathUtils.DEG2RAD,
-  playShift: [1.112, 0, -0.216],
-  playTurn: [-0.0363, 0.2494, 0.2218, 0.9419],
+  playShift: [0.84, 0, 0.004],
+  playTurn: [-0.0664, 0.2385, 0.215, 0.9447],
   stringTurn: 12 * MathUtils.DEG2RAD,
-  poleL: [-1, 0.2, 0],
-  poleR: [1.5, 0.5, -1],
-  poleTipR: [1.5, 0.5, -1],
+  poleL: [-1, 0.5, 0.3],
+  elbowPerString: 2 * MathUtils.DEG2RAD,
+  poleR: [1.5, 1, -1],
+  poleTipR: [1.5, 1, -1],
   restPoleR: [1, -1, 0],
   restPoleL: [-1, -0.5, 0],
   restBow: {
