@@ -406,8 +406,8 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
     No weight rule, corrective shape, or vertex move fixes both. `cut` removes the faces that join
     the forearm to the belly below a height and closes both holes with new faces, with no move of
     a vertex. The user chose it for the panda, and the caps of the belly take its white. The
-    beaver and the hippo take the same cut under each armpit, where thin faces join the upper arm
-    to the chest and turn over in each pose.
+    beaver, the hippo, and the elephant take the same cut under each armpit, where thin faces join
+    the upper arm to the chest and turn over in each pose.
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
     raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
