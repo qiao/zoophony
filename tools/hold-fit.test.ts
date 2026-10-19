@@ -295,6 +295,7 @@ describe('fitTable', () => {
     lap: null,
     turns: null,
     facesOf: [],
+    topFolds: [],
     spare: null,
   };
 

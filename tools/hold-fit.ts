@@ -15,7 +15,9 @@
  * deepest point. With `--faces <n>`,
  * the faces that fold most in the base and in the best variant follow the table, as
  * `pnpm fold-probe --faces` writes them. `--faces-of <face>[,<face>]...` adds a column for each
- * named face with the share of the play samples in which it folds (`tools/face-shares.ts`).
+ * named face with the share of the play samples in which it folds (`tools/face-shares.ts`). Each
+ * row also names the {@link TOP_FOLDS} faces that fold in the most samples, with the mark `new` at
+ * a face that folds in no sample of the base row of the working tree ({@link topFolds}).
  *
  * With `--base <ref>`, the commit and the working tree run at the same time, each in a child
  * process. The table then starts with the row of the commit, and one compare of the deepest
@@ -125,6 +127,9 @@ export const FIT_STEP = 1;
  * (`docs/briefs/studio-body.md`, section 7).
  */
 export const PLAY_FOLD_GOAL = 0.01;
+
+/** The number of the faces that fold most, which each row names ({@link topFolds}). */
+export const TOP_FOLDS = 5;
 
 /** The largest number of variants of the grids of a run. One variant takes 45 s to 90 s. */
 export const GRID_LIMIT = 40;
@@ -745,6 +750,69 @@ export function reportShares(report: FoldReport, faces: readonly number[]): Face
   );
 }
 
+/** A face that folds in many samples of a variant ({@link topFolds}). */
+export interface TopFold {
+  /** The index of the face. */
+  readonly face: number;
+  /** The share of the samples of all sets in which the face folds, from 0 to 1. */
+  readonly share: number;
+  /** True when the face folds in no sample of the base row of the run. */
+  readonly isNew: boolean;
+}
+
+/**
+ * Gives the faces that fold in one sample or more of a fold report.
+ *
+ * @param report The folds.
+ * @returns The indices of the faces.
+ */
+export function foldedFaces(report: FoldReport): Set<number> {
+  return new Set(SAMPLE_SETS.flatMap((set) => [...report.sets[set].byFace.keys()]));
+}
+
+/**
+ * Gives the faces that fold in the most samples of all sets, in the order of `faceLines()` of
+ * `pnpm fold-probe`, and marks each face that folds in no sample of the base.
+ *
+ * @param report The folds of the variant.
+ * @param base The faces that fold in the base row ({@link foldedFaces}).
+ * @param count The number of faces.
+ * @returns The faces, the most folded first.
+ */
+export function topFolds(
+  report: FoldReport,
+  base: ReadonlySet<number>,
+  count: number = TOP_FOLDS,
+): TopFold[] {
+  const totals = new Map<number, number>();
+  let samples = 0;
+  for (const set of SAMPLE_SETS) {
+    samples += report.sets[set].samples;
+    for (const [face, n] of report.sets[set].byFace) {
+      totals.set(face, (totals.get(face) ?? 0) + n);
+    }
+  }
+  return [...totals]
+    .toSorted((x, y) => y[1] - x[1] || x[0] - y[0])
+    .slice(0, count)
+    .map(([face, n]) => ({ face, share: n / Math.max(1, samples), isNew: !base.has(face) }));
+}
+
+/**
+ * Writes the faces that fold most of a row ({@link topFolds}).
+ *
+ * @param folds The faces.
+ * @returns The text, such as `116 13.7%, 1738 5.0% new`, or `none` when no face folds.
+ */
+export function topFoldsText(folds: readonly TopFold[]): string {
+  if (folds.length === 0) {
+    return 'none';
+  }
+  return folds
+    .map(({ face, share, isNew }) => `${face} ${(100 * share).toFixed(1)}%${isNew ? ' new' : ''}`)
+    .join(', ');
+}
+
 /** The results of one variant. */
 export interface FitRow {
   /** The text of the changes, or empty for the base. */
@@ -763,6 +831,8 @@ export interface FitRow {
   readonly faces: readonly string[];
   /** The shares of the folded samples of each face of `--faces-of` ({@link reportShares}). */
   readonly facesOf: readonly FaceShare[];
+  /** The faces that fold in the most samples, with the mark of a new face ({@link topFolds}). */
+  readonly topFolds: readonly TopFold[];
   /** The pair of the instrument in the body ({@link splitHeld}), or `null`. */
   readonly held: SetWorst | null;
   /** The gap of each free paw to the body in the rest ({@link restGaps}). */
@@ -891,10 +961,12 @@ interface StoredFit {
   /** The rows, the base first. */
   readonly rows: readonly (Omit<
     FitRow,
-    'depths' | 'results' | 'held' | 'lap' | 'turns' | 'facesOf' | 'spare'
+    'depths' | 'results' | 'held' | 'lap' | 'turns' | 'facesOf' | 'topFolds' | 'spare'
   > & {
     /** The shares of the faces of `--faces-of`, or none in a text before the format version 11. */
     readonly facesOf?: readonly FaceShare[];
+    /** The faces that fold most, or none in a text before the format version 13. */
+    readonly topFolds?: readonly TopFold[];
     /** The largest values of the lap rest, or `null`. */
     readonly lap: StoredLaps | null;
     /** The mean turns of the arms, or none in a text before the format version 9. */
@@ -927,9 +999,10 @@ export interface FitRun {
  * version 9 the mean turns of the arms, version 10 the instrument in the body of the contrabass,
  * with `null` for its limit: the pair has no limit (a reader of an older version shows that limit
  * as 0), version 11 the shares of the faces of `--faces-of` and the samples over the limit of
- * each pair of the sweep, and version 12 the spare reach of the grips of a wind hold.
+ * each pair of the sweep, version 12 the spare reach of the grips of a wind hold, and version 13
+ * the faces that fold most of each row.
  */
-export const FIT_FORMAT = 12;
+export const FIT_FORMAT = 13;
 
 /**
  * The oldest format version that {@link FIT_FORMAT} only adds fields to (`ProbeFormat.since` of
@@ -979,6 +1052,7 @@ export function readFit(text: string): FitRun {
       results: row.results.map(restoreResult),
       faces: row.faces,
       facesOf: row.facesOf ?? [],
+      topFolds: row.topFolds ?? [],
       held: row.held ? restore(row.held) : null,
       gaps: row.gaps,
       free: row.free,
@@ -1615,12 +1689,13 @@ function cmText(value: number): string {
 }
 
 /**
- * Writes the time and the deepest point of each sample set of a row.
+ * Writes the time, the faces that fold most, and the deepest point of each sample set of a row.
  *
  * @param row The row.
  */
 function printRow(row: FitRow): void {
   console.log(`${row.variant || 'base'} (${row.seconds.toFixed(1)} s):`);
+  console.log(`  faces that fold most: ${topFoldsText(row.topFolds)}`);
   for (const { set, demo, pair } of row.depths) {
     console.log(`  ${set}: ${pairText(pair)}, ${demo}`);
   }
@@ -1833,6 +1908,7 @@ async function main(): Promise<void> {
   }
 
   const rows: FitRow[] = [];
+  let baseFolds: ReadonlySet<number> | null = null;
   for (const variant of options.variants) {
     const started = performance.now();
     const { undo, text } = setHolds(variant);
@@ -1853,6 +1929,7 @@ async function main(): Promise<void> {
         : [];
       const { held, results } = sweep ? splitHeld(sweep, swept) : { held: null, results: swept };
       const body = laps ? sweep?.obstacles.find((o) => o.name === BODY_OBSTACLE) : undefined;
+      baseFolds ??= foldedFaces(report);
       const row: FitRow = {
         variant: text,
         folds: foldShares(report),
@@ -1862,6 +1939,7 @@ async function main(): Promise<void> {
         results,
         faces: options.faces > 0 ? faceLines(report, options.faces) : [],
         facesOf: reportShares(report, options.facesOf),
+        topFolds: topFolds(report, baseFolds),
         held,
         gaps: restGaps(results),
         free: freeShares(options.role),
