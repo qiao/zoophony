@@ -18,6 +18,9 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - A hold can trade the folds against the clearance. Count the folds of each hold change in memory
   (`docs/research/2026-10-14-fox-rig/fold-set.ts`), and check each candidate with
   `pnpm pose-depth --set` before you write it.
+- A big head puts the grips of a hanging instrument at the height of the shoulders, and elbows out
+  and level twist the upper arms into bands. Point the elbows down (`keys-dump.ts --demo` of
+  `docs/research/2026-10-19-mouse-mesh/` gives the arm turns of each pole).
 - A deeper trunk takes the room of the elbows of a hold. Run `pnpm hold-fit <role> --base main`
   after a change of the girth, and point the elbows out (`poleL`, `restPoleL`).
 
@@ -102,15 +105,11 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - A mesh of an image model has many thin faces. A thin face with corners of different weights
   turns over at a bent joint. The `sliver` and `line` rules remove some folds. Read
   `pnpm fold-probe` after each change of a hold, because a more bent elbow folds more faces.
-- Bone heat gives the skin where a hanging arm touches the trunk to the upper arm, and a raised
-  arm pulls it into long faces under the armpit that shade darker. A fade of the upper arm weight
-  there moves the stretch into the long faces from the trunk to the forearm, and they fold in each
-  sample (`arm-from.py` of `docs/research/2026-10-18-panda-marks/`). A corrective shape does not
-  remove the dark shading, because the app skins the normals with the weights of the corners. When
-  short faces join a hanging forearm to the trunk, only a cut of the mesh at the seam fixes the
-  shading and the folds together (`cut` of the rig config, `docs/research/2026-10-18-panda-cut.md`).
-  A fade, a split of those faces, or a move of the forearm vertices keeps the joined faces
-  (`docs/research/2026-10-18-panda-seam.md`).
+- A raised arm pulls the skin where a hanging arm touches the trunk into long faces under the
+  armpit that shade darker. A fade of the arm weight, a corrective shape, a split, or a move of
+  the vertices keeps the dark faces or folds them. When short faces join a hanging forearm to the
+  trunk, only a cut of the mesh at the seam fixes both (`cut` of the rig config,
+  `docs/research/2026-10-18-panda-cut.md` and `2026-10-18-panda-seam.md`).
 - A color measure of a mark counts one range of lightness. Measure the black (Oklab lightness
   below 0.3) beside the gray, because a fix of a gray mark can add a black one.
 - A fold probe counts each turned face, also a face that no camera sees. Before you accept a fold
@@ -118,9 +117,10 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
   light (`hidden/probe.ts` of `docs/research/2026-10-18-panda-seam/`).
 - A mesh near the budget of 3,200 triangles has no room for rings: the hippo has 3,141.
 - A long thin face across a joint of an arm folds, and weight rules make it worse. A ring of new
-  vertices at the joint fixes it (`refine.rings`). Put a ring only where `pnpm fold-probe` finds
-  folds, and run `pnpm pose-depth <role>` after it: a ring can pull the inner elbow into the
-  trunk, and a ring near a paw with thin faces, as on the dog, can add faces that fold.
+  vertices at the joint (`refine.rings`) fixes it, but it comes after the weight rules: a forearm
+  vertex of the mouse kept the paw weight of the line rule. Put a ring only where
+  `pnpm fold-probe` finds folds, and run `pnpm pose-depth <role>` after it: a ring can pull the
+  inner elbow into the trunk or add faces that fold.
 - A ring reaches a fixed distance, so longer arms can put the corners of long faces beyond it.
   Give the ring a larger radius. The upper arm stretches only on the free arm and from the
   shoulder joint out (`outward_stretch()` of `tools/blender/rig_mesh.py`).
@@ -176,6 +176,8 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - The root of a tail moves the haunch vertices that set the seat top of the sit. Give the sit a
   fixed seat top (`sit.top`), and count the root vertices as the haunch (`sit.root`). A deeper
   haunch needs more rounds of the smoothing of the sit (`sit.smooth`).
+- A tail loop on the floor stays flat with rigid bone turns (`studio.tailBind`). A curve of
+  `tailCurl` turned it into a vertical sheet.
 - The idle sway turns the tail bones around the vertical (`pose/pose-at.ts`). A seated tail that
   lies on the seat does not sway (`OwnBodyParams.seatedTail`). Measure a seated tail over one sway
   period, 5.5 s.
@@ -197,6 +199,8 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
   trunk give the border of a black region teeth, and a raised arm stretches them into black
   wedges. List the faces with a third to a half of dark samples (`marks.py` of
   `docs/research/2026-10-18-panda-marks/`), and make them light with `colors.border`.
+- With no gloss nose, the export takes the front-most fur vertex of the head as the nose tip, a
+  whisker tip on the mouse. Give a mesh with whiskers a nose box.
 - The export takes each gloss shell out of the middle plane as an eye. Gloss nostrils with no nose
   pad, as on the hippo, became eyes. Give such a mesh no `noseBox`.
 - An eye in a dark patch has almost the color of the patch, so a dark rule cannot split them. A
@@ -211,6 +215,8 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - `pnpm rig-mesh --check --set` changes only a key that the config has. For a new key, write a
   scratch config, rig it with a direct run of Blender, and count its folds with
   `pnpm fold-probe <role> --glb <file>` (`rig.sh` of `docs/research/2026-10-17-dog-mesh/`).
+- `pnpm rig-mesh --check` counts the folds with the hold of the working tree, so commit a new hold
+  before you fit `raise` to it.
 - The log of `tools/blender/rig_mesh.py` gives centimeters at the scale of `app.shoulders`. A direct
   run of Blender on a variant that moves the shoulder joints needs the `app.shoulders` of
   `keptHeight()`. `pnpm rig-mesh --check --set` sets it.
