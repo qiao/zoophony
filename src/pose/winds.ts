@@ -484,6 +484,13 @@ const BEAVER_BASSOON = {
 } as const satisfies WindHold;
 
 /**
+ * The horn hold of the pig (design 5.3). It starts as the horn hold of {@link WIND_HOLDS}.
+ */
+const PIG_HORN = {
+  ...WIND_HOLDS.horn,
+} as const satisfies WindHold;
+
+/**
  * The holds of the species that hold a wind instrument in their own way, in place of
  * {@link WIND_HOLDS} (design 5.3). The tools change them in memory with
  * `--set '<instrument>@<species>.<path>=<value>'` (`tools/hold-sets.ts`).
@@ -495,6 +502,7 @@ export const SPECIES_WIND_HOLDS: Partial<
   panda: { trombone: PANDA_TROMBONE },
   mouse: { oboe: MOUSE_OBOE },
   beaver: { bassoon: BEAVER_BASSOON },
+  pig: { horn: PIG_HORN },
 };
 
 /**
