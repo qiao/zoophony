@@ -36,6 +36,7 @@ import { NOT_STARTED, allAudible, sceneOf } from '../src/pose/test-scene.ts';
 import type { TestScene } from '../src/pose/test-scene.ts';
 import { posedCorner } from '../src/pose/test-skin.ts';
 import type { SweepObstacle } from '../src/pose/test-sweep.ts';
+import { INSTRUMENT_PART } from '../src/pose/test-sweep-roles.ts';
 import type { AnimalPose, SeatAudibility } from '../src/pose/types.ts';
 import { windHoldOf, windRig } from '../src/pose/winds.ts';
 
@@ -844,13 +845,40 @@ export interface ScanRest {
   readonly lap: LapRest | null;
   /** The folded faces of the studio skin by the side of their main bone ({@link studioFolds}). */
   readonly folds: SideSplit;
+  /**
+   * The depth of the instrument in the body, in meters: the deepest corner of the bones of
+   * `INSTRUMENT_PART` of the sweep ({@link instrumentDepth}).
+   */
+  readonly held: number;
+}
+
+/**
+ * Gives the depth of the instrument of a posed player in its body, as the sweep measures the part
+ * `INSTRUMENT_PART` of `src/pose/test-sweep-roles.ts`: the deepest corner of the bones of the part
+ * (`closedDepth()`).
+ *
+ * @param posed The posed skeleton of the player.
+ * @param body The closed surface of the body.
+ * @returns The depth, in meters: 0 with no corner in the body.
+ */
+export function instrumentDepth(posed: PosedSkeleton, body: ClosedSurface): number {
+  const wanted = new Set(INSTRUMENT_PART.bones.map(boneIndex));
+  const { bones } = posed.model.mesh;
+  const corners: Vector3[] = [];
+  for (let c = 0; c < bones.length; c++) {
+    if (wanted.has(bones[c] ?? -1)) {
+      corners.push(new Vector3(...posedCorner(posed, c)));
+    }
+  }
+  return corners.length > 0 ? closedDepth(corners, body).depth : 0;
 }
 
 /**
  * Measures one rest sample with the holds of now: it builds the rig of the player again
  * ({@link rebuiltRig}), poses the scene in the rest before the first play at the wall time of the
- * sample, and measures the lap rest and the folded faces of the player. The scene, the layout, and
- * the other players stay, so a variant of a hold takes a part of the time of `sceneOf()`.
+ * sample, and measures the lap rest, the folded faces, and the instrument in the body of the
+ * player. The scene, the layout, and the other players stay, so a variant of a hold takes a part
+ * of the time of `sceneOf()`.
  *
  * @param sample The sample ({@link scanSamples}).
  * @param body The obstacle of the body of the sweep of the role.
@@ -866,9 +894,11 @@ export function scanRest(sample: ScanSample, body: SweepObstacle): ScanRest {
     throw new Error(`The pose has no player ${index}.`);
   }
   const posed = poseSkeleton(model, pose);
+  const surface = body.surface(posed);
   return {
     sample: sample.sample,
-    lap: lapRest(posed, body.surface(posed)),
+    lap: lapRest(posed, surface),
     folds: studioFolds(model, pose),
+    held: instrumentDepth(posed, surface),
   };
 }
