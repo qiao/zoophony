@@ -31,6 +31,7 @@ import {
 import type { FitRow } from './hold-fit.ts';
 import type { HoldReach } from './hold-reach.ts';
 import { patchedDemo } from './patch-demos.ts';
+import { NO_TARGETS } from './pose-depth.ts';
 import type { DemoResult } from './pose-depth.ts';
 import { formatVersion } from './ref-tree.ts';
 
@@ -244,6 +245,7 @@ describe('worstPairs', () => {
         },
       ],
       targets: [],
+      reached: NO_TARGETS,
     },
     {
       demo: 'b violinist 2 (fox-red, chair)',
@@ -254,6 +256,7 @@ describe('worstPairs', () => {
         { name: 'lift', pairs: [pair('forearms', 'body', 0.02)], gaps: [] },
       ],
       targets: [],
+      reached: NO_TARGETS,
     },
   ];
 
@@ -329,6 +332,7 @@ describe('fitTable', () => {
         headHeight: 0.3,
         sets: [{ name: 'play', pairs: [none], gaps: [] }],
         targets: [],
+        reached: NO_TARGETS,
       },
     ];
     const run = {
@@ -473,6 +477,7 @@ describe('splitHeld', () => {
           { name: 'lower', pairs: [pair(HELD_PART.name, 'body', 0.007)], gaps: [] },
         ],
         targets: [],
+        reached: NO_TARGETS,
       },
     ];
     const { held, results: kept } = splitHeld(VIOLINIST_SWEEP, results);
@@ -502,6 +507,7 @@ describe('restGaps', () => {
         { name: 'play', pairs: [], gaps: [gap('paw L', play)] },
       ],
       targets: [],
+      reached: NO_TARGETS,
     });
     expect(
       restGaps([result('a', 0, 0.5), result('b', 0.012, 0.5), result('c', Infinity, 0.5)]),

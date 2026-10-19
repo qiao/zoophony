@@ -21,8 +21,8 @@ import {
   gapText,
   pairText,
   sweepDepths,
-  targetErrors,
 } from '../src/pose/test-sweep.ts';
+import { poseSkeleton } from '../src/pose/test-kinematics.ts';
 import type {
   AcceptedDepth,
   GapPair,
@@ -62,6 +62,8 @@ export interface Options {
   readonly times: readonly number[] | null;
   /** True to also measure the smallest gap of the head to each obstacle and of each paw to the body. */
   readonly gaps: boolean;
+  /** True to measure only the note targets, with no sweep of the depths. */
+  readonly targets: boolean;
   /** The file into which the tool writes its rows as JSON, or `null` for none. */
   readonly json: string | null;
   /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
@@ -74,7 +76,7 @@ export interface Options {
 }
 
 /** The text of the usage. */
-const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--base <ref>] [--json <file>]`;
+const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--base <ref>] [--json <file>]`;
 
 /**
  * Tells if a role name is a bowed role with a soloist ({@link SOLOIST_ROLES}).
@@ -140,9 +142,10 @@ export function parseOptions(args: readonly string[]): Options {
   let json: string | null = null;
   let base: string | null = null;
   let soloist: SpeciesId | null = null;
-  // The flag --gaps has no value. Each other option has one.
+  // The flags --gaps and --targets have no value. Each other option has one.
   const gaps = rest.includes('--gaps');
-  const valued = rest.filter((arg) => arg !== '--gaps');
+  const targets = rest.includes('--targets');
+  const valued = rest.filter((arg) => arg !== '--gaps' && arg !== '--targets');
   for (let i = 0; i < valued.length; i += 2) {
     const value = valued[i + 1];
     if (value === undefined) {
@@ -203,7 +206,12 @@ export function parseOptions(args: readonly string[]): Options {
   if (soloist !== null && demos.length > 0) {
     throw new Error(`The options --soloist and --demo do not go together.\n${USAGE}`);
   }
-  return { role, demos, variants, bones, into, times, gaps, json, base, soloist };
+  if (targets && (times !== null || gaps || base !== null)) {
+    throw new Error(
+      `The option --targets goes with none of --times, --gaps, and --base.\n${USAGE}`,
+    );
+  }
+  return { role, demos, variants, bones, into, times, gaps, targets, json, base, soloist };
 }
 
 /** The results of one variant in one demo. */
@@ -218,6 +226,91 @@ export interface DemoResult {
   readonly sets: readonly SetResult[];
   /** The largest note-target error of each hand. */
   readonly targets: readonly TargetError[];
+  /** The note targets of both hands within {@link TARGET_REACH}, and the largest error. */
+  readonly reached: TargetReach;
+}
+
+/**
+ * The largest error of a reached note target, in meters: 5 mm, as in the reach scans of the
+ * mallets of the elephant (`docs/research/2026-10-19-elephant-mesh/reach-scan.ts`).
+ */
+export const TARGET_REACH = 0.005;
+
+/** The note targets of one player or of a run. */
+export interface TargetReach {
+  /** The number of note targets. */
+  readonly samples: number;
+  /** The number of note targets with an error of at most {@link TARGET_REACH}. */
+  readonly within: number;
+  /** The largest error, in meters, or 0 with no target. */
+  readonly worst: number;
+}
+
+/** The reach of a player with no note target, or of a sweep at the song times of `--times`. */
+export const NO_TARGETS: TargetReach = { samples: 0, within: 0, worst: 0 };
+
+/** The note targets of one player: the largest error of each hand, and the reach of all. */
+export interface TargetMeasure {
+  /** The largest error of each hand. */
+  readonly worst: readonly TargetError[];
+  /** The reach of all targets. */
+  readonly reach: TargetReach;
+}
+
+/**
+ * Measures each note target of a player in one pass: the largest error of each hand, as
+ * `targetErrors()` of `src/pose/test-sweep.ts` gives it, and the targets within
+ * {@link TARGET_REACH}.
+ *
+ * @param player The player.
+ * @returns The largest error of each hand, and the reach of all targets.
+ */
+export function measureTargets(player: SweepPlayer): TargetMeasure {
+  const worst = new Map<'L' | 'R', TargetError>();
+  let samples = 0;
+  let within = 0;
+  let largest = 0;
+  for (const { side, sample, error: errorOf } of player.targets()) {
+    const error = errorOf(poseSkeleton(player.model, player.poseAt(sample)));
+    if (error >= (worst.get(side)?.error ?? -1)) {
+      worst.set(side, { side, error, song: sample[0] });
+    }
+    samples += 1;
+    within += error <= TARGET_REACH ? 1 : 0;
+    largest = Math.max(largest, error);
+  }
+  return { worst: [...worst.values()], reach: { samples, within, worst: largest } };
+}
+
+/**
+ * Joins the reach of the note targets of some results.
+ *
+ * @param results The results of each demo and player.
+ * @returns The reach of all their targets.
+ */
+export function joinReach(results: readonly DemoResult[]): TargetReach {
+  return results.reduce(
+    (sum, { reached }) => ({
+      samples: sum.samples + reached.samples,
+      within: sum.within + reached.within,
+      worst: Math.max(sum.worst, reached.worst),
+    }),
+    NO_TARGETS,
+  );
+}
+
+/**
+ * Writes the reach of note targets.
+ *
+ * @param reach The reach.
+ * @returns The text, such as `98.2% of 1220 within 5 mm, worst 7.10 mm`, or `-` with no target.
+ */
+export function reachText(reach: TargetReach): string {
+  if (reach.samples === 0) {
+    return '-';
+  }
+  const share = ((100 * reach.within) / reach.samples).toFixed(1);
+  return `${share}% of ${reach.samples} within ${TARGET_REACH * 1000} mm, worst ${(reach.worst * 1000).toFixed(2)} mm`;
 }
 
 /** The deepest point and the smallest gap of each pair in one set of samples. */
@@ -278,6 +371,8 @@ export function playerLabel(name: string, species: SpeciesId | null): string {
 
 /** The options of a sweep of {@link sweepDemos}. */
 export type SweepOptions = Pick<Options, 'demos' | 'times' | 'gaps'> & {
+  /** True to measure only the note targets, with no sample set ({@link Options.targets}). */
+  readonly targets?: boolean;
   /** Gives the gap pairs of each set of each player, with no flag of the gaps. */
   readonly gapsOf?: GapsOf;
   /** The species of the standing soloist of the duo in place of the demos, or `null`. */
@@ -329,10 +424,13 @@ function sweepScene(
   const times = options.times;
   return role.players(scene).map((player) => {
     // Each player gets its own sample sets: a set can be a generator, which one sweep uses up.
-    const sets: readonly SampleSet[] = times
-      ? [{ name: 'play', samples: times.map((song) => playSample(scene, song)) }]
-      : role.sampleSets(scene);
+    const sets: readonly SampleSet[] = options.targets
+      ? []
+      : times
+        ? [{ name: 'play', samples: times.map((song) => playSample(scene, song)) }]
+        : role.sampleSets(scene);
     const species = speciesOf(scene, player.model);
+    const measured = times ? null : measureTargets(player);
     return {
       demo: `${id} ${playerLabel(player.name, species)}`,
       species,
@@ -349,7 +447,8 @@ function sweepScene(
         }
         return { name, pairs: depths, gaps: smallest };
       }),
-      targets: times ? [] : targetErrors(player),
+      targets: measured?.worst ?? [],
+      reached: measured?.reach ?? NO_TARGETS,
     };
   });
 }
@@ -395,7 +494,7 @@ export async function sweepDemos(options: SweepOptions, role: RoleSweep): Promis
  * @param results The results of each demo.
  */
 function printDetails(role: RoleSweep, results: readonly DemoResult[]): void {
-  for (const { demo, sets, targets } of results) {
+  for (const { demo, sets, targets, reached } of results) {
     console.log(`  ${demo}`);
     for (const { name, pairs, gaps } of sets) {
       for (const pair of pairs) {
@@ -414,6 +513,9 @@ function printDetails(role: RoleSweep, results: readonly DemoResult[]): void {
         `    target ${side}: ${(error * 1000).toFixed(2)} mm at song ${song.toFixed(2)} s`,
       );
     }
+    if (reached.samples > 0) {
+      console.log(`    targets: ${reachText(reached)}`);
+    }
   }
 }
 
@@ -421,7 +523,8 @@ function printDetails(role: RoleSweep, results: readonly DemoResult[]): void {
  * Writes one table with one row for each variant: the deepest point of each pair in each set over
  * all demos, in cm, the smallest gap of each pair of `--gaps` over all demos, in cm, and the
  * largest note-target error of each hand, in mm. A column of depths or errors with 0 in each row
- * is left out.
+ * is left out. With note targets, the last column gives the share of the targets within
+ * {@link TARGET_REACH}.
  *
  * @param rows The variant and the results of each row.
  */
@@ -458,6 +561,13 @@ function printTable(rows: readonly SweepRow[]): void {
     if (!gapColumns.has(column) && values.every((v) => v < 0.05)) {
       columns.delete(column);
     }
+  }
+  const reaches = rows.map(({ results }) => joinReach(results));
+  if (reaches.some((reach) => reach.samples > 0)) {
+    columns.set(
+      `targets within ${TARGET_REACH * 1000} mm %`,
+      reaches.map((reach) => (100 * reach.within) / Math.max(1, reach.samples)),
+    );
   }
   const header = ['variant', ...columns.keys()];
   console.log(`| ${header.join(' | ')} |`);
@@ -524,8 +634,13 @@ type StoredGap = Omit<PairGap, 'gap'> & {
   readonly gap: number | null;
 };
 
-/** A result of a JSON text, such as of {@link rowsJson}. */
-export type StoredResult = Omit<DemoResult, 'sets'> & {
+/**
+ * A result of a JSON text, such as of {@link rowsJson}. The text of the format version 1 has no
+ * reach of the note targets.
+ */
+export type StoredResult = Omit<DemoResult, 'sets' | 'reached'> & {
+  /** The reach of the note targets, or none in the format version 1. */
+  readonly reached?: TargetReach;
   /** The sets of samples. */
   readonly sets: readonly (Omit<SetResult, 'pairs' | 'gaps'> & {
     /** The deepest point of each pair. */
@@ -546,9 +661,9 @@ interface StoredRows {
 
 /**
  * The format version of the JSON text of `--json` (`ProbeFormat` of `tools/ref-tree.ts`). A
- * change of the format takes the next version.
+ * change of the format takes the next version. Version 2 added the reach of the note targets.
  */
-export const ROWS_FORMAT = 1;
+export const ROWS_FORMAT = 2;
 
 /**
  * The oldest format version that {@link ROWS_FORMAT} only adds fields to (`ProbeFormat.since` of
@@ -635,6 +750,7 @@ export function restoreResult(stored: StoredResult): DemoResult {
     species: stored.species,
     headHeight: stored.headHeight,
     targets: stored.targets,
+    reached: stored.reached ?? NO_TARGETS,
     sets: stored.sets.map((set) => ({
       name: set.name,
       pairs: set.pairs.map(restoreDepth),

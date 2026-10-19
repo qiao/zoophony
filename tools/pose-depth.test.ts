@@ -6,6 +6,7 @@ import type { GapPair, RoleSweep, SweepSample } from '../src/pose/test-sweep.ts'
 import { patchedDemos } from './patch-demos.ts';
 import {
   DEPTH_STEP,
+  NO_TARGETS,
   ROWS_FORMAT,
   SWEEP_ROLE_TABLE,
   compareDepths,
@@ -90,6 +91,7 @@ function resultOf(
       },
     ],
     targets: [],
+    reached: NO_TARGETS,
   };
 }
 

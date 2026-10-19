@@ -527,6 +527,7 @@ export function splitHeld(role: RoleSweep, results: readonly DemoResult[]): Held
     demo: result.demo,
     species: result.species,
     headHeight: result.headHeight,
+    reached: result.reached,
     sets: result.sets.map((set) => {
       for (const pair of set.pairs) {
         if (pair.part !== HELD_PART.name || pair.into !== BODY_OBSTACLE) {
