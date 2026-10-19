@@ -15,12 +15,13 @@ import { BAR_HIDE_SEC } from '../src/app/bar-rules.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { GALLERY_FOV_DEG, GALLERY_PROBES, speciesItems } from '../src/gallery/items.ts';
 import type { GalleryMove, GalleryProbe } from '../src/gallery/items.ts';
-import type { PlayerPlace } from '../src/models/layout.ts';
+import type { PlayerPlace, SceneLayout } from '../src/models/layout.ts';
 import { layoutScene } from '../src/models/layout-scene.ts';
 import { ModelCache } from '../src/models/model-cache.ts';
 import { SPECIES, SPECIES_IDS, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { buildScore } from '../src/score/score.ts';
+import type { Score } from '../src/score/types.ts';
 import { SHOT_SEED, prepareShots } from '../src/shots/prepare.ts';
 import type { Shot } from '../src/shots/types.ts';
 import { chromiumArgs } from './chromium-args.ts';
@@ -2302,10 +2303,37 @@ function speciesOfSeat(players: readonly PlayerPlace[], seat: number): SpeciesId
   return player.cast.species;
 }
 
+/** The score of a demo as the app plays it, with its layout and its player models. */
+interface DemoLayout {
+  /** The score. */
+  readonly score: Score;
+  /** The layout of the score. */
+  readonly layout: SceneLayout;
+  /** The player models of the layout. */
+  readonly models: ModelCache;
+}
+
 /**
- * Chooses the shot of `--shot` as the app plans it: the demo after `demos/patches.json`, the
- * section size "Auto", the layout and the shots of `planScene()` of `src/app/app.ts`, and the
- * seed of the app.
+ * Gives the score and the layout of a demo as the app plans them: the demo after
+ * `demos/patches.json`, the section size "Auto", and the layout of `planScene()` of
+ * `src/app/app.ts`.
+ *
+ * @param demo The demo.
+ * @returns The score, its layout, and its player models.
+ * @throws Error when the demo is not valid.
+ */
+async function demoLayout(demo: DemoId): Promise<DemoLayout> {
+  const result = buildScore((await patchedDemo(`${demo}.mid`)).bytes, 'auto');
+  if (!result.ok) {
+    throw new Error(`The demo ${demo} is not valid: ${result.error}.`);
+  }
+  const models = new ModelCache();
+  return { score: result.score, layout: layoutScene(result.score, models), models };
+}
+
+/**
+ * Chooses the shot of `--shot` as the app plans it: the layout of the demo ({@link demoLayout}),
+ * the shots of `planScene()` of `src/app/app.ts`, and the seed of the app.
  *
  * @param demo The demo.
  * @param subject The subject.
@@ -2314,13 +2342,8 @@ function speciesOfSeat(players: readonly PlayerPlace[], seat: number): SpeciesId
  *   the time of the frame is not a time of a play frame ({@link frameTime}).
  */
 export async function chooseShot(demo: DemoId, subject: ShotSubject): Promise<ChosenShot> {
-  const result = buildScore((await patchedDemo(`${demo}.mid`)).bytes, 'auto');
-  if (!result.ok) {
-    throw new Error(`The demo ${demo} is not valid: ${result.error}.`);
-  }
-  const models = new ModelCache();
-  const layout = layoutScene(result.score, models);
-  const { shots } = prepareShots(result.score, layout, SHOT_SEED, models);
+  const { score, layout, models } = await demoLayout(demo);
+  const { shots } = prepareShots(score, layout, SHOT_SEED, models);
 
   const shot = firstShotOf(shots, layout.players, subject);
   if (!shot) {
