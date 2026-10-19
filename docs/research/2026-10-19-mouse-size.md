@@ -73,6 +73,10 @@ show the reed in the mouth under the nose (`oboist-base-views.webp`).
 1.5 cm (`pose-depth-oboist.txt`). `pnpm body-probe --base ef456e07`: the other 90 bodies and 22
 players are equal, and 1,249 of 1,492 pose sets are equal, because the smaller footprint moves the
 layout (`body-probe.txt`). `pnpm test:paused src/shots/` passes (`shots-test.txt`).
+`pnpm fold-probe <role> --base ef456e07` gives the same folds for each other role, except 4 fewer
+folded play samples of the conductor (9,085 against 9,089). `pnpm pose-depth <role> --base
+ef456e07` gives the same depths for the bassist, the trombonist, the cellist, the violist, and the
+timpanist (`other-roles/`).
 
 ## 3. The result
 
