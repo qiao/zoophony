@@ -334,6 +334,16 @@ The app keeps its own motion (5.3, 5.4), so it drives the bones of the studio fr
 player each frame: the retarget. It gave about a quarter of the folded faces of a skin on the bones
 of the player (`docs/research/2026-10-12-studio-bear.md`).
 
+The plane of the arm sets the roll of the one upper arm bone. A hold with the elbow out and level
+rolls it by about 90°, and the linear blend at the shoulder then twists the skin like a wrung
+cloth and squeezes the upper arm flat. A fold count does not see this, so `pnpm arm-shape` measures
+the twist, the flat share, and the spikes of each arm. A body can take a twist bone of each upper
+arm (`StudioBody.upperTwist`): the bone takes a share of the roll from the chest, and the weight of
+the upper arm moves to it near the shoulder, so the roll spreads along the arm. The rule comes from
+`upperTwist.share` of the config of the mesh rig. The rig solves the shapes of `raise` with the
+twist bone, and `pnpm studio-body` writes the share into the body. A body with no share has no
+twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
+
 ```text
  lowpoly-studio/animals/bear/out/bear.glb
         | pnpm studio-body bear (tools/studio-body.ts, no Blender)
@@ -1079,7 +1089,9 @@ of three.js always blends four bones, so the second bone adds no shader work.
   ball on one tail bone, with no tip. Each vertex follows up to four of them. The
   scene gives the mesh the studio bones and the bones of the player, and `poseStudioBones()`
   writes their matrices from the pose of the player. So the pose code drives a studio body as
-  each other body.
+  each other body. A pose also holds the matrices of the twist bones of the upper arms
+  (`UPPER_TWIST_BONES`), after the bones of the player. Only a body with `upperTwist` (4.4) puts
+  weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
 - The egg body of the penguin (4.4) is rigid too, with its lower beak on `jaw`.
 - The readers of the bind mesh read the main bone: the footprints, the chair clearance, the baked
   occlusion (4.5), the silhouettes, and the budgets. `posedCorner()` of `pose/test-skin.ts` poses
