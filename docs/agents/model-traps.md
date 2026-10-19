@@ -50,6 +50,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A top plate turned to the right sends the bow back into a round belly. Turn it to the front.
 - In the violin rest, a paw that cannot reach the thigh holds the frog outside the thigh or the
   knee, because a paw on the belly bends the arm out and folds it.
+- A long snout puts the mouthpiece far in front of the body, and the grips hang below it, so a
+  smaller instrument barely helps. Turn the instrument back toward the body around the mouthpiece,
+  and turn the shoulder forward (`reachL`, `PIG_HORN`).
 - The short arms of the elephant do not reach across its trunk or to the middle of a kettle. Use
   `PercussionHold.rim`, `sides`, and `home`, and scan them with `pnpm pose-depth --targets`.
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit
@@ -143,6 +146,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The pose of a rule in Blender turns over fewer faces than the app at the same turn. Turn the rule
   further on the same axis, as `pnpm raise-fit --bone hand` does, and read the folded face-samples
   in the line of the main bones of `pnpm rig-mesh --check`.
+- A body has at most four shapes of `raise` (`RAISE_LIMIT`). Give a single thin face across a joint
+  the mean of its weights (`weights.rigid`), and keep the shapes for the play.
 - A shape fixes only the poses near its rule, for the arm turns of one hold. Fit the hold first, or
   fit both in one loop with `pnpm rig-mesh --check --hold`. A rule whose line `raise <target>` in
   the rig log keeps turned faces after the relax fixes few samples.
@@ -224,10 +229,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The rig log gives centimeters at the scale of `app.shoulders`. A direct run of Blender on a
   variant that moves the shoulder joints needs the `app.shoulders` of `keptHeight()`, which `pnpm
   rig-mesh --check --set` sets.
-- A new body changes the footprints, and with them the layout, the looks of the other players, the
-  cues, and the shot plans (`pnpm body-probe --base main`). The shot tests react to moves of about 2
-  cm: run `pnpm test:paused src/shots/` early, and `pnpm shot-trace <demo> --base main` when a shot
-  drops out.
+- A new body moves the layout and the shot plans. The shot tests react to moves of about 2 cm: run
+  `pnpm test:paused src/shots/` early, and `pnpm shot-trace <demo> --base main` when a shot drops
+  out.
 
 ## Values in meters
 
