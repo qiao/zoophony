@@ -95,6 +95,17 @@ const KETTLE_SEGMENTS = 16;
  */
 const KETTLE_FIT = Math.cos(Math.PI / 8) / Math.cos(Math.PI / 16);
 
+/**
+ * Gives the radius of the head of a kettle of the timpani: the radius of its bowl of
+ * {@link KETTLE_SEGMENTS} faces.
+ *
+ * @param index The index of the kettle, 0 for the largest.
+ * @returns The radius, in meters.
+ */
+export function kettleHeadRadius(index: number): number {
+  return (TIMPANI.radii[index] ?? 0) * KETTLE_FIT;
+}
+
 /** The height of the silver hoop at the top of a kettle, in meters. */
 const HOOP = 0.035;
 
