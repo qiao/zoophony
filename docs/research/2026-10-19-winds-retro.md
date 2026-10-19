@@ -95,3 +95,10 @@ commit calls git. The children of `hold-fit`, `fold-probe`, `shot-trace`, `body-
 boulanger-matin --base 16f16e44` now ends in 24 s (`pose-depth-base.txt`). `PROBE_NO_CACHE=1 pnpm
 fold-probe bassist --demo boulanger-matin --base 16f16e44` takes 6 s, against 5 s before the fix
 (`fold-probe-base.txt`).
+
+**The folds of each hold-fit row.** Each row of `pnpm hold-fit` now names the 5 faces that fold
+in the most samples, with the share of all samples and the mark `new` at a face that folds in no
+sample of the base row (`topFolds()`). `pnpm hold-fit bassist --demo boulanger-matin` with two pole
+variants takes 70 s (`hold-fit-top-folds.txt`). The old right pole moves the most folded faces to
+486, 897, 116, 517, and 516, which also fold on the base. The pole `poleL=(-1, 0.5, 0.3)` gives 5
+new faces, such as 2270 in 87.6% of the samples.
