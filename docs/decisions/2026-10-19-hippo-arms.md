@@ -18,6 +18,6 @@ user can reverse each decision. Then update its section, and remove its row.
 | A fourth shape of `raise` bends the left wrist (`bone` hand): the paw turns about 163° on the forearm on the neck, and the wrist faces folded in each sample. No elbow pole changes that turn. | 4.4 |
 | `weights.rigid` takes faces 1498 of the left wrist, 51 of the right paw, and 463 of the right shoulder: the rest folds go, and the play samples with a fold fall from 100% to 30.0%. | 4.4 |
 | Rejected: a ring at the left wrist (3,205 triangles), a raised pizzicato elbow (11 other faces fold), and rigid weights on faces 116 and 52 (the folds move to the neck and to face 51). | 4.4, 5.3 |
-| Accepted: five pairs of `pnpm pose-depth bassist` go 0.6 cm to 0.9 cm deeper, and the right paw 2.2 cm deeper into the contrabass in the lowering (report 4). | 5.3, 9.3 |
+| Accepted: four pairs of `pnpm pose-depth bassist` go 0.6 cm to 0.9 cm deeper, and the right paw 2.2 cm deeper into the contrabass in the lowering (report 4). | 5.3, 9.3 |
 | Open: 30.0% of the play samples and 28.7% of the lift samples fold, most at face 116 of the back of the right shoulder (13.7%) and face 52 of the right paw (11.6%). A dark slot stays at the front of the right armpit. | 4.4, 9.3 |
 | Open: `pnpm pose-depth --base` fails, because the probe of the commit has no git for the time file of the sweep (`timesFile()` of `tools/pose-depth.ts`). | 9.3 |
