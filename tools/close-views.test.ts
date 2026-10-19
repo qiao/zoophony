@@ -118,15 +118,23 @@ describe('closeViewPath', () => {
 
 describe('closeViewsArgs', () => {
   it('reads the role, the folder, the URL of a running site, and the commit to compare', () => {
+    const camera = { zoom: null, elevation: null, scale: 1 };
     expect(closeViewsArgs(['violinist', 'out'])).toEqual({
       role: 'violinist',
       out: 'out',
       url: null,
       base: null,
+      ...camera,
     });
     expect(
       closeViewsArgs(['pianist', 'out', '--base', 'main', '--url', 'http://localhost:5199/']),
-    ).toEqual({ role: 'pianist', out: 'out', url: 'http://localhost:5199/', base: 'main' });
+    ).toEqual({
+      role: 'pianist',
+      out: 'out',
+      url: 'http://localhost:5199/',
+      base: 'main',
+      ...camera,
+    });
   });
 
   it('refuses a wrong role, no folder, and an option with no value', () => {

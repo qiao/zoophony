@@ -479,6 +479,7 @@ export function closeViewPath(role: RoleViews, view: CloseViewAngle, moment: Clo
  * @param role The role.
  * @param view The view.
  * @param moment The moment.
+ * @param size The size of the cell, in CSS pixels.
  * @returns The PNG image.
  */
 async function render(
@@ -487,12 +488,13 @@ async function render(
   role: RoleViews,
   view: CloseViewAngle,
   moment: CloseMoment,
+  size: CellSize = CELL,
 ): Promise<Buffer> {
   const path = closeViewPath(role, view, moment);
   const page = await openShot(browser, new URL(path.slice(1), base).href, {
     file: '',
     path,
-    ...CELL,
+    ...size,
     ready: 'canvas[data-ready="species"]',
   });
   try {
@@ -604,23 +606,99 @@ export interface CloseViewsArgs {
   readonly url: string | null;
   /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
   readonly base: string | null;
+  /** The zoom of the camera of `--zoom`, 1 or more, or `null` for the zoom of the role. */
+  readonly zoom: number | null;
+  /**
+   * The angle of the camera above the floor of all views (`--elevation`), in degrees, or `null`
+   * for the elevation of each view of the role.
+   */
+  readonly elevation: number | null;
+  /** The factor of the size of each cell (`--scale`): 1 gives {@link CELL}. */
+  readonly scale: number;
+}
+
+/** The largest factor of the cell size of `--scale`: the grid of a role stays below 16,384 px. */
+export const MAX_SCALE = 3;
+
+/**
+ * Reads the factor of the cell size of `--scale`.
+ *
+ * @param value The text of the option, or `null` with no option.
+ * @returns The factor: 1 with no option.
+ * @throws Error if the factor is not a number above 0 and at most {@link MAX_SCALE}.
+ */
+export function scaleOf(value: string | null): number {
+  if (value === null) {
+    return 1;
+  }
+  const scale = Number(value);
+  if (!Number.isFinite(scale) || scale <= 0 || scale > MAX_SCALE) {
+    throw new Error(
+      `The option --scale takes a number above 0 and at most ${MAX_SCALE}, such as 2, and not "${value}".`,
+    );
+  }
+  return scale;
 }
 
 /**
- * Reads the command line of the close views: `<role> <dir> [--url <url>] [--base <ref>]`.
+ * Reads the command line of the close views:
+ * `<role> <dir> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--url <url>] [--base <ref>]`.
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when it is not correct.
+ * @throws Error if a zoom, an elevation, or a scale does not fit.
  */
 export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const role = roleOf(args[0]);
   const out = args[1];
   const url = optionValue(args, '--url');
   const base = optionValue(args, '--base');
-  if (!role || !out || out.startsWith('--') || url === undefined || base === undefined) {
+  const zoom = optionValue(args, '--zoom');
+  const elevation = optionValue(args, '--elevation');
+  const scale = optionValue(args, '--scale');
+  const given = [url, base, zoom, elevation, scale];
+  if (!role || !out || out.startsWith('--') || given.includes(undefined)) {
     return null;
   }
-  return { role, out, url, base };
+  return {
+    role,
+    out,
+    url: url ?? null,
+    base: base ?? null,
+    zoom: zoom ? zoomOf(zoom) : null,
+    elevation: elevationOf(elevation ?? undefined),
+    scale: scaleOf(scale ?? null),
+  };
+}
+
+/**
+ * Gives the close view of a role with the camera of the command line: the zoom of `--zoom` and
+ * the elevation of `--elevation` for each view, in place of the values of the role.
+ *
+ * @param role The close view of the role.
+ * @param args The zoom and the elevation of the command line.
+ * @returns The close view.
+ */
+export function roleCamera(
+  role: RoleViews,
+  args: Pick<CloseViewsArgs, 'zoom' | 'elevation'>,
+): RoleViews {
+  const { zoom, elevation } = args;
+  return {
+    ...role,
+    views: elevation === null ? role.views : role.views.map((view) => ({ ...view, elevation })),
+    camera: zoom === null ? role.camera : { ...role.camera, zoom },
+  };
+}
+
+/**
+ * Gives the size of one cell of the close view of a role.
+ *
+ * @param scale The factor of `--scale`.
+ * @returns The size, in CSS pixels: {@link CELL} at the factor 1.
+ */
+export function roleCell(scale: number): CellSize {
+  return { width: Math.round(CELL.width * scale), height: Math.round(CELL.height * scale) };
 }
 
 /**
@@ -695,6 +773,7 @@ interface RenderedViews {
  * @param role The views, the moments, and the camera of the role.
  * @param out The output directory.
  * @param prefix The start of the file names, such as `violinist-`.
+ * @param size The size of one cell, in CSS pixels.
  * @returns The cells and their labels.
  */
 async function renderViews(
@@ -703,12 +782,13 @@ async function renderViews(
   role: RoleViews,
   out: string,
   prefix: string,
+  size: CellSize = CELL,
 ): Promise<RenderedViews> {
   const cells: Buffer[] = [];
   const labels: string[] = [];
   for (const moment of role.moments) {
     for (const view of role.views) {
-      const cell = await render(browser, base, role, view, moment);
+      const cell = await render(browser, base, role, view, moment, size);
       await writeFile(join(out, `${prefix}${moment.name}-${view.name}.png`), cell);
       cells.push(cell);
       labels.push(`${moment.name}, ${view.name}`);
@@ -752,7 +832,9 @@ interface ModeRender {
  * Renders the close view of a role into `<dir>`: each cell as `<role>-<moment>-<view>.png`, and
  * the grid of all cells as `<role>-views.png` and `.webp`. The renders of the commit write each
  * cell of the commit as `<role>-base-<moment>-<view>.png`, and the grid of the commit above the
- * grid of the working tree as `<role>-base-views.png` and `.webp`.
+ * grid of the working tree as `<role>-base-views.png` and `.webp`. Both trees take the camera of
+ * `--zoom` and `--elevation` ({@link roleCamera}) and the cell size of `--scale`
+ * ({@link roleCell}).
  *
  * @param args The command line.
  * @param site The site of the working tree.
@@ -761,18 +843,24 @@ interface ModeRender {
 async function roleViews(args: CloseViewsArgs, site: TreeSite): Promise<CommitRender> {
   const { browser } = site;
   const { role: name, out } = args;
-  const role = ROLE_VIEWS[name];
-  const views = await renderViews(browser, site.base, role, out, `${name}-`);
-  const sheet = await grid(browser, views.cells, views.labels, role.views.length);
+  const role = roleCamera(ROLE_VIEWS[name], args);
+  const size = roleCell(args.scale);
+  if (args.zoom !== null || args.elevation !== null || args.scale !== 1) {
+    console.log(
+      `Camera: zoom ${role.camera.zoom}, ${args.elevation === null ? 'the elevation of each view' : `${args.elevation}°`}, cells of ${size.width} × ${size.height} px.`,
+    );
+  }
+  const views = await renderViews(browser, site.base, role, out, `${name}-`, size);
+  const sheet = await grid(browser, views.cells, views.labels, role.views.length, size);
   await writeFile(join(out, `${name}-views.png`), sheet);
   await writeFile(join(out, `${name}-views.webp`), await toWebp(browser, sheet));
   console.log(join(out, `${name}-views.png`));
 
   return async (other, label) => {
-    const before = await renderViews(browser, other, role, out, `${name}-base-`);
+    const before = await renderViews(browser, other, role, out, `${name}-base-`, size);
     const cells = [...before.cells, ...views.cells];
     const labels = baseGridLabels(views.labels, label);
-    const both = await grid(browser, cells, labels, role.views.length);
+    const both = await grid(browser, cells, labels, role.views.length, size);
     await writeFile(join(out, `${name}-base-views.png`), both);
     await writeFile(join(out, `${name}-base-views.webp`), await toWebp(browser, both));
     console.log(join(out, `${name}-base-views.png`));
@@ -2399,7 +2487,7 @@ async function renderModes(
 
 /** The usage text of the tool. */
 const USAGE = [
-  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--url <url>] [--base <ref>]`,
+  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--url <url>] [--base <ref>]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--url <url>] [--base <ref>]`,
@@ -2407,17 +2495,18 @@ const USAGE = [
 ].join('\n');
 
 /**
- * Renders the close view of a role:
- * `node tools/close-views.ts <role> <dir> [--url <url>] [--base <ref>]` (design 7.1), a lineup
- * of species: `node tools/close-views.ts lineup <species,...> <dir>` ({@link lineupViews}), or
+ * Renders the close view of a role: `node tools/close-views.ts <role> <dir> [--zoom <n>]
+ * [--elevation <deg>] [--scale <n>] [--url <url>] [--base <ref>]` (design 7.1), a lineup of
+ * species: `node tools/close-views.ts lineup <species,...> <dir>` ({@link lineupViews}), or
  * species at named views: `node tools/close-views.ts species <species,...> <dir>`
  * ({@link speciesViews}), or play frames of a demo: `node tools/close-views.ts play <dir>`
  * ({@link playViews}), or a batch of these modes: `node tools/close-views.ts batch <dir>`
  * ({@link batchArgs}), which builds and serves each tree one time for all its parts. It writes
  * the animal of the role at each moment from each view into `<dir>`, and the grid of all cells as
- * `<role>-views.png` and `<role>-views.webp`. With `--url`, it uses a running site, such as the
- * dev server, in place of the built site. With `--base`, it also builds the commit in a temporary
- * folder, and writes the grid of the commit above the grid of the working tree. With
+ * `<role>-views.png` and `<role>-views.webp`. `--zoom` and `--elevation` change the camera of the
+ * role for each view, and `--scale` the size of each cell. With `--url`, it uses a running site,
+ * such as the dev server, in place of the built site. With `--base`, it also builds the commit in
+ * a temporary folder, and writes the grid of the commit above the grid of the working tree. With
  * {@link CHECK_FLAG} first, it only checks the command line and the commit, so that the script of
  * `package.json` stops before the build on a wrong command line.
  */
