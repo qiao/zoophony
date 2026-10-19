@@ -506,11 +506,20 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Mouse oboe size: the mouse plays an oboe of 0.62 of the oboe of the app (0.34 m). No source
       gives the size of a smaller oboe for a child (`docs/reference/wind-technique.md` 4.2). Show
       the user the play frame with the small oboe (`2026-10-19-mouse-size.md`).
-- [ ] Elephant timpanist: the skin folds in each sample, up to 23 faces: face 137 of the right
-      armpit in 94% of the play samples, the left forearm in 61%, and the left arm that waits over
-      the kettle beside the player in 37%. Four corrective shapes cut the folded face-samples from
-      143,420 to 34,294 (`docs/research/2026-10-19-elephant-mesh/fold-probe-timpanist.txt`,
-      `2026-10-19-mesh-elephant.md`).
+- [x] Elephant timpanist: the skin folded in each sample, up to 23 faces. The mallet grip with
+      its top toward the shoulder, the arm cut, a ring, a rigid face, and four new shapes cut the
+      play folds to 3.9%, the lift to 12.9%, and the rest to none (`2026-10-19-elephant-arms.md`).
+- [ ] Elephant timpanist folds: the thin face 2401 of the left paw folds in 3.5% of the play,
+      and face 235 of the right armpit in 11.3% of the lift. The goal is 1% of the play. Try a
+      weight rule of the left paw that keeps the rest free of folds
+      (`docs/research/2026-10-19-elephant-arms.md`).
+- [ ] Elephant timpanist: with the new grip, the left paw goes 4.7 cm into the body in 1.9% of
+      the play of `beethoven-8-4`, where the left arm waits over the kettle beside the player
+      (`docs/research/2026-10-19-elephant-arms/pose-depth.txt`). Move the waiting place of the
+      left hand out, then fit the left elbow shape again.
+- [ ] Elephant timpanist: the cap of the right armpit cut shows as a dark slot under the raised
+      right arm (`pair-left-right.webp` of `docs/research/2026-10-19-elephant-arms/`). Check it
+      with the probe of hidden faces of `docs/research/2026-10-18-panda-seam/`.
 - [ ] Pig hornist folds: two faces of the right hoof fold in each rest sample and in 26.5% of the
       lift samples, because a body has at most four corrective shapes (`RAISE_LIMIT`). Try a
       weight rule of the right paw, or a rest with a smaller turn of the right wrist
@@ -525,8 +534,9 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       a bowed role, so only the close views check it (`2026-10-19-mesh-pig.md`).
 - [ ] Elephant timpanist: the seam where the upper arm of the mesh lies on the side of the body
       shades dark lines on the front of the body when the arms play (`timpanist-base-views.webp`
-      of `docs/research/2026-10-19-elephant-mesh/`). A cut of the mesh at the seam, as for the
-      panda, can fix it (`docs/research/2026-10-18-panda-cut.md`).
+      of `docs/research/2026-10-19-elephant-mesh/`). The arm cut of `2026-10-19-elephant-arms.md`
+      takes the seam below the shoulder, and dark areas stay on the chest beside the raised arms
+      (`timpanist-views.webp` of `docs/research/2026-10-19-elephant-arms/`).
 - [ ] Elephant timpanist: each hand keeps the kettles on its side of the trunk, so a roll on one
       kettle stays in one hand, and with three kettles the largest kettle stands beside the player.
       Show the user the views, and offer longer arms for rolls with both hands
