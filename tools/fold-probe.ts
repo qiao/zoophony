@@ -13,11 +13,13 @@
  * and the weights. With `--json <file>`, it also writes the counts of each sample set into the
  * file for `pnpm rig-mesh --check`. With `--turns <face>`, it also prints the mean turn of the
  * upper arm of the side of the face in the axes of the chest in the samples in which the face
- * folds, and the share of the samples with a fold by the angle from that turn. The method comes
- * from `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
+ * folds, and the share of the samples with a fold by the angle from that turn. Each `--set` changes
+ * the holds in memory, as `pnpm pose-depth --set` does, so that `pnpm rig-mesh --check --hold`
+ * fits a corrective shape to a hold with no commit. The method comes from
+ * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
  * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>]
- * [--json <file>] [--glb <file>]
+ * [--set <changes>]... [--json <file>] [--glb <file>]
  */
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -30,6 +32,7 @@ import { promisify } from 'node:util';
 import { Matrix4, Quaternion, Vector3 } from 'three';
 
 import { rigConfigPath, runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
+import { setHolds } from './hold-sets.ts';
 import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
 import { trackFolder } from './stop-cleanup.ts';
 import type { RefRole } from './ref-tree.ts';
@@ -1705,7 +1708,7 @@ async function main(): Promise<void> {
   const role = FOLD_ROLES.get(name);
   if (!role) {
     throw new Error(
-      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>] [--json <file>] [--glb <file>] [--base <ref>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
+      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>] [--set <changes>]... [--json <file>] [--glb <file>] [--base <ref>], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
     );
   }
   const baseAt = args.indexOf('--base');
@@ -1713,8 +1716,8 @@ async function main(): Promise<void> {
   if (baseAt >= 0 && (!ref || ref.startsWith('--'))) {
     throw new Error('The option --base takes a commit, a branch, or a tag.');
   }
-  if (ref && (glb || args.includes('--json') || args.includes('--turns'))) {
-    throw new Error('The option --base goes with none of --glb, --json, and --turns.');
+  if (ref && (glb || ['--json', '--turns', '--set'].some((option) => args.includes(option)))) {
+    throw new Error('The option --base goes with none of --glb, --json, --turns, and --set.');
   }
   if (glb) {
     process.exitCode = await withGlbBody(roleAnimal(role), glb, (dir) =>
@@ -1754,7 +1757,17 @@ async function main(): Promise<void> {
   }
   const demos = chosen.length > 0 ? all.filter((demo) => chosen.includes(demo.file)) : all;
   const turns = turnFace === null ? null : turnProbe(turnFace);
-  const report = probeFolds(role, demos, step, turns?.visit);
+  const holds = args.flatMap((arg, i) => (args[i - 1] === '--set' ? [arg] : [])).join(';');
+  const changes = holds ? setHolds(holds) : null;
+  let report: FoldReport;
+  try {
+    report = probeFolds(role, demos, step, turns?.visit);
+  } finally {
+    changes?.undo();
+  }
+  if (changes) {
+    console.log(`Hold changes: ${changes.text}`);
+  }
   console.log(foldLines(name, report, step).join('\n'));
   if (faces > 0) {
     const sources = report.mesh ? await sourceMiddles(roleAnimal(role), report.faces) : null;
