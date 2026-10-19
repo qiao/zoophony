@@ -102,3 +102,11 @@ sample of the base row (`topFolds()`). `pnpm hold-fit bassist --demo boulanger-m
 variants takes 70 s (`hold-fit-top-folds.txt`). The old right pole moves the most folded faces to
 486, 897, 116, 517, and 516, which also fold on the base. The pole `poleL=(-1, 0.5, 0.3)` gives 5
 new faces, such as 2270 in 87.6% of the samples.
+
+**The variants of close-views.** `pnpm close-views <role> --glb <file> --set <changes>` builds the
+working tree with a plugin into a temporary folder: the GLB file gives the module of the studio
+body, and the gallery page applies the hold changes with `setHolds()` before its other modules.
+`--set 'contrabass@hippo.poleL=-1,0.5,0.3' --base HEAD` lifts the left elbow of the hippo
+(`bassist-set-pair-frog-front.webp`), and `--glb` with a rig of `armFactor=1.8` of `pnpm rig-mesh
+--keep` gives longer arms (`bassist-glb-pair-frog-front.webp`). Each run takes 43 s to 47 s with
+both builds (`close-views-variants.txt`).
