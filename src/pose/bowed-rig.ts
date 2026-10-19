@@ -770,6 +770,14 @@ const DOG_HOLD = {
  * for each lower string, as on the cello of the dog: with 10°, the thick left upper arm went
  * 7.0 cm into the contrabass (6.4 cm with 2°).
  *
+ * The right elbow lies near the backward line of the stick, and on the E and the A strings it lies
+ * near the far side of the stick for the roll of the hand. With the far side at 180°, a change of
+ * the string turned the paw by about 200° (847 jumps above 90° in 0.25 s over the demos). The far
+ * side lies at 30°, in the middle of the angles that no elbow of the play takes (-40° to 110°), so
+ * the roll stays at one end of its range: 20 jumps, and the dog cellist has 25. On the low
+ * strings, the paw then goes more than 1.5 cm into the belly in 4.6% of the play samples (0% with
+ * 180°). The measures are in the 2026-10-18-hippo-arm decisions.
+ *
  * In the rest pose, the contrabass stays at its playing place, and the left paw holds the neck. The
  * right paw hangs beside the belly with the bow tip down (`HANGING_BOW`), and the elbow points down
  * and out, as the arms of the mesh hang: the knee of the floor hold lies under the belly, and the
@@ -787,6 +795,7 @@ const HIPPO_HOLD = {
   elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [1.5, 1, -1],
   poleTipR: [1.5, 1, -1],
+  farSideR: 30 * MathUtils.DEG2RAD,
   restPoleR: [1, -1, 0],
   restPoleL: [-1, -0.5, 0],
   restBow: {

@@ -470,6 +470,14 @@ A round that changes the motion updates the items.
   and the nut is beside the head, within reach of the left paw. A real bassist leans the contrabass
   less, against the left side of the body. The app differs from that, because the bow of a real
   hold met the round belly of the hippo.
+- **The bow hand.** A real bassist holds the French bow with the palm toward the bass (section
+  2.1). The app rolls the paw around the stick so that the back of the paw points to the elbow,
+  within a range of the roll (`rollToward()` of `pose/bowed.ts`). The elbow of the hippo lies near
+  the backward line of the stick. On the E and the A strings, it lies near the far side of the
+  stick, where the roll changes from one end of its range to the other end, and the paw turned by
+  about 200° at a change of the string. The hold of the hippo moves that side to an angle that no
+  elbow of its play takes (`BowedHold.farSideR`), so the paw keeps one end of the range there. No
+  source gives the bow hand of a player with such short arms.
 - **The rest.** The contrabass stays at its playing place, and the left paw holds the neck. The
   right paw hangs beside the belly with the bow tip down, because the knee of the hippo is under
   its belly. No source gives the rest of an orchestral bassist.
