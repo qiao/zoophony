@@ -8,8 +8,10 @@ root of the tree.
 ## 1. The question
 
 The round `hippo-chest` named three slow steps: a probe of the contrabass in the chest, a probe of
-close views from a user screenshot, and staged configs of the rig. Each new mode must give the
-number of the probe of that round, and a change of a tool must keep the output of its old options.
+close views from a user screenshot, and staged configs of the rig. During the tool round, the
+manager added three steps of the hippo arm round on `main`: a depth that hid each change, a fold
+seen late, and a base sweep in each run. Each new mode must give the number of the probe of its
+round, and a change of a tool must keep the output of its old options.
 
 ## 2. The measures
 
@@ -81,13 +83,40 @@ second rule of the bow arm (`raise-fit-477.txt`, `raise1.json`). `pnpm rig-mesh 
 Each cell gives the play, the lift, and the rest. `variant.sh` of the chest round gives the same
 shares for faces 477 and 461 of the variant: 46.2% and 83.9%, 19.0% and 71.0% (`variant.txt`).
 
+**Item 4: the samples over a goal.** A part fully through an obstacle keeps one deepest depth.
+`pnpm pose-depth bassist --demo boulanger-matin --goal 5 --set 'contrabass@hippo.lean=14deg'`
+(`pose-depth-goal.txt`):
+
+| Pair | Base depth cm | Base share % | Lean 14° depth cm | Lean 14° share % |
+|---|---:|---:|---:|---:|
+| play upper arms in contrabass | 7.4 | 47.9 | 7.4 | 22.0 |
+| play forearms in body | 8.1 | 55.1 | 7.9 | 24.8 |
+| lower upper arms in contrabass | 7.1 | 33.3 | 7.4 | 13.3 |
+| play instrument in body | 14.7 | 100.0 | 16.0 | 100.0 |
+
+Each share is of the samples over 5 cm. The depth of the upper arms stays at 7.4 cm, and the share
+falls by half.
+
+**Item 5: named faces in hold-fit.** `pnpm hold-fit bassist --demo boulanger-matin --faces-of
+616,617,477,461 --set 'contrabass@hippo.lean=14deg'` (`hold-fit-faces-of.txt`, 54 s) gives the play
+share of faces 616, 617, 477, and 461: 0.0%, 0.0%, 46.3%, and 17.7% in the base, and 0.0%, 0.0%,
+44.2%, and 37.1% with the lean of 14°. `--watch` of `pnpm rig-mesh` gives the same output as before
+from the shared code (`tools/face-shares.ts`).
+
+**Item 6: the base row in a cache.** The same command with no `--goal`, run two times
+(`pose-depth-cache-1.txt`, `pose-depth-cache-2.txt`): 38.5 s, then 19.6 s with `base: cached`. The
+two tables are the same. The key holds the trees of `src/`, `tools/`, the demos, and
+`package.json` of the working tree, so a change of a file there sweeps the base again.
+
 **Kept outputs.** `pnpm body-probe --base 61e7b8cf` gives 95 of 95 bodies, 23 of 23 players, and
 1,492 of 1,492 pose sets equal (`body-probe.txt`). No file of `src/models/` changes.
 
 ## 3. The result
 
-All three items work. The sweep, `pnpm pose-depth`, and `pnpm hold-fit` give the instrument in the
+All six items work. The sweep, `pnpm pose-depth`, and `pnpm hold-fit` give the instrument in the
 body of each held role, with no limit. The role views take a camera and a cell size. `pnpm
-rig-mesh --check` takes new keys and watches named faces. The pair of item 1 gives the deepest
+rig-mesh --check` takes new keys and watches named faces. `pnpm pose-depth` counts the samples over
+a goal and keeps the base row of `--set` in a cache, and `pnpm hold-fit` gives the folds of named
+faces. The pair of item 1 gives the deepest
 corner of the instrument, so a clip of the visible top plate still needs `top-plate.ts`: an open
 item of `TODO.md`.
