@@ -20,7 +20,7 @@ import { createBowPlaces, gripHand, heldBowAt, instrumentAt, shoulderTurn, strin
 const sets = process.argv.slice(2);
 const undo = sets.length > 0 ? setHolds(sets.join(';')) : null;
 void undo;
-const model = buildPlayer('hippo', 'contrabass', 4, 'high-stool');
+const model = buildPlayer('hippo', 'contrabass', 4, 'stand');
 const rig = bowedRig(model, 'contrabass', holdOf('hippo', 'contrabass'));
 const arm = (side: 'L' | 'R'): number => {
   const j = (b: 'upperArm' | 'forearm' | 'hand'): Vector3 =>

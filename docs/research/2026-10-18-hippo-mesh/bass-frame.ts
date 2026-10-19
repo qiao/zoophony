@@ -7,7 +7,7 @@ import { buildPlayer } from '../../../src/models/player.ts';
 import { boneIndex } from '../../../src/models/rig.ts';
 import { bowedRig, holdOf } from '../../../src/pose/bowed-rig.ts';
 
-const model = buildPlayer('hippo', 'contrabass', 4, 'high-stool');
+const model = buildPlayer('hippo', 'contrabass', 4, 'stand');
 const rig = bowedRig(model, 'contrabass', holdOf('hippo', 'contrabass'));
 const f = (v: readonly number[]): string => v.map((x) => x.toFixed(3)).join(', ');
 console.log('parent', rig.parent === boneIndex('chest') ? 'chest' : 'root', 'pivot', f(rig.pivot));

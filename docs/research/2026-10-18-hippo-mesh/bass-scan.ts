@@ -24,7 +24,7 @@ for (const arg of process.argv.slice(2)) {
   (SPECIES.hippo as { bassScale?: number }).bassScale = Number(scaleText);
   const set = changes ? setHolds(changes) : null;
   try {
-    const model = buildPlayer('hippo', 'contrabass', 4, 'high-stool');
+    const model = buildPlayer('hippo', 'contrabass', 4, 'stand');
     const rig = bowedRig(model, 'contrabass', holdOf('hippo', 'contrabass'));
     const frames = playingFrames(rig);
     const { place } = createBowPlaces();
@@ -47,7 +47,7 @@ for (const arg of process.argv.slice(2)) {
     const f = (v: Vector3): string => v.toArray().map((x) => x.toFixed(2)).join(',');
     const dy = shoulderR.y - contact.y;
     console.log(
-      `${arg}: below R ${dy.toFixed(2)} stop ${rig.stopRange.map((x) => x.toFixed(2)).join('..')} bow ${rig.bowRange.map((x) => x.toFixed(3)).join('..')} of ${rig.hairLength.toFixed(3)} | nut ${f(nut)} contact ${f(contact)} | L to nut ${shoulderL.distanceTo(nut).toFixed(3)} R to contact ${shoulderR.distanceTo(contact).toFixed(3)} reach ${rig.armL.reach.toFixed(3)} | contact before belly ${(front - contact.z).toFixed(3)} m`,
+      `${arg}: below R ${dy.toFixed(2)} stop ${rig.stopRange.map((x) => x.toFixed(2)).join('..')} bow ${rig.bowRange.map((x) => x.toFixed(3)).join('..')} of ${rig.hairLength.toFixed(3)} | nut ${f(nut)} contact ${f(contact)} | shoulders L ${f(shoulderL)} R ${f(shoulderR)} | L to nut ${shoulderL.distanceTo(nut).toFixed(3)} R to contact ${shoulderR.distanceTo(contact).toFixed(3)} reach ${rig.armL.reach.toFixed(3)} | contact before belly ${(front - contact.z).toFixed(3)} m`,
     );
   } finally {
     set?.undo();
