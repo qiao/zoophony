@@ -15,6 +15,7 @@ import type { Finish } from '../src/models/mesh.ts';
 import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
 import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
 import {
+  COLOR_STEPS,
   OPTIONAL_STUDIO_BONES,
   STUDIO_ARM_BONES,
   STUDIO_BONES,
@@ -1037,6 +1038,11 @@ interface SourceMesh {
   readonly faces: {
     readonly corners: [number, number, number];
     readonly color: Vec3;
+    /**
+     * The color of the face before the color shift of the rig (`COLOR_1`, `colors.shift` of
+     * `tools/blender/rig_mesh.py`). It is the color when the file has no shift.
+     */
+    readonly base?: Vec3;
     readonly finish: Finish;
   }[];
 }
@@ -1078,6 +1084,7 @@ export function weldMesh(glb: Glb, kept: readonly string[]): SourceMesh {
     const joints = at('JOINTS_0');
     const weights = at('WEIGHTS_0');
     const colors = at('COLOR_0');
+    const bases = primitive.attributes['COLOR_1'] === undefined ? null : at('COLOR_1');
     const colorSize = colors.length / (positions.length / 3);
     const moves = targets.map((t) => readAccessor(glb, primitive.targets?.[t]?.['POSITION'] ?? -1));
     const indices = readAccessor(glb, primitive.indices);
@@ -1124,9 +1131,11 @@ export function weldMesh(glb: Glb, kept: readonly string[]): SourceMesh {
           throw new Error(`The face ${t / 3} of the material "${material}" has two colors.`);
         }
       }
+      const base = bases?.subarray(a * colorSize, a * colorSize + 3) ?? color;
       faces.push({
         corners: [vertexOf(a), vertexOf(b), vertexOf(c)],
         color: [color[0] ?? 0, color[1] ?? 0, color[2] ?? 0],
+        base: [base[0] ?? 0, base[1] ?? 0, base[2] ?? 0],
         finish,
       });
     }
@@ -2069,8 +2078,9 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     body = { ...body, chairWidth: frame.chairWidth };
   }
   if (settings.palettes) {
+    const bases = baseTriangles(ordered.faces, withoutEyes.faces);
     const palettes = Object.entries(settings.palettes).map(
-      ([name, map]) => [name, packStudioPalette(ordered.faces, paletteMap(map))] as const,
+      ([name, map]) => [name, packStudioPalette(bases, paletteMap(map))] as const,
     );
     body = { ...body, palettes: Object.fromEntries(palettes) };
   }
@@ -2080,6 +2090,40 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     eyeShifts: { L: eyeL.shift, R: eyeR.shift },
     eyePushes: { L: eyeL.push, R: eyeR.push },
   };
+}
+
+/**
+ * Gives the triangles with the colors before the color shift of the rig (`COLOR_1`, design 4.4),
+ * the colors from which the other palettes map, such as the tan palette of the fox. The palette
+ * of the shifted triangles and the palette of these triangles must have the same order, because
+ * a packed palette gives one color for each color of the mesh, in their order.
+ *
+ * @param triangles The triangles of the packed mesh.
+ * @param faces The source face of each triangle, in the same order.
+ * @returns The triangles with the base colors.
+ * @throws Error if one color of the mesh has two base colors, or two colors have one base color.
+ */
+function baseTriangles(
+  triangles: readonly StudioTriangle[],
+  faces: SourceMesh['faces'],
+): StudioTriangle[] {
+  const keyOf = (color: Vec3, finish: Finish): string =>
+    `${color.map((c) => Math.round(Math.min(1, Math.max(0, c)) * COLOR_STEPS)).join(' ')} ${finish}`;
+  const bases = new Map<string, string>();
+  const out = triangles.map((triangle, k) => {
+    const base = faces[k]?.base ?? triangle.color;
+    const key = keyOf(triangle.color, triangle.finish);
+    const baseKey = keyOf(base, triangle.finish);
+    if ((bases.get(key) ?? baseKey) !== baseKey) {
+      throw new Error(`The color ${key} of the mesh has two base colors.`);
+    }
+    bases.set(key, baseKey);
+    return { ...triangle, color: base };
+  });
+  if (new Set(bases.values()).size !== bases.size) {
+    throw new Error('Two colors of the mesh have one base color, so the palettes cannot map them.');
+  }
+  return out;
 }
 
 /** A box in the axes and the units of the studio. */
