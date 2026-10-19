@@ -21,7 +21,7 @@ can reverse each decision. Then update its section, and remove its row.
 | The mesh keeps the orange-brown colors of its texture, with no tone rule (`colors`). Open: the tone rule of the hippo, the mouse, and the elephant. | 4.5 |
 | The reed sits 0.33 H lower and 0.25 H further back than the mouth of the bind pose, under the front teeth (`lipShift` of `BEAVER_BASSOON`). | 5.3 |
 | The bocal rises to its top, then comes down to the reed: its end is 2.8° above the level in the play turn, in place of 43.7° (`bassoonParts()`, `bocal-angle.txt`). | 4.6, 5.3 |
-| The right shoulder bone turns 15° and the left 20° forward. At 15°, face 427 of the left shoulder folded in each play sample (`BEAVER_SHOULDER_TURN`). | 5.3 |
+| The right shoulder bone turns 15° and the left 20° forward. At 15°, the faces at the front of the left shoulder fold in each play sample (`BEAVER_SHOULDER_TURN`). | 5.3 |
 | Both elbows point down, out, and forward, the smallest arm turns of 3 elbow directions (`poleL`, `poleR`, `hold-fit-poles.txt`). | 5.3 |
 | The bassoon scale is 0.82, the largest at which each paw has 3 cm to spare in the play and in the rest. At 0.83, the right paw had 2.7 cm in the play (`hold-reach-scales.txt`). | 4.6 |
 | The role `bassoonist` is in `SWEEP_ROLES`, `FOLD_ROLES`, and `ROLE_VIEWS`, with 9 open loops (`BEAVER_BODY_LOOPS`). The sweep accepts 1.6 cm of the paws in the bassoon in the lift and the lowering: the left paw closes on the wing joint, in one sample of about 30 (`BASSOONIST_SWEEP`). | 9.3 |

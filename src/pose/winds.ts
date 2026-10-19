@@ -451,8 +451,8 @@ const MOUSE_OBOE = {
 /** The forward turns of the shoulder bones of the bassoon beaver while it plays, in degrees. */
 const BEAVER_SHOULDER_TURN = {
   /**
-   * The left shoulder. With 15°, the left upper arm turned 84° from its bind direction, and face
-   * 427 at the front of the left shoulder folded in each play sample.
+   * The left shoulder. With 15°, the left upper arm turned 84° from its bind direction, and the
+   * faces at the front of the left shoulder folded in each play sample.
    */
   left: 20,
   /** The right shoulder. */
