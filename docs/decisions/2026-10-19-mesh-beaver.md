@@ -16,3 +16,15 @@ can reverse each decision. Then update its section, and remove its row.
 | The size rule of the user ("make it the size of the previous parametric model", `2026-10-19-mouse-size.md`): the standing skull top is at 1.029 m, the head top of the parametric beaver of `9a4613b4` (`app` of the rig config). | 4.4 |
 | Question: arms 1.6 with a bassoon of about 0.85, or arms 1.4 with 0.75? The user: "Arms 1.5, bassoon ~0.8". The arm factor is 1.5, arms of 0.81 of the trunk (`armFactor`), and the hold fit sets the bassoon scale (`bassoonScale`). | 4.4, 4.6 |
 | Question: the seat of the legs is 0.072 m, so keep the chair? The user: "No chair, as the mouse". The app builds no chair under the beaver (`SpeciesParams.noChair`), and the broad tail lies on the floor behind it. | 4.4, 4.5 |
+| The legs keep the mesh, with the seat of 0.072 m and the thighs 25° down and 15° out (`studio.legTurns`). The small ears follow the head, the dark nose takes the gloss, and the crease angle is 35°. | 4.4, 4.5 |
+| The two tail bones turn rigidly, 10° and 25° below the level, so that the tail end lies at the height of the soles (`studio.tailBind`). At 17.5° and 30°, the tail set the seat, and the feet hung 3 cm high. | 4.4 |
+| The mesh keeps the orange-brown colors of its texture, with no tone rule (`colors`). Open: the tone rule of the hippo, the mouse, and the elephant. | 4.5 |
+| The reed sits 0.33 H lower and 0.25 H further back than the mouth of the bind pose, under the front teeth (`lipShift` of `BEAVER_BASSOON`). | 5.3 |
+| The bocal rises to its top, then comes down to the reed: its end is 2.8° above the level in the play turn, in place of 43.7° (`bassoonParts()`, `bocal-angle.txt`). | 4.6, 5.3 |
+| The right shoulder bone turns 15° and the left 20° forward. At 15°, face 427 of the left shoulder folded in each play sample (`BEAVER_SHOULDER_TURN`). | 5.3 |
+| Both elbows point down, out, and forward, the smallest arm turns of 3 elbow directions (`poleL`, `poleR`, `hold-fit-poles.txt`). | 5.3 |
+| The bassoon scale is 0.82, the largest at which each paw has 3 cm to spare in the play and in the rest. At 0.83, the right paw had 2.7 cm in the play (`hold-reach-scales.txt`). | 4.6 |
+| Two shapes of the right arm, in the play and in the rest, remove the folds of the right armpit (`raise`). | 4.4 |
+| The role `bassoonist` is in `SWEEP_ROLES`, `FOLD_ROLES`, and `ROLE_VIEWS`, with 9 open loops (`BEAVER_BODY_LOOPS`). Each part stays within the contact depth, so it has no accepted depth. | 9.3 |
+| The first download grows by 30,153 B to 624,160 B with the beaver body (`pnpm size --base 9a4613b4`). | 7.2 |
+| Open: three faces of the left arm fold in each play sample, and eight faces in the rest. A shape of the left arm left three other faces turned over (`fold-probe-bassoonist.txt`). | 4.4, 9.3 |
