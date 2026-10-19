@@ -13,7 +13,7 @@ user can reverse each decision. Then update its section, and remove its row.
 |---|---|
 | The user, quote above: the bow arm of the hippo is a flat band with dark wedges on the shoulder and a dark slit under the arm. The round makes the arms round in the play, the lift, and the rest (report 2). | 4.4, 5.3 |
 | Both armpits take the cut of the panda and the beaver below 0.54 source units (`cut` of `tools/mesh-rigs/hippo.json`): the thin faces of the right armpit fold in no play sample. At 0.50 and 0.52, face 462 folds in each sample. | 4.4 |
-| Both elbows point out and forward, the right elbow level, also in pizzicato, and the left elbow a little down (`poleL`, `poleR`, `poleTipR`, `polePizzicato` of `HIPPO_HOLD`): the upper arms turn 96° and 28° from the bind (107° and 80° before). | 5.3 |
+| Both elbows point out and forward, the right elbow level, also in pizzicato, and the left elbow a little down (`poleL`, `poleR`, `poleTipR`, `polePizzicato` of `HIPPO_HOLD`): the upper arms turn 96° and 28° from the bind (107° and 80° before), and the roll of the bow paw jumps 6 times (24). | 5.3 |
 | A third shape of `raise` relaxes face 517 at the back of the right shoulder, which folds in each play sample with the level elbow (`raise` R of the new hold). | 4.4 |
 | A fourth shape of `raise` bends the left wrist (`bone` hand): the paw turns about 163° on the forearm on the neck, and the wrist faces folded in each sample. No elbow pole changes that turn. | 4.4 |
 | `weights.rigid` takes faces 1498 of the left wrist, 51 of the right paw, and 463 of the right shoulder: the rest folds go, and the play samples with a fold fall from 100% to 30.0%. | 4.4 |
