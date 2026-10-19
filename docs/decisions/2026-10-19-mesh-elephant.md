@@ -22,5 +22,4 @@ user can reverse each decision. Then update its section, and remove its row.
 | Each mallet strikes 0.055 m in from the rim nearest to the player (`PercussionHold.rim`), the 3 inches of a real timpanist at the scale 0.7 of the kettles, and points from 0.1 H below and 0.3 H in front of its shoulder (`home`). Each strike reaches its target. | 5.3 |
 | The timpani elbows point out and back, in place of down (`2026-10-10-arms-close.md`): elbows down put the upper arms 2.6 cm into the body. The upper arms still touch the side of the body. | 5.3 |
 | The sweep accepts 3 cm of the upper arms in the body, because the upper arm of the mesh lies on the side of the body, and 3 cm of the mallets in the kettles, because the middle of the ball lies on the head at a strike (`TIMPANIST_SWEEP`). | 5.2, 9.3 |
-| Four corrective shapes (`raise`): the bent left and right wrists, and the left and right arms at a strike. The folded face-samples fall from 143,420 to 34,294. | 4.4 |
-| Open: a face folds in each sample, up to 23 faces: face 137 of the right armpit, the left forearm, and the left arm that waits over the side kettle. The arm seam shades dark lines on the front of the body. | 4.4, 9.3 |
+| Open: the arm seam shades dark lines on the front of the body. The folds of the arms are in `2026-10-19-elephant-arms.md`. | 4.4, 9.3 |
