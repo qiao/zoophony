@@ -396,8 +396,9 @@ function buildBow(size: number, grip: BowGrip): BowPiece {
 
 /**
  * Builds a bowed string instrument and its bow (design 4.6). A species with short arms plays a
- * smaller violin or cello and bow (`SpeciesParams.violinScale`, `SpeciesParams.celloScale`), as a
- * child plays a fractional size. A smaller cello has a longer end pin ({@link endPinLength}).
+ * smaller violin, cello, or contrabass and bow (`SpeciesParams.violinScale`,
+ * `SpeciesParams.celloScale`, `SpeciesParams.bassScale`), as a child plays a fractional size. A
+ * smaller cello or contrabass has a longer end pin ({@link endPinLength}).
  *
  * The violin and the viola use the violin axes: the tail end is at the origin, the violin runs
  * along +x to the scroll, and the top plate faces +y. The player holds them under the chin.

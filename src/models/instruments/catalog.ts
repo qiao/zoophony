@@ -50,8 +50,8 @@ export const INSTRUMENT_IDS = [
  * @param id The instrument.
  * @param kettles The number of kettles of the timpani (design 4.6). The other instruments
  *   ignore it.
- * @param scale The scale of the violin or the cello and its bow for the species of the player
- *   (`instrumentScale()` of `models/species.ts`). The other instruments ignore it.
+ * @param scale The scale of the violin, the cello, or the contrabass and its bow for the species of
+ *   the player (`instrumentScale()` of `models/species.ts`). The other instruments ignore it.
  * @param bowGrip The grip of the bow in the right paw of the species of the player
  *   (`SpeciesParams.bowGrip`), or `undefined` for the grip of the bind pose of the bow. The
  *   instruments with no bow ignore it.
@@ -66,9 +66,9 @@ export function buildInstrument(
   switch (id) {
     case 'violin':
     case 'cello':
+    case 'contrabass':
       return buildBowedString(id, scale, bowGrip);
     case 'viola':
-    case 'contrabass':
       return buildBowedString(id, 1, bowGrip);
     case 'harp':
       return buildHarp();

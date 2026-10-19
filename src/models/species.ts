@@ -59,6 +59,13 @@ interface CommonParams {
    */
   readonly celloScale?: number;
   /**
+   * The scale of the contrabass and its bow for the species, as a factor of the contrabass of the
+   * app (design 4.6). It is 1 when it is not given. A species with short arms plays a smaller
+   * contrabass, as a child plays a fractional size. The end pin grows, so that the top of the body
+   * of the contrabass stays at its place.
+   */
+  readonly bassScale?: number;
+  /**
    * The grip of the bow in the right paw of the species (design 4.6): the place of the stick and
    * its turn in the palm. The grip of the bind pose of the bow (`BOW_GRIP`) when it is not given.
    */
@@ -174,7 +181,8 @@ export function isSpeciesId(value: string): value is SpeciesId {
 
 /**
  * Gives the scale of the instrument and its bow of a species (design 4.6): the violin scale for a
- * violin, the cello scale for a cello, and 1 for each other instrument.
+ * violin, the cello scale for a cello, the bass scale for a contrabass, and 1 for each other
+ * instrument.
  *
  * @param params The parameters of the species.
  * @param instrument The instrument.
@@ -186,6 +194,9 @@ export function instrumentScale(params: SpeciesParams, instrument: InstrumentId)
   }
   if (instrument === 'cello') {
     return params.celloScale ?? 1;
+  }
+  if (instrument === 'contrabass') {
+    return params.bassScale ?? 1;
   }
   return 1;
 }
