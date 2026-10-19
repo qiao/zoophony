@@ -23,3 +23,4 @@ outputs. The user can reverse each decision. Then update its section, and remove
 | The manager added two items of the beaver arm round and four items of the hippo arm round after the six items. | 9.8 |
 | After a `cut` or a ring, `--watch` of `pnpm rig-mesh --check` pairs each watched face of the base with the folded face of the variant with the nearest middle within 1 cm (`watchPairs()`, `fold-probe --middles`). `--keep <dir>` keeps the GLB file of each rig. | 9.8 |
 | `pnpm close-views <role> --base <ref> --pairs <cells> --crop <x>,<y>,<w>,<h>` writes a WebP pair of each named cell: the crop of the commit beside the crop of the working tree, with the box in shares of the cell (`pairImage()`). | 9.8 |
+| The probe tree of a commit is an empty git repository (`git init` in `withProbeTree()`), so each git command of a tool of the commit works there, such as `timesFile()` of `pnpm pose-depth --base`. | 9.3 |
