@@ -398,6 +398,53 @@
       ],
       "below": 0,
       "note": "The shape of the left arm in the play of the bassist, with the mean turns of the samples in which face 1356 of the left upper arm folds (pnpm raise-fit bassist --faces 1356 --side L): the upper arm turns 81.1 degrees from the bind. The fade covers 98% of the play samples. With the rule, the folded face samples of the left upper arm fall from 13,823 to 3,617 (docs/research/2026-10-19-hippo-chest/)."
+    },
+    {
+      "side": "R",
+      "turns": {
+        "clavicle": [
+          0,
+          0.4226,
+          0,
+          0.9063
+        ],
+        "upper_arm": [
+          0.3197,
+          0.3819,
+          -0.5155,
+          0.6972
+        ],
+        "forearm": [
+          -0.0993,
+          0.0575,
+          -0.1286,
+          0.985
+        ]
+      },
+      "fade": [
+        35,
+        45
+      ],
+      "below": 0,
+      "note": "The shape of the bow arm with the level elbow of the play (pnpm raise-fit bassist --faces 517,244,116 --side R with the elbow poles of HIPPO_HOLD): the clavicle turns 50 degrees forward, as the reach of the hold, and the upper arm 91.6 degrees from the bind. With the level elbow, face 517 at the back of the right shoulder folded in each play sample, and the first rule of the right arm, fit for the raised elbow, did not relax it. In the pose of the rule, face 517 turns over and relaxes in 1 round (docs/research/2026-10-19-hippo-arms.md)."
+    },
+    {
+      "side": "L",
+      "bone": "hand",
+      "turns": {
+        "hand": [
+          -0.1024,
+          -0.7373,
+          -0.665,
+          0.0604
+        ]
+      },
+      "fade": [
+        25,
+        35
+      ],
+      "below": 0.3,
+      "note": "The shape of the bent left wrist on the neck (pnpm raise-fit bassist --faces 2201,1495 --side L --bone hand): the paw turns 163.1 degrees on the forearm in the mean of the samples, nearly a twist around the forearm, and faces 2201 and 1495 of the wrist folded in each sample of the play, the lift, and the rest. The rule turns 10 degrees further on the same axis. In the pose of the rule, face 1498 stays turned after the relax, also with grow 1 or below 0.5 (docs/research/2026-10-19-hippo-arms.md)."
     }
   ],
   "cut": {
@@ -413,7 +460,7 @@
       "rounds": 4,
       "note": "The values of the fox, the rabbit, the cat, the dog, and the panda. The rule flips 13 edges."
     },
-    "ringsNote": "The rig has no rings. A ring at each elbow puts the rig at 3,211 triangles, above the budget of 3,200 of a studio body (the mesh has 3,141 triangles), so the long thin faces 753 of the left upper arm and 30 of the right upper arm stay (rig-rings.log)."
+    "ringsNote": "The rig has no rings. A ring at each elbow puts the rig at 3,211 triangles, above the budget of 3,200 of a studio body (the mesh has 3,141 triangles), so the long thin faces 753 of the left upper arm and 30 of the right upper arm stay (rig-rings.log). A ring at the left wrist cuts 32 edges and puts the rig at 3,205 triangles (docs/research/2026-10-19-hippo-arms.md)."
   },
   "check": {
     "thin": {
