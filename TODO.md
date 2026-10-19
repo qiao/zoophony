@@ -275,6 +275,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       mesh (`2026-10-18-mesh-panda.md`).
 - [ ] Remove the unused code of the `broad` muzzle: no species has it since the hippo mesh
       (`2026-10-18-mesh-hippo.md`).
+- [ ] Remove the unused high stool (`HIGH_STOOL`, the support `high-stool`, and the foot ring of the
+      parametric legs): no player sits on it since the hippo stands (`2026-10-18-mesh-hippo.md`).
 - [ ] Panda face: the round patches have angular edges, because the rule recolors whole faces of
       1 cm to 2 cm. The left patch is 18% of the head width high, and the right patch 22% (the
       reference 23% to 27%). Show the user `widths.webp`, and ask if a smoother oval is worth a
@@ -424,8 +426,9 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       play, lift, and rest sample. A raise rule of the left arm does not relax them
       (`2026-10-18-mesh-panda.md`). Done: the left shoulder turns forward
       (`2026-10-18-panda-folds.md`).
-- [ ] The paused shot test of the moves of 2 cm keeps 71.8% of the shots (limit 75%) since the
-      panda mesh (`docs/research/2026-10-18-panda-mesh.md`).
+- [ ] The paused shot test of the moves of 2 cm keeps 74.2% of the shots (limit 75%) with the
+      standing hippo. It kept 71.8% since the panda mesh, and passed with the hippo on the stool
+      (`docs/research/2026-10-18-hippo-mesh/shots-test.log`).
 - [x] Panda: the white fur of the mesh has three times the chroma of `SPECIES_COLORS.panda` (0.042
       against 0.013). Ask the user about a move of the fur colors, as the cat got
       (`docs/research/2026-10-18-panda-mesh.md`). Done: the user chose the reference white
@@ -438,17 +441,14 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       shading of the seam where the hanging arm of the mesh touches the belly. Done: the user chose
       a cut of the mesh at the seam, and the streak share goes from 16.4% to 3.7%
       (`docs/research/2026-10-18-panda-cut.md`, `2026-10-18-panda-marks.md`).
-- [ ] Hippo bassist: the skin folds in each sample, up to 28 faces: the left paw on the neck, the
+- [ ] Hippo bassist: the skin folds in each sample, up to 25 faces: the left paw on the neck, the
       chest under the chin, and the front of the right shoulder. Fit corrective shapes on the mean
       turns of `keys-read.ts` of `docs/research/2026-10-18-hippo-mesh/` (`2026-10-18-mesh-hippo.md`).
-- [ ] Hippo bassist: the thick arms go into the body in the play, the right paw up to 9.1 cm, and
-      the left forearm 3.8 cm into the contrabass. Fit the hold further, or accept the depths as
+- [ ] Hippo bassist: the thick arms go into the body and the contrabass in the play, the right
+      upper arm up to 5.5 cm, and the left upper arm 6.7 cm into the contrabass. Fit the hold further, or accept the depths as
       limits of the sweep (`2026-10-18-mesh-hippo.md`).
 - [ ] Hippo face: the brow ridge of the mesh shades a crease above each pea eye, which can read
       stern in a close front view. Show the user the face, and offer a face rule
-      (`2026-10-18-mesh-hippo.md`).
-- [ ] Hippo seat: the short feet hang in front of the foot ring of the stool, and the wide body
-      hides the stool from the front. Offer a foot ring under the feet or a wider stool
       (`2026-10-18-mesh-hippo.md`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
