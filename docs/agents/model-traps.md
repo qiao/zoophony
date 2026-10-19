@@ -101,7 +101,7 @@ group of your work before you plan it. A probe that a trap names is in its resea
   raised bind arms drag the trunk and fold the shoulder. Keep the arm weights on the free arm
   (`armSplit`).
 - Bone heat gives the top of a narrow shoulder next to a thin neck to the upper arm, as on the cat.
-  Fade the upper arm weight over the top of the shoulder toward the clavicle (`shoulderRamp`).
+  Fade the upper arm weight over the shoulder top toward the clavicle (`shoulderRamp`).
 - Bone heat can give one corner of a small face a bone that the bow arm turns far, such as the right
   clavicle. Read the corner weights of the most folded faces (`pnpm fold-probe --faces`) before a
   ring or a smoothing. On the fox, `clavicleFrom` and `armTop` helped, and a smoothing folded more
@@ -179,14 +179,14 @@ group of your work before you plan it. A probe that a trap names is in its resea
   more rounds of smoothing (`sit.smooth`).
 - A tail on the floor stays flat with rigid bone turns (`studio.tailBind`), and a curve of
   `tailCurl` turns it into a vertical sheet. When the tail is the lowest point of the seated bind,
-  it sets the seat height, and the feet hang above the floor. Turn the tip bone until the line
-  `tail: the lowest point` of the rig log gives the height of the soles.
+  it sets the seat height, and the feet hang above the floor. Turn the tip bone until the rig log
+  line `tail: the lowest point` gives the height of the soles.
 - The idle sway turns the tail bones around the vertical (`pose/pose-at.ts`). A tail that lies on
   the seat does not sway (`OwnBodyParams.seatedTail`). Measure a seated tail over one sway period,
   5.5 s.
-- Short thighs on a deep trunk end behind the front of the belly. Measure the trunk front and the
-  knees (`dog-profile.ts` and `cello-contact.ts` of `docs/research/2026-10-17-dog-mesh/`) before you
-  plan the knees or an instrument between them.
+- Short thighs on a deep trunk end behind the belly front. Measure the trunk front and the knees
+  (`dog-profile.ts` and `cello-contact.ts` of `docs/research/2026-10-17-dog-mesh/`) before you plan
+  the knees or an instrument between them.
 - A big head over a thin neck shows a dark band under the head. Smooth the neck and the head bottom
   with a box that ends behind the chin (`smooth`), because a box that holds the chin moves H and
   each hold.
