@@ -1,12 +1,14 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { basename } from 'node:path';
+import { basename, join } from 'node:path';
 
 import { BOW_PART, bowSweep } from './bow-sweep.ts';
 import { patchedDemos } from './patch-demos.ts';
+import type { DemoFile } from './patch-demos.ts';
 import { setHolds } from './hold-sets.ts';
 import {
   PROBE_NO_CACHE,
   probeBeside,
+  probeCacheDir,
   shortHash,
   storeBase,
   treeCacheFile,
@@ -88,8 +90,18 @@ export interface Options {
   readonly goal: number | null;
 }
 
+/**
+ * The most `--set` rows of a run over all demos of its role: a run with more rows needs `--demo`
+ * or `--long`. A sweep of the hornist with 4 rows over its 10 demos ran for more than 20 minutes
+ * (`docs/decisions/2026-10-19-winds-retro.md`).
+ */
+export const ROW_LIMIT = 5;
+
 /** The text of the usage. */
-const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--base <ref>] [--json <file>]`;
+const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--base <ref>] [--json <file>] [--long]`;
+
+/** The options of the command with no value. */
+const FLAGS: ReadonlySet<string> = new Set(['--gaps', '--targets', '--long']);
 
 /**
  * Tells if a role name is a bowed role with a soloist ({@link SOLOIST_ROLES}).
@@ -156,10 +168,11 @@ export function parseOptions(args: readonly string[]): Options {
   let base: string | null = null;
   let soloist: SpeciesId | null = null;
   let goal: number | null = null;
-  // The flags --gaps and --targets have no value. Each other option has one.
+  // The flags --gaps, --targets, and --long have no value. Each other option has one.
   const gaps = rest.includes('--gaps');
   const targets = rest.includes('--targets');
-  const valued = rest.filter((arg) => arg !== '--gaps' && arg !== '--targets');
+  const long = rest.includes('--long');
+  const valued = rest.filter((arg) => !FLAGS.has(arg));
   for (let i = 0; i < valued.length; i += 2) {
     const value = valued[i + 1];
     if (value === undefined) {
@@ -225,6 +238,12 @@ export function parseOptions(args: readonly string[]): Options {
   }
   if (soloist !== null && demos.length > 0) {
     throw new Error(`The options --soloist and --demo do not go together.\n${USAGE}`);
+  }
+  const rows = variants.length - 1;
+  if (rows > ROW_LIMIT && demos.length === 0 && soloist === null && !long) {
+    throw new Error(
+      `The run has ${rows} --set rows over all demos of the ${role.role}, more than ${ROW_LIMIT} (ROW_LIMIT). Name the demos with --demo <id>, or give --long to sweep all demos.\n${USAGE}`,
+    );
   }
   if (targets && (times !== null || gaps || base !== null)) {
     throw new Error(
@@ -498,17 +517,198 @@ export async function sweepDemos(options: SweepOptions, role: RoleSweep): Promis
     return sweepScene(SOLOIST_FILE, soloistScene(role.role, options.soloist), options, role, true);
   }
   const results: DemoResult[] = [];
-  for (const demo of await patchedDemos()) {
-    const id = demo.file.replace(/\.mid$/, '');
-    if (options.demos.length > 0 && !options.demos.includes(id)) {
-      continue;
-    }
-    if (!role.hasRole(scoreOf(demo.bytes))) {
-      continue;
-    }
-    results.push(...sweepScene(id, sceneOf(demo.bytes), options, role, false));
+  for (const demo of await roleDemos(options.demos, role)) {
+    results.push(...sweepScene(demoId(demo), sceneOf(demo.bytes), options, role, false));
   }
   return results;
+}
+
+/**
+ * Gives the id of a demo: the name of its file with no `.mid`.
+ *
+ * @param demo The demo.
+ * @returns The id, such as `beethoven-8`.
+ */
+function demoId(demo: DemoFile): string {
+  return demo.file.replace(/\.mid$/, '');
+}
+
+/**
+ * Gives the demos that a sweep of a role reads: the demos of `--demo`, or all demos, with a
+ * player of the role.
+ *
+ * @param asked The demos of `--demo`, with no `.mid`, or none for all demos.
+ * @param role The role.
+ * @returns The demos, in the order of `patchedDemos()`.
+ */
+async function roleDemos(asked: readonly string[], role: RoleSweep): Promise<DemoFile[]> {
+  return (await patchedDemos()).filter(
+    (demo) =>
+      (asked.length === 0 || asked.includes(demoId(demo))) && role.hasRole(scoreOf(demo.bytes)),
+  );
+}
+
+/**
+ * The times of the demos of the sweeps of each role: by the key of a sweep ({@link timeKey}), the
+ * time of one row in each demo, in seconds.
+ */
+type DemoTimes = Readonly<Record<string, Readonly<Record<string, number>>>>;
+
+/**
+ * Gives the file of the times of the sweeps ({@link DemoTimes}): `pose-depth-times.json` in the
+ * folder of the probe caches, which each worktree shares.
+ *
+ * @returns The path of the file.
+ */
+function timesFile(): string {
+  return join(probeCacheDir(), 'pose-depth-times.json');
+}
+
+/**
+ * Gives the key of the times of a sweep: the role and the options that change the work of a
+ * sample, such as `hornist --targets`.
+ *
+ * @param options The options.
+ * @returns The key.
+ */
+function timeKey(options: Options): string {
+  return [
+    options.role.role,
+    ...(options.targets ? ['--targets'] : []),
+    ...(options.times ? ['--times'] : []),
+    ...(options.gaps ? ['--gaps'] : []),
+  ].join(' ');
+}
+
+/**
+ * Reads the times of the sweeps ({@link timesFile}).
+ *
+ * @returns The times, or none when the file does not exist or is not JSON text.
+ */
+function readTimes(): DemoTimes {
+  const file = timesFile();
+  if (!existsSync(file)) {
+    return {};
+  }
+  try {
+    // SAFETY: only storeTimes() of this tool writes the file, with the type DemoTimes.
+    return JSON.parse(readFileSync(file, 'utf8')) as DemoTimes;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Keeps the time of each demo of a swept row in the file of the times ({@link timesFile}), for the
+ * estimate of the next run of the sweep ({@link planLines}).
+ *
+ * @param options The options.
+ * @param seconds The time of the row in each demo, in seconds.
+ */
+function storeTimes(options: Options, seconds: Readonly<Record<string, number>>): void {
+  const times = readTimes();
+  const key = timeKey(options);
+  const next = { ...times, [key]: { ...times[key], ...seconds } };
+  storeBase(timesFile(), `${JSON.stringify(next, null, 2)}\n`);
+}
+
+/** The results of a row with the time of each demo. */
+interface TimedRow {
+  /** The results of each demo. */
+  readonly results: DemoResult[];
+  /** The time of each demo, in seconds, by its id. */
+  readonly seconds: Record<string, number>;
+}
+
+/**
+ * Sweeps the demos of a row one at a time, as {@link sweepDemos} does, and times each demo. The
+ * scene of the soloist is one demo with the id {@link SOLOIST_FILE}.
+ *
+ * @param options The options.
+ * @param role The role of the options.
+ * @param ids The ids of the demos with the role, in their order.
+ * @returns The results, in the order of the demos, and the time of each demo.
+ */
+async function timedSweep(
+  options: Options,
+  role: RoleSweep,
+  ids: readonly string[],
+): Promise<TimedRow> {
+  const results: DemoResult[] = [];
+  const seconds: Record<string, number> = {};
+  for (const id of options.soloist ? [SOLOIST_FILE] : ids) {
+    const started = performance.now();
+    results.push(
+      ...(await sweepDemos(options.soloist ? options : { ...options, demos: [id] }, role)),
+    );
+    seconds[id] = (performance.now() - started) / 1000;
+  }
+  return { results, seconds };
+}
+
+/**
+ * Gives the time of one row of a sweep over its demos from the times of the last rows: the time of
+ * each demo, or the mean time of the known demos for a demo with no time.
+ *
+ * @param ids The ids of the demos of the row.
+ * @param known The time of each known demo, in seconds.
+ * @returns The time, in seconds, and the count of the demos with a time, or `null` when no demo
+ *   has a time.
+ */
+export function rowTime(
+  ids: readonly string[],
+  known: Readonly<Record<string, number>>,
+): { readonly seconds: number; readonly known: number } | null {
+  const times = Object.values(known);
+  if (times.length === 0) {
+    return null;
+  }
+  const mean = times.reduce((sum, t) => sum + t, 0) / times.length;
+  const own = ids.filter((id) => known[id] !== undefined);
+  return { seconds: ids.reduce((sum, id) => sum + (known[id] ?? mean), 0), known: own.length };
+}
+
+/**
+ * Writes the plan of a run before its first row: the demos with the role, the rows to sweep, and
+ * the estimated time. The time of one row comes from the base row of the cache
+ * ({@link baseRowCache}), or from the times of the last rows of the same sweep
+ * ({@link rowTime}).
+ *
+ * @param options The options.
+ * @param ids The ids of the demos of the run.
+ * @param cached The time of the base row in the cache, in seconds, or `null` when the run sweeps
+ *   the base row.
+ * @param known The time of each demo of the last rows of the sweep, in seconds.
+ * @returns The lines.
+ */
+export function planLines(
+  options: Options,
+  ids: readonly string[],
+  cached: number | null,
+  known: Readonly<Record<string, number>>,
+): string[] {
+  const demos = options.soloist ? [SOLOIST_FILE] : ids;
+  const scene = options.soloist
+    ? 'the scene of the soloist'
+    : `${ids.length} demo${ids.length === 1 ? '' : 's'} with the role (${ids.join(', ')})`;
+  const rows = options.variants.length - (cached === null ? 0 : 1);
+  const base = cached === null ? '' : ', and the base row comes from the cache';
+  const count = `${rows} row${rows === 1 ? '' : 's'}`;
+  const lines = [`Sweep of the ${options.role.role}: ${scene}, ${count} to sweep${base}.`];
+  const last = rowTime(demos, known);
+  const row = cached ?? last?.seconds ?? null;
+  if (row === null) {
+    lines.push('No time of this sweep is known yet. The time of the first row gives it.');
+    return lines;
+  }
+  const source =
+    cached === null
+      ? `from the last rows of this sweep, with a time for ${last?.known ?? 0} of ${demos.length} demos`
+      : 'from the base row of the cache';
+  const seconds = rows * row;
+  const total = seconds < 120 ? `${seconds.toFixed(0)} s` : `${(seconds / 60).toFixed(1)} minutes`;
+  lines.push(`Estimated time: about ${total}: ${count} of ${row.toFixed(1)} s, ${source}.`);
+  return lines;
 }
 
 /**
@@ -970,7 +1170,7 @@ function baseRowCache(options: Options): string | null {
   if (options.variants.length < 2 || process.env[PROBE_NO_CACHE] === '1') {
     return null;
   }
-  const args = withoutOptions(process.argv.slice(2), ['--set', '--json', '--base']);
+  const args = withoutOptions(process.argv.slice(2), ['--set', '--json', '--base'], ['--long']);
   return treeCacheFile('pose-depth.ts', [String(ROWS_FORMAT), ...args]);
 }
 
@@ -988,6 +1188,7 @@ async function sweepRows(options: Options, role: RoleSweep): Promise<SweepRow[]>
   const rows: SweepRow[] = [];
   const cache = baseRowCache(options);
   const cached = cache && existsSync(cache) ? readRows(readFileSync(cache, 'utf8'))[0] : undefined;
+  const ids = options.soloist ? [] : (await roleDemos(options.demos, role)).map(demoId);
   for (const variant of options.variants) {
     if (variant === '' && cached) {
       rows.push(cached);
@@ -998,13 +1199,15 @@ async function sweepRows(options: Options, role: RoleSweep): Promise<SweepRow[]>
     }
     const { undo, text } = setHolds(variant);
     const started = performance.now();
-    let results: DemoResult[];
+    let timed: TimedRow;
     try {
-      results = await sweepDemos(options, role);
+      timed = await timedSweep(options, role, ids);
     } finally {
       undo();
     }
     const seconds = (performance.now() - started) / 1000;
+    const { results } = timed;
+    storeTimes(options, timed.seconds);
     rows.push({ variant: text, seconds, results });
     if (variant === '' && cache) {
       storeBase(cache, rowsJson([{ variant: text, seconds, results }]));
@@ -1042,7 +1245,7 @@ async function compareRef(role: RoleSweep, ref: string, goal: number | null): Pr
   const texts = await probeBeside(
     ref,
     'pose-depth.ts',
-    { base: withoutOptions(args, ['--set', '--goal'], ['--gaps']), tree: args },
+    { base: withoutOptions(args, ['--set', '--goal'], ['--gaps', '--long']), tree: args },
     { prefix: 'pose-depth-', role: { ...SWEEP_ROLE_TABLE, name: role.role }, cache: true },
   );
   const [base] = readRows(texts.base);
@@ -1061,9 +1264,24 @@ async function compareRef(role: RoleSweep, ref: string, goal: number | null): Pr
   }
 }
 
+/**
+ * Writes the plan of a run before its first row ({@link planLines}).
+ *
+ * @param options The options.
+ * @param role The role of the options.
+ */
+async function printPlan(options: Options, role: RoleSweep): Promise<void> {
+  const ids = options.soloist ? [] : (await roleDemos(options.demos, role)).map(demoId);
+  const cache = options.base === null ? baseRowCache(options) : null;
+  const cached = cache && existsSync(cache) ? readRows(readFileSync(cache, 'utf8'))[0] : undefined;
+  const known = readTimes()[timeKey(options)] ?? {};
+  console.log(planLines(options, ids, cached ? cached.seconds : null, known).join('\n'));
+}
+
 async function main(): Promise<void> {
   const options = parseOptions(process.argv.slice(2));
   const role = roleOf(options);
+  await printPlan(options, role);
   if (options.base !== null) {
     await compareRef(role, options.base, options.goal);
     return;
