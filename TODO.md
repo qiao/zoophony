@@ -467,11 +467,13 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the inner right elbow. In pizzicato, the upper arm turns 111° and the paw 131°, and no hold
       or shape of 35 tried removes the folds. Try a pizzicato that keeps the arm of the bow
       (`step2/` of `docs/research/2026-10-19-hippo-arms/`, `2026-10-19-hippo-arms.md`).
-- [ ] Hippo bassist: the dark slot at the front of the right armpit is the shading of the cut
-      caps, whose normals point away from the light, and the 50° shoulder turn squeezes faces 114
-      to 116 to light slivers (`slot-probe.webp`, `shoulder-faces.webp` of
-      `docs/research/2026-10-19-hippo-arms/step2/`). Try normals over the caps from the skin
-      around them.
+- [x] Hippo bassist: the dark slot at the front of the right armpit is the shading of the cut
+      caps, whose normals point away from the light. Done: the caps of the arm take the normals
+      of the skin around them, also on the elephant and the beaver (`2026-10-19-cut-caps.md`).
+- [ ] Hippo bassist: the 50° shoulder turn squeezes faces 114 to 116 and 238 to light slivers.
+      Rigid weights and a ring at the shoulder fold more, and a turn of 45° or 48° keeps their
+      mean creases above 60° (`docs/research/2026-10-19-cut-caps.md`). Try a flip of their long
+      edges or a shape that relaxes them.
 - [ ] Hippo bassist: on the E and A strings, the roll of the bow paw stays at its low end, and the
       paw goes more than 1.5 cm into the belly in 4.6% of the play samples. A hold that moves the
       right elbow off the line of the stick, such as the slant -10°, can remove it
