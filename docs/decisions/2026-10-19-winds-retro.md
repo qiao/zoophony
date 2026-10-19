@@ -24,3 +24,4 @@ outputs. The user can reverse each decision. Then update its section, and remove
 | After a `cut` or a ring, `--watch` of `pnpm rig-mesh --check` pairs each watched face of the base with the folded face of the variant with the nearest middle within 1 cm (`watchPairs()`, `fold-probe --middles`). `--keep <dir>` keeps the GLB file of each rig. | 9.8 |
 | `pnpm close-views <role> --base <ref> --pairs <cells> --crop <box>` writes the crop of each named cell of the commit beside the crop of the working tree (`pairImage()`). | 9.8 |
 | The probe tree of a commit is an empty git repository (`git init` in `withProbeTree()`), so the git commands of the tools of each commit work there. | 9.3 |
+| Each row of `pnpm hold-fit` names the 5 faces that fold in the most samples, with `new` at a face that folds in no sample of the base row (`topFolds()`). | 9.8 |
