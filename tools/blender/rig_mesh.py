@@ -10,7 +10,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
 1. Import the source GLB file, weld the corners, and scale the mesh to 1 unit from the soles to
    the top, with the soles at y = 0. The math uses the axes of the studio: y up, +z forward, and
    +x the left side of the animal. With `cut` of the config, the faces that join each hanging
-   forearm to the belly go, and new faces close both holes (`cut_seam()`).
+   forearm to the belly go, and new faces close both holes (`cut_seam()`). With `skinNormals` of
+   the cut, the file names the caps of the arm, and the app gives them the normals of the skin.
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones, and give the weights with bone heat. Then the
@@ -1571,14 +1572,14 @@ def split_faces(verts, tris, uvs, weights, cuts):
     plane: two faces for one cut edge, three for two, and four for three. A new vertex takes the
     place, the UV of each face, and the weights of its place on the edge. A face keeps its index
     for its first part, and the other parts follow the faces. Gives the new vertices, triangles,
-    corner UVs, and weights."""
+    corner UVs, weights, and the index of the face before the split of each face."""
     index = {}
     new_verts, new_weights = [verts], [weights]
     for (a, b), t in sorted(cuts.items()):
         index[(a, b)] = len(verts) + len(index)
         new_verts.append([(1 - t) * verts[a] + t * verts[b]])
         new_weights.append([(1 - t) * weights[a] + t * weights[b]])
-    out_tris, out_uvs, extra_tris, extra_uvs = [], [], [], []
+    out_tris, out_uvs, extra_tris, extra_uvs, extra_origin = [], [], [], [], []
     for f, t in enumerate(tris):
         uv = {int(v): uvs[f][j] for j, v in enumerate(t)}
         mids = {}
@@ -1594,9 +1595,11 @@ def split_faces(verts, tris, uvs, weights, cuts):
         out_uvs.append([uv[v] for v in parts[0]])
         extra_tris += parts[1:]
         extra_uvs += [[uv[v] for v in p] for p in parts[1:]]
+        extra_origin += [f] * (len(parts) - 1)
     tris_out = np.array(out_tris + extra_tris, np.int64)
     uvs_out = np.array(out_uvs + extra_uvs)
-    return np.concatenate(new_verts), tris_out, uvs_out, np.concatenate(new_weights)
+    origin = np.concatenate([np.arange(len(tris)), np.array(extra_origin, np.int64)])
+    return np.concatenate(new_verts), tris_out, uvs_out, np.concatenate(new_weights), origin
 
 
 def split_triangle(t, mids, points):
@@ -1628,17 +1631,18 @@ def refine(verts, tris, uvs, weights, heads, ends, matrices, rule):
     `sides` or on both sides, then the flips of the long edges of the faces that are thin in the
     seated bind pose (`flip_edges()`). The cuts keep the surface, and each new vertex keeps four
     bones. Gives the new vertices, triangles, corner UVs, and weights, the number of flips, the
-    largest move of a flip, and the number of cut edges."""
+    largest move of a flip, the number of cut edges, and the index of the face before the refine
+    of each face. A flip keeps the index of each of its two faces."""
     cuts = {}
     for ring in rule['rings']:
         for side in ring.get('sides', 'LR'):
             cuts.update(ring_cuts(verts, tris, weights, heads, ends, ring, side))
-    verts, tris, uvs, weights = split_faces(verts, tris, uvs, weights, cuts)
+    verts, tris, uvs, weights, origin = split_faces(verts, tris, uvs, weights, cuts)
     if cuts:
         weights = limit(weights)
     tris, uvs, flips, largest = flip_edges(verts, skin(weights, matrices, verts), tris, uvs,
                                            weights, rule['flip'])
-    return verts, tris, uvs, weights, flips, largest, len(cuts)
+    return verts, tris, uvs, weights, flips, largest, len(cuts), origin
 
 
 def shortest_edges(points, tris):
@@ -3404,7 +3408,7 @@ def main():
     # The faces of the arms change so that they bend at the joints. The head, the trunk, and the
     # legs keep their faces, their vertices, and their weights. The arms of the upright bind give
     # the thin faces, so that a recline does not change the faces.
-    long_verts, tris, uvs, weights, flips, largest, cuts = refine(
+    long_verts, tris, uvs, weights, flips, largest, cuts, origin = refine(
         long_verts, source_tris, uvs, weights, long_heads, long_ends, upright_matrices,
         config['refine'])
     log(f'refine: {flips} flips, the largest move {largest * meters * 1000:.3f} mm, {cuts} cut '
@@ -3412,11 +3416,15 @@ def main():
     thin_rule = config['check']['thin'] if check else None
     uncut = uncut_faces(long_verts, tris, long_heads, long_ends, thin_rule) if thin_rule else []
     colors, dark, dark_share = face_colors(tris, uvs, texture, config['colors'])
+    # The caps of the arm that take the normals of the skin in the app (`skinNormals` of the cut),
+    # with the parts of a split.
+    skin_caps = np.zeros(len(tris), bool)
     if 'cut' in config:
         # The caps of the body and the quads at the top take the white of the belly: the color of
         # the nearest light face that the cut keeps. The caps of the arm keep the black of the arm
         # from the faces across their edges.
         start = len(source_tris) - sum(len(c[2]) for c in seam_cut)
+        arm_cap = np.zeros(len(source_tris), bool)
         light = oklab(colors)[:, 0] >= 0.5
         mids = long_verts[tris].mean(axis=1)
         kept = np.nonzero(light & (np.arange(len(tris)) < start))[0]
@@ -3427,7 +3435,11 @@ def main():
                 if not all(v in arm_side for v in f):
                     colors[k] = colors[kept[np.argmin(np.linalg.norm(mids[kept] - mids[k], axis=1))]]
                     dark[k] = False
+                else:
+                    arm_cap[k] = True
                 k += 1
+        if config['cut'].get('skinNormals', False):
+            skin_caps = arm_cap[origin]
     # The move of the head from the source: the pivot, the head factor, the rise, and the drop.
     head_move = (heads['neck'], factors['head'], rise,
                  drop + lower if factors['trunk'] != 1 else drop)
@@ -3648,6 +3660,16 @@ def main():
     # the move of the head center by the smoothing.
     extras = {key: config[key] for key in ('headFactor', 'neckFactor')
               if config.get(key, 1) != 1}
+    if skin_caps.any():
+        # The app gives each corner of these faces the normal of the skin at its vertex
+        # (`studioNormals()`), because the normals of the caps of the arm point into the gap
+        # between the arm and the trunk, away from the light. The faces are fur, so their indices
+        # in the module are their indices in the primitive `fur`.
+        found = np.nonzero(skin_caps)[0]
+        if (materials[np.argsort(order)][found] != 'fur').any():
+            raise SystemExit('A cap of the arm is not fur.')
+        extras['caps'] = sorted(int(t) for t in module_faces(order, materials)[found])
+        log(f'caps: {len(found)} caps of the arm take the normals of the skin in the app')
     if raised:
         # One rule writes one pose, as the files before the list of rules did, so that their bytes
         # stay.
