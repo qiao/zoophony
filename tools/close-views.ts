@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, realpathSync } from 'node:fs';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -13,17 +13,25 @@ import { DEFAULT_DEMO, DEMOS, DEMO_IDS } from '../src/app/demos.ts';
 import type { DemoId } from '../src/app/demos.ts';
 import { BAR_HIDE_SEC } from '../src/app/bar-rules.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
-import { GALLERY_FOV_DEG, GALLERY_PROBES, speciesItems } from '../src/gallery/items.ts';
+import {
+  GALLERY_FOV_DEG,
+  GALLERY_PROBES,
+  bodyBoundsOf,
+  speciesItems,
+} from '../src/gallery/items.ts';
 import type { GalleryMove, GalleryProbe } from '../src/gallery/items.ts';
+import type { Bounds } from '../src/models/bounds.ts';
 import type { PlayerPlace, SceneLayout } from '../src/models/layout.ts';
 import { layoutScene } from '../src/models/layout-scene.ts';
 import { ModelCache } from '../src/models/model-cache.ts';
 import { SPECIES, SPECIES_IDS, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
+import type { Vec3 } from '../src/models/tuples.ts';
 import { buildScore } from '../src/score/score.ts';
 import type { Score } from '../src/score/types.ts';
 import { SHOT_SEED, prepareShots } from '../src/shots/prepare.ts';
-import type { Shot } from '../src/shots/types.ts';
+import type { CameraPose, Shot } from '../src/shots/types.ts';
+import { FIELD_OF_VIEW } from '../src/shots/view.ts';
 import { chromiumArgs } from './chromium-args.ts';
 import { glbModule, speciesAnimal } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
@@ -960,14 +968,15 @@ function variantPlugin(variant: SiteVariant): Plugin {
 }
 
 /**
- * Builds the site of the working tree with a variant ({@link variantPlugin}) into a temporary
- * folder, and serves it ({@link startSite}). The folder goes away when the site closes.
+ * Builds the site of the working tree with the plugin of a variant ({@link variantPlugin}) or of
+ * `--at` ({@link aimPlugin}) into a temporary folder, and serves it ({@link startSite}). The
+ * folder goes away when the site closes.
  *
- * @param variant The variant.
+ * @param plugin The plugin.
  * @returns The site.
  * @throws Error if the build fails.
  */
-async function startVariantSite(variant: SiteVariant): Promise<Site> {
+async function startVariantSite(plugin: Plugin): Promise<Site> {
   const dir = await mkdtemp(join(tmpdir(), 'close-views-variant-'));
   const remove = (): Promise<void> => rm(dir, { recursive: true, force: true });
   try {
@@ -975,7 +984,7 @@ async function startVariantSite(variant: SiteVariant): Promise<Site> {
       root: ROOT,
       logLevel: 'warn',
       build: { outDir: dir, emptyOutDir: true },
-      plugins: [variantPlugin(variant)],
+      plugins: [plugin],
     });
     const site = await startSite(ROOT, SERVER_PORT, dir);
     return {
@@ -1114,6 +1123,8 @@ export function baseGridLabels(labels: readonly string[], base: string): string[
  * @param use The function that reads the site.
  * @param overlay The paths of the working tree that replace the paths of the commit, such as
  *   `src/gallery`.
+ * @param aim True to serve a second build of the commit with the plugin of `--at`
+ *   ({@link aimPlugin}), in `dist-aim/`.
  * @returns The result of the function.
  * @throws Error if the build fails, the server has no URL, or the function fails.
  */
@@ -1122,12 +1133,23 @@ function withRefSite<T>(
   label: string,
   use: (site: string) => Promise<T>,
   overlay: readonly string[] = [],
+  aim = false,
 ): Promise<T> {
   return withRefBuild(
     ref,
     async (dir) => {
+      const outDir = join(dir, aim ? 'dist-aim' : 'dist');
+      if (aim) {
+        await viteBuild({
+          root: dir,
+          logLevel: 'warn',
+          build: { outDir, emptyOutDir: true },
+          plugins: [aimPlugin(dir)],
+        });
+      }
       const server = await preview({
         root: dir,
+        build: { outDir },
         preview: { port: SERVER_PORT, strictPort: false, open: false },
       });
       try {
@@ -1209,6 +1231,8 @@ interface ModeRender {
    * commit, such as `src/gallery` (`withRefBuild()`).
    */
   readonly overlay: readonly string[];
+  /** True when the build of the commit takes the plugin of `--at` ({@link aimPlugin}). */
+  readonly aim: boolean;
   /**
    * Renders the mode on the site of the working tree, and writes its images.
    *
@@ -1973,6 +1997,67 @@ export interface PlayCamera {
   readonly dy: number;
   /** The wheel steps of -100 pixels, each a zoom in. A negative count zooms out. */
   readonly wheel: number;
+  /** The view of the camera at one player of `--at` ({@link aimPose}), or none. */
+  readonly aim?: AimView;
+}
+
+/** The view of a camera of `--at` at one player of the demo. */
+export interface AimView {
+  /**
+   * The turn of the camera to the right side of the player, in degrees. 0 is the front of the
+   * player, as in a close view of the gallery.
+   */
+  readonly azimuth: number;
+  /** The angle of the camera above the floor, in degrees. */
+  readonly elevation: number;
+  /** The zoom, above 0: 1 shows the whole body, and 0.5 also the players around it. */
+  readonly zoom: number;
+}
+
+/**
+ * The elevation of `--at` with no `--elevation`, in degrees. At 10°, as in the mode `species`, the
+ * players in front of the elephant timpanist hid most of its body.
+ */
+export const AIM_ELEVATION = 20;
+
+/**
+ * Gives the camera of `--at` at one player: it looks at the middle of the box of the body from
+ * the azimuth and the elevation of the view. At the zoom 1, the sphere around the box fills the
+ * height of the field of view of the stage (`FIELD_OF_VIEW` of `src/shots/view.ts`). The player
+ * faces -z in the axes of its model, and turns by its facing around y on the stage.
+ *
+ * @param place The position and the facing of the player on the stage.
+ * @param box The box of the body, in the axes of the model (`bodyBoundsOf()`).
+ * @param view The view.
+ * @returns The camera, as `follow()` of `StageCamera` takes it. The scene sets the beam and the
+ *   light of a free camera itself, so these values do nothing.
+ */
+export function aimPose(
+  place: Pick<PlayerPlace, 'position' | 'facing'>,
+  box: Bounds,
+  view: AimView,
+): CameraPose {
+  const middle = (k: 0 | 1 | 2): number => (box.min[k] + box.max[k]) / 2;
+  const cos = Math.cos(place.facing);
+  const sin = Math.sin(place.facing);
+  const target: Vec3 = [
+    place.position[0] + middle(0) * cos + middle(2) * sin,
+    place.position[1] + middle(1),
+    place.position[2] - middle(0) * sin + middle(2) * cos,
+  ];
+
+  const size = [0, 1, 2].map((k) => (box.max[k] ?? 0) - (box.min[k] ?? 0));
+  const radius = Math.hypot(...size) / 2;
+  const distance = radius / Math.sin((FIELD_OF_VIEW * Math.PI) / 360) / view.zoom;
+  const azimuth = (view.azimuth * Math.PI) / 180 - place.facing;
+  const elevation = (view.elevation * Math.PI) / 180;
+  const flat = distance * Math.cos(elevation);
+  const position: Vec3 = [
+    target[0] + flat * Math.sin(azimuth),
+    target[1] + distance * Math.sin(elevation),
+    target[2] - flat * Math.cos(azimuth),
+  ];
+  return { position, target, fov: FIELD_OF_VIEW, beam: 1, close: false, light: 0, spot: 0 };
 }
 
 /**
@@ -2090,6 +2175,8 @@ export interface PlayArgs {
   readonly url: string | null;
   /** The commit, the branch, or the tag to compare with the working tree, or `null`. */
   readonly base: string | null;
+  /** The player of `--at`, whose cameras have an {@link AimView}, or `null`. */
+  readonly at: ShotSubject | null;
 }
 
 /**
@@ -2164,17 +2251,19 @@ export function shotSubject(text: string): ShotSubject {
 
 /**
  * Reads the command line of the mode `play`:
- * `play <dir> [--demo <id>] [--time <s>] [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--url <url>] [--base <ref>]`.
+ * `play <dir> [--demo <id>] [--time <s>] [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>]`.
  * With no `--camera`, the camera is `default`. `--cinematic` renders the camera of the shot plan
  * of the app ({@link CINEMATIC_CAMERA}). `--shot` also gives the time: the frame of the first solo
- * or section shot of its subject ({@link chooseShot}).
+ * or section shot of its subject ({@link chooseShot}). `--at` aims the stage camera at one player
+ * ({@link aimCamerasOf}, {@link aimPose}).
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when the first argument is not `play`.
  * @throws Error that lists the correct names, for an unknown demo, camera, or species, and an
  *   error for a wrong time, a time below {@link SEEK_LEAD_SEC}, a time at or after the end of the
- *   demo, `--camera` with `--cinematic` or `--shot`, `--time` with `--shot`, a wrong option, or a
- *   missing word.
+ *   demo, `--camera` with `--cinematic` or `--shot`, `--time` with `--shot`, `--at` with
+ *   `--camera`, `--cinematic`, `--shot`, or `--url`, an option of `--at` with no `--at`, a wrong
+ *   option, or a missing word.
  */
 export function playArgs(args: readonly string[]): PlayArgs | null {
   if (args[0] !== 'play') {
@@ -2182,8 +2271,19 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
   }
   const line = modeLine(
     args.slice(1),
-    ['--demo', '--time', '--camera', '--shot', '--url', '--base'],
-    ['--camera'],
+    [
+      '--demo',
+      '--time',
+      '--camera',
+      '--shot',
+      '--at',
+      '--azimuth',
+      '--zoom',
+      '--elevation',
+      '--url',
+      '--base',
+    ],
+    ['--camera', '--azimuth'],
     ['--cinematic'],
   );
   const [out, ...extra] = line.words;
@@ -2207,12 +2307,26 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
   }
   const url = line.options.get('--url')?.[0] ?? null;
   const base = line.options.get('--base')?.[0] ?? null;
+  const atText = line.options.get('--at')?.[0] ?? null;
+  const aimCameras = atText === null ? null : aimCamerasOf(atText, line.options);
+  if (atText === null && ['--azimuth', '--zoom', '--elevation'].some((o) => line.options.has(o))) {
+    throw new Error('The options --azimuth, --zoom, and --elevation need --at.');
+  }
+  if (aimCameras && (cinematic || cameraTexts)) {
+    throw new Error(
+      'The option --at gives the camera, so it takes no --camera, --cinematic, or --shot.',
+    );
+  }
+  if (aimCameras && url !== null) {
+    throw new Error('The option --at builds a site of its own, so --url does not go.');
+  }
 
   if (shotText !== null) {
     const subject = shotSubject(shotText);
     const name = subject.kind === 'seat' ? `seat${subject.seat}` : subject.species;
     const camera = { ...CINEMATIC_CAMERA, name: `shot-${name}` };
-    return { demo, time: { kind: 'shot', subject }, cameras: [camera], cinematic, out, url, base };
+    const time: PlayTime = { kind: 'shot', subject };
+    return { demo, time, cameras: [camera], cinematic, out, url, base, at: null };
   }
   const text = timeText ?? String(PLAY_TIME_SEC);
   const sec = Number(text);
@@ -2220,8 +2334,59 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     throw new Error(`The time "${text}" is not a song time in seconds, such as 6 or 30.5.`);
   }
   const time: PlayTime = { kind: 'song', sec: frameTime(sec, demo) };
-  const cameras = cinematic ? [CINEMATIC_CAMERA] : (cameraTexts ?? ['default']).map(playCamera);
-  return { demo, time, cameras, cinematic, out, url, base };
+  const cameras =
+    aimCameras?.cameras ??
+    (cinematic ? [CINEMATIC_CAMERA] : (cameraTexts ?? ['default']).map(playCamera));
+  return { demo, time, cameras, cinematic, out, url, base, at: aimCameras?.subject ?? null };
+}
+
+/** The player and the cameras of `--at`. */
+interface AimCameras {
+  /** The seat or the species of the player. */
+  readonly subject: ShotSubject;
+  /** The cameras, one for each azimuth. */
+  readonly cameras: readonly PlayCamera[];
+}
+
+/**
+ * Reads the cameras of `--at <seat|species>`: one camera for each `--azimuth` (0 by default), at
+ * the `--zoom` (1 by default) and the `--elevation` ({@link AIM_ELEVATION} by default) of all.
+ * The name of a camera is `at-<subject>-az<azimuth>`, such as `at-elephant-az90`.
+ *
+ * @param text The subject of `--at`.
+ * @param options The options of the mode `play`.
+ * @returns The player and the cameras.
+ * @throws Error for a subject that is not a seat or a species, an azimuth that is not a number or
+ *   that comes two times, a zoom that is not above 0, or a wrong elevation.
+ */
+function aimCamerasOf(text: string, options: ReadonlyMap<string, readonly string[]>): AimCameras {
+  const subject = shotSubject(text);
+  const zoomText = options.get('--zoom')?.[0] ?? '1';
+  const zoom = Number(zoomText);
+  if (!Number.isFinite(zoom) || zoom <= 0) {
+    throw new Error(
+      `The option --zoom of --at takes a number above 0, such as 2, and not "${zoomText}".`,
+    );
+  }
+  const elevation = elevationOf(options.get('--elevation')?.[0]) ?? AIM_ELEVATION;
+  const azimuths = onceEach(options.get('--azimuth') ?? ['0'], 'azimuth').map((value) => {
+    const azimuth = Number(value);
+    if (value.trim() === '' || !Number.isFinite(azimuth)) {
+      throw new Error(
+        `The option --azimuth takes a number of degrees, such as 90, and not "${value}".`,
+      );
+    }
+    return azimuth;
+  });
+  const name = subject.kind === 'seat' ? `seat${subject.seat}` : subject.species;
+  const cameras = azimuths.map((azimuth) => ({
+    name: `at-${name}-az${azimuth}`,
+    dx: 0,
+    dy: 0,
+    wheel: 0,
+    aim: { azimuth, elevation, zoom },
+  }));
+  return { subject, cameras };
 }
 
 /** The share of a shot at the frame of `--shot`: the middle, after the blend from the shot before. */
@@ -2374,6 +2539,100 @@ export function chosenShotText(demo: DemoId, chosen: ChosenShot): string {
   return `The shot of ${demo}: ${shot.kind} of ${noun} ${seats}, ${Math.max(0, shot.startSec).toFixed(2)} s to ${end}. The frame is at ${chosen.frameSec} s.`;
 }
 
+/** The player of `--at` on the stage of a demo. */
+export interface AimTarget {
+  /** The place of the player. */
+  readonly place: PlayerPlace;
+  /** The box of its body, in the axes of its model (`bodyBoundsOf()`). */
+  readonly box: Bounds;
+}
+
+/**
+ * Finds the player of `--at` in the layout of a demo ({@link demoLayout}): the player of the seat,
+ * or the first player of the species in the order of the layout.
+ *
+ * @param demo The demo.
+ * @param subject The seat or the species.
+ * @returns The player and the box of its body.
+ * @throws Error that lists the players of the demo, when no player matches.
+ */
+export async function aimTarget(demo: DemoId, subject: ShotSubject): Promise<AimTarget> {
+  const { layout, models } = await demoLayout(demo);
+  const place = layout.players.find((player) =>
+    subject.kind === 'seat'
+      ? player.cast.seatIndex === subject.seat
+      : player.cast.species === subject.species,
+  );
+  if (!place) {
+    const name = subject.kind === 'seat' ? `the seat ${subject.seat}` : subject.species;
+    const seats = [
+      ...new Set(layout.players.map((p) => `${p.cast.species} (seat ${p.cast.seatIndex})`)),
+    ];
+    throw new Error(
+      `The demo ${demo} has no player of ${name}. Its players are: ${seats.join(', ')}.`,
+    );
+  }
+  const { cast } = place;
+  const model = models.get(cast.species, cast.instrument, cast.kettles, cast.support);
+  return { place, box: bodyBoundsOf(model.mesh) };
+}
+
+/**
+ * Writes the player of `--at` for the output of the tool.
+ *
+ * @param demo The demo.
+ * @param target The player.
+ * @returns The text, such as `The camera of --at aims at the elephant of the seat 12 (timpani).`
+ */
+function aimTargetText(demo: DemoId, target: AimTarget): string {
+  const { cast } = target.place;
+  return `The camera of --at aims at the ${cast.species} of the seat ${cast.seatIndex} (${cast.instrument}) of ${demo}.`;
+}
+
+/** The id of the module that aims the stage camera of a build at the camera of the query `aim`. */
+const AIM_MODULE = 'virtual:close-views-aim';
+
+/**
+ * Gives the plugin of a build of the app whose stage camera follows the camera of the query
+ * `aim`: JSON of a `CameraPose` ({@link aimPose}). The last import of `src/main.ts` replaces
+ * `follow()` and `update()` of `StageCamera` with a call of the old `follow()` with that camera.
+ * Thus each frame takes that camera, in Free mode and in Cinematic mode. A page with no query
+ * `aim` is the page of the app.
+ *
+ * @param root The root of the tree to build.
+ * @returns The plugin.
+ */
+function aimPlugin(root: string): Plugin {
+  // Vite gives the real path of each module, and a temporary folder can sit under a link.
+  const top = realpathSync(root);
+  const entry = join(top, 'src', 'main.ts');
+  const camera = join(top, 'src', 'scene', 'camera.ts');
+  const resolved = `\0${AIM_MODULE}`;
+  const code = [
+    `import { StageCamera } from ${JSON.stringify(camera)};`,
+    "const text = new URLSearchParams(location.search).get('aim');",
+    'if (text) {',
+    '  const pose = JSON.parse(text);',
+    '  const follow = StageCamera.prototype.follow;',
+    '  StageCamera.prototype.follow = function () { follow.call(this, pose); };',
+    '  StageCamera.prototype.update = function () { follow.call(this, pose); };',
+    '}',
+  ].join('\n');
+  return {
+    name: 'zoophony:close-views-aim',
+    apply: 'build',
+    resolveId(id) {
+      return id === AIM_MODULE ? resolved : null;
+    },
+    load(id) {
+      return id === resolved ? code : null;
+    },
+    transform(text, id) {
+      return id === entry ? `${text}\nimport ${JSON.stringify(AIM_MODULE)};\n` : null;
+    },
+  };
+}
+
 /**
  * Gives the song time of the frames of the mode `play`. For `--shot`, it chooses the shot
  * ({@link chooseShot}) and prints it.
@@ -2449,6 +2708,8 @@ async function playWait<T>(what: string, frame: string, wait: () => Promise<T>):
  * @param camera The camera.
  * @param time The song time of the frame, in seconds.
  * @param tree The name of the tree of the site, such as `the working tree` or `main (cc83899c)`.
+ * @param target The player of `--at`, or `null`. A camera with an {@link AimView} then puts its
+ *   camera ({@link aimPose}) into the query `aim` of the page, for a build of {@link aimPlugin}.
  * @returns The PNG image, and the song time of the bar at the frame, such as `0:06`.
  * @throws Error that names the tree, the camera, the demo, and the time, when the seek bar does
  *   not reach the time in {@link SEEK_WAIT_MS}, when the bar does not hide in {@link BAR_WAIT_MS},
@@ -2461,8 +2722,11 @@ async function playFrame(
   camera: PlayCamera,
   time: number,
   tree: string,
+  target: AimTarget | null,
 ): Promise<{ readonly image: Buffer; readonly clock: string }> {
-  const path = `/#demo=${args.demo}`;
+  const aim = camera.aim && target ? aimPose(target.place, target.box, camera.aim) : null;
+  const query = aim ? `?aim=${encodeURIComponent(JSON.stringify(aim))}` : '';
+  const path = `/${query}#demo=${args.demo}`;
   const page = await openShot(browser, new URL(path.slice(1), site).href, {
     file: '',
     path,
@@ -2545,6 +2809,7 @@ async function playFrame(
  * @param time The song time of the frames, in seconds.
  * @param prefix The start of the file names, such as `play-`.
  * @param tree The name of the tree of the site, for the message of a failed wait.
+ * @param target The player of `--at`, or `null`.
  * @returns The frames and their labels, one for each camera.
  */
 async function renderPlay(
@@ -2554,11 +2819,12 @@ async function renderPlay(
   time: number,
   prefix: string,
   tree: string,
+  target: AimTarget | null,
 ): Promise<RenderedViews> {
   const cells: Buffer[] = [];
   const labels: string[] = [];
   for (const camera of args.cameras) {
-    const frame = await playFrame(browser, site, args, camera, time, tree);
+    const frame = await playFrame(browser, site, args, camera, time, tree, target);
     const file = join(args.out, `${prefix}${camera.name}.png`);
     await writeFile(file, frame.image);
     console.log(`${file}: song time ${frame.clock}`);
@@ -2573,7 +2839,8 @@ async function renderPlay(
  * the frames with one column for each camera, as `play-views.png` and `.webp`. The renders of the
  * commit write each frame of the commit as `play-base-<camera>.png`, and put the row of the commit
  * above the row of the working tree in `play-base-views.png` and `.webp`. The shot of `--shot`
- * comes from the working tree, and the commit renders the same song time.
+ * comes from the working tree, and the commit renders the same song time. The player of `--at`
+ * also comes from the working tree, so the cameras of the commit stay the same.
  *
  * @param args The command line.
  * @param site The site of the working tree.
@@ -2583,7 +2850,19 @@ async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> 
   const { browser } = site;
   const columns = args.cameras.length;
   const time = await playTimeSec(args);
-  const after = await renderPlay(browser, site.base, args, time, 'play-', 'the working tree');
+  const target = args.at ? await aimTarget(args.demo, args.at) : null;
+  if (target) {
+    console.log(aimTargetText(args.demo, target));
+  }
+  const after = await renderPlay(
+    browser,
+    site.base,
+    args,
+    time,
+    'play-',
+    'the working tree',
+    target,
+  );
   const sheet = await grid(browser, after.cells, after.labels, columns, playCell(columns));
   await writeImage(browser, sheet, join(args.out, 'play-views'));
 
@@ -2593,7 +2872,7 @@ async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> 
         `${label} renders the same song time, ${time} s. Its shot plan can give another shot there.`,
       );
     }
-    const before = await renderPlay(browser, other, args, time, 'play-base-', label);
+    const before = await renderPlay(browser, other, args, time, 'play-base-', label, target);
     const labels = baseGridLabels(after.labels, label);
     const cells = [...before.cells, ...after.cells];
     const both = await grid(browser, cells, labels, columns, playCell(columns));
@@ -2850,14 +3129,23 @@ function modeRender(mode: SingleMode): ModeRender {
     case 'role':
       return {
         overlay: mode.args.probes ? ['src/gallery'] : [],
+        aim: false,
         tree: (site) => roleViews(mode.args, site),
       };
     case 'lineup':
-      return { overlay: ['src/gallery'], tree: (site) => lineupViews(mode.args, site) };
+      return {
+        overlay: ['src/gallery'],
+        aim: false,
+        tree: (site) => lineupViews(mode.args, site),
+      };
     case 'species':
-      return { overlay: [], tree: (site) => speciesViews(mode.args, site) };
+      return { overlay: [], aim: false, tree: (site) => speciesViews(mode.args, site) };
     case 'play':
-      return { overlay: [], tree: (site) => playViews(mode.args, site) };
+      return {
+        overlay: [],
+        aim: mode.args.at !== null,
+        tree: (site) => playViews(mode.args, site),
+      };
   }
 }
 
@@ -2938,6 +3226,7 @@ async function renderModes(
   }
 
   const label = `${ref} (${shortHash(ref)})`;
+  const aim = modes.some((mode) => mode.aim);
   const builds = commitBuilds(commits, (path) => sameInCommit(ref, path));
   for (const build of builds) {
     if (build.overlay.length > 0) {
@@ -2954,6 +3243,7 @@ async function renderModes(
         }
       },
       build.overlay,
+      aim,
     );
   }
 }
@@ -2963,7 +3253,7 @@ const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
-  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--url <url>] [--base <ref>]`,
+  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>]`,
   '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
@@ -3019,10 +3309,16 @@ async function main(): Promise<void> {
       process.exit(1);
     }
   }
-  if (mode.kind === 'play' && mode.args.time.kind === 'shot') {
-    // A subject with no shot stops the tool before the build.
+  if (mode.kind === 'play') {
+    // A subject with no shot or no player stops the tool before the build.
+    const { demo, time, at } = mode.args;
     try {
-      await chooseShot(mode.args.demo, mode.args.time.subject);
+      if (time.kind === 'shot') {
+        await chooseShot(demo, time.subject);
+      }
+      if (at) {
+        await aimTarget(demo, at);
+      }
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));
       process.exit(1);
@@ -3044,8 +3340,10 @@ async function main(): Promise<void> {
         close: async (): Promise<void> => undefined,
       }
     : variant
-      ? await startVariantSite(variant)
-      : await startSite(ROOT, SERVER_PORT);
+      ? await startVariantSite(variantPlugin(variant))
+      : mode.kind === 'play' && mode.args.at
+        ? await startVariantSite(aimPlugin(ROOT))
+        : await startSite(ROOT, SERVER_PORT);
   try {
     await renderModes(modes.map(modeRender), site, mode.args.base);
   } finally {
