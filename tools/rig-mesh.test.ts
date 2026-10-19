@@ -351,6 +351,8 @@ describe('checkTable', () => {
         faces: [],
         watched: [],
         topology: '',
+        records: [],
+        middles: {},
       },
     ],
     form: null,

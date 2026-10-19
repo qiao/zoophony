@@ -8,7 +8,14 @@ import { join, relative } from 'node:path';
 import type { Bounds } from '../src/models/bounds.ts';
 import type { Side } from '../src/models/studio-format.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
-import { FOLD_ROLES, SAMPLE_SETS, readFaceJson, roleAnimal, roleSpecies } from './fold-probe.ts';
+import {
+  FOLD_ROLES,
+  SAMPLE_SETS,
+  SAME_FACE_DISTANCE,
+  readFaceJson,
+  roleAnimal,
+  roleSpecies,
+} from './fold-probe.ts';
 import type { FaceRecord, FoldCounts } from './fold-probe.ts';
 import { faceList, faceShares, foldShareText } from './face-shares.ts';
 import type { FaceShare } from './face-shares.ts';
@@ -1033,6 +1040,7 @@ export function foldArgs(role: string, json: string, probe: CheckProbe): string[
     ...(probe.step === null ? [] : ['--step', String(probe.step)]),
     ...probe.demos.flatMap((demo) => ['--demo', demo]),
     ...(probe.hold ? ['--set', probe.hold] : []),
+    ...(probe.watch.length > 0 ? ['--middles', probe.watch.join(',')] : []),
   ];
 }
 
@@ -1246,6 +1254,74 @@ export interface RoleFolds {
    * two rigs with one topology give each face the same index.
    */
   readonly topology: string;
+  /** The folded faces of `pnpm fold-probe --json`, with their middles in the bind pose. */
+  readonly records: readonly FaceRecord[];
+  /**
+   * The middle of each face of `--watch` in the bind pose, in meters, by the index of the face
+   * (`FaceJson.middles` of `pnpm fold-probe --middles`).
+   */
+  readonly middles: Readonly<Record<string, Vec3>>;
+}
+
+/** A face of `--watch` of the base with its share of folded samples in a variant. */
+export interface WatchPair {
+  /** The face of the base. */
+  readonly face: number;
+  /**
+   * The folded face of the variant with the nearest middle within `SAME_FACE_DISTANCE`, or `null`
+   * when no folded face of the variant is that near.
+   */
+  readonly paired: number | null;
+  /** The share of the samples of each set in which the face of the variant folds. */
+  readonly shares: FaceShare['shares'];
+}
+
+/**
+ * Pairs the faces of `--watch` of the base with the faces of a variant whose mesh has other
+ * corners, as `sameFaces()` of `pnpm fold-probe --base` pairs folded faces: the pairs go in the
+ * order of the distance of their middles in the bind pose, the nearest first, up to
+ * `SAME_FACE_DISTANCE`, and each face goes into one pair at most. A face of the base with no pair
+ * folds in no sample of the variant.
+ *
+ * @param base The folds of the role in the base, with the middles of the watched faces.
+ * @param variant The folds of the role in the variant.
+ * @returns The pair of each watched face, in the order of the faces, or `null` when the base has
+ *   no middle of a watched face.
+ */
+export function watchPairs(base: RoleFolds, variant: RoleFolds): WatchPair[] | null {
+  const faces = base.watched.map(({ face }) => face);
+  const middles = faces.map((face) => base.middles[String(face)]);
+  if (middles.some((middle) => !middle)) {
+    return null;
+  }
+  const candidates = faces.flatMap((face, k) =>
+    variant.records.flatMap((record) => {
+      const [x, y, z] = middles[k] ?? [0, 0, 0];
+      const [a, b, c] = record.middle;
+      const gap = Math.hypot(a - x, b - y, c - z);
+      return gap <= SAME_FACE_DISTANCE ? [{ face, record, gap }] : [];
+    }),
+  );
+  const pairs = new Map<number, FaceRecord>();
+  const taken = new Set<number>();
+  for (const { face, record } of candidates.toSorted(
+    (p, q) => p.gap - q.gap || p.face - q.face || p.record.face - q.record.face,
+  )) {
+    if (!pairs.has(face) && !taken.has(record.face)) {
+      pairs.set(face, record);
+      taken.add(record.face);
+    }
+  }
+  const samples = {
+    rest: variant.counts.rest.samples,
+    play: variant.counts.play.samples,
+    lift: variant.counts.lift.samples,
+  };
+  return faceShares(samples, (face) => pairs.get(face)?.folds, faces).map((share) => ({
+    face: share.face,
+    paired: pairs.get(share.face)?.face ?? null,
+    shares: share.shares,
+  }));
 }
 
 /**
@@ -1439,8 +1515,10 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
 /**
  * Writes the table of the faces of `--watch`: one row for each variant and role, and one column
  * for each face, with the share of the samples in which the face folds in the play, the lift, and
- * the rest. A role of a variant whose mesh has another topology than the mesh of the base gets the
- * mark `other mesh`, because a face index then names another face.
+ * the rest. A role of a variant whose mesh has another topology than the mesh of the base, such as
+ * after a `cut` or a ring, gets the mark `other mesh`, because a face index then names another
+ * face. Its cells give the folded face of the variant with the nearest middle ({@link watchPairs})
+ * and its index, or `none` when no folded face is within `SAME_FACE_DISTANCE`.
  *
  * @param rows The rows, the base first.
  * @returns The lines, or none when no role has a watched face.
@@ -1459,13 +1537,19 @@ export function watchLines(rows: readonly CheckRow[]): string[] {
     `|${header.map(() => '---').join('|')}|`,
   ];
   const base = rows[0]?.measures?.folds ?? [];
+  const text = (shares: FaceShare['shares']): string =>
+    (['play', 'lift', 'rest'] as const).map((set) => foldShareText(shares[set])).join(' / ');
   for (const { variant, measures } of rows) {
     for (const fold of measures?.folds ?? []) {
-      const own = base.find((b) => b.role === fold.role)?.topology;
-      const mark = own !== undefined && own !== fold.topology ? ' (other mesh)' : '';
-      const cells = fold.watched.map(({ shares }) =>
-        (['play', 'lift', 'rest'] as const).map((set) => foldShareText(shares[set])).join(' / '),
-      );
+      const own = base.find((b) => b.role === fold.role);
+      const other = own !== undefined && own.topology !== fold.topology;
+      const pairs = own && other ? watchPairs(own, fold) : null;
+      const mark = other ? ` (other mesh${pairs ? ', paired by the middle' : ''})` : '';
+      const cells = pairs
+        ? pairs.map(
+            ({ shares, paired }) => `${text(shares)} (${paired === null ? 'none' : paired})`,
+          )
+        : fold.watched.map(({ shares }) => text(shares));
       lines.push(`| ${variant || 'base'} | ${fold.role}${mark} | ${cells.join(' | ')} |`);
     }
   }
@@ -1865,6 +1949,8 @@ async function checkRig(
             faces: topFaces(read.faces, probe.faces),
             watched: watchFaces(read.sets, read.faces, probe.watch),
             topology: read.topology,
+            records: read.faces,
+            middles: read.middles,
           });
         }
       },
