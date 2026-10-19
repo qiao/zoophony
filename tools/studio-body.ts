@@ -563,6 +563,12 @@ interface Gltf {
        * of the mesh rig), or a list of such poses. The file has none with no such shape.
        */
       readonly raise?: RaiseExtras | readonly RaiseExtras[];
+      /**
+       * The caps of the arm of the cut that take the normals of the skin (`cut.skinNormals` of
+       * the config of the mesh rig), as indices of the triangles of the primitive `fur`. The file
+       * has none with no such rule.
+       */
+      readonly caps?: readonly number[];
     };
   };
 }
@@ -601,6 +607,22 @@ export interface RaiseExtras {
 export interface Glb {
   readonly json: Gltf;
   readonly bin: Uint8Array;
+}
+
+/**
+ * Gives the caps of the arm of the cut of the rig of a GLB file (`pnpm rig-mesh`), which take the
+ * normals of the skin around them in the app (design 4.4).
+ *
+ * @param glb The file.
+ * @returns The indices of the triangles of the primitive `fur`, or none for a file with no caps.
+ * @throws Error if an index is not a whole number of at least 0.
+ */
+export function capsOf(glb: Glb): ReadonlySet<number> {
+  const caps = glb.json.asset?.extras?.caps ?? [];
+  if (caps.some((t) => !Number.isInteger(t) || t < 0)) {
+    throw new Error(`The caps ${JSON.stringify(caps)} of the file are not triangle indices.`);
+  }
+  return new Set(caps);
 }
 
 /**
@@ -1084,6 +1106,8 @@ interface SourceMesh {
      */
     readonly base?: Vec3;
     readonly finish: Finish;
+    /** True for a cap of the arm of the cut of the rig ({@link capsOf}). */
+    readonly cap?: boolean;
   }[];
 }
 
@@ -1111,6 +1135,7 @@ export function weldMesh(glb: Glb, kept: readonly string[]): SourceMesh {
   }
 
   const jointNames = skin.joints.map((j) => ownBone(glb.json.nodes[j]?.name ?? ''));
+  const caps = capsOf(glb);
   const vertices: SourceVertex[] = [];
   const faces: SourceMesh['faces'] = [];
   for (const primitive of mesh.primitives) {
@@ -1177,8 +1202,13 @@ export function weldMesh(glb: Glb, kept: readonly string[]): SourceMesh {
         color: [color[0] ?? 0, color[1] ?? 0, color[2] ?? 0],
         base: [base[0] ?? 0, base[1] ?? 0, base[2] ?? 0],
         finish,
+        cap: material === 'fur' && caps.has(t / 3),
       });
     }
+  }
+  const capCount = faces.filter((face) => face.cap === true).length;
+  if (capCount !== caps.size) {
+    throw new Error(`The file names ${caps.size} caps, and the primitive fur has ${capCount}.`);
   }
   return { vertices, faces };
 }
@@ -2113,6 +2143,10 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   };
   if (raises.length > 0) {
     body = { ...body, raises: raises.map((raise) => raise.pose) };
+  }
+  const caps = withoutEyes.faces.flatMap((face, t) => (face.cap === true ? [t] : []));
+  if (caps.length > 0) {
+    body = { ...body, caps };
   }
   if (frame.chairWidth !== null) {
     body = { ...body, chairWidth: frame.chairWidth };
