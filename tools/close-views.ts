@@ -834,7 +834,8 @@ interface ModeRender {
  * cell of the commit as `<role>-base-<moment>-<view>.png`, and the grid of the commit above the
  * grid of the working tree as `<role>-base-views.png` and `.webp`. Both trees take the camera of
  * `--zoom` and `--elevation` ({@link roleCamera}) and the cell size of `--scale`
- * ({@link roleCell}).
+ * ({@link roleCell}). Each WebP grid has the cells of {@link CELL}, so that it keeps its byte
+ * limit at each scale.
  *
  * @param args The command line.
  * @param site The site of the working tree.
@@ -850,10 +851,17 @@ async function roleViews(args: CloseViewsArgs, site: TreeSite): Promise<CommitRe
       `Camera: zoom ${role.camera.zoom}, ${args.elevation === null ? 'the elevation of each view' : `${args.elevation}°`}, cells of ${size.width} × ${size.height} px.`,
     );
   }
+  // The WebP grid keeps the cell size of the factor 1, so that it stays within its byte limit.
+  const webp = async (
+    png: Buffer,
+    cells: readonly Buffer[],
+    labels: readonly string[],
+  ): Promise<Buffer> =>
+    toWebp(browser, args.scale === 1 ? png : await grid(browser, cells, labels, role.views.length));
   const views = await renderViews(browser, site.base, role, out, `${name}-`, size);
   const sheet = await grid(browser, views.cells, views.labels, role.views.length, size);
   await writeFile(join(out, `${name}-views.png`), sheet);
-  await writeFile(join(out, `${name}-views.webp`), await toWebp(browser, sheet));
+  await writeFile(join(out, `${name}-views.webp`), await webp(sheet, views.cells, views.labels));
   console.log(join(out, `${name}-views.png`));
 
   return async (other, label) => {
@@ -862,7 +870,7 @@ async function roleViews(args: CloseViewsArgs, site: TreeSite): Promise<CommitRe
     const labels = baseGridLabels(views.labels, label);
     const both = await grid(browser, cells, labels, role.views.length, size);
     await writeFile(join(out, `${name}-base-views.png`), both);
-    await writeFile(join(out, `${name}-base-views.webp`), await toWebp(browser, both));
+    await writeFile(join(out, `${name}-base-views.webp`), await webp(both, cells, labels));
     console.log(join(out, `${name}-base-views.png`));
   };
 }
