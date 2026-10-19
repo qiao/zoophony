@@ -24,7 +24,8 @@ can reverse each decision. Then update its section, and remove its row.
 | The right shoulder bone turns 15° and the left 20° forward. At 15°, face 427 of the left shoulder folded in each play sample (`BEAVER_SHOULDER_TURN`). | 5.3 |
 | Both elbows point down, out, and forward, the smallest arm turns of 3 elbow directions (`poleL`, `poleR`, `hold-fit-poles.txt`). | 5.3 |
 | The bassoon scale is 0.82, the largest at which each paw has 3 cm to spare in the play and in the rest. At 0.83, the right paw had 2.7 cm in the play (`hold-reach-scales.txt`). | 4.6 |
-| Two shapes of the right arm, in the play and in the rest, remove the folds of the right armpit (`raise`). | 4.4 |
 | The role `bassoonist` is in `SWEEP_ROLES`, `FOLD_ROLES`, and `ROLE_VIEWS`, with 9 open loops (`BEAVER_BODY_LOOPS`). The sweep accepts 1.6 cm of the paws in the bassoon in the lift and the lowering: the left paw closes on the wing joint, in one sample of about 30 (`BASSOONIST_SWEEP`). | 9.3 |
 | The first download grows by 30,153 B to 624,160 B with the beaver body (`pnpm size --base 9a4613b4`). | 7.2 |
-| Open: three faces of the left arm fold in each play sample, and eight faces in the rest. A shape of the left arm left three other faces turned over (`fold-probe-bassoonist.txt`). | 4.4, 9.3 |
+| Both armpits take the cut of the panda below 0.6 source units. There, thin faces join the upper arm to the chest and folded in each play sample, and no ring, flip, or rigid weight removed the folds (`cut`, `arm-cut.txt`). | 4.4 |
+| One shape of the left arm on the cut mesh relaxes face 1738 at the front of the shoulder: no play sample folds, with the same hold. The right arm needs no shape (`raise`). | 4.4 |
+| Open: three faces of the left arm fold in each rest sample and in 13% of the lift, as before, and a dark slot shows at the cap of the cut (`fold-probe-arm.txt`). | 4.4, 9.3 |
