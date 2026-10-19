@@ -474,19 +474,15 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Mouse oboe rest: a real oboist rests the oboe on the legs, but the round belly covers the
       short thighs, so the oboe stays in both paws in front of the body at rest
       (`docs/reference/wind-technique.md` 4.2, `2026-10-19-mesh-mouse.md`).
-- [ ] Mouse tail: the loop of the long tail lies on the floor about 0.31 m behind the chair, and
-      the footprint is 0.764 m deep. The stages of the demos with oboes are 2.1% to 6.3% smaller
+- [ ] Mouse tail: the loop of the long tail lies on the floor behind the mouse, and the footprint
+      is 0.764 m deep. The stages of the demos with oboes are 2.1% to 6.3% smaller
       than with the large mouse, about the stages of the parametric mouse. Check the tail between
       the rows of the stage with the user (`2026-10-19-mouse-size.md`).
-- [ ] Mouse seat: the round belly hides the short thighs, and the seat is 0.076 m high, so in the
-      play frames the mouse seems to stand in front of a low chair and lean on it
-      (`species-play-base-views.webp` of `docs/research/2026-10-19-mouse-mesh/`). Show the user
-      the side view, and offer a higher seat with the feet off the floor
-      (`2026-10-19-mesh-mouse.md`).
-- [ ] Mouse chair: the back of the chair of the app keeps its height above the seat in meters
-      (`chairBack()`), so it reaches the neck of the small mouse, and the chair is wide beside it
-      (`oboist-base-views.webp` of `docs/research/2026-10-19-mouse-size/`). Show the user the
-      close views, and offer a lower and narrower chair for a small body (`2026-10-19-mouse-size.md`).
+- [ ] Mouse haunch: with no chair, the haunch hangs 0.076 m above the floor behind the heels,
+      and in the low side view of the play it seems to float a little
+      (`chair-species-play-views.webp` of `docs/research/2026-10-19-mouse-size/`). Show the user
+      the side view, and offer a lower haunch or the heels further back, with a rig round of the
+      legs (`2026-10-19-mouse-size.md`).
 - [ ] Mouse oboe size: the mouse plays an oboe of 0.62 of the oboe of the app (0.34 m). No source
       gives the size of a smaller oboe for a child (`docs/reference/wind-technique.md` 4.2). Show
       the user the play frame with the small oboe (`2026-10-19-mouse-size.md`).
