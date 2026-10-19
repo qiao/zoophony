@@ -17,10 +17,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A hold can trade the folds against the clearance. Check each hold change with `pnpm hold-fit
   --set` and `pnpm pose-depth --set` before you write it.
 - A big head puts the grips of a hanging instrument at the height of the shoulders, and elbows out
-  and level twist the upper arms into bands. Point the elbows down, and compare the arm turns of
-  each pole in `pnpm hold-fit`.
-- A deeper trunk takes the room of the elbows of a hold. Run `pnpm hold-fit <role> --base main`
-  after a change of the girth, and point the elbows out (`poleL`, `restPoleL`).
+  and level twist the upper arms into bands: point the elbows down. A deeper trunk takes the room of
+  the elbows: point them out (`poleL`, `restPoleL`). After a change of the head or the girth,
+  compare the arm turns of each pole with `pnpm hold-fit <role> --base main`.
 
 ## Reach and rest of the instrument
 
