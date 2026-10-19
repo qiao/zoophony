@@ -229,3 +229,4 @@ The decision files:
 - [`2026-10-18-hippo-arm.md`](decisions/2026-10-18-hippo-arm.md): the far side of the roll of the bow paw of the hippo, so that the paw does not flip at a string change.
 - [`2026-10-19-mesh-mouse.md`](decisions/2026-10-19-mesh-mouse.md): the mouse mesh of the user as the oboist, its size, arms, legs, nose, colors, and tail on the floor, the oboe in the mouth with the elbows down, and the open folds of the lift.
 - [`2026-10-19-mesh-elephant.md`](decisions/2026-10-19-mesh-elephant.md): the elephant mesh of the user, which stands at the timpani, its size, arms, legs, trunk, ears, and colors, the place of the kettles, the playing spot and the hands of the timpani, and the open folds.
+- [`2026-10-19-mesh-retro.md`](decisions/2026-10-19-mesh-retro.md): the retro of the mouse and elephant mesh rounds, the tool of the corrective shapes, and the fast checks of a hold fit.
