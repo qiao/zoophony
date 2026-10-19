@@ -400,6 +400,10 @@
       "note": "The shape of the left arm in the play of the bassist, with the mean turns of the samples in which face 1356 of the left upper arm folds (pnpm raise-fit bassist --faces 1356 --side L): the upper arm turns 81.1 degrees from the bind. The fade covers 98% of the play samples. With the rule, the folded face samples of the left upper arm fall from 13,823 to 3,617 (docs/research/2026-10-19-hippo-chest/)."
     }
   ],
+  "cut": {
+    "top": 0.54,
+    "note": "The thin faces under each armpit join the upper arm to the chest. On the right, faces 462, 248, 249, 477, and 461 folded in 74% to 100% of the play samples, and weight rules and shapes only moved the folds (docs/decisions/2026-10-19-hippo-chest.md). Below the height top (source units), the faces with a corner in the free arm and a corner in the body go: 16 on the left, 14 on the right. The same number of new faces close the arm and the trunk, and no vertex moves. The arm and the trunk stay joined above the top, 0.015 u below the shoulder joint, as for the beaver. At top 0.50 and 0.52, face 462 folded in each play sample, and at 0.55 and 0.56, the neck and the chest folded more (docs/research/2026-10-19-hippo-arms.md)."
+  },
   "refine": {
     "rings": [],
     "flip": {
