@@ -95,6 +95,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 ## Weights, rings, and folds
 
+- A fold count does not see a skin that twists around the arm or goes flat, because no face turns
+  over. Measure the twist, the flat share, and the spikes with `pnpm arm-shape <role>`.
 - When an arm hangs near the trunk, bone heat gives a part of its weight to the trunk side. The
   raised bind arms then drag the trunk and fold the shoulder. Keep the arm weights on the free arm
   (`armSplit`).
