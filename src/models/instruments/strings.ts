@@ -65,19 +65,29 @@ export const STRING_SCALES = {
 export const CELLO_END_PIN = 0.2;
 
 /**
+ * The length of the end pin of the contrabass below the tail end, in meters, at each size (design
+ * 4.6): a real end pin stands out about 0.15 m to 0.25 m. The hold of the contrabass moves it to
+ * the body of the player, so a smaller contrabass needs no longer end pin. With the cello rule, the
+ * smaller contrabass of the hippo had an end pin of 0.55 m.
+ */
+export const BASS_END_PIN = 0.2;
+
+/**
  * Gives the length of the end pin of an upright bowed string below the tail end, in meters
  * (design 4.6). A smaller cello has a longer end pin, so that the top of its body stays at the
  * place of the top of the full size: a player of a fractional cello sets the end pin so that the
- * upper bout rests against the chest.
+ * upper bout rests against the chest. The contrabass keeps {@link BASS_END_PIN} at each size.
  *
  * @param id The upright bowed string.
  * @param scale The scale of the instrument, as a factor of its full size.
  * @returns The length.
  */
 export function endPinLength(id: 'cello' | 'contrabass', scale: number): number {
-  const full = STRING_SCALES[id] / STRING_SCALES.cello;
-  const body = VIOLIN.bodyLength * STRING_SCALES[id];
-  return CELLO_END_PIN * full + body * (1 - scale);
+  if (id === 'contrabass') {
+    return BASS_END_PIN;
+  }
+  const body = VIOLIN.bodyLength * STRING_SCALES.cello;
+  return CELLO_END_PIN + body * (1 - scale);
 }
 
 /**
