@@ -315,9 +315,10 @@
     ],
     "clavicleMiddleNote": "The share of the clavicle weight that a vertex below headFrom keeps grows from 0 at the smaller distance from the middle plane to 1 at the larger distance (units), and the chest takes the rest. Bone heat gave the chest under the chin weights of both clavicles (0.12 to 0.21). The bow arm turns the right clavicle far, so faces 617 and 618 on the middle plane folded in each play sample. A narrow fade (0.02 to 0.06, 0.04 to 0.10, 0.08 to 0.18) moved the fold to the faces of the fade, and a higher clavicleFrom to the front of the shoulder (docs/research/2026-10-19-hippo-chest/).",
     "armTop": [
-      0.64,
-      0.68
+      0.625,
+      0.7
     ],
+    "armTopNote": "The share of the clavicle and upper arm weights that a vertex gives to the neck grows from 0 at the lower height to 1 at the upper height (units). With the narrow fade 0.64 to 0.68, face 116 at the back of the right shoulder joined a corner of the clavicle and the upper arm to two corners of the neck, and it folded in 13.7% of the play samples. With 0.625 to 0.7, the fade spans more rings of faces, and face 116 folds in no sample. The fade is sensitive: with 0.61, 0.615, 0.6, or 0.62 to 0.69, the relax of a shape of raise fails, and 44% to 99.8% of the play samples fold (docs/research/2026-10-19-hippo-arms.md).",
     "shoulderHead": [
       0.12,
       0.17
