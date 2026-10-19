@@ -26,3 +26,4 @@ outputs. The user can reverse each decision. Then update its section, and remove
 | The probe tree of a commit is an empty git repository (`git init` in `withProbeTree()`), so the git commands of the tools of each commit work there. | 9.3 |
 | Each row of `pnpm hold-fit` names the 5 faces that fold in the most samples, with `new` at a face that folds in no sample of the base row (`topFolds()`). | 9.8 |
 | `pnpm close-views <role>` takes `--glb <file>` and one `--set <changes>`, and renders the variant from a build of its own, with no commit (`startVariantSite()`). | 9.8 |
+| `pnpm fold-probe --base <ref> --faces-of <faces>` pairs each named face of the commit with the folded face of the tree with the nearest middle within 1 cm (`pairBaseFaces()`). | 9.8 |
