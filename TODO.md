@@ -266,9 +266,9 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 
 Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs/decisions/`):
 
-- [ ] Rig the meshes of the monkey (trumpet), the pig (horn), and the badger (percussion) when the
-      user gives them. The prompts of the sheets were given on 2026-10-17. The mouse, the
-      elephant, and the beaver got their meshes on 2026-10-19.
+- [ ] Rig the meshes of the monkey (trumpet) and the badger (percussion) when the user gives
+      them. The prompts of the sheets were given on 2026-10-17. The mouse, the elephant, the
+      beaver, and the pig got their meshes on 2026-10-19.
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
       fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
 - [ ] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
@@ -508,6 +508,18 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the kettle beside the player in 37%. Four corrective shapes cut the folded face-samples from
       143,420 to 34,294 (`docs/research/2026-10-19-elephant-mesh/fold-probe-timpanist.txt`,
       `2026-10-19-mesh-elephant.md`).
+- [ ] Pig hornist folds: two faces of the right hoof fold in each rest sample and in 26.5% of the
+      lift samples, because a body has at most four corrective shapes (`RAISE_LIMIT`). Try a
+      weight rule of the right paw, or a rest with a smaller turn of the right wrist
+      (`2026-10-19-mesh-pig.md`).
+- [ ] Pig horn rest: the round belly covers the short thighs, so the horn rests on the belly over
+      the lap, with the bell beside the right haunch. Show the user the close views
+      (`hornist-base-views.webp` of `docs/research/2026-10-19-pig-mesh/`).
+- [ ] Pig arms: in the front view, the skin of the armpits stretches into bands from the trunk to
+      the raised upper arms, most on the right arm. Show the user the close views
+      (`2026-10-19-mesh-pig.md`).
+- [ ] Pig standing soloist: no demo has a standing pig, and `pnpm pose-depth --soloist` takes only
+      a bowed role, so only the close views check it (`2026-10-19-mesh-pig.md`).
 - [ ] Elephant timpanist: the seam where the upper arm of the mesh lies on the side of the body
       shades dark lines on the front of the body when the arms play (`timpanist-base-views.webp`
       of `docs/research/2026-10-19-elephant-mesh/`). A cut of the mesh at the seam, as for the
