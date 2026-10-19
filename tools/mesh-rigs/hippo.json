@@ -327,9 +327,24 @@
         -0.1678,
         0.682,
         -0.1188
+      ],
+      [
+        0.2998,
+        0.4039,
+        0.0819
+      ],
+      [
+        -0.3441,
+        0.3883,
+        -0.0099
+      ],
+      [
+        -0.1746,
+        0.573,
+        0.024
       ]
     ],
-    "rigidNote": "The face nearest to each point (source units) takes the mean of the weights of its corners. Face 323 joins the head, the neck, and a corner with a clavicle weight of 0.51 at the back of the right side of the neck, and it folded in each play sample when the bow arm turned the clavicle forward. The point is its source middle (pnpm fold-probe bassist --faces).",
+    "rigidNote": "The face nearest to each point (source units) takes the mean of the weights of its corners. Face 323 joins the head, the neck, and a corner with a clavicle weight of 0.51 at the back of the right side of the neck, and it folded in each play sample when the bow arm turned the clavicle forward. The point is its source middle (pnpm fold-probe bassist --faces). Face 1498 of the left wrist, a thin face across the joint, stayed turned after the relax of the shape of the bent wrist and folded in nearly each sample of the play, the lift, and the rest. Face 51 of the right paw, a thin face across the joint of the fingers, folded in each rest sample, and with the level elbow of the play in 41% of the play samples. Face 463 at the front of the right shoulder folded in 22% of the play samples. With the mean weights, none of the three folds. The same rule on face 116 at the back of the right shoulder folded faces 125 and 241 of the neck in nearly each sample, and on face 52 of the right paw it moved the fold back to face 51 (docs/research/2026-10-19-hippo-arms.md).",
     "fingers": 0.5,
     "haunch": {
       "height": [
