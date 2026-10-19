@@ -120,7 +120,7 @@ export interface RoleViews {
 /**
  * A role with a close view: the bear conductor, the polar bear pianist, the rabbit violinist, the
  * red fox violinist, the cat violist, the dog cellist, the hippo bassist, the tan fox flutist, the
- * panda trombonist, or the mouse oboist.
+ * panda trombonist, the mouse oboist, or the elephant timpanist.
  */
 export type CloseRole =
   | 'conductor'
@@ -132,7 +132,8 @@ export type CloseRole =
   | 'bassist'
   | 'flutist'
   | 'trombonist'
-  | 'oboist';
+  | 'oboist'
+  | 'timpanist';
 
 /** The roles with a close view, in the order of the usage text. */
 const CLOSE_ROLES: readonly CloseRole[] = [
@@ -146,6 +147,7 @@ const CLOSE_ROLES: readonly CloseRole[] = [
   'flutist',
   'trombonist',
   'oboist',
+  'timpanist',
 ];
 
 /**
@@ -182,6 +184,11 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  *   pose, halfway through the lift and the lowering at the first note, and the standing soloist.
  * - The mouse oboist: the views and the moments of the flutist. The side views and the back view
  *   also show the long tail, which goes back over the seat and lies on the floor behind the chair.
+ * - The elephant timpanist, who stands: the front, both sides, and the back. The moments are a
+ *   strike of the left mallet on the large kettle, a strike of the right mallet on the small
+ *   kettle, a time between two strikes with both mallets up, the rest pose, and halfway through
+ *   the lift and the lowering at the first strike. The camera looks down 30°, as a seat of the
+ *   hall looks at the back row.
  *
  * A new role gives its species, its views, its moments, and its test notes, with the camera
  * `{ kind: 'body', zoom: 1, elevation }`.
@@ -393,6 +400,26 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
     camera: { kind: 'body', zoom: 1, elevation: 20 },
     // A long A4, a rest, then a short phrase with the right paw fingers closed (D4) and open (C6).
     notes: ['0.5 1 A4', '2 0.25 D4', '2.25 0.25 C6', '2.5 0.25 E5'].join('\n'),
+  },
+  timpanist: {
+    species: 'elephant',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'left', time: 0.5, rest: false },
+      { name: 'between', time: 1, rest: false },
+      { name: 'right', time: 1.5, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.5),
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 30 },
+    // D2 on the large kettle at the left, then A2 on the small kettle at the right, 1 s apart, so
+    // that each note takes the hand on its side (design 5.3).
+    notes: ['0.5 0.5 D2', '1.5 0.5 A2', '2.5 0.5 D2', '3.5 0.5 A2'].join('\n'),
   },
 };
 

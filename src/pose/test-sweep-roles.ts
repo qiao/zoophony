@@ -94,6 +94,13 @@ const HIPPO_BODY_LOOPS = 3;
  */
 const MOUSE_BODY_LOOPS = 14;
 
+/**
+ * The open loops of {@link BODY_BONES} of the elephant mesh: the cuts to the two upper arms, and
+ * two open edge pairs of 7 cm and 8 cm at the ears (`loops-probe.txt` of
+ * `docs/research/2026-10-19-elephant-mesh/`).
+ */
+const ELEPHANT_BODY_LOOPS = 4;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -218,6 +225,17 @@ function hippoBodySurface(posed: PosedSkeleton): ClosedSurface {
  */
 function mouseBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, MOUSE_BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the elephant mesh: {@link BODY_BONES} with a cap on each open
+ * loop ({@link ELEPHANT_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function elephantBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, ELEPHANT_BODY_LOOPS);
 }
 
 /**
@@ -982,6 +1000,96 @@ export const BASSIST_SWEEP: RoleSweep = {
   players: (scene) => bowedPlayers(scene, 'contrabass', BASSISTS),
 };
 
+/** The species of the timpanists with a studio body of a mesh of the user. */
+const TIMPANISTS: ReadonlySet<SpeciesId> = new Set(['elephant']);
+
+/**
+ * Gives the note targets of the mallets of a timpanist: the head of each mallet is on its target
+ * of the head of a kettle at the start of each of its strikes (design 5.3), in a play that started
+ * at the count-in.
+ *
+ * @param scene The scene.
+ * @param index The index of the timpanist.
+ * @param model The model of the timpanist.
+ * @returns The targets.
+ */
+function timpanistTargets(scene: TestScene, index: number, model: PlayerModel): NoteTarget[] {
+  const plan = scene.plan.players[index];
+  if (plan?.note.family !== 'percussion') {
+    return [];
+  }
+  const { note: layer, timeOffset } = plan;
+  return (['L', 'R'] as const).flatMap((side) => {
+    const track = side === 'L' ? layer.left : layer.right;
+    const bone = side === 'L' ? 'malletL' : 'malletR';
+    const head = model.instrument.targets.find((t) => t.kind === 'mallet-head' && t.bone === bone);
+    if (!track || !head) {
+      return [];
+    }
+    return Array.from(track.starts, (start, i): NoteTarget => {
+      const point = new Vector3(
+        track.points[3 * i] ?? 0,
+        track.points[3 * i + 1] ?? 0,
+        track.points[3 * i + 2] ?? 0,
+      );
+      return {
+        side,
+        sample: playSample(scene, start + timeOffset),
+        error: (posed) =>
+          new Vector3(...posedPiecePoint(posed, { bone, at: head.from })).distanceTo(point),
+      };
+    });
+  });
+}
+
+/**
+ * The sweep of the timpanist (design 5.3): the arms, the mallets, and the head with the trunk,
+ * the tusks, and the ears against the body and the kettles, in a full play, in the lift at the
+ * play start, in the rest pose before the first play, and in the lowering after the song end. The
+ * elephant of each demo with timpani plays it, standing, as each timpani player stands.
+ */
+export const TIMPANIST_SWEEP: RoleSweep = {
+  role: 'timpanist',
+  parts: [
+    ...ARM_PARTS,
+    { name: 'mallets', bones: ['malletL', 'malletR'] },
+    { name: 'head', bones: ['head'] },
+  ],
+  obstacles: [
+    { name: 'body', surface: elephantBodySurface },
+    { name: 'kettles', surface: instrumentSurface },
+  ],
+  contact: CONTACT,
+  accepted: [],
+  targetError: 1e-3,
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'timpani'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      const { species, instrument, kettles, support } = place.cast;
+      if (!TIMPANISTS.has(species) || instrument !== 'timpani') {
+        return [];
+      }
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles, support);
+      return [
+        {
+          name: `timpanist ${index} (${support})`,
+          model,
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => timpanistTargets(scene, index, model),
+        },
+      ];
+    }),
+  sampleSets: (scene) => VIOLINIST_SWEEP.sampleSets(scene),
+};
+
 /**
  * The bowed roles whose species can stand as the soloist of the violin and piano duo
  * ({@link soloistScene}): the instrument of each role and its species. No demo has a standing
@@ -1105,4 +1213,5 @@ export const SWEEP_ROLES = {
   flutist: FLUTIST_SWEEP,
   trombonist: TROMBONIST_SWEEP,
   oboist: OBOIST_SWEEP,
+  timpanist: TIMPANIST_SWEEP,
 } as const;
