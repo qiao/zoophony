@@ -1,9 +1,9 @@
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { copyFileSync, mkdtempSync, readFileSync } from 'node:fs';
-import { readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, relative } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 
 import type { Bounds } from '../src/models/bounds.ts';
 import type { Side } from '../src/models/studio-format.ts';
@@ -886,11 +886,16 @@ export interface RigMeshArgs {
   readonly sets: readonly string[];
   /** The options of the app checks of `--check`. */
   readonly probe: CheckProbe;
+  /**
+   * The folder of `--keep`, into which `--check` copies the GLB file of each rig as `base.glb`,
+   * `variant-1.glb`, and so on, or `null` for none.
+   */
+  readonly keep: string | null;
 }
 
 /** The usage text of `pnpm rig-mesh`. */
 const USAGE =
-  'Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <path>=<value>[;<path>=<value>]...]... [--roles <role>[,<role>]...] [--step <seconds>] [--demo <id>]... [--faces <n>] [--watch <face>[,<face>]...] [--hold <changes>]...]';
+  'Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <path>=<value>[;<path>=<value>]...]... [--roles <role>[,<role>]...] [--step <seconds>] [--demo <id>]... [--faces <n>] [--watch <face>[,<face>]...] [--hold <changes>]... [--keep <dir>]]';
 
 /** The options of `pnpm rig-mesh` that take a value. */
 const VALUED = [
@@ -902,6 +907,7 @@ const VALUED = [
   '--faces',
   '--watch',
   '--hold',
+  '--keep',
 ] as const;
 
 /**
@@ -917,7 +923,8 @@ function isValued(arg: string): arg is (typeof VALUED)[number] {
 /**
  * Reads the arguments of `pnpm rig-mesh <animal> [--preview <dir>] [--check] [--set <changes>]...`
  * and the options of the app checks of `--check`: `--roles`, `--step`, `--demo`, `--faces`,
- * `--watch`, and `--hold`, whose changes of the holds the fold probes take in memory.
+ * `--watch`, and `--hold`, whose changes of the holds the fold probes take in memory, and the
+ * folder of `--keep`.
  *
  * @param args The arguments after the script.
  * @returns The animal, the preview folder, the check flag, the variants, and the options of the
@@ -937,6 +944,7 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
   let faces = 0;
   const watch: number[] = [];
   const holds: string[] = [];
+  let keep: string | null = null;
   let checkOnly = false;
   for (let i = 0; i < args.length; i++) {
     const arg = args[i] ?? '';
@@ -985,6 +993,9 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
       case '--hold':
         holds.push(value);
         break;
+      case '--keep':
+        keep = value;
+        break;
     }
   }
   const [animal] = rest;
@@ -996,7 +1007,7 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
   if (hold) {
     setHolds(hold).undo();
   }
-  return { animal, preview, check, sets, probe: { roles, step, demos, faces, hold, watch } };
+  return { animal, preview, check, sets, probe: { roles, step, demos, faces, hold, watch }, keep };
 }
 
 /**
@@ -1849,6 +1860,7 @@ export function checkTexts(text: string, sets: readonly string[], known: boolean
  * @param preview The folder of the preview images, or `null`.
  * @param factor The factor of the landmark height of the variant ({@link keptHeight}).
  * @param probe The options of the app checks: the roles, the play step, the demos, and the faces.
+ * @param keep The file into which the tool copies the GLB file of the rig (`--keep`), or `null`.
  * @returns The measures.
  * @throws Error if the config has no rule of the thin faces, if the rig fails, if it is above the
  *   triangle budget, or if a probe fails.
@@ -1859,6 +1871,7 @@ async function checkRig(
   preview: string | null,
   factor: number,
   probe: CheckProbe,
+  keep: string | null = null,
 ): Promise<CheckMeasures> {
   const config = parseConfig(text);
   const thin = config.check?.thin;
@@ -1877,6 +1890,11 @@ async function checkRig(
     await runBlender(blenderArgs(path, output, preview, obj));
     const bytes = new Uint8Array(await readFile(output));
     console.log(`Rig: ${bytes.byteLength} B, sha256 ${sha256(bytes)}.`);
+    if (keep) {
+      await mkdir(dirname(keep), { recursive: true });
+      copyFileSync(output, keep);
+      console.log(`Kept the rig as ${keep}.`);
+    }
     const { settings, known } = rigSettings(animal, config, factor);
     if (!known) {
       console.log(`ANIMALS has no ${animal}, so the check takes a seated role that also stands.`);
@@ -1981,6 +1999,8 @@ async function checkRig(
  *   a folder of its own in it: `base`, `variant-1`, and so on.
  * @param probe The options of the app checks. The roles of `--roles` also choose the players of
  *   the form tables.
+ * @param keep The folder of `--keep`, into which each rig goes as `base.glb`, `variant-1.glb`,
+ *   and so on, or `null`.
  * @returns True when each variant passed.
  * @throws Error if a variant does not fit, or if a role of `--roles` is not a role of the animal,
  *   before the first rig.
@@ -1991,6 +2011,7 @@ async function checkVariants(
   sets: readonly string[],
   preview: string | null,
   probe: CheckProbe,
+  keep: string | null = null,
 ): Promise<boolean> {
   const texts = checkTexts(text, sets, ANIMALS.has(animal));
   for (const set of sets) {
@@ -2014,12 +2035,14 @@ async function checkVariants(
       preview && sets.length > 0 ? join(preview, k === 0 ? 'base' : `variant-${k}`) : preview;
     try {
       const own = texts[k] ?? text;
+      const kept = keep ? join(keep, k === 0 ? 'base.glb' : `variant-${k}.glb`) : null;
       const measures = await checkRig(
         animal,
         own,
         folder,
         keptHeight(base, parseConfig(own)),
         probe,
+        kept,
       );
       rows.push({ variant, measures, error: null });
     } catch (error) {
@@ -2053,12 +2076,12 @@ async function checkVariants(
  * Blender comes from the environment variable `BLENDER`, or `blender` on the path.
  */
 async function main(): Promise<void> {
-  const { animal, preview, check, sets, probe } = parseArgs(process.argv.slice(2));
+  const { animal, preview, check, sets, probe, keep } = parseArgs(process.argv.slice(2));
   const configPath = join(CONFIG_DIR, `${animal}.json`);
   const text = await readFile(configPath, 'utf8');
   const config = parseConfig(text);
   if (check) {
-    if (!(await checkVariants(animal, text, sets, preview, probe))) {
+    if (!(await checkVariants(animal, text, sets, preview, probe, keep))) {
       process.exitCode = 1;
     }
     return;

@@ -112,6 +112,7 @@ describe('the arguments of pnpm rig-mesh', () => {
       check: false,
       sets: [],
       probe: DEFAULT_PROBE,
+      keep: null,
     });
     expect(parseArgs(['rabbit', '--preview', '/tmp/x'])).toEqual({
       animal: 'rabbit',
@@ -119,6 +120,7 @@ describe('the arguments of pnpm rig-mesh', () => {
       check: false,
       sets: [],
       probe: DEFAULT_PROBE,
+      keep: null,
     });
     expect(parseArgs(['--preview', '/tmp/x', 'rabbit'])).toEqual({
       animal: 'rabbit',
@@ -126,6 +128,7 @@ describe('the arguments of pnpm rig-mesh', () => {
       check: false,
       sets: [],
       probe: DEFAULT_PROBE,
+      keep: null,
     });
   });
 
@@ -137,6 +140,7 @@ describe('the arguments of pnpm rig-mesh', () => {
       check: true,
       sets: [],
       probe: DEFAULT_PROBE,
+      keep: null,
     });
   });
 
