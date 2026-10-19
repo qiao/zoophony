@@ -445,5 +445,35 @@
     "most": 0.03,
     "note": "The values of the panda, the hippo, and the mouse."
   },
-  "raise": []
+  "raise": [
+    {
+      "side": "L",
+      "turns": {
+        "clavicle": [
+          0,
+          -0.1736,
+          0,
+          0.9848
+        ],
+        "upper_arm": [
+          0.1932,
+          -0.6285,
+          0.1146,
+          0.7447
+        ],
+        "forearm": [
+          -0.008,
+          -0.0045,
+          0.0104,
+          0.9999
+        ]
+      },
+      "fade": [
+        10,
+        20
+      ],
+      "below": 0,
+      "note": "The shape of the left arm on the bassoon, with the mean turns of the play samples (pnpm raise-fit bassoonist --faces 1738 --side L): the clavicle 20 degrees forward, as the shoulder turn of the hold, and the upper arm 84 degrees from the bind. With the cut, face 1738 at the front of the left shoulder folded in each play sample. In the pose of the rule, two faces turn over and relax in 1 round. With no cut, the same shape left three faces at the front of the shoulder turned over (rig-raise.txt). The cut also removes the folds of the right armpit, so the right arm has no shape."
+    }
+  ]
 }
