@@ -296,16 +296,25 @@ interface PlannedChange {
   readonly change: LookChange;
 }
 
+/** The place of the value of a look path. */
+interface LookPlace {
+  /** The object or the list that holds the value, or `null` for a root that is a list. */
+  readonly parent: object | null;
+  /** The key of the value in its parent. */
+  readonly key: string;
+  /** The value. */
+  readonly old: LookValue;
+}
+
 /**
- * Finds the value of a look path, and checks the new value.
+ * Finds the value of a look path.
  *
  * @param path The look path.
- * @param value The new value.
- * @returns The planned change.
- * @throws Error that names the path for an unknown root or key, a path that names an object, a
- *   path of {@link LOAD_TIME_PATHS}, or a value that does not fit the old value.
+ * @returns The place of the value.
+ * @throws Error that names the path for an unknown root or key, a path that names an object, or a
+ *   path of {@link LOAD_TIME_PATHS}.
  */
-function plan(path: string, value: LookValue): PlannedChange {
+function locate(path: string): LookPlace {
   const [first = '', ...keys] = path.split('.');
   const root = entryOf(LOOK_ROOTS, first)?.[1];
   if (!(root instanceof Object)) {
@@ -347,13 +356,38 @@ function plan(path: string, value: LookValue): PlannedChange {
       `The look path ${path} names an object. Give the path of a value in it, such as ${path}.${example ?? '<key>'}.`,
     );
   }
-  const converted = convert(path, node, value);
+  return { parent, key, old: node };
+}
+
+/**
+ * Gives the current value of a look path.
+ *
+ * @param path The look path, such as `BACK_ROW_LIGHT.illuminance`.
+ * @returns The value.
+ * @throws Error that names the path (see {@link applyLook}).
+ */
+export function lookValueAt(path: string): LookValue {
+  return locate(path).old;
+}
+
+/**
+ * Finds the value of a look path, and checks the new value.
+ *
+ * @param path The look path.
+ * @param value The new value.
+ * @returns The planned change.
+ * @throws Error that names the path for an unknown root or key, a path that names an object, a
+ *   path of {@link LOAD_TIME_PATHS}, or a value that does not fit the old value.
+ */
+function plan(path: string, value: LookValue): PlannedChange {
+  const { parent, key, old } = locate(path);
+  const converted = convert(path, old, value);
   return {
     parent,
     key,
-    old: node,
+    old,
     value: converted,
-    change: { path, before: JSON.stringify(node), after: JSON.stringify(converted) },
+    change: { path, before: JSON.stringify(old), after: JSON.stringify(converted) },
   };
 }
 
