@@ -126,6 +126,7 @@ describe('closeViewsArgs', () => {
       crop: null,
       glb: null,
       holds: null,
+      probes: null,
     };
     expect(closeViewsArgs(['violinist', 'out'])).toEqual({
       role: 'violinist',
