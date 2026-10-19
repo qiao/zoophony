@@ -30,10 +30,13 @@
  * tilt of the violin, the place of the left palm on it, the upright bow at the right side, and the
  * place of the right elbow (`tools/lap-rest.ts`).
  *
- * `--scan` scans variants of the rest of a role with a lap rest in a part of the time: for each
- * variant, it builds only the rig of one seated player again, and measures one rest sample at the
- * wall time `SCAN_WALL` of `tools/lap-rest.ts`, or one sample at each wall time of `--walls`
- * ({@link scanHolds}). With no `--demo`, the sample is the first seated body of the role in the
+ * A wind role gives the spare reach of each grip in the play and in the rest (`spareRow()` of
+ * `pnpm hold-reach`).
+ *
+ * `--scan` scans variants of the rest of a role with a lap rest or a wind hold in a part of the
+ * time: for each variant, it builds only the rig of one seated player again, and measures one rest
+ * sample at the wall time `SCAN_WALL` of `tools/lap-rest.ts`, or one sample at each wall time of
+ * `--walls` ({@link scanHolds}). With no `--demo`, the sample is the first seated body of the role in the
  * first demo of the run. It goes with `--set`, `--grid` (up to {@link SCAN_GRID_LIMIT} variants),
  * and `--demo`.
  *
@@ -65,8 +68,15 @@ import type {
 } from './fold-probe.ts';
 import { faceList, faceShares, foldShareText } from './face-shares.ts';
 import type { FaceShare } from './face-shares.ts';
-import { freeRestReach, holdReach, rangeTexts, reachShare, ruleSize } from './hold-reach.ts';
-import type { ChinInstrument, HoldReach } from './hold-reach.ts';
+import {
+  freeRestReach,
+  holdReach,
+  rangeTexts,
+  reachShare,
+  ruleSize,
+  spareRow,
+} from './hold-reach.ts';
+import type { ChinInstrument, GripSpare, HoldReach } from './hold-reach.ts';
 import { setHolds } from './hold-sets.ts';
 import { PAW_PLACES, SCAN_WALL, lapWorsts, probeLaps, scanRest, scanSamples } from './lap-rest.ts';
 import type { LapWorst, LapWorsts, ScanSample } from './lap-rest.ts';
@@ -766,7 +776,15 @@ export interface FitRow {
   readonly lap: LapWorsts | null;
   /** The mean turns of the arms ({@link armTurns}), or `null` with no sample of the folds. */
   readonly turns: ArmTurns | null;
+  /**
+   * The spare reach of each grip of a wind hold on the chair ({@link windSpare}), or `null` for a
+   * role with no wind hold.
+   */
+  readonly spare: GripSpares | null;
 }
+
+/** The spare reach of the grip of each side of a wind hold (`spareRow()` of `pnpm hold-reach`). */
+export type GripSpares = Readonly<Record<'L' | 'R', GripSpare>>;
 
 /** The angles of the mean turns of one arm, in degrees. */
 export interface ArmAngles {
@@ -873,7 +891,7 @@ interface StoredFit {
   /** The rows, the base first. */
   readonly rows: readonly (Omit<
     FitRow,
-    'depths' | 'results' | 'held' | 'lap' | 'turns' | 'facesOf'
+    'depths' | 'results' | 'held' | 'lap' | 'turns' | 'facesOf' | 'spare'
   > & {
     /** The shares of the faces of `--faces-of`, or none in a text before the format version 11. */
     readonly facesOf?: readonly FaceShare[];
@@ -881,6 +899,8 @@ interface StoredFit {
     readonly lap: StoredLaps | null;
     /** The mean turns of the arms, or none in a text before the format version 9. */
     readonly turns?: ArmTurns | null;
+    /** The spare reach of the grips, or none in a text before the format version 12. */
+    readonly spare?: GripSpares | null;
     /** The deepest point of each sample set. */
     readonly depths: readonly StoredWorst[];
     /** The pair of the instrument in the body, or `null`. */
@@ -906,10 +926,10 @@ export interface FitRun {
  * version 7 the right arm in the rest, version 8 the reach of the note targets of each result,
  * version 9 the mean turns of the arms, version 10 the instrument in the body of the contrabass,
  * with `null` for its limit: the pair has no limit (a reader of an older version shows that limit
- * as 0), and version 11 the shares of the faces of `--faces-of` and the samples over the limit of
- * each pair of the sweep.
+ * as 0), version 11 the shares of the faces of `--faces-of` and the samples over the limit of
+ * each pair of the sweep, and version 12 the spare reach of the grips of a wind hold.
  */
-export const FIT_FORMAT = 11;
+export const FIT_FORMAT = 12;
 
 /**
  * The oldest format version that {@link FIT_FORMAT} only adds fields to (`ProbeFormat.since` of
@@ -964,6 +984,7 @@ export function readFit(text: string): FitRun {
       free: row.free,
       lap: row.lap ? restoreLaps(row.lap) : null,
       turns: row.turns ?? null,
+      spare: row.spare ?? null,
     })),
   };
 }
@@ -1123,13 +1144,51 @@ function lapHeader(bow: boolean): string[] {
   ];
 }
 
+/** The header cells of the spare reach of the grips of a wind hold ({@link spareCells}). */
+const SPARE_HEADER: readonly string[] = ['Spare L cm play / rest', 'Spare R cm play / rest'];
+
+/**
+ * Writes the cells of the spare reach of each grip of a wind hold: the spare reach in the playing
+ * pose and in the rest pose, in cm, with `MISS` below 0, and `free` for a paw that leaves its grip
+ * in the rest pose.
+ *
+ * @param spare The spare reach of each grip, or `null`.
+ * @returns The cell of each side, or `-` with no spare reach.
+ */
+function spareCells(spare: GripSpares | null): string[] {
+  const cm = (value: number | null): string => {
+    if (value === null) {
+      return 'free';
+    }
+    return `${(value * 100).toFixed(1)}${value < 0 ? ' MISS' : ''}`;
+  };
+  return (['L', 'R'] as const).map((side) =>
+    spare ? `${cm(spare[side].play)} / ${cm(spare[side].rest)}` : '-',
+  );
+}
+
+/**
+ * Counts the grips of a wind hold that the palm misses, in the playing pose and in the rest pose.
+ *
+ * @param spare The spare reach of each grip, or `null`.
+ * @returns The number of the spare reaches below 0.
+ */
+function spareMisses(spare: GripSpares | null): number {
+  if (!spare) {
+    return 0;
+  }
+  const values = [spare.L.play, spare.L.rest, spare.R.play, spare.R.rest];
+  return values.filter((value) => value !== null && value < 0).length;
+}
+
 /**
  * Writes the table of `pnpm hold-fit`: one row for each variant, with the play folds and the lift
  * folds, the most folded faces of one rest sample by side, the share of the play samples in which
  * each face of `--faces-of` folds, the deepest point of each sample set in
  * cm with its pair and its limit, the largest note-target error with the share of the targets
  * within `TARGET_REACH` of `tools/pose-depth.ts`, the instrument in the body with its set, the gap of each free
- * paw to the body in the rest in cm, the reach share of the rest place of each free paw, the lap
+ * paw to the body in the rest in cm, the spare reach of each grip of a wind hold
+ * ({@link spareCells}), the reach share of the rest place of each free paw, the lap
  * rest, and the reach of a violin role. The lap rest gives the gap of the lower end of the
  * instrument to the skin under it with the depth of its deepest corner in the body, and with a bow
  * the depth of the violin in the body, the tilt of the violin, the place of the left palm on it, the tilt of the bow, the gap of the
@@ -1152,6 +1211,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
   const sides = [...new Set(rows.flatMap((row) => row.free.map((free) => free.side)))];
   const lap = rows.some((row) => row.lap);
   const bow = rows.some((row) => row.lap?.bowTilt);
+  const grips = rows.some((row) => row.spare);
   const reaches = rows.map((row) => joinReach(row.results));
   const targets = reaches.some((reached) => reached.samples > 0);
   const turnSet = rows.find((row) => row.turns)?.turns?.set;
@@ -1166,6 +1226,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
     ...(targets ? [`Note targets: worst mm (within ${TARGET_REACH * 1000} mm)`] : []),
     ...(turnSet ? [`${turnSet} turns: upper arm, paw L / R`] : []),
     ...(held ? ['Instrument in body cm'] : []),
+    ...(grips ? SPARE_HEADER : []),
     ...paws.map((paw) => `Rest gap ${paw} cm`),
     ...sides.map((side) => `Rest reach ${side}`),
     ...(lap ? lapHeader(bow) : []),
@@ -1222,6 +1283,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
       ...(targets ? [targetCell] : []),
       ...(turnSet ? [turnCell] : []),
       ...(held ? [heldCell] : []),
+      ...(grips ? spareCells(row.spare) : []),
       ...gapCells,
       ...reachCells,
       ...(lap ? lapCells(row.lap, bow) : []),
@@ -1249,25 +1311,31 @@ export interface ScanRow {
   readonly folds: SideSplit;
   /** The lap rest of the sample, as the largest values of one sample, or `null` for none. */
   readonly lap: LapWorsts | null;
+  /** The depth of the instrument in the body in the sample, in meters (`ScanRest.held`). */
+  readonly held: number;
+  /** The spare reach of each grip of a wind hold ({@link windSpare}), or `null` for none. */
+  readonly spare: GripSpares | null;
 }
 
 /**
- * Counts the goals of the lap rest that a scan row misses: the cells of {@link lapCells} with the
- * mark `OVER`.
+ * Counts the goals that a scan row misses: the cells of the lap rest ({@link lapCells}) with the
+ * mark `OVER`, and the grips of a wind hold that the palm misses ({@link spareMisses}).
  *
  * @param row The row.
  * @param bow True for a table with the violin columns.
- * @returns The number of cells with the mark.
+ * @returns The number of missed goals.
  */
 export function scanMisses(row: ScanRow, bow: boolean): number {
-  return lapCells(row.lap, bow).filter((cell) => cell.includes('OVER')).length;
+  const lap = row.lap ? lapCells(row.lap, bow).filter((cell) => cell.includes('OVER')).length : 0;
+  return lap + spareMisses(row.spare);
 }
 
 /**
  * Writes the table of a scan: one row for each variant and rest sample, with the folded faces of
- * the studio skin by side, the goals that the row misses ({@link scanMisses}), and the cells of the
- * lap rest of the rest columns of a run ({@link lapCells}). A run with one sample has no column of
- * the sample.
+ * the studio skin by side, the goals that the row misses ({@link scanMisses}), for a wind hold the
+ * instrument in the body and the spare reach of each grip ({@link spareCells}), and the cells of
+ * the lap rest of the rest columns of a run ({@link lapCells}). A wind hold with no lap rest has
+ * no lap columns. A run with one sample has no column of the sample.
  *
  * @param rows The rows, the base first.
  * @returns The lines.
@@ -1275,12 +1343,15 @@ export function scanMisses(row: ScanRow, bow: boolean): number {
 export function scanTable(rows: readonly ScanRow[]): string[] {
   const samples = new Set(rows.map((row) => row.sample)).size > 1;
   const bow = rows.some((row) => row.lap?.bowTilt);
+  const grips = rows.some((row) => row.spare);
+  const lap = !grips || rows.some((row) => row.lap);
   const header = [
     'Variant',
     ...(samples ? ['Sample'] : []),
     'Rest faces (by side)',
     'Goals missed',
-    ...lapHeader(bow),
+    ...(grips ? ['Rest instrument in body cm', ...SPARE_HEADER] : []),
+    ...(lap ? lapHeader(bow) : []),
   ];
   const lines = [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`];
   for (const row of rows) {
@@ -1290,7 +1361,8 @@ export function scanTable(rows: readonly ScanRow[]): string[] {
       ...(samples ? [row.sample] : []),
       `${L + R + other} (${splitText(row.folds)})`,
       String(scanMisses(row, bow)),
-      ...lapCells(row.lap, bow),
+      ...(grips ? [(row.held * 100).toFixed(1), ...spareCells(row.spare)] : []),
+      ...(lap ? lapCells(row.lap, bow) : []),
     ];
     lines.push(`| ${cells.join(' | ')} |`);
   }
@@ -1461,6 +1533,18 @@ function freeShares(role: RoleSource): FreeShare[] {
     side: reach.side,
     share: reachShare(reach),
   }));
+}
+
+/**
+ * Gives the spare reach of each grip of the wind hold of a role on the chair, with the holds of now
+ * (`spareRow()` of `pnpm hold-reach`).
+ *
+ * @param role The role.
+ * @returns The spare reach of each grip, or `null` for a role with no wind hold.
+ */
+function windSpare(role: RoleSource): GripSpares | null {
+  const wind = windOf(role);
+  return wind ? spareRow('', wind.species, wind.instrument, 'chair').spare : null;
 }
 
 /**
@@ -1651,20 +1735,24 @@ function scanSamplesOf(options: FitOptions, demos: readonly DemoFile[]): ScanSam
 }
 
 /**
- * Scans the variants of the rest of a role with a lap rest (`--scan`). For each variant, it builds
- * only the rig of the player of each rest sample again (`scanRest()` of `tools/lap-rest.ts`), in
- * place of the scenes of each demo, and writes one row for each variant and sample: the folded
- * faces of the studio skin by side and the cells of the lap rest of the rest columns. With a
+ * Scans the variants of the rest of a role with a lap rest or a wind hold (`--scan`). For each
+ * variant, it builds only the rig of the player of each rest sample again (`scanRest()` of
+ * `tools/lap-rest.ts`), in place of the scenes of each demo, and writes one row for each variant
+ * and sample: the folded faces of the studio skin by side, the cells of the lap rest of the rest
+ * columns, and for a wind hold the instrument in the body and the spare reach of each grip
+ * ({@link windSpare}). With a
  * grid, the rows are sorted by {@link sortScanRows}. It prints its samples and its time.
  *
  * @param options The options.
- * @throws Error if the role has no lap rest or no sweep with a body, or if no demo of the run has
+ * @throws Error if the role has no lap rest and no wind hold, or no sweep with a body, or if no
+ *   demo of the run has
  *   a seated body of the role.
  */
 async function scanHolds(options: FitOptions): Promise<void> {
-  if (!hasLapRest(options.role)) {
+  const laps = hasLapRest(options.role);
+  if (!laps && !windOf(options.role)) {
     throw new Error(
-      `The scan measures the lap rest, and the ${options.name} has no lap rest: only a violin, a viola, or a wind hold of LEG_RESTS has one.`,
+      `The scan measures the lap rest or a wind hold, and the ${options.name} has neither: only a violin, a viola, or a wind hold of LEG_RESTS has a lap rest.`,
     );
   }
   const started = performance.now();
@@ -1677,7 +1765,7 @@ async function scanHolds(options: FitOptions): Promise<void> {
   }
   const samples = scanSamplesOf(options, demos);
   console.log(
-    `Hold scan of the ${options.name}: the lap rest and the folded faces by side of ${samples.length} rest sample${samples.length > 1 ? 's' : ''}. Each variant builds only the rig of the player again.`,
+    `Hold scan of the ${options.name}: ${laps ? 'the lap rest' : 'the instrument in the body, the spare reach of the grips,'} and the folded faces by side of ${samples.length} rest sample${samples.length > 1 ? 's' : ''}. Each variant builds only the rig of the player again.`,
   );
   for (const { sample } of samples) {
     console.log(`Rest sample: ${sample}`);
@@ -1697,10 +1785,12 @@ async function scanHolds(options: FitOptions): Promise<void> {
   for (const variant of options.variants) {
     const { undo, text } = setHolds(variant);
     try {
+      const spare = windSpare(options.role);
       for (const sample of samples) {
         const rest = scanRest(sample, body);
-        const lap = rest.lap ? lapWorsts([{ sample: rest.sample, rest: rest.lap }]) : null;
-        rows.push({ variant: text, sample: rest.sample, folds: rest.folds, lap });
+        const lap = laps && rest.lap ? lapWorsts([{ sample: rest.sample, rest: rest.lap }]) : null;
+        const { folds, held } = rest;
+        rows.push({ variant: text, sample: rest.sample, folds, lap, held, spare });
       }
     } finally {
       undo();
@@ -1777,6 +1867,7 @@ async function main(): Promise<void> {
         free: freeShares(options.role),
         lap: body ? probeLaps(options.role, demos, body) : null,
         turns: arms.turns(),
+        spare: windSpare(options.role),
       };
       rows.push(row);
       printRow(row);
