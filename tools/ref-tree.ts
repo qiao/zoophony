@@ -488,10 +488,13 @@ export function checkRefRole(dir: string, ref: string, role: RefRole): void {
  * and gives the folder to a function. The tools come from the commit, so that each tool runs on
  * the source that it fits. The folder also gets a copy of each script of `tools/` of the working
  * tree that the commit does not have ({@link probeScripts}), and a link to the `node_modules` of
- * the repository. With a role, the commit must have it ({@link checkRefRole}). Thus a tool runs
- * there, in a child process of {@link runChild}, on the code and the demos of the commit. The copy
- * and the start of the function run before the first `await`, so the child runs beside the code of
- * the caller. The folder goes away at the end, also after a failure or a stop (INT or TERM).
+ * the repository. The folder is also an empty git repository (`git init`), so that a git command
+ * of a tool of the commit works there, such as {@link probeCacheDir}. The caches and the times
+ * that such a tool writes go away with the folder. With a role, the commit must have it
+ * ({@link checkRefRole}). Thus a tool runs there, in a child process of {@link runChild}, on the
+ * code and the demos of the commit. The copy and the start of the function run before the first
+ * `await`, so the child runs beside the code of the caller. The folder goes away at the end, also
+ * after a failure or a stop (INT or TERM).
  *
  * @param ref The commit, a branch, or a tag.
  * @param use The function that runs the probe in the folder.
@@ -516,6 +519,7 @@ export function withProbeTree<T>(
         copyFileSync(join(ROOT, 'tools', file), join(dir, 'tools', file));
       }
       symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
+      run('git', ['init', '--quiet'], dir);
       if (options.role) {
         checkRefRole(dir, ref, options.role);
       }
