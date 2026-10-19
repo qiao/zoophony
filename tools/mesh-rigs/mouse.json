@@ -494,22 +494,22 @@
           1
         ],
         "upper_arm": [
-          0.1432,
-          -0.37,
-          0.2611,
-          0.88
+          0.1951,
+          -0.3709,
+          0.2566,
+          0.8709
         ],
         "forearm": [
-          -0.0338,
-          -0.0191,
-          0.044,
-          0.9983
+          -0.0638,
+          -0.036,
+          0.083,
+          0.9939
         ],
         "hand": [
-          -0.3429,
-          -0.4999,
-          -0.7529,
-          0.2563
+          -0.3568,
+          -0.4878,
+          -0.7634,
+          0.2281
         ]
       },
       "fade": [
@@ -518,7 +518,7 @@
       ],
       "below": 0.0,
       "grow": 2,
-      "note": "The shape of the left arm in the rest pose of the oboe, with the mean turns of the rest samples (keys-dump.ts and keys-read.ts of docs/research/2026-10-19-mouse-mesh/): the upper arm 57 degrees from the bind, the elbow 7 degrees, and the paw 150 degrees from the forearm. Three faces of the left upper arm and forearm folded in each rest sample. In the pose of the rule, they turn over and relax in 3 rounds, with 2 rings of neighbors (grow)."
+      "note": "The shape of the left arm in the rest pose of the oboe, with the mean turns of the rest samples of the hold of the smaller oboe (pnpm raise-fit oboist --faces 1308,2611 --side L --sets rest, docs/research/2026-10-19-mouse-size/): the upper arm 59 degrees from the bind, and the paw turn of the samples. Two faces of the left upper arm and paw folded in each rest sample. In the pose of the rule, they turn over and relax, with 2 rings of neighbors (grow)."
     },
     {
       "side": "L",
