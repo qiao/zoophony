@@ -36,7 +36,7 @@ group of your work before you plan it. A probe that a trap names is in its resea
   moves no grip.
 - A smaller body keeps its instrument in meters, so the old hold misses the grips: scan the scale
   and the hold with `windReach()` first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`). A
-  big head puts the mouth out of a reach from another body: measure `slideReach` on the new body
+  reach from another body misses the mouth of a big head. Measure `slideReach` on the new body
   before the user chooses the arms, and turn the slide toward the right shoulder (`slide-hold.ts` of
   `docs/research/2026-10-18-panda-mesh/`).
 - A round belly can cover short thighs, and `lapPoint()` also takes the skin of the hips and the
@@ -97,8 +97,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 ## Weights, rings, and folds
 
-- When an arm hangs near the trunk, bone heat gives a part of its weight to the trunk side, so the
-  raised bind arms drag the trunk and fold the shoulder. Keep the arm weights on the free arm
+- When an arm hangs near the trunk, bone heat gives a part of its weight to the trunk side. The
+  raised bind arms then drag the trunk and fold the shoulder. Keep the arm weights on the free arm
   (`armSplit`).
 - Bone heat gives the top of a narrow shoulder next to a thin neck to the upper arm, as on the cat.
   Fade the upper arm weight over the shoulder top toward the clavicle (`shoulderRamp`).
