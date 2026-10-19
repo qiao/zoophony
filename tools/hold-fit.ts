@@ -2,7 +2,7 @@
  * Fits the hold of a role of a studio body in one run (route 3 of `docs/agents/model-work.md`): for
  * the base and for each variant of `--set`, it gives the folds of `pnpm fold-probe` with the most
  * folded faces of one rest sample by side, the deepest point of each sample set of the sweep of
- * `pnpm pose-depth`, and, for a violin role, the reach of `pnpm hold-reach`. For a role that holds
+ * `pnpm pose-depth` with the note-target errors, and, for a violin role, the reach of `pnpm hold-reach`. For a role that holds
  * its instrument in its paws, it gives the deepest point of the instrument in the body. For a wind
  * role with a paw that leaves its grip in the rest pose (`WindHold.restFreeL`), it gives the gap of
  * that paw to the body in the rest and the reach share of its rest place. It prints one table with
@@ -60,7 +60,14 @@ import { PAW_PLACES, SCAN_WALL, lapWorsts, probeLaps, scanRest, scanSamples } fr
 import type { LapWorst, LapWorsts, ScanSample } from './lap-rest.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
-import { compareDepths, restoreDepth, restoreResult, sweepDemos } from './pose-depth.ts';
+import {
+  TARGET_REACH,
+  compareDepths,
+  joinReach,
+  restoreDepth,
+  restoreResult,
+  sweepDemos,
+} from './pose-depth.ts';
 import type { DemoResult, GapsOf, StoredDepth, StoredResult } from './pose-depth.ts';
 import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
 import type { SpeciesId } from '../src/models/species.ts';
@@ -772,10 +779,10 @@ export interface FitRun {
  * The format version of the JSON text of `--json` (`ProbeFormat` of `tools/ref-tree.ts`). A
  * change of the format takes the next version. Version 2 added the rest faces by side, version 3
  * the instrument in the body, the rest gaps, and the reach shares of the free paws, version 4 the
- * rest samples of the folds, version 5 the lap rest, version 6 the upright rest of the violin, and
- * version 7 the right arm in the rest.
+ * rest samples of the folds, version 5 the lap rest, version 6 the upright rest of the violin,
+ * version 7 the right arm in the rest, and version 8 the reach of the note targets of each result.
  */
-export const FIT_FORMAT = 7;
+export const FIT_FORMAT = 8;
 
 /**
  * The oldest format version that {@link FIT_FORMAT} only adds fields to (`ProbeFormat.since` of
@@ -990,7 +997,8 @@ function lapHeader(bow: boolean): string[] {
 /**
  * Writes the table of `pnpm hold-fit`: one row for each variant, with the play folds and the lift
  * folds, the most folded faces of one rest sample by side, the deepest point of each sample set in
- * cm with its pair and its limit, the instrument in the body with its set, the gap of each free
+ * cm with its pair and its limit, the largest note-target error with the share of the targets
+ * within `TARGET_REACH` of `tools/pose-depth.ts`, the instrument in the body with its set, the gap of each free
  * paw to the body in the rest in cm, the reach share of the rest place of each free paw, the lap
  * rest, and the reach of a violin role. The lap rest gives the gap of the lower end of the
  * instrument to the skin under it with the depth of its deepest corner in the body, and with a bow
@@ -1014,12 +1022,15 @@ export function fitTable(rows: readonly FitRow[]): string[] {
   const sides = [...new Set(rows.flatMap((row) => row.free.map((free) => free.side)))];
   const lap = rows.some((row) => row.lap);
   const bow = rows.some((row) => row.lap?.bowTilt);
+  const reaches = rows.map((row) => joinReach(row.results));
+  const targets = reaches.some((reached) => reached.samples > 0);
   const header = [
     'Variant',
     'Play folds',
     'Lift folds',
     'Rest faces (by side)',
     ...sets.map((set) => `${set} depth cm (limit)`),
+    ...(targets ? [`Note targets: worst mm (within ${TARGET_REACH * 1000} mm)`] : []),
     ...(held ? ['Instrument in body cm (limit)'] : []),
     ...paws.map((paw) => `Rest gap ${paw} cm`),
     ...sides.map((side) => `Rest reach ${side}`),
@@ -1027,7 +1038,12 @@ export function fitTable(rows: readonly FitRow[]): string[] {
     ...(violin ? ['Rule scale', 'Violin m', 'stopRange', 'bowRange'] : []),
   ];
   const lines = [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`];
-  for (const row of rows) {
+  for (const [k, row] of rows.entries()) {
+    const reached = reaches[k];
+    const targetCell =
+      reached && reached.samples > 0
+        ? `${(reached.worst * 1000).toFixed(1)} (${((100 * reached.within) / reached.samples).toFixed(1)}%)`
+        : '-';
     const depths = sets.map((set) => {
       const worst = row.depths.find((d) => d.set === set);
       if (!worst) {
@@ -1064,6 +1080,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
         ? `${row.folds.rest.most} (${splitText(row.folds.rest.split)})`
         : '-',
       ...depths,
+      ...(targets ? [targetCell] : []),
       ...(held ? [heldCell] : []),
       ...gapCells,
       ...reachCells,
