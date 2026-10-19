@@ -232,3 +232,4 @@ The decision files:
 - [`2026-10-19-mesh-retro.md`](decisions/2026-10-19-mesh-retro.md): the retro of the mouse and elephant mesh rounds, the tool of the corrective shapes, the fast checks of a hold fit, and the tip of the nose near the middle plane.
 - [`2026-10-19-mouse-size.md`](decisions/2026-10-19-mouse-size.md): the mouse at the size of the parametric mouse, its smaller oboe, the deeper reed, the rest of the oboe, and the new rest shape of the left arm.
 - [`2026-10-19-fox-red.md`](decisions/2026-10-19-fox-red.md): the redder orange fur of the red fox, the color shift of a rig with its gamut limit, the tan palette from the texture colors, and the new fur color of the red fox.
+- [`2026-10-19-hippo-chest.md`](decisions/2026-10-19-hippo-chest.md): the upper bout of the contrabass in front of the chest of the hippo, the clavicle weights of the middle of its chest, the shape of its bow arm, and the deeper arms.
