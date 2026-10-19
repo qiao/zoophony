@@ -25,6 +25,6 @@ can reverse each decision. Then update its section, and remove its row.
 | The bassoon scale is 0.82, the largest at which each paw has 3 cm to spare in the play and in the rest (report "Hold"). | 4.6 |
 | The role `bassoonist` is in `SWEEP_ROLES`, `FOLD_ROLES`, and `ROLE_VIEWS`, with 9 open loops (`BEAVER_BODY_LOOPS`). The sweep accepts 1.6 cm of the paws in the bassoon in the lift and the lowering (`BASSOONIST_SWEEP`, report "Clearance"). | 9.3 |
 | The first download grows by 30,153 B to 624,160 B with the beaver body (`pnpm size --base 9a4613b4`). | 7.2 |
-| Both armpits take the cut of the panda below 0.6 source units, because no ring, flip, or rigid weight removed the play folds of the thin faces between the upper arm and the chest (`cut`, report "The arm cut"). | 4.4 |
+| Both armpits take the cut of the panda below 0.6 source units, because no ring, flip, or rigid weight removed the play folds of the thin armpit faces (`cut`, report "The arm cut"). | 4.4 |
 | One shape of the left arm on the cut mesh removes each play fold with the same hold, and the right arm needs no shape (`raise`, report "The arm cut"). | 4.4 |
-| Open: three faces of the left arm fold in each rest sample and in 13% of the lift, as before, and a dark slot shows at the cap of the cut (`fold-probe-arm.txt`). | 4.4, 9.3 |
+| Open: three faces of the left arm fold in each rest sample and in 13% of the lift, and a dark slot shows at the cap of the cut (`fold-probe-arm.txt`). | 4.4, 9.3 |
