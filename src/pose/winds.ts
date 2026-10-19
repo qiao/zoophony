@@ -426,14 +426,22 @@ const MOUSE_OBOE_FORWARD = 10;
  * {@link MOUSE_OBOE_FORWARD}° further forward than {@link WIND_HOLDS}, to 40° from the vertical,
  * the angle of a real oboist. With the reed at the mouth of the bind pose, the paws reached the
  * grips with 6.1 cm (left) and 3.3 cm (right) to spare, and with the reed in the mouth and the
- * oboe at 40°, with 10.9 cm and 6.0 cm. At 45°, the right paw had 3.9 cm to spare. The shoulder
- * turns, the elbows, and the rest are those of {@link WIND_HOLDS}: no variant of the shoulder
- * turns or of the elbow directions changed the depths or the folds of the play.
+ * oboe at 40°, with 10.9 cm and 6.0 cm. At 45°, the right paw had 3.9 cm to spare.
+ *
+ * The big head puts the mouth about 0.25 m above the shoulder joints, so the grips are at the
+ * height of the shoulders, and the arms reach forward. While the mouse plays, both elbows point
+ * down, out, and forward, as an oboist drops the wrists and keeps the arms a little away from the
+ * sides. With the elbow of the right arm of {@link WIND_HOLDS} out and level, the right upper arm
+ * turned 83° from its bind direction and the paw 160° from the forearm, and the upper arms showed
+ * as flat twisted bands. With the elbows down, they turn 61° and 99°, and the left arm 58° and
+ * 122°. The shoulder turns and the rest are those of {@link WIND_HOLDS}.
  */
 const MOUSE_OBOE = {
   ...WIND_HOLDS.oboe,
   lipShift: [0, -0.04, 0.14],
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
+  poleL: [-0.5, -1, -0.5],
+  poleR: [0.5, -1, -0.5],
 } as const satisfies WindHold;
 
 /**
