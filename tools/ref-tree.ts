@@ -773,13 +773,69 @@ export function baseCacheFile(ref: string, script: string, args: readonly string
 }
 
 /**
- * Writes the text of the probe of a commit into its cache file. The text goes into a part file
- * first, so that a stop or a second run at the same time leaves no half file.
+ * Gives the trees of the working tree at {@link PROBE_PATHS}, as git would commit them, in the
+ * form of `git ls-tree`: git adds the files into a copy of the index, so the index of the
+ * repository does not change. Ignored files do not count, and files that git does not track yet
+ * count. A change outside these paths, such as a docs commit, keeps the text.
  *
- * @param file The cache file ({@link baseCacheFile}).
- * @param text The JSON text of the probe of the commit.
+ * @returns The entry of each path, as `git ls-tree` writes it.
+ * @throws Error if git fails.
  */
-function storeBase(file: string, text: string): void {
+export function workingTrees(): string {
+  const dir = mkdtempSync(join(tmpdir(), 'tree-key-'));
+  try {
+    const index = join(dir, 'index');
+    copyFileSync(gitText(['rev-parse', '--path-format=absolute', '--git-path', 'index']), index);
+    const env = { ...process.env, GIT_INDEX_FILE: index };
+    const git = (args: readonly string[]): string => {
+      const result = spawnSync('git', args, { cwd: ROOT, encoding: 'utf8', env });
+      if (result.status !== 0) {
+        throw new Error(`git ${args.join(' ')} failed: ${result.stderr.trim()}`);
+      }
+      return result.stdout.trim();
+    };
+    git(['add', '-A', '--', ...PROBE_PATHS]);
+    return git(['ls-tree', git(['write-tree']), '--', ...PROBE_PATHS]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+/**
+ * Gives the file of the cache of a probe of the working tree: `probe-cache/tree-<key>.json` in the
+ * common folder of git, beside the cache of {@link baseCacheFile}. The key holds the trees of the
+ * working tree ({@link workingTrees}), the arguments of the probe, Node, and the lockfile of
+ * `node_modules`, so each change of a file of {@link PROBE_PATHS} gives a new key.
+ *
+ * @param script The script of the probe, such as `pose-depth.ts`.
+ * @param args The arguments of the probe that its result depends on.
+ * @returns The path of the file.
+ * @throws Error if git fails.
+ */
+export function treeCacheFile(script: string, args: readonly string[]): string {
+  const lock = join(ROOT, 'node_modules', '.pnpm', 'lock.yaml');
+  const fields = [
+    'tree-cache 1',
+    script,
+    workingTrees(),
+    args,
+    `${process.version} ${process.platform} ${process.arch}`,
+    existsSync(lock) ? fileHash(lock) : 'none',
+  ];
+  const key = createHash('sha256').update(JSON.stringify(fields)).digest('hex');
+  const common = gitText(['rev-parse', '--path-format=absolute', '--git-common-dir']);
+  return join(common, 'probe-cache', `tree-${key}.json`);
+}
+
+/**
+ * Writes the text of a probe into its cache file ({@link baseCacheFile}, {@link treeCacheFile}).
+ * The text goes into a part file first, so that a stop or a second run at the same time leaves no
+ * half file.
+ *
+ * @param file The cache file.
+ * @param text The JSON text of the probe.
+ */
+export function storeBase(file: string, text: string): void {
   mkdirSync(dirname(file), { recursive: true });
   const part = `${file}.${process.pid}.part`;
   writeFileSync(part, text);
