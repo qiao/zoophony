@@ -296,6 +296,19 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/beaver/beaver.rig.glb',
     },
   ],
+  // The horn pig: decisions/2026-10-19-mesh-pig.md. It stands as a soloist.
+  [
+    'pig',
+    {
+      landmark: 'shoulders',
+      height: 0.671951,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_PIG',
+      crease: 35,
+      glb: 'assets/models/pig/pig.rig.glb',
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
