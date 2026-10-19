@@ -3,7 +3,9 @@ import { MathUtils } from 'three';
 import { BOWED_HOLDS, SPECIES_HOLDS } from '../src/pose/bowed-rig.ts';
 import type { BowVia, BowedHold } from '../src/pose/bowed-rig.ts';
 import { CONDUCTOR_HOLD, LEFT_HAND_PLACES } from '../src/pose/conductor.ts';
+import { TIMPANI } from '../src/models/instruments/percussion.ts';
 import { HANDS_HOLDS } from '../src/pose/hands.ts';
+import { PERCUSSION_HOLDS, PERCUSSION_PLACES } from '../src/pose/percussion-rig.ts';
 import { SPECIES_WIND_HOLDS } from '../src/pose/winds.ts';
 import type { FreePaw } from '../src/pose/winds.ts';
 
@@ -23,7 +25,9 @@ const OWN_HOLDS = Object.fromEntries(
  * The holds that `--set` can change, by the first name of a path (design 5.3, 5.4). The tools
  * change the objects of the modules in memory, before they build a scene, and the source files
  * do not change. The rabbits hold the violin with a hold of their own: `violin` does not change
- * it, and `violin@rabbit` does.
+ * it, and `violin@rabbit` does. `kettles` changes the place of the kettles of the timpani
+ * (`TIMPANI`), which the model of a scene reads when the tool builds it, and `percussion` the
+ * places of the hands of a percussion player (`PERCUSSION_PLACES`).
  */
 const HOLDS = {
   piano: HANDS_HOLDS.piano,
@@ -34,6 +38,9 @@ const HOLDS = {
   contrabass: BOWED_HOLDS.contrabass,
   conductor: CONDUCTOR_HOLD,
   conductorLeft: LEFT_HAND_PLACES,
+  timpani: PERCUSSION_HOLDS.timpani,
+  kettles: TIMPANI,
+  percussion: PERCUSSION_PLACES,
   ...OWN_HOLDS,
 };
 
