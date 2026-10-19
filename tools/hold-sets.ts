@@ -4,7 +4,7 @@ import { BOWED_HOLDS, SPECIES_HOLDS } from '../src/pose/bowed-rig.ts';
 import type { BowVia, BowedHold } from '../src/pose/bowed-rig.ts';
 import { CONDUCTOR_HOLD, LEFT_HAND_PLACES } from '../src/pose/conductor.ts';
 import { TIMPANI } from '../src/models/instruments/percussion.ts';
-import { SPECIES, isSpeciesId } from '../src/models/species.ts';
+import { SCALE_PARAMS, SPECIES, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import { HANDS_HOLDS } from '../src/pose/hands.ts';
 import type { HandAction } from '../src/pose/hand-notes.ts';
@@ -432,16 +432,11 @@ export const HOLD_NAMES = Object.keys(HOLDS);
 
 /**
  * The scales of the instruments of a species that `--set` can change, with the id of the species
- * as the root, such as `mouse.oboeScale=0.8` (`SpeciesParams`, design 4.6). The tools build the
- * players after the change, so the instrument, its grips, and its shells follow the scale.
+ * as the root, such as `mouse.oboeScale=0.8` (`SCALE_PARAMS` of `src/models/species.ts`, design
+ * 4.6). The tools build the players after the change, so the instrument, its grips, and its
+ * shells follow the scale.
  */
-export const SCALE_KEYS = [
-  'violinScale',
-  'celloScale',
-  'bassScale',
-  'oboeScale',
-  'bassoonScale',
-] as const satisfies readonly (keyof SpeciesParams)[];
+export const SCALE_KEYS = Object.values(SCALE_PARAMS);
 
 /**
  * Changes the scale of an instrument of a species in memory, such as `mouse.oboeScale=0.8`. A
