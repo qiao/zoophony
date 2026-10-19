@@ -375,6 +375,10 @@ The code constants of each family hold the times, the angles, and the lengths of
       `docs/reference/string-technique.md`, section 2.7), leaned back and to the left as the user
       chose (`docs/decisions/2026-10-17-dog-rest.md`). The short arms reach the strings only nearly
       straight, so the bow plays no hair near the frog (`BowedHold.frogHair`).
+    - The hippo stands at the contrabass with its own hold (`HIPPO_HOLD`). Its bow arm reaches the
+      strings only straight past the round belly, so its right shoulder turns further forward than
+      the shoulders of the other players. Its thick left paw tilts over the neck as the paw of the
+      dog, so that the left arm keeps off the body (`docs/decisions/2026-10-19-hippo-chest.md`).
   - **Rest of the bowed strings.** The rested instruments and bows can touch the body, as in the
     reference images, but do not cross it (`pose/rest-clearance.test.ts`). The seated rabbits, red
     foxes, and cats rest as the seated violinist of the image of the user
