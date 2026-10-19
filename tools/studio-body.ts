@@ -569,6 +569,11 @@ interface Gltf {
        * has none with no such rule.
        */
       readonly caps?: readonly number[];
+      /**
+       * The share of the roll of each upper arm that its twist bone takes (`upperTwist.share` of
+       * the config of the mesh rig, `StudioBody.upperTwist`). The file has none with no such rule.
+       */
+      readonly upperTwist?: number;
     };
   };
 }
@@ -623,6 +628,25 @@ export function capsOf(glb: Glb): ReadonlySet<number> {
     throw new Error(`The caps ${JSON.stringify(caps)} of the file are not triangle indices.`);
   }
   return new Set(caps);
+}
+
+/**
+ * Gives the share of the roll of each upper arm that its twist bone takes in the rig of a GLB file
+ * (`upperTwist.share` of the config of `pnpm rig-mesh`, design 4.4).
+ *
+ * @param glb The file.
+ * @returns The share, or `null` for a file with no twist bone of the upper arm.
+ * @throws Error if the share is not a number from 0 to 1.
+ */
+export function upperTwistOf(glb: Glb): number | null {
+  const share = glb.json.asset?.extras?.upperTwist;
+  if (share === undefined) {
+    return null;
+  }
+  if (!(share >= 0 && share <= 1)) {
+    throw new Error(`The upper twist ${share} of the file is not a share from 0 to 1.`);
+  }
+  return share;
 }
 
 /**
@@ -2147,6 +2171,10 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   const caps = withoutEyes.faces.flatMap((face, t) => (face.cap === true ? [t] : []));
   if (caps.length > 0) {
     body = { ...body, caps };
+  }
+  const upperTwist = upperTwistOf(glb);
+  if (upperTwist !== null) {
+    body = { ...body, upperTwist };
   }
   if (frame.chairWidth !== null) {
     body = { ...body, chairWidth: frame.chairWidth };
