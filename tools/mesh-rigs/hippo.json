@@ -309,6 +309,11 @@
       0.52,
       0.565
     ],
+    "clavicleMiddle": [
+      0.05,
+      0.25
+    ],
+    "clavicleMiddleNote": "The share of the clavicle weight that a vertex below headFrom keeps grows from 0 at the smaller distance from the middle plane to 1 at the larger distance (units), and the chest takes the rest. Bone heat gave the chest under the chin weights of both clavicles (0.12 to 0.21). The bow arm turns the right clavicle far, so faces 617 and 618 on the middle plane folded in each play sample. A narrow fade (0.02 to 0.06, 0.04 to 0.10, 0.08 to 0.18) moved the fold to the faces of the fade, and a higher clavicleFrom to the front of the shoulder (docs/research/2026-10-19-hippo-chest/).",
     "armTop": [
       0.64,
       0.68
