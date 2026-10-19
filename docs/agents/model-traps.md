@@ -53,9 +53,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A long snout puts the mouthpiece far in front of the body, and the grips hang below it, so a
   smaller instrument barely helps. Turn the instrument back toward the body around the mouthpiece,
   and turn the shoulder forward (`reachL`, `PIG_HORN`).
-- The short arms of the elephant do not reach across its trunk or to the middle of a kettle, and a
-  mallet with a fixed top twists the paws. Use `PercussionHold.rim`, `sides`, `home`, and `top`,
-  and scan them with `pnpm pose-depth --targets` and `twist.ts` of the elephant arms research.
+- The short arms of the elephant do not reach across its trunk or to the middle of a kettle. Use
+  `PercussionHold.rim`, `sides`, and `home`, and scan them with `pnpm pose-depth --targets`.
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit
   (`left-rest.ts` of `docs/research/2026-10-17-tan-rest/`).
 - Read the spare reach of each grip after each move of a rest place of a wind hold. `pnpm hold-fit`
@@ -123,14 +122,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
   of `docs/research/2026-10-18-panda-seam/`).
 - A narrow fade of a weight rule under a far bone turn moves the fold to the faces of the fade. Let
   the fade span several rings of faces, as `clavicleMiddle` of the hippo does.
-- A mesh near the budget of 3,200 triangles has no room for rings: the hippo has 3,141.
 - A long thin face across an arm joint folds, and weight rules make it worse. A ring of new vertices
-  at the joint (`refine.rings`) fixes it, after the weight rules. Put a ring only where `pnpm
-  fold-probe` finds folds, then run `pnpm pose-depth <role>`, because a ring can pull the inner
-  elbow into the trunk or add folds.
-- A ring reaches a fixed distance, so longer arms can put the corners of long faces beyond it. Give
-  the ring a larger radius. The upper arm stretches only on the free arm and from the shoulder joint
-  out (`outward_stretch()` of the rig script).
+  at the joint (`refine.rings`) fixes it, within the budget of 3,200 triangles. Put a ring only
+  where `pnpm fold-probe` finds folds, then run `pnpm pose-depth <role>`, because a ring can pull
+  the inner elbow into the trunk. Give longer arms a larger ring radius (`outward_stretch()` of the
+  rig script).
 
 ## Corrective shapes
 
@@ -141,15 +137,13 @@ group of your work before you plan it. A probe that a trap names is in its resea
   shoulder front folds past the clavicle, and no shape of `raise` relaxes it. Turn the shoulder bone
   forward with the arm (`WindHold.reachL`), and scan the turn with `pnpm hold-fit --grid`
   (`docs/research/2026-10-18-panda-folds.md`).
-- A face across a joint folds by the turn of the two bones of that joint. Fit the rule on the key of
-  that joint: the upper arm, the forearm from the upper arm (`--bone forearm` of `pnpm raise-fit`),
-  or the paw from the forearm (`--bone hand`).
-- The pose of a rule in Blender turns over fewer faces than the app at the same turn. Turn the rule
-  further on the same axis, as `pnpm raise-fit --bone hand` does, and read the folded face-samples
-  in the line of the main bones of `pnpm rig-mesh --check`.
-- A paw that turns about 160° on its forearm folds the wrist with each elbow pole, because a pole
-  only moves the fold to other faces. A shape of the bent wrist relaxes them, and `weights.rigid`
-  takes the face that stays turned after the relax (`docs/research/2026-10-19-hippo-arms.md`).
+- Fit the rule of a fold across a joint on the key of that joint: the upper arm, the forearm
+  (`--bone forearm` of `pnpm raise-fit`), or the paw (`--bone hand`). The pose of a rule in Blender
+  turns over fewer faces than the app, so `--bone hand` turns the rule further on the same axis.
+- A paw that turns about 160° on its forearm folds the wrist with each elbow pole. Turn a round
+  held part around its axis so that the paw stays near the arm line (`PercussionHold.top`,
+  `twist.ts` of `docs/research/2026-10-19-elephant-arms/`). Else a shape of the bent wrist and
+  `weights.rigid` fix it (`docs/research/2026-10-19-hippo-arms.md`).
 - A shape fixes only the poses near its rule, for the arm turns of one hold. `pnpm rig-mesh --check`
   counts the folds with the hold of the working tree, so fit the hold first, or fit both in one loop
   with `--hold <changes>`. A rule whose line `raise <target>` in the rig log keeps turned faces
