@@ -23,6 +23,7 @@ import { posedPiecePoint, posedPoint } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, ofConductor } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
+import { BODY_OBSTACLE } from './test-sweep.ts';
 import type { NoteTarget, RoleSweep, SweepPart, SweepSample } from './test-sweep.ts';
 import type { Transport } from './types.ts';
 
@@ -108,6 +109,21 @@ const ARM_PARTS: readonly SweepPart[] = [
   { name: 'forearms', bones: ['forearmL', 'forearmR'] },
   { name: 'upper arms', bones: ['upperArmL', 'upperArmR'] },
 ];
+
+/**
+ * The instrument that a player holds against its body, with the slide of a trombone: the closed
+ * shells of the plates, the ribs, the neck, and the fingerboard of a bowed instrument, or the tube
+ * and the keys of a wind instrument. The sweep measures its depth in the body only, with no limit,
+ * because a real player touches the instrument with the body: the chin rest of a violin under the
+ * jaw, the back of a cello or a contrabass on the chest, and the lip plate of a flute on the chin
+ * (`docs/decisions/2026-10-19-hippo-retro.md`).
+ */
+export const INSTRUMENT_PART: SweepPart = {
+  name: 'instrument',
+  bones: ['instrument', 'slide'],
+  into: [BODY_OBSTACLE],
+  measureOnly: true,
+};
 
 /**
  * The contact depth of a paw in a body, in meters: 0.01 of the height of the bear of the studio
@@ -718,13 +734,14 @@ function bowedPlayers(
 
 /**
  * The sweep of the violinist (design 5.3): the arms and the bow against the body and the violin,
- * in a full play, in the lift of the violin at the play start, in the rest pose before the first
- * play, and in the lowering after the song end. The first seated rabbit and the first seated red
- * fox of each demo, and each standing soloist of these species, play it.
+ * and the violin in the body ({@link INSTRUMENT_PART}), in a full play, in the lift of the violin
+ * at the play start, in the rest pose before the first play, and in the lowering after the song
+ * end. The first seated rabbit and the first seated red fox of each demo, and each standing
+ * soloist of these species, play it.
  */
 export const VIOLINIST_SWEEP: RoleSweep = {
   role: 'violinist',
-  parts: [...ARM_PARTS, { name: 'bow', bones: ['bow'] }],
+  parts: [...ARM_PARTS, { name: 'bow', bones: ['bow'] }, INSTRUMENT_PART],
   obstacles: [
     { name: 'body', surface: meshBodySurface },
     { name: 'violin', surface: instrumentSurface },
@@ -811,15 +828,16 @@ function sweptFlutist(scene: TestScene, index: number): boolean {
 }
 
 /**
- * The sweep of the flutist (design 5.3): the arms against the body and the flute, in a full play,
- * in the lift of the flute at the play start, in the rest pose before the first play, and in the
- * lowering after the song end, with the palms on their grips. The first seated tan fox of each
- * demo with flutes, and each standing tan fox soloist, play it. `pnpm pose-depth flutist --gaps`
- * also gives the gap from the head, with its long muzzle, to the flute.
+ * The sweep of the flutist (design 5.3): the arms against the body and the flute, and the flute in
+ * the body ({@link INSTRUMENT_PART}), in a full play, in the lift of the flute at the play start,
+ * in the rest pose before the first play, and in the lowering after the song end, with the palms
+ * on their grips. The first seated tan fox of each demo with flutes, and each standing tan fox
+ * soloist, play it. `pnpm pose-depth flutist --gaps` also gives the gap from the head, with its
+ * long muzzle, to the flute.
  */
 export const FLUTIST_SWEEP: RoleSweep = {
   role: 'flutist',
-  parts: ARM_PARTS,
+  parts: [...ARM_PARTS, INSTRUMENT_PART],
   obstacles: [
     { name: 'body', surface: meshBodySurface },
     { name: 'flute', surface: instrumentSurface },
@@ -914,15 +932,16 @@ function sweptTrombonist(scene: TestScene, index: number): boolean {
 }
 
 /**
- * The sweep of the trombonist (design 5.3): the arms against the body and the trombone, in a full
- * play, in the lift at the play start, in the rest pose before the first play, and in the lowering
- * after the song end, with the left palm on its grip and the right palm on the slide. The first
+ * The sweep of the trombonist (design 5.3): the arms against the body and the trombone, and the
+ * trombone with its slide in the body ({@link INSTRUMENT_PART}), in a full play, in the lift at the
+ * play start, in the rest pose before the first play, and in the lowering after the song end, with
+ * the left palm on its grip and the right palm on the slide. The first
  * seated panda of each demo with trombones, and each standing panda soloist, play it. The body of
  * the panda mesh has no open edge, so its closed surface has the two cuts to the upper arms.
  */
 export const TROMBONIST_SWEEP: RoleSweep = {
   role: 'trombonist',
-  parts: ARM_PARTS,
+  parts: [...ARM_PARTS, INSTRUMENT_PART],
   obstacles: [
     { name: 'body', surface: bodySurface },
     { name: 'trombone', surface: instrumentSurface },

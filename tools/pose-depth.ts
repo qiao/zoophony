@@ -487,8 +487,9 @@ export async function sweepDemos(options: SweepOptions, role: RoleSweep): Promis
 }
 
 /**
- * Writes the results of one variant: the deepest point of each pair in each set, with its limit,
- * the smallest gap of each pair of `--gaps`, and the largest note-target error of each hand.
+ * Writes the results of one variant: the deepest point of each pair in each set, with its limit or
+ * `no limit` for a part that the sweep only measures, such as the instrument in the body, the
+ * smallest gap of each pair of `--gaps`, and the largest note-target error of each hand.
  *
  * @param role The role.
  * @param results The results of each demo.
@@ -500,9 +501,10 @@ function printDetails(role: RoleSweep, results: readonly DemoResult[]): void {
       for (const pair of pairs) {
         const limit = depthLimit(role, pair, name);
         const mark = pair.depth > limit.depth ? ' OVER' : '';
-        console.log(
-          `    ${name}: ${pairText(pair)}; limit ${(limit.depth * 100).toFixed(1)} cm${mark}`,
-        );
+        const text = Number.isFinite(limit.depth)
+          ? `limit ${(limit.depth * 100).toFixed(1)} cm${mark}`
+          : 'no limit';
+        console.log(`    ${name}: ${pairText(pair)}; ${text}`);
       }
       for (const gap of gaps) {
         console.log(`    ${name}: gap of the ${gapText(gap)}`);

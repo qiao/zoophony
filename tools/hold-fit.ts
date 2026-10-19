@@ -3,7 +3,7 @@
  * the base and for each variant of `--set`, it gives the folds of `pnpm fold-probe` with the most
  * folded faces of one rest sample by side, the deepest point of each sample set of the sweep of
  * `pnpm pose-depth` with the note-target errors, and, for a violin role, the reach of `pnpm hold-reach`. For a role that holds
- * its instrument in its paws, it gives the deepest point of the instrument in the body. For a wind
+ * its instrument against its body, it gives the deepest point of the instrument in the body. For a wind
  * role with a paw that leaves its grip in the rest pose (`WindHold.restFreeL`), it gives the gap of
  * that paw to the body in the rest and the reach share of its rest place. It prints one table with
  * one row for each variant. The source files do not change.
@@ -84,9 +84,9 @@ import type { Quat } from '../src/models/tuples.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { sceneOf } from '../src/pose/test-scene.ts';
 import type { TestScene } from '../src/pose/test-scene.ts';
-import { SWEEP_ROLES } from '../src/pose/test-sweep-roles.ts';
+import { INSTRUMENT_PART, SWEEP_ROLES } from '../src/pose/test-sweep-roles.ts';
 import { BODY_OBSTACLE, PAW_PARTS, depthLimit, pairText } from '../src/pose/test-sweep.ts';
-import type { PairDepth, RoleSweep, SweepPart } from '../src/pose/test-sweep.ts';
+import type { PairDepth, RoleSweep } from '../src/pose/test-sweep.ts';
 import { isInFamily } from '../src/pose/family.ts';
 import { windHoldOf } from '../src/pose/winds.ts';
 import type { WindInstrument } from '../src/pose/winds.ts';
@@ -479,18 +479,11 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
 }
 
 /**
- * The part of the instrument that the sweep of a role that holds its instrument against its body
- * measures in the body: the bones of the instrument and of its slide. Only its pair with the body counts
- * ({@link splitHeld}).
- */
-export const HELD_PART: SweepPart = { name: 'instrument', bones: ['instrument', 'slide'] };
-
-/**
  * Gives the sweep of a fold role: the role of `SWEEP_ROLES` whose players in a scene are bodies of
  * the fold role, with only these players. The violinist sweep holds the rabbits and the red foxes,
  * so the fold role `fox-violinist` sweeps only the red foxes. A new role of both tables thus needs
- * no entry here. For a role that holds its instrument against its body ({@link holdsInstrument}),
- * the sweep also measures {@link HELD_PART}.
+ * no entry here. The sweep of a role that holds its instrument against its body measures the
+ * instrument in the body (`INSTRUMENT_PART` of `src/pose/test-sweep-roles.ts`, {@link splitHeld}).
  *
  * @param role The fold role.
  * @param scene A scene with a body of the role.
@@ -511,7 +504,6 @@ export function fitSweep(
   }
   return {
     ...sweep,
-    parts: holdsInstrument(role) ? [...sweep.parts, HELD_PART] : sweep.parts,
     sampleSets: (other) =>
       sweep.sampleSets(other).filter((set) => sets.some((name) => name === set.name)),
     players: (other) => {
@@ -523,17 +515,17 @@ export function fitSweep(
 
 /** The results of a sweep with the instrument in the body taken out. */
 export interface HeldSplit {
-  /** The pair of the instrument in the body nearest to its limit, or most over it, or `null`. */
+  /** The deepest pair of the instrument in the body, or `null`. */
   readonly held: SetWorst | null;
-  /** The results with no pair of {@link HELD_PART}, for the deepest points of the role. */
+  /** The results with no pair of the instrument, for the deepest points of the role. */
   readonly results: DemoResult[];
 }
 
 /**
- * Takes the pairs of {@link HELD_PART} out of the results of a sweep, and gives the pair of the
- * instrument in the body that is nearest to its limit (`depthLimit()`), or most over it, over each
- * sample set. The instrument is inside its own shells, so its pairs with the other obstacles do
- * not count.
+ * Takes the pairs of the instrument (`INSTRUMENT_PART` of `src/pose/test-sweep-roles.ts`) out of
+ * the results of a sweep, and gives the deepest pair of the instrument in the body over each
+ * sample set. The pair has no limit (`depthLimit()`), because a real player touches the
+ * instrument with the body.
  *
  * @param role The sweep.
  * @param results The results of each demo.
@@ -548,17 +540,17 @@ export function splitHeld(role: RoleSweep, results: readonly DemoResult[]): Held
     reached: result.reached,
     sets: result.sets.map((set) => {
       for (const pair of set.pairs) {
-        if (pair.part !== HELD_PART.name || pair.into !== BODY_OBSTACLE) {
+        if (pair.part !== INSTRUMENT_PART.name || pair.into !== BODY_OBSTACLE) {
           continue;
         }
-        const limit = depthLimit(role, pair, set.name).depth;
-        if (!held || pair.depth - limit > held.pair.depth - held.limit) {
+        if (!held || pair.depth > held.pair.depth) {
+          const limit = depthLimit(role, pair, set.name).depth;
           held = { set: set.name, demo: result.demo, pair, limit };
         }
       }
       return {
         name: set.name,
-        pairs: set.pairs.filter((pair) => pair.part !== HELD_PART.name),
+        pairs: set.pairs.filter((pair) => pair.part !== INSTRUMENT_PART.name),
         gaps: set.gaps,
       };
     }),
@@ -636,7 +628,7 @@ export interface SetWorst {
   readonly demo: string;
   /** The deepest point of the pair. */
   readonly pair: PairDepth;
-  /** The limit of the pair in the set, in meters. */
+  /** The limit of the pair in the set, in meters, or `Infinity` for a pair with no limit. */
   readonly limit: number;
 }
 
@@ -805,10 +797,12 @@ export function armTurns(): ArmTurnProbe {
   return { visit, turns };
 }
 
-/** A pair of a set of the JSON text of {@link fitJson}. */
-type StoredWorst = Omit<SetWorst, 'pair'> & {
+/** A pair of a set of the JSON text of {@link fitJson}. JSON writes the limit `Infinity` as `null`. */
+type StoredWorst = Omit<SetWorst, 'pair' | 'limit'> & {
   /** The deepest point of the pair. */
   readonly pair: StoredDepth;
+  /** The limit, in meters, or `null` for no limit. */
+  readonly limit: number | null;
 };
 
 /** A largest value of the lap rest in the JSON text: JSON writes `Infinity` as `null`. */
@@ -904,7 +898,7 @@ export function readFit(text: string): FitRun {
     set: worst.set,
     demo: worst.demo,
     pair: restoreDepth(worst.pair),
-    limit: worst.limit,
+    limit: worst.limit ?? Infinity,
   });
   return {
     demos: stored.demos,
@@ -1119,7 +1113,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
     ...sets.map((set) => `${set} depth cm (limit)`),
     ...(targets ? [`Note targets: worst mm (within ${TARGET_REACH * 1000} mm)`] : []),
     ...(turnSet ? [`${turnSet} turns: upper arm, paw L / R`] : []),
-    ...(held ? ['Instrument in body cm (limit)'] : []),
+    ...(held ? ['Instrument in body cm'] : []),
     ...paws.map((paw) => `Rest gap ${paw} cm`),
     ...sides.map((side) => `Rest reach ${side}`),
     ...(lap ? lapHeader(bow) : []),
@@ -1144,9 +1138,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
       const mark = pair.depth > limit ? ' OVER' : '';
       return `${(pair.depth * 100).toFixed(1)} ${pair.part}>${pair.into} (${(limit * 100).toFixed(1)})${mark}`;
     });
-    const heldCell = row.held
-      ? `${(row.held.pair.depth * 100).toFixed(1)} ${row.held.set} (${(row.held.limit * 100).toFixed(1)})${row.held.pair.depth > row.held.limit ? ' OVER' : ''}`
-      : '-';
+    const heldCell = row.held ? `${(row.held.pair.depth * 100).toFixed(1)} ${row.held.set}` : '-';
     const gapCells = paws.map((paw) => {
       const gap = row.gaps.find((g) => g.paw === paw);
       return gap ? (gap.gap * 100).toFixed(1) : '-';
@@ -1383,19 +1375,6 @@ function windOf(
   }
   const [species] = role.species;
   return species ? { species, instrument: role.instrument } : null;
-}
-
-/**
- * Tells if a role holds its instrument against its body: a violin, a viola, or a wind instrument
- * in its paws, or a cello between its knees and against its chest (design 5.3). The sweep of such
- * a role measures the instrument in the body ({@link HELD_PART}).
- *
- * @param role The role.
- * @returns True for a role with an instrument under the chin, a wind instrument, or a cello.
- */
-export function holdsInstrument(role: RoleSource): boolean {
-  const cello = role.kind === 'player' && role.instrument === 'cello';
-  return cello || chinOf(role) !== null || windOf(role) !== null;
 }
 
 /**

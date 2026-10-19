@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { sceneOf } from '../src/pose/test-scene.ts';
-import { VIOLINIST_SWEEP } from '../src/pose/test-sweep-roles.ts';
+import { INSTRUMENT_PART, VIOLINIST_SWEEP } from '../src/pose/test-sweep-roles.ts';
 import type { PairDepth, RoleSweep } from '../src/pose/test-sweep.ts';
 import { FOLD_ROLES, roleBodies } from './fold-probe.ts';
 import type { FoldCount, FoldReport, RoleSource } from './fold-probe.ts';
@@ -11,11 +11,9 @@ import {
   FIT_STEP,
   GRID_LIMIT,
   chooseDemos,
-  HELD_PART,
   faceSections,
   fitSweep,
   freeGaps,
-  holdsInstrument,
   fitJson,
   fitTable,
   foldShares,
@@ -459,7 +457,7 @@ describe('fitSweep', async () => {
 });
 
 describe('splitHeld', () => {
-  it('gives the instrument in the body nearest to its limit, and takes each pair of it out', () => {
+  it('gives the deepest instrument in the body, and takes each pair of it out', () => {
     const results: DemoResult[] = [
       {
         demo: 'a flutist 3 (fox-tan, chair)',
@@ -470,12 +468,12 @@ describe('splitHeld', () => {
             name: 'rest',
             pairs: [
               pair('upper arms', 'body', 0.01),
-              pair(HELD_PART.name, 'body', 0.004),
-              pair(HELD_PART.name, 'flute', 0.2),
+              pair(INSTRUMENT_PART.name, 'body', 0.004),
+              pair(INSTRUMENT_PART.name, 'flute', 0.2),
             ],
             gaps: [],
           },
-          { name: 'lower', pairs: [pair(HELD_PART.name, 'body', 0.007)], gaps: [] },
+          { name: 'lower', pairs: [pair(INSTRUMENT_PART.name, 'body', 0.007)], gaps: [] },
         ],
         targets: [],
         reached: NO_TARGETS,
@@ -517,7 +515,7 @@ describe('restGaps', () => {
   });
 });
 
-describe('freeGaps and holdsInstrument', async () => {
+describe('freeGaps and the instrument part', async () => {
   const scene = sceneOf((await patchedDemo('beethoven-8.mid')).bytes);
 
   it('measures the free paw of a seated flutist in the rest only, and no paw of a violinist', () => {
@@ -535,12 +533,8 @@ describe('freeGaps and holdsInstrument', async () => {
     expect(freeGaps(foldRole('fox-violinist'))('rest', player)).toEqual([]);
   });
 
-  it('adds the instrument part to the sweep of a role that holds its instrument', () => {
-    expect(holdsInstrument(foldRole('flutist'))).toBe(true);
-    expect(holdsInstrument(foldRole('fox-violinist'))).toBe(true);
-    expect(holdsInstrument(foldRole('pianist'))).toBe(false);
-    expect(holdsInstrument(foldRole('conductor'))).toBe(false);
+  it('keeps the instrument part in the sweep of a role that holds its instrument', () => {
     const parts = fitSweep(foldRole('flutist'), scene)?.parts.map((part) => part.name) ?? [];
-    expect(parts).toContain(HELD_PART.name);
+    expect(parts).toContain(INSTRUMENT_PART.name);
   });
 });
