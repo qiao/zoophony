@@ -221,8 +221,8 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - `pnpm rig-mesh --check --set` changes only a key that the config has. For a new key, write a
   scratch config, rig it with a direct run of Blender, and count its folds with
   `pnpm fold-probe <role> --glb <file>` (`rig.sh` of `docs/research/2026-10-17-dog-mesh/`).
-- `pnpm rig-mesh --check` counts the folds with the hold of the working tree, so commit a new hold
-  before you fit `raise` to it.
+- `pnpm rig-mesh --check` counts the folds with the hold of the working tree. Give a new hold with
+  `--hold <changes>` before you fit `raise` to it.
 - The log of `tools/blender/rig_mesh.py` gives centimeters at the scale of `app.shoulders`. A direct
   run of Blender on a variant that moves the shoulder joints needs the `app.shoulders` of
   `keptHeight()`. `pnpm rig-mesh --check --set` sets it.
