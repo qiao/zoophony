@@ -199,13 +199,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 - One color for each face gives one palette entry for each face. Measure the parts of the packed
   mesh before you cut one. `src/models/studio-size.test.ts` limits the gzip size.
-- The texture of an image mesh has black gaps between its islands. A face takes the mean of its
-  light samples. Read `colors.py` of `docs/research/2026-10-14-rabbit-smooth/` after a change of the
-  color rules.
-- A face takes black from a third of dark texture samples (`eyeShare`), so the large faces of a
-  trunk give the border of a black region teeth, which a raised arm stretches into black wedges.
-  List the faces with a third to a half of dark samples (`marks.py` of
-  `docs/research/2026-10-18-panda-marks/`), and make them light with `colors.border`.
+- The texture of an image mesh has black gaps between its islands, so a face takes the mean of its
+  light samples. A face takes black from a third of dark samples (`eyeShare`), so the large faces of
+  a trunk give the border of a black region teeth, which a raised arm stretches into black wedges.
+  Make the faces with a third to a half of dark samples light (`marks.py` of
+  `docs/research/2026-10-18-panda-marks/`, `colors.border`), and read `colors.py` of
+  `docs/research/2026-10-14-rabbit-smooth/` after a change of the color rules.
 - With no gloss nose, the export takes the front-most fur vertex of the head near the middle plane
   as the nose tip (`NOSE_PLANE`), and each gloss shell out of the middle plane as an eye. Give a
   mesh with gloss nostrils and no nose pad, as the hippo, no `noseBox`, and read the warning of a
