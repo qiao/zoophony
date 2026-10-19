@@ -29,6 +29,13 @@ export interface SweepPart {
   readonly name: string;
   /** The bones. Each point belongs to the main bone of its corner (design 4.4). */
   readonly bones: readonly BoneName[];
+  /** The names of the obstacles that the sweep measures the part in, or each obstacle with none. */
+  readonly into?: readonly string[];
+  /**
+   * True for a part whose depth the sweep only measures, with no limit ({@link depthLimit}): a
+   * real player touches the body with it, such as the chin rest of a violin under the jaw.
+   */
+  readonly measureOnly?: boolean;
 }
 
 /** A part that the moving parts must not enter: a closed surface of the body or the instrument. */
@@ -219,8 +226,8 @@ export type SweepVisit = (
 
 /**
  * Sweeps one player of a role over a set of samples: in each sample, it poses the skin of the GPU
- * (`posedCorner()`), and measures the depth of each point of each moving part in each obstacle
- * (`closedDepth()`). It gives the deepest point of each pair.
+ * (`posedCorner()`), and measures the depth of each point of each moving part in each obstacle of
+ * the part (`closedDepth()`). It gives the deepest point of each pair.
  *
  * @param role The role.
  * @param player The player.
@@ -237,8 +244,10 @@ export function sweepDepths(
   const { mesh } = player.model;
   const parts = role.parts.map((part) => ({ part, points: partPoints(mesh, part.bones) }));
   const deepest = new Map<string, PairDepth>();
+  const enters = (part: SweepPart, obstacle: string): boolean =>
+    !part.into || part.into.includes(obstacle);
   for (const { part } of parts) {
-    for (const { name } of role.obstacles) {
+    for (const { name } of role.obstacles.filter((o) => enters(part, o.name))) {
       deepest.set(`${part.name} ${name}`, {
         part: part.name,
         into: name,
@@ -260,7 +269,7 @@ export function sweepDepths(
     visit?.(posed, sample, new Map(surfaces.map(({ name, surface }) => [name, surface])));
     for (const { part, points } of parts) {
       const placed = points.corners.map((c) => new Vector3(...posedCorner(posed, c)));
-      for (const { name, surface } of surfaces) {
+      for (const { name, surface } of surfaces.filter((s) => enters(part, s.name))) {
         const key = `${part.name} ${name}`;
         const { depth, index } = closedDepth(placed, surface);
         const best = deepest.get(key);
@@ -302,9 +311,18 @@ export function targetErrors(player: SweepPlayer): TargetError[] {
   return [...worst.values()];
 }
 
+/** The largest depth of a pair of parts in a set of samples. */
+export interface DepthLimit {
+  /** The depth, in meters, or `Infinity` for a pair with no limit. */
+  readonly depth: number;
+  /** The accepted depth that sets the limit, or `null` for the contact depth or no limit. */
+  readonly accepted: AcceptedDepth | null;
+}
+
 /**
  * Gives the largest depth of a pair of parts in a set of samples: the accepted depth of the pair,
- * or the contact depth of the role.
+ * or the contact depth of the role. A part that the sweep only measures
+ * ({@link SweepPart.measureOnly}) has no limit.
  *
  * @param role The role.
  * @param pair The pair.
@@ -315,7 +333,10 @@ export function depthLimit(
   role: RoleSweep,
   pair: Pick<PairDepth, 'part' | 'into'>,
   samples: string,
-): { readonly depth: number; readonly accepted: AcceptedDepth | null } {
+): DepthLimit {
+  if (role.parts.some((part) => part.name === pair.part && part.measureOnly)) {
+    return { depth: Infinity, accepted: null };
+  }
   const accepted = role.accepted.find(
     (a) => a.part === pair.part && a.into === pair.into && a.samples === samples,
   );
