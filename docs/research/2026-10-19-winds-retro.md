@@ -110,3 +110,9 @@ body, and the gallery page applies the hold changes with `setHolds()` before its
 (`bassist-set-pair-frog-front.webp`), and `--glb` with a rig of `armFactor=1.8` of `pnpm rig-mesh
 --keep` gives longer arms (`bassist-glb-pair-frog-front.webp`). Each run takes 43 s to 47 s with
 both builds (`close-views-variants.txt`).
+
+**The faces of the commit in fold-probe.** `pnpm fold-probe bassist --demo boulanger-matin --base
+157db01c~1 --faces-of <7 faces>` takes 5 s (`fold-probe-faces-of.txt`). The commit has the mesh
+before the cut of the armpits. Its faces 164, 111, 233, 514, and 1503 pair with faces 195, 157,
+236, 517, and 2201 of the tree, the pairs of `--faces`. Faces 462 and 1463 have no folded face
+within 1 cm. The table of `--faces 8` stays the same.
