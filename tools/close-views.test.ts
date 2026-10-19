@@ -118,7 +118,15 @@ describe('closeViewPath', () => {
 
 describe('closeViewsArgs', () => {
   it('reads the role, the folder, the URL of a running site, and the commit to compare', () => {
-    const camera = { zoom: null, elevation: null, scale: 1, pairs: null, crop: null };
+    const camera = {
+      zoom: null,
+      elevation: null,
+      scale: 1,
+      pairs: null,
+      crop: null,
+      glb: null,
+      holds: null,
+    };
     expect(closeViewsArgs(['violinist', 'out'])).toEqual({
       role: 'violinist',
       out: 'out',

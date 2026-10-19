@@ -1,10 +1,13 @@
 import { spawnSync } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { existsSync } from 'node:fs';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 
 import { chromium } from '@playwright/test';
 import type { Browser, Page } from '@playwright/test';
-import { preview } from 'vite';
+import { build as viteBuild, preview } from 'vite';
+import type { Plugin } from 'vite';
 
 import { DEFAULT_DEMO, DEMOS, DEMO_IDS } from '../src/app/demos.ts';
 import type { DemoId } from '../src/app/demos.ts';
@@ -21,9 +24,12 @@ import { buildScore } from '../src/score/score.ts';
 import { SHOT_SEED, prepareShots } from '../src/shots/prepare.ts';
 import type { Shot } from '../src/shots/types.ts';
 import { chromiumArgs } from './chromium-args.ts';
+import { glbModule, speciesAnimal } from './glb-swap.ts';
+import { setHolds } from './hold-sets.ts';
 import { patchedDemo } from './patch-demos.ts';
 import { ROOT, optionValue, shortHash, withRefBuild } from './ref-tree.ts';
 import { MAX_WEBP_BYTES, openShot, startSite, toWebp } from './screenshots.ts';
+import type { Site } from './screenshots.ts';
 
 /** One view of a close view: the turn of the gallery camera around the animal. */
 export interface CloseViewAngle {
@@ -671,6 +677,13 @@ export interface CloseViewsArgs {
   readonly pairs: readonly string[] | null;
   /** The box of `--crop` of each pair, or `null` for the whole cell ({@link cropOf}). */
   readonly crop: CropBox | null;
+  /**
+   * The GLB file of `--glb`, as an absolute path: the species of the role takes the studio body
+   * that the export makes from the file (`tools/glb-swap.ts`). `null` keeps the body of the tree.
+   */
+  readonly glb: string | null;
+  /** The hold changes of `--set` (`setHolds()` of `tools/hold-sets.ts`), or `null` for none. */
+  readonly holds: string | null;
 }
 
 /**
@@ -767,12 +780,14 @@ export function scaleOf(value: string | null): number {
 
 /**
  * Reads the command line of the close views: `<role> <dir> [--zoom <n>] [--elevation <deg>]
- * [--scale <n>] [--url <url>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`.
+ * [--scale <n>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs
+ * <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`.
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when it is not correct.
- * @throws Error if a zoom, an elevation, a scale, a pair, or a crop does not fit, or if `--pairs`
- *   comes with no `--base`, or `--crop` with no `--pairs`.
+ * @throws Error if a zoom, an elevation, a scale, a pair, or a crop does not fit, if `--pairs`
+ *   comes with no `--base`, or `--crop` with no `--pairs`, if `--set` comes more than one time,
+ *   or if `--glb` or `--set` comes with `--url`.
  */
 export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const role = roleOf(args[0]);
@@ -784,9 +799,17 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const scale = optionValue(args, '--scale');
   const pairs = optionValue(args, '--pairs');
   const crop = optionValue(args, '--crop');
-  const given = [url, base, zoom, elevation, scale, pairs, crop];
+  const glb = optionValue(args, '--glb');
+  const holds = optionValue(args, '--set');
+  const given = [url, base, zoom, elevation, scale, pairs, crop, glb, holds];
   if (!role || !out || out.startsWith('--') || given.includes(undefined)) {
     return null;
+  }
+  if (args.filter((arg) => arg === '--set').length > 1) {
+    throw new Error('The option --set comes more than one time. The close views show one variant.');
+  }
+  if ((glb || holds) && url) {
+    throw new Error('The options --glb and --set build a site of their own, so --url does not go.');
   }
   if (pairs && !base) {
     throw new Error('The option --pairs needs --base, because each pair holds the base cell.');
@@ -804,7 +827,129 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
     scale: scaleOf(scale ?? null),
     pairs: pairs ? pairCells(ROLE_VIEWS[role], pairs.split(',')) : null,
     crop: crop ? cropOf(crop) : null,
+    glb: glb ? resolve(glb) : null,
+    holds: holds ?? null,
   };
+}
+
+/** A variant of the site of the working tree for the close views of a role (`--glb`, `--set`). */
+interface SiteVariant {
+  /** The module of the studio body of the GLB file: its path and its text, or `null`. */
+  readonly body: { readonly path: string; readonly text: string } | null;
+  /** The hold changes of `--set`, or `null` for none. */
+  readonly holds: string | null;
+}
+
+/** The id of the module that applies the hold changes of a variant in its build. */
+const HOLDS_MODULE = 'virtual:close-views-holds';
+
+/** The entry module of the gallery page, which the close views of a role render. */
+const GALLERY_ENTRY = join(ROOT, 'src', 'gallery', 'main.ts');
+
+/**
+ * Checks the variant of `--glb` and `--set` of the close views of a role, and makes it: the
+ * module of the studio body of the GLB file, as `pnpm fold-probe --glb` makes it.
+ *
+ * @param args The command line.
+ * @param check True to only check the variant, with no export of the GLB file.
+ * @returns The variant, or `null` with neither option or with `check`.
+ * @throws Error if a hold change does not fit, if the species of the role has no studio body, or
+ *   if the GLB file does not exist.
+ */
+async function siteVariant(args: CloseViewsArgs, check: boolean): Promise<SiteVariant | null> {
+  if (!args.glb && args.holds === null) {
+    return null;
+  }
+  const changes = args.holds === null ? null : setHolds(args.holds);
+  changes?.undo();
+  const { species } = ROLE_VIEWS[args.role];
+  const animal = speciesAnimal(species);
+  if (args.glb && !animal) {
+    throw new Error(`The ${species} of the role ${args.role} has no studio body for --glb.`);
+  }
+  if (args.glb && !existsSync(args.glb)) {
+    throw new Error(`The GLB file ${args.glb} does not exist.`);
+  }
+  if (check) {
+    return null;
+  }
+
+  if (changes) {
+    console.log(`The working tree takes the hold changes ${changes.text}.`);
+  }
+  if (!args.glb || !animal) {
+    return { body: null, holds: args.holds };
+  }
+  const { text } = glbModule(animal, args.glb, new Uint8Array(await readFile(args.glb)));
+  console.log(`The ${species} of the working tree takes the studio body of ${args.glb}.`);
+  return {
+    body: { path: join(ROOT, 'src', 'models', 'studio', `${animal}.ts`), text },
+    holds: args.holds,
+  };
+}
+
+/**
+ * Gives the plugin of the build of a variant: the module of the studio body of the GLB file in
+ * place of the module of the tree, and a first import of the gallery page that applies the hold
+ * changes with `setHolds()` before the other modules of the page run, as the hold tools change
+ * the holds in memory.
+ *
+ * @param variant The variant.
+ * @returns The plugin.
+ */
+function variantPlugin(variant: SiteVariant): Plugin {
+  const resolved = `\0${HOLDS_MODULE}`;
+  const holdSets = join(ROOT, 'tools', 'hold-sets.ts');
+  return {
+    name: 'zoophony:close-views-variant',
+    apply: 'build',
+    resolveId(id) {
+      return id === HOLDS_MODULE ? resolved : null;
+    },
+    load(id) {
+      if (id === resolved) {
+        return `import { setHolds } from ${JSON.stringify(holdSets)};\nsetHolds(${JSON.stringify(variant.holds ?? '')});\n`;
+      }
+      return variant.body && id === variant.body.path ? variant.body.text : null;
+    },
+    transform(code, id) {
+      return variant.holds !== null && id === GALLERY_ENTRY
+        ? `import ${JSON.stringify(HOLDS_MODULE)};\n${code}`
+        : null;
+    },
+  };
+}
+
+/**
+ * Builds the site of the working tree with a variant ({@link variantPlugin}) into a temporary
+ * folder, and serves it ({@link startSite}). The folder goes away when the site closes.
+ *
+ * @param variant The variant.
+ * @returns The site.
+ * @throws Error if the build fails.
+ */
+async function startVariantSite(variant: SiteVariant): Promise<Site> {
+  const dir = await mkdtemp(join(tmpdir(), 'close-views-variant-'));
+  const remove = (): Promise<void> => rm(dir, { recursive: true, force: true });
+  try {
+    await viteBuild({
+      root: ROOT,
+      logLevel: 'warn',
+      build: { outDir: dir, emptyOutDir: true },
+      plugins: [variantPlugin(variant)],
+    });
+    const site = await startSite(ROOT, SERVER_PORT, dir);
+    return {
+      ...site,
+      close: async () => {
+        await site.close();
+        await remove();
+      },
+    };
+  } catch (error) {
+    await remove();
+    throw error;
+  }
 }
 
 /**
@@ -2721,7 +2866,7 @@ async function renderModes(
 
 /** The usage text of the tool. */
 const USAGE = [
-  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--url <url>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
+  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--url <url>] [--base <ref>]`,
@@ -2739,7 +2884,9 @@ const USAGE = [
  * the animal of the role at each moment from each view into `<dir>`, and the grid of all cells as
  * `<role>-views.png` and `<role>-views.webp`. `--zoom` and `--elevation` change the camera of the
  * role for each view, and `--scale` the size of each cell. With `--url`, it uses a running site,
- * such as the dev server, in place of the built site. With `--base`, it also builds the commit in
+ * such as the dev server, in place of the built site. With `--glb <file>` or `--set <changes>`, a
+ * role renders a variant of the working tree from a build of its own ({@link startVariantSite}),
+ * with no commit and no edit of a file. With `--base`, it also builds the commit in
  * a temporary folder, and writes the grid of the commit above the grid of the working tree. With
  * {@link CHECK_FLAG} first, it only checks the command line and the commit, so that the script of
  * `package.json` stops before the build on a wrong command line.
@@ -2762,6 +2909,16 @@ async function main(): Promise<void> {
     // An unknown commit stops the tool before the first render.
     try {
       shortHash(mode.args.base);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  }
+  let variant: SiteVariant | null = null;
+  if (mode.kind === 'role') {
+    // A wrong variant stops the tool before the build.
+    try {
+      variant = await siteVariant(mode.args, check);
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));
       process.exit(1);
@@ -2791,7 +2948,9 @@ async function main(): Promise<void> {
         browser: await chromium.launch({ args: chromiumArgs(process.platform) }),
         close: async (): Promise<void> => undefined,
       }
-    : await startSite(ROOT, SERVER_PORT);
+    : variant
+      ? await startVariantSite(variant)
+      : await startSite(ROOT, SERVER_PORT);
   try {
     await renderModes(modes.map(modeRender), site, mode.args.base);
   } finally {
