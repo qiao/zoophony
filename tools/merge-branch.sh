@@ -139,11 +139,12 @@ if ! git rebase main >>"$LOG" 2>&1; then
   exit 2
 fi
 
-# The check script rewrites no commit: it only runs the checks on each commit. Each commit
-# runs only the unit tests that its changes reach through the imports (`--changed`). The
-# other tests give the result of its parent, which the step before checked. A test that
-# reads a file with no import does not see a change of that file, so the full suite runs one
-# time on the last commit, with no cache. A commit with an entry in the cache prints "hit".
+# The check script checks each commit in a temporary worktree, and it changes no commit
+# and no file of $WORKTREE. Each commit runs only the unit tests that its changes reach
+# through the imports (`--changed`). The other tests give the result of its parent, which
+# the step before checked. A test that reads a file with no import does not see a change of
+# that file, so the full suite runs one time on the last commit, with no cache. A commit
+# with an entry in the cache prints "hit".
 HEAD_BEFORE=$(git rev-parse HEAD)
 CHECK_ARGS=()
 if [ "${MERGE_NO_CACHE:-0}" = 1 ]; then
@@ -158,7 +159,7 @@ case $CHECK_STATUS in
     exit 1
     ;;
   4)
-    echo "The check rebase changed the commit hashes. Examine $WORKTREE." >&2
+    echo "HEAD of $WORKTREE moved during the commit checks. Examine $WORKTREE." >&2
     exit 4
     ;;
   *)
@@ -166,12 +167,8 @@ case $CHECK_STATUS in
     exit 3
     ;;
 esac
-if [ -d "$(git rev-parse --git-path rebase-merge)" ]; then
-  echo "The rebase did not finish in $WORKTREE." >&2
-  exit 3
-fi
 if [ "$(git rev-parse HEAD)" != "$HEAD_BEFORE" ]; then
-  echo "The check rebase changed the commit hashes. Examine $WORKTREE." >&2
+  echo "HEAD of $WORKTREE moved during the commit checks. Examine $WORKTREE." >&2
   exit 4
 fi
 echo "Checked $(git rev-list --count main..HEAD) commits in ${SECONDS}s."
