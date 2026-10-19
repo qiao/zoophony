@@ -47,7 +47,6 @@ import { ModelCache } from '../src/models/model-cache.ts';
 import { checkLook, parseLook, soloSeats } from '../src/scene/look-values.ts';
 import type { LookChanges } from '../src/scene/look-values.ts';
 import { scoreOf } from '../src/score/test-score.ts';
-import { chromiumArgs } from './chromium-args.ts';
 import { defaultSummary, lookRegions, lookSummary, readLookFrames } from './look-lab.ts';
 import type { LookFrame, SummaryRow } from './look-lab.ts';
 import { patchedDemo } from './patch-demos.ts';
@@ -347,7 +346,9 @@ async function main(): Promise<void> {
     console.log(`dev server: stopped (PID ${server.child.pid})`);
   }
 
-  const browser = await chromium.launch({ args: chromiumArgs(process.platform) });
+  // The browser decodes the PNG files with no GPU flags, as `pnpm look-lab` does, so that the
+  // pixels of the reference are the same in both tools.
+  const browser = await chromium.launch();
   const regions = await lookRegions();
   const orchestraRows: [string, SummaryRow][] = [];
   const defaultRows: [string, SummaryRow][] = [];
