@@ -372,7 +372,9 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
     joints (`refine.rings`) keep the faces from a fold. The corrective shapes give the source back
     in the standing pose, and up to four shapes of `raise` relax the faces that turn over in a bent
-    arm. When a grip far in front of a deep chest turns the upper arm so far that no rule removes
+    arm. The clavicle weights can fade out toward the middle plane of the chest
+    (`weights.clavicleMiddle`), so that a face on that plane does not take the weights of both
+    clavicles, which a bow arm turns far apart. When a grip far in front of a deep chest turns the upper arm so far that no rule removes
     the fold at the front of the shoulder, the hold shares the turn with the shoulder bone (5.3).
   - Colors. Each face takes the nearest palette color of the texture, and the faces of the old
     eyes take the color of the fur around them. A rule can move the plain fur in Oklab toward the
