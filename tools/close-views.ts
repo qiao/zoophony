@@ -664,6 +664,82 @@ export interface CloseViewsArgs {
   readonly elevation: number | null;
   /** The factor of the size of each cell (`--scale`): 1 gives {@link CELL}. */
   readonly scale: number;
+  /**
+   * The cells of `--pairs`, as `<moment>-<view>`, whose base and tree pair the tool writes, or
+   * `null` for none ({@link pairCells}).
+   */
+  readonly pairs: readonly string[] | null;
+  /** The box of `--crop` of each pair, or `null` for the whole cell ({@link cropOf}). */
+  readonly crop: CropBox | null;
+}
+
+/**
+ * A box of a cell, as shares of the width and the height of the cell, from its top left corner:
+ * the same box at each `--scale`.
+ */
+export interface CropBox {
+  /** The left side, from 0 to 1. */
+  readonly x: number;
+  /** The top side, from 0 to 1. */
+  readonly y: number;
+  /** The width, above 0. The box ends at 1 or before. */
+  readonly width: number;
+  /** The height, above 0. The box ends at 1 or before. */
+  readonly height: number;
+}
+
+/**
+ * Reads the box of `--crop <x>,<y>,<w>,<h>`: shares of the cell from its top left corner, such as
+ * `0.25,0.2,0.5,0.45`.
+ *
+ * @param value The text of the option.
+ * @returns The box.
+ * @throws Error if the text has not four numbers, or if the box is not inside the cell.
+ */
+export function cropOf(value: string): CropBox {
+  const parts = value.split(',').map((part) => (part.trim() === '' ? Number.NaN : Number(part)));
+  const [x = Number.NaN, y = Number.NaN, width = Number.NaN, height = Number.NaN] = parts;
+  const inside =
+    parts.length === 4 &&
+    parts.every((part) => Number.isFinite(part)) &&
+    x >= 0 &&
+    y >= 0 &&
+    width > 0 &&
+    height > 0 &&
+    x + width <= 1 &&
+    y + height <= 1;
+  if (!inside) {
+    throw new Error(
+      `The option --crop takes <x>,<y>,<w>,<h> as shares of the cell inside 0 to 1, such as 0.25,0.2,0.5,0.45, and not "${value}".`,
+    );
+  }
+  return { x, y, width, height };
+}
+
+/**
+ * Chooses the cells of `--pairs` of a role: a name of a view (`front`) takes the cell of the view
+ * at each moment, and a name `<moment>-<view>` takes one cell.
+ *
+ * @param role The views and the moments of the role.
+ * @param names The names of `--pairs`.
+ * @returns The cells, as `<moment>-<view>`, in the order of the grid.
+ * @throws Error if a name names no view and no cell of the role.
+ */
+export function pairCells(role: RoleViews, names: readonly string[]): string[] {
+  const cells = role.moments.flatMap((moment) =>
+    role.views.map((view) => ({ cell: `${moment.name}-${view.name}`, view: view.name })),
+  );
+  const unknown = names.filter(
+    (name) => !cells.some(({ cell, view }) => name === cell || name === view),
+  );
+  if (unknown.length > 0) {
+    throw new Error(
+      `The option --pairs names no view or cell of the role: ${unknown.join(', ')}. The views are ${role.views.map((view) => view.name).join(', ')}, and a cell is <moment>-<view>, such as ${cells[0]?.cell ?? 'play-front'}.`,
+    );
+  }
+  return cells
+    .filter(({ cell, view }) => names.includes(cell) || names.includes(view))
+    .map(({ cell }) => cell);
 }
 
 /** The largest factor of the cell size of `--scale`: the grid of a role stays below 16,384 px. */
@@ -690,12 +766,13 @@ export function scaleOf(value: string | null): number {
 }
 
 /**
- * Reads the command line of the close views:
- * `<role> <dir> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--url <url>] [--base <ref>]`.
+ * Reads the command line of the close views: `<role> <dir> [--zoom <n>] [--elevation <deg>]
+ * [--scale <n>] [--url <url>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`.
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when it is not correct.
- * @throws Error if a zoom, an elevation, or a scale does not fit.
+ * @throws Error if a zoom, an elevation, a scale, a pair, or a crop does not fit, or if `--pairs`
+ *   comes with no `--base`, or `--crop` with no `--pairs`.
  */
 export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const role = roleOf(args[0]);
@@ -705,9 +782,17 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const zoom = optionValue(args, '--zoom');
   const elevation = optionValue(args, '--elevation');
   const scale = optionValue(args, '--scale');
-  const given = [url, base, zoom, elevation, scale];
+  const pairs = optionValue(args, '--pairs');
+  const crop = optionValue(args, '--crop');
+  const given = [url, base, zoom, elevation, scale, pairs, crop];
   if (!role || !out || out.startsWith('--') || given.includes(undefined)) {
     return null;
+  }
+  if (pairs && !base) {
+    throw new Error('The option --pairs needs --base, because each pair holds the base cell.');
+  }
+  if (crop && !pairs) {
+    throw new Error('The option --crop needs --pairs.');
   }
   return {
     role,
@@ -717,7 +802,77 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
     zoom: zoom ? zoomOf(zoom) : null,
     elevation: elevationOf(elevation ?? undefined),
     scale: scaleOf(scale ?? null),
+    pairs: pairs ? pairCells(ROLE_VIEWS[role], pairs.split(',')) : null,
+    crop: crop ? cropOf(crop) : null,
   };
+}
+
+/**
+ * Puts the crop of a cell of the base beside the same crop of the cell of the working tree, with
+ * the name of each tree in white on a dark box above its crop.
+ *
+ * @param browser The browser.
+ * @param cells The PNG image of the cell of the base and of the working tree.
+ * @param labels The label of each crop.
+ * @param crop The box of the crop, or `null` for the whole cell.
+ * @returns The PNG image.
+ */
+async function pairImage(
+  browser: Browser,
+  cells: readonly [Buffer, Buffer],
+  labels: readonly [string, string],
+  crop: CropBox | null,
+): Promise<Buffer> {
+  const page = await browser.newPage();
+  try {
+    const dataUrl = await page.evaluate(
+      async ({ images, names, box }) => {
+        const loaded = await Promise.all(
+          images.map(async (source) => {
+            const image = new Image();
+            image.src = source;
+            await image.decode();
+            return image;
+          }),
+        );
+        const [first] = loaded;
+        if (!first) {
+          throw new Error('The pair has no image.');
+        }
+        const sx = Math.round(box.x * first.naturalWidth);
+        const sy = Math.round(box.y * first.naturalHeight);
+        const width = Math.round(box.width * first.naturalWidth);
+        const height = Math.round(box.height * first.naturalHeight);
+        const band = 34;
+        const gap = 8;
+        const canvas = document.createElement('canvas');
+        canvas.width = width * loaded.length + gap * (loaded.length - 1);
+        canvas.height = height + band;
+        const context = canvas.getContext('2d');
+        if (!context) {
+          throw new Error('The canvas has no 2D context.');
+        }
+        context.fillStyle = '#1b1b1f';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.font = '16px sans-serif';
+        for (const [i, image] of loaded.entries()) {
+          const x = i * (width + gap);
+          context.drawImage(image, sx, sy, width, height, x, band, width, height);
+          context.fillStyle = '#ffffff';
+          context.fillText(names[i] ?? '', x + 10, 24);
+        }
+        return canvas.toDataURL('image/png');
+      },
+      {
+        images: cells.map((cell) => `data:image/png;base64,${cell.toString('base64')}`),
+        names: [...labels],
+        box: crop ?? { x: 0, y: 0, width: 1, height: 1 },
+      },
+    );
+    return Buffer.from(dataUrl.slice(dataUrl.indexOf(',') + 1), 'base64');
+  } finally {
+    await page.close();
+  }
 }
 
 /**
@@ -884,7 +1039,9 @@ interface ModeRender {
  * grid of the working tree as `<role>-base-views.png` and `.webp`. Both trees take the camera of
  * `--zoom` and `--elevation` ({@link roleCamera}) and the cell size of `--scale`
  * ({@link roleCell}). Each WebP grid has the cells of {@link CELL}, so that it keeps its byte
- * limit at each scale.
+ * limit at each scale. Each cell of `--pairs` then gets `<role>-pair-<moment>-<view>.webp`: the
+ * crop of `--crop` of the cell of the commit beside the same crop of the working tree
+ * ({@link pairImage}).
  *
  * @param args The command line.
  * @param site The site of the working tree.
@@ -921,6 +1078,26 @@ async function roleViews(args: CloseViewsArgs, site: TreeSite): Promise<CommitRe
     await writeFile(join(out, `${name}-base-views.png`), both);
     await writeFile(join(out, `${name}-base-views.webp`), await webp(both, cells, labels));
     console.log(join(out, `${name}-base-views.png`));
+
+    const names = role.moments.flatMap((moment) =>
+      role.views.map((view) => `${moment.name}-${view.name}`),
+    );
+    for (const cell of args.pairs ?? []) {
+      const at = names.indexOf(cell);
+      const pair = [before.cells[at], views.cells[at]] as const;
+      if (!pair[0] || !pair[1]) {
+        continue;
+      }
+      const image = await pairImage(
+        browser,
+        [pair[0], pair[1]],
+        [`${label}: ${cell}`, `working tree: ${cell}`],
+        args.crop,
+      );
+      const file = join(out, `${name}-pair-${cell}.webp`);
+      await writeFile(file, await toWebp(browser, image));
+      console.log(file);
+    }
   };
 }
 
@@ -2544,7 +2721,7 @@ async function renderModes(
 
 /** The usage text of the tool. */
 const USAGE = [
-  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--url <url>] [--base <ref>]`,
+  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--url <url>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--url <url>] [--base <ref>]`,
