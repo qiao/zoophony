@@ -32,11 +32,9 @@ arms, and 141° and 164° for the paws on the forearms (`hold-fit-base.txt`).
 | Same, elbows out and down | 87° / 81° | 77° / -72° | 83° / 80° |
 | Same, elbows out, up, and back | 67° / 64° | 20° / -16° | 103° / 104° |
 
-With the top up, a mallet that slants down in front of the short arm turns the paw almost upside
-down, and the twist bone takes half of the twist. A lower elbow turns the paws further, and a
-higher elbow turns the upper arms further, so the elbows stay out and back. Each strike stays
-within 5 mm of its target (`pose-depth.txt`). The grip with the old shapes moved the folds to
-the armpits (`fold-probe-grip.txt`).
+A lower elbow turns the paws further, and a higher elbow turns the upper arms further, so the
+elbows stay out and back. The grip with the old shapes moved the folds to the armpits
+(`fold-probe-grip.txt`).
 
 **Rig.** `pnpm rig-mesh elephant --check --set <changes> --keep <dir>`, and
 `pnpm fold-probe timpanist --glb <file>` for the faces:
@@ -54,10 +52,8 @@ the armpits (`fold-probe-grip.txt`).
 | Same, a rigid face of the left paw too | 1.4% | 25.8% | 100% | `rig-rigid.txt` |
 | Final with a left wrist shape fitted on the ring rig | 76.0% | 78.2% | 0% | `rig-final1.txt` |
 
-The cut removes the folds of both armpits, with face 137 of the right armpit (94% of the play on
-the base). The four shapes come from `pnpm raise-fit timpanist --glb <file>` on the cut rig with
-the new grip (`raise-fit.txt`). The shape of the waiting left elbow turned the thin face of the
-outer elbow over in 37% of the play, and the rigid face fixes it.
+The four shapes come from `pnpm raise-fit timpanist --glb <file>` on the cut rig with the new
+grip (`raise-fit.txt`).
 
 **Final.** `pnpm fold-probe timpanist --faces 8 --base 16f16e44` (`fold-probe.txt`): at most 2
 faces fold at a time, in place of 23. Face 2401, a thin face of the left paw, folds in 3.5% of the
@@ -92,9 +88,6 @@ lift and the rest at most the base. Open: the thin face of the left paw, the lef
 of `beethoven-8-4`, and the dark cap of the cut under the raised right arm.
 
 ## 4. The second round
-
-The manager asked for the left paw at most 1.0 cm into the body and for the play folds at most
-1%, with the rest free of folds.
 
 **Paw depth.** The deepest sample is the lift before a strike on the kettle beside the player:
 the mallet head rises 0.15 m over its target, and the wrist comes back into the side of the body
@@ -136,3 +129,30 @@ in 9.7% of the lift. `pnpm pose-depth timpanist --gaps` (`pose-depth-2.txt`): th
 body-probe --base 16f16e44` differs only for the elephant (`body-probe-2.txt`). `user-view-2.webp`
 shows the base, round 1, and round 2 from the right side and from the left side: the arms stay
 round, and the forearms reach a little further forward.
+
+## 5. The dark area under the right arm
+
+In the right side view of the gallery, a large dark area lies under the raised right arm.
+`probe-patch.py` swaps the material of the elephant for a probe, as `hidden/probe-patch.py` of
+`docs/research/2026-10-18-panda-seam/` does (`armpit-probe.webp`). With the face colors and no
+light, the area is light gray, so no face color is dark. The normals of the area are smooth and
+equal to the normals of the chest around it. With no shadow on the elephant, the area is light.
+Thus the dark area is the shadow of the raised round upper arm under the key light of the gallery.
+On the base, the arm skin was stretched over the chest, so the chest under it took the light.
+
+The box under the right arm of the cell `left-right` (`lum.py`, `armpit-light.txt`):
+
+| Variant | Mean light | Dark share |
+|---|---:|---:|
+| `16f16e44` | 0.441 | 15.7% |
+| Round 1 | 0.388 | 28.1% |
+| Round 2 | 0.378 | 30.0% |
+| Round 2, right elbow 0.25 lower (`poleR`) | 0.408 | 25.3% |
+| Round 2, no shadow on the elephant (probe) | 0.507 | 4.5% |
+
+No variant reached the base in the time box. On the stage, from the
+right side of `beethoven-9` (`pnpm close-views play --camera -300,-40,14 --base 16f16e44`), the
+stage light shows no dark area under the arm (`armpit-stage.webp`). The crop pairs
+`armpit-pair-left-right.webp` and `armpit-pair-right-right.webp` show the area in the gallery
+(`pnpm close-views timpanist --zoom 1.6 --elevation 20 --base 16f16e44 --pairs
+left-right,right-right --crop 0.15,0.2,0.65,0.5`).
