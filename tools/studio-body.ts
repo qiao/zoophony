@@ -282,6 +282,19 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       headFloor: 0.69,
     },
   ],
+  // The bassoon beaver: decisions/2026-10-19-mesh-beaver.md. It stands as a soloist.
+  [
+    'beaver',
+    {
+      landmark: 'shoulders',
+      height: 0.632835,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_BEAVER',
+      crease: 35,
+      glb: 'assets/models/beaver/beaver.rig.glb',
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
