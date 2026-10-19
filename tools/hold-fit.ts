@@ -858,10 +858,12 @@ export interface FitRun {
  * change of the format takes the next version. Version 2 added the rest faces by side, version 3
  * the instrument in the body, the rest gaps, and the reach shares of the free paws, version 4 the
  * rest samples of the folds, version 5 the lap rest, version 6 the upright rest of the violin,
- * version 7 the right arm in the rest, version 8 the reach of the note targets of each result, and
- * version 9 the mean turns of the arms.
+ * version 7 the right arm in the rest, version 8 the reach of the note targets of each result,
+ * version 9 the mean turns of the arms, and version 10 the instrument in the body of the
+ * contrabass, with `null` for its limit: the pair has no limit. A reader of an older version shows
+ * that limit as 0.
  */
-export const FIT_FORMAT = 9;
+export const FIT_FORMAT = 10;
 
 /**
  * The oldest format version that {@link FIT_FORMAT} only adds fields to (`ProbeFormat.since` of
