@@ -347,9 +347,19 @@
         0.2476,
         0.4424,
         -0.0828
+      ],
+      [
+        0.295,
+        0.4064,
+        -0.0396
+      ],
+      [
+        0.2739,
+        0.4155,
+        -0.0589
       ]
     ],
-    "rigidNote": "The thin face across the outer left elbow (corners 27, 12, and 142 degrees) has corners on the upper arm, the forearm, and the twist bone, and it turned over in 37% of the play samples, where the left arm waits over the kettle beside the player. It takes the mean of the weights of its corners (docs/research/2026-10-19-elephant-arms/rig-rigid.txt)."
+    "rigidNote": "Each listed thin face takes the mean of the weights of its corners. The first face lies across the outer left elbow (corners 27, 12, and 142 degrees) and turned over in 37% of the play samples, where the left arm waits over the kettle beside the player. The second, a sliver at the back of the left paw (corners 9, 15, and 156 degrees), turned over in 5.3% of the play. The third, its neighbor at the left wrist, then turned over in each rest sample, so it takes the mean too (docs/research/2026-10-19-elephant-arms/rig-rigid.txt, rig-paw.txt)."
   },
   "cut": {
     "top": 0.64,
