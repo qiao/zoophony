@@ -352,6 +352,14 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts below the crotch and ends 0.03 u above the thigh joint."
     },
+    "rigid": [
+      [
+        0.0803,
+        0.6511,
+        0.0279
+      ]
+    ],
+    "rigidNote": "The corners of the thin face from the neck to the top of the left shoulder take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py). The point is the middle of the face in the units of the source. Its corners had the neck weight 0.62 and the upper arm weight 0.54 at the two ends, and its middle corner (a corner angle of 153 degrees) lagged between them, so the face turned over in each play sample, also with a raise rule and 4 rings of neighbors (find_faces.py of docs/research/2026-10-19-mouse-mesh/).",
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.11 out (98 vertices of the free left arm, free_arm.py). Above headFrom, each vertex follows the head only: the chin starts at y 0.70. The large round ears join the head from y 0.80 to 0.94, below the skull top (0.9485), so the height rule of earBase would also take the top of the head, and earBase lies above the head: the ears follow the head, as for the panda and the hippo. clavicleFrom, armTop, and shoulderHead are the rules of the panda and the hippo, moved with the shoulder joint (y 0.593) and the neck (x 0.077) of the mouse."
   },
   "refine": {
@@ -477,42 +485,6 @@
   },
   "raise": [
     {
-      "side": "R",
-      "turns": {
-        "clavicle": [
-          0,
-          0.1736,
-          0,
-          0.9848
-        ],
-        "upper_arm": [
-          0.2744,
-          0.3262,
-          -0.5071,
-          0.7491
-        ],
-        "forearm": [
-          0.049,
-          -0.0277,
-          0.0637,
-          0.9964
-        ],
-        "hand": [
-          0.2834,
-          -0.5591,
-          -0.7602,
-          -0.1709
-        ]
-      },
-      "fade": [
-        10,
-        20
-      ],
-      "below": 0.0,
-      "grow": 2,
-      "note": "The shape of the right arm on the oboe, with the mean turns of the play samples of the hold of 2026-10-19 (keys-dump.ts and keys-read.ts of docs/research/2026-10-19-mouse-mesh/): the clavicle turns 20 degrees forward, as the reach of the oboe hold, the upper arm 83 degrees from the bind, the elbow 10 degrees, and the paw 160 degrees. Seven thin faces of the right shoulder, armpit, forearm, and paw folded in each play sample: a vertex of the forearm takes a part of the paw weight by the line rule, and long thin faces join the trunk to the upper arm. In the pose of the rule, they turn over and relax in 4 rounds, with 2 rings of neighbors (grow). A second shape of the bent wrist (bone hand) turned 6 other faces over."
-    },
-    {
       "side": "L",
       "turns": {
         "clavicle": [
@@ -546,7 +518,43 @@
       ],
       "below": 0.0,
       "grow": 2,
-      "note": "The shape of the left arm on the oboe, with the mean turns of the rest samples: the upper arm 57 degrees from the bind, the elbow 7 degrees, and the paw 150 degrees. The left upper arm turns nearly the same in the play (56 degrees), so the shape covers both. One face of the left upper arm folded in each sample, and two faces of the left forearm in the rest. They turn over and relax in 1 round. A shape at the mean turns of the play relaxed only the face of the upper arm."
+      "note": "The shape of the left arm in the rest pose of the oboe, with the mean turns of the rest samples (keys-dump.ts and keys-read.ts of docs/research/2026-10-19-mouse-mesh/): the upper arm 57 degrees from the bind, the elbow 7 degrees, and the paw 150 degrees from the forearm. Three faces of the left upper arm and forearm folded in each rest sample. In the pose of the rule, they turn over and relax in 3 rounds, with 2 rings of neighbors (grow)."
+    },
+    {
+      "side": "L",
+      "turns": {
+        "clavicle": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "upper_arm": [
+          0.1177,
+          -0.4662,
+          0.051,
+          0.8753
+        ],
+        "forearm": [
+          -0.0459,
+          -0.0259,
+          0.0597,
+          0.9968
+        ],
+        "hand": [
+          -0.333,
+          -0.4558,
+          -0.6681,
+          0.4849
+        ]
+      },
+      "fade": [
+        10,
+        20
+      ],
+      "below": 0.0,
+      "grow": 2,
+      "note": "The shape of the left arm on the oboe, with the mean turns of the play samples of the hold with the elbows down: the upper arm 58 degrees from the bind, the elbow 9 degrees, and the paw 122 degrees. Two thin faces of the left upper arm folded in each play sample. In the pose of the rule, they turn over and relax in 1 round. With the elbows down, the right arm folds in no sample, so it has no shape. With the right elbow out and level (the hold of WIND_HOLDS), seven faces of the right arm folded in each play sample, and a shape of the right arm relaxed them."
     }
   ]
 }
