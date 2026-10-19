@@ -129,6 +129,10 @@ player.
   shows the rest pose, and `lift=1` the playing pose at the time of the slider. The instrument
   and the bow move with the same weight of the playing pose as the arms. For example,
   `?page=species&only=cat&body&lift=0.5` shows the cat halfway through its lift.
+- The query `probe` changes the look of the bodies, so that a close view shows the cause of a
+  dark area. `probe=colors` draws each body with its face colors and no light, `probe=normals`
+  draws its normals as colors, and `probe=noshadow` lets no shadow fall on each player. The
+  instrument keeps its look (`applyProbe()` of `src/gallery/probe.ts`).
 - The models stand in rows, and the camera looks down at them at 35°. A model hides the floor
   behind it for its height / tan 35°, so the gap in front of a row is at least the height of the
   tallest model of the next row / tan 35°, and at least 0.8 m. With a fixed gap of 0.8 m, the

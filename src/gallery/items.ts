@@ -295,6 +295,27 @@ export function galleryMove(search: URLSearchParams): GalleryMove | null {
 }
 
 /**
+ * The probes of the query `probe` of the gallery (design 7.1): the body with its face colors and
+ * no light, with its normals as colors, or with no shadow on it.
+ */
+export const GALLERY_PROBES = ['colors', 'normals', 'noshadow'] as const;
+
+/** A probe of the query `probe` of the gallery. */
+export type GalleryProbe = (typeof GALLERY_PROBES)[number];
+
+/**
+ * Reads the probe of the bodies from the query of the gallery (design 7.1), such as
+ * `probe=normals`.
+ *
+ * @param search The query of the page.
+ * @returns The probe, or `null` when the query has no probe or an unknown probe.
+ */
+export function galleryProbe(search: URLSearchParams): GalleryProbe | null {
+  const text = search.get('probe');
+  return GALLERY_PROBES.find((probe) => probe === text) ?? null;
+}
+
+/**
  * Gives the transport that puts an animal at the share of a move at a wall time (design 5.2), so
  * that `poseAt()` gives the pose of the app at that point of the move. The lift starts from the
  * rest pose, as the first play does. The transport plays from a change before the wall time by

@@ -44,6 +44,7 @@ import {
   boundsOf,
   closeView,
   galleryMove,
+  galleryProbe,
   gallerySupport,
   galleryTransport,
   gridPlaces,
@@ -56,6 +57,7 @@ import type { GalleryItem } from './items.ts';
 import { DEFAULT_TEST_NOTES, keyName, notesAt, parseTestNotes } from './notes.ts';
 import type { TestNote } from './notes.ts';
 import { galleryPlan } from './plan.ts';
+import { applyProbe } from './probe.ts';
 import type { GalleryAnimal } from './plan.ts';
 
 /** The two pages of the gallery (design 7.1). */
@@ -186,6 +188,12 @@ const items = selectItems(
 const models = items.map((item) =>
   page === 'species' ? buildSpeciesModel(item, materials) : buildInstrumentModel(item, materials),
 );
+const probe = galleryProbe(search);
+for (const { player } of models) {
+  if (probe && player) {
+    applyProbe(player.mesh, player.model, probe);
+  }
+}
 
 const sizes = models.map(({ item, bounds }) => {
   const across = bounds.max[0] - bounds.min[0];
