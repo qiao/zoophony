@@ -4,9 +4,8 @@ The Section column names a section of the design. [`design.md`](../design.md) gi
 each section.
 
 On 2026-10-19, the user said: "use the beaver model at
-@~/Downloads/Meshy_AI_beaver_remeshed_3k_tr_1019165549_texture.glb". The agent of the branch
-`mesh-beaver` asked the user about the arms, the bassoon, and the seat in the mid-report, and
-decided the other rows. The report
+@~/Downloads/Meshy_AI_beaver_remeshed_3k_tr_1019165549_texture.glb". The agents of the rounds
+`mesh-beaver` and `beaver-arm` decided the rows with no quote of the user. The report
 [`2026-10-19-beaver-mesh.md`](../research/2026-10-19-beaver-mesh.md) gives the measures. The user
 can reverse each decision. Then update its section, and remove its row.
 
