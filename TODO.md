@@ -430,7 +430,8 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-18-panda-folds.md`).
 - [ ] The paused shot test of the moves of 2 cm keeps 74.2% of the shots (limit 75%) with the
       standing hippo. It kept 71.8% since the panda mesh, and passed with the hippo on the stool
-      (`docs/research/2026-10-18-hippo-mesh/shots-test.log`).
+      (`docs/research/2026-10-18-hippo-mesh/shots-test.log`). The elephant mesh keeps 74.7%
+      (`docs/research/2026-10-19-elephant-mesh/shots-test.log`).
 - [x] Panda: the white fur of the mesh has three times the chroma of `SPECIES_COLORS.panda` (0.042
       against 0.013). Ask the user about a move of the fur colors, as the cat got
       (`docs/research/2026-10-18-panda-mesh.md`). Done: the user chose the reference white
@@ -475,6 +476,23 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Mouse tail: the loop of the long tail lies on the floor up to 0.6 m behind the chair, the
       footprint is 1.418 m deep, and the stages of the demos with oboes grow up to 6.7%. Check the
       tail between the rows of the stage with the user (`2026-10-19-mesh-mouse.md`).
+- [ ] Elephant timpanist: the skin folds in each sample, up to 23 faces: face 137 of the right
+      armpit in 94% of the play samples, the left forearm in 61%, and the left arm that waits over
+      the kettle beside the player in 37%. Four corrective shapes cut the folded face-samples from
+      143,420 to 34,294 (`docs/research/2026-10-19-elephant-mesh/fold-probe-timpanist.txt`,
+      `2026-10-19-mesh-elephant.md`).
+- [ ] Elephant timpanist: the seam where the upper arm of the mesh lies on the side of the body
+      shades dark lines on the front of the body when the arms play (`timpanist-base-views.webp`
+      of `docs/research/2026-10-19-elephant-mesh/`). A cut of the mesh at the seam, as for the
+      panda, can fix it (`docs/research/2026-10-18-panda-cut.md`).
+- [ ] Elephant timpanist: each hand keeps the kettles on its side of the trunk, so a roll on one
+      kettle stays in one hand, and with three kettles the largest kettle stands beside the player.
+      Show the user the views, and offer longer arms for rolls with both hands
+      (`2026-10-19-mesh-elephant.md`).
+- [ ] Remove the unused code of the `trunk` snout with its tusks and of the `large-flap` ears: no
+      species has them since the elephant mesh (`2026-10-19-mesh-elephant.md`).
+- [ ] `docs/agents/model-traps.md` has 3,170 words, above its limit of about 3,000
+      (`docs/agents/writing.md`). Cut it in a prose pass.
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
