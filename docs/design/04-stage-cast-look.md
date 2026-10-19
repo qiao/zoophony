@@ -404,8 +404,8 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
     bends the seated tail: the cat curls it on the seat, and the dog hangs it down behind the seat
     (`docs/decisions/2026-10-17-dog-tail.md`). A curled tail does not sway (5.1). The long thin tail
     of the mouse lies on the floor in a loop, so its two bones turn rigidly
-    (`studio.tailBind`): the seated tail goes back over the seat between the back posts and keeps
-    its loop flat on the floor behind the chair, because a curve bent the loop into a sheet. A short round
+    (`studio.tailBind`): the seated tail goes back from the haunch and keeps its loop flat on the
+    floor behind the body, because a curve bent the loop into a sheet. A short round
     tail, as the tail of the rabbit, of the panda, and of the hippo, is a ball on one tail bone
     (`tailBall`). The ears of the dog hang and do not twitch (`OwnBodyParams.hangingEars`). The
     round ears of the panda, the small ears of the hippo, and the large round ears of the mouse
@@ -426,9 +426,12 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
   for the mouse, which is about half as tall (`docs/decisions/2026-10-19-mouse-size.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear then rises to its seat height
-  (`seat` of `ANIMALS`). The rabbits, the foxes, the cats, the dogs, the pandas, and the mice have
-  chairs that fit their legs, so that their feet touch the floor (user, 2026-10-16). Each level seat ends
-  where the thighs leave it at the haunch (`chair.front`), so that the haunch rests on it. Short
+  (`seat` of `ANIMALS`). The rabbits, the foxes, the cats, the dogs, and the pandas have chairs
+  that fit their legs, so that their feet touch the floor (user, 2026-10-16). The mouse has no
+  chair (user, 2026-10-19, `SpeciesParams.noChair`): it keeps its seated pose at the seat height of
+  its legs, with its feet on the floor, so it stands on its hind legs with bent knees, as a real
+  mouse does. Each level seat ends where the thighs leave it at the haunch (`chair.front`), so that
+  the haunch rests on it. Short
   thighs under a round belly, as on the panda, end the seat behind the thighs, under the haunch,
   so that the sit does not pull the haunch down into a sheet behind the seat. The chair takes
   its height, depth, width, and the room behind the back from the body (`StudioBody.seatHeight`,
@@ -767,7 +770,7 @@ risers. `models/stage.ts` holds the sizes of the stage, the podium, and the cond
 
 | Item | Rules |
 |---|---|
-| Chair | A seat, two back posts, one wide top rail, open below the rail, and four legs (`CHAIR`), as in `animals.webp`. The seat is at the `seatHeight` of the skeleton (`seatHeights()`, 4.3), so each species has a chair of its own height. A studio body also gives the depth, the room, and the width of its seat (4.4, seat). |
+| Chair | A seat, two back posts, one wide top rail, open below the rail, and four legs (`CHAIR`), as in `animals.webp`. The seat is at the `seatHeight` of the skeleton (`seatHeights()`, 4.3), so each species has a chair of its own height. A studio body also gives the depth, the room, and the width of its seat (4.4, seat). A species with no chair (`SpeciesParams.noChair`), the mouse, keeps its seated pose at the seat height of its legs, and the app builds no chair under it (`buildSupport()`). |
 | Stool | For the harp, with no back (`STOOL`). It keeps its height, so that the left hand reaches the highest strings. |
 | High stool | With a foot ring at the `seatHeight` of the skeleton below the seat (`HIGH_STOOL`). No player sits on it since the hippo stands at its contrabass. |
 | Music stand | A tripod, a post, and a tilted desk with a white sheet (`MUSIC_STAND`). The desk stays below the eyes of its players (`standDeskHeight()`). |
@@ -876,7 +879,7 @@ of the group.
 | harp | concert harp | between the knees, both hands on the strings | stool |
 | piano | grand piano (also for the celesta and the organs) | both hands on the keys | bench |
 | flute | silver tube (also for the piccolo and other pipes) | horizontal, to the right | chair |
-| oboe | thin dark tube with a small bell | in front of the mouth, 30° forward from the vertical | chair |
+| oboe | thin dark tube with a small bell | in front of the mouth, 30° forward from the vertical | chair, or none for the mouse (4.5, props) |
 | clarinet | black tube with silver rings, keys, and a bell | in front of the mouth, 25° forward from the vertical | chair |
 | bassoon | tall wooden tube with a bocal | diagonal across the body | chair |
 | horn | coiled tube with a bell | in the lap, right hand in the bell | chair |
