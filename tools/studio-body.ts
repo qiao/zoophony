@@ -332,6 +332,22 @@ function onTail(vertex: SourceVertex): boolean {
  */
 const EYE_SIDE = 0.02;
 
+/**
+ * The largest distance of the tip of the nose from the middle plane of the body, in meters. The
+ * export takes the tip only from the vertices this near the plane, because the front-most vertex
+ * of the head of the mouse was the tip of a whisker, 0.2 u from the plane, and it moved the oboe
+ * 0.33 m. The front of the muzzle of the hippo, a nostril, lies 2.8 cm from the plane, and it
+ * stays the tip.
+ */
+export const NOSE_PLANE = 0.03;
+
+/**
+ * The distance of the tip of the nose and of the mouth below it from the middle plane, in meters,
+ * above which `pnpm rig-mesh --check` and `pnpm mesh-options` warn (`noseWarning()` of
+ * `tools/rig-mesh-check.ts`).
+ */
+export const NOSE_WARNING = 0.02;
+
 /** The order of the corrective shapes in a studio body: the left arm, then the right arm. */
 export const CORRECTIVE_NAMES = ['arm_down_L', 'arm_down_R'] as const;
 
@@ -1922,9 +1938,13 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     max: new Vector3(-Infinity, -Infinity, -Infinity),
   };
   // The tip of the nose: the front of the gloss nose, or the front of the muzzle of a body with
-  // no gloss nose, such as the hippo with its two nostrils.
+  // no gloss nose, such as the hippo with its two nostrils. Only the vertices within NOSE_PLANE
+  // of the middle plane count, so that the tip of a whisker does not become the tip of the nose.
+  // With no such vertex, the tip comes from all vertices.
   let nose = new Vector3(0, 0, -Infinity);
   let snout = new Vector3(0, 0, -Infinity);
+  let farNose = new Vector3(0, 0, -Infinity);
+  let farSnout = new Vector3(0, 0, -Infinity);
   const floor = settings.headFloor ?? -Infinity;
   for (const [v, vertex] of mesh.vertices.entries()) {
     const head = vertex.skin.find(([bone]) => bone === 'head')?.[1] ?? 0;
@@ -1944,15 +1964,28 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       box.min.min(place);
       box.max.max(place);
     }
-    if (vertex.material === 'gloss' && head === 1 && !inEye(v) && vertex.position.z > nose.z) {
-      nose = vertex.position;
+    const near = Math.abs(model(vertex.position)[0]) <= NOSE_PLANE;
+    if (vertex.material === 'gloss' && head === 1 && !inEye(v)) {
+      if (near && vertex.position.z > nose.z) {
+        nose = vertex.position;
+      }
+      if (vertex.position.z > farNose.z) {
+        farNose = vertex.position;
+      }
     }
-    if (vertex.material === 'fur' && head === 1 && vertex.position.z > snout.z) {
-      snout = vertex.position;
+    if (vertex.material === 'fur' && head === 1) {
+      if (near && vertex.position.z > snout.z) {
+        snout = vertex.position;
+      }
+      if (vertex.position.z > farSnout.z) {
+        farSnout = vertex.position;
+      }
     }
   }
-  if (nose.z === -Infinity) {
-    nose = snout;
+  for (const next of [snout, farNose, farSnout]) {
+    if (nose.z === -Infinity) {
+      nose = next;
+    }
   }
   const center = toBind(box.min.clone().add(box.max).multiplyScalar(0.5))
     .add(headShiftOf(glb))
