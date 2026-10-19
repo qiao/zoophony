@@ -482,8 +482,9 @@ The code constants of each family hold the times, the angles, and the lengths of
     front kettles. So each hand strikes only the kettles on its side (`sides` of `HandsRule`), and
     a roll stays in one hand, because the other hand cannot reach across the trunk. Each mallet
     strikes the playing spot of a real timpanist, a little in from the rim nearest to the player
-    (`PercussionHold.rim`), and it points to its target from a place near its shoulder
-    (`PercussionHold.home`), so that the wrist stays near the body. The elbows of the timpani
+    (`PercussionHold.rim`), and it points to its target from a place in front of its shoulder
+    (`PercussionHold.home`). Thus the wrist stays near the body, and a lift over the kettle beside
+    the player does not take the paw into the body. The elbows of the timpani
     point out and back, because elbows down put the upper arms into the body. The upper arms
     still touch the side of the body, as the user rule of 2026-10-10 asks. The kettles leave a
     gap at the front of the player for the trunk (`TIMPANI.front`, 4.6). A round mallet looks the
