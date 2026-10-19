@@ -334,11 +334,13 @@ async function main(): Promise<void> {
   const passed = rest.filter((arg) => arg !== '--measure');
   if (!measureOnly) {
     const cameras = LOOK_CAMERAS.flatMap((camera) => ['--camera', camera]);
-    execFileSync(
-      'pnpm',
-      ['close-views', 'play', dir, '--time', String(LOOK_TIME_SEC), ...cameras, ...passed],
-      { cwd: ROOT, stdio: 'inherit' },
-    );
+    const play = ['play', dir, '--time', String(LOOK_TIME_SEC), ...cameras, ...passed];
+    // With --url, close-views renders the running site, so the build of `pnpm close-views` is
+    // no use. The build also writes `dist/` while another run can read it.
+    const [command, line] = passed.includes('--url')
+      ? [process.execPath, [join(ROOT, 'tools/close-views.ts'), ...play]]
+      : ['pnpm', ['close-views', ...play]];
+    execFileSync(command, line, { cwd: ROOT, stdio: 'inherit' });
   }
 
   const browser = await chromium.launch();
