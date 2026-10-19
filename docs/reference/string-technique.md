@@ -385,7 +385,8 @@ A round that changes the motion updates the items.
   (`pnpm hold-fit`), and put the bow paw of the rabbit into the violin at the frog on the E string.
   The cello of the dog turns 6°: with its short arms, a larger turn put the paw into the right rim
   of the cello on the C string. It also plays no hair within 0.12 m of the frog
-  (`BowedHold.frogHair`), where its forearm crossed the rim.
+  (`BowedHold.frogHair`), where its forearm crossed the rim. The contrabass of the hippo turns
+  12°: with 25°, the bow paw on the lowest string went 9.1 cm into the round belly.
   The app had 9° (7° on the contrabass) before. The arm levels come from the
   geometry: the bow plane of the string turns the hand, and the arm follows it, higher for the
   lower strings of the violin and the viola.
@@ -456,6 +457,21 @@ A round that changes the motion updates the items.
   the fingerboard, and the right paw holds the bow over the right knee with the tip up, as the
   first lesson of the source. The short arm of the dog does not reach the knee, so the grip is
   above the thigh and the tip leans out and forward. The source gives no rest of an orchestral cellist.
+
+### 3.4 The contrabass on the stool and at rest
+
+- **The size.** The hippo plays a smaller contrabass (`bassScale` 0.8 of `models/species.ts`), as
+  a child plays a fractional size (section 1.1 gives the string lengths of real sizes). Its arms
+  reach 0.54 m, and its round belly reaches 0.29 m in front of its shoulder joints.
+- **The contacts.** The hippo sits on the stool of the contrabass with its own hold (`HIPPO_HOLD`
+  of `pose/bowed-rig.ts`). The end pin stands on the floor in front of the stool, and the
+  contrabass leans 38° to the left and back, so that the bow plays in front of the upper belly,
+  about 0.2 m below the shoulder joints, and the nut is beside the head, within reach of the left
+  paw. A real bassist leans the contrabass less, against the left side of the body. The app
+  differs from that, because the bow of a real hold met the round belly of the hippo.
+- **The rest.** The contrabass stays at its playing place, and the left paw holds the neck. The
+  right paw hangs beside the belly with the bow tip down, because the knee of the hippo is under
+  its belly. No source gives the rest of an orchestral bassist.
 
 ## 4. Sources
 
