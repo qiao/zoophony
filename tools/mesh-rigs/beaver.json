@@ -1,0 +1,444 @@
+{
+  "source": "assets/models/beaver/beaver.glb",
+  "output": "assets/models/beaver/beaver.rig.glb",
+  "name": "Beaver",
+  "weld": 1e-05,
+  "app": {
+    "shoulders": 0.632835,
+    "reach": 0.259,
+    "note": "The size of the parametric beaver of 9a4613b4 (size 0.95, H 0.361 m), which stood 1.029 m high to the head top (docs/research/2026-10-19-beaver-mesh/landmark-probe.txt). No reference image shows a beaver, so the mesh takes that size (user rule of 2026-10-19, docs/decisions/2026-10-19-mouse-size.md). The scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 1.0 u) at 1.029 m. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+  },
+  "armFactor": 1,
+  "armFactorNote": "The factor of the upper arm and the forearm. The first config keeps the arms of the mesh: 0.259 m from the shoulder joint to the middle of the palm, 0.56 of the trunk from the hips joint to the shoulder joints. The user chooses the factor in the mid-report (docs/research/2026-10-19-beaver-mesh/options/).",
+  "legFactor": 1,
+  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair). The seat of the legs of the seated bind is 0.072 m, and the chair of the app is 0.159 m deep.",
+  "joints": {
+    "root": {
+      "head": [
+        0,
+        0,
+        0
+      ],
+      "tail": [
+        0,
+        0,
+        0.1
+      ],
+      "roll": [
+        0,
+        1,
+        0
+      ]
+    },
+    "hips": {
+      "head": [
+        0,
+        0.165,
+        0.065
+      ],
+      "tail": "spine"
+    },
+    "spine": {
+      "head": [
+        0,
+        0.3,
+        0.085
+      ],
+      "tail": "spine1"
+    },
+    "spine1": {
+      "head": [
+        0,
+        0.43,
+        0.095
+      ],
+      "tail": "chest"
+    },
+    "chest": {
+      "head": [
+        0,
+        0.555,
+        0.095
+      ],
+      "tail": "neck"
+    },
+    "neck": {
+      "head": [
+        0,
+        0.665,
+        0.095
+      ],
+      "tail": "head"
+    },
+    "head": {
+      "head": [
+        0,
+        0.72,
+        0.105
+      ],
+      "tail": [
+        0,
+        1.0,
+        0.147
+      ]
+    },
+    "ear_L": {
+      "head": [
+        0.115,
+        0.915,
+        0.13
+      ],
+      "tail": [
+        0.134,
+        0.953,
+        0.131
+      ]
+    },
+    "clavicle_L": {
+      "head": [
+        0.03,
+        0.635,
+        0.095
+      ],
+      "tail": "upper_arm_L"
+    },
+    "upper_arm_L": {
+      "head": [
+        0.175,
+        0.615,
+        0.105
+      ],
+      "tail": "forearm_L",
+      "roll": "palm"
+    },
+    "forearm_L": {
+      "head": [
+        0.228,
+        0.52,
+        0.163
+      ],
+      "tail": "forearm_twist_L",
+      "roll": "palm"
+    },
+    "forearm_twist_L": {
+      "head": [
+        0.2505,
+        0.484,
+        0.191
+      ],
+      "tail": "hand_L",
+      "roll": "palm"
+    },
+    "hand_L": {
+      "head": [
+        0.273,
+        0.448,
+        0.219
+      ],
+      "tail": "fingers_L",
+      "roll": "palm"
+    },
+    "fingers_L": {
+      "head": [
+        0.29,
+        0.4,
+        0.235
+      ],
+      "tail": [
+        0.291,
+        0.3615,
+        0.245
+      ],
+      "roll": "palm"
+    },
+    "thigh_L": {
+      "head": [
+        0.11,
+        0.14,
+        0.08
+      ],
+      "tail": "shin_L"
+    },
+    "shin_L": {
+      "head": [
+        0.118,
+        0.1,
+        0.075
+      ],
+      "tail": "foot_L"
+    },
+    "foot_L": {
+      "head": [
+        0.125,
+        0.06,
+        0.055
+      ],
+      "tail": "toes_L",
+      "roll": [
+        0,
+        1,
+        0
+      ]
+    },
+    "toes_L": {
+      "head": [
+        0.14,
+        0.02,
+        0.19
+      ],
+      "tail": [
+        0.145,
+        0.009,
+        0.286
+      ],
+      "roll": [
+        0,
+        1,
+        0
+      ]
+    },
+    "tail": {
+      "head": [
+        0,
+        0.135,
+        -0.09
+      ],
+      "tail": "tail_tip",
+      "roll": [
+        0,
+        1,
+        0
+      ]
+    },
+    "tail_tip": {
+      "head": [
+        0,
+        0.075,
+        -0.23
+      ],
+      "tail": [
+        0,
+        0.02,
+        -0.395
+      ],
+      "roll": [
+        0,
+        1,
+        0
+      ]
+    }
+  },
+  "palm": [
+    -0.725,
+    -0.274,
+    -0.631
+  ],
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the skull top, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-19-beaver-mesh/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), measures.py the parts (measures.txt), arm.py the arm (arm.txt), and paw.py the paw (paw.txt). The short legs are apart below the crotch at y 0.125, with the middle of each leg at x 0.11 to 0.125 and z 0.075 to 0.08. The thigh joint lies just above the crotch, the knee halfway to the ankle, the ankle above the heel at the narrowest leg cut (y 0.06), and the toes at the ball of the long flat foot (toe tip at z 0.286). The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The narrowest neck cut is at y 0.74, and the chin is at y 0.71. The cuts across the free arm give its middle line, (0.39, -0.77, 0.50) down the arm: the arm is apart from the body from x 0.185 out, below the armpit at y 0.50. The shoulder joint lies on that line 0.035 u inside the root of the arm at x 0.19, the elbow at the height of the armpit, the wrist at the end of the forearm before the paw widens (y 0.448), the forearm twist halfway between them, and the finger joint at the base of the claws (y 0.40). The small ear joint lies at the root of the ear on the head, and its tail at the top of the ear. The broad flat tail has two bones: the root at the middle of the tail cut behind the buttock, the bend halfway along the tail, and the tip at the end of the tail on the floor. The palm takes the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back.",
+  "studio": {
+    "legTurns": {
+      "thigh": [
+        0.549732,
+        0.121054,
+        -0.088861,
+        0.821732
+      ],
+      "shin": [
+        0.227636,
+        0.0,
+        0.079673,
+        0.970481
+      ],
+      "foot": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "toes": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "trunk": {
+      "open": 1,
+      "shares": {
+        "hips": 1,
+        "spine": 1,
+        "spine1": 0.75,
+        "chest": 0.5,
+        "neck": 0.25,
+        "head": 0
+      }
+    },
+    "bindArms": {
+      "upper_arm": [
+        0.813873,
+        -0.143043,
+        0.563161
+      ],
+      "forearm": [
+        0.316246,
+        0.757051,
+        0.571719
+      ],
+      "hand": [
+        -0.078782,
+        0.677317,
+        0.731461
+      ]
+    },
+    "note": "The studio has no beaver. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 15 0). The source shin slants 27 degrees back. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk shares and the bind arms are the values of the cat, the dog, the panda, the hippo, and the mouse. tailBind turns the two tail bones rigidly: the root bone 10 degrees below the level, so that the broad tail goes back over the back edge of the seat between the back posts of the chair, and the tip bone 25 degrees below the level, so that the end of the tail lies on the floor behind the chair, 0.2 cm above the soles. With the root bone 17.5 degrees and the tip bone 30 degrees below the level, the tail lay 3 cm below the soles, so it set the seat height and the feet hung above the floor (docs/research/2026-10-19-beaver-mesh/rig-tail.txt).",
+    "tailBind": {
+      "tail": [
+        0,
+        -0.1736,
+        -0.9848
+      ],
+      "tail_tip": [
+        0,
+        -0.4226,
+        -0.9063
+      ]
+    }
+  },
+  "weights": {
+    "armSplit": 0.185,
+    "stretchRamp": 0,
+    "headFrom": 0.72,
+    "earBase": [
+      1.1,
+      1.2
+    ],
+    "tail": {
+      "radius": 0.16,
+      "behind": -0.08,
+      "root": [
+        -0.02,
+        0.05
+      ],
+      "bend": 0.04,
+      "smooth": 3,
+      "note": "The tail has two bones: the vertices within radius of the line from the root over the bend to the tip, and behind the plane z = behind, follow the tail bones. The broad tail goes 0.124 u out to each side of the line."
+    },
+    "sliver": {
+      "angle": 10,
+      "longest": 0.03,
+      "note": "The values of the fox, the cat, the dog, the panda, the hippo, and the mouse."
+    },
+    "line": {
+      "angle": 150,
+      "head": true,
+      "note": "The values of the fox, the cat, the dog, the panda, the hippo, and the mouse."
+    },
+    "clavicleFrom": [
+      0.57,
+      0.615
+    ],
+    "armTop": [
+      0.68,
+      0.72
+    ],
+    "shoulderHead": [
+      0.1,
+      0.155
+    ],
+    "fingers": 0.5,
+    "haunch": {
+      "height": [
+        0.11,
+        0.17
+      ],
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts below the crotch and ends 0.03 u above the thigh joint."
+    },
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.185 out (arm.txt). Above headFrom, each vertex follows the head only: the chin is at y 0.71. The small ears join the head below the skull top, so the height rule of earBase would also take the top of the head, and earBase lies above the head: the ears follow the head, as for the panda, the hippo, and the mouse. clavicleFrom, armTop, and shoulderHead are the rules of the mouse, moved with the shoulder joint (y 0.615) and the neck (x 0.155) of the beaver."
+  },
+  "refine": {
+    "rings": [],
+    "flip": {
+      "angle": 150,
+      "normals": 60,
+      "move": 0.0016,
+      "rounds": 4,
+      "note": "The values of the other meshes."
+    },
+    "ringsNote": "The first config has no rings. pnpm rig-mesh mouse --check lists the thin faces near the joints as candidates for a ring (check.thin). The fold probe of the role chooses the rings."
+  },
+  "check": {
+    "thin": {
+      "angle": 10,
+      "length": 0.08,
+      "near": 0.1
+    },
+    "note": "The values of the other meshes."
+  },
+  "colors": {
+    "samples": 6,
+    "palette": 48,
+    "dark": 0.05,
+    "eyeShare": 0.34,
+    "eyeBox": [
+      [
+        0.06,
+        0.885,
+        0.26
+      ],
+      [
+        0.095,
+        0.925,
+        0.295
+      ]
+    ],
+    "noseBox": [
+      [
+        -0.04,
+        0.84,
+        0.36
+      ],
+      [
+        0.04,
+        0.9,
+        0.4
+      ]
+    ],
+    "nose": [
+      0.225,
+      0.183,
+      0.177
+    ],
+    "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is a face of an eye: 7 faces on each side, at x 0.069 to 0.087, y 0.891 to 0.920, and z 0.271 to 0.287 (colors.txt). The nose is a dark pad at the front of the muzzle: 42 dark faces at x -0.032 to 0.031 and y 0.848 to 0.896. A face in the nose box whose color is nearer to the nose color (the mean of the dark faces of the pad) than to white is a face of the nose and takes the gloss."
+  },
+  "eyeShell": {
+    "lift": 0.002,
+    "points": 12,
+    "reach": 1,
+    "darkReach": 2,
+    "note": "The values of the fox, the cat, the dog, the hippo, and the mouse."
+  },
+  "chair": {
+    "halfWidth": 0.24,
+    "front": -0.02,
+    "back": -0.1,
+    "backHeight": 0.15,
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the beaver (x 0.23). The short thighs lie under the round belly, and the shins and the feet start at z 0.069 u, so the front edge lies behind them. The back edge lies 0.01 u behind the root of the tail (z -0.09): with the back edge at -0.14, the underside of the root of the tail went 0.5 cm into the seat, and at -0.10 it goes 0.06 cm into it (rig-tail.txt)."
+  },
+  "crease": {
+    "rings": 2,
+    "rounds": 8,
+    "share": 0.5,
+    "back": 0.1,
+    "below": 0.03,
+    "note": "The values of the cat, the dog, the panda, the hippo, and the mouse."
+  },
+  "sit": {
+    "gap": 0,
+    "band": 0.2,
+    "ramp": 0.015,
+    "step": 0.005,
+    "smooth": 8,
+    "end": 0.0065,
+    "most": 0.03,
+    "note": "The values of the panda, the hippo, and the mouse."
+  }
+}
