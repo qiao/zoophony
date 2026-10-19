@@ -19,6 +19,7 @@ import {
 } from './studio-rig.ts';
 import type { StudioRig } from './studio-rig.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
+import { STUDIO_BEAVER } from './studio/beaver.ts';
 import { STUDIO_CAT } from './studio/cat.ts';
 import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_ELEPHANT } from './studio/elephant.ts';
@@ -34,6 +35,7 @@ import type { Vec3 } from './tuples.ts';
 /** The studio bodies that a species can have (design 4.4), by the value of `SpeciesParams.body`. */
 export const STUDIO_BODIES = {
   'studio-bear': STUDIO_BEAR,
+  'studio-beaver': STUDIO_BEAVER,
   'studio-cat': STUDIO_CAT,
   'studio-dog': STUDIO_DOG,
   'studio-elephant': STUDIO_ELEPHANT,

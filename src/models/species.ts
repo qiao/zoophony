@@ -4,6 +4,7 @@ import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
 import type { StudioPalette } from './studio-format.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
+import { STUDIO_BEAVER } from './studio/beaver.ts';
 import { STUDIO_CAT } from './studio/cat.ts';
 import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_ELEPHANT } from './studio/elephant.ts';
@@ -452,15 +453,29 @@ export const SPECIES = {
       seatHeight: STUDIO_MOUSE.seatHeight / STUDIO_MOUSE.headHeight,
     },
   },
-  /** Beaver, the bassoons. */
+  /**
+   * Beaver, the bassoons: an orange-brown beaver with a cream belly and muzzle, two white front
+   * teeth, and a broad flat tail. It has the studio body of the mesh of the user,
+   * `assets/models/beaver/beaver.glb`, which `pnpm rig-mesh beaver` rigs (design 4.4), with the
+   * size of the parametric beaver and the longer arms that the user chose
+   * (2026-10-19-mesh-beaver decisions). It plays a smaller bassoon, the largest at which each paw
+   * reaches its grip with 3 cm to spare. It has no chair, as the user chose: the round belly hides
+   * the short thighs, so it stands on its hind legs with bent knees, in the seated pose at the
+   * seat height of its legs. Its broad tail goes back and lies on the floor behind it, and it
+   * stands upright as a soloist. Its head height is the head of the studio body, and the seat
+   * height is the seat of the studio body, in H.
+   */
   beaver: {
-    ears: 'small',
-    snout: 'buck-teeth',
-    tail: 'flat',
-    size: 0.95,
+    body: 'studio-beaver',
+    size: 1,
     colors: SPECIES_COLORS.beaver,
     accentParts: ['tail'],
-    facePattern: 'none',
+    bassoonScale: 0.8,
+    noChair: true,
+    proportions: {
+      headHeight: STUDIO_BEAVER.headHeight,
+      seatHeight: STUDIO_BEAVER.seatHeight / STUDIO_BEAVER.headHeight,
+    },
   },
   /**
    * Dog, the cellos: a beagle with brown ears and a brown back. It has the studio body of the mesh
