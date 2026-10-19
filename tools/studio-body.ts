@@ -107,6 +107,14 @@ export interface AnimalSettings {
    */
   readonly crease: number;
   /**
+   * The share of the normal of the head surface around each pea eye in the direction of the eye
+   * (design 4.4, 4.5). Each eye faces out from the middle of the head that shows, as an eye on the
+   * round head of a parametric body does, and this share turns it toward the surface. The eyes of
+   * the hippo sit on the top of its long head, and an eye that faced forward stood 6.5 cm out of
+   * its socket. 0 when it is not given.
+   */
+  readonly eyeNormal?: number;
+  /**
    * The GLB file of the body, relative to the repository, when the studio does not build it, such
    * as a mesh of the user that `pnpm rig-mesh` rigs (route 3 of `docs/agents/model-work.md`). With
    * no file, the body comes from `lowpoly-studio/animals/<animal>/out/<animal>.glb`.
@@ -1266,6 +1274,38 @@ export function eyeOnHead(mesh: SourceMesh, middle: Vector3): Vector3 {
   return point;
 }
 
+/**
+ * The reach of the faces around a pea eye whose normals turn it toward the head surface, in `H` of
+ * the eyes (`AnimalSettings.eyeNormal`).
+ */
+const EYE_NORMAL_REACH = 0.2;
+
+/**
+ * Finds the normal of the head surface around a point: the mean of the normals of the faces whose
+ * middles lie within a reach of the point, each with the weight of its area.
+ *
+ * @param mesh The welded mesh, with no faces of the old eyes.
+ * @param point The point, in the axes and the units of the studio.
+ * @param reach The reach, in the units of the studio.
+ * @returns The unit normal.
+ */
+function surfaceNormal(mesh: SourceMesh, point: Vector3, reach: number): Vector3 {
+  const sum = new Vector3();
+  const triangle = new Triangle();
+  const middle = new Vector3();
+  const normal = new Vector3();
+  for (const face of mesh.faces) {
+    const [a, b, c] = face.corners.map((k) => mesh.vertices[k]?.position);
+    if (a && b && c) {
+      triangle.set(a, b, c);
+      if (triangle.getMidpoint(middle).distanceTo(point) < reach) {
+        sum.addScaledVector(triangle.getNormal(normal), triangle.getArea());
+      }
+    }
+  }
+  return sum.normalize();
+}
+
 /** The step of the move of a pea eye out of the head, in `H` of the eyes ({@link eyePush}). */
 const EYE_PUSH_STEP = 0.001;
 
@@ -1913,14 +1953,24 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
 
   // Each pea eye bone lies in the head surface under the middle of the old eye, as the eye bones
   // of the parametric bodies do (`eyeMiddle()` of `models/eyes.ts`). Each eye faces out from the
-  // middle of the head that shows, as an eye on the round head of a parametric body does. Then it
-  // moves out along that direction until its front face shows (`eyePush()`).
+  // middle of the head that shows, as an eye on the round head of a parametric body does, or
+  // turns toward the head surface by `eyeNormal`. Then it moves out along that direction until
+  // its front face shows (`eyePush()`).
   const eyeHeight = (shown.max.y - shown.min.y) * scale;
   const middle = toBind(shown.getCenter(new Vector3()));
+  const share = settings.eyeNormal ?? 0;
   const eyeAt = (side: Side) => {
     const old = eyeCenter(side);
     const point = eyeOnHead(withoutEyes, old);
-    const facing = direction(point.clone().sub(middle));
+    const out = point.clone().sub(middle);
+    if (share > 0) {
+      const normal = surfaceNormal(withoutEyes, point, (EYE_NORMAL_REACH * eyeHeight) / scale);
+      out
+        .normalize()
+        .multiplyScalar(1 - share)
+        .addScaledVector(normal, share);
+    }
+    const facing = direction(out);
     const eye = eyeMiddle({ point: model(point), normal: facing }, eyeHeight, false);
     const near = withoutEyes.faces.flatMap((face) => {
       const [a, b, c] = face.corners.map((k) => mesh.vertices[k]?.position ?? new Vector3());
