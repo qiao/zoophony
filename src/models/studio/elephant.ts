@@ -6,7 +6,7 @@ import type { StudioBody } from '../studio-format.ts';
  */
 export const STUDIO_ELEPHANT = {
   source: 'assets/models/elephant/elephant.rig.glb',
-  sha256: 'bfa75d8fcdbf3a8faedd9ebeea9e94c189e2aa5f31d7c8a946cdd16559254d6a',
+  sha256: '06c17003eccea05c78d9d4880f505d25a5406e76b7745cc8e6b0e7b5b09a572f',
   scale: 1.928334,
   heads: {
     root: [0, -0.037607, -0.43635],
@@ -128,5 +128,9 @@ export const STUDIO_ELEPHANT = {
       turn: [-0.602315, -0.308808, -0.229806, 0.699317],
       fade: [0.174533, 0.349066],
     },
+  ],
+  caps: [
+    132, 166, 167, 168, 176, 177, 180, 333, 334, 335, 336, 378, 837, 838, 839, 840, 878, 1660, 1661,
+    1665, 1669, 1670, 1671, 1672, 1673,
   ],
 } satisfies StudioBody;
