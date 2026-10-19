@@ -24,7 +24,7 @@ fox together.
 | dog | the mesh `assets/models/dog/dog.glb`, rigged by `pnpm rig-mesh dog` | `2026-10-17-mesh-dog.md` | `cellist` |
 | panda | the mesh `assets/models/panda/panda.glb`, rigged by `pnpm rig-mesh panda` | `2026-10-18-mesh-panda.md` | `trombonist` |
 | hippo | the mesh `assets/models/hippo/hippo.glb`, rigged by `pnpm rig-mesh hippo`, standing at the contrabass | `2026-10-18-mesh-hippo.md` | `bassist` |
-| mouse | the mesh `assets/models/mouse/mouse.glb`, rigged by `pnpm rig-mesh mouse` at the size of the parametric mouse, with a long tail of two bones on the floor and a smaller oboe | `2026-10-19-mesh-mouse.md` | `oboist` |
+| mouse | the mesh `assets/models/mouse/mouse.glb`, rigged by `pnpm rig-mesh mouse` at the size of the parametric mouse, with a long tail of two bones on the floor, a smaller oboe, and no chair (`noChair`) | `2026-10-19-mesh-mouse.md` | `oboist` |
 | elephant | the mesh `assets/models/elephant/elephant.glb`, rigged by `pnpm rig-mesh elephant`, standing at the timpani, with the trunk on the head | `2026-10-19-mesh-elephant.md` | `timpanist` |
 | penguin | an egg body in code, `src/models/penguin/` (route 2) | `2026-10-11-penguin-body.md` | none |
 
@@ -136,7 +136,8 @@ code.
      to its reference crops (`docs/research/2026-10-14-rabbit-smooth.md`). When each render has
      less contrast than the references, compare the play frames;
    - the mark of a seated role: the export drops it onto its seat, which fits its legs, with the
-     depth of the chair of the studio. A wide haunch takes a wider chair (`seatWidth`);
+     depth of the chair of the studio. A wide haunch takes a wider chair (`seatWidth`). A small
+     body can keep its seated pose with no chair (`SpeciesParams.noChair`);
    - `soloist` for a seated role that also stands: the export keeps its leg shapes and leg turns.
 2. Run `pnpm studio-body <animal>` after each change of the GLB file. Add the module to
    `STUDIO_BODIES`, and give the species the body.
