@@ -41,6 +41,12 @@ export interface PercussionHold {
   /** The directions to which the elbows point. */
   readonly poleL: Vec3;
   readonly poleR: Vec3;
+  /**
+   * The place from which a mallet points to its target, from the shoulder joint of its side, in
+   * head heights `H`. Thus the wrist stays in front of the body and below the shoulder, and the
+   * mallet slants down.
+   */
+  readonly home: Vec3;
 }
 
 /**
@@ -49,6 +55,9 @@ export interface PercussionHold {
  */
 const POLE_L: Vec3 = [-1, -1, 0.3];
 const POLE_R: Vec3 = [1, -1, 0.3];
+
+/** The place from which a mallet points to its target in most holds (`PercussionHold.home`). */
+const MALLET_HOME: Vec3 = [0, -0.2, -0.75];
 
 /** The holds of the percussion instruments. */
 export const PERCUSSION_HOLDS = {
@@ -61,6 +70,7 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0.05, 0, 0],
     poleL: POLE_L,
     poleR: POLE_R,
+    home: MALLET_HOME,
   },
   'bass-drum': {
     hands: 'right',
@@ -69,6 +79,7 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0, 0, 0],
     poleL: POLE_L,
     poleR: [0.5, -1, 0.25],
+    home: MALLET_HOME,
   },
   'snare-drum': {
     hands: 'alternate',
@@ -77,6 +88,7 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0.04, 0, 0],
     poleL: [-0.6, -1, 0.3],
     poleR: [0.6, -1, 0.3],
+    home: MALLET_HOME,
   },
   // The lift is the half of the gap between the inner faces of the two cymbals.
   cymbals: {
@@ -86,6 +98,7 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0, 0, 0],
     poleL: POLE_L,
     poleR: POLE_R,
+    home: MALLET_HOME,
   },
   // The left hand holds the triangle up, and its elbow points out to the left.
   'small-percussion': {
@@ -95,6 +108,7 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0, 0, 0],
     poleL: [-1, -0.5, 0.3],
     poleR: POLE_R,
+    home: MALLET_HOME,
   },
   xylophone: {
     hands: 'alternate',
@@ -103,16 +117,14 @@ export const PERCUSSION_HOLDS = {
     offsetR: [0, 0, 0],
     poleL: [-0.8, -1, 0.3],
     poleR: [0.8, -1, 0.3],
+    home: MALLET_HOME,
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
 
 /** The places of the hands of a percussion player, in head heights `H` (design 5.3). */
 export const PERCUSSION_PLACES = {
-  /**
-   * A mallet points from this place to its target, from the shoulder joint of its side. Thus the
-   * wrist stays in front of the body and below the shoulder, and the mallet slants down.
-   */
-  malletHome: [0, -0.2, -0.75],
+  /** The place from which a mallet points to its target in most holds (`PercussionHold.home`). */
+  malletHome: MALLET_HOME,
   /** The cymbals meet here, from the middle of the two shoulder joints. */
   crash: [0, -0.09, -1.1],
   /** The clip of the triangle in the left hand, from the left shoulder joint. */
@@ -152,7 +164,7 @@ export type PercussionSide =
       readonly arm: ArmRig;
       /** The head of the mallet in the bind pose. */
       readonly head: Vec3;
-      /** The place from which the mallet points to its target (`PERCUSSION_PLACES.malletHome`). */
+      /** The place from which the mallet points to its target (`PercussionHold.home`). */
       readonly home: Vec3;
     }
   | {
@@ -296,7 +308,7 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
       model,
       findTarget(model, (t) => t.kind === 'mallet-head' && t.bone === bone),
     ).point,
-    home: toVec3(fromShoulder(arm, PERCUSSION_PLACES.malletHome)),
+    home: toVec3(fromShoulder(arm, hold.home)),
   });
   const targets = new Map<number, StrikeTarget>();
   const heads = model.instrument.targets.filter((t) => t.kind === 'head');
