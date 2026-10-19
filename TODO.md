@@ -532,11 +532,13 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-19-mesh-elephant.md`).
 - [ ] Remove the unused code of the `trunk` snout with its tusks and of the `large-flap` ears: no
       species has them since the elephant mesh (`2026-10-19-mesh-elephant.md`).
-- [ ] Beaver bassoonist: three faces of the left arm fold in each play sample: the thin faces 380
-      of the chest and 706 of the left shoulder, and face 1246 of the inner left elbow, and eight
-      faces fold in the rest. A shape of the left arm relaxed them but left faces 427, 428, and
-      709 of the front of the left shoulder turned over (`fold-probe-bassoonist.txt` of
+- [x] Beaver bassoonist: three faces of the left arm folded in each play sample. A cut of both
+      armpits and one shape of the left arm remove each play fold (`arm-cut.txt` of
       `docs/research/2026-10-19-beaver-mesh/`, `2026-10-19-mesh-beaver.md`).
+- [ ] Beaver bassoonist: three faces of the left wrist, forearm, and shoulder top fold in each
+      rest sample and in 13% of the lift samples. In the lift and the rest, a dark slot with a
+      thin dark wedge shows at the cap of the cut under the left arm (`fold-probe-arm.txt` and
+      `arm-cut-left.webp` of `docs/research/2026-10-19-beaver-mesh/`).
 - [ ] Beaver colors: the mesh keeps the orange-brown fur of its texture (Oklab hue 55°, chroma
       0.096). The tone rule of the hippo, the mouse, and the elephant would give the plain fur the
       chroma 0.060 of `SPECIES_COLORS.beaver`. Show the user the close views, and ask
