@@ -17,3 +17,4 @@ reverse each decision. Then update its section, and remove its row.
 | The reed goes 0.23 H in place of 0.14 H behind the mouth of the bind pose, about half of the reed, 1.0 cm into the head (`lipShift`). The angle stays 40°, and the elbows keep their directions, which gave the smallest arm turns. | 5.3 |
 | At rest, the oboe is 0.04 H lower and 0.02 H further forward than with the rest of `WIND_HOLDS.oboe`. The lift then folded in fewer samples (12.9% against 16.1%), and the right paw keeps 3.3 cm to spare (`restShift` of `MOUSE_OBOE`). | 5.2 |
 | The rest shape of the left arm takes the mean turns of the new rest (`raise` of the rig config). The play, the rest, and the lift fold in no sample (`fold-probe-oboist.txt`). | 4.4 |
+| The tail loop lies about 0.31 m behind the chair, and the footprint is 0.764 m deep. The stages of the demos with oboes are 2.1% to 6.3% smaller than on `main` (`rig-check.txt`). | 4.4 |
