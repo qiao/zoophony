@@ -23,3 +23,5 @@ measures. The user can reverse each decision. Then update its section, and remov
 | The tool round also cuts `docs/agents/model-traps.md` to its limit of about 3,000 words. | 9.8 |
 | The manager wrote three rules directly: a sweep keeps its modules unchanged while it runs (`docs/agents/workflow.md`), the brief gives the pixel heights of the species and of an anchor, and the first hold fit compares 3 or 4 elbow directions (`docs/briefs/studio-body.md`, section 7). | 9.8 |
 | A floor option of `studio.tailBind` waits for the monkey mesh. Only the mouse has a long tail on the floor, and the item saved about 15 minutes. | 4.4 |
+| `pnpm raise-fit` proposes a fade from 10° (or the angle of 90% of the folded samples) to 10° later, the fade of the four arm rules. An arm rule gets no `turns.hand`, and the tool prints it (`tools/raise-fit.ts`). | 9.8 |
+| `pnpm fold-probe --faces` gets the source middles from a 2 s run of the rig script, so each module keeps its bytes (`face_sources()` of `tools/blender/rig_mesh.py`). | 9.8 |

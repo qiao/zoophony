@@ -190,8 +190,10 @@ of route 3 follow.
    reach misses the target by more than 1%.
 3. Look at the seated bind, the standing body, the knees, and the main bones with
    `--check --preview <dir>`. Before a change of a weight rule, read the weights of the faces that
-   fold with `pnpm fold-probe <role> --faces <n>`. Try each variant with
-   `--check --set <path>=<value>`.
+   fold with `pnpm fold-probe <role> --faces <n>`. Its column of the source middles gives the
+   points of `weights.rigid`. Fit each corrective shape with
+   `pnpm raise-fit <role> --faces <list> --side <side>`, and copy its entry into `raise`. Try
+   each variant with `--check --set <path>=<value>`.
 4. Run `--check` after each change of the config or the script, and before the first docs commit.
    The triangles stay in the budget, the packed mesh in its gzip budget, and the standing body
    within 1 mm of the long-armed source. Read the seat, the violin rule, the folds, and the lowest
