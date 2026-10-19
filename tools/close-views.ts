@@ -1126,12 +1126,14 @@ export function namedItem<T extends { readonly name: string }>(
  * the sides are low (3°), so that the knees, the seat, and the soles show from the side. The
  * views from the front and the back are a little higher (10°), so that the lap shows. `side` and
  * `front35` are the views of the probe `views.ts` of the round of the seats
- * (`docs/research/2026-10-16-seat-rest/`). `above35` looks down 35° from the front, as the
- * default view of the stage looks down at the players that face it.
+ * (`docs/research/2026-10-16-seat-rest/`). `front60` is the view of the check of the face of a
+ * mesh of the user from the front and at 60° (`docs/agents/model-traps.md`). `above35` looks down
+ * 35° from the front, as the default view of the stage looks down at the players that face it.
  */
 export const SPECIES_VIEWS: readonly CloseViewAngle[] = [
   { name: 'front', azimuth: 0, elevation: 10 },
   { name: 'front35', azimuth: 35, elevation: 10 },
+  { name: 'front60', azimuth: 60, elevation: 10 },
   { name: 'left', azimuth: -90, elevation: 3 },
   { name: 'side', azimuth: 90, elevation: 3 },
   { name: 'back', azimuth: 180, elevation: 10 },
