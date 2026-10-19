@@ -106,9 +106,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
   clavicle. Read the corner weights of the most folded faces (`pnpm fold-probe --faces`) before a
   ring or a smoothing. On the fox, `clavicleFrom` and `armTop` helped, and a smoothing folded more
   faces.
-- A mesh of an image model has many thin faces, and a thin face with corners of different weights
-  turns over at a bent joint. The `sliver`, `line`, and `rigid` rules remove some folds (the source
-  middles of `pnpm fold-probe --faces` give the points of `rigid`).
+- An image mesh has many thin faces, and a thin face with corners of different weights turns over at
+  a bent joint. The `sliver` and `line` rules remove some folds, and `weights.rigid` gives a single
+  thin face across a joint the mean of its weights (the source middles of `pnpm fold-probe --faces`
+  give its points). A body has at most four shapes of `raise` (`RAISE_LIMIT`), so keep them for the
+  play.
 - A raised arm pulls the skin where a hanging arm touches the trunk into long dark faces under the
   armpit. A fade of the arm weight, a corrective shape, a split, or a move of the vertices keeps
   them dark or folds them. When short faces join a hanging forearm to the trunk, or thin faces
@@ -145,8 +147,6 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The pose of a rule in Blender turns over fewer faces than the app at the same turn. Turn the rule
   further on the same axis, as `pnpm raise-fit --bone hand` does, and read the folded face-samples
   in the line of the main bones of `pnpm rig-mesh --check`.
-- A body has at most four shapes of `raise` (`RAISE_LIMIT`). Give a single thin face across a joint
-  the mean of its weights (`weights.rigid`), and keep the shapes for the play.
 - A shape fixes only the poses near its rule, for the arm turns of one hold. `pnpm rig-mesh --check`
   counts the folds with the hold of the working tree, so fit the hold first, or fit both in one loop
   with `--hold <changes>`. A rule whose line `raise <target>` in the rig log keeps turned faces
