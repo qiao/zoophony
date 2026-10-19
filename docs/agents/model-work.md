@@ -151,7 +151,8 @@ code.
 
    Then tune with the probes of [`commands.md`](commands.md): `pnpm hold-fit <role> --set` for
    each variant, `pnpm hold-reach <species>` for a violin, a viola, or a wind instrument, and
-   `pnpm pose-depth <role>` when the arms, the paws, the instrument, or the body move. Add
+   `pnpm pose-depth <role>` when the arms, the paws, the instrument, or the body move. Scan the
+   reach of the note targets with `pnpm pose-depth <role> --targets --set <changes>` first. Add
    `--gaps` near the head or the paws. Run `pnpm body-probe --base main` after a change of shared
    pose or model code: the poses of the other players do not change.
 4. Run `pnpm snapshot`. Record the measures in a research report and the decisions in a decision
