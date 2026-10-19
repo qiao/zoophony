@@ -205,8 +205,8 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
   trunk give the border of a black region teeth, and a raised arm stretches them into black
   wedges. List the faces with a third to a half of dark samples (`marks.py` of
   `docs/research/2026-10-18-panda-marks/`), and make them light with `colors.border`.
-- With no gloss nose, the export takes the front-most fur vertex of the head as the nose tip, a
-  whisker tip on the mouse. Give a mesh with whiskers a nose box.
+- With no gloss nose, the export takes the front-most fur vertex of the head near the middle plane
+  as the nose tip (`NOSE_PLANE`). Read the warning of a tip off the plane in the rig check.
 - The export takes each gloss shell out of the middle plane as an eye. Gloss nostrils with no nose
   pad, as on the hippo, became eyes. Give such a mesh no `noseBox`.
 - An eye in a dark patch has almost the color of the patch, so a dark rule cannot split them. A

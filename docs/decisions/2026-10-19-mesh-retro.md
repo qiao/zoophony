@@ -25,3 +25,4 @@ measures. The user can reverse each decision. Then update its section, and remov
 | A floor option of `studio.tailBind` waits for the monkey mesh. Only the mouse has a long tail on the floor, and the item saved about 15 minutes. | 4.4 |
 | `pnpm raise-fit` proposes a fade from 10° (or the angle of 90% of the folded samples) to 10° later, the fade of the four arm rules. An arm rule gets no `turns.hand`, and the tool prints it (`tools/raise-fit.ts`). | 9.8 |
 | `pnpm fold-probe --faces` gets the source middles from a 2 s run of the rig script, so each module keeps its bytes (`face_sources()` of `tools/blender/rig_mesh.py`). | 9.8 |
+| The tip of the nose comes from the vertices within 3 cm of the middle plane, and the checks warn from 2 cm. With 2 cm, the hippo tip (a nostril, 2.8 cm off) and its jaw moved (`NOSE_PLANE`, `NOSE_WARNING`). | 4.4 |

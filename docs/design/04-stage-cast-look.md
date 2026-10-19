@@ -354,9 +354,10 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
   mesh, and the app puts its pea eyes there on eye bones of their own, so that they blink (user,
   2026-10-15, `StudioBody.eyes`, `eyePush()`). It takes each gloss shell of the head out of the
   middle plane as an eye, so a mesh with two nostrils and no nose pad, as the hippo, has no gloss
-  nose, and the tip of its nose is the front of its muzzle. A mesh with whiskers needs a gloss
-  nose (`colors.noseBox`), because the tip of a whisker is the front of its muzzle, as on the
-  mouse. The head measures (the head height `H`, the head center, and the box of the pea eyes)
+  nose, and the tip of its nose is the front of its muzzle. The tip comes only from the vertices
+  near the middle plane (`NOSE_PLANE`), because the tip of a whisker of the mouse is the front of
+  its head. `pnpm rig-mesh --check` and `pnpm mesh-options` warn when the tip and the mouth lie
+  off the middle plane (`noseWarning()`). The head measures (the head height `H`, the head center, and the box of the pea eyes)
   leave out a long nose below the chin, as the trunk of the elephant (`headFloor` of `ANIMALS`),
   because the holds in `H` start at the head.
 - **Mesh rig.** `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format
