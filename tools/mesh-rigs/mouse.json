@@ -6,7 +6,7 @@
   "app": {
     "shoulders": 0.98156,
     "reach": 0.6289,
-    "note": "The head height of the red fox, the size that the user chose for the cat, the dog, the panda, and the hippo. No reference image shows a mouse (docs/research/2026-10-19-mouse-mesh/reference-heads.md), so the size of the reference does not apply. The scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9485 u) at 1.570 m, 1.655245 m for each unit, with the standing shoulder joints at 0.98156 m (the entry of the mouse in ANIMALS). The ear tips stand at 1.655 m. The parametric mouse of main stood 0.812 m high to the head top (size 0.75). The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "note": "The head height of the red fox, the size that the user chose for the cat, the dog, the panda, and the hippo. No reference image shows a mouse (docs/research/2026-10-19-mouse-mesh.md), so the size of the reference does not apply. The scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9485 u) at 1.570 m, 1.655245 m for each unit, with the standing shoulder joints at 0.98156 m (the entry of the mouse in ANIMALS). The ear tips stand at 1.655 m. The parametric mouse of main stood 0.812 m high to the head top (size 0.75). The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
   "armFactor": 1.4,
   "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short: 0.460 m from the shoulder joint to the middle of the palm with no factor, 0.67 of the trunk from the hips joint to the shoulder joints, and the paws miss the grips of the oboe hold of main by 0.29 m (left) and 0.19 m (right) (docs/research/2026-10-19-mouse-mesh/options.md). With 1.4, the reach is 0.629 m, and the arm is 0.91 of the trunk, as the red fox (0.91), the dog (0.92), the panda, and the hippo (0.94). The user called the arms of the dog with the factor 1.75 much too long, so the oboe hold of the mouse brings the oboe to the arms (SPECIES_WIND_HOLDS.mouse of src/pose/winds.ts).",
@@ -474,5 +474,79 @@
     "end": 0.0065,
     "most": 0.03,
     "note": "The values of the panda and the hippo. 157 vertices of the haunch move down, at most 0.03 u, and the side view of the underside behind the hip joints is at most 4.34 cm above the seat top."
-  }
+  },
+  "raise": [
+    {
+      "side": "R",
+      "turns": {
+        "clavicle": [
+          0,
+          0.1736,
+          0,
+          0.9848
+        ],
+        "upper_arm": [
+          0.2744,
+          0.3262,
+          -0.5071,
+          0.7491
+        ],
+        "forearm": [
+          0.049,
+          -0.0277,
+          0.0637,
+          0.9964
+        ],
+        "hand": [
+          0.2834,
+          -0.5591,
+          -0.7602,
+          -0.1709
+        ]
+      },
+      "fade": [
+        10,
+        20
+      ],
+      "below": 0.0,
+      "grow": 2,
+      "note": "The shape of the right arm on the oboe, with the mean turns of the play samples of the hold of 2026-10-19 (keys-dump.ts and keys-read.ts of docs/research/2026-10-19-mouse-mesh/): the clavicle turns 20 degrees forward, as the reach of the oboe hold, the upper arm 83 degrees from the bind, the elbow 10 degrees, and the paw 160 degrees. Seven thin faces of the right shoulder, armpit, forearm, and paw folded in each play sample: a vertex of the forearm takes a part of the paw weight by the line rule, and long thin faces join the trunk to the upper arm. In the pose of the rule, they turn over and relax in 4 rounds, with 2 rings of neighbors (grow). A second shape of the bent wrist (bone hand) turned 6 other faces over."
+    },
+    {
+      "side": "L",
+      "turns": {
+        "clavicle": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "upper_arm": [
+          0.1432,
+          -0.37,
+          0.2611,
+          0.88
+        ],
+        "forearm": [
+          -0.0338,
+          -0.0191,
+          0.044,
+          0.9983
+        ],
+        "hand": [
+          -0.3429,
+          -0.4999,
+          -0.7529,
+          0.2563
+        ]
+      },
+      "fade": [
+        10,
+        20
+      ],
+      "below": 0.0,
+      "grow": 2,
+      "note": "The shape of the left arm on the oboe, with the mean turns of the rest samples: the upper arm 57 degrees from the bind, the elbow 7 degrees, and the paw 150 degrees. The left upper arm turns nearly the same in the play (56 degrees), so the shape covers both. One face of the left upper arm folded in each sample, and two faces of the left forearm in the rest. They turn over and relax in 1 round. A shape at the mean turns of the play relaxed only the face of the upper arm."
+    }
+  ]
 }
