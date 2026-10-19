@@ -137,9 +137,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A face that folds in one region of the arm poses needs a corrective shape (`raise`) when no weight
   rule or ring removes the fold. Fit it with `pnpm raise-fit <role> --faces <list> --side <side>`. A
   rule that relaxes more faces (`raise.below`) folds more play samples.
-- A grip far in front of a deep chest can turn the upper arm about 70° at the shoulder, so the front
-  of the shoulder folds past the clavicle, and no shape of `raise` relaxes it. Turn the shoulder
-  bone forward with the arm (`WindHold.reachL`), and scan the turn with `pnpm hold-fit --grid`
+- A grip far in front of a deep chest can turn the upper arm about 70° at the shoulder, so the
+  shoulder front folds past the clavicle, and no shape of `raise` relaxes it. Turn the shoulder bone
+  forward with the arm (`WindHold.reachL`), and scan the turn with `pnpm hold-fit --grid`
   (`docs/research/2026-10-18-panda-folds.md`).
 - A face across a joint folds by the turn of the two bones of that joint. Fit the rule on the key of
   that joint: the upper arm, the forearm from the upper arm (`--bone forearm` of `pnpm raise-fit`),
@@ -153,15 +153,14 @@ group of your work before you plan it. A probe that a trap names is in its resea
   after the relax fixes few samples.
 - The shape of a raised arm relaxes only the clavicle and the upper arm. `raise.grow` adds rings of
   trunk corners for a long face from the trunk under the armpit (`pnpm raise-fit --sets rest`). Keep
-  the fade away from the turns of the play.
-- A shorter neck (`neckFactor`) moves the top of the shoulder down, and the shape of a raised arm
-  can turn its faces over. Keep the count of the line `raise R` of the rig log at 0 (`raise.below`,
-  `raise.fade`). An instrument that hangs from the head center goes down with the head, so fit its
-  play place again.
-- A turn of the trunk in the seated bind (`studio.trunk`) gives the standing body two blends. The
-  export writes the arm turns of the clip (`StudioStanding.armTurns`), and
-  `standingArmCorrectives()` solves the arm shapes again. `pnpm rig-mesh --check` prints the worst
-  standing vertex.
+  the fade away from the play turns.
+- A shorter neck (`neckFactor`) moves the shoulder top down, and the shape of a raised arm can turn
+  its faces over. Keep the count of the rig log line `raise R` at 0 (`raise.below`, `raise.fade`).
+  An instrument that hangs from the head center goes down with the head, so fit its play place
+  again.
+- A trunk turn in the seated bind (`studio.trunk`) gives the standing body two blends. The export
+  writes the clip arm turns (`StudioStanding.armTurns`), and `standingArmCorrectives()` solves the
+  arm shapes again. `pnpm rig-mesh --check` prints the worst standing vertex.
 
 ## Form, seat, and tail
 
