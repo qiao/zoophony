@@ -4,6 +4,8 @@ import { BOWED_HOLDS, SPECIES_HOLDS } from '../src/pose/bowed-rig.ts';
 import type { BowVia, BowedHold } from '../src/pose/bowed-rig.ts';
 import { CONDUCTOR_HOLD, LEFT_HAND_PLACES } from '../src/pose/conductor.ts';
 import { TIMPANI } from '../src/models/instruments/percussion.ts';
+import { SPECIES, isSpeciesId } from '../src/models/species.ts';
+import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import { HANDS_HOLDS } from '../src/pose/hands.ts';
 import type { HandAction } from '../src/pose/hand-notes.ts';
 import { PERCUSSION_HOLDS, PERCUSSION_PLACES } from '../src/pose/percussion-rig.ts';
@@ -372,6 +374,56 @@ export interface HoldChanges {
 export const HOLD_NAMES = Object.keys(HOLDS);
 
 /**
+ * The scales of the instruments of a species that `--set` can change, with the id of the species
+ * as the root, such as `mouse.oboeScale=0.8` (`SpeciesParams`, design 4.6). The tools build the
+ * players after the change, so the instrument, its grips, and its shells follow the scale.
+ */
+export const SCALE_KEYS = [
+  'violinScale',
+  'celloScale',
+  'bassScale',
+  'oboeScale',
+] as const satisfies readonly (keyof SpeciesParams)[];
+
+/**
+ * Changes the scale of an instrument of a species in memory, such as `mouse.oboeScale=0.8`. A
+ * scale that the species does not give is 1, and the undo removes it again.
+ *
+ * @param species The species, the root of the path.
+ * @param keys The keys after the root: one key of {@link SCALE_KEYS}.
+ * @param text The new scale.
+ * @returns The change.
+ * @throws Error if the path names no scale, or if the scale is not a number above 0.
+ */
+function setScale(species: SpeciesId, keys: readonly string[], text: string): HoldChange {
+  const path = [species, ...keys].join('.');
+  const key = SCALE_KEYS.find((k) => keys.length === 1 && k === keys[0]);
+  if (key === undefined) {
+    throw new Error(`The path ${path} names no scale. A species takes ${SCALE_KEYS.join(', ')}.`);
+  }
+  const value = parseNumber(text, path);
+  if (!(value > 0)) {
+    throw new Error(`The scale ${path} must be above 0, and the value is "${text}".`);
+  }
+  const params: SpeciesParams = SPECIES[species];
+  const had = Object.hasOwn(params, key);
+  const old = params[key];
+  Reflect.set(params, key, value);
+  return {
+    undo: () => {
+      if (had) {
+        Reflect.set(params, key, old);
+      } else {
+        Reflect.deleteProperty(params, key);
+      }
+    },
+    before: String(old ?? 1),
+    after: String(value),
+    also: [],
+  };
+}
+
+/**
  * Parses one number of a `--set` value. A number with the unit `deg` is an angle in degrees, and
  * the hold gets it in radians.
  *
@@ -484,7 +536,8 @@ function copyPath(hold: object, keys: readonly string[]): PathCopy {
  * `<instrument>@<species>`, first copies each object on its path ({@link copyPath}), so that it
  * changes only that species. A change with the root of an instrument, such as
  * `violin.restBow.lap.along`, changes the shared object, and gives the other paths that it moves
- * too, such as `viola.restBow.lap.along`.
+ * too, such as `viola.restBow.lap.along`. A path with the id of a species as the root changes a
+ * scale of an instrument of the species ({@link setScale}), such as `mouse.oboeScale=0.8`.
  *
  * @param change The change, as `<path>=<value>`.
  * @returns A function that puts the old value back, the texts of the old and the new value, and
@@ -499,10 +552,13 @@ export function setHold(change: string): HoldChange {
   const path = change.slice(0, equals);
   const text = change.slice(equals + 1);
   const [first = '', ...keys] = path.split('.');
+  if (isSpeciesId(first)) {
+    return setScale(first, keys, text);
+  }
   const hold = entryOf(HOLDS, first)?.[1];
   if (!(hold instanceof Object) || keys.length === 0) {
     throw new Error(
-      `The path ${path} names no hold value. The holds are ${HOLD_NAMES.join(', ')}.`,
+      `The path ${path} names no hold value. The holds are ${HOLD_NAMES.join(', ')}, and a species takes ${SCALE_KEYS.join(', ')}.`,
     );
   }
 
