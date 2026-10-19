@@ -456,6 +456,21 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Hippo face: the brow ridge of the mesh shades a crease above each pea eye, which can read
       stern in a close front view. Show the user the face, and offer a face rule
       (`2026-10-18-mesh-hippo.md`).
+- [ ] Mouse oboist: the lift folds in 45 of its 341 samples (13.2%), by a face of the left arm and
+      one of the neck. A raise rule at the turns of the middle of the lift can remove them
+      (`docs/research/2026-10-19-mouse-mesh/fold-probe-oboist.txt`, `2026-10-19-mesh-mouse.md`).
+- [ ] Mouse oboist: the paws hold the oboe at the height of the shoulders, higher than a real
+      oboist, because the big head puts the reed about 0.25 m above the shoulder joints. Show the
+      user the close views, and offer a bowed head while the mouse plays (`2026-10-19-mesh-mouse.md`).
+- [ ] Mouse oboe rest: a real oboist rests the oboe on the legs, but the round belly covers the
+      short thighs, so the rest of `WIND_HOLDS.oboe` stays in both paws in front of the body
+      (`docs/reference/wind-technique.md` 4.2, `2026-10-19-mesh-mouse.md`).
+- [ ] Mouse size: no reference image shows a mouse, so the mouse took the head height of the red
+      fox, about twice the parametric mouse (1.570 m against 0.812 m). Show the user the lineup and
+      the play frame, and ask for the size (`2026-10-19-mesh-mouse.md`).
+- [ ] Mouse tail: the loop of the long tail lies on the floor up to 0.6 m behind the chair, the
+      footprint is 1.418 m deep, and the stages of the demos with oboes grow up to 6.7%. Check the
+      tail between the rows of the stage with the user (`2026-10-19-mesh-mouse.md`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
