@@ -289,6 +289,13 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-18-panda-face.md`).
 - [ ] Condense design 1, 3, 7, and 8, which still hold dated history
       (`2026-10-17-design-condense.md`).
+- [ ] Snare drum and xylophone: no demo has them, so `pnpm hold-reach` and `pnpm mesh-options`
+      measure no strike of these. Give the badger round a score with them
+      (`2026-10-19-mesh-retro.md`).
+- [ ] Hippo nose: the tip lies on a nostril 2.8 cm from the middle plane, and the rig checks warn.
+      A tip on the plane moves the jaw of the rig 3.0 cm up (`2026-10-19-mesh-retro.md`).
+- [ ] Brief template: `docs/briefs/studio-body.md` has 2,625 words, above its limit of about
+      2,500 (2,611 before the mesh retro). Cut it in a prose pass.
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
