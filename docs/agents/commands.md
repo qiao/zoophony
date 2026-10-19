@@ -13,8 +13,9 @@ prints only a one-line usage text.
   as `piano.lean=16deg`. The root `<instrument>@<species>` changes the own hold of one species
   (`SPECIES_HOLDS` of `pose/bowed-rig.ts`, `SPECIES_WIND_HOLDS` of `pose/winds.ts`), such as
   `violin@rabbit.lean=12deg`. The root of an instrument (`violin`) changes the hold that the
-  species share, and the tool names the other paths that move with it. An object, a list, or
-  `null` takes JSON text with the keys of the old value. An unknown key stops the run. Code:
+  species share, and the tool names the other paths that move with it. A text takes a member
+  of the union of its field, such as `timpani.hands=sides`. An object, a list, or `null` takes
+  JSON text with the keys of the old value. An unknown key stops the run. Code:
   `tools/hold-sets.ts`.
 - **`--base <ref>`.** Runs a commit, a branch, or a tag beside the working tree, each in a child
   process with its own tools (`probeBeside()` of `tools/ref-tree.ts`), and prints a compare. A
