@@ -11,7 +11,9 @@ import type { HandAction } from '../src/pose/hand-notes.ts';
 import { PERCUSSION_HOLDS, PERCUSSION_PLACES } from '../src/pose/percussion-rig.ts';
 import type { HandsRule } from '../src/pose/percussion-rig.ts';
 import type { Fingering } from '../src/pose/wind-notes.ts';
-import { SPECIES_WIND_HOLDS } from '../src/pose/winds.ts';
+import { IDENTITY } from '../src/models/tuples.ts';
+import type { Quat } from '../src/models/tuples.ts';
+import { SPECIES_WIND_HOLDS, holdTurn } from '../src/pose/winds.ts';
 import type { FreePaw } from '../src/pose/winds.ts';
 
 /**
@@ -291,20 +293,75 @@ function fitJson(old: HoldValue, value: HoldValue, path: string, field: string):
 }
 
 /**
+ * The text of a turn of a wind hold, `holdTurn(<x>,<z>)` or `holdTurn(<x>,<z>,<first turn>)`, with
+ * the turns in degrees, as `holdTurn()` of `src/pose/winds.ts` takes them.
+ */
+const TURN_TEXT = /^holdTurn\(\s*([^,()]+?)\s*,\s*([^,()]+?)\s*(?:,\s*(.+?)\s*)?\)$/;
+
+/**
+ * Parses the text of a turn of a wind hold, such as `holdTurn(20,20)` or
+ * `holdTurn(-16,-1,holdTurn(30,26))` ({@link TURN_TEXT}).
+ *
+ * @param text The text.
+ * @param path The path of the value, for the messages.
+ * @returns The turn, or `null` when the text does not start with `holdTurn(`.
+ * @throws Error if the text starts with `holdTurn(` and does not fit {@link TURN_TEXT}, or if a
+ *   turn is not a number.
+ */
+function parseTurn(text: string, path: string): Quat | null {
+  const trimmed = text.trim();
+  if (!trimmed.startsWith('holdTurn(')) {
+    return null;
+  }
+  const match = TURN_TEXT.exec(trimmed);
+  if (!match) {
+    throw new Error(
+      `The value "${text}" of ${path} is not holdTurn(<x>,<z>) or holdTurn(<x>,<z>,holdTurn(...)), with the turns in degrees.`,
+    );
+  }
+
+  const [, x = '', z = '', first] = match;
+  const degrees = (part: string): number => {
+    const value = Number(part);
+    if (part.trim() === '' || !Number.isFinite(value)) {
+      throw new Error(`The turn "${part}" of ${path} is not a number of degrees.`);
+    }
+    return value;
+  };
+  const inner = first === undefined ? IDENTITY : parseTurn(first, path);
+  if (!inner) {
+    throw new Error(`The first turn "${first ?? ''}" of ${path} is not holdTurn(<x>,<z>).`);
+  }
+  return holdTurn(degrees(x), degrees(z), inner);
+}
+
+/**
  * Parses the text of a `--set` for a value of a hold. A number takes a number, and a list of
- * numbers takes the numbers separated by commas, with the same count. A text takes a member of
- * the union of its field ({@link TEXT_FIELDS}), such as `timpani.hands=sides`. A value that is
- * `null`, an object, or another list takes JSON text, which fits the old value ({@link fitJson}).
+ * numbers takes the numbers separated by commas, with the same count, or a JSON list, such as
+ * `[-0.5,-1,-0.5]`. A turn of 4 numbers also takes `holdTurn(<x>,<z>)` in degrees
+ * ({@link parseTurn}). A text takes a member of the union of its field ({@link TEXT_FIELDS}),
+ * such as `timpani.hands=sides`. A value that is `null`, an object, or another list takes JSON
+ * text, which fits the old value ({@link fitJson}).
  *
  * @param old The old value.
- * @param text The text, such as `16deg`, `0,1,0`, or `{"tip":[0,1,0],"hair":[0,0,-1]}`.
+ * @param text The text, such as `16deg`, `0,1,0`, `[0,1,0]`, `holdTurn(20,20)`, or
+ *   `{"tip":[0,1,0],"hair":[0,0,-1]}`.
  * @param path The path of the value from the root of the hold, for the messages.
  * @param field The path of the value below the hold.
  * @returns The new value.
  * @throws Error if the text does not fit the old value.
  */
 function parseValue(old: HoldValue, text: string, path: string, field: string): HoldValue {
-  if (isHoldList(old) && old.every((item) => isNumber(item))) {
+  const turn = parseTurn(text, path);
+  if (turn) {
+    if (!isHoldList(old) || old.length !== 4 || !old.every((item) => isNumber(item))) {
+      throw new Error(
+        `holdTurn() gives a turn of 4 numbers, and ${path} is ${JSON.stringify(old)}.`,
+      );
+    }
+    return turn;
+  }
+  if (isHoldList(old) && old.every((item) => isNumber(item)) && !text.trim().startsWith('[')) {
     const value = text.split(',').map((part) => parseNumber(part, path));
     if (value.length !== old.length) {
       throw new Error(`${path} has ${old.length} numbers, and "${text}" has ${value.length}.`);
@@ -527,8 +584,10 @@ function copyPath(hold: object, keys: readonly string[]): PathCopy {
 /**
  * Changes one value of a hold in memory, such as `piano.lean=16deg` or
  * `piano.restL.lap.offset=-0.75,0.1,0`. The path names the keys from a hold of {@link HOLDS}. The
- * new value has the type of the old value: a number, a list of numbers of the same length, or a
- * text of the union of its field, such as `timpani.hands=sides` ({@link TEXT_FIELDS}). A
+ * new value has the type of the old value: a number, a list of numbers of the same length (also
+ * as a JSON list, such as `bassoon@beaver.poleL=[-0.5,-1,-0.5]`), a turn of a wind hold as
+ * `holdTurn(<x>,<z>)` ({@link parseTurn}), or a text of the union of its field, such as
+ * `timpani.hands=sides` ({@link TEXT_FIELDS}). A
  * value that is `null`, an object, or another list takes JSON text with the keys and the kinds of
  * the old value ({@link parseValue}), such as
  * `viola.restBow.via={"tip":[-0.3,0.3,-1],"hair":[0,-1,0],"reach":[0,0,-0.4]}`. A path below a
