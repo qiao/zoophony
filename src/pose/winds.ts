@@ -483,11 +483,65 @@ const BEAVER_BASSOON = {
   poleR: [0.5, -1, -0.5],
 } as const satisfies WindHold;
 
+/** The turns of the horn of the pig around the mouthpiece, relative to the chest (design 5.3). */
+interface HornTurns {
+  /** The turn of the right side, with the bell, forward around the vertical, in degrees. */
+  readonly right: number;
+  /** The turn of the lower end back toward the body, after `right`, in degrees. */
+  readonly back: number;
+  /** The turn of the lower end to the left, after `back`, in degrees. */
+  readonly left: number;
+}
+
+/** The turns of the horn of the pig in the playing pose and in the rest pose. */
+const PIG_TURNS = {
+  /** The playing pose: the bell at the right of the torso and in front of it. */
+  play: { right: 20, back: 40, left: 0 },
+  /** The rest pose: the horn lower and further forward, on the belly over the lap. */
+  rest: { right: 20, back: 40, left: 15 },
+} as const satisfies Readonly<Record<'play' | 'rest', HornTurns>>;
+
 /**
- * The horn hold of the pig (design 5.3). It starts as the horn hold of {@link WIND_HOLDS}.
+ * Gives the rotation of the `instrument` bone of the horn of the pig from its turns.
+ *
+ * @param turns The turns of {@link PIG_TURNS}.
+ * @returns The rotation, relative to the chest.
+ */
+function pigTurn(turns: HornTurns): Quat {
+  return toQuat(
+    new Quaternion()
+      .setFromAxisAngle(Y_AXIS, turns.right * MathUtils.DEG2RAD)
+      .multiply(new Quaternion(...holdTurn(-turns.back, -turns.left))),
+  );
+}
+
+/**
+ * The horn hold of the pig (design 5.3), the hold of a real hornist (decisions
+ * `2026-10-19-mesh-pig.md`, `docs/reference/wind-technique.md` 2.2): the left paw on the valves at
+ * the middle of the body, the right paw in the bell, and the horn across the body from the mouth to
+ * the bell at the right of the torso and in front of it. The long snout puts the mouthpiece
+ * 0.29 m in front of the shoulder joints, so with the hold of {@link WIND_HOLDS} the left grip
+ * was 0.507 m from the left shoulder joint, beyond the arm of 0.385 m. The horn turns its lower end
+ * 40° back toward the body and its right side 20° forward ({@link PIG_TURNS}). The left shoulder
+ * turns 26° forward, as the shoulder blade of a real player slides forward. The left paw then has
+ * 8.0 cm to spare, and the right paw 8.8 cm (`pnpm hold-reach pig --instrument horn`).
+ *
+ * The left elbow points out, forward, and a little down, and the right elbow out and down. Of the
+ * left elbow directions, (-0.5, -1, -0.5) turned the arm least, but put the left forearm 6 cm into
+ * the chest. At rest, the horn comes down 0.2 H and 0.2 H forward onto the round belly, which covers
+ * the short thighs, with the bell at the right of the belly beside the right haunch. A lower rest
+ * put the right forearm 2.3 cm to 5.4 cm into the belly (`docs/research/2026-10-19-pig-mesh.md`).
  */
 const PIG_HORN = {
   ...WIND_HOLDS.horn,
+  reachL: 26 * MathUtils.DEG2RAD,
+  play: pigTurn(PIG_TURNS.play),
+  poleL: [-1, -0.5, -1],
+  poleR: [1, -1, 0],
+  rest: pigTurn(PIG_TURNS.rest),
+  restShift: [0.05, -0.2, -0.2],
+  restPoleL: [-1, -0.5, -1],
+  restPoleR: [1, -0.3, 0.3],
 } as const satisfies WindHold;
 
 /**
