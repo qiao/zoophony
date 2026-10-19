@@ -422,10 +422,11 @@ export const SPECIES = {
    * `pnpm rig-mesh mouse` rigs (design 4.4), with the size of the parametric mouse and longer arms
    * (2026-10-19-mesh-mouse and 2026-10-19-mouse-size decisions). Its arms keep the factor of the
    * other meshes, so it plays a smaller oboe, the largest at which each paw reaches its grip with
-   * 3 cm to spare. It sits on a low chair that fits its short legs, its long
-   * tail goes back over the seat and lies on the floor behind the chair, and it stands as a
-   * soloist. Its head height is the head of the studio body, and the seat height is the seat of
-   * the studio body, in H.
+   * 3 cm to spare. It has no chair (2026-10-19-mouse-size decisions): the round belly hides the
+   * short thighs, so it stands on its hind legs with bent knees, in the seated pose at the seat
+   * height of its legs. Its long tail goes back and lies on the floor behind it, and it stands
+   * upright as a soloist. Its head height is the head of the studio body, and the seat height is
+   * the seat of the studio body, in H.
    */
   mouse: {
     body: 'studio-mouse',
@@ -433,6 +434,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.mouse,
     accentParts: ['inner-ears', 'nose'],
     oboeScale: 0.62,
+    noChair: true,
     proportions: {
       headHeight: STUDIO_MOUSE.headHeight,
       seatHeight: STUDIO_MOUSE.seatHeight / STUDIO_MOUSE.headHeight,
