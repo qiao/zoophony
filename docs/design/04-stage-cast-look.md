@@ -409,7 +409,13 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
     the forearm to the belly below a height and closes both holes with new faces, with no move of
     a vertex. The user chose it for the panda, and the caps of the belly take its white. The
     beaver, the hippo, and the elephant take the same cut under each armpit, where thin faces join
-    the upper arm to the chest and turn over in each pose.
+    the upper arm to the chest and turn over in each pose. The normals of the caps of the arm point
+    into the gap between the arm and the trunk, away from the light, so the caps show as a dark
+    slot at the armpit. With `cut.skinNormals`, the rig names these caps (`StudioBody.caps`), and
+    each corner of a cap takes the mean normal of the skin at its vertex (`studioNormals()`). The
+    caps of the body keep their own normals, because the normals of the skin turn the light caps
+    of the belly into dark wedges. The black arm caps of the panda stay dark with each normal, so
+    the panda keeps the normals of its faces.
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
     raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
