@@ -30,8 +30,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   instrument to the paws.
 - The arm factor of a reach follows the hold. Fit the hold with a first factor, measure the reach
   (`cello-reach.ts` of `docs/research/2026-10-17-dog-mesh/`), and rig the final factor once.
-- An arm factor far above the option text that the user chose goes back to the user before the
-  merge: the dog got 1.75 for "about 1.4x", and the user called the arms much too long.
+- An arm factor far above the option text that the user chose goes back to the user before the merge
+  (the dog got 1.75 for "about 1.4x").
 - A smaller body keeps its instrument in meters, so the old hold misses the grips. Scan the scale
   and the hold with `windReach()` first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`).
 - A reach measured in the places of another body misses the mouth of a big head. Measure
@@ -75,8 +75,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The sweep measures a part by its triangle corners, so the middle of a long box, such as a bow
   stick, can go into the body with no depth. The rest columns of `pnpm hold-fit` take a point at
   each 1 cm of the bow (`bowPoints()`).
-- A thick arm that crosses the front of a round body goes into the chest: the right upper arm of the
-  hippo went 10 cm in with the elbow back. Point the elbow out and forward.
+- A thick arm that crosses the front of a round body goes into the chest. Point the elbow out and
+  forward. A straight arm keeps its depths for each elbow pole, so turn the shoulder bone forward
+  (`BowedHold.reach`), and read the folds of the shoulder and the chest.
+- A depth that keeps one value over all variants is half the thickness of the obstacle, because the
+  part goes through it. Count the samples over the goal (`left-forearm.ts` of
+  `docs/research/2026-10-19-hippo-chest/arms/`).
 - The depth of an open part is false near its open edge, so the sweep measures in a closed part
   (`closedPart()` with the count of its open loops). Each open edge, such as a whisker or a cut to
   an arm, opens a loop: give the role its own count, and check that each extra loop is small.
