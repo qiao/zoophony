@@ -269,7 +269,7 @@ function record(face: number, play: number, middle: FaceRecord['middle'] = [0, 0
  */
 function folds(topology: string, faces: FaceRecord[]): FaceJson {
   const set = { samples: 100, withFold: 0, most: 0, split: { L: 0, R: 0, other: 0 } };
-  return { sets: { rest: set, play: set, lift: set }, topology, faces };
+  return { sets: { rest: set, play: set, lift: set }, topology, faces, middles: {} };
 }
 
 describe('sameFaces', () => {

@@ -11,7 +11,9 @@
  * ({@link sourceMiddles}). A table of their corners in the worst fold of each face
  * follows: the places in the bind pose and in the posed skin, the moves of the corrective shapes,
  * and the weights. With `--json <file>`, it also writes the counts of each sample set into the
- * file for `pnpm rig-mesh --check`. With `--turns <face>`, it also prints the mean turn of the
+ * file for `pnpm rig-mesh --check`, and `--middles <faces>` adds the middle of each named face to
+ * the file, so that `--watch` of the check pairs the faces of a rig with other corners. With
+ * `--turns <face>`, it also prints the mean turn of the
  * upper arm of the side of the face in the axes of the chest in the samples in which the face
  * folds, and the share of the samples with a fold by the angle from that turn. Each `--set` changes
  * the holds in memory, as `pnpm pose-depth --set` does, so that `pnpm rig-mesh --check --hold`
@@ -19,7 +21,7 @@
  * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
  * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>]
- * [--set <changes>]... [--json <file>] [--glb <file>]
+ * [--set <changes>]... [--json <file> [--middles <faces>]] [--glb <file>]
  */
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -31,6 +33,7 @@ import { promisify } from 'node:util';
 
 import { Matrix4, Quaternion, Vector3 } from 'three';
 
+import { faceList } from './face-shares.ts';
 import { rigConfigPath, runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
@@ -1412,13 +1415,18 @@ export interface FaceJson {
   readonly topology: string;
   /** Each face that folds in a sample, by its index. */
   readonly faces: readonly FaceRecord[];
+  /**
+   * The middle of each face of `--middles` in the bind pose, in meters, by the index of the face,
+   * or none.
+   */
+  readonly middles: Readonly<Record<string, Vec3>>;
 }
 
 /**
  * The format version of the JSON text of `--json` (`ProbeFormat` of `tools/ref-tree.ts`). A
- * change of the format takes the next version.
+ * change of the format takes the next version. Version 3 added the middles of `--middles`.
  */
-export const FOLD_FORMAT = 2;
+export const FOLD_FORMAT = 3;
 
 /**
  * The oldest format version that {@link FOLD_FORMAT} only adds fields to (`ProbeFormat.since` of
@@ -1446,12 +1454,13 @@ function foldOnly(worst: FaceWorst | null): FaceWorst | null {
 /**
  * Writes the folds of a report as the JSON text of `--json`: the format version
  * ({@link FOLD_FORMAT} and {@link FOLD_SINCE}), the counts of each sample set, the hash of the
- * corners of the mesh, and each folded face ({@link FaceRecord}).
+ * corners of the mesh, each folded face ({@link FaceRecord}), and the middle of each named face.
  *
  * @param report The report.
+ * @param named The faces of `--middles`. A face that the mesh does not have gets no middle.
  * @returns The JSON text.
  */
-export function foldJson(report: FoldReport): string {
+export function foldJson(report: FoldReport, named: readonly number[] = []): string {
   const sets = Object.fromEntries(
     SAMPLE_SETS.map((set) => {
       const { samples, withFold, most, split } = report.sets[set];
@@ -1482,21 +1491,40 @@ export function foldJson(report: FoldReport): string {
         )
         .digest('hex')
     : '';
-  return JSON.stringify({ version: FOLD_FORMAT, since: FOLD_SINCE, sets, topology, faces });
+  const count = mesh ? mesh.corners.length / 3 : 0;
+  const middles = Object.fromEntries(
+    mesh
+      ? named.filter((face) => face < count).map((face) => [face, faceFacts(mesh, face).middle])
+      : [],
+  );
+  return JSON.stringify({
+    version: FOLD_FORMAT,
+    since: FOLD_SINCE,
+    sets,
+    topology,
+    faces,
+    middles,
+  });
 }
 
 /**
  * Reads the folded faces of the JSON text of `--json` ({@link foldJson}).
  *
  * @param text The JSON text.
- * @returns The counts of each sample set, the hash of the corners, and the folded faces.
+ * @returns The counts of each sample set, the hash of the corners, the folded faces, and the
+ *   middles of the named faces.
  * @throws Error if a sample set has no whole counts.
  */
 export function readFaceJson(text: string): FaceJson {
   // SAFETY: the text comes from foldJson() of this tool in a child process, and readFoldJson()
   // checks the counts.
   const parsed = JSON.parse(text) as Partial<FaceJson>;
-  return { sets: readFoldJson(text), topology: parsed.topology ?? '', faces: parsed.faces ?? [] };
+  return {
+    sets: readFoldJson(text),
+    topology: parsed.topology ?? '',
+    faces: parsed.faces ?? [],
+    middles: parsed.middles ?? {},
+  };
 }
 
 /** The largest distance of the middles of one face in two bodies with other corners, in meters. */
@@ -1718,8 +1746,11 @@ async function main(): Promise<void> {
   if (baseAt >= 0 && (!ref || ref.startsWith('--'))) {
     throw new Error('The option --base takes a commit, a branch, or a tag.');
   }
-  if (ref && (glb || ['--json', '--turns', '--set'].some((option) => args.includes(option)))) {
-    throw new Error('The option --base goes with none of --glb, --json, --turns, and --set.');
+  const options = ['--json', '--middles', '--turns', '--set'];
+  if (ref && (glb || options.some((option) => args.includes(option)))) {
+    throw new Error(
+      'The option --base goes with none of --glb, --json, --middles, --turns, and --set.',
+    );
   }
   if (glb) {
     process.exitCode = await withGlbBody(roleAnimal(role), glb, (dir) =>
@@ -1786,8 +1817,10 @@ async function main(): Promise<void> {
   if (jsonAt >= 0 && (!json || json.startsWith('--'))) {
     throw new Error('The option --json takes a file.');
   }
+  const middlesAt = args.indexOf('--middles');
+  const named = middlesAt >= 0 ? faceList(args[middlesAt + 1] ?? '', '--middles') : [];
   if (json) {
-    await writeFile(json, foldJson(report));
+    await writeFile(json, foldJson(report, named));
   }
 }
 
