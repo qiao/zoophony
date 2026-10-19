@@ -52,6 +52,8 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - The rabbit and the red fox rest as a seated violinist: the violin upright on the left thigh, and
   the bow upright at the right side. A paw that cannot reach the thigh holds the frog at the outer
   side of the thigh or of the knee. A paw on the belly bends the arm out and folds its faces.
+- The short arms of the elephant do not reach across its trunk or to the middle of a kettle. Use
+  `PercussionHold.rim`, `sides`, and `home`.
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit.
   `left-rest.ts` of `docs/research/2026-10-17-tan-rest/` gives the free left arm of each variant.
 - The rest columns of `pnpm hold-fit` give the reach of a free paw only. Run `pnpm hold-reach`
@@ -187,6 +189,10 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
 - A big head over a thin neck shows a dark band under the head in the app. Smooth the neck and the
   bottom of the head with a box that ends behind the chin (`smooth`). A box that holds the chin
   moves the head height H and each hold.
+- The trunk of the elephant takes bone heat from the chest, and it set the chin of the head
+  measures (H 1.3 m in place of 0.6 m). Use `noseFront`, and `headFloor` of `ANIMALS`.
+- The tip of `earFlap` takes the nearest vertex, which can lie on the shoulder. Take it from a cut
+  of the flap, and read the count of the log line `ear L`.
 
 ## Colors and size of the mesh
 
