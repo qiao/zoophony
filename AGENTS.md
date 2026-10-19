@@ -116,5 +116,6 @@ Open these files for these kinds of work:
 | [`docs/agents/code.md`](docs/agents/code.md) | the compiler options, the lint rules, and the code style | before you write TypeScript |
 | [`docs/agents/commands.md`](docs/agents/commands.md) | each command with its usage, its main options, its output, and its run time, and the steps of CI | before you run a tool that you do not know |
 | [`docs/agents/model-work.md`](docs/agents/model-work.md) | the bodies and their roles, and the three routes that give a species a body of its own | before work on a body, a role, or a hold |
+| [`docs/agents/look-work.md`](docs/agents/look-work.md) | the loop of a round of the light, the colors, or the grade, the look override of the dev server, and the traps of the look measures | before a round of the light, the colors, or the grade |
 | [`docs/agents/model-traps.md`](docs/agents/model-traps.md) | the traps of route 3, in groups | before you plan a rig, a hold, a seat, or a fix of a fold |
 | [`docs/briefs/studio-body.md`](docs/briefs/studio-body.md) | the brief template of a round of route 3, and the docs checklist of a new body, role, or hold | when you brief or run such a round |
