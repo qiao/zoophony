@@ -26,5 +26,4 @@ reverse each decision. Then update its section, and remove its row.
 | The small tail is a ball on one bone, the ears follow the head, and the crease angle is 35°. | 4.4 |
 | The role `bassist` is in `SWEEP_ROLES`, `FOLD_ROLES`, and `ROLE_VIEWS`. The closed body has 3 open loops (`HIPPO_BODY_LOOPS`). | 9.3 |
 | The first download grows by 31,523 B to 535,964 B (`pnpm size --base d30f8b4c`). | 7.2 |
-| Open: the skin folds in each sample, up to 25 faces: the left paw, which turns up to 161° on the neck, and the front of the right shoulder (`fold-probe-bassist.txt`). | 4.4, 9.3 |
 | Open: the thick arms go into the body and the contrabass in the play: the right upper arm up to 5.5 cm, and the left upper arm 6.7 cm into the contrabass (`pose-depth-bassist.txt`). A stroke of `boulanger-matin` at 95.22 s misses its target: a pizzicato follows before its middle. | 5.3, 9.3 |
