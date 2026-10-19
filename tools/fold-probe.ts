@@ -75,6 +75,7 @@ export const FOLD_ROLES: ReadonlyMap<string, RoleSource> = new Map<string, RoleS
   ['fox-violinist', { kind: 'player', instrument: 'violin', species: ['fox-red'] }],
   ['violist', { kind: 'player', instrument: 'viola', species: ['cat'] }],
   ['cellist', { kind: 'player', instrument: 'cello', species: ['dog'] }],
+  ['bassist', { kind: 'player', instrument: 'contrabass', species: ['hippo'] }],
   ['flutist', { kind: 'player', instrument: 'flute', species: ['fox-tan'] }],
   ['trombonist', { kind: 'player', instrument: 'trombone', species: ['panda'] }],
 ]);

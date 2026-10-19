@@ -78,6 +78,13 @@ const CAT_BODY_LOOPS = 3;
  */
 const DOG_BODY_LOOPS = 6;
 
+/**
+ * The open loops of {@link BODY_BONES} of the hippo mesh: the cuts to the two upper arms, and one
+ * open edge pair of 3.3 cm in the small tail (`loops-probe.txt` of
+ * `docs/research/2026-10-18-hippo-mesh/`).
+ */
+const HIPPO_BODY_LOOPS = 3;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -180,6 +187,17 @@ function catBodySurface(posed: PosedSkeleton): ClosedSurface {
  */
 function dogBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, DOG_BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the hippo mesh: {@link BODY_BONES} with a cap on each open loop
+ * ({@link HIPPO_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function hippoBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, HIPPO_BODY_LOOPS);
 }
 
 /**
@@ -523,10 +541,10 @@ function hairOffStrings(posed: PosedSkeleton, halfWidth: number): number {
 }
 
 /** A bowed string of a bowed role of the sweep. */
-type SweptBowed = 'violin' | 'viola' | 'cello';
+type SweptBowed = 'violin' | 'viola' | 'cello' | 'contrabass';
 
 /**
- * Gives the note targets of the bow of a violinist, a violist, or a cellist: the bow hair is on
+ * Gives the note targets of the bow of a violinist, a violist, a cellist, or a bassist: the bow hair is on
  * the strings in the middle of each bowed stroke (design 5.3), in a play that started at the
  * count-in.
  *
@@ -539,7 +557,10 @@ function bowedTargets(scene: TestScene, index: number): NoteTarget[] {
   const cast = scene.layout.players[index]?.cast;
   if (
     plan?.note.family !== 'bowed' ||
-    (cast?.instrument !== 'violin' && cast?.instrument !== 'viola' && cast?.instrument !== 'cello')
+    (cast?.instrument !== 'violin' &&
+      cast?.instrument !== 'viola' &&
+      cast?.instrument !== 'cello' &&
+      cast?.instrument !== 'contrabass')
   ) {
     return [];
   }
@@ -603,8 +624,16 @@ const VIOLISTS: ReadonlySet<SpeciesId> = new Set(['cat']);
 /** The species of the cellists with a studio body of a mesh of the user. */
 const CELLISTS: ReadonlySet<SpeciesId> = new Set(['dog']);
 
+/** The species of the bassists with a studio body of a mesh of the user. */
+const BASSISTS: ReadonlySet<SpeciesId> = new Set(['hippo']);
+
 /** The name of the players of each bowed role in the sweep. */
-const BOWED_LABELS = { violin: 'violinist', viola: 'violist', cello: 'cellist' } as const;
+const BOWED_LABELS = {
+  violin: 'violinist',
+  viola: 'violist',
+  cello: 'cellist',
+  contrabass: 'bassist',
+} as const;
 
 /**
  * Gives the swept players of a bowed role in a scene ({@link sweptBowed}).
@@ -917,6 +946,21 @@ export const CELLIST_SWEEP: RoleSweep = {
 };
 
 /**
+ * The sweep of the bassist (design 5.3): the sweep of the violinist with the contrabass. The first
+ * hippo of each demo plays it, on the high stool. A bassist does not stand as a soloist (4.2).
+ */
+export const BASSIST_SWEEP: RoleSweep = {
+  ...VIOLINIST_SWEEP,
+  role: 'bassist',
+  obstacles: [
+    { name: 'body', surface: hippoBodySurface },
+    { name: 'contrabass', surface: instrumentSurface },
+  ],
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'contrabass'),
+  players: (scene) => bowedPlayers(scene, 'contrabass', BASSISTS),
+};
+
+/**
  * The bowed roles whose species can stand as the soloist of the violin and piano duo
  * ({@link soloistScene}): the instrument of each role and its species. No demo has a standing
  * violin soloist, so the sweep of a demo never poses one.
@@ -974,6 +1018,7 @@ export const SWEEP_ROLES = {
   violinist: VIOLINIST_SWEEP,
   violist: VIOLIST_SWEEP,
   cellist: CELLIST_SWEEP,
+  bassist: BASSIST_SWEEP,
   flutist: FLUTIST_SWEEP,
   trombonist: TROMBONIST_SWEEP,
 } as const;
