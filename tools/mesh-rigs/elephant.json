@@ -480,5 +480,101 @@
     "end": 0.0065,
     "most": 0.03,
     "note": "The values of the panda and the hippo."
-  }
+  },
+  "raise": [
+    {
+      "side": "L",
+      "bone": "hand",
+      "turns": {
+        "hand": [
+          -0.0216,
+          -0.291,
+          -0.9565,
+          0.0044
+        ]
+      },
+      "fade": [
+        5,
+        25
+      ],
+      "below": 0.3,
+      "note": "The shape of the bent left wrist of the timpanist (raise_shape() of tools/blender/rig_mesh.py), as the bent wrist of the cat violist. The mallets point from beside the shoulders down to the kettles, and the paw turns about 170 degrees from its bind on the forearm: faces 1210, 2383, 1202, 1211, and 2312 of the left paw folded in 62% of the play samples, and the turn of hand_L from forearm_L stayed within 10 degrees of its mean in 1,188 of them (wrist-turn-L.txt of docs/research/2026-10-19-elephant-mesh/). The rule turns 10 degrees further on the same axis, as for the cat, with the fade of the fewest folds of the scan (5 to 25 degrees)."
+    },
+    {
+      "side": "R",
+      "bone": "hand",
+      "turns": {
+        "hand": [
+          -0.015,
+          0.3418,
+          0.9381,
+          0.0541
+        ]
+      },
+      "fade": [
+        5,
+        25
+      ],
+      "below": 0.3,
+      "note": "The shape of the bent right wrist of the timpanist: faces 54, 57, 97, 98, 107, and 329 of the right paw folded in each play sample, and the turn of hand_R from forearm_R stayed within 10 degrees of its mean of 164 degrees in 1,838 of 1,926 samples (wrist-turn-R.txt). The rule turns 10 degrees further on the same axis, with the fade of the left rule."
+    },
+    {
+      "side": "L",
+      "turns": {
+        "clavicle": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "upper_arm": [
+          0.5053,
+          -0.296,
+          0.3148,
+          0.7469
+        ],
+        "forearm": [
+          -0.0612,
+          -0.0354,
+          0.0793,
+          0.9943
+        ]
+      },
+      "fade": [
+        10,
+        20
+      ],
+      "below": 0.0,
+      "note": "The shape of the left arm at a strike, with the mean turns of the folded play samples of face 959 of the left armpit (keys-read.ts of docs/research/2026-10-19-elephant-mesh/): the upper arm turns 83 degrees from its bind, and the clavicle does not turn. In the pose of the rule, face 959 turns over and relaxes in 1 round. The left arm that waits over the kettle beside the player keeps its folds (faces 936 to 952)."
+    },
+    {
+      "side": "R",
+      "turns": {
+        "clavicle": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "upper_arm": [
+          0.4687,
+          0.3506,
+          -0.3272,
+          0.7419
+        ],
+        "forearm": [
+          0.0092,
+          -0.0053,
+          0.0119,
+          0.9999
+        ]
+      },
+      "fade": [
+        10,
+        20
+      ],
+      "below": 0.0,
+      "note": "The shape of the right arm at a strike, with the mean turns of the folded play samples of faces 133 and 330 of the right armpit: the upper arm turns 84 degrees from its bind. In the pose of the rule, faces 133 and 136 turn over and relax in 2 rounds."
+    }
+  ]
 }
