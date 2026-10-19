@@ -44,16 +44,17 @@ load. While all tests are paused, `pnpm test` runs no test, and the rule of `pnp
 - Split a refactor of several steps into separate commits. For example, add the new path or move
   the tests first, then remove the old code.
 - Before your report, run `tools/check-commits.sh --tip <base>` one time, with a clean tree.
-  `<base>` is `main` on a branch, or the commit where your work started on `main`. It checks each
+  `<base>` is `main` on a branch. On `main`, `<base>` is the parent of your first commit, also
+  when commits of others sit between your start commit and your first commit. It checks each
   commit and keeps each passed result in its cache by tree, so the merge gets a `hit` for each
   commit. Only the script writes an entry. A claim in a report is no entry.
 - Run the check script in the background, because a run with no cache can take more than the
-  10-minute limit of a Bash call. Do not edit the worktree while it runs: an edit gives no entry,
-  and the rebase abort after a failure removes the edits of the tracked files.
+  10-minute limit of a Bash call. It checks the commits in a temporary worktree, so you can edit
+  and commit while it runs. A new commit during the run gives the exit code 4: run it again.
 - After a commit that moves code between files, or a commit made while other changes are stashed,
   run `tools/check-commits.sh HEAD~1` before the next commit.
-- A stop of the check script aborts its rebase. When a `kill -9` leaves a rebase, run
-  `git rebase --abort`.
+- A `kill -9` of the check script leaves its temporary worktree. `git worktree list` shows it,
+  and `git worktree remove --force <path>` removes it.
 
 ## Where to work
 
@@ -71,7 +72,7 @@ Then these rules hold:
   `REBASE_HEAD` can stay after a finished rebase.
 - Let the agent that wrote a branch do a long rebase, because it knows the intent of each commit.
 - A rebase with `--exec` runs in the tree of each commit, which has an old copy of a script or
-  none. Copy a script of the branch to a temporary path first, as `tools/check-commits.sh` does.
+  none. Copy a script of the branch to a temporary path first.
 - Put a new decision in a new decision file of `docs/decisions/`, so that two branches do not
   conflict.
 - After a merge or a rebase, make each generated report again with its tool, such as
