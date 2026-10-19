@@ -96,3 +96,55 @@ views of `pnpm close-views bassist --base bb2a8026` show the whole upper bout at
 and the string crossing (`close-views-front.webp`, `close-views-grid.webp`). The rig removes the
 folds of the chest under the chin and of the back of the neck. The cost is deeper arms, most in the
 lowering, and new folds of the right upper arm, which the round reports as open.
+
+## 4. The arms after the chest fix
+
+The round `hippo-arms` brings the arms back out of the body and the contrabass, and keeps the
+chest fix. The probes and their outputs are in
+[`2026-10-19-hippo-chest/arms/`](2026-10-19-hippo-chest/arms/).
+`pnpm pose-depth bassist --demo boulanger-matin` gives the variants (`pd-b1.txt` to
+`pd-b6.txt`, read with `pdtab.py`), and the rows with the left tilt of 55° also take `brahms-2`.
+Each cell is the deepest point in cm:
+
+| Variant | Play forearms in body | Play forearms in contrabass | Play upper arms in body | Lowering upper arms in contrabass | Chest faces |
+|---|---:|---:|---:|---:|---|
+| `61e7b8cf` | 8.1 | 7.4 | 7.3 | 7.1 | no fold |
+| Right elbow poles and the slant -10° (5 variants) | 8.1 | 7.4 | 7.3 | 7.1 | - |
+| Shoulder turn 35° | 10.0 | 7.4 | 8.7 | 4.0 | - |
+| Shoulder turn 60° | 6.9 | 7.4 | 6.9 | 0.6 | 616 in 99% |
+| Shoulder turn 55°, left tilt 55° | 4.6 | 7.4 | 5.4 | 2.3 | 616 in 94% |
+| Shoulder turn 50°, left tilt 55° | 4.7 | 7.4 | 6.0 | 4.7 | no fold |
+| Shoulder turn 60°, left tilt 45°, contrabass 6 cm to 12 cm left | 3.7 to 7.0 | 7.4 | 5.7 to 8.1 | 1.3 to 3.8 | - |
+
+The bow arm is straight in its deepest samples, so no right elbow pole changes a depth. The
+shoulder turn brings the shoulder joint nearer to the bow, but from 55° the front of the right
+shoulder and the chest under the chin fold (`fold-r55t55.txt`, `fold-r50t55.txt`). The shoulder
+turn and the place of the contrabass do not change the top plate in the chest (`tp-final.txt`).
+
+The left forearm in the contrabass keeps 7.4 cm, half the thickness of the upper bout: in the high
+positions, the forearm goes through it. `left-forearm.ts` counts the samples over 5.7 cm. Each
+left elbow, tilt, and turn keeps 45 to 95 of 1,189 samples over it (`lf-a.txt`, `lf-b.txt`). Only
+the place of the contrabass before the chest fix gives no sample over it.
+
+`pnpm raise-fit bassist --faces 477,461 --side R` gives the turns of the old rule of the bow arm
+with the new clavicle turn. In the pose of that rule, 13 faces stay turned after the relax
+(`rig-check-raise.txt`), so the round keeps the old rule. A rule of the left arm for face 1356
+relaxes both of its turned faces (`raise-fit-1356.txt`, `rig-check-r55-L.txt`).
+
+| Measure | `bb2a8026` | `61e7b8cf` | Round |
+|---|---:|---:|---:|
+| Top plate in the chest, play, mean / max (`boulanger-matin`) | 4.5 / 5.6 | 0.6 / 1.5 | 0.6 / 1.5 |
+| Play: forearms in body / contrabass | 5.3 / 5.2 | 8.1 / 7.4 | 4.8 / 7.4 |
+| Play: upper arms in body / contrabass | 5.5 / 6.7 | 7.4 / 7.4 | 6.0 / 5.0 |
+| Lowering: forearms in body / contrabass | 5.0 / 3.6 | 8.0 / 7.0 | 4.4 / 4.2 |
+| Lowering: upper arms in body / contrabass | 4.9 / 2.3 | 7.3 / 7.1 | 5.6 / 4.7 |
+| Play folds of faces 477 / 461 / 68 / 1356 | 0% / 0% / 0.1% / 19.6% | 93.2% / 34.4% / 25.3% / 53.5% | 92.0% / 73.6% / 15.6% / 2.2% |
+| Play folds of faces 617 / 618 / 323 | 100% / 100% / 100% | 0% / 0% / 0% | 0% / 0% / 0% |
+| Bow targets within 5 mm (`boulanger-matin`, 127) | 97.6% | 97.6% | 97.6% |
+
+The depths come from `pnpm pose-depth bassist --base bb2a8026` (`pose-depth-final.txt`), the
+folds from `pnpm fold-probe bassist --base bb2a8026` (`fold-final.txt`), and the top plate from
+`top-plate.ts`. `pnpm body-probe --base 61e7b8cf` changes only the hippo (`body-probe.txt`). The
+first download grows by 62 B (`size.txt`). `user-view.webp` shows the view of the screenshot of
+the user, and `close-views-front.webp` and `close-views-grid.webp` show the close views against
+`61e7b8cf`: the upper bout stays in front of the chest.
