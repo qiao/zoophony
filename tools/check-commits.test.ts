@@ -26,8 +26,8 @@ interface RunResult {
 /**
  * A fake `pnpm`. It prints a version for `--version`. It writes each other call with the short hash
  * of HEAD into `pnpm.log` beside it. It fails the typecheck when the tree has the file `broken`.
- * When the tree has the file `edit-during-lint`, the lint writes a new file, as an agent that
- * edits the worktree. When the tree has the file `slow-lint`, the lint writes its process ID into
+ * When the tree has the file `edit-during-lint`, the lint writes a new file into the tree that it
+ * checks. When the tree has the file `slow-lint`, the lint writes its process ID into
  * `slow.pid` and waits 30 s.
  */
 const FAKE_PNPM = `#!/bin/sh
@@ -239,23 +239,14 @@ describe('tools/check-commits.sh', () => {
     expect(existsSync(join(repo, '.git', 'rebase-merge'))).toBe(false);
   });
 
-  it('refuses a working tree with changes', () => {
-    writeFileSync(join(repo, 'src', 'b.ts'), 'export const B = 2;\n');
-    const result = checkCommits();
-    rmSync(join(repo, 'src', 'b.ts'));
-
-    expect(result.status).toBe(1);
-    expect(result.output).toContain('src/b.ts');
-  });
-
-  it('writes no entry when the working tree changes during the checks', () => {
+  it('writes no entry when a check changes the tree', () => {
     run('git', ['reset', '-q', '--hard', 'HEAD~1']);
     const edit = commitFile('edit-during-lint', 'x\n');
     const result = checkCommits();
     rmSync(join(repo, 'src', 'edit.ts'), { force: true });
 
     expect(result.status, result.output).toBe(3);
-    expect(result.output).toContain(`RED ${edit} the working tree or HEAD changed`);
+    expect(result.output).toContain(`RED ${edit} a check changed the temporary worktree`);
     expect(entries()).toHaveLength(3);
     run('git', ['reset', '-q', '--hard', 'HEAD~1']);
   });
@@ -284,7 +275,7 @@ describe('tools/check-commits.sh', () => {
     expect(result.output).toContain('base..HEAD has a merge commit.');
   });
 
-  it('aborts the rebase and stops its checks when the script stops', async () => {
+  it('stops its checks and removes the temporary worktree when the script stops', async () => {
     commitFile('slow-lint', 'x\n');
     const branch = run('git', ['symbolic-ref', 'HEAD']).output;
     const pidFile = join(bin, 'slow.pid');
@@ -303,7 +294,9 @@ describe('tools/check-commits.sh', () => {
     script.kill('SIGTERM');
 
     expect(await exit).toBe(130);
-    expect(existsSync(join(repo, '.git', 'rebase-merge'))).toBe(false);
+    expect(
+      run('git', ['worktree', 'list', '--porcelain']).output.match(/^worktree /gm),
+    ).toHaveLength(1);
     expect(run('git', ['symbolic-ref', 'HEAD']).output).toBe(branch);
     expect(run('git', ['status', '--porcelain']).output).toBe('');
     expect(isRunning(lint)).toBe(false);
