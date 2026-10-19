@@ -29,8 +29,7 @@ group of your work before you plan it. A probe that a trap names is in its resea
   paws.
 - The arm factor of a reach follows the hold. Fit the hold with a first factor, measure the reach
   (`cello-reach.ts` of `docs/research/2026-10-17-dog-mesh/`), and rig the final factor once. A
-  factor far above the option text of the user goes back to the user before the merge (the dog got
-  1.75 for "about 1.4x").
+  factor far above the option text of the user goes back to the user before the merge.
 - A new scale of `SpeciesParams` adds its instrument to `SCALED_INSTRUMENTS` of
   `models/instruments/types.ts`. The typecheck then names each place that must read it.
 - A smaller body keeps its instrument in meters, so the old hold misses the grips: scan the scale
@@ -103,13 +102,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
   Fade the upper arm weight over the shoulder top toward the clavicle (`shoulderRamp`).
 - Bone heat can give one corner of a small face a bone that the bow arm turns far, such as the right
   clavicle. Read the corner weights of the most folded faces (`pnpm fold-probe --faces`) before a
-  ring or a smoothing. On the fox, `clavicleFrom` and `armTop` helped, and a smoothing folded more
-  faces.
+  ring or a smoothing. On the fox, a smoothing folded more faces.
 - An image mesh has many thin faces, and a thin face with corners of different weights turns over at
-  a bent joint. The `sliver` and `line` rules remove some folds, and `weights.rigid` gives a single
-  thin face across a joint the mean of its weights (the source middles of `pnpm fold-probe --faces`
-  give its points). A body has at most four shapes of `raise` (`RAISE_LIMIT`), so keep them for the
-  play.
+  a bent joint. The `sliver` and `line` rules remove some folds, and `weights.rigid` gives a thin
+  face across a joint the mean of its weights (the source middles of `pnpm fold-probe --faces` give
+  its points). Give two thin faces that share corners one item, a list of points, else the second
+  face undoes the first. A body has at most four shapes of `raise` (`RAISE_LIMIT`).
 - A raised arm pulls the skin where a hanging arm touches the trunk into long dark faces under the
   armpit. A fade of the arm weight, a corrective shape, a split, or a move of the vertices keeps
   them dark or folds them. When short or thin faces join a hanging arm to the trunk, only a cut at
@@ -121,7 +119,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   count its pixels in a probe build that draws it in a pure color with no light (`hidden/probe.ts`
   of `docs/research/2026-10-18-panda-seam/`).
 - A narrow fade of a weight rule under a far bone turn moves the fold to the faces of the fade. Let
-  the fade span several rings of faces, as `clavicleMiddle` of the hippo does.
+  the fade span several rings of faces, as `clavicleMiddle` and `armTop` of the hippo do. A small
+  change of a fade can make the relax of a shape fail: read the lines `raise` of the rig log.
 - A long thin face across an arm joint folds, and weight rules make it worse. A ring of new vertices
   at the joint (`refine.rings`) fixes it, within the budget of 3,200 triangles. Put a ring only
   where `pnpm fold-probe` finds folds, then run `pnpm pose-depth <role>`, because a ring can pull
@@ -132,7 +131,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 - A face that folds in one region of the arm poses needs a corrective shape (`raise`) when no weight
   rule or ring removes the fold. Fit it with `pnpm raise-fit <role> --faces <list> --side <side>`. A
-  rule that relaxes more faces (`raise.below`) folds more play samples.
+  rule that relaxes more faces (`raise.below`) folds more play samples. Give a rule of a bent elbow
+  the forearm turn alone, because the arm turns of the fit can fold the chest.
 - A grip far in front of a deep chest can turn the upper arm about 70° at the shoulder, so the
   shoulder front folds past the clavicle, and no shape of `raise` relaxes it. Turn the shoulder bone
   forward with the arm (`WindHold.reachL`), and scan the turn with `pnpm hold-fit --grid`
@@ -216,11 +216,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 ## Probe tools
 
-- `pnpm rig-mesh --check --set` changes only a key that the config has, and it sets `app.shoulders`
-  from `keptHeight()`. For a new key, rig a scratch config with a direct run of Blender, and count
-  its folds with `pnpm fold-probe <role> --glb <file>` (`rig.sh` of
-  `docs/research/2026-10-17-dog-mesh/`). The rig log gives centimeters at the scale of
-  `app.shoulders`, so a direct run on a variant that moves the shoulder joints needs that value.
+- `pnpm rig-mesh --check --set` sets `app.shoulders` from `keptHeight()`. The rig log gives
+  centimeters at the scale of `app.shoulders`, so a direct run of Blender on a variant that moves
+  the shoulder joints needs that value (`rig.sh` of `docs/research/2026-10-17-dog-mesh/`).
 - A new body moves the layout and the shot plans. The shot tests react to moves of about 2 cm: run
   `pnpm test:paused src/shots/` early, and `pnpm shot-trace <demo> --base main` when a shot drops
   out.
