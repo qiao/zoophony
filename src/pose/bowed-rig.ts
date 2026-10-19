@@ -89,6 +89,14 @@ export interface BowedHold {
    */
   readonly followChange: number;
   /**
+   * The far side of the stick for the roll of the right hand (`rollToward()` of `pose/bowed.ts`):
+   * the angle of the elbow around the stick, from the back of the hand of the bind pose, at which
+   * the roll changes from one end of its range to the other end, in radians. Near it, a small
+   * move of the elbow turns the hand by about 200°, so no elbow of the hold comes near it. It is
+   * π, the side of the stick opposite to the back of the hand, for a hold with no own value.
+   */
+  readonly farSideR: number;
+  /**
    * The move of the instrument while the player plays, in head heights, in the axes of the parent
    * of the `instrument` bone. It makes room for the arms between the instrument and the body.
    */
@@ -273,6 +281,7 @@ const CHIN_HOLD = {
   poleTipR: [0.5, 1, -1],
   polePizzicato: [1, -0.5, -1],
   followChange: 0,
+  farSideR: Math.PI,
   playShift: [0, -0.05, -0.15],
   playTurn: IDENTITY,
   restPoleR: [1, -0.9, -0.5],
@@ -334,6 +343,7 @@ const FLOOR_HOLD = {
   poleTipR: [1, 1.4, -0.3],
   polePizzicato: [1, 0, 0],
   followChange: 0.3,
+  farSideR: Math.PI,
   playShift: [0, 0, -0.05],
   playTurn: IDENTITY,
   restPoleR: [1, -0.6, -0.5],

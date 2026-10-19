@@ -331,7 +331,8 @@ const CLEAR_AIM = 0.5;
 
 /**
  * Gives the roll of the right hand around the stick that turns the back of the hand to a point,
- * such as the elbow. Past the range of the roll, the roll fades back to 0 at the far side, and an
+ * such as the elbow. The roll stays within its range, and it fades to 0 near the far side of the
+ * stick (`BowedHold.farSideR`), where it changes from one end of the range to the other end. An
  * aim near the line of the stick has less roll. Thus the roll changes with no jump when the aim
  * moves.
  *
@@ -354,13 +355,21 @@ export function rollToward(rig: RigPoints, bow: BowPlace, aim: Vector3): number 
     return 0;
   }
 
-  const angle = Math.atan2(stick.dot(normal.crossVectors(handUp, aimUp)), handUp.dot(aimUp));
+  // The angle of the aim from the back of the hand, in the turn of 2π that ends at the far side.
+  const farSide = rig.hold.farSideR;
+  let angle = Math.atan2(stick.dot(normal.crossVectors(handUp, aimUp)), handUp.dot(aimUp));
+  if (angle > farSide) {
+    angle -= 2 * Math.PI;
+  } else if (angle <= farSide - 2 * Math.PI) {
+    angle += 2 * Math.PI;
+  }
   const [low, high] = ROLL_RANGE;
 
   // Near the far side, a small move of the aim turns the roll from one end of the range to the
   // other end, so the roll fades to 0 there.
-  const far = MathUtils.clamp((Math.PI - Math.abs(angle)) / FAR_SIDE, 0, 1);
-  const limited = MathUtils.clamp(angle, low, high) * (angle > high || angle < low ? far : 1);
+  const fromFar = angle >= farSide - Math.PI ? farSide - angle : angle - (farSide - 2 * Math.PI);
+  const far = MathUtils.clamp(fromFar / FAR_SIDE, 0, 1);
+  const limited = MathUtils.clamp(angle, low, high) * far;
   return limited * smoothstep(Math.min(1, side / distance / CLEAR_AIM));
 }
 
