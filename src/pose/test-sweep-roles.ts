@@ -102,6 +102,13 @@ const MOUSE_BODY_LOOPS = 14;
  */
 const ELEPHANT_BODY_LOOPS = 4;
 
+/**
+ * The open loops of {@link BODY_BONES} of the beaver mesh: the cuts to the two upper arms, and 7
+ * open edge pairs and triples of 1.2 cm to 5.6 cm at the roots of the whiskers on the cheeks
+ * (`loops-probe.txt` of `docs/research/2026-10-19-beaver-mesh/`).
+ */
+const BEAVER_BODY_LOOPS = 9;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -244,6 +251,17 @@ function hippoBodySurface(posed: PosedSkeleton): ClosedSurface {
  */
 function mouseBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, MOUSE_BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the beaver mesh: {@link BODY_BONES} with a cap on each open
+ * loop ({@link BEAVER_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function beaverBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, BEAVER_BODY_LOOPS);
 }
 
 /**
@@ -1243,6 +1261,68 @@ export const OBOIST_SWEEP: RoleSweep = {
     }),
 };
 
+/**
+ * Tells if a player of a scene is in the sweep of the bassoonist: the first seated beaver with a
+ * bassoon, and each beaver soloist, which stands (design 4.2).
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @returns True for a player of the sweep.
+ */
+function sweptBassoonist(scene: TestScene, index: number): boolean {
+  const { cast } = scene.layout.players[index] ?? {};
+  if (cast?.species !== 'beaver' || cast.instrument !== 'bassoon') {
+    return false;
+  }
+  if (cast.support === 'stand') {
+    return true;
+  }
+  const first = scene.layout.players.findIndex(
+    (p) =>
+      p.cast.species === 'beaver' && p.cast.instrument === 'bassoon' && p.cast.support !== 'stand',
+  );
+  return first === index;
+}
+
+/**
+ * The sweep of the bassoonist (design 5.3): the sweep of the flutist with the bassoon and the
+ * beaver. The first seated beaver of each demo with bassoons, and each standing beaver soloist,
+ * play it, with the palms on their grips at the start of each phrase.
+ */
+export const BASSOONIST_SWEEP: RoleSweep = {
+  ...FLUTIST_SWEEP,
+  role: 'bassoonist',
+  obstacles: [
+    { name: 'body', surface: beaverBodySurface },
+    { name: 'bassoon', surface: instrumentSurface },
+  ],
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'bassoon'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      if (!sweptBassoonist(scene, index)) {
+        return [];
+      }
+      const { species, instrument, kettles, support } = place.cast;
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles, support);
+      return [
+        {
+          name: `bassoonist ${index} (${support})`,
+          model,
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => flutistTargets(scene, index, model),
+        },
+      ];
+    }),
+};
+
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,
@@ -1255,4 +1335,5 @@ export const SWEEP_ROLES = {
   trombonist: TROMBONIST_SWEEP,
   oboist: OBOIST_SWEEP,
   timpanist: TIMPANIST_SWEEP,
+  bassoonist: BASSOONIST_SWEEP,
 } as const;
