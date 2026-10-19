@@ -466,10 +466,11 @@ A round that changes the motion updates the items.
   its shoulder joints.
 - **The contacts.** The hippo stands, as many orchestral bassists do, with its own hold
   (`HIPPO_HOLD` of `pose/bowed-rig.ts`). The end pin stands on the floor in front of it, and the
-  contrabass leans 37° to the left and back, so that the bow plays 0.15 m in front of the belly
+  contrabass leans 37° to the left and back, so that the bow plays 0.17 m in front of the belly
   and the nut is beside the head, within reach of the left paw. A real bassist leans the contrabass
   less, against the left side of the body. The app differs from that, because the bow of a real
-  hold met the round belly of the hippo.
+  hold met the round belly of the hippo. The hippo leans forward less than the first hold, so that
+  the upper bout stays in front of the chest under the chin.
 - **The bow hand.** A real bassist holds the French bow with the palm toward the bass (section
   2.1). The app rolls the paw around the stick so that the back of the paw points to the elbow,
   within a range of the roll (`rollToward()` of `pose/bowed.ts`). The elbow of the hippo lies near

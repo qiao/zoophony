@@ -753,15 +753,22 @@ const DOG_HOLD = {
  * contact point of the bow lies in front of the belly, and the nut within reach of the left paw
  * beside the head. The smaller contrabass of the hippo (`bassScale`) spans that height. Its end pin
  * of 0.2 m (`BASS_END_PIN`) stands on the floor 0.42 m right of the place of `UPRIGHT_HOLDS`
- * (`playShift`), and the contrabass turns around it (`playTurn`), so that the strings run from the
- * contact point 0.15 m in front of the middle of the belly up to the nut 0.45 m left of the middle,
- * beside the head: it leans 37° from the vertical, to the left and back, and its top plate faces
- * forward. With the end pin on the floor, the lean sets the height of the contact point, 0.29 m
- * below the right shoulder joint. With the contact point 5 cm further back, the right paw went
- * 5.6 cm into the belly. With the top plate turned 29° to the right, as the hold of the parametric
- * hippo, the bow ran back into the belly. The trunk leans 15° forward, and the right shoulder turns
- * 45° forward: with 30°, the right forearm went 8.4 cm into the body (5.6 cm with 45°). The
- * reasons and the measures are in the 2026-10-18-mesh-hippo decisions.
+ * and 2 cm forward (`playShift`), and the contrabass turns around it (`playTurn`), so that the
+ * strings run from the contact point 0.17 m in front of the middle of the belly up to the nut
+ * 0.45 m left of the middle, beside the head: it leans 37° from the vertical, to the left and back,
+ * and its top plate faces forward. With the end pin on the floor, the lean sets the height of the
+ * contact point, 0.30 m below the right shoulder joint. With the contact point 5 cm further back,
+ * the right paw went 5.6 cm into the belly. With the top plate turned 29° to the right, as the hold
+ * of the parametric hippo, the bow ran back into the belly. The trunk leans 12° forward, and the
+ * right shoulder turns 45° forward: with 30°, the right forearm went 8.4 cm into the body (5.6 cm
+ * with 45°). The reasons and the measures are in the 2026-10-18-mesh-hippo decisions.
+ *
+ * The contrabass leans back, so its upper bout lies under the chin. With the trunk at 15° and the
+ * end pin 2 cm further back, the chest under the chin covered the upper bout: the top plate went
+ * 4.5 cm into the chest on the mean of the play samples. With 12° and the end pin 2 cm forward, it
+ * goes at most 1.5 cm in, and the arms go up to 4.8 cm deeper into the body and the contrabass, most
+ * in the lowering. With a roll of 20° to the left, the top plate went 6.2 cm into the chest. The
+ * measures are in the 2026-10-19-hippo-chest decisions.
  *
  * The string planes are 12° apart, below the 25° of a real contrabass: with 25°, the bow paw on the
  * lowest string went 9.1 cm into the belly. The right elbow points out, up, and forward, so that
@@ -786,9 +793,9 @@ const DOG_HOLD = {
  */
 const HIPPO_HOLD = {
   ...BOWED_HOLDS.contrabass,
-  lean: 15 * MathUtils.DEG2RAD,
+  lean: 12 * MathUtils.DEG2RAD,
   reach: 45 * MathUtils.DEG2RAD,
-  playShift: [0.84, 0, 0.004],
+  playShift: [0.84, 0, -0.04],
   playTurn: [-0.0664, 0.2385, 0.215, 0.9447],
   stringTurn: 12 * MathUtils.DEG2RAD,
   poleL: [-1, 0.5, 0.3],
