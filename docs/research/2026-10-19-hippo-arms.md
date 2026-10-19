@@ -91,6 +91,17 @@ elbow of the bow keeps the folds and takes the pizzicato depths down (`pose-dept
 | Folded face samples | 164,307 | 13,065 |
 | Upper arm R / L, mean play turn | 107° / 80° | 96° / 28° |
 
+`arm-twist.ts` of `docs/research/2026-10-18-hippo-arm/` splits each play turn into a swing and a
+twist (medians, `twist-base.txt` with the old poles, `twist-final.txt`), and `roll-all.sh` counts
+the jumps of the roll of the bow paw (`roll-base.txt`, `roll-final.txt`):
+
+| Measure | Old poles | Round |
+|---|---:|---:|
+| Right upper arm: swing / twist | 58° / -96° | 46° / -86° |
+| Left upper arm: swing / twist | 54° / 56° | 17° / 7° |
+| Right paw on the forearm, twist (5% to 95%) | 11° to 116° | -26° to 19° |
+| Jumps of the roll of the bow paw above 90° in 0.25 s | 24 | 6 |
+
 Faces 617 and 618 under the chin and 323 of the neck are faces 633, 634, and 337 of the cut mesh
 (`face-near.txt`). They fold in no play sample of all demos (`hold-fit-chest.txt`). The top plate
 keeps 0.6 cm on the mean and 1.5 cm at most (`top-plate-final.txt`). The bow targets keep 99.9%
