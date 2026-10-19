@@ -380,8 +380,13 @@ of the player (`docs/research/2026-10-12-studio-bear.md`).
     move to its sheet, the white fur of the panda takes the white of `SPECIES_COLORS.panda`, and
     each plain face of the hippo, of the mouse, and of the elephant takes the hue and the chroma of
     the fur or the belly color of its species color with its own lightness. The cream tusks and
-    nails of the elephant keep their colors.
-    The tan palette of the fox mesh (`StudioBody.palettes`) lets one module serve both foxes.
+    nails of the elephant keep their colors. A second rule moves a colored fur in Oklch
+    (`colors.shift`): the orange fur of the red fox takes the lightness, the chroma, and the hue
+    of the reference foxes in the play frame. A moved color keeps its hue at the edge of the sRGB
+    gamut and takes less chroma, because a clip of each channel turns the hue.
+    The tan palette of the fox mesh (`StudioBody.palettes`) lets one module serve both foxes. It
+    maps the colors of the texture before the shift (`COLOR_1` of the GLB file), so a shift of the
+    red fox keeps the tan fox.
   - Borders of black fur. A face takes black from a third of dark texture samples, so that the
     small faces of an eye stay dark. On the large faces of a trunk, the border of a black region
     then gets teeth, and a raised arm stretches them into black wedges. `colors.border` gives each
@@ -517,7 +522,9 @@ the face, and the accent. The models and the seat dots of the UI read them throu
 (`models/species.ts`). Each studio body keeps the colors of the faces of its GLB file (4.4), so
 its colors and its accent parts here color no part of its body. The rig of the panda moves its
 white fur to the fur color here, its smile line takes the dark of its eye patches, and the border
-of its black band under the arms takes the white of its fur (4.4).
+of its black band under the arms takes the white of its fur (4.4). The rig of the red fox moves
+its orange fur to the red-orange of the reference foxes, and its fur color here is that moved fur,
+for the seat dot (4.4).
 
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR`), and a dark nose
   (`NOSE_COLOR`), unless their accent parts include the nose. The open beak of the penguin shows a
