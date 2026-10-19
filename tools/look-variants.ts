@@ -23,7 +23,8 @@
  *    or at `--port`. It refuses a port that is in use, because the user runs dev servers too.
  * 3. It runs `pnpm look-lab <dir>/<name> --url <url>` for each variant, with the log in
  *    `<dir>/<name>.log`. A failed variant does not stop the others.
- * 4. It stops the server by its PID, also after a failure and after Ctrl-C.
+ * 4. It stops the server by its PID, also after a failure and after Ctrl-C. Each run of
+ *    `pnpm look-lab` has a process group of its own, which a stop ends as a whole.
  * 5. It prints the tables of `lookSummary()` and `defaultSummary()` of `tools/look-lab.ts`, one
  *    row for each variant, with the row of the reference first, and writes them to
  *    `<dir>/variants.md`. The white fur of each variant takes the pixels of the mask of the first
@@ -261,8 +262,26 @@ export function variantUrl(site: string, variant: Variant): string {
   return text ? `${site}?${text}` : site;
 }
 
+/** The process groups of the runs of `pnpm look-lab` that run now, by the PID of each run. */
+const groups = new Set<number>();
+
 /**
- * Runs `pnpm look-lab --url` for one variant, with its output in a log file.
+ * Sends TERM to each process group of {@link groups}: the run of `pnpm look-lab`, its run of
+ * `close-views`, and their browsers. A signal to the PID of the run alone leaves its children.
+ */
+function stopGroups(): void {
+  for (const pid of groups) {
+    try {
+      process.kill(-pid, 'SIGTERM');
+    } catch {
+      // The group has ended.
+    }
+  }
+}
+
+/**
+ * Runs `pnpm look-lab --url` for one variant, in a process group of its own, with its output in a
+ * log file. A stop of the tool ends the group ({@link stopGroups}).
  *
  * @param out The output folder.
  * @param site The URL of the dev server.
@@ -280,12 +299,21 @@ function runVariant(out: string, site: string, variant: Variant): Promise<number
         '--url',
         variantUrl(site, variant),
       ],
-      { cwd: ROOT, stdio: ['ignore', fd, fd] },
+      { cwd: ROOT, stdio: ['ignore', fd, fd], detached: true },
     ),
   );
   closeSync(fd);
+  const pid = child.pid;
+  if (pid !== undefined) {
+    groups.add(pid);
+  }
   return new Promise((done) => {
-    child.once('close', (code) => done(code ?? 1));
+    child.once('close', (code) => {
+      if (pid !== undefined) {
+        groups.delete(pid);
+      }
+      done(code ?? 1);
+    });
   });
 }
 
@@ -328,6 +356,10 @@ async function main(): Promise<void> {
   const failed: string[] = [];
   const log = join(args.out, 'dev-server.log');
   const server = await startServer(port, log);
+  // The handler of `stop-cleanup.ts` stops the server and each run by its PID, and this one ends
+  // the process group of each run.
+  process.on('SIGINT', stopGroups);
+  process.on('SIGTERM', stopGroups);
   console.log(`dev server: ${server.url} (PID ${server.child.pid}), log ${log}`);
   try {
     for (const variant of variants) {
