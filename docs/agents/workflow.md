@@ -78,6 +78,9 @@ Then these rules hold:
 - After a merge or a rebase, make each generated report again with its tool, such as
   `docs/reviews/step-6/keyboard-check.md` with `pnpm keyboard`. Do not merge its conflict lines by
   hand.
+- A rebase can keep the old index line of a decision file beside the new one, with no conflict.
+  After a merge, this command must print nothing:
+  `grep -o 'decisions/[0-9-]*[a-z0-9-]*\.md' docs/design.md | sort | uniq -d`.
 
 In both cases:
 
