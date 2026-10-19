@@ -315,10 +315,10 @@ describe('fitTable', () => {
     };
     const lines = fitTable([{ ...row, free: [{ side: 'L', share: 0.995 }] }, flute]);
     expect(lines[0]).toMatch(
-      /\| lift depth cm \(limit\) \| Instrument in body cm \(limit\) \| Rest gap paw L cm \| Rest reach L \|$/,
+      /\| lift depth cm \(limit\) \| Instrument in body cm \| Rest gap paw L cm \| Rest reach L \|$/,
     );
     expect(lines[2]).toMatch(/\| - \| - \| 0\.995 \|$/);
-    expect(lines[3]).toMatch(/\| 1\.6 lower \(1\.5\) OVER \| 0\.4 \| 1\.042 OVER \|$/);
+    expect(lines[3]).toMatch(/\| 1\.6 lower \| 0\.4 \| 1\.042 OVER \|$/);
     expect(fitTable([row])[0]).not.toContain('Instrument');
   });
 
