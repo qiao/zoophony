@@ -294,6 +294,7 @@ describe('fitTable', () => {
     free: [],
     lap: null,
     turns: null,
+    facesOf: [],
   };
 
   it('marks a depth over its limit and play folds over the goal of 1%', () => {

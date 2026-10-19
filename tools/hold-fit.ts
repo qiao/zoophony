@@ -14,7 +14,8 @@
  * variants. A run with a grid sorts the rows of the variants by the play folds, then by the
  * deepest point. With `--faces <n>`,
  * the faces that fold most in the base and in the best variant follow the table, as
- * `pnpm fold-probe --faces` writes them.
+ * `pnpm fold-probe --faces` writes them. `--faces-of <face>[,<face>]...` adds a column for each
+ * named face with the share of the play samples in which it folds (`tools/face-shares.ts`).
  *
  * With `--base <ref>`, the commit and the working tree run at the same time, each in a child
  * process. The table then starts with the row of the commit, and one compare of the deepest
@@ -62,6 +63,8 @@ import type {
   SampleSet,
   SideSplit,
 } from './fold-probe.ts';
+import { faceList, faceShares, foldShareText } from './face-shares.ts';
+import type { FaceShare } from './face-shares.ts';
 import { freeRestReach, holdReach, rangeTexts, reachShare, ruleSize } from './hold-reach.ts';
 import type { ChinInstrument, HoldReach } from './hold-reach.ts';
 import { setHolds } from './hold-sets.ts';
@@ -198,7 +201,7 @@ export const UPPER_ARM_GOAL = 35;
 export const LEG_RESTS: ReadonlySet<string> = new Set(['flute@fox-tan']);
 
 /** The usage text of `pnpm hold-fit`. */
-const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>]
+const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--faces-of <face>[,<face>]...] [--base <ref>] [--json <file>]
        pnpm hold-fit <role> --scan [--walls <seconds>[,<seconds>]...] [--set <changes>]... [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]...`;
 
 /**
@@ -331,6 +334,8 @@ export interface FitOptions {
   readonly gridBases: number;
   /** The number of faces of `--faces` for the base and the best variant, or 0 for none. */
   readonly faces: number;
+  /** The faces of `--faces-of`, whose share of the folded play samples each row gives, or none. */
+  readonly facesOf: readonly number[];
   /**
    * The demos, by the name of the file with no `.mid`, or `all`. The demos of {@link FIT_DEMOS}
    * when empty.
@@ -351,7 +356,14 @@ export interface FitOptions {
 }
 
 /** The options that do not go with `--scan`: the scan has one sample set and no sweep. */
-const SCAN_REFUSES: readonly string[] = ['--base', '--json', '--faces', '--sets', '--step'];
+const SCAN_REFUSES: readonly string[] = [
+  '--base',
+  '--json',
+  '--faces',
+  '--faces-of',
+  '--sets',
+  '--step',
+];
 
 /**
  * Reads the wall times of `--walls`.
@@ -391,6 +403,7 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   let step = FIT_STEP;
   let samples: readonly FitSet[] = FIT_SETS;
   let faces = 0;
+  const facesOf: number[] = [];
   let json: string | null = null;
   let base: string | null = null;
   let scan = false;
@@ -422,6 +435,9 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
         if (!Number.isInteger(faces) || faces < 1) {
           throw new Error('The option --faces takes a whole number of faces above 0.');
         }
+        break;
+      case '--faces-of':
+        facesOf.push(...faceList(value, '--faces-of'));
         break;
       case '--demo':
         demos.push(value.replace(/\.mid$/, ''));
@@ -468,6 +484,7 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
     grids,
     gridBases: bases.length,
     faces,
+    facesOf,
     demos,
     step,
     sets: samples,
@@ -697,6 +714,27 @@ export function foldShares(report: FoldReport): FoldShares {
   };
 }
 
+/**
+ * Gives the share of the samples of each set in which each face of `--faces-of` folds
+ * (`faceShares()` of `tools/face-shares.ts`).
+ *
+ * @param report The folds of the variant.
+ * @param faces The indices of the faces.
+ * @returns The shares of each face, in the order of the faces.
+ */
+export function reportShares(report: FoldReport, faces: readonly number[]): FaceShare[] {
+  const { rest, play, lift } = report.sets;
+  return faceShares(
+    { rest: rest.samples, play: play.samples, lift: lift.samples },
+    (face) => ({
+      rest: rest.byFace.get(face) ?? 0,
+      play: play.byFace.get(face) ?? 0,
+      lift: lift.byFace.get(face) ?? 0,
+    }),
+    faces,
+  );
+}
+
 /** The results of one variant. */
 export interface FitRow {
   /** The text of the changes, or empty for the base. */
@@ -713,6 +751,8 @@ export interface FitRow {
   readonly results: readonly DemoResult[];
   /** The table of the faces that fold most (`faceLines()` of `pnpm fold-probe`), or none. */
   readonly faces: readonly string[];
+  /** The shares of the folded samples of each face of `--faces-of` ({@link reportShares}). */
+  readonly facesOf: readonly FaceShare[];
   /** The pair of the instrument in the body ({@link splitHeld}), or `null`. */
   readonly held: SetWorst | null;
   /** The gap of each free paw to the body in the rest ({@link restGaps}). */
@@ -831,7 +871,12 @@ interface StoredFit {
   /** The demos of the run. */
   readonly demos: readonly string[];
   /** The rows, the base first. */
-  readonly rows: readonly (Omit<FitRow, 'depths' | 'results' | 'held' | 'lap' | 'turns'> & {
+  readonly rows: readonly (Omit<
+    FitRow,
+    'depths' | 'results' | 'held' | 'lap' | 'turns' | 'facesOf'
+  > & {
+    /** The shares of the faces of `--faces-of`, or none in a text before the format version 11. */
+    readonly facesOf?: readonly FaceShare[];
     /** The largest values of the lap rest, or `null`. */
     readonly lap: StoredLaps | null;
     /** The mean turns of the arms, or none in a text before the format version 9. */
@@ -859,11 +904,11 @@ export interface FitRun {
  * the instrument in the body, the rest gaps, and the reach shares of the free paws, version 4 the
  * rest samples of the folds, version 5 the lap rest, version 6 the upright rest of the violin,
  * version 7 the right arm in the rest, version 8 the reach of the note targets of each result,
- * version 9 the mean turns of the arms, and version 10 the instrument in the body of the
- * contrabass, with `null` for its limit: the pair has no limit. A reader of an older version shows
- * that limit as 0.
+ * version 9 the mean turns of the arms, version 10 the instrument in the body of the contrabass,
+ * with `null` for its limit: the pair has no limit (a reader of an older version shows that limit
+ * as 0), and version 11 the shares of the faces of `--faces-of`.
  */
-export const FIT_FORMAT = 10;
+export const FIT_FORMAT = 11;
 
 /**
  * The oldest format version that {@link FIT_FORMAT} only adds fields to (`ProbeFormat.since` of
@@ -912,6 +957,7 @@ export function readFit(text: string): FitRun {
       seconds: row.seconds,
       results: row.results.map(restoreResult),
       faces: row.faces,
+      facesOf: row.facesOf ?? [],
       held: row.held ? restore(row.held) : null,
       gaps: row.gaps,
       free: row.free,
@@ -1078,7 +1124,8 @@ function lapHeader(bow: boolean): string[] {
 
 /**
  * Writes the table of `pnpm hold-fit`: one row for each variant, with the play folds and the lift
- * folds, the most folded faces of one rest sample by side, the deepest point of each sample set in
+ * folds, the most folded faces of one rest sample by side, the share of the play samples in which
+ * each face of `--faces-of` folds, the deepest point of each sample set in
  * cm with its pair and its limit, the largest note-target error with the share of the targets
  * within `TARGET_REACH` of `tools/pose-depth.ts`, the instrument in the body with its set, the gap of each free
  * paw to the body in the rest in cm, the reach share of the rest place of each free paw, the lap
@@ -1107,11 +1154,13 @@ export function fitTable(rows: readonly FitRow[]): string[] {
   const reaches = rows.map((row) => joinReach(row.results));
   const targets = reaches.some((reached) => reached.samples > 0);
   const turnSet = rows.find((row) => row.turns)?.turns?.set;
+  const named = rows.find((row) => row.facesOf.length > 0)?.facesOf.map(({ face }) => face) ?? [];
   const header = [
     'Variant',
     'Play folds',
     'Lift folds',
     'Rest faces (by side)',
+    ...named.map((face) => `Face ${face} play`),
     ...sets.map((set) => `${set} depth cm (limit)`),
     ...(targets ? [`Note targets: worst mm (within ${TARGET_REACH * 1000} mm)`] : []),
     ...(turnSet ? [`${turnSet} turns: upper arm, paw L / R`] : []),
@@ -1164,6 +1213,10 @@ export function fitTable(rows: readonly FitRow[]): string[] {
       row.folds.rest.samples > 0
         ? `${row.folds.rest.most} (${splitText(row.folds.rest.split)})`
         : '-',
+      ...named.map((face) => {
+        const share = row.facesOf.find((f) => f.face === face);
+        return share ? foldShareText(share.shares.play) : '-';
+      }),
       ...depths,
       ...(targets ? [targetCell] : []),
       ...(turnSet ? [turnCell] : []),
@@ -1536,7 +1589,7 @@ async function compareFit(options: FitOptions, ref: string): Promise<void> {
   const texts = await probeBeside(
     ref,
     'hold-fit.ts',
-    { base: withoutOptions(args, ['--set', '--grid']), tree: args },
+    { base: withoutOptions(args, ['--set', '--grid', '--faces-of']), tree: args },
     {
       prefix: 'hold-fit-',
       role: { ...FOLD_ROLE_TABLE, name: options.name },
@@ -1717,6 +1770,7 @@ async function main(): Promise<void> {
         seconds: (performance.now() - started) / 1000,
         results,
         faces: options.faces > 0 ? faceLines(report, options.faces) : [],
+        facesOf: reportShares(report, options.facesOf),
         held,
         gaps: restGaps(results),
         free: freeShares(options.role),
