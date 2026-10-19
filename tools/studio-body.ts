@@ -116,6 +116,13 @@ export interface AnimalSettings {
    * (`tools/studio-palette.ts`, design 4.4). A species selects one with its `palette`.
    */
   readonly palettes?: Readonly<Partial<Record<StudioPalette, PaletteMap>>>;
+  /**
+   * The lowest height of the head measures in the bind pose of the GLB file, in its units, for a
+   * long nose that follows the head below the chin, as the trunk of the elephant (`noseFront` of
+   * the rig config). The head height, the head center, the box of the pea eyes, and the tip of
+   * the nose then leave out the vertices below it. With no value, each vertex of the head counts.
+   */
+  readonly headFloor?: number;
 }
 
 /** The animals of the studio that the app shows, by their ids in `lowpoly-studio/animals/`. */
@@ -1903,8 +1910,12 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   // no gloss nose, such as the hippo with its two nostrils.
   let nose = new Vector3(0, 0, -Infinity);
   let snout = new Vector3(0, 0, -Infinity);
+  const floor = settings.headFloor ?? -Infinity;
   for (const [v, vertex] of mesh.vertices.entries()) {
     const head = vertex.skin.find(([bone]) => bone === 'head')?.[1] ?? 0;
+    if (vertex.position.y < floor) {
+      continue;
+    }
     if (vertex.material === 'fur' && head > 0.5) {
       const share = vertex.skin
         .filter(([bone]) => bone === 'head' || bone === 'ear_L' || bone === 'ear_R')
