@@ -146,6 +146,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The pose of a rule in Blender turns over fewer faces than the app at the same turn. Turn the rule
   further on the same axis, as `pnpm raise-fit --bone hand` does, and read the folded face-samples
   in the line of the main bones of `pnpm rig-mesh --check`.
+- A paw that turns about 160° on its forearm folds the wrist with each elbow pole, because a pole
+  only moves the fold to other faces. A shape of the bent wrist relaxes them, and `weights.rigid`
+  takes the face that stays turned after the relax (`docs/research/2026-10-19-hippo-arms.md`).
 - A shape fixes only the poses near its rule, for the arm turns of one hold. `pnpm rig-mesh --check`
   counts the folds with the hold of the working tree, so fit the hold first, or fit both in one loop
   with `--hold <changes>`. A rule whose line `raise <target>` in the rig log keeps turned faces
