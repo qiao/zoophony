@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, mkdtempSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
@@ -298,7 +298,8 @@ const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, Config
  * `false`, a text, numbers separated by commas for a list of the same count of numbers, or JSON
  * text for another list or an object. A last key that the config and {@link OPTIONAL_VALUES} do
  * not have is a new key of its object, or the next item of its list, with a JSON value, such as
- * `weights.rigid=[[-0.17,0.68,-0.12]]` or `raise.1={"side":"L",...}` ({@link newKeys}).
+ * `weights.rigid=[[-0.17,0.68,-0.12]]` or `raise.1={"side":"L",...}` ({@link newKeys}). A change
+ * `<path>+=<value>` adds the value to the end of a list ({@link appendConfigValue}).
  *
  * @param config The config.
  * @param change The change.
@@ -308,6 +309,10 @@ const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, Config
 function setConfigValue(config: ConfigObject, change: ConfigChange): void {
   const { path, text } = change;
   const keys = path.split('.');
+  if (change.append) {
+    appendConfigValue(config, keys, text);
+    return;
+  }
   let node: ConfigValue = config;
   for (const [i, key] of keys.entries()) {
     const last = i === keys.length - 1;
@@ -325,6 +330,49 @@ function setConfigValue(config: ConfigObject, change: ConfigChange): void {
     } else {
       setChild(node, key, parseConfigValue(text, old, path));
     }
+  }
+}
+
+/**
+ * Adds a value to the end of a list of a config, such as a rule of `raise` (`raise+=<JSON>`). An
+ * object, such as a `raise` of one rule, becomes a list of the object and the value, as
+ * `tools/blender/rig_mesh.py` reads one rule or a list of rules. A key that the config does not
+ * have gets a list of the value.
+ *
+ * @param config The config.
+ * @param keys The keys of the path of the list.
+ * @param text The JSON text of the value.
+ * @throws Error if a key before the last names no value, if the last key names a value that is not
+ *   a list or an object, or if the text is no JSON text.
+ */
+function appendConfigValue(config: ConfigObject, keys: readonly string[], text: string): void {
+  const path = keys.join('.');
+  let node: ConfigValue = config;
+  for (const key of keys.slice(0, -1)) {
+    const child = childOf(node, key);
+    if (child === undefined) {
+      throw new Error(`The key "${key}" of ${path}+= is not known.`);
+    }
+    node = child;
+  }
+
+  const last = keys.at(-1) ?? '';
+  let value: ConfigValue;
+  try {
+    // SAFETY: JSON.parse gives a JSON value, and parseConfig() checks the changed config.
+    value = JSON.parse(text) as ConfigValue;
+  } catch {
+    throw new Error(`The value "${text}" of ${path}+= is no JSON text.`);
+  }
+  const old = childOf(node, last);
+  if (Array.isArray(old)) {
+    old.push(value);
+  } else if (old instanceof Object) {
+    setChild(node, last, [old, value]);
+  } else if (old === undefined && canAdd(node, last)) {
+    setChild(node, last, [value]);
+  } else {
+    throw new Error(`${path}+= adds an item to a list, and ${path} is a ${kindOf(old ?? null)}.`);
   }
 }
 
@@ -436,14 +484,20 @@ export interface ConfigChange {
   readonly path: string;
   /** The text of the new value, such as `0.16,0.27`. */
   readonly text: string;
+  /** True for `<path>+=<value>`, which adds the value to the end of the list of the path. */
+  readonly append: boolean;
 }
 
 /**
- * Reads the changes of a variant of `--set`, separated by `;`.
+ * Reads the changes of a variant of `--set`, separated by `;`. A change `<path>+=<value>` adds a
+ * JSON value to the end of a list, such as `raise+=<entry>`. A value `@<file>` takes the JSON text
+ * of the file, such as the entry of `pnpm raise-fit --json <file>`.
  *
- * @param list The changes, such as `weights.haunch.height=0.16,0.27;armFactor=1.08`.
+ * @param list The changes, such as `weights.haunch.height=0.16,0.27;armFactor=1.08` or
+ *   `raise+=@scratch/raise.json`.
  * @returns The changes, in their order.
- * @throws Error if a change is not `<path>=<value>`, or if the variant has no change.
+ * @throws Error if a change is not `<path>=<value>` or `<path>+=<value>`, if the variant has no
+ *   change, or if the file of a value `@<file>` cannot be read.
  */
 export function configChanges(list: string): ConfigChange[] {
   const changes = list
@@ -452,15 +506,37 @@ export function configChanges(list: string): ConfigChange[] {
     .filter((change) => change !== '')
     .map((change) => {
       const equals = change.indexOf('=');
-      if (equals < 1) {
-        throw new Error(`The change "${change}" is not <path>=<value>.`);
+      const append = change[equals - 1] === '+';
+      const end = append ? equals - 1 : equals;
+      if (end < 1) {
+        throw new Error(`The change "${change}" is not <path>=<value> or <path>+=<value>.`);
       }
-      return { path: change.slice(0, equals), text: change.slice(equals + 1) };
+      const value = change.slice(equals + 1);
+      return { path: change.slice(0, end), text: valueText(value), append };
     });
   if (changes.length === 0) {
     throw new Error(`The variant "${list}" has no change. Each --set needs <path>=<value>.`);
   }
   return changes;
+}
+
+/**
+ * Gives the text of the value of a change: the text itself, or for `@<file>` the text of the file.
+ *
+ * @param value The value of the change, such as `0.5` or `@scratch/raise.json`.
+ * @returns The text of the value.
+ * @throws Error if the file of `@<file>` cannot be read.
+ */
+function valueText(value: string): string {
+  if (!value.startsWith('@')) {
+    return value;
+  }
+  const file = value.slice(1);
+  try {
+    return readFileSync(file, 'utf8').trim();
+  } catch {
+    throw new Error(`The file ${file} of the value ${value} cannot be read.`);
+  }
 }
 
 /**
