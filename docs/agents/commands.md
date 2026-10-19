@@ -1,4 +1,3 @@
-| `pnpm look-lab <dir> [--base <ref>] [--url <url>] [--measure]` | Measures the light of the stage against `orchestra-latest.png` (design 4.5). It renders the default demo at 33.5 s at the cameras `orchestra`, `default`, and `violins` of `pnpm close-views play`, then writes `<dir>/look.md`: the luma percentiles and the saturation of the stage area of each frame, the colors of matched regions, and the contrast of the floor shadows. `--measure` only measures the frames in `<dir>`. A new layout moves the regions (`LOOK_REGIONS` of `tools/look-lab.ts`). About 90 s. |
 # Commands
 
 This module of `AGENTS.md` lists the commands of the repository and the checks of CI. Use Node 24
@@ -26,10 +25,9 @@ prints only a one-line usage text.
 - **`--glb <file>`.** Gives the animal the studio body that the export makes from another GLB
   file, in a copy of `src/` (`tools/glb-swap.ts`). `ANIMALS` and `src/` do not change. A species
   with no studio body takes the body when `tools/mesh-rigs/<species>.json` exists.
-- **Image tools.** `pnpm screenshots`, `pnpm snapshot`, `pnpm sheet-check`, `pnpm choir-check`,
-  `pnpm keyboard`, `pnpm close-views`, and `pnpm look-lab` build the site and use headless
-  Chromium with ANGLE on Metal (`pnpm exec playwright install chromium` one time). They stop
-  their servers and browsers at the end. Do not edit the working tree while they build.
+- **Image tools.** The tools of the table "Images" build the site or start a dev server, and use
+  headless Chromium with ANGLE on Metal (`pnpm exec playwright install chromium` one time). They
+  stop their servers and browsers at the end. Do not edit the working tree while they build.
 
 ## Build and site
 
@@ -53,6 +51,7 @@ prints only a one-line usage text.
 | `pnpm sheet-check <sheet> <dir>` | Compares a sheet page of `views.html` with its sheet in `docs/reference/` (design 7.1). It writes the page, the silhouette of the body, and the sheet above the page. With a matte in `tools/sheet-mattes/<id>.png`, it also prints the silhouette IoU of each view and writes a difference image. `tools/sheet-mattes/make_matte.py <id>.json` makes each matte. |
 | `pnpm choir-check <dir>` | Puts the gallery penguin beside one penguin of each of the two newest reference images (design 4.4), as `choir-compare.png` and `.webp`. |
 | `pnpm close-views <mode> <dir> [--url <url>] [--base <ref>]` | Writes images from the gallery into `<dir>`, with a grid of all cells. The modes: `<role>` (the moments and the views of a role of `ROLE_VIEWS`), `lineup <species,...>` (side by side), `species <species,...>` (with `--views`, `--moment`, `--zoom`, and `--elevation`), `play` (a frame of `--demo` at `--time` for each `--camera`, or the shot camera of the app with `--cinematic`, or with `--shot <seat|species>` the middle of the first solo or section shot of the subject), and `batch` (the image set of a round, one build of each tree). `--base` puts the grid of the commit above the grid of the working tree. `--url` renders a running site. A role: about 30 s. A batch: 90 s to 260 s. |
+| `pnpm look-lab <dir> [--url <url>]`, `pnpm look-variants <file> --out <dir>` | Measure frames of `close-views play` against `orchestra-latest.png`: one tree, or each variant. 40 s each. |
 | `pnpm keyboard` | Checks each control with the keyboard alone at 1440 × 900 and at 390 × 844 (design 9.5, step 6). It prints a Markdown table, and fails on a failed check. |
 
 ## Pose and body probes
@@ -69,6 +68,7 @@ are in the table "Bodies and roles" of [`model-work.md`](model-work.md).
 | `pnpm fold-probe <role> [--demo <id>]... [--step <s>] [--faces <n>] [--turns <face>] [--json <file>] [--glb <file>] [--base <ref>]` | Counts the folded faces of the studio skin of a role over each demo with the role (design 4.4). A face folds when its posed normal is more than 90° from its bind normal. It prints a row for each sample set (the rest, the play, and the lift): the share of the samples with a fold, and the most folded faces by side. `--faces <n>` lists the faces that fold most, `--turns <face>` gives the arm turn of its folds, and `--base` marks the new and the gone faces. 10 s to 40 s, or about 2 s for one demo. |
 | `pnpm body-probe [--out <file>] [--no-poses]`, `pnpm body-probe --compare <base.json> <new.json>`, or `pnpm body-probe --base <ref>` | Probes the rest joints and a mesh hash of each species on each support, each player of the section cast and the conductor, and a hash of the poses of each player of each demo in four sample sets. With no `--out`, it prints a summary and the SHA-256 of the JSON. `--compare` and `--base` print each body, player, and pose set that differs, and fail on a difference. About 6 s. |
 | `pnpm shot-trace <demo> [--from <s>] [--to <s>] [--cameras] [--base <ref>]` | Prints the choice of the shot planner at each cut of a time range (design 5.6, `traceShots()` of `src/shots/prepare.ts`): the candidates that a rule drops, the scores of the other candidates, and the refused cameras of each try by reason. `<demo>` is a demo of `demos/src` or a chamber test file. Less than 1 s. |
+| `pnpm light-probe [--look <JSON>] [--grid <spec>] [--goal <r>]` | Light on the players by row, and the lux for a goal. 1 s. |
 | `pnpm docs-species <species> [--all]` | Prints each place of the docs checklist (section 8 of `docs/briefs/studio-body.md`) that does not name the species yet. A place that the tool cannot find prints `not found`. `--all` also prints the places that name the species. It exits with 1 on a miss. Less than 1 s. The names of each species: `DOC_NAMES` of `tools/docs-species.ts`. |
 
 ## Rig tools
