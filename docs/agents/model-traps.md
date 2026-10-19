@@ -80,17 +80,17 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The sweep measures a part by its triangle corners, so the middle of a long box, such as a bow
   stick, can go into the body with no depth. The rest columns of `pnpm hold-fit` take a point at
   each 1 cm of the bow (`bowPoints()`).
-- A thick arm that crosses the front of a round body goes into the chest. Point the elbow out and
-  forward. A straight arm keeps its depths for each elbow pole, so turn the shoulder bone forward
+- A thick arm across the front of a round body goes into the chest: point the elbow out and forward.
+  A straight arm keeps its depths for each elbow pole, so turn the shoulder bone forward
   (`BowedHold.reach`), and read the folds of the shoulder and the chest.
 - A depth that keeps one value over all variants is half the thickness of the obstacle, because the
   part goes through it. Count the samples over the goal (`left-forearm.ts` of
   `docs/research/2026-10-19-hippo-chest/arms/`).
 - The depth of an open part is false near its open edge, so the sweep measures in a closed part
-  (`closedPart()` with the count of its open loops). Each open edge, such as a whisker or a cut to
-  an arm, opens a loop: give the role its own count, and check that each extra loop is small.
-- A cap closes a cut with a fan from its middle, so a point of an upper arm near a long cut has its
-  depth to the cap: read it as a depth behind the cap.
+  (`closedPart()` with the count of its open loops). Each open edge, such as a whisker or an arm
+  cut, opens a loop: give the role its own count, and check that each extra loop is small.
+- A cap closes a cut with a fan from its middle, so the depth of an upper arm point near a long cut
+  is a depth behind the cap.
 - The pair "instrument in body" of `pnpm pose-depth` gives the deepest corner of the instrument,
   such as the back of a contrabass on the chest. Measure the visible top plate alone
   (`top-plate.ts` of `docs/research/2026-10-19-hippo-chest/`).
