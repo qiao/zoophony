@@ -86,8 +86,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   an arm, opens a loop: give the role its own count, and check that each extra loop is small.
 - A cap closes a cut with a fan from its middle, so a point of an upper arm near a long cut has its
   depth to the cap: read it as a depth behind the cap.
-- The sweep measures the arms and the bow, so an instrument in the chest has no measure. Run `pnpm
-  pose-depth <role> --bones instrument --into body`, and measure the visible top plate alone
+- The pair "instrument in body" of `pnpm pose-depth` gives the deepest corner of the instrument,
+  such as the back of a contrabass on the chest. Measure the visible top plate alone
   (`top-plate.ts` of `docs/research/2026-10-19-hippo-chest/`).
 
 ## Weights, rings, and folds
