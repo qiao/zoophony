@@ -738,6 +738,17 @@ function fileHash(path: string): string {
 }
 
 /**
+ * Gives the folder of the caches of the probes: `probe-cache/` in the common folder of git, which
+ * each worktree shares.
+ *
+ * @returns The path of the folder.
+ * @throws Error if git fails.
+ */
+export function probeCacheDir(): string {
+  return join(gitText(['rev-parse', '--path-format=absolute', '--git-common-dir']), 'probe-cache');
+}
+
+/**
  * Gives the file of the cache of the probe of a commit: `probe-cache/<key>.json` in the common
  * folder of git, which each worktree shares, as the cache of `tools/check-commits.sh` does. The
  * key ({@link baseCacheKey}) holds the trees of {@link PROBE_PATHS} of the commit, the scripts of
@@ -768,8 +779,7 @@ export function baseCacheFile(ref: string, script: string, args: readonly string
     node: `${process.version} ${process.platform} ${process.arch}`,
     modules: existsSync(lock) ? fileHash(lock) : 'none',
   });
-  const common = gitText(['rev-parse', '--path-format=absolute', '--git-common-dir']);
-  return join(common, 'probe-cache', `${key}.json`);
+  return join(probeCacheDir(), `${key}.json`);
 }
 
 /**
@@ -823,8 +833,7 @@ export function treeCacheFile(script: string, args: readonly string[]): string {
     existsSync(lock) ? fileHash(lock) : 'none',
   ];
   const key = createHash('sha256').update(JSON.stringify(fields)).digest('hex');
-  const common = gitText(['rev-parse', '--path-format=absolute', '--git-common-dir']);
-  return join(common, 'probe-cache', `tree-${key}.json`);
+  return join(probeCacheDir(), `tree-${key}.json`);
 }
 
 /**
