@@ -53,11 +53,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A long snout puts the mouthpiece far in front of the body, and the grips hang below it, so a
   smaller instrument barely helps. Turn the instrument back toward the body around the mouthpiece,
   and turn the shoulder forward (`reachL`, `PIG_HORN`).
-- The short arms of the elephant do not reach across its trunk or to the middle of a kettle. Use
-  `PercussionHold.rim`, `sides`, and `home`, and scan them with `pnpm pose-depth --targets`.
-- A held part with a fixed top can turn a paw almost upside down on its forearm, and the twist
-  bone twists the skin. Turn a round part around its axis (`PercussionHold.top`), and read the
-  twist with `twist.ts` of `docs/research/2026-10-19-elephant-arms/`.
+- The short arms of the elephant do not reach across its trunk or to the middle of a kettle, and a
+  mallet with a fixed top twists the paws. Use `PercussionHold.rim`, `sides`, `home`, and `top`,
+  and scan them with `pnpm pose-depth --targets` and `twist.ts` of the elephant arms research.
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit
   (`left-rest.ts` of `docs/research/2026-10-17-tan-rest/`).
 - Read the spare reach of each grip after each move of a rest place of a wind hold. `pnpm hold-fit`
