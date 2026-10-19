@@ -13,7 +13,7 @@ import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
-import { CHAIR, CHAIR_LEG } from '../src/models/props.ts';
+import { CHAIR, CHAIR_LEG, HIGH_STOOL } from '../src/models/props.ts';
 import {
   OPTIONAL_STUDIO_BONES,
   STUDIO_ARM_BONES,
@@ -218,6 +218,21 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       constant: 'STUDIO_PANDA',
       crease: 35,
       glb: 'assets/models/panda/panda.rig.glb',
+    },
+  ],
+  // The contrabass hippo: decisions/2026-10-18-mesh-hippo.md. It sits on the high stool, and its
+  // short legs hang to the foot ring.
+  [
+    'hippo',
+    {
+      landmark: 'shoulders',
+      height: 0.888504,
+      seated: true,
+      soloist: false,
+      seat: HIGH_STOOL.seatHeight,
+      constant: 'STUDIO_HIPPO',
+      crease: 35,
+      glb: 'assets/models/hippo/hippo.rig.glb',
     },
   ],
 ]);
