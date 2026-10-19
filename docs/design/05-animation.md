@@ -37,7 +37,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Flute, tan fox | Chair, stands as a soloist | Play: Michel Debost, Flute Talk, May/June 1996 (`2026-10-14-fox-flute.md`). Rest: Patricia George, The Instrumentalist, December 2018 (`2026-10-15-flute-rest.md`). Technique: `docs/reference/wind-technique.md` | Turns the head to the left, with the flute about square to the face and the shoulders square and low | The flute upright on the right leg in the right paw, and the left arm hangs near the side | `FOX_FLUTE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-17-fox-form.md`, `2026-10-17-tan-rest.md` | `pnpm close-views flutist <dir>` |
 | Oboe, mouse | No chair, in the seated pose at the seat height of its legs (4.5, props), stands as a soloist | Technique: Cline, "Oboe for Starters", and `docs/reference/wind-technique.md` 2.3 (`docs/research/2026-10-19-mouse-mesh.md`) | Holds the oboe with the reed in the mouth under the long muzzle, at the angle of a real oboist, with both paws on their grips and the elbows down | The oboe moves off the mouth and tilts in both paws, and the head lifts. The round belly covers the thighs, so the oboe does not rest on a leg | `MOUSE_OBOE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-mouse.md` | `pnpm close-views oboist <dir>` |
 | Clarinet, wolf | Chair, stands as a soloist | none | Holds the clarinet at the mouth with both paws on their grips | The clarinet moves off the mouth and tilts, and the head lifts | `WIND_HOLDS.clarinet`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species wolf <dir>` |
-| Bassoon, beaver | Chair | none | The lower end turns forward and to the right | The bassoon moves off the mouth and tilts, and the head lifts | `WIND_HOLDS.bassoon`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species beaver <dir>` |
+| Bassoon, beaver | No chair, in the seated pose at the seat height of its legs (4.5, props) | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-19-beaver-mesh.md`) | The smaller bassoon lies diagonal in front of the body, the left paw above the right paw, the reed in the mouth under the front teeth, and the bocal nearly level | The bassoon moves off the mouth and tilts, both paws keep their grips, and the head lifts | `BEAVER_BASSOON` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-beaver.md` | `pnpm close-views bassoonist <dir>` |
 | Horn, pig | Chair, stands as a soloist | none | The left hand presses the valves | The bell sits on the right thigh | `WIND_HOLDS.horn`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species pig <dir>` |
 | Trumpet, monkey | Chair, stands as a soloist | none | The right hand presses the valves | The trumpet moves off the mouth and turns down | `WIND_HOLDS.trumpet`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species monkey <dir>` |
 | Trombone, panda | Chair, stands as a soloist | Play: pBone, "How To Hold A Trombone", and Western Carolina University, "Slide Technique" (`docs/research/2026-10-18-panda-mesh.md`). Left shoulder: Human Kinetics (`docs/research/2026-10-18-panda-folds.md`). Technique: `docs/reference/wind-technique.md` | The left paw holds the weight at the grip near the mouthpiece, with the left shoulder forward, and the right paw moves the slide with the pitch. The slide turns right and down toward the right shoulder, as near to the level and to the front as the arm reaches | The trombone moves off the mouth and stands upright at the right side | `PANDA_PLAY`, `PANDA_TROMBONE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-18-mesh-panda.md`, `2026-10-18-trombone-fit.md` | `pnpm close-views trombonist <dir>` |
@@ -295,6 +295,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   off the mouth and tilts, and both paws keep their grips. A real oboist rests the oboe on the
   legs, but the round belly of the mouse covers its short thighs
   (`docs/decisions/2026-10-19-mesh-mouse.md`, `docs/decisions/2026-10-19-mouse-size.md`).
+- **Bassoon at rest.** The beaver takes the rest turn of the bassoon of `WIND_HOLDS`: the bassoon
+  moves off the mouth and tilts, and both paws keep their grips. It does not rest on a leg,
+  because the round belly of the beaver covers its short thighs
+  (`docs/decisions/2026-10-19-mesh-beaver.md`).
 - **Trombone at rest.** The seated and the standing panda take the rest of the trombone of
   `WIND_HOLDS`: the trombone moves off the mouth and stands upright at the right side, with the
   bell down, and both paws keep their grips. It does not rest on a leg
@@ -413,6 +417,13 @@ The code constants of each family hold the times, the angles, and the lengths of
     mouse plays a smaller oboe (4.6), and about half of the reed goes into the mouth, so that the
     right paw reaches its grip. The big head puts the reed high above the shoulders, so the elbows
     point down, and the upper arms do not turn into twisted bands.
+  - The beaver holds the bassoon as a real bassoonist (`BEAVER_BASSOON` of `SPECIES_WIND_HOLDS`,
+    `docs/reference/wind-technique.md` 3): the bassoon lies diagonal in front of the body, the
+    left paw above the right paw, and the bocal brings the reed to the mouth nearly level. The
+    long muzzle and the front teeth put the tip of the nose far in front of the mouth, so the reed
+    sits under the front teeth (`WindHold.lipShift`). The beaver plays a smaller bassoon (4.6),
+    and its shoulder bones turn forward, so that each paw reaches its grip. The app has no seat
+    strap.
   - The panda holds the trombone as a real trombonist (`PANDA_TROMBONE` of `SPECIES_WIND_HOLDS`,
     pBone and Western Carolina University): the left paw holds the weight at the grip near the
     mouthpiece, and the right paw holds the slide brace. Its big round head puts the mouth far in
