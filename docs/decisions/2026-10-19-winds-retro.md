@@ -20,8 +20,7 @@ outputs. The user can reverse each decision. Then update its section, and remove
 | `pnpm pose-depth` refuses more than 5 `--set` rows over all demos of a role, unless `--demo` or `--long` names the choice (`ROW_LIMIT`). | 9.3 |
 | `pnpm hold-fit` gives the spare reach of each grip of a wind hold, and `--scan` takes a wind hold with no lap rest, where a missed grip counts as a missed goal (`windSpare()`, `scanTable()`). | 9.8 |
 | A failed rig of `pnpm rig-mesh` ends its message with the last line of the error output of Blender, also in the check table (`blenderCause()`). `pnpm raise-fit` gives the count of the free shapes of the body (`STUDIO_RAISES`). | 9.8 |
-| The manager added two items of the beaver arm round and four items of the hippo arm round after the six items. | 9.8 |
-| After a `cut` or a ring, `--watch` of `pnpm rig-mesh --check` pairs each watched face of the base with the folded face of the variant with the nearest middle within 1 cm (`watchPairs()`, `fold-probe --middles`). `--keep <dir>` keeps the GLB file of each rig. | 9.8 |
+| After a `cut` or a ring, `--watch` of `pnpm rig-mesh --check` pairs each watched face with the folded face of the variant with the nearest middle within 1 cm, and `--keep <dir>` keeps each GLB file (`watchPairs()`). | 9.8 |
 | `pnpm close-views <role> --base <ref> --pairs <cells> --crop <box>` writes the crop of each named cell of the commit beside the crop of the working tree (`pairImage()`). | 9.8 |
 | The probe tree of a commit is an empty git repository (`git init` in `withProbeTree()`), so the git commands of the tools of each commit work there. | 9.3 |
 | Each row of `pnpm hold-fit` names the 5 faces that fold in the most samples, with `new` at a face that folds in no sample of the base row (`topFolds()`). | 9.8 |
