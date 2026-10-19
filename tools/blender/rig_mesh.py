@@ -1362,20 +1362,29 @@ def rigid_slivers(verts, tris, weights, rules):
 
 
 def rigid_faces(verts, tris, weights, rules):
-    """Gives the corners of single faces one set of weights: the mean of their weights. `rigid` of
-    the rules lists points in the units of the source, and the rule takes the face whose middle
-    lies nearest to each point. A face at the edge of the plane of `armSplit` can get corners with
-    upper arm weights that differ by 0.25, and it turns over when the arm hangs. With one set of
-    weights, the face moves rigidly. A config with no `rigid` changes no weight."""
+    """Gives the corners of single faces or of groups of faces one set of weights: the mean of
+    their weights. `rigid` of the rules lists points in the units of the source, and the rule takes
+    the face whose middle lies nearest to each point. A face at the edge of the plane of `armSplit`
+    can get corners with upper arm weights that differ by 0.25, and it turns over when the arm
+    hangs. With one set of weights, the face moves rigidly. An item of `rigid` can also be a list
+    of points: the faces nearest to them take one mean, the mean of the weights of all their
+    corners. Thus two thin faces that share corners both move rigidly, and the second face does
+    not undo the first. A config with no `rigid` changes no weight."""
     out = weights.copy()
     middles = verts[tris].mean(axis=1)
-    for point in rules.get('rigid', []):
-        f = int(np.argmin(np.linalg.norm(middles - np.asarray(point, float), axis=1)))
-        corners = tris[f]
+    for item in rules.get('rigid', []):
+        points = np.asarray(item, float).reshape(-1, 3)
+        faces = [int(np.argmin(np.linalg.norm(middles - p, axis=1))) for p in points]
+        corners = np.unique(tris[faces].ravel())
         change = np.abs(weights[corners] - weights[corners].mean(axis=0)).max()
         out[corners] = weights[corners].mean(axis=0)
-        log(f'rigid: the face at ({", ".join(f"{x:.4f}" for x in middles[f])}) u takes the mean '
-            f'of the weights of its corners, the largest change {change:.3f}')
+        places = '; '.join(', '.join(f'{x:.4f}' for x in middles[f]) for f in faces)
+        if len(faces) == 1:
+            log(f'rigid: the face at ({places}) u takes the mean of the weights of its corners, '
+                f'the largest change {change:.3f}')
+        else:
+            log(f'rigid: the {len(faces)} faces at ({places}) u take the mean of the weights of '
+                f'their {len(corners)} corners, the largest change {change:.3f}')
     return out
 
 
