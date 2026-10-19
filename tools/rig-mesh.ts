@@ -9,7 +9,7 @@ import type { Bounds } from '../src/models/bounds.ts';
 import type { Side } from '../src/models/studio-format.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { FOLD_ROLES, SAMPLE_SETS, readFaceJson, roleAnimal, roleSpecies } from './fold-probe.ts';
-import type { FaceRecord, FoldCounts } from './fold-probe.ts';
+import type { FaceRecord, FoldCounts, SampleSet } from './fold-probe.ts';
 import { animalSpecies, runTool, scratchSettings, withGlbBody } from './glb-swap.ts';
 import { measureLines, measureRig, triangleLine } from './rig-mesh-check.ts';
 import { FORM_FORMAT, readFormJson } from './rig-form.ts';
@@ -766,10 +766,25 @@ export interface CheckProbe {
    * hold tools takes them, or an empty text for none.
    */
   readonly hold: string;
+  /**
+   * The faces of `--watch`, by their index in the packed mesh, whose share of the folded samples
+   * the tool prints ({@link watchLines}), or none.
+   */
+  readonly watch: readonly number[];
 }
 
-/** The app checks of `--check` with no option: each role, all demos, no faces, and no hold change. */
-export const DEFAULT_PROBE: CheckProbe = { roles: null, step: null, demos: [], faces: 0, hold: '' };
+/**
+ * The app checks of `--check` with no option: each role, all demos, no faces, no hold change, and
+ * no watched face.
+ */
+export const DEFAULT_PROBE: CheckProbe = {
+  roles: null,
+  step: null,
+  demos: [],
+  faces: 0,
+  hold: '',
+  watch: [],
+};
 
 /** The arguments of `pnpm rig-mesh`. */
 export interface RigMeshArgs {
@@ -790,10 +805,19 @@ export interface RigMeshArgs {
 
 /** The usage text of `pnpm rig-mesh`. */
 const USAGE =
-  'Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <path>=<value>[;<path>=<value>]...]... [--roles <role>[,<role>]...] [--step <seconds>] [--demo <id>]... [--faces <n>] [--hold <changes>]...]';
+  'Usage: node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <path>=<value>[;<path>=<value>]...]... [--roles <role>[,<role>]...] [--step <seconds>] [--demo <id>]... [--faces <n>] [--watch <face>[,<face>]...] [--hold <changes>]...]';
 
 /** The options of `pnpm rig-mesh` that take a value. */
-const VALUED = ['--preview', '--set', '--roles', '--step', '--demo', '--faces', '--hold'] as const;
+const VALUED = [
+  '--preview',
+  '--set',
+  '--roles',
+  '--step',
+  '--demo',
+  '--faces',
+  '--watch',
+  '--hold',
+] as const;
 
 /**
  * Tells if an argument is an option of `pnpm rig-mesh` that takes a value.
@@ -807,15 +831,15 @@ function isValued(arg: string): arg is (typeof VALUED)[number] {
 
 /**
  * Reads the arguments of `pnpm rig-mesh <animal> [--preview <dir>] [--check] [--set <changes>]...`
- * and the options of the app checks of `--check`: `--roles`, `--step`, `--demo`, `--faces`, and
- * `--hold`, whose changes of the holds the fold probes take in memory.
+ * and the options of the app checks of `--check`: `--roles`, `--step`, `--demo`, `--faces`,
+ * `--watch`, and `--hold`, whose changes of the holds the fold probes take in memory.
  *
  * @param args The arguments after the script.
  * @returns The animal, the preview folder, the check flag, the variants, and the options of the
  *   app checks.
  * @throws Error with the usage for other arguments, for `--set` or an option of the app checks
- *   with no `--check`, for a step that is not above 0, or for a count of faces that is not a whole
- *   number above 0.
+ *   with no `--check`, for a step that is not above 0, for a count of faces that is not a whole
+ *   number above 0, or for a watched face that is not a whole number of 0 or more.
  */
 export function parseArgs(args: readonly string[]): RigMeshArgs {
   let preview: string | null = null;
@@ -826,6 +850,7 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
   let step: number | null = null;
   const demos: string[] = [];
   let faces = 0;
+  const watch: number[] = [];
   const holds: string[] = [];
   let checkOnly = false;
   for (let i = 0; i < args.length; i++) {
@@ -869,6 +894,17 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
           throw new Error(`The option --faces takes a whole number of faces above 0.\n${USAGE}`);
         }
         break;
+      case '--watch':
+        for (const text of value.split(',')) {
+          const face = Number(text);
+          if (text.trim() === '' || !Number.isInteger(face) || face < 0) {
+            throw new Error(
+              `The option --watch takes the indices of faces, such as 617,618, and not "${value}".\n${USAGE}`,
+            );
+          }
+          watch.push(face);
+        }
+        break;
       case '--hold':
         holds.push(value);
         break;
@@ -883,7 +919,7 @@ export function parseArgs(args: readonly string[]): RigMeshArgs {
   if (hold) {
     setHolds(hold).undo();
   }
-  return { animal, preview, check, sets, probe: { roles, step, demos, faces, hold } };
+  return { animal, preview, check, sets, probe: { roles, step, demos, faces, hold, watch } };
 }
 
 /**
@@ -1105,6 +1141,45 @@ export interface RoleFolds {
   readonly bones: readonly BoneFolds[];
   /** The faces that fold in the most samples, for `--faces` ({@link topFaces}), or none. */
   readonly faces: readonly FaceFolds[];
+  /** The faces of `--watch` with their shares of folded samples ({@link watchFaces}), or none. */
+  readonly watched: readonly WatchedFace[];
+  /**
+   * The SHA-256 of the corners of the faces of the mesh (`FaceJson.topology` of `pnpm fold-probe`):
+   * two rigs with one topology give each face the same index.
+   */
+  readonly topology: string;
+}
+
+/** A face of `--watch` with the share of the samples of each set in which it folds. */
+export interface WatchedFace {
+  /** The index of the triangle in the packed mesh, as `pnpm fold-probe` counts the faces. */
+  readonly face: number;
+  /** The share of the samples of each set in which the face folds, or `null` for a set with no sample. */
+  readonly shares: Readonly<Record<SampleSet, number | null>>;
+}
+
+/**
+ * Gives the share of the samples of each set in which each face of `--watch` folds. A face that
+ * folds in no sample is not in the JSON text of `pnpm fold-probe`, so its shares are 0.
+ *
+ * @param counts The counts of each sample set of `pnpm fold-probe --json`.
+ * @param faces The folded faces of `pnpm fold-probe --json`.
+ * @param watch The indices of the faces of `--watch`.
+ * @returns The watched faces, in the order of `--watch`.
+ */
+export function watchFaces(
+  counts: FoldCounts,
+  faces: readonly FaceRecord[],
+  watch: readonly number[],
+): WatchedFace[] {
+  return watch.map((face) => {
+    const record = faces.find((f) => f.face === face);
+    const share = (set: SampleSet): number | null => {
+      const samples = counts[set].samples;
+      return samples > 0 ? (record?.folds[set] ?? 0) / samples : null;
+    };
+    return { face, shares: { rest: share('rest'), play: share('play'), lift: share('lift') } };
+  });
 }
 
 /** The number of main bones of the folds of each role in the table of `--check`. */
@@ -1268,6 +1343,44 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
       ...(withFaces ? faces : []),
     ];
     lines.push(`| ${cells.join(' | ')} |`);
+  }
+  return lines;
+}
+
+/**
+ * Writes the table of the faces of `--watch`: one row for each variant and role, and one column
+ * for each face, with the share of the samples in which the face folds in the play, the lift, and
+ * the rest. A role of a variant whose mesh has another topology than the mesh of the base gets the
+ * mark `other mesh`, because a face index then names another face.
+ *
+ * @param rows The rows, the base first.
+ * @returns The lines, or none when no role has a watched face.
+ */
+export function watchLines(rows: readonly CheckRow[]): string[] {
+  const faces = rows.flatMap((row) => row.measures?.folds ?? []).at(0)?.watched ?? [];
+  if (faces.length === 0) {
+    return [];
+  }
+
+  const percent = (share: number | null): string =>
+    share === null ? '-' : `${(100 * share).toFixed(1)}%`;
+  const header = ['Variant', 'Role', ...faces.map(({ face }) => `Face ${face}`)];
+  const lines = [
+    'Watched faces: the share of the samples in which each face folds (play / lift / rest).',
+    '',
+    `| ${header.join(' | ')} |`,
+    `|${header.map(() => '---').join('|')}|`,
+  ];
+  const base = rows[0]?.measures?.folds ?? [];
+  for (const { variant, measures } of rows) {
+    for (const fold of measures?.folds ?? []) {
+      const own = base.find((b) => b.role === fold.role)?.topology;
+      const mark = own !== undefined && own !== fold.topology ? ' (other mesh)' : '';
+      const cells = fold.watched.map(({ shares }) =>
+        (['play', 'lift', 'rest'] as const).map((set) => percent(shares[set])).join(' / '),
+      );
+      lines.push(`| ${variant || 'base'} | ${fold.role}${mark} | ${cells.join(' | ')} |`);
+    }
   }
   return lines;
 }
@@ -1663,6 +1776,8 @@ async function checkRig(
             counts: read.sets,
             bones: foldBones(read.faces),
             faces: topFaces(read.faces, probe.faces),
+            watched: watchFaces(read.sets, read.faces, probe.watch),
+            topology: read.topology,
           });
         }
       },
@@ -1740,7 +1855,16 @@ async function checkVariants(
       rows.push({ variant, measures: null, error: message });
     }
   }
-  console.log(['', ...checkTable(rows), '', ...formLines(rows, form)].join('\n'));
+  const watched = watchLines(rows);
+  console.log(
+    [
+      '',
+      ...checkTable(rows),
+      ...(watched.length > 0 ? ['', ...watched] : []),
+      '',
+      ...formLines(rows, form),
+    ].join('\n'),
+  );
   return rows.every((row) => row.measures);
 }
 

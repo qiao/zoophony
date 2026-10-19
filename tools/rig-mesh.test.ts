@@ -170,6 +170,7 @@ describe('the arguments of pnpm rig-mesh', () => {
       demos: ['beethoven-8', 'mozart-k525'],
       faces: 5,
       hold: '',
+      watch: [],
     });
     expect(() => parseArgs(['fox', '--roles', 'flutist'])).toThrow(/Usage/);
     expect(() => parseArgs(['fox', '--check', '--step', '0'])).toThrow(/above 0/);
@@ -348,6 +349,8 @@ describe('checkTable', () => {
           { bone: 'neck', samples: 13 },
         ],
         faces: [],
+        watched: [],
+        topology: '',
       },
     ],
     form: null,
