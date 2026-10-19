@@ -398,9 +398,9 @@ export function buildSnareDrum(): InstrumentModel {
 /**
  * The height of the strap of a cymbal above the palm in the bind pose, in meters (design 4.6).
  * The hanging hand holds the cymbal below its middle, so that the rim (0.2 m from the strap)
- * stays above the floor. The palm of the smallest standing player (the mouse) is 0.105 m above
- * the floor. With the strap at the palm, the rim of a small player cut 0.08 m into the floor
- * (review of step 4, P1).
+ * stays above the floor. The palm of the smallest standing player of step 4, the parametric
+ * mouse, was 0.105 m above the floor. With the strap at the palm, the rim of a small player cut
+ * 0.08 m into the floor (review of step 4, P1).
  */
 export const CYMBAL_LIFT = 0.12;
 
