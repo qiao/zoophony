@@ -1,3 +1,17 @@
+/**
+ * The look lab (design 4.5): it renders the default demo at {@link LOOK_TIME_SEC} at the cameras
+ * of {@link LOOK_CAMERAS} with `pnpm close-views play`, and measures the frames against
+ * `docs/reference/orchestra-latest.png`. It writes `<dir>/look.md`: the luma percentiles and the
+ * saturation of the stage area of each frame, and the measures of the regions of
+ * {@link LOOK_REGIONS}.
+ *
+ * Usage: `pnpm look-lab <dir> [--base <ref>] [--url <url>] [--measure]`
+ *
+ * - `--base <ref>` also renders a commit (the frames `play-base-*.png`), as `pnpm close-views`.
+ * - `--url <url>` renders a running site, such as the dev server of `pnpm look-variants` with a
+ *   look override (`src/app/look-override.ts`). It builds no site.
+ * - `--measure` renders nothing, and measures the frames that `<dir>` holds.
+ */
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -20,8 +34,22 @@ export interface Pixels {
 }
 
 /**
+ * A mask of the pixels of a region by their color. A pixel is in the mask when each of its values
+ * lies strictly between the two limits of its range.
+ */
+export interface PixelMask {
+  /** The range of the hue, in degrees. */
+  readonly hue: readonly [number, number];
+  /** The range of the saturation, from 0 to 1. */
+  readonly saturation: readonly [number, number];
+  /** The range of the luma, from 0 to 255. */
+  readonly luma: readonly [number, number];
+}
+
+/**
  * A region of a frame that the look lab measures. `color` gives the median color of a lit or a
- * shaded surface. `contrast` gives the contrast of the cast shadows on the floor.
+ * shaded surface. `contrast` gives the contrast of the cast shadows on the floor. `tone` gives the
+ * luma percentiles, the median hue, and the median saturation of the pixels of a mask.
  */
 export interface LookRegion {
   /**
@@ -30,11 +58,16 @@ export interface LookRegion {
    */
   readonly name: string;
   /** The measure of the region. */
-  readonly kind: 'color' | 'contrast';
+  readonly kind: 'color' | 'contrast' | 'tone';
   /** The box in a frame of the camera `orchestra` of `pnpm close-views` (1440 × 900). */
   readonly app: PixelBox;
-  /** The box in `docs/reference/orchestra-latest.png` (1762 × 1240). */
-  readonly reference: PixelBox;
+  /**
+   * The box in `docs/reference/orchestra-latest.png` (1762 × 1240), or `null` when no box of the
+   * reference is known.
+   */
+  readonly reference: PixelBox | null;
+  /** The mask of a region of the kind `tone`, or `null` for all pixels of the box. */
+  readonly mask: PixelMask | null;
 }
 
 /**
@@ -48,36 +81,68 @@ export const LOOK_REGIONS: readonly LookRegion[] = [
     kind: 'color',
     app: [540, 700, 630, 780],
     reference: [700, 1050, 860, 1150],
+    mask: null,
   },
   {
     name: 'lit floor, right of the podium',
     kind: 'color',
     app: [830, 700, 950, 760],
     reference: [1220, 1040, 1340, 1110],
+    mask: null,
   },
   {
     name: 'back of the conductor',
     kind: 'color',
     app: [690, 580, 770, 650],
     reference: [950, 830, 1070, 960],
+    mask: null,
   },
   {
     name: 'white fur, front left rabbit',
     kind: 'color',
     app: [240, 480, 280, 560],
     reference: [150, 700, 200, 780],
+    mask: null,
   },
   {
     name: 'floor with the shadows of the players',
     kind: 'contrast',
     app: [250, 640, 530, 760],
     reference: [1250, 880, 1450, 1000],
+    mask: null,
   },
   {
     name: 'floor in front of the podium',
     kind: 'contrast',
     app: [620, 770, 820, 820],
     reference: [820, 1150, 1180, 1235],
+    mask: null,
+  },
+  // The three regions of `metrics.py` of `docs/research/2026-10-18-light-color/`. No box of the
+  // reference is known for the torso and the chair.
+  {
+    name: 'rabbit torso, front left',
+    kind: 'tone',
+    app: [360, 550, 405, 630],
+    reference: null,
+    mask: null,
+  },
+  {
+    name: 'chair, front left',
+    kind: 'tone',
+    app: [325, 560, 372, 660],
+    reference: null,
+    // The honey wood: the bright, saturated pixels with the hue of the chairs.
+    mask: { hue: [28, 50], saturation: [0.3, 2], luma: [90, 256] },
+  },
+  {
+    // The hall of `hall_measure.py` of `docs/research/2026-10-18-shot-light-lens-haze/`: 62% to
+    // 95% of the width and 2% to 14% of the height of each image.
+    name: 'hall above the stage, right of the beam',
+    kind: 'tone',
+    app: [892, 18, 1368, 126],
+    reference: [1092, 24, 1673, 173],
+    mask: null,
   },
 ];
 
@@ -230,8 +295,73 @@ export function regionContrast(image: Pixels, box: PixelBox): RegionContrast {
   };
 }
 
+/** The tone of the pixels of a mask in a region. */
+export interface RegionTone {
+  /** The number of pixels in the mask. A change of the count shows a change of the pixel set. */
+  readonly pixels: number;
+  /** The luma at 10%, 50%, and 90% of the pixels, from 0 to 255. */
+  readonly luma: readonly [number, number, number];
+  /** The median of the hue, in degrees. */
+  readonly hue: number;
+  /** The median of the saturation, from 0 to 1. */
+  readonly saturation: number;
+}
+
+/**
+ * Tells if a color is in a mask.
+ *
+ * @param color The color, from 0 to 255 for each channel.
+ * @param mask The mask.
+ * @returns True if each value lies strictly inside its range.
+ */
+function inMask(color: readonly [number, number, number], mask: PixelMask): boolean {
+  const [hue, saturation] = hueSaturation(color);
+  const value = luma(...color);
+  const inside = (v: number, [lo, hi]: readonly [number, number]): boolean => v > lo && v < hi;
+  return inside(hue, mask.hue) && inside(saturation, mask.saturation) && inside(value, mask.luma);
+}
+
+/**
+ * Measures the tone of colors: the luma percentiles, the median hue, and the median saturation,
+ * as `metrics.py` of `docs/research/2026-10-18-light-color/` with the percentile rule of `at()`.
+ *
+ * @param colors The colors, from 0 to 255 for each channel.
+ * @returns The tone, or `null` with no colors.
+ */
+export function toneOf(colors: readonly (readonly [number, number, number])[]): RegionTone | null {
+  if (colors.length === 0) {
+    return null;
+  }
+  const lumas = colors.map((c) => luma(...c)).toSorted((a, b) => a - b);
+  const hues = colors.map((c) => hueSaturation(c)[0]).toSorted((a, b) => a - b);
+  const saturations = colors.map((c) => hueSaturation(c)[1]).toSorted((a, b) => a - b);
+  return {
+    pixels: colors.length,
+    luma: [at(lumas, 0.1), at(lumas, 0.5), at(lumas, 0.9)],
+    hue: at(hues, 0.5),
+    saturation: at(saturations, 0.5),
+  };
+}
+
+/**
+ * Measures the tone of the pixels of a mask in a box.
+ *
+ * @param image The image.
+ * @param box The box.
+ * @param mask The mask, or `null` for all pixels.
+ * @returns The tone, or `null` when no pixel is in the mask.
+ */
+export function regionTone(
+  image: Pixels,
+  box: PixelBox,
+  mask: PixelMask | null,
+): RegionTone | null {
+  const colors = boxColors(image, box);
+  return toneOf(mask ? colors.filter((c) => inMask(c, mask)) : colors);
+}
+
 /** A frame that the look lab measures. */
-interface LookFrame {
+export interface LookFrame {
   /** The label of the frame in the tables. */
   readonly label: string;
   /** The pixels. */
@@ -240,6 +370,57 @@ interface LookFrame {
   readonly height: number;
   /** The kind of the boxes of the regions, or `null` for a frame with no regions. */
   readonly boxes: 'app' | 'reference' | null;
+}
+
+/**
+ * Gives the box of a region in a frame.
+ *
+ * @param region The region.
+ * @param frame The frame.
+ * @returns The box, or `null` for a frame with no box of the region.
+ */
+function boxIn(region: LookRegion, frame: LookFrame): PixelBox | null {
+  if (frame.boxes === 'app') {
+    return region.app;
+  }
+  return frame.boxes === 'reference' ? region.reference : null;
+}
+
+/** The measures of the regions of {@link LOOK_REGIONS} in one frame, by the name of the region. */
+export interface RegionMeasures {
+  /** The median color of each region of the kind `color`. */
+  readonly colors: ReadonlyMap<string, readonly [number, number, number]>;
+  /** The contrast of each region of the kind `contrast`. */
+  readonly contrasts: ReadonlyMap<string, RegionContrast>;
+  /** The tone of each region of the kind `tone`, or `null` when no pixel is in its mask. */
+  readonly tones: ReadonlyMap<string, RegionTone | null>;
+}
+
+/**
+ * Measures the regions of {@link LOOK_REGIONS} in one frame. A region with no box in the frame
+ * gives no entry.
+ *
+ * @param frame The frame.
+ * @returns The measures.
+ */
+export function measureRegions(frame: LookFrame): RegionMeasures {
+  const colors = new Map<string, [number, number, number]>();
+  const contrasts = new Map<string, RegionContrast>();
+  const tones = new Map<string, RegionTone | null>();
+  for (const region of LOOK_REGIONS) {
+    const box = boxIn(region, frame);
+    if (!box) {
+      continue;
+    }
+    if (region.kind === 'color') {
+      colors.set(region.name, regionColor(frame.image, box));
+    } else if (region.kind === 'contrast') {
+      contrasts.set(region.name, regionContrast(frame.image, box));
+    } else {
+      tones.set(region.name, regionTone(frame.image, box, region.mask));
+    }
+  }
+  return { colors, contrasts, tones };
 }
 
 /**
@@ -261,7 +442,9 @@ export function lookTables(frames: readonly LookFrame[]): string {
     lines.push(`| ${frame.label} | ${tone.percentiles.join(' | ')} | ${f(tone.saturation, 2)} |`);
   }
 
-  const matched = frames.filter((frame) => frame.boxes);
+  const measured = frames
+    .filter((frame) => frame.boxes)
+    .map((frame) => ({ frame, measures: measureRegions(frame) }));
   lines.push(
     '',
     '## Colors of the regions',
@@ -270,13 +453,14 @@ export function lookTables(frames: readonly LookFrame[]): string {
     '|---|---|---|---|---|---|',
   );
   for (const region of LOOK_REGIONS.filter((r) => r.kind === 'color')) {
-    for (const frame of matched) {
-      const box = frame.boxes === 'app' ? region.app : region.reference;
-      const color = regionColor(frame.image, box);
-      const [hue, saturation] = hueSaturation(color);
-      lines.push(
-        `| ${region.name} | ${frame.label} | (${color.join(', ')}) | ${f(luma(...color))} | ${f(hue)} | ${f(saturation, 2)} |`,
-      );
+    for (const { frame, measures } of measured) {
+      const color = measures.colors.get(region.name);
+      if (color) {
+        const [hue, saturation] = hueSaturation(color);
+        lines.push(
+          `| ${region.name} | ${frame.label} | (${color.join(', ')}) | ${f(luma(...color))} | ${f(hue)} | ${f(saturation, 2)} |`,
+        );
+      }
     }
   }
 
@@ -288,15 +472,87 @@ export function lookTables(frames: readonly LookFrame[]): string {
     '|---|---|---|---|---|---|',
   );
   for (const region of LOOK_REGIONS.filter((r) => r.kind === 'contrast')) {
-    for (const frame of matched) {
-      const box = frame.boxes === 'app' ? region.app : region.reference;
-      const c = regionContrast(frame.image, box);
+    for (const { frame, measures } of measured) {
+      const c = measures.contrasts.get(region.name);
+      if (c) {
+        lines.push(
+          `| ${region.name} | ${frame.label} | ${f(c.dark, 1)} | ${f(c.light, 1)} | ${f(c.light / c.dark, 1)} | (${c.shadow.join(', ')}) |`,
+        );
+      }
+    }
+  }
+
+  lines.push(
+    '',
+    '## Tones of the regions',
+    '',
+    'A region with a mask measures only the pixels of its colors. The column Pixels gives their',
+    'count, so a change of the pixel set shows.',
+    '',
+    '| Region | Frame | Pixels | Luma p10 | Luma p50 | Luma p90 | Hue | Saturation |',
+    '|---|---|---|---|---|---|---|---|',
+  );
+  for (const region of LOOK_REGIONS.filter((r) => r.kind === 'tone')) {
+    for (const { frame, measures } of measured) {
+      if (!measures.tones.has(region.name)) {
+        continue;
+      }
+      const t = measures.tones.get(region.name);
       lines.push(
-        `| ${region.name} | ${frame.label} | ${f(c.dark, 1)} | ${f(c.light, 1)} | ${f(c.light / c.dark, 1)} | (${c.shadow.join(', ')}) |`,
+        t
+          ? `| ${region.name} | ${frame.label} | ${t.pixels} | ${t.luma.map((v) => f(v)).join(' | ')} | ${f(t.hue)} | ${f(t.saturation, 2)} |`
+          : `| ${region.name} | ${frame.label} | 0 | - | - | - | - | - |`,
       );
     }
   }
   return `${lines.join('\n')}\n`;
+}
+
+/** The columns of a row of {@link lookSummary}: the name and the text of each measure. */
+export type SummaryRow = readonly (readonly [name: string, text: string])[];
+
+/**
+ * Gives the measures of the camera `orchestra` in one row, as the table of `metrics.py` of
+ * `docs/research/2026-10-18-light-color/`. `pnpm look-variants` prints one row for each variant.
+ *
+ * @param frame The frame of the camera `orchestra`, or the reference.
+ * @returns The columns. A measure with no box or no pixel in the frame gives `-`.
+ */
+export function lookSummary(frame: LookFrame): SummaryRow {
+  const f = (value: number, digits = 0): string => value.toFixed(digits);
+  const { colors, contrasts, tones } = measureRegions(frame);
+  const color = (name: string): string => {
+    const c = colors.get(name);
+    if (!c) {
+      return '-';
+    }
+    const [hue, saturation] = hueSaturation(c);
+    return `${f(luma(...c))}/${f(hue)}°/${f(saturation, 2)}`;
+  };
+  const tone = (name: string, full: boolean): string => {
+    const t = tones.get(name);
+    if (!t) {
+      return '-';
+    }
+    const [p10, p50, p90] = t.luma.map((v) => f(v));
+    return full
+      ? `${p10}/${p50}/${p90} ${f(t.hue)}°/${f(t.saturation, 2)}`
+      : `${p50}/${f(t.hue)}°/${f(t.saturation, 2)}`;
+  };
+  const stage = stageTone(frame.image, frame.height).percentiles;
+  const shadow = contrasts.get('floor with the shadows of the players');
+  const hall = tones.get('hall above the stage, right of the beam');
+  return [
+    ['stage p5/p50/p95', `${stage[0]}/${stage[2]}/${stage[4]}`],
+    ['fur L/hue/sat', color('white fur, front left rabbit')],
+    ['rabbit torso p10/p50/p90 hue/sat', tone('rabbit torso, front left', true)],
+    ['floor L', color('lit floor, left of the podium')],
+    ['floor R', color('lit floor, right of the podium')],
+    ['chair L/hue/sat', tone('chair, front left', false)],
+    ['shadow p5/ratio', shadow ? `${f(shadow.dark)}/${f(shadow.light / shadow.dark, 1)}` : '-'],
+    ['conductor', color('back of the conductor')],
+    ['hall p50/p90', hall ? `${f(hall.luma[1])}/${f(hall.luma[2])}` : '-'],
+  ];
 }
 
 /**
@@ -308,7 +564,7 @@ export function lookTables(frames: readonly LookFrame[]): string {
  * @param boxes The kind of the boxes of the regions, or `null`.
  * @returns The frame.
  */
-async function readFrame(
+export async function readFrame(
   browser: Parameters<typeof rgbaPixels>[0],
   path: string,
   label: string,
@@ -316,6 +572,34 @@ async function readFrame(
 ): Promise<LookFrame> {
   const image = await rgbaPixels(browser, await readFile(path));
   return { label, image, height: image.rgba.length / 4 / image.width, boxes };
+}
+
+/**
+ * Reads the reference and the frames of a look lab folder: the frames of the commit of `--base`
+ * (`play-base-<camera>.png`) first, then the frames of the tree (`play-<camera>.png`). A missing
+ * frame gives no entry.
+ *
+ * @param browser The browser that decodes the images.
+ * @param dir The folder.
+ * @returns The frames, the reference first.
+ */
+export async function readLookFrames(
+  browser: Parameters<typeof rgbaPixels>[0],
+  dir: string,
+): Promise<LookFrame[]> {
+  const frames = [await readFrame(browser, join(ROOT, REFERENCE), 'reference', 'reference')];
+  for (const [prefix, tree] of [
+    ['play-base-', 'base'],
+    ['play-', 'tree'],
+  ] as const) {
+    for (const [i, camera] of LOOK_CAMERAS.entries()) {
+      const path = join(dir, `${prefix}${camera}.png`);
+      if (existsSync(path)) {
+        frames.push(await readFrame(browser, path, `${tree}, ${camera}`, i === 0 ? 'app' : null));
+      }
+    }
+  }
+  return frames;
 }
 
 const USAGE = 'Usage: pnpm look-lab <dir> [--base <ref>] [--url <url>] [--measure]';
@@ -345,18 +629,7 @@ async function main(): Promise<void> {
 
   const browser = await chromium.launch();
   try {
-    const frames = [await readFrame(browser, join(ROOT, REFERENCE), 'reference', 'reference')];
-    for (const [prefix, tree] of [
-      ['play-base-', 'base'],
-      ['play-', 'tree'],
-    ] as const) {
-      for (const [i, camera] of LOOK_CAMERAS.entries()) {
-        const path = join(dir, `${prefix}${camera}.png`);
-        if (existsSync(path)) {
-          frames.push(await readFrame(browser, path, `${tree}, ${camera}`, i === 0 ? 'app' : null));
-        }
-      }
-    }
+    const frames = await readLookFrames(browser, dir);
     const text = `# Look lab\n\nThe frames of \`${dir}\` against \`${REFERENCE}\`.\n\n${lookTables(frames)}`;
     await writeFile(join(dir, 'look.md'), text);
     console.log(text);
