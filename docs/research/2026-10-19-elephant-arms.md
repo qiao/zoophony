@@ -90,3 +90,49 @@ from 100% to 12.9%, and the rest from 100% to none. In the user view, each upper
 round arm to the paw, and the forearms do not twist. No variant reached 1% of the play with the
 lift and the rest at most the base. Open: the thin face of the left paw, the left paw in the body
 of `beethoven-8-4`, and the dark cap of the cut under the raised right arm.
+
+## 4. The second round
+
+The manager asked for the left paw at most 1.0 cm into the body and for the play folds at most
+1%, with the rest free of folds.
+
+**Paw depth.** The deepest sample is the lift before a strike on the kettle beside the player:
+the mallet head rises 0.15 m over its target, and the wrist comes back into the side of the body
+(`wait-8-4.txt`). `pnpm pose-depth timpanist --demo beethoven-8-4 --times <...> --bones handL
+--into body` sweeps the lifts from 254 s to 264 s (`paw-depth.txt`):
+
+| Variant | Left paw in the body | Samples over 1.5 cm |
+|---|---:|---:|
+| Round 1 | 4.7 cm | 7.0% |
+| Left target 3, 7, or 10 cm further out (`offsetL`) | 3.8, 3.1, 2.2 cm | 5.5%, 2.0%, 1.0% |
+| Left target 4 cm forward or back | 4.3, 3.7 cm | 7.5%, 5.5% |
+| Elbow pole down or back | 4.3, 4.7 cm | 8.5%, 7.5% |
+| Lift of 0.08 m | 3.2 cm | 1.5% |
+| Home 0.35 H in front of the shoulder | 2.0 cm | 1.0% |
+| Home 0.4, 0.45, or 0.5 H in front of the shoulder | 0.0 cm | 0% |
+
+The home of 0.4 H keeps the playing spot and each strike (100% within 5 mm). The paws then turn
+64° and 59° on the forearms, and the upper arms 87° (`twist.ts`).
+
+**Paw folds.** With the home of 0.4 H, the play folds in 5.7% of the samples, most at the sliver
+2401 at the back of the left paw (`fold-probe-home.txt`). `pnpm rig-mesh elephant --check --hold
+timpani.home=0,-0.1,-0.4` (`rig-paw.txt`):
+
+| Variant | Play | Lift | Rest |
+|---|---:|---:|---:|
+| Home 0.4 H | 5.7% | 12.9% | 0% |
+| Rigid sliver | 1.8% | 24.2% | 100% |
+| Sliver rule up to 0.05 u | 5.6% | 25.8% | 100% |
+| Left wrist shape fitted again | 37.7% | 29.8% | 0% |
+| Rigid sliver and its two wrist neighbors | 6.0% | 11.3% | 0% |
+| Rigid sliver and its neighbor 2403 (final) | 0.4% | 11.3% | 0% |
+
+With the rigid sliver alone, faces 2388 and 2403 of the left wrist folded in each rest sample.
+The faces of the waiting left elbow fold in at most 0.1% of the play, so its shape stays.
+
+**Final.** `pnpm fold-probe timpanist --base 16f16e44` (`fold-probe-2.txt`): the play folds in
+0.4% of the samples, the lift in 11.3%, and the rest in none. Face 235 of the right armpit folds
+in 9.7% of the lift. `pnpm pose-depth timpanist --gaps` (`pose-depth-2.txt`): the paws stay out of the body, the forearms go 0.2 cm in, the mallets 2.2 cm into the kettles, the trunk keeps 9.1 cm, and each strike stays within 5 mm. The first download shrinks by 670 B (`size-2.txt`). `pnpm
+body-probe --base 16f16e44` differs only for the elephant (`body-probe-2.txt`). `user-view-2.webp`
+shows the base, round 1, and round 2 from the right side and from the left side: the arms stay
+round, and the forearms reach a little further forward.

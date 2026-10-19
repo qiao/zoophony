@@ -28,3 +28,8 @@ play samples 297, with a fold 297 (100.0%), face-samples 1386
 L: paw on forearm 67°, twist 20° (|twist| 20°), swing 64°, upper arm in the chest 103°
 R: paw on forearm 64°, twist -16° (|twist| 16°), swing 62°, upper arm in the chest 104°
 
+
+$ node docs/research/2026-10-19-elephant-arms/twist.ts --demo beethoven-1   (home 0.4 H, final rig)
+play samples 297, with a fold 3 (1.0%), face-samples 4
+L: paw on forearm 64°, twist 40° (|twist| 40°), swing 51°, upper arm in the chest 87°
+R: paw on forearm 59°, twist -37° (|twist| 37°), swing 47°, upper arm in the chest 87°
