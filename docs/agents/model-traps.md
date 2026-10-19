@@ -121,11 +121,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
   (`hidden/probe.ts` of `docs/research/2026-10-18-panda-seam/`).
 - A narrow fade of a weight rule under a far bone turn moves the fold to the faces of the fade. Let
   the fade span several rings of faces, as `clavicleMiddle` of the hippo does.
-- A mesh near the budget of 3,200 triangles has no room for rings: the hippo has 3,141.
 - A long thin face across an arm joint folds, and weight rules make it worse. A ring of new vertices
-  at the joint (`refine.rings`) fixes it, after the weight rules. Put a ring only where `pnpm
-  fold-probe` finds folds, then run `pnpm pose-depth <role>`, because a ring can pull the inner
-  elbow into the trunk or add folds.
+  at the joint (`refine.rings`) fixes it after the weight rules, but a mesh near the budget of 3,200
+  triangles has no room for rings (the hippo has 3,141). Put a ring only where `pnpm fold-probe`
+  finds folds, then run `pnpm pose-depth <role>`, because a ring can pull the inner elbow into the
+  trunk or add folds.
 - A ring reaches a fixed distance, so longer arms can put the corners of long faces beyond it. Give
   the ring a larger radius. The upper arm stretches only on the free arm and from the shoulder joint
   out (`outward_stretch()` of the rig script).
