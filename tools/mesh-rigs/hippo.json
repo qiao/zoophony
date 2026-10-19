@@ -322,6 +322,14 @@
       0.12,
       0.17
     ],
+    "rigid": [
+      [
+        -0.1678,
+        0.682,
+        -0.1188
+      ]
+    ],
+    "rigidNote": "The face nearest to each point (source units) takes the mean of the weights of its corners. Face 323 joins the head, the neck, and a corner with a clavicle weight of 0.51 at the back of the right side of the neck, and it folded in each play sample when the bow arm turned the clavicle forward. The point is its source middle (pnpm fold-probe bassist --faces).",
     "fingers": 0.5,
     "haunch": {
       "height": [
