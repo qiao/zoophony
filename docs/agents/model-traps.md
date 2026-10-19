@@ -85,6 +85,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   an arm, opens a loop: give the role its own count, and check that each extra loop is small.
 - A cap closes a cut with a fan from its middle, so a point of an upper arm near a long cut has its
   depth to the cap: read it as a depth behind the cap.
+- The sweep measures the arms and the bow, so an instrument in the chest has no measure. Run `pnpm
+  pose-depth <role> --bones instrument --into body`, and measure the visible top plate alone
+  (`top-plate.ts` of `docs/research/2026-10-19-hippo-chest/`).
 
 ## Weights, rings, and folds
 
@@ -110,6 +113,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A fold probe counts each turned face, also a face that no camera sees. Before you accept a fold as
   hidden, count the pixels of the face in a probe build that draws it in a pure color with no light
   (`hidden/probe.ts` of `docs/research/2026-10-18-panda-seam/`).
+- A narrow fade of a weight rule under a far bone turn moves the fold to the faces of the fade.
+  Let the fade span several rings of faces, as `clavicleMiddle` of the hippo does.
 - A mesh near the budget of 3,200 triangles has no room for rings: the hippo has 3,141.
 - A long thin face across an arm joint folds, and weight rules make it worse. A ring of new vertices
   at the joint (`refine.rings`) fixes it, after the weight rules: a forearm vertex of the mouse kept
