@@ -294,29 +294,109 @@ const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, Config
  * `armFactor=1.08`. The path names the keys from the top of the config, and the index of an item
  * of a list is a key too. The new value has the kind of the old value: a number, `true` or
  * `false`, a text, numbers separated by commas for a list of the same count of numbers, or JSON
- * text for another list or an object.
+ * text for another list or an object. A last key that the config and {@link OPTIONAL_VALUES} do
+ * not have is a new key of its object, or the next item of its list, with a JSON value, such as
+ * `weights.rigid=[[-0.17,0.68,-0.12]]` or `raise.1={"side":"L",...}` ({@link newKeys}).
  *
  * @param config The config.
  * @param change The change.
- * @throws Error if the path names no value of the config, or if the value does not fit the old
- *   value.
+ * @throws Error if the path names no value of the config and no new key, or if the value does
+ *   not fit the old value, or if the value of a new key is no JSON text.
  */
 function setConfigValue(config: ConfigObject, change: ConfigChange): void {
   const { path, text } = change;
   const keys = path.split('.');
   let node: ConfigValue = config;
   for (const [i, key] of keys.entries()) {
-    const optional = i === keys.length - 1 ? OPTIONAL_VALUES.get(path) : undefined;
+    const last = i === keys.length - 1;
+    const optional = last ? OPTIONAL_VALUES.get(path) : undefined;
     const old: ConfigValue | undefined = childOf(node, key) ?? optional;
+    if (old === undefined && last && canAdd(node, key)) {
+      setChild(node, key, newConfigValue(text, key, path));
+      return;
+    }
     if (old === undefined) {
       throw new Error(`The key "${key}" of ${path} is not known.`);
     }
-    if (i < keys.length - 1) {
+    if (!last) {
       node = old;
     } else {
       setChild(node, key, parseConfigValue(text, old, path));
     }
   }
+}
+
+/**
+ * Tells if a change can add a key to an object of a config, or an item to the end of a list.
+ *
+ * @param node The object or the list.
+ * @param key The new key, or the index of the new item as text.
+ * @returns True for an object, and for a list with the index of its next item.
+ */
+function canAdd(node: ConfigValue, key: string): boolean {
+  if (Array.isArray(node)) {
+    return key === String(node.length);
+  }
+  return node instanceof Object;
+}
+
+/**
+ * Parses the value of a new key of a config from its JSON text.
+ *
+ * @param text The text, such as `[[-0.17,0.68,-0.12]]` or `"R"`.
+ * @param key The new key, for the message.
+ * @param path The path, for the message.
+ * @returns The value.
+ * @throws Error if the text is no JSON text.
+ */
+function newConfigValue(text: string, key: string, path: string): ConfigValue {
+  try {
+    // SAFETY: JSON.parse gives a JSON value, and parseConfig() checks the changed config.
+    return JSON.parse(text) as ConfigValue;
+  } catch {
+    throw new Error(
+      `The key "${key}" of ${path} is not known, and its value "${text}" is no JSON text for a new key, such as 0.5, [0.1,0.2], "R", or {"side":"R"}.`,
+    );
+  }
+}
+
+/**
+ * Tells if a config has a value at a path.
+ *
+ * @param config The config.
+ * @param path The path, such as `weights.rigid`.
+ * @returns True when each key of the path names a value.
+ */
+function hasPath(config: ConfigObject, path: string): boolean {
+  let node: ConfigValue | undefined = config;
+  for (const key of path.split('.')) {
+    node = node === undefined ? undefined : childOf(node, key);
+  }
+  return node !== undefined;
+}
+
+/**
+ * Gives the paths of the new keys of a list of changes: each path that the config and
+ * {@link OPTIONAL_VALUES} do not have before its change. The tool reads no key of a new path, and
+ * `tools/blender/rig_mesh.py` reads only the keys that it knows, so a wrong name of a key changes
+ * nothing.
+ *
+ * @param text The JSON text of the config.
+ * @param list The changes, such as `weights.rigid=[[-0.17,0.68,-0.12]]`.
+ * @returns The new paths, in the order of the changes.
+ * @throws Error as {@link setConfig} does.
+ */
+export function newKeys(text: string, list: string): string[] {
+  // SAFETY: a config file of tools/mesh-rigs/ holds one JSON object.
+  const config = JSON.parse(text) as ConfigObject;
+  const added: string[] = [];
+  for (const change of configChanges(list)) {
+    if (!hasPath(config, change.path) && !OPTIONAL_VALUES.has(change.path)) {
+      added.push(change.path);
+    }
+    setConfigValue(config, change);
+  }
+  return added;
 }
 
 /**
@@ -1599,7 +1679,8 @@ async function checkRig(
 /**
  * Checks the base and each variant of the config of an animal, one rig at a time, and prints the
  * table of the variants ({@link checkTable}). Each variant must fit ({@link variantText}) before
- * the first rig, and it keeps the meters for each unit of the base ({@link keptHeight}). Before the
+ * the first rig, and it keeps the meters for each unit of the base ({@link keptHeight}). The tool
+ * names the new keys of each variant ({@link newKeys}) before the first rig. Before the
  * first rig, the form of the players on the commit {@link FORM_BASE} comes from a probe tree, and
  * the tables of the form and of the stage sides follow the table of the variants
  * ({@link formLines}). A variant whose rig or probe fails prints its message, and the next variant
@@ -1624,6 +1705,14 @@ async function checkVariants(
   probe: CheckProbe,
 ): Promise<boolean> {
   const texts = checkTexts(text, sets, ANIMALS.has(animal));
+  for (const set of sets) {
+    const added = newKeys(text, set);
+    if (added.length > 0) {
+      console.log(
+        `The variant "${set}" adds the new keys ${added.join(', ')}. tools/blender/rig_mesh.py reads only the keys that it knows.`,
+      );
+    }
+  }
   const base = parseConfig(text);
   const roles = chooseRoles(animalRoles(animal), probe.roles);
   const players = ANIMALS.has(animal) ? playerArgs(roles) : [];
