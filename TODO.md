@@ -267,8 +267,8 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs/decisions/`):
 
 - [ ] Rig the meshes of the monkey (trumpet), the pig (horn), and the badger (percussion) when the
-      user gives them. The prompts of the sheets were given on 2026-10-17. The mouse and the
-      elephant got their meshes on 2026-10-19.
+      user gives them. The prompts of the sheets were given on 2026-10-17. The mouse, the
+      elephant, and the beaver got their meshes on 2026-10-19.
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
       fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
 - [ ] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
@@ -518,6 +518,19 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-19-mesh-elephant.md`).
 - [ ] Remove the unused code of the `trunk` snout with its tusks and of the `large-flap` ears: no
       species has them since the elephant mesh (`2026-10-19-mesh-elephant.md`).
+- [ ] Beaver bassoonist: three faces of the left arm fold in each play sample: the thin faces 380
+      of the chest and 706 of the left shoulder, and face 1246 of the inner left elbow, and eight
+      faces fold in the rest. A shape of the left arm relaxed them but left faces 427, 428, and
+      709 of the front of the left shoulder turned over (`fold-probe-bassoonist.txt` of
+      `docs/research/2026-10-19-beaver-mesh/`, `2026-10-19-mesh-beaver.md`).
+- [ ] Beaver colors: the mesh keeps the orange-brown fur of its texture (Oklab hue 55°, chroma
+      0.096). The tone rule of the hippo, the mouse, and the elephant would give the plain fur the
+      chroma 0.060 of `SPECIES_COLORS.beaver`. Show the user the close views, and ask
+      (`2026-10-19-mesh-beaver.md`).
+- [ ] Beaver bassoon size: the beaver plays a bassoon of 0.82 of the bassoon of the app. No source
+      gives the size of a smaller bassoon (`docs/reference/wind-technique.md` 4.2).
+- [ ] Remove the unused code of the `buck-teeth` snout with `TEETH_COLOR` and of the `flat` tail:
+      no species has them since the beaver mesh (`2026-10-19-mesh-beaver.md`).
 - [ ] `docs/agents/model-traps.md` has 3,170 words, above its limit of about 3,000
       (`docs/agents/writing.md`). Cut it in a prose pass.
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
