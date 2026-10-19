@@ -849,11 +849,84 @@ export function parseReachOptions(args: readonly string[]): ReachOptions {
   return { instrument, support, sets };
 }
 
+/** The spare reach of one grip of a wind hold: the arm less the distance to the grip, in meters. */
+export interface GripSpare {
+  /** The spare reach in the playing pose. Below 0, the palm misses the grip. */
+  readonly play: number;
+  /** The spare reach in the rest pose, or `null` for a paw that leaves its grip. */
+  readonly rest: number | null;
+}
+
+/** The spare reach of each grip of a wind hold in one variant, in meters. */
+export interface SpareRow {
+  /** The text of the changes, or empty for the base. */
+  readonly variant: string;
+  /**
+   * The arm less the distance from the shoulder joint to the grip, in the playing pose and in the
+   * rest pose, for each side ({@link windReach}). Below 0, the palm misses the grip. The rest pose
+   * of a paw that leaves its grip ({@link freeRestReach}) has `null`.
+   */
+  readonly spare: Readonly<
+    Record<'L' | 'R', { readonly play: number; readonly rest: number | null }>
+  >;
+}
+
+/**
+ * Measures the spare reach of each grip of a wind hold with the holds of now ({@link SpareRow}).
+ *
+ * @param variant The text of the changes, or empty for the base.
+ * @param species The species.
+ * @param instrument The wind instrument.
+ * @param support The support of the player.
+ * @returns The row.
+ */
+export function spareRow(
+  variant: string,
+  species: SpeciesId,
+  instrument: WindInstrument,
+  support: ReachSupport,
+): SpareRow {
+  const reach = windReach(species, instrument, support);
+  const free = freeRestReach(species, instrument, support);
+  const side = (s: 'L' | 'R'): GripSpare => ({
+    play: reach[s].arm - reach[s].play,
+    rest: free.some((paw) => paw.side === s) ? null : reach[s].arm - reach[s].rest,
+  });
+  return { variant, spare: { L: side('L'), R: side('R') } };
+}
+
+/**
+ * Writes the table of the spare reach of each grip of a wind hold, with one row for each variant
+ * ({@link SpareRow}).
+ *
+ * @param rows The rows, the base first.
+ * @returns The lines.
+ */
+export function spareTable(rows: readonly SpareRow[]): string[] {
+  const cm = (value: number | null): string => {
+    if (value === null) {
+      return 'free';
+    }
+    return `${(value * 100).toFixed(1)}${value < 0 ? ' MISS' : ''}`;
+  };
+  return [
+    'Spare reach of each grip in cm: the arm less the distance from the shoulder joint to the grip (MISS below 0, free for a paw that leaves its grip):',
+    '',
+    '| Variant | L play | L rest | R play | R rest |',
+    '|---|---:|---:|---:|---:|',
+    ...rows.map(
+      ({ variant, spare }) =>
+        `| ${variant || 'base'} | ${cm(spare.L.play)} | ${cm(spare.L.rest)} | ${cm(spare.R.play)} | ${cm(spare.R.rest)} |`,
+    ),
+  ];
+}
+
 /**
  * Writes the report of `pnpm hold-reach` for the base and for each variant of `--set`. Each
  * variant changes the holds in memory, as `pnpm pose-depth --set` does, and the old values come
  * back after its report. A percussion instrument gives the strikes of the species in the demos
- * (`strikeReach()` of `tools/strike-reach.ts`), on the support of each demo.
+ * (`strikeReach()` of `tools/strike-reach.ts`), on the support of each demo. A wind instrument
+ * with variants ends with the table of the spare reach of each grip ({@link spareTable}).
  *
  * @param species The species.
  * @param options The options.
@@ -872,6 +945,7 @@ export function holdReachVariantLines(
   }
 
   const lines: string[] = [];
+  const spares: SpareRow[] = [];
   for (const set of ['', ...options.sets]) {
     const { undo, text } = setHolds(set);
     try {
@@ -885,12 +959,16 @@ export function holdReachVariantLines(
         );
       } else if (isWind(instrument)) {
         lines.push(...windReachLines(species, instrument, support));
+        spares.push(spareRow(text, species, instrument, support));
       } else {
         lines.push(...holdReachLines(species, instrument, support));
       }
     } finally {
       undo();
     }
+  }
+  if (options.sets.length > 0 && spares.length > 0) {
+    lines.push('', ...spareTable(spares));
   }
   return lines;
 }
