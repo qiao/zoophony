@@ -1088,8 +1088,25 @@ export function rigWarnings(log: string): string[] {
 }
 
 /**
- * Runs the rig script of Blender, and prints the lines of its log. A stop signal (INT or TERM)
- * stops Blender first (`tools/stop-cleanup.ts`).
+ * Gives the cause of a failed run of Blender from its error output: the last line that is not
+ * empty, such as the message of `SystemExit` or the last line of a Python traceback.
+ *
+ * @param errors The error output of Blender.
+ * @returns The line, or `null` when the output has no line.
+ */
+export function blenderCause(errors: string): string | null {
+  const lines = errors
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line !== '');
+  return lines.at(-1) ?? null;
+}
+
+/**
+ * Runs the rig script of Blender, and prints the lines of its log. Its error output goes to the
+ * error output of the tool at once, and the message of a failure ends with its last line
+ * ({@link blenderCause}), so that the table of `--check` gives the cause. A stop signal (INT or
+ * TERM) stops Blender first (`tools/stop-cleanup.ts`).
  *
  * @param args The arguments of `blender` ({@link blenderArgs}).
  * @returns A promise of the end of the run.
@@ -1099,12 +1116,18 @@ function runBlender(args: readonly string[]): Promise<void> {
   const blender = process.env['BLENDER'] ?? 'blender';
   return new Promise((done, fail) => {
     const child = trackChild(
-      spawn(blender, args, { cwd: ROOT, stdio: ['ignore', 'pipe', 'inherit'] }),
+      spawn(blender, args, { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] }),
     );
     let out = '';
+    let errors = '';
     child.stdout?.setEncoding('utf8');
     child.stdout?.on('data', (text: string) => {
       out += text;
+    });
+    child.stderr?.setEncoding('utf8');
+    child.stderr?.on('data', (text: string) => {
+      errors += text;
+      process.stderr.write(text);
     });
     child.on('error', fail);
     child.on('close', (code) => {
@@ -1114,7 +1137,12 @@ function runBlender(args: readonly string[]): Promise<void> {
       if (code === 0) {
         done();
       } else {
-        fail(new Error(`${blender} failed with the status ${String(code)}.`));
+        const cause = blenderCause(errors);
+        fail(
+          new Error(
+            `${blender} failed with the status ${String(code)}${cause ? `: ${cause}` : '.'}`,
+          ),
+        );
       }
     });
   });
