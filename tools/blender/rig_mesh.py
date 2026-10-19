@@ -56,7 +56,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. `pnpm studio-body` finds each eye by its fan, drops the
    fan, and puts the pea eye of the app at its place (design 4.5). The faces of the nose become
-   gloss. The log gives each dark patch that an eye box takes only in part, and warns when the
+   gloss. A mesh with no nose of its own, such as the hippo with its two nostrils, has no
+   `noseBox`, and its faces keep the fur. The log gives each dark patch that an eye box takes only in part, and warns when the
    box takes more than half of it (`eye_patches()`). Each face takes the nearest color of a
    palette in Oklab. Then each face of the old eye
    (the dark faces and the faces near them, such as the white of the eye, `old_eye_faces()`) takes
@@ -588,6 +589,8 @@ def moved_boxes(rules, pivot, factor, rise, drop):
         return rules
     out = dict(rules)
     for key in ('eyeBox', 'noseBox'):
+        if key not in rules:
+            continue
         box = np.asarray(rules[key], float)
         out[key] = (pivot + factor * (box - pivot) + drop + [0.0, rise, 0.0]).tolist()
     return out
@@ -600,9 +603,13 @@ def features(verts, tris, colors, dark, rules):
     left = dark & in_box(centers, box)
     right_box = [[-box[1][0], box[0][1], box[0][2]], [-box[0][0], box[1][1], box[1][2]]]
     right = dark & in_box(centers, right_box)
-    nose_color = np.asarray(rules['nose'], float)
-    pink = np.linalg.norm(colors - nose_color, axis=1) < np.linalg.norm(colors - 1.0, axis=1)
-    nose = pink & in_box(centers, rules['noseBox'])
+    # The export takes each gloss shell out of the middle plane as an eye, so the two nostrils of
+    # the hippo would be eyes: a mesh with no nose on the middle plane has no nose box.
+    nose = np.zeros(len(tris), bool)
+    if 'noseBox' in rules:
+        nose_color = np.asarray(rules['nose'], float)
+        pink = np.linalg.norm(colors - nose_color, axis=1) < np.linalg.norm(colors - 1.0, axis=1)
+        nose = pink & in_box(centers, rules['noseBox'])
     log(f'eyes: {left.sum()} faces left, {right.sum()} faces right, nose: {nose.sum()} faces')
     return {'L': np.nonzero(left)[0], 'R': np.nonzero(right)[0]}, np.nonzero(nose)[0]
 

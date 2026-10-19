@@ -1927,7 +1927,10 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     min: new Vector3(Infinity, Infinity, Infinity),
     max: new Vector3(-Infinity, -Infinity, -Infinity),
   };
+  // The tip of the nose: the front of the gloss nose, or the front of the muzzle of a body with
+  // no gloss nose, such as the hippo with its two nostrils.
   let nose = new Vector3(0, 0, -Infinity);
+  let snout = new Vector3(0, 0, -Infinity);
   for (const [v, vertex] of mesh.vertices.entries()) {
     const head = vertex.skin.find(([bone]) => bone === 'head')?.[1] ?? 0;
     if (vertex.material === 'fur' && head > 0.5) {
@@ -1946,6 +1949,12 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     if (vertex.material === 'gloss' && head === 1 && !inEye(v) && vertex.position.z > nose.z) {
       nose = vertex.position;
     }
+    if (vertex.material === 'fur' && head === 1 && vertex.position.z > snout.z) {
+      snout = vertex.position;
+    }
+  }
+  if (nose.z === -Infinity) {
+    nose = snout;
   }
   const center = toBind(box.min.clone().add(box.max).multiplyScalar(0.5))
     .add(headShiftOf(glb))
