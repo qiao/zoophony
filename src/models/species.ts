@@ -12,6 +12,7 @@ import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_HIPPO } from './studio/hippo.ts';
 import { STUDIO_MOUSE } from './studio/mouse.ts';
 import { STUDIO_PANDA } from './studio/panda.ts';
+import { STUDIO_PIG } from './studio/pig.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
 import { SPECIES_COLORS } from './colors.ts';
@@ -510,15 +511,23 @@ export const SPECIES = {
     accentParts: ['hands', 'feet'],
     facePattern: 'face-disc',
   },
-  /** Pig, the horns. */
+  /**
+   * Pig, the horns: a pink pig with a paler belly, a pink snout disc, dark hooves, and a small
+   * curled tail. It has the studio body of the mesh of the user, `assets/models/pig/pig.glb`,
+   * which `pnpm rig-mesh pig` rigs (design 4.4), with the size of the parametric pig and the
+   * longer arms that the user chose (2026-10-19-mesh-pig decisions). It sits on a chair that fits
+   * its short legs, and stands as a soloist. Its head height is the head of the studio body, and
+   * the seat height is the seat of the studio body, in H.
+   */
   pig: {
-    ears: 'pointed',
-    snout: 'flat-nose',
-    tail: 'thin',
-    size: 1.05,
+    body: 'studio-pig',
+    size: 1,
     colors: SPECIES_COLORS.pig,
     accentParts: ['snout'],
-    facePattern: 'none',
+    proportions: {
+      headHeight: STUDIO_PIG.headHeight,
+      seatHeight: STUDIO_PIG.seatHeight / STUDIO_PIG.headHeight,
+    },
   },
   /** Rhino, the tuba. */
   rhino: {
