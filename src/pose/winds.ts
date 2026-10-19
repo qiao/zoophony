@@ -416,6 +416,14 @@ const PANDA_TROMBONE = {
 } as const satisfies WindHold;
 
 /**
+ * The oboe hold of the mouse (design 5.3), the hold of a real oboist (decisions
+ * `2026-10-19-mesh-mouse.md`). It starts as the oboe hold of {@link WIND_HOLDS}.
+ */
+const MOUSE_OBOE = {
+  ...WIND_HOLDS.oboe,
+} as const satisfies WindHold;
+
+/**
  * The holds of the species that hold a wind instrument in their own way, in place of
  * {@link WIND_HOLDS} (design 5.3). The tools change them in memory with
  * `--set '<instrument>@<species>.<path>=<value>'` (`tools/hold-sets.ts`).
@@ -425,6 +433,7 @@ export const SPECIES_WIND_HOLDS: Partial<
 > = {
   'fox-tan': { flute: FOX_FLUTE },
   panda: { trombone: PANDA_TROMBONE },
+  mouse: { oboe: MOUSE_OBOE },
 };
 
 /**
