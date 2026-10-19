@@ -394,33 +394,22 @@
       "note": "The shape of the bow arm in the play of the bassist, with the mean turns of the samples in which face 323 folds (pnpm raise-fit bassist --faces 323 --side R): the clavicle turns 45 degrees forward, as the reach of the hold, and the upper arm 104.7 degrees from the bind. The fade covers 98% of the play samples. With the rule, faces 240, 286, and 480 of the front of the shoulder fold in 1% to 5% of the play samples (89%, 95%, and 37% before), and faces 477 and 461 of the upper arm, which turn over in the pose of the rule, in 93% and 34% (docs/research/2026-10-19-hippo-chest/fold-probe-base.txt)."
     },
     {
-      "side": "L",
+      "side": "R",
+      "bone": "forearm",
       "turns": {
-        "clavicle": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "upper_arm": [
-          0.2525,
-          0.203,
-          0.5639,
-          0.7596
-        ],
         "forearm": [
-          -0.1108,
-          -0.0642,
-          0.1435,
-          0.9813
+          -0.323,
+          0.1871,
+          -0.4184,
+          0.828
         ]
       },
       "fade": [
-        35,
-        45
+        15,
+        25
       ],
-      "below": 0,
-      "note": "The shape of the left arm in the play of the bassist, with the mean turns of the samples in which face 1356 of the left upper arm folds (pnpm raise-fit bassist --faces 1356 --side L): the upper arm turns 81.1 degrees from the bind. The fade covers 98% of the play samples. With the rule, the folded face samples of the left upper arm fall from 13,823 to 3,617 (docs/research/2026-10-19-hippo-chest/)."
+      "below": 0.3,
+      "note": "The shape of the bent right elbow in the play of the bassist, with the mean turn of the forearm on the upper arm in the samples in which faces 232 and 233 of the inner elbow fold (pnpm raise-fit bassist --faces 232,233 --side R --bone forearm): the elbow bends 68.2 degrees, and the faces folded in 4.9% and 4.1% of the play samples. The rule turns only the forearm: with the turns of the clavicle and the upper arm of the fit, faces 463, 336, and 337 of the chest folded in up to 10% of the play samples. It takes the place of the shape of the left arm for face 1356, which changed no fold since the left elbow points down (docs/research/2026-10-19-hippo-arms.md)."
     },
     {
       "side": "R",
