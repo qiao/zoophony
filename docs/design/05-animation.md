@@ -290,10 +290,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **Free arm of the flute.** The seated tan fox rests the flute upright on the right leg in the
   right paw. Its free left arm hangs near the side with a soft bend, because the top of the left
   thigh is out of its reach (`docs/decisions/2026-10-17-tan-rest.md`).
-- **Oboe at rest.** The seated and the standing mouse take the rest of the oboe of `WIND_HOLDS`:
-  the oboe moves off the mouth and tilts, and both paws keep their grips. A real oboist rests the
-  oboe on the legs, but the round belly of the mouse covers its short thighs
-  (`docs/decisions/2026-10-19-mesh-mouse.md`).
+- **Oboe at rest.** The seated and the standing mouse take the rest turn of the oboe of
+  `WIND_HOLDS`, with the oboe a little lower and further forward (`MOUSE_OBOE`): the oboe moves
+  off the mouth and tilts, and both paws keep their grips. A real oboist rests the oboe on the
+  legs, but the round belly of the mouse covers its short thighs
+  (`docs/decisions/2026-10-19-mesh-mouse.md`, `docs/decisions/2026-10-19-mouse-size.md`).
 - **Trombone at rest.** The seated and the standing panda take the rest of the trombone of
   `WIND_HOLDS`: the trombone moves off the mouth and stands upright at the right side, with the
   bell down, and both paws keep their grips. It does not rest on a leg
@@ -404,9 +405,10 @@ The code constants of each family hold the times, the angles, and the lengths of
   - The mouse holds the oboe as a real oboist (`MOUSE_OBOE` of `SPECIES_WIND_HOLDS`, Cline): the
     oboe hangs from the mouth at the angle that Cline gives, and the arms stay a little away from
     the sides with the wrists down. The long muzzle puts the tip of the nose far in front of the
-    mouth, so the reed sits back under the muzzle, in the mouth (`WindHold.lipShift`). The big head
-    puts the reed high above the shoulders, so the elbows point down, and the upper arms do not
-    turn into twisted bands.
+    mouth, so the reed sits back under the muzzle, in the mouth (`WindHold.lipShift`). The small
+    mouse plays a smaller oboe (4.6), and about half of the reed goes into the mouth, so that the
+    right paw reaches its grip. The big head puts the reed high above the shoulders, so the elbows
+    point down, and the upper arms do not turn into twisted bands.
   - The panda holds the trombone as a real trombonist (`PANDA_TROMBONE` of `SPECIES_WIND_HOLDS`,
     pBone and Western Carolina University): the left paw holds the weight at the grip near the
     mouthpiece, and the right paw holds the slide brace. Its big round head puts the mouth far in

@@ -230,4 +230,4 @@ The decision files:
 - [`2026-10-19-mesh-mouse.md`](decisions/2026-10-19-mesh-mouse.md): the mouse mesh of the user as the oboist, its arms, legs, nose, colors, and tail on the floor, and the oboe in the mouth with the elbows down.
 - [`2026-10-19-mesh-elephant.md`](decisions/2026-10-19-mesh-elephant.md): the elephant mesh of the user, which stands at the timpani, its size, arms, legs, trunk, ears, and colors, the place of the kettles, the playing spot and the hands of the timpani, and the open folds.
 - [`2026-10-19-mesh-retro.md`](decisions/2026-10-19-mesh-retro.md): the retro of the mouse and elephant mesh rounds, the tool of the corrective shapes, the fast checks of a hold fit, and the tip of the nose near the middle plane.
-- [`2026-10-19-mouse-size.md`](decisions/2026-10-19-mouse-size.md): the mouse at the size of the parametric mouse.
+- [`2026-10-19-mouse-size.md`](decisions/2026-10-19-mouse-size.md): the mouse at the size of the parametric mouse, its smaller oboe, the deeper reed, and the rest of the oboe.

@@ -915,8 +915,9 @@ declare function castScore(score: Score): PlayerCast[];
 ```
 
 The instruments follow the reference image and the polished images, and their sizes fit the
-animals of the reference image. A species can play a smaller violin, cello, or contrabass
-(`SpeciesParams.violinScale`, `celloScale`, `bassScale`), as a child plays a fractional size. A
+animals of the reference image. A species can play a smaller violin, cello, contrabass, or oboe
+(`SpeciesParams.violinScale`, `celloScale`, `bassScale`, `oboeScale`), as a child plays a
+fractional size. A smaller oboe shrinks toward the tip of the reed, so the reed stays in the mouth. A
 smaller cello has a longer end pin, and the contrabass keeps a short end pin at each size, because
 its hold moves it to the body (`endPinLength()`). A violin shop sizes a violin so that, with the left
 arm extended, the scroll lies in the middle of the palm (`pnpm hold-reach`). The user chose the
@@ -930,9 +931,9 @@ the whole hair (`docs/decisions/2026-10-18-mesh-hippo.md`). The tan fox
 plays the flute of the app, and each palm reaches its grip in the play and in the rest
 (`docs/decisions/2026-10-17-fox-form.md`). The panda plays the trombone of the app, and its right
 paw reaches the first part of the slide travel, from the grip of the first position
-(`docs/decisions/2026-10-18-mesh-panda.md`). The mouse plays the oboe of the app with the reed in
-its mouth, and each palm reaches its grip in the play and in the rest
-(`docs/decisions/2026-10-19-mesh-mouse.md`). The elephant keeps the short arms of its mesh, so the
+(`docs/decisions/2026-10-18-mesh-panda.md`). The small mouse keeps the arms of the other meshes,
+so it plays a smaller oboe (`oboeScale`), the largest at which each palm reaches its grip with
+3 cm to spare in the play and in the rest (`docs/decisions/2026-10-19-mouse-size.md`). The elephant keeps the short arms of its mesh, so the
 kettles of the timpani move to the arms, in place of longer arms: each mallet reaches the
 playing spot of each kettle on its side, and the kettles leave a gap at the front of the player
 for the trunk (`TIMPANI`, `docs/decisions/2026-10-19-mesh-elephant.md`). The chairs, the stands,
