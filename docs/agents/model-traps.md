@@ -147,9 +147,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   in the line of the main bones of `pnpm rig-mesh --check`.
 - A body has at most four shapes of `raise` (`RAISE_LIMIT`). Give a single thin face across a joint
   the mean of its weights (`weights.rigid`), and keep the shapes for the play.
-- A shape fixes only the poses near its rule, for the arm turns of one hold. Fit the hold first, or
-  fit both in one loop with `pnpm rig-mesh --check --hold`. A rule whose line `raise <target>` in
-  the rig log keeps turned faces after the relax fixes few samples.
+- A shape fixes only the poses near its rule, for the arm turns of one hold. `pnpm rig-mesh --check`
+  counts the folds with the hold of the working tree, so fit the hold first, or fit both in one loop
+  with `--hold <changes>`. A rule whose line `raise <target>` in the rig log keeps turned faces
+  after the relax fixes few samples.
 - The shape of a raised arm relaxes only the clavicle and the upper arm. `raise.grow` adds rings of
   trunk corners for a long face from the trunk under the armpit (`pnpm raise-fit --sets rest`). Keep
   the fade away from the turns of the play.
@@ -223,8 +224,6 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - `pnpm rig-mesh --check --set` changes only a key that the config has. For a new key, rig a scratch
   config with a direct run of Blender, and count its folds with `pnpm fold-probe <role> --glb
   <file>` (`rig.sh` of `docs/research/2026-10-17-dog-mesh/`).
-- `pnpm rig-mesh --check` counts the folds with the hold of the working tree. Give a new hold with
-  `--hold <changes>` before you fit `raise` to it.
 - The rig log gives centimeters at the scale of `app.shoulders`. A direct run of Blender on a
   variant that moves the shoulder joints needs the `app.shoulders` of `keptHeight()`, which `pnpm
   rig-mesh --check --set` sets.
