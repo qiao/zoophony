@@ -109,3 +109,38 @@ no chair. The bassoon lies diagonal in front of the body, the left paw above the
 the bocal brings the reed under the front teeth nearly level. Each part stays within the contact
 depth, each note target is within 5 mm, and each paw keeps 3.1 cm or more to spare. The play folds
 of the left arm stay open.
+
+## 4. The arm cut
+
+Round `beaver-arm`, base `98cab0e7`. Under the left armpit, the thin faces 380 of the chest and
+706 of the shoulder folded in each play sample. Face 1246 of the inner elbow folded too
+(`fold-probe-arm-base.txt`). The variants (`arm-cut.txt`, `arm-rig.sh`, `raise-fit-arm.txt`):
+
+| Variant | Play | Lift | Rest |
+|---|---:|---:|---:|
+| `98cab0e7` | 100% | 100% | 100%, 8 faces |
+| No cut, a ring at the left shoulder or the left elbow | 100% | 100% | 100% |
+| No cut, flips of more edges (`angle` 140, `move` 0.004) | 100% | 100% | 100% |
+| No cut, a ring at the left shoulder and a shape of the left arm | 100% | 100% | 100% |
+| Cut, top 0.55, 0.62, or 0.64 | 100% | 100% | 100% |
+| Cut, top 0.58 | the rig stops | | |
+| Cut, top 0.6 | 100%, face 1738 | 97.2% | 100% |
+| Cut 0.6 and a ring at the left shoulder | 100% | 100% | 100% |
+| Cut 0.6, the left shoulder 25° forward | 0% | 13.3% | 100% |
+| Cut 0.6, the left shoulder 30° forward | 100% | 100% | 100% |
+| Cut 0.6 and a shape of the left arm (final) | 0% | 13.3% | 100%, 3 faces |
+
+The cut and the shape remove each play fold, and the hold keeps its shoulder turn of 20°. The
+right arm has no fold after the cut, so its two shapes go. Three faces of the left arm fold in
+the rest, as before (`fold-probe-arm.txt`).
+
+Each depth of `pnpm pose-depth bassoonist --gaps --base 98cab0e7` stays within 0.1 cm of the base,
+and each note target within 5 mm (`pose-depth-arm.txt`). `pnpm body-probe --base 98cab0e7`
+differs only for the beaver (`body-probe-arm.txt`). The first download shrinks by 541 B
+(`pnpm size --base 98cab0e7`).
+
+**Images.** `pnpm close-views bassoonist <dir> --base 98cab0e7`: `arm-cut-views.webp`, the base
+above, at 3/4 of the size. With `--zoom 2 --scale 2`: `arm-cut-left.webp` and
+`arm-cut-right.webp`, the base on the left. The long spike of the fold under the left arm of the
+base is gone. In the lift and the rest, a dark slot with a thin dark wedge shows at the cap of the
+cut under the left arm. The right arm shows a small step at the top of the cut.
