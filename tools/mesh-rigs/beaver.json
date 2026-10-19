@@ -5,11 +5,11 @@
   "weld": 1e-05,
   "app": {
     "shoulders": 0.632835,
-    "reach": 0.259,
+    "reach": 0.3747,
     "note": "The size of the parametric beaver of 9a4613b4 (size 0.95, H 0.361 m), which stood 1.029 m high to the head top (docs/research/2026-10-19-beaver-mesh/landmark-probe.txt). No reference image shows a beaver, so the mesh takes that size (user rule of 2026-10-19, docs/decisions/2026-10-19-mouse-size.md). The scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 1.0 u) at 1.029 m. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
-  "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm. The first config keeps the arms of the mesh: 0.259 m from the shoulder joint to the middle of the palm, 0.56 of the trunk from the hips joint to the shoulder joints. The user chooses the factor in the mid-report (docs/research/2026-10-19-beaver-mesh/options/).",
+  "armFactor": 1.5,
+  "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short: 0.259 m from the shoulder joint to the middle of the palm with no factor, 0.56 of the trunk from the hips joint to the shoulder joints. The user chose 1.5 in the mid-report (\"Arms 1.5, bassoon ~0.8\", docs/decisions/2026-10-19-mesh-beaver.md): the reach is 0.375 m, 0.81 of the trunk. The beaver plays a smaller bassoon (SpeciesParams.bassoonScale), and its hold brings the bassoon to the arms (SPECIES_WIND_HOLDS.beaver of src/pose/winds.ts).",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair). The seat of the legs of the seated bind is 0.072 m, and the chair of the app is 0.159 m deep.",
   "joints": {
