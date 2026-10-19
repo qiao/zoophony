@@ -36,6 +36,18 @@ export type PercussionInstrument = InstrumentOf<'percussion'>;
 export type HandsRule = 'alternate' | 'sides' | 'right' | 'pair';
 
 /**
+ * The turn of a mallet around its own axis in the paw (design 5.3). A round mallet looks the same
+ * at each turn, so the turn only sets the paw on the forearm.
+ *
+ * - `up`: the top of the grip points up, as in the bind pose, where the arm hangs and the mallet
+ *   points forward from the fist.
+ * - `shoulder`: the top of the grip points toward the shoulder joint of its side, so that the paw
+ *   stays near the line of the arm. A mallet that slants down in front of a short arm with the
+ *   top up turns the paw almost upside down on the forearm.
+ */
+export type MalletTop = 'up' | 'shoulder';
+
+/**
  * The values of the hold of each percussion instrument (design 5.3). The directions are in the
  * model axes of the bind pose: the player faces -z, and its left is -x.
  */
@@ -61,6 +73,8 @@ export interface PercussionHold {
    * mallet slants down.
    */
   readonly home: Vec3;
+  /** The turn of each mallet around its own axis in the paw. */
+  readonly top: MalletTop;
 }
 
 /**
@@ -79,7 +93,8 @@ export const PERCUSSION_HOLDS = {
   // front kettles: each hand keeps the kettles of its side, strikes the playing spot near the
   // rim, and points its mallet from beside the shoulder. The elbows point out and back, so that
   // the upper arms keep out of the body and the paws bend less on the forearms
-  // (2026-10-19-mesh-elephant decisions).
+  // (2026-10-19-mesh-elephant decisions). The top of each grip points toward the shoulder, so
+  // that the paws do not twist on the forearms (2026-10-19-elephant-arms decisions).
   timpani: {
     hands: 'sides',
     sizes: { lift: 0.12, rest: 0.04 },
@@ -89,6 +104,7 @@ export const PERCUSSION_HOLDS = {
     poleR: [1, 0, 0.5],
     rim: 0.055,
     home: [0, -0.1, -0.3],
+    top: 'shoulder',
   },
   'bass-drum': {
     hands: 'right',
@@ -99,6 +115,7 @@ export const PERCUSSION_HOLDS = {
     poleR: [0.5, -1, 0.25],
     rim: 0,
     home: MALLET_HOME,
+    top: 'up',
   },
   'snare-drum': {
     hands: 'alternate',
@@ -109,6 +126,7 @@ export const PERCUSSION_HOLDS = {
     poleR: [0.6, -1, 0.3],
     rim: 0,
     home: MALLET_HOME,
+    top: 'up',
   },
   // The lift is the half of the gap between the inner faces of the two cymbals.
   cymbals: {
@@ -120,6 +138,7 @@ export const PERCUSSION_HOLDS = {
     poleR: POLE_R,
     rim: 0,
     home: MALLET_HOME,
+    top: 'up',
   },
   // The left hand holds the triangle up, and its elbow points out to the left.
   'small-percussion': {
@@ -131,6 +150,7 @@ export const PERCUSSION_HOLDS = {
     poleR: POLE_R,
     rim: 0,
     home: MALLET_HOME,
+    top: 'up',
   },
   xylophone: {
     hands: 'alternate',
@@ -141,6 +161,7 @@ export const PERCUSSION_HOLDS = {
     poleR: [0.8, -1, 0.3],
     rim: 0,
     home: MALLET_HOME,
+    top: 'up',
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
 
@@ -189,6 +210,8 @@ export type PercussionSide =
       readonly head: Vec3;
       /** The place from which the mallet points to its target (`PercussionHold.home`). */
       readonly home: Vec3;
+      /** The turn of the mallet around its own axis in the paw (`PercussionHold.top`). */
+      readonly top: MalletTop;
     }
   | {
       readonly kind: 'plate';
@@ -332,6 +355,7 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
       findTarget(model, (t) => t.kind === 'mallet-head' && t.bone === bone),
     ).point,
     home: toVec3(fromShoulder(arm, hold.home)),
+    top: hold.top,
   });
   const targets = new Map<number, StrikeTarget>();
   const heads = model.instrument.targets.filter((t) => t.kind === 'head');

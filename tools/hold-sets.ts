@@ -9,7 +9,7 @@ import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import { HANDS_HOLDS } from '../src/pose/hands.ts';
 import type { HandAction } from '../src/pose/hand-notes.ts';
 import { PERCUSSION_HOLDS, PERCUSSION_PLACES } from '../src/pose/percussion-rig.ts';
-import type { HandsRule } from '../src/pose/percussion-rig.ts';
+import type { HandsRule, MalletTop } from '../src/pose/percussion-rig.ts';
 import type { Fingering } from '../src/pose/wind-notes.ts';
 import { IDENTITY } from '../src/models/tuples.ts';
 import type { Quat } from '../src/models/tuples.ts';
@@ -112,6 +112,7 @@ const TEXT_FIELDS: ReadonlyMap<string, readonly string[]> = new Map([
     >),
   ],
   ['action', Object.keys({ strike: true, pluck: true } satisfies Record<HandAction, true>)],
+  ['top', Object.keys({ up: true, shoulder: true } satisfies Record<MalletTop, true>)],
   [
     'fingering',
     Object.keys({

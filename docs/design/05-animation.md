@@ -486,7 +486,11 @@ The code constants of each family hold the times, the angles, and the lengths of
     (`PercussionHold.home`), so that the wrist stays near the body. The elbows of the timpani
     point out and back, because elbows down put the upper arms into the body. The upper arms
     still touch the side of the body, as the user rule of 2026-10-10 asks. The kettles leave a
-    gap at the front of the player for the trunk (`TIMPANI.front`, 4.6).
+    gap at the front of the player for the trunk (`TIMPANI.front`, 4.6). A round mallet looks the
+    same at each turn around its own axis, so each timpani mallet turns until the top of the grip
+    points toward its shoulder joint (`PercussionHold.top`). Thus the paw stays near the line of
+    the arm. With the top up, a mallet that slants down in front of a short arm turns the paw
+    almost upside down on the forearm, and the skin twists. The other holds keep the top up.
 - Piano: the hands move to the key position. The left hand plays low notes and the right hand
   plays high notes.
 - **Piano and harp in detail** (`pose/hand-notes.ts`, `pose/hands.ts`):

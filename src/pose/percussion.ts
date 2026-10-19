@@ -122,15 +122,25 @@ const wristBind = new Vector3();
 
 /**
  * Writes the wrist and the world rotation of a hand with a mallet whose head is at a point. The
- * mallet points from the home of the hand to the head, with its top up. The function writes the
- * module vectors `wrist` and `turn`.
+ * mallet points from the home of the hand to the head, with its top up or toward the shoulder
+ * joint (`PercussionHold.top`). The function writes the module vectors `wrist` and `turn`.
  *
  * @param side The hand with a mallet.
  * @param point The point of the mallet head.
+ * @param joint The posed shoulder joint of the side.
  */
-function malletHand(side: Extract<PercussionSide, { kind: 'mallet' }>, point: Vector3): void {
+function malletHand(
+  side: Extract<PercussionSide, { kind: 'mallet' }>,
+  point: Vector3,
+  joint: Vector3,
+): void {
   along.copy(point).sub(offset.fromArray(side.home)).normalize();
-  top.set(0, 1, 0).addScaledVector(along, -along.y);
+  if (side.top === 'shoulder') {
+    top.subVectors(joint, point).normalize();
+  } else {
+    top.set(0, 1, 0);
+  }
+  top.addScaledVector(along, -top.dot(along));
   if (top.length() > 1e-6) {
     top.normalize();
   } else {
@@ -171,7 +181,11 @@ function poseHand(
 
   head.fromArray(hand.point);
   if (side.kind === 'mallet') {
-    malletHand(side, head.addScaledVector(offset.fromArray(hand.normal), hand.height));
+    malletHand(
+      side,
+      head.addScaledVector(offset.fromArray(hand.normal), hand.height),
+      shoulder.position,
+    );
   } else if (side.kind === 'plate') {
     head.addScaledVector(offset.fromArray(hand.normal), side.sign * hand.height);
     wrist.fromArray(side.face).sub(offset.fromArray(arm.bind.wrist));
