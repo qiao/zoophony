@@ -25,6 +25,6 @@ reverse each decision. Then update its section, and remove its row.
 | The rest of `WIND_HOLDS.oboe` stays: the round belly covers the short thighs, so the oboe cannot rest on a leg. | 5.2 |
 | Two raise rules of the left arm and one rigid face of the left shoulder remove the folds of the play and the rest (`raise`, `weights.rigid`). | 4.4 |
 | The role `oboist` is in `SWEEP_ROLES`, `FOLD_ROLES`, and `ROLE_VIEWS`. The closed body has 14 open loops (`MOUSE_BODY_LOOPS`). | 9.3 |
-| The first download grows by 26,792 B to 562,807 B (`pnpm size --base main`). | 7.2 |
+| The first download grows by 27,231 B to 563,246 B with the arm shapes (`pnpm size --base main`). | 7.2 |
 | Open: the lift folds in 45 of its 341 samples, by a face of the left arm and one of the neck (`fold-probe-oboist.txt`). | 4.4, 9.3 |
 | Open: the paws hold the oboe at the height of the shoulders, higher than a real oboist, because the reed is 0.25 m above the shoulder joints. | 5.3 |

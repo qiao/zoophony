@@ -102,12 +102,17 @@ mouth, with no dark brow (`solo-shot.webp`: the solo of `mozart-k315` at 63.9 s,
 `pnpm close-views play <dir> --demo mozart-k315 --shot mouse`). The face reads as neutral to
 happy, so no face rule changes it.
 
-**Other bodies.** `pnpm body-probe --base ab002346` (`body-probe.txt`): 90 of 95 bodies and 22 of
+**Other bodies.** `pnpm body-probe --base main` at `ab002346` (`body-probe.txt`): 90 of 95 bodies and 22 of
 23 players stay equal. The 5 mouse bodies and the oboe player differ, and 250 of 1,492 pose sets:
 the mice, and the players that the wider layout moves in the 11 demos with oboes (the pigs, the
 hippos, the penguins, the beavers, the rabbits, the red foxes, the cats, the monkeys, the
 elephants, the dogs, the pandas, the badgers, the tan fox, and the conductor). The shot tests pass
-(`shots-test.log`). The first download grows by 26,792 B to 562,807 B (`size.txt`).
+(`shots-test.log`). The first download grows by 27,231 B to 563,246 B (`size.txt`).
+
+**Images.** `pnpm close-views batch <dir> --species mouse --role oboist --lineup --camera
+default --camera violins --base main` on the last pose gives the grids of `main` above the grids
+of the round: `oboist-base-views.webp`, `species-play-base-views.webp`,
+`species-rest-base-views.webp`, `lineup-base-views.webp`, and `play-base-views.webp`.
 
 ## 3. The result
 
