@@ -73,10 +73,15 @@ export interface Options {
    * (`soloistScene()`), or `null` for the demos.
    */
   readonly soloist: SpeciesId | null;
+  /**
+   * The goal of `--goal` for each pair, in meters, or `null` for the limit of each pair: the tool
+   * counts the samples with a depth over it.
+   */
+  readonly goal: number | null;
 }
 
 /** The text of the usage. */
-const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--base <ref>] [--json <file>]`;
+const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--base <ref>] [--json <file>]`;
 
 /**
  * Tells if a role name is a bowed role with a soloist ({@link SOLOIST_ROLES}).
@@ -142,6 +147,7 @@ export function parseOptions(args: readonly string[]): Options {
   let json: string | null = null;
   let base: string | null = null;
   let soloist: SpeciesId | null = null;
+  let goal: number | null = null;
   // The flags --gaps and --targets have no value. Each other option has one.
   const gaps = rest.includes('--gaps');
   const targets = rest.includes('--targets');
@@ -192,6 +198,12 @@ export function parseOptions(args: readonly string[]): Options {
           throw new Error(`The times "${value}" are not numbers.`);
         }
         break;
+      case '--goal':
+        goal = Number(value) / 100;
+        if (value.trim() === '' || !Number.isFinite(goal) || goal < 0) {
+          throw new Error(`The option --goal takes a depth of 0 cm or more, and not "${value}".`);
+        }
+        break;
       default:
         throw new Error(`The option "${valued[i]}" is not known.\n${USAGE}`);
     }
@@ -211,7 +223,7 @@ export function parseOptions(args: readonly string[]): Options {
       `The option --targets goes with none of --times, --gaps, and --base.\n${USAGE}`,
     );
   }
-  return { role, demos, variants, bones, into, times, gaps, targets, json, base, soloist };
+  return { role, demos, variants, bones, into, times, gaps, targets, json, base, soloist, goal };
 }
 
 /** The results of one variant in one demo. */
@@ -371,6 +383,8 @@ export function playerLabel(name: string, species: SpeciesId | null): string {
 
 /** The options of a sweep of {@link sweepDemos}. */
 export type SweepOptions = Pick<Options, 'demos' | 'times' | 'gaps'> & {
+  /** The goal of each pair of `--goal`, in meters, or `null` or none for the limit of each pair. */
+  readonly goal?: number | null;
   /** True to measure only the note targets, with no sample set ({@link Options.targets}). */
   readonly targets?: boolean;
   /** Gives the gap pairs of each set of each player, with no flag of the gaps. */
@@ -439,7 +453,10 @@ function sweepScene(
         const pairs = options.gaps ? gapPairs(role) : (options.gapsOf?.(name, player) ?? []);
         const gaps = pairs.length > 0 ? gapSweep(pairs) : null;
         const bow = bowed ? bowSweep() : null;
-        const depths = sweepDepths(swept, player, samples, joinVisits(gaps?.visit, bow?.visit));
+        const goal = (pair: Pick<PairDepth, 'part' | 'into'>): number =>
+          options.goal ?? depthLimit(role, pair, name).depth;
+        const visits = joinVisits(gaps?.visit, bow?.visit);
+        const depths = sweepDepths(swept, player, samples, visits, goal);
         const smallest = gaps?.gaps() ?? [];
         if (bow) {
           depths.push(...bow.depths());
@@ -487,14 +504,32 @@ export async function sweepDemos(options: SweepOptions, role: RoleSweep): Promis
 }
 
 /**
+ * Writes the count of the samples of a pair over its goal.
+ *
+ * @param pair The pair.
+ * @param goal The goal, in meters.
+ * @returns The text, such as `; 120 of 1162 samples over 1.5 cm (10.3%)`, or empty with no count
+ *   or no goal.
+ */
+export function overText(pair: PairDepth, goal: number): string {
+  if (pair.samples === undefined || pair.over === undefined || !Number.isFinite(goal)) {
+    return '';
+  }
+  const share = ((100 * pair.over) / Math.max(1, pair.samples)).toFixed(1);
+  return `; ${pair.over} of ${pair.samples} samples over ${(goal * 100).toFixed(1)} cm (${share}%)`;
+}
+
+/**
  * Writes the results of one variant: the deepest point of each pair in each set, with its limit or
- * `no limit` for a part that the sweep only measures, such as the instrument in the body, the
- * smallest gap of each pair of `--gaps`, and the largest note-target error of each hand.
+ * `no limit` for a part that the sweep only measures, such as the instrument in the body, and the
+ * samples over the goal ({@link overText}), the smallest gap of each pair of `--gaps`, and the
+ * largest note-target error of each hand.
  *
  * @param role The role.
  * @param results The results of each demo.
+ * @param goal The goal of `--goal`, in meters, or `null` for the limit of each pair.
  */
-function printDetails(role: RoleSweep, results: readonly DemoResult[]): void {
+function printDetails(role: RoleSweep, results: readonly DemoResult[], goal: number | null): void {
   for (const { demo, sets, targets, reached } of results) {
     console.log(`  ${demo}`);
     for (const { name, pairs, gaps } of sets) {
@@ -504,7 +539,8 @@ function printDetails(role: RoleSweep, results: readonly DemoResult[]): void {
         const text = Number.isFinite(limit.depth)
           ? `limit ${(limit.depth * 100).toFixed(1)} cm${mark}`
           : 'no limit';
-        console.log(`    ${name}: ${pairText(pair)}; ${text}`);
+        const over = overText(pair, goal ?? limit.depth);
+        console.log(`    ${name}: ${pairText(pair)}; ${text}${over}`);
       }
       for (const gap of gaps) {
         console.log(`    ${name}: gap of the ${gapText(gap)}`);
@@ -576,6 +612,56 @@ function printTable(rows: readonly SweepRow[]): void {
   console.log(`|${header.map(() => '---').join('|')}|`);
   for (const [row, { variant }] of rows.entries()) {
     const cells = [...columns.values()].map((values) => (values[row] ?? 0).toFixed(1));
+    console.log(`| ${variant || 'base'} | ${cells.join(' | ')} |`);
+  }
+  printOverTable(rows);
+}
+
+/**
+ * Writes one table of the share of the samples over the goal of each pair in each set, in %, over
+ * all demos, with one row for each variant. A column with 0 in each row is left out, and the tool
+ * writes no table with no such column.
+ *
+ * @param rows The variant and the results of each row.
+ */
+function printOverTable(rows: readonly SweepRow[]): void {
+  const columns = new Map<string, { samples: number; over: number }[]>();
+  for (const [row, { results }] of rows.entries()) {
+    for (const { sets } of results) {
+      for (const { name, pairs } of sets) {
+        for (const { part, into, samples, over } of pairs) {
+          if (samples === undefined || over === undefined) {
+            continue;
+          }
+          const column = `${name} ${part}>${into} %`;
+          const values = columns.get(column) ?? rows.map(() => ({ samples: 0, over: 0 }));
+          const cell = values[row];
+          if (cell) {
+            cell.samples += samples;
+            cell.over += over;
+          }
+          columns.set(column, values);
+        }
+      }
+    }
+  }
+  for (const [column, values] of columns) {
+    if (values.every((cell) => cell.over === 0)) {
+      columns.delete(column);
+    }
+  }
+  if (columns.size === 0) {
+    return;
+  }
+  const header = ['variant', ...columns.keys()];
+  console.log('\nThe share of the samples over the goal of each pair (the limit, or --goal):');
+  console.log(`| ${header.join(' | ')} |`);
+  console.log(`|${header.map(() => '---').join('|')}|`);
+  for (const [row, { variant }] of rows.entries()) {
+    const cells = [...columns.values()].map((values) => {
+      const cell = values[row];
+      return cell && cell.samples > 0 ? ((100 * cell.over) / cell.samples).toFixed(1) : '-';
+    });
     console.log(`| ${variant || 'base'} | ${cells.join(' | ')} |`);
   }
 }
@@ -663,9 +749,10 @@ interface StoredRows {
 
 /**
  * The format version of the JSON text of `--json` (`ProbeFormat` of `tools/ref-tree.ts`). A
- * change of the format takes the next version. Version 2 added the reach of the note targets.
+ * change of the format takes the next version. Version 2 added the reach of the note targets, and
+ * version 3 the samples over the goal of each pair.
  */
-export const ROWS_FORMAT = 2;
+export const ROWS_FORMAT = 3;
 
 /**
  * The oldest format version that {@link ROWS_FORMAT} only adds fields to (`ProbeFormat.since` of
@@ -712,7 +799,7 @@ export function readRows(text: string): SweepRow[] {
  * @returns The depth.
  */
 export function restoreDepth(stored: StoredDepth): PairDepth {
-  return {
+  const depth: PairDepth = {
     part: stored.part,
     into: stored.into,
     depth: stored.depth,
@@ -721,6 +808,10 @@ export function restoreDepth(stored: StoredDepth): PairDepth {
     bone: stored.bone,
     along: stored.along ?? Number.NaN,
   };
+  if (stored.samples === undefined || stored.over === undefined) {
+    return depth;
+  }
+  return { ...depth, samples: stored.samples, over: stored.over };
 }
 
 /**
@@ -881,7 +972,7 @@ async function sweepRows(options: Options, role: RoleSweep): Promise<SweepRow[]>
     const seconds = (performance.now() - started) / 1000;
     rows.push({ variant: text, seconds, results });
     console.log(`${text || 'base'} (${seconds.toFixed(1)} s):`);
-    printDetails(role, results);
+    printDetails(role, results, options.goal);
   }
   return rows;
 }
@@ -904,15 +995,16 @@ export const SWEEP_ROLE_TABLE: Omit<RefRole, 'name'> = {
  *
  * @param role The role of the options.
  * @param ref The commit, the branch, or the tag.
+ * @param goal The goal of `--goal`, in meters, or `null` for the limit of each pair.
  */
-async function compareRef(role: RoleSweep, ref: string): Promise<void> {
+async function compareRef(role: RoleSweep, ref: string, goal: number | null): Promise<void> {
   const label = `${ref} (${shortHash(ref)})`;
   const args = withoutOptions(process.argv.slice(2), ['--base']);
   const started = performance.now();
   const texts = await probeBeside(
     ref,
     'pose-depth.ts',
-    { base: withoutOptions(args, ['--set'], ['--gaps']), tree: args },
+    { base: withoutOptions(args, ['--set', '--goal'], ['--gaps']), tree: args },
     { prefix: 'pose-depth-', role: { ...SWEEP_ROLE_TABLE, name: role.role }, cache: true },
   );
   const [base] = readRows(texts.base);
@@ -922,7 +1014,7 @@ async function compareRef(role: RoleSweep, ref: string): Promise<void> {
   );
   for (const { variant, seconds, results } of rows) {
     console.log(`${variant || 'base'} (${seconds.toFixed(1)} s):`);
-    printDetails(role, results);
+    printDetails(role, results, goal);
   }
   printTable(rows);
   for (const { variant, results } of rows) {
@@ -935,7 +1027,7 @@ async function main(): Promise<void> {
   const options = parseOptions(process.argv.slice(2));
   const role = roleOf(options);
   if (options.base !== null) {
-    await compareRef(role, options.base);
+    await compareRef(role, options.base, options.goal);
     return;
   }
   const rows = await sweepRows(options, role);

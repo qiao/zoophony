@@ -906,7 +906,8 @@ export interface FitRun {
  * version 7 the right arm in the rest, version 8 the reach of the note targets of each result,
  * version 9 the mean turns of the arms, version 10 the instrument in the body of the contrabass,
  * with `null` for its limit: the pair has no limit (a reader of an older version shows that limit
- * as 0), and version 11 the shares of the faces of `--faces-of`.
+ * as 0), and version 11 the shares of the faces of `--faces-of` and the samples over the limit of
+ * each pair of the sweep.
  */
 export const FIT_FORMAT = 11;
 
