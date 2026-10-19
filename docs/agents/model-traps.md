@@ -19,8 +19,8 @@ before you plan it. A research folder of `docs/research/` that a trap names hold
   (`docs/research/2026-10-14-fox-rig/fold-set.ts`), and check each candidate with
   `pnpm pose-depth --set` before you write it.
 - A big head puts the grips of a hanging instrument at the height of the shoulders, and elbows out
-  and level twist the upper arms into bands. Point the elbows down (`keys-dump.ts --demo` of
-  `docs/research/2026-10-19-mouse-mesh/` gives the arm turns of each pole).
+  and level twist the upper arms into bands. Point the elbows down, and compare the arm turns of
+  each pole in the table of `pnpm hold-fit`.
 - A deeper trunk takes the room of the elbows of a hold. Run `pnpm hold-fit <role> --base main`
   after a change of the girth, and point the elbows out (`poleL`, `restPoleL`).
 

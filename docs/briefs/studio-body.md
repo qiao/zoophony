@@ -173,7 +173,8 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
   the reference.
 - **The elbows.** In the first hold fit, compare 3 or 4 elbow directions, and look at the upper
   arms in the close views. An upper arm can twist into a flat band within the limits of the
-  depths and the folds.
+  depths and the folds. Prefer the variant with the smallest arm turns in the table of
+  `pnpm hold-fit`.
 - **The faces.** Permit rings at the joints (`refine.rings`) and edge flips of faces that lie
   almost on one plane (`refine.flip`) from the start.
 - **The order of the goals.** When two goals conflict, keep this order:
