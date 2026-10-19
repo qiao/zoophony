@@ -258,13 +258,13 @@ export function createConductorLight(conductor: ConductorPlace): SpotLight {
 }
 
 /** The name of the key light in the group of {@link createLights}. */
-const KEY_NAME = 'key';
+export const KEY_NAME = 'key';
 
 /** The name of each side light in the group of {@link createLights}. */
-const SIDE_NAME = 'side';
+export const SIDE_NAME = 'side';
 
 /** The name of each back-row light in the group of {@link createLights}. */
-const BACK_ROW_NAME = 'back-row';
+export const BACK_ROW_NAME = 'back-row';
 
 /**
  * Sets the shadow map size and the shadow blur of a spotlight (design 2.6). The renderer makes a
@@ -403,6 +403,31 @@ function spotlight(color: string, position: Vec3, target: Vec3, illuminance: num
   light.decay = 2;
   light.castShadow = false;
   return light;
+}
+
+/**
+ * Calculates the direct light of a spotlight on a face, as the light chunk of three.js r186 gives
+ * it: the smooth step of the cone from `angle` to `angle × (1 - penumbra)`, the decay 2 of
+ * {@link spotlight}, and the cosine of the face. It leaves out the color, the pool, and the
+ * shadow. `pnpm light-probe` calls it with the lights of {@link createLights}, so that the probe
+ * cannot drift from the scene.
+ *
+ * @param spot The spotlight.
+ * @param point The point of the face, in meters.
+ * @param normal The unit normal of the face.
+ * @returns The illuminance, in lux.
+ */
+export function spotIlluminance(spot: SpotLight, point: Vec3, normal: Vec3): number {
+  const axis = new Vector3().subVectors(spot.target.position, spot.position);
+  const to = new Vector3(...point).sub(spot.position);
+  const distanceSquared = to.lengthSq();
+  const angleCos = to.clone().normalize().dot(axis.normalize());
+  const outer = Math.cos(spot.angle);
+  const inner = Math.cos(spot.angle * (1 - spot.penumbra));
+  const t = Math.min(1, Math.max(0, (angleCos - outer) / (inner - outer)));
+  const cone = t * t * (3 - 2 * t);
+  const facing = Math.max(0, -to.normalize().dot(new Vector3(...normal)));
+  return (spot.intensity * cone * facing) / distanceSquared;
 }
 
 /** The place, the aim, the light, and the cone of a pair of cross lights, in stage sides. */

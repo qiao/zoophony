@@ -181,6 +181,38 @@ const REACH_BACK_GLSL =
   'lightPoolD.y = lightPoolStep.y < 0.0 ? lightPoolStep.y * uLightPoolBack : lightPoolD.y;';
 
 /**
+ * Calculates the pool factor of a place of the stage top, as {@link POOL_GLSL} does in the
+ * shader. `pnpm light-probe` calls it, so that the probe cannot drift from the shader.
+ *
+ * @param aim The aim of the stage lights.
+ * @param x The x of the place, in meters.
+ * @param z The z of the place, in meters.
+ * @param surface The surface: the players and the props take the long reach toward the back.
+ * @returns The factor, from the floor value of the aim to 1.
+ */
+export function poolFactor(aim: LightAim, x: number, z: number, surface: PoolSurface): number {
+  const dx = (x - aim.center[0]) / aim.radius[0];
+  const step = z - aim.center[1];
+  const dz = step / (surface === 'players' && step < 0 ? aim.reachBack : aim.radius[1]);
+  return aim.floor + (1 - aim.floor) * Math.exp(-(dx * dx + dz * dz));
+}
+
+/**
+ * Calculates the factor of the hot spot of a place of the stage top, as {@link POOL_GLSL} does.
+ * The shader multiplies each spotlight with a shadow map by it ({@link SPOT_POOL_GLSL}).
+ *
+ * @param aim The aim of the stage lights.
+ * @param x The x of the place, in meters.
+ * @param z The z of the place, in meters.
+ * @returns The factor, from 1 to 1 + the boost of the aim.
+ */
+export function hotSpotFactor(aim: LightAim, x: number, z: number): number {
+  const dx = (x - aim.spot[0]) / aim.spotRadius[0];
+  const dz = (z - aim.spot[1]) / aim.spotRadius[1];
+  return 1 + aim.boost * Math.exp(-(dx * dx + dz * dz));
+}
+
+/**
  * Adds the pool to the shader of a standard material: the shader multiplies the light of each
  * spotlight by the pool factor at the world position of the pixel, and the light of the key light
  * also by the hot spot ({@link LIGHT_POOL}). The pool factor is 1 at the pool center, with a
