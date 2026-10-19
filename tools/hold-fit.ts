@@ -49,6 +49,8 @@
  */
 import { writeFileSync } from 'node:fs';
 
+import { Quaternion, Vector3 } from 'three';
+
 import {
   FOLD_ROLES,
   FOLD_ROLE_TABLE,
@@ -95,6 +97,8 @@ import {
 import type { DemoResult, GapsOf, StoredDepth, StoredResult } from './pose-depth.ts';
 import { armKeys } from './raise-fit.ts';
 import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
+import { twistAngle } from '../src/models/studio-rig.ts';
+import type { StudioRig } from '../src/models/studio-rig.ts';
 import type { Quat } from '../src/models/tuples.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { sceneOf } from '../src/pose/test-scene.ts';
@@ -862,6 +866,13 @@ export interface ArmAngles {
   readonly upper: number;
   /** The mean turn of the paw from the forearm. */
   readonly paw: number;
+  /**
+   * The twist of the mean turn of the paw around the bind axis of the forearm, from the elbow to
+   * the wrist, from -180 to 180, or none in a text before the format version 14.
+   */
+  readonly twist?: number;
+  /** The angle of the mean turn of the paw with no twist, or none before the format version 14. */
+  readonly swing?: number;
 }
 
 /** The mean turns of both arms over the samples of one sample set of the folds. */
@@ -885,18 +896,66 @@ export interface ArmTurnProbe {
   readonly turns: () => ArmTurns | null;
 }
 
+/** The angles of the mean turn of a paw from its forearm, in degrees ({@link pawAngles}). */
+export interface PawAngles {
+  /** The whole turn. */
+  readonly paw: number;
+  /** The twist around the bind axis of the forearm, from -180 to 180. */
+  readonly twist: number;
+  /** The angle of the turn with no twist. */
+  readonly swing: number;
+}
+
+/**
+ * Gives the angles of the mean turn of a paw from its forearm: the whole turn, the twist around
+ * the forearm, and the swing with no twist (`twistAngle()` of `src/models/studio-rig.ts`), as the
+ * probe `twist.ts` of `docs/research/2026-10-19-elephant-arms/` gave them.
+ *
+ * @param turn The mean turn of the paw from the forearm.
+ * @param axis The bind axis of the forearm, from the elbow to the wrist, as a unit vector.
+ * @returns The angles, in degrees.
+ */
+export function pawAngles(turn: Quat, axis: Vector3): PawAngles {
+  const q = new Quaternion(...turn);
+  const twist = twistAngle(q, axis);
+  const swing = q.clone().multiply(new Quaternion().setFromAxisAngle(axis, -twist));
+  return {
+    paw: turnAngle(turn, [0, 0, 0, 1]),
+    twist: (twist * 180) / Math.PI,
+    swing: turnAngle([swing.x, swing.y, swing.z, swing.w], [0, 0, 0, 1]),
+  };
+}
+
+/**
+ * Gives the bind axis of a forearm of a studio rig, from the elbow to the wrist.
+ *
+ * @param rig The studio rig.
+ * @param side The arm.
+ * @returns The unit vector, in the axes of the skin matrices.
+ */
+function forearmAxis(rig: StudioRig, side: 'L' | 'R'): Vector3 {
+  const { heads } = rig.body;
+  return new Vector3(...heads[`hand_${side}`])
+    .sub(new Vector3(...heads[`forearm_${side}`]))
+    .normalize();
+}
+
 /**
  * Starts the probe of the arm turns of a fold probe: a visit that keeps the turn of each upper arm
  * in the axes of the chest and of each paw from its forearm in each sample (`armKeys()` of
- * `tools/raise-fit.ts`), and a function that gives the angles of their mean turns. The mean
- * turns of the play show an upper arm that a hold twists, as the elbows out and level of the
- * mouse did (`docs/research/2026-10-19-mouse-mesh.md`).
+ * `tools/raise-fit.ts`), and a function that gives the angles of their mean turns, with the twist
+ * and the swing of each paw ({@link pawAngles}). The mean turns of the play show an upper arm that
+ * a hold twists, as the elbows out and level of the mouse did
+ * (`docs/research/2026-10-19-mouse-mesh.md`), and a paw that twists on its forearm, as the old
+ * mallet grip of the elephant did (`docs/research/2026-10-19-elephant-arms.md`).
  *
  * @returns The visit, and the function of the result.
  */
 export function armTurns(): ArmTurnProbe {
   const samples: TurnSamples = new Map();
-  const visit: FoldVisit = (...[, studio, , , set]) => {
+  let axes: Readonly<Record<'L' | 'R', Vector3>> | null = null;
+  const visit: FoldVisit = (...[rig, studio, , , set]) => {
+    axes ??= { L: forearmAxis(rig, 'L'), R: forearmAxis(rig, 'R') };
     const sides = samples.get(set) ?? [
       { upper: [], paw: [] },
       { upper: [], paw: [] },
@@ -916,10 +975,15 @@ export function armTurns(): ArmTurnProbe {
     }
     const angle = (list: readonly Quat[]): number =>
       turnAngle(meanTurn(list) ?? [0, 0, 0, 1], [0, 0, 0, 1]);
-    const [left, right] = sides.map((side) => ({
-      upper: angle(side.upper),
-      paw: angle(side.paw),
-    }));
+    const [left, right] = sides.map((side, k): ArmAngles => {
+      const axis = axes?.[k === 0 ? 'L' : 'R'];
+      const upper = angle(side.upper);
+      if (!axis) {
+        return { upper, paw: angle(side.paw) };
+      }
+      const { paw, twist, swing } = pawAngles(meanTurn(side.paw) ?? [0, 0, 0, 1], axis);
+      return { upper, paw, twist, swing };
+    });
     return left && right ? { set, L: left, R: right } : null;
   };
   return { visit, turns };
@@ -999,10 +1063,10 @@ export interface FitRun {
  * version 9 the mean turns of the arms, version 10 the instrument in the body of the contrabass,
  * with `null` for its limit: the pair has no limit (a reader of an older version shows that limit
  * as 0), version 11 the shares of the faces of `--faces-of` and the samples over the limit of
- * each pair of the sweep, version 12 the spare reach of the grips of a wind hold, and version 13
- * the faces that fold most of each row.
+ * each pair of the sweep, version 12 the spare reach of the grips of a wind hold, version 13 the
+ * faces that fold most of each row, and version 14 the twist and the swing of each paw.
  */
-export const FIT_FORMAT = 13;
+export const FIT_FORMAT = 14;
 
 /**
  * The oldest format version that {@link FIT_FORMAT} only adds fields to (`ProbeFormat.since` of
@@ -1298,7 +1362,7 @@ export function fitTable(rows: readonly FitRow[]): string[] {
     ...named.map((face) => `Face ${face} play`),
     ...sets.map((set) => `${set} depth cm (limit)`),
     ...(targets ? [`Note targets: worst mm (within ${TARGET_REACH * 1000} mm)`] : []),
-    ...(turnSet ? [`${turnSet} turns: upper arm, paw L / R`] : []),
+    ...(turnSet ? [`${turnSet} turns: upper arm, paw (twist, swing) L / R`] : []),
     ...(held ? ['Instrument in body cm'] : []),
     ...(grips ? SPARE_HEADER : []),
     ...paws.map((paw) => `Rest gap ${paw} cm`),
@@ -1314,7 +1378,13 @@ export function fitTable(rows: readonly FitRow[]): string[] {
         ? `${(reached.worst * 1000).toFixed(1)} (${((100 * reached.within) / reached.samples).toFixed(1)}%)`
         : '-';
     const turns = row.turns;
-    const angles = (arm: ArmAngles): string => `${arm.upper.toFixed(0)}°, ${arm.paw.toFixed(0)}°`;
+    const angles = (arm: ArmAngles): string => {
+      const parts =
+        arm.twist === undefined || arm.swing === undefined
+          ? ''
+          : ` (${arm.twist.toFixed(0)}°, ${arm.swing.toFixed(0)}°)`;
+      return `${arm.upper.toFixed(0)}°, ${arm.paw.toFixed(0)}°${parts}`;
+    };
     const turnCell = turns ? `${angles(turns.L)} / ${angles(turns.R)}` : '-';
     const depths = sets.map((set) => {
       const worst = row.depths.find((d) => d.set === set);
