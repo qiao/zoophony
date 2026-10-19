@@ -24,13 +24,25 @@ import { glbAnimal, runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-s
 import { setHolds } from './hold-sets.ts';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { patchedDemos } from './patch-demos.ts';
+import type { DemoFile } from './patch-demos.ts';
 import { armReach, parseConfig } from './rig-mesh.ts';
+import {
+  PERCUSSION_INSTRUMENTS,
+  isPercussion,
+  strikeReach,
+  strikeReachLines,
+} from './strike-reach.ts';
+import type { PercussionInstrument } from '../src/pose/percussion-rig.ts';
 
 /** An instrument that the player holds under the chin. */
 export type ChinInstrument = 'violin' | 'viola';
 
-/** An instrument that `pnpm hold-reach` measures: an instrument under the chin, or a wind. */
-export type ReachInstrument = ChinInstrument | WindInstrument;
+/**
+ * An instrument that `pnpm hold-reach` measures: an instrument under the chin, a wind, or a
+ * percussion instrument.
+ */
+export type ReachInstrument = ChinInstrument | WindInstrument | PercussionInstrument;
 
 /** The instruments under the chin. */
 export const CHIN_INSTRUMENTS = ['violin', 'viola'] as const satisfies readonly ChinInstrument[];
@@ -39,6 +51,13 @@ export const CHIN_INSTRUMENTS = ['violin', 'viola'] as const satisfies readonly 
 export const WIND_INSTRUMENTS: readonly WindInstrument[] = Object.keys(WIND_HOLDS).filter(
   (id): id is WindInstrument => Object.hasOwn(WIND_HOLDS, id),
 );
+
+/** The instruments of `--instrument`, in the order of the usage. */
+export const REACH_INSTRUMENTS: readonly ReachInstrument[] = [
+  ...CHIN_INSTRUMENTS,
+  ...WIND_INSTRUMENTS,
+  ...PERCUSSION_INSTRUMENTS,
+];
 
 /**
  * Tells if an instrument of `pnpm hold-reach` is a wind instrument.
@@ -783,7 +802,7 @@ export interface ReachOptions {
 
 /** The usage text of `pnpm hold-reach`. */
 const USAGE =
-  'Usage: pnpm hold-reach <species> [--instrument violin|viola|<wind>] [--support chair|stand] [--set <path>=<value>[;<path>=<value>]...]... [--size <scale>[,<scale>]...] [--glb <file>]';
+  'Usage: pnpm hold-reach <species> [--instrument violin|viola|<wind>|<percussion>] [--support chair|stand] [--set <path>=<value>[;<path>=<value>]...]... [--size <scale>[,<scale>]...] [--glb <file>]';
 
 /**
  * Reads the options after the species. Each option has one value, and `--set` can come more than
@@ -812,7 +831,7 @@ export function parseReachOptions(args: readonly string[]): ReachOptions {
     }
     switch (flag) {
       case '--instrument':
-        instrument = pick(flag, value, [...CHIN_INSTRUMENTS, ...WIND_INSTRUMENTS]);
+        instrument = pick(flag, value, REACH_INSTRUMENTS);
         break;
       case '--support':
         support = pick(flag, value, ['chair', 'stand'] as const);
@@ -830,15 +849,21 @@ export function parseReachOptions(args: readonly string[]): ReachOptions {
 /**
  * Writes the report of `pnpm hold-reach` for the base and for each variant of `--set`. Each
  * variant changes the holds in memory, as `pnpm pose-depth --set` does, and the old values come
- * back after its report.
+ * back after its report. A percussion instrument gives the strikes of the species in the demos
+ * (`strikeReach()` of `tools/strike-reach.ts`), on the support of each demo.
  *
  * @param species The species.
  * @param options The options.
+ * @param demos The demos of a percussion instrument, or none for another instrument.
  * @returns The lines. With variants, each report starts with the line of its changes.
  * @throws Error if a variant names an unknown key or a value that does not fit, before the first
  *   report.
  */
-export function holdReachVariantLines(species: SpeciesId, options: ReachOptions): string[] {
+export function holdReachVariantLines(
+  species: SpeciesId,
+  options: ReachOptions,
+  demos: readonly DemoFile[] = [],
+): string[] {
   for (const set of options.sets) {
     setHolds(set).undo();
   }
@@ -850,11 +875,16 @@ export function holdReachVariantLines(species: SpeciesId, options: ReachOptions)
       if (options.sets.length > 0) {
         lines.push(`${text || 'base'}:`);
       }
-      lines.push(
-        ...(isWind(options.instrument)
-          ? windReachLines(species, options.instrument, options.support)
-          : holdReachLines(species, options.instrument, options.support)),
-      );
+      const { instrument, support } = options;
+      if (isPercussion(instrument)) {
+        lines.push(
+          ...strikeReachLines(species, instrument, strikeReach(species, instrument, demos)),
+        );
+      } else if (isWind(instrument)) {
+        lines.push(...windReachLines(species, instrument, support));
+      } else {
+        lines.push(...holdReachLines(species, instrument, support));
+      }
     } finally {
       undo();
     }
@@ -893,7 +923,8 @@ async function main(): Promise<void> {
     );
     return;
   }
-  console.log(holdReachVariantLines(species, options).join('\n'));
+  const demos = isPercussion(options.instrument) ? await patchedDemos() : [];
+  console.log(holdReachVariantLines(species, options, demos).join('\n'));
   if (sizes.length > 0) {
     console.log(['', ...sizeReachLines(species, options.support, sizes)].join('\n'));
   }

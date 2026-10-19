@@ -12,7 +12,8 @@
  * of the command, so that it keeps the GLB file of each rig for `pnpm hold-reach --glb`. With
  * `--instrument`, each row also gives the reach of the hold on the real body
  * (`tools/glb-swap.ts`): the slide reach of a trombone, the spare reach of each palm to its grip on
- * another wind instrument, or the scale of the rule of a violin shop.
+ * another wind instrument, the scale of the rule of a violin shop, or the share of the strikes of
+ * a percussion instrument within 5 mm with the worst error.
  *
  * The tool writes into `<dir>`: `options.md` with the table of the measures and the warnings of
  * the rigs (`warningLines()`), `options.png` with the image, and `rigs/` with the config, the GLB
@@ -37,8 +38,7 @@ import { SPECIES_IDS, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { glbAnimal, rigConfigPath, runTool, scratchSettings, withGlbBody } from './glb-swap.ts';
 import {
-  CHIN_INSTRUMENTS,
-  WIND_INSTRUMENTS,
+  REACH_INSTRUMENTS,
   armLength,
   holdReach,
   isWind,
@@ -47,6 +47,9 @@ import {
   windReach,
 } from './hold-reach.ts';
 import type { ReachInstrument } from './hold-reach.ts';
+import { patchedDemos } from './patch-demos.ts';
+import type { DemoFile } from './patch-demos.ts';
+import { isPercussion, strikeCell, strikeReach } from './strike-reach.ts';
 import {
   blenderArgs,
   jointHead,
@@ -193,11 +196,9 @@ export function parseOptionsArgs(
         arms = positiveList(flag, value).filter((factor) => factor !== 1);
         break;
       case '--instrument': {
-        const known = [...CHIN_INSTRUMENTS, ...WIND_INSTRUMENTS].find((id) => id === value);
+        const known = REACH_INSTRUMENTS.find((id) => id === value);
         if (known === undefined) {
-          throw new Error(
-            `--instrument takes one of: ${[...CHIN_INSTRUMENTS, ...WIND_INSTRUMENTS].join(', ')}.`,
-          );
+          throw new Error(`--instrument takes one of: ${REACH_INSTRUMENTS.join(', ')}.`);
         }
         instrument = known;
         break;
@@ -404,13 +405,23 @@ export interface OptionMeasures {
 /**
  * Writes the reach of the hold of a species for the table: the slide reach of a trombone, the
  * spare reach of each palm to its grip in the playing pose on another wind instrument (negative
- * for a miss), or the scale of the rule of a violin shop. The player sits on a chair.
+ * for a miss), the scale of the rule of a violin shop, or the share of the strikes of a
+ * percussion instrument within 5 mm with the worst error (`tools/strike-reach.ts`). The player
+ * sits on a chair, and a percussion player stands as in the demos.
  *
  * @param species The species.
  * @param instrument The instrument.
+ * @param demos The demos of a percussion instrument, or none for another instrument.
  * @returns The text, such as `slide 0.155 m`.
  */
-export function reachCell(species: SpeciesId, instrument: ReachInstrument): string {
+export function reachCell(
+  species: SpeciesId,
+  instrument: ReachInstrument,
+  demos: readonly DemoFile[] = [],
+): string {
+  if (isPercussion(instrument)) {
+    return strikeCell(strikeReach(species, instrument, demos));
+  }
   if (!isWind(instrument)) {
     const rule = ruleSize(holdReach(species, instrument, 'chair'));
     return rule ? `rule scale ${rule.scale.toFixed(3)}` : 'no rule scale';
@@ -475,9 +486,14 @@ export interface WorkingBody {
  *
  * @param species The species.
  * @param instrument The instrument of the reach of the hold, or `null`.
+ * @param demos The demos of a percussion instrument, or none for another instrument.
  * @returns The measures, and the standing player.
  */
-export function workingBody(species: SpeciesId, instrument: ReachInstrument | null): WorkingBody {
+export function workingBody(
+  species: SpeciesId,
+  instrument: ReachInstrument | null,
+  demos: readonly DemoFile[] = [],
+): WorkingBody {
   const held = instrument ?? 'violin';
   const standing = buildPlayer(species, held, 4, 'stand');
   const seated = buildPlayer(species, held, 4, 'chair');
@@ -510,7 +526,7 @@ export function workingBody(species: SpeciesId, instrument: ReachInstrument | nu
       chair: null,
       reach,
       armTrunk: null,
-      hold: instrument ? reachCell(species, instrument) : null,
+      hold: instrument ? reachCell(species, instrument, demos) : null,
     },
     model: standing,
   };
@@ -892,11 +908,12 @@ async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   if (argv[0] === '--reach') {
     const [, species = '', instrument = '', out = ''] = argv;
-    const known = [...CHIN_INSTRUMENTS, ...WIND_INSTRUMENTS].find((id) => id === instrument);
+    const known = REACH_INSTRUMENTS.find((id) => id === instrument);
     if (!isSpeciesId(species) || known === undefined || out === '') {
       throw new Error('Usage: node tools/mesh-options.ts --reach <species> <instrument> <json>');
     }
-    await writeFile(out, JSON.stringify(reachCell(species, known)));
+    const demos = isPercussion(known) ? await patchedDemos() : [];
+    await writeFile(out, JSON.stringify(reachCell(species, known, demos)));
     return;
   }
 
@@ -916,7 +933,8 @@ async function main(): Promise<void> {
       `The species ${args.species} does not take the body of ${args.animal} in the swap of --glb. Give --species with a species of the animal.`,
     );
   }
-  const { measures: working, model } = workingBody(args.species, args.instrument);
+  const demos = args.instrument && isPercussion(args.instrument) ? await patchedDemos() : [];
+  const { measures: working, model } = workingBody(args.species, args.instrument, demos);
 
   const rows: RiggedVariant[] = [];
   for (const variant of optionVariants(args)) {
