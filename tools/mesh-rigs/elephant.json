@@ -1,0 +1,484 @@
+{
+  "source": "assets/models/elephant/elephant.glb",
+  "output": "assets/models/elephant/elephant.rig.glb",
+  "name": "Elephant",
+  "weld": 1e-05,
+  "app": {
+    "shoulders": 1.156833,
+    "reach": 0.4514,
+    "note": "The size of the reference images: the reference elephant stands 1.15 to 1.29 times as high as the standing hippos of the same back row (docs/research/2026-10-19-elephant-mesh.md), and the hippo mesh of the app stands at the head height of the red fox, 1.570 m. 1.22 times 1.570 m puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9958 u) at 1.920 m, 1.928055 m for each unit, with the standing shoulder joints at 1.156833 m (the entry of the elephant in ANIMALS). The parametric elephant of main stood 1.462 m high to the head top. The reach is the reach of the arms of the mesh, from the shoulder joint to the middle of the palm."
+  },
+  "armFactor": 1,
+  "armFactorNote": "The arms keep the length of the mesh: 0.451 m from the shoulder joint to the middle of the palm, 0.57 of the trunk from the hips joint to the shoulder joints. Arms of 0.9 of the trunk need a factor above 1.6, the stop of the brief, and the user called the arms of the dog with the factor 1.75 much too long. So the timpani of the elephant move to the arms (docs/decisions/2026-10-19-mesh-elephant.md). The parametric elephant of main had arms of 0.734 m.",
+  "legFactor": 1,
+  "legFactorNote": "The legs keep the length of the mesh. The elephant stands at its timpani in the app, so no seat asks for longer legs.",
+  "joints": {
+    "root": {
+      "head": [
+        0,
+        0,
+        0
+      ],
+      "tail": [
+        0,
+        0,
+        0.1
+      ],
+      "roll": [
+        0,
+        1,
+        0
+      ]
+    },
+    "hips": {
+      "head": [
+        0,
+        0.19,
+        -0.07
+      ],
+      "tail": "spine"
+    },
+    "spine": {
+      "head": [
+        0,
+        0.31,
+        -0.073
+      ],
+      "tail": "spine1"
+    },
+    "spine1": {
+      "head": [
+        0,
+        0.43,
+        -0.067
+      ],
+      "tail": "chest"
+    },
+    "chest": {
+      "head": [
+        0,
+        0.545,
+        -0.063
+      ],
+      "tail": "neck"
+    },
+    "neck": {
+      "head": [
+        0,
+        0.655,
+        -0.065
+      ],
+      "tail": "head"
+    },
+    "head": {
+      "head": [
+        0,
+        0.72,
+        -0.05
+      ],
+      "tail": [
+        0,
+        0.98,
+        0.03
+      ]
+    },
+    "ear_L": {
+      "head": [
+        0.12,
+        0.85,
+        0.0
+      ],
+      "tail": [
+        0.3,
+        0.83,
+        -0.06
+      ]
+    },
+    "clavicle_L": {
+      "head": [
+        0.03,
+        0.625,
+        -0.06
+      ],
+      "tail": "upper_arm_L"
+    },
+    "upper_arm_L": {
+      "head": [
+        0.19,
+        0.6,
+        -0.035
+      ],
+      "tail": "forearm_L",
+      "roll": "palm"
+    },
+    "forearm_L": {
+      "head": [
+        0.224,
+        0.5,
+        -0.025
+      ],
+      "tail": "forearm_twist_L",
+      "roll": "palm"
+    },
+    "forearm_twist_L": {
+      "head": [
+        0.2405,
+        0.45,
+        -0.0125
+      ],
+      "tail": "hand_L",
+      "roll": "palm"
+    },
+    "hand_L": {
+      "head": [
+        0.257,
+        0.4,
+        0.0
+      ],
+      "tail": "fingers_L",
+      "roll": "palm"
+    },
+    "fingers_L": {
+      "head": [
+        0.27,
+        0.365,
+        0.013
+      ],
+      "tail": [
+        0.29,
+        0.338,
+        0.039
+      ],
+      "roll": "palm"
+    },
+    "thigh_L": {
+      "head": [
+        0.096,
+        0.15,
+        -0.08
+      ],
+      "tail": "shin_L"
+    },
+    "shin_L": {
+      "head": [
+        0.096,
+        0.095,
+        -0.088
+      ],
+      "tail": "foot_L"
+    },
+    "foot_L": {
+      "head": [
+        0.098,
+        0.045,
+        -0.078
+      ],
+      "tail": "toes_L",
+      "roll": [
+        0,
+        1,
+        0
+      ]
+    },
+    "toes_L": {
+      "head": [
+        0.097,
+        0.015,
+        0.0
+      ],
+      "tail": [
+        0.094,
+        0.008,
+        0.023
+      ],
+      "roll": [
+        0,
+        1,
+        0
+      ]
+    },
+    "tail": {
+      "head": [
+        0,
+        0.225,
+        -0.272
+      ],
+      "tail": [
+        0,
+        0.1,
+        -0.275
+      ],
+      "roll": [
+        0,
+        1,
+        0
+      ]
+    }
+  },
+  "palm": [
+    -0.822,
+    -0.269,
+    -0.502
+  ],
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-19-elephant-mesh/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The legs are short columns apart below the crotch at y 0.150, with the middle of each leg at x 0.096 and z -0.08. The thigh joint lies at the crotch, the knee and the ankle divide the column, and the toes lie at the front of the round foot (toe tip at z 0.023). The trunk joints lie on the middle of the body cut, z -0.065 to -0.07. The head sits on the shoulders with no neck: the chin is at y 0.70, and the neck joint lies below it. The free arm is apart from the body below y 0.46, and above it the upper arm lies on the side of the body up to the top of the shoulder at y 0.63. The shoulder joint lies on the middle line of the arm (arm-axis.txt), the elbow halfway to the wrist, the wrist above the round paw, and the finger joint 0.03 above the tip of the paw. The ear joint lies at the root of the large ear beside the head, and its tail toward the edge of the flap; the ears follow the head only. The thin tail hangs down behind the rump from its root at y 0.225 to its tip at y 0.10. The paw is a stump with a flat sole, so its smallest principal direction is down (paw.txt); the palm takes the inward, down, and back direction of the round paw of the hippo.",
+  "studio": {
+    "legTurns": {
+      "thigh": [
+        0.477428,
+        -0.013442,
+        -0.134415,
+        0.868225
+      ],
+      "shin": [
+        -0.074105,
+        0.0,
+        0.049403,
+        0.996026
+      ],
+      "foot": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "toes": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "trunk": {
+      "open": 1,
+      "shares": {
+        "hips": 1,
+        "spine": 1,
+        "spine1": 0.75,
+        "chest": 0.5,
+        "neck": 0.25,
+        "head": 0
+      }
+    },
+    "bindArms": {
+      "upper_arm": [
+        0.813873,
+        -0.143043,
+        0.563161
+      ],
+      "forearm": [
+        0.316246,
+        0.757051,
+        0.571719
+      ],
+      "hand": [
+        -0.078782,
+        0.677317,
+        0.731461
+      ]
+    },
+    "note": "The studio has no elephant. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it: the values of the hippo, the seated posture of design 5.2. The elephant stands in the app (the standing pose of the rig, soloist of ANIMALS), so no player sits in this bind. The trunk shares and the bind arms are the values of the cat, the dog, the panda, and the hippo."
+  },
+  "weights": {
+    "armSplit": 0.18,
+    "stretchRamp": 0,
+    "headFrom": 0.69,
+    "earBase": [
+      1.1,
+      1.2
+    ],
+    "tailBall": {
+      "center": [
+        0,
+        0.16,
+        -0.272
+      ],
+      "radius": 0.065,
+      "behind": -0.25
+    },
+    "sliver": {
+      "angle": 10,
+      "longest": 0.03,
+      "note": "The values of the fox, the cat, the dog, and the panda. The rule takes 23 faces in 13 groups."
+    },
+    "line": {
+      "angle": 150,
+      "head": true,
+      "note": "The values of the fox, the cat, the dog, and the panda. The rule takes 100 corners."
+    },
+    "clavicleFrom": [
+      0.565,
+      0.61
+    ],
+    "armTop": [
+      0.685,
+      0.725
+    ],
+    "shoulderHead": [
+      0.12,
+      0.17
+    ],
+    "fingers": 0.5,
+    "haunch": {
+      "height": [
+        0.13,
+        0.18
+      ],
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts at the knee and ends above the crotch."
+    },
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body below y 0.46 from x 0.167 out, and the belly is narrower than 0.18 at the paws (142 vertices of the free left arm). Above headFrom, each vertex follows the head only: the chin is at y 0.70. earBase lies above the head, so the large ears follow the head. The lowest part of each ear hangs below the head line apart from the shoulder, so earFlap gives it to the head only (hang ends at the floor). The trunk and the tips of the tusks hang below the head line in front of the plane z 0.17, and the belly ends at z 0.152, so noseFront gives them to the head only. The thin tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom, armTop, and shoulderHead are the rules of the hippo, moved with the shoulder joint (y 0.60).",
+    "earFlap": {
+      "cut": 0.76,
+      "apart": 0.09,
+      "tip": [
+        0.14,
+        0.66,
+        0.077
+      ],
+      "hang": [
+        0.0,
+        0.001
+      ]
+    },
+    "noseFront": {
+      "front": 0.17
+    }
+  },
+  "refine": {
+    "rings": [],
+    "flip": {
+      "angle": 150,
+      "normals": 60,
+      "move": 0.0016,
+      "rounds": 4,
+      "note": "The values of the fox, the rabbit, the cat, the dog, and the panda. The rule flips 13 edges."
+    },
+    "ringsNote": "The rig has no rings."
+  },
+  "check": {
+    "thin": {
+      "angle": 10,
+      "length": 0.08,
+      "near": 0.1
+    },
+    "note": "The values of the fox, the cat, the dog, and the panda."
+  },
+  "colors": {
+    "samples": 6,
+    "palette": 48,
+    "dark": 0.05,
+    "eyeShare": 0.34,
+    "eyeBox": [
+      [
+        0.055,
+        0.84,
+        0.17
+      ],
+      [
+        0.095,
+        0.875,
+        0.21
+      ]
+    ],
+    "tone": {
+      "chroma": 0.06,
+      "light": [
+        0.85,
+        0.87
+      ],
+      "keep": [
+        "fingers",
+        "toes"
+      ],
+      "points": [
+        [
+          0.4,
+          0,
+          -0.0096,
+          -0.0008
+        ],
+        [
+          0.475,
+          0,
+          -0.0114,
+          -0.0029
+        ],
+        [
+          0.525,
+          0,
+          -0.0131,
+          -0.0044
+        ],
+        [
+          0.575,
+          0,
+          -0.0141,
+          -0.0062
+        ],
+        [
+          0.625,
+          0,
+          -0.0161,
+          -0.0106
+        ],
+        [
+          0.675,
+          0,
+          -0.0171,
+          -0.0164
+        ],
+        [
+          0.725,
+          0,
+          -0.0166,
+          -0.0204
+        ],
+        [
+          0.775,
+          0,
+          -0.017,
+          -0.0214
+        ],
+        [
+          0.825,
+          0,
+          -0.0163,
+          -0.023
+        ]
+      ],
+      "note": "The mesh has warmer colors than SPECIES_COLORS.elephant (#a8a198, Oklab hue 74 degrees, chroma 0.015): the plain faces have the hue 48 to 63 degrees and the chroma 0.021 to 0.043 (fur-colors.txt). As the user chose for the panda, each plain face takes the hue and the chroma of the species color of its band and keeps its lightness: a row is [L, dL, da, db] in Oklab, the skin up to L 0.725 moves to the fur color, and the lighter skin to the belly color #b9b2a8. The cream tusks and nails (L above 0.85) keep their colors."
+    },
+    "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is a face of an eye: 12 faces on the left and 9 on the right, at x 0.061 to 0.086, y 0.848 to 0.866, and z 0.176 to 0.200 (head-colors.txt). The config has no nose box: the trunk has no nose pad."
+  },
+  "eyeShell": {
+    "lift": 0.002,
+    "points": 12,
+    "reach": 1,
+    "darkReach": 2,
+    "note": "The values of the fox, the cat, the dog, and the hippo."
+  },
+  "chair": {
+    "halfWidth": 0.24,
+    "front": -0.17,
+    "back": -0.33,
+    "backHeight": 0.15,
+    "note": "The chair of the rig sets the seat top of the seated bind under the haunch. The column legs lie under the body, so the seat ends behind them (front edge at z -0.17 u, the shins from z -0.12 u). The elephant stands in the app (the standing pose of the rig, soloist of ANIMALS), so no player sits on this seat."
+  },
+  "crease": {
+    "rings": 2,
+    "rounds": 8,
+    "share": 0.5,
+    "back": 0.1,
+    "below": 0.03,
+    "note": "The values of the cat, the dog, the panda, and the hippo."
+  },
+  "sit": {
+    "gap": 0,
+    "band": 0.2,
+    "ramp": 0.015,
+    "step": 0.005,
+    "smooth": 8,
+    "end": 0.0065,
+    "most": 0.03,
+    "note": "The values of the panda and the hippo."
+  }
+}
