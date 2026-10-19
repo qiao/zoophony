@@ -106,8 +106,10 @@ happy, so no face rule changes it.
 23 players stay equal. The 5 mouse bodies and the oboe player differ, and 250 of 1,492 pose sets:
 the mice, and the players that the wider layout moves in the 11 demos with oboes (the pigs, the
 hippos, the penguins, the beavers, the rabbits, the red foxes, the cats, the monkeys, the
-elephants, the dogs, the pandas, the badgers, the tan fox, and the conductor). The shot tests pass
-(`shots-test.log`). The first download grows by 27,231 B to 563,246 B (`size.txt`).
+elephants, the dogs, the pandas, the badgers, the tan fox, and the conductor). The folds of the nine other roles
+stay as in `main`, except 4 more of the 17,788 play samples of the conductor (51.1% both), and the
+depths of the conductor, the bassist, the trombonist, and the flutist stay as in `main`
+(`other-roles.txt`). The shot tests pass (`shots-test.log`). The first download grows by 27,231 B to 563,246 B (`size.txt`).
 
 **Images.** `pnpm close-views batch <dir> --species mouse --role oboist --lineup --camera
 default --camera violins --base main` on the last pose gives the grids of `main` above the grids
