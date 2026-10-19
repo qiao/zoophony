@@ -77,6 +77,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    config, the shape of each rule follows, such as `arm_raise_R` (`raise_rules()`): the move
    that relaxes the faces which the skin turns over in the pose of the rule (`raise_shape()`).
    `raise` holds one rule, or a list of up to four rules for a raised arm or a bent wrist.
+   With `upperTwist` of the config, the solve of each shape gives each upper arm the twist bone of
+   the app (`upper_twist()`), and the file names the share for `pnpm studio-body`.
 9. Write the GLB file with the code of this script: the materials `fur`, `gloss`, and `chair`,
    the skinned mesh with its morph targets, the skeleton, the clip `reference` with one key, a
    chair under the seated body, and the facts that `pnpm studio-body` reads in the extras of the
@@ -139,6 +141,11 @@ ARM = ('upper_arm', 'forearm', 'forearm_twist', 'hand', 'fingers')
 #: The share of the twist from the forearm to the paw that the forearm twist bone takes, as
 #: `TWIST_SHARE` of `src/models/studio-rig.ts`.
 TWIST_SHARE = 0.5
+
+#: The places along the upper arm, from 0 at the shoulder joint to 1 at the elbow, between which
+#: the weight of the upper arm moves from its twist bone to the upper arm bone, as
+#: `UPPER_TWIST_SPAN` of `src/models/studio-rig.ts`.
+UPPER_TWIST_SPAN = (0.1, 0.9)
 
 #: The leg bones of each side, from the hips down.
 LEG = ('thigh', 'shin', 'foot', 'toes')
@@ -2817,10 +2824,12 @@ def add_eye_shells(verts, bind, tris, colors, dark, eyes, rule):
             np.concatenate(new_colors), material, old, near)
 
 
-def correctives(src, bind, weights, turns, src_heads, bind_heads):
+def correctives(src, bind, weights, turns, src_heads, bind_heads, upper_share=None):
     """Finds the move of each vertex in the bind pose that the skin of the clip `reference` takes
     to its source place: d = A⁻¹ (source − b) − bind, with the skin A p + b of the clip. Gives the
-    moves, the smallest determinant of A, and the vertex of it."""
+    moves, the smallest determinant of A, and the vertex of it. With a share `upper_share`,
+    `weights` holds the twist bones of the upper arms after the bones (`upper_twist()`), and they
+    turn as in the app (`twist_matrices()`)."""
     a = np.zeros((len(src), 3, 3))
     b = np.zeros((len(src), 3))
     for k, name in enumerate(BONES):
@@ -2830,6 +2839,12 @@ def correctives(src, bind, weights, turns, src_heads, bind_heads):
         back = turns[name].T
         a += w[:, None, None] * back
         b += w[:, None] * (src_heads[name] - back @ bind_heads[name])
+    if upper_share is not None:
+        clip = {name: turns[name].T for name in BONES}
+        for k, m in enumerate(twist_matrices(clip, bind_heads, src_heads, upper_share)):
+            w = weights[:, len(BONES) + k]
+            a += w[:, None, None] * m[:, :3]
+            b += w[:, None] * m[:, 3]
     det = np.linalg.det(a)
     worst = int(np.argmin(np.abs(det)))
     moves = np.linalg.solve(a, (src - b)[:, :, None])[:, :, 0] - bind
@@ -2916,7 +2931,44 @@ def raise_weight(rule, turn):
     return t * t * (3 - 2 * t)
 
 
-def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=()):
+def upper_twist(weights, points, heads):
+    """Moves the weight of each upper arm near the shoulder to the twist bone of the upper arm, as
+    `withUpperTwist()` of `src/models/studio-rig.ts` does in the app: the share of the twist bone
+    falls from 1 to 0 over `UPPER_TWIST_SPAN`, and each vertex keeps its four largest weights.
+    Gives the weights with one more column for each side, the left side first."""
+    out = np.concatenate([weights, np.zeros((len(weights), 2))], axis=1)
+    low, high = UPPER_TWIST_SPAN
+    for k, side in enumerate('LR'):
+        upper = BONES.index(f'upper_arm_{side}')
+        axis = heads[f'forearm_{side}'] - heads[f'upper_arm_{side}']
+        length = np.linalg.norm(axis)
+        along = (points - heads[f'upper_arm_{side}']) @ (axis / length) / length
+        share = np.clip((high - along) / (high - low), 0.0, 1.0)
+        out[:, len(BONES) + k] = out[:, upper] * share
+        out[:, upper] *= 1 - share
+    return limit(out)
+
+
+def twist_matrices(turns, heads, posed_at, share):
+    """Gives the matrices of the twist bones of the upper arms in a pose, as `poseArm()` of
+    `src/models/studio-rig.ts` turns them: each twist bone takes the share `share` of the roll of
+    its upper arm from the chest, around the bind axis of the upper arm."""
+    out = []
+    for side in 'LR':
+        upper = turns[f'upper_arm_{side}']
+        chest = turns['chest']
+        rest = unit(heads[f'forearm_{side}'] - heads[f'upper_arm_{side}'])
+        frame = swing(chest @ rest, upper @ rest) @ chest
+        x, y, z, w = matrix_quat(frame.T @ upper)
+        roll = 2 * np.arctan2(np.array([x, y, z]) @ rest, w)
+        roll = (roll + np.pi) % (2 * np.pi) - np.pi
+        half = (share - 1) * roll / 2
+        turn = upper @ quat_matrix([*(np.sin(half) * rest), np.cos(half)])
+        out.append(move(turn, heads[f'upper_arm_{side}'], posed_at[f'upper_arm_{side}']))
+    return out
+
+
+def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper_share=None):
     """Finds the corrective shape of a raised arm (`raise` of the config): the move of each vertex
     in the bind pose that relaxes the faces which the skin turns over in the pose of the rule. In
     that pose, the clavicle and the upper arm of the side take the world turns of the rule from
@@ -2951,7 +3003,11 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=()):
 
     The shapes of the rules before this rule on the same side (`earlier`, each a rule and its
     shape) have their weights in the pose of this rule (`raise_weight()`), as in the app, so that
-    the shapes add up to the relaxed places."""
+    the shapes add up to the relaxed places.
+
+    With a share `upper_share` (`upperTwist` of the config), `weights` holds the twist bones of the
+    upper arms after the bones (`upper_twist()`), and the twist bones turn as in the app
+    (`twist_matrices()`). The twist bone of the side moves with the upper arm."""
     side = rule['side']
     turns = {name: np.eye(3) for name in BONES}
     wrist = rule.get('bone') == 'hand'
@@ -2978,6 +3034,8 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=()):
             turns[f'fingers_{side}'] = fore @ hand
     posed_at = posed_heads(heads, turns)
     matrices = [move(turns[n], heads[n], posed_at[n]) for n in BONES]
+    if upper_share is not None:
+        matrices += twist_matrices(turns, heads, posed_at, upper_share)
 
     rest = unit(heads[f'forearm_{side}'] - heads[f'upper_arm_{side}'])
     span = unit(sheet) - rest
@@ -2995,6 +3053,8 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=()):
     region = np.zeros(len(bind), dtype=bool)
     for bone in moving:
         region |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+    if upper_share is not None and 'upper_arm' in moving:
+        region |= weights[:, len(BONES) + 'LR'.index(side)] > 0
     for _ in range(rule.get('grow', 0)):
         region[tris[region[tris].any(axis=1)].ravel()] = True
     before = np.nonzero(turn_dots(bind, posed, tris, weights, matrices) < 0)[0]
@@ -3611,10 +3671,18 @@ def main():
     head_only[:, BONES.index('head')] = 1.0
     weights_all = np.concatenate([weights, head_only])
 
-    moves, det, worst = correctives(src_all, bind_all, weights_all, turns, long_heads, bind_heads)
+    # The app gives a body with `upperTwist` a twist bone of each upper arm, so the corrective
+    # shapes take it too.
+    upper_share = config.get('upperTwist', {}).get('share')
+    twist_weights = (weights_all if upper_share is None else
+                     upper_twist(weights_all, bind_all, bind_heads))
+    moves, det, worst = correctives(src_all, bind_all, twist_weights, turns, long_heads,
+                                    bind_heads, upper_share)
     log(f'corrective: the smallest determinant of the skin is {det:.4f} at the vertex {worst}')
-    back = skin(weights_all, [move(turns[n].T, bind_heads[n], long_heads[n]) for n in BONES],
-                bind_all + moves)
+    clip = [move(turns[n].T, bind_heads[n], long_heads[n]) for n in BONES]
+    if upper_share is not None:
+        clip += twist_matrices({n: turns[n].T for n in BONES}, bind_heads, long_heads, upper_share)
+    back = skin(twist_weights, clip, bind_all + moves)
     error = np.linalg.norm(back - src_all, axis=1).max()
     log(f'corrective: the clip gives the source back within {error:.2e} u '
         f'({error * meters * 1000:.4f} mm)')
@@ -3625,8 +3693,8 @@ def main():
         side = rule['side']
         sheet = long_heads[f'forearm_{side}'] - long_heads[f'upper_arm_{side}']
         shape, down_weight, before, after, rounds, count = raise_shape(
-            rule, bind_all, tris_all, weights_all, bind_heads, shapes[f'arm_down_{side}'], sheet,
-            earlier)
+            rule, bind_all, tris_all, twist_weights, bind_heads, shapes[f'arm_down_{side}'],
+            sheet, earlier, upper_share)
         shapes[target] = shape
         earlier.append((rule, shape))
         key = RAISE_KEYS[rule.get('bone')]
@@ -3674,6 +3742,11 @@ def main():
         # One rule writes one pose, as the files before the list of rules did, so that their bytes
         # stay.
         extras['raise'] = raised if isinstance(config['raise'], list) else raised[0]
+    if upper_share is not None:
+        # `pnpm studio-body` writes the share into the body, and the app gives the body the twist
+        # bones of the upper arms (`StudioBody.upperTwist`).
+        extras['upperTwist'] = float(upper_share)
+        log(f'upper twist: the twist bone of each upper arm takes {upper_share} of its roll')
     if trunk:
         # `pnpm studio-body` takes the scale of the standing shoulders from the clip `reference`
         # of a rig whose trunk reclines in the seated bind pose.
