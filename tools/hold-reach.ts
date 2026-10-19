@@ -5,7 +5,7 @@ import { STRING_SCALES, VIOLIN } from '../src/models/instruments/strings.ts';
 import { buildPlayer } from '../src/models/player.ts';
 import type { PlayerModel } from '../src/models/player.ts';
 import { boneIndex } from '../src/models/rig.ts';
-import { SPECIES, SPECIES_IDS, isSpeciesId } from '../src/models/species.ts';
+import { SPECIES, SPECIES_IDS, instrumentScale, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import { toVec3 } from '../src/models/tuples.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
@@ -641,9 +641,10 @@ export function slideReach(
 }
 
 /**
- * Writes the report of `pnpm hold-reach <species> --instrument <wind>`. A paw that leaves its grip
- * in the rest pose gives the reach of its rest place ({@link freeRestReach}) in place of the reach
- * of its grip. A trombone adds the reach of its slide ({@link slideReach}).
+ * Writes the report of `pnpm hold-reach <species> --instrument <wind>`, with the scale of the
+ * instrument of the species (`instrumentScale()`). A paw that leaves its grip in the rest pose
+ * gives the reach of its rest place ({@link freeRestReach}) in place of the reach of its grip. A
+ * trombone adds the reach of its slide ({@link slideReach}).
  *
  * @param species The species.
  * @param instrument The wind instrument.
@@ -663,8 +664,10 @@ export function windReachLines(
     distance > arm
       ? `misses the grip by ${m(distance - arm)}`
       : `reaches the grip with ${m(arm - distance)} to spare`;
+  const scale = instrumentScale(SPECIES[species], instrument);
   const lines = [
     `${species} with the ${instrument} on the ${support}, hold ${own ? `${instrument}@${species} (SPECIES_WIND_HOLDS)` : `${instrument} (WIND_HOLDS)`}, the mouthpiece at its place of the hold:`,
+    `  Scale ${scale.toFixed(3)} of the ${instrument} of the app (instrumentScale())`,
   ];
   for (const s of ['L', 'R'] as const) {
     const { arm, play, rest } = reach[s];
