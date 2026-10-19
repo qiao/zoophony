@@ -361,6 +361,12 @@ export interface StudioBody {
    * of the animal.
    */
   readonly crease: number;
+  /**
+   * The caps of the arms that the cut of a mesh rig makes (design 4.4), as indices of the
+   * triangles of the packed mesh. Each corner of a cap takes the normal of the skin at its vertex
+   * (`studioNormals()`). A body with no such rule has none.
+   */
+  readonly caps?: readonly number[];
   /** The packed mesh ({@link packStudioMesh}). */
   readonly mesh: string;
   /**

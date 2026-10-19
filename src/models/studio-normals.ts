@@ -12,16 +12,27 @@ const MATTE = FINISH_ORDER.indexOf('matte');
  * edge with a larger angle, such as an ear rim, stays sharp. A face of another finish, such as
  * the gloss of an eye, keeps its own normal at each corner, so it stays flat.
  *
+ * The faces of `caps` close the holes of the arms that the cut of a mesh rig makes (design 4.4).
+ * Their normals point into the gap between the arm and the trunk, away from the light. So a
+ * corner of a cap gets the mean of the normals of all `matte` faces at its vertex that are no
+ * caps, and a cap shades as the skin around it. A corner of another face does not count the caps.
+ *
  * @param mesh The places of the welded vertices, the corners, and the finishes of the mesh.
  * @param crease The crease angle in degrees.
+ * @param caps The `matte` triangles of the caps of the arms (`StudioBody.caps`).
  * @returns x, y, z of the unit normal of each corner, in the order of `mesh.corners`.
  */
 export function studioNormals(
   mesh: Pick<StudioMesh, 'positions' | 'corners' | 'finishes'>,
   crease: number,
+  caps: readonly number[] = [],
 ): Float32Array {
   const { positions: p, corners, finishes } = mesh;
   const cornerCount = corners.length;
+  const isCap = new Uint8Array(cornerCount / 3);
+  for (const t of caps) {
+    isCap[t] = 1;
+  }
   const faces = new Float32Array(cornerCount);
   const angles = new Float32Array(cornerCount);
   for (let t = 0; t < cornerCount / 3; t++) {
@@ -94,6 +105,7 @@ export function studioNormals(
       sx = 0;
       sy = 0;
       sz = 0;
+      const cap = isCap[own] === 1;
       const v = corners[c] ?? 0;
       for (let i = start[v] ?? 0; i < (start[v + 1] ?? 0); i++) {
         const other = around[i] ?? 0;
@@ -101,7 +113,8 @@ export function studioNormals(
         const fx = faces[face * 3] ?? 0;
         const fy = faces[face * 3 + 1] ?? 0;
         const fz = faces[face * 3 + 2] ?? 0;
-        if (other === c || (finishes[face] === MATTE && ox * fx + oy * fy + oz * fz >= limit)) {
+        const skin = finishes[face] === MATTE && isCap[face] !== 1;
+        if (cap ? skin : other === c || (skin && ox * fx + oy * fy + oz * fz >= limit)) {
           const weight = angles[other] ?? 0;
           sx += fx * weight;
           sy += fy * weight;
@@ -111,7 +124,7 @@ export function studioNormals(
     }
     let length = Math.hypot(sx, sy, sz);
     if (length === 0) {
-      // A face with no area: it takes its own normal, or up.
+      // A face with no area, or a cap with no skin at its vertex: it takes its own normal, or up.
       [sx, sy, sz] = ox !== 0 || oy !== 0 || oz !== 0 ? [ox, oy, oz] : [0, 1, 0];
       length = 1;
     }
