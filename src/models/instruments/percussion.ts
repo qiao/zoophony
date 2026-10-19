@@ -37,7 +37,7 @@ export const TIMPANI = {
    * stays between them. The larger half of the kettles stands at the left of the gap. With 0, the
    * arc of the kettles is centered on the front.
    */
-  front: 0,
+  front: 0.12,
 } as const;
 
 /**

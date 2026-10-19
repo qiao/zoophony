@@ -75,17 +75,20 @@ const MALLET_HOME: Vec3 = [0, -0.2, -0.75];
 
 /** The holds of the percussion instruments. */
 export const PERCUSSION_HOLDS = {
-  // The two mallets play side by side on one kettle. When a hand reaches across to a far kettle,
-  // the left arm goes into the torso (design 5.3), and elbows nearer to the body went deeper.
+  // The elephant mesh has short arms behind a deep belly, and its trunk hangs between the two
+  // front kettles: each hand keeps the kettles of its side, strikes the playing spot near the
+  // rim, and points its mallet from beside the shoulder. The elbows point out and back, so that
+  // the upper arms keep out of the body and the paws bend less on the forearms
+  // (2026-10-19-mesh-elephant decisions).
   timpani: {
-    hands: 'alternate',
+    hands: 'sides',
     sizes: { lift: 0.12, rest: 0.04 },
     offsetL: [-0.05, 0, 0],
     offsetR: [0.05, 0, 0],
-    poleL: POLE_L,
-    poleR: POLE_R,
-    rim: 0,
-    home: MALLET_HOME,
+    poleL: [-1, 0, 0.5],
+    poleR: [1, 0, 0.5],
+    rim: 0.055,
+    home: [0, -0.1, -0.3],
   },
   'bass-drum': {
     hands: 'right',
