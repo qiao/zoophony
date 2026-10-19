@@ -278,6 +278,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-18-mesh-hippo.md`).
 - [ ] Remove the unused code of the `large-round` ears and the `pointed` snout: no species has
       them since the mouse mesh (`2026-10-19-mesh-mouse.md`).
+- [ ] Remove the unused code of the `flat-nose` snout: no species has it since the pig mesh
+      (`2026-10-19-mesh-pig.md`).
 - [ ] Remove the unused high stool (`HIGH_STOOL`, the support `high-stool`, and the foot ring of the
       parametric legs): no player sits on it since the hippo stands (`2026-10-18-mesh-hippo.md`).
 - [ ] Panda face: the round patches have angular edges, because the rule recolors whole faces of
