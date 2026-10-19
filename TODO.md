@@ -459,8 +459,9 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       stern in a close front view. Show the user the face, and offer a face rule
       (`2026-10-18-mesh-hippo.md`).
 - [ ] Mouse oboist: the lift folds in 45 of its 341 samples (13.2%), by a face of the left arm and
-      one of the neck. A raise rule at the turns of the middle of the lift can remove them
-      (`docs/research/2026-10-19-mouse-mesh/fold-probe-oboist.txt`, `2026-10-19-mesh-mouse.md`).
+      one of the neck, where the two shapes of the left arm blend. A third shape at the middle
+      turns gave 7.0%, and narrower fades 9.1% (`docs/research/2026-10-19-mouse-mesh/lift-shapes.txt`,
+      `2026-10-19-mesh-mouse.md`).
 - [ ] Mouse oboist: the paws hold the oboe at the height of the shoulders, higher than a real
       oboist, because the big head puts the reed about 0.25 m above the shoulder joints. Show the
       user the close views, and offer a bowed head while the mouse plays (`2026-10-19-mesh-mouse.md`).
