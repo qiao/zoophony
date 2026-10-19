@@ -95,9 +95,10 @@ A push to `main` builds with pnpm and deploys to GitHub Pages under the base pat
     rabbit and the red fox), and the flutist (the tan fox) have shard files
     `pose/<role>-clearance-<k>.test.ts`.
   - The violist (the cat), the cellist (the dog), the bassist (the hippo), the trombonist (the
-    panda), the oboist (the mouse), and the timpanist (the elephant) have a sweep and no test file,
-    because they came while all tests are paused (`VIOLIST_SWEEP`, `CELLIST_SWEEP`,
-    `BASSIST_SWEEP`, `TROMBONIST_SWEEP`, `OBOIST_SWEEP`, `TIMPANIST_SWEEP`). The sweep of the
+    panda), the oboist (the mouse), the timpanist (the elephant), and the bassoonist (the beaver)
+    have a sweep and no test file, because they came while all tests are paused
+    (`VIOLIST_SWEEP`, `CELLIST_SWEEP`, `BASSIST_SWEEP`, `TROMBONIST_SWEEP`, `OBOIST_SWEEP`,
+    `TIMPANIST_SWEEP`, `BASSOONIST_SWEEP`). The sweep of the
     timpanist also moves the head, so that the trunk, the tusks, and the ears stay out of the
     kettles.
 - The Playwright smoke test (`e2e/smoke.e2e.ts`, `pnpm test:e2e`) runs on the built site, so that
