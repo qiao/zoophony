@@ -35,6 +35,7 @@
     "studio-body": "node tools/studio-body.ts",
     "close-views": "sh -c 'node tools/close-views.ts --check \"$@\" && pnpm build && node tools/close-views.ts \"$@\"' close-views",
     "fold-probe": "node tools/fold-probe.ts",
+    "arm-shape": "node tools/arm-shape.ts",
     "shot-trace": "node tools/shot-trace.ts",
     "look-lab": "node tools/look-lab.ts",
     "look-variants": "node tools/look-variants.ts",
