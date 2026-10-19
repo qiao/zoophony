@@ -6,6 +6,7 @@ import type { StudioPalette } from './studio-format.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_CAT } from './studio/cat.ts';
 import { STUDIO_DOG } from './studio/dog.ts';
+import { STUDIO_ELEPHANT } from './studio/elephant.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_HIPPO } from './studio/hippo.ts';
 import { STUDIO_MOUSE } from './studio/mouse.ts';
@@ -291,15 +292,24 @@ export const SPECIES = {
     accentParts: ['inner-ears'],
     facePattern: 'none',
   },
-  /** Elephant, the timpani. The reference image shows it with a cello. */
+  /**
+   * Elephant, the timpani: a gray elephant with large ears, a long trunk, and cream tusks. It has
+   * the studio body of the mesh of the user, `assets/models/elephant/elephant.glb`, which
+   * `pnpm rig-mesh elephant` rigs (design 4.4), with the size of the reference images and the arms
+   * of the mesh (2026-10-19-mesh-elephant decisions). It stands at its timpani, as the elephant of
+   * `orchestra-latest.png`. The trunk, the tusks, and the ears follow the head. Its head height is
+   * the head of the studio body without the trunk, and the seat height is the seat of the studio
+   * body, in H.
+   */
   elephant: {
-    ears: 'large-flap',
-    snout: 'trunk',
-    tail: 'thin',
-    size: 1.35,
+    body: 'studio-elephant',
+    size: 1,
     colors: SPECIES_COLORS.elephant,
     accentParts: ['inner-ears'],
-    facePattern: 'none',
+    proportions: {
+      headHeight: STUDIO_ELEPHANT.headHeight,
+      seatHeight: STUDIO_ELEPHANT.seatHeight / STUDIO_ELEPHANT.headHeight,
+    },
   },
   /**
    * Bear, the conductor (reference image). It has the studio body of `lowpoly-studio/` (design
