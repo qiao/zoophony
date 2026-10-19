@@ -19,7 +19,6 @@ can reverse each decision. Then update its section, and remove its row.
 | Open: the top edge of the upper bout touches the chest under the chin, and a few skin teeth show over it in a close view (`chest-compare.webp`). | 5.3, 9.3 |
 | The round `hippo-arms` brings the arms back and keeps the chest fix. The right shoulder turns 50° forward (45° before, `HIPPO_HOLD.reach`): the bow arm was straight in its deepest samples, so no right elbow pole changed them. | 5.3 |
 | The left paw tilts 55° over the neck, as the paw of the dog (`HIPPO_HOLD.tiltL`, 30° before): the left arm goes at most 5.6 cm into the body (6.9 cm with 30°, `arms/lf-final.txt`). | 5.3 |
-| One shape of `raise` for the left upper arm in the play (`raise` L of `tools/mesh-rigs/hippo.json`): face 1356 folds in 2.2% of the play samples (53.5% before, `arms/fold-final.txt`). | 4.4 |
 | Rejected: a shoulder turn of 55° folded faces 514, 456, and 616 of the shoulder and of the chest under the chin in 94% to 100% of the play samples. A `raise` rule for faces 477 and 461 at the turns of the new hold kept 13 faces turned. | 4.4, 5.3 |
 | Accepted: against the hold before the chest fix, the left forearm goes 2.2 cm deeper into the contrabass in the play, and the right arm up to 2.4 cm deeper in the lowering (`arms/pose-depth-final.txt`). | 5.3, 9.3 |
 | Open: in the high positions, the thick left forearm crosses the upper bout (7.4 cm). No left elbow, tilt, or place of the contrabass that keeps the chest fix changed it (`arms/lf-a.txt`, `arms/lf-b.txt`). | 5.3, 9.3 |
