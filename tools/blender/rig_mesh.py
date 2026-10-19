@@ -1189,6 +1189,18 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
             w[:, col[f'clavicle_{side}']] -= taken
             w[:, col['chest']] += taken
 
+    # The chest between the clavicles: the clavicle weight fades out toward the middle plane, from
+    # all at the larger distance of `clavicleMiddle` to none at the smaller distance, below the
+    # head line. The chest takes the rest. Thus a face on the middle plane does not take the
+    # weights of both clavicles, which a bow arm turns far apart.
+    if 'clavicleMiddle' in rules:
+        keep = smoothstep(np.abs(verts[:, 0]), *rules['clavicleMiddle'])
+        keep = np.where(y < rules['headFrom'], keep, 1.0)
+        for side in 'LR':
+            taken = w[:, col[f'clavicle_{side}']] * (1.0 - keep)
+            w[:, col[f'clavicle_{side}']] -= taken
+            w[:, col['chest']] += taken
+
     # The neck above the shoulders: the weight of the clavicles and of the upper arms fades out
     # upward, so that a raised arm does not drag the side of the neck and the jaw.
     if 'armTop' in rules:
