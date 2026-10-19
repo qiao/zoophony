@@ -5,21 +5,21 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 ## Retarget and holds
 
-- The hands of the player turn freely at the wrist, but the studio skin bends well only near its
-  clips. The retarget turns each paw in the plane of its palm toward the forearm (`PAW_TURN`).
-- A role whose instrument moves, such as the violin to its rest place, needs the offsets of the pose
-  in `poseStudioBones()`.
-- The holds are in head heights, and the baton keeps its length. A smaller head moves the wrist down
-  and back along the baton, so set the point of the baton from the wrist that you want.
+- The player hands turn freely at the wrist, but the studio skin bends well only near its clips. The
+  retarget turns each paw in the plane of its palm toward the forearm (`PAW_TURN`).
+- A role whose instrument moves, such as the violin to its rest place, needs pose offsets in
+  `poseStudioBones()`.
+- The holds are in head heights, and the baton keeps its length, so a smaller head moves the wrist
+  down and back along the baton. Set the baton point from the wrist that you want.
 - A long muzzle turns into the paws when the head turns to a section. A round belly takes the room
   of the forearms: the pianist needed the keys further forward, a lean, a reach limit for each paw,
   and a curved path from the knees.
 - A hold can trade the folds against the clearance, and a more bent elbow folds more faces. Check
   each hold change with `pnpm hold-fit --set` and `pnpm pose-depth --set` before you write it.
-- A big head puts the grips of a hanging instrument at the height of the shoulders, and elbows out
-  and level twist the upper arms into bands: point the elbows down. A deeper trunk takes the room of
-  the elbows: point them out (`poleL`, `restPoleL`). After a change of the head or the girth,
-  compare the arm turns of each pole with `pnpm hold-fit <role> --base main`.
+- A big head puts the grips of a hanging instrument at shoulder height, and elbows out and level
+  twist the upper arms into bands: point the elbows down. A deeper trunk takes the room of the
+  elbows: point them out (`poleL`, `restPoleL`). After a change of the head or the girth, compare
+  the arm turns of each pole with `pnpm hold-fit <role> --base main`.
 
 ## Reach and rest of the instrument
 
