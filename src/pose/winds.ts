@@ -415,12 +415,25 @@ const PANDA_TROMBONE = {
   ),
 } as const satisfies WindHold;
 
+/** The turn of the lower end of the oboe of the mouse forward while it plays, in degrees. */
+const MOUSE_OBOE_FORWARD = 10;
+
 /**
  * The oboe hold of the mouse (design 5.3), the hold of a real oboist (decisions
- * `2026-10-19-mesh-mouse.md`). It starts as the oboe hold of {@link WIND_HOLDS}.
+ * `2026-10-19-mesh-mouse.md`, `docs/reference/wind-technique.md` 2.3). The long muzzle puts the tip
+ * of the nose far in front of the mouth, so the reed sits 0.14 H further back and 0.04 H lower
+ * than the mouth of the bind pose, in the mouth under the nose. The oboe turns its lower end
+ * {@link MOUSE_OBOE_FORWARD}° further forward than {@link WIND_HOLDS}, to 40° from the vertical,
+ * the angle of a real oboist. With the reed at the mouth of the bind pose, the paws reached the
+ * grips with 6.1 cm (left) and 3.3 cm (right) to spare, and with the reed in the mouth and the
+ * oboe at 40°, with 10.9 cm and 6.0 cm. At 45°, the right paw had 3.9 cm to spare. The shoulder
+ * turns, the elbows, and the rest are those of {@link WIND_HOLDS}: no variant of the shoulder
+ * turns or of the elbow directions changed the depths or the folds of the play.
  */
 const MOUSE_OBOE = {
   ...WIND_HOLDS.oboe,
+  lipShift: [0, -0.04, 0.14],
+  play: holdTurn(MOUSE_OBOE_FORWARD, 0),
 } as const satisfies WindHold;
 
 /**
