@@ -141,7 +141,8 @@ See [`2026-10-16-no-review.md`](../decisions/2026-10-16-no-review.md).
 Copy this list into `<scratch>/rules-common.md`, and add the report format of the round.
 
 - Work where the brief says: on `main` in the main checkout, or in your worktree on your branch.
-  Read `AGENTS.md` first.
+  Read `AGENTS.md` first. On `main`, write the start commit in place of each `--base main`,
+  because `main` moves with your commits.
 - Make very fine-grained Conventional Commits, and stage each path by its name.
 - `grep` is a shell function that runs ugrep, so use `perl -0pi -e` for a temporary edit. No
   `timeout`, and no foreground `sleep`. Read the exit code of the command itself.
