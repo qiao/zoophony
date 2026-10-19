@@ -26,6 +26,7 @@ fox together.
 | hippo | the mesh `assets/models/hippo/hippo.glb`, rigged by `pnpm rig-mesh hippo`, standing at the contrabass | `2026-10-18-mesh-hippo.md` | `bassist` |
 | mouse | the mesh `assets/models/mouse/mouse.glb`, rigged by `pnpm rig-mesh mouse` at the size of the parametric mouse, with a long tail of two bones on the floor, a smaller oboe, and no chair (`noChair`) | `2026-10-19-mesh-mouse.md` | `oboist` |
 | elephant | the mesh `assets/models/elephant/elephant.glb`, rigged by `pnpm rig-mesh elephant`, standing at the timpani, with the trunk on the head | `2026-10-19-mesh-elephant.md` | `timpanist` |
+| beaver | the mesh `assets/models/beaver/beaver.glb`, rigged by `pnpm rig-mesh beaver` at the size of the parametric beaver, with a broad tail of two bones on the floor, a smaller bassoon, and no chair (`noChair`) | `2026-10-19-mesh-beaver.md` | `bassoonist` |
 | penguin | an egg body in code, `src/models/penguin/` (route 2) | `2026-10-11-penguin-body.md` | none |
 
 Each other species has the parametric body of 2026-10-06 18:58
