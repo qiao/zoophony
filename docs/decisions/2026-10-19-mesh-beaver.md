@@ -19,8 +19,8 @@ can reverse each decision. Then update its section, and remove its row.
 | The legs keep the mesh, with the thighs 25° down and 15° out (`studio.legTurns`). The small ears follow the head, the dark nose takes the gloss, and the crease angle is 35°. | 4.4, 4.5 |
 | The two tail bones turn rigidly, 10° and 25° below the level, so that the tail end lies at the height of the soles (`studio.tailBind`, report "Tail"). | 4.4 |
 | The mesh keeps the orange-brown colors of its texture, with no tone rule (`colors`). Open: the tone rule of the hippo, the mouse, and the elephant. | 4.5 |
-| The reed sits 0.33 H lower and 0.25 H further back than the mouth of the bind pose, under the front teeth (`lipShift` of `BEAVER_BASSOON`). | 5.3 |
-| The bocal rises to its top, then comes down to the reed: its end is 2.8° above the level in the play turn, in place of 43.7° (`bassoonParts()`, `bocal-angle.txt`). | 4.6, 5.3 |
+| The reed sits under the front teeth (`lipShift` of `BEAVER_BASSOON`, report "Reed and bocal"). | 5.3 |
+| The bocal rises to its top, then comes down to the reed nearly level in the play turn (`bassoonParts()`, report "Reed and bocal"). | 4.6, 5.3 |
 | The right shoulder bone turns 15° and the left 20° forward. At 15°, the faces at the front of the left shoulder fold in each play sample (`BEAVER_SHOULDER_TURN`). | 5.3 |
 | Both elbows point down, out, and forward, the smallest arm turns of 3 elbow directions (`poleL`, `poleR`, `hold-fit-poles.txt`). | 5.3 |
 | The bassoon scale is 0.82, the largest at which each paw has 3 cm to spare in the play and in the rest. At 0.83, the right paw had 2.7 cm in the play (`hold-reach-scales.txt`). | 4.6 |
