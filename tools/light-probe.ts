@@ -35,13 +35,7 @@ import type { SceneLayout } from '../src/models/layout.ts';
 import { ModelCache } from '../src/models/model-cache.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { defaultAim, hotSpotFactor, poolFactor } from '../src/scene/light-pool.ts';
-import {
-  BACK_ROW_NAME,
-  KEY_NAME,
-  SIDE_NAME,
-  createLights,
-  spotIlluminance,
-} from '../src/scene/lights.ts';
+import { LIGHT_NAMES, createLights, spotIlluminance } from '../src/scene/lights.ts';
 import { applyLook, lookValueAt, parseLook } from '../src/scene/look-values.ts';
 import type { LookChanges, LookValue } from '../src/scene/look-values.ts';
 import type { QualityTier } from '../src/scene/quality.ts';
@@ -108,11 +102,11 @@ function kindLight(
   let [key, side, back] = [0, 0, 0];
   for (const spot of spots) {
     const light = pool * (spot.castShadow ? hot : 1) * spotIlluminance(spot, point, normal);
-    if (spot.name === KEY_NAME) {
+    if (spot.name === LIGHT_NAMES.key) {
       key += light;
-    } else if (spot.name === SIDE_NAME) {
+    } else if (spot.name === LIGHT_NAMES.side) {
       side += light;
-    } else if (spot.name === BACK_ROW_NAME) {
+    } else if (spot.name === LIGHT_NAMES.backRow) {
       back += light;
     }
   }

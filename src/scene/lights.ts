@@ -258,13 +258,20 @@ export function createConductorLight(conductor: ConductorPlace): SpotLight {
 }
 
 /** The name of the key light in the group of {@link createLights}. */
-export const KEY_NAME = 'key';
+const KEY_NAME = 'key';
 
 /** The name of each side light in the group of {@link createLights}. */
-export const SIDE_NAME = 'side';
+const SIDE_NAME = 'side';
 
 /** The name of each back-row light in the group of {@link createLights}. */
-export const BACK_ROW_NAME = 'back-row';
+const BACK_ROW_NAME = 'back-row';
+
+/**
+ * The names of the spotlights in the group of {@link createLights}, for the probes of the light
+ * (`pnpm light-probe`). The names stay module constants, because exported constants grew the
+ * first download by 5 B after gzip.
+ */
+export const LIGHT_NAMES = { key: KEY_NAME, side: SIDE_NAME, backRow: BACK_ROW_NAME } as const;
 
 /**
  * Sets the shadow map size and the shadow blur of a spotlight (design 2.6). The renderer makes a
