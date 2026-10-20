@@ -3676,6 +3676,20 @@ def main():
     head_move = (heads['neck'], factors['head'], rise,
                  drop + lower if factors['trunk'] != 1 else drop)
     boxes = moved_boxes(config['colors'], *head_move)
+    if 'noseShare' in config['colors']:
+        # A large face at the edge of the black nose of the texture takes black from the share
+        # `eyeShare` of dark samples, and shows as a black wedge on the muzzle. In the nose box, a
+        # face is dark only from the share `noseShare`, and else takes the mean of its light samples.
+        centers = long_verts[tris].mean(axis=1)
+        partial = dark & in_box(centers, boxes['noseBox']) & (
+            dark_share < config['colors']['noseShare'])
+        grid = sample_grid(config['colors']['samples'])
+        for f in np.nonzero(partial)[0]:
+            samples = face_samples(uvs[f], grid, texture)
+            colors[f] = samples[luminance(samples) >= config['colors']['dark']].mean(axis=0)
+            dark[f] = False
+        log(f'noseShare: {int(partial.sum())} faces of the nose box with a share of dark samples '
+            f"below {config['colors']['noseShare']} keep the fur: {np.nonzero(partial)[0].tolist()}")
     eyes, nose = features(long_verts, tris, colors, dark, boxes)
     if check:
         dark_check(long_verts[tris].mean(axis=1), dark,
