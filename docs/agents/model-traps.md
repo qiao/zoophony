@@ -51,7 +51,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   knee, because a paw on the belly folds the arm.
 - A long snout puts the mouthpiece far in front of the body, and the grips hang below it, so a
   smaller instrument barely helps. Turn the instrument back toward the body around the mouthpiece,
-  and turn the shoulder forward (`reachL`, `PIG_HORN`).
+  and turn the shoulder forward (`reachL`, `PIG_HORN`). For a hanging woodwind at its real angle,
+  move the mouthpiece back and down under the muzzle (`lipShift`), and read its depth in the head
+  (`WOLF_CLARINET`).
 - The short arms of the elephant do not reach across its trunk, and a third kettle of the real size
   stands behind the shoulder and cuts into the body. Use `PercussionHold.rim`, `sides`, `home`, and
   `pair` with `TIMPANI.side`, and scan them with `pnpm pose-depth --targets`.
@@ -208,6 +210,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A face takes black from a third of dark texture samples (`eyeShare`), so a raised arm stretches
   the toothed border of a black region into wedges. Make the faces with a third to a half of dark
   samples light (`colors.border`, `marks.py` of `docs/research/2026-10-18-panda-marks/`).
+  A dark gray fur near the luminance limit turns a third of the faces dark: count the dark faces
+  by region first, and lower `colors.dark` (`dark_probe.py` of `docs/research/2026-10-20-wolf-mesh/`).
 - With no gloss nose, the export takes the front-most fur vertex of the head near the middle plane
   as the nose tip (`NOSE_PLANE`), and each gloss shell off the plane as an eye. Give a mesh with
   gloss nostrils, as the hippo, no `noseBox`, and read the rig check warning of a tip off the plane.
