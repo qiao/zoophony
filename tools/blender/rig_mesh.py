@@ -2794,6 +2794,19 @@ def sit(bind, tris, weights, chair, rule, hip):
     move = d * share * (1.0 - free[ids])
     out = bind.copy()
     out[ids, 1] = np.maximum(p[:, 1] - move, np.minimum(p[:, 1], top))
+    if rule.get('carryTail'):
+        # The root of the tail moves with the haunch, and the rest of the tail does not, so a
+        # large drop squeezes the tail into a flat wedge. Each vertex of the tail also moves down
+        # by the mean drop of the moved vertices of the root, by its share on the tail bones.
+        tails = [BONES.index(b) for b in ('tail', TAIL_TIP) if b in BONES]
+        raw = weights[:, tails].sum(axis=1)
+        ring = (raw[ids] > 0.0) & (move > 1e-6)
+        if ring.any():
+            carry = float(np.average(move[ring], weights=raw[ids][ring]))
+            moved = out[:, 1] - bind[:, 1]
+            carried = -carry * raw
+            out[:, 1] = bind[:, 1] + np.where(raw > 0.0, np.minimum(moved, carried), moved)
+            log(f'sit: the tail moves down with the mean drop {carry:.4f} u of its root')
     _, _, _, after_gaps = seat_gaps(out, tris, weights, chair, hip, step, 2 * rule['band'], root)
     after = silhouette_gap(xs, zs, after_gaps, rule['end'])
     return out, int((move > 1e-6).sum()), float(move.max(initial=0.0)), before, after
