@@ -51,13 +51,14 @@ prints only a one-line usage text.
 | `pnpm snapshot` | Saves the play frame of the default demo (1440 × 900, 3.5 s after a seek to 30 s) and a close view of each gallery model into `docs/snapshots/<commit date>-<short hash>/`. |
 | `pnpm sheet-check <sheet> <dir>` | Compares a sheet page of `views.html` with its sheet in `docs/reference/` (design 7.1). With a matte of `tools/sheet-mattes/`, it also prints the silhouette IoU of each view. |
 | `pnpm choir-check <dir>` | Puts the gallery penguin beside a penguin of each of the two newest reference images (design 4.4). |
-| `pnpm close-views <mode> <dir> [--url <url>] [--glb <file>] [--set <changes>]... [--base <ref>]` | Writes images and a grid into `<dir>`. The modes: `<role>` (the moments and views of `ROLE_VIEWS`, one grid for each `--probe`), `lineup <species,...>`, `species <species,...>`, `play` (a frame of `--demo` at each `--time`, more than one into `time-<s>/` from one build, for each `--camera`, the shot camera of `--cinematic`, the first shot of `--shot <seat\|species>`, or a camera at the player of `--at <seat\|species>` for each `--azimuth`, with `--zoom` and `--elevation`), and `batch` (the image set of a round, one build of each tree). `--base` adds the grid of the commit, and `--pairs <view\|cell,...> --crop <x>,<y>,<w>,<h>` a cropped pair of each cell. `--url` renders a running site. `--glb` (of `rig-mesh --keep`) and `--set` build a variant of a role, `--set` also of `play`, each in `set-<n>/` from one build. A role: 30 s. A batch: 90 s to 260 s. |
+| `pnpm close-views <mode> <dir> [--url <url>] [--glb <file>] [--set <changes>]... [--base <ref>]` | Writes images and a grid into `<dir>`. The modes: `<role>` (the moments and views of `ROLE_VIEWS`, one grid for each `--probe`), `lineup <species,...>`, `species <species,...>`, `play` (a frame of `--demo` at each `--time`, more than one into `time-<s>/` from one build, for each `--camera`, the shot camera of `--cinematic`, the first shot of `--shot <seat\|species>`, or a camera at the player of `--at <seat\|species[:instrument]>` for each `--azimuth`, with `--zoom` and `--elevation`), and `batch` (the image set of a round, one build of each tree). `--base` adds the grid of the commit, and `--pairs <view\|cell,...> --crop <x>,<y>,<w>,<h>` a cropped pair of each cell. `--url` renders a running site. `--glb` (of `rig-mesh --keep`) and `--set` build a variant of a role, `--set` also of `play`, each in `set-<n>/` from one build. A role: 30 s. A batch: 90 s to 260 s. |
 | `pnpm look-lab <dir> [--url <url>]`, `pnpm look-variants <file> --out <dir>` | Measure frames of `close-views play` against `orchestra-latest.png`: one tree, or each variant. 40 s each. |
 | `pnpm keyboard` | Checks each control with the keyboard alone at 1440 × 900 and 390 × 844 (design 9.5, step 6), and fails on a failed check. |
 
 ## Pose and body probes
 
-These probes run with no build, and the source files do not change. The roles and their species
+These probes run with no build, and the source files do not change. They read the demos and the
+percussion test score of `tools/probe-demos.ts`. The roles and their species
 are in the table "Bodies and roles" of [`model-work.md`](model-work.md).
 
 | Command | Action |
