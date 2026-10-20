@@ -316,6 +316,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   with the mallets up, as between two strikes (`PercussionHold.ready`). The hanging paws reached
   into the large kettles in front of it. The trunk hangs in the gap at the front of the kettles
   (`docs/decisions/2026-10-19-elephant-pose.md`).
+- **Percussion, standing.** The badger holds the beater of the bass drum over the drum and the
+  triangle up also at rest (`PercussionHold.ready`), because the lift from the hanging arms swept
+  the beater through the body and swung the left paw far on its forearm. With the snare drum, the
+  cymbals, and the xylophone, its arms hang (`docs/decisions/2026-10-20-mesh-badger.md`).
 - **Hanging arms.** A standing player without a lap hangs its arms (`HANG` of `pose/hang.ts`):
   each part of the arm swings out by the smallest angle at which it touches the side of the body,
   so that the palms rest at the height of the hips, as an animal of the reference images holds
