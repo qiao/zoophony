@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from 'three';
+import { MathUtils, Quaternion, Vector3 } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerNote } from '../score/types.ts';
@@ -119,22 +119,54 @@ const along = new Vector3();
 const top = new Vector3();
 const offset = new Vector3();
 const wristBind = new Vector3();
+const grip = new Vector3();
+const level = new Vector3();
+const cocked = new Vector3();
+const cockTurn = new Quaternion();
+const UP = new Vector3(0, 1, 0);
 
 /**
- * Writes the wrist and the world rotation of a hand with a mallet whose head is at a point. The
- * mallet points from the home of the hand to the head, with its top up or toward the shoulder
- * joint (`PercussionHold.top`). The function writes the module vectors `wrist` and `turn`.
+ * Writes the wrist and the world rotation of a hand with a mallet (design 5.3). With no cock
+ * (`PercussionHold.cock`), the head is at the height of the strike state above its target, and
+ * the mallet points from the home of the hand to the head. With a cock, the mallet points from
+ * the home to the target at the strike, and the grip stays at that place: as the head goes up to
+ * its rest height, the mallet turns around the grip, up and out to the side of its hand. The top
+ * of the mallet points up or toward the shoulder joint (`PercussionHold.top`). The function
+ * writes the module vectors `wrist` and `turn`, and it changes `point`.
  *
  * @param side The hand with a mallet.
- * @param point The point of the mallet head.
+ * @param point The target of the mallet head. The function writes the head into it.
+ * @param hand The strike state of the hand.
+ * @param rest The height of the head above its target between two strikes, in meters.
  * @param joint The posed shoulder joint of the side.
  */
 function malletHand(
   side: Extract<PercussionSide, { kind: 'mallet' }>,
   point: Vector3,
+  hand: StrikeState,
+  rest: number,
   joint: Vector3,
 ): void {
-  along.copy(point).sub(offset.fromArray(side.home)).normalize();
+  const { cock } = side;
+  if (cock === null) {
+    point.addScaledVector(offset.fromArray(hand.normal), hand.height);
+    along.copy(point).sub(offset.fromArray(side.home)).normalize();
+  } else {
+    along.copy(point).sub(offset.fromArray(side.home)).normalize();
+    grip.copy(point).addScaledVector(along, -side.length);
+    const share = MathUtils.clamp(rest > 0 ? hand.height / rest : 0, 0, 1);
+    level.set(along.x, 0, along.z);
+    if (share > 0 && level.lengthSq() > 1e-8) {
+      // The cocked direction: the level direction of the strike, turned out to the side of the
+      // hand, then up. The left hand turns toward -x.
+      level.normalize();
+      level.applyAxisAngle(UP, side.arm.side === 'L' ? cock.out : -cock.out);
+      cocked.copy(level).multiplyScalar(Math.cos(cock.up)).setY(Math.sin(cock.up));
+      cockTurn.setFromUnitVectors(along, cocked);
+      along.applyQuaternion(cockTurn.slerp(NO_TURN, 1 - share));
+    }
+    point.copy(grip).addScaledVector(along, side.length);
+  }
   if (side.top === 'shoulder') {
     top.subVectors(joint, point).normalize();
   } else {
@@ -177,15 +209,11 @@ function poseHand(
   poseShoulder(arm, chest, rig.chestBind, NO_TURN, shoulder);
   hangingWrist(hang, shoulder, hanging);
   hangingHand(hang, shoulder, restHand);
-  const play = side.kind === 'free' ? 0 : weight;
+  const play = side.kind === 'free' ? 0 : rig.hold.ready ? 1 : weight;
 
   head.fromArray(hand.point);
   if (side.kind === 'mallet') {
-    malletHand(
-      side,
-      head.addScaledVector(offset.fromArray(hand.normal), hand.height),
-      shoulder.position,
-    );
+    malletHand(side, head, hand, rig.hold.sizes.rest, shoulder.position);
   } else if (side.kind === 'plate') {
     head.addScaledVector(offset.fromArray(hand.normal), side.sign * hand.height);
     wrist.fromArray(side.face).sub(offset.fromArray(arm.bind.wrist));

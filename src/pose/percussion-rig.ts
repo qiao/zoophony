@@ -48,6 +48,22 @@ export type HandsRule = 'alternate' | 'sides' | 'right' | 'pair';
 export type MalletTop = 'up' | 'shoulder';
 
 /**
+ * The turn of a mallet around its grip between strikes (design 5.3), as a real player turns the
+ * wrist up before a stroke. At a strike, the mallet points from its home to the target. As the
+ * head goes up to its rest height, the mallet turns around the grip, up and out to the side of
+ * its hand, and the grip stays where the strike puts it.
+ */
+export interface MalletCock {
+  /** The angle of the mallet above the level at the rest height, in radians. */
+  readonly up: number;
+  /**
+   * The turn of the mallet around the vertical, out to the side of its hand, from the direction
+   * of the strike, in radians.
+   */
+  readonly out: number;
+}
+
+/**
  * The values of the hold of each percussion instrument (design 5.3). The directions are in the
  * model axes of the bind pose: the player faces -z, and its left is -x.
  */
@@ -75,6 +91,17 @@ export interface PercussionHold {
   readonly home: Vec3;
   /** The turn of each mallet around its own axis in the paw. */
   readonly top: MalletTop;
+  /**
+   * The turn of each mallet around its grip between strikes, or `null`: then the head lifts along
+   * the normal of its target, and the mallet points from the home to the head.
+   */
+  readonly cock: MalletCock | null;
+  /**
+   * True: the player holds its mallets over the instrument also in the rest pose, and the arms do
+   * not hang (design 5.2). The hanging paws of a player with short arms can reach into large
+   * kettles in front of it.
+   */
+  readonly ready: boolean;
 }
 
 /**
@@ -106,6 +133,8 @@ export const PERCUSSION_HOLDS = {
     rim: 0.055,
     home: [0, -0.1, -0.4],
     top: 'shoulder',
+    cock: null,
+    ready: false,
   },
   'bass-drum': {
     hands: 'right',
@@ -117,6 +146,8 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
+    cock: null,
+    ready: false,
   },
   'snare-drum': {
     hands: 'alternate',
@@ -128,6 +159,8 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
+    cock: null,
+    ready: false,
   },
   // The lift is the half of the gap between the inner faces of the two cymbals.
   cymbals: {
@@ -140,6 +173,8 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
+    cock: null,
+    ready: false,
   },
   // The left hand holds the triangle up, and its elbow points out to the left.
   'small-percussion': {
@@ -152,6 +187,8 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
+    cock: null,
+    ready: false,
   },
   xylophone: {
     hands: 'alternate',
@@ -163,6 +200,8 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
+    cock: null,
+    ready: false,
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
 
@@ -213,6 +252,10 @@ export type PercussionSide =
       readonly home: Vec3;
       /** The turn of the mallet around its own axis in the paw (`PercussionHold.top`). */
       readonly top: MalletTop;
+      /** The turn of the mallet around its grip between strikes (`PercussionHold.cock`). */
+      readonly cock: MalletCock | null;
+      /** The distance from the grip to the middle of the head of the mallet, in meters. */
+      readonly length: number;
     }
   | {
       readonly kind: 'plate';
@@ -348,16 +391,23 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
   const inH = (v: Vec3): Vector3 => new Vector3(...v).multiplyScalar(h);
   const fromShoulder = (arm: ArmRig, v: Vec3): Vector3 =>
     inH(v).add(new Vector3(...arm.bind.shoulder));
-  const mallet = (arm: ArmRig, bone: 'malletL' | 'malletR'): PercussionSide => ({
-    kind: 'mallet',
-    arm,
-    head: bindTarget(
+  const mallet = (arm: ArmRig, bone: 'malletL' | 'malletR'): PercussionSide => {
+    const head = bindTarget(
       model,
       findTarget(model, (t) => t.kind === 'mallet-head' && t.bone === bone),
-    ).point,
-    home: toVec3(fromShoulder(arm, hold.home)),
-    top: hold.top,
-  });
+    ).point;
+    // The grip is the origin of the mallet bone.
+    const grip = model.skeleton.positions[boneIndex(bone)] ?? head;
+    return {
+      kind: 'mallet',
+      arm,
+      head,
+      home: toVec3(fromShoulder(arm, hold.home)),
+      top: hold.top,
+      cock: hold.cock,
+      length: new Vector3(...head).distanceTo(new Vector3(...grip)),
+    };
+  };
   const targets = new Map<number, StrikeTarget>();
   const heads = model.instrument.targets.filter((t) => t.kind === 'head');
   let sides: readonly [PercussionSide, PercussionSide];
