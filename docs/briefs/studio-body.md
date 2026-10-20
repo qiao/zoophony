@@ -242,11 +242,11 @@ A new species with a studio body:
 | `docs/design/04-stage-cast-look.md` | "4.5 Visual values", "Facets and triangle budgets" | the studio bodies and the triangles of the pea eyes | |
 | `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the instrument scale and the reach of each species | |
 | `docs/design/04-stage-cast-look.md` | "4.7 Rig" | the optional bones of a rig, such as `tail_tip` | |
-| `docs/design/07-architecture.md` | "7.1 Modules", the text of `VIEW_SHEETS` | the sheet pages of `views.html` | `cat`, `panda`, `hippo`, `mouse`, `elephant`, `beaver`, `pig` |
+| `docs/design/07-architecture.md` | "7.1 Modules", the text of `VIEW_SHEETS` | the sheet pages of `views.html` | `cat`, `panda`, `hippo`, `mouse`, `elephant`, `beaver`, `pig`, `wolf` |
 | `docs/agents/model-work.md` | "Bodies and roles" | each body with its source, decision file, and role | |
 | `docs/agents/model-traps.md` | the whole file | each trap that cost the round a step | |
 | `assets/models/<s>/README.md` | the whole file | the source, license, and checksum of a mesh of the user | |
-| `lowpoly-studio/docs/handoff.md` and `lowpoly-studio/README.md` | the whole files | only a body that the studio builds | `rabbit`, `fox-red`, `fox-tan`, `cat`, `dog`, `panda`, `hippo`, `mouse`, `elephant`, `beaver`, `pig` |
+| `lowpoly-studio/docs/handoff.md` and `lowpoly-studio/README.md` | the whole files | only a body that the studio builds | `rabbit`, `fox-red`, `fox-tan`, `cat`, `dog`, `panda`, `hippo`, `mouse`, `elephant`, `beaver`, `pig`, `wolf` |
 
 A new role:
 
@@ -263,7 +263,7 @@ A new hold:
 |---|---|---|---|
 | `docs/design/05-animation.md` | "Pose index" | the support, source, play, rest, code, and docs of the role | |
 | `docs/design/05-animation.md` | "5.2 Rest pose" | the rest of the instrument and of the bow | |
-| `docs/design/05-animation.md` | "5.3 Instrument motion", "Bowed strings in detail" | the hold, the rest bow, and the standing bow of each species with a bow | `fox-tan`, `panda`, `mouse`, `elephant`, `beaver`, `pig` |
+| `docs/design/05-animation.md` | "5.3 Instrument motion", "Bowed strings in detail" | the hold, the rest bow, and the standing bow of each species with a bow | `fox-tan`, `panda`, `mouse`, `elephant`, `beaver`, `pig`, `wolf` |
 | `docs/design/05-animation.md` | "5.3 Instrument motion", "Woodwinds and brass in detail" | the hold of each species with a wind instrument | `rabbit`, `fox-red`, `cat`, `dog`, `hippo`, `elephant` |
 | `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the reach of the nut, or of the grip of a wind instrument | |
 | `docs/decisions/<date>-<topic>.md` | the whole file | the decision file of the hold | |
