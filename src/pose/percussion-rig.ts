@@ -241,6 +241,13 @@ export const PERCUSSION_PLACES = {
   crash: [0, -0.09, -1.1],
   /** The clip of the triangle in the left hand, from the left shoulder joint. */
   triangleClip: [0.3, 0, -1],
+  /**
+   * The world rotation of the left hand that holds the triangle up, from the bind pose: the
+   * clip, which is in front of the palm in the bind pose, comes under the hand, and the triangle
+   * hangs in the plane x-y. Thus the side of the triangle that the beater strikes faces the right
+   * hand.
+   */
+  triangleHand: [-Math.SQRT1_2, 0, 0, Math.SQRT1_2],
 } as const;
 
 /** The curl of the fingers around a mallet, a stick, or the strap of a cymbal. */
@@ -248,13 +255,6 @@ export const GRIP_CURL = 60 * MathUtils.DEG2RAD;
 
 /** The MIDI key of the tambourine (design 4.6). The other keys of the player strike the triangle. */
 const TAMBOURINE_KEY = 54;
-
-/**
- * The rotation of the left hand that holds the triangle up: the clip, which is in front of the
- * palm in the bind pose, comes under the hand, and the triangle hangs in the plane x-y. Thus the
- * side of the triangle that the beater strikes faces the right hand.
- */
-const TRIANGLE_HAND: Quat = [-Math.SQRT1_2, 0, 0, Math.SQRT1_2];
 
 /**
  * One hand of a percussion player.
@@ -525,7 +525,7 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
       // The left hand holds the clip of the triangle in front of the chest.
       const clip = fromShoulder(left, PERCUSSION_PLACES.triangleClip);
       const clipBind = model.skeleton.positions[boneIndex('malletL')] ?? toVec3(clip);
-      const hand = new Quaternion(...TRIANGLE_HAND);
+      const hand = new Quaternion(...PERCUSSION_PLACES.triangleHand);
       const bindWrist = new Vector3(...left.bind.wrist);
       // Gives a bind point of the hand at the place of the hand that holds the triangle.
       const held = (point: Vec3): Vector3 =>
@@ -546,7 +546,10 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
           findTarget(model, (t) => t.kind === 'head'),
         ),
       );
-      sides = [{ kind: 'hold', arm: left, wrist, hand: TRIANGLE_HAND }, mallet(right, 'malletR')];
+      sides = [
+        { kind: 'hold', arm: left, wrist, hand: PERCUSSION_PLACES.triangleHand },
+        mallet(right, 'malletR'),
+      ];
       break;
     }
     default: {
