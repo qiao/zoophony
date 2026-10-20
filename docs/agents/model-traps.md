@@ -18,8 +18,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   each hold change with `pnpm hold-fit --set` and `pnpm pose-depth --set` before you write it.
 - A big head puts the grips of a hanging instrument at shoulder height, and elbows out and level
   twist the upper arms into bands: point the elbows down. A deeper trunk takes the room of the
-  elbows: point them out (`poleL`, `restPoleL`). After a change of the head or the girth, compare
-  the arm turns of each pole with `pnpm hold-fit <role> --base main`.
+  elbows: point them out (`poleL`, `restPoleL`). Compare the arm turns of each pole after a change
+  of the head or the girth (`pnpm hold-fit --base main`).
 
 ## Reach and rest of the instrument
 
@@ -32,16 +32,14 @@ group of your work before you plan it. A probe that a trap names is in its resea
   factor far above the option text of the user goes back to the user before the merge.
 - A new scale of `SpeciesParams` adds its instrument to `SCALED_INSTRUMENTS` of
   `models/instruments/types.ts`. The typecheck then names each place that must read it.
-- A smaller body keeps its instrument in meters, so the old hold misses the grips: scan the scale
-  and the hold with `windReach()` first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`). A
-  reach from another body misses the mouth of a big head. Measure `slideReach` on the new body
+- A smaller body keeps its instrument in meters, so scan the scale and the hold with `windReach()`
+  first (`scan2.ts` of `docs/research/2026-10-19-mouse-size/`). Measure `slideReach` on the new body
   before the user chooses the arms, and turn the slide toward the right shoulder (`slide-hold.ts` of
   `docs/research/2026-10-18-panda-mesh/`).
-- A round belly can cover short thighs, and `lapPoint()` also takes the skin of the hips and the
-  spine, so a lap place lands on the belly. Measure the reach from the shoulder joint to the thigh
-  top before you scan a lap place (`thigh-reach.ts` of `docs/research/2026-10-17-tan-rest/`). A
-  steeper thigh slope moves a lap place near the knee off the lap, so fit the lap places again after
-  a change of `studio.legTurns`.
+- A round belly can cover short thighs, and `lapPoint()` also takes the hip and spine skin, so a lap
+  place lands on the belly. Measure the reach from the shoulder joint to the thigh top first
+  (`thigh-reach.ts` of `docs/research/2026-10-17-tan-rest/`), and fit the lap places again after a
+  change of `studio.legTurns`.
 - A round belly in front of short arms blocks a floor instrument. Place it by targets: the contact
   point in front of the upper belly, about 0.2 m below the shoulder joints, and the nut within reach
   of the left paw (`bass-solve.py` of `docs/research/2026-10-18-hippo-mesh/`). A smaller instrument
@@ -52,8 +50,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A long snout puts the mouthpiece far in front of the body, and the grips hang below it, so a
   smaller instrument barely helps. Turn the instrument back toward the body around the mouthpiece,
   and turn the shoulder forward (`reachL`, `PIG_HORN`).
-- The short arms of the elephant do not reach across its trunk or to the middle of a kettle. Use
-  `PercussionHold.rim`, `sides`, and `home`, and scan them with `pnpm pose-depth --targets`.
+- The short arms of the elephant do not reach across its trunk, and a third kettle of the real size
+  stands behind the shoulder and cuts into the body. Use `PercussionHold.rim`, `sides`, `home`, and
+  `pair` with `TIMPANI.side`, and scan them with `pnpm pose-depth --targets`.
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit
   (`left-rest.ts` of `docs/research/2026-10-17-tan-rest/`).
 - Read the spare reach of each grip after each move of a rest place of a wind hold. `pnpm hold-fit`
@@ -85,8 +84,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   part goes through it. Count the samples over the goal (`left-forearm.ts` of
   `docs/research/2026-10-19-hippo-chest/arms/`).
 - The depth of an open part is false near its open edge, so the sweep measures in a closed part
-  (`closedPart()` with the count of its open loops). Each open edge, such as a whisker or an arm
-  cut, opens a loop: give the role its own count, and check that each extra loop is small.
+  (`closedPart()` with its count of open loops). Each whisker or arm cut opens a loop: give the role
+  its own count, and check that each extra loop is small.
 - A cap closes a cut with a fan from its middle, so the depth of an upper arm point near a long cut
   is a depth behind the cap.
 - The pair "instrument in body" of `pnpm pose-depth` gives the deepest corner of the instrument,
@@ -109,36 +108,34 @@ group of your work before you plan it. A probe that a trap names is in its resea
   clavicle. Read the corner weights of the most folded faces (`pnpm fold-probe --faces`) before a
   ring or a smoothing. On the fox, a smoothing folded more faces.
 - An image mesh has many thin faces, and a thin face with corners of different weights turns over at
-  a bent joint. The `sliver` and `line` rules remove some folds, and `weights.rigid` gives a thin
-  face across a joint the mean of its weights (the source middles of `pnpm fold-probe --faces` give
-  its points). Give two thin faces that share corners one item, a list of points, else the second
-  face undoes the first. A body has at most four shapes of `raise` (`RAISE_LIMIT`).
+  a bent joint. The `sliver` and `line` rules remove some folds. `weights.rigid` gives a thin face
+  across a joint the mean of its weights, at the source middles of `pnpm fold-probe --faces`. Give
+  two thin faces that share corners one item, else the second undoes the first. A body has at most
+  four shapes (`RAISE_LIMIT`).
 - A raised arm pulls the skin where a hanging arm touches the trunk into long dark faces under the
-  armpit. A fade of the arm weight, a corrective shape, a split, or a move of the vertices keeps
-  them dark or folds them. When short or thin faces join a hanging arm to the trunk, only a cut at
-  the seam fixes them (`cut`, `docs/research/2026-10-18-panda-cut.md`). The caps of the arm then
-  shade dark: give them the normals of the skin (`cut.skinNormals`). The light caps of the body
-  turn dark with these normals, so they keep their own.
+  armpit. Fades, shapes, splits, and vertex moves keep them dark or fold them. When short or thin
+  faces join a hanging arm to the trunk, only a cut at the seam fixes them (`cut`,
+  `docs/research/2026-10-18-panda-cut.md`). Give the caps of the arm the normals of the skin
+  (`cut.skinNormals`). The light caps of the body keep their own.
 - A color measure of a mark counts one range of lightness. Measure the black (Oklab lightness below
   0.3) beside the gray, because a fix of a gray mark can add a black one.
 - A fold probe also counts a turned face that no camera sees. Before you accept a fold as hidden,
   count its pixels in a probe build that draws it in a pure color with no light (`hidden/probe.ts`
   of `docs/research/2026-10-18-panda-seam/`).
 - A narrow fade of a weight rule under a far bone turn moves the fold to the faces of the fade. Let
-  the fade span several rings of faces, as `clavicleMiddle` and `armTop` of the hippo do. A small
-  change of a fade can make the relax of a shape fail: read the lines `raise` of the rig log.
+  the fade span several rings of faces (`clavicleMiddle`, `armTop` of the hippo). A small change of
+  a fade can make the relax of a shape fail (lines `raise` of the rig log).
 - A long thin face across an arm joint folds, and weight rules make it worse. A ring of new vertices
-  at the joint (`refine.rings`) fixes it, within the budget of 3,200 triangles. Put a ring only
-  where `pnpm fold-probe` finds folds, then run `pnpm pose-depth <role>`, because a ring can pull
-  the inner elbow into the trunk. Give longer arms a larger ring radius (`outward_stretch()` of the
-  rig script).
+  at the joint (`refine.rings`) fixes it, within 3,200 triangles. Put a ring only where `pnpm
+  fold-probe` finds folds, and run `pnpm pose-depth <role>`, because a ring can pull the inner elbow
+  into the trunk. Longer arms take a larger ring radius (`outward_stretch()`).
 
 ## Corrective shapes
 
-- A face that folds in one region of the arm poses needs a corrective shape (`raise`) when no weight
-  rule or ring removes the fold. Fit it with `pnpm raise-fit <role> --faces <list> --side <side>`. A
-  rule that relaxes more faces (`raise.below`) folds more play samples. Give a rule of a bent elbow
-  the forearm turn alone, because the arm turns of the fit can fold the chest.
+- When no weight rule or ring removes a fold in one region of the arm poses, fit a corrective shape
+  (`raise`) with `pnpm raise-fit <role> --faces <list> --side <side>`. A rule that relaxes more
+  faces (`raise.below`) folds more play samples. Give a rule of a bent elbow the forearm turn alone,
+  because the arm turns of the fit can fold the chest.
 - A grip far in front of a deep chest can turn the upper arm about 70° at the shoulder, so the
   shoulder front folds past the clavicle, and no shape of `raise` relaxes it. Turn the shoulder bone
   forward with the arm (`WindHold.reachL`), and scan the turn with `pnpm hold-fit --grid`
@@ -146,15 +143,17 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - Fit the rule of a fold across a joint on the key of that joint: the upper arm, the forearm
   (`--bone forearm` of `pnpm raise-fit`), or the paw (`--bone hand`). The pose of a rule in Blender
   turns over fewer faces than the app, so `--bone hand` turns the rule further on the same axis.
-- A paw that turns about 160° on its forearm folds the wrist with each elbow pole. Turn a round
-  held part around its axis so that the paw stays near the arm line (`PercussionHold.top`,
-  `twist.ts` of `docs/research/2026-10-19-elephant-arms/`). Else a shape of the bent wrist and
-  `weights.rigid` fix it (`docs/research/2026-10-19-hippo-arms.md`).
+- A paw that turns about 160° on its forearm folds the wrist. Turn a round held part around its axis
+  so that the paw stays near the arm line (`PercussionHold.top`, `twist.ts` of
+  `docs/research/2026-10-19-elephant-arms/`), or fit a shape of the bent wrist
+  (`docs/research/2026-10-19-hippo-arms.md`). A mallet that turns up between strikes (`cock`) turns
+  the paw about 130° with each top rule: a roll of the top trades the twist for a wrist bend of
+  about 90°.
 - A shape fixes only the poses near its rule, for the arm turns of one hold. `pnpm rig-mesh --check`
-  counts the folds with the hold of the working tree, so fit the hold first, or fit both in one loop
-  with `--hold <changes>`. A rule whose line `raise <target>` in the rig log keeps turned faces
-  after the relax fixes few samples. With a twist bone, a rule of a bent elbow can turn the inner
-  elbow over: add the paw turn of its samples (`turns.hand`).
+  counts the folds with the hold of the working tree, so fit the hold first, or use `--hold
+  <changes>`. A rule whose rig log line `raise <target>` keeps turned faces after the relax fixes
+  few samples. With a twist bone, give a rule of a bent elbow the paw turn of its samples
+  (`turns.hand`), else it turns the inner elbow over.
 - The shape of a raised arm relaxes only the clavicle and the upper arm. `raise.grow` adds rings of
   trunk corners for a long face from the trunk under the armpit (`pnpm raise-fit --sets rest`). Keep
   the fade away from the play turns.
@@ -172,8 +171,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   bones (`tail_tip`).
 - Short thighs under a round belly, or thighs that slope down to a level seat, set the seat top
   before the haunch, and the sit pulls the haunch into a sheet behind the seat. End the seat where
-  the thighs leave the seat top (`chair.front`), move the chair back edge forward by the same
-  distance (`chair.back`), and keep the sit drop small.
+  the thighs leave its top (`chair.front`), move the back edge forward as far (`chair.back`), and
+  keep the sit drop small.
 - The chair of a rig takes its seat top from the body corners, so a long triangle of a sloped thigh
   can go into the seat (`seat-dip.ts` of `docs/research/2026-10-17-fox-form/`).
 - The chair of the app grows until its back posts keep 1 cm behind the trunk (`chairDepthOf()`).
@@ -181,10 +180,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A tail root moves the haunch vertices that set the seat top of the sit. Give the sit a fixed seat
   top (`sit.top`), and count the root vertices as the haunch (`sit.root`). A deeper haunch needs
   more rounds of smoothing (`sit.smooth`).
-- A tail on the floor stays flat with rigid bone turns (`studio.tailBind`), and a curve of
-  `tailCurl` turns it into a vertical sheet. When the tail is the lowest point of the seated bind,
-  it sets the seat height, and the feet hang above the floor. Turn the tip bone until the rig log
-  line `tail: the lowest point` gives the height of the soles.
+- A tail on the floor stays flat with rigid bone turns (`studio.tailBind`). A curve of `tailCurl`
+  turns it into a vertical sheet. A tail that is the lowest point of the seated bind sets the seat
+  height: turn the tip bone until the rig log line `tail: the lowest point` gives the height of the
+  soles.
 - The idle sway turns the tail bones around the vertical (`pose/pose-at.ts`). A tail that lies on
   the seat does not sway (`OwnBodyParams.seatedTail`). Measure a seated tail over one sway period,
   5.5 s.
@@ -206,14 +205,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The texture of an image mesh has black gaps between its islands, so a face takes the mean of its
   light samples. Read `colors.py` of `docs/research/2026-10-14-rabbit-smooth/` after a change of the
   color rules.
-- A face takes black from a third of dark texture samples (`eyeShare`), so the large faces of a
-  trunk give the border of a black region teeth, which a raised arm stretches into black wedges.
-  List the faces with a third to a half of dark samples (`marks.py` of
-  `docs/research/2026-10-18-panda-marks/`), and make them light with `colors.border`.
+- A face takes black from a third of dark texture samples (`eyeShare`), so a raised arm stretches
+  the toothed border of a black region into wedges. Make the faces with a third to a half of dark
+  samples light (`colors.border`, `marks.py` of `docs/research/2026-10-18-panda-marks/`).
 - With no gloss nose, the export takes the front-most fur vertex of the head near the middle plane
-  as the nose tip (`NOSE_PLANE`), and each gloss shell out of the middle plane as an eye. Give a
-  mesh with gloss nostrils and no nose pad, as the hippo, no `noseBox`, and read the rig check
-  warning of a tip off the plane.
+  as the nose tip (`NOSE_PLANE`), and each gloss shell off the plane as an eye. Give a mesh with
+  gloss nostrils, as the hippo, no `noseBox`, and read the rig check warning of a tip off the plane.
 - A dark rule cannot split an eye from a dark patch of almost its color. A wide eye box takes the
   patch as the eye, and the color of the old eye puts light holes in it. Keep the eye box on the
   eye, and set `eyeShell.darkReach` to 0, as for the panda.
