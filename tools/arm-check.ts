@@ -50,8 +50,13 @@
  * and writes one image of each frame: a 2x crop of each arm in each view, the commit on the left
  * and the working tree on the right (`tools/arm-views.ts`).
  *
+ * `--trace <demo>:<from>-<to>` prints the paws of one role at each step of a range of song times,
+ * or of wall times of the lift with `lift<from>-<to>`, with no sweep ({@link traceLines}). The
+ * step is {@link TRACE_STEP} with no `--step`. A trace of 0.4 s takes about 1 s.
+ *
  * Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>]
- * [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long]
+ * [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long], or
+ * pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]...
  */
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -1231,11 +1236,15 @@ export interface CheckArgs {
   readonly jobs: number;
   /** True to write the details of each value, also of a value that passes. */
   readonly long: boolean;
+  /** The range of `--trace`, or `null` for the gate. */
+  readonly trace: TraceRange | null;
+  /** The step of `--step`, in seconds, or `null` for the default step of the run. */
+  readonly step: number | null;
 }
 
 /** The usage text. */
 const USAGE =
-  'Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>] [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long]';
+  'Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>] [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long], or pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]...';
 
 /**
  * Reads the command line of the tool.
@@ -1245,7 +1254,16 @@ const USAGE =
  * @throws Error for an unknown role or option, or a missing value.
  */
 export function checkArgs(args: readonly string[]): CheckArgs {
-  const valued = new Set(['--base', '--set', '--glb', '--views', '--demo', '--step', '--jobs']);
+  const valued = new Set([
+    '--base',
+    '--set',
+    '--glb',
+    '--views',
+    '--demo',
+    '--step',
+    '--jobs',
+    '--trace',
+  ]);
   const flags = new Set(['--all', '--views-all', '--long']);
   const roles: string[] = [];
   const values = new Map<string, string[]>();
@@ -1290,6 +1308,19 @@ export function checkArgs(args: readonly string[]): CheckArgs {
   if (views !== null && (glb !== null || values.has('--set'))) {
     throw new Error('The option --views renders the working tree, so --set and --glb do not go.');
   }
+  const stepText = values.get('--step')?.[0] ?? null;
+  const step = stepText === null ? null : Number(stepText);
+  if (step !== null && !(step > 0)) {
+    throw new Error('The step must be a number of seconds above 0.');
+  }
+  const traceText = values.get('--trace')?.[0] ?? null;
+  const trace = traceText === null ? null : traceRange(traceText);
+  const gateOnly = ['--base', '--glb', '--views', '--demo', '--jobs'].filter((o) => values.has(o));
+  if (trace && (chosen.length !== 1 || all || gateOnly.length > 0 || seen.has('--long'))) {
+    throw new Error(
+      `The option --trace takes one role, --step, and --set, and no --all, --long, or ${gateOnly.join(', ') || 'option of the gate'}.\n${USAGE}`,
+    );
+  }
   const pairs = (name: string): string[] => (values.get(name) ?? []).flatMap((v) => [name, v]);
   return {
     roles: chosen,
@@ -1300,7 +1331,153 @@ export function checkArgs(args: readonly string[]): CheckArgs {
     viewsAll: seen.has('--views-all'),
     jobs,
     long: seen.has('--long'),
+    trace,
+    step,
   };
+}
+
+/** The range of `--trace`: a demo and a range of song times, or of wall times of the lift. */
+export interface TraceRange {
+  /** The file of the demo, such as `beethoven-1.mid`. */
+  readonly demo: string;
+  /**
+   * True for wall times from the press of play, as the sample set `lift` of `probeFolds()` takes
+   * them, and false for song times of the play.
+   */
+  readonly lift: boolean;
+  /** The first time, in seconds. */
+  readonly from: number;
+  /** The last time, in seconds. */
+  readonly to: number;
+}
+
+/**
+ * Reads the range of `--trace`: `<demo>:<from>-<to>` in song times, such as `beethoven-1:12-13`
+ * or `beethoven-1:-1.5-0.5` in the count-in, or `<demo>:lift<from>-<to>` in wall times from the
+ * press of play, such as `beethoven-1:lift0-0.4`.
+ *
+ * @param text The value of the option.
+ * @returns The range.
+ * @throws Error for a text of another form, or a range whose end is not after its start.
+ */
+export function traceRange(text: string): TraceRange {
+  const found = /^([^:]+):(lift)?(-?\d+(?:\.\d+)?)-(-?\d+(?:\.\d+)?)$/.exec(text);
+  const [, name = '', lift, from = '', to = ''] = found ?? [];
+  if (!found || !(Number(to) > Number(from)) || (lift !== undefined && Number(from) < 0)) {
+    throw new Error(
+      `The option --trace takes <demo>:<from>-<to> in song seconds or <demo>:lift<from>-<to> in wall seconds of the lift from 0, with the end after the start, such as beethoven-1:12-13 or beethoven-1:lift0-0.4, and not "${text}".`,
+    );
+  }
+  return {
+    demo: name.endsWith('.mid') ? name : `${name}.mid`,
+    lift: lift !== undefined,
+    from: Number(from),
+    to: Number(to),
+  };
+}
+
+/**
+ * Writes an angle in whole degrees, with no sign on 0.
+ *
+ * @param angle The angle, in degrees.
+ * @returns The text.
+ */
+function wholeDegrees(angle: number): string {
+  return String(Math.round(angle) + 0);
+}
+
+/** The default step of `--trace`, in seconds. */
+export const TRACE_STEP = 0.01;
+
+/** The most lines of a trace, so that a wrong range does not print for minutes. */
+const TRACE_LINES = 5000;
+
+/**
+ * Traces the paws of the first body of a role at each step of a range, with no sweep: for each
+ * arm, the signed paw twist on the forearm from the bind, its change from the line before, the paw
+ * swing, the signed turn from the accepted grip ({@link ACCEPTED_GRIPS}, with the sign of the
+ * right arm turned), and the forearm twist ({@link measureArm}). A play sample poses the song time
+ * as `probeFolds()` does, and a lift sample the wall time from the press of play. The modules of
+ * the pose load only here, so the gate imports no more exports of an old tree.
+ *
+ * @param role The role.
+ * @param range The demo and the range.
+ * @param step The step, in seconds.
+ * @returns The lines: a title and a table.
+ * @throws Error for a demo with no body of the role, or a range of more than {@link TRACE_LINES}
+ *   steps.
+ */
+export async function traceLines(role: string, range: TraceRange, step: number): Promise<string[]> {
+  const { createScenePose, poseAt } = await import('../src/pose/pose-at.ts');
+  const { PLAYING, allAudible } = await import('../src/pose/test-scene.ts');
+  const { createStudioPose, poseStudioBones, skinStudioMesh, studioOffsets } =
+    await import('../src/models/studio-rig.ts');
+  const source = FOLD_ROLES.get(role);
+  const all = await patchedDemos();
+  const demo = all.find((d) => d.file === range.demo);
+  const scene = demo ? sceneOf(demo.bytes) : null;
+  const [body] = source && scene ? roleBodies(source, scene) : [];
+  const rig = body?.model.studio;
+  if (!source || !scene || !body || !rig) {
+    const withRole = source
+      ? all.filter((d) => roleBodies(source, sceneOf(d.bytes)).length > 0).map((d) => d.file)
+      : [];
+    throw new Error(
+      `The demo ${range.demo} has no studio body of the ${role}. The demos with the role are: ${withRole.join(', ') || 'none'}.`,
+    );
+  }
+  const count = Math.floor((range.to - range.from) / step + 1e-6) + 1;
+  if (count > TRACE_LINES) {
+    throw new Error(
+      `The trace has ${count} steps, above ${TRACE_LINES}. Give a shorter range or a larger --step.`,
+    );
+  }
+  const start = -countInAt(scene.plan.beats, 0).lengthSec;
+  const audible = allAudible(scene.score);
+  const buffer = createScenePose(scene.plan);
+  const lift = { ...PLAYING, changedAtWall: 10 };
+  const grips = ACCEPTED_GRIPS.get(role) ?? null;
+  const arms = armBinds(rig);
+  const player = body.index === null ? 'the conductor' : `the player ${body.index}`;
+  const kind = range.lift ? 'wall times of the lift' : 'song times';
+  const lines = [
+    `Paw trace of the ${role} (${player}) in ${range.demo}, ${kind} ${range.from} s to ${range.to} s at steps of ${step} s. In degrees: the signed paw twist on the forearm from the bind, its change from the line before (JUMP above ${JUMP_ANGLE}°), the paw swing, the signed turn from the accepted grip (the right arm with its sign turned), and the forearm twist.`,
+    '',
+    `| ${range.lift ? 'Wall' : 'Song'} s | ${SIDES.map((s) => `${s} twist | ${s} change | ${s} swing | ${s} grip | ${s} forearm`).join(' | ')} |`,
+    `|---|${SIDES.map(() => '---|---|---|---|---').join('|')}|`,
+  ];
+  const last: Record<Side, number | null> = { L: null, R: null };
+  for (let k = 0; k < count; k++) {
+    const time = range.from + k * step;
+    const song = range.lift ? Math.min(0, start + time) : time;
+    const wall = range.lift ? 10 + time : 10 + time - start;
+    const frame = poseAt(scene.plan, song, wall, range.lift ? lift : PLAYING, audible, buffer);
+    const pose = body.index === null ? frame.conductor : frame.players[body.index];
+    if (!pose) {
+      continue;
+    }
+    const studio = poseStudioBones(
+      rig,
+      body.model.skeleton,
+      pose.rotations,
+      studioOffsets(pose),
+      1,
+      createStudioPose(),
+    );
+    const posed = skinStudioMesh(rig.mesh, studio);
+    const cells = SIDES.map((side) => {
+      const sample = measureArm(arms[side], studio.matrices, posed, [], null);
+      const before = last[side];
+      const change = before === null ? 0 : wrap(sample.pawRoll - before);
+      last[side] = sample.pawRoll;
+      const signed = side === 'R' ? -sample.pawRoll : sample.pawRoll;
+      const grip = grips ? wholeDegrees(wrap(signed - grips[side])) : '-';
+      const jump = Math.abs(change) > JUMP_ANGLE ? ' JUMP' : '';
+      return `${wholeDegrees(sample.pawRoll)} | ${wholeDegrees(change)}${jump} | ${wholeDegrees(sample.pawSwing)} | ${grip} | ${wholeDegrees(sample.foreTwist)}`;
+    });
+    lines.push(`| ${time.toFixed(2)} | ${cells.join(' | ')} |`);
+  }
+  return lines;
 }
 
 /**
@@ -1469,6 +1646,20 @@ async function main(): Promise<number> {
     return childMain(args);
   }
   const options = checkArgs(args);
+  if (options.trace) {
+    const holds = options.own.filter((...[, i]) => options.own[i - 1] === '--set').join(';');
+    const changes = holds ? setHolds(holds) : null;
+    try {
+      if (changes) {
+        console.log(`The working tree takes the hold changes ${changes.text}.`);
+      }
+      const role = options.roles[0] ?? '';
+      console.log((await traceLines(role, options.trace, options.step ?? TRACE_STEP)).join('\n'));
+    } finally {
+      changes?.undo();
+    }
+    return 0;
+  }
   const started = performance.now();
   const reports = await eachLimited(options.roles, options.jobs, async (role) => ({
     role,
