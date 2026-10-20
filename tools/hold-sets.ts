@@ -3,7 +3,13 @@ import { MathUtils } from 'three';
 import { BOWED_HOLDS, SPECIES_HOLDS } from '../src/pose/bowed-rig.ts';
 import type { BowVia, BowedHold } from '../src/pose/bowed-rig.ts';
 import { CONDUCTOR_HOLD, LEFT_HAND_PLACES } from '../src/pose/conductor.ts';
-import { TIMPANI } from '../src/models/instruments/percussion.ts';
+import {
+  BASS_DRUM,
+  SNARE_DRUM,
+  TAMBOURINE,
+  TIMPANI,
+  XYLOPHONE,
+} from '../src/models/instruments/percussion.ts';
 import { SCALE_PARAMS, SPECIES, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import { HANDS_HOLDS } from '../src/pose/hands.ts';
@@ -34,7 +40,9 @@ const OWN_HOLDS = Object.fromEntries(
  * do not change. The rabbits hold the violin with a hold of their own: `violin` does not change
  * it, and `violin@rabbit` does. `kettles` changes the place of the kettles of the timpani
  * (`TIMPANI`), which the model of a scene reads when the tool builds it, and `percussion` the
- * places of the hands of a percussion player (`PERCUSSION_PLACES`).
+ * places of the hands of a percussion player (`PERCUSSION_PLACES`). `bassDrum`, `snareDrum`,
+ * `tambourine`, and `bars` change the places of the bass drum, the snare drum, the tambourine,
+ * and the xylophone in the same way.
  */
 const HOLDS = {
   piano: HANDS_HOLDS.piano,
@@ -46,7 +54,16 @@ const HOLDS = {
   conductor: CONDUCTOR_HOLD,
   conductorLeft: LEFT_HAND_PLACES,
   timpani: PERCUSSION_HOLDS.timpani,
+  'bass-drum': PERCUSSION_HOLDS['bass-drum'],
+  'snare-drum': PERCUSSION_HOLDS['snare-drum'],
+  cymbals: PERCUSSION_HOLDS.cymbals,
+  'small-percussion': PERCUSSION_HOLDS['small-percussion'],
+  xylophone: PERCUSSION_HOLDS.xylophone,
   kettles: TIMPANI,
+  bassDrum: BASS_DRUM,
+  snareDrum: SNARE_DRUM,
+  tambourine: TAMBOURINE,
+  bars: XYLOPHONE,
   percussion: PERCUSSION_PLACES,
   ...OWN_HOLDS,
 };
