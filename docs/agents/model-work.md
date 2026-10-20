@@ -45,6 +45,11 @@ crop pairs into the report. A `FAIL` makes the round not done, and a better numb
 look is not done. The merge of a branch that changes `src/pose/`, `src/models/`, or
 `tools/blender/` runs the gate of all roles (`tools/merge-branch.sh`).
 
+The grip turn compares each paw with its accepted grip (`ACCEPTED_GRIPS` of `tools/arm-check.ts`).
+A role with no entry gets no grip check, so a new role adds its entry, and a round that changes a
+grip on purpose updates its entry. Add or change an entry only after the manager accepts the 2x
+paw crops at a strike and at rest.
+
 ## Route 1: a rigged GLB file
 
 The user gives a model in a T-pose with a Mixamo skeleton. The app has no code of a rigged body
