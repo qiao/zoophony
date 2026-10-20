@@ -47,7 +47,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Snare drum, badger | Stands | `docs/reference/percussion-technique.md` 6 | The drum stands at the height of the wrists, and the sticks leave the front of the fists in a V of about 66°, almost level, with the paws in turn | The arms hang | `PERCUSSION_HOLDS['snare-drum']`, `SNARE_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views snare-drummer <dir>` |
 | Cymbals, badger | Stands | `docs/reference/percussion-technique.md` 7 | The two cymbals meet in front of the shoulders. The short arms hold them too near, so the plates go into the body and miss the crash point (open) | The arms hang with the cymbals | `PERCUSSION_HOLDS.cymbals`, `PERCUSSION_PLACES.crash`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views cymbalist <dir>` |
 | Small percussion, badger | Stands | `docs/reference/percussion-technique.md` 8 | The left paw holds the triangle by its clip at the height of the mouth, and the beater in the right paw strikes it, or the tambourine on its stand at the front right | The left paw keeps the triangle up, and the beater stays near it | `PERCUSSION_HOLDS['small-percussion']`, `PERCUSSION_PLACES`, `TAMBOURINE`, `TRIANGLE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views percussionist <dir>` |
-| Xylophone, badger | Stands | none | Two mallets strike the bar of each key | The rest of the timpani | `PERCUSSION_HOLDS.xylophone`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `?page=species&only=xylophone&body` |
+| Xylophone, badger | Stands | `docs/reference/percussion-technique.md` 9 | The mallets leave the front of the fists, as the snare sticks, and strike the bar of each key. The short arms do not reach the outer bars (open) | The arms hang | `PERCUSSION_HOLDS.xylophone`, `XYLOPHONE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views xylophonist <dir>` |
 | Choir, penguin | Stands on a riser | none | The beak opens with each note, and the flippers hold the folder close | The beak closes, and the flippers keep the folder | `CHOIR_HOLD`, `pose/choir.ts` | 5.3 choir, `2026-10-11-penguin-body.md` | `pnpm close-views species penguin <dir>` |
 
 `BOWED_HOLDS.violin` (the chin hold), `BOWED_HOLDS.cello`, `WIND_HOLDS.flute`, and
@@ -532,6 +532,10 @@ The code constants of each family hold the times, the angles, and the lengths of
       arm factor up to the limit of a mesh of the user keeps the plates out of the body, so this
       hold stays open until the user chooses smaller cymbals or longer arms. The elbows point down
       and a little out.
+    - The xylophone mallets take the grip of the snare sticks, as a real player holds them. The
+      xylophone of the app is wider than the reach of the short arms, and the body does not move
+      from side to side, so the outer bars stay out of reach until the user chooses a smaller
+      xylophone or longer arms (open).
 - Piano: the hands move to the key position. The left hand plays low notes and the right hand
   plays high notes.
 - **Piano and harp in detail** (`pose/hand-notes.ts`, `pose/hands.ts`):

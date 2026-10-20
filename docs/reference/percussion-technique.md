@@ -189,6 +189,9 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   front of the shoulders, vertical, while section 7 gives tilted plates. The short arms hold them
   so near that the plates go 7 cm or more into the body, where section 7 gives the edges about 3
   inches from the body.
+- **The xylophone.** The mallets leave the front of the fists, as the sticks of the snare drum,
+  as section 9 gives. The app differs: the body does not move from side to side behind the
+  notes, so the short arms do not reach the outer bars, and the hold is open.
 
 ## 11. Sources
 

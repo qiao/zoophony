@@ -232,6 +232,9 @@ export const PERCUSSION_HOLDS = {
     ready: true,
     pair: false,
   },
+  // The mallets leave the front of the fists (XYLOPHONE.malletTilt) and keep the angle of no
+  // twist of the paw between strikes, as the sticks of the snare drum, because a real player holds
+  // them in the matched grip of the snare drum (2026-10-20-mesh-badger decisions).
   xylophone: {
     hands: 'alternate',
     sizes: { lift: 0.08, rest: 0.03 },
@@ -242,7 +245,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    across: null,
+    across: { rest: -0.6, lift: 0.3 },
     ready: false,
     pair: false,
   },

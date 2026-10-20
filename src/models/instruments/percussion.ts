@@ -90,10 +90,12 @@ export const XYLOPHONE = {
   sharpStrike: 0.04,
   /**
    * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm.
+   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm. A real player
+   * holds it in the matched grip, along the thumb and out of the front of the fist
+   * (`docs/reference/percussion-technique.md` 9), so it takes the tilt 1.3 of the timpani.
    */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletTilt: 0 as number,
+  malletTilt: 1.3 as number,
 } as const;
 
 /**
