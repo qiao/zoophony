@@ -338,8 +338,9 @@ function parseTurn(text: string, path: string): Quat | null {
 }
 
 /**
- * Parses the text of a `--set` for a value of a hold. A number takes a number, and a list of
- * numbers takes the numbers separated by commas, with the same count, or a JSON list, such as
+ * Parses the text of a `--set` for a value of a hold. A number takes a number, a flag takes
+ * `true` or `false`, and a list of numbers takes the numbers separated by commas, with the same
+ * count, or a JSON list, such as
  * `[-0.5,-1,-0.5]`. A turn of 4 numbers also takes `holdTurn(<x>,<z>)` in degrees
  * ({@link parseTurn}). A text takes a member of the union of its field ({@link TEXT_FIELDS}),
  * such as `timpani.hands=sides`. A value that is `null`, an object, or another list takes JSON
@@ -372,6 +373,12 @@ function parseValue(old: HoldValue, text: string, path: string, field: string): 
   }
   if (isNumber(old)) {
     return parseNumber(text, path);
+  }
+  if (old === true || old === false) {
+    if (text !== 'true' && text !== 'false') {
+      throw new Error(`${path} takes true or false, and the value is "${text}".`);
+    }
+    return text === 'true';
   }
   if (isText(old)) {
     const members = TEXT_FIELDS.get(field.split('.').at(-1) ?? '');
