@@ -28,7 +28,7 @@ fox together.
 | elephant | the mesh `assets/models/elephant/elephant.glb`, rigged by `pnpm rig-mesh elephant`, standing at the timpani, with the trunk on the head | `2026-10-19-mesh-elephant.md` | `timpanist` |
 | beaver | the mesh `assets/models/beaver/beaver.glb`, rigged by `pnpm rig-mesh beaver` at the size of the parametric beaver, with a broad tail of two bones on the floor, a smaller bassoon, and no chair (`noChair`) | `2026-10-19-mesh-beaver.md` | `bassoonist` |
 | pig | the mesh `assets/models/pig/pig.glb`, rigged by `pnpm rig-mesh pig` at the size of the parametric pig, with a horn hold turned back toward the body | `2026-10-19-mesh-pig.md` | `hornist` |
-| wolf | the mesh `assets/models/wolf/wolf.glb`, rigged by `pnpm rig-mesh wolf` 0.9 times as high and 1.2 times as wide as the mesh (`proportions`), with a bushy tail of two bones that hangs behind the seat, and a clarinet hold at 45° with the mouthpiece under the muzzle | `2026-10-20-mesh-wolf.md` | `clarinetist` |
+| wolf | the mesh `assets/models/wolf/wolf.glb`, rigged by `pnpm rig-mesh wolf` 0.9 times as high and 1.2 times as wide as the mesh, with the head at its size (`proportions`), with a bushy tail of two bones that hangs behind the seat, and a clarinet hold at 45° with the mouthpiece under the muzzle | `2026-10-20-mesh-wolf.md` | `clarinetist` |
 | badger | the mesh `assets/models/badger/badger.glb`, rigged by `pnpm rig-mesh badger` at the size of the parametric badger, standing at each percussion instrument, with its own arms, a tail ball, and a suspended cymbal (`cymbalForm`) | `2026-10-20-mesh-badger.md` | `bass-drummer`, `snare-drummer`, `cymbalist`, `percussionist`, `xylophonist` |
 | penguin | an egg body in code, `src/models/penguin/` (route 2) | `2026-10-11-penguin-body.md` | none |
 
@@ -199,7 +199,10 @@ of route 3 follow.
    target reach (`app.reach`). When the user asks for a body that is shorter or wider than the
    mesh, give `proportions` a factor for each axis. The joints and the rules are then in the units
    of the scaled source, and a height factor also scales `app.shoulders` and the height of
-   `ANIMALS` (`shape_config.py` of `docs/research/2026-10-20-wolf-shape/`).
+   `ANIMALS` (`shape_config.py` of `docs/research/2026-10-20-wolf-shape/`). When the head must
+   keep its size, add `"keep": "head"` and `blend`, the heights of a blend zone on the neck before
+   the factors. Put the zone above the tops of the shoulders, because a zone there can fold them, and
+   map the head places with `head_config.py` of `docs/research/2026-10-20-wolf-head/`.
 2. Make the mid-report with one command:
    `pnpm mesh-options <animal> <dir> --size <label>=<head top>... --legs <f>,... --arms <f>,...
    --instrument <id>`. Take each size from the head top of a body of `main`, and each arm factor
