@@ -773,18 +773,20 @@ const DOG_HOLD = {
  * in 94% of the play samples. The measures are in the 2026-10-19-hippo-chest decisions.
  *
  * The string planes are 12° apart, below the 25° of a real contrabass: with 25°, the bow paw on the
- * lowest string went 9.1 cm into the belly. The right elbow points out and forward with no rise,
- * also in pizzicato, and the left elbow points out to the left, a little down, and forward. With
- * the right elbow up, the right upper arm turned 107° from its bind on the mean of the play and
- * twisted into a flat band, and with the left elbow up and back, the left upper arm turned 80°:
- * now they turn 96° and 28°. The arms go at most 0.9 cm deeper into the body and the contrabass
- * in the play, and the right paw 2.2 cm deeper into the contrabass in the lowering (the
- * 2026-10-19-hippo-arms decisions). The left elbow turns up 2° for each lower string, as on the
- * cello of the dog: with 10°, the thick left upper arm went 7.0 cm into the contrabass (6.4 cm
- * with 2°). The left paw tilts 55° over the neck, as the paw of the dog: with the 30° of the floor
- * hold, the left arm went 6.9 cm into the body (5.6 cm with 55°). In the high positions, the thick
- * left forearm crosses the upper bout, and no left elbow, tilt, or place of the contrabass that
- * keeps the upper bout out of the chest changed it.
+ * lowest string went 9.1 cm into the belly. The right elbow points forward, out, and a little
+ * down, also in pizzicato, and the left elbow points out to the left, a little down, and forward.
+ * The user chose lower elbows with the twist bone of the upper arm (the 2026-10-19-arm-skin
+ * decisions): with the level elbow, the right upper arm rolled 86° on the median of the play, and
+ * the shoulder skin twisted into a flat band. With the elbow down and out, (1, -1.5, -0.5), the
+ * right forearm went 8.2 cm into the belly on `beethoven-9`, so the elbow comes forward past the
+ * belly: there, the forearm goes 2.7 cm in, 0.3 cm deeper than with the level elbow, and the
+ * upper arm rolls 83°, of which the shoulder ring takes 30°. With the left elbow up and back, the
+ * left upper arm turned 80° (28° now, the 2026-10-19-hippo-arms decisions). The left elbow turns
+ * up 2° for each lower string, as on the cello of the dog: with 10°, the thick left upper arm went
+ * 7.0 cm into the contrabass (6.4 cm with 2°). The left paw tilts 55° over the neck, as the paw of
+ * the dog: with the 30° of the floor hold, the left arm went 6.9 cm into the body (5.6 cm with
+ * 55°). In the high positions, the thick left forearm crosses the upper bout, and no left elbow,
+ * tilt, or place of the contrabass that keeps the upper bout out of the chest changed it.
  *
  * The right elbow lies near the backward line of the stick, and on the E and the A strings it lies
  * near the far side of the stick for the roll of the hand. With the far side at 180°, a change of
@@ -810,9 +812,9 @@ const HIPPO_HOLD = {
   tiltL: 55 * MathUtils.DEG2RAD,
   poleL: [-1, -0.3, -0.7],
   elbowPerString: 2 * MathUtils.DEG2RAD,
-  poleR: [1.5, 0, -1],
-  poleTipR: [1.5, 0, -1],
-  polePizzicato: [1.5, 0, -1],
+  poleR: [1.5, -0.5, -2],
+  poleTipR: [1.5, -0.5, -2],
+  polePizzicato: [1.5, -0.5, -2],
   farSideR: 30 * MathUtils.DEG2RAD,
   restPoleR: [1, -1, 0],
   restPoleL: [-1, -0.5, 0],
