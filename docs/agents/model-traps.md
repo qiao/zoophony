@@ -57,6 +57,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The short arms of the elephant do not reach across its trunk, and a third kettle of the real size
   stands behind the shoulder and cuts into the body. Use `PercussionHold.rim`, `sides`, `home`, and
   `pair` with `TIMPANI.side`, and scan them with `pnpm pose-depth --targets`.
+- A species with several instruments in one seat, as the badger, needs one role for each
+  instrument, the gallery query `only=<instrument>`, and `--at <species>:<instrument>`. A part that
+  no demo plays needs the percussion test score of `tools/probe-demos.ts`.
+- Short arms cannot hold the cymbals of the app (0.40 m) out of a round body at any arm factor up
+  to 1.25 (`cymbal-scan.txt` of `docs/research/2026-10-20-badger-mesh/`). Scan the plates against
+  the body before the arms of a mesh are chosen.
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit
   (`left-rest.ts` of `docs/research/2026-10-17-tan-rest/`).
 - Read the spare reach of each grip after each move of a rest place of a wind hold. `pnpm hold-fit`
