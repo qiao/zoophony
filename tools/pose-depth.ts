@@ -1250,6 +1250,8 @@ interface SpeciesDepth {
   readonly depth: number;
   /** The head height H of the body of the species, in meters. */
   readonly headHeight: number;
+  /** The demo and the time of the sample of the deepest point (`sampleAt()`). */
+  readonly at: string;
 }
 
 /**
@@ -1261,15 +1263,16 @@ interface SpeciesDepth {
  */
 function speciesDepths(results: readonly DemoResult[]): Map<string, SpeciesDepth> {
   const deepest = new Map<string, SpeciesDepth>();
-  for (const { species, headHeight, sets } of results) {
+  for (const { demo, species, headHeight, sets } of results) {
     const name = species ?? 'unknown';
     for (const { name: set, pairs } of sets) {
-      for (const { part, into, depth } of pairs) {
+      for (const { part, into, depth, song, wall } of pairs) {
         const pair = `${part} in ${into}`;
         const key = `${name}\t${set}\t${pair}`;
         const best = deepest.get(key);
         if (!best || depth > best.depth) {
-          deepest.set(key, { species: name, set, pair, depth, headHeight });
+          const at = sampleAt(demo, set, { song, wall });
+          deepest.set(key, { species: name, set, pair, depth, headHeight, at });
         }
       }
     }
@@ -1282,7 +1285,8 @@ function speciesDepths(results: readonly DemoResult[]): Map<string, SpeciesDepth
  * tree, in cm and in the head height H of each body. A body that grows keeps its depths in H, so
  * its depths in cm grow with it. The table has one row for each species, set, and pair with a
  * depth that prints as 0.1 cm or more on one side. A mark `GROWS` follows a depth whose value in H grows by more than one step
- * of the print ({@link DEPTH_STEP}) in the H of the body of the working tree.
+ * of the print ({@link DEPTH_STEP}) in the H of the body of the working tree. The last column
+ * gives the demo and the time of the deepest point of the working tree.
  *
  * @param label The name of the commit, such as `main (ac0f4d56)`.
  * @param base The results of the commit.
@@ -1311,8 +1315,8 @@ export function compareDepths(
     d ? (d.depth / d.headHeight).toFixed(3) : '-';
   const lines = [
     `H of each body, ${label} -> working tree: ${heights.join(', ')}`,
-    `| Species | Set | Pair | ${label} cm | ${label} H | tree cm | tree H | Mark |`,
-    '|---|---|---|---:|---:|---:|---:|---|',
+    `| Species | Set | Pair | ${label} cm | ${label} H | tree cm | tree H | Mark | tree at |`,
+    '|---|---|---|---:|---:|---:|---:|---|---|',
   ];
   for (const name of species) {
     for (const key of keys.filter((k) => k.startsWith(`${name}\t`))) {
@@ -1326,7 +1330,7 @@ export function compareDepths(
       const grows =
         a && b && b.depth / b.headHeight - a.depth / a.headHeight > DEPTH_STEP / b.headHeight;
       lines.push(
-        `| ${name} | ${any.set} | ${any.pair} | ${cm(a)} | ${inH(a)} | ${cm(b)} | ${inH(b)} | ${grows ? 'GROWS' : ''} |`,
+        `| ${name} | ${any.set} | ${any.pair} | ${cm(a)} | ${inH(a)} | ${cm(b)} | ${inH(b)} | ${grows ? 'GROWS' : ''} | ${b?.at ?? '-'} |`,
       );
     }
   }
