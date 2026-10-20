@@ -3,6 +3,25 @@
   "output": "assets/models/wolf/wolf.rig.glb",
   "name": "Wolf",
   "weld": 1e-05,
+  "soften": {
+    "box": [
+      [
+        0,
+        0.87,
+        0.04
+      ],
+      [
+        0.1,
+        0.935,
+        0.135
+      ]
+    ],
+    "angle": 40,
+    "share": 0.5,
+    "rounds": 4,
+    "most": 0.006,
+    "note": "The user, 2026-10-20: \"still sad\", and chose \"Soften the crease\". The brow ridge of the mesh has a sharp crease over each eye that goes down to the outer side (edges of 40 to 110 degrees at y 0.875 to 0.925, |x| up to 0.07, z 0.05 to 0.13, in the units of the source before the proportions). In the light of the stage and of the gallery, it shades as a dark line, the brow of a sad face, and no color rule removes it. The 75 vertices of these edges move half of the way to the mean of their neighbors in 4 rounds, at most 0.006 u (1.1 cm in the app). 0.003 u left a weaker line, and 0.010 u changed the form of the forehead (docs/research/2026-10-20-wolf-brows.md)."
+  },
   "proportions": {
     "width": 1.13064,
     "height": 0.84798,
