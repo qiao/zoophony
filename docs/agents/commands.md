@@ -16,7 +16,8 @@ prints only a one-line usage text.
   species share, and the tool names the other paths that move. A list of numbers takes
   `-1,0,0` or `[-1,0,0]`, and a turn of a wind hold `holdTurn(<x>,<z>)` in degrees. A
   text takes a member of its union, and an object, a list, or `null` takes JSON text. The root `<species>` changes
-  an instrument scale, such as `mouse.oboeScale=0.62`. Code: `tools/hold-sets.ts`.
+  an instrument scale, such as `mouse.oboeScale=0.62`, or the form of its cymbals, such as
+  `badger.cymbalForm=suspended`. Code: `tools/hold-sets.ts`.
 - **`--base <ref>`.** Runs a commit, a branch, or a tag beside the working tree, each in a child
   process with its own tools (`probeBeside()` of `tools/ref-tree.ts`), and prints a compare. A
   role that the commit does not have stops the run. Two JSON formats compare only when the newer

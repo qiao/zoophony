@@ -6,6 +6,7 @@ import { CONDUCTOR_HOLD, LEFT_HAND_PLACES } from '../src/pose/conductor.ts';
 import {
   BASS_DRUM,
   SNARE_DRUM,
+  SUSPENDED_CYMBAL,
   TAMBOURINE,
   TIMPANI,
   TRIANGLE,
@@ -13,9 +14,14 @@ import {
 } from '../src/models/instruments/percussion.ts';
 import { SCALE_PARAMS, SPECIES, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
+import type { CymbalForm } from '../src/models/instruments/types.ts';
 import { HANDS_HOLDS } from '../src/pose/hands.ts';
 import type { HandAction } from '../src/pose/hand-notes.ts';
-import { PERCUSSION_HOLDS, PERCUSSION_PLACES } from '../src/pose/percussion-rig.ts';
+import {
+  PERCUSSION_HOLDS,
+  PERCUSSION_PLACES,
+  SUSPENDED_CYMBAL_HOLD,
+} from '../src/pose/percussion-rig.ts';
 import type { HandsRule, MalletAcross, MalletTop } from '../src/pose/percussion-rig.ts';
 import type { Fingering } from '../src/pose/wind-notes.ts';
 import { IDENTITY } from '../src/models/tuples.ts';
@@ -42,8 +48,10 @@ const OWN_HOLDS = Object.fromEntries(
  * it, and `violin@rabbit` does. `kettles` changes the place of the kettles of the timpani
  * (`TIMPANI`), which the model of a scene reads when the tool builds it, and `percussion` the
  * places of the hands of a percussion player (`PERCUSSION_PLACES`). `bassDrum`, `snareDrum`,
- * `tambourine`, `triangle`, and `bars` change the bass drum, the snare drum, the tambourine, the
- * triangle, and the xylophone in the same way.
+ * `suspendedCymbal`, `tambourine`, `triangle`, and `bars` change the bass drum, the snare drum,
+ * the suspended cymbal, the tambourine, the triangle, and the xylophone in the same way.
+ * `suspended-cymbal` changes the hold of a species with a suspended cymbal
+ * (`SpeciesParams.cymbalForm`), and `cymbals` the hold of the hand cymbals.
  */
 const HOLDS = {
   piano: HANDS_HOLDS.piano,
@@ -58,11 +66,13 @@ const HOLDS = {
   'bass-drum': PERCUSSION_HOLDS['bass-drum'],
   'snare-drum': PERCUSSION_HOLDS['snare-drum'],
   cymbals: PERCUSSION_HOLDS.cymbals,
+  'suspended-cymbal': SUSPENDED_CYMBAL_HOLD,
   'small-percussion': PERCUSSION_HOLDS['small-percussion'],
   xylophone: PERCUSSION_HOLDS.xylophone,
   kettles: TIMPANI,
   bassDrum: BASS_DRUM,
   snareDrum: SNARE_DRUM,
+  suspendedCymbal: SUSPENDED_CYMBAL,
   tambourine: TAMBOURINE,
   triangle: TRIANGLE,
   bars: XYLOPHONE,
@@ -504,6 +514,46 @@ function setScale(species: SpeciesId, keys: readonly string[], text: string): Ho
   };
 }
 
+/** The forms of the cymbals that `<species>.cymbalForm` takes (`SpeciesParams.cymbalForm`). */
+const CYMBAL_FORMS = Object.keys({ hand: true, suspended: true } satisfies Record<
+  CymbalForm,
+  true
+>);
+
+/**
+ * Changes the form of the cymbals of a species in memory, such as `badger.cymbalForm=suspended`.
+ * A form that the species does not give is `hand`, and the undo removes it again.
+ *
+ * @param species The species, the root of the path.
+ * @param text The new form.
+ * @returns The change.
+ * @throws Error if the text is not a form of {@link CYMBAL_FORMS}.
+ */
+function setCymbalForm(species: SpeciesId, text: string): HoldChange {
+  const form = CYMBAL_FORMS.find((f) => f === text);
+  if (form === undefined) {
+    throw new Error(
+      `The form "${text}" of ${species}.cymbalForm is not one of ${CYMBAL_FORMS.join(', ')}.`,
+    );
+  }
+  const params: SpeciesParams = SPECIES[species];
+  const had = Object.hasOwn(params, 'cymbalForm');
+  const old = params.cymbalForm;
+  Reflect.set(params, 'cymbalForm', form);
+  return {
+    undo: () => {
+      if (had) {
+        Reflect.set(params, 'cymbalForm', old);
+      } else {
+        Reflect.deleteProperty(params, 'cymbalForm');
+      }
+    },
+    before: old ?? 'hand',
+    after: form,
+    also: [],
+  };
+}
+
 /**
  * Parses one number of a `--set` value. A number with the unit `deg` is an angle in degrees, and
  * the hold gets it in radians.
@@ -620,7 +670,8 @@ function copyPath(hold: object, keys: readonly string[]): PathCopy {
  * changes only that species. A change with the root of an instrument, such as
  * `violin.restBow.lap.along`, changes the shared object, and gives the other paths that it moves
  * too, such as `viola.restBow.lap.along`. A path with the id of a species as the root changes a
- * scale of an instrument of the species ({@link setScale}), such as `mouse.oboeScale=0.8`.
+ * scale of an instrument of the species ({@link setScale}), such as `mouse.oboeScale=0.8`, or the
+ * form of its cymbals ({@link setCymbalForm}), such as `badger.cymbalForm=suspended`.
  *
  * @param change The change, as `<path>=<value>`.
  * @returns A function that puts the old value back, the texts of the old and the new value, and
@@ -636,7 +687,9 @@ export function setHold(change: string): HoldChange {
   const text = change.slice(equals + 1);
   const [first = '', ...keys] = path.split('.');
   if (isSpeciesId(first)) {
-    return setScale(first, keys, text);
+    return keys.length === 1 && keys[0] === 'cymbalForm'
+      ? setCymbalForm(first, text)
+      : setScale(first, keys, text);
   }
   const hold = entryOf(HOLDS, first)?.[1];
   if (!(hold instanceof Object) || keys.length === 0) {
