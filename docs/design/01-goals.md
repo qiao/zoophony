@@ -92,9 +92,10 @@ side.
   (`docs/decisions/2026-10-20-mesh-badger.md`).
 - The wolf sits on a chair at the right, with the clarinet, beside the dog cellists. The mesh of
   the user is the target of the form of the wolf, and these two images gave its size against the
-  dogs (`docs/decisions/2026-10-20-mesh-wolf.md`). The user then made the wolf 0.9 times as high
-  and 1.2 times as wide, so the seated wolf is a little lower than the dogs, and this request wins
-  over the images (`docs/decisions/2026-10-20-wolf-shape.md`).
+  dogs (`docs/decisions/2026-10-20-mesh-wolf.md`). The user then made the body of the wolf 0.9
+  times as high and 1.2 times as wide, with the head at its size, so the seated wolf is about as
+  high as the dogs, and this request wins over the images
+  (`docs/decisions/2026-10-20-wolf-shape.md`).
 
 The reference image [`reference/fox-views.png`](../reference/fox-views.png) (2494 × 1354 px)
 shows the red fox of the violins from the front, the side, and the back, on a chair. The user

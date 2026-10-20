@@ -5,13 +5,18 @@
   "weld": 1e-05,
   "proportions": {
     "width": 1.2,
-    "height": 0.9
+    "height": 0.9,
+    "keep": "head",
+    "blend": [
+      0.74,
+      0.775
+    ]
   },
-  "proportionsNote": "The user, 2026-10-20: \"make the wolf 0.9x shorter while keeping its width\", then \"actually, make the wolf 1.2x the width, for it to have similar body ratio as the fox\", then \"both change\". The source takes 1.2 of its width (x) and 0.9 of its height (y) after its scale to 1 unit high, and keeps its depth (z), a choice of the manager. The meters for each unit stay, so the standing body is 0.9 times as high and 1.2 times as wide as in round mesh-wolf. Each place, height, width, and box of this config is in the units of the scaled source. The notes give the measures of round mesh-wolf on the source before the scale: x then takes 1.2, and y 0.9 (docs/research/2026-10-20-wolf-shape/shape_config.py). The cuts of the scaled source check the joints (docs/research/2026-10-20-wolf-shape/arm-axis.txt, paw.txt).",
+  "proportionsNote": "The user, 2026-10-20: \"make the wolf 0.9x shorter while keeping its width\", then \"actually, make the wolf 1.2x the width, for it to have similar body ratio as the fox\", then \"both change\". The source takes 1.2 of its width (x) and 0.9 of its height (y) after its scale to 1 unit high, and keeps its depth (z), a choice of the manager. The meters for each unit stay, so the standing body is 0.9 times as high and 1.2 times as wide as in round mesh-wolf. Each place, height, width, and box of this config is in the units of the scaled source. The notes give the measures of round mesh-wolf on the source before the scale: x then takes 1.2, and y 0.9 (docs/research/2026-10-20-wolf-shape/shape_config.py). The cuts of the scaled source check the joints (docs/research/2026-10-20-wolf-shape/arm-axis.txt, paw.txt). The user then said: \"don't modify the head of the wolf\". With keep, the head (the skull, the muzzle, the ears, and the eyes) keeps the form and the size of round mesh-wolf and takes no factor: it moves with the top of the neck. The blend zone is the narrow neck of the source before the factors, from y 0.74, where the neck is narrow above the tops of the shoulders (x \u00b10.082 at 0.74, \u00b10.068 at 0.76), to the head line at 0.775 (weights.headFrom before the factors), where the chin starts (docs/research/2026-10-20-wolf-mesh/measures.txt). A zone from the neck joint at 0.70 took the top of the right shoulder, and one face there folded in each rest sample (docs/research/2026-10-20-wolf-head/check-0.70.log). The head joints, the ear joints, the eye box, the nose box, and the heights of the head weights take the map of the rule (docs/research/2026-10-20-wolf-head/head_config.py).",
   "app": {
     "shoulders": 1.032773,
     "reach": 0.5081,
-    "note": "The size of the reference images, then the proportions above. In round mesh-wolf, the seated wolf sat 1.10 times as high as the seated dog cellist of the app, the middle of the range 1.03 to 1.16 of orchestra-latest.png and orchestra-side.png (docs/research/2026-10-20-wolf-mesh/landmark-probe.txt): the seated skull top at 1.600 m, and the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9459 u) at 1.765 m. The proportions keep the meters for each unit, 1.8659 m, so the standing shoulder joints go from 0.615 u (1.147526 m) to 0.5535 u (1.032773 m), the standing skull top to 0.8513 u (1.589 m), and the seated skull top to 1.441 m (docs/research/2026-10-20-wolf-shape/size-round.txt). The reach is the reach of round mesh-wolf, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "note": "The size of the reference images, then the proportions above. In round mesh-wolf, the seated wolf sat 1.10 times as high as the seated dog cellist of the app, the middle of the range 1.03 to 1.16 of orchestra-latest.png and orchestra-side.png (docs/research/2026-10-20-wolf-mesh/landmark-probe.txt): the seated skull top at 1.600 m, and the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9459 u) at 1.765 m. The proportions keep the meters for each unit, 1.8659 m, so the standing shoulder joints go from 0.615 u (1.147526 m) to 0.5535 u (1.032773 m), the standing skull top to 0.8684 u (1.620 m), because the head keeps its size, and the seated skull top to 1.470 m (docs/research/2026-10-20-wolf-head/size-round.txt). The reach is the reach of round mesh-wolf, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
   "armFactor": 1.178,
   "armFactorNote": "The factor of the upper arm and the forearm. The parametric wolf of 3268680f plays the clarinet with a reach of 0.516 m, and round mesh-wolf took 0.508 m, the smallest stretch for that reach. On the scaled source, the arm with no factor reaches 0.439 m, and the factor 1.178 gives 0.508 m, below the limit 1.25 of a mesh of the user (pnpm rig-mesh wolf --check, docs/research/2026-10-20-wolf-shape/check-first.log).",
@@ -78,24 +83,24 @@
     "head": {
       "head": [
         0,
-        0.702,
+        0.7025,
         0.022
       ],
       "tail": [
         0,
-        0.85131,
+        0.8684,
         0.04
       ]
     },
     "ear_L": {
       "head": [
-        0.0648,
-        0.828,
+        0.054,
+        0.8425,
         0.043
       ],
       "tail": [
-        0.08976,
-        0.89946,
+        0.0748,
+        0.9219,
         0.0691
       ]
     },
@@ -313,8 +318,8 @@
     "stretchRamp": 0,
     "headFrom": 0.6975,
     "earBase": [
-      0.8055,
-      0.837
+      0.8175,
+      0.8525
     ],
     "tail": {
       "radius": 0.08,
@@ -342,11 +347,11 @@
     ],
     "armTop": [
       0.6228,
-      0.6678
+      0.667769
     ],
     "shoulderHead": [
-      0.048,
-      0.0792
+      0.044,
+      0.0726
     ],
     "fingers": 0.5,
     "haunch": {
@@ -417,25 +422,25 @@
     "eyeShare": 0.34,
     "eyeBox": [
       [
-        0.018,
-        0.756,
+        0.015,
+        0.7625,
         0.1
       ],
       [
-        0.06,
-        0.7875,
+        0.05,
+        0.7975,
         0.14
       ]
     ],
     "noseBox": [
       [
-        -0.03,
-        0.7155,
+        -0.025,
+        0.7175,
         0.17
       ],
       [
-        0.03,
-        0.7515,
+        0.025,
+        0.7575,
         0.205
       ]
     ],
