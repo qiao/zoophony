@@ -330,9 +330,11 @@ export const SPECIES = {
    * Wolf, the clarinets: a gray wolf with a cream chest, belly, and muzzle, dark lower legs, and a
    * bushy tail with a cream tip. It has the studio body of the mesh of the user,
    * `assets/models/wolf/wolf.glb`, which `pnpm rig-mesh wolf` rigs (design 4.4), with the size of
-   * the reference images (2026-10-20-mesh-wolf decisions). It sits on a chair that fits its legs,
-   * with the tail back over the seat and down behind it, and stands as a soloist. Its head height
-   * is the head of the studio body, and the seat height is the seat of the studio body, in H.
+   * the reference images (2026-10-20-mesh-wolf decisions), then 0.9 of the height and 1.2 of the
+   * width that the user asked for (2026-10-20-wolf-shape decisions). It sits on a chair that fits
+   * its legs, with the tail back over the seat and down behind it, and stands as a soloist. Its
+   * head height is the head of the studio body, and the seat height is the seat of the studio
+   * body, in H.
    */
   wolf: {
     body: 'studio-wolf',
