@@ -462,11 +462,21 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       wrist on the neck, and the front of the right shoulder. The user saw twisted arms. Done: a
       cut of both armpits, level elbows, two more shapes, and three rigid faces. The rest folds
       in no sample (`2026-10-19-hippo-arms.md`).
-- [ ] Hippo bassist: the skin folds in 13.6% of the play samples (the lift and the rest in none):
-      the pizzicato of `boulanger-matin` (6.1%), face 237 of the right shoulder top (6.5%), and
-      the inner right elbow. In pizzicato, the upper arm turns 111° and the paw 131°, and no hold
-      or shape of 35 tried removes the folds. Try a pizzicato that keeps the arm of the bow
-      (`step2/` of `docs/research/2026-10-19-hippo-arms/`, `2026-10-19-hippo-arms.md`).
+- [x] Hippo bassist: the user saw the arms still twisted and deformed in the play. Done: the twist
+      bone of the upper arm, the right elbow forward and a little down, a trunk rule under the
+      armpit, and new shapes. The shoulder ring turns 30° (56°), and the dark spikes go
+      (`refit-hippo-views.webp` of `docs/research/2026-10-19-arm-skin/`, `2026-10-19-arm-skin.md`).
+- [ ] Hippo bassist: the skin folds in 9.5% of the play samples (the lift and the rest in none):
+      the pizzicato of `boulanger-matin` (4.7%), faces 258 and 442 of the right shoulder (2.6%,
+      2.0%), and the left clavicle (1.5%). In pizzicato, the paw turns about 134° on the forearm,
+      and a shape of the bent wrist moved the folds to faces 434 and 436. Try a pizzicato that
+      keeps the arm of the bow (`refit-hippo-rigs.txt` of `docs/research/2026-10-19-arm-skin/`).
+- [ ] Hippo bassist: the shoulder ring of the bow arm keeps a flat share of 0.68 (goal 0.80), and
+      8 shoulder faces stretch more than 1.8 times (`pnpm arm-shape bassist`). The renders show no
+      flat band. One shape of `raise` is free (`2026-10-19-arm-skin.md`).
+- [ ] Hippo bassist: with the forward elbow, the right forearm goes 1.2 cm deeper into the body in
+      the lift and 1.8 cm in the lowering (`refit-hippo-depths.txt`). Fit `restPoleR` or the via
+      of the rest bow, and count the roll jumps of the bow paw again (`2026-10-18-hippo-arm.md`).
 - [x] Hippo bassist: the dark slot at the front of the right armpit is the shading of the cut
       caps, whose normals point away from the light. Done: the caps of the arm take the normals
       of the skin around them, also on the elephant and the beaver (`2026-10-19-cut-caps.md`).
