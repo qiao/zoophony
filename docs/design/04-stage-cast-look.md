@@ -379,7 +379,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   its head. `pnpm rig-mesh --check` and `pnpm mesh-options` warn when the tip and the mouth lie
   off the middle plane (`noseWarning()`). The head measures (the head height `H`, the head center, and the box of the pea eyes)
   leave out a long nose below the chin, as the trunk of the elephant (`headFloor` of `ANIMALS`),
-  because the holds in `H` start at the head.
+  because the holds in `H` start at the head. Each pea eye faces out from the middle of the head
+  that shows. A large head box behind the eyes turns them up, and such eyes look up, so a body
+  can turn its eyes level (`eyeLevel` of `ANIMALS`, the wolf).
 - **Mesh rig.** `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format
   of a studio body with Blender. The config `tools/mesh-rigs/<animal>.json` gives the joints,
   measured on cuts of the mesh, and the rules below, each with a note. The decision files of the
@@ -451,7 +453,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     of the patches along the crease between the lips, with the corners up, so that the corners
     show beside a mouthpiece. A band takes no face that turns to the side (`outward`), because
     such a face shows as a dark block in a side view. The panda has both rules
-    (`docs/decisions/2026-10-18-panda-face.md`).
+    (`docs/decisions/2026-10-18-panda-face.md`). The wolf has both rules too: its patch rule
+    ends the gray stripe of the forehead at a level line over the eyes, and its smile line takes
+    a dark color of its own (`color`), because its gray patches are too light for a line
+    (`docs/decisions/2026-10-20-wolf-face.md`).
   - Tail. `tail_tip` gives a tail of two bones (`OPTIONAL_STUDIO_BONES`), and `studio.tailCurl`
     bends the seated tail: the cat curls it on the seat, and the dog hangs it down behind the seat
     (`docs/decisions/2026-10-17-dog-tail.md`). A curled tail does not sway (5.1). The long thin tail
@@ -807,7 +812,7 @@ the head center. The table gives the parts of the parametric body (4.4).
 | Torso and neck | `models/trunk.ts` | A round pear torso with the belly forward, as in `animals.webp`, and a short neck that the torso and the head hide. |
 | Arms and hands | `models/arms.ts` | Two limbs for each arm and a round mitten. A dome around the shoulder joint sinks into the torso in each pose. |
 | Legs and feet | `models/legs.ts` | The short legs of 4.3, with round shoes on the floor or on the foot ring of a high stool. |
-| Eyes | `models/eyes.ts` | Two black upright ovals with a white light, between the front and the sides of the head, so that the side view shows them. The studio bodies have the same eyes. No mouth, except the smile line of the panda mesh (4.4). |
+| Eyes | `models/eyes.ts` | Two black upright ovals with a white light, between the front and the sides of the head, so that the side view shows them. The studio bodies have the same eyes. No mouth, except the smile lines of the panda and the wolf meshes (4.4). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). |
 | Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long muzzle reaches past the mouthpiece of a wind instrument. |
 | Tails | `models/tails.ts` | The tail type of the species (4.3). A long tail goes back through the open back of the chair. |

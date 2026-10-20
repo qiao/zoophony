@@ -327,6 +327,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       soloist: true,
       constant: 'STUDIO_WOLF',
       crease: 35,
+      eyeLevel: true,
       glb: 'assets/models/wolf/wolf.rig.glb',
     },
   ],
