@@ -11,17 +11,17 @@ name is the number of its section. Thus a pointer "design X.Y" names the heading
 of section X. For example, design 4.5 is the heading "4.5 Visual values" in
 `design/04-stage-cast-look.md`. Read only the files of your area.
 
-| File | Section and scope |
-|---|---|
-| [`01-goals.md`](design/01-goals.md) | 1. Goals and budgets: the platform, the budgets, and the reference images |
-| [`02-product.md`](design/02-product.md) | 2. Product: input, first screen, layout, play and keyboard, camera, quality tiers, privacy, and UI spec (2.1 to 2.8) |
-| [`03-midi-to-seats.md`](design/03-midi-to-seats.md) | 3. From MIDI to seats: pipeline, data model, file rules, ports and channels, program map, channel 10, seats, and players (3.1 to 3.8) |
-| [`04-stage-cast-look.md`](design/04-stage-cast-look.md) | 4. Stage, cast, and look: look, layout, species, models, visual values, model inventory, and rig (4.1 to 4.7) |
-| [`05-animation.md`](design/05-animation.md) | 5. Animation: pose index, pose function, rest pose, instrument motion, conductor, silent seats, and camera shots (5.1 to 5.6) |
-| [`06-audio.md`](design/06-audio.md) | 6. Audio: engine, SoundFont, load flow, block scheduler, seek and pause, mute and solo, clock, and interfaces (6.1 to 6.8) |
-| [`07-architecture.md`](design/07-architecture.md) | 7. Architecture: modules, first download, and third-party licenses (7.1 to 7.3) |
-| [`08-demos.md`](design/08-demos.md) | 8. Demos: license rules, list, changes to the files, OpenScore files, and demo tests (8.1 to 8.5) |
-| [`09-process.md`](design/09-process.md) | 9. Process: repository, CI, tests, manual test, order of work, docs, targets, and reviews (9.1 to 9.8) |
+| File                                                    | Section and scope                                                                                                                     |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| [`01-goals.md`](design/01-goals.md)                     | 1. Goals and budgets: the platform, the budgets, and the reference images                                                             |
+| [`02-product.md`](design/02-product.md)                 | 2. Product: input, first screen, layout, play and keyboard, camera, quality tiers, privacy, and UI spec (2.1 to 2.8)                  |
+| [`03-midi-to-seats.md`](design/03-midi-to-seats.md)     | 3. From MIDI to seats: pipeline, data model, file rules, ports and channels, program map, channel 10, seats, and players (3.1 to 3.8) |
+| [`04-stage-cast-look.md`](design/04-stage-cast-look.md) | 4. Stage, cast, and look: look, layout, species, models, visual values, model inventory, and rig (4.1 to 4.7)                         |
+| [`05-animation.md`](design/05-animation.md)             | 5. Animation: pose index, pose function, rest pose, instrument motion, conductor, silent seats, and camera shots (5.1 to 5.6)         |
+| [`06-audio.md`](design/06-audio.md)                     | 6. Audio: engine, SoundFont, load flow, block scheduler, seek and pause, mute and solo, clock, and interfaces (6.1 to 6.8)            |
+| [`07-architecture.md`](design/07-architecture.md)       | 7. Architecture: modules, first download, and third-party licenses (7.1 to 7.3)                                                       |
+| [`08-demos.md`](design/08-demos.md)                     | 8. Demos: license rules, list, changes to the files, OpenScore files, and demo tests (8.1 to 8.5)                                     |
+| [`09-process.md`](design/09-process.md)                 | 9. Process: repository, CI, tests, manual test, order of work, docs, targets, and reviews (9.1 to 9.8)                                |
 
 ## 10. Decisions to confirm
 
@@ -253,3 +253,4 @@ The decision files:
 - [`2026-10-20-wolf-shape.md`](decisions/2026-10-20-wolf-shape.md): the wolf 0.9 times as high and 1.2 times as wide that the user asked for, with the head at its size, the proportions rule of a mesh rig and its head keep, the conflict with the size of the orchestra images, the joints, the arms, the chair, the tail, and the rigid faces of the new form.
 - [`2026-10-20-wolf-face.md`](decisions/2026-10-20-wolf-face.md): the head of the wolf at the size of the head of the red fox with a smaller body, the head factor of the proportions rule, the clarinet hold for the larger head, and the happy face: level brows, level pea eyes, and a thin smile line.
 - [`2026-10-20-pea-eyes.md`](decisions/2026-10-20-pea-eyes.md): the pea eyes of the studio bodies bent to the head surface, their middle on the surface, the light on the front of a bent eye, and the flat eyes of the bear.
+- [`2026-10-20-camera-lower.md`](decisions/2026-10-20-camera-lower.md): the default view and the Cinematic shots that the user asked to be slightly lower, and the conflict with the camera of `orchestra-latest.png`.
