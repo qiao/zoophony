@@ -458,22 +458,22 @@
       ],
       "radii": [
         1.0,
-        0.125
+        0.11
       ],
       "box": [
         [
           0,
           0.72,
-          0.1
+          0.0
         ],
         [
-          0.07,
-          0.8,
+          0.1,
+          0.82,
           1.0
         ]
       ],
-      "dark": 0.6,
-      "note": "The user, 2026-10-20: \"the wolf look sad now. make it look happier\". The dark gray stripe of the forehead came down between the eyes to the bridge of the nose (y 0.74), and its two slanted edges read as raised inner brows, a worried face. Each dark fur face (Oklab lightness below 0.6) in the box between and over the eyes, or in its mirror, with a corner below the flat bottom of the wide ellipse (y 0.775 at the middle, 0.7756 at |x| 0.1) takes the color of the nearest light fur face: 8 faces, 4 on each side. The gray over the eyes then ends at a level line, as the level brows of wolf-turnaround.png (docs/research/2026-10-20-wolf-face.md)."
+      "dark": 0.68,
+      "note": "The user, 2026-10-20: \"the wolf look sad now. make it look happier\", then \"the face is still sad, mainly due to the eye brow?\". Over each eye, a gray band rose from the outer side to the inner top, so the two bands made sad brows with raised inner ends (/ \\). The faces of the bands lie back from the front of the muzzle (z below 0.1) and out to |x| 0.1, and the gray of the eye rims is near Oklab lightness 0.66. Each fur face with Oklab lightness below 0.68 in the box over and beside the eyes, or in its mirror, with a corner below the flat bottom of the wide ellipse (y 0.79 at the middle) takes the color of the nearest light fur face: 71 faces. The gray cap then ends at a level line over the eyes, and the eyes sit in light fur, as in wolf-turnaround.png. The manager chose the variant in the live Blender of the user and in the head views of the app; dark 0.6 kept the bands, and dark 0.72 took 9 more faces with no visible gain (docs/research/2026-10-20-wolf-brows.md)."
     },
     "smile": {
       "bands": [

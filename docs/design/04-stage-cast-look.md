@@ -454,7 +454,7 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     show beside a mouthpiece. A band takes no face that turns to the side (`outward`), because
     such a face shows as a dark block in a side view. The panda has both rules
     (`docs/decisions/2026-10-18-panda-face.md`). The wolf has both rules too: its patch rule
-    ends the gray stripe of the forehead at a level line over the eyes, and its smile line takes
+    ends the gray cap of the forehead at a level line over the eyes, so the eyes sit in light fur, and its smile line takes
     a dark color of its own (`color`), because its gray patches are too light for a line
     (`docs/decisions/2026-10-20-wolf-face.md`).
   - Tail. `tail_tip` gives a tail of two bones (`OPTIONAL_STUDIO_BONES`), and `studio.tailCurl`
