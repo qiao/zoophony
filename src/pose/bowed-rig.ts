@@ -670,11 +670,22 @@ export const BOWED_HOLDS = {
  * With 20°, the fingers still point down to the strings, and the wrist bends 48° (30° on `main`).
  * The rest of the depth of the forearm at the upper bout is accepted until the user decides
  * (2026-10-17-cat-hand decisions).
+ *
+ * The left paw tilts 45° over the neck (`tiltL`, 30° in the chin hold), so that it curls around
+ * the neck and the fingers come down on the strings from above, as a real violist holds the neck
+ * (`docs/reference/string-technique.md`, section 1.9). With 30°, the paw turned 157° on its
+ * forearm from the bind, and the skin of the wrist under the neck pinched into a twisted band of
+ * thin faces: the wrist ring kept 0.58 of its narrow axis in the bind. With 45°, the paw turns 148°,
+ * the wrist ring keeps 0.69, the left forearm goes 1.5 cm into the viola in the play (2.5 cm with
+ * 30°), and the wrist bends 30° from the line of the forearm (15° with 30°). With 40°, the wrist
+ * kept a crease, and with 50°, the wrist bent 34°. In the fifth position, the paw tilts 65° with
+ * `highTilt` (2026-10-20-cat-left-arm decisions).
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
   stringTurn: 11 * MathUtils.DEG2RAD,
   playShift: [0.05, -0.05, 0.17],
+  tiltL: 45 * MathUtils.DEG2RAD,
   poleL: [-1, -1, -0.75],
   elbowPerString: 2 * MathUtils.DEG2RAD,
   highTilt: 20 * MathUtils.DEG2RAD,

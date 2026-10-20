@@ -195,6 +195,21 @@ violin, by 0.32 mm on the cello, and by 0.52 mm on the double bass (derived from
   the A string [34 (abstract)].
 - **Double bass.** No source.
 
+### 1.9 The hand on the neck
+
+- **The thumb.** The thumb sits on the side of the neck, opposite the fingers. In the first
+  position, Auer puts it opposite the second finger, Galamian between the first and the second
+  fingers or opposite the first finger, Flesch and Ševčík opposite the first finger, and Suzuki
+  between the first finger and the nut [67]. Keep an open space between the base of the thumb and
+  the first finger, and do not squeeze the neck between the thumb and the fingers [67].
+- **The first finger.** The side of the first finger touches the neck lightly [67].
+- **The fingers.** The fingers keep a natural curve, and they move from the base joints, while the
+  hand stays still [68].
+- **The wrist.** "In low positions the back of the hand should be in a straight line with the
+  elbow, wherever possible." In the higher positions, the wrist bends outward. A wrist that gives
+  in very slightly can feel free, and a hand position that depends on a wrist that sticks out can
+  give tension [68].
+
 ## 2. The right arm and the bow
 
 ### 2.1 The bow hold and the bow
@@ -371,6 +386,14 @@ A round that changes the motion updates the items.
   that its fingers still point down to the strings. Its wrist then bends more than the straight
   wrist of a real player (decisions
   [`2026-10-17-cat-hand.md`](../decisions/2026-10-17-cat-hand.md)).
+- **The paw holds the neck** (section 1.9). `stopHandAt()` of `pose/bowed.ts` puts the paw below
+  the neck on the side of the high strings, with the palm toward the low strings, and tilts it
+  over the neck by `BowedHold.tiltL`, so that the fingers come down on the strings from above. The
+  paws have no thumb and one finger bone, so the app shows no thumb on the neck and no single
+  curved fingers. The cat tilts 45° (30° in the chin hold), so that its paw curls around the neck:
+  with 30°, the skin of its wrist under the neck pinched into a twisted band. Its wrist then
+  bends about 30° from the line of the forearm in the low positions, where a real player keeps it
+  straight (decisions [`2026-10-20-cat-left-arm.md`](../decisions/2026-10-20-cat-left-arm.md)).
 
 ### 3.2 The bow arm
 
@@ -641,3 +664,7 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
 66. Cellofun, "The spike (endpin)", seating posture. The page gave the HTTP status 502 on
     2026-10-17, and the fact comes from the summary of the manager of the session.
     https://cellofun.eu/home/cello-blog-encyclopaedia/mechanics-technique/basic-principles-of-technique/seating-posture/the-spike-endpin/
+67. S. Fischer, "Basics: The left thumb", The Strad.
+    https://www.simonfischeronline.com/uploads/5/7/7/9/57796211/046thumb.pdf
+68. S. Fischer, "Basics: Freeing the left hand", The Strad.
+    https://www.simonfischeronline.com/uploads/5/7/7/9/57796211/210_dec_freeing_the_left_hand.pdf
