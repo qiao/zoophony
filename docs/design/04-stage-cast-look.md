@@ -418,11 +418,12 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   on the surface (`eyeBend()`, `StudioEyes.bends`). Its rim then lies at the fur in each view, and
   its front stands out of the fur, as an eye on a flat face of a parametric head does. The light
   of a bent eye is a thin disc that lies flat on the front of the oval, so that it stands only
-  0.004 H out of the oval in each view (user, 2026-10-20). The face under the eyes of the bear twists, and a
-  bent oval there reads as a bean, so the bear keeps a flat oval that moves out until its front
-  face shows (`flatEyes` of `ANIMALS`, `eyePush()`). Its eyes turn halfway from their direction
-  toward the normal of the face (`eyeNormal`), so that the flat ovals lie nearer to the face that
-  faces up (user, 2026-10-20, `docs/decisions/2026-10-20-pea-eyes.md`).
+  0.004 H out of the oval in each view (user, 2026-10-20). An old eye of a mesh can lie on an
+  edge of the face that runs across the diagonal of the oval. A bent oval there folds along that
+  diagonal and reads as a bean, and a flat oval stands out as a bead. So a body can move its eye
+  places to a part of the face with less fold (`eyeShift` of `ANIMALS`, the bear). The eyes of
+  the bear also turn halfway from their direction toward the normal of the face (`eyeNormal`,
+  user, 2026-10-20, `docs/decisions/2026-10-20-bear-eyes.md`).
 - **Mesh rig.** `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format
   of a studio body with Blender. The config `tools/mesh-rigs/<animal>.json` gives the joints,
   measured on cuts of the mesh, and the rules below, each with a note. The decision files of the

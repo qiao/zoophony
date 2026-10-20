@@ -143,10 +143,9 @@ export interface AnimalSettings {
   readonly flatEyes?: boolean;
   /**
    * The share of the turn of each pea eye from its direction toward the mean normal of the head
-   * faces within 0.09 H of its place, from 0 to 1. The bear takes 0.5: its flat ovals then lie
-   * nearer to its face, which faces 39° up, with the rim 0.027 H out of the fur, and the front
-   * of each oval still shows (the choice of the user, 2026-10-20). With no value, each eye keeps
-   * its direction.
+   * faces within 0.09 H of its place, from 0 to 1. The bear takes 0.5, the choice of the user of
+   * 2026-10-20: its eyes then face halfway between their direction and its face, which faces
+   * about 29° up at the eyes. With no value, each eye keeps its direction.
    */
   readonly eyeNormal?: number;
   /**
@@ -183,8 +182,11 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       soloist: false,
       constant: 'STUDIO_BEAR',
       crease: 15,
-      flatEyes: true,
       eyeNormal: 0.5,
+      // The face under the old eyes folds along a diagonal edge of the muzzle, and a bent oval
+      // there reads as a bean. Out and a little down, the fold is about half as strong, and the
+      // eyes sit further apart, as on the sheet (docs/decisions/2026-10-20-bear-eyes.md).
+      eyeShift: [0.1, -0.02],
     },
   ],
   // The polar bear pianist: decisions/2026-10-14-polar-bench.md and 2026-10-14-polar-fix.md.
