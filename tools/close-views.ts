@@ -28,6 +28,7 @@ import { SPECIES, SPECIES_IDS, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { buildScore } from '../src/score/score.ts';
+import type { InstrumentId } from '../src/models/instruments/types.ts';
 import type { Score } from '../src/score/types.ts';
 import { SHOT_SEED, prepareShots } from '../src/shots/prepare.ts';
 import type { CameraPose, Shot } from '../src/shots/types.ts';
@@ -122,6 +123,12 @@ export interface LineCamera {
 export interface RoleViews {
   /** The species of the role, which the query `only` selects. */
   readonly species: SpeciesId;
+  /**
+   * The instrument of the role, which the query `only` selects in place of the species, for a
+   * species that plays several instruments, as the badger of the percussion. The gallery then
+   * shows one animal.
+   */
+  readonly instrument?: InstrumentId;
   /** The views, one column of the grid each. */
   readonly views: readonly CloseViewAngle[];
   /** The moments, one row of the grid each. */
@@ -136,7 +143,8 @@ export interface RoleViews {
  * A role with a close view: the bear conductor, the polar bear pianist, the rabbit violinist, the
  * red fox violinist, the cat violist, the dog cellist, the hippo bassist, the tan fox flutist, the
  * panda trombonist, the mouse oboist, the elephant timpanist, the beaver bassoonist, the pig
- * hornist, or the wolf clarinetist.
+ * hornist, the wolf clarinetist, or the badger bass drummer, snare drummer, cymbalist,
+ * percussionist, or xylophonist.
  */
 export type CloseRole =
   | 'conductor'
@@ -152,7 +160,12 @@ export type CloseRole =
   | 'timpanist'
   | 'bassoonist'
   | 'hornist'
-  | 'clarinetist';
+  | 'clarinetist'
+  | 'bass-drummer'
+  | 'snare-drummer'
+  | 'cymbalist'
+  | 'percussionist'
+  | 'xylophonist';
 
 /** The roles with a close view, in the order of the usage text. */
 const CLOSE_ROLES: readonly CloseRole[] = [
@@ -170,6 +183,11 @@ const CLOSE_ROLES: readonly CloseRole[] = [
   'bassoonist',
   'hornist',
   'clarinetist',
+  'bass-drummer',
+  'snare-drummer',
+  'cymbalist',
+  'percussionist',
+  'xylophonist',
 ];
 
 /**
@@ -219,6 +237,12 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  *   in the phrase, and the right paw stays in the bell.
  * - The wolf clarinetist: the views and the moments of the flutist. The side views and the back
  *   view also show the bushy tail, which goes back over the seat and hangs down behind it.
+ * - The badger of the percussion, who stands: one role for each instrument, with the front, both
+ *   sides, and the back. The moments are a strike of each hand or a crash, a time between two
+ *   strikes, the rest pose, and halfway through the lift and the lowering at the first strike.
+ *   The bass drummer strikes with the beater in the right paw, the snare drummer and the
+ *   xylophonist alternate their paws, the percussionist strikes the triangle in its left paw and
+ *   then the tambourine, and the xylophonist strikes the lowest and the highest bars.
  *
  * A new role gives its species, its views, its moments, and its test notes, with the camera
  * `{ kind: 'body', zoom: 1, elevation }`.
@@ -509,6 +533,104 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
     // A long G4, a rest, then a short phrase with the right paw fingers closed (D4) and open (C6).
     notes: ['0.5 1 G4', '2 0.25 D4', '2.25 0.25 C6', '2.5 0.25 E5'].join('\n'),
   },
+  'bass-drummer': {
+    species: 'badger',
+    instrument: 'bass-drum',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'strike', time: 0.5, rest: false },
+      { name: 'between', time: 1, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.5),
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // Three strikes of the bass drum (key 36) with the beater in the right paw.
+    notes: ['0.5 0.5 36', '1.5 0.5 36', '2.5 0.5 36'].join('\n'),
+  },
+  'snare-drummer': {
+    species: 'badger',
+    instrument: 'snare-drum',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'right', time: 0.5, rest: false },
+      { name: 'left', time: 0.75, rest: false },
+      { name: 'between', time: 1.5, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.5),
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // Four strikes of the snare drum (key 38) with the paws in turn, then one more.
+    notes: ['0.5 0.25 38', '0.75 0.25 38', '1 0.25 38', '1.25 0.25 38', '2 0.5 38'].join('\n'),
+  },
+  cymbalist: {
+    species: 'badger',
+    instrument: 'cymbals',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'crash', time: 0.5, rest: false },
+      { name: 'open', time: 1.5, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.5),
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // Two crashes of the cymbals (key 49).
+    notes: ['0.5 1 49', '2.5 1 49'].join('\n'),
+  },
+  percussionist: {
+    species: 'badger',
+    instrument: 'small-percussion',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'triangle', time: 0.5, rest: false },
+      { name: 'between', time: 1, rest: false },
+      { name: 'tambourine', time: 1.5, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.5),
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // The triangle (key 81) in the left paw, then the tambourine (key 54) on its stand.
+    notes: ['0.5 0.5 81', '1.5 0.5 54', '2.5 0.5 81'].join('\n'),
+  },
+  xylophonist: {
+    species: 'badger',
+    instrument: 'xylophone',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'lowest', time: 0.5, rest: false },
+      { name: 'highest', time: 0.75, rest: false },
+      { name: 'between', time: 1.5, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.5),
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // The lowest bar (C5), the highest bar (F7), and the lowest and the highest sharp bar.
+    notes: ['0.5 0.25 C5', '0.75 0.25 F7', '1 0.25 C#5', '1.25 0.25 D#7'].join('\n'),
+  },
 };
 
 /**
@@ -539,7 +661,7 @@ export function closeViewPath(
   const camera = role.camera;
   const query = new URLSearchParams({
     page: 'species',
-    only: role.species,
+    only: role.instrument ?? role.species,
     zoom: String(camera.zoom),
     azimuth: String(view.azimuth),
     elevation: String(view.elevation ?? camera.elevation),
@@ -1917,7 +2039,8 @@ export function speciesArgs(args: readonly string[]): SpeciesArgs | null {
  * Gives the close view of one species of the mode `species`: the species on the support of its
  * instrument, alone, at the views and the moment of the command line, with the default test notes
  * of the gallery. The camera turns around the middle of the box of the body. `--zoom` takes it
- * nearer to that middle, and `--elevation` gives each view one angle above the floor.
+ * nearer to that middle, and `--elevation` gives each view one angle above the floor. A species
+ * with several instruments, as the badger of the percussion, shows with the first of them.
  *
  * @param species The species.
  * @param args The command line.
@@ -1925,13 +2048,16 @@ export function speciesArgs(args: readonly string[]): SpeciesArgs | null {
  */
 export function speciesRole(species: SpeciesId, args: SpeciesArgs): RoleViews {
   const { elevation } = args;
-  return {
+  const items = speciesItems().filter((item) => item.species === species);
+  const role: RoleViews = {
     species,
     views: elevation === null ? args.views : args.views.map((view) => ({ ...view, elevation })),
     moments: [args.moment],
     camera: { ...SPECIES_CAMERA, zoom: args.zoom },
     notes: null,
   };
+  const [first] = items;
+  return items.length > 1 && first ? { ...role, instrument: first.instrument } : role;
 }
 
 /**
