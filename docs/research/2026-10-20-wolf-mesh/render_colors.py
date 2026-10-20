@@ -6,7 +6,7 @@ It also draws each box on a copy of its image (`<out>/boxes-*.png`).
     uv run --no-project --with pillow --with numpy python -I render_colors.py <root> <renders> <out>
 
 <renders> holds `base/face.png`, `base/body.png`, `new/face.png`, `new/body.png` (gallery,
-`scratch/face-shots.ts`), and `stage-base.png`, `stage-new.png` (`pnpm close-views play --at wolf
+`docs/research/2026-10-20-badger-mesh/face-shots.ts`), and `stage-base.png`, `stage-new.png` (`pnpm close-views play --at wolf
 --zoom 0.8 --azimuth -30 --elevation 25 --base 24e47a7e`).
 """
 import sys
