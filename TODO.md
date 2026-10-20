@@ -291,9 +291,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-18-panda-face.md`).
 - [ ] Condense design 1, 3, 7, and 8, which still hold dated history
       (`2026-10-17-design-condense.md`).
-- [ ] Snare drum and xylophone: no demo has them, so `pnpm hold-reach` and `pnpm mesh-options`
+- [x] Snare drum and xylophone: no demo has them, so `pnpm hold-reach` and `pnpm mesh-options`
       measure no strike of these. Give the badger round a score with them
       (`2026-10-19-mesh-retro.md`).
+      Answer: the probes read the percussion test score of `tools/probe-demos.ts` (round
+      `mesh-badger`).
 - [ ] Hippo nose: the tip lies on a nostril 2.8 cm from the middle plane, and the rig checks warn.
       A tip on the plane moves the jaw of the rig 3.0 cm up (`2026-10-19-mesh-retro.md`).
 - [ ] Brief template: `docs/briefs/studio-body.md` has 2,625 words, above its limit of about
@@ -591,9 +593,29 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`tail-gap.ts` of `docs/research/2026-10-20-wolf-mesh/`).
 - [ ] Wolf clarinet: the mouthpiece goes 1.3 cm into the head under the long muzzle, and no demo
       has a standing wolf soloist, so only the close views check it (`2026-10-20-mesh-wolf.md`).
+- [ ] Badger cymbals: the short arms of the badger mesh hold the cymbals of the app (0.40 m)
+      7.4 cm or more into the body and miss the crash at each arm factor up to 1.25. Ask the user
+      for smaller cymbals, longer arms, or both (`cymbal-scan.txt` of
+      `docs/research/2026-10-20-badger-mesh/`).
+- [ ] Badger xylophone: the short arms reach at most 81% of the xylophone strikes, because the
+      body does not move from side to side behind the notes. Ask the user for a smaller
+      xylophone, longer arms, or a side step of the body (`2026-10-20-mesh-badger.md`).
+- [ ] Badger size: the agent chose the head top of the parametric badger (1.038 m) while the user
+      slept. Show the user the lineup and the play frame (`2026-10-20-mesh-badger.md`).
+- [ ] Badger triangle: three faces of the front of the left shoulder stay turned after the relax
+      of the shape of the raised left arm, and fold in 86% of the play of the percussionist
+      (`raise-fit` rule of `tools/mesh-rigs/badger.json`).
+- [ ] Badger colors: the front fur and the eye stripes of the mesh are darker than the sheet
+      (Oklab L 0.28 against 0.40), and the warm light shows the stripes on the top of the head as
+      a mid brown. Show the user `faces.webp` of `docs/research/2026-10-20-badger-mesh/`.
+- [ ] Badger arm views: `pnpm arm-check --views` renders no crop of the snare drummer and of the
+      xylophonist, because only the percussion test score has them, and `close-views play`
+      renders only demos.
 - [ ] Remove the unused code of the `pointed` ears and the `bushy` tail: no species has them
       since the wolf mesh. The outline of the pointed ear stays for the antlered ears of the deer,
-      and the `long` snout for the deer and the badger (`2026-10-20-mesh-wolf.md`).
+      and the `long` snout for the deer and the badger (`2026-10-20-mesh-wolf.md`). Since the
+      badger mesh, the face pattern `stripe` and the `small` ears of the badger have no species
+      either, except the small ears of the rhino.
 - [ ] Elephant timpanist: the seam where the upper arm of the mesh lies on the side of the body
       shades dark lines on the front of the body when the arms play (`timpanist-base-views.webp`
       of `docs/research/2026-10-19-elephant-mesh/`). The arm cut of `2026-10-19-elephant-arms.md`
