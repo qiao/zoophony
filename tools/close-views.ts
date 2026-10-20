@@ -909,11 +909,17 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
 interface SiteVariant {
   /** The module of the studio body of the GLB file: its path and its text, or `null`. */
   readonly body: { readonly path: string; readonly text: string } | null;
-  /** The hold changes of `--set`, or `null` for none. */
-  readonly holds: string | null;
+  /**
+   * The hold changes of each `--set`, or `null` for none. With more than one, the page applies
+   * the changes of the query `holds`, an index in the list ({@link HOLDS_QUERY}).
+   */
+  readonly holds: readonly string[] | null;
   /** The entry module of the page that applies the hold changes first. */
   readonly entry: string;
 }
+
+/** The query of the page that chooses a variant of a build of more than one `--set` of `play`. */
+const HOLDS_QUERY = 'holds';
 
 /** The id of the module that applies the hold changes of a variant in its build. */
 const HOLDS_MODULE = 'virtual:close-views-holds';
@@ -956,13 +962,13 @@ async function siteVariant(args: CloseViewsArgs, check: boolean): Promise<SiteVa
     console.log(`The working tree takes the hold changes ${changes.text}.`);
   }
   if (!args.glb || !animal) {
-    return { body: null, holds: args.holds, entry: GALLERY_ENTRY };
+    return { body: null, holds: args.holds === null ? null : [args.holds], entry: GALLERY_ENTRY };
   }
   const { text } = glbModule(animal, args.glb, new Uint8Array(await readFile(args.glb)));
   console.log(`The ${species} of the working tree takes the studio body of ${args.glb}.`);
   return {
     body: { path: join(ROOT, 'src', 'models', 'studio', `${animal}.ts`), text },
-    holds: args.holds,
+    holds: args.holds === null ? null : [args.holds],
     entry: GALLERY_ENTRY,
   };
 }
@@ -971,7 +977,8 @@ async function siteVariant(args: CloseViewsArgs, check: boolean): Promise<SiteVa
  * Gives the plugin of the build of a variant: the module of the studio body of the GLB file in
  * place of the module of the tree, and a first import of the entry of the page that applies the
  * hold changes with `setHolds()` before the other modules of the page run, as the hold tools
- * change the holds in memory.
+ * change the holds in memory. A build of more than one variant of `--set` applies the changes
+ * that the query {@link HOLDS_QUERY} of the page chooses, so one build renders each variant.
  *
  * @param variant The variant.
  * @returns The plugin.
@@ -979,6 +986,11 @@ async function siteVariant(args: CloseViewsArgs, check: boolean): Promise<SiteVa
 function variantPlugin(variant: SiteVariant): Plugin {
   const resolved = `\0${HOLDS_MODULE}`;
   const holdSets = join(ROOT, 'tools', 'hold-sets.ts');
+  const holds = variant.holds ?? [];
+  const apply =
+    holds.length > 1
+      ? `const holds = ${JSON.stringify(holds)};\nsetHolds(holds[Number(new URLSearchParams(location.search).get(${JSON.stringify(HOLDS_QUERY)}) ?? 0)] ?? holds[0]);\n`
+      : `setHolds(${JSON.stringify(holds[0] ?? '')});\n`;
   return {
     name: 'zoophony:close-views-variant',
     apply: 'build',
@@ -987,7 +999,7 @@ function variantPlugin(variant: SiteVariant): Plugin {
     },
     load(id) {
       if (id === resolved) {
-        return `import { setHolds } from ${JSON.stringify(holdSets)};\nsetHolds(${JSON.stringify(variant.holds ?? '')});\n`;
+        return `import { setHolds } from ${JSON.stringify(holdSets)};\n${apply}`;
       }
       return variant.body && id === variant.body.path ? variant.body.text : null;
     },
@@ -2216,10 +2228,15 @@ export interface PlayArgs {
   /** The player of `--at`, whose cameras have an {@link AimView}, or `null`. */
   readonly at: ShotSubject | null;
   /**
-   * The hold changes of `--set` (`setHolds()` of `tools/hold-sets.ts`) for the working tree, or
-   * `null` for none. The changes also move the player of `--at`, such as larger kettles.
+   * The hold changes of each `--set` (`setHolds()` of `tools/hold-sets.ts`) for the working tree,
+   * or none. The changes also move the player of `--at`, such as larger kettles.
    */
-  readonly holds: string | null;
+  readonly holds: readonly string[];
+  /**
+   * The index in {@link PlayArgs.holds} of the variant of this part, when one build renders more
+   * than one `--set` ({@link playParts}), or `null`.
+   */
+  readonly holdsIndex: number | null;
 }
 
 /**
@@ -2305,37 +2322,63 @@ export function playTimeDir(out: string, sec: number): string {
 }
 
 /**
- * Splits a command line of the mode `play` into one command line for each time: with more than
- * one `--time`, each time renders into its own folder ({@link playTimeDir}). The parts share the
- * site of the working tree and one build of the commit (`renderModes()`).
+ * Gives the folder of the frames of one variant of a run of the mode `play` with more than one
+ * `--set`, such as `<dir>/set-2` for the second `--set`.
+ *
+ * @param out The output directory of the run.
+ * @param index The index of the variant, from 0.
+ * @returns The folder.
+ */
+export function playSetDir(out: string, index: number): string {
+  return join(out, `set-${index + 1}`);
+}
+
+/**
+ * Splits a command line of the mode `play` into one command line for each variant and each time:
+ * with more than one `--set`, each variant renders into its own folder ({@link playSetDir}), and
+ * with more than one `--time`, each time renders into its own folder ({@link playTimeDir}) in the
+ * folder of its variant. The parts share the site of the working tree, which applies the variant
+ * of its query ({@link variantPlugin}), and one build of the commit (`renderModes()`).
  *
  * @param args The command line.
- * @returns The command line of each time, in the order of the times.
+ * @returns The command line of each part, by variant, then in the order of the times.
  */
 export function playParts(args: PlayArgs): PlayArgs[] {
-  if (args.otherTimes.length === 0 || args.time.kind !== 'song') {
-    return [args];
+  const variants: PlayArgs[] = [];
+  if (args.holds.length > 1) {
+    for (const index of args.holds.keys()) {
+      variants.push({ ...args, holdsIndex: index, out: playSetDir(args.out, index) });
+    }
+  } else {
+    variants.push(args);
   }
   const parts: PlayArgs[] = [];
-  for (const sec of [args.time.sec, ...args.otherTimes]) {
-    parts.push({
-      ...args,
-      time: { kind: 'song', sec },
-      otherTimes: [],
-      out: playTimeDir(args.out, sec),
-    });
+  for (const variant of variants) {
+    if (variant.otherTimes.length === 0 || variant.time.kind !== 'song') {
+      parts.push(variant);
+      continue;
+    }
+    for (const sec of [variant.time.sec, ...variant.otherTimes]) {
+      parts.push({
+        ...variant,
+        time: { kind: 'song', sec },
+        otherTimes: [],
+        out: playTimeDir(variant.out, sec),
+      });
+    }
   }
   return parts;
 }
 
 /**
  * Reads the command line of the mode `play`:
- * `play <dir> [--demo <id>] [--time <s>]... [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]`.
+ * `play <dir> [--demo <id>] [--time <s>]... [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]...`.
  * With no `--camera`, the camera is `default`. `--cinematic` renders the camera of the shot plan
  * of the app ({@link CINEMATIC_CAMERA}). `--shot` also gives the time: the frame of the first solo
  * or section shot of its subject ({@link chooseShot}). `--at` aims the stage camera at one player
  * ({@link aimCamerasOf}, {@link aimPose}). `--set` renders a variant of the holds of the working
- * tree from a build of its own ({@link startVariantSite}). More than one `--time` renders each
+ * tree from a build of its own ({@link startVariantSite}). More than one `--set` renders each
+ * variant into its own folder ({@link playSetDir}) from that one build. More than one `--time` renders each
  * time into its own folder ({@link playTimeDir}) from one build of each tree ({@link playParts}).
  *
  * @param args The arguments after the script.
@@ -2365,7 +2408,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       '--base',
       '--set',
     ],
-    ['--camera', '--azimuth', '--time'],
+    ['--camera', '--azimuth', '--time', '--set'],
     ['--cinematic'],
   );
   const [out, ...extra] = line.words;
@@ -2402,8 +2445,8 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
   if (aimCameras && url !== null) {
     throw new Error('The option --at builds a site of its own, so --url does not go.');
   }
-  const holds = line.options.get('--set')?.[0] ?? null;
-  if (holds !== null && (url !== null || base !== null)) {
+  const holds = onceEach(line.options.get('--set') ?? [], 'set');
+  if (holds.length > 0 && (url !== null || base !== null)) {
     throw new Error(
       'The option --set builds a site of its own and moves the player of --at, so --url and --base do not go.',
     );
@@ -2425,6 +2468,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       base,
       at: null,
       holds,
+      holdsIndex: null,
     };
   }
   const [first = PLAY_TIME_SEC, ...others] = (
@@ -2456,6 +2500,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     base,
     at: aimCameras?.subject ?? null,
     holds,
+    holdsIndex: null,
   };
 }
 
@@ -2844,7 +2889,11 @@ async function playFrame(
   target: AimTarget | null,
 ): Promise<{ readonly image: Buffer; readonly clock: string }> {
   const aim = camera.aim && target ? aimPose(target.place, target.box, camera.aim) : null;
-  const query = aim ? `?aim=${encodeURIComponent(JSON.stringify(aim))}` : '';
+  const params = [
+    ...(aim ? [`aim=${encodeURIComponent(JSON.stringify(aim))}`] : []),
+    ...(args.holdsIndex === null ? [] : [`${HOLDS_QUERY}=${args.holdsIndex}`]),
+  ];
+  const query = params.length > 0 ? `?${params.join('&')}` : '';
   const path = `/${query}#demo=${args.demo}`;
   const page = await openShot(browser, new URL(path.slice(1), site).href, {
     file: '',
@@ -2969,7 +3018,17 @@ async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> 
   const { browser } = site;
   const columns = args.cameras.length;
   const time = await playTimeSec(args);
-  const target = args.at ? await aimTarget(args.demo, args.at) : null;
+  // A part of one of several variants aims at the player with the hold changes of its variant.
+  const changes = args.holdsIndex === null ? null : setHolds(args.holds[args.holdsIndex] ?? '');
+  let target: AimTarget | null = null;
+  try {
+    target = args.at ? await aimTarget(args.demo, args.at) : null;
+  } finally {
+    changes?.undo();
+  }
+  if (changes) {
+    console.log(`${args.out}: the hold changes ${changes.text}.`);
+  }
   if (target) {
     console.log(aimTargetText(args.demo, target));
   }
@@ -3372,7 +3431,7 @@ const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
-  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>]... [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]`,
+  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>]... [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]...`,
   '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
@@ -3434,8 +3493,18 @@ async function main(): Promise<void> {
     // variant.
     const { demo, time, at, holds } = mode.args;
     try {
-      if (holds !== null) {
-        console.log(`The working tree takes the hold changes ${setHolds(holds).text}.`);
+      const [only] = holds;
+      if (holds.length === 1 && only !== undefined) {
+        console.log(`The working tree takes the hold changes ${setHolds(only).text}.`);
+      } else if (holds.length > 1) {
+        // Each variant must fit before the build. The parts apply their own changes in turn.
+        for (const [index, changes] of holds.entries()) {
+          const applied = setHolds(changes);
+          applied.undo();
+          console.log(`${playSetDir(mode.args.out, index)}: the hold changes ${applied.text}.`);
+        }
+      }
+      if (holds.length > 0) {
         variant = { body: null, holds, entry: APP_ENTRY };
       }
       if (time.kind === 'shot') {
