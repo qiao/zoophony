@@ -149,6 +149,14 @@ export interface AnimalSettings {
    * its direction.
    */
   readonly eyeNormal?: number;
+  /**
+   * The move of the place of each pea eye from the middle of the old eye of the mesh, in `H` of
+   * the eyes: out to the side, away from the middle plane, and up. The moved place then goes to
+   * the nearest point of the head surface, as the old place does ({@link eyeOnHead}). A body
+   * takes it when the face under the old eye is too curved for a clean oval. With no value, each
+   * eye sits at the old eye.
+   */
+  readonly eyeShift?: readonly [out: number, up: number];
 }
 
 /**
@@ -2303,7 +2311,8 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     .add(headShiftOf(glb))
     .setX(0);
 
-  // Each pea eye bone lies at the head surface under the middle of the old eye: a bent eye on the
+  // Each pea eye bone lies at the head surface under the middle of the old eye, or under that
+  // middle moved by `eyeShift`: a bent eye on the
   // surface, and a flat eye 0.01 H under it, as the eye bones of the parametric bodies
   // (`eyeMiddle()` of `models/eyes.ts`). Each eye faces out from the
   // middle of the head that shows, as an eye on the round head of a parametric body does, or level
@@ -2314,7 +2323,17 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   const middle = toBind(shown.getCenter(new Vector3()));
   const eyeAt = (side: Side) => {
     const old = eyeCenter(side);
-    const point = eyeOnHead(withoutEyes, old);
+    // The studio puts the left side of the animal at +x, and `shown` is in the units of the
+    // studio.
+    const [shiftOut, shiftUp] = settings.eyeShift ?? [0, 0];
+    const place = old
+      .clone()
+      .add(
+        new Vector3((side === 'L' ? 1 : -1) * shiftOut, shiftUp, 0).multiplyScalar(
+          shown.max.y - shown.min.y,
+        ),
+      );
+    const point = eyeOnHead(withoutEyes, place);
     const out = point.clone().sub(middle);
     const at = new Vector3(...model(point));
     const near = withoutEyes.faces.flatMap((face) => {
