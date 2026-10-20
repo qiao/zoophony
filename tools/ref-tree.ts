@@ -135,7 +135,8 @@ interface StartedChild {
 
 /**
  * Starts a command in a process group of its own, as {@link runChild} does, and gives the child
- * with the promise of its end.
+ * with the promise of its end. A failure gives the exit code, or the end by a signal, and the
+ * cause from the error output, or `no error output`.
  *
  * @param command The command.
  * @param args The arguments.
@@ -146,7 +147,9 @@ function startChild(command: string, args: readonly string[], cwd: string): Star
   const { child, ended } = spawnTracked(command, args, cwd);
   const done = ended.then(({ status, errors }) => {
     if (status !== 0) {
-      throw new Error(`${command} ${args.join(' ')} failed:\n${errorCause(errors)}`);
+      const end = status === null ? 'a signal ended it' : `exit code ${status}`;
+      const cause = errorCause(errors) || 'no error output';
+      throw new Error(`${command} ${args.join(' ')} failed (${end}):\n${cause}`);
     }
   });
   return { child, done };
