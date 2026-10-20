@@ -43,7 +43,7 @@ import { STUDIO_BODIES } from '../src/models/studio-body.ts';
 import type { StudioBodyName } from '../src/models/studio-body.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import type { Side, StudioBody, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
-import { twistAngle } from '../src/models/studio-rig.ts';
+import { UPPER_TWIST_BONES, twistAngle } from '../src/models/studio-rig.ts';
 import type { StudioRig } from '../src/models/studio-rig.ts';
 
 /** A ring of the arm skin: the bone of its axis and its place along the bone. */
@@ -231,8 +231,11 @@ function armBind(rig: StudioRig, side: Side): ArmBind {
     fore: boneAt(`forearm_${side}`),
     hand: boneAt(`hand_${side}`),
   };
+  // The twist bone of the upper arm (`StudioBody.upperTwist`) holds a part of the upper arm
+  // weight, so the rings of a body with it take the same vertices as with no twist bone.
   const armBones = [
     bones.upper,
+    UPPER_TWIST_BONES[side],
     bones.fore,
     boneAt(`forearm_twist_${side}`),
     bones.hand,
@@ -261,7 +264,9 @@ function armBind(rig: StudioRig, side: Side): ArmBind {
       const v = mesh.corners[f * 3 + k] ?? 0;
       corner.fromArray(mesh.positions, v * 3);
       middle.addScaledVector(corner, 1 / 3);
-      onUpper ||= weightOn(mesh, v, [bones.upper, boneAt(`clavicle_${side}`)]) >= SPIKE_WEIGHT;
+      onUpper ||=
+        weightOn(mesh, v, [bones.upper, UPPER_TWIST_BONES[side], boneAt(`clavicle_${side}`)]) >=
+        SPIKE_WEIGHT;
     }
     if (onUpper && middle.distanceTo(joints.shoulder) <= SPIKE_REACH * upperLength) {
       faces.push(...mesh.corners.subarray(f * 3, f * 3 + 3));
