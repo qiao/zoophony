@@ -309,6 +309,19 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/pig/pig.rig.glb',
     },
   ],
+  // The clarinet wolf: decisions/2026-10-20-mesh-wolf.md. It stands as a soloist.
+  [
+    'wolf',
+    {
+      landmark: 'shoulders',
+      height: 1.147526,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_WOLF',
+      crease: 35,
+      glb: 'assets/models/wolf/wolf.rig.glb',
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
