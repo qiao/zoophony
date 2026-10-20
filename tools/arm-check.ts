@@ -685,6 +685,67 @@ function lowerLengths(arm: ArmBind, posed: ArrayLike<number>): Float32Array {
   return edgeLengths(posed, arm.lower);
 }
 
+/** The posed joints and bone axes of one arm. */
+interface ArmAxes {
+  /** The posed shoulder joint. */
+  readonly shoulder: Vector3;
+  /** The posed elbow joint. */
+  readonly elbow: Vector3;
+  /** The unit axis from the shoulder to the elbow. */
+  readonly upperAxis: Vector3;
+  /** The unit axis from the elbow to the wrist. */
+  readonly foreAxis: Vector3;
+}
+
+/**
+ * Gives the posed joints and bone axes of one arm.
+ *
+ * @param arm The bind facts of the arm.
+ * @param matrices The skin matrices of the pose.
+ * @returns The joints and the axes.
+ */
+function armAxes(arm: ArmBind, matrices: ArrayLike<number>): ArmAxes {
+  const place = (joint: Vector3, bone: number): Vector3 =>
+    joint.clone().applyMatrix4(matrixOf(matrices, bone));
+  const shoulder = place(arm.joints.shoulder, arm.bones.upper);
+  const elbow = place(arm.joints.elbow, arm.bones.fore);
+  const wrist = place(arm.joints.wrist, arm.bones.hand);
+  return {
+    shoulder,
+    elbow,
+    upperAxis: elbow.clone().sub(shoulder).normalize(),
+    foreAxis: wrist.clone().sub(elbow).normalize(),
+  };
+}
+
+/**
+ * Gives the posed crossings of one ring, each as its part normal to the axis of its bone.
+ *
+ * @param ring The bind facts of the ring.
+ * @param posed The posed places of the vertices.
+ * @param origin The posed joint at the head of the bone of the ring.
+ * @param axis The posed unit axis of the bone.
+ * @returns The x, y, z of each crossing.
+ */
+function ringRadials(
+  ring: RingBind,
+  posed: ArrayLike<number>,
+  origin: Vector3,
+  axis: Vector3,
+): Float64Array {
+  const p = new Vector3();
+  const q = new Vector3();
+  const count = ring.along.length;
+  const radials = new Float64Array(count * 3);
+  for (let k = 0; k < count; k++) {
+    p.fromArray(posed, (ring.edges[k * 2] ?? 0) * 3)
+      .lerp(q.fromArray(posed, (ring.edges[k * 2 + 1] ?? 0) * 3), ring.along[k] ?? 0)
+      .sub(origin);
+    p.addScaledVector(axis, -p.dot(axis)).toArray(radials, k * 3);
+  }
+  return radials;
+}
+
 /**
  * Measures one arm of a posed body. The rolls of the rings of the upper arm are turns around the
  * posed axis against the chest swung onto the upper arm, and the rolls of the rings of the forearm
@@ -711,15 +772,9 @@ export function measureArm(
   const chest = turnOf(matrices, arm.bones.chest);
   const upperTurn = turnOf(matrices, arm.bones.upper);
   const foreTurn = turnOf(matrices, arm.bones.fore);
-  const place = (joint: Vector3, bone: number): Vector3 =>
-    joint.clone().applyMatrix4(matrixOf(matrices, bone));
-  const shoulder = place(arm.joints.shoulder, arm.bones.upper);
-  const elbow = place(arm.joints.elbow, arm.bones.fore);
-  const wrist = place(arm.joints.wrist, arm.bones.hand);
+  const { shoulder, elbow, upperAxis, foreAxis } = armAxes(arm, matrices);
   const upperBind = arm.joints.elbow.clone().sub(arm.joints.shoulder).normalize();
   const foreBind = arm.joints.wrist.clone().sub(arm.joints.elbow).normalize();
-  const upperAxis = elbow.clone().sub(shoulder).normalize();
-  const foreAxis = wrist.clone().sub(elbow).normalize();
   const upperFrame = new Quaternion()
     .setFromUnitVectors(upperBind.clone().applyQuaternion(chest), upperAxis)
     .multiply(chest);
@@ -731,8 +786,6 @@ export function measureArm(
 
   const rolls: number[] = [];
   let flat = Infinity;
-  const p = new Vector3();
-  const q = new Vector3();
   const r = new Vector3();
   const ref = new Vector3();
   const cross = new Vector3();
@@ -740,17 +793,12 @@ export function measureArm(
     const upper = ring.ring.bone === 'upper';
     const frame = upper ? upperFrame : foreFrame;
     const axis = upper ? upperAxis : foreAxis;
-    const origin = upper ? shoulder : elbow;
+    const radials = ringRadials(ring, posed, upper ? shoulder : elbow, axis);
     const count = ring.along.length;
-    const moved = new Float32Array(count * 3);
     let sin = 0;
     let cos = 0;
     for (let k = 0; k < count; k++) {
-      p.fromArray(posed, (ring.edges[k * 2] ?? 0) * 3)
-        .lerp(q.fromArray(posed, (ring.edges[k * 2 + 1] ?? 0) * 3), ring.along[k] ?? 0)
-        .sub(origin);
-      r.copy(p).addScaledVector(axis, -p.dot(axis));
-      r.toArray(moved, k * 3);
+      r.fromArray(radials, k * 3);
       ref.fromArray(ring.radial, k * 3).applyQuaternion(frame);
       const angle = Math.atan2(cross.crossVectors(ref, r).dot(axis), ref.dot(r));
       sin += ref.length() * Math.sin(angle);
@@ -758,7 +806,7 @@ export function measureArm(
     }
     rolls.push(count > 0 ? (Math.atan2(sin, cos) * 180) / Math.PI : 0);
     if (ring.narrow > 0 && count > 2) {
-      flat = Math.min(flat, narrowAxis(moved, axis) / ring.narrow);
+      flat = Math.min(flat, narrowAxis(Float32Array.from(radials), axis) / ring.narrow);
     }
   }
   const [shoulderRoll = 0, upperRoll = 0, elbowRoll = 0, foreRoll = 0, wristRoll = 0] = rolls;
