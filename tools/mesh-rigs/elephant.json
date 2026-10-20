@@ -12,6 +12,10 @@
   "armFactorNote": "The arms keep the length of the mesh: 0.451 m from the shoulder joint to the middle of the palm, 0.57 of the trunk from the hips joint to the shoulder joints. Arms of 0.9 of the trunk need a factor above 1.6, the stop of the brief, and the user called the arms of the dog with the factor 1.75 much too long. So the timpani of the elephant move to the arms (docs/decisions/2026-10-19-mesh-elephant.md). The parametric elephant of main had arms of 0.734 m.",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh. The elephant stands at its timpani in the app, so no seat asks for longer legs.",
+  "upperTwist": {
+    "share": 0.5,
+    "note": "The twist bone of each upper arm takes half of the roll of the upper arm from the chest (StudioBody.upperTwist). With the elbows of the timpani down and near the body, the play twist of the arm skin goes from 57 and 43 degrees to 22 and 22 degrees, and the flat share from 0.96 and 0.74 to 0.91 and 0.91 (pnpm arm-shape timpanist). The shares 0.4 and 0.6 gave a twist of 24 degrees, and 0.6 folded 1.0% of the play (docs/research/2026-10-19-arm-skin.md, the refit of the elephant)."
+  },
   "joints": {
     "root": {
       "head": [
