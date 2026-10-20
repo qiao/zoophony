@@ -20,4 +20,4 @@ reverse each decision. Then update its section, and remove its row.
 | The tail root goes 40° in place of 45° below the level. At 45°, it went 2.0 cm into the seat at rest, and at 40° it goes 0.6 cm (`studio.tailBind`, `tail-variants.txt`). | 4.4 |
 | Faces 229 of the right shoulder, 69 and 148 and 76 of the right forearm, and 2093 of the left shoulder take the mean of their corner weights. No rest, play, or lift sample folds (`weights.rigid`, `check-rigid3.log`). | 4.4 |
 | The clarinet hold stays, because H changes by 0.4%. Only the mouthpiece goes 0.1 H in place of 0.12 H below the mouth, 1.2 cm into the shorter head, as the 1.3 cm of round `mesh-wolf`. At 0.12 H, it went 0.6 cm (`lipShift` of `WOLF_CLARINET`, `fit3.txt`). | 5.3 |
-| Open: show the user the lineup beside the dog and the fox, and the play frame (`lineup-views.webp`, `play-views.webp`). | 4.4 |
+| Open: show the user the lineup beside the dog and the fox, and the play frame (`compare.webp`), and the grip medians -97° and 79° against the accepted -86° and 67° (`ACCEPTED_GRIPS`). | 4.4, 9.3 |
