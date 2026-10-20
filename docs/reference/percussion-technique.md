@@ -177,6 +177,10 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   right paw strikes 12 cm below the middle of the head, as section 5 gives. The left arm hangs,
   because a single note often needs no muffling (section 5). The beater leaves the side of the
   fist: no source gives where it leaves the fist.
+- **The snare drum.** The head stands 0.46 m high, at about the height of the wrists, and 0.45 m in
+  front. The sticks leave the front of the fists and make a V of about 66°, 9° down at a strike,
+  as section 6 gives. Between strikes, the tips lift about 18° above the level and come closer
+  together (a V of about 20°). The elbows point down and out.
 
 ## 11. Sources
 

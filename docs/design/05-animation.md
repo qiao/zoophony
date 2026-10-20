@@ -44,7 +44,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Tuba, rhino | Chair | none | The right hand presses the valves | The tuba moves off the mouth and tilts | `WIND_HOLDS.tuba`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species rhino <dir>` |
 | Timpani, elephant | Stands | The reference images (`docs/research/2026-10-19-elephant-pose.md`) | Each mallet strikes the front kettle of its side, 0.25 m in from the near rim, and turns up and out between strikes. The trunk hangs in the gap between the two front kettles | The paws stay above the near rims with the mallets up | `PERCUSSION_HOLDS.timpani`, `TIMPANI`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-19-elephant-pose.md` | `pnpm close-views timpanist <dir>` |
 | Bass drum, badger | Stands behind the drum | `docs/reference/percussion-technique.md` 5 | The beater in the right paw strikes 12 cm below the middle of the right head, and leaves the side of the fist at the angle of no paw twist between strikes | The beater stays over the drum, and the left arm hangs | `PERCUSSION_HOLDS['bass-drum']`, `BASS_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views bass-drummer <dir>` |
-| Snare drum, badger | Stands | none | Two mallets strike the head | The rest of the timpani | `PERCUSSION_HOLDS['snare-drum']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `?page=species&only=snare-drum&body` |
+| Snare drum, badger | Stands | `docs/reference/percussion-technique.md` 6 | The drum stands at the height of the wrists, and the sticks leave the front of the fists in a V of about 66°, almost level, with the paws in turn | The arms hang | `PERCUSSION_HOLDS['snare-drum']`, `SNARE_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views snare-drummer <dir>` |
 | Cymbals, badger | Stands | none | The two cymbals meet in front of the shoulders | The rest of the timpani | `PERCUSSION_HOLDS.cymbals`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `?page=species&only=cymbals&body` |
 | Small percussion, badger | Stands | none | The beater strikes the triangle or the tambourine | The rest of the timpani | `PERCUSSION_HOLDS['small-percussion']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `?page=species&only=small-percussion&body` |
 | Xylophone, badger | Stands | none | Two mallets strike the bar of each key | The rest of the timpani | `PERCUSSION_HOLDS.xylophone`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `?page=species&only=xylophone&body` |
@@ -518,6 +518,11 @@ The code constants of each family hold the times, the angles, and the lengths of
       head, off the middle, as a real player strikes. Between strikes, the beater keeps the angle
       of no twist of the paw on the forearm (`across`). The paw holds the beater over the drum also
       at rest (`ready`), so that the beater does not sweep through the body in the lift.
+    - The snare drum stands at the height of the wrists, near enough for the short arms. The
+      sticks leave the front of the fists, along the thumbs (`SNARE_DRUM.malletTilt`), and point
+      from homes out from the shoulders, so that they make a V at a strike and are almost level,
+      as in the matched grip of a real player. Between strikes, each stick keeps the angle of no
+      twist of the paw.
 - Piano: the hands move to the key position. The left hand plays low notes and the right hand
   plays high notes.
 - **Piano and harp in detail** (`pose/hand-notes.ts`, `pose/hands.ts`):

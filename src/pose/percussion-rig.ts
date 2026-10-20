@@ -178,6 +178,10 @@ export const PERCUSSION_HOLDS = {
     ready: true,
     pair: false,
   },
+  // The sticks leave the front of the fists (SNARE_DRUM.malletTilt) and point from homes out
+  // from the shoulders, so that they make a V of about 66° at a strike and slant down 9°, as the
+  // matched grip of a real player. Between strikes, each stick keeps the angle of no twist of the
+  // paw (across, 2026-10-20-mesh-badger decisions).
   'snare-drum': {
     hands: 'alternate',
     sizes: { lift: 0.1, rest: 0.03 },
@@ -186,9 +190,9 @@ export const PERCUSSION_HOLDS = {
     poleL: [-0.6, -1, 0.3],
     poleR: [0.6, -1, 0.3],
     rim: 0,
-    home: MALLET_HOME,
+    home: [0.5, -0.3, -0.5],
     top: 'up',
-    across: null,
+    across: { rest: -0.6, lift: 0.3 },
     ready: false,
     pair: false,
   },

@@ -104,18 +104,24 @@ export const SNARE_DRUM = {
   radius: 0.15,
   depth: 0.13,
   /**
-   * The height of the top head. With 0.48 m, the head was 0.07 m below the shoulders of the badger
-   * with the short standing legs (2026-10-11), and the sticks did not slant down.
+   * The height of the top head: about the height of the wrists of the badger mesh in the play, so
+   * that the sticks are almost level, as a real player holds them
+   * (`docs/reference/percussion-technique.md` 6).
    */
-  top: 0.4,
-  /** The distance of the middle of the drum in front of the player. */
-  forward: 0.55,
+  top: 0.46,
+  /**
+   * The distance of the middle of the drum in front of the player. At 0.55 m, the short arms of the
+   * badger mesh missed each strike by 6.7 cm (`docs/decisions/2026-10-20-mesh-badger.md`).
+   */
+  forward: 0.45,
   /**
    * The angle of each stick below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm.
+   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm. A real player
+   * holds it in the matched grip, along the thumb and out of the front of the fist
+   * (`docs/reference/percussion-technique.md` 6), so it takes the tilt 1.3 of the timpani.
    */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletTilt: 0 as number,
+  malletTilt: 1.3 as number,
 } as const;
 
 /**
