@@ -112,3 +112,24 @@ At 0.5, the wedge is gone, and the nose keeps its black tip. Only the colors of 
 `pnpm arm-check clarinetist --base 764288f7` gives the values of the base (`nose-arm-check.txt`).
 
 ![The head views of the app: before above, noseShare 0.5 below](2026-10-20-wolf-brows/nose.webp)
+
+## 7. The haunch on the seat
+
+The user said: "the wolf's hip is not touching the chair". The body of round `wolf-face` is 0.9422
+times as large, and the `sit` rule of the rig moved the haunch down by at most 0.03 u (5.6 cm). The
+underside of the haunch behind the hip joints then stayed up to 12.9 cm above the seat
+(`sit-variants.txt`):
+
+| sit.most | Gap behind the hip joints | Folds |
+|---|---|---|
+| 0.03 (before) | 12.9 cm | none |
+| 0.05 | 9.7 cm | 27% of the play |
+| 0.07 | 6.7 cm | none |
+| 0.09 (chosen) | 3.9 cm | none |
+| 0.11 | 2.8 cm | the tail, 31% of the play |
+| 0.13 | 2.6 cm | the tail, 64% of the play |
+
+With 0.09, the chair is 0.323 m deep (was 0.365 m), and the wolf sits deeper on it. The players near
+the wolves move with the layout, in the demos with wolves only. `pnpm arm-check clarinetist --base
+c4010197` gives the values of the base (`sit-arm-check.txt`), and `pnpm pose-depth clarinetist`
+keeps each part within its limit.
