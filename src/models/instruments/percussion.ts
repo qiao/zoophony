@@ -107,10 +107,26 @@ export const SNARE_DRUM = {
 } as const;
 
 /**
- * The place of the middle of the tambourine on its stand, from the floor under the player
- * (design 4.6): at the front right of the player, at the height of the snare drum head.
+ * The bass drum on its stand, in meters (design 4.6): at the front left of the player, with its
+ * right head turned toward the player.
  */
-export const TAMBOURINE_MOUNT: Vec3 = [0.3, 0.4, -0.45];
+export const BASS_DRUM = {
+  /** The middle of the drum, from the floor under the player. */
+  center: [-0.22, 0.52, -0.42],
+  radius: 0.35,
+  depth: 0.32,
+  /** The turn of the axis of the drum around the vertical from the x axis, in degrees. */
+  turn: -30,
+} as const;
+
+/** The tambourine on its stand, in meters (design 4.6). */
+export const TAMBOURINE = {
+  /**
+   * The place of the middle of the tambourine on its stand, from the floor under the player: at
+   * the front right of the player, at the height of the snare drum head.
+   */
+  mount: [0.3, 0.4, -0.45],
+} as const;
 
 /** The faces around the axis of a kettle. */
 const KETTLE_SEGMENTS = 16;
@@ -399,11 +415,9 @@ function tripod(piece: PieceBuilder, base: Vec3, top: Vec3, spread: number): voi
  */
 export function buildBassDrum(): InstrumentModel {
   const piece = new PieceBuilder();
-  const radius = 0.35;
-  const depth = 0.32;
-  const center: Vec3 = [-0.22, 0.52, -0.42];
+  const { radius, depth, center } = BASS_DRUM;
   const axis = new Vector3(1, 0, 0).applyQuaternion(
-    new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -30 * MathUtils.DEG2RAD),
+    new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), BASS_DRUM.turn * MathUtils.DEG2RAD),
   );
   const normal = toVec3(axis);
   drum(piece, center, normal, radius, depth, INSTRUMENT_COLORS.drumShell);
@@ -574,7 +588,7 @@ export function buildSmallPercussion(): InstrumentModel {
   const metal = INSTRUMENT_COLORS.silver;
   // The tambourine leans 30° to the player on its stand.
   const stand = new PieceBuilder();
-  const mount = TAMBOURINE_MOUNT;
+  const { mount } = TAMBOURINE;
   const mountAt = new Vector3(...mount);
   tripod(
     stand,
