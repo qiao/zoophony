@@ -70,15 +70,7 @@ import { runTool, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
-import {
-  PROBE_NO_CACHE,
-  ROOT,
-  probeBeside,
-  runChild,
-  storeBase,
-  treeCacheFile,
-  withTempFolder,
-} from './ref-tree.ts';
+import { PROBE_NO_CACHE, ROOT, probeBeside, runChild, withTempFolder } from './ref-tree.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import type { Side, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
 import { twistAngle } from '../src/models/studio-rig.ts';
@@ -1546,15 +1538,18 @@ function readArmJson(text: string): ArmJson {
  * Gives the cache file of the JSON text of a role of the working tree (`treeCacheFile()` of
  * `tools/ref-tree.ts`). The key holds the tree of `src/`, `tools/`, and the demos of the working
  * tree, which holds the code of the gate, {@link ARM_FORMAT}, and the arguments of the role. A run
- * with `--glb`, whose file is outside the tree, or with `PROBE_NO_CACHE=1` has no cache.
+ * with `--glb`, whose file is outside the tree, or with `PROBE_NO_CACHE=1` has no cache. The
+ * function of the key loads only here, because a tree before 2026-10-19 does not export it, and
+ * a probe of such a commit copies the gate into its tree.
  *
  * @param args The arguments of the role on the working tree, with no `--json`.
  * @returns The file, or `null`.
  */
-function armCacheFile(args: readonly string[]): string | null {
+async function armCacheFile(args: readonly string[]): Promise<string | null> {
   if (args.includes('--glb') || process.env[PROBE_NO_CACHE] === '1') {
     return null;
   }
+  const { treeCacheFile } = await import('./ref-tree.ts');
   return treeCacheFile('arm-check.ts', [`format ${ARM_FORMAT}`, ...args]);
 }
 
@@ -1572,7 +1567,7 @@ async function measureRole(
   options: CheckArgs,
 ): Promise<{ readonly tree: RoleReport | null; readonly base: RoleReport | null }> {
   const tree = [role, ...options.shared, ...options.own];
-  const treeCache = armCacheFile(tree);
+  const treeCache = await armCacheFile(tree);
   if (options.base !== null) {
     const texts = await probeBeside(
       options.base,
@@ -1602,6 +1597,7 @@ async function measureRole(
     { prefix: 'arm-check-' },
   );
   if (treeCache) {
+    const { storeBase } = await import('./ref-tree.ts');
     storeBase(treeCache, text);
   }
   return { tree: readArmJson(text).roles[role] ?? null, base: null };
