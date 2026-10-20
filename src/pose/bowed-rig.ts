@@ -675,8 +675,8 @@ export const BOWED_HOLDS = {
  * the neck and the fingers come down on the strings from above, as a real violist holds the neck
  * (`docs/reference/string-technique.md`, section 1.9). With 30°, the paw turned 157° on its
  * forearm from the bind, and the skin of the wrist under the neck pinched into a twisted band of
- * thin faces: the wrist ring kept 0.58 of its narrow axis in the bind. With 45°, the paw turns 148°,
- * the wrist ring keeps 0.69, the left forearm goes 1.5 cm into the viola in the play (2.5 cm with
+ * thin faces: the wrist ring kept 0.58 of its narrow axis in the bind. With 45°, the paw turns 147°,
+ * the wrist ring keeps 0.66, the left forearm goes 1.5 cm into the viola in the play (2.5 cm with
  * 30°), and the wrist bends 30° from the line of the forearm (15° with 30°). With 40°, the wrist
  * kept a crease, and with 50°, the wrist bent 34°. In the fifth position, the paw tilts 65° with
  * `highTilt` (2026-10-20-cat-left-arm decisions).
