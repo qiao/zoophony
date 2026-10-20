@@ -29,7 +29,7 @@ fox together.
 | beaver | the mesh `assets/models/beaver/beaver.glb`, rigged by `pnpm rig-mesh beaver` at the size of the parametric beaver, with a broad tail of two bones on the floor, a smaller bassoon, and no chair (`noChair`) | `2026-10-19-mesh-beaver.md` | `bassoonist` |
 | pig | the mesh `assets/models/pig/pig.glb`, rigged by `pnpm rig-mesh pig` at the size of the parametric pig, with a horn hold turned back toward the body | `2026-10-19-mesh-pig.md` | `hornist` |
 | wolf | the mesh `assets/models/wolf/wolf.glb`, rigged by `pnpm rig-mesh wolf` at the seated height of the orchestra images, with a bushy tail of two bones that hangs behind the seat, and a clarinet hold at 45° with the mouthpiece under the muzzle | `2026-10-20-mesh-wolf.md` | `clarinetist` |
-| badger | the mesh `assets/models/badger/badger.glb`, rigged by `pnpm rig-mesh badger` at the size of the parametric badger, standing at each percussion instrument, with its own arms and a tail ball | `2026-10-20-mesh-badger.md` | `bass-drummer`, `snare-drummer`, `cymbalist`, `percussionist`, `xylophonist` |
+| badger | the mesh `assets/models/badger/badger.glb`, rigged by `pnpm rig-mesh badger` at the size of the parametric badger, standing at each percussion instrument, with its own arms, a tail ball, and a suspended cymbal (`cymbalForm`) | `2026-10-20-mesh-badger.md` | `bass-drummer`, `snare-drummer`, `cymbalist`, `percussionist`, `xylophonist` |
 | penguin | an egg body in code, `src/models/penguin/` (route 2) | `2026-10-11-penguin-body.md` | none |
 
 Each other species has the parametric body of 2026-10-06 18:58

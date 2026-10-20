@@ -949,7 +949,7 @@ of the group.
 | timpani | two to four kettles, by the pitch range of the file | two mallets | stands |
 | percussion, bass drum player | bass drum on a stand | one beater | stands |
 | percussion, snare drum player | snare drum on a stand | two sticks | stands |
-| percussion, cymbals player | a pair of crash cymbals | one cymbal in each hand | stands |
+| percussion, cymbals player | a pair of crash cymbals, or a suspended cymbal on a stand (`SpeciesParams.cymbalForm`) | one cymbal in each hand, or a yarn mallet in each hand | stands |
 | percussion, small percussion player | a triangle and a tambourine | the triangle and its beater for keys 80, 81, and all other keys, and the tambourine for key 54 | stands |
 | percussion, mallet seat (programs 9-15, 112-119) | xylophone | two mallets | stands |
 | choir | a music folder | both hands | stands on the risers |
@@ -1016,9 +1016,13 @@ muzzle and the shoulders turn forward, and each palm reaches its grip of the cla
 the play and in the rest (5.3, `docs/decisions/2026-10-20-mesh-wolf.md`).
 The badger keeps the short arms of its mesh, so its drums and the tambourine stand nearer to it,
 and its paws reach each strike of the bass drum, the snare drum, the triangle, and the tambourine
-(`BASS_DRUM`, `SNARE_DRUM`, `TAMBOURINE`). Its arms do not hold the cymbals of the app out of the
-body or reach the outer bars of the xylophone of the app, so these two stay open for a choice of
-the user (`docs/decisions/2026-10-20-mesh-badger.md`).
+(`BASS_DRUM`, `SNARE_DRUM`, `TAMBOURINE`). Its arms do not hold hand cymbals of a real size out of
+its round body, so it plays a suspended cymbal on a stand in front of it, as an orchestra plays a
+part "with mallet" (`SpeciesParams.cymbalForm`, `SUSPENDED_CYMBAL`,
+`docs/decisions/2026-10-20-badger-cymbals.md`). Its arms do not reach the outer bars of the
+xylophone of the app, so the xylophone stays open for a choice of the user
+(`docs/decisions/2026-10-20-mesh-badger.md`). A species can also play smaller hand cymbals
+(`SpeciesParams.cymbalScale`).
 The chairs, the stands,
 and the podium keep their sizes in meters.
 
@@ -1048,7 +1052,7 @@ of each instrument (`models/instruments/`) holds its sizes and the offsets of it
 | Tuba | A large tube with an upward bell. | In the lap, with the bell left of the head. |
 | Timpani | Two to four kettles of the real size, by the highest timpani note (`kettleCount()`). | In an arc around the player, the outer kettles further out, with a mallet in each hand. |
 | Bass drum, snare drum, xylophone | Drums on stands, and 30 bars from C5 to F7. | In front of the player, below the shoulders of the badger, within the reach of its short arms where they reach. |
-| Cymbals, small percussion | Two crash cymbals, a triangle, and a tambourine. | In the hands, above the floor. The beater strikes the tambourine for key 54. |
+| Cymbals, small percussion | Two crash cymbals, or one suspended cymbal level on a stand with two yarn mallets. A triangle and a tambourine. | The crash cymbals in the hands, above the floor. The suspended cymbal in front of the player, below its wrists. The beater strikes the tambourine for key 54. |
 | Baton | A straight white stick that tapers to the tip (user, 2026-10-13). | In the right hand. |
 
 In the bind pose, each mallet, stick, beater, the triangle, and the baton lies in the hanging

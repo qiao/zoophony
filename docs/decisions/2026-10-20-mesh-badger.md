@@ -23,6 +23,5 @@ measures. The user can reverse each decision. Then update its section, and remov
 | Bass drum: the drum moves 6 cm left and 3 cm back (`BASS_DRUM.center`), and the beater strikes 12 cm below the middle, as real players strike off the middle. The beater keeps the angle of no paw twist, and stays over the drum at rest. | 4.6, 5.3 |
 | Snare drum: the drum moves to 0.45 m in front and 0.46 m high (`SNARE_DRUM`), within reach. The sticks leave the front of the fists (`malletTilt`) in a V of 66°, 9° down, as the matched grip. | 4.6, 5.3 |
 | Small percussion: the left paw holds the triangle at the mouth, as near to eye level as it reaches, also at rest (`triangleClip`, `triangleHand`). The tambourine stand moves within reach (`TAMBOURINE.mount`). | 4.6, 5.3 |
-| Stop, open: the cymbals (0.40 m) go 7.4 cm or more into the body and miss the crash at each arm factor up to 1.25 (`cymbal-scan.txt`). Only the elbows change, for the arm gate (`poleL`, `poleR`). | 4.6, 5.3 |
 | Stop, open: the arms reach at most 85% of the xylophone strikes (factor 1.25, bars 0.22 m in front), so the xylophone keeps its place. Its mallets take the snare grip, for the arm gate. | 4.6, 5.3 |
 | The agent accepted the paw crops while the user slept (`arms-*.webp`), and set the five grips to their play medians (`ACCEPTED_GRIPS`). | 4.4, 9.8 |

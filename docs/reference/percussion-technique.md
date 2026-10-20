@@ -198,10 +198,13 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   of the mouth of the badger, below the eye level of section 8, because the short arm reaches no
   higher in front of the long snout. The beater in the right paw strikes the triangle, and the
   tambourine stands on a stand at the front right, where section 8 gives a tambourine in the hand.
-- **The crash cymbals.** The app differs, and the hold is open. The plates of the app meet in
-  front of the shoulders, vertical, while section 7 gives tilted plates. The short arms hold them
-  so near that the plates go 7 cm or more into the body, where section 7 gives the edges about 3
-  inches from the body.
+- **The cymbals.** The badger plays a suspended cymbal, as section 7 gives for a part "with
+  mallet": its short arms cannot hold hand cymbals of the smallest real size (14 inches) out of its
+  round body (`docs/decisions/2026-10-20-badger-cymbals.md`). The cymbal is 0.40 m wide (about 16
+  inches), level on a stand. The yarn mallets take the grip of the snare sticks, and the paws
+  strike in turn about half an inch in from the edge, opposite each other, as section 7 gives. The
+  roll of the app is the alternate strikes of the notes. The app has no muffling of the plate. The
+  hand cymbals of the app meet in front of the shoulders, vertical (`PERCUSSION_PLACES`).
 - **The xylophone.** The mallets leave the front of the fists, as the sticks of the snare drum,
   as section 9 gives. The app differs: the body does not move from side to side behind the
   notes, so the short arms do not reach the outer bars, and the hold is open.

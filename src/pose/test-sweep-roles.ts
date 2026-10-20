@@ -1304,9 +1304,8 @@ export const SNARE_DRUMMER_SWEEP: RoleSweep = percussionSweep(
 );
 
 /**
- * The sweep of the badger with a crash cymbal in each paw. The cymbals of the app go into the
- * body of the badger mesh, because its short arms do not hold them far enough in front of it
- * (`docs/decisions/2026-10-20-mesh-badger.md`, open).
+ * The sweep of the badger with the suspended cymbal on its stand and a yarn mallet in each paw
+ * (`docs/decisions/2026-10-20-badger-cymbals.md`).
  */
 export const CYMBALIST_SWEEP: RoleSweep = percussionSweep(
   'cymbalist',

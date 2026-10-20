@@ -566,11 +566,14 @@ export const SPECIES = {
    * claws. It has the studio body of the mesh of the user, `assets/models/badger/badger.glb`,
    * which `pnpm rig-mesh badger` rigs (design 4.4), with the size of the parametric badger
    * (2026-10-20-mesh-badger decisions). It stands at each percussion instrument. Its head height
-   * is the head of the studio body, and the seat height is the seat of the studio body, in H.
+   * is the head of the studio body, and the seat height is the seat of the studio body, in H. Its
+   * short arms cannot hold hand cymbals of a real size out of its round body, so it plays a
+   * suspended cymbal (2026-10-20-badger-cymbals decisions).
    */
   badger: {
     body: 'studio-badger',
     size: 1,
+    cymbalForm: 'suspended',
     colors: SPECIES_COLORS.badger,
     accentParts: ['face-pattern'],
     proportions: {

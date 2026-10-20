@@ -45,7 +45,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Timpani, elephant | Stands | The reference images (`docs/research/2026-10-19-elephant-pose.md`) | Each mallet strikes the front kettle of its side, 0.25 m in from the near rim, and turns up and out between strikes. The trunk hangs in the gap between the two front kettles | The paws stay above the near rims with the mallets up | `PERCUSSION_HOLDS.timpani`, `TIMPANI`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-19-elephant-pose.md` | `pnpm close-views timpanist <dir>` |
 | Bass drum, badger | Stands behind the drum | `docs/reference/percussion-technique.md` 5 | The beater in the right paw strikes 12 cm below the middle of the right head, and leaves the side of the fist at the angle of no paw twist between strikes | The beater stays over the drum, and the left arm hangs | `PERCUSSION_HOLDS['bass-drum']`, `BASS_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views bass-drummer <dir>` |
 | Snare drum, badger | Stands | `docs/reference/percussion-technique.md` 6 | The drum stands at the height of the wrists, and the sticks leave the front of the fists in a V of about 66°, almost level, with the paws in turn | The arms hang | `PERCUSSION_HOLDS['snare-drum']`, `SNARE_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views snare-drummer <dir>` |
-| Cymbals, badger | Stands | `docs/reference/percussion-technique.md` 7 | The two cymbals meet in front of the shoulders. The short arms hold them too near, so the plates go into the body and miss the crash point (open) | The arms hang with the cymbals | `PERCUSSION_HOLDS.cymbals`, `PERCUSSION_PLACES.crash`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views cymbalist <dir>` |
+| Cymbals, badger | Stands | `docs/reference/percussion-technique.md` 7 | A suspended cymbal on a stand: the yarn mallets leave the front of the fists, as the snare sticks, and the paws strike in turn near the edge, opposite each other | The arms hang | `SUSPENDED_CYMBAL_HOLD`, `SUSPENDED_CYMBAL`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-badger-cymbals.md` | `pnpm close-views cymbalist <dir>` |
 | Small percussion, badger | Stands | `docs/reference/percussion-technique.md` 8 | The left paw holds the triangle by its clip at the height of the mouth, and the beater in the right paw strikes it, or the tambourine on its stand at the front right | The left paw keeps the triangle up, and the beater stays near it | `PERCUSSION_HOLDS['small-percussion']`, `PERCUSSION_PLACES`, `TAMBOURINE`, `TRIANGLE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views percussionist <dir>` |
 | Xylophone, badger | Stands | `docs/reference/percussion-technique.md` 9 | The mallets leave the front of the fists, as the snare sticks, and strike the bar of each key. The short arms do not reach the outer bars (open) | The arms hang | `PERCUSSION_HOLDS.xylophone`, `XYLOPHONE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views xylophonist <dir>` |
 | Choir, penguin | Stands on a riser | none | The beak opens with each note, and the flippers hold the folder close | The beak closes, and the flippers keep the folder | `CHOIR_HOLD`, `pose/choir.ts` | 5.3 choir, `2026-10-11-penguin-body.md` | `pnpm close-views species penguin <dir>` |
@@ -492,7 +492,8 @@ The code constants of each family hold the times, the angles, and the lengths of
   - With two mallets, a chord takes both hands, a fast repeat takes the other hand (a roll), and
     a hand does not cross the other. A mallet lifts before a strike, comes down at its full speed
     at the note start, and rebounds (`STRIKE_MOTION`). The elbows point down and near the body
-    (user decision of 2026-10-10). The cymbals meet in front of the shoulders.
+    (user decision of 2026-10-10). The hand cymbals meet in front of the shoulders, with one turn of
+    both plates (`PERCUSSION_PLACES`).
   - The timpani elephant has short arms behind a deep belly, and its trunk hangs between its two
     front kettles. So each hand strikes only the kettles on its side (`sides` of `HandsRule`), and
     a roll stays in one hand, because the other hand cannot reach across the trunk. Each note
@@ -532,10 +533,12 @@ The code constants of each family hold the times, the angles, and the lengths of
       bends it little on the forearm (`PERCUSSION_PLACES.triangleHand`). It keeps the triangle up
       also at rest (`ready`). The beater leaves the front of the right fist and strikes the
       triangle, or the tambourine on its stand at the front right, within the reach of the arm.
-    - The cymbals of the app are 0.40 m wide, and the short arms hold them too near the body. No
-      arm factor up to the limit of a mesh of the user keeps the plates out of the body, so this
-      hold stays open until the user chooses smaller cymbals or longer arms. The elbows point down
-      and a little out.
+    - The short arms cannot hold hand cymbals of a real size out of the round body, at any crash
+      place in reach or tilt of the plates. So the badger plays a suspended cymbal on a stand in
+      front of it, as an orchestra plays a part "with mallet" (`SpeciesParams.cymbalForm`). The
+      yarn mallets take the grip of the snare sticks, and the paws strike in turn near the edge,
+      opposite each other, as a real suspended cymbal roll (`SUSPENDED_CYMBAL_HOLD`,
+      `docs/decisions/2026-10-20-badger-cymbals.md`).
     - The xylophone mallets take the grip of the snare sticks, as a real player holds them. The
       xylophone of the app is wider than the reach of the short arms, and the body does not move
       from side to side, so the outer bars stay out of reach until the user chooses a smaller

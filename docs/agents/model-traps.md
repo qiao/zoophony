@@ -61,8 +61,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   instrument, the gallery query `only=<instrument>`, and `--at <species>:<instrument>`. A part that
   no demo plays needs the percussion test score of `tools/probe-demos.ts`.
 - Short arms cannot hold the cymbals of the app (0.40 m) out of a round body at any arm factor up
-  to 1.25 (`cymbal-scan.txt` of `docs/research/2026-10-20-badger-mesh/`). Scan the plates against
-  the body before the arms of a mesh are chosen.
+  to 1.25 (`cymbal-scan.txt` of `docs/research/2026-10-20-badger-mesh/`), nor hand cymbals of the
+  smallest real size at any crash place in reach or tilt (`scan-hand.txt` of
+  `docs/research/2026-10-20-badger-cymbals/`). Give such a body a suspended cymbal
+  (`SpeciesParams.cymbalForm`).
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit
   (`left-rest.ts` of `docs/research/2026-10-17-tan-rest/`).
 - Read the spare reach of each grip after each move of a rest place of a wind hold. `pnpm hold-fit`
