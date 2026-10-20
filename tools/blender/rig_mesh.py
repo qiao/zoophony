@@ -74,7 +74,7 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    (`tone()`). With `colors.border`, each dark face of a box whose texture is mostly light takes
    the color of the nearest light face (`border_faces()`). Then `colors.patch` makes each eye
    patch round (`patch_shape()`), and `colors.smile` draws a smile line in the dark of the
-   patches (`smile_line()`). Last, `colors.shift` moves the faces of a colored fur in Oklch
+   patches, or in its own `color` (`smile_line()`). Last, `colors.shift` moves the faces of a colored fur in Oklch
    (`shift_colors()`). The faces go in the order of a walk over their shared edges.
 8. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
@@ -697,7 +697,8 @@ def smile_line(corners, normals, colors, fur, rule, color):
     normal is at least `facing`. With `outward`, the x of its normal away from the middle plane is
     at most `outward` too: a face that turns to the side shows as a large dark area in a side
     view. A band on the lower lip gives the line, and a band on the underside of the upper lip
-    can turn its corners up. `corners` and `normals` are in the units and the axes of the source
+    can turn its corners up. The caller gives the `color` of the rule in place of the dark of the
+    patches when the rule has one. `corners` and `normals` are in the units and the axes of the source
     (`head_source()`). Gives the new colors and the faces of each band."""
     centers = corners.mean(axis=1)
     x = np.abs(centers[:, 0])
@@ -3771,8 +3772,11 @@ def main():
         if 'smile' in config['colors']:
             edges = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
             normals = edges / np.maximum(np.linalg.norm(edges, axis=1, keepdims=True), 1e-12)
-            colors_all, bands = smile_line(corners, normals, colors_all, fur_all,
-                                           config['colors']['smile'], patch_dark)
+            smile = config['colors']['smile']
+            # `color` of the rule (linear RGB) replaces the dark of the patches, for a mesh whose
+            # patches are a gray fur, such as the wolf.
+            colors_all, bands = smile_line(corners, normals, colors_all, fur_all, smile,
+                                           np.array(smile.get('color', patch_dark), float))
             log(f'smile: the bands take {[len(b) for b in bands]} faces')
     elif 'smile' in config['colors']:
         raise ValueError('colors.smile takes the dark color of colors.patch, so it needs '
