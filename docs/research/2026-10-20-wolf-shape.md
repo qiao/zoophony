@@ -120,3 +120,49 @@ The wolf is 0.9 times as high and 1.2 times as wide, with the same depth. Its hi
 is the ratio of the red fox. The arms keep their reach with the factor 1.178, the hold keeps its
 place in H with the mouthpiece 0.02 H higher, and the tail root goes 40° down. No sample folds, each
 part stays within the contact depth, and the arm gate passes.
+
+## 4. The head kept (round `wolf-head`)
+
+The user then said: "don't modify the head of the wolf". The rule `proportions` takes
+`"keep": "head"` with the blend zone y 0.74 u to 0.775 u of the source, from the narrow neck to
+the head line. The probes and their outputs are in
+[`2026-10-20-wolf-head/`](2026-10-20-wolf-head/). With no `keep`, the wolf and the fox rigs keep
+their bytes.
+
+**Zone.** From the neck joint at y 0.70 u, the zone took the top of the right shoulder: face 392
+folded in each rest sample and in 20% of the lift samples (`check-0.70.log`, `fold-0.70.txt`), and
+rigid weights made it worse (`check-0.70-rigid.log`). From 0.74 u or 0.75 u, no sample folds
+(`check-0.74.log`, `check-0.75.log`). In the zone, no face turns more than 36° from the source,
+and the smallest corner angle goes from 1.9° to 1.7° (`blend-faces.txt`).
+
+**Head.** `head-probe.ts` measures the standing body of the app (`head-980f2bf5.txt`,
+`head-98875452.txt`, `head-round.txt`):
+
+| Measure | `980f2bf5` | `98875452` | Round |
+|---|---|---|---|
+| Skull width | 0.412 m | 0.495 m | 0.412 m |
+| Skull top to chin | 0.352 m | 0.317 m | 0.350 m |
+| Ear span | 0.348 m | 0.417 m | 0.348 m |
+| Ear height | 0.162 m | 0.146 m | 0.162 m |
+| Nose tip to the eyes | 0.136 m | 0.134 m | 0.136 m |
+| Eye distance | 0.130 m | 0.161 m | 0.130 m |
+| Standing skull top | 1.765 m | 1.589 m | 1.620 m |
+| Seated head top | 1.600 m | 1.441 m | 1.470 m |
+
+**Body.** The shoulder joints (1.033 m), the widths at the shoulder joints (0.452 m) and at the
+thigh joints (0.516 m), the trunk depth (0.374 m), and the seat (0.307 m) keep the values of
+`98875452`. The seated wolf is 1.01 times as high as the seated dog cellist (`size-round.txt`).
+
+**Hold.** The mouthpiece 0.1 H below the mouth went 1.8 cm into the kept head, and 0.12 H, the
+place of round `mesh-wolf`, goes 1.3 cm (`fit1.txt`, `fit2.txt`). The note targets stay at
+0.00 mm, each part stays within 1.3 cm (limit 1.5 cm, `pose-depth-clarinetist.txt`), and the
+tail gaps keep their values (`check-final.log`).
+
+**Gate.** `pnpm arm-check --all --base 98875452` gives no `FAIL`, and each value of each role is
+the value of the base (`arm-check-all.txt`). `arms-strike.webp` and `arms-rest.webp` give the 2x
+crop pairs. `pnpm body-probe --base 98875452` changes only the wolf bodies and the wolf players
+(`body-probe.txt`).
+
+**Images.** `compare.webp` gives `980f2bf5`, `98875452`, and the round from left to right: the
+front of the head at rest, the side at a note, and the lineup beside the red fox and the dog.
+`head-base-views.webp` gives the face crops of `980f2bf5` above the round.
