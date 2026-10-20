@@ -9,7 +9,7 @@ import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import { HANDS_HOLDS } from '../src/pose/hands.ts';
 import type { HandAction } from '../src/pose/hand-notes.ts';
 import { PERCUSSION_HOLDS, PERCUSSION_PLACES } from '../src/pose/percussion-rig.ts';
-import type { HandsRule, MalletAcross, MalletCock, MalletTop } from '../src/pose/percussion-rig.ts';
+import type { HandsRule, MalletAcross, MalletTop } from '../src/pose/percussion-rig.ts';
 import type { Fingering } from '../src/pose/wind-notes.ts';
 import { IDENTITY } from '../src/models/tuples.ts';
 import type { Quat } from '../src/models/tuples.ts';
@@ -95,7 +95,6 @@ const NULL_FIELDS: ReadonlyMap<string, HoldValue> = new Map<string, HoldValue>([
       arc: [0, 0, 0],
     } satisfies FreePaw,
   ],
-  ['cock', { up: 0, out: 0 } satisfies MalletCock],
   ['across', { rest: 0, lift: 0 } satisfies MalletAcross],
 ]);
 

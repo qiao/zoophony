@@ -70,22 +70,6 @@ export interface MalletAcross {
 }
 
 /**
- * The turn of a mallet around its grip between strikes (design 5.3), as a real player turns the
- * wrist up before a stroke. At a strike, the mallet points from its home to the target. As the
- * head goes up to its rest height, the mallet turns around the grip, up and out to the side of
- * its hand, and the grip stays where the strike puts it.
- */
-export interface MalletCock {
-  /** The angle of the mallet above the level at the rest height, in radians. */
-  readonly up: number;
-  /**
-   * The turn of the mallet around the vertical, out to the side of its hand, from the direction
-   * of the strike, in radians.
-   */
-  readonly out: number;
-}
-
-/**
  * The values of the hold of each percussion instrument (design 5.3). The directions are in the
  * model axes of the bind pose: the player faces -z, and its left is -x.
  */
@@ -116,13 +100,9 @@ export interface PercussionHold {
   /** The turn of each mallet around its own axis in the paw. */
   readonly top: MalletTop;
   /**
-   * The turn of each mallet around its grip between strikes, or `null`: then the head lifts along
-   * the normal of its target, and the mallet points from the home to the head.
-   */
-  readonly cock: MalletCock | null;
-  /**
-   * The mallet across the forearm between strikes, or `null`. It takes the place of `top` and
-   * `cock`.
+   * The mallet across the forearm between strikes, or `null`: then the head lifts along the
+   * normal of its target, and the mallet points from the home to the head. It takes the place
+   * of `top`.
    */
   readonly across: MalletAcross | null;
   /**
@@ -175,7 +155,6 @@ export const PERCUSSION_HOLDS = {
     rim: 0.25,
     home: [0.1, -0.37, -0.2],
     top: 'shoulder',
-    cock: null,
     across: { rest: -1.2, lift: 0.65 },
     ready: true,
     pair: true,
@@ -190,7 +169,6 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    cock: null,
     across: null,
     ready: false,
     pair: false,
@@ -205,7 +183,6 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    cock: null,
     across: null,
     ready: false,
     pair: false,
@@ -221,7 +198,6 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    cock: null,
     across: null,
     ready: false,
     pair: false,
@@ -237,7 +213,6 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    cock: null,
     across: null,
     ready: false,
     pair: false,
@@ -252,7 +227,6 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    cock: null,
     across: null,
     ready: false,
     pair: false,
@@ -300,8 +274,6 @@ export type PercussionSide =
       readonly home: Vec3;
       /** The turn of the mallet around its own axis in the paw (`PercussionHold.top`). */
       readonly top: MalletTop;
-      /** The turn of the mallet around its grip between strikes (`PercussionHold.cock`). */
-      readonly cock: MalletCock | null;
       /** The mallet across the forearm between strikes (`PercussionHold.across`). */
       readonly across: MalletAcross | null;
       /**
@@ -492,7 +464,6 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
       head: malletHead(bone),
       home: toVec3(fromShoulder(arm, homeOf(arm))),
       top: hold.top,
-      cock: hold.cock,
       across: hold.across,
       tilt: malletTilt(arm, turn),
       length: malletLength(bone),

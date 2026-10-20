@@ -549,8 +549,8 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       right forearm looks thin at azimuth 35. Rings of the right forearm gave no visible gain.
       Done: a ring at the right shoulder gives 0.79 (p50) and removes the sharp wedge at the front
       of the right armpit (`2026-10-19-elephant-grip.md`).
-- [ ] Remove the mallet cock (`PercussionHold.cock`): no hold uses it since phase 3 of the
-      elephant pose (`2026-10-19-elephant-pose.md`).
+- [x] Remove the mallet cock (`PercussionHold.cock`): no hold uses it since phase 3 of the
+      elephant pose (`2026-10-19-elephant-pose.md`). Done in round `elephant-grip`.
 - [ ] Elephant timpanist arms after the refit: the long thin faces at the front of the right
       armpit shade dark. From the front, the bent left elbow shows a sharp corner, and the cut a
       dark slot at the top of the left upper arm (`arms.webp` of
