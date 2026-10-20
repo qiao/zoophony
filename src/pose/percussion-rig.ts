@@ -104,7 +104,7 @@ export interface PercussionHold {
   /**
    * The place from which a mallet points to its target, from the shoulder joint of its side, in
    * head heights `H`. Thus the wrist stays in front of the body and below the shoulder, and the
-   * mallet slants down.
+   * mallet slants down. The x points to the out side of each hand: -x for the left hand.
    */
   readonly home: Vec3;
   /** The turn of each mallet around its own axis in the paw. */
@@ -459,11 +459,16 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
     const grip = model.skeleton.positions[boneIndex(bone)] ?? head;
     return new Vector3(...head).distanceTo(new Vector3(...grip));
   };
+  // The x of the home points to the out side of the hand.
+  const homeOf = (arm: ArmRig): Vec3 => {
+    const [x, y, z] = hold.home;
+    return [arm.side === 'L' ? -x : x, y, z];
+  };
   const mallet = (arm: ArmRig, bone: 'malletL' | 'malletR'): PercussionSide => ({
     kind: 'mallet',
     arm,
     head: malletHead(bone),
-    home: toVec3(fromShoulder(arm, hold.home)),
+    home: toVec3(fromShoulder(arm, homeOf(arm))),
     top: hold.top,
     cock: hold.cock,
     across: hold.across,
