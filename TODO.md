@@ -545,16 +545,29 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Elephant timpanist paws: the manager saw wrung paws in phase 2 (the paw turned about 130°
       on the forearm). Done: the mallet across the forearm with its head at the back of the fist;
       the paw turns 36° (`2026-10-19-elephant-pose.md`).
-- [ ] Elephant timpanist: the right shoulder ring is flat (0.70 of the bind, goal 0.80), and the
+- [x] Elephant timpanist: the right shoulder ring is flat (0.70 of the bind, goal 0.80), and the
       right forearm looks thin at azimuth 35. Rings of the right forearm gave no visible gain.
-      Next: a weight rule or a corrective shape for the long thin faces at the front of the right
-      armpit, measured with `pnpm arm-shape --rings` (`docs/research/2026-10-19-elephant-pose.md`).
+      Done: a ring at the right shoulder gives 0.79 (p50) and removes the sharp wedge at the front
+      of the right armpit (`2026-10-19-elephant-grip.md`).
 - [ ] Remove the mallet cock (`PercussionHold.cock`): no hold uses it since phase 3 of the
       elephant pose (`2026-10-19-elephant-pose.md`).
 - [ ] Elephant timpanist arms after the refit: the long thin faces at the front of the right
       armpit shade dark. From the front, the bent left elbow shows a sharp corner, and the cut a
       dark slot at the top of the left upper arm (`arms.webp` of
       `docs/research/2026-10-19-arm-skin/elephant/`).
+- [x] Elephant timpanist grip: the user saw the mallets held in the reverse direction, and
+      squeezed arms from the back. Done: the head out of the front of the fist, the mallets
+      forward and in, the paw turn 39° / 44° (`2026-10-19-elephant-grip.md`).
+- [ ] Elephant timpanist arm gate: the grip turn fails (28° / 32°) against the old accepted grip.
+      Accept the paw crops (`crops.webp` of `docs/research/2026-10-19-elephant-grip/`), then set
+      `ACCEPTED_GRIPS` of the timpanist to L -2, R -6 (`2026-10-19-elephant-grip.md`).
+- [ ] Elephant timpanist arm gate: the stretch of the left wrist counts from the rest, where the
+      wrist lifts the head, and fails (0.22, base 0.09). Against the bind it is lower than the
+      base. Decide the reference of the stretch for a lifted rest, or a smaller lift
+      (`docs/research/2026-10-19-elephant-grip.md` 5).
+- [ ] Elephant timpanist: the third shape of `raise` (the bent right wrist with the mallet up)
+      has no pose near its rule since the new grip. Remove it, or fit it to another fold
+      (`tools/mesh-rigs/elephant.json`).
 - [ ] Pig hornist folds: two faces of the right hoof fold in each rest sample and in 26.5% of the
       lift samples, because a body has at most four corrective shapes (`RAISE_LIMIT`). Try a
       weight rule of the right paw, or a rest with a smaller turn of the right wrist
