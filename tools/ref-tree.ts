@@ -875,7 +875,8 @@ export function storeBase(file: string, text: string): void {
  * {@link withProbeTree}, and the second child runs in the repository. Each child writes its
  * results into a file of the folder, which the option `--json <file>` names. The caller only
  * waits, so a stop (INT or TERM) ends both children at once, and removes the folder. A failure of
- * one child ends the other child at once.
+ * one child ends the other child at once, and the error names the child that failed first, with
+ * its error output.
  *
  * @param ref The commit, a branch, or a tag.
  * @param script The script, such as `pose-depth.ts`.
@@ -907,24 +908,31 @@ function probeBoth(
         ),
       };
       // A failure of one child ends the other at once, so the report of the failure comes early.
+      // The other child then ends with no error output, so the report names the child that
+      // failed first.
+      const failed: (keyof BesideTexts)[] = [];
       const endOther =
-        (other: StartedChild) =>
+        (own: keyof BesideTexts, other: StartedChild) =>
         async (error: Error): Promise<void> => {
+          failed.push(own);
           await endChild(other.child);
           throw error;
         };
       const [base, tree] = await Promise.allSettled([
-        children.base.done.catch(endOther(children.tree)),
-        children.tree.done.catch(endOther(children.base)),
+        children.base.done.catch(endOther('base', children.tree)),
+        children.tree.done.catch(endOther('tree', children.base)),
       ]);
-      if (base.status === 'rejected') {
+      if (base.status === 'rejected' && failed[0] !== 'tree') {
         const reason: unknown = base.reason;
         throw new Error(
           `The probe of ${ref} failed: ${reason instanceof Error ? reason.message : String(reason)}`,
         );
       }
       if (tree.status === 'rejected') {
-        throw tree.reason;
+        const reason: unknown = tree.reason;
+        throw new Error(
+          `The probe of the working tree failed: ${reason instanceof Error ? reason.message : String(reason)}`,
+        );
       }
       return {
         base: await readFile(files.base, 'utf8'),
