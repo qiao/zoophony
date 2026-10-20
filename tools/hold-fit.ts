@@ -92,6 +92,7 @@ import {
   joinReach,
   restoreDepth,
   restoreResult,
+  sampleAt,
   sweepDemos,
 } from './pose-depth.ts';
 import type { DemoResult, GapsOf, StoredDepth, StoredResult } from './pose-depth.ts';
@@ -1446,6 +1447,42 @@ export function fitTable(rows: readonly FitRow[]): string[] {
   return lines;
 }
 
+/**
+ * Writes the table of the samples of the deepest points of {@link fitTable}: one row for each
+ * variant, with the demo and the time of the deepest point of each sample set and of the
+ * instrument in the body (`sampleAt()` of `tools/pose-depth.ts`).
+ *
+ * @param rows The rows, in the order of the fit table.
+ * @returns The lines: an empty line, a title, and the table, or none with no deepest point.
+ */
+export function placeTable(rows: readonly FitRow[]): string[] {
+  const sets = [...new Set(rows.flatMap((row) => row.depths.map((d) => d.set)))];
+  const held = rows.some((row) => row.held);
+  if (sets.length === 0 && !held) {
+    return [];
+  }
+  const header = [
+    'Variant',
+    ...sets.map((set) => `${set} deepest at`),
+    ...(held ? ['Instrument in body at'] : []),
+  ];
+  const lines = [
+    '',
+    'The demo and the time of each deepest point of the table:',
+    `| ${header.join(' | ')} |`,
+    `|${header.map(() => '---').join('|')}|`,
+  ];
+  for (const row of rows) {
+    const cells = sets.map((set) => {
+      const worst = row.depths.find((d) => d.set === set);
+      return worst ? sampleAt(worst.demo, set, worst.pair) : '-';
+    });
+    const heldCell = row.held ? sampleAt(row.held.demo, row.held.set, row.held.pair) : '-';
+    lines.push(`| ${[row.variant || 'base', ...cells, ...(held ? [heldCell] : [])].join(' | ')} |`);
+  }
+  return lines;
+}
+
 /** The rest of one variant in one rest sample of a scan (`--scan`). */
 export interface ScanRow {
   /** The text of the changes, or empty for the base. */
@@ -1845,9 +1882,8 @@ async function compareFit(options: FitOptions, ref: string): Promise<void> {
   for (const row of rows) {
     printRow(row);
   }
-  console.log(
-    ['', ...fitTable([...(first ? [{ ...first, variant: label }] : []), ...rows])].join('\n'),
-  );
+  const shown = [...(first ? [{ ...first, variant: label }] : []), ...rows];
+  console.log(['', ...fitTable(shown), ...placeTable(shown)].join('\n'));
   if (options.faces > 0) {
     console.log(faceSections(first, label, tree.rows).join('\n'));
   }
@@ -2025,7 +2061,7 @@ async function main(): Promise<void> {
     }
   }
   const table = options.grids.length > 0 ? sortFitRows(rows) : rows;
-  console.log(['', ...fitTable(table)].join('\n'));
+  console.log(['', ...fitTable(table), ...placeTable(table)].join('\n'));
   if (options.faces > 0) {
     console.log(faceSections(rows[0], 'the base', rows).join('\n'));
   }
