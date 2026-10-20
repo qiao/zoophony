@@ -59,9 +59,17 @@
  * table with a column for each commit and one for the working tree ({@link stateLines}). The exit
  * code reads the working tree, as the gate with no base.
  *
+ * `--explain <measure>` explains `stretch` or `flat` of one role in this tree, with no child and
+ * no cache ({@link explainLines}): the value of each arm in each sample set against the rest
+ * sample and against the bind, with the mark `MOVES` at a stretch that is larger from the rest
+ * than from the bind, the part of the rest sample of each demo that shrinks most from the bind,
+ * and the worst edges or rings of the worst sample of each arm, with the bone of each.
+ *
  * Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>]
  * [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long], or
- * pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]...
+ * pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]...,
+ * or pnpm arm-check <role> --explain <stretch | flat> [--demo <id>]... [--step <seconds>]
+ * [--set <changes>]...
  */
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -315,6 +323,8 @@ interface ArmBind {
   readonly corners: Uint32Array;
   /** The three vertices of each face of the forearm and the paw ({@link armFaces}). */
   readonly lower: Uint32Array;
+  /** The index in the skin of each face of {@link ArmBind.lower}. */
+  readonly lowerFaces: readonly number[];
   /** The bind length of the three edges of each face of {@link ArmBind.lower}. */
   readonly lengths: Float32Array;
   /** The bind length of the upper arm. */
@@ -576,7 +586,8 @@ function armBind(rig: StudioRig, side: Side): ArmBind {
   const lowerJoints = (['forearm', 'forearm_twist', 'hand', 'fingers'] as const).map((bone) =>
     STUDIO_BONES.indexOf(`${bone}_${side}`),
   );
-  const lower = cornersOf(armFaces(mesh, lowerJoints));
+  const lowerSet = armFaces(mesh, lowerJoints);
+  const lower = cornersOf(lowerSet);
   return {
     bones,
     joints,
@@ -584,6 +595,7 @@ function armBind(rig: StudioRig, side: Side): ArmBind {
     faces,
     corners,
     lower,
+    lowerFaces: [...lowerSet],
     lengths: edgeLengths(mesh.positions, lower),
     upper: joints.elbow.distanceTo(joints.shoulder),
   };
@@ -1295,11 +1307,13 @@ export interface CheckArgs {
   readonly step: number | null;
   /** The commits of `--states`, each a column of one table, or empty for the gate. */
   readonly states: readonly string[];
+  /** The measure of `--explain`, or `null` for the gate. */
+  readonly explain: Explained | null;
 }
 
 /** The usage text. */
 const USAGE =
-  'Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>] [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long] [--states <ref>,...], or pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]...';
+  'Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>] [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long] [--states <ref>,...], or pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]..., or pnpm arm-check <role> --explain <stretch | flat> [--demo <id>]... [--step <seconds>] [--set <changes>]...';
 
 /**
  * Reads the command line of the tool.
@@ -1319,6 +1333,7 @@ export function checkArgs(args: readonly string[]): CheckArgs {
     '--jobs',
     '--trace',
     '--states',
+    '--explain',
   ]);
   const flags = new Set(['--all', '--views-all', '--long']);
   const roles: string[] = [];
@@ -1384,6 +1399,19 @@ export function checkArgs(args: readonly string[]): CheckArgs {
       `The option --states takes commits separated by commas, and no ${stateless.join(', ') || 'empty list'}.\n${USAGE}`,
     );
   }
+  const explainText = values.get('--explain')?.[0] ?? null;
+  const explain = EXPLAINED.find((measure) => measure === explainText) ?? null;
+  if (explainText !== null && explain === null) {
+    throw new Error(`The option --explain takes ${EXPLAINED.join(' or ')}.\n${USAGE}`);
+  }
+  const unexplained = ['--base', '--glb', '--views', '--jobs', '--trace', '--states'].filter((o) =>
+    values.has(o),
+  );
+  if (explain && (chosen.length !== 1 || all || unexplained.length > 0 || seen.has('--long'))) {
+    throw new Error(
+      `The option --explain takes one role, --demo, --step, and --set, and no --all, --long, or ${unexplained.join(', ') || 'option of the gate'}.\n${USAGE}`,
+    );
+  }
   const pairs = (name: string): string[] => (values.get(name) ?? []).flatMap((v) => [name, v]);
   return {
     roles: chosen,
@@ -1397,6 +1425,7 @@ export function checkArgs(args: readonly string[]): CheckArgs {
     trace,
     step,
     states,
+    explain,
   };
 }
 
@@ -1544,6 +1573,479 @@ export async function traceLines(role: string, range: TraceRange, step: number):
   return lines;
 }
 
+/** The step of the song time of the play samples of the gate with no `--step`, in seconds. */
+export const GATE_STEP = 0.25;
+
+/** The measures that `--explain` takes. */
+export const EXPLAINED = ['stretch', 'flat'] as const;
+
+/** A measure of `--explain`. */
+export type Explained = (typeof EXPLAINED)[number];
+
+/** The number of edges of the worst sample that `--explain stretch` lists for each arm. */
+export const EXPLAIN_EDGES = 8;
+
+/** The parts of one posed arm that `--explain` reads. */
+interface ArmParts {
+  /** The length of each edge of the faces of the forearm and the paw ({@link lowerLengths}). */
+  readonly lengths: Float32Array;
+  /** The narrow axis of each ring of {@link ArmBind.rings}, or `NaN` for a ring with no value. */
+  readonly narrows: readonly number[];
+}
+
+/** One sample of one arm for `--explain`. */
+interface ExplainSample {
+  /** The demo and the time. */
+  readonly label: string;
+  /** The sample set. */
+  readonly set: SampleSet;
+  /** The value of the measure against the rest sample of the same demo. */
+  readonly rest: number;
+  /** The value of the measure against the bind pose. */
+  readonly bind: number;
+}
+
+/** One sample of one arm with its parts, for the tables of `--explain`. */
+interface PartSample {
+  /** The values. */
+  readonly sample: ExplainSample;
+  /** The parts of the sample. */
+  readonly parts: ArmParts;
+  /** The parts of the rest sample of the same demo, or `null` before the rest sample. */
+  readonly rest: ArmParts | null;
+  /** The bind facts of the arm. */
+  readonly arm: ArmBind;
+  /** The skin, for the bone of an edge. */
+  readonly mesh: Pick<StudioMesh, 'joints' | 'weights'>;
+}
+
+/**
+ * Gives the narrow axis of each ring of one posed arm, as {@link measureArm} reads it for the flat
+ * share.
+ *
+ * @param arm The bind facts of the arm.
+ * @param matrices The skin matrices of the pose.
+ * @param posed The posed places of the vertices.
+ * @returns The narrow axis of each ring, in meters, or `NaN` for a ring that the flat share skips.
+ */
+function ringNarrows(
+  arm: ArmBind,
+  matrices: ArrayLike<number>,
+  posed: ArrayLike<number>,
+): number[] {
+  const { shoulder, elbow, upperAxis, foreAxis } = armAxes(arm, matrices);
+  return arm.rings.map((ring) => {
+    if (!(ring.narrow > 0) || ring.along.length <= 2) {
+      return Number.NaN;
+    }
+    const upper = ring.ring.bone === 'upper';
+    const axis = upper ? upperAxis : foreAxis;
+    const radials = ringRadials(ring, posed, upper ? shoulder : elbow, axis);
+    return narrowAxis(Float32Array.from(radials), axis);
+  });
+}
+
+/**
+ * Gives the value of a measure of `--explain` for one posed arm, as {@link measureArm} gives it
+ * against a reference: the stretch from the edge lengths of the reference, or the flat share
+ * against the narrow axes of the reference.
+ *
+ * @param measure The measure.
+ * @param arm The bind facts of the arm.
+ * @param parts The parts of the sample.
+ * @param reference The parts of the reference sample, or `null` for the bind pose.
+ * @returns The value.
+ */
+function partValue(
+  measure: Explained,
+  arm: ArmBind,
+  parts: ArmParts,
+  reference: ArmParts | null,
+): number {
+  if (measure === 'stretch') {
+    const from = reference?.lengths ?? arm.lengths;
+    let most = 0;
+    for (let k = 0; k < arm.lengths.length; k++) {
+      most = Math.max(most, (parts.lengths[k] ?? 0) - (from[k] ?? 0));
+    }
+    return most / arm.upper;
+  }
+  let least = Infinity;
+  for (const [i, ring] of arm.rings.entries()) {
+    const from = reference ? (reference.narrows[i] ?? Number.NaN) : ring.narrow;
+    const share = (parts.narrows[i] ?? Number.NaN) / from;
+    if (Number.isFinite(share)) {
+      least = Math.min(least, share);
+    }
+  }
+  return Number.isFinite(least) ? least : 1;
+}
+
+/**
+ * Names the joint with the most weight on the two vertices of an edge.
+ *
+ * @param mesh The skin.
+ * @param a The first vertex.
+ * @param b The second vertex.
+ * @returns The name of the studio bone, or `joint <index>` for an extra joint.
+ */
+function edgeBone(mesh: Pick<StudioMesh, 'joints' | 'weights'>, a: number, b: number): string {
+  const sums = new Map<number, number>();
+  for (const v of [a, b]) {
+    for (let k = 0; k < 4; k++) {
+      const joint = mesh.joints[v * 4 + k] ?? -1;
+      sums.set(joint, (sums.get(joint) ?? 0) + (mesh.weights[v * 4 + k] ?? 0));
+    }
+  }
+  const [joint = -1] = [...sums].toSorted((x, y) => y[1] - x[1])[0] ?? [];
+  return STUDIO_BONES[joint] ?? `joint ${joint}`;
+}
+
+/**
+ * Gives the two vertices of an edge of the faces of the forearm and the paw.
+ *
+ * @param arm The bind facts of the arm.
+ * @param k The index of the edge in {@link ArmBind.lengths}: three for each face.
+ * @returns The vertex at the start of the edge and the vertex at its end.
+ */
+function edgeEnds(arm: ArmBind, k: number): [number, number] {
+  const face = Math.floor(k / 3);
+  return [arm.lower[k] ?? 0, arm.lower[face * 3 + ((k + 1) % 3)] ?? 0];
+}
+
+/**
+ * Writes a length in cm.
+ *
+ * @param meters The length, in meters.
+ * @returns The text, such as `1.25`.
+ */
+function cm(meters: number | undefined): string {
+  return meters === undefined || !Number.isFinite(meters) ? '-' : (meters * 100).toFixed(2);
+}
+
+/**
+ * Writes the tables of the worst edges of the stretch of one arm in its worst sample: the edges
+ * that grow most from the reference of the gate, the rest sample.
+ *
+ * @param worst The worst sample.
+ * @returns The lines of the table.
+ */
+function stretchRows(worst: PartSample): string[] {
+  const { arm, parts, rest, mesh } = worst;
+  const from = rest?.lengths ?? arm.lengths;
+  const share = (meters: number): string => (meters / arm.upper).toFixed(3);
+  const order = Array.from(arm.lengths, (...[, k]) => k).toSorted(
+    (x, y) => (parts.lengths[y] ?? 0) - (from[y] ?? 0) - ((parts.lengths[x] ?? 0) - (from[x] ?? 0)),
+  );
+  // Two faces share an edge, so each edge gets one row with the faces of each of its sides.
+  const edges = new Map<string, { readonly k: number; readonly faces: number[] }>();
+  for (const k of order) {
+    const [a, b] = edgeEnds(arm, k);
+    const key = `${Math.min(a, b)}-${Math.max(a, b)}`;
+    const face = arm.lowerFaces[Math.floor(k / 3)] ?? -1;
+    const found = edges.get(key);
+    if (found) {
+      found.faces.push(face);
+    } else if (edges.size < EXPLAIN_EDGES) {
+      edges.set(key, { k, faces: [face] });
+    }
+  }
+  const lines = [
+    '| Faces | Edge | Bone | Sample cm | Rest cm | Bind cm | From the rest | From the bind | Rest from the bind |',
+    '|---|---|---|---:|---:|---:|---:|---:|---:|',
+  ];
+  for (const [key, { k, faces }] of edges) {
+    const [a, b] = edgeEnds(arm, k);
+    const sample = parts.lengths[k] ?? 0;
+    const bind = arm.lengths[k] ?? 0;
+    const restLength = rest?.lengths[k];
+    const cells = [
+      faces.join(', '),
+      key,
+      edgeBone(mesh, a, b),
+      cm(sample),
+      cm(restLength),
+      cm(bind),
+      restLength === undefined ? '-' : share(sample - restLength),
+      share(sample - bind),
+      restLength === undefined ? '-' : share(restLength - bind),
+    ];
+    lines.push(`| ${cells.join(' | ')} |`);
+  }
+  return lines;
+}
+
+/**
+ * Writes the table of the rings of the flat share of one arm in its worst sample, the flattest
+ * ring against the bind first.
+ *
+ * @param worst The worst sample.
+ * @param side The side of the arm.
+ * @returns The lines of the table.
+ */
+function flatRows(worst: PartSample, side: Side): string[] {
+  const { arm, parts, rest } = worst;
+  const ratio = (value: number | undefined, from: number | undefined): string => {
+    const share = (value ?? Number.NaN) / (from ?? Number.NaN);
+    return Number.isFinite(share) ? share.toFixed(3) : '-';
+  };
+  const rings = [...arm.rings.entries()].toSorted(
+    ([x, a], [y, b]) =>
+      ((parts.narrows[x] ?? Number.NaN) / a.narrow || Infinity) -
+      ((parts.narrows[y] ?? Number.NaN) / b.narrow || Infinity),
+  );
+  const lines = [
+    '| Ring | Bone | Sample cm | Rest cm | Bind cm | From the rest | From the bind | Rest from the bind |',
+    '|---|---|---:|---:|---:|---:|---:|---:|',
+  ];
+  for (const [i, ring] of rings) {
+    const cells = [
+      ring.ring.name,
+      ring.ring.bone === 'upper' ? `upper_arm_${side}` : `forearm_${side}`,
+      cm(parts.narrows[i]),
+      cm(rest?.narrows[i]),
+      cm(ring.narrow),
+      ratio(parts.narrows[i], rest?.narrows[i]),
+      ratio(parts.narrows[i], ring.narrow),
+      ratio(rest?.narrows[i], ring.narrow),
+    ];
+    lines.push(`| ${cells.join(' | ')} |`);
+  }
+  return lines;
+}
+
+/** The part of a rest sample that shrinks most from the bind ({@link restShrink}). */
+interface RestShrink {
+  /** The edge or the ring, with its bone. */
+  readonly part: string;
+  /** The change of the edge as a signed share of the upper arm, or the share of the ring. */
+  readonly value: number;
+  /** The shrink: the edge shorter than in the bind, or the ring narrower, 0 for none. */
+  readonly shrink: number;
+}
+
+/**
+ * Gives the part of a rest sample that shrinks most from the bind: the edge whose length falls
+ * most, as a share of the upper arm, or the ring whose narrow axis falls most, as a share of the
+ * bind. A short edge in the rest makes each stretch from the rest larger, and a narrow ring makes
+ * each flat share from the rest larger.
+ *
+ * @param measure The measure.
+ * @param entry The rest sample.
+ * @param side The side of the arm.
+ * @returns The part, its change, and the shrink.
+ */
+function restShrink(measure: Explained, entry: PartSample, side: Side): RestShrink {
+  const { arm, parts, mesh } = entry;
+  if (measure === 'stretch') {
+    let best = 0;
+    for (let k = 1; k < arm.lengths.length; k++) {
+      const change = (parts.lengths[k] ?? 0) - (arm.lengths[k] ?? 0);
+      if (change < (parts.lengths[best] ?? 0) - (arm.lengths[best] ?? 0)) {
+        best = k;
+      }
+    }
+    const [a, b] = edgeEnds(arm, best);
+    const value = ((parts.lengths[best] ?? 0) - (arm.lengths[best] ?? 0)) / arm.upper;
+    return {
+      part: `face ${arm.lowerFaces[Math.floor(best / 3)] ?? '-'}, edge ${Math.min(a, b)}-${Math.max(a, b)}, ${edgeBone(mesh, a, b)}`,
+      value,
+      shrink: Math.max(0, -value),
+    };
+  }
+  let best: RestShrink = { part: '-', value: 1, shrink: 0 };
+  for (const [i, ring] of arm.rings.entries()) {
+    const value = (parts.narrows[i] ?? Number.NaN) / ring.narrow;
+    if (Number.isFinite(value) && 1 - value > best.shrink) {
+      const bone = ring.ring.bone === 'upper' ? `upper_arm_${side}` : `forearm_${side}`;
+      best = { part: `ring ${ring.ring.name}, ${bone}`, value, shrink: 1 - value };
+    }
+  }
+  return best;
+}
+
+/**
+ * Explains one measure of the gate for one role (`--explain`): the value of each arm in each
+ * sample set against the rest sample and against the bind, with the mark `MOVES` when the stretch
+ * from the rest is larger than from the bind (the rest sample moves the reference of the gate),
+ * the part of the rest sample of each demo that shrinks most from the bind ({@link restShrink}),
+ * and the worst edges or rings of the worst sample of each arm.
+ *
+ * @param role The name of the role.
+ * @param source The role.
+ * @param demos The demos.
+ * @param step The step of the play, in seconds.
+ * @param measure The measure.
+ * @returns The lines.
+ */
+export function explainLines(
+  role: string,
+  source: RoleSource,
+  demos: readonly DemoFile[],
+  step: number,
+  measure: Explained,
+): string[] {
+  const limit = ARM_LIMITS[measure];
+  const fromRest = measure === 'stretch';
+  const gate = (sample: ExplainSample): number => (fromRest ? sample.rest : sample.bind);
+  const samples: Record<Side, ExplainSample[]> = { L: [], R: [] };
+  const rests: Record<Side, PartSample[]> = { L: [], R: [] };
+  const worst: Record<Side, PartSample | null> = { L: null, R: null };
+  const found: string[] = [];
+  for (const demo of demos) {
+    const restOf: Record<Side, ArmParts | null> = { L: null, R: null };
+    const report = probeFolds(source, [demo], step, (...[rig, studio, posed, , set, label]) => {
+      const arms = armBinds(rig);
+      for (const side of SIDES) {
+        const arm = arms[side];
+        const parts: ArmParts = {
+          lengths: lowerLengths(arm, posed),
+          narrows: ringNarrows(arm, studio.matrices, posed),
+        };
+        // The rest sample of a demo comes first, and the stretch of the gate counts from it.
+        if (set === 'rest') {
+          restOf[side] = parts;
+        }
+        const rest = restOf[side];
+        const sample: ExplainSample = {
+          label,
+          set,
+          rest: partValue(measure, arm, parts, rest),
+          bind: partValue(measure, arm, parts, null),
+        };
+        samples[side].push(sample);
+        const entry: PartSample = { sample, parts, rest, arm, mesh: rig.mesh };
+        if (set === 'rest') {
+          rests[side].push(entry);
+        }
+        const before = worst[side];
+        const value = gate(sample);
+        if (!before || (limit.up ? value > gate(before.sample) : value < gate(before.sample))) {
+          worst[side] = entry;
+        }
+      }
+    });
+    found.push(...report.demos);
+  }
+
+  const digits = limit.digits + 1;
+  const uppers = SIDES.map((side) => {
+    const upper = worst[side]?.arm.upper;
+    return `${side} ${upper === undefined ? '-' : upper.toFixed(3)} m`;
+  });
+  const table = [
+    `| Arm | Set | Samples | ${limit.stat} from the rest${fromRest ? ' (gate)' : ''} | ${limit.stat} from the bind${fromRest ? '' : ' (gate)'} | Worst from the rest | Worst from the bind |${fromRest ? ' Mark |' : ''}`,
+    `|---|---|---:|---:|---:|---|---|${fromRest ? '---|' : ''}`,
+  ];
+  const moved: string[] = [];
+  for (const side of SIDES) {
+    for (const set of SAMPLE_SETS) {
+      const own = samples[side].filter((s) => s.set === set);
+      if (own.length === 0) {
+        continue;
+      }
+      const labels = own.map((s) => s.label);
+      const rest = setStats(
+        own.map((s) => s.rest),
+        labels,
+        limit.up,
+      );
+      const bind = setStats(
+        own.map((s) => s.bind),
+        labels,
+        limit.up,
+      );
+      const value = (stats: SetStats): number => (limit.stat === 'p5' ? stats.p5 : stats.p95);
+      // The stretch from the rest is larger than from the bind only when the rest sample
+      // shrinks edges that the samples of the set stretch.
+      const moves = fromRest && value(rest) > value(bind);
+      if (moves) {
+        moved.push(`${side} ${set}`);
+      }
+      table.push(
+        `| ${side} | ${set} | ${own.length} | ${value(rest).toFixed(digits)} | ${value(bind).toFixed(digits)} | ${rest.worst.toFixed(digits)}, ${rest.at} | ${bind.worst.toFixed(digits)}, ${bind.at} |${fromRest ? ` ${moves ? 'MOVES' : ''} |` : ''}`,
+      );
+    }
+  }
+
+  const lines = [
+    `Explain of ${limit.name} of the ${role} over ${found.length} demos at a step of ${step} s: ${found.join(', ') || 'none'}.`,
+    fromRest
+      ? `The stretch is the largest growth of an edge of the faces of the forearm and the paw, as a share of the upper arm (${uppers.join(', ')}). The gate counts it from the rest sample of the same demo, and "from the bind" counts it from the bind pose.`
+      : 'The flat share is the narrow axis of the flattest ring as a share of its narrow axis in the bind pose, as the gate counts it. "From the rest" divides by the narrow axis of the ring in the rest sample of the same demo.',
+  ];
+  if (fromRest) {
+    lines.push(
+      moved.length > 0
+        ? `MOVES: ${moved.join(', ')}. The stretch from the rest is larger than from the bind, because the rest sample shrinks the edges that these samples stretch. The gate counts that move of the rest as stretch.`
+        : 'No set has the mark MOVES: in each set, the stretch from the rest is not larger than from the bind.',
+    );
+  }
+  lines.push(
+    '',
+    ...table,
+    '',
+    `The part of the rest sample of each demo that shrinks most from the bind. ${fromRest ? 'A short edge in the rest makes each stretch from the rest larger.' : 'The gate reads the bind, so a rest that moves changes only the values "from the rest".'}`,
+    '',
+    '| Arm | Rest sample | Part | Rest from the bind |',
+    '|---|---|---|---:|',
+  );
+  for (const side of SIDES) {
+    for (const entry of rests[side]) {
+      const change = restShrink(measure, entry, side);
+      lines.push(
+        `| ${side} | ${entry.sample.label} | ${change.part} | ${change.value.toFixed(3)} |`,
+      );
+    }
+  }
+
+  for (const side of SIDES) {
+    const own = worst[side];
+    if (!own) {
+      continue;
+    }
+    const { sample } = own;
+    lines.push(
+      '',
+      `The worst sample of the ${side} arm for the gate: ${sample.label} (${sample.set}), ${sample.rest.toFixed(3)} from the rest, ${sample.bind.toFixed(3)} from the bind.`,
+      '',
+      ...(fromRest ? stretchRows(own) : flatRows(own, side)),
+    );
+  }
+  return lines;
+}
+
+/**
+ * Explains a measure for one role of the command line in this tree (`--explain`), over the demos
+ * of `--demo` or all demos, at the step of `--step` or {@link GATE_STEP}.
+ *
+ * @param role The role.
+ * @param measure The measure.
+ * @param options The command line.
+ * @returns The lines of {@link explainLines}.
+ * @throws Error for a demo of `--demo` that does not exist.
+ */
+async function explainRole(
+  role: string,
+  measure: Explained,
+  options: CheckArgs,
+): Promise<string[]> {
+  const source = FOLD_ROLES.get(role);
+  if (!source) {
+    throw new Error(`No role has the name ${role}.`);
+  }
+  const chosen = options.shared
+    .filter((...[, i]) => options.shared[i - 1] === '--demo')
+    .map((id) => (id.endsWith('.mid') ? id : `${id}.mid`));
+  const all = await patchedDemos();
+  const unknown = chosen.filter((file) => !all.some((demo) => demo.file === file));
+  if (unknown.length > 0) {
+    throw new Error(`No demo has the name ${unknown.join(', ')}.`);
+  }
+  const demos = chosen.length > 0 ? all.filter((demo) => chosen.includes(demo.file)) : all;
+  return explainLines(role, source, demos, options.step ?? GATE_STEP, measure);
+}
+
 /**
  * Runs the tool as a child: it measures the roles of the command line in this tree, and writes
  * {@link ArmJson} into the file of `--json`. A role that the tree does not have goes into
@@ -1565,7 +2067,7 @@ async function childMain(args: readonly string[]): Promise<number> {
   }
   const option = (name: string): string[] =>
     rest.flatMap((arg, i) => (rest[i - 1] === name ? [arg] : []));
-  const step = Number(option('--step')[0] ?? 0.25);
+  const step = Number(option('--step')[0] ?? GATE_STEP);
   if (!(step > 0)) {
     throw new Error('The step must be a number of seconds above 0.');
   }
@@ -1821,7 +2323,7 @@ async function main(): Promise<number> {
     return childMain(args);
   }
   const options = checkArgs(args);
-  if (options.trace) {
+  if (options.trace || options.explain) {
     const holds = options.own.filter((...[, i]) => options.own[i - 1] === '--set').join(';');
     const changes = holds ? setHolds(holds) : null;
     try {
@@ -1829,7 +2331,11 @@ async function main(): Promise<number> {
         console.log(`The working tree takes the hold changes ${changes.text}.`);
       }
       const role = options.roles[0] ?? '';
-      console.log((await traceLines(role, options.trace, options.step ?? TRACE_STEP)).join('\n'));
+      if (options.trace) {
+        console.log((await traceLines(role, options.trace, options.step ?? TRACE_STEP)).join('\n'));
+      } else if (options.explain) {
+        console.log((await explainRole(role, options.explain, options)).join('\n'));
+      }
     } finally {
       changes?.undo();
     }
