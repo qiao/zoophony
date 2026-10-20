@@ -566,6 +566,10 @@ const WOLF_CLARINET_FORWARD = 20;
  * body, in the play and in the rest. Of 4 elbow directions, this one gave the smallest paw turns
  * on the forearms: with the elbows of {@link WIND_HOLDS}, the right paw turned 141° and the left
  * paw 123°, and with these elbows 71° and 89° (`docs/research/2026-10-20-wolf-mesh.md`).
+ *
+ * At rest, the clarinet comes off the mouth 0.3 H down and 0.3 H forward, over the lap, with both
+ * paws on their grips. With the rest place of {@link WIND_HOLDS} in front of the chest, the right
+ * elbow bent about 140°, and six faces of the right arm folded in each rest sample.
  */
 const WOLF_CLARINET = {
   ...WIND_HOLDS.clarinet,
@@ -573,6 +577,7 @@ const WOLF_CLARINET = {
   reachL: 20 * MathUtils.DEG2RAD,
   lipShift: [0, -0.12, 0.3],
   play: holdTurn(WOLF_CLARINET_FORWARD, 0),
+  restShift: [-0.17, -0.3, -0.3],
   poleL: [-0.3, -1, 0],
   poleR: [0.3, -1, 0],
   restPoleL: [-0.3, -1, 0],
