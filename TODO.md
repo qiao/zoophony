@@ -583,9 +583,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Wolf size: the agent chose the seated skull top at 1.10 times the dog cellist, the middle of
       the ratio 1.03 to 1.16 of the orchestra images, while the user slept. Show the user the
       lineup beside the dog and the fox (`2026-10-20-mesh-wolf.md`).
-- [ ] Wolf colors: the tone rule moves the gray fur to the warm gray of `SPECIES_COLORS.wolf`, but
-      the wolf of the orchestra images is a cool gray with no cream chest (`sheet-colors.txt` of
-      `docs/research/2026-10-20-wolf-mesh/`). Show the user the play frame, and ask.
+- [ ] Wolf colors: the fur keeps the hues of the texture and of the sheet (no tone rule, round
+      `mesh-badger`), but the warm light of the stage still shows a warm gray, and the wolf of the
+      orchestra images is a cool gray with no cream chest (`faces-colors.webp` of
+      `docs/research/2026-10-20-wolf-mesh/`). Show the user the face pair and the play frame.
 - [ ] Wolf tail: at rest, the root of the tail goes 1.2 cm into the back of the seat
       (`tail-gap.ts` of `docs/research/2026-10-20-wolf-mesh/`).
 - [ ] Wolf clarinet: the mouthpiece goes 1.3 cm into the head under the long muzzle, and no demo
