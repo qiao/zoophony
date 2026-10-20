@@ -255,20 +255,21 @@ export const PERCUSSION_HOLDS = {
  * The hold of a suspended cymbal (`SpeciesParams.cymbalForm`), in place of
  * `PERCUSSION_HOLDS.cymbals` (design 5.3). The yarn mallets leave the front of the fists
  * (`SUSPENDED_CYMBAL.malletTilt`), as the sticks of the snare drum, and the two hands strike in
- * turn near the edge, the left hand at the left and the right hand at the right, 20° from the side
- * toward the player, so that they are not exactly opposite
- * (`docs/reference/percussion-technique.md` 7). The offsets move the target, the middle of a
- * cymbal of the scale 1, to these spots, 1.3 cm in from the rim.
+ * turn near the edge, opposite each other: the left hand at the left and the right hand at the
+ * right (`docs/reference/percussion-technique.md` 7). The offsets move the target, the middle of a
+ * cymbal of the scale 1, to these spots, 1.3 cm in from the rim. The homes stand further out than
+ * for the snare drum, so that the mallets point in to the spots, and the upper arms of the badger
+ * mesh fold less and stay within their accepted depth (2026-10-20-badger-cymbals decisions).
  */
 export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
   hands: 'alternate',
   sizes: { lift: 0.1, rest: 0.03 },
-  offsetL: [-0.176, 0, 0.064],
-  offsetR: [0.176, 0, 0.064],
+  offsetL: [-0.187, 0, 0],
+  offsetR: [0.187, 0, 0],
   poleL: [-0.6, -1, 0.3],
   poleR: [0.6, -1, 0.3],
   rim: 0,
-  home: [0.5, -0.3, -0.5],
+  home: [0.6, -0.3, -0.5],
   top: 'up',
   across: { rest: -0.6, lift: 0.3 },
   ready: false,
