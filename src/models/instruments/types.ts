@@ -42,6 +42,7 @@ export const SCALED_INSTRUMENTS = [
   'contrabass',
   'oboe',
   'bassoon',
+  'cymbals',
 ] as const satisfies readonly InstrumentId[];
 
 /** An instrument of {@link SCALED_INSTRUMENTS}. */

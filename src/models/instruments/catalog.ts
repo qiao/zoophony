@@ -91,8 +91,6 @@ export function buildInstrument(
       return buildBassDrum();
     case 'snare-drum':
       return buildSnareDrum();
-    case 'cymbals':
-      return buildCymbals();
     case 'small-percussion':
       return buildSmallPercussion();
     case 'xylophone':
@@ -126,6 +124,8 @@ function buildScaled(id: ScaledInstrument, scale: number, bowGrip?: BowGrip): In
     case 'oboe':
     case 'bassoon':
       return buildWoodwind(id, scale);
+    case 'cymbals':
+      return buildCymbals(scale);
     default: {
       const unhandled: never = id;
       throw new Error(`The scaled instrument "${String(unhandled)}" is not known.`);

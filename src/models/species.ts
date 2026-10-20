@@ -88,6 +88,13 @@ interface CommonParams {
    */
   readonly bassoonScale?: number;
   /**
+   * The scale of the pair of crash cymbals for the species, as a factor of the cymbals of the app
+   * (design 4.6). It is 1 when it is not given. A species with short arms in front of a deep body
+   * plays smaller hand cymbals. Each cymbal shrinks toward the palm, so the palm keeps its place
+   * on the strap side.
+   */
+  readonly cymbalScale?: number;
+  /**
    * True for a species that sits with no chair (design 4.5, props). The body keeps its seated
    * pose, its seat height, and its feet on the floor, and the app builds no chair under it
    * (`seatHeights()` and `buildSupport()` of `props.ts`). The species sits on a chair when it is
@@ -218,6 +225,7 @@ export const SCALE_PARAMS = {
   contrabass: 'bassScale',
   oboe: 'oboeScale',
   bassoon: 'bassoonScale',
+  cymbals: 'cymbalScale',
 } as const satisfies Readonly<Record<ScaledInstrument, keyof SpeciesParams>>;
 
 /**

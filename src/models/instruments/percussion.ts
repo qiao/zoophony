@@ -554,15 +554,17 @@ interface Cymbal extends HandTool {
 }
 
 /**
- * Builds one crash cymbal: a flat cone with a dome, 0.40 m wide. The strap is at the origin on
- * the outer side, and the inner face looks along -y. In the bind pose, the strap is
- * {@link CYMBAL_LIFT} above the palm.
+ * Builds one crash cymbal: a flat cone with a dome, 0.40 m wide at the scale 1. The strap is at
+ * the origin on the outer side, and the inner face looks along -y. In the bind pose, the strap is
+ * {@link CYMBAL_LIFT} above the palm. The scale shrinks the cymbal and the lift toward the palm.
  *
  * @param bone The bone of the cymbal.
+ * @param scale The scale of the cymbal (`SpeciesParams.cymbalScale`).
  * @returns The piece, the target at the middle of the inner face, and the grip of the palm.
  */
-function cymbal(bone: 'malletL' | 'malletR'): Cymbal {
-  const piece = new PieceBuilder();
+function cymbal(bone: 'malletL' | 'malletR', scale: number): Cymbal {
+  const piece = new PieceBuilder(scale);
+  const lift = CYMBAL_LIFT * scale;
   // The 12 faces around the axis make the cymbal 0.40 m wide between two opposite faces.
   const r = 0.2 / Math.cos(15 * MathUtils.DEG2RAD);
   // The profile goes from the inner face at the axis out to the rim, then back over the dome.
@@ -591,13 +593,13 @@ function cymbal(bone: 'malletL' | 'malletR'): Cymbal {
     new Vector3(...inward),
   );
   return {
-    piece: piece.build(bone, hold(palm, [0, 0, 0], toQuat(rotation), [0, CYMBAL_LIFT, 0])),
-    grip: toVec3(new Vector3(0, -CYMBAL_LIFT, 0).applyQuaternion(rotation.clone().invert())),
+    piece: piece.build(bone, hold(palm, [0, 0, 0], toQuat(rotation), [0, lift, 0])),
+    grip: toVec3(new Vector3(0, -lift, 0).applyQuaternion(rotation.clone().invert())),
     target: {
       kind: 'plate',
       bone,
-      from: [0, -0.023, 0],
-      to: [0, -0.023, 0],
+      from: [0, -0.023 * scale, 0],
+      to: [0, -0.023 * scale, 0],
       normal: [0, -1, 0],
       keys: null,
     },
@@ -608,11 +610,13 @@ function cymbal(bone: 'malletL' | 'malletR'): Cymbal {
  * Builds the pair of crash cymbals (design 4.6). The player holds one cymbal in each hand, below
  * its strap. The model has no instrument piece.
  *
+ * @param scale The scale of the cymbals for the species of the player
+ *   (`SpeciesParams.cymbalScale`): 1 gives cymbals 0.40 m wide.
  * @returns The model.
  */
-export function buildCymbals(): InstrumentModel {
-  const left = cymbal('malletL');
-  const right = cymbal('malletR');
+export function buildCymbals(scale = 1): InstrumentModel {
+  const left = cymbal('malletL', scale);
+  const right = cymbal('malletR', scale);
   return {
     id: 'cymbals',
     parent: 'chest',
