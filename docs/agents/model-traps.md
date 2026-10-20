@@ -97,6 +97,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 - A fold count does not see a skin that twists around the arm or goes flat, because no face turns
   over. Measure the twist, the flat share, and the spikes with `pnpm arm-shape <role>`.
+- A lowered elbow drags the thin faces of the trunk under the armpit that bone heat gave arm weight,
+  and no shape relaxes them. Give that weight to the trunk below the cut (`weights.armBelow`). A
+  reader of the arm weights counts the twist bone of the upper arm (`skinFollows()`).
 - When an arm hangs near the trunk, bone heat gives a part of its weight to the trunk side. The
   raised bind arms then drag the trunk and fold the shoulder. Keep the arm weights on the free arm
   (`armSplit`).
