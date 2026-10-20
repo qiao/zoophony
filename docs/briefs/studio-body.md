@@ -151,6 +151,7 @@ Copy this list into `<scratch>/rules-common.md`, and add the report format of th
 - Make very fine-grained Conventional Commits, and stage each path by its name.
 - `grep` is a shell function that runs ugrep, so use `perl -0pi -e` for a temporary edit. No
   `timeout`, and no foreground `sleep`. Read the exit code of the command itself.
+- Make a lasting edit of code with the Edit tool, not with `perl`.
 - Never take ports 5173, 5190, or 4182. Stop each process that you start, by its PID. Never stop a
   process that you did not start, and never use `pkill -f`.
 - Do not edit the working tree while a tool builds the site.
