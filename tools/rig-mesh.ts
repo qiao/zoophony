@@ -1122,16 +1122,16 @@ export function blenderCause(errors: string): string | null {
 }
 
 /**
- * Runs the rig script of Blender, and prints the lines of its log. Its error output goes to the
+ * Runs the rig script of Blender, and prints and gives the lines of its log. Its error output goes to the
  * error output of the tool at once, and the message of a failure ends with its last line
  * ({@link blenderCause}), so that the table of `--check` gives the cause. A stop signal (INT or
  * TERM) stops Blender first (`tools/stop-cleanup.ts`).
  *
  * @param args The arguments of `blender` ({@link blenderArgs}).
- * @returns A promise of the end of the run.
+ * @returns The lines of the log, each with the start `rig_mesh:`.
  * @throws Error if Blender fails.
  */
-function runBlender(args: readonly string[]): Promise<void> {
+function runBlender(args: readonly string[]): Promise<string[]> {
   const blender = process.env['BLENDER'] ?? 'blender';
   return new Promise((done, fail) => {
     const child = trackChild(
@@ -1150,11 +1150,12 @@ function runBlender(args: readonly string[]): Promise<void> {
     });
     child.on('error', fail);
     child.on('close', (code) => {
-      for (const line of out.split('\n').filter((l) => l.startsWith('rig_mesh:'))) {
+      const lines = out.split('\n').filter((l) => l.startsWith('rig_mesh:'));
+      for (const line of lines) {
         console.log(line);
       }
       if (code === 0) {
-        done();
+        done(lines);
       } else {
         const cause = blenderCause(errors);
         fail(
@@ -1403,6 +1404,45 @@ export function topFaces(faces: readonly FaceRecord[], count: number): FaceFolds
     .slice(0, count);
 }
 
+/**
+ * The faces that one corrective shape of `raise` turns over in the pose of its rule, before and
+ * after its relax (`raise_shape()` of `tools/blender/rig_mesh.py`). A relax that leaves a face
+ * turned failed.
+ */
+export interface RaiseTurns {
+  /** The name of the shape, such as `arm_raise_R`. */
+  readonly name: string;
+  /** The faces of the module that turn over before the relax. */
+  readonly before: readonly number[];
+  /** The faces of the module that stay turned over after the relax. */
+  readonly after: readonly number[];
+}
+
+/**
+ * Reads the faces that each shape of `raise` turns over from the log of the rig script: its lines
+ * `raise <shape>: ... (faces of the module before [..], after [..])`.
+ *
+ * @param lines The lines of the log.
+ * @returns The faces of each shape, in the order of the log.
+ */
+export function raiseTurns(lines: readonly string[]): RaiseTurns[] {
+  const faces = (text: string): number[] =>
+    text
+      .split(',')
+      .map((part) => part.trim())
+      .filter((part) => part !== '')
+      .map(Number);
+  return lines.flatMap((line) => {
+    const found =
+      /^rig_mesh: raise (\S+): .*\(faces of the module before \[([^\]]*)\], after \[([^\]]*)\]\)$/.exec(
+        line,
+      );
+    return found
+      ? [{ name: found[1] ?? '', before: faces(found[2] ?? ''), after: faces(found[3] ?? '') }]
+      : [];
+  });
+}
+
 /** The measures of one rig of `--check`, for the table of the variants. */
 export interface CheckMeasures {
   /** The triangles of the packed mesh. */
@@ -1421,6 +1461,8 @@ export interface CheckMeasures {
   readonly reach: Readonly<Record<Side, number | null>>;
   /** The largest error of the standing body against the long-armed source, in meters. */
   readonly standing: number;
+  /** The faces that each shape of `raise` leaves turned over ({@link raiseTurns}). */
+  readonly raises: readonly RaiseTurns[];
   /** The folds of each role of the animal. */
   readonly folds: readonly RoleFolds[];
   /**
@@ -1441,13 +1483,29 @@ export interface CheckRow {
 }
 
 /**
+ * Writes the faces that each shape of `raise` leaves turned over after its relax, such as
+ * `arm_raise_R: 434, 436 FAIL / arm_raise_L: none`.
+ *
+ * @param raises The shapes of `raise`.
+ * @returns The text, or `none` with no shape.
+ */
+export function raisesCell(raises: readonly RaiseTurns[]): string {
+  const texts = raises.map(
+    ({ name, after }) => `${name}: ${after.length > 0 ? `${after.join(', ')} FAIL` : 'none'}`,
+  );
+  return texts.join(' / ') || 'none';
+}
+
+/**
  * Writes the table of the variants of `--check`: one row for each variant, with the triangles, the
  * gzip size of the packed mesh, the scale, the seat, the seat of the legs, the chair depth, the
  * reach of each arm, the error of the
  * standing body, the share of the samples with a fold in the play, the lift, and the rest pose
  * of each role, and the main bones of the most folded faces of each role with their face-samples
  * ({@link foldBones}). With `--faces`, a column of each role gives the faces that fold in the most
- * samples ({@link topFaces}). A variant that failed gives its message.
+ * samples ({@link topFaces}). The last column gives the faces that each shape of `raise` leaves
+ * turned over, with the mark `FAIL` of a failed relax ({@link raisesCell}). A variant that failed
+ * gives its message.
  *
  * @param rows The rows, the base first.
  * @returns The lines.
@@ -1458,6 +1516,7 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
   ];
   const sets = ['play', 'lift', 'rest'] as const satisfies readonly (typeof SAMPLE_SETS)[number][];
   const withFaces = rows.some((row) => row.measures?.folds.some((fold) => fold.faces.length > 0));
+  const withRaises = rows.some((row) => (row.measures?.raises.length ?? 0) > 0);
   const header = [
     'Variant',
     'Triangles',
@@ -1472,6 +1531,7 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
     ...roles.flatMap((role) => sets.map((set) => `${role} ${set}`)),
     ...roles.map((role) => `${role} bones`),
     ...(withFaces ? roles.map((role) => `${role} faces`) : []),
+    ...(withRaises ? ['Shapes: faces left turned'] : []),
   ];
   const m = (value: number | null): string => (value === null ? 'none' : value.toFixed(3));
   const lines = [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`];
@@ -1517,6 +1577,7 @@ export function checkTable(rows: readonly CheckRow[]): string[] {
       ...folds,
       ...bones,
       ...(withFaces ? faces : []),
+      ...(withRaises ? [raisesCell(measures.raises)] : []),
     ];
     lines.push(`| ${cells.join(' | ')} |`);
   }
@@ -1887,7 +1948,7 @@ async function checkRig(
     await writeFile(path, text);
     const output = join(dir, `${animal}.rig.glb`);
     const obj = join(dir, 'source-long-arms.obj');
-    await runBlender(blenderArgs(path, output, preview, obj));
+    const log = await runBlender(blenderArgs(path, output, preview, obj));
     const bytes = new Uint8Array(await readFile(output));
     console.log(`Rig: ${bytes.byteLength} B, sha256 ${sha256(bytes)}.`);
     if (keep) {
@@ -1919,6 +1980,7 @@ async function checkRig(
       chair: measures.body.chairDepth,
       reach: measures.arms,
       standing: measures.standing.worst,
+      raises: raiseTurns(log),
     };
 
     const roles = known ? chooseRoles(animalRoles(animal), probe.roles) : [];

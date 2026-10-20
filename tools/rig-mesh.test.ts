@@ -340,6 +340,7 @@ describe('checkTable', () => {
     chair: 0.25,
     reach: { L: 0.377, R: 0.3771 },
     standing: 0.000228,
+    raises: [],
     folds: [
       {
         role: 'fox-violinist',
@@ -491,6 +492,7 @@ describe('formLines', () => {
       chair: 0.326,
       reach: { L: 0.604, R: 0.604 },
       standing: 0.0002,
+      raises: [],
       folds: [],
       form: form(top, k525),
     },
