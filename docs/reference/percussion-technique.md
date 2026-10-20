@@ -1,18 +1,20 @@
-# Percussion technique: how professional timpanists hold and move the mallets
+# Percussion technique: how professional percussionists hold and move the mallets
 
-This file is the target of the motion of the timpani player of the app. It describes the grip of
-the mallets, the direction of the mallets between strikes and at a strike, the stroke, and the
-playing spot of professional timpanists, with a source for each fact.
+This file is the target of the motion of the percussion players of the app. It describes the
+grip of the mallets, the sticks, the beater, and the cymbals, their directions between strikes and
+at a strike, the stroke, and the playing spot of professional percussionists, with a source for
+each fact. Sections 1 to 4 give the timpani, and sections 5 to 9 the instruments of the percussion
+section.
 
 **Upkeep.** This file is current. It is not a record of one date, as a research report is. A
-round that changes the timpani motion of the app updates this file in the same commit: section 5
-"Use in the app", and each fact that the round finds wrong. Each new fact gets its source. The
+round that changes the percussion motion of the app updates this file in the same commit: section
+10 "Use in the app", and each fact that the round finds wrong. Each new fact gets its source. The
 decision file [`2026-10-19-elephant-grip.md`](../decisions/2026-10-19-elephant-grip.md) records
 this rule. The research report
 [`2026-10-19-elephant-grip.md`](../research/2026-10-19-elephant-grip.md) holds the measures of the
 app.
 
-**Source marks.** Each fact names its source by a number of section 6. "(abstract)" marks a fact
+**Source marks.** Each fact names its source by a number of section 11. "(abstract)" marks a fact
 from an abstract or a search summary, because the full text did not open. "(secondary)" marks a
 fact that another source quotes. "(derived)" marks a value that this file calculates from the
 values of its sources. A fact with no mark comes from the text of the source.
@@ -75,7 +77,75 @@ from the V).
   about 2 inches [7].
 - The two mallets strike about 6 inches (15 cm) apart [4], in the same area of the head [7].
 
-## 5. Use in the app
+## 5. The bass drum
+
+- The player stands behind the drum, with the left foot between the legs of the stand, so that
+  one hand reaches both heads and the beater stays parallel to the head [13].
+- The right hand holds one beater, about one third up from the butt, loosely, with the thumb on
+  the side, as in the legato snare grip [13] [14].
+- The playing spot is off the center: halfway between the edge and the center [15], one third in
+  from the rim [16], or just below the center, in front of the knee of the player [14].
+- The stroke uses the wrist and the forearm, with an upstroke, and the upper arm for loud notes
+  [15] [16]. The beater rebounds and moves away, so that the head rings [13].
+- The free hand muffles the head with the open palm and the fingers, mostly in the rests [13]
+  [14]. A single note often needs no muffling [13].
+- The frame tilts the drum from vertical to horizontal. Rolls take a tilt of about 45°, but the
+  drum does not lie flat [14] [28].
+
+## 6. The snare drum
+
+- The head is about 3 to 4 inches (a hand span) below the navel [17]. The drum stands level [17].
+- The fulcrum is one third up from the butt, between the thumb and the forefinger. The back
+  fingers wrap the stick loosely, and about two thirds of the stick leaves the front of the hand
+  [17] [18].
+- The palms are nearly flat, and the tips of the sticks make a V of 60° to 90° [17] [18] [19].
+- The wrists are about 1 inch above the head, so the sticks are almost parallel to the floor, and
+  slant down a little at a strike [17].
+- The sticks strike near the middle of the head, about 1 inch above it on the line out from the
+  body [18], or a little off the middle [9].
+- The elbows are about a fist from the body, the upper arms hang mostly still, and the wrist
+  makes the stroke [17]. A full stroke lifts the tip about 8 inches [18].
+
+## 7. The crash cymbals
+
+- The thumb and the forefinger hold the strap near the bell. The hand does not go through the
+  strap [15] [20] [23].
+- The plates are in front of the middle of the chest, with their edges about 3 inches from the
+  body [21], or with the top edges at about eye level [15] [20].
+- The plates are not vertical. The left plate can lie almost level under the left hand, with the
+  elbow near the stomach, and the right plate comes in at about 20° to it [20]. Other values are
+  about 45°, with the plate of the strong hand on top [23], and 5° to 45° from vertical [16].
+- The right plate leads and comes down onto the left plate, one edge first, as a flam [20] [21]
+  [23]. Better players move both plates [20] [22].
+- After a long crash, the plates keep moving and turn out to let the sound go to the hall [21],
+  or go up above the shoulders [22]. A short note stops against the chest or the stomach [15]
+  [20] [22]. No concert source gives the rest place. A marching method holds the plates at the
+  sides, almost vertical [24].
+
+## 8. The triangle and the tambourine
+
+- The left hand holds the triangle by a clip with a loop, at eye level, and the right hand holds
+  the beater [15] [25].
+- The beater strikes the middle of the bottom side [9], or the outside near the bottom [16], with
+  a motion that pushes the bottom side away [15]. A strike at 45° gives a darker sound [9].
+- The fingers of the left hand mute the triangle [16] [25].
+- The left hand holds the tambourine by its frame, at or a little below the chest, tilted in at
+  about 45°, and the right hand strikes it [15] [16]. No source of this file gives a tambourine on
+  a stand.
+
+## 9. The xylophone
+
+- The player stands with the feet about the width of the shoulders apart, and moves the body from
+  side to side behind the notes, with few steps [26] [27].
+- The bars are at the height where the wrist bends naturally, as for a snare drum. The forearms
+  are a little below parallel to the floor [26] [27].
+- The grip is the matched grip of the snare drum [18] [26]. The mallets make a symmetrical V, and
+  do not cross [27]. No source gives the angle.
+- A mallet strikes a natural bar at its middle, and a sharp bar at its edge [9], the edge near the
+  player (search summary of [29]).
+- The wrists stay low, and the elbows move forward to reach the back row [27].
+
+## 10. Use in the app
 
 The elephant plays the timpani of the app (`PERCUSSION_HOLDS.timpani` of
 `src/pose/percussion-rig.ts`, `TIMPANI` of `src/models/instruments/percussion.ts`). Each item
@@ -98,9 +168,10 @@ motion updates the items.
   5 to 10 cm in (section 4). Each hand plays only the front kettle on its side of the trunk
   (`PercussionHold.pair`), so the two mallets never strike one head together.
 
-## 6. Sources
+## 11. Sources
 
-Each source opened on 2026-10-19, except where a fact has a mark of section "Source marks".
+Sources 1 to 12 opened on 2026-10-19, and sources 13 to 29 on 2026-10-20, except where a fact
+has a mark of section "Source marks" or a source says "a search summary only".
 
 1. "3 Timpani Grips", The Instrumentalist, December 2014.
    https://theinstrumentalist.com/december-2014/3-timpani-grips/
@@ -126,3 +197,35 @@ Each source opened on 2026-10-19, except where a fact has a mark of section "Sou
     https://sboplus.net/?p=9243
 12. J. Huling, "Timpani FUNdamentals", Maryland/Delaware Percussive Arts Society, 2012 (a search
     summary only).
+13. J. J. Knight, "Concert Bass Drum Fundamentals", PAS Educators' Companion, vol. VI.
+    https://pas.org/wp-content/uploads/2024/04/ECV0622-25.pdf
+14. R. Adams, "A Conductor's Guide to Percussion: Bass Drum Methods", Mr. A Music Place, 2014.
+    https://mramusicplace.net/2014/08/13/a-conductors-guide-to-percussion-bass-drum-methods/
+15. N. Grover and B. Stiers, clinic handout of PASIC 2017, Grover Pro Percussion.
+    https://groverpro.com/gppwp/wp-content/uploads/ng-clinic-handout_pasic2017.pdf
+16. C. Askland, "Orchestration Notation and Performance: Triangles, Tambourine, Concert Bass Drum
+    and Cymbals". https://conradaskland.com/orchestration-notation-and-performance-triangles-tambourine-concert-bass-drum-and-cymbals/
+17. E. T. Patterson, "Ten Tips for Fabulous Snare Drum Fundamentals", PAS Educators' Companion.
+    https://pas.org/wp-content/uploads/2024/04/ECV0846-48.pdf
+18. D. Gerhart, "Building a Strong Foundation of the Snare Drum Fulcrum", PAS Educators'
+    Companion. https://pas.org/wp-content/uploads/2024/04/ECV0803-035.pdf
+19. D. Gerhart, "Fix It: Tips for Teaching Snare Drum Basics", Yamaha.
+    https://hub.yamaha.com/music-educators/instruments/perc/snare-drum-basics-pedagogy
+20. J. Kihle, "Basic Concepts for Teaching Crash Cymbals", PAS Educators' Companion, vol. III.
+    https://pas.org/wp-content/uploads/2024/04/ECV0328-33.pdf
+21. R. Adams, "A Conductor's Guide to Percussion: Cymbal Methods", Mr. A Music Place, 2014.
+    https://mramusicplace.net/2014/08/12/a-conductors-guide-to-percussion-cymbal-methods/
+22. A. Proctor, "How to Play a Cymbal Crash in 11 Steps", Free Percussion Lessons.
+    https://freepercussionlessons.com/how-to-play-a-cymbal-crash-in-eleven-steps
+23. Wikipedia, "Clash cymbals". https://en.wikipedia.org/wiki/Clash_cymbals
+24. "Marshall University Cymbal Notation and Technique Packet", 2020.
+    https://www.marshall.edu/band/files/MU-Cymbal-Technique-Packet.pdf
+25. K. Aleo, "How to play the triangle properly", Interlochen Center for the Arts.
+    https://www.interlochen.org/stories/how-to-play-triangle-properly
+26. L. Rogers, "Keyboard Percussion: A Common Elements Approach", Midwest Clinic, 2006.
+    https://www.midwestclinic.org/user_files_1/pdfs/clinicianmaterials/2006/lisa_rogers.pdf
+27. C. S. Kenney, "Power Up! Beginning Percussionists Success on Keyboard Instruments",
+    MakeMusic. https://www.makemusic.com/?p=44239
+28. Wikipedia, "Bass drum". https://en.wikipedia.org/wiki/Bass_drum
+29. Vic Firth, "Percussion 101: Keyboard Percussion" (a search summary only).
+    https://ae.vicfirth.com/education/percussion-101/percussion-101-keyboard-percussion/
