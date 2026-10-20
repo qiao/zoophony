@@ -582,16 +582,22 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-19-mesh-pig.md`).
 - [ ] Pig standing soloist: no demo has a standing pig, and `pnpm pose-depth --soloist` takes only
       a bowed role, so only the close views check it (`2026-10-19-mesh-pig.md`).
-- [ ] Wolf size: the agent chose the seated skull top at 1.10 times the dog cellist, the middle of
-      the ratio 1.03 to 1.16 of the orchestra images, while the user slept. Show the user the
-      lineup beside the dog and the fox (`2026-10-20-mesh-wolf.md`).
+- [x] Wolf size: the agent chose the seated skull top at 1.10 times the dog cellist, the middle of
+      the ratio 1.03 to 1.16 of the orchestra images, while the user slept. The user then asked
+      for 0.9 of the height and 1.2 of the width (`2026-10-20-wolf-shape.md`).
+- [ ] Wolf shape: the seated wolf is now 0.99 times the dog cellist, below the range of the
+      orchestra images, and its hips width to height is the ratio of the red fox. Show the user
+      `compare.webp` of `docs/research/2026-10-20-wolf-shape/` (`2026-10-20-wolf-shape.md`).
+- [ ] Wolf grip: the play medians of the paw twists are -97° and 79°, against the accepted -86° and
+      67° of `ACCEPTED_GRIPS`. The grip turn passes (11° and 12°). Update the entry after the
+      manager accepts `arms-strike.webp` and `arms-rest.webp` (`2026-10-20-wolf-shape.md`).
 - [ ] Wolf colors: the fur keeps the hues of the texture and of the sheet (no tone rule, round
       `mesh-badger`), but the warm light of the stage still shows a warm gray, and the wolf of the
       orchestra images is a cool gray with no cream chest (`faces-colors.webp` of
       `docs/research/2026-10-20-wolf-mesh/`). Show the user the face pair and the play frame.
-- [ ] Wolf tail: at rest, the root of the tail goes 1.2 cm into the back of the seat
-      (`tail-gap.ts` of `docs/research/2026-10-20-wolf-mesh/`).
-- [ ] Wolf clarinet: the mouthpiece goes 1.3 cm into the head under the long muzzle, and no demo
+- [ ] Wolf tail: at rest, the root of the tail goes 0.6 cm into the back of the seat
+      (`tail-variants.txt` of `docs/research/2026-10-20-wolf-shape/`).
+- [ ] Wolf clarinet: the mouthpiece goes 1.2 cm into the head under the long muzzle, and no demo
       has a standing wolf soloist, so only the close views check it (`2026-10-20-mesh-wolf.md`).
 - [x] Badger cymbals: hand cymbals of the smallest real size (14 in) go 7.6 cm or more into the
       round body at each crash place in reach, so the badger plays a suspended cymbal on a stand
