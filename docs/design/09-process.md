@@ -255,7 +255,8 @@ machine. The measures of each target are in the research reports of its step, su
 A review checks the work of a step or a round before its merge. Since 2026-10-16, no round gets a
 review agent (user: "no need for the review agent for future sessions",
 [`2026-10-16-no-review.md`](../decisions/2026-10-16-no-review.md)). The manager reviews each round
-from the report and the images, and `tools/merge-branch.sh` runs the checks of each commit. The
+from the report and the images, and `tools/merge-branch.sh` runs the checks of each commit and the
+arm gate of a pose or model change (`pnpm arm-check`, 4.4). The
 user judges the look from the images. The implementation agent or a fix agent makes each change
 that the manager requests as a commit on the same branch.
 
