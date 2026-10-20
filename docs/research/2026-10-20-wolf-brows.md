@@ -94,3 +94,21 @@ With no limit, the fur tufts in the box moved up to 0.039 u (7 cm).
 - `pnpm hold-fit clarinetist`: no fold, each note within 0.0 mm, and the mouthpiece 1.2 cm in the
   head (`soften-hold-fit.txt`).
 - `pnpm body-probe --base 7f67fd9e`: only the wolf bodies and the wolf player change.
+
+## 6. The black wedge beside the nose
+
+The user said: "the wolf's nose has a large black triangle". In Blender, one face of 7.4 cm² at the
+left of the muzzle top had the black of the nose and its gloss. Its mirror face has 0.97 cm². It
+covers the edge of the black nose of the texture, and the share 0.34 of dark samples (`eyeShare`)
+made it black. The new rule `noseShare` makes a face in the nose box dark only from its own share:
+
+| noseShare | Faces that keep the fur |
+|---|---|
+| 0.5 (chosen) | 1, the large face |
+| 0.6 | 3 |
+| 0.75 | 5 |
+
+At 0.5, the wedge is gone, and the nose keeps its black tip. Only the colors of the wolf change, and
+`pnpm arm-check clarinetist --base 764288f7` gives the values of the base (`nose-arm-check.txt`).
+
+![The head views of the app: before above, noseShare 0.5 below](2026-10-20-wolf-brows/nose.webp)
