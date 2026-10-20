@@ -20,6 +20,5 @@ user can reverse each decision. Then update its section, and remove its row.
 | The kettles leave a gap of 0.12 m at the front of the player for the trunk (`TIMPANI.front`). The trunk keeps 9.1 cm or more from the kettles. | 4.6, 5.3 |
 | Each hand strikes only the kettles on its side of the trunk (`sides`), so a roll stays in one hand: the other hand missed by up to 42 cm across the trunk. | 5.3 |
 | Each mallet strikes 0.055 m in from the rim nearest to the player (`PercussionHold.rim`), the 3 inches of a real timpanist at the scale 0.7 of the kettles, and points from 0.1 H below and in front of its shoulder (`home`, `2026-10-19-elephant-arms.md`). Each strike reaches its target. | 5.3 |
-| The timpani elbows point out and back, in place of down (`2026-10-10-arms-close.md`): elbows down put the upper arms 2.6 cm into the body. The upper arms still touch the side of the body. | 5.3 |
 | The sweep accepts 3 cm of the upper arms in the body, because the upper arm of the mesh lies on the side of the body, and 3 cm of the mallets in the kettles, because the middle of the ball lies on the head at a strike (`TIMPANIST_SWEEP`). | 5.2, 9.3 |
 | Open: the arm seam shades dark lines on the front of the body. The folds of the arms are in `2026-10-19-elephant-arms.md`. | 4.4, 9.3 |
