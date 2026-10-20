@@ -485,14 +485,16 @@ The code constants of each family hold the times, the angles, and the lengths of
     plays on one of the two front kettles (`PercussionHold.pair`), because the outer kettles of
     the real size stand beyond the reach of the arms. The paws rest above the near rims, as in
     the reference images, and each mallet strikes 0.25 m in from the near rim, as the user chose
-    (`PercussionHold.rim`). A real timpanist strikes about 3 inches in. Each mallet points to its
-    target from a place below and in front of its shoulder (`PercussionHold.home`). Between
-    strikes, the mallet turns around the grip, up and out to the side of its hand, as a real
-    player turns the wrist up, and it comes down for the strike. At rest, the paw holds the mallet
-    across the forearm, as a real player holds it at about 90° to the forearm, with the top of the
-    grip along the forearm, so the paw does not twist on the forearm (`PercussionHold.across`). The
-    head of each timpani mallet leaves the back side of the fist (`TIMPANI.malletBack`), so that
-    the mallets point up and out with little twist. The elbows of the timpani point down and
+    (`PercussionHold.rim`). A real timpanist strikes about 3 inches in. The paw holds each mallet
+    as a real timpanist holds it: the head leaves the front of the fist, and the shaft lies along
+    the thumb, near the line of the forearm (`TIMPANI.malletTilt`,
+    `docs/reference/percussion-technique.md`). Each mallet points to its target from a place
+    below, in front of, and out from its shoulder (`PercussionHold.home`), so that it points
+    forward at a strike. Between strikes, the paw holds the mallet forward and in, at the angle of
+    no twist of the paw on the forearm, and the wrist lifts the head a little above the level
+    (`PercussionHold.across`). The head comes down for the strike. The studio skin twists badly
+    when a paw turns far on its forearm (4.4), so the hold takes the real direction with the
+    smallest turn of the paw. The elbows of the timpani point down and
     near the body, as a real timpanist holds them (`poleL`, `poleR`). Elbows out at the height
     of the shoulders roll the upper arms far, and the skin twists at the shoulder (4.4). The
     upper arms touch the side of the body, as the user rule of 2026-10-10 asks. The kettles leave a

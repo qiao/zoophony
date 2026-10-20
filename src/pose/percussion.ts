@@ -193,11 +193,14 @@ function acrossHand(
     solveTwoBone(joint, wrist, upper, lower, pole, joints);
     forearm.subVectors(joints.wrist, joints.elbow).normalize();
     acrossAxes(forearm, upperArm.subVectors(joints.elbow, joint), arm.side, acrossUp, acrossOut);
-    // The rest direction across the forearm, and the paw that holds it with no swing.
+    // The rest direction across the forearm, and the paw that holds it with no swing. A mallet
+    // that slants toward the wrist in the bind pose keeps that slant.
     along
       .copy(acrossUp)
       .multiplyScalar(Math.cos(across.rest))
-      .addScaledVector(acrossOut, Math.sin(across.rest));
+      .addScaledVector(acrossOut, Math.sin(across.rest))
+      .multiplyScalar(Math.cos(side.tilt))
+      .addScaledVector(forearm, Math.sin(side.tilt));
     top.copy(forearm).negate();
     top.addScaledVector(along, -top.dot(along)).normalize();
     setFromBasis(turn, along, top).multiply(inverse.fromArray(side.inverse));

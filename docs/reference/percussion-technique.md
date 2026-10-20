@@ -82,12 +82,14 @@ The elephant plays the timpani of the app (`PERCUSSION_HOLDS.timpani` of
 gives the rule of the app, or where the app differs from sections 1 to 4. A round that changes the
 motion updates the items.
 
-- **The grip.** The app differs. The head of each mallet leaves the back side of the fist, at the
-  side of the little finger (`TIMPANI.malletBack`), so that the paw does not twist on the
-  forearm. A real player holds the head out of the front of the fist (section 1).
-- **The direction between strikes.** The app differs. Each mallet points 27° to 30° up and 52°
-  to 55° out to the side of its hand (`PercussionHold.across`). A real mallet points forward and
-  in, and does not go far above the level (sections 2 and 3).
+- **The grip.** The head of each mallet leaves the front of the fist, and the shaft lies along
+  the thumb, near the line of the forearm (`TIMPANI.malletTilt`), as section 1 gives. The butt end
+  stays in the paw.
+- **The direction between strikes.** Each mallet points forward and in, 14° to 16° from forward
+  (a V of about 30°, as the French and the American grips), and 1° to 7° above the level
+  (`PercussionHold.across`, sections 2 and 3). A wider V of the German grip turns the paw of the
+  elephant further on its forearm (`docs/research/2026-10-19-elephant-grip.md`). At a strike,
+  each mallet points forward and 20° to 23° down (section 3).
 - **The stroke.** The head lifts before the note, comes down at its full speed at the note
   start, and rebounds (`STRIKE_MOTION` of `src/pose/strikes.ts`), as section 4 gives.
 - **The playing spot.** The app differs. Each mallet strikes 0.25 m in from the near rim

@@ -156,26 +156,27 @@ export const PERCUSSION_HOLDS = {
   // The elephant mesh has short arms behind a deep belly, and its trunk hangs between the two
   // front kettles: each hand strikes the front kettle of its side, and the outer kettles stand
   // beyond its reach (pair). The paw rests above the near rim, and the mallet strikes 0.25 m in
-  // from the rim, as the user chose for the look of the reference images. Between strikes, the
-  // paw holds the mallet across the forearm, up and out (across), with little twist on the
-  // forearm, because the mallet points back in the paw (TIMPANI.malletBack). The elbows point down
-  // and near the body, so
-  // that the upper arms roll less and the skin does not twist at the shoulder (2026-10-19-arm-skin
-  // decisions). The top of each grip points toward the shoulder. The mallets stay over the
-  // kettles in the rest pose, because the hanging paws reach into the large kettles (ready,
+  // from the rim, as the user chose for the look of the reference images. As a real timpanist,
+  // the paw holds the head out of the front of the fist (TIMPANI.malletTilt), and each mallet
+  // points forward and in. The homes stand out from the shoulders, so that the mallets point
+  // forward at a strike. Between strikes, the wrist lifts the head a little above the level, with
+  // little twist of the paw on the forearm (across, 2026-10-19-elephant-grip decisions). The
+  // elbows point down and near the body, so that the upper arms roll less and the skin does not
+  // twist at the shoulder (2026-10-19-arm-skin decisions). The mallets stay over the kettles in
+  // the rest pose, because the hanging paws reach into the large kettles (ready,
   // 2026-10-19-elephant-pose decisions).
   timpani: {
     hands: 'sides',
     sizes: { lift: 0.1, rest: 0.2 },
-    offsetL: [-0.1, 0, 0],
-    offsetR: [0.05, 0, 0],
+    offsetL: [0, 0, 0],
+    offsetR: [-0.05, 0, 0],
     poleL: [-0.7, -1, 0.2],
     poleR: [0.7, -1, 0.2],
     rim: 0.25,
-    home: [0, -0.37, -0.2],
+    home: [0.1, -0.37, -0.2],
     top: 'shoulder',
     cock: null,
-    across: { rest: 1.5, lift: 0 },
+    across: { rest: -1.2, lift: 0.65 },
     ready: true,
     pair: true,
   },
@@ -303,6 +304,11 @@ export type PercussionSide =
       readonly cock: MalletCock | null;
       /** The mallet across the forearm between strikes (`PercussionHold.across`). */
       readonly across: MalletAcross | null;
+      /**
+       * The angle of the mallet in the bind pose from the plane normal to the forearm toward the
+       * wrist, in radians: 0 for a mallet at 90° to the forearm (`TIMPANI.malletTilt`).
+       */
+      readonly tilt: number;
       /** The distance from the grip to the middle of the head of the mallet, in meters. */
       readonly length: number;
       /** The inverse of the rotation of the mallet in the bind pose. */
@@ -470,21 +476,29 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
     const [x, y, z] = hold.home;
     return [arm.side === 'L' ? -x : x, y, z];
   };
-  const mallet = (arm: ArmRig, bone: 'malletL' | 'malletR'): PercussionSide => ({
-    kind: 'mallet',
-    arm,
-    head: malletHead(bone),
-    home: toVec3(fromShoulder(arm, homeOf(arm))),
-    top: hold.top,
-    cock: hold.cock,
-    across: hold.across,
-    length: malletLength(bone),
-    inverse: toQuat(
-      new Quaternion(
-        ...(model.pieces.find((placed) => placed.piece.bone === bone)?.at.rotation ?? IDENTITY),
-      ).invert(),
-    ),
-  });
+  // The slant of a mallet in the bind pose toward the wrist, against the bind forearm.
+  const malletTilt = (arm: ArmRig, turn: Quaternion): number => {
+    const forearm = new Vector3(...arm.bind.wrist).sub(new Vector3(...arm.bind.elbow)).normalize();
+    const along = new Vector3(1, 0, 0).applyQuaternion(turn);
+    return Math.asin(MathUtils.clamp(along.dot(forearm), -1, 1));
+  };
+  const mallet = (arm: ArmRig, bone: 'malletL' | 'malletR'): PercussionSide => {
+    const turn = new Quaternion(
+      ...(model.pieces.find((placed) => placed.piece.bone === bone)?.at.rotation ?? IDENTITY),
+    );
+    return {
+      kind: 'mallet',
+      arm,
+      head: malletHead(bone),
+      home: toVec3(fromShoulder(arm, homeOf(arm))),
+      top: hold.top,
+      cock: hold.cock,
+      across: hold.across,
+      tilt: malletTilt(arm, turn),
+      length: malletLength(bone),
+      inverse: toQuat(turn.clone().invert()),
+    };
+  };
   const targets = new Map<number, StrikeTarget>();
   const heads = model.instrument.targets.filter((t) => t.kind === 'head');
   let sides: readonly [PercussionSide, PercussionSide];

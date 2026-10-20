@@ -1029,7 +1029,8 @@ of each instrument (`models/instruments/`) holds its sizes and the offsets of it
 | Baton | A straight white stick that tapers to the tip (user, 2026-10-13). | In the right hand. |
 
 In the bind pose, each mallet, stick, beater, the triangle, and the baton lies in the hanging
-hand in front of the palm, and points forward. No vertex of a player model is below the floor.
+hand in front of the palm, and points forward. The timpani mallets slant down toward the line of
+the forearm, as a real timpanist holds the shaft along the thumb (`TIMPANI.malletTilt`). No vertex of a player model is below the floor.
 
 **Instrument data**
 

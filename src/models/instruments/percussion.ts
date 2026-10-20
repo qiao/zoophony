@@ -55,12 +55,15 @@ export const TIMPANI = {
    */
   front: 0.12,
   /**
-   * True: the head of each mallet leaves the side of the fist toward the back in the bind pose.
-   * The paws of the elephant mesh then hold the mallets up and out across the forearms with
-   * little twist (`PercussionHold.across`).
+   * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
+   * paw, in radians. A real timpanist holds the shaft along the thumb, with the head out of the
+   * front of the fist and the butt end in the palm (`docs/reference/percussion-technique.md` 1).
+   * Thus the shaft slants from the fist toward the line of the forearm. 1.3 gives the smallest
+   * turn of the elephant paw on its forearm with the mallets in the range of real players
+   * (`docs/decisions/2026-10-19-elephant-grip.md`).
    */
-  // SAFETY: the literal widens to a flag, so that a hold tool can set it in memory.
-  malletBack: true as boolean,
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  malletTilt: 1.3 as number,
 } as const;
 
 /**
@@ -138,9 +141,6 @@ const SHARPS: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
 /** The rotation that turns the piece +x to the front of the player (-z), with +y up. */
 const FORWARD = toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2));
 
-/** The rotation that turns the piece +x to the back of the player (+z), with +y up. */
-const BACKWARD = toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2));
-
 /**
  * Gives the number of kettles for the timpani notes of a file: two kettles up to C3, three up to
  * F3, and four above (design 4.6).
@@ -171,8 +171,7 @@ interface HandTool {
  * @param ballColor The color of the ball.
  * @param stickColor The color of the stick.
  * @param finish The finish of the stick.
- * @param back True: the head leaves the other side of the fist, and the mallet points back in
- *   the bind pose.
+ * @param tilt The angle of the mallet below the level in the bind pose, in radians.
  * @returns The piece and the target at the ball.
  */
 function mallet(
@@ -182,7 +181,7 @@ function mallet(
   ballColor: Rgb,
   stickColor: Rgb = INSTRUMENT_COLORS.stick,
   finish: Finish = 'matte',
-  back = false,
+  tilt = 0,
 ): HandTool {
   const piece = new PieceBuilder();
   piece.rod([-0.04, 0, 0], [length, 0, 0], 0.0055, 4, stickColor, finish);
@@ -190,11 +189,17 @@ function mallet(
     piece.add(icosphere(ball, 0), ballColor, transform([length, 0, 0]));
   }
   const palm = bone === 'malletL' ? 'palmL' : 'palmR';
+  // The tilt turns the forward mallet down around the x axis of the player.
+  const turn =
+    tilt === 0
+      ? FORWARD
+      : toQuat(
+          new Quaternion()
+            .setFromAxisAngle(new Vector3(1, 0, 0), -tilt)
+            .multiply(new Quaternion(...FORWARD)),
+        );
   return {
-    piece: piece.build(
-      bone,
-      back ? hold(palm, [0, 0, 0.07], BACKWARD) : hold(palm, [0, 0, -0.07], FORWARD),
-    ),
+    piece: piece.build(bone, hold(palm, [0, 0, -0.07], turn)),
     target: {
       kind: 'mallet-head',
       bone,
@@ -318,7 +323,7 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
       keys,
     });
   }
-  const back = t.malletBack;
+  const tilt = t.malletTilt;
   const left = mallet(
     'malletL',
     0.3,
@@ -326,7 +331,7 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
     INSTRUMENT_COLORS.drumHead,
     undefined,
     undefined,
-    back,
+    tilt,
   );
   const right = mallet(
     'malletR',
@@ -335,7 +340,7 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
     INSTRUMENT_COLORS.drumHead,
     undefined,
     undefined,
-    back,
+    tilt,
   );
   const instrument = piece.build('instrument', hold('floor'));
   return {
