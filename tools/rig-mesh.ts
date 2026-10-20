@@ -110,6 +110,17 @@ export interface MeshRigConfig {
     readonly width?: number;
     readonly height?: number;
     readonly depth?: number;
+    /**
+     * The part that keeps its form and its size (`proportioned()` of
+     * `tools/blender/rig_mesh.py`): with `head`, each vertex above the upper height of `blend`
+     * moves with the top of the neck and takes no factor.
+     */
+    readonly keep?: 'head';
+    /**
+     * The lower and the upper height of the zone where the scaled body blends into the kept
+     * head, in the units of the source before the factors. `keep` needs it.
+     */
+    readonly blend?: readonly [low: number, high: number];
   };
   /** The joints of the middle and of the left side. The right side mirrors the left side. */
   readonly joints: Readonly<Record<string, MeshRigJoint>>;
@@ -148,8 +159,9 @@ export const CONFIG_JOINTS = [
  *
  * @param text The text of the JSON file.
  * @returns The config.
- * @throws Error if a number of the app or a factor is not a positive number, or if the config
- *   lacks a joint of {@link CONFIG_JOINTS}.
+ * @throws Error if a number of the app or a factor is not a positive number, if
+ *   `proportions.keep` is not `head` with a blend zone, or if the config lacks a joint of
+ *   {@link CONFIG_JOINTS}.
  */
 export function parseConfig(text: string): MeshRigConfig {
   // SAFETY: the configs in tools/mesh-rigs/ hold the fields of MeshRigConfig, and the checks below
@@ -173,6 +185,15 @@ export function parseConfig(text: string): MeshRigConfig {
     throw new Error(
       'The arm factor, the leg factor, the head factor, the neck factor, the trunk factor, the girth factors, the arm girth factors, the proportions, app.shoulders, and app.reach must be positive numbers.',
     );
+  }
+  const keep = config.proportions?.keep;
+  if (keep !== undefined) {
+    const [low, high] = config.proportions?.blend ?? [];
+    if (keep !== 'head' || low === undefined || high === undefined || !(low >= 0 && low < high)) {
+      throw new Error(
+        'proportions.keep must be "head", with proportions.blend of a lower and a higher height from 0 up.',
+      );
+    }
   }
   const missing = CONFIG_JOINTS.filter((name) => config.joints[name]?.head.length !== 3);
   if (missing.length > 0) {

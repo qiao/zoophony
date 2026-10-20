@@ -11,7 +11,9 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the top, with the soles at y = 0. The math uses the axes of the studio: y up, +z forward, and
    +x the left side of the animal. With `proportions` of the config, the mesh then takes a factor
    on each axis (`width` on x, `height` on y, `depth` on z), so that a body can be shorter or
-   wider than the mesh of the user before the joints. With `cut` of the config, the faces that join each hanging
+   wider than the mesh of the user before the joints. With `keep` of the rule set to `head`, the
+   head keeps its size, and a blend zone at the neck joins it to the scaled body
+   (`proportioned()`). With `cut` of the config, the faces that join each hanging
    forearm to the belly go, and new faces close both holes (`cut_seam()`). With `skinNormals` of
    the cut, the file names the caps of the arm, and the app gives them the normals of the skin.
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
@@ -372,11 +374,39 @@ def load_mesh(config):
     # config are in the units of the scaled source.
     rule = config.get('proportions')
     if rule:
-        factors = [rule.get('width', 1), rule.get('height', 1), rule.get('depth', 1)]
-        verts = verts * factors
-        log(f'proportions: the source takes the factors {factors} (width, height, depth), and is '
-            f'{verts[:, 1].max():.4f} u high')
+        verts = proportioned(verts, rule)
+        log(f'proportions: the source takes the factors {proportion_factors(rule).tolist()} '
+            f'(width, height, depth), and is {verts[:, 1].max():.4f} u high')
     return verts, tris, uvs, texture
+
+
+def proportion_factors(rule):
+    """Gives the factors of the `proportions` of a config on x, y, and z, 1 when not given."""
+    return np.array([rule.get('width', 1), rule.get('height', 1), rule.get('depth', 1)], float)
+
+
+def proportioned(verts, rule):
+    """Scales the source (1 unit high, soles at y = 0) by the `proportions` of a config.
+
+    Each vertex takes the factors of the rule around the middle of the soles. With `keep` set to
+    `head`, the head keeps its form and its size: above the upper height of `blend`, each vertex
+    moves with the point (0, upper height, 0) and takes no factor. From the lower height to the
+    upper height, the share of the kept place grows with a smoothstep, so that the scaled neck
+    joins the head with no tear. The heights of `blend` are in the units of the source before the
+    factors."""
+    factors = proportion_factors(rule)
+    scaled = verts * factors
+    if rule.get('keep') != 'head':
+        return scaled
+    low, high = rule['blend']
+    anchor = np.array([0.0, high, 0.0])
+    kept = verts + anchor * factors - anchor
+    share = smoothstep(verts[:, 1], low, high)
+    blend = int(((share > 0) & (share < 1)).sum())
+    log(f'proportions: the head keeps its size above y {high} u, with a blend from y {low} u: '
+        f'{int((share >= 1).sum())} vertices kept, {blend} in the blend')
+    share = share[:, None]
+    return scaled * (1.0 - share) + kept * share
 
 
 def linear(srgb):
