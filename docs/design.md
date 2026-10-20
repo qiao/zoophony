@@ -251,4 +251,4 @@ The decision files:
 - [`2026-10-20-grip-tools.md`](decisions/2026-10-20-grip-tools.md): the retro of round elephant-grip, the one fit demo of a role with no demo of `FIT_DEMOS`.
 - [`2026-10-20-grip-tools.md`](decisions/2026-10-20-grip-tools.md): the retro of round elephant-grip, the one fit demo of a role with no demo of `FIT_DEMOS`, and the explain of a measure of the arm gate.
 - [`2026-10-20-grip-tools.md`](decisions/2026-10-20-grip-tools.md): the retro of round elephant-grip, the one fit demo of a role with no demo of `FIT_DEMOS`, the explain of a measure of the arm gate, the child that failed first in a probe beside a commit, and several `--set` variants of the play frames from one build.
-- [`2026-10-20-mesh-tools.md`](decisions/2026-10-20-mesh-tools.md): the retro of round mesh-wolf, the ready grip entry of the arm gate, and the warning of the dark faces of a mesh rig.
+- [`2026-10-20-mesh-tools.md`](decisions/2026-10-20-mesh-tools.md): the retro of round mesh-wolf, the ready grip entry of the arm gate, the warning of the dark faces of a mesh rig, the tail gaps of the rig check, and the face crops of the close views.
