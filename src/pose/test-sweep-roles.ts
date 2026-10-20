@@ -111,6 +111,13 @@ const ELEPHANT_BODY_LOOPS = 4;
  */
 const BEAVER_BODY_LOOPS = 9;
 
+/**
+ * The open loops of {@link BODY_BONES} of the wolf mesh: the cuts to the two upper arms, and three
+ * open edge pairs of 4.2 cm to 11.6 cm, one on the head and two on the sides of the trunk
+ * (`loops-probe.txt` of `docs/research/2026-10-20-wolf-mesh/`).
+ */
+const WOLF_BODY_LOOPS = 5;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -278,6 +285,17 @@ function beaverBodySurface(posed: PosedSkeleton): ClosedSurface {
  */
 function elephantBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, ELEPHANT_BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the wolf mesh: {@link BODY_BONES} with a cap on each open loop
+ * ({@link WOLF_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function wolfBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, WOLF_BODY_LOOPS);
 }
 
 /**
@@ -1401,6 +1419,68 @@ export const HORNIST_SWEEP: RoleSweep = {
     }),
 };
 
+/**
+ * Tells if a player of a scene is in the sweep of the clarinetist: the first seated wolf with a
+ * clarinet, and each wolf soloist, which stands (design 4.2).
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @returns True for a player of the sweep.
+ */
+function sweptClarinetist(scene: TestScene, index: number): boolean {
+  const { cast } = scene.layout.players[index] ?? {};
+  if (cast?.species !== 'wolf' || cast.instrument !== 'clarinet') {
+    return false;
+  }
+  if (cast.support === 'stand') {
+    return true;
+  }
+  const first = scene.layout.players.findIndex(
+    (p) =>
+      p.cast.species === 'wolf' && p.cast.instrument === 'clarinet' && p.cast.support !== 'stand',
+  );
+  return first === index;
+}
+
+/**
+ * The sweep of the clarinetist (design 5.3): the sweep of the flutist with the clarinet and the
+ * wolf. The first seated wolf of each demo with clarinets, and each standing wolf soloist, play it,
+ * with the palms on their grips at the start of each phrase.
+ */
+export const CLARINETIST_SWEEP: RoleSweep = {
+  ...FLUTIST_SWEEP,
+  role: 'clarinetist',
+  obstacles: [
+    { name: 'body', surface: wolfBodySurface },
+    { name: 'clarinet', surface: instrumentSurface },
+  ],
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'clarinet'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      if (!sweptClarinetist(scene, index)) {
+        return [];
+      }
+      const { species, instrument, kettles, support } = place.cast;
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles, support);
+      return [
+        {
+          name: `clarinetist ${index} (${support})`,
+          model,
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => flutistTargets(scene, index, model),
+        },
+      ];
+    }),
+};
+
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,
@@ -1415,4 +1495,5 @@ export const SWEEP_ROLES = {
   timpanist: TIMPANIST_SWEEP,
   hornist: HORNIST_SWEEP,
   bassoonist: BASSOONIST_SWEEP,
+  clarinetist: CLARINETIST_SWEEP,
 } as const;
