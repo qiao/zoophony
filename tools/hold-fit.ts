@@ -89,8 +89,8 @@ import type { ChinInstrument, GripSpare, HoldReach } from './hold-reach.ts';
 import { setHolds } from './hold-sets.ts';
 import { PAW_PLACES, SCAN_WALL, lapWorsts, probeLaps, scanRest, scanSamples } from './lap-rest.ts';
 import type { LapWorst, LapWorsts, ScanSample } from './lap-rest.ts';
-import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
+import { probeDemos } from './probe-demos.ts';
 import {
   TARGET_REACH,
   compareDepths,
@@ -1885,7 +1885,7 @@ export function chooseDemos(
 async function fitDemos(
   options: FitOptions,
 ): Promise<{ readonly demos: DemoFile[]; readonly first: TestScene }> {
-  const all = await patchedDemos();
+  const all = await probeDemos();
   const id = (demo: DemoFile): string => demo.file.replace(/\.mid$/, '');
   const unknown = options.demos.filter(
     (name) => name !== 'all' && !all.some((demo) => id(demo) === name),

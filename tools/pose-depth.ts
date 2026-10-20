@@ -3,8 +3,8 @@ import { basename, join } from 'node:path';
 
 import { BOW_PART, bowSweep } from './bow-sweep.ts';
 import type { PlayFilter } from './fold-probe.ts';
-import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
+import { probeDemos } from './probe-demos.ts';
 import { setHolds } from './hold-sets.ts';
 import {
   PROBE_NO_CACHE,
@@ -683,10 +683,10 @@ function demoId(demo: DemoFile): string {
  *
  * @param asked The demos of `--demo`, with no `.mid`, or none for all demos.
  * @param role The role.
- * @returns The demos, in the order of `patchedDemos()`.
+ * @returns The demos, in the order of `probeDemos()`.
  */
 async function roleDemos(asked: readonly string[], role: RoleSweep): Promise<DemoFile[]> {
-  return (await patchedDemos()).filter(
+  return (await probeDemos()).filter(
     (demo) =>
       (asked.length === 0 || asked.includes(demoId(demo))) && role.hasRole(scoreOf(demo.bytes)),
   );

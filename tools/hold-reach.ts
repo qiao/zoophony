@@ -24,8 +24,8 @@ import { glbAnimal, runTool, speciesAnimal, takeGlb, withGlbBody } from './glb-s
 import { setHolds } from './hold-sets.ts';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
+import { probeDemos } from './probe-demos.ts';
 import { armReach, parseConfig } from './rig-mesh.ts';
 import {
   PERCUSSION_INSTRUMENTS,
@@ -1004,7 +1004,7 @@ async function main(): Promise<void> {
     );
     return;
   }
-  const demos = isPercussion(options.instrument) ? await patchedDemos() : [];
+  const demos = isPercussion(options.instrument) ? await probeDemos() : [];
   console.log(holdReachVariantLines(species, options, demos).join('\n'));
   if (sizes.length > 0) {
     console.log(['', ...sizeReachLines(species, options.support, sizes)].join('\n'));

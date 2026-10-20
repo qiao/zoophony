@@ -47,8 +47,8 @@ import {
   windReach,
 } from './hold-reach.ts';
 import type { ReachInstrument } from './hold-reach.ts';
-import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
+import { probeDemos } from './probe-demos.ts';
 import { isPercussion, strikeCell, strikeReach } from './strike-reach.ts';
 import {
   blenderArgs,
@@ -912,7 +912,7 @@ async function main(): Promise<void> {
     if (!isSpeciesId(species) || known === undefined || out === '') {
       throw new Error('Usage: node tools/mesh-options.ts --reach <species> <instrument> <json>');
     }
-    const demos = isPercussion(known) ? await patchedDemos() : [];
+    const demos = isPercussion(known) ? await probeDemos() : [];
     await writeFile(out, JSON.stringify(reachCell(species, known, demos)));
     return;
   }
@@ -933,7 +933,7 @@ async function main(): Promise<void> {
       `The species ${args.species} does not take the body of ${args.animal} in the swap of --glb. Give --species with a species of the animal.`,
     );
   }
-  const demos = args.instrument && isPercussion(args.instrument) ? await patchedDemos() : [];
+  const demos = args.instrument && isPercussion(args.instrument) ? await probeDemos() : [];
   const { measures: working, model } = workingBody(args.species, args.instrument, demos);
 
   const rows: RiggedVariant[] = [];

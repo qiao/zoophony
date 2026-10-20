@@ -81,8 +81,8 @@ import { FOLD_ROLES, SAMPLE_SETS, probeFolds, roleAnimal, roleBodies } from './f
 import type { RoleSource, SampleSet } from './fold-probe.ts';
 import { runTool, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
-import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
+import { probeDemos } from './probe-demos.ts';
 import {
   PROBE_NO_CACHE,
   ROOT,
@@ -1506,7 +1506,7 @@ export async function traceLines(role: string, range: TraceRange, step: number):
   const { createStudioPose, poseStudioBones, skinStudioMesh, studioOffsets } =
     await import('../src/models/studio-rig.ts');
   const source = FOLD_ROLES.get(role);
-  const all = await patchedDemos();
+  const all = await probeDemos();
   const demo = all.find((d) => d.file === range.demo);
   const scene = demo ? sceneOf(demo.bytes) : null;
   const [body] = source && scene ? roleBodies(source, scene) : [];
@@ -2037,7 +2037,7 @@ async function explainRole(
   const chosen = options.shared
     .filter((...[, i]) => options.shared[i - 1] === '--demo')
     .map((id) => (id.endsWith('.mid') ? id : `${id}.mid`));
-  const all = await patchedDemos();
+  const all = await probeDemos();
   const unknown = chosen.filter((file) => !all.some((demo) => demo.file === file));
   if (unknown.length > 0) {
     throw new Error(`No demo has the name ${unknown.join(', ')}.`);
@@ -2072,7 +2072,7 @@ async function childMain(args: readonly string[]): Promise<number> {
     throw new Error('The step must be a number of seconds above 0.');
   }
   const chosen = option('--demo').map((id) => (id.endsWith('.mid') ? id : `${id}.mid`));
-  const all = await patchedDemos();
+  const all = await probeDemos();
   const demos = chosen.length > 0 ? all.filter((demo) => chosen.includes(demo.file)) : all;
   const holds = option('--set').join(';');
   const changes = holds ? setHolds(holds) : null;

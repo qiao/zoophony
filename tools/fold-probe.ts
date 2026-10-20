@@ -45,8 +45,8 @@ import { setHolds } from './hold-sets.ts';
 import { probeBeside, shortHash, withoutOptions } from './ref-tree.ts';
 import { trackFolder } from './stop-cleanup.ts';
 import type { RefRole } from './ref-tree.ts';
-import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
+import { probeDemos } from './probe-demos.ts';
 import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from '../src/models/cast.ts';
 import type { PlayingSection } from '../src/models/cast.ts';
 import type { InstrumentId } from '../src/models/instruments/types.ts';
@@ -2069,7 +2069,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const all = await patchedDemos();
+  const all = await probeDemos();
   const unknown = chosen.filter((file) => !all.some((demo) => demo.file === file));
   if (unknown.length > 0) {
     throw new Error(`No demo has the name ${unknown.join(', ')}.`);
