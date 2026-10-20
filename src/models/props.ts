@@ -290,6 +290,24 @@ export function chairBack(seatHeight: number, seatWidth: number = CHAIR.seatWidt
 }
 
 /**
+ * Gives the box of the chair seat: 0.04 m thick, with its top at the seat height (design 4.5). A
+ * shorter seat keeps its back edge, so its front edge is further back.
+ *
+ * @param seatHeight The height of the seat, in meters.
+ * @param seatDepth The depth of the seat, in meters.
+ * @param seatWidth The width of the seat, in meters.
+ * @returns The box.
+ */
+export function chairSeat(
+  seatHeight: number,
+  seatDepth: number = CHAIR.seatDepth,
+  seatWidth: number = CHAIR.seatWidth,
+): Bounds {
+  const center = (CHAIR.seatDepth - seatDepth) / 2;
+  return centeredBox([0, seatHeight - 0.02, center], [seatWidth, 0.04, seatDepth]);
+}
+
+/**
  * Adds a box part to a mesh.
  *
  * @param builder The mesh.
@@ -326,11 +344,7 @@ export function buildChair(
   const x = c.seatWidth / 2 - CHAIR_LEG / 2;
   const center = (c.seatDepth - seatDepth) / 2;
   const z = seatDepth / 2 - CHAIR_LEG / 2 - center;
-  addBox(
-    builder,
-    centeredBox([0, c.seatHeight - 0.02, center], [c.seatWidth, 0.04, seatDepth]),
-    color,
-  );
+  addBox(builder, chairSeat(seatHeight, seatDepth, seatWidth), color);
   for (const side of [-1, 1]) {
     // A front leg up to the seat. The back legs are the posts of the back.
     const legHeight = c.seatHeight - 0.04;
