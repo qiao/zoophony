@@ -35,6 +35,10 @@
  * A wind role gives the spare reach of each grip in the play and in the rest (`spareRow()` of
  * `pnpm hold-reach`).
  *
+ * `--technique <technique>` counts only the play samples of the folds, the turns, and the sweep in
+ * which the last note of the seat of the player has the technique, such as `pizzicato`
+ * ({@link techniqueFilter}). The note targets and the lap rest count all samples.
+ *
  * `--scan` scans variants of the rest of a role with a lap rest or a wind hold in a part of the
  * time: for each variant, it builds only the rig of one seated player again, and measures one rest
  * sample at the wall time `SCAN_WALL` of `tools/lap-rest.ts`, or one sample at each wall time of
@@ -66,6 +70,7 @@ import type {
   FoldCount,
   FoldReport,
   FoldVisit,
+  PlayFilter,
   RoleSource,
   SampleSet,
   SideSplit,
@@ -104,6 +109,7 @@ import type { Quat } from '../src/models/tuples.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { sceneOf } from '../src/pose/test-scene.ts';
 import type { TestScene } from '../src/pose/test-scene.ts';
+import type { Technique } from '../src/score/types.ts';
 import { INSTRUMENT_PART, SWEEP_ROLES } from '../src/pose/test-sweep-roles.ts';
 import { BODY_OBSTACLE, PAW_PARTS, depthLimit, pairText } from '../src/pose/test-sweep.ts';
 import type { PairDepth, RoleSweep } from '../src/pose/test-sweep.ts';
@@ -221,7 +227,7 @@ export const UPPER_ARM_GOAL = 35;
 export const LEG_RESTS: ReadonlySet<string> = new Set(['flute@fox-tan']);
 
 /** The usage text of `pnpm hold-fit`. */
-const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--faces-of <face>[,<face>]...] [--base <ref>] [--json <file>]
+const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--faces-of <face>[,<face>]...] [--technique <normal | pizzicato | tremolo>] [--base <ref>] [--json <file>]
        pnpm hold-fit <role> --scan [--walls <seconds>[,<seconds>]...] [--set <changes>]... [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]...`;
 
 /**
@@ -336,6 +342,73 @@ export function gridVariants(
   );
 }
 
+/** The techniques of the notes of a seat (design 3.5), which `--technique` takes. */
+export const TECHNIQUES = [
+  'normal',
+  'pizzicato',
+  'tremolo',
+] as const satisfies readonly Technique[];
+
+/**
+ * Reads the technique of `--technique`.
+ *
+ * @param value The value of the option.
+ * @returns The technique.
+ * @throws Error that lists the techniques, for another value.
+ */
+export function techniqueOf(value: string): Technique {
+  const found = TECHNIQUES.find((technique) => technique === value);
+  if (!found) {
+    throw new Error(
+      `The option --technique takes one of ${TECHNIQUES.join(', ')}, and not "${value}".`,
+    );
+  }
+  return found;
+}
+
+/**
+ * Gives the filter of the play samples of `--technique`: a sample of a player counts when the last
+ * note of the seat of the player that starts at or before the song time has the technique. The
+ * conductor and the samples before the first note do not count.
+ *
+ * @param technique The technique.
+ * @returns The filter, for `probeFolds()` and the sweep.
+ */
+export function techniqueFilter(technique: Technique): PlayFilter {
+  const seen = new WeakMap<TestScene, Map<number, { starts: number[]; techniques: Technique[] }>>();
+  return (scene, player, song) => {
+    const seat = player === null ? null : (scene.layout.players[player]?.cast.seatIndex ?? null);
+    if (seat === null) {
+      return false;
+    }
+    const seats =
+      seen.get(scene) ?? new Map<number, { starts: number[]; techniques: Technique[] }>();
+    seen.set(scene, seats);
+    let notes = seats.get(seat);
+    if (!notes) {
+      const own = scene.score.notes
+        .filter((note) => note.seatIndex === seat)
+        .toSorted((a, b) => a.startSec - b.startSec);
+      notes = {
+        starts: own.map((note) => note.startSec),
+        techniques: own.map((note) => note.technique),
+      };
+      seats.set(seat, notes);
+    }
+    let low = 0;
+    let high = notes.starts.length;
+    while (low < high) {
+      const middle = Math.floor((low + high) / 2);
+      if ((notes.starts[middle] ?? 0) <= song) {
+        low = middle + 1;
+      } else {
+        high = middle;
+      }
+    }
+    return low > 0 && notes.techniques[low - 1] === technique;
+  };
+}
+
 /** The options of `pnpm hold-fit`. */
 export interface FitOptions {
   /** The name of the role, a key of `FOLD_ROLES`. */
@@ -373,6 +446,12 @@ export interface FitOptions {
   readonly scan: boolean;
   /** The wall times of the rest samples of the scan, in seconds: `--walls`, or `SCAN_WALL`. */
   readonly walls: readonly number[];
+  /**
+   * The technique of `--technique`: the play samples of the folds and of the sweep count only
+   * when the last note of the seat of the player has it ({@link techniqueFilter}), or `null` for
+   * all samples.
+   */
+  readonly technique: Technique | null;
 }
 
 /** The options that do not go with `--scan`: the scan has one sample set and no sweep. */
@@ -383,6 +462,7 @@ const SCAN_REFUSES: readonly string[] = [
   '--faces-of',
   '--sets',
   '--step',
+  '--technique',
 ];
 
 /**
@@ -428,6 +508,7 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   let base: string | null = null;
   let scan = false;
   let walls: readonly number[] | null = null;
+  let technique: Technique | null = null;
   for (let i = 0; i < rest.length; i++) {
     const option = rest[i] ?? '';
     given.add(option);
@@ -477,6 +558,9 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
       case '--walls':
         walls = parseWalls(value);
         break;
+      case '--technique':
+        technique = techniqueOf(value);
+        break;
       default:
         throw new Error(`The option "${option}" is not known.\n${USAGE}`);
     }
@@ -497,6 +581,11 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   if (base !== null && json !== null) {
     throw new Error(`The options --base and --json do not go together.\n${USAGE}`);
   }
+  if (base !== null && technique !== null) {
+    throw new Error(
+      `The option --technique goes with no --base, because the hold-fit of the commit does not know it.\n${USAGE}`,
+    );
+  }
   return {
     name,
     role,
@@ -512,6 +601,7 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
     base,
     scan,
     walls: walls ?? [SCAN_WALL],
+    technique,
   };
 }
 
@@ -2009,6 +2099,12 @@ async function main(): Promise<void> {
   if (options.sets.length < FIT_SETS.length) {
     console.log(`Sample sets: ${options.sets.join(', ')}.`);
   }
+  const keep = options.technique === null ? undefined : techniqueFilter(options.technique);
+  if (options.technique !== null) {
+    console.log(
+      `Play samples: only the samples of the ${options.technique} notes of the seat of each player.`,
+    );
+  }
   const grid = gridText(options.grids, options.gridBases);
   if (grid) {
     console.log(grid);
@@ -2027,10 +2123,17 @@ async function main(): Promise<void> {
         options.step,
         arms.visit,
         SAMPLE_SETS.filter((set) => options.sets.some((name) => name === set)),
+        keep,
       );
       const swept = sweep
         ? await sweepDemos(
-            { demos: ids, times: null, gaps: false, gapsOf: freeGaps(options.role) },
+            {
+              demos: ids,
+              times: null,
+              gaps: false,
+              gapsOf: freeGaps(options.role),
+              keep: keep ?? null,
+            },
             sweep,
           )
         : [];
