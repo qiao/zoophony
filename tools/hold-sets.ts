@@ -8,6 +8,7 @@ import {
   SNARE_DRUM,
   TAMBOURINE,
   TIMPANI,
+  TRIANGLE,
   XYLOPHONE,
 } from '../src/models/instruments/percussion.ts';
 import { SCALE_PARAMS, SPECIES, isSpeciesId } from '../src/models/species.ts';
@@ -41,8 +42,8 @@ const OWN_HOLDS = Object.fromEntries(
  * it, and `violin@rabbit` does. `kettles` changes the place of the kettles of the timpani
  * (`TIMPANI`), which the model of a scene reads when the tool builds it, and `percussion` the
  * places of the hands of a percussion player (`PERCUSSION_PLACES`). `bassDrum`, `snareDrum`,
- * `tambourine`, and `bars` change the places of the bass drum, the snare drum, the tambourine,
- * and the xylophone in the same way.
+ * `tambourine`, `triangle`, and `bars` change the bass drum, the snare drum, the tambourine, the
+ * triangle, and the xylophone in the same way.
  */
 const HOLDS = {
   piano: HANDS_HOLDS.piano,
@@ -63,6 +64,7 @@ const HOLDS = {
   bassDrum: BASS_DRUM,
   snareDrum: SNARE_DRUM,
   tambourine: TAMBOURINE,
+  triangle: TRIANGLE,
   bars: XYLOPHONE,
   percussion: PERCUSSION_PLACES,
   ...OWN_HOLDS,

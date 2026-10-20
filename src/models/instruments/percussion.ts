@@ -88,6 +88,12 @@ export const XYLOPHONE = {
   front: 0.4,
   /** A mallet strikes a sharp bar this far from its near end, so that the arms reach it. */
   sharpStrike: 0.04,
+  /**
+   * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
+   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm.
+   */
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  malletTilt: 0 as number,
 } as const;
 
 /**
@@ -104,6 +110,12 @@ export const SNARE_DRUM = {
   top: 0.4,
   /** The distance of the middle of the drum in front of the player. */
   forward: 0.55,
+  /**
+   * The angle of each stick below the level in the bind pose, toward the fingers of the hanging
+   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm.
+   */
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  malletTilt: 0 as number,
 } as const;
 
 /**
@@ -117,6 +129,12 @@ export const BASS_DRUM = {
   depth: 0.32,
   /** The turn of the axis of the drum around the vertical from the x axis, in degrees. */
   turn: -30,
+  /**
+   * The angle of each beater below the level in the bind pose, toward the fingers of the hanging
+   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm.
+   */
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  malletTilt: 0 as number,
 } as const;
 
 /** The tambourine on its stand, in meters (design 4.6). */
@@ -126,6 +144,16 @@ export const TAMBOURINE = {
    * the front right of the player, at the height of the snare drum head.
    */
   mount: [0.3, 0.4, -0.45],
+} as const;
+
+/** The triangle and its beater, which the small percussion player holds (design 4.6). */
+export const TRIANGLE = {
+  /**
+   * The angle of the beater below the level in the bind pose, toward the fingers of the hanging
+   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm.
+   */
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  malletTilt: 0 as number,
 } as const;
 
 /** The faces around the axis of a kettle. */
@@ -442,7 +470,15 @@ export function buildBassDrum(): InstrumentModel {
     0.03,
     INSTRUMENT_COLORS.hardware,
   );
-  const beater = mallet('malletR', 0.32, 0.055, INSTRUMENT_COLORS.drumHead);
+  const beater = mallet(
+    'malletR',
+    0.32,
+    0.055,
+    INSTRUMENT_COLORS.drumHead,
+    undefined,
+    undefined,
+    BASS_DRUM.malletTilt,
+  );
   const instrument = piece.build('instrument', hold('floor'));
   const head = toVec3(new Vector3(...center).addScaledVector(axis, depth / 2));
   return {
@@ -470,8 +506,9 @@ export function buildSnareDrum(): InstrumentModel {
   const center: Vec3 = [0, top - depth / 2, -SNARE_DRUM.forward];
   drum(piece, center, [0, 1, 0], radius, depth, INSTRUMENT_COLORS.drumShell);
   tripod(piece, [center[0], 0, center[2]], [center[0], top - depth, center[2]], 0.24);
-  const left = mallet('malletL', 0.3, 0.008, INSTRUMENT_COLORS.stick);
-  const right = mallet('malletR', 0.3, 0.008, INSTRUMENT_COLORS.stick);
+  const tilt = SNARE_DRUM.malletTilt;
+  const left = mallet('malletL', 0.3, 0.008, INSTRUMENT_COLORS.stick, undefined, undefined, tilt);
+  const right = mallet('malletR', 0.3, 0.008, INSTRUMENT_COLORS.stick, undefined, undefined, tilt);
   const instrument = piece.build('instrument', hold('floor'));
   const head: Vec3 = [center[0], top, center[2]];
   return {
@@ -632,7 +669,7 @@ export function buildSmallPercussion(): InstrumentModel {
   }
   triangle.rod([0, 0, 0], topCorner, 0.0015, 3, INSTRUMENT_COLORS.hardware);
   const barMiddle: Vec3 = [side / 4, -0.05 - (side * Math.sin(60 * MathUtils.DEG2RAD)) / 2, 0];
-  const beater = mallet('malletR', 0.15, 0, metal, metal, 'metal');
+  const beater = mallet('malletR', 0.15, 0, metal, metal, 'metal', TRIANGLE.malletTilt);
   return {
     id: 'small-percussion',
     parent: 'root',
@@ -781,8 +818,25 @@ export function buildXylophone(): InstrumentModel {
       );
     }
   }
-  const left = mallet('malletL', 0.3, 0.018, INSTRUMENT_COLORS.drumShell);
-  const right = mallet('malletR', 0.3, 0.018, INSTRUMENT_COLORS.drumShell);
+  const tilt = x.malletTilt;
+  const left = mallet(
+    'malletL',
+    0.3,
+    0.018,
+    INSTRUMENT_COLORS.drumShell,
+    undefined,
+    undefined,
+    tilt,
+  );
+  const right = mallet(
+    'malletR',
+    0.3,
+    0.018,
+    INSTRUMENT_COLORS.drumShell,
+    undefined,
+    undefined,
+    tilt,
+  );
   const instrument = piece.build('instrument', hold('floor'));
   return {
     id: 'xylophone',
