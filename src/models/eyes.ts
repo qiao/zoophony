@@ -32,6 +32,55 @@ const EYE_LIGHT_UP = 0.035;
 export type EyeColors = Pick<BodyColors, 'eye' | 'eyeLight'>;
 
 /**
+ * The bend of an eye: the move of each point of the oval along the axis of the eye, as a function
+ * of its place `u` (across) and `v` (up) in the plane of the eye, from the middle:
+ * `k0 u + k1 v + k2 u² + k3 u v + k4 v²`. The places and the move are in `H`. A studio body bends
+ * each eye to the form of its head surface, so that the rim of the oval lies in the fur (design
+ * 4.5, `StudioEyes.bends` of `models/studio-format.ts`).
+ */
+export type EyeBend = readonly [u: number, v: number, uu: number, uv: number, vv: number];
+
+/**
+ * Gives the move of a bend at a place in the plane of an eye.
+ *
+ * @param bend The bend.
+ * @param u The place across the eye, from the middle, in `H`.
+ * @param v The place up the eye, from the middle, in `H`.
+ * @returns The move along the axis of the eye, in `H`.
+ */
+export function bendAt(bend: EyeBend, u: number, v: number): number {
+  return bend[0] * u + bend[1] * v + bend[2] * u * u + bend[3] * u * v + bend[4] * v * v;
+}
+
+/**
+ * Gives the depth of the front of the oval in front of its middle, at a place up the oval.
+ *
+ * @param v The place up the oval, from the middle, in `H`.
+ * @returns The depth along the axis of the eye, in `H`.
+ */
+function frontDepth(v: number): number {
+  const share = v / (0.5 * EYE[1]);
+  return 0.5 * EYE[2] * Math.sqrt(Math.max(0, 1 - share * share));
+}
+
+/**
+ * Bends the corners of the unit ball of an eye along its z axis, the axis of the eye.
+ *
+ * @param corners The corners of the ball of radius 0.5, 9 numbers for each triangle.
+ * @param bend The bend.
+ * @returns The bent corners, in the units of the ball before its scale to the size of the eye.
+ */
+function bentBall(corners: readonly number[], bend: EyeBend): number[] {
+  const out = [...corners];
+  for (let c = 0; c < out.length; c += 3) {
+    const u = (out[c] ?? 0) * EYE[0];
+    const v = (out[c + 1] ?? 0) * EYE[1];
+    out[c + 2] = (out[c + 2] ?? 0) + bendAt(bend, u, v) / EYE[2];
+  }
+  return out;
+}
+
+/**
  * Gives the middle of an eye from the point of the head surface under it: 0.01 H into the head,
  * so that the eye lies half in the head surface. On a patch around the eyes (the eye patches and
  * the face disc), the middle is 0.01 H out of the surface, so that the eye shows above the patch.
@@ -55,13 +104,16 @@ export function eyeMiddle(surface: SurfacePoint, h: number, patched: boolean): S
  * Adds one eye on an eye bone: a black upright oval of 0.13 × 0.18 H, with a wet finish and a
  * small white light above the middle, as the eyes of the polished images. The thin axis of the
  * oval is the normal of the head surface, and its long axis points up along the surface. The light
- * follows the eye bone, so it closes with the eye.
+ * follows the eye bone, so it closes with the eye. A bend moves each point of the oval along the
+ * axis, so that the oval follows a curved or a sloped head surface, and the light of a bent eye
+ * lies on the front of the oval.
  *
  * @param builder The mesh that gets the parts.
  * @param colors The colors of the eye.
  * @param eye The middle of the eye ({@link eyeMiddle}) and the normal of the head surface there.
  * @param h The head height that sizes the eye, in meters.
  * @param bone The eye bone.
+ * @param bend The bend of the oval. A flat face of a parametric head needs none.
  */
 export function addEye(
   builder: MeshBuilder,
@@ -69,6 +121,7 @@ export function addEye(
   eye: SurfacePoint,
   h: number,
   bone: number,
+  bend?: EyeBend,
 ): void {
   const { point, normal } = eye;
   // The oval lies on the face: its thin axis is the normal of the surface, and its long axis
@@ -79,16 +132,23 @@ export function addEye(
   const onFace = toQuat(
     new Quaternion().setFromRotationMatrix(new Matrix4().makeBasis(across, up, n)),
   );
-  builder.add(ball(0.5, EYE_SEGMENTS, 4), {
+  const oval = ball(0.5, EYE_SEGMENTS, 4);
+  builder.add(bend ? bentBall(oval, bend) : oval, {
     color: colors.eye,
     bone,
     at: transform(point, onFace, [EYE[0] * h, EYE[1] * h, EYE[2] * h]),
     finish: 'lacquer',
   });
 
-  const light = new Vector3(...point)
-    .addScaledVector(new Vector3(...normal), 0.5 * EYE[2] * h)
-    .add(new Vector3(0, EYE_LIGHT_UP * h, 0));
+  // The light of a bent eye lies on the front of the oval, up the oval from the middle, so that
+  // it stays on an oval that faces up or to the side.
+  const light = bend
+    ? new Vector3(...point)
+        .addScaledVector(up, EYE_LIGHT_UP * h)
+        .addScaledVector(n, (frontDepth(EYE_LIGHT_UP) + bendAt(bend, 0, EYE_LIGHT_UP)) * h)
+    : new Vector3(...point)
+        .addScaledVector(n, 0.5 * EYE[2] * h)
+        .add(new Vector3(0, EYE_LIGHT_UP * h, 0));
   builder.add(ball(0.5, 6, 3), {
     color: colors.eyeLight,
     bone,
