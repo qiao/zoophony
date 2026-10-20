@@ -546,6 +546,14 @@ const PIG_HORN = {
 } as const satisfies WindHold;
 
 /**
+ * The clarinet hold of the wolf (design 5.3). It starts as the hold of {@link WIND_HOLDS}, so that
+ * the tools can fit the hold of the wolf mesh with `--set 'clarinet@wolf.<path>=<value>'`.
+ */
+const WOLF_CLARINET = {
+  ...WIND_HOLDS.clarinet,
+} as const satisfies WindHold;
+
+/**
  * The holds of the species that hold a wind instrument in their own way, in place of
  * {@link WIND_HOLDS} (design 5.3). The tools change them in memory with
  * `--set '<instrument>@<species>.<path>=<value>'` (`tools/hold-sets.ts`).
@@ -558,6 +566,7 @@ export const SPECIES_WIND_HOLDS: Partial<
   mouse: { oboe: MOUSE_OBOE },
   beaver: { bassoon: BEAVER_BASSOON },
   pig: { horn: PIG_HORN },
+  wolf: { clarinet: WOLF_CLARINET },
 };
 
 /**
