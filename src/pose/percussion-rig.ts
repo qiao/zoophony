@@ -9,10 +9,9 @@ import {
   xylophoneBarPosition,
 } from '../models/instruments/percussion.ts';
 import type { PlayTarget } from '../models/instruments/types.ts';
-import { IDENTITY, toVec3 } from '../models/tuples.ts';
+import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
 import type { InstrumentOf } from './family.ts';
-import { setFromBasis } from './frames.ts';
 import { hangingArm } from './hang.ts';
 import type { HangingArm } from './hang.ts';
 import { armRig } from './ik.ts';
@@ -46,6 +45,23 @@ export type HandsRule = 'alternate' | 'sides' | 'right' | 'pair';
  *   top up turns the paw almost upside down on the forearm.
  */
 export type MalletTop = 'up' | 'shoulder';
+
+/**
+ * The mallet of a percussion hold across the forearm between strikes (design 5.3). A real player
+ * holds a mallet so that it leaves the side of the fist at about 90° to the forearm, as the bind
+ * pose does, where the arm hangs and the mallet points forward. At a strike, the mallet points
+ * from its home to the target, and the grip stays at that place. As the head goes up to its rest
+ * height, the paw turns around the grip until the mallet lies across the forearm, at an angle in
+ * the frame of the elbow, and the top of the grip points along the forearm toward the elbow.
+ */
+export interface MalletAcross {
+  /**
+   * The direction of the mallet at the rest height, across the forearm: the angle from the
+   * direction of no twist of the paw on the forearm ({@link acrossAxes}) toward the out side of
+   * the hand, in radians.
+   */
+  readonly rest: number;
+}
 
 /**
  * The turn of a mallet around its grip between strikes (design 5.3), as a real player turns the
@@ -99,6 +115,11 @@ export interface PercussionHold {
    */
   readonly cock: MalletCock | null;
   /**
+   * The mallet across the forearm between strikes, or `null`. It takes the place of `top` and
+   * `cock`.
+   */
+  readonly across: MalletAcross | null;
+  /**
    * True: the player holds its mallets over the instrument also in the rest pose, and the arms do
    * not hang (design 5.2). The hanging paws of a player with short arms can reach into large
    * kettles in front of it.
@@ -146,6 +167,7 @@ export const PERCUSSION_HOLDS = {
     home: [0, -0.37, -0.2],
     top: 'shoulder',
     cock: { up: 0.7, out: 0.3 },
+    across: null,
     ready: true,
     pair: true,
   },
@@ -160,6 +182,7 @@ export const PERCUSSION_HOLDS = {
     home: MALLET_HOME,
     top: 'up',
     cock: null,
+    across: null,
     ready: false,
     pair: false,
   },
@@ -174,6 +197,7 @@ export const PERCUSSION_HOLDS = {
     home: MALLET_HOME,
     top: 'up',
     cock: null,
+    across: null,
     ready: false,
     pair: false,
   },
@@ -189,6 +213,7 @@ export const PERCUSSION_HOLDS = {
     home: MALLET_HOME,
     top: 'up',
     cock: null,
+    across: null,
     ready: false,
     pair: false,
   },
@@ -204,6 +229,7 @@ export const PERCUSSION_HOLDS = {
     home: MALLET_HOME,
     top: 'up',
     cock: null,
+    across: null,
     ready: false,
     pair: false,
   },
@@ -218,6 +244,7 @@ export const PERCUSSION_HOLDS = {
     home: MALLET_HOME,
     top: 'up',
     cock: null,
+    across: null,
     ready: false,
     pair: false,
   },
@@ -238,12 +265,6 @@ export const GRIP_CURL = 60 * MathUtils.DEG2RAD;
 
 /** The MIDI key of the tambourine (design 4.6). The other keys of the player strike the triangle. */
 const TAMBOURINE_KEY = 54;
-
-/** The rotation of a mallet in the bind pose: +x of the mallet to the front, +y up (design 4.6). */
-const MALLET_BIND = setFromBasis(new Quaternion(), new Vector3(0, 0, -1), new Vector3(0, 1, 0));
-
-/** The inverse of {@link MALLET_BIND}. */
-export const MALLET_INVERSE = MALLET_BIND.clone().invert();
 
 /**
  * The rotation of the left hand that holds the triangle up: the clip, which is in front of the
@@ -272,8 +293,12 @@ export type PercussionSide =
       readonly top: MalletTop;
       /** The turn of the mallet around its grip between strikes (`PercussionHold.cock`). */
       readonly cock: MalletCock | null;
+      /** The mallet across the forearm between strikes (`PercussionHold.across`). */
+      readonly across: MalletAcross | null;
       /** The distance from the grip to the middle of the head of the mallet, in meters. */
       readonly length: number;
+      /** The inverse of the rotation of the mallet in the bind pose. */
+      readonly inverse: Quat;
     }
   | {
       readonly kind: 'plate';
@@ -421,23 +446,32 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
   const inH = (v: Vec3): Vector3 => new Vector3(...v).multiplyScalar(h);
   const fromShoulder = (arm: ArmRig, v: Vec3): Vector3 =>
     inH(v).add(new Vector3(...arm.bind.shoulder));
-  const mallet = (arm: ArmRig, bone: 'malletL' | 'malletR'): PercussionSide => {
-    const head = bindTarget(
+  const malletHead = (bone: 'malletL' | 'malletR'): Vec3 =>
+    bindTarget(
       model,
       findTarget(model, (t) => t.kind === 'mallet-head' && t.bone === bone),
     ).point;
-    // The grip is the origin of the mallet bone.
+  // The grip is the origin of the mallet bone.
+  const malletLength = (bone: 'malletL' | 'malletR'): number => {
+    const head = malletHead(bone);
     const grip = model.skeleton.positions[boneIndex(bone)] ?? head;
-    return {
-      kind: 'mallet',
-      arm,
-      head,
-      home: toVec3(fromShoulder(arm, hold.home)),
-      top: hold.top,
-      cock: hold.cock,
-      length: new Vector3(...head).distanceTo(new Vector3(...grip)),
-    };
+    return new Vector3(...head).distanceTo(new Vector3(...grip));
   };
+  const mallet = (arm: ArmRig, bone: 'malletL' | 'malletR'): PercussionSide => ({
+    kind: 'mallet',
+    arm,
+    head: malletHead(bone),
+    home: toVec3(fromShoulder(arm, hold.home)),
+    top: hold.top,
+    cock: hold.cock,
+    across: hold.across,
+    length: malletLength(bone),
+    inverse: toQuat(
+      new Quaternion(
+        ...(model.pieces.find((placed) => placed.piece.bone === bone)?.at.rotation ?? IDENTITY),
+      ).invert(),
+    ),
+  });
   const targets = new Map<number, StrikeTarget>();
   const heads = model.instrument.targets.filter((t) => t.kind === 'head');
   let sides: readonly [PercussionSide, PercussionSide];
@@ -553,6 +587,37 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
 export function offsetTarget(target: StrikeTarget, offset: Vec3): StrikeTarget {
   const point = new Vector3(...target.point).add(new Vector3(...offset));
   return { point: toVec3(point), normal: target.normal };
+}
+
+/**
+ * Gives the directions across a forearm (design 5.3), in the frame of the elbow: the hinge of the
+ * elbow is normal to the upper arm and the forearm, as the studio skin turns its forearm
+ * (`poseStudioBones()`). `up` is the direction in which a mallet leaves the fist with no twist
+ * of the paw on the forearm: in the bind pose, the hinge is +x, the forearm points down, and the
+ * mallet points forward. `out` is the hinge, turned to the out side of the hand.
+ *
+ * @param forearm The unit direction of the forearm, from the elbow to the wrist.
+ * @param upper The direction of the upper arm, from the shoulder to the elbow.
+ * @param side The side of the hand: its out side is -x for the left hand.
+ * @param up Gets the unit direction of the mallet with no twist.
+ * @param out Gets the unit direction out across the forearm, normal to `up`.
+ */
+export function acrossAxes(
+  forearm: Vector3,
+  upper: Vector3,
+  side: 'L' | 'R',
+  up: Vector3,
+  out: Vector3,
+): void {
+  out.crossVectors(upper, forearm);
+  if (out.lengthSq() < 1e-8) {
+    out.set(1, 0, 0);
+  }
+  out.normalize();
+  up.crossVectors(out, forearm).normalize();
+  if ((side === 'L' ? -1 : 1) * out.x < 0) {
+    out.negate();
+  }
 }
 
 /**

@@ -7,11 +7,11 @@ import { createFrame, setFromBasis } from './frames.ts';
 import type { Frame, TorsoFrames } from './frames.ts';
 import { hangingHand, hangingWrist } from './hang.ts';
 import type { HangingArm } from './hang.ts';
-import { limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import { limitReach, poseShoulder, solveTwoBone, writeArm, writeCurl } from './ik.ts';
 import { groupChords } from './note-groups.ts';
 import {
   GRIP_CURL,
-  MALLET_INVERSE,
+  acrossAxes,
   frontKettles,
   offsetTarget,
   targetKeyOf,
@@ -142,7 +142,73 @@ const grip = new Vector3();
 const level = new Vector3();
 const cocked = new Vector3();
 const cockTurn = new Quaternion();
+const inverse = new Quaternion();
 const UP = new Vector3(0, 1, 0);
+const strikeAlong = new Vector3();
+const forearm = new Vector3();
+const upperArm = new Vector3();
+const acrossUp = new Vector3();
+const acrossOut = new Vector3();
+const elbowBind = new Vector3();
+const shoulderBind = new Vector3();
+const turnedPole = new Vector3();
+const joints = { elbow: new Vector3(), wrist: new Vector3() };
+
+/**
+ * Writes the wrist and the world rotation of a hand with a mallet across the forearm between
+ * strikes (`PercussionHold.across`, design 5.3). At a strike, the mallet points from the home of
+ * the hand to the target, and the grip stays at that place. The paw at rest holds the mallet
+ * across the forearm, at its angle in the frame of the elbow, with the top of the grip along the
+ * forearm toward the elbow. Between the two, the paw turns around the grip by a share of the
+ * smallest turn from the rest direction to the strike direction. The forearm comes from the
+ * two-bone solution to the wrist, two times, because the wrist follows the turn of the paw. The
+ * function writes the module vectors `wrist` and `turn`, and it writes the head into `point`.
+ *
+ * @param side The hand with a mallet across the forearm.
+ * @param point The target of the mallet head. The function writes the head into it.
+ * @param share The share of the turn toward the rest direction, from 0 at a strike to 1.
+ * @param joint The posed shoulder joint of the side.
+ * @param pole The direction to which the elbow points, in the model axes.
+ */
+function acrossHand(
+  side: Extract<PercussionSide, { kind: 'mallet' }>,
+  point: Vector3,
+  share: number,
+  joint: Vector3,
+  pole: Vector3,
+): void {
+  const { across, arm } = side;
+  if (!across) {
+    return;
+  }
+  strikeAlong.copy(point).sub(offset.fromArray(side.home)).normalize();
+  grip.copy(point).addScaledVector(strikeAlong, -side.length);
+  shoulderBind.fromArray(arm.bind.shoulder);
+  elbowBind.fromArray(arm.bind.elbow);
+  const upper = elbowBind.distanceTo(shoulderBind);
+  const lower = wristBind.fromArray(arm.bind.wrist).distanceTo(elbowBind);
+  wrist.copy(grip);
+  for (let pass = 0; pass < 2; pass++) {
+    solveTwoBone(joint, wrist, upper, lower, pole, joints);
+    forearm.subVectors(joints.wrist, joints.elbow).normalize();
+    acrossAxes(forearm, upperArm.subVectors(joints.elbow, joint), arm.side, acrossUp, acrossOut);
+    // The rest direction across the forearm, and the paw that holds it with no swing.
+    along
+      .copy(acrossUp)
+      .multiplyScalar(Math.cos(across.rest))
+      .addScaledVector(acrossOut, Math.sin(across.rest));
+    top.copy(forearm).negate();
+    top.addScaledVector(along, -top.dot(along)).normalize();
+    setFromBasis(turn, along, top).multiply(inverse.fromArray(side.inverse));
+    // The smallest turn from the rest direction to the strike direction, by the share left.
+    cockTurn.setFromUnitVectors(along, strikeAlong).slerp(NO_TURN, share);
+    turn.premultiply(cockTurn);
+    along.applyQuaternion(cockTurn);
+    point.copy(grip).addScaledVector(along, side.length);
+    offset.fromArray(side.head).sub(wristBind.fromArray(arm.bind.wrist)).applyQuaternion(turn);
+    wrist.copy(point).sub(offset);
+  }
+}
 
 /**
  * Writes the wrist and the world rotation of a hand with a mallet (design 5.3). With no cock
@@ -197,7 +263,7 @@ function malletHand(
   } else {
     top.set(0, 0, 1);
   }
-  setFromBasis(turn, along, top).multiply(MALLET_INVERSE);
+  setFromBasis(turn, along, top).multiply(inverse.fromArray(side.inverse));
   offset.fromArray(side.head).sub(wristBind.fromArray(side.arm.bind.wrist)).applyQuaternion(turn);
   wrist.copy(point).sub(offset);
 }
@@ -231,7 +297,12 @@ function poseHand(
   const play = side.kind === 'free' ? 0 : rig.hold.ready ? 1 : weight;
 
   head.fromArray(hand.point);
-  if (side.kind === 'mallet') {
+  if (side.kind === 'mallet' && side.across) {
+    const rest = rig.hold.sizes.rest;
+    const share = MathUtils.clamp(rest > 0 ? hand.height / rest : 0, 0, 1);
+    turnedPole.fromArray(pole).applyQuaternion(chest.rotation);
+    acrossHand(side, head, share, shoulder.position, turnedPole);
+  } else if (side.kind === 'mallet') {
     malletHand(side, head, hand, rig.hold.sizes.rest, shoulder.position);
   } else if (side.kind === 'plate') {
     head.addScaledVector(offset.fromArray(hand.normal), side.sign * hand.height);
