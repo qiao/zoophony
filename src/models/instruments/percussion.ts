@@ -54,6 +54,13 @@ export const TIMPANI = {
    * arc of the kettles is centered on the front.
    */
   front: 0.12,
+  /**
+   * True: the head of each mallet leaves the side of the fist toward the back in the bind pose.
+   * The paws of the elephant mesh then hold the mallets up and out across the forearms with
+   * little twist (`PercussionHold.across`).
+   */
+  // SAFETY: the literal widens to a flag, so that a hold tool can set it in memory.
+  malletBack: false as boolean,
 } as const;
 
 /**
@@ -131,6 +138,9 @@ const SHARPS: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
 /** The rotation that turns the piece +x to the front of the player (-z), with +y up. */
 const FORWARD = toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2));
 
+/** The rotation that turns the piece +x to the back of the player (+z), with +y up. */
+const BACKWARD = toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2));
+
 /**
  * Gives the number of kettles for the timpani notes of a file: two kettles up to C3, three up to
  * F3, and four above (design 4.6).
@@ -161,6 +171,8 @@ interface HandTool {
  * @param ballColor The color of the ball.
  * @param stickColor The color of the stick.
  * @param finish The finish of the stick.
+ * @param back True: the head leaves the other side of the fist, and the mallet points back in
+ *   the bind pose.
  * @returns The piece and the target at the ball.
  */
 function mallet(
@@ -170,6 +182,7 @@ function mallet(
   ballColor: Rgb,
   stickColor: Rgb = INSTRUMENT_COLORS.stick,
   finish: Finish = 'matte',
+  back = false,
 ): HandTool {
   const piece = new PieceBuilder();
   piece.rod([-0.04, 0, 0], [length, 0, 0], 0.0055, 4, stickColor, finish);
@@ -178,7 +191,10 @@ function mallet(
   }
   const palm = bone === 'malletL' ? 'palmL' : 'palmR';
   return {
-    piece: piece.build(bone, hold(palm, [0, 0, -0.07], FORWARD)),
+    piece: piece.build(
+      bone,
+      back ? hold(palm, [0, 0, 0.07], BACKWARD) : hold(palm, [0, 0, -0.07], FORWARD),
+    ),
     target: {
       kind: 'mallet-head',
       bone,
@@ -302,8 +318,25 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
       keys,
     });
   }
-  const left = mallet('malletL', 0.3, 0.025, INSTRUMENT_COLORS.drumHead);
-  const right = mallet('malletR', 0.3, 0.025, INSTRUMENT_COLORS.drumHead);
+  const back = t.malletBack;
+  const left = mallet(
+    'malletL',
+    0.3,
+    0.025,
+    INSTRUMENT_COLORS.drumHead,
+    undefined,
+    undefined,
+    back,
+  );
+  const right = mallet(
+    'malletR',
+    0.3,
+    0.025,
+    INSTRUMENT_COLORS.drumHead,
+    undefined,
+    undefined,
+    back,
+  );
   const instrument = piece.build('instrument', hold('floor'));
   return {
     id: 'timpani',
