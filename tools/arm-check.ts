@@ -38,9 +38,9 @@
  * the label of the fold visit gets the labels of its samples from the plan of the demo.
  *
  * `--views <dir>` renders the worst play sample of each arm that fails, or of each arm with
- * `--views-all`, with `pnpm close-views play --at <species>` at the azimuths of
- * {@link VIEW_AZIMUTHS}, and writes `<dir>/<role>-arms.webp`: a 2x crop of the arm in each view,
- * the commit on the left and the working tree on the right.
+ * `--views-all`, a strike, and a rest of the player, with `pnpm close-views play --at <species>`,
+ * and writes `<dir>/<role>-arms.webp`: a 2x crop of the arm in each view, the commit on the left
+ * and the working tree on the right (`tools/arm-views.ts`).
  *
  * Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>]
  * [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long]
@@ -218,9 +218,6 @@ const RING_WEIGHT = 0.25;
 
 /** The largest distance of a crossing from the axis, as a factor of the median (`RING_REACH`). */
 const RING_REACH = 2;
-
-/** The azimuths of the views of `--views`, in degrees: the front, two fronts at 35°, the side. */
-export const VIEW_AZIMUTHS: readonly number[] = [0, 35, -35, 90];
 
 /** The earliest song time of a view, in seconds, after the seek lead of `pnpm close-views play`. */
 const VIEW_FROM_SEC = 5;
@@ -1380,6 +1377,10 @@ async function main(): Promise<number> {
     options.long || options.roles.length === 1 ? rows : rows.filter((r) => r.verdict !== 'PASS');
   if (shown.length > 0) {
     console.log(['', ...detailLines(shown)].join('\n'));
+  }
+  if (options.views !== null) {
+    const { renderViews } = await import('./arm-views.ts');
+    await renderViews(reports, rows, options, { limits: ARM_LIMITS, armVertices, labelTime });
   }
   return rows.some((row) => row.verdict === 'FAIL') ? 1 : 0;
 }
