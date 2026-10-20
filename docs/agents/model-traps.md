@@ -150,7 +150,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A shape fixes only the poses near its rule, for the arm turns of one hold. `pnpm rig-mesh --check`
   counts the folds with the hold of the working tree, so fit the hold first, or fit both in one loop
   with `--hold <changes>`. A rule whose line `raise <target>` in the rig log keeps turned faces
-  after the relax fixes few samples.
+  after the relax fixes few samples. With a twist bone, a rule of a bent elbow can turn the inner
+  elbow over: add the paw turn of its samples (`turns.hand`).
 - The shape of a raised arm relaxes only the clavicle and the upper arm. `raise.grow` adds rings of
   trunk corners for a long face from the trunk under the armpit (`pnpm raise-fit --sets rest`). Keep
   the fade away from the play turns.
