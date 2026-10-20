@@ -150,19 +150,22 @@ export const BASS_DRUM = {
 export const TAMBOURINE = {
   /**
    * The place of the middle of the tambourine on its stand, from the floor under the player: at
-   * the front right of the player, at the height of the snare drum head.
+   * the front right of the player, about at the height of the snare drum head, within the reach of
+   * the short arms of the badger mesh (`docs/decisions/2026-10-20-mesh-badger.md`).
    */
-  mount: [0.3, 0.4, -0.45],
+  mount: [0.25, 0.45, -0.35],
 } as const;
 
 /** The triangle and its beater, which the small percussion player holds (design 4.6). */
 export const TRIANGLE = {
   /**
    * The angle of the beater below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm.
+   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm. 1.3 holds it
+   * along the thumb, as the sticks of the snare drum, so that the right paw of the badger bends
+   * less on its forearm (`docs/decisions/2026-10-20-mesh-badger.md`).
    */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletTilt: 0 as number,
+  malletTilt: 1.3 as number,
 } as const;
 
 /** The faces around the axis of a kettle. */

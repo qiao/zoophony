@@ -181,6 +181,10 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   front. The sticks leave the front of the fists and make a V of about 66°, 9° down at a strike,
   as section 6 gives. Between strikes, the tips lift about 18° above the level and come closer
   together (a V of about 20°). The elbows point down and out.
+- **The triangle and the tambourine.** The left paw holds the triangle by its clip at the height
+  of the mouth of the badger, below the eye level of section 8, because the short arm reaches no
+  higher in front of the long snout. The beater in the right paw strikes the triangle, and the
+  tambourine stands on a stand at the front right, where section 8 gives a tambourine in the hand.
 
 ## 11. Sources
 

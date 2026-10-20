@@ -211,7 +211,11 @@ export const PERCUSSION_HOLDS = {
     ready: false,
     pair: false,
   },
-  // The left hand holds the triangle up, and its elbow points out to the left.
+  // The left hand holds the triangle up, and its elbow points out to the left. The beater leaves
+  // the front of the right fist (TRIANGLE.malletTilt) and keeps the angle of no twist of the paw
+  // between strikes (across). The badger holds the triangle up also at rest (ready), because the
+  // turn of the left paw from the hanging arm swung the paw far in the lift
+  // (2026-10-20-mesh-badger decisions).
   'small-percussion': {
     hands: 'right',
     sizes: { lift: 0.05, rest: 0.02 },
@@ -222,8 +226,8 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    across: null,
-    ready: false,
+    across: { rest: -0.6, lift: 0.3 },
+    ready: true,
     pair: false,
   },
   xylophone: {
@@ -248,15 +252,20 @@ export const PERCUSSION_PLACES = {
   malletHome: MALLET_HOME,
   /** The cymbals meet here, from the middle of the two shoulder joints. */
   crash: [0, -0.09, -1.1],
-  /** The clip of the triangle in the left hand, from the left shoulder joint. */
-  triangleClip: [0.3, 0, -1],
+  /**
+   * The clip of the triangle in the left hand, from the left shoulder joint: at the height of the
+   * mouth of the badger, as near to the eye level of a real player as its short arm reaches.
+   */
+  triangleClip: [0.3, 0.5, -0.9],
   /**
    * The world rotation of the left hand that holds the triangle up, from the bind pose: the
    * clip, which is in front of the palm in the bind pose, comes under the hand, and the triangle
    * hangs in the plane x-y. Thus the side of the triangle that the beater strikes faces the right
    * hand.
    */
-  triangleHand: [-Math.SQRT1_2, 0, 0, Math.SQRT1_2],
+  // holdTurn(-90, 40) of pose/winds.ts: the paw turns 40° around z, so that it bends less on the
+  // forearm of the raised arm.
+  triangleHand: [-0.664463, 0.241845, 0.241845, 0.664463],
 } as const;
 
 /** The curl of the fingers around a mallet, a stick, or the strap of a cymbal. */
