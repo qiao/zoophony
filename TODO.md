@@ -585,9 +585,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Wolf size: the agent chose the seated skull top at 1.10 times the dog cellist, the middle of
       the ratio 1.03 to 1.16 of the orchestra images, while the user slept. The user then asked
       for 0.9 of the height and 1.2 of the width (`2026-10-20-wolf-shape.md`).
-- [ ] Wolf shape: the seated wolf is now 0.99 times the dog cellist, below the range of the
-      orchestra images, and its hips width to height is the ratio of the red fox. Show the user
-      `compare.webp` of `docs/research/2026-10-20-wolf-shape/` (`2026-10-20-wolf-shape.md`).
+- [ ] Wolf shape: the body is 0.9 times as high and 1.2 times as wide, and the head keeps its size
+      (round `wolf-head`). The seated wolf is now 1.01 times the dog cellist, below the range of
+      the orchestra images. Show the user `compare.webp` of `docs/research/2026-10-20-wolf-head/`
+      (`2026-10-20-wolf-shape.md`).
 - [ ] Wolf grip: the play medians of the paw twists are -97° and 79°, against the accepted -86° and
       67° of `ACCEPTED_GRIPS`. The grip turn passes (11° and 12°). Update the entry after the
       manager accepts `arms-strike.webp` and `arms-rest.webp` (`2026-10-20-wolf-shape.md`).
@@ -597,7 +598,7 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `docs/research/2026-10-20-wolf-mesh/`). Show the user the face pair and the play frame.
 - [ ] Wolf tail: at rest, the root of the tail goes 0.6 cm into the back of the seat
       (`tail-variants.txt` of `docs/research/2026-10-20-wolf-shape/`).
-- [ ] Wolf clarinet: the mouthpiece goes 1.2 cm into the head under the long muzzle, and no demo
+- [ ] Wolf clarinet: the mouthpiece goes 1.3 cm into the head under the long muzzle, and no demo
       has a standing wolf soloist, so only the close views check it (`2026-10-20-mesh-wolf.md`).
 - [x] Badger cymbals: hand cymbals of the smallest real size (14 in) go 7.6 cm or more into the
       round body at each crash place in reach, so the badger plays a suspended cymbal on a stand
