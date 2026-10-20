@@ -111,11 +111,16 @@ export interface MeshRigConfig {
     readonly height?: number;
     readonly depth?: number;
     /**
-     * The part that keeps its form and its size (`proportioned()` of
-     * `tools/blender/rig_mesh.py`): with `head`, each vertex above the upper height of `blend`
-     * moves with the top of the neck and takes no factor.
+     * The part that keeps its form (`proportioned()` of `tools/blender/rig_mesh.py`): with
+     * `head`, each vertex above the upper height of `blend` moves with the top of the neck and
+     * takes only the factor {@link head} on each axis.
      */
     readonly keep?: 'head';
+    /**
+     * The factor of the kept head on each axis, around the top of the neck, 1 when it is not
+     * given. `keep` needs it.
+     */
+    readonly head?: number;
     /**
      * The lower and the upper height of the zone where the scaled body blends into the kept
      * head, in the units of the source before the factors. `keep` needs it.
@@ -160,8 +165,8 @@ export const CONFIG_JOINTS = [
  * @param text The text of the JSON file.
  * @returns The config.
  * @throws Error if a number of the app or a factor is not a positive number, if
- *   `proportions.keep` is not `head` with a blend zone, or if the config lacks a joint of
- *   {@link CONFIG_JOINTS}.
+ *   `proportions.keep` is not `head` with a blend zone, if `proportions.head` has no `keep`, or
+ *   if the config lacks a joint of {@link CONFIG_JOINTS}.
  */
 export function parseConfig(text: string): MeshRigConfig {
   // SAFETY: the configs in tools/mesh-rigs/ hold the fields of MeshRigConfig, and the checks below
@@ -178,6 +183,7 @@ export function parseConfig(text: string): MeshRigConfig {
     config.proportions?.width ?? 1,
     config.proportions?.height ?? 1,
     config.proportions?.depth ?? 1,
+    config.proportions?.head ?? 1,
     config.app.shoulders,
     config.app.reach,
   ];
@@ -187,6 +193,9 @@ export function parseConfig(text: string): MeshRigConfig {
     );
   }
   const keep = config.proportions?.keep;
+  if (keep === undefined && config.proportions?.head !== undefined) {
+    throw new Error('proportions.head needs proportions.keep.');
+  }
   if (keep !== undefined) {
     const [low, high] = config.proportions?.blend ?? [];
     if (keep !== 'head' || low === undefined || high === undefined || !(low >= 0 && low < high)) {
@@ -288,7 +297,8 @@ function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigV
  * value of the kind of its value: the head factor (`headFactor`), the neck factor (`neckFactor`),
  * the trunk factor (`trunkFactor`), the girth factor (`girthFactor`), the factors of the
  * cross-section of the arms (`armGirth`), the factors of the source on each axis
- * (`proportions`), the root share of the tail in
+ * (`proportions`), the depth factor of the source and the factor of the kept head
+ * (`proportions.depth`, `proportions.head`), the root share of the tail in
  * the sit of the haunch (`sit.root`), the fixed seat top of the sit (`sit.top`), the curve of the
  * curled seated tail (`studio.tailCurl`), the move of the colors of the plain fur
  * (`colors.tone`), the light border of a black fur region (`colors.border`), the round eye
@@ -302,6 +312,8 @@ const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, Config
   ['girthFactor', [1, 1]],
   ['armGirth', [1, 1]],
   ['proportions', { width: 1, height: 1, depth: 1 }],
+  ['proportions.depth', 1],
+  ['proportions.head', 1],
   ['sit.root', [0, 1]],
   ['sit.top', 0],
   ['studio.tailCurl', { points: [[0, 0, 0]] }],

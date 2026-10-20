@@ -12,8 +12,9 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    +x the left side of the animal. With `proportions` of the config, the mesh then takes a factor
    on each axis (`width` on x, `height` on y, `depth` on z), so that a body can be shorter or
    wider than the mesh of the user before the joints. With `keep` of the rule set to `head`, the
-   head keeps its size, and a blend zone at the neck joins it to the scaled body
-   (`proportioned()`). With `cut` of the config, the faces that join each hanging
+   head keeps its form, and a blend zone at the neck joins it to the scaled body
+   (`proportioned()`). The head keeps its size, or takes the factor `head` of the rule on each
+   axis. With `cut` of the config, the faces that join each hanging
    forearm to the belly go, and new faces close both holes (`cut_seam()`). With `skinNormals` of
    the cut, the file names the caps of the arm, and the app gives them the normals of the skin.
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
@@ -389,21 +390,24 @@ def proportioned(verts, rule):
     """Scales the source (1 unit high, soles at y = 0) by the `proportions` of a config.
 
     Each vertex takes the factors of the rule around the middle of the soles. With `keep` set to
-    `head`, the head keeps its form and its size: above the upper height of `blend`, each vertex
-    moves with the point (0, upper height, 0) and takes no factor. From the lower height to the
-    upper height, the share of the kept place grows with a smoothstep, so that the scaled neck
-    joins the head with no tear. The heights of `blend` are in the units of the source before the
-    factors."""
+    `head`, the head keeps its form: above the upper height of `blend`, each vertex moves with the
+    point (0, upper height, 0) and takes the factor `head` (1 when not given) on each axis around
+    that point. From the lower height to the upper height, the share of the kept place grows with
+    a smoothstep, so that the scaled neck joins the head with no tear. The heights of `blend` are
+    in the units of the source before the factors."""
     factors = proportion_factors(rule)
     scaled = verts * factors
     if rule.get('keep') != 'head':
         return scaled
     low, high = rule['blend']
     anchor = np.array([0.0, high, 0.0])
-    kept = verts + anchor * factors - anchor
+    head = rule.get('head', 1)
+    # With the factor 1, the sum keeps the order of the sum of the head kept at its size.
+    kept = verts * head + anchor * factors - anchor * head
     share = smoothstep(verts[:, 1], low, high)
     blend = int(((share > 0) & (share < 1)).sum())
-    log(f'proportions: the head keeps its size above y {high} u, with a blend from y {low} u: '
+    log(f"proportions: the head keeps its form above y {high} u with the factor "
+        f"{head}, with a blend from y {low} u: "
         f'{int((share >= 1).sum())} vertices kept, {blend} in the blend')
     share = share[:, None]
     return scaled * (1.0 - share) + kept * share
