@@ -600,6 +600,15 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`tail-variants.txt` of `docs/research/2026-10-20-wolf-shape/`).
 - [ ] Wolf clarinet: the mouthpiece goes 1.3 cm into the head under the long muzzle, and no demo
       has a standing wolf soloist, so only the close views check it (`2026-10-20-mesh-wolf.md`).
+- [x] Wolf head size: the head has the size of the head of the red fox, and the body below the
+      neck is 0.9422 times as large, so the standing skull top stays at 1.620 m
+      (`2026-10-20-wolf-face.md`).
+- [ ] Wolf face: level brows, level pea eyes, and a thin smile line (round `wolf-face`). Show the
+      user `compare.webp` and `faces.webp` of `docs/research/2026-10-20-wolf-face/`, with the
+      variant with no body change (`2026-10-20-wolf-face.md`).
+- [ ] Wolf reach: the right paw reaches its clarinet grip with only 0.9 cm to spare (5.1 cm at
+      `0e7130db`), because the arms take the body factor. A larger arm factor (up to 1.25) or a
+      new mouthpiece place can give more (`2026-10-20-wolf-face.md`).
 - [x] Badger cymbals: hand cymbals of the smallest real size (14 in) go 7.6 cm or more into the
       round body at each crash place in reach, so the badger plays a suspended cymbal on a stand
       with two yarn mallets (`2026-10-20-badger-cymbals.md`).
