@@ -22,9 +22,12 @@
  * ({@link pairBaseFaces}). The method comes from
  * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
  *
+ * `--bins <face>` gives the turn of each bone of the arm of the face from its bind pose with a fold
+ * and with no fold, and the share of the samples with a fold by that turn ({@link binProbe}).
+ *
  * Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>]
- * [--set <changes>]... [--json <file> [--middles <faces>]] [--glb <file>] [--base <ref>
- * [--faces-of <faces>]]
+ * [--bins <face>] [--set <changes>]... [--json <file> [--middles <faces>]] [--glb <file>]
+ * [--base <ref> [--faces-of <faces>]]
  */
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -50,7 +53,7 @@ import type { InstrumentId } from '../src/models/instruments/types.ts';
 import type { PlayerModel } from '../src/models/player.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import { STUDIO_BONES, STUDIO_PARENTS } from '../src/models/studio-format.ts';
-import type { Side, StudioMesh } from '../src/models/studio-format.ts';
+import type { Side, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
 import {
   createStudioPose,
   poseStudioBones,
@@ -1380,6 +1383,134 @@ export function turnProbe(face: number): TurnProbe {
   return { visit, lines };
 }
 
+/** The width of a bin of the bin probe (`--bins`), in degrees. */
+export const BONE_BIN = 20;
+
+/** The turn of no turn: the bind pose. */
+const NO_TURN: Quat = [0, 0, 0, 1];
+
+/** The bins of one bone of the bin probe of a face. */
+export interface BoneBins {
+  /** The bone, such as `forearm_R`. */
+  readonly bone: string;
+  /** The mean turn of the bone from its bind pose in the samples with a fold, in degrees. */
+  readonly folded: number;
+  /** The mean turn of the bone from its bind pose in the samples with no fold, in degrees. */
+  readonly clear: number;
+  /** The samples by the turn of the bone from its bind pose ({@link turnBins}). */
+  readonly bins: readonly TurnBin[];
+}
+
+/**
+ * Sums up the samples of the bin probe of each bone: the mean turn from the bind pose with a fold
+ * and with no fold, and the bins of {@link BONE_BIN}. The bones go from the largest gap between
+ * the two means, so that the bone whose turn comes with the fold comes first.
+ *
+ * @param bones The bones, in the order of the turns of a sample.
+ * @param samples The turn of each bone in the axes of its parent, and if the face folds, of each
+ *   sample.
+ * @returns The bins of each bone.
+ */
+export function boneBins(
+  bones: readonly string[],
+  samples: readonly { readonly turns: readonly Quat[]; readonly folded: boolean }[],
+): BoneBins[] {
+  const mean = (values: readonly number[]): number =>
+    values.length > 0 ? values.reduce((sum, v) => sum + v, 0) / values.length : Number.NaN;
+  return bones
+    .map((bone, k) => {
+      const own = samples.map(({ turns, folded }) => ({ turn: turns[k] ?? NO_TURN, folded }));
+      const angle = (folded: boolean): number =>
+        mean(own.filter((s) => s.folded === folded).map((s) => turnAngle(s.turn, NO_TURN)));
+      return {
+        bone,
+        folded: angle(true),
+        clear: angle(false),
+        bins: turnBins(own, NO_TURN, BONE_BIN),
+      };
+    })
+    .toSorted((a, b) => (b.folded - b.clear || 0) - (a.folded - a.clear || 0));
+}
+
+/**
+ * Writes the bin probe of a face (`--bins`): for each bone of the arm of the side of the face, the
+ * mean turn from its bind pose in the axes of its parent with a fold and with no fold, and the share
+ * of the samples with a fold in each bin of that turn ({@link boneBins}).
+ *
+ * @param face The index of the face.
+ * @param side The side of the face.
+ * @param bins The bins of each bone.
+ * @param samples The number of samples, and the samples with a fold.
+ * @returns The lines.
+ */
+export function binLines(
+  face: number,
+  side: Side,
+  bins: readonly BoneBins[],
+  samples: { readonly all: number; readonly folded: number },
+): string[] {
+  const columns = Math.max(0, ...bins.map((bone) => bone.bins.length));
+  const degrees = (value: number): string => (Number.isNaN(value) ? '-' : `${value.toFixed(0)}°`);
+  return [
+    `Bin probe of face ${face} (arm ${side}): it folds in ${samples.folded} of ${samples.all} samples. Each bone turns from its bind pose in the axes of its parent. The bones go from the largest gap of the mean turn with a fold and with no fold, and a cell gives the share of the samples with a fold.`,
+    '',
+    `| Bone | Turn with a fold | Turn with no fold | ${Array.from({ length: columns }, (...[, k]) => `${k * BONE_BIN}° to ${(k + 1) * BONE_BIN}°`).join(' | ')} |`,
+    `|---|---:|---:|${Array.from({ length: columns }, () => '---:').join('|')}|`,
+    ...bins.map((bone) => {
+      const cells = Array.from({ length: columns }, (...[, k]) => {
+        const bin = bone.bins[k];
+        return bin && bin.samples > 0
+          ? `${((100 * bin.withFold) / bin.samples).toFixed(0)}% of ${bin.samples}`
+          : '-';
+      });
+      return `| ${bone.bone} | ${degrees(bone.folded)} | ${degrees(bone.clear)} | ${cells.join(' | ')} |`;
+    }),
+  ];
+}
+
+/**
+ * Starts the bin probe of a face: a visit of {@link probeFolds} that keeps the turn of each bone of
+ * the arm of the side of the face, from the clavicle to the fingers, in the axes of its parent, and
+ * if the face folds, in each sample.
+ *
+ * @param face The index of the face.
+ * @returns The visit, and a function that writes the lines of the probe ({@link binLines}).
+ */
+export function binProbe(face: number): TurnProbe {
+  const samples: { readonly turns: Quat[]; readonly folded: boolean }[] = [];
+  let side: Side | null = null;
+  let faces = 0;
+  const bonesOf = (of: Side): StudioBone[] =>
+    (['clavicle', 'upper_arm', 'forearm', 'forearm_twist', 'hand', 'fingers'] as const).map(
+      (bone): StudioBone => `${bone}_${of}`,
+    );
+  const visit: FoldVisit = (rig, studio, ...[, folded]) => {
+    faces = rig.mesh.corners.length / 3;
+    if (face >= faces) {
+      return;
+    }
+    side ??= faceSide(rig.mesh, face);
+    const turns = bonesOf(side).map((bone) => {
+      const parent = STUDIO_PARENTS[bone] ?? 'chest';
+      return relativeTurn(
+        studio.matrices,
+        STUDIO_BONES.indexOf(bone),
+        STUDIO_BONES.indexOf(parent),
+      );
+    });
+    samples.push({ turns, folded: folded.includes(face) });
+  };
+  const lines = (): string[] => {
+    if (side === null) {
+      throw new Error(`The studio body of the role has ${faces} faces, so it has no face ${face}.`);
+    }
+    const all = samples.length;
+    const folded = samples.filter((sample) => sample.folded).length;
+    return binLines(face, side, boneBins(bonesOf(side), samples), { all, folded });
+  };
+  return { visit, lines };
+}
+
 /** The samples, the samples with a fold, and the most folded faces of one sample set. */
 export interface SetCount {
   /** The number of posed bodies. */
@@ -1869,7 +2000,7 @@ async function main(): Promise<void> {
   const role = FOLD_ROLES.get(name);
   if (!role) {
     throw new Error(
-      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>] [--set <changes>]... [--json <file>] [--glb <file>] [--base <ref> [--faces-of <faces>]], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
+      `Usage: pnpm fold-probe <role> [--demo <id>]... [--step <seconds>] [--faces <n>] [--turns <face>] [--bins <face>] [--set <changes>]... [--json <file>] [--glb <file>] [--base <ref> [--faces-of <faces>]], with a role of: ${[...FOLD_ROLES.keys()].join(', ')}.`,
     );
   }
   const baseAt = args.indexOf('--base');
@@ -1877,10 +2008,10 @@ async function main(): Promise<void> {
   if (baseAt >= 0 && (!ref || ref.startsWith('--'))) {
     throw new Error('The option --base takes a commit, a branch, or a tag.');
   }
-  const options = ['--json', '--middles', '--turns', '--set'];
+  const options = ['--json', '--middles', '--turns', '--bins', '--set'];
   if (ref && (glb || options.some((option) => args.includes(option)))) {
     throw new Error(
-      'The option --base goes with none of --glb, --json, --middles, --turns, and --set.',
+      'The option --base goes with none of --glb, --json, --middles, --turns, --bins, and --set.',
     );
   }
   if (glb) {
@@ -1908,6 +2039,11 @@ async function main(): Promise<void> {
   if (turnFace !== null && (!Number.isInteger(turnFace) || turnFace < 0)) {
     throw new Error('The option --turns takes the index of a face.');
   }
+  const binsAt = args.indexOf('--bins');
+  const binFace = binsAt >= 0 ? Number(args[binsAt + 1]) : null;
+  if (binFace !== null && (!Number.isInteger(binFace) || binFace < 0)) {
+    throw new Error('The option --bins takes the index of a face.');
+  }
 
   const facesOfAt = args.indexOf('--faces-of');
   const facesOf = facesOfAt >= 0 ? faceList(args[facesOfAt + 1] ?? '', '--faces-of') : [];
@@ -1927,11 +2063,21 @@ async function main(): Promise<void> {
   }
   const demos = chosen.length > 0 ? all.filter((demo) => chosen.includes(demo.file)) : all;
   const turns = turnFace === null ? null : turnProbe(turnFace);
+  const bins = binFace === null ? null : binProbe(binFace);
+  const visits = [turns, bins].flatMap((probe) => (probe ? [probe.visit] : []));
+  const visit: FoldVisit | undefined =
+    visits.length > 0
+      ? (...sample) => {
+          for (const each of visits) {
+            each(...sample);
+          }
+        }
+      : undefined;
   const holds = args.flatMap((arg, i) => (args[i - 1] === '--set' ? [arg] : [])).join(';');
   const changes = holds ? setHolds(holds) : null;
   let report: FoldReport;
   try {
-    report = probeFolds(role, demos, step, turns?.visit);
+    report = probeFolds(role, demos, step, visit);
   } finally {
     changes?.undo();
   }
@@ -1948,6 +2094,9 @@ async function main(): Promise<void> {
   }
   if (turns) {
     console.log(['', ...turns.lines()].join('\n'));
+  }
+  if (bins) {
+    console.log(['', ...bins.lines()].join('\n'));
   }
   const jsonAt = args.indexOf('--json');
   const json = jsonAt >= 0 ? args[jsonAt + 1] : undefined;
