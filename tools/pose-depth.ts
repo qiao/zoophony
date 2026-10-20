@@ -2,6 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
 import { BOW_PART, bowSweep } from './bow-sweep.ts';
+import type { PlayFilter } from './fold-probe.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { setHolds } from './hold-sets.ts';
@@ -526,6 +527,11 @@ export type SweepOptions = Pick<Options, 'demos' | 'times' | 'gaps'> & {
   readonly gapsOf?: GapsOf;
   /** The species of the standing soloist of the duo in place of the demos, or `null`. */
   readonly soloist?: SpeciesId | null;
+  /**
+   * Tells which play samples of a player count, such as the samples of one technique of
+   * `pnpm hold-fit --technique`, or `null` or none for all.
+   */
+  readonly keep?: PlayFilter | null;
 };
 
 /**
@@ -544,6 +550,30 @@ function joinVisits(...visits: readonly (SweepVisit | undefined)[]): SweepVisit 
       visit(posed, sample, surfaces);
     }
   };
+}
+
+/**
+ * Keeps only the play samples of a player that a filter takes. The other sets stay as they are.
+ *
+ * @param sets The sample sets of the player.
+ * @param scene The scene.
+ * @param name The name of the player, such as `bassist 21 (stand)` or `conductor`.
+ * @param keep The filter.
+ * @returns The sample sets.
+ */
+function keptPlay(
+  sets: readonly SampleSet[],
+  scene: TestScene,
+  name: string,
+  keep: PlayFilter,
+): SampleSet[] {
+  const found = /^\S+ (\d+)(?: \(|$)/.exec(name)?.[1];
+  const index = found === undefined ? null : Number(found);
+  return sets.map((set) =>
+    set.name === 'play'
+      ? { name: set.name, samples: [...set.samples].filter(([song]) => keep(scene, index, song)) }
+      : set,
+  );
 }
 
 /**
@@ -573,11 +603,12 @@ function sweepScene(
   const times = options.times;
   return role.players(scene).map((player) => {
     // Each player gets its own sample sets: a set can be a generator, which one sweep uses up.
-    const sets: readonly SampleSet[] = options.targets
+    const given: readonly SampleSet[] = options.targets
       ? []
       : times
         ? [{ name: 'play', samples: times.map((song) => playSample(scene, song)) }]
         : role.sampleSets(scene);
+    const sets = options.keep ? keptPlay(given, scene, player.name, options.keep) : given;
     const species = speciesOf(scene, player.model);
     const plan = planOf(scene, player.name);
     const measured = times ? null : measureTargets(player);

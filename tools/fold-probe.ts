@@ -732,6 +732,12 @@ export function roleBodies(role: RoleSource, scene: TestScene): RoleBody[] {
 }
 
 /**
+ * Tells if a play sample of a body counts: it gets the scene, the index of the player in the
+ * layout (`null` for the conductor), and the song time, in seconds.
+ */
+export type PlayFilter = (scene: TestScene, player: number | null, song: number) => boolean;
+
+/**
  * Counts the folded faces of the studio body of a role over demos. Each demo has three sample
  * sets. The rest pose is the pose before the start. The play goes from the count-in to the end
  * at each step. The lift of the arms takes the first 3 s of wall time after the start.
@@ -742,6 +748,8 @@ export function roleBodies(role: RoleSource, scene: TestScene): RoleBody[] {
  * @param visit Gets each posed body, such as the turn probe of `--turns`.
  * @param sets The sample sets to count, all by default. A set that is not in the list keeps no
  *   sample, such as the play in the rest mode of `pnpm hold-fit --sets`.
+ * @param keep Tells which play samples of a body count, such as the samples of one technique of
+ *   `pnpm hold-fit --technique`, or none for all.
  * @returns The report.
  */
 export function probeFolds(
@@ -750,6 +758,7 @@ export function probeFolds(
   step: number,
   visit?: FoldVisit,
   sets: readonly SampleSet[] = SAMPLE_SETS,
+  keep?: PlayFilter,
 ): FoldReport {
   const report: FoldReport = {
     demos: [],
@@ -785,6 +794,9 @@ export function probeFolds(
     for (const [set, song, wall, transport, label] of kept) {
       const frame = poseAt(scene.plan, song, wall, transport, audible, buffer);
       for (const { index, model } of bodies) {
+        if (set === 'play' && keep && !keep(scene, index, song)) {
+          continue;
+        }
         const pose = index === null ? frame.conductor : frame.players[index];
         const who = bodies.length > 1 ? ` player ${index ?? ''}` : '';
         if (pose) {
