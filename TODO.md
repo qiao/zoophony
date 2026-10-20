@@ -593,10 +593,14 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`tail-gap.ts` of `docs/research/2026-10-20-wolf-mesh/`).
 - [ ] Wolf clarinet: the mouthpiece goes 1.3 cm into the head under the long muzzle, and no demo
       has a standing wolf soloist, so only the close views check it (`2026-10-20-mesh-wolf.md`).
-- [ ] Badger cymbals: the short arms of the badger mesh hold the cymbals of the app (0.40 m)
-      7.4 cm or more into the body and miss the crash at each arm factor up to 1.25. Ask the user
-      for smaller cymbals, longer arms, or both (`cymbal-scan.txt` of
-      `docs/research/2026-10-20-badger-mesh/`).
+- [x] Badger cymbals: hand cymbals of the smallest real size (14 in) go 7.6 cm or more into the
+      round body at each crash place in reach, so the badger plays a suspended cymbal on a stand
+      with two yarn mallets (`2026-10-20-badger-cymbals.md`).
+- [ ] Badger cymbals choice: the agent chose the suspended cymbal while the user slept. Show the
+      user `compare.webp` of `docs/research/2026-10-20-badger-cymbals/`, and ask if the badger
+      keeps it, or gets longer arms for hand cymbals.
+- [ ] Suspended cymbal: the free paw does not muffle the plate after a note, and the moments of
+      `ROLE_VIEWS.cymbalist` still have the names of a crash (`tools/close-views.ts`).
 - [ ] Badger xylophone: the short arms reach at most 85% of the xylophone strikes, because the
       body does not move from side to side behind the notes. Ask the user for a smaller
       xylophone, longer arms, or a side step of the body (`2026-10-20-mesh-badger.md`).
