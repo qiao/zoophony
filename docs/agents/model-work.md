@@ -36,6 +36,15 @@ sheet. The penguin has no sheet, so `pnpm choir-check <dir>` compares it with th
 newest reference images. The GLB files `assets/models/rabbit/rabbit.glb` and
 `assets/models/bear/bear.glb` of the user stay for the tools of route 1. No species uses them.
 
+## The arm gate
+
+Five rounds met their own arm measure and shipped a twisted arm (`2026-10-19-arm-gate.md`). Each
+round that changes a hold, a rig, a pose, an instrument size, or a seat runs
+`pnpm arm-check <roles> --base <start> --views <dir>` before its report, and puts the table and the
+crop pairs into the report. A `FAIL` makes the round not done, and a better number with a worse
+look is not done. The merge of a branch that changes `src/pose/`, `src/models/`, or
+`tools/blender/` runs the gate of all roles (`tools/merge-branch.sh`).
+
 ## Route 1: a rigged GLB file
 
 The user gives a model in a T-pose with a Mixamo skeleton. The app has no code of a rigged body
