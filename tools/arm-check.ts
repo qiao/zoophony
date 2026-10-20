@@ -37,6 +37,10 @@
  * over its limit fails. A role that the commit does not have has no base. The
  * exit code is 1 when a value fails.
  *
+ * The JSON of each role of the working tree goes into a cache by tree ({@link armCacheFile}), so a
+ * second run on the same tree, such as the merge gate after the gate of the branch, reads it and
+ * prints `tree: cached`. A change of a file of `src/`, `tools/`, or the demos gives a new key.
+ *
  * The tool imports only the modules and the exports that the trees since 2026-10-18 have, because
  * a probe of an old commit copies it into the tree of the commit (`withProbeTree()`). A tree before
  * the label of the fold visit gets the labels of its samples from the plan of the demo.
@@ -49,8 +53,9 @@
  * Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>]
  * [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long]
  */
+import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 
 import { Matrix4, Quaternion, Vector3 } from 'three';
 
@@ -60,7 +65,15 @@ import { runTool, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
-import { ROOT, probeBeside, runChild, withTempFolder } from './ref-tree.ts';
+import {
+  PROBE_NO_CACHE,
+  ROOT,
+  probeBeside,
+  runChild,
+  storeBase,
+  treeCacheFile,
+  withTempFolder,
+} from './ref-tree.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import type { Side, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
 import { twistAngle } from '../src/models/studio-rig.ts';
@@ -1353,7 +1366,25 @@ function readArmJson(text: string): ArmJson {
 }
 
 /**
- * Measures one role in a child process: the working tree, and the base beside it.
+ * Gives the cache file of the JSON text of a role of the working tree (`treeCacheFile()` of
+ * `tools/ref-tree.ts`). The key holds the tree of `src/`, `tools/`, and the demos of the working
+ * tree, which holds the code of the gate, {@link ARM_FORMAT}, and the arguments of the role. A run
+ * with `--glb`, whose file is outside the tree, or with `PROBE_NO_CACHE=1` has no cache.
+ *
+ * @param args The arguments of the role on the working tree, with no `--json`.
+ * @returns The file, or `null`.
+ */
+function armCacheFile(args: readonly string[]): string | null {
+  if (args.includes('--glb') || process.env[PROBE_NO_CACHE] === '1') {
+    return null;
+  }
+  return treeCacheFile('arm-check.ts', [`format ${ARM_FORMAT}`, ...args]);
+}
+
+/**
+ * Measures one role in a child process: the working tree, and the base beside it. The text of the
+ * working tree comes from its cache when the key is the same ({@link armCacheFile}), and the run
+ * then prints `tree: cached`.
  *
  * @param role The role.
  * @param options The command line.
@@ -1364,17 +1395,22 @@ async function measureRole(
   options: CheckArgs,
 ): Promise<{ readonly tree: RoleReport | null; readonly base: RoleReport | null }> {
   const tree = [role, ...options.shared, ...options.own];
+  const treeCache = armCacheFile(tree);
   if (options.base !== null) {
     const texts = await probeBeside(
       options.base,
       'arm-check.ts',
       { base: [role, ...options.shared], tree },
-      { prefix: 'arm-check-', cache: true },
+      { prefix: 'arm-check-', cache: true, treeCache },
     );
     return {
       tree: readArmJson(texts.tree).roles[role] ?? null,
       base: readArmJson(texts.base).roles[role] ?? null,
     };
+  }
+  if (treeCache && existsSync(treeCache)) {
+    console.log(`tree: cached (${role}, ${basename(treeCache, '.json').slice(5, 17)})`);
+    return { tree: readArmJson(await readFile(treeCache, 'utf8')).roles[role] ?? null, base: null };
   }
   const text = await withTempFolder(
     async (dir) => {
@@ -1388,6 +1424,9 @@ async function measureRole(
     },
     { prefix: 'arm-check-' },
   );
+  if (treeCache) {
+    storeBase(treeCache, text);
+  }
   return { tree: readArmJson(text).roles[role] ?? null, base: null };
 }
 
