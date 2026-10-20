@@ -94,6 +94,8 @@ it, stop, and report the measures.>
 
 - When a measure chooses a value, such as a crease angle, check first that the reference lies
   inside the range of the variants. Else stop, and send the table to the manager.
+- A round that changes a grip on purpose expects a `FAIL` of the grip turn. Give the new play
+  median for `ACCEPTED_GRIPS` with the 2x paw crops, and do not try to clear the `FAIL`.
 
 ## Process
 
