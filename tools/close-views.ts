@@ -879,12 +879,17 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   };
 }
 
-/** A variant of the site of the working tree for the close views of a role (`--glb`, `--set`). */
+/**
+ * A variant of the site of the working tree for the close views of a role (`--glb`, `--set`), or
+ * for the play frames (`--set`).
+ */
 interface SiteVariant {
   /** The module of the studio body of the GLB file: its path and its text, or `null`. */
   readonly body: { readonly path: string; readonly text: string } | null;
   /** The hold changes of `--set`, or `null` for none. */
   readonly holds: string | null;
+  /** The entry module of the page that applies the hold changes first. */
+  readonly entry: string;
 }
 
 /** The id of the module that applies the hold changes of a variant in its build. */
@@ -892,6 +897,9 @@ const HOLDS_MODULE = 'virtual:close-views-holds';
 
 /** The entry module of the gallery page, which the close views of a role render. */
 const GALLERY_ENTRY = join(ROOT, 'src', 'gallery', 'main.ts');
+
+/** The entry module of the app page, which the play frames render. */
+const APP_ENTRY = join(ROOT, 'src', 'main.ts');
 
 /**
  * Checks the variant of `--glb` and `--set` of the close views of a role, and makes it: the
@@ -925,21 +933,22 @@ async function siteVariant(args: CloseViewsArgs, check: boolean): Promise<SiteVa
     console.log(`The working tree takes the hold changes ${changes.text}.`);
   }
   if (!args.glb || !animal) {
-    return { body: null, holds: args.holds };
+    return { body: null, holds: args.holds, entry: GALLERY_ENTRY };
   }
   const { text } = glbModule(animal, args.glb, new Uint8Array(await readFile(args.glb)));
   console.log(`The ${species} of the working tree takes the studio body of ${args.glb}.`);
   return {
     body: { path: join(ROOT, 'src', 'models', 'studio', `${animal}.ts`), text },
     holds: args.holds,
+    entry: GALLERY_ENTRY,
   };
 }
 
 /**
  * Gives the plugin of the build of a variant: the module of the studio body of the GLB file in
- * place of the module of the tree, and a first import of the gallery page that applies the hold
- * changes with `setHolds()` before the other modules of the page run, as the hold tools change
- * the holds in memory.
+ * place of the module of the tree, and a first import of the entry of the page that applies the
+ * hold changes with `setHolds()` before the other modules of the page run, as the hold tools
+ * change the holds in memory.
  *
  * @param variant The variant.
  * @returns The plugin.
@@ -960,7 +969,7 @@ function variantPlugin(variant: SiteVariant): Plugin {
       return variant.body && id === variant.body.path ? variant.body.text : null;
     },
     transform(code, id) {
-      return variant.holds !== null && id === GALLERY_ENTRY
+      return variant.holds !== null && id === variant.entry
         ? `import ${JSON.stringify(HOLDS_MODULE)};\n${code}`
         : null;
     },
@@ -968,15 +977,15 @@ function variantPlugin(variant: SiteVariant): Plugin {
 }
 
 /**
- * Builds the site of the working tree with the plugin of a variant ({@link variantPlugin}) or of
+ * Builds the site of the working tree with the plugins of a variant ({@link variantPlugin}) and of
  * `--at` ({@link aimPlugin}) into a temporary folder, and serves it ({@link startSite}). The
  * folder goes away when the site closes.
  *
- * @param plugin The plugin.
+ * @param plugins The plugins.
  * @returns The site.
  * @throws Error if the build fails.
  */
-async function startVariantSite(plugin: Plugin): Promise<Site> {
+async function startVariantSite(plugins: readonly Plugin[]): Promise<Site> {
   const dir = await mkdtemp(join(tmpdir(), 'close-views-variant-'));
   const remove = (): Promise<void> => rm(dir, { recursive: true, force: true });
   try {
@@ -984,7 +993,7 @@ async function startVariantSite(plugin: Plugin): Promise<Site> {
       root: ROOT,
       logLevel: 'warn',
       build: { outDir: dir, emptyOutDir: true },
-      plugins: [plugin],
+      plugins: [...plugins],
     });
     const site = await startSite(ROOT, SERVER_PORT, dir);
     return {
@@ -2177,6 +2186,11 @@ export interface PlayArgs {
   readonly base: string | null;
   /** The player of `--at`, whose cameras have an {@link AimView}, or `null`. */
   readonly at: ShotSubject | null;
+  /**
+   * The hold changes of `--set` (`setHolds()` of `tools/hold-sets.ts`) for the working tree, or
+   * `null` for none. The changes also move the player of `--at`, such as larger kettles.
+   */
+  readonly holds: string | null;
 }
 
 /**
@@ -2251,19 +2265,20 @@ export function shotSubject(text: string): ShotSubject {
 
 /**
  * Reads the command line of the mode `play`:
- * `play <dir> [--demo <id>] [--time <s>] [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>]`.
+ * `play <dir> [--demo <id>] [--time <s>] [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]`.
  * With no `--camera`, the camera is `default`. `--cinematic` renders the camera of the shot plan
  * of the app ({@link CINEMATIC_CAMERA}). `--shot` also gives the time: the frame of the first solo
  * or section shot of its subject ({@link chooseShot}). `--at` aims the stage camera at one player
- * ({@link aimCamerasOf}, {@link aimPose}).
+ * ({@link aimCamerasOf}, {@link aimPose}). `--set` renders a variant of the holds of the working
+ * tree from a build of its own ({@link startVariantSite}).
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when the first argument is not `play`.
  * @throws Error that lists the correct names, for an unknown demo, camera, or species, and an
  *   error for a wrong time, a time below {@link SEEK_LEAD_SEC}, a time at or after the end of the
  *   demo, `--camera` with `--cinematic` or `--shot`, `--time` with `--shot`, `--at` with
- *   `--camera`, `--cinematic`, `--shot`, or `--url`, an option of `--at` with no `--at`, a wrong
- *   option, or a missing word.
+ *   `--camera`, `--cinematic`, `--shot`, or `--url`, `--set` with `--url` or `--base`, an option of
+ *   `--at` with no `--at`, a wrong option, or a missing word.
  */
 export function playArgs(args: readonly string[]): PlayArgs | null {
   if (args[0] !== 'play') {
@@ -2282,6 +2297,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       '--elevation',
       '--url',
       '--base',
+      '--set',
     ],
     ['--camera', '--azimuth'],
     ['--cinematic'],
@@ -2320,13 +2336,19 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
   if (aimCameras && url !== null) {
     throw new Error('The option --at builds a site of its own, so --url does not go.');
   }
+  const holds = line.options.get('--set')?.[0] ?? null;
+  if (holds !== null && (url !== null || base !== null)) {
+    throw new Error(
+      'The option --set builds a site of its own and moves the player of --at, so --url and --base do not go.',
+    );
+  }
 
   if (shotText !== null) {
     const subject = shotSubject(shotText);
     const name = subject.kind === 'seat' ? `seat${subject.seat}` : subject.species;
     const camera = { ...CINEMATIC_CAMERA, name: `shot-${name}` };
     const time: PlayTime = { kind: 'shot', subject };
-    return { demo, time, cameras: [camera], cinematic, out, url, base, at: null };
+    return { demo, time, cameras: [camera], cinematic, out, url, base, at: null, holds };
   }
   const text = timeText ?? String(PLAY_TIME_SEC);
   const sec = Number(text);
@@ -2337,7 +2359,17 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
   const cameras =
     aimCameras?.cameras ??
     (cinematic ? [CINEMATIC_CAMERA] : (cameraTexts ?? ['default']).map(playCamera));
-  return { demo, time, cameras, cinematic, out, url, base, at: aimCameras?.subject ?? null };
+  return {
+    demo,
+    time,
+    cameras,
+    cinematic,
+    out,
+    url,
+    base,
+    at: aimCameras?.subject ?? null,
+    holds,
+  };
 }
 
 /** The player and the cameras of `--at`. */
@@ -3253,7 +3285,7 @@ const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
-  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>]`,
+  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]`,
   '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
@@ -3271,7 +3303,7 @@ const USAGE = [
  * probe of the body ({@link probeViews}). With `--url`, it uses a running site,
  * such as the dev server, in place of the built site. With `--glb <file>` or `--set <changes>`, a
  * role renders a variant of the working tree from a build of its own ({@link startVariantSite}),
- * with no commit and no edit of a file. With `--base`, it also builds the commit in
+ * with no commit and no edit of a file. The play frames take `--set` in the same way. With `--base`, it also builds the commit in
  * a temporary folder, and writes the grid of the commit above the grid of the working tree. With
  * {@link CHECK_FLAG} first, it only checks the command line and the commit, so that the script of
  * `package.json` stops before the build on a wrong command line.
@@ -3310,9 +3342,15 @@ async function main(): Promise<void> {
     }
   }
   if (mode.kind === 'play') {
-    // A subject with no shot or no player stops the tool before the build.
-    const { demo, time, at } = mode.args;
+    // A subject with no shot or no player, or a wrong hold change, stops the tool before the
+    // build. The hold changes stay in memory, so that the player of --at is the player of the
+    // variant.
+    const { demo, time, at, holds } = mode.args;
     try {
+      if (holds !== null) {
+        console.log(`The working tree takes the hold changes ${setHolds(holds).text}.`);
+        variant = { body: null, holds, entry: APP_ENTRY };
+      }
       if (time.kind === 'shot') {
         await chooseShot(demo, time.subject);
       }
@@ -3339,11 +3377,12 @@ async function main(): Promise<void> {
         browser: await chromium.launch({ args: chromiumArgs(process.platform) }),
         close: async (): Promise<void> => undefined,
       }
-    : variant
-      ? await startVariantSite(variantPlugin(variant))
-      : mode.kind === 'play' && mode.args.at
-        ? await startVariantSite(aimPlugin(ROOT))
-        : await startSite(ROOT, SERVER_PORT);
+    : variant || (mode.kind === 'play' && mode.args.at)
+      ? await startVariantSite([
+          ...(variant ? [variantPlugin(variant)] : []),
+          ...(mode.kind === 'play' && mode.args.at ? [aimPlugin(ROOT)] : []),
+        ])
+      : await startSite(ROOT, SERVER_PORT);
   try {
     await renderModes(modes.map(modeRender), site, mode.args.base);
   } finally {
