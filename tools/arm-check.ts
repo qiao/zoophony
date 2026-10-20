@@ -39,7 +39,7 @@
  *
  * `--views <dir>` renders the worst play sample of each arm that fails, or of each arm with
  * `--views-all`, a strike, and a rest of the player, with `pnpm close-views play --at <species>`,
- * and writes `<dir>/<role>-arms.webp`: a 2x crop of the arm in each view, the commit on the left
+ * and writes one image of each frame: a 2x crop of each arm in each view, the commit on the left
  * and the working tree on the right (`tools/arm-views.ts`).
  *
  * Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>]

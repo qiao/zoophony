@@ -10,12 +10,14 @@
  * - a rest: the middle of the longest gap between the notes of the seat, when it is
  *   {@link REST_GAP_SEC} or longer.
  *
- * Then it writes `<dir>/<role>-arms.webp`: a 2x crop of each arm in each view of each frame, the
- * commit on the left and the working tree on the right. The box of a crop holds the arm of the
- * working tree, from the clavicle to the fingers, with a margin.
+ * Then it writes one image of each frame, `<dir>/<role>-<demo>-<time>-arms.webp`: one row for
+ * each arm and one column for each view, with a crop of the commit on the left and of the working
+ * tree on the right. The box of a crop holds the arm of the working tree, from the clavicle to the
+ * fingers, with a margin. A box of {@link CROP_SIDE} or less shows at 2x. A folder that holds the
+ * frames of an earlier run keeps them, and the tool renders no frame again.
  */
-import { mkdir, readFile } from 'node:fs/promises';
-import { writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { chromium } from '@playwright/test';
@@ -69,8 +71,11 @@ export const REST_GAP_SEC = 1.5;
 /** The earliest song time of a frame, in seconds, after the seek lead of `close-views play`. */
 const FRAME_FROM_SEC = 5;
 
-/** The largest side of a crop cell in the image, in pixels: a crop of a larger box shrinks. */
-const CELL_SIDE = 520;
+/** The smallest side of the box of a crop, in CSS pixels of the frame. */
+const CROP_SIDE = 200;
+
+/** The side of a crop in the image, in pixels: 2x a box of {@link CROP_SIDE}. */
+const CELL_SIDE = 2 * CROP_SIDE;
 
 /** The margin of the box of a crop around the arm, as a share of the larger side of the arm. */
 const CROP_MARGIN = 0.2;
@@ -262,7 +267,7 @@ async function armBoxes(
         [x0, y0, x1, y1] = [Math.min(x0, sx), Math.min(y0, sy), Math.max(x1, sx), Math.max(y1, sy)];
       }
       const side0 = Math.max(x1 - x0, y1 - y0) * (1 + 2 * CROP_MARGIN);
-      const sideOf = Math.min(PLAY_FRAME.height, Math.max(80, side0));
+      const sideOf = Math.min(PLAY_FRAME.height, Math.max(CROP_SIDE, side0));
       const cx = (x0 + x1) / 2;
       const cy = (y0 + y1) / 2;
       list.push({
@@ -278,8 +283,12 @@ async function armBoxes(
 
 /** One cell pair of the image: the crops of the commit and of the working tree. */
 interface PairCell {
-  /** The label of the row. */
+  /** The label of the cell. */
   readonly label: string;
+  /** The row of the cell: the index of the arm. */
+  readonly row: number;
+  /** The column of the cell: the index of the view. */
+  readonly column: number;
   /** The frame file of the commit, or `null` with no base. */
   readonly base: string | null;
   /** The frame file of the working tree. */
@@ -289,7 +298,8 @@ interface PairCell {
 }
 
 /**
- * Writes the image of the crop pairs, one row for each pair, as WebP.
+ * Writes the image of the crop pairs of one frame, one row for each arm and one column for each
+ * view, as WebP.
  *
  * @param cells The pairs.
  * @param file The file, with no extension.
@@ -303,6 +313,8 @@ async function writePairs(cells: readonly PairCell[], file: string): Promise<voi
     const rows = await Promise.all(
       cells.map(async (cell) => ({
         label: cell.label,
+        row: cell.row,
+        column: cell.column,
         base: await url(cell.base),
         tree: (await url(cell.tree)) ?? '',
         box: cell.box,
@@ -311,9 +323,11 @@ async function writePairs(cells: readonly PairCell[], file: string): Promise<voi
     const data = await page.evaluate(
       async ({ list, side }) => {
         const label = 28;
+        const columns = Math.max(...list.map((cell) => cell.column)) + 1;
+        const lines = Math.max(...list.map((cell) => cell.row)) + 1;
         const canvas = document.createElement('canvas');
-        canvas.width = side * 2;
-        canvas.height = list.length * (side + label);
+        canvas.width = columns * side * 2;
+        canvas.height = lines * (side + label);
         const context = canvas.getContext('2d');
         if (!context) {
           return '';
@@ -326,13 +340,14 @@ async function writePairs(cells: readonly PairCell[], file: string): Promise<voi
           await image.decode();
           return image;
         };
-        for (const [i, row] of list.entries()) {
-          const top = i * (side + label);
+        for (const cell of list) {
+          const top = cell.row * (side + label);
+          const left = cell.column * side * 2;
           context.fillStyle = '#000000';
-          context.font = '18px sans-serif';
-          context.fillText(row.label, 6, top + 20);
-          const { x, y, side: crop } = row.box;
-          for (const [k, source] of [row.base, row.tree].entries()) {
+          context.font = '16px sans-serif';
+          context.fillText(cell.label, left + 6, top + 20);
+          const { x, y, side: crop } = cell.box;
+          for (const [k, source] of [cell.base, cell.tree].entries()) {
             if (source) {
               context.drawImage(
                 await load(source),
@@ -340,7 +355,7 @@ async function writePairs(cells: readonly PairCell[], file: string): Promise<voi
                 y,
                 crop,
                 crop,
-                k * side,
+                left + k * side,
                 top + label,
                 side,
                 side,
@@ -354,7 +369,7 @@ async function writePairs(cells: readonly PairCell[], file: string): Promise<voi
     );
     const png = Buffer.from(data.replace(/^data:image\/png;base64,/, ''), 'base64');
     await writeFile(`${file}.webp`, await toWebp(browser, png));
-    console.log(`${file}.webp: ${cells.length} pairs, the base on the left`);
+    console.log(`${file}.webp: ${cells.length} pairs, the base on the left of each pair`);
   } finally {
     await browser.close();
   }
@@ -403,37 +418,48 @@ export async function renderViews(
       (frame, i, all) =>
         all.findIndex((f) => f.demo === frame.demo && Math.abs(f.time - frame.time) < 0.5) === i,
     );
-    const cells: PairCell[] = [];
     for (const frame of frames) {
+      const cells: PairCell[] = [];
       const out = join(dir, `${role}-${frame.demo}-${frame.time.toFixed(2)}`);
       const azimuths = VIEW_AZIMUTHS.flatMap((a) => ['--azimuth', String(a)]);
       const base = options.base === null ? [] : ['--base', options.base];
-      console.log(`${role}: ${frame.reason} at ${frame.demo} ${frame.time} s into ${out}`);
-      await runChild(
-        'pnpm',
-        [
-          'close-views',
-          'play',
-          out,
-          '--demo',
-          frame.demo,
-          '--time',
-          String(frame.time),
-          '--at',
-          species,
-          ...azimuths,
-          ...base,
-        ],
-        ROOT,
+      const cameras = VIEW_AZIMUTHS.map((azimuth) => `at-${species}-az${azimuth}`);
+      const prefixes = options.base === null ? ['play-'] : ['play-', 'play-base-'];
+      const files = cameras.flatMap((camera) =>
+        prefixes.map((prefix) => join(out, `${prefix}${camera}.png`)),
       );
+      console.log(`${role}: ${frame.reason} at ${frame.demo} ${frame.time} s into ${out}`);
+      if (files.every((file) => existsSync(file))) {
+        console.log(`${out} holds the frames of an earlier run, so the tool renders none.`);
+      } else {
+        await runChild(
+          'pnpm',
+          [
+            'close-views',
+            'play',
+            out,
+            '--demo',
+            frame.demo,
+            '--time',
+            String(frame.time),
+            '--at',
+            species,
+            ...azimuths,
+            ...base,
+          ],
+          ROOT,
+        );
+      }
       const boxes = await armBoxes(role, frame, sides, parts);
-      for (const side of sides) {
-        for (const [k, azimuth] of VIEW_AZIMUTHS.entries()) {
-          const box = boxes.get(side)?.[k];
+      for (const [row, side] of sides.entries()) {
+        for (const [column, azimuth] of VIEW_AZIMUTHS.entries()) {
+          const box = boxes.get(side)?.[column];
           if (box) {
             const camera = `at-${species}-az${azimuth}`;
             cells.push({
-              label: `${role} ${side}, ${frame.reason}, ${frame.demo} ${frame.time} s, azimuth ${azimuth}`,
+              row,
+              column,
+              label: `${side}, ${frame.reason}, ${frame.demo} ${frame.time} s, azimuth ${azimuth}`,
               base: options.base === null ? null : join(out, `play-base-${camera}.png`),
               tree: join(out, `play-${camera}.png`),
               box,
@@ -441,9 +467,9 @@ export async function renderViews(
           }
         }
       }
-    }
-    if (cells.length > 0) {
-      await writePairs(cells, join(dir, `${role}-arms`));
+      if (cells.length > 0) {
+        await writePairs(cells, `${out}-arms`);
+      }
     }
   }
 }
