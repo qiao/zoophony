@@ -159,7 +159,8 @@ const joints = { elbow: new Vector3(), wrist: new Vector3() };
  * strikes (`PercussionHold.across`, design 5.3). At a strike, the mallet points from the home of
  * the hand to the target, and the grip stays at that place. The paw at rest holds the mallet
  * across the forearm, at its angle in the frame of the elbow, with the top of the grip along the
- * forearm toward the elbow. Between the two, the paw turns around the grip by a share of the
+ * forearm toward the elbow, and the wrist lifts the head by `MalletAcross.lift`. Between the
+ * two, the paw turns around the grip by a share of the
  * smallest turn from the rest direction to the strike direction. The forearm comes from the
  * two-bone solution to the wrist, two times, because the wrist follows the turn of the paw. The
  * function writes the module vectors `wrist` and `turn`, and it writes the head into `point`.
@@ -200,6 +201,14 @@ function acrossHand(
     top.copy(forearm).negate();
     top.addScaledVector(along, -top.dot(along)).normalize();
     setFromBasis(turn, along, top).multiply(inverse.fromArray(side.inverse));
+    // The wrist lifts the head: a turn of the paw around the level axis normal to the forearm,
+    // with no twist on the forearm.
+    level.crossVectors(forearm, UP);
+    if (across.lift !== 0 && level.lengthSq() > 1e-8) {
+      cockTurn.setFromAxisAngle(level.normalize(), across.lift);
+      turn.premultiply(cockTurn);
+      along.applyQuaternion(cockTurn);
+    }
     // The smallest turn from the rest direction to the strike direction, by the share left.
     cockTurn.setFromUnitVectors(along, strikeAlong).slerp(NO_TURN, share);
     turn.premultiply(cockTurn);

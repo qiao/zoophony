@@ -61,6 +61,12 @@ export interface MalletAcross {
    * the hand, in radians.
    */
   readonly rest: number;
+  /**
+   * The turn of the mallet up from that direction at the rest height, in radians, as a real
+   * player lifts the head with the wrist between strikes. The paw bends on the forearm and does
+   * not twist.
+   */
+  readonly lift: number;
 }
 
 /**
@@ -169,7 +175,7 @@ export const PERCUSSION_HOLDS = {
     home: [0, -0.37, -0.2],
     top: 'shoulder',
     cock: null,
-    across: { rest: 1.5 },
+    across: { rest: 1.5, lift: 0 },
     ready: true,
     pair: true,
   },

@@ -96,7 +96,7 @@ const NULL_FIELDS: ReadonlyMap<string, HoldValue> = new Map<string, HoldValue>([
     } satisfies FreePaw,
   ],
   ['cock', { up: 0, out: 0 } satisfies MalletCock],
-  ['across', { rest: 0 } satisfies MalletAcross],
+  ['across', { rest: 0, lift: 0 } satisfies MalletAcross],
 ]);
 
 /**
