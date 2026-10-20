@@ -6,8 +6,8 @@ removes this file.
 
 | Item | State |
 |---|---|
-| 1. Ready grip entry of `pnpm arm-check` | started |
-| 2. Dark face warning of `pnpm rig-mesh --check` | open |
+| 1. Ready grip entry of `pnpm arm-check` | done (`cd730244`) |
+| 2. Dark face warning of `pnpm rig-mesh --check` | started: baselines of the wolf, the badger, and the pig in `scratch/out/base-*.txt` |
 | 3. Tail gap of `pnpm rig-mesh --check` | open |
 | 4. Face crops of `pnpm close-views --target head` | open |
 
