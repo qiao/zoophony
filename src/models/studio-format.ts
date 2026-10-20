@@ -285,7 +285,8 @@ export interface StudioEyes {
    * The bend of each oval along its direction: a fit of the heights of the head surface over the
    * oval, from the plane of the eye (`eyeBend()` of `tools/studio-body.ts`). Thus a direction that
    * differs from the normal of the surface, or a curved cheek, moves no edge of the oval out of the
-   * fur. A body with flat ovals (`flatEyes` of `ANIMALS`, the bear) has none.
+   * fur. A flat oval (`flatEyes` of `ANIMALS`, the bear) has a bend of 0. A body with no bends
+   * keeps flat ovals with the light of a parametric eye.
    */
   readonly bends?: Readonly<Record<Side, EyeBend>>;
 }

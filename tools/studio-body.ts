@@ -136,10 +136,19 @@ export interface AnimalSettings {
   /**
    * True when each pea eye keeps a flat oval, which moves out of the head until its front face
    * shows ({@link eyePush}). The face under the eyes of the bear twists, so a bent oval
-   * ({@link eyeBend}) reads as a bean, and a flat oval needs a rim more than 0.02 H out of the fur
-   * (docs/decisions/2026-10-20-pea-eyes.md). With no value, each oval bends to the head surface.
+   * ({@link eyeBend}) reads as a bean (docs/decisions/2026-10-20-pea-eyes.md). A flat oval writes
+   * a bend of 0, so that its light lies on the front of the oval too. With no value, each oval
+   * bends to the head surface.
    */
   readonly flatEyes?: boolean;
+  /**
+   * The share of the turn of each pea eye from its direction toward the mean normal of the head
+   * faces within 0.09 H of its place, from 0 to 1. The bear takes 0.5: its flat ovals then lie
+   * nearer to its face, which faces 39° up, with the rim 0.027 H out of the fur, and the front
+   * of each oval still shows (the choice of the user, 2026-10-20). With no value, each eye keeps
+   * its direction.
+   */
+  readonly eyeNormal?: number;
 }
 
 /**
@@ -167,6 +176,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       constant: 'STUDIO_BEAR',
       crease: 15,
       flatEyes: true,
+      eyeNormal: 0.5,
     },
   ],
   // The polar bear pianist: decisions/2026-10-14-polar-bench.md and 2026-10-14-polar-fix.md.
@@ -2297,22 +2307,16 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   // surface, and a flat eye 0.01 H under it, as the eye bones of the parametric bodies
   // (`eyeMiddle()` of `models/eyes.ts`). Each eye faces out from the
   // middle of the head that shows, as an eye on the round head of a parametric body does, or level
-  // with `eyeLevel`. Its oval bends to the head surface (`eyeBend()`), so that the rim lies at the
-  // fur, or stays flat (`flatEyes`). Then it moves out along its direction until its front face
-  // shows (`eyePush()`).
+  // with `eyeLevel`, and it can turn toward the normal of the head surface (`eyeNormal`). Its oval
+  // bends to the head surface (`eyeBend()`), so that the rim lies at the fur, or stays flat
+  // (`flatEyes`). Then it moves out along its direction until its front face shows (`eyePush()`).
   const eyeHeight = (shown.max.y - shown.min.y) * scale;
   const middle = toBind(shown.getCenter(new Vector3()));
   const eyeAt = (side: Side) => {
     const old = eyeCenter(side);
     const point = eyeOnHead(withoutEyes, old);
     const out = point.clone().sub(middle);
-    const facing = direction(settings.eyeLevel === true ? out.setY(0) : out);
-    // A bent eye has its middle on the head surface, so that its rim lies at the fur and the
-    // facets of the head between the corners of the oval cover little of its front.
-    const flat = settings.flatEyes === true;
-    const eye = flat
-      ? eyeMiddle({ point: model(point), normal: facing }, eyeHeight, false)
-      : { point: model(point), normal: facing };
+    const at = new Vector3(...model(point));
     const near = withoutEyes.faces.flatMap((face) => {
       const [a, b, c] = face.corners.map((k) => mesh.vertices[k]?.position ?? new Vector3());
       const triangle = new Triangle(
@@ -2320,10 +2324,28 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
         new Vector3(...model(b ?? new Vector3())),
         new Vector3(...model(c ?? new Vector3())),
       );
-      const reach = triangle.closestPointToPoint(new Vector3(...eye.point), new Vector3());
-      return reach.distanceTo(new Vector3(...eye.point)) < 0.3 * eyeHeight ? [triangle] : [];
+      const reach = triangle.closestPointToPoint(at, new Vector3());
+      return reach.distanceTo(at) < 0.3 * eyeHeight ? [triangle] : [];
     });
-    const bend = flat ? undefined : eyeBend(near, model(point), facing, eyeHeight);
+    const look = direction(settings.eyeLevel === true ? out.setY(0) : out);
+    // The eye turns toward the mean normal of the head surface under it by `eyeNormal`.
+    const normal = new Vector3();
+    for (const triangle of near) {
+      if (triangle.closestPointToPoint(at, new Vector3()).distanceTo(at) <= 0.09 * eyeHeight) {
+        normal.addScaledVector(triangle.getNormal(new Vector3()), triangle.getArea());
+      }
+    }
+    const toNormal = settings.eyeNormal ?? 0;
+    const turned = new Vector3(...look).lerp(normal.normalize(), toNormal).normalize();
+    const facing: Vec3 =
+      toNormal === 0 ? look : [round(turned.x), round(turned.y), round(turned.z)];
+    // A bent eye has its middle on the head surface, so that its rim lies at the fur and the
+    // facets of the head between the corners of the oval cover little of its front.
+    const flat = settings.flatEyes === true;
+    const eye = flat
+      ? eyeMiddle({ point: model(point), normal: facing }, eyeHeight, false)
+      : { point: model(point), normal: facing };
+    const bend: EyeBend = flat ? [0, 0, 0, 0, 0] : eyeBend(near, model(point), facing, eyeHeight);
     const push = eyePush(near, eye, eyeHeight, bend);
     const moved = new Vector3(...eye.point).addScaledVector(new Vector3(...facing), push);
     const shift = moved.distanceTo(new Vector3(...model(old))) / eyeHeight;
@@ -2334,13 +2356,11 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   const eyeR = eyeAt('R');
   heads['eye_L'] = eyeL.head;
   heads['eye_R'] = eyeR.head;
-  const flatEyes: StudioEyes = {
+  const peaEyes: StudioEyes = {
     headHeight: round(eyeHeight),
     directions: { L: eyeL.facing, R: eyeR.facing },
+    bends: { L: eyeL.bend, R: eyeR.bend },
   };
-  // A body with flat ovals (`flatEyes`) writes no bends.
-  const peaEyes: StudioEyes =
-    eyeL.bend && eyeR.bend ? { ...flatEyes, bends: { L: eyeL.bend, R: eyeR.bend } } : flatEyes;
 
   // The studio animal faces +z, so its moves turn as its points do.
   const ordered = orderByFirstUse(withoutEyes);
