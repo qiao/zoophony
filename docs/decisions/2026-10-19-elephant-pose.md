@@ -21,4 +21,5 @@ the measures. The user can reverse each decision. Then update its section, and r
 | The mallets stay over the kettles in the rest pose (`PercussionHold.ready`), because the hanging left paw went 3.7 cm into the front left kettle. | 5.2 |
 | Phase 3: the top of each grip points along the forearm toward the elbow at rest, so the paw does not bend on the forearm. The three shapes of phase 2 keep the play folds at 0.3%, so no shape changes. | 4.4, 5.3 |
 | Three shapes fit the new hold: the right and the left arm at a strike, and the bent right wrist with the mallet up (`raise` of `tools/mesh-rigs/elephant.json`). The play, lift, and rest folds are 0.0%. The shapes of the old hold folded 98.6% of the play. | 4.4 |
+| Phase 3: the left strike moves 0.1 m out from the playing spot (`offsetL`), 0.05 m more than the right. With the mallet head at the back of the fist, the left paw went 2.9 cm into the belly beside the largest kettle of beethoven-1. Now each paw stays within 1.3 cm. | 5.3 |
 | Open: at a strike, the right paw bends about 50° on the forearm, and the right arm skin stays flat at the forearm and the shoulder. | 4.4, 9.3 |

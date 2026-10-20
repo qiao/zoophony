@@ -161,7 +161,7 @@ export const PERCUSSION_HOLDS = {
   timpani: {
     hands: 'sides',
     sizes: { lift: 0.1, rest: 0.2 },
-    offsetL: [-0.05, 0, 0],
+    offsetL: [-0.1, 0, 0],
     offsetR: [0.05, 0, 0],
     poleL: [-0.7, -1, 0.2],
     poleR: [0.7, -1, 0.2],
