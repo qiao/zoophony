@@ -86,6 +86,10 @@ side.
 - No reference image shows a pig. The mesh of the user is the target of the pig, and the pig has
   the size of the parametric pig, by the rule of the user for the mouse
   (`docs/decisions/2026-10-19-mesh-pig.md`).
+- No reference image shows a badger. The mesh of the user is the target of the badger, and the
+  badger has the size of the parametric badger, by the rule of the user for the mouse. The mesh
+  wins over `badger-turnaround.png`, whose fur and stripes are lighter
+  (`docs/decisions/2026-10-20-mesh-badger.md`).
 - The wolf sits on a chair at the right, with the clarinet, beside the dog cellists. The mesh of
   the user is the target of the form of the wolf, and these two images give its size against the
   dogs (`docs/decisions/2026-10-20-mesh-wolf.md`).
