@@ -110,7 +110,12 @@ player.
   notes, and its broad tail on the floor shows in the side views and the back view. The pig
   hornist (`hornist`) has the views and the moments of the flutist, with its own test notes. The
   wolf clarinetist (`clarinetist`) has the views and the moments of the flutist, with its own test
-  notes, and its bushy tail behind the seat shows in the side views and the back view. With
+  notes, and its bushy tail behind the seat shows in the side views and the back view. The
+  badger has one role for each percussion instrument (`bass-drummer`, `snare-drummer`,
+  `cymbalist`, `percussionist`, and `xylophonist`), from the four sides of the elephant, at a
+  strike of each paw or a crash, between two strikes, in the rest pose, and in the middle of the
+  lift and of the lowering at the first strike. The query `only` takes the instrument of each
+  role, because the badger plays five instruments. With
   `--base <ref>`, the tool
   puts the grid of a commit above the grid of the working tree, so a round shows the change of
   a body with no worktree of `main`. The mode `species` of the tool shows named species alone
