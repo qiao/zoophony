@@ -28,6 +28,9 @@ const EYE_LIGHT = 0.04;
 /** The height of the light above the middle of the eye, in H. */
 const EYE_LIGHT_UP = 0.035;
 
+/** The depth of the light on a bent eye, in H: a thin disc that lies flat on the oval. */
+const EYE_LIGHT_DEPTH = 0.008;
+
 /** The colors of an eye: the black oval and its small white light. */
 export type EyeColors = Pick<BodyColors, 'eye' | 'eyeLight'>;
 
@@ -140,19 +143,66 @@ export function addEye(
     finish: 'lacquer',
   });
 
-  // The light of a bent eye lies on the front of the oval, up the oval from the middle, so that
-  // it stays on an oval that faces up or to the side.
-  const light = bend
-    ? new Vector3(...point)
-        .addScaledVector(up, EYE_LIGHT_UP * h)
-        .addScaledVector(n, (frontDepth(EYE_LIGHT_UP) + bendAt(bend, 0, EYE_LIGHT_UP)) * h)
-    : new Vector3(...point)
-        .addScaledVector(n, 0.5 * EYE[2] * h)
-        .add(new Vector3(0, EYE_LIGHT_UP * h, 0));
+  if (bend) {
+    addBentLight(builder, colors, { point, normal }, h, bone, bend);
+    return;
+  }
+  const light = new Vector3(...point)
+    .addScaledVector(n, 0.5 * EYE[2] * h)
+    .add(new Vector3(0, EYE_LIGHT_UP * h, 0));
   builder.add(ball(0.5, 6, 3), {
     color: colors.eyeLight,
     bone,
     at: transform(toVec3(light), undefined, [EYE_LIGHT * h, EYE_LIGHT * h, 0.5 * EYE_LIGHT * h]),
+    finish: 'lacquer',
+  });
+}
+
+/**
+ * Adds the light of a bent eye: a thin disc on the front of the oval, 0.035 H up the oval from the
+ * middle, so that it stays on an oval that faces up or to the side. The disc lies flat on the front
+ * of the bent oval there, so that it stands only half its depth out of the oval in each view.
+ *
+ * @param builder The mesh that gets the light.
+ * @param colors The colors of the eye.
+ * @param eye The middle of the eye and the axis of the eye.
+ * @param h The head height that sizes the eye, in meters.
+ * @param bone The eye bone.
+ * @param bend The bend of the oval.
+ */
+function addBentLight(
+  builder: MeshBuilder,
+  colors: EyeColors,
+  eye: SurfacePoint,
+  h: number,
+  bone: number,
+  bend: EyeBend,
+): void {
+  const n = new Vector3(...eye.normal);
+  const up = new Vector3(0, 1, 0).projectOnPlane(n).normalize();
+  const across = new Vector3().crossVectors(up, n);
+  const v = EYE_LIGHT_UP;
+  const dv = 1e-4;
+  // The slopes of the front of the bent oval at the light, along the axes of the eye.
+  const slopeU = bend[0] + bend[3] * v;
+  const slopeV = (frontDepth(v + dv) - frontDepth(v - dv)) / (2 * dv) + bend[1] + 2 * bend[4] * v;
+  const facing = new Vector3()
+    .addScaledVector(across, -slopeU)
+    .addScaledVector(up, -slopeV)
+    .add(n)
+    .normalize();
+  const discUp = up.clone().projectOnPlane(facing).normalize();
+  const discAcross = new Vector3().crossVectors(discUp, facing);
+  const onOval = toQuat(
+    new Quaternion().setFromRotationMatrix(new Matrix4().makeBasis(discAcross, discUp, facing)),
+  );
+  const light = new Vector3(...eye.point)
+    .addScaledVector(up, v * h)
+    .addScaledVector(n, (frontDepth(v) + bendAt(bend, 0, v)) * h);
+  builder.add(ball(0.5, 6, 3), {
+    color: colors.eyeLight,
+    bone,
+    at: transform(toVec3(light), onOval, [EYE_LIGHT * h, EYE_LIGHT * h, EYE_LIGHT_DEPTH * h]),
     finish: 'lacquer',
   });
 }
