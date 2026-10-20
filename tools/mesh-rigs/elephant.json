@@ -360,6 +360,12 @@
         "minEdge": 0.06,
         "ends": 0.2,
         "sides": "L"
+      },
+      {
+        "joint": "upper_arm",
+        "minEdge": 0.06,
+        "ends": 0.2,
+        "sides": "R"
       }
     ],
     "flip": {
@@ -369,7 +375,7 @@
       "rounds": 4,
       "note": "The values of the fox, the rabbit, the cat, the dog, and the panda. The rule flips 13 edges."
     },
-    "ringsNote": "A ring at the left elbow, with the values of the cat: 5 cut edges and 10 new faces. It removes the folds of the left forearm twist bone in the arm that waits over the side kettle (docs/research/2026-10-19-elephant-arms/rig-ring.txt)."
+    "ringsNote": "A ring at the left elbow, with the values of the cat: 5 cut edges and 10 new faces. It removes the folds of the left forearm twist bone in the arm that waits over the side kettle (docs/research/2026-10-19-elephant-arms/rig-ring.txt). A ring at the right shoulder, with the same values: 16 new faces. With the grip of round elephant-grip, the flat share of the right shoulder ring goes from 0.65 to 0.78 (p5 of pnpm arm-check), and the sharp wedge at the front of the right armpit goes (docs/research/2026-10-19-elephant-grip.md)."
   },
   "check": {
     "thin": {
