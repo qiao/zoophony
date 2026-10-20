@@ -77,6 +77,7 @@ in a line at the back, as the Vienna Philharmonic seats them (user, 2026-10-05,
     in the classic half circle. The players of an arc sit.
   - No player leaves the group as a soloist. A player alone and the partner of a pianist stand
     when their instrument stands as a soloist (4.5, body proportions).
+
 - Larger species sit farther back, so that a big animal hides no smaller animal (user,
   2026-10-05). A species of the size 1.2 or more plays only the contrabass, the timpani, the
   trombone, or the tuba. The strings have species of the size 1.05 or less, and the piano 1.1 or
@@ -120,9 +121,26 @@ interface CommonParams {
 }
 
 interface BipedParams extends CommonParams {
-  ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small'
-    | 'side-round' | 'antlered' | 'none';
-  snout: 'short' | 'long' | 'blunt' | 'broad' | 'pointed' | 'buck-teeth' | 'trunk' | 'flat-nose'
+  ears:
+    | 'long'
+    | 'pointed'
+    | 'round'
+    | 'large-round'
+    | 'floppy'
+    | 'large-flap'
+    | 'small'
+    | 'side-round'
+    | 'antlered'
+    | 'none';
+  snout:
+    | 'short'
+    | 'long'
+    | 'blunt'
+    | 'broad'
+    | 'pointed'
+    | 'buck-teeth'
+    | 'trunk'
+    | 'flat-nose'
     | 'horn';
   tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Face pattern, for example the eye patches of the panda. */
@@ -132,9 +150,22 @@ interface BipedParams extends CommonParams {
 
 /** A body of its own in place of the parametric biped (4.4): the penguin, or a studio body. */
 interface OwnBodyParams extends CommonParams {
-  body: 'penguin' | 'studio-badger' | 'studio-bear' | 'studio-beaver' | 'studio-cat' | 'studio-dog'
-    | 'studio-elephant' | 'studio-fox' | 'studio-hippo' | 'studio-mouse' | 'studio-panda'
-    | 'studio-pig' | 'studio-polar-bear' | 'studio-rabbit' | 'studio-wolf';
+  body:
+    | 'penguin'
+    | 'studio-badger'
+    | 'studio-bear'
+    | 'studio-beaver'
+    | 'studio-cat'
+    | 'studio-dog'
+    | 'studio-elephant'
+    | 'studio-fox'
+    | 'studio-hippo'
+    | 'studio-mouse'
+    | 'studio-panda'
+    | 'studio-pig'
+    | 'studio-polar-bear'
+    | 'studio-rabbit'
+    | 'studio-wolf';
   /** A seated tail that lies curled on the seat, and does not sway (5.1): the cat. */
   seatedTail?: 'curl';
   /** Ears that hang beside the head, and do not twitch (5.1): the dog. */
@@ -212,18 +243,18 @@ keeps its form:
    0 --------------  base of the torso (the seat)
 ```
 
-| Section | Species | Section | Species |
-|---|---|---|---|
-| Violin, first seat | rabbit (reference) | Flute | fox, light tan (reference) |
-| Violin, second seat | fox, red-orange with a white face (reference) | Oboe | mouse |
-| Viola | cat | Clarinet | wolf (`animals.webp`) |
-| Cello | dog | Bassoon | beaver |
-| Contrabass | hippo | Horn | pig |
-| Harp | deer | Trumpet | monkey |
-| Piano | polar bear | Trombone | panda |
-| Timpani | elephant | Tuba | rhino |
-| Percussion | badger | Choir | penguin |
-| Conductor | bear (reference) | | |
+| Section             | Species                                       | Section  | Species                    |
+| ------------------- | --------------------------------------------- | -------- | -------------------------- |
+| Violin, first seat  | rabbit (reference)                            | Flute    | fox, light tan (reference) |
+| Violin, second seat | fox, red-orange with a white face (reference) | Oboe     | mouse                      |
+| Viola               | cat                                           | Clarinet | wolf (`animals.webp`)      |
+| Cello               | dog                                           | Bassoon  | beaver                     |
+| Contrabass          | hippo                                         | Horn     | pig                        |
+| Harp                | deer                                          | Trumpet  | monkey                     |
+| Piano               | polar bear                                    | Trombone | panda                      |
+| Timpani             | elephant                                      | Tuba     | rhino                      |
+| Percussion          | badger                                        | Choir    | penguin                    |
+| Conductor           | bear (reference)                              |          |                            |
 
 - The fox plays in two sections, in the two colors of the reference image (`fox-red` and
   `fox-tan`). The penguins look like a choir in robes.
@@ -238,13 +269,13 @@ has its egg body, and the rabbit, the two foxes, the wolf, the cat, the dog, the
 the mouse, the elephant, the beaver, the pig, the badger, the bear, and the polar bear have studio
 bodies (4.4), so they have no row:
 
-| Species | ears | snout | tail | facePattern |
-|---|---|---|---|---|
-| deer | antlered | long | puff | none |
-| panda | round | short | puff | eye-patches |
-| monkey | side-round | short | thin | face-disc |
-| pig | pointed | flat-nose | thin | none |
-| rhino | small | horn | thin | none |
+| Species | ears       | snout     | tail | facePattern |
+| ------- | ---------- | --------- | ---- | ----------- |
+| deer    | antlered   | long      | puff | none        |
+| panda   | round      | short     | puff | eye-patches |
+| monkey  | side-round | short     | thin | face-disc   |
+| pig     | pointed    | flat-nose | thin | none        |
+| rhino   | small      | horn      | thin | none        |
 
 The face patterns (`models/face-patterns.ts`) color the faces of the head and add no part. The
 eyes stand a little out of a patch, so that it does not hide them. The deer has ears that point
@@ -386,7 +417,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   each oval bends along its direction to a fit of the head surface under it, and its middle lies
   on the surface (`eyeBend()`, `StudioEyes.bends`). Its rim then lies at the fur in each view, and
   its front stands out of the fur, as an eye on a flat face of a parametric head does. The light
-  of a bent eye lies on the front of the oval. The face under the eyes of the bear twists, and a
+  of a bent eye is a thin disc that lies flat on the front of the oval, so that it stands only
+  0.004 H out of the oval in each view (user, 2026-10-20). The face under the eyes of the bear twists, and a
   bent oval there reads as a bean, so the bear keeps a flat oval that moves out until its front
   face shows (`flatEyes` of `ANIMALS`, `eyePush()`). Its eyes turn halfway from their direction
   toward the normal of the face (`eyeNormal`), so that the flat ovals lie nearer to the face that
@@ -617,22 +649,33 @@ for the seat dot (4.4).
   the fox in `animals.webp`.
 
 ```typescript
-type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | 'arms' | 'hands'
-  | 'legs' | 'feet' | 'tail' | 'face-pattern';
+type AccentPart =
+  | 'inner-ears'
+  | 'ears'
+  | 'nose'
+  | 'snout'
+  | 'horn'
+  | 'beak'
+  | 'arms'
+  | 'hands'
+  | 'legs'
+  | 'feet'
+  | 'tail'
+  | 'face-pattern';
 ```
 
-| Species | Accent parts | Species | Accent parts |
-|---|---|---|---|
-| rabbit | inner-ears, nose | cat | inner-ears, nose |
-| fox, violins | feet | hippo | nose, inner-ears |
-| fox, flutes | ears, feet | deer | nose, feet |
-| wolf | inner-ears | panda | ears, nose |
-| elephant | inner-ears | mouse | inner-ears, nose |
-| bear | snout | beaver | tail |
-| dog | ears, face-pattern | monkey | hands, feet |
-| pig | snout | rhino | horn |
-| badger | face-pattern | penguin | beak, feet |
-| polar bear | nose | | |
+| Species      | Accent parts       | Species | Accent parts     |
+| ------------ | ------------------ | ------- | ---------------- |
+| rabbit       | inner-ears, nose   | cat     | inner-ears, nose |
+| fox, violins | feet               | hippo   | nose, inner-ears |
+| fox, flutes  | ears, feet         | deer    | nose, feet       |
+| wolf         | inner-ears         | panda   | ears, nose       |
+| elephant     | inner-ears         | mouse   | inner-ears, nose |
+| bear         | snout              | beaver  | tail             |
+| dog          | ears, face-pattern | monkey  | hands, feet      |
+| pig          | snout              | rhino   | horn             |
+| badger       | face-pattern       | penguin | beak, feet       |
+| polar bear   | nose               |         |                  |
 
 **Instrument colors**
 
@@ -651,12 +694,12 @@ normal of the faces at its vertex within the crease angle of its finish. Each tr
 finish (`Finish` and `FINISHES` of `models/mesh.ts`), and the `uv` of a vertex points at the texel
 of its finish in the roughness map and the metalness map of the material.
 
-| Finish | Parts | Intent |
-|---|---|---|
-| `matte` | Cloth, raw wood, the stage, the props, and the bodies. | No gloss, and flat faces. The fur of a studio body smooths the angles below its crease angle. |
-| `varnish` | The varnished wood of the bowed strings. | A soft gloss. |
-| `lacquer` | The black lacquer of the piano and the clarinet, and the eyes. | A sharp gloss. |
-| `metal` | Brass, copper, and silver. | Sharp highlights. The environment map of the hall is dark, so a high metalness makes metal look black. |
+| Finish    | Parts                                                          | Intent                                                                                                 |
+| --------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `matte`   | Cloth, raw wood, the stage, the props, and the bodies.         | No gloss, and flat faces. The fur of a studio body smooths the angles below its crease angle.          |
+| `varnish` | The varnished wood of the bowed strings.                       | A soft gloss.                                                                                          |
+| `lacquer` | The black lacquer of the piano and the clarinet, and the eyes. | A sharp gloss.                                                                                         |
+| `metal`   | Brass, copper, and silver.                                     | Sharp highlights. The environment map of the hall is dark, so a high metalness makes metal look black. |
 
 - The `matte` finish keeps each face flat, so the animals show the facets of the low-poly look
   that the user chose (2026-10-09). The studio bodies smooth their fur (user, 2026-10-14), because
@@ -816,17 +859,17 @@ The head height `H` is the unit of the body. The default `H` is `DEFAULT_HEAD_HE
 each other and to the chairs and the podium of the reference image. The head top is 0.5 H above
 the head center. The table gives the parts of the parametric body (4.4).
 
-| Part | Code | Intent |
-|---|---|---|
-| Head | `models/head.ts` | The round head of the polished images, with full cheeks that carry the muzzle, and small triangle facets. |
-| Torso and neck | `models/trunk.ts` | A round pear torso with the belly forward, as in `animals.webp`, and a short neck that the torso and the head hide. |
-| Arms and hands | `models/arms.ts` | Two limbs for each arm and a round mitten. A dome around the shoulder joint sinks into the torso in each pose. |
-| Legs and feet | `models/legs.ts` | The short legs of 4.3, with round shoes on the floor or on the foot ring of a high stool. |
-| Eyes | `models/eyes.ts` | Two black upright ovals with a white light, between the front and the sides of the head, so that the side view shows them. The studio bodies have the same eyes, bent to the form of the head (4.4). No mouth, except the smile lines of the panda and the wolf meshes (4.4). |
-| Ears | `models/ears.ts` | The ear type of the species (4.3). |
-| Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long muzzle reaches past the mouthpiece of a wind instrument. |
-| Tails | `models/tails.ts` | The tail type of the species (4.3). A long tail goes back through the open back of the chair. |
-| Face patterns | `models/face-patterns.ts` | The face pattern of the species (4.3). |
+| Part           | Code                      | Intent                                                                                                                                                                                                                                                                        |
+| -------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Head           | `models/head.ts`          | The round head of the polished images, with full cheeks that carry the muzzle, and small triangle facets.                                                                                                                                                                     |
+| Torso and neck | `models/trunk.ts`         | A round pear torso with the belly forward, as in `animals.webp`, and a short neck that the torso and the head hide.                                                                                                                                                           |
+| Arms and hands | `models/arms.ts`          | Two limbs for each arm and a round mitten. A dome around the shoulder joint sinks into the torso in each pose.                                                                                                                                                                |
+| Legs and feet  | `models/legs.ts`          | The short legs of 4.3, with round shoes on the floor or on the foot ring of a high stool.                                                                                                                                                                                     |
+| Eyes           | `models/eyes.ts`          | Two black upright ovals with a white light, between the front and the sides of the head, so that the side view shows them. The studio bodies have the same eyes, bent to the form of the head (4.4). No mouth, except the smile lines of the panda and the wolf meshes (4.4). |
+| Ears           | `models/ears.ts`          | The ear type of the species (4.3).                                                                                                                                                                                                                                            |
+| Snouts         | `models/snouts.ts`        | The snout type of the species (4.3). A long muzzle reaches past the mouthpiece of a wind instrument.                                                                                                                                                                          |
+| Tails          | `models/tails.ts`         | The tail type of the species (4.3). A long tail goes back through the open back of the chair.                                                                                                                                                                                 |
+| Face patterns  | `models/face-patterns.ts` | The face pattern of the species (4.3).                                                                                                                                                                                                                                        |
 
 A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
 straight legs. The soloist of 3.8 also stands when it plays the violin, the viola, the flute, the
@@ -857,17 +900,17 @@ back (`chairForward()`). Each species moves toward the anatomy of its reference 
 `models/props.ts` holds the sizes of the chairs, the stools, the music stands, and the choir
 risers. `models/stage.ts` holds the sizes of the stage, the podium, and the conductor stand.
 
-| Item | Rules |
-|---|---|
-| Chair | A seat, two back posts, one wide top rail, open below the rail, and four legs (`CHAIR`), as in `animals.webp`. The seat is at the `seatHeight` of the skeleton (`seatHeights()`, 4.3), so each species has a chair of its own height. A studio body also gives the depth, the room, and the width of its seat (4.4, seat). A species with no chair (`SpeciesParams.noChair`), the mouse or the beaver, keeps its seated pose at the seat height of its legs, and the app builds no chair under it (`buildSupport()`). |
-| Stool | For the harp, with no back (`STOOL`). It keeps its height, so that the left hand reaches the highest strings. |
-| High stool | With a foot ring at the `seatHeight` of the skeleton below the seat (`HIGH_STOOL`). No player sits on it since the hippo stands at its contrabass. |
-| Music stand | A tripod, a post, and a tilted desk with a white sheet (`MUSIC_STAND`). The desk stays below the eyes of its players (`standDeskHeight()`). |
-| Podium | A box with cut corners and framed panels (`PODIUM_SIZE`, `PODIUM_TRIM`), as in `orchestra-latest.png` and `bear-views.png`. |
-| Conductor stand | A desk on a post in front of the podium (`CONDUCTOR_STAND`), with its top edge at the shoulders of the bear, as in `animals.webp`. A post on the podium put the belly of the bear through the desk. |
-| Stage | A slab of side `S` (stage origin, below) with no steps, cut corners (`STAGE_CORNER_CUT`), a raised lip (`STAGE_LIP`), and planks from the left to the right. The wood has a soft sheen under a thin lacquer (`STAGE_FINISH`), so the lit floor keeps the warm color of the wood. Each plank has its own tone and gloss, and the seams have little gloss. |
-| Choir risers | Up to three arc levels behind the orchestra, with three steps in front, as in `orchestra-latest.png` (`RISER`). |
-| Floor | The floor of the hall, with the baked spill of the stage light. |
+| Item            | Rules                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Chair           | A seat, two back posts, one wide top rail, open below the rail, and four legs (`CHAIR`), as in `animals.webp`. The seat is at the `seatHeight` of the skeleton (`seatHeights()`, 4.3), so each species has a chair of its own height. A studio body also gives the depth, the room, and the width of its seat (4.4, seat). A species with no chair (`SpeciesParams.noChair`), the mouse or the beaver, keeps its seated pose at the seat height of its legs, and the app builds no chair under it (`buildSupport()`). |
+| Stool           | For the harp, with no back (`STOOL`). It keeps its height, so that the left hand reaches the highest strings.                                                                                                                                                                                                                                                                                                                                                                                                         |
+| High stool      | With a foot ring at the `seatHeight` of the skeleton below the seat (`HIGH_STOOL`). No player sits on it since the hippo stands at its contrabass.                                                                                                                                                                                                                                                                                                                                                                    |
+| Music stand     | A tripod, a post, and a tilted desk with a white sheet (`MUSIC_STAND`). The desk stays below the eyes of its players (`standDeskHeight()`).                                                                                                                                                                                                                                                                                                                                                                           |
+| Podium          | A box with cut corners and framed panels (`PODIUM_SIZE`, `PODIUM_TRIM`), as in `orchestra-latest.png` and `bear-views.png`.                                                                                                                                                                                                                                                                                                                                                                                           |
+| Conductor stand | A desk on a post in front of the podium (`CONDUCTOR_STAND`), with its top edge at the shoulders of the bear, as in `animals.webp`. A post on the podium put the belly of the bear through the desk.                                                                                                                                                                                                                                                                                                                   |
+| Stage           | A slab of side `S` (stage origin, below) with no steps, cut corners (`STAGE_CORNER_CUT`), a raised lip (`STAGE_LIP`), and planks from the left to the right. The wood has a soft sheen under a thin lacquer (`STAGE_FINISH`), so the lit floor keeps the warm color of the wood. Each plank has its own tone and gloss, and the seams have little gloss.                                                                                                                                                              |
+| Choir risers    | Up to three arc levels behind the orchestra, with three steps in front, as in `orchestra-latest.png` (`RISER`).                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Floor           | The floor of the hall, with the baked spill of the stage light.                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 **Stage origin**
 
@@ -934,14 +977,14 @@ height, in the bind pose, and the box of its seat. The overlap test of `models/`
 footprints of all items of each demo layout and of `perf-60.mid` (9.5): no two items touch, and
 each item is on the stage.
 
-| Row | Sections, from left to right |
-|---|---|
-| 0 | the first desk of: violins (first seat), violins (second and later seats), violas, cellos |
-| 1 | the other desks of: violins (first seat), violins (second and later seats), violas, cellos |
-| 2 | a keyboard of the orchestra (4.2), harp, flutes, oboes |
-| 3 | horns, clarinets, bassoons, trumpets |
-| 4 | percussion, contrabasses, timpani, trombones, tuba |
-| 5 | choir, on the risers |
+| Row | Sections, from left to right                                                               |
+| --- | ------------------------------------------------------------------------------------------ |
+| 0   | the first desk of: violins (first seat), violins (second and later seats), violas, cellos  |
+| 1   | the other desks of: violins (first seat), violins (second and later seats), violas, cellos |
+| 2   | a keyboard of the orchestra (4.2), harp, flutes, oboes                                     |
+| 3   | horns, clarinets, bassoons, trumpets                                                       |
+| 4   | percussion, contrabasses, timpani, trombones, tuba                                         |
+| 5   | choir, on the risers                                                                       |
 
 **Soloist.** The soloist of 3.8 stands at the front left of the conductor (4.2), at
 `SOLOIST_PLACE` of `models/layout-scene.ts`. It faces the audience and turns to the conductor
@@ -959,30 +1002,30 @@ of the group.
 
 ## 4.6 Model inventory
 
-| Section | Instrument model | How the player holds it | Seat |
-|---|---|---|---|
-| violin | violin and bow | under the chin on the left shoulder, bow in the right hand | chair |
-| viola | the violin model at 1.15 scale | as the violin | chair |
-| cello | cello and bow | between the knees, end pin on the floor | chair |
-| contrabass | the cello model at 1.6 scale | at the left side, leaned to the left of the head, bow in the right hand | stands |
-| harp | concert harp | between the knees, both hands on the strings | stool |
-| piano | grand piano (also for the celesta and the organs) | both hands on the keys | bench |
-| flute | silver tube (also for the piccolo and other pipes) | horizontal, to the right | chair |
-| oboe | thin dark tube with a small bell | in front of the mouth, 30° forward from the vertical | chair, or none for the mouse (4.5, props) |
-| clarinet | black tube with silver rings, keys, and a bell | in front of the mouth, 25° forward from the vertical | chair |
-| bassoon | tall wooden tube with a bocal that comes to the reed nearly level | diagonal across the body | chair, or none for the beaver (4.5, props) |
-| horn | coiled tube with a bell | in the lap, right hand in the bell | chair |
-| trumpet | tube with a forward bell | horizontal, forward | chair |
-| trombone | tube with a slide and a bell | forward, and the slide moves with the pitch | chair |
-| tuba | large tube with an upward bell | in the lap | chair |
-| timpani | two to four kettles, by the pitch range of the file | two mallets | stands |
-| percussion, bass drum player | bass drum on a stand | one beater | stands |
-| percussion, snare drum player | snare drum on a stand | two sticks | stands |
-| percussion, cymbals player | a pair of crash cymbals, or a suspended cymbal on a stand (`SpeciesParams.cymbalForm`) | one cymbal in each hand, or a yarn mallet in each hand | stands |
-| percussion, small percussion player | a triangle and a tambourine | the triangle and its beater for keys 80, 81, and all other keys, and the tambourine for key 54 | stands |
-| percussion, mallet seat (programs 9-15, 112-119) | xylophone | two mallets | stands |
-| choir | a music folder | both hands | stands on the risers |
-| conductor | baton | right hand | stands on the podium |
+| Section                                          | Instrument model                                                                       | How the player holds it                                                                        | Seat                                       |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| violin                                           | violin and bow                                                                         | under the chin on the left shoulder, bow in the right hand                                     | chair                                      |
+| viola                                            | the violin model at 1.15 scale                                                         | as the violin                                                                                  | chair                                      |
+| cello                                            | cello and bow                                                                          | between the knees, end pin on the floor                                                        | chair                                      |
+| contrabass                                       | the cello model at 1.6 scale                                                           | at the left side, leaned to the left of the head, bow in the right hand                        | stands                                     |
+| harp                                             | concert harp                                                                           | between the knees, both hands on the strings                                                   | stool                                      |
+| piano                                            | grand piano (also for the celesta and the organs)                                      | both hands on the keys                                                                         | bench                                      |
+| flute                                            | silver tube (also for the piccolo and other pipes)                                     | horizontal, to the right                                                                       | chair                                      |
+| oboe                                             | thin dark tube with a small bell                                                       | in front of the mouth, 30° forward from the vertical                                           | chair, or none for the mouse (4.5, props)  |
+| clarinet                                         | black tube with silver rings, keys, and a bell                                         | in front of the mouth, 25° forward from the vertical                                           | chair                                      |
+| bassoon                                          | tall wooden tube with a bocal that comes to the reed nearly level                      | diagonal across the body                                                                       | chair, or none for the beaver (4.5, props) |
+| horn                                             | coiled tube with a bell                                                                | in the lap, right hand in the bell                                                             | chair                                      |
+| trumpet                                          | tube with a forward bell                                                               | horizontal, forward                                                                            | chair                                      |
+| trombone                                         | tube with a slide and a bell                                                           | forward, and the slide moves with the pitch                                                    | chair                                      |
+| tuba                                             | large tube with an upward bell                                                         | in the lap                                                                                     | chair                                      |
+| timpani                                          | two to four kettles, by the pitch range of the file                                    | two mallets                                                                                    | stands                                     |
+| percussion, bass drum player                     | bass drum on a stand                                                                   | one beater                                                                                     | stands                                     |
+| percussion, snare drum player                    | snare drum on a stand                                                                  | two sticks                                                                                     | stands                                     |
+| percussion, cymbals player                       | a pair of crash cymbals, or a suspended cymbal on a stand (`SpeciesParams.cymbalForm`) | one cymbal in each hand, or a yarn mallet in each hand                                         | stands                                     |
+| percussion, small percussion player              | a triangle and a tambourine                                                            | the triangle and its beater for keys 80, 81, and all other keys, and the tambourine for key 54 | stands                                     |
+| percussion, mallet seat (programs 9-15, 112-119) | xylophone                                                                              | two mallets                                                                                    | stands                                     |
+| choir                                            | a music folder                                                                         | both hands                                                                                     | stands on the risers                       |
+| conductor                                        | baton                                                                                  | right hand                                                                                     | stands on the podium                       |
 
 `castScore(score)` of `models/cast.ts` gives each player its species (4.3) and its instrument.
 A drum player gets the instrument of the first key group that it plays, in the order of 3.8. The
@@ -1061,28 +1104,28 @@ The hold gives the place of each piece in the bind pose of 4.7, in the axes of t
 player faces -z, and its left is -x. An offset in `H` uses the head height of the player. The code
 of each instrument (`models/instruments/`) holds its sizes and the offsets of its hold.
 
-| Instrument | Model | Hold in the bind pose |
-|---|---|---|
-| Violin | An arched body, a neck, a scroll, and a bow. | Under the chin on the left shoulder, the top plate turned to the audience. The bow stick lies in the fingers of the hanging right hand, or through the closed paw of a species with its own grip (`SpeciesParams.bowGrip`). |
-| Viola | The violin at 1.15 scale. | As the violin. |
-| Cello | A body with an end pin, and a bow. | The end pin in front of the seat. The cello leans back to the chest, with the neck left of the head, as in `animals.webp`. |
-| Contrabass | The cello at 1.6 scale. | At the left side, in front of the seat. |
-| Harp | 24 strings that show the 47 strings of a concert harp. | Between the knees, turned so that the neck passes the right side of the face. |
-| Piano | A case with an open lid, keys, and a desk. The lid opens less than in `mockup.png`, so that it hides no head behind it. | The keys stand in front of the floor point of the pianist (`PIANO_FRONT_H`), clear of the belly and the muzzle of the polar bear (5.3). |
-| Piano bench | A seat of `PIANO_BENCH`, or at `seat` of `ANIMALS` under the polar bear (4.4, seat). | A static prop under the pianist. |
-| Choir folder | Two open covers with pages. | In both hands, in front of the head, with the pages to the eyes. |
-| Flute | A silver tube. | The lip plate at the mouth. The flute points to the right. |
-| Oboe | A thin dark tube with a bell. | The reed at the mouth, 30° from the vertical. |
-| Clarinet | A black tube with silver keys and a bell. | The mouthpiece at the mouth, 25° from the vertical, as in the reference image. |
-| Bassoon | A tall wooden tube with a bocal. | The reed at the mouth, across the body to the left. |
-| Horn | A coil and a bell. | The mouthpiece at the mouth, the coil in front of the right chest, and the right palm in the bell. |
-| Trumpet | A tube with valves and a forward bell. | The mouthpiece at the mouth, forward and a little down. |
-| Trombone | A tube with a slide from the first position to the seventh. | The mouthpiece at the mouth. The slide is a second piece on the `slide` bone, in the right palm. |
-| Tuba | A large tube with an upward bell. | In the lap, with the bell left of the head. |
-| Timpani | Two to four kettles of the real size, by the highest timpani note (`kettleCount()`). | In an arc around the player, the outer kettles further out, with a mallet in each hand. |
-| Bass drum, snare drum, xylophone | Drums on stands, and 30 bars from C5 to F7. | In front of the player, below the shoulders of the badger, within the reach of its short arms where they reach. |
-| Cymbals, small percussion | Two crash cymbals, or one suspended cymbal level on a stand with two yarn mallets. A triangle and a tambourine. | The crash cymbals in the hands, above the floor. The suspended cymbal in front of the player, below its wrists. The beater strikes the tambourine for key 54. |
-| Baton | A straight white stick that tapers to the tip (user, 2026-10-13). | In the right hand. |
+| Instrument                       | Model                                                                                                                   | Hold in the bind pose                                                                                                                                                                                                       |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Violin                           | An arched body, a neck, a scroll, and a bow.                                                                            | Under the chin on the left shoulder, the top plate turned to the audience. The bow stick lies in the fingers of the hanging right hand, or through the closed paw of a species with its own grip (`SpeciesParams.bowGrip`). |
+| Viola                            | The violin at 1.15 scale.                                                                                               | As the violin.                                                                                                                                                                                                              |
+| Cello                            | A body with an end pin, and a bow.                                                                                      | The end pin in front of the seat. The cello leans back to the chest, with the neck left of the head, as in `animals.webp`.                                                                                                  |
+| Contrabass                       | The cello at 1.6 scale.                                                                                                 | At the left side, in front of the seat.                                                                                                                                                                                     |
+| Harp                             | 24 strings that show the 47 strings of a concert harp.                                                                  | Between the knees, turned so that the neck passes the right side of the face.                                                                                                                                               |
+| Piano                            | A case with an open lid, keys, and a desk. The lid opens less than in `mockup.png`, so that it hides no head behind it. | The keys stand in front of the floor point of the pianist (`PIANO_FRONT_H`), clear of the belly and the muzzle of the polar bear (5.3).                                                                                     |
+| Piano bench                      | A seat of `PIANO_BENCH`, or at `seat` of `ANIMALS` under the polar bear (4.4, seat).                                    | A static prop under the pianist.                                                                                                                                                                                            |
+| Choir folder                     | Two open covers with pages.                                                                                             | In both hands, in front of the head, with the pages to the eyes.                                                                                                                                                            |
+| Flute                            | A silver tube.                                                                                                          | The lip plate at the mouth. The flute points to the right.                                                                                                                                                                  |
+| Oboe                             | A thin dark tube with a bell.                                                                                           | The reed at the mouth, 30° from the vertical.                                                                                                                                                                               |
+| Clarinet                         | A black tube with silver keys and a bell.                                                                               | The mouthpiece at the mouth, 25° from the vertical, as in the reference image.                                                                                                                                              |
+| Bassoon                          | A tall wooden tube with a bocal.                                                                                        | The reed at the mouth, across the body to the left.                                                                                                                                                                         |
+| Horn                             | A coil and a bell.                                                                                                      | The mouthpiece at the mouth, the coil in front of the right chest, and the right palm in the bell.                                                                                                                          |
+| Trumpet                          | A tube with valves and a forward bell.                                                                                  | The mouthpiece at the mouth, forward and a little down.                                                                                                                                                                     |
+| Trombone                         | A tube with a slide from the first position to the seventh.                                                             | The mouthpiece at the mouth. The slide is a second piece on the `slide` bone, in the right palm.                                                                                                                            |
+| Tuba                             | A large tube with an upward bell.                                                                                       | In the lap, with the bell left of the head.                                                                                                                                                                                 |
+| Timpani                          | Two to four kettles of the real size, by the highest timpani note (`kettleCount()`).                                    | In an arc around the player, the outer kettles further out, with a mallet in each hand.                                                                                                                                     |
+| Bass drum, snare drum, xylophone | Drums on stands, and 30 bars from C5 to F7.                                                                             | In front of the player, below the shoulders of the badger, within the reach of its short arms where they reach.                                                                                                             |
+| Cymbals, small percussion        | Two crash cymbals, or one suspended cymbal level on a stand with two yarn mallets. A triangle and a tambourine.         | The crash cymbals in the hands, above the floor. The suspended cymbal in front of the player, below its wrists. The beater strikes the tambourine for key 54.                                                               |
+| Baton                            | A straight white stick that tapers to the tip (user, 2026-10-13).                                                       | In the right hand.                                                                                                                                                                                                          |
 
 In the bind pose, each mallet, stick, beater, the triangle, and the baton lies in the hanging
 hand in front of the palm, and points forward. The timpani mallets, the snare sticks, the
@@ -1103,7 +1146,12 @@ interface InstrumentModel {
   /** The rigid pieces. The main piece is first. */
   pieces: readonly InstrumentPiece[];
   /** The palms, the mouth, and the chin, as points on the pieces. `null` if not used. */
-  grips: { palmL: PiecePoint | null; palmR: PiecePoint | null; mouth: PiecePoint | null; chin: PiecePoint | null };
+  grips: {
+    palmL: PiecePoint | null;
+    palmR: PiecePoint | null;
+    mouth: PiecePoint | null;
+    chin: PiecePoint | null;
+  };
   /** The points and lines that the arms and the mallets aim at in step 5. */
   targets: readonly PlayTarget[];
   /** The size of the box around the main piece, in meters. */
@@ -1165,23 +1213,49 @@ of three.js always blends four bones, so the second bone adds no shader work.
 
 ```typescript
 type BoneName =
-  | 'root' | 'hips' | 'spine' | 'chest' | 'neck' | 'head'
+  | 'root'
+  | 'hips'
+  | 'spine'
+  | 'chest'
+  | 'neck'
+  | 'head'
   /** Opens for the choir. */
   | 'jaw'
   /** Scale on Y for blinks. */
-  | 'eyeL' | 'eyeR'
-  | 'earL' | 'earR'
+  | 'eyeL'
+  | 'eyeR'
+  | 'earL'
+  | 'earR'
   /** Only if the species has a tail. */
-  | 'tail1' | 'tail2'
+  | 'tail1'
+  | 'tail2'
   /** Only for the elephant. */
-  | 'trunk1' | 'trunk2' | 'trunk3'
-  | 'shoulderL' | 'upperArmL' | 'forearmL' | 'handL' | 'fingersL'
-  | 'shoulderR' | 'upperArmR' | 'forearmR' | 'handR' | 'fingersR'
-  | 'thighL' | 'shinL' | 'footL' | 'thighR' | 'shinR' | 'footR'
+  | 'trunk1'
+  | 'trunk2'
+  | 'trunk3'
+  | 'shoulderL'
+  | 'upperArmL'
+  | 'forearmL'
+  | 'handL'
+  | 'fingersL'
+  | 'shoulderR'
+  | 'upperArmR'
+  | 'forearmR'
+  | 'handR'
+  | 'fingersR'
+  | 'thighL'
+  | 'shinL'
+  | 'footL'
+  | 'thighR'
+  | 'shinR'
+  | 'footR'
   /** Parent: `chest` for the violin and viola, `root` for floor instruments, `chest` for winds and brass. */
   | 'instrument'
   /** Children of `handR` or `handL`, as the instrument needs. */
-  | 'bow' | 'malletL' | 'malletR' | 'baton'
+  | 'bow'
+  | 'malletL'
+  | 'malletR'
+  | 'baton'
   /** Child of `instrument`, for the trombone. */
   | 'slide';
 ```
