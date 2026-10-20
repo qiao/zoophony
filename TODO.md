@@ -545,9 +545,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Elephant timpanist paws: the manager saw wrung paws in phase 2 (the paw turned about 130°
       on the forearm). Done: the mallet across the forearm with its head at the back of the fist;
       the paw turns 36° (`2026-10-19-elephant-pose.md`).
-- [ ] Elephant timpanist: the right arm skin is flat (0.70 of the bind, goal 0.80) at the forearm
-      and the shoulder, and the right forearm looks thin at azimuth 35. Try a weight rule of the
-      right shoulder and forearm (`docs/research/2026-10-19-elephant-pose.md`).
+- [ ] Elephant timpanist: the right shoulder ring is flat (0.70 of the bind, goal 0.80), and the
+      right forearm looks thin at azimuth 35. Rings of the right forearm gave no visible gain.
+      Next: a weight rule or a corrective shape for the long thin faces at the front of the right
+      armpit, measured with `pnpm arm-shape --rings` (`docs/research/2026-10-19-elephant-pose.md`).
 - [ ] Remove the mallet cock (`PercussionHold.cock`): no hold uses it since phase 3 of the
       elephant pose (`2026-10-19-elephant-pose.md`).
 - [ ] Elephant timpanist arms after the refit: the long thin faces at the front of the right
