@@ -4,11 +4,12 @@ import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 
-import { Box3, MathUtils, Matrix4, Quaternion, Triangle, Vector3 } from 'three';
+import { Box3, MathUtils, Matrix4, Quaternion, Ray, Triangle, Vector3 } from 'three';
 
 import { SPECIES_COLORS } from '../src/models/colors.ts';
 import type { SpeciesColors } from '../src/models/colors.ts';
 import { EYE, addEye, eyeMiddle } from '../src/models/eyes.ts';
+import type { EyeBend } from '../src/models/eyes.ts';
 import type { SurfacePoint } from '../src/models/head.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
@@ -132,6 +133,13 @@ export interface AnimalSettings {
    * value, each eye faces out from the middle of the head that shows.
    */
   readonly eyeLevel?: boolean;
+  /**
+   * True when each pea eye keeps a flat oval, which moves out of the head until its front face
+   * shows ({@link eyePush}). The face under the eyes of the bear twists, so a bent oval
+   * ({@link eyeBend}) reads as a bean, and a flat oval needs a rim more than 0.02 H out of the fur
+   * (docs/decisions/2026-10-20-pea-eyes.md). With no value, each oval bends to the head surface.
+   */
+  readonly flatEyes?: boolean;
 }
 
 /**
@@ -158,6 +166,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       soloist: false,
       constant: 'STUDIO_BEAR',
       crease: 15,
+      flatEyes: true,
     },
   ],
   // The polar bear pianist: decisions/2026-10-14-polar-bench.md and 2026-10-14-polar-fix.md.
@@ -1469,6 +1478,146 @@ export function eyeOnHead(mesh: SourceMesh, middle: Vector3): Vector3 {
   return point;
 }
 
+/** The number of samples of the head surface on each half axis of a pea eye ({@link eyeBend}). */
+const BEND_SAMPLES = 6;
+
+/**
+ * The size of the area of the samples of {@link eyeBend}, as a share of the size of the oval, so
+ * that the fit also holds at the rim.
+ */
+const BEND_REACH = 1.1;
+
+/** The least number of samples of a fit of {@link eyeBend}: more than its 5 terms. */
+const BEND_LEAST_SAMPLES = 12;
+
+/**
+ * Gives the height of the head surface along the axis of an eye, at a place of the plane of the
+ * eye: the crossing of the line along the axis with an outer face of the head, nearest to the
+ * plane. An outer face faces along the axis.
+ *
+ * @param triangles The faces of the head near the eye, counterclockwise from outside.
+ * @param base The place in the plane of the eye.
+ * @param axis The unit axis of the eye.
+ * @param reach The largest height of a crossing, in the units of the faces.
+ * @returns The height, or `null` when the line meets no outer face within the reach.
+ */
+function surfaceHeight(
+  triangles: readonly Triangle[],
+  base: Vector3,
+  axis: Vector3,
+  reach: number,
+): number | null {
+  const ray = new Ray(base.clone().addScaledVector(axis, -reach), axis);
+  const hit = new Vector3();
+  const normal = new Vector3();
+  let best: number | null = null;
+  for (const triangle of triangles) {
+    if (
+      triangle.getNormal(normal).dot(axis) > 0 &&
+      ray.intersectTriangle(triangle.a, triangle.b, triangle.c, false, hit)
+    ) {
+      const height = hit.sub(base).dot(axis);
+      if (Math.abs(height) <= reach && (best === null || Math.abs(height) < Math.abs(best))) {
+        best = height;
+      }
+    }
+  }
+  return best;
+}
+
+/**
+ * Solves a small linear system by Gauss elimination with the largest pivot.
+ *
+ * @param a The rows of the matrix, each with the right side as its last entry. The rows change.
+ * @returns The solution.
+ * @throws Error if the matrix is singular.
+ */
+function solveLinear(a: number[][]): number[] {
+  const n = a.length;
+  for (let c = 0; c < n; c++) {
+    let pivot = c;
+    for (let r = c + 1; r < n; r++) {
+      if (Math.abs(a[r]?.[c] ?? 0) > Math.abs(a[pivot]?.[c] ?? 0)) {
+        pivot = r;
+      }
+    }
+    const top = a[pivot] ?? [];
+    a[pivot] = a[c] ?? [];
+    a[c] = top;
+    const lead = top[c] ?? 0;
+    if (Math.abs(lead) < 1e-12) {
+      throw new Error('The linear system is singular.');
+    }
+    for (let r = 0; r < n; r++) {
+      const row = a[r] ?? [];
+      const f = r === c ? 0 : (row[c] ?? 0) / lead;
+      for (let k = c; k <= n; k++) {
+        row[k] = (row[k] ?? 0) - f * (top[k] ?? 0);
+      }
+    }
+  }
+  return a.map((row, r) => (row[n] ?? 0) / (row[r] ?? 1));
+}
+
+/**
+ * Finds the bend of a pea eye (design 4.5): a least squares fit of the heights of the head surface
+ * along the axis of the eye, from the plane through the surface point under the middle, over the
+ * oval and a margin around it ({@link BEND_REACH}). Each corner of the bent oval then keeps its
+ * depth from the head surface, as on a flat face of a parametric head: the rim lies at the fur,
+ * and the front stands out of it. The direction of the eye can differ from the normal of the
+ * surface, and the bend takes that slope.
+ *
+ * @param triangles The faces of the head near the eye, counterclockwise from outside.
+ * @param surface The point of the head surface under the middle of the eye.
+ * @param axis The unit direction in which the eye faces.
+ * @param h The head height that sizes the eye.
+ * @returns The bend, in `H`.
+ * @throws Error if fewer than {@link BEND_LEAST_SAMPLES} samples meet the head.
+ */
+export function eyeBend(
+  triangles: readonly Triangle[],
+  surface: Vec3,
+  axis: Vec3,
+  h: number,
+): EyeBend {
+  const n = new Vector3(...axis);
+  const up = new Vector3(0, 1, 0).projectOnPlane(n).normalize();
+  const across = new Vector3().crossVectors(up, n);
+  const sums = Array.from({ length: 5 }, () => [0, 0, 0, 0, 0, 0]);
+  let count = 0;
+  for (let i = -BEND_SAMPLES; i <= BEND_SAMPLES; i++) {
+    for (let j = -BEND_SAMPLES; j <= BEND_SAMPLES; j++) {
+      const a = i / BEND_SAMPLES;
+      const b = j / BEND_SAMPLES;
+      if (a * a + b * b > 1) {
+        continue;
+      }
+      const u = 0.5 * EYE[0] * BEND_REACH * a;
+      const v = 0.5 * EYE[1] * BEND_REACH * b;
+      const base = new Vector3(...surface)
+        .addScaledVector(across, u * h)
+        .addScaledVector(up, v * h);
+      const height = surfaceHeight(triangles, base, n, 0.3 * h);
+      if (height === null) {
+        continue;
+      }
+      const terms = [u, v, u * u, u * v, v * v];
+      for (const [r, row] of sums.entries()) {
+        for (const [c, term] of terms.entries()) {
+          row[c] = (row[c] ?? 0) + (terms[r] ?? 0) * term;
+        }
+        row[5] = (row[5] ?? 0) + (terms[r] ?? 0) * (height / h);
+      }
+      count++;
+    }
+  }
+  if (count < BEND_LEAST_SAMPLES) {
+    throw new Error(`Only ${count} samples of the head surface lie under the pea eye.`);
+  }
+  const [k0 = 0, k1 = 0, k2 = 0, k3 = 0, k4 = 0] = solveLinear(sums).map(round);
+  return [k0, k1, k2, k3, k4];
+}
+
 /** The step of the move of a pea eye out of the head, in `H` of the eyes ({@link eyePush}). */
 const EYE_PUSH_STEP = 0.001;
 
@@ -1480,25 +1629,39 @@ const EYE_PUSH_LIMIT = 0.1;
  * 4.5): the smallest move, in steps of {@link EYE_PUSH_STEP}, that puts each corner of the oval
  * more than a quarter of its depth in front of its middle outside the head. A corner is outside
  * when it lies on the outer side of the nearest face of the head. The rim of the oval stays in the
- * head, as the rim of an eye of a parametric body does. The muzzle of the bear rises in front of
- * the lower part of its eyes, so its eyes move out.
+ * head, as the rim of an eye of a parametric body does. A bent eye ({@link eyeBend}) follows the
+ * head surface, so it needs a move only where the fit of the bend misses a face.
  *
  * @param triangles The faces of the head near the eye, counterclockwise from outside.
  * @param eye The middle of the eye ({@link eyeMiddle}) and the direction in which it faces.
  * @param h The head height that sizes the eye.
+ * @param bend The bend of the oval, or none for a flat oval.
  * @returns The move, in the units of `h`.
  * @throws Error if no move up to {@link EYE_PUSH_LIMIT} puts the front face outside the head.
  */
-export function eyePush(triangles: readonly Triangle[], eye: SurfacePoint, h: number): number {
+export function eyePush(
+  triangles: readonly Triangle[],
+  eye: SurfacePoint,
+  h: number,
+  bend?: EyeBend,
+): number {
   const builder = new MeshBuilder();
-  addEye(builder, { eye: [0, 0, 0], eyeLight: [1, 1, 1] }, eye, h, 0);
+  addEye(builder, { eye: [0, 0, 0], eyeLight: [1, 1, 1] }, eye, h, 0, bend);
   const oval = builder.build();
   const middle = new Vector3(...eye.point);
   const facing = new Vector3(...eye.normal);
   const front: Vector3[] = [];
+  const flat = new MeshBuilder();
+  addEye(flat, { eye: [0, 0, 0], eyeLight: [1, 1, 1] }, eye, h, 0);
+  const unbent = flat.build();
   for (let c = 0; c < oval.bones.length; c++) {
     const p = new Vector3().fromArray(oval.positions, c * 3);
-    if (oval.colors[c * 3] === 0 && p.clone().sub(middle).dot(facing) > 0.25 * EYE[2] * h) {
+    // A corner of the front face has its depth in front of the middle before the bend.
+    const depth = new Vector3()
+      .fromArray(unbent.positions, c * 3)
+      .sub(middle)
+      .dot(facing);
+    if (oval.colors[c * 3] === 0 && depth > 0.25 * EYE[2] * h) {
       front.push(p);
     }
   }
@@ -2130,11 +2293,13 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     .add(headShiftOf(glb))
     .setX(0);
 
-  // Each pea eye bone lies in the head surface under the middle of the old eye, as the eye bones
-  // of the parametric bodies do (`eyeMiddle()` of `models/eyes.ts`). Each eye faces out from the
+  // Each pea eye bone lies at the head surface under the middle of the old eye: a bent eye on the
+  // surface, and a flat eye 0.01 H under it, as the eye bones of the parametric bodies
+  // (`eyeMiddle()` of `models/eyes.ts`). Each eye faces out from the
   // middle of the head that shows, as an eye on the round head of a parametric body does, or level
-  // with `eyeLevel`. Then it moves out along that direction until its front face shows
-  // (`eyePush()`).
+  // with `eyeLevel`. Its oval bends to the head surface (`eyeBend()`), so that the rim lies at the
+  // fur, or stays flat (`flatEyes`). Then it moves out along its direction until its front face
+  // shows (`eyePush()`).
   const eyeHeight = (shown.max.y - shown.min.y) * scale;
   const middle = toBind(shown.getCenter(new Vector3()));
   const eyeAt = (side: Side) => {
@@ -2142,7 +2307,12 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     const point = eyeOnHead(withoutEyes, old);
     const out = point.clone().sub(middle);
     const facing = direction(settings.eyeLevel === true ? out.setY(0) : out);
-    const eye = eyeMiddle({ point: model(point), normal: facing }, eyeHeight, false);
+    // A bent eye has its middle on the head surface, so that its rim lies at the fur and the
+    // facets of the head between the corners of the oval cover little of its front.
+    const flat = settings.flatEyes === true;
+    const eye = flat
+      ? eyeMiddle({ point: model(point), normal: facing }, eyeHeight, false)
+      : { point: model(point), normal: facing };
     const near = withoutEyes.faces.flatMap((face) => {
       const [a, b, c] = face.corners.map((k) => mesh.vertices[k]?.position ?? new Vector3());
       const triangle = new Triangle(
@@ -2153,20 +2323,24 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       const reach = triangle.closestPointToPoint(new Vector3(...eye.point), new Vector3());
       return reach.distanceTo(new Vector3(...eye.point)) < 0.3 * eyeHeight ? [triangle] : [];
     });
-    const push = eyePush(near, eye, eyeHeight);
+    const bend = flat ? undefined : eyeBend(near, model(point), facing, eyeHeight);
+    const push = eyePush(near, eye, eyeHeight, bend);
     const moved = new Vector3(...eye.point).addScaledVector(new Vector3(...facing), push);
     const shift = moved.distanceTo(new Vector3(...model(old))) / eyeHeight;
     const head: Vec3 = [round(moved.x), round(moved.y), round(moved.z)];
-    return { head, facing, shift, push: push / eyeHeight };
+    return { head, facing, bend, shift, push: push / eyeHeight };
   };
   const eyeL = eyeAt('L');
   const eyeR = eyeAt('R');
   heads['eye_L'] = eyeL.head;
   heads['eye_R'] = eyeR.head;
-  const peaEyes: StudioEyes = {
+  const flatEyes: StudioEyes = {
     headHeight: round(eyeHeight),
     directions: { L: eyeL.facing, R: eyeR.facing },
   };
+  // A body with flat ovals (`flatEyes`) writes no bends.
+  const peaEyes: StudioEyes =
+    eyeL.bend && eyeR.bend ? { ...flatEyes, bends: { L: eyeL.bend, R: eyeR.bend } } : flatEyes;
 
   // The studio animal faces +z, so its moves turn as its points do.
   const ordered = orderByFirstUse(withoutEyes);
