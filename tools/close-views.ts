@@ -2171,6 +2171,12 @@ export interface PlayArgs {
   readonly demo: DemoId;
   /** The time of the frames. */
   readonly time: PlayTime;
+  /**
+   * The song times of the other `--time` values, in seconds, in their order. With more than one
+   * time, each time renders into a folder of its own ({@link playTimeDir}) on the same builds
+   * ({@link playParts}).
+   */
+  readonly otherTimes: readonly number[];
   /** The cameras, one frame each. In Cinematic mode, one camera with no drag and no wheel. */
   readonly cameras: readonly PlayCamera[];
   /**
@@ -2264,19 +2270,56 @@ export function shotSubject(text: string): ShotSubject {
 }
 
 /**
+ * Gives the folder of the frames of one time of a run of the mode `play` with more than one
+ * `--time`, such as `<dir>/time-12.25`.
+ *
+ * @param out The output directory of the run.
+ * @param sec The song time, in seconds.
+ * @returns The folder.
+ */
+export function playTimeDir(out: string, sec: number): string {
+  return join(out, `time-${sec.toFixed(2)}`);
+}
+
+/**
+ * Splits a command line of the mode `play` into one command line for each time: with more than
+ * one `--time`, each time renders into its own folder ({@link playTimeDir}). The parts share the
+ * site of the working tree and one build of the commit (`renderModes()`).
+ *
+ * @param args The command line.
+ * @returns The command line of each time, in the order of the times.
+ */
+export function playParts(args: PlayArgs): PlayArgs[] {
+  if (args.otherTimes.length === 0 || args.time.kind !== 'song') {
+    return [args];
+  }
+  const parts: PlayArgs[] = [];
+  for (const sec of [args.time.sec, ...args.otherTimes]) {
+    parts.push({
+      ...args,
+      time: { kind: 'song', sec },
+      otherTimes: [],
+      out: playTimeDir(args.out, sec),
+    });
+  }
+  return parts;
+}
+
+/**
  * Reads the command line of the mode `play`:
- * `play <dir> [--demo <id>] [--time <s>] [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]`.
+ * `play <dir> [--demo <id>] [--time <s>]... [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]`.
  * With no `--camera`, the camera is `default`. `--cinematic` renders the camera of the shot plan
  * of the app ({@link CINEMATIC_CAMERA}). `--shot` also gives the time: the frame of the first solo
  * or section shot of its subject ({@link chooseShot}). `--at` aims the stage camera at one player
  * ({@link aimCamerasOf}, {@link aimPose}). `--set` renders a variant of the holds of the working
- * tree from a build of its own ({@link startVariantSite}).
+ * tree from a build of its own ({@link startVariantSite}). More than one `--time` renders each
+ * time into its own folder ({@link playTimeDir}) from one build of each tree ({@link playParts}).
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when the first argument is not `play`.
  * @throws Error that lists the correct names, for an unknown demo, camera, or species, and an
  *   error for a wrong time, a time below {@link SEEK_LEAD_SEC}, a time at or after the end of the
- *   demo, `--camera` with `--cinematic` or `--shot`, `--time` with `--shot`, `--at` with
+ *   demo, two times with one folder, `--camera` with `--cinematic` or `--shot`, `--time` with `--shot`, `--at` with
  *   `--camera`, `--cinematic`, `--shot`, or `--url`, `--set` with `--url` or `--base`, an option of
  *   `--at` with no `--at`, a wrong option, or a missing word.
  */
@@ -2299,7 +2342,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       '--base',
       '--set',
     ],
-    ['--camera', '--azimuth'],
+    ['--camera', '--azimuth', '--time'],
     ['--cinematic'],
   );
   const [out, ...extra] = line.words;
@@ -2317,8 +2360,8 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       'The options --cinematic and --shot take no --camera, because a drag or a wheel turns the camera to Free (design 2.5).',
     );
   }
-  const timeText = line.options.get('--time')?.[0] ?? null;
-  if (shotText !== null && timeText !== null) {
+  const timeTexts = line.options.get('--time') ?? [];
+  if (shotText !== null && timeTexts.length > 0) {
     throw new Error('The option --shot gives the time of the frame, so it takes no --time.');
   }
   const url = line.options.get('--url')?.[0] ?? null;
@@ -2348,20 +2391,41 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     const name = subject.kind === 'seat' ? `seat${subject.seat}` : subject.species;
     const camera = { ...CINEMATIC_CAMERA, name: `shot-${name}` };
     const time: PlayTime = { kind: 'shot', subject };
-    return { demo, time, cameras: [camera], cinematic, out, url, base, at: null, holds };
+    return {
+      demo,
+      time,
+      otherTimes: [],
+      cameras: [camera],
+      cinematic,
+      out,
+      url,
+      base,
+      at: null,
+      holds,
+    };
   }
-  const text = timeText ?? String(PLAY_TIME_SEC);
-  const sec = Number(text);
-  if (!/^\d+(?:\.\d+)?$/.test(text) || !Number.isFinite(sec)) {
-    throw new Error(`The time "${text}" is not a song time in seconds, such as 6 or 30.5.`);
-  }
-  const time: PlayTime = { kind: 'song', sec: frameTime(sec, demo) };
+  const [first = PLAY_TIME_SEC, ...others] = (
+    timeTexts.length > 0 ? timeTexts : [String(PLAY_TIME_SEC)]
+  ).map((text) => {
+    const sec = Number(text);
+    if (!/^\d+(?:\.\d+)?$/.test(text) || !Number.isFinite(sec)) {
+      throw new Error(`The time "${text}" is not a song time in seconds, such as 6 or 30.5.`);
+    }
+    return frameTime(sec, demo);
+  });
+  // Two times with one folder would write the same files.
+  onceEach(
+    [first, ...others].map((sec) => playTimeDir(out, sec)),
+    'time folder',
+  );
+  const time: PlayTime = { kind: 'song', sec: first };
   const cameras =
     aimCameras?.cameras ??
     (cinematic ? [CINEMATIC_CAMERA] : (cameraTexts ?? ['default']).map(playCamera));
   return {
     demo,
     time,
+    otherTimes: others,
     cameras,
     cinematic,
     out,
@@ -3285,7 +3349,7 @@ const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
-  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]`,
+  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>]... [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]`,
   '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
@@ -3367,7 +3431,12 @@ async function main(): Promise<void> {
   }
 
   const { url } = mode.args;
-  const modes = mode.kind === 'batch' ? mode.args.parts : [mode];
+  const modes: readonly SingleMode[] =
+    mode.kind === 'batch'
+      ? mode.args.parts
+      : mode.kind === 'play'
+        ? playParts(mode.args).map((args) => ({ kind: 'play', args }))
+        : [mode];
   for (const part of modes) {
     await mkdir(part.args.out, { recursive: true });
   }
