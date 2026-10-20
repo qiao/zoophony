@@ -26,7 +26,7 @@ makes a baseline worktree.
 | The facts of the GLB file and of the last studio body | `pnpm studio-body <animal> --inspect` |
 | The depths, the note errors, and the gaps of a role that exists | `pnpm pose-depth <role> --gaps` |
 | The bow of a bowed species that stands as a soloist | `pnpm pose-depth <role> --soloist <species>` |
-| The folded faces | `pnpm fold-probe <role>`, with `--glb <file>` for a new GLB file |
+| The arm gate: the folds, the twist, the flat share, the paw turn, and the stretch | `pnpm arm-check <role>`, with `--glb <file>` for a new GLB file |
 | The reach of the arms against the instrument | `pnpm hold-reach <species> --instrument <id>`, with `--glb <file>` for a new GLB file |
 | The size of the first download | `pnpm build && pnpm size` |
 | The posture of a real player at rest, when ready, and in a play | a source on the web, and the clips of the studio (`python3 studio view <animal>`) |
@@ -64,8 +64,9 @@ Done when:
    row. `pnpm pose-depth <role>` shows each other part within the contact depth.
 4. `pnpm close-views <role> <dir> --base main` ran on the last pose, and you compared each view
    with the grid of `main`. `pnpm snapshot` ran after the last code commit.
-5. `tools/check-commits.sh --tip <base>` passed one time before the report.
-6. The docs of the section "Docs" are true.
+5. `pnpm arm-check <role> --base <start> --views <dir>` gives no `FAIL`.
+6. `tools/check-commits.sh --tip <base>` passed one time before the report.
+7. The docs of the section "Docs" are true.
 
 ## Dependencies
 
@@ -97,8 +98,11 @@ it, stop, and report the measures.>
 
 - Commit the mechanism first, with values that change nothing. Then tune, and commit the tuned
   values.
-- Tune a hold with `--set` of `pnpm hold-fit` and `pnpm pose-depth`, with no edit of the source for
-  each variant. Check a new limit over all demos.
+- Tune a hold with `--set` of `pnpm hold-fit`, `pnpm pose-depth`, and `pnpm arm-check`, with no
+  edit of the source for each variant. Check a new limit over all demos.
+- In phase 1 of a hold round (a mock), measure the direction of no paw twist of the grip
+  (`paw-turn.ts` of `docs/research/2026-10-19-elephant-pose/`), and check the 2x paw crops of
+  `pnpm arm-check --views` at a strike and at rest, beside the whole composition.
 
 ## Docs
 
@@ -114,7 +118,8 @@ it, stop, and report the measures.>
 
 - `pnpm body-probe --base main`: each other body, player, and pose set stays equal.
 - `pnpm size --base main`: the first download stays below 1 MB.
-- `pnpm fold-probe` and `pnpm pose-depth` of the other roles stay as in the baseline.
+- `pnpm arm-check --all --base main` gives no `FAIL`, and `pnpm pose-depth` of the other roles
+  stays as in the baseline.
 
 ## Files
 
@@ -123,12 +128,12 @@ it, stop, and report the measures.>
 ## Report format
 
 Reply with these parts, in this order, and nothing else: Result; Numbers (| Measure | main |
-round |); Decisions; Commits; Images to review; Open problems and the next step.
+round |, and the table of `pnpm arm-check`); Decisions; Commits; Images to review (with the crop
+pairs of the gate); Open problems and the next step.
 ```
 
-After the test pause, a brief also asks for the shard files of the sweep, the removal of each old
-check that the new body fails, and a break command for each new test (`docs/agents/workflow.md`,
-"Tests").
+After the test pause, a brief also asks for the sweep shards, the removal of old checks that the
+body fails, and break commands (`workflow.md`, "Tests").
 
 ## 3. Review brief (not used)
 
@@ -140,9 +145,8 @@ See [`2026-10-16-no-review.md`](../decisions/2026-10-16-no-review.md).
 
 Copy this list into `<scratch>/rules-common.md`, and add the report format of the round.
 
-- Work where the brief says: on `main` in the main checkout, or in your worktree on your branch.
-  Read `AGENTS.md` first. On `main`, write the start commit in place of each `--base main`,
-  because `main` moves with your commits.
+- Work where the brief says. Read `AGENTS.md` first. On `main`, write the start commit in place of
+  each `--base main`, because `main` moves with your commits.
 - Make very fine-grained Conventional Commits, and stage each path by its name.
 - `grep` is a shell function that runs ugrep, so use `perl -0pi -e` for a temporary edit. No
   `timeout`, and no foreground `sleep`. Read the exit code of the command itself.
@@ -166,24 +170,23 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
 
 - **The options.** Choose the landmark of the scale first. Then make the mid-report and the
   question to the user with `pnpm mesh-options` (step 2 of the route in `model-work.md`).
-- **The size.** The brief gives the pixel heights of the species in the reference images and of
-  an anchor that stands or sits as the species does. Run `pnpm mesh-options` at the low end, the
-  middle, and the high end of the reference range. When no reference image shows the species, the
+- **The size.** The brief gives the pixel heights of the species and of an anchor that stands or
+  sits as it does in the reference images. Run `pnpm mesh-options` at the ends and the middle of
+  the reference range. When no reference image shows the species, the
   mesh takes the head top of the parametric body (user, 2026-10-19, `2026-10-19-mouse-size.md`).
-- **The elbows.** In the first hold fit, compare 3 or 4 elbow directions, and prefer the smallest
-  arm turns of `pnpm hold-fit`. An upper arm can twist into a flat band within the limits of the
-  depths and the folds.
+- **The elbows.** In the first hold fit, compare 3 or 4 elbow directions with `pnpm arm-check
+  --set`, because an upper arm can twist into a flat band within the depths and the folds.
 - **The faces.** Permit rings at the joints (`refine.rings`) and edge flips of faces that lie
   almost on one plane (`refine.flip`) from the start.
 - **The order of the goals.** When two goals conflict, keep this order:
   1. the clearance of the sweeps (`pnpm pose-depth <role>`);
-  2. the play folds, at most 1% of the play samples (`pnpm fold-probe <role>`);
+  2. the arm gate with no `FAIL` (`pnpm arm-check <role> --base main`);
   3. the range of the instrument (`pnpm hold-reach <species>`);
   4. the look of the hold.
 - **The checks before the docs.** Run `pnpm rig-mesh <animal> --check`, each check of the app, and
-  the close views before the first docs commit. Write the docs last.
+  the close views before the first docs commit.
 - **A moved instrument.** Read the hold anchors of `pnpm rig-mesh --check` against `main`, because
-  a moved instrument can break a user rule, such as the reach of the nut.
+  a moved instrument can break a user rule.
 - **The demos of a fit.** Fit on `FIT_DEMOS`, the default of `pnpm hold-fit`, or on all demos
   (`--demo all`), never on one demo.
 - **The size of a body.** A change of the size keeps the values of the pose in meters ("Values in
@@ -201,11 +204,11 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
 
 - **The end of the round.** Give the line of `pnpm size --base main` in the commit that adds the
   body.
-- **The GLB file.** A plain `--preview` of `pnpm rig-mesh` writes the GLB file. Only the last
-  commit of a series of rig commits writes it, because each version stays in the history.
-- **The early checks.** A new body moves the layout, the shot plans, and the poses of other
-  players. Directly after the commit of the body, run `pnpm test:paused src/shots/` and
-  `pnpm body-probe --base <base>`, and name each failure in the handoff.
+- **The GLB file.** A plain `--preview` of `pnpm rig-mesh` writes the GLB file. Only the last rig
+  commit writes it, because each version stays in the history.
+- **The early checks.** A new body moves the layout, the shots, and other poses. After the commit
+  of the body, run `pnpm test:paused src/shots/` and `pnpm body-probe --base <base>`, and name each
+  failure in the handoff.
 
 ## 8. Docs of a new body, role, or hold
 
