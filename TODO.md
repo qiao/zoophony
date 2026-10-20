@@ -597,7 +597,7 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       7.4 cm or more into the body and miss the crash at each arm factor up to 1.25. Ask the user
       for smaller cymbals, longer arms, or both (`cymbal-scan.txt` of
       `docs/research/2026-10-20-badger-mesh/`).
-- [ ] Badger xylophone: the short arms reach at most 81% of the xylophone strikes, because the
+- [ ] Badger xylophone: the short arms reach at most 85% of the xylophone strikes, because the
       body does not move from side to side behind the notes. Ask the user for a smaller
       xylophone, longer arms, or a side step of the body (`2026-10-20-mesh-badger.md`).
 - [ ] Badger size: the agent chose the head top of the parametric badger (1.038 m) while the user
