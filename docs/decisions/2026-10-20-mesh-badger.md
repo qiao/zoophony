@@ -12,9 +12,17 @@ measures. The user can reverse each decision. Then update its section, and remov
 | Decision | Section |
 |---|---|
 | The user, quote above: the percussion badgers get the mesh as a studio body (`tools/mesh-rigs/badger.json`, `SPECIES.badger`), with the pea eyes of the app. | 4.3, 4.4 |
-| Bass drum: the drum moves 6 cm left and 3 cm back (`BASS_DRUM.center`), and the beater strikes 12 cm below the middle of the head, as a real player strikes off the middle. The beater keeps the angle of no paw twist, and stays over the drum at rest (`ready`). | 4.6, 5.3 |
-| Snare drum: the drum moves from 0.55 m to 0.45 m in front and up to 0.46 m (`SNARE_DRUM`), so that the short arms reach each strike. The sticks leave the front of the fists (`malletTilt` 1.3) and make a V of 66°, 9° down at a strike, as in the matched grip. | 4.6, 5.3 |
-| Small percussion: the left paw holds the triangle clip at the mouth, as near to the eye level of a real player as the arm reaches, keeps it up at rest (`ready`), and turns 40° less far on the forearm (`triangleClip`, `triangleHand`). The tambourine stand moves within reach (`TAMBOURINE.mount`). | 4.6, 5.3 |
-| Stop, open: the cymbals (0.40 m) go 7.4 cm or more into the body and miss the crash at each arm factor up to 1.25 and each crash place (`cymbal-scan.txt`). The hold keeps its crash place, and only its elbows point down and out (`poleL`, `poleR`) for the arm gate. | 4.6, 5.3 |
-| Stop, open: the short arms reach at most 81% of the xylophone strikes, at the factor 1.25 with the bars 0.22 m in front, so the xylophone keeps its place and size. Its mallets take the grip of the snare sticks (`XYLOPHONE.malletTilt`, `across`) for the arm gate. | 4.6, 5.3 |
-| The agent accepted the paw crops while the user slept (`arms-*.webp`), and set the grips of the five badger roles to their play medians (`ACCEPTED_GRIPS`). The arm gate passes for each role with no `FAIL`. | 4.4, 9.8 |
+| The rule of the user for the mouse: "make it the size of the previous parametric model". No reference image shows a badger, so the skull top stands at 1.038 m, as the parametric badger: H 0.244 m (`app`, `ANIMALS`). | 1, 4.4 |
+| Arms and legs keep the mesh (factor 1): the reach 0.273 m meets each strike of the bass drum, the snare drum, and the small percussion. No arm factor up to 1.25 clears the cymbals or reaches the xylophone (`armFactor`). | 4.4, 4.6 |
+| Colors: the texture hues match `badger-turnaround.png` (front fur 23° against 25°), so no `colors.tone`. The mesh is darker (L 0.28 against 0.40). The dark limit 0.01 keeps the pupils and the smile line dark. | 4.5 |
+| Face: the face reads calm to happy. The smile shows at 60°, and the white stripe and the eye stripes show from the stage camera (`faces.webp`), so no face rule changes it. | 4.4 |
+| Four thin faces take rigid weights (`weights.rigid`), and two shapes relax the raised right arm of the bass drum and the raised left arm of the triangle (`raise`). | 4.4 |
+| No demo has a snare drum or a xylophone, so the probes also read a percussion test score with each part (`tools/probe-demos.ts`). It is no demo. | 9.3 |
+| The sweeps accept the upper arms 2.5 cm in the side of the body, where the mesh arm lies, and the bass drum beater 5 cm in the head, the middle of its ball (`BADGER_UPPER_ARMS`). | 9.3 |
+| The first download grows by 29,644 B to 713,403 B (`pnpm size --base 24e47a7e`). The deer is the new sample body of the parametric tests (`models/test-body.ts`). | 7.2, 9.3 |
+| Bass drum: the drum moves 6 cm left and 3 cm back (`BASS_DRUM.center`), and the beater strikes 12 cm below the middle, as real players strike off the middle. The beater keeps the angle of no paw twist, and stays over the drum at rest. | 4.6, 5.3 |
+| Snare drum: the drum moves to 0.45 m in front and 0.46 m high (`SNARE_DRUM`), within reach. The sticks leave the front of the fists (`malletTilt`) in a V of 66°, 9° down, as the matched grip. | 4.6, 5.3 |
+| Small percussion: the left paw holds the triangle at the mouth, as near to eye level as it reaches, also at rest (`triangleClip`, `triangleHand`). The tambourine stand moves within reach (`TAMBOURINE.mount`). | 4.6, 5.3 |
+| Stop, open: the cymbals (0.40 m) go 7.4 cm or more into the body and miss the crash at each arm factor up to 1.25 (`cymbal-scan.txt`). Only the elbows change, for the arm gate (`poleL`, `poleR`). | 4.6, 5.3 |
+| Stop, open: the arms reach at most 81% of the xylophone strikes (factor 1.25, bars 0.22 m in front), so the xylophone keeps its place. Its mallets take the snare grip, for the arm gate. | 4.6, 5.3 |
+| The agent accepted the paw crops while the user slept (`arms-*.webp`), and set the five grips to their play medians (`ACCEPTED_GRIPS`). | 4.4, 9.8 |
