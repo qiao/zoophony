@@ -899,36 +899,50 @@ function printDetails(role: RoleSweep, results: readonly DemoResult[], goal: num
  * all demos, in cm, the smallest gap of each pair of `--gaps` over all demos, in cm, and the
  * largest note-target error of each hand, in mm. A column of depths or errors with 0 in each row
  * is left out. With note targets, the last column gives the share of the targets within
- * {@link TARGET_REACH}.
+ * {@link TARGET_REACH}. A second table gives the demo and the time of the sample of each value
+ * ({@link sampleAt}).
  *
  * @param rows The variant and the results of each row.
  */
 function printTable(rows: readonly SweepRow[]): void {
   const columns = new Map<string, number[]>();
+  const places = new Map<string, string[]>();
   const gapColumns = new Set<string>();
-  const add = (column: string, row: number, value: number): void => {
+  const add = (column: string, row: number, value: number, at: string): void => {
     const values = columns.get(column) ?? rows.map(() => 0);
-    values[row] = Math.max(values[row] ?? 0, value);
+    const where = places.get(column) ?? rows.map(() => '-');
+    if (value > (values[row] ?? 0)) {
+      values[row] = value;
+      where[row] = at;
+    }
     columns.set(column, values);
+    places.set(column, where);
   };
-  const addGap = (column: string, row: number, value: number): void => {
+  const addGap = (column: string, row: number, value: number, at: string): void => {
     const values = columns.get(column) ?? rows.map(() => Infinity);
-    values[row] = Math.min(values[row] ?? Infinity, value);
+    const where = places.get(column) ?? rows.map(() => '-');
+    if (value < (values[row] ?? Infinity)) {
+      values[row] = value;
+      where[row] = at;
+    }
     columns.set(column, values);
+    places.set(column, where);
     gapColumns.add(column);
   };
   for (const [row, { results }] of rows.entries()) {
-    for (const { sets, targets } of results) {
+    for (const { demo, sets, targets } of results) {
       for (const { name, pairs, gaps } of sets) {
         for (const pair of pairs) {
-          add(`${name} ${pair.part}>${pair.into} cm`, row, pair.depth * 100);
+          const at = sampleAt(demo, name, pair);
+          add(`${name} ${pair.part}>${pair.into} cm`, row, pair.depth * 100, at);
         }
         for (const gap of gaps) {
-          addGap(`${name} ${gap.part}~${gap.into} gap cm`, row, gap.gap * 100);
+          const at = sampleAt(demo, name, gap);
+          addGap(`${name} ${gap.part}~${gap.into} gap cm`, row, gap.gap * 100, at);
         }
       }
-      for (const { side, error } of targets) {
-        add(`target ${side} mm`, row, error * 1000);
+      for (const { side, error, song } of targets) {
+        add(`target ${side} mm`, row, error * 1000, sampleAt(demo, 'play', { song, wall: 0 }));
       }
     }
   }
@@ -951,7 +965,37 @@ function printTable(rows: readonly SweepRow[]): void {
     const cells = [...columns.values()].map((values) => (values[row] ?? 0).toFixed(1));
     console.log(`| ${variant || 'base'} | ${cells.join(' | ')} |`);
   }
+  const placed = [...columns.keys()].filter((column) => places.has(column));
+  if (placed.length > 0) {
+    console.log('\nThe demo and the time of the sample of each value of the table:');
+    console.log(`| variant | ${placed.join(' | ')} |`);
+    console.log(`|---|${placed.map(() => '---').join('|')}|`);
+    for (const [row, { variant }] of rows.entries()) {
+      const cells = placed.map((column) => places.get(column)?.[row] ?? '-');
+      console.log(`| ${variant || 'base'} | ${cells.join(' | ')} |`);
+    }
+  }
   printOverTable(rows);
+}
+
+/**
+ * Writes the demo and the time of the sample of a deepest point or a smallest gap.
+ *
+ * @param demo The demo and the player of the result, such as `beethoven-9 timpanist 28 (elephant)`.
+ * @param set The name of the sample set, such as `play`.
+ * @param sample The song time and the wall time of the sample, in seconds.
+ * @returns The text, such as `beethoven-9 12.25 s` in the play, or `beethoven-9 wall 11.20 s` in
+ *   another set, whose samples differ by the wall time.
+ */
+export function sampleAt(
+  demo: string,
+  set: string,
+  sample: { readonly song: number; readonly wall: number },
+): string {
+  const id = demo.split(' ')[0] ?? demo;
+  return set === 'play'
+    ? `${id} ${sample.song.toFixed(2)} s`
+    : `${id} wall ${sample.wall.toFixed(2)} s`;
 }
 
 /**
