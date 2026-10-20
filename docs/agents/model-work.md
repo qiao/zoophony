@@ -42,7 +42,9 @@ Five rounds met their own arm measure and shipped a twisted arm (`2026-10-19-arm
 round that changes a hold, a rig, a pose, an instrument size, or a seat runs
 `pnpm arm-check <roles> --base <start> --views <dir>` before its report, and puts the table and the
 crop pairs into the report. A `FAIL` makes the round not done, and a better number with a worse
-look is not done. The merge of a branch that changes `src/pose/`, `src/models/`, or
+look is not done. To find a fast turn of a paw, `pnpm arm-check <role> --trace <demo>:<from>-<to>`
+gives the paw angles at steps of 0.01 s in about 1 s. To compare old commits, use
+`pnpm arm-check <role>... --states <ref>,...`. The merge of a branch that changes `src/pose/`, `src/models/`, or
 `tools/blender/` runs the gate of all roles (`tools/merge-branch.sh`).
 
 The grip turn compares each paw with its accepted grip (`ACCEPTED_GRIPS` of `tools/arm-check.ts`).
