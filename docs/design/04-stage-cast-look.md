@@ -410,7 +410,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     (`colors.dark`). The dark gray fur of the wolf lies near the limit of the other meshes, so the
     wolf takes a lower limit, and only its nose, pupils, and small spots of the paws are dark. The
     dark front fur and the black eye stripes of the badger lie near the limit too, so its lower
-    limit keeps only its pupils and its smile line dark. The cream tusks and
+    limit keeps only its pupils and its smile line dark. `pnpm rig-mesh --check` warns when more
+    than 5% of the faces are dark outside the eye and nose boxes, and gives a limit under 5%. The
+    cream tusks and
     nails of the elephant keep their colors. A second rule moves a colored fur in Oklch
     (`colors.shift`): the orange fur of the red fox takes the lightness, the chroma, and the hue
     of the reference foxes in the play frame. A moved color keeps its hue at the edge of the sRGB

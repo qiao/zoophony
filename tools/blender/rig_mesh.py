@@ -92,8 +92,10 @@ face, and it writes the long-armed source as `source-long-arms.obj` for the prob
 `docs/research/`. With `--obj`, it
 writes only the long-armed source, into the file, for `pnpm rig-mesh --check`. With `--check`, it
 also lists the faces that the stretch turns or squeezes (`stretch_faces()`) and the long thin faces
-across an arm joint that no ring cuts (`uncut_faces()`), before the fold probe of the check. The
-flag changes no byte of the rig. With `--faces`, it also writes the middle of each face of the
+across an arm joint that no ring cuts (`uncut_faces()`), before the fold probe of the check. It
+gives the share of the dark faces outside the eye and nose boxes, and warns above `DARK_SHARE`
+with a dark limit that brings the share under it (`dark_check()`). The flag changes no byte of
+the rig. With `--faces`, it also writes the middle of each face of the
 module in the units of the source into the file as JSON (`face_sources()`), for
 `pnpm fold-probe --faces`.
 """
@@ -210,6 +212,11 @@ SEAT_WARNING = 0.05
 
 #: The step of the front edge of the chair that the warning of the seat proposes, in units.
 FRONT_STEP = 0.005
+
+#: The share of the faces that may be dark outside the eye and nose boxes, above which the check
+#: warns (`dark_check()`). The dark limit 0.05 made 890 of the 3,119 faces of the wolf dark, most
+#: of its dark gray fur, and 0.02 made 117 (`docs/research/2026-10-20-wolf-mesh.md`).
+DARK_SHARE = 0.05
 
 
 def log(text):
@@ -367,24 +374,38 @@ def linear(srgb):
     return np.where(srgb <= 0.04045, srgb / 12.92, ((srgb + 0.055) / 1.055) ** 2.4)
 
 
+def sample_grid(n):
+    """Gives the barycentric weights of the texture samples of a face: a grid of `n` steps."""
+    return np.array([(i / n, j / n, (n - i - j) / n) for i in range(n + 1) for j in range(n + 1 - i)])
+
+
+def face_samples(uv, grid, texture):
+    """Gives the sRGB texture samples of one face at the weights of `grid` (`sample_grid()`)."""
+    height, width, _ = texture.shape
+    at = grid @ uv
+    x = np.clip(((at[:, 0] % 1.0) * width).astype(int), 0, width - 1)
+    y = np.clip(((at[:, 1] % 1.0) * height).astype(int), 0, height - 1)
+    return texture[y, x]
+
+
+def luminance(samples):
+    """Gives the linear luminance of sRGB samples."""
+    return linear(samples) @ [0.2126, 0.7152, 0.0722]
+
+
 def face_colors(tris, uvs, texture, rules):
     """Gives the sRGB color of each face, a flag for each dark face, and the share of the dark
     samples of each face. A face with a share of dark samples of at least `eyeShare` is dark, and
     takes the mean of its dark samples. Each other face takes the mean of its samples that are
     not dark, so that the black gaps between the islands of the texture do not darken a face at
     the edge of an island."""
-    n = rules['samples']
-    grid = np.array([(i / n, j / n, (n - i - j) / n) for i in range(n + 1) for j in range(n + 1 - i)])
-    height, width, _ = texture.shape
+    grid = sample_grid(rules['samples'])
     colors = np.zeros((len(tris), 3))
     dark = np.zeros(len(tris), bool)
     share = np.zeros(len(tris))
     for f in range(len(tris)):
-        at = grid @ uvs[f]
-        x = np.clip(((at[:, 0] % 1.0) * width).astype(int), 0, width - 1)
-        y = np.clip(((at[:, 1] % 1.0) * height).astype(int), 0, height - 1)
-        samples = texture[y, x]
-        lum = linear(samples) @ [0.2126, 0.7152, 0.0722]
+        samples = face_samples(uvs[f], grid, texture)
+        lum = luminance(samples)
         low = lum < rules['dark']
         share[f] = low.mean()
         if share[f] >= rules['eyeShare']:
@@ -393,6 +414,53 @@ def face_colors(tris, uvs, texture, rules):
         else:
             colors[f] = samples[~low].mean(axis=0)
     return colors, dark, share
+
+
+def dark_ranks(tris, uvs, texture, rules):
+    """Gives for each face the linear luminance of its sample at the rank of `eyeShare`: the
+    smallest count of dark samples that makes a face dark (`face_colors()`). A face is dark when
+    this value is below the dark limit, so each limit gives its count of dark faces with no new
+    samples."""
+    grid = sample_grid(rules['samples'])
+    n = len(grid)
+    rank = max(1, next((c for c in range(n + 1) if c / n >= rules['eyeShare']), n))
+    ranks = np.zeros(len(tris))
+    for f in range(len(tris)):
+        ranks[f] = np.sort(luminance(face_samples(uvs[f], grid, texture)))[rank - 1]
+    return ranks
+
+
+def feature_boxes(centers, rules):
+    """Tells for each face center if it is in the eye box of a side or in the nose box."""
+    box = np.asarray(rules['eyeBox'], float)
+    right_box = [[-box[1][0], box[0][1], box[0][2]], [-box[0][0], box[1][1], box[1][2]]]
+    inside = in_box(centers, box) | in_box(centers, right_box)
+    if 'noseBox' in rules:
+        inside |= in_box(centers, rules['noseBox'])
+    return inside
+
+
+def dark_check(centers, dark, ranks, rules):
+    """Warns when more than `DARK_SHARE` of the faces are dark outside the eye and nose boxes
+    (`feature_boxes()`), such as dark fur near the dark limit, and gives the dark limit that
+    brings the share under it. A face whose flag the limit does not set, such as a cap of the
+    arm cut, keeps its flag."""
+    outside = ~feature_boxes(centers, rules)
+    count = int((dark & outside).sum())
+    share = count / len(dark)
+    text = (f'colors: {count} of {len(dark)} faces ({share * 100:.1f}%) are dark outside the eye '
+            f"and nose boxes, with the dark limit {rules['dark']}")
+    if share <= DARK_SHARE:
+        log(text)
+        return
+    follows = (ranks < rules['dark']) == dark
+    free = np.sort(ranks[outside & follows])
+    fixed = int((dark & outside & ~follows).sum())
+    allowed = int(np.floor(DARK_SHARE * len(dark))) - fixed
+    limit = math.floor(free[max(0, allowed)] * 1e4) / 1e4
+    found = fixed + int((free < limit).sum())
+    warn(f'{text}, above {DARK_SHARE * 100:.0f}%. A dark face takes the mean of its dark samples. '
+         f'The dark limit {limit:.4f} makes {found} faces dark ({found / len(dark) * 100:.1f}%)')
 
 
 def oklab(srgb):
@@ -3517,8 +3585,11 @@ def main():
     # The move of the head from the source: the pivot, the head factor, the rise, and the drop.
     head_move = (heads['neck'], factors['head'], rise,
                  drop + lower if factors['trunk'] != 1 else drop)
-    eyes, nose = features(long_verts, tris, colors, dark,
-                          moved_boxes(config['colors'], *head_move))
+    boxes = moved_boxes(config['colors'], *head_move)
+    eyes, nose = features(long_verts, tris, colors, dark, boxes)
+    if check:
+        dark_check(long_verts[tris].mean(axis=1), dark,
+                   dark_ranks(tris, uvs, texture, config['colors']), boxes)
     for side, found in eye_patches(tris, dark, eyes).items():
         for inside, rest in found:
             text = (f'eye {side}: the eye box takes {len(inside)} of the '

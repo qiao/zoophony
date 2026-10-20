@@ -1096,8 +1096,8 @@ export function blenderArgs(
 export const RIG_WARNING = 'rig_mesh: warning:';
 
 /**
- * Gives the warning lines of a log of the rig script: the seat that the thighs set and the eye box
- * in a dark patch.
+ * Gives the warning lines of a log of the rig script: the seat that the thighs set, the eye box in
+ * a dark patch, and the dark faces outside the eye and nose boxes.
  *
  * @param log The text of the log.
  * @returns The lines that start with {@link RIG_WARNING}, in their order.

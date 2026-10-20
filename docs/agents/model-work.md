@@ -204,7 +204,8 @@ of route 3 follow.
    mesh. The table gives the reach of the hold on the real body for each arm factor. Fix each
    warning of the rigs before the question. A seat warning gives a `chair.front` that puts the
    seat under the haunch, because the thighs set the seat top. An eye warning means that the eye
-   box takes most of a dark patch, so make the box hold only the eye. Ask the user
+   box takes most of a dark patch, so make the box hold only the eye. A colors warning means that
+   dark fur takes the color of its dark samples, so set the `colors.dark` that it gives. Ask the user
    about the size, the arms, and the legs with `options.md` and `options.png`, then set them. To
    probe a rig of `<dir>/rigs/` further, such as with
    `pnpm hold-reach <species> --instrument <id> --set <changes> --glb <file>`, set `app.shoulders`
