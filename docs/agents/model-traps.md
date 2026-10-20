@@ -143,12 +143,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - Fit the rule of a fold across a joint on the key of that joint: the upper arm, the forearm
   (`--bone forearm` of `pnpm raise-fit`), or the paw (`--bone hand`). The pose of a rule in Blender
   turns over fewer faces than the app, so `--bone hand` turns the rule further on the same axis.
-- A paw that turns about 160° on its forearm folds the wrist. Turn a round held part around its axis
-  so that the paw stays near the arm line (`PercussionHold.top`, `twist.ts` of
-  `docs/research/2026-10-19-elephant-arms/`), or fit a shape of the bent wrist
-  (`docs/research/2026-10-19-hippo-arms.md`). A mallet that turns up between strikes (`cock`) turns
-  the paw about 130° with each top rule: a roll of the top trades the twist for a wrist bend of
-  about 90°.
+- A paw that turns about 160° on its forearm folds the wrist. The studio forearm turns in the frame
+  of the elbow hinge, so a held part has one direction of no paw twist: measure it (`paw-turn.ts` of
+  `docs/research/2026-10-19-elephant-pose/`), and hold the part across the forearm near it
+  (`PercussionHold.across`). On the elephant, that direction is level and in, so the head of each
+  timpani mallet leaves the back of the fist (`TIMPANI.malletBack`).
 - A shape fixes only the poses near its rule, for the arm turns of one hold. `pnpm rig-mesh --check`
   counts the folds with the hold of the working tree, so fit the hold first, or use `--hold
   <changes>`. A rule whose rig log line `raise <target>` keeps turned faces after the relax fixes
