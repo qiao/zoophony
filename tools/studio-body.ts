@@ -322,6 +322,20 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/wolf/wolf.rig.glb',
     },
   ],
+  // The percussion badger: decisions/2026-10-20-mesh-badger.md. It stands at each percussion
+  // instrument, so the export keeps the standing pose of the rig.
+  [
+    'badger',
+    {
+      landmark: 'shoulders',
+      height: 0.59685,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_BADGER',
+      crease: 35,
+      glb: 'assets/models/badger/badger.rig.glb',
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
