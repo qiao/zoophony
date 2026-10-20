@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Usage: tools/merge-branch.sh [--check-only] <branch> [worktree]
+# Usage: tools/merge-branch.sh [--check-only] [--no-arm-check] <branch> [worktree]
 #
 # Rebases <branch> onto main, checks each commit, and fast-forwards main to it.
 # <worktree> is the worktree that holds <branch>. With no <worktree>, the script
@@ -16,6 +16,14 @@
 # branch onto main, but it does not change main, and it keeps the branch and the
 # worktree.
 #
+# A branch that changes a file of src/pose/, src/models/, or tools/blender/ can twist
+# or deform an arm, so after the unit suite the script runs the arm gate
+# `pnpm arm-check --all --base main` (decision 2026-10-19-arm-gate.md), prints its
+# table, and stops on a value that fails. The gate takes about 3 minutes with the
+# base in the cache, so it runs all roles. --no-arm-check skips the gate. Use it only
+# for a change that moves no arm, such as a color or a face, and give the reason in
+# the merge report.
+#
 # The end-to-end tests are paused with all tests (decision
 # 2026-10-16-all-tests-pause.md), so the script does not run them. MERGE_E2E=1
 # runs them.
@@ -30,16 +38,21 @@
 #
 # Exit codes: 1 bad use or bad state, 2 rebase conflict, 3 a commit or the full
 # unit suite failed a check, 4 the commit hashes changed, 5 build or size failed,
-# 6 the Chromium end-to-end tests failed two times.
+# 6 the Chromium end-to-end tests failed two times, 7 a value of the arm gate failed.
 set -euo pipefail
 
 CHECK_ONLY=0
-if [ "${1:-}" = --check-only ]; then
-  CHECK_ONLY=1
+ARM_CHECK=1
+while [ "${1:-}" = --check-only ] || [ "${1:-}" = --no-arm-check ]; do
+  if [ "$1" = --check-only ]; then
+    CHECK_ONLY=1
+  else
+    ARM_CHECK=0
+  fi
   shift
-fi
+done
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-  echo "Usage: tools/merge-branch.sh [--check-only] <branch> [worktree]" >&2
+  echo "Usage: tools/merge-branch.sh [--check-only] [--no-arm-check] <branch> [worktree]" >&2
   exit 1
 fi
 
@@ -179,6 +192,28 @@ pnpm -s test >"$MERGE_TMP/test-full.log" 2>&1 || {
   exit 3
 }
 echo "Ran the full unit suite with no cache at ${SECONDS}s."
+
+ARM_FILES=$(git diff --name-only main HEAD | grep -E '^(src/pose|src/models|tools/blender)/' || true)
+if [ -z "$ARM_FILES" ]; then
+  echo "The branch changes no file of src/pose/, src/models/, or tools/blender/, so the arm gate does not run."
+elif [ "$ARM_CHECK" = 0 ]; then
+  echo "The arm gate does not run (--no-arm-check). Give the reason in the merge report."
+else
+  ARM_STATUS=0
+  pnpm -s arm-check --all --base main >"$MERGE_TMP/arm-check.log" 2>&1 || ARM_STATUS=$?
+  cat "$MERGE_TMP/arm-check.log"
+  case $ARM_STATUS in
+    0) echo "The arm gate passed at ${SECONDS}s." ;;
+    1)
+      echo "A value of the arm gate failed. The log is $MERGE_TMP/arm-check.log."
+      exit 7
+      ;;
+    *)
+      echo "The arm gate could not run. The log is $MERGE_TMP/arm-check.log."
+      exit 7
+      ;;
+  esac
+fi
 
 # A branch that changes only docs cannot change the site.
 SITE_FILES=$(git diff --name-only main HEAD | grep -vE '^docs/|\.md$' || true)
