@@ -255,4 +255,4 @@ The decision files:
 - [`2026-10-20-pea-eyes.md`](decisions/2026-10-20-pea-eyes.md): the pea eyes of the studio bodies bent to the head surface, their middle on the surface, the light on the front of a bent eye, and the flat eyes of the bear.
 - [`2026-10-20-camera-lower.md`](decisions/2026-10-20-camera-lower.md): the default view and the Cinematic shots that the user asked to be slightly lower, and the conflict with the camera of `orchestra-latest.png`.
 - [`2026-10-20-pea-eyes.md`](decisions/2026-10-20-pea-eyes.md): the pea eyes of the studio bodies bent to the head surface, their middle on the surface, and the light on the front of a bent eye.
-- [`2026-10-20-bear-eyes.md`](decisions/2026-10-20-bear-eyes.md): the bear pea eyes moved out and down to a part of the face with less fold, and bent to the head.
+- [`2026-10-20-bear-eyes.md`](decisions/2026-10-20-bear-eyes.md): the bear pea eyes moved out and down to a part of the face with less fold, bent to the head, and the end of the flat pea eyes.

@@ -8,7 +8,7 @@ import { Box3, MathUtils, Matrix4, Quaternion, Ray, Triangle, Vector3 } from 'th
 
 import { SPECIES_COLORS } from '../src/models/colors.ts';
 import type { SpeciesColors } from '../src/models/colors.ts';
-import { EYE, addEye, eyeMiddle } from '../src/models/eyes.ts';
+import { EYE, addEye } from '../src/models/eyes.ts';
 import type { EyeBend } from '../src/models/eyes.ts';
 import type { SurfacePoint } from '../src/models/head.ts';
 import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
@@ -133,14 +133,6 @@ export interface AnimalSettings {
    * value, each eye faces out from the middle of the head that shows.
    */
   readonly eyeLevel?: boolean;
-  /**
-   * True when each pea eye keeps a flat oval, which moves out of the head until its front face
-   * shows ({@link eyePush}). The face under the eyes of the bear twists, so a bent oval
-   * ({@link eyeBend}) reads as a bean (docs/decisions/2026-10-20-pea-eyes.md). A flat oval writes
-   * a bend of 0, so that its light lies on the front of the oval too. With no value, each oval
-   * bends to the head surface.
-   */
-  readonly flatEyes?: boolean;
   /**
    * The share of the turn of each pea eye from its direction toward the mean normal of the head
    * faces within 0.09 H of its place, from 0 to 1. The bear takes 0.5, the choice of the user of
@@ -1653,7 +1645,7 @@ const EYE_PUSH_LIMIT = 0.1;
  * head surface, so it needs a move only where the fit of the bend misses a face.
  *
  * @param triangles The faces of the head near the eye, counterclockwise from outside.
- * @param eye The middle of the eye ({@link eyeMiddle}) and the direction in which it faces.
+ * @param eye The middle of the eye and the direction in which it faces.
  * @param h The head height that sizes the eye.
  * @param bend The bend of the oval, or none for a flat oval.
  * @returns The move, in the units of `h`.
@@ -2313,14 +2305,12 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     .add(headShiftOf(glb))
     .setX(0);
 
-  // Each pea eye bone lies at the head surface under the middle of the old eye, or under that
-  // middle moved by `eyeShift`: a bent eye on the
-  // surface, and a flat eye 0.01 H under it, as the eye bones of the parametric bodies
-  // (`eyeMiddle()` of `models/eyes.ts`). Each eye faces out from the
-  // middle of the head that shows, as an eye on the round head of a parametric body does, or level
-  // with `eyeLevel`, and it can turn toward the normal of the head surface (`eyeNormal`). Its oval
-  // bends to the head surface (`eyeBend()`), so that the rim lies at the fur, or stays flat
-  // (`flatEyes`). Then it moves out along its direction until its front face shows (`eyePush()`).
+  // Each pea eye bone lies on the head surface under the middle of the old eye, or under that
+  // middle moved by `eyeShift`. Each eye faces out from the middle of the head that shows, as an
+  // eye on the round head of a parametric body does, or level with `eyeLevel`, and it can turn
+  // toward the normal of the head surface (`eyeNormal`). Its oval bends to the head surface
+  // (`eyeBend()`), so that the rim lies at the fur. Then it moves out along its direction until
+  // its front face shows (`eyePush()`).
   const eyeHeight = (shown.max.y - shown.min.y) * scale;
   const middle = toBind(shown.getCenter(new Vector3()));
   const eyeAt = (side: Side) => {
@@ -2362,11 +2352,8 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
       toNormal === 0 ? look : [round(turned.x), round(turned.y), round(turned.z)];
     // A bent eye has its middle on the head surface, so that its rim lies at the fur and the
     // facets of the head between the corners of the oval cover little of its front.
-    const flat = settings.flatEyes === true;
-    const eye = flat
-      ? eyeMiddle({ point: model(point), normal: facing }, eyeHeight, false)
-      : { point: model(point), normal: facing };
-    const bend: EyeBend = flat ? [0, 0, 0, 0, 0] : eyeBend(near, model(point), facing, eyeHeight);
+    const eye = { point: model(point), normal: facing };
+    const bend = eyeBend(near, model(point), facing, eyeHeight);
     const push = eyePush(near, eye, eyeHeight, bend);
     const moved = new Vector3(...eye.point).addScaledVector(new Vector3(...facing), push);
     const shift = moved.distanceTo(new Vector3(...model(old))) / eyeHeight;
