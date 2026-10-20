@@ -1,11 +1,12 @@
 import { Vector3 } from 'three';
 
-import { CONDUCTOR } from '../models/cast.ts';
+import { CONDUCTOR, castScore } from '../models/cast.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import { violinPianoDuoFile } from '../models/test-chamber.ts';
 import { PIANO } from '../models/instruments/piano.ts';
 import { STRING_SCALES, VIOLIN } from '../models/instruments/strings.ts';
+import type { InstrumentId } from '../models/instruments/types.ts';
 import { INSTRUMENT_SUPPORTS } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { BoneName } from '../models/rig.ts';
@@ -24,7 +25,7 @@ import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, ofConductor } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import { BODY_OBSTACLE } from './test-sweep.ts';
-import type { NoteTarget, RoleSweep, SweepPart, SweepSample } from './test-sweep.ts';
+import type { AcceptedDepth, NoteTarget, RoleSweep, SweepPart, SweepSample } from './test-sweep.ts';
 import type { Transport } from './types.ts';
 
 /**
@@ -118,6 +119,14 @@ const BEAVER_BODY_LOOPS = 9;
  */
 const WOLF_BODY_LOOPS = 5;
 
+/**
+ * The open loops of {@link BODY_BONES} of the badger mesh: the cuts to the two upper arms
+ * (`loops-probe.txt` of `docs/research/2026-10-20-badger-mesh/`). In the first rig, a loop of 4
+ * edges at the left shoulder was apart. The rigid weights of the left shoulder join it to the cut
+ * of the left upper arm (29 edges in place of 25).
+ */
+const BADGER_BODY_LOOPS = 2;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -159,6 +168,9 @@ const SWEEP_DECISIONS = 'docs/decisions/2026-10-13-role-sweep.md';
 
 /** The decision file of the elephant mesh and its timpani. */
 const ELEPHANT_DECISIONS = 'docs/decisions/2026-10-19-mesh-elephant.md';
+
+/** The decision file of the badger mesh and its percussion. */
+const BADGER_DECISIONS = 'docs/decisions/2026-10-20-mesh-badger.md';
 
 /** The decision file of the beaver mesh and its bassoon. */
 const BEAVER_DECISIONS = 'docs/decisions/2026-10-19-mesh-beaver.md';
@@ -296,6 +308,17 @@ function elephantBodySurface(posed: PosedSkeleton): ClosedSurface {
  */
 function wolfBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, WOLF_BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the badger mesh: {@link BODY_BONES} with a cap on each open
+ * loop ({@link BADGER_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function badgerBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, BADGER_BODY_LOOPS);
 }
 
 /**
@@ -1067,16 +1090,16 @@ export const BASSIST_SWEEP: RoleSweep = {
 const TIMPANISTS: ReadonlySet<SpeciesId> = new Set(['elephant']);
 
 /**
- * Gives the note targets of the mallets of a timpanist: the head of each mallet is on its target
- * of the head of a kettle at the start of each of its strikes (design 5.3), in a play that started
- * at the count-in.
+ * Gives the note targets of the hands of a percussion player: the head of each mallet, stick, or
+ * beater, or the inner face of each cymbal, is on its strike point at the start of each of its
+ * strikes (design 5.3), in a play that started at the count-in.
  *
  * @param scene The scene.
- * @param index The index of the timpanist.
- * @param model The model of the timpanist.
+ * @param index The index of the player.
+ * @param model The model of the player.
  * @returns The targets.
  */
-function timpanistTargets(scene: TestScene, index: number, model: PlayerModel): NoteTarget[] {
+function strikeTargets(scene: TestScene, index: number, model: PlayerModel): NoteTarget[] {
   const plan = scene.plan.players[index];
   if (plan?.note.family !== 'percussion') {
     return [];
@@ -1085,7 +1108,9 @@ function timpanistTargets(scene: TestScene, index: number, model: PlayerModel): 
   return (['L', 'R'] as const).flatMap((side) => {
     const track = side === 'L' ? layer.left : layer.right;
     const bone = side === 'L' ? 'malletL' : 'malletR';
-    const head = model.instrument.targets.find((t) => t.kind === 'mallet-head' && t.bone === bone);
+    const head = model.instrument.targets.find(
+      (t) => (t.kind === 'mallet-head' || t.kind === 'plate') && t.bone === bone,
+    );
     if (!track || !head) {
       return [];
     }
@@ -1165,12 +1190,150 @@ export const TIMPANIST_SWEEP: RoleSweep = {
             }
             return pose;
           },
-          targets: () => timpanistTargets(scene, index, model),
+          targets: () => strikeTargets(scene, index, model),
         },
       ];
     }),
   sampleSets: (scene) => VIOLINIST_SWEEP.sampleSets(scene),
 };
+
+/** The species of the percussion players with a studio body of a mesh of the user. */
+const PERCUSSIONISTS: ReadonlySet<SpeciesId> = new Set(['badger']);
+
+/**
+ * Builds the sweep of a role of the percussion section (design 5.3): the arms, the held pieces
+ * (the sticks, the beater, the mallets, the cymbals, or the triangle), and the head against the
+ * body and the instrument on the floor, in a full play, in the lift at the play start, in the
+ * rest pose before the first play, and in the lowering after the song end. The badger of each
+ * demo or tool score with the instrument plays it, standing, as each percussion player stands.
+ *
+ * @param role The name of the role.
+ * @param instrument The instrument of the role.
+ * @param accepted The depths that a decision accepts past the contact depth.
+ * @returns The sweep.
+ */
+function percussionSweep(
+  role: string,
+  instrument: InstrumentId,
+  accepted: readonly AcceptedDepth[],
+): RoleSweep {
+  return {
+    role,
+    parts: [
+      ...ARM_PARTS,
+      { name: 'held', bones: ['malletL', 'malletR'] },
+      { name: 'head', bones: ['head'] },
+    ],
+    obstacles: [
+      { name: 'body', surface: badgerBodySurface },
+      { name: 'instrument', surface: instrumentSurface },
+    ],
+    contact: CONTACT,
+    accepted,
+    targetError: 1e-3,
+    hasRole: (score) =>
+      castScore(score).some(
+        (cast) => cast.instrument === instrument && PERCUSSIONISTS.has(cast.species),
+      ),
+    players: (scene) =>
+      scene.layout.players.flatMap((place, index) => {
+        const { species, kettles, support } = place.cast;
+        if (!PERCUSSIONISTS.has(species) || place.cast.instrument !== instrument) {
+          return [];
+        }
+        const buffer = createScenePose(scene.plan);
+        const audible = allAudible(scene.score);
+        const model = scene.models.get(species, instrument, kettles, support);
+        return [
+          {
+            name: `${role} ${index} (${support})`,
+            model,
+            poseAt: ([song, wall, transport]: SweepSample) => {
+              const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[
+                index
+              ];
+              if (!pose) {
+                throw new Error(`The pose has no player ${index}.`);
+              }
+              return pose;
+            },
+            targets: () => strikeTargets(scene, index, model),
+          },
+        ];
+      }),
+    sampleSets: (scene) => VIOLINIST_SWEEP.sampleSets(scene),
+  };
+}
+
+/**
+ * The depth of the upper arms of the badger mesh in its body that the sweep accepts in each sample
+ * set: the upper arm of the mesh lies on the side of the body below the shoulder, so the arm
+ * touches the side in each pose, also at rest.
+ */
+const BADGER_UPPER_ARMS: readonly AcceptedDepth[] = ['play', 'lift', 'rest', 'lower'].map(
+  (samples) => ({
+    part: 'upper arms',
+    into: 'body',
+    samples,
+    depth: 0.025,
+    reason:
+      'The upper arm of the badger mesh lies on the side of the body below the shoulder, so the arm touches the side (design 5.2).',
+    decision: BADGER_DECISIONS,
+  }),
+);
+
+/** The sweep of the badger with the bass drum and its beater in the right paw. */
+export const BASS_DRUMMER_SWEEP: RoleSweep = percussionSweep('bass-drummer', 'bass-drum', [
+  ...BADGER_UPPER_ARMS,
+  ...['play', 'lift'].map((samples) => ({
+    part: 'held',
+    into: 'instrument',
+    samples,
+    depth: 0.05,
+    reason:
+      'The middle of the ball of the beater, 5.5 cm in radius, lies on the head of the bass drum at the note start (design 5.3).',
+    decision: BADGER_DECISIONS,
+  })),
+]);
+
+/** The sweep of the badger with the snare drum and a stick in each paw. */
+export const SNARE_DRUMMER_SWEEP: RoleSweep = percussionSweep(
+  'snare-drummer',
+  'snare-drum',
+  BADGER_UPPER_ARMS,
+);
+
+/**
+ * The sweep of the badger with a crash cymbal in each paw. The cymbals of the app go into the
+ * body of the badger mesh, because its short arms do not hold them far enough in front of it
+ * (`docs/decisions/2026-10-20-mesh-badger.md`, open).
+ */
+export const CYMBALIST_SWEEP: RoleSweep = percussionSweep(
+  'cymbalist',
+  'cymbals',
+  BADGER_UPPER_ARMS,
+);
+
+/**
+ * The sweep of the badger with the small percussion: the triangle in the left paw, its beater in
+ * the right paw, and the tambourine on its stand.
+ */
+export const PERCUSSIONIST_SWEEP: RoleSweep = percussionSweep(
+  'percussionist',
+  'small-percussion',
+  BADGER_UPPER_ARMS,
+);
+
+/**
+ * The sweep of the badger with the xylophone and a mallet in each paw. The short arms of the
+ * badger mesh do not reach the outer bars of the xylophone of the app
+ * (`docs/decisions/2026-10-20-mesh-badger.md`, open).
+ */
+export const XYLOPHONIST_SWEEP: RoleSweep = percussionSweep(
+  'xylophonist',
+  'xylophone',
+  BADGER_UPPER_ARMS,
+);
 
 /**
  * The bowed roles whose species can stand as the soloist of the violin and piano duo
@@ -1496,4 +1659,9 @@ export const SWEEP_ROLES = {
   hornist: HORNIST_SWEEP,
   bassoonist: BASSOONIST_SWEEP,
   clarinetist: CLARINETIST_SWEEP,
+  'bass-drummer': BASS_DRUMMER_SWEEP,
+  'snare-drummer': SNARE_DRUMMER_SWEEP,
+  cymbalist: CYMBALIST_SWEEP,
+  percussionist: PERCUSSIONIST_SWEEP,
+  xylophonist: XYLOPHONIST_SWEEP,
 } as const;
