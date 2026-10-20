@@ -538,6 +538,14 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Elephant timpanist: the user saw twisted and deformed arms in the play. Done: the twist
       bone and the elbows down. The play twist goes from 57° and 43° to 22° and 22°, and the
       flat share from 0.96 and 0.74 to 0.91 and 0.91 (`2026-10-19-arm-skin.md`).
+- [x] Elephant timpanist pose: the upper arms pointed out, and each paw bent down to hold its
+      mallet straight down. Done: the user chose "V1, reference": kettles of the real size, paws
+      above the near rims, mallets up between strikes, three new shapes, play folds 0.0%
+      (`2026-10-19-elephant-pose.md`).
+- [ ] Elephant timpanist: the paws turn about 130° on the forearms, almost all as a twist, and
+      the right arm skin is flat (0.68 of the bind, goal 0.80) at the forearm and the shoulder.
+      Try a top of the mallet from the posed forearm, or a weight rule of the right shoulder
+      (`docs/research/2026-10-19-elephant-pose.md`).
 - [ ] Elephant timpanist arms after the refit: the long thin faces at the front of the right
       armpit shade dark. From the front, the bent left elbow shows a sharp corner, and the cut a
       dark slot at the top of the left upper arm (`arms.webp` of
@@ -559,10 +567,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       of `docs/research/2026-10-19-elephant-mesh/`). The arm cut of `2026-10-19-elephant-arms.md`
       takes the seam below the shoulder, and dark areas stay on the chest beside the raised arms
       (`timpanist-views.webp` of `docs/research/2026-10-19-elephant-arms/`).
-- [ ] Elephant timpanist: each hand keeps the kettles on its side of the trunk, so a roll on one
-      kettle stays in one hand, and with three kettles the largest kettle stands beside the player.
-      Show the user the views, and offer longer arms for rolls with both hands
-      (`2026-10-19-mesh-elephant.md`).
+- [ ] Elephant timpanist: each hand keeps the front kettle on its side of the trunk, so a roll
+      stays in one hand, and the outer kettles stand out of reach and are never struck
+      (`PercussionHold.pair`). Show the user the views, and offer longer arms for rolls with
+      both hands and for the outer kettles (`2026-10-19-elephant-pose.md`).
 - [ ] Remove the unused code of the `trunk` snout with its tusks and of the `large-flap` ears: no
       species has them since the elephant mesh (`2026-10-19-mesh-elephant.md`).
 - [x] Beaver bassoonist: three faces of the left arm folded in each play sample. A cut of both
