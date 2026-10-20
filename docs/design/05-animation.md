@@ -36,7 +36,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Contrabass, hippo | Stands | Hands and bow: `docs/reference/string-technique.md` | The smaller contrabass leans to the left of the head on its short end pin, the bow plays in front of the belly, the player leans forward, and the upper bout stays in front of the chest | The contrabass stays at its playing place with the left paw on the neck, and the bow hangs from the right paw beside the belly | `HIPPO_HOLD`, `HANGING_BOW`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-18-mesh-hippo.md`, `2026-10-19-hippo-chest.md`, `2026-10-19-hippo-arms.md`, `2026-10-19-arm-skin.md` | `pnpm close-views bassist <dir>` |
 | Flute, tan fox | Chair, stands as a soloist | Play: Michel Debost, Flute Talk, May/June 1996 (`2026-10-14-fox-flute.md`). Rest: Patricia George, The Instrumentalist, December 2018 (`2026-10-15-flute-rest.md`). Technique: `docs/reference/wind-technique.md` | Turns the head to the left, with the flute about square to the face and the shoulders square and low | The flute upright on the right leg in the right paw, and the left arm hangs near the side | `FOX_FLUTE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-17-fox-form.md`, `2026-10-17-tan-rest.md` | `pnpm close-views flutist <dir>` |
 | Oboe, mouse | No chair, in the seated pose at the seat height of its legs (4.5, props), stands as a soloist | Technique: Cline, "Oboe for Starters", and `docs/reference/wind-technique.md` 2.3 (`docs/research/2026-10-19-mouse-mesh.md`) | Holds the oboe with the reed in the mouth under the long muzzle, at the angle of a real oboist, with both paws on their grips and the elbows down | The oboe moves off the mouth and tilts in both paws, and the head lifts. The round belly covers the thighs, so the oboe does not rest on a leg | `MOUSE_OBOE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-mouse.md` | `pnpm close-views oboist <dir>` |
-| Clarinet, wolf | Chair, stands as a soloist | none | Holds the clarinet at the mouth with both paws on their grips | The clarinet moves off the mouth and tilts, and the head lifts | `WIND_HOLDS.clarinet`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species wolf <dir>` |
+| Clarinet, wolf | Chair that fits its legs, stands as a soloist | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-20-wolf-mesh.md`) | Holds the clarinet at the middle of the body, at about 45° from the body, with the mouthpiece in the mouth under the long muzzle, both paws on their grips, and the elbows down | The clarinet moves off the mouth, down and forward over the lap, both paws keep their grips, and the head lifts | `WOLF_CLARINET` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-20-mesh-wolf.md` | `pnpm close-views clarinetist <dir>` |
 | Bassoon, beaver | No chair, in the seated pose at the seat height of its legs (4.5, props) | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-19-beaver-mesh.md`) | The smaller bassoon lies diagonal in front of the body, the left paw above the right paw, the reed in the mouth under the front teeth, and the bocal nearly level | The bassoon moves off the mouth and tilts, both paws keep their grips, and the head lifts | `BEAVER_BASSOON` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-beaver.md` | `pnpm close-views bassoonist <dir>` |
 | Horn, pig | Chair that fits its short legs, stands as a soloist | Technique: `docs/reference/wind-technique.md` 2.2 (`docs/research/2026-10-19-pig-mesh.md`) | The left paw holds the valves at the middle of the body, the right paw is in the bell, and the horn lies across the body from the mouth to the bell at the right of the torso, turned back toward the body | The horn comes down and forward onto the round belly over the lap, with the bell at the right beside the haunch, and both paws keep their grips | `PIG_TURNS`, `PIG_HORN`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-pig.md` | `pnpm close-views hornist <dir>` |
 | Trumpet, monkey | Chair, stands as a soloist | none | The right hand presses the valves | The trumpet moves off the mouth and turns down | `WIND_HOLDS.trumpet`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species monkey <dir>` |
@@ -304,6 +304,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   paws keep their grips (`PIG_HORN`). A real hornist rests the horn on the lap with the bell to
   the right, but the round belly of the pig covers its short thighs, and a lower horn put the
   right forearm into the belly (`docs/decisions/2026-10-19-mesh-pig.md`).
+- **Clarinet at rest.** The seated and the standing wolf move the clarinet off the mouth, down and
+  forward over the lap, and both paws keep their grips, with the elbows down (`WOLF_CLARINET`). The
+  rest of `WIND_HOLDS` in front of the chest bent the right elbow so far that the right arm
+  folded (`docs/decisions/2026-10-20-mesh-wolf.md`).
 - **Trombone at rest.** The seated and the standing panda take the rest of the trombone of
   `WIND_HOLDS`: the trombone moves off the mouth and stands upright at the right side, with the
   bell down, and both paws keep their grips. It does not rest on a leg
@@ -454,6 +458,12 @@ The code constants of each family hold the times, the angles, and the lengths of
     front of the shoulders, so the horn turns its lower end back toward the body around the
     mouthpiece, and the left shoulder turns forward (`PIG_TURNS`, `WindHold.reachL`). Thus the left
     paw reaches the valves with the arms that the user chose.
+  - The wolf holds the clarinet as a real clarinetist (`WOLF_CLARINET` of `SPECIES_WIND_HOLDS`,
+    `docs/reference/wind-technique.md` 3): the clarinet is at the middle of the body, at about 45°
+    from the body. At that angle, the long muzzle puts the grips far in front of the shoulders, so
+    the mouthpiece sits back under the muzzle, in the mouth (`WindHold.lipShift`), and both
+    shoulder bones turn forward. The elbows point down and a little out, which gave the smallest
+    paw turns on the forearms.
   - A woodwind player closes the holes with both hands, and up the octave the right hand opens
     first. A brass player presses the valves with one hand: none on a partial of the tube, and 1
     to 3 valves for 1 to 6 semitones below it (`BRASS_FUNDAMENTALS`). Each tube has the
