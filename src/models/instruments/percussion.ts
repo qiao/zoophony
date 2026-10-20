@@ -123,8 +123,11 @@ export const SNARE_DRUM = {
  * right head turned toward the player.
  */
 export const BASS_DRUM = {
-  /** The middle of the drum, from the floor under the player. */
-  center: [-0.22, 0.52, -0.42],
+  /**
+   * The middle of the drum, from the floor under the player. At (-0.22, 0.52, -0.42), the hanging
+   * left paw of the badger mesh went 5.7 cm into the shell (`docs/decisions/2026-10-20-mesh-badger.md`).
+   */
+  center: [-0.28, 0.5, -0.45],
   radius: 0.35,
   depth: 0.32,
   /** The turn of the axis of the drum around the vertical from the x axis, in degrees. */

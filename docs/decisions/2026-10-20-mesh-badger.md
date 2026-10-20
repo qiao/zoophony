@@ -1,0 +1,15 @@
+# Decisions of the badger mesh of the user
+
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
+
+On 2026-10-20, the user said: "after the wolf, use the badger model at
+~/Downloads/Meshy_AI_badger_remeshed_3k_tr_1020070728_texture.glb". The user sleeps and asked for
+no questions, so the agent of the round `mesh-badger` took each choice by the rules of the brief.
+The report [`2026-10-20-badger-mesh.md`](../research/2026-10-20-badger-mesh.md) gives the
+measures. The user can reverse each decision. Then update its section, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The user, quote above: the percussion badgers get the mesh as a studio body (`tools/mesh-rigs/badger.json`, `SPECIES.badger`), with the pea eyes of the app. | 4.3, 4.4 |
+| Bass drum: the drum moves 6 cm left and 3 cm back (`BASS_DRUM.center`), and the beater strikes 12 cm below the middle of the head, as a real player strikes off the middle. The beater keeps the angle of no paw twist, and stays over the drum at rest (`ready`). | 4.6, 5.3 |

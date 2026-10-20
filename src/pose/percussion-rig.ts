@@ -159,18 +159,23 @@ export const PERCUSSION_HOLDS = {
     ready: true,
     pair: true,
   },
+  // The badger strikes the bass drum below the middle of the head, as a real player strikes off
+  // the middle. The beater leaves the side of the fist at the angle of no twist of the paw on the
+  // forearm between strikes (across), with the elbow out and a little down, and the paw holds it
+  // over the drum also at rest (ready), so that the beater does not sweep through the body in the
+  // lift (2026-10-20-mesh-badger decisions).
   'bass-drum': {
     hands: 'right',
     sizes: { lift: 0.12, rest: 0.05 },
     offsetL: [0, 0, 0],
-    offsetR: [0, 0, 0],
+    offsetR: [0, -0.12, 0],
     poleL: POLE_L,
-    poleR: [0.5, -1, 0.25],
+    poleR: [1, -0.5, 0],
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    across: null,
-    ready: false,
+    across: { rest: -1.4, lift: 0.6 },
+    ready: true,
     pair: false,
   },
   'snare-drum': {

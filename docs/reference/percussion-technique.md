@@ -168,6 +168,16 @@ motion updates the items.
   5 to 10 cm in (section 4). Each hand plays only the front kettle on its side of the trunk
   (`PercussionHold.pair`), so the two mallets never strike one head together.
 
+The badger plays the other percussion instruments (`PERCUSSION_HOLDS` of
+`src/pose/percussion-rig.ts`, `BASS_DRUM`, `SNARE_DRUM`, `TAMBOURINE`, `TRIANGLE`, and
+`XYLOPHONE` of `src/models/instruments/percussion.ts`). Its short arms reach 0.27 m from the
+shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
+
+- **The bass drum.** The badger stands behind the drum at its front left, and the beater in the
+  right paw strikes 12 cm below the middle of the head, as section 5 gives. The left arm hangs,
+  because a single note often needs no muffling (section 5). The beater leaves the side of the
+  fist: no source gives where it leaves the fist.
+
 ## 11. Sources
 
 Sources 1 to 12 opened on 2026-10-19, and sources 13 to 29 on 2026-10-20, except where a fact

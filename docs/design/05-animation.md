@@ -43,7 +43,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Trombone, panda | Chair, stands as a soloist | Play: pBone, "How To Hold A Trombone", and Western Carolina University, "Slide Technique" (`docs/research/2026-10-18-panda-mesh.md`). Left shoulder: Human Kinetics (`docs/research/2026-10-18-panda-folds.md`). Technique: `docs/reference/wind-technique.md` | The left paw holds the weight at the grip near the mouthpiece, with the left shoulder forward, and the right paw moves the slide with the pitch. The slide turns right and down toward the right shoulder, as near to the level and to the front as the arm reaches | The trombone moves off the mouth and stands upright at the right side | `PANDA_PLAY`, `PANDA_TROMBONE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-18-mesh-panda.md`, `2026-10-18-trombone-fit.md` | `pnpm close-views trombonist <dir>` |
 | Tuba, rhino | Chair | none | The right hand presses the valves | The tuba moves off the mouth and tilts | `WIND_HOLDS.tuba`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species rhino <dir>` |
 | Timpani, elephant | Stands | The reference images (`docs/research/2026-10-19-elephant-pose.md`) | Each mallet strikes the front kettle of its side, 0.25 m in from the near rim, and turns up and out between strikes. The trunk hangs in the gap between the two front kettles | The paws stay above the near rims with the mallets up | `PERCUSSION_HOLDS.timpani`, `TIMPANI`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-19-elephant-pose.md` | `pnpm close-views timpanist <dir>` |
-| Bass drum, badger | Stands | none | The beater in the right hand strikes the right head | The rest of the timpani | `PERCUSSION_HOLDS['bass-drum']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `pnpm close-views species badger <dir>` |
+| Bass drum, badger | Stands behind the drum | `docs/reference/percussion-technique.md` 5 | The beater in the right paw strikes 12 cm below the middle of the right head, and leaves the side of the fist at the angle of no paw twist between strikes | The beater stays over the drum, and the left arm hangs | `PERCUSSION_HOLDS['bass-drum']`, `BASS_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views bass-drummer <dir>` |
 | Snare drum, badger | Stands | none | Two mallets strike the head | The rest of the timpani | `PERCUSSION_HOLDS['snare-drum']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `?page=species&only=snare-drum&body` |
 | Cymbals, badger | Stands | none | The two cymbals meet in front of the shoulders | The rest of the timpani | `PERCUSSION_HOLDS.cymbals`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `?page=species&only=cymbals&body` |
 | Small percussion, badger | Stands | none | The beater strikes the triangle or the tambourine | The rest of the timpani | `PERCUSSION_HOLDS['small-percussion']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `?page=species&only=small-percussion&body` |
@@ -510,6 +510,14 @@ The code constants of each family hold the times, the angles, and the lengths of
     upper arms touch the side of the body, as the user rule of 2026-10-10 asks. The kettles leave a
     gap at the front of the player for the trunk (`TIMPANI.front`, 4.6). The other holds keep the
     top of each grip up (`PercussionHold.top`).
+  - The badger mesh has short arms (0.27 m from the shoulder joint to the palm) and a round belly,
+    so its instruments stand nearer than for the parametric badger (4.6), and its upper arms touch
+    the side of the body. The holds follow real players
+    (`docs/reference/percussion-technique.md` 5 to 9, `docs/decisions/2026-10-20-mesh-badger.md`):
+    - The bass drum player stands behind the drum, and the beater strikes below the middle of the
+      head, off the middle, as a real player strikes. Between strikes, the beater keeps the angle
+      of no twist of the paw on the forearm (`across`). The paw holds the beater over the drum also
+      at rest (`ready`), so that the beater does not sweep through the body in the lift.
 - Piano: the hands move to the key position. The left hand plays low notes and the right hand
   plays high notes.
 - **Piano and harp in detail** (`pose/hand-notes.ts`, `pose/hands.ts`):
