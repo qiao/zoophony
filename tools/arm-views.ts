@@ -34,14 +34,23 @@ import type {
   armVertices,
   labelTime,
 } from './arm-check.ts';
-import { AIM_ELEVATION, PLAY_FRAME, aimPose, aimTarget, playTimeDir } from './close-views.ts';
+import {
+  AIM_ELEVATION,
+  PLAY_FRAME,
+  aimPose,
+  aimTarget,
+  playTimeDir,
+  shotSubject,
+  subjectName,
+} from './close-views.ts';
 import { FOLD_ROLES, roleBodies, roleSpecies } from './fold-probe.ts';
+import type { RoleSource } from './fold-probe.ts';
 import { patchedDemo } from './patch-demos.ts';
 import { ROOT, runChild } from './ref-tree.ts';
 import { toWebp } from './screenshots.ts';
 import { DEMO_IDS } from '../src/app/demos.ts';
 import type { DemoId } from '../src/app/demos.ts';
-import { bodyBoundsOf } from '../src/gallery/items.ts';
+import { bodyBoundsOf, speciesItems } from '../src/gallery/items.ts';
 import type { Side } from '../src/models/studio-format.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import {
@@ -315,7 +324,7 @@ async function frameViews(
     createStudioPose(),
   );
   const posed = skinStudioMesh(rig.mesh, studio);
-  const target = await aimTarget(frame.demo, { kind: 'species', species });
+  const target = await aimTarget(frame.demo, shotSubject(atText(source, species)));
   const onStage = (
     place: { readonly position: Vec3; readonly facing: number },
     x: number,
@@ -522,6 +531,20 @@ interface PlannedFrame {
 }
 
 /**
+ * Gives the subject of `--at` of `pnpm close-views play` for the player of a role: its species,
+ * or its species and its instrument, such as `badger:cymbals`, for a species that plays several
+ * instruments.
+ *
+ * @param source The role.
+ * @param species The species of the player of the role.
+ * @returns The text of the subject.
+ */
+function atText(source: RoleSource | undefined, species: string): string {
+  const many = speciesItems().filter((item) => item.species === species).length > 1;
+  return source?.kind === 'player' && many ? `${species}:${source.instrument}` : species;
+}
+
+/**
  * Renders the frames of a role with `pnpm close-views play --at <species>`: one run for each demo,
  * with one `--time` for each frame of the demo, so that each tree builds one time for all frames
  * of a demo. The run renders each azimuth of a frame of the demo at each time of the demo. One
@@ -530,7 +553,7 @@ interface PlannedFrame {
  *
  * @param plans The frames to render.
  * @param folder Gives the folder of the frames of a demo.
- * @param species The species of the player of the role.
+ * @param species The subject of `--at` of the player of the role ({@link atText}).
  * @param base The commit of `--base`, or `null`.
  */
 async function renderFrames(
@@ -618,7 +641,8 @@ export async function renderViews(
         );
       }
       const out = playTimeDir(join(dir, `${role}-${frame.demo}`), frame.time);
-      const cameras = views.azimuths.map((azimuth) => `at-${species}-az${azimuth}`);
+      const name = subjectName(shotSubject(atText(source, species)));
+      const cameras = views.azimuths.map((azimuth) => `at-${name}-az${azimuth}`);
       const prefixes = options.base === null ? ['play-'] : ['play-', 'play-base-'];
       const files = cameras.flatMap((camera) =>
         prefixes.map((prefix) => join(out, `${prefix}${camera}.png`)),
@@ -633,7 +657,7 @@ export async function renderViews(
     await renderFrames(
       planned.filter((plan) => !plan.done),
       (demo) => join(dir, `${role}-${demo}`),
-      species,
+      atText(source, species),
       options.base,
     );
     for (const { frame, views, out } of planned) {
@@ -642,7 +666,7 @@ export async function renderViews(
         for (const [column, azimuth] of views.azimuths.entries()) {
           const box = views.boxes.get(side)?.[column];
           if (box) {
-            const camera = `at-${species}-az${azimuth}`;
+            const camera = `at-${subjectName(shotSubject(atText(source, species)))}-az${azimuth}`;
             cells.push({
               row,
               column,

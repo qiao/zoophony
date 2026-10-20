@@ -28,6 +28,7 @@ import { SPECIES, SPECIES_IDS, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { buildScore } from '../src/score/score.ts';
+import { INSTRUMENT_IDS } from '../src/models/instruments/catalog.ts';
 import type { InstrumentId } from '../src/models/instruments/types.ts';
 import type { Score } from '../src/score/types.ts';
 import { SHOT_SEED, prepareShots } from '../src/shots/prepare.ts';
@@ -2293,7 +2294,10 @@ const SEEK_LEAD_SEC = BAR_HIDE_SEC + 1;
  */
 export const CINEMATIC_CAMERA: PlayCamera = { name: 'cinematic', dx: 0, dy: 0, wheel: 0 };
 
-/** The subject of `--shot`: a seat of the score, or each seat of a species. */
+/**
+ * The subject of `--shot` and `--at`: a seat of the score, or each seat of a species, or of a
+ * species with one instrument.
+ */
 export type ShotSubject =
   | {
       /** A seat. */
@@ -2306,7 +2310,43 @@ export type ShotSubject =
       readonly kind: 'species';
       /** The species. */
       readonly species: SpeciesId;
+      /**
+       * The instrument of the players, or `null` for each instrument. The badger plays five
+       * percussion instruments in one seat, so `badger:cymbals` selects one of its players.
+       */
+      readonly instrument: InstrumentId | null;
     };
+
+/**
+ * Gives the name of a subject in the names of the cameras and the files, such as `seat4`,
+ * `hippo`, or `badger-cymbals`.
+ *
+ * @param subject The subject.
+ * @returns The name.
+ */
+export function subjectName(subject: ShotSubject): string {
+  if (subject.kind === 'seat') {
+    return `seat${subject.seat}`;
+  }
+  return subject.instrument === null ? subject.species : `${subject.species}-${subject.instrument}`;
+}
+
+/**
+ * Tells if a player is a player of a subject.
+ *
+ * @param subject The subject.
+ * @param cast The cast of the player.
+ * @returns True for a player of the seat, or of the species with the instrument of the subject.
+ */
+function isSubjectPlayer(subject: ShotSubject, cast: PlayerPlace['cast']): boolean {
+  if (subject.kind === 'seat') {
+    return cast.seatIndex === subject.seat;
+  }
+  return (
+    cast.species === subject.species &&
+    (subject.instrument === null || cast.instrument === subject.instrument)
+  );
+}
 
 /** The time of the frames of the mode `play`. */
 export type PlayTime =
@@ -2417,7 +2457,8 @@ function frameTime(time: number, demo: DemoId): number {
 }
 
 /**
- * Reads the subject of `--shot`: a whole number is a seat, and each other text is a species.
+ * Reads the subject of `--shot`: a whole number is a seat, and each other text is a species, or a
+ * species and an instrument after a colon, such as `badger:cymbals`.
  *
  * @param text The subject, such as `4` or `hippo`.
  * @returns The subject.
@@ -2427,11 +2468,16 @@ export function shotSubject(text: string): ShotSubject {
   if (/^\d+$/.test(text)) {
     return { kind: 'seat', seat: Number(text) };
   }
-  if (isSpeciesId(text)) {
-    return { kind: 'species', species: text };
+  const [species = '', instrument] = text.split(':');
+  if (isSpeciesId(species) && instrument === undefined) {
+    return { kind: 'species', species, instrument: null };
+  }
+  const known = INSTRUMENT_IDS.find((id) => id === instrument);
+  if (isSpeciesId(species) && known !== undefined) {
+    return { kind: 'species', species, instrument: known };
   }
   throw new Error(
-    `The subject "${text}" of --shot is not a seat or a species. A seat is a whole number, such as 4. The species are: ${SPECIES_IDS.join(', ')}.`,
+    `The subject "${text}" of --shot is not a seat or a species. A seat is a whole number, such as 4. A species can take an instrument after a colon, such as badger:cymbals. The species are: ${SPECIES_IDS.join(', ')}.`,
   );
 }
 
@@ -2580,8 +2626,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
 
   if (shotText !== null) {
     const subject = shotSubject(shotText);
-    const name = subject.kind === 'seat' ? `seat${subject.seat}` : subject.species;
-    const camera = { ...CINEMATIC_CAMERA, name: `shot-${name}` };
+    const camera = { ...CINEMATIC_CAMERA, name: `shot-${subjectName(subject)}` };
     const time: PlayTime = { kind: 'shot', subject };
     return {
       demo,
@@ -2668,7 +2713,7 @@ function aimCamerasOf(text: string, options: ReadonlyMap<string, readonly string
     }
     return azimuth;
   });
-  const name = subject.kind === 'seat' ? `seat${subject.seat}` : subject.species;
+  const name = subjectName(subject);
   const cameras = azimuths.map((azimuth) => ({
     name: `at-${name}-az${azimuth}`,
     dx: 0,
@@ -2713,7 +2758,7 @@ export function firstShotOf(
     subject.kind === 'seat'
       ? [subject.seat]
       : players
-          .filter((player) => player.cast.species === subject.species)
+          .filter((player) => isSubjectPlayer(subject, player.cast))
           .map((player) => player.cast.seatIndex),
   );
   return shots.find(
@@ -2802,7 +2847,7 @@ export async function chooseShot(demo: DemoId, subject: ShotSubject): Promise<Ch
 
   const shot = firstShotOf(shots, layout.players, subject);
   if (!shot) {
-    const name = subject.kind === 'seat' ? `the seat ${subject.seat}` : subject.species;
+    const name = subject.kind === 'seat' ? `the seat ${subject.seat}` : subjectName(subject);
     throw new Error(
       `The demo ${demo} has no solo or section shot of ${name}. Its solo and section shots show: ${shotSubjectsText(shots, layout.players)}.`,
     );
@@ -2848,13 +2893,9 @@ export interface AimTarget {
  */
 export async function aimTarget(demo: DemoId, subject: ShotSubject): Promise<AimTarget> {
   const { layout, models } = await demoLayout(demo);
-  const place = layout.players.find((player) =>
-    subject.kind === 'seat'
-      ? player.cast.seatIndex === subject.seat
-      : player.cast.species === subject.species,
-  );
+  const place = layout.players.find((player) => isSubjectPlayer(subject, player.cast));
   if (!place) {
-    const name = subject.kind === 'seat' ? `the seat ${subject.seat}` : subject.species;
+    const name = subject.kind === 'seat' ? `the seat ${subject.seat}` : subjectName(subject);
     const seats = [
       ...new Set(layout.players.map((p) => `${p.cast.species} (seat ${p.cast.seatIndex})`)),
     ];
