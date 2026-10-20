@@ -196,14 +196,16 @@ export const PERCUSSION_HOLDS = {
     ready: false,
     pair: false,
   },
-  // The lift is the half of the gap between the inner faces of the two cymbals.
+  // The lift is the half of the gap between the inner faces of the two cymbals. The elbows point
+  // down and a little out, so that fewer faces of the left shoulder of the badger mesh fold in the
+  // lift (2026-10-20-mesh-badger decisions).
   cymbals: {
     hands: 'pair',
     sizes: { lift: 0.15, rest: 0.06 },
     offsetL: [0, 0, 0],
     offsetR: [0, 0, 0],
-    poleL: POLE_L,
-    poleR: POLE_R,
+    poleL: [-0.5, -1, 0.3],
+    poleR: [0.5, -1, 0.3],
     rim: 0,
     home: MALLET_HOME,
     top: 'up',

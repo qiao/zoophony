@@ -185,6 +185,10 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   of the mouth of the badger, below the eye level of section 8, because the short arm reaches no
   higher in front of the long snout. The beater in the right paw strikes the triangle, and the
   tambourine stands on a stand at the front right, where section 8 gives a tambourine in the hand.
+- **The crash cymbals.** The app differs, and the hold is open. The plates of the app meet in
+  front of the shoulders, vertical, while section 7 gives tilted plates. The short arms hold them
+  so near that the plates go 7 cm or more into the body, where section 7 gives the edges about 3
+  inches from the body.
 
 ## 11. Sources
 
