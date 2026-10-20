@@ -54,6 +54,11 @@
  * or of wall times of the lift with `lift<from>-<to>`, with no sweep ({@link traceLines}). The
  * step is {@link TRACE_STEP} with no `--step`. A trace of 0.4 s takes about 1 s.
  *
+ * `--states <ref>,...` runs the gate of the working tree on the code of each commit, in the probe
+ * tree of the commit with this script in place of its own ({@link measureStates}), and prints one
+ * table with a column for each commit and one for the working tree ({@link stateLines}). The exit
+ * code reads the working tree, as the gate with no base.
+ *
  * Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>]
  * [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long], or
  * pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]...
@@ -70,7 +75,14 @@ import { runTool, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { patchedDemos } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
-import { PROBE_NO_CACHE, ROOT, probeBeside, runChild, withTempFolder } from './ref-tree.ts';
+import {
+  PROBE_NO_CACHE,
+  ROOT,
+  probeBeside,
+  runChild,
+  withProbeTree,
+  withTempFolder,
+} from './ref-tree.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import type { Side, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
 import { twistAngle } from '../src/models/studio-rig.ts';
@@ -1232,11 +1244,13 @@ export interface CheckArgs {
   readonly trace: TraceRange | null;
   /** The step of `--step`, in seconds, or `null` for the default step of the run. */
   readonly step: number | null;
+  /** The commits of `--states`, each a column of one table, or empty for the gate. */
+  readonly states: readonly string[];
 }
 
 /** The usage text. */
 const USAGE =
-  'Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>] [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long], or pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]...';
+  'Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>] [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long] [--states <ref>,...], or pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]...';
 
 /**
  * Reads the command line of the tool.
@@ -1255,6 +1269,7 @@ export function checkArgs(args: readonly string[]): CheckArgs {
     '--step',
     '--jobs',
     '--trace',
+    '--states',
   ]);
   const flags = new Set(['--all', '--views-all', '--long']);
   const roles: string[] = [];
@@ -1313,6 +1328,13 @@ export function checkArgs(args: readonly string[]): CheckArgs {
       `The option --trace takes one role, --step, and --set, and no --all, --long, or ${gateOnly.join(', ') || 'option of the gate'}.\n${USAGE}`,
     );
   }
+  const states = (values.get('--states')?.[0] ?? '').split(',').filter((ref) => ref !== '');
+  const stateless = ['--base', '--glb', '--views', '--set', '--trace'].filter((o) => values.has(o));
+  if (values.has('--states') && (states.length === 0 || stateless.length > 0)) {
+    throw new Error(
+      `The option --states takes commits separated by commas, and no ${stateless.join(', ') || 'empty list'}.\n${USAGE}`,
+    );
+  }
   const pairs = (name: string): string[] => (values.get(name) ?? []).flatMap((v) => [name, v]);
   return {
     roles: chosen,
@@ -1325,6 +1347,7 @@ export function checkArgs(args: readonly string[]): CheckArgs {
     long: seen.has('--long'),
     trace,
     step,
+    states,
   };
 }
 
@@ -1631,6 +1654,113 @@ async function eachLimited<T, R>(
   return results;
 }
 
+/** The scripts of the gate that `--states` copies into the tree of each state. */
+const GATE_SCRIPTS: readonly string[] = ['arm-check.ts'];
+
+/**
+ * Opens the probe tree of each commit (`withProbeTree()` of `tools/ref-tree.ts`), with the gate of
+ * the working tree in place of the gate of the commit, and gives the folders to a function. Each
+ * folder goes away at the end, also after a failure or a stop.
+ *
+ * @param refs The commits.
+ * @param use The function that reads the folders, in the order of the commits.
+ * @param dirs The folders that are open already.
+ * @returns The result of the function.
+ */
+function withStateTrees<T>(
+  refs: readonly string[],
+  use: (dirs: readonly string[]) => Promise<T>,
+  dirs: readonly string[] = [],
+): Promise<T> {
+  const [ref, ...rest] = refs;
+  if (ref === undefined) {
+    return use(dirs);
+  }
+  return withProbeTree(ref, (dir) => withStateTrees(rest, use, [...dirs, dir]), {
+    prefix: 'arm-state-',
+    scripts: GATE_SCRIPTS,
+  });
+}
+
+/** The reports of the roles on one state of `--states`, or on the working tree. */
+export interface StateRun {
+  /** The name of the column: the commit as the command line gives it, or `tree`. */
+  readonly name: string;
+  /** The report of each role, or `null` for a role that the state does not have. */
+  readonly reports: ReadonlyMap<string, RoleReport | null>;
+}
+
+/**
+ * Runs the gate of the working tree on the code of each commit of `--states`, each role in a child
+ * process in the tree of the commit, and on the working tree ({@link measureRole}, with its
+ * cache). At most `--jobs` children run at the same time.
+ *
+ * @param options The command line.
+ * @returns The runs: one for each commit, then the working tree.
+ */
+async function measureStates(options: CheckArgs): Promise<StateRun[]> {
+  return withStateTrees(options.states, async (dirs) => {
+    const work = [
+      ...dirs.flatMap((dir) => options.roles.map((role) => ({ dir, role }))),
+      ...options.roles.map((role) => ({ dir: null, role })),
+    ];
+    const found = await eachLimited(work, options.jobs, async ({ dir, role }) => {
+      if (dir === null) {
+        return (await measureRole(role, { ...options, base: null })).tree;
+      }
+      const file = join(dir, `${role}.json`);
+      await runChild(
+        process.execPath,
+        [join('tools', 'arm-check.ts'), role, ...options.shared, '--json', file],
+        dir,
+      );
+      return readArmJson(await readFile(file, 'utf8')).roles[role] ?? null;
+    });
+    return [...options.states, 'tree'].map((name, k) => ({
+      name,
+      reports: new Map(
+        options.roles.map((role, i) => [role, found[k * options.roles.length + i] ?? null]),
+      ),
+    }));
+  });
+}
+
+/**
+ * Writes the table of `--states`: one row for each measure of each arm of each role, and one column
+ * for each run, with the value of the gate and the mark `FAIL` of a value over its limit, as the
+ * gate with no base gives it.
+ *
+ * @param roles The roles.
+ * @param runs The runs, one column each.
+ * @returns The lines of the table.
+ */
+export function stateLines(roles: readonly string[], runs: readonly StateRun[]): string[] {
+  const lines = [
+    `| Role | Arm | Measure (limit) | ${runs.map((run) => run.name).join(' | ')} |`,
+    `|---|---|---|${runs.map(() => '---').join('|')}|`,
+  ];
+  for (const role of roles) {
+    for (const side of SIDES) {
+      for (const measure of MEASURES) {
+        const limit = ARM_LIMITS[measure];
+        const cells = runs.map((run) => {
+          const report = run.reports.get(role);
+          const found = report ? gateValue(report.arms[side][measure], limit) : null;
+          if (!report || !found) {
+            return report ? '-' : 'no role';
+          }
+          const mark = verdictOf(found.value, null, limit) === 'FAIL' ? ' FAIL' : '';
+          return `${show(found.value, measure)}${mark}`;
+        });
+        lines.push(
+          `| ${role} | ${side} | ${limit.name} (${show(limit.limit, measure)}) | ${cells.join(' | ')} |`,
+        );
+      }
+    }
+  }
+  return lines;
+}
+
 /**
  * Runs the tool from the command line.
  *
@@ -1655,6 +1785,21 @@ async function main(): Promise<number> {
       changes?.undo();
     }
     return 0;
+  }
+  if (options.states.length > 0) {
+    const from = performance.now();
+    const runs = await measureStates(options);
+    const seconds = ((performance.now() - from) / 1000).toFixed(0);
+    console.log(
+      `Arm gate of the working tree on ${options.states.join(', ')} and on the working tree, ${options.roles.length} roles in ${seconds} s. A cell gives the value of the gate, and FAIL for a value over its limit.`,
+    );
+    console.log(['', ...stateLines(options.roles, runs)].join('\n'));
+    const tree = runs.at(-1)?.reports;
+    const fails = options.roles.some((role) => {
+      const report = tree?.get(role);
+      return report ? gateRows(role, report, null).some((row) => row.verdict === 'FAIL') : false;
+    });
+    return fails ? 1 : 0;
   }
   const started = performance.now();
   const reports = await eachLimited(options.roles, options.jobs, async (role) => ({
