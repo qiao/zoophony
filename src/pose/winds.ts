@@ -556,12 +556,13 @@ const WOLF_CLARINET_FORWARD = 20;
  *
  * The long muzzle puts the tip of the nose far in front of the mouth, and at 45° the grips moved
  * further forward: the left paw missed its grip by 2.4 cm and the right paw by 6.1 cm. So the
- * mouthpiece sits 0.3 H further back and 0.1 H lower than the mouth of the bind pose, in the mouth
- * under the muzzle, and each shoulder bone turns forward, the right 30° and the left 20°. The
- * paws then reach their grips with the spare reach of the parametric wolf of {@link WIND_HOLDS}
- * (`pnpm hold-reach wolf --instrument clarinet`). The mouthpiece goes 1.2 cm into the head. On
- * the shorter head of round `wolf-shape`, the mouthpiece 0.12 H lower went 0.6 cm into the head,
- * at the lower edge of the mouth (`docs/research/2026-10-20-wolf-shape.md`).
+ * mouthpiece sits 0.3 H further back and 0.12 H lower than the mouth of the bind pose, in the
+ * mouth under the muzzle, and each shoulder bone turns forward, the right 30° and the left 20°.
+ * The paws then reach their grips with the spare reach of the parametric wolf of
+ * {@link WIND_HOLDS} (`pnpm hold-reach wolf --instrument clarinet`). The mouthpiece goes 1.3 cm
+ * into the head. The head keeps its size in the proportions of the body (`proportions.keep` of
+ * `tools/mesh-rigs/wolf.json`). At 0.1 H lower, the mouthpiece went 1.8 cm into that head
+ * (`docs/research/2026-10-20-wolf-head/fit1.txt`).
  *
  * Both elbows point down and a little out, as a seated clarinetist lets the arms hang near the
  * body, in the play and in the rest. Of 4 elbow directions, this one gave the smallest paw turns
@@ -576,7 +577,7 @@ const WOLF_CLARINET = {
   ...WIND_HOLDS.clarinet,
   reach: 30 * MathUtils.DEG2RAD,
   reachL: 20 * MathUtils.DEG2RAD,
-  lipShift: [0, -0.1, 0.3],
+  lipShift: [0, -0.12, 0.3],
   play: holdTurn(WOLF_CLARINET_FORWARD, 0),
   restShift: [-0.17, -0.3, -0.3],
   poleL: [-0.3, -1, 0],
