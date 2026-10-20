@@ -102,6 +102,11 @@ export interface BodyCamera {
   readonly zoom: number;
   /** The angle of the camera above the floor, in degrees. */
   readonly elevation: number;
+  /**
+   * True to look at the middle of the head (the gallery query `head`). The box of the body still
+   * gives the distance at the zoom 1.
+   */
+  readonly head?: true;
 }
 
 /** The camera of a close view around a fixed vertical line of the gallery (`closeView()`). */
@@ -640,6 +645,38 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
  */
 export const SERVER_PORT = 4300;
 
+/** The zoom of the face crops of `--target head`, from the distance that shows the whole body. */
+export const HEAD_ZOOM = 3;
+
+/** The angle of the camera of the face crops above the floor, in degrees. */
+export const HEAD_ELEVATION = 10;
+
+/** The views of the face crops of `--target head`: the front, 60° to the right, and the side. */
+export const HEAD_VIEWS: readonly CloseViewAngle[] = [
+  { name: 'front', azimuth: 0 },
+  { name: 'front-60', azimuth: 60 },
+  { name: 'side', azimuth: 90 },
+];
+
+/**
+ * Gives the face crops of a role (`--target head`): the views of {@link HEAD_VIEWS}, at the rest
+ * pose and at the first moment of a note (no lift, no lowering, and seated), with the camera
+ * around the body at the zoom {@link HEAD_ZOOM}, aimed at the middle of the head.
+ *
+ * @param role The close view of the role.
+ * @returns The close view of the face crops.
+ */
+export function headViews(role: RoleViews): RoleViews {
+  const rest = role.moments.find((moment) => moment.rest);
+  const note = role.moments.find((moment) => !moment.rest && !moment.move && !moment.stand);
+  return {
+    ...role,
+    views: HEAD_VIEWS,
+    moments: [...(rest ? [rest] : []), ...(note ? [note] : [])],
+    camera: { kind: 'body', zoom: HEAD_ZOOM, elevation: HEAD_ELEVATION, head: true },
+  };
+}
+
 /** The size of one cell of the close view, in CSS pixels. */
 export const CELL = { width: 360, height: 450 } as const;
 
@@ -669,6 +706,9 @@ export function closeViewPath(
   });
   if (camera.kind === 'body') {
     query.set('body', '');
+    if (camera.head) {
+      query.set('head', '');
+    }
   } else {
     query.set('target', String(camera.target));
     query.set('x', String(camera.x));
@@ -855,6 +895,8 @@ export interface CloseViewsArgs {
    * probe.
    */
   readonly probes: readonly GalleryProbe[] | null;
+  /** The target of `--target`: `head` for the face crops ({@link headViews}), or `null`. */
+  readonly target: 'head' | null;
 }
 
 /**
@@ -970,13 +1012,13 @@ export function scaleOf(value: string | null): number {
 }
 
 /**
- * Reads the command line of the close views: `<role> <dir> [--zoom <n>] [--elevation <deg>]
+ * Reads the command line of the close views: `<role> <dir> [--target head] [--zoom <n>] [--elevation <deg>]
  * [--scale <n>] [--probe <probe,...>] [--url <url>] [--glb <file>] [--set <changes>] [--base
  * <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`.
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when it is not correct.
- * @throws Error if a zoom, an elevation, a scale, a probe, a pair, or a crop does not fit, if `--pairs`
+ * @throws Error if a target, a zoom, an elevation, a scale, a probe, a pair, or a crop does not fit, if `--pairs`
  *   comes with no `--base`, or `--crop` with no `--pairs`, if `--set` comes more than one time,
  *   or if `--glb` or `--set` comes with `--url`.
  */
@@ -993,9 +1035,13 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const glb = optionValue(args, '--glb');
   const holds = optionValue(args, '--set');
   const probe = optionValue(args, '--probe');
-  const given = [url, base, zoom, elevation, scale, pairs, crop, glb, holds, probe];
+  const target = optionValue(args, '--target');
+  const given = [url, base, zoom, elevation, scale, pairs, crop, glb, holds, probe, target];
   if (!role || !out || out.startsWith('--') || given.includes(undefined)) {
     return null;
+  }
+  if (target !== null && target !== 'head') {
+    throw new Error(`The option --target takes head, and not "${target}".`);
   }
   if (args.filter((arg) => arg === '--set').length > 1) {
     throw new Error('The option --set comes more than one time. The close views show one variant.');
@@ -1017,11 +1063,14 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
     zoom: zoom ? zoomOf(zoom) : null,
     elevation: elevationOf(elevation ?? undefined),
     scale: scaleOf(scale ?? null),
-    pairs: pairs ? pairCells(ROLE_VIEWS[role], pairs.split(',')) : null,
+    pairs: pairs
+      ? pairCells(target ? headViews(ROLE_VIEWS[role]) : ROLE_VIEWS[role], pairs.split(','))
+      : null,
     crop: crop ? cropOf(crop) : null,
     glb: glb ? resolve(glb) : null,
     holds: holds ?? null,
     probes: probe ? probesOf(probe) : null,
+    target: target ?? null,
   };
 }
 
@@ -1236,22 +1285,24 @@ async function pairImage(
 }
 
 /**
- * Gives the close view of a role with the camera of the command line: the zoom of `--zoom` and
- * the elevation of `--elevation` for each view, in place of the values of the role.
+ * Gives the close view of a role with the camera of the command line: the face crops of
+ * `--target head` ({@link headViews}), then the zoom of `--zoom` and the elevation of
+ * `--elevation` for each view, in place of the values of the role.
  *
  * @param role The close view of the role.
- * @param args The zoom and the elevation of the command line.
+ * @param args The zoom, the elevation, and the target of the command line.
  * @returns The close view.
  */
 export function roleCamera(
   role: RoleViews,
-  args: Pick<CloseViewsArgs, 'zoom' | 'elevation'>,
+  args: Pick<CloseViewsArgs, 'zoom' | 'elevation' | 'target'>,
 ): RoleViews {
   const { zoom, elevation } = args;
+  const aimed = args.target === 'head' ? headViews(role) : role;
   return {
-    ...role,
-    views: elevation === null ? role.views : role.views.map((view) => ({ ...view, elevation })),
-    camera: zoom === null ? role.camera : { ...role.camera, zoom },
+    ...aimed,
+    views: elevation === null ? aimed.views : aimed.views.map((view) => ({ ...view, elevation })),
+    camera: zoom === null ? aimed.camera : { ...aimed.camera, zoom },
   };
 }
 
@@ -1439,7 +1490,9 @@ async function roleViews(args: CloseViewsArgs, site: TreeSite): Promise<CommitRe
  * limit at each scale. Each cell of `--pairs` then gets `<role>-pair-<moment>-<view>.webp`: the
  * crop of `--crop` of the cell of the commit beside the same crop of the working tree
  * ({@link pairImage}). A probe of `--probe` renders the cells with the gallery query `probe`,
- * and puts the probe after the role in each file name, such as `timpanist-normals-views.png`.
+ * and puts the probe after the role in each file name, such as `timpanist-normals-views.png`. The
+ * face crops of `--target head` ({@link headViews}) put `head` after the role, such as
+ * `clarinetist-head-views.png`.
  *
  * @param args The command line.
  * @param site The site of the working tree.
@@ -1453,7 +1506,8 @@ async function probeViews(
 ): Promise<CommitRender> {
   const { browser } = site;
   const { out } = args;
-  const name = probe ? `${args.role}-${probe}` : args.role;
+  const target = args.target ? `${args.role}-${args.target}` : args.role;
+  const name = probe ? `${target}-${probe}` : target;
   const role = roleCamera(ROLE_VIEWS[args.role], args);
   const size = roleCell(args.scale);
   if (args.zoom !== null || args.elevation !== null || args.scale !== 1) {
@@ -3595,7 +3649,7 @@ async function renderModes(
 
 /** The usage text of the tool. */
 const USAGE = [
-  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
+  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id>] [--time <s>]... [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]...`,

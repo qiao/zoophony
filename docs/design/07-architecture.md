@@ -73,7 +73,8 @@ player.
   its piano. The query `body` turns the camera around the body of the first animal. The box of
   its body with no instrument gives the vertical line, the target, and the distance at the
   zoom 1. The azimuth 0 is the front of the animal. Thus a close view of a new role needs no
-  camera values. The query `distance` places the camera at that distance from the target, in
+  camera values. The query `head` with `body` aims the camera at the middle of the head, for the
+  face crops of `pnpm close-views <role> <dir> --target head`. The query `distance` places the camera at that distance from the target, in
   meters, with no fit to the models. Thus two pages with models of different sizes get the same
   camera. The page writes the box of its models into the attribute `data-row` of the canvas: the
   half width, the half depth, and the height of the tallest model. `pnpm choir-check`
