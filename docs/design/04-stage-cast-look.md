@@ -381,7 +381,14 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   leave out a long nose below the chin, as the trunk of the elephant (`headFloor` of `ANIMALS`),
   because the holds in `H` start at the head. Each pea eye faces out from the middle of the head
   that shows. A large head box behind the eyes turns them up, and such eyes look up, so a body
-  can turn its eyes level (`eyeLevel` of `ANIMALS`, the wolf).
+  can turn its eyes level (`eyeLevel` of `ANIMALS`, the wolf). A flat oval on a curved cheek, or
+  on a face that slopes against the direction of the eye, stood out of the fur at one edge. So
+  each oval bends along its direction to a fit of the head surface under it, and its middle lies
+  on the surface (`eyeBend()`, `StudioEyes.bends`). Its rim then lies at the fur in each view, and
+  its front stands out of the fur, as an eye on a flat face of a parametric head does. The light
+  of a bent eye lies on the front of the oval. The face under the eyes of the bear twists, and a
+  bent oval there reads as a bean, so the bear keeps a flat oval that moves out until its front
+  face shows (`flatEyes` of `ANIMALS`, `eyePush()`, `docs/decisions/2026-10-20-pea-eyes.md`).
 - **Mesh rig.** `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format
   of a studio body with Blender. The config `tools/mesh-rigs/<animal>.json` gives the joints,
   measured on cuts of the mesh, and the rules below, each with a note. The decision files of the
@@ -813,7 +820,7 @@ the head center. The table gives the parts of the parametric body (4.4).
 | Torso and neck | `models/trunk.ts` | A round pear torso with the belly forward, as in `animals.webp`, and a short neck that the torso and the head hide. |
 | Arms and hands | `models/arms.ts` | Two limbs for each arm and a round mitten. A dome around the shoulder joint sinks into the torso in each pose. |
 | Legs and feet | `models/legs.ts` | The short legs of 4.3, with round shoes on the floor or on the foot ring of a high stool. |
-| Eyes | `models/eyes.ts` | Two black upright ovals with a white light, between the front and the sides of the head, so that the side view shows them. The studio bodies have the same eyes. No mouth, except the smile lines of the panda and the wolf meshes (4.4). |
+| Eyes | `models/eyes.ts` | Two black upright ovals with a white light, between the front and the sides of the head, so that the side view shows them. The studio bodies have the same eyes, bent to the form of the head (4.4). No mouth, except the smile lines of the panda and the wolf meshes (4.4). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). |
 | Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long muzzle reaches past the mouthpiece of a wind instrument. |
 | Tails | `models/tails.ts` | The tail type of the species (4.3). A long tail goes back through the open back of the chair. |
