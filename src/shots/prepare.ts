@@ -334,9 +334,9 @@ interface WideVariant {
  */
 export const WIDE_VARIANTS: readonly WideVariant[] = [
   { azimuth: DEFAULT_AZIMUTH / DEG, elevation: DEFAULT_ELEVATION / DEG, zoom: 1 },
-  { azimuth: -24, elevation: 24, zoom: 1.1 },
-  { azimuth: 24, elevation: 24, zoom: 1.1 },
-  { azimuth: 0, elevation: 20, zoom: 1 },
+  { azimuth: -24, elevation: 21, zoom: 1.1 },
+  { azimuth: 24, elevation: 21, zoom: 1.1 },
+  { azimuth: 0, elevation: 17, zoom: 1 },
 ];
 
 /**
@@ -349,7 +349,11 @@ function defaultKey(zoom: number): ShotKey {
   return { azimuth: DEFAULT_AZIMUTH, elevation: DEFAULT_ELEVATION, zoom, fov: FIELD_OF_VIEW };
 }
 
-/** The camera values of each kind of shot, in degrees and factors (design 5.6). */
+/**
+ * The camera values of each kind of shot, in degrees and factors (design 5.6). The user asked for
+ * a slightly lower camera (2026-10-20), so each elevation is 3° lower than before, and 2° for the
+ * conductor, which stays above its head.
+ */
 export const SHOT_KEYS = {
   /**
    * The push-in keeps the wide camera farther than 0.5 of the default distance, the end of the
@@ -360,15 +364,15 @@ export const SHOT_KEYS = {
    * View 09 of `scene.png`: the stage from the front and high in the hall, farther than the
    * default view.
    */
-  high: { fov: 30, zoom: 0.75, azimuth: [0, 12], elevation: [40, 44], arc: 8, rise: 4 },
+  high: { fov: 30, zoom: 0.75, azimuth: [0, 12], elevation: [37, 41], arc: 8, rise: 4 },
   /** View 05 of `scene.png`: the conductor from behind, close, and a little above its head. */
-  conductor: { fov: 26, offset: [6, 18], elevation: 10, pushIn: 0.92 },
+  conductor: { fov: 26, offset: [6, 18], elevation: 8, pushIn: 0.92 },
   /** View 02 of `scene.png`: the orchestra over the shoulder of the bear, from the audience side. */
-  conductorBack: { fov: 30, offset: [0, 8], elevation: 22, pushIn: 0.95 },
+  conductorBack: { fov: 30, offset: [0, 8], elevation: 19, pushIn: 0.95 },
   /** Views 03 and 04 of `scene.png`: one side of the stage, from the front of that side and low. */
-  side: { fov: 30, offset: [0, 12], elevation: 14, pushIn: 0.95, arc: 6 },
-  section: { fov: 30, offset: [8, 22], elevation: 14, backRise: 8, pushIn: 0.92, arc: 6 },
-  solo: { fov: 24, offset: [20, 40], elevation: 12, backRise: 10, pushIn: 0.9, arc: 4 },
+  side: { fov: 30, offset: [0, 12], elevation: 11, pushIn: 0.95, arc: 6 },
+  section: { fov: 30, offset: [8, 22], elevation: 11, backRise: 8, pushIn: 0.92, arc: 6 },
+  solo: { fov: 24, offset: [20, 40], elevation: 9, backRise: 10, pushIn: 0.9, arc: 4 },
   /** The last shot pulls out from this zoom to 1 in the default view. */
   lastPullOut: 0.92,
 } as const;

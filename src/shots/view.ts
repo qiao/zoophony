@@ -8,13 +8,13 @@ export const FIELD_OF_VIEW = 30;
 export const NEAR = 0.1;
 
 /**
- * The elevation of the default view (design 4.5, camera): 33° above {@link DEFAULT_TARGET}, as
- * `orchestra-latest.png`. That image shows the full stage from the back heads at 0.145 of its
- * height down to the front edge, and the depth of the orchestra in the image is 0.68 of its
- * width. At 33°, the default demo gives 0.142 and 0.68 in the free area beside the open drawer.
- * The view of 25° (0.55) followed the lower camera of `mockup.png`.
+ * The elevation of the default view (design 4.5, camera): 29° above {@link DEFAULT_TARGET}. The
+ * view of 33° followed `orchestra-latest.png`: that image shows the full stage from the back heads
+ * at 0.145 of its height down to the front edge, and the depth of the orchestra in the image is
+ * 0.68 of its width. The user asked for a slightly lower camera (2026-10-20), so the view is 4°
+ * lower. The view of 25° (0.55) followed the lower camera of `mockup.png`.
  */
-export const DEFAULT_ELEVATION = 33 * MathUtils.DEG2RAD;
+export const DEFAULT_ELEVATION = 29 * MathUtils.DEG2RAD;
 
 /**
  * The target of the default view and of the wide shots (design 4.5, camera; 5.6): the point that
