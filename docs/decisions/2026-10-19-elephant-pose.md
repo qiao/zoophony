@@ -19,4 +19,5 @@ the measures. The user can reverse each decision. Then update its section, and r
 | Between strikes, each mallet turns 40° up and 0.3 rad out around its grip (`PercussionHold.cock`), as the reference mallets point 25° to 51° up. The head comes down for the strike. | 5.3 |
 | The mallets stay over the kettles in the rest pose (`PercussionHold.ready`), because the hanging left paw went 3.7 cm into the front left kettle. | 5.2 |
 | The top of each grip still points toward the shoulder: `up` lowered the paw turn by 3° to 4° only, and a roll of the top by 90° bent the wrist about 90°. | 5.3 |
+| Three shapes fit the new hold: the right and the left arm at a strike, and the bent right wrist with the mallet up (`raise` of `tools/mesh-rigs/elephant.json`). The play, lift, and rest folds are 0.0%. The shapes of the old hold folded 98.6% of the play. | 4.4 |
 | Open: the paws turn about 130° on the forearms, almost all as a twist, and the right arm skin stays flat (0.68 of the bind) at the forearm and the shoulder. | 4.4, 9.3 |
