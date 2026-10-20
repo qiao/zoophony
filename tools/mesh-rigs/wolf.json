@@ -441,6 +441,8 @@
     "palette": 48,
     "dark": 0.02,
     "eyeShare": 0.34,
+    "noseShare": 0.5,
+    "noseShareNote": "The user, 2026-10-20: \"the wolf's nose has a large black triangle\". One large face (7.4 cm2, at the left of the muzzle top) covers the edge of the black nose of the texture. With the share eyeShare of dark samples, it took black and the gloss of the nose, and showed as a black wedge in the three-quarter views. In the nose box, a face is dark only from the share noseShare, and else takes the mean of its light samples: 1 face. 0.6 and 0.75 took 3 and 5 faces with no visible gain (docs/research/2026-10-20-wolf-brows.md).",
     "eyeBox": [
       [
         0.018525,
