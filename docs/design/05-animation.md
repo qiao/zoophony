@@ -42,7 +42,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Trumpet, monkey | Chair, stands as a soloist | none | The right hand presses the valves | The trumpet moves off the mouth and turns down | `WIND_HOLDS.trumpet`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species monkey <dir>` |
 | Trombone, panda | Chair, stands as a soloist | Play: pBone, "How To Hold A Trombone", and Western Carolina University, "Slide Technique" (`docs/research/2026-10-18-panda-mesh.md`). Left shoulder: Human Kinetics (`docs/research/2026-10-18-panda-folds.md`). Technique: `docs/reference/wind-technique.md` | The left paw holds the weight at the grip near the mouthpiece, with the left shoulder forward, and the right paw moves the slide with the pitch. The slide turns right and down toward the right shoulder, as near to the level and to the front as the arm reaches | The trombone moves off the mouth and stands upright at the right side | `PANDA_PLAY`, `PANDA_TROMBONE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-18-mesh-panda.md`, `2026-10-18-trombone-fit.md` | `pnpm close-views trombonist <dir>` |
 | Tuba, rhino | Chair | none | The right hand presses the valves | The tuba moves off the mouth and tilts | `WIND_HOLDS.tuba`, `pose/winds.ts` | 5.3 woodwinds and brass | `pnpm close-views species rhino <dir>` |
-| Timpani, elephant | Stands | Playing spot: Vic Firth, "Timpani" (`docs/research/2026-10-19-elephant-mesh.md`) | Each mallet strikes the playing spot of a kettle on its side, nearer to the player than the middle of the head, and the trunk hangs in the gap between the two front kettles | The arms hang a little out to the sides with the mallets | `PERCUSSION_HOLDS.timpani`, `TIMPANI`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-19-mesh-elephant.md` | `pnpm close-views timpanist <dir>` |
+| Timpani, elephant | Stands | The reference images (`docs/research/2026-10-19-elephant-pose.md`) | Each mallet strikes the front kettle of its side, 0.25 m in from the near rim, and turns up and out between strikes. The trunk hangs in the gap between the two front kettles | The paws stay above the near rims with the mallets up | `PERCUSSION_HOLDS.timpani`, `TIMPANI`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-19-elephant-pose.md` | `pnpm close-views timpanist <dir>` |
 | Bass drum, badger | Stands | none | The beater in the right hand strikes the right head | The rest of the timpani | `PERCUSSION_HOLDS['bass-drum']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `pnpm close-views species badger <dir>` |
 | Snare drum, badger | Stands | none | Two mallets strike the head | The rest of the timpani | `PERCUSSION_HOLDS['snare-drum']`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `?page=species&only=snare-drum&body` |
 | Cymbals, badger | Stands | none | The two cymbals meet in front of the shoulders | The rest of the timpani | `PERCUSSION_HOLDS.cymbals`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion | `?page=species&only=cymbals&body` |
@@ -308,10 +308,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   `WIND_HOLDS`: the trombone moves off the mouth and stands upright at the right side, with the
   bell down, and both paws keep their grips. It does not rest on a leg
   (`docs/decisions/2026-10-18-mesh-panda.md`).
-- **Timpani, standing.** The elephant rests as each standing percussion player: the arms hang
-  with the mallets, and the trunk hangs in the gap at the front of the kettles. The upper arm of
-  the mesh lies on the side of the body, so the hanging arm touches the body
-  (`docs/decisions/2026-10-19-mesh-elephant.md`).
+- **Timpani, standing.** The elephant does not hang its arms: its paws stay above the near rims,
+  with the mallets up, as between two strikes (`PercussionHold.ready`). The hanging paws reached
+  into the large kettles in front of it. The trunk hangs in the gap at the front of the kettles
+  (`docs/decisions/2026-10-19-elephant-pose.md`).
 - **Hanging arms.** A standing player without a lap hangs its arms (`HANG` of `pose/hang.ts`):
   each part of the arm swings out by the smallest angle at which it touches the side of the body,
   so that the palms rest at the height of the hips, as an animal of the reference images holds
@@ -481,11 +481,14 @@ The code constants of each family hold the times, the angles, and the lengths of
     (user decision of 2026-10-10). The cymbals meet in front of the shoulders.
   - The timpani elephant has short arms behind a deep belly, and its trunk hangs between its two
     front kettles. So each hand strikes only the kettles on its side (`sides` of `HandsRule`), and
-    a roll stays in one hand, because the other hand cannot reach across the trunk. Each mallet
-    strikes the playing spot of a real timpanist, a little in from the rim nearest to the player
-    (`PercussionHold.rim`), and it points to its target from a place in front of its shoulder
-    (`PercussionHold.home`). Thus the wrist stays near the body, and a lift over the kettle beside
-    the player does not take the paw into the body. The elbows of the timpani point down and
+    a roll stays in one hand, because the other hand cannot reach across the trunk. Each note
+    plays on one of the two front kettles (`PercussionHold.pair`), because the outer kettles of
+    the real size stand beyond the reach of the arms. The paws rest above the near rims, as in
+    the reference images, and each mallet strikes 0.25 m in from the near rim, as the user chose
+    (`PercussionHold.rim`). A real timpanist strikes about 3 inches in. Each mallet points to its
+    target from a place below and in front of its shoulder (`PercussionHold.home`). Between
+    strikes, the mallet turns around the grip, up and out to the side of its hand, as a real
+    player turns the wrist up, and it comes down for the strike (`PercussionHold.cock`). The elbows of the timpani point down and
     near the body, as a real timpanist holds them (`poleL`, `poleR`). Elbows out at the height
     of the shoulders roll the upper arms far, and the skin twists at the shoulder (4.4). The
     upper arms touch the side of the body, as the user rule of 2026-10-10 asks. The kettles leave a

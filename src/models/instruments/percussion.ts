@@ -13,13 +13,17 @@ import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
 export type KettleCount = 2 | 3 | 4;
 
 /**
- * The timpani, in meters (design 4.6). The kettles are 0.7 of their real size (32, 29, 26, and
- * 23 inches), so that four kettles fit around the player. They stand in an arc in front of the
- * player, the largest at the left. Each kettle plays a range of MIDI keys.
+ * The timpani, in meters (design 4.6). The heads of the kettles have their real size (32, 29, 26,
+ * and 23 inches), as the kettles of the reference images, which are about 1.4 head heights of the
+ * elephant wide. They stand in an arc in front of the player, the largest at the left. Each
+ * kettle plays a range of MIDI keys.
  */
 export const TIMPANI = {
-  /** The radius of the head of each kettle, from the largest. */
-  radii: [0.285, 0.26, 0.23, 0.205],
+  /**
+   * The radius of each kettle at the corners of its first bowl of 8 faces, from the largest. The
+   * head of the bowl of 16 faces has the real radius ({@link kettleHeadRadius}).
+   */
+  radii: [0.431, 0.391, 0.35, 0.31],
   /** The MIDI keys of each kettle: D2 to A2, F2 to C3, B♭2 to F3, and D3 to A3. */
   keys: [
     [38, 45],
@@ -27,15 +31,22 @@ export const TIMPANI = {
     [46, 53],
     [50, 57],
   ],
-  /** The height of the heads above the floor. */
-  headHeight: 0.72,
-  /** The distance of the kettle centers from the player. */
-  arc: 0.72,
+  /**
+   * The height of the heads above the floor. The paws of the elephant rest above the near rims,
+   * and its forearms point forward and down, as in the reference images.
+   */
+  headHeight: 0.76,
+  /**
+   * The distance of the kettle centers from the player. The near rims of the two front kettles
+   * stand about 0.1 m in front of the belly of the elephant.
+   */
+  arc: 0.74,
   /**
    * The distance from the player of the centers of the kettles beyond the two kettles beside the
    * front gap, in meters, at least {@link TIMPANI.arc}. Their angles on the arc do not change.
+   * At the arc, the third kettle of the real size cut into the side of the elephant.
    */
-  side: 0.72,
+  side: 0.95,
   /**
    * The gap on the arc at the front of the player, in meters, between the kettles at its left and
    * at its right, so that a long nose that hangs from the head, as the trunk of the elephant,

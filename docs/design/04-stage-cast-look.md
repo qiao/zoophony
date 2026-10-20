@@ -985,9 +985,11 @@ so it plays a smaller oboe (`oboeScale`), the largest at which each palm reaches
 keeps the arms that the user chose, so it plays a smaller bassoon (`bassoonScale`), the largest at
 which each palm reaches its grip with 3 cm to spare in the play and in the rest
 (`docs/decisions/2026-10-19-mesh-beaver.md`). The elephant keeps the short arms of its mesh, so the
-kettles of the timpani move to the arms, in place of longer arms: each mallet reaches the
-playing spot of each kettle on its side, and the kettles leave a gap at the front of the player
-for the trunk (`TIMPANI`, `docs/decisions/2026-10-19-mesh-elephant.md`). The pig plays the horn
+kettles of the timpani move to the arms, in place of longer arms: the two front kettles stand
+near its belly, the outer kettles stand further out, and the kettles leave a gap at the front of
+the player for the trunk. The kettles have their real size and stand at the height of the
+reference images, so that the paws rest above the near rims (`TIMPANI`,
+`docs/decisions/2026-10-19-elephant-pose.md`). The pig plays the horn
 of the app with the arms that the user chose. Its long snout puts the mouthpiece far in front of
 its body, so its hold turns the horn back toward the body, and the left paw reaches the valves
 and the right paw the bell in the play and in the rest (5.3, `docs/decisions/2026-10-19-mesh-pig.md`).
@@ -1018,7 +1020,7 @@ of each instrument (`models/instruments/`) holds its sizes and the offsets of it
 | Trumpet | A tube with valves and a forward bell. | The mouthpiece at the mouth, forward and a little down. |
 | Trombone | A tube with a slide from the first position to the seventh. | The mouthpiece at the mouth. The slide is a second piece on the `slide` bone, in the right palm. |
 | Tuba | A large tube with an upward bell. | In the lap, with the bell left of the head. |
-| Timpani | Two to four kettles, by the highest timpani note (`kettleCount()`). | In an arc around the player, with a mallet in each hand. |
+| Timpani | Two to four kettles of the real size, by the highest timpani note (`kettleCount()`). | In an arc around the player, the outer kettles further out, with a mallet in each hand. |
 | Bass drum, snare drum, xylophone | Drums on stands, and 30 bars from C5 to F7. | In front of the player, below the shoulders of the badger, so that the wrists stay out of the belly. |
 | Cymbals, small percussion | Two crash cymbals, a triangle, and a tambourine. | In the hands, above the floor. The beater strikes the tambourine for key 54. |
 | Baton | A straight white stick that tapers to the tip (user, 2026-10-13). | In the right hand. |

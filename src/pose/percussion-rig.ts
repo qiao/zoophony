@@ -79,8 +79,10 @@ export interface PercussionHold {
   /**
    * The distance of the playing spot of each kettle from the rim of its head nearest to the
    * player, in meters on the floor plane. A real timpanist strikes about 3 inches in from the
-   * rim, directly in front of the player (`docs/research/2026-10-19-elephant-mesh.md`). 0 keeps
-   * the target at the middle of the head, as for the other instruments.
+   * rim, directly in front of the player (`docs/research/2026-10-19-elephant-mesh.md`). The
+   * elephant strikes further in, so that its paws rest above the near rims, as the user chose
+   * (`docs/decisions/2026-10-19-elephant-pose.md`). 0 keeps the target at the middle of the
+   * head, as for the other instruments.
    */
   readonly rim: number;
   /**
@@ -125,25 +127,27 @@ const MALLET_HOME: Vec3 = [0, -0.2, -0.75];
 /** The holds of the percussion instruments. */
 export const PERCUSSION_HOLDS = {
   // The elephant mesh has short arms behind a deep belly, and its trunk hangs between the two
-  // front kettles: each hand keeps the kettles of its side, strikes the playing spot near the
-  // rim, and points its mallet from beside the shoulder. The elbows point down and near the
-  // body, as a real timpanist holds them, so that the upper arms roll less and the skin does not
-  // twist at the shoulder (2026-10-19-arm-skin decisions). The top of each grip points toward
-  // the shoulder, so that the paws do not twist on the forearms (2026-10-19-elephant-arms
-  // decisions).
+  // front kettles: each hand strikes the front kettle of its side, and the outer kettles stand
+  // beyond its reach (pair). The paw rests above the near rim, and the mallet strikes 0.25 m in
+  // from the rim, as the user chose for the look of the reference images. Between strikes, the
+  // mallet turns up and out around the grip (cock). The elbows point down and near the body, so
+  // that the upper arms roll less and the skin does not twist at the shoulder (2026-10-19-arm-skin
+  // decisions). The top of each grip points toward the shoulder. The mallets stay over the
+  // kettles in the rest pose, because the hanging paws reach into the large kettles (ready,
+  // 2026-10-19-elephant-pose decisions).
   timpani: {
     hands: 'sides',
-    sizes: { lift: 0.12, rest: 0.04 },
+    sizes: { lift: 0.1, rest: 0.2 },
     offsetL: [-0.05, 0, 0],
     offsetR: [0.05, 0, 0],
     poleL: [-0.7, -1, 0.2],
     poleR: [0.7, -1, 0.2],
-    rim: 0.055,
-    home: [0, -0.1, -0.4],
+    rim: 0.25,
+    home: [0, -0.4, -0.2],
     top: 'shoulder',
-    cock: null,
-    ready: false,
-    pair: false,
+    cock: { up: 0.7, out: 0.3 },
+    ready: true,
+    pair: true,
   },
   'bass-drum': {
     hands: 'right',
