@@ -9,7 +9,9 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
 
 1. Import the source GLB file, weld the corners, and scale the mesh to 1 unit from the soles to
    the top, with the soles at y = 0. The math uses the axes of the studio: y up, +z forward, and
-   +x the left side of the animal. With `cut` of the config, the faces that join each hanging
+   +x the left side of the animal. With `proportions` of the config, the mesh then takes a factor
+   on each axis (`width` on x, `height` on y, `depth` on z), so that a body can be shorter or
+   wider than the mesh of the user before the joints. With `cut` of the config, the faces that join each hanging
    forearm to the belly go, and new faces close both holes (`cut_seam()`). With `skinNormals` of
    the cut, the file names the caps of the arm, and the app gives them the normals of the skin.
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
@@ -330,8 +332,8 @@ def mirrored(v):
 
 def load_mesh(config):
     """Imports the source GLB file, welds the corners, and gives the vertices (axes of the studio,
-    1 unit high, soles at y = 0), the triangles, the UV of each corner, the base color texture,
-    and the scale from the units of the file."""
+    1 unit high, soles at y = 0, then scaled on each axis by `proportions`), the triangles, the UV
+    of each corner, and the base color texture."""
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=config['source'])
     meshes = [o for o in bpy.context.scene.objects if o.type == 'MESH']
@@ -365,6 +367,15 @@ def load_mesh(config):
     scale = 1.0 / (top - floor)
     verts = (verts - [0.0, floor, 0.0]) * scale
     log(f'source: {len(verts)} vertices, {len(tris)} triangles, scale {scale:.6f}')
+    # `proportions` scales the source on each axis around the middle of the soles: x by `width`,
+    # y by `height`, and z by `depth`. The soles stay at y = 0, and the joints and the boxes of the
+    # config are in the units of the scaled source.
+    rule = config.get('proportions')
+    if rule:
+        factors = [rule.get('width', 1), rule.get('height', 1), rule.get('depth', 1)]
+        verts = verts * factors
+        log(f'proportions: the source takes the factors {factors} (width, height, depth), and is '
+            f'{verts[:, 1].max():.4f} u high')
     return verts, tris, uvs, texture
 
 

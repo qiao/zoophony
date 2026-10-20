@@ -101,6 +101,16 @@ export interface MeshRigConfig {
    * size, and the shoulder keeps its form.
    */
   readonly armGirth?: readonly [upper: number, fore: number];
+  /**
+   * The factors of the source on each axis after its scale to 1 unit high, 1 when they are not
+   * given (`load_mesh()` of `tools/blender/rig_mesh.py`): `width` on x, `height` on y, and `depth`
+   * on z. The joints and the boxes of the config are in the units of the scaled source.
+   */
+  readonly proportions?: {
+    readonly width?: number;
+    readonly height?: number;
+    readonly depth?: number;
+  };
   /** The joints of the middle and of the left side. The right side mirrors the left side. */
   readonly joints: Readonly<Record<string, MeshRigJoint>>;
   /** The rules of `--check`. */
@@ -153,12 +163,15 @@ export function parseConfig(text: string): MeshRigConfig {
     config.trunkFactor ?? 1,
     ...(config.girthFactor ?? [1, 1]),
     ...(config.armGirth ?? [1, 1]),
+    config.proportions?.width ?? 1,
+    config.proportions?.height ?? 1,
+    config.proportions?.depth ?? 1,
     config.app.shoulders,
     config.app.reach,
   ];
   if (!numbers.every((n) => Number.isFinite(n) && n > 0)) {
     throw new Error(
-      'The arm factor, the leg factor, the head factor, the neck factor, the trunk factor, the girth factors, the arm girth factors, app.shoulders, and app.reach must be positive numbers.',
+      'The arm factor, the leg factor, the head factor, the neck factor, the trunk factor, the girth factors, the arm girth factors, the proportions, app.shoulders, and app.reach must be positive numbers.',
     );
   }
   const missing = CONFIG_JOINTS.filter((name) => config.joints[name]?.head.length !== 3);
@@ -253,7 +266,8 @@ function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigV
  * The optional rules of a config that a variant of `--set` can add, by their path, each with a
  * value of the kind of its value: the head factor (`headFactor`), the neck factor (`neckFactor`),
  * the trunk factor (`trunkFactor`), the girth factor (`girthFactor`), the factors of the
- * cross-section of the arms (`armGirth`), the root share of the tail in
+ * cross-section of the arms (`armGirth`), the factors of the source on each axis
+ * (`proportions`), the root share of the tail in
  * the sit of the haunch (`sit.root`), the fixed seat top of the sit (`sit.top`), the curve of the
  * curled seated tail (`studio.tailCurl`), the move of the colors of the plain fur
  * (`colors.tone`), the light border of a black fur region (`colors.border`), the round eye
@@ -266,6 +280,7 @@ const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, Config
   ['trunkFactor', 1],
   ['girthFactor', [1, 1]],
   ['armGirth', [1, 1]],
+  ['proportions', { width: 1, height: 1, depth: 1 }],
   ['sit.root', [0, 1]],
   ['sit.top', 0],
   ['studio.tailCurl', { points: [[0, 0, 0]] }],
