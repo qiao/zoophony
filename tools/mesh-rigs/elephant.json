@@ -527,16 +527,16 @@
           1
         ],
         "upper_arm": [
-          0.5573,
-          0.3647,
-          -0.2435,
-          0.7051
+          0.4582,
+          0.3695,
+          0.0407,
+          0.8074
         ],
         "forearm": [
-          -0.0339,
-          0.0196,
-          -0.044,
-          0.9983
+          -0.0198,
+          0.0115,
+          -0.0257,
+          0.9994
         ]
       },
       "fade": [
@@ -544,25 +544,7 @@
         20
       ],
       "below": 0,
-      "note": "The shape of the right arm at a strike, with the mallet top toward the shoulder (PercussionHold.top): face 235 of the cut mesh at the front of the right armpit folded in each play sample, and the upper arm turns 90 degrees from its bind in their mean (pnpm raise-fit timpanist --faces 235 --side R, raise-fit.txt of docs/research/2026-10-19-elephant-arms/)."
-    },
-    {
-      "side": "L",
-      "bone": "hand",
-      "turns": {
-        "hand": [
-          0.1717,
-          0.6756,
-          -0.0865,
-          0.7118
-        ]
-      },
-      "fade": [
-        35,
-        45
-      ],
-      "below": 0.3,
-      "note": "The shape of the bent left wrist: the thin face 1652 of the cut mesh at the back of the left paw folded in each play sample, and the paw turns 79 degrees from its bind on the forearm in their mean. The rule turns 10 degrees further on the same axis (pnpm raise-fit --bone hand). A fit on the rig with the ring folded more samples (rig-final1.txt)."
+      "note": "The shape of the right arm at a strike, with the elbows down and the twist bone: face 235 of the cut mesh at the front of the right armpit folded in 91% of the play samples, and the upper arm turns 72 degrees from its bind in their mean (pnpm raise-fit timpanist --faces 235 --side R, docs/research/2026-10-19-arm-skin/elephant/)."
     },
     {
       "side": "L",
@@ -575,16 +557,22 @@
           1
         ],
         "upper_arm": [
-          0.7195,
-          -0.0112,
-          0.1887,
-          0.6683
+          0.5959,
+          -0.1379,
+          -0.1292,
+          0.7805
         ],
         "forearm": [
-          -0.333,
-          -0.1927,
-          0.4314,
-          0.816
+          -0.2727,
+          -0.1579,
+          0.3534,
+          0.8808
+        ],
+        "hand": [
+          0.0558,
+          0.7072,
+          0.4304,
+          0.5581
         ]
       },
       "fade": [
@@ -592,7 +580,7 @@
         20
       ],
       "below": 0.3,
-      "note": "The shape of the bent left elbow of the arm that waits over the kettle beside the player: faces 834 to 850 and 1717 of the cut mesh at the inner left elbow folded in 38% of the play samples, and the forearm turns 71 degrees from the upper arm in their mean (pnpm raise-fit --bone forearm)."
+      "note": "The shape of the bent left elbow of the arm that waits over the kettle beside the player: faces 1677 and 2497 of the cut mesh at the outer left elbow folded in 37% of the play samples, and the forearm turns 57 degrees from the upper arm in their mean (pnpm raise-fit --bone forearm). The rule also bends the paw as in these samples (turns.hand). With no paw turn, the pose of the rule turned the inner elbow over (face 837), and the shape folded it in 37% of the play."
     },
     {
       "side": "L",
@@ -604,16 +592,16 @@
           1
         ],
         "upper_arm": [
-          0.6023,
-          -0.3088,
-          0.2298,
-          0.6993
+          0.5004,
+          -0.3284,
+          -0.0556,
+          0.7992
         ],
         "forearm": [
-          -0.1052,
-          -0.0609,
-          0.1363,
-          0.9832
+          -0.0858,
+          -0.0497,
+          0.1112,
+          0.9888
         ]
       },
       "fade": [
@@ -621,7 +609,25 @@
         20
       ],
       "below": 0,
-      "note": "The shape of the left arm at a strike: face 832 of the cut mesh at the front of the left armpit folded in 62% of the play samples, and the upper arm turns 91 degrees from its bind in their mean (pnpm raise-fit --side L)."
+      "note": "The shape of the left arm at a strike: face 832 of the cut mesh at the front of the left armpit folded in 51% of the play samples, and the upper arm turns 74 degrees from its bind in their mean (pnpm raise-fit --side L)."
+    },
+    {
+      "side": "L",
+      "bone": "hand",
+      "turns": {
+        "hand": [
+          0.1174,
+          0.7468,
+          0.1285,
+          0.6419
+        ]
+      },
+      "fade": [
+        20,
+        30
+      ],
+      "below": 0.3,
+      "note": "The shape of the bent left wrist at a strike: faces 2401 and 2402 of the cut mesh at the back of the left paw folded in 16% of the play samples with the three other shapes, and the paw turns 90 degrees from its bind on the forearm in their mean. The rule turns 10 degrees further on the same axis (pnpm raise-fit --bone hand)."
     }
   ]
 }
