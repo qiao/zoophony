@@ -4,22 +4,24 @@
   "name": "Wolf",
   "weld": 1e-05,
   "proportions": {
-    "width": 1.2,
-    "height": 0.9,
+    "width": 1.13064,
+    "height": 0.84798,
+    "depth": 0.9422,
+    "head": 1.235,
     "keep": "head",
     "blend": [
       0.74,
       0.775
     ]
   },
-  "proportionsNote": "The user, 2026-10-20: \"make the wolf 0.9x shorter while keeping its width\", then \"actually, make the wolf 1.2x the width, for it to have similar body ratio as the fox\", then \"both change\". The source takes 1.2 of its width (x) and 0.9 of its height (y) after its scale to 1 unit high, and keeps its depth (z), a choice of the manager. The meters for each unit stay, so the standing body is 0.9 times as high and 1.2 times as wide as in round mesh-wolf. Each place, height, width, and box of this config is in the units of the scaled source. The notes give the measures of round mesh-wolf on the source before the scale: x then takes 1.2, and y 0.9 (docs/research/2026-10-20-wolf-shape/shape_config.py). The cuts of the scaled source check the joints (docs/research/2026-10-20-wolf-shape/arm-axis.txt, paw.txt). The user then said: \"don't modify the head of the wolf\". With keep, the head (the skull, the muzzle, the ears, and the eyes) keeps the form and the size of round mesh-wolf and takes no factor: it moves with the top of the neck. The blend zone is the narrow neck of the source before the factors, from y 0.74, where the neck is narrow above the tops of the shoulders (x \u00b10.082 at 0.74, \u00b10.068 at 0.76), to the head line at 0.775 (weights.headFrom before the factors), where the chin starts (docs/research/2026-10-20-wolf-mesh/measures.txt). A zone from the neck joint at 0.70 took the top of the right shoulder, and one face there folded in each rest sample (docs/research/2026-10-20-wolf-head/check-0.70.log). The head joints, the ear joints, the eye box, the nose box, and the heights of the head weights take the map of the rule (docs/research/2026-10-20-wolf-head/head_config.py).",
+  "proportionsNote": "The user, 2026-10-20: \"make the wolf 0.9x shorter while keeping its width\", then \"actually, make the wolf 1.2x the width, for it to have similar body ratio as the fox\", then \"both change\". The source takes 1.2 of its width (x) and 0.9 of its height (y) after its scale to 1 unit high, and keeps its depth (z), a choice of the manager. The meters for each unit stay, so the standing body is 0.9 times as high and 1.2 times as wide as in round mesh-wolf. Each place, height, width, and box of this config is in the units of the scaled source. The notes give the measures of round mesh-wolf on the source before the scale: x then takes 1.2, and y 0.9 (docs/research/2026-10-20-wolf-shape/shape_config.py). The cuts of the scaled source check the joints (docs/research/2026-10-20-wolf-shape/arm-axis.txt, paw.txt). The user then said: \"don't modify the head of the wolf\". With keep, the head (the skull, the muzzle, the ears, and the eyes) keeps the form and the size of round mesh-wolf and takes no factor: it moves with the top of the neck. The blend zone is the narrow neck of the source before the factors, from y 0.74, where the neck is narrow above the tops of the shoulders (x \u00b10.082 at 0.74, \u00b10.068 at 0.76), to the head line at 0.775 (weights.headFrom before the factors), where the chin starts (docs/research/2026-10-20-wolf-mesh/measures.txt). A zone from the neck joint at 0.70 took the top of the right shoulder, and one face there folded in each rest sample (docs/research/2026-10-20-wolf-head/check-0.70.log). The head joints, the ear joints, the eye box, the nose box, and the heights of the head weights take the map of the rule (docs/research/2026-10-20-wolf-head/head_config.py). The user then said: \"make the wolf's head the same size as the fox. reduce its body if needed.\" The kept head takes the factor head (1.235) on each axis around the top of the blend zone, so that the mean of its skull height and its skull width (0.464 m) is the mean of the red fox (0.465 m). The manager chose to keep the standing skull top at 1.620 m, so the body below the neck takes 0.9422 on each axis: width 1.2 x 0.9422, height 0.9 x 0.9422, and depth 0.9422, and keeps the width and the depth to the height of round wolf-shape. The places of this config take the map of both factors (docs/research/2026-10-20-wolf-face/size_config.py). The mean factor of the skull, 1.2095, left the mean 9.8 mm below the fox, because the chin lies in the blend zone and grows less than the head (docs/research/2026-10-20-wolf-face/head-probe.txt).",
   "app": {
-    "shoulders": 1.032773,
-    "reach": 0.5081,
-    "note": "The size of the reference images, then the proportions above. In round mesh-wolf, the seated wolf sat 1.10 times as high as the seated dog cellist of the app, the middle of the range 1.03 to 1.16 of orchestra-latest.png and orchestra-side.png (docs/research/2026-10-20-wolf-mesh/landmark-probe.txt): the seated skull top at 1.600 m, and the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9459 u) at 1.765 m. The proportions keep the meters for each unit, 1.8659 m, so the standing shoulder joints go from 0.615 u (1.147526 m) to 0.5535 u (1.032773 m), the standing skull top to 0.8684 u (1.620 m), because the head keeps its size, and the seated skull top to 1.470 m (docs/research/2026-10-20-wolf-head/size-round.txt). The reach is the reach of round mesh-wolf, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "shoulders": 0.973079,
+    "reach": 0.4787,
+    "note": "The size of the reference images, then the proportions above. In round mesh-wolf, the seated wolf sat 1.10 times as high as the seated dog cellist of the app, the middle of the range 1.03 to 1.16 of orchestra-latest.png and orchestra-side.png (docs/research/2026-10-20-wolf-mesh/landmark-probe.txt): the seated skull top at 1.600 m, and the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9459 u) at 1.765 m. The proportions keep the meters for each unit, 1.8659 m. Round wolf-shape put the standing shoulder joints at 0.5535 u (1.032773 m), and the body factor 0.9422 of round wolf-face puts them at 0.521508 u (0.973079 m). The larger head keeps the standing skull top at 0.8684 u (1.620 m, docs/research/2026-10-20-wolf-face/head-probe.txt). The reach is the reach of round mesh-wolf (0.5081 m) times the body factor, because the arms keep the arm factor: 0.4787 m. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
   "armFactor": 1.178,
-  "armFactorNote": "The factor of the upper arm and the forearm. The parametric wolf of 3268680f plays the clarinet with a reach of 0.516 m, and round mesh-wolf took 0.508 m, the smallest stretch for that reach. On the scaled source, the arm with no factor reaches 0.439 m, and the factor 1.178 gives 0.508 m, below the limit 1.25 of a mesh of the user (pnpm rig-mesh wolf --check, docs/research/2026-10-20-wolf-shape/check-first.log).",
+  "armFactorNote": "The factor of the upper arm and the forearm. The parametric wolf of 3268680f plays the clarinet with a reach of 0.516 m, and round mesh-wolf took 0.508 m, the smallest stretch for that reach. On the scaled source, the arm with no factor reaches 0.439 m, and the factor 1.178 gives 0.508 m, below the limit 1.25 of a mesh of the user (pnpm rig-mesh wolf --check, docs/research/2026-10-20-wolf-shape/check-first.log). The body factor 0.9422 of round wolf-face scales the arms with the body, and the arm factor stays, so the reach is 0.4787 m (app.reach).",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair).",
   "joints": {
@@ -32,7 +34,7 @@
       "tail": [
         0,
         0,
-        0.1
+        0.09422
       ],
       "roll": [
         0,
@@ -43,145 +45,145 @@
     "hips": {
       "head": [
         0,
-        0.2835,
-        0.008
+        0.267114,
+        0.007538
       ],
       "tail": "spine"
     },
     "spine": {
       "head": [
         0,
-        0.351,
-        0.005
+        0.330712,
+        0.004711
       ],
       "tail": "spine1"
     },
     "spine1": {
       "head": [
         0,
-        0.414,
-        0.01
+        0.390071,
+        0.009422
       ],
       "tail": "chest"
     },
     "chest": {
       "head": [
         0,
-        0.477,
-        0.022
+        0.449429,
+        0.020728
       ],
       "tail": "neck"
     },
     "neck": {
       "head": [
         0,
-        0.63,
-        0.022
+        0.593586,
+        0.020728
       ],
       "tail": "head"
     },
     "head": {
       "head": [
         0,
-        0.7025,
-        0.022
+        0.66336,
+        0.02717
       ],
       "tail": [
         0,
-        0.8684,
-        0.04
+        0.868246,
+        0.0494
       ]
     },
     "ear_L": {
       "head": [
-        0.054,
-        0.8425,
-        0.043
+        0.06669,
+        0.836259,
+        0.053105
       ],
       "tail": [
-        0.0748,
-        0.9219,
-        0.0691
+        0.092378,
+        0.934319,
+        0.085338
       ]
     },
     "clavicle_L": {
       "head": [
-        0.024,
-        0.5715,
-        0.035
+        0.022613,
+        0.538467,
+        0.032977
       ],
       "tail": "upper_arm_L"
     },
     "upper_arm_L": {
       "head": [
-        0.102,
-        0.5535,
-        0.035
+        0.096104,
+        0.521508,
+        0.032977
       ],
       "tail": "forearm_L",
       "roll": "palm"
     },
     "forearm_L": {
       "head": [
-        0.174,
-        0.4797,
-        0.066
+        0.163943,
+        0.451973,
+        0.062185
       ],
       "tail": "forearm_twist_L",
       "roll": "palm"
     },
     "forearm_twist_L": {
       "head": [
-        0.2034,
-        0.44325,
-        0.0855
+        0.191643,
+        0.41763,
+        0.080558
       ],
       "tail": "hand_L",
       "roll": "palm"
     },
     "hand_L": {
       "head": [
-        0.2328,
-        0.4068,
-        0.105
+        0.219344,
+        0.383287,
+        0.098931
       ],
       "tail": "fingers_L",
       "roll": "palm"
     },
     "fingers_L": {
       "head": [
-        0.2448,
-        0.36054,
-        0.1252
+        0.230651,
+        0.339701,
+        0.117963
       ],
       "tail": [
-        0.26196,
-        0.33921,
-        0.1366
+        0.246819,
+        0.319604,
+        0.128705
       ],
       "roll": "palm"
     },
     "thigh_L": {
       "head": [
-        0.0804,
-        0.27,
-        0.015
+        0.075753,
+        0.254394,
+        0.014133
       ],
       "tail": "shin_L"
     },
     "shin_L": {
       "head": [
-        0.0864,
-        0.162,
-        -0.008
+        0.081406,
+        0.152636,
+        -0.007538
       ],
       "tail": "foot_L"
     },
     "foot_L": {
       "head": [
-        0.1056,
-        0.0495,
-        0.0
+        0.099496,
+        0.046639,
+        0
       ],
       "tail": "toes_L",
       "roll": [
@@ -192,14 +194,14 @@
     },
     "toes_L": {
       "head": [
-        0.12,
-        0.018,
-        0.05
+        0.113064,
+        0.01696,
+        0.04711
       ],
       "tail": [
-        0.11736,
-        0.00756,
-        0.0912
+        0.110577,
+        0.007123,
+        0.085929
       ],
       "roll": [
         0,
@@ -210,8 +212,8 @@
     "tail": {
       "head": [
         0,
-        0.36,
-        -0.075
+        0.339192,
+        -0.070665
       ],
       "tail": "tail_tip",
       "roll": [
@@ -223,13 +225,13 @@
     "tail_tip": {
       "head": [
         0,
-        0.216,
-        -0.117
+        0.203515,
+        -0.110237
       ],
       "tail": [
         0,
-        0.0729,
-        -0.18
+        0.068686,
+        -0.169596
       ],
       "roll": [
         0,
@@ -314,21 +316,21 @@
     "note": "The studio has no wolf. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 15 0). The shin of the scaled source slants 4.1 degrees forward (docs/research/2026-10-20-wolf-shape/leg-turns.txt). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk shares and the bind arms are the values of the cat, the dog, the panda, the hippo, the mouse, and the pig. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back and down over the back of the seat, 40 degrees below the level, and the tip hangs down behind the seat, 76 degrees below the level. On the scaled source, the root at 45 degrees went 2.0 cm into the seat at rest, and at 40 degrees 0.6 cm (docs/research/2026-10-20-wolf-shape/tail-variants.txt)."
   },
   "weights": {
-    "armSplit": 0.108,
+    "armSplit": 0.101758,
     "stretchRamp": 0,
-    "headFrom": 0.6975,
+    "headFrom": 0.657184,
     "earBase": [
-      0.8175,
-      0.8525
+      0.805385,
+      0.84861
     ],
     "tail": {
-      "radius": 0.08,
-      "behind": -0.045,
+      "radius": 0.075376,
+      "behind": -0.042399,
       "root": [
-        -0.018,
-        0.045
+        -0.01696,
+        0.042399
       ],
-      "bend": 0.036,
+      "bend": 0.033919,
       "smooth": 3
     },
     "sliver": {
@@ -342,55 +344,55 @@
       "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, and the pig."
     },
     "clavicleFrom": [
-      0.5148,
-      0.5553
+      0.485045,
+      0.523204
     ],
     "armTop": [
-      0.6228,
-      0.667769
+      0.586802,
+      0.629081
     ],
     "shoulderHead": [
-      0.044,
-      0.0726
+      0.047313,
+      0.078066
     ],
     "fingers": 0.5,
     "haunch": {
       "height": [
-        0.189,
-        0.297
+        0.178076,
+        0.279833
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the dog, moved with the joints of the wolf: it starts 0.03 units above the knee and ends 0.03 units above the thigh joint."
     },
     "rigid": [
       [
-        0.01428,
-        0.56673,
-        0.1352
+        0.013455,
+        0.533973,
+        0.127385
       ],
       [
-        0.09744,
-        0.51993,
-        0.0511
+        0.091808,
+        0.489878,
+        0.048146
       ],
       [
-        -0.1016,
-        0.511,
-        0.0442
+        -0.095728,
+        0.481464,
+        0.041645
       ],
       [
-        -0.191,
-        0.4325,
-        0.0996
+        -0.17996,
+        0.407502,
+        0.093843
       ],
       [
-        -0.1545,
-        0.4687,
-        0.0826
+        -0.14557,
+        0.441609,
+        0.077826
       ],
       [
-        0.0989,
-        0.6541,
-        0.0315
+        0.093184,
+        0.616293,
+        0.029679
       ]
     ],
     "rigidNote": "The corners of each thin face at these points take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py). The points are the middles of faces 261 and 1987 in the units of the source (pnpm fold-probe clarinetist --faces). Face 261, a sliver across the middle of the chest under the neck, had the weights of both clavicles and folded in each sample. Face 1987, at the front of the left shoulder, folded in each rest sample and in 14% of the lift samples. With both rules, no sample folded in round mesh-wolf (check-rigid.log). On the scaled source, face 229, a sliver of the right shoulder, folded in each sample, and faces 69, 148 (one item, because they share corners), and 76 of the right forearm and face 2093 of the top of the left shoulder folded in each rest sample. With the four more points, no sample folds (docs/research/2026-10-20-wolf-shape/check-rigid3.log).",
@@ -422,26 +424,26 @@
     "eyeShare": 0.34,
     "eyeBox": [
       [
-        0.015,
-        0.7625,
-        0.1
+        0.018525,
+        0.737459,
+        0.1235
       ],
       [
-        0.05,
-        0.7975,
-        0.14
+        0.06175,
+        0.780685,
+        0.1729
       ]
     ],
     "noseBox": [
       [
-        -0.025,
-        0.7175,
-        0.17
+        -0.030875,
+        0.681884,
+        0.20995
       ],
       [
-        0.025,
-        0.7575,
-        0.205
+        0.030875,
+        0.731285,
+        0.253175
       ]
     ],
     "nose": [
@@ -459,11 +461,11 @@
     "note": "The values of the fox, the cat, the dog, the hippo, the mouse, and the pig."
   },
   "chair": {
-    "halfWidth": 0.18,
-    "front": 0.06,
-    "back": -0.1,
-    "backHeight": 0.15,
-    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the wolf (x 0.144 on the scaled source). The values of front and back are the values of the dog."
+    "halfWidth": 0.169596,
+    "front": 0.056532,
+    "back": -0.09422,
+    "backHeight": 0.14133,
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the wolf (x 0.144 on the source of round wolf-shape). The chair takes the body factor 0.9422 of round wolf-face. The values of front and back are the values of the dog."
   },
   "crease": {
     "rings": 2,

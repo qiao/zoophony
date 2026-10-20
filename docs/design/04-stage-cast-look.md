@@ -388,9 +388,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     choice of the user or to the sheet. The other parts keep their sizes, and the holds in `H` read
     the source head (`ungrown()` of `tools/studio-body.ts`). Before the joints, the whole source
     can take a factor on each axis, for a body that is shorter or wider than the mesh
-    (`proportions`). The head can keep its size and move with the top of the neck, with a blend
-    zone on the neck (`proportions.keep`). The joints and the rules of the config are then in the
-    units of the scaled source.
+    (`proportions`). The head can keep its form and move with the top of the neck, with a blend
+    zone on the neck (`proportions.keep`), at its size or at a size of its own
+    (`proportions.head`). The joints and the rules of the config are then in the units of the
+    scaled source.
   - Seat. The rig poses the seated bind of 5.2 (`studio.legTurns`), lowers the haunch onto the
     seat (`sit`), and can turn the trunk upright (`studio.trunk`). `pnpm rig-mesh --check` gives
     the gaps of the tail to the floor and to the chair over one sway period (`tools/tail-gap.ts`).
@@ -487,8 +488,11 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   (`docs/decisions/2026-10-20-mesh-wolf.md`). Then the user made the body of the wolf 0.9 times as
   high and 1.2 times as wide, for a body ratio near the red fox, and kept the head at its size, so
   the seated wolf is now about as high as the dogs (`proportions`,
-  `docs/decisions/2026-10-20-wolf-shape.md`). No reference image shows a badger, so the badger
-  takes the head top of its parametric body (`docs/decisions/2026-10-20-mesh-badger.md`).
+  `docs/decisions/2026-10-20-wolf-shape.md`). Then the user gave the wolf the head size of the red
+  fox, and the body below the neck became smaller on each axis, so that the standing skull top
+  keeps its height (`proportions.head`, `docs/decisions/2026-10-20-wolf-face.md`). No reference
+  image shows a badger, so the badger takes the head top of its parametric body
+  (`docs/decisions/2026-10-20-mesh-badger.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear then rises to its seat height
   (`seat` of `ANIMALS`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
