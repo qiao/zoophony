@@ -580,6 +580,19 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-19-mesh-pig.md`).
 - [ ] Pig standing soloist: no demo has a standing pig, and `pnpm pose-depth --soloist` takes only
       a bowed role, so only the close views check it (`2026-10-19-mesh-pig.md`).
+- [ ] Wolf size: the agent chose the seated skull top at 1.10 times the dog cellist, the middle of
+      the ratio 1.03 to 1.16 of the orchestra images, while the user slept. Show the user the
+      lineup beside the dog and the fox (`2026-10-20-mesh-wolf.md`).
+- [ ] Wolf colors: the tone rule moves the gray fur to the warm gray of `SPECIES_COLORS.wolf`, but
+      the wolf of the orchestra images is a cool gray with no cream chest (`sheet-colors.txt` of
+      `docs/research/2026-10-20-wolf-mesh/`). Show the user the play frame, and ask.
+- [ ] Wolf tail: at rest, the root of the tail goes 1.2 cm into the back of the seat
+      (`tail-gap.ts` of `docs/research/2026-10-20-wolf-mesh/`).
+- [ ] Wolf clarinet: the mouthpiece goes 1.3 cm into the head under the long muzzle, and no demo
+      has a standing wolf soloist, so only the close views check it (`2026-10-20-mesh-wolf.md`).
+- [ ] Remove the unused code of the `pointed` ears and the `bushy` tail: no species has them
+      since the wolf mesh. The outline of the pointed ear stays for the antlered ears of the deer,
+      and the `long` snout for the deer and the badger (`2026-10-20-mesh-wolf.md`).
 - [ ] Elephant timpanist: the seam where the upper arm of the mesh lies on the side of the body
       shades dark lines on the front of the body when the arms play (`timpanist-base-views.webp`
       of `docs/research/2026-10-19-elephant-mesh/`). The arm cut of `2026-10-19-elephant-arms.md`
