@@ -558,13 +558,13 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Elephant timpanist grip: the user saw the mallets held in the reverse direction, and
       squeezed arms from the back. Done: the head out of the front of the fist, the mallets
       forward and in, the paw turn 39° / 44° (`2026-10-19-elephant-grip.md`).
-- [ ] Elephant timpanist arm gate: the grip turn fails (28° / 32°) against the old accepted grip.
-      Accept the paw crops (`crops.webp` of `docs/research/2026-10-19-elephant-grip/`), then set
-      `ACCEPTED_GRIPS` of the timpanist to L -2, R -6 (`2026-10-19-elephant-grip.md`).
-- [ ] Elephant timpanist arm gate: the stretch of the left wrist counts from the rest, where the
-      wrist lifts the head, and fails (0.22, base 0.09). Against the bind it is lower than the
-      base. Decide the reference of the stretch for a lifted rest, or a smaller lift
-      (`docs/research/2026-10-19-elephant-grip.md` 5).
+- [x] Elephant timpanist arm gate: the grip turn failed (28° / 32°) against the old accepted grip.
+      Done: the manager accepted the paw crops, and `ACCEPTED_GRIPS` of the timpanist is L -2,
+      R -6 (`2026-10-19-elephant-grip.md`).
+- [ ] Arm gate: the stretch counts from the rest sample, so a rest where the wrist lifts the head
+      gives a false stretch. The elephant left arm gives 0.22 (base 0.09, limit 0.35), and less
+      than the base against the bind. Count the stretch from the bind, or from the rest only when
+      the rest keeps the wrist straight (`docs/research/2026-10-19-elephant-grip.md` 5).
 - [ ] Elephant timpanist: the third shape of `raise` (the bent right wrist with the mallet up)
       has no pose near its rule since the new grip. Remove it, or fit it to another fold
       (`tools/mesh-rigs/elephant.json`).
