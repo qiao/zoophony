@@ -416,8 +416,16 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       into it, the right upper arm 2.0 cm into the body, and the bow reach is 69% (goal 70%). A loop
       that moves the cello and rebuilds the left-arm shapes (`2026-10-17-dog-folds.md`).
 - [ ] Dog cellist: the knees stay about 21 cm from the leaned cello (`2026-10-17-dog-rest.md`).
-- [ ] Cat violist: the left forearm goes 2.4 cm into the viola in the 4th and 5th positions. The
-      user decides if the viola moves forward and the paw loses the nut (`2026-10-17-cat-hand.md`).
+- [ ] Cat violist: the left forearm goes 1.5 cm into the viola in the play (2.5 cm before the tilt
+      of `2026-10-20-cat-left-arm.md`). The user decides if the viola moves forward and the paw
+      loses the nut (`2026-10-17-cat-hand.md`).
+- [ ] Cat violist: in the 5th position, the left wrist under the neck keeps a twisted band, as on
+      `main` before the tilt (`2026-10-20-cat-left-arm.md`).
+- [ ] Cat violist: the left wrist bends about 30° from the forearm in the low positions, where a
+      real violist keeps it straight. The manager accepts the crops and the grip entry of the arm
+      gate, or the user chooses a smaller viola (`2026-10-20-cat-left-arm.md`).
+- [ ] Cat violist: the play forearm twist of the arm gate grew from 32° to 49° with the tilt of
+      the left paw, below the limit of 80°. Find its cause in the crops (`2026-10-20-cat-left-arm.md`).
 - [ ] Cat violist: play and lift folds 1.3 and 1.4 points over the limit since the slim arms
       (`2026-10-17-cat-look.md`).
 - [ ] Red fox: the bow grip is 2.2 cm from the middle of the paw for the standing soloist
