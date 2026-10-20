@@ -45,6 +45,12 @@ export const SCALED_INSTRUMENTS = [
   'cymbals',
 ] as const satisfies readonly InstrumentId[];
 
+/**
+ * The form of the cymbals of a species (design 4.6). `hand`: a pair of crash cymbals, one in each
+ * hand. `suspended`: one cymbal on a stand, struck with a yarn mallet in each hand.
+ */
+export type CymbalForm = 'hand' | 'suspended';
+
 /** An instrument of {@link SCALED_INSTRUMENTS}. */
 export type ScaledInstrument = (typeof SCALED_INSTRUMENTS)[number];
 
@@ -131,7 +137,7 @@ export interface InstrumentGrips {
  * - `keyboard`: the line over the piano keys, from the lowest key to the highest.
  * - `slide`: the line of the trombone slide brace from the first position to the seventh.
  * - `bell`: the middle of the opening of a bell.
- * - `head`: the middle of a drum head, a kettle head, or the tambourine head.
+ * - `head`: the middle of a drum head, a kettle head, the tambourine head, or a suspended cymbal.
  * - `bars`: the line over the xylophone bars, from the lowest bar to the highest.
  * - `mallet-head`: the part of a mallet, a stick, or a beater that strikes.
  * - `plate`: the middle of the inner face of a cymbal.

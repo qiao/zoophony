@@ -1,6 +1,6 @@
 import type { BowGrip } from './instruments/strings.ts';
 import { isScaledInstrument } from './instruments/types.ts';
-import type { InstrumentId, ScaledInstrument } from './instruments/types.ts';
+import type { CymbalForm, InstrumentId, ScaledInstrument } from './instruments/types.ts';
 import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
 import type { StudioPalette } from './studio-format.ts';
@@ -94,6 +94,12 @@ interface CommonParams {
    * on the strap side.
    */
   readonly cymbalScale?: number;
+  /**
+   * The form of the cymbals of the species (design 4.6): `hand` when it is not given. A species
+   * whose short arms cannot hold hand cymbals out of a deep body plays a suspended cymbal on a
+   * stand with two yarn mallets.
+   */
+  readonly cymbalForm?: CymbalForm;
   /**
    * True for a species that sits with no chair (design 4.5, props). The body keeps its seated
    * pose, its seat height, and its feet on the floor, and the app builds no chair under it

@@ -194,6 +194,7 @@ export function buildPlayer(
     kettles,
     instrumentScale(params, instrument),
     params.bowGrip,
+    params.cymbalForm,
   );
   const placed = attachInstrument(builder, model, body);
   const positions = {

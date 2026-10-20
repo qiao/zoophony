@@ -548,6 +548,26 @@ export function buildSnareDrum(): InstrumentModel {
  */
 export const CYMBAL_LIFT = 0.12;
 
+/**
+ * The profile of a cymbal of the scale 1 around its axis (+y), in meters: from the inner face at
+ * the axis out to the rim, then back over the dome to the bell. The 12 faces around the axis make
+ * the cymbal 0.40 m wide between two opposite faces.
+ */
+const CYMBAL_PROFILE: readonly ProfilePoint[] = [
+  [0, -0.023],
+  [0.06, -0.041],
+  [0.2 / Math.cos(15 * MathUtils.DEG2RAD), -0.045],
+  [0.065, -0.033],
+  [0.045, -0.017],
+  [0, -0.01],
+];
+
+/** The height of the rim of a cymbal of the scale 1 on its axis, from the strap at the bell. */
+const CYMBAL_RIM = -0.045;
+
+/** The height of the inner face of a cymbal of the scale 1 at its axis, from the strap. */
+const CYMBAL_INNER = -0.023;
+
 /** A cymbal: its piece, its target, and the point of the piece at the palm. */
 interface Cymbal extends HandTool {
   readonly grip: Vec3;
@@ -565,25 +585,7 @@ interface Cymbal extends HandTool {
 function cymbal(bone: 'malletL' | 'malletR', scale: number): Cymbal {
   const piece = new PieceBuilder(scale);
   const lift = CYMBAL_LIFT * scale;
-  // The 12 faces around the axis make the cymbal 0.40 m wide between two opposite faces.
-  const r = 0.2 / Math.cos(15 * MathUtils.DEG2RAD);
-  // The profile goes from the inner face at the axis out to the rim, then back over the dome.
-  piece.add(
-    lathe(
-      [
-        [0, -0.023],
-        [0.06, -0.041],
-        [r, -0.045],
-        [0.065, -0.033],
-        [0.045, -0.017],
-        [0, -0.01],
-      ],
-      12,
-    ),
-    INSTRUMENT_COLORS.brass,
-    transform(),
-    'metal',
-  );
+  piece.add(lathe(CYMBAL_PROFILE, 12), INSTRUMENT_COLORS.brass, transform(), 'metal');
   piece.add(box(0.03, 0.012, 0.012), INSTRUMENT_COLORS.hardware, transform([0, -0.004, 0]));
   // The inner face of the left cymbal looks to the right (+x), and the right cymbal to the left.
   const inward: Vec3 = bone === 'malletL' ? [1, 0, 0] : [-1, 0, 0];
@@ -598,8 +600,8 @@ function cymbal(bone: 'malletL' | 'malletR', scale: number): Cymbal {
     target: {
       kind: 'plate',
       bone,
-      from: [0, -0.023 * scale, 0],
-      to: [0, -0.023 * scale, 0],
+      from: [0, CYMBAL_INNER * scale, 0],
+      to: [0, CYMBAL_INNER * scale, 0],
       normal: [0, -1, 0],
       keys: null,
     },
@@ -629,6 +631,68 @@ export function buildCymbals(scale = 1): InstrumentModel {
     },
     targets: [left.target, right.target],
     size: pieceSize(left.piece),
+  };
+}
+
+/**
+ * The suspended cymbal on its stand, in meters (design 4.6): one cymbal of the size of a hand
+ * cymbal of the app, level on a stand in front of the player, which strikes it with a yarn
+ * mallet in each hand (`SpeciesParams.cymbalForm`). A real player rolls with the two mallets
+ * near the edge, about opposite each other, and plays single notes at the edge
+ * (`docs/reference/percussion-technique.md` 7).
+ */
+export const SUSPENDED_CYMBAL = {
+  /** The height of the rim above the floor. */
+  height: 0.5,
+  /** The distance of the middle of the cymbal in front of the player. */
+  forward: 0.42,
+  /** The radius of the yarn ball of each mallet. */
+  ball: 0.02,
+  /**
+   * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
+   * paw, in radians, as `SNARE_DRUM.malletTilt`: a real player holds the mallets in the matched
+   * grip of the snare drum.
+   */
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  malletTilt: 1.3 as number,
+} as const;
+
+/**
+ * Builds a suspended cymbal on its stand, and two yarn mallets (design 4.6). The cymbal stands
+ * level in front of the player, with its bell up. The target is the middle of the cymbal at the
+ * height of a mallet ball on the rim, and the offset of each hand moves it to the playing spot
+ * near the edge on its side (`PercussionHold.offsetL`).
+ *
+ * @param scale The scale of the cymbal (`SpeciesParams.cymbalScale`): 1 gives a cymbal 0.40 m
+ *   wide.
+ * @returns The model.
+ */
+export function buildSuspendedCymbal(scale = 1): InstrumentModel {
+  const c = SUSPENDED_CYMBAL;
+  const piece = new PieceBuilder();
+  // The bell is up, so the rim hangs below the strap.
+  const center: Vec3 = [0, c.height - CYMBAL_RIM * scale, -c.forward];
+  const profile = CYMBAL_PROFILE.map(([r, y]): ProfilePoint => [r * scale, y * scale]);
+  piece.add(lathe(profile, 12), INSTRUMENT_COLORS.brass, transform(center), 'metal');
+  const under = center[1] + CYMBAL_INNER * scale;
+  tripod(piece, [center[0], 0, center[2]], [center[0], under, center[2]], 0.24);
+  const yarn = (bone: 'malletL' | 'malletR'): HandTool =>
+    mallet(bone, 0.3, c.ball, INSTRUMENT_COLORS.drumShell, undefined, undefined, c.malletTilt);
+  const left = yarn('malletL');
+  const right = yarn('malletR');
+  const instrument = piece.build('instrument', hold('floor'));
+  const spot: Vec3 = [center[0], c.height + c.ball, center[2]];
+  return {
+    id: 'cymbals',
+    parent: 'root',
+    pieces: [instrument, left.piece, right.piece],
+    grips: handGrips(),
+    targets: [
+      { kind: 'head', bone: 'instrument', from: spot, to: spot, normal: [0, 1, 0], keys: null },
+      left.target,
+      right.target,
+    ],
+    size: pieceSize(instrument),
   };
 }
 

@@ -4,6 +4,7 @@ import {
   buildCymbals,
   buildSmallPercussion,
   buildSnareDrum,
+  buildSuspendedCymbal,
   buildTimpani,
   buildXylophone,
 } from './percussion.ts';
@@ -16,7 +17,7 @@ import { buildBowedString } from './strings.ts';
 import type { BowGrip } from './strings.ts';
 import { buildWoodwind } from './woodwinds.ts';
 import { isScaledInstrument } from './types.ts';
-import type { InstrumentId, InstrumentModel, ScaledInstrument } from './types.ts';
+import type { CymbalForm, InstrumentId, InstrumentModel, ScaledInstrument } from './types.ts';
 
 /** All instruments of design 4.6, in the order of the inventory. */
 export const INSTRUMENT_IDS = [
@@ -57,6 +58,8 @@ export const INSTRUMENT_IDS = [
  * @param bowGrip The grip of the bow in the right paw of the species of the player
  *   (`SpeciesParams.bowGrip`), or `undefined` for the grip of the bind pose of the bow. The
  *   instruments with no bow ignore it.
+ * @param cymbalForm The form of the cymbals of the species of the player
+ *   (`SpeciesParams.cymbalForm`). The other instruments ignore it.
  * @returns The model.
  */
 export function buildInstrument(
@@ -64,9 +67,10 @@ export function buildInstrument(
   kettles: KettleCount = 4,
   scale = 1,
   bowGrip?: BowGrip,
+  cymbalForm: CymbalForm = 'hand',
 ): InstrumentModel {
   if (isScaledInstrument(id)) {
-    return buildScaled(id, scale, bowGrip);
+    return buildScaled(id, scale, bowGrip, cymbalForm);
   }
   switch (id) {
     case 'viola':
@@ -113,9 +117,15 @@ export function buildInstrument(
  *   `models/species.ts`).
  * @param bowGrip The grip of the bow in the right paw, or `undefined` for the grip of the bind
  *   pose of the bow.
+ * @param cymbalForm The form of the cymbals.
  * @returns The model.
  */
-function buildScaled(id: ScaledInstrument, scale: number, bowGrip?: BowGrip): InstrumentModel {
+function buildScaled(
+  id: ScaledInstrument,
+  scale: number,
+  bowGrip: BowGrip | undefined,
+  cymbalForm: CymbalForm,
+): InstrumentModel {
   switch (id) {
     case 'violin':
     case 'cello':
@@ -125,7 +135,7 @@ function buildScaled(id: ScaledInstrument, scale: number, bowGrip?: BowGrip): In
     case 'bassoon':
       return buildWoodwind(id, scale);
     case 'cymbals':
-      return buildCymbals(scale);
+      return cymbalForm === 'suspended' ? buildSuspendedCymbal(scale) : buildCymbals(scale);
     default: {
       const unhandled: never = id;
       throw new Error(`The scaled instrument "${String(unhandled)}" is not known.`);
