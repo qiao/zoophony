@@ -403,9 +403,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     eyes take the color of the fur around them. A rule can move the plain fur in Oklab toward the
     color of the reference after a choice of the user (`colors.tone`): the cat takes half of the
     move to its sheet, the white fur of the panda takes the white of `SPECIES_COLORS.panda`, and
-    each plain face of the hippo, of the mouse, of the elephant, of the pig, and of the wolf takes
-    the hue and the chroma of the fur or the belly color of its species color with its own
-    lightness. A face is dark when a third of its texture samples are below a luminance limit
+    each plain face of the hippo, of the mouse, of the elephant, and of the pig takes the hue and
+    the chroma of the fur or the belly color of its species color with its own lightness. The wolf
+    has no such rule, because the hues of its texture match its sheet. A face is dark when a third of its texture samples are below a luminance limit
     (`colors.dark`). The dark gray fur of the wolf lies near the limit of the other meshes, so the
     wolf takes a lower limit, and only its nose, pupils, and small spots of the paws are dark. The cream tusks and
     nails of the elephant keep their colors. A second rule moves a colored fur in Oklch

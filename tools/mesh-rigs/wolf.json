@@ -419,60 +419,7 @@
       0.08,
       0.08
     ],
-    "tone": {
-      "chroma": 0.06,
-      "light": [
-        0.97,
-        0.99
-      ],
-      "keep": [],
-      "points": [
-        [
-          0.3,
-          0,
-          -0.0027,
-          0.0052
-        ],
-        [
-          0.4,
-          0,
-          -0.0042,
-          0.0064
-        ],
-        [
-          0.5,
-          0,
-          -0.0053,
-          0.006
-        ],
-        [
-          0.6,
-          0,
-          -0.0057,
-          0.0009
-        ],
-        [
-          0.7,
-          0,
-          -0.0084,
-          -0.0049
-        ],
-        [
-          0.8,
-          0,
-          -0.0106,
-          -0.0119
-        ],
-        [
-          0.9,
-          0,
-          -0.0092,
-          -0.0133
-        ]
-      ],
-      "note": "The tone rule of the hippo, the mouse, the elephant, and the pig: each plain face takes the hue and the chroma of the species color of its band and keeps its lightness. A row is [L, dL, da, db] in Oklab. The gray fur of the mesh (L 0.35 to 0.55, hue 36 degrees, chroma 0.012) moves to the hue and the chroma of the fur of SPECIES_COLORS.wolf (#bab2aa, hue 68 degrees, chroma 0.015), and the cream chest, belly, muzzle, and tail tip (L 0.8 to 0.95, hue 66 degrees, chroma 0.027) to the belly color #f0ece4 (hue 85 degrees, chroma 0.012). Between L 0.6 and 0.8, the move blends from the fur to the belly. Only the two faces of the amber eye have a chroma above 0.06 (tone-probe.txt)."
-    },
-    "note": "A face is dark when at least eyeShare of its samples have a linear luminance below dark. The other meshes take dark 0.05, but the dark gray fur of the wolf lies near that limit: 890 of the 3,119 faces were dark and took the mean of their darkest samples. With 0.02, 117 faces are dark: the black nose, the pupils, and small spots of the paws and the feet (dark-probe.txt). A dark face in the eye box is a face of an eye: 4 faces on the left and 3 on the right, at x 0.025 to 0.038, y 0.851 to 0.862, and z 0.119 to 0.125. A face in the nose box whose color is nearer to the nose color than to white is a face of the black nose, at the tip of the muzzle (y 0.80 to 0.83, z 0.18 to 0.197). The values of samples, palette, and eyeShare are the values of the other meshes."
+    "note": "A face is dark when at least eyeShare of its samples have a linear luminance below dark. The other meshes take dark 0.05, but the dark gray fur of the wolf lies near that limit: 890 of the 3,119 faces were dark and took the mean of their darkest samples. With 0.02, 117 faces are dark: the black nose, the pupils, and small spots of the paws and the feet (dark-probe.txt). A dark face in the eye box is a face of an eye: 4 faces on the left and 3 on the right, at x 0.025 to 0.038, y 0.851 to 0.862, and z 0.119 to 0.125. A face in the nose box whose color is nearer to the nose color than to white is a face of the black nose, at the tip of the muzzle (y 0.80 to 0.83, z 0.18 to 0.197). The values of samples, palette, and eyeShare are the values of the other meshes. The config has no tone rule: each face keeps the hue and the chroma of the texture, which match the sheet wolf-turnaround.png (the gray fur hue 36 degrees against 35, the cream chest 68 against 67, docs/research/2026-10-20-wolf-mesh/tone-probe.txt and sheet-colors.txt)."
   },
   "eyeShell": {
     "lift": 0.002,
