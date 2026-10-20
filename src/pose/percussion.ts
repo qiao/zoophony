@@ -295,9 +295,9 @@ function poseHand(
     malletHand(side, head, hand, shoulder.position);
   } else if (side.kind === 'plate') {
     head.addScaledVector(offset.fromArray(hand.normal), side.sign * hand.height);
-    wrist.fromArray(side.face).sub(offset.fromArray(arm.bind.wrist));
-    wrist.subVectors(head, wrist);
-    turn.identity();
+    turn.fromArray(side.turn);
+    offset.fromArray(side.face).sub(wristBind.fromArray(arm.bind.wrist)).applyQuaternion(turn);
+    wrist.subVectors(head, offset);
   } else if (side.kind === 'hold') {
     wrist.fromArray(side.wrist);
     turn.fromArray(side.hand);
@@ -326,8 +326,8 @@ function poseHand(
 
 /**
  * Writes the arms and the fingers of a percussion player (design 5.3, 4.7). Each mallet head goes
- * to the place of its strike state, and the two-bone IK places each arm. The cymbals keep the
- * turn of the bind pose, and their inner faces meet at the crash point at the note start. In the
+ * to the place of its strike state, and the two-bone IK places each arm. The cymbals keep
+ * one turn from the bind pose (`PERCUSSION_PLACES.plateTurn`), and their inner faces meet at the crash point at the note start. In the
  * rest pose, the arms hang a little out to the sides, clear of the body (design 5.2).
  *
  * @param rig The points of the player.

@@ -258,6 +258,13 @@ export const PERCUSSION_PLACES = {
   /** The cymbals meet here, from the middle of the two shoulder joints. */
   crash: [0, -0.09, -1.1],
   /**
+   * The world rotation of both cymbals from the bind pose, where the plates are vertical and
+   * their inner faces look along x. The crash normal turns with them, so the inner faces stay
+   * parallel at the crash. `holdTurn(0, <z>)` of `pose/winds.ts` tilts the plates from vertical:
+   * a positive turn puts the left plate under the right plate.
+   */
+  plateTurn: IDENTITY,
+  /**
    * The clip of the triangle in the left hand, from the left shoulder joint: at the height of the
    * mouth of the badger, as near to the eye level of a real player as its short arm reaches.
    */
@@ -316,6 +323,8 @@ export type PercussionSide =
       readonly face: Vec3;
       /** -1 for the left cymbal and 1 for the right cymbal: the side of the crash point. */
       readonly sign: -1 | 1;
+      /** The world rotation of the hand from the bind pose (`PERCUSSION_PLACES.plateTurn`). */
+      readonly turn: Quat;
     }
   | {
       readonly kind: 'hold';
@@ -532,15 +541,17 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
         .add(new Vector3(...right.bind.shoulder))
         .multiplyScalar(0.5);
       const crash = inH(PERCUSSION_PLACES.crash).add(middle);
-      targets.set(0, { point: toVec3(crash), normal: [1, 0, 0] });
+      const plateTurn = PERCUSSION_PLACES.plateTurn;
+      const normal = new Vector3(1, 0, 0).applyQuaternion(new Quaternion(...plateTurn));
+      targets.set(0, { point: toVec3(crash), normal: toVec3(normal) });
       const face = (bone: 'malletL' | 'malletR'): Vec3 =>
         bindTarget(
           model,
           findTarget(model, (t) => t.kind === 'plate' && t.bone === bone),
         ).point;
       sides = [
-        { kind: 'plate', arm: left, face: face('malletL'), sign: -1 },
-        { kind: 'plate', arm: right, face: face('malletR'), sign: 1 },
+        { kind: 'plate', arm: left, face: face('malletL'), sign: -1, turn: plateTurn },
+        { kind: 'plate', arm: right, face: face('malletR'), sign: 1, turn: plateTurn },
       ];
       break;
     }
