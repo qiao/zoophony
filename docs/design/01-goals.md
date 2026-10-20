@@ -86,6 +86,9 @@ side.
 - No reference image shows a pig. The mesh of the user is the target of the pig, and the pig has
   the size of the parametric pig, by the rule of the user for the mouse
   (`docs/decisions/2026-10-19-mesh-pig.md`).
+- The wolf sits on a chair at the right, with the clarinet, beside the dog cellists. The mesh of
+  the user is the target of the form of the wolf, and these two images give its size against the
+  dogs (`docs/decisions/2026-10-20-mesh-wolf.md`).
 
 The reference image [`reference/fox-views.png`](../reference/fox-views.png) (2494 × 1354 px)
 shows the red fox of the violins from the front, the side, and the back, on a chair. The user
@@ -186,7 +189,8 @@ panda, the fox, the rabbit, the polar bear, and the dog (a beagle). The sheets o
 bear are `cat-views.png` and `bear-views.png`.
 
 - A sheet is the target of the form, the face, and the colors of its species. Where it differs
-  from an older sheet of the same species, it wins. The mesh of the user wins over the sheet.
+  from an older sheet of the same species, it wins. The mesh of the user wins over the sheet, as
+  the wolf mesh wins over `wolf-turnaround.png` (`docs/decisions/2026-10-20-mesh-wolf.md`).
 - A sheet has no scale. The size of each species comes from the rules above and from design 4.4.
 - On 2026-10-10, a rigged bear from the GLB file of the user had a skin from the texture of the
   file, with the brown of this image, and the round tail of this image. The user reverted the
