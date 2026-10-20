@@ -594,6 +594,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       no species has them since the beaver mesh (`2026-10-19-mesh-beaver.md`).
 - [ ] `docs/agents/model-traps.md` has 3,170 words, above its limit of about 3,000
       (`docs/agents/writing.md`). Cut it in a prose pass.
+- [ ] Bear conductor: at the start of the lift, the baton paw turns from 26° to 180° in 0.13 s, and
+      at 0.20 s it snaps from 176° to 105° in 0.01 s. `pnpm arm-check conductor` fails on the paw
+      jumps of the right arm in 5.8% of the lift samples (`2026-10-19-arm-gate.md`,
+      `docs/research/2026-10-19-arm-gate-2/conductor-lift.webp`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
