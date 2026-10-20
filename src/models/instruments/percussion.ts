@@ -32,6 +32,11 @@ export const TIMPANI = {
   /** The distance of the kettle centers from the player. */
   arc: 0.72,
   /**
+   * The distance from the player of the centers of the kettles beyond the two kettles beside the
+   * front gap, in meters, at least {@link TIMPANI.arc}. Their angles on the arc do not change.
+   */
+  side: 0.72,
+  /**
    * The gap on the arc at the front of the player, in meters, between the kettles at its left and
    * at its right, so that a long nose that hangs from the head, as the trunk of the elephant,
    * stays between them. The larger half of the kettles stands at the left of the gap. With 0, the
@@ -237,7 +242,8 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
     const w = widths[i] ?? 0;
     const a = angle + w / 2;
     angle += w;
-    const center: Vec3 = [t.arc * Math.sin(a), 0, -t.arc * Math.cos(a)];
+    const distance = i === split - 1 || i === split ? t.arc : Math.max(t.arc, t.side);
+    const center: Vec3 = [distance * Math.sin(a), 0, -distance * Math.cos(a)];
     const y = t.headHeight;
     // A deep round copper bowl under the head, with a silver hoop at its top, on three black
     // legs, as the timpani of the polished images. The bowl has 16 faces, and its radius is
