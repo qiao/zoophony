@@ -144,6 +144,7 @@ describe('closeView', () => {
       x: 0,
       z: 0,
       body: false,
+      head: false,
       distance: null,
     };
     expect(closeView(new URLSearchParams(''))).toEqual(defaults);
@@ -157,6 +158,7 @@ describe('closeView', () => {
       x: -1.5,
       z: 0.2,
       body: false,
+      head: false,
       distance: null,
     });
     expect(closeView(new URLSearchParams('only=bear&body')).body).toBe(true);

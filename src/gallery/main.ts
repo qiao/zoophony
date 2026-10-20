@@ -48,6 +48,7 @@ import {
   gallerySupport,
   galleryTransport,
   gridPlaces,
+  headBoundsOf,
   instrumentItems,
   moveTransport,
   selectItems,
@@ -264,18 +265,20 @@ const transport = galleryTransport(search);
 const move = galleryMove(search);
 
 /**
- * Gives the box of the body of the first animal in the axes of the gallery, for a close view
- * around the body (design 7.1).
+ * Gives a box of the first animal in the axes of the gallery, for a close view around the body
+ * (design 7.1).
  *
+ * @param partBounds The box of a part of the mesh in the axes of the model, such as
+ *   {@link bodyBoundsOf}.
  * @returns The box, or `null` when the page shows no animal.
  */
-function firstBodyBox(): Bounds | null {
+function firstBox(partBounds: (mesh: PlayerModel['mesh']) => Bounds): Bounds | null {
   const subject = models.find((model) => model.player);
   if (!subject?.player) {
     return null;
   }
   subject.object.updateMatrixWorld();
-  const local = bodyBoundsOf(subject.player.model.mesh);
+  const local = partBounds(subject.player.model.mesh);
   const min = new Vector3(Infinity, Infinity, Infinity);
   const max = new Vector3(-Infinity, -Infinity, -Infinity);
   for (const x of [local.min[0], local.max[0]]) {
@@ -291,9 +294,18 @@ function firstBodyBox(): Bounds | null {
 }
 
 const query = closeView(search);
-const bodyBox = query.body ? firstBodyBox() : null;
+const bodyBox = query.body ? firstBox(bodyBoundsOf) : null;
+const headBox = query.body && query.head ? firstBox(headBoundsOf) : null;
 const subjectItem = models.find((model) => model.player)?.item;
-const close = bodyBox && subjectItem ? aroundBody(query, bodyBox, facingOf(subjectItem)) : query;
+const around = bodyBox && subjectItem ? aroundBody(query, bodyBox, facingOf(subjectItem)) : query;
+const close = headBox
+  ? {
+      ...around,
+      x: (headBox.min[0] + headBox.max[0]) / 2,
+      z: (headBox.min[2] + headBox.max[2]) / 2,
+      target: (headBox.min[1] + headBox.max[1]) / 2,
+    }
+  : around;
 controls.target.set(close.x, close.target, close.z);
 
 /**

@@ -124,6 +124,12 @@ export interface CloseView {
    */
   readonly body: boolean;
   /**
+   * True when a close view around the body looks at the head of the first animal (the query
+   * `head` with `body`): the middle of the box of its head ({@link headBoundsOf}) is the line and
+   * the target, and the box of the body still gives the distance at the zoom 1.
+   */
+  readonly head: boolean;
+  /**
    * The distance of the camera from the target, in meters, or `null` for the distance that fits
    * the models. A fixed distance keeps the camera of two pages the same when their models differ
    * in size, as the lineup of `pnpm close-views` needs. The zoom does not change it.
@@ -134,8 +140,8 @@ export interface CloseView {
 /**
  * Reads a close view from the query of the gallery (design 7.1): `zoom` (1 or more, default 1),
  * `target` (default 0.6 m), `azimuth` (default 0°), `elevation` (default
- * {@link GALLERY_ELEVATION_DEG}), `x` and `z` (default 0 m), and `distance` (above 0 m, default
- * the distance that fits the models). For example,
+ * {@link GALLERY_ELEVATION_DEG}), `x` and `z` (default 0 m), `body` and `head` (flags), and
+ * `distance` (above 0 m, default the distance that fits the models). For example,
  * `?only=dog&zoom=2.5&target=1.1` shows the head of the dog, and `&azimuth=45&elevation=20` shows
  * it from its right side and lower. A value that is not a number keeps its default.
  *
@@ -155,12 +161,16 @@ export function closeView(search: URLSearchParams): CloseView {
     x: read('x', 0),
     z: read('z', 0),
     body: search.has('body'),
+    head: search.has('head'),
     distance: read('distance', 0) > 0 ? read('distance', 0) : null,
   };
 }
 
 /** The first instrument bone in `BONE_NAMES`. Each bone before it is a bone of the body. */
 const FIRST_INSTRUMENT_BONE = boneIndex('instrument');
+
+/** The head bone in `BONE_NAMES`. */
+const HEAD_BONE = boneIndex('head');
 
 /**
  * Gives the box around the body of a player: the corners on the bones of the body, with no
@@ -171,10 +181,35 @@ const FIRST_INSTRUMENT_BONE = boneIndex('instrument');
  * @throws Error if no corner is on a bone of the body.
  */
 export function bodyBoundsOf(mesh: MeshData): Bounds {
+  return boundsOn(mesh, (bone) => bone < FIRST_INSTRUMENT_BONE, 'the body');
+}
+
+/**
+ * Gives the box around the head of a player: the corners on the head bone, with no ear and no eye
+ * (design 7.1).
+ *
+ * @param mesh The mesh of the player.
+ * @returns The box, in the axes of the model.
+ * @throws Error if no corner is on the head bone.
+ */
+export function headBoundsOf(mesh: MeshData): Bounds {
+  return boundsOn(mesh, (bone) => bone === HEAD_BONE, 'the head');
+}
+
+/**
+ * Gives the box around the corners of a mesh on some bones.
+ *
+ * @param mesh The mesh.
+ * @param keep Tells if a bone counts.
+ * @param part The name of the part, for the error.
+ * @returns The box, in the axes of the model.
+ * @throws Error if no corner is on a bone that counts.
+ */
+function boundsOn(mesh: MeshData, keep: (bone: number) => boolean, part: string): Bounds {
   const min = [Infinity, Infinity, Infinity];
   const max = [-Infinity, -Infinity, -Infinity];
   for (let v = 0; v < mesh.bones.length; v++) {
-    if ((mesh.bones[v] ?? FIRST_INSTRUMENT_BONE) >= FIRST_INSTRUMENT_BONE) {
+    if (!keep(mesh.bones[v] ?? FIRST_INSTRUMENT_BONE)) {
       continue;
     }
     for (let k = 0; k < 3; k++) {
@@ -184,7 +219,7 @@ export function bodyBoundsOf(mesh: MeshData): Bounds {
     }
   }
   if ((min[0] ?? 0) > (max[0] ?? 0)) {
-    throw new Error('The mesh has no corner on a bone of the body.');
+    throw new Error(`The mesh has no corner on a bone of ${part}.`);
   }
   return {
     min: [min[0] ?? 0, min[1] ?? 0, min[2] ?? 0],
