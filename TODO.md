@@ -517,12 +517,21 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       its top toward the shoulder, the mallet home further forward, the arm cut, a ring, three
       rigid faces, and four new shapes cut the play folds to 0.4%, the lift to 11.3%, and the rest
       to none (`2026-10-19-elephant-arms.md`).
-- [ ] Elephant timpanist lift: face 235 at the front of the right armpit folds in 9.7% of the
-      lift samples (`docs/research/2026-10-19-elephant-arms.md`).
-- [ ] Elephant timpanist: in the right side view of the gallery, the raised right arm casts a
+- [x] Elephant timpanist lift: face 235 at the front of the right armpit folds in 9.7% of the
+      lift samples (`docs/research/2026-10-19-elephant-arms.md`). Done: the twist bone, the
+      elbows down, and four new shapes. Face 235 folds in no sample, and the lift folds in 0.8%
+      (`2026-10-19-arm-skin.md`).
+- [x] Elephant timpanist: in the right side view of the gallery, the raised right arm casts a
       shadow on the chest, and the area under the arm is darker than on the base (mean light
-      0.378 against 0.441). The face colors and the normals are correct. Try a lower right elbow
-      (`poleR`) with a fold probe and a sweep (`docs/research/2026-10-19-elephant-arms.md` 5).
+      0.378 against 0.441). Done: the elbows point down and near the body, so the right arm
+      hangs beside the chest (`compare.webp` of `docs/research/2026-10-19-arm-skin/elephant/`).
+- [x] Elephant timpanist: the user saw twisted and deformed arms in the play. Done: the twist
+      bone and the elbows down. The play twist goes from 57° and 43° to 22° and 22°, and the
+      flat share from 0.96 and 0.74 to 0.91 and 0.91 (`2026-10-19-arm-skin.md`).
+- [ ] Elephant timpanist arms after the refit: the long thin faces at the front of the right
+      armpit shade dark. From the front, the bent left elbow shows a sharp corner, and the cut a
+      dark slot at the top of the left upper arm (`arms.webp` of
+      `docs/research/2026-10-19-arm-skin/elephant/`).
 - [ ] Pig hornist folds: two faces of the right hoof fold in each rest sample and in 26.5% of the
       lift samples, because a body has at most four corrective shapes (`RAISE_LIMIT`). Try a
       weight rule of the right paw, or a rest with a smaller turn of the right wrist
