@@ -265,7 +265,7 @@ const HIDDEN_SHARE = 0.25;
  * Gives the views of one frame of a role: the box of each arm of the working tree in the frame of
  * each azimuth of {@link VIEW_AZIMUTHS}. An azimuth from which a music stand or another player
  * covers {@link HIDDEN_SHARE} of an arm and stands nearer to the camera takes the next azimuth of
- * {@link SPARE_AZIMUTHS} that shows each arm.
+ * {@link SPARE_AZIMUTHS} that shows each arm. A frame with fewer free views shows fewer columns.
  *
  * @param role The role.
  * @param frame The frame.
@@ -391,7 +391,11 @@ async function frameViews(
     return { azimuth, hidden, boxes };
   });
   const shown = views.filter((view) => !view.hidden);
-  const chosen = [...shown, ...views.filter((view) => view.hidden)].slice(0, VIEW_AZIMUTHS.length);
+  // A frame with fewer free views shows only those, or the first view when each view is hidden.
+  const chosen = (shown.length > 0 ? shown : views).slice(
+    0,
+    shown.length > 0 ? VIEW_AZIMUTHS.length : 1,
+  );
   return {
     azimuths: chosen.map((view) => view.azimuth),
     boxes: new Map(
