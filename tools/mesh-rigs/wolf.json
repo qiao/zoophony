@@ -556,10 +556,11 @@
     "smooth": 8,
     "end": 0.0065,
     "most": 0.09,
+    "carryTail": true,
     "root": [
       0.8,
       0.98
     ],
-    "note": "The values of the panda, the hippo, the mouse, and the pig, with root of the dog: the tail share of a vertex of the root of the tail counts as the haunch only by its smoothstep from 0.8 to 0.98. The user, 2026-10-20: \"the wolf's hip is not touching the chair\". After the smaller body of round wolf-face, the underside of the haunch behind the hip joints stayed up to 12.9 cm above the seat with most 0.03. most 0.09 (16.2 cm) leaves 3.9 cm at the back of the round haunch, with no fold. 0.05 folded 27% of the play, and 0.11 and 0.13 folded the tail in 31% and 64% (docs/research/2026-10-20-wolf-brows.md)."
+    "note": "The values of the panda, the hippo, the mouse, and the pig, with root of the dog: the tail share of a vertex of the root of the tail counts as the haunch only by its smoothstep from 0.8 to 0.98. The user, 2026-10-20: \"the wolf's hip is not touching the chair\". After the smaller body of round wolf-face, the underside of the haunch behind the hip joints stayed up to 12.9 cm above the seat with most 0.03. most 0.09 (16.2 cm) leaves 3.9 cm at the back of the round haunch, with no fold. 0.05 folded 27% of the play, and 0.11 and 0.13 folded the tail in 31% and 64%. The user then said: \"the wolf tails are looking weird\": the root of the tail moved down with the haunch and the rest of the tail did not, so the tail became a flat wedge under the seat. With carryTail, each tail vertex moves down by the mean drop of the root (0.028 u, 5.2 cm), by its share on the tail bones, so the tail keeps its form (docs/research/2026-10-20-wolf-brows.md)."
   }
 }
