@@ -198,20 +198,34 @@ describe('gridVariants', () => {
 
 describe('chooseDemos', () => {
   const withRole = ['a', 'beethoven-8', 'brahms-2', 'mozart-k525'];
+  const notes = new Map<string, number>();
 
   it('takes the demos of FIT_DEMOS with the role by default', () => {
     expect(FIT_DEMOS).toContain('beethoven-8');
     expect(FIT_DEMOS).toContain('mozart-k525');
-    expect(chooseDemos([], withRole)).toEqual(['beethoven-8', 'mozart-k525']);
+    expect(chooseDemos([], withRole, notes)).toEqual(['beethoven-8', 'mozart-k525']);
   });
 
-  it('takes all demos of the role when none of FIT_DEMOS has it, or with all', () => {
-    expect(chooseDemos([], ['a', 'b'])).toEqual(['a', 'b']);
-    expect(chooseDemos(['all'], withRole)).toEqual(withRole);
+  it('takes the demo with the most notes when none of FIT_DEMOS has the role', () => {
+    expect(
+      chooseDemos(
+        [],
+        ['a', 'b', 'c'],
+        new Map([
+          ['a', 3],
+          ['b', 5],
+          ['c', 5],
+        ]),
+      ),
+    ).toEqual(['b']);
+  });
+
+  it('takes all demos of the role with all', () => {
+    expect(chooseDemos(['all'], withRole, notes)).toEqual(withRole);
   });
 
   it('takes the demos of --demo', () => {
-    expect(chooseDemos(['brahms-2', 'a'], withRole)).toEqual(['a', 'brahms-2']);
+    expect(chooseDemos(['brahms-2', 'a'], withRole, notes)).toEqual(['a', 'brahms-2']);
   });
 });
 

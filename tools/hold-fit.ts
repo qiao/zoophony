@@ -120,8 +120,9 @@ import type { WindInstrument } from '../src/pose/winds.ts';
 /**
  * The demos of a run with no `--demo`: the demos of the deepest point of each sample set of the
  * red fox in the sweep of 2026-10-14 (`docs/research/2026-10-14-fox-retro.md`). One variant of
- * `fox-violinist` over all 14 demos takes about 173 s. A role with none of these demos takes all
- * its demos, and `--demo all` takes all demos of the role.
+ * `fox-violinist` over all 14 demos takes about 173 s. A role with none of these demos takes its
+ * one demo with the most notes of the role ({@link chooseDemos}), and `--demo all` takes all demos
+ * of the role.
  */
 export const FIT_DEMOS: readonly string[] = [
   'bach-bwv1050',
@@ -1820,14 +1821,42 @@ function windSpare(role: RoleSource): GripSpares | null {
 }
 
 /**
+ * Counts the notes of a role in a scene: the notes of each player whose instrument and species
+ * are those of the role, or the beats of the plan for the conductor.
+ *
+ * @param role The role.
+ * @param scene The scene.
+ * @returns The number of notes.
+ */
+export function roleNotes(role: RoleSource, scene: TestScene): number {
+  if (role.kind === 'conductor') {
+    return scene.plan.beats.length;
+  }
+  const players = new Set(
+    scene.layout.players
+      .filter(
+        ({ cast }) => cast.instrument === role.instrument && role.species.includes(cast.species),
+      )
+      .map(({ cast }) => `${cast.seatIndex}:${cast.player}`),
+  );
+  return scene.score.notes.filter((note) => players.has(`${note.seatIndex}:${note.player}`)).length;
+}
+
+/**
  * Chooses the demo ids of a run.
  *
  * @param asked The demos of `--demo`, with no `.mid`, or `all`.
  * @param withRole The ids of the demos with a body of the role.
+ * @param notes The notes of the role in each demo of `withRole` ({@link roleNotes}).
  * @returns The ids of `--demo`, all ids of the role with `all`, or the ids of {@link FIT_DEMOS}
- *   with the role. When no demo of {@link FIT_DEMOS} has the role, all ids of the role.
+ *   with the role. When no demo of {@link FIT_DEMOS} has the role, the one id of the role with the
+ *   most notes, the first of a tie.
  */
-export function chooseDemos(asked: readonly string[], withRole: readonly string[]): string[] {
+export function chooseDemos(
+  asked: readonly string[],
+  withRole: readonly string[],
+  notes: ReadonlyMap<string, number>,
+): string[] {
   if (asked.includes('all')) {
     return [...withRole];
   }
@@ -1835,7 +1864,14 @@ export function chooseDemos(asked: readonly string[], withRole: readonly string[
     return withRole.filter((id) => asked.includes(id));
   }
   const fit = withRole.filter((id) => FIT_DEMOS.includes(id));
-  return fit.length > 0 ? fit : [...withRole];
+  if (fit.length > 0) {
+    return fit;
+  }
+  const most = withRole.reduce<string | null>(
+    (best, id) => (best === null || (notes.get(id) ?? 0) > (notes.get(best) ?? 0) ? id : best),
+    null,
+  );
+  return most === null ? [] : [most];
 }
 
 /**
@@ -1858,17 +1894,19 @@ async function fitDemos(
     throw new Error(`No demo has the name ${unknown.join(', ')}.`);
   }
   const scenes = new Map<string, TestScene>();
+  const notes = new Map<string, number>();
   for (const demo of all) {
     const scene = sceneOf(demo.bytes);
     if (roleBodies(options.role, scene).length > 0) {
       scenes.set(id(demo), scene);
+      notes.set(id(demo), roleNotes(options.role, scene));
     }
   }
   const missing = options.demos.filter((name) => name !== 'all' && !scenes.has(name));
   if (missing.length > 0) {
     throw new Error(`The demos ${missing.join(', ')} have no body of the ${options.name}.`);
   }
-  const ids = chooseDemos(options.demos, [...scenes.keys()]);
+  const ids = chooseDemos(options.demos, [...scenes.keys()], notes);
   const first = scenes.get(ids[0] ?? '');
   if (!first) {
     throw new Error(`No demo has the role ${options.name}.`);
@@ -1943,6 +1981,14 @@ function printRow(row: FitRow): void {
 async function compareFit(options: FitOptions, ref: string): Promise<void> {
   const label = `${ref} (${shortHash(ref)})`;
   const args = withoutOptions(process.argv.slice(2), ['--base']);
+  if (options.demos.length === 0) {
+    // The one demo with the most notes goes to both children by name, because the hold-fit of an
+    // older commit takes all demos of a role that no demo of FIT_DEMOS has.
+    const ids = (await fitDemos(options)).demos.map((demo) => demo.file.replace(/\.mid$/, ''));
+    if (!ids.some((id) => FIT_DEMOS.includes(id))) {
+      args.push(...ids.flatMap((id) => ['--demo', id]));
+    }
+  }
   const started = performance.now();
   const texts = await probeBeside(
     ref,

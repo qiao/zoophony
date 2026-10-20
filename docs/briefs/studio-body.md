@@ -191,8 +191,9 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
   the close views before the first docs commit.
 - **A moved instrument.** Read the hold anchors of `pnpm rig-mesh --check` against `main`, because
   a moved instrument can break a user rule.
-- **The demos of a fit.** Fit on `FIT_DEMOS`, the default of `pnpm hold-fit`, or on all demos
-  (`--demo all`), never on one demo.
+- **The demos of a fit.** Fit each step on the default demos of `pnpm hold-fit`: `FIT_DEMOS`, or
+  the one demo with the most notes of a role that they do not have. Check the last fit on all demos
+  (`--demo all`).
 - **The size of a body.** A change of the size keeps the values of the pose in meters ("Values in
   meters" of `docs/agents/model-traps.md`). Compare the folds and the depths in H first with
   `--base main`, and the heights with `pnpm close-views lineup <species,...> <dir> --base main`.
