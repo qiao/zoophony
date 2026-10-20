@@ -125,6 +125,13 @@ export interface AnimalSettings {
    * the nose then leave out the vertices below it. With no value, each vertex of the head counts.
    */
   readonly headFloor?: number;
+  /**
+   * True when each pea eye faces level: the direction of the eye keeps only its turn to the side
+   * and forward, with no turn up or down. A large head box behind the eyes, such as the ruff of
+   * the wolf, turns the eyes up, and the eyes then read as eyes that look up (design 4.5). With no
+   * value, each eye faces out from the middle of the head that shows.
+   */
+  readonly eyeLevel?: boolean;
 }
 
 /**
@@ -2124,14 +2131,16 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
 
   // Each pea eye bone lies in the head surface under the middle of the old eye, as the eye bones
   // of the parametric bodies do (`eyeMiddle()` of `models/eyes.ts`). Each eye faces out from the
-  // middle of the head that shows, as an eye on the round head of a parametric body does. Then it
-  // moves out along that direction until its front face shows (`eyePush()`).
+  // middle of the head that shows, as an eye on the round head of a parametric body does, or level
+  // with `eyeLevel`. Then it moves out along that direction until its front face shows
+  // (`eyePush()`).
   const eyeHeight = (shown.max.y - shown.min.y) * scale;
   const middle = toBind(shown.getCenter(new Vector3()));
   const eyeAt = (side: Side) => {
     const old = eyeCenter(side);
     const point = eyeOnHead(withoutEyes, old);
-    const facing = direction(point.clone().sub(middle));
+    const out = point.clone().sub(middle);
+    const facing = direction(settings.eyeLevel === true ? out.setY(0) : out);
     const eye = eyeMiddle({ point: model(point), normal: facing }, eyeHeight, false);
     const near = withoutEyes.faces.flatMap((face) => {
       const [a, b, c] = face.corners.map((k) => mesh.vertices[k]?.position ?? new Vector3());
