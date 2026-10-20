@@ -304,11 +304,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       instrument, for the hippo the back of the upper bout (14.7 cm) against 1.5 cm of the top
       plate. Offer a part of the visible top plate of the bowed instruments, as `top-plate.ts` of
       the chest round measures it (`2026-10-19-hippo-retro.md`).
-- [ ] Bear eyes: the user wrote "the bear's eyes are too far from the head". The bear keeps its
-      flat pea eyes, 0.046 H out (`flatEyes`), because its face twists under them, and a bent
-      oval reads as a bean. A flat oval halfway to the surface normal gives clean ovals with the
-      rim 0.027 H out, above the stop of 0.02 H. Ask the user, or move the eyes to a flatter place
-      (`2026-10-20-pea-eyes.md`).
+- [x] Bear eyes: the user wrote "the bear's eyes are too far from the head". A bent oval reads
+      as a bean on the twisted face of the bear (`2026-10-20-pea-eyes.md`).
+      Answer: the user chose flat ovals halfway to the surface normal, with the rim 0.027 H out
+      (`eyeNormal`).
 - [ ] Mouse eyes: in the front view, the bent pea eyes of the mouse lean in at the top, because
       the surface under them faces 17° to 21° more up than their direction. Try a direction
       between the two for the mouse (`2026-10-20-pea-eyes.md`).
