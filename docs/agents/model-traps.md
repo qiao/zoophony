@@ -7,13 +7,15 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 - The player hands turn freely at the wrist, but the studio skin bends well only near its clips. The
   retarget turns each paw in the plane of its palm toward the forearm (`PAW_TURN`).
-- A role whose instrument moves, such as the violin to its rest place, needs pose offsets in
-  `poseStudioBones()`.
+- A role whose instrument moves to its rest place needs pose offsets in `poseStudioBones()`.
 - The holds are in head heights, and the baton keeps its length, so a smaller head moves the wrist
-  down and back along the baton. Set the baton point from the wrist that you want.
+  along the baton. Set the baton point from the wrist that you want.
 - A long muzzle turns into the paws when the head turns to a section. A round belly takes the room
   of the forearms: the pianist needed the keys further forward, a lean, a reach limit for each paw,
   and a curved path from the knees.
+- A roll rule that aims at a far point, such as the shoulder seen from the mallet head, flips when
+  the prop points at that point (`rollToward()` of `pose/bowed.ts`). Keep that point off the prop
+  line.
 - A hold can trade the folds against the clearance, and a more bent elbow folds more faces. Check
   each hold change with `pnpm hold-fit --set` and `pnpm pose-depth --set` before you write it.
 - A big head puts the grips of a hanging instrument at shoulder height, and elbows out and level
@@ -46,7 +48,7 @@ group of your work before you plan it. A probe that a trap names is in its resea
   (`bassScale`) shortens the span.
 - A top plate turned to the right sends the bow back into a round belly. Turn it to the front.
 - In the violin rest, a paw that cannot reach the thigh holds the frog outside the thigh or the
-  knee, because a paw on the belly bends the arm out and folds it.
+  knee, because a paw on the belly folds the arm.
 - A long snout puts the mouthpiece far in front of the body, and the grips hang below it, so a
   smaller instrument barely helps. Turn the instrument back toward the body around the mouthpiece,
   and turn the shoulder forward (`reachL`, `PIG_HORN`).
@@ -86,16 +88,16 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The depth of an open part is false near its open edge, so the sweep measures in a closed part
   (`closedPart()` with its count of open loops). Each whisker or arm cut opens a loop: give the role
   its own count, and check that each extra loop is small.
-- A cap closes a cut with a fan from its middle, so the depth of an upper arm point near a long cut
-  is a depth behind the cap.
+- A cap closes a cut with a fan from its middle, so an upper arm point near a long cut gets a depth
+  behind the cap.
 - The pair "instrument in body" of `pnpm pose-depth` gives the deepest corner of the instrument,
   such as the back of a contrabass on the chest. Measure the visible top plate alone
   (`top-plate.ts` of `docs/research/2026-10-19-hippo-chest/`).
 
 ## Weights, rings, and folds
 
-- A fold count does not see a skin that twists around the arm or goes flat, because no face turns
-  over. Measure the twist, the flat share, and the spikes with `pnpm arm-shape <role>`.
+- A goal on one measure moves the twist to a joint that no goal measures. A fold count does not see
+  a skin that twists or goes flat. Run the whole gate, `pnpm arm-check <roles> --base <start>`.
 - A lowered elbow drags the thin faces of the trunk under the armpit that bone heat gave arm weight,
   and no shape relaxes them. Give that weight to the trunk below the cut (`weights.armBelow`). A
   reader of the arm weights counts the twist bone of the upper arm (`skinFollows()`).
@@ -143,8 +145,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - Fit the rule of a fold across a joint on the key of that joint: the upper arm, the forearm
   (`--bone forearm` of `pnpm raise-fit`), or the paw (`--bone hand`). The pose of a rule in Blender
   turns over fewer faces than the app, so `--bone hand` turns the rule further on the same axis.
-- A paw that turns about 160° on its forearm folds the wrist. The studio forearm turns in the frame
-  of the elbow hinge, so a held part has one direction of no paw twist: measure it (`paw-turn.ts` of
+- A paw that turns about 160° on its forearm folds the wrist, and a prop along the forearm turns
+  the paw 70° or more against its bind grip. A real grip holds a mallet or a stick across the
+  fist. The studio forearm turns in the frame of the elbow hinge, so a held part has one direction
+  of no paw twist: measure it (`paw-turn.ts` of
   `docs/research/2026-10-19-elephant-pose/`), and hold the part across the forearm near it
   (`PercussionHold.across`). On the elephant, that direction is level and in, so the head of each
   timpani mallet leaves the back of the fist (`TIMPANI.malletBack`).
@@ -183,24 +187,22 @@ group of your work before you plan it. A probe that a trap names is in its resea
   turns it into a vertical sheet. A tail that is the lowest point of the seated bind sets the seat
   height: turn the tip bone until the rig log line `tail: the lowest point` gives the height of the
   soles.
-- The idle sway turns the tail bones around the vertical (`pose/pose-at.ts`). A tail that lies on
-  the seat does not sway (`OwnBodyParams.seatedTail`). Measure a seated tail over one sway period,
-  5.5 s.
+- The idle sway turns the tail bones (`pose/pose-at.ts`), except a tail on the seat
+  (`OwnBodyParams.seatedTail`). Measure a seated tail over one sway period, 5.5 s.
 - Short thighs on a deep trunk end behind the belly front. Measure the trunk front and the knees
   (`dog-profile.ts` and `cello-contact.ts` of `docs/research/2026-10-17-dog-mesh/`) before you plan
   the knees or an instrument between them.
 - A big head over a thin neck shows a dark band under the head. Smooth the neck and the head bottom
-  with a box that ends behind the chin (`smooth`), because a box that holds the chin moves H and
-  each hold.
-- The elephant trunk takes bone heat from the chest, and it set the chin of the head measures. Use
-  `noseFront`, and `headFloor` of `ANIMALS`.
+  with a box that ends behind the chin (`smooth`), else H and each hold move.
+- The elephant trunk takes bone heat from the chest and sets the chin of the head measures. Use
+  `noseFront` and `headFloor` of `ANIMALS`.
 - The tip of `earFlap` takes the nearest vertex, which can lie on the shoulder. Take it from a cut
-  of the flap, and read the count of the log line `ear L`.
+  of the flap (log line `ear L`).
 
 ## Colors and size of the mesh
 
-- One color for each face gives one palette entry for each face. Measure the parts of the packed
-  mesh before you cut one. `src/models/studio-size.test.ts` limits the gzip size.
+- One color for each face gives one palette entry for each face. Measure the packed parts before
+  you cut one (`src/models/studio-size.test.ts` limits the gzip size).
 - The texture of an image mesh has black gaps between its islands, so a face takes the mean of its
   light samples. Read `colors.py` of `docs/research/2026-10-14-rabbit-smooth/` after a change of the
   color rules.
@@ -210,21 +212,20 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - With no gloss nose, the export takes the front-most fur vertex of the head near the middle plane
   as the nose tip (`NOSE_PLANE`), and each gloss shell off the plane as an eye. Give a mesh with
   gloss nostrils, as the hippo, no `noseBox`, and read the rig check warning of a tip off the plane.
-- A dark rule cannot split an eye from a dark patch of almost its color. A wide eye box takes the
-  patch as the eye, and the color of the old eye puts light holes in it. Keep the eye box on the
-  eye, and set `eyeShell.darkReach` to 0, as for the panda.
-- A face rule that looks right from the front can paint a large face that shows as a dark block from
-  the side. Check it from the front, at 60°, and from each side, and limit the normal of its faces
-  (`outward` of `colors.smile`).
+- A dark rule cannot split an eye from a dark patch of almost its color, and a wide eye box puts
+  light holes in the patch. Keep the eye box on the eye, and set `eyeShell.darkReach` to 0, as for
+  the panda.
+- A face rule that looks right from the front can paint a dark block on the side. Check it from the
+  front, at 60°, and from each side, and limit the normal of its faces (`outward` of
+  `colors.smile`).
 
 ## Probe tools
 
 - `pnpm rig-mesh --check --set` sets `app.shoulders` from `keptHeight()`. The rig log gives
   centimeters at the scale of `app.shoulders`, so a direct run of Blender on a variant that moves
   the shoulder joints needs that value (`rig.sh` of `docs/research/2026-10-17-dog-mesh/`).
-- A new body moves the layout and the shot plans. The shot tests react to moves of about 2 cm: run
-  `pnpm test:paused src/shots/` early, and `pnpm shot-trace <demo> --base main` when a shot drops
-  out.
+- A new body moves the layout and the shots, and the shot tests react to moves of 2 cm. Run
+  `pnpm test:paused src/shots/` early, and `pnpm shot-trace <demo> --base main` when a shot drops.
 
 ## Values in meters
 
