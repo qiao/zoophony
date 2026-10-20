@@ -34,10 +34,8 @@ wide, so the reference kettles have about the real size.
 
 ## 3. The variants of phase 1
 
-`look.ts` measures the arm and the mallet angles, and the grip against the near rim
-(`look-phase1.txt`). V1 took the reference values, V2 a half step, and V3 the reference pose with
-the kettles of the app (`variants-phase1.sh`). Each kept the strikes within 5 mm. The folds were
-86% to 100%, because the shapes fit the old hold (`phase1-*.txt`). The user chose V1.
+V1 took the reference values, V2 a half step, and V3 the reference pose with the kettles of the
+app (`variants-phase1.sh`, `look-phase1.txt`, `phase1-*.txt`). The user chose V1.
 
 ![The reference crops, the base, and the variants of phase 1](2026-10-19-elephant-pose/compare-phase1.webp)
 
@@ -46,11 +44,10 @@ the kettles of the app (`variants-phase1.sh`). Each kept the strikes within 5 mm
 The geometry of V1 showed three problems, and four new fields of the hold and the kettles fix them
 (`variants-round.sh`):
 
-- A mallet points from its home to its target, so no hold put the head up between strikes.
-  `PercussionHold.cock` turns the mallet 0.7 rad (40°) up and 0.3 rad out around its grip between
-  strikes, and it comes down for the strike. A paw above the near rim and a mallet of 0.3 m reach
-  0.25 m in from the rim, so the strike moves there (`rim`). A real timpanist strikes "about 3
-  inches in from the edge of the bowl and directly in front of the player"
+- No hold put the mallet head up between strikes, so phase 2 turned it up around the grip
+  (`cock`, replaced in phase 3). A paw above the near rim and a mallet of 0.3 m reach 0.25 m in
+  from the rim, so the strike moves there (`rim`). A real timpanist strikes "about 3 inches in
+  from the edge of the bowl and directly in front of the player"
   ([freepercussionlessons.com](https://freepercussionlessons.com/where-is-the-best-playing-spot-on-timpani)).
 - At the real size, the third kettle stood at -119°, behind the left shoulder, and cut 8.8 cm into
   the body (`body-kettle.ts`). In beethoven-8-4, the left hand played only that kettle
@@ -69,9 +66,7 @@ The scans of `pnpm hold-fit timpanist --demo beethoven-9 --set` chose the other 
 | Home 0.25 to 0.35 H below the shoulder | the paws go 1.3 to 2.7 cm into the kettles | `hold-fit-home.txt` |
 | Heads at 0.84, 0.76, 0.72 m | the forearms point 0°, 18° to 23°, and 30° down | `hold-fit-height.txt`, `look.ts` |
 
-At 0.84 m, the forearms stayed level. The heads stand at 0.76 m, in the reference range by the
-height of the elephant. A roll of the top of the grip by ±90° cut the twist of the paw to about
-50°, but it bent the wrist about 90°, so the top stays toward the shoulder.
+The heads stand at 0.76 m, in the reference range by the height of the elephant.
 
 With no corrective shape, faces 235 and 832 at the front of the armpits folded in each play
 sample, and face 181 at the back of the right paw in 15% (`rig-old-shapes.txt`). Three fits of
@@ -109,16 +104,64 @@ rows come from `targets.txt`, `pose-depth.txt` (`phase1-gaps.txt` for the base t
 
 `pnpm body-probe --base a3755083` (`body-probe.txt`): 90 of 95 bodies are equal, and the five
 supports of the elephant differ by its new shapes. 22 of 23 players and 1,401 of 1,492 pose sets
-are equal. The larger kettles move the places of the players near the timpani in the four demos
-with timpani, so their poses change: the hippos, the beavers, the pigs, the monkey, the panda, the
-badgers, the penguins of beethoven-9, and the conductor. `pnpm test:paused src/shots/` passes 311
+are equal. The larger kettles move the players near the timpani in the four demos with timpani:
+the hippos, the beavers, the pigs, the monkey, the panda, the badgers, the penguins of
+beethoven-9, and the conductor. `pnpm test:paused src/shots/` passes 311
 tests, and `--base a3755083` finds no new failure (`shots.txt`, `shots-base.txt`). The first
 download grows by 321 B to 652,182 B (`size.txt`).
 
 ## 6. The result
 
 The elephant takes the pose that the user chose: kettles of the real size at 0.76 m, paws above
-the near rims, forearms forward and down, and mallets that turn up and out between strikes. Each
-strike reaches its target, the play folds are 0.1%, and the twist is 30° at most. Two problems
-stay open in `TODO.md`. The right arm skin stays flat, 0.67 of the bind, at the forearm and the
-shoulder, and the paws turn about 135° on the forearms, almost all as a twist.
+the near rims, forearms forward and down, and mallets up and out between strikes. After phase 3,
+the paws turn 36° on the forearms, each strike reaches its target, and the play folds are 0.1%.
+The right arm skin stays flat (0.70 of the bind), an open item of `TODO.md`.
+
+## 7. Phase 3: the paws
+
+The manager saw crumpled paws, a spike, a squeezed wedge, and dark slots in close crops of phase 2:
+each paw turned about 135° on its forearm, almost all as a twist (`paw-turn.ts`). The
+studio skin turns its forearm in the frame of the elbow hinge, so the paw has no twist when the
+mallet points in that frame as in the bind pose. On this mesh, that direction is level and in,
+across the front of the body (`paw-turn-scan.txt`). A mallet up and out with its head out of the
+front of the fist costs about 130° of twist.
+
+The fix lets the head of each timpani mallet leave the back side of the fist
+(`TIMPANI.malletBack`), so that level and out has no twist. Between strikes, the paw holds the
+mallet across the forearm, at an angle from that direction (`PercussionHold.across`), with the
+top of the grip along the forearm. The strike keeps the grip and the target of phase 2.
+
+| Rest angle | Paw turn at rest, L / R | Mallet at rest |
+|---|---|---|
+| -0.8 rad, head at the front | 33° / 32° | 5° to 10° up, about 90° in |
+| 1.3 rad, head at the back | 45° / 45° | 37° up, 45° out |
+| 1.5 rad, head at the back (chosen) | 36° / 36° | 27° to 30° up, 52° to 55° out |
+| 1.7 rad, head at the back | 29° / 29° | 17° to 21° up, 58° to 63° out |
+
+The three shapes of phase 2 give 0.3% play folds with this hold (`phase3-rig-shapes.txt`), so no
+shape changes. The left paw went 2.9 cm into the belly beside the largest kettle of beethoven-1,
+so the left strike moves 0.1 m out (`offsetL`, `phase3-offset.txt`).
+
+| Measure | base `a3755083` | phase 2 | phase 3 |
+|---|---|---|---|
+| Paw turn on the forearm, L / R | 96° / 81° | 139° / 133° | 36° / 34° |
+| Twist and swing of the paw, L | 91°, 32° | -137°, 37° | 26°, 25° |
+| Strikes within 5 mm | 100% | 100% | 100% |
+| Play / lift folds | 0.1% / 0.8% | 0.1% / 0.0% | 0.1% / 0.8% |
+| Arm twist p50, L / R | 21° / 24° | 30° / 26° | 28° / 28° |
+| Flat p50, L / R | 0.89 / 0.75 | 0.79 / 0.67 | 0.87 / 0.70 |
+| Trunk gap | 9.1 cm | 8.2 cm | 8.2 cm |
+| Deepest part, other than the ball of a mallet | 0.4 cm | 1.0 cm | 1.3 cm, a paw on the belly |
+
+The phase 3 rows come from `phase3-hold-fit.txt`, `phase3-arm-shape.txt`, `phase3-targets.txt`,
+and `phase3-gaps.txt`.
+
+![The reference crops, the base, phase 2, and phase 3 at azimuth 0](2026-10-19-elephant-pose/compare-phase3.webp)
+
+![The paws of the base, phase 2, and phase 3 at azimuth 0, 35, -35, and -60, song 90.38 s](2026-10-19-elephant-pose/paws-90.38.webp)
+
+![The same paws at song 91.29 s](2026-10-19-elephant-pose/paws-91.29.webp)
+
+The crops show closed fists with the mallets out of the side. The right forearm still looks thin
+at azimuth 35, where its skin stays flat (0.70 of the bind).
+
