@@ -14,7 +14,9 @@
  * frame, `<dir>/<role>-<demo>-<time>-arms.webp`: one row for each arm and one column for each
  * view, with a crop of the commit on the left and of the working tree on the right, or a crop of
  * the working tree alone with no base. The box of a crop holds the arm of the working tree, from the clavicle to the
- * fingers, with a margin. A box of {@link CROP_SIDE} or less shows at 2x. A folder that holds the
+ * fingers, with a margin. A box of {@link CROP_SIDE} or less shows at 2x. The frames of one demo
+ * render in one run of `close-views` with one `--time` for each frame, so each tree builds one time
+ * for them ({@link renderFrames}), into `<dir>/<role>-<demo>/time-<time>/`. A folder that holds the
  * frames of an earlier run keeps them, and the tool renders no frame again.
  */
 import { existsSync } from 'node:fs';
@@ -32,7 +34,7 @@ import type {
   armVertices,
   labelTime,
 } from './arm-check.ts';
-import { AIM_ELEVATION, PLAY_FRAME, aimPose, aimTarget } from './close-views.ts';
+import { AIM_ELEVATION, PLAY_FRAME, aimPose, aimTarget, playTimeDir } from './close-views.ts';
 import { FOLD_ROLES, roleBodies, roleSpecies } from './fold-probe.ts';
 import { patchedDemo } from './patch-demos.ts';
 import { ROOT, runChild } from './ref-tree.ts';
@@ -507,6 +509,63 @@ async function writePairs(cells: readonly PairCell[], file: string): Promise<voi
   }
 }
 
+/** One frame of a role with its views and the folder of its renders. */
+interface PlannedFrame {
+  /** The frame. */
+  readonly frame: Frame;
+  /** The views of the frame. */
+  readonly views: FrameViews;
+  /** The folder of the renders: the folder of its time in the folder of its demo. */
+  readonly out: string;
+  /** True when the folder holds the renders of an earlier run. */
+  readonly done: boolean;
+}
+
+/**
+ * Renders the frames of a role with `pnpm close-views play --at <species>`: one run for each demo,
+ * with one `--time` for each frame of the demo, so that each tree builds one time for all frames
+ * of a demo. The run renders each azimuth of a frame of the demo at each time of the demo. One
+ * time renders into the folder of its time, and more times render into the folder of the demo,
+ * which `close-views` splits into the same folders of the times (`playTimeDir()`).
+ *
+ * @param plans The frames to render.
+ * @param folder Gives the folder of the frames of a demo.
+ * @param species The species of the player of the role.
+ * @param base The commit of `--base`, or `null`.
+ */
+async function renderFrames(
+  plans: readonly PlannedFrame[],
+  folder: (demo: DemoId) => string,
+  species: string,
+  base: string | null,
+): Promise<void> {
+  const demos = [...new Set(plans.map((plan) => plan.frame.demo))];
+  for (const demo of demos) {
+    const own = plans.filter((plan) => plan.frame.demo === demo);
+    const azimuths = [...new Set(own.flatMap((plan) => plan.views.azimuths))];
+    const times = own.flatMap((plan) => ['--time', String(plan.frame.time)]);
+    const [single] = own;
+    const out = own.length === 1 && single ? single.out : folder(demo);
+    console.log(`${demo}: ${own.length} frames from one build of each tree into ${out}`);
+    await runChild(
+      'pnpm',
+      [
+        'close-views',
+        'play',
+        out,
+        '--demo',
+        demo,
+        ...times,
+        '--at',
+        species,
+        ...azimuths.flatMap((a) => ['--azimuth', String(a)]),
+        ...(base === null ? [] : ['--base', base]),
+      ],
+      ROOT,
+    );
+  }
+}
+
 /**
  * Renders the views of the gate (`--views <dir>`).
  *
@@ -550,44 +609,35 @@ export async function renderViews(
       (frame, i, all) =>
         all.findIndex((f) => f.demo === frame.demo && Math.abs(f.time - frame.time) < 0.5) === i,
     );
+    const planned: PlannedFrame[] = [];
     for (const frame of frames) {
-      const cells: PairCell[] = [];
-      const out = join(dir, `${role}-${frame.demo}-${frame.time.toFixed(2)}`);
       const views = await frameViews(role, frame, sides, parts);
       if (views.hidden.length > 0) {
         console.log(
           `A stand or another player hides an arm at the azimuths ${views.hidden.join(', ')}.`,
         );
       }
-      const azimuths = views.azimuths.flatMap((a) => ['--azimuth', String(a)]);
-      const base = options.base === null ? [] : ['--base', options.base];
+      const out = playTimeDir(join(dir, `${role}-${frame.demo}`), frame.time);
       const cameras = views.azimuths.map((azimuth) => `at-${species}-az${azimuth}`);
       const prefixes = options.base === null ? ['play-'] : ['play-', 'play-base-'];
       const files = cameras.flatMap((camera) =>
         prefixes.map((prefix) => join(out, `${prefix}${camera}.png`)),
       );
       console.log(`${role}: ${frame.reason} at ${frame.demo} ${frame.time} s into ${out}`);
-      if (files.every((file) => existsSync(file))) {
+      const done = files.every((file) => existsSync(file));
+      if (done) {
         console.log(`${out} holds the frames of an earlier run, so the tool renders none.`);
-      } else {
-        await runChild(
-          'pnpm',
-          [
-            'close-views',
-            'play',
-            out,
-            '--demo',
-            frame.demo,
-            '--time',
-            String(frame.time),
-            '--at',
-            species,
-            ...azimuths,
-            ...base,
-          ],
-          ROOT,
-        );
       }
+      planned.push({ frame, views, out, done });
+    }
+    await renderFrames(
+      planned.filter((plan) => !plan.done),
+      (demo) => join(dir, `${role}-${demo}`),
+      species,
+      options.base,
+    );
+    for (const { frame, views, out } of planned) {
+      const cells: PairCell[] = [];
       for (const [row, side] of sides.entries()) {
         for (const [column, azimuth] of views.azimuths.entries()) {
           const box = views.boxes.get(side)?.[column];
@@ -605,7 +655,7 @@ export async function renderViews(
         }
       }
       if (cells.length > 0) {
-        await writePairs(cells, `${out}-arms`);
+        await writePairs(cells, join(dir, `${role}-${frame.demo}-${frame.time.toFixed(2)}-arms`));
       }
     }
   }
