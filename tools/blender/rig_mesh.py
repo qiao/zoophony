@@ -1188,6 +1188,20 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
         for k in lower:
             w[inside, k] = 0.0
 
+        # The trunk under the armpit: inside the plane, the share of the arm weight that a vertex
+        # keeps grows from 0 at the lower height of `armBelow` to 1 at the upper height, and the
+        # trunk bone with the most weight takes the rest. Below a cut of the armpit, the trunk is
+        # apart from the arm, so a lowered arm does not drag the thin faces of the trunk.
+        if 'armBelow' in rules:
+            keep = smoothstep(y, *rules['armBelow'])
+            moved = np.nonzero(inside & (keep < 1.0) & (w[:, arm].sum(axis=1) > 0))[0]
+            for v in moved:
+                target = trunk[int(np.argmax(w[v, trunk]))] if w[v, trunk].any() else col['spine1']
+                taken = w[v, arm] * (1.0 - keep[v])
+                w[v, target] += taken.sum()
+                w[v, arm] -= taken
+            log(f'arm below {side}: {len(moved)} vertices of the trunk give arm weight to the trunk')
+
     # The chest below the clavicles: the clavicle weight fades out downward, so that the turn of
     # a shoulder does not shear the faces of the chest.
     if 'clavicleFrom' in rules:
