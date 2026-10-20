@@ -151,7 +151,9 @@ export const PERCUSSION_HOLDS = {
   // front kettles: each hand strikes the front kettle of its side, and the outer kettles stand
   // beyond its reach (pair). The paw rests above the near rim, and the mallet strikes 0.25 m in
   // from the rim, as the user chose for the look of the reference images. Between strikes, the
-  // mallet turns up and out around the grip (cock). The elbows point down and near the body, so
+  // paw holds the mallet across the forearm, up and out (across), with little twist on the
+  // forearm, because the mallet points back in the paw (TIMPANI.malletBack). The elbows point down
+  // and near the body, so
   // that the upper arms roll less and the skin does not twist at the shoulder (2026-10-19-arm-skin
   // decisions). The top of each grip points toward the shoulder. The mallets stay over the
   // kettles in the rest pose, because the hanging paws reach into the large kettles (ready,
@@ -166,8 +168,8 @@ export const PERCUSSION_HOLDS = {
     rim: 0.25,
     home: [0, -0.37, -0.2],
     top: 'shoulder',
-    cock: { up: 0.7, out: 0.3 },
-    across: null,
+    cock: null,
+    across: { rest: 1.5 },
     ready: true,
     pair: true,
   },

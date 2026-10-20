@@ -60,7 +60,7 @@ export const TIMPANI = {
    * little twist (`PercussionHold.across`).
    */
   // SAFETY: the literal widens to a flag, so that a hold tool can set it in memory.
-  malletBack: false as boolean,
+  malletBack: true as boolean,
 } as const;
 
 /**

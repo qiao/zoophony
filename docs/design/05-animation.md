@@ -488,15 +488,16 @@ The code constants of each family hold the times, the angles, and the lengths of
     (`PercussionHold.rim`). A real timpanist strikes about 3 inches in. Each mallet points to its
     target from a place below and in front of its shoulder (`PercussionHold.home`). Between
     strikes, the mallet turns around the grip, up and out to the side of its hand, as a real
-    player turns the wrist up, and it comes down for the strike (`PercussionHold.cock`). The elbows of the timpani point down and
+    player turns the wrist up, and it comes down for the strike. At rest, the paw holds the mallet
+    across the forearm, as a real player holds it at about 90° to the forearm, with the top of the
+    grip along the forearm, so the paw does not twist on the forearm (`PercussionHold.across`). The
+    head of each timpani mallet leaves the back side of the fist (`TIMPANI.malletBack`), so that
+    the mallets point up and out with little twist. The elbows of the timpani point down and
     near the body, as a real timpanist holds them (`poleL`, `poleR`). Elbows out at the height
     of the shoulders roll the upper arms far, and the skin twists at the shoulder (4.4). The
     upper arms touch the side of the body, as the user rule of 2026-10-10 asks. The kettles leave a
-    gap at the front of the player for the trunk (`TIMPANI.front`, 4.6). A round mallet looks the
-    same at each turn around its own axis, so each timpani mallet turns until the top of the grip
-    points toward its shoulder joint (`PercussionHold.top`). Thus the paw stays near the line of
-    the arm. With the top up, a mallet that slants down in front of a short arm turns the paw
-    almost upside down on the forearm, and the skin twists. The other holds keep the top up.
+    gap at the front of the player for the trunk (`TIMPANI.front`, 4.6). The other holds keep the
+    top of each grip up (`PercussionHold.top`).
 - Piano: the hands move to the key position. The left hand plays low notes and the right hand
   plays high notes.
 - **Piano and harp in detail** (`pose/hand-notes.ts`, `pose/hands.ts`):
