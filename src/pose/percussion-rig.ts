@@ -102,6 +102,14 @@ export interface PercussionHold {
    * kettles in front of it.
    */
   readonly ready: boolean;
+  /**
+   * True: each timpani note plays on one of the two kettles beside the front gap
+   * ({@link frontKettles}), and the other kettles stand beyond the reach of short arms. A note
+   * below the middle of the lowest and the highest key of the part plays on the left kettle, and
+   * the other notes on the right kettle. False: a note plays on the kettle of its key range
+   * ({@link kettleOf}).
+   */
+  readonly pair: boolean;
 }
 
 /**
@@ -135,6 +143,7 @@ export const PERCUSSION_HOLDS = {
     top: 'shoulder',
     cock: null,
     ready: false,
+    pair: false,
   },
   'bass-drum': {
     hands: 'right',
@@ -148,6 +157,7 @@ export const PERCUSSION_HOLDS = {
     top: 'up',
     cock: null,
     ready: false,
+    pair: false,
   },
   'snare-drum': {
     hands: 'alternate',
@@ -161,6 +171,7 @@ export const PERCUSSION_HOLDS = {
     top: 'up',
     cock: null,
     ready: false,
+    pair: false,
   },
   // The lift is the half of the gap between the inner faces of the two cymbals.
   cymbals: {
@@ -175,6 +186,7 @@ export const PERCUSSION_HOLDS = {
     top: 'up',
     cock: null,
     ready: false,
+    pair: false,
   },
   // The left hand holds the triangle up, and its elbow points out to the left.
   'small-percussion': {
@@ -189,6 +201,7 @@ export const PERCUSSION_HOLDS = {
     top: 'up',
     cock: null,
     ready: false,
+    pair: false,
   },
   xylophone: {
     hands: 'alternate',
@@ -202,6 +215,7 @@ export const PERCUSSION_HOLDS = {
     top: 'up',
     cock: null,
     ready: false,
+    pair: false,
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
 
@@ -355,6 +369,18 @@ export function targetKeyOf(instrument: PercussionInstrument, pitch: number, ket
 }
 
 /**
+ * Gives the two kettles beside the front gap of the timpani (design 4.6): the last kettle at the
+ * left of the gap and the first kettle at its right (`buildTimpani()`).
+ *
+ * @param kettles The number of kettles.
+ * @returns The index of the left kettle and of the right kettle, 0 for the largest.
+ */
+export function frontKettles(kettles: number): readonly [number, number] {
+  const split = Math.ceil(kettles / 2);
+  return [split - 1, split];
+}
+
+/**
  * Selects the kettle of a timpani note (design 5.3): the kettle whose key range has its middle
  * nearest to the key. Of two kettles at the same distance, the larger kettle plays the note.
  *
@@ -494,6 +520,11 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
   }
   const ordered = [...targets.values()].toSorted((a, b) => a.point[0] - b.point[0]);
   const fallback: StrikeTarget = { point: [0, 0, 0], normal: [0, 1, 0] };
+  // With a pair of front kettles, each hand rests over its front kettle.
+  const [frontL, frontR] = frontKettles(targets.size);
+  const pair = instrument === 'timpani' && hold.pair;
+  const restL = (pair ? targets.get(frontL) : undefined) ?? ordered[0] ?? fallback;
+  const restR = (pair ? targets.get(frontR) : undefined) ?? ordered.at(-1) ?? fallback;
   return {
     instrument,
     hold,
@@ -501,8 +532,8 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
     left: sides[0],
     right: sides[1],
     targets,
-    restL: offsetTarget(ordered[0] ?? fallback, hold.offsetL),
-    restR: offsetTarget(ordered.at(-1) ?? fallback, hold.offsetR),
+    restL: offsetTarget(restL, hold.offsetL),
+    restR: offsetTarget(restR, hold.offsetR),
     hangL: hangingArm(model, left),
     hangR: hangingArm(model, right),
   };

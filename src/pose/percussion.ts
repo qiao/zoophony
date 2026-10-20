@@ -9,7 +9,13 @@ import { hangingHand, hangingWrist } from './hang.ts';
 import type { HangingArm } from './hang.ts';
 import { limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import { groupChords } from './note-groups.ts';
-import { GRIP_CURL, MALLET_INVERSE, offsetTarget, targetKeyOf } from './percussion-rig.ts';
+import {
+  GRIP_CURL,
+  MALLET_INVERSE,
+  frontKettles,
+  offsetTarget,
+  targetKeyOf,
+} from './percussion-rig.ts';
 import type { PercussionRig, PercussionSide } from './percussion-rig.ts';
 import { alternateHands, buildStrikeTrack } from './strikes.ts';
 import type { Strike, StrikeGroup, StrikeState, StrikeTarget, StrikeTrack } from './strikes.ts';
@@ -24,7 +30,8 @@ export interface PercussionTracks {
  * Calculates the strike data of the two hands of a percussion player (design 5.3). The notes that
  * start within 50 ms of each other strike together. A drum player strikes its own instrument for
  * each of its notes, also for the notes of another key group (design 3.8). Of a chord of the
- * small percussion player, the triangle sounds unless all notes are the tambourine.
+ * small percussion player, the triangle sounds unless all notes are the tambourine. A timpani
+ * hold with a pair of front kettles (`PercussionHold.pair`) plays each note on one of them.
  *
  * @param rig The points of the player.
  * @param notes The notes of the player, sorted by start.
@@ -40,10 +47,22 @@ export function percussionTracks(
 ): PercussionTracks {
   const { hold, instrument } = rig;
   const kettles = instrument === 'timpani' ? rig.targets.size : 4;
+  // With a pair of front kettles, a note below the middle key of the part plays on the left one.
+  const pair = instrument === 'timpani' && hold.pair;
+  const [frontL, frontR] = frontKettles(kettles);
+  let lowest = Infinity;
+  let highest = -Infinity;
+  for (const note of notes) {
+    lowest = Math.min(lowest, note.pitch);
+    highest = Math.max(highest, note.pitch);
+  }
+  const middle = (lowest + highest) / 2;
+  const keyOf = (pitch: number): number =>
+    pair ? (pitch < middle ? frontL : frontR) : targetKeyOf(instrument, pitch, kettles);
   const groups = groupChords(notes, loudness).map((group): StrikeGroup => {
     const keys = new Set<number>();
     for (const note of notes.slice(group.first, group.first + group.count)) {
-      keys.add(targetKeyOf(instrument, note.pitch, kettles));
+      keys.add(keyOf(note.pitch));
     }
     // The triangle (key 0) sounds over the tambourine (key 1).
     const chosen = instrument === 'small-percussion' ? [Math.min(...keys)] : [...keys];
