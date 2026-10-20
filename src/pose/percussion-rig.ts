@@ -91,17 +91,18 @@ const MALLET_HOME: Vec3 = [0, -0.2, -0.75];
 export const PERCUSSION_HOLDS = {
   // The elephant mesh has short arms behind a deep belly, and its trunk hangs between the two
   // front kettles: each hand keeps the kettles of its side, strikes the playing spot near the
-  // rim, and points its mallet from beside the shoulder. The elbows point out and back, so that
-  // the upper arms keep out of the body and the paws bend less on the forearms
-  // (2026-10-19-mesh-elephant decisions). The top of each grip points toward the shoulder, so
-  // that the paws do not twist on the forearms (2026-10-19-elephant-arms decisions).
+  // rim, and points its mallet from beside the shoulder. The elbows point down and near the
+  // body, as a real timpanist holds them, so that the upper arms roll less and the skin does not
+  // twist at the shoulder (2026-10-19-arm-skin decisions). The top of each grip points toward
+  // the shoulder, so that the paws do not twist on the forearms (2026-10-19-elephant-arms
+  // decisions).
   timpani: {
     hands: 'sides',
     sizes: { lift: 0.12, rest: 0.04 },
     offsetL: [-0.05, 0, 0],
     offsetR: [0.05, 0, 0],
-    poleL: [-1, 0, 0.5],
-    poleR: [1, 0, 0.5],
+    poleL: [-0.7, -1, 0.2],
+    poleR: [0.7, -1, 0.2],
     rim: 0.055,
     home: [0, -0.1, -0.4],
     top: 'shoulder',
