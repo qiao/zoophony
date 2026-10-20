@@ -135,8 +135,8 @@ export interface RoleViews {
 /**
  * A role with a close view: the bear conductor, the polar bear pianist, the rabbit violinist, the
  * red fox violinist, the cat violist, the dog cellist, the hippo bassist, the tan fox flutist, the
- * panda trombonist, the mouse oboist, the elephant timpanist, the beaver bassoonist, or the pig
- * hornist.
+ * panda trombonist, the mouse oboist, the elephant timpanist, the beaver bassoonist, the pig
+ * hornist, or the wolf clarinetist.
  */
 export type CloseRole =
   | 'conductor'
@@ -151,7 +151,8 @@ export type CloseRole =
   | 'oboist'
   | 'timpanist'
   | 'bassoonist'
-  | 'hornist';
+  | 'hornist'
+  | 'clarinetist';
 
 /** The roles with a close view, in the order of the usage text. */
 const CLOSE_ROLES: readonly CloseRole[] = [
@@ -168,6 +169,7 @@ const CLOSE_ROLES: readonly CloseRole[] = [
   'timpanist',
   'bassoonist',
   'hornist',
+  'clarinetist',
 ];
 
 /**
@@ -215,6 +217,8 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  *   the beaver, which has no chair.
  * - The pig hornist: the views and the moments of the flutist. The left paw presses the valves
  *   in the phrase, and the right paw stays in the bell.
+ * - The wolf clarinetist: the views and the moments of the flutist. The side views and the back
+ *   view also show the bushy tail, which goes back over the seat and hangs down behind it.
  *
  * A new role gives its species, its views, its moments, and its test notes, with the camera
  * `{ kind: 'body', zoom: 1, elevation }`.
@@ -485,6 +489,25 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
     // A long open F3 (the written C4), a rest, then a short phrase: G3 with the first valve, an
     // open C4, and E4 with the second valve (design 5.3).
     notes: ['0.5 1 F3', '2 0.25 G3', '2.25 0.25 C4', '2.5 0.25 E4'].join('\n'),
+  },
+  clarinetist: {
+    species: 'wolf',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'note', time: 0.6, rest: false },
+      { name: 'between', time: 1.75, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.6),
+      { name: 'stand', time: 0.6, rest: false, stand: true },
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // A long G4, a rest, then a short phrase with the right paw fingers closed (D4) and open (C6).
+    notes: ['0.5 1 G4', '2 0.25 D4', '2.25 0.25 C6', '2.5 0.25 E5'].join('\n'),
   },
 };
 
