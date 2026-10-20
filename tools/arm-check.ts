@@ -16,10 +16,14 @@
  * - `paw twist` and `paw swing`: the turn of the paw on its forearm from the bind pose, split into
  *   the twist around the forearm and the swing, as `pawAngles()` of `tools/hold-fit.ts` gives them
  *   for the mean turn.
- * - `paw jumps`: the share of the play samples whose paw twist changes by more than
+ * - `paw jumps`: the share of the play and lift samples whose paw twist changes by more than
  *   {@link JUMP_ANGLE} from the sample before, as the flips of the bow paw of the hippo did.
- * - `stretch`: the largest growth of an edge of the faces of the forearm and the paw, as a share of
- *   the length of the upper arm, such as a spike from the paw to the upper arm.
+ * - `stretch`: the largest growth of an edge of the faces of the forearm and the paw from the rest
+ *   sample of the same body and demo, as a share of the length of the upper arm, such as a spike
+ *   from the paw to the upper arm. A face that is long in the rest too does not count.
+ * - `grip turn`: the turn of the paw twist in the play from the accepted grip of its arm
+ *   ({@link ACCEPTED_GRIPS}). The value is the median, so a paw that holds its prop in another
+ *   grip fails with no base.
  *
  * The other values are the 95th percentiles of the samples. Each value has a p50, a p95 (a p5 for
  * the flat share), and its worst sample (the demo and the time) in each sample set. The value of
@@ -77,6 +81,7 @@ export const MEASURES = [
   'pawSwing',
   'pawJump',
   'stretch',
+  'grip',
 ] as const;
 
 /** A measure of the gate. */
@@ -87,7 +92,7 @@ export interface ArmLimit {
   /** The name of the measure in the tables. */
   readonly name: string;
   /** The value of a sample set that the limit reads: a share of the samples, or a percentile. */
-  readonly stat: 'share' | 'p95' | 'p5';
+  readonly stat: 'share' | 'p50' | 'p95' | 'p5';
   /** The limit of the value. */
   readonly limit: number;
   /** True when a larger value is worse, false when a smaller value is worse. */
@@ -168,7 +173,7 @@ export const ARM_LIMITS: Readonly<Record<Measure, ArmLimit>> = {
     up: true,
     margin: 0.005,
     digits: 3,
-    source: 'a paw twist of more than 90° in one play step is a flip; good paws have none',
+    source: 'a twist change of more than 90° in one step is a flip; the play of good paws has none',
   },
   stretch: {
     name: 'stretch p95',
@@ -177,12 +182,49 @@ export const ARM_LIMITS: Readonly<Record<Measure, ArmLimit>> = {
     up: true,
     margin: 0.05,
     digits: 2,
-    source: 'good forearms and paws up to 0.32 of the upper arm (dog cellist)',
+    source: 'good forearms and paws up to 0.34 of the upper arm from the rest (bear conductor)',
+  },
+  grip: {
+    name: 'grip turn p50',
+    stat: 'p50',
+    limit: 45,
+    up: true,
+    margin: 15,
+    digits: 0,
+    source: 'the paw twist of the accepted grip (ACCEPTED_GRIPS); half the 90° of anatomy',
   },
 };
 
 /** The paw twist change between two samples above which the change is a jump, in degrees. */
 export const JUMP_ANGLE = 90;
+
+/**
+ * The accepted grip of each arm of each role: the median paw twist on the forearm in the play of
+ * `eefece23`, whose arms the user accepted, in degrees, with the sign of the right arm turned so
+ * that one sign is one turn of the forearm on both sides. The bind paw of a mesh body is no
+ * neutral wrist, so no anatomy limit from the bind separates a wrung paw from a good one: the good
+ * left paws of the violins turn 133° to 156° from the bind. The value `grip` is the turn of the
+ * paw from its accepted grip. A hold round that changes a grip on purpose gives its new median
+ * here, with the crops that the user accepted. A role with no entry has no value `grip`.
+ */
+export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>> = new Map<
+  string,
+  Readonly<Record<Side, number>>
+>([
+  ['conductor', { L: -54, R: -54 }],
+  ['pianist', { L: 47, R: 59 }],
+  ['violinist', { L: 133, R: -86 }],
+  ['fox-violinist', { L: 140, R: -102 }],
+  ['violist', { L: 156, R: -93 }],
+  ['cellist', { L: -146, R: 12 }],
+  ['bassist', { L: -164, R: 22 }],
+  ['flutist', { L: -120, R: -122 }],
+  ['trombonist', { L: -104, R: -40 }],
+  ['oboist', { L: -120, R: -97 }],
+  ['timpanist', { L: 26, R: 26 }],
+  ['bassoonist', { L: -118, R: -70 }],
+  ['hornist', { L: -153, R: -54 }],
+]);
 
 /**
  * The smallest share of the weight of the three corners of a face on the bones of one arm, from
@@ -610,6 +652,17 @@ function wrap(degrees: number): number {
 }
 
 /**
+ * Gives the edge lengths of the faces of the forearm and the paw of one arm in a pose.
+ *
+ * @param arm The bind facts of the arm.
+ * @param posed The posed places of the vertices.
+ * @returns The length of the three edges of each face of {@link ArmBind.lower}.
+ */
+function lowerLengths(arm: ArmBind, posed: ArrayLike<number>): Float32Array {
+  return edgeLengths(posed, arm.lower);
+}
+
+/**
  * Measures one arm of a posed body. The rolls of the rings of the upper arm are turns around the
  * posed axis against the chest swung onto the upper arm, and the rolls of the rings of the forearm
  * against the upper arm swung onto the forearm, as in `measureArm()` of `tools/arm-shape.ts`. The
@@ -621,6 +674,8 @@ function wrap(degrees: number): number {
  * @param matrices The skin matrices of the pose.
  * @param posed The posed places of the vertices.
  * @param folded The folded faces of the body.
+ * @param rest The edge lengths of the faces of the forearm and the paw in the rest sample of the
+ *   same body ({@link lowerLengths}), from which the stretch counts, or `null` for the bind.
  * @returns The values.
  */
 export function measureArm(
@@ -628,6 +683,7 @@ export function measureArm(
   matrices: ArrayLike<number>,
   posed: ArrayLike<number>,
   folded: readonly number[],
+  rest: Float32Array | null,
 ): ArmSample {
   const chest = turnOf(matrices, arm.bones.chest);
   const upperTurn = turnOf(matrices, arm.bones.upper);
@@ -696,10 +752,11 @@ export function measureArm(
   const swing = paw.clone().multiply(new Quaternion().setFromAxisAngle(foreBind, -pawTwist));
   const pawSwing = (2 * Math.acos(Math.min(1, Math.abs(swing.w))) * 180) / Math.PI;
 
-  const posedLengths = edgeLengths(posed, arm.lower);
+  const posedLengths = lowerLengths(arm, posed);
+  const reference = rest ?? arm.lengths;
   let stretch = 0;
   for (let k = 0; k < arm.lengths.length; k++) {
-    stretch = Math.max(stretch, (posedLengths[k] ?? 0) - (arm.lengths[k] ?? 0));
+    stretch = Math.max(stretch, (posedLengths[k] ?? 0) - (reference[k] ?? 0));
   }
   return {
     folds: folded.filter((face) => arm.faces.has(face)).length,
@@ -709,6 +766,7 @@ export function measureArm(
     pawTwist: Math.abs((pawTwist * 180) / Math.PI),
     pawSwing,
     pawJump: 0,
+    grip: 0,
     stretch: stretch / arm.upper,
     pawRoll: (pawTwist * 180) / Math.PI,
   };
@@ -822,7 +880,7 @@ export interface ArmJson {
 }
 
 /** The format version of {@link ArmJson}. */
-export const ARM_FORMAT = 1;
+export const ARM_FORMAT = 2;
 
 /** The values and the labels of the samples of one role, by sample set. */
 interface Samples {
@@ -846,6 +904,7 @@ function emptySamples(): Samples {
     pawTwist: [],
     pawSwing: [],
     pawJump: [],
+    grip: [],
     stretch: [],
   });
   return { labels: [], values: { L: lists(), R: lists() } };
@@ -885,9 +944,15 @@ function planLabels(
  * @param role The role.
  * @param demos The demos. A demo with no body of the role adds nothing.
  * @param step The step of the song time of the play, in seconds.
+ * @param grips The accepted grip of each arm ({@link ACCEPTED_GRIPS}), or `null` for none.
  * @returns The report.
  */
-export function probeRole(role: RoleSource, demos: readonly DemoFile[], step: number): RoleReport {
+export function probeRole(
+  role: RoleSource,
+  demos: readonly DemoFile[],
+  step: number,
+  grips: Readonly<Record<Side, number>> | null,
+): RoleReport {
   const sets: Record<SampleSet, Samples> = {
     rest: emptySamples(),
     play: emptySamples(),
@@ -902,6 +967,7 @@ export function probeRole(role: RoleSource, demos: readonly DemoFile[], step: nu
       play: none(),
       lift: none(),
     };
+    const rests: Record<Side, Float32Array | null> = { L: null, R: null };
     let plan: ((set: SampleSet, index: number) => string) | null = null;
     const report = probeFolds(role, [demo], step, (...visit) => {
       const [rig, studio, posed, folded, set] = visit;
@@ -914,15 +980,26 @@ export function probeRole(role: RoleSource, demos: readonly DemoFile[], step: nu
       const store = sets[set];
       store.labels.push(label);
       for (const side of SIDES) {
-        const sample = measureArm(arms[side], studio.matrices, posed, folded);
-        for (const measure of MEASURES) {
-          store.values[side][measure].push(sample[measure]);
+        // The rest sample of a demo comes first, and the stretch counts from it.
+        if (set === 'rest') {
+          rests[side] = lowerLengths(arms[side], posed);
         }
-        const before = set === 'play' ? last[set][side] : null;
+        const sample = measureArm(arms[side], studio.matrices, posed, folded, rests[side]);
+        const values = store.values[side];
+        for (const measure of MEASURES) {
+          if (measure !== 'pawJump' && measure !== 'grip') {
+            values[measure].push(sample[measure]);
+          }
+        }
+        const before = set === 'rest' ? null : last[set][side];
         const jump = before === null ? 0 : Math.abs(wrap(sample.pawRoll - before));
-        store.values[side].pawJump[store.values[side].pawJump.length - 1] =
-          jump > JUMP_ANGLE ? jump : 0;
+        values.pawJump.push(jump > JUMP_ANGLE ? jump : 0);
         last[set][side] = sample.pawRoll;
+        const grip = grips?.[side];
+        if (grip !== undefined && set === 'play') {
+          const signed = side === 'R' ? -sample.pawRoll : sample.pawRoll;
+          values.grip.push(Math.abs(wrap(signed - grip)));
+        }
       }
     });
     found.push(...report.demos);
@@ -944,6 +1021,7 @@ export function probeRole(role: RoleSource, demos: readonly DemoFile[], step: nu
       pawSwing: of('pawSwing'),
       pawJump: of('pawJump'),
       stretch: of('stretch'),
+      grip: of('grip'),
     };
   };
   return { demos: found, arms: { L: armStats('L'), R: armStats('R') } };
@@ -1247,7 +1325,7 @@ async function childMain(args: readonly string[]): Promise<number> {
     for (const role of roles) {
       const source = FOLD_ROLES.get(role);
       if (source) {
-        reports[role] = probeRole(source, demos, step);
+        reports[role] = probeRole(source, demos, step, ACCEPTED_GRIPS.get(role) ?? null);
       }
     }
   } finally {
@@ -1255,7 +1333,7 @@ async function childMain(args: readonly string[]): Promise<number> {
   }
   const json: ArmJson = {
     version: ARM_FORMAT,
-    since: 1,
+    since: 2,
     roles: reports,
     missing: roles.filter((role) => !FOLD_ROLES.has(role)),
   };
