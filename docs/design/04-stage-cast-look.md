@@ -388,7 +388,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     choice of the user or to the sheet. The other parts keep their sizes, and the holds in `H` read
     the source head (`ungrown()` of `tools/studio-body.ts`).
   - Seat. The rig poses the seated bind of 5.2 (`studio.legTurns`), lowers the haunch onto the
-    seat (`sit`), and can turn the trunk upright (`studio.trunk`).
+    seat (`sit`), and can turn the trunk upright (`studio.trunk`). `pnpm rig-mesh --check` gives
+    the gaps of the tail to the floor and to the chair over one sway period (`tools/tail-gap.ts`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
     joints (`refine.rings`) keep the faces from a fold. The corrective shapes give the source back
     in the standing pose, and up to four shapes of `raise` relax the faces that turn over in a bent

@@ -197,8 +197,8 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
 - **The size of a body.** A change of the size keeps the values of the pose in meters ("Values in
   meters" of `docs/agents/model-traps.md`). Compare the folds and the depths in H first with
   `--base main`, and the heights with `pnpm close-views lineup <species,...> <dir> --base main`.
-- **The seat and the tail.** Give the seat height and the lowest point of the tail of
-  `pnpm rig-mesh <animal> --check` before a plan of a tail.
+- **The seat and the tail.** Give the seat height, the lowest point of the tail, and the tail gaps
+  to the chair of `pnpm rig-mesh <animal> --check` before a plan of a tail.
 - **The images.** Make the images of the round with one batch. A brief names a grid by its folder,
   such as `<dir>/species-rest/species-base-views.webp`.
 

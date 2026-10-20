@@ -197,7 +197,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   height: turn the tip bone until the rig log line `tail: the lowest point` gives the height of the
   soles.
 - The idle sway turns the tail bones (`pose/pose-at.ts`), except a tail on the seat
-  (`OwnBodyParams.seatedTail`). Measure a seated tail over one sway period, 5.5 s.
+  (`OwnBodyParams.seatedTail`). Measure a seated tail over one sway period, 5.5 s, with the tail
+  lines of `pnpm rig-mesh --check`.
 - Short thighs on a deep trunk end behind the belly front. Measure the trunk front and the knees
   (`dog-profile.ts` and `cello-contact.ts` of `docs/research/2026-10-17-dog-mesh/`) before you plan
   the knees or an instrument between them.

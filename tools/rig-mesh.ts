@@ -1912,7 +1912,8 @@ export function checkTexts(text: string, sets: readonly string[], known: boolean
  * Rigs a mesh into a temporary folder and measures the rig, with no write into the repository
  * (`--check`). The JSON text of the config goes into the folder, and the rig reads it from there,
  * so that the base and each variant read the text that the tool read at its start. The app checks run on a copy of `src/` with the body of the rig: the violin by the rule
- * of a violin shop for the violinist, and the folds of each role of the animal. The folder goes
+ * of a violin shop for the violinist, and the folds and the tail gaps (`tools/tail-gap.ts`) of each
+ * role of the animal. The folder goes
  * away at the end, also after a failure. After a stop (INT or TERM), `tools/stop-cleanup.ts` stops
  * Blender and the probes first, then removes the folder.
  *
@@ -2009,7 +2010,10 @@ async function checkRig(
         form = readFormJson(await readFile(formFile, 'utf8'));
         for (const { role, species } of roles) {
           const json = join(dir, `folds-${role}.json`);
-          const runs: [string, string[]][] = [['fold-probe.ts', foldArgs(role, json, probe)]];
+          const runs: [string, string[]][] = [
+            ['fold-probe.ts', foldArgs(role, json, probe)],
+            ['tail-gap.ts', [role]],
+          ];
           const source = FOLD_ROLES.get(role);
           if (source?.kind === 'player' && source.instrument === 'violin') {
             runs.unshift(['hold-reach.ts', [species]]);
