@@ -64,7 +64,8 @@ Done when:
    row. `pnpm pose-depth <role>` shows each other part within the contact depth.
 4. `pnpm close-views <role> <dir> --base main` ran on the last pose, and you compared each view
    with the grid of `main`. `pnpm snapshot` ran after the last code commit.
-5. `pnpm arm-check <role> --base <start> --views <dir>` gives no `FAIL`.
+5. `pnpm arm-check <role> --base <start> --views <dir>` gives no `FAIL`. A new role has its entry
+   in `ACCEPTED_GRIPS` of `tools/arm-check.ts`, from the play median of its accepted grip.
 6. `tools/check-commits.sh --tip <base>` passed one time before the report.
 7. The docs of the section "Docs" are true.
 
