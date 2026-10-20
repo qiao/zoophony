@@ -431,6 +431,12 @@ export interface ProbeTreeOptions {
    * and to read it in place of a new probe of the commit when the key is the same.
    */
   readonly cache?: boolean;
+  /**
+   * The cache file of the JSON text of the probe of the working tree ({@link treeCacheFile}), or
+   * none. {@link probeBeside} reads the file in place of a new probe of the working tree, and
+   * writes a new text into it.
+   */
+  readonly treeCache?: string | null;
 }
 
 /**
@@ -947,6 +953,41 @@ function probeTree(
 }
 
 /**
+ * Runs a script of `tools/` on the code of a commit alone, in a child process of {@link runChild}
+ * in the folder of {@link withProbeTree}, which writes its results into a file of the folder.
+ *
+ * @param ref The commit, a branch, or a tag.
+ * @param script The script, such as `arm-check.ts`.
+ * @param args The arguments of the child, with no `--json`.
+ * @param options The parent folder, the start of the name of the folder, and the role.
+ * @returns The text of the file of the child.
+ * @throws Error if git does not know the ref, or if the child fails.
+ */
+export function probeRef(
+  ref: string,
+  script: string,
+  args: readonly string[],
+  options: ProbeTreeOptions,
+): Promise<string> {
+  return withProbeTree(
+    ref,
+    async (dir) => {
+      const file = join(dir, 'base.json');
+      try {
+        await runChild(process.execPath, [join('tools', script), ...args, '--json', file], dir);
+      } catch (error) {
+        throw new Error(
+          `The probe of ${ref} failed: ${error instanceof Error ? error.message : String(error)}`,
+          { cause: error },
+        );
+      }
+      return await readFile(file, 'utf8');
+    },
+    options,
+  );
+}
+
+/**
  * Runs a script of `tools/` on the code of a commit and on the working tree at the same time,
  * each in a child process, and gives the JSON text of each (`--json <file>` of the script). A stop
  * (INT or TERM) ends both children at once, and removes the temporary folder. A failure of one
@@ -954,7 +995,9 @@ function probeTree(
  *
  * With `options.cache`, the text of the commit goes into its cache file ({@link baseCacheFile}),
  * and a run with the same key reads that file, prints `base: cached`, and runs only the working
- * tree. The variable {@link PROBE_NO_CACHE} set to `1` runs the commit again.
+ * tree. With `options.treeCache`, the text of the working tree goes into that file in the same
+ * way, and a run that finds the file prints `tree: cached` and runs only the commit. The variable
+ * {@link PROBE_NO_CACHE} set to `1` runs both trees again.
  *
  * The two texts must have one format version, or a newer version that only adds fields to the
  * older version. Then the tool prints the note of {@link formatNote}.
@@ -978,15 +1021,27 @@ export async function probeBeside(
       ? baseCacheFile(ref, script, args.base)
       : null;
   const cached = cache && existsSync(cache) ? readFileSync(cache, 'utf8') : null;
-  let texts: BesideTexts;
+  const treeFile = process.env[PROBE_NO_CACHE] === '1' ? null : (options.treeCache ?? null);
+  const treeCached = treeFile && existsSync(treeFile) ? readFileSync(treeFile, 'utf8') : null;
   if (cache && cached !== null) {
     console.log(`base: cached (${ref}, ${basename(cache, '.json').slice(0, 12)})`);
-    texts = { base: cached, tree: await probeTree(script, args.tree, options) };
+  }
+  if (treeFile && treeCached !== null) {
+    console.log(`tree: cached (${basename(treeFile, '.json').slice(5, 17)})`);
+  }
+  let texts: BesideTexts;
+  if (cached !== null) {
+    texts = { base: cached, tree: treeCached ?? (await probeTree(script, args.tree, options)) };
+  } else if (treeCached !== null) {
+    texts = { base: await probeRef(ref, script, args.base, options), tree: treeCached };
   } else {
     texts = await probeBoth(ref, script, args, options);
-    if (cache) {
-      storeBase(cache, texts.base);
-    }
+  }
+  if (cache && cached === null) {
+    storeBase(cache, texts.base);
+  }
+  if (treeFile && treeCached === null) {
+    storeBase(treeFile, texts.tree);
   }
 
   const note = formatNote(script, ref, probeFormat(texts.base), probeFormat(texts.tree));
