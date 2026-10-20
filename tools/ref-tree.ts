@@ -437,6 +437,11 @@ export interface ProbeTreeOptions {
    * writes a new text into it.
    */
   readonly treeCache?: string | null;
+  /**
+   * The scripts of `tools/` of the working tree that replace the scripts of the commit in the
+   * folder of {@link withProbeTree}, such as the gate of `pnpm arm-check --states`, or none.
+   */
+  readonly scripts?: readonly string[];
 }
 
 /**
@@ -493,8 +498,8 @@ export function checkRefRole(dir: string, ref: string, role: RefRole): void {
  * Extracts {@link PROBE_PATHS} of a commit into a new temporary folder with {@link withRefTree},
  * and gives the folder to a function. The tools come from the commit, so that each tool runs on
  * the source that it fits. The folder also gets a copy of each script of `tools/` of the working
- * tree that the commit does not have ({@link probeScripts}), and a link to the `node_modules` of
- * the repository. The folder is also an empty git repository (`git init`), so that a git command
+ * tree that the commit does not have ({@link probeScripts}) and of each script of `options.scripts`, and a
+ * link to the `node_modules` of the repository. The folder is also an empty git repository (`git init`), so that a git command
  * of a tool of the commit works there, such as {@link probeCacheDir}. The caches and the times
  * that such a tool writes go away with the folder. With a role, the commit must have it
  * ({@link checkRefRole}). Thus a tool runs there, in a child process of {@link runChild}, on the
@@ -522,6 +527,9 @@ export function withProbeTree<T>(
     (dir) => {
       const own = readdirSync(join(dir, 'tools'));
       for (const file of probeScripts(readdirSync(join(ROOT, 'tools')), own)) {
+        copyFileSync(join(ROOT, 'tools', file), join(dir, 'tools', file));
+      }
+      for (const file of options.scripts ?? []) {
         copyFileSync(join(ROOT, 'tools', file), join(dir, 'tools', file));
       }
       symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
