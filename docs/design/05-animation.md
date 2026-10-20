@@ -484,9 +484,10 @@ The code constants of each family hold the times, the angles, and the lengths of
     strikes the playing spot of a real timpanist, a little in from the rim nearest to the player
     (`PercussionHold.rim`), and it points to its target from a place in front of its shoulder
     (`PercussionHold.home`). Thus the wrist stays near the body, and a lift over the kettle beside
-    the player does not take the paw into the body. The elbows of the timpani
-    point out and back, because elbows down put the upper arms into the body. The upper arms
-    still touch the side of the body, as the user rule of 2026-10-10 asks. The kettles leave a
+    the player does not take the paw into the body. The elbows of the timpani point down and
+    near the body, as a real timpanist holds them (`poleL`, `poleR`). Elbows out at the height
+    of the shoulders roll the upper arms far, and the skin twists at the shoulder (4.4). The
+    upper arms touch the side of the body, as the user rule of 2026-10-10 asks. The kettles leave a
     gap at the front of the player for the trunk (`TIMPANI.front`, 4.6). A round mallet looks the
     same at each turn around its own axis, so each timpani mallet turns until the top of the grip
     points toward its shoulder joint (`PercussionHold.top`). Thus the paw stays near the line of
