@@ -256,9 +256,10 @@ A review checks the work of a step or a round before its merge. Since 2026-10-16
 review agent (user: "no need for the review agent for future sessions",
 [`2026-10-16-no-review.md`](../decisions/2026-10-16-no-review.md)). The manager reviews each round
 from the report and the images, and `tools/merge-branch.sh` runs the checks of each commit and the
-arm gate of a pose or model change (`pnpm arm-check`, 4.4). The
-user judges the look from the images. The implementation agent or a fix agent makes each change
-that the manager requests as a commit on the same branch.
+arm gate of a pose or model change (`pnpm arm-check`, 4.4). The gate keeps the values of each
+tree in a cache by tree, so the merge reads the values of the gate run of the branch. The user
+judges the look from the images. The implementation agent or a fix agent makes each change that
+the manager requests as a commit on the same branch.
 
 At the end of a step or a round of the look, take the images at 1440 × 900 and at 390 × 844, and
 for a motion step a GIF of 10 s. These commands take them (`docs/agents/commands.md`):
