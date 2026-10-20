@@ -149,7 +149,11 @@ export interface StudioRig {
    * the lengths of the arm of the studio, as the pose code of section 5 needs.
    */
   readonly positions: Readonly<Record<BodyBoneName, Vec3>>;
-  /** The bone of the player that each studio bone follows, as indices in `BONE_NAMES`. */
+  /**
+   * The bone of the player that each skin joint follows, as indices in `BONE_NAMES`: each studio
+   * bone, and the twist bone of each upper arm at its index of {@link UPPER_TWIST_BONES}, which
+   * follows the upper arm. The readers of the bind mesh read the skin by this map.
+   */
   readonly follows: Uint8Array;
   readonly arms: Readonly<Record<Side, StudioArm>>;
 }
@@ -756,9 +760,27 @@ export function studioRig(seated: StudioBody, stands = false): StudioRig {
     body,
     mesh: twisted,
     positions: playerPositions(body),
-    follows: Uint8Array.from(STUDIO_BONES, (bone) => boneIndex(STUDIO_FOLLOWS[bone])),
+    follows: skinFollows(),
     arms: { L: arm('L'), R: arm('R') },
   };
+}
+
+/**
+ * Gives the bone of the player that each skin joint of a studio body follows
+ * ({@link StudioRig.follows}): the bone of {@link STUDIO_FOLLOWS} for each studio bone, and the
+ * upper arm for the twist bone of each upper arm. Thus a vertex of the upper arm stays on the upper
+ * arm for the readers of the bind mesh, such as the parts of the clearance sweep.
+ *
+ * @returns The bone of the player for each index of a skin joint, up to {@link STUDIO_POSE_BONES}.
+ */
+function skinFollows(): Uint8Array {
+  const follows = new Uint8Array(STUDIO_POSE_BONES);
+  for (const [k, bone] of STUDIO_BONES.entries()) {
+    follows[k] = boneIndex(STUDIO_FOLLOWS[bone]);
+  }
+  follows[UPPER_TWIST_BONES.L] = boneIndex('upperArmL');
+  follows[UPPER_TWIST_BONES.R] = boneIndex('upperArmR');
+  return follows;
 }
 
 /**
