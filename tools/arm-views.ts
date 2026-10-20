@@ -1,8 +1,7 @@
 /**
  * Renders the views of `pnpm arm-check --views <dir>` (`tools/arm-check.ts`). For each role with an
  * arm that fails, or each role with `--views-all`, it renders frames with
- * `pnpm close-views play --at <species>` at the azimuths of `VIEW_AZIMUTHS`, with the commit of
- * `--base` beside the working tree:
+ * `pnpm close-views play --at <species>`, with the commit of `--base` beside the working tree:
  *
  * - the worst play sample of each such arm: the sample of the measure that is farthest over its
  *   limit, or of the worst measure for an arm that passes;
@@ -10,9 +9,11 @@
  * - a rest: the middle of the longest gap between the notes of the seat, when it is
  *   {@link REST_GAP_SEC} or longer.
  *
- * Then it writes one image of each frame, `<dir>/<role>-<demo>-<time>-arms.webp`: one row for
- * each arm and one column for each view, with a crop of the commit on the left and of the working
- * tree on the right. The box of a crop holds the arm of the working tree, from the clavicle to the
+ * The views take the azimuths of {@link VIEW_AZIMUTHS}, and a view that a music stand or another
+ * player hides takes a spare azimuth ({@link frameViews}). Then the tool writes one image of each
+ * frame, `<dir>/<role>-<demo>-<time>-arms.webp`: one row for each arm and one column for each
+ * view, with a crop of the commit on the left and of the working tree on the right, or a crop of
+ * the working tree alone with no base. The box of a crop holds the arm of the working tree, from the clavicle to the
  * fingers, with a margin. A box of {@link CROP_SIDE} or less shows at 2x. A folder that holds the
  * frames of an earlier run keeps them, and the tool renders no frame again.
  */
@@ -38,7 +39,9 @@ import { ROOT, runChild } from './ref-tree.ts';
 import { toWebp } from './screenshots.ts';
 import { DEMO_IDS } from '../src/app/demos.ts';
 import type { DemoId } from '../src/app/demos.ts';
+import { bodyBoundsOf } from '../src/gallery/items.ts';
 import type { Side } from '../src/models/studio-format.ts';
+import type { Vec3 } from '../src/models/tuples.ts';
 import {
   createStudioPose,
   poseStudioBones,
@@ -51,6 +54,9 @@ import { PLAYING, allAudible, sceneOf } from '../src/pose/test-scene.ts';
 
 /** The azimuths of the views, in degrees: the front, two fronts at 35°, and the side. */
 export const VIEW_AZIMUTHS: readonly number[] = [0, 35, -35, 90];
+
+/** The azimuths that take the place of a view that a stand or another player hides, in order. */
+export const SPARE_AZIMUTHS: readonly number[] = [60, -60, -90, 120, -120, 20, -20, 180];
 
 /**
  * The parts of the gate that the views read. `tools/arm-check.ts` passes them, because a static
@@ -191,33 +197,99 @@ async function noteFrames(role: string, demo: DemoId): Promise<Frame[]> {
   return frames;
 }
 
+/** The boxes of the arms and the azimuths of the views of one frame. */
+interface FrameViews {
+  /** The azimuths of the views, in degrees, in the order of the columns. */
+  readonly azimuths: readonly number[];
+  /** The box of each arm in each view, in the order of the azimuths. */
+  readonly boxes: ReadonlyMap<Side, readonly Box[]>;
+  /** The azimuths that a stand or another player hides, for the log. */
+  readonly hidden: readonly number[];
+}
+
+/** A box of a part of the stage in the axes of its place: the corners of the box. */
+type Corners = readonly (readonly [number, number, number])[];
+
 /**
- * Gives the box of each arm of a role in the frame of each azimuth: the posed vertices of the arm
- * in the working tree, seen by the camera of `close-views play --at`.
+ * Gives the eight corners of a box.
+ *
+ * @param min The low corner.
+ * @param max The high corner.
+ * @returns The corners.
+ */
+function cornersOf(min: Vec3, max: Vec3): Corners {
+  return [0, 1, 2, 3, 4, 5, 6, 7].map((k) => [
+    k & 1 ? max[0] : min[0],
+    k & 2 ? max[1] : min[1],
+    k & 4 ? max[2] : min[2],
+  ]);
+}
+
+/**
+ * Gives the screen box and the nearest distance of points seen by a camera.
+ *
+ * @param points The points on the stage.
+ * @param camera The camera.
+ * @returns The box in CSS pixels of the frame and the nearest distance, or `null` when a point is
+ *   behind the camera.
+ */
+function screenBox(
+  points: readonly Vector3[],
+  camera: PerspectiveCamera,
+): {
+  readonly x0: number;
+  readonly y0: number;
+  readonly x1: number;
+  readonly y1: number;
+  readonly near: number;
+} | null {
+  let [x0, y0, x1, y1, near] = [Infinity, Infinity, -Infinity, -Infinity, Infinity];
+  const p = new Vector3();
+  for (const point of points) {
+    near = Math.min(near, point.distanceTo(camera.position));
+    p.copy(point).project(camera);
+    if (p.z > 1) {
+      return null;
+    }
+    const sx = ((p.x + 1) / 2) * PLAY_FRAME.width;
+    const sy = ((1 - p.y) / 2) * PLAY_FRAME.height;
+    [x0, y0, x1, y1] = [Math.min(x0, sx), Math.min(y0, sy), Math.max(x1, sx), Math.max(y1, sy)];
+  }
+  return { x0, y0, x1, y1, near };
+}
+
+/** The share of the box of an arm that a nearer box must cover to hide the arm. */
+const HIDDEN_SHARE = 0.25;
+
+/**
+ * Gives the views of one frame of a role: the box of each arm of the working tree in the frame of
+ * each azimuth of {@link VIEW_AZIMUTHS}. An azimuth from which a music stand or another player
+ * covers {@link HIDDEN_SHARE} of an arm and stands nearer to the camera takes the next azimuth of
+ * {@link SPARE_AZIMUTHS} that shows each arm.
  *
  * @param role The role.
  * @param frame The frame.
  * @param sides The arms.
  * @param parts The parts of the gate.
- * @returns The boxes, by side, one for each azimuth.
+ * @returns The views.
  */
-async function armBoxes(
+async function frameViews(
   role: string,
   frame: Frame,
   sides: readonly Side[],
   parts: GateParts,
-): Promise<Map<Side, Box[]>> {
+): Promise<FrameViews> {
   const source = FOLD_ROLES.get(role);
   const species = source ? roleSpecies(source)[0] : undefined;
-  const boxes = new Map<Side, Box[]>();
+  const none: FrameViews = { azimuths: VIEW_AZIMUTHS, boxes: new Map(), hidden: [] };
   if (!source || species === undefined) {
-    return boxes;
+    return none;
   }
   const scene = sceneOf((await patchedDemo(`${frame.demo}.mid`)).bytes);
   const [body] = roleBodies(source, scene);
   const rig = body?.model.studio;
   if (!body || !rig) {
-    return boxes;
+    return none;
   }
   const start = -countInAt(scene.plan.beats, 0).lengthSec;
   const poses = poseAt(
@@ -230,7 +302,7 @@ async function armBoxes(
   );
   const pose = body.index === null ? poses.conductor : poses.players[body.index];
   if (!pose) {
-    return boxes;
+    return none;
   }
   const studio = poseStudioBones(
     rig,
@@ -242,43 +314,94 @@ async function armBoxes(
   );
   const posed = skinStudioMesh(rig.mesh, studio);
   const target = await aimTarget(frame.demo, { kind: 'species', species });
-  const { position, facing } = target.place;
-  const cos = Math.cos(facing);
-  const sin = Math.sin(facing);
-  for (const side of sides) {
-    const list: Box[] = [];
-    for (const azimuth of VIEW_AZIMUTHS) {
-      const aim = aimPose(target.place, target.box, { azimuth, elevation: AIM_ELEVATION, zoom: 1 });
-      const camera = new PerspectiveCamera(aim.fov, PLAY_FRAME.width / PLAY_FRAME.height);
-      camera.position.set(...aim.position);
-      camera.lookAt(...aim.target);
-      camera.updateMatrixWorld();
-      const p = new Vector3();
-      let [x0, y0, x1, y1] = [Infinity, Infinity, -Infinity, -Infinity];
-      for (const v of parts.armVertices(rig, side)) {
-        const [x = 0, y = 0, z = 0] = [posed[v * 3], posed[v * 3 + 1], posed[v * 3 + 2]];
-        p.set(
-          position[0] + x * cos + z * sin,
-          position[1] + y,
-          position[2] - x * sin + z * cos,
-        ).project(camera);
-        const sx = ((p.x + 1) / 2) * PLAY_FRAME.width;
-        const sy = ((1 - p.y) / 2) * PLAY_FRAME.height;
-        [x0, y0, x1, y1] = [Math.min(x0, sx), Math.min(y0, sy), Math.max(x1, sx), Math.max(y1, sy)];
+  const onStage = (
+    place: { readonly position: Vec3; readonly facing: number },
+    x: number,
+    y: number,
+    z: number,
+  ): Vector3 => {
+    const cos = Math.cos(place.facing);
+    const sin = Math.sin(place.facing);
+    return new Vector3(
+      place.position[0] + x * cos + z * sin,
+      place.position[1] + y,
+      place.position[2] - x * sin + z * cos,
+    );
+  };
+  const arms = new Map(
+    sides.map((side) => [
+      side,
+      parts
+        .armVertices(rig, side)
+        .map((v) =>
+          onStage(target.place, posed[v * 3] ?? 0, posed[v * 3 + 1] ?? 0, posed[v * 3 + 2] ?? 0),
+        ),
+    ]),
+  );
+  const same = (a: Vec3, b: Vec3): boolean => Math.hypot(a[0] - b[0], a[2] - b[2]) < 1e-3;
+  const occluders = [
+    ...scene.layout.players
+      .filter((place) => !same(place.position, target.place.position))
+      .map((place) => {
+        const { species: who, instrument, kettles, support } = place.cast;
+        const box = bodyBoundsOf(scene.models.get(who, instrument, kettles, support).mesh);
+        return cornersOf(box.min, box.max).map(([x, y, z]) => onStage(place, x, y, z));
+      }),
+    ...scene.layout.stands.map((stand) =>
+      cornersOf([-0.25, 0, -0.15], [0.25, stand.deskHeight + 0.2, 0.15]).map(([x, y, z]) =>
+        onStage(stand, x, y, z),
+      ),
+    ),
+  ];
+  const views = [...VIEW_AZIMUTHS, ...SPARE_AZIMUTHS].map((azimuth) => {
+    const aim = aimPose(target.place, target.box, { azimuth, elevation: AIM_ELEVATION, zoom: 1 });
+    const camera = new PerspectiveCamera(aim.fov, PLAY_FRAME.width / PLAY_FRAME.height);
+    camera.position.set(...aim.position);
+    camera.lookAt(...aim.target);
+    camera.updateMatrixWorld();
+    camera.updateProjectionMatrix();
+    let hidden = false;
+    const boxes = sides.map((side): Box => {
+      const arm = screenBox(arms.get(side) ?? [], camera);
+      if (!arm) {
+        hidden = true;
+        return { x: 0, y: 0, side: PLAY_FRAME.height };
       }
-      const side0 = Math.max(x1 - x0, y1 - y0) * (1 + 2 * CROP_MARGIN);
-      const sideOf = Math.min(PLAY_FRAME.height, Math.max(CROP_SIDE, side0));
-      const cx = (x0 + x1) / 2;
-      const cy = (y0 + y1) / 2;
-      list.push({
+      const area = Math.max(1, (arm.x1 - arm.x0) * (arm.y1 - arm.y0));
+      for (const corners of occluders) {
+        const box = screenBox(corners, camera);
+        if (box && box.near < arm.near) {
+          const w = Math.min(box.x1, arm.x1) - Math.max(box.x0, arm.x0);
+          const h = Math.min(box.y1, arm.y1) - Math.max(box.y0, arm.y0);
+          hidden ||= w > 0 && h > 0 && (w * h) / area > HIDDEN_SHARE;
+        }
+      }
+      const sideOf = Math.min(
+        PLAY_FRAME.height,
+        Math.max(CROP_SIDE, Math.max(arm.x1 - arm.x0, arm.y1 - arm.y0) * (1 + 2 * CROP_MARGIN)),
+      );
+      const cx = (arm.x0 + arm.x1) / 2;
+      const cy = (arm.y0 + arm.y1) / 2;
+      return {
         x: Math.min(PLAY_FRAME.width - sideOf, Math.max(0, cx - sideOf / 2)),
         y: Math.min(PLAY_FRAME.height - sideOf, Math.max(0, cy - sideOf / 2)),
         side: sideOf,
-      });
-    }
-    boxes.set(side, list);
-  }
-  return boxes;
+      };
+    });
+    return { azimuth, hidden, boxes };
+  });
+  const shown = views.filter((view) => !view.hidden);
+  const chosen = [...shown, ...views.filter((view) => view.hidden)].slice(0, VIEW_AZIMUTHS.length);
+  return {
+    azimuths: chosen.map((view) => view.azimuth),
+    boxes: new Map(
+      sides.map((side, k) => [
+        side,
+        chosen.map((view) => view.boxes[k] ?? view.boxes[0] ?? { x: 0, y: 0, side: CROP_SIDE }),
+      ]),
+    ),
+    hidden: views.filter((view) => view.hidden).map((view) => view.azimuth),
+  };
 }
 
 /** One cell pair of the image: the crops of the commit and of the working tree. */
@@ -325,8 +448,9 @@ async function writePairs(cells: readonly PairCell[], file: string): Promise<voi
         const label = 28;
         const columns = Math.max(...list.map((cell) => cell.column)) + 1;
         const lines = Math.max(...list.map((cell) => cell.row)) + 1;
+        const pair = list.some((cell) => cell.base !== null) ? 2 : 1;
         const canvas = document.createElement('canvas');
-        canvas.width = columns * side * 2;
+        canvas.width = columns * side * pair;
         canvas.height = lines * (side + label);
         const context = canvas.getContext('2d');
         if (!context) {
@@ -342,12 +466,13 @@ async function writePairs(cells: readonly PairCell[], file: string): Promise<voi
         };
         for (const cell of list) {
           const top = cell.row * (side + label);
-          const left = cell.column * side * 2;
+          const left = cell.column * side * pair;
           context.fillStyle = '#000000';
           context.font = '16px sans-serif';
           context.fillText(cell.label, left + 6, top + 20);
           const { x, y, side: crop } = cell.box;
-          for (const [k, source] of [cell.base, cell.tree].entries()) {
+          const sources = pair === 2 ? [cell.base, cell.tree] : [cell.tree];
+          for (const [k, source] of sources.entries()) {
             if (source) {
               context.drawImage(
                 await load(source),
@@ -369,7 +494,10 @@ async function writePairs(cells: readonly PairCell[], file: string): Promise<voi
     );
     const png = Buffer.from(data.replace(/^data:image\/png;base64,/, ''), 'base64');
     await writeFile(`${file}.webp`, await toWebp(browser, png));
-    console.log(`${file}.webp: ${cells.length} pairs, the base on the left of each pair`);
+    const what = cells.some((cell) => cell.base !== null)
+      ? 'pairs, the base on the left of each pair'
+      : 'crops of the working tree';
+    console.log(`${file}.webp: ${cells.length} ${what}`);
   } finally {
     await browser.close();
   }
@@ -421,9 +549,15 @@ export async function renderViews(
     for (const frame of frames) {
       const cells: PairCell[] = [];
       const out = join(dir, `${role}-${frame.demo}-${frame.time.toFixed(2)}`);
-      const azimuths = VIEW_AZIMUTHS.flatMap((a) => ['--azimuth', String(a)]);
+      const views = await frameViews(role, frame, sides, parts);
+      if (views.hidden.length > 0) {
+        console.log(
+          `A stand or another player hides an arm at the azimuths ${views.hidden.join(', ')}.`,
+        );
+      }
+      const azimuths = views.azimuths.flatMap((a) => ['--azimuth', String(a)]);
       const base = options.base === null ? [] : ['--base', options.base];
-      const cameras = VIEW_AZIMUTHS.map((azimuth) => `at-${species}-az${azimuth}`);
+      const cameras = views.azimuths.map((azimuth) => `at-${species}-az${azimuth}`);
       const prefixes = options.base === null ? ['play-'] : ['play-', 'play-base-'];
       const files = cameras.flatMap((camera) =>
         prefixes.map((prefix) => join(out, `${prefix}${camera}.png`)),
@@ -450,10 +584,9 @@ export async function renderViews(
           ROOT,
         );
       }
-      const boxes = await armBoxes(role, frame, sides, parts);
       for (const [row, side] of sides.entries()) {
-        for (const [column, azimuth] of VIEW_AZIMUTHS.entries()) {
-          const box = boxes.get(side)?.[column];
+        for (const [column, azimuth] of views.azimuths.entries()) {
+          const box = views.boxes.get(side)?.[column];
           if (box) {
             const camera = `at-${species}-az${azimuth}`;
             cells.push({
