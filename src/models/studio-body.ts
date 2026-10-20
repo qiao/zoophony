@@ -30,6 +30,7 @@ import { STUDIO_PANDA } from './studio/panda.ts';
 import { STUDIO_PIG } from './studio/pig.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
+import { STUDIO_WOLF } from './studio/wolf.ts';
 import { EYE_COLOR, EYE_LIGHT_COLOR } from './species.ts';
 import type { Vec3 } from './tuples.ts';
 
@@ -47,6 +48,7 @@ export const STUDIO_BODIES = {
   'studio-pig': STUDIO_PIG,
   'studio-polar-bear': STUDIO_POLAR_BEAR,
   'studio-rabbit': STUDIO_RABBIT,
+  'studio-wolf': STUDIO_WOLF,
 } as const satisfies Readonly<Record<string, StudioBody>>;
 
 /** The name of a studio body of a species. */

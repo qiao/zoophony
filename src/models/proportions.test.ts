@@ -30,13 +30,14 @@ const LONG_TORSO: BodyProportions = {
 };
 
 /**
- * Builds the parametric wolf with a skeleton. The red fox has a body of its own (design 4.4).
+ * Builds the parametric badger with a skeleton. The red fox and the wolf have bodies of their own
+ * (design 4.4).
  *
  * @param proportions The skeleton.
  * @returns The mesh and the bones.
  */
-function wolf(proportions: Partial<BodyProportions>): BuiltBody {
-  return builtBody({ ...SPECIES.wolf, proportions }, seated(SEAT));
+function badger(proportions: Partial<BodyProportions>): BuiltBody {
+  return builtBody({ ...SPECIES.badger, proportions }, seated(SEAT));
 }
 
 describe('proportionsOf (design 4.3)', () => {
@@ -72,7 +73,7 @@ describe('proportionsOf (design 4.3)', () => {
 });
 
 describe('the skeleton of a species in the body (design 4.3)', () => {
-  const { mesh, body } = wolf(LONG_TORSO);
+  const { mesh, body } = badger(LONG_TORSO);
   const p = body.positions;
   const h = LONG_TORSO.headHeight;
   const above = (point: readonly number[]): number => ((point[1] ?? NaN) - SEAT) / h;
@@ -104,7 +105,7 @@ describe('the skeleton of a species in the body (design 4.3)', () => {
     const bones = ['hips', 'spine', 'chest', 'neck', 'head'] as const;
     const trunk = cornersOn(mesh, bones);
 
-    expect(openEdges(trunk)).toBe(openEdges(cornersOn(wolf({}).mesh, bones)));
+    expect(openEdges(trunk)).toBe(openEdges(cornersOn(badger({}).mesh, bones)));
     expect(volumeOf(trunk)).toBeGreaterThan(0);
     for (let t = 0; t < mesh.bones.length / 3; t++) {
       expect(joinsAtMostOneJoint(mesh, t), `triangle ${t}`).toBe(true);
@@ -112,6 +113,6 @@ describe('the skeleton of a species in the body (design 4.3)', () => {
   });
 
   it('refuses a head bone that is not above the shoulder joints', () => {
-    expect(() => wolf({ headCenter: 1.4 })).toThrow('not above the shoulder joints');
+    expect(() => badger({ headCenter: 1.4 })).toThrow('not above the shoulder joints');
   });
 });

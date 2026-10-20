@@ -16,6 +16,7 @@ import { STUDIO_PANDA } from './studio/panda.ts';
 import { STUDIO_PIG } from './studio/pig.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
+import { STUDIO_WOLF } from './studio/wolf.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 
@@ -310,15 +311,23 @@ export const SPECIES = {
       seatHeight: STUDIO_FOX.seatHeight / STUDIO_FOX.headHeight,
     },
   },
-  /** Wolf, the clarinets (the gray animal with a clarinet of `animals.webp`). */
+  /**
+   * Wolf, the clarinets: a gray wolf with a cream chest, belly, and muzzle, dark lower legs, and a
+   * bushy tail with a cream tip. It has the studio body of the mesh of the user,
+   * `assets/models/wolf/wolf.glb`, which `pnpm rig-mesh wolf` rigs (design 4.4), with the size of
+   * the reference images (2026-10-20-mesh-wolf decisions). It sits on a chair that fits its legs,
+   * with the tail back over the seat and down behind it, and stands as a soloist. Its head height
+   * is the head of the studio body, and the seat height is the seat of the studio body, in H.
+   */
   wolf: {
-    ears: 'pointed',
-    snout: 'long',
-    tail: 'bushy',
-    size: 0.95,
+    body: 'studio-wolf',
+    size: 1,
     colors: SPECIES_COLORS.wolf,
     accentParts: ['inner-ears'],
-    facePattern: 'none',
+    proportions: {
+      headHeight: STUDIO_WOLF.headHeight,
+      seatHeight: STUDIO_WOLF.seatHeight / STUDIO_WOLF.headHeight,
+    },
   },
   /**
    * Elephant, the timpani: a gray elephant with large ears, a long trunk, and cream tusks. It has
