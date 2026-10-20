@@ -143,7 +143,9 @@ file, because both checks still read it.
   commit.
 - In the shell of an agent, `grep` is a shell function that runs ugrep with `--ignore-files`, so
   it skips `scratch/` and `node_modules/`. `command grep` runs the grep of the system. Make a
-  temporary edit of a file with `perl -0pi -e`, because the `sed -i` of macOS needs a suffix.
+  temporary edit of a file with `perl -0pi -e`, because the `sed -i` of macOS needs a suffix. Make
+  a lasting edit of code with the Edit tool: a `|` or a `/` in TypeScript text can break the
+  delimiter of a `perl` substitution and give a red commit.
 
 ## Audits
 
