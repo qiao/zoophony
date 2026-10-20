@@ -201,7 +201,8 @@ export function buildStudioBody(
     return skin ?? { bone: 0, blendBone: 0, blendWeight: 0 };
   });
   // The head keeps the bind pose of the studio, so each pea eye goes to the bind place of its eye
-  // bone. The eyes blink with the eye bones of the studio (`studioRenderMesh()`).
+  // bone, bent to the head surface when the body has bends. The eyes blink with the eye bones of
+  // the studio (`studioRenderMesh()`).
   for (const side of ['L', 'R'] as const) {
     addEye(
       builder,
@@ -209,6 +210,7 @@ export function buildStudioBody(
       { point: body.heads[`eye_${side}`], normal: body.eyes.directions[side] },
       body.eyes.headHeight,
       boneIndex(`eye${side}`),
+      body.eyes.bends?.[side],
     );
   }
 

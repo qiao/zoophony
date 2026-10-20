@@ -1,3 +1,4 @@
+import type { EyeBend } from './eyes.ts';
 import { FINISH_ORDER } from './mesh.ts';
 import type { Finish } from './mesh.ts';
 import { packCoordinate, PACKED_STEP } from './packed-mesh.ts';
@@ -261,8 +262,11 @@ export interface StudioRaise {
  * The pea eyes of a studio body (design 4.4, 4.5): the eyes of the parametric bodies (`addEye()` of
  * `models/eyes.ts`), which replace the eyes of the mesh. Each eye lies at the bind place of its eye
  * bone and faces out from the middle of the head, as an eye on the round head of a parametric body
- * does. The bone lies half in the head surface (`eyeMiddle()` of `models/eyes.ts`), or further out
- * when the head covers the front of the eye there (`eyePush()` of `tools/studio-body.ts`).
+ * does. Each oval bends to the form of the head surface under it, so that its rim lies at the fur,
+ * as the rim of an eye on a flat face of a parametric head does, and its bone lies on the head
+ * surface. A flat oval has its bone 0.01 H of the eyes behind the head surface (`eyeMiddle()` of
+ * `models/eyes.ts`). Each bone moves further out when the head still covers the front of the eye
+ * (`eyePush()` of `tools/studio-body.ts`).
  */
 export interface StudioEyes {
   /**
@@ -274,9 +278,16 @@ export interface StudioEyes {
   /**
    * The unit direction in which each eye faces, in the bind pose: from the middle of the box of the
    * head that shows through the eye. The head surface under the eye of the bear faces 39° up, so an
-   * eye along the normal of the surface hid behind the muzzle in the front view.
+   * eye along the normal of the surface shows less of its front in the front view.
    */
   readonly directions: Readonly<Record<Side, Vec3>>;
+  /**
+   * The bend of each oval along its direction: a fit of the heights of the head surface over the
+   * oval, from the plane of the eye (`eyeBend()` of `tools/studio-body.ts`). Thus a direction that
+   * differs from the normal of the surface, or a curved cheek, moves no edge of the oval out of the
+   * fur. A body with flat ovals (`flatEyes` of `ANIMALS`, the bear) has none.
+   */
+  readonly bends?: Readonly<Record<Side, EyeBend>>;
 }
 
 /**
