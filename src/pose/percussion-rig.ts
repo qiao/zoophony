@@ -143,7 +143,7 @@ export const PERCUSSION_HOLDS = {
     poleL: [-0.7, -1, 0.2],
     poleR: [0.7, -1, 0.2],
     rim: 0.25,
-    home: [0, -0.4, -0.2],
+    home: [0, -0.37, -0.2],
     top: 'shoulder',
     cock: { up: 0.7, out: 0.3 },
     ready: true,
