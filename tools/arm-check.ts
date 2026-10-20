@@ -23,7 +23,8 @@
  *   from the paw to the upper arm. A face that is long in the rest too does not count.
  * - `grip turn`: the turn of the paw twist in the play from the accepted grip of its arm
  *   ({@link ACCEPTED_GRIPS}). The value is the median, so a paw that holds its prop in another
- *   grip fails with no base.
+ *   grip fails with no base. For a role with no entry, the tool prints a ready entry under the
+ *   table ({@link gripLines}), and the role has no value `grip`.
  *
  * The other values are the 95th percentiles of the samples. Each value has a p50, a p95 (a p5 for
  * the flat share), and its worst sample (the demo and the time) in each sample set. The value of
@@ -895,6 +896,30 @@ function quantile(sorted: readonly number[], share: number): number {
 }
 
 /**
+ * Gives the median of some angles, measured from their circular mean, so that a paw near 180° does
+ * not split into two ends of the range.
+ *
+ * @param angles The angles, in degrees.
+ * @returns The median in -180° to 180°, or `null` with no angle.
+ */
+export function angleMedian(angles: readonly number[]): number | null {
+  if (angles.length === 0) {
+    return null;
+  }
+
+  let x = 0;
+  let y = 0;
+  for (const angle of angles) {
+    x += Math.cos((angle * Math.PI) / 180);
+    y += Math.sin((angle * Math.PI) / 180);
+  }
+  const mean = (Math.atan2(y, x) * 180) / Math.PI;
+  const offsets = angles.map((angle) => wrap(angle - mean)).toSorted((p, q) => p - q);
+
+  return wrap(mean + quantile(offsets, 0.5));
+}
+
+/**
  * Gives the song time of a play label, such as `beethoven-9.mid 12.25 s`.
  *
  * @param label The label of a sample.
@@ -953,6 +978,12 @@ export interface RoleReport {
   readonly demos: readonly string[];
   /** The summaries of each arm. */
   readonly arms: Readonly<Record<Side, ArmStats>>;
+  /**
+   * The median paw twist of each arm in the play ({@link angleMedian}), in whole degrees, with the
+   * sign of the right arm turned, as an entry of {@link ACCEPTED_GRIPS} gives it. A role with no
+   * play sample and a JSON text before format 3 have none.
+   */
+  readonly grips?: Readonly<Record<Side, number>>;
 }
 
 /** The JSON text of a run of the tool for one tree (`--json`). */
@@ -968,7 +999,7 @@ export interface ArmJson {
 }
 
 /** The format version of {@link ArmJson}. */
-export const ARM_FORMAT = 2;
+export const ARM_FORMAT = 3;
 
 /** The values and the labels of the samples of one role, by sample set. */
 interface Samples {
@@ -1047,6 +1078,7 @@ export function probeRole(
     lift: emptySamples(),
   };
   const found: string[] = [];
+  const rolls: Record<Side, number[]> = { L: [], R: [] };
   for (const demo of demos) {
     const counts: Record<SampleSet, number> = { rest: 0, play: 0, lift: 0 };
     const none = (): Record<Side, number | null> => ({ L: null, R: null });
@@ -1083,9 +1115,12 @@ export function probeRole(
         const jump = before === null ? 0 : Math.abs(wrap(sample.pawRoll - before));
         values.pawJump.push(jump > JUMP_ANGLE ? jump : 0);
         last[set][side] = sample.pawRoll;
+        const signed = side === 'R' ? -sample.pawRoll : sample.pawRoll;
+        if (set === 'play') {
+          rolls[side].push(signed);
+        }
         const grip = grips?.[side];
         if (grip !== undefined && set === 'play') {
-          const signed = side === 'R' ? -sample.pawRoll : sample.pawRoll;
           values.grip.push(Math.abs(wrap(signed - grip)));
         }
       }
@@ -1112,7 +1147,37 @@ export function probeRole(
       grip: of('grip'),
     };
   };
-  return { demos: found, arms: { L: armStats('L'), R: armStats('R') } };
+  const report: RoleReport = { demos: found, arms: { L: armStats('L'), R: armStats('R') } };
+  const medians = { L: angleMedian(rolls.L), R: angleMedian(rolls.R) };
+  if (medians.L === null || medians.R === null) {
+    return report;
+  }
+  return { ...report, grips: { L: Math.round(medians.L), R: Math.round(medians.R) } };
+}
+
+/**
+ * Gives a ready entry of {@link ACCEPTED_GRIPS} for each role that has none: the median paw twist
+ * of each arm in the play, as the line of the map.
+ *
+ * @param reports The report of each role.
+ * @returns The lines, empty when each role has an entry or no play sample.
+ */
+export function gripLines(
+  reports: readonly { readonly role: string; readonly tree: RoleReport | null }[],
+): string[] {
+  const lines = reports.flatMap(({ role, tree }) =>
+    tree?.grips && !ACCEPTED_GRIPS.has(role)
+      ? [`  ['${role}', { L: ${tree.grips.L}, R: ${tree.grips.R} }],`]
+      : [],
+  );
+  if (lines.length === 0) {
+    return [];
+  }
+  return [
+    'The roles below have no entry in ACCEPTED_GRIPS. A ready entry from the median paw twist of each arm in the play:',
+    '',
+    ...lines,
+  ];
 }
 
 /**
@@ -2382,6 +2447,10 @@ async function main(): Promise<number> {
     );
   }
   console.log(['', ...summaryLines(rows, options.base !== null)].join('\n'));
+  const grips = gripLines(reports);
+  if (grips.length > 0) {
+    console.log(['', ...grips].join('\n'));
+  }
   const shown =
     options.long || options.roles.length === 1 ? rows : rows.filter((r) => r.verdict !== 'PASS');
   if (shown.length > 0) {
