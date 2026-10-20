@@ -33,7 +33,7 @@ Open these files for these kinds of work:
   `docs/reference/mockup.png` and `docs/reference/scene.png` (the target of the look),
   `docs/reference/lowpoly-animals.png` (the forms and the facets of the animals), and
   `docs/reference/animals.webp` (the front, side, and back views). The model sheets
-  `docs/reference/*-views.png` show single species. The reference images win over the values in
+  `docs/reference/*-views.png` and `*-turnaround.png` show single species. The reference images win over the values in
   the code that design 4.5 to 4.7 names: these values describe the current models, and they are no
   targets. Design 1 says which image wins where they differ. The bodies of the app are in the
   table "Bodies and roles" of [`docs/agents/model-work.md`](docs/agents/model-work.md).
