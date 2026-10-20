@@ -106,8 +106,10 @@ from the V).
 - The elbows are about a fist from the body, the upper arms hang mostly still, and the wrist
   makes the stroke [17]. A full stroke lifts the tip about 8 inches [18].
 
-## 7. The crash cymbals
+## 7. The crash cymbals and the suspended cymbal
 
+- Hand cymbals of all weights are 14 to 22 inches wide [23]: 0.356 to 0.559 m (derived). The
+  smallest real hand cymbal of these sources is thus 14 inches, 0.356 m.
 - The thumb and the forefinger hold the strap near the bell. The hand does not go through the
   strap [15] [20] [23].
 - The plates are in front of the middle of the chest, with their edges about 3 inches from the
@@ -121,6 +123,17 @@ from the V).
   or go up above the shoulders [22]. A short note stops against the chest or the stomach [15]
   [20] [22]. No concert source gives the rest place. A marching method holds the plates at the
   sides, almost vertical [24].
+- A part marked "with stick" or "with mallet" plays on a suspended cymbal: one cymbal on a stand,
+  struck with a stick or a beater, not with another cymbal [23] [32].
+- A suspended cymbal roll uses medium to soft yarn mallets. A cymbal of 17 inches or less takes a
+  lighter mallet [30]. Suspended cymbals for orchestras and bands are sold at 18 inches
+  [33 (abstract)].
+- The roll plays near the edge, about half an inch in, with the left and the right mallets
+  opposite each other [21] [30] [32]. Another source tells the player not to play exactly
+  opposite, because the plate then rocks [31].
+- The stroke is legato, as on a marimba bar, and comes off the cymbal at the end of the roll
+  [30]. Single notes play at the very edge with a legato stroke [31].
+- No source of this file gives the height of the stand.
 
 ## 8. The triangle and the tambourine
 
@@ -195,7 +208,7 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
 
 ## 11. Sources
 
-Sources 1 to 12 opened on 2026-10-19, and sources 13 to 29 on 2026-10-20, except where a fact
+Sources 1 to 12 opened on 2026-10-19, and sources 13 to 33 on 2026-10-20, except where a fact
 has a mark of section "Source marks" or a source says "a search summary only".
 
 1. "3 Timpani Grips", The Instrumentalist, December 2014.
@@ -254,3 +267,10 @@ has a mark of section "Source marks" or a source says "a search summary only".
 28. Wikipedia, "Bass drum". https://en.wikipedia.org/wiki/Bass_drum
 29. Vic Firth, "Percussion 101: Keyboard Percussion" (a search summary only).
     https://ae.vicfirth.com/education/percussion-101/percussion-101-keyboard-percussion/
+30. J. J. Knight, "Mastering Suspended Cymbal Rolls", PAS Educators' Companion, vol. IV.
+    https://pas.org/wp-content/uploads/2024/04/ECV0426-28.pdf
+31. N. Buonviri, "Suspended Cymbal Techniques", The Instrumentalist, October 2017.
+    https://theinstrumentalist.com/october-2017/suspended-cymbal-techniques/
+32. Wikipedia, "Suspended cymbal". https://en.wikipedia.org/wiki/Suspended_cymbal
+33. Zildjian, "18\" S Family Suspended" (a product page, a search summary only).
+    https://zildjian.com/18-s-family-suspended.html
