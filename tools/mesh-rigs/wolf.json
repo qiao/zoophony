@@ -351,6 +351,19 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the dog, moved with the joints of the wolf: it starts 0.03 units above the knee and ends 0.03 units above the thigh joint."
     },
+    "rigid": [
+      [
+        0.0119,
+        0.6297,
+        0.1352
+      ],
+      [
+        0.0812,
+        0.5777,
+        0.0511
+      ]
+    ],
+    "rigidNote": "The corners of each thin face at these points take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py). The points are the middles of faces 261 and 1987 in the units of the source (pnpm fold-probe clarinetist --faces). Face 261, a sliver across the middle of the chest under the neck, had the weights of both clavicles and folded in each sample. Face 1987, at the front of the left shoulder, folded in each rest sample and in 14% of the lift samples. With both rules, no sample folds (check-rigid.log).",
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.085 out (free-arm.txt). Above headFrom, each vertex except the ears follows the head only: the chin starts at y 0.775. Each ear vertex goes to its ear bone with a ramp over the heights of earBase, from 0.035 units below the place where the ears are apart (0.93). The tail has two bones (tail): the vertices within radius of the line from the root over the bend to the tip, and behind the plane z = behind, follow the tail bones. The radius holds each cut of the tail (x \u00b10.057 at most, z 0.137 deep at y 0.22, measures.txt), and the plane keeps the backs of the thighs (z -0.033 at y 0.29) out of it. clavicleFrom, armTop, and shoulderHead are the rules of the dog, moved with the shoulder joint (y 0.615) and the neck (x \u00b10.067) of the wolf."
   },
   "refine": {
