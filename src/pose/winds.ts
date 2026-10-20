@@ -545,12 +545,38 @@ const PIG_HORN = {
   restPoleR: [1, -0.3, 0.3],
 } as const satisfies WindHold;
 
+/** The turn of the lower end of the clarinet of the wolf forward while it plays, in degrees. */
+const WOLF_CLARINET_FORWARD = 20;
+
 /**
- * The clarinet hold of the wolf (design 5.3). It starts as the hold of {@link WIND_HOLDS}, so that
- * the tools can fit the hold of the wolf mesh with `--set 'clarinet@wolf.<path>=<value>'`.
+ * The clarinet hold of the wolf (design 5.3), the hold of a real clarinetist (decisions
+ * `2026-10-20-mesh-wolf.md`, `docs/reference/wind-technique.md` 3): the clarinet at the middle of
+ * the body, at about 45° from the body. The clarinet turns its lower end
+ * {@link WOLF_CLARINET_FORWARD}° further forward than {@link WIND_HOLDS}, to 45° from the vertical.
+ *
+ * The long muzzle puts the tip of the nose far in front of the mouth, and at 45° the grips moved
+ * further forward: the left paw missed its grip by 2.4 cm and the right paw by 6.1 cm. So the
+ * mouthpiece sits 0.3 H further back and 0.12 H lower than the mouth of the bind pose, in the mouth
+ * under the muzzle, and each shoulder bone turns forward, the right 30° and the left 20°. The
+ * paws then reach their grips with the spare reach of the parametric wolf of {@link WIND_HOLDS}
+ * (`pnpm hold-reach wolf --instrument clarinet`). The mouthpiece goes 1.3 cm into the head. With
+ * the mouthpiece 0.08 H lower, it went 2.4 cm into the head, and 0.04 H lower, 3.4 cm.
+ *
+ * Both elbows point down and a little out, as a seated clarinetist lets the arms hang near the
+ * body, in the play and in the rest. Of 4 elbow directions, this one gave the smallest paw turns
+ * on the forearms: with the elbows of {@link WIND_HOLDS}, the right paw turned 141° and the left
+ * paw 123°, and with these elbows 71° and 89° (`docs/research/2026-10-20-wolf-mesh.md`).
  */
 const WOLF_CLARINET = {
   ...WIND_HOLDS.clarinet,
+  reach: 30 * MathUtils.DEG2RAD,
+  reachL: 20 * MathUtils.DEG2RAD,
+  lipShift: [0, -0.12, 0.3],
+  play: holdTurn(WOLF_CLARINET_FORWARD, 0),
+  poleL: [-0.3, -1, 0],
+  poleR: [0.3, -1, 0],
+  restPoleL: [-0.3, -1, 0],
+  restPoleR: [0.3, -1, 0],
 } as const satisfies WindHold;
 
 /**
