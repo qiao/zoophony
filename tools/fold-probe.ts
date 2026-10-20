@@ -616,7 +616,8 @@ function emptyCount(): FoldCount {
 
 /**
  * Gets each posed studio body of {@link probeFolds}: the rig, the pose of its bones, the posed
- * places, the folded faces, and the sample set.
+ * places, the folded faces, the sample set, and the label of the sample: the demo and the time,
+ * such as `bach-bwv1047.mid 12.25 s`.
  */
 export type FoldVisit = (
   rig: StudioRig,
@@ -624,6 +625,7 @@ export type FoldVisit = (
   posed: Float32Array,
   folded: readonly number[],
   set: SampleSet,
+  label: string,
 ) => void;
 
 /**
@@ -658,7 +660,7 @@ function countPose(
   );
   const posed = skinStudioMesh(rig.mesh, studio);
   const folded = foldedFaces(rig.mesh, studio.matrices, posed);
-  visit?.(rig, studio, posed, folded, set);
+  visit?.(rig, studio, posed, folded, set, label);
   const bones: string[] = [];
   for (const face of folded) {
     const bone = mainBone(rig.mesh, face);
