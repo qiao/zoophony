@@ -133,3 +133,27 @@ With 0.09, the chair is 0.323 m deep (was 0.365 m), and the wolf sits deeper on 
 the wolves move with the layout, in the demos with wolves only. `pnpm arm-check clarinetist --base
 c4010197` gives the values of the base (`sit-arm-check.txt`), and `pnpm pose-depth clarinetist`
 keeps each part within its limit.
+
+## 8. The tail after the sit
+
+The user said: "the wolf tails are looking weird". With `sit.most` 0.09, the root of the tail moved
+down with the haunch, because its vertices share their weight with the hips (`root`), and the rest
+of the tail stayed. The tail became a thin wedge that came out under the back of the seat. A
+smaller tail share for the haunch (`root` from 0.1 to 0.8) kept the tail, but left the haunch
+14.6 to 19.7 cm above the seat and folded faces.
+
+The new option `carryTail` of the sit rule moves each tail vertex down by the mean drop of the
+moved root vertices (0.028 u, 5.2 cm), by its share on the tail bones. The tail keeps its form
+and hangs 4.6 cm above the floor (was 9.2 cm). The haunch stays 3.7 cm above the seat at its back,
+with no fold. The tail goes 0.9 cm into the back of the seat at rest (was 0.6 cm).
+
+| Rule | Haunch gap | Tail | Folds |
+|---|---|---|---|
+| most 0.03 | 12.9 cm | full | none |
+| most 0.09 | 3.9 cm | flat wedge | none |
+| most 0.09, carryTail (chosen) | 3.7 cm | full | none |
+
+![The tail: before the seat fix, most 0.09, and most 0.09 with carryTail](2026-10-20-wolf-brows/tails.webp)
+
+`pnpm arm-check clarinetist --base 69131a61` gives the values of the base (`tail-arm-check.txt`),
+`pnpm pose-depth clarinetist` keeps each part within its limit, and only the wolf pose sets change.
