@@ -58,3 +58,39 @@ on the shape, not from a color.
 - `pnpm body-probe --base 716c7496`: only the colors of the wolf bodies and of the wolf player
   change. The joints stay the same.
 - The rig has no fold in the rest, the play, or the lift.
+
+## 5. The crease of the brow ridge
+
+The user sent a screenshot of the stage from about 40° to the side and said: "still sad". The
+manager compared the head views of the app at 60° and from the front:
+
+- A thin dark line goes from the back of each eye toward the ear, and over each eye it goes down
+  to the outer side (`/ \`). It stays when the gray around it becomes light fur (a patch box out
+  to |x| 0.16 took 203 faces), so it is no color.
+- In Blender, no face near the eyes has a dark color, other than the eyes. The source has sharp
+  edges of 40° to 110° over each eye: the crease of the brow ridge, at y 0.875 to 0.925, |x| up to
+  0.07, and z 0.05 to 0.13 in the units of the source before the proportions.
+- Edge flips in a box around the eyes (`refine.flip` with a box, 25 and 34 more flips) changed the
+  split of the faces, but the line stayed (`flips.webp`). The manager did not keep that code.
+
+The user chose to soften the crease. The new rule `soften` moves the vertices of the sharp edges in
+a box toward the mean of their neighbors, before the proportions (`soften-variants.txt`):
+
+| Most move | In the app | Look |
+|---|---|---|
+| 0.003 u | 5.6 mm | the line is weaker |
+| 0.006 u (chosen) | 1.1 cm | the line is almost gone, from the front and at 60° |
+| 0.010 u | 1.9 cm | the line is gone, and the forehead changes its form |
+
+With no limit, the fur tufts in the box moved up to 0.039 u (7 cm).
+
+![The eye at 60° and from the front: now, 0.003, 0.006, 0.010](2026-10-20-wolf-brows/soften.webp)
+
+![The head views of the app: before above, 0.006 below](2026-10-20-wolf-brows/soften-views.webp)
+
+- The 75 vertices move at most 0.006 u. The eye joints move 2 to 3 mm, and H goes down by 0.9 mm.
+- `pnpm arm-check clarinetist --base 7f67fd9e` gives the values of the base
+  (`soften-arm-check.txt`).
+- `pnpm hold-fit clarinetist`: no fold, each note within 0.0 mm, and the mouthpiece 1.2 cm in the
+  head (`soften-hold-fit.txt`).
+- `pnpm body-probe --base 7f67fd9e`: only the wolf bodies and the wolf player change.
