@@ -178,6 +178,16 @@ added it on 2026-10-10 for the conductor. It wins for the bear.
   paws have dark claws. A small round tail sits low on the back.
 - The sheet has a baton in each paw. The user decided on 2026-10-10 that the conductor holds one
   baton, in the right paw.
+
+The turnaround sheets `reference/<species>-turnaround.png` (1536 × 1024 px) show one species
+each, standing, from the front, the side, the back, and three quarters. The user added them on
+2026-10-20 for the wolf, the badger, the pig, the beaver, the mouse, the elephant, the hippo, the
+panda, the fox, the rabbit, the polar bear, and the dog (a beagle). The sheets of the cat and the
+bear are `cat-views.png` and `bear-views.png`.
+
+- A sheet is the target of the form, the face, and the colors of its species. Where it differs
+  from an older sheet of the same species, it wins. The mesh of the user wins over the sheet.
+- A sheet has no scale. The size of each species comes from the rules above and from design 4.4.
 - On 2026-10-10, a rigged bear from the GLB file of the user had a skin from the texture of the
   file, with the brown of this image, and the round tail of this image. The user reverted the
   bear to the parametric body on 2026-10-11 (4.4).
