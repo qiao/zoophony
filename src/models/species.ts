@@ -4,6 +4,7 @@ import type { InstrumentId, ScaledInstrument } from './instruments/types.ts';
 import type { BodyProportions } from './proportions.ts';
 import type { StudioBodyName } from './studio-body.ts';
 import type { StudioPalette } from './studio-format.ts';
+import { STUDIO_BADGER } from './studio/badger.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_BEAVER } from './studio/beaver.ts';
 import { STUDIO_CAT } from './studio/cat.ts';
@@ -545,15 +546,23 @@ export const SPECIES = {
     accentParts: ['horn'],
     facePattern: 'none',
   },
-  /** Badger, the percussion. */
+  /**
+   * Badger, the percussion: a badger with a dark gray front, arms, and legs, a gray back and tail,
+   * and a white head with a black stripe over each eye, round ears with white rims, and light
+   * claws. It has the studio body of the mesh of the user, `assets/models/badger/badger.glb`,
+   * which `pnpm rig-mesh badger` rigs (design 4.4), with the size of the parametric badger
+   * (2026-10-20-mesh-badger decisions). It stands at each percussion instrument. Its head height
+   * is the head of the studio body, and the seat height is the seat of the studio body, in H.
+   */
   badger: {
-    ears: 'small',
-    snout: 'long',
-    tail: 'puff',
-    size: 0.95,
+    body: 'studio-badger',
+    size: 1,
     colors: SPECIES_COLORS.badger,
     accentParts: ['face-pattern'],
-    facePattern: 'stripe',
+    proportions: {
+      headHeight: STUDIO_BADGER.headHeight,
+      seatHeight: STUDIO_BADGER.seatHeight / STUDIO_BADGER.headHeight,
+    },
   },
   /** Penguin, the choir. The black and white egg body looks like a choir robe (design 4.4). */
   penguin: {

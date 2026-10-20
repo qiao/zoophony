@@ -15,11 +15,11 @@ import type { BipedParams, SpeciesParams } from './species.ts';
 export const SEAT = 0.45;
 
 /**
- * The badger: the sample body of the tests of the parametric parts. It keeps the parametric biped,
- * with the small ears, the long snout, and the puff tail. The wolf was the sample body until it got
- * the studio body of the wolf mesh (design 4.4).
+ * The deer: the sample body of the tests of the parametric parts. It keeps the parametric biped,
+ * with the antlered ears, the long snout, and the puff tail. The badger was the sample body until it
+ * got the studio body of the badger mesh (design 4.4).
  */
-const SAMPLE = SPECIES.badger;
+const SAMPLE = SPECIES.deer;
 
 /** The head height `H` of the sample body (design 4.5, body proportions). */
 export const H = proportionsOf(SAMPLE).headHeight;
