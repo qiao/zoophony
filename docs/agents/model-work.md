@@ -204,6 +204,9 @@ of route 3 follow.
    the factors, and `head` for a head of another size. Put the zone above the tops of the
    shoulders, because a zone there can fold them, and map the places with `size_config.py` of
    `docs/research/2026-10-20-wolf-face/`. A larger head grows `H`, so fit the holds again.
+   A sharp crease of the source that shades as a sad brow takes `soften`: the vertices of its
+   edges in a box move toward their neighbors, at most `most` units. A color rule cannot remove
+   such a line (`docs/research/2026-10-20-wolf-brows.md`).
 2. Make the mid-report with one command:
    `pnpm mesh-options <animal> <dir> --size <label>=<head top>... --legs <f>,... --arms <f>,...
    --instrument <id>`. Take each size from the head top of a body of `main`, and each arm factor

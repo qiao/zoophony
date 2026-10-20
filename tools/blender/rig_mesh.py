@@ -370,6 +370,8 @@ def load_mesh(config):
     scale = 1.0 / (top - floor)
     verts = (verts - [0.0, floor, 0.0]) * scale
     log(f'source: {len(verts)} vertices, {len(tris)} triangles, scale {scale:.6f}')
+    if 'soften' in config:
+        verts = softened(verts, tris, config['soften'])
     # `proportions` scales the source on each axis around the middle of the soles: x by `width`,
     # y by `height`, and z by `depth`. The soles stay at y = 0, and the joints and the boxes of the
     # config are in the units of the scaled source.
@@ -379,6 +381,48 @@ def load_mesh(config):
         log(f'proportions: the source takes the factors {proportion_factors(rule).tolist()} '
             f'(width, height, depth), and is {verts[:, 1].max():.4f} u high')
     return verts, tris, uvs, texture
+
+
+def softened(verts, tris, rule):
+    """Softens the sharp creases in a box of the source (`soften` of the config, in the units of
+    the source before `proportions`, x as |x|). Each vertex of an edge whose two faces meet at more
+    than `angle` degrees, with the middle of the edge in `box`, moves `share` of the way to the mean
+    of its neighbors, in each of `rounds` rounds, and no vertex moves more than `most` units in
+    all. The crease of the brow ridge of the wolf over each eye went down to the outer side and
+    shaded as a sad brow in each light."""
+    normals = face_normals(verts, tris)
+    faces_of = edge_faces(tris)
+    lo, hi = np.asarray(rule['box'][0]), np.asarray(rule['box'][1])
+    chosen = set()
+    for (a, b), faces in faces_of.items():
+        if len(faces) != 2:
+            continue
+        middle = (verts[a] + verts[b]) / 2.0
+        middle[0] = abs(middle[0])
+        if not (np.all(middle >= lo) and np.all(middle <= hi)):
+            continue
+        cos = float(np.clip(normals[faces[0]].dot(normals[faces[1]]), -1.0, 1.0))
+        if math.degrees(math.acos(cos)) > rule['angle']:
+            chosen.update((a, b))
+    near = {v: set() for v in chosen}
+    for t in tris:
+        for k in range(3):
+            if int(t[k]) in near:
+                near[int(t[k])].update(int(t[j]) for j in range(3) if j != k)
+    order = sorted(chosen)
+    start = verts.copy()
+    for _ in range(rule['rounds']):
+        means = np.array([verts[sorted(near[v])].mean(axis=0) for v in order])
+        verts = verts.copy()
+        verts[order] += rule['share'] * (means - verts[order])
+        moved = verts[order] - start[order]
+        length = np.linalg.norm(moved, axis=1, keepdims=True)
+        verts[order] = start[order] + moved * np.minimum(1.0, rule['most'] / np.maximum(length,
+                                                                                       1e-12))
+    moves = np.linalg.norm(verts - start, axis=1)
+    log(f'soften: {len(order)} vertices of the creases in the box move to the mean of their '
+        f'neighbors, the largest move {moves.max():.4f} u')
+    return verts
 
 
 def proportion_factors(rule):
