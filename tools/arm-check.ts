@@ -246,6 +246,7 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   ['timpanist', { L: -2, R: -6 }],
   ['bassoonist', { L: -118, R: -70 }],
   ['hornist', { L: -153, R: -54 }],
+  ['clarinetist', { L: -86, R: -67 }],
 ]);
 
 /**
