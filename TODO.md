@@ -308,6 +308,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       as a bean on the twisted face of the bear (`2026-10-20-pea-eyes.md`).
       Answer: the user chose flat ovals halfway to the surface normal, with the rim 0.027 H out
       (`eyeNormal`).
+- [x] Bear eyes in the face: the user wrote "also the bear's eyes are still too far from the
+      face". Each eye place moves 0.1 H out and 0.02 H down, and the oval bends to the head: the
+      rim lies 0.011 H out (`2026-10-20-bear-eyes.md`).
+- [ ] Bear eyes from the front: the moved bear eyes show 12% less area in the front view than the
+      flat eyes, and the twist of their bend is 3.4, above the 2.5 of the other bodies. From the
+      front and above, the lower end of each oval is a little pointed (`2026-10-20-bear-eyes.md`).
 - [ ] Mouse eyes: in the front view, the bent pea eyes of the mouse lean in at the top, because
       the surface under them faces 17° to 21° more up than their direction. Try a direction
       between the two for the mouse (`2026-10-20-pea-eyes.md`).
