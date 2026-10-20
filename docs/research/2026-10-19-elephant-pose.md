@@ -165,3 +165,14 @@ and `phase3-gaps.txt`.
 The crops show closed fists with the mallets out of the side. The right forearm still looks thin
 at azimuth 35, where its skin stays flat (0.70 of the bind).
 
+
+## 8. Phase 4: the right forearm
+
+At azimuth 35, the right forearm showed a light flat sheet. In the arm gate, the flat share of the
+right arm comes from its shoulder ring (0.70 of the bind), and its forearm ring is round (1.02 to
+1.05). In the bind mesh, the middle of the right forearm is a little flatter than the left (0.78
+against 0.81, `phase4-ring-shape.txt`). A middle ring, an elbow ring, and a wrist ring of
+`refine.rings` gave no visible gain, and the gate of `d5ccae38` gave equal values
+(`phase4-arm-check.txt`, with the middle ring), so the round kept none.
+
+![The right arm at a strike and at rest, at azimuth 35 and -35: d5ccae38, and the middle ring](2026-10-19-elephant-pose/forearm-phase4.webp)
