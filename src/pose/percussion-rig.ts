@@ -251,6 +251,30 @@ export const PERCUSSION_HOLDS = {
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
 
+/**
+ * The hold of a suspended cymbal (`SpeciesParams.cymbalForm`), in place of
+ * `PERCUSSION_HOLDS.cymbals` (design 5.3). The yarn mallets leave the front of the fists
+ * (`SUSPENDED_CYMBAL.malletTilt`), as the sticks of the snare drum, and the two hands strike in
+ * turn near the edge, the left hand at the left and the right hand at the right, 20° from the side
+ * toward the player, so that they are not exactly opposite
+ * (`docs/reference/percussion-technique.md` 7). The offsets move the target, the middle of a
+ * cymbal of the scale 1, to these spots, 1.3 cm in from the rim.
+ */
+export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
+  hands: 'alternate',
+  sizes: { lift: 0.1, rest: 0.03 },
+  offsetL: [-0.176, 0, 0.064],
+  offsetR: [0.176, 0, 0.064],
+  poleL: [-0.6, -1, 0.3],
+  poleR: [0.6, -1, 0.3],
+  rim: 0,
+  home: [0.5, -0.3, -0.5],
+  top: 'up',
+  across: { rest: -0.6, lift: 0.3 },
+  ready: false,
+  pair: false,
+};
+
 /** The places of the hands of a percussion player, in head heights `H` (design 5.3). */
 export const PERCUSSION_PLACES = {
   /** The place from which a mallet points to its target in most holds (`PercussionHold.home`). */
@@ -449,6 +473,43 @@ export function kettleOf(pitch: number, kettles: number): number {
 }
 
 /**
+ * Gives the two hands of a pair of hand cymbals, and sets the crash target (design 5.3): the
+ * inner faces meet at the crash point, along the crash normal of `PERCUSSION_PLACES.plateTurn`.
+ *
+ * @param model The player with the hand cymbals.
+ * @param left The left arm.
+ * @param right The right arm.
+ * @param inH Gives a vector in head heights in meters.
+ * @param targets Gets the crash target as key 0.
+ * @returns The left and the right hand.
+ * @throws Error if a cymbal has no target of its inner face.
+ */
+function pairOfPlates(
+  model: PlayerModel,
+  left: ArmRig,
+  right: ArmRig,
+  inH: (v: Vec3) => Vector3,
+  targets: Map<number, StrikeTarget>,
+): readonly [PercussionSide, PercussionSide] {
+  const middle = new Vector3(...left.bind.shoulder)
+    .add(new Vector3(...right.bind.shoulder))
+    .multiplyScalar(0.5);
+  const crash = inH(PERCUSSION_PLACES.crash).add(middle);
+  const plateTurn = PERCUSSION_PLACES.plateTurn;
+  const normal = new Vector3(1, 0, 0).applyQuaternion(new Quaternion(...plateTurn));
+  targets.set(0, { point: toVec3(crash), normal: toVec3(normal) });
+  const face = (bone: 'malletL' | 'malletR'): Vec3 =>
+    bindTarget(
+      model,
+      findTarget(model, (t) => t.kind === 'plate' && t.bone === bone),
+    ).point;
+  return [
+    { kind: 'plate', arm: left, face: face('malletL'), sign: -1, turn: plateTurn },
+    { kind: 'plate', arm: right, face: face('malletR'), sign: 1, turn: plateTurn },
+  ];
+}
+
+/**
  * Finds the points of a percussion player that the pose needs.
  *
  * @param model A player with a percussion instrument.
@@ -457,7 +518,10 @@ export function kettleOf(pitch: number, kettles: number): number {
  * @throws Error if the instrument has no target that the pose needs.
  */
 export function percussionRig(model: PlayerModel, instrument: PercussionInstrument): PercussionRig {
-  const hold: PercussionHold = PERCUSSION_HOLDS[instrument];
+  // A suspended cymbal has a target on its top, and the pair of hand cymbals has none.
+  const suspended =
+    instrument === 'cymbals' && model.instrument.targets.some((t) => t.kind === 'head');
+  const hold: PercussionHold = suspended ? SUSPENDED_CYMBAL_HOLD : PERCUSSION_HOLDS[instrument];
   const h = model.body.headHeight;
   const left = armRig(model, 'L');
   const right = armRig(model, 'R');
@@ -513,6 +577,20 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
       }
       sides = [mallet(left, 'malletL'), mallet(right, 'malletR')];
       break;
+    case 'cymbals':
+      if (suspended) {
+        targets.set(
+          0,
+          bindTarget(
+            model,
+            findTarget(model, (t) => t.kind === 'head'),
+          ),
+        );
+        sides = [mallet(left, 'malletL'), mallet(right, 'malletR')];
+      } else {
+        sides = pairOfPlates(model, left, right, inH, targets);
+      }
+      break;
     case 'bass-drum':
     case 'snare-drum':
       targets.set(
@@ -534,25 +612,6 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
         targets.set(key, bindTarget(model, bars, xylophoneBarPosition(key)));
       }
       sides = [mallet(left, 'malletL'), mallet(right, 'malletR')];
-      break;
-    }
-    case 'cymbals': {
-      const middle = new Vector3(...left.bind.shoulder)
-        .add(new Vector3(...right.bind.shoulder))
-        .multiplyScalar(0.5);
-      const crash = inH(PERCUSSION_PLACES.crash).add(middle);
-      const plateTurn = PERCUSSION_PLACES.plateTurn;
-      const normal = new Vector3(1, 0, 0).applyQuaternion(new Quaternion(...plateTurn));
-      targets.set(0, { point: toVec3(crash), normal: toVec3(normal) });
-      const face = (bone: 'malletL' | 'malletR'): Vec3 =>
-        bindTarget(
-          model,
-          findTarget(model, (t) => t.kind === 'plate' && t.bone === bone),
-        ).point;
-      sides = [
-        { kind: 'plate', arm: left, face: face('malletL'), sign: -1, turn: plateTurn },
-        { kind: 'plate', arm: right, face: face('malletR'), sign: 1, turn: plateTurn },
-      ];
       break;
     }
     case 'small-percussion': {
