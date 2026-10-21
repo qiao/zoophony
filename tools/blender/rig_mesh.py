@@ -3840,18 +3840,20 @@ def main():
         log(f'patch: {len(changed)} dark faces of the eye patches ({sides} left, '
             f'{len(changed) - sides} right) take the color of the nearest light fur face. The '
             f'patches keep the color {np.round(patch_dark, 4).tolist()}')
-        if 'smile' in config['colors']:
-            edges = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
-            normals = edges / np.maximum(np.linalg.norm(edges, axis=1, keepdims=True), 1e-12)
-            smile = config['colors']['smile']
-            # `color` of the rule (linear RGB) replaces the dark of the patches, for a mesh whose
-            # patches are a gray fur, such as the wolf.
-            colors_all, bands = smile_line(corners, normals, colors_all, fur_all, smile,
-                                           np.array(smile.get('color', patch_dark), float))
-            log(f'smile: the bands take {[len(b) for b in bands]} faces')
-    elif 'smile' in config['colors']:
-        raise ValueError('colors.smile takes the dark color of colors.patch, so it needs '
-                         'colors.patch.')
+    if 'smile' in config['colors']:
+        smile = config['colors']['smile']
+        if 'color' not in smile and 'patch' not in config['colors']:
+            raise ValueError('colors.smile with no color takes the dark color of colors.patch, '
+                             'so it needs colors.patch.')
+        edges = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+        normals = edges / np.maximum(np.linalg.norm(edges, axis=1, keepdims=True), 1e-12)
+        # `color` of the rule (linear RGB) replaces the dark of the patches, for a mesh whose
+        # patches are a gray fur, such as the wolf, or for a mesh with no patch rule, such as the
+        # monkey.
+        color = smile['color'] if 'color' in smile else patch_dark
+        colors_all, bands = smile_line(corners, normals, colors_all, fur_all, smile,
+                                       np.array(color, float))
+        log(f'smile: the bands take {[len(b) for b in bands]} faces')
     base_all = colors_all
     if 'shift' in config['colors']:
         colors_all, count, limited = shift_colors(colors_all, fur_all,
