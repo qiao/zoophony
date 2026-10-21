@@ -5,13 +5,12 @@ each section.
 
 On 2026-10-20, the user said: "after these are done, use the monkey model at
 ~/Downloads/Meshy_AI_monkey_remeshed_3k_tr_1020213010_texture.glb". The agent of the round
-`mesh-monkey` decided the rows with no quote of the user, in phase 1. The app does not use the
-body yet. The report [`2026-10-20-mesh-monkey.md`](../research/2026-10-20-mesh-monkey.md) gives
+`mesh-monkey` decided the rows with no quote of the user, in phase 1 and phase 2. The report [`2026-10-20-mesh-monkey.md`](../research/2026-10-20-mesh-monkey.md) gives
 the measures. The user can reverse each decision. Then update its section, and remove its row.
 
 | Decision | Section |
 |---|---|
-| The user, quote above: the trumpet monkeys get the mesh as a studio body (`tools/mesh-rigs/monkey.json`), with the pea eyes of the app. Phase 2 puts it into the app after the answers of the user. | 4.3, 4.4 |
+| The user, quote above: the trumpet monkeys get the mesh as a studio body (`tools/mesh-rigs/monkey.json`), with the pea eyes of the app (`SPECIES.monkey`). | 4.3, 4.4 |
 | Size: no reference image shows a monkey, so the standing skull top under the tuft of hair takes the head top of the parametric monkey, 1.029 m (`2026-10-19-mouse-size.md`): 1.066 m for each unit, H 0.303 m (`app`). The user: "keep the size of phase 1". | 1, 4.4 |
 | Question: the arm factor and the trumpet size (report "Arms and trumpet")? The user: "arms 1.5, trumpet at the scale 0.8". The arm factor is 1.5 (`armFactor`), and the trumpet scale is 0.8 (`trumpetScale`). | 4.4, 4.6 |
 | Legs: the legs keep the mesh, with the thighs 25° down and 15° out (`studio.legTurns`). The seat of the legs is 0.132 m, with the front edge of the rig chair at 0.03 u, behind the shins (`chair`). | 4.4, 4.5 |
@@ -19,3 +18,9 @@ the measures. The user can reverse each decision. Then update its section, and r
 | Tail: two bones that turn rigidly. The root goes back and down 47° over the seat, and the tip keeps the direction of the source, so that the curl stands on the floor 0.07 cm above the soles (`studio.tailBind`). | 4.4 |
 | Colors: the fur matches `SPECIES_COLORS.monkey` (hue 53° against 54°), so the config has no tone rule. The dark limit 0.02 keeps the hands and the feet a dark brown in place of a dark face (`colors.dark`). | 4.5 |
 | Face: the user asks for happy faces. A smile band of 5 faces in a mid brown gives the smile line that the face colors lose, with the corners 1.9 cm up (`colors.smile`). A smile rule with its own color needs no patch rule (`rig_mesh.py`). The user: "keep the smile line" (`face-crops-smile.webp`). | 4.4 |
+| Both elbows point down and a little out, the smallest paw turns of 5 elbow directions that pass the arm gate. Higher elbows failed the flat share of the right upper arm (`MONKEY_TRUMPET`, report "Elbows"). | 5.3 |
+| The palms hold the valve casings at their lower half, so that the long paws do not rise past the trumpet to the eyes (`palmL`, `palmR` of `trumpet()`, report "Grips"). | 4.6, 5.3 |
+| The rest is the rest of `WIND_HOLDS.trumpet`: the trumpet turns down in front of the chest in both paws. No source gives the rest of a trumpet player (`docs/reference/wind-technique.md` 2.1). | 5.2 |
+| The role `trumpeter` is in `SWEEP_ROLES`, `FOLD_ROLES`, `ROLE_VIEWS`, and `ACCEPTED_GRIPS`, with 5 open loops (`MONKEY_BODY_LOOPS`). | 9.3 |
+| The first download grows by 25,991 B to 740,713 B with the monkey body (`pnpm size --base 14bc0436`). | 7.2 |
+| Open: two thin faces across the wrists (329 and 1090) fold in each sample. Rigid weights and a ring move the fold to the next faces (report "Folds"). | 4.4, 9.3 |
