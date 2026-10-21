@@ -98,8 +98,13 @@ export const BACK_ROW_LIGHT = {
    * behind the stage center, inside the cone.
    */
   target: [-0.35, 0.15, -0.5],
-  /** The illuminance at the aim point, on a face that looks at the light, in lux. */
-  illuminance: 2.25,
+  /**
+   * The illuminance at the aim point, on a face that looks at the light, in lux. After the lower
+   * exposure and the narrower pool of 2026-10-21, 2.25 gave the white fur of the back rows 0.90
+   * of the p90 of the front rows, and 2.9 gives 0.92 (0.98 in `orchestra-latest.png`). The floor
+   * behind the back rows keeps its light.
+   */
+  illuminance: 2.9,
   /**
    * The half angle of the cone. The cone holds the back rows and the choir, and the front rows stay
    * outside it. A cone of 14° lit the second row from the back more than the first row.
