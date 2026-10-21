@@ -16,8 +16,9 @@ import type { Quat, Vec3 } from './tuples.ts';
 /**
  * The bones of a studio body (design 4.4, 4.7): the 30 body bones of the biped template of
  * `lowpoly-studio/`, in parent order, the two eye bones that `pnpm studio-body` adds, so that the
- * eyes blink (design 5.1), and the optional tip of a tail of two bones
- * ({@link OPTIONAL_STUDIO_BONES}). The names keep the spelling of the studio. The packed skin
+ * eyes blink (design 5.1), and the optional tip of a tail of two bones and jaw of a beak
+ * ({@link OPTIONAL_STUDIO_BONES}). The optional bones come last, so that the index of each other
+ * bone stays. The names keep the spelling of the studio. The packed skin
  * names each bone by its index in this list.
  */
 export const STUDIO_BONES = [
@@ -54,6 +55,7 @@ export const STUDIO_BONES = [
   'eye_L',
   'eye_R',
   'tail_tip',
+  'jaw',
 ] as const;
 
 /** A bone of a studio body. */
@@ -61,10 +63,12 @@ export type StudioBone = (typeof STUDIO_BONES)[number];
 
 /**
  * The bones that a studio body can lack: the tip of a tail of two bones, as the rig of the fox
- * mesh has (design 4.4). The `tail` bone then holds the root of the tail. A body with no tip, such
- * as the bear or the rabbit, has no vertex on it.
+ * mesh has, and the jaw of a beak that opens, as the rig of the penguin mesh has (design 4.4,
+ * 4.7). The `tail` bone then holds the root of the tail, and the `jaw` bone the lower part of the
+ * beak, at the hinge of the beak. A body with no tip or no jaw, such as the bear or the rabbit, has
+ * no vertex on it.
  */
-export const OPTIONAL_STUDIO_BONES = ['tail_tip'] as const;
+export const OPTIONAL_STUDIO_BONES = ['tail_tip', 'jaw'] as const;
 
 /** A bone that a studio body can lack. */
 type OptionalStudioBone = (typeof OPTIONAL_STUDIO_BONES)[number];
@@ -111,6 +115,7 @@ export const STUDIO_PARENTS = {
   eye_L: 'head',
   eye_R: 'head',
   tail_tip: 'tail',
+  jaw: 'head',
 } as const satisfies Readonly<Record<StudioBone, StudioBone | null>>;
 
 /** A side of the body: the left side of the animal is at -x (design 4.4). */

@@ -67,6 +67,7 @@ export const STUDIO_FOLLOWS = {
   eye_L: 'eyeL',
   eye_R: 'eyeR',
   tail_tip: 'tail2',
+  jaw: 'jaw',
 } as const satisfies Readonly<Record<StudioBone, BodyBoneName>>;
 
 /**
@@ -343,7 +344,7 @@ function playerPositions(body: StudioBody): Record<BodyBoneName, Vec3> {
     chest: h.chest,
     neck: h.neck,
     head: h.head,
-    jaw: body.nose,
+    jaw: h.jaw ?? body.nose,
     eyeL: h.eye_L,
     eyeR: h.eye_R,
     earL: h.ear_L,
