@@ -17,7 +17,6 @@ section, and remove its row.
 | Size: the crown takes the head top of the egg penguin, 1.043 m (`2026-10-19-mouse-size.md`): 1.043 m for each unit, H 0.218 m. The standing head top is 1.044 m, +0.1% (`app`). | 1, 4.4 |
 | Flippers: the arm bones of the route, with the factor 1 (reach 0.238 m), by the rule of 2026-10-10. Each flipper is free of the body below its root, so the split plane at 0.226 u frees it with no cut (`armSplit`). | 4.4, 4.7 |
 | The upper arm of the bind points 40° below the level. With the bind arm of the other meshes, 13 faces at the roots of the flippers folded in each sample, and 4 now (`studio.bindArms`). | 4.4 |
-| Beak: no jaw bone. The closed beak of the mesh has no mouth line, so a jaw needs a cut, caps, and a new bone in the rig, the export, and the retarget. The head lift of each note shows in the default view (`CHOIR_MOTION.headLift`). | 4.7, 5.3 |
 | The folder comes to the flippers: 1.25 H below and 1.1 H in front of the head center, with covers of 0.22 m. Its middle is 0.37 of the body height below the crown, against 0.51 to 0.56 in the reference images (`CHOIR_FOLDER`, `options.md` B). | 4.6, 5.3 |
 | Colors: the pale yellow throat takes the chroma of the white belly, as the penguins of the reference images. The black, the white, and the orange keep the texture (`colors.shift`). | 4.5 |
 | Balance: the center of mass is 2.9 cm behind the middle of the soles at a note, at 34% of the support depth from the heels, and 6.4 cm inside the edge (`balance.txt`). | 4.4 |
