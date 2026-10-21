@@ -40,7 +40,10 @@ hold round only after each form or scale round of the same body has merged, beca
 moves the joints and the head. The brief names each such round as a dependency.
 
 An agent beside another agent gets a worktree:
-`git worktree add .claude/worktrees/<branch> -b <branch> main`.
+`git worktree add .claude/worktrees/<branch> -b <branch> main`. Two mesh rounds side by side edit
+the same shared lists of the docs and the tools. The rebase of the deer round over the rhino round
+cost about 25 minutes. So the second round makes its docs commits only after the first round
+merges, and rebases first.
 
 ## 2. Implementation brief
 
@@ -198,7 +201,9 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
   meters" of `docs/agents/model-traps.md`). Compare the folds and the depths in H first with
   `--base main`, and the heights with `pnpm close-views lineup <species,...> <dir> --base main`.
 - **The seat and the tail.** Give the seat height, the lowest point of the tail, and the tail gaps
-  to the chair of `pnpm rig-mesh <animal> --check` before a plan of a tail.
+  to the chair of `pnpm rig-mesh <animal> --check` before a plan of a tail. Give `sit.top` the
+  final seat top of `pnpm rig-mesh --check`, not the seat top of the first rig. Else the flat
+  underside of the haunch stays about 1 cm above the seat, and a pale rim shows under it.
 - **The images.** Make the images of the round with one batch. A brief names a grid by its folder,
   such as `<dir>/species-rest/species-base-views.webp`.
 
