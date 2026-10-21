@@ -21,7 +21,7 @@ export interface Passages {
 }
 
 /** The activity of a player at one time. */
-export interface Activity {
+interface Activity {
   /** 1 while the player plays, from 0 to 1 at the start and at the end of a passage. */
   readonly weight: number;
   /** The loudness of the passage, from 0 to 1. */

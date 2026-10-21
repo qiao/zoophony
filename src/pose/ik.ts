@@ -11,7 +11,7 @@ import type { Frame } from './frames.ts';
 export const ARM_REACH = 0.97;
 
 /** The elbow and the wrist of an arm after the two-bone solution. */
-export interface ArmJoints {
+interface ArmJoints {
   readonly elbow: Vector3;
   readonly wrist: Vector3;
 }
@@ -21,7 +21,7 @@ export interface ArmJoints {
  *
  * @returns An elbow and a wrist at the origin.
  */
-export function createJoints(): ArmJoints {
+function createJoints(): ArmJoints {
   return { elbow: new Vector3(), wrist: new Vector3() };
 }
 
@@ -76,7 +76,7 @@ export interface ArmBind {
 }
 
 /** The world rotations of the two bones of an arm, and the joints that they reach. */
-export interface ArmPose extends ArmJoints {
+interface ArmPose extends ArmJoints {
   /** The world rotation of the upper arm, from its bind direction. */
   readonly upper: Quaternion;
   /** The world rotation of the forearm, from its bind direction. */
@@ -131,7 +131,7 @@ export function solveArm(
 }
 
 /** The bone indices of one side of the body, from the shoulder to the fingers. */
-export interface ArmBones {
+interface ArmBones {
   readonly shoulder: number;
   readonly upperArm: number;
   readonly forearm: number;
@@ -213,7 +213,7 @@ export function poseShoulder(
 }
 
 /** One arm to solve: the arm, its posed shoulder, and the targets of the hand. */
-export interface ArmTask {
+interface ArmTask {
   readonly arm: ArmRig;
   /** The posed `shoulder` bone, from {@link poseShoulder}. */
   readonly shoulder: Frame;

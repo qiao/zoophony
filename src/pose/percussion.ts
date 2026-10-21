@@ -21,7 +21,7 @@ import { alternateHands, buildStrikeTrack } from './strikes.ts';
 import type { Strike, StrikeGroup, StrikeState, StrikeTarget, StrikeTrack } from './strikes.ts';
 
 /** The strike data of the two hands. A hand with no strikes has `null`. */
-export interface PercussionTracks {
+interface PercussionTracks {
   readonly left: StrikeTrack | null;
   readonly right: StrikeTrack | null;
 }

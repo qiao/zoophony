@@ -36,7 +36,7 @@ export function smoothstep(x: number): number {
  * The timing of one move of the instruments of an animal: a lift or a lowering (design 5.2). The
  * move starts after its delay and eases from the height at its start to the new height.
  */
-export interface RestMove {
+interface RestMove {
   /** The wait before the move starts, in wall clock seconds. */
   readonly delaySec: number;
   /** The duration of the move, in wall clock seconds, above 0. */

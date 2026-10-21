@@ -15,7 +15,7 @@ export const TUNINGS = {
  * The semitones from the open string to the end of the fingerboard. The left hand reaches the
  * end of the target `fingerboard` at this interval.
  */
-export const FINGERBOARD_SEMITONES = 20;
+const FINGERBOARD_SEMITONES = 20;
 
 /**
  * Gives the place of a stop on the target `fingerboard`. The place follows the string length:
@@ -33,7 +33,7 @@ export function fingerboardPlace(semitones: number): number {
  * The hand frame of a bowed string: the notes that the four fingers reach in one position
  * (`docs/reference/string-technique.md`, section 1.2).
  */
-export interface HandFrame {
+interface HandFrame {
   /**
    * The notes that the fingers reach in a neck position with no extension, as semitones from the
    * position. The position is the place of the first finger: a whole tone above the open string
@@ -101,7 +101,7 @@ export const HAND_FRAMES = {
 } as const satisfies Readonly<Record<Bowed, HandFrame>>;
 
 /** The weights of the cost of a plan of the left hand. The unit is free: only the ratios count. */
-export interface FingeringCosts {
+interface FingeringCosts {
   /** The cost of each shift. */
   readonly shift: number;
   /** The cost of each semitone of a shift. */
@@ -199,7 +199,7 @@ export interface HandStep {
 }
 
 /** The bow string and the hand of one stroke, the output of {@link planHand}. */
-export interface FingeredStroke {
+interface FingeredStroke {
   /** The string of the bow, from 0 (the lowest) to 3. A double stop lies between two strings. */
   readonly string: number;
   /** The plan of the left hand. */

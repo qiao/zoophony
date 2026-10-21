@@ -179,7 +179,7 @@ export function firstChange(
 }
 
 /** The angles of a hanging arm of a posed player. */
-export interface ArmHang {
+interface ArmHang {
   /** The angle of the upper arm out to the side of the body, from the vertical, in radians. */
   readonly out: number;
   /** The angle of the bend of the elbow, in radians: 0 for a straight arm. */

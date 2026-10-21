@@ -20,13 +20,13 @@ let cached: Promise<TestScene> | null = null;
  * @returns The scene.
  * @throws Error if the default demo is missing.
  */
-export function defaultDemoScene(): Promise<TestScene> {
+function defaultDemoScene(): Promise<TestScene> {
   cached ??= demoSceneOf('boulanger-matin.mid');
   return cached;
 }
 
 /** The times of the samples of one check. */
-export interface Samples {
+interface Samples {
   /** The song times. */
   readonly songTimes: readonly number[];
   /** Gives the wall time of a song time. */
@@ -45,7 +45,7 @@ export interface Samples {
  * @param start The first song time.
  * @returns The samples.
  */
-export function playSamples(scene: TestScene, step: number, start = 0): Samples {
+function playSamples(scene: TestScene, step: number, start = 0): Samples {
   const songTimes: number[] = [];
   for (let t = start; t < scene.score.durationSec; t += step) {
     songTimes.push(t);
@@ -60,7 +60,7 @@ export function playSamples(scene: TestScene, step: number, start = 0): Samples 
  * @param step The step of the samples, in seconds.
  * @returns The samples. Each song time is the wall time of its sample.
  */
-export function liftSamples(step: number): Samples {
+function liftSamples(step: number): Samples {
   const walls: number[] = [];
   for (let wall = 0; wall <= 2.5; wall += step) {
     walls.push(wall);
@@ -83,7 +83,7 @@ export function liftSamples(step: number): Samples {
  * @returns One line for each player and arm part, with its deepest sample. Empty if all keep
  *   their gaps.
  */
-export function armFaults(
+function armFaults(
   scene: TestScene,
   plan: PosePlan,
   models: ModelCache,

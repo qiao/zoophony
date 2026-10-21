@@ -139,7 +139,7 @@ function fingersOf(
 }
 
 /** The note that a wind player shows from one time on: one note of a chord, or one note alone. */
-export interface WindNote {
+interface WindNote {
   /** The note start, in song seconds. */
   readonly start: number;
   /** The end of the sound, in song seconds. */

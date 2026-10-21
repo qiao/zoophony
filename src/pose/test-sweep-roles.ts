@@ -370,7 +370,7 @@ function onKeyboard(p: Vector3): boolean {
 const CASES = new WeakMap<PlayerModel, PianoCase>();
 
 /** The case of the piano of a pianist. */
-export interface PianoCase {
+interface PianoCase {
   /** The closed shells, each with its own box, for a fast gap. */
   readonly shells: readonly PosedPart[];
   /** The shells as one closed surface, for the depth of a point. */
@@ -1030,7 +1030,7 @@ function sweptTrombonist(scene: TestScene, index: number): boolean {
  * seated panda of each demo with trombones, and each standing panda soloist, play it. The body of
  * the panda mesh has no open edge, so its closed surface has the two cuts to the upper arms.
  */
-export const TROMBONIST_SWEEP: RoleSweep = {
+const TROMBONIST_SWEEP: RoleSweep = {
   role: 'trombonist',
   parts: [...ARM_PARTS, INSTRUMENT_PART],
   obstacles: [
@@ -1310,7 +1310,7 @@ const BADGER_UPPER_ARMS: readonly AcceptedDepth[] = ['play', 'lift', 'rest', 'lo
 );
 
 /** The sweep of the badger with the bass drum and its beater in the right paw. */
-export const BASS_DRUMMER_SWEEP: RoleSweep = percussionSweep('bass-drummer', 'bass-drum', [
+const BASS_DRUMMER_SWEEP: RoleSweep = percussionSweep('bass-drummer', 'bass-drum', [
   ...BADGER_UPPER_ARMS,
   ...['play', 'lift'].map((samples) => ({
     part: 'held',
@@ -1324,7 +1324,7 @@ export const BASS_DRUMMER_SWEEP: RoleSweep = percussionSweep('bass-drummer', 'ba
 ]);
 
 /** The sweep of the badger with the snare drum and a stick in each paw. */
-export const SNARE_DRUMMER_SWEEP: RoleSweep = percussionSweep(
+const SNARE_DRUMMER_SWEEP: RoleSweep = percussionSweep(
   'snare-drummer',
   'snare-drum',
   BADGER_UPPER_ARMS,
@@ -1334,17 +1334,13 @@ export const SNARE_DRUMMER_SWEEP: RoleSweep = percussionSweep(
  * The sweep of the badger with the suspended cymbal on its stand and a yarn mallet in each paw
  * (`docs/decisions/2026-10-20-badger-cymbals.md`).
  */
-export const CYMBALIST_SWEEP: RoleSweep = percussionSweep(
-  'cymbalist',
-  'cymbals',
-  BADGER_UPPER_ARMS,
-);
+const CYMBALIST_SWEEP: RoleSweep = percussionSweep('cymbalist', 'cymbals', BADGER_UPPER_ARMS);
 
 /**
  * The sweep of the badger with the small percussion: the triangle in the left paw, its beater in
  * the right paw, and the tambourine on its stand.
  */
-export const PERCUSSIONIST_SWEEP: RoleSweep = percussionSweep(
+const PERCUSSIONIST_SWEEP: RoleSweep = percussionSweep(
   'percussionist',
   'small-percussion',
   BADGER_UPPER_ARMS,
@@ -1355,11 +1351,7 @@ export const PERCUSSIONIST_SWEEP: RoleSweep = percussionSweep(
  * badger mesh do not reach the outer bars of the xylophone of the app
  * (`docs/decisions/2026-10-20-mesh-badger.md`, open).
  */
-export const XYLOPHONIST_SWEEP: RoleSweep = percussionSweep(
-  'xylophonist',
-  'xylophone',
-  BADGER_UPPER_ARMS,
-);
+const XYLOPHONIST_SWEEP: RoleSweep = percussionSweep('xylophonist', 'xylophone', BADGER_UPPER_ARMS);
 
 /**
  * The bowed roles whose species can stand as the soloist of the violin and piano duo
@@ -1439,7 +1431,7 @@ function sweptOboist(scene: TestScene, index: number): boolean {
  * first seated mouse of each demo with oboes, and each standing mouse soloist, play it, with the
  * palms on their grips at the start of each phrase.
  */
-export const OBOIST_SWEEP: RoleSweep = {
+const OBOIST_SWEEP: RoleSweep = {
   ...FLUTIST_SWEEP,
   role: 'oboist',
   obstacles: [
@@ -1501,7 +1493,7 @@ function sweptBassoonist(scene: TestScene, index: number): boolean {
  * beaver. The first seated beaver of each demo with bassoons, and each standing beaver soloist,
  * play it, with the palms on their grips at the start of each phrase.
  */
-export const BASSOONIST_SWEEP: RoleSweep = {
+const BASSOONIST_SWEEP: RoleSweep = {
   ...FLUTIST_SWEEP,
   role: 'bassoonist',
   obstacles: [
@@ -1574,7 +1566,7 @@ function sweptHornist(scene: TestScene, index: number): boolean {
  * of the pig mesh has no open edge, so its closed surface has the two cuts to the upper arms
  * (`loops-probe.txt` of `docs/research/2026-10-19-pig-mesh/`).
  */
-export const HORNIST_SWEEP: RoleSweep = {
+const HORNIST_SWEEP: RoleSweep = {
   ...TROMBONIST_SWEEP,
   role: 'hornist',
   obstacles: [
@@ -1636,7 +1628,7 @@ function sweptClarinetist(scene: TestScene, index: number): boolean {
  * wolf. The first seated wolf of each demo with clarinets, and each standing wolf soloist, play it,
  * with the palms on their grips at the start of each phrase.
  */
-export const CLARINETIST_SWEEP: RoleSweep = {
+const CLARINETIST_SWEEP: RoleSweep = {
   ...FLUTIST_SWEEP,
   role: 'clarinetist',
   obstacles: [
@@ -1699,7 +1691,7 @@ function sweptTrumpeter(scene: TestScene, index: number): boolean {
  * The left palm is on its grip at the start of each phrase, and the right palm on its grip at the
  * valves at the start of each note ({@link trombonistTargets}: the trumpet has no slide).
  */
-export const TRUMPETER_SWEEP: RoleSweep = {
+const TRUMPETER_SWEEP: RoleSweep = {
   ...TROMBONIST_SWEEP,
   role: 'trumpeter',
   obstacles: [

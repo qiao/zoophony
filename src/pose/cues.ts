@@ -96,10 +96,10 @@ export const CUE_MOTION = {
 } as const;
 
 /** The hand of a cue: the left hand, or the baton for a strong entry. */
-export type CueKind = 'hand' | 'baton';
+type CueKind = 'hand' | 'baton';
 
 /** The first note of a seat after a rest, or the first note of a seat. */
-export interface Entry {
+interface Entry {
   /** The start of the note, in song seconds. */
   readonly start: number;
   readonly seatIndex: number;
@@ -119,7 +119,7 @@ export interface CueSeat {
 }
 
 /** The inputs of {@link findCues}. */
-export interface CueInputs {
+interface CueInputs {
   /** The conducted beats, sorted by time. */
   readonly beats: readonly Beat[];
   /** All notes, sorted by start. */
@@ -221,11 +221,7 @@ function barLengthAt(beats: readonly Beat[], times: Float64Array, time: number):
  * @param time The start of the entry.
  * @returns The rest in seconds.
  */
-export function shortestCuedRest(
-  beats: readonly Beat[],
-  times: Float64Array,
-  time: number,
-): number {
+function shortestCuedRest(beats: readonly Beat[], times: Float64Array, time: number): number {
   const r = CUE_RULES;
   return Math.min(r.maxRestSec, Math.max(r.minRestSec, barLengthAt(beats, times, time)));
 }

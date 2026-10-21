@@ -846,7 +846,7 @@ function surfaceDistance(surface: ClosedSurface, p: Vector3): number {
 }
 
 /** The deepest point of a set of points in a closed surface. */
-export interface DeepestPoint {
+interface DeepestPoint {
   /** The depth, in meters: 0 when no point is inside. */
   readonly depth: number;
   /** The index of the deepest point, or -1 when no point is inside. */
@@ -935,7 +935,7 @@ export function boxTriangles(min: Vec3, max: Vec3): Triangle[] {
 }
 
 /** The smallest gap from a part to a closed surface. */
-export interface SurfaceGap {
+interface SurfaceGap {
   /** The gap, in meters: 0 when the part touches the surface, or the limit when none is nearer. */
   readonly gap: number;
   /** The index of the triangle of the part with the nearest point, or -1 when none is nearer. */
@@ -1015,7 +1015,7 @@ export function surfaceGap(
 }
 
 /** A look at the conductor: the yaw and the pitch of the head, in radians. */
-export type Look = readonly [yaw: number, pitch: number];
+type Look = readonly [yaw: number, pitch: number];
 
 /**
  * Finds the largest looks at the conductor of the players of some instruments in the demo

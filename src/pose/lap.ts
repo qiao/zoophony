@@ -93,7 +93,7 @@ export interface LapHand {
 }
 
 /** The `hand` bone of a paw that rests on a thigh, in the bind pose. */
-export interface LapHandPlace {
+interface LapHandPlace {
   /** The place of the `hand` bone, in the model axes. */
   readonly wrist: Vec3;
   /** The world rotation of the `hand` bone. */

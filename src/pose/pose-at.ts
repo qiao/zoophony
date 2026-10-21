@@ -51,7 +51,7 @@ export interface ScenePoseBuffer extends ScenePose {
 }
 
 /** The angles of the body layer (design 5.1). */
-export const BODY_MOTION = {
+const BODY_MOTION = {
   /** The turn of the spine and of the chest at the top of a breath. */
   breathSpine: 0.6 * MathUtils.DEG2RAD,
   breathChest: 1 * MathUtils.DEG2RAD,

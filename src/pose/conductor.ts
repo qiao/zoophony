@@ -107,7 +107,7 @@ export const CONDUCTOR_HOLD = {
 } as const;
 
 /** One place of the left hand between its cues (design 5.4). */
-export interface LeftHandPlace {
+interface LeftHandPlace {
   /** The wrist, from the left shoulder joint, in head heights `H`, in the model axes. */
   readonly wrist: Vec3;
   /** The direction of the fingers, in the model axes. */
@@ -145,10 +145,10 @@ export const LEFT_HAND_PLACES = {
  * The left hand moves this part of the motion of the tip of the baton when it mirrors the beat:
  * the part that the right wrist follows.
  */
-export const MIRROR_SCALE = 0.45;
+const MIRROR_SCALE = 0.45;
 
 /** The curl of the closed left hand of a cut-off. */
-export const CLOSE_CURL = 80 * MathUtils.DEG2RAD;
+const CLOSE_CURL = 80 * MathUtils.DEG2RAD;
 
 /** The rotation of the baton in the bind pose: its tip to the front, +y up (design 4.6). */
 const BATON_BIND = setFromBasis(new Quaternion(), new Vector3(0, 0, -1), new Vector3(0, 1, 0));
@@ -351,12 +351,7 @@ function turnWithTorso(rig: ConductorRig, point: Vector3, yaw: number): Vector3 
  * @param out The vector to write.
  * @returns `out`.
  */
-export function batonPoint(
-  rig: ConductorRig,
-  baton: BatonState,
-  torsoYaw: number,
-  out: Vector3,
-): Vector3 {
+function batonPoint(rig: ConductorRig, baton: BatonState, torsoYaw: number, out: Vector3): Vector3 {
   out
     .fromArray(rig.beatPoint)
     .addScaledVector(offset.fromArray(rig.beatRight), baton.x)

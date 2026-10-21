@@ -151,7 +151,7 @@ export interface PairDepth {
  * the pair or `--goal` of `pnpm pose-depth`. `Infinity` counts no sample. A deepest point that goes
  * fully through an obstacle keeps one depth, so the count shows a change that the depth hides.
  */
-export type PairGoal = (pair: Pick<PairDepth, 'part' | 'into'>) => number;
+type PairGoal = (pair: Pick<PairDepth, 'part' | 'into'>) => number;
 
 /** The largest distance from a hand, or from the part that it holds, to its note target. */
 export interface TargetError {
@@ -343,7 +343,7 @@ export function targetErrors(player: SweepPlayer): TargetError[] {
 }
 
 /** The largest depth of a pair of parts in a set of samples. */
-export interface DepthLimit {
+interface DepthLimit {
   /** The depth, in meters, or `Infinity` for a pair with no limit. */
   readonly depth: number;
   /** The accepted depth that sets the limit, or `null` for the contact depth or no limit. */
@@ -423,7 +423,7 @@ export interface PairGap {
 }
 
 /** The smallest gaps of some pairs over the samples of a sweep. */
-export interface GapSweep {
+interface GapSweep {
   /** Measures the gaps of one posed sample. Give it to {@link sweepDepths}. */
   readonly visit: SweepVisit;
   /** Gives the smallest gap of each pair over the samples so far. */

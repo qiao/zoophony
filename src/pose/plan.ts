@@ -58,10 +58,10 @@ export const PLAYER_OFFSETS = {
 } as const;
 
 /** The largest turns of the head for a look at the conductor, in radians. */
-export const LOOK_LIMITS = { yaw: 1.2, pitch: 0.5 } as const;
+const LOOK_LIMITS = { yaw: 1.2, pitch: 0.5 } as const;
 
 /** The note layer of a bowed string player (design 5.3). */
-export interface BowedLayer {
+interface BowedLayer {
   readonly family: 'bowed';
   readonly rig: BowedRig;
   readonly strokes: readonly Stroke[];
@@ -70,7 +70,7 @@ export interface BowedLayer {
 }
 
 /** The note layer of a woodwind or brass player (design 5.3). */
-export interface WindLayer {
+interface WindLayer {
   readonly family: 'woodwind' | 'brass';
   readonly rig: WindRig;
   readonly track: WindTrack;
@@ -85,7 +85,7 @@ export interface HandsLayer {
 }
 
 /** The note layer of a singer: the jaw and the sway of the phrases (design 5.3). */
-export interface ChoirLayer {
+interface ChoirLayer {
   readonly family: 'choir';
   readonly rig: ChoirRig;
   readonly track: ChoirTrack;
@@ -183,7 +183,7 @@ export interface PosePlan {
 }
 
 /** The rigs of the player models of one score. Players of one kind share them. */
-export interface RigCache {
+interface RigCache {
   readonly bowedRigs: Map<PlayerModel, BowedRig>;
   readonly windRigs: Map<PlayerModel, WindRig>;
   readonly handsRigs: Map<PlayerModel, HandsRig>;
@@ -207,7 +207,7 @@ export function createRigCache(): RigCache {
 }
 
 /** The inputs of the plan of one player. A page with no `Score`, such as the gallery, gives them. */
-export interface PlayerInputs {
+interface PlayerInputs {
   readonly model: PlayerModel;
   /** The place of the player on the stage, with its seat and its instrument. */
   readonly place: PlayerPlace;
@@ -230,7 +230,7 @@ export interface PlayerInputs {
 }
 
 /** The inputs of the plan of the conductor (design 5.4). */
-export interface ConductorInputs {
+interface ConductorInputs {
   readonly model: PlayerModel;
   readonly place: ConductorPlace;
   /** The conducted beats, sorted by time. */
@@ -596,7 +596,7 @@ export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerP
  * The sections whose principal player leads a chamber group, in order (design 5.4): the first
  * violin, the pianist, then the high winds and the brass, which give the breath of the start.
  */
-export const LEADER_SECTIONS: readonly SectionId[] = [
+const LEADER_SECTIONS: readonly SectionId[] = [
   'violin',
   'piano',
   'flute',
@@ -616,7 +616,7 @@ export const LEADER_SECTIONS: readonly SectionId[] = [
  * @param layout The layout of the score.
  * @returns The index of the player in `layout.players`, or `null` with no players.
  */
-export function leaderOf(score: Score, layout: SceneLayout): number | null {
+function leaderOf(score: Score, layout: SceneLayout): number | null {
   const principals = layout.players.flatMap((place, index) => {
     const seat = score.seats[place.cast.seatIndex];
     if (!seat || place.cast.player !== 0) {

@@ -87,7 +87,7 @@ export const BOW_MOTION = {
  * fingers play the notes. A shift takes a part of the note before it, and the finger of the new
  * note lands before the bow change.
  */
-export const LEFT_HAND = {
+const LEFT_HAND = {
   /** The finger of a new note lands this long before the note, and a shift ends then. */
   landSec: 0.03,
   /** A shift starts at the earliest after this share of the time from the note before to the note. */
@@ -128,7 +128,7 @@ export type BowRange = readonly [low: number, high: number];
  * The motion of one bow: a note, or the notes of a slur in one bow direction (design 5.3). The
  * strokes of a slur share one bow.
  */
-export interface BowSlur {
+interface BowSlur {
   /** The note start of the first note, in song seconds. */
   readonly start: number;
   /**
@@ -278,7 +278,7 @@ export function vibratoRate(instrument: Bowed, unit: number): number {
  * @param loudness The loudness of the note, from 0 to 1.
  * @returns The width. 0 for an open string.
  */
-export function vibratoWidth(instrument: Bowed, hand: HandStep, loudness: number): number {
+function vibratoWidth(instrument: Bowed, hand: HandStep, loudness: number): number {
   if (hand.open) {
     return 0;
   }
@@ -337,7 +337,7 @@ function strokePitches(notes: readonly PlayerNote[], loudness: readonly number[]
 }
 
 /** The times, the pitches, and the technique of a stroke, for the slur rule. */
-export type SlurNote = StrokePitch & { readonly technique: Technique };
+type SlurNote = StrokePitch & { readonly technique: Technique };
 
 /**
  * Gives the slurs of the strokes of one player (design 5.3, `docs/reference/string-technique.md`,
@@ -353,7 +353,7 @@ export type SlurNote = StrokePitch & { readonly technique: Technique };
  * @returns For each stroke, the number of notes of the slur that starts at it, 0 for a stroke
  *   inside a slur, and 1 for a separate bow.
  */
-export function slurSizes(strokes: readonly SlurNote[], beats: Float64Array): number[] {
+function slurSizes(strokes: readonly SlurNote[], beats: Float64Array): number[] {
   const rule = BOW_MOTION.slur;
   const sizes = strokes.map(() => 1);
   if (beats.length === 0) {
@@ -390,7 +390,7 @@ export function slurSizes(strokes: readonly SlurNote[], beats: Float64Array): nu
 }
 
 /** The start, the technique, and the string of the bow of a stroke, for the crossing rule. */
-export interface CrossNote {
+interface CrossNote {
   readonly start: number;
   readonly technique: Technique;
   /** The string of the bow, from 0 to 3. */
@@ -410,7 +410,7 @@ export interface CrossNote {
  * @param strokes The strokes of the player, sorted by start.
  * @returns The string of the elbow of each stroke, from 0 to 3.
  */
-export function crossStrings(strokes: readonly CrossNote[]): number[] {
+function crossStrings(strokes: readonly CrossNote[]): number[] {
   const out = strokes.map((s) => s.string);
   let k = 0;
   while (k < strokes.length) {
@@ -492,7 +492,7 @@ export function crossStrings(strokes: readonly CrossNote[]): number[] {
  * @param target The place of the balance point on the hair, in meters.
  * @returns The change of the move, in meters.
  */
-export function balanceShift(from: number, travel: number, target: number): number {
+function balanceShift(from: number, travel: number, target: number): number {
   const most = 0.5 * Math.abs(travel);
   const shift = BOW_MOTION.balance.share * (target - (from + travel / 2));
   return Math.min(most, Math.max(-most, shift));
@@ -508,7 +508,7 @@ export function balanceShift(from: number, travel: number, target: number): numb
  * @param dt The time since the start of the stroke, in seconds.
  * @returns The value, from 0 to 1.
  */
-export function followLoudness(from: number, loudness: number, dt: number): number {
+function followLoudness(from: number, loudness: number, dt: number): number {
   return loudness + (from - loudness) * Math.exp(-Math.max(0, dt) / BOW_MOTION.loudnessSec);
 }
 

@@ -94,7 +94,7 @@ export interface BatonTrack {
  * @param loudness The loudness of each note, in the order of `notes`.
  * @returns The loudness of each beat, from 0 to 1.
  */
-export function beatLoudness(
+function beatLoudness(
   beats: Float64Array,
   notes: readonly PlayerNote[],
   loudness: ArrayLike<number>,

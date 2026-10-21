@@ -73,7 +73,7 @@ export interface MalletAcross {
  * The values of the hold of each percussion instrument (design 5.3). The directions are in the
  * model axes of the bind pose: the player faces -z, and its left is -x.
  */
-export interface PercussionHold {
+interface PercussionHold {
   readonly hands: HandsRule;
   readonly sizes: StrikeSizes;
   /** The move of the target of each hand from the middle of a head, in meters. */

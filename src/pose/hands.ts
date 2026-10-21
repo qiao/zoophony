@@ -27,7 +27,7 @@ export type HandsInstrument = InstrumentOf<'keyboard' | 'harp'>;
  * The values of the hold of the piano and the harp (design 5.3). The directions are in the model
  * axes of the bind pose: the player faces -z, and its left is -x.
  */
-export interface HandsHold {
+interface HandsHold {
   readonly action: HandAction;
   /** Gives the point of a key on the instrument, in the axes of the instrument piece. */
   readonly keyPoint: (key: number) => Vec3;
@@ -76,7 +76,7 @@ export interface HandsHold {
  * A hand in the rest pose: in its lap (`lap`), or on a string of the harp, as
  * in the playing pose (`string`).
  */
-export type RestingHand =
+type RestingHand =
   | (LapHand & {
       readonly kind: 'lap';
       /** The direction to which the elbow points, out to the side of the body. */
@@ -193,7 +193,7 @@ const BONES = {
 } as const;
 
 /** One hand of a piano or harp player in the bind pose. */
-export interface HandSide {
+interface HandSide {
   /** The arm of the side. */
   readonly arm: ArmRig;
   /** The side of the palm, in the model axes. */
@@ -307,7 +307,7 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument): Hands
  * @param high The highest key.
  * @returns The place of the palm.
  */
-export function palmPoint(rig: HandsRig, side: 'L' | 'R', low: number, high: number): Vec3 {
+function palmPoint(rig: HandsRig, side: 'L' | 'R', low: number, high: number): Vec3 {
   const { keyPoint } = rig.hold;
   const offset = side === 'L' ? rig.hold.palmL : rig.hold.palmR;
   const at = new Vector3(...keyPoint(low))
@@ -318,7 +318,7 @@ export function palmPoint(rig: HandsRig, side: 'L' | 'R', low: number, high: num
 }
 
 /** The note data of the two hands. */
-export interface HandTracks {
+interface HandTracks {
   readonly left: HandTrack;
   readonly right: HandTrack;
 }

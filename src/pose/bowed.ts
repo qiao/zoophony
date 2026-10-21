@@ -50,7 +50,7 @@ const BONES = {
 } as const;
 
 /** The instrument at its posed place. */
-export interface InstrumentPlace {
+interface InstrumentPlace {
   /** The rotation of the `instrument` bone relative to its parent. */
   readonly local: Quaternion;
   /** The world rotation of the instrument. */
@@ -65,7 +65,7 @@ export interface InstrumentPlace {
 }
 
 /** The strings of an instrument at their posed place. */
-export interface StringsPlace {
+interface StringsPlace {
   /** The point on the strings where the bow plays. */
   readonly contact: Vector3;
   readonly axis: Vector3;
@@ -75,7 +75,7 @@ export interface StringsPlace {
 }
 
 /** The bow at its posed place: the bow bone at the grip, and its world rotation. */
-export interface BowPlace {
+interface BowPlace {
   /** The posed place of the `bow` bone: the grip on the stick. */
   readonly grip: Vector3;
   /** The world rotation of the `bow` bone. */
@@ -83,7 +83,7 @@ export interface BowPlace {
 }
 
 /** The right hand that holds the bow. */
-export interface BowHand {
+interface BowHand {
   /** The posed place of the `handR` bone. */
   readonly wrist: Vector3;
   /** The world rotation of the `handR` bone. */
@@ -391,14 +391,14 @@ export function gripHand(rig: RigPoints, bow: BowPlace, angle: number, out: BowH
 }
 
 /** The left hand that presses the strings. */
-export interface StopHand {
+interface StopHand {
   readonly wrist: Vector3;
   /** The world rotation of the `handL` bone. */
   readonly rotation: Quaternion;
 }
 
 /** The finger of the left hand on the strings: its reach and its string. */
-export interface StopFinger {
+interface StopFinger {
   /** The reach of the finger from the middle of the hand frame, from -1 to 1. */
   readonly reach: number;
   /** The string under the finger, from 0 to 3. 1.5 is the middle of the strings. */
@@ -549,11 +549,7 @@ function elbowPole(
  * @param strings The strings at their posed place. The function moves the contact point in place.
  * @returns `strings`.
  */
-export function soundingPointAt(
-  rig: RigPoints,
-  loudness: number,
-  strings: StringsPlace,
-): StringsPlace {
+function soundingPointAt(rig: RigPoints, loudness: number, strings: StringsPlace): StringsPlace {
   const [piano, forte] = rig.hold.soundingPoint;
   const share = piano + (forte - piano) * loudness;
   strings.contact.addScaledVector(strings.axis, (share - rig.contactShare) * rig.stringLength);
@@ -611,7 +607,7 @@ function crossPole(
 }
 
 /** The places that the bow pose writes. */
-export interface BowPlaces {
+interface BowPlaces {
   /** The instrument. */
   readonly place: InstrumentPlace;
   /** The strings of the instrument. */
@@ -770,7 +766,7 @@ const elbowToward = new Vector3();
  * @param out The direction to write, in the axes of the chest.
  * @returns `out`.
  */
-export function leftElbow(hold: BowedHold, state: BowState, out: Vector3): Vector3 {
+function leftElbow(hold: BowedHold, state: BowState, out: Vector3): Vector3 {
   out.fromArray(hold.poleL);
   const [from, to] = HIGH_ELBOW;
   const angle =

@@ -35,7 +35,7 @@ export const LEFT_HAND_RULES = {
 } as const;
 
 /** A held chord: a time with sound and with no new note, for the held palm (design 5.4). */
-export interface Hold {
+interface Hold {
   /** The start of the last notes before the gap, in song seconds. */
   readonly startSec: number;
   /** The end of the hold: the end of the sound, or the start of the next notes. */

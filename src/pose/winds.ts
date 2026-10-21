@@ -660,7 +660,7 @@ const BONES = {
 } as const;
 
 /** The left paw of a wind player in the rest pose, off its grip (`WindHold.restFreeL`). */
-export type FreeRest = (
+type FreeRest = (
   | {
       /** A paw on the left thigh of a seated player. */
       readonly kind: 'lap';
@@ -1037,7 +1037,7 @@ function turnedMouth(rig: Omit<WindRig, 'slideReach'>, yaw: number): Vec3 {
 }
 
 /** The posed place of each grip of a wind instrument and of the shoulder joint that reaches it. */
-export interface WindGrip {
+interface WindGrip {
   /** The shoulder joint, at the start of the upper arm. */
   readonly joint: Vec3;
   /** The grip of the palm on the instrument. */

@@ -16,13 +16,13 @@ export const CHORD_SEC = 0.05;
 export const PHRASE_GAP_SEC = 0.5;
 
 /** A span of song time, in seconds. */
-export interface Span {
+interface Span {
   readonly start: number;
   readonly end: number;
 }
 
 /** The notes of one player that start within {@link CHORD_SEC} of the first of them. */
-export interface NoteGroup extends Span {
+interface NoteGroup extends Span {
   /** The start of the first note, in song seconds. */
   readonly start: number;
   /** The latest end of the notes of the group. */
@@ -77,7 +77,7 @@ export function groupChords(
 }
 
 /** Spans that rests shorter than a gap join into one span. */
-export interface JoinedSpan extends Span {
+interface JoinedSpan extends Span {
   /** The index of the first joined span in the input, and the number of joined spans. */
   readonly first: number;
   readonly count: number;
@@ -113,10 +113,10 @@ export function joinSpans(spans: readonly Span[], gapSec: number): JoinedSpan[] 
  * @param start The start of the span.
  * @returns The weight, from 0 to 1.
  */
-export type SpanFall = (time: number, end: number, start: number) => number;
+type SpanFall = (time: number, end: number, start: number) => number;
 
 /** The span with the largest envelope at one time, and the envelope. */
-export interface SpanWeight {
+interface SpanWeight {
   /** The index of the span, or -1 before the rise of the first span. */
   readonly index: number;
   /** The envelope, from 0 to 1. */

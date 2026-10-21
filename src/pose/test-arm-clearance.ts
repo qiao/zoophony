@@ -19,16 +19,16 @@ export const ARM_CONTACT_DEPTH = 0.02;
  * neck, and the head on the spine, the chest, the neck, and the head bones, with the closed parts
  * of the face.
  */
-export const BODY_GROUPS = {
+const BODY_GROUPS = {
   trunk: ['spine', 'chest', 'neck', ...HEAD_BONES],
   legs: ['thighL', 'thighR', 'shinL', 'shinR'],
 } as const satisfies Readonly<Record<string, readonly BoneName[]>>;
 
 /** A group of body parts that the arms keep clear of. */
-export type BodyGroup = keyof typeof BODY_GROUPS;
+type BodyGroup = keyof typeof BODY_GROUPS;
 
 /** The parts of one arm, from the shoulder to the fingers (design 4.5). */
-export type ArmPart = 'upperArm' | 'forearm' | 'hand';
+type ArmPart = 'upperArm' | 'forearm' | 'hand';
 
 /** The bones of each arm part of each side. */
 const ARM_BONES = {
@@ -41,7 +41,7 @@ const ARM_BONES = {
  * a ball that sinks into the torso in each turn of the arm (design 4.5), and the upper arm leaves
  * the side of the torso at a slant.
  */
-export const SHOULDER_SHARE = 0.5;
+const SHOULDER_SHARE = 0.5;
 
 /**
  * One point of the surface of an arm part: a corner of the mesh, or the middle of an edge between
@@ -55,7 +55,7 @@ interface ArmPoint {
 }
 
 /** The points of the surface of the arm parts of one side, for each part. */
-export type ArmPoints = Readonly<Record<ArmPart, readonly ArmPoint[]>>;
+type ArmPoints = Readonly<Record<ArmPart, readonly ArmPoint[]>>;
 
 /** One closed shell of the mesh: the triangles that share their corners, in the bind pose. */
 interface Shell {
@@ -256,7 +256,7 @@ function posedShell(posed: PosedSkeleton, shell: Shell): PosedShell {
 }
 
 /** The smallest gap between one arm part and one body group, in head heights. */
-export interface ArmGap {
+interface ArmGap {
   /** The side of the arm. */
   readonly side: 'L' | 'R';
   /** The part of the arm. */
