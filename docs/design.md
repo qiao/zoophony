@@ -138,7 +138,7 @@ The decision files:
 - [`2026-10-10-trim.md`](decisions/2026-10-10-trim.md): the trim audit of 2026-10-10.
 - [`2026-10-11-body-revert.md`](decisions/2026-10-11-body-revert.md): the second revert of the animal bodies to 2026-10-06 18:58.
 - [`2026-10-11-low-seats.md`](decisions/2026-10-11-low-seats.md): the low seats and the stools that the user decided.
-- [`2026-10-11-penguin-body.md`](decisions/2026-10-11-penguin-body.md): the egg body of the penguin, and `pnpm choir-check`.
+- [`2026-10-11-penguin-body.md`](decisions/2026-10-11-penguin-body.md): the beak snout that left the biped, and the gallery views of `pnpm choir-check`.
 - [`2026-10-11-short-legs.md`](decisions/2026-10-11-short-legs.md): the short legs of the reference images.
 - [`2026-10-12-studio-bear.md`](decisions/2026-10-12-studio-bear.md): the studio bear of `lowpoly-studio/` as the conductor.
 - [`2026-10-12-studio-polar-bear.md`](decisions/2026-10-12-studio-polar-bear.md): the studio polar bear of `lowpoly-studio/` as the pianist.
@@ -261,3 +261,4 @@ The decision files:
 - [`2026-10-21-monkey-stand.md`](decisions/2026-10-21-monkey-stand.md): the stand of the trumpet monkey with no chair, with its center of mass over the middle of its soles: the legs under the hips, the forward lean of the trunk, the round haunch with no sit rule, and the tail on the floor.
 - [`2026-10-21-mesh-rhino.md`](decisions/2026-10-21-mesh-rhino.md): the rhino mesh of the user as the tuba player, standing in each seat at the size of the parametric rhino, with the arms of the mesh, the free arm and the cut of the seam, a twist bone of each upper arm, the mouth under the horn, and its tuba hold with a longer lead pipe.
 - [`2026-10-21-mesh-deer.md`](decisions/2026-10-21-mesh-deer.md): the deer mesh of the user as the harp player, at the size of the parametric deer, on the stool of the harp with its whole haunch on the seat, with arms 1.25, a smaller harp upright in front of the chest, and its harp hold.
+- [`2026-10-21-mesh-penguin.md`](decisions/2026-10-21-mesh-penguin.md): the penguin mesh of the user as the choir singer on its riser in place of the egg body, at the head top of the egg penguin, with the flippers of the mesh, no jaw bone, the folder within the reach of the flippers, and the white throat.
