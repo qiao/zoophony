@@ -337,7 +337,8 @@ rolls it by about 90°, and the linear blend at the shoulder then twists the ski
 cloth and squeezes the upper arm flat. A fold count does not see this, so `pnpm arm-shape` measures
 the twist, the flat share, and the spikes of each arm. A goal on one measure can move a twist to a
 joint that no goal measures, so the arm gate `pnpm arm-check` reads the folds, the skin twist, the
-flat share, the paw turn, and the stretch of each arm against one table of limits, and the merge
+flat share, the paw turn, the stretch, and the paw twist and the wrist turn rate in the lifts and
+the lowerings of each arm against one table of limits, and the merge
 of a pose or model change runs it (`docs/decisions/2026-10-19-arm-gate.md`). A body can take a twist bone of each upper
 arm (`StudioBody.upperTwist`): the bone takes a share of the roll from the chest, and the weight of
 the upper arm moves to it near the shoulder, so the roll spreads along the arm. The rule comes from

@@ -251,6 +251,15 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **No jump.** A move starts from the height of each player at the change. `transport.before`,
   which `changeTransport()` of `app/transport.ts` sets, keeps the transport before the change, so
   fast changes of play and pause move the instruments with no jump.
+- **No wrist flip.** In a lift and a lowering, a paw does not turn past 180° on its forearm, and a
+  mix of two turns does not jump to the other side. The twist bone of the forearm takes half of the
+  paw twist (`TWIST_SHARE` of `models/studio-rig.ts`), so a twist past 180° turns it by 180° in one
+  frame. The bow of a string player takes the side of its mix from the bow at the play place of the
+  instrument (`liftMix()` of `pose/bowed.ts`), and the baton turn of the conductor keeps at most
+  `CONDUCTOR_HOLD.liftTwist` of twist. The arm gate measures each move at steps of 0.01 s
+  (`probeMoves()` of `tools/arm-check.ts`). The rest twist of the left paw of the violins and of the
+  viola lies on the far side of 180° from its play twist, so their moves still pass 180° (open,
+  `docs/decisions/2026-10-21-wrist-lift.md`).
 - **Count-in.** The slowest lift ends before the downbeat. A shorter count-in in wall time
   scales all lifts by one factor (`liftScale()`). After a pause, the note and beat layers hold
   the song time of the pause point (`noteLayerTime()`). A pause in the count-in has no hold: the
@@ -671,8 +680,10 @@ The code constants of each family hold the times, the angles, and the lengths of
     wrist, so the arm beats with the baton. At beat 1, the wrist is a little below the chin and
     out beside the head from behind, as in `mockup.png` and in views 02 and 05 of `scene.png`.
   - The beat plane turns with a part of a turn of the upper body, so that the long muzzle keeps
-    off the right paw. In the lift and the lowering, the baton turns out to the right and down, so
-    that it does not sweep through the desk (`pose/test-conductor-clearance.ts`).
+    off the right paw. In the lift and the lowering, the baton turns out to the right, so that it
+    does not sweep through the desk (`pose/test-conductor-clearance.ts`). The paw twists on its
+    forearm by at most `CONDUCTOR_HOLD.liftTwist` for this turn, because the full turn twisted it
+    past 180° (5.2).
   - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra
     while the instruments are still up. A hanging arm follows half of the bend (`HANG_FOLLOW`),
     so that the paws touch neither the belly nor the stand. The bow is a function of the wall
