@@ -46,10 +46,17 @@
  * first demo of the run. It goes with `--set`, `--grid` (up to {@link SCAN_GRID_LIMIT} variants),
  * and `--demo`.
  *
+ * `--glb <file>` fits the hold on the studio body that the export makes from another GLB file, such
+ * as a GLB file of `pnpm rig-mesh --check --keep`: the tool runs again in a child process, in a copy
+ * of `src/` with the module of the file (`withGlbBody()` of `tools/glb-swap.ts`). The files of
+ * `assets/` and `src/` do not change, also after a stop or a failure. It goes with each option
+ * except `--base`.
+ *
  * Usage: pnpm hold-fit <role> [--set <path>=<value>[;<path>=<value>]...]...
  * [--grid <path>=<a>:<b>:<step>]... [--sets <set>[,<set>]...] [--demo <id>|all]...
- * [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>], or pnpm hold-fit <role> --scan
- * [--walls <seconds>[,<seconds>]...] [--set <changes>]... [--grid <grid>]... [--demo <id>|all]...
+ * [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>] [--glb <file>], or pnpm hold-fit
+ * <role> --scan [--walls <seconds>[,<seconds>]...] [--set <changes>]... [--grid <grid>]...
+ * [--demo <id>|all]... [--glb <file>]
  */
 import { writeFileSync } from 'node:fs';
 
@@ -62,6 +69,7 @@ import {
   faceLines,
   meanTurn,
   probeFolds,
+  roleAnimal,
   roleBodies,
   splitText,
   turnAngle,
@@ -76,6 +84,7 @@ import type {
   SideSplit,
 } from './fold-probe.ts';
 import { faceList, faceShares, foldShareText } from './face-shares.ts';
+import { runTool, takeGlb, withGlbBody } from './glb-swap.ts';
 import type { FaceShare } from './face-shares.ts';
 import {
   freeRestReach,
@@ -228,8 +237,8 @@ export const UPPER_ARM_GOAL = 35;
 export const LEG_RESTS: ReadonlySet<string> = new Set(['flute@fox-tan']);
 
 /** The usage text of `pnpm hold-fit`. */
-const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--faces-of <face>[,<face>]...] [--technique <normal | pizzicato | tremolo>] [--base <ref>] [--json <file>]
-       pnpm hold-fit <role> --scan [--walls <seconds>[,<seconds>]...] [--set <changes>]... [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]...`;
+const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--faces-of <face>[,<face>]...] [--technique <normal | pizzicato | tremolo>] [--base <ref>] [--json <file>] [--glb <file>]
+       pnpm hold-fit <role> --scan [--walls <seconds>[,<seconds>]...] [--set <changes>]... [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]... [--glb <file>]`;
 
 /**
  * Tells if a text is the name of a sample set of a run.
@@ -2122,9 +2131,35 @@ async function scanHolds(options: FitOptions): Promise<void> {
   );
 }
 
-/** Runs the tool: `node tools/hold-fit.ts <role> [options]`. */
+/**
+ * Fits the hold on the studio body of another GLB file (`--glb <file>`): the tool runs again with
+ * the other arguments in a copy of `src/` with the module of the file (`withGlbBody()` of
+ * `tools/glb-swap.ts`).
+ *
+ * @param options The options of the other arguments.
+ * @param glb The absolute path of the GLB file.
+ * @param args The other arguments, with no `--glb`.
+ * @returns The exit code of the child.
+ * @throws Error with `--base`.
+ */
+function fitGlb(options: FitOptions, glb: string, args: readonly string[]): Promise<number> {
+  if (options.base !== null) {
+    throw new Error(`The options --glb and --base do not go together.\n${USAGE}`);
+  }
+  return withGlbBody(roleAnimal(options.role), glb, (dir) => runTool(dir, 'hold-fit.ts', args));
+}
+
+/**
+ * Runs the tool: `node tools/hold-fit.ts <role> [options]`. With `--glb <file>`, the fit runs on
+ * the studio body of the file ({@link fitGlb}).
+ */
 async function main(): Promise<void> {
-  const options = parseFitOptions(process.argv.slice(2));
+  const { glb, rest } = takeGlb(process.argv.slice(2));
+  const options = parseFitOptions(rest);
+  if (glb) {
+    process.exitCode = await fitGlb(options, glb, rest);
+    return;
+  }
   if (options.scan) {
     await scanHolds(options);
     return;
