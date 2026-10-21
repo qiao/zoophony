@@ -120,31 +120,11 @@ interface CommonParams {
   bassScale?: number;
 }
 
+/** The shape of the parts of the deer and the rhino, the two species of the biped. */
 interface BipedParams extends CommonParams {
-  ears:
-    | 'long'
-    | 'pointed'
-    | 'round'
-    | 'large-round'
-    | 'floppy'
-    | 'large-flap'
-    | 'small'
-    | 'side-round'
-    | 'antlered'
-    | 'none';
-  snout:
-    | 'short'
-    | 'long'
-    | 'blunt'
-    | 'broad'
-    | 'pointed'
-    | 'buck-teeth'
-    | 'trunk'
-    | 'flat-nose'
-    | 'horn';
-  tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
-  /** Face pattern, for example the eye patches of the panda. */
-  facePattern: 'none' | 'eye-patches' | 'cap' | 'stripe' | 'face-disc';
+  ears: 'small' | 'antlered';
+  snout: 'long' | 'horn';
+  tail: 'puff' | 'thin';
   body?: undefined;
 }
 
@@ -275,9 +255,8 @@ have studio bodies (4.4), so they have no row:
 | deer    | antlered | long  | puff |
 | rhino   | small    | horn  | thin |
 
-The face patterns (`models/face-patterns.ts`) color the faces of the head and add no part. The
-eyes stand a little out of a patch, so that it does not hide them. The deer has ears that point
-out to the sides with antlers, because with other ears it looked like the fox. The belly color colors the muzzle, the lower
+The deer has ears that point out to the sides with antlers, because with other ears it looked like
+the fox. The belly color colors the muzzle, the lower
 face, and a stripe down the front of the torso, as the white cheeks of the wolf in `animals.webp`.
 Each triangle has one color, picked by its centroid or its facing (`splitByCentroid()` and
 `splitByFacing()` of `models/mesh.ts`), so a color border follows the edges of the triangles.
@@ -297,9 +276,10 @@ bear pianist have the studio bodies of `lowpoly-studio/` (user, 2026-10-12). The
 the red violin fox, the viola cat, the cello dog, the trombone panda, the contrabass hippo, the
 oboe mouse, the timpani elephant, the bassoon beaver, the horn pig, the clarinet wolf, the trumpet
 monkey, and the percussion badger have meshes of the user that the app rigs itself (studio bodies, below). The tan flute fox has the rig of the red fox with a tan palette.
-The penguins have an egg body built in code (user, 2026-10-11). Each other species has the
-parametric body of 2026-10-06 18:58, which the user chose again in place of the sculpts and the
-rigged bodies (`docs/decisions/2026-10-11-body-revert.md`).
+The penguins have an egg body built in code (user, 2026-10-11). The two other species, the harp
+deer and the tuba rhino, have the parametric body of 2026-10-06 18:58, which the user chose again
+in place of the sculpts and the rigged bodies (`docs/decisions/2026-10-11-body-revert.md`). The
+parametric body keeps only the ear, snout, and tail types of these two species.
 
 Each body follows these rules:
 
@@ -648,12 +628,11 @@ for the seat dot (4.4).
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR`), and a dark nose
   (`NOSE_COLOR`), unless their accent parts include the nose. The open beak of the penguin shows a
   dark mouth (`MOUTH_COLOR` of `models/penguin/penguin-parts.ts`).
-- The teeth, the tusks, and the antlers have `TEETH_COLOR` or the belly color. The inside of an
-  ear has the belly color, unless the accent parts include the inner ears or the ears.
-- The accent color goes to the accent parts of the species (table below) and to the face pattern
-  of 4.3, except the middle stripe of `stripe` and `face-disc`, which have the belly color. Accent
-  arms also color a band over the shoulders, and accent feet the lower shins, as the dark socks of
-  the fox in `animals.webp`.
+- The antlers have the belly color. The inside of an ear has the belly color, unless the accent
+  parts include the inner ears or the ears.
+- The accent color goes to the accent parts of the species (table below). Accent arms also color
+  a band over the shoulders, and accent feet the lower shins, as the dark socks of the fox in
+  `animals.webp`.
 
 ```typescript
 type AccentPart =
@@ -876,7 +855,6 @@ the head center. The table gives the parts of the parametric body (4.4).
 | Ears           | `models/ears.ts`          | The ear type of the species (4.3).                                                                                                                                                                                                                                            |
 | Snouts         | `models/snouts.ts`        | The snout type of the species (4.3). A long muzzle reaches past the mouthpiece of a wind instrument.                                                                                                                                                                          |
 | Tails          | `models/tails.ts`         | The tail type of the species (4.3). A long tail goes back through the open back of the chair.                                                                                                                                                                                 |
-| Face patterns  | `models/face-patterns.ts` | The face pattern of the species (4.3).                                                                                                                                                                                                                                        |
 
 A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
 straight legs. The soloist of 3.8 also stands when it plays the violin, the viola, the flute, the

@@ -33,8 +33,9 @@ fox together.
 | monkey | the mesh `assets/models/monkey/monkey.glb`, rigged by `pnpm rig-mesh monkey` at 1.1 times the size of the parametric monkey, with arms 1.5, a long tail of two bones with its curl on the floor, a smaller trumpet, and no chair (`noChair`) | `2026-10-20-mesh-monkey.md` | `trumpeter` |
 | penguin | an egg body in code, `src/models/penguin/` (route 2) | `2026-10-11-penguin-body.md` | none |
 
-Each other species has the parametric body of 2026-10-06 18:58
-(`docs/decisions/2026-10-11-body-revert.md`). `pnpm sheet-check <id> <dir>` compares it with its
+The two other species, the deer (harp) and the rhino (tuba), have the parametric body of
+2026-10-06 18:58 (`docs/decisions/2026-10-11-body-revert.md`). It keeps only the ear, snout, and
+tail types of these two species. `pnpm sheet-check <id> <dir>` compares a parametric body with its
 sheet. The penguin has no sheet, so `pnpm choir-check <dir>` compares it with the choir of the two
 newest reference images. The GLB files `assets/models/rabbit/rabbit.glb` and
 `assets/models/bear/bear.glb` of the user stay for the tools of route 1. No species uses them.
