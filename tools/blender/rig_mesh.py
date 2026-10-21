@@ -20,7 +20,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones, and give the weights with bone heat. Then the
-   rules of the config: the free arm, the clavicles below the shoulders and the arms up the neck,
+   rules of the config: the free arm (beyond a plane, which `armFree` turns around the vertical
+   for a thick arm that joins the trunk), the clavicles below the shoulders and the arms up the neck,
    the clavicles over the top of the shoulders (`shoulderRamp`), the paw, the head and the
    shoulders, the ears, a long nose in front of the chest (`noseFront`), the tail (a ball on one
    tail bone, or a ramp along a tail of two bones), the haunch, one set of weights for the corners of each short thin face, and the weights of the
@@ -1054,7 +1055,7 @@ def cut_loop(tris, removed):
     return loop
 
 
-def cut_seam(verts, tris, uvs, split, tip, rule):
+def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
     """Cuts the mesh where each hanging forearm touches the belly (`cut` of the config). Each face
     below the height `top` with a corner in the free arm (`free_arm()`) and a corner outside it
     goes. The loop of the hole has a run of the arm and a run of the body. A cap closes each run
@@ -1066,7 +1067,7 @@ def cut_seam(verts, tris, uvs, split, tip, rule):
     keep = np.ones(len(tris), bool)
     added, added_uvs, report = [], [], []
     for side, sign in (('L', 1.0), ('R', -1.0)):
-        arm = free_arm(verts, tris, split, tip * [sign, 1.0, 1.0], sign)
+        arm = free_arm(verts, tris, rules, heads, ends, sign)
         mixed = [k for k, t in enumerate(tris)
                  if arm[t].any() and (~arm[t]).any() and (verts[t, 0] * sign > 0).all()
                  and verts[t, 1].max() < rule['top']]
@@ -1108,11 +1109,35 @@ def cut_seam(verts, tris, uvs, split, tip, rule):
             np.concatenate([uvs[keep], np.array(added_uvs)]), report)
 
 
-def free_arm(verts, tris, split, tip, sign):
-    """Finds the vertices of the free arm of one side: the part of the mesh beyond the plane
-    |x| = split that holds the vertex nearest to the finger tip. The haunch beside the body is
-    beyond that plane too, and it is not a part of the arm."""
-    return connected_part(verts, tris, verts[:, 0] * sign > split, tip)
+def arm_side(verts, rules, heads, ends, sign):
+    """Finds the vertices beyond the plane of the arm split of one side (`armSplit`). With
+    `armFree` of the rules, the plane turns by `turn` degrees around the vertical, so that its
+    front edge lies nearer to the middle plane than its back edge, as the notches where a thick
+    arm joins the side of the trunk. A vertex then also lies within `radius` of the chain of the
+    arm joints, from the shoulder to the finger tip, and above the height `floor`, so that the
+    side of the trunk and the thigh beside the arm are not a part of it."""
+    left = verts * [sign, 1.0, 1.0]
+    rule = rules.get('armFree')
+    if rule is None:
+        return left[:, 0] > rules['armSplit']
+    turn = math.radians(rule['turn'])
+    across = left[:, 0] * math.cos(turn) + left[:, 2] * math.sin(turn)
+    chain = [heads[f'{bone}_L'] for bone in ARM if bone != 'forearm_twist'] + [ends['fingers_L']]
+    chain = np.asarray(chain, float)
+    gap = np.full(len(verts), np.inf)
+    for a, b in zip(chain[:-1], chain[1:]):
+        ab = b - a
+        share = np.clip(((left - a) @ ab) / (ab @ ab), 0.0, 1.0)
+        gap = np.minimum(gap, np.linalg.norm(left - (a + share[:, None] * ab), axis=1))
+    return (across > rules['armSplit']) & (gap < rule['radius']) & (left[:, 1] > rule['floor'])
+
+
+def free_arm(verts, tris, rules, heads, ends, sign):
+    """Finds the vertices of the free arm of one side: the part of the mesh beyond the plane of the
+    arm split (`arm_side()`) that holds the vertex nearest to the finger tip. The haunch beside the
+    body is beyond that plane too, and it is not a part of the arm."""
+    tip = np.asarray(ends['fingers_L'], float) * [sign, 1.0, 1.0]
+    return connected_part(verts, tris, arm_side(verts, rules, heads, ends, sign), tip)
 
 
 def hanging_ear(verts, tris, rule, sign):
@@ -1333,12 +1358,11 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
     # hangs near it. Beyond the plane of the split, only the free arm follows the arm bones. Inside
     # it, the shoulder follows the upper arm and no lower bone of the arm.
     trunk = [col[name] for name in ('hips', 'spine', 'spine1', 'chest')]
-    split = rules['armSplit']
     for side, sign in (('L', 1.0), ('R', -1.0)):
         arm = [col[f'{bone}_{side}'] for bone in ARM]
         lower = arm[1:]
-        free = free_arm(verts, tris, split, ends[f'fingers_{side}'], sign)
-        beyond = verts[:, 0] * sign > split
+        free = free_arm(verts, tris, rules, heads, ends, sign)
+        beyond = arm_side(verts, rules, heads, ends, sign)
         for v in np.nonzero(beyond & ~free)[0]:
             target = trunk[int(np.argmax(w[v, trunk]))] if w[v, trunk].any() else col['spine1']
             w[v, target] += w[v, arm].sum()
@@ -3573,8 +3597,8 @@ def main():
     heads, ends, rolls, children = joints_of(config)
     if 'cut' in config:
         before = len(source_tris)
-        source_tris, uvs, seam_cut = cut_seam(verts, source_tris, uvs, rules['armSplit'],
-                                          ends['fingers_L'], config['cut'])
+        source_tris, uvs, seam_cut = cut_seam(verts, source_tris, uvs, rules, heads, ends,
+                                              config['cut'])
         for side, removed, faces, arm_run, body_run in seam_cut:
             angles = min_angles(verts, np.array(faces))
             log(f'cut {side}: {len(removed)} faces go, {len(faces)} new faces close the hole '
@@ -3733,7 +3757,7 @@ def main():
     main_bone = weights[tris].sum(axis=1).argmax(axis=1)
     turned = np.nonzero(dots < 0)[0]
     names = sorted({BONES[main_bone[f]] for f in turned})
-    free = int(free_arm(verts, source_tris, rules['armSplit'], ends['fingers_L'], 1.0).sum())
+    free = int(free_arm(verts, source_tris, rules, heads, ends, 1.0).sum())
     log(f'arm: {free} vertices in the free left arm beyond |x| = {rules["armSplit"]}')
     log(f'bind: {len(turned)} faces turn over from the source, on the bones {names}')
     bind, rounds = relax(long_verts, bind, tris, weights, upright_matrices)
