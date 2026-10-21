@@ -92,9 +92,9 @@ export interface SeatHeights {
    */
   readonly footHeight: number;
   /**
-   * The depth of the seat of a chair under a studio body, in meters (`StudioBody.chairDepth`).
-   * The chair keeps its back, and its front edge is further back. The other seats, and the chair
-   * under the parametric biped, keep their own depth.
+   * The depth of the seat of a chair or of the stool of the harp under a studio body, in meters
+   * (`StudioBody.chairDepth`). The seat keeps the back of the chair, and its front edge is further
+   * back. The other seats, and the seats under the parametric biped, keep their own depth.
    */
   readonly seatDepth?: number;
   /**
@@ -113,8 +113,8 @@ export interface SeatHeights {
 /**
  * The stool of the harp (design 4.5, props), with no back. Under the parametric biped, its seat has
  * the height of the chair of 2026-10-06, for the strings of the harp. Under a studio body, its seat
- * fits the legs, and a wide haunch gets a wider seat, as on the chair (`seatHeights()`). The seat
- * keeps its depth.
+ * fits the legs, and it has the width and the depth of the seat of the chair of the body, as the
+ * chair does (`seatHeights()`).
  */
 export const STOOL = {
   seatHeight: 0.35,
@@ -233,7 +233,8 @@ function chairHeights(species: SpeciesParams, legs: number): SeatHeights {
 
 /**
  * Gives the heights of the stool of the harp under a body (design 4.5, props): the seat at the
- * given height, and a wide studio body on a wider seat (`StudioBody.chairWidth`), as on the chair.
+ * given height, and under a studio body the depth and the width of the seat of its chair
+ * (`StudioBody.chairDepth`, `chairWidth`), as on the chair.
  *
  * @param species The species of the body.
  * @param seatHeight The height of the seat above the floor, in meters.
@@ -241,8 +242,11 @@ function chairHeights(species: SpeciesParams, legs: number): SeatHeights {
  */
 function stoolHeights(species: SpeciesParams, seatHeight: number): SeatHeights {
   const studio: StudioBody | null = species.body ? STUDIO_BODIES[species.body] : null;
-  const seat = { seatHeight, footHeight: 0 };
-  return studio?.chairWidth === undefined ? seat : { ...seat, seatWidth: studio.chairWidth };
+  if (!studio || studio.chairDepth === null) {
+    return { seatHeight, footHeight: 0 };
+  }
+  const seat = { seatHeight, footHeight: 0, seatDepth: studio.chairDepth };
+  return studio.chairWidth === undefined ? seat : { ...seat, seatWidth: studio.chairWidth };
 }
 
 /**
@@ -440,8 +444,10 @@ export function addDesk(builder: MeshBuilder, plate: readonly number[], at: Tran
 
 /**
  * Builds a stool with four legs and no back: the stool of the harp, or the high stool of the
- * contrabass with its foot ring (design 4.5). The seat center is above the origin. A wider seat
- * of the stool of the harp (`SeatHeights.seatWidth`) keeps its depth and its legs at its corners.
+ * contrabass with its foot ring (design 4.5). The seat center is above the origin. Under a studio
+ * body, the seat of the stool of the harp has the width and the depth of the seat of the chair of
+ * the body (`SeatHeights.seatWidth`, `seatDepth`), with its back at the back of the chair and its
+ * legs at its corners, so that the knees, the shins, and the hooves stay out of it.
  *
  * @param high True for the high stool.
  * @param seat The heights of the seat and of the foot ring. The stool of the harp has no ring.
@@ -451,14 +457,19 @@ export function buildStool(high: boolean, seat: SeatHeights): MeshData {
   const { seatHeight } = seat;
   const { seatSize } = high ? HIGH_STOOL : STOOL;
   const width = high ? seatSize : (seat.seatWidth ?? seatSize);
+  const depth = high ? seatSize : (seat.seatDepth ?? seatSize);
+  // A seat as deep as the seat of a studio body keeps the back of the chair, as the chair does
+  // (`chairSeat()`): its front edge ends where the thighs leave it, behind the knees and the shins.
+  const center = high || seat.seatDepth === undefined ? 0 : (CHAIR.seatDepth - depth) / 2;
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.chair;
-  addBox(builder, centeredBox([0, seatHeight - 0.02, 0], [width, 0.04, seatSize]), color);
+  addBox(builder, centeredBox([0, seatHeight - 0.02, center], [width, 0.04, depth]), color);
   const legHeight = seatHeight - 0.04;
   const at = seatSize / 2 - CHAIR_LEG / 2;
   const atX = width / 2 - CHAIR_LEG / 2;
+  const atZ = depth / 2 - CHAIR_LEG / 2;
   for (const x of [-atX, atX]) {
-    for (const z of [-at, at]) {
+    for (const z of [center - atZ, center + atZ]) {
       addBox(builder, centeredBox([x, legHeight / 2, z], [CHAIR_LEG, legHeight, CHAIR_LEG]), color);
     }
   }
