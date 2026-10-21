@@ -259,6 +259,7 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   ['clarinetist', { L: -86, R: -67 }],
   ['trumpeter', { L: -99, R: -98 }],
   ['tubist', { L: -110, R: -132 }],
+  ['singer', { L: -79, R: -79 }],
   ['bass-drummer', { L: -102, R: 20 }],
   ['snare-drummer', { L: -32, R: -29 }],
   ['cymbalist', { L: -29, R: -28 }],
