@@ -110,8 +110,9 @@ export interface SeatHeights {
 }
 
 /**
- * The stool of the harp (design 4.5, props), with no back. Its seat has the height of the chair of
- * 2026-10-06, for the strings of the harp.
+ * The stool of the harp (design 4.5, props), with no back. Under the parametric biped, its seat has
+ * the height of the chair of 2026-10-06, for the strings of the harp. Under a studio body, its seat
+ * fits the legs (`seatHeights()`).
  */
 export const STOOL = {
   seatHeight: 0.35,
@@ -234,9 +235,9 @@ function chairHeights(species: SpeciesParams, legs: number): SeatHeights {
  * legs of the species: its seat is the `seatHeight` of the skeleton above the floor. A species
  * with no chair (`SpeciesParams.noChair`) keeps these heights, and the app builds no chair. The
  * high stool keeps its seat for the contrabass, and its foot ring is the `seatHeight` of the
- * skeleton below the seat. The stool of the harp keeps its height, because the strings need the
- * body at that height. The piano bench keeps its height for the parametric biped and the penguin.
- * Under a studio body, such as the polar bear, it fits the legs, as the chair does (design 4.4).
+ * skeleton below the seat. The stool of the harp and the piano bench keep their heights for the
+ * parametric biped and the penguin. Under a studio body, such as the polar bear on its bench, they
+ * fit the legs, as the chair does (design 4.4).
  *
  * @param support The support.
  * @param species The species of the body.
@@ -245,20 +246,18 @@ function chairHeights(species: SpeciesParams, legs: number): SeatHeights {
 export function seatHeights(support: Support, species: SpeciesParams): SeatHeights | null {
   const proportions = proportionsOf(species);
   const legs = proportions.seatHeight * proportions.headHeight;
+  const studioLegs = species.body !== undefined && species.body !== 'penguin';
   switch (support) {
     case 'chair': {
       const seat = chairHeights(species, legs);
       return species.noChair ? { ...seat, noChair: true } : seat;
     }
     case 'stool':
-      return { seatHeight: STOOL.seatHeight, footHeight: 0 };
+      return { seatHeight: studioLegs ? legs : STOOL.seatHeight, footHeight: 0 };
     case 'high-stool':
       return { seatHeight: HIGH_STOOL.seatHeight, footHeight: HIGH_STOOL.seatHeight - legs };
     case 'bench':
-      return {
-        seatHeight: species.body && species.body !== 'penguin' ? legs : PIANO_BENCH.seatHeight,
-        footHeight: 0,
-      };
+      return { seatHeight: studioLegs ? legs : PIANO_BENCH.seatHeight, footHeight: 0 };
     case 'stand':
     case 'riser':
       return null;
