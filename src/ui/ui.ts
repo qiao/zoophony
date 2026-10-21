@@ -119,7 +119,7 @@ export class Ui {
       'demos',
       'Pieces',
       this.demoList.element,
-      new FilePicker(actions.onFile, this.tooltips).element,
+      new FilePicker(actions.onFile).element,
     );
     this.seatList = new SeatList(actions.onSeatFlag, this.tooltips, () => {
       this.drawer.focusTab('seats');

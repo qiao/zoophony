@@ -36,7 +36,8 @@ const ICONS = {
   'exit-full-screen':
     '<path d="M9.5 5v4.5H5M9.5 9.5L4 4M14.5 5v4.5H19M14.5 9.5L20 4M9.5 19v-4.5H5M9.5 14.5L4 20M14.5 19v-4.5H19M14.5 14.5L20 20"/>',
   drawer: '<path d="M4 6.5h16M4 12h16M4 17.5h16"/>',
-  file: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5"/>',
+  folder:
+    '<path d="M3.5 18.5V6A1.5 1.5 0 0 1 5 4.5h4l2 2.5h7.5A1.5 1.5 0 0 1 20 8.5v2"/><path d="M3.5 18.5l2.6-7a1.5 1.5 0 0 1 1.4-1h12.6a1 1 0 0 1 .95 1.3l-2.1 6.2a1.5 1.5 0 0 1-1.4 1z"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   chevron: '<path d="M9.5 6l6 6-6 6"/>',
 } as const;

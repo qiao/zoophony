@@ -271,30 +271,24 @@ test.describe('the drop hint on a touch screen (audit 2026-10-05-ux-design, PH2)
   test.skip(({ browserName }) => browserName === 'firefox', 'No mobile emulation in Firefox.');
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
-  test('a phone does not show "Or drop a MIDI file on the page."', async ({ page }) => {
+  test('a phone says only "From this device"', async ({ page }) => {
     await page.goto('./');
     await page.waitForSelector('#stage[data-demo]');
     await page.locator('.bar button[aria-expanded]').tap();
-    await expect(page.getByRole('button', { name: 'Select a MIDI file' })).toBeVisible();
-    await expect(page.getByText('Or drop a MIDI file on the page.')).toBeHidden();
-    await expect(page.getByRole('button', { name: 'Select a MIDI file' })).not.toHaveAttribute(
-      'aria-describedby',
-    );
+    await expect(
+      page.getByRole('button', { name: 'Open a MIDI file' }),
+    ).toHaveAccessibleDescription('From this device');
   });
 });
 
 test('a desktop shows the drop hint (audit 2026-10-05-ux-design, PH2)', async ({ page }) => {
   await page.goto('./');
   await page.waitForSelector('#stage[data-demo]');
-  await page.locator('.bar button[aria-expanded]').click();
-  // The hint is the tooltip of the file button (design 2.8).
-  await page.getByRole('button', { name: 'Select a MIDI file' }).hover();
-  await expect(page.locator('.tooltip')).toHaveText('Or drop a MIDI file on the page.');
-  // A screen reader skips the tooltip, so the hint also describes the button (review of step 8,
-  // L2).
-  await expect(
-    page.getByRole('button', { name: 'Select a MIDI file' }),
-  ).toHaveAccessibleDescription('Or drop a MIDI file on the page.');
+  // A wide window opens the drawer at start at the tab "Pieces" (design 2.8).
+  const button = page.getByRole('button', { name: 'Open a MIDI file' });
+  // The second line of the button says where the file comes from, and it describes the button.
+  await expect(button).toHaveAccessibleDescription('From this device, or drop it on the page');
+  await expect(page.getByText('From this device, or drop it on the page')).toBeVisible();
 });
 
 test.describe('the labels of the "Playback" group (audit 2026-10-05-ux-design, PH3)', () => {

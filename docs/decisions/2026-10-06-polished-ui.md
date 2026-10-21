@@ -22,7 +22,7 @@ each one. Then update the section that holds it, and remove its row.
 | The level meter comes from the notes of the score (nine bands of keys, 20 frames for each second), in place of an analyser of the audio output. The UI owns no audio code, the meter follows the rule "One score", and the song time alone gives it | 2.8 |
 | The seat rows of the mockup have no source line. The source line shows only in the row of the animal that the user clicked, and a screen reader reads it in each row | 2.3, 2.8 |
 | The buttons "M" and "S" show the small squares of the mockup (24 × 22 px) in targets of the compact size (32 px, 44 px on a touch screen) | 2.8 |
-| The file button stands below the demo list and sticks to the bottom of the drawer. The drop hint "Or drop a MIDI file on the page." is its tooltip, because the mockup shows no text below the button | 2.8 |
+| The file button stands below the demo list and sticks to the bottom of the drawer | 2.8 |
 | The speed shows at least one decimal ("1.0×"), as the pill "1.0x" of the mockup. The sign stays the sign of the multiplication of audit CP3 | 2.8 |
 | The tooltips keep their keys, for example "Automatic camera (C)", although the mockup shows only the names. The keys are the only visible hint of the keys of the page (audit CT1) | 2.8 |
 | The large play button of the first screen stays. The mockup shows the state during play only | 2.8 |

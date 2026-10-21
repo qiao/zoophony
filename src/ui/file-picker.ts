@@ -1,19 +1,21 @@
 import { MIDI_FILE_TYPES } from '../app/file-rules.ts';
 import { createButton, createElement } from './dom.ts';
 import { createIcon } from './icons.ts';
-import type { Tooltips } from './tooltip.ts';
 
-/** The tooltip of the file button (design 2.8). */
-const DROP_HINT = 'Or drop a MIDI file on the page.';
+/** The second line of the file button on a screen with a mouse (design 2.8). */
+const SOURCE_HINT = 'From this device, or drop it on the page';
 
-/** The id of the hidden description of the file button. */
-const DROP_HINT_ID = 'drop-hint';
+/** The second line of the file button on a touch screen, which cannot drop a file. */
+const TOUCH_SOURCE_HINT = 'From this device';
+
+/** The id of the second line, which describes the button. */
+const SOURCE_HINT_ID = 'file-source';
 
 /**
- * The file button below the seat list (design 2.1, 2.8): the button "Select a MIDI file" with the
- * file icon and a chevron, as in the mockup. Its tooltip says "Or drop a MIDI file on the page."
- * A screen reader skips the tooltip, so a visually hidden copy of the hint describes the button.
- * A touch screen shows no tooltip and has no description, because it cannot drop a file.
+ * The file button below the demo list (design 2.1, 2.8): the folder icon, the name "Open a MIDI
+ * file", a dim second line that says where the file comes from, and a chevron. The second line
+ * says "From this device, or drop it on the page", or "From this device" on a touch screen, which
+ * cannot drop a file. It also describes the button to a screen reader.
  */
 export class FilePicker {
   readonly element: HTMLElement;
@@ -22,9 +24,8 @@ export class FilePicker {
    * Creates the button and its hidden file input.
    *
    * @param onFile The action of a selected file.
-   * @param tooltips The tooltips of the page.
    */
-  constructor(onFile: (file: File) => void, tooltips: Tooltips) {
+  constructor(onFile: (file: File) => void) {
     this.element = createElement('div', 'file-picker');
     const input = createElement('input');
     input.type = 'file';
@@ -38,22 +39,17 @@ export class FilePicker {
         onFile(file);
       }
     });
-    const button = createButton('file-button', '');
-    button.append(
-      createIcon('file', 'file-icon'),
-      createElement('span', '', 'Select a MIDI file'),
-      createIcon('chevron', 'chevron'),
-    );
+    const touch = window.matchMedia('(pointer: coarse)').matches;
+    const hint = createElement('small', '', touch ? TOUCH_SOURCE_HINT : SOURCE_HINT);
+    hint.id = SOURCE_HINT_ID;
+    const text = createElement('span', 'file-text');
+    text.append(createElement('span', '', 'Open a MIDI file'), hint);
+    const button = createButton('file-button', 'Open a MIDI file');
+    button.append(createIcon('folder', 'file-icon'), text, createIcon('chevron', 'chevron'));
+    button.setAttribute('aria-describedby', SOURCE_HINT_ID);
     button.addEventListener('click', () => {
       input.click();
     });
-    tooltips.attach(button, () => DROP_HINT);
     this.element.append(button, input);
-    if (!window.matchMedia('(pointer: coarse)').matches) {
-      const hint = createElement('span', 'visually-hidden', DROP_HINT);
-      hint.id = DROP_HINT_ID;
-      button.setAttribute('aria-describedby', DROP_HINT_ID);
-      this.element.append(hint);
-    }
   }
 }

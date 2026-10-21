@@ -887,7 +887,21 @@ body.is-building #stage {
 }
 
 .file-button .file-icon {
+  flex: none;
   color: var(--accent);
+}
+
+/* The name of the button, and below it a dim line that says where the file comes from. */
+.file-button .file-text {
+  display: grid;
+  gap: 1px;
+  padding: 7px 0;
+}
+
+.file-button small {
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 15px;
 }
 
 .file-button .chevron {

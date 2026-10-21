@@ -185,7 +185,7 @@ interface ChosenFile {
  * @param file The file.
  */
 async function chooseFile(c: Checker, page: Page, key: string, file: ChosenFile): Promise<void> {
-  await c.tabTo(named('Select a MIDI file'));
+  await c.tabTo(named('Open a MIDI file'));
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const [chooser] = await Promise.all([
@@ -638,7 +638,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   // The tab "Pieces" and the close button come first, and the file button ends the demo list
   // (design 2.8).
   const order: string[] = [];
-  while (order.length < 80 && order.at(-1) !== 'Select a MIDI file') {
+  while (order.length < 80 && order.at(-1) !== 'Open a MIDI file') {
     await page.keyboard.press('Tab');
     order.push(await c.focused());
   }
@@ -653,7 +653,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     order[0] === 'Pieces' &&
       order[1] === 'Close the drawer' &&
       order[2]?.startsWith("D'un matin") === true &&
-      order.at(-1) === 'Select a MIDI file',
+      order.at(-1) === 'Open a MIDI file',
   );
 
   // The close button of the drawer gives the focus to the drawer button (design 2.8).
@@ -696,7 +696,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   await page.waitForSelector('.message:not([hidden])', { timeout: 10_000 });
   const message = (await page.textContent('.message span')) ?? '';
   c.record(
-    'Select a MIDI file (a file that is not MIDI)',
+    'Open a MIDI file (a file that is not MIDI)',
     'Tab, Enter, select the file',
     `message "${message}"`,
     message === 'This file is not a valid MIDI file.',
@@ -737,7 +737,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   await page.waitForSelector('canvas[data-demo="file"]', { timeout: 30_000 });
   const title = (await page.textContent('.title h1')) ?? '';
   c.record(
-    'Select a MIDI file (a valid file)',
+    'Open a MIDI file (a valid file)',
     'Tab, Space, select the file',
     `plays the file "${title}"`,
     title === 'one-note',
