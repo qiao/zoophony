@@ -58,6 +58,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   and turn the shoulder forward (`reachL`, `PIG_HORN`). For a hanging woodwind at its real angle,
   move the mouthpiece back and down under the muzzle (`lipShift`), and read its depth in the head
   (`WOLF_CLARINET`).
+- A long muzzle puts the mouthpiece of the tuba about 0.5 m in front of the shoulder joints, and a
+  tilt of the tuba toward the body turns its bell over the face. Give the tuba a longer lead pipe
+  (`SpeciesParams.tubaPipe`), and roll the bell to the left of the horn (`RHINO_TUBA`).
 - The short arms of the elephant do not reach across its trunk, and a third kettle of the real size
   stands behind the shoulder and cuts into the body. Use `PercussionHold.rim`, `sides`, `home`, and
   `pair` with `TIMPANI.side`, and scan them with `pnpm pose-depth --targets`.
@@ -141,6 +144,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A narrow fade of a weight rule under a far bone turn moves the fold to the faces of the fade. Let
   the fade span several rings of faces (`clavicleMiddle`, `armTop` of the hippo). A small change of
   a fade can make the relax of a shape fail (lines `raise` of the rig log).
+- A thick arm can join the side of the trunk down to the paw, with a notch at its front and its
+  back. Turn the plane of the free arm through both notches (`weights.armFree`, `arm_free.py` of
+  `docs/research/2026-10-21-mesh-rhino/`), then cut the seam, else the seam stretches into spikes.
 - A long thin face across an arm joint folds, and weight rules make it worse. A ring of new vertices
   at the joint (`refine.rings`) fixes it, within 3,200 triangles. Put a ring only where `pnpm
   fold-probe` finds folds, and run `pnpm pose-depth <role>`, because a ring can pull the inner elbow
@@ -214,6 +220,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   the knees or an instrument between them.
 - A big head over a thin neck shows a dark band under the head. Smooth the neck and the head bottom
   with a box that ends behind the chin (`smooth`), else H and each hold move.
+- A horn on the muzzle is the front of the head, so the mouth goes to the tip of the horn. Use
+  `noseTop` of `ANIMALS`.
 - The elephant trunk takes bone heat from the chest and sets the chin of the head measures. Use
   `noseFront` and `headFloor` of `ANIMALS`.
 - The tip of `earFlap` takes the nearest vertex, which can lie on the shoulder. Take it from a cut
@@ -248,6 +256,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   the shoulder joints needs that value (`rig.sh` of `docs/research/2026-10-17-dog-mesh/`).
 - A new body moves the layout and the shots, and the shot tests react to moves of 2 cm. Run
   `pnpm test:paused src/shots/` early, and `pnpm shot-trace <demo> --base main` when a shot drops.
+
+- To commit a part of a file, stage a blob of it with `git update-index --cacheinfo`, and keep
+  the working file. A file written from `HEAD` for a commit gave the rhino its parametric body
+  again, and three sweeps measured the wrong body.
 
 ## Values in meters
 
