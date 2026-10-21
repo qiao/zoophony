@@ -89,6 +89,9 @@ side.
 - No reference image shows a pig. The mesh of the user is the target of the pig, and the pig has
   the size of the parametric pig, by the rule of the user for the mouse
   (`docs/decisions/2026-10-19-mesh-pig.md`).
+- No reference image shows a rhino or a tuba. The mesh of the user is the target of the rhino,
+  and its skull top has the head top of the parametric rhino, by the rule of the user for the
+  mouse. The user asked that the rhino stands (`docs/decisions/2026-10-21-mesh-rhino.md`).
 - No reference image shows a badger. The mesh of the user is the target of the badger, and the
   badger has the size of the parametric badger, by the rule of the user for the mouse. The mesh
   wins over `badger-turnaround.png`, whose fur and stripes are lighter
