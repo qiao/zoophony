@@ -4,10 +4,25 @@ import type { SeatRowText } from '../app/seat-text.ts';
 import { createButton, createElement, setAttribute } from './dom.ts';
 import type { Tooltips } from './tooltip.ts';
 
+/**
+ * The least level at which the ring of a dot shows with reduced motion, where the ring is on or
+ * off with no fade (design 2.8). The ring then stays on for nearly all of its fade of 0.3 s, so
+ * that short notes do not make it flicker.
+ */
+const GLOW_ON = 0.05;
+
+/** The least change of a level that the ring shows. A frame writes the DOM only on a change. */
+const GLOW_STEP = 0.01;
+
 /** The controls of one row of the seat list. */
 interface SeatRow {
+  /** The row. */
   readonly item: HTMLLIElement;
+  /** The dot in the fur color, which holds the ring while the seat plays. */
+  readonly dot: HTMLSpanElement;
+  /** The button "M". */
   readonly mute: HTMLButtonElement;
+  /** The button "S". */
   readonly solo: HTMLButtonElement;
 }
 
@@ -39,6 +54,8 @@ export class SeatList {
   readonly #tooltips: Tooltips;
   readonly #keepFocus: () => void;
   #rows: SeatRow[] = [];
+  /** The level of the ring that each row shows, or -1 before the first frame. */
+  #shown = new Float32Array(0);
 
   /**
    * Creates the list with no rows.
@@ -75,6 +92,9 @@ export class SeatList {
       if (row.color) {
         dot.style.background = row.color;
       }
+      if (row.ring) {
+        dot.style.setProperty('--ring', row.ring);
+      }
       const name = createElement('span', 'name', row.name);
       name.append(
         createElement('small', '', row.animals),
@@ -90,8 +110,9 @@ export class SeatList {
         this.#tooltips.attach(toggle, () => toggle.getAttribute('aria-label') ?? '');
       }
       item.append(dot, name, mute, solo);
-      return { item, mute, solo };
+      return { item, dot, mute, solo };
     });
+    this.#shown = new Float32Array(this.#rows.length).fill(-1);
     this.element.replaceChildren(...this.#rows.map((row) => row.item));
     if (hadFocus) {
       this.#keepFocus();
@@ -110,6 +131,27 @@ export class SeatList {
       setAttribute(row.mute, 'aria-pressed', String(seat.muted));
       setAttribute(row.solo, 'aria-pressed', String(seat.soloed));
       row.item.classList.toggle('silent', audible[i] === false);
+    }
+  }
+
+  /**
+   * Shows the ring on the dot of each seat that plays (design 2.8). The level sets the opacity
+   * and the size of the ring through `--glow`, and the class `playing` turns the ring on with
+   * reduced motion. The ring shows only after the piece starts, as the meter of the demo row.
+   *
+   * @param levels The level of each seat, from 0 to 1, from `seatLevels()`.
+   * @param started True while the piece plays, or after it has left its start.
+   */
+  showLevels(levels: Float32Array, started: boolean): void {
+    for (const [i, row] of this.#rows.entries()) {
+      const level = started ? (levels[i] ?? 0) : 0;
+      const shown = this.#shown[i] ?? -1;
+      if (Math.abs(level - shown) < GLOW_STEP && (level > 0 || shown === 0)) {
+        continue;
+      }
+      this.#shown[i] = level;
+      row.dot.style.setProperty('--glow', level.toFixed(2));
+      row.dot.classList.toggle('playing', level >= GLOW_ON);
     }
   }
 }

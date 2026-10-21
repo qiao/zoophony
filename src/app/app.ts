@@ -30,8 +30,8 @@ import { DEMOS, PERF_60, demoHash, demoUrl, isDemoId } from './demos.ts';
 import type { StageFile } from './demos.ts';
 import { FILE_ERROR_TEXTS, fileTitle, readScoreFile } from './file-rules.ts';
 import { keyAction, keySeekPoint } from './keys.ts';
-import { METER_BARS, meterLevels, meterTrack } from './meter.ts';
-import type { MeterTrack } from './meter.ts';
+import { METER_BARS, meterLevels, meterTrack, seatLevels, seatSpans } from './meter.ts';
+import type { MeterTrack, SeatSpans } from './meter.ts';
 import {
   CAMERA_OFF_TEXTS,
   addNote,
@@ -90,6 +90,8 @@ interface Piece {
   shots: ShotPlan;
   /** The levels of the meter in the demo list (design 2.8). */
   meter: MeterTrack;
+  /** The spans of sound of each seat, for the rings of the seat list (design 2.8). */
+  glow: SeatSpans;
   /** The load of the samples of the score into the `Player`. */
   samples: SampleState;
   /** The progress of the load, or `null` before the list of the preset files is known. */
@@ -238,6 +240,7 @@ function preparePiece(source: PieceFile, playWhenReady: boolean): LoadedPiece {
     plan,
     shots,
     meter: meterTrack(score.notes, score.durationSec),
+    glow: seatSpans(score.notes, score.seats.length),
     poses: createScenePose(plan),
     samples: 'loading',
     progress: null,
@@ -269,6 +272,8 @@ export class App {
   #songTime = 0;
   /** The levels of the meter of the demo list in the last frame (design 2.8). */
   readonly #meterLevels = new Float32Array(METER_BARS);
+  /** The levels of the rings of the seat list in the last frame, one for each seat (design 2.8). */
+  #seatLevels = new Float32Array(0);
   /** The seek point that the listener does not hear yet, or `null` (`app/seek.ts`). */
   #seekSec: number | null = null;
   /** The number of the last selection. A later selection replaces an earlier one. */
@@ -504,6 +509,7 @@ export class App {
     piece.plan = plan;
     piece.shots = shots;
     piece.meter = meterTrack(score.notes, score.durationSec);
+    piece.glow = seatSpans(score.notes, score.seats.length);
     piece.poses = createScenePose(plan);
     this.#scene.show(layout, models);
     // The player counts of the seat rows change with the section size (design 2.8).
@@ -999,9 +1005,14 @@ export class App {
       }),
     });
     if (piece) {
-      ui.demoList.showLevels(
-        meterLevels(piece.meter, songSec, this.#meterLevels),
-        status.playing || songSec > 0,
+      const started = status.playing || songSec > 0;
+      ui.demoList.showLevels(meterLevels(piece.meter, songSec, this.#meterLevels), started);
+      if (this.#seatLevels.length !== piece.score.seats.length) {
+        this.#seatLevels = new Float32Array(piece.score.seats.length);
+      }
+      ui.seatList.showLevels(
+        seatLevels(piece.glow, songSec, piece.audible, this.#seatLevels),
+        started,
       );
     }
     this.#message = followMessage(this.#message, wallTime, ui.message.held);

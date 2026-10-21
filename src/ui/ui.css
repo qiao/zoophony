@@ -970,14 +970,36 @@ body.is-building #stage {
 }
 
 .dot {
+  position: relative;
   width: 13px;
   height: 13px;
   border-radius: 50%;
 }
 
-/* The sound-only seat has no animal, so its dot has no fur color. */
+/* The ring of a seat that plays (design 2.8): a soft ring in --ring, the fur color or a lighter
+   mix of it (ringColor() in app/seat-text.ts), with a gap of 2 px around the dot. --glow, the
+   level of the seat, sets its opacity and its size. It costs no layout space. */
+.dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--ring);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--ring);
+  opacity: var(--glow, 0);
+  transform: scale(calc(0.8 + 0.2 * var(--glow, 0)));
+  pointer-events: none;
+}
+
+/* The sound-only seat has no animal, so its dot has no fur color. Its ring has the color of its
+   border, and the ring keeps its gap outside the border. */
 .dot.no-color {
+  --ring: var(--text-dim);
   border: 1.5px solid var(--text-dim);
+}
+
+.dot.no-color::after {
+  inset: -5.5px;
 }
 
 .seat .name {
@@ -1461,6 +1483,16 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
   /* The meter stands still in the shape of the mockup. */
   .demo .meter span {
     transform: scaleY(var(--still)) !important;
+  }
+
+  /* The ring of a seat is on or off, with no fade. */
+  .dot::after {
+    opacity: 0;
+    transform: none;
+  }
+
+  .dot.playing::after {
+    opacity: 1;
   }
 }
 
