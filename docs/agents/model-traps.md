@@ -146,6 +146,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   faces join a hanging arm to the trunk, only a cut at the seam fixes them (`cut`,
   `docs/research/2026-10-18-panda-cut.md`). Give the caps of the arm the normals of the skin
   (`cut.skinNormals`). The light caps of the body keep their own.
+- Where the trunk of the source curls in toward the hanging arm, the caps of the body of a cut lie
+  in a notch, and a raised arm shows the quad at the top and the rim as a jagged dark gap. Give
+  that side the normals of the skin (`cut.bodyNormals`), and check each side apart. A fill of the
+  notch makes a sharp tent (`docs/research/2026-10-21-rabbit-armpit.md`).
 - A color measure of a mark counts one range of lightness. Measure the black (Oklab lightness below
   0.3) beside the gray, because a fix of a gray mark can add a black one.
 - A fold probe also counts a turned face that no camera sees. Before you accept a fold as hidden,
