@@ -1000,6 +1000,12 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       as the flute row, and only the pressed "S" shows the solo. Options: keep it, or add a mark
       to each silent row. No change until the user decides.
 
+- [ ] Show the user the seat rings during play, and ask if the pulse of fast short notes is
+      correct (2.8). The cellos of Beethoven 8 mvt 4 at 30 s dip from the level 0.88 to 0.35
+      between notes 0.36 s apart. A tutti turns on each ring, so the rings then show no lead.
+- [ ] Check the seat rings in Safari, in Firefox, and on a real phone (2.8). The round of
+      2026-10-21 checked them only in headless Chromium.
+
 Done when: the UI matches the prototype at both sizes, and a keyboard alone can reach and use
 each control.
 
