@@ -13,8 +13,15 @@
  * commit and the working tree run at the same time, each in a child process (`probeBeside()`),
  * and the tool prints one table for each file with the values of both.
  *
+ * `--trace <from>-<to>` prints the side sway of the spine of one player of one file at steps of
+ * {@link TRACE_STEP} ({@link traceLines}): the player of `--player`, or the player with the largest
+ * sway in the range. With `--base`, the commit runs this script of the working tree, so that both
+ * trees give the same measure, and each line gives the angle of both.
+ *
  * Usage: pnpm beat-rates [--midi <path>]... [--demo <id>]... [--limit <bpm>] [--step <s>]
- *        [--base <ref>] [--json <file>]
+ *        [--base <ref>] [--json <file>], or
+ *        pnpm beat-rates --midi <path> | --demo <id> --trace <from>-<to> [--player <n>]
+ *        [--base <ref>]
  * With no `--midi` and no `--demo`, it probes each demo.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -33,7 +40,7 @@ import { buildTimeline } from '../src/score/timeline.ts';
 
 /** The usage text of `pnpm beat-rates`. */
 const USAGE =
-  'Usage: pnpm beat-rates [--midi <path>]... [--demo <id>]... [--limit <bpm>] [--step <s>] [--base <ref>] [--json <file>]';
+  'Usage: pnpm beat-rates [--midi <path>]... [--demo <id>]... [--limit <bpm>] [--step <s>] [--base <ref>] [--json <file>], or pnpm beat-rates --midi <path> | --demo <id> --trace <from>-<to> [--player <n>] [--base <ref>]';
 
 /** The format version of the JSON text of `--json` (`formatVersion()` of `tools/ref-tree.ts`). */
 const RATES_FORMAT = 1;
@@ -65,6 +72,15 @@ const MAX_OVER_SEC = 2;
 /** The default step of the pose samples, in song seconds. */
 const DEFAULT_STEP = 0.02;
 
+/** The step of the samples of `--trace`, in song seconds. */
+const TRACE_STEP = 0.01;
+
+/** The most samples of `--trace`: 20 s at {@link TRACE_STEP}. */
+const TRACE_SAMPLES = 2001;
+
+/** The format version of the JSON text of `--trace` with `--json`. */
+const TRACE_FORMAT = 1;
+
 /** The smallest peak of a sway side that counts, in radians. A smaller side is noise of a fade. */
 const MIN_PEAK = 0.05 * (Math.PI / 180);
 
@@ -85,6 +101,32 @@ interface RatesOptions {
   readonly base: string | null;
   /** The file into which the tool writes its rows as JSON, or `null` for none. */
   readonly json: string | null;
+  /** The range of song times of `--trace`, or `null` for the rates. */
+  readonly trace: TraceRange | null;
+  /** The player of `--player`, by its index in the layout, or `null` for the player of the trace. */
+  readonly player: number | null;
+}
+
+/** The range of song times of `--trace`, in seconds. */
+interface TraceRange {
+  /** The first song time. */
+  readonly from: number;
+  /** The last song time. */
+  readonly to: number;
+}
+
+/** The sway of each player of one file over the range of `--trace`, as the JSON of a child. */
+interface SwayTrace {
+  /** The format version ({@link TRACE_FORMAT}). */
+  readonly version: number;
+  /** The name of the file. */
+  readonly file: string;
+  /** The name of each player, such as `rabbit violin (seat 0)`, by its index in the layout. */
+  readonly players: readonly string[];
+  /** The song time of each sample, in seconds. */
+  readonly times: readonly number[];
+  /** The side sway of the spine of each player at each sample, in degrees. */
+  readonly angles: readonly (readonly number[])[];
 }
 
 /** One event of a motion: the tempo from it to the next event. */
@@ -139,6 +181,8 @@ function parseOptions(args: readonly string[]): RatesOptions {
   let step = DEFAULT_STEP;
   let base: string | null = null;
   let json: string | null = null;
+  let trace: TraceRange | null = null;
+  let player: number | null = null;
   for (let i = 0; i < args.length; i += 2) {
     const flag = args[i] ?? '';
     const value = args[i + 1];
@@ -165,11 +209,51 @@ function parseOptions(args: readonly string[]): RatesOptions {
       case '--json':
         json = value;
         break;
+      case '--trace':
+        trace = traceRange(value);
+        break;
+      case '--player':
+        player = Number(value);
+        if (!Number.isInteger(player) || player < 0) {
+          throw new Error(`The player "${value}" is not a whole number of 0 or more.`);
+        }
+        break;
       default:
         throw new Error(`The option "${flag}" is not known.\n${USAGE}`);
     }
   }
-  return { midi, demos, limit, step, base, json };
+  if (player !== null && trace === null) {
+    throw new Error(`The option --player needs --trace.\n${USAGE}`);
+  }
+  if (trace !== null && midi.length + demos.length !== 1) {
+    throw new Error(`The option --trace takes one file: one --midi or one --demo.\n${USAGE}`);
+  }
+  return { midi, demos, limit, step, base, json, trace, player };
+}
+
+/**
+ * Reads the range of `--trace`, such as `12-13.5`.
+ *
+ * @param text The value of the option.
+ * @returns The range.
+ * @throws Error for a text of another form, a range whose end is not after its start, or a range
+ *   of more than {@link TRACE_SAMPLES} samples.
+ */
+function traceRange(text: string): TraceRange {
+  const found = /^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$/.exec(text);
+  const from = Number(found?.[1]);
+  const to = Number(found?.[2]);
+  if (!found || !(to > from)) {
+    throw new Error(
+      `The range "${text}" of --trace is not <from>-<to> in song seconds, such as 12-13.5.`,
+    );
+  }
+  if (Math.round((to - from) / TRACE_STEP) + 1 > TRACE_SAMPLES) {
+    throw new Error(
+      `The range "${text}" of --trace has more than ${TRACE_SAMPLES} samples. Give at most ${((TRACE_SAMPLES - 1) * TRACE_STEP).toFixed(0)} s.`,
+    );
+  }
+  return { from, to };
 }
 
 /**
@@ -418,6 +502,151 @@ function swaySides(scene: TestScene, step: number): SwaySides {
 }
 
 /**
+ * Samples the side sway of the spine of each player of a file at each step of a range, as
+ * {@link swaySides} samples it.
+ *
+ * @param file The name of the file.
+ * @param bytes The bytes of the file.
+ * @param range The range of song times.
+ * @returns The trace.
+ */
+function swayTrace(file: string, bytes: Uint8Array, range: TraceRange): SwayTrace {
+  const { plan, score, layout } = sceneOf(bytes);
+  const audible = allAudible(score);
+  const buffer = createScenePose(plan);
+  const spine = boneIndex('spine');
+  const count = Math.round((range.to - range.from) / TRACE_STEP) + 1;
+  const times = Array.from({ length: count }, (_, i) => range.from + i * TRACE_STEP);
+  const angles = layout.players.map(() => Array.from({ length: count }, () => 0));
+  for (const [i, time] of times.entries()) {
+    const pose = poseAt(plan, time, 10 + time, PLAYING, audible, buffer);
+    for (const [p, player] of pose.players.entries()) {
+      const row = angles[p];
+      if (row) {
+        row[i] = (swayAngle(player.rotations, spine) * 180) / Math.PI;
+      }
+    }
+  }
+  const players = layout.players.map(
+    ({ cast }) => `${cast.species} ${cast.instrument} (seat ${cast.seatIndex})`,
+  );
+  return { version: TRACE_FORMAT, file, players, times, angles };
+}
+
+/**
+ * Chooses the player of a trace: the player of `--player`, or the player with the largest sway
+ * in the range of the working tree.
+ *
+ * @param trace The trace of the working tree.
+ * @param asked The player of `--player`, or `null`.
+ * @returns The index of the player.
+ * @throws Error for a player that the file does not have.
+ */
+function tracePlayer(trace: SwayTrace, asked: number | null): number {
+  if (asked !== null) {
+    if (asked >= trace.players.length) {
+      throw new Error(
+        `The file ${trace.file} has ${trace.players.length} players, from 0 to ${trace.players.length - 1}.`,
+      );
+    }
+    return asked;
+  }
+  const peaks = trace.angles.map((row) => Math.max(0, ...row.map(Math.abs)));
+  return peaks.reduce((best, peak, p) => (peak > (peaks[best] ?? 0) ? p : best), 0);
+}
+
+/**
+ * Writes the lines of `--trace`: the side sway of the spine of one player at each sample, in
+ * degrees, with the angle of the commit before the angle of the working tree. The mark `side`
+ * shows a zero crossing between a sample and the sample before.
+ *
+ * @param tree The trace of the working tree.
+ * @param base The trace of the commit and its label, or `null`.
+ * @param asked The player of `--player`, or `null`.
+ * @returns The lines: a title and a table.
+ */
+function traceLines(
+  tree: SwayTrace,
+  base: { readonly trace: SwayTrace; readonly label: string } | null,
+  asked: number | null,
+): string[] {
+  const player = tracePlayer(tree, asked);
+  const own = tree.angles[player] ?? [];
+  const old = base?.trace.angles[player] ?? null;
+  const how = asked === null ? 'the player with the largest sway in the range' : '--player';
+  const crossed = (row: readonly number[], i: number): boolean =>
+    i > 0 && Math.sign(row[i] ?? 0) * Math.sign(row[i - 1] ?? 0) < 0;
+  const lines = [
+    `Sway trace of the player ${player}, ${tree.players[player] ?? '?'} (${how}), in ${tree.file}, at steps of ${TRACE_STEP} s. The side sway of the spine in degrees (swayAngle()). The mark side shows a zero crossing since the line before.`,
+    '',
+    base
+      ? `| Song s | ${base.label} | side | working tree | side | change |`
+      : '| Song s | working tree | side |',
+    base ? '|---|---|---|---|---|---|' : '|---|---|---|',
+  ];
+  if (base && base.trace.players[player] !== tree.players[player]) {
+    lines.splice(
+      1,
+      0,
+      `The player ${player} of ${base.label} is ${base.trace.players[player] ?? 'missing'}.`,
+    );
+  }
+  for (const [i, time] of tree.times.entries()) {
+    const angle = own[i] ?? 0;
+    const side = crossed(own, i) ? 'side' : '';
+    if (!old) {
+      lines.push(`| ${time.toFixed(2)} | ${angle.toFixed(3)} | ${side} |`);
+      continue;
+    }
+    const before = old[i] ?? 0;
+    const oldSide = crossed(old, i) ? 'side' : '';
+    lines.push(
+      `| ${time.toFixed(2)} | ${before.toFixed(3)} | ${oldSide} | ${angle.toFixed(3)} | ${side} | ${(angle - before).toFixed(3)} |`,
+    );
+  }
+  return lines;
+}
+
+/**
+ * Runs `--trace`: the trace of the working tree, and with `--base` the trace of the commit with this
+ * script of the working tree in place of its own (`probeBeside()`). With `--json`, it writes the
+ * trace of all players.
+ *
+ * @param options The options, with a trace.
+ * @param trace The range of the trace.
+ */
+async function runTrace(options: RatesOptions, trace: TraceRange): Promise<void> {
+  if (options.base !== null) {
+    const args = withoutOptions(process.argv.slice(2), ['--base', '--midi']);
+    args.push(...options.midi.flatMap((path) => ['--midi', path]));
+    const texts = await probeBeside(
+      options.base,
+      'beat-rates.ts',
+      { base: args, tree: args },
+      { prefix: 'beat-rates-', scripts: ['beat-rates.ts'] },
+    );
+    const label = `${options.base} (${shortHash(options.base)})`;
+    // SAFETY: each text comes from the --json output of this script in a child process.
+    const tree = JSON.parse(texts.tree) as SwayTrace;
+    // SAFETY: as above.
+    const base = JSON.parse(texts.base) as SwayTrace;
+    console.log(traceLines(tree, { trace: base, label }, options.player).join('\n'));
+    return;
+  }
+
+  const [file] = await filesOf(options);
+  if (!file) {
+    throw new Error(`The option --trace takes one file.\n${USAGE}`);
+  }
+  const result = swayTrace(file.file, file.bytes, trace);
+  if (options.json !== null) {
+    writeFileSync(options.json, JSON.stringify(result));
+    return;
+  }
+  console.log(traceLines(result, null, options.player).join('\n'));
+}
+
+/**
  * Gives the rate of the bow changes of all bowed players: the start of each new bow.
  *
  * @param scene The scene.
@@ -595,6 +824,10 @@ async function compareRates(ref: string, options: RatesOptions): Promise<boolean
 /** Runs the tool: `node tools/beat-rates.ts [options]`. */
 async function main(): Promise<void> {
   const options = parseOptions(process.argv.slice(2));
+  if (options.trace !== null) {
+    await runTrace(options, options.trace);
+    return;
+  }
   if (options.base !== null) {
     process.exitCode = (await compareRates(options.base, options)) ? 1 : 0;
     return;
