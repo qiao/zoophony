@@ -469,7 +469,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     the rim with no crease angle. The notch also keeps a dark pocket, so the rig of the rabbit
     reads a copy of the mesh in which the trunk vertices of the notch move out half of the way to
     a surface that fits the trunk around it (`rabbit-4-armpit.glb`). A full move made facets and a
-    dark pit, and a fill toward the middle of the neighbors made a sharp tent under the arm. The thick arm of the rhino joins the side of the
+    dark pit, and a fill toward the middle of the neighbors made a sharp tent under the arm. A
+    raised arm also casts the hard shadow of its faces into the crease between the arm and the
+    trunk, and on the white fur of the rabbit the shadow shows as black wedges with steps of the
+    shadow map along the seam. The rig cannot change these shadows, so the light decides them. The thick arm of the rhino joins the side of the
     trunk from the shoulder down to the paw, with a notch at its front and its back. A plane
     |x| = `armSplit` then cuts through the arm or the trunk, so the plane turns around the
     vertical through both notches, and the free arm keeps within a radius of the arm joints and
