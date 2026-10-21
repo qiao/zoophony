@@ -10,23 +10,29 @@ type CurvePoint = readonly [input: number, output: number];
  * The values of the color grade on the display values, after AgX (design 4.5, post effects).
  * {@link gradeColor} applies them, and the lookup table of {@link gradeLut} holds the result. The
  * look lab (`pnpm look-lab`) fitted them to `orchestra-latest.png` at the exposure of
- * `rendererSettings()` (`docs/research/2026-10-18-cinematic-light.md`).
+ * `STAGE_TONE` of `scene/renderer.ts` (`docs/research/2026-10-18-cinematic-light.md`,
+ * `docs/research/2026-10-21-stage-exposure.md`).
  */
 export const GRADE = {
   /**
    * The tone curve on the luma. AgX gives flat middle tones and compresses the highlights, so the
-   * curve lowers the middle tones and spreads the highlights. It scales the three channels by one
-   * factor, so it keeps the hue and the saturation. The old lift of each channel toward white
-   * made the middle tones milky, and it moved the lit floor from a hue of 28° to 35°.
+   * curve lowers the middle tones and spreads the upper middle tones. It scales the three channels
+   * by one factor, so it keeps the hue and the saturation. The old lift of each channel toward
+   * white made the middle tones milky, and it moved the lit floor from a hue of 28° to 35°.
+   *
+   * The curve keeps a soft shoulder above 172, so it does not undo the roll-off of AgX. The old
+   * point (172, 210) took 176 to 216 and 192 to 230: 13.5% of the floor clipped in red, and 19.4%
+   * of the white fur clipped, against 9.2% in `orchestra-latest.png` (user, 2026-10-21).
    */
   curve: [
     [0, 0],
     [31, 25],
     [62, 57],
     [110, 104],
-    [139, 149],
-    [172, 210],
-    [255, 255],
+    [139, 145],
+    [172, 195],
+    [210, 232],
+    [255, 252],
   ],
   /** The saturation of all colors, as a factor. */
   saturation: 1.0,

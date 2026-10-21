@@ -846,7 +846,10 @@ scene ──> [depth 1/2] ──────────────────
 - The final pass does the depth of field, the bloom, the tone mapping, a grade, a vignette, and a
   grain at a fixed rate. The grade is a 3D lookup table of `gradeColor()` (`scene/grade.ts`): a
   tone curve on the luma, more saturation for the pale colors, and a split tone. AgX gives flat
-  and pale middle tones, and `pnpm look-lab` fits the grade to `orchestra-latest.png`.
+  and pale middle tones, and `pnpm look-lab` fits the grade to `orchestra-latest.png`. The curve
+  keeps the soft shoulder of AgX, because the curve scales the three channels by one factor: a
+  steep shoulder clipped the red of the lit floor and the white fur, and the stage looked
+  over-exposed (user, 2026-10-21).
 
 **Camera**
 
