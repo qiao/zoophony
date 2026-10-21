@@ -1455,8 +1455,8 @@ export function baseGridLabels(labels: readonly string[], base: string): string[
  * @param use The function that reads the site.
  * @param overlay The paths of the working tree that replace the paths of the commit, such as
  *   `src/gallery`.
- * @param aim True to serve a second build of the commit with the plugin of `--at`
- *   ({@link aimPlugin}), in `dist-aim/`.
+ * @param plugins The plugins of the mode `play` ({@link playPlugins}). With one or more, the tool
+ *   serves a second build of the commit with them, in `dist-tool/`.
  * @returns The result of the function.
  * @throws Error if the build fails, the server has no URL, or the function fails.
  */
@@ -1465,18 +1465,18 @@ function withRefSite<T>(
   label: string,
   use: (site: string) => Promise<T>,
   overlay: readonly string[] = [],
-  aim = false,
+  plugins: readonly PlayPlugin[] = [],
 ): Promise<T> {
   return withRefBuild(
     ref,
     async (dir) => {
-      const outDir = join(dir, aim ? 'dist-aim' : 'dist');
-      if (aim) {
+      const outDir = join(dir, plugins.length > 0 ? 'dist-tool' : 'dist');
+      if (plugins.length > 0) {
         await viteBuild({
           root: dir,
           logLevel: 'warn',
           build: { outDir, emptyOutDir: true },
-          plugins: [aimPlugin(dir)],
+          plugins: playPlugins(dir, plugins),
         });
       }
       const server = await preview({
@@ -1563,8 +1563,8 @@ interface ModeRender {
    * commit, such as `src/gallery` (`withRefBuild()`).
    */
   readonly overlay: readonly string[];
-  /** True when the build of the commit takes the plugin of `--at` ({@link aimPlugin}). */
-  readonly aim: boolean;
+  /** The plugins of the mode `play` that the build of the commit takes ({@link playPlugins}). */
+  readonly plugins: readonly PlayPlugin[];
   /**
    * Renders the mode on the site of the working tree, and writes its images.
    *
@@ -3197,6 +3197,32 @@ function aimTargetText(demo: string, target: AimTarget): string {
   return `The camera of --at aims at the ${cast.species} of the seat ${cast.seatIndex} (${cast.instrument}) of ${demo}.`;
 }
 
+/**
+ * A plugin of a build of the mode `play`: `aim` for the camera of `--at` ({@link aimPlugin}).
+ */
+type PlayPlugin = 'aim';
+
+/**
+ * Gives the plugins of the builds of a command line of the mode `play`.
+ *
+ * @param args The command line.
+ * @returns The plugins: `aim` with `--at`.
+ */
+function playPluginKinds(args: PlayArgs): PlayPlugin[] {
+  return args.at === null ? [] : ['aim'];
+}
+
+/**
+ * Makes the plugins of a build of the mode `play`.
+ *
+ * @param root The root of the tree to build.
+ * @param kinds The plugins.
+ * @returns The plugins of Vite.
+ */
+function playPlugins(root: string, kinds: readonly PlayPlugin[]): Plugin[] {
+  return kinds.includes('aim') ? [aimPlugin(root)] : [];
+}
+
 /** The id of the module that aims the stage camera of a build at the camera of the query `aim`. */
 const AIM_MODULE = 'virtual:close-views-aim';
 
@@ -3809,21 +3835,21 @@ function modeRender(mode: SingleMode): ModeRender {
     case 'role':
       return {
         overlay: mode.args.probes ? ['src/gallery'] : [],
-        aim: false,
+        plugins: [],
         tree: (site) => roleViews(mode.args, site),
       };
     case 'lineup':
       return {
         overlay: ['src/gallery'],
-        aim: false,
+        plugins: [],
         tree: (site) => lineupViews(mode.args, site),
       };
     case 'species':
-      return { overlay: [], aim: false, tree: (site) => speciesViews(mode.args, site) };
+      return { overlay: [], plugins: [], tree: (site) => speciesViews(mode.args, site) };
     case 'play':
       return {
         overlay: [],
-        aim: mode.args.at !== null,
+        plugins: playPluginKinds(mode.args),
         tree: (site) => playViews(mode.args, site),
       };
   }
@@ -3906,7 +3932,7 @@ async function renderModes(
   }
 
   const label = `${ref} (${shortHash(ref)})`;
-  const aim = modes.some((mode) => mode.aim);
+  const plugins = [...new Set(modes.flatMap((mode) => mode.plugins))];
   const builds = commitBuilds(commits, (path) => sameInCommit(ref, path));
   for (const build of builds) {
     if (build.overlay.length > 0) {
@@ -3923,7 +3949,7 @@ async function renderModes(
         }
       },
       build.overlay,
-      aim,
+      plugins,
     );
   }
 }
@@ -4034,16 +4060,19 @@ async function main(): Promise<void> {
   for (const part of modes) {
     await mkdir(part.args.out, { recursive: true });
   }
+  const plugins = [
+    ...new Set(modes.flatMap((part) => (part.kind === 'play' ? playPluginKinds(part.args) : []))),
+  ];
   const site = url
     ? {
         base: url,
         browser: await chromium.launch({ args: chromiumArgs(process.platform) }),
         close: async (): Promise<void> => undefined,
       }
-    : variant || (mode.kind === 'play' && mode.args.at)
+    : variant || plugins.length > 0
       ? await startVariantSite([
           ...(variant ? [variantPlugin(variant)] : []),
-          ...(mode.kind === 'play' && mode.args.at ? [aimPlugin(ROOT)] : []),
+          ...playPlugins(ROOT, plugins),
         ])
       : await startSite(ROOT, SERVER_PORT);
   try {
