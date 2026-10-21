@@ -66,8 +66,17 @@
  * than from the bind, the part of the rest sample of each demo that shrinks most from the bind,
  * and the worst edges or rings of the worst sample of each arm, with the bone of each.
  *
- * Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>]
- * [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long], or
+ * `--variant <name>` starts a variant of the holds, and each `--set` after it adds its changes to
+ * the variant. Several `--variant` groups give several variants in one run ({@link checkVariants}).
+ * Each variant of each role runs as one child, as a run with its `--set` options alone, with its
+ * own cache by tree, and at most `--jobs` children run at the same time. One table gives a block
+ * of rows for each variant. A variant with no `--set` is the working tree with no change. The
+ * scene of one variant takes almost all the time of a child, and a change of a hold can change
+ * the scene, so each child builds its own scenes.
+ *
+ * Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]...
+ * [--variant <name> [--set <changes>]...]... [--glb <file>] [--views <dir> [--views-all]]
+ * [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long], or
  * pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]...,
  * or pnpm arm-check <role> --explain <stretch | flat> [--demo <id>]... [--step <seconds>]
  * [--set <changes>]...
@@ -1334,6 +1343,30 @@ export function summaryLines(rows: readonly GateRow[], base: boolean): string[] 
 }
 
 /**
+ * Writes the table of the gate of several variants ({@link summaryLines}), with a column of the
+ * name of the variant: one block of rows for each variant, in the order of the variants.
+ *
+ * @param blocks The name and the values of the gate of each variant.
+ * @param base True when the run has a base.
+ * @returns The lines of the table.
+ */
+export function variantLines(
+  blocks: readonly { readonly name: string; readonly rows: readonly GateRow[] }[],
+  base: boolean,
+): string[] {
+  const [head = '', rule = ''] = summaryLines([], base);
+  return [
+    `| Variant ${head}`,
+    `|---${rule}`,
+    ...blocks.flatMap(({ name, rows }) =>
+      summaryLines(rows, base)
+        .slice(2)
+        .map((line) => `| ${name} ${line}`),
+    ),
+  ];
+}
+
+/**
  * Writes the table of the details: the set, p50, p95 (p5 for the flat share), the worst sample,
  * the limit, the base, and the verdict of each value.
  *
@@ -1367,6 +1400,8 @@ export interface CheckArgs {
   readonly shared: readonly string[];
   /** The options that only the working tree takes: `--set` and `--glb`. */
   readonly own: readonly string[];
+  /** The variants of `--variant`, or empty for a run with one variant ({@link variantGroups}). */
+  readonly variants: readonly ArmVariant[];
   /** The folder of `--views`, or `null`. */
   readonly views: string | null;
   /** True to render each arm with `--views`, also an arm that passes. */
@@ -1387,7 +1422,57 @@ export interface CheckArgs {
 
 /** The usage text. */
 const USAGE =
-  'Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--glb <file>] [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long] [--states <ref>,...], or pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]..., or pnpm arm-check <role> --explain <stretch | flat> [--demo <id>]... [--step <seconds>] [--set <changes>]...';
+  'Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--variant <name> [--set <changes>]...]... [--glb <file>] [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long] [--states <ref>,...], or pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]..., or pnpm arm-check <role> --explain <stretch | flat> [--demo <id>]... [--step <seconds>] [--set <changes>]...';
+
+/** One variant of `--variant`: a name and the changes of the holds of its `--set` options. */
+export interface ArmVariant {
+  /** The name of the variant, which the table gives. */
+  readonly name: string;
+  /** The value of each `--set` option of the variant, in their order. */
+  readonly sets: readonly string[];
+}
+
+/**
+ * Reads the variants of the command line: each `--variant <name>` starts a variant, and each
+ * `--set` after it adds to that variant.
+ *
+ * @param args The arguments.
+ * @returns The variants in their order, or none when no `--variant` comes.
+ * @throws Error if a `--set` comes before the first `--variant`, if a name comes more than one
+ *   time, or if `--variant` has no name.
+ */
+export function variantGroups(args: readonly string[]): ArmVariant[] {
+  if (!args.includes('--variant')) {
+    return [];
+  }
+  const variants: { readonly name: string; readonly sets: string[] }[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    const value = args[i + 1];
+    if (arg !== '--variant' && arg !== '--set') {
+      continue;
+    }
+    if (value === undefined || value.startsWith('--')) {
+      throw new Error(`The option ${arg} takes a value.\n${USAGE}`);
+    }
+    i++;
+    if (arg === '--variant') {
+      if (variants.some((variant) => variant.name === value)) {
+        throw new Error(`The variant ${value} comes more than one time.`);
+      }
+      variants.push({ name: value, sets: [] });
+      continue;
+    }
+    const current = variants.at(-1);
+    if (!current) {
+      throw new Error(
+        `With --variant, each --set goes after a --variant, and "--set ${value}" comes before the first one.\n${USAGE}`,
+      );
+    }
+    current.sets.push(value);
+  }
+  return variants;
+}
 
 /**
  * Reads the command line of the tool.
@@ -1400,6 +1485,7 @@ export function checkArgs(args: readonly string[]): CheckArgs {
   const valued = new Set([
     '--base',
     '--set',
+    '--variant',
     '--glb',
     '--views',
     '--demo',
@@ -1486,12 +1572,25 @@ export function checkArgs(args: readonly string[]): CheckArgs {
       `The option --explain takes one role, --demo, --step, and --set, and no --all, --long, or ${unexplained.join(', ') || 'option of the gate'}.\n${USAGE}`,
     );
   }
+  const variants = variantGroups(args);
+  const single = ['--trace', '--explain', '--states', '--views'].filter((o) => values.has(o));
+  if (variants.length > 0 && single.length > 0) {
+    throw new Error(`The option --variant goes with none of ${single.join(', ')}.\n${USAGE}`);
+  }
+  // Each change must fit before the first child, so that a typing fault stops the run at once.
+  for (const variant of variants) {
+    setHolds(variant.sets.join(';')).undo();
+  }
   const pairs = (name: string): string[] => (values.get(name) ?? []).flatMap((v) => [name, v]);
   return {
     roles: chosen,
     base: values.get('--base')?.[0] ?? null,
     shared: [...pairs('--demo'), ...pairs('--step')],
-    own: [...pairs('--set'), ...(glb === null ? [] : ['--glb', resolve(glb)])],
+    own: [
+      ...(variants.length > 0 ? [] : pairs('--set')),
+      ...(glb === null ? [] : ['--glb', resolve(glb)]),
+    ],
+    variants,
     views,
     viewsAll: seen.has('--views-all'),
     jobs,
@@ -2387,6 +2486,87 @@ export function stateLines(roles: readonly string[], runs: readonly StateRun[]):
 }
 
 /**
+ * Runs the gate on each variant of `--variant`: one child for each variant of each role
+ * ({@link measureRole}), with the `--set` options of the variant alone, so that each result is
+ * the result of a run with these options and has its cache by tree. At most `--jobs` children
+ * run at the same time. With `--base`, the first variant of each role runs first, so that the
+ * other variants read the base from its cache. The tool writes one table with a block of rows for
+ * each variant ({@link variantLines}), and the details of each value that does not pass, or of
+ * each value with `--long`.
+ *
+ * @param options The command line, with variants.
+ * @returns The exit code: 1 when a value of a variant fails.
+ */
+async function checkVariants(options: CheckArgs): Promise<number> {
+  const started = performance.now();
+  const runs = options.roles.flatMap((role) =>
+    options.variants.map((variant) => ({ role, variant })),
+  );
+  const measure = (run: (typeof runs)[number]): ReturnType<typeof measureRole> =>
+    measureRole(run.role, {
+      ...options,
+      own: [...run.variant.sets.flatMap((set) => ['--set', set]), ...options.own],
+    });
+  const first =
+    options.base === null ? [] : runs.filter((run) => run.variant === options.variants[0]);
+  const later = runs.filter((run) => !first.includes(run));
+  const done = new Map<(typeof runs)[number], Awaited<ReturnType<typeof measureRole>>>();
+  for (const phase of [first, later]) {
+    const results = await eachLimited(phase, options.jobs, measure);
+    phase.forEach((run, i) => {
+      const result = results[i];
+      if (result) {
+        done.set(run, result);
+      }
+    });
+  }
+  const blocks = options.variants.map((variant) => {
+    const reports = runs
+      .filter((run) => run.variant === variant)
+      .map((run) => {
+        const result = done.get(run);
+        return { role: run.role, tree: result?.tree ?? null, base: result?.base ?? null };
+      });
+    const rows = reports.flatMap(({ role, tree, base }) =>
+      tree ? gateRows(role, tree, base) : [],
+    );
+    return { variant, reports, rows };
+  });
+  const seconds = (performance.now() - started) / 1000;
+  console.log(
+    `Arm gate of ${options.roles.length} roles in ${options.variants.length} variants${options.base === null ? '' : ` against ${options.base}`}: ${runs.length} children, at most ${options.jobs} at the same time, in ${seconds.toFixed(0)} s. A cell gives the value${options.base === null ? '' : ', the base in parentheses,'} and the verdict of a value that does not pass.`,
+  );
+  console.log(
+    ['', ...options.variants.map((v) => `- ${v.name}: ${v.sets.join(';') || 'no change'}`)].join(
+      '\n',
+    ),
+  );
+  console.log(
+    [
+      '',
+      ...variantLines(
+        blocks.map(({ variant, rows }) => ({ name: variant.name, rows })),
+        options.base !== null,
+      ),
+    ].join('\n'),
+  );
+  for (const { variant, reports, rows } of blocks) {
+    const grips = gripLines(reports);
+    const shown = options.long ? rows : rows.filter((row) => row.verdict !== 'PASS');
+    if (grips.length > 0 || shown.length > 0) {
+      console.log(`\nVariant ${variant.name}:`);
+    }
+    if (grips.length > 0) {
+      console.log(['', ...grips].join('\n'));
+    }
+    if (shown.length > 0) {
+      console.log(['', ...detailLines(shown)].join('\n'));
+    }
+  }
+  return blocks.some(({ rows }) => rows.some((row) => row.verdict === 'FAIL')) ? 1 : 0;
+}
+
+/**
  * Runs the tool from the command line.
  *
  * @returns The exit code: 1 when a value fails.
@@ -2429,6 +2609,9 @@ async function main(): Promise<number> {
       return report ? gateRows(role, report, null).some((row) => row.verdict === 'FAIL') : false;
     });
     return fails ? 1 : 0;
+  }
+  if (options.variants.length > 0) {
+    return checkVariants(options);
   }
   const started = performance.now();
   const reports = await eachLimited(options.roles, options.jobs, async (role) => ({
