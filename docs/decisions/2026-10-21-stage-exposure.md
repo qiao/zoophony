@@ -16,3 +16,4 @@ user can reverse each decision. Then update its section, and remove its row.
 | The pool of light is smaller: `radiusX` 0.45, `radiusZ` 0.36, `floor` 0.28, and `spotBoost` 0.85 (`LIGHT_POOL` of `scene/light-pool.ts`). The pool of 0.6 covered almost the full stage, so the floor at the edges kept 0.39 of the light of the pool. | 4.5 |
 | The planks and their seams are 0.85 of their color in linear values (`STAGE_COLORS` of `models/props.ts`). The lit floor in the pool then has a luma of 153 against 184, and the white fur stands 1.45 times as bright as the floor. | 4.5 |
 | The beam is a little stronger: `BEAM_LOOK.strength` 5.6 in place of 4.8 (`scene/beam.ts`), because the lower exposure dims it too, and the beam shows the source of the pool. | 4.5 |
+| The floor takes less fill: `FILL.intensity` 3.5 in place of 5, and `FILL.players` 0.857 in place of 0.6 (`scene/lights.ts`). The players keep the fill of 3.0, so their shade sides stay dark. | 4.5 |

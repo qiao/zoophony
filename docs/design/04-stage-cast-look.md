@@ -752,7 +752,8 @@ solo.
   so each body has a lit side and a shade side. They cast the shadows of the players on the
   players, such as an arm on the chest. The stage takes no shadow of them, and the low tier has
   none (2.6). The players and the props take only a part of the fill and of the diffuse light of
-  the environment (`FILL.players`), so their shade sides stay dark.
+  the environment (`FILL.players`), so their shade sides stay dark. The floor takes less fill
+  than the players, so it falls off outside the pool (user, 2026-10-21).
 - **Back-row lights** (`BACK_ROW_LIGHT`, user, 2026-10-18). Two more spotlights at the front
   corners, lower than the side lights, cross the stage and light the fronts of the back rows and
   the choir of the far section, so the back rows are almost as bright as the front rows, as in

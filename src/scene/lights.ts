@@ -115,8 +115,12 @@ export const BACK_ROW_LIGHT = {
  * color is the warm light from the lit stage. The players and the props take the part `players` of
  * the fill light and of the diffuse light of the environment, so their shade sides stay dark
  * (user, 2026-10-18). The stage takes all of it, so its shadows keep their tone.
+ *
+ * The intensity fell from 5 to 3.5, so the floor outside the pool gets less fill (user,
+ * 2026-10-21). The part of the players grew from 0.6 to 0.857, so the players keep the fill of
+ * 3.0 and take a little more of the diffuse light of the environment.
  */
-export const FILL = { sky: '#2c2c2e', ground: '#2c241e', intensity: 5, players: 0.6 } as const;
+export const FILL = { sky: '#2c2c2e', ground: '#2c241e', intensity: 3.5, players: 0.857 } as const;
 
 /**
  * The normal bias of the shadow, in texels of the shadow map at the stage, beyond the blur radius
