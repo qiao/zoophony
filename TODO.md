@@ -699,9 +699,23 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Rabbit right armpit after the fair move: a shallow hollow with a small sharp tip stays
       under the raised bow arm at the camera of the user. The full move made facets and a pit, so
       a smoother hollow needs more vertices in the notch (`2026-10-21-rabbit-armpit.md`).
-- [ ] Rabbit left armpit: a thin dark line stays at the top of the cut under the violin arm. The
+- [x] Rabbit left armpit: a thin dark line stays at the top of the cut under the violin arm. The
       normals of the skin put a light sliver there, and the half move of the right side a light
       streak, so the left side keeps its face normals and vertices (`2026-10-21-rabbit-armpit.md`).
+      The left cut now takes the normals of the skin, which removes a black spike at the seam
+      under the bent violin arm (`2026-10-21-rabbit-arm.md`).
+- [ ] Rabbit arm shadows: the hard shadow of each arm on the white trunk shows as black wedges
+      with steps of the shadow map along the seam. About half of the black pixels of the seam go
+      with no shadow on the rabbit (`2026-10-21-rabbit-arm.md`). Ask the user about a softer
+      shadow or more fill on the players, which changes each species.
+- [ ] Rabbit soloist: with the twist bones, the violin goes 0.5 cm deeper into the body in the lift
+      and the lowering of the standing soloist (2.3 cm, no limit). Check the chin and the left
+      shoulder in the close views (`pose-depth-soloist-base.txt` of
+      `docs/research/2026-10-21-rabbit-arm/`).
+- [ ] Rabbit upper arms: the narrow axis of the middle ring of each upper arm keeps 0.62 to 0.81
+      of the bind, so the shoulders look flatter than the source in the back views. Try a bind arm
+      nearer to the play, or a shape of the raised arm (`arm-shape.txt` of
+      `docs/research/2026-10-21-rabbit-arm/`).
 - [ ] Rabbit open edges: a flap face with two open edges (3.1 cm) stays under the right armpit.
       The module before the cut has such a pair too, and no frame of the round shows the flap
       (`open-edges.txt` of `docs/research/2026-10-21-rabbit-armpit/`).
