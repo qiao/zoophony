@@ -31,7 +31,14 @@ type RendererLook = 'post' | 'stage' | 'gallery';
  * on the result. The renderer reads the value at its creation, so the look override of the dev
  * server reaches it (`LOOK_ROOTS` of `scene/look-values.ts`).
  */
-export const STAGE_TONE = { exposure: 0.8 } as const;
+export const STAGE_TONE = {
+  /**
+   * The exposure. With 0.8, the lit fur and the lit floor sat on the shoulder of the curve, and
+   * the user found the stage over-exposed (2026-10-21). 0.7 is about 0.2 stop less
+   * (`docs/research/2026-10-21-stage-exposure.md`).
+   */
+  exposure: 0.7,
+} as const;
 
 /** The settings of the renderer of a look. */
 interface RendererSettings {

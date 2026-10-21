@@ -17,7 +17,7 @@ Then update its section, and remove its row.
 | Each plank has its own roughness, gloss, and grain, found by its vertex color. A seam keeps 0.35 of the gloss (`createStageMaterial()`). | 4.5 |
 | The wood has the gloss factor 0.5 and a clearcoat of 0.3 (`STAGE_FINISH`). A gloss has the color of the light, and the factor 2.0 made the lit floor pale (saturation 0.39 against 0.54 to 0.60). | 4.5 |
 | The planks are `#5e351a` and the seams `#4e2811` (`STAGE_COLORS`), because the wood now gives most of the floor light, and `#3b2618` was too dark. | 4.5 |
-| The grade is a 33³ table of `gradeColor()` with no lift of the highlights. The lift made the middle tones milky and the floor yellow (hue 35° against 28°). The exposure stays 0.8. | 4.5 |
+| The grade is a 33³ table of `gradeColor()` with no lift of the highlights. The lift made the middle tones milky and the floor yellow (hue 35° against 28°). | 4.5 |
 | D1: the bake of the props and the stage (`bakeStage()`), with a key light 2 m wide and the sky within 0.6 m. The players lose the shadows of the props on their bodies. | 4.5 |
 | The user: "the shadow under the bear conductor has unexpected gap". The baked stage takes no normal bias (`uShadowLift`), which moved each point 6.5 cm up before the shadow test. | 4.5 |
 | A stage point with no bake texel of its surface is under an overhang (no key light, half the sky) or on a side, which reads the bake 4 cm in front (`stageBakeAt()`). | 4.5 |
