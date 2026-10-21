@@ -32,11 +32,12 @@ fox together.
 | badger | the mesh `assets/models/badger/badger.glb`, rigged by `pnpm rig-mesh badger` at the size of the parametric badger, standing at each percussion instrument, with its own arms, a tail ball, and a suspended cymbal (`cymbalForm`) | `2026-10-20-mesh-badger.md` | `bass-drummer`, `snare-drummer`, `cymbalist`, `percussionist`, `xylophonist` |
 | monkey | the mesh `assets/models/monkey/monkey.glb`, rigged by `pnpm rig-mesh monkey` at 1.1 times the size of the parametric monkey, with arms 1.5, a long tail of two bones with its curl on the floor, a smaller trumpet, and no chair (`noChair`), standing with its feet under its hips and its trunk leaned forward (`2026-10-21-monkey-stand.md`) | `2026-10-20-mesh-monkey.md` | `trumpeter` |
 | rhino | the mesh `assets/models/rhino/rhino.glb`, rigged by `pnpm rig-mesh rhino` at the size of the parametric rhino, with the arms of the mesh, a free arm and a cut of the seam where each thick arm joins the trunk, a twist bone of each upper arm, and a tail ball, standing in each seat at a tuba with a longer lead pipe | `2026-10-21-mesh-rhino.md` | `tubist` |
+| deer | the mesh `assets/models/deer/deer.glb`, rigged by `pnpm rig-mesh deer` at the size of the parametric deer, with arms 1.25, a puff tail ball, the ears and the antlers on the head, the whole haunch on the stool of the harp, and a smaller harp (`harpScale`) | `2026-10-21-mesh-deer.md` | `harpist` |
 | penguin | an egg body in code, `src/models/penguin/` (route 2) | `2026-10-11-penguin-body.md` | none |
 
-The other species, the deer (harp), has the parametric body of 2026-10-06 18:58
-(`docs/decisions/2026-10-11-body-revert.md`). It keeps only the ear, snout, and tail types of the
-deer. `pnpm sheet-check <id> <dir>` compares a parametric body with its
+No species has the parametric body of 2026-10-06 18:58 since the meshes of the rhino and the deer
+(`docs/decisions/2026-10-11-body-revert.md`). `pnpm sheet-check <id> <dir>` compares a parametric
+body with its
 sheet. The penguin has no sheet, so `pnpm choir-check <dir>` compares it with the choir of the two
 newest reference images. The GLB files `assets/models/rabbit/rabbit.glb` and
 `assets/models/bear/bear.glb` of the user stay for the tools of route 1. No species uses them.
