@@ -91,7 +91,7 @@ The user can change any of them. Then update the section that holds it.
 | The flat nose is 0.4 H wide and 0.3 H tall, in place of 0.2 H wide | 4.5 |
 | The path of a tail of two bones under the chair back | 4.5 |
 | The seated body of step 4: the head top 2.4 H above the seat (in place of 2.6), a torso 1.45 H tall, and a neck that the torso and the head hide. The agent of the animal views changed the widths and the legs (below) | 4.5 |
-| The ear types `antlered` (the deer) and `side-round` (the monkey), and the face pattern `face-disc` (the monkey) | 4.3 |
+| The ear type `antlered` (the deer). The ears `side-round` and the face pattern `face-disc` of the parametric monkey went with the monkey mesh (`2026-10-20-mesh-monkey.md`) | 4.3 |
 | The trunk starts 0.3 H below the head center and curls up. The horn is 0.26 H wide at its base | 4.5 |
 | The ids of the two fox colors: `fox-red` (second violins) and `fox-tan` (flutes). `SPECIES` holds 19 entries for the 18 species | 4.3 |
 | The mouse has a pointed snout of 0.3 H and large round ears of 0.7 H, set high and out to the sides (review of step 4, the weak species) | 4.3, 4.5 |
