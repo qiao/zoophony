@@ -12,7 +12,6 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The cello is 1.20 m to the scroll with an end pin of 0.20 m, because the cello of the reference image reaches the eyes of the elephant. It leans back 25° between the knees | 4.6 |
 | The contrabass stands at the left side of the player, and leans back and to the right | 4.6 |
 | The viola uses the violin bow. The cello and the contrabass share one bow of 0.63 m | 4.6 |
-| The harp is 1.40 m tall with 24 strings, and it leans back 12° to the right shoulder of the player | 4.6 |
 | The grand piano: a case of 1.40 × 2.0 m, the white keys at 0.70 m, and the lid open 35° to the right of the player. The bench is 0.75 × 0.35 m at 0.45 m, with the budget of a chair | 4.5, 4.6 |
 | The choir folder has pages in the sheet music color `#ece6d6`, and the singer holds it open in front of the chest | 4.5, 4.6 |
 | The woodwinds are 0.85 of their real length, as the violin: flute 0.57 m, oboe 0.55 m, clarinet 0.57 m, and bassoon 1.15 m | 4.6 |
