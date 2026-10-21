@@ -90,13 +90,13 @@ in a line at the back, as the Vienna Philharmonic seats them (user, 2026-10-05,
 All animals except the penguins, the bear conductor, the polar bear pianist, the rabbit violinist,
 the two foxes, the viola cats, the cello dogs, the trombone pandas, the contrabass hippos, the
 oboe mice, the timpani elephant, the bassoon beavers, the horn pigs, the clarinet wolves, the
-trumpet monkeys, and the percussion badgers use one parametric biped body (4.4).
+trumpet monkeys, the percussion badgers, and the tuba rhinos use one parametric biped body (4.4).
 Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A
 species can have a body of its own in place of the biped (`body`, 4.4, bodies of their own and
 studio bodies). The penguins have an egg body (`models/penguin/`), and the bear and the polar bear
 have studio bodies (`lowpoly-studio/`). The rabbit, the two foxes, the cat, the dog, the panda,
-the hippo, the mouse, the elephant, the beaver, the pig, the wolf, the monkey, and the badger have
-meshes of the user that `pnpm rig-mesh` rigs. The two foxes share one rig, and the tan fox takes
+the hippo, the mouse, the elephant, the beaver, the pig, the wolf, the monkey, the badger, and the
+rhino have meshes of the user that `pnpm rig-mesh` rigs. The two foxes share one rig, and the tan fox takes
 another palette of its faces (`palette`). A species with a body of its own has no shape
 parameters, because its body has its own parts.
 
@@ -118,9 +118,11 @@ interface CommonParams {
   celloScale?: number;
   /** The scale of the contrabass and its bow for a species (4.6). 1 by default. */
   bassScale?: number;
+  /** The lengths of the longer lead pipe of the tuba, back and left, in meters (4.6). */
+  tubaPipe?: readonly [back: number, left: number];
 }
 
-/** The shape of the parts of the deer and the rhino, the two species of the biped. */
+/** The shape of the parts of the deer, the species of the biped. */
 interface BipedParams extends CommonParams {
   ears: 'small' | 'antlered';
   snout: 'long' | 'horn';
@@ -146,6 +148,7 @@ interface OwnBodyParams extends CommonParams {
     | 'studio-pig'
     | 'studio-polar-bear'
     | 'studio-rabbit'
+    | 'studio-rhino'
     | 'studio-wolf';
   /** A seated tail that lies curled on the seat, and does not sway (5.1): the cat. */
   seatedTail?: 'curl';
@@ -197,9 +200,9 @@ trunk (`docs/research/2026-10-11-short-legs.md`):
 - The studio bodies keep the trunks and the legs of their sources (4.4). No value of this table
   applies to them, except the head height `H` and the seat heights of the polar bear, the rabbit,
   the foxes, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the
-  pig, the wolf, the monkey, and the badger, which `models/species.ts` reads from their studio bodies. The
-  hippo stands at its contrabass, the elephant at its timpani, and the badger at each percussion
-  instrument.
+  pig, the wolf, the monkey, the badger, and the rhino, which `models/species.ts` reads from their
+  studio bodies. The hippo stands at its contrabass, the elephant at its timpani, the badger at
+  each percussion instrument, and the rhino at its tuba.
 
 A height map moves the torso of the parametric body with the joints of the table, and the head
 keeps its form:
@@ -247,13 +250,12 @@ keeps its form:
 
 The shape parameters of each species of the parametric biped (4.5 gives the colors). The penguin
 has its egg body, and the rabbit, the two foxes, the wolf, the cat, the dog, the panda, the hippo,
-the mouse, the elephant, the beaver, the pig, the monkey, the badger, the bear, and the polar bear
-have studio bodies (4.4), so they have no row:
+the mouse, the elephant, the beaver, the pig, the monkey, the badger, the rhino, the bear, and the
+polar bear have studio bodies (4.4), so they have no row:
 
 | Species | ears | snout | tail |
 | ------- | -------- | ----- | ---- |
 | deer    | antlered | long  | puff |
-| rhino   | small    | horn  | thin |
 
 The deer has ears that point out to the sides with antlers, because with other ears it looked like
 the fox. The belly color colors the muzzle, the lower
@@ -266,7 +268,7 @@ Each triangle has one color, picked by its centroid or its facing (`splitByCentr
 Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
 Each body except the penguin's, the bear's, the polar bear's, the rabbit's, the foxes', the
 cat's, the dog's, the panda's, the hippo's, the mouse's, the elephant's, the beaver's, the pig's,
-the wolf's, the monkey's, and the badger's is the parametric body: `buildBiped()` of `models/biped.ts` builds it from
+the wolf's, the monkey's, the badger's, and the rhino's is the parametric body: `buildBiped()` of `models/biped.ts` builds it from
 the parts of 4.5 (body proportions) on the skeleton of 4.3. A species with a `body` gets a body of
 its own from `buildBiped()` in its place.
 
@@ -275,11 +277,12 @@ The user chose each body of its own, and the table "Bodies and roles" of
 bear pianist have the studio bodies of `lowpoly-studio/` (user, 2026-10-12). The rabbit violinist,
 the red violin fox, the viola cat, the cello dog, the trombone panda, the contrabass hippo, the
 oboe mouse, the timpani elephant, the bassoon beaver, the horn pig, the clarinet wolf, the trumpet
-monkey, and the percussion badger have meshes of the user that the app rigs itself (studio bodies, below). The tan flute fox has the rig of the red fox with a tan palette.
-The penguins have an egg body built in code (user, 2026-10-11). The two other species, the harp
-deer and the tuba rhino, have the parametric body of 2026-10-06 18:58, which the user chose again
-in place of the sculpts and the rigged bodies (`docs/decisions/2026-10-11-body-revert.md`). The
-parametric body keeps only the ear, snout, and tail types of these two species.
+monkey, the percussion badger, and the tuba rhino have meshes of the user that the app rigs itself
+(studio bodies, below). The tan flute fox has the rig of the red fox with a tan palette.
+The penguins have an egg body built in code (user, 2026-10-11). The other species, the harp deer,
+has the parametric body of 2026-10-06 18:58, which the user chose again in place of the sculpts
+and the rigged bodies (`docs/decisions/2026-10-11-body-revert.md`). The parametric body keeps only
+the ear, snout, and tail types of this species.
 
 Each body follows these rules:
 
@@ -337,9 +340,9 @@ the cello dog (`docs/decisions/2026-10-17-mesh-dog.md`), the trombone panda
 (`docs/decisions/2026-10-19-mesh-beaver.md`), the horn pig
 (`docs/decisions/2026-10-19-mesh-pig.md`), the clarinet wolf
 (`docs/decisions/2026-10-20-mesh-wolf.md`), the trumpet monkey
-(`docs/decisions/2026-10-20-mesh-monkey.md`, `docs/decisions/2026-10-21-monkey-stand.md`), and
-the percussion badger
-(`docs/decisions/2026-10-20-mesh-badger.md`).
+(`docs/decisions/2026-10-20-mesh-monkey.md`, `docs/decisions/2026-10-21-monkey-stand.md`), the
+percussion badger (`docs/decisions/2026-10-20-mesh-badger.md`), and the tuba rhino
+(`docs/decisions/2026-10-21-mesh-rhino.md`).
 
 The app keeps its own motion (5.3, 5.4), so it drives the bones of the studio from the pose of the
 player each frame: the retarget. It gave about a quarter of the folded faces of a skin on the bones
@@ -387,7 +390,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   nose, and the tip of its nose is the front of its muzzle. The tip comes only from the vertices
   near the middle plane (`NOSE_PLANE`), because the tip of a whisker of the mouse is the front of
   its head. `pnpm rig-mesh --check` and `pnpm mesh-options` warn when the tip and the mouth lie
-  off the middle plane (`noseWarning()`). The head measures (the head height `H`, the head center, and the box of the pea eyes)
+  off the middle plane (`noseWarning()`). A horn on the muzzle stands further forward than the
+  lips, so the tip of the nose of the rhino comes only from the vertices below the horn
+  (`noseTop` of `ANIMALS`), and the mouthpiece of its tuba goes to the lips. The head measures (the head height `H`, the head center, and the box of the pea eyes)
   leave out a long nose below the chin, as the trunk of the elephant (`headFloor` of `ANIMALS`),
   because the holds in `H` start at the head. Each pea eye faces out from the middle of the head
   that shows. A large head box behind the eyes turns them up, and such eyes look up, so a body
@@ -471,7 +476,12 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     each corner of a cap takes the mean normal of the skin at its vertex (`studioNormals()`). The
     caps of the body keep their own normals, because the normals of the skin turn the light caps
     of the belly into dark wedges. The black arm caps of the panda stay dark with each normal, so
-    the panda keeps the normals of its faces.
+    the panda keeps the normals of its faces. The thick arm of the rhino joins the side of the
+    trunk from the shoulder down to the paw, with a notch at its front and its back. A plane
+    |x| = `armSplit` then cuts through the arm or the trunk, so the plane turns around the
+    vertical through both notches, and the free arm keeps within a radius of the arm joints and
+    above a floor (`weights.armFree`). The cut of the seam then opens the arm from the trunk up to
+    just below the shoulder.
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
     raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
@@ -504,7 +514,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     elephant follow the head too, and its trunk and the tips of its tusks, which hang below the
     head line in front of the chest, follow the head only (`noseFront`), so that a turn of the
     head does not bend the trunk at the chin. The thin tail of the elephant is a ball on one tail
-    bone.
+    bone, and so is the thin tail of the rhino, which hangs behind the haunch. The tall ears of the
+    rhino stand on the top of the head and follow their ear bones.
   - Eyes in patches. When dark eye patches hold the eyes, as on the panda, the eye box holds only
     the eye, and no dark face near the old eye takes the color of the fur (`eyeShell.darkReach`),
     so that the patches stay black around the pea eyes.
@@ -528,7 +539,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   image shows a badger or a monkey, so the badger and the monkey take the head tops of their
   parametric bodies (`docs/decisions/2026-10-20-mesh-badger.md`,
   `docs/decisions/2026-10-20-mesh-monkey.md`). The skull top of the monkey under its small tuft
-  of hair took the head top, and then the user made the monkey 1.1 times as large.
+  of hair took the head top, and then the user made the monkey 1.1 times as large. No reference
+  image shows a rhino, so the skull top of the rhino between its tall ears takes the head top of
+  the parametric rhino (`docs/decisions/2026-10-21-mesh-rhino.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear then rises to its seat height
   (`seat` of `ANIMALS`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
@@ -539,7 +552,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   mass of a body that stands must be over the middle of its soles (user, 2026-10-21). The thighs
   of the monkey slope steeply down, its feet stand under its hips, and its trunk leans forward
   with the head level, because its short legs alone cannot put the feet under its large head
-  (`docs/decisions/2026-10-21-monkey-stand.md`). Each level seat ends where the thighs leave it at the haunch (`chair.front`), so that
+  (`docs/decisions/2026-10-21-monkey-stand.md`). The rhino stands to play the tuba in each seat,
+  in the standing pose of its mesh, as a real tubist on a strap, and its center of mass lies a
+  little in front of the middle of its soles with the tuba (`docs/decisions/2026-10-21-mesh-rhino.md`). Each level seat ends where the thighs leave it at the haunch (`chair.front`), so that
   the haunch rests on it. Short
   thighs under a round belly, as on the panda, end the seat behind the thighs, under the haunch,
   so that the sit does not pull the haunch down into a sheet behind the seat. The chair takes
@@ -547,8 +562,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   `chairDepth`, `chairWidth`, `backRoom`, 4.5, props).
 - **Soloist.** A seated body that also stands (`soloist` of `ANIMALS`: the rabbit, the red fox, the
   cat, the panda, the mouse, the beaver, the pig, the wolf, the monkey, the hippo, which stands in each seat of the contrabass,
-  the elephant, which stands at the timpani, and the badger, which stands at each percussion
-  instrument) keeps the leg shapes and the turns of its sheet pose, and `standingBody()` of
+  the elephant, which stands at the timpani, the badger, which stands at each percussion
+  instrument, and the rhino, which stands at the tuba) keeps the leg shapes and the turns of its sheet pose, and `standingBody()` of
   `models/studio-rig.ts` stands it within 1 mm of the source.
 - **Retarget.** The skeleton of the player has the joints of the studio, with each arm straight
   down, because the pose code reads a hanging arm in the bind pose (4.7, 5.2).
@@ -560,8 +575,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   targets. The colors hold the baked occlusion of the studio. The fur gets smooth normals within
   the crease angle of the body (`crease` of `ANIMALS`, `studioNormals()`). The angle of a bear has
   the facet contrast of its reference images. The red fox, the cat, the dog, the panda, the hippo,
-  the mouse, the elephant, the beaver, the pig, the wolf, the monkey, and the badger take the angle
-  of the rabbit, which the manager chose from the play frames, because the thirteen are meshes of image models (`docs/research/2026-10-14-rabbit-smooth.md`).
+  the mouse, the elephant, the beaver, the pig, the wolf, the monkey, the badger, and the rhino take
+  the angle of the rabbit, which the manager chose from the play frames, because the fourteen are meshes of image models (`docs/research/2026-10-14-rabbit-smooth.md`).
 - **Bind mesh.** `buildStudioBody()` gives the mesh in the bind pose of the player, with two bones
   for each corner, for the footprints, the budgets, and the tests. The sweep of each role (9.3)
   keeps the parts out of the body and the instrument, and
@@ -877,8 +892,8 @@ back (`chairForward()`). Each species moves toward the anatomy of its reference 
   file has a budget of 3,200 faces. The rabbit and the red fox play in the violin sections, the
   cat in the violas, the dog in the cellos, the tan fox in the flutes, the mouse in the oboes, the
   beaver in the bassoons, the wolf in the clarinets, the monkey in the trumpets, the panda in the
-  trombones, the pig in the horns, the hippo in the contrabasses, the elephant at the timpani, and the badger in the
-  percussion, so many
+  trombones, the pig in the horns, the hippo in the contrabasses, the elephant at the timpani, the
+  badger in the percussion, and the rhino at the tuba, so many
   studio bodies share the scene. The pea eyes add their triangles to a studio body
   (`docs/decisions/2026-10-15-pea-eyes.md`).
 - An instrument has at most 800 triangles, except the timpani (1,200) and the piano (2,000). A
@@ -1008,7 +1023,7 @@ of the group.
 | horn                                             | coiled tube with a bell                                                                | in the lap, right hand in the bell                                                             | chair                                      |
 | trumpet                                          | tube with a forward bell                                                               | horizontal, forward                                                                            | none for the monkey (4.5, props)           |
 | trombone                                         | tube with a slide and a bell                                                           | forward, and the slide moves with the pitch                                                    | chair                                      |
-| tuba                                             | large tube with an upward bell                                                         | in the lap                                                                                     | chair                                      |
+| tuba                                             | large tube with an upward bell                                                         | against the body on a strap                                                                    | none: the rhino stands (4.4)               |
 | timpani                                          | two to four kettles, by the pitch range of the file                                    | two mallets                                                                                    | stands                                     |
 | percussion, bass drum player                     | bass drum on a stand                                                                   | one beater                                                                                     | stands                                     |
 | percussion, snare drum player                    | snare drum on a stand                                                                  | two sticks                                                                                     | stands                                     |
@@ -1081,6 +1096,12 @@ The monkey plays a smaller trumpet (`trumpetScale`) with the longer arms, the si
 chose. Its big head puts the mouthpiece far above the shoulders, so its palms hold the valve
 casings at their lower half, and each palm reaches its grip in the play and in the rest (5.3,
 `docs/decisions/2026-10-20-mesh-monkey.md`).
+The rhino plays the tuba of the app with the arms of its mesh. Its long muzzle puts the
+mouthpiece far in front of its chest, so its tuba has a longer lead pipe (`SpeciesParams.tubaPipe`):
+the body of the tuba stands under the muzzle in front of the chest, and the bell at the left of the
+horn and the head. The left palm holds the main branch at its back left, so that the thick paw
+closes on the tube, and each palm reaches its grip in the play and in the rest (5.3,
+`docs/decisions/2026-10-21-mesh-rhino.md`).
 The badger keeps the short arms of its mesh, so its drums and the tambourine stand nearer to it,
 and its paws reach each strike of the bass drum, the snare drum, the triangle, and the tambourine
 (`BASS_DRUM`, `SNARE_DRUM`, `TAMBOURINE`). Its arms do not hold hand cymbals of a real size out of
@@ -1116,7 +1137,7 @@ of each instrument (`models/instruments/`) holds its sizes and the offsets of it
 | Horn                             | A coil and a bell.                                                                                                      | The mouthpiece at the mouth, the coil in front of the right chest, and the right palm in the bell.                                                                                                                          |
 | Trumpet                          | A tube with valves and a forward bell.                                                                                  | The mouthpiece at the mouth, forward and a little down.                                                                                                                                                                     |
 | Trombone                         | A tube with a slide from the first position to the seventh.                                                             | The mouthpiece at the mouth. The slide is a second piece on the `slide` bone, in the right palm.                                                                                                                            |
-| Tuba                             | A large tube with an upward bell.                                                                                       | In the lap, with the bell left of the head.                                                                                                                                                                                 |
+| Tuba                             | A large tube with an upward bell.                                                                                       | Against the body, with the bell left of the head.                                                                                                                                                                                 |
 | Timpani                          | Two to four kettles of the real size, by the highest timpani note (`kettleCount()`).                                    | In an arc around the player, the outer kettles further out, with a mallet in each hand.                                                                                                                                     |
 | Bass drum, snare drum, xylophone | Drums on stands, and 30 bars from C5 to F7.                                                                             | In front of the player, below the shoulders of the badger, within the reach of its short arms where they reach.                                                                                                             |
 | Cymbals, small percussion        | Two crash cymbals, or one suspended cymbal level on a stand with two yarn mallets. A triangle and a tambourine.         | The crash cymbals in the hands, above the floor. The suspended cymbal in front of the player, below its wrists. The beater strikes the tambourine for key 54.                                                               |
@@ -1194,13 +1215,13 @@ of three.js always blends four bones, so the second bone adds no shader work.
 - A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
   studio, two eye bones for the pea eyes, and the optional tip of a tail of two bones (`tail_tip`:
   the red fox, the tan fox, the cat, the dog, the mouse, the beaver, the wolf, and the monkey). The rabbit, the panda,
-  the hippo, the pig, and the badger have a tail
+  the hippo, the pig, the badger, and the rhino have a tail
   ball on one tail bone, with no tip. Each vertex follows up to four of them. The
   scene gives the mesh the studio bones and the bones of the player, and `poseStudioBones()`
   writes their matrices from the pose of the player. So the pose code drives a studio body as
   each other body. A pose also holds the matrices of the twist bones of the upper arms
-  (`UPPER_TWIST_BONES`), after the bones of the player. Only a body with `upperTwist` (4.4) puts
-  weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
+  (`UPPER_TWIST_BONES`), after the bones of the player. Only a body with `upperTwist` (4.4), the
+  hippo, the elephant, and the rhino, puts weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
 - The egg body of the penguin (4.4) is rigid too, with its lower beak on `jaw`.
 - The readers of the bind mesh read the main bone: the footprints, the chair clearance, the baked
   occlusion (4.5), the silhouettes, and the budgets. `posedCorner()` of `pose/test-skin.ts` poses
