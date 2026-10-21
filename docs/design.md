@@ -269,3 +269,4 @@ The decision files:
 - [`2026-10-21-rabbit-armpit.md`](decisions/2026-10-21-rabbit-armpit.md): the soft normals and the fair copy of the mesh at the notch under the right armpit of the rabbit, where the cut faces and the rim showed as a jagged dark gap under the raised bow arm.
 - [`2026-10-21-demo-loudness.md`](decisions/2026-10-21-demo-loudness.md): the values of the demo loudness from `pnpm loudness`, the target of -16 LUFS of AES TD1008, the limiter at -3 dBFS, and the range rule of the soft demos that waits for the user.
 - [`2026-10-21-wrist-lift.md`](decisions/2026-10-21-wrist-lift.md): the side of the bow mix in the lift and the lowering, the twist limit of the baton turn of the conductor, the move measures of the arm gate, and the open left paw of the violins and the viola.
+- [`2026-10-21-beat-fold.md`](decisions/2026-10-21-beat-fold.md): the conducted beats of a fast 4/x, 9/8, and 12/8, the felt pulse of the sway, and the limits of `pnpm beat-rates`.
