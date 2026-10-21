@@ -555,6 +555,36 @@ function setCymbalForm(species: SpeciesId, text: string): HoldChange {
 }
 
 /**
+ * Changes the length of the lead pipe of the tuba of a species in memory, such as
+ * `rhino.tubaPipe=0.3` (`SpeciesParams.tubaPipe`, in meters). A length that the species does not
+ * give is 0, and the undo removes it again.
+ *
+ * @param species The species, the root of the path.
+ * @param text The new length.
+ * @returns The change.
+ * @throws Error if the text is not a number.
+ */
+function setTubaPipe(species: SpeciesId, text: string): HoldChange {
+  const value = parseNumber(text, `${species}.tubaPipe`);
+  const params: SpeciesParams = SPECIES[species];
+  const had = Object.hasOwn(params, 'tubaPipe');
+  const old = params.tubaPipe;
+  Reflect.set(params, 'tubaPipe', value);
+  return {
+    undo: () => {
+      if (had) {
+        Reflect.set(params, 'tubaPipe', old);
+      } else {
+        Reflect.deleteProperty(params, 'tubaPipe');
+      }
+    },
+    before: String(old ?? 0),
+    after: String(value),
+    also: [],
+  };
+}
+
+/**
  * Parses one number of a `--set` value. A number with the unit `deg` is an angle in degrees, and
  * the hold gets it in radians.
  *
@@ -671,7 +701,8 @@ function copyPath(hold: object, keys: readonly string[]): PathCopy {
  * `violin.restBow.lap.along`, changes the shared object, and gives the other paths that it moves
  * too, such as `viola.restBow.lap.along`. A path with the id of a species as the root changes a
  * scale of an instrument of the species ({@link setScale}), such as `mouse.oboeScale=0.8`, or the
- * form of its cymbals ({@link setCymbalForm}), such as `badger.cymbalForm=suspended`.
+ * form of its cymbals ({@link setCymbalForm}), such as `badger.cymbalForm=suspended`, or the
+ * lead pipe of its tuba ({@link setTubaPipe}), such as `rhino.tubaPipe=0.3`.
  *
  * @param change The change, as `<path>=<value>`.
  * @returns A function that puts the old value back, the texts of the old and the new value, and
@@ -687,6 +718,9 @@ export function setHold(change: string): HoldChange {
   const text = change.slice(equals + 1);
   const [first = '', ...keys] = path.split('.');
   if (isSpeciesId(first)) {
+    if (keys.length === 1 && keys[0] === 'tubaPipe') {
+      return setTubaPipe(first, text);
+    }
     return keys.length === 1 && keys[0] === 'cymbalForm'
       ? setCymbalForm(first, text)
       : setScale(first, keys, text);
