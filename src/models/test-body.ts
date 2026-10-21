@@ -4,7 +4,7 @@ import { seated } from './body-frame.ts';
 import type { Stance } from './body-frame.ts';
 import type { Vec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
-import type { MeshData, Rgb } from './mesh.ts';
+import type { MeshData } from './mesh.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
@@ -141,31 +141,4 @@ export function joinsAtMostOneJoint(mesh: MeshData, triangle: number): boolean {
 
   const [a = -1, b = -1] = [...bones];
   return bones.size === 2 && (PARENTS[a] === b || PARENTS[b] === a);
-}
-
-/**
- * Finds the vertices of one color, on all bones or on a list of bones.
- *
- * @param mesh The mesh.
- * @param color The color, in linear values.
- * @param bones The bones. Default: all bones.
- * @returns The vertices.
- */
-export function verticesWithColor(mesh: MeshData, color: Rgb, bones?: readonly BoneName[]): Vec3[] {
-  const found: Vec3[] = [];
-  const wanted = bones?.map(boneIndex);
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (wanted && !wanted.includes(mesh.bones[v] ?? -1)) {
-      continue;
-    }
-    const same = color.every((c, k) => Math.abs((mesh.colors[v * 3 + k] ?? 0) - c) < 1e-6);
-    if (same) {
-      found.push([
-        mesh.positions[v * 3] ?? 0,
-        mesh.positions[v * 3 + 1] ?? 0,
-        mesh.positions[v * 3 + 2] ?? 0,
-      ]);
-    }
-  }
-  return found;
 }
