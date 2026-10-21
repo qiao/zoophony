@@ -425,6 +425,20 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/deer/deer.rig.glb',
     },
   ],
+  // The choir penguin: decisions/2026-10-21-mesh-penguin.md. It stands on its riser, so the
+  // export keeps the standing pose of the rig.
+  [
+    'penguin',
+    {
+      landmark: 'shoulders',
+      height: 0.6258,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_PENGUIN',
+      crease: 35,
+      glb: 'assets/models/penguin/penguin.rig.glb',
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
