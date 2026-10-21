@@ -135,6 +135,13 @@ export interface AnimalSettings {
    */
   readonly noseTop?: number;
   /**
+   * The highest height of the head measures in the bind pose of the GLB file, in its units, for
+   * antlers or horns that rise from the skull top and follow the head, as the antlers of the deer.
+   * The head height, the head center, the box of the pea eyes, and the tip of the nose then leave
+   * out the vertices above it. With no value, each vertex of the head counts.
+   */
+  readonly headCeiling?: number;
+  /**
    * True when each pea eye faces level: the direction of the eye keeps only its turn to the side
    * and forward, with no turn up or down. A large head box behind the eyes, such as the ruff of
    * the wolf, turns the eyes up, and the eyes then read as eyes that look up (design 4.5). With no
@@ -2298,9 +2305,10 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   let farSnout = new Vector3(0, 0, -Infinity);
   const floor = settings.headFloor ?? -Infinity;
   const noseTop = settings.noseTop ?? Infinity;
+  const ceiling = settings.headCeiling ?? Infinity;
   for (const [v, vertex] of mesh.vertices.entries()) {
     const head = vertex.skin.find(([bone]) => bone === 'head')?.[1] ?? 0;
-    if (vertex.position.y < floor) {
+    if (vertex.position.y < floor || vertex.position.y > ceiling) {
       continue;
     }
     if (vertex.material === 'fur' && head > 0.5) {
