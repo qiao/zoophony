@@ -306,10 +306,26 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       30% to 60%. A small lean of the trunk back is an option (`balance.txt`).
 - [ ] Rhino: the thick left paw goes 2.1 cm into the main branch of the tuba, an accepted depth of
       the sweep. The paws are mittens and do not wrap the tube (`TUBIST_SWEEP`).
-- [ ] Remove the unused code of the `small` ears, the `horn` snout, and the `thin` tail of the
-      parametric biped: no species has them since the rhino mesh (`2026-10-21-mesh-rhino.md`).
-- [ ] Trim `docs/agents/model-traps.md` to about 3,000 words: it has 3,539 words since the traps of
-      the rhino mesh.
+- [ ] Trim `docs/agents/model-traps.md` to about 3,000 words: it has 3,706 words since the traps
+      of the rhino and the deer meshes.
+- [x] Rig the mesh of the deer (harp). The user gave it on 2026-10-21. The deer sits on the stool
+      of the harp with its whole haunch on the seat, at the size of the parametric deer, and plays
+      a smaller harp (`2026-10-21-mesh-deer.md`).
+- [ ] Deer: the manager chose arms 1.25 and a harp of 0.65 upright in front of the chest while the
+      user slept. The user reviews them against the arms 1.15 or 1 of the report "Arms and harp"
+      (`docs/research/2026-10-21-mesh-deer.md`).
+- [ ] Deer: the harp stands upright, while a real harp leans back on the right shoulder. A tilt back
+      put the upper strings into the chest of the short-armed deer (`harp/depths-arms125-a.txt`).
+- [ ] Deer: the haunch spreads into a flat light rim on the seat of the stool, and a dark wedge
+      shows under the puff tail from the back (`app/seat-crops.webp` of the research folder).
+- [ ] Deer: dark faces show under the right armpit in the play, and points stand out at the
+      shoulders in the back view. Look at the zoomed views of `pnpm close-views harpist`.
+- [ ] Deer: 2 to 14 faces of the arms fold in each sample of the harpist, under the limit of the
+      arm gate (`app/fold-probe.txt`). A fold round with rings or rigid weights.
+- [ ] Deer: the seated deer is lower than the parametric deer (skull top 1.125 m against 1.311 m),
+      because its legs are shorter. The size rule of the user takes the standing skull top.
+- [ ] Remove the parametric biped with its ears, snouts, and tails: no species has it since the
+      rhino and the deer meshes (`2026-10-21-mesh-rhino.md`, `2026-10-21-mesh-deer.md`).
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
       fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
 - [x] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
