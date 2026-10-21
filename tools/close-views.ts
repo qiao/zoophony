@@ -149,8 +149,8 @@ export interface RoleViews {
  * A role with a close view: the bear conductor, the polar bear pianist, the rabbit violinist, the
  * red fox violinist, the cat violist, the dog cellist, the hippo bassist, the tan fox flutist, the
  * panda trombonist, the mouse oboist, the elephant timpanist, the beaver bassoonist, the pig
- * hornist, the wolf clarinetist, or the badger bass drummer, snare drummer, cymbalist,
- * percussionist, or xylophonist.
+ * hornist, the wolf clarinetist, the monkey trumpeter, or the badger bass drummer, snare drummer,
+ * cymbalist, percussionist, or xylophonist.
  */
 export type CloseRole =
   | 'conductor'
@@ -167,6 +167,7 @@ export type CloseRole =
   | 'bassoonist'
   | 'hornist'
   | 'clarinetist'
+  | 'trumpeter'
   | 'bass-drummer'
   | 'snare-drummer'
   | 'cymbalist'
@@ -189,6 +190,7 @@ const CLOSE_ROLES: readonly CloseRole[] = [
   'bassoonist',
   'hornist',
   'clarinetist',
+  'trumpeter',
   'bass-drummer',
   'snare-drummer',
   'cymbalist',
@@ -243,6 +245,9 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  *   in the phrase, and the right paw stays in the bell.
  * - The wolf clarinetist: the views and the moments of the flutist. The side views and the back
  *   view also show the bushy tail, which goes back over the seat and hangs down behind it.
+ * - The monkey trumpeter: the views and the moments of the flutist. The right paw presses the
+ *   valves in the phrase. The side views and the back view also show the long tail, which goes
+ *   back and down to its curl on the floor behind the monkey, which has no chair.
  * - The badger of the percussion, who stands: one role for each instrument, with the front, both
  *   sides, and the back. The moments are a strike of each hand or a crash, a time between two
  *   strikes, the rest pose, and halfway through the lift and the lowering at the first strike.
@@ -538,6 +543,26 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
     camera: { kind: 'body', zoom: 1, elevation: 20 },
     // A long G4, a rest, then a short phrase with the right paw fingers closed (D4) and open (C6).
     notes: ['0.5 1 G4', '2 0.25 D4', '2.25 0.25 C6', '2.5 0.25 E5'].join('\n'),
+  },
+  trumpeter: {
+    species: 'monkey',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    moments: [
+      { name: 'note', time: 0.6, rest: false },
+      { name: 'between', time: 1.75, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.6),
+      { name: 'stand', time: 0.6, rest: false, stand: true },
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // A long open B♭3 (the written C4), a rest, then a short phrase: E♭4 with the first valve, an
+    // open F4, and G4 with the first and the second valve (design 5.3).
+    notes: ['0.5 1 Bb3', '2 0.25 Eb4', '2.25 0.25 F4', '2.5 0.25 G4'].join('\n'),
   },
   'bass-drummer': {
     species: 'badger',

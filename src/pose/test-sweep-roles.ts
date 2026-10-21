@@ -135,6 +135,13 @@ const WOLF_BODY_LOOPS = 5;
  */
 const BADGER_BODY_LOOPS = 2;
 
+/**
+ * The open loops of {@link BODY_BONES} of the monkey mesh: the cuts to the two upper arms, two open
+ * edge pairs of 2.6 cm and 2.8 cm at the sides of the neck, and one open edge pair of 3.3 cm at the
+ * left toes (`loops-probe.txt` of `docs/research/2026-10-20-mesh-monkey/`).
+ */
+const MONKEY_BODY_LOOPS = 5;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -328,6 +335,17 @@ function wolfBodySurface(posed: PosedSkeleton): ClosedSurface {
  */
 function badgerBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, BADGER_BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the monkey mesh: {@link BODY_BONES} with a cap on each open
+ * loop ({@link MONKEY_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function monkeyBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, MONKEY_BODY_LOOPS);
 }
 
 /**
@@ -1652,6 +1670,69 @@ export const CLARINETIST_SWEEP: RoleSweep = {
     }),
 };
 
+/**
+ * Tells if a player of a scene is in the sweep of the trumpeter: the first monkey with a trumpet
+ * that has no stand support, and each monkey soloist, which stands (design 4.2).
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @returns True for a player of the sweep.
+ */
+function sweptTrumpeter(scene: TestScene, index: number): boolean {
+  const { cast } = scene.layout.players[index] ?? {};
+  if (cast?.species !== 'monkey' || cast.instrument !== 'trumpet') {
+    return false;
+  }
+  if (cast.support === 'stand') {
+    return true;
+  }
+  const first = scene.layout.players.findIndex(
+    (p) =>
+      p.cast.species === 'monkey' && p.cast.instrument === 'trumpet' && p.cast.support !== 'stand',
+  );
+  return first === index;
+}
+
+/**
+ * The sweep of the trumpeter (design 5.3): the sweep of the trombonist with the trumpet and the
+ * monkey. The first monkey of each demo with trumpets, and each standing monkey soloist, play it.
+ * The left palm is on its grip at the start of each phrase, and the right palm on its grip at the
+ * valves at the start of each note ({@link trombonistTargets}: the trumpet has no slide).
+ */
+export const TRUMPETER_SWEEP: RoleSweep = {
+  ...TROMBONIST_SWEEP,
+  role: 'trumpeter',
+  obstacles: [
+    { name: 'body', surface: monkeyBodySurface },
+    { name: 'trumpet', surface: instrumentSurface },
+  ],
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'trumpet'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      if (!sweptTrumpeter(scene, index)) {
+        return [];
+      }
+      const { species, instrument, kettles, support } = place.cast;
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles, support);
+      return [
+        {
+          name: `trumpeter ${index} (${support})`,
+          model,
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => trombonistTargets(scene, index, model),
+        },
+      ];
+    }),
+};
+
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,
@@ -1667,6 +1748,7 @@ export const SWEEP_ROLES = {
   hornist: HORNIST_SWEEP,
   bassoonist: BASSOONIST_SWEEP,
   clarinetist: CLARINETIST_SWEEP,
+  trumpeter: TRUMPETER_SWEEP,
   'bass-drummer': BASS_DRUMMER_SWEEP,
   'snare-drummer': SNARE_DRUMMER_SWEEP,
   cymbalist: CYMBALIST_SWEEP,
