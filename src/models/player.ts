@@ -195,6 +195,7 @@ export function buildPlayer(
     instrumentScale(params, instrument),
     params.bowGrip,
     params.cymbalForm,
+    params.tubaPipe,
   );
   const placed = attachInstrument(builder, model, body);
   const positions = {

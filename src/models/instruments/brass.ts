@@ -448,16 +448,21 @@ function horn(): BrassBuild {
 
 /**
  * Builds the tuba. The mouthpiece is at the origin, and the tuba has the axes of the player: the
- * body stands in the lap in front of the player, and the bell opens up at the left of the head.
+ * body stands in front of the player, and the bell opens up at the left of the head. A longer
+ * lead pipe moves the body back toward the player, and the pipe goes down from the mouthpiece
+ * before it goes back to the valves, so that it passes under the chin.
  *
+ * @param lead The length by which the lead pipe reaches back from the mouthpiece, in meters
+ *   (`SpeciesParams.tubaPipe`).
  * @returns The parts and the play data.
  */
-function tuba(): BrassBuild {
+function tuba(lead: number): BrassBuild {
   const t = BRASS.tuba;
   const piece = new PieceBuilder();
   mouthpiece(piece, [0, 0, -1], 0.012);
-  // The axes of the drawing: the bottom bow is at y = 0. The mouthpiece is 0.72 m above it.
-  const bottom = new Vector3(-0.06, -0.72, -0.2);
+  // The axes of the drawing: the bottom bow is at y = 0. The mouthpiece is 0.72 m above it, and
+  // 0.2 m behind it with no longer lead pipe.
+  const bottom = new Vector3(-0.06, -0.72, lead - 0.2);
   const at = (p: Vec3): Vec3 => toVec3(new Vector3(...p).add(bottom));
   // The main branch rises from the bottom bow to the bell.
   turned(
@@ -479,7 +484,11 @@ function tuba(): BrassBuild {
   pipe(piece, [at([0.1, 0.06, 0]), at([0.1, 0.5, 0])], 0.04);
   pipe(piece, [at([-0.06, 0.06, 0]), at([0.1, 0.06, 0])], 0.05);
   valves(piece, at([0.1, 0.42, -0.06]), [0, 0, 0.035], 4, 0.012, 0.11, [0, 1, 0]);
-  pipe(piece, [at([0.1, 0.5, 0]), at([0.1, 0.65, 0.08]), [0, 0, 0.05]], 0.012);
+  pipe(
+    piece,
+    [at([0.1, 0.5, 0]), at([0.1, 0.65 - lead / 4, 0.08 - lead / 2]), [0, 0, 0.05]],
+    0.012,
+  );
   const bellTarget: PlayTarget = {
     kind: 'bell',
     bone: 'instrument',
@@ -503,9 +512,11 @@ function tuba(): BrassBuild {
  * @param id The brass instrument.
  * @param scale The scale of the trumpet (`SpeciesParams.trumpetScale`). The other brass
  *   instruments ignore it.
+ * @param lead The length by which the lead pipe of the tuba reaches back from the mouthpiece, in
+ *   meters (`SpeciesParams.tubaPipe`). The other brass instruments ignore it.
  * @returns The model.
  */
-export function buildBrass(id: BrassId, scale = 1): InstrumentModel {
+export function buildBrass(id: BrassId, scale = 1, lead = 0): InstrumentModel {
   const built =
     id === 'horn'
       ? horn()
@@ -513,7 +524,7 @@ export function buildBrass(id: BrassId, scale = 1): InstrumentModel {
         ? trumpet(scale)
         : id === 'trombone'
           ? trombone()
-          : tuba();
+          : tuba(lead);
   const main = built.pieces[0];
   if (!main) {
     throw new Error(`The ${id} has no piece.`);
