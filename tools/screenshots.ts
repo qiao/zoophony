@@ -266,10 +266,10 @@ export interface DrawerShot extends Shot {
   /** The device pixels for each CSS pixel: 2 at 390 × 844, as the prototype screenshots. */
   readonly scale: number;
   /**
-   * `seats`: the drawer at the seat list, open, with the cellos muted, as the state "Playing,
-   * drawer open" of `docs/prototype/ui.html`. `settings`: the drawer at the settings. On a phone,
-   * the seat list is collapsed, and the settings start with the "Playback" group. `credits`:
-   * the credits dialog, which the link "Credits" at the end of the drawer opens. `drop`: a file
+   * `seats`: the drawer at the tab "Seats", with the cellos muted, as the state "Playing, drawer
+   * open" of `docs/prototype/ui.html`. `settings`: the drawer at the tab "Settings". On a phone,
+   * the settings start with the "Playback" group. `credits`: the credits dialog, which the link
+   * "Credits" at the end of the tab "Settings" opens. `drop`: a file
    * over the page, as the state "File over the page".
    */
   readonly state: 'seats' | 'settings' | 'credits' | 'drop';
@@ -428,35 +428,14 @@ async function showDrawerState(page: Page, state: DrawerShot['state']): Promise<
     });
   } else {
     await openDrawer(page);
+    await page.click(state === 'seats' ? '#tab-seats' : '#tab-settings');
     if (state === 'seats') {
-      // A wide window expanded the seat list at start.
-      if ((await page.getAttribute('.collapse', 'aria-expanded')) === 'false') {
-        await page.click('.collapse');
-      }
       await page.click('button[aria-label="Mute Cellos"]');
     }
     if (state === 'credits') {
-      // The link "Credits" at the end of the drawer opens the credits dialog (design 2.8).
-      await page.locator('.drawer-footer button').scrollIntoViewIfNeeded();
-      await page.click('.drawer-footer button');
-    } else {
-      // On a phone, the sheet scrolls to the section, below its handle. On a desktop, the seats
-      // show from the top, and the drawer scrolls to the settings.
-      await page.evaluate(
-        ({ name, phone }) => {
-          const drawer = document.querySelector('.drawer');
-          const heading = [...document.querySelectorAll('.drawer h2')].find((h) =>
-            h.textContent?.startsWith(name),
-          );
-          if (drawer && heading instanceof HTMLElement && (phone || name !== 'Seats')) {
-            drawer.scrollTop = heading.offsetTop - 32;
-          }
-        },
-        {
-          name: { seats: 'Seats', settings: 'Settings' }[state],
-          phone: (page.viewportSize()?.width ?? 1440) < 700,
-        },
-      );
+      // The link "Credits" at the end of the tab "Settings" opens the credits dialog (design 2.8).
+      await page.locator('.credits-line button').scrollIntoViewIfNeeded();
+      await page.click('.credits-line button');
     }
   }
   await page.mouse.move(0, 0);

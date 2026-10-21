@@ -4,16 +4,17 @@ import type { Page } from '@playwright/test';
 import { SAMPLES_READY } from '../src/app/dev-hook.ts';
 
 /**
- * Opens the credits dialog with a click on the link "Credits" at the end of the drawer. A
+ * Opens the credits dialog with a click on the link "Credits" at the end of the tab "Settings". A
  * narrow window opens the drawer first.
  *
  * @param page The page, with the first piece on the stage.
  */
 async function openCredits(page: Page): Promise<void> {
   const link = page.getByRole('button', { name: 'Credits', exact: true });
-  if (!(await link.isVisible())) {
+  if ((await page.locator('.drawer[hidden]').count()) > 0) {
     await page.locator('.bar button[aria-expanded]').click();
   }
+  await page.getByRole('tab', { name: 'Settings' }).click();
   await link.scrollIntoViewIfNeeded();
   await link.click();
 }

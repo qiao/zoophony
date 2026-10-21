@@ -588,8 +588,8 @@ async function checkRepositoryLink(c: Checker, page: Page): Promise<void> {
 }
 
 /**
- * Checks the drawer at start (design 2.8): a wide window opens it with the seat list expanded, and
- * a phone keeps it closed. Escape then closes an open drawer, so that the next checks start from
+ * Checks the drawer at start (design 2.8): a wide window opens it at the tab "Pieces", and a
+ * phone keeps it closed. Escape then closes an open drawer, so that the next checks start from
  * a closed drawer.
  *
  * @param c The checker.
@@ -598,20 +598,20 @@ async function checkRepositoryLink(c: Checker, page: Page): Promise<void> {
  */
 async function checkDrawerAtStart(c: Checker, page: Page, phone: boolean): Promise<void> {
   const open = !(await drawerHidden(page));
-  const expanded = await c.attribute('.collapse', 'aria-expanded');
+  const tab = await c.attribute('[role="tab"][aria-selected="true"]', 'id');
   await c.press(['Escape'], 400);
   const closed = await drawerHidden(page);
   c.record(
     'Drawer at start',
     'Escape',
-    `open: ${open}; seat list expanded: ${expanded}; Escape closes: ${closed}`,
-    open === !phone && expanded === String(!phone) && closed,
+    `open: ${open}; current tab: ${tab}; Escape closes: ${closed}`,
+    open === !phone && tab === 'tab-demos' && closed,
   );
 }
 
 /**
- * Checks the drawer: the drawer button, Escape, the demo list, the file button, the seat list,
- * the settings, the link "Credits" with its dialog, and a message.
+ * Checks the drawer: the drawer button, Escape, the tabs, the demo list, the file button, the
+ * seat list, the settings, the link "Credits" with its dialog, and a message.
  *
  * @param c The checker.
  * @param page The page.
@@ -635,7 +635,8 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   );
 
   await c.press(['Space']);
-  // The file button comes after the seat list, as in the mockup (design 2.8).
+  // The tab "Pieces" and the close button come first, and the file button ends the demo list
+  // (design 2.8).
   const order: string[] = [];
   while (order.length < 80 && order.at(-1) !== 'Select a MIDI file') {
     await page.keyboard.press('Tab');
@@ -649,9 +650,9 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     'Focus order into the drawer',
     `Space on the drawer button, Tab x${order.length}`,
     shown.join(' > '),
-    order[0] === 'Close the drawer' &&
-      order[1]?.startsWith("D'un matin") === true &&
-      order[7]?.endsWith(' the seat list') === true &&
+    order[0] === 'Pieces' &&
+      order[1] === 'Close the drawer' &&
+      order[2]?.startsWith("D'un matin") === true &&
       order.at(-1) === 'Select a MIDI file',
   );
 
@@ -749,22 +750,20 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   await page.waitForSelector('canvas[data-demo="mozart-k315"]', { timeout: 30_000 });
   await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
   await reopenSheet(c, phone);
-  // A wide window expanded the seat list at start.
-  const collapses = (await c.attribute('.collapse', 'aria-expanded')) === 'true';
-  if (collapses) {
-    await c.tabTo(named('Collapse the seat list'));
-    await c.press(['Enter']);
-  }
-  const collapsed = await c.attribute('.collapse', 'aria-expanded');
-  await c.tabTo(named('Expand the seat list'), collapses);
-  await c.press(['Enter']);
-  const expanded = await c.attribute('.collapse', 'aria-expanded');
-  const rows = await page.locator('.seat').count();
+  // The right arrow on a tab selects the next tab, and it does not seek (design 2.4, 2.8).
+  await c.tabTo(named('Pieces'), !phone);
+  const seekBefore = Number(await c.value('.seek'));
+  await c.press(['ArrowRight']);
+  const seekAfter = Number(await c.value('.seek'));
+  const seatsTab = await c.attribute('#tab-seats', 'aria-selected');
+  const onSeats = await c.focused();
+  const rows = await page.locator('.seat:visible').count();
   c.record(
-    'Expand the seat list',
-    collapses ? 'Tab, Enter (collapse), Enter' : 'Tab, Enter',
-    `aria-expanded ${collapsed}, then ${expanded}, ${rows} seat rows`,
-    collapsed === 'false' && expanded === 'true' && rows > 0,
+    'Tab "Seats"',
+    'Tab to "Pieces", Right',
+    `aria-selected ${seatsTab}; focus on "${onSeats}"; ${rows} seat rows; seek moves ` +
+      `${(seekAfter - seekBefore).toFixed(1)} s`,
+    seatsTab === 'true' && onSeats === 'Seats' && rows > 0 && Math.abs(seekAfter - seekBefore) < 3,
   );
 
   await c.tabTo(named('Mute Cellos'));
@@ -790,7 +789,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     cellos === 'true' && dim === true && solo === 'true' && unmuted === 'false',
   );
 
-  // A new piece replaces the seat rows. The focus on a row goes to the collapse button.
+  // A new piece replaces the seat rows. The focus on a row goes to the tab "Seats".
   await page.evaluate(() => {
     location.hash = '#demo=mozart-k525';
   });
@@ -800,7 +799,16 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     'Focus on a seat toggle, then a new piece',
     'Shift+Tab to Mute Cellos, a new hash',
     `focus on "${afterPiece}"`,
-    afterPiece === 'Collapse the seat list',
+    afterPiece === 'Seats',
+  );
+
+  await c.press(['ArrowRight']);
+  const settingsTab = await c.attribute('#tab-settings', 'aria-selected');
+  c.record(
+    'Tab "Settings"',
+    'Right',
+    `aria-selected ${settingsTab}; focus on "${await c.focused()}"`,
+    settingsTab === 'true',
   );
 
   if (phone) {
@@ -828,9 +836,9 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     perPart === 'true' && perPartText === 'One per part' && low === 'Low',
   );
 
-  // The link "Credits" ends the drawer and opens the credits dialog (design 2.8).
+  // The link "Credits" ends the tab "Settings" and opens the credits dialog (design 2.8).
   const toCredits = await c.tabTo(named('Credits'));
-  const popup = await c.attribute('.drawer-footer button', 'aria-haspopup');
+  const popup = await c.attribute('.credits-line button', 'aria-haspopup');
   await c.press(['Enter'], 300);
   const opened = await creditsOpen(page);
   const inDialog = await c.focused();
