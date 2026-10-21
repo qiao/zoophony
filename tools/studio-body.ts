@@ -410,6 +410,21 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       noseTop: 0.76,
     },
   ],
+  // The harp deer: decisions/2026-10-21-mesh-deer.md. It sits on the stool of the harp, and the
+  // harp soloist keeps the stool, so it does not stand. The antlers stay out of the head measures.
+  [
+    'deer',
+    {
+      landmark: 'shoulders',
+      height: 0.74761,
+      seated: true,
+      soloist: false,
+      constant: 'STUDIO_DEER',
+      crease: 35,
+      headCeiling: 0.87,
+      glb: 'assets/models/deer/deer.rig.glb',
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
