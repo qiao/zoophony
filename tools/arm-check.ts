@@ -31,7 +31,9 @@
  * the gate comes from the worst sample set.
  *
  * With `--base <ref>`, the commit runs beside the working tree, each role in a child process
- * (`probeBeside()` of `tools/ref-tree.ts`), and the JSON of the commit goes into the cache by tree.
+ * (`probeBeside()` of `tools/ref-tree.ts`), with the gate of the working tree in place of its own
+ * ({@link GATE_SCRIPTS}), so that both trees have the same measures. The JSON of the commit goes
+ * into the cache by tree.
  * Each value then has a verdict ({@link verdictOf}): `FAIL` when it is over its limit and the base
  * is not, or when it is worse than the base by more than its margin; `OPEN` when it is over its
  * limit and not worse than the base (a known open item); else `PASS`. With no `--base`, each value
@@ -2320,7 +2322,7 @@ async function measureRole(
       options.base,
       'arm-check.ts',
       { base: [role, ...options.shared], tree },
-      { prefix: 'arm-check-', cache: true, treeCache },
+      { prefix: 'arm-check-', cache: true, treeCache, scripts: GATE_SCRIPTS },
     );
     return {
       tree: readArmJson(texts.tree).roles[role] ?? null,
@@ -2378,7 +2380,7 @@ async function eachLimited<T, R>(
   return results;
 }
 
-/** The scripts of the gate that `--states` copies into the tree of each state. */
+/** The scripts of the gate that `--base` and `--states` copy into the tree of each commit. */
 const GATE_SCRIPTS: readonly string[] = ['arm-check.ts'];
 
 /**
