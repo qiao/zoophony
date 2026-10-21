@@ -221,8 +221,8 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
 - Drawer: a floating panel in `--panel-glass` with the tabs "Pieces", "Seats", and "Settings" at
   the top, beside the close button (`Drawer.addTab()`). Only the panel of the current tab shows.
   The drawer itself does not scroll and does not bounce (`overscroll-behavior: none`). The panel
-  of the current tab scrolls below the tabs with no bounce, and in the tab "Pieces" only the demo
-  list scrolls, with the bounce at its ends (user, 2026-10-21). The current tab has `--text` and a line in
+  of the current tab scrolls below the tabs, with the bounce at its ends, and in the tab "Pieces"
+  only the demo list scrolls (user, 2026-10-21). The current tab has `--text` and a line in
   `--accent` at its foot. The arrow keys, Home, and End move between the tabs, as the tabs
   pattern of WAI-ARIA says, and they do not seek. It is nearly opaque, so that its dim text keeps
   4.5:1 over white fur.
