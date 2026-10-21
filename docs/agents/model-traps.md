@@ -285,6 +285,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A new body moves the layout and the shots, and the shot tests react to moves of 2 cm. Run
   `pnpm test:paused src/shots/` early, and `pnpm shot-trace <demo> --base main` when a shot drops.
 
+- A fix of a turn rate can move the prop to a wrong place: a bow pointed out to the side and a
+  baton pointed across the face, with all measures passed. Render a crop of the move before you
+  commit (`2026-10-21-wrist-lift.md`).
 - To commit a part of a file, stage a blob of it with `git update-index --cacheinfo`, and keep
   the working file. A file written from `HEAD` for a commit gave the rhino its parametric body
   again, and three sweeps measured the wrong body.
