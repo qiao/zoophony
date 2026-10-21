@@ -220,7 +220,9 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   - `index.html` holds the same load state as static HTML, so a slow network shows it at once.
 - Drawer: a floating panel in `--panel-glass` with the tabs "Pieces", "Seats", and "Settings" at
   the top, beside the close button (`Drawer.addTab()`). Only the panel of the current tab shows.
-  The tabs stick to the top while the panel scrolls. The current tab has `--text` and a line in
+  The drawer itself does not scroll and does not bounce (`overscroll-behavior: none`). The panel
+  of the current tab scrolls below the tabs with no bounce, and in the tab "Pieces" only the demo
+  list scrolls, with the bounce at its ends (user, 2026-10-21). The current tab has `--text` and a line in
   `--accent` at its foot. The arrow keys, Home, and End move between the tabs, as the tabs
   pattern of WAI-ARIA says, and they do not seek. It is nearly opaque, so that its dim text keeps
   4.5:1 over white fur.
@@ -231,7 +233,7 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
     row of the current demo has a level meter that the song time alone gives (`meterLevels()` in
     `app/meter.ts`), so it stops in a pause and follows a seek. Each row keeps a column of the
     width of the meter, so that the text does not move when the meter comes into a row.
-  - The button "Open a MIDI file" sticks below the demo list, with a folder icon and the dim
+  - The button "Open a MIDI file" stays below the demo list, with a folder icon and the dim
     second line "From this device, or drop it on the page", which also describes the button. A
     touch screen cannot drop a file, so its second line is "From this device" (user, 2026-10-20:
     "it's not obvious to users that they can select a local file").
