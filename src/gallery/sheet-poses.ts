@@ -16,7 +16,7 @@ import type { SheetInstrument, ViewSheet } from './sheets.ts';
 import { PLAYING, stillPose } from './view-poses.ts';
 
 /** The moment of play that gives the pose of a model sheet (design 7.1). */
-export interface SheetMoment {
+interface SheetMoment {
   /** The test notes that the player plays. */
   readonly notes: readonly TestNote[];
   /** The song time of the pose, in seconds. */

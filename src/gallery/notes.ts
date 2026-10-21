@@ -9,7 +9,7 @@ export interface TestNote {
 }
 
 /** The result of {@link parseTestNotes}: the notes, or the first line that is not valid. */
-export type TestNotesResult =
+type TestNotesResult =
   | { readonly ok: true; readonly notes: readonly TestNote[] }
   | { readonly ok: false; readonly line: number };
 

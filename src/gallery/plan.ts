@@ -16,7 +16,7 @@ import type { TestNote } from './notes.ts';
 export const TEST_VELOCITY = 100;
 
 /** The time of one test beat: 120 BPM in 4/4 (design 7.1). */
-export const TEST_BEAT_SEC = 0.5;
+const TEST_BEAT_SEC = 0.5;
 
 /** The seed of the gallery pose. */
 const GALLERY_SEED = 1;

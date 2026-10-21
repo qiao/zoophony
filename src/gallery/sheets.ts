@@ -7,7 +7,7 @@ export type SheetId = 'fox' | 'rabbit' | 'dog' | 'polar-bear' | 'bear';
 export type SheetInstrument = 'violin' | 'cello' | 'piano' | 'baton';
 
 /** One view of a model sheet: the turn of the model and the place of its seat on the page. */
-export interface SheetView {
+interface SheetView {
   /**
    * The turn of the model from the front view, in degrees. 0 shows the front, 90 the right side,
    * and 180 the back. A value between them shows the front and the right side together.

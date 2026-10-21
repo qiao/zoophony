@@ -21,7 +21,7 @@ export interface ViewGroup {
 }
 
 /** One row of the views page: a title, the models, and the height of the models on the page. */
-export interface ViewRow {
+interface ViewRow {
   readonly title: string;
   /** The top of the title, in CSS pixels. */
   readonly titleTop: number;
@@ -208,7 +208,7 @@ export const BEAR_VIEW_ROWS: readonly ViewRow[] = [
 ];
 
 /** A page of the views page: its rows, and the demo that gives the playing poses. */
-export interface ViewPage {
+interface ViewPage {
   readonly rows: readonly ViewRow[];
   /** The demo whose first notes give the playing poses of the players. */
   readonly poseDemo: DemoId;
@@ -218,7 +218,7 @@ export interface ViewPage {
  * The pages of the views page (design 7.1). The page `animals` is the default. The demo of the
  * page of the bears has a piano and trombones.
  */
-export const VIEW_PAGES = {
+const VIEW_PAGES = {
   animals: { rows: VIEW_ROWS, poseDemo: 'beethoven-9' },
   bears: { rows: BEAR_VIEW_ROWS, poseDemo: 'boulanger-matin' },
 } as const satisfies Readonly<Record<string, ViewPage>>;

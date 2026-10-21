@@ -17,7 +17,7 @@ import type { AnimalPose, Transport } from '../pose/types.ts';
 import type { Score } from '../score/types.ts';
 
 /** The target of one hand of a static pose, in the axes of the model. */
-export interface HandTarget {
+interface HandTarget {
   /** The place of the wrist: the `hand` bone. */
   readonly wrist: Vector3;
   /** The world rotation of the hand. */
@@ -87,7 +87,7 @@ function poseOfWorld(model: PlayerModel, world: ReadonlyMap<BoneName, Quaternion
  * @param hands The target of the left and of the right hand. `null` keeps the arm down.
  * @returns The pose.
  */
-export function armsPose(
+function armsPose(
   model: PlayerModel,
   hands: { readonly L: HandTarget | null; readonly R: HandTarget | null },
 ): AnimalPose {

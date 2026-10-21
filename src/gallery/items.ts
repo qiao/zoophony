@@ -21,7 +21,7 @@ export interface GalleryItem {
 }
 
 /** The size of an item on the floor, and its height, in meters. */
-export interface ItemSize {
+interface ItemSize {
   readonly width: number;
   readonly depth: number;
   readonly height: number;
@@ -97,7 +97,7 @@ export const GALLERY_FOV_DEG = 30;
  * A close view of the gallery: a zoom of the camera, the height that it looks at, and the
  * direction of the camera.
  */
-export interface CloseView {
+interface CloseView {
   /** The camera distance is the distance that shows all models, divided by the zoom. */
   readonly zoom: number;
   /** The height of the point that the camera looks at, in meters. */
