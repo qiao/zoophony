@@ -2,7 +2,9 @@ import { MathUtils } from 'three';
 
 import { BOWED_HOLDS, SPECIES_HOLDS } from '../src/pose/bowed-rig.ts';
 import type { BowVia, BowedHold } from '../src/pose/bowed-rig.ts';
+import { CHOIR_HOLD } from '../src/pose/choir.ts';
 import { CONDUCTOR_HOLD, LEFT_HAND_PLACES } from '../src/pose/conductor.ts';
+import { CHOIR_FOLDER } from '../src/models/instruments/folder.ts';
 import {
   BASS_DRUM,
   SNARE_DRUM,
@@ -53,7 +55,9 @@ const OWN_HOLDS = Object.fromEntries(
  * `suspendedCymbal`, `tambourine`, `triangle`, and `bars` change the bass drum, the snare drum,
  * the suspended cymbal, the tambourine, the triangle, and the xylophone in the same way.
  * `suspended-cymbal` changes the hold of a species with a suspended cymbal
- * (`SpeciesParams.cymbalForm`), and `cymbals` the hold of the hand cymbals.
+ * (`SpeciesParams.cymbalForm`), and `cymbals` the hold of the hand cymbals. `choir` changes the
+ * hold of the flippers of a singer (`CHOIR_HOLD`), and `folder` the place of the choir folder
+ * (`CHOIR_FOLDER`).
  */
 const HOLDS = {
   piano: HANDS_HOLDS.piano,
@@ -64,6 +68,8 @@ const HOLDS = {
   contrabass: BOWED_HOLDS.contrabass,
   conductor: CONDUCTOR_HOLD,
   conductorLeft: LEFT_HAND_PLACES,
+  choir: CHOIR_HOLD,
+  folder: CHOIR_FOLDER,
   timpani: PERCUSSION_HOLDS.timpani,
   'bass-drum': PERCUSSION_HOLDS['bass-drum'],
   'snare-drum': PERCUSSION_HOLDS['snare-drum'],

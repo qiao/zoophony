@@ -10,7 +10,7 @@ import { armRig, handToward, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 
 /** The hold of the choir folder (design 5.3). */
-const CHOIR_HOLD = {
+export const CHOIR_HOLD = {
   /**
    * The elbows point down and a little out and back, so that the upper arms touch the sides of the
    * body, as in the reference images. Out and down, (1, -0.6, 0), they stood 49° out from the side.
