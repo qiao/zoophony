@@ -500,7 +500,10 @@ function tuba(lead: readonly [back: number, left: number]): BrassBuild {
   };
   return {
     pieces: [piece.build('instrument', hold('mouth', [0, 0, 0], IDENTITY))],
-    palmL: at([-0.15, 0.4, 0.02]),
+    // The middle of the left palm is 0.17 m from the axis of the main branch, at its back left,
+    // so that the thick paw of the rhino closes on the tube. At 0.09 m, the paw went 6.4 cm into
+    // the tube (docs/research/2026-10-21-mesh-rhino/pose-depth-grip.txt).
+    palmL: at([-0.22, 0.4, 0.06]),
     palmR: at([0.1, 0.47, 0.05]),
     targets: [bellTarget],
   };
