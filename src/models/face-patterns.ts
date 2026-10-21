@@ -2,12 +2,11 @@ import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 import { MIRROR_X, placeCorners, unknownValue } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { transform } from './mesh.ts';
-import { toQuat, toVec3 } from './tuples.ts';
+import { toQuat } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { EYE_DIRECTION, headSurface } from './head.ts';
-import type { SurfacePoint } from './head.ts';
-import { box, icosphere } from './primitives.ts';
+import { icosphere } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BipedParams } from './species.ts';
 
@@ -73,62 +72,8 @@ function addPatches(
 }
 
 /**
- * Adds a stripe along the head, from the front over the top to the back. The stripe is a chain of
- * flat boxes on the surface.
- *
- * @param builder The mesh that gets the parts.
- * @param color The color of the stripe.
- * @param h The head height `H`.
- * @param headCenter The center of the head.
- * @param side The place across the head, from -1 (left) to 1 (right), in the axes of a unit sphere.
- * @param width The width of the stripe, in H.
- * @param from The start angle above the front direction.
- * @param to The end angle above the front direction. 90° is the top of the head.
- * @param steps The number of boxes.
- */
-function addStripe(
-  builder: MeshBuilder,
-  color: Rgb,
-  h: number,
-  headCenter: Vec3,
-  side: number,
-  width: number,
-  from: number,
-  to: number,
-  steps: number,
-): void {
-  const across = Math.sqrt(1 - side * side);
-  const at = (angle: number): SurfacePoint =>
-    headSurface(h, headCenter, [side, across * Math.sin(angle), -across * Math.cos(angle)]);
-  for (let i = 0; i < steps; i++) {
-    const a = at(from + ((to - from) * i) / steps);
-    const b = at(from + ((to - from) * (i + 1)) / steps);
-    const start = new Vector3(...a.point);
-    const end = new Vector3(...b.point);
-    const along = end.clone().sub(start);
-    const normal = new Vector3(...a.normal).add(new Vector3(...b.normal)).normalize();
-    const y = along.clone().projectOnPlane(normal).normalize();
-    const x = new Vector3().crossVectors(y, normal);
-    const basis = new Matrix4().makeBasis(x, y, new Vector3().crossVectors(x, y));
-    // The middle of a chord is inside the curved surface. The box moves out by half of the gap,
-    // so that its ends do not stand far above the surface.
-    const middle = start.clone().add(end).multiplyScalar(0.5);
-    const center = new Vector3(...headCenter);
-    const gap = 0.5 * Math.abs(start.distanceTo(center) - middle.distanceTo(center));
-    builder.add(box(width * h, along.length(), PATTERN_THICKNESS * h), {
-      color,
-      bone: boneIndex('head'),
-      at: transform(
-        toVec3(middle.addScaledVector(normal, gap)),
-        toQuat(new Quaternion().setFromRotationMatrix(basis)),
-      ),
-    });
-  }
-}
-
-/**
  * Adds the face pattern of a species to the head (design 4.3, 4.5). The pattern has the accent
- * color, except the middle stripe of `stripe` and the face disc, which have the belly color.
+ * color, except the face disc, which has the belly color.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -153,34 +98,6 @@ export function addFacePattern(
       return;
     case 'cap':
       // The cap colors the faces of the head itself (`buildBiped()`), so it adds no part.
-      return;
-    case 'stripe':
-      // A stripe of the belly color from the nose over the head, between two accent stripes
-      // that run over the eyes.
-      addStripe(
-        builder,
-        colors.belly,
-        h,
-        headCenter,
-        0,
-        0.18,
-        -5 * MathUtils.DEG2RAD,
-        150 * MathUtils.DEG2RAD,
-        7,
-      );
-      for (const side of [-0.36, 0.36]) {
-        addStripe(
-          builder,
-          color,
-          h,
-          headCenter,
-          side,
-          0.14,
-          -5 * MathUtils.DEG2RAD,
-          150 * MathUtils.DEG2RAD,
-          7,
-        );
-      }
       return;
     case 'face-disc':
       // A large face of the belly color around each eye, which joins the face below the eyes.
