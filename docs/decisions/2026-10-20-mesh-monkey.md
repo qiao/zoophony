@@ -5,8 +5,9 @@ each section.
 
 On 2026-10-20, the user said: "after these are done, use the monkey model at
 ~/Downloads/Meshy_AI_monkey_remeshed_3k_tr_1020213010_texture.glb". The agent of the round
-`mesh-monkey` decided the rows with no quote of the user, in phase 1 and phase 2. The report [`2026-10-20-mesh-monkey.md`](../research/2026-10-20-mesh-monkey.md) gives
-the measures. The user can reverse each decision. Then update its section, and remove its row.
+`mesh-monkey` decided the rows with no quote of the user, in phase 1 and phase 2. The report
+[`2026-10-20-mesh-monkey.md`](../research/2026-10-20-mesh-monkey.md) gives the measures.
+The user can reverse each decision. Then update its section, and remove its row.
 
 | Decision | Section |
 |---|---|
