@@ -55,7 +55,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    `sit` of the config, the underside of the haunch behind the hip joints goes down onto the seat
    (`sit()`). With `studio.trunk`,
    the trunk then reclines: the pelvis turns back around the head of the hips until the hip
-   angle opens by `open` degrees (`trunk_turn()`), each trunk bone takes its share of the turn,
+   angle opens by `open` degrees (`trunk_turn()`), or forward for a negative `open`, each trunk
+   bone takes its share of the turn,
    the haunch and the root of the tail rise onto the seat top (`seat_lift()`), and the tip of a
    tail of two bones keeps the height of its end. With `crease`, the bind is smoothed across the
    crease where the belly meets the top of each thigh (`crease_relax()`).
@@ -2288,9 +2289,10 @@ def hip_angle(heads):
 
 def trunk_turn(config, heads, ends, rolls):
     """Finds the recline of the seated bind pose (`studio.trunk`): the turn of the pelvis, in
-    degrees, that opens the hip angle (`hip_angle()`) by `open` degrees. Each trunk bone takes its
-    share of the turn as its world turn, so that the counter turn of the upper trunk keeps the
-    head about level. Gives 0 with no rule."""
+    degrees, that opens the hip angle (`hip_angle()`) by `open` degrees. A negative `open` closes
+    the hip angle, so the trunk leans forward, as for the standing monkey, which brings its center
+    of mass over its feet. Each trunk bone takes its share of the turn as its world turn, so that
+    the counter turn of the upper trunk keeps the head about level. Gives 0 with no rule."""
     rule = config['studio'].get('trunk')
     if not rule or rule['open'] == 0:
         return 0.0
@@ -2299,7 +2301,7 @@ def trunk_turn(config, heads, ends, rolls):
     for _ in range(50):
         mid = (low + high) / 2
         turns = bind_turns(config, heads, ends, rolls, mid)
-        if hip_angle(posed_heads(heads, turns)) - upright < rule['open']:
+        if (hip_angle(posed_heads(heads, turns)) - upright < rule['open']) == (rule['open'] > 0):
             low = mid
         else:
             high = mid
