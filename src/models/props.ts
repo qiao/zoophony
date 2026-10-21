@@ -26,13 +26,16 @@ export const STAGE_COLORS = {
    * darker walnut `#3b2618` then gave a lit floor that was too dark and too pale. The side lights
    * are a warm white, so the wood holds the amber itself: `#5e351a` gave a lit floor with a
    * saturation of 0.44 against 0.54 in `orchestra-latest.png`, and shadows that were too dark.
+   * `#844c16` read as a bright, even amber, and the user found the stage over-exposed
+   * (2026-10-21). The plank is now 0.85 of it in linear values, so the lit players stand out of
+   * the floor.
    */
-  plank: srgb('#844c16'),
+  plank: srgb('#7a4614'),
   /**
    * The dark line between two planks, at 0.68 of the plank color in linear values. The stage
    * shader finds a seam by this color, so no plank has it.
    */
-  seam: srgb('#6e3f11'),
+  seam: srgb('#663a0f'),
   /**
    * The raised lip around the stage top, with a round top that catches the light. The lip and the
    * risers follow the plank color, by the same factor of each linear channel.
