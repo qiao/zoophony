@@ -61,6 +61,12 @@ prints only a one-line usage text.
 | `pnpm look-lab <dir> [--url <url>]`, `pnpm look-variants <file> --out <dir>` | Measure frames of `close-views play` against `orchestra-latest.png`: one tree, or each variant. 40 s each. |
 | `pnpm keyboard` | Checks each control with the keyboard alone at 1440 × 900 and 390 × 844 (design 9.5, step 6), and fails on a failed check. |
 
+## Sound
+
+| Command | Action |
+|---|---|
+| `pnpm loudness [--demo <id>]... [--fit] [--target <LUFS>]... [--json]` | Renders each demo in Node with the synth, the SoundFont, and the stage mix, then sends it through `output-chain.ts` in an `OfflineAudioContext` of headless Chromium (design 6.8). It prints the integrated loudness, the loudness range, the true peak, the median short-term loudness of the first 30 s, the share below -30 LUFS short-term, and the gain reduction of the limiter. `--fit` gives the value of `DEMO_LOUDNESS` for `TARGET_LOUDNESS`, and `--target` for another target. It uses a free port. About 25 s for each demo. |
+
 ## Pose and body probes
 
 These probes run with no build, and the source files do not change. They read the demos and the
