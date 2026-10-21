@@ -303,8 +303,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   moves off the mouth and turns down in front of the chest, with the bell down, and both paws
   keep their grips (`docs/decisions/2026-10-20-mesh-monkey.md`). No source of
   `docs/reference/wind-technique.md` gives the rest of an orchestral trumpet player.
-- **Tuba at rest.** The standing rhino moves the tuba off the mouth, and the lower end turns 5°
-  forward, and both paws keep their grips (`RHINO_TUBA`). No source of
+- **Tuba at rest.** The standing rhino moves the tuba off the mouth, and the lower end turns a
+  little forward, and both paws keep their grips (`RHINO_TUBA`). No source of
   `docs/reference/wind-technique.md` gives the rest of a tubist between two entrances
   (`docs/decisions/2026-10-21-mesh-rhino.md`).
 - **Horn at rest.** The seated and the standing pig move the horn off the mouth, lower and
