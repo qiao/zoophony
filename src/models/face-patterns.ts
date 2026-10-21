@@ -91,9 +91,6 @@ export function addFacePattern(
   switch (species.facePattern) {
     case 'none':
       return;
-    case 'cap':
-      // The cap colors the faces of the head itself (`buildBiped()`), so it adds no part.
-      return;
     case 'face-disc':
       // A large face of the belly color around each eye, which joins the face below the eyes.
       addPatches(builder, colors.belly, h, headCenter, EYE_DIRECTION, [0.4, 0.44], 0);

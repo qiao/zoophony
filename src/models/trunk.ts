@@ -133,12 +133,6 @@ type TorsoPoint = readonly [radius: number, y: number, belly: number];
 /** The depth of the back of the torso, as a factor of the half width. The back of 0.85 was too deep. */
 const BACK = 0.72;
 
-/** The half width of the blaze of the `cap` face pattern down the middle of the face, in H. */
-const CAP_BLAZE = 0.13;
-
-/** The height of the lower edge of the `cap` face pattern above the head center, in H. */
-const CAP_BOTTOM = -0.14;
-
 /**
  * The cosine below which a face of the head faces the back. The faces of the lower face that do
  * not face the back get the belly color: the cheeks, the jaw, and the face up to the eyes.
@@ -172,7 +166,7 @@ export function buildTrunk(
   const neckTop = at(0, heights(NECK + NECK_LENGTH), 0);
   addLimb(builder, neck, neckTop, [0.3 * h, 0.27 * h], colors.fur, 'neck');
   const headCenter = at(0, proportions.headCenter, 0);
-  addHead(builder, species, colors, h, headCenter);
+  addHead(builder, colors, h, headCenter);
 
   const [eyeL, eyeR] = addEyes(builder, species, colors, h, headCenter);
   const [earL, earR] = addEars(builder, species, colors, h, headCenter);
@@ -290,43 +284,17 @@ function addTorso(
 
 /**
  * Adds the head with its colors. The lower face (the cheeks, the jaw, and the face up to the
- * eyes) gets the belly color. The forehead and the back of the head keep the fur color. The
- * `cap` face pattern colors the head in place of this split.
+ * eyes) gets the belly color. The forehead and the back of the head keep the fur color.
  *
  * @param builder The mesh that gets the parts.
- * @param species The species parameters.
  * @param colors The colors of the species.
  * @param h The head height, in meters.
  * @param headCenter The center of the head.
  */
-function addHead(
-  builder: MeshBuilder,
-  species: BipedParams,
-  colors: BodyColors,
-  h: number,
-  headCenter: Vec3,
-): void {
+function addHead(builder: MeshBuilder, colors: BodyColors, h: number, headCenter: Vec3): void {
   const headPlace = transform(headCenter, undefined, [h, h, h]);
   const [lower, upper] = splitByCentroid(HEAD_CORNERS, ([, y]) => y < LOWER_FACE_TOP);
   const [nape, face] = splitByFacing(lower, [0, 0, 1], -BACK_FACING);
-
-  if (species.facePattern === 'cap') {
-    // The cap of a beagle: the accent color over the head down to below the eyes, with a blaze
-    // of the belly color down the middle of the face.
-    const [blaze, other] = splitByCentroid(
-      HEAD_CORNERS,
-      ([x, , z]) => z < 0 && Math.abs(x) < CAP_BLAZE,
-    );
-    const [cap, white] = splitByCentroid(other, ([, y]) => y > CAP_BOTTOM);
-    const capColor = partColor(species, colors, 'face-pattern');
-    builder.add([...blaze, ...white], {
-      color: colors.belly,
-      bone: boneIndex('head'),
-      at: headPlace,
-    });
-    builder.add(cap, { color: capColor, bone: boneIndex('head'), at: headPlace });
-  } else {
-    builder.add(face, { color: colors.belly, bone: boneIndex('head'), at: headPlace });
-    builder.add([...upper, ...nape], { color: colors.fur, bone: boneIndex('head'), at: headPlace });
-  }
+  builder.add(face, { color: colors.belly, bone: boneIndex('head'), at: headPlace });
+  builder.add([...upper, ...nape], { color: colors.fur, bone: boneIndex('head'), at: headPlace });
 }
