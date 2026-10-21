@@ -591,11 +591,21 @@ const WOLF_CLARINET = {
 /**
  * The trumpet hold of the monkey (design 5.3), the hold of a real trumpet player
  * (`docs/reference/wind-technique.md` 2.1): the right fingertips on the valves, the left paw
- * holds the weight, and the trumpet points forward, angled slightly down. It has the values of
- * {@link WIND_HOLDS}.
+ * holds the weight, and the trumpet points forward, angled slightly down. The play turn, the rest,
+ * and the shoulders are those of {@link WIND_HOLDS}. The monkey keeps the arms and plays the
+ * smaller trumpet that the user chose (`SpeciesParams.trumpetScale`).
+ *
+ * The big head puts the mouth about 0.17 m above the shoulder joints, so the grips are above the
+ * shoulders. Both elbows point down and a little out, as a real player lets the elbows hang. Of 5
+ * elbow directions that pass the arm gate, this one gave the smallest paw turns on the forearms:
+ * 103° (left) and 106° (right) in the play, against 117° and 134° with the elbows of
+ * {@link WIND_HOLDS}. Elbows out and higher gave level forearms, but the right upper arm went flat
+ * (`docs/research/2026-10-20-mesh-monkey/arm-poles.txt`).
  */
 const MONKEY_TRUMPET = {
   ...WIND_HOLDS.trumpet,
+  poleL: [-0.3, -1, 0],
+  poleR: [0.3, -1, 0],
 } as const satisfies WindHold;
 
 /**
