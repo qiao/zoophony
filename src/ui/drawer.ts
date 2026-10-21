@@ -3,7 +3,7 @@ import { createButton, createElement, setAttribute } from './dom.ts';
 import { createIcon } from './icons.ts';
 
 /** A tab of the drawer (design 2.8). */
-export type DrawerTab = 'demos' | 'seats' | 'settings';
+type DrawerTab = 'demos' | 'seats' | 'settings';
 
 /** The controls of one tab of the drawer. */
 interface TabParts {

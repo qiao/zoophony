@@ -10,7 +10,7 @@ import type { TitleLine } from './title-shade.ts';
  *
  * @returns The logo element.
  */
-export function createLogo(): HTMLElement {
+function createLogo(): HTMLElement {
   const logo = createElement('div', 'logo');
   logo.append(createIcon('paw'), createElement('span', '', APP_NAME));
   return logo;

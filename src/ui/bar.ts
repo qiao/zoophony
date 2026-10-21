@@ -27,7 +27,7 @@ export interface BarActions {
 }
 
 /** What the bar shows in one frame. */
-export interface BarView {
+interface BarView {
   /**
    * The label of the play button. "Play again" at the song end gives the icon "replay" (design
    * 2.8, audit 2026-10-05-ux-design, AM2).

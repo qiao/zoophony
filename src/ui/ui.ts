@@ -26,7 +26,7 @@ import { Tooltips } from './tooltip.ts';
 const STAGE_FADE_MS = 150;
 
 /** The actions of all controls of the UI. */
-export interface UiActions extends BarActions {
+interface UiActions extends BarActions {
   /** A click on the play button of the first screen. */
   readonly onFirstPlay: () => void;
   /** A click on a row of the demo list. */

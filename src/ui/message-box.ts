@@ -3,7 +3,7 @@ import { createButton, createElement, setText } from './dom.ts';
 import { createIcon } from './icons.ts';
 
 /** What the message box shows: the kind, the text, and the "Try again" button. */
-export interface MessageView {
+interface MessageView {
   /** `note` gives the bar on the left in `--accent` in place of `--danger` (design 2.8). */
   readonly kind: 'error' | 'note';
   readonly text: string;
@@ -11,7 +11,7 @@ export interface MessageView {
 }
 
 /** The actions of the buttons of the message box. */
-export interface MessageActions {
+interface MessageActions {
   /** A click on "Try again". */
   readonly onRetry: () => void;
   /** A click on the close button, or the Escape key in the message. */
