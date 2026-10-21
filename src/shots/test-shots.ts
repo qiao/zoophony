@@ -49,7 +49,7 @@ export function shotSceneOf(file: string, bytes: Uint8Array, seed = TEST_SEED): 
 }
 
 /** The bytes of one demo after the changes of `demos/patches.json`. */
-export interface DemoBytes {
+interface DemoBytes {
   readonly file: string;
   readonly bytes: Uint8Array;
 }

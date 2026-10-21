@@ -129,7 +129,7 @@ export type ChoiceRule =
   | 'sideSpacing';
 
 /** A candidate that a rule of the choice drops before the scores. */
-export interface DroppedTrace {
+interface DroppedTrace {
   /** The kind and the subject, such as `solo 3`. */
   readonly id: string;
   /** The kind of the shot. */

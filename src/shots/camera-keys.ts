@@ -5,7 +5,7 @@ import type { ShotKey } from './types.ts';
 import { defaultDistance } from './view.ts';
 
 /** The fit distance keeps 5% of space around the subject sphere (design 5.6). */
-export const FIT_MARGIN = 1.05;
+const FIT_MARGIN = 1.05;
 
 /**
  * Calculates the distance at which a sphere fills the view (design 5.6): `radius / sin(min(v, h))

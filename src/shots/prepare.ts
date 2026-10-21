@@ -110,7 +110,7 @@ export const SHOT_TIMES = {
 } as const;
 
 /** The bonus of a downbeat as a cut point (design 5.6). */
-export const CUT_BONUS = {
+const CUT_BONUS = {
   /** A bar index that is a multiple of 4: a phrase line. */
   phrase: 0.5,
   /** A bar index that is a multiple of 2. */
@@ -141,10 +141,10 @@ export const CUT_BONUS = {
  * The reach of an entry (design 5.6), in bars: a cut from a quarter of a bar before the entry to
  * one bar after it is a cut at the entry.
  */
-export const ENTRY_REACH = { before: 0.25, after: 1 } as const;
+const ENTRY_REACH = { before: 0.25, after: 1 } as const;
 
 /** The weights of the choice of the next shot (design 5.6). */
-export const CHOICE_WEIGHTS = {
+const CHOICE_WEIGHTS = {
   wide: 0.8,
   wideTutti: 2.2,
   high: 0.3,
@@ -194,7 +194,7 @@ export const CHOICE_WEIGHTS = {
 } as const;
 
 /** The blend rule of design 5.6. */
-export const BLEND_RULES = {
+const BLEND_RULES = {
   /** A beat of this length or longer is slow music. */
   slowBeatSec: 0.75,
   /** A mean loudness of this value or less is soft music. */
@@ -213,7 +213,7 @@ export const JUMP_CUT = { angle: 30 * DEG, sizeRatio: 1.5 } as const;
  * The search of a clear camera (design 5.6): the wanted azimuth, then these steps to each side,
  * then the same azimuths higher.
  */
-export const KEY_SEARCH = {
+const KEY_SEARCH = {
   azimuthSteps: [0, 12, 24, 36, 48, 60, 72].map((d) => d * DEG),
   /**
    * The steps of the full search of an entry, after the steps above: each place of the grid, up
@@ -260,7 +260,7 @@ export const KEY_SEARCH = {
  * The aspects that the planner tests: the nearest camera (each view as wide as it is tall, or
  * wider) and the farthest camera (a phone in portrait, 390 × 844).
  */
-export const TEST_ASPECTS = { near: 1, far: 0.46 } as const;
+const TEST_ASPECTS = { near: 1, far: 0.46 } as const;
 
 /** The samples of a move that the planner tests, as parts of the move. */
 const MOVE_SAMPLES = [0, 0.25, 0.5, 0.75, 1] as const;
@@ -287,7 +287,7 @@ const SIGHT_SAMPLES = Array.from({ length: 65 }, (...[, i]) => i / 64);
 const BEAM_ASPECTS = [TEST_ASPECTS.near, 0.7, TEST_ASPECTS.far] as const;
 
 /** The smallest distance of a camera from the surface of the cone of the beam, in meters. */
-export const BEAM_MARGIN = 0.3;
+const BEAM_MARGIN = 0.3;
 
 /**
  * A close camera stays nearer to the stage center than this part of the default distance. Free
@@ -354,7 +354,7 @@ function defaultKey(zoom: number): ShotKey {
  * a slightly lower camera (2026-10-20), so each elevation is 3° lower than before, and 2° for the
  * conductor, which stays above its head.
  */
-export const SHOT_KEYS = {
+const SHOT_KEYS = {
   /**
    * The push-in keeps the wide camera farther than 0.5 of the default distance, the end of the
    * beam fade of Free mode (design 4.5).
@@ -597,7 +597,7 @@ function signOf(random: () => number): number {
  * @param u The part of the move, from 0 to 1.
  * @returns The mixed key.
  */
-export function mixKeys(a: ShotKey, b: ShotKey, u: number): ShotKey {
+function mixKeys(a: ShotKey, b: ShotKey, u: number): ShotKey {
   return {
     azimuth: a.azimuth + (b.azimuth - a.azimuth) * u,
     elevation: a.elevation + (b.elevation - a.elevation) * u,
@@ -1794,7 +1794,7 @@ function blendOf(
  * @param held The boxes of the bodies of the two subjects.
  * @returns True if the path is clear.
  */
-export function pathClear(
+function pathClear(
   clearance: StageClearance,
   a: Vec3,
   b: Vec3,

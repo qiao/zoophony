@@ -44,7 +44,7 @@ export const DRAWER_COVER = 352;
  * The share of the height of the window that the sheet of a phone moves the frame up, less
  * {@link SHEET_LIFT.below} (design 2.8).
  */
-export const SHEET_LIFT = { share: 0.3, below: 20 } as const;
+const SHEET_LIFT = { share: 0.3, below: 20 } as const;
 
 /**
  * Calculates the frame of the camera on the canvas (design 4.5, camera). The middle of the frame
@@ -70,7 +70,7 @@ export function viewFrame(width: number, height: number, cover: FrameCover, fit 
 }
 
 /** The space between the stage and the play button of the first screen, in CSS pixels. */
-export const FIRST_SCREEN_MARGIN = 12;
+const FIRST_SCREEN_MARGIN = 12;
 
 /**
  * Gives the move of the frame above the sheet of a phone (design 2.8): 30% of the height less

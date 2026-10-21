@@ -4,7 +4,7 @@ import { noteLoudness } from '../pose/loudness.ts';
 import type { Score } from '../score/types.ts';
 
 /** The values of the music rules of the shots (design 5.6). */
-export const MUSIC_RULES = {
+const MUSIC_RULES = {
   /** A seat with players is active in a window when its notes cover this part of it. */
   activeCoverage: 0.3,
   /** Activity is `coverage × (activityBase + loudness)`. */

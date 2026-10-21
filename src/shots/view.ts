@@ -38,7 +38,7 @@ export const DEFAULT_AZIMUTH = 0;
  * unit of the wide and high shots, of the planner, and of the beam fade of Free mode. The default
  * view stands nearer: see {@link LANDSCAPE_RULE}.
  */
-export const DEFAULT_DISTANCE_IN_SIDES = 3.3;
+const DEFAULT_DISTANCE_IN_SIDES = 3.3;
 
 /**
  * The landscape rule of the wide views (design 4.5, camera). The user asked on 2026-10-06 for the
@@ -46,7 +46,7 @@ export const DEFAULT_DISTANCE_IN_SIDES = 3.3;
  * view stands at a part of the default distance. On a narrower landscape viewport, the camera
  * moves back with the width, so that the orchestra keeps its part of the width.
  */
-export const LANDSCAPE_RULE = {
+const LANDSCAPE_RULE = {
   /**
    * The part of the default distance at this aspect and wider. It was 0.56 with the lower view of
    * 25°. At 33°, 0.56 put the players of K. 525 from 0.00 to 0.98 of the free area.
@@ -132,7 +132,7 @@ export function orbitMinDistance(
 export const MAX_DISTANCE_FACTOR = 2;
 
 /** The default view of the camera for one stage and one viewport. */
-export interface DefaultView {
+interface DefaultView {
   /** The point that the camera looks at: {@link DEFAULT_TARGET}. */
   readonly target: Vec3;
   readonly position: Vec3;
@@ -182,7 +182,7 @@ export function portraitShare(aspect: number): number {
 }
 
 /** The camera of a wide view after the portrait rule. */
-export interface WideAngles {
+interface WideAngles {
   /** Radians around y, from +z (the audience) to +x. */
   readonly azimuth: number;
   /** Radians above the stage plane. */

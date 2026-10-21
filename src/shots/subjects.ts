@@ -150,7 +150,7 @@ interface SeatPlayers {
 }
 
 /** The places of the conductor that the shots read. */
-export interface ConductorSubjects {
+interface ConductorSubjects {
   /** The target of the close view of the conductor: the shoulders of the bear. */
   readonly target: Vec3;
   /** The sight points of the conductor: its head and the beat points of its two hands. */
@@ -224,7 +224,7 @@ const HEAD_RADIUS_IN_H = 0.6;
  * 2026-10-05, SC1). The camera of a piano shot stands on the right of the pianist, the side of
  * the high keys and of the open lid, and higher.
  */
-export const KEYBOARD_VIEW = {
+const KEYBOARD_VIEW = {
   /**
    * The front of a piano subject turns this far from the front of the pianist, to its right: the
    * profile of the pianist over the high keys. With a turn of 100° and the full offset of a solo
@@ -244,7 +244,7 @@ export const KEYBOARD_VIEW = {
  * @param facing The facing, in radians around y. 0 faces -z.
  * @returns The azimuth, in radians from +z to +x.
  */
-export function frontOf(facing: number): number {
+function frontOf(facing: number): number {
   return azimuthOf(-Math.sin(facing), -Math.cos(facing));
 }
 

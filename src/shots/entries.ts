@@ -2,16 +2,16 @@ import { lastAtOrBefore } from '../pose/blend.ts';
 import type { Beat, PlayerNote } from '../score/types.ts';
 
 /** The shortest rest before an entry of the camera, in full bars (design 5.6). */
-export const ENTRY_REST_BARS = 2;
+const ENTRY_REST_BARS = 2;
 
 /**
  * The shortest rest before an entry of the camera, in seconds (design 5.6). Two bars of the
  * Boulanger demo last 2.5 s, and its seats then had 125 entries in 280 s: one in each 2.2 s.
  */
-export const ENTRY_REST_SEC = 4;
+const ENTRY_REST_SEC = 4;
 
 /** An entry of a seat after a long rest: a cut point and a subject of the camera. */
-export interface Entry {
+interface Entry {
   /** The start of the first note of the entry, in song seconds. */
   readonly start: number;
   readonly seatIndex: number;

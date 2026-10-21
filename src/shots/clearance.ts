@@ -23,7 +23,7 @@ export const CLEARANCE = {
  * hands, or the instrument behind heads, stands, and the piano case, because one line to the
  * target passed (UX audit 2026-10-05, SC1).
  */
-export const SIGHT = {
+const SIGHT = {
   /** A line of sight starts this far from its point, toward the camera. */
   start: 0.15,
   /** The boxes within this distance of a hand or an instrument point are a part of it. */
@@ -53,10 +53,10 @@ export interface ClearBox extends PlacedBox {
 }
 
 /** The kinds of obstacle on the stage. */
-export type ObstacleKind = 'conductor' | 'player' | 'stand' | 'risers';
+type ObstacleKind = 'conductor' | 'player' | 'stand' | 'risers';
 
 /** One obstacle: its boxes and a circle around them in the stage plane. */
-export interface ClearObstacle {
+interface ClearObstacle {
   /**
    * The index of the player in `SceneLayout.players`, {@link CONDUCTOR_OWNER}, or a negative
    * value for a stand or the risers.
@@ -402,7 +402,7 @@ export function segmentClear(
  * @param b The end.
  * @returns `out`.
  */
-export function setSegment(out: Segment, a: Vec3, b: Vec3): Segment {
+function setSegment(out: Segment, a: Vec3, b: Vec3): Segment {
   out.ax = a[0];
   out.ay = a[1];
   out.az = a[2];
