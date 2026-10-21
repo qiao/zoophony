@@ -390,10 +390,10 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   layout would add the model code to a chunk of the first download (7.2).
 - **Gain of the piece.** The input gain is `SOUNDFONT_HEADROOM_DB` (6.2) plus the gain of the
   piece. `pieceGainDb()` brings each demo to -18 LUFS (integrated, ITU-R BS.1770-4) at the output
-  of the chain, from `DEMO_LOUDNESS` of `audio/demo-loudness.ts`.
-  [`research/demo-loudness.md`](../research/demo-loudness.md) measured each demo with the code of
-  the chain in an `OfflineAudioContext`. A file of the user and `perf-60.mid` get 0 dB, and the
-  limiter catches the peaks.
+  of the chain, from `DEMO_LOUDNESS` of `audio/demo-loudness.ts`. `pnpm loudness --fit` measures
+  each value with the code of the chain in an `OfflineAudioContext`. Run it again after a change
+  of a demo file, the SoundFont, the mix, the hall, or the limiter. A file of the user and
+  `perf-60.mid` get 0 dB, and the limiter catches the peaks.
 - **Hall.** The convolver does not normalize the impulse response, so the wet gain sets the level
   of the hall against the room of the synth.
 - **Limiter.** A `DynamicsCompressorNode` adds a fixed makeup gain. The trim gain removes it, so

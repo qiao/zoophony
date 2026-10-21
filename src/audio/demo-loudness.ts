@@ -6,27 +6,26 @@ export const TARGET_LOUDNESS = -18;
 /**
  * The loudness of each demo that {@link pieceGainDb} corrects, in LUFS: the target minus the
  * piece gain that gives {@link TARGET_LOUDNESS} (ITU-R BS.1770-4, integrated) after the limiter
- * and its trim. `docs/research/demo-loudness.md` measured it on 2026-10-06 for each full demo,
- * with the SoundFont of design 6.2, the stage mix, the room of the synth, and the code of
- * `output-chain.ts` in an OfflineAudioContext of headless Chromium. For a demo that the limiter
- * does not touch, the value is the loudness with the piece gain 0 dB. The same method measured
- * the Beethoven 9 excerpt of 2026-10-06 (`docs/research/2026-10-06-joyful-ode.md`).
+ * and its trim. `pnpm loudness --fit` measures it for each full demo, with the SoundFont of
+ * design 6.2, the stage mix, the room of the synth, and the code of `output-chain.ts` in an
+ * OfflineAudioContext of headless Chromium (`docs/research/2026-10-21-demo-loudness.md`). For a
+ * demo that the limiter does not touch, the value is the loudness with the piece gain 0 dB.
  */
 export const DEMO_LOUDNESS = {
-  'boulanger-matin': -18.4,
+  'boulanger-matin': -18.5,
   'beethoven-9': -11.5,
   'mozart-k525': -29.1,
   'bach-bwv1048': -19.3,
   'beethoven-8': -21.1,
   'mozart-k315': -22.3,
-  'beethoven-1': -21.0,
-  'brahms-2': -17.5,
-  'beethoven-8-4': -19.5,
-  'bach-bwv1047': -19.0,
-  'bach-bwv1050': -21.5,
-  'mendelssohn-op61': -22.0,
-  'mozart-k417': -24.0,
-  'mozart-k191': -24.5,
+  'beethoven-1': -16.0,
+  'brahms-2': -16.4,
+  'beethoven-8-4': -17.1,
+  'bach-bwv1047': -13.7,
+  'bach-bwv1050': -21.6,
+  'mendelssohn-op61': -21.0,
+  'mozart-k417': -17.2,
+  'mozart-k191': -16.1,
 } as const satisfies Record<DemoId, number>;
 
 /** The values of {@link DEMO_LOUDNESS}, for a lookup with any file name. */

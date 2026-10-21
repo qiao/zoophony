@@ -266,3 +266,5 @@ The decision files:
 - [`2026-10-21-tool-speedups.md`](decisions/2026-10-21-tool-speedups.md): `--glb` of `pnpm pose-depth` and `pnpm hold-fit` in the copy of the glb swap, and the variants of `pnpm arm-check` in parallel children.
 - [`2026-10-21-rabbit-armpit.md`](decisions/2026-10-21-rabbit-armpit.md): the soft normals and the fair copy of the mesh at the notch under the right armpit of the rabbit, the soft normals of the left arm seam, a twist bone of each upper arm, and the shadow of the arm at the seam.
 - [`2026-10-21-stage-exposure.md`](decisions/2026-10-21-stage-exposure.md): the exposure of the stage, the soft shoulder of the grade, the smaller pool of light, the darker planks, the beam, the fill of the floor, and the softer shadows of the players.
+- [`2026-10-21-rabbit-armpit.md`](decisions/2026-10-21-rabbit-armpit.md): the soft normals and the fair copy of the mesh at the notch under the right armpit of the rabbit, where the cut faces and the rim showed as a jagged dark gap under the raised bow arm.
+- [`2026-10-21-demo-loudness.md`](decisions/2026-10-21-demo-loudness.md): the values of the demo loudness from `pnpm loudness`.
