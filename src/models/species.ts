@@ -517,10 +517,11 @@ export const SPECIES = {
    * mesh of the user, `assets/models/monkey/monkey.glb`, which `pnpm rig-mesh monkey` rigs (design
    * 4.4), with 1.1 times the size of the parametric monkey and the longer arms that the user
    * chose (2026-10-20-mesh-monkey decisions). It plays a smaller trumpet, the size that the user chose.
-   * It has no chair, as the user chose: the short thighs put the seat low, so it stands on its
-   * hind legs with bent knees, in the seated pose at the seat height of its legs. Its long tail
-   * goes back and down, and its curl stands on the floor behind it. It stands upright as a
-   * soloist. Its head height is the head of the studio body, and the seat height is the seat of
+   * It has no chair, as the user chose, so it stands on its hind legs with bent knees, in the
+   * seated pose at the seat height of its legs. Its feet stand under its hips, and its trunk leans
+   * forward with the head level, so that its center of mass is over the middle of its soles
+   * (2026-10-21-monkey-stand decisions). Its long tail goes back and down, and its curl stands on
+   * the floor behind it. It stands upright as a soloist. Its head height is the head of the studio body, and the seat height is the seat of
    * the studio body, in H.
    */
   monkey: {
