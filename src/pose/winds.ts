@@ -611,10 +611,26 @@ const MONKEY_TRUMPET = {
 } as const satisfies WindHold;
 
 /**
- * The tuba hold of the rhino (design 5.3), with the values of {@link WIND_HOLDS} as a start.
+ * The tuba hold of the rhino (design 5.3), the hold of a real tubist who stands with the tuba on a
+ * strap (`docs/reference/wind-technique.md` 3): the tuba stands against the body, the bell at the
+ * left of the head, the left paw on the main branch, and the right paw on the valves. The long
+ * muzzle puts the mouthpiece 0.51 m in front of the shoulder joints, so the lead pipe of the tuba
+ * is longer (`SpeciesParams.tubaPipe`), the right shoulder turns 30° forward, and the left
+ * shoulder 40°, as the shoulder blades of a real player slide forward. The lower end of the tuba
+ * turns 25° to the right, so that the bell stands at the left of the horn on the muzzle. The
+ * elbows point out, down, and forward. At rest, the tuba moves off the mouth and its lower end
+ * turns 5° forward (`docs/research/2026-10-21-mesh-rhino.md`).
  */
 const RHINO_TUBA = {
   ...WIND_HOLDS.tuba,
+  reach: 30 * MathUtils.DEG2RAD,
+  reachL: 40 * MathUtils.DEG2RAD,
+  play: holdTurn(0, 25),
+  poleL: [-1, -0.5, -0.5],
+  poleR: [1, -0.5, -0.5],
+  rest: holdTurn(5, 20),
+  restPoleL: [-1, -0.5, -0.5],
+  restPoleR: [1, -0.5, -0.5],
 } as const satisfies WindHold;
 
 /**

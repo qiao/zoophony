@@ -197,6 +197,9 @@ const BADGER_DECISIONS = 'docs/decisions/2026-10-20-mesh-badger.md';
 /** The decision file of the beaver mesh and its bassoon. */
 const BEAVER_DECISIONS = 'docs/decisions/2026-10-19-mesh-beaver.md';
 
+/** The decision file of the rhino mesh. */
+const RHINO_DECISIONS = 'docs/decisions/2026-10-21-mesh-rhino.md';
+
 /** The decision file of cheerful demos. */
 const CHEERFUL_DEMO_DECISIONS = 'docs/decisions/2026-10-14-cheerful-demos.md';
 
@@ -1771,6 +1774,15 @@ export const TUBIST_SWEEP: RoleSweep = {
     { name: 'body', surface: rhinoBodySurface },
     { name: 'tuba', surface: instrumentSurface },
   ],
+  accepted: ['play', 'lift', 'rest', 'lower'].map((samples) => ({
+    part: 'paws',
+    into: 'tuba',
+    samples,
+    depth: 0.022,
+    reason:
+      'The thick left paw of the rhino closes on the main branch of the tuba, and its fingers go up to 2.1 cm into the tube (design 5.3).',
+    decision: RHINO_DECISIONS,
+  })),
   hasRole: (score) => score.seats.some((seat) => seat.section === 'tuba'),
   players: (scene) =>
     scene.layout.players.flatMap((place, index) => {
