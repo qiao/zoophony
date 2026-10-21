@@ -18,5 +18,5 @@ reverse each decision. Then update its section, and remove its row.
 | The chairs are `#c47c22` (`SCENE_COLORS`). Bright colors lose saturation in AgX, so they reach 0.53 against 0.65. | 4.5 |
 | A moderate step to finer planks: 0.14 m by 0.9 m to 2.1 m (`PLANK_WIDTH`, `PLANK_LENGTH`). The boards of the reference are about 0.1 m by 0.5 m. A stage of 15 m has about 5,100 triangles. | 4.5 |
 | The baked stage blurs the shadows of the players with 3 times the radius of the tier (`STAGE_SHADOW`). | 4.5 |
-| The haze has 1.5 times its light (`ROOM_HAZE`), because 2 times lifted the whole hall (p50 21 against 12). The beam has the strength 4.8 (`BEAM_LOOK`). | 4.5 |
+| The haze has 1.5 times its light (`ROOM_HAZE`), because 2 times lifted the whole hall (p50 21 against 12). | 4.5 |
 | The fade of the beam in Free mode stays 0.45 to 0.5 (`FREE_BEAM_FADE`), so a change from Cinematic to Free mode keeps the beam of a close camera. | 2.5, 4.5 |

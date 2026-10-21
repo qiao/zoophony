@@ -43,9 +43,11 @@ export const BEAM_LOOK = {
   /**
    * The scattered light of a view ray of one stage side through the axis, in linear values. The
    * density scales with 1 / S, so that each stage size shows the same beam. The top of the beam
-   * in `orchestra-latest.png` has a luma p90 of 161, and 4.0 gave 136 in the default view.
+   * in `orchestra-latest.png` has a luma p90 of 161, and 4.0 gave 136 in the default view. The
+   * exposure of 0.7 (`STAGE_TONE`) dims the beam too, and 4.8 grew to 5.6 so that the beam stays
+   * the visible source of the pool of light (user, 2026-10-21).
    */
-  strength: 4.8,
+  strength: 5.6,
   /** The density at the outline, as a part of the density on the axis. The edge stays soft. */
   edge: 0,
   /**
