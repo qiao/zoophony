@@ -723,17 +723,17 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
     expect(dropDb(0.01)).toBeGreaterThan(-6);
   });
 
-  it('limits the peaks above -2 dBFS hard, with a short attack', () => {
-    expect(LIMITER.threshold).toBe(-2);
+  it('limits the peaks above -3 dBFS hard, with a short attack', () => {
+    expect(LIMITER.threshold).toBe(-3);
     expect(LIMITER.knee).toBe(0);
     expect(LIMITER.ratio).toBe(20);
     expect(LIMITER.attack).toBeLessThanOrEqual(0.003);
   });
 
-  it('removes the makeup gain of the compressor, which Chromium measures as +1.14 dB', () => {
-    // An OfflineAudioContext of Chromium 153 gave -28.86 dBFS for a sine at -30 dBFS with the
-    // settings of LIMITER (design 6.8).
-    expect(LIMITER_TRIM_DB).toBeCloseTo(-1.14, 2);
+  it('removes the makeup gain of the compressor, which Chromium measures as +1.71 dB', () => {
+    // An OfflineAudioContext of the headless Chromium of Playwright 1.63.0 gave -28.29 dBFS for
+    // a sine at -30 dBFS with the settings of LIMITER (design 6.8).
+    expect(LIMITER_TRIM_DB).toBeCloseTo(-1.71, 2);
   });
 
   it('decodes the impulse response one time for the player, also after a failure', async () => {

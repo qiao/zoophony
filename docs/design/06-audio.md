@@ -397,7 +397,9 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
 - **Hall.** The convolver does not normalize the impulse response, so the wet gain sets the level
   of the hall against the room of the synth.
 - **Limiter.** A `DynamicsCompressorNode` adds a fixed makeup gain. The trim gain removes it, so
-  the chain does not change the level below the threshold.
+  the chain does not change the level below the threshold. The compressor lets short peaks pass
+  above its threshold, so the threshold sits low enough that each demo keeps its true peak at or
+  below -1 dBTP, the limit of EBU R 128 and of Spotify.
 - **Volume.** `setVolume()` moves the gain "volume" with `setTargetAtTime()` (`setOutputVolume()`).
   The app gives it the square of the slider position, and 0 for the mute button (2.8). The volume
   comes after the limiter, so the limiter acts the same at each volume, and a mute also stops the

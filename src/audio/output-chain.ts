@@ -20,10 +20,12 @@ export const WET_GAIN = 0.0625;
 
 /**
  * The settings of the `DynamicsCompressorNode` that limits the peaks (design 6.8): a hard knee at
- * -2 dBFS with the ratio 20, a short attack, and a release of 150 ms.
+ * -3 dBFS with the ratio 20, a short attack, and a release of 150 ms. The compressor lets a
+ * short peak pass above its threshold. At -3 dBFS, each demo at -16 LUFS keeps its true peak at
+ * or below -1.4 dBTP (`pnpm loudness`).
  */
 export const LIMITER = {
-  threshold: -2,
+  threshold: -3,
   knee: 0,
   ratio: 20,
   attack: 0.002,
@@ -33,7 +35,7 @@ export const LIMITER = {
 /**
  * The gain after the limiter, in dB (design 6.8). Web Audio adds a fixed makeup gain of
  * `(1 / g)^0.6` in the compressor, where `g` is the gain of its curve at 0 dBFS. This gain
- * removes it, so the chain does not change the level below the threshold: -1.14 dB.
+ * removes it, so the chain does not change the level below the threshold: -1.71 dB.
  */
 export const LIMITER_TRIM_DB = 0.6 * LIMITER.threshold * (1 - 1 / LIMITER.ratio);
 

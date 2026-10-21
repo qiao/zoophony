@@ -15,7 +15,6 @@ the section that holds it, and remove its row.
 | The synth has no chorus, and the file keeps its CC 93, which does nothing | 6.1 |
 | The impulse response: position C8m, the direct sound and the reflection 2 ms after it removed (the first 4 ms), 2.5 s, 16-bit stereo WAV at 48 kHz (480 KB), decoded by `decodeAudioData()` | 6.2, 6.8 |
 | The wet gain 0.0625 (a hall share of about 20 %), and the dry gain 1 | 6.8 |
-| The limiter: -2 dBFS, knee 0, ratio 20, attack 2 ms, release 150 ms, with a trim of -1.14 dB that removes the makeup gain | 6.8 |
 | Each demo gets a gain to -18 LUFS after the limiter, from an offline render through the code of the chain in headless Chromium (UX audit SD1). A file of the user gets 0 dB | 6.8 |
 | `PlayerScore` has the required fields `mix` and `gainDb`, so each caller sends the stage mix. A change of the section size keeps the mix that the `Player` holds | 6.8 |
 | A failed fetch of the impulse response is a failed start of the engine | 6.8 |
