@@ -611,6 +611,13 @@ const MONKEY_TRUMPET = {
 } as const satisfies WindHold;
 
 /**
+ * The tuba hold of the rhino (design 5.3), with the values of {@link WIND_HOLDS} as a start.
+ */
+const RHINO_TUBA = {
+  ...WIND_HOLDS.tuba,
+} as const satisfies WindHold;
+
+/**
  * The holds of the species that hold a wind instrument in their own way, in place of
  * {@link WIND_HOLDS} (design 5.3). The tools change them in memory with
  * `--set '<instrument>@<species>.<path>=<value>'` (`tools/hold-sets.ts`).
@@ -625,6 +632,7 @@ export const SPECIES_WIND_HOLDS: Partial<
   pig: { horn: PIG_HORN },
   wolf: { clarinet: WOLF_CLARINET },
   monkey: { trumpet: MONKEY_TRUMPET },
+  rhino: { tuba: RHINO_TUBA },
 };
 
 /**
