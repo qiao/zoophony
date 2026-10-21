@@ -30,6 +30,7 @@ import { STUDIO_HIPPO } from './studio/hippo.ts';
 import { STUDIO_MONKEY } from './studio/monkey.ts';
 import { STUDIO_MOUSE } from './studio/mouse.ts';
 import { STUDIO_PANDA } from './studio/panda.ts';
+import { STUDIO_PENGUIN } from './studio/penguin.ts';
 import { STUDIO_PIG } from './studio/pig.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
@@ -52,6 +53,7 @@ export const STUDIO_BODIES = {
   'studio-monkey': STUDIO_MONKEY,
   'studio-mouse': STUDIO_MOUSE,
   'studio-panda': STUDIO_PANDA,
+  'studio-penguin': STUDIO_PENGUIN,
   'studio-pig': STUDIO_PIG,
   'studio-rhino': STUDIO_RHINO,
   'studio-polar-bear': STUDIO_POLAR_BEAR,

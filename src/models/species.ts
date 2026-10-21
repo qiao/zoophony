@@ -16,6 +16,7 @@ import { STUDIO_HIPPO } from './studio/hippo.ts';
 import { STUDIO_MONKEY } from './studio/monkey.ts';
 import { STUDIO_MOUSE } from './studio/mouse.ts';
 import { STUDIO_PANDA } from './studio/panda.ts';
+import { STUDIO_PENGUIN } from './studio/penguin.ts';
 import { STUDIO_PIG } from './studio/pig.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
@@ -627,12 +628,23 @@ export const SPECIES = {
       seatHeight: STUDIO_BADGER.seatHeight / STUDIO_BADGER.headHeight,
     },
   },
-  /** Penguin, the choir. The black and white egg body looks like a choir robe (design 4.4). */
+  /**
+   * Penguin, the choir: a penguin with a black back, head, and flippers, a white belly, a pale
+   * yellow throat, an orange beak, and orange feet. It has the studio body of the mesh of the user,
+   * `assets/models/penguin/penguin.glb`, which `pnpm rig-mesh penguin` rigs (design 4.4), with the
+   * head top of the egg penguin (2026-10-21-mesh-penguin decisions). It stands on its riser. Its
+   * head height is the head of the studio body, and the seat height is the seat of the studio body,
+   * in H.
+   */
   penguin: {
-    size: 0.9,
+    body: 'studio-penguin',
+    size: 1,
     colors: SPECIES_COLORS.penguin,
     accentParts: ['beak', 'feet'],
-    body: 'penguin',
+    proportions: {
+      headHeight: STUDIO_PENGUIN.headHeight,
+      seatHeight: STUDIO_PENGUIN.seatHeight / STUDIO_PENGUIN.headHeight,
+    },
   },
   /**
    * Polar bear, the piano and the other keyboards. It has the studio body of `lowpoly-studio/`
