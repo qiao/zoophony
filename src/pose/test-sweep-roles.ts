@@ -142,6 +142,13 @@ const BADGER_BODY_LOOPS = 2;
  */
 const MONKEY_BODY_LOOPS = 5;
 
+/**
+ * The open loops of {@link BODY_BONES} of the rhino mesh: the two cuts to the upper arms at the
+ * shoulders, above the cut of the seam where each arm joins the trunk, and four small loops of the
+ * tail ball on the haunch (`loops-probe.txt` of `docs/research/2026-10-21-mesh-rhino/`).
+ */
+const RHINO_BODY_LOOPS = 6;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -346,6 +353,17 @@ function badgerBodySurface(posed: PosedSkeleton): ClosedSurface {
  */
 function monkeyBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, MONKEY_BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the rhino mesh: {@link BODY_BONES} with a cap on each open
+ * loop ({@link RHINO_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function rhinoBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, RHINO_BODY_LOOPS);
 }
 
 /**
@@ -1725,6 +1743,61 @@ const TRUMPETER_SWEEP: RoleSweep = {
     }),
 };
 
+/**
+ * Tells if a player of a scene is in the sweep of the tubist: the first rhino with a tuba. Each
+ * rhino stands to play the tuba (design 4.6).
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @returns True for a player of the sweep.
+ */
+function sweptTubist(scene: TestScene, index: number): boolean {
+  const first = scene.layout.players.findIndex(
+    (p) => p.cast.species === 'rhino' && p.cast.instrument === 'tuba',
+  );
+  return first === index;
+}
+
+/**
+ * The sweep of the tubist (design 5.3): the sweep of the trombonist with the tuba and the rhino.
+ * The first rhino of each demo with a tuba plays it. The left palm is on its grip at the start of
+ * each phrase, and the right palm on its grip at the valves at the start of each note
+ * ({@link trombonistTargets}: the tuba has no slide).
+ */
+export const TUBIST_SWEEP: RoleSweep = {
+  ...TROMBONIST_SWEEP,
+  role: 'tubist',
+  obstacles: [
+    { name: 'body', surface: rhinoBodySurface },
+    { name: 'tuba', surface: instrumentSurface },
+  ],
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'tuba'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      if (!sweptTubist(scene, index)) {
+        return [];
+      }
+      const { species, instrument, kettles, support } = place.cast;
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles, support);
+      return [
+        {
+          name: `tubist ${index} (${support})`,
+          model,
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => trombonistTargets(scene, index, model),
+        },
+      ];
+    }),
+};
+
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,
@@ -1741,6 +1814,7 @@ export const SWEEP_ROLES = {
   bassoonist: BASSOONIST_SWEEP,
   clarinetist: CLARINETIST_SWEEP,
   trumpeter: TRUMPETER_SWEEP,
+  tubist: TUBIST_SWEEP,
   'bass-drummer': BASS_DRUMMER_SWEEP,
   'snare-drummer': SNARE_DRUMMER_SWEEP,
   cymbalist: CYMBALIST_SWEEP,
