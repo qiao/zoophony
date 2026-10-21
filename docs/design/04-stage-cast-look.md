@@ -534,8 +534,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   of hair took the head top, and then the user made the monkey 1.1 times as large. No reference
   image shows a rhino, so the skull top of the rhino between its tall ears takes the head top of
   the parametric rhino (`docs/decisions/2026-10-21-mesh-rhino.md`). No reference image shows a
-  deer, so the skull top of the deer between its antlers takes the skull top of the parametric deer
-  (`docs/decisions/2026-10-21-mesh-deer.md`). The crown of the penguin takes the head top of its egg
+  deer, so the skull top of the deer between its antlers took the skull top of the parametric deer,
+  and then the user made the deer 1.2 times as large (`docs/decisions/2026-10-21-mesh-deer.md`). The crown of the penguin takes the head top of its egg
   body (`docs/decisions/2026-10-21-mesh-penguin.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear then rises to its seat height
