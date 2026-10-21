@@ -22,6 +22,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   twist the upper arms into bands: point the elbows down. A deeper trunk takes the room of the
   elbows: point them out (`poleL`, `restPoleL`). Compare the arm turns of each pole after a change
   of the head or the girth (`pnpm hold-fit --base main`).
+- A harp paw with its fingers on the line from the shoulder bends far on a short forearm. Aim the
+  fingers along the strings (`aimL` of `HANDS_HOLDS`), and raise the palm on the far strings to keep
+  the reach.
 - A paw on a wind grip lies along the line from its shoulder, and `PAW_TURN` undoes a hand turn in
   the plane of the palm. When a big head puts the grips above the shoulders, put the grips low on
   the instrument, else a long paw rises past it
@@ -74,6 +77,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   (`SpeciesParams.cymbalForm`).
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit
   (`left-rest.ts` of `docs/research/2026-10-17-tan-rest/`).
+- The strings of the harp of the app run away from the body, out of reach of short arms. Scale and
+  move the harp (`harpScale`, `HARP_PLACE`), and scan the place with `pnpm pose-depth harpist
+  --targets --set` first: a tilt back puts the upper strings into the chest
+  (`docs/research/2026-10-21-mesh-deer.md`).
 - Read the spare reach of each grip after each move of a rest place of a wind hold. `pnpm hold-fit`
   gives it, also with `--scan`, and a grip below 0 is a missed goal.
 - A bow that rests upright and plays across the strings turns its tip from up to the left. A direct
@@ -224,6 +231,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   `noseTop` of `ANIMALS`.
 - The elephant trunk takes bone heat from the chest and sets the chin of the head measures. Use
   `noseFront` and `headFloor` of `ANIMALS`.
+- Ears at the height of the skull top and antlers above it fall in the height rule of `earBase`.
+  Keep both on the head, and leave the antlers out of the head measures (`headCeiling` of
+  `ANIMALS`), else H and the pea eyes grow with the antlers.
 - The tip of `earFlap` takes the nearest vertex, which can lie on the shoulder. Take it from a cut
   of the flap (log line `ear L`).
 
@@ -251,6 +261,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 ## Probe tools
 
+- `pnpm pose-depth` takes no `--glb`. To probe an arm factor there, copy a GLB file of
+  `pnpm rig-mesh --check --keep` to the path of the rig, and run `pnpm studio-body`.
 - `pnpm rig-mesh --check --set` sets `app.shoulders` from `keptHeight()`. The rig log gives
   centimeters at the scale of `app.shoulders`, so a direct run of Blender on a variant that moves
   the shoulder joints needs that value (`rig.sh` of `docs/research/2026-10-17-dog-mesh/`).
