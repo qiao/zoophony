@@ -210,13 +210,18 @@ interface BrassBuild {
 
 /**
  * Builds the trumpet. The mouthpiece is at the origin, and the trumpet runs along +x to the bell.
- * The valves stand up (+y), and the player holds it horizontal and forward.
+ * The valves stand up (+y), and the player holds it horizontal and forward. A species with short
+ * arms plays a smaller trumpet (`SpeciesParams.trumpetScale`), as a child plays a fractional
+ * violin. The trumpet, its grips, and its bell target shrink toward the mouthpiece, so the
+ * mouthpiece stays at the mouth.
  *
+ * @param scale The scale of the trumpet, as a factor of its size in {@link BRASS}.
  * @returns The parts and the play data.
  */
-function trumpet(): BrassBuild {
+function trumpet(scale: number): BrassBuild {
   const t = BRASS.trumpet;
-  const piece = new PieceBuilder();
+  const piece = new PieceBuilder(scale);
+  const scaled = (at: Vec3): Vec3 => [at[0] * scale, at[1] * scale, at[2] * scale];
   mouthpiece(piece, [1, 0, 0], 0.009);
   // The lead pipe, the valve block, the lower loop, and the bell.
   pipe(
@@ -247,6 +252,7 @@ function trumpet(): BrassBuild {
     0.006,
   );
   const bellTarget = bell(piece, [t.length, -0.05, 0], [1, 0, 0], t.bellRadius, 0.13);
+  const bellMouth = scaled(bellTarget.from);
   return {
     pieces: [
       piece.build(
@@ -254,9 +260,9 @@ function trumpet(): BrassBuild {
         hold('mouth', [0, 0, 0], pointing([0, -Math.sin(5 * MathUtils.DEG2RAD), -1], [0, 1, 0])),
       ),
     ],
-    palmL: [0.17, -0.04, -0.03],
-    palmR: [0.18, 0.03, 0.01],
-    targets: [bellTarget],
+    palmL: scaled([0.17, -0.04, -0.03]),
+    palmR: scaled([0.18, 0.03, 0.01]),
+    targets: [{ ...bellTarget, from: bellMouth, to: bellMouth }],
   };
 }
 
@@ -489,11 +495,19 @@ function tuba(): BrassBuild {
  * and the instrument bone hangs on the chest (4.7).
  *
  * @param id The brass instrument.
+ * @param scale The scale of the trumpet (`SpeciesParams.trumpetScale`). The other brass
+ *   instruments ignore it.
  * @returns The model.
  */
-export function buildBrass(id: BrassId): InstrumentModel {
+export function buildBrass(id: BrassId, scale = 1): InstrumentModel {
   const built =
-    id === 'horn' ? horn() : id === 'trumpet' ? trumpet() : id === 'trombone' ? trombone() : tuba();
+    id === 'horn'
+      ? horn()
+      : id === 'trumpet'
+        ? trumpet(scale)
+        : id === 'trombone'
+          ? trombone()
+          : tuba();
   const main = built.pieces[0];
   if (!main) {
     throw new Error(`The ${id} has no piece.`);

@@ -42,6 +42,7 @@ export const SCALED_INSTRUMENTS = [
   'contrabass',
   'oboe',
   'bassoon',
+  'trumpet',
   'cymbals',
 ] as const satisfies readonly InstrumentId[];
 

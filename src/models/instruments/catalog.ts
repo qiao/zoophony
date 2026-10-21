@@ -85,7 +85,6 @@ export function buildInstrument(
     case 'clarinet':
       return buildWoodwind(id);
     case 'horn':
-    case 'trumpet':
     case 'trombone':
     case 'tuba':
       return buildBrass(id);
@@ -134,6 +133,8 @@ function buildScaled(
     case 'oboe':
     case 'bassoon':
       return buildWoodwind(id, scale);
+    case 'trumpet':
+      return buildBrass(id, scale);
     case 'cymbals':
       return cymbalForm === 'suspended' ? buildSuspendedCymbal(scale) : buildCymbals(scale);
     default: {
