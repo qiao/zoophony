@@ -292,6 +292,24 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       edge of the seat (`docs/research/2026-10-20-monkey-chair.md`).
 - [x] Remove the unused code of the `side-round` ears and the `face-disc` face pattern: no species
       has them since the monkey mesh (`2026-10-20-mesh-monkey.md`).
+- [x] Rig the mesh of the rhino (tuba). The user gave it on 2026-10-21 and asked that it stands.
+      The rhino stands in each seat at the size of the parametric rhino, with a longer lead pipe
+      of its tuba (`2026-10-21-mesh-rhino.md`).
+- [ ] Rhino: the agent chose the stand, the arms of the mesh, the lead pipe, and the hold while the
+      user slept. The user reviews them in `docs/research/2026-10-21-mesh-rhino/tubist-base-views.webp`
+      and `lineup-base-views.webp` (`2026-10-21-mesh-rhino.md`).
+- [ ] Rhino: faces 38 and 2413, thin faces at the shoulders above the cut of the seam, and faces 396
+      and 727 at the clavicles fold in each sample of the tubist. Count their pixels in a probe
+      build, or try rigid weights (`docs/research/2026-10-21-mesh-rhino/fold-probe.txt`).
+- [ ] Rhino: with an assumed tuba of 10 kg, the center of mass is 2.7 cm to 3.4 cm in front of the
+      middle of the soles, at 59% to 61% of the support depth, at the top of the stable range of
+      30% to 60%. A small lean of the trunk back is an option (`balance.txt`).
+- [ ] Rhino: the thick left paw goes 2.1 cm into the main branch of the tuba, an accepted depth of
+      the sweep. The paws are mittens and do not wrap the tube (`TUBIST_SWEEP`).
+- [ ] Remove the unused code of the `small` ears, the `horn` snout, and the `thin` tail of the
+      parametric biped: no species has them since the rhino mesh (`2026-10-21-mesh-rhino.md`).
+- [ ] Trim `docs/agents/model-traps.md` to about 3,000 words: it has 3,539 words since the traps of
+      the rhino mesh.
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
       fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
 - [x] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
