@@ -94,10 +94,10 @@ percussion badgers, the tuba rhinos, and the harp deer have bodies of their own 
 uses the parametric biped body since 2026-10-21.
 Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A
 species can have a body of its own in place of the biped (`body`, 4.4, bodies of their own and
-studio bodies). The penguins have an egg body (`models/penguin/`), and the bear and the polar bear
-have studio bodies (`lowpoly-studio/`). The rabbit, the two foxes, the cat, the dog, the panda,
-the hippo, the mouse, the elephant, the beaver, the pig, the wolf, the monkey, the badger, the
-rhino, and the deer have meshes of the user that `pnpm rig-mesh` rigs. The two foxes share one rig, and the tan fox takes
+studio bodies). The bear and the polar bear have studio bodies (`lowpoly-studio/`). The rabbit,
+the two foxes, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the
+pig, the wolf, the monkey, the badger, the rhino, the deer, and the penguin have meshes of the user
+that `pnpm rig-mesh` rigs. The two foxes share one rig, and the tan fox takes
 another palette of its faces (`palette`). A species with a body of its own has no shape
 parameters, because its body has its own parts.
 
@@ -131,10 +131,9 @@ interface BipedParams extends CommonParams {
   body?: undefined;
 }
 
-/** A body of its own in place of the parametric biped (4.4): the penguin, or a studio body. */
+/** A body of its own in place of the parametric biped (4.4): a studio body. */
 interface OwnBodyParams extends CommonParams {
   body:
-    | 'penguin'
     | 'studio-badger'
     | 'studio-bear'
     | 'studio-beaver'
@@ -147,6 +146,7 @@ interface OwnBodyParams extends CommonParams {
     | 'studio-monkey'
     | 'studio-mouse'
     | 'studio-panda'
+    | 'studio-penguin'
     | 'studio-pig'
     | 'studio-polar-bear'
     | 'studio-rabbit'
@@ -202,9 +202,10 @@ trunk (`docs/research/2026-10-11-short-legs.md`):
 - The studio bodies keep the trunks and the legs of their sources (4.4). No value of this table
   applies to them, except the head height `H` and the seat heights of the polar bear, the rabbit,
   the foxes, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the
-  pig, the wolf, the monkey, the badger, the rhino, and the deer, which `models/species.ts` reads
-  from their studio bodies. The hippo stands at its contrabass, the elephant at its timpani, the
-  badger at each percussion instrument, and the rhino at its tuba.
+  pig, the wolf, the monkey, the badger, the rhino, the deer, and the penguin, which
+  `models/species.ts` reads from their studio bodies. The hippo stands at its contrabass, the
+  elephant at its timpani, the badger at each percussion instrument, the rhino at its tuba, and
+  the penguin on its riser.
 
 A height map moves the torso of the parametric body with the joints of the table, and the head
 keeps its form:
@@ -251,10 +252,10 @@ keeps its form:
   again.
 
 The shape parameters of each species of the parametric biped are its ears, its snout, and its
-tail (`BipedParams`, 4.5 gives the colors). No species has them: the penguin has its egg body, and
-the rabbit, the two foxes, the wolf, the cat, the dog, the panda, the hippo, the mouse, the
-elephant, the beaver, the pig, the monkey, the badger, the rhino, the deer, the bear, and the polar
-bear have studio bodies (4.4).
+tail (`BipedParams`, 4.5 gives the colors). No species has them: the rabbit, the two foxes, the
+wolf, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the pig, the
+monkey, the badger, the rhino, the deer, the penguin, the bear, and the polar bear have studio
+bodies (4.4).
 
 The belly color colors the muzzle, the lower
 face, and a stripe down the front of the torso, as the white cheeks of the wolf in `animals.webp`.
@@ -275,9 +276,10 @@ The user chose each body of its own, and the table "Bodies and roles" of
 bear pianist have the studio bodies of `lowpoly-studio/` (user, 2026-10-12). The rabbit violinist,
 the red violin fox, the viola cat, the cello dog, the trombone panda, the contrabass hippo, the
 oboe mouse, the timpani elephant, the bassoon beaver, the horn pig, the clarinet wolf, the trumpet
-monkey, the percussion badger, the tuba rhino, and the harp deer have meshes of the user that the
-app rigs itself (studio bodies, below). The tan flute fox has the rig of the red fox with a tan
-palette. The penguins have an egg body built in code (user, 2026-10-11). No species has the
+monkey, the percussion badger, the tuba rhino, the harp deer, and the choir penguin have meshes of
+the user that the app rigs itself (studio bodies, below). The tan flute fox has the rig of the red
+fox with a tan palette. The mesh of the penguin replaces its egg body of 2026-10-11, by the newest
+decision of the user (`docs/decisions/2026-10-21-mesh-penguin.md`). No species has the
 parametric body of 2026-10-06 18:58 since the meshes of the rhino and the deer of 2026-10-21. The
 user chose it again for these two species in place of the sculpts and the rigged bodies
 (`docs/decisions/2026-10-11-body-revert.md`).
@@ -298,26 +300,12 @@ Each body follows these rules:
 
 **Bodies of their own**
 
-A body of its own is built in code for one species, from rings of free corners, as the low-poly
-models of the reference images (route 2 of `docs/agents/model-work.md`). `SpeciesParams.body`
-selects it, and it reads only the size and the colors of the species. It places each bone of 4.7,
-so that the pose code drives it as the biped.
-
-The penguin (`models/penguin/`) copies the choir of `orchestra-latest.png` and
-`orchestra-side.png`. It has no model sheet, so `pnpm choir-check <dir>` compares it with one
-penguin of each image (7.1, `docs/research/2026-10-11-penguin-body.md`).
-
-- The body is one tall egg with the head as its top, a full low belly, and no neck. The parametric
-  penguin, with a head on a neck and long legs, looked like a teddy bear.
-- The back and the flippers are black, and the white front is a shield from under the beak to the
-  bottom. A small white patch carries each black eye, so that the eye shows on the black head.
-- The upper half of the orange beak follows `head`, and its lower half `jaw`, so that the choir
-  pose opens it (5.3).
-- The body splits at the `chest` bone behind the folder, and each part reaches one ring into the
-  other, so that a turn of the chest shows no gap. The `neck` and `head` bones are at the front of
-  the lower edge of the head, so a lift of the head opens no gap.
-- Each flipper is three flat parts on the arm bones, and its tip holds the edge of the folder.
-  Two small feet stand under the egg, and no legs show.
+A body of its own built in code for one species, from rings of free corners (route 2 of
+`docs/agents/model-work.md`), places each bone of 4.7, so that the pose code drives it as the
+biped. No species has one since 2026-10-21. The egg body of the penguin of 2026-10-11 is in the
+history (`git show c4951160:src/models/penguin/penguin-body.ts`). The penguin has no model sheet,
+so `pnpm choir-check <dir>` compares its body with one penguin of each of `orchestra-latest.png`
+and `orchestra-side.png` (7.1).
 
 **Studio bodies**
 
@@ -340,8 +328,9 @@ the cello dog (`docs/decisions/2026-10-17-mesh-dog.md`), the trombone panda
 (`docs/decisions/2026-10-20-mesh-wolf.md`), the trumpet monkey
 (`docs/decisions/2026-10-20-mesh-monkey.md`, `docs/decisions/2026-10-21-monkey-stand.md`), the
 percussion badger (`docs/decisions/2026-10-20-mesh-badger.md`), the tuba rhino
-(`docs/decisions/2026-10-21-mesh-rhino.md`), and the harp deer
-(`docs/decisions/2026-10-21-mesh-deer.md`).
+(`docs/decisions/2026-10-21-mesh-rhino.md`), the harp deer
+(`docs/decisions/2026-10-21-mesh-deer.md`), and the choir penguin
+(`docs/decisions/2026-10-21-mesh-penguin.md`).
 
 The app keeps its own motion (5.3, 5.4), so it drives the bones of the studio from the pose of the
 player each frame: the retarget. It gave about a quarter of the folded faces of a skin on the bones
@@ -480,7 +469,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     |x| = `armSplit` then cuts through the arm or the trunk, so the plane turns around the
     vertical through both notches, and the free arm keeps within a radius of the arm joints and
     above a floor (`weights.armFree`). The cut of the seam then opens the arm from the trunk up to
-    just below the shoulder.
+    just below the shoulder. Each flipper of the penguin is an arm of the rig, free of the body
+    below its root, so the plane frees it with no cut. The upper arm of its bind points far down
+    (`studio.bindArms`), because the large turn from the hanging flipper to the bind arm of the
+    other meshes turned the faces at the root of the flipper over.
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
     raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
@@ -507,8 +499,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     haunch, and the tip bone keeps the curl of the source, which stands on the floor behind the
     body, at the height of the soles. A short round
     tail, as the tail of the rabbit, of the panda, of the hippo, of the badger, and the puff tail of
-    the deer, or the small
-    curled tail of the pig, is a ball on one tail bone (`tailBall`). The ears of the dog hang and do not twitch (`OwnBodyParams.hangingEars`). The
+    the deer, or the small curled tail of the pig, or the short pointed tail of the penguin, is a
+    ball on one tail bone (`tailBall`). The ears of the dog hang and do not twitch (`OwnBodyParams.hangingEars`). The
     round ears of the panda, the small ears of the hippo and of the beaver, the large round
     ears of the mouse, and the ears of the pig and of the badger join the head below the top of the skull, so they follow the head. The large ears of the
     deer stand out at the height of the skull top, and its antlers rise from it, so both follow the
@@ -517,7 +509,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     head line in front of the chest, follow the head only (`noseFront`), so that a turn of the
     head does not bend the trunk at the chin. The thin tail of the elephant is a ball on one tail
     bone, and so is the thin tail of the rhino, which hangs behind the haunch. The tall ears of the
-    rhino stand on the top of the head and follow their ear bones.
+    rhino stand on the top of the head and follow their ear bones. The penguin has no ears: its ear
+    bones lie inside the crown, and no vertex follows them (`earBase`). Its closed beak follows
+    the head, because the rig has no jaw bone.
   - Eyes in patches. When dark eye patches hold the eyes, as on the panda, the eye box holds only
     the eye, and no dark face near the old eye takes the color of the fur (`eyeShell.darkReach`),
     so that the patches stay black around the pea eyes.
@@ -545,7 +539,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   image shows a rhino, so the skull top of the rhino between its tall ears takes the head top of
   the parametric rhino (`docs/decisions/2026-10-21-mesh-rhino.md`). No reference image shows a
   deer, so the skull top of the deer between its antlers takes the skull top of the parametric deer
-  (`docs/decisions/2026-10-21-mesh-deer.md`).
+  (`docs/decisions/2026-10-21-mesh-deer.md`). The crown of the penguin takes the head top of its egg
+  body (`docs/decisions/2026-10-21-mesh-penguin.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear then rises to its seat height
   (`seat` of `ANIMALS`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
@@ -561,7 +556,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   with the head level, because its short legs alone cannot put the feet under its large head
   (`docs/decisions/2026-10-21-monkey-stand.md`). The rhino stands to play the tuba in each seat,
   in the standing pose of its mesh, as a real tubist on a strap, and its center of mass lies a
-  little in front of the middle of its soles with the tuba (`docs/decisions/2026-10-21-mesh-rhino.md`). Each level seat ends where the thighs leave it at the haunch (`chair.front`), so that
+  little in front of the middle of its soles with the tuba (`docs/decisions/2026-10-21-mesh-rhino.md`).
+  The penguin stands on its riser in the standing pose of its mesh, and its center of mass lies a
+  little behind the middle of its soles, inside the support area
+  (`docs/decisions/2026-10-21-mesh-penguin.md`). Each level seat ends where the thighs leave it at the haunch (`chair.front`), so that
   the haunch rests on it. Short
   thighs under a round belly, as on the panda, end the seat behind the thighs, under the haunch,
   so that the sit does not pull the haunch down into a sheet behind the seat. The chair takes
@@ -570,7 +568,7 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
 - **Soloist.** A seated body that also stands (`soloist` of `ANIMALS`: the rabbit, the red fox, the
   cat, the panda, the mouse, the beaver, the pig, the wolf, the monkey, the hippo, which stands in each seat of the contrabass,
   the elephant, which stands at the timpani, the badger, which stands at each percussion
-  instrument, and the rhino, which stands at the tuba) keeps the leg shapes and the turns of its sheet pose, and `standingBody()` of
+  instrument, the rhino, which stands at the tuba, and the penguin, which stands on its riser) keeps the leg shapes and the turns of its sheet pose, and `standingBody()` of
   `models/studio-rig.ts` stands it within 1 mm of the source.
 - **Retarget.** The skeleton of the player has the joints of the studio, with each arm straight
   down, because the pose code reads a hanging arm in the bind pose (4.7, 5.2).
@@ -582,9 +580,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   targets. The colors hold the baked occlusion of the studio. The fur gets smooth normals within
   the crease angle of the body (`crease` of `ANIMALS`, `studioNormals()`). The angle of a bear has
   the facet contrast of its reference images. The red fox, the cat, the dog, the panda, the hippo,
-  the mouse, the elephant, the beaver, the pig, the wolf, the monkey, the badger, the rhino, and the
-  deer take the angle of the rabbit, which the manager chose from the play frames, because the
-  fifteen are meshes of image models (`docs/research/2026-10-14-rabbit-smooth.md`).
+  the mouse, the elephant, the beaver, the pig, the wolf, the monkey, the badger, the rhino, the
+  deer, and the penguin take the angle of the rabbit, which the manager chose from the play frames,
+  because the sixteen are meshes of image models (`docs/research/2026-10-14-rabbit-smooth.md`).
 - **Bind mesh.** `buildStudioBody()` gives the mesh in the bind pose of the player, with two bones
   for each corner, for the footprints, the budgets, and the tests. The sweep of each role (9.3)
   keeps the parts out of the body and the instrument, and
@@ -655,8 +653,7 @@ its orange fur to the red-orange of the reference foxes, and its fur color here 
 for the seat dot (4.4).
 
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR`), and a dark nose
-  (`NOSE_COLOR`), unless their accent parts include the nose. The open beak of the penguin shows a
-  dark mouth (`MOUTH_COLOR` of `models/penguin/penguin-parts.ts`).
+  (`NOSE_COLOR`), unless their accent parts include the nose.
 - The antlers have the belly color. The inside of an ear has the belly color, unless the accent
   parts include the inner ears or the ears.
 - The accent color goes to the accent parts of the species (table below). Accent arms also color
@@ -895,13 +892,14 @@ back (`chairForward()`). Each species moves toward the anatomy of its reference 
 **Facets and triangle budgets**
 
 - The parametric body shows small triangle facets. The target is the large, flat, and clean facets
-  of the reference images (design 1, `lowpoly-animals.png`), as on the egg body of the penguin.
+  of the reference images (design 1, `lowpoly-animals.png`).
 - A body has at most 2,600 triangles. A studio body keeps the faces of its GLB file, and its GLB
   file has a budget of 3,200 faces. The rabbit and the red fox play in the violin sections, the
   cat in the violas, the dog in the cellos, the tan fox in the flutes, the mouse in the oboes, the
   beaver in the bassoons, the wolf in the clarinets, the monkey in the trumpets, the panda in the
   trombones, the pig in the horns, the hippo in the contrabasses, the elephant at the timpani, the
-  badger in the percussion, the rhino at the tuba, and the deer at the harp, so many
+  badger in the percussion, the rhino at the tuba, the deer at the harp, and the penguin in the
+  choir, so many
   studio bodies share the scene. The pea eyes add their triangles to a studio body
   (`docs/decisions/2026-10-15-pea-eyes.md`).
 - An instrument has at most 800 triangles, except the timpani (1,200) and the piano (2,000). A
@@ -1115,6 +1113,11 @@ closes on the tube, and each palm reaches its grip in the play and in the rest (
 The deer plays a smaller harp (`harpScale`) with longer arms, the choice of the manager while the
 user slept. The harp stands upright in front of its chest (`HARP_PLACE`), the neck below its chin,
 and each palm reaches the string of each note (5.3, `docs/decisions/2026-10-21-mesh-deer.md`).
+The penguin keeps the flippers of its mesh, and its round belly stands far in front of its
+shoulders, so the choir folder comes to the flippers: it hangs higher than in the reference images,
+in front of the chest, and its covers are a little wider, so that each palm reaches its grip at
+each note and the upper flippers keep off the sides of the body (`CHOIR_FOLDER`,
+`docs/decisions/2026-10-21-mesh-penguin.md`).
 The badger keeps the short arms of its mesh, so its drums and the tambourine stand nearer to it,
 and its paws reach each strike of the bass drum, the snare drum, the triangle, and the tambourine
 (`BASS_DRUM`, `SNARE_DRUM`, `TAMBOURINE`). Its arms do not hold hand cymbals of a real size out of
@@ -1142,7 +1145,7 @@ of each instrument (`models/instruments/`) holds its sizes and the offsets of it
 | Harp                             | 24 strings that show the 47 strings of a concert harp.                                                                  | On the floor in front of the chest, upright, turned so that the column goes to the front left (`HARP_PLACE`).                                                                                                               |
 | Piano                            | A case with an open lid, keys, and a desk. The lid opens less than in `mockup.png`, so that it hides no head behind it. | The keys stand in front of the floor point of the pianist (`PIANO_FRONT_H`), clear of the belly and the muzzle of the polar bear (5.3).                                                                                     |
 | Piano bench                      | A seat of `PIANO_BENCH`, or at `seat` of `ANIMALS` under the polar bear (4.4, seat).                                    | A static prop under the pianist.                                                                                                                                                                                            |
-| Choir folder                     | Two open covers with pages.                                                                                             | In both hands, in front of the head, with the pages to the eyes.                                                                                                                                                            |
+| Choir folder                     | Two open covers with pages.                                                                                             | In both flippers, in front of the chest, with the pages to the eyes.                                                                                                                                                        |
 | Flute                            | A silver tube.                                                                                                          | The lip plate at the mouth. The flute points to the right.                                                                                                                                                                  |
 | Oboe                             | A thin dark tube with a bell.                                                                                           | The reed at the mouth, 30° from the vertical.                                                                                                                                                                               |
 | Clarinet                         | A black tube with silver keys and a bell.                                                                               | The mouthpiece at the mouth, 25° from the vertical, as in the reference image.                                                                                                                                              |
@@ -1228,14 +1231,15 @@ of three.js always blends four bones, so the second bone adds no shader work.
 - A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
   studio, two eye bones for the pea eyes, and the optional tip of a tail of two bones (`tail_tip`:
   the red fox, the tan fox, the cat, the dog, the mouse, the beaver, the wolf, and the monkey). The rabbit, the panda,
-  the hippo, the pig, the badger, the rhino, and the deer have a tail
+  the hippo, the pig, the badger, the rhino, the deer, and the penguin have a tail
   ball on one tail bone, with no tip. Each vertex follows up to four of them. The
   scene gives the mesh the studio bones and the bones of the player, and `poseStudioBones()`
   writes their matrices from the pose of the player. So the pose code drives a studio body as
   each other body. A pose also holds the matrices of the twist bones of the upper arms
   (`UPPER_TWIST_BONES`), after the bones of the player. Only a body with `upperTwist` (4.4), the
   hippo, the elephant, and the rhino, puts weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
-- The egg body of the penguin (4.4) is rigid too, with its lower beak on `jaw`.
+- A studio body has no `jaw` bone, so the beak of the penguin stays closed, and the choir pose
+  lifts its head with each note (5.3).
 - The readers of the bind mesh read the main bone: the footprints, the chair clearance, the baked
   occlusion (4.5), the silhouettes, and the budgets. `posedCorner()` of `pose/test-skin.ts` poses
   a corner in the tests as the GPU does.
@@ -1305,5 +1309,4 @@ type BoneName =
   with no part, such as the trunk of a rabbit, moves nothing.
 - In the bind pose, no bone has a rotation. The body sits on its seat: the thighs rest on the
   seat, the knees bend, the shins hang down, and the arms hang down beside the body. The
-  instrument is in its playing place on its bone, and the bow lies in the hanging right hand. The
-  penguin stands on its soles, and its flippers hang straight down.
+  instrument is in its playing place on its bone, and the bow lies in the hanging right hand.
