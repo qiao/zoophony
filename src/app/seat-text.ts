@@ -2,6 +2,7 @@ import { chamberFormOf, speciesOf } from '../models/cast.ts';
 import { SPECIES } from '../models/species.ts';
 import type { SpeciesId } from '../models/species.ts';
 import type { Seat, SectionId } from '../score/types.ts';
+import { relativeLuminance } from '../ui/title-shade.ts';
 
 /** The name of each section in the seat list (design 2.8). */
 const SECTION_NAMES = {
@@ -285,6 +286,66 @@ export interface SeatRowText {
   readonly source: string;
   /** The fur color of the species of the seat, or `null` for the sound-only seat. */
   readonly color: string | null;
+  /**
+   * The color of the ring on the dot while the seat plays, from {@link ringColor}, or `null` for
+   * the sound-only seat. `ui.css` then uses the color of its border.
+   */
+  readonly ring: string | null;
+}
+
+/** The red, green, and blue bytes of a color, from 0 to 255. */
+type Rgb = readonly [number, number, number];
+
+/** The color of `--text` in `ui.css`. A dark ring moves toward it. */
+const RING_LIGHT: Rgb = [0xef, 0xe8, 0xdc];
+
+/**
+ * The lightest backdrop of a ring: the hover row (`--line-faint`) on the drawer panel
+ * (`--panel-glass`), with white fur behind the panel.
+ */
+const RING_BACKDROP: Rgb = [44, 40, 37];
+
+/** The least contrast of a ring with its backdrop: 3:1 for a part of the UI (WCAG 1.4.11). */
+const RING_CONTRAST = 3;
+
+/** The step of the share of {@link RING_LIGHT} in a ring. */
+const RING_STEP = 0.05;
+
+/**
+ * Calculates the contrast of two colors (WCAG 2.2).
+ *
+ * @param a The first color.
+ * @param b The second color.
+ * @returns The contrast, from 1 to 21.
+ */
+function contrastOf(a: Rgb, b: Rgb): number {
+  const la = relativeLuminance(...a);
+  const lb = relativeLuminance(...b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+/**
+ * Gives the color of the ring on the dot of a seat row (design 2.8): the fur color, mixed with
+ * the smallest share of `--text` that gives 3:1 on the lightest backdrop of the row. A light fur
+ * keeps its own color, and a dark fur, such as the penguin, gets a lighter ring.
+ *
+ * @param fur The fur color, as `#rrggbb`.
+ * @returns The ring color, as `#rrggbb`.
+ */
+export function ringColor(fur: string): string {
+  const value = Number.parseInt(fur.slice(1), 16);
+  const base: Rgb = [(value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff];
+  const mix = (share: number, i: 0 | 1 | 2): number =>
+    Math.round(base[i] * (1 - share) + RING_LIGHT[i] * share);
+  let ring = base;
+  for (let step = 0; step * RING_STEP <= 1; step++) {
+    const share = step * RING_STEP;
+    ring = [mix(share, 0), mix(share, 1), mix(share, 2)];
+    if (contrastOf(ring, RING_BACKDROP) >= RING_CONTRAST) {
+      break;
+    }
+  }
+  return `#${ring.map((byte) => byte.toString(16).padStart(2, '0')).join('')}`;
 }
 
 /**
@@ -311,6 +372,7 @@ export function seatRows(
       animals: animalText(species, counts[i] ?? 0),
       source: sourceLine(seat),
       color: species ? SPECIES[species].colors.fur : null,
+      ring: species ? ringColor(SPECIES[species].colors.fur) : null,
     };
   });
 }
