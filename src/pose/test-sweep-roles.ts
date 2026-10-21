@@ -11,6 +11,7 @@ import { INSTRUMENT_SUPPORTS } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { BoneName } from '../models/rig.ts';
 import { SPECIES, instrumentScale } from '../models/species.ts';
+import { STUDIO_RABBIT } from '../models/studio/rabbit.ts';
 import type { SpeciesId, SpeciesParams } from '../models/species.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { countInAt } from './count-in.ts';
@@ -60,12 +61,19 @@ const BODY_BONES = [
 const BODY_LOOPS = 2;
 
 /**
- * The open loops of {@link BODY_BONES} of the rabbit and of the foxes, the bodies of the meshes of
- * the user (`pnpm rig-mesh <animal>`): the cuts to the two upper arms, and two open edges of each
- * mesh, at the whiskers of the rabbit. The export drops the gloss fan over each eye of the rig, and
- * the pea eyes of the app are not in the skin of the studio (design 4.5).
+ * The open loops of {@link BODY_BONES} of the foxes, the bodies of the meshes of the user
+ * (`pnpm rig-mesh <animal>`): the cuts to the two upper arms, and two open edges of each mesh. The
+ * export drops the gloss fan over each eye of the rig, and the pea eyes of the app are not in the
+ * skin of the studio (design 4.5).
  */
 const MESH_BODY_LOOPS = 4;
+
+/**
+ * The open loops of {@link BODY_BONES} of the rabbit mesh: the cuts to the two upper arms, two open
+ * edges at the whiskers, and one open edge pair of 3.1 cm on the trunk under the right armpit,
+ * which the cut of the arm seam leaves (`loops-probe.txt` of `docs/research/2026-10-20-armpits/`).
+ */
+const RABBIT_BODY_LOOPS = 5;
 
 /**
  * The open loops of {@link BODY_BONES} of the cat mesh: the cuts to the two upper arms, and one
@@ -224,13 +232,14 @@ function bodySurface(posed: PosedSkeleton): ClosedSurface {
 
 /**
  * The closed surface of the body of a mesh of the user, the rabbit or a fox: {@link BODY_BONES}
- * with a cap on each open loop ({@link MESH_BODY_LOOPS}).
+ * with a cap on each open loop ({@link RABBIT_BODY_LOOPS} or {@link MESH_BODY_LOOPS}).
  *
  * @param posed The posed skeleton.
  * @returns The surface.
  */
 function meshBodySurface(posed: PosedSkeleton): ClosedSurface {
-  return closedPart(posed, BODY_BONES, MESH_BODY_LOOPS);
+  const rabbit = posed.model.studio?.body.source === STUDIO_RABBIT.source;
+  return closedPart(posed, BODY_BONES, rabbit ? RABBIT_BODY_LOOPS : MESH_BODY_LOOPS);
 }
 
 /**

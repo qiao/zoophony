@@ -59,6 +59,8 @@
     "sliver": { "angle": 10, "longest": 0.03, "note": "The corners of each thin face share one set of weights, so that the face moves rigidly and does not turn over at a bent joint. A thin face has a corner angle below angle (degrees) and a longest edge below longest (units). A longer thin face spans a joint, and one set of weights there pulls the side of the trunk out with the arm." },
     "line": { "angle": 160, "note": "The middle corner of each long thin face (a corner angle above angle, in degrees) takes the mix of the weights of its two other corners by its place along their line, so that it does not lag behind the line when a joint bends. Lower angles turned over more faces of the arms (pnpm fold-probe violinist)." },
     "shoulderHead": [0.04, 0.07],
+    "armBelow": [0.4, 0.46],
+    "armBelowNote": "Inside the plane armSplit, the share of the arm weight that a vertex of the trunk keeps grows from 0 at the lower height to 1 at the upper height (source units), as for the hippo. With the cut alone, the narrow axis of the middle ring of the right upper arm in the rest was 0.51 of the bind (limit 0.55 of pnpm arm-check). With this rule, it is 0.68, as on main, and the lift folds fall from 8.5% to 6.2% (docs/research/2026-10-20-armpits.md).",
     "shoulderHeadNote": "Below headFrom, the share of the head weight that goes to the neck grows from 0 at the smaller distance from the middle plane to all at the larger distance (units). Bone heat gave the top of each shoulder up to 0.18 of the head weight, and the turns of the head pulled it.",
     "fingers": 0.5,
     "fingersNote": "The fingers keep this share of their bone heat weight, and the hand takes the rest. With the full share, the curl of the fingers in the app turned over one face between the hand and the fingers of each paw in each play sample (pnpm fold-probe violinist).",
@@ -110,7 +112,13 @@
     "backHeight": 0.15,
     "note": "The seat is level, and its top is the lowest point of the seated body over the seat. Its front edge ends where the thighs, which slope down, leave the seat top at the haunch: with the front edge 0.01 units further forward, the seat top fell 1.9 cm under the thighs (front-scan-rabbit.txt of docs/research/2026-10-17-fox-form/). The chair of the app grows back until its back posts keep 1 cm behind the trunk, and by the room of 4 cm behind the back (backRoom of ANIMALS of tools/studio-body.ts, docs/decisions/2026-10-17-rabbit-pose.md), so the seat of the app is 0.285 m deep. The back edge lies 0.0204 units (3 cm) forward of the back edge of 2026-10-16 (-0.16 units), so that the body keeps its place on the chair (the user said \"let the fox and rabbit sit in more\" on 2026-10-16), and the seat of the app ends at the front edge of this chair (no seatBack in ANIMALS)."
   },
-  "raise": {
+  "cut": {
+    "top": 0.44,
+    "skinNormals": true,
+    "note": "The user said on 2026-10-20: \"pig and rabbit's armpit are deformed\". Under the bow arm, sharp spikes stood out of the side of the chest in the play. The inner side of each hanging upper arm of the source joins the side of the trunk down to the middle of the upper arm. A corner of the trunk there had 0.43 of the upper arm weight, so the raised arm dragged it out, and the long faces from it down to the belly made a ridge. Below the height top (source units), the faces with a corner in the free arm and a corner in the body go: 15 on the right and 19 on the left. New faces close the arm and the trunk, and no vertex moves (cut_seam() of tools/blender/rig_mesh.py). At 0.43 and 0.445, a shape failed to relax and the play folds rose to 45% and 66% (docs/research/2026-10-20-armpits.md)."
+  },
+  "raise": [
+  {
     "side": "R",
     "turns": {
       "clavicle": [0, 0, 0, 1],
@@ -121,6 +129,19 @@
     "grow": 1,
     "note": "The shape of the right arm in the seated rest (raise_shape() of tools/blender/rig_mesh.py). The right elbow hangs at the side in the rest (docs/decisions/2026-10-16-rabbit-arm.md), the arm-down shape has its full weight there, and faces 224, 225, 372, 373, 374, and 581 at the front of the right armpit turned over in each rest sample. The upper arm takes the turn of the rest, which is the same in each rest sample, and the clavicle does not turn (rest-turn.py of docs/research/2026-10-17-rabbit-pose/). Each play sample stays 34 degrees or more from that turn, so the fade from 15 to 30 degrees keeps the weight 0 in the play. With the relaxing of the clavicle and the upper arm only, faces 372 and 373 kept a corner on the trunk under the armpit (spine 0.65, hips 0.21) and stayed turned over. One ring of neighbors (grow) lets that corner move, and each face below the cosine 0.5 relaxes: no face turns over in a rest sample. The cosines 0.3 and 0.4 left 2 and 1 faces turned over in the pose of the rule, and 0.7 left 4 faces and folded each rest sample (rig-check-raise*.log of the research folder)."
   },
+  {
+    "side": "R",
+    "turns": {
+      "clavicle": [0, 0.2588, 0, 0.9659],
+      "upper_arm": [0.5639, 0.3044, -0.2201, 0.7355],
+      "forearm": [-0.1781, 0.1007, -0.2318, 0.951]
+    },
+    "fade": [15, 25],
+    "below": 0.5,
+    "grow": 1,
+    "note": "The shape of the right arm in the play, with the mean turns of the play samples of the bow arm (pnpm raise-fit violinist --faces 422 --side R on the rig with the cut): the upper arm 85 degrees from the bind, with the clavicle 30 degrees forward. Each face below the cosine 0.5 relaxes with one ring of trunk corners (grow). With the cosine 0, the face 422 at the top of the cut folded in 9.3% of the play samples. With 0.5, the play folds are 0.3% (docs/research/2026-10-20-armpits.md)."
+  }
+  ],
   "crease": {
     "rings": 2,
     "rounds": 8,
