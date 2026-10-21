@@ -244,6 +244,7 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
 >([
   ['conductor', { L: -54, R: -54 }],
   ['pianist', { L: 47, R: 59 }],
+  ['harpist', { L: -55, R: -101 }],
   ['violinist', { L: 133, R: -86 }],
   ['fox-violinist', { L: 140, R: -102 }],
   ['violist', { L: 156, R: -93 }],
