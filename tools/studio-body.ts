@@ -366,6 +366,19 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/badger/badger.rig.glb',
     },
   ],
+  // The trumpet monkey: decisions/2026-10-20-mesh-monkey.md. It stands as a soloist.
+  [
+    'monkey',
+    {
+      landmark: 'shoulders',
+      height: 0.62894,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_MONKEY',
+      crease: 35,
+      glb: 'assets/models/monkey/monkey.rig.glb',
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
