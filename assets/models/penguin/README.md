@@ -51,3 +51,42 @@ the animal), with the probes of `docs/research/2026-10-21-mesh-penguin/`:
   eyes with a white light at y 0.91 in the black of the head, with no shells, and orange feet.
 - The feet stand under the egg, from y 0 to 0.09, with the toes forward to z 0.105.
 - A short pointed tail sticks out back at the bottom of the egg, at y 0.05 to 0.16 and z -0.236.
+
+## penguin-beak.glb
+
+`penguin-beak.glb` is a copy of `penguin.glb` with the beak split, so that the beak opens
+(user, 2026-10-21: "make the penguins able to open the beak"). `source` of
+`tools/mesh-rigs/penguin.json` names it, and `penguin.glb` does not change. The script
+`docs/research/2026-10-21-penguin-beak/beak_split.py` makes it in a headless Blender, and gives
+the same file again:
+
+```bash
+/Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup \
+  --python docs/research/2026-10-21-penguin-beak/beak_split.py -- \
+  assets/models/penguin/penguin.glb assets/models/penguin/penguin-beak.glb 0.883
+```
+
+| Item | Value |
+|---|---|
+| File | `penguin-beak.glb`, 13,518,096 bytes |
+| SHA-256 | `27302fbcae0699a0ce8aa6a2a3010d66ea5438205a6737afbed6c50751330f70` |
+| Writer | Khronos glTF Blender I/O of the Blender of the script |
+
+The edits, in the units of the studio (`beak-split.log` of the research folder):
+
+1. The vertices are welded at 1e-5 units of the file, as `pnpm rig-mesh` welds them.
+2. The level plane at y 0.883, the height of the tip of the beak, cuts the 93 faces of the beak.
+   The cut is a path of 20 edges from the left corner of the mouth (x 0.045, z 0.140) around the
+   tip to the right corner (x -0.045).
+3. The faces split along the path into an upper part and a lower part. Each corner of the mouth
+   stays one vertex.
+4. The vertices of the path move 0.0005 units of the file up on the upper part and down on the
+   lower part, so that the weld does not join them again. The outer form of the closed beak does
+   not change otherwise.
+5. A cap of 21 corners closes each part. The two caps share the edge between the corners of the
+   mouth, and their normals point into the mouth.
+6. A patch of 24 × 24 pixels of the mouth color `#4d2312` goes into a free place of the base color
+   texture (u 0.044, v 0.009), and the caps take its UV.
+
+The edited mesh has 3,185 triangles, against 3,103 for `penguin.glb`, and the same 2 open edges
+and 3 edges with more than two faces.
