@@ -686,6 +686,66 @@ function liftVia(rig: RigPoints, frames: TorsoFrames, weight: number, bow: BowPl
   );
 }
 
+/** The turn from the posed instrument to its place in the playing pose. Each pose writes it. */
+const toPlay = new Quaternion();
+
+/**
+ * Writes {@link toPlay}: the turn that moves the instrument from its posed place in a lift or a
+ * lowering to its place in the playing pose, in the model axes.
+ *
+ * @param rig The points of the player.
+ * @param frames The posed frames of the torso.
+ * @param place The posed place of the instrument.
+ */
+function turnToPlay(rig: RigPoints, frames: TorsoFrames, place: InstrumentPlace): void {
+  const parent = rig.parent === BONES.chest ? frames.chest : frames.root;
+  toPlay
+    .copy(parent.rotation)
+    .multiply(playTurn.fromArray(rig.hold.playTurn))
+    .multiply(placeInverse.copy(place.rotation).invert());
+  // The instrument turns by less than 180°, so the quaternion with w ≥ 0 is the short turn.
+  if (toPlay.w < 0) {
+    toPlay.set(-toPlay.x, -toPlay.y, -toPlay.z, -toPlay.w);
+  }
+}
+
+/**
+ * Mixes the rest bow and the playing bow, or the hands on them, by the weight of the playing pose
+ * (design 5.2). The bow on the strings of the moving instrument turns with it, and it comes near
+ * 180° from the rest bow in the middle of the move. There, the short path of {@link mixRotation}
+ * jumped to the other side and turned the bow paw by about 170° in one frame
+ * (`docs/research/2026-10-21-wrist-lift.md`). So the side of the path comes from the playing bow
+ * at its place in the playing pose ({@link toPlay}), which stays far from 180°: the path is the
+ * same up to that point, and it keeps its side after it. At the rest and at the play, the mix is
+ * the same.
+ *
+ * @param from The rest bow or hand, moved by {@link liftVia}.
+ * @param play The playing bow or hand on the posed instrument.
+ * @param weight The eased weight of the playing pose: 0 is the rest pose.
+ * @param out The quaternion to write. It can be `from` or `play`.
+ * @returns `out`.
+ */
+function liftMix(from: Quaternion, play: Quaternion, weight: number, out: Quaternion): Quaternion {
+  if (weight <= 0 || weight >= 1) {
+    return mixRotation(from, play, weight, out);
+  }
+  const sign = from.dot(playBow.copy(play).premultiply(toPlay)) < 0 ? -1 : 1;
+  return out
+    .set(
+      from.x + (sign * play.x - from.x) * weight,
+      from.y + (sign * play.y - from.y) * weight,
+      from.z + (sign * play.z - from.z) * weight,
+      from.w + (sign * play.w - from.w) * weight,
+    )
+    .normalize();
+}
+
+/** The playing bow at its place in the playing pose, for {@link liftMix}. */
+const playBow = new Quaternion();
+
+/** The inverse of the turn of the posed instrument, for {@link turnToPlay}. */
+const placeInverse = new Quaternion();
+
 /** The finger of the left hand that the pose writes before each use. */
 const finger = { reach: 0, stopString: 1.5 } satisfies StopFinger;
 
@@ -795,6 +855,7 @@ export function poseBowed(
   const chest = frames.chest;
   const { place, strings, bow, hand: heldHand } = places;
   instrumentAt(rig, frames, weight, place);
+  turnToPlay(rig, frames, place);
   soundingPointAt(rig, state.loudness, stringsAt(rig, place, strings));
   // The hand holds the bow with no tilt, and the fingers turn the stick by the tilt.
   const tilt = heldBowAt(rig, strings, state.string, state.bow, state.lift, tilted, bow);
@@ -823,7 +884,7 @@ export function poseBowed(
   liftVia(rig, frames, weight, restBow);
 
   // First the hand keeps the hold of the bind pose, and the elbow the direction of the hold.
-  mixRotation(restBow.rotation, bow.rotation, weight, held.rotation);
+  liftMix(restBow.rotation, bow.rotation, weight, held.rotation);
   held.grip.lerpVectors(restBow.grip, bow.grip, weight);
   gripHand(rig, held, 0, heldHand);
   wristR.lerpVectors(heldHand.wrist, pluckPalm, pizzicato * weight);
@@ -910,7 +971,7 @@ export function poseBowed(
         .multiply(bowLocal.setFromAxisAngle(stickBind.fromArray(rig.stick), -playRoll));
       held.grip.fromArray(rig.grip).applyQuaternion(heldHand.rotation).add(heldHand.wrist);
       const restRoll = weight < 1 ? rollToward(rig, restBow, aim) : 0;
-      mixRotation(restBow.rotation, held.rotation, weight, held.rotation);
+      liftMix(restBow.rotation, held.rotation, weight, held.rotation);
       held.grip.lerpVectors(restBow.grip, held.grip, weight);
       const mixed = restRoll + (playRoll - restRoll) * weight;
       const own = rollToward(rig, held, aim);
