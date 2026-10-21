@@ -7,7 +7,7 @@
  * crossings of its angle, and its tempo is 60 divided by that time.
  *
  * A row with a limit gives the song time over the limit: the sum of the events faster than the
- * limit, for the player with the most. The sway and the singer sway take `--limit`, and the
+ * limit (with {@link LIMIT_SLACK}), for the player with the most. The sway and the singer sway take `--limit`, and the
  * conducted beat takes {@link CONDUCTED_LIMIT}. The verdict is `FAIL` when a row has more than
  * {@link MAX_OVER_SEC} over its limit, and the tool then exits with 1. With `--base <ref>`, the
  * commit and the working tree run at the same time, each in a child process (`probeBeside()`),
@@ -50,6 +50,14 @@ const DEFAULT_LIMIT = 120;
  * because a commit of `--base` can lack the export.
  */
 const CONDUCTED_LIMIT = 168;
+
+/**
+ * The share above a limit that an event can have and still count as within it. The seeded timing
+ * offsets of up to 20 ms (`PLAYER_OFFSETS` of `src/pose/plan.ts`) and the sample step move a
+ * measured sway side by a few percent, so a pulse of exactly the limit measures up to about 1%
+ * above it.
+ */
+const LIMIT_SLACK = 0.03;
 
 /** The most song time over a limit that passes, in seconds: a short bar, such as a pickup. */
 const MAX_OVER_SEC = 2;
@@ -238,7 +246,7 @@ function rateRow(
   const top = events.reduce((a, b) => (b.tempo > a.tempo ? b : a));
   const over = new Map<number, number>();
   for (const e of events) {
-    if (limit !== null && e.tempo > limit) {
+    if (limit !== null && e.tempo > limit * (1 + LIMIT_SLACK)) {
       over.set(e.group, (over.get(e.group) ?? 0) + 60 / e.tempo);
     }
   }
