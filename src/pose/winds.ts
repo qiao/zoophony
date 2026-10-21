@@ -589,6 +589,16 @@ const WOLF_CLARINET = {
 } as const satisfies WindHold;
 
 /**
+ * The trumpet hold of the monkey (design 5.3), the hold of a real trumpet player
+ * (`docs/reference/wind-technique.md` 2.1): the right fingertips on the valves, the left paw
+ * holds the weight, and the trumpet points forward, angled slightly down. It has the values of
+ * {@link WIND_HOLDS}.
+ */
+const MONKEY_TRUMPET = {
+  ...WIND_HOLDS.trumpet,
+} as const satisfies WindHold;
+
+/**
  * The holds of the species that hold a wind instrument in their own way, in place of
  * {@link WIND_HOLDS} (design 5.3). The tools change them in memory with
  * `--set '<instrument>@<species>.<path>=<value>'` (`tools/hold-sets.ts`).
@@ -602,6 +612,7 @@ export const SPECIES_WIND_HOLDS: Partial<
   beaver: { bassoon: BEAVER_BASSOON },
   pig: { horn: PIG_HORN },
   wolf: { clarinet: WOLF_CLARINET },
+  monkey: { trumpet: MONKEY_TRUMPET },
 };
 
 /**
