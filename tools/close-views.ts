@@ -1,8 +1,8 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, realpathSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 
 import { chromium } from '@playwright/test';
 import type { Browser, Page } from '@playwright/test';
@@ -38,6 +38,7 @@ import { chromiumArgs } from './chromium-args.ts';
 import { glbModule, speciesAnimal } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { patchedDemo } from './patch-demos.ts';
+import { midiPath } from './probe-demos.ts';
 import { ROOT, optionValue, shortHash, withRefBuild } from './ref-tree.ts';
 import { MAX_WEBP_BYTES, openShot, startSite, toWebp } from './screenshots.ts';
 import type { Site } from './screenshots.ts';
@@ -2564,8 +2565,13 @@ export type PlayTime =
 
 /** The command line of the mode `play`. */
 export interface PlayArgs {
-  /** The demo. */
+  /** The demo, or the default demo with `--midi`. */
   readonly demo: DemoId;
+  /**
+   * The absolute path of the MIDI file of the user of `--midi`, or `null` for the demo. The page
+   * opens the file with its file input, as a user does, so the file stays outside the repository.
+   */
+  readonly midi: string | null;
   /** The time of the frames. */
   readonly time: PlayTime;
   /**
@@ -2629,14 +2635,58 @@ export function playCamera(text: string): PlayCamera {
 }
 
 /**
+ * Names the piece of the mode `play` in the messages: `demo <id>`, or `file <name>` for the file
+ * of `--midi`.
+ *
+ * @param demo The demo.
+ * @param midi The path of the file of `--midi`, or `null`.
+ * @returns The text, such as `demo beethoven-9`.
+ */
+function pieceText(demo: DemoId, midi: string | null): string {
+  return midi === null ? `demo ${demo}` : `file ${basename(midi)}`;
+}
+
+/**
+ * Names the piece of the mode `play` in the labels of the grids: the demo, or the name of the file
+ * of `--midi`.
+ *
+ * @param args The demo and the file.
+ * @returns The name, such as `beethoven-9`.
+ */
+function pieceName(args: Pick<PlayArgs, 'demo' | 'midi'>): string {
+  return args.midi === null ? args.demo : basename(args.midi);
+}
+
+/**
+ * Gives the length of the piece of the mode `play`: the length of the demo, or of the score of the
+ * file of `--midi` as the app reads it.
+ *
+ * @param demo The demo.
+ * @param midi The path of the file of `--midi`, or `null`.
+ * @returns The length, in seconds.
+ * @throws Error when the file is not a valid MIDI file.
+ */
+function pieceLength(demo: DemoId, midi: string | null): number {
+  if (midi === null) {
+    return DEMOS[demo].lengthSec;
+  }
+  const result = buildScore(new Uint8Array(readFileSync(midi)), 'auto');
+  if (!result.ok) {
+    throw new Error(`The file ${midi} of --midi is not valid: ${result.error}.`);
+  }
+  return result.score.durationSec;
+}
+
+/**
  * Checks that a song time is a time of a play frame of a demo.
  *
  * @param time The song time, in seconds.
  * @param demo The demo.
+ * @param midi The path of the file of `--midi`, which replaces the demo, or `null`.
  * @returns The time.
  * @throws Error for a time below {@link SEEK_LEAD_SEC}, or a time at or after the end of the demo.
  */
-function frameTime(time: number, demo: DemoId): number {
+function frameTime(time: number, demo: DemoId, midi: string | null = null): number {
   // Below the seek lead, the seek goes to 0 s, and the frame comes when the bar hides, at about
   // 3.3 s.
   if (time < SEEK_LEAD_SEC) {
@@ -2645,10 +2695,10 @@ function frameTime(time: number, demo: DemoId): number {
     );
   }
   // The seek bar does not pass the end, and the bar shows when the music stops.
-  const { lengthSec } = DEMOS[demo];
+  const lengthSec = pieceLength(demo, midi);
   if (time >= lengthSec) {
     throw new Error(
-      `The time ${time} s is not before the end of the demo ${demo} (${lengthSec} s).`,
+      `The time ${time} s is not before the end of the ${pieceText(demo, midi)} (${lengthSec} s).`,
     );
   }
   return time;
@@ -2742,8 +2792,9 @@ export function playParts(args: PlayArgs): PlayArgs[] {
 
 /**
  * Reads the command line of the mode `play`:
- * `play <dir> [--demo <id>] [--time <s>]... [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`.
- * With no `--camera`, the camera is `default`. `--size` sets the size of the frames
+ * `play <dir> [--demo <id> | --midi <path>] [--time <s>]... [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`.
+ * With no `--camera`, the camera is `default`. `--midi` renders a MIDI file of the user in place
+ * of a demo ({@link openMidi}). `--size` sets the size of the frames
  * ({@link playSize}). `--cinematic` renders the camera of the shot plan
  * of the app ({@link CINEMATIC_CAMERA}). `--shot` also gives the time: the frame of the first solo
  * or section shot of its subject ({@link chooseShot}). `--at` aims the stage camera at one player
@@ -2756,7 +2807,8 @@ export function playParts(args: PlayArgs): PlayArgs[] {
  * @returns The command line, or `null` when the first argument is not `play`.
  * @throws Error that lists the correct names, for an unknown demo, camera, or species, and an
  *   error for a wrong time, a time below {@link SEEK_LEAD_SEC}, a time at or after the end of the
- *   demo, two times with one folder, `--camera` with `--cinematic` or `--shot`, `--time` with `--shot`, `--at` with
+ *   demo, a file of `--midi` that does not exist or comes with `--demo`, two times with one
+ *   folder, `--camera` with `--cinematic` or `--shot`, `--time` with `--shot`, `--at` with
  *   `--camera`, `--cinematic`, `--shot`, or `--url`, `--set` with `--url` or `--base`, an option of
  *   `--at` with no `--at`, a wrong option, or a missing word.
  */
@@ -2768,6 +2820,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     args.slice(1),
     [
       '--demo',
+      '--midi',
       '--time',
       '--camera',
       '--shot',
@@ -2790,6 +2843,11 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
 
   const demos = DEMO_IDS.map((name) => ({ name }));
   const demo = namedItem(line.options.get('--demo')?.[0] ?? DEFAULT_DEMO, demos, 'demo').name;
+  const midiText = line.options.get('--midi')?.[0] ?? null;
+  if (midiText !== null && line.options.has('--demo')) {
+    throw new Error('The option --midi gives the piece, so it takes no --demo.');
+  }
+  const midi = midiText === null ? null : midiPath(midiText);
   const shotText = line.options.get('--shot')?.[0] ?? null;
   const cinematic = line.flags.has('--cinematic') || shotText !== null;
   const cameraTexts = line.options.get('--camera');
@@ -2832,6 +2890,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     const time: PlayTime = { kind: 'shot', subject };
     return {
       demo,
+      midi,
       time,
       otherTimes: [],
       cameras: [camera],
@@ -2852,7 +2911,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     if (!/^\d+(?:\.\d+)?$/.test(text) || !Number.isFinite(sec)) {
       throw new Error(`The time "${text}" is not a song time in seconds, such as 6 or 30.5.`);
     }
-    return frameTime(sec, demo);
+    return frameTime(sec, demo, midi);
   });
   // Two times with one folder would write the same files.
   onceEach(
@@ -2865,6 +2924,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     (cinematic ? [CINEMATIC_CAMERA] : (cameraTexts ?? ['default']).map(playCamera));
   return {
     demo,
+    midi,
     time,
     otherTimes: others,
     cameras,
@@ -3019,17 +3079,20 @@ interface DemoLayout {
 
 /**
  * Gives the score and the layout of a demo as the app plans them: the demo after
- * `demos/patches.json`, the section size "Auto", and the layout of `planScene()` of
- * `src/app/app.ts`.
+ * `demos/patches.json`, or the file of `--midi` with no patch, the section size "Auto", and the
+ * layout of `planScene()` of `src/app/app.ts`.
  *
  * @param demo The demo.
+ * @param midi The path of the file of `--midi`, which replaces the demo, or `null`.
  * @returns The score, its layout, and its player models.
  * @throws Error when the demo is not valid.
  */
-async function demoLayout(demo: DemoId): Promise<DemoLayout> {
-  const result = buildScore((await patchedDemo(`${demo}.mid`)).bytes, 'auto');
+async function demoLayout(demo: DemoId, midi: string | null): Promise<DemoLayout> {
+  const bytes =
+    midi === null ? (await patchedDemo(`${demo}.mid`)).bytes : new Uint8Array(await readFile(midi));
+  const result = buildScore(bytes, 'auto');
   if (!result.ok) {
-    throw new Error(`The demo ${demo} is not valid: ${result.error}.`);
+    throw new Error(`The ${pieceText(demo, midi)} is not valid: ${result.error}.`);
   }
   const models = new ModelCache();
   return { score: result.score, layout: layoutScene(result.score, models), models };
@@ -3041,36 +3104,41 @@ async function demoLayout(demo: DemoId): Promise<DemoLayout> {
  *
  * @param demo The demo.
  * @param subject The subject.
+ * @param midi The path of the file of `--midi`, which replaces the demo, or `null`.
  * @returns The shot, its species, and the time of its frame.
  * @throws Error when the demo is not valid, when no solo or section shot has the subject, or when
  *   the time of the frame is not a time of a play frame ({@link frameTime}).
  */
-export async function chooseShot(demo: DemoId, subject: ShotSubject): Promise<ChosenShot> {
-  const { score, layout, models } = await demoLayout(demo);
+export async function chooseShot(
+  demo: DemoId,
+  subject: ShotSubject,
+  midi: string | null = null,
+): Promise<ChosenShot> {
+  const { score, layout, models } = await demoLayout(demo, midi);
   const { shots } = prepareShots(score, layout, SHOT_SEED, models);
 
   const shot = firstShotOf(shots, layout.players, subject);
   if (!shot) {
     const name = subject.kind === 'seat' ? `the seat ${subject.seat}` : subjectName(subject);
     throw new Error(
-      `The demo ${demo} has no solo or section shot of ${name}. Its solo and section shots show: ${shotSubjectsText(shots, layout.players)}.`,
+      `The ${pieceText(demo, midi)} has no solo or section shot of ${name}. Its solo and section shots show: ${shotSubjectsText(shots, layout.players)}.`,
     );
   }
   const start = Math.max(0, shot.startSec);
-  const end = Math.min(DEMOS[demo].lengthSec, shot.endSec);
+  const end = Math.min(pieceLength(demo, midi), shot.endSec);
   const frameSec = Math.round((start + (end - start) * SHOT_FRAME_SHARE) * 10) / 10;
   const species = shot.seats.map((seat) => speciesOfSeat(layout.players, seat));
-  return { shot, species, frameSec: frameTime(frameSec, demo) };
+  return { shot, species, frameSec: frameTime(frameSec, demo, midi) };
 }
 
 /**
  * Writes a chosen shot for the output of the tool.
  *
- * @param demo The demo.
+ * @param demo The demo, or the name of the file of `--midi`.
  * @param chosen The shot.
  * @returns The text, such as `solo of the seat 4 (hippo), 232.03 s to 237.03 s`.
  */
-export function chosenShotText(demo: DemoId, chosen: ChosenShot): string {
+export function chosenShotText(demo: string, chosen: ChosenShot): string {
   const { shot } = chosen;
   const seats = shot.seats.map((seat, i) => `${seat} (${chosen.species[i] ?? '?'})`).join(', ');
   const noun = shot.seats.length === 1 ? 'the seat' : 'the seats';
@@ -3092,11 +3160,16 @@ export interface AimTarget {
  *
  * @param demo The demo.
  * @param subject The seat or the species.
+ * @param midi The path of the file of `--midi`, which replaces the demo, or `null`.
  * @returns The player and the box of its body.
  * @throws Error that lists the players of the demo, when no player matches.
  */
-export async function aimTarget(demo: DemoId, subject: ShotSubject): Promise<AimTarget> {
-  const { layout, models } = await demoLayout(demo);
+export async function aimTarget(
+  demo: DemoId,
+  subject: ShotSubject,
+  midi: string | null = null,
+): Promise<AimTarget> {
+  const { layout, models } = await demoLayout(demo, midi);
   const place = layout.players.find((player) => isSubjectPlayer(subject, player.cast));
   if (!place) {
     const name = subject.kind === 'seat' ? `the seat ${subject.seat}` : subjectName(subject);
@@ -3104,7 +3177,7 @@ export async function aimTarget(demo: DemoId, subject: ShotSubject): Promise<Aim
       ...new Set(layout.players.map((p) => `${p.cast.species} (seat ${p.cast.seatIndex})`)),
     ];
     throw new Error(
-      `The demo ${demo} has no player of ${name}. Its players are: ${seats.join(', ')}.`,
+      `The ${pieceText(demo, midi)} has no player of ${name}. Its players are: ${seats.join(', ')}.`,
     );
   }
   const { cast } = place;
@@ -3115,11 +3188,11 @@ export async function aimTarget(demo: DemoId, subject: ShotSubject): Promise<Aim
 /**
  * Writes the player of `--at` for the output of the tool.
  *
- * @param demo The demo.
+ * @param demo The demo, or the name of the file of `--midi`.
  * @param target The player.
  * @returns The text, such as `The camera of --at aims at the elephant of the seat 12 (timpani).`
  */
-function aimTargetText(demo: DemoId, target: AimTarget): string {
+function aimTargetText(demo: string, target: AimTarget): string {
   const { cast } = target.place;
   return `The camera of --at aims at the ${cast.species} of the seat ${cast.seatIndex} (${cast.instrument}) of ${demo}.`;
 }
@@ -3179,8 +3252,8 @@ async function playTimeSec(args: PlayArgs): Promise<number> {
   if (args.time.kind === 'song') {
     return args.time.sec;
   }
-  const chosen = await chooseShot(args.demo, args.time.subject);
-  console.log(chosenShotText(args.demo, chosen));
+  const chosen = await chooseShot(args.demo, args.time.subject, args.midi);
+  console.log(chosenShotText(pieceName(args), chosen));
   return chosen.frameSec;
 }
 
@@ -3228,8 +3301,56 @@ async function playWait<T>(what: string, frame: string, wait: () => Promise<T>):
   }
 }
 
+/** The longest wait for the file of `--midi` to load and to play, in milliseconds. */
+const MIDI_WAIT_MS = 60_000;
+
 /**
- * Renders one play frame of a site: it plays the demo, and closes the drawer. Out of Cinematic
+ * Opens the file of `--midi` with the file input of the page, as a user selects a file, and waits
+ * until the file plays: the canvas names a file of the user, the samples are ready, and the seek
+ * bar shows at least 1 s. Then a motion of the pointer shows the bar.
+ *
+ * @param page The page of the app.
+ * @param midi The path of the file.
+ * @param frame The name of the frame, for the message of a failed wait.
+ * @throws Error that names the frame, when the file does not play in {@link MIDI_WAIT_MS}.
+ */
+async function openMidi(page: Page, midi: string, frame: string): Promise<void> {
+  await page.setInputFiles('input[type=file]', midi);
+  await playWait(`the file to play in ${MIDI_WAIT_MS / 1000} s`, frame, async () => {
+    await page.waitForSelector('#stage[data-demo="file"]', {
+      state: 'attached',
+      timeout: MIDI_WAIT_MS,
+    });
+    // The attribute of the samples and the seek bar change in the next frame of the new piece.
+    await page.evaluate(
+      () =>
+        new Promise<void>((done) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => done()));
+        }),
+    );
+    await page.waitForFunction(
+      () => {
+        const seek = document.querySelector('.seek');
+        return (
+          document.body.dataset['samples'] === 'ready' &&
+          seek instanceof HTMLInputElement &&
+          Number(seek.value) >= 1
+        );
+      },
+      undefined,
+      { polling: 50, timeout: MIDI_WAIT_MS },
+    );
+  });
+  // The bar hides while the file loads. A motion of the pointer shows it again, so that the tool
+  // can click "Reset view".
+  const size = page.viewportSize();
+  await page.mouse.move((size?.width ?? 0) / 2, (size?.height ?? 0) / 3);
+  await page.waitForSelector('.bar:not(.is-hidden)', { timeout: BAR_WAIT_MS });
+}
+
+/**
+ * Renders one play frame of a site: it plays the demo, and closes the drawer. With `--midi`, it
+ * then opens the file ({@link openMidi}). Out of Cinematic
  * mode, it moves the camera to the default view with "Reset view", and drags and turns the wheel
  * of the camera. A seek keeps the free camera of "Reset view" (design 2.5). In Cinematic mode, it
  * does not touch the camera, so the shot plan of the app moves it. Then it moves the pointer onto
@@ -3265,7 +3386,8 @@ async function playFrame(
     ...(args.holdsIndex === null ? [] : [`${HOLDS_QUERY}=${args.holdsIndex}`]),
   ];
   const query = params.length > 0 ? `?${params.join('&')}` : '';
-  const path = `/${query}#demo=${args.demo}`;
+  // The page of a file of --midi opens the default demo, and then the file replaces it.
+  const path = args.midi === null ? `/${query}#demo=${args.demo}` : `/${query}`;
   const page = await openShot(browser, new URL(path.slice(1), site).href, {
     file: '',
     path,
@@ -3277,6 +3399,10 @@ async function playFrame(
     await page.waitForTimeout(1500);
     // The open drawer keeps the bar and covers the right side of the stage (design 2.8).
     await page.click('.close-drawer');
+    const frame = `${tree}, camera ${camera.name}, ${pieceText(args.demo, args.midi)}, time ${time} s`;
+    if (args.midi !== null) {
+      await openMidi(page, args.midi, frame);
+    }
     if (!args.cinematic) {
       await page.getByRole('button', { name: 'Reset view' }).click();
       if (camera.dx !== 0 || camera.dy !== 0) {
@@ -3299,7 +3425,6 @@ async function playFrame(
     // motion with no press keeps the camera mode.
     await page.mouse.move(args.frame.width / 2, args.frame.height / 2);
 
-    const frame = `${tree}, camera ${camera.name}, demo ${args.demo}, time ${time} s`;
     const whole = Math.floor(time);
     await playWait(
       `the seek bar to reach ${whole} s in ${SEEK_WAIT_MS / 1000} s`,
@@ -3368,7 +3493,7 @@ async function renderPlay(
     await writeFile(file, frame.image);
     console.log(`${file}: song time ${frame.clock}`);
     cells.push(frame.image);
-    labels.push(`${camera.name}, ${args.demo} at ${time} s`);
+    labels.push(`${camera.name}, ${pieceName(args)} at ${time} s`);
   }
   return { cells, labels };
 }
@@ -3393,7 +3518,7 @@ async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> 
   const changes = args.holdsIndex === null ? null : setHolds(args.holds[args.holdsIndex] ?? '');
   let target: AimTarget | null = null;
   try {
-    target = args.at ? await aimTarget(args.demo, args.at) : null;
+    target = args.at ? await aimTarget(args.demo, args.at, args.midi) : null;
   } finally {
     changes?.undo();
   }
@@ -3401,7 +3526,7 @@ async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> 
     console.log(`${args.out}: the hold changes ${changes.text}.`);
   }
   if (target) {
-    console.log(aimTargetText(args.demo, target));
+    console.log(aimTargetText(pieceName(args), target));
   }
   const after = await renderPlay(
     browser,
@@ -3808,7 +3933,7 @@ const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
-  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>]... [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
+  `       pnpm close-views play <output directory> [--demo <id> | --midi <path>] [--time <s>]... [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
   '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
@@ -3868,7 +3993,7 @@ async function main(): Promise<void> {
     // A subject with no shot or no player, or a wrong hold change, stops the tool before the
     // build. The hold changes stay in memory, so that the player of --at is the player of the
     // variant.
-    const { demo, time, at, holds } = mode.args;
+    const { demo, midi, time, at, holds } = mode.args;
     try {
       const [only] = holds;
       if (holds.length === 1 && only !== undefined) {
@@ -3885,10 +4010,10 @@ async function main(): Promise<void> {
         variant = { body: null, holds, entry: APP_ENTRY };
       }
       if (time.kind === 'shot') {
-        await chooseShot(demo, time.subject);
+        await chooseShot(demo, time.subject, midi);
       }
       if (at) {
-        await aimTarget(demo, at);
+        await aimTarget(demo, at, midi);
       }
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));
