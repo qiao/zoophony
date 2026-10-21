@@ -25,6 +25,14 @@ import type { QualityTier } from './quality.ts';
  */
 type RendererLook = 'post' | 'stage' | 'gallery';
 
+/**
+ * The tone mapping of the stage (design 4.5, light and render): AgX at this exposure. A close shot
+ * adds the exposure of `SHOT_LOOK` (scene/shot-light.ts), and the grade of `scene/grade.ts` works
+ * on the result. The renderer reads the value at its creation, so the look override of the dev
+ * server reaches it (`LOOK_ROOTS` of `scene/look-values.ts`).
+ */
+export const STAGE_TONE = { exposure: 0.8 } as const;
+
 /** The settings of the renderer of a look. */
 interface RendererSettings {
   readonly alpha: boolean;
@@ -56,7 +64,7 @@ export function rendererSettings(look: RendererLook): RendererSettings {
     alpha: false,
     antialias: look === 'stage',
     toneMapping: AgXToneMapping,
-    exposure: 0.8,
+    exposure: STAGE_TONE.exposure,
     clearAlpha: 1,
   };
 }

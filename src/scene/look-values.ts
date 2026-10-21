@@ -18,13 +18,14 @@ import { LIGHT_POOL } from './light-pool.ts';
 import { BACK_ROW_LIGHT, CONDUCTOR_LIGHT, FILL, KEY_LIGHT, SIDE_LIGHT } from './lights.ts';
 import { POST_LOOK, ROOM_HAZE } from './post.ts';
 import { TIER_SETTINGS } from './quality.ts';
+import { STAGE_TONE } from './renderer.ts';
 import { SHOT_LOOK } from './shot-light.ts';
 import { SOLO_LIGHT } from './solo-light.ts';
 import { STAGE_BAKE } from './stage-bake.ts';
 import { SIDE_GLOW, STAGE_FINISH, STAGE_SHADOW } from './stage.ts';
 
 /**
- * The roots of the look paths: each exported light, pool, color, grade, finish, haze, lens, and
+ * The roots of the look paths: each exported light, pool, color, grade, tone, finish, haze, lens, and
  * beam constant of the scene (design 4.5). A look path starts with a root and names a value in it,
  * such as `BACK_ROW_LIGHT.illuminance` or `BACK_ROW_LIGHT.position.1`. The look override of the
  * dev server (`src/app/look-override.ts`), `pnpm look-variants`, and `pnpm light-probe` read this
@@ -68,6 +69,7 @@ const LOOK_ROOTS = {
   STAGE_COLORS,
   STAGE_FINISH,
   STAGE_SHADOW,
+  STAGE_TONE,
   TIER_SETTINGS,
 } as const;
 
