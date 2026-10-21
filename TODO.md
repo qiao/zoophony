@@ -692,12 +692,17 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`docs/research/2026-10-20-armpits/views/`). Close the pair in `cut_seam()`, then check the slit.
       The user saw the right slit as a missing piece. The cut faces and the rim there take the
       normals of the skin (`2026-10-21-rabbit-armpit.md`).
-- [ ] Rabbit right armpit: a soft hollow and a short dark wedge stay under the raised bow arm,
+- [x] Rabbit right armpit: a soft hollow and a short dark wedge stay under the raised bow arm,
       because the caps of the body lie in a notch of the trunk. A fill of the notch made a sharp
       tent. Try a fair surface across the notch with no tent (`2026-10-21-rabbit-armpit.md`).
+      The rig reads a Blender copy of the mesh with the notch vertices half of the way out to a
+      fitted surface (`rabbit-4-armpit.glb`).
+- [ ] Rabbit right armpit after the fair move: a shallow hollow with a small sharp tip stays
+      under the raised bow arm at the camera of the user. The full move made facets and a pit, so
+      a smoother hollow needs more vertices in the notch (`2026-10-21-rabbit-armpit.md`).
 - [ ] Rabbit left armpit: a thin dark line stays at the top of the cut under the violin arm. The
-      normals of the skin put a light sliver there, so the left side keeps its face normals
-      (`2026-10-21-rabbit-armpit.md`).
+      normals of the skin put a light sliver there, and the half move of the right side a light
+      streak, so the left side keeps its face normals and vertices (`2026-10-21-rabbit-armpit.md`).
 - [ ] Rabbit open edges: a flap face with two open edges (3.1 cm) stays under the right armpit.
       The module before the cut has such a pair too, and no frame of the round shows the flap
       (`open-edges.txt` of `docs/research/2026-10-21-rabbit-armpit/`).
