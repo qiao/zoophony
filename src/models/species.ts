@@ -130,8 +130,6 @@ export interface BipedParams extends CommonParams {
   readonly snout: 'long' | 'horn';
   /** The tail type (design 4.3). */
   readonly tail: 'puff' | 'thin';
-  /** The face pattern (design 4.3). */
-  readonly facePattern: 'none';
   /** No body of its own: the species has the parametric biped. */
   readonly body?: undefined;
 }
@@ -422,7 +420,6 @@ export const SPECIES = {
     size: 1.1,
     colors: SPECIES_COLORS.deer,
     accentParts: ['nose', 'feet'],
-    facePattern: 'none',
   },
   /**
    * Panda, the trombones: a giant panda with black ears, eye patches, shoulders, arms, and legs. It
@@ -564,7 +561,6 @@ export const SPECIES = {
     size: 1.35,
     colors: SPECIES_COLORS.rhino,
     accentParts: ['horn'],
-    facePattern: 'none',
   },
   /**
    * Badger, the percussion: a badger with a dark gray front, arms, and legs, a gray back and tail,

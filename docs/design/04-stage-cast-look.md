@@ -270,12 +270,10 @@ has its egg body, and the rabbit, the two foxes, the wolf, the cat, the dog, the
 the mouse, the elephant, the beaver, the pig, the monkey, the badger, the bear, and the polar bear
 have studio bodies (4.4), so they have no row:
 
-| Species | ears       | snout     | tail | facePattern |
-| ------- | ---------- | --------- | ---- | ----------- |
-| deer    | antlered   | long      | puff | none        |
-| panda   | round      | short     | puff | eye-patches |
-| pig     | pointed    | flat-nose | thin | none        |
-| rhino   | small      | horn      | thin | none        |
+| Species | ears | snout | tail |
+| ------- | -------- | ----- | ---- |
+| deer    | antlered | long  | puff |
+| rhino   | small    | horn  | thin |
 
 The face patterns (`models/face-patterns.ts`) color the faces of the head and add no part. The
 eyes stand a little out of a patch, so that it does not hide them. The deer has ears that point

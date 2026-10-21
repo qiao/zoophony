@@ -84,12 +84,12 @@ function hasColor(mesh: MeshData, color: Rgb): boolean {
 
 describe('SPECIES', () => {
   it('holds the shape parameters of design 4.3 for each species of the biped', () => {
-    const rows = tableRows('| Species | ears | snout | tail | facePattern |');
+    const rows = tableRows('| Species | ears | snout | tail |');
     const seen = new Set<SpeciesId>();
-    for (const [name = '', ears, snout, tail, facePattern] of rows) {
+    for (const [name = '', ears, snout, tail] of rows) {
       for (const id of idsOf(name)) {
         seen.add(id);
-        expect({ id, ...SPECIES[id] }).toMatchObject({ id, ears, snout, tail, facePattern });
+        expect({ id, ...SPECIES[id] }).toMatchObject({ id, ears, snout, tail });
       }
     }
     // A species with a body of its own has no shape parameters and no row.
