@@ -687,9 +687,20 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `main`), and the rest shape keeps face 217 turned over. The cut of `cut_seam()` fails on the
       pig seam (a vertex with two loop edges). Make the cut take that seam, or try a weight rule
       (`2026-10-20-armpits.md`).
-- [ ] Rabbit armpit cut: a thin dark slit shows at the top of each cut on the side of the chest in
+- [x] Rabbit armpit cut: a thin dark slit shows at the top of each cut on the side of the chest in
       the play, and an open edge pair of 3.1 cm stays under the right armpit
       (`docs/research/2026-10-20-armpits/views/`). Close the pair in `cut_seam()`, then check the slit.
+      The user saw the right slit as a missing piece. The cut faces and the rim there take the
+      normals of the skin (`2026-10-21-rabbit-armpit.md`).
+- [ ] Rabbit right armpit: a soft hollow and a short dark wedge stay under the raised bow arm,
+      because the caps of the body lie in a notch of the trunk. A fill of the notch made a sharp
+      tent. Try a fair surface across the notch with no tent (`2026-10-21-rabbit-armpit.md`).
+- [ ] Rabbit left armpit: a thin dark line stays at the top of the cut under the violin arm. The
+      normals of the skin put a light sliver there, so the left side keeps its face normals
+      (`2026-10-21-rabbit-armpit.md`).
+- [ ] Rabbit open edges: a flap face with two open edges (3.1 cm) stays under the right armpit.
+      The module before the cut has such a pair too, and no frame of the round shows the flap
+      (`open-edges.txt` of `docs/research/2026-10-21-rabbit-armpit/`).
 - [ ] Horn right paw: the palm lies on the bell axis 2.5 cm inside the opening, and the paw lies
       across the opening, 86° from the axis. A real hand goes deeper, against the far wall at 2
       o'clock. Turn the paw along the bell for the horn, and update the accepted grip of the gate
