@@ -704,10 +704,14 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       streak, so the left side keeps its face normals and vertices (`2026-10-21-rabbit-armpit.md`).
       The left cut now takes the normals of the skin, which removes a black spike at the seam
       under the bent violin arm (`2026-10-21-rabbit-arm.md`).
-- [ ] Rabbit arm shadows: the hard shadow of each arm on the white trunk shows as black wedges
+- [x] Rabbit arm shadows: the hard shadow of each arm on the white trunk shows as black wedges
       with steps of the shadow map along the seam. About half of the black pixels of the seam go
-      with no shadow on the rabbit (`2026-10-21-rabbit-arm.md`). Ask the user about a softer
-      shadow or more fill on the players, which changes each species.
+      with no shadow on the rabbit (`2026-10-21-rabbit-arm.md`). The user chose "Keep, softer":
+      the shadow radius 5 on the high tier and in the gallery removes the steps, and the seam has
+      15% fewer black pixels than the gallery at radius 1 (`2026-10-21-stage-exposure.md`).
+- [ ] Rabbit arm shadows: the shadows of the side lights keep about 13,000 black pixels more in
+      the seam of the rabbit than no shadow (`seam-final.txt` of
+      `docs/research/2026-10-21-stage-exposure/`).
 - [ ] Rabbit soloist: with the twist bones, the violin goes 0.5 cm deeper into the body in the lift
       and the lowering of the standing soloist (2.3 cm, no limit). Check the chin and the left
       shoulder in the close views (`pose-depth-soloist-base.txt` of
@@ -1066,6 +1070,18 @@ the mockup is out of scope.
       (user "do it" on 2026-10-18, after "the back rows of the stage are too dark"): two back-row
       lights from the front corners, and a pool that reaches far toward the back on the players.
       Measures: `docs/research/2026-10-18-back-light.md`.
+- [x] Make the stage less exposed and more cinematic (user, 2026-10-21: "the scene seems to be
+      over-exposed?", variant B): the exposure 0.7, a soft shoulder of the grade curve, a pool
+      narrower than the stage, darker planks, a stronger beam, less fill on the floor, softer
+      shadows of the players, and back-row lights of 2.9 lux. No channel of the lit floor clips.
+      Measures: `docs/research/2026-10-21-stage-exposure.md`.
+- [ ] The lit floor in the pool is darker than in `orchestra-latest.png` after variant B: a luma
+      of 152 against 179 in the user view, and 119 against 191 left of the podium in the camera
+      `orchestra`. Ask the user if the planks should go back to their color, with the narrow pool.
+- [ ] The white fur of the back rows has 0.92 of the p90 of the front rows, against 0.98 in
+      `orchestra-latest.png` (`pnpm look-lab`, camera `default`).
+- [ ] The chair mask of the look lab ("chair, front left") holds 4 pixels after the lower
+      exposure, because its luma limit is 90 (`LOOK_REGIONS` of `tools/look-lab.ts`).
 - [ ] The hot spot of the key light also multiplies the side lights on the high and medium tiers,
       because they cast shadows there (`SPOT_POOL_GLSL` of `scene/light-pool.ts`). There, the first
       row gets about 1.3 times the light of the low tier, and the back row only 0.63 to 0.77 of the
