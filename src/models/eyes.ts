@@ -24,6 +24,18 @@ const EYE_LIGHT_UP = 0.035;
 /** The depth of the light on a bent eye, in H: a thin disc that lies flat on the oval. */
 const EYE_LIGHT_DEPTH = 0.008;
 
+/**
+ * The place of the light of each eye to the +x side of the visible middle of the eye, in H. With
+ * it, both lights show on the upper left of each eye seen from the front, as the reflection of one
+ * lamp does on two real eyes. The eyes face to the sides, so a light in the middle of each oval
+ * showed on the outer side of each eye, and the two lights pointed away from each other (user,
+ * 2026-10-21).
+ */
+const EYE_LIGHT_SIDE = 0.02;
+
+/** The largest place of the light across the oval from its middle, in H, so it stays on the oval. */
+const EYE_LIGHT_ACROSS = 0.04;
+
 /** The colors of an eye: the black oval and its small white light. */
 export type EyeColors = Pick<BodyColors, 'eye' | 'eyeLight'>;
 
@@ -49,14 +61,43 @@ function bendAt(bend: EyeBend, u: number, v: number): number {
 }
 
 /**
- * Gives the depth of the front of the oval in front of its middle, at a place up the oval.
+ * Gives the depth of the front of the oval in front of its middle, at a place on the oval.
  *
+ * @param u The place across the oval, from the middle, in `H`.
  * @param v The place up the oval, from the middle, in `H`.
  * @returns The depth along the axis of the eye, in `H`.
  */
-function frontDepth(v: number): number {
+function frontDepth(u: number, v: number): number {
+  const across = u / (0.5 * EYE[0]);
   const share = v / (0.5 * EYE[1]);
-  return 0.5 * EYE[2] * Math.sqrt(Math.max(0, 1 - share * share));
+  return 0.5 * EYE[2] * Math.sqrt(Math.max(0, 1 - across * across - share * share));
+}
+
+/**
+ * Gives the place of the light across an eye: the place at which the light, on the front of the
+ * oval, stands {@link EYE_LIGHT_SIDE} to the right of the middle of the eye, seen from the front.
+ *
+ * @param across The axis across the eye.
+ * @param n The axis of the eye.
+ * @param front The depth of the front of the oval at a place across and up the oval, in `H`.
+ * @returns The place across the oval, from the middle, in `H`.
+ */
+function lightAcross(across: Vector3, n: Vector3, front: (u: number) => number): number {
+  let u = 0;
+  // An eye that faces fully to the side has no place for the light to the right of its middle.
+  if (Math.abs(across.x) < 0.2) {
+    return u;
+  }
+  // Seen from the front, the cheek covers the outer side of an eye that faces to the side, so the
+  // visible middle of the eye lies on its inner side, as far from the middle of the oval as the
+  // front of the oval lies on its outer side. The depth changes little with the place, so a few
+  // steps reach the place.
+  const target = -n.x * front(0) + EYE_LIGHT_SIDE;
+  for (let step = 0; step < 4; step++) {
+    u = (target - n.x * front(u)) / across.x;
+    u = Math.min(EYE_LIGHT_ACROSS, Math.max(-EYE_LIGHT_ACROSS, u));
+  }
+  return u;
 }
 
 /**
@@ -138,8 +179,10 @@ export function addEye(
     addBentLight(builder, colors, { point, normal }, h, bone, bend);
     return;
   }
+  const u = lightAcross(across, n, () => 0.5 * EYE[2]);
   const light = new Vector3(...point)
     .addScaledVector(n, 0.5 * EYE[2] * h)
+    .addScaledVector(across, u * h)
     .add(new Vector3(0, EYE_LIGHT_UP * h, 0));
   builder.add(ball(0.5, 6, 3), {
     color: colors.eyeLight,
@@ -151,8 +194,9 @@ export function addEye(
 
 /**
  * Adds the light of a bent eye: a thin disc on the front of the oval, 0.035 H up the oval from the
- * middle, so that it stays on an oval that faces up or to the side. The disc lies flat on the front
- * of the bent oval there, so that it stands only half its depth out of the oval in each view.
+ * middle and to the right of the middle seen from the front ({@link lightAcross}), so that it
+ * stays on an oval that faces up or to the side. The disc lies flat on the front of the bent oval
+ * there, so that it stands only half its depth out of the oval in each view.
  *
  * @param builder The mesh that gets the light.
  * @param colors The colors of the eye.
@@ -173,10 +217,12 @@ function addBentLight(
   const up = new Vector3(0, 1, 0).projectOnPlane(n).normalize();
   const across = new Vector3().crossVectors(up, n);
   const v = EYE_LIGHT_UP;
-  const dv = 1e-4;
+  const front = (u: number, at: number): number => frontDepth(u, at) + bendAt(bend, u, at);
+  const u = lightAcross(across, n, (place) => front(place, v));
+  const d = 1e-4;
   // The slopes of the front of the bent oval at the light, along the axes of the eye.
-  const slopeU = bend[0] + bend[3] * v;
-  const slopeV = (frontDepth(v + dv) - frontDepth(v - dv)) / (2 * dv) + bend[1] + 2 * bend[4] * v;
+  const slopeU = (front(u + d, v) - front(u - d, v)) / (2 * d);
+  const slopeV = (front(u, v + d) - front(u, v - d)) / (2 * d);
   const facing = new Vector3()
     .addScaledVector(across, -slopeU)
     .addScaledVector(up, -slopeV)
@@ -189,7 +235,8 @@ function addBentLight(
   );
   const light = new Vector3(...eye.point)
     .addScaledVector(up, v * h)
-    .addScaledVector(n, (frontDepth(v) + bendAt(bend, 0, v)) * h);
+    .addScaledVector(across, u * h)
+    .addScaledVector(n, front(u, v) * h);
   builder.add(ball(0.5, 6, 3), {
     color: colors.eyeLight,
     bone,
