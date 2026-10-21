@@ -65,3 +65,26 @@ These facts of the mesh were measured on 2026-10-13:
 - The rabbit stands, with the arms about 35° out from the body and down, and the paws open.
 - The eyes are dark faces of the head surface, with no shells. The whiskers are thin faces that
   join the muzzle. The tail is a ball.
+
+## rabbit-4-armpit.glb
+
+`rabbit-4-armpit.glb` is `rabbit-4.glb` with one local edit in Blender, which the user asked for
+on 2026-10-21 ("fix the rabbit's armpit deformation. it looks like it's missing a piece"). The
+rig of the rabbit (`source` of `tools/mesh-rigs/rabbit.json`) reads this file. `rabbit-4.glb`
+stays the file of the user, byte for byte.
+
+| Item | Value |
+|---|---|
+| File | `rabbit-4-armpit.glb`, 12,219,888 bytes |
+| SHA-256 | `e6dca72fea991afd6247dad9921d5931e60465157ab39a597362d78d3d18b19a` |
+| Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `rabbit-4.glb` |
+| License | As `rabbit-4.glb` |
+
+The edit: the side of the trunk under the right arm curls in where it joins the hanging arm. A
+cut of the rig closes the trunk there, and the raised bow arm showed the notch as a dark gap.
+21 vertices of the trunk at the root of the right arm (54 corners of the file, the welded
+vertices 984 to 1030 of a weld at 1e-5) move out along x, toward the side of the trunk. Each
+vertex moves half of the way to a quadratic surface that fits 28 trunk vertices around the
+notch, at most 0.008 units of the studio axes (1.6 cm in the file, 1.2 cm in the app). No other
+vertex, face, UV, or texture changes. `fair.py` of `docs/research/2026-10-21-rabbit-notch/` gives
+the moves.
