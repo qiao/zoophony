@@ -22,6 +22,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   twist the upper arms into bands: point the elbows down. A deeper trunk takes the room of the
   elbows: point them out (`poleL`, `restPoleL`). Compare the arm turns of each pole after a change
   of the head or the girth (`pnpm hold-fit --base main`).
+- A paw on a wind grip lies along the line from its shoulder, and `PAW_TURN` undoes a hand turn in
+  the plane of the palm. When a big head puts the grips above the shoulders, put the grips low on
+  the instrument, else a long paw rises past it
+  (`grips.sh` of `docs/research/2026-10-20-mesh-monkey/`).
 
 ## Reach and rest of the instrument
 
