@@ -277,18 +277,18 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Monkey: from the front, the paws on the valves hide the mouth and the smile while the
       monkey plays, and the right fingers reach the valves from the side, because each paw lies
       along the line from its shoulder (`PAW_TURN`, `2026-10-20-mesh-monkey.md`).
-- [ ] Remove the unused code of the `side-round` ears and the `face-disc` face pattern: no species
+- [x] Remove the unused code of the `side-round` ears and the `face-disc` face pattern: no species
       has them since the monkey mesh (`2026-10-20-mesh-monkey.md`).
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
       fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
-- [ ] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
-- [ ] Remove the unused code of the face pattern `eye-patches`: no species has it since the panda
+- [x] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
+- [x] Remove the unused code of the face pattern `eye-patches`: no species has it since the panda
       mesh (`2026-10-18-mesh-panda.md`).
-- [ ] Remove the unused code of the `broad` muzzle: no species has it since the hippo mesh
+- [x] Remove the unused code of the `broad` muzzle: no species has it since the hippo mesh
       (`2026-10-18-mesh-hippo.md`).
-- [ ] Remove the unused code of the `large-round` ears and the `pointed` snout: no species has
+- [x] Remove the unused code of the `large-round` ears and the `pointed` snout: no species has
       them since the mouse mesh (`2026-10-19-mesh-mouse.md`).
-- [ ] Remove the unused code of the `flat-nose` snout: no species has it since the pig mesh
+- [x] Remove the unused code of the `flat-nose` snout: no species has it since the pig mesh
       (`2026-10-19-mesh-pig.md`).
 - [ ] Remove the unused high stool (`HIGH_STOOL`, the support `high-stool`, and the foot ring of the
       parametric legs): no player sits on it since the hippo stands (`2026-10-18-mesh-hippo.md`).
@@ -673,7 +673,7 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Badger arm views: `pnpm arm-check --views` renders no crop of the snare drummer and of the
       xylophonist, because only the percussion test score has them, and `close-views play`
       renders only demos.
-- [ ] Remove the unused code of the `pointed` ears and the `bushy` tail: no species has them
+- [x] Remove the unused code of the `pointed` ears and the `bushy` tail: no species has them
       since the wolf mesh. The outline of the pointed ear stays for the antlered ears of the deer,
       and the `long` snout for the deer and the badger (`2026-10-20-mesh-wolf.md`). Since the
       badger mesh, the face pattern `stripe` and the `small` ears of the badger have no species
@@ -687,7 +687,7 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       stays in one hand, and the outer kettles stand out of reach and are never struck
       (`PercussionHold.pair`). Show the user the views, and offer longer arms for rolls with
       both hands and for the outer kettles (`2026-10-19-elephant-pose.md`).
-- [ ] Remove the unused code of the `trunk` snout with its tusks and of the `large-flap` ears: no
+- [x] Remove the unused code of the `trunk` snout with its tusks and of the `large-flap` ears: no
       species has them since the elephant mesh (`2026-10-19-mesh-elephant.md`).
 - [x] Beaver bassoonist: three faces of the left arm folded in each play sample. A cut of both
       armpits and one shape of the left arm remove each play fold (`arm-cut.txt` of
@@ -702,12 +702,12 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-19-mesh-beaver.md`).
 - [ ] Beaver bassoon size: the beaver plays a bassoon of 0.82 of the bassoon of the app. No source
       gives the size of a smaller bassoon (`docs/reference/wind-technique.md` 4.2).
-- [ ] Remove the unused code of the `buck-teeth` snout with `TEETH_COLOR` and of the `flat` tail:
+- [x] Remove the unused code of the `buck-teeth` snout with `TEETH_COLOR` and of the `flat` tail:
       no species has them since the beaver mesh (`2026-10-19-mesh-beaver.md`).
 - [ ] Remove the parametric biped (the branch of `buildBiped()` after the studio bodies, and
-      `trunk.ts`, `arms.ts`, `legs.ts`, `ears.ts`, `snouts.ts`, `tails.ts`, `face-patterns.ts`)
-      when the deer and the rhino have bodies of their own. Until then, the harp and the tuba
-      players use it.
+      `trunk.ts`, `arms.ts`, `legs.ts`, `ears.ts`, `snouts.ts`, `tails.ts`) when the deer and the
+      rhino have bodies of their own. Until then, the harp and the tuba players use it.
+      `face-patterns.ts` went on 2026-10-20, because no species had a face pattern.
 - [ ] `docs/agents/model-traps.md` has 3,170 words, above its limit of about 3,000
       (`docs/agents/writing.md`). Cut it in a prose pass.
 - [ ] Bear conductor: at the start of the lift, the baton paw turns from 26° to 180° in 0.13 s, and
