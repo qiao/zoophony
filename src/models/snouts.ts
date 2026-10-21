@@ -31,7 +31,6 @@ const MOUTHS = {
   short: [0, -0.38, -0.62],
   long: [0, -0.43, -0.78],
   blunt: [0, -0.42, -0.74],
-  broad: [0, -0.48, -0.7],
   pointed: [0, -0.36, -0.62],
   'flat-nose': [0, -0.42, -0.58],
   horn: [0, -0.42, -0.66],
@@ -224,23 +223,6 @@ export function addSnout(
         .addScaledVector(axis, (length - 0.06) * h)
         .add(new Vector3(0, 0.12 * h, 0));
       addNose(builder, colors, h, toVec3(nose), 0.085);
-      return bones;
-    }
-    case 'broad': {
-      // A large round muzzle, wider than it is tall, with two nostrils on its top front, as the
-      // hippos of the polished images.
-      builder.add(ball(1, MUZZLE_SEGMENTS, 5), {
-        color: muzzle,
-        bone: head,
-        at: transform(at(0, -0.28, -0.48), undefined, [0.44 * h, 0.3 * h, 0.34 * h]),
-      });
-      for (const side of [-1, 1]) {
-        builder.add(ball(1, 8, 4), {
-          color: colors.nose,
-          bone: head,
-          at: transform(at(side * 0.13, -0.16, -0.76), undefined, [0.06 * h, 0.035 * h, 0.04 * h]),
-        });
-      }
       return bones;
     }
     case 'pointed': {

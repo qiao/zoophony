@@ -135,7 +135,7 @@ export interface BipedParams extends CommonParams {
     | 'antlered'
     | 'none';
   /** The snout type (design 4.3). */
-  readonly snout: 'short' | 'long' | 'blunt' | 'broad' | 'pointed' | 'flat-nose' | 'horn';
+  readonly snout: 'short' | 'long' | 'blunt' | 'pointed' | 'flat-nose' | 'horn';
   /** The tail type (design 4.3). */
   readonly tail: 'none' | 'puff' | 'thin';
   /** The face pattern (design 4.3). */
