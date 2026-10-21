@@ -8,7 +8,7 @@
  * copy gets a scratch entry ({@link addScratchBody}). Thus phase 1 of a mesh of the user probes
  * the real body before the commit of the body.
  */
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { cpSync, existsSync, mkdtempSync, readFileSync, symlinkSync } from 'node:fs';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -401,7 +401,10 @@ export async function addScratchBody(
  * Makes a copy of the working tree in which the studio body of an animal comes from another GLB
  * file, runs a work in it, and removes it. The copy holds `src/`, `package.json`, the scripts of
  * `tools/`, and the configs of the mesh rigs ({@link copiedTool}), with links to `node_modules/`
- * and `demos/`. Its module of the animal is the export of the file. An animal with no studio body
+ * and `demos/`. The copy is also an empty git repository, as the probe tree of
+ * `withProbeTree()` of `tools/ref-tree.ts` is, so that a git command of a tool works there, such as
+ * `probeCacheDir()`. The caches and the times that a tool writes there go away with the folder.
+ * Its module of the animal is the export of the file. An animal with no studio body
  * or no entry in `ANIMALS` gets scratch entries in the copy ({@link addScratchBody}). The folder
  * goes away at the end, also after a failure. After a stop (INT or TERM), `tools/stop-cleanup.ts`
  * stops the children of {@link runTool} first, then removes the folder.
@@ -433,6 +436,7 @@ export async function withGlbBody<T>(
     for (const path of LINKED) {
       symlinkSync(join(ROOT, path), join(dir, path), 'dir');
     }
+    execFileSync('git', ['init', '--quiet'], { cwd: dir, stdio: 'ignore' });
     await writeFile(join(dir, 'src', 'models', 'studio', `${animal}.ts`), text);
     await addScratchBody(dir, animal, settings);
     return await work(dir);
