@@ -412,6 +412,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
   ],
   // The harp deer: decisions/2026-10-21-mesh-deer.md. It sits on the stool of the harp, and the
   // harp soloist keeps the stool, so it does not stand. The antlers stay out of the head measures.
+  // The haunch of the deer of 1.2 times the size is 0.39 m wide, so the stool is 0.44 m wide.
   [
     'deer',
     {
@@ -422,6 +423,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       constant: 'STUDIO_DEER',
       crease: 35,
       headCeiling: 0.87,
+      seatWidth: 0.44,
       glb: 'assets/models/deer/deer.rig.glb',
     },
   ],
