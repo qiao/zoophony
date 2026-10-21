@@ -30,7 +30,7 @@ import { SIDE_GLOW, STAGE_FINISH, STAGE_SHADOW } from './stage.ts';
  * dev server (`src/app/look-override.ts`), `pnpm look-variants`, and `pnpm light-probe` read this
  * list. A new constant of the look goes into it.
  */
-export const LOOK_ROOTS = {
+const LOOK_ROOTS = {
   BACK_ROW_LIGHT,
   BEAM_LOOK,
   CAPTURE,
@@ -82,7 +82,7 @@ export type LookRoot = keyof typeof LOOK_ROOTS;
  * `CLOSE_DISTANCE_SHARE` of `shots/prepare.ts`. To change a refused value, read it at use time,
  * as `gradeLutData()` of `scene/grade.ts` reads the tone curve, and remove it from the list.
  */
-export const LOAD_TIME_PATHS: ReadonlyMap<string, string> = new Map([
+const LOAD_TIME_PATHS: ReadonlyMap<string, string> = new Map([
   ['BEAM_LOOK.maxConcentration', '`BEAM_FRAGMENT` of `scene/beam.ts`'],
   ['STAGE_BAKE.offset', '`RECEIVER_FRAGMENT` of `scene/stage-bake.ts`'],
   ['STAGE_BAKE.bias', '`RECEIVER_FRAGMENT` of `scene/stage-bake.ts`'],
@@ -97,7 +97,7 @@ export type LookValue = number | boolean | string | readonly LookValue[];
 export type LookChanges = ReadonlyMap<string, LookValue>;
 
 /** One change of a look path, with the old and the new value as JSON text. */
-export interface LookChange {
+interface LookChange {
   /** The look path, such as `KEY_LIGHT.illuminance`. */
   readonly path: string;
   /** The old value. */

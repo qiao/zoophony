@@ -147,7 +147,7 @@ const SPOT_INFO = 'getSpotLightInfo( spotLight, geometryPosition, directLight );
  * The surface of a material that takes the pool: the stage, or the players and the props, which
  * take the long reach of the pool toward the back ({@link LightAim}).
  */
-export type PoolSurface = 'stage' | 'players';
+type PoolSurface = 'stage' | 'players';
 
 /**
  * The GLSL of the pool factor and the hot spot, before the lights. `vViewPosition` holds the

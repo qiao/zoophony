@@ -124,7 +124,7 @@ export const FILL = { sky: '#2c2c2e', ground: '#2c241e', intensity: 5, players: 
  * face does not shadow itself. With the first bias of 0.01 m, close shots showed a cross-hatch
  * pattern on the faces (UX audit 2026-10-05, SC5).
  */
-export const SHADOW_BIAS_TEXELS = 2;
+const SHADOW_BIAS_TEXELS = 2;
 
 /** The highest item on the stage that casts a shadow, in meters above the stage top. */
 export const SHADOW_TOP = 3;
@@ -133,7 +133,7 @@ export const SHADOW_TOP = 3;
 export const SHADOW_MARGIN = 3 * MathUtils.DEG2RAD;
 
 /** The view of the shadow camera of a spotlight. */
-export interface ShadowFrustum {
+interface ShadowFrustum {
   /** The near plane, in meters along the axis of the light. */
   readonly near: number;
   /** The far plane, in meters along the axis of the light. */
@@ -198,7 +198,7 @@ export function keyShadowFrustum(
  * @param radius The blur radius of the tier, in texels.
  * @returns The normal bias, in meters.
  */
-export function shadowNormalBias(
+function shadowNormalBias(
   distance: number,
   halfAngle: number,
   mapSize: number,
@@ -238,7 +238,7 @@ export const CONDUCTOR_LIGHT = {
  * @param conductor The place of the conductor.
  * @returns The light. Its target is a child of the light group with it.
  */
-export function createConductorLight(conductor: ConductorPlace): SpotLight {
+function createConductorLight(conductor: ConductorPlace): SpotLight {
   const c = CONDUCTOR_LIGHT;
   const [x, y, z] = conductor.position;
   const aimY = y + c.aimHeight;
@@ -520,7 +520,7 @@ function createKeyLight(
 }
 
 /** The options of {@link createLights}. */
-export interface LightOptions {
+interface LightOptions {
   /**
    * True to add the visible beam (the default). The gallery pages show the models, so they have
    * no beam.

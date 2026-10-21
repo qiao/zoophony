@@ -740,7 +740,7 @@ export class BeamDepth {
 }
 
 /** The state of the beam in one frame. */
-export interface BeamFrame {
+interface BeamFrame {
   /** The stage side `S`, in meters. */
   readonly stageSide: number;
   /** The factor of the camera (design 4.5, 5.6), from 0 to 1. */

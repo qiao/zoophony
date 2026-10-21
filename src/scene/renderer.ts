@@ -23,10 +23,10 @@ import type { QualityTier } from './quality.ts';
  * - `gallery`: the gallery pages. The canvas has the MSAA and is transparent, so the CSS
  *   background of the page shows.
  */
-export type RendererLook = 'post' | 'stage' | 'gallery';
+type RendererLook = 'post' | 'stage' | 'gallery';
 
 /** The settings of the renderer of a look. */
-export interface RendererSettings {
+interface RendererSettings {
   readonly alpha: boolean;
   readonly antialias: boolean;
   readonly toneMapping: ToneMapping;

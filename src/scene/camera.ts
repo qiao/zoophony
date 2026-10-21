@@ -29,7 +29,7 @@ import {
  * (design 2.5). A drag in a close shot turned the view around a point 4 m away, and the camera
  * looked lost (UX audit 2026-10-05, SC6).
  */
-export const FREE_TARGET_GLIDE = {
+const FREE_TARGET_GLIDE = {
   /** The time of the move, in milliseconds. */
   durationMs: 400,
   /** A target nearer than this distance to the stage center does not move, in meters. */
@@ -48,14 +48,14 @@ export const FREE_TARGET_GLIDE = {
  * the move in about 200 ms, as the drawer and the first screen do. With reduced motion, it moves
  * at once.
  */
-export const FRAME_GLIDE_MS = 50;
+const FRAME_GLIDE_MS = 50;
 
 /**
  * The glide of the scale of the frame that keeps the stage clear of the play button of the first
  * screen (design 2.8): its time constant, in milliseconds. After the first play, the stage grows
  * to the default view in about 0.4 s, as a short push-in. With reduced motion, it changes at once.
  */
-export const CLEAR_GLIDE_MS = 120;
+const CLEAR_GLIDE_MS = 120;
 
 /**
  * Moves a value toward its target in a frame: the rest of the way shrinks by `exp(-dt / time)`.

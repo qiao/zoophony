@@ -71,7 +71,7 @@ const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
  * @param count The number of points.
  * @returns The points.
  */
-export function keyLightPoints(center: Vec3, size: number, count: number): Vec3[] {
+function keyLightPoints(center: Vec3, size: number, count: number): Vec3[] {
   const axis = new Vector3(...center).negate().normalize();
   const side = new Vector3(0, 1, 0).cross(axis).normalize();
   const up = new Vector3().crossVectors(axis, side);
@@ -95,7 +95,7 @@ export function keyLightPoints(center: Vec3, size: number, count: number): Vec3[
  * @param count The number of directions.
  * @returns The unit directions, with y above 0.
  */
-export function skyDirections(count: number): Vec3[] {
+function skyDirections(count: number): Vec3[] {
   const directions: Vec3[] = [];
   for (let i = 0; i < count; i++) {
     const u = (i + 0.5) / count;
@@ -299,7 +299,7 @@ function sampleMaterial(sky: boolean | 'height', stageSide: number): ShaderMater
 }
 
 /** The inputs of {@link bakeStage}. */
-export interface StageBakeOptions {
+interface StageBakeOptions {
   /** The stage side `S`, in meters. */
   readonly stageSide: number;
   /** The center of the area light of the key light. */

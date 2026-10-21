@@ -2,7 +2,7 @@
 export type QualityTier = 'high' | 'medium' | 'low';
 
 /** The render values of one quality tier. MSAA is on in all tiers. */
-export interface TierSettings {
+interface TierSettings {
   /** The width and the height of the shadow map of the key light, in texels. */
   readonly shadowMapSize: number;
   /**
@@ -68,7 +68,7 @@ export const TIER_SETTINGS = {
 } as const satisfies Readonly<Record<QualityTier, TierSettings>>;
 
 /** A viewport with a shorter side below this value, in CSS pixels, is a small screen (2.6). */
-export const SMALL_SCREEN_SIDE = 600;
+const SMALL_SCREEN_SIDE = 600;
 
 /**
  * Selects the tier at start from the device (design 2.6).

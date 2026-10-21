@@ -1,10 +1,10 @@
 import { Data3DTexture, LinearFilter, NoColorSpace, RGBAFormat, UnsignedByteType } from 'three';
 
 /** A color with three channels from 0 to 1. */
-export type GradeColor = readonly [r: number, g: number, b: number];
+type GradeColor = readonly [r: number, g: number, b: number];
 
 /** A point of the tone curve: the input and the output luma, as display values from 0 to 255. */
-export type CurvePoint = readonly [input: number, output: number];
+type CurvePoint = readonly [input: number, output: number];
 
 /**
  * The values of the color grade on the display values, after AgX (design 4.5, post effects).
@@ -55,7 +55,7 @@ export const GRADE = {
  * @param points The points, by increasing input. Each value is from 0 to 1.
  * @returns The curve. It holds the first and the last output outside the inputs.
  */
-export function monotoneCurve(points: readonly CurvePoint[]): (x: number) => number {
+function monotoneCurve(points: readonly CurvePoint[]): (x: number) => number {
   const xs = points.map((point) => point[0]);
   const ys = points.map((point) => point[1]);
   const n = points.length;

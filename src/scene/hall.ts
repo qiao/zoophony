@@ -110,7 +110,7 @@ export const HALL_LIGHT = {
 } as const;
 
 /** The geometry of one part of the hall, with no index: three vertices for each triangle. */
-export interface HallMesh {
+interface HallMesh {
   /** x, y, z of each vertex, in meters. */
   readonly positions: Float32Array;
   /** Linear r, g, b of each vertex. */
@@ -123,7 +123,7 @@ export interface HallMesh {
 }
 
 /** One lamp of the hall: its center and the radius of its glow, in meters. */
-export interface HallLamp {
+interface HallLamp {
   /** The center of the lamp. */
   readonly center: Vec3;
   /** The radius of the soft glow around the lamp. */
@@ -131,7 +131,7 @@ export interface HallLamp {
 }
 
 /** The hall: the shell with baked light, and the lamps. */
-export interface HallData {
+interface HallData {
   /** The walls and the balconies. */
   readonly shell: HallMesh;
   /** The small bright bodies of the lamps. */
@@ -572,7 +572,7 @@ function createGlows(lamps: readonly HallLamp[], unit: number): Points {
 }
 
 /** The cutaway of the hall for one camera. */
-export interface HallCutaway {
+interface HallCutaway {
   /** The direction from the ring center to the camera on the floor: x and z, of length 1. */
   readonly direction: readonly [number, number];
   /**

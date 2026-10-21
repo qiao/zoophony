@@ -46,7 +46,7 @@ import type { StageBakeUniforms } from './stage.ts';
 import { bakeStage } from './stage-bake.ts';
 
 /** The inputs of {@link StageScene}. */
-export interface StageSceneOptions {
+interface StageSceneOptions {
   readonly tier: QualityTier;
   readonly devicePixelRatio: number;
   /** True if the user prefers reduced motion (design 2.5). */
@@ -87,7 +87,7 @@ const HEAD_TOP = 0.5;
  * @param models The player models of the layout.
  * @returns The height in meters, or 0 with no players.
  */
-export function playersTop(layout: SceneLayout, models: ModelCache): number {
+function playersTop(layout: SceneLayout, models: ModelCache): number {
   let top = 0;
   for (const place of layout.players) {
     const { species, instrument, kettles, support } = place.cast;
@@ -105,7 +105,7 @@ export function playersTop(layout: SceneLayout, models: ModelCache): number {
  * @param models The player models of the layout.
  * @returns One spot for each player, then the conductor, if any.
  */
-export function focusSpots(layout: SceneLayout, models: ModelCache): FocusSpot[] {
+function focusSpots(layout: SceneLayout, models: ModelCache): FocusSpot[] {
   return playerSpots(layout).map((spot) => {
     const model = models.get(spot.species, spot.instrument, spot.kettles, spot.support);
     const [x, top, z] = headOf(model, spot);
@@ -114,7 +114,7 @@ export function focusSpots(layout: SceneLayout, models: ModelCache): FocusSpot[]
 }
 
 /** The flags of a seat that the solo light reads (design 2.4): `SeatFlags` of the app. */
-export interface SoloFlag {
+interface SoloFlag {
   /** True if the user soloed the seat. */
   readonly soloed: boolean;
 }

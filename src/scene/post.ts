@@ -93,7 +93,7 @@ export interface HazeFrame {
 }
 
 /** The values of the final pass that change with each frame. */
-export interface PostFrame {
+interface PostFrame {
   /** The room haze, or `null` for no haze. */
   readonly haze: HazeFrame | null;
   /** The part of the light that the vignette takes from the corners. */
@@ -111,7 +111,7 @@ export function gradeUniforms() {
 }
 
 /** The number of samples of the multisample target of the scene (design 2.6). */
-export const MSAA_SAMPLES = 4;
+const MSAA_SAMPLES = 4;
 
 /** The number of changes of the film grain each second, as film at 24 frames each second. */
 export const GRAIN_RATE = 24;
