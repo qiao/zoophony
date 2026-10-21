@@ -13,8 +13,8 @@ type BrassId = 'horn' | 'trumpet' | 'trombone' | 'tuba';
 
 /**
  * The sizes of the brass instruments in meters (design 4.6). The horn, the trumpet, and the
- * trombone are 0.85 of their real size, as the violin. The tuba is 0.95 m tall, so that it stands
- * in the lap of the rhino and reaches its mouth.
+ * trombone are 0.85 of their real size, as the violin. The tuba is 0.95 m tall, and it stands
+ * against the body of the standing rhino with a longer lead pipe (`SpeciesParams.tubaPipe`).
  */
 export const BRASS = {
   horn: { coilRadius: 0.13, bellRadius: 0.13 },
