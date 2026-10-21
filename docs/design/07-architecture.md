@@ -112,6 +112,8 @@ player.
   hornist (`hornist`) has the views and the moments of the flutist, with its own test notes. The
   wolf clarinetist (`clarinetist`) has the views and the moments of the flutist, with its own test
   notes, and its bushy tail behind the seat shows in the side views and the back view. The
+  monkey trumpeter (`trumpeter`) has the views and the moments of the flutist, with its own test
+  notes, and the curl of its long tail on the floor shows in the side views and the back view. The
   badger has one role for each percussion instrument (`bass-drummer`, `snare-drummer`,
   `cymbalist`, `percussionist`, and `xylophonist`), from the four sides of the elephant, at a
   strike of each paw or a crash, between two strikes, in the rest pose, and in the middle of the
