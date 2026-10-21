@@ -147,7 +147,7 @@ const FOOT = {
 } as const;
 
 /** The points of the face that the body needs. */
-export interface PenguinFace {
+interface PenguinFace {
   /** The hinge of the lower beak: the bind position of the `jaw` bone. */
   readonly jaw: Vec3;
   /** The middle of the mouth, between the two halves of the beak. */
@@ -315,7 +315,7 @@ function addEye(
 }
 
 /** The places of the arm bones and the points of the flippers. */
-export interface PenguinFlippers {
+interface PenguinFlippers {
   /** The bind position of each arm bone. */
   readonly positions: Readonly<
     Record<

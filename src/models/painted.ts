@@ -9,7 +9,7 @@ import type { Vec3 } from './tuples.ts';
  * Gives the color of one triangle of a part from its centroid and its unit normal, both in the
  * axes of the model.
  */
-export type Paint = (centroid: Vec3, normal: Vec3) => Rgb;
+type Paint = (centroid: Vec3, normal: Vec3) => Rgb;
 
 /**
  * Adds a part whose triangles get their colors one by one, so that a color border follows the

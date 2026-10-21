@@ -43,7 +43,7 @@ export interface PlacedPiece {
 }
 
 /** An instrument at its place in the bind pose of one player. */
-export interface PlacedInstrument {
+interface PlacedInstrument {
   readonly pieces: readonly PlacedPiece[];
   /** The bind position of each bone that carries a piece. */
   readonly bones: ReadonlyMap<InstrumentBone, Vec3>;

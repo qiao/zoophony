@@ -1,5 +1,5 @@
 /** The cursor of a read of packed bytes. */
-export interface ByteReader {
+interface ByteReader {
   /** The bytes. */
   readonly bytes: Uint8Array;
   /** The index of the next byte. */

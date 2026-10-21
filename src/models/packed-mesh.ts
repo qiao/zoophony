@@ -42,7 +42,7 @@ export interface PackedVertex {
 }
 
 /** A packed mesh read back by {@link unpackMesh}: one entry for each vertex and each triangle. */
-export interface UnpackedMesh {
+interface UnpackedMesh {
   /** The place of each vertex: x, y, and z, in meters. */
   readonly positions: Float64Array;
   /** The main bone of each vertex. */

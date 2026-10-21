@@ -36,7 +36,7 @@ export type InstrumentId =
  * `buildInstrument()` of `catalog.ts` gives it to the builder of each one. A new scale adds its
  * instrument here, and the typecheck then stops at each place that must read the scale.
  */
-export const SCALED_INSTRUMENTS = [
+const SCALED_INSTRUMENTS = [
   'violin',
   'cello',
   'contrabass',
@@ -117,7 +117,7 @@ export interface PiecePoint {
  * The points where the player touches the instrument in the playing pose. `null` means that the
  * body part does not touch it.
  */
-export interface InstrumentGrips {
+interface InstrumentGrips {
   /** The middle of the left palm. */
   readonly palmL: PiecePoint | null;
   /** The middle of the right palm. */

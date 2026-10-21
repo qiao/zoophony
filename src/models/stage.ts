@@ -62,7 +62,7 @@ const LIP_PROFILE: readonly (readonly [number, number])[] = [
 ];
 
 /** A point on the stage top: x and z. */
-export type FloorPoint = readonly [number, number];
+type FloorPoint = readonly [number, number];
 
 /**
  * Gives the eight corners of a square with cut corners around the origin, in the order of the
@@ -73,7 +73,7 @@ export type FloorPoint = readonly [number, number];
  * @param cut The length that each cut takes from each of the two edges at its corner, in meters.
  * @returns The corners, as x and z.
  */
-export function octagon(half: number, cut: number): FloorPoint[] {
+function octagon(half: number, cut: number): FloorPoint[] {
   const h = half;
   const c = cut;
   return [
@@ -145,7 +145,7 @@ export function keepsStageMargin(x: number, z: number, side: number, margin: num
 }
 
 /** The panels of the skirt (the sides of the stage): a panel width and a groove between panels. */
-export const SKIRT = { panel: 0.5, groove: 0.03 } as const;
+const SKIRT = { panel: 0.5, groove: 0.03 } as const;
 
 /**
  * The front distance `F` from the front edge of the stage to the podium center, with no piano
@@ -157,7 +157,7 @@ export const PODIUM_FROM_FRONT = 1.0;
 export const PODIUM_SIZE: Vec3 = [1.05, 0.35, 1.05];
 
 /** The thickness of the lighter top plate of the podium. */
-export const PODIUM_PLATE = 0.04;
+const PODIUM_PLATE = 0.04;
 
 /**
  * The cut corners and the frames of the podium (design 4.5, props), as the podium of

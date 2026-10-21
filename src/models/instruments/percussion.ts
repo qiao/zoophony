@@ -546,7 +546,7 @@ export function buildSnareDrum(): InstrumentModel {
  * mouse, was 0.105 m above the floor. With the strap at the palm, the rim of a small player cut
  * 0.08 m into the floor (review of step 4, P1).
  */
-export const CYMBAL_LIFT = 0.12;
+const CYMBAL_LIFT = 0.12;
 
 /**
  * The profile of a cymbal of the scale 1 around its axis (+y), in meters: from the inner face at

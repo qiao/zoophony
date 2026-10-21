@@ -12,7 +12,7 @@ import type { LoftRing } from './primitives.ts';
  * cheeks reach forward below the eyes to carry the muzzle. Every second ring turns by half a
  * segment, so that the head has small triangle facets.
  */
-export const HEAD_RINGS: readonly LoftRing[] = [
+const HEAD_RINGS: readonly LoftRing[] = [
   { y: -0.5, halfWidth: 0, front: 0, back: 0, z: -0.12 },
   { y: -0.45, halfWidth: 0.22, front: 0.4, back: 0.2, z: -0.06 },
   { y: -0.36, halfWidth: 0.4, front: 0.56, back: 0.32, turn: 0.5 },

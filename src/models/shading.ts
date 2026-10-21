@@ -14,7 +14,7 @@ const WELD_STEP = 1e-4;
  * vertex, for example on the seam of the torso between `spine` and `chest`. Each corner still
  * follows its own bones (design 4.4).
  */
-export interface Welds {
+interface Welds {
   /** The vertex of each corner. */
   readonly vertexOf: Uint32Array;
   /**
@@ -488,7 +488,7 @@ function bakeOcclusion(
 }
 
 /** The shading of a mesh: the values that the geometry adds to the mesh data. */
-export interface MeshShading {
+interface MeshShading {
   /** The unit crease normal of each corner: x, y, z, in the order of the corners. */
   readonly normals: Float32Array;
   /**

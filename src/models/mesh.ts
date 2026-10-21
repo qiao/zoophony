@@ -22,7 +22,7 @@ export type Finish = 'matte' | 'varnish' | 'lacquer' | 'metal';
  * The shading values of a finish: the roughness and the metalness, each 0 to 1 (the values of
  * three.js), and the crease angle of its normals.
  */
-export interface FinishValues {
+interface FinishValues {
   readonly roughness: number;
   readonly metalness: number;
   /**
@@ -94,7 +94,7 @@ export interface CornerSkin {
  * A rule that gives the skin of a corner from its bind position, in the model axes, after the
  * placement of its part.
  */
-export type SkinRule = (point: Vec3) => CornerSkin;
+type SkinRule = (point: Vec3) => CornerSkin;
 
 /**
  * Gives the skin of a corner that blends two bones. The bone with the larger weight becomes the

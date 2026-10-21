@@ -70,7 +70,7 @@ export const CELLO_END_PIN = 0.2;
  * the body of the player, so a smaller contrabass needs no longer end pin. With the cello rule, the
  * smaller contrabass of the hippo had an end pin of 0.55 m.
  */
-export const BASS_END_PIN = 0.2;
+const BASS_END_PIN = 0.2;
 
 /**
  * Gives the length of the end pin of an upright bowed string below the tail end, in meters
@@ -94,7 +94,7 @@ export function endPinLength(id: 'cello' | 'contrabass', scale: number): number 
  * The scale of the bow of the cello and of the contrabass, as a factor of the bow model: 0.63 m.
  * The violin and the viola use the bow at the {@link INSTRUMENT_SCALE}: 0.57 m (design 4.6).
  */
-export const LOW_BOW_SCALE = INSTRUMENT_SCALE * 1.1;
+const LOW_BOW_SCALE = INSTRUMENT_SCALE * 1.1;
 
 /** The hold of the violin and the viola under the chin (design 4.6). */
 const CHIN_HOLD = {
@@ -114,7 +114,7 @@ const CHIN_HOLD = {
  * `offsetH` in head heights, then `offset` in meters. The instrument leans along `axis`, and its
  * top plate faces `front` as far as the axis permits.
  */
-export const UPRIGHT_HOLDS = {
+const UPRIGHT_HOLDS = {
   cello: {
     offsetH: [0, 0, -0.42],
     offset: [0.085, 0, -0.44],
@@ -336,7 +336,7 @@ function uprightRotation(id: keyof typeof UPRIGHT_HOLDS): Quat {
 }
 
 /** The bowed strings of design 4.6. */
-export type BowedStringId = 'violin' | 'viola' | 'cello' | 'contrabass';
+type BowedStringId = 'violin' | 'viola' | 'cello' | 'contrabass';
 
 /**
  * The place of the bow stick at the grip, from the middle of the right palm, in head heights

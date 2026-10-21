@@ -22,13 +22,13 @@ import { CONDUCTOR_STAND, PODIUM_FROM_FRONT, PODIUM_SIZE, keepsStageMargin } fro
 import { pieceBounds } from './instruments/piece.ts';
 
 /** The arc length of one singer on the risers (design 4.5, seat geometry). */
-export const SINGER_ARC = 0.6;
+const SINGER_ARC = 0.6;
 
 /**
  * The arc length of one vocal soloist (design 3.8, 4.5). The soloists stand on the lowest level
  * of the risers, in front of the choir, with space between them, so that they read as soloists.
  */
-export const VOCAL_SOLOIST_ARC = 1.2;
+const VOCAL_SOLOIST_ARC = 1.2;
 
 /** The smallest radius step from one row to the next (design 4.5, seat geometry). */
 export const ROW_STEP = 1.2;
@@ -954,7 +954,7 @@ interface Draft {
 }
 
 /** The stage side `S` and the front distance `F` (design 4.5, stage origin), in meters. */
-export interface StageSize {
+interface StageSize {
   /** The stage side `S`, in meters. */
   readonly side: number;
   /** The front distance `F` from the front edge to the podium center, in meters. */
@@ -1249,7 +1249,7 @@ function layoutChamber(
 }
 
 /** The limits of the spread of a row (design 4.5, seat geometry). */
-export interface SpreadLimits {
+interface SpreadLimits {
   /** The largest angle of a seat from 0°, in radians: 90°. */
   readonly maxAngle: number;
   /** The largest arc between two neighbors of a row, in meters: 1.6. */

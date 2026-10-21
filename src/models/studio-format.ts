@@ -67,7 +67,7 @@ export type StudioBone = (typeof STUDIO_BONES)[number];
 export const OPTIONAL_STUDIO_BONES = ['tail_tip'] as const;
 
 /** A bone that a studio body can lack. */
-export type OptionalStudioBone = (typeof OPTIONAL_STUDIO_BONES)[number];
+type OptionalStudioBone = (typeof OPTIONAL_STUDIO_BONES)[number];
 
 /** A bone that each studio body has. */
 export type RequiredStudioBone = Exclude<StudioBone, OptionalStudioBone>;
@@ -129,7 +129,7 @@ export const STUDIO_LEG_BONES = [
 ] as const;
 
 /** A leg bone of a studio body. */
-export type StudioLegBone = (typeof STUDIO_LEG_BONES)[number];
+type StudioLegBone = (typeof STUDIO_LEG_BONES)[number];
 
 /**
  * The bones of a tail of two bones, which turn when a seated body with such a tail stands (design
@@ -138,7 +138,7 @@ export type StudioLegBone = (typeof STUDIO_LEG_BONES)[number];
 export const STUDIO_TAIL_BONES = ['tail', 'tail_tip'] as const;
 
 /** A bone of a tail of two bones. */
-export type StudioTailBone = (typeof STUDIO_TAIL_BONES)[number];
+type StudioTailBone = (typeof STUDIO_TAIL_BONES)[number];
 
 /**
  * The trunk bones of a studio body, which turn when a seated body with a reclined trunk stands
@@ -148,7 +148,7 @@ export type StudioTailBone = (typeof STUDIO_TAIL_BONES)[number];
 export const STUDIO_TRUNK_BONES = ['hips', 'spine', 'spine1', 'chest', 'neck', 'head'] as const;
 
 /** A trunk bone of a studio body. */
-export type StudioTrunkBone = (typeof STUDIO_TRUNK_BONES)[number];
+type StudioTrunkBone = (typeof STUDIO_TRUNK_BONES)[number];
 
 /**
  * The arm bones of a studio body, from the clavicle out, the left side first. The standing pose of
@@ -213,7 +213,7 @@ export interface StudioStanding {
  * The names of the other palettes of a studio body (design 4.4, 4.5): the tan palette of the fox
  * mesh, which the tan foxes of the flutes take. The red foxes keep the palette of the mesh.
  */
-export const STUDIO_PALETTES = ['tan'] as const;
+const STUDIO_PALETTES = ['tan'] as const;
 
 /** The name of another palette of a studio body. */
 export type StudioPalette = (typeof STUDIO_PALETTES)[number];
@@ -397,7 +397,7 @@ export interface StudioBody {
 export const STUDIO_INFLUENCES = 4;
 
 /** The steps of a packed weight from 0 to 1: one byte. */
-export const STUDIO_WEIGHT_STEPS = 255;
+const STUDIO_WEIGHT_STEPS = 255;
 
 /** The step of a packed move of a corrective shape, in meters. */
 export const CORRECTIVE_STEP = 1e-4;

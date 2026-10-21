@@ -2,7 +2,7 @@ import { DEFAULT_HEAD_HEIGHT } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 
 /** The place of a seated knee, in H: the bind position of the `shin` bone (design 4.5). */
-export interface KneePlace {
+interface KneePlace {
   /** The distance in front of the hip joint. */
   readonly forward: number;
   /** The height above the seat. */

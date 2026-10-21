@@ -51,7 +51,7 @@ export type EyeBend = readonly [u: number, v: number, uu: number, uv: number, vv
  * @param v The place up the eye, from the middle, in `H`.
  * @returns The move along the axis of the eye, in `H`.
  */
-export function bendAt(bend: EyeBend, u: number, v: number): number {
+function bendAt(bend: EyeBend, u: number, v: number): number {
   return bend[0] * u + bend[1] * v + bend[2] * u * u + bend[3] * u * v + bend[4] * v * v;
 }
 

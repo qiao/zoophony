@@ -11,7 +11,7 @@ import type { InstrumentModel } from './types.ts';
  * The sizes of the choir folder, in meters (design 4.6). In the folder axes, the spine runs along
  * y through the origin, and the two covers open to the singer at +z.
  */
-export const CHOIR_FOLDER = {
+const CHOIR_FOLDER = {
   /** The size of one cover. */
   width: 0.2,
   height: 0.27,

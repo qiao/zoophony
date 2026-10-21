@@ -9,7 +9,7 @@ import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
 
 /** The brass instruments of design 4.6. */
-export type BrassId = 'horn' | 'trumpet' | 'trombone' | 'tuba';
+type BrassId = 'horn' | 'trumpet' | 'trombone' | 'tuba';
 
 /**
  * The sizes of the brass instruments in meters (design 4.6). The horn, the trumpet, and the

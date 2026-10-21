@@ -181,7 +181,7 @@ export interface StudioPose {
  * The offsets of a pose of the player that move bones from their bind places (design 5.1): the
  * root offset, and the offsets of the instrument bone and of the slide bone.
  */
-export interface BoneOffsets {
+interface BoneOffsets {
   /** The offset of the root bone, in the model axes. */
   readonly root: Vec3;
   /** The offset of the `instrument` bone, in the axes of its parent. */
@@ -194,7 +194,7 @@ export interface BoneOffsets {
 export const NO_OFFSETS: BoneOffsets = { root: [0, 0, 0], instrument: [0, 0, 0], slide: [0, 0, 0] };
 
 /** The offsets that a pose of a player holds (`AnimalPose` of `pose/types.ts`, design 5.1). */
-export interface PoseOffsets {
+interface PoseOffsets {
   /** The offset of the root bone. */
   readonly rootOffset: Vec3;
   /** The offset of the `instrument` bone, or none for no move. */
@@ -240,7 +240,7 @@ export const STUDIO_POSE_BONES = STUDIO_BONES.length + BONE_NAMES.length + 2;
  * the weight of the upper arm moves from the twist bone to the upper arm bone
  * (`StudioBody.upperTwist`).
  */
-export const UPPER_TWIST_SPAN = [0.1, 0.9] as const;
+const UPPER_TWIST_SPAN = [0.1, 0.9] as const;
 
 /**
  * The index of the weight of the first shape of a raised arm or of a bent wrist in
@@ -272,7 +272,7 @@ export function createStudioPose(): StudioPose {
  * @param out The quaternion to write.
  * @returns `out`.
  */
-export function alignFrames(
+function alignFrames(
   aFrom: Vector3,
   bFrom: Vector3,
   aTo: Vector3,
@@ -408,7 +408,7 @@ function isStudioBone(name: string): name is StudioBone {
 }
 
 /** A studio body with its unpacked mesh, in the stance of a player. */
-export interface PosedStudioBody {
+interface PosedStudioBody {
   /** The body, with the bind places of its bones in the stance. */
   readonly body: StudioBody;
   /** The mesh, with its bind places in the stance and the arm corrective shapes only. */
