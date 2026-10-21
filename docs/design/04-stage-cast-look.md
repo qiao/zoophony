@@ -460,7 +460,14 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     each corner of a cap takes the mean normal of the skin at its vertex (`studioNormals()`). The
     caps of the body keep their own normals, because the normals of the skin turn the light caps
     of the belly into dark wedges. The black arm caps of the panda stay dark with each normal, so
-    the panda keeps the normals of its faces. The thick arm of the rhino joins the side of the
+    the panda keeps the normals of its faces. On the rabbit, the side of the trunk curls in where
+    it joins the hanging arm, so the caps of the body lie in a notch. The raised bow arm stretches
+    the quad at the top of the cut into a sheet that faces down, and the skin faces of the rim of
+    the notch turn far from the skin around them. With their own normals, the notch shows as a
+    jagged dark gap, as if a piece of the body is missing. `cut.bodyNormals` names the sides that
+    give the caps of the body, the quads, and the rim (`StudioBody.rim`) the normals of the skin,
+    the rim with no crease angle. A fill that moves the trunk out of the notch makes a sharp tent
+    under the arm, so no vertex moves. The thick arm of the rhino joins the side of the
     trunk from the shoulder down to the paw, with a notch at its front and its back. A plane
     |x| = `armSplit` then cuts through the arm or the trunk, so the plane turns around the
     vertical through both notches, and the free arm keeps within a radius of the arm joints and
