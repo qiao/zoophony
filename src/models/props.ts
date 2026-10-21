@@ -98,8 +98,9 @@ export interface SeatHeights {
    */
   readonly seatDepth?: number;
   /**
-   * The width of the seat of a chair under a studio body with a wide haunch, in meters
-   * (`StudioBody.chairWidth`). The legs and the back posts stay at the side edges of the seat.
+   * The width of the seat of a chair or of the stool of the harp under a studio body with a wide
+   * haunch, in meters (`StudioBody.chairWidth`). The legs and the back posts stay at the side edges
+   * of the seat.
    */
   readonly seatWidth?: number;
   /**
@@ -112,7 +113,8 @@ export interface SeatHeights {
 /**
  * The stool of the harp (design 4.5, props), with no back. Under the parametric biped, its seat has
  * the height of the chair of 2026-10-06, for the strings of the harp. Under a studio body, its seat
- * fits the legs (`seatHeights()`).
+ * fits the legs, and a wide haunch gets a wider seat, as on the chair (`seatHeights()`). The seat
+ * keeps its depth.
  */
 export const STOOL = {
   seatHeight: 0.35,
@@ -230,6 +232,20 @@ function chairHeights(species: SpeciesParams, legs: number): SeatHeights {
 }
 
 /**
+ * Gives the heights of the stool of the harp under a body (design 4.5, props): the seat at the
+ * given height, and a wide studio body on a wider seat (`StudioBody.chairWidth`), as on the chair.
+ *
+ * @param species The species of the body.
+ * @param seatHeight The height of the seat above the floor, in meters.
+ * @returns The heights.
+ */
+function stoolHeights(species: SpeciesParams, seatHeight: number): SeatHeights {
+  const studio: StudioBody | null = species.body ? STUDIO_BODIES[species.body] : null;
+  const seat = { seatHeight, footHeight: 0 };
+  return studio?.chairWidth === undefined ? seat : { ...seat, seatWidth: studio.chairWidth };
+}
+
+/**
  * Gives the heights of the seat of a body on a support (design 4.5, props). The chair fits the
  * legs of the species: its seat is the `seatHeight` of the skeleton above the floor. A species
  * with no chair (`SpeciesParams.noChair`) keeps these heights, and the app builds no chair. The
@@ -252,7 +268,7 @@ export function seatHeights(support: Support, species: SpeciesParams): SeatHeigh
       return species.noChair ? { ...seat, noChair: true } : seat;
     }
     case 'stool':
-      return { seatHeight: studioLegs ? legs : STOOL.seatHeight, footHeight: 0 };
+      return stoolHeights(species, studioLegs ? legs : STOOL.seatHeight);
     case 'high-stool':
       return { seatHeight: HIGH_STOOL.seatHeight, footHeight: HIGH_STOOL.seatHeight - legs };
     case 'bench':
@@ -424,7 +440,8 @@ export function addDesk(builder: MeshBuilder, plate: readonly number[], at: Tran
 
 /**
  * Builds a stool with four legs and no back: the stool of the harp, or the high stool of the
- * contrabass with its foot ring (design 4.5). The seat center is above the origin.
+ * contrabass with its foot ring (design 4.5). The seat center is above the origin. A wider seat
+ * of the stool of the harp (`SeatHeights.seatWidth`) keeps its depth and its legs at its corners.
  *
  * @param high True for the high stool.
  * @param seat The heights of the seat and of the foot ring. The stool of the harp has no ring.
@@ -433,12 +450,14 @@ export function addDesk(builder: MeshBuilder, plate: readonly number[], at: Tran
 export function buildStool(high: boolean, seat: SeatHeights): MeshData {
   const { seatHeight } = seat;
   const { seatSize } = high ? HIGH_STOOL : STOOL;
+  const width = high ? seatSize : (seat.seatWidth ?? seatSize);
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.chair;
-  addBox(builder, centeredBox([0, seatHeight - 0.02, 0], [seatSize, 0.04, seatSize]), color);
+  addBox(builder, centeredBox([0, seatHeight - 0.02, 0], [width, 0.04, seatSize]), color);
   const legHeight = seatHeight - 0.04;
   const at = seatSize / 2 - CHAIR_LEG / 2;
-  for (const x of [-at, at]) {
+  const atX = width / 2 - CHAIR_LEG / 2;
+  for (const x of [-atX, atX]) {
     for (const z of [-at, at]) {
       addBox(builder, centeredBox([x, legHeight / 2, z], [CHAIR_LEG, legHeight, CHAIR_LEG]), color);
     }
