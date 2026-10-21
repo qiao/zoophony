@@ -603,6 +603,17 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-19-mesh-pig.md`).
 - [ ] Pig standing soloist: no demo has a standing pig, and `pnpm pose-depth --soloist` takes only
       a bowed role, so only the close views check it (`2026-10-19-mesh-pig.md`).
+- [ ] Pig right armpit at rest and in the lift: 22 faces turn past 45° in each rest sample (23.5 on
+      `main`), and the rest shape keeps face 217 turned over. The cut of `cut_seam()` fails on the
+      pig seam (a vertex with two loop edges). Make the cut take that seam, or try a weight rule
+      (`2026-10-20-armpits.md`).
+- [ ] Rabbit armpit cut: a thin dark slit shows at the top of each cut on the side of the chest in
+      the play, and an open edge pair of 3.1 cm stays under the right armpit
+      (`docs/research/2026-10-20-armpits/views/`). Close the pair in `cut_seam()`, then check the slit.
+- [ ] Horn right paw: the palm lies on the bell axis 2.5 cm inside the opening, and the paw lies
+      across the opening, 86° from the axis. A real hand goes deeper, against the far wall at 2
+      o'clock. Turn the paw along the bell for the horn, and update the accepted grip of the gate
+      after the manager accepts the crops (`2026-10-20-armpits.md`).
 - [x] Wolf size: the agent chose the seated skull top at 1.10 times the dog cellist, the middle of
       the ratio 1.03 to 1.16 of the orchestra images, while the user slept. The user then asked
       for 0.9 of the height and 1.2 of the width (`2026-10-20-wolf-shape.md`).
