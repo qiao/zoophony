@@ -839,6 +839,23 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
         child process.
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
+- [x] Sway of a fast notated beat: the file of the user notates a ballad at 241 BPM in 4/4, and
+      the sway changed its side each 0.25 s. A fast 4/x is now conducted in 2 or in 1, and the
+      sway follows the felt pulse of the song (`2026-10-21-beat-fold.md`, `pnpm beat-rates`).
+- [ ] Beat fold limits: no source gives the tempo at which a conductor goes from 4 to 2. The app
+      uses 168 for 4/x as for 2/x and 3/x. Ask the user, or find a conducting text with a tempo
+      (`docs/research/2026-10-21-beat-fold.md`, section 4).
+- [ ] Felt pulse of the demos: the sway of `beethoven-9`, `boulanger-matin`, `brahms-2`, and
+      `mozart-k525` now takes 2 beats a side. Show the user the change. The measured sideways
+      sway locks to the bar also at 89 BPM, so a lower `PULSE_TEMPO` would follow the source more
+      closely and change more demos.
+- [ ] Fast `generic` bars: the last bar of 7/8 of `bach-bwv1048` is conducted at 200 beats for
+      each minute for 1.5 s, and the count-in beat of its first bar of 1/8 is 0.3 s. A fold needs
+      an uneven grouping, such as 2+2+3.
+- [ ] Sway at the song end: the sway stops at the last pulse, so the file of the user does not
+      sway in its last 0.5 s. The base stopped at the last beat.
+- [ ] `docs/agents/commands.md` has 3,385 words, above its limit of about 3,000. Cut it in a
+      prose pass.
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
