@@ -119,7 +119,9 @@ player.
   in the side views and the back view. The deer harpist (`harpist`) shows from the four sides,
   from the front left at the strings, and low from the back right at the seat, at a chord just before the pluck, after the pluck, in the
   rest pose, and in the middle of the lift and of the lowering at the chord, and its haunch on the
-  stool shows in the side views and the back view. The badger has one role for each percussion
+  stool shows in the side views and the back view. The penguin singer (`singer`) stands on its
+  riser, from the front, both sides, and the back, at an open beak, a closed beak, and the rest,
+  with the default test notes. The badger has one role for each percussion
   instrument (`bass-drummer`, `snare-drummer`,
   `cymbalist`, `percussionist`, and `xylophonist`), from the four sides of the elephant, at a
   strike of each paw or a crash, between two strikes, in the rest pose, and in the middle of the
