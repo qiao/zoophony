@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
+import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
 
@@ -39,7 +40,14 @@ import { glbModule, speciesAnimal } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { patchedDemo } from './patch-demos.ts';
 import { midiPath } from './probe-demos.ts';
-import { ROOT, optionValue, shortHash, withRefBuild } from './ref-tree.ts';
+import {
+  PROBE_NO_CACHE,
+  ROOT,
+  optionValue,
+  probeCacheDir,
+  shortHash,
+  withRefBuild,
+} from './ref-tree.ts';
 import { MAX_WEBP_BYTES, openShot, startSite, toWebp } from './screenshots.ts';
 import type { Site } from './screenshots.ts';
 
@@ -3794,21 +3802,148 @@ async function writeStrip(
 }
 
 /**
+ * Gives the SHA-256 of a text or of the bytes of a file.
+ *
+ * @param data The text or the bytes.
+ * @returns The hash, in hex.
+ */
+function sha256(data: string | Uint8Array): string {
+  return createHash('sha256').update(data).digest('hex');
+}
+
+/**
+ * Gives the folder of the cache of the frames of a strip of one camera on a commit:
+ * `probe-cache/strip-<key>/` in the common folder of git. The key holds the tree of the commit,
+ * this tool and `tools/screenshots.ts`, the lockfile of `node_modules`, the piece (the bytes of
+ * the file of `--midi`, or the demo), the camera with the camera of `--at`, the size of the frames,
+ * Cinematic mode, and the times of the strip. A frozen song time makes the frames of one key the
+ * same, so a second run reads them.
+ *
+ * @param args The command line, with a strip and a base.
+ * @param camera The camera.
+ * @param target The player of `--at`, or `null`.
+ * @returns The folder, or `null` with {@link PROBE_NO_CACHE} set to `1`.
+ * @throws Error if git does not know the commit.
+ */
+function stripCacheDir(
+  args: PlayArgs,
+  camera: PlayCamera,
+  target: AimTarget | null,
+): string | null {
+  if (process.env[PROBE_NO_CACHE] === '1' || args.base === null) {
+    return null;
+  }
+  const tree = spawnSync('git', ['rev-parse', '--verify', `${args.base}^{tree}`], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  });
+  if (tree.status !== 0) {
+    throw new Error(`git does not know the commit "${args.base}".`);
+  }
+  const file = (path: string): string => (existsSync(path) ? sha256(readFileSync(path)) : 'none');
+  const aim = camera.aim && target ? aimPose(target.place, target.box, camera.aim) : null;
+  const fields = [
+    'close-views strip 1',
+    tree.stdout.trim(),
+    file(join(ROOT, 'tools', 'close-views.ts')),
+    file(join(ROOT, 'tools', 'screenshots.ts')),
+    file(join(ROOT, 'node_modules', '.pnpm', 'lock.yaml')),
+    args.midi === null ? `demo ${args.demo}` : `midi ${file(args.midi)}`,
+    camera,
+    aim,
+    args.frame,
+    args.cinematic,
+    args.strip,
+  ];
+  return join(probeCacheDir(), `strip-${sha256(JSON.stringify(fields))}`);
+}
+
+/**
+ * Reads the frames of a strip from its cache folder ({@link stripCacheDir}).
+ *
+ * @param dir The folder, or `null`.
+ * @param count The number of frames of the strip.
+ * @returns The frames, or `null` when the folder does not hold each frame.
+ */
+async function cachedStrip(dir: string | null, count: number): Promise<Buffer[] | null> {
+  if (dir === null || !existsSync(dir) || readdirSync(dir).length !== count) {
+    return null;
+  }
+  return Promise.all(
+    Array.from({ length: count }, (_, i) =>
+      readFile(join(dir, `${String(i).padStart(2, '0')}.png`)),
+    ),
+  );
+}
+
+/**
+ * Writes the frames of a strip into its cache folder. The frames go into a part folder first, so
+ * that a stop or a second run at the same time leaves no half folder.
+ *
+ * @param dir The folder, or `null` for no cache.
+ * @param images The frames.
+ */
+async function storeStrip(dir: string | null, images: readonly Buffer[]): Promise<void> {
+  if (dir === null) {
+    return;
+  }
+  const part = `${dir}.${process.pid}.part`;
+  await mkdir(part, { recursive: true });
+  for (const [i, image] of images.entries()) {
+    await writeFile(join(part, `${String(i).padStart(2, '0')}.png`), image);
+  }
+  await rm(dir, { recursive: true, force: true });
+  await rename(part, dir);
+}
+
+/**
+ * Writes the frames of the commit of a strip of one camera, and the sheet of pairs: each frame of
+ * the commit on the left of the frame of the working tree at the same song time, 4 pairs in each
+ * row, as `strip-pairs-<camera>.png` and `.webp`.
+ *
+ * @param browser The browser that draws the sheet.
+ * @param args The command line, with a strip.
+ * @param camera The camera.
+ * @param before The frames of the commit.
+ * @param after The frames of the working tree.
+ * @param label The name of the commit, such as `main (cc83899c)`.
+ */
+async function writePairs(
+  browser: Browser,
+  args: PlayArgs,
+  camera: PlayCamera,
+  before: readonly Buffer[],
+  after: readonly Buffer[],
+  label: string,
+): Promise<void> {
+  await writeStrip(args, camera, 'strip-base-', before);
+  const name = label.split(' ')[0] ?? label;
+  const cells = before.flatMap((image, i) => [image, after[i] ?? image]);
+  const labels = (args.strip ?? []).flatMap((song) => [
+    `${song.toFixed(2)} s ${name}`,
+    `${song.toFixed(2)} s tree`,
+  ]);
+  const sheet = await grid(browser, cells, labels, STRIP_COLUMNS, stripCell(args.frame));
+  await writeImage(browser, sheet, join(args.out, `strip-pairs-${camera.name}`));
+}
+
+/**
  * Renders the mode `play` with `--strip` into `<dir>`: for each camera, the frames of the working
  * tree as `strip-<camera>-<nn>.png`, and a sheet of them with the song time of each frame as
- * `strip-<camera>.png` and `.webp`. The renders of the commit write its frames as
- * `strip-base-<camera>-<nn>.png`, and a sheet of pairs (the commit on the left, the working tree
- * on the right, 4 pairs in each row) as `strip-pairs-<camera>.png` and `.webp`. The player of
- * `--at` comes from the working tree, so the cameras of the commit stay the same.
+ * `strip-<camera>.png` and `.webp`. With `--base`, the frames of the commit come from their cache
+ * ({@link stripCacheDir}), or the renders of the commit make them and fill the cache. Then the
+ * tool writes them as `strip-base-<camera>-<nn>.png`, with the sheet of pairs
+ * ({@link writePairs}). The player of `--at` comes from the working tree, so the cameras of the
+ * commit stay the same.
  *
  * @param args The command line, with a strip.
  * @param site The site of the working tree.
- * @returns The renders of the commit.
+ * @returns The renders of the commit, or `null` with no `--base` or with each frame of the commit
+ *   in the cache.
  */
-async function stripViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> {
+async function stripViews(args: PlayArgs, site: TreeSite): Promise<CommitRender | null> {
   const { browser } = site;
   const times = args.strip ?? [];
-  const cell = stripCell(args.frame);
   const target = await partTarget(args);
   const after = new Map<PlayCamera, Buffer[]>();
   for (const camera of args.cameras) {
@@ -3816,22 +3951,31 @@ async function stripViews(args: PlayArgs, site: TreeSite): Promise<CommitRender>
     after.set(camera, images);
     await writeStrip(args, camera, 'strip-', images);
     const labels = times.map((song) => `${song.toFixed(2)} s`);
-    const sheet = await grid(browser, images, labels, STRIP_COLUMNS, cell);
+    const sheet = await grid(browser, images, labels, STRIP_COLUMNS, stripCell(args.frame));
     await writeImage(browser, sheet, join(args.out, `strip-${camera.name}`));
   }
+  if (args.base === null) {
+    return null;
+  }
 
+  const dirs = new Map(args.cameras.map((camera) => [camera, stripCacheDir(args, camera, target)]));
+  const cached = await Promise.all(
+    args.cameras.map((camera) => cachedStrip(dirs.get(camera) ?? null, times.length)),
+  );
+  if (cached.every((images) => images !== null)) {
+    const label = `${args.base} (${shortHash(args.base)})`;
+    for (const [i, camera] of args.cameras.entries()) {
+      const dir = dirs.get(camera) ?? '';
+      console.log(`base: cached (${label}, ${camera.name}, ${dir.slice(-64, -52)})`);
+      await writePairs(browser, args, camera, cached[i] ?? [], after.get(camera) ?? [], label);
+    }
+    return null;
+  }
   return async (other, label) => {
     for (const camera of args.cameras) {
       const before = await stripFrames(browser, other, args, camera, label, target);
-      await writeStrip(args, camera, 'strip-base-', before);
-      const images = after.get(camera) ?? [];
-      const cells = before.flatMap((image, i) => [image, images[i] ?? image]);
-      const labels = times.flatMap((song) => [
-        `${song.toFixed(2)} s ${label.split(' ')[0] ?? label}`,
-        `${song.toFixed(2)} s tree`,
-      ]);
-      const sheet = await grid(browser, cells, labels, STRIP_COLUMNS, cell);
-      await writeImage(browser, sheet, join(args.out, `strip-pairs-${camera.name}`));
+      await storeStrip(dirs.get(camera) ?? null, before);
+      await writePairs(browser, args, camera, before, after.get(camera) ?? [], label);
     }
   };
 }
