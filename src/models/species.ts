@@ -129,7 +129,7 @@ export interface BipedParams extends CommonParams {
   /** The snout type (design 4.3). */
   readonly snout: 'long' | 'horn';
   /** The tail type (design 4.3). */
-  readonly tail: 'none' | 'puff' | 'thin';
+  readonly tail: 'puff' | 'thin';
   /** The face pattern (design 4.3). */
   readonly facePattern: 'none' | 'cap' | 'face-disc';
   /** No body of its own: the species has the parametric biped. */

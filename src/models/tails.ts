@@ -122,8 +122,6 @@ export function addTail(
 ): [Vec3, Vec3] {
   const tail = species.tail;
   switch (tail) {
-    case 'none':
-      return [base, toVec3(new Vector3(...base).add(new Vector3(0, 0, 0.1 * h)))];
     case 'puff':
       // A faceted ball of 0.42 H on one bone (design 4.5), low on the back and 0.26 H behind the
       // root of the tail, so that it stands out of the round back and shows under the top rail of
