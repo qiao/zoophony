@@ -1569,9 +1569,10 @@ interface ModeRender {
    * Renders the mode on the site of the working tree, and writes its images.
    *
    * @param site The site of the working tree.
-   * @returns The renders of the commit. The tool calls them only with `--base`.
+   * @returns The renders of the commit, or `null` when the commit needs no build, such as a strip
+   *   of `--base` from its cache. The tool calls them only with `--base`.
    */
-  readonly tree: (site: TreeSite) => Promise<CommitRender>;
+  readonly tree: (site: TreeSite) => Promise<CommitRender | null>;
 }
 
 /**
@@ -2607,6 +2608,11 @@ export interface PlayArgs {
    * than one `--set` ({@link playParts}), or `null`.
    */
   readonly holdsIndex: number | null;
+  /**
+   * The song times of the frames of `--strip`, in seconds, in their order, or `null` for the
+   * frames of a seek. A strip freezes the song time of the page ({@link freezePlugin}).
+   */
+  readonly strip: readonly number[] | null;
 }
 
 /**
@@ -2792,9 +2798,10 @@ export function playParts(args: PlayArgs): PlayArgs[] {
 
 /**
  * Reads the command line of the mode `play`:
- * `play <dir> [--demo <id> | --midi <path>] [--time <s>]... [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`.
+ * `play <dir> [--demo <id> | --midi <path>] [--time <s>... | --strip <from>:<step>:<count>] [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`.
  * With no `--camera`, the camera is `default`. `--midi` renders a MIDI file of the user in place
- * of a demo ({@link openMidi}). `--size` sets the size of the frames
+ * of a demo ({@link openMidi}). `--strip` renders frames at exact song times from one page each
+ * ({@link stripTimes}, {@link stripViews}). `--size` sets the size of the frames
  * ({@link playSize}). `--cinematic` renders the camera of the shot plan
  * of the app ({@link CINEMATIC_CAMERA}). `--shot` also gives the time: the frame of the first solo
  * or section shot of its subject ({@link chooseShot}). `--at` aims the stage camera at one player
@@ -2832,6 +2839,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       '--base',
       '--set',
       '--size',
+      '--strip',
     ],
     ['--camera', '--azimuth', '--time', '--set'],
     ['--cinematic'],
@@ -2878,6 +2886,16 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     throw new Error('The option --at builds a site of its own, so --url does not go.');
   }
   const holds = onceEach(line.options.get('--set') ?? [], 'set');
+  const stripText = line.options.get('--strip')?.[0] ?? null;
+  if (stripText !== null && (shotText !== null || timeTexts.length > 0)) {
+    throw new Error(
+      'The option --strip gives the times of the frames, so it takes no --time or --shot.',
+    );
+  }
+  if (stripText !== null && url !== null) {
+    throw new Error('The option --strip builds a site of its own, so --url does not go.');
+  }
+  const strip = stripText === null ? null : stripTimes(stripText, pieceLength(demo, midi));
   if (holds.length > 0 && (url !== null || base !== null)) {
     throw new Error(
       'The option --set builds a site of its own and moves the player of --at, so --url and --base do not go.',
@@ -2902,16 +2920,18 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       at: null,
       holds,
       holdsIndex: null,
+      strip: null,
     };
   }
   const [first = PLAY_TIME_SEC, ...others] = (
-    timeTexts.length > 0 ? timeTexts : [String(PLAY_TIME_SEC)]
+    strip ? [String(strip[0] ?? 0)] : timeTexts.length > 0 ? timeTexts : [String(PLAY_TIME_SEC)]
   ).map((text) => {
     const sec = Number(text);
     if (!/^\d+(?:\.\d+)?$/.test(text) || !Number.isFinite(sec)) {
       throw new Error(`The time "${text}" is not a song time in seconds, such as 6 or 30.5.`);
     }
-    return frameTime(sec, demo, midi);
+    // A strip freezes the song time, so it needs no seek lead.
+    return strip ? sec : frameTime(sec, demo, midi);
   });
   // Two times with one folder would write the same files.
   onceEach(
@@ -2936,7 +2956,37 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     at: aimCameras?.subject ?? null,
     holds,
     holdsIndex: null,
+    strip,
   };
+}
+
+/** The most frames of `--strip`. */
+export const STRIP_LIMIT = 120;
+
+/**
+ * Reads the times of `--strip <from>:<step>:<count>`: `<count>` song times from `<from>` at steps
+ * of `<step>` seconds, such as `30:0.05:40` for 2 s from 30 s.
+ *
+ * @param text The value of the option.
+ * @param lengthSec The length of the piece, in seconds.
+ * @returns The song times, in seconds.
+ * @throws Error for a text of another form, a step that is not above 0, a count that is not a
+ *   whole number from 1 to {@link STRIP_LIMIT}, or a last time at or after the end of the piece.
+ */
+export function stripTimes(text: string, lengthSec: number): number[] {
+  const found = /^(\d+(?:\.\d+)?):(\d+(?:\.\d+)?):(\d+)$/.exec(text);
+  const [from, step, count] = [Number(found?.[1]), Number(found?.[2]), Number(found?.[3])];
+  if (!found || !(step > 0) || count < 1 || count > STRIP_LIMIT) {
+    throw new Error(
+      `The strip "${text}" is not <from>:<step>:<count>, such as 30:0.05:40, with a step above 0 and a count from 1 to ${STRIP_LIMIT}.`,
+    );
+  }
+  const times = Array.from({ length: count }, (_, i) => Number((from + i * step).toFixed(6)));
+  const last = times.at(-1) ?? from;
+  if (last >= lengthSec) {
+    throw new Error(`The last time ${last} s of the strip is not before the end (${lengthSec} s).`);
+  }
+  return times;
 }
 
 /** The player and the cameras of `--at`. */
@@ -3198,18 +3248,22 @@ function aimTargetText(demo: string, target: AimTarget): string {
 }
 
 /**
- * A plugin of a build of the mode `play`: `aim` for the camera of `--at` ({@link aimPlugin}).
+ * A plugin of a build of the mode `play`: `aim` for the camera of `--at` ({@link aimPlugin}), and
+ * `freeze` for the frozen song time of `--strip` ({@link freezePlugin}).
  */
-type PlayPlugin = 'aim';
+type PlayPlugin = 'aim' | 'freeze';
 
 /**
  * Gives the plugins of the builds of a command line of the mode `play`.
  *
  * @param args The command line.
- * @returns The plugins: `aim` with `--at`.
+ * @returns The plugins: `aim` with `--at`, and `freeze` with `--strip`.
  */
 function playPluginKinds(args: PlayArgs): PlayPlugin[] {
-  return args.at === null ? [] : ['aim'];
+  return [
+    ...(args.at === null ? [] : ['aim' as const]),
+    ...(args.strip ? ['freeze' as const] : []),
+  ];
 }
 
 /**
@@ -3220,7 +3274,68 @@ function playPluginKinds(args: PlayArgs): PlayPlugin[] {
  * @returns The plugins of Vite.
  */
 function playPlugins(root: string, kinds: readonly PlayPlugin[]): Plugin[] {
-  return kinds.includes('aim') ? [aimPlugin(root)] : [];
+  return [
+    ...(kinds.includes('aim') ? [aimPlugin(root)] : []),
+    ...(kinds.includes('freeze') ? [freezePlugin(root)] : []),
+  ];
+}
+
+/** The property of `window` that freezes the song time of a build of {@link freezePlugin}. */
+const FREEZE_KEY = '__closeViewsFreeze';
+
+/**
+ * The wall time of the poses of a strip frame at the song time 0, in seconds. It is long after
+ * each lift of the page, so the instruments are up, and the idle motion of each tree is the same
+ * at the same song time.
+ */
+const FREEZE_WALL = 1000;
+
+/**
+ * The code of `frame()` of `src/app/app.ts` that {@link freezePlugin} changes: the read of the
+ * song time from the `Player`, and the call of `poseAt()`. The trees since 2026-10-05 have both.
+ */
+const FREEZE_ANCHORS = {
+  song: "this.#songTime = audio && piece.samples !== 'loading' ? audio.player.now() : 0;",
+  pose: 'poseAt(plan, this.#songTime, wallTime, transport, audibility, poses)',
+} as const;
+
+/**
+ * Gives the plugin of a build of the app whose song time and pose wall time follow the property
+ * {@link FREEZE_KEY} of `window`: `{ song, wall }` in seconds. The plugin changes the source of
+ * `src/app/app.ts` before the compile: each frame then takes the song time of the property in
+ * place of the time of the `Player`, and poses the players at its wall time. The audio, the UI,
+ * and the camera keep the real clock. A page with no property is the page of the app.
+ *
+ * @param root The root of the tree to build.
+ * @returns The plugin.
+ * @throws Error in the build, when the app of the tree has no anchor of {@link FREEZE_ANCHORS}.
+ */
+function freezePlugin(root: string): Plugin {
+  const app = join(realpathSync(root), 'src', 'app', 'app.ts');
+  const freeze = `globalThis.${FREEZE_KEY}`;
+  return {
+    name: 'zoophony:close-views-freeze',
+    apply: 'build',
+    enforce: 'pre',
+    transform(code, id) {
+      if (id !== app) {
+        return null;
+      }
+      const missing = Object.values(FREEZE_ANCHORS).filter((anchor) => !code.includes(anchor));
+      if (missing.length > 0) {
+        throw new Error(
+          `The app ${app} has no code "${missing.join('" and no "')}", so --strip cannot freeze its song time.`,
+        );
+      }
+      const pose = FREEZE_ANCHORS.pose.replace('wallTime', `(${freeze}?.wall ?? wallTime)`);
+      return code
+        .replace(
+          FREEZE_ANCHORS.song,
+          `${FREEZE_ANCHORS.song}\n      this.#songTime = ${freeze}?.song ?? this.#songTime;`,
+        )
+        .replace(FREEZE_ANCHORS.pose, pose);
+    },
+  };
 }
 
 /** The id of the module that aims the stage camera of a build at the camera of the query `aim`. */
@@ -3554,6 +3669,174 @@ async function renderPlay(
 }
 
 /**
+ * Finds the player of `--at` of a part of the mode `play` ({@link aimTarget}), and prints it. A
+ * part of one of several variants aims at the player with the hold changes of its variant.
+ *
+ * @param args The command line of the part.
+ * @returns The player, or `null` with no `--at`.
+ */
+async function partTarget(args: PlayArgs): Promise<AimTarget | null> {
+  const changes = args.holdsIndex === null ? null : setHolds(args.holds[args.holdsIndex] ?? '');
+  let target: AimTarget | null = null;
+  try {
+    target = args.at ? await aimTarget(args.demo, args.at, args.midi) : null;
+  } finally {
+    changes?.undo();
+  }
+  if (changes) {
+    console.log(`${args.out}: the hold changes ${changes.text}.`);
+  }
+  if (target) {
+    console.log(aimTargetText(pieceName(args), target));
+  }
+  return target;
+}
+
+/** The frames of a strip in each row of its sheets: 4 pairs of the commit and the working tree. */
+const STRIP_COLUMNS = 8;
+
+/** The width of a frame in the sheets of a strip, in CSS pixels. */
+const STRIP_CELL_WIDTH = 300;
+
+/**
+ * Renders the frames of `--strip` of one camera on one site: one page, whose song time each frame
+ * freezes at its time ({@link freezePlugin}), with the wall time of the poses at
+ * {@link FREEZE_WALL} after it.
+ *
+ * @param browser The browser.
+ * @param site The URL of the site, a build with {@link freezePlugin}.
+ * @param args The command line, with a strip.
+ * @param camera The camera.
+ * @param tree The name of the tree of the site, for the message of a failed wait.
+ * @param target The player of `--at`, or `null`.
+ * @returns The PNG image of each time of the strip.
+ * @throws Error that names the frame, when the bar does not hide in {@link BAR_WAIT_MS}, or when
+ *   the camera of a Cinematic strip is not in Cinematic mode.
+ */
+async function stripFrames(
+  browser: Browser,
+  site: string,
+  args: PlayArgs,
+  camera: PlayCamera,
+  tree: string,
+  target: AimTarget | null,
+): Promise<Buffer[]> {
+  const times = args.strip ?? [];
+  const frame = `${tree}, camera ${camera.name}, ${pieceText(args.demo, args.midi)}, strip`;
+  const page = await openPlay(browser, site, args, camera, target, frame);
+  try {
+    const images: Buffer[] = [];
+    for (const [i, song] of times.entries()) {
+      await page.evaluate(
+        ({ key, frozen }) => {
+          Reflect.set(window, key, frozen);
+          return new Promise<void>((done) => {
+            requestAnimationFrame(() => requestAnimationFrame(() => done()));
+          });
+        },
+        { key: FREEZE_KEY, frozen: { song, wall: FREEZE_WALL + song } },
+      );
+      if (i === 0) {
+        await playWait(`the bar to hide in ${BAR_WAIT_MS / 1000} s`, frame, () =>
+          page.waitForSelector('.bar.is-hidden', { state: 'attached', timeout: BAR_WAIT_MS }),
+        );
+        // The bar fades out in 0.2 s.
+        await page.waitForTimeout(300);
+      }
+      images.push(await page.screenshot({ type: 'png' }));
+    }
+    const automatic = await page.$eval('button.camera', (element) =>
+      element.getAttribute('aria-pressed'),
+    );
+    if (args.cinematic && automatic !== 'true') {
+      throw new Error(`The camera of the frames of ${frame} is not in Cinematic mode.`);
+    }
+    return images;
+  } finally {
+    await page.close();
+  }
+}
+
+/**
+ * Gives the size of one frame in the sheets of a strip: {@link STRIP_CELL_WIDTH} wide, with the
+ * aspect of the frame.
+ *
+ * @param frame The size of a play frame, in CSS pixels.
+ * @returns The size of one cell, in CSS pixels.
+ */
+function stripCell(frame: CellSize): CellSize {
+  return {
+    width: STRIP_CELL_WIDTH,
+    height: Math.round((STRIP_CELL_WIDTH * frame.height) / frame.width),
+  };
+}
+
+/**
+ * Writes the frames of a strip of one camera of one tree as `<prefix><camera>-<nn>.png`.
+ *
+ * @param args The command line, with a strip.
+ * @param camera The camera.
+ * @param prefix The start of the file names, such as `strip-` or `strip-base-`.
+ * @param images The frames.
+ */
+async function writeStrip(
+  args: PlayArgs,
+  camera: PlayCamera,
+  prefix: string,
+  images: readonly Buffer[],
+): Promise<void> {
+  for (const [i, image] of images.entries()) {
+    await writeFile(
+      join(args.out, `${prefix}${camera.name}-${String(i).padStart(2, '0')}.png`),
+      image,
+    );
+  }
+}
+
+/**
+ * Renders the mode `play` with `--strip` into `<dir>`: for each camera, the frames of the working
+ * tree as `strip-<camera>-<nn>.png`, and a sheet of them with the song time of each frame as
+ * `strip-<camera>.png` and `.webp`. The renders of the commit write its frames as
+ * `strip-base-<camera>-<nn>.png`, and a sheet of pairs (the commit on the left, the working tree
+ * on the right, 4 pairs in each row) as `strip-pairs-<camera>.png` and `.webp`. The player of
+ * `--at` comes from the working tree, so the cameras of the commit stay the same.
+ *
+ * @param args The command line, with a strip.
+ * @param site The site of the working tree.
+ * @returns The renders of the commit.
+ */
+async function stripViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> {
+  const { browser } = site;
+  const times = args.strip ?? [];
+  const cell = stripCell(args.frame);
+  const target = await partTarget(args);
+  const after = new Map<PlayCamera, Buffer[]>();
+  for (const camera of args.cameras) {
+    const images = await stripFrames(browser, site.base, args, camera, 'the working tree', target);
+    after.set(camera, images);
+    await writeStrip(args, camera, 'strip-', images);
+    const labels = times.map((song) => `${song.toFixed(2)} s`);
+    const sheet = await grid(browser, images, labels, STRIP_COLUMNS, cell);
+    await writeImage(browser, sheet, join(args.out, `strip-${camera.name}`));
+  }
+
+  return async (other, label) => {
+    for (const camera of args.cameras) {
+      const before = await stripFrames(browser, other, args, camera, label, target);
+      await writeStrip(args, camera, 'strip-base-', before);
+      const images = after.get(camera) ?? [];
+      const cells = before.flatMap((image, i) => [image, images[i] ?? image]);
+      const labels = times.flatMap((song) => [
+        `${song.toFixed(2)} s ${label.split(' ')[0] ?? label}`,
+        `${song.toFixed(2)} s tree`,
+      ]);
+      const sheet = await grid(browser, cells, labels, STRIP_COLUMNS, cell);
+      await writeImage(browser, sheet, join(args.out, `strip-pairs-${camera.name}`));
+    }
+  };
+}
+
+/**
  * Renders the mode `play` into `<dir>`: the play frame of a demo at each camera, and the grid of
  * the frames with one column for each camera, as `play-views.png` and `.webp`. The renders of the
  * commit write each frame of the commit as `play-base-<camera>.png`, and put the row of the commit
@@ -3569,20 +3852,7 @@ async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> 
   const { browser } = site;
   const columns = args.cameras.length;
   const time = await playTimeSec(args);
-  // A part of one of several variants aims at the player with the hold changes of its variant.
-  const changes = args.holdsIndex === null ? null : setHolds(args.holds[args.holdsIndex] ?? '');
-  let target: AimTarget | null = null;
-  try {
-    target = args.at ? await aimTarget(args.demo, args.at, args.midi) : null;
-  } finally {
-    changes?.undo();
-  }
-  if (changes) {
-    console.log(`${args.out}: the hold changes ${changes.text}.`);
-  }
-  if (target) {
-    console.log(aimTargetText(pieceName(args), target));
-  }
+  const target = await partTarget(args);
   const after = await renderPlay(
     browser,
     site.base,
@@ -3879,7 +4149,8 @@ function modeRender(mode: SingleMode): ModeRender {
       return {
         overlay: [],
         plugins: playPluginKinds(mode.args),
-        tree: (site) => playViews(mode.args, site),
+        tree: (site) =>
+          mode.args.strip ? stripViews(mode.args, site) : playViews(mode.args, site),
       };
   }
 }
@@ -3954,9 +4225,12 @@ async function renderModes(
 ): Promise<void> {
   const commits: { readonly overlay: readonly string[]; readonly render: CommitRender }[] = [];
   for (const mode of modes) {
-    commits.push({ overlay: mode.overlay, render: await mode.tree(site) });
+    const commitRender = await mode.tree(site);
+    if (commitRender) {
+      commits.push({ overlay: mode.overlay, render: commitRender });
+    }
   }
-  if (ref === null) {
+  if (ref === null || commits.length === 0) {
     return;
   }
 
@@ -3988,7 +4262,7 @@ const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
-  `       pnpm close-views play <output directory> [--demo <id> | --midi <path>] [--time <s>]... [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
+  `       pnpm close-views play <output directory> [--demo <id> | --midi <path>] [--time <s>]... [--strip <from>:<step>:<count>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
   '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
