@@ -806,14 +806,15 @@ The scene renders into a target with MSAA, then the post effects make the image 
 (`scene/post.ts`, `POST_LOOK`).
 
 ```text
-scene ──> [scene target, MSAA] ──┬──> bloom down 1/2 ... ──> bloom up ──────────┐
-                                 └──> blur prepare 1/2 ──> blur gather 1/2 ──┐  │
-scene ──> [depth 1/2] ──────────────────────^ (only with a shallow focus)    v  v
+scene ──> [scene target, MSAA] ──┬──> bloom down 1/2 ... ──┬──> bloom up ──────────────┐
+                                 │                         └──> flare 1/8 ──────────┐  │
+                                 └──> blur prepare 1/2 ──> blur gather 1/2 ──┐      │  │
+scene ──> [depth 1/2] ──────────────────────^ (only with a shallow focus)    v      v  v
           [scene target] ───────────────────────────────────────────────> final pass ──> canvas
 ```
 
-- With no float target, the scene renders to the canvas with no post effects. The bloom has a
-  number of levels by the tier (2.6).
+- With no float target, the scene renders to the canvas with no post effects and no lens flare.
+  The bloom has a number of levels by the tier, and the low tier has no flare (2.6).
 - The depth of field follows a thin lens, with the focus on the subject of the shot (5.6), and a
   smaller blur in front of the focus. The aperture closes for a far focus, so the wide views stay
   sharp and skip the blur passes. The user found larger apertures too blurry, and Free mode has no
@@ -821,10 +822,19 @@ scene ──> [depth 1/2] ──────────────────
   resolve of the multisample depth cost more time (9.7).
 - The bloom keeps a small part of all the light, as a diffusion filter on a film lens, and its
   glow is warmer than the light, as the halation of film (`POST_LOOK`).
-- The final pass does the depth of field, the bloom, the tone mapping, a grade, a vignette, and a
-  grain at a fixed rate. The grade is a 3D lookup table of `gradeColor()` (`scene/grade.ts`): a
-  tone curve on the luma, more saturation for the pale colors, and a split tone. AgX gives flat
-  and pale middle tones, and `pnpm look-lab` fits the grade to `orchestra-latest.png`.
+- The lens flare (`FLARE_LOOK`, user, 2026-10-20) comes from the bloom levels: one pass at the
+  size of a low level makes soft ghosts mirrored through the middle of the image, a thin halo,
+  and a thin warm horizontal streak. Its light is the light of a level minus a part of the next
+  level, above a threshold. Thus a small lamp of the hall gives a flare, and a broad bright area
+  (lit white fur) and the small highlights of the brass and of the eyes give none, so no ghost
+  flickers. The level follows the height of the drawing buffer (`flareLevel()`, the level 1/8 at
+  900 px), so a lamp gives the same flare at each pixel ratio. The flare has no state from frame
+  to frame.
+- The final pass does the depth of field, the bloom, the lens flare, the tone mapping, a grade, a
+  vignette, and a grain at a fixed rate. The grade is a 3D lookup table of `gradeColor()`
+  (`scene/grade.ts`): a tone curve on the luma, more saturation for the pale colors, and a split
+  tone. AgX gives flat and pale middle tones, and `pnpm look-lab` fits the grade to
+  `orchestra-latest.png`.
 
 **Camera**
 
