@@ -697,10 +697,17 @@ interface Gltf {
       readonly raise?: RaiseExtras | readonly RaiseExtras[];
       /**
        * The caps of the arm of the cut that take the normals of the skin (`cut.skinNormals` of
-       * the config of the mesh rig), as indices of the triangles of the primitive `fur`. The file
-       * has none with no such rule.
+       * the config of the mesh rig), as indices of the triangles of the primitive `fur`. With
+       * `cut.bodyNormals`, they also hold the caps of the body and the two faces at the top of
+       * each cut. The file has none with no such rule.
        */
       readonly caps?: readonly number[];
+      /**
+       * The skin faces around the caps of the body of the cut that take the normals of the skin
+       * with no crease angle (`cut.bodyNormals` of the config of the mesh rig), as indices of the
+       * triangles of the primitive `fur`. The file has none with no such rule.
+       */
+      readonly rim?: readonly number[];
       /**
        * The share of the roll of each upper arm that its twist bone takes (`upperTwist.share` of
        * the config of the mesh rig, `StudioBody.upperTwist`). The file has none with no such rule.
@@ -747,19 +754,20 @@ export interface Glb {
 }
 
 /**
- * Gives the caps of the arm of the cut of the rig of a GLB file (`pnpm rig-mesh`), which take the
- * normals of the skin around them in the app (design 4.4).
+ * Gives the faces of the cut of the rig of a GLB file (`pnpm rig-mesh`) that take the normals of
+ * the skin around them in the app (design 4.4): the caps, or the rim of the caps of the body.
  *
  * @param glb The file.
- * @returns The indices of the triangles of the primitive `fur`, or none for a file with no caps.
+ * @param key The list of the extras: `caps` or `rim`.
+ * @returns The indices of the triangles of the primitive `fur`, or none for a file with no list.
  * @throws Error if an index is not a whole number of at least 0.
  */
-export function capsOf(glb: Glb): ReadonlySet<number> {
-  const caps = glb.json.asset?.extras?.caps ?? [];
-  if (caps.some((t) => !Number.isInteger(t) || t < 0)) {
-    throw new Error(`The caps ${JSON.stringify(caps)} of the file are not triangle indices.`);
+export function cutFacesOf(glb: Glb, key: 'caps' | 'rim'): ReadonlySet<number> {
+  const faces = glb.json.asset?.extras?.[key] ?? [];
+  if (faces.some((t) => !Number.isInteger(t) || t < 0)) {
+    throw new Error(`The ${key} ${JSON.stringify(faces)} of the file are not triangle indices.`);
   }
-  return new Set(caps);
+  return new Set(faces);
 }
 
 /**
@@ -1262,8 +1270,10 @@ interface SourceMesh {
      */
     readonly base?: Vec3;
     readonly finish: Finish;
-    /** True for a cap of the arm of the cut of the rig ({@link capsOf}). */
+    /** True for a cap of the cut of the rig ({@link cutFacesOf}). */
     readonly cap?: boolean;
+    /** True for a face of the rim of the caps of the body of the cut ({@link cutFacesOf}). */
+    readonly rim?: boolean;
   }[];
 }
 
@@ -1291,7 +1301,8 @@ export function weldMesh(glb: Glb, kept: readonly string[]): SourceMesh {
   }
 
   const jointNames = skin.joints.map((j) => ownBone(glb.json.nodes[j]?.name ?? ''));
-  const caps = capsOf(glb);
+  const caps = cutFacesOf(glb, 'caps');
+  const rim = cutFacesOf(glb, 'rim');
   const vertices: SourceVertex[] = [];
   const faces: SourceMesh['faces'] = [];
   for (const primitive of mesh.primitives) {
@@ -1359,12 +1370,17 @@ export function weldMesh(glb: Glb, kept: readonly string[]): SourceMesh {
         base: [base[0] ?? 0, base[1] ?? 0, base[2] ?? 0],
         finish,
         cap: material === 'fur' && caps.has(t / 3),
+        rim: material === 'fur' && rim.has(t / 3),
       });
     }
   }
   const capCount = faces.filter((face) => face.cap === true).length;
   if (capCount !== caps.size) {
     throw new Error(`The file names ${caps.size} caps, and the primitive fur has ${capCount}.`);
+  }
+  const rimCount = faces.filter((face) => face.rim === true).length;
+  if (rimCount !== rim.size) {
+    throw new Error(`The file names ${rim.size} rim faces, and the primitive fur has ${rimCount}.`);
   }
   return { vertices, faces };
 }
@@ -2488,6 +2504,10 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   const caps = withoutEyes.faces.flatMap((face, t) => (face.cap === true ? [t] : []));
   if (caps.length > 0) {
     body = { ...body, caps };
+  }
+  const rim = withoutEyes.faces.flatMap((face, t) => (face.rim === true ? [t] : []));
+  if (rim.length > 0) {
+    body = { ...body, rim };
   }
   const upperTwist = upperTwistOf(glb);
   if (upperTwist !== null) {
