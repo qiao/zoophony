@@ -5,7 +5,7 @@ import { transform } from './mesh.ts';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
-import { box, icosphere, lathe } from './primitives.ts';
+import { icosphere, lathe } from './primitives.ts';
 import type { ProfilePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
@@ -23,22 +23,13 @@ interface TailPath {
   readonly secondLength: number;
 }
 
-/**
- * Gives the path of a tail of two bones (design 4.5: thin 0.7, flat 0.5 H).
- *
- * @param tail The tail type.
- * @returns The path.
- */
-function tailPath(tail: 'thin' | 'flat'): TailPath {
-  switch (tail) {
-    case 'thin':
-      return { first: [0, -0.35, 1], firstLength: 0.3, second: [0.15, -1, 0.3], secondLength: 0.4 };
-    case 'flat':
-      return { first: [0, -0.2, 1], firstLength: 0.15, second: [0, -1, 0.35], secondLength: 0.35 };
-    default:
-      throw unknownValue('tail type', tail);
-  }
-}
+/** The path of the thin tail, the only tail of two bones (design 4.5: 0.7 H). */
+const THIN_PATH: TailPath = {
+  first: [0, -0.35, 1],
+  firstLength: 0.3,
+  second: [0.15, -1, 0.3],
+  secondLength: 0.4,
+};
 
 /**
  * Adds a solid of revolution along a direction.
@@ -66,10 +57,9 @@ function addAlong(
 }
 
 /**
- * Adds a tail of two bones along its path.
+ * Adds the thin tail of two bones along its path.
  *
  * @param builder The mesh that gets the parts.
- * @param tail The tail type.
  * @param species The species parameters.
  * @param colors The colors of the species.
  * @param h The head height `H`, in meters.
@@ -78,69 +68,38 @@ function addAlong(
  */
 function addLongTail(
   builder: MeshBuilder,
-  tail: 'thin' | 'flat',
   species: BipedParams,
   colors: BodyColors,
   h: number,
   base: Vec3,
   joint: Vec3,
 ): void {
-  const path = tailPath(tail);
+  const path = THIN_PATH;
   const color = partColor(species, colors, 'tail');
   const l1 = path.firstLength * h;
   const l2 = path.secondLength * h;
-  switch (tail) {
-    case 'thin':
-      addAlong(
-        builder,
-        base,
-        path.first,
-        [
-          [0.05 * h, 0],
-          [0.04 * h, l1],
-        ],
-        color,
-        'tail1',
-      );
-      addAlong(
-        builder,
-        joint,
-        path.second,
-        [
-          [0.04 * h, 0],
-          [0.025 * h, l2],
-        ],
-        color,
-        'tail2',
-      );
-      return;
-    case 'flat':
-      // A short stalk and a flat paddle of 0.45 H wide with its broad face to the back.
-      addAlong(
-        builder,
-        base,
-        path.first,
-        [
-          [0.06 * h, 0],
-          [0.06 * h, l1],
-        ],
-        color,
-        'tail1',
-      );
-      builder.add(box(0.45 * h, l2, 0.06 * h), {
-        color,
-        bone: boneIndex('tail2'),
-        at: transform(
-          toVec3(
-            new Vector3(...joint).addScaledVector(new Vector3(...path.second).normalize(), l2 / 2),
-          ),
-          alongAxis(path.second, [1, 0, 0]),
-        ),
-      });
-      return;
-    default:
-      throw unknownValue('tail type', tail);
-  }
+  addAlong(
+    builder,
+    base,
+    path.first,
+    [
+      [0.05 * h, 0],
+      [0.04 * h, l1],
+    ],
+    color,
+    'tail1',
+  );
+  addAlong(
+    builder,
+    joint,
+    path.second,
+    [
+      [0.04 * h, 0],
+      [0.025 * h, l2],
+    ],
+    color,
+    'tail2',
+  );
 }
 
 /**
@@ -175,16 +134,15 @@ export function addTail(
         at: transform(toVec3(new Vector3(...base).add(new Vector3(0, -0.08 * h, 0.26 * h)))),
       });
       return [base, toVec3(new Vector3(...base).add(new Vector3(0, 0, 0.1 * h)))];
-    case 'thin':
-    case 'flat': {
-      const path = tailPath(tail);
+    case 'thin': {
+      const path = THIN_PATH;
       const joint = toVec3(
         new Vector3(...base).addScaledVector(
           new Vector3(...path.first).normalize(),
           path.firstLength * h,
         ),
       );
-      addLongTail(builder, tail, species, colors, h, base, joint);
+      addLongTail(builder, species, colors, h, base, joint);
       return [base, joint];
     }
     default:
