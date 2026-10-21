@@ -780,17 +780,27 @@ export function probeCacheDir(): string {
  * @param ref The commit, a branch, or a tag.
  * @param script The script of the probe, such as `hold-fit.ts`.
  * @param args The arguments of the probe of the commit, with no `--json`.
+ * @param scripts The scripts of the working tree that replace the scripts of the commit
+ *   (`ProbeTreeOptions.scripts`), which the probe also copies.
  * @returns The path of the file.
  * @throws Error if git does not know the ref.
  */
-export function baseCacheFile(ref: string, script: string, args: readonly string[]): string {
+export function baseCacheFile(
+  ref: string,
+  script: string,
+  args: readonly string[],
+  scripts: readonly string[] = [],
+): string {
   const commit = `${ref}^{commit}`;
   const own = gitText(['ls-tree', '--name-only', commit, 'tools/'])
     .split('\n')
     .map((path) => path.slice('tools/'.length));
-  const copies = probeScripts(readdirSync(join(ROOT, 'tools')), own).map(
-    (name): readonly [string, string] => [name, fileHash(join(ROOT, 'tools', name))],
-  );
+  const added = probeScripts(readdirSync(join(ROOT, 'tools')), own);
+  const copied = [...added, ...scripts.filter((name) => !added.includes(name))];
+  const copies = copied.map((name): readonly [string, string] => [
+    name,
+    fileHash(join(ROOT, 'tools', name)),
+  ]);
   const lock = join(ROOT, 'node_modules', '.pnpm', 'lock.yaml');
   const key = baseCacheKey({
     script,
@@ -1037,7 +1047,7 @@ export async function probeBeside(
 ): Promise<BesideTexts> {
   const cache =
     options.cache && process.env[PROBE_NO_CACHE] !== '1'
-      ? baseCacheFile(ref, script, args.base)
+      ? baseCacheFile(ref, script, args.base, options.scripts)
       : null;
   const cached = cache && existsSync(cache) ? readFileSync(cache, 'utf8') : null;
   const treeFile = process.env[PROBE_NO_CACHE] === '1' ? null : (options.treeCache ?? null);
