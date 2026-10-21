@@ -211,33 +211,10 @@ const tiltSide = new Vector3();
  * point. The string turns the bow around the strings, and the slant turns it in the plane of the
  * strings. The bow then turns around its hair by `BowedHold.bowTilt`, so that the stick leans
  * toward the fingerboard and the hair stays on the contact point
- * (`docs/reference/string-technique.md`, section 2.1).
- *
- * @param rig The points of the player.
- * @param strings The strings at their posed place.
- * @param string The string, from 0 (the lowest) to 3.
- * @param bow The place of the contact point on the hair, in meters from the frog end.
- * @param lift The distance of the hair above the strings.
- * @param out The bow to write.
- * @returns `out`, with the grip and the rotation of the bow.
- */
-export function bowAt(
-  rig: RigPoints,
-  strings: StringsPlace,
-  string: number,
-  bow: number,
-  lift: number,
-  out: BowPlace,
-): BowPlace {
-  placeBow(rig, strings, string, bow, lift, rig.hold.bowTilt, out);
-  return out;
-}
-
-/**
- * Places the bow as {@link bowAt}, and gives the bow that the right hand holds: the bow with no
- * tilt, at the grip of the tilted bow. The fingers turn the stick around its line by the tilt
- * (`BowedHold.bowTilt`), so the hand keeps the turn of the bow with no tilt, and the skin of the
- * bow arm does not take the turn of the tilt.
+ * (`docs/reference/string-technique.md`, section 2.1). The function also gives the bow that the
+ * right hand holds: the bow with no tilt, at the grip of the tilted bow. The fingers turn the
+ * stick around its line by the tilt (`BowedHold.bowTilt`), so the hand keeps the turn of the bow
+ * with no tilt, and the skin of the bow arm does not take the turn of the tilt.
  *
  * @param rig The points of the player.
  * @param strings The strings at their posed place.
@@ -264,7 +241,7 @@ export function heldBowAt(
 }
 
 /**
- * Places the bow on a string with a tilt around its hair ({@link bowAt}).
+ * Places the bow on a string with a tilt around its hair ({@link heldBowAt}).
  *
  * @param rig The points of the player.
  * @param strings The strings at their posed place.
