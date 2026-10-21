@@ -54,9 +54,11 @@
  *
  * Usage: pnpm hold-fit <role> [--set <path>=<value>[;<path>=<value>]...]...
  * [--grid <path>=<a>:<b>:<step>]... [--sets <set>[,<set>]...] [--demo <id>|all]...
- * [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>] [--glb <file>], or pnpm hold-fit
+ * [--midi <path>]... [--step <seconds>] [--faces <n>] [--base <ref>] [--json <file>] [--glb <file>], or pnpm hold-fit
  * <role> --scan [--walls <seconds>[,<seconds>]...] [--set <changes>]... [--grid <grid>]...
- * [--demo <id>|all]... [--glb <file>]
+ * [--demo <id>|all]... [--midi <path>]... [--glb <file>]
+ *
+ * Each `--midi <path>` adds a MIDI file of the user to the run as one more `--demo`.
  */
 import { writeFileSync } from 'node:fs';
 
@@ -99,7 +101,7 @@ import { setHolds } from './hold-sets.ts';
 import { PAW_PLACES, SCAN_WALL, lapWorsts, probeLaps, scanRest, scanSamples } from './lap-rest.ts';
 import type { LapWorst, LapWorsts, ScanSample } from './lap-rest.ts';
 import type { DemoFile } from './patch-demos.ts';
-import { probeDemos } from './probe-demos.ts';
+import { absoluteMidi, midiPath, probeDemos, userDemoFile } from './probe-demos.ts';
 import {
   TARGET_REACH,
   compareDepths,
@@ -237,8 +239,8 @@ export const UPPER_ARM_GOAL = 35;
 export const LEG_RESTS: ReadonlySet<string> = new Set(['flute@fox-tan']);
 
 /** The usage text of `pnpm hold-fit`. */
-const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--step <seconds>] [--faces <n>] [--faces-of <face>[,<face>]...] [--technique <normal | pizzicato | tremolo>] [--base <ref>] [--json <file>] [--glb <file>]
-       pnpm hold-fit <role> --scan [--walls <seconds>[,<seconds>]...] [--set <changes>]... [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]... [--glb <file>]`;
+const USAGE = `Usage: pnpm hold-fit <${[...FOLD_ROLES.keys()].join(' | ')}> [--set <path>=<value>[;<path>=<value>]...]... [--grid <path>=<a>:<b>:<step>]... [--sets <${FIT_SETS.join(' | ')}>[,<set>]...] [--demo <id>|all]... [--midi <path>]... [--step <seconds>] [--faces <n>] [--faces-of <face>[,<face>]...] [--technique <normal | pizzicato | tremolo>] [--base <ref>] [--json <file>] [--glb <file>]
+       pnpm hold-fit <role> --scan [--walls <seconds>[,<seconds>]...] [--set <changes>]... [--grid <path>=<a>:<b>:<step>]... [--demo <id>|all]... [--midi <path>]... [--glb <file>]`;
 
 /**
  * Tells if a text is the name of a sample set of a run.
@@ -440,10 +442,12 @@ export interface FitOptions {
   /** The faces of `--faces-of`, whose share of the folded play samples each row gives, or none. */
   readonly facesOf: readonly number[];
   /**
-   * The demos, by the name of the file with no `.mid`, or `all`. The demos of {@link FIT_DEMOS}
-   * when empty.
+   * The demos, by the name of the file with no `.mid`, or `all`, with each file of `--midi`. The
+   * demos of {@link FIT_DEMOS} when empty.
    */
   readonly demos: readonly string[];
+  /** The absolute paths of the MIDI files of the user of `--midi` (`userDemos()`). */
+  readonly midi: readonly string[];
   /** The step of the song time of the play folds, in seconds. */
   readonly step: number;
   /** The sample sets of the run: all of {@link FIT_SETS}, or the sets of `--sets`. */
@@ -509,6 +513,7 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
   const sets: string[] = [];
   const grids: string[] = [];
   const demos: string[] = [];
+  const midi: string[] = [];
   const given = new Set<string>();
   let step = FIT_STEP;
   let samples: readonly FitSet[] = FIT_SETS;
@@ -552,6 +557,10 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
         break;
       case '--demo':
         demos.push(value.replace(/\.mid$/, ''));
+        break;
+      case '--midi':
+        midi.push(midiPath(value));
+        demos.push(userDemoFile(value).replace(/\.mid$/, ''));
         break;
       case '--json':
         json = value;
@@ -605,6 +614,7 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
     faces,
     facesOf,
     demos,
+    midi,
     step,
     sets: samples,
     json,
@@ -1894,7 +1904,7 @@ export function chooseDemos(
 async function fitDemos(
   options: FitOptions,
 ): Promise<{ readonly demos: DemoFile[]; readonly first: TestScene }> {
-  const all = await probeDemos();
+  const all = await probeDemos(options.midi);
   const id = (demo: DemoFile): string => demo.file.replace(/\.mid$/, '');
   const unknown = options.demos.filter(
     (name) => name !== 'all' && !all.some((demo) => id(demo) === name),
@@ -1989,7 +1999,7 @@ function printRow(row: FitRow): void {
  */
 async function compareFit(options: FitOptions, ref: string): Promise<void> {
   const label = `${ref} (${shortHash(ref)})`;
-  const args = withoutOptions(process.argv.slice(2), ['--base']);
+  const args = withoutOptions(absoluteMidi(process.argv.slice(2)), ['--base']);
   if (options.demos.length === 0) {
     // The one demo with the most notes goes to both children by name, because the hold-fit of an
     // older commit takes all demos of a role that no demo of FIT_DEMOS has.
