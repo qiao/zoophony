@@ -250,9 +250,11 @@ keeps its form:
 - Further seats of a section alternate their species variants: a third violin seat uses rabbits
   again.
 
-The parametric biped has shape parameters for the ears, the snout, and the tail (`BipedParams`,
-4.5 gives the colors). No species uses them: the penguin has its egg body, and each other species
-has a studio body (4.4).
+The shape parameters of each species of the parametric biped are its ears, its snout, and its
+tail (`BipedParams`, 4.5 gives the colors). No species has them: the penguin has its egg body, and
+the rabbit, the two foxes, the wolf, the cat, the dog, the panda, the hippo, the mouse, the
+elephant, the beaver, the pig, the monkey, the badger, the rhino, the deer, the bear, and the polar
+bear have studio bodies (4.4).
 
 The belly color colors the muzzle, the lower
 face, and a stripe down the front of the torso, as the white cheeks of the wolf in `animals.webp`.
