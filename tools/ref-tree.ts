@@ -759,6 +759,22 @@ function fileHash(path: string): string {
 }
 
 /**
+ * Gives the arguments of a probe for its cache key: the arguments, then the SHA-256 of each MIDI
+ * file of a `--midi` option. The key then changes when the file at a path changes. A command line
+ * with no `--midi` keeps its arguments, and thus its key.
+ *
+ * @param args The arguments of the probe.
+ * @returns The arguments of the key.
+ */
+export function keyArgs(args: readonly string[]): readonly string[] {
+  const files = args.filter((...[, i]) => args[i - 1] === '--midi');
+  if (files.length === 0) {
+    return args;
+  }
+  return [...args, ...files.map((file) => `midi ${existsSync(file) ? fileHash(file) : 'none'}`)];
+}
+
+/**
  * Gives the folder of the caches of the probes: `probe-cache/` in the common folder of git, which
  * each worktree shares.
  *
@@ -773,8 +789,8 @@ export function probeCacheDir(): string {
  * Gives the file of the cache of the probe of a commit: `probe-cache/<key>.json` in the common
  * folder of git, which each worktree shares, as the cache of `tools/check-commits.sh` does. The
  * key ({@link baseCacheKey}) holds the trees of {@link PROBE_PATHS} of the commit, the scripts of
- * the working tree that the probe copies, the arguments of the probe, Node, and the lockfile of
- * `node_modules`. A branch that moves to a new commit with new code thus gets a new key, and a
+ * the working tree that the probe copies, the arguments of the probe with the hash of each MIDI file
+ * ({@link keyArgs}), Node, and the lockfile of `node_modules`. A branch that moves to a new commit with new code thus gets a new key, and a
  * commit with a change outside these paths, such as a docs commit, keeps the key.
  *
  * @param ref The commit, a branch, or a tag.
@@ -806,7 +822,7 @@ export function baseCacheFile(
     script,
     trees: gitText(['ls-tree', commit, '--', ...PROBE_PATHS]),
     copies,
-    args,
+    args: keyArgs(args),
     node: `${process.version} ${process.platform} ${process.arch}`,
     modules: existsSync(lock) ? fileHash(lock) : 'none',
   });
@@ -845,8 +861,8 @@ export function workingTrees(): string {
 /**
  * Gives the file of the cache of a probe of the working tree: `probe-cache/tree-<key>.json` in the
  * common folder of git, beside the cache of {@link baseCacheFile}. The key holds the trees of the
- * working tree ({@link workingTrees}), the arguments of the probe, Node, and the lockfile of
- * `node_modules`, so each change of a file of {@link PROBE_PATHS} gives a new key.
+ * working tree ({@link workingTrees}), the arguments of the probe with the hash of each MIDI file
+ * ({@link keyArgs}), Node, and the lockfile of `node_modules`, so each change of a file of {@link PROBE_PATHS} gives a new key.
  *
  * @param script The script of the probe, such as `pose-depth.ts`.
  * @param args The arguments of the probe that its result depends on.
@@ -859,7 +875,7 @@ export function treeCacheFile(script: string, args: readonly string[]): string {
     'tree-cache 1',
     script,
     workingTrees(),
-    args,
+    keyArgs(args),
     `${process.version} ${process.platform} ${process.arch}`,
     existsSync(lock) ? fileHash(lock) : 'none',
   ];

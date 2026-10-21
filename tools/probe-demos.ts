@@ -1,3 +1,6 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { basename, resolve } from 'node:path';
+
 import {
   note,
   programChange,
@@ -114,17 +117,89 @@ export const TOOL_SCORES: ReadonlyMap<string, () => TestFile> = new Map([
 ]);
 
 /**
+ * Gives the name of a MIDI file of the user in the list of the probe tools: its base name with one
+ * `.mid` at the end, such as `Disney_Themes_-_Whole_New_World.mid`. A tool selects the file by this
+ * name with `--demo`, with or with no `.mid`.
+ *
+ * @param path The path of the file.
+ * @returns The name.
+ */
+export function userDemoFile(path: string): string {
+  return `${basename(path).replace(/(\.midi?)+$/i, '')}.mid`;
+}
+
+/**
+ * Reads the path of a `--midi` option: a MIDI file of the user outside the repository. The path
+ * becomes absolute, so that a child process in the tree of a commit (`--base`) reads the same file.
+ *
+ * @param value The value of the option.
+ * @returns The absolute path.
+ * @throws Error if the file does not exist.
+ */
+export function midiPath(value: string): string {
+  const path = resolve(value);
+  if (!existsSync(path)) {
+    throw new Error(`The MIDI file ${path} of --midi does not exist.`);
+  }
+  return path;
+}
+
+/**
+ * Makes the path of each `--midi` option of a command line absolute ({@link midiPath}), for the
+ * command line of a child process in another folder.
+ *
+ * @param args The arguments.
+ * @returns The arguments with absolute paths.
+ */
+export function absoluteMidi(args: readonly string[]): string[] {
+  return args.map((arg, i) => (args[i - 1] === '--midi' ? resolve(arg) : arg));
+}
+
+/**
+ * Reads the MIDI files of the user of `--midi`. The tools read each file from its path, and copy
+ * no file into the repository. The app plays a file of the user with no patch, so the bytes are
+ * the bytes of the file.
+ *
+ * @param paths The paths of the files.
+ * @param known The names of the other files of the list, such as the demos.
+ * @returns The files, by the names of {@link userDemoFile}.
+ * @throws Error if two files have one name, or a file has the name of a known file.
+ */
+export function userDemos(paths: readonly string[], known: readonly string[] = []): DemoFile[] {
+  const names: string[] = [...known];
+  return paths.map((path) => {
+    const file = userDemoFile(path);
+    if (names.includes(file)) {
+      throw new Error(`The MIDI file ${path} has the name ${file}, which another file has.`);
+    }
+    names.push(file);
+    const bytes = new Uint8Array(readFileSync(path));
+    return { file, bytes, source: bytes };
+  });
+}
+
+/**
  * Gives the scores of the probe tools of the poses and the bodies (`pnpm pose-depth`, `pnpm
  * hold-fit`, `pnpm fold-probe`, `pnpm arm-check`, `pnpm hold-reach`, and `pnpm mesh-options`):
- * each demo of {@link patchedDemos}, then each score of {@link TOOL_SCORES}. A role with no player
- * in a tool score keeps the demos of the app.
+ * each demo of {@link patchedDemos}, then each score of {@link TOOL_SCORES}, then each MIDI file of
+ * the user of `--midi` ({@link userDemos}). A role with no player in a tool score keeps the demos
+ * of the app.
  *
- * @returns The demos and the tool scores.
+ * @param midi The paths of the MIDI files of the user, or none.
+ * @returns The demos, the tool scores, and the files of the user.
+ * @throws Error if a file of the user has the name of another file.
  */
-export async function probeDemos(): Promise<DemoFile[]> {
+export async function probeDemos(midi: readonly string[] = []): Promise<DemoFile[]> {
   const tools = [...TOOL_SCORES].map(([file, build]): DemoFile => {
     const bytes = writeSmf(build());
     return { file, bytes, source: bytes };
   });
-  return [...(await patchedDemos()), ...tools];
+  const listed = [...(await patchedDemos()), ...tools];
+  return [
+    ...listed,
+    ...userDemos(
+      midi,
+      listed.map((demo) => demo.file),
+    ),
+  ];
 }
