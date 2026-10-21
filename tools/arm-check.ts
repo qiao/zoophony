@@ -84,12 +84,15 @@
  *
  * Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]...
  * [--variant <name> [--set <changes>]...]... [--glb <file>] [--views <dir> [--views-all]]
- * [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long], or
- * pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]...,
- * or pnpm arm-check <role> --explain <stretch | flat> [--demo <id>]... [--step <seconds>]
- * [--set <changes>]...
+ * [--demo <id>]... [--midi <path>]... [--step <seconds>] [--jobs <n>] [--long], or
+ * pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--midi <path>] [--step <seconds>]
+ * [--set <changes>]..., or pnpm arm-check <role> --explain <stretch | flat> [--demo <id>]...
+ * [--midi <path>]... [--step <seconds>] [--set <changes>]...
+ *
+ * Each `--midi <path>` adds a MIDI file of the user to the demos as one more `--demo`
+ * ({@link userFiles}), also on the commit of `--base` and `--states`.
  */
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
 
@@ -1596,8 +1599,10 @@ export interface CheckArgs {
   readonly roles: readonly string[];
   /** The commit, the branch, or the tag of the base, or `null`. */
   readonly base: string | null;
-  /** The options that both trees take: `--demo` and `--step`. */
+  /** The options that both trees take: `--demo`, `--midi`, and `--step`. */
   readonly shared: readonly string[];
+  /** The absolute paths of the MIDI files of the user of `--midi`. */
+  readonly midi: readonly string[];
   /** The options that only the working tree takes: `--set` and `--glb`. */
   readonly own: readonly string[];
   /** The variants of `--variant`, or empty for a run with one variant ({@link variantGroups}). */
@@ -1622,7 +1627,7 @@ export interface CheckArgs {
 
 /** The usage text. */
 const USAGE =
-  'Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--variant <name> [--set <changes>]...]... [--glb <file>] [--views <dir> [--views-all]] [--demo <id>]... [--step <seconds>] [--jobs <n>] [--long] [--states <ref>,...], or pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--step <seconds>] [--set <changes>]..., or pnpm arm-check <role> --explain <stretch | flat> [--demo <id>]... [--step <seconds>] [--set <changes>]...';
+  'Usage: pnpm arm-check <role>... | --all [--base <ref>] [--set <changes>]... [--variant <name> [--set <changes>]...]... [--glb <file>] [--views <dir> [--views-all]] [--demo <id>]... [--midi <path>]... [--step <seconds>] [--jobs <n>] [--long] [--states <ref>,...], or pnpm arm-check <role> --trace <demo>:[lift]<from>-<to> [--midi <path>] [--step <seconds>] [--set <changes>]..., or pnpm arm-check <role> --explain <stretch | flat> [--demo <id>]... [--midi <path>]... [--step <seconds>] [--set <changes>]...';
 
 /** One variant of `--variant`: a name and the changes of the holds of its `--set` options. */
 export interface ArmVariant {
@@ -1689,6 +1694,7 @@ export function checkArgs(args: readonly string[]): CheckArgs {
     '--glb',
     '--views',
     '--demo',
+    '--midi',
     '--step',
     '--jobs',
     '--trace',
@@ -1739,6 +1745,14 @@ export function checkArgs(args: readonly string[]): CheckArgs {
   if (views !== null && (glb !== null || values.has('--set'))) {
     throw new Error('The option --views renders the working tree, so --set and --glb do not go.');
   }
+  if (views !== null && values.has('--midi')) {
+    throw new Error('The option --views renders the demos of the app, so --midi does not go.');
+  }
+  const midi = (values.get('--midi') ?? []).map((path) => resolve(path));
+  const lost = midi.filter((path) => !existsSync(path));
+  if (lost.length > 0) {
+    throw new Error(`The MIDI file ${lost.join(', ')} of --midi does not exist.`);
+  }
   const stepText = values.get('--step')?.[0] ?? null;
   const step = stepText === null ? null : Number(stepText);
   if (step !== null && !(step > 0)) {
@@ -1785,7 +1799,8 @@ export function checkArgs(args: readonly string[]): CheckArgs {
   return {
     roles: chosen,
     base: values.get('--base')?.[0] ?? null,
-    shared: [...pairs('--demo'), ...pairs('--step')],
+    shared: [...pairs('--demo'), ...midi.flatMap((path) => ['--midi', path]), ...pairs('--step')],
+    midi,
     own: [
       ...(variants.length > 0 ? [] : pairs('--set')),
       ...(glb === null ? [] : ['--glb', resolve(glb)]),
@@ -1859,6 +1874,51 @@ export const TRACE_STEP = 0.01;
 const TRACE_LINES = 5000;
 
 /**
+ * Reads the MIDI files of the user of `--midi`, by the names that `userDemoFile()` of
+ * `tools/probe-demos.ts` gives them: the base name with one `.mid`. The gate keeps its own reader,
+ * because it runs in the probe tree of an older commit too ({@link GATE_SCRIPTS}), whose
+ * `probeDemos()` does not read these files.
+ *
+ * @param paths The absolute paths of the files.
+ * @returns The files.
+ */
+function userFiles(paths: readonly string[]): DemoFile[] {
+  return paths.map((path) => {
+    const bytes = new Uint8Array(readFileSync(path));
+    return { file: `${basename(path).replace(/(\.midi?)+$/i, '')}.mid`, bytes, source: bytes };
+  });
+}
+
+/**
+ * Gives the demos of a run: the demos of `--demo` and the files of `--midi` ({@link userFiles}),
+ * or each demo and tool score of `probeDemos()` with neither option.
+ *
+ * @param asked The demos of `--demo`, with or with no `.mid`.
+ * @param midi The absolute paths of the files of `--midi`.
+ * @param strict True to stop on a demo of `--demo` that does not exist. A child on the tree of a
+ *   commit skips it, because the commit can lack a new demo.
+ * @returns The demos.
+ * @throws Error for a demo of `--demo` that does not exist, when strict.
+ */
+async function gateDemos(
+  asked: readonly string[],
+  midi: readonly string[],
+  strict: boolean,
+): Promise<DemoFile[]> {
+  const users = userFiles(midi);
+  const all = [...(await probeDemos()), ...users];
+  const chosen = [
+    ...asked.map((id) => (id.endsWith('.mid') ? id : `${id}.mid`)),
+    ...users.map((user) => user.file),
+  ];
+  const unknown = chosen.filter((file) => !all.some((demo) => demo.file === file));
+  if (strict && unknown.length > 0) {
+    throw new Error(`No demo has the name ${unknown.join(', ')}.`);
+  }
+  return chosen.length > 0 ? all.filter((demo) => chosen.includes(demo.file)) : all;
+}
+
+/**
  * Traces the paws of the first body of a role at each step of a range, with no sweep: for each
  * arm, the signed paw twist on the forearm from the bind, its change from the line before, the paw
  * swing, the signed turn from the accepted grip ({@link ACCEPTED_GRIPS}, with the sign of the
@@ -1869,13 +1929,19 @@ const TRACE_LINES = 5000;
  * @param role The role.
  * @param range The demo and the range.
  * @param step The step, in seconds.
+ * @param midi The absolute paths of the files of `--midi`, whose demos the range can name.
  * @returns The lines: a title and a table.
  * @throws Error for a demo with no body of the role, or a range of more than {@link TRACE_LINES}
  *   steps.
  */
-export async function traceLines(role: string, range: TraceRange, step: number): Promise<string[]> {
+export async function traceLines(
+  role: string,
+  range: TraceRange,
+  step: number,
+  midi: readonly string[] = [],
+): Promise<string[]> {
   const source = FOLD_ROLES.get(role);
-  const all = await probeDemos();
+  const all = [...(await probeDemos()), ...userFiles(midi)];
   const demo = all.find((d) => d.file === range.demo);
   const scene = demo ? sceneOf(demo.bytes) : null;
   const [body] = source && scene ? roleBodies(source, scene) : [];
@@ -2403,15 +2469,8 @@ async function explainRole(
   if (!source) {
     throw new Error(`No role has the name ${role}.`);
   }
-  const chosen = options.shared
-    .filter((...[, i]) => options.shared[i - 1] === '--demo')
-    .map((id) => (id.endsWith('.mid') ? id : `${id}.mid`));
-  const all = await probeDemos();
-  const unknown = chosen.filter((file) => !all.some((demo) => demo.file === file));
-  if (unknown.length > 0) {
-    throw new Error(`No demo has the name ${unknown.join(', ')}.`);
-  }
-  const demos = chosen.length > 0 ? all.filter((demo) => chosen.includes(demo.file)) : all;
+  const asked = options.shared.filter((...[, i]) => options.shared[i - 1] === '--demo');
+  const demos = await gateDemos(asked, options.midi, true);
   return explainLines(role, source, demos, options.step ?? GATE_STEP, measure);
 }
 
@@ -2440,9 +2499,7 @@ async function childMain(args: readonly string[]): Promise<number> {
   if (!(step > 0)) {
     throw new Error('The step must be a number of seconds above 0.');
   }
-  const chosen = option('--demo').map((id) => (id.endsWith('.mid') ? id : `${id}.mid`));
-  const all = await probeDemos();
-  const demos = chosen.length > 0 ? all.filter((demo) => chosen.includes(demo.file)) : all;
+  const demos = await gateDemos(option('--demo'), option('--midi'), false);
   const holds = option('--set').join(';');
   const changes = holds ? setHolds(holds) : null;
   const reports: Record<string, RoleReport> = {};
@@ -2782,7 +2839,8 @@ async function main(): Promise<number> {
       }
       const role = options.roles[0] ?? '';
       if (options.trace) {
-        console.log((await traceLines(role, options.trace, options.step ?? TRACE_STEP)).join('\n'));
+        const step = options.step ?? TRACE_STEP;
+        console.log((await traceLines(role, options.trace, step, options.midi)).join('\n'));
       } else if (options.explain) {
         console.log((await explainRole(role, options.explain, options)).join('\n'));
       }
