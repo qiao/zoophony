@@ -959,12 +959,13 @@ the mockup is out of scope.
       an override with no effect and no error (`docs/decisions/2026-10-18-look-tools.md`).
 - [x] Add a lens flare from the bloom levels (user "do it" on 2026-10-20): ghosts, a halo, and a
       warm streak from the lamps of the hall. Measures: `docs/research/2026-10-20-lens-flare.md`.
-- [ ] The user chooses the variant of the lens flare from the lineups of
+- [x] The user chooses the variant of the lens flare from the lineups of
       `docs/research/2026-10-20-lens-flare/`: subtle, medium (the default), or strong. Then set
       `FLARE_LOOK.strength`, and update its row in `docs/decisions/2026-10-20-lens-flare.md`.
-- [ ] The default view has no lamp of the hall in its frame, so it shows almost no flare (a
+- [x] The default view has no lamp of the hall in its frame, so it shows almost no flare (a
       largest flare of 0.08 against 0.58 in the close shot of 115 s). Ask the user if the default
-      view needs a source, such as a glow at the top of the beam.
+      view needs a source, such as a glow at the top of the beam. Answer (2026-10-20): no glow,
+      medium flare.
 - [ ] The ghosts of the lamps at the top of a close shot land on the lit players, and read as soft
       spots in the strong variant. The halo shows in no frame of the lineups, because no lamp
       stands near the middle of a frame.
