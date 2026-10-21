@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { Triangle, Vector3 } from 'three';
 
 import { CONDUCTOR, castScore } from '../models/cast.ts';
 import { layoutScene } from '../models/layout-scene.ts';
@@ -8,6 +8,7 @@ import { PIANO } from '../models/instruments/piano.ts';
 import { STRING_SCALES, VIOLIN } from '../models/instruments/strings.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { INSTRUMENT_SUPPORTS } from '../models/player.ts';
+import { buildSupport } from '../models/props.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { BoneName } from '../models/rig.ts';
 import { SPECIES, instrumentScale } from '../models/species.ts';
@@ -390,6 +391,48 @@ function deerBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, DEER_BODY_LOOPS);
 }
 
+/** The seat of each player model, found one time for each model. */
+const SEATS = new WeakMap<PlayerModel, ClosedSurface>();
+
+/**
+ * Gives the seat of a player as an obstacle: the closed boxes of its chair, stool, or bench
+ * (`buildSupport()` of `models/props.ts`), in the axes of the player model. The seat stands on the
+ * floor and does not move, so the seat of one pose serves all poses. A player with no seat gets an
+ * empty surface.
+ *
+ * @param posed The posed skeleton.
+ * @returns The seat.
+ */
+function seatSurface(posed: PosedSkeleton): ClosedSurface {
+  const known = SEATS.get(posed.model);
+  if (known) {
+    return known;
+  }
+  const mesh = buildSupport(posed.model.support, posed.model.seat);
+  const p = mesh?.positions ?? new Float32Array();
+  const corner = (k: number): Vector3 => new Vector3(p[k * 3], p[k * 3 + 1], p[k * 3 + 2]);
+  const triangles: Triangle[] = [];
+  for (let k = 0; k + 2 < p.length / 3; k += 3) {
+    triangles.push(new Triangle(corner(k), corner(k + 1), corner(k + 2)));
+  }
+  const seat = closeSurface(triangles, 0);
+  SEATS.set(posed.model, seat);
+  return seat;
+}
+
+/**
+ * The parts of the legs, the haunch, and the tail of a seated player, which the sweep measures in
+ * its seat only: a seat that fits the legs must not cut the knees, the shins, or the feet.
+ */
+const SEATED_PARTS: readonly SweepPart[] = [
+  {
+    name: 'legs',
+    bones: ['thighL', 'thighR', 'shinL', 'shinR', 'footL', 'footR'],
+    into: ['stool'],
+  },
+  { name: 'haunch', bones: ['hips', 'tail1', 'tail2'], into: ['stool'] },
+];
+
 /**
  * The largest ratio of the area of a closed shell to the diagonal of its box, in meters, for a
  * string of the harp: a thin box of 4 mm at the scale 1 has the ratio 0.016, and each bar of the
@@ -683,18 +726,20 @@ function lowerSamples(scene: TestScene, family: 'keyboard' | 'harp' = 'keyboard'
 }
 
 /**
- * The sweep of the harp player (design 5.3): the arms against the body and the frame of the harp,
- * in a full play, in the lift of the hands from the rest to the strings at the play start, in the
+ * The sweep of the harp player (design 5.3): the arms against the body, the frame of the harp, and
+ * the stool, and the legs, the haunch, and the tail against the stool ({@link SEATED_PARTS}), in a
+ * full play, in the lift of the hands from the rest to the strings at the play start, in the
  * rest pose before the first play, and in the lowering of the hands after a stop. The deer of
  * each demo with a harp plays it, on its stool. Each palm rests on the string of its note just
  * before the note start.
  */
 export const HARPIST_SWEEP: RoleSweep = {
   role: 'harpist',
-  parts: ARM_PARTS,
+  parts: [...ARM_PARTS, ...SEATED_PARTS],
   obstacles: [
     { name: 'body', surface: deerBodySurface },
     { name: 'harp', surface: harpFrame },
+    { name: 'stool', surface: seatSurface },
   ],
   contact: CONTACT,
   accepted: [
