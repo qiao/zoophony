@@ -281,7 +281,7 @@ function studioMeshOf(
   standing: boolean,
   mesh: MeshData,
 ): StudioRenderMesh | null {
-  if (!species.body || species.body === 'penguin') {
+  if (!species.body) {
     return null;
   }
   return studioRenderMesh(studioRigOf(species.body, standing), mesh);

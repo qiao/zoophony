@@ -221,8 +221,7 @@ export const CHAIR_LEG = 0.035;
  * @returns The heights.
  */
 function chairHeights(species: SpeciesParams, legs: number): SeatHeights {
-  const studio: StudioBody | null =
-    species.body && species.body !== 'penguin' ? STUDIO_BODIES[species.body] : null;
+  const studio: StudioBody | null = species.body ? STUDIO_BODIES[species.body] : null;
   if (!studio || studio.chairDepth === null) {
     return { seatHeight: legs, footHeight: 0 };
   }
@@ -246,7 +245,7 @@ function chairHeights(species: SpeciesParams, legs: number): SeatHeights {
 export function seatHeights(support: Support, species: SpeciesParams): SeatHeights | null {
   const proportions = proportionsOf(species);
   const legs = proportions.seatHeight * proportions.headHeight;
-  const studioLegs = species.body !== undefined && species.body !== 'penguin';
+  const studioLegs = species.body !== undefined;
   switch (support) {
     case 'chair': {
       const seat = chairHeights(species, legs);

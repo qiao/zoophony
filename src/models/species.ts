@@ -155,16 +155,12 @@ export interface BipedParams extends CommonParams {
 
 /**
  * The parameters of a species with a body of its own in place of the parametric biped (design
- * 4.4). The egg body of the penguin reads the size, the colors, and the head height of the
- * species. A studio body keeps the mesh, the colors, and the size of its GLB file. A body of its
- * own has no shape parameters.
+ * 4.4): a studio body, which keeps the mesh, the colors, and the size of its GLB file. A body of
+ * its own has no shape parameters.
  */
 export interface OwnBodyParams extends CommonParams {
-  /**
-   * The body of its own: `penguin` for the egg body of the choir (`models/penguin/`), or a studio
-   * body of `lowpoly-studio/` (`models/studio-body.ts`).
-   */
-  readonly body: 'penguin' | StudioBodyName;
+  /** The body of its own: a studio body (`models/studio-body.ts`). */
+  readonly body: StudioBodyName;
   /**
    * Another palette of the faces of a studio body (`StudioBody.palettes`), such as the tan palette
    * of the fox mesh. The colors of the mesh when it is not given.
@@ -632,7 +628,7 @@ export const SPECIES = {
    * Penguin, the choir: a penguin with a black back, head, and flippers, a white belly, a pale
    * yellow throat, an orange beak, and orange feet. It has the studio body of the mesh of the user,
    * `assets/models/penguin/penguin.glb`, which `pnpm rig-mesh penguin` rigs (design 4.4), with the
-   * head top of the egg penguin (2026-10-21-mesh-penguin decisions). It stands on its riser. Its
+   * head top of the egg penguin of 2026-10-11 (2026-10-21-mesh-penguin decisions). It stands on its riser. Its
    * head height is the head of the studio body, and the seat height is the seat of the studio body,
    * in H.
    */

@@ -64,8 +64,8 @@ describe('the seated legs (design 4.3, 4.5)', () => {
 describe('the standing legs (design 4.3, 4.5)', () => {
   it('keeps the legs of each standing player short, as in the reference images', () => {
     // The standing bear of the reference images has legs of 0.55 H from the crotch to the soles
-    // (`docs/research/2026-10-11-short-legs.md`). The legs of 2026-10-06 were 0.77 H. The egg body
-    // of the penguin has no legs. The studio bear and the studio rabbit have the legs that the
+    // (`docs/research/2026-10-11-short-legs.md`). The legs of 2026-10-06 were 0.77 H. The studio
+    // penguin stands on the legs of its mesh. The studio bear and the studio rabbit have the legs that the
     // studio fitted to their sheets (design 4.4), so they are not here.
     const players = [
       ...CAST.filter(({ model, label }) => !model.seat && !label.startsWith('penguin')),

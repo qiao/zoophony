@@ -799,7 +799,7 @@ function roleBodyNames(role: string): StudioBodyName[] {
   const source = FOLD_ROLES.get(role);
   const names = (source ? roleSpecies(source) : []).flatMap((species) => {
     const params: SpeciesParams = SPECIES[species];
-    return params.body && params.body !== 'penguin' ? [params.body] : [];
+    return params.body ? [params.body] : [];
   });
   return [...new Set(names)];
 }

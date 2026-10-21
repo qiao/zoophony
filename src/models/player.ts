@@ -210,9 +210,6 @@ export function buildPlayer(
     body,
     instrument: model,
     pieces: placed.pieces,
-    studio:
-      params.body && params.body !== 'penguin'
-        ? studioRigOf(params.body, stance.kind === 'standing')
-        : null,
+    studio: params.body ? studioRigOf(params.body, stance.kind === 'standing') : null,
   };
 }
