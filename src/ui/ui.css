@@ -732,12 +732,13 @@ body.is-building #stage {
   border-top: 1px solid var(--line-faint);
 }
 
-/* A row of the demo list: the title and the composer, then the length at the right. The grid
-   leaves a place for the level meter. */
+/* A row of the demo list: the title and the composer, then the length at the right. Each row
+   keeps a column for the level meter, 9 bars of 2 px with gaps of 2 px, so that the text does
+   not move when the meter comes into a row. */
 .demo {
   position: relative;
   display: grid;
-  grid-template-columns: [text] 1fr [meter] auto [length] auto;
+  grid-template-columns: [text] 1fr [meter] 34px [length] auto;
   grid-template-rows: auto auto;
   column-gap: 12px;
   row-gap: 1px;

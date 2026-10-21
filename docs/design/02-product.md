@@ -229,7 +229,8 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   (`isWideLayout()`).
   - Demos: a row for each demo with the title, the composer, and the length, and no cover. The
     row of the current demo has a level meter that the song time alone gives (`meterLevels()` in
-    `app/meter.ts`), so it stops in a pause and follows a seek.
+    `app/meter.ts`), so it stops in a pause and follows a seek. Each row keeps a column of the
+    width of the meter, so that the text does not move when the meter comes into a row.
   - The button "Select a MIDI file" sticks below the seat list, with the tooltip "Or drop a MIDI
     file on the page." A touch screen shows no tooltip, because it cannot drop a file.
   - Seats: a row for each seat with a dot in the fur color of the species, the seat name, the
