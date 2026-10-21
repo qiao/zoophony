@@ -53,7 +53,7 @@ The UI has the style of a video player. The theme is dark only, because the scen
   the buttons "Automatic camera", "Reset view" (2.5), full screen, and the drawer. While the music
   plays, the bar and the pointer hide after 3 s with no pointer motion. While the bar hides, its
   controls ignore the pointer, so the first tap on the bar only shows it.
-- The drawer on the right has three tabs: "Demos" (the demo list and the file button), "Seats"
+- The drawer on the right has three tabs: "Pieces" (the demo list and the file button), "Seats"
   (the seat list), and "Settings" (the settings and the link "Credits"). On a phone, the drawer
   is a sheet above the bar.
 - The seat list has a row for each seat, with a mute button and a solo button. Keyboard users and
@@ -221,7 +221,7 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   - Until the first play of the session, an intro line names the app, and the button "Select a
     piece" opens the demo list. ASD-STE100 has no verb "choose", so the buttons say "Select".
   - `index.html` holds the same load state as static HTML, so a slow network shows it at once.
-- Drawer: a floating panel in `--panel-glass` with the tabs "Demos", "Seats", and "Settings" at
+- Drawer: a floating panel in `--panel-glass` with the tabs "Pieces", "Seats", and "Settings" at
   the top, beside the close button (`Drawer.addTab()`). Only the panel of the current tab shows.
   The tabs stick to the top while the panel scrolls. The current tab has `--text` and a line in
   `--accent` at its foot. The arrow keys, Home, and End move between the tabs, as the tabs
@@ -230,7 +230,7 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   While it is open, the camera moves its frame to the middle of the free area with
   `setViewOffset()`, and the canvas does not move (`stageCover()` in `app/stage-cover.ts`). A
   drawer that a click on an animal opens keeps the stage in place (`Drawer.openFromStage()`). A
-  wide window opens the drawer at start at the tab "Demos" (`isWideLayout()`).
+  wide window opens the drawer at start at the tab "Pieces" (`isWideLayout()`).
   - Demos: a row for each demo with the title, the composer, and the length, and no cover. The
     row of the current demo has a level meter that the song time alone gives (`meterLevels()` in
     `app/meter.ts`), so it stops in a pause and follows a seek. Each row keeps a column of the
