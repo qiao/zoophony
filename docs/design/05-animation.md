@@ -604,6 +604,11 @@ The code constants of each family hold the times, the angles, and the lengths of
     nearer hand, so that a melody stays in one hand. A chord past the reach of a hand (`reach` of
     `HANDS_HOLDS`) goes to the other hand. The piano keys do not move, because they are not
     separate meshes.
+  - The paws of the polar bear are wide and point in along the forearms, so the middles of the
+    keys of the two paws stay at least two octaves apart (`apart` of `HANDS_HOLDS`). A chord
+    wider than one octave splits only when its two parts are that far apart, and else one paw
+    plays it. When a paw plays nearer to the other paw, the other paw moves out of its way with no
+    sound, and both moves take the same time (`splitHands()`). Nearer paws went into each other.
   - The piano palm faces down in front of the keys (`pianoKeyFront()`), because the paw of the
     polar bear is longer than a white key. The pianist leans forward to reach the keys in front of
     its round belly. The polar bear sits higher than a real pianist, as the user asked, so its

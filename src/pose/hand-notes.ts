@@ -48,6 +48,13 @@ export interface HandNote {
   readonly high: number;
   /** The highest loudness of the chord. */
   readonly loudness: number;
+  /**
+   * The start of the last note of either hand before the chord, for a chord that both hands move
+   * to (`splitHands()` with a distance `apart`). The move of each hand then fits in the time since
+   * that note, so that both moves take the same time. With no value, the move fits in the time
+   * since the note before of the same hand.
+   */
+  readonly since?: number;
 }
 
 /**
@@ -62,21 +69,32 @@ export interface HandNote {
  * other. These two rules also give a wide chord to one hand when all its keys are past the reach
  * of the other hand.
  *
+ * With a distance `apart`, the middles of the keys of the two hands stay at least that far apart,
+ * because two wide paws on near keys go into each other. A chord wider than one octave then
+ * splits only when the middles of its two parts are that far apart, and else one hand plays it.
+ * When a hand plays nearer to the other hand, the other hand moves out of its way, away from it, at
+ * the start of the chord: a note of loudness 0 on the key at that distance, with no sound.
+ *
  * @param notes The notes of the player, sorted by start.
  * @param loudness The loudness of each note, in the order of `notes`.
  * @param reach The highest key of the left hand and the lowest key of the right hand. No limit by
  *   default.
+ * @param apart The least distance between the middles of the keys of the two hands, in semitones,
+ *   or 0 for no limit (the default).
  * @returns The notes of the left hand and of the right hand, sorted by start.
  */
 export function splitHands(
   notes: readonly PlayerNote[],
   loudness: readonly number[],
   reach: HandReach = NO_REACH_LIMIT,
+  apart = 0,
 ): readonly [left: HandNote[], right: HandNote[]] {
   const left: HandNote[] = [];
   const right: HandNote[] = [];
   let lastLeft: number = HAND_MOTION.startKeys[0];
   let lastRight: number = HAND_MOTION.startKeys[1];
+  // The start of the last note of either hand.
+  let lastStart = -Infinity;
   for (const group of groupChords(notes, loudness)) {
     const keys = notes
       .slice(group.first, group.first + group.count)
@@ -88,29 +106,63 @@ export function splitHands(
       high,
       loudness: group.loudness,
     });
+    let toLeft: HandNote | null = null;
+    let toRight: HandNote | null = null;
     const cut = group.high - group.low > HAND_MOTION.span ? wideChordCut(keys, reach) : null;
-    if (cut !== null) {
-      const below = keys[cut - 1] ?? group.low;
-      const above = keys[cut] ?? group.high;
-      left.push(part(group.low, below));
-      right.push(part(above, group.high));
+    const below = cut === null ? group.low : (keys[cut - 1] ?? group.low);
+    const above = cut === null ? group.high : (keys[cut] ?? group.high);
+    const middle = (group.low + group.high) / 2;
+    if (cut !== null && (above + group.high) / 2 - (group.low + below) / 2 >= apart) {
+      toLeft = part(group.low, below);
+      toRight = part(above, group.high);
       lastLeft = (group.low + below) / 2;
       lastRight = (above + group.high) / 2;
-      continue;
-    }
-    const middle = (group.low + group.high) / 2;
-    const toLeft = Math.abs(middle - lastLeft);
-    const toRight = Math.abs(middle - lastRight);
-    const nearerRight = toRight < toLeft || (toRight === toLeft && middle >= 60);
-    if (group.low >= reach.rightLowest && (nearerRight || group.high > reach.leftHighest)) {
-      right.push(part(group.low, group.high));
-      lastRight = middle;
     } else {
-      left.push(part(group.low, group.high));
-      lastLeft = middle;
+      const fromLeft = Math.abs(middle - lastLeft);
+      const fromRight = Math.abs(middle - lastRight);
+      const nearerRight = fromRight < fromLeft || (fromRight === fromLeft && middle >= 60);
+      if (group.low >= reach.rightLowest && (nearerRight || group.high > reach.leftHighest)) {
+        toRight = part(group.low, group.high);
+        lastRight = middle;
+        if (apart > 0 && lastLeft > middle - apart) {
+          lastLeft = Math.floor(middle - apart);
+          toLeft = makeWay(group.start, lastLeft);
+        }
+      } else {
+        toLeft = part(group.low, group.high);
+        lastLeft = middle;
+        if (apart > 0 && lastRight < middle + apart) {
+          lastRight = Math.ceil(middle + apart);
+          toRight = makeWay(group.start, lastRight);
+        }
+      }
     }
+    if (toLeft && toRight && apart > 0 && Number.isFinite(lastStart)) {
+      // Both hands move to the chord in the same time, so that they keep apart in the moves.
+      toLeft = { ...toLeft, since: lastStart };
+      toRight = { ...toRight, since: lastStart };
+    }
+    if (toLeft) {
+      left.push(toLeft);
+    }
+    if (toRight) {
+      right.push(toRight);
+    }
+    lastStart = group.start;
   }
   return [left, right];
+}
+
+/**
+ * Makes the note of a hand that moves out of the way of the other hand (design 5.3): one key, with
+ * the loudness 0, so that the hand makes its smallest lift. The note has no sound.
+ *
+ * @param start The start of the chord of the other hand, in song seconds.
+ * @param key The key.
+ * @returns The note of the hand.
+ */
+function makeWay(start: number, key: number): HandNote {
+  return { start, low: key, high: key, loudness: 0 };
 }
 
 /**
@@ -192,8 +244,8 @@ export function buildHandTrack(
   );
   const rests = notes.map((_, i) => (plucks ? Math.min(m.restSec, 0.2 * gapAfter(i - 1)) : 0));
   const moveEnds = Float64Array.from(notes, (n, i) => n.start - (rests[i] ?? 0));
-  const moveStarts = Float64Array.from(notes, (_, i) => {
-    const gap = gapAfter(i - 1);
+  const moveStarts = Float64Array.from(notes, (n, i) => {
+    const gap = n.since === undefined ? gapAfter(i - 1) : n.start - n.since;
     const free = plucks ? gap - (rests[i] ?? 0) - (pluckTimes[i - 1] ?? 0) : m.strikeMove * gap;
     return (moveEnds[i] ?? 0) - Math.min(m.moveSec, free);
   });

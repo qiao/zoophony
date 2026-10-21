@@ -64,6 +64,12 @@ interface HandsHold {
   readonly restHeadLift: number;
   /** The keys that each hand reaches on the side of the other hand. */
   readonly reach: HandReach;
+  /**
+   * The least distance between the middles of the keys of the two hands, in semitones (12
+   * semitones are 7 white keys), or 0 for no limit. The other hand moves out of the way of a hand
+   * that comes nearer (`splitHands()`).
+   */
+  readonly apart: number;
   /** The directions to which the elbows point. */
   readonly poleL: Vec3;
   readonly poleR: Vec3;
@@ -132,6 +138,12 @@ export const HANDS_HOLDS = {
     restLean: 8 * MathUtils.DEG2RAD,
     restHeadLift: 8 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
+    // The wide paws of the polar bear point in along the forearms, so they went up to 4.7 cm into
+    // each other when the palms were nearer than 33 cm, 24 semitones in the middle of the keys.
+    // At 24 semitones, they go at most 0.2 cm into each other in the demos, and at 22 up to 1.1 cm
+    // (`docs/research/2026-10-21-pirates-clip.md`). At 25 and more, the right paw turned more
+    // than 15° further from its accepted grip than on `main` (`pnpm arm-check pianist`).
+    apart: 24,
     poleL: [-1, -0.5, 0.5],
     poleR: [1, -0.5, 0.5],
     curl: 30 * MathUtils.DEG2RAD,
@@ -188,6 +200,7 @@ export const HANDS_HOLDS = {
     restLean: 0,
     restHeadLift: 0,
     reach: NO_REACH_LIMIT,
+    apart: 0,
     poleL: [-0.3, -1, 0],
     poleR: [1, -1, 0.3],
     curl: 15 * MathUtils.DEG2RAD,
@@ -367,7 +380,7 @@ export function handTracks(
   loudness: readonly number[],
   amplitude: number,
 ): HandTracks {
-  const [left, right] = splitHands(notes, loudness, rig.hold.reach);
+  const [left, right] = splitHands(notes, loudness, rig.hold.reach, rig.hold.apart);
   const [firstL, firstR] = HAND_MOTION.startKeys;
   const { action } = rig.hold;
   return {
