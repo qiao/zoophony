@@ -1,4 +1,4 @@
-# The monkey mesh of the user as the trumpet player, phase 1
+# The monkey mesh of the user as the trumpet player
 
 Date 2026-10-20. Round `mesh-monkey`. Decisions:
 [`2026-10-20-mesh-monkey.md`](../decisions/2026-10-20-mesh-monkey.md). The probes and their
@@ -117,3 +117,50 @@ The rig of the mesh passes the check: 3,129 triangles, a packed mesh of 24,887 B
 The size follows the rule of the user. The face is happy with the smile rule. The arms of the
 mesh do not reach the trumpet, and the seated pose on the low chair reads almost as standing, so
 the user chooses the arms, the trumpet size, and the chair before phase 2.
+
+## 4. Phase 2: the body in the app
+
+The user chose arms 1.5, the trumpet at the scale 0.8, the size of phase 1, no chair, and the smile
+line. The logs and the images are in [`phase2/`](2026-10-20-mesh-monkey/phase2/).
+
+**Elbows.** `pnpm hold-fit trumpeter --set` and `pnpm arm-check trumpeter --set`, with the grips of
+the base (`hold-fit-poles.txt`, `arm-poles.txt`):
+
+| Elbows L / R | Play paw turns L / R | Gate |
+|---|---|---|
+| base (-0.5, -1, -1) / (1, -1, -1) | 117°, 134° | PASS |
+| (-0.5, -1, -0.5) / (0.5, -1, -0.5) | 116°, 118° | PASS |
+| (-0.3, -1, 0) / (0.3, -1, 0), chosen | 103°, 106° | PASS |
+| (-1, -1, -0.3) / (1, -1, -0.3) | 137°, 139° | PASS |
+| (-1, -0.5, -1) / (1, -0.5, -1) | 148°, 146° | PASS |
+| (-1, -0.3, -0.5) / (1, -0.3, -0.5) | - | FAIL, flat p5 R 0.50 |
+| (-1, 0, 0) / (1, 0, 0) | - | FAIL, flat p5 R 0.46, paw twist 175° |
+| (-1, -0.5, 0) / (1, -0.5, 0) | - | FAIL, flat p5 R 0.49 |
+
+**Grips.** A paw on a wind grip lies along the line from its shoulder, and `PAW_TURN` turns it back
+toward the forearm. With the right palm on top of the valves, the long paws rose past the trumpet
+to the eyes. A paw aim toward the mouthpiece and a larger finger curl showed no visible change
+(`paw-aim.diff`, `paw-aim-views.webp`, `curl-views.webp`). Lower grips at the sides of the
+casings (`grips.sh`, `grips.txt`, `grips-views.webp`, v1 chosen):
+
+| Grips (scale 1) | Spare L, R in the play | Gate |
+|---|---|---|
+| base: L (0.17, -0.04, -0.03), R (0.18, 0.03, 0.01) | 6.7, 2.6 cm | PASS |
+| v1: L (0.17, -0.07, -0.03), R (0.18, -0.05, 0.03) | 8.0, 6.7 cm | PASS |
+| v2: L (0.17, -0.08, -0.035), R (0.18, -0.07, 0.035) | 8.4, 7.6 cm | PASS |
+
+The mouthpiece is 0.212 m above the shoulder joints (`mouth-probe.txt`).
+
+**Gates.** `pose-depth.txt`: the deepest part is 0.3 cm of the paws in the trumpet, and each note
+target is within 5 mm. `arm-check.txt` and `arm-check-all.txt`: no `FAIL`, and each other role
+keeps the values of the base. `hold-reach.txt`: 8.0 cm and 6.7 cm to spare in the play, 17.9 cm and
+17.8 cm in the rest. `face-crops.webp`: the smile shows at rest and beside the mouthpiece.
+
+**Folds.** `fold-probe.txt`: faces 329 and 1090, thin faces across the wrists (corners 4.6° and
+8.5°), fold in each sample. Rigid weights and a wrist ring move the fold to the next thin faces
+(`check-wrist.log`, `fold-probe-rigid.txt`), so the rig keeps them.
+
+**Size and other bodies.** `size.txt`: +25,991 B, 740,713 B in all. `body-probe.txt`: the bodies of
+the other species are equal, and the poses of the players of two demos change, because the stage
+side moves by -0.7% (bach-bwv1047) and +1.4% (beethoven-9). `shots.txt`: the 5 shot tests that
+fail also fail on `32136c6e`.
