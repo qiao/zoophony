@@ -227,8 +227,7 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   drawer that a click on an animal opens keeps the stage in place (`Drawer.openFromStage()`). A
   wide window opens the drawer at start with the seat list expanded, as the mockup shows
   (`isWideLayout()`).
-  - Demos: a row for each demo with a cover, the title, the composer, and the length. The covers
-    are inline SVG (`COVERS` in `ui/covers.ts`), so they need no image file and no license. The
+  - Demos: a row for each demo with the title, the composer, and the length, and no cover. The
     row of the current demo has a level meter that the song time alone gives (`meterLevels()` in
     `app/meter.ts`), so it stops in a pause and follows a seek.
   - The button "Select a MIDI file" sticks below the seat list, with the tooltip "Or drop a MIDI
