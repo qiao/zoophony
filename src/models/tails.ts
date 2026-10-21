@@ -24,33 +24,13 @@ interface TailPath {
 }
 
 /**
- * The space between the tip of a bushy tail and the floor, in meters. The tip stays above the
- * tripod legs of the music stands of the next row. With 0.03 m, the stands of the clarinets of the
- * reference composition touched the tails of the foxes, and `S` became 6.76 m in place of 6.6 m.
- */
-const TAIL_FLOOR_GAP = 0.12;
-
-/**
- * Gives the path of a tail of two bones (design 4.5: bushy 1.3, thin 0.7, flat 0.5 H).
+ * Gives the path of a tail of two bones (design 4.5: thin 0.7, flat 0.5 H).
  *
  * @param tail The tail type.
- * @param base The point where the tail leaves the body.
- * @param h The head height `H`, in meters.
  * @returns The path.
  */
-function tailPath(tail: 'bushy' | 'thin' | 'flat', base: Vec3, h: number): TailPath {
+function tailPath(tail: 'thin' | 'flat'): TailPath {
   switch (tail) {
-    case 'bushy': {
-      // The brush hangs down to the floor behind the seat. It hangs less steeply when the base
-      // is low, as on a standing player, so that its tip stays above the floor.
-      const first: Vec3 = [0, -0.6, 1];
-      const firstLength = 0.3;
-      const secondLength = 0.8;
-      const joint = base[1] - (0.6 / Math.hypot(0.6, 1)) * firstLength * h;
-      const down = Math.min(0.97, (joint - TAIL_FLOOR_GAP) / (secondLength * h));
-      const back = Math.max(0.08, Math.sqrt(Math.max(0, 1 - down * down - 0.08 * 0.08)));
-      return { first, firstLength, second: [0.08, -down, back], secondLength };
-    }
     case 'thin':
       return { first: [0, -0.35, 1], firstLength: 0.3, second: [0.15, -1, 0.3], secondLength: 0.4 };
     case 'flat':
@@ -98,14 +78,14 @@ function addAlong(
  */
 function addLongTail(
   builder: MeshBuilder,
-  tail: 'bushy' | 'thin' | 'flat',
+  tail: 'thin' | 'flat',
   species: BipedParams,
   colors: BodyColors,
   h: number,
   base: Vec3,
   joint: Vec3,
 ): void {
-  const path = tailPath(tail, base, h);
+  const path = tailPath(tail);
   const color = partColor(species, colors, 'tail');
   const l1 = path.firstLength * h;
   const l2 = path.secondLength * h;
@@ -134,47 +114,6 @@ function addLongTail(
         'tail2',
       );
       return;
-    case 'bushy': {
-      // A large faceted brush, 0.5 H wide, with a tip of the belly color, as the tail of the fox
-      // in `animals.webp`.
-      addAlong(
-        builder,
-        base,
-        path.first,
-        [
-          [0.08 * h, 0],
-          [0.2 * h, 0.6 * l1],
-          [0.22 * h, l1],
-        ],
-        color,
-        'tail1',
-      );
-      const tip = 0.55 * l2;
-      addAlong(
-        builder,
-        joint,
-        path.second,
-        [
-          [0.22 * h, 0],
-          [0.27 * h, 0.35 * l2],
-          [0.22 * h, tip],
-        ],
-        color,
-        'tail2',
-      );
-      addAlong(
-        builder,
-        toVec3(new Vector3(...joint).addScaledVector(new Vector3(...path.second).normalize(), tip)),
-        path.second,
-        [
-          [0.22 * h, 0],
-          [0, l2 - tip],
-        ],
-        colors.belly,
-        'tail2',
-      );
-      return;
-    }
     case 'flat':
       // A short stalk and a flat paddle of 0.45 H wide with its broad face to the back.
       addAlong(
@@ -236,10 +175,9 @@ export function addTail(
         at: transform(toVec3(new Vector3(...base).add(new Vector3(0, -0.08 * h, 0.26 * h)))),
       });
       return [base, toVec3(new Vector3(...base).add(new Vector3(0, 0, 0.1 * h)))];
-    case 'bushy':
     case 'thin':
     case 'flat': {
-      const path = tailPath(tail, base, h);
+      const path = tailPath(tail);
       const joint = toVec3(
         new Vector3(...base).addScaledVector(
           new Vector3(...path.first).normalize(),
