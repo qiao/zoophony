@@ -135,15 +135,7 @@ export interface BipedParams extends CommonParams {
     | 'antlered'
     | 'none';
   /** The snout type (design 4.3). */
-  readonly snout:
-    | 'short'
-    | 'long'
-    | 'blunt'
-    | 'broad'
-    | 'pointed'
-    | 'buck-teeth'
-    | 'flat-nose'
-    | 'horn';
+  readonly snout: 'short' | 'long' | 'blunt' | 'broad' | 'pointed' | 'flat-nose' | 'horn';
   /** The tail type (design 4.3). */
   readonly tail: 'none' | 'puff' | 'thin' | 'flat';
   /** Face pattern, for example the eye patches of the panda. */
@@ -634,9 +626,6 @@ export const EYE_COLOR = '#15110e';
 
 /** The color of the small light on each eye (design 4.5). */
 export const EYE_LIGHT_COLOR = '#f6f2ea';
-
-/** The color of the front teeth of the beaver (design 4.5). */
-export const TEETH_COLOR = '#f1ead9';
 
 /** The color of the nose of a species with no accent nose (design 4.5). */
 export const NOSE_COLOR = '#2a1d15';
