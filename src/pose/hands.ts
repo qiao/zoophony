@@ -43,6 +43,13 @@ interface HandsHold {
    */
   readonly faceL: Vec3;
   readonly faceR: Vec3;
+  /**
+   * The direction to which the fingers of each hand point, in the axes of the instrument piece, or
+   * `null` for the line from the shoulder to the palm. The fingers lie in the plane of the palm,
+   * so the part of the direction along the side of the palm drops out.
+   */
+  readonly aimL: Vec3 | null;
+  readonly aimR: Vec3 | null;
   /** The forward lean of the spine in the playing pose. */
   readonly lean: number;
   /**
@@ -119,6 +126,8 @@ export const HANDS_HOLDS = {
     palmR: [0, 0.065, 0.07],
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
+    aimL: null,
+    aimR: null,
     lean: 27 * MathUtils.DEG2RAD,
     restLean: 8 * MathUtils.DEG2RAD,
     restHeadLift: 8 * MathUtils.DEG2RAD,
@@ -165,6 +174,8 @@ export const HANDS_HOLDS = {
     palmR: [0.03, 0, 0],
     faceL: [1, 0, 0],
     faceR: [-1, 0, 0],
+    aimL: null,
+    aimR: null,
     lean: 8 * MathUtils.DEG2RAD,
     restLean: 0,
     restHeadLift: 0,
@@ -201,6 +212,11 @@ interface HandSide {
   readonly arm: ArmRig;
   /** The side of the palm, in the model axes. */
   readonly face: Vec3;
+  /**
+   * The direction of the fingers, in the model axes, or `null` for the line from the shoulder to
+   * the palm ({@link HandsHold.aimL}).
+   */
+  readonly aim: Vec3 | null;
   /** The hand in the rest pose, on the top of its thigh (design 5.3). */
   readonly rest: {
     /** The place of the `hand` bone, in the model axes. */
@@ -290,14 +306,14 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument, scale 
   const turn = new Quaternion(...(main?.at.rotation ?? IDENTITY));
   const faceOf = (face: Vec3): Vec3 =>
     toVec3(new Vector3(...face).applyQuaternion(turn).normalize());
-  const side = (s: 'L' | 'R', face: Vec3, rest: RestingHand): HandSide => {
+  const side = (s: 'L' | 'R', face: Vec3, aim: Vec3 | null, rest: RestingHand): HandSide => {
     const arm = armRig(model, s);
     const turned = faceOf(face);
     const h = model.body.headHeight;
     const [out, up, forward] = hold.restArc;
     const arc: Vec3 = [(s === 'L' ? -out : out) * h, up * h, -forward * h];
     const resting = restingHand(model, hold, scale, arm, turned, rest);
-    return { arm, face: turned, rest: { ...resting, arc } };
+    return { arm, face: turned, aim: aim && faceOf(aim), rest: { ...resting, arc } };
   };
 
   return {
@@ -305,8 +321,8 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument, scale 
     scale,
     chestBind: positions[boneIndex('chest')] ?? [0, 0, 0],
     pieces: model.pieces,
-    left: side('L', hold.faceL, hold.restL),
-    right: side('R', hold.faceR, hold.restR),
+    left: side('L', hold.faceL, hold.aimL, hold.restL),
+    right: side('R', hold.faceR, hold.aimR, hold.restR),
   };
 }
 
@@ -411,8 +427,13 @@ function poseHand(
   face.fromArray(side.face);
   // The palm lifts against its face for a strike, and pulls back from it for a pluck.
   palm.fromArray(hand.point).addScaledVector(face, -(hand.lift + hand.pull));
-  // The fingers point from the shoulder to the palm, in the plane of the palm.
-  fingers.subVectors(palm, shoulder.position);
+  // The fingers point from the shoulder to the palm, or along the aim of the hold, in the plane of
+  // the palm.
+  if (side.aim) {
+    fingers.fromArray(side.aim);
+  } else {
+    fingers.subVectors(palm, shoulder.position);
+  }
   fingers.addScaledVector(face, -fingers.dot(face)).normalize().negate();
   // The bind palm side of a hand is +x on the left and -x on the right, to the body.
   palmSide.copy(face).multiplyScalar(arm.side === 'L' ? 1 : -1);

@@ -128,6 +128,8 @@ const NULL_FIELDS: ReadonlyMap<string, HoldValue> = new Map<string, HoldValue>([
     } satisfies FreePaw,
   ],
   ['across', { rest: 0, lift: 0 } satisfies MalletAcross],
+  ['aimL', [0, 0, -1]],
+  ['aimR', [0, 0, -1]],
 ]);
 
 /**
