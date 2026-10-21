@@ -33,6 +33,7 @@ import {
   BLUR_GATHER_FRAGMENT,
   BLUR_PREPARE_FRAGMENT,
   FINAL_FRAGMENT,
+  FLARE_FRAGMENT,
   FULL_SCREEN_VERTEX,
 } from './post-shaders.ts';
 import { TIER_SETTINGS } from './quality.ts';
@@ -57,6 +58,53 @@ export const POST_LOOK = {
   vignette: 0.45,
   /** The size of the film grain, in display values. */
   grain: 0.035,
+} as const;
+
+/**
+ * The values of the lens flare (design 4.5, post effects): `FLARE_FRAGMENT` of `post-shaders.ts`.
+ * The flare reads the bloom levels, which hold only the light above `POST_LOOK.bloomThreshold`.
+ */
+export const FLARE_LOOK = {
+  /**
+   * The part of the next bloom level that the flare takes from its level. A broad bright area,
+   * such as lit white fur, has about the same light in both levels, so it gives no flare. A lamp
+   * is small, and keeps most of its light.
+   */
+  broad: 2,
+  /**
+   * The flare starts at this brightness, with a soft knee below it. A level holds the light above
+   * the bloom threshold, blurred, so the lamps of the hall pass it, and the small highlights of
+   * the brass and of the eyes do not.
+   */
+  threshold: 0.3,
+  knee: 0.2,
+  /** The part of the flare that the final pass adds to the scene. 0 gives no flare. */
+  strength: 1,
+  /**
+   * The scale of each of the 4 ghosts about the middle of the image. A negative scale mirrors the
+   * ghost through the middle. A scale above 1 gives a large ghost.
+   */
+  ghostScales: [-0.55, -1.3, 0.4, -2.2],
+  /** The color of each ghost, times its part of the light. */
+  ghostTints: [
+    [8, 4.8, 2.2],
+    [2.2, 4, 6.4],
+    [4.4, 5.2, 2.6],
+    [2.8, 2, 4],
+  ],
+  /**
+   * The radius of the soft disc of each ghost around its copy of the light, as a part of the image
+   * height. In the image, the disc grows with the scale of the ghost.
+   */
+  ghostRadius: 0.025,
+  /** The radius of the halo, as a part of the image height. */
+  haloRadius: 0.45,
+  /** The color of the halo, times its part of the light. */
+  haloTint: [0.35, 0.28, 0.2],
+  /** The half length of the streak, as a part of the image width. */
+  streakLength: 0.15,
+  /** The color of the streak, times its part of the light. Black gives no streak. */
+  streakTint: [0.5, 0.3, 0.12],
 } as const;
 
 /**
@@ -108,6 +156,26 @@ export interface PostFrame {
  */
 export function gradeUniforms() {
   return { uGradeLut: { value: gradeLut() } };
+}
+
+/**
+ * The largest height of the bloom level of the lens flare, in pixels. The flare takes the first
+ * level at or below this height, so the same lamp gives the same flare at each pixel ratio: the
+ * level 1/8 of a drawing buffer 900 px high, and the level 1/16 of one 1800 px high.
+ */
+export const FLARE_LEVEL_HEIGHT = 180;
+
+/**
+ * Selects the bloom level of the lens flare (design 4.5, post effects): the first level at or
+ * below {@link FLARE_LEVEL_HEIGHT}. The flare also reads the next level, so the level must not be
+ * the last.
+ *
+ * @param sizes The sizes of the bloom levels ({@link bloomSizes}).
+ * @returns The index of the level, or -1 when no level fits.
+ */
+export function flareLevel(sizes: readonly (readonly [number, number])[]): number {
+  const level = sizes.findIndex(([, height]) => height <= FLARE_LEVEL_HEIGHT);
+  return level >= 0 && level < sizes.length - 1 ? level : -1;
 }
 
 /** The number of samples of the multisample target of the scene (design 2.6). */
@@ -203,7 +271,15 @@ function floatTarget(
 }
 
 /** A value of a uniform of a pass. */
-type UniformValue = Texture | number | Vector2 | Vector3 | Vector4 | Matrix4 | null;
+type UniformValue =
+  | Texture
+  | number
+  | Vector2
+  | Vector3
+  | Vector4
+  | Matrix4
+  | readonly Vector3[]
+  | null;
 
 /** The uniforms of a pass by name. */
 type PassUniforms = Record<string, { value: UniformValue }>;
@@ -279,6 +355,43 @@ function setTexel(material: ShaderMaterial, source: WebGLRenderTarget): void {
   }
 }
 
+/**
+ * Tells if a tier has the lens flare (design 2.6): the flag of the tier, and the bloom that the
+ * flare reads.
+ *
+ * @param tier The quality tier.
+ * @returns True when the tier renders the flare.
+ */
+export function hasFlare(tier: QualityTier): boolean {
+  const settings = TIER_SETTINGS[tier];
+  return settings.flare && settings.bloomLevels > 0;
+}
+
+/**
+ * Creates the material of the lens flare with the values of {@link FLARE_LOOK}.
+ *
+ * @returns The material.
+ */
+function createFlare(): ShaderMaterial {
+  const look = FLARE_LOOK;
+  const [a, b, c, d] = look.ghostScales;
+  return passMaterial(FLARE_FRAGMENT, {
+    uSource: { value: null },
+    uNext: { value: null },
+    uBroad: { value: look.broad },
+    uAspect: { value: 1 },
+    uThreshold: { value: look.threshold },
+    uKnee: { value: look.knee },
+    uGhostScales: { value: new Vector4(a, b, c, d) },
+    uGhostTints: { value: look.ghostTints.map((tint) => new Vector3(...tint)) },
+    uGhostRadius: { value: look.ghostRadius },
+    uHaloRadius: { value: look.haloRadius },
+    uHaloTint: { value: new Vector3(...look.haloTint) },
+    uStreakLength: { value: look.streakLength },
+    uStreakTint: { value: new Vector3(...look.streakTint) },
+  });
+}
+
 /** The targets of one size of the canvas and one tier. */
 interface Targets {
   /** The scene, with MSAA. */
@@ -287,6 +400,10 @@ interface Targets {
   readonly bloomDown: readonly WebGLRenderTarget[];
   /** The upsample levels of the bloom, one for each level except the smallest. */
   readonly bloomUp: readonly WebGLRenderTarget[];
+  /** The lens flare, at the size of its bloom level ({@link flareLevel}). */
+  readonly flare: WebGLRenderTarget | null;
+  /** The index of the bloom level of the lens flare, or -1 with no flare. */
+  readonly flareLevel: number;
   /** The depth of the scene at half size, for the depth of field. */
   readonly depth: WebGLRenderTarget | null;
   /** The color and the blur of each pixel at half size. */
@@ -297,12 +414,14 @@ interface Targets {
 
 /**
  * The post effects of the stage (design 2.6, 4.5). The scene renders with MSAA into a target of
- * floats, then the bloom, the depth of field, and one final pass make the image of the canvas.
+ * floats, then the bloom, the lens flare, the depth of field, and one final pass make the image
+ * of the canvas.
  *
  * ```text
- * scene ──> [scene target, MSAA] ──┬──> bloom down 1/2 ... ──> bloom up ──────────┐
- *                                  └──> blur prepare 1/2 ──> blur gather 1/2 ──┐  │
- * scene ──> [depth 1/2] ──────────────────────^ (only with a shallow focus)    v  v
+ * scene ──> [scene target, MSAA] ──┬──> bloom down 1/2 ... ──┬──> bloom up ──────────────┐
+ *                                  │                         └──> flare 1/8 ──────────┐  │
+ *                                  └──> blur prepare 1/2 ──> blur gather 1/2 ──┐      │  │
+ * scene ──> [depth 1/2] ──────────────────────^ (only with a shallow focus)    v      v  v
  *           [scene target] ───────────────────────────────────────────────> final pass ──> canvas
  * ```
  */
@@ -316,6 +435,7 @@ export class PostPipeline {
   readonly #bloomPrefilter: ShaderMaterial;
   readonly #bloomDown: ShaderMaterial;
   readonly #bloomUp: ShaderMaterial;
+  readonly #flare: ShaderMaterial;
   readonly #blurPrepare: ShaderMaterial;
   #blurGather: ShaderMaterial;
   #final: ShaderMaterial;
@@ -362,6 +482,7 @@ export class PostPipeline {
       uBase: { value: null },
       uTexel: { value: new Vector2() },
     });
+    this.#flare = createFlare();
     this.#blurPrepare = passMaterial(BLUR_PREPARE_FRAGMENT, {
       uColor: { value: null },
       ...focusUniforms(),
@@ -432,11 +553,13 @@ export class PostPipeline {
     renderer.render(scene, camera);
 
     const bloom = this.#renderBloom(targets);
+    const flare = this.#renderFlare(targets);
     const blur = focus.active ? this.#renderBlur(targets, scene, camera, focus, effects) : null;
 
     const final = this.#final;
     setUniform(final, 'uScene', targets.scene.texture);
     setUniform(final, 'uBloom', bloom);
+    setUniform(final, 'uFlare', flare);
     setUniform(final, 'uBlur', blur);
     setUniform(final, 'uBlurOn', blur ? 1 : 0);
     this.#setFocus(final, camera, focus, this.#height / 2);
@@ -454,6 +577,7 @@ export class PostPipeline {
       this.#bloomPrefilter,
       this.#bloomDown,
       this.#bloomUp,
+      this.#flare,
       this.#blurPrepare,
       this.#blurGather,
       this.#final,
@@ -471,6 +595,8 @@ export class PostPipeline {
     const settings = TIER_SETTINGS[this.#tier];
     const sizes = bloomSizes(width, height, settings.bloomLevels);
     const blur = settings.blurSamples > 0;
+    const level = hasFlare(this.#tier) ? flareLevel(sizes) : -1;
+    const flare = sizes[level];
     const [halfWidth, halfHeight] = bloomSizes(width, height, 1)[0] ?? [1, 1];
     let depth: WebGLRenderTarget | null = null;
     if (blur) {
@@ -485,6 +611,8 @@ export class PostPipeline {
       scene,
       bloomDown: sizes.map(([w, h]) => floatTarget(w, h, format)),
       bloomUp: sizes.slice(0, -1).map(([w, h]) => floatTarget(w, h, format)),
+      flare: flare ? floatTarget(flare[0], flare[1], format) : null,
+      flareLevel: flare ? level : -1,
       depth,
       // The blur of each pixel needs the alpha channel.
       blurPrepare: blur ? floatTarget(halfWidth, halfHeight, 'half') : null,
@@ -517,6 +645,25 @@ export class PostPipeline {
       }
     }
     return levels.length > 0 ? source.texture : null;
+  }
+
+  /**
+   * Renders the lens flare from the bloom levels of the frame ({@link FLARE_LOOK}).
+   *
+   * @param targets The targets, with the bloom levels of the frame.
+   * @returns The flare, or `null` when the tier has no flare.
+   */
+  #renderFlare(targets: Targets): Texture | null {
+    const source = targets.bloomDown[targets.flareLevel];
+    const next = targets.bloomDown[targets.flareLevel + 1];
+    if (!targets.flare || !source || !next) {
+      return null;
+    }
+    setUniform(this.#flare, 'uSource', source.texture);
+    setUniform(this.#flare, 'uNext', next.texture);
+    setUniform(this.#flare, 'uAspect', this.#width / this.#height);
+    this.#pass(this.#flare, targets.flare);
+    return targets.flare.texture;
   }
 
   #renderBlur(
@@ -644,6 +791,9 @@ export class PostPipeline {
     if (settings.bloomLevels > 0) {
       defines['BLOOM'] = 1;
     }
+    if (hasFlare(this.#tier)) {
+      defines['FLARE'] = 1;
+    }
     if (settings.blurSamples > 0) {
       defines['DEPTH_OF_FIELD'] = 1;
     }
@@ -657,6 +807,8 @@ export class PostPipeline {
         uBlurOn: { value: 0 },
         uBloomStrength: { value: look.bloomStrength },
         uHalation: { value: new Vector3(...look.halation) },
+        uFlare: { value: null },
+        uFlareStrength: { value: FLARE_LOOK.strength },
         uSceneDepth: { value: null },
         uHazeOn: { value: 0 },
         uHazeInverse: { value: new Matrix4() },
@@ -688,6 +840,7 @@ export class PostPipeline {
       targets.scene,
       ...targets.bloomDown,
       ...targets.bloomUp,
+      targets.flare,
       targets.depth,
       targets.blurPrepare,
       targets.blurGather,
