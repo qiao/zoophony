@@ -127,6 +127,14 @@ export interface AnimalSettings {
    */
   readonly headFloor?: number;
   /**
+   * The highest height of the tip of the nose of a body with no gloss nose, in the bind pose of
+   * the GLB file, in its units, for a horn that stands above the muzzle, as on the rhino. The
+   * front of the muzzle below this height is then the tip of the nose, so that the mouth lies
+   * under the muzzle and not under the tip of the horn. With no value, each vertex of the head
+   * counts.
+   */
+  readonly noseTop?: number;
+  /**
    * True when each pea eye faces level: the direction of the eye keeps only its turn to the side
    * and forward, with no turn up or down. A large head box behind the eyes, such as the ruff of
    * the wolf, turns the eyes up, and the eyes then read as eyes that look up (design 4.5). With no
@@ -2273,6 +2281,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   let farNose = new Vector3(0, 0, -Infinity);
   let farSnout = new Vector3(0, 0, -Infinity);
   const floor = settings.headFloor ?? -Infinity;
+  const noseTop = settings.noseTop ?? Infinity;
   for (const [v, vertex] of mesh.vertices.entries()) {
     const head = vertex.skin.find(([bone]) => bone === 'head')?.[1] ?? 0;
     if (vertex.position.y < floor) {
@@ -2300,7 +2309,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
         farNose = vertex.position;
       }
     }
-    if (vertex.material === 'fur' && head === 1) {
+    if (vertex.material === 'fur' && head === 1 && vertex.position.y <= noseTop) {
       if (near && vertex.position.z > snout.z) {
         snout = vertex.position;
       }
