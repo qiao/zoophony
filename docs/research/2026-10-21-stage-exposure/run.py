@@ -1,5 +1,5 @@
 """Renders look variants on one dev server: the look lab frames (1440 x 900: orchestra, default,
-violins) and the wide frames of the user (2022 x 1076: default, back rows). Usage:
+violins) and the wide frames of the user (--size 2022x1076: the user view, the back rows). Usage:
 run.py <variants.json> <out dir> <port>. It stops the server by its PID."""
 import json, os, subprocess, sys, time, urllib.parse, urllib.request
 root = '/Users/xueqiaoxu/proj/zoophony/.claude/worktrees/stage-exposure'
@@ -26,11 +26,10 @@ try:
             r1 = subprocess.run(['node', 'tools/look-lab.ts', f'{out}/{name}', '--url', url], cwd=root, stdout=open(f'{out}/{name}.log', 'w'), stderr=subprocess.STDOUT).returncode
         else:
             r1 = 0
-        env = dict(os.environ, PLAY_W='2022', PLAY_H='1076')
         cams = os.environ.get('WIDE_CAMS', 'default,0:-10:9').split(',')
         args = []
         for c in cams: args += ['--camera', c.replace(':', ',')]
-        r2 = subprocess.run(['node', 'tools/close-views.ts', 'play', f'{out}/{name}/wide', '--time', '33.5', *args, '--url', url], cwd=root, env=env, stdout=open(f'{out}/{name}-wide.log', 'w'), stderr=subprocess.STDOUT).returncode
+        r2 = subprocess.run(['node', 'tools/close-views.ts', 'play', f'{out}/{name}/wide', '--time', '33.5', *args, '--size', '2022x1076', '--url', url], cwd=root, stdout=open(f'{out}/{name}-wide.log', 'w'), stderr=subprocess.STDOUT).returncode
         print(f'{name}: lab {r1} wide {r2} in {time.time() - t:.0f} s', flush=True)
 finally:
     server.terminate(); server.wait(10); print('dev server stopped', server.pid)

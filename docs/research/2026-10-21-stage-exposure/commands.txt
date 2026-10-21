@@ -22,3 +22,17 @@ Shadow of the players (seam-shadow.txt, shadow-pairs.webp):
   (seammetric.py and seam-faces.ts: docs/research/2026-10-21-rabbit-arm/)
 
 Lineup: scratch/py scratch/lineup.py scratch/final lineup.webp
+
+Phase 2 (on 306128ff and the commits of the round). probe.patch is gone: the exposure is
+STAGE_TONE.exposure of scene/renderer.ts, and run.py passes --size 2022x1076 to close-views play.
+The variants of phase 1 name RENDER_LOOK.exposure: read it as STAGE_TONE.exposure.
+  back-row lift: WIDE_CAMS='0:0:6,0:20:10' python3 scratch/run.py back-row.json scratch/br 5391
+  bias check: SHADOW_BIAS_TEXELS 4 as a temporary edit of src/scene/lights.ts, then
+    pnpm close-views play scratch/sh-b4 --time 33.5 --at rabbit --azimuth 50 --azimuth -30 --zoom 2 --base HEAD
+  final frames: pnpm look-lab scratch/fin/lab --base 306128ff
+    pnpm close-views play scratch/fin/wide --time 33.5 --camera 0,0,6 --camera 0,20,10 --size 2022x1076 --base 306128ff
+  final measures (final-measures.txt): exposure_measure.py with the frames of scratch/fin and of
+    scratch/final/B of phase 1
+  final seam (seam-final.txt): pnpm close-views violinist scratch/sv/final --scale 2, then
+    seammetric.py scratch/sv/mask scratch/sv/base scratch/sv/r3 scratch/sv/r5 scratch/sv/final
+  final lineup: scratch/py scratch/lineup.py --final scratch/fin/lab scratch/fin/wide lineup-final.webp
