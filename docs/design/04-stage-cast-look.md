@@ -481,8 +481,11 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     No weight rule, corrective shape, or vertex move fixes both. `cut` removes the faces that join
     the forearm to the belly below a height and closes both holes with new faces, with no move of
     a vertex. The user chose it for the panda, and the caps of the belly take its white. The
-    beaver, the hippo, and the elephant take the same cut under each armpit, where thin faces join
-    the upper arm to the chest and turn over in each pose. The normals of the caps of the arm point
+    beaver, the hippo, the elephant, and the rabbit take the same cut under each armpit, where
+    thin faces join the upper arm to the chest and turn over in each pose, or a corner of the
+    trunk with a part of the arm weight makes a ridge of long faces when the arm rises. A shape of
+    `raise` can also relax the faces that turn far short of a fold (`below`), with one ring of
+    trunk corners (`grow`). The normals of the caps of the arm point
     into the gap between the arm and the trunk, away from the light, so the caps show as a dark
     slot at the armpit. With `cut.skinNormals`, the rig names these caps (`StudioBody.caps`), and
     each corner of a cap takes the mean normal of the skin at its vertex (`studioNormals()`). The

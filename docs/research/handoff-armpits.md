@@ -6,8 +6,8 @@ in `docs/research/2026-10-20-armpits/`.
 ## Last finished step
 
 The rabbit rig cuts its arm seams, and the right palm of the hornist lies 2.5 cm inside the bell.
-The play shape of the right arm of the pig relaxes more faces. The docs are in the working
-tree with no commit: the design 4.4, the decisions, the report, and TODO.md.
+The play shape of the right arm of the pig relaxes more faces. Design 4.4 has the cut of the rabbit. The decisions, the report, and TODO.md are in the
+working tree with no commit.
 
 ## Next step
 
