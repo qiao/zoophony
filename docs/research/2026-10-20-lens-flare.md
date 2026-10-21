@@ -86,6 +86,21 @@ node docs/research/2026-10-20-lens-flare/flare-frames.ts docs/research/2026-10-2
 uv run --no-project --with pillow python -I docs/research/2026-10-20-lens-flare/lineup.py <frames> docs/research/2026-10-20-lens-flare
 ```
 
+### The frame cost
+
+`pnpm frame --gpu-only` on the development Mac (Apple M1 Max), `perf-60.mid` in Cinematic mode,
+a drawing buffer of 2880 × 1800. The guard of the GPU phase was valid in both runs. `main` ran in
+a temporary worktree of 186712f7 (`frame-main.log`), and the branch in its worktree with the
+medium variant (`frame-branch.log`).
+
+| Tree | Frames | GPU p50 (ms) | GPU p95 (ms) | GPU max (ms) |
+|---|---:|---:|---:|---:|
+| `main` | 369 | 7.80 | 8.01 | 8.31 |
+| branch | 353 | 7.95 | 8.16 | 8.41 |
+
+The flare pass adds about 0.15 ms of GPU time for each frame. At this buffer, it runs at the
+level 1/16 (180 × 112 texels).
+
 ## 3. The result
 
 The streak is the clearest part of the flare: a thin warm line through the row of lamps at the
