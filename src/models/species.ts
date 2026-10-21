@@ -130,7 +130,6 @@ export interface BipedParams extends CommonParams {
     | 'round'
     | 'large-round'
     | 'floppy'
-    | 'large-flap'
     | 'small'
     | 'side-round'
     | 'antlered'

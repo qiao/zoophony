@@ -32,28 +32,6 @@ interface RightEar {
 }
 
 /**
- * The turn of the large-flap ear out of the middle plane of the head. The ear points back and
- * out, so that the ears of two elephants on neighbor seats (0.95 m of arc) do not touch.
- */
-export const FLAP_EAR_ANGLE = 32 * MathUtils.DEG2RAD;
-
-/**
- * The outline of the large-flap ear (design 4.5: 0.9 H wide), in H: back and up from the front
- * edge. It goes counterclockwise when seen from the front face of the ear.
- */
-const FLAP_OUTLINE: readonly OutlinePoint[] = [
-  [0, 0.42],
-  [0.3, 0.52],
-  [0.62, 0.45],
-  [0.85, 0.2],
-  [0.9, -0.1],
-  [0.78, -0.4],
-  [0.5, -0.58],
-  [0.2, -0.55],
-  [0, -0.3],
-];
-
-/**
  * Makes a disc ear: a flat ball on the head, with a smaller inner disc at its front.
  *
  * @param h The head height `H`.
@@ -223,46 +201,6 @@ function floppyEar(h: number, color: Rgb): RightEar {
   };
 }
 
-/**
- * Makes a large-flap ear: a flat plate of 0.9 H that points back and out from the side of the
- * head, with the inner ear on its front face.
- *
- * @param h The head height `H`.
- * @param outer The color of the ear.
- * @param inner The color of the inner ear.
- * @returns The right ear.
- */
-function flapEar(h: number, outer: Rgb, inner: Rgb): RightEar {
-  const base: Vec3 = [0.36 * h, -0.02 * h, 0.05 * h];
-  // x of the plate points back and out, y is the normal of its front face, and z points up.
-  const back = new Vector3(Math.sin(FLAP_EAR_ANGLE), 0, Math.cos(FLAP_EAR_ANGLE));
-  const front = new Vector3(Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE));
-  const turn = toQuat(
-    new Quaternion().setFromRotationMatrix(
-      new Matrix4().makeBasis(back, front, new Vector3().crossVectors(back, front)),
-    ),
-  );
-  const middle = 0.45;
-  const outline = (shrink: number): OutlinePoint[] =>
-    FLAP_OUTLINE.map(([u, v]) => [(u - middle) * shrink * h, v * shrink * h]);
-  const center = toVec3(new Vector3(...base).addScaledVector(back, middle * h));
-  return {
-    base,
-    parts: [
-      {
-        corners: placeCorners(prism(outline(1), -0.03 * h, 0.03 * h), transform(center, turn)),
-        color: outer,
-        bone: 'ear',
-      },
-      {
-        corners: placeCorners(prism(outline(0.75), 0.03 * h, 0.045 * h), transform(center, turn)),
-        color: inner,
-        bone: 'ear',
-      },
-    ],
-  };
-}
-
 /** The number of sides of the thin cylinders of an antler. */
 const ANTLER_SEGMENTS = 6;
 
@@ -344,8 +282,6 @@ function rightEar(species: BipedParams, colors: BodyColors, h: number): RightEar
       return discEar(h, [0.28 * h, 0.34 * h, 0.06 * h], 35 * MathUtils.DEG2RAD, 0.2, outer, inner);
     case 'floppy':
       return floppyEar(h, outer);
-    case 'large-flap':
-      return flapEar(h, outer, inner);
     case 'side-round':
       return discEar(h, [0.54 * h, 0.08 * h, 0.04 * h], 80 * MathUtils.DEG2RAD, 0.32, outer, inner);
     case 'antlered': {
