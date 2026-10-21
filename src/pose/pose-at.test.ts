@@ -615,9 +615,10 @@ describe('the seeded rest motions (design 5.2, 5.5)', () => {
     const fastest = counts.reduce((a, b) => (b.lengthSec < a.lengthSec ? b : a));
     expect(fastest.demo.file).toBe('bach-bwv1048.mid');
     const fastestScene = sceneOf(fastest.demo.bytes);
-    // A file of 4/4 at 600 BPM has a beat of 0.1 s, so its count-in is 1.3 s.
+    // A file of 5/4 at 600 BPM has a conducted beat of 0.1 s, so its count-in is 1.3 s. A bar of
+    // 4/4 at this tempo gets one beat (design 5.4).
     const short: TestFile = {
-      tracks: [[tempo(0, 600), timeSignature(0, 4, 4)], track([], note(0, 0, 60, 1920))],
+      tracks: [[tempo(0, 600), timeSignature(0, 5, 4)], track([], note(0, 0, 60, 2400))],
     };
     for (const all of [fastestScene, sceneOf(short)]) {
       const count = countInAt(all.plan.beats, 0);

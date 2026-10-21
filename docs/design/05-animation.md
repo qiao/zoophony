@@ -643,12 +643,16 @@ The code constants of each family hold the times, the angles, and the lengths of
   | Time signature | Pattern |
   |---|---|
   | 2/x, 3/x | 1 (one beat in a bar) if the beat tempo is 168 or more, else 2 or 3 |
-  | 4/x | 4 |
+  | 4/x | 1 if the beat tempo is 336 or more, 2 (alla breve) if it is 168 or more, else 4 |
   | 6/8 | 2 (dotted beats) if the eighth tempo is 150 or more, else 6 |
-  | 9/8, 12/8 | 3 or 4 (dotted beats) |
+  | 9/8, 12/8 | 1 or 2 if the dotted tempo is 168 or more, else 3 or 4 (dotted beats) |
   | 6/4 | 2 if the quarter tempo is 150 or more, else 6 |
   | all others, for example 5/4 and 7/8 | `generic`: one down-up motion for each beat unit, larger on the downbeat |
 
+- A conductor beats a fast 4/4 in 2, and a faster one in 1, so that the baton does not beat
+  more than about 168 times in a minute (`ONE_BEAT_TEMPO` of `score/beats.ts`). A file can
+  notate a slow song at two or four times its felt beat, and this rule then gives a conducted beat
+  of a natural tempo (`docs/research/2026-10-21-beat-fold.md`).
 - The first bar starts at tick 0. Each time signature event starts a new bar, also inside a bar.
   The tempo at the downbeat of a bar selects its pattern. The tempo is rounded to 0.01 BPM
   before the comparison, because a file stores whole microseconds: 168 BPM reads as 167.99997.

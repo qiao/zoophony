@@ -8,8 +8,11 @@ interface BarPattern {
 }
 
 /**
- * The beat tempo from which a bar of 2/x or 3/x gets one beat (design 5.4). The beat tempo
- * counts the beat units (the denominator of the time signature) for each minute.
+ * The beat tempo from which a bar gets fewer conducted beats (design 5.4): a bar of 2/x or 3/x
+ * gets one beat, and a bar of 4/x gets two beats, as a conductor beats a fast 4/4 in 2 (alla
+ * breve). The beat tempo counts the beat units (the denominator of the time signature) for each
+ * minute. A bar of 4/x gets one beat from twice this tempo, and a bar of 9/8 or 12/8 gets fewer
+ * dotted beats from a dotted tempo of this value.
  */
 const ONE_BEAT_TEMPO = 168;
 
@@ -76,18 +79,28 @@ function barPattern(signature: TimeSignature, quarterTempo: number): BarPattern 
       : { pattern: numerator, beatsInBar: numerator };
   }
   if (numerator === 4) {
-    return { pattern: 4, beatsInBar: 4 };
+    if (beatTempo >= 2 * ONE_BEAT_TEMPO) {
+      return { pattern: 1, beatsInBar: 1 };
+    }
+    return beatTempo >= ONE_BEAT_TEMPO
+      ? { pattern: 2, beatsInBar: 2 }
+      : { pattern: 4, beatsInBar: 4 };
   }
   if (numerator === 6 && (denominator === 8 || denominator === 4)) {
     return beatTempo >= TWO_BEAT_TEMPO
       ? { pattern: 2, beatsInBar: 2 }
       : { pattern: 6, beatsInBar: 6 };
   }
+  // A bar of 9/8 or 12/8 has dotted beats of three beat units.
   if (numerator === 9 && denominator === 8) {
-    return { pattern: 3, beatsInBar: 3 };
+    return beatTempo / 3 >= ONE_BEAT_TEMPO
+      ? { pattern: 1, beatsInBar: 1 }
+      : { pattern: 3, beatsInBar: 3 };
   }
   if (numerator === 12 && denominator === 8) {
-    return { pattern: 4, beatsInBar: 4 };
+    return beatTempo / 3 >= ONE_BEAT_TEMPO
+      ? { pattern: 2, beatsInBar: 2 }
+      : { pattern: 4, beatsInBar: 4 };
   }
   return { pattern: 'generic', beatsInBar: numerator };
 }
