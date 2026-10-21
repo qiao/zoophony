@@ -908,6 +908,14 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       The `Player` adds it to the input gain, and `DEMO_LOUDNESS` holds new values (6.8).
 - [ ] Run `node tools/measure-targets.ts` on a quiet machine. The render target of 9.7 failed
       only under the load of other agents.
+- [x] Measure each demo with `pnpm loudness`, refresh `DEMO_LOUDNESS`, raise the target to
+      -16 LUFS, and lower the limiter to -3 dBFS (user, 2026-10-21, 6.8). Seven newer demos
+      played 1.0 to 7.8 LU too loud. `research/2026-10-21-demo-loudness.md` gives the measures.
+- [ ] Decide the range rule of the soft demos with the user (6.8). Beethoven 8 keeps 58 % of
+      its time below -30 LUFS short-term. Research section 6 proposes a velocity curve of
+      `30 log10(v / 127)` for the demos only.
+- [ ] Run `pnpm loudness --check` after each change of a demo file, the SoundFont, the mix, the
+      hall, or the limiter, until a check of CI or of the merge runs it (6.8).
 - [x] Replace the dark demos with cheerful pieces and add the Ode to Joy (user decision of
       2026-10-05, 8.2). `docs/research/cheerful-demos.md` gives the choice.
       The list is Boulanger, Beethoven 9 (bars 216 to 330), Eine kleine Nachtmusik, Brandenburg
