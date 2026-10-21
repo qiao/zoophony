@@ -26,6 +26,12 @@
  *   grip fails with no base. For a role with no entry, the tool prints a ready entry under the
  *   table ({@link gripLines}), and the role has no value `grip`.
  *
+ * - `move twist` and `move turn`: the largest paw twist on the forearm, and the largest turn rate of
+ *   the wrist in degrees per second, over the lifts and the lowerings of {@link probeMoves} at
+ *   steps of 0.01 s (the set `move`). A paw twist past 180° makes the twist bone of the forearm
+ *   jump by 180° in one step, and a mix of two turns near 180° apart jumps to the other side
+ *   (`docs/research/2026-10-21-wrist-lift.md`).
+ *
  * The other values are the 95th percentiles of the samples. Each value has a p50, a p95 (a p5 for
  * the flat share), and its worst sample (the demo and the time) in each sample set. The value of
  * the gate comes from the worst sample set.
@@ -105,10 +111,19 @@ import {
 } from './ref-tree.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import type { Side, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
-import { twistAngle } from '../src/models/studio-rig.ts';
+import {
+  createStudioPose,
+  poseStudioBones,
+  skinStudioMesh,
+  studioOffsets,
+  twistAngle,
+} from '../src/models/studio-rig.ts';
 import type { StudioRig } from '../src/models/studio-rig.ts';
 import { countInAt } from '../src/pose/count-in.ts';
-import { sceneOf } from '../src/pose/test-scene.ts';
+import { createScenePose, poseAt } from '../src/pose/pose-at.ts';
+import { LIFT_FIT_SEC, LOWER_MAX_SEC } from '../src/pose/rest.ts';
+import { PLAYING, allAudible, sceneOf } from '../src/pose/test-scene.ts';
+import type { Transport } from '../src/pose/types.ts';
 
 /** The sides of the arms. */
 const SIDES = ['L', 'R'] as const;
@@ -124,17 +139,34 @@ export const MEASURES = [
   'pawJump',
   'stretch',
   'grip',
+  'moveTwist',
+  'moveTurn',
 ] as const;
 
 /** A measure of the gate. */
 export type Measure = (typeof MEASURES)[number];
 
+/** The measures of the moves: the lifts and the lowerings of {@link probeMoves}. */
+export const MOVE_MEASURES = ['moveTwist', 'moveTurn'] as const satisfies readonly Measure[];
+
+/**
+ * The sample sets of the gate: the sets of `probeFolds()`, and `move`, the lifts and the
+ * lowerings of {@link probeMoves} at steps of {@link MOVE_STEP}.
+ */
+export const GATE_SETS = [...SAMPLE_SETS, 'move'] as const;
+
+/** A sample set of the gate. */
+export type GateSet = (typeof GATE_SETS)[number];
+
 /** The limit of one measure of the gate. */
 export interface ArmLimit {
   /** The name of the measure in the tables. */
   readonly name: string;
-  /** The value of a sample set that the limit reads: a share of the samples, or a percentile. */
-  readonly stat: 'share' | 'p50' | 'p95' | 'p5';
+  /**
+   * The value of a sample set that the limit reads: a share of the samples, a percentile, or the
+   * worst sample.
+   */
+  readonly stat: 'share' | 'p50' | 'p95' | 'p5' | 'worst';
   /** The limit of the value. */
   readonly limit: number;
   /** True when a larger value is worse, false when a smaller value is worse. */
@@ -234,6 +266,26 @@ export const ARM_LIMITS: Readonly<Record<Measure, ArmLimit>> = {
     margin: 15,
     digits: 0,
     source: 'the paw twist of the accepted grip (ACCEPTED_GRIPS); half the 90° of anatomy',
+  },
+  moveTwist: {
+    name: 'move twist max',
+    stat: 'worst',
+    limit: 176,
+    up: true,
+    margin: 3,
+    digits: 0,
+    source:
+      'the largest paw twist of the rest and the play of a good arm, 175° (hippo left arm); at 180° the twist bone takes -90° or 90°',
+  },
+  moveTurn: {
+    name: 'move turn max',
+    stat: 'worst',
+    limit: 3000,
+    up: true,
+    margin: 500,
+    digits: 0,
+    source:
+      'the play of good wrists turns up to 2,268°/s (elephant mallets); a flip turns 90° or more in one step of 0.01 s',
   },
 };
 
@@ -872,6 +924,8 @@ export function measureArm(
     pawJump: 0,
     grip: 0,
     stretch: stretch / arm.upper,
+    moveTwist: 0,
+    moveTurn: 0,
     pawRoll: (pawTwist * 180) / Math.PI,
   };
 }
@@ -985,7 +1039,7 @@ export function setStats(
 }
 
 /** The summaries of one arm: by measure, then by sample set. */
-export type ArmStats = Readonly<Record<Measure, Partial<Record<SampleSet, SetStats>>>>;
+export type ArmStats = Readonly<Record<Measure, Partial<Record<GateSet, SetStats>>>>;
 
 /** The report of one role. */
 export interface RoleReport {
@@ -1040,6 +1094,8 @@ function emptySamples(): Samples {
     pawJump: [],
     grip: [],
     stretch: [],
+    moveTwist: [],
+    moveTurn: [],
   });
   return { labels: [], values: { L: lists(), R: lists() } };
 }
@@ -1070,6 +1126,143 @@ function planLabels(
       ? `${demo.file} ${(start + k * step).toFixed(2)} s`
       : `${demo.file} wall ${(k * 0.1).toFixed(1)} s`;
   };
+}
+
+/**
+ * Tells if a measure is a measure of the moves ({@link MOVE_MEASURES}).
+ *
+ * @param measure The measure.
+ * @returns True for a measure of the moves.
+ */
+function isMoveMeasure(measure: Measure): boolean {
+  return MOVE_MEASURES.some((m) => m === measure);
+}
+
+/** The step of the wall time of the samples of the moves, in seconds. */
+export const MOVE_STEP = 0.01;
+
+/** The number of pause points of each demo with a lowering and a lift in the moves. */
+export const MOVE_PAUSES = 2;
+
+/** One move of {@link probeMoves}: a lift or a lowering at a song time. */
+interface Move {
+  /** The kind of the move. */
+  readonly kind: 'lift' | 'lower';
+  /** The song time of the pause point: 0 for the lift at the song start. */
+  readonly at: number;
+}
+
+/**
+ * Gives the moves of a demo: the lift at the song start, a lowering and a lift at each of
+ * {@link MOVE_PAUSES} pause points, and the lowering at the song end.
+ *
+ * @param duration The song length, in seconds.
+ * @returns The moves.
+ */
+export function demoMoves(duration: number): Move[] {
+  const points = Array.from(
+    { length: MOVE_PAUSES },
+    (...[, k]) => ((k + 1) * duration) / (MOVE_PAUSES + 1),
+  );
+  return [
+    { kind: 'lift', at: 0 },
+    ...points.flatMap((at): Move[] => [
+      { kind: 'lower', at },
+      { kind: 'lift', at },
+    ]),
+    { kind: 'lower', at: duration },
+  ];
+}
+
+/**
+ * Samples the lifts and the lowerings of the studio body of a role at steps of {@link MOVE_STEP}
+ * ({@link demoMoves}). A lift starts from the rest pose and takes the time of its seeded motion,
+ * with no count-in limit, as the set `lift` of `probeFolds()`: a short count-in only makes it
+ * faster. A lowering starts from the play pose at its pause point, after the hold. Each sample of
+ * each arm gives two values: `moveTwist`, the size of the paw twist on the forearm, and
+ * `moveTurn`, the turn rate of the wrist from the sample before, in degrees per second: the
+ * larger turn of the twist bone of the forearm on the forearm and of the paw on the twist bone. A
+ * twist past 180° makes the twist bone, which takes half of the twist, jump by 180°.
+ *
+ * @param role The role.
+ * @param demos The demos. A demo with no body of the role adds nothing.
+ * @returns The samples of the set `move`.
+ */
+export function probeMoves(role: RoleSource, demos: readonly DemoFile[]): Samples {
+  const store = emptySamples();
+  const studio = createStudioPose();
+  for (const demo of demos) {
+    const scene = sceneOf(demo.bytes);
+    const bodies = roleBodies(role, scene);
+    if (bodies.length === 0) {
+      continue;
+    }
+    const audible = allAudible(scene.score);
+    const buffer = createScenePose(scene.plan);
+    for (const move of demoMoves(scene.score.durationSec)) {
+      const lead = countInAt(scene.plan.beats, move.at).lengthSec;
+      const transport: Transport =
+        move.kind === 'lift'
+          ? { ...PLAYING, changedAtWall: 10, startSec: move.at }
+          : { ...PLAYING, playing: false, changedAtWall: 10, before: PLAYING };
+      const span = move.kind === 'lift' ? LIFT_FIT_SEC : transport.holdSec + LOWER_MAX_SEC;
+      const from = move.kind === 'lift' ? 0 : transport.holdSec;
+      const count = Math.round((span - from) / MOVE_STEP) + 1;
+      const last = new Map<string, readonly Quaternion[]>();
+      for (let k = 0; k < count; k++) {
+        const wall = from + k * MOVE_STEP;
+        const song = move.kind === 'lift' ? Math.min(move.at, move.at - lead + wall) : move.at;
+        const frame = poseAt(scene.plan, song, 10 + wall, transport, audible, buffer);
+        for (const { index, model } of bodies) {
+          const pose = index === null ? frame.conductor : frame.players[index];
+          const rig = model.studio;
+          if (!pose || !rig) {
+            continue;
+          }
+          poseStudioBones(rig, model.skeleton, pose.rotations, studioOffsets(pose), 1, studio);
+          const who = bodies.length > 1 ? ` player ${index ?? ''}` : '';
+          store.labels.push(
+            `${demo.file}${who} ${move.kind} ${move.at.toFixed(2)} s, wall ${(wall - from).toFixed(2)} s`,
+          );
+          const arms = armBinds(rig);
+          for (const side of SIDES) {
+            const arm = arms[side];
+            const fore = turnOf(studio.matrices, arm.bones.fore);
+            const twist = turnOf(studio.matrices, STUDIO_BONES.indexOf(`forearm_twist_${side}`));
+            const hand = turnOf(studio.matrices, arm.bones.hand);
+            const foreBind = arm.joints.wrist.clone().sub(arm.joints.elbow).normalize();
+            const paw = fore.clone().invert().multiply(hand);
+            const turns = [
+              fore.clone().invert().multiply(twist),
+              twist.clone().invert().multiply(hand),
+            ];
+            const key = `${index ?? ''} ${side}`;
+            const before = last.get(key);
+            last.set(key, turns);
+            const rate = before
+              ? Math.max(...turns.map((turn, j) => turnDegrees(turn, before[j] ?? turn))) /
+                MOVE_STEP
+              : 0;
+            const values = store.values[side];
+            values.moveTwist.push(Math.abs((twistAngle(paw, foreBind) * 180) / Math.PI));
+            values.moveTurn.push(rate);
+          }
+        }
+      }
+    }
+  }
+  return store;
+}
+
+/**
+ * Gives the angle between two turns, in degrees. A quaternion and its negative give one turn.
+ *
+ * @param a The first turn.
+ * @param b The second turn.
+ * @returns The angle, from 0° to 180°.
+ */
+function turnDegrees(a: Quaternion, b: Quaternion): number {
+  return (2 * Math.acos(Math.min(1, Math.abs(a.dot(b)))) * 180) / Math.PI;
 }
 
 /**
@@ -1122,7 +1315,7 @@ export function probeRole(
         const sample = measureArm(arms[side], studio.matrices, posed, folded, rests[side]);
         const values = store.values[side];
         for (const measure of MEASURES) {
-          if (measure !== 'pawJump' && measure !== 'grip') {
+          if (measure !== 'pawJump' && measure !== 'grip' && !isMoveMeasure(measure)) {
             values[measure].push(sample[measure]);
           }
         }
@@ -1142,12 +1335,13 @@ export function probeRole(
     });
     found.push(...report.demos);
   }
+  const all: Record<GateSet, Samples> = { ...sets, move: probeMoves(role, demos) };
   const armStats = (side: Side): ArmStats => {
-    const of = (measure: Measure): Partial<Record<SampleSet, SetStats>> =>
+    const of = (measure: Measure): Partial<Record<GateSet, SetStats>> =>
       Object.fromEntries(
-        SAMPLE_SETS.filter((set) => sets[set].labels.length > 0).map((set) => [
+        GATE_SETS.filter((set) => all[set].labels.length > 0).map((set) => [
           set,
-          setStats(sets[set].values[side][measure], sets[set].labels, ARM_LIMITS[measure].up),
+          setStats(all[set].values[side][measure], all[set].labels, ARM_LIMITS[measure].up),
         ]),
       );
     return {
@@ -1160,6 +1354,8 @@ export function probeRole(
       pawJump: of('pawJump'),
       stretch: of('stretch'),
       grip: of('grip'),
+      moveTwist: of('moveTwist'),
+      moveTurn: of('moveTurn'),
     };
   };
   const report: RoleReport = { demos: found, arms: { L: armStats('L'), R: armStats('R') } };
@@ -1204,11 +1400,11 @@ export function gripLines(
  * @returns The value and the set, or `null` with no sample.
  */
 export function gateValue(
-  stats: Partial<Record<SampleSet, SetStats>>,
+  stats: Partial<Record<GateSet, SetStats>>,
   limit: ArmLimit,
-): { readonly value: number; readonly set: SampleSet } | null {
-  let found: { readonly value: number; readonly set: SampleSet } | null = null;
-  for (const set of SAMPLE_SETS) {
+): { readonly value: number; readonly set: GateSet } | null {
+  let found: { readonly value: number; readonly set: GateSet } | null = null;
+  for (const set of GATE_SETS) {
     const of = stats[set];
     if (!of || of.samples === 0) {
       continue;
@@ -1254,7 +1450,7 @@ export interface GateRow {
   /** The measure. */
   readonly measure: Measure;
   /** The worst sample set. */
-  readonly set: SampleSet;
+  readonly set: GateSet;
   /** The summary of the worst sample set. */
   readonly stats: SetStats;
   /** The value of the gate. */
@@ -1283,7 +1479,9 @@ export function gateRows(role: string, tree: RoleReport, base: RoleReport | null
       if (!found || !of) {
         return [];
       }
-      const before = base ? gateValue(base.arms[side][measure], limit) : null;
+      // A JSON text of a tool before a measure has no stats of it.
+      const baseStats: ArmStats[Measure] | undefined = base?.arms[side][measure];
+      const before = baseStats ? gateValue(baseStats, limit) : null;
       const value = found.value;
       const baseValue = before?.value ?? null;
       const verdict = verdictOf(value, baseValue, limit);
@@ -1676,10 +1874,6 @@ const TRACE_LINES = 5000;
  *   steps.
  */
 export async function traceLines(role: string, range: TraceRange, step: number): Promise<string[]> {
-  const { createScenePose, poseAt } = await import('../src/pose/pose-at.ts');
-  const { PLAYING, allAudible } = await import('../src/pose/test-scene.ts');
-  const { createStudioPose, poseStudioBones, skinStudioMesh, studioOffsets } =
-    await import('../src/models/studio-rig.ts');
   const source = FOLD_ROLES.get(role);
   const all = await probeDemos();
   const demo = all.find((d) => d.file === range.demo);
