@@ -2,7 +2,9 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
 import { BOW_PART, bowSweep } from './bow-sweep.ts';
+import { FOLD_ROLES, roleAnimal } from './fold-probe.ts';
 import type { PlayFilter } from './fold-probe.ts';
+import { runTool, takeGlb, withGlbBody } from './glb-swap.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { probeDemos } from './probe-demos.ts';
 import { setHolds } from './hold-sets.ts';
@@ -102,7 +104,7 @@ export interface Options {
 export const ROW_LIMIT = 5;
 
 /** The text of the usage. */
-const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--base <ref>] [--json <file>] [--long]`;
+const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--base <ref>] [--json <file>] [--long] [--glb <file>]`;
 
 /** The options of the command with no value. */
 const FLAGS: ReadonlySet<string> = new Set(['--gaps', '--targets', '--long']);
@@ -1488,8 +1490,43 @@ async function printPlan(options: Options, role: RoleSweep): Promise<void> {
   console.log(planLines(options, ids, cached ? cached.seconds : null, known).join('\n'));
 }
 
+/**
+ * Sweeps the role on the studio body that the export makes from another GLB file (`--glb <file>`),
+ * such as a GLB file of `pnpm rig-mesh --check --keep`. The tool runs again in a child process, in
+ * a copy of `src/` with the module of the file (`withGlbBody()` of `tools/glb-swap.ts`). The files
+ * of `assets/` and `src/` do not change, also after a stop or a failure. The child sweeps the base
+ * row each time, because a cache by tree does not know the file ({@link PROBE_NO_CACHE}).
+ *
+ * @param options The options of the other arguments.
+ * @param glb The absolute path of the GLB file.
+ * @param args The other arguments, with no `--glb`.
+ * @returns The exit code of the child.
+ * @throws Error with `--base`, or for a role with no studio body.
+ */
+async function sweepGlb(options: Options, glb: string, args: readonly string[]): Promise<number> {
+  if (options.base !== null) {
+    throw new Error(`The options --glb and --base do not go together.\n${USAGE}`);
+  }
+  const source = FOLD_ROLES.get(options.role.role);
+  if (!source) {
+    throw new Error(`The ${options.role.role} has no studio body, so --glb does not apply.`);
+  }
+  return withGlbBody(roleAnimal(source), glb, (dir) =>
+    runTool(dir, 'pose-depth.ts', args, { ...process.env, [PROBE_NO_CACHE]: '1' }),
+  );
+}
+
+/**
+ * Runs the tool: `node tools/pose-depth.ts <role> [options]`. With `--glb <file>`, the sweep runs
+ * on the studio body of the file ({@link sweepGlb}).
+ */
 async function main(): Promise<void> {
-  const options = parseOptions(process.argv.slice(2));
+  const { glb, rest } = takeGlb(process.argv.slice(2));
+  const options = parseOptions(rest);
+  if (glb) {
+    process.exitCode = await sweepGlb(options, glb, rest);
+    return;
+  }
   const role = roleOf(options);
   await printPlan(options, role);
   if (options.base !== null) {
