@@ -14,8 +14,7 @@ measures. The user can reverse each decision. Then update its section, and remov
 |---|---|
 | After the merge of the hippo chest round, the manager asked its agent what would make the next round faster (user rule of 2026-10-12), and chose the three items of the brief. | 9.8 |
 | The sweep of each role with a held instrument (the bowed strings and the winds) measures the closed shells of the instrument and of the slide in the body only (`INSTRUMENT_PART`). | 9.3 |
-| The instrument in the body has no limit, because a real player touches the instrument with the body. The report gives the depth of each role on `main`, from 0 cm (flute, trombone) to 14.8 cm (contrabass) (`SweepPart.measureOnly`). | 9.3 |
-| `pnpm hold-fit` takes the instrument part of the sweep role, so the bassist gets the column. The column has no limit and no `OVER`: the old limit of 1.5 cm marked the violinist (3.3 cm) and the violist (2.4 cm) of `main` (`splitHeld()`). | 9.3 |
+| `pnpm hold-fit` takes the instrument part of the sweep role, so the bassist gets the column (`splitHeld()`). | 9.3 |
 | Open: the pair gives the deepest corner of the whole instrument. For the hippo it is the back of the upper bout (14.7 cm), and the top plate goes only 1.5 cm deep (`top-plate.ts` of the chest round). | 9.3 |
 | The role mode of `pnpm close-views` takes `--zoom` and `--elevation` for each view, as the species mode does, and `--scale` up to 3 for the cell size. The WebP grid keeps the cells of the factor 1, within 300 kB (`roleCamera()`, `roleCell()`). | 9.8 |
 | `--set` of `pnpm rig-mesh --check` adds a last key that the config does not have, or the next item of a list, with a JSON value. The tool names the new keys, because the rig script ignores an unknown key (`newKeys()`). | 9.8 |

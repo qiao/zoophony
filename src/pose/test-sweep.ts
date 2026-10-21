@@ -32,10 +32,11 @@ export interface SweepPart {
   /** The names of the obstacles that the sweep measures the part in, or each obstacle with none. */
   readonly into?: readonly string[];
   /**
-   * True for a part whose depth the sweep only measures, with no limit ({@link depthLimit}): a
-   * real player touches the body with it, such as the chin rest of a violin under the jaw.
+   * The largest depth of the part in each obstacle, in meters, in place of the contact depth of
+   * the role ({@link depthLimit}): a real player presses a held instrument on the body, such as
+   * the chin rest of a violin under the jaw. None keeps the contact depth.
    */
-  readonly measureOnly?: boolean;
+  readonly limit?: number;
 }
 
 /** A part that the moving parts must not enter: a closed surface of the body or the instrument. */
@@ -344,16 +345,15 @@ export function targetErrors(player: SweepPlayer): TargetError[] {
 
 /** The largest depth of a pair of parts in a set of samples. */
 interface DepthLimit {
-  /** The depth, in meters, or `Infinity` for a pair with no limit. */
+  /** The depth, in meters. */
   readonly depth: number;
-  /** The accepted depth that sets the limit, or `null` for the contact depth or no limit. */
+  /** The accepted depth that sets the limit, or `null` for the limit of the part or the contact. */
   readonly accepted: AcceptedDepth | null;
 }
 
 /**
  * Gives the largest depth of a pair of parts in a set of samples: the accepted depth of the pair,
- * or the contact depth of the role. A part that the sweep only measures
- * ({@link SweepPart.measureOnly}) has no limit.
+ * the limit of the part ({@link SweepPart.limit}), or the contact depth of the role.
  *
  * @param role The role.
  * @param pair The pair.
@@ -365,13 +365,14 @@ export function depthLimit(
   pair: Pick<PairDepth, 'part' | 'into'>,
   samples: string,
 ): DepthLimit {
-  if (role.parts.some((part) => part.name === pair.part && part.measureOnly)) {
-    return { depth: Infinity, accepted: null };
-  }
   const accepted = role.accepted.find(
     (a) => a.part === pair.part && a.into === pair.into && a.samples === samples,
   );
-  return accepted ? { depth: accepted.depth, accepted } : { depth: role.contact, accepted: null };
+  if (accepted) {
+    return { depth: accepted.depth, accepted };
+  }
+  const part = role.parts.find((p) => p.name === pair.part);
+  return { depth: part?.limit ?? role.contact, accepted: null };
 }
 
 /**

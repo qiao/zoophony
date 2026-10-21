@@ -923,10 +923,10 @@ export function phaseText(phase: PairPhase | undefined): string {
 }
 
 /**
- * Writes the results of one variant: the deepest point of each pair in each set, with its limit or
- * `no limit` for a part that the sweep only measures, such as the instrument in the body, the phase
- * of its sample ({@link phaseText}), and the samples over the goal ({@link overText}), the smallest gap of each pair of `--gaps`, and the
- * largest note-target error of each hand.
+ * Writes the results of one variant: the deepest point of each pair in each set, with its limit
+ * (`depthLimit()`), the phase of its sample ({@link phaseText}), and the samples over the goal
+ * ({@link overText}), the smallest gap of each pair of `--gaps`, and the largest note-target error
+ * of each hand.
  *
  * @param role The role.
  * @param results The results of each demo.
@@ -939,9 +939,7 @@ function printDetails(role: RoleSweep, results: readonly DemoResult[], goal: num
       for (const pair of pairs) {
         const limit = depthLimit(role, pair, name);
         const mark = pair.depth > limit.depth ? ' OVER' : '';
-        const text = Number.isFinite(limit.depth)
-          ? `limit ${(limit.depth * 100).toFixed(1)} cm${mark}`
-          : 'no limit';
+        const text = `limit ${(limit.depth * 100).toFixed(1)} cm${mark}`;
         const over = overText(pair, goal ?? limit.depth);
         console.log(`    ${name}: ${pairText(pair)}${phaseText(pair.phase)}; ${text}${over}`);
       }

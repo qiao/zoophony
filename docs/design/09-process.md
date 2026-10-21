@@ -85,9 +85,10 @@ A push to `main` builds with pnpm and deploys to GitHub Pages under the base pat
   shells of the instrument (`closedDepth()` of `pose/test-clearance.ts`). A depth past the contact
   depth of the role is a named entry with its reason and its decision row. A role that holds its
   instrument against its body (the bowed strings and the winds) also measures the instrument in
-  the body (`INSTRUMENT_PART` of `pose/test-sweep-roles.ts`), with no limit, because a real player
-  touches the instrument with the body: the chin rest of a violin under the jaw, or the back of a
-  contrabass on the chest. `pnpm pose-depth --base` and `pnpm hold-fit` show its depth. A note
+  the body (`INSTRUMENT_PART` of `pose/test-sweep-roles.ts`), with a limit of its own
+  (`INSTRUMENT_CONTACT`): a real player touches the instrument with the body, such as the chin rest
+  of a violin under the jaw or the back of a contrabass on the lower belly, but the instrument does
+  not go into the body. `pnpm pose-depth` and `pnpm hold-fit` mark a depth past the limit. A note
   target gives the distance of a hand or its held part from its target, such as the bow hair on
   the strings.
   - Each role sweeps the first seated player of each model in each demo with its seat, and each

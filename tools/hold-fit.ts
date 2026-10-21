@@ -671,8 +671,8 @@ export interface HeldSplit {
 /**
  * Takes the pairs of the instrument (`INSTRUMENT_PART` of `src/pose/test-sweep-roles.ts`) out of
  * the results of a sweep, and gives the deepest pair of the instrument in the body over each
- * sample set. The pair has no limit (`depthLimit()`), because a real player touches the
- * instrument with the body.
+ * sample set, with its limit (`depthLimit()`): a real player touches the instrument with the
+ * body, and the instrument goes no deeper than the limit of the part.
  *
  * @param role The sweep.
  * @param results The results of each demo.
@@ -1507,7 +1507,10 @@ export function fitTable(rows: readonly FitRow[]): string[] {
       const mark = pair.depth > limit ? ' OVER' : '';
       return `${(pair.depth * 100).toFixed(1)} ${pair.part}>${pair.into} (${(limit * 100).toFixed(1)})${mark}`;
     });
-    const heldCell = row.held ? `${(row.held.pair.depth * 100).toFixed(1)} ${row.held.set}` : '-';
+    const heldMark = row.held && row.held.pair.depth > row.held.limit ? ' OVER' : '';
+    const heldCell = row.held
+      ? `${(row.held.pair.depth * 100).toFixed(1)} ${row.held.set}${heldMark}`
+      : '-';
     const gapCells = paws.map((paw) => {
       const gap = row.gaps.find((g) => g.paw === paw);
       return gap ? (gap.gap * 100).toFixed(1) : '-';

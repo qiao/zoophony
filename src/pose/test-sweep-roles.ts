@@ -166,18 +166,25 @@ const ARM_PARTS: readonly SweepPart[] = [
 ];
 
 /**
+ * The largest depth of a held instrument in the body, in meters: the instrument presses the fur
+ * where a real player touches it, as the contrabass on the lower belly, and goes no further in
+ * (`docs/decisions/2026-10-21-hippo-bass.md`).
+ */
+const INSTRUMENT_CONTACT = 0.02;
+
+/**
  * The instrument that a player holds against its body, with the slide of a trombone: the closed
  * shells of the plates, the ribs, the neck, and the fingerboard of a bowed instrument, or the tube
- * and the keys of a wind instrument. The sweep measures its depth in the body only, with no limit,
- * because a real player touches the instrument with the body: the chin rest of a violin under the
- * jaw, the back of a cello or a contrabass on the chest, and the lip plate of a flute on the chin
- * (`docs/decisions/2026-10-19-hippo-retro.md`).
+ * and the keys of a wind instrument. The sweep measures its depth in the body only, with the limit
+ * {@link INSTRUMENT_CONTACT}, because a real player touches the instrument with the body: the chin
+ * rest of a violin under the jaw, the back of a cello or a contrabass on the chest, and the lip
+ * plate of a flute on the chin.
  */
 export const INSTRUMENT_PART: SweepPart = {
   name: 'instrument',
   bones: ['instrument', 'slide'],
   into: [BODY_OBSTACLE],
-  measureOnly: true,
+  limit: INSTRUMENT_CONTACT,
 };
 
 /**
