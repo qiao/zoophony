@@ -8,16 +8,27 @@ import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel } from './types.ts';
 
 /**
- * The sizes of the choir folder, in meters (design 4.6). In the folder axes, the spine runs along
- * y through the origin, and the two covers open to the singer at +z.
+ * The sizes and the place of the choir folder (design 4.6). In the folder axes, the spine runs
+ * along y through the origin, and the two covers open to the singer at +z. The tools change the
+ * place in memory with `--set folder.<key>=<value>` (`tools/hold-sets.ts`).
  */
-const CHOIR_FOLDER = {
-  /** The size of one cover. */
+export const CHOIR_FOLDER = {
+  /** The width of one cover, in meters. */
   width: 0.2,
+  /** The height of one cover, in meters. */
   height: 0.27,
   /** The angle between each cover and the plane x-y. The open folder is a flat V. */
   open: 15 * MathUtils.DEG2RAD,
-} as const;
+  /**
+   * The distance of the middle of the spine below the head center, in head heights H, at the
+   * height of the folders of the penguins of `orchestra-latest.png` and `orchestra-side.png`.
+   */
+  drop: 0.85,
+  /** The distance of the middle of the spine in front of the head center, in head heights H. */
+  forward: 0.75,
+  /** The angle by which the folder leans back, so that the pages face the eyes. */
+  tilt: 35 * MathUtils.DEG2RAD,
+};
 
 /**
  * Builds the choir folder (design 4.6). The singer holds it open in both hands in front of the
@@ -49,15 +60,12 @@ export function buildChoirFolder(): InstrumentModel {
       toVec3(new Vector3(side * (f.width - 0.03), -f.height / 4, -0.02).applyQuaternion(turn)),
     );
   }
-  // The folder is 0.85 H below the head center and 0.75 H in front of it, at the height of the
-  // folders of the penguins of `orchestra-latest.png` and `orchestra-side.png`. It leans back
-  // 35°, so that the pages face the eyes.
   const instrument = piece.build(
     'instrument',
     hold(
       'head',
-      [0, -0.85, -0.75],
-      toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -35 * MathUtils.DEG2RAD)),
+      [0, -f.drop, -f.forward],
+      toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -f.tilt)),
     ),
   );
   const [left = [0, 0, 0], right = [0, 0, 0]] = outer;
