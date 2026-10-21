@@ -28,9 +28,7 @@ export interface SnoutBones {
  * the place where the arms reach its grips (design 5.3).
  */
 const MOUTHS = {
-  short: [0, -0.38, -0.62],
   long: [0, -0.43, -0.78],
-  blunt: [0, -0.42, -0.74],
   horn: [0, -0.42, -0.66],
 } as const satisfies Readonly<Record<BipedParams['snout'], Vec3>>;
 
@@ -156,19 +154,6 @@ export function addSnout(
     mouth: at(mx, my, mz),
   };
   switch (species.snout) {
-    case 'short': {
-      // Two round cheeks low on the face, and the nose above them, as the muzzles of the
-      // polished images.
-      for (const side of [-1, 1]) {
-        builder.add(ball(1, 8, 4), {
-          color: muzzle,
-          bone: head,
-          at: transform(at(side * 0.09, -0.31, -0.55), undefined, [0.13 * h, 0.11 * h, 0.12 * h]),
-        });
-      }
-      addNose(builder, colors, h, at(0, -0.21, -0.66), 0.055);
-      return bones;
-    }
     case 'long': {
       // A full muzzle that reaches 0.25 H in front of the face, with the nose on its tip, as the
       // muzzles of the fox and the wolf in the polished images. It starts high and wide, so
@@ -194,33 +179,6 @@ export function addSnout(
       builder.add(sides, { color: muzzle, bone: head });
       const nose = new Vector3(...from).addScaledVector(axis, (length - 0.03) * h);
       addNose(builder, colors, h, toVec3(nose), 0.075);
-      return bones;
-    }
-    case 'blunt': {
-      // A short round muzzle of 0.3 H in front of the face, with a large nose on the top of its
-      // tip, as the beagles of the polished images.
-      const axis = new Vector3(0, -0.2, -1).normalize();
-      const from = at(0, -0.17, -0.4);
-      const length = 0.5;
-      addCone(
-        builder,
-        from,
-        toVec3(axis),
-        [
-          [0.3 * h, 0],
-          [0.3 * h, 0.24 * h],
-          [0.27 * h, 0.38 * h],
-          [0.17 * h, 0.47 * h],
-          [0, length * h],
-        ],
-        0.82,
-        muzzle,
-        'head',
-      );
-      const nose = new Vector3(...from)
-        .addScaledVector(axis, (length - 0.06) * h)
-        .add(new Vector3(0, 0.12 * h, 0));
-      addNose(builder, colors, h, toVec3(nose), 0.085);
       return bones;
     }
     case 'horn': {

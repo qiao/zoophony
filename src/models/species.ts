@@ -127,7 +127,7 @@ export interface BipedParams extends CommonParams {
   /** The ear type (design 4.3). */
   readonly ears: 'small' | 'antlered';
   /** The snout type (design 4.3). */
-  readonly snout: 'short' | 'long' | 'blunt' | 'horn';
+  readonly snout: 'long' | 'horn';
   /** The tail type (design 4.3). */
   readonly tail: 'none' | 'puff' | 'thin';
   /** The face pattern (design 4.3). */
