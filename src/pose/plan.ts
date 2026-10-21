@@ -10,7 +10,7 @@ import type { InstrumentId } from '../models/instruments/types.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { Beat, PlayerNote, Score, SectionId } from '../score/types.ts';
-import { SPECIES } from '../models/species.ts';
+import { SPECIES, instrumentScale } from '../models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../models/species.ts';
 import { bowedRig, holdOf } from './bowed-rig.ts';
 import type { BowedRig } from './bowed-rig.ts';
@@ -377,7 +377,9 @@ function noteLayerOf(
     };
   }
   if (isInFamily(instrument, ['keyboard', 'harp'])) {
-    const rig = cached(rigs.handsRigs, model, () => handsRig(model, instrument));
+    const rig = cached(rigs.handsRigs, model, () =>
+      handsRig(model, instrument, instrumentScale(SPECIES[species], instrument)),
+    );
     const { left, right } = handTracks(rig, notes, loudness, amplitude);
     return { family: MOTION_FAMILIES[instrument], rig, left, right };
   }

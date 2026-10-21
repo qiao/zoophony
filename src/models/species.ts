@@ -104,6 +104,13 @@ interface CommonParams {
    */
   readonly cymbalScale?: number;
   /**
+   * The scale of the harp for the species, as a factor of the concert harp of the app (design
+   * 4.6). It is 1 when it is not given. A species with short arms plays a smaller harp, as a child
+   * plays a smaller lever harp. The harp shrinks toward its base on the floor, so the strings come
+   * down to the chest of a small seated player, and the harp stands nearer to it.
+   */
+  readonly harpScale?: number;
+  /**
    * The form of the cymbals of the species (design 4.6): `hand` when it is not given. A species
    * whose short arms cannot hold hand cymbals out of a deep body plays a suspended cymbal on a
    * stand with two yarn mallets.
@@ -230,6 +237,7 @@ export const SCALE_PARAMS = {
   bassoon: 'bassoonScale',
   trumpet: 'trumpetScale',
   cymbals: 'cymbalScale',
+  harp: 'harpScale',
 } as const satisfies Readonly<Record<ScaledInstrument, keyof SpeciesParams>>;
 
 /**

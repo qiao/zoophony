@@ -121,23 +121,30 @@ export function harpString(key: number): number {
  * Calculates the place on the strings where a hand plucks a MIDI key, in the harp axes.
  *
  * @param key The MIDI key. A key outside the harp plays the nearest string.
+ * @param scale The scale of the harp of the species (`SpeciesParams.harpScale`): the harp
+ *   shrinks toward its base on the floor.
  * @returns The middle of the string of the key.
  */
-export function harpStringPosition(key: number): Vec3 {
-  return stringMiddle(harpString(key));
+export function harpStringPosition(key: number, scale = 1): Vec3 {
+  const [x, y, z] = stringMiddle(harpString(key));
+  return [x * scale, y * scale, z * scale];
 }
 
 /**
  * Builds the concert harp (design 4.6). It stands on the floor between the knees of the player,
  * and it leans back to the right shoulder. Both hands play the strings, the left hand from the
- * left side of the strings and the right hand from the right side.
+ * left side of the strings and the right hand from the right side. A species with short arms
+ * plays a smaller harp (`SpeciesParams.harpScale`), as a child plays a smaller lever harp: the
+ * harp, its strings, and its distance in front of the player shrink toward its base on the floor.
  *
+ * @param scale The scale of the harp, as a factor of the sizes of {@link HARP}.
  * @returns The model.
  */
-export function buildHarp(): InstrumentModel {
+export function buildHarp(scale = 1): InstrumentModel {
   const h = HARP;
   const frame = INSTRUMENT_COLORS.harpFrame;
-  const piece = new PieceBuilder();
+  const piece = new PieceBuilder(scale);
+  const scaled = (at: Vec3): Vec3 => [at[0] * scale, at[1] * scale, at[2] * scale];
   const yz = ([y, z]: readonly [number, number], x = 0): Vec3 => [x, y, z];
 
   // The base, the column with its crown, and the neck.
@@ -187,13 +194,13 @@ export function buildHarp(): InstrumentModel {
           .setFromAxisAngle(new Vector3(0, 1, 0), TURN)
           .multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), TILT)),
       ),
-      [0, 0.017, -0.53],
+      scaled([0, 0.017, -0.53]),
     ),
   );
-  const low = middles[0] ?? [0, 0, 0];
-  const high = middles.at(-1) ?? [0, 0, 0];
-  const bassHand = middles[Math.round(h.strings * 0.35)] ?? low;
-  const trebleHand = middles[Math.round(h.strings * 0.7)] ?? high;
+  const low = scaled(middles[0] ?? [0, 0, 0]);
+  const high = scaled(middles.at(-1) ?? [0, 0, 0]);
+  const bassHand = scaled(middles[Math.round(h.strings * 0.35)] ?? [0, 0, 0]);
+  const trebleHand = scaled(middles[Math.round(h.strings * 0.7)] ?? [0, 0, 0]);
   return {
     id: 'harp',
     parent: 'root',

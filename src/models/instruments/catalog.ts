@@ -78,8 +78,6 @@ export function buildInstrument(
   switch (id) {
     case 'viola':
       return buildBowedString(id, 1, bowGrip);
-    case 'harp':
-      return buildHarp();
     case 'piano':
       return buildPiano();
     case 'choir-folder':
@@ -141,6 +139,8 @@ function buildScaled(
       return buildBrass(id, scale);
     case 'cymbals':
       return cymbalForm === 'suspended' ? buildSuspendedCymbal(scale) : buildCymbals(scale);
+    case 'harp':
+      return buildHarp(scale);
     default: {
       const unhandled: never = id;
       throw new Error(`The scaled instrument "${String(unhandled)}" is not known.`);

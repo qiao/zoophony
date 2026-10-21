@@ -29,8 +29,11 @@ export type HandsInstrument = InstrumentOf<'keyboard' | 'harp'>;
  */
 interface HandsHold {
   readonly action: HandAction;
-  /** Gives the point of a key on the instrument, in the axes of the instrument piece. */
-  readonly keyPoint: (key: number) => Vec3;
+  /**
+   * Gives the point of a key on the instrument, in the axes of the instrument piece, for the scale
+   * of the instrument of the species (`SpeciesParams.harpScale`). The piano ignores the scale.
+   */
+  readonly keyPoint: (key: number, scale: number) => Vec3;
   /** The palm of each hand is this far from the point of its key, in the instrument axes. */
   readonly palmL: Vec3;
   readonly palmR: Vec3;
@@ -219,13 +222,17 @@ interface HandSide {
  * point in the plane of the palm.
  *
  * @param model The player model.
+ * @param hold The hold of the instrument.
+ * @param scale The scale of the instrument of the species.
  * @param arm The arm.
+ * @param face The side of the palm, in the model axes.
  * @param rest The place of the palm and the direction of the fingers.
  * @returns The place and the world rotation of the `hand` bone.
  */
 function restingHand(
   model: PlayerModel,
   hold: HandsHold,
+  scale: number,
   arm: ArmRig,
   face: Vec3,
   rest: RestingHand,
@@ -233,7 +240,7 @@ function restingHand(
   if (rest.kind === 'string') {
     // The hand rests on its string as it plays: the fingers point from the shoulder to the palm.
     const offset = arm.side === 'L' ? hold.palmL : hold.palmR;
-    const at = new Vector3(...hold.keyPoint(rest.key)).add(new Vector3(...offset));
+    const at = new Vector3(...hold.keyPoint(rest.key, scale)).add(new Vector3(...offset));
     const side = new Vector3(...face);
     const palm = new Vector3(...placePoint(model.pieces, { bone: 'instrument', at: toVec3(at) }));
     palm.addScaledVector(side, -rest.away);
@@ -254,6 +261,8 @@ function restingHand(
 /** The points of a piano or harp player in the bind pose that the pose needs. */
 export interface HandsRig {
   readonly hold: HandsHold;
+  /** The scale of the instrument of the species (`instrumentScale()` of `models/species.ts`). */
+  readonly scale: number;
   readonly chestBind: Vec3;
   /** The pieces of the instrument at their places in the bind pose. */
   readonly pieces: readonly PlacedPiece[];
@@ -266,10 +275,12 @@ export interface HandsRig {
  *
  * @param model A player with a piano or a harp.
  * @param instrument The instrument of the model.
+ * @param scale The scale of the instrument of the species of the player (`instrumentScale()` of
+ *   `models/species.ts`).
  * @returns The rig.
  * @throws Error if the instrument does not stand on the floor.
  */
-export function handsRig(model: PlayerModel, instrument: HandsInstrument): HandsRig {
+export function handsRig(model: PlayerModel, instrument: HandsInstrument, scale = 1): HandsRig {
   const { positions, parents } = model.skeleton;
   if (parents[BONES.instrument] !== BONES.root) {
     throw new Error(`The ${instrument} does not stand on the floor.`);
@@ -285,11 +296,13 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument): Hands
     const h = model.body.headHeight;
     const [out, up, forward] = hold.restArc;
     const arc: Vec3 = [(s === 'L' ? -out : out) * h, up * h, -forward * h];
-    return { arm, face: turned, rest: { ...restingHand(model, hold, arm, turned, rest), arc } };
+    const resting = restingHand(model, hold, scale, arm, turned, rest);
+    return { arm, face: turned, rest: { ...resting, arc } };
   };
 
   return {
     hold,
+    scale,
     chestBind: positions[boneIndex('chest')] ?? [0, 0, 0],
     pieces: model.pieces,
     left: side('L', hold.faceL, hold.restL),
@@ -310,8 +323,8 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument): Hands
 function palmPoint(rig: HandsRig, side: 'L' | 'R', low: number, high: number): Vec3 {
   const { keyPoint } = rig.hold;
   const offset = side === 'L' ? rig.hold.palmL : rig.hold.palmR;
-  const at = new Vector3(...keyPoint(low))
-    .add(new Vector3(...keyPoint(high)))
+  const at = new Vector3(...keyPoint(low, rig.scale))
+    .add(new Vector3(...keyPoint(high, rig.scale)))
     .multiplyScalar(0.5)
     .add(new Vector3(...offset));
   return placePoint(rig.pieces, { bone: 'instrument', at: toVec3(at) });
