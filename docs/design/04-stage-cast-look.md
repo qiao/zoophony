@@ -337,7 +337,8 @@ the cello dog (`docs/decisions/2026-10-17-mesh-dog.md`), the trombone panda
 (`docs/decisions/2026-10-19-mesh-beaver.md`), the horn pig
 (`docs/decisions/2026-10-19-mesh-pig.md`), the clarinet wolf
 (`docs/decisions/2026-10-20-mesh-wolf.md`), the trumpet monkey
-(`docs/decisions/2026-10-20-mesh-monkey.md`), and the percussion badger
+(`docs/decisions/2026-10-20-mesh-monkey.md`, `docs/decisions/2026-10-21-monkey-stand.md`), and
+the percussion badger
 (`docs/decisions/2026-10-20-mesh-badger.md`).
 
 The app keeps its own motion (5.3, 5.4), so it drives the bones of the studio from the pose of the
@@ -415,7 +416,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     (`proportions.head`). The joints and the rules of the config are then in the units of the
     scaled source.
   - Seat. The rig poses the seated bind of 5.2 (`studio.legTurns`), lowers the haunch onto the
-    seat (`sit`), and can turn the trunk upright (`studio.trunk`). `pnpm rig-mesh --check` gives
+    seat (`sit`), and can turn the trunk upright or forward (`studio.trunk`). A body that stands
+    with no chair has no `sit`, so its haunch keeps its form. `pnpm rig-mesh --check` gives
     the gaps of the tail to the floor and to the chair over one sway period (`tools/tail-gap.ts`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
     joints (`refine.rings`) keep the faces from a fold. The corrective shapes give the source back
@@ -533,7 +535,11 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   wolves have chairs that fit their legs, so that their feet touch the floor (user, 2026-10-16). The mouse, the
   beaver, and the monkey have no chair (user, 2026-10-19 and 2026-10-20, `SpeciesParams.noChair`):
   each keeps its seated pose at the seat height of its legs, with its feet on the floor, so it
-  stands on its hind legs with bent knees, as a real mouse, beaver, or monkey does. Each level seat ends where the thighs leave it at the haunch (`chair.front`), so that
+  stands on its hind legs with bent knees, as a real mouse, beaver, or monkey does. The center of
+  mass of a body that stands must be over the middle of its soles (user, 2026-10-21). The thighs
+  of the monkey slope steeply down, its feet stand under its hips, and its trunk leans forward
+  with the head level, because its short legs alone cannot put the feet under its large head
+  (`docs/decisions/2026-10-21-monkey-stand.md`). Each level seat ends where the thighs leave it at the haunch (`chair.front`), so that
   the haunch rests on it. Short
   thighs under a round belly, as on the panda, end the seat behind the thighs, under the haunch,
   so that the sit does not pull the haunch down into a sheet behind the seat. The chair takes
@@ -887,7 +893,7 @@ risers. `models/stage.ts` holds the sizes of the stage, the podium, and the cond
 
 | Item            | Rules                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Chair           | A seat, two back posts, one wide top rail, open below the rail, and four legs (`CHAIR`), as in `animals.webp`. The seat is at the `seatHeight` of the skeleton (`seatHeights()`, 4.3), so each species has a chair of its own height. A studio body also gives the depth, the room, and the width of its seat (4.4, seat). A species with no chair (`SpeciesParams.noChair`), the mouse, the beaver, or the monkey, keeps its seated pose at the seat height of its legs, and the app builds no chair under it (`buildSupport()`). |
+| Chair           | A seat, two back posts, one wide top rail, open below the rail, and four legs (`CHAIR`), as in `animals.webp`. The seat is at the `seatHeight` of the skeleton (`seatHeights()`, 4.3), so each species has a chair of its own height. A studio body also gives the depth, the room, and the width of its seat (4.4, seat). A species with no chair (`SpeciesParams.noChair`), the mouse, the beaver, or the monkey, keeps its seated pose at the seat height of its legs, and the app builds no chair under it (`buildSupport()`). The monkey stands in this pose with its center of mass over its soles (4.4, seat). |
 | Stool           | For the harp, with no back (`STOOL`). It keeps its height, so that the left hand reaches the highest strings.                                                                                                                                                                                                                                                                                                                                                                                                         |
 | High stool      | With a foot ring at the `seatHeight` of the skeleton below the seat (`HIGH_STOOL`). No player sits on it since the hippo stands at its contrabass.                                                                                                                                                                                                                                                                                                                                                                    |
 | Music stand     | A tripod, a post, and a tilted desk with a white sheet (`MUSIC_STAND`). The desk stays below the eyes of its players (`standDeskHeight()`).                                                                                                                                                                                                                                                                                                                                                                           |
