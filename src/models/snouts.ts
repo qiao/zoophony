@@ -5,7 +5,7 @@ import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByFacing, transform } from './mesh.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
-import { ball, cylinder, icosphere, lathe } from './primitives.ts';
+import { ball, icosphere, lathe } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BipedParams } from './species.ts';
 
@@ -31,7 +31,6 @@ const MOUTHS = {
   short: [0, -0.38, -0.62],
   long: [0, -0.43, -0.78],
   blunt: [0, -0.42, -0.74],
-  'flat-nose': [0, -0.42, -0.58],
   horn: [0, -0.42, -0.66],
 } as const satisfies Readonly<Record<BipedParams['snout'], Vec3>>;
 
@@ -222,23 +221,6 @@ export function addSnout(
         .addScaledVector(axis, (length - 0.06) * h)
         .add(new Vector3(0, 0.12 * h, 0));
       addNose(builder, colors, h, toVec3(nose), 0.085);
-      return bones;
-    }
-    case 'flat-nose': {
-      // A flat oval disc, 0.4 H wide and 0.3 H tall, in front of the face, with two nostrils.
-      const front = -0.8;
-      builder.add(cylinder(0.2 * h, 0.2 * h, 0.2 * h, 8), {
-        color: muzzle,
-        bone: head,
-        at: transform(at(0, -0.2, front + 0.2), alongAxis([0, 0, -1], [1, 0, 0]), [1, 1, 0.75]),
-      });
-      for (const side of [-1, 1]) {
-        builder.add(icosphere(0.035 * h, 0), {
-          color: colors.nose,
-          bone: head,
-          at: transform(at(side * 0.08, -0.2, front)),
-        });
-      }
       return bones;
     }
     case 'horn': {
