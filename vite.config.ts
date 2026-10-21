@@ -34,7 +34,6 @@ const PAUSED_TESTS = [
   'src/models/proportions.test.ts',
   'src/models/legs.test.ts',
   'src/models/props.test.ts',
-  'src/models/face-patterns.test.ts',
   'src/models/penguin/penguin-body.test.ts',
   // The layout from the footprints of the bodies: the growth of the stages, the gaps between
   // the players, the heads that hide behind larger animals, and a shot plan that the layout of
