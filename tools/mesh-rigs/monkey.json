@@ -301,7 +301,7 @@
         0.023
       ]
     },
-    "note": "The studio has no monkey. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The monkey has no chair and stands in this pose (SpeciesParams.noChair). The user asked: \"make the monkey stand, but fix its pose so that the center of the gravity of the monkey is natural\" (docs/decisions/2026-10-21-monkey-stand.md). The thigh slopes 65 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin slants 20 degrees back from the knee to the ankle, so that the feet stand under the hips (docs/research/2026-10-16-hip-open/leg_turns.py <config> 65 15 -20). With the thighs 25 degrees down and vertical shins, the center of mass was 17 cm behind the middle of the soles, and the monkey would fall back (docs/research/2026-10-20-monkey-stand/balance-main.txt). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk leans forward: the hip angle closes by 14 degrees, so the pelvis turns 18.7 degrees forward, and the shares turn the upper trunk back, so that the head stays about level. The legs alone brought the center of mass only to 10 cm behind the middle of the soles. With the lean, it is 0.2 cm in front of the middle at a note and 0.9 cm behind it at rest, at 51% and 45% of the length of the soles from the heels (balance-variants.txt). A real stand is most stable with the center of foot pressure at 30% to 60% of the foot length (Asai 2020, docs/research/2026-10-21-monkey-stand.md). The trunk shares and the bind arms are the values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back and down from the haunch, 63 degrees below the level and 15 degrees to the right of the back, and the tip keeps the direction of the source, so that the curl stands up on the floor 0.2 cm above the soles as in the source. At 61 degrees, the lowest point of the tail was 0.8 cm above the soles (check-nosit.log, check-final.log of docs/research/2026-10-20-monkey-stand/)."
+    "note": "The studio has no monkey. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The monkey has no chair and stands in this pose (SpeciesParams.noChair). The user asked: \"make the monkey stand, but fix its pose so that the center of the gravity of the monkey is natural\" (docs/decisions/2026-10-21-monkey-stand.md). The thigh slopes 65 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin slants 20 degrees back from the knee to the ankle, so that the feet stand under the hips (docs/research/2026-10-16-hip-open/leg_turns.py <config> 65 15 -20). With the thighs 25 degrees down and vertical shins, the center of mass was 17 cm behind the middle of the soles, and the monkey would fall back (docs/research/2026-10-20-monkey-stand/balance-main.txt). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk leans forward: the hip angle closes by 14 degrees, so the pelvis turns 18.7 degrees forward, and the shares turn the upper trunk back, so that the head stays about level. The legs alone brought the center of mass only to 10 cm behind the middle of the soles. With the lean, it is 0.2 cm in front of the middle at a note and 0.9 cm behind it at rest, at 51% and 45% of the length of the soles from the heels (balance-variants.txt). A real stand is most stable with the center of foot pressure at 30% to 60% of the foot length (Asai 2020, docs/research/2026-10-20-monkey-stand.md). The trunk shares and the bind arms are the values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back and down from the haunch, 63 degrees below the level and 15 degrees to the right of the back, and the tip keeps the direction of the source, so that the curl stands up on the floor 0.2 cm above the soles as in the source. At 61 degrees, the lowest point of the tail was 0.8 cm above the soles (check-nosit.log, check-final.log of docs/research/2026-10-20-monkey-stand/)."
   },
   "weights": {
     "armSplit": 0.095,
@@ -449,7 +449,7 @@
     "front": -0.05,
     "back": -0.1,
     "backHeight": 0.15,
-    "note": "The app builds no chair under the monkey (SpeciesParams.noChair), but the rig needs its chair for the seat height of the export. The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the monkey (x 0.145). The back is the value of the dog. The shins of the stand lie over the seat from z -0.012, so the front edge is at -0.05, under the back of the haunch."
+    "note": "The app builds no chair under the monkey (SpeciesParams.noChair), but the rig needs its chair for the seat height of the export. The config has no sit rule, so the haunch keeps its form: with the sit of the other meshes, the forward lean turned the haunch down into the rig chair, and the lift flattened it by up to 6 cm (check-final.log of docs/research/2026-10-20-monkey-stand/). The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the monkey (x 0.145). The back is the value of the dog. The shins of the stand lie over the seat from z -0.012, so the front edge is at -0.05, under the back of the haunch."
   },
   "crease": {
     "rings": 2,
@@ -458,19 +458,5 @@
     "back": 0.1,
     "below": 0.03,
     "note": "The values of the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf."
-  },
-  "sit": {
-    "gap": 0,
-    "band": 0.2,
-    "ramp": 0.015,
-    "step": 0.005,
-    "smooth": 8,
-    "end": 0.0065,
-    "most": 0.03,
-    "root": [
-      0.8,
-      0.98
-    ],
-    "note": "The values of the panda, the hippo, the mouse, and the pig, with root of the dog and the wolf: the tail share of a vertex of the root of the tail counts as the haunch only by its smoothstep from 0.8 to 0.98."
   }
 }
