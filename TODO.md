@@ -266,13 +266,19 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 
 Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs/decisions/`):
 
-- [ ] Rig the mesh of the monkey (trumpet). The user gave it on 2026-10-20, and phase 1 (the rig,
-      the size, the form, and the face) is done (`2026-10-20-mesh-monkey.md`). Phase 2 puts the
-      body into the app with the trumpet hold, after the user chooses the arm factor and the
-      trumpet size: the arms of the mesh miss the right grip by 13.4 cm.
-- [ ] Monkey: the short thighs make the seated monkey look as if it stands in front of its low
-      chair (seat 0.132 m). The user chooses the chair, no chair, or another seat
-      (`2026-10-20-mesh-monkey.md`).
+- [x] Rig the mesh of the monkey (trumpet). The user gave it on 2026-10-20. The monkey plays the
+      trumpets with the studio body of the mesh, arms 1.5, a trumpet of 0.8, and no chair, as the
+      user chose (`2026-10-20-mesh-monkey.md`).
+- [x] Monkey: the short thighs made the seated monkey look as if it stands in front of its low
+      chair. The user chose no chair (`2026-10-20-mesh-monkey.md`).
+- [ ] Monkey: two thin faces across the wrists (329 and 1090) fold in each sample of the
+      trumpeter. Rigid weights and a ring at the wrist move the fold to the next faces. Count their
+      pixels in a probe build, or cut the thin faces (`2026-10-20-mesh-monkey.md`).
+- [ ] Monkey: from the front, the paws on the valves hide the mouth and the smile while the
+      monkey plays, and the right fingers reach the valves from the side, because each paw lies
+      along the line from its shoulder (`PAW_TURN`, `2026-10-20-mesh-monkey.md`).
+- [ ] Remove the unused code of the `side-round` ears and the `face-disc` face pattern: no species
+      has them since the monkey mesh (`2026-10-20-mesh-monkey.md`).
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
       fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
 - [ ] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
