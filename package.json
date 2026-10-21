@@ -26,6 +26,7 @@
     "raise-fit": "node tools/raise-fit.ts",
     "choir-check": "pnpm build && node tools/choir-check.ts",
     "body-probe": "node tools/body-probe.ts",
+    "beat-rates": "node tools/beat-rates.ts",
     "keyboard": "pnpm build && node tools/keyboard-check.ts",
     "smoke": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/smoke.ts",
     "glb-init": "node tools/glb-init.ts",
