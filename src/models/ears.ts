@@ -334,16 +334,6 @@ function rightEar(species: BipedParams, colors: BodyColors, h: number): RightEar
         outer,
         inner,
       );
-    case 'pointed':
-      return flatEar(
-        h,
-        [0.3 * h, 0.36 * h, 0.03 * h],
-        POINTED_OUTLINE,
-        POINTED_MIDDLE,
-        22 * MathUtils.DEG2RAD,
-        outer,
-        inner,
-      );
     case 'round':
       return discEar(h, [0.3 * h, 0.36 * h, 0.04 * h], 30 * MathUtils.DEG2RAD, 0.3, outer, inner);
     case 'large-round':

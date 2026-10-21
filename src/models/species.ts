@@ -127,7 +127,6 @@ export interface BipedParams extends CommonParams {
   /** The ear type (design 4.3). */
   readonly ears:
     | 'long'
-    | 'pointed'
     | 'round'
     | 'large-round'
     | 'floppy'
