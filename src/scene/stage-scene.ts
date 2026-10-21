@@ -30,7 +30,6 @@ import { BeamDepth, setBeamFrame } from './beam.ts';
 import { aimKeyLight, createLights, keyLightPosition, setLightsTier } from './lights.ts';
 import { createPoolUniforms, defaultAim, setPoolAim } from './light-pool.ts';
 import type { LightAim } from './light-pool.ts';
-import { pickPlayer } from './pick.ts';
 import { tierPixelRatio } from './quality.ts';
 import type { QualityTier } from './quality.ts';
 import { applyScenePose, createPlayers, createStaticMesh } from './player.ts';
@@ -510,27 +509,6 @@ export class StageScene {
     }
     this.#post?.setTier(tier);
     this.resize(this.#width, this.#height, this.#devicePixelRatio);
-  }
-
-  /**
-   * Finds the player under a point of the canvas (design 2.3).
-   *
-   * @param x The x of the point from the left of the canvas, in CSS pixels.
-   * @param y The y of the point from the top of the canvas, in CSS pixels.
-   * @returns The index of the player in `ScenePose.players`, the index after the players for the
-   *   conductor, or -1 for no animal.
-   */
-  pick(x: number, y: number): number {
-    if (!this.#view) {
-      return -1;
-    }
-    const camera = this.#view.camera.camera;
-    return pickPlayer(
-      this.#view.players,
-      camera,
-      (x / this.#width) * 2 - 1,
-      1 - (y / this.#height) * 2,
-    );
   }
 
   /**

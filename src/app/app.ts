@@ -51,7 +51,6 @@ import {
   playLabel,
 } from './play-control.ts';
 import type { SampleState } from './play-control.ts';
-import { isClick, seatOfPlayer } from './pick.ts';
 import type { PointerPoint } from './pick.ts';
 import { changedSeats, followAudibility, seatsAudible, toggleSeatFlag } from './seat-flags.ts';
 import type { SeatFlag, SeatFlags } from './seat-flags.ts';
@@ -404,7 +403,7 @@ export class App {
     window.addEventListener('keydown', (event) => {
       this.#pressKey(event);
     });
-    this.#listenForClicks(canvas);
+    this.#listenForMotion(canvas);
     this.#applySettings();
   }
 
@@ -516,20 +515,16 @@ export class App {
   }
 
   /**
-   * Opens the seat row of an animal on a click (design 2.3). A drag of the orbit controls is not
-   * a click: a drag of more than 4 px, a pinch, or a wheel changes the camera to Free mode
-   * (design 2.5).
+   * Follows the pointers on the stage: a drag of more than 4 px, a pinch, or a wheel changes the
+   * camera to Free mode (design 2.5). A click on the stage does nothing.
    *
    * @param canvas The canvas of the stage.
    */
-  #listenForClicks(canvas: HTMLCanvasElement): void {
-    let down: PointerPoint | null = null;
+  #listenForMotion(canvas: HTMLCanvasElement): void {
     /** The press of each pointer that is down on the stage. */
     const presses = new Map<number, PointerPoint>();
     canvas.addEventListener('pointerdown', (event) => {
-      const point = { x: event.offsetX, y: event.offsetY };
-      down = event.isPrimary && event.button === 0 ? point : null;
-      presses.set(event.pointerId, point);
+      presses.set(event.pointerId, { x: event.offsetX, y: event.offsetY });
     });
     canvas.addEventListener('pointermove', (event) => {
       const press = presses.get(event.pointerId);
@@ -542,11 +537,6 @@ export class App {
       }
     });
     canvas.addEventListener('pointerup', (event) => {
-      const up = { x: event.offsetX, y: event.offsetY };
-      if (down && event.isPrimary && isClick(down, up)) {
-        this.#openSeatAt(up);
-      }
-      down = null;
       presses.delete(event.pointerId);
     });
     canvas.addEventListener('pointercancel', (event) => {
@@ -590,22 +580,6 @@ export class App {
   /** Cinematic or Free (design 2.5). */
   get cameraMode(): CameraMode {
     return this.#cameraMode;
-  }
-
-  /**
-   * Opens the drawer at the seat row of the animal under a point (design 2.3).
-   *
-   * @param point The point on the canvas, in CSS pixels.
-   */
-  #openSeatAt(point: PointerPoint): void {
-    const piece = this.#piece;
-    if (!piece) {
-      return;
-    }
-    const seat = seatOfPlayer(piece.plan.players, this.#scene.pick(point.x, point.y));
-    if (seat !== null) {
-      this.#ui.openSeat(seat);
-    }
   }
 
   /** The song time of `Player.now()` in the last frame: 0 until the samples are ready. */
@@ -908,7 +882,6 @@ export class App {
     const cover = stageCover({
       phone: this.#phone.matches,
       drawerOpen: drawer.open,
-      drawerMovesStage: drawer.movesStage,
       height: this.#canvas.clientHeight,
     });
     // The sheet of a phone covers the first screen, so the stage does not need to clear it.

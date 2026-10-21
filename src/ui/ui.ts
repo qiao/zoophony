@@ -215,18 +215,6 @@ export class Ui {
   }
 
   /**
-   * Opens the drawer at the tab "Seats" after a click on an animal, and marks the row of its seat
-   * (design 2.3).
-   *
-   * @param seatIndex The seat of the animal.
-   */
-  openSeat(seatIndex: number): void {
-    this.drawer.openFromStage();
-    this.drawer.showTab('seats');
-    this.seatList.reveal(seatIndex);
-  }
-
-  /**
    * Closes the sheet of the phone layout after a selection in it, so that the new piece shows
    * (design 2.8, audit 2026-10-05-ux-design, PH1). The drawer of a wider screen stays open, so
    * that the user can select again. The drawer button gets the focus that the sheet held, as

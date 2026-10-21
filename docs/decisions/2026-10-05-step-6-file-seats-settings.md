@@ -14,7 +14,6 @@ remove its row.
 | A refused file keeps a demo that still loads, and a selection while the page reads a file replaces the file | 3.3 |
 | The dot of the sound-only seat is a dim ring with no fill, and the labels of the toggle buttons | 2.8 |
 | The app sends the silent seats to the `Player` again after each load of the samples | 6.6 |
-| A click on an animal opens the drawer and the seat list, marks the row, and scrolls to it. A motion of more than 4 CSS pixels is a drag | 2.3 |
 | The click test uses the posed triangles inside the bind-pose sphere of each player plus 0.5 m | 2.3 |
 | The automatic tier reads the mean frame time of a window of 2 s, and measures only while the quality setting is "Auto" | 2.6 |
 | A change of the section size keeps the music, the song time, the play state, and the mute and solo flags, and resets the camera to the default view of the new stage | 2.8, 3.8 |

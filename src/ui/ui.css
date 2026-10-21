@@ -680,9 +680,8 @@ input[type='range']:disabled::-moz-range-thumb {
   transition: opacity 0.15s;
 }
 
-/* A drawer that a click on an animal opened (`from-stage`) keeps the stage in place, so that the
-   next click hits the animal under the pointer (design 2.3, audit 2026-10-06-ux-design-2, N18). */
-body:has(.drawer:not([hidden], .from-stage)) .first-screen {
+/* The first screen moves with the stage beside the open drawer (design 2.8). */
+body:has(.drawer:not([hidden])) .first-screen {
   translate: -176px 0;
 }
 
@@ -920,12 +919,6 @@ body.is-building #stage {
   background: var(--line-faint);
 }
 
-/* The row of the animal that the user clicked (design 2.3). */
-.seat.is-open {
-  background: rgba(231, 180, 90, 0.08);
-  box-shadow: inset 3px 0 var(--accent);
-}
-
 .dot {
   width: 13px;
   height: 13px;
@@ -950,9 +943,9 @@ body.is-building #stage {
   line-height: 14px;
 }
 
-/* The rows of the mockup show the name and the animals. The source line shows only in the row
-   of the animal that the user clicked, and a screen reader reads it in each row (design 2.8). */
-.seat:not(.is-open) small.source {
+/* The rows of the mockup show the name and the animals. Only a screen reader reads the source
+   line (design 2.8). */
+.seat small.source {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -961,7 +954,7 @@ body.is-building #stage {
   white-space: nowrap;
 }
 
-/* The dim text of a silent seat keeps 4.5:1 on the panel, the hover row, and the marked row. */
+/* The dim text of a silent seat keeps 4.5:1 on the panel and on the hover row. */
 .seat.silent .name {
   opacity: 0.8;
 }
@@ -1267,7 +1260,7 @@ body:has(.first-screen:not([hidden])) .messages {
   bottom: calc(100% - var(--play-y) + 54px);
 }
 
-body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .messages {
+body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
   translate: -176px 0;
 }
 
@@ -1561,20 +1554,14 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
 
   /* Beside the open drawer, the first screen fills the gap between the stage and the drawer. The
      drawer holds the demo list, so the intro does not show. */
-  body:has(.drawer:not([hidden], .from-stage)) .first-screen {
+  body:has(.drawer:not([hidden])) .first-screen {
     left: calc(var(--side-left) - 176px);
     right: 364px;
     translate: none;
   }
 
-  body:has(.drawer:not([hidden], .from-stage)) .first-screen .intro {
+  body:has(.drawer:not([hidden])) .first-screen .intro {
     display: none;
-  }
-
-  /* A drawer that a click on an animal opened keeps the stage in place, and it covers the place
-     of the first screen. */
-  body:has(.drawer.from-stage:not([hidden])) .first-screen {
-    visibility: hidden;
   }
 
   /* A gap narrower than the load ring and its margins shows no first screen. The play button of

@@ -97,33 +97,12 @@ export class Drawer {
   }
 
   /**
-   * True while the open drawer moves the stage beside it (design 2.8). A drawer that a click on
-   * an animal opened keeps the stage in place.
-   */
-  get movesStage(): boolean {
-    return this.open && !this.element.classList.contains('from-stage');
-  }
-
-  /**
    * Opens or closes the drawer. An open drawer moves the stage beside it (design 2.8).
    *
    * @param open True to open it.
    */
   setOpen(open: boolean): void {
-    this.element.classList.remove('from-stage');
     this.element.hidden = !open;
-  }
-
-  /**
-   * Opens the drawer after a click on an animal (design 2.3). The stage then stays in place, so
-   * that the next click hits the animal under the pointer (audit 2026-10-06-ux-design-2, N18). A
-   * drawer that is open already keeps the place of the stage.
-   */
-  openFromStage(): void {
-    if (!this.open) {
-      this.element.classList.add('from-stage');
-      this.element.hidden = false;
-    }
   }
 
   /** True while an element of the drawer has the keyboard focus. */

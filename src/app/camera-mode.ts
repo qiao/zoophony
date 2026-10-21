@@ -26,9 +26,8 @@ export function startMode(reducedMotion: boolean): CameraMode {
 
 /**
  * Gives the camera mode after an event (design 2.5). A drag, a wheel, or a pinch changes to Free
- * from the current camera. A click keeps the mode, so that a click on an animal opens its seat
- * row. The toggle switches the mode. "Reset view" changes to Free at the default view. A new
- * piece keeps the mode.
+ * from the current camera. A click keeps the mode. The toggle switches the mode. "Reset view"
+ * changes to Free at the default view. A new piece keeps the mode.
  *
  * @param mode The mode before the event.
  * @param event The event.

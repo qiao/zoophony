@@ -29,8 +29,8 @@ function createToggle(text: string, label: string, onClick: () => void): HTMLBut
 
 /**
  * The seat list of the drawer (design 2.3, 2.8): one row for each seat, with a dot in the fur
- * color of the species, the seat name, the animals, the source line, and the toggle buttons "M"
- * and "S". A silent seat shows dim text. The tab "Seats" of the drawer holds it.
+ * color of the species, the seat name, the animals, the source line for a screen reader, and the
+ * toggle buttons "M" and "S". A silent seat shows dim text. The tab "Seats" of the drawer holds it.
  */
 export class SeatList {
   /** The list of the rows. */
@@ -111,19 +111,5 @@ export class SeatList {
       setAttribute(row.solo, 'aria-pressed', String(seat.soloed));
       row.item.classList.toggle('silent', audible[i] === false);
     }
-  }
-
-  /**
-   * Opens the row of a seat: it marks the row, and scrolls the drawer to it (design 2.3). The
-   * tab "Seats" must show before the call. The mark moves to the next row that opens, and a new piece removes it. The
-   * focus stays where it is, because a pointer made the click (2.8).
-   *
-   * @param seatIndex The seat.
-   */
-  reveal(seatIndex: number): void {
-    for (const [i, row] of this.#rows.entries()) {
-      row.item.classList.toggle('is-open', i === seatIndex);
-    }
-    this.#rows[seatIndex]?.item.scrollIntoView({ block: 'nearest' });
   }
 }

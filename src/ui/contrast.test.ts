@@ -152,7 +152,6 @@ describe('the text of a silent seat (design 2.8, review of step 6, N3)', () => {
     return Object.entries({
       panel,
       hover: over(color(UI_CSS, declaration(UI_CSS, '.seat:hover', 'background')), 1, panel),
-      marked: over(color(UI_CSS, declaration(UI_CSS, '.seat.is-open', 'background')), 1, panel),
     }).map(([row, background]) => [`${row} row over ${name}`, background] as const);
   });
 

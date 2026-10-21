@@ -13,7 +13,7 @@ section that holds it, and remove its row.
 | A seek to the song start during play has the start point `Number.MIN_VALUE`, so that the conductor shows no ready gesture | 6.5 |
 | The keys of 2.4 leave each key that the control with the focus uses to that control, Space does not repeat, and a key action shows the bar | 2.4 |
 | Escape closes the drawer and gives the focus of the drawer to the drawer button | 2.4 |
-| The title is the polite live region of the current piece, and a click on an animal does not move the focus | 2.8 |
+| The title is the polite live region of the current piece | 2.8 |
 | A selection in the demo list writes the URL hash with `history.replaceState()`, and a change of the hash in the address bar shows its demo on the first screen | 2.2 |
 | A drag of the handle of the sheet down by more than a quarter of its height or 80 px closes the sheet. The handle stays at the top, and a screen reader skips it | 2.8 |
 | On a phone, the bar moves four controls into the "Playback" group, so that the page has one control of each kind | 2.8 |

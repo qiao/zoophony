@@ -56,12 +56,9 @@ The UI has the style of a video player. The theme is dark only, because the scen
 - The drawer on the right has three tabs: "Pieces" (the demo list and the file button), "Seats"
   (the seat list), and "Settings" (the settings and the link "Credits"). On a phone, the drawer
   is a sheet above the bar.
-- The seat list has a row for each seat, with a mute button and a solo button. Keyboard users and
-  screen reader users need this list, because they cannot click an animal.
-- A click on an animal opens the tab "Seats" at its row and marks it. On a desktop the stage stays
-  in place, so that a click on the next animal hits it. A pointer motion of more than 4 CSS pixels
-  is a drag of the view, and opens no row (`app/pick.ts`). The click test casts a ray through the
-  posed triangles of the players (`scene/pick.ts`).
+- The seat list has a row for each seat, with a mute button and a solo button. A click on an
+  animal does nothing (user, 2026-10-20: "do not support clicking on animals to highlight it in
+  seats tab"). A pointer motion of more than 4 CSS pixels is a drag of the view (`app/pick.ts`).
 - The settings hold the quality tier (2.6) and the section size (3.8).
 - The UI uses the system fonts. There is no font file, so the first download does not grow and no
   request goes to a font server.
@@ -229,7 +226,6 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   4.5:1 over white fur.
   While it is open, the camera moves its frame to the middle of the free area with
   `setViewOffset()`, and the canvas does not move (`stageCover()` in `app/stage-cover.ts`). A
-  drawer that a click on an animal opens keeps the stage in place (`Drawer.openFromStage()`). A
   wide window opens the drawer at start at the tab "Pieces" (`isWideLayout()`).
   - Demos: a row for each demo with the title, the composer, and the length, and no cover. The
     row of the current demo has a level meter that the song time alone gives (`meterLevels()` in
@@ -239,8 +235,7 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
     file on the page." A touch screen shows no tooltip, because it cannot drop a file.
   - Seats: a row for each seat with a dot in the fur color of the species, the seat name, the
     animal line, and the toggle buttons "M" and "S" with the labels "Mute {name}" and "Solo
-    {name}". The source line shows only in the row of the clicked animal, and a screen reader reads
-    it in each row.
+    {name}". Only a screen reader reads the source line of each row.
   - Settings: "Section size" (Auto, One per part, Full) and "Quality" (Auto, High, Medium, Low).
     The button "Auto" names its current value, such as "Auto (Full)". `SETTING_HELP` of
     `app/settings.ts` gives the help line of each control. A change of the section size changes
@@ -353,8 +348,6 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
 - The canvas has `role="img"` and the `aria-label` "An orchestra of animals on a stage".
 - Polite `aria-live` regions announce the load progress, the messages, and the title of each new
   piece.
-- A click on an animal keeps the focus where it is, because a pointer made the click. A keyboard
-  user reaches the row in the seat list.
 - The focus order is the title, the bar, then the drawer.
 - When the play button of the first screen or a message with the focus goes away, the play button
   of the bar gets the focus. When a row of the seat list with the focus goes away, the tab "Seats"
