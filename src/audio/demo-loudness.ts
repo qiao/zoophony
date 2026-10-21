@@ -1,7 +1,12 @@
 import type { DemoId, StageFile } from '../app/demos.ts';
 
-/** The loudness of each demo at the output of the chain, after the limiter, in LUFS (design 6.8). */
-export const TARGET_LOUDNESS = -18;
+/**
+ * The loudness of each demo at the output of the chain, after the limiter, in LUFS (design 6.8):
+ * the distribution loudness of music of AES TD1008. Spotify plays at -14 LUFS by default, and
+ * EBU R 128 gives -23 LUFS for broadcast. At -16 LUFS, the limiter acts on at most 2 % of the
+ * blocks of 50 ms of a demo by more than 1 dB (`pnpm loudness`).
+ */
+export const TARGET_LOUDNESS = -16;
 
 /**
  * The loudness of each demo that {@link pieceGainDb} corrects, in LUFS: the target minus the
@@ -12,19 +17,19 @@ export const TARGET_LOUDNESS = -18;
  * demo that the limiter does not touch, the value is the loudness with the piece gain 0 dB.
  */
 export const DEMO_LOUDNESS = {
-  'boulanger-matin': -18.5,
+  'boulanger-matin': -18.6,
   'beethoven-9': -11.5,
   'mozart-k525': -29.1,
   'bach-bwv1048': -19.3,
-  'beethoven-8': -21.1,
-  'mozart-k315': -22.3,
+  'beethoven-8': -21.3,
+  'mozart-k315': -22.5,
   'beethoven-1': -16.0,
-  'brahms-2': -16.4,
+  'brahms-2': -16.5,
   'beethoven-8-4': -17.1,
   'bach-bwv1047': -13.7,
   'bach-bwv1050': -21.6,
-  'mendelssohn-op61': -21.0,
-  'mozart-k417': -17.2,
+  'mendelssohn-op61': -21.1,
+  'mozart-k417': -17.3,
   'mozart-k191': -16.1,
 } as const satisfies Record<DemoId, number>;
 

@@ -389,8 +389,10 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   piece the mix of the new layout for its next load. The spike page sends an empty mix, because a
   layout would add the model code to a chunk of the first download (7.2).
 - **Gain of the piece.** The input gain is `SOUNDFONT_HEADROOM_DB` (6.2) plus the gain of the
-  piece. `pieceGainDb()` brings each demo to -18 LUFS (integrated, ITU-R BS.1770-4) at the output
-  of the chain, from `DEMO_LOUDNESS` of `audio/demo-loudness.ts`. `pnpm loudness --fit` measures
+  piece. `pieceGainDb()` brings each demo to `TARGET_LOUDNESS` (integrated, ITU-R BS.1770-4) at
+  the output of the chain, from `DEMO_LOUDNESS` of `audio/demo-loudness.ts`. The target is the
+  loudness of music of AES TD1008 for streams. A louder target needs more gain reduction from the
+  limiter on the dynamic demos. `pnpm loudness --fit` measures
   each value with the code of the chain in an `OfflineAudioContext`. Run it again after a change
   of a demo file, the SoundFont, the mix, the hall, or the limiter. A file of the user and
   `perf-60.mid` get 0 dB, and the limiter catches the peaks.
