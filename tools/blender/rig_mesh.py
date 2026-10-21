@@ -22,11 +22,12 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the normals of the skin too.
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
-   optional bone `tail_tip` for a tail of two bones, and give the weights with bone heat. Then the
-   rules of the config: the free arm (beyond a plane, which `armFree` turns around the vertical
+   optional bone `tail_tip` for a tail of two bones and the optional bone `jaw` for a beak that
+   opens, and give the weights with bone heat. Then the rules of the config: the free arm (beyond a plane, which `armFree` turns around the vertical
    for a thick arm that joins the trunk), the clavicles below the shoulders and the arms up the neck,
    the clavicles over the top of the shoulders (`shoulderRamp`), the paw, the head and the
-   shoulders, the ears, a long nose in front of the chest (`noseFront`), the tail (a ball on one
+   shoulders, the ears, the lower beak on the jaw (`jaw`), a long nose in front of the chest
+   (`noseFront`), the tail (a ball on one
    tail bone, or a ramp along a tail of two bones), the haunch, one set of weights for the corners of each short thin face, and the weights of the
    line for the middle corner of each long thin face. Each vertex
    keeps four bones, in steps of 1/255. With `smooth` of the config, the vertices inside a box
@@ -136,6 +137,12 @@ BONES = (
 #: `src/models/studio-format.ts`). A config with a joint `tail_tip` adds it after the body bones.
 TAIL_TIP = 'tail_tip'
 
+#: The optional bone of a jaw that opens a beak (`OPTIONAL_STUDIO_BONES` of
+#: `src/models/studio-format.ts`), a child of the head at the hinge of the beak. A config with a
+#: joint `jaw` adds it after the body bones and the tail tip, and its rule `weights.jaw` gives the
+#: lower part of the beak to it.
+JAW = 'jaw'
+
 #: The parent of each body bone (`STUDIO_PARENTS` of `src/models/studio-format.ts`).
 PARENTS = {
     'root': None, 'hips': 'root', 'spine': 'hips', 'spine1': 'spine', 'chest': 'spine1',
@@ -145,7 +152,7 @@ PARENTS = {
     'upper_arm_R': 'clavicle_R', 'forearm_R': 'upper_arm_R', 'forearm_twist_R': 'forearm_R',
     'hand_R': 'forearm_twist_R', 'fingers_R': 'hand_R', 'thigh_L': 'hips', 'shin_L': 'thigh_L',
     'foot_L': 'shin_L', 'toes_L': 'foot_L', 'thigh_R': 'hips', 'shin_R': 'thigh_R',
-    'foot_R': 'shin_R', 'toes_R': 'foot_R', 'tail': 'hips', TAIL_TIP: 'tail',
+    'foot_R': 'shin_R', 'toes_R': 'foot_R', 'tail': 'hips', TAIL_TIP: 'tail', JAW: 'head',
 }
 
 #: The arm bones of each side, from the shoulder out. The clavicle does not move.
@@ -1492,6 +1499,18 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
         w[mine, col[f'ear_{side}']] = ear[mine]
         w[mine, col['head']] = 1.0 - ear[mine]
 
+    # A beak that opens (`jaw`): each vertex of the lower part of the beak, in the box of the rule
+    # and below the mouth plane, follows the jaw only. The corners of the mouth lie on the plane,
+    # so they stay on the head, and the lower part turns around the line between them.
+    if 'jaw' in rules:
+        rule = rules['jaw']
+        lo, hi = np.asarray(rule['box'], float)
+        lower = np.all((verts >= lo) & (verts <= hi), axis=1) & (y < rule['below'])
+        w[lower] = 0.0
+        w[lower, col[JAW]] = 1.0
+        log(f'jaw: {int(lower.sum())} vertices of the lower beak follow the jaw, from y '
+            f'{verts[lower, 1].min():.4f} to {verts[lower, 1].max():.4f} u')
+
     # A long nose that hangs below the head line in front of the chest, as the trunk and the tusks
     # of the elephant (`noseFront`): each vertex below the head line and in front of the plane
     # z = front follows the head only. Bone heat gives the lower nose to the chest and the spine,
@@ -2114,7 +2133,7 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
         factor = factors['head']
         pivot = heads['neck']
         drop = factor * (factors['neck'] - 1) * (heads['head'] - pivot)
-        for name in ('head', 'ear_L', 'ear_R'):
+        for name in ('head', 'ear_L', 'ear_R') + ((JAW,) if JAW in BONES else ()):
             matrices[BONES.index(name)] = move(factor * np.eye(3), pivot, pivot + drop)
             new_heads[name] = pivot + factor * (heads[name] - pivot) + drop
             if not children[name]:
@@ -2307,7 +2326,8 @@ def reach(heads, side):
 
 #: The bones that turn with each trunk bone of the shares of `studio.trunk`: the clavicles with
 #: the chest, and the ears with the head.
-TRUNK_FOLLOWERS = {'clavicle_L': 'chest', 'clavicle_R': 'chest', 'ear_L': 'head', 'ear_R': 'head'}
+TRUNK_FOLLOWERS = {'clavicle_L': 'chest', 'clavicle_R': 'chest', 'ear_L': 'head', 'ear_R': 'head',
+                   JAW: 'head'}
 
 
 def recline(angle):
@@ -2365,7 +2385,8 @@ def bind_turns(config, heads, ends, rolls, turn=0.0):
         for name, share in rule['shares'].items():
             turns[name] = recline(turn * share)
         for name, leader in TRUNK_FOLLOWERS.items():
-            turns[name] = turns[leader]
+            if name in turns:
+                turns[name] = turns[leader]
     for side in 'LR':
         for bone in LEG:
             q = np.asarray(studio['legTurns'][bone], float)
@@ -3601,9 +3622,11 @@ def main():
     with open(config_path) as f:
         config = json.load(f)
     rules = config['weights']
+    global BONES
     if TAIL_TIP in config['joints']:
-        global BONES
         BONES = BONES + (TAIL_TIP,)
+    if JAW in config['joints']:
+        BONES = BONES + (JAW,)
 
     verts, source_tris, uvs, texture = load_mesh(config)
     unsmoothed = verts
