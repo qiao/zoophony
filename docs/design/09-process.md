@@ -97,12 +97,13 @@ A push to `main` builds with pnpm and deploys to GitHub Pages under the base pat
   - The violist (the cat), the cellist (the dog), the bassist (the hippo), the trombonist (the
     panda), the oboist (the mouse), the timpanist (the elephant), the bassoonist (the beaver), the
     hornist (the pig), the clarinetist (the wolf), the trumpeter (the monkey), the tubist (the
-    rhino, which stands in each seat), and the five roles
+    rhino, which stands in each seat), the harpist (the deer), and the five roles
     of the badger (the bass drummer, the snare drummer, the cymbalist, the percussionist, and the
     xylophonist) have a sweep and no test file, because they came while all tests are paused
     (`VIOLIST_SWEEP`, `CELLIST_SWEEP`, `BASSIST_SWEEP`, `TROMBONIST_SWEEP`, `OBOIST_SWEEP`,
     `TIMPANIST_SWEEP`, `BASSOONIST_SWEEP`, `HORNIST_SWEEP`, `CLARINETIST_SWEEP`,
-    `TRUMPETER_SWEEP`, `TUBIST_SWEEP`, `percussionSweep()`). The sweep of the timpanist also moves the head, so
+    `TRUMPETER_SWEEP`, `TUBIST_SWEEP`, `HARPIST_SWEEP`, `percussionSweep()`). The frame of the harp
+    leaves out its strings, which the palms pluck. The sweep of the timpanist also moves the head, so
     that the trunk, the tusks, and the ears stay out of the kettles. No demo has a snare drum or a
     xylophone, so the probes of these two roles read a percussion test score of the tools
     (`tools/probe-demos.ts`).
