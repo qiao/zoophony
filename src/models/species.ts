@@ -18,6 +18,7 @@ import { STUDIO_PANDA } from './studio/panda.ts';
 import { STUDIO_PIG } from './studio/pig.ts';
 import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
+import { STUDIO_RHINO } from './studio/rhino.ts';
 import { STUDIO_WOLF } from './studio/wolf.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
@@ -563,14 +564,23 @@ export const SPECIES = {
       seatHeight: STUDIO_PIG.seatHeight / STUDIO_PIG.headHeight,
     },
   },
-  /** Rhino, the tuba. */
+  /**
+   * Rhino, the tuba: a gray rhino with a pale belly, a large pale horn on the muzzle and a small
+   * one behind it, tall ears, light claws, and a thin tail with a dark tuft. It has the studio
+   * body of the mesh of the user, `assets/models/rhino/rhino.glb`, which `pnpm rig-mesh rhino`
+   * rigs (design 4.4), with the size of the parametric rhino (2026-10-21-mesh-rhino decisions). It
+   * stands to play the tuba, as the user asked. Its head height is the head of the studio body, and
+   * the seat height is the seat of the studio body, in H.
+   */
   rhino: {
-    ears: 'small',
-    snout: 'horn',
-    tail: 'thin',
-    size: 1.35,
+    body: 'studio-rhino',
+    size: 1,
     colors: SPECIES_COLORS.rhino,
     accentParts: ['horn'],
+    proportions: {
+      headHeight: STUDIO_RHINO.headHeight,
+      seatHeight: STUDIO_RHINO.seatHeight / STUDIO_RHINO.headHeight,
+    },
   },
   /**
    * Badger, the percussion: a badger with a dark gray front, arms, and legs, a gray back and tail,
