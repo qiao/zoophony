@@ -306,8 +306,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       30% to 60%. A small lean of the trunk back is an option (`balance.txt`).
 - [ ] Rhino: the thick left paw goes 2.1 cm into the main branch of the tuba, an accepted depth of
       the sweep. The paws are mittens and do not wrap the tube (`TUBIST_SWEEP`).
-- [ ] Trim `docs/agents/model-traps.md` to about 3,000 words: it has 3,805 words since the traps
-      of the rhino, the deer, and the penguin meshes.
+- [ ] Trim `docs/agents/model-traps.md` to about 3,000 words: it has 3,964 words since the traps
+      of the rhino, the deer, and the penguin meshes, and of the split beak.
 - [x] Rig the mesh of the deer (harp). The user gave it on 2026-10-21. The deer sits on the stool
       of the harp with its whole haunch on the seat, at the size of the parametric deer, and plays
       a smaller harp (`2026-10-21-mesh-deer.md`).
@@ -342,9 +342,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the upper arms, and the white throat while the user slept. The user reviews them in
       `docs/research/2026-10-21-mesh-penguin/singer-base-views.webp` and `options.md`: option B
       gives flippers 1.25 times as long and the folder at the height of the reference images.
-- [ ] Penguin: the beak does not open, because the rig has no jaw bone, and only the head lift
-      shows each note. A jaw needs a cut of the beak, caps, and an optional bone `jaw` in
-      `tools/blender/rig_mesh.py`, `studio-format.ts`, the export, and `poseStudioBones()`.
+- [x] Penguin: the beak opens with each note on a jaw bone of the split beak of a copy of the mesh,
+      and closes to half between two notes (`2026-10-21-penguin-beak.md`).
 - [ ] Penguin: black wedges from the roots of the flippers show on the white belly under the
       folder, in the front views of `docs/research/2026-10-21-mesh-penguin/singer-base-views.webp`.
 - [ ] Penguin: the crease angle 35° is the angle of the other meshes, with no facet probe against
