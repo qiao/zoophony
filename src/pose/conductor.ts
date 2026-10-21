@@ -71,7 +71,8 @@ export const CONDUCTOR_HOLD = {
    * In the lift and in the lowering of the arms (5.2), the baton turns toward this direction: out
    * to the right side and down, as a loose wrist lets it fall. Thus its tip leaves the desk of the
    * conductor stand at the side before it comes down. With a straight lowering, the tip came
-   * 0.006 m near the desk when the arms came down after the song end.
+   * 0.006 m near the desk when the arms came down after the song end. The paw bends at the wrist
+   * for this turn, and it does not twist on its forearm.
    */
   liftBaton: [0.8, -0.6, 0],
   /** The curl of the fingers of the open left hand of a cue. */
@@ -306,6 +307,8 @@ const wristBind = new Vector3();
 const wrist = new Vector3();
 const hand = new Quaternion();
 const liftTurn = new Quaternion();
+const liftTwist = new Quaternion();
+const handInverse = new Quaternion();
 const hanging = new Vector3();
 const restHand = new Quaternion();
 const poleMix = new Vector3();
@@ -458,7 +461,13 @@ export function poseConductor(
     // desk early, while the hand is still high.
     along.set(0, 0, -1).applyQuaternion(hand);
     liftTurn.setFromUnitVectors(along, liftBaton.fromArray(rig.liftBaton));
-    hand.premultiply(mixRotation(NO_TURN, liftTurn, Math.sin(Math.PI * weight), liftTurn));
+    // The turn in the axes of the hand, with no twist around the line of the forearm (+y). With
+    // the twist, the paw turned past 180° on its forearm, and its twist bone jumped by 180°
+    // (docs/research/2026-10-21-wrist-lift.md).
+    liftTurn.premultiply(handInverse.copy(hand).invert()).multiply(hand);
+    liftTwist.set(0, liftTurn.y, 0, liftTurn.w).normalize();
+    liftTurn.multiply(liftTwist.invert());
+    hand.multiply(mixRotation(NO_TURN, liftTurn, Math.sin(Math.PI * weight), liftTurn));
   }
   writeArm(
     {
