@@ -138,8 +138,8 @@ export interface BipedParams extends CommonParams {
   readonly snout: 'short' | 'long' | 'blunt' | 'broad' | 'pointed' | 'flat-nose' | 'horn';
   /** The tail type (design 4.3). */
   readonly tail: 'none' | 'puff' | 'thin';
-  /** Face pattern, for example the eye patches of the panda. */
-  readonly facePattern: 'none' | 'eye-patches' | 'cap' | 'face-disc';
+  /** The face pattern (design 4.3). */
+  readonly facePattern: 'none' | 'cap' | 'face-disc';
   /** No body of its own: the species has the parametric biped. */
   readonly body?: undefined;
 }

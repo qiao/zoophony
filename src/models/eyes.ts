@@ -11,10 +11,7 @@ import { boneIndex } from './rig.ts';
 import type { BipedParams } from './species.ts';
 
 /** The face patterns with a patch around each eye, over which the eyes stand out. */
-const PATCHED_EYES: ReadonlySet<BipedParams['facePattern']> = new Set([
-  'eye-patches',
-  'face-disc',
-] as const);
+const PATCHED_EYES: ReadonlySet<BipedParams['facePattern']> = new Set(['face-disc'] as const);
 
 /** The size of an eye on x, y, and z, in H (design 4.5). */
 export const EYE = [0.13, 0.18, 0.06] as const;
@@ -85,8 +82,8 @@ function bentBall(corners: readonly number[], bend: EyeBend): number[] {
 
 /**
  * Gives the middle of an eye from the point of the head surface under it: 0.01 H into the head,
- * so that the eye lies half in the head surface. On a patch around the eyes (the eye patches and
- * the face disc), the middle is 0.01 H out of the surface, so that the eye shows above the patch.
+ * so that the eye lies half in the head surface. On a patch around the eyes (the face disc), the
+ * middle is 0.01 H out of the surface, so that the eye shows above the patch.
  *
  * @param surface The point of the head surface and the unit normal of the surface there.
  * @param h The head height, in meters.
@@ -210,7 +207,7 @@ function addBentLight(
 /**
  * Adds the eyes to the head of the parametric biped: two eyes of {@link addEye}, wide apart, half
  * in the head surface between the front and the sides (`EYE_DIRECTION` of `head.ts`). On a patch
- * around the eyes (the eye patches and the face disc), the eyes stand 0.02 H further out, so that
+ * around the eyes (the face disc), the eyes stand 0.02 H further out, so that
  * they show above the patch ({@link eyeMiddle}).
  *
  * @param builder The mesh that gets the parts.

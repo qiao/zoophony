@@ -1,4 +1,4 @@
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
+import { Matrix4, Quaternion, Vector3 } from 'three';
 import { MIRROR_X, placeCorners, unknownValue } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { transform } from './mesh.ts';
@@ -72,8 +72,8 @@ function addPatches(
 }
 
 /**
- * Adds the face pattern of a species to the head (design 4.3, 4.5). The pattern has the accent
- * color, except the face disc, which has the belly color.
+ * Adds the face pattern of a species to the head (design 4.3, 4.5). The face disc has the belly
+ * color.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -88,13 +88,8 @@ export function addFacePattern(
   h: number,
   headCenter: Vec3,
 ): void {
-  const color = species.accentParts.includes('face-pattern') ? colors.accent : colors.fur;
   switch (species.facePattern) {
     case 'none':
-      return;
-    case 'eye-patches':
-      // An oval patch around each eye, with its lower end out.
-      addPatches(builder, color, h, headCenter, EYE_DIRECTION, [0.3, 0.4], -35 * MathUtils.DEG2RAD);
       return;
     case 'cap':
       // The cap colors the faces of the head itself (`buildBiped()`), so it adds no part.

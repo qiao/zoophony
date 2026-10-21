@@ -9,7 +9,7 @@ import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
-import type { BipedParams, SpeciesParams } from './species.ts';
+import type { SpeciesParams } from './species.ts';
 
 /** The seat height of the test bodies, in meters. */
 export const SEAT = 0.45;
@@ -61,16 +61,6 @@ export function builtBody(species: SpeciesParams, stance: Stance): BuiltBody {
   const builder = new MeshBuilder();
   const body = buildBiped(builder, species, stance);
   return { mesh: builder.build(), body };
-}
-
-/**
- * Builds the body of a variant of the sample body on a seat of {@link SEAT}.
- *
- * @param change The parameters that differ from the sample body.
- * @returns The mesh and the bones.
- */
-export function variant(change: Partial<BipedParams>): BuiltBody {
-  return builtBody({ ...SAMPLE, ...change }, seated(SEAT));
 }
 
 /** The smallest and the largest x, y, and z of the parts that follow one bone. */
