@@ -60,8 +60,8 @@ export const INSTRUMENT_IDS = [
  *   instruments with no bow ignore it.
  * @param cymbalForm The form of the cymbals of the species of the player
  *   (`SpeciesParams.cymbalForm`). The other instruments ignore it.
- * @param tubaPipe The length by which the lead pipe of the tuba reaches back from the mouthpiece
- *   (`SpeciesParams.tubaPipe`), in meters. The other instruments ignore it.
+ * @param tubaPipe The lengths by which the lead pipe of the tuba reaches back and to the left from
+ *   the mouthpiece (`SpeciesParams.tubaPipe`), in meters. The other instruments ignore it.
  * @returns The model.
  */
 export function buildInstrument(
@@ -70,7 +70,7 @@ export function buildInstrument(
   scale = 1,
   bowGrip?: BowGrip,
   cymbalForm: CymbalForm = 'hand',
-  tubaPipe = 0,
+  tubaPipe: readonly [back: number, left: number] = [0, 0],
 ): InstrumentModel {
   if (isScaledInstrument(id)) {
     return buildScaled(id, scale, bowGrip, cymbalForm);

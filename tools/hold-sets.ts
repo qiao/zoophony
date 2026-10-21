@@ -555,17 +555,24 @@ function setCymbalForm(species: SpeciesId, text: string): HoldChange {
 }
 
 /**
- * Changes the length of the lead pipe of the tuba of a species in memory, such as
- * `rhino.tubaPipe=0.3` (`SpeciesParams.tubaPipe`, in meters). A length that the species does not
- * give is 0, and the undo removes it again.
+ * Changes the lengths of the lead pipe of the tuba of a species in memory, back and to the left,
+ * such as `rhino.tubaPipe=0.25,0.1` (`SpeciesParams.tubaPipe`, in meters). Lengths that the
+ * species does not give are 0, and the undo removes them again.
  *
  * @param species The species, the root of the path.
- * @param text The new length.
+ * @param text The new lengths, as two numbers with a comma, in brackets or not.
  * @returns The change.
- * @throws Error if the text is not a number.
+ * @throws Error if the text is not two numbers.
  */
 function setTubaPipe(species: SpeciesId, text: string): HoldChange {
-  const value = parseNumber(text, `${species}.tubaPipe`);
+  const path = `${species}.tubaPipe`;
+  const parts = text.replace(/^\[|\]$/g, '').split(',');
+  if (parts.length !== 2) {
+    throw new Error(
+      `The value of ${path} must be two numbers, back and left, and it is "${text}".`,
+    );
+  }
+  const value = [parseNumber(parts[0] ?? '', path), parseNumber(parts[1] ?? '', path)] as const;
   const params: SpeciesParams = SPECIES[species];
   const had = Object.hasOwn(params, 'tubaPipe');
   const old = params.tubaPipe;
@@ -578,8 +585,8 @@ function setTubaPipe(species: SpeciesId, text: string): HoldChange {
         Reflect.deleteProperty(params, 'tubaPipe');
       }
     },
-    before: String(old ?? 0),
-    after: String(value),
+    before: (old ?? [0, 0]).join(','),
+    after: value.join(','),
     also: [],
   };
 }
@@ -702,7 +709,7 @@ function copyPath(hold: object, keys: readonly string[]): PathCopy {
  * too, such as `viola.restBow.lap.along`. A path with the id of a species as the root changes a
  * scale of an instrument of the species ({@link setScale}), such as `mouse.oboeScale=0.8`, or the
  * form of its cymbals ({@link setCymbalForm}), such as `badger.cymbalForm=suspended`, or the
- * lead pipe of its tuba ({@link setTubaPipe}), such as `rhino.tubaPipe=0.3`.
+ * lead pipe of its tuba ({@link setTubaPipe}), such as `rhino.tubaPipe=0.25,0.1`.
  *
  * @param change The change, as `<path>=<value>`.
  * @returns A function that puts the old value back, the texts of the old and the new value, and

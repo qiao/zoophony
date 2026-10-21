@@ -109,13 +109,14 @@ interface CommonParams {
    */
   readonly cymbalForm?: CymbalForm;
   /**
-   * The length by which the lead pipe of the tuba reaches back from the mouthpiece, in meters
-   * (design 4.6): the body of the tuba stands this far nearer to the player than the tuba of the
-   * app. It is 0 when it is not given. A long muzzle puts the mouthpiece far in front of the
-   * chest, so the body of the tuba stands under the muzzle in front of the chest, and the paws
-   * reach its grips.
+   * The lengths by which the lead pipe of the tuba reaches back and to the left from the
+   * mouthpiece, in meters (design 4.6): the body of the tuba stands this far nearer to the player
+   * and this far further to the left than the tuba of the app. Both are 0 when it is not given. A
+   * long muzzle puts the mouthpiece far in front of the chest, so the body of the tuba stands
+   * under the muzzle in front of the chest, the paws reach its grips, and the bell stands at the
+   * left of the horn and the head.
    */
-  readonly tubaPipe?: number;
+  readonly tubaPipe?: readonly [back: number, left: number];
   /**
    * True for a species that sits with no chair (design 4.5, props). The body keeps its seated
    * pose, its seat height, and its feet on the floor, and the app builds no chair under it
