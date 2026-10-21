@@ -495,8 +495,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
     raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
-    of the patches along the crease between the lips, with the corners up, so that the corners
-    show beside a mouthpiece. A band takes no face that turns to the side (`outward`), because
+    of the patches, or in a color of its own (`color`) with no patch rule, along the crease
+    between the lips, with the corners up, so that the corners show beside a mouthpiece. A band takes no face that turns to the side (`outward`), because
     such a face shows as a dark block in a side view. The panda has both rules
     (`docs/decisions/2026-10-18-panda-face.md`). The wolf has both rules too: its patch rule
     ends the gray cap of the forehead at a level line over the eyes, so the eyes sit in light fur,
