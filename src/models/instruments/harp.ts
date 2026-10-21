@@ -147,8 +147,8 @@ export function harpStringPosition(key: number, scale = 1): Vec3 {
 }
 
 /**
- * Builds the concert harp (design 4.6). It stands on the floor between the knees of the player,
- * and it leans back to the right shoulder. Both hands play the strings, the left hand from the
+ * Builds the concert harp (design 4.6). It stands on the floor between the knees of the player, at
+ * its place of {@link HARP_PLACE}. Both hands play the strings, the left hand from the
  * left side of the strings and the right hand from the right side. A species with short arms
  * plays a smaller harp (`SpeciesParams.harpScale`), as a child plays a smaller lever harp: the
  * harp, its strings, and its distance in front of the player shrink toward its base on the floor.
