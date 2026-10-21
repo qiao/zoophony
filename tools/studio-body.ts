@@ -387,6 +387,22 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/monkey/monkey.rig.glb',
     },
   ],
+  // The tuba rhino: decisions/2026-10-21-mesh-rhino.md. It stands to play the tuba, so the export
+  // keeps the standing pose of the rig. The tip of its nose is the front of the muzzle under the
+  // horn.
+  [
+    'rhino',
+    {
+      landmark: 'shoulders',
+      height: 0.892918,
+      seated: true,
+      soloist: true,
+      constant: 'STUDIO_RHINO',
+      crease: 35,
+      glb: 'assets/models/rhino/rhino.rig.glb',
+      noseTop: 0.76,
+    },
+  ],
 ]);
 
 /** The finish of each material of the studio (design 4.5, materials). */
