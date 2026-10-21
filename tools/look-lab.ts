@@ -108,9 +108,11 @@ export const LOOK_REGIONS: readonly LookRegion[] = [
     mask: null,
   },
   {
+    // The belly of the front left rabbit. The box [240, 480, 280, 560] fell on the floor and a
+    // chair after a change of the layout (2026-10-21).
     name: 'white fur, front left rabbit',
     kind: 'color',
-    app: [240, 480, 280, 560],
+    app: [362, 552, 392, 588],
     reference: [150, 700, 200, 780],
     mask: null,
   },
