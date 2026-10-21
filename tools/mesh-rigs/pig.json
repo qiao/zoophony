@@ -467,8 +467,9 @@
         10,
         20
       ],
-      "below": 0,
-      "note": "The shape of the right arm on the horn, with the mean turns of the play samples of the hold (pnpm raise-fit hornist --faces 81,213,216,438 --side R): the upper arm 50 degrees from the bind. Four long thin faces of the right armpit folded in each play sample. In the pose of the rule, they turn over and relax."
+      "below": 0.3,
+      "grow": 1,
+      "note": "The shape of the right arm on the horn, with the mean turns of the play samples of the hold (pnpm raise-fit hornist --faces 81,213,216,438 --side R): the upper arm 50 degrees from the bind. Four long thin faces of the right armpit folded in each play sample. In the pose of the rule, they turn over and relax. The user said on 2026-10-20: \"pig and rabbit's armpit are deformed\". The faces of the back of the right armpit (437, 438, 479, and 222) turned 55 to 78 degrees in each play sample, short of a fold, and showed as a dark band. Each face below the cosine 0.3 now relaxes, with one ring of trunk corners (grow): the faces past 45 degrees fall from 11.2 to 6.4 in a play sample. The cosines 0.4 and 0.5 folded 35% and 100% of the play samples (docs/research/2026-10-20-armpits.md)."
     },
     {
       "side": "L",
