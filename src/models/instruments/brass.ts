@@ -365,6 +365,15 @@ const HORN_TURN = toQuat(
 );
 
 /**
+ * The depth of the middle of the right palm inside the opening of the horn bell, on its axis, in
+ * meters. The right paw of the pig points along the line from the shoulder to the palm, about 86°
+ * from the axis of the bell. At 6 cm, the wrist went up to 2.3 cm through the wall of the bell in
+ * each sample. At 2.5 cm, no point of the paw or of the forearm goes through the wall, and 92% of
+ * the paw vertices are in the bell (`docs/research/2026-10-20-armpits.md`).
+ */
+const HORN_PALM_DEPTH = 0.025;
+
+/**
  * Builds the horn. The mouthpiece is at the origin, and the horn has the axes of the player: the
  * coil stands in front of the right side of the chest, and the bell opens to the right and to
  * the back, above the right thigh. The hold turns it by {@link HORN_TURN}.
@@ -420,7 +429,7 @@ function horn(): BrassBuild {
     // The left palm holds the coil at 0.9 of a half turn and 0.8 of its radius. At 0.8 and 0.6,
     // the palm was 0.98 of the arm length of the pig with the turn of the horn.
     palmL: ring(Math.PI * 0.9, h.coilRadius * 0.8),
-    palmR: toVec3(new Vector3(...bellTarget.from).addScaledVector(bellAxis, -0.06)),
+    palmR: toVec3(new Vector3(...bellTarget.from).addScaledVector(bellAxis, -HORN_PALM_DEPTH)),
     targets: [bellTarget],
   };
 }

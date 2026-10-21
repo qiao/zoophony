@@ -5,10 +5,10 @@ in `docs/research/2026-10-20-armpits/`.
 
 ## Last finished step
 
-The rabbit rig cuts the arm seams below 0.44 units, with `weights.armBelow` and a play shape of the
-bow arm. The rest of the round is in the working tree with no commit: the palm of the hornist, the
-play shape of the pig, the design, the decisions, the report, and TODO.md.
+The rabbit rig cuts its arm seams, and the right palm of the hornist lies 2.5 cm inside the bell.
+The rest of the round is in the working tree with no commit: the play shape of the pig, the
+design, the decisions, the report, and TODO.md.
 
 ## Next step
 
-Commit the palm of the hornist, then the shape of the pig, then the docs.
+Commit the shape of the pig, then the docs.

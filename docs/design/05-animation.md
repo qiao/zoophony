@@ -463,7 +463,10 @@ The code constants of each family hold the times, the angles, and the lengths of
   - The pig holds the horn as a real hornist (`PIG_HORN` of `SPECIES_WIND_HOLDS`,
     `docs/reference/wind-technique.md` 2.2): the left paw holds the valves at the middle of the
     body, the right paw is in the bell, and the horn lies across the body from the mouth to the
-    bell at the right of the torso and in front of it. The long snout puts the mouthpiece far in
+    bell at the right of the torso and in front of it. The middle of the right palm lies on the
+    axis of the bell just inside its opening (`HORN_PALM_DEPTH` of `models/instruments/brass.ts`).
+    The paw points along the line from the shoulder, far across the axis, so a deeper palm puts
+    the wrist through the wall of the bell. The long snout puts the mouthpiece far in
     front of the shoulders, so the horn turns its lower end back toward the body around the
     mouthpiece, and the left shoulder turns forward (`PIG_TURNS`, `WindHold.reachL`). Thus the left
     paw reaches the valves with the arms that the user chose.
