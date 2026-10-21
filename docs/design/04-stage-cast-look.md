@@ -814,7 +814,9 @@ solo.
   light. The brass and the lacquer reflect the real lamps and the lit floor, and the shadow sides
   of the players get the warm light of the floor below them, as in `orchestra-latest.png`. A GPU
   with no target of floats keeps a fixed environment of a dark room with warm lamps.
-- Tone mapping is AgX, because ACES moved the dark wood to red. With reduced motion, the noise,
+- Tone mapping is AgX, because ACES moved the dark wood to red. Its exposure (`STAGE_TONE` of
+  `scene/renderer.ts`) keeps the lit floor and the lit white fur below the shoulder of the curve,
+  so that the stage does not look over-exposed (user, 2026-10-21). With reduced motion, the noise,
   the motes, and the grain stand still, and the lights move at once (2.5).
 
 **Hall**
