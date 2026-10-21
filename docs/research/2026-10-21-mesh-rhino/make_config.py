@@ -30,6 +30,7 @@ CONFIG = {
     "armFactorNote": "The factor of the upper arm and the forearm. The first config keeps the arms of the mesh: 0.431 m from the shoulder joint to the middle of the palm (check-first.log).",
     "legFactor": 1,
     "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs). The rhino stands to play the tuba, so no seat asks for longer legs.",
+    "upperTwist": {"share": 0.4, "note": "The twist bone of each upper arm keeps 0.4 of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the hippo. With no twist bone, the skin of the left upper arm rolled 63 to 82 degrees at its largest step in the play of the tuba hold, above the limit 55 of the arm gate, for each elbow direction and left grip of the scan. With 0.4, it rolls 35 degrees, and with 0.6, 45 degrees (arm-twist.txt)."},
     "joints": {
         "root": {"head": [0, 0, 0], "tail": [0, 0, 0.1], "roll": [0, 1, 0]},
         "hips": {"head": [0, 0.2, -0.085], "tail": "spine"},
