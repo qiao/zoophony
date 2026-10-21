@@ -123,3 +123,106 @@ export function meterLevels(track: MeterTrack, songSec: number, out: Float32Arra
   }
   return out;
 }
+
+/** The time in which the ring of a seat fades to 0 after its last note ends, in seconds. */
+export const GLOW_FADE_SEC = 0.3;
+
+/** The level of a note at the velocity 0. The velocity 127 gives the level 1. */
+const GLOW_FLOOR = 0.5;
+
+/**
+ * The spans of sound of each seat, for the ring on the dot of a seat row (design 2.8). A span
+ * holds the notes of a seat that overlap or touch. The spans of a seat are sorted and disjoint.
+ */
+export interface SeatSpans {
+  /** The start, the end, and the level of each span, at `span * 3`, in seconds and from 0 to 1. */
+  readonly spans: Float64Array;
+  /**
+   * The first span of each seat, and one more entry at the end: the spans of seat `i` are from
+   * `first[i]` to `first[i + 1] - 1`.
+   */
+  readonly first: Uint32Array;
+}
+
+/**
+ * Calculates the spans of sound of each seat (design 2.8): the notes of all players of a seat
+ * that overlap or touch become one span, with the level of its loudest note.
+ *
+ * @param notes The notes of the score, `Score.notes`, sorted by `startSec`.
+ * @param seatCount The number of seats, `Score.seats.length`.
+ * @returns The spans.
+ */
+export function seatSpans(notes: readonly PlayerNote[], seatCount: number): SeatSpans {
+  const bySeat: number[][] = Array.from({ length: seatCount }, () => []);
+  for (const note of notes) {
+    const spans = bySeat[note.seatIndex];
+    if (!spans) {
+      continue;
+    }
+    const level = GLOW_FLOOR + ((1 - GLOW_FLOOR) * note.velocity) / 127;
+    const last = spans.length - 3;
+    if (last >= 0 && note.startSec <= (spans[last + 1] ?? 0)) {
+      spans[last + 1] = Math.max(spans[last + 1] ?? 0, note.endSec);
+      spans[last + 2] = Math.max(spans[last + 2] ?? 0, level);
+    } else {
+      spans.push(note.startSec, Math.max(note.startSec, note.endSec), level);
+    }
+  }
+
+  const first = new Uint32Array(seatCount + 1);
+  for (const [seat, spans] of bySeat.entries()) {
+    first[seat + 1] = (first[seat] ?? 0) + spans.length / 3;
+  }
+  return { spans: Float64Array.from(bySeat.flat()), first };
+}
+
+/**
+ * Gives the level of the ring of each seat at a song time (design 2.8): the level of a span
+ * while it sounds, then a linear fade to 0 in 0.3 s after its end. The song time alone gives
+ * the level, so the ring follows a seek, a pause, and the speed with no state. A silent seat
+ * (design 6.6) has the level 0.
+ *
+ * @param spans The spans of the piece, from {@link seatSpans}.
+ * @param songSec The song time, in seconds.
+ * @param audible True for each seat that sounds. A missing entry sounds.
+ * @param out The array of the result, with one entry for each seat. Each call writes all of them.
+ * @returns `out`.
+ */
+export function seatLevels(
+  spans: SeatSpans,
+  songSec: number,
+  audible: readonly boolean[],
+  out: Float32Array,
+): Float32Array {
+  const data = spans.spans;
+  for (let seat = 0; seat < out.length; seat++) {
+    const begin = spans.first[seat] ?? 0;
+    const end = spans.first[seat + 1] ?? begin;
+    let level = 0;
+    if (audible[seat] !== false) {
+      // The last span that starts at or before the song time.
+      let low = begin;
+      let high = end;
+      while (low < high) {
+        const mid = (low + high) >>> 1;
+        if ((data[mid * 3] ?? 0) <= songSec) {
+          low = mid + 1;
+        } else {
+          high = mid;
+        }
+      }
+      // The spans are disjoint, so the spans before a span that has faded have also faded.
+      for (let span = low - 1; span >= begin; span--) {
+        const spanEnd = data[span * 3 + 1] ?? 0;
+        if (spanEnd + GLOW_FADE_SEC <= songSec) {
+          break;
+        }
+        const peak = data[span * 3 + 2] ?? 0;
+        const fade = songSec <= spanEnd ? 1 : 1 - (songSec - spanEnd) / GLOW_FADE_SEC;
+        level = Math.max(level, peak * fade);
+      }
+    }
+    out[seat] = level;
+  }
+  return out;
+}
