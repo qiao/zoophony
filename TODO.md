@@ -277,6 +277,19 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Monkey: from the front, the paws on the valves hide the mouth and the smile while the
       monkey plays, and the right fingers reach the valves from the side, because each paw lies
       along the line from its shoulder (`PAW_TURN`, `2026-10-20-mesh-monkey.md`).
+- [x] Monkey: the standing monkey fell back, with its center of mass 17 cm behind its soles. It
+      now stands with its feet under its hips and a forward lean (`2026-10-21-monkey-stand.md`).
+- [ ] Monkey: the manager chose the stand C' while the user slept. The user reviews it against B
+      in `docs/research/2026-10-20-monkey-stand/lineup.webp` (`2026-10-21-monkey-stand.md`).
+- [ ] Mouse and beaver: they also stand in their seated poses with no chair. Measure their balance
+      with `balance.ts` of `docs/research/2026-10-20-monkey-stand/`, and save the probe as a tool
+      when a second body needs it.
+- [ ] Monkey: the rig chair under the stand sets `STUDIO_MONKEY.seatHeight` to 0.292 m, the
+      height of the haunch, for a body with no chair. Check each reader of the seat height of a
+      body with no chair (`2026-10-21-monkey-stand.md`).
+- [ ] Monkey: a chair as high as the haunch puts the root of the tail into the seat of the app.
+      Only when the user asks for a chair again: a tail of three bones, or a tail over the back
+      edge of the seat (`docs/research/2026-10-20-monkey-chair.md`).
 - [x] Remove the unused code of the `side-round` ears and the `face-disc` face pattern: no species
       has them since the monkey mesh (`2026-10-20-mesh-monkey.md`).
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
