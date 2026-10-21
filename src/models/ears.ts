@@ -274,10 +274,6 @@ function rightEar(species: BipedParams, colors: BodyColors, h: number): RightEar
       );
     case 'round':
       return discEar(h, [0.3 * h, 0.36 * h, 0.04 * h], 30 * MathUtils.DEG2RAD, 0.3, outer, inner);
-    case 'large-round':
-      // Large ears set high on the head and out to the sides, so that the mouse does not look
-      // like the bear with its small round ears (review of step 4).
-      return discEar(h, [0.24 * h, 0.4 * h, 0.05 * h], 38 * MathUtils.DEG2RAD, 0.7, outer, inner);
     case 'small':
       return discEar(h, [0.28 * h, 0.34 * h, 0.06 * h], 35 * MathUtils.DEG2RAD, 0.2, outer, inner);
     case 'floppy':

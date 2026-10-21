@@ -125,15 +125,7 @@ interface CommonParams {
 /** The parameters of a species with the parametric biped (design 4.3): the shape of its parts. */
 export interface BipedParams extends CommonParams {
   /** The ear type (design 4.3). */
-  readonly ears:
-    | 'long'
-    | 'round'
-    | 'large-round'
-    | 'floppy'
-    | 'small'
-    | 'side-round'
-    | 'antlered'
-    | 'none';
+  readonly ears: 'long' | 'round' | 'floppy' | 'small' | 'side-round' | 'antlered' | 'none';
   /** The snout type (design 4.3). */
   readonly snout: 'short' | 'long' | 'blunt' | 'pointed' | 'flat-nose' | 'horn';
   /** The tail type (design 4.3). */
