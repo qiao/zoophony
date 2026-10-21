@@ -71,10 +71,17 @@ export const CONDUCTOR_HOLD = {
    * In the lift and in the lowering of the arms (5.2), the baton turns toward this direction: out
    * to the right side and down, as a loose wrist lets it fall. Thus its tip leaves the desk of the
    * conductor stand at the side before it comes down. With a straight lowering, the tip came
-   * 0.006 m near the desk when the arms came down after the song end. The paw bends at the wrist
-   * for this turn, and it does not twist on its forearm.
+   * 0.006 m near the desk when the arms came down after the song end. The twist of the paw on
+   * its forearm in this turn is at most {@link CONDUCTOR_HOLD.liftTwist}.
    */
   liftBaton: [0.8, -0.6, 0],
+  /**
+   * The largest twist of the paw on its forearm in the turn of the baton of `liftBaton`, in
+   * radians. The full turn twisted the paw by about 130°, past 180° on its forearm. With 60°, the
+   * paw twist stays at most 105° and the paw swing at most 71° in the moves of the demos, and the
+   * baton keeps clear of the desk (`docs/research/2026-10-21-wrist-lift.md`).
+   */
+  liftTwist: 60 * MathUtils.DEG2RAD,
   /** The curl of the fingers of the open left hand of a cue. */
   cueCurl: 10 * MathUtils.DEG2RAD,
   /**
@@ -461,12 +468,17 @@ export function poseConductor(
     // desk early, while the hand is still high.
     along.set(0, 0, -1).applyQuaternion(hand);
     liftTurn.setFromUnitVectors(along, liftBaton.fromArray(rig.liftBaton));
-    // The turn in the axes of the hand, with no twist around the line of the forearm (+y). With
-    // the twist, the paw turned past 180° on its forearm, and its twist bone jumped by 180°
-    // (docs/research/2026-10-21-wrist-lift.md).
+    // The turn in the axes of the hand, with its twist around the line of the forearm (+y) cut
+    // to `liftTwist`. The full twist of about 130° turned the paw past 180° on its forearm, and
+    // its twist bone jumped by 180° (docs/research/2026-10-21-wrist-lift.md).
     liftTurn.premultiply(handInverse.copy(hand).invert()).multiply(hand);
     liftTwist.set(0, liftTurn.y, 0, liftTurn.w).normalize();
-    liftTurn.multiply(liftTwist.invert());
+    if (liftTwist.w < 0) {
+      liftTwist.set(0, -liftTwist.y, 0, -liftTwist.w);
+    }
+    const twist = 2 * Math.atan2(liftTwist.y, liftTwist.w);
+    const kept = MathUtils.clamp(twist, -hold.liftTwist, hold.liftTwist);
+    liftTurn.multiply(liftTwist.invert()).multiply(liftTwist.setFromAxisAngle(Y_AXIS, kept));
     hand.multiply(mixRotation(NO_TURN, liftTurn, Math.sin(Math.PI * weight), liftTurn));
   }
   writeArm(
