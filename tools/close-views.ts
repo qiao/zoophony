@@ -2347,6 +2347,8 @@ export interface PlayCamera {
   readonly wheel: number;
   /** The view of the camera at one player of `--at` ({@link aimPose}), or none. */
   readonly aim?: AimView;
+  /** The fixed camera of a camera in JSON ({@link jsonCamera}), or none. */
+  readonly pose?: CameraPose;
 }
 
 /** The view of a camera of `--at` at one player of the demo. */
@@ -2623,16 +2625,67 @@ export interface PlayArgs {
   readonly strip: readonly number[] | null;
 }
 
+/** The fields of a camera in JSON of the command line ({@link jsonCamera}), before the checks. */
+interface CameraJson {
+  /** The position of the camera, in meters. */
+  readonly position?: readonly number[];
+  /** The point that the camera looks at, in meters. */
+  readonly target?: readonly number[];
+  /** The vertical field of view, in degrees. */
+  readonly fov?: number;
+}
+
 /**
- * Reads a camera of the command line: a name of {@link PLAY_CAMERAS}, or `<dx>,<dy>,<wheel>` with
- * the drag in CSS pixels and a whole number of wheel steps. The name of such a camera is
- * `drag<dx>_<dy>_<wheel>`.
+ * Reads a camera in JSON: `{"position":[x,y,z],"target":[x,y,z],"fov":<deg>}` in the axes of the
+ * stage, in meters, with no `fov` for the field of view of the stage (`FIELD_OF_VIEW`). The stage
+ * camera of the build follows it in each frame, as the camera of `--at` ({@link aimPlugin}). The
+ * name of the camera is `pose-` and the first 6 hex digits of the SHA-256 of the text.
+ *
+ * @param text The JSON text.
+ * @returns The camera.
+ * @throws Error for a text that is not such an object.
+ */
+export function jsonCamera(text: string): PlayCamera {
+  let parsed: CameraJson | null = null;
+  try {
+    // SAFETY: the text comes from the command line, and the checks below read each field.
+    parsed = JSON.parse(text) as CameraJson | null;
+  } catch {
+    parsed = null;
+  }
+  const point = (found: readonly number[] | undefined): Vec3 | null => {
+    if (!Array.isArray(found) || found.length !== 3 || !found.every(Number.isFinite)) {
+      return null;
+    }
+    const [x = 0, y = 0, z = 0] = found;
+    return [x, y, z];
+  };
+  const position = point(parsed?.position);
+  const target = point(parsed?.target);
+  const fov = parsed?.fov ?? FIELD_OF_VIEW;
+  if (!position || !target || !Number.isFinite(fov) || !(fov > 1 && fov < 170)) {
+    throw new Error(
+      `The camera "${text}" is not a camera in JSON, such as {"position":[0,3,9],"target":[0,1,0],"fov":40}: a position and a target of 3 numbers each in meters, and a field of view from 1° to 170°.`,
+    );
+  }
+  const name = `pose-${createHash('sha256').update(text).digest('hex').slice(0, 6)}`;
+  const pose = { position, target, fov, beam: 1, close: false, light: 0, spot: 0 };
+  return { name, dx: 0, dy: 0, wheel: 0, pose };
+}
+
+/**
+ * Reads a camera of the command line: a name of {@link PLAY_CAMERAS}, `<dx>,<dy>,<wheel>` with
+ * the drag in CSS pixels and a whole number of wheel steps, or a camera in JSON
+ * ({@link jsonCamera}). The name of a drag camera is `drag<dx>_<dy>_<wheel>`.
  *
  * @param text The camera.
  * @returns The camera.
  * @throws Error that lists the names of the cameras, for a text that is not a camera.
  */
 export function playCamera(text: string): PlayCamera {
+  if (text.trimStart().startsWith('{')) {
+    return jsonCamera(text);
+  }
   const drag = /^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?),(-?\d+)$/.exec(text);
   if (drag) {
     const [dx, dy, wheel] = [Number(drag[1]), Number(drag[2]), Number(drag[3])];
@@ -2644,7 +2697,7 @@ export function playCamera(text: string): PlayCamera {
   }
   const names = PLAY_CAMERAS.map((camera) => camera.name).join(', ');
   throw new Error(
-    `The camera "${text}" is not known. The correct names are: ${names}. A camera can also be <dx>,<dy>,<wheel>, such as 45,-60,12.`,
+    `The camera "${text}" is not known. The correct names are: ${names}. A camera can also be <dx>,<dy>,<wheel>, such as 45,-60,12, or JSON, such as {"position":[0,3,9],"target":[0,1,0]}.`,
   );
 }
 
@@ -2806,7 +2859,7 @@ export function playParts(args: PlayArgs): PlayArgs[] {
 
 /**
  * Reads the command line of the mode `play`:
- * `play <dir> [--demo <id> | --midi <path>] [--time <s>... | --strip <from>:<step>:<count>] [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`.
+ * `play <dir> [--demo <id> | --midi <path>] [--time <s>... | --strip <from>:<step>:<count>] [--camera <name>|<dx>,<dy>,<wheel>|<JSON>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`.
  * With no `--camera`, the camera is `default`. `--midi` renders a MIDI file of the user in place
  * of a demo ({@link openMidi}). `--strip` renders frames at exact song times from one page each
  * ({@link stripTimes}, {@link stripViews}). `--size` sets the size of the frames
@@ -3265,13 +3318,11 @@ type PlayPlugin = 'aim' | 'freeze';
  * Gives the plugins of the builds of a command line of the mode `play`.
  *
  * @param args The command line.
- * @returns The plugins: `aim` with `--at`, and `freeze` with `--strip`.
+ * @returns The plugins: `aim` with `--at` or a camera in JSON, and `freeze` with `--strip`.
  */
 function playPluginKinds(args: PlayArgs): PlayPlugin[] {
-  return [
-    ...(args.at === null ? [] : ['aim' as const]),
-    ...(args.strip ? ['freeze' as const] : []),
-  ];
+  const aim = args.at !== null || args.cameras.some((camera) => camera.pose);
+  return [...(aim ? ['aim' as const] : []), ...(args.strip ? ['freeze' as const] : [])];
 }
 
 /**
@@ -3521,7 +3572,8 @@ async function openPlay(
   target: AimTarget | null,
   frame: string,
 ): Promise<Page> {
-  const aim = camera.aim && target ? aimPose(target.place, target.box, camera.aim) : null;
+  const aim =
+    camera.pose ?? (camera.aim && target ? aimPose(target.place, target.box, camera.aim) : null);
   const params = [
     ...(aim ? [`aim=${encodeURIComponent(JSON.stringify(aim))}`] : []),
     ...(args.holdsIndex === null ? [] : [`${HOLDS_QUERY}=${args.holdsIndex}`]),
@@ -4406,7 +4458,7 @@ const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
-  `       pnpm close-views play <output directory> [--demo <id> | --midi <path>] [--time <s>]... [--strip <from>:<step>:<count>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
+  `       pnpm close-views play <output directory> [--demo <id> | --midi <path>] [--time <s>]... [--strip <from>:<step>:<count>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>|<JSON>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
   '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
