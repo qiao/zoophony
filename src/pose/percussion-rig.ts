@@ -120,6 +120,12 @@ interface PercussionHold {
    * ({@link kettleOf}).
    */
   readonly pair: boolean;
+  /**
+   * The least distance along x from a strike of a hand to the last target of the other hand, in
+   * meters (`alternateHands()`): a nearer target stays with the other hand. 0 lets a hand strike
+   * up to the target of the other hand, as two mallets in turn on one timpani head.
+   */
+  readonly gap: number;
 }
 
 /**
@@ -159,6 +165,7 @@ export const PERCUSSION_HOLDS = {
     across: { rest: -1.2, lift: 0.65 },
     ready: true,
     pair: true,
+    gap: 0,
   },
   // The badger strikes the bass drum below the middle of the head, as a real player strikes off
   // the middle. The beater leaves the side of the fist at the angle of no twist of the paw on the
@@ -178,6 +185,7 @@ export const PERCUSSION_HOLDS = {
     across: { rest: -1.4, lift: 0.6 },
     ready: true,
     pair: false,
+    gap: 0,
   },
   // The sticks leave the front of the fists (SNARE_DRUM.malletTilt) and point from homes out
   // from the shoulders, so that they make a V of about 66° at a strike and slant down 9°, as the
@@ -196,6 +204,7 @@ export const PERCUSSION_HOLDS = {
     across: { rest: -0.6, lift: 0.3 },
     ready: false,
     pair: false,
+    gap: 0,
   },
   // The lift is the half of the gap between the inner faces of the two cymbals. The elbows point
   // down and a little out, so that fewer faces of the left shoulder of the badger mesh fold in the
@@ -213,6 +222,7 @@ export const PERCUSSION_HOLDS = {
     across: null,
     ready: false,
     pair: false,
+    gap: 0,
   },
   // The left hand holds the triangle up, and its elbow points out to the left. The beater leaves
   // the front of the right fist (TRIANGLE.malletTilt) and keeps the angle of no twist of the paw
@@ -232,6 +242,7 @@ export const PERCUSSION_HOLDS = {
     across: { rest: -0.6, lift: 0.3 },
     ready: true,
     pair: false,
+    gap: 0,
   },
   // The mallets leave the front of the fists (XYLOPHONE.malletTilt) and keep the angle of no
   // twist of the paw between strikes, as the sticks of the snare drum, because a real player holds
@@ -239,8 +250,13 @@ export const PERCUSSION_HOLDS = {
   xylophone: {
     hands: 'alternate',
     sizes: { lift: 0.08, rest: 0.03 },
-    offsetL: [0, 0, 0],
-    offsetR: [0, 0, 0],
+    // The left mallet strikes 3 cm nearer to the player than the middle of the bar, and the right
+    // mallet 3 cm farther, so that the heads keep apart on near bars between strikes, when each
+    // head swings in to the rest direction. With the heads at the middle, the mallets of the steel
+    // drum part of a file of the user touched in 13 of 248 samples, and with these offsets in 2
+    // (`docs/research/2026-10-21-pirates-clip.md`).
+    offsetL: [0, 0, 0.03],
+    offsetR: [0, 0, -0.03],
     poleL: [-0.8, -1, 0.3],
     poleR: [0.8, -1, 0.3],
     rim: 0,
@@ -249,6 +265,9 @@ export const PERCUSSION_HOLDS = {
     across: { rest: -0.6, lift: 0.3 },
     ready: false,
     pair: false,
+    // A repeat on one bar stays in one hand, so that a mallet does not strike under the head of
+    // the other mallet, which rests over the bar.
+    gap: 0.01,
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
 
@@ -275,6 +294,7 @@ export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
   across: { rest: -0.6, lift: 0.3 },
   ready: false,
   pair: false,
+  gap: 0,
 };
 
 /** The places of the hands of a percussion player, in head heights `H` (design 5.3). */

@@ -61,24 +61,30 @@ export interface StrikeGroup {
  * hand, so that a roll alternates the hands. A later single target takes the hand on its side. A
  * hand does not cross the other hand: a target to the right of the last target of the right hand
  * takes the right hand, and a target to the left of the last target of the left hand takes the
- * left hand.
+ * left hand. With a gap, a target nearer than the gap to the last target of the other hand also
+ * stays with that hand, so that a mallet does not strike where the other mallet rests.
  *
  * @param groups The strikes of the player, sorted by start.
  * @param alternateSec The longest time from the strike before in which a single target takes the
  *   other hand, in seconds. With 0, each single target takes the hand on its side.
+ * @param gap The least distance along x from the last target of the other hand, in meters. 0 by
+ *   default: only a target past it stays with the other hand.
+ * @param places The places of the left and of the right hand along x before their first strikes.
+ *   No limit by default.
  * @returns The strikes of the left hand and of the right hand, sorted by start.
  */
 export function alternateHands(
   groups: readonly StrikeGroup[],
   alternateSec: number = STRIKE_MOTION.alternateSec,
+  gap = 0,
+  places: readonly [left: number, right: number] = [-Infinity, Infinity],
 ): readonly [left: Strike[], right: Strike[]] {
   const left: Strike[] = [];
   const right: Strike[] = [];
   let last: 'L' | 'R' | 'both' = 'both';
   let lastStart = -Infinity;
   // The places of the hands along x: the last targets of the left and of the right hand.
-  let leftX = -Infinity;
-  let rightX = Infinity;
+  let [leftX, rightX] = places;
   for (const group of groups) {
     const strike = (target: StrikeTarget): Strike => ({
       ...target,
@@ -102,7 +108,7 @@ export function alternateHands(
       const alternate: boolean = last !== 'both' && group.start - lastStart < alternateSec;
       const onSide: 'L' | 'R' = x < 0 ? 'L' : 'R';
       const chosen: 'L' | 'R' = alternate ? (last === 'L' ? 'R' : 'L') : onSide;
-      const crosses: boolean = chosen === 'L' ? x > rightX : x < leftX;
+      const crosses: boolean = chosen === 'L' ? x > rightX - gap : x < leftX + gap;
       const side: 'L' | 'R' = crosses ? (chosen === 'L' ? 'R' : 'L') : chosen;
       (side === 'L' ? left : right).push(strike(first));
       if (side === 'L') {

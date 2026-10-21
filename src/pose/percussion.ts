@@ -77,15 +77,23 @@ export function percussionTracks(
     }
     return { start: group.start, loudness: group.loudness, targets };
   });
+  // With a gap, a hand waits at its rest target before its first strike, and the other hand keeps
+  // the gap from that place.
+  const waits = hold.gap > 0;
   const track = (strikes: readonly Strike[], offset: Vec3, rest: StrikeTarget): StrikeTrack =>
     buildStrikeTrack(
       strikes.map((s) => ({ ...s, point: offsetTarget(s, offset).point })),
-      strikes[0] ? offsetTarget(strikes[0], offset) : rest,
+      strikes[0] && !waits ? offsetTarget(strikes[0], offset) : rest,
       hold.sizes,
       amplitude,
     );
   if (hold.hands === 'alternate' || hold.hands === 'sides') {
-    const [left, right] = alternateHands(groups, hold.hands === 'sides' ? 0 : undefined);
+    const [left, right] = alternateHands(
+      groups,
+      hold.hands === 'sides' ? 0 : undefined,
+      hold.gap,
+      waits ? [rig.restL.point[0], rig.restR.point[0]] : undefined,
+    );
     return {
       left: track(left, hold.offsetL, rig.restL),
       right: track(right, hold.offsetR, rig.restR),

@@ -210,7 +210,12 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   notes, so the short arms do not reach the outer bars, and the hold is open. A part below or
   above the bars plays in the octave that puts its highest key in the highest octave of the
   bars (`xylophoneShift()` of `src/pose/percussion-rig.ts`), where the short arms reach best. No
-  source of section 11 gives the octave that a player takes for such a part.
+  source of section 11 gives the octave that a player takes for such a part. The mallets make a V
+  and do not cross, as section 9 gives, but the app differs in two rules: a repeat on one bar
+  stays in one hand, and the left mallet strikes 3 cm nearer to the player than the middle of a
+  bar, the right mallet 3 cm farther (`PERCUSSION_HOLDS.xylophone`). Between strikes, each head
+  swings in to the rest direction of the snare grip, so two heads on near bars met
+  (`docs/research/2026-10-21-pirates-clip.md`).
 
 ## 11. Sources
 
