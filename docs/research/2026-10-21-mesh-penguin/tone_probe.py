@@ -1,5 +1,5 @@
 """Prints the Oklab colors of the plain faces of the penguin mesh (chroma at most 0.12, above the
-feet, not dark), as `face_colors()` of `tools/blender/rig_mesh.py` gives them, in bands of
+feet, and light), as `face_colors()` of `tools/blender/rig_mesh.py` gives them, in bands of
 lightness: the count, the median a and b, the median chroma and hue, and the move [dL, da, db]
 that gives the median face of the band the hue and the chroma of the species color of its band
 (`SPECIES_COLORS.penguin`: the fur below the lightness 0.5, the belly above it) with its own
