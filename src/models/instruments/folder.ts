@@ -13,19 +13,28 @@ import type { InstrumentModel } from './types.ts';
  * place in memory with `--set folder.<key>=<value>` (`tools/hold-sets.ts`).
  */
 export const CHOIR_FOLDER = {
-  /** The width of one cover, in meters. */
-  width: 0.2,
+  /**
+   * The width of one cover, in meters. With 0.2 m, the grips lay so near the middle that the
+   * upper flippers of the penguin mesh went 1.5 cm into the sides of the body, and 1.1 cm with
+   * 0.22 m (2026-10-21-mesh-penguin decisions).
+   */
+  width: 0.22,
   /** The height of one cover, in meters. */
   height: 0.27,
   /** The angle between each cover and the plane x-y. The open folder is a flat V. */
   open: 15 * MathUtils.DEG2RAD,
   /**
-   * The distance of the middle of the spine below the head center, in head heights H, at the
-   * height of the folders of the penguins of `orchestra-latest.png` and `orchestra-side.png`.
+   * The distance of the middle of the spine below the head center, in head heights H. The flippers
+   * of the penguin mesh reach the grips in front of the round belly only this high: the middle
+   * shows 0.37 of the body height below the crown, above the 0.51 to 0.56 of the penguins of
+   * `orchestra-latest.png` and `orchestra-side.png` (2026-10-21-mesh-penguin decisions).
    */
-  drop: 0.85,
-  /** The distance of the middle of the spine in front of the head center, in head heights H. */
-  forward: 0.75,
+  drop: 1.25,
+  /**
+   * The distance of the middle of the spine in front of the head center, in head heights H, so
+   * that the folder keeps off the belly and the throat.
+   */
+  forward: 1.1,
   /** The angle by which the folder leans back, so that the pages face the eyes. */
   tilt: 35 * MathUtils.DEG2RAD,
 };
