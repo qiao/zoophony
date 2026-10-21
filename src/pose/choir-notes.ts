@@ -11,13 +11,17 @@ export const CHOIR_MOTION = {
    * The jaw or the lower beak opens this far for a note, at a gesture size of 1. The beak of a
    * singer in the front row of the default view is about 3 pixels long, so 18° did not show.
    * With 35°, the beak did not show in a section shot at 1440 × 900 (UX audit 2026-10-06, N8).
+   * The singing penguins of `orchestra-side.png` open their beaks about 60° to 75°, so the
+   * penguin mesh keeps this angle (2026-10-21-penguin-beak decisions).
    */
   jaw: 50 * MathUtils.DEG2RAD,
   /**
    * The neck and the head lift this far at the full opening of the jaw, so that each sung note
-   * shows from the default view. The lift follows the opening of the jaw. It was 15°.
+   * also shows from the default view, where the beak is a few pixels long. The lift follows the
+   * opening of the jaw. It was 15° and then 22°, while the beak alone moved too little, and it is
+   * 15° again since the beak of the penguin mesh opens (2026-10-21-penguin-beak decisions).
    */
-  headLift: 22 * MathUtils.DEG2RAD,
+  headLift: 15 * MathUtils.DEG2RAD,
   /**
    * The spine leans back by this angle at the top of the breath in before a phrase, at an
    * amplitude of 1, and the chest rises with it. The breath in takes 0.4 s and ends at the first
