@@ -439,7 +439,7 @@ export const SPECIES = {
    */
   deer: {
     body: 'studio-deer',
-    harpScale: 0.65,
+    harpScale: 0.78,
     size: 1,
     colors: SPECIES_COLORS.deer,
     accentParts: ['nose', 'feet'],
