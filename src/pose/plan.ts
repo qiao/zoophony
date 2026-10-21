@@ -178,6 +178,11 @@ export interface PosePlan {
   readonly leader: number | null;
   /** The times of the conducted beats, in song seconds (`Score.beats`). */
   readonly beats: Float64Array;
+  /**
+   * The times of the beats of the felt pulse, in song seconds: the beats of `Score.beats` with
+   * `pulse`. The sway of a player changes its side at each one (design 5.1).
+   */
+  readonly pulses: Float64Array;
   /** The song end, `Score.durationSec`. The conductor bows after it (design 5.4). */
   readonly endSec: number;
 }
@@ -549,6 +554,19 @@ function cueSeats(
 }
 
 /**
+ * Gives the times of the beats of the felt pulse (design 5.1).
+ *
+ * @param beats The conducted beats, sorted by time.
+ * @returns The times of the beats with `pulse`, sorted.
+ */
+export function pulseTimes(beats: readonly Beat[]): Float64Array {
+  return Float64Array.from(
+    beats.filter((beat) => beat.pulse),
+    (beat) => beat.timeSec,
+  );
+}
+
+/**
  * Calculates the data of the conductor that the pose needs at each frame (design 5.4): the beats
  * of the baton, the cues with the turns to the cued seats, and the levels, the trends, and the
  * held chords for the left hand. The conductor has no timing offset, no look, and a rest motion
@@ -740,6 +758,7 @@ export function preparePoses(
     conductor,
     leader,
     beats,
+    pulses: pulseTimes(score.beats),
     endSec: score.durationSec,
   };
 }

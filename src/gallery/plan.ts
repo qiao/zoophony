@@ -6,7 +6,13 @@ import { boneIndex } from '../models/rig.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { loudnessOf } from '../pose/loudness.ts';
-import { createRigCache, prepareConductor, preparePlayer, seatSeedOf } from '../pose/plan.ts';
+import {
+  createRigCache,
+  prepareConductor,
+  preparePlayer,
+  pulseTimes,
+  seatSeedOf,
+} from '../pose/plan.ts';
 import type { PosePlan } from '../pose/plan.ts';
 import { mixHash } from '../pose/random.ts';
 import type { Beat, PlayerNote } from '../score/types.ts';
@@ -65,6 +71,7 @@ export function testBeats(notes: readonly TestNote[]): Beat[] {
     indexInBar: k % 4,
     beatsInBar: 4,
     pattern: 4,
+    pulse: true,
   }));
 }
 
@@ -143,6 +150,7 @@ export function galleryPlan(
       : null,
     leader: null,
     beats: beatTimes,
+    pulses: pulseTimes(beats),
     // The gallery has no song end, so the conductor does not bow.
     endSec: Infinity,
   };

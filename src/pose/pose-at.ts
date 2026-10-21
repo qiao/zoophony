@@ -230,7 +230,8 @@ function writeBody(pose: WritablePose, player: PlayerPlan, scratch: FrameScratch
 
 /**
  * Gives the side sway of the spine of a player (design 5.1, the beat layer). The player sways
- * with the beat while it plays, and the gesture size follows the loudness of its passage (5.3).
+ * with the felt pulse while it plays, and the gesture size follows the loudness of its passage
+ * (5.3).
  *
  * @param plan The plan of the score.
  * @param player The plan of the player.
@@ -244,7 +245,7 @@ function swayOf(plan: PosePlan, player: PlayerPlan, noteTime: number, weight: nu
     return 0;
   }
   const gesture = gestureSize(activity.loudness, player.amplitude);
-  return BODY_MOTION.sway * gesture * activity.weight * weight * beatSway(plan.beats, noteTime);
+  return BODY_MOTION.sway * gesture * activity.weight * weight * beatSway(plan.pulses, noteTime);
 }
 
 /**

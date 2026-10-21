@@ -85,6 +85,11 @@ export interface Beat {
    * downbeat.
    */
   readonly pattern: 1 | 2 | 3 | 4 | 6 | 'generic';
+  /**
+   * True when a pulse of the felt pulse starts at this beat: the sway of a player changes its side
+   * here (design 5.1). A slow song has a pulse at each beat.
+   */
+  readonly pulse: boolean;
 }
 
 /**

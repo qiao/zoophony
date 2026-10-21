@@ -196,7 +196,7 @@ The pose has three layers:
 | Layer | Clock | Motion |
 |---|---|---|
 | Note | song time | Bow strokes, fingers, breath, mallets, hands (5.3) |
-| Beat | song time | A small sway with the beat, and the conductor (5.4) |
+| Beat | song time | A small sway with the felt pulse, and the conductor (5.4) |
 | Idle | wall clock time | Breath, eye blinks, looks at the conductor |
 
 The idle layer uses the wall clock time, so the animals stay alive while the music stops.
@@ -205,8 +205,17 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   `keyboard`, `harp`, `percussion`, `choir`, or `conductor`. Each family has its own note layer.
   No layer moves the legs or the trunk (4.7).
 - **Beat layer.** In a passage (notes with short rests), a player sways the spine to one side on
-  one beat and to the other side on the next beat, with the loudness of the passage
-  (`beatSway()` of `pose/pose-at.ts`, `PASSAGE_MOTION` of `pose/passages.ts`).
+  one pulse of the felt pulse and to the other side on the next pulse, with the loudness of the
+  passage (`beatSway()` of `pose/pose-at.ts`, `PASSAGE_MOTION` of `pose/passages.ts`).
+- **Felt pulse.** A real player sways with a slow level of the meter, and a dancer sways from
+  side to side once in a bar of 4 beats (`docs/research/2026-10-21-beat-fold.md`). The pulse
+  of a song is its conducted beat (5.4), when the median conducted beat is at most
+  `PULSE_TEMPO` (`score/beats.ts`), the preferred tempo of a listener. A faster song takes
+  a pulse of 2 or 4 conducted beats. The song has one pulse length in note values
+  (`markPulses()`), so a tempo change slows or speeds up the sway with the music. A bar whose
+  length is no multiple of the pulse, such as a bar of 3/4 with a pulse of a half note, has one
+  pulse at its downbeat. The pulse is part of the plan, so the sway stays a function of the song
+  time, with no jump at a change of the conducted pattern.
 - **Idle layer.** Each animal breathes, blinks, twitches its ears, sways its tail, and looks at
   the conductor at seeded times in windows of the wall clock, so it needs no state (`IDLE_MOTION`
   of `pose/idle.ts`). In a chamber group (4.2), the players look at the leader (5.4), the leader

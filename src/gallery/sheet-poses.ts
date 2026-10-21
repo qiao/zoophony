@@ -7,7 +7,13 @@ import type { Vec3 } from '../models/tuples.ts';
 import { loudnessOf } from '../pose/loudness.ts';
 import { BOWED_HOLDS, bowedRig, holdOf, violinTurn } from '../pose/bowed-rig.ts';
 import type { BowedHold } from '../pose/bowed-rig.ts';
-import { createRigCache, prepareConductor, preparePlayer, seatSeedOf } from '../pose/plan.ts';
+import {
+  createRigCache,
+  prepareConductor,
+  preparePlayer,
+  pulseTimes,
+  seatSeedOf,
+} from '../pose/plan.ts';
 import { poseAt } from '../pose/pose-at.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import type { TestNote } from './notes.ts';
@@ -141,7 +147,14 @@ export function sheetPose(
   );
 
   const pose = poseAt(
-    { players: [plan], conductor: null, leader: null, beats: new Float64Array(), endSec: Infinity },
+    {
+      players: [plan],
+      conductor: null,
+      leader: null,
+      beats: new Float64Array(),
+      pulses: new Float64Array(),
+      endSec: Infinity,
+    },
     moment.time,
     0,
     PLAYING,
@@ -185,6 +198,7 @@ function readyPose(model: PlayerModel, moment: SheetMoment): AnimalPose {
       conductor,
       leader: null,
       beats: Float64Array.from(beats, (b) => b.timeSec),
+      pulses: pulseTimes(beats),
       endSec: Infinity,
     },
     moment.time,
