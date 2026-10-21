@@ -39,16 +39,28 @@ export const HARP = {
   keys: [24, 103],
 } as const;
 
-/** The tilt of the harp back to the player. */
-const TILT = 12 * MathUtils.DEG2RAD;
-
 /**
- * The turn of the harp around the vertical, seen from above, so that the top of the soundbox comes
- * to the right shoulder and the column goes to the front left. Thus the neck passes the right
- * side of the face. With no turn, the neck went through the face of the deer (review of step 5,
- * U1).
+ * The place of the harp at the player (design 4.6): the base of the harp stands on the floor in
+ * front of the player, and the harp leans back to the right shoulder. `pnpm hold-fit --set` and
+ * the other probes change it as `harpPlace`.
  */
-const TURN = 38 * MathUtils.DEG2RAD;
+export const HARP_PLACE = {
+  /** The move of the base to the right of the floor point under the seat, in head heights. */
+  side: 0.15,
+  /** The move of the base up, in meters, at the scale 1 of the harp. */
+  lift: 0.017,
+  /** The distance of the base in front of the floor point, in meters, at the scale 1. */
+  front: 0.53,
+  /** The tilt of the harp back to the player. */
+  tilt: 12 * MathUtils.DEG2RAD,
+  /**
+   * The turn of the harp around the vertical, seen from above, so that the top of the soundbox
+   * comes to the right shoulder and the column goes to the front left. Thus the neck passes the
+   * right side of the face. With no turn, the neck went through the face of the deer (review of
+   * step 5, U1).
+   */
+  turn: 38 * MathUtils.DEG2RAD,
+};
 
 /** The places of the bass string and of the treble string along z. */
 const STRING_ENDS = [-0.17, 0.24] as const;
@@ -188,13 +200,13 @@ export function buildHarp(scale = 1): InstrumentModel {
     'instrument',
     hold(
       'floor',
-      [0.15, 0, 0],
+      [HARP_PLACE.side, 0, 0],
       toQuat(
         new Quaternion()
-          .setFromAxisAngle(new Vector3(0, 1, 0), TURN)
-          .multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), TILT)),
+          .setFromAxisAngle(new Vector3(0, 1, 0), HARP_PLACE.turn)
+          .multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), HARP_PLACE.tilt)),
       ),
-      scaled([0, 0.017, -0.53]),
+      scaled([0, HARP_PLACE.lift, -HARP_PLACE.front]),
     ),
   );
   const low = scaled(middles[0] ?? [0, 0, 0]);
