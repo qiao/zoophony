@@ -215,6 +215,12 @@ interface BrassBuild {
  * violin. The trumpet, its grips, and its bell target shrink toward the mouthpiece, so the
  * mouthpiece stays at the mouth.
  *
+ * The palms hold the valve casings at their lower half, the left palm at the left side and the
+ * right palm at the right side, so that the fingers of a long paw reach up to the tops of the
+ * valves, as the left hand of a real player holds the casings and the right fingertips rest on
+ * the valves (`docs/reference/wind-technique.md` 2.1). With the right palm on top of the valves,
+ * the long paws of the monkey rose past the trumpet to the eyes.
+ *
  * @param scale The scale of the trumpet, as a factor of its size in {@link BRASS}.
  * @returns The parts and the play data.
  */
@@ -260,8 +266,8 @@ function trumpet(scale: number): BrassBuild {
         hold('mouth', [0, 0, 0], pointing([0, -Math.sin(5 * MathUtils.DEG2RAD), -1], [0, 1, 0])),
       ),
     ],
-    palmL: scaled([0.17, -0.04, -0.03]),
-    palmR: scaled([0.18, 0.03, 0.01]),
+    palmL: scaled([0.17, -0.07, -0.03]),
+    palmR: scaled([0.18, -0.05, 0.03]),
     targets: [{ ...bellTarget, from: bellMouth, to: bellMouth }],
   };
 }
