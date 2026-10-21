@@ -337,7 +337,13 @@ from the first position (derived).
   player sits on the front of the chair with a stand [1] [53]. The right hand works the valves
   [54]. The bell is at the left of the head on a rotary tuba and at the right of the head on a
   piston tuba [53]. The player brings the tuba to the body, with no change of the back, the neck,
-  or the head [1]. No source of this file gives the rest between two entrances.
+  or the head [1]. The tuba can be at a slight angle for the embouchure [1]. No source of this
+  file gives the rest between two entrances.
+- **Standing tuba.** A player who stands carries the tuba on a strap or a harness. A tuba strap is
+  "Suitable for playing whilst standing and for playing whilst marching", and its weight "is
+  evenly distributed across both shoulders" [58]. A tuba harness "was designed to meet the needs
+  of tuba players who prefer to play standing or marching", for "a more stable and upright playing
+  position" [59]. Thus the hands of a standing player carry no weight, as in the seat (derived).
 
 ## 4. Use in the app
 
@@ -398,7 +404,11 @@ the rows.
 | Trumpet size (`trumpetScale` of `SPECIES.monkey`) | 0.8 of the trumpet of the app, the size that the user chose with the arms 1.5 | This file gives no size of a smaller trumpet (2.1) | No source |
 | Trumpet angle (`trumpet()` of `models/instruments/brass.ts`, `MONKEY_TRUMPET`) | 5° below the level, straight ahead | "Angled slightly down", a little less than 90° to the face (2.1) | Matches |
 | Trumpet rest (`WIND_HOLDS.trumpet.rest`) | Off the mouth, turned down in front of the chest with the bell down, and both paws keep their grips | No source (2.1) | No source |
-| Tuba (`WIND_HOLDS.tuba`, `tuba()`) | In the lap, the bell at the left of the head, the right paw on the valves | On the thigh or the chair, the right hand on the valves, the bell at the left of the head on a rotary tuba (3) | Matches |
+| Tuba stand (`INSTRUMENT_SUPPORTS.tuba`, `RHINO_TUBA`) | The rhino stands in each seat, in the standing pose of its mesh, and the tuba stands against its body. The paws carry no weight | A standing tubist carries the tuba on a strap or a harness (3) | Matches. The app draws no strap |
+| Tuba hands (`RHINO_TUBA`, `palmL` and `palmR` of `tuba()`) | The left paw holds the main branch at its back left, and the right paw presses the valves | The right hand works the valves (3) | Matches |
+| Tuba bell and angle (`play` of `RHINO_TUBA`) | The lower end turns 25° to the right, so the bell stands at the left of the head and of the horn | The bell at the left of the head on a rotary tuba, the tuba at a slight angle (3) | Matches |
+| Tuba lead pipe (`tubaPipe` of `SPECIES.rhino`) | 0.25 m longer back and 0.1 m to the left, because the long muzzle puts the mouthpiece 0.51 m in front of the shoulder joints | The player brings the tuba to the body (3). This file gives no length of a lead pipe | No source |
+| Tuba rest (`rest` of `RHINO_TUBA`) | Off the mouth, the lower end 5° forward, both paws on their grips | No source (3) | No source |
 | Valve combinations (`VALVES`, `semitonesBelowPartial()` of `pose/wind-notes.ts`) | One valve for 1 and 2 semitones below a partial, two valves for 3 to 5, three valves for 6. The seventh partial is not a partial, so the trumpet plays the written A♭5, A5, and B♭5 with 2, 2, and 1 valves from the eighth partial | The written D4, C♯4, E♭4, and A5 (1-2) (2.1) | Matches. This file gives no fingering of the written A♭5 and B♭5 of the trumpet, and of the tuba. The row "Horn valves" gives the horn |
 | Fingers of the woodwinds (`holesClosed()`) | Both hands close for a low note, and the right hand opens first up the octave | Only the fingers move, with the pads on the keys (2.3, 2.4) | Matches. The paws curl as one block |
 | Breath time (`WIND_MOTION`) | 0.4 s before each phrase | Reed players breathe in about 0.3 s. A breath in tempo takes one beat (2.1, 2.3, 1.6) | Matches |
@@ -534,3 +544,8 @@ Each source opened on 2026-10-18, except where a fact has a mark of section "Sou
 57. S. Eddins, "Double Horn Fingerings, Harmonic Series, Intonation, Trills, and Horn Lengths"
     (2023), after a chart of T. Martin in R. Gardner, *Good Vibrations: Masterclasses for Brass
     Players*. https://horncamp.org/wp-content/uploads/2024/01/double-horn-fingering-chart-eddins.pdf
+58. Thomann, "Rudolf Schwarz Tuba Känguru Bb Tuba", carrying strap for a B♭ tuba, product text
+    (opened 2026-10-21).
+    https://www.thomann.co.uk/rudolf_schwarz_tuba_kaenguru_bb_tuba.htm
+59. Engadine Music, "Neotech Pad-It Tuba Harness", product text (opened 2026-10-21).
+    https://engadinemusic.com.au/products/neotech-pad-it-tuba-harness
