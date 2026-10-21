@@ -327,9 +327,6 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       arm gate (`app/fold-probe.txt`). A fold round with rings or rigid weights.
 - [x] Deer: the seated deer was lower than the parametric deer (skull top 1.125 m against 1.311 m).
       The user made it 1.2 times as large: the seated skull top is 1.349 m (`2026-10-21-mesh-deer.md`).
-- [ ] Deer: at the size 1.2, the haunch is about 0.47 m wide, and the stool of the harp keeps its
-      seat of 0.36 m, so the haunch stands out over the sides of the seat. A stool of the width of
-      the rig chair (`SeatHeights.seatWidth`) is an option (`size-1.2/seat-crops.webp`).
 - [ ] Remove the parametric biped with its ears, snouts, and tails: no species has it since the
       rhino and the deer meshes (`2026-10-21-mesh-rhino.md`, `2026-10-21-mesh-deer.md`).
 - [x] Rig the mesh of the penguin (choir). The user gave it on 2026-10-21 and asked that it stands.
