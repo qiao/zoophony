@@ -18,7 +18,7 @@
  * With no `--midi` and no `--demo`, it probes each demo.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { basename } from 'node:path';
+import { basename, resolve } from 'node:path';
 
 import { Quaternion, Vector3 } from 'three';
 
@@ -147,7 +147,8 @@ function parseOptions(args: readonly string[]): RatesOptions {
     }
     switch (flag) {
       case '--midi':
-        midi.push(value);
+        // The path is absolute, so that the child on the commit of --base reads the same file.
+        midi.push(resolve(value));
         break;
       case '--demo':
         demos.push(value.replace(/\.mid$/, ''));
@@ -567,10 +568,12 @@ async function filesOf(options: RatesOptions): Promise<{ file: string; bytes: Ui
  * (`probeBeside()`), and prints one table for each file.
  *
  * @param ref The commit, the branch, or the tag.
+ * @param options The options, with the absolute paths of `--midi`.
  * @returns True when a file of the working tree fails.
  */
-async function compareRates(ref: string): Promise<boolean> {
-  const args = withoutOptions(process.argv.slice(2), ['--base']);
+async function compareRates(ref: string, options: RatesOptions): Promise<boolean> {
+  const args = withoutOptions(process.argv.slice(2), ['--base', '--midi']);
+  args.push(...options.midi.flatMap((path) => ['--midi', path]));
   const texts = await probeBeside(
     ref,
     'beat-rates.ts',
@@ -593,7 +596,7 @@ async function compareRates(ref: string): Promise<boolean> {
 async function main(): Promise<void> {
   const options = parseOptions(process.argv.slice(2));
   if (options.base !== null) {
-    process.exitCode = (await compareRates(options.base)) ? 1 : 0;
+    process.exitCode = (await compareRates(options.base, options)) ? 1 : 0;
     return;
   }
 
