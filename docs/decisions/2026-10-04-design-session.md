@@ -16,7 +16,7 @@ The user can change any of them. Then update the section that holds it.
 | The conductor is not counted in the cap of 60 | 3.8 |
 | The order in which players go when a file needs more than 60 | 3.8 |
 | The species of a third or later seat of a section | 4.3 |
-| The shape parameters of each species, with the new types `large-round`, `floppy`, and `puff` | 4.3 |
+| The shape parameters of each species, with the new tail type `puff` | 4.3 |
 | All colors, proportions, budgets, prop sizes, and the model inventory | 4.5, 4.6 |
 | The camera: elevation 28°, azimuth 30°, distance `3.3 × S` (fit to the reference) | 4.5 |
 | The stage origin, the stage size, the row radius rule, and the choir risers | 4.5 |
@@ -87,13 +87,10 @@ The user can change any of them. Then update the section that holds it.
 | The torso splits at the `chest` bone: the lower part follows `spine`, and the upper part follows `chest` (review of step 3, F6) | 4.7 |
 | The seated shin reaches from the knee to the floor (seat height plus 0.12 H), so that the feet rest on the floor (review of step 3, F2) | 4.5 |
 | The inside of an ear has the belly color, unless the accent parts include the inner ears or the ears | 4.5 |
-| The trunk has no nose ball, the flat nose has two nostrils, and the beak has a lower half on `jaw` | 4.5 |
-| The flat nose is 0.4 H wide and 0.3 H tall, in place of 0.2 H wide | 4.5 |
 | The path of a tail of two bones under the chair back | 4.5 |
 | The seated body of step 4: the head top 2.4 H above the seat (in place of 2.6), a torso 1.45 H tall, and a neck that the torso and the head hide. The agent of the animal views changed the widths and the legs (below) | 4.5 |
-| The ear type `antlered` (the deer). The ears `side-round` and the face pattern `face-disc` of the parametric monkey went with the monkey mesh (`2026-10-20-mesh-monkey.md`) | 4.3 |
+| The ear type `antlered` (the deer) | 4.3 |
 | The trunk starts 0.3 H below the head center and curls up. The horn is 0.26 H wide at its base | 4.5 |
 | The ids of the two fox colors: `fox-red` (second violins) and `fox-tan` (flutes). `SPECIES` holds 19 entries for the 18 species | 4.3 |
-| The mouse has a pointed snout of 0.3 H and large round ears of 0.7 H, set high and out to the sides (review of step 4, the weak species) | 4.3, 4.5 |
-| The dog has a cream coat `#e6dfd1` with belly `#f3eee4`, and its floppy ears and the new face pattern `eye-patch` (one patch around the left eye) are `#8a5a36` (review of step 4, the weak species) | 4.3, 4.5 |
+| The dog has a cream coat `#e6dfd1` with belly `#f3eee4` (review of step 4, the weak species) | 4.3, 4.5 |
 | A wind player shows one note: the last note that started, and the highest note of a chord (notes within 50 ms) (second re-review of step 2, P1) | 5.3 |
