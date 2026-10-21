@@ -168,9 +168,9 @@ export const HANDS_HOLDS = {
   // The left hand plays from the left side of the strings and the right hand from the right
   // side (design 4.6), with the forearms about level, as a real harpist plays (musicmark.org.uk,
   // "A Common Approach", harp, area B). The short arms of the deer set the values
-  // (`docs/research/2026-10-21-mesh-deer.md`). The left palm lies 0.1 m above the middle of each
+  // (`docs/research/2026-10-21-mesh-deer.md`). The left palm lies 0.14 m above the middle of each
   // string, nearer to the shoulder: at the middle, the left paw missed the far bass strings by up
-  // to 5 cm. The left fingers point up and back along the strings (`aimL`): with the fingers on
+  // to 5 cm, and with 0.1 m on the deer of 1.2 times the size, by up to 7 mm. The left fingers point up and back along the strings (`aimL`): with the fingers on
   // the line from the shoulder, the left paw bent 86° to 91° on its forearm (paw swing of
   // `pnpm arm-check`, limit 70°). Of 6 elbow directions, the two that point down passed the arm
   // gate (paw bends of 60° and 65°). The left elbow takes the one that points a little out, as a
@@ -178,7 +178,7 @@ export const HANDS_HOLDS = {
   harp: {
     action: 'pluck',
     keyPoint: harpStringPosition,
-    palmL: [-0.03, 0.1, 0],
+    palmL: [-0.03, 0.14, 0],
     palmR: [0.03, 0, 0],
     faceL: [1, 0, 0],
     faceR: [-1, 0, 0],
