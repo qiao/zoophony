@@ -23,7 +23,7 @@ export interface MidiChannelEvent {
 }
 
 /** A tempo event (FF 51). */
-export interface MidiTempoEvent {
+interface MidiTempoEvent {
   readonly type: 'tempo';
   readonly tick: number;
   /** Above 0. */
@@ -31,7 +31,7 @@ export interface MidiTempoEvent {
 }
 
 /** A time signature event (FF 58). */
-export interface MidiTimeSignatureEvent {
+interface MidiTimeSignatureEvent {
   readonly type: 'time-signature';
   readonly tick: number;
   /** Above 0. */
