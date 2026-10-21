@@ -210,7 +210,7 @@ export class Ui {
   openDemoList(): void {
     this.drawer.showTab('demos');
     this.drawer.setOpen(true);
-    this.drawer.element.scrollTop = 0;
+    this.demoList.element.scrollTop = 0;
     this.demoList.focusCurrent();
   }
 

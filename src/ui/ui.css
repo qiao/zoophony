@@ -637,10 +637,12 @@ input[type='range']:disabled::-moz-range-thumb {
   border: 1px solid var(--line);
   border-radius: var(--radius-float);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
-  overflow: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 240, 220, 0.18) transparent;
+  /* The drawer itself does not scroll and does not bounce. The panel of a tab scrolls below the
+     tabs, and in the tab "Pieces" only the demo list scrolls (design 2.8). */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overscroll-behavior: none;
   padding: 6px 16px 16px;
   /* The drawer slides 16 px and fades in 200 ms when it opens and closes (design 2.8). A sheet
      that a short drag of its handle does not close goes back to its place. */
@@ -655,7 +657,7 @@ input[type='range']:disabled::-moz-range-thumb {
    accessibility tree. Its visibility ends after the fade. The display replaces the "none" of the
    browser for the attribute "hidden". */
 .drawer[hidden] {
-  display: block;
+  display: flex;
   visibility: hidden;
   opacity: 0;
   translate: 16px 0;
@@ -690,11 +692,11 @@ body.is-building #stage {
 }
 
 /* The top of the drawer: the tabs at the left and the close button at the right (design 2.8).
-   It sticks to the top while the panel below it scrolls, so that the tabs stay in reach. */
+   It stays above the panel, which scrolls below it, so that the tabs stay in reach. */
 .drawer-top {
-  position: sticky;
-  top: -6px;
+  position: relative;
   z-index: 1;
+  flex: none;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -756,6 +758,38 @@ body.is-building #stage {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+/* The panel of a tab fills the drawer below the tabs and scrolls with no bounce. The scroll bar
+   stands at the edge of the drawer. */
+.tab-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0 -16px;
+  padding: 0 16px;
+  overflow-y: auto;
+  overscroll-behavior: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 240, 220, 0.18) transparent;
+}
+
+/* In the tab "Pieces", only the demo list scrolls, and it can bounce at its ends. The file
+   button stays below it. */
+#panel-demos:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#panel-demos > .list {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0 -16px;
+  padding: 0 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 240, 220, 0.18) transparent;
 }
 
 .list > li + li {
@@ -858,13 +892,13 @@ body.is-building #stage {
   border: 0;
 }
 
-/* The file button below the demo list. It sticks to the bottom of the drawer while the rows
+/* The file button below the demo list. It stays at the bottom of the drawer while the rows
    above it scroll. */
 .file-picker {
-  position: sticky;
-  bottom: -16px;
+  position: relative;
   z-index: 1;
-  margin: 4px -16px 0;
+  flex: none;
+  margin: 4px -16px -16px;
   padding: 12px 16px 16px;
   background: linear-gradient(to bottom, transparent, var(--panel) 12px);
 }
@@ -1514,15 +1548,14 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
     transform: none;
   }
 
-  /* The tabs stick below the handle. */
+  /* The tabs stand below the handle. */
   .drawer-top {
-    top: 20px;
     padding-top: 0;
   }
 
   .handle {
-    position: sticky;
-    top: -4px;
+    position: relative;
+    flex: none;
     z-index: 1;
     display: grid;
     place-items: center;

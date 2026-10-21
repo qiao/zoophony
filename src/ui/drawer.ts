@@ -143,13 +143,18 @@ export class Drawer {
   }
 
   /**
-   * Shows the panel of a tab, and hides the other panels. A new tab scrolls the drawer to the top.
+   * Shows the panel of a tab, and hides the other panels. A new tab scrolls its panel and the
+   * lists in it to the top.
    *
    * @param id The tab.
    */
   showTab(id: DrawerTab): void {
-    if (id !== this.#current) {
-      this.element.scrollTop = 0;
+    const shown = this.#tabs.get(id)?.panel;
+    if (id !== this.#current && shown) {
+      shown.scrollTop = 0;
+      for (const child of shown.children) {
+        child.scrollTop = 0;
+      }
     }
     this.#current = id;
     for (const [tabId, { tab, panel }] of this.#tabs) {
