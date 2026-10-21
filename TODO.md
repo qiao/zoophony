@@ -813,10 +813,20 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `face-patterns.ts` went on 2026-10-20, because no species had a face pattern.
 - [ ] `docs/agents/model-traps.md` has 3,170 words, above its limit of about 3,000
       (`docs/agents/writing.md`). Cut it in a prose pass.
-- [ ] Bear conductor: at the start of the lift, the baton paw turns from 26° to 180° in 0.13 s, and
+- [x] Bear conductor: at the start of the lift, the baton paw turns from 26° to 180° in 0.13 s, and
       at 0.20 s it snaps from 176° to 105° in 0.01 s. `pnpm arm-check conductor` fails on the paw
       jumps of the right arm in 5.8% of the lift samples (`2026-10-19-arm-gate.md`,
-      `docs/research/2026-10-19-arm-gate-2/conductor-lift.webp`).
+      `docs/research/2026-10-19-arm-gate-2/conductor-lift.webp`). The baton turn of the lift now
+      keeps at most 60° of twist: the paw twist stays at most 105°, and the paw jumps are 0%
+      (`2026-10-21-wrist-lift.md`).
+- [ ] Left paw of the violins and of the viola: in each lift and lowering, the paw twist passes
+      180° on the forearm, and the twist bone jumps by 180° in one frame, because the rest twist
+      (-122° on the rabbit) and the play twist (137°) lie on the two sides of 180°. Fix the rest
+      grip on the neck, so that its twist lies on the side of the play twist, and show the user
+      the rest views (`2026-10-21-wrist-lift.md`).
+- [ ] Rabbit lowering: the right forearm goes 2.1 cm into the body for 0.2 s at the song end of
+      `bach-bwv1050`, against 1.0 cm before the fix of the bow flip (`pnpm pose-depth violinist
+      --base 39aa09c9`, `2026-10-21-wrist-lift.md`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
