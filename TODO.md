@@ -827,6 +827,16 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Rabbit lowering: the right forearm goes 2.1 cm into the body for 0.2 s at the song end of
       `bach-bwv1050`, against 1.0 cm before the fix of the bow flip (`pnpm pose-depth violinist
       --base 39aa09c9`, `2026-10-21-wrist-lift.md`).
+- [ ] Tools of a move (retro of the wrist lift round, 2026-10-21):
+      - Add `pnpm move-views <role> <demo> lift|lower <at> <times> [--base <ref>] [--set ...]`.
+        It writes 2x crop pairs (base | tree) of frames inside a demo lift or lowering. Start
+        from `dump.ts` and `render.py` of `docs/research/2026-10-21-wrist-lift/`.
+      - Extend `pnpm arm-check --trace` to lowerings and pause points
+        (`<demo>:lower@<s>:<from>-<to>`), with columns for the twist bone and the turn rates of
+        the wrist and the forearm, and with `--base`.
+      - Bring the cold gate back near 2.5 to 3 minutes: pose only the body of the role in the
+        set `move`, use a step of 0.02 s with one pause point, and run the set `move` in its own
+        child process.
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 
