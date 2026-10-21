@@ -1,5 +1,5 @@
 {
-  "source": "assets/models/penguin/penguin.glb",
+  "source": "assets/models/penguin/penguin-beak.glb",
   "output": "assets/models/penguin/penguin.rig.glb",
   "name": "Penguin",
   "weld": 1e-05,
@@ -213,6 +213,23 @@
         1,
         0
       ]
+    },
+    "jaw": {
+      "head": [
+        0,
+        0.883,
+        0.14
+      ],
+      "tail": [
+        0,
+        0.883,
+        0.234
+      ],
+      "roll": [
+        0,
+        1,
+        0
+      ]
     }
   },
   "palm": [
@@ -220,7 +237,7 @@
     -0.46,
     0.0
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the crown, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. sections.py of docs/research/2026-10-21-mesh-penguin/ gives the cuts at each height and across (sections-y.txt, sections-x.txt, sections-z.txt). The body is one egg with no neck: the trunk joints lie on the middle line of the body cuts, a little behind their middle (z -0.013 at y 0.3), and the head joint at the narrowest cut under the head (y 0.79). The penguin has no ears, so each ear joint lies inside the crown, and no vertex follows it (earBase). The flipper hangs out and down from its root on the side of the body (y 0.48 to 0.65 at x 0.206) to its tip at x 0.324 and y 0.29. The middle of its cuts gives its middle line: x 0.206 at y 0.567, 0.246 at y 0.487, 0.286 at y 0.414, and 0.306 at y 0.375. The shoulder joint lies inside the root, the elbow and the wrist on the middle line at a third and at a half of its length, the forearm twist halfway between them, and the finger joint and its tail near the tip. The flipper is broad from the front to the back, so its palm faces in toward the body, at right angles to the middle line. The short legs hide in the egg: the thigh joint lies above the knee inside the egg, the ankle above the foot, and the toes at the ball of the foot (toe tips at z 0.105). The short pointed tail sticks out back at the bottom of the egg (y 0.05 to 0.16).",
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the crown, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. sections.py of docs/research/2026-10-21-mesh-penguin/ gives the cuts at each height and across (sections-y.txt, sections-x.txt, sections-z.txt). The body is one egg with no neck: the trunk joints lie on the middle line of the body cuts, a little behind their middle (z -0.013 at y 0.3), and the head joint at the narrowest cut under the head (y 0.79). The penguin has no ears, so each ear joint lies inside the crown, and no vertex follows it (earBase). The flipper hangs out and down from its root on the side of the body (y 0.48 to 0.65 at x 0.206) to its tip at x 0.324 and y 0.29. The middle of its cuts gives its middle line: x 0.206 at y 0.567, 0.246 at y 0.487, 0.286 at y 0.414, and 0.306 at y 0.375. The shoulder joint lies inside the root, the elbow and the wrist on the middle line at a third and at a half of its length, the forearm twist halfway between them, and the finger joint and its tail near the tip. The flipper is broad from the front to the back, so its palm faces in toward the body, at right angles to the middle line. The short legs hide in the egg: the thigh joint lies above the knee inside the egg, the ankle above the foot, and the toes at the ball of the foot (toe tips at z 0.105). The short pointed tail sticks out back at the bottom of the egg (y 0.05 to 0.16). The jaw joint lies at the hinge of the beak, the middle of the two corners of the mouth (x -0.045 and 0.045, y 0.883, z 0.14, beak-split.log), and its tail at the tip of the beak.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -325,7 +342,23 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the knee to 1 at the thigh joint, so that the bottom of the egg stays on the hips."
     },
-    "note": "Beyond the plane |x| = armSplit, only the free flipper follows the arm bones: below y 0.47, each vertex of the flipper lies at x 0.227 or more, and each vertex of the side of the body at x 0.225 or less (flipper-free.txt). Above headFrom, the narrowest cut under the head, each vertex follows the head only. The tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom and armTop are the rules of the rhino, moved with the shoulder joint (y 0.6) and the head."
+    "note": "Beyond the plane |x| = armSplit, only the free flipper follows the arm bones: below y 0.47, each vertex of the flipper lies at x 0.227 or more, and each vertex of the side of the body at x 0.225 or less (flipper-free.txt). Above headFrom, the narrowest cut under the head, each vertex follows the head only. The tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom and armTop are the rules of the rhino, moved with the shoulder joint (y 0.6) and the head.",
+    "jaw": {
+      "box": [
+        [
+          -0.07,
+          0.84,
+          0.135
+        ],
+        [
+          0.07,
+          0.95,
+          0.3
+        ]
+      ],
+      "below": 0.8829,
+      "note": "Each vertex of the lower part of the beak, in the box of the beak of beak_split.py and below the mouth plane (y 0.883), follows the jaw only. The gap of the split puts the lower edge of the cut 0.00026 u below the plane. The corners of the mouth lie on the plane and stay on the head."
+    }
   },
   "refine": {
     "rings": [],
@@ -402,5 +435,6 @@
     "back": 0.1,
     "below": 0.03,
     "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, and the rhino."
-  }
+  },
+  "sourceNote": "The mesh of the user with the beak split along the mouth line and closed with caps of a dark mouth color (docs/research/2026-10-21-penguin-beak/beak_split.py, assets/models/penguin/README.md). The file of the user, penguin.glb, does not change."
 }
