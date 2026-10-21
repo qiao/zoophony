@@ -4,7 +4,7 @@ import type { SoloNote, SoloSeat } from './soloist.ts';
  * The values of the rule for the vocal soloists (design 3.8): the solo singers of a choral work,
  * such as the four soloists of the Ode to Joy, on their own channel beside the choir.
  */
-export const VOCAL_SOLOISTS_RULE = {
+const VOCAL_SOLOISTS_RULE = {
   /** The step at which the rule reads the notes, in seconds. */
   stepSec: 0.1,
   /** The seat has at most this many voices: the soprano, the alto, the tenor, and the bass. */

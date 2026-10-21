@@ -20,13 +20,13 @@ export const LISTENER_AZIMUTH = 0;
  * The part of the full pan range that the stage fills (design 6.1). A player at the side of the
  * stage, half a stage side from the center in the view, gets 80 % of a full pan.
  */
-export const PAN_WIDTH = 0.8;
+const PAN_WIDTH = 0.8;
 
 /** The distance from the podium center, in meters, up to which the reverb send is smallest. */
-export const NEAR_DEPTH = 2.4;
+const NEAR_DEPTH = 2.4;
 
 /** The distance from the podium center, in meters, from which the reverb send is largest. */
-export const FAR_DEPTH = 7.2;
+const FAR_DEPTH = 7.2;
 
 /** The reverb send (CC 91) of a player at {@link NEAR_DEPTH} or nearer. */
 export const NEAR_REVERB_SEND = 40;
@@ -49,7 +49,7 @@ export interface ChannelMix {
  * `models/layout.ts` has them. The score module does not import the models module, because the
  * models module imports the score module.
  */
-export interface MixLayout {
+interface MixLayout {
   /** The stage side `S`, in meters. */
   readonly stageSide: number;
   /** The podium center: the rows are arcs around it. */

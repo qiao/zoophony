@@ -17,7 +17,7 @@ export type SoloNote = Pick<PlayerNote, 'seatIndex' | 'pitch' | 'velocity' | 'st
  * is clearly the soloist sits at the front left of the conductor, as in a concerto (UX audit
  * 2026-10-05, AM3).
  */
-export const SOLOIST_RULE = {
+const SOLOIST_RULE = {
   /** The step at which the rule reads the notes, in seconds. */
   stepSec: 0.1,
   /** The soloist sounds in this part of the piece or more, from its first note to its end. */
@@ -77,7 +77,7 @@ const LAST_PIANO_PROGRAM = 5;
  * @param seat The seat.
  * @returns True for a piano.
  */
-export function isPianoSeat(seat: Seat): boolean {
+function isPianoSeat(seat: Seat): boolean {
   return seat.section === 'piano' && seat.programs.some((p) => p <= LAST_PIANO_PROGRAM);
 }
 
@@ -123,7 +123,7 @@ function gridOf(
 }
 
 /** The measures of the soloist rule for one seat (design 3.8). */
-export interface SoloMeasures {
+interface SoloMeasures {
   /** The part of the piece in which the seat sounds, from the first note of the piece. */
   readonly coverage: number;
   /** The part of its sounding time in which it is above the orchestra. */

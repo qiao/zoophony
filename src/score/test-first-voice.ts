@@ -11,7 +11,7 @@ const BAR = 4 * Q;
 const BARS = 32;
 
 /** The first bar of the strings: 8 s at 120 BPM, on a phrase line. */
-export const STRINGS_BAR = 4;
+const STRINGS_BAR = 4;
 
 /**
  * Makes the first voice on channel 4: an oboe that plays half notes from the middle of bar 0

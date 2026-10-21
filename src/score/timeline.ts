@@ -7,7 +7,7 @@ import type { FileError } from './types.ts';
  * A channel event in song seconds (design 3.1). There is no SysEx. A note on with velocity 0 is
  * a note off (0x80) with velocity 0.
  */
-export interface TimedEvent {
+interface TimedEvent {
   readonly timeSec: number;
   /** portIndex * 16 + channel (3.4). */
   readonly synthChannel: number;
@@ -85,7 +85,7 @@ export interface Timeline {
 }
 
 /** The result of {@link buildTimeline}. */
-export type TimelineResult =
+type TimelineResult =
   | { readonly ok: true; readonly timeline: Timeline }
   | { readonly ok: false; readonly error: FileError };
 

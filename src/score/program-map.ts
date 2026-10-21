@@ -11,7 +11,7 @@ export type ProgramPlace =
   | { readonly kind: 'channel' };
 
 /** The pitch bands of a program that divides its notes by pitch (design 3.5). */
-export type PitchBands = 'strings' | 'brass';
+type PitchBands = 'strings' | 'brass';
 
 /** A pitch band: the lowest key of the band and its section. */
 type Band = readonly [lowestKey: number, section: SectionId];
