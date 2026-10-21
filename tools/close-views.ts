@@ -2418,8 +2418,36 @@ export const PLAY_CAMERAS: readonly PlayCamera[] = [
 /** The song time of the play frame with no `--time`, in seconds, as `pnpm screenshots --play`. */
 export const PLAY_TIME_SEC = 6;
 
-/** The size of a play frame, in CSS pixels: the size of the reference images of the scene. */
+/**
+ * The size of a play frame with no `--size`, in CSS pixels: the size of the reference images of
+ * the scene.
+ */
 export const PLAY_FRAME = { width: 1440, height: 900 } as const;
+
+/** The smallest and the largest side of a play frame of `--size`, in CSS pixels. */
+const PLAY_SIZE_RANGE = [320, 4096] as const;
+
+/**
+ * Reads the size of the play frames of `--size`, such as `2022x1076`, to render the window of a
+ * screenshot of the user. The landscape rule and the portrait rule of the camera follow the aspect
+ * (design 4.5), and a short side below 600 px gives the low tier (design 2.6).
+ *
+ * @param text The size: the width, `x`, and the height, in CSS pixels.
+ * @returns The size.
+ * @throws Error for a text that is not a size, or a side outside {@link PLAY_SIZE_RANGE}.
+ */
+export function playSize(text: string): CellSize {
+  const match = /^(\d+)x(\d+)$/.exec(text);
+  const [low, high] = PLAY_SIZE_RANGE;
+  const sides = match ? [Number(match[1]), Number(match[2])] : [];
+  const [width = 0, height = 0] = sides;
+  if (!match || sides.some((side) => side < low || side > high)) {
+    throw new Error(
+      `The size "${text}" is not a frame size, such as 2022x1076. Each side is from ${low} to ${high} px.`,
+    );
+  }
+  return { width, height };
+}
 
 /** The size of one cell of a grid, in CSS pixels. */
 export interface CellSize {
@@ -2436,13 +2464,14 @@ export interface CellSize {
  * {@link MAX_WEBP_BYTES}.
  *
  * @param columns The number of cameras.
+ * @param frame The size of a play frame, in CSS pixels.
  * @returns The size of one cell, in CSS pixels.
  */
-export function playCell(columns: number): CellSize {
+export function playCell(columns: number, frame: CellSize = PLAY_FRAME): CellSize {
   const scale = Math.min(2 / 3, 4 / 3 / Math.max(1, columns));
   return {
-    width: Math.round(PLAY_FRAME.width * scale),
-    height: Math.round(PLAY_FRAME.height * scale),
+    width: Math.round(frame.width * scale),
+    height: Math.round(frame.height * scale),
   };
 }
 
@@ -2547,6 +2576,8 @@ export interface PlayArgs {
   readonly otherTimes: readonly number[];
   /** The cameras, one frame each. In Cinematic mode, one camera with no drag and no wheel. */
   readonly cameras: readonly PlayCamera[];
+  /** The size of the frames, in CSS pixels: the size of `--size`, or {@link PLAY_FRAME}. */
+  readonly frame: CellSize;
   /**
    * True in Cinematic mode (`--cinematic` or `--shot`): the shots of the app move the camera, and
    * the tool clicks no "Reset view".
@@ -2711,8 +2742,9 @@ export function playParts(args: PlayArgs): PlayArgs[] {
 
 /**
  * Reads the command line of the mode `play`:
- * `play <dir> [--demo <id>] [--time <s>]... [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]...`.
- * With no `--camera`, the camera is `default`. `--cinematic` renders the camera of the shot plan
+ * `play <dir> [--demo <id>] [--time <s>]... [--camera <name>|<dx>,<dy>,<wheel>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`.
+ * With no `--camera`, the camera is `default`. `--size` sets the size of the frames
+ * ({@link playSize}). `--cinematic` renders the camera of the shot plan
  * of the app ({@link CINEMATIC_CAMERA}). `--shot` also gives the time: the frame of the first solo
  * or section shot of its subject ({@link chooseShot}). `--at` aims the stage camera at one player
  * ({@link aimCamerasOf}, {@link aimPose}). `--set` renders a variant of the holds of the working
@@ -2746,6 +2778,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       '--url',
       '--base',
       '--set',
+      '--size',
     ],
     ['--camera', '--azimuth', '--time', '--set'],
     ['--cinematic'],
@@ -2771,6 +2804,8 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
   }
   const url = line.options.get('--url')?.[0] ?? null;
   const base = line.options.get('--base')?.[0] ?? null;
+  const sizeText = line.options.get('--size')?.[0] ?? null;
+  const frame = sizeText === null ? PLAY_FRAME : playSize(sizeText);
   const atText = line.options.get('--at')?.[0] ?? null;
   const aimCameras = atText === null ? null : aimCamerasOf(atText, line.options);
   if (atText === null && ['--azimuth', '--zoom', '--elevation'].some((o) => line.options.has(o))) {
@@ -2800,6 +2835,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       time,
       otherTimes: [],
       cameras: [camera],
+      frame,
       cinematic,
       out,
       url,
@@ -2832,6 +2868,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     time,
     otherTimes: others,
     cameras,
+    frame,
     cinematic,
     out,
     url,
@@ -3232,7 +3269,7 @@ async function playFrame(
   const page = await openShot(browser, new URL(path.slice(1), site).href, {
     file: '',
     path,
-    ...PLAY_FRAME,
+    ...args.frame,
     ready: SAMPLES_READY,
   });
   try {
@@ -3260,7 +3297,7 @@ async function playFrame(
     }
     // The pointer leaves the bar before the seek, so that the bar hides before the frame. A
     // motion with no press keeps the camera mode.
-    await page.mouse.move(PLAY_FRAME.width / 2, PLAY_FRAME.height / 2);
+    await page.mouse.move(args.frame.width / 2, args.frame.height / 2);
 
     const frame = `${tree}, camera ${camera.name}, demo ${args.demo}, time ${time} s`;
     const whole = Math.floor(time);
@@ -3375,7 +3412,13 @@ async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> 
     'the working tree',
     target,
   );
-  const sheet = await grid(browser, after.cells, after.labels, columns, playCell(columns));
+  const sheet = await grid(
+    browser,
+    after.cells,
+    after.labels,
+    columns,
+    playCell(columns, args.frame),
+  );
   await writeImage(browser, sheet, join(args.out, 'play-views'));
 
   return async (other, label) => {
@@ -3387,7 +3430,7 @@ async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> 
     const before = await renderPlay(browser, other, args, time, 'play-base-', label, target);
     const labels = baseGridLabels(after.labels, label);
     const cells = [...before.cells, ...after.cells];
-    const both = await grid(browser, cells, labels, columns, playCell(columns));
+    const both = await grid(browser, cells, labels, columns, playCell(columns, args.frame));
     await writeImage(browser, both, join(args.out, 'play-base-views'));
   };
 }
@@ -3765,7 +3808,7 @@ const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
-  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>]... [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]...`,
+  `       pnpm close-views play <output directory> [--demo <id>] [--time <s>]... [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
   '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
