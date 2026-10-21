@@ -12,9 +12,10 @@ the measures. The user can reverse each decision. Then update its section, and r
 | Decision | Section |
 |---|---|
 | The user, quote above: the trumpet monkeys get the mesh as a studio body (`tools/mesh-rigs/monkey.json`), with the pea eyes of the app. Phase 2 puts it into the app after the answers of the user. | 4.3, 4.4 |
-| Size: no reference image shows a monkey, so the standing skull top under the tuft of hair takes the head top of the parametric monkey, 1.029 m (`2026-10-19-mouse-size.md`): 1.066 m for each unit, H 0.303 m (`app`). | 1, 4.4 |
-| Arms: phase 1 keeps the arms of the mesh (`armFactor` 1). No factor up to 1.25 reaches the right trumpet grip with the hold of the base, so the user chooses the factor and the trumpet size (report "Arms and trumpet"). | 4.4, 4.6 |
-| Legs: the legs keep the mesh, with the thighs 25° down and 15° out (`studio.legTurns`). The seat is 0.132 m, with the front edge of the chair at 0.03 u, behind the shins (`chair`). | 4.4, 4.5 |
+| Size: no reference image shows a monkey, so the standing skull top under the tuft of hair takes the head top of the parametric monkey, 1.029 m (`2026-10-19-mouse-size.md`): 1.066 m for each unit, H 0.303 m (`app`). The user: "keep the size of phase 1". | 1, 4.4 |
+| Question: the arm factor and the trumpet size (report "Arms and trumpet")? The user: "arms 1.5, trumpet at the scale 0.8". The arm factor is 1.5 (`armFactor`), and the trumpet scale is 0.8 (`trumpetScale`). | 4.4, 4.6 |
+| Legs: the legs keep the mesh, with the thighs 25° down and 15° out (`studio.legTurns`). The seat of the legs is 0.132 m, with the front edge of the rig chair at 0.03 u, behind the shins (`chair`). | 4.4, 4.5 |
+| Question: the seated monkey looks as if it stands in front of its low chair, so a chair or no chair? The user: "no chair". The monkey stands to play, as the mouse and the beaver do (`SpeciesParams.noChair`). | 4.4, 4.5 |
 | Tail: two bones that turn rigidly. The root goes back and down 47° over the seat, and the tip keeps the direction of the source, so that the curl stands on the floor 0.07 cm above the soles (`studio.tailBind`). | 4.4 |
 | Colors: the fur matches `SPECIES_COLORS.monkey` (hue 53° against 54°), so the config has no tone rule. The dark limit 0.02 keeps the hands and the feet a dark brown in place of a dark face (`colors.dark`). | 4.5 |
-| Face: the user asks for happy faces. A smile band of 5 faces in a mid brown gives the smile line that the face colors lose, with the corners 1.9 cm up (`colors.smile`). A smile rule with its own color needs no patch rule (`rig_mesh.py`). | 4.4 |
+| Face: the user asks for happy faces. A smile band of 5 faces in a mid brown gives the smile line that the face colors lose, with the corners 1.9 cm up (`colors.smile`). A smile rule with its own color needs no patch rule (`rig_mesh.py`). The user: "keep the smile line" (`face-crops-smile.webp`). | 4.4 |
