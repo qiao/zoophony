@@ -69,9 +69,14 @@ export function setAttribute(element: Element, name: string, value: string): voi
  * Gives the kind of an element with the keyboard focus, for the keys of the page (design 2.4).
  *
  * @param element The element with the focus, `document.activeElement`.
- * @returns The kind: a button, a range, a menu, a text field, or the page for any other element.
+ * @returns The kind: a button, a range, a menu or a tab, a text field, or the page for any other
+ *   element.
  */
 export function focusKindOf(element: Element | null): FocusKind {
+  // A tab of the drawer uses Space, the arrows, and Home, as a menu does.
+  if (element?.getAttribute('role') === 'tab') {
+    return 'menu';
+  }
   if (element instanceof HTMLButtonElement) {
     return 'button';
   }

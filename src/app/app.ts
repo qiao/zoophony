@@ -604,8 +604,7 @@ export class App {
     }
     const seat = seatOfPlayer(piece.plan.players, this.#scene.pick(point.x, point.y));
     if (seat !== null) {
-      this.#ui.drawer.openFromStage();
-      this.#ui.seatList.reveal(seat);
+      this.#ui.openSeat(seat);
     }
   }
 

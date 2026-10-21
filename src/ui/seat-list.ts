@@ -2,7 +2,6 @@ import type { SeatFlag, SeatFlags } from '../app/seat-flags.ts';
 import { NO_FLAGS } from '../app/seat-flags.ts';
 import type { SeatRowText } from '../app/seat-text.ts';
 import { createButton, createElement, setAttribute } from './dom.ts';
-import { createIcon } from './icons.ts';
 import type { Tooltips } from './tooltip.ts';
 
 /** The controls of one row of the seat list. */
@@ -31,62 +30,39 @@ function createToggle(text: string, label: string, onClick: () => void): HTMLBut
 /**
  * The seat list of the drawer (design 2.3, 2.8): one row for each seat, with a dot in the fur
  * color of the species, the seat name, the animals, the source line, and the toggle buttons "M"
- * and "S". A silent seat shows dim text. The list is collapsed by default.
+ * and "S". A silent seat shows dim text. The tab "Seats" of the drawer holds it.
  */
 export class SeatList {
   /** The list of the rows. */
   readonly element: HTMLUListElement;
-  /** The collapse button, for the heading of the section. */
-  readonly collapse: HTMLButtonElement;
   readonly #onFlag: (seatIndex: number, flag: SeatFlag) => void;
   readonly #tooltips: Tooltips;
+  readonly #keepFocus: () => void;
   #rows: SeatRow[] = [];
 
   /**
-   * Creates the collapsed list with no rows.
+   * Creates the list with no rows.
    *
    * @param onFlag The action of a click on a mute or a solo button.
    * @param tooltips The tooltips of the page. The buttons "M" and "S" show their labels in them.
+   * @param keepFocus Gives the focus to an element near the list, when a new piece removes the
+   *   row with the focus.
    */
-  constructor(onFlag: (seatIndex: number, flag: SeatFlag) => void, tooltips: Tooltips) {
+  constructor(
+    onFlag: (seatIndex: number, flag: SeatFlag) => void,
+    tooltips: Tooltips,
+    keepFocus: () => void,
+  ) {
     this.#onFlag = onFlag;
     this.#tooltips = tooltips;
+    this.#keepFocus = keepFocus;
     this.element = createElement('ul', 'list');
-    this.element.id = 'seat-list';
     this.element.setAttribute('aria-label', 'Seats');
-    this.collapse = createButton('collapse', '');
-    this.collapse.setAttribute('aria-controls', this.element.id);
-    // The sliders icon of the mockup (design 2.8).
-    this.collapse.append(createIcon('sliders'));
-    this.collapse.addEventListener('click', () => {
-      this.setExpanded(!this.expanded);
-    });
-    this.setExpanded(false);
-  }
-
-  /** True while the list shows its rows. */
-  get expanded(): boolean {
-    return !this.element.hidden;
-  }
-
-  /**
-   * Shows or hides the rows.
-   *
-   * @param expanded True to show the rows.
-   */
-  setExpanded(expanded: boolean): void {
-    this.element.hidden = !expanded;
-    setAttribute(this.collapse, 'aria-expanded', String(expanded));
-    setAttribute(
-      this.collapse,
-      'aria-label',
-      expanded ? 'Collapse the seat list' : 'Expand the seat list',
-    );
   }
 
   /**
    * Shows the rows of a new piece, with no mute and no solo (design 6.6). When a row of the old
-   * piece held the focus, the collapse button gets it, so that the focus stays in the seat list
+   * piece held the focus, the tab "Seats" gets it, so that the focus stays near the seat list
    * (design 2.8).
    *
    * @param rows The texts of each seat, from `seatRows()`.
@@ -118,7 +94,7 @@ export class SeatList {
     });
     this.element.replaceChildren(...this.#rows.map((row) => row.item));
     if (hadFocus) {
-      this.collapse.focus();
+      this.#keepFocus();
     }
   }
 
@@ -138,14 +114,13 @@ export class SeatList {
   }
 
   /**
-   * Opens the row of a seat: it shows the rows, marks the row, and scrolls the drawer to it
-   * (design 2.3). The mark moves to the next row that opens, and a new piece removes it. The
+   * Opens the row of a seat: it marks the row, and scrolls the drawer to it (design 2.3). The
+   * tab "Seats" must show before the call. The mark moves to the next row that opens, and a new piece removes it. The
    * focus stays where it is, because a pointer made the click (2.8).
    *
    * @param seatIndex The seat.
    */
   reveal(seatIndex: number): void {
-    this.setExpanded(true);
     for (const [i, row] of this.#rows.entries()) {
       row.item.classList.toggle('is-open', i === seatIndex);
     }

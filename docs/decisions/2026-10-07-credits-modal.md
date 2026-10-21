@@ -12,7 +12,7 @@ row.
 
 | Decision | Section |
 |---|---|
-| The link "Credits" stands in a footer at the end of the drawer, below the settings, after a line in `--line-faint`. It is 13 px text in `--text-dim` with an underline and no box, as the secondary text of `reference/mockup.png` | 2.8 |
+| The link "Credits" stands at the end of the tab "Settings", after a line in `--line-faint`. It is 13 px text in `--text-dim` with an underline and no box, as the secondary text of `reference/mockup.png` | 2.8 |
 | The link is a `button` with `aria-haspopup="dialog"`, because it opens a dialog and goes to no page. It has the compact control size, 44 px on a touch screen | 2.8 |
 | The dialog is a native `<dialog>` with `showModal()`. The browser then makes the rest of the page inert, keeps the dialog above the drawer and the bar, and gives the focus to the first control | 2.8 |
 | The close button has the label "Close the credits", as "Close the drawer" and "Close the message" name what they close | 2.8 |

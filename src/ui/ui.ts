@@ -10,7 +10,7 @@ import { Bar } from './bar.ts';
 import type { BarActions } from './bar.ts';
 import { Credits } from './credits.ts';
 import { DemoList } from './demo-list.ts';
-import { createButton } from './dom.ts';
+import { createButton, createElement } from './dom.ts';
 import { Drawer } from './drawer.ts';
 import { DropOverlay } from './drop-overlay.ts';
 import { FilePicker } from './file-picker.ts';
@@ -47,8 +47,8 @@ export interface UiActions extends BarActions {
 
 /**
  * The UI over the canvas (design 2.3, 2.8): the title, the first screen, the bar, the drawer with
- * the demo list, the file button, the seat list, the settings, and the link "Credits", the
- * credits dialog, the message, and the drop overlay. The DOM order gives the focus order of 2.8:
+ * the tabs "Demos" (the demo list and the file button), "Seats" (the seat list), and "Settings"
+ * (the settings and the link "Credits"), the credits dialog, the message, and the drop overlay. The DOM order gives the focus order of 2.8:
  * the title, the bar, then the drawer. The play button of the first screen comes before the bar,
  * and the buttons of a message come after it.
  */
@@ -64,7 +64,7 @@ export class Ui {
   readonly credits = new Credits(licensesUrl(import.meta.env.BASE_URL));
   /** The modal dialog that holds the credits (design 2.8). */
   readonly creditsDialog: ModalDialog;
-  /** The link "Credits" at the end of the drawer, which opens the credits dialog. */
+  /** The link "Credits" at the end of the tab "Settings", which opens the credits dialog. */
   readonly creditsLink: HTMLButtonElement;
   readonly dropOverlay: DropOverlay;
   readonly tooltips: Tooltips;
@@ -114,18 +114,18 @@ export class Ui {
       },
     });
     this.demoList = new DemoList(actions.onSelectDemo);
-    this.drawer.addSection('Demos', this.demoList.element);
-    this.seatList = new SeatList(actions.onSeatFlag, this.tooltips);
-    // The file button stands below the seat list, as in the mockup (design 2.8).
-    this.drawer
-      .addSection(
-        'Seats',
-        this.seatList.element,
-        new FilePicker(actions.onFile, this.tooltips).element,
-      )
-      .append(this.seatList.collapse);
+    // The file button stands below the demo list, because it also selects a piece (design 2.8).
+    this.drawer.addTab(
+      'demos',
+      'Demos',
+      this.demoList.element,
+      new FilePicker(actions.onFile, this.tooltips).element,
+    );
+    this.seatList = new SeatList(actions.onSeatFlag, this.tooltips, () => {
+      this.drawer.focusTab('seats');
+    });
+    this.drawer.addTab('seats', 'Seats', this.seatList.element);
     this.settings = new Settings(actions.onSectionSize, actions.onQuality);
-    this.drawer.addSection('Settings', this.settings.element);
     // The link "Credits" is a button, because it opens a dialog and goes to no page (design 2.8).
     this.creditsDialog = new ModalDialog(
       'credits-dialog',
@@ -140,11 +140,12 @@ export class Ui {
       this.creditsDialog.show(creditsLink);
     });
     this.creditsLink = creditsLink;
-    this.drawer.addFooter(creditsLink);
-    // A wide window opens the drawer at start, with the seat list expanded (design 2.8).
+    const creditsLine = createElement('div', 'credits-line');
+    creditsLine.append(creditsLink);
+    this.drawer.addTab('settings', 'Settings', this.settings.element, creditsLine);
+    // A wide window opens the drawer at start, at the tab "Demos" (design 2.8).
     if (isWideLayout(target.innerWidth, target.innerHeight)) {
       this.drawer.setOpen(true);
-      this.seatList.setExpanded(true);
     }
     this.dropOverlay = new DropOverlay(target, actions.onFile);
     // On a phone, the "Playback" group of the settings holds four controls of the bar (2.8).
@@ -207,9 +208,22 @@ export class Ui {
    * it.
    */
   openDemoList(): void {
+    this.drawer.showTab('demos');
     this.drawer.setOpen(true);
     this.drawer.element.scrollTop = 0;
     this.demoList.focusCurrent();
+  }
+
+  /**
+   * Opens the drawer at the tab "Seats" after a click on an animal, and marks the row of its seat
+   * (design 2.3).
+   *
+   * @param seatIndex The seat of the animal.
+   */
+  openSeat(seatIndex: number): void {
+    this.drawer.openFromStage();
+    this.drawer.showTab('seats');
+    this.seatList.reveal(seatIndex);
   }
 
   /**

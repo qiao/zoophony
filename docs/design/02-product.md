@@ -53,11 +53,12 @@ The UI has the style of a video player. The theme is dark only, because the scen
   the buttons "Automatic camera", "Reset view" (2.5), full screen, and the drawer. While the music
   plays, the bar and the pointer hide after 3 s with no pointer motion. While the bar hides, its
   controls ignore the pointer, so the first tap on the bar only shows it.
-- The drawer on the right holds the demo list, the seat list, the settings, and the link
-  "Credits". On a phone, the drawer is a sheet above the bar.
+- The drawer on the right has three tabs: "Demos" (the demo list and the file button), "Seats"
+  (the seat list), and "Settings" (the settings and the link "Credits"). On a phone, the drawer
+  is a sheet above the bar.
 - The seat list has a row for each seat, with a mute button and a solo button. Keyboard users and
   screen reader users need this list, because they cannot click an animal.
-- A click on an animal opens its row in the seat list and marks it. On a desktop the stage stays
+- A click on an animal opens the tab "Seats" at its row and marks it. On a desktop the stage stays
   in place, so that a click on the next animal hits it. A pointer motion of more than 4 CSS pixels
   is a drag of the view, and opens no row (`app/pick.ts`). The click test casts a ray through the
   posed triangles of the players (`scene/pick.ts`).
@@ -188,7 +189,7 @@ in `ui/ui.css`.
 | `--font-serif` | `"Palatino Linotype", Palatino, "Book Antiqua", "Iowan Old Style", Georgia, "Noto Serif", serif` (the piece title) |
 | Font sizes | 12 px for times (tabular numbers), 13 px for secondary text, 14 px body. The piece title is `clamp(24px, 2.5vw, 36px)` (32 px at 1280 px), and the composer `clamp(13px, 1.15vw, 16px)` |
 | Radius | 10 px for panels, 12 px for the floating panel of the drawer and for the bar, 8 px for buttons |
-| Control size | at least 40 px for the controls of the bar and the first screen; 32 px for the compact controls in the drawer, in messages, and in dialogs (M, S, segmented buttons, close, collapse, the link "Credits"); at least 44 px for every control on a touch screen |
+| Control size | at least 40 px for the controls of the bar and the first screen; 32 px for the compact controls in the drawer, in messages, and in dialogs (tabs, M, S, segmented buttons, close, the link "Credits"); at least 44 px for every control on a touch screen |
 | Focus | a 2 px ring in `--accent`, with a 2 px offset, and the button radius on a slider |
 | Button states | the hover and the color change in 120 ms (none with reduced motion), and a pressed button gets `rgba(255, 240, 220, 0.18)`. The large play button gets `--accent-strong` and the scale 0.96 while pressed |
 
@@ -220,30 +221,33 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   - Until the first play of the session, an intro line names the app, and the button "Select a
     piece" opens the demo list. ASD-STE100 has no verb "choose", so the buttons say "Select".
   - `index.html` holds the same load state as static HTML, so a slow network shows it at once.
-- Drawer: a floating panel in `--panel-glass` with the sections "Demos", "Seats", and "Settings",
-  and the link "Credits". It is nearly opaque, so that its dim text keeps 4.5:1 over white fur.
+- Drawer: a floating panel in `--panel-glass` with the tabs "Demos", "Seats", and "Settings" at
+  the top, beside the close button (`Drawer.addTab()`). Only the panel of the current tab shows.
+  The tabs stick to the top while the panel scrolls. The current tab has `--text` and a line in
+  `--accent` at its foot. The arrow keys, Home, and End move between the tabs, as the tabs
+  pattern of WAI-ARIA says, and they do not seek. It is nearly opaque, so that its dim text keeps
+  4.5:1 over white fur.
   While it is open, the camera moves its frame to the middle of the free area with
   `setViewOffset()`, and the canvas does not move (`stageCover()` in `app/stage-cover.ts`). A
   drawer that a click on an animal opens keeps the stage in place (`Drawer.openFromStage()`). A
-  wide window opens the drawer at start with the seat list expanded, as the mockup shows
-  (`isWideLayout()`).
+  wide window opens the drawer at start at the tab "Demos" (`isWideLayout()`).
   - Demos: a row for each demo with the title, the composer, and the length, and no cover. The
     row of the current demo has a level meter that the song time alone gives (`meterLevels()` in
     `app/meter.ts`), so it stops in a pause and follows a seek. Each row keeps a column of the
     width of the meter, so that the text does not move when the meter comes into a row.
-  - The button "Select a MIDI file" sticks below the seat list, with the tooltip "Or drop a MIDI
+  - The button "Select a MIDI file" sticks below the demo list, with the tooltip "Or drop a MIDI
     file on the page." A touch screen shows no tooltip, because it cannot drop a file.
   - Seats: a row for each seat with a dot in the fur color of the species, the seat name, the
     animal line, and the toggle buttons "M" and "S" with the labels "Mute {name}" and "Solo
     {name}". The source line shows only in the row of the clicked animal, and a screen reader reads
-    it in each row. The collapse button has the label "Collapse the seat list" or "Expand the seat
-    list".
+    it in each row.
   - Settings: "Section size" (Auto, One per part, Full) and "Quality" (Auto, High, Medium, Low).
     The button "Auto" names its current value, such as "Auto (Full)". `SETTING_HELP` of
     `app/settings.ts` gives the help line of each control. A change of the section size changes
     only the player counts, so the music, the song time, and the flags stay.
-  - Credits: the link "Credits" (user, 2026-10-07: "hide credits behind a link, which when clicked
-    would popup a modal") opens a native `<dialog>` with `showModal()` (`ui/modal-dialog.ts`). It
+  - Credits: the link "Credits" at the end of the tab "Settings" (user, 2026-10-07: "hide credits
+    behind a link, which when clicked would popup a modal"; user, 2026-10-20: "move credit to
+    settings") opens a native `<dialog>` with `showModal()` (`ui/modal-dialog.ts`). It
     holds the credit of the current demo (8.2), the SoundFont credits (6.2), the hall reverb credit
     (6.8), the link "Third-party licenses", and the credit of each other demo (7.3, 8.1)
     (`creditTexts()` in `app/credits.ts`). Each link opens in a new tab, so that the music does
@@ -343,7 +347,8 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
 - Each control is a `button`, an `input type="range"`, or a `select`, with an `aria-label`. A row
   of the demo list has the label of its title, its composer, and its spoken length
   (`demoRowLabel()` in `app/demos.ts`).
-- Each toggle button has `aria-pressed`, and each collapse button has `aria-expanded`.
+- Each toggle button has `aria-pressed`. Each tab has `role="tab"` and `aria-selected`, and its
+  panel has `role="tabpanel"`.
 - The seek bar has an `aria-valuetext`, for example "1 minute 23 seconds of 5 minutes 16 seconds".
 - The canvas has `role="img"` and the `aria-label` "An orchestra of animals on a stage".
 - Polite `aria-live` regions announce the load progress, the messages, and the title of each new
@@ -352,7 +357,7 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   user reaches the row in the seat list.
 - The focus order is the title, the bar, then the drawer.
 - When the play button of the first screen or a message with the focus goes away, the play button
-  of the bar gets the focus. When a row of the seat list with the focus goes away, the collapse
-  button of the seat list gets it.
+  of the bar gets the focus. When a row of the seat list with the focus goes away, the tab "Seats"
+  gets it.
 - The bar stays visible while a control of the bar has the keyboard focus (`:focus-visible`),
   while the pointer is over it, and while the drawer is open.

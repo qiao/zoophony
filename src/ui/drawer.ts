@@ -1,10 +1,19 @@
 import { sheetCloses, sheetOffset } from '../app/phone-layout.ts';
-import { createButton, createElement } from './dom.ts';
+import { createButton, createElement, setAttribute } from './dom.ts';
 import { createIcon } from './icons.ts';
 
+/** A tab of the drawer (design 2.8). */
+export type DrawerTab = 'demos' | 'seats' | 'settings';
+
+/** The controls of one tab of the drawer. */
+interface TabParts {
+  readonly tab: HTMLButtonElement;
+  readonly panel: HTMLElement;
+}
+
 /**
- * The drawer on the right (design 2.3, 2.8): 340 px wide, with a close button at the top, the
- * sections "Demos", "Seats", and "Settings", and a footer with the link "Credits". On a screen
+ * The drawer on the right (design 2.3, 2.8): 340 px wide, with the tabs "Demos", "Seats", and
+ * "Settings" and a close button at the top. Only the panel of the current tab shows. On a screen
  * narrower than 700 px, it is a sheet above the bar with a drag handle: a drag of the handle down
  * closes the sheet. It starts closed, and it slides and fades in and out in 200 ms.
  */
@@ -12,9 +21,13 @@ export class Drawer {
   readonly element: HTMLElement;
   /** The close button at the top of the drawer (design 2.8). */
   readonly closeButton: HTMLButtonElement;
+  /** The tab list at the top of the drawer. */
+  readonly #tabList: HTMLElement;
+  readonly #tabs = new Map<DrawerTab, TabParts>();
+  #current: DrawerTab | null = null;
 
   /**
-   * Creates the closed drawer with the drag handle, the close button, and no sections.
+   * Creates the closed drawer with the drag handle, the close button, and no tabs.
    *
    * @param onClose The action of a click on the close button.
    */
@@ -25,7 +38,15 @@ export class Drawer {
     this.closeButton = createButton('close-drawer', 'Close the drawer');
     this.closeButton.append(createIcon('close'));
     this.closeButton.addEventListener('click', onClose);
-    this.element.append(this.#createHandle(), this.closeButton);
+    this.#tabList = createElement('div', 'tab-list');
+    this.#tabList.setAttribute('role', 'tablist');
+    this.#tabList.setAttribute('aria-label', 'Drawer');
+    this.#tabList.addEventListener('keydown', (event) => {
+      this.#onTabKey(event);
+    });
+    const top = createElement('div', 'drawer-top');
+    top.append(this.#tabList, this.closeButton);
+    this.element.append(this.#createHandle(), top);
   }
 
   /**
@@ -110,27 +131,88 @@ export class Drawer {
     return this.element.contains(document.activeElement);
   }
 
-  /**
-   * Adds a section at the end of the drawer.
-   *
-   * @param heading The heading of the section, for example "Demos".
-   * @param content The content of the section.
-   * @returns The heading, so that a section can add a control to it.
-   */
-  addSection(heading: string, ...content: Element[]): HTMLHeadingElement {
-    const title = createElement('h2', '', heading);
-    this.element.append(title, ...content);
-    return title;
+  /** The current tab, or `null` before the first tab. */
+  get tab(): DrawerTab | null {
+    return this.#current;
   }
 
   /**
-   * Adds a footer at the end of the drawer, below the last section.
+   * Adds a tab and its panel at the end of the drawer. The first tab is the current tab.
    *
-   * @param content The content of the footer, for example the link "Credits".
+   * @param id The tab.
+   * @param label The text of the tab, for example "Demos".
+   * @param content The content of the panel.
    */
-  addFooter(...content: Element[]): void {
-    const footer = createElement('footer', 'drawer-footer');
-    footer.append(...content);
-    this.element.append(footer);
+  addTab(id: DrawerTab, label: string, ...content: Element[]): void {
+    const tab = createButton('tab', '');
+    tab.id = `tab-${id}`;
+    tab.textContent = label;
+    tab.setAttribute('role', 'tab');
+    const panel = createElement('div', 'tab-panel');
+    panel.id = `panel-${id}`;
+    panel.setAttribute('role', 'tabpanel');
+    panel.setAttribute('aria-labelledby', tab.id);
+    tab.setAttribute('aria-controls', panel.id);
+    panel.append(...content);
+    tab.addEventListener('click', () => {
+      this.showTab(id);
+    });
+    this.#tabList.append(tab);
+    this.element.append(panel);
+    this.#tabs.set(id, { tab, panel });
+    this.showTab(this.#current ?? id);
+  }
+
+  /**
+   * Shows the panel of a tab, and hides the other panels. A new tab scrolls the drawer to the top.
+   *
+   * @param id The tab.
+   */
+  showTab(id: DrawerTab): void {
+    if (id !== this.#current) {
+      this.element.scrollTop = 0;
+    }
+    this.#current = id;
+    for (const [tabId, { tab, panel }] of this.#tabs) {
+      const selected = tabId === id;
+      setAttribute(tab, 'aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      panel.hidden = !selected;
+    }
+  }
+
+  /**
+   * Gives the keyboard focus to a tab.
+   *
+   * @param id The tab.
+   */
+  focusTab(id: DrawerTab): void {
+    this.#tabs.get(id)?.tab.focus();
+  }
+
+  /**
+   * Moves between the tabs with the arrow keys, Home, and End, as the tabs pattern of WAI-ARIA
+   * says. The tab that gets the focus shows its panel.
+   *
+   * @param event The key event in the tab list.
+   */
+  #onTabKey(event: KeyboardEvent): void {
+    const ids = [...this.#tabs.keys()];
+    const at = this.#current === null ? 0 : ids.indexOf(this.#current);
+    const next = {
+      ArrowLeft: at - 1,
+      ArrowRight: at + 1,
+      Home: 0,
+      End: ids.length - 1,
+    }[event.key];
+    if (next === undefined || event.ctrlKey || event.altKey || event.metaKey) {
+      return;
+    }
+    event.preventDefault();
+    const id = ids[(next + ids.length) % ids.length];
+    if (id) {
+      this.showTab(id);
+      this.focusTab(id);
+    }
   }
 }

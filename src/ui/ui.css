@@ -690,35 +690,66 @@ body.is-building #stage {
   opacity: 0;
 }
 
-/* The close button sits at the top right, beside the first heading. It scrolls with the
-   drawer, so that it never covers a line of text. */
+/* The top of the drawer: the tabs at the left and the close button at the right (design 2.8).
+   It sticks to the top while the panel below it scrolls, so that the tabs stay in reach. */
+.drawer-top {
+  position: sticky;
+  top: -6px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 -16px 8px;
+  padding: 8px 10px 0 16px;
+  border-bottom: 1px solid var(--line-faint);
+  background: var(--panel);
+}
+
+.tab-list {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+/* A tab: 14 px text in --text-dim. The current tab has --text and a gold line at its foot. */
+.tab {
+  position: relative;
+  min-width: 0;
+  min-height: var(--target-compact);
+  padding: 0 10px 2px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.tab[aria-selected='true'] {
+  color: var(--text);
+}
+
+.tab[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+
 .drawer .close-drawer {
-  float: right;
-  margin: 8px -6px 0 8px;
   min-width: var(--target-compact);
   min-height: var(--target-compact);
   width: var(--target-compact);
   height: var(--target-compact);
+  margin-bottom: 2px;
   color: var(--text-dim);
 }
 
-/* The headings of the mockup: 16 px in --text, with a compact icon button at the right. */
-.drawer h2 {
-  min-height: var(--target-compact);
-  margin: 18px 0 6px;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.drawer h2:first-of-type {
-  margin-top: 8px;
-}
-
-.drawer :is(.close-drawer, .collapse):hover {
+.drawer .close-drawer:hover {
   color: var(--text);
 }
 
@@ -828,8 +859,8 @@ body.is-building #stage {
   border: 0;
 }
 
-/* The file button below the seat list, as in the mockup. It sticks to the bottom of the drawer
-   while the rows above it scroll, and it scrolls up with the settings and the credits. */
+/* The file button below the demo list. It sticks to the bottom of the drawer while the rows
+   above it scroll. */
 .file-picker {
   position: sticky;
   bottom: -16px;
@@ -868,18 +899,11 @@ body.is-building #stage {
 }
 
 /* A compact control of the drawer (design 2.8). */
-.collapse,
 .toggle {
   min-width: var(--target-compact);
   min-height: var(--target-compact);
   width: var(--target-compact);
   height: var(--target-compact);
-}
-
-/* The sliders icon of the seat list expands and collapses it (design 2.8). */
-.collapse {
-  margin-right: -6px;
-  color: var(--text-dim);
 }
 
 .seat {
@@ -1115,9 +1139,9 @@ body.is-building #stage {
   font-size: 13px;
 }
 
-/* The footer of the drawer holds the link "Credits": small and dim text with no box, below the
-   last section (design 2.8). */
-.drawer-footer {
+/* The line of the link "Credits" at the end of the tab "Settings": small and dim text with no
+   box (design 2.8). */
+.credits-line {
   margin: 16px 0 0;
   padding-top: 8px;
   border-top: 1px solid var(--line-faint);
@@ -1481,6 +1505,12 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
     width: auto;
     max-width: none;
     transform: none;
+  }
+
+  /* The tabs stick below the handle. */
+  .drawer-top {
+    top: 20px;
+    padding-top: 0;
   }
 
   .handle {
