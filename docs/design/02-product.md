@@ -134,10 +134,10 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 ## 2.6 Quality tiers and browser support
 
 The tiers are High, Medium, and Low. `TIER_SETTINGS` of `scene/quality.ts` gives the shadow
-maps, the pixel ratio, the bloom, the lens flare, the samples of the depth of field and of the
-haze, and the dust motes of each tier. The low tier has no bloom, no lens flare, no depth of
-field, no dust motes, and no shadows of the side lights (4.5). Each tier keeps MSAA, because the
-hard edges of the low-poly parts show steps, and the final pass of the post effects (4.5).
+maps, the pixel ratio, the bloom, the samples of the depth of field and of the haze, and the dust
+motes of each tier. The low tier has no bloom, no depth of field, no dust motes, and no shadows of
+the side lights (4.5). Each tier keeps MSAA, because the hard edges of the low-poly parts show
+steps, and the final pass of the post effects (4.5).
 
 - At start, a touch screen (`(pointer: coarse)`) or a small screen gives the low tier, and all
   other devices start at the high tier.

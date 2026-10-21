@@ -1,7 +1,9 @@
 # Lens flare
 
-Date 2026-10-20. Round `lens-flare`. Decisions:
-[`2026-10-20-lens-flare.md`](../decisions/2026-10-20-lens-flare.md). The probes and their outputs
+On 2026-10-20, after the merge, the user asked to revert the lens flare. The app has no flare
+since then, and its decision file is gone. This report keeps the measures of the round.
+
+Date 2026-10-20. Round `lens-flare`. The probes and their outputs
 are in [`2026-10-20-lens-flare/`](2026-10-20-lens-flare/). Each command runs from the root of the
 tree.
 

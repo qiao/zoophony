@@ -957,18 +957,9 @@ the mockup is out of scope.
 - [ ] Find the reads of the look roots at the load of a module with a saved check. Today
       `LOAD_TIME_PATHS` of `scene/look-values.ts` lists them by hand, so a new read at load gives
       an override with no effect and no error (`docs/decisions/2026-10-18-look-tools.md`).
-- [x] Add a lens flare from the bloom levels (user "do it" on 2026-10-20): ghosts, a halo, and a
-      warm streak from the lamps of the hall. Measures: `docs/research/2026-10-20-lens-flare.md`.
-- [x] The user chooses the variant of the lens flare from the lineups of
-      `docs/research/2026-10-20-lens-flare/`: subtle, medium (the default), or strong. Then set
-      `FLARE_LOOK.strength`, and update its row in `docs/decisions/2026-10-20-lens-flare.md`.
-- [x] The default view has no lamp of the hall in its frame, so it shows almost no flare (a
-      largest flare of 0.08 against 0.58 in the close shot of 115 s). Ask the user if the default
-      view needs a source, such as a glow at the top of the beam. Answer (2026-10-20): no glow,
-      medium flare.
-- [ ] The ghosts of the lamps at the top of a close shot land on the lit players, and read as soft
-      spots in the strong variant. The halo shows in no frame of the lineups, because no lamp
-      stands near the middle of a frame.
+- [x] Add a lens flare from the bloom levels (user "do it" on 2026-10-20). The user then asked
+      to revert it on the same day. The report `docs/research/2026-10-20-lens-flare.md` keeps
+      the measures.
 
 Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
 passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
