@@ -265,10 +265,8 @@ Each triangle has one color, picked by its centroid or its facing (`splitByCentr
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
-Each body except the penguin's, the bear's, the polar bear's, the rabbit's, the foxes', the
-cat's, the dog's, the panda's, the hippo's, the mouse's, the elephant's, the beaver's, the pig's,
-the wolf's, the monkey's, the badger's, the rhino's, and the deer's is the parametric body: `buildBiped()` of `models/biped.ts` builds it from
-the parts of 4.5 (body proportions) on the skeleton of 4.3. A species with a `body` gets a body of
+No species uses the parametric body now. `buildBiped()` of `models/biped.ts` builds it from the
+parts of 4.5 (body proportions) on the skeleton of 4.3, and a species with a `body` gets a body of
 its own from `buildBiped()` in its place.
 
 The user chose each body of its own, and the table "Bodies and roles" of
@@ -279,10 +277,8 @@ oboe mouse, the timpani elephant, the bassoon beaver, the horn pig, the clarinet
 monkey, the percussion badger, the tuba rhino, the harp deer, and the choir penguin have meshes of
 the user that the app rigs itself (studio bodies, below). The tan flute fox has the rig of the red
 fox with a tan palette. The mesh of the penguin replaces its egg body of 2026-10-11, by the newest
-decision of the user (`docs/decisions/2026-10-21-mesh-penguin.md`). No species has the
-parametric body of 2026-10-06 18:58 since the meshes of the rhino and the deer of 2026-10-21. The
-user chose it again for these two species in place of the sculpts and the rigged bodies
-(`docs/decisions/2026-10-11-body-revert.md`).
+decision of the user (`docs/decisions/2026-10-21-mesh-penguin.md`). The meshes of the rhino and the deer replace their parametric bodies
+(`docs/decisions/2026-10-21-mesh-rhino.md`, `docs/decisions/2026-10-21-mesh-deer.md`).
 
 Each body follows these rules:
 
