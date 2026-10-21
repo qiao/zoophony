@@ -6,12 +6,12 @@ each section.
 On 2026-10-14, the user asked to search for suitable orchestra/symphony MIDI files that are
 positive, joyful, and cheerful, add them to the repository, and add them to the demo player. The agent researched public domain
 and CC0 candidates from OpenScore and Mutopia, vetted them against General MIDI and the pure score
-rules (design 3.8, 8.1, 8.2), established a curated library in `demos/curated/`, and promoted all 8 vetted
+rules (design 3.8, 8.1, 8.2), and promoted all 8 vetted
 cheerful orchestral pieces to the live demo player, expanding the demo list to 14 pieces.
 
 | Decision | Section |
 |---|---|
-| A curated library of vetted cheerful orchestral pieces is established in `demos/curated/` with `demos/curated/README.md` recording sources, public domain / CC0 licenses, and SHA-256 checksums: Beethoven Symphony 1 (IV), Brahms Symphony 2 (IV), Beethoven Symphony 8 (IV), Bach Brandenburg 2 (I), Bach Brandenburg 5 (III), Mendelssohn Midsummer Night's Dream (V), Mozart Horn Concerto 2 (III), and Mozart Bassoon Concerto (III) | 8.1, 8.2 |
+| The 8 cheerful pieces are in `demos/src/`, and `demos/README.md` gives the source, the license, and the SHA-256 checksum of each. There is no second copy of the files: Beethoven Symphony 1 (IV), Brahms Symphony 2 (IV), Beethoven Symphony 8 (IV), Bach Brandenburg 2 (I), Bach Brandenburg 5 (III), Mendelssohn Midsummer Night's Dream (V), Mozart Horn Concerto 2 (III), and Mozart Bassoon Concerto (III) | 8.1, 8.2 |
 | All 8 vetted cheerful pieces are promoted to the in-app demo player as demos #7 to #14 (`DEMO_IDS` in `src/app/demos.ts`): `beethoven-1`, `brahms-2`, `beethoven-8-4`, `bach-bwv1047`, `bach-bwv1050`, `mendelssohn-op61`, `mozart-k417`, and `mozart-k191` | 2.8, 8.2 |
 | The source scores of the OpenScore pieces (`beethoven-1`, `brahms-2`, `beethoven-8-4`) are CC0 1.0 from Hauptstimme, exported through MuseScore 4 with channel maps in `demos/groups/` routing low strings to channels 11–13 to avoid GM percussion channel 10 | 8.2, 8.4 |
 | The Mutopia downloads (`bach-bwv1047`, `bach-bwv1050`, `mendelssohn-op61`, `mozart-k417`, `mozart-k191`) are public domain. In `bach-bwv1047.mid` (Mutopia 1680), track 8 is patched in `demos/patches.json` from program 40 (violin) to 42 (cello) to restore the cello stave, and track 9 is patched from program 0 (piano) to 6 (harpsichord) for authentic Baroque continuo, preserving PCM memory at 76.15 MB (under 100 MB) | 6.3, 8.1, 8.3 |
