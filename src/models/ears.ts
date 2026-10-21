@@ -1,18 +1,11 @@
 import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
-import {
-  LIMB_SEGMENTS,
-  MIRROR_X,
-  alongAxis,
-  partColor,
-  placeCorners,
-  unknownValue,
-} from './body-parts.ts';
+import { MIRROR_X, alongAxis, partColor, placeCorners, unknownValue } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { transform } from './mesh.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
-import { cylinder, icosphere, lathe, prism } from './primitives.ts';
+import { cylinder, icosphere, prism } from './primitives.ts';
 import type { OutlinePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BipedParams } from './species.ts';
@@ -81,27 +74,9 @@ function discEar(
 }
 
 /**
- * The outline of the long ear of the rabbit (design 4.5: 1.25 H long and 0.4 H wide), in H, as
- * (across, up) from the middle of the ear. It goes clockwise in that view, which is
- * counterclockwise in the axes of {@link prism}. The ear is widest at a third of its length and
- * ends in a point, as in `animals.webp`.
- */
-const LONG_OUTLINE: readonly OutlinePoint[] = [
-  [0.2, -0.13],
-  [0.14, -0.55],
-  [-0.14, -0.55],
-  [-0.2, -0.13],
-  [-0.13, 0.4],
-  [0, 0.7],
-  [0.13, 0.4],
-];
-
-/** The place of the middle of the long ear above its base, in H. */
-const LONG_MIDDLE = 0.55;
-
-/**
  * The outline of the pointed ear (design 4.5: 0.55 H tall and 0.42 H wide at the base), in H, as
- * (across, up) from the middle of the ear: a triangle, clockwise in that view.
+ * (across, up) from the middle of the ear: a triangle, clockwise in that view, which is
+ * counterclockwise in the axes of {@link prism}. The antlered ears of the deer have this outline.
  */
 const POINTED_OUTLINE: readonly OutlinePoint[] = [
   [0.21, -0.2],
@@ -173,34 +148,6 @@ function flatEar(
   };
 }
 
-/**
- * Makes a floppy ear: a flat leaf that hangs down at the side of the head.
- *
- * @param h The head height `H`.
- * @param color The color of the ear.
- * @returns The right ear.
- */
-function floppyEar(h: number, color: Rgb): RightEar {
-  const base: Vec3 = [0.44 * h, 0.28 * h, 0];
-  const turn = alongAxis([0.7, -1, 0.05], [1, 0, 0]);
-  const profile = [
-    [0.12 * h, 0],
-    [0.18 * h, 0.25 * h],
-    [0.15 * h, 0.42 * h],
-    [0, 0.5 * h],
-  ] as const;
-  return {
-    base,
-    parts: [
-      {
-        corners: placeCorners(lathe(profile, LIMB_SEGMENTS), transform(base, turn, [0.3, 1, 1])),
-        color,
-        bone: 'ear',
-      },
-    ],
-  };
-}
-
 /** The number of sides of the thin cylinders of an antler. */
 const ANTLER_SEGMENTS = 6;
 
@@ -262,24 +209,8 @@ function rightEar(species: BipedParams, colors: BodyColors, h: number): RightEar
     partColor(species, colors, 'ears', colors.belly),
   );
   switch (species.ears) {
-    case 'long':
-      return flatEar(
-        h,
-        [0.2 * h, 0.42 * h, 0.04 * h],
-        LONG_OUTLINE,
-        LONG_MIDDLE,
-        8 * MathUtils.DEG2RAD,
-        outer,
-        inner,
-      );
-    case 'round':
-      return discEar(h, [0.3 * h, 0.36 * h, 0.04 * h], 30 * MathUtils.DEG2RAD, 0.3, outer, inner);
     case 'small':
       return discEar(h, [0.28 * h, 0.34 * h, 0.06 * h], 35 * MathUtils.DEG2RAD, 0.2, outer, inner);
-    case 'floppy':
-      return floppyEar(h, outer);
-    case 'side-round':
-      return discEar(h, [0.54 * h, 0.08 * h, 0.04 * h], 80 * MathUtils.DEG2RAD, 0.32, outer, inner);
     case 'antlered': {
       const ear = flatEar(
         h,
@@ -292,8 +223,6 @@ function rightEar(species: BipedParams, colors: BodyColors, h: number): RightEar
       );
       return { base: ear.base, parts: [...ear.parts, ...antler(h, colors.belly)] };
     }
-    case 'none':
-      return { base: [0.25 * h, 0.38 * h, 0], parts: [] };
     default:
       throw unknownValue('ear type', species.ears);
   }
