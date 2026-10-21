@@ -339,6 +339,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Penguin: the beak does not open, because the rig has no jaw bone, and only the head lift
       shows each note. A jaw needs a cut of the beak, caps, and an optional bone `jaw` in
       `tools/blender/rig_mesh.py`, `studio-format.ts`, the export, and `poseStudioBones()`.
+- [ ] Penguin: black wedges from the roots of the flippers show on the white belly under the
+      folder, in the front views of `docs/research/2026-10-21-mesh-penguin/singer-base-views.webp`.
 - [ ] Penguin: the crease angle 35° is the angle of the other meshes, with no facet probe against
       the penguins of the reference images (`ANIMALS` of `tools/studio-body.ts`).
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
