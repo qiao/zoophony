@@ -271,8 +271,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 ## Probe tools
 
-- `pnpm pose-depth` takes no `--glb`. To probe an arm factor there, copy a GLB file of
-  `pnpm rig-mesh --check --keep` to the path of the rig, and run `pnpm studio-body`.
+- To probe a GLB file of `pnpm rig-mesh --check --keep`, such as another arm factor, give it to
+  `--glb` of `pnpm pose-depth`, `pnpm hold-fit`, or `pnpm arm-check`. Do not copy it over the
+  rig in `assets/`, because a stop or a failure then leaves the wrong body.
 - `pnpm rig-mesh --check --set` sets `app.shoulders` from `keptHeight()`. The rig log gives
   centimeters at the scale of `app.shoulders`, so a direct run of Blender on a variant that moves
   the shoulder joints needs that value (`rig.sh` of `docs/research/2026-10-17-dog-mesh/`).
