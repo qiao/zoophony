@@ -104,7 +104,9 @@ A push to `main` builds with pnpm and deploys to GitHub Pages under the base pat
     (`VIOLIST_SWEEP`, `CELLIST_SWEEP`, `BASSIST_SWEEP`, `TROMBONIST_SWEEP`, `OBOIST_SWEEP`,
     `TIMPANIST_SWEEP`, `BASSOONIST_SWEEP`, `HORNIST_SWEEP`, `CLARINETIST_SWEEP`,
     `TRUMPETER_SWEEP`, `TUBIST_SWEEP`, `HARPIST_SWEEP`, `SINGER_SWEEP`, `percussionSweep()`). The
-    frame of the harp leaves out its strings, which the palms pluck. The sweep of the timpanist also moves the head, so
+    frame of the harp leaves out its strings, which the palms pluck. The sweep of the harpist also
+    measures the arms, the legs, the haunch, and the tail in the stool (`SEATED_PARTS`), so that it
+    sees a clip of a seat. The sweep of the timpanist also moves the head, so
     that the trunk, the tusks, and the ears stay out of the kettles. No demo has a snare drum or a
     xylophone, so the probes of these two roles read a percussion test score of the tools
     (`tools/probe-demos.ts`).
