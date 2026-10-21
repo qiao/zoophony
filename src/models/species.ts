@@ -8,6 +8,7 @@ import { STUDIO_BADGER } from './studio/badger.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_BEAVER } from './studio/beaver.ts';
 import { STUDIO_CAT } from './studio/cat.ts';
+import { STUDIO_DEER } from './studio/deer.ts';
 import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_ELEPHANT } from './studio/elephant.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
@@ -430,14 +431,25 @@ export const SPECIES = {
       seatHeight: STUDIO_HIPPO.seatHeight / STUDIO_HIPPO.headHeight,
     },
   },
-  /** Deer, the harp. */
+  /**
+   * Deer, the harp: a brown deer with a cream chest, belly, and muzzle, large ears, dark brown
+   * antlers, dark hooves, and a puff tail with a white underside. It has the studio body of the
+   * mesh of the user, `assets/models/deer/deer.glb`, which `pnpm rig-mesh deer` rigs (design 4.4),
+   * with the head top of the parametric deer (2026-10-21-mesh-deer decisions). It sits fully on
+   * the stool of the harp, which fits its legs, with no chair back, and the harp soloist keeps the
+   * stool. Its head height is the head of the studio body without the antlers, and the seat
+   * height is the seat of the studio body, in H.
+   */
   deer: {
-    ears: 'antlered',
-    snout: 'long',
-    tail: 'puff',
-    size: 1.1,
+    body: 'studio-deer',
+    harpScale: 0.65,
+    size: 1,
     colors: SPECIES_COLORS.deer,
     accentParts: ['nose', 'feet'],
+    proportions: {
+      headHeight: STUDIO_DEER.headHeight,
+      seatHeight: STUDIO_DEER.seatHeight / STUDIO_DEER.headHeight,
+    },
   },
   /**
    * Panda, the trombones: a giant panda with black ears, eye patches, shoulders, arms, and legs. It

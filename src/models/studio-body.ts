@@ -22,6 +22,7 @@ import { STUDIO_BADGER } from './studio/badger.ts';
 import { STUDIO_BEAR } from './studio/bear.ts';
 import { STUDIO_BEAVER } from './studio/beaver.ts';
 import { STUDIO_CAT } from './studio/cat.ts';
+import { STUDIO_DEER } from './studio/deer.ts';
 import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_ELEPHANT } from './studio/elephant.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
@@ -43,6 +44,7 @@ export const STUDIO_BODIES = {
   'studio-bear': STUDIO_BEAR,
   'studio-beaver': STUDIO_BEAVER,
   'studio-cat': STUDIO_CAT,
+  'studio-deer': STUDIO_DEER,
   'studio-dog': STUDIO_DOG,
   'studio-elephant': STUDIO_ELEPHANT,
   'studio-fox': STUDIO_FOX,
