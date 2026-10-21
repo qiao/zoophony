@@ -760,15 +760,15 @@ body.is-building #stage {
   padding: 0;
 }
 
-/* The panel of a tab fills the drawer below the tabs and scrolls with no bounce. The scroll bar
-   stands at the edge of the drawer. */
+/* The panel of a tab fills the drawer below the tabs and scrolls. It can bounce at its ends, but
+   the drawer does not. The scroll bar stands at the edge of the drawer. */
 .tab-panel {
   flex: 1 1 auto;
   min-height: 0;
   margin: 0 -16px;
   padding: 0 16px;
   overflow-y: auto;
-  overscroll-behavior: none;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 240, 220, 0.18) transparent;
 }
