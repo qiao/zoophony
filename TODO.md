@@ -846,7 +846,14 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Tools of the beat motion (retro of the beat fold round, 2026-10-21):
       - Add `--midi <path>` and `--strip <from>:<step>:<count>` to `pnpm close-views play`: a dev
         hook that freezes the song time, and a base | round pair sheet. Start from `freeze.pl`,
-        `strip.ts`, and `pair.py` of `docs/research/2026-10-21-beat-fold/`.
+        `strip.ts`, and `pair.py` of `docs/research/2026-10-21-beat-fold/`. The pirates clip
+        round also asked for it (retro, 2026-10-21). With `--midi`, let `--base <ref>` make the
+        pairs from one command, with a cache of the base frames by tree, and take `--at` and a
+        camera given as JSON.
+      - Add `--midi <path>` to `probeDemos()` of `tools/probe-demos.ts`, so that each probe tool
+        (`pose-depth`, `hold-fit`, `arm-check`) reads a user file. This also unblocks the views of
+        the badger arms of the snare and the xylophone.
+      - Add `--set` and `--variant` to `pnpm clip-probe`, as `pnpm arm-check` has them.
       - Add `--trace <from>-<to> [--player <n>]` to `pnpm beat-rates`: the sway angle of one
         player at steps of 0.01 s, with the values of `--base`.
       - Start `docs/reference/conducting-technique.md`, a living reference like the string, wind,
