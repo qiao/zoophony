@@ -844,18 +844,13 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `bach-bwv1050`, against 1.0 cm before the fix of the bow flip (`pnpm pose-depth violinist
       --base 39aa09c9`, `2026-10-21-wrist-lift.md`).
 - [ ] Tools of the beat motion (retro of the beat fold round, 2026-10-21):
-      - Add `--midi <path>` and `--strip <from>:<step>:<count>` to `pnpm close-views play`: a dev
-        hook that freezes the song time, and a base | round pair sheet. Start from `freeze.pl`,
-        `strip.ts`, and `pair.py` of `docs/research/2026-10-21-beat-fold/`. The pirates clip
-        round also asked for it (retro, 2026-10-21). With `--midi`, let `--base <ref>` make the
-        pairs from one command, with a cache of the base frames by tree, and take `--at` and a
-        camera given as JSON.
-      - Add `--midi <path>` to `probeDemos()` of `tools/probe-demos.ts`, so that each probe tool
-        (`pose-depth`, `hold-fit`, `arm-check`) reads a user file. This also unblocks the views of
-        the badger arms of the snare and the xylophone.
-      - Add `--set` and `--variant` to `pnpm clip-probe`, as `pnpm arm-check` has them.
-      - Add `--trace <from>-<to> [--player <n>]` to `pnpm beat-rates`: the sway angle of one
-        player at steps of 0.01 s, with the values of `--base`.
+      - Done (`2026-10-21-user-midi-tools.md`): `--midi`, `--strip`, the strip pair sheet of
+        `--base` with its cache, and a camera in JSON in `pnpm close-views play`. `--midi` in
+        `pose-depth`, `hold-fit`, and `arm-check`, `--set` and `--variant` in `pnpm clip-probe`,
+        and `--trace` in `pnpm beat-rates`.
+      - Let `pnpm arm-check --views` render a `--midi` file and the percussion test score, so
+        that the views of the badger arms of the snare and the xylophone work. `arm-views.ts`
+        renders only the demos of the app, so `--views` refuses `--midi`.
       - Start `docs/reference/conducting-technique.md`, a living reference like the string, wind,
         and percussion files: the beat patterns, the tempo at which a conductor beats in 2 or in
         1, and the sway of real players, with a source for each fact. The limit of 168 BPM for a
