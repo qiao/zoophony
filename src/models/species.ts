@@ -432,9 +432,9 @@ export const SPECIES = {
    * Deer, the harp: a brown deer with a cream chest, belly, and muzzle, large ears, dark brown
    * antlers, dark hooves, and a puff tail with a white underside. It has the studio body of the
    * mesh of the user, `assets/models/deer/deer.glb`, which `pnpm rig-mesh deer` rigs (design 4.4),
-   * with the head top of the parametric deer (2026-10-21-mesh-deer decisions). It sits fully on
-   * the stool of the harp, which fits its legs, with no chair back, and the harp soloist keeps the
-   * stool. Its head height is the head of the studio body without the antlers, and the seat
+   * with 1.2 times the head top of the parametric deer, the size that the user asked for
+   * (2026-10-21-mesh-deer decisions). It sits fully on the stool of the harp, which fits its legs,
+   * with no chair back, and the harp soloist keeps the stool. Its head height is the head of the studio body without the antlers, and the seat
    * height is the seat of the studio body, in H.
    */
   deer: {

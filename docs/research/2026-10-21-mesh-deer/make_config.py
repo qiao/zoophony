@@ -19,6 +19,8 @@ OTHERS = "the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, a
 
 SCALE = 1.191 / 0.8523
 SHOULDER = 0.535
+# The user, 2026-10-21: "the deer is too small, make it 1.2x bigger".
+SIZE = 1.2
 
 CONFIG = {
     "source": "assets/models/deer/deer.glb",
@@ -26,9 +28,9 @@ CONFIG = {
     "name": "Deer",
     "weld": 1e-05,
     "app": {
-        "shoulders": round(SHOULDER * SCALE, 6),
-        "reach": 0.3816,
-        "note": "No reference image shows a deer, so the mesh takes the head top of the parametric deer of main (user, 2026-10-19, docs/decisions/2026-10-19-mouse-size.md): the standing skull top of the parametric deer with the harp, the highest vertex of the head bone within 0.03 m of the middle plane, below the antlers, is at 1.191 m (docs/research/2026-10-21-mesh-deer/landmark-probe.txt). The skull top of the mesh between the antlers is at 0.8523 u, the highest vertex in the middle strip of pnpm mesh-options. That gives 1.3974 m for each unit, the standing shoulder joints at 0.535 u (0.74761 m). The reach is the reach of the arm factor 1.25 below at that scale. With no --check, pnpm rig-mesh stops until the arm factor gives this reach.",
+        "shoulders": round(SHOULDER * SCALE * SIZE, 6),
+        "reach": 0.4579,
+        "note": "No reference image shows a deer, so the mesh takes the head top of the parametric deer of main (user, 2026-10-19, docs/decisions/2026-10-19-mouse-size.md): the standing skull top of the parametric deer with the harp, the highest vertex of the head bone within 0.03 m of the middle plane, below the antlers, is at 1.191 m (docs/research/2026-10-21-mesh-deer/landmark-probe.txt). The skull top of the mesh between the antlers is at 0.8523 u, the highest vertex in the middle strip of pnpm mesh-options. That gave 1.3974 m for each unit, the standing shoulder joints at 0.535 u (0.74761 m). Then the user said: \"the deer is too small, make it 1.2x bigger\" (docs/decisions/2026-10-21-mesh-deer.md): 1.6769 m for each unit, the standing shoulder joints at 0.535 u (0.897127 m), and the skull top at 1.429 m. The reach is the reach of the arm factor 1.25 below at that scale. With no --check, pnpm rig-mesh stops until the arm factor gives this reach.",
     },
     "armFactor": 1.25,
     "armFactorNote": "The factor of the upper arm and the forearm, a choice of the manager while the user slept (docs/decisions/2026-10-21-mesh-deer.md). The arms of the mesh reach 0.312 m from the shoulder joint to the middle of the palm, and no harp place within that reach keeps the left forearm out of the chest: the palms of the bass strings lie in the chest or out of reach (docs/research/2026-10-21-mesh-deer.md, \"Arms and harp\"). The factor 1.25, the largest factor of the other meshes of the user without a choice of the user, reaches 0.3816 m. With the smaller harp of the deer (SpeciesParams.harpScale 0.65) at its place (HARP_PLACE), each palm meets the string of each note, and the arms keep out of the chest. The factor 1.15 reached each note only with the harp 4.5 cm nearer, and the forearms then went 3.9 cm into the chest.",
