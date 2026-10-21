@@ -26,18 +26,28 @@
  * files of `--midi`. With `--base <ref>`, the commit runs beside the working tree
  * (`probeBeside()`), and each value gives the value of the commit in parentheses.
  *
+ * `--set <changes>` changes the holds of the working tree in memory (`setHolds()` of
+ * `tools/hold-sets.ts`), and the commit of `--base` runs with no change. `--variant <name>` starts
+ * a variant, and each `--set` after it adds its changes to the variant, as `pnpm arm-check` takes
+ * them. Each variant runs as one child, one after the other, and one table gives a block of rows
+ * for each variant ({@link variantLines}). The commit runs one time for all variants.
+ *
  * Usage: pnpm clip-probe [--midi <path>]... [--demo <id>]... [--step <s>] [--jobs <n>]
- *        [--base <ref>] [--json <file>]
+ *        [--set <changes>]... [--variant <name> [--set <changes>]...]... [--base <ref>]
+ *        [--json <file>]
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 
 import { Box3, Matrix4, Triangle, Vector3 } from 'three';
 
+import { setHolds } from './hold-sets.ts';
 import { probeDemos } from './probe-demos.ts';
 import {
   ROOT,
   probeBeside,
+  probeRef,
+  runChild,
   runChildren,
   shortHash,
   withTempFolder,
@@ -68,7 +78,7 @@ import { pianoCase, playSample } from '../src/pose/test-sweep-roles.ts';
 
 /** The usage text of `pnpm clip-probe`. */
 const USAGE =
-  'Usage: pnpm clip-probe [--midi <path>]... [--demo <id>]... [--step <s>] [--jobs <n>] [--base <ref>] [--json <file>]';
+  'Usage: pnpm clip-probe [--midi <path>]... [--demo <id>]... [--step <s>] [--jobs <n>] [--set <changes>]... [--variant <name> [--set <changes>]...]... [--base <ref>] [--json <file>]';
 
 /** The format version of the JSON of `--json` (`formatVersion()` of `tools/ref-tree.ts`). */
 const FORMAT = 1;
@@ -202,6 +212,18 @@ interface ProbeOptions {
   readonly json: string | null;
   /** The most child processes at the same time, each with one file (`--jobs`). */
   readonly jobs: number;
+  /** The hold changes of each `--set` for the working tree, with no `--variant`. */
+  readonly sets: readonly string[];
+  /** The variants of `--variant`, or empty for a run with one variant. */
+  readonly variants: readonly ClipVariant[];
+}
+
+/** One variant of `--variant`: a name and the hold changes of its `--set` options. */
+interface ClipVariant {
+  /** The name of the variant, which the table gives. */
+  readonly name: string;
+  /** The value of each `--set` option of the variant, in their order. */
+  readonly sets: readonly string[];
 }
 
 /** A file to probe: its name and its bytes. */
@@ -296,6 +318,8 @@ function readOptions(args: readonly string[]): ProbeOptions {
   let base: string | null = null;
   let json: string | null = null;
   let jobs = DEFAULT_JOBS;
+  const sets: string[] = [];
+  const variants: { readonly name: string; readonly sets: string[] }[] = [];
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     const value = args[i + 1];
@@ -303,6 +327,21 @@ function readOptions(args: readonly string[]): ProbeOptions {
       throw new Error(`The option ${arg ?? ''} needs a value.\n${USAGE}`);
     }
     switch (arg) {
+      case '--set': {
+        const variant = variants.at(-1);
+        if (variant) {
+          variant.sets.push(value);
+        } else {
+          sets.push(value);
+        }
+        break;
+      }
+      case '--variant':
+        if (variants.some((variant) => variant.name === value)) {
+          throw new Error(`The variant ${value} comes more than one time.`);
+        }
+        variants.push({ name: value, sets: [] });
+        break;
       case '--midi':
         midi.push(resolve(value));
         break;
@@ -332,7 +371,19 @@ function readOptions(args: readonly string[]): ProbeOptions {
     }
     i++;
   }
-  return { midi, demos, step, base, json, jobs };
+  if (variants.length > 0 && sets.length > 0) {
+    throw new Error(
+      `With --variant, each --set goes after a --variant, and "--set ${sets[0] ?? ''}" comes before the first one.\n${USAGE}`,
+    );
+  }
+  if (variants.length > 0 && json !== null) {
+    throw new Error(`The options --variant and --json do not go together.\n${USAGE}`);
+  }
+  // Each change must fit before the first probe, so that a typing fault stops the run at once.
+  for (const changes of [sets, ...variants.map((variant) => variant.sets)]) {
+    setHolds(changes.join(';')).undo();
+  }
+  return { midi, demos, step, base, json, jobs, sets, variants };
 }
 
 /**
@@ -835,13 +886,79 @@ export function outputLines(
     `| File | Players | Samples | ${MEASURES.join(' | ')} | Verdict |${base ? ' Base |' : ''}`,
     `|---|---|---|${MEASURES.map(() => '---|').join('')}---|${base ? '---|' : ''}`,
   ];
+  const { rows, details } = tableRows(tree, base, null);
+  lines.push(...rows);
+  if (details.length > 0) {
+    lines.push('', 'The worst sample of each measure that clips:', ...details);
+  }
+  return lines;
+}
+
+/**
+ * Writes the table of the variants of `--variant`: the hold changes of each variant, then one
+ * table with a block of rows for each variant, as {@link outputLines} writes the rows, and the
+ * worst sample of each measure that clips.
+ *
+ * @param blocks The name, the changes, and the results of each variant.
+ * @param base The results of the commit, or `null`.
+ * @param label The name of the commit, or `null`.
+ * @returns The lines.
+ */
+export function variantLines(
+  blocks: readonly { readonly variant: ClipVariant; readonly output: ProbeOutput }[],
+  base: ProbeOutput | null,
+  label: string | null,
+): string[] {
+  const [first] = blocks;
+  const lines = [
+    `Clip probe of ${first?.output.files.length ?? 0} files in ${blocks.length} variants at steps of ${first?.output.step ?? 0} s${label ? `, with ${label} in parentheses` : ''}. A depth gives the share of the samples over ${(100 * CONTACT).toFixed(1)} cm (${(100 * FLOOR_LIMIT).toFixed(1)} cm under the floor). A measure clips when the share is over ${(100 * SHARE_LIMIT).toFixed(0)}%.`,
+    '',
+    ...blocks.map(({ variant }) => `- ${variant.name}: ${variant.sets.join(';') || 'no change'}`),
+    '',
+    `| Variant | File | Players | Samples | ${MEASURES.join(' | ')} | Verdict |${base ? ' Base |' : ''}`,
+    `|---|---|---|---|${MEASURES.map(() => '---|').join('')}---|${base ? '---|' : ''}`,
+  ];
   const details: string[] = [];
+  for (const { variant, output } of blocks) {
+    const table = tableRows(output, base, variant.name);
+    lines.push(...table.rows);
+    details.push(...table.details);
+  }
+  if (details.length > 0) {
+    lines.push('', 'The worst sample of each measure that clips:', ...details);
+  }
+  return lines;
+}
+
+/** The rows of a table of {@link outputLines} and the worst sample of each measure that clips. */
+interface TableRows {
+  /** The rows of the table, one for each file. */
+  readonly rows: readonly string[];
+  /** The worst sample of each measure that clips, one line each. */
+  readonly details: readonly string[];
+}
+
+/**
+ * Writes the rows of the table of {@link outputLines}: one row for each file, and the worst sample
+ * of each measure that clips.
+ *
+ * @param tree The results of the working tree.
+ * @param base The results of the commit, or `null`.
+ * @param variant The name of the variant of the first cell of each row, or `null` for no such
+ *   cell.
+ * @returns The rows and the details.
+ */
+function tableRows(tree: ProbeOutput, base: ProbeOutput | null, variant: string | null): TableRows {
+  const lines: string[] = [];
+  const details: string[] = [];
+  const first = variant === null ? '' : ` ${variant} |`;
+  const lead = variant === null ? '' : `${variant}, `;
   for (const file of tree.files) {
     const old = base?.files.find((f) => f.file === file.file) ?? null;
     const cells = MEASURES.map((name) => {
       const result = file.measures[name];
       if (clips(name, result)) {
-        details.push(`- ${file.file}, ${name}: ${worstText(result)}`);
+        details.push(`- ${lead}${file.file}, ${name}: ${worstText(result)}`);
       }
       const before = old ? ` (${valueText(name, old.measures[name])})` : '';
       return `${valueText(name, result)}${before}`;
@@ -850,13 +967,10 @@ export function outputLines(
       MEASURES.some((name) => clips(name, f.measures[name])) ? 'CLIP' : 'PASS';
     const baseCell = base ? ` ${old ? verdict(old) : '-'} |` : '';
     lines.push(
-      `| ${file.file} | ${file.players} | ${file.samples} | ${cells.join(' | ')} | ${verdict(file)} |${baseCell}`,
+      `|${first} ${file.file} | ${file.players} | ${file.samples} | ${cells.join(' | ')} | ${verdict(file)} |${baseCell}`,
     );
   }
-  if (details.length > 0) {
-    lines.push('', 'The worst sample of each measure that clips:', ...details);
-  }
-  return lines;
+  return { rows: lines, details };
 }
 
 /**
@@ -882,11 +996,16 @@ function fileOption(file: ProbeFile, options: ProbeOptions): string[] {
 async function runProbe(options: ProbeOptions): Promise<ProbeOutput> {
   const files = await probeFiles(options);
   if (files.length <= 1 || options.jobs <= 1) {
-    return {
-      version: FORMAT,
-      step: options.step,
-      files: files.map((f) => probeFile(f, options.step)),
-    };
+    const changes = options.sets.length > 0 ? setHolds(options.sets.join(';')) : null;
+    try {
+      return {
+        version: FORMAT,
+        step: options.step,
+        files: files.map((f) => probeFile(f, options.step)),
+      };
+    } finally {
+      changes?.undo();
+    }
   }
   const results = await withTempFolder(
     async (dir) => {
@@ -898,6 +1017,7 @@ async function runProbe(options: ProbeOptions): Promise<ProbeOutput> {
           args: [
             join(ROOT, 'tools', 'clip-probe.ts'),
             ...fileOption(file, options),
+            ...options.sets.flatMap((set) => ['--set', set]),
             '--step',
             String(options.step),
             '--json',
@@ -924,18 +1044,80 @@ async function runProbe(options: ProbeOptions): Promise<ProbeOutput> {
   return { version: FORMAT, step: options.step, files: results };
 }
 
+/**
+ * Runs each variant of `--variant` as one child, one after the other, each with its `--set`
+ * options alone and the `--jobs` of the run, and the commit of `--base` one time before them
+ * (`probeRef()`). Then it writes one table ({@link variantLines}).
+ *
+ * @param options The options, with variants.
+ * @param child The arguments of each child: the files, the step, and the jobs, with absolute paths.
+ */
+async function checkVariants(options: ProbeOptions, child: readonly string[]): Promise<void> {
+  const label = options.base ? `${options.base} (${shortHash(options.base)})` : null;
+  const base = options.base
+    ? readOutput(await probeRef(options.base, 'clip-probe.ts', child, { prefix: 'clip-probe-' }))
+    : null;
+  const blocks: { readonly variant: ClipVariant; readonly output: ProbeOutput }[] = [];
+  for (const variant of options.variants) {
+    const text = await withTempFolder(
+      async (dir) => {
+        const file = join(dir, 'tree.json');
+        const sets = variant.sets.flatMap((set) => ['--set', set]);
+        await runChild(
+          process.execPath,
+          [join(ROOT, 'tools', 'clip-probe.ts'), ...child, ...sets, '--json', file],
+          ROOT,
+        );
+        return readFileSync(file, 'utf8');
+      },
+      { prefix: 'clip-probe-' },
+    );
+    blocks.push({ variant, output: readOutput(text) });
+  }
+  console.log(variantLines(blocks, base, label).join('\n'));
+}
+
+/**
+ * Writes the hold changes of `--set` for the working tree, or nothing with no change.
+ *
+ * @param sets The changes of each `--set`.
+ */
+function printChanges(sets: readonly string[]): void {
+  if (sets.length === 0) {
+    return;
+  }
+  const changes = setHolds(sets.join(';'));
+  changes.undo();
+  console.log(`The working tree takes the hold changes ${changes.text}.`);
+}
+
+/**
+ * Reads the JSON text of a child.
+ *
+ * @param text The text of the `--json` output of this script.
+ * @returns The output.
+ */
+function readOutput(text: string): ProbeOutput {
+  // SAFETY: the text comes from the --json output of this script in a child process.
+  return JSON.parse(text) as ProbeOutput;
+}
+
 if (import.meta.main) {
   const args = process.argv.slice(2);
   const options = readOptions(args);
-  if (options.base) {
+  // The paths of --midi are absolute, so that the child on the commit reads the same files.
+  const own = withoutOptions(args, ['--base', '--json', '--midi', '--set', '--variant']);
+  const child = [...own, ...options.midi.flatMap((path) => ['--midi', path])];
+  const sets = options.sets.flatMap((set) => ['--set', set]);
+  if (options.variants.length > 0) {
+    await checkVariants(options, child);
+  } else if (options.base) {
     const label = `${options.base} (${shortHash(options.base)})`;
-    // The paths of --midi are absolute, so that the child on the commit reads the same files.
-    const own = withoutOptions(args, ['--base', '--json', '--midi']);
-    const child = [...own, ...options.midi.flatMap((path) => ['--midi', path])];
+    printChanges(options.sets);
     const texts = await probeBeside(
       options.base,
       'clip-probe.ts',
-      { base: child, tree: child },
+      { base: child, tree: [...child, ...sets] },
       { prefix: 'clip-probe-' },
     );
     // SAFETY: each text comes from the --json output of this script in a child process.
@@ -947,6 +1129,9 @@ if (import.meta.main) {
       writeFileSync(options.json, `${JSON.stringify({ base, tree }, null, 1)}\n`);
     }
   } else {
+    if (!options.json) {
+      printChanges(options.sets);
+    }
     const output = await runProbe(options);
     if (options.json) {
       writeFileSync(options.json, `${JSON.stringify(output, null, 1)}\n`);
