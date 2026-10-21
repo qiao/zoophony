@@ -515,8 +515,11 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     head does not bend the trunk at the chin. The thin tail of the elephant is a ball on one tail
     bone, and so is the thin tail of the rhino, which hangs behind the haunch. The tall ears of the
     rhino stand on the top of the head and follow their ear bones. The penguin has no ears: its ear
-    bones lie inside the crown, and no vertex follows them (`earBase`). Its closed beak follows
-    the head, because the rig has no jaw bone.
+    bones lie inside the crown, and no vertex follows them (`earBase`). Its beak opens: a copy
+    of the mesh splits the beak along the mouth line and closes each part with a cap of a dark
+    mouth color (`assets/models/penguin/penguin-beak.glb`), and the lower part follows the jaw
+    bone with rigid weights, around the line between the corners of the mouth (`weights.jaw`,
+    `docs/decisions/2026-10-21-penguin-beak.md`).
   - Eyes in patches. When dark eye patches hold the eyes, as on the panda, the eye box holds only
     the eye, and no dark face near the old eye takes the color of the fur (`eyeShell.darkReach`),
     so that the patches stay black around the pea eyes.
@@ -1234,8 +1237,10 @@ of three.js always blends four bones, so the second bone adds no shader work.
   with a rigid dome over the shoulder joint (`docs/research/2026-10-06-shoulder-spike.md`). A long
   tail is two parts on `tail1` and `tail2`. No pose turns the legs.
 - A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
-  studio, two eye bones for the pea eyes, and the optional tip of a tail of two bones (`tail_tip`:
-  the red fox, the tan fox, the cat, the dog, the mouse, the beaver, the wolf, and the monkey). The rabbit, the panda,
+  studio, two eye bones for the pea eyes, and the optional bones (`OPTIONAL_STUDIO_BONES`): the
+  tip of a tail of two bones (`tail_tip`: the red fox, the tan fox, the cat, the dog, the mouse,
+  the beaver, the wolf, and the monkey), and the jaw of a beak that opens (`jaw`: the penguin).
+  The optional bones come after the other bones, so that a new one keeps each other index. The rabbit, the panda,
   the hippo, the pig, the badger, the rhino, the deer, and the penguin have a tail
   ball on one tail bone, with no tip. Each vertex follows up to four of them. The
   scene gives the mesh the studio bones and the bones of the player, and `poseStudioBones()`
@@ -1243,8 +1248,9 @@ of three.js always blends four bones, so the second bone adds no shader work.
   each other body. A pose also holds the matrices of the twist bones of the upper arms
   (`UPPER_TWIST_BONES`), after the bones of the player. Only a body with `upperTwist` (4.4), the
   hippo, the elephant, and the rhino, puts weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
-- A studio body has no `jaw` bone, so the beak of the penguin stays closed, and the choir pose
-  lifts its head with each note (5.3).
+- The `jaw` bone of a studio body is a child of `head` at the hinge of the beak, and it follows
+  the `jaw` of the player, whose bind place is then the hinge. The choir pose opens it (5.3). A
+  body with no jaw keeps the `jaw` of the player at the tip of the nose, with no vertex on it.
 - The readers of the bind mesh read the main bone: the footprints, the chair clearance, the baked
   occlusion (4.5), the silhouettes, and the budgets. `posedCorner()` of `pose/test-skin.ts` poses
   a corner in the tests as the GPU does.
