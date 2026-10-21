@@ -704,6 +704,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       gives the size of a smaller bassoon (`docs/reference/wind-technique.md` 4.2).
 - [ ] Remove the unused code of the `buck-teeth` snout with `TEETH_COLOR` and of the `flat` tail:
       no species has them since the beaver mesh (`2026-10-19-mesh-beaver.md`).
+- [ ] Remove the parametric biped (the branch of `buildBiped()` after the studio bodies, and
+      `trunk.ts`, `arms.ts`, `legs.ts`, `ears.ts`, `snouts.ts`, `tails.ts`, `face-patterns.ts`)
+      when the deer and the rhino have bodies of their own. Until then, the harp and the tuba
+      players use it.
 - [ ] `docs/agents/model-traps.md` has 3,170 words, above its limit of about 3,000
       (`docs/agents/writing.md`). Cut it in a prose pass.
 - [ ] Bear conductor: at the start of the lift, the baton paw turns from 26° to 180° in 0.13 s, and
