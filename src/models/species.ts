@@ -12,6 +12,7 @@ import { STUDIO_DOG } from './studio/dog.ts';
 import { STUDIO_ELEPHANT } from './studio/elephant.ts';
 import { STUDIO_FOX } from './studio/fox.ts';
 import { STUDIO_HIPPO } from './studio/hippo.ts';
+import { STUDIO_MONKEY } from './studio/monkey.ts';
 import { STUDIO_MOUSE } from './studio/mouse.ts';
 import { STUDIO_PANDA } from './studio/panda.ts';
 import { STUDIO_PIG } from './studio/pig.ts';
@@ -532,15 +533,29 @@ export const SPECIES = {
       seatHeight: STUDIO_DOG.seatHeight / STUDIO_DOG.headHeight,
     },
   },
-  /** Monkey, the trumpets. */
+  /**
+   * Monkey, the trumpets: a brown monkey with a cream face, belly, and ears, dark brown hands and
+   * feet, a small tuft of hair, and a long tail that ends in a curl. It has the studio body of the
+   * mesh of the user, `assets/models/monkey/monkey.glb`, which `pnpm rig-mesh monkey` rigs (design
+   * 4.4), with the size of the parametric monkey and the longer arms that the user chose
+   * (2026-10-20-mesh-monkey decisions). It plays a smaller trumpet, the size that the user chose.
+   * It has no chair, as the user chose: the short thighs put the seat low, so it stands on its
+   * hind legs with bent knees, in the seated pose at the seat height of its legs. Its long tail
+   * goes back and down, and its curl stands on the floor behind it. It stands upright as a
+   * soloist. Its head height is the head of the studio body, and the seat height is the seat of
+   * the studio body, in H.
+   */
   monkey: {
-    ears: 'side-round',
-    snout: 'short',
-    tail: 'thin',
-    size: 0.95,
+    body: 'studio-monkey',
+    size: 1,
     colors: SPECIES_COLORS.monkey,
     accentParts: ['hands', 'feet'],
-    facePattern: 'face-disc',
+    trumpetScale: 0.8,
+    noChair: true,
+    proportions: {
+      headHeight: STUDIO_MONKEY.headHeight,
+      seatHeight: STUDIO_MONKEY.seatHeight / STUDIO_MONKEY.headHeight,
+    },
   },
   /**
    * Pig, the horns: a pink pig with a paler belly, a pink snout disc, dark hooves, and a small
