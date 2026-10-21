@@ -28,10 +28,11 @@ import type { Quat, Vec3 } from './tuples.ts';
 /**
  * The bone of the player that each bone of a studio body follows (design 4.4, 4.7). A bone of the
  * trunk, the head, the legs, or the tail moves as its bone of the player. The root of the tail
- * follows `tail1`, and the tip of a tail of two bones follows `tail2`. The arm bones of the
- * studio take the joints and the hand of the player, with the bend of the elbow of the studio and
- * the twist split of the forearm ({@link poseStudioBones}). The readers of the bind mesh, such as
- * the footprints, read the bone of the player of the largest weight.
+ * follows `tail1`, the tip of a tail of two bones follows `tail2`, and the jaw of a beak follows
+ * `jaw`, which the choir pose opens (design 5.3). The arm bones of the studio take the joints and
+ * the hand of the player, with the bend of the elbow of the studio and the twist split of the
+ * forearm ({@link poseStudioBones}). The readers of the bind mesh, such as the footprints, read
+ * the bone of the player of the largest weight.
  */
 export const STUDIO_FOLLOWS = {
   root: 'root',
