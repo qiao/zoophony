@@ -149,6 +149,13 @@ const MONKEY_BODY_LOOPS = 5;
  */
 const RHINO_BODY_LOOPS = 6;
 
+/**
+ * The open loops of {@link BODY_BONES} of the deer mesh: the cuts to the two upper arms, and one
+ * open edge pair of 1.5 cm at the left hoof (`loops-probe.txt` of
+ * `docs/research/2026-10-21-mesh-deer/`).
+ */
+const DEER_BODY_LOOPS = 3;
+
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -199,6 +206,9 @@ const BEAVER_DECISIONS = 'docs/decisions/2026-10-19-mesh-beaver.md';
 
 /** The decision file of the rhino mesh. */
 const RHINO_DECISIONS = 'docs/decisions/2026-10-21-mesh-rhino.md';
+
+/** The decision file of the deer mesh and its harp. */
+const DEER_DECISIONS = 'docs/decisions/2026-10-21-mesh-deer.md';
 
 /** The decision file of cheerful demos. */
 const CHEERFUL_DEMO_DECISIONS = 'docs/decisions/2026-10-14-cheerful-demos.md';
@@ -367,6 +377,85 @@ function monkeyBodySurface(posed: PosedSkeleton): ClosedSurface {
  */
 function rhinoBodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, RHINO_BODY_LOOPS);
+}
+
+/**
+ * The closed surface of the body of the deer mesh: {@link BODY_BONES} with a cap on each open loop
+ * ({@link DEER_BODY_LOOPS}).
+ *
+ * @param posed The posed skeleton.
+ * @returns The surface.
+ */
+function deerBodySurface(posed: PosedSkeleton): ClosedSurface {
+  return closedPart(posed, BODY_BONES, DEER_BODY_LOOPS);
+}
+
+/**
+ * The largest ratio of the area of a closed shell to the diagonal of its box, in meters, for a
+ * string of the harp: a thin box of 4 mm at the scale 1 has the ratio 0.016, and each bar of the
+ * frame has 0.1 or more.
+ */
+const HARP_STRING_RATIO = 0.05;
+
+/** The frame of the harp of each player model, found one time for each model. */
+const HARP_FRAMES = new WeakMap<PlayerModel, ClosedSurface>();
+
+/**
+ * Gives the frame of the harp of a harp player: the closed shells of the base, the column, the
+ * crown, the neck, and the soundbox. The strings are thin boxes that a palm plucks, so the frame
+ * leaves out each shell with a small ratio of its area to its size ({@link HARP_STRING_RATIO}),
+ * as the case of the piano leaves out the keys. The harp stands on the floor and does not move,
+ * so the frame of one pose serves all poses.
+ *
+ * @param posed The posed skeleton.
+ * @returns The frame.
+ */
+function harpFrame(posed: PosedSkeleton): ClosedSurface {
+  const known = HARP_FRAMES.get(posed.model);
+  if (known) {
+    return known;
+  }
+  const part = posedPart(posed, ['instrument']);
+  const shells = (part.closed?.() ?? [part]).filter((shell) => {
+    const area = shell.triangles.reduce((sum, triangle) => sum + triangle.getArea(), 0);
+    const size = shell.box.getSize(new Vector3()).length();
+    return openLoops(shell.triangles) === 0 && area / size > HARP_STRING_RATIO;
+  });
+  const frame = closeSurface(
+    shells.flatMap((shell) => shell.triangles),
+    0,
+  );
+  HARP_FRAMES.set(posed.model, frame);
+  return frame;
+}
+
+/**
+ * Gives the note targets of the palms of a harp player: each palm rests on the string of its note
+ * just before the note start (design 5.3), in a play that started at the count-in.
+ *
+ * @param scene The scene.
+ * @param index The index of the harp player.
+ * @param model The model of the harp player.
+ * @returns The targets.
+ */
+function harpistTargets(scene: TestScene, index: number, model: PlayerModel): NoteTarget[] {
+  const plan = scene.plan.players[index];
+  if (plan?.note.family !== 'harp') {
+    return [];
+  }
+  const { note: layer, timeOffset } = plan;
+  return (['L', 'R'] as const).flatMap((side) => {
+    const track = side === 'L' ? layer.left : layer.right;
+    const palm = side === 'L' ? model.body.palmL : model.body.palmR;
+    return Array.from(track.starts, (start: number, i): NoteTarget => {
+      const point = new Vector3().fromArray(track.points, i * 3);
+      return {
+        side,
+        sample: playSample(scene, start + timeOffset - 0.001),
+        error: (posed) => new Vector3(...posedPoint(posed, `hand${side}`, palm)).distanceTo(point),
+      };
+    });
+  });
 }
 
 /**
@@ -555,17 +644,19 @@ export const PIANIST_SWEEP: RoleSweep = {
 };
 
 /**
- * Gives the samples of the lowering of the paws of a pianist after a stop (design 5.2): at the
- * outermost note of each paw, where a paw lowers past the end of the case, and at the song end.
- * Each stop has samples through the hold of the transport and the longest lowering.
+ * Gives the samples of the lowering of the paws of a pianist or a harp player after a stop (design
+ * 5.2): at the outermost note of each paw, where a paw lowers past the end of the case or of the
+ * strings, and at the song end. Each stop has samples through the hold of the transport and the
+ * longest lowering.
  *
  * @param scene The scene.
+ * @param family The family of the player: the keyboard or the harp.
  * @returns The samples.
  */
-function lowerSamples(scene: TestScene): SweepSample[] {
-  const plan = scene.plan.players.find((p) => p.note.family === 'keyboard');
+function lowerSamples(scene: TestScene, family: 'keyboard' | 'harp' = 'keyboard'): SweepSample[] {
+  const plan = scene.plan.players.find((p) => p.note.family === family);
   const stops = [scene.score.durationSec];
-  if (plan?.note.family === 'keyboard') {
+  if (plan?.note.family === 'keyboard' || plan?.note.family === 'harp') {
     for (const [track, sign] of [
       [plan.note.left, -1],
       [plan.note.right, 1],
@@ -590,6 +681,92 @@ function lowerSamples(scene: TestScene): SweepSample[] {
   }
   return samples;
 }
+
+/**
+ * The sweep of the harp player (design 5.3): the arms against the body and the frame of the harp,
+ * in a full play, in the lift of the hands from the rest to the strings at the play start, in the
+ * rest pose before the first play, and in the lowering of the hands after a stop. The deer of
+ * each demo with a harp plays it, on its stool. Each palm rests on the string of its note just
+ * before the note start.
+ */
+export const HARPIST_SWEEP: RoleSweep = {
+  role: 'harpist',
+  parts: ARM_PARTS,
+  obstacles: [
+    { name: 'body', surface: deerBodySurface },
+    { name: 'harp', surface: harpFrame },
+  ],
+  contact: CONTACT,
+  accepted: [
+    ...['play', 'lift', 'rest', 'lower'].map((samples) => ({
+      part: 'forearms',
+      into: 'harp',
+      samples,
+      depth: 0.035,
+      reason:
+        'The right forearm of the deer lies on the side of the soundbox near the elbow, so the harp leans on the right arm (design 5.3).',
+      decision: DEER_DECISIONS,
+    })),
+    ...['play', 'lower'].map((samples) => ({
+      part: 'upper arms',
+      into: 'body',
+      samples,
+      depth: 0.03,
+      reason:
+        'The short upper arm of the deer mesh lies on the side of the body above the elbow, so the arm touches the side (design 5.2).',
+      decision: DEER_DECISIONS,
+    })),
+    {
+      part: 'forearms',
+      into: 'body',
+      samples: 'play',
+      depth: 0.025,
+      reason:
+        'The left forearm of the deer touches the side of the chest near the elbow in 0.4% of the play samples, at the far bass strings (design 5.3).',
+      decision: DEER_DECISIONS,
+    },
+  ],
+  targetError: 1e-3,
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'harp'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      if (place.cast.instrument !== 'harp') {
+        return [];
+      }
+      const { species, instrument, kettles, support } = place.cast;
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles, support);
+      return [
+        {
+          name: `harpist ${index}`,
+          model,
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => harpistTargets(scene, index, model),
+        },
+      ];
+    }),
+  sampleSets: (scene) => {
+    const start = -countInAt(scene.plan.beats, 0).lengthSec;
+    const play: Transport = { ...PLAYING, changedAtWall: 10 };
+    const lift: SweepSample[] = [];
+    for (let wall = 10; wall < 13; wall += 0.1) {
+      lift.push([Math.min(0, start + wall - 10), wall, play]);
+    }
+    return [
+      { name: 'play', samples: playSamples(scene) },
+      { name: 'lift', samples: lift },
+      { name: 'rest', samples: [[start, 10, NOT_STARTED]] },
+      { name: 'lower', samples: lowerSamples(scene, 'harp') },
+    ];
+  },
+};
 
 /**
  * The sweep of the conductor (design 5.4): the arms and the baton against the body, in a full
@@ -1814,6 +1991,7 @@ export const TUBIST_SWEEP: RoleSweep = {
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,
   pianist: PIANIST_SWEEP,
+  harpist: HARPIST_SWEEP,
   violinist: VIOLINIST_SWEEP,
   violist: VIOLIST_SWEEP,
   cellist: CELLIST_SWEEP,

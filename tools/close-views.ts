@@ -146,15 +146,17 @@ export interface RoleViews {
 }
 
 /**
- * A role with a close view: the bear conductor, the polar bear pianist, the rabbit violinist, the
- * red fox violinist, the cat violist, the dog cellist, the hippo bassist, the tan fox flutist, the
- * panda trombonist, the mouse oboist, the elephant timpanist, the beaver bassoonist, the pig
- * hornist, the wolf clarinetist, the monkey trumpeter, the rhino tubist, or the badger bass
+ * A role with a close view: the bear conductor, the polar bear pianist, the deer harpist, the
+ * rabbit violinist, the red fox violinist, the cat violist, the dog cellist, the hippo bassist,
+ * the tan fox flutist, the panda trombonist, the mouse oboist, the elephant timpanist, the beaver
+ * bassoonist, the pig hornist, the wolf clarinetist, the monkey trumpeter, the rhino tubist, or
+ * the badger bass
  * drummer, snare drummer, cymbalist, percussionist, or xylophonist.
  */
 export type CloseRole =
   | 'conductor'
   | 'pianist'
+  | 'harpist'
   | 'violinist'
   | 'fox-violinist'
   | 'violist'
@@ -179,6 +181,7 @@ export type CloseRole =
 const CLOSE_ROLES: readonly CloseRole[] = [
   'conductor',
   'pianist',
+  'harpist',
   'violinist',
   'fox-violinist',
   'violist',
@@ -210,6 +213,11 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  *   a chord of three keys in each hand, a time between two chords, and the rest pose. The camera
  *   turns around the body. It looks down 35°, over the case of the piano in the front view. The view of the
  *   keys is low from the left, 15° to the front.
+ * - The deer harpist on its stool: the front, both sides, the back, and the left hand at the
+ *   strings from the front left. The moments are a chord of two strings in each hand just before
+ *   the pluck, the time after the pluck, the rest pose, and halfway through the lift and the
+ *   lowering at the chord. The side views and the back view also show the haunch on the seat of
+ *   the stool and the puff tail.
  * - The violinist: the front, both sides, and the back. The moments are the frog and the tip of a
  *   whole bow on the A string, a string crossing from the G string to the E string, the rest
  *   pose, halfway through the lift and the lowering at the frog ({@link halfMoves}), and the
@@ -314,6 +322,37 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
       '1.5 0.8 A4',
       '1.5 0.8 C5',
       '1.5 0.8 E5',
+    ].join('\n'),
+  },
+  harpist: {
+    species: 'deer',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+      // The column and the strings hide the left hand in the front view. This view from the front
+      // left shows it at the strings.
+      { name: 'strings', azimuth: -45 },
+    ],
+    moments: [
+      { name: 'chord', time: 0.49, rest: false },
+      { name: 'pluck', time: 0.6, rest: false },
+      { name: 'rest', time: 0, rest: true },
+      ...halfMoves(0.49),
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    // A chord of C3 and G3 in the left hand and C5 and E5 in the right hand, then A2 and E3 with A4
+    // and C5 (design 5.3).
+    notes: [
+      '0.5 0.8 C3',
+      '0.5 0.8 G3',
+      '0.5 0.8 C5',
+      '0.5 0.8 E5',
+      '1.5 0.8 A2',
+      '1.5 0.8 E3',
+      '1.5 0.8 A4',
+      '1.5 0.8 C5',
     ].join('\n'),
   },
   violinist: {
