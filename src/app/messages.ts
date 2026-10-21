@@ -1,5 +1,5 @@
 /** The time for which a message shows, in seconds (design 2.8). */
-export const MESSAGE_SEC = 6;
+const MESSAGE_SEC = 6;
 
 /** The message of a demo file that did not load, with a "Try again" button (design 2.8). */
 export const FILE_FAILURE_TEXT = 'The demo did not load. Check the connection.';
@@ -41,7 +41,7 @@ const FAILURE_TEXTS = {
 } as const satisfies Readonly<Record<Failure, string>>;
 
 /** The time for which a note shows, in seconds (design 2.8). */
-export const NOTE_SEC = 3;
+const NOTE_SEC = 3;
 
 /**
  * The note after a drag, a wheel, or a pinch turns off the automatic camera (design 2.5, 2.8).
@@ -56,7 +56,7 @@ export const CAMERA_OFF_TEXTS = {
  * The kind of a message: `error` for a failure or a refused file, with a bar in `--danger`, and
  * `note` for a short information, with a bar in `--accent` (design 2.8).
  */
-export type MessageKind = 'error' | 'note';
+type MessageKind = 'error' | 'note';
 
 /** A message at the bottom center of the page (design 2.8). */
 export interface Message {

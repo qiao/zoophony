@@ -1,10 +1,10 @@
 /** The audio session of Safari (the Audio Session API): its type sets how the page plays sound. */
-export interface AudioSessionLike {
+interface AudioSessionLike {
   type: string;
 }
 
 /** The part of `navigator` that {@link playWithSilentSwitch} uses. A test can give a fake. */
-export interface AudioSessionHost {
+interface AudioSessionHost {
   readonly audioSession?: AudioSessionLike;
 }
 

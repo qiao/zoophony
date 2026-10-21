@@ -16,7 +16,7 @@ export const LICENSES_TEXT = 'Third-party licenses';
 export const LICENSES_FILE = 'third-party-licenses.txt';
 
 /** A link of the credits dialog. */
-export interface CreditLink {
+interface CreditLink {
   readonly text: string;
   readonly href: string;
 }
@@ -53,13 +53,13 @@ export const SOUND_CREDITS: readonly LinkedCredit[] = SOUNDFONT_CREDITS.map((cre
 export const DEMO_SOURCES_LABEL = 'Demo sources';
 
 /** The source of one demo in the credits dialog: the title of the list and the credit line. */
-export interface DemoSource {
+interface DemoSource {
   readonly title: string;
   readonly credit: string;
 }
 
 /** The texts of the credits dialog for the current piece (design 2.8, 7.3, 8.1). */
-export interface CreditTexts {
+interface CreditTexts {
   /** The credit line of the current demo, or `null` for a file of the user (8.2). */
   readonly current: string | null;
   /** The sources of the other demos, in the order of the demo list. */

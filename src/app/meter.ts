@@ -4,7 +4,7 @@ import type { PlayerNote } from '../score/types.ts';
 export const METER_BARS = 9;
 
 /** The frames of a meter track in one second of song time. */
-export const METER_RATE = 20;
+const METER_RATE = 20;
 
 /** The lowest MIDI key of the first bar. A lower key goes into the first bar. */
 const LOW_KEY = 28;

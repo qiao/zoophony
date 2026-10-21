@@ -31,7 +31,7 @@ export type DemoId = (typeof DEMO_IDS)[number];
 export const DEFAULT_DEMO: DemoId = DEMO_IDS[0];
 
 /** The texts and the length of one demo (design 8.2). */
-export interface DemoInfo {
+interface DemoInfo {
   /**
    * The title of the piece at the top left of the page and in the demo list, in one pattern:
    * "{work}, {catalogue number}: {movement}" (audit 2026-10-05-ux-design, CP2).

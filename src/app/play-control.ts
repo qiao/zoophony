@@ -46,7 +46,7 @@ export function noPieceStatus(fileFailed: boolean, playWhenShown: boolean): Piec
  * - `cancel`: the piece does not start when its samples are ready.
  * - `retry`: the app loads the audio again after a failure, and plays when it is ready.
  */
-export type PlayAction = 'play' | 'pause' | 'wait' | 'cancel' | 'retry';
+type PlayAction = 'play' | 'pause' | 'wait' | 'cancel' | 'retry';
 
 /**
  * Gives the action of a click on the play button of the bar (design 2.4). Play waits until the
@@ -100,7 +100,7 @@ export function atSongEnd(status: PieceStatus, songSec: number, durationSec: num
  * @param status The state of the current piece.
  * @returns True while the piece waits.
  */
-export function waitsForSamples(status: PieceStatus): boolean {
+function waitsForSamples(status: PieceStatus): boolean {
   return status.samples === 'loading' && status.playWhenReady;
 }
 

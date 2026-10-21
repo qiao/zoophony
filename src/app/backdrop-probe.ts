@@ -41,7 +41,7 @@ export type BackdropContext = Pick<
 >;
 
 /** The box of the canvas of the stage, in CSS pixels of the window. */
-export type CanvasBox = Pick<DOMRect, 'left' | 'top' | 'width' | 'height'>;
+type CanvasBox = Pick<DOMRect, 'left' | 'top' | 'width' | 'height'>;
 
 /** The members of the canvas of the stage that the probe uses. */
 export interface BackdropCanvas {

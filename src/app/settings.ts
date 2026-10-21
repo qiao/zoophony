@@ -63,29 +63,29 @@ export function autoLabels(orchestral: boolean | null, tier: QualityTier): AutoL
 }
 
 /** A measure of the frame intervals above this value is slow, in seconds (design 2.6). */
-export const SLOW_FRAME_SEC = 0.018;
+const SLOW_FRAME_SEC = 0.018;
 
 /** The time of the frames that the automatic tier measures before a decision, in seconds. */
-export const TIER_WINDOW_SEC = 2;
+const TIER_WINDOW_SEC = 2;
 
 /**
  * The part of the intervals of a window that the measure leaves out at each end: the shortest
  * and the longest. Thus a few long frames, for example of a scene build, do not drop the tier.
  */
-export const TRIM_SHARE = 0.05;
+const TRIM_SHARE = 0.05;
 
 /**
  * The frame intervals of the steady frame rates below 60 fps that a lower tier does not make
  * faster, in seconds: a display at 50 Hz, and the 30 fps limit of a browser in a power-saving
  * mode (design 2.6).
  */
-export const CAPPED_FRAME_SECS = [1 / 50, 1 / 30] as const;
+const CAPPED_FRAME_SECS = [1 / 50, 1 / 30] as const;
 
 /**
  * The largest distance of an interval from a value of {@link CAPPED_FRAME_SECS} in a steady capped
  * rate, as a part of that value.
  */
-export const CAPPED_SPREAD = 0.2;
+const CAPPED_SPREAD = 0.2;
 
 /** The state of the automatic tier: the tier, and the frames of the current window. */
 export interface TierWatch {

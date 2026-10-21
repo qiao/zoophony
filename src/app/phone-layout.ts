@@ -5,10 +5,10 @@
 export const PHONE_LAYOUT_QUERY = '(max-width: 699px)';
 
 /** A drag of the handle down by more than this share of the sheet height closes the sheet. */
-export const SHEET_CLOSE_SHARE = 0.25;
+const SHEET_CLOSE_SHARE = 0.25;
 
 /** A drag of the handle down by more than this many CSS pixels always closes the sheet. */
-export const SHEET_CLOSE_PX = 80;
+const SHEET_CLOSE_PX = 80;
 
 /**
  * Gives the move of the sheet during a drag of its handle (design 2.8). The sheet follows the

@@ -1,5 +1,5 @@
 /** The part of a WebGL2 context that {@link supportsWebgl2} uses. */
-export interface ProbeContext {
+interface ProbeContext {
   getExtension(name: 'WEBGL_lose_context'): { loseContext(): void } | null;
 }
 

@@ -1,11 +1,11 @@
 /** The seek of the left and the right arrow keys, in seconds (design 2.4). */
-export const KEY_SEEK_SEC = 5;
+const KEY_SEEK_SEC = 5;
 
 /**
  * The action of a key of the page (design 2.4). `camera` toggles the automatic camera (2.5),
  * `mute` the mute button, and `full-screen` the full screen.
  */
-export type KeyAction =
+type KeyAction =
   | 'play'
   | 'seek-back'
   | 'seek-forward'
@@ -15,7 +15,7 @@ export type KeyAction =
   | 'full-screen';
 
 /** A key action that seeks. */
-export type SeekAction = Extract<KeyAction, 'seek-back' | 'seek-forward' | 'seek-start'>;
+type SeekAction = Extract<KeyAction, 'seek-back' | 'seek-forward' | 'seek-start'>;
 
 /**
  * The letter keys that toggle a control of the bar, in lower case (design 2.4): C the automatic

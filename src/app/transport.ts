@@ -177,7 +177,7 @@ export function followSongTime(
 }
 
 /** A play of the user: the new play state and the count-in that the `Player` plays first. */
-export interface PlayStart {
+interface PlayStart {
   readonly state: PlayState;
   /** The count-in in song seconds, for `Player.play()` (design 6.5). */
   readonly countInSec: number;

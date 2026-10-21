@@ -4,7 +4,7 @@ import type { SpeciesId } from '../models/species.ts';
 import type { Seat, SectionId } from '../score/types.ts';
 
 /** The name of each section in the seat list (design 2.8). */
-export const SECTION_NAMES = {
+const SECTION_NAMES = {
   violin: 'Violins',
   viola: 'Violas',
   cello: 'Cellos',

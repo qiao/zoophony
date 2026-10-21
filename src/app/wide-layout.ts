@@ -1,11 +1,11 @@
 /** The narrowest window of the wide layout, in CSS pixels (design 2.8). */
-export const WIDE_MIN_WIDTH_PX = 1200;
+const WIDE_MIN_WIDTH_PX = 1200;
 
 /**
  * The smallest aspect of the window of the wide layout, as width and height. Beside the open
  * drawer, the stage then keeps a free area that is wider than it is high.
  */
-export const WIDE_MIN_ASPECT = [3, 2] as const;
+const WIDE_MIN_ASPECT = [3, 2] as const;
 
 /**
  * The media query of the wide layout (design 2.8). `ui.css` uses the same query, so that the load

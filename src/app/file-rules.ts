@@ -27,7 +27,7 @@ export interface FileSource {
 }
 
 /** The result of a file read: the score and the bytes, or the reason to refuse the file. */
-export type FileReadResult =
+type FileReadResult =
   | {
       readonly ok: true;
       readonly score: Score;

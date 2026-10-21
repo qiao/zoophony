@@ -2,7 +2,7 @@ import { DRAWER_COVER, sheetLift } from '../shots/frame.ts';
 import type { FrameCover } from '../shots/frame.ts';
 
 /** The state of the page that moves the frame of the camera (design 2.8). */
-export interface CoverState {
+interface CoverState {
   /** True in the phone layout (`PHONE_LAYOUT_QUERY`): the drawer is a sheet above the bar. */
   readonly phone: boolean;
   readonly drawerOpen: boolean;
