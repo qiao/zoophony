@@ -30,6 +30,7 @@ fox together.
 | pig | the mesh `assets/models/pig/pig.glb`, rigged by `pnpm rig-mesh pig` at the size of the parametric pig, with a horn hold turned back toward the body | `2026-10-19-mesh-pig.md` | `hornist` |
 | wolf | the mesh `assets/models/wolf/wolf.glb`, rigged by `pnpm rig-mesh wolf` 0.9 times as high and 1.2 times as wide as the mesh, with the head at the size of the red fox and the body 0.9422 times as large (`proportions`), with a bushy tail of two bones that hangs behind the seat, and a clarinet hold at 45° with the mouthpiece under the muzzle | `2026-10-20-mesh-wolf.md` | `clarinetist` |
 | badger | the mesh `assets/models/badger/badger.glb`, rigged by `pnpm rig-mesh badger` at the size of the parametric badger, standing at each percussion instrument, with its own arms, a tail ball, and a suspended cymbal (`cymbalForm`) | `2026-10-20-mesh-badger.md` | `bass-drummer`, `snare-drummer`, `cymbalist`, `percussionist`, `xylophonist` |
+| monkey | the mesh `assets/models/monkey/monkey.glb`, rigged by `pnpm rig-mesh monkey` at the size of the parametric monkey, with arms 1.5, a long tail of two bones with its curl on the floor, a smaller trumpet, and no chair (`noChair`) | `2026-10-20-mesh-monkey.md` | `trumpeter` |
 | penguin | an egg body in code, `src/models/penguin/` (route 2) | `2026-10-11-penguin-body.md` | none |
 
 Each other species has the parametric body of 2026-10-06 18:58
