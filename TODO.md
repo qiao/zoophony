@@ -266,9 +266,13 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 
 Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs/decisions/`):
 
-- [ ] Rig the meshes of the monkey (trumpet) and the badger (percussion) when the user gives
-      them. The prompts of the sheets were given on 2026-10-17. The mouse, the elephant, the
-      beaver, and the pig got their meshes on 2026-10-19.
+- [ ] Rig the mesh of the monkey (trumpet). The user gave it on 2026-10-20, and phase 1 (the rig,
+      the size, the form, and the face) is done (`2026-10-20-mesh-monkey.md`). Phase 2 puts the
+      body into the app with the trumpet hold, after the user chooses the arm factor and the
+      trumpet size: the arms of the mesh miss the right grip by 13.4 cm.
+- [ ] Monkey: the short thighs make the seated monkey look as if it stands in front of its low
+      chair (seat 0.132 m). The user chooses the chair, no chair, or another seat
+      (`2026-10-20-mesh-monkey.md`).
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
       fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
 - [ ] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
