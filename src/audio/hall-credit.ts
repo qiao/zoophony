@@ -1,5 +1,5 @@
 /** The credit of a file that the site serves under a license that asks for a credit. */
-export interface AssetCredit {
+interface AssetCredit {
   /** The credit line, with the changes to the file. */
   readonly text: string;
   /** The page of the source. */

@@ -17,7 +17,7 @@ export interface ClockAnchor {
 }
 
 /** The fields of `AudioTimestamp` that the clock reads. */
-export interface OutputTimestamp {
+interface OutputTimestamp {
   /** The context time of the frame that the output device plays now. */
   readonly contextTime: number;
   /** The `performance.now()` value at that moment. */

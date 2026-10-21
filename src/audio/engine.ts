@@ -110,7 +110,7 @@ export interface EngineBank {
 export type EngineCommand = TransportCommand | SeatCommand;
 
 /** The function that gets each clock anchor of the engine. */
-export type AnchorListener = (anchor: ClockAnchor) => void;
+type AnchorListener = (anchor: ClockAnchor) => void;
 
 const EMPTY_TABLE: SynthEventTable = {
   timeSec: new Float64Array(0),

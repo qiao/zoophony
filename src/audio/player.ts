@@ -49,7 +49,7 @@ export interface LoadProgress {
 }
 
 /** The function that gets the progress of a load. */
-export type ProgressListener = (progress: LoadProgress) => void;
+type ProgressListener = (progress: LoadProgress) => void;
 
 /**
  * The audio interface of the app (design 6.8).
@@ -100,7 +100,7 @@ export interface Player {
  * The function that gets an audio failure that no pending `load()` reports, for example a render
  * error of the processor during play (design 6.8).
  */
-export type ErrorListener = (error: Error) => void;
+type ErrorListener = (error: Error) => void;
 
 /** The error of a `load()` that a later `load()` replaced (design 6.8). */
 export class LoadReplacedError extends Error {

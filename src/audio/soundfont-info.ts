@@ -6,7 +6,7 @@
 export const SOUNDFONT_HEADROOM_DB = 6.5;
 
 /** One source of the SoundFont, for the credits panel (design 2.8). */
-export interface SoundFontCredit {
+interface SoundFontCredit {
   /** The name of the source, such as "GeneralUser GS 2.0.3". */
   readonly name: string;
   /** The people or the company that made it. */

@@ -42,7 +42,7 @@ export interface SeatCommand {
 }
 
 /** The synth actions that one transport command needs. */
-export interface TransportActions {
+interface TransportActions {
   /** Release all notes. */
   readonly release: boolean;
   /** Reset the synth, then send the events of {@link chaseEvents} at the cursor. */
@@ -50,7 +50,7 @@ export interface TransportActions {
 }
 
 /** The result of one transport command. */
-export interface CommandResult {
+interface CommandResult {
   readonly state: TransportState;
   readonly actions: TransportActions;
   /** True if the command changed the transport, so the processor posts a clock anchor. */
@@ -77,7 +77,7 @@ export interface BlockPlan {
  * The synth messages that make the sounding notes agree with the seat audibility flags
  * (design 6.6).
  */
-export interface AudibilityPlan {
+interface AudibilityPlan {
   /** Note ons to end with a note off, in the order of the synth for each key. */
   readonly ends: Int32Array;
   /** Note ons to send, in event order. */
