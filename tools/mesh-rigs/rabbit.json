@@ -115,6 +115,8 @@
   "cut": {
     "top": 0.44,
     "skinNormals": true,
+    "bodyNormals": true,
+    "bodyNormalsNote": "The user said on 2026-10-21: \"fix the rabbit's armpit deformation. it looks like it's missing a piece\". The side of the trunk of the source curls in where it joins the hanging arm, so the caps of the body lie in a notch. The raised bow arm stretches the two faces at the top of the cut into a sheet that faces down, and the faces of the rim of the notch turn 50 to 80 degrees from the skin around them. With their own normals, they showed as a jagged dark gap under the arm. Each new face of the cut and the 53 faces of the rim take the normals of the skin (cut_rim() of tools/blender/rig_mesh.py, studioNormals()). A fill of the notch that moved the trunk vertices up to 4.4 cm made a sharp dark tent under the arm and turned a face over (docs/research/2026-10-21-rabbit-armpit.md).",
     "note": "The user said on 2026-10-20: \"pig and rabbit's armpit are deformed\". Under the bow arm, sharp spikes stood out of the side of the chest in the play. The inner side of each hanging upper arm of the source joins the side of the trunk down to the middle of the upper arm. A corner of the trunk there had 0.43 of the upper arm weight, so the raised arm dragged it out, and the long faces from it down to the belly made a ridge. Below the height top (source units), the faces with a corner in the free arm and a corner in the body go: 15 on the right and 19 on the left. New faces close the arm and the trunk, and no vertex moves (cut_seam() of tools/blender/rig_mesh.py). At 0.43 and 0.445, a shape failed to relax and the play folds rose to 45% and 66% (docs/research/2026-10-20-armpits.md)."
   },
   "raise": [
