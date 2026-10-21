@@ -765,6 +765,22 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Badger xylophone: the short arms reach at most 85% of the xylophone strikes, because the
       body does not move from side to side behind the notes. Ask the user for a smaller
       xylophone, longer arms, or a side step of the body (`2026-10-20-mesh-badger.md`).
+- [ ] Badger xylophone mallets: between strikes, each head swings in to the rest direction of the
+      snare grip, so two heads on near bars can meet. The offsets and the repeat rule of
+      `2026-10-21-pirates-clip.md` leave a touch in 1% of the samples of the steel drum part of the
+      pirates file. A rest direction of 0 removes it, but turns the accepted grip by 36°: show the
+      user the crops, and update `ACCEPTED_GRIPS` if the user accepts.
+- [ ] Badger xylophone reach: the left arm misses its bars by 38 mm (median) on the steel drum part
+      of the pirates file, and the forearms go 3.5 cm into the body in 11% of the play samples
+      (`docs/research/2026-10-21-pirates-clip.md`). This waits for the xylophone task above.
+- [ ] Polar bear pianist: the paws keep apart, but their claw tips almost touch when the paws play
+      two octaves apart, because the paws point in along the forearms (`PAW_TURN`). A turn of the
+      paws toward the fallboard would need a hold of its own and a new accepted grip
+      (`2026-10-21-pirates-clip.md`).
+- [ ] Dog cellist: in Boulanger, the third cellist puts one paw 2.4 cm into the other in 15 of
+      1,123 samples (121 s to 127 s), where its notes mix pizzicato on the low strings with a held
+      arco note. `pnpm clip-probe --demo boulanger-matin` gives this clip on `main` too
+      (`docs/research/2026-10-21-pirates-clip.md`).
 - [ ] Badger size: the agent chose the head top of the parametric badger (1.038 m) while the user
       slept. Show the user the lineup and the play frame (`2026-10-20-mesh-badger.md`).
 - [ ] Badger triangle: three faces of the front of the left shoulder stay turned after the relax
