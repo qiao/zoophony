@@ -321,6 +321,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the tail down (`seat/seat-after.webp` of the research folder).
 - [ ] Deer: a small cream fold of the haunch lies on the seat under the puff tail, with the shadow
       of the tail above it (`seat/zoom-top-carry.webp` of the research folder).
+- [x] Deer: the knees, the shins, and the hooves clipped the wider stool. The stool takes the depth of
+      the seat of the chair of the body, and the sweep of the harpist measures the stool
+      (`stool-clip/` of the research folder).
+- [ ] Add the chair as an obstacle to the sweeps of the seated roles, with the legs and the haunch as
+      parts, as the sweep of the harpist has the stool (`SEATED_PARTS`, `seatSurface()` of
+      `pose/test-sweep-roles.ts`). Then add the accepted contact of each haunch.
 - [ ] Deer: dark faces show under the right armpit in the play, and points stand out at the
       shoulders in the back view. Look at the zoomed views of `pnpm close-views harpist`.
 - [ ] Deer: 2 to 14 faces of the arms fold in each sample of the harpist, under the limit of the
