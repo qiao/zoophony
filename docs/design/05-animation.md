@@ -48,7 +48,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Cymbals, badger | Stands | `docs/reference/percussion-technique.md` 7 | A suspended cymbal on a stand: the yarn mallets leave the front of the fists, as the snare sticks, and the paws strike in turn near the edge, opposite each other | The arms hang | `SUSPENDED_CYMBAL_HOLD`, `SUSPENDED_CYMBAL`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-badger-cymbals.md` | `pnpm close-views cymbalist <dir>` |
 | Small percussion, badger | Stands | `docs/reference/percussion-technique.md` 8 | The left paw holds the triangle by its clip at the height of the mouth, and the beater in the right paw strikes it, or the tambourine on its stand at the front right | The left paw keeps the triangle up, and the beater stays near it | `PERCUSSION_HOLDS['small-percussion']`, `PERCUSSION_PLACES`, `TAMBOURINE`, `TRIANGLE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views percussionist <dir>` |
 | Xylophone, badger | Stands | `docs/reference/percussion-technique.md` 9 | The mallets leave the front of the fists, as the snare sticks, and strike the bar of each key. The short arms do not reach the outer bars (open) | The arms hang | `PERCUSSION_HOLDS.xylophone`, `XYLOPHONE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views xylophonist <dir>` |
-| Choir, penguin | Stands on a riser | none | The beak opens with each note, and the flippers hold the folder close | The beak closes, and the flippers keep the folder | `CHOIR_HOLD`, `pose/choir.ts` | 5.3 choir, `2026-10-11-penguin-body.md` | `pnpm close-views species penguin <dir>` |
+| Choir, penguin | Stands on a riser, in the standing pose of its mesh, with the center of mass over the soles (4.4, seat) | The reference images (`docs/research/2026-10-21-mesh-penguin.md`) | The head lifts with each note, because the closed beak of the mesh does not open, and the flippers hold the lower corners of the folder in front of the chest | The head comes down, and the flippers keep the folder | `CHOIR_HOLD`, `CHOIR_FOLDER`, `pose/choir.ts` | 5.3 choir, `2026-10-21-mesh-penguin.md` | `pnpm close-views singer <dir>` |
 
 `BOWED_HOLDS.violin` (the chin hold), `BOWED_HOLDS.cello`, `WIND_HOLDS.flute`, and
 `WIND_HOLDS.trombone` have no row.
@@ -329,6 +329,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   triangle up also at rest (`PercussionHold.ready`), because the lift from the hanging arms swept
   the beater through the body and swung the left paw far on its forearm. With the snare drum, the
   cymbals, and the xylophone, its arms hang (`docs/decisions/2026-10-20-mesh-badger.md`).
+- **Folder at rest.** The penguin keeps the choir folder in its flippers in front of the chest
+  also at rest, as a choir holds its folders between two pieces (`poseChoir()`,
+  `docs/decisions/2026-10-21-mesh-penguin.md`).
 - **Hanging arms.** A standing player without a lap hangs its arms (`HANG` of `pose/hang.ts`):
   each part of the arm swings out by the smallest angle at which it touches the side of the body,
   so that the palms rest at the height of the hips, as an animal of the reference images holds
@@ -601,11 +604,15 @@ The code constants of each family hold the times, the angles, and the lengths of
 - **Choir in detail** (`pose/choir-notes.ts`, `pose/choir.ts`):
   - A singer sings one note at a time. The `jaw` bone opens the lower beak for each note and
     closes it to half between two notes, so that each note shows (`CHOIR_MOTION`). The neck and
-    the head lift with the jaw, because a beak alone moved too little in the default view.
+    the head lift with the jaw, because a beak alone moved too little in the default view. The
+    studio body of the penguin has no jaw bone and a closed beak, so only the lift of the head
+    shows each note (4.7, `docs/decisions/2026-10-21-mesh-penguin.md`).
   - In a phrase, the chest turns from side to side every 2 beats, and neighbor voices turn to
     opposite sides, so that the choir does not move as one block.
   - The flippers hold the folder close, with the upper arms at the sides, as in the reference
-    images (`CHOIR_HOLD`, user decision of 2026-10-10). The penguins have the egg body of 4.4.
+    images (`CHOIR_HOLD`, user decision of 2026-10-10). The flippers of the penguin mesh keep
+    their length, so the folder hangs within their reach in front of the chest (`CHOIR_FOLDER`,
+    4.6), and each palm holds a lower corner of the folder.
 - The motion starts 100 to 400 ms before the note, by the action, because the app reads the full
   file first. Each note event happens at the note start, and the motion before it ends there.
 - Each player has a small seeded offset in timing (up to 20 ms) and in amplitude
