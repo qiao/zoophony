@@ -288,6 +288,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A fix of a turn rate can move the prop to a wrong place: a bow pointed out to the side and a
   baton pointed across the face, with all measures passed. Render a crop of the move before you
   commit (`2026-10-21-wrist-lift.md`).
+- Record each row of a variant table with the commit or the `--set` of its run. A row with no
+  source state cost a second pass of the report (`2026-10-21-pirates-clip.md`).
 - To commit a part of a file, stage a blob of it with `git update-index --cacheinfo`, and keep
   the working file. A file written from `HEAD` for a commit gave the rhino its parametric body
   again, and three sweeps measured the wrong body.
