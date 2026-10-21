@@ -169,10 +169,9 @@ player.
   the idle layer follows the wall clock. The players look straight ahead, in place of at the
   bear. `galleryPlan()` in `src/gallery/plan.ts` makes the plan with `preparePlayer()` and
   `prepareConductor()`, because the gallery has no `Score`.
-- The gallery renders at the high tier with the shadow radius 1. In a close view, the radius 3
-  shows the noise of `PCFShadowMap` as a fine grid on each lit face, and the radius 1 halves it
-  (review of step 3, F11). At the default distance of the stage, the grid is smaller than a
-  pixel.
+- The gallery renders at the high tier with the shadow radius of the stage, so the role views
+  show the shadows of the app (user, 2026-10-21). The filter of `scene/shadow-chunk.ts` takes 12
+  samples with no turn, so a wide radius shows no noise grid on the lit faces.
 
 A third entry, `views.html`, shows the animals as `docs/reference/animals.webp` does, so that a
 person can put the two images side by side. It is 1024 × 1024 px, with the three rows, the

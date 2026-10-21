@@ -9,7 +9,6 @@ import {
   PerspectiveCamera,
   PlaneGeometry,
   Scene,
-  SpotLight,
   Vector3,
 } from 'three';
 import type { SkinnedMesh } from 'three';
@@ -68,9 +67,6 @@ type GalleryPage = 'species' | 'instruments';
 const COLUMNS = { species: 8, instruments: 6 } as const satisfies Readonly<
   Record<GalleryPage, number>
 >;
-
-/** The blur radius of the shadows in the gallery, in texels. */
-const GALLERY_SHADOW_RADIUS = 1;
 
 /** The smallest free space between two models, in meters. */
 const GAP = 0.8;
@@ -248,16 +244,10 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-// The gallery shows the models, so it has no visible beam and no back-row lights.
+// The gallery shows the models, so it has no visible beam and no back-row lights. The shadows
+// keep the blur radius of the high tier, so the role views show the shadows of the stage.
 const lights = createLights(floorSide, 'high', null, { beam: false, backRows: false });
 scene.add(lights);
-for (const spot of lights.children) {
-  if (spot instanceof SpotLight && spot.castShadow) {
-    // The radius 3 of the high tier shows the noise of PCFShadowMap as a fine grid on each lit
-    // face in a close view. The radius 1 halves it (review of step 3, F11).
-    spot.shadow.radius = GALLERY_SHADOW_RADIUS;
-  }
-}
 
 const camera = new PerspectiveCamera(GALLERY_FOV_DEG, 1, 0.1, 10 * floorSide);
 const controls = new OrbitControls(camera, canvas);
