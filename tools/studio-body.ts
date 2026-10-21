@@ -371,7 +371,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     'monkey',
     {
       landmark: 'shoulders',
-      height: 0.62894,
+      height: 0.691834,
       seated: true,
       soloist: true,
       constant: 'STUDIO_MONKEY',

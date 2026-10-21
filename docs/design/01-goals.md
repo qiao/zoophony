@@ -84,8 +84,8 @@ side.
   beaver, and the beaver has the size of the parametric beaver, by the rule that the user chose
   for the mouse (`docs/decisions/2026-10-19-mesh-beaver.md`).
 - No reference image shows a monkey. The mesh of the user is the target of the monkey, and
-  the monkey has the size of the parametric monkey, by the rule of the user for the mouse
-  (`docs/decisions/2026-10-20-mesh-monkey.md`).
+  the monkey took the size of the parametric monkey, by the rule of the user for the mouse. Then
+  the user made it 1.1 times as large (`docs/decisions/2026-10-20-mesh-monkey.md`).
 - No reference image shows a pig. The mesh of the user is the target of the pig, and the pig has
   the size of the parametric pig, by the rule of the user for the mouse
   (`docs/decisions/2026-10-19-mesh-pig.md`).

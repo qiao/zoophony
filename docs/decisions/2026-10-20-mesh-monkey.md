@@ -5,14 +5,15 @@ each section.
 
 On 2026-10-20, the user said: "after these are done, use the monkey model at
 ~/Downloads/Meshy_AI_monkey_remeshed_3k_tr_1020213010_texture.glb". The agent of the round
-`mesh-monkey` decided the rows with no quote of the user, in phase 1 and phase 2. The report
+`mesh-monkey` decided the rows with no quote of the user, in phase 1 and phase 2. The round
+`monkey-size` gave the size row. The report
 [`2026-10-20-mesh-monkey.md`](../research/2026-10-20-mesh-monkey.md) gives the measures.
 The user can reverse each decision. Then update its section, and remove its row.
 
 | Decision | Section |
 |---|---|
 | The user, quote above: the trumpet monkeys get the mesh as a studio body (`tools/mesh-rigs/monkey.json`), with the pea eyes of the app (`SPECIES.monkey`). | 4.3, 4.4 |
-| Size: no reference image shows a monkey, so the standing skull top under the tuft of hair takes the head top of the parametric monkey, 1.029 m (`2026-10-19-mouse-size.md`): 1.066 m for each unit, H 0.303 m (`app`). The user: "keep the size of phase 1". | 1, 4.4 |
+| The user, 2026-10-20: "make the monkey 1.1x bigger". The whole monkey is 1.1 times the size of phase 1, the head top of the parametric monkey (`2026-10-19-mouse-size.md`): 1.1726 m for each unit, H 0.334 m, the skull top at 1.132 m (`app`). | 1, 4.4 |
 | Question: the arm factor and the trumpet size (report "Arms and trumpet")? The user: "arms 1.5, trumpet at the scale 0.8". The arm factor is 1.5 (`armFactor`), and the trumpet scale is 0.8 (`trumpetScale`). | 4.4, 4.6 |
 | Legs: the legs keep the mesh, with the thighs 25° down and 15° out (`studio.legTurns`). The seat of the legs is 0.132 m, with the front edge of the rig chair at 0.03 u, behind the shins (`chair`). | 4.4, 4.5 |
 | Question: the seated monkey looks as if it stands in front of its low chair, so a chair or no chair? The user: "no chair". The monkey stands to play, as the mouse and the beaver do (`SpeciesParams.noChair`). | 4.4, 4.5 |

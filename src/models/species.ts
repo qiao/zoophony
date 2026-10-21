@@ -537,8 +537,8 @@ export const SPECIES = {
    * Monkey, the trumpets: a brown monkey with a cream face, belly, and ears, dark brown hands and
    * feet, a small tuft of hair, and a long tail that ends in a curl. It has the studio body of the
    * mesh of the user, `assets/models/monkey/monkey.glb`, which `pnpm rig-mesh monkey` rigs (design
-   * 4.4), with the size of the parametric monkey and the longer arms that the user chose
-   * (2026-10-20-mesh-monkey decisions). It plays a smaller trumpet, the size that the user chose.
+   * 4.4), with 1.1 times the size of the parametric monkey and the longer arms that the user
+   * chose (2026-10-20-mesh-monkey decisions). It plays a smaller trumpet, the size that the user chose.
    * It has no chair, as the user chose: the short thighs put the seat low, so it stands on its
    * hind legs with bent knees, in the seated pose at the seat height of its legs. Its long tail
    * goes back and down, and its curl stands on the floor behind it. It stands upright as a

@@ -548,7 +548,7 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   image shows a badger or a monkey, so the badger and the monkey take the head tops of their
   parametric bodies (`docs/decisions/2026-10-20-mesh-badger.md`,
   `docs/decisions/2026-10-20-mesh-monkey.md`). The skull top of the monkey under its small tuft
-  of hair takes the head top.
+  of hair took the head top, and then the user made the monkey 1.1 times as large.
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear then rises to its seat height
   (`seat` of `ANIMALS`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
