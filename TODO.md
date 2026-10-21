@@ -316,8 +316,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`docs/research/2026-10-21-mesh-deer.md`).
 - [ ] Deer: the harp stands upright, while a real harp leans back on the right shoulder. A tilt back
       put the upper strings into the chest of the short-armed deer (`harp/depths-arms125-a.txt`).
-- [ ] Deer: the haunch spreads into a flat light rim on the seat of the stool, and a dark wedge
-      shows under the puff tail from the back (`app/seat-crops.webp` of the research folder).
+- [x] Deer: the haunch spread into a flat light rim on the seat of the stool, and a dark wedge
+      showed under the puff tail from the back. The sit now goes to the final seat top and carries
+      the tail down (`seat/seat-after.webp` of the research folder).
+- [ ] Deer: a small cream fold of the haunch lies on the seat under the puff tail, with the shadow
+      of the tail above it (`seat/zoom-top-carry.webp` of the research folder).
 - [ ] Deer: dark faces show under the right armpit in the play, and points stand out at the
       shoulders in the back view. Look at the zoomed views of `pnpm close-views harpist`.
 - [ ] Deer: 2 to 14 faces of the arms fold in each sample of the harpist, under the limit of the
