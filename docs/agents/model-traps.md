@@ -75,6 +75,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   smallest real size at any crash place in reach or tilt (`scan-hand.txt` of
   `docs/research/2026-10-20-badger-cymbals/`). Give such a body a suspended cymbal
   (`SpeciesParams.cymbalForm`).
+- Short flippers beside a deep belly do not reach a held prop at its reference place. Scan its
+  place with palm targets in the sweep (`singerTargets()`, `--set folder.drop=<H>`), and widen it
+  until the upper limbs keep off the body (`folder-scan.txt` of `docs/research/2026-10-21-mesh-penguin/`).
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit
   (`left-rest.ts` of `docs/research/2026-10-17-tan-rest/`).
 - The strings of the harp of the app run away from the body, out of reach of short arms. Scale and
@@ -154,6 +157,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A thick arm can join the side of the trunk down to the paw, with a notch at its front and its
   back. Turn the plane of the free arm through both notches (`weights.armFree`, `arm_free.py` of
   `docs/research/2026-10-21-mesh-rhino/`), then cut the seam, else the seam stretches into spikes.
+- A limb far from the bind arm of the studio, as a flipper that hangs out and down, turns the faces
+  of its root over in the bind, and they fold in each sample. Bind the upper arm nearer to the
+  source limb (`studio.bindArms`), and count the folds of each bind with `rig-mesh --check --set`.
 - A long thin face across an arm joint folds, and weight rules make it worse. A ring of new vertices
   at the joint (`refine.rings`) fixes it, within 3,200 triangles. Put a ring only where `pnpm
   fold-probe` finds folds, and run `pnpm pose-depth <role>`, because a ring can pull the inner elbow
