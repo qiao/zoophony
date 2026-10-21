@@ -17,21 +17,32 @@ const MATTE = FINISH_ORDER.indexOf('matte');
  * corner of a cap gets the mean of the normals of all `matte` faces at its vertex that are no
  * caps, and a cap shades as the skin around it. A corner of another face does not count the caps.
  *
+ * The faces of `rim` are skin faces around the caps of the body. The side of the trunk curls in
+ * where it joins the hanging arm, so these faces turn more than the crease angle from the skin
+ * around them, and a raised arm shows them as a dark crack. So a corner of a rim face gets the
+ * mean of the normals of all `matte` faces at its vertex that are no caps, with no crease angle.
+ *
  * @param mesh The places of the welded vertices, the corners, and the finishes of the mesh.
  * @param crease The crease angle in degrees.
  * @param caps The `matte` triangles of the caps of the arms (`StudioBody.caps`).
+ * @param rim The `matte` triangles of the rim of the caps of the body (`StudioBody.rim`).
  * @returns x, y, z of the unit normal of each corner, in the order of `mesh.corners`.
  */
 export function studioNormals(
   mesh: Pick<StudioMesh, 'positions' | 'corners' | 'finishes'>,
   crease: number,
   caps: readonly number[] = [],
+  rim: readonly number[] = [],
 ): Float32Array {
   const { positions: p, corners, finishes } = mesh;
   const cornerCount = corners.length;
   const isCap = new Uint8Array(cornerCount / 3);
   for (const t of caps) {
     isCap[t] = 1;
+  }
+  const isRim = new Uint8Array(cornerCount / 3);
+  for (const t of rim) {
+    isRim[t] = 1;
   }
   const faces = new Float32Array(cornerCount);
   const angles = new Float32Array(cornerCount);
@@ -105,7 +116,8 @@ export function studioNormals(
       sx = 0;
       sy = 0;
       sz = 0;
-      const cap = isCap[own] === 1;
+      // A cap and a rim face take the skin at the vertex with no crease angle.
+      const whole = isCap[own] === 1 || isRim[own] === 1;
       const v = corners[c] ?? 0;
       for (let i = start[v] ?? 0; i < (start[v + 1] ?? 0); i++) {
         const other = around[i] ?? 0;
@@ -114,7 +126,7 @@ export function studioNormals(
         const fy = faces[face * 3 + 1] ?? 0;
         const fz = faces[face * 3 + 2] ?? 0;
         const skin = finishes[face] === MATTE && isCap[face] !== 1;
-        if (cap ? skin : other === c || (skin && ox * fx + oy * fy + oz * fz >= limit)) {
+        if (whole ? skin : other === c || (skin && ox * fx + oy * fy + oz * fz >= limit)) {
           const weight = angles[other] ?? 0;
           sx += fx * weight;
           sy += fy * weight;

@@ -296,11 +296,11 @@ export interface SmoothNormals {
  */
 function smoothNormals(rig: StudioRig, crease: number, total: number): SmoothNormals {
   const { positions, correctives } = rig.mesh;
-  const caps = rig.body.caps;
-  const corners = studioNormals(rig.mesh, crease, caps);
+  const { caps, rim } = rig.body;
+  const corners = studioNormals(rig.mesh, crease, caps, rim);
   const moves = correctives.map((corrective) => {
     const moved = positions.map((p, i) => p + (corrective[i] ?? 0));
-    const after = studioNormals({ ...rig.mesh, positions: moved }, crease, caps);
+    const after = studioNormals({ ...rig.mesh, positions: moved }, crease, caps, rim);
     const move = new Float32Array(total * 3);
     for (let i = 0; i < corners.length; i++) {
       move[i] = (after[i] ?? 0) - (corners[i] ?? 0);
