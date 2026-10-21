@@ -306,8 +306,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       30% to 60%. A small lean of the trunk back is an option (`balance.txt`).
 - [ ] Rhino: the thick left paw goes 2.1 cm into the main branch of the tuba, an accepted depth of
       the sweep. The paws are mittens and do not wrap the tube (`TUBIST_SWEEP`).
-- [ ] Trim `docs/agents/model-traps.md` to about 3,000 words: it has 3,706 words since the traps
-      of the rhino and the deer meshes.
+- [ ] Trim `docs/agents/model-traps.md` to about 3,000 words: it has 3,805 words since the traps
+      of the rhino, the deer, and the penguin meshes.
 - [x] Rig the mesh of the deer (harp). The user gave it on 2026-10-21. The deer sits on the stool
       of the harp with its whole haunch on the seat, at the size of the parametric deer, and plays
       a smaller harp (`2026-10-21-mesh-deer.md`).
@@ -329,6 +329,18 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       because its legs are shorter. The size rule of the user takes the standing skull top.
 - [ ] Remove the parametric biped with its ears, snouts, and tails: no species has it since the
       rhino and the deer meshes (`2026-10-21-mesh-rhino.md`, `2026-10-21-mesh-deer.md`).
+- [x] Rig the mesh of the penguin (choir). The user gave it on 2026-10-21 and asked that it stands.
+      The penguin stands on its riser at the head top of the egg penguin, with the flippers of the
+      mesh and the folder within their reach (`2026-10-21-mesh-penguin.md`).
+- [ ] Penguin: the agent chose the size, the flippers of the mesh, the folder place, the bind of
+      the upper arms, and the white throat while the user slept. The user reviews them in
+      `docs/research/2026-10-21-mesh-penguin/singer-base-views.webp` and `options.md`: option B
+      gives flippers 1.25 times as long and the folder at the height of the reference images.
+- [ ] Penguin: the beak does not open, because the rig has no jaw bone, and only the head lift
+      shows each note. A jaw needs a cut of the beak, caps, and an optional bone `jaw` in
+      `tools/blender/rig_mesh.py`, `studio-format.ts`, the export, and `poseStudioBones()`.
+- [ ] Penguin: the crease angle 35° is the angle of the other meshes, with no facet probe against
+      the penguins of the reference images (`ANIMALS` of `tools/studio-body.ts`).
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
       fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
 - [x] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
