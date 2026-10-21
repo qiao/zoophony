@@ -87,11 +87,17 @@ export class DemoList {
 
   /**
    * Shows the levels of the music on the meter of the current demo (design 2.8). Each bar keeps
-   * a small height at the level 0. With reduced motion, `ui.css` shows the bars still.
+   * a small height at the level 0. With reduced motion, `ui.css` shows the bars still. The meter
+   * shows only after the piece starts: a piece that waits at its start shows no meter.
    *
    * @param levels The level of each bar, from 0 to 1, from `meterLevels()`.
+   * @param started True while the piece plays, or after it has left its start.
    */
-  showLevels(levels: Float32Array): void {
+  showLevels(levels: Float32Array, started: boolean): void {
+    const visibility = started ? '' : 'hidden';
+    if (this.#meter.style.visibility !== visibility) {
+      this.#meter.style.visibility = visibility;
+    }
     for (const [i, bar] of this.#bars.entries()) {
       const scale = METER_FLOOR + (1 - METER_FLOOR) * (levels[i] ?? 0);
       if (Math.abs(scale - (this.#shown[i] ?? -1)) >= 0.01) {

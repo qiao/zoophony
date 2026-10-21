@@ -999,7 +999,10 @@ export class App {
       }),
     });
     if (piece) {
-      ui.demoList.showLevels(meterLevels(piece.meter, songSec, this.#meterLevels));
+      ui.demoList.showLevels(
+        meterLevels(piece.meter, songSec, this.#meterLevels),
+        status.playing || songSec > 0,
+      );
     }
     this.#message = followMessage(this.#message, wallTime, ui.message.held);
     ui.message.update(this.#message);
