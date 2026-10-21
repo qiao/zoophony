@@ -5,6 +5,7 @@ import { boneIndex } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import {
   TIMPANI,
+  XYLOPHONE,
   kettleHeadRadius,
   xylophoneBarPosition,
 } from '../models/instruments/percussion.ts';
@@ -412,6 +413,48 @@ function bindTarget(model: PlayerModel, target: PlayTarget, at: Vec3 = target.fr
 }
 
 /**
+ * Gives the octave shift of a xylophone part (design 5.3): the multiple of 12 semitones that puts
+ * the highest key of the part in the highest octave of the bars, as a player plays a part below or
+ * above the instrument in another octave. A part within the bars keeps its keys. The short bars of
+ * the high keys stand nearest to the player, so the short arms of the badger reach them best. A
+ * steel drum part of a file of the user, keys 53 to 62, struck the lowest bar with each note
+ * before the shift, out of the reach of the arms. Shifted to the middle of the bars, 0% of its
+ * strikes were within 5 mm of their bars, and shifted to the top, 51%
+ * (`docs/research/2026-10-21-pirates-clip.md`).
+ *
+ * @param lowest The lowest MIDI key of the part.
+ * @param highest The highest MIDI key of the part.
+ * @returns The shift, in semitones.
+ */
+export function xylophoneShift(lowest: number, highest: number): number {
+  const [low, high] = XYLOPHONE.keys;
+  if (lowest >= low && highest <= high) {
+    return 0;
+  }
+  return 12 * Math.floor((high - highest) / 12);
+}
+
+/**
+ * Gives the bar of a key of a xylophone part: the key after the octave shift of the part, moved by
+ * octaves into the bars when the part is wider than the bars.
+ *
+ * @param pitch The MIDI key of the note.
+ * @param shift The octave shift of the part ({@link xylophoneShift}), in semitones.
+ * @returns The MIDI key of the bar.
+ */
+function xylophoneBar(pitch: number, shift: number): number {
+  const [low, high] = XYLOPHONE.keys;
+  let key = pitch + shift;
+  while (key < low) {
+    key += 12;
+  }
+  while (key > high) {
+    key -= 12;
+  }
+  return key;
+}
+
+/**
  * Gives the key of the target of a note: the index of the kettle of the timpani, the MIDI key of
  * the bar of the xylophone, 1 for the tambourine and 0 for the triangle, and 0 for a drum or the
  * cymbals.
@@ -419,14 +462,20 @@ function bindTarget(model: PlayerModel, target: PlayTarget, at: Vec3 = target.fr
  * @param instrument The instrument.
  * @param pitch The MIDI key of the note.
  * @param kettles The number of kettles of the timpani.
+ * @param shift The octave shift of a xylophone part ({@link xylophoneShift}), in semitones.
  * @returns The key of the target.
  */
-export function targetKeyOf(instrument: PercussionInstrument, pitch: number, kettles = 4): number {
+export function targetKeyOf(
+  instrument: PercussionInstrument,
+  pitch: number,
+  kettles = 4,
+  shift = 0,
+): number {
   switch (instrument) {
     case 'timpani':
       return kettleOf(pitch, kettles);
     case 'xylophone':
-      return pitch;
+      return xylophoneBar(pitch, shift);
     case 'small-percussion':
       return pitch === TAMBOURINE_KEY ? 1 : 0;
     case 'bass-drum':

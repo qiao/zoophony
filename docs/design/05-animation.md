@@ -540,8 +540,11 @@ The code constants of each family hold the times, the angles, and the lengths of
   - The notes that start within 50 ms of each other strike together. A drum player strikes its
     own instrument for each note, also for another key group (3.8).
   - A timpani note plays on the kettle whose key range has its middle nearest to the key. A
-    xylophone note strikes the bar of its key (4.6). The small percussion player strikes the
-    tambourine for key 54 and the triangle for the other keys.
+    xylophone note strikes the bar of its key (4.6). A xylophone part outside the bars moves by
+    octaves, so that its highest key is in the highest octave of the bars (`xylophoneShift()`),
+    because each note below the bars struck the lowest bar, out of reach. The short bars of the
+    high keys stand nearest to the player. The small percussion player strikes the tambourine for
+    key 54 and the triangle for the other keys.
   - With two mallets, a chord takes both hands, a fast repeat takes the other hand (a roll), and
     a hand does not cross the other. A mallet lifts before a strike, comes down at its full speed
     at the note start, and rebounds (`STRIKE_MOTION`). The elbows point down and near the body

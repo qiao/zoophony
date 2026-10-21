@@ -15,6 +15,7 @@ import {
   frontKettles,
   offsetTarget,
   targetKeyOf,
+  xylophoneShift,
 } from './percussion-rig.ts';
 import type { PercussionRig, PercussionSide } from './percussion-rig.ts';
 import { alternateHands, buildStrikeTrack } from './strikes.ts';
@@ -57,8 +58,9 @@ export function percussionTracks(
     highest = Math.max(highest, note.pitch);
   }
   const middle = (lowest + highest) / 2;
+  const shift = instrument === 'xylophone' ? xylophoneShift(lowest, highest) : 0;
   const keyOf = (pitch: number): number =>
-    pair ? (pitch < middle ? frontL : frontR) : targetKeyOf(instrument, pitch, kettles);
+    pair ? (pitch < middle ? frontL : frontR) : targetKeyOf(instrument, pitch, kettles, shift);
   const groups = groupChords(notes, loudness).map((group): StrikeGroup => {
     const keys = new Set<number>();
     for (const note of notes.slice(group.first, group.first + group.count)) {

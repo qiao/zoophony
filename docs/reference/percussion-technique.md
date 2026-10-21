@@ -207,7 +207,10 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   hand cymbals of the app meet in front of the shoulders, vertical (`PERCUSSION_PLACES`).
 - **The xylophone.** The mallets leave the front of the fists, as the sticks of the snare drum,
   as section 9 gives. The app differs: the body does not move from side to side behind the
-  notes, so the short arms do not reach the outer bars, and the hold is open.
+  notes, so the short arms do not reach the outer bars, and the hold is open. A part below or
+  above the bars plays in the octave that puts its highest key in the highest octave of the
+  bars (`xylophoneShift()` of `src/pose/percussion-rig.ts`), where the short arms reach best. No
+  source of section 11 gives the octave that a player takes for such a part.
 
 ## 11. Sources
 
