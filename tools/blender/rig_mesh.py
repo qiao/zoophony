@@ -17,6 +17,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    axis. With `cut` of the config, the faces that join each hanging
    forearm to the belly go, and new faces close both holes (`cut_seam()`). With `skinNormals` of
    the cut, the file names the caps of the arm, and the app gives them the normals of the skin.
+   With `bodyNormals`, the file also names the caps of the body, the quads at the top, and the
+   skin faces of their rim (`cut_rim()`), which take the normals of the skin too.
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones, and give the weights with bone heat. Then the
@@ -1107,6 +1109,19 @@ def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
         report.append((side, mixed, faces, arm_run, body_run))
     return (np.concatenate([tris[keep], np.array(added, tris.dtype)]),
             np.concatenate([uvs[keep], np.array(added_uvs)]), report)
+
+
+def cut_rim(tris, body_caps, arm_caps):
+    """Finds the rim of the caps of the body of a cut (`bodyNormals` of the cut): each skin face
+    with a corner on a cap of the body and no corner on a cap of the arm. The side of the trunk of
+    the source curls in where it joins the hanging arm, so these faces turn far from the skin
+    around them, and a raised arm shows them as a dark crack. Gives a mask of the faces."""
+    on_body = np.zeros(int(tris.max()) + 1, bool)
+    on_body[tris[body_caps].ravel()] = True
+    on_arm = np.zeros(len(on_body), bool)
+    on_arm[tris[arm_caps].ravel()] = True
+    new = body_caps | arm_caps
+    return ~new & on_body[tris].any(axis=1) & ~on_arm[tris].any(axis=1)
 
 
 def arm_side(verts, rules, heads, ends, sign):
@@ -3689,14 +3704,16 @@ def main():
     uncut = uncut_faces(long_verts, tris, long_heads, long_ends, thin_rule) if thin_rule else []
     colors, dark, dark_share = face_colors(tris, uvs, texture, config['colors'])
     # The caps of the arm that take the normals of the skin in the app (`skinNormals` of the cut),
-    # with the parts of a split.
+    # with the parts of a split, and the skin faces of the rim of the caps of the body.
     skin_caps = np.zeros(len(tris), bool)
+    rim = np.zeros(len(tris), bool)
     if 'cut' in config:
         # The caps of the body and the quads at the top take the white of the belly: the color of
         # the nearest light face that the cut keeps. The caps of the arm keep the black of the arm
         # from the faces across their edges.
         start = len(source_tris) - sum(len(c[2]) for c in seam_cut)
         arm_cap = np.zeros(len(source_tris), bool)
+        body_cap = np.zeros(len(source_tris), bool)
         light = oklab(colors)[:, 0] >= 0.5
         mids = long_verts[tris].mean(axis=1)
         kept = np.nonzero(light & (np.arange(len(tris)) < start))[0]
@@ -3707,10 +3724,16 @@ def main():
                 if not all(v in arm_side for v in f):
                     colors[k] = colors[kept[np.argmin(np.linalg.norm(mids[kept] - mids[k], axis=1))]]
                     dark[k] = False
+                    body_cap[k] = not any(v in arm_side for v in f)
                 else:
                     arm_cap[k] = True
                 k += 1
-        if config['cut'].get('skinNormals', False):
+        if config['cut'].get('bodyNormals', False):
+            # The caps of the body and the quads at the top lie in the notch of the side of the
+            # trunk, and a raised arm turns them away from the light too.
+            skin_caps = (np.arange(len(source_tris)) >= start)[origin]
+            rim = cut_rim(tris, body_cap[origin], arm_cap[origin])
+        elif config['cut'].get('skinNormals', False):
             skin_caps = arm_cap[origin]
     # The move of the head from the source: the pivot, the head factor, the rise, and the drop.
     head_move = (heads['neck'], factors['head'], rise,
@@ -3973,7 +3996,16 @@ def main():
         if (materials[np.argsort(order)][found] != 'fur').any():
             raise SystemExit('A cap of the arm is not fur.')
         extras['caps'] = sorted(int(t) for t in module_faces(order, materials)[found])
-        log(f'caps: {len(found)} caps of the arm take the normals of the skin in the app')
+        log(f'caps: {len(found)} caps of the cut take the normals of the skin in the app')
+    if rim.any():
+        # The app gives each corner of these skin faces the normal of the skin at its vertex with
+        # no crease angle (`studioNormals()`).
+        found = np.nonzero(rim)[0]
+        if (materials[np.argsort(order)][found] != 'fur').any():
+            raise SystemExit('A face of the rim of the cut is not fur.')
+        extras['rim'] = sorted(int(t) for t in module_faces(order, materials)[found])
+        log(f'rim: {len(found)} skin faces around the caps of the body take the normals of the '
+            f'skin in the app')
     if raised:
         # One rule writes one pose, as the files before the list of rules did, so that their bytes
         # stay.
