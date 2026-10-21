@@ -827,6 +827,16 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Rabbit lowering: the right forearm goes 2.1 cm into the body for 0.2 s at the song end of
       `bach-bwv1050`, against 1.0 cm before the fix of the bow flip (`pnpm pose-depth violinist
       --base 39aa09c9`, `2026-10-21-wrist-lift.md`).
+- [ ] Tools of the beat motion (retro of the beat fold round, 2026-10-21):
+      - Add `--midi <path>` and `--strip <from>:<step>:<count>` to `pnpm close-views play`: a dev
+        hook that freezes the song time, and a base | round pair sheet. Start from `freeze.pl`,
+        `strip.ts`, and `pair.py` of `docs/research/2026-10-21-beat-fold/`.
+      - Add `--trace <from>-<to> [--player <n>]` to `pnpm beat-rates`: the sway angle of one
+        player at steps of 0.01 s, with the values of `--base`.
+      - Start `docs/reference/conducting-technique.md`, a living reference like the string, wind,
+        and percussion files: the beat patterns, the tempo at which a conductor beats in 2 or in
+        1, and the sway of real players, with a source for each fact. The limit of 168 BPM for a
+        4/4 in 2 has no source yet (`2026-10-21-beat-fold.md`).
 - [ ] Tools of a move (retro of the wrist lift round, 2026-10-21):
       - Add `pnpm move-views <role> <demo> lift|lower <at> <times> [--base <ref>] [--set ...]`.
         It writes 2x crop pairs (base | tree) of frames inside a demo lift or lowering. Start
