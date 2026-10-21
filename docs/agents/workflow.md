@@ -137,6 +137,9 @@ file, because both checks still read it.
 - Run an image probe in Python with
   `uv run --no-project --with pillow --with numpy --with scipy python -I <script>`. The other
   Pythons of the machine have no numpy or no Pillow.
+- The machine has no `pdftotext`. Read the text of a PDF source with
+  `uv run --no-project --with pypdf python -I <script>`, with `pypdf.PdfReader(path)` and
+  `page.extract_text()`.
 - Vitest hides the `console.log` output of a passing test, so a probe in a test writes a file.
 - A sweep, such as `pnpm pose-depth` or `pnpm fold-probe`, reads the modules at its start. Do not
   edit or commit a module that it reads while it runs, because its result then belongs to no
