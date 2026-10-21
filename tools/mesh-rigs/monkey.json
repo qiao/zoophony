@@ -237,10 +237,10 @@
   "studio": {
     "legTurns": {
       "thigh": [
-        0.700572,
-        0.061722,
-        -0.187718,
-        0.685676
+        0.547086,
+        0.046407,
+        -0.124188,
+        0.826511
       ],
       "shin": [
         0.135777,
@@ -291,9 +291,9 @@
     },
     "tailBind": {
       "tail": [
-        -0.204,
-        -0.6157,
-        -0.7612
+        -0.1765,
+        -0.7314,
+        -0.6588
       ],
       "tail_tip": [
         -0.576,
@@ -301,7 +301,7 @@
         0.023
       ]
     },
-    "note": "The studio has no monkey. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The user chose a chair with level thighs (\"D2, thighs level\", docs/decisions/2026-10-20-monkey-chair.md): the thigh is level from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical, where the shin of the source slants 15.6 degrees back (docs/research/2026-10-16-hip-open/leg_turns.py <config> 0 15 0). With the thigh 25 degrees down, the short thighs set the seat top before the haunch, and the seated monkey looked as if it stood in front of its low chair. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk shares and the bind arms are the values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back and down over the back of the seat, 38 degrees below the level and 15 degrees to the right of the back, and the tip keeps the direction of the source, so that the curl stands up on the floor as in the source. The level thighs lift the feet toward the hips, so a steeper root makes the tail the lowest point, and the tail then sets the seat and holds the feet above the floor (47 degrees: the feet 3.6 cm up, check-slopes.log of docs/research/2026-10-20-monkey-chair/). At 37 degrees, the lowest point of the tail was 0.9 cm above the soles, at 38 degrees 0.4 cm, and at 39 degrees the tail lifted the seat by 0.1 cm (check-tail.log, check-chairs.log)."
+    "note": "The studio has no monkey. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical, where the shin of the source slants 15.6 degrees back (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 15 0, leg-turns.txt). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk shares and the bind arms are the values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back and down over the back of the seat, 47 degrees below the level and 15 degrees to the right of the back, and the tip keeps the direction of the source, so that the curl stands up on the floor as in the source. At 35 degrees, the lowest point of the tail was 5.1 cm above the soles, at 45 degrees 0.8 cm, and at 47 degrees 0.07 cm. At 49 degrees and more, the tail was the lowest point and lifted the seat (tail-scan1.log, tail-scan2.log)."
   },
   "weights": {
     "armSplit": 0.095,
