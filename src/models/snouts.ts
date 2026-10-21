@@ -1,12 +1,5 @@
 import { Vector3 } from 'three';
-import {
-  LIMB_SEGMENTS,
-  addLimb,
-  alongAxis,
-  partColor,
-  placeCorners,
-  unknownValue,
-} from './body-parts.ts';
+import { LIMB_SEGMENTS, alongAxis, partColor, placeCorners, unknownValue } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
@@ -21,7 +14,7 @@ import type { BipedParams } from './species.ts';
 export interface SnoutBones {
   /** The hinge of the lower jaw (design 4.7). */
   readonly jaw: Vec3;
-  /** The joints of the trunk. Each species has them, and only the elephant has a trunk. */
+  /** The joints of the trunk. Each species has them, and no species of the biped has a trunk. */
   readonly trunk: readonly [Vec3, Vec3, Vec3];
   /**
    * The middle of the mouth, at the front of the snout. A wind instrument touches this point
@@ -32,8 +25,8 @@ export interface SnoutBones {
 
 /**
  * The mouth of each snout type, from the head center in head heights `H`. The mouth is under
- * the front of the muzzle, or under the root of the trunk. A long or a pointed muzzle reaches past the mouth, so that a wind instrument keeps the place
- * where the arms reach its grips (design 5.3).
+ * the front of the muzzle. A long or a pointed muzzle reaches past the mouth, so that a wind
+ * instrument keeps the place where the arms reach its grips (design 5.3).
  */
 const MOUTHS = {
   short: [0, -0.38, -0.62],
@@ -42,20 +35,19 @@ const MOUTHS = {
   broad: [0, -0.48, -0.7],
   pointed: [0, -0.36, -0.62],
   'buck-teeth': [0, -0.4, -0.6],
-  trunk: [0, -0.44, -0.5],
   'flat-nose': [0, -0.42, -0.58],
   horn: [0, -0.42, -0.66],
 } as const satisfies Readonly<Record<BipedParams['snout'], Vec3>>;
 
 /**
- * The three segments of the trunk (design 4.5: 1.4 H on 3 bones): the direction, the length in
- * H, and the radius at the start in H. The trunk starts low on the face, hangs down in front of
- * the chest, and its tip curls up.
+ * The three segments of the trunk bones (design 4.7: 1.4 H on 3 bones): the direction and the
+ * length in H. The bones start low on the face, hang down in front of the chest, and the last
+ * bone curls up. Each skeleton has the trunk bones, and no species of the biped has a trunk.
  */
-const TRUNK_SEGMENTS: readonly (readonly [direction: Vec3, length: number, radius: number])[] = [
-  [[0, -1, -0.35], 0.5, 0.2],
-  [[0, -1, -0.6], 0.5, 0.15],
-  [[0, 1, -0.25], 0.4, 0.11],
+const TRUNK_SEGMENTS: readonly (readonly [direction: Vec3, length: number])[] = [
+  [[0, -1, -0.35], 0.5],
+  [[0, -1, -0.6], 0.5],
+  [[0, 1, -0.25], 0.4],
 ];
 
 /** The cosine above which a face of the long muzzle points up, so that it gets the fur color. */
@@ -63,9 +55,6 @@ const MUZZLE_TOP_FACING = 0.35;
 
 /** The direction of the horn: up, and a little to the front. */
 export const RHINO_HORN_AXIS: Vec3 = [0, 1, -0.3];
-
-/** The radius of the trunk at its tip, in H. */
-const TRUNK_TIP_RADIUS = 0.08;
 
 /**
  * Calculates the joints of the trunk: its root and the start of the second and third segments.
@@ -114,9 +103,6 @@ function addNose(
 
 /** The number of faces around the axis of a muzzle. */
 const MUZZLE_SEGMENTS = 10;
-
-/** The tusks of the elephant: the root, the direction, and the length, in H (design 4.5). */
-const TUSK = { root: [0.17, -0.42, -0.46], direction: [0.2, -0.35, -1], length: 0.34 } as const;
 
 /**
  * Adds a cone that points out of the face, such as a long muzzle or a horn.
@@ -296,45 +282,6 @@ export function addSnout(
       );
       const nose = new Vector3(...from).addScaledVector(axis, length * h);
       addNose(builder, colors, h, toVec3(nose), 0.045);
-      return bones;
-    }
-    case 'trunk': {
-      // Two tusks beside the root of the trunk, as the elephant of the polished images.
-      for (const side of [-1, 1]) {
-        addCone(
-          builder,
-          at(side * TUSK.root[0], TUSK.root[1], TUSK.root[2]),
-          [side * TUSK.direction[0], TUSK.direction[1], TUSK.direction[2]],
-          [
-            [0.05 * h, 0],
-            [0.036 * h, 0.2 * h],
-            [0, TUSK.length * h],
-          ],
-          1,
-          srgb(TEETH_COLOR),
-          'head',
-        );
-      }
-      // Three segments of 1.4 H in all, with a ball at each bend. The tip of the trunk is its
-      // nose, so the trunk has no nose ball.
-      const joints = [root, second, third];
-      const names = ['trunk1', 'trunk2', 'trunk3'] as const;
-      for (const [i, [direction, length, radius]] of TRUNK_SEGMENTS.entries()) {
-        const start = joints[i] ?? root;
-        const end = toVec3(
-          new Vector3(...start).addScaledVector(new Vector3(...direction).normalize(), length * h),
-        );
-        const next = TRUNK_SEGMENTS[i + 1]?.[2] ?? TRUNK_TIP_RADIUS;
-        const bone = names[i] ?? 'trunk1';
-        addLimb(builder, start, end, [radius * h, next * h], colors.fur, bone);
-        if (i > 0) {
-          builder.add(icosphere(radius * h, 0), {
-            color: colors.fur,
-            bone: boneIndex(bone),
-            at: transform(start),
-          });
-        }
-      }
       return bones;
     }
     case 'flat-nose': {

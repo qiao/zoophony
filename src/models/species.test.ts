@@ -193,15 +193,12 @@ describe('buildBiped for each species', () => {
       });
 
       it('puts the mouth near the middle plane, below the eyes, and on the face', () => {
-        // The mouthpiece of a wind instrument goes to the mouth (design 4.6). The mouth of a
-        // trunk is under the chin, behind the low eyes.
+        // The mouthpiece of a wind instrument goes to the mouth (design 4.6).
         const { mouth } = body;
         const eye = body.positions.eyeR;
         expect(Math.abs(mouth[0] - body.headCenter[0])).toBeLessThan(0.05 * h);
         expect(mouth[1]).toBeLessThan(eye[1]);
-        if (species.body || species.snout !== 'trunk') {
-          expect(mouth[2]).toBeLessThan(eye[2]);
-        }
+        expect(mouth[2]).toBeLessThan(eye[2]);
         // A corner of the head, the jaw, or the trunk is near the mouth.
         const face = new Set((['head', 'jaw', 'trunk1'] as const).map(boneIndex));
         let nearest = Infinity;
@@ -239,10 +236,8 @@ describe('buildBiped for each species', () => {
         expect(hasColor(mesh, srgb(species.colors.belly))).toBe(true);
         expect(hasColor(mesh, srgb(species.colors.accent))).toBe(true);
         expect(hasColor(mesh, srgb(EYE_COLOR))).toBe(true);
-        // The trunk and a body of its own have no nose ball, and an accent nose has the accent
-        // color.
-        const ownNose =
-          !species.accentParts.includes('nose') && !species.body && species.snout !== 'trunk';
+        // A body of its own has no nose ball, and an accent nose has the accent color.
+        const ownNose = !species.accentParts.includes('nose') && !species.body;
         expect(hasColor(mesh, srgb(NOSE_COLOR))).toBe(ownNose);
       });
     });

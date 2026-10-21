@@ -143,7 +143,6 @@ export interface BipedParams extends CommonParams {
     | 'broad'
     | 'pointed'
     | 'buck-teeth'
-    | 'trunk'
     | 'flat-nose'
     | 'horn';
   /** The tail type (design 4.3). */
