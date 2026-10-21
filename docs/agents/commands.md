@@ -65,7 +65,7 @@ prints only a one-line usage text.
 
 | Command | Action |
 |---|---|
-| `pnpm loudness [--demo <id>]... [--fit] [--target <LUFS>]... [--json]` | Renders each demo in Node with the synth, the SoundFont, and the stage mix, then sends it through `output-chain.ts` in an `OfflineAudioContext` of headless Chromium (design 6.8). It prints the integrated loudness, the loudness range, the true peak, the median short-term loudness of the first 30 s, the share below -30 LUFS short-term, and the gain reduction of the limiter. `--fit` gives the value of `DEMO_LOUDNESS` for `TARGET_LOUDNESS`, and `--target` for another target. It uses a free port. About 25 s for each demo. |
+| `pnpm loudness [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check]` | Renders each demo in Node with the synth, the SoundFont, and the stage mix, then sends it through `output-chain.ts` in an `OfflineAudioContext` of headless Chromium (design 6.8). It prints the integrated loudness, the loudness range, the true peak, the median short-term loudness of the first 30 s, the share below -30 LUFS short-term, and the gain reduction of the limiter. `--fit` gives the value of `DEMO_LOUDNESS` for `TARGET_LOUDNESS`, and `--target` for another target. `--check` fails above 0.5 LU from the target or above -1 dBTP. It uses a free port. About 25 s for each demo. |
 
 ## Pose and body probes
 

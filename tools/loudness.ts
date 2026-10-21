@@ -1,7 +1,7 @@
 /**
  * Measures the loudness of each demo at the output of the app (design 6.8).
  *
- * Usage: `pnpm loudness [--demo <id>]... [--fit] [--target <LUFS>]... [--json]`
+ * Usage: `pnpm loudness [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check]`
  *
  * For each demo (all demos by default), it renders the synth output in Node with the
  * `SynthEngine`, the SoundFont of design 6.2, the room of the synth, and the stage mix of the
@@ -20,6 +20,9 @@
  * - `--target <LUFS>` fits to this target in place of `TARGET_LOUDNESS`. Each target gives one
  *   row for each demo, from one synth render.
  * - `--json` prints one JSON object for each demo, with the short-term loudness at each second.
+ * - `--check` exits with 1 when a demo at the gain of `pieceGainDb()` is more than 0.5 LU from
+ *   `TARGET_LOUDNESS`, or has a true peak above -1 dBTP. Run it after a change of a demo file,
+ *   the SoundFont, the mix, the hall, or the limiter.
  *
  * The page server listens on a free port that the system gives. A run of all demos takes about
  * 5 minutes. The renders are deterministic, so two runs give the same numbers.
@@ -66,6 +69,12 @@ const FIT_TOLERANCE = 0.05;
 
 /** The most chain renders of one fit. */
 const FIT_STEPS = 6;
+
+/** The largest distance of a demo from the target in LU for `--check`. */
+const CHECK_TOLERANCE = 0.5;
+
+/** The highest true peak of a demo in dBTP for `--check` (EBU R 128). */
+const CHECK_TRUE_PEAK = -1;
 
 /** The synth output of one demo and its song length. */
 interface SynthRender {
@@ -453,6 +462,24 @@ function jsonOf(row: Row): RowJson {
 }
 
 /**
+ * Gives the failures of the check of one demo at the gain of `pieceGainDb()`.
+ *
+ * @param row The measures.
+ * @returns One text for each failed limit.
+ */
+function checkFailures(row: Row): string[] {
+  const failures: string[] = [];
+  const error = row.loudness.integrated - TARGET_LOUDNESS;
+  if (Math.abs(error) > CHECK_TOLERANCE) {
+    failures.push(`${row.demo}: ${error.toFixed(2)} LU from the target`);
+  }
+  if (row.loudness.truePeak > CHECK_TRUE_PEAK) {
+    failures.push(`${row.demo}: true peak ${row.loudness.truePeak.toFixed(2)} dBTP`);
+  }
+  return failures;
+}
+
+/**
  * Reads the values of an option that can repeat.
  *
  * @param args The arguments.
@@ -474,11 +501,13 @@ function optionValues(args: readonly string[], name: string): string[] {
   return values;
 }
 
-/** Runs the tool: `node tools/loudness.ts [--demo <id>]... [--fit] [--target <LUFS>]... [--json]`. */
+/** Runs the tool: `node tools/loudness.ts [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check]`. */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args.includes('--help')) {
-    console.log('Usage: pnpm loudness [--demo <id>]... [--fit] [--target <LUFS>]... [--json]');
+    console.log(
+      'Usage: pnpm loudness [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check]',
+    );
     return;
   }
   const names = optionValues(args, '--demo');
@@ -495,6 +524,7 @@ async function main(): Promise<void> {
     targets.push(TARGET_LOUDNESS);
   }
   const json = args.includes('--json');
+  const check = args.includes('--check');
   if (METER_RATE !== TEST_SAMPLE_RATE) {
     throw new Error('The meter and the render need the same sample rate.');
   }
@@ -503,10 +533,12 @@ async function main(): Promise<void> {
     console.log(`Output of the chain, after the limiter. TARGET_LOUDNESS ${TARGET_LOUDNESS} LUFS.`);
     console.log(HEAD);
   }
+  const failures: string[] = [];
   try {
     for (const demo of demos) {
       const synth = await renderSynth(demo);
       const first = await measureAt(demo, synth, pieceGainDb(demo), null);
+      failures.push(...checkFailures(first));
       const rows = [first];
       for (const target of targets) {
         rows.push(await fit(demo, synth, target, first));
@@ -517,6 +549,14 @@ async function main(): Promise<void> {
     }
   } finally {
     await browser?.close();
+  }
+
+  if (check) {
+    for (const failure of failures) {
+      console.error(`FAIL ${failure}`);
+    }
+    console.error(failures.length ? `${failures.length} failures.` : 'check: pass');
+    process.exitCode = failures.length ? 1 : 0;
   }
 }
 
