@@ -41,25 +41,29 @@ export const HARP = {
 
 /**
  * The place of the harp at the player (design 4.6): the base of the harp stands on the floor in
- * front of the player, and the harp leans back to the right shoulder. `pnpm hold-fit --set` and
- * the other probes change it as `harpPlace`.
+ * front of the player, between the knees, and the strings stand in front of the chest, so that
+ * both hands reach the strings with the forearms about level, as a real harpist plays. `pnpm hold-fit --set` and the other probes change it as
+ * `harpPlace`. The deer is the only harp player, and its short arms set the place
+ * (`docs/research/2026-10-21-mesh-deer.md`).
  */
 export const HARP_PLACE = {
   /** The move of the base to the right of the floor point under the seat, in head heights. */
-  side: 0.15,
+  side: 0,
   /** The move of the base up, in meters, at the scale 1 of the harp. */
   lift: 0.017,
   /** The distance of the base in front of the floor point, in meters, at the scale 1. */
-  front: 0.53,
-  /** The tilt of the harp back to the player. */
-  tilt: 12 * MathUtils.DEG2RAD,
+  front: 0.44,
   /**
-   * The turn of the harp around the vertical, seen from above, so that the top of the soundbox
-   * comes to the right shoulder and the column goes to the front left. Thus the neck passes the
-   * right side of the face. With no turn, the neck went through the face of the deer (review of
-   * step 5, U1).
+   * The tilt of the harp back to the player. The harp stands upright: with a tilt of 12°, the
+   * upper strings came to the chest of the deer, and its forearms went 5 cm into its chest.
    */
-  turn: 38 * MathUtils.DEG2RAD,
+  tilt: 0,
+  /**
+   * The turn of the harp around the vertical, seen from above, so that the column goes to the
+   * front left and the soundbox comes back to the right knee. The left hand plays the bass strings
+   * at the front left, and the right hand the treble strings nearer to the body.
+   */
+  turn: 30 * MathUtils.DEG2RAD,
 };
 
 /** The places of the bass string and of the treble string along z. */
