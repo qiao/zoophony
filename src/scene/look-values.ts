@@ -71,9 +71,6 @@ const LOOK_ROOTS = {
   TIER_SETTINGS,
 } as const;
 
-/** The name of a root of {@link LOOK_ROOTS}. */
-export type LookRoot = keyof typeof LOOK_ROOTS;
-
 /**
  * The look paths that a module reads at its load, by the code that reads them. The override acts
  * after the load of the modules of {@link LOOK_ROOTS} and of their imports, so it refuses these
