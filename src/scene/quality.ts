@@ -20,6 +20,11 @@ export interface TierSettings {
   readonly maxPixelRatio: number;
   /** The number of levels of the bloom, from half size down. 0 turns the bloom off. */
   readonly bloomLevels: number;
+  /**
+   * True for the lens flare (`FLARE_LOOK` of `scene/post.ts`). It reads two levels of the bloom
+   * (`flareLevel()` of `scene/post.ts`), so it needs the bloom.
+   */
+  readonly flare: boolean;
   /** The number of samples of the depth of field for each pixel. 0 turns it off. */
   readonly blurSamples: number;
   /** The number of dust motes in the visible beam. */
@@ -31,8 +36,8 @@ export interface TierSettings {
 /**
  * The values of each tier (design 2.6). The low tier keeps the final pass of the post effects
  * (the tone mapping, the color grade, the vignette, and the grain), because it costs one sample
- * for each pixel. It drops the bloom, the depth of field, the dust motes, and the shadows of the
- * side lights.
+ * for each pixel. It drops the bloom, the lens flare, the depth of field, the dust motes, and the
+ * shadows of the side lights.
  */
 export const TIER_SETTINGS = {
   high: {
@@ -41,6 +46,7 @@ export const TIER_SETTINGS = {
     shadowRadius: 3,
     maxPixelRatio: 2,
     bloomLevels: 6,
+    flare: true,
     blurSamples: 32,
     motes: 140,
     beamSamples: 4,
@@ -51,6 +57,7 @@ export const TIER_SETTINGS = {
     shadowRadius: 1,
     maxPixelRatio: 1.5,
     bloomLevels: 5,
+    flare: true,
     blurSamples: 16,
     motes: 70,
     beamSamples: 3,
@@ -61,6 +68,7 @@ export const TIER_SETTINGS = {
     shadowRadius: 1,
     maxPixelRatio: 1,
     bloomLevels: 0,
+    flare: false,
     blurSamples: 0,
     motes: 0,
     beamSamples: 2,
