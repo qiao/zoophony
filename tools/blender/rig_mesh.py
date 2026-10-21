@@ -17,8 +17,9 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    axis. With `cut` of the config, the faces that join each hanging
    forearm to the belly go, and new faces close both holes (`cut_seam()`). With `skinNormals` of
    the cut, the file names the caps of the arm, and the app gives them the normals of the skin.
-   With `bodyNormals`, the file also names the caps of the body, the quads at the top, and the
-   skin faces of their rim (`cut_rim()`), which take the normals of the skin too.
+   With `bodyNormals`, the sides of the cut such as "R", the file also names the caps of the body,
+   the quads at the top, and the skin faces of their rim (`cut_rim()`) of these sides, which take
+   the normals of the skin too.
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones, and give the weights with bone heat. Then the
@@ -3714,6 +3715,9 @@ def main():
         start = len(source_tris) - sum(len(c[2]) for c in seam_cut)
         arm_cap = np.zeros(len(source_tris), bool)
         body_cap = np.zeros(len(source_tris), bool)
+        # The new faces of the sides of `bodyNormals`.
+        chosen = np.zeros(len(source_tris), bool)
+        sides = config['cut'].get('bodyNormals', '')
         light = oklab(colors)[:, 0] >= 0.5
         mids = long_verts[tris].mean(axis=1)
         kept = np.nonzero(light & (np.arange(len(tris)) < start))[0]
@@ -3721,20 +3725,21 @@ def main():
         for side, removed, faces, arm_run, body_run in seam_cut:
             arm_side = set(arm_run)
             for f in faces:
+                chosen[k] = side in sides
                 if not all(v in arm_side for v in f):
                     colors[k] = colors[kept[np.argmin(np.linalg.norm(mids[kept] - mids[k], axis=1))]]
                     dark[k] = False
-                    body_cap[k] = not any(v in arm_side for v in f)
+                    body_cap[k] = side in sides and not any(v in arm_side for v in f)
                 else:
                     arm_cap[k] = True
                 k += 1
-        if config['cut'].get('bodyNormals', False):
+        if config['cut'].get('skinNormals', False):
+            skin_caps = arm_cap[origin]
+        if sides:
             # The caps of the body and the quads at the top lie in the notch of the side of the
             # trunk, and a raised arm turns them away from the light too.
-            skin_caps = (np.arange(len(source_tris)) >= start)[origin]
+            skin_caps |= chosen[origin]
             rim = cut_rim(tris, body_cap[origin], arm_cap[origin])
-        elif config['cut'].get('skinNormals', False):
-            skin_caps = arm_cap[origin]
     # The move of the head from the source: the pivot, the head factor, the rise, and the drop.
     head_move = (heads['neck'], factors['head'], rise,
                  drop + lower if factors['trunk'] != 1 else drop)
