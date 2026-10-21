@@ -1,5 +1,6 @@
 {
-  "source": "assets/models/rabbit/rabbit-4.glb",
+  "source": "assets/models/rabbit/rabbit-4-armpit.glb",
+  "sourceNote": "The mesh of the user with one local edit (assets/models/rabbit/README.md): 21 trunk vertices at the root of the right arm move out, at most 1.2 cm in the app, so that the trunk under the raised bow arm has a shallow hollow and no notch. The user said on 2026-10-21: \"fix the rabbit's armpit deformation. it looks like it's missing a piece\". The full move to the fitted surface (at most 2.4 cm) made a faceted patch with a dark pit, and a move of the top ends of the notch alone folded each rest sample (docs/research/2026-10-21-rabbit-armpit.md).",
   "output": "assets/models/rabbit/rabbit-4.rig.glb",
   "name": "Rabbit",
   "weld": 1e-5,
