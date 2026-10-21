@@ -18,7 +18,8 @@ prints only a one-line usage text.
   text takes a member of its union, and an object, a list, or `null` takes JSON text. The root `<species>` changes
   an instrument scale, such as `mouse.oboeScale=0.62`, the form of its cymbals, such as
   `badger.cymbalForm=suspended`, or the lead pipe of its tuba, such as `rhino.tubaPipe=0.25,0.1`. The root `choir` changes the
-  flippers of a singer, and `folder` the place of the choir folder, such as `folder.drop=1.25`.
+  flippers of a singer, `choirMotion` its beak and head lift, such as `choirMotion.jaw=0.87`, and
+  `folder` the place of the choir folder, such as `folder.drop=1.25`.
   Code: `tools/hold-sets.ts`.
 - **`--base <ref>`.** Runs a commit, a branch, or a tag beside the working tree, each in a child
   process with its own tools (`probeBeside()` of `tools/ref-tree.ts`), and prints a compare. A
