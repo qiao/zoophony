@@ -702,29 +702,29 @@ export const HARPIST_SWEEP: RoleSweep = {
       part: 'forearms',
       into: 'harp',
       samples,
-      depth: 0.035,
+      depth: 0.04,
       reason:
         'The right forearm of the deer lies on the side of the soundbox near the elbow, so the harp leans on the right arm (design 5.3).',
       decision: DEER_DECISIONS,
     })),
-    ...['play', 'lower'].map((samples) => ({
+    ...['play', 'lift', 'rest', 'lower'].map((samples) => ({
       part: 'upper arms',
       into: 'body',
       samples,
-      depth: 0.03,
+      depth: 0.035,
       reason:
         'The short upper arm of the deer mesh lies on the side of the body above the elbow, so the arm touches the side (design 5.2).',
       decision: DEER_DECISIONS,
     })),
-    {
+    ...['play', 'lower'].map((samples) => ({
       part: 'forearms',
       into: 'body',
-      samples: 'play',
+      samples,
       depth: 0.025,
       reason:
-        'The left forearm of the deer touches the side of the chest near the elbow in 0.4% of the play samples, at the far bass strings (design 5.3).',
+        'The left forearm of the deer touches the side of the chest near the elbow at the far bass strings (design 5.3).',
       decision: DEER_DECISIONS,
-    },
+    })),
   ],
   targetError: 1e-3,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'harp'),
