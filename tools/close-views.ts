@@ -216,8 +216,8 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  * - The deer harpist on its stool: the front, both sides, the back, and the left hand at the
  *   strings from the front left. The moments are a chord of two strings in each hand just before
  *   the pluck, the time after the pluck, the rest pose, and halfway through the lift and the
- *   lowering at the chord. The side views and the back view also show the haunch on the seat of
- *   the stool and the puff tail.
+ *   lowering at the chord. The side views, the back view, and a low view from the back right also
+ *   show the haunch on the seat of the stool and the puff tail.
  * - The violinist: the front, both sides, and the back. The moments are the frog and the tip of a
  *   whole bow on the A string, a string crossing from the G string to the E string, the rest
  *   pose, halfway through the lift and the lowering at the frog ({@link halfMoves}), and the
@@ -334,6 +334,8 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
       // The column and the strings hide the left hand in the front view. This view from the front
       // left shows it at the strings.
       { name: 'strings', azimuth: -45 },
+      // This low view from the back right shows the haunch and the puff tail on the seat.
+      { name: 'seat', azimuth: 135, elevation: 10 },
     ],
     moments: [
       { name: 'chord', time: 0.49, rest: false },
