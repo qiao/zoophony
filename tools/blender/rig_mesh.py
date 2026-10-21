@@ -57,7 +57,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the trunk then reclines: the pelvis turns back around the head of the hips until the hip
    angle opens by `open` degrees (`trunk_turn()`), or forward for a negative `open`, each trunk
    bone takes its share of the turn,
-   the haunch and the root of the tail rise onto the seat top (`seat_lift()`), and the tip of a
+   the haunch and the root of the tail rise onto the seat top with a `sit` rule
+   (`seat_lift()`), and the tip of a
    tail of two bones keeps the height of its end. With `crease`, the bind is smoothed across the
    crease where the belly meets the top of each thigh (`crease_relax()`).
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
@@ -3765,9 +3766,11 @@ def main():
                     bind)
         hip = float(bind_heads['thigh_L'][2])
         # The smoothing of the lifts leaves a part of the deepest lift, so the lift repeats until
-        # the lowest point over the seat is within 1 mm of the seat top (at most 6 rounds).
+        # the lowest point over the seat is within 1 mm of the seat top (at most 6 rounds). A body
+        # with no sit rule, such as the standing monkey, touches no seat, so its haunch keeps its
+        # form.
         lifted, most = 0, 0.0
-        for _ in range(6):
+        for _ in range(6 if 'sit' in config else 0):
             bind, count, largest = seat_lift(bind, tris, weights, config['chair'], config['sit'],
                                              top, hip)
             lifted, most = max(lifted, count), most + largest
