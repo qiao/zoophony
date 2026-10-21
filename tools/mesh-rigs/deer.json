@@ -412,7 +412,8 @@
     "smooth": 6,
     "end": 0.0055,
     "most": 0.25,
-    "top": 0.2028,
-    "note": "The values of the dog."
+    "top": 0.1945,
+    "carryTail": true,
+    "note": "The values of the dog, with top and carryTail. The user, 2026-10-21: \"make sure its hip is fully sit on the chair\". With the top of the dog (0.2028, the seat top of the first rig), the flat underside of the haunch stayed 1 cm above the final seat top (0.1956), so the light passed under the haunch: a pale wavy rim on the seat, and a dark wedge of shadow under the puff tail. top 0.1945 puts the underside on the seat top, 0.25 cm in the side view. With carryTail, the tail ball moves down with the root of the tail (0.033 u), so that the faces under the tail do not stretch into a dark column. root (0.8 to 0.98) moved the tail further and spread the haunch into a sheet on the seat, and end 0.03 left a gap of 5 cm at the back (docs/research/2026-10-21-mesh-deer/seat/)."
   }
 }
