@@ -16,20 +16,28 @@ import type { Vec3 } from '../models/tuples.ts';
 export const LIGHT_POOL = {
   /** The center of the pool, as a part of the way from the stage center to the podium. */
   centerToPodium: 0.5,
-  /** The radius of the pool across the stage (x), in stage sides. */
-  radiusX: 0.6,
-  /** The radius of the pool along the stage (z), in stage sides. */
-  radiusZ: 0.42,
+  /**
+   * The radius of the pool across the stage (x), in stage sides. With 0.6, the pool covered
+   * almost the full width of the stage, and the user found the floor an even bright amber
+   * (2026-10-21). With 0.45, the floor at the edges keeps 0.36 of the light of the pool, against
+   * 0.34 in `orchestra-latest.png` (`docs/research/2026-10-21-stage-exposure.md`).
+   */
+  radiusX: 0.45,
+  /** The radius of the pool along the stage (z), in stage sides. It was 0.42 with `radiusX` 0.6. */
+  radiusZ: 0.36,
   /**
    * The radius of the pool on the players and the props behind its center (toward the back), in
    * stage sides. It is longer than `radiusZ`, so the back rows keep most of the light, as in
    * `orchestra-latest.png`. The stage keeps `radiusZ`, so the floor at the back stays dark.
    */
   reachBack: 1.2,
-  /** The part of the light that a place far from the pool keeps. */
-  floor: 0.4,
-  /** The extra light of the key light at the podium center, as a part of its light. */
-  spotBoost: 0.7,
+  /** The part of the light that a place far from the pool keeps. It was 0.4 before the 0.45 pool. */
+  floor: 0.28,
+  /**
+   * The extra light of the key light at the podium center, as a part of its light. It grew from
+   * 0.7 with the smaller pool, so the middle of the pool keeps its light.
+   */
+  spotBoost: 0.85,
   /**
    * The radius of the hot spot of the key light across the stage (x), in stage sides. The pool
    * of `orchestra-latest.png` reaches from the piano to the cellos. The first hot spot had a

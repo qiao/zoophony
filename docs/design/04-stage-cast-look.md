@@ -774,7 +774,9 @@ solo.
   the floor below the edge of the podium top, gets no key light (`stageBakeAt()`).
 - The light is a pool on the conductor and the middle of the orchestra. A factor in the shaders
   multiplies each spotlight (`addLightPool()`), because a separate pool light cost GPU time. The
-  pool falls off only at the side edges and the front corners (user, 2026-10-07). On the players
+  pool falls off only at the side edges and the front corners (user, 2026-10-07). It is narrower
+  than the stage, so the floor falls off to its edges and the players stand out of the floor, as
+  in `orchestra-latest.png` (user, 2026-10-21). On the players
   and the props, it reaches far toward the back (`LIGHT_POOL`), so the back rows keep most of the
   light, as in `orchestra-latest.png`. The stage keeps the round pool, so the floor at the back
   stays dark.
