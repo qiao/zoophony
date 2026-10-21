@@ -74,7 +74,10 @@ from the front left, with the conductor and its stand at the right. The user add
 side.
 
 - The penguin choir stands on wide risers at the left back. The singers hold black folders and
-  open their beaks.
+  open their beaks. The mesh of the user is the target of the form of the penguin, and the two
+  images win for its colors and its folder: the white front, the black back, and the folder in
+  front of the belly. The crown has the head top of the egg penguin, by the rule of the user for
+  the mouse (`docs/decisions/2026-10-21-mesh-penguin.md`).
 - The conductor stands on a podium with cut corners, behind a stand with an open score.
 - The hippos stand at their contrabasses, and the elephant stands behind the timpani.
 - No reference image shows a mouse or an oboe. The mesh of the user is the target of the mouse,
