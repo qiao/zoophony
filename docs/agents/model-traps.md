@@ -200,6 +200,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
   turns it into a vertical sheet. A tail that is the lowest point of the seated bind sets the seat
   height: turn the tip bone until the rig log line `tail: the lowest point` gives the height of the
   soles.
+- A body with no chair stands in its seated pose, and short legs can put its center of mass behind
+  its soles. Measure it (`balance.ts` of `docs/research/2026-10-20-monkey-stand/`). When the feet
+  under the hips are not enough, lean the trunk forward (`studio.trunk.open` below 0), and give the
+  body no `sit`, else the trunk step flattens the turned haunch.
+- A seat as high as the haunch puts the root of a tail of two bones into the seat of the app, which
+  is deeper than the rig chair (`docs/research/2026-10-20-monkey-chair.md`).
 - The idle sway turns the tail bones (`pose/pose-at.ts`), except a tail on the seat
   (`OwnBodyParams.seatedTail`). Measure a seated tail over one sway period, 5.5 s, with the tail
   lines of `pnpm rig-mesh --check`.
