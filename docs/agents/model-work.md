@@ -31,11 +31,12 @@ fox together.
 | wolf | the mesh `assets/models/wolf/wolf.glb`, rigged by `pnpm rig-mesh wolf` 0.9 times as high and 1.2 times as wide as the mesh, with the head at the size of the red fox and the body 0.9422 times as large (`proportions`), with a bushy tail of two bones that hangs behind the seat, and a clarinet hold at 45° with the mouthpiece under the muzzle | `2026-10-20-mesh-wolf.md` | `clarinetist` |
 | badger | the mesh `assets/models/badger/badger.glb`, rigged by `pnpm rig-mesh badger` at the size of the parametric badger, standing at each percussion instrument, with its own arms, a tail ball, and a suspended cymbal (`cymbalForm`) | `2026-10-20-mesh-badger.md` | `bass-drummer`, `snare-drummer`, `cymbalist`, `percussionist`, `xylophonist` |
 | monkey | the mesh `assets/models/monkey/monkey.glb`, rigged by `pnpm rig-mesh monkey` at 1.1 times the size of the parametric monkey, with arms 1.5, a long tail of two bones with its curl on the floor, a smaller trumpet, and no chair (`noChair`), standing with its feet under its hips and its trunk leaned forward (`2026-10-21-monkey-stand.md`) | `2026-10-20-mesh-monkey.md` | `trumpeter` |
+| rhino | the mesh `assets/models/rhino/rhino.glb`, rigged by `pnpm rig-mesh rhino` at the size of the parametric rhino, with the arms of the mesh, a free arm and a cut of the seam where each thick arm joins the trunk, a twist bone of each upper arm, and a tail ball, standing in each seat at a tuba with a longer lead pipe | `2026-10-21-mesh-rhino.md` | `tubist` |
 | penguin | an egg body in code, `src/models/penguin/` (route 2) | `2026-10-11-penguin-body.md` | none |
 
-The two other species, the deer (harp) and the rhino (tuba), have the parametric body of
-2026-10-06 18:58 (`docs/decisions/2026-10-11-body-revert.md`). It keeps only the ear, snout, and
-tail types of these two species. `pnpm sheet-check <id> <dir>` compares a parametric body with its
+The other species, the deer (harp), has the parametric body of 2026-10-06 18:58
+(`docs/decisions/2026-10-11-body-revert.md`). It keeps only the ear, snout, and tail types of the
+deer. `pnpm sheet-check <id> <dir>` compares a parametric body with its
 sheet. The penguin has no sheet, so `pnpm choir-check <dir>` compares it with the choir of the two
 newest reference images. The GLB files `assets/models/rabbit/rabbit.glb` and
 `assets/models/bear/bear.glb` of the user stay for the tools of route 1. No species uses them.
