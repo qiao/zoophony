@@ -453,12 +453,20 @@ export async function withGlbBody<T>(
  * @param dir The folder of the copy ({@link withGlbBody}).
  * @param script The script, such as `hold-reach.ts`.
  * @param args The arguments of the script.
+ * @param env The environment of the child, by default the environment of the caller. A probe
+ *   with a cache by tree gives `PROBE_NO_CACHE=1` (`tools/ref-tree.ts`), because the empty git
+ *   repository of the copy has no index to key on.
  * @returns The exit code of the child.
  */
-export function runTool(dir: string, script: string, args: readonly string[]): Promise<number> {
+export function runTool(
+  dir: string,
+  script: string,
+  args: readonly string[],
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<number> {
   return new Promise((done, fail) => {
     const child = trackChild(
-      spawn(process.execPath, [join(dir, 'tools', script), ...args], { stdio: 'inherit' }),
+      spawn(process.execPath, [join(dir, 'tools', script), ...args], { stdio: 'inherit', env }),
     );
     child.on('error', fail);
     child.on('close', (code) => done(code ?? 1));
