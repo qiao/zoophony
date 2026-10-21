@@ -89,3 +89,7 @@ jagged gap becomes a soft hollow (`user-view-pairs.webp`, `main` on the left). T
 are in `frame-pairs.webp`, and the role views with the standing soloist in `role-pairs.webp`.
 The left side keeps the normals of its faces. A soft hollow and a short dark wedge stay under the
 bow arm, because the geometry of the notch stays.
+
+
+The fill of the notch in a copy of the mesh, which followed this round, is in
+[`2026-10-21-rabbit-notch.md`](2026-10-21-rabbit-notch.md).
