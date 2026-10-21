@@ -33,7 +33,7 @@ fox together.
 | monkey | the mesh `assets/models/monkey/monkey.glb`, rigged by `pnpm rig-mesh monkey` at 1.1 times the size of the parametric monkey, with arms 1.5, a long tail of two bones with its curl on the floor, a smaller trumpet, and no chair (`noChair`), standing with its feet under its hips and its trunk leaned forward (`2026-10-21-monkey-stand.md`) | `2026-10-20-mesh-monkey.md` | `trumpeter` |
 | rhino | the mesh `assets/models/rhino/rhino.glb`, rigged by `pnpm rig-mesh rhino` at the size of the parametric rhino, with the arms of the mesh, a free arm and a cut of the seam where each thick arm joins the trunk, a twist bone of each upper arm, and a tail ball, standing in each seat at a tuba with a longer lead pipe | `2026-10-21-mesh-rhino.md` | `tubist` |
 | deer | the mesh `assets/models/deer/deer.glb`, rigged by `pnpm rig-mesh deer` at the size of the parametric deer, with arms 1.25, a puff tail ball, the ears and the antlers on the head, the whole haunch on the stool of the harp, and a smaller harp (`harpScale`) | `2026-10-21-mesh-deer.md` | `harpist` |
-| penguin | an egg body in code, `src/models/penguin/` (route 2) | `2026-10-11-penguin-body.md` | none |
+| penguin | the mesh `assets/models/penguin/penguin.glb`, rigged by `pnpm rig-mesh penguin` at the head top of the egg penguin, with the flippers of the mesh as arms, no jaw bone, and a tail ball, standing on its riser with the folder in front of the chest | `2026-10-21-mesh-penguin.md` | `singer` |
 
 No species has the parametric body of 2026-10-06 18:58 since the meshes of the rhino and the deer
 (`docs/decisions/2026-10-11-body-revert.md`). `pnpm sheet-check <id> <dir>` compares a parametric
@@ -93,9 +93,9 @@ since 2026-10-11. Before step 3, bring back the code of 2026-10-10 with
 
 ## Route 2: a body built in code
 
-The penguin has such a body. `git show b9f71daf:src/models/fox/<file>` gives the fox body of
-2026-10-10 as a second example. For the penguin, `pnpm choir-check <dir>` takes the place of steps
-1 and 4.
+No species has such a body since 2026-10-21. `git show c4951160:src/models/penguin/<file>` gives
+the egg penguin of 2026-10-11, and `git show b9f71daf:src/models/fox/<file>` the fox body of
+2026-10-10.
 
 ```text
  <id>-views.png --make_matte.py + <id>.json--> tools/sheet-mattes/<id>.png --+
@@ -109,9 +109,10 @@ The penguin has such a body. `git show b9f71daf:src/models/fox/<file>` gives the
    Write the matte config, and check the matte with its check image.
 2. Measure the sheet in head heights of the sheet animal: the head, the joints, the widths, and the
    depths. Set the skeleton (`proportions`) from these measures.
-3. Build the body with the shared parts: `ringLoft()` of `models/primitives.ts`, `addPainted()` of
-   `models/painted.ts`, `limbTube()` of `models/limb-tube.ts`, and the plates of
-   `models/face-plates.ts`. Select it with `SpeciesParams.body` and the dispatch of `buildBiped()`.
+3. Build the body with the shared parts of the egg penguin, which `git show c4951160:<path>` gives
+   back: `ringLoft()` of `src/models/primitives.ts`, `addPainted()` of `src/models/painted.ts`,
+   `limbTube()` of `src/models/limb-tube.ts`, and the plates of `src/models/face-plates.ts`.
+   Select it with `SpeciesParams.body` and the dispatch of `buildBiped()`.
 4. In each round, run `pnpm sheet-check <id> <dir>`, and change the largest difference first. Tune
    a pose with `pnpm pose-probe <id> --set <changes>`.
 5. Record the measures in a research report and the decisions in a decision file.
