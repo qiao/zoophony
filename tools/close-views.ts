@@ -149,9 +149,9 @@ export interface RoleViews {
  * A role with a close view: the bear conductor, the polar bear pianist, the deer harpist, the
  * rabbit violinist, the red fox violinist, the cat violist, the dog cellist, the hippo bassist,
  * the tan fox flutist, the panda trombonist, the mouse oboist, the elephant timpanist, the beaver
- * bassoonist, the pig hornist, the wolf clarinetist, the monkey trumpeter, the rhino tubist, or
- * the badger bass
- * drummer, snare drummer, cymbalist, percussionist, or xylophonist.
+ * bassoonist, the pig hornist, the wolf clarinetist, the monkey trumpeter, the rhino tubist, the
+ * penguin singer, or the badger bass drummer, snare drummer, cymbalist, percussionist, or
+ * xylophonist.
  */
 export type CloseRole =
   | 'conductor'
@@ -171,6 +171,7 @@ export type CloseRole =
   | 'clarinetist'
   | 'trumpeter'
   | 'tubist'
+  | 'singer'
   | 'bass-drummer'
   | 'snare-drummer'
   | 'cymbalist'
@@ -196,6 +197,7 @@ const CLOSE_ROLES: readonly CloseRole[] = [
   'clarinetist',
   'trumpeter',
   'tubist',
+  'singer',
   'bass-drummer',
   'snare-drummer',
   'cymbalist',
@@ -261,6 +263,9 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  * - The rhino tubist, who stands: the views and the moments of the flutist, with no standing
  *   soloist, because each tubist stands. The right paw presses the valves in the phrase. The side
  *   views and the back view also show the thin tail, which hangs down behind the haunch.
+ * - The penguin singer of the choir, who stands on its riser: the front, both sides, and the back.
+ *   The moments are an open beak in a note, a closed beak between two notes, and the rest pose,
+ *   with the default test notes. The flippers hold the folder in each moment.
  * - The badger of the percussion, who stands: one role for each instrument, with the front, both
  *   sides, and the back. The moments are a strike of each hand or a crash, a time between two
  *   strikes, the rest pose, and halfway through the lift and the lowering at the first strike.
@@ -628,6 +633,24 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
     // A long open B♭1, a rest, then a short phrase: E♭2 with the first valve, an open F2, and G2
     // with the first and the second valve (design 5.3).
     notes: ['0.5 1 Bb1', '2 0.25 Eb2', '2.25 0.25 F2', '2.5 0.25 G2'].join('\n'),
+  },
+  singer: {
+    species: 'penguin',
+    views: [
+      { name: 'front', azimuth: 0 },
+      { name: 'left', azimuth: -90 },
+      { name: 'right', azimuth: 90 },
+      { name: 'back', azimuth: 180 },
+    ],
+    // The default test notes sound from 0 s to 2.5 s and from 3 s to 4 s, so the beak is open at
+    // 1.75 s and closed at 2.75 s (`CHOIR_VIEWS` of `tools/choir-check.ts`).
+    moments: [
+      { name: 'note', time: 1.75, rest: false },
+      { name: 'between', time: 2.75, rest: false },
+      { name: 'rest', time: 0, rest: true },
+    ],
+    camera: { kind: 'body', zoom: 1, elevation: 20 },
+    notes: null,
   },
   'bass-drummer': {
     species: 'badger',

@@ -1987,6 +1987,99 @@ export const TUBIST_SWEEP: RoleSweep = {
     }),
 };
 
+/**
+ * Gives the note targets of the flippers of a singer: each palm is on its grip of the folder at the
+ * start of each sung note (design 5.3), in a play that started at the count-in.
+ *
+ * @param scene The scene.
+ * @param index The index of the singer.
+ * @param model The model of the singer.
+ * @returns The targets.
+ */
+function singerTargets(scene: TestScene, index: number, model: PlayerModel): NoteTarget[] {
+  const plan = scene.plan.players[index];
+  if (plan?.note.family !== 'choir') {
+    return [];
+  }
+  const { note: layer, timeOffset } = plan;
+  return (['L', 'R'] as const).flatMap((side) => {
+    const grip = side === 'L' ? model.instrument.grips.palmL : model.instrument.grips.palmR;
+    const palm = side === 'L' ? model.body.palmL : model.body.palmR;
+    if (!grip) {
+      return [];
+    }
+    return Array.from(layer.track.starts, (start: number): NoteTarget => ({
+      side,
+      sample: playSample(scene, start + timeOffset),
+      error: (posed) =>
+        new Vector3(...posedPoint(posed, `hand${side}`, palm)).distanceTo(
+          new Vector3(...posedPiecePoint(posed, grip)),
+        ),
+    }));
+  });
+}
+
+/**
+ * Tells if a player of a scene is in the sweep of the singer: the first penguin of the choir with
+ * a folder (design 4.2).
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @returns True for a player of the sweep.
+ */
+function sweptSinger(scene: TestScene, index: number): boolean {
+  const first = scene.layout.players.findIndex(
+    (p) => p.cast.species === 'penguin' && p.cast.instrument === 'choir-folder',
+  );
+  return first === index;
+}
+
+/**
+ * The sweep of the singer (design 5.3): the flippers against the body and the folder, and the
+ * folder in the body ({@link INSTRUMENT_PART}), in a full play, in the lift at the play start, in
+ * the rest pose before the first play, and in the lowering after the song end. The folder stays
+ * in the flippers in each set. The first penguin of each demo with a choir sings it, with each palm
+ * on its grip at the start of each note ({@link singerTargets}). The body of the penguin mesh has no
+ * open edge, so its closed surface has the two cuts to the upper arms.
+ */
+export const SINGER_SWEEP: RoleSweep = {
+  role: 'singer',
+  parts: [...ARM_PARTS, INSTRUMENT_PART],
+  obstacles: [
+    { name: 'body', surface: bodySurface },
+    { name: 'folder', surface: instrumentSurface },
+  ],
+  contact: CONTACT,
+  accepted: [],
+  targetError: 1e-3,
+  hasRole: (score) => score.seats.some((seat) => seat.section === 'choir'),
+  players: (scene) =>
+    scene.layout.players.flatMap((place, index) => {
+      if (!sweptSinger(scene, index)) {
+        return [];
+      }
+      const { species, instrument, kettles, support } = place.cast;
+      const buffer = createScenePose(scene.plan);
+      const audible = allAudible(scene.score);
+      const model = scene.models.get(species, instrument, kettles, support);
+      return [
+        {
+          name: `singer ${index} (${support})`,
+          model,
+          poseAt: ([song, wall, transport]: SweepSample) => {
+            const pose = poseAt(scene.plan, song, wall, transport, audible, buffer).players[index];
+            if (!pose) {
+              throw new Error(`The pose has no player ${index}.`);
+            }
+            return pose;
+          },
+          targets: () => singerTargets(scene, index, model),
+        },
+      ];
+    }),
+  sampleSets: (scene) => VIOLINIST_SWEEP.sampleSets(scene),
+};
+
 /** The sweep of each role, by its name. */
 export const SWEEP_ROLES = {
   conductor: CONDUCTOR_SWEEP,
@@ -2005,6 +2098,7 @@ export const SWEEP_ROLES = {
   clarinetist: CLARINETIST_SWEEP,
   trumpeter: TRUMPETER_SWEEP,
   tubist: TUBIST_SWEEP,
+  singer: SINGER_SWEEP,
   'bass-drummer': BASS_DRUMMER_SWEEP,
   'snare-drummer': SNARE_DRUMMER_SWEEP,
   cymbalist: CYMBALIST_SWEEP,
