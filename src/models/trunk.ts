@@ -7,7 +7,6 @@ import { addLimb, partColor } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addEyes } from './eyes.ts';
-import { addFacePattern } from './face-patterns.ts';
 import { HEAD_CORNERS, LOWER_FACE_TOP } from './head.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByCentroid, splitByFacing, transform } from './mesh.ts';
@@ -141,7 +140,7 @@ const BACK_FACING = -0.3;
 
 /**
  * Adds the trunk of a body in its bind pose (design 4.5): the torso, the neck, and the head with
- * its eyes, ears, snout, and face pattern.
+ * its eyes, ears, and snout.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -168,10 +167,9 @@ export function buildTrunk(
   const headCenter = at(0, proportions.headCenter, 0);
   addHead(builder, colors, h, headCenter);
 
-  const [eyeL, eyeR] = addEyes(builder, species, colors, h, headCenter);
+  const [eyeL, eyeR] = addEyes(builder, colors, h, headCenter);
   const [earL, earR] = addEars(builder, species, colors, h, headCenter);
   const snout = addSnout(builder, species, colors, h, headCenter);
-  addFacePattern(builder, species, colors, h, headCenter);
 
   const bones = torsoBoneHeights(proportions);
   return {

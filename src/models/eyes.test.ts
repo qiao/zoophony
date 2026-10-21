@@ -11,15 +11,9 @@ describe('eyeMiddle (design 4.5)', () => {
   const surface = { point: [0.1, 1.2, -0.3] satisfies Vec3, normal };
 
   it('puts the middle of an eye 0.01 H into the head along the normal', () => {
-    const { point } = eyeMiddle(surface, 0.5, false);
+    const { point } = eyeMiddle(surface, 0.5);
     const move = new Vector3(...point).sub(new Vector3(...surface.point));
     expect(move.distanceTo(new Vector3(...normal).multiplyScalar(-0.005))).toBeLessThan(1e-12);
-  });
-
-  it('puts the middle 0.01 H out of the head on a patch around the eye', () => {
-    const { point } = eyeMiddle(surface, 0.5, true);
-    const move = new Vector3(...point).sub(new Vector3(...surface.point));
-    expect(move.distanceTo(new Vector3(...normal).multiplyScalar(0.005))).toBeLessThan(1e-12);
   });
 });
 
