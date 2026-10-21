@@ -24,14 +24,13 @@ export interface SnoutBones {
 
 /**
  * The mouth of each snout type, from the head center in head heights `H`. The mouth is under
- * the front of the muzzle. A long or a pointed muzzle reaches past the mouth, so that a wind
- * instrument keeps the place where the arms reach its grips (design 5.3).
+ * the front of the muzzle. A long muzzle reaches past the mouth, so that a wind instrument keeps
+ * the place where the arms reach its grips (design 5.3).
  */
 const MOUTHS = {
   short: [0, -0.38, -0.62],
   long: [0, -0.43, -0.78],
   blunt: [0, -0.42, -0.74],
-  pointed: [0, -0.36, -0.62],
   'flat-nose': [0, -0.42, -0.58],
   horn: [0, -0.42, -0.66],
 } as const satisfies Readonly<Record<BipedParams['snout'], Vec3>>;
@@ -223,28 +222,6 @@ export function addSnout(
         .addScaledVector(axis, (length - 0.06) * h)
         .add(new Vector3(0, 0.12 * h, 0));
       addNose(builder, colors, h, toVec3(nose), 0.085);
-      return bones;
-    }
-    case 'pointed': {
-      // A thin cone that reaches 0.2 H in front of the face, with a small nose at its tip.
-      const axis = new Vector3(0, -0.3, -1).normalize();
-      const from = at(0, -0.16, -0.36);
-      const length = 0.45;
-      addCone(
-        builder,
-        from,
-        toVec3(axis),
-        [
-          [0.17 * h, 0],
-          [0.11 * h, 0.2 * h],
-          [0.04 * h, length * h],
-        ],
-        0.85,
-        muzzle,
-        'head',
-      );
-      const nose = new Vector3(...from).addScaledVector(axis, length * h);
-      addNose(builder, colors, h, toVec3(nose), 0.045);
       return bones;
     }
     case 'flat-nose': {
