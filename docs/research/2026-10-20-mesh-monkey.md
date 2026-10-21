@@ -164,3 +164,40 @@ keeps the values of the base. `hold-reach.txt`: 8.0 cm and 6.7 cm to spare in th
 the other species are equal, and the poses of the players of two demos change, because the stage
 side moves by -0.7% (bach-bwv1047) and +1.4% (beethoven-9). `shots.txt`: the 5 shot tests that
 fail also fail on `32136c6e`.
+
+## 5. Size 1.1
+
+The user said: "make the monkey 1.1x bigger". Round `monkey-size` sets `app.shoulders` to 1.1
+times its value. The arm factor 1.5, the trumpet scale 0.8, the face, and the hold stay. The rig
+keeps its bytes, because it is in the units of the source. The logs and the images are in
+[`size-1.1/`](2026-10-20-mesh-monkey/size-1.1/), and the base is `6e8c02e3`.
+
+| Measure | Base | Size 1.1 |
+|---|---|---|
+| Scale | 1.066 m/u | 1.1726 m/u |
+| H | 0.303 m | 0.334 m |
+| Standing skull top, tuft top | 1.029 m, 1.066 m | 1.132 m, 1.173 m |
+| Seat of the legs | 0.132 m | 0.145 m |
+| Reach L, R | 0.427 m | 0.469 m |
+| Mouthpiece above the shoulder joints | 0.212 m | 0.233 m |
+| Spare L, R in the play | 8.0, 6.7 cm | 9.5, 8.2 cm |
+| Spare L, R in the rest | 17.9, 17.8 cm | 19.1, 19.6 cm |
+
+`check.log` gives the scale, H, the seat, and the reach. `mouth-probe.txt` gives the mouthpiece,
+and `hold-reach.txt` gives the spare reach. The distance from the shoulder joint to the grip in the
+play grows 1.078 times (0.347 m to 0.374 m on the left), and the arms grow 1.1 times, so the paws
+get more spare reach.
+
+**Gates.** `pose-depth.txt`: each depth is at most 0.2 cm (play 0.002 H on the base, 0.004 H
+now), and each note target is within 5 mm. `arm-check.txt`: no `FAIL`. Three values of the left
+arm are a little worse than on the base: the forearm twist p95 59° against 56°, the paw twist p95
+149° against 145°, and the grip turn p50 1° against 0°, also on the right arm. The grips sit a
+little nearer to the shoulders in H, so the paws turn a little more. The pairs of the base and the
+new size (`trumpeter-*-arms.webp`) show the same arm shapes with no twist. `arm-check-all.txt`: no
+`FAIL`, and each other role keeps the values of the base. `trumpeter-head-base-views.webp`: the
+smile shows at rest and at a note.
+
+**Other bodies.** `body-probe.txt`: only the 5 monkey bodies, the monkey player, and the poses of
+the trumpet monkeys in 6 demos change. The larger footprint moves the stage side of beethoven-9
+by +0.2% (`check.log`), so 16 pose rows of the other players of that demo change. `size.txt`:
++148 B, 740,861 B in all.
