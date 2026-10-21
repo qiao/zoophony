@@ -3375,14 +3375,85 @@ async function openMidi(page: Page, midi: string, frame: string): Promise<void> 
 }
 
 /**
- * Renders one play frame of a site: it plays the demo, and closes the drawer. With `--midi`, it
- * then opens the file ({@link openMidi}). Out of Cinematic
- * mode, it moves the camera to the default view with "Reset view", and drags and turns the wheel
- * of the camera. A seek keeps the free camera of "Reset view" (design 2.5). In Cinematic mode, it
- * does not touch the camera, so the shot plan of the app moves it. Then it moves the pointer onto
- * the stage, seeks to {@link SEEK_LEAD_SEC} before the time, waits until the seek bar reaches the
- * time, and waits until the bar hides. The bar hides {@link BAR_HIDE_SEC} after the last motion of
- * the pointer, so the motion before the seek makes it hide before the frame.
+ * Opens the page of a play frame of a site, and sets its camera: it plays the demo, and closes the
+ * drawer. With `--midi`, it then opens the file ({@link openMidi}). Out of Cinematic mode, it
+ * moves the camera to the default view with "Reset view", and drags and turns the wheel of the
+ * camera. In Cinematic mode, it does not touch the camera, so the shot plan of the app moves it.
+ * Then it moves the pointer onto the stage, so that the bar hides {@link BAR_HIDE_SEC} later.
+ *
+ * @param browser The browser.
+ * @param site The URL of the site.
+ * @param args The command line.
+ * @param camera The camera.
+ * @param target The player of `--at`, or `null`. A camera with an {@link AimView} then puts its
+ *   camera ({@link aimPose}) into the query `aim` of the page, for a build of {@link aimPlugin}.
+ * @param frame The name of the frame, for the message of a failed wait.
+ * @returns The page. The caller closes it.
+ */
+async function openPlay(
+  browser: Browser,
+  site: string,
+  args: PlayArgs,
+  camera: PlayCamera,
+  target: AimTarget | null,
+  frame: string,
+): Promise<Page> {
+  const aim = camera.aim && target ? aimPose(target.place, target.box, camera.aim) : null;
+  const params = [
+    ...(aim ? [`aim=${encodeURIComponent(JSON.stringify(aim))}`] : []),
+    ...(args.holdsIndex === null ? [] : [`${HOLDS_QUERY}=${args.holdsIndex}`]),
+  ];
+  const query = params.length > 0 ? `?${params.join('&')}` : '';
+  // The page of a file of --midi opens the default demo, and then the file replaces it.
+  const path = args.midi === null ? `/${query}#demo=${args.demo}` : `/${query}`;
+  const page = await openShot(browser, new URL(path.slice(1), site).href, {
+    file: '',
+    path,
+    ...args.frame,
+    ready: SAMPLES_READY,
+  });
+  try {
+    await page.click(FIRST_PLAY);
+    await page.waitForTimeout(1500);
+    // The open drawer keeps the bar and covers the right side of the stage (design 2.8).
+    await page.click('.close-drawer');
+    if (args.midi !== null) {
+      await openMidi(page, args.midi, frame);
+    }
+    if (!args.cinematic) {
+      await page.getByRole('button', { name: 'Reset view' }).click();
+      if (camera.dx !== 0 || camera.dy !== 0) {
+        await page.mouse.move(DRAG_START.x, DRAG_START.y);
+        await page.mouse.down();
+        await page.mouse.move(DRAG_START.x + camera.dx, DRAG_START.y + camera.dy, {
+          steps: 20,
+        });
+        await page.mouse.up();
+      }
+      // The wheel steps go to the element under the pointer, and the pointer is still on the
+      // button "Reset view" when the camera has no drag.
+      await page.mouse.move(DRAG_START.x, DRAG_START.y);
+      for (let i = 0; i < Math.abs(camera.wheel); i++) {
+        await page.mouse.wheel(0, camera.wheel > 0 ? -100 : 100);
+        await page.waitForTimeout(30);
+      }
+    }
+    // The pointer leaves the bar, so that the bar hides before the frame. A motion with no press
+    // keeps the camera mode.
+    await page.mouse.move(args.frame.width / 2, args.frame.height / 2);
+    return page;
+  } catch (error) {
+    await page.close();
+    throw error;
+  }
+}
+
+/**
+ * Renders one play frame of a site: it opens the page and sets the camera ({@link openPlay}). A
+ * seek keeps the free camera of "Reset view" (design 2.5). Then it seeks to
+ * {@link SEEK_LEAD_SEC} before the time, waits until the seek bar reaches the time, and waits
+ * until the bar hides. The bar hides {@link BAR_HIDE_SEC} after the last motion of the pointer,
+ * so the motion before the seek makes it hide before the frame.
  *
  * @param browser The browser.
  * @param site The URL of the site.
@@ -3406,51 +3477,9 @@ async function playFrame(
   tree: string,
   target: AimTarget | null,
 ): Promise<{ readonly image: Buffer; readonly clock: string }> {
-  const aim = camera.aim && target ? aimPose(target.place, target.box, camera.aim) : null;
-  const params = [
-    ...(aim ? [`aim=${encodeURIComponent(JSON.stringify(aim))}`] : []),
-    ...(args.holdsIndex === null ? [] : [`${HOLDS_QUERY}=${args.holdsIndex}`]),
-  ];
-  const query = params.length > 0 ? `?${params.join('&')}` : '';
-  // The page of a file of --midi opens the default demo, and then the file replaces it.
-  const path = args.midi === null ? `/${query}#demo=${args.demo}` : `/${query}`;
-  const page = await openShot(browser, new URL(path.slice(1), site).href, {
-    file: '',
-    path,
-    ...args.frame,
-    ready: SAMPLES_READY,
-  });
+  const frame = `${tree}, camera ${camera.name}, ${pieceText(args.demo, args.midi)}, time ${time} s`;
+  const page = await openPlay(browser, site, args, camera, target, frame);
   try {
-    await page.click(FIRST_PLAY);
-    await page.waitForTimeout(1500);
-    // The open drawer keeps the bar and covers the right side of the stage (design 2.8).
-    await page.click('.close-drawer');
-    const frame = `${tree}, camera ${camera.name}, ${pieceText(args.demo, args.midi)}, time ${time} s`;
-    if (args.midi !== null) {
-      await openMidi(page, args.midi, frame);
-    }
-    if (!args.cinematic) {
-      await page.getByRole('button', { name: 'Reset view' }).click();
-      if (camera.dx !== 0 || camera.dy !== 0) {
-        await page.mouse.move(DRAG_START.x, DRAG_START.y);
-        await page.mouse.down();
-        await page.mouse.move(DRAG_START.x + camera.dx, DRAG_START.y + camera.dy, {
-          steps: 20,
-        });
-        await page.mouse.up();
-      }
-      // The wheel steps go to the element under the pointer, and the pointer is still on the
-      // button "Reset view" when the camera has no drag.
-      await page.mouse.move(DRAG_START.x, DRAG_START.y);
-      for (let i = 0; i < Math.abs(camera.wheel); i++) {
-        await page.mouse.wheel(0, camera.wheel > 0 ? -100 : 100);
-        await page.waitForTimeout(30);
-      }
-    }
-    // The pointer leaves the bar before the seek, so that the bar hides before the frame. A
-    // motion with no press keeps the camera mode.
-    await page.mouse.move(args.frame.width / 2, args.frame.height / 2);
-
     const whole = Math.floor(time);
     await playWait(
       `the seek bar to reach ${whole} s in ${SEEK_WAIT_MS / 1000} s`,
