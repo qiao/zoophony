@@ -6,7 +6,7 @@ import { FOLD_ROLES, roleAnimal } from './fold-probe.ts';
 import type { PlayFilter } from './fold-probe.ts';
 import { runTool, takeGlb, withGlbBody } from './glb-swap.ts';
 import type { DemoFile } from './patch-demos.ts';
-import { probeDemos } from './probe-demos.ts';
+import { absoluteMidi, midiPath, probeDemos, userDemoFile } from './probe-demos.ts';
 import { setHolds } from './hold-sets.ts';
 import {
   PROBE_NO_CACHE,
@@ -63,8 +63,13 @@ import type { SoloistRole } from '../src/pose/test-sweep-roles.ts';
 export interface Options {
   /** The role of the first argument. */
   readonly role: RoleSweep;
-  /** The demos, by the name of the file with no `.mid`. All demos of the role when empty. */
+  /**
+   * The demos, by the name of the file with no `.mid`, with each file of `--midi`. All demos of the
+   * role when empty.
+   */
   readonly demos: readonly string[];
+  /** The absolute paths of the MIDI files of the user of `--midi` (`userDemos()`). */
+  readonly midi: readonly string[];
   /** The variants: each is a list of changes of the holds. The first is the base, with none. */
   readonly variants: readonly string[];
   /** The bones of the moving parts, one part for each bone, or `null` for the parts of the role. */
@@ -104,7 +109,7 @@ export interface Options {
 export const ROW_LIMIT = 5;
 
 /** The text of the usage. */
-const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--base <ref>] [--json <file>] [--long] [--glb <file>]`;
+const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--midi <path>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--base <ref>] [--json <file>] [--long] [--glb <file>]`;
 
 /** The options of the command with no value. */
 const FLAGS: ReadonlySet<string> = new Set(['--gaps', '--targets', '--long']);
@@ -166,6 +171,7 @@ export function parseOptions(args: readonly string[]): Options {
     throw new Error(USAGE);
   }
   const demos: string[] = [];
+  const midi: string[] = [];
   const variants = [''];
   let bones: BoneName[] | null = null;
   let into: string[] | null = null;
@@ -188,6 +194,12 @@ export function parseOptions(args: readonly string[]): Options {
     switch (valued[i]) {
       case '--demo':
         demos.push(value.replace(/\.mid$/, ''));
+        break;
+      case '--midi':
+        // A file of the user is one more demo of the sweep, so the sweep reads only the files of
+        // --midi and --demo.
+        midi.push(midiPath(value));
+        demos.push(userDemoFile(value).replace(/\.mid$/, ''));
         break;
       case '--set':
         variants.push(value);
@@ -243,7 +255,7 @@ export function parseOptions(args: readonly string[]): Options {
     throw new Error(`The options --base and --json do not go together.\n${USAGE}`);
   }
   if (soloist !== null && demos.length > 0) {
-    throw new Error(`The options --soloist and --demo do not go together.\n${USAGE}`);
+    throw new Error(`The options --soloist and --demo or --midi do not go together.\n${USAGE}`);
   }
   const rows = variants.length - 1;
   if (rows > ROW_LIMIT && demos.length === 0 && soloist === null && !long) {
@@ -256,7 +268,21 @@ export function parseOptions(args: readonly string[]): Options {
       `The option --targets goes with none of --times, --gaps, and --base.\n${USAGE}`,
     );
   }
-  return { role, demos, variants, bones, into, times, gaps, targets, json, base, soloist, goal };
+  return {
+    role,
+    demos,
+    midi,
+    variants,
+    bones,
+    into,
+    times,
+    gaps,
+    targets,
+    json,
+    base,
+    soloist,
+    goal,
+  };
 }
 
 /** The results of one variant in one demo. */
@@ -521,6 +547,8 @@ export function playerLabel(name: string, species: SpeciesId | null): string {
 
 /** The options of a sweep of {@link sweepDemos}. */
 export type SweepOptions = Pick<Options, 'demos' | 'times' | 'gaps'> & {
+  /** The absolute paths of the MIDI files of the user of `--midi`, or none. */
+  readonly midi?: readonly string[];
   /** The goal of each pair of `--goal`, in meters, or `null` or none for the limit of each pair. */
   readonly goal?: number | null;
   /** True to measure only the note targets, with no sample set ({@link Options.targets}). */
@@ -663,7 +691,7 @@ export async function sweepDemos(options: SweepOptions, role: RoleSweep): Promis
     return sweepScene(SOLOIST_FILE, soloistScene(role.role, options.soloist), options, role, true);
   }
   const results: DemoResult[] = [];
-  for (const demo of await roleDemos(options.demos, role)) {
+  for (const demo of await roleDemos(options.demos, options.midi ?? [], role)) {
     results.push(...sweepScene(demoId(demo), sceneOf(demo.bytes), options, role, false));
   }
   return results;
@@ -680,15 +708,20 @@ function demoId(demo: DemoFile): string {
 }
 
 /**
- * Gives the demos that a sweep of a role reads: the demos of `--demo`, or all demos, with a
- * player of the role.
+ * Gives the demos that a sweep of a role reads: the demos of `--demo` and the files of `--midi`,
+ * or all demos, with a player of the role.
  *
- * @param asked The demos of `--demo`, with no `.mid`, or none for all demos.
+ * @param asked The demos of `--demo` and of `--midi`, with no `.mid`, or none for all demos.
+ * @param midi The absolute paths of the files of `--midi`.
  * @param role The role.
  * @returns The demos, in the order of `probeDemos()`.
  */
-async function roleDemos(asked: readonly string[], role: RoleSweep): Promise<DemoFile[]> {
-  return (await probeDemos()).filter(
+async function roleDemos(
+  asked: readonly string[],
+  midi: readonly string[],
+  role: RoleSweep,
+): Promise<DemoFile[]> {
+  return (await probeDemos(midi)).filter(
     (demo) =>
       (asked.length === 0 || asked.includes(demoId(demo))) && role.hasRole(scoreOf(demo.bytes)),
   );
@@ -1382,7 +1415,11 @@ function baseRowCache(options: Options): string | null {
   if (options.variants.length < 2 || process.env[PROBE_NO_CACHE] === '1') {
     return null;
   }
-  const args = withoutOptions(process.argv.slice(2), ['--set', '--json', '--base'], ['--long']);
+  const args = withoutOptions(
+    absoluteMidi(process.argv.slice(2)),
+    ['--set', '--json', '--base'],
+    ['--long'],
+  );
   return treeCacheFile('pose-depth.ts', [String(ROWS_FORMAT), ...args]);
 }
 
@@ -1400,7 +1437,9 @@ async function sweepRows(options: Options, role: RoleSweep): Promise<SweepRow[]>
   const rows: SweepRow[] = [];
   const cache = baseRowCache(options);
   const cached = cache && existsSync(cache) ? readRows(readFileSync(cache, 'utf8'))[0] : undefined;
-  const ids = options.soloist ? [] : (await roleDemos(options.demos, role)).map(demoId);
+  const ids = options.soloist
+    ? []
+    : (await roleDemos(options.demos, options.midi, role)).map(demoId);
   for (const variant of options.variants) {
     if (variant === '' && cached) {
       rows.push(cached);
@@ -1452,7 +1491,7 @@ export const SWEEP_ROLE_TABLE: Omit<RefRole, 'name'> = {
  */
 async function compareRef(role: RoleSweep, ref: string, goal: number | null): Promise<void> {
   const label = `${ref} (${shortHash(ref)})`;
-  const args = withoutOptions(process.argv.slice(2), ['--base']);
+  const args = withoutOptions(absoluteMidi(process.argv.slice(2)), ['--base']);
   const started = performance.now();
   const texts = await probeBeside(
     ref,
@@ -1483,7 +1522,9 @@ async function compareRef(role: RoleSweep, ref: string, goal: number | null): Pr
  * @param role The role of the options.
  */
 async function printPlan(options: Options, role: RoleSweep): Promise<void> {
-  const ids = options.soloist ? [] : (await roleDemos(options.demos, role)).map(demoId);
+  const ids = options.soloist
+    ? []
+    : (await roleDemos(options.demos, options.midi, role)).map(demoId);
   const cache = options.base === null ? baseRowCache(options) : null;
   const cached = cache && existsSync(cache) ? readRows(readFileSync(cache, 'utf8'))[0] : undefined;
   const known = readTimes()[timeKey(options)] ?? {};
