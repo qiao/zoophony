@@ -233,7 +233,9 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   wide window opens the drawer at start at the tab "Pieces" (`isWideLayout()`).
   - Demos: a row for each demo with the title, the composer, and the length, and no cover. The
     row of the current demo has a level meter that the song time alone gives (`meterLevels()` in
-    `app/meter.ts`), so it stops in a pause and follows a seek. Each row keeps a column of the
+    `app/meter.ts`), so it stops in a pause and follows a seek. The meter shows only after the
+    piece starts, so a piece that waits at its start, as after a load, shows no meter (user,
+    2026-10-21). Each row keeps a column of the
     width of the meter, so that the text does not move when the meter comes into a row.
   - The button "Open a MIDI file" stays below the demo list, with a folder icon and the dim
     second line "From this device, or drop it on the page", which also describes the button. A
