@@ -38,7 +38,9 @@ export const TIER_SETTINGS = {
   high: {
     shadowMapSize: 2048,
     sideShadowMapSize: 1024,
-    shadowRadius: 3,
+    // 5 in place of 3: the shadow of an arm on the white trunk of the rabbit showed black wedges
+    // with the steps of the map (user, 2026-10-21: "Keep, softer").
+    shadowRadius: 5,
     maxPixelRatio: 2,
     bloomLevels: 6,
     blurSamples: 32,

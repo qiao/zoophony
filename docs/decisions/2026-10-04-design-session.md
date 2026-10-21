@@ -75,7 +75,7 @@ The user can change any of them. Then update the section that holds it.
 | Step 3 starts before the Safari check of step 1 with its audio-free tasks only. The bow sync and the clock target wait for the Safari check (manager, 2026-10-05) | 9.5 |
 | Three step treads of rise 0.10 below the stage top, as in the reference image, in place of three rises of 0.133 | 4.5 |
 | The conductor stand: its post 0.35 m in front of the podium center, the desk height above the podium top, and a tilt of 30°. The plank lines are 0.012 m wide | 4.5 |
-| The soft shadows of the high tier: `PCFShadowMap` with radius 3, because three.js r186 has no `PCFSoftShadowMap`. The pixel ratio of a tier is never more than `devicePixelRatio` | 2.6 |
+| The soft shadows of the high tier: `PCFShadowMap` with the radius of `TIER_SETTINGS`, because three.js r186 has no `PCFSoftShadowMap`. The pixel ratio of a tier is never more than `devicePixelRatio` | 2.6 |
 | A shared music stand stands 0.65 m in front of the row, between two seats, 0.1 m from the chair back of the row in front, and the `facing` of a stand is the facing of its players | 4.5, 5.1 |
 | Each skeleton has all bones of 4.7. The bind pose is seated, with the arms down and no bone rotation | 4.7 |
 | The sizes of the violin and the bow, and the hold of the violin under the chin | 4.6 |

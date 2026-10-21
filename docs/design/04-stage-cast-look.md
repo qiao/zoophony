@@ -472,7 +472,7 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     dark pit, and a fill toward the middle of the neighbors made a sharp tent under the arm. A
     raised arm also casts the hard shadow of its faces into the crease between the arm and the
     trunk, and on the white fur of the rabbit the shadow shows as black wedges with steps of the
-    shadow map along the seam. The rig cannot change these shadows, so the light decides them. The thick arm of the rhino joins the side of the
+    shadow map along the seam. The rig cannot change these shadows, so the soft shadow edge of the high tier (4.5) decides them. The thick arm of the rhino joins the side of the
     trunk from the shoulder down to the paw, with a notch at its front and its back. A plane
     |x| = `armSplit` then cuts through the arm or the trunk, so the plane turns around the
     vertical through both notches, and the free arm keeps within a radius of the arm joints and
@@ -750,7 +750,9 @@ solo.
 - **Side lights** (`SIDE_LIGHT`, user, 2026-10-18). Two high spotlights at the front corners light
   the fronts of the players. The narrow cone of each one holds only the section on the far side,
   so each body has a lit side and a shade side. They cast the shadows of the players on the
-  players, such as an arm on the chest. The stage takes no shadow of them, and the low tier has
+  players, such as an arm on the chest. The shadows of the players have a soft edge on the high
+  tier (`TIER_SETTINGS`), because a hard edge showed black wedges and the steps of the map on
+  white fur (user, 2026-10-21). The stage takes no shadow of them, and the low tier has
   none (2.6). The players and the props take only a part of the fill and of the diffuse light of
   the environment (`FILL.players`), so their shade sides stay dark. The floor takes less fill
   than the players, so it falls off outside the pool (user, 2026-10-21).
