@@ -116,8 +116,8 @@ player.
   notes, and the curl of its long tail on the floor shows in the side views and the back view. The
   rhino tubist (`tubist`) has the views and the moments of the flutist with no standing soloist,
   because each tubist stands, with its own test notes, and its thin tail behind the haunch shows
-  in the side views and the back view. The deer harpist (`harpist`) shows from the four sides and
-  from the front left at the strings, at a chord just before the pluck, after the pluck, in the
+  in the side views and the back view. The deer harpist (`harpist`) shows from the four sides,
+  from the front left at the strings, and low from the back right at the seat, at a chord just before the pluck, after the pluck, in the
   rest pose, and in the middle of the lift and of the lowering at the chord, and its haunch on the
   stool shows in the side views and the back view. The badger has one role for each percussion
   instrument (`bass-drummer`, `snare-drummer`,
