@@ -1,0 +1,4 @@
+| base | 3138 | 22699 | 1.5154 | 0.277 | 0.277 | 0.212 | 0.578 | 0.578 | 0.234 | 0.0% | 0.0% | 0.0% | none | arm_raise_R: none / arm_raise_R2: none / arm_raise_R3: none / arm_raise_R4: none |
+| source=scratch/glb/panda-p3.glb | 3138 | 22640 | 1.5154 | 0.277 | 0.277 | 0.212 | 0.578 | 0.578 | 0.234 | 0.0% | 0.0% | 0.0% | none | arm_raise_R: none / arm_raise_R2: none / arm_raise_R3: none / arm_raise_R4: none |
+| source=scratch/glb/panda-p4.glb | 3138 | 22670 | 1.5154 | 0.277 | 0.277 | 0.212 | 0.578 | 0.578 | 0.234 | 0.0% | 0.0% | 0.0% | none | arm_raise_R: none / arm_raise_R2: none / arm_raise_R3: none / arm_raise_R4: none |
+| base | panda trombone | 0.277 (+0.000) | 0.502 (+0.000) | 1.591 (+0.000) | 1.536 (+0.000) | 0.711 (+0.000) by 1.400 (+0.000) |

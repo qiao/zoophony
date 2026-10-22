@@ -1,0 +1,11 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/arm-roots
+> node tools/fold-probe.ts conductor --base e7ef4f3a
+
+Folded faces of the studio body of the conductor on e7ef4f3a (e7ef4f3a) and on the working tree: 64.5 s.
+
+| Set | e7ef4f3a (e7ef4f3a) | Working tree |
+|---|---:|---:|
+| rest | 0.0% (0/15), most 0 (L 0 / R 0 / other 0) | 0.0% (0/15), most 0 (L 0 / R 0 / other 0) |
+| play | 2.7% (487/17949), most 4 (L 1 / R 0 / other 3) | 2.7% (488/17949), most 5 (L 2 / R 0 / other 3) |
+| lift | 7.5% (35/465), most 3 (L 3 / R 0 / other 0) | 7.5% (35/465), most 3 (L 3 / R 0 / other 0) |

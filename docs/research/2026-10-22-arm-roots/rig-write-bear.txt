@@ -1,0 +1,44 @@
+
+> zoophony@0.0.0 rig-mesh /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/arm-roots
+> node tools/rig-mesh.ts bear
+
+Arm factor 1: reach 0.4701 m in the app.
+rig_mesh: source: 1473 vertices, 2942 triangles, scale 0.525702
+rig_mesh: cut L: 1 fins go [2175]
+rig_mesh: cut R: 1 fins go [463]
+rig_mesh: cut L: 21 faces go, 17 new faces close the hole (smallest angle 5.0 degrees, median 19.4), the arm run [483, 484, 872, 437, 431, 441, 443], the body run [439, 435, 427, 429, 432, 434, 871, 482, 478, 479, 477, 474]
+rig_mesh: cut R: 21 faces go, 17 new faces close the hole (smallest angle 6.3 degrees, median 18.7), the arm run [521, 523, 528, 530, 1279, 589, 586], the body run [593, 597, 590, 594, 596, 595, 591, 532, 531, 529, 526, 524]
+rig_mesh: cut: 2942 triangles before, 2934 after
+rig_mesh: bone heat: 0 vertices with no weight took the nearest bone
+rig_mesh: slivers: 64 faces below 10°, 24 groups of 101 vertices, the largest 9
+rig_mesh: lines: 64 middle corners of faces with a corner angle above 150°
+rig_mesh: arm L: reach 0.4701 m before, 0.4701 m after the factor 1 (target 0.4701 m)
+rig_mesh: arm R: reach 0.4701 m before, 0.4701 m after the factor 1 (target 0.4701 m)
+rig_mesh: refine: 17 flips, the largest move 1.723 mm, 0 cut edges, 0 new faces
+rig_mesh: eyes: 7 faces left, 8 faces right, nose: 85 faces
+rig_mesh: arm: 265 vertices in the free left arm beyond |x| = 0.19
+rig_mesh: bind: 0 faces turn over from the source, on the bones []
+rig_mesh: bind: after 0 rounds of relaxing, 0 faces turn over
+rig_mesh: seat: before the sit, the lowest point of the haunch behind the hips joint is 1.59 cm below the seat top 0.1550 u
+rig_mesh: crease: 13 seam vertices, 138 vertices move, at most 0.0323 u (5.32 cm). 0 faces turn over
+rig_mesh: eye L: 7 dark faces, an edge of 7 points, a fan of 7 faces, 0.0035 u over the eye, 8 faces of the old eye
+rig_mesh: eye R: 8 dark faces, an edge of 6 points, a fan of 6 faces, 0.0045 u over the eye, 8 faces of the old eye
+rig_mesh: palette: 48 colors, the Oklab distance of a face from its color 0.0053 on the mean, 0.0217 at most
+rig_mesh: eye L: the 8 faces of the old eye take the color of 31% of the area of the faces around it
+rig_mesh: eye R: the 8 faces of the old eye take the color of 25% of the area of the faces around it
+rig_mesh: tone: 2566 faces of the plain fur move in Oklab
+rig_mesh: smile: the bands take [16] faces
+rig_mesh: corrective: the smallest determinant of the skin is 0.7778 at the vertex 544
+rig_mesh: corrective: the clip gives the source back within 3.28e-16 u (0.0000 mm)
+rig_mesh: shape arm_down_L: 291 vertices, largest move 0.0212 u
+rig_mesh: shape arm_down_R: 236 vertices, largest move 0.0188 u
+rig_mesh: shape legs_straight_L: 69 vertices, largest move 0.0279 u
+rig_mesh: shape legs_straight_R: 72 vertices, largest move 0.0278 u
+rig_mesh: chair: the tail goes 0.0558 u over the seat top at its lowest point over the seat
+rig_mesh: chair: front edge at z -0.145 u, the shins and the feet from z -0.1395 u
+rig_mesh: chair: seat top 0.1768 u, lowest point of the body -0.0000 u
+rig_mesh: triangles: 2947 (98 gloss)
+rig_mesh: caps: 34 caps of the cut take the normals of the skin in the app
+rig_mesh: rim: 56 skin faces around the caps of the body take the normals of the skin in the app
+rig_mesh: wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/arm-roots/assets/models/bear/bear-mesh.rig.glb: 485592 bytes
+Wrote assets/models/bear/bear-mesh.rig.glb: 485592 B, sha256 33e88132d87b5a9a8de476f158f2b9a33aaeb84aeaca72619d5b1b2729513ba6.

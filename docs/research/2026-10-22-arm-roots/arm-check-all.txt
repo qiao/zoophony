@@ -1,0 +1,27 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/arm-roots
+> node tools/arm-check.ts --all --base e7ef4f3a
+
+base: cached (e7ef4f3a, 5c3e668fcca0)
+tree: cached (c6aff6302516)
+base: cached (e7ef4f3a, 042e46b487d9)
+base: cached (e7ef4f3a, 54d8ba609732)
+base: cached (e7ef4f3a, 120f173c8e38)
+base: cached (e7ef4f3a, 7c6fe2ed675c)
+base: cached (e7ef4f3a, 096b2a73069a)
+base: cached (e7ef4f3a, c7e7c3bfd5a3)
+base: cached (e7ef4f3a, 5437907b2c6b)
+base: cached (e7ef4f3a, 73127633ea04)
+base: cached (e7ef4f3a, 32abbfb2422c)
+base: cached (e7ef4f3a, 9d48419279cf)
+base: cached (e7ef4f3a, 558e9de266e0)
+base: cached (e7ef4f3a, 0abb63ebccfd)
+base: cached (e7ef4f3a, a208c0f45770)
+base: cached (e7ef4f3a, dc8527579752)
+base: cached (e7ef4f3a, 2894021ccaf0)
+base: cached (e7ef4f3a, a630a28518fe)
+base: cached (e7ef4f3a, 637a4a20b2af)
+base: cached (e7ef4f3a, 44e429c0166a)
+base: cached (e7ef4f3a, 444704088619)
+base: cached (e7ef4f3a, 0e293b2558d8)
+base: cached (e7ef4f3a, 35040f6e3911)
