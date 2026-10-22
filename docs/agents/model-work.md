@@ -17,7 +17,7 @@ fox together.
 |---|---|---|---|
 | bear | the studio bear (route 3) | `2026-10-12-studio-bear.md` | `conductor` |
 | polar-bear | the studio polar bear (route 3) | `2026-10-12-studio-polar-bear.md` | `pianist` |
-| rabbit | the mesh `assets/models/rabbit/rabbit-4.glb`, rigged by `pnpm rig-mesh rabbit` from a copy with a shallower notch under the right arm and rounder upper arms (`rabbit-4-arms.glb`) | `2026-10-13-mesh-rabbit.md` | `violinist` |
+| rabbit | the mesh `assets/models/rabbit/rabbit-4.glb`, rigged by `pnpm rig-mesh rabbit` from a copy with a shallower notch under the right arm, rounder upper arms, and a round inner side of each arm (`rabbit-4-elbows.glb`) | `2026-10-13-mesh-rabbit.md` | `violinist` |
 | fox-red | the mesh `assets/models/fox/fox.glb`, rigged by `pnpm rig-mesh fox`, with a tail of two bones | `2026-10-14-mesh-fox.md` | `fox-violinist` |
 | fox-tan | the rig of the red fox with a tan palette | `2026-10-14-fox-flute.md` | `flutist` |
 | cat | the mesh `assets/models/cat/cat.glb`, rigged by `pnpm rig-mesh cat` | `2026-10-16-mesh-cat.md` | `violist` |

@@ -491,12 +491,15 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     and a fan from its middle showed as dark spikes at the top of the shoulder. A flat upper arm
     reads as a plank when its broad side faces the front, so the copy of the rabbit also makes its
     upper arms rounder (`rabbit-4-arms.glb`), and its bow elbow points out and forward (5.3). The
-    cut closes the inner side of each upper arm of the rabbit with a flat cap, whose arm run sets
-    the width of the arm, so each arm moves its arm run too. A vertex of a run that the move lifts
-    above the top of the cut keeps its place: else the cut keeps a face between the arm and the
-    trunk, and the corrective shapes fold the caps of the body. A vertex at the top of a run whose
-    move turns the cap at the top of the cut down under the raised arm keeps its place too, because
-    that face shows as a dark band. `pnpm arm-look` measures the
+    inner side of each hanging arm of the rabbit joins the trunk from the middle of the upper arm
+    to past the elbow. A flat cap of the cut there showed as a flat sheet at the bent elbow, so the
+    rig reads a further copy that removes the joining faces and closes each arm with a round patch
+    over its arm run (`rabbit-4-elbows.glb`). The patch lies inside the plane of the arm split,
+    and the free arm takes it as an island (`weights.armIslands`). The cut then closes only the
+    hole of the trunk, with its caps and its quad. The run moves with the patch, except the two
+    vertices at the top of the right run: a move of the back one lifted it above the top of the
+    cut, and the corrective shapes folded the caps of the body. A move of the front one turned
+    the cap at the top of the cut down under the raised arm, as a dark band. `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
