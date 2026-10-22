@@ -13,11 +13,9 @@ measures. The user can reverse each decision. Then update its section, and remov
 | Decision | Section |
 |---|---|
 | The user, quote above: the polar bear pianist gets the mesh as a studio body (`tools/mesh-rigs/polar-bear.json`) in place of the studio polar bear of `lowpoly-studio/`. The files of the studio stay. | 4.3, 4.4 |
-| Size: 1.929 m for each unit, so the standing skull top is 1.923 m, as on the studio polar bear. Seated, the head top is 1.83 m (+4%) (`app`). | 4.4 |
 | Seat: the piano bench fits the short legs, and the soles touch the floor. The rig names its seat prop `bench` (`chair.prop`). The seat of `2026-10-22-polar-seat.md` gives the legs and the bench. | 4.4, 4.5 |
 | The user chose "Keep 1.25x arms" over a larger polar bear and the arms of the file with more lean (2026-10-22). Arms: the factor 1.25 (reach 0.68 m, 0.55 m with 1), the smallest factor that reaches each note with the muzzle 5 cm from the lid. A cut frees each arm, and a twist bone keeps 0.55 of the roll (`armFactor`, `cut`, `upperTwist`). | 4.4, 4.7 |
 | Shoulder skin: the clavicle fades out higher (`clavicleFrom`), two faces at the left shoulder move as one (`rigid`), and three shapes relax the faces that fold at the shoulders and the right elbow (`raise`). Then the arm gate passes. | 4.4 |
-| Hold: the keys 1.5 H + 0.05 m in front of the floor point, the palm 0.12 m in front of the keys and 0.09 m above them, and the elbows out and a little down (`PIANO_FRONT_H`, `HANDS_HOLDS.piano`). The lean is a row of `2026-10-22-polar-seat.md`. | 4.6, 5.3 |
 | Colors: the cream fur takes 1.045 of its lightness and 0.3 of its chroma, near the white of `polar-bear-views.png` (`colors.shift`). | 4.5 |
 | Face: a dark line on the lower lip gives a small smile (`colors.smile`). | 4.5 |
 | The crease angle is 15°, the angle of a bear (`ANIMALS`). | 4.4 |
