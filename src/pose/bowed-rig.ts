@@ -17,6 +17,7 @@ import {
   instrumentAt,
   rollToward,
   shoulderTurn,
+  shoulderTurnL,
   stopHandAt,
   stringsAt,
 } from './bowed.ts';
@@ -142,6 +143,12 @@ export interface BowedHold {
   readonly slant: number;
   /** The forward turn of the right shoulder bone around y, so that the arm reaches further. */
   readonly reach: number;
+  /**
+   * The forward turn of the left shoulder bone around y, in the play and in the rest, so that the
+   * left arm reaches the fingerboard of a floor instrument far in front of a round body. 0 keeps
+   * the shoulder of the bind pose.
+   */
+  readonly reachL: number;
   /**
    * The free part of the bow hair at each end, in meters. The reached part of the hair
    * (`BowedRig.bowRange`) starts at this distance from the frog and stops at this distance from
@@ -292,6 +299,7 @@ const CHIN_HOLD = {
   soundingPoint: [1 / 8, 1 / 18],
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
+  reachL: 0,
   freeHair: FREE_HAIR,
   frogHair: 0,
   lean: 0,
@@ -354,6 +362,7 @@ const FLOOR_HOLD = {
   soundingPoint: [1 / 9, 1 / 15],
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
+  reachL: 0,
   freeHair: FREE_HAIR,
   frogHair: 0,
   lean: 10 * MathUtils.DEG2RAD,
@@ -1104,7 +1113,12 @@ export function stopRangeOf(rig: RigPoints): readonly [low: number, high: number
   const { place, strings } = createBowPlaces();
   instrumentAt(rig, frames, 1, place);
   stringsAt(rig, place, strings);
-  const shoulder = poseShoulder(rig.armL, frames.chest, rig.chestBind, new Quaternion()).position;
+  const shoulder = poseShoulder(
+    rig.armL,
+    frames.chest,
+    rig.chestBind,
+    shoulderTurnL(rig, new Quaternion()),
+  ).position;
   const hand = { wrist: new Vector3(), rotation: new Quaternion() };
   let best: [number, number] | null = null;
   let start = -1;

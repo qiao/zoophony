@@ -91,7 +91,6 @@ interface BowHand {
 }
 
 /** The rotation that changes nothing. Nothing writes it. */
-const NO_TURN = new Quaternion();
 
 const Y_AXIS = new Vector3(0, 1, 0);
 
@@ -192,6 +191,19 @@ export function stringsAt(rig: RigPoints, place: InstrumentPlace, out: StringsPl
  */
 export function shoulderTurn(rig: RigPoints, weight: number, out: Quaternion): Quaternion {
   return out.setFromAxisAngle(Y_AXIS, rig.hold.reach * weight);
+}
+
+/**
+ * Gives the forward turn of the left shoulder bone, so that the left arm reaches the fingerboard
+ * (`BowedHold.reachL`). The turn holds in the rest pose too, because only the hold of a floor
+ * instrument has it, and the left hand holds that instrument at its playing place in the rest.
+ *
+ * @param rig The points of the player.
+ * @param out The quaternion to write.
+ * @returns `out`, with the local rotation of the `shoulderL` bone.
+ */
+export function shoulderTurnL(rig: RigPoints, out: Quaternion): Quaternion {
+  return out.setFromAxisAngle(Y_AXIS, -rig.hold.reachL);
 }
 
 const stringTurn = new Quaternion();
@@ -624,6 +636,7 @@ const tilted: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
 const shoulderR = createFrame();
 const shoulderL = createFrame();
 const turn = new Quaternion();
+const turnL = new Quaternion();
 const tip = new Vector3();
 const tipSide = new Vector3();
 const pluckBow: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
@@ -1018,10 +1031,11 @@ export function poseBowed(
   const handTilt = leftTilt(rig.hold, state.fingerboard) * weight;
   stopHandAt(rig, place, strings, stop, h.curlL * weight, handTilt, finger, handL);
   leftElbow(rig.hold, state, poleL);
+  shoulderTurnL(rig, turnL);
   writeArm(
     {
       arm: rig.armL,
-      shoulder: poseShoulder(rig.armL, chest, rig.chestBind, NO_TURN, shoulderL),
+      shoulder: poseShoulder(rig.armL, chest, rig.chestBind, turnL, shoulderL),
       wrist: handL.wrist,
       hand: handL.rotation,
       pole: mixDirection(holdPole.fromArray(rig.restPoleL), poleL, weight, poleL).toArray(
@@ -1033,6 +1047,7 @@ export function poseBowed(
   );
 
   setBoneRotation(rotations, rig.armR.bones.shoulder, turn);
+  setBoneRotation(rotations, rig.armL.bones.shoulder, turnL);
   setBoneRotation(rotations, BONES.instrument, place.local);
   place.offset.toArray(offset);
   writeCurl(rig.armL, (h.curlL + h.pressL * state.press * state.gesture) * weight, rotations);
