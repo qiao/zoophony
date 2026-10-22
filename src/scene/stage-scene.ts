@@ -1,5 +1,6 @@
 import { Group, Mesh, Points, Scene, Vector2, Vector3 } from 'three';
 import type {
+  Material,
   Object3D,
   SkinnedMesh,
   WebGLRenderTarget,
@@ -192,8 +193,8 @@ export function effectTime(nowMs: number, reducedMotion: boolean): number {
 }
 
 /**
- * Finds the light effects of a scene: the objects with a material that writes no depth, such as
- * the visible beam and the light on the floor. The depth pass of the post effects hides them.
+ * Finds the light effects of a scene: the objects whose materials write no depth, such as the
+ * visible beam and the light on the floor. The depth pass of the post effects hides them.
  *
  * @param scene The scene.
  * @returns The effects.
@@ -201,12 +202,14 @@ export function effectTime(nowMs: number, reducedMotion: boolean): number {
 export function lightEffects(scene: Object3D): Object3D[] {
   const effects: Object3D[] = [];
   scene.traverse((object) => {
-    // A player and the stage have a list of materials, and each of them writes depth.
-    const isEffect =
-      (object instanceof Mesh || object instanceof Points) &&
-      !Array.isArray(object.material) &&
-      !object.material.depthWrite;
-    if (isEffect) {
+    if (!(object instanceof Mesh || object instanceof Points)) {
+      return;
+    }
+    // The haze cone has a list of two materials, one for each side (`createBeam()`).
+    const own: readonly Material[] = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    if (own.every((material) => !material.depthWrite)) {
       effects.push(object);
     }
   });

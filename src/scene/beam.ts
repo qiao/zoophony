@@ -1,11 +1,12 @@
 import {
   AdditiveBlending,
+  BackSide,
   BufferAttribute,
   BufferGeometry,
   Color,
   Data3DTexture,
   DepthTexture,
-  DoubleSide,
+  FrontSide,
   Group,
   LatheGeometry,
   LinearFilter,
@@ -21,7 +22,7 @@ import {
   Vector4,
   WebGLRenderTarget,
 } from 'three';
-import type { Camera, Object3D, PerspectiveCamera, Scene } from 'three';
+import type { Camera, Material, Object3D, PerspectiveCamera, Scene } from 'three';
 
 import { keyLightPlace } from '../models/beam.ts';
 import { plankHash } from '../models/stage.ts';
@@ -587,26 +588,39 @@ export function createBeam(stageSide: number, tier: QualityTier): Group {
     hazeProfile(stageSide).map(([radius, y]) => new Vector2(radius, y)),
     48,
   );
-  const material = new ShaderMaterial({
-    vertexShader: BEAM_VERTEX,
-    fragmentShader: BEAM_FRAGMENT,
-    uniforms: {
-      ...coneUniforms(stageSide),
-      uStrength: { value: BEAM_LOOK.strength / stageSide },
-      uInside: { value: 0 },
-      uBottom: { value: BEAM_LOOK.bottom },
-      uNoise: { value: BEAM_LOOK.noise },
-      uNoiseScale: { value: BEAM_LOOK.noiseScale },
-      uDrift: { value: new Vector3() },
-      uNoiseTexture: { value: noiseTexture() },
-    },
-    defines: { SAMPLES: TIER_SETTINGS[tier].beamSamples },
-    transparent: true,
-    blending: AdditiveBlending,
-    depthWrite: false,
-    side: DoubleSide,
-  });
-  const cone = new Mesh(geometry, material);
+  const uniforms = {
+    ...coneUniforms(stageSide),
+    uStrength: { value: BEAM_LOOK.strength / stageSide },
+    uInside: { value: 0 },
+    uBottom: { value: BEAM_LOOK.bottom },
+    uNoise: { value: BEAM_LOOK.noise },
+    uNoiseScale: { value: BEAM_LOOK.noiseScale },
+    uDrift: { value: new Vector3() },
+    uNoiseTexture: { value: noiseTexture() },
+  };
+  // The cone shows both sides. three.js draws a transparent material with both sides in two
+  // draws, the back faces first, and changes the side of the material for each draw, so it looked
+  // up the program of the material two times in each frame. One material for each side, with one
+  // group each over all faces, gives the same two draws in the same order. The two materials
+  // share the uniforms.
+  const sides = [BackSide, FrontSide].map(
+    (side) =>
+      new ShaderMaterial({
+        vertexShader: BEAM_VERTEX,
+        fragmentShader: BEAM_FRAGMENT,
+        uniforms,
+        defines: { SAMPLES: TIER_SETTINGS[tier].beamSamples },
+        transparent: true,
+        blending: AdditiveBlending,
+        depthWrite: false,
+        side,
+      }),
+  );
+  const count = geometry.index?.count ?? geometry.getAttribute('position').count;
+  for (const i of sides.keys()) {
+    geometry.addGroup(0, count, i);
+  }
+  const cone = new Mesh(geometry, sides);
   cone.name = 'beam';
   cone.renderOrder = 1;
   // The motes of the highest tier. A lower tier draws only a part of them.
@@ -626,10 +640,12 @@ export function createBeam(stageSide: number, tier: QualityTier): Group {
 export function setBeamTier(beam: Group, tier: QualityTier): void {
   const settings = TIER_SETTINGS[tier];
   for (const child of beam.children) {
-    if (child instanceof Mesh && child.material instanceof ShaderMaterial) {
-      if (child.material.defines['SAMPLES'] !== settings.beamSamples) {
-        child.material.defines['SAMPLES'] = settings.beamSamples;
-        child.material.needsUpdate = true;
+    if (child instanceof Mesh) {
+      for (const material of shaderMaterials(child)) {
+        if (material.defines['SAMPLES'] !== settings.beamSamples) {
+          material.defines['SAMPLES'] = settings.beamSamples;
+          material.needsUpdate = true;
+        }
       }
     } else if (child instanceof Points) {
       child.geometry.setDrawRange(0, settings.motes);
@@ -775,13 +791,13 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
   const [width, height] = depth.size;
   const inside = insideHaze(stageSide, camera.position.toArray(), foot);
   for (const child of beam.children) {
-    if (
-      !(child instanceof Mesh || child instanceof Points) ||
-      !(child.material instanceof ShaderMaterial)
-    ) {
+    const materials = shaderMaterials(child);
+    const first = materials[0];
+    if (!first) {
       continue;
     }
-    const u = child.material.uniforms;
+    // The two sides of the cone share their uniforms.
+    const u = first.uniforms;
     setValue(u, 'uNear', camera.near);
     setValue(u, 'uFar', camera.far);
     const texture = u['uDepth'];
@@ -807,7 +823,9 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
       setValue(u, 'uInside', inside ? 1 : 0);
       // A camera in the haze cone sees the back faces. The depth of the scene ends each view ray,
       // so a player in front of a back face does not hide the haze before the player.
-      child.material.depthTest = !inside;
+      for (const material of materials) {
+        material.depthTest = !inside;
+      }
       const drift = u['uDrift']?.value;
       if (drift instanceof Vector3) {
         const d = (BEAM_LOOK.drift * timeSec) / BEAM_LOOK.noiseScale;
@@ -838,6 +856,23 @@ function leanCone(cone: Mesh, stageSide: number, foot: StagePair): void {
   cone.matrixAutoUpdate = false;
   cone.matrix.set(1, leanX, 0, fx, 0, 1, 0, 0, 0, leanZ, 1, fz, 0, 0, 0, 1);
   cone.updateMatrixWorld(true);
+}
+
+/**
+ * Gives the shader materials of a child of the beam: the two sides of the cone, or the material of
+ * the motes.
+ *
+ * @param child The child.
+ * @returns The materials, or none for another object.
+ */
+function shaderMaterials(child: Object3D): ShaderMaterial[] {
+  if (!(child instanceof Mesh || child instanceof Points)) {
+    return [];
+  }
+  const own: readonly Material[] = Array.isArray(child.material)
+    ? child.material
+    : [child.material];
+  return own.filter((material) => material instanceof ShaderMaterial);
 }
 
 /** Sets a number uniform, if the material has it. */

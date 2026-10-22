@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BackSide,
+  FrontSide,
   Group,
   Mesh,
   PerspectiveCamera,
@@ -146,17 +148,31 @@ describe('hazeProfile (design 4.5)', () => {
   });
 });
 
+/**
+ * Gives the materials of the two sides of the haze cone of a beam.
+ *
+ * @param beam The group of `createBeam()`.
+ * @returns The material of the back faces, then of the front faces.
+ */
+function coneSides(beam: Object3D): ShaderMaterial[] {
+  const cone = beam.children.find((child) => child instanceof Mesh);
+  if (!(cone instanceof Mesh) || !Array.isArray(cone.material)) {
+    throw new Error('The beam has no cone with two sides.');
+  }
+  return cone.material.filter((material) => material instanceof ShaderMaterial);
+}
+
 describe('createBeam (design 2.6, 4.5)', () => {
   it('gives the high tier dust motes and the most noise samples', () => {
     const beam = createBeam(11.19, 'high');
-    const cone = beam.children.find((child) => child instanceof Mesh);
     const motes = beam.children.find((child) => child instanceof Points);
-    if (!(cone instanceof Mesh) || !(cone.material instanceof ShaderMaterial)) {
-      throw new Error('The beam has no cone.');
+    const sides = coneSides(beam);
+    expect(sides.map((side) => side.side)).toEqual([BackSide, FrontSide]);
+    for (const side of sides) {
+      expect(side.defines['SAMPLES']).toBe(TIER_SETTINGS.high.beamSamples);
+      expect(side.depthWrite).toBe(false);
+      expect(side.fragmentShader).toContain('#include <colorspace_fragment>');
     }
-    expect(cone.material.defines['SAMPLES']).toBe(TIER_SETTINGS.high.beamSamples);
-    expect(cone.material.depthWrite).toBe(false);
-    expect(cone.material.fragmentShader).toContain('#include <colorspace_fragment>');
     expect(motes).toBeInstanceOf(Points);
     expect(motes?.geometry.getAttribute('seed').count).toBe(TIER_SETTINGS.high.motes);
   });
@@ -182,20 +198,24 @@ describe('createBeam (design 2.6, 4.5)', () => {
 describe('setBeamTier (design 2.6)', () => {
   it('changes the haze samples and the dust motes after the layout', () => {
     const beam = createBeam(11.19, 'high');
-    const cone = beam.children.find((child) => child instanceof Mesh);
+    const sides = coneSides(beam);
     const motes = beam.children.find((child) => child instanceof Points);
-    if (!(cone instanceof Mesh) || !(cone.material instanceof ShaderMaterial) || !motes) {
-      throw new Error('The beam has no cone or no motes.');
+    if (!motes) {
+      throw new Error('The beam has no motes.');
     }
-    const version = cone.material.version;
+    const versions = sides.map((side) => side.version);
     for (const tier of ['low', 'medium', 'high'] as const) {
       setBeamTier(beam, tier);
-      expect(cone.material.defines['SAMPLES'], tier).toBe(TIER_SETTINGS[tier].beamSamples);
+      for (const side of sides) {
+        expect(side.defines['SAMPLES'], tier).toBe(TIER_SETTINGS[tier].beamSamples);
+      }
       expect(motes.visible, tier).toBe(TIER_SETTINGS[tier].motes > 0);
       expect(motes.geometry.drawRange.count, tier).toBe(TIER_SETTINGS[tier].motes);
     }
     // The shader compiles again for each change of the samples.
-    expect(cone.material.version).toBeGreaterThan(version);
+    for (const [i, side] of sides.entries()) {
+      expect(side.version).toBeGreaterThan(versions[i] ?? 0);
+    }
   });
 });
 
@@ -285,10 +305,12 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
     if (!child || !(child instanceof Mesh || child instanceof Points)) {
       throw new Error('The beam has no such part.');
     }
-    if (!(child.material instanceof ShaderMaterial)) {
+    // The two sides of the cone share their uniforms, so the first side gives them.
+    const first = Array.isArray(child.material) ? child.material[0] : child.material;
+    if (!(first instanceof ShaderMaterial)) {
       throw new Error('The part has no shader.');
     }
-    return child.material;
+    return first;
   };
   const uniforms = (kind: typeof Mesh | typeof Points): ShaderMaterial['uniforms'] =>
     material(kind).uniforms;
