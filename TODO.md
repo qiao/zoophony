@@ -1176,6 +1176,21 @@ the mockup is out of scope.
       current frame.
       Waits for the user: on 2026-10-13, the user asked to record these options and to choose
       no path yet.
+      2026-10-21: the cuts with the same pixels of `docs/research/2026-10-21-frame-performance.md`
+      took the main-thread p95 from 8.83 ms to 4.74 ms and the GPU p95 from 6.80 ms to 5.89 ms.
+      Its section 6 measures the options again on the new code, with an image of each one in its
+      folder `options/`. Only the device scale 1.5 passes the GPU target alone (4.06 ms).
+- [ ] Skin the players one time in each frame. Each pass of a frame skins them again in its vertex
+      shader: 0.2 ms to 0.5 ms of GPU time for each shadow map and each depth pass
+      (`docs/research/2026-10-21-frame-performance.md`, section 8). The pixels must stay the same.
+- [ ] Cut `poseStudioBones()`: about 0.5 ms of each frame for the 55 studio bodies of
+      `perf-60.mid`, the largest part of the main thread after the round `perf-frame`.
+- [ ] Compile the shaders before the first frame, for example with `compileAsync()`, with the same
+      first frame: `setProgram()` took 381 ms from the load to 2 s after play
+      (`docs/research/2026-10-21-frame-performance/logs/load-tip.txt`, found by the round
+      `perf-load`).
+- [ ] 6 of the 13 tests of the paused file `scene/player.test.ts` fail on `main` (found by the round
+      `perf-frame`). Fix them when the pause of the tests ends.
 - [x] Cinematic light, steps P0 to P2 of `docs/research/2026-10-17-cinematic-lighting.md` (user
       request of 2026-10-17, design 4.5): the look lab (`pnpm look-lab`), the band-limited grain
       and the planks, the lacquer and the lighter walnut, the grade of a 3D lookup table, and the
@@ -1193,8 +1208,10 @@ the mockup is out of scope.
       frame of `perf-60.mid` on the high tier (4.75 ms to 5.86 ms): the shot light 0.45 ms, the
       bake step 0.42 ms, the floor and the grade 0.16 ms, the haze 0.08 ms, and the lens 0.06 ms.
       The main thread does not change.
-- [ ] Measure the GPU row of the frame target again with the Metal trace. On 2026-10-18,
+- [x] Measure the GPU row of the frame target again with the Metal trace. On 2026-10-18,
       `xctrace` could not connect to DTServiceHub, so `pnpm frame` ran with `--no-metal`.
+      Done on 2026-10-21: after a restart of the Mac, `pnpm frame` runs with the Metal trace again
+      (`docs/research/2026-10-21-frame-performance.md`, section 2).
 - [x] Cut the cost of the shot light (user "do 2" on 2026-10-18): a diffuse term of the material
       of the players and the props in place of two spotlights saves 0.44 ms in each frame.
 - [ ] Cut the rest of the frame cost of the cinematic light in the performance sweep: about
@@ -1251,6 +1268,8 @@ the mockup is out of scope.
 - [ ] Cut the frame cost of the shadows of the side lights in the performance sweep: about 0.9 ms
       of GPU time and 0.4 ms of main-thread time in each frame of `perf-60.mid` on the high tier.
       Options: smaller maps, or a new map only every second frame.
+      2026-10-21: maps of 512 save only 0.07 ms of the GPU p95, because the vertex work of the
+      skinned players is the cost (`docs/research/2026-10-21-frame-performance.md`, section 6).
 - [ ] Find the reads of the look roots at the load of a module with a saved check. Today
       `LOAD_TIME_PATHS` of `scene/look-values.ts` lists them by hand, so a new read at load gives
       an override with no effect and no error (`docs/decisions/2026-10-18-look-tools.md`).
