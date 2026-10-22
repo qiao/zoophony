@@ -288,3 +288,4 @@ The decision files:
 - [`2026-10-22-panda-armpit.md`](decisions/2026-10-22-panda-armpit.md): the back lips of the panda arm roots in the free arm, two shapes of its right arm, and the candidate round patch of the rhino arms.
 - [`2026-10-22-arm-roots.md`](decisions/2026-10-22-arm-roots.md): the bear copy with raised shoulder balls, and the edit script of the arm roots.
 - [`2026-10-22-polar-legs.md`](decisions/2026-10-22-polar-legs.md): the longer legs of the polar bear pianist with its size kept, and the bench that fits them.
+- [`2026-10-22-deer-dog-seams.md`](decisions/2026-10-22-deer-dog-seams.md): the deer copy with round inner arms and a cut of each arm seam above the back notch, and the dog rig that stays after six variants.
