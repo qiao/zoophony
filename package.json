@@ -49,7 +49,8 @@
     "loudness": "node tools/loudness.ts",
     "docs-species": "node tools/docs-species.ts",
     "frame": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && node tools/measure-frame.ts",
-    "frozen": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && node tools/frozen.ts"
+    "frozen": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && node tools/frozen.ts",
+    "cpu-profile": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && node tools/cpu-profile.ts"
   },
   "dependencies": {
     "spessasynth_core": "4.3.22",
