@@ -486,7 +486,13 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     out as a dark flap. The chain of the joints moves back before the distance
     (`weights.armFree.shift`), so that the free arm takes the back strip and leaves the front edge
     on the trunk. A kept face that sticks into the hole of the cut with two edges goes too
-    (`cut.fins`), because the cap repeats it with the opposite winding. The panda arm root joins
+    (`cut.fins`), because the cap repeats it with the opposite winding. The ball of each bear
+    shoulder has half of its weight on the upper arm, and the turns of the arm sink it below the
+    surface around it, as a sharp V at the top back of the arm root. The rig of the bear reads a
+    copy of the mesh in which each shoulder ball and its ring move out by about the sunk depth,
+    and the longest edge across the shoulder joint splits, so that the skin bends over two faces
+    (`bear-mesh-roots.glb`). `tools/blender/arm_root.py` writes each such local edit of an arm
+    root from one edit file of `tools/arm-roots/`. The panda arm root joins
     the trunk with lips that curl into the notches at its front and its back. Bone heat gives
     the lips a part of the arm weight, and a raised arm pulls them out as flaps. A band between
     two planes takes only the back lips into the free arm (`weights.armFree.root`), because the
