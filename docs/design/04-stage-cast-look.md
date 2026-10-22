@@ -514,13 +514,7 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     rig reads a further copy that removes the joining faces and closes each arm with a round patch
     over its arm run (`rabbit-4-elbows.glb`). The patch lies inside the plane of the arm split,
     and the free arm takes it as an island (`weights.armIslands`). The cut then closes only the
-    hole of the trunk, with its caps and its quad. The rhino arm joins the trunk from the paw up
-    to the shoulder, and its flat cap showed as a dark sheet under the forearm at the tuba. Its
-    copy closes the whole inner side of each arm with a round patch (`rhino-arms.glb`), and the
-    cut closes the hole of the trunk above the open edges of the tail (`cut.low`). Bone heat gives
-    the side of the trunk beside the hanging forearm a part of the upper arm weight, and the arm
-    at the tuba drags it into dark slits, so that weight goes back to the trunk below the armpit
-    (`weights.armBelow`). The run moves with the patch, except the two
+    hole of the trunk, with its caps and its quad. The run moves with the patch, except the two
     vertices at the top of the right run: a move of the back one lifted it above the top of the
     cut, and the corrective shapes folded the caps of the body. A move of the front one turned
     the cap at the top of the cut down under the raised arm, as a dark band. Each arm of the deer
