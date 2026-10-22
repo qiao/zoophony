@@ -45,6 +45,29 @@ the animal), with the probes of `docs/research/2026-10-22-mesh-bear/`:
   the side of the trunk from y 0.46 to 0.5, and joins it with a notch at its front and its back
   from y 0.5 to 0.58.
 
+## bear-mesh-roots.glb
+
+`bear-mesh-roots.glb` is `bear-mesh.glb` with one local edit at the root of each arm, in Blender
+(batch). The user said on 2026-10-22: "the bear is not fixed. there's still visible dent there in
+the arms". The rig of the bear (`source` of `tools/mesh-rigs/bear.json`) reads this file.
+`bear-mesh.glb` stays the file of the user, byte for byte.
+
+| Item | Value |
+|---|---|
+| File | `bear-mesh-roots.glb`, 15,129,028 bytes |
+| SHA-256 | `0b3c74ea2330c63657f57ea55a2ba1edc888f9a5bdd323a48bc720185ccd9e16` |
+| Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `bear-mesh.glb` |
+| License | As `bear-mesh.glb` |
+
+The edit: the shoulder ball of the source (welded vertex 583 on the right, 460 on the left) has
+half of its weight on the upper arm. The turns of the arm sink it 2 to 3 cm below the surface
+around it, and a sharp V dent shows at the top back of the arm root. The edit moves the shoulder
+ball and 4 (right) or 5 (left) vertices around it out along their normals, at most 0.0125 units
+(2.06 cm in the app). It also splits the longest edge across each shoulder joint (26 cm on the
+right, 17 cm on the left) at a new vertex on the round curve between its ends, which adds 4
+triangles. No other vertex, UV, or texture changes. `tools/blender/arm_root.py` with
+`tools/arm-roots/bear.json` gives the edit, and a run of it gives the same bytes.
+
 ## bear.glb
 
 `bear.glb` is the source of the body of the bear conductor of 2026-10-10 (design 4.4). `pnpm rig-body bear` makes
