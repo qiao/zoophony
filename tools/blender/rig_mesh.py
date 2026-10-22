@@ -26,7 +26,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones and the optional bone `jaw` for a beak that
    opens, and give the weights with bone heat. Then the rules of the config: the free arm (beyond a plane, which `armFree` turns around the vertical
-   for a thick arm that joins the trunk), the clavicles below the shoulders and the arms up the neck,
+   for a thick arm that joins the trunk, with each island inside the plane that only the free arm
+   surrounds with `armIslands`), the clavicles below the shoulders and the arms up the neck,
    the clavicles over the top of the shoulders (`shoulderRamp`), the paw, the head and the
    shoulders, the ears, the lower beak on the jaw (`jaw`), a long nose in front of the chest
    (`noseFront`), the tail (a ball on one
@@ -1202,9 +1203,53 @@ def arm_side(verts, rules, heads, ends, sign):
 def free_arm(verts, tris, rules, heads, ends, sign):
     """Finds the vertices of the free arm of one side: the part of the mesh beyond the plane of the
     arm split (`arm_side()`) that holds the vertex nearest to the finger tip. The haunch beside the
-    body is beyond that plane too, and it is not a part of the arm."""
+    body is beyond that plane too, and it is not a part of the arm. With `armIslands` of the
+    rules, the free arm also holds each island of vertices on its side that only vertices of the
+    free arm surround (`arm_islands()`), such as the new inner side of a remodeled arm that lies
+    inside the plane."""
     tip = np.asarray(ends['fingers_L'], float) * [sign, 1.0, 1.0]
-    return connected_part(verts, tris, arm_side(verts, rules, heads, ends, sign), tip)
+    free = connected_part(verts, tris, arm_side(verts, rules, heads, ends, sign), tip)
+    if rules.get('armIslands'):
+        free |= arm_islands(verts, tris, free, sign)
+    return free
+
+
+def arm_islands(verts, tris, free, sign):
+    """Finds the islands of a free arm: each part of the vertices outside the free arm, joined by
+    edges with both corners outside it, that has all its vertices on the side of the sign, touches
+    the free arm, and is not the largest part (the trunk). Gives a mask of the vertices."""
+    outside = ~free
+    neighbors = [[] for _ in range(len(verts))]
+    touches = np.zeros(len(verts), bool)
+    for t in tris:
+        for a, b in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
+            if outside[a] and outside[b]:
+                neighbors[a].append(b)
+                neighbors[b].append(a)
+            elif outside[a] != outside[b]:
+                touches[a if outside[a] else b] = True
+    seen = np.zeros(len(verts), bool)
+    parts = []
+    for start in np.nonzero(outside)[0]:
+        if seen[start]:
+            continue
+        part, stack = [], [int(start)]
+        seen[start] = True
+        while stack:
+            v = stack.pop()
+            part.append(v)
+            for n in neighbors[v]:
+                if not seen[n]:
+                    seen[n] = True
+                    stack.append(n)
+        parts.append(part)
+    largest = max(parts, key=len)
+    out = np.zeros(len(verts), bool)
+    for part in parts:
+        if (part is not largest and touches[part].any()
+                and (verts[part, 0] * sign > 0).all()):
+            out[part] = True
+    return out
 
 
 def hanging_ear(verts, tris, rule, sign):
@@ -1429,7 +1474,9 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
         arm = [col[f'{bone}_{side}'] for bone in ARM]
         lower = arm[1:]
         free = free_arm(verts, tris, rules, heads, ends, sign)
-        beyond = arm_side(verts, rules, heads, ends, sign)
+        # An island of the free arm inside the plane (`armIslands`) follows the arm as the free
+        # arm beyond it does.
+        beyond = arm_side(verts, rules, heads, ends, sign) | free
         for v in np.nonzero(beyond & ~free)[0]:
             target = trunk[int(np.argmax(w[v, trunk]))] if w[v, trunk].any() else col['spine1']
             w[v, target] += w[v, arm].sum()
