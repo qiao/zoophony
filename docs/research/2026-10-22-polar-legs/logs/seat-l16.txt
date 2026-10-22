@@ -1,0 +1,6 @@
+Demo bach-bwv1047.mid, player 18, 489 note samples. Bench 95.0 x 39.0 cm, top 26.9 cm. H 45.3 cm, scale 1.928999 m for each unit.
+| Sample | Hip ° | Knee ° | Ankle ° | Haunch gap cm | Lowest sole cm | Low foot corners within 5 mm | Center of mass behind the bench front cm | Center of mass height cm | Knee top cm | Knee top below the case cm | Legs behind the keys cm | Shoulder joints cm | Elbows above the key tops cm | Forearm slope up to the wrist ° | Knees in front of the belly cm | Head top cm |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| rest | 90 | 95 | 107 | 0.1 | 0.0 | 5% | -6.7 | 83.8 | 48.2 | 13.8 | 28.7 | 109.4 | 13.5 | -44.7 | 1.3 | 186.2 |
+| play, median | 76 | 95 | 107 | 0.1 | 0.0 | 5% | -15.9 | 81.3 | 47.6 | 14.4 | 28.7 | 106.7 | 15.1 | -12.7 | -4.8 | 171.9 |
+| play, most forward | 75 | 95 | 107 | 0.1 | 0.0 | 5% | -16.4 | 81.0 | 47.7 | 14.3 | 28.7 | 106.5 | 13.9 | -9.9 | -5.4 | 170.8 |

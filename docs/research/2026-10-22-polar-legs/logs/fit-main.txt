@@ -1,0 +1,35 @@
+
+> zoophony@0.0.0 hold-fit /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/polar-legs
+> node tools/hold-fit.ts pianist --base 2da5c8ec
+
+Hold fit of the pianist on 2da5c8ec (2da5c8ec) and on the working tree: 35.0 s.
+Demos of 2da5c8ec (2da5c8ec): bach-bwv1050, boulanger-matin
+Demos of the working tree: bach-bwv1050, boulanger-matin
+base (21.9 s):
+  faces that fold most: 2553 19.7%, 43 14.7%, 1762 13.5%, 1541 9.7%, 561 9.0%
+  play: upper arms in body: 9.3 cm at song 106.63 s, wall 118.25 s (upperArmL 0.92), boulanger-matin pianist 17 (polar-bear)
+  lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s, bach-bwv1050 pianist 16 (polar-bear)
+  rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s, bach-bwv1050 pianist 16 (polar-bear)
+  lower: upper arms in body: 11.4 cm at song 24.68 s, wall 13.00 s (upperArmR 0.85), bach-bwv1050 pianist 16 (polar-bear)
+
+| Variant | Play folds | Lift folds | Rest faces (by side) | play depth cm (limit) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | play turns: upper arm, paw (twist, swing) L / R |
+|---|---|---|---|---|---|---|---|---|---|
+| 2da5c8ec (2da5c8ec) | 50.1% (298/595) OVER | 48.4% (30/62) | 1 (L 1 / R 0 / other 0) | 9.3 upper arms>body (10.0) | 0.0 paws>body (1.5) | 0.0 paws>body (1.5) | 11.4 upper arms>body (12.0) | 0.0 (100.0%) | 73°, 45° (38°, 23°) / 74°, 45° (-38°, 25°) |
+| base | 50.1% (298/595) OVER | 48.4% (30/62) | 1 (L 1 / R 0 / other 0) | 9.3 upper arms>body (10.0) | 0.0 paws>body (1.5) | 0.0 paws>body (1.5) | 11.4 upper arms>body (12.0) | 0.0 (100.0%) | 73°, 45° (38°, 23°) / 74°, 45° (-38°, 25°) |
+
+The demo and the time of each deepest point of the table:
+| Variant | play deepest at | lift deepest at | rest deepest at | lower deepest at |
+|---|---|---|---|---|
+| 2da5c8ec (2da5c8ec) | boulanger-matin 106.63 s | bach-bwv1050 wall 0.00 s | bach-bwv1050 wall 0.00 s | bach-bwv1050 wall 13.00 s |
+| base | boulanger-matin 106.63 s | bach-bwv1050 wall 0.00 s | bach-bwv1050 wall 0.00 s | bach-bwv1050 wall 13.00 s |
+
+The depths of 2da5c8ec (2da5c8ec) and of the working tree with no change:
+H of each body, 2da5c8ec (2da5c8ec) -> working tree: polar-bear 0.453 m -> 0.453 m
+| Species | Set | Pair | 2da5c8ec (2da5c8ec) cm | 2da5c8ec (2da5c8ec) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| polar-bear | play | forearms in body | 6.7 | 0.147 | 6.7 | 0.147 |  | boulanger-matin 108.13 s |
+| polar-bear | play | upper arms in body | 9.3 | 0.205 | 9.3 | 0.205 |  | boulanger-matin 106.63 s |
+| polar-bear | lift | upper arms in body | 0.9 | 0.019 | 0.9 | 0.019 |  | bach-bwv1050 wall 10.60 s |
+| polar-bear | lower | forearms in body | 6.7 | 0.147 | 6.7 | 0.147 |  | boulanger-matin wall 12.00 s |
+| polar-bear | lower | upper arms in body | 11.4 | 0.252 | 11.4 | 0.252 |  | bach-bwv1050 wall 13.00 s |
+pnpm hold-fit pianist --base 2da5c8ec  87.96s user 1.52s system 190% cpu 47.033 total

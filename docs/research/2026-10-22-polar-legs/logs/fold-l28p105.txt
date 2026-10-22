@@ -1,0 +1,16 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/polar-legs
+> node tools/fold-probe.ts pianist --set piano.lean\=28deg\;piano.palmL\=0\,0.105\,0.12\;piano.palmR\=0\,0.105\,0.12
+
+Hold changes: piano.lean=28deg;piano.palmL=0,0.105,0.12;piano.palmR=0,0.105,0.12
+Folded faces of the studio body of the pianist (3123 faces), play step 0.25 s.
+Demos: bach-bwv1047.mid, bach-bwv1048.mid, bach-bwv1050.mid, boulanger-matin.mid
+
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 4 | 1 | 25.0% | 1 (L 0 / R 1 / other 0) | bach-bwv1047.mid rest |
+| play | 4812 | 2073 | 43.1% | 9 (L 1 / R 0 / other 8) | bach-bwv1050.mid 21.05 s |
+| lift | 124 | 78 | 62.9% | 7 (L 0 / R 0 / other 7) | bach-bwv1047.mid wall 1.7 s |
+| all | 4940 | 2152 | 43.6% | 9 (L 1 / R 0 / other 8) | bach-bwv1050.mid 21.05 s |
+
+Folded faces of all samples by the main studio bone: head 1410,  1408, forearm_R 971, chest 865, upper_arm_L 53, hand_R 2

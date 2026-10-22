@@ -1,0 +1,62 @@
+
+> zoophony@0.0.0 hold-fit /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/polar-legs
+> node tools/hold-fit.ts pianist --glb scratch/rigs/variant-2.glb --set piano.lean\=28deg\;piano.poleL\=-1\,0\,0\;piano.poleR\=1\,0\,0 --set piano.lean\=28deg\;piano.poleL\=-1\,-0.2\,-0.4\;piano.poleR\=1\,-0.2\,-0.4 --set piano.lean\=28deg\;piano.poleL\=-1\,-0.2\,0.4\;piano.poleR\=1\,-0.2\,0.4 --set piano.lean\=28deg\;piano.palmL\=0\,0.12\,0.12\;piano.palmR\=0\,0.12\,0.12 --set piano.lean\=26deg\;piano.poleL\=-1\,0\,0\;piano.poleR\=1\,0\,0
+
+Hold fit of the pianist: play folds at a step of 1 s, the sweep of the pianist with the bodies of the role.
+Demos: bach-bwv1050, boulanger-matin
+base (22.2 s):
+  faces that fold most: 44 31.6%, 43 29.6%, 1762 19.7%, 1228 15.0%, 1541 9.7%
+  play: upper arms in body: 11.8 cm at song 218.55 s, wall 230.25 s (upperArmR 0.58), bach-bwv1050 pianist 16 (polar-bear)
+  lift: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  rest: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  lower: upper arms in body: 12.3 cm at song 24.68 s, wall 13.00 s (upperArmR 0.91), bach-bwv1050 pianist 16 (polar-bear)
+piano.lean=28deg;piano.poleL=-1,0,0;piano.poleR=1,0,0 (22.6 s):
+  faces that fold most: 43 42.6%, 44 22.0%, 1762 14.7%, 1541 9.7%, 561 9.0%
+  play: forearms in body: 8.8 cm at song 108.13 s, wall 119.75 s (forearmL 0.47), boulanger-matin pianist 17 (polar-bear)
+  lift: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  rest: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  lower: upper arms in body: 12.4 cm at song 24.68 s, wall 12.50 s (upperArmR 0.85), bach-bwv1050 pianist 16 (polar-bear)
+piano.lean=28deg;piano.poleL=-1,-0.2,-0.4;piano.poleR=1,-0.2,-0.4 (22.1 s):
+  faces that fold most: 43 20.3%, 44 19.9%, 1762 15.9%, 1541 9.7%, 561 9.0%
+  play: forearms in body: 9.0 cm at song 108.13 s, wall 119.75 s (forearmL 0.47), boulanger-matin pianist 17 (polar-bear)
+  lift: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  rest: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  lower: upper arms in body: 12.6 cm at song 24.68 s, wall 12.50 s (upperArmR 0.85), bach-bwv1050 pianist 16 (polar-bear)
+piano.lean=28deg;piano.poleL=-1,-0.2,0.4;piano.poleR=1,-0.2,0.4 (22.1 s):
+  faces that fold most: 43 17.3%, 44 17.0%, 1762 16.7%, 1228 13.1%, 1541 9.7%
+  play: upper arms in body: 11.2 cm at song 252.80 s, wall 264.50 s (upperArmR 0.57), bach-bwv1050 pianist 16 (polar-bear)
+  lift: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  rest: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  lower: upper arms in body: 13.9 cm at song 24.68 s, wall 13.00 s (upperArmR 0.91), bach-bwv1050 pianist 16 (polar-bear)
+piano.lean=28deg;piano.palmL=0,0.12,0.12;piano.palmR=0,0.12,0.12 (22.3 s):
+  faces that fold most: 43 17.6%, 1762 15.6%, 44 11.4%, 1541 9.7%, 561 9.0%
+  play: upper arms in body: 9.6 cm at song 252.80 s, wall 264.50 s (upperArmR 0.57), bach-bwv1050 pianist 16 (polar-bear)
+  lift: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  rest: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  lower: forearms in body: 8.7 cm at song 107.95 s, wall 12.00 s (forearmL 0.47), boulanger-matin pianist 17 (polar-bear)
+piano.lean=26deg;piano.poleL=-1,0,0;piano.poleR=1,0,0 (21.7 s):
+  faces that fold most: 43 50.8%, 44 34.7%, 1762 16.4%, 1541 9.7%, 561 9.0%
+  play: upper arms in body: 10.7 cm at song 252.80 s, wall 264.50 s (upperArmR 0.85), bach-bwv1050 pianist 16 (polar-bear)
+  lift: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  rest: upper arms in body: 7.8 cm at song -1.70 s, wall 10.00 s (upperArmR 0.66), bach-bwv1050 pianist 16 (polar-bear)
+  lower: upper arms in body: 12.1 cm at song 24.68 s, wall 10.50 s (upperArmR 0.85), bach-bwv1050 pianist 16 (polar-bear)
+
+| Variant | Play folds | Lift folds | Rest faces (by side) | play depth cm (limit) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | play turns: upper arm, paw (twist, swing) L / R |
+|---|---|---|---|---|---|---|---|---|---|
+| base | 52.8% (314/595) OVER | 85.5% (53/62) | 3 (L 0 / R 2 / other 1) | 11.8 upper arms>body (10.0) OVER | 7.8 upper arms>body (3.0) OVER | 7.8 upper arms>body (3.0) OVER | 12.3 upper arms>body (12.0) OVER | 38.6 (94.0%) | 81°, 60° (49°, 36°) / 82°, 60° (-48°, 37°) |
+| piano.lean=28deg;piano.poleL=-1,0,0;piano.poleR=1,0,0 | 59.7% (355/595) OVER | 93.5% (58/62) | 3 (L 0 / R 2 / other 1) | 8.8 forearms>body (9.0) | 7.8 upper arms>body (3.0) OVER | 7.8 upper arms>body (3.0) OVER | 12.4 upper arms>body (12.0) OVER | 9.0 (99.7%) | 85°, 57° (43°, 39°) / 86°, 58° (-43°, 40°) |
+| piano.lean=28deg;piano.poleL=-1,-0.2,-0.4;piano.poleR=1,-0.2,-0.4 | 41.0% (244/595) OVER | 66.1% (41/62) | 3 (L 0 / R 2 / other 1) | 9.0 forearms>body (9.0) | 7.8 upper arms>body (3.0) OVER | 7.8 upper arms>body (3.0) OVER | 12.6 upper arms>body (12.0) OVER | 9.0 (99.7%) | 80°, 59° (49°, 34°) / 81°, 59° (-49°, 35°) |
+| piano.lean=28deg;piano.poleL=-1,-0.2,0.4;piano.poleR=1,-0.2,0.4 | 39.8% (237/595) OVER | 66.1% (41/62) | 3 (L 0 / R 2 / other 1) | 11.2 upper arms>body (10.0) OVER | 7.8 upper arms>body (3.0) OVER | 7.8 upper arms>body (3.0) OVER | 13.9 upper arms>body (12.0) OVER | 9.0 (99.7%) | 76°, 61° (54°, 30°) / 77°, 62° (-54°, 31°) |
+| piano.lean=28deg;piano.palmL=0,0.12,0.12;piano.palmR=0,0.12,0.12 | 42.7% (254/595) OVER | 66.1% (41/62) | 3 (L 0 / R 2 / other 1) | 9.6 upper arms>body (10.0) | 7.8 upper arms>body (3.0) OVER | 7.8 upper arms>body (3.0) OVER | 8.7 forearms>body (9.0) | 0.0 (100.0%) | 76°, 56° (49°, 28°) / 77°, 57° (-49°, 30°) |
+| piano.lean=26deg;piano.poleL=-1,0,0;piano.poleR=1,0,0 | 69.4% (413/595) OVER | 93.5% (58/62) | 3 (L 0 / R 2 / other 1) | 10.7 upper arms>body (10.0) OVER | 7.8 upper arms>body (3.0) OVER | 7.8 upper arms>body (3.0) OVER | 12.1 upper arms>body (12.0) OVER | 23.7 (98.6%) | 86°, 58° (42°, 40°) / 87°, 58° (-42°, 42°) |
+
+The demo and the time of each deepest point of the table:
+| Variant | play deepest at | lift deepest at | rest deepest at | lower deepest at |
+|---|---|---|---|---|
+| base | bach-bwv1050 218.55 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 13.00 s |
+| piano.lean=28deg;piano.poleL=-1,0,0;piano.poleR=1,0,0 | boulanger-matin 108.13 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 12.50 s |
+| piano.lean=28deg;piano.poleL=-1,-0.2,-0.4;piano.poleR=1,-0.2,-0.4 | boulanger-matin 108.13 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 12.50 s |
+| piano.lean=28deg;piano.poleL=-1,-0.2,0.4;piano.poleR=1,-0.2,0.4 | bach-bwv1050 252.80 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 13.00 s |
+| piano.lean=28deg;piano.palmL=0,0.12,0.12;piano.palmR=0,0.12,0.12 | bach-bwv1050 252.80 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 10.00 s | boulanger-matin wall 12.00 s |
+| piano.lean=26deg;piano.poleL=-1,0,0;piano.poleR=1,0,0 | bach-bwv1050 252.80 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 10.50 s |
+pnpm hold-fit pianist --glb scratch/rigs/variant-2.glb --set  --set  --set     149.68s user 1.30s system 103% cpu 2:25.61 total
