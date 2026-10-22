@@ -302,7 +302,10 @@ export class StageScene {
       this.#restoreEnvironment();
     });
     const format = targetFormatOf(this.#renderer);
-    this.#post = format === 'none' ? null : new PostPipeline(this.#renderer, format, options.tier);
+    this.#post =
+      format === 'none'
+        ? null
+        : new PostPipeline(this.#renderer, format, options.tier, this.#variants);
   }
 
   /**
@@ -352,6 +355,7 @@ export class StageScene {
           hidden: beam ? [playerGroup, props, beam] : [playerGroup, props],
         })
       : null;
+    this.#variants.useScene(scene);
     // The new scene takes its shader programs before the old scene frees its materials, so the
     // renderer keeps the programs that both use.
     this.#renderer.compile(scene, camera.camera);
@@ -588,7 +592,8 @@ export class StageScene {
     const depthPass = beamGroup instanceof Group;
     if (depthPass) {
       this.#holdPose(view);
-      this.#beamDepth.render(this.#renderer, view.scene, camera, [...view.effects, view.hall]);
+      const hidden = [...view.effects, view.hall];
+      this.#beamDepth.render(this.#renderer, view.scene, camera, hidden, this.#variants);
       setBeamFrame(beamGroup, {
         stageSide: view.stageSide,
         factor: beam,

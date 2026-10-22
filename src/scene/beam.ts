@@ -10,7 +10,6 @@ import {
   LatheGeometry,
   LinearFilter,
   Mesh,
-  MeshBasicMaterial,
   Points,
   RedFormat,
   RepeatWrapping,
@@ -639,6 +638,16 @@ export function setBeamTier(beam: Group, tier: QualityTier): void {
   }
 }
 
+/** The draw of a depth pass with a depth material for each mesh (`VariantMaterials`). */
+export interface DepthDraw {
+  /**
+   * Draws with the depth materials in place of the materials of the meshes.
+   *
+   * @param draw Renders the scene.
+   */
+  renderDepth(draw: () => void): void;
+}
+
 /** The parts of the renderer that the depth pass of the beam uses. A `WebGLRenderer` has them. */
 export interface DepthRenderer {
   getRenderTarget(): WebGLRenderTarget | null;
@@ -656,8 +665,6 @@ export interface DepthRenderer {
 export class BeamDepth {
   readonly #target: WebGLRenderTarget;
   readonly #texture: DepthTexture;
-  /** The material of the depth pass. The color that it writes is not read. */
-  readonly #material = new MeshBasicMaterial({ colorWrite: false });
   #width = 1;
   #height = 1;
 
@@ -707,33 +714,35 @@ export class BeamDepth {
    * @param scene The scene.
    * @param camera The camera.
    * @param hidden The objects to hide.
+   * @param depth Draws with a depth material that writes no color in place of the material of
+   *   each mesh (`VariantMaterials.renderDepth()`).
    */
   render(
     renderer: DepthRenderer,
     scene: Scene,
     camera: PerspectiveCamera,
     hidden: readonly Object3D[],
+    depth: DepthDraw,
   ): void {
     const visible = hidden.map((object) => object.visible);
     for (const object of hidden) {
       object.visible = false;
     }
-    scene.overrideMaterial = this.#material;
     const target = renderer.getRenderTarget();
     renderer.setRenderTarget(this.#target);
-    renderer.render(scene, camera);
+    depth.renderDepth(() => {
+      renderer.render(scene, camera);
+    });
     renderer.setRenderTarget(target);
-    scene.overrideMaterial = null;
     for (const [i, object] of hidden.entries()) {
       object.visible = visible[i] ?? true;
     }
   }
 
-  /** Frees the target, the depth texture, and the material. */
+  /** Frees the target and the depth texture. */
   dispose(): void {
     this.#texture.dispose();
     this.#target.dispose();
-    this.#material.dispose();
   }
 }
 

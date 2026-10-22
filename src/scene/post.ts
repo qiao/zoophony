@@ -6,7 +6,6 @@ import {
   LinearFilter,
   Matrix4,
   Mesh,
-  MeshBasicMaterial,
   NoBlending,
   OrthographicCamera,
   RGBAFormat,
@@ -24,6 +23,7 @@ import type { Object3D, PerspectiveCamera, Scene, Texture, WebGLRenderer } from 
 
 import type { Vec3 } from '../models/tuples.ts';
 
+import type { DepthDraw } from './beam.ts';
 import { LENS } from './focus.ts';
 import { gradeLut } from './grade.ts';
 import type { Focus } from './focus.ts';
@@ -320,10 +320,11 @@ export class PostPipeline {
   #blurGather: ShaderMaterial;
   #final: ShaderMaterial;
   /**
-   * The material of the depth pass. The resolve of the depth of the multisample target cost
-   * 2.1 ms on the development Mac, and a separate pass at half size costs less.
+   * The draw of the depth pass of the depth of field with the depth materials of the meshes. The
+   * resolve of the depth of the multisample target cost 2.1 ms on the development Mac, and a
+   * separate pass at half size costs less.
    */
-  readonly #depthMaterial = new MeshBasicMaterial({ colorWrite: false });
+  readonly #depth: DepthDraw;
   #width = 0;
   #height = 0;
 
@@ -333,11 +334,14 @@ export class PostPipeline {
    * @param renderer The renderer of the canvas.
    * @param format The color format of the targets. It is not `none`.
    * @param tier The quality tier. It sets the bloom levels and the samples of the blur.
+   * @param depth Draws the depth pass of the depth of field with a depth material that writes no
+   *   color in place of the material of each mesh (`VariantMaterials.renderDepth()`).
    */
-  constructor(renderer: WebGLRenderer, format: TargetFormat, tier: QualityTier) {
+  constructor(renderer: WebGLRenderer, format: TargetFormat, tier: QualityTier, depth: DepthDraw) {
     this.#renderer = renderer;
     this.#format = format;
     this.#tier = tier;
+    this.#depth = depth;
     const geometry = new BufferGeometry();
     // One triangle that covers the view.
     geometry.setAttribute(
@@ -457,7 +461,6 @@ export class PostPipeline {
       this.#blurPrepare,
       this.#blurGather,
       this.#final,
-      this.#depthMaterial,
     ]) {
       material.dispose();
     }
@@ -556,10 +559,10 @@ export class PostPipeline {
     for (const effect of effects) {
       effect.visible = false;
     }
-    scene.overrideMaterial = this.#depthMaterial;
     renderer.setRenderTarget(depth);
-    renderer.render(scene, camera);
-    scene.overrideMaterial = null;
+    this.#depth.renderDepth(() => {
+      renderer.render(scene, camera);
+    });
     for (const effect of effects) {
       effect.visible = true;
     }

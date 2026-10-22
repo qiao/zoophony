@@ -1,5 +1,5 @@
-import { MeshDepthMaterial, SkinnedMesh } from 'three';
-import type { Mesh, MeshStandardMaterial } from 'three';
+import { Mesh, MeshBasicMaterial, MeshDepthMaterial, SkinnedMesh } from 'three';
+import type { Material, MeshStandardMaterial, Object3D } from 'three';
 
 /**
  * Gives the program variant of a mesh (design 4.5): the parts of a mesh that select the shader
@@ -32,10 +32,36 @@ export function programVariant(mesh: Mesh): string {
 }
 
 /**
+ * Tells if an object draws into the depth passes of a frame: a mesh whose materials each write
+ * depth. The light effects write no depth, and the depth passes hide them.
+ *
+ * @param object The object.
+ * @returns True for such a mesh.
+ */
+function writesDepth(object: Object3D): object is Mesh {
+  if (!(object instanceof Mesh)) {
+    return false;
+  }
+  const own: readonly Material[] = Array.isArray(object.material)
+    ? object.material
+    : [object.material];
+  return own.every((material) => material.depthWrite);
+}
+
+/** A mesh of a depth pass, and its depth material in the form of its own material. */
+interface DepthMesh {
+  readonly mesh: Mesh;
+  /** The depth material of the variant of the mesh. */
+  readonly depth: MeshBasicMaterial;
+  /** The depth material once for each material of a mesh with a list of materials. */
+  list: MeshBasicMaterial[];
+}
+
+/**
  * The materials of each program variant of the players (design 4.5): a copy of the shared material
- * for the scene pass, and a depth material for the shadow maps. Each copy and each depth material
- * keeps the program of its variant, so no draw of a frame looks up a program again
- * ({@link programVariant}).
+ * for the scene pass, a depth material for the shadow maps, and a depth material for the depth
+ * passes of the beam and of the depth of field. Each copy and each depth material keeps the
+ * program of its variant, so no draw of a frame looks up a program again ({@link programVariant}).
  * The copies have the values, the textures, and the shader patch of the shared material, so they
  * use the same programs and give the same pixels.
  */
@@ -45,6 +71,12 @@ export class VariantMaterials {
   readonly #copies = new Map<string, MeshStandardMaterial[]>();
   /** The depth materials of the shadow maps, by variant. */
   readonly #shadows = new Map<string, MeshDepthMaterial>();
+  /** The depth materials of the depth passes, by variant. */
+  readonly #depths = new Map<string, MeshBasicMaterial>();
+  /** The meshes of the depth passes of the current scene. */
+  #depthMeshes: DepthMesh[] = [];
+  /** The own material of each mesh of {@link VariantMaterials.renderDepth}, during the render. */
+  readonly #own: (Material | Material[])[] = [];
 
   /**
    * Creates no material until a scene needs it.
@@ -94,12 +126,82 @@ export class VariantMaterials {
     }
   }
 
+  /**
+   * Finds the meshes of the depth passes of a scene: each mesh whose materials write depth.
+   *
+   * @param scene The scene of the layout.
+   */
+  useScene(scene: Object3D): void {
+    const meshes: DepthMesh[] = [];
+    scene.traverse((object) => {
+      if (writesDepth(object)) {
+        meshes.push({ mesh: object, depth: this.#depthOf(object), list: [] });
+      }
+    });
+    this.#depthMeshes = meshes;
+  }
+
+  /**
+   * Draws a depth pass with the depth material of the variant of each mesh in place of its own
+   * material, as `Scene.overrideMaterial` does with one material for all meshes. A mesh with a
+   * list of materials gets the depth material once for each, so each group draws as before. The
+   * depth material writes no color, and the order of the draws does not change a depth.
+   *
+   * @param draw Renders the scene.
+   */
+  renderDepth(draw: () => void): void {
+    const own = this.#own;
+    own.length = 0;
+    for (const entry of this.#depthMeshes) {
+      const material = entry.mesh.material;
+      own.push(material);
+      if (Array.isArray(material)) {
+        if (entry.list.length !== material.length) {
+          entry.list = material.map(() => entry.depth);
+        }
+        entry.mesh.material = entry.list;
+      } else {
+        entry.mesh.material = entry.depth;
+      }
+    }
+    try {
+      draw();
+    } finally {
+      for (const [i, entry] of this.#depthMeshes.entries()) {
+        const material = own[i];
+        if (material) {
+          entry.mesh.material = material;
+        }
+      }
+      own.length = 0;
+    }
+  }
+
   /** Frees each copy and each depth material. The shared material stays. */
   dispose(): void {
-    for (const material of [...this.copies, ...this.#shadows.values()]) {
+    for (const material of [...this.copies, ...this.#shadows.values(), ...this.#depths.values()]) {
       material.dispose();
     }
     this.#copies.clear();
     this.#shadows.clear();
+    this.#depths.clear();
+    this.#depthMeshes = [];
+  }
+
+  /**
+   * Gives the depth material of the variant of a mesh: it writes no color, as the material of
+   * the depth passes of the beam and of the depth of field before this cut.
+   *
+   * @param mesh The mesh.
+   * @returns The material.
+   */
+  #depthOf(mesh: Mesh): MeshBasicMaterial {
+    const variant = programVariant(mesh);
+    let material = this.#depths.get(variant);
+    if (!material) {
+      material = new MeshBasicMaterial({ colorWrite: false });
+      this.#depths.set(variant, material);
+    }
+    return material;
   }
 }

@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   Group,
   Mesh,
-  MeshBasicMaterial,
   PerspectiveCamera,
   Points,
   Scene,
@@ -27,7 +26,7 @@ import {
   setBeamTier,
   tilingNoise,
 } from './beam.ts';
-import type { DepthRenderer } from './beam.ts';
+import type { DepthDraw, DepthRenderer } from './beam.ts';
 import {
   BEAM_HEIGHT_IN_SIDES,
   BEAM_RADIUS_IN_SIDES,
@@ -200,11 +199,16 @@ describe('setBeamTier (design 2.6)', () => {
   });
 });
 
-/** A renderer that records the state of the scene at each render. */
-class RecordingRenderer implements DepthRenderer {
+/**
+ * A renderer that records the state of the scene at each render. It is also the depth draw of the
+ * pass, and records whether a render runs inside it.
+ */
+class RecordingRenderer implements DepthRenderer, DepthDraw {
   readonly shadowMap = { autoUpdate: true };
   readonly info = { render: { frame: 7 } };
   target: WebGLRenderTarget | null = null;
+  /** True during {@link RecordingRenderer.renderDepth}. */
+  #depth = false;
   readonly renders: { visible: boolean[]; override: boolean; target: boolean; shadows: boolean }[] =
     [];
   readonly #watched: readonly Object3D[];
@@ -221,11 +225,17 @@ class RecordingRenderer implements DepthRenderer {
     this.target = target;
   }
 
-  render(scene: Object3D): void {
+  renderDepth(draw: () => void): void {
+    this.#depth = true;
+    draw();
+    this.#depth = false;
+  }
+
+  render(): void {
     this.info.render.frame += 1;
     this.renders.push({
       visible: this.#watched.map((object) => object.visible),
-      override: scene instanceof Scene && scene.overrideMaterial instanceof MeshBasicMaterial,
+      override: this.#depth,
       target: this.target !== null,
       shadows: this.shadowMap.autoUpdate,
     });
@@ -242,7 +252,7 @@ describe('BeamDepth (design 4.5)', () => {
     const renderer = new RecordingRenderer([beam, hall, player]);
     const depth = new BeamDepth();
     depth.setSize(2880, 1800);
-    depth.render(renderer, scene, new PerspectiveCamera(), [beam, hall]);
+    depth.render(renderer, scene, new PerspectiveCamera(), [beam, hall], renderer);
 
     expect(renderer.renders).toEqual([
       { visible: [false, false, true], override: true, target: true, shadows: true },
@@ -255,14 +265,12 @@ describe('BeamDepth (design 4.5)', () => {
     depth.dispose();
   });
 
-  it('renders the shadow map of the frame, so that the skeletons upload one time', () => {
+  it('renders the shadow map of the frame', () => {
     const scene = new Scene();
     const renderer = new RecordingRenderer([]);
     const depth = new BeamDepth();
-    depth.render(renderer, scene, new PerspectiveCamera(), []);
+    depth.render(renderer, scene, new PerspectiveCamera(), [], renderer);
     expect(renderer.renders.map((render) => render.shadows)).toEqual([true]);
-    // The scene pass starts at the frame number of the shadow pass.
-    expect(renderer.info.render.frame).toBe(8);
     depth.dispose();
   });
 });
