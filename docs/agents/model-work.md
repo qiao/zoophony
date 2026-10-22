@@ -16,7 +16,7 @@ fox together.
 | Species | Body | Main decision file | Role |
 |---|---|---|---|
 | bear | the mesh `assets/models/bear/bear-mesh.glb`, rigged by `pnpm rig-mesh bear` from a copy with raised shoulder balls (`bear-mesh-roots.glb`) near the size of the studio bear, with the arms of the mesh, a cut of each arm seam, a tail ball, and the baton along the index finger, standing on the podium | `2026-10-22-mesh-bear.md` | `conductor` |
-| polar-bear | the mesh `assets/models/polar-bear/polar-bear-mesh.glb`, rigged by `pnpm rig-mesh polar-bear` at the skull top of the studio polar bear, with arms 1.25, a cut of each arm seam, a twist bone of each upper arm, and a tail ball, on level thighs from hip joints in the haunch, on a piano bench that fits its legs | `2026-10-22-mesh-polar-bear.md` | `pianist` |
+| polar-bear | the mesh `assets/models/polar-bear/polar-bear-mesh.glb`, rigged by `pnpm rig-mesh polar-bear` at the skull top of the studio polar bear, with arms 1.25 and legs 1.6 at the scale of the mesh legs, a cut of each arm seam, a twist bone of each upper arm, and a tail ball, on level thighs from hip joints in the haunch, on a piano bench that fits its legs | `2026-10-22-mesh-polar-bear.md` | `pianist` |
 | rabbit | the mesh `assets/models/rabbit/rabbit-4.glb`, rigged by `pnpm rig-mesh rabbit` from a copy with a shallower notch under the right arm, rounder upper arms, and a round inner side of each arm (`rabbit-4-elbows.glb`) | `2026-10-13-mesh-rabbit.md` | `violinist` |
 | fox-red | the mesh `assets/models/fox/fox.glb`, rigged by `pnpm rig-mesh fox`, with a tail of two bones | `2026-10-14-mesh-fox.md` | `fox-violinist` |
 | fox-tan | the rig of the red fox with a tan palette | `2026-10-14-fox-flute.md` | `flutist` |
