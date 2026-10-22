@@ -1,0 +1,8 @@
+base: cached (141bc67a, 6c9811ad9060)
+Folded faces of the studio body of the pianist on 141bc67a (141bc67a) and on the working tree: 22.8 s.
+
+| Set | 141bc67a (141bc67a) | Working tree |
+|---|---:|---:|
+| rest | 0.0% (0/4), most 0 (L 0 / R 0 / other 0) | 100.0% (4/4), most 1 (L 1 / R 0 / other 0) |
+| play | 9.6% (460/4812), most 2 (L 2 / R 0 / other 0) | 52.2% (2512/4812), most 10 (L 1 / R 0 / other 9) |
+| lift | 14.5% (18/124), most 1 (L 0 / R 0 / other 1) | 75.8% (94/124), most 6 (L 0 / R 0 / other 6) |

@@ -1,0 +1,6 @@
+
+> zoophony@0.0.0 hold-reach /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/mesh-polar-bear
+> node tools/hold-reach.ts polar-bear --instrument piano
+
+--instrument takes one of: violin, viola, flute, oboe, clarinet, bassoon, horn, trumpet, trombone, tuba, timpani, bass-drum, snare-drum, cymbals, small-percussion, xylophone.
+ ELIFECYCLE  Command failed with exit code 1.

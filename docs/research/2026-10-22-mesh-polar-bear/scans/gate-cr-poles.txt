@@ -1,0 +1,47 @@
+base: cached (141bc67a, 72a9ac300c3c)
+base: cached (141bc67a, 72a9ac300c3c)
+base: cached (141bc67a, 72a9ac300c3c)
+base: cached (141bc67a, 72a9ac300c3c)
+Arm gate of 1 roles in 4 variants against 141bc67a: 4 children, at most 4 at the same time, in 71 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+- a: piano.poleL=-1,0.2,-0.2
+- b: piano.poleL=-1,0.4,0
+- c: piano.poleL=-1,0,0
+- d: piano.poleL=-1,0.2,0.3
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| a | pianist | L | 3 (0) FAIL | 36 (26) | 14 (19) | 0.75 (0.68) | 42 (59) | 50 (45) | 0.0% (0.0%) | 0.17 (0.16) | 12 (6) | 42 (56) | 205 (164) | FAIL |
+| a | pianist | R | 2 (0) | 32 (26) | 13 (17) | 0.85 (0.74) | 36 (53) | 51 (47) | 0.0% (0.0%) | 0.11 (0.14) | 24 (19) | 36 (54) | 188 (180) | PASS |
+| b | pianist | L | 3 (0) FAIL | 40 (26) FAIL | 13 (19) | 0.76 (0.68) | 42 (59) | 58 (45) | 0.0% (0.0%) | 0.16 (0.16) | 18 (6) | 42 (56) | 220 (164) | FAIL |
+| b | pianist | R | 2 (0) | 32 (26) | 13 (17) | 0.85 (0.74) | 36 (53) | 51 (47) | 0.0% (0.0%) | 0.11 (0.14) | 24 (19) | 36 (54) | 188 (180) | PASS |
+| c | pianist | L | 3 (0) FAIL | 31 (26) | 16 (19) | 0.75 (0.68) | 43 (59) | 42 (45) | 0.0% (0.0%) | 0.17 (0.16) | 6 (6) | 43 (56) | 186 (164) | FAIL |
+| c | pianist | R | 2 (0) | 32 (26) | 13 (17) | 0.85 (0.74) | 36 (53) | 51 (47) | 0.0% (0.0%) | 0.11 (0.14) | 24 (19) | 36 (54) | 188 (180) | PASS |
+| d | pianist | L | 3 (0) FAIL | 37 (26) FAIL | 14 (19) | 0.76 (0.68) | 42 (59) | 49 (45) | 0.0% (0.0%) | 0.16 (0.16) | 12 (6) | 42 (56) | 203 (164) | FAIL |
+| d | pianist | R | 2 (0) | 32 (26) | 13 (17) | 0.85 (0.74) | 36 (53) | 51 (47) | 0.0% (0.0%) | 0.11 (0.14) | 24 (19) | 36 (54) | 188 (180) | PASS |
+
+Variant a:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| pianist | L | folds p95 | play | 4812 | 0 | 3 | 24.0% | 5 at bach-bwv1050.mid 155.30 s | 3 | 8 | 0 | FAIL |
+
+Variant b:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| pianist | L | folds p95 | play | 4812 | 0 | 3 | 26.8% | 6 at bach-bwv1050.mid 145.30 s | 3 | 8 | 0 | FAIL |
+| pianist | L | twist p95 | play | 4812 | 33 | 40 | 100.0% | 40 at bach-bwv1050.mid 40.55 s | 40 | 55 | 26 | FAIL |
+
+Variant c:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| pianist | L | folds p95 | play | 4812 | 0 | 3 | 22.1% | 5 at bach-bwv1050.mid 14.05 s | 3 | 8 | 0 | FAIL |
+
+Variant d:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| pianist | L | folds p95 | play | 4812 | 0 | 3 | 24.4% | 6 at bach-bwv1050.mid 278.30 s | 3 | 8 | 0 | FAIL |
+| pianist | L | twist p95 | play | 4812 | 31 | 37 | 100.0% | 38 at bach-bwv1050.mid 47.55 s | 37 | 55 | 26 | FAIL |

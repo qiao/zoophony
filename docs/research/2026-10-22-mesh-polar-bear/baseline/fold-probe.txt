@@ -1,0 +1,15 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/mesh-polar-bear
+> node tools/fold-probe.ts pianist
+
+Folded faces of the studio body of the pianist (2088 faces), play step 0.25 s.
+Demos: bach-bwv1047.mid, bach-bwv1048.mid, bach-bwv1050.mid, boulanger-matin.mid
+
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 4 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| play | 4812 | 460 | 9.6% | 2 (L 2 / R 0 / other 0) | boulanger-matin.mid 108.13 s |
+| lift | 124 | 18 | 14.5% | 1 (L 0 / R 0 / other 1) | bach-bwv1047.mid wall 1.3 s |
+| all | 4940 | 478 | 9.7% | 2 (L 2 / R 0 / other 0) | boulanger-matin.mid 108.13 s |
+
+Folded faces of all samples by the main studio bone: head 476, upper_arm_L 2, clavicle_L 1

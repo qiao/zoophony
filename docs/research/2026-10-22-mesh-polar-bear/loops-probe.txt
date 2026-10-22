@@ -1,0 +1,4 @@
+polar-bear: 3 open loops
+  16 edges, length 1.886 m, middle 0.398, 1.107, -0.162, bones shoulderR 13, neck 3
+  2 edges, length 0.082 m, middle 0.312, 0.976, -0.275, bones chest 2
+  21 edges, length 2.307 m, middle -0.387, 1.111, -0.192, bones shoulderL 17, neck 4
