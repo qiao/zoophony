@@ -287,7 +287,7 @@
       "note": "The round arm touches the side of the trunk from y 0.46 to 0.5, and the belly bulges out to x 0.257 at y 0.25, beside the paw (sections-y.txt). A vertex of the free arm lies beyond the plane |x| = armSplit, within radius of the chain of the arm joints, and above the floor, so that the belly beside the arm and the paw is not a part of it (arm-free.txt)."
     },
     "stretchRamp": 0,
-    "headFrom": 0.73,
+    "headFrom": 0.79,
     "earBase": [
       0.93,
       0.95
@@ -298,8 +298,8 @@
         0.24,
         -0.21
       ],
-      "radius": 0.028,
-      "behind": -0.2
+      "radius": 0.035,
+      "behind": -0.185
     },
     "sliver": {
       "angle": 10,
@@ -331,7 +331,7 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the knee to 1 at the thigh joint, so that the round haunch stays on the hips, as for the hippo and the rhino."
     },
-    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, under the chin (y 0.72), each vertex follows the head only. Each round ear follows its ear bone above earBase, from its root at y 0.935. The short tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom, armTop, and shoulderHead are the rules of the rhino, moved with the shoulder joint (y 0.585) and the neck of the bear."
+    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, the narrowest cut of the neck at the sides (y 0.79), each vertex follows the head only. With headFrom 0.73 under the chin, the side of the neck had a hard seam between the neck and the head, and the head turns of the cues folded its faces in 3,182 samples. With 0.79, bone heat blends the neck into the head, and 814 samples fold (check-head.log). Each round ear follows its ear bone above earBase, from its root at y 0.935. The short tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. With the radius 0.028 and the plane at -0.2, a face of the root had a corner on the hips, and the sway of the tail folded it in 4,868 samples. The plane at -0.185 takes the whole root (check-head.log). clavicleFrom, armTop, and shoulderHead are the rules of the rhino, moved with the shoulder joint (y 0.585) and the neck of the bear."
   },
   "cut": {
     "top": 0.57,
