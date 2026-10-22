@@ -762,7 +762,10 @@ function measureLocked(label: string, root: string, args: readonly string[]): Si
     throw new Error(`The measure of ${label} failed with the status ${String(child.status)}.`);
   }
   // SAFETY: the child of this tool writes the file as a SiteResult.
-  return JSON.parse(readFileSync(out, 'utf8')) as SiteResult;
+  const result = JSON.parse(readFileSync(out, 'utf8')) as SiteResult;
+  rmSync(out, { force: true });
+  rmSync(out.replace(/\.json$/u, '-profile.json'), { force: true });
+  return result;
 }
 
 /**
