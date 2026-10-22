@@ -472,6 +472,15 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Polar bear tail: from behind, the short tail of the seated mesh polar bear shows a light
       jagged facet on its lower side in the play strip (`strip-az180.webp` of
       `docs/research/2026-10-22-mesh-polar-bear/`). Round it in a copy of the mesh.
+- [x] Bear armpit: the user wrote "the bear has deformed meshes under the arm". The free arm
+      takes the back strip of each arm root (`2026-10-22-bear-armpit.md`).
+- [ ] Bear arm gate: with the back strip on the arm, the rest arm hangs 2.2 cm to 2.5 cm further
+      out (`radiusOf()` of `pose/hang.ts`), and the move twist max of the right paw grows from 73°
+      to 79° (limit 176°, margin 3°), a `FAIL` of `pnpm arm-check conductor --base 5593e92b`.
+      Accept the new base, or let the hang read the upper arm below its root.
+- [ ] Bear notch: trunk faces of the notch below the caps of the cut still face down under each
+      raised arm, 19 cm² and 23 cm² against 5 cm² on the red fox (`flap-round.txt` of
+      `docs/research/2026-10-22-bear-armpit/`). No view shows them.
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
