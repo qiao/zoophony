@@ -591,15 +591,21 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   deer, so the skull top of the deer between its antlers took the skull top of the parametric deer,
   and then the user made the deer 1.2 times as large (`docs/decisions/2026-10-21-mesh-deer.md`). The crown of the penguin takes the head top of its egg
   body (`docs/decisions/2026-10-21-mesh-penguin.md`). The bear and the polar bear keep the size
-  of their studio bodies: the polar bear keeps the standing skull top of its studio body
-  (`docs/decisions/2026-10-22-mesh-polar-bear.md`).
+  of their studio bodies: the polar bear keeps the meters for each unit at which the skull top of
+  its mesh stands as high as the skull top of its studio body
+  (`docs/decisions/2026-10-22-mesh-polar-bear.md`). A leg factor raises the standing shoulder
+  joints of a rig, so the landmark of the polar bear rises with them, and its longer legs do not
+  make its trunk, head, and arms smaller (`docs/decisions/2026-10-22-polar-legs.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. A body with a `seat` of `ANIMALS` then rises to
-  that seat height. The polar bear sits on a piano bench that fits its short legs, so that its
+  that seat height. The polar bear sits on a piano bench that fits its legs, so that its
   feet touch the floor: its rig names its seat prop `bench` (`chair.prop`). Its hip joints lie
-  in the haunch and its knees at the bottom of the round body, so that the short thick thighs
-  turn forward to near level, and the bench reaches under them and holds the whole haunch
-  (`PIANO_BENCH`, `docs/decisions/2026-10-22-polar-seat.md`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
+  in the haunch and its knees at the bottom of the round body, so that the thick thighs turn
+  forward to near level, and the bench holds the whole haunch
+  (`PIANO_BENCH`, `docs/decisions/2026-10-22-polar-seat.md`). The short legs of the mesh gave a
+  low bench, and the round belly hid the lap, so the bear read almost as standing. Its thighs
+  and shins are longer than on the mesh, so that the knees stand out in front of the belly and
+  the bench is higher (`legFactor`, `docs/decisions/2026-10-22-polar-legs.md`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
   wolves have chairs that fit their legs, so that their feet touch the floor (user, 2026-10-16). The
   deer sits on the stool of the harp, which fits its legs too, with its whole haunch on the seat
   (user, 2026-10-21): the sit of its rig puts the underside of the haunch on the seat top, and
