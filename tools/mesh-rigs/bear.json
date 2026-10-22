@@ -413,7 +413,7 @@
           -0.0224
         ]
       ],
-      "note": "The brown fur of the mesh is lighter than the bear of orchestra-latest.png: in the play frame of the default camera (Boulanger at 30 s), the back of the bear has the Oklab lightness 0.482 against 0.330 in the reference image and 0.427 for the studio bear of main (tone.txt). As the panda rule asks, the fur takes the brown of the reference: a row is [L, dL, da, db] in Oklab, so that each fur face from the lightness 0.45 takes 0.72 of its lightness and 0.7 of its chroma at its hue (56 degrees). A face below 0.3 (the eyes and the nose) does not move, the tan muzzle (0.78 and more) keeps its color, and the claws and the toes keep theirs. The back then has the lightness 0.35 in the play frame (tone.txt)."
+      "note": "The brown fur of the mesh is lighter than the bear of orchestra-latest.png: in the play frame of the default camera (Boulanger at 30 s), the back of the bear has the Oklab lightness 0.482 against 0.330 in the reference image and 0.427 for the studio bear of main (tone.txt). As the panda rule asks, the fur takes the brown of the reference: a row is [L, dL, da, db] in Oklab, so that each fur face from the lightness 0.45 takes 0.72 of its lightness and 0.7 of its chroma at its hue (56 degrees). A face below 0.3 (the eyes and the nose) does not move, the tan muzzle (0.78 and more) keeps its color, and the claws and the toes keep theirs. The back then has the lightness 0.363, the hue 45 degrees, and the chroma 0.075 in the play frame (tone.txt)."
     },
     "noseBox": [
       [
