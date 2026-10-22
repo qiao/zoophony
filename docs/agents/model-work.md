@@ -15,7 +15,7 @@ fox together.
 
 | Species | Body | Main decision file | Role |
 |---|---|---|---|
-| bear | the studio bear (route 3) | `2026-10-12-studio-bear.md` | `conductor` |
+| bear | the mesh `assets/models/bear/bear-mesh.glb`, rigged by `pnpm rig-mesh bear` near the size of the studio bear, with the arms of the mesh, a cut of each arm seam, a tail ball, and the baton along the index finger, standing on the podium | `2026-10-22-mesh-bear.md` | `conductor` |
 | polar-bear | the studio polar bear (route 3) | `2026-10-12-studio-polar-bear.md` | `pianist` |
 | rabbit | the mesh `assets/models/rabbit/rabbit-4.glb`, rigged by `pnpm rig-mesh rabbit` from a copy with a shallower notch under the right arm, rounder upper arms, and a round inner side of each arm (`rabbit-4-elbows.glb`) | `2026-10-13-mesh-rabbit.md` | `violinist` |
 | fox-red | the mesh `assets/models/fox/fox.glb`, rigged by `pnpm rig-mesh fox`, with a tail of two bones | `2026-10-14-mesh-fox.md` | `fox-violinist` |

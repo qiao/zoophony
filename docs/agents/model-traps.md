@@ -7,6 +7,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 - The player hands turn freely at the wrist, but the studio skin bends well only near its clips. The
   retarget turns each paw in the plane of its palm toward the forearm (`PAW_TURN`).
+- The `palm` of a rig config sets the roll of the arm bones. The claws curl toward the palm, so read
+  the palm from their curl. The flat side of a paw can lie 90° from it. A palm 90° off twisted
+  each paw of the bear 122° at rest (`palm.txt` of `docs/research/2026-10-22-mesh-bear/`).
 - A role whose instrument moves to its rest place needs pose offsets in `poseStudioBones()`.
 - The holds are in head heights, and the baton keeps its length, so a smaller head moves the wrist
   along the baton. Set the baton point from the wrist that you want.
@@ -169,6 +172,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A thick arm can join the side of the trunk down to the paw, with a notch at its front and its
   back. Turn the plane of the free arm through both notches (`weights.armFree`, `arm_free.py` of
   `docs/research/2026-10-21-mesh-rhino/`), then cut the seam, else the seam stretches into spikes.
+- A cut that ends below the root of the arm leaves a face at its top that shows as a black triangle
+  on the back when the rest arm swings out around a belly. End the cut above the shoulder joint,
+  and give the caps of the body the skin normals (`cut-views.webp` of
+  `docs/research/2026-10-22-mesh-bear/`).
 - A limb far from the bind arm of the studio, as a flipper that hangs out and down, turns the faces
   of its root over in the bind, and they fold in each sample. Bind the upper arm nearer to the
   source limb (`studio.bindArms`), and count the folds of each bind with `rig-mesh --check --set`.
@@ -294,6 +301,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   `colors.smile`).
 
 ## Probe tools
+
+- `--views` of `pnpm arm-check` and `--at` of `pnpm close-views play` take no conductor. Aim a
+  camera in JSON at the podium of the demo (`conductorOn()`), as `stand-probe.ts` and the strips of
+  `docs/research/2026-10-22-mesh-bear/` do.
 
 - In the live Blender of MCP (port 9876), `bpy.ops.wm.read_factory_settings` stops the MCP
   server. Delete the objects in place of a reset. A script of the edit stays in the research
