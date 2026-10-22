@@ -1257,6 +1257,25 @@ the mockup is out of scope.
 - [x] Add a lens flare from the bloom levels (user "do it" on 2026-10-20). The user then asked
       to revert it on the same day. The report `docs/research/2026-10-20-lens-flare.md` keeps
       the measures.
+- [ ] Fetch the presets of the default demo before the first frame (round `perf-load`,
+      `docs/research/2026-10-21-load-performance.md`). On the Fast 4G phone run, the link is idle
+      for about 4.8 s while the main thread builds the scene, and the presets then take about
+      10 s. AGENTS.md loads the SoundFont files after the first frame, so this needs the user.
+      The fetches must start before the score build: a fetch after it waits for the 2.8 s task.
+- [ ] Move the layout, the pose plan, and the geometry of the players off the main thread of the
+      first frame, into a Worker or into the build: about 680 ms of the 740 ms task of the
+      default demo on the development Mac, and about 2.8 s on the phone run.
+- [ ] Remove the CPU skin of each player in the first frame: `SkinnedMesh.computeBoundingSphere()`
+      takes about 138 ms on the development Mac, for the depth sort of three.js. The owner of the
+      render loop decides, because a new sphere can change the draw order.
+- [ ] Compile the shaders of the stage without a block of the first frame (`compileAsync()`): about
+      335 ms of `setProgram()` in the first frame of the default demo on the development Mac.
+- [ ] Encode the hall impulse response as FLAC: about 177 KB in place of 480,044 B, if GitHub
+      Pages sends a WAV file with no gzip. Check `decodeAudioData()` in Chrome, Firefox, and
+      Safari against the samples of the WAV file first.
+- [ ] Decide on a service worker for the repeat visits (round `perf-load`). It saves the
+      revalidation of each file after the 600 s of `max-age` of GitHub Pages, and a new fetch of
+      an SF3 file that the HTTP cache dropped.
 
 Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
 passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
