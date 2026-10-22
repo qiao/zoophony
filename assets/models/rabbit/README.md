@@ -99,14 +99,16 @@ file of the user, byte for byte.
 | Item | Value |
 |---|---|
 | File | `rabbit-4-arms.glb`, 12,219,884 bytes |
-| SHA-256 | `36ebac2e851e855971edf2b7e2a301b852c5be94003efcc55e56e829384ccd61` |
+| SHA-256 | `03962dc3d06aaa37bf27b518ea9ed0d019437d3d342fc846a5a71af3a304da21` |
 | Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `rabbit-4-armpit.glb` |
 | License | As `rabbit-4.glb` |
 
 The edit: the upper arm of the source is flat, with a narrow axis of 0.45 to 0.48 of the wide
-axis at its middle. 43 vertices of the left upper arm and 11 of the right upper arm move toward
-the axis of the bone along the wide axis of the arm, at most 0.036 units of the studio axes
-(5.3 cm in the app). Each arm also moves the arm run of its cut, and the left arm also moves its
-inner side. Vertex 1003 at the back top of the right run keeps its place: its move lifted it above
-the top of the cut, and the corrective shapes then folded the caps of the body of the right cut. No other vertex, face, UV, or texture changes. `rabbit_arms.py` of `docs/research/2026-10-21-arm-form/`
+axis at its middle. 43 vertices of the left upper arm and 10 of the right upper arm move toward
+the axis of the bone along the wide axis of the arm, at most 0.041 units of the studio axes
+(6.0 cm in the app). Each arm also moves the arm run of its cut, and the left arm also moves its
+inner side. Two vertices at the top of the right run keep their places. The move of vertex 1003 at
+the back lifted it above the top of the cut, and the corrective shapes then folded the caps of the
+body of the right cut. The move of vertex 975 at the front turned a cap face at the top of the cut
+down under the raised bow arm, where it showed as a dark band. No other vertex, face, UV, or texture changes. `rabbit_arms.py` of `docs/research/2026-10-21-arm-form/`
 gives the moves.

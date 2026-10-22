@@ -6,10 +6,13 @@ the axis of the upper arm along the wide axis, by the factor `k` at the middle o
 with a fade to no move at the shoulder joint and before the elbow joint. The left arm also moves
 its vertices up to `innerL` inside the plane |x| = armSplit and the arm run of its cut, so that its
 inner side is round too. The right arm also moves the arm run of its cut (`cut` of
-`tools/mesh-rigs/rabbit.json`), except vertex 1003 at the back top of the run (`pins`). The move
-lifted 1003 from 0.431 to 0.442 u, above the cut top 0.44, so that the cut kept a face between the
-arm and the trunk, and the corrective shapes of the right arm folded the caps of the body of the
-right cut (round `arm-form-3`). The script reads `rabbit-4-armpit.glb`.
+`tools/mesh-rigs/rabbit.json`), with the factor `kR`, except two vertices at the top of the run
+(`pins`). The move lifted vertex 1003 at the back from 0.431 to 0.442 u, above the cut top 0.44,
+so that the cut kept a face between the arm and the trunk, and the corrective shapes of the right
+arm folded the caps of the body of the right cut (round `arm-form-3`). The move of vertex 975 at
+the front turned the cap face 1003, 1020, 975 at the top of the cut down under the raised bow arm,
+where it showed as a dark band from the right side (round `arm-form-4`). The script reads
+`rabbit-4-armpit.glb`.
 
     exec(open('<this file>').read()); run(<config>, <out.glb>)    # in the live Blender, MCP
     blender -b --python <this file> -- <config.json> <out.glb>    # in a batch run
@@ -29,10 +32,11 @@ K = 0.4
 #: The source of the copy, from the root of the tree.
 SOURCE = 'assets/models/rabbit/rabbit-4-armpit.glb'
 
-#: The options of the edit: the factor `k` of each side, the reach inside the plane of each side,
-#: the arm runs that keep their places (`armL`, `armR`), and more vertices that keep their places
-#: (`pins`).
-OPTIONS = {'k': K, 'innerL': 0.03, 'innerR': 0.0, 'armL': False, 'armR': False, 'pins': (1003,)}
+#: The options of the edit: the factor `k`, the factor `kR` of the right side, the reach inside
+#: the plane of each side, the arm runs that keep their places (`armL`, `armR`), and more vertices
+#: that keep their places (`pins`).
+OPTIONS = {'k': K, 'kR': 0.3, 'innerL': 0.03, 'innerR': 0.0, 'armL': False, 'armR': False,
+           'pins': (1003, 975)}
 
 #: The fade of the move along the upper arm, from the shoulder joint (0) to the elbow joint (1):
 #: it grows from T0 to T1 and falls from T2 to T3.
