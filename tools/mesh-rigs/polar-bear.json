@@ -4,14 +4,14 @@
   "name": "Polar Bear",
   "weld": 1e-05,
   "app": {
-    "shoulders": 1.1574,
+    "shoulders": 1.406241,
     "reach": 0.68,
-    "note": "The size of the old studio polar bear (user rule of 2026-10-21: the new body is similar in size to the body that it replaces). The standing skull top of the old body is 1.065 units of its studio file at 1.8053 m for each unit: 1.923 m. The skull top of the mesh is at 0.9967 u (measures.txt), so the scale is 1.929 m for each unit, and the standing shoulder joints are at 0.6 u (1.1574 m, the entry of the polar bear in ANIMALS). The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "note": "The size of the old studio polar bear (user rule of 2026-10-21: the new body is similar in size to the body that it replaces). The standing skull top of the old body is 1.065 units of its studio file at 1.8053 m for each unit: 1.923 m. The skull top of the mesh is at 0.9967 u (measures.txt), so the scale is 1.929 m for each unit. The user chose longer legs with the size kept (docs/decisions/2026-10-22-polar-legs.md): the leg factor raises the standing shoulder joints from 0.6 u to 0.729 u, and the landmark rises with them to 1.406241 m (0.729 u at 1.929 m for each unit, the entry of the polar bear in ANIMALS), so that the trunk, the head, and the arms keep their meters. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
   "armFactor": 1.25,
   "armFactorNote": "The factor of the upper arm and the forearm, a choice of the agent while the user slept (docs/decisions/2026-10-22-mesh-polar-bear.md). The arms of the mesh reach 0.552 m from the shoulder joint to the middle of the palm. The keys must stand in front of the round belly, and with the factor 1 the paws reach the far keys only with a lean of 35 degrees, with the muzzle on the lid. The factor 1.25 is the smallest factor that reaches each note of the demos with the muzzle about 5 cm from the lid, as on the old body: 0.680 m (docs/research/2026-10-22-mesh-polar-bear.md, scans/).",
-  "legFactor": 1,
-  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, fit the bench).",
+  "legFactor": 1.6,
+  "legFactorNote": "The factor of the thigh and the shin. The feet keep their size, and the body rises 0.129 units, so that the soles stay at y 0. The user chose longer legs with the size kept on 2026-10-22 (\"Longer legs, keep size\"), because with the legs of the mesh the bench was 0.153 m high and the round belly hid the lap, so the seated bear read almost as standing. The factor 1.4 gave a bench of 0.230 m with the knees 3 cm behind the belly, 1.6 a bench of 0.269 m with the knees in front of it, and 1.8 a bench of 0.307 m, but more folds and missed notes (docs/research/2026-10-22-polar-legs.md).",
   "joints": {
     "root": {
       "head": [

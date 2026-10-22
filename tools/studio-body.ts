@@ -194,12 +194,14 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     },
   ],
   // The polar bear pianist: decisions/2026-10-22-mesh-polar-bear.md. It sits on the piano bench,
-  // which fits its legs.
+  // which fits its legs. The leg factor 1.6 raises the standing shoulder joints from 0.6 to 0.729
+  // units, and the landmark rises with them, so that the bear keeps 1.929 m for each unit
+  // (decisions/2026-10-22-polar-legs.md).
   [
     'polar-bear',
     {
       landmark: 'shoulders',
-      height: 1.1574,
+      height: 1.406241,
       seated: true,
       soloist: false,
       constant: 'STUDIO_POLAR_BEAR',
