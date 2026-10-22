@@ -963,7 +963,13 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       - Add `pnpm arm-variants <animal> --edit <script> --opts <json>...`. For each option set,
         it makes the copy, rigs it with `rig-mesh --check --keep`, runs `pnpm studio-body`, and
         prints one row: the section, the crease, the folds of each set, the stretch p95, the
-        flat p5, the area that faces down, and the faces that the shapes leave turned.
+        flat p5, the area that faces down, and the faces that the shapes leave turned. Add the
+        depth of the upper arms in the body (`pose-depth --glb --every 4`) and the elbow rings:
+        the rabbit elbow round found a depth of 5.9 cm only at its end (retro, 2026-10-22).
+      - Save `elbow-look.ts` of `docs/research/2026-10-21-rabbit-elbow/` as `pnpm elbow-look`.
+      - Add `pnpm arm-look --explain section`: the ring points, their weights, and the posed
+        section of the worst sample, for the base and the tree. The rabbit elbow round spent
+        about 45 minutes on the cause of a section drop.
       - Add `--no-shadows` to `pnpm close-views`, and save `round4/shade-probe.ts` of
         `docs/research/2026-10-21-arm-form/` as `pnpm shade-probe`. Then add a trap: a dark patch
         from one side renders with `--no-shadows` first, and `shade-probe` maps its largest face
