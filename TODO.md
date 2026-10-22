@@ -434,12 +434,27 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Bear eyes in the face: the user wrote "also the bear's eyes are still too far from the
       face". Each eye place moves 0.1 H out and 0.02 H down, and the oval bends to the head: the
       rim lies 0.011 H out (`2026-10-20-bear-eyes.md`).
-- [ ] Bear eyes from the front: the moved bear eyes show 12% less area in the front view than the
+- [x] Bear eyes from the front: the moved bear eyes show 12% less area in the front view than the
       flat eyes, and the twist of their bend is 3.4, above the 2.5 of the other bodies. From the
       front and above, the lower end of each oval is a little pointed (`2026-10-20-bear-eyes.md`).
+      The mesh bear replaced the studio bear, and its pea eyes keep their default places
+      (`2026-10-22-mesh-bear.md`).
 - [ ] Mouse eyes: in the front view, the bent pea eyes of the mouse lean in at the top, because
       the surface under them faces 17° to 21° more up than their direction. Try a direction
       between the two for the mouse (`2026-10-20-pea-eyes.md`).
+- [x] Bear mesh: the user gave a bear mesh for the conductor on 2026-10-22. It stands on the
+      podium near the size of the studio bear, with the baton along the index finger
+      (`2026-10-22-mesh-bear.md`).
+- [ ] Bear size: the skull top of the mesh bear is 9% higher than the skull top of the studio
+      bear, and its shoulder joints 3.5% lower, because the mesh has low shoulders under a large
+      head. Ask the user if the bear keeps this size (`2026-10-22-mesh-bear.md`).
+- [ ] Bear rest: in the rest pose, the arms of the mesh bear hang about 45° out around its belly,
+      and the baton points forward at the height of the waist. A conductor at rest holds the
+      baton down. Try a rest with the arms nearer to the belly and the baton tip down (5.2).
+- [ ] Bear neck: the head turns of the cues fold up to 3 faces at the side of the neck of the mesh
+      bear in 3% of the play samples (`fold-probe.txt` of `docs/research/2026-10-22-mesh-bear/`).
+- [ ] Polar bear mesh: the user gave the same mesh for the polar bear pianist on 2026-10-22. It is
+      the next round, with the shared lists of the bear round.
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
