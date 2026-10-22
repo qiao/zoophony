@@ -12,3 +12,4 @@ measures. The user can reverse each decision. Then update its section, and remov
 | Decision | Section |
 |---|---|
 | The user on 2026-10-14: "we can do a sweep of performance improvements later". The manager: this round is that sweep, so the rule "Frame time" of `AGENTS.md` is back. It replaces the last row of `2026-10-14-test-pause.md`. CI has no GPU, so the check stays local (`pnpm frame`). | 9.2, 9.7 |
+| A window at 50 Hz or 30 fps keeps the tier while at least 90% of its kept intervals lie in the band of the rate, their mean is within 10% of the rate, and the trimmed mean is at most 1.08 times the interval: the share of missed frames of 60 Hz (`slowWindow()`). | 2.6 |

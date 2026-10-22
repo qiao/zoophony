@@ -144,7 +144,9 @@ steps, and the final pass of the post effects (4.5).
   plays, the tab is visible, and the setting is "Auto", with a trimmed mean that ignores a few slow
   frames (`followFrame()` in `app/settings.ts`).
 - A steady 30 fps or 50 fps does not drop the tier (`CAPPED_FRAME_SECS`), because energy saver
-  modes and 50 Hz displays cap the rate, and a lower tier does not make these frames faster.
+  modes and 50 Hz displays cap the rate, and a lower tier does not make these frames faster. A
+  window at such a rate permits the same share of missed frames as a window at 60 Hz: its trimmed
+  mean can be up to 1.08 times the capped interval (`slowWindow()`).
 - A manual setting overrides the automatic tier.
 - The app needs WebGL2, with no WebGL1 fallback (`supportsWebgl2()` of `app/webgl.ts`). With no
   WebGL2, the full-page message of 2.8 replaces the stage and the UI.

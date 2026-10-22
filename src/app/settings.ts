@@ -87,6 +87,28 @@ const CAPPED_FRAME_SECS = [1 / 50, 1 / 30] as const;
  */
 const CAPPED_SPREAD = 0.2;
 
+/**
+ * The least part of the kept intervals of a window in the band of a capped rate
+ * ({@link CAPPED_SPREAD}), so that the window keeps that rate. The other intervals are missed
+ * frames.
+ */
+const CAPPED_SHARE = 0.9;
+
+/**
+ * The largest distance of the mean of the intervals in the band of a value of
+ * {@link CAPPED_FRAME_SECS} from that value in a window at that rate, as a part of that value. The
+ * intervals of a display at 60 Hz (16.7 ms) lie in the band of 50 Hz (16 ms to 24 ms), but 17% from
+ * 20 ms.
+ */
+const CAPPED_MEAN_SPREAD = 0.1;
+
+/**
+ * The frame interval of a display at 60 Hz, in seconds. {@link SLOW_FRAME_SEC} is 1.08 times it.
+ * A window at a capped rate is slow at 1.08 times the capped interval, so it permits the same
+ * share of missed frames as a window at 60 Hz.
+ */
+const DISPLAY_60_SEC = 1 / 60;
+
 /** The state of the automatic tier: the tier, and the frames of the current window. */
 export interface TierWatch {
   readonly tier: QualityTier;
@@ -118,10 +140,12 @@ const LOWER_TIER = {
 
 /**
  * Tells if the frames of a window are slow (design 2.6). The measure is the mean interval
- * without the shortest and the longest 5%. A window whose other intervals all keep one steady
- * rate of {@link CAPPED_FRAME_SECS} is not slow: a display at 50 Hz, or a browser that limits the
- * frame rate to 30 fps in a power-saving mode, gives such a window, and a lower tier does not make
- * its frames faster.
+ * without the shortest and the longest 5%. A window at one steady rate of
+ * {@link CAPPED_FRAME_SECS} is not slow: a display at 50 Hz, or a browser that limits the frame
+ * rate to 30 fps in a power-saving mode, gives such a window, and a lower tier does not make its
+ * frames faster. Such a window keeps at least {@link CAPPED_SHARE} of its kept intervals in the
+ * band of the rate, with their mean near the rate, and its mean is at most 1.08 times the capped
+ * interval, so it permits the same share of missed frames as a window at 60 Hz.
  *
  * @param intervals The intervals of the window, in seconds. There is at least one.
  * @returns True if the tier drops.
@@ -130,10 +154,19 @@ export function slowWindow(intervals: readonly number[]): boolean {
   const trim = Math.floor(intervals.length * TRIM_SHARE);
   const kept = intervals.toSorted((a, b) => a - b).slice(trim, intervals.length - trim);
   const mean = kept.reduce((sum, interval) => sum + interval, 0) / kept.length;
-  const capped = CAPPED_FRAME_SECS.some((cap) =>
-    kept.every((interval) => Math.abs(interval - cap) <= CAPPED_SPREAD * cap),
-  );
-  return mean > SLOW_FRAME_SEC && !capped;
+  if (mean <= SLOW_FRAME_SEC) {
+    return false;
+  }
+
+  const capped = CAPPED_FRAME_SECS.some((cap) => {
+    const inBand = kept.filter((interval) => Math.abs(interval - cap) <= CAPPED_SPREAD * cap);
+    const bandMean = inBand.reduce((sum, interval) => sum + interval, 0) / inBand.length;
+    const steady =
+      inBand.length >= CAPPED_SHARE * kept.length &&
+      Math.abs(bandMean - cap) <= CAPPED_MEAN_SPREAD * cap;
+    return steady && mean <= cap * (SLOW_FRAME_SEC / DISPLAY_60_SEC);
+  });
+  return !capped;
 }
 
 /**

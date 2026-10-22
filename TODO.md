@@ -1322,11 +1322,14 @@ Review:
       state changes each time. iOS Safari can send no click for the tap that shows the bar, so
       the guard of R1 ends 0.5 s after the lift, and fast taps can restart it (second re-review
       of step 6, U3).
-- [ ] Stop a few missed frames from dropping the tier on a display at 50 Hz (second re-review of
+- [x] Stop a few missed frames from dropping the tier on a display at 50 Hz (second re-review of
       step 6, S2). `slowWindow()` (`app/settings.ts`) keeps a tier at 50 fps only if each kept
       interval is in the band. On a 50 Hz display, 5 missed frames in one window of 2 s drop the
       tier. With 1% missed frames at random, the tier drops one step in 16% of the minutes. A
       possible fix: scale the count of missed frames that a window permits to the frame rate.
+      Done on 2026-10-21: a capped window permits the share of missed frames of 60 Hz. With 1%
+      missed frames, the tier drops in 0.0% of the minutes, against 8.8% before
+      (`docs/research/2026-10-21-frame-performance/tier-drop.ts`).
 - [ ] Check the FLAC hall in the manual release test of 9.4: in real Safari on macOS and on iOS,
       the network list shows the FLAC file of the hall and no WAV file (round `perf-hall`,
       `docs/research/2026-10-21-load-performance/hall-flac.md`). Playwright WebKit is no Safari.
