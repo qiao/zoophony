@@ -48,3 +48,26 @@ side of the animal):
 - The ears stand on the top and the sides of the head, from y 0.87 to 1.0 at x ±0.08 to ±0.23,
   with the tips folded forward.
 - The small curled tail sits on the back at y 0.26 to 0.33 and z -0.19 to -0.26.
+
+## pig-arms.glb
+
+`pig-arms.glb` is `pig.glb` with new upper arms, made in Blender (MCP), which the user chose on
+2026-10-21 ("the rabbit and pig's arms are still very deformed"). The rig of the pig (`source`
+of `tools/mesh-rigs/pig.json`) reads this file. `pig.glb` stays the file of the user, byte for
+byte.
+
+| Item | Value |
+|---|---|
+| File | `pig-arms.glb`, 16,002,492 bytes |
+| SHA-256 | `4cd6b418fc9da87ad3614c6c051d7b5d69aba2166631f45b640b19dc47c19605` |
+| Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `pig.glb` |
+| Contents | One mesh of 3,162 triangles in one closed part, with the texture of `pig.glb` |
+| License | As `pig.glb` |
+
+The edit: the mesh has no upper arm of its own. Above the elbow, the arm is a bulge of the trunk
+wall, and the arm is a separate loop only from the elbow down. For each side, the script cuts the
+arm at a plane just below the elbow, removes the 93 to 95 faces of the bulge, fills the wall
+with a fan, and builds a round tube of two rings of 10 edges from the loop of the cut to a closed
+dome around the shoulder joint. The tube and the forearm have no face that joins them to the
+trunk. The tube takes the fur color of the forearm. `pig_arms.py` of
+`docs/research/2026-10-21-arm-form/` gives the edit.
