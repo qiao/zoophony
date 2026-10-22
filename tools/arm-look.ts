@@ -19,8 +19,9 @@
  * Each value is the median of the play samples. {@link ARM_LOOK_LIMITS} gives the limits, from the
  * red fox, whose arms the user found good on 2026-10-21. A value over its limit is `FAIL`, and the
  * exit code is 1. `--set` changes the holds in memory, as `pnpm fold-probe --set` does. `--glb
- * <file>` gives one role the studio body of the file, with the corners of `--corners <file>` of the
- * rig script that wrote it.
+ * <file>` gives one role the studio body of the file, with the corners of the rig script that wrote
+ * it: the file `<name>.corners.json` beside `<name>.glb` of `pnpm rig-mesh --check --keep`
+ * ({@link keptCorners}), or `--corners <file>`.
  *
  * Usage: pnpm arm-look <role>... | --all [--demo <id>]... [--step <seconds>] [--set <changes>]...
  * [--glb <file> --corners <file>]
@@ -37,6 +38,7 @@ import { Matrix4, Vector3 } from 'three';
 import { armBinds } from './arm-shape.ts';
 import { FOLD_ROLES, probeFolds, roleAnimal } from './fold-probe.ts';
 import { rigConfigPath, runTool, takeGlb, withGlbBody } from './glb-swap.ts';
+import { keptCorners } from './rig-mesh.ts';
 import { setHolds } from './hold-sets.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { probeDemos } from './probe-demos.ts';
@@ -492,7 +494,13 @@ function meshRoles(): string[] {
 async function main(): Promise<void> {
   const { glb, rest: args } = takeGlb(process.argv.slice(2));
   const cornersAt = args.indexOf('--corners');
-  const cornersFile = cornersAt >= 0 ? args[cornersAt + 1] : undefined;
+  // A GLB file of `pnpm rig-mesh --check --keep` has its corners beside it.
+  const cornersFile =
+    cornersAt >= 0
+      ? args[cornersAt + 1]
+      : glb && existsSync(keptCorners(glb))
+        ? keptCorners(glb)
+        : undefined;
   const roles = args.includes('--all')
     ? meshRoles()
     : args.filter((arg, i) => FOLD_ROLES.has(arg) && !(args[i - 1] ?? '').startsWith('--'));
@@ -505,10 +513,13 @@ async function main(): Promise<void> {
     const [role] = roles;
     const source = role ? FOLD_ROLES.get(role) : undefined;
     if (roles.length !== 1 || !source || !cornersFile) {
-      throw new Error('The option --glb takes one role and the option --corners.');
+      throw new Error(
+        'The option --glb takes one role and the corners of its rig: --corners <file>, or <name>.corners.json beside <name>.glb of pnpm rig-mesh --check --keep.',
+      );
     }
+    const passed = cornersAt >= 0 ? args : [...args, '--corners', cornersFile];
     process.exitCode = await withGlbBody(roleAnimal(source), glb, (dir) =>
-      runTool(dir, 'arm-look.ts', args),
+      runTool(dir, 'arm-look.ts', passed),
     );
     return;
   }

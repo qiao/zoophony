@@ -936,7 +936,8 @@ export interface RigMeshArgs {
   readonly probe: CheckProbe;
   /**
    * The folder of `--keep`, into which `--check` copies the GLB file of each rig as `base.glb`,
-   * `variant-1.glb`, and so on, or `null` for none.
+   * `variant-1.glb`, and so on, each with its corners for `pnpm arm-look` ({@link keptCorners}),
+   * or `null` for none.
    */
   readonly keep: string | null;
 }
@@ -1112,6 +1113,8 @@ export function foldArgs(role: string, json: string, probe: CheckProbe): string[
  * @param obj The OBJ file of the long-armed source of `--check`, or `null` for a rig with no
  *   check. With a file, the script also gets `--check`, and it lists the faces that the stretch
  *   turns or squeezes and the long thin faces across an arm joint that no ring cuts.
+ * @param corners The JSON file of the source corners of each face of the module (`--corners` of
+ *   the script), or `null` for none.
  * @returns The arguments of `blender`.
  */
 export function blenderArgs(
@@ -1119,6 +1122,7 @@ export function blenderArgs(
   output: string,
   preview: string | null,
   obj: string | null = null,
+  corners: string | null = null,
 ): string[] {
   // A Python error of the script gives the exit code 1. Blender gives 0 by default, and the
   // rig then seems to pass with the old file.
@@ -1137,7 +1141,19 @@ export function blenderArgs(
     ...args,
     ...(preview ? ['--preview', preview] : []),
     ...(obj ? ['--obj', obj, '--check'] : []),
+    ...(corners ? ['--corners', corners] : []),
   ];
+}
+
+/**
+ * Gives the path of the corners file beside a kept GLB file (`--keep`), which `pnpm arm-look
+ * --glb` reads by default: `<name>.corners.json` for `<name>.glb`.
+ *
+ * @param glb The path of the GLB file.
+ * @returns The path of the corners file.
+ */
+export function keptCorners(glb: string): string {
+  return `${glb.replace(/\.glb$/, '')}.corners.json`;
 }
 
 /** The start of a warning line of the log of `tools/blender/rig_mesh.py` (`warn()`). */
@@ -1970,7 +1986,8 @@ export function checkTexts(text: string, sets: readonly string[], known: boolean
  * @param preview The folder of the preview images, or `null`.
  * @param factor The factor of the landmark height of the variant ({@link keptHeight}).
  * @param probe The options of the app checks: the roles, the play step, the demos, and the faces.
- * @param keep The file into which the tool copies the GLB file of the rig (`--keep`), or `null`.
+ * @param keep The file into which the tool copies the GLB file of the rig (`--keep`), with its
+ *   corners beside it ({@link keptCorners}), or `null`.
  * @returns The measures.
  * @throws Error if the config has no rule of the thin faces, if the rig fails, if it is above the
  *   triangle budget, or if a probe fails.
@@ -1997,13 +2014,15 @@ async function checkRig(
     await writeFile(path, text);
     const output = join(dir, `${animal}.rig.glb`);
     const obj = join(dir, 'source-long-arms.obj');
-    const log = await runBlender(blenderArgs(path, output, preview, obj));
+    const corners = keep ? join(dir, 'corners.json') : null;
+    const log = await runBlender(blenderArgs(path, output, preview, obj, corners));
     const bytes = new Uint8Array(await readFile(output));
     console.log(`Rig: ${bytes.byteLength} B, sha256 ${sha256(bytes)}.`);
-    if (keep) {
+    if (keep && corners) {
       await mkdir(dirname(keep), { recursive: true });
       copyFileSync(output, keep);
-      console.log(`Kept the rig as ${keep}.`);
+      copyFileSync(corners, keptCorners(keep));
+      console.log(`Kept the rig as ${keep}, with its corners for pnpm arm-look.`);
     }
     const { settings, known } = rigSettings(animal, config, factor);
     if (!known) {
@@ -2114,7 +2133,7 @@ async function checkRig(
  * @param probe The options of the app checks. The roles of `--roles` also choose the players of
  *   the form tables.
  * @param keep The folder of `--keep`, into which each rig goes as `base.glb`, `variant-1.glb`,
- *   and so on, or `null`.
+ *   and so on, each with its corners file, or `null`.
  * @returns True when each variant passed.
  * @throws Error if a variant does not fit, or if a role of `--roles` is not a role of the animal,
  *   before the first rig.
