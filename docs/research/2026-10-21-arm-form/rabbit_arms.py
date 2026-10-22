@@ -5,10 +5,11 @@ wide axis, which points to the front. For each side, each vertex near the upper 
 the axis of the upper arm along the wide axis, by the factor `k` at the middle of the upper arm,
 with a fade to no move at the shoulder joint and before the elbow joint. The left arm also moves
 its vertices up to `innerL` inside the plane |x| = armSplit and the arm run of its cut, so that its
-inner side is round too. The right arm keeps the arm run of its cut (`cut` of
-`tools/mesh-rigs/rabbit.json`) in place: a move of it folded the caps of the body of the right
-cut, which lie in the shallow notch of `rabbit-4-armpit.glb` (rounds `arm-form` and `arm-form-2`).
-The script reads `rabbit-4-armpit.glb`.
+inner side is round too. The right arm also moves the arm run of its cut (`cut` of
+`tools/mesh-rigs/rabbit.json`), except vertex 1003 at the back top of the run (`pins`). The move
+lifted 1003 from 0.431 to 0.442 u, above the cut top 0.44, so that the cut kept a face between the
+arm and the trunk, and the corrective shapes of the right arm folded the caps of the body of the
+right cut (round `arm-form-3`). The script reads `rabbit-4-armpit.glb`.
 
     exec(open('<this file>').read()); run(<config>, <out.glb>)    # in the live Blender, MCP
     blender -b --python <this file> -- <config.json> <out.glb>    # in a batch run
@@ -29,8 +30,9 @@ K = 0.4
 SOURCE = 'assets/models/rabbit/rabbit-4-armpit.glb'
 
 #: The options of the edit: the factor `k` of each side, the reach inside the plane of each side,
-#: and the arm runs that keep their places (`armL`, `armR`).
-OPTIONS = {'k': K, 'innerL': 0.03, 'innerR': 0.0, 'armL': False, 'armR': True}
+#: the arm runs that keep their places (`armL`, `armR`), and more vertices that keep their places
+#: (`pins`).
+OPTIONS = {'k': K, 'innerL': 0.03, 'innerR': 0.0, 'armL': False, 'armR': False, 'pins': (1003,)}
 
 #: The fade of the move along the upper arm, from the shoulder joint (0) to the elbow joint (1):
 #: it grows from T0 to T1 and falls from T2 to T3.
@@ -79,7 +81,8 @@ def round_arms(bm, config, opts=None):
     arm_l, arm_r = ARM_RUNS[:9], ARM_RUNS[9:]
     pins = ((arm_l if opts.get('armL', opts.get('arm', True)) else ())
             + (arm_r if opts.get('armR', opts.get('arm', True)) else ())
-            + (BODY_RUNS if opts.get('body', False) else ()))
+            + (BODY_RUNS if opts.get('body', False) else ())
+            + tuple(opts.get('pins', ())))
     pinned = {bm.verts[i] for i in pins}
     lines = []
     for side, sign in (('L', 1.0), ('R', -1.0)):
