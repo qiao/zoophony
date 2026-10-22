@@ -652,7 +652,7 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Hippo bassist: in the change from the bow to pizzicato at 248.13 s of `boulanger-matin`,
       the right forearm goes 4.2 cm into the right rim of the upper bout for a moment (0.0% of
       the samples). Try a path of the change around the rim (`2026-10-21-hippo-bass-arms.md`).
-- [ ] Hippo bassist: the left wrist on the neck goes 1.5 cm to 1.8 cm into the contrabass in
+- [x] Hippo bassist: the left wrist on the neck goes 1.5 cm to 1.8 cm into the contrabass in
       15% to 34% of the play samples, so the gate "arms in the contrabass at 1.5 cm or less in
       1% of the samples" fails. Accept it as the contact of a grip, or fit the left paw
       (`2026-10-21-hippo-bass.md`).
@@ -660,6 +660,8 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       of the mesh is 5.9 cm long and the wrist 8.3 cm thick in radius, so no tilt, elbow, or
       stop keeps the wrist off the neck. Ask the user for a longer paw or a thinner wrist of the
       mesh (`2026-10-21-hippo-bass-arms.md`).
+      Done: the user accepted the contact of 1.5 cm to 2.0 cm and keeps the mesh as it is
+      (user, 2026-10-21). A later round must not make it deeper.
 - [ ] Held instruments over the new limit of 2 cm in the body (`roles/summary.txt` of
       `docs/research/2026-10-21-hippo-bass/`): the pig hornist 4.5 cm in the lift, the rest, and
       the lowering, the rhino tubist 2.9 cm in the play, the red fox and rabbit violinists 2.9 cm
