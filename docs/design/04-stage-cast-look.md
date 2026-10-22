@@ -487,9 +487,13 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     the wall into flaps. No weight rule, cut, ring, or shape fixes it. The rig of the pig reads a
     copy of the mesh in which each upper arm is a round tube with rings of edges, free of the
     trunk up to a dome around the shoulder joint (`pig-arms.glb`), so the free arm needs no cut
-    (`weights.armFree`). A flat upper arm reads as a plank when its broad side faces the front, so
-    the copy of the rabbit also makes its upper arms rounder (`rabbit-4-arms.glb`), and its bow
-    elbow points out and forward (5.3). `pnpm arm-look` measures the crease of the arm skin
+    (`weights.armFree`). The wall where the bulge was is smoothed, because the saw rim of the hole
+    and a fan from its middle showed as dark spikes at the top of the shoulder. A flat upper arm
+    reads as a plank when its broad side faces the front, so the copy of the rabbit also makes its
+    upper arms rounder (`rabbit-4-arms.glb`), and its bow elbow points out and forward (5.3). The
+    cut closes the inner side of each upper arm of the rabbit with a flat cap, whose arm run sets
+    the width of the arm, so the left arm moves its arm run too. The right arm keeps its arm run,
+    because the caps of the body of the right cut lie in a notch and folded. `pnpm arm-look` measures the crease of the arm skin
     against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
