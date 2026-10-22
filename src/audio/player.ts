@@ -111,10 +111,48 @@ export class LoadReplacedError extends Error {
   }
 }
 
+/** The largest number of decode Workers of an engine. */
+const MAX_DECODE_WORKERS = 4;
+
+/**
+ * Gives the number of decode Workers: one for each logical processor after the first, which the
+ * page and the audio thread share, and at most {@link MAX_DECODE_WORKERS} (design 6.3).
+ *
+ * @param processors The logical processors, `navigator.hardwareConcurrency`. 0 if not known.
+ * @returns The count, at least 1.
+ */
+export function decodeWorkerCount(processors: number): number {
+  return Math.min(MAX_DECODE_WORKERS, Math.max(1, Math.floor(processors || 0) - 1));
+}
+
+/**
+ * Splits the preset files over the decode Workers: each file, the largest first, goes to the
+ * Worker with the fewest bytes so far. Thus the Workers end at about the same time.
+ *
+ * @param sizes The size of each file, in bytes.
+ * @param workers The number of Workers.
+ * @returns The indices of the files of each Worker, in the order of the files. A Worker can get no
+ *   file.
+ */
+export function splitDecodes(sizes: readonly number[], workers: number): number[][] {
+  const lists: number[][] = Array.from({ length: workers }, () => []);
+  const loads = lists.map(() => 0);
+  const order = sizes
+    .map((size, i) => [size, i] as const)
+    .toSorted((a, b) => b[0] - a[0] || a[1] - b[1]);
+  for (const [size, i] of order) {
+    const least = loads.indexOf(Math.min(...loads));
+    lists[least]?.push(i);
+    loads[least] = (loads[least] ?? 0) + size;
+  }
+  return lists.map((list) => list.toSorted((a, b) => a - b));
+}
+
 /** The engine parts that the first `load()` makes. */
 interface Engine {
   readonly node: AudioWorkletNode;
-  readonly worker: Worker;
+  /** The decode Workers. */
+  readonly workers: readonly Worker[];
   readonly index: readonly PresetFileEntry[];
   /** The number of scores that the player sent to the engine. The engine counts the same. */
   loads: number;
@@ -125,8 +163,8 @@ interface Engine {
  * worklet and the hall impulse response, so that the presets load and decode while these load.
  */
 interface EngineStart {
-  /** The decode Worker. It gets requests before its script runs, and keeps them in order. */
-  readonly worker: Worker;
+  /** The decode Workers. Each one gets requests before its script runs, and keeps them in order. */
+  readonly workers: readonly Worker[];
   /** The entries of `sf/index.json`. */
   readonly index: Promise<readonly PresetFileEntry[]>;
   /** The whole engine, after the worklet module and the hall impulse response load. */
@@ -246,7 +284,12 @@ export class WorkletPlayer implements Player {
     };
     report(0, 0);
     // The decode runs while the worklet module and the hall impulse response load (design 6.3).
-    const decoding = this.#decode(start.worker, urls, report);
+    const decoding = this.#decodeAll(
+      start.workers,
+      files.map((file) => file.size),
+      urls,
+      report,
+    );
     const [engine, banks] = await Promise.race([Promise.all([start.engine, decoding]), replaced]);
     const table = packSynthEvents(mixSynthEvents(score.synthEvents, score.mix));
     this.#durationSec = score.durationSec;
@@ -367,38 +410,45 @@ export class WorkletPlayer implements Player {
    * @returns The start of the engine.
    */
   #makeEngine(): EngineStart {
-    const worker = new Worker(new URL('./decode-worker.ts', import.meta.url), { type: 'module' });
+    const workers = Array.from(
+      { length: decodeWorkerCount(navigator.hardwareConcurrency) },
+      () => new Worker(new URL('./decode-worker.ts', import.meta.url), { type: 'module' }),
+    );
     let failStart: (error: Error) => void = () => undefined;
     const failed = new Promise<never>((...[, reject]) => {
       failStart = reject;
     });
     const failWorker = (error: Error): void => {
-      if (this.#live?.worker === worker) {
+      if (this.#live?.workers === workers) {
         this.#fail(this.#live, error);
       } else {
         failStart(error);
       }
     };
-    worker.addEventListener('message', (event: MessageEvent<DecodeReply>) => {
-      this.#receiveDecode(event.data);
-    });
-    // A Worker script that does not load (for example a 404) gives an error event.
-    worker.addEventListener('error', (event: ErrorEvent) => {
-      const detail = event.message ? `: ${event.message}` : '.';
-      failWorker(new Error(`The decode Worker failed${detail}`));
-    });
-    worker.addEventListener('messageerror', () => {
-      failWorker(new Error('The decode Worker sent a message that cannot be read.'));
-    });
+    for (const worker of workers) {
+      worker.addEventListener('message', (event: MessageEvent<DecodeReply>) => {
+        this.#receiveDecode(event.data);
+      });
+      // A Worker script that does not load (for example a 404) gives an error event.
+      worker.addEventListener('error', (event: ErrorEvent) => {
+        const detail = event.message ? `: ${event.message}` : '.';
+        failWorker(new Error(`The decode Worker failed${detail}`));
+      });
+      worker.addEventListener('messageerror', () => {
+        failWorker(new Error('The decode Worker sent a message that cannot be read.'));
+      });
+    }
     const index = fetchOk(new URL(INDEX_FILE, this.#baseUrl)).then(
       async (response): Promise<readonly PresetFileEntry[]> => {
         // SAFETY: tools/split-soundfont.ts writes this file as an array of PresetFileEntry.
         return (await response.json()) as PresetFileEntry[];
       },
     );
-    const engine = this.#makeNode(worker, index, failed);
+    const engine = this.#makeNode(workers, index, failed);
     void engine.catch((error: Error) => {
-      worker.terminate();
+      for (const worker of workers) {
+        worker.terminate();
+      }
       // The decodes of the failed start get no reply from the ended Worker.
       const rejects = [...this.#decodes.values()].map((pending) => pending.reject);
       this.#decodes.clear();
@@ -407,20 +457,20 @@ export class WorkletPlayer implements Player {
         reject(error);
       }
     });
-    return { worker, index, engine };
+    return { workers, index, engine };
   }
 
   /**
    * Makes the worklet node of an engine after the preset index, the worklet module, and the hall
    * impulse response load, and makes the engine live.
    *
-   * @param worker The decode Worker of the engine.
+   * @param workers The decode Workers of the engine.
    * @param index The entries of `sf/index.json`.
    * @param failed A promise that rejects when the Worker fails before the engine is live.
    * @returns The engine.
    */
   async #makeNode(
-    worker: Worker,
+    workers: readonly Worker[],
     index: Promise<readonly PresetFileEntry[]>,
     failed: Promise<never>,
   ): Promise<Engine> {
@@ -434,7 +484,7 @@ export class WorkletPlayer implements Player {
       outputChannelCount: [2],
     });
     node.connect(this.#output.input);
-    const engine: Engine = { node, worker, index: entries, loads: 0 };
+    const engine: Engine = { node, workers, index: entries, loads: 0 };
     node.port.addEventListener('message', (event: MessageEvent<ProcessorReply>) => {
       this.#receive(engine, event.data);
     });
@@ -457,6 +507,54 @@ export class WorkletPlayer implements Player {
     }
     const response = await fetchOk(new URL(HALL_IMPULSE_URL, this.#baseUrl));
     convolver.buffer = await this.#context.decodeAudioData(await response.arrayBuffer());
+  }
+
+  /**
+   * Decodes the preset files on the decode Workers ({@link splitDecodes}), and gives the banks in
+   * the order of the files, so that the synth gets the banks in the same order.
+   *
+   * @param workers The decode Workers.
+   * @param sizes The size of each file, from `sf/index.json`.
+   * @param urls The URL of each file.
+   * @param onProgress Gets the files that are ready and the bytes that arrived, on all Workers.
+   * @returns The banks.
+   */
+  async #decodeAll(
+    workers: readonly Worker[],
+    sizes: readonly number[],
+    urls: readonly string[],
+    onProgress: (done: number, bytes: number) => void,
+  ): Promise<readonly EngineBank[]> {
+    const lists = splitDecodes(sizes, workers.length).filter((list) => list.length > 0);
+    const done = lists.map(() => 0);
+    const bytes = lists.map(() => 0);
+    const parts = await Promise.all(
+      lists.map((list, part) =>
+        this.#decode(
+          // Each list has a Worker of its own: there are at most as many lists as Workers.
+          workers[part] ?? workers[0]!,
+          list.map((i) => urls[i] ?? ''),
+          (partDone, partBytes) => {
+            done[part] = partDone;
+            bytes[part] = partBytes;
+            onProgress(
+              done.reduce((sum, d) => sum + d, 0),
+              bytes.reduce((sum, b) => sum + b, 0),
+            );
+          },
+        ),
+      ),
+    );
+    const banks: EngineBank[] = [];
+    for (const [part, list] of lists.entries()) {
+      for (const [k, i] of list.entries()) {
+        const bank = parts[part]?.[k];
+        if (bank) {
+          banks[i] = bank;
+        }
+      }
+    }
+    return banks;
   }
 
   #decode(
@@ -521,7 +619,9 @@ export class WorkletPlayer implements Player {
     this.#loadedBanks.clear();
     this.#pcmBytes = 0;
     engine.node.disconnect();
-    engine.worker.terminate();
+    for (const worker of engine.workers) {
+      worker.terminate();
+    }
     // A pending load waits for a decode or a ready reply, so these rejections reach it.
     const rejects = [...this.#decodes.values(), ...this.#readyQueue].map(
       (pending) => pending.reject,
