@@ -47,3 +47,32 @@ side of the animal):
   to their tips at y 0.74.
 - The tail goes back and down from the lower back, from y 0.32 to 0.48 at its root to its white
   tip at z -0.31, 0.16 units above the floor.
+
+## dog-arms.glb
+
+`dog-arms.glb` is `dog.glb` with one local edit of the inner side of each arm, in Blender
+(batch). The user said on 2026-10-22: "note that many animals are having this issue now". The rig
+of the dog (`source` of `tools/mesh-rigs/dog.json`) reads this file. `dog.glb` stays the file of
+the user, byte for byte.
+
+| Item | Value |
+|---|---|
+| File | `dog-arms.glb`, 16,232,556 bytes |
+| SHA-256 | `8a2b4cad31d94ce4372b02c36af2e1a6d9a1d6ccc592f60ec3dec8696fd8de2d` |
+| Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `dog.glb` |
+| License | As `dog.glb` |
+
+The edit: each arm of the source joins the side of the trunk from the shoulder down to 0.80 of
+the upper arm. The edit removes the faces that join each arm to the trunk below the cut top of
+the rig (22 on the left, 19 on the right), and closes the inner side of each arm with a round
+patch of 13 and 9 new vertices (36 and 26 faces). The hole of the trunk stays open, and the cut
+of the rig closes it. No vertex of the source moves. The copy has 3,160 triangles. To make it
+again:
+
+```bash
+blender -b --factory-startup --python docs/research/2026-10-22-deer-dog-seams/arm_patch.py -- \
+  tools/mesh-rigs/dog.json assets/models/dog/dog.glb assets/models/dog/dog-arms.glb \
+  '{"step":0.02,"freeR":false,"fade":[0.05,0.35],"scale":1.0}'
+```
+
+A run gives the same bytes (`docs/research/2026-10-22-dog-seams.md`).
