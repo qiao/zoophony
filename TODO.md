@@ -624,6 +624,8 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       shoulder for the bowed holds, as `WindHold.reachL`, and count the samples with
       `left-forearm.ts` of `docs/research/2026-10-19-hippo-chest/arms/`
       (`2026-10-19-hippo-chest.md`).
+      Tried: a left shoulder turn of 25° with the contrabass in front of the belly keeps it at
+      7.0 cm in `bach-bwv1050` (`2026-10-21-hippo-bass.md`).
 - [x] Hippo bassist: the user wrote "the hippo is clipping with the contrabass". The back of the
       contrabass went 14.8 cm into the belly. Done: the contrabass stands in front of the belly
       (1.9 cm at the most), with a left shoulder turn, string planes 6° apart, and no hair within
