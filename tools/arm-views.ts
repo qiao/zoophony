@@ -48,7 +48,7 @@ import type { RoleSource } from './fold-probe.ts';
 import { patchedDemo } from './patch-demos.ts';
 import { ROOT, runChild } from './ref-tree.ts';
 import { toWebp } from './screenshots.ts';
-import { DEMO_IDS } from '../src/app/demos.ts';
+import { DEMOS, DEMO_IDS } from '../src/app/demos.ts';
 import type { DemoId } from '../src/app/demos.ts';
 import { bodyBoundsOf, speciesItems } from '../src/gallery/items.ts';
 import type { Side } from '../src/models/studio-format.ts';
@@ -87,6 +87,27 @@ export const REST_GAP_SEC = 1.5;
 
 /** The earliest song time of a frame, in seconds, after the seek lead of `close-views play`. */
 const FRAME_FROM_SEC = 5;
+
+/**
+ * The margin before the end of a demo of the last song time of a frame, in seconds. The play
+ * samples of the gate run to the end of the score, which can lie past the length of the demo of
+ * `close-views play` (`DEMOS`), and that tool stops at a time at or after that length.
+ */
+const FRAME_END_MARGIN_SEC = 0.05;
+
+/**
+ * Moves the time of a frame before the end of its demo, by {@link FRAME_END_MARGIN_SEC}.
+ *
+ * @param frame The frame.
+ * @returns The frame, with its time and reason changed when the time is too late.
+ */
+export function frameInDemo(frame: Frame): Frame {
+  const last = Number((DEMOS[frame.demo].lengthSec - FRAME_END_MARGIN_SEC).toFixed(2));
+  if (frame.time <= last) {
+    return frame;
+  }
+  return { ...frame, time: last, reason: `${frame.reason}, moved from ${frame.time} s` };
+}
 
 /** The smallest side of the box of a crop, in CSS pixels of the frame. */
 const CROP_SIDE = 200;
@@ -628,10 +649,12 @@ export async function renderViews(
       return frame ? [frame] : [];
     });
     const first = worst[0];
-    const frames = [...worst, ...(first ? await noteFrames(role, first.demo) : [])].filter(
-      (frame, i, all) =>
-        all.findIndex((f) => f.demo === frame.demo && Math.abs(f.time - frame.time) < 0.5) === i,
-    );
+    const frames = [...worst, ...(first ? await noteFrames(role, first.demo) : [])]
+      .map(frameInDemo)
+      .filter(
+        (frame, i, all) =>
+          all.findIndex((f) => f.demo === frame.demo && Math.abs(f.time - frame.time) < 0.5) === i,
+      );
     const planned: PlannedFrame[] = [];
     for (const frame of frames) {
       const views = await frameViews(role, frame, sides, parts);
