@@ -135,6 +135,9 @@ A push to `main` builds with pnpm and deploys to GitHub Pages under the base pat
 - Real Safari on macOS.
 - Real Safari on iOS, also with the silent switch on (2.4).
 - Android Chrome.
+- In real Safari on macOS and on iOS, the hall loads from its FLAC file (6.8): the network list
+  shows `st-pauls-hall-c8m-*.flac` and no `.wav` file. Playwright WebKit decodes the file, but it
+  is no real Safari.
 
 The author of spessasynth does not test on Safari, so this manual test is necessary.
 

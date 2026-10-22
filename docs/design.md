@@ -277,3 +277,4 @@ The decision files:
 - [`2026-10-21-arm-form.md`](decisions/2026-10-21-arm-form.md): the new round upper arms of the pig, the rounder upper arms of the rabbit, the free arm and the twist bone of the pig, the smooth walls of its shoulders, the bow elbow of the rabbit, and the four views of each mesh check.
 - [`2026-10-21-user-midi-tools.md`](decisions/2026-10-21-user-midi-tools.md): `--midi` of the probe tools and of `close-views play`, the frozen song time of `--strip` and the cache of its base frames, the camera in JSON, `--trace` of `pnpm beat-rates`, and the variants of `pnpm clip-probe`.
 - [`2026-10-21-load-performance.md`](decisions/2026-10-21-load-performance.md): the dense pack of the studio meshes, the decode Workers and their start, and the preload of the default demo.
+- [`2026-10-21-hall-flac.md`](decisions/2026-10-21-hall-flac.md): the FLAC file of the hall impulse response, its fallback to the WAV file, and its one-time encoder.

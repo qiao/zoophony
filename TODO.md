@@ -1327,6 +1327,9 @@ Review:
       interval is in the band. On a 50 Hz display, 5 missed frames in one window of 2 s drop the
       tier. With 1% missed frames at random, the tier drops one step in 16% of the minutes. A
       possible fix: scale the count of missed frames that a window permits to the frame rate.
+- [ ] Check the FLAC hall in the manual release test of 9.4: in real Safari on macOS and on iOS,
+      the network list shows the FLAC file of the hall and no WAV file (round `perf-hall`,
+      `docs/research/2026-10-21-load-performance/hall-flac.md`). Playwright WebKit is no Safari.
 - [ ] Do the manual release test of 9.4 with the user.
       It needs the deployed site and the real devices of 9.4.
 

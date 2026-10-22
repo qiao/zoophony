@@ -79,6 +79,7 @@ first download stays below 1 MB (7.2). The sources and their licenses are in
   (2.8, 7.3).
 - The hall reverb (6.8) uses an impulse response of St Paul's Hall, University of Huddersfield,
   from the 360° BRIR and FOA database (CC BY 4.0), in `assets/hall/st-pauls-hall-c8m.wav`.
+  `assets/hall/st-pauls-hall-c8m.flac` holds the same samples in about a quarter of the bytes.
   `assets/hall/README.md` gives the source, the checksums, and the steps.
 
 ## 6.3 Load flow
@@ -416,6 +417,12 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   The app gives it the square of the slider position, and 0 for the mute button (2.8). The volume
   comes after the limiter, so the limiter acts the same at each volume, and a mute also stops the
   tail of the hall (6.6).
+- The `Player` fetches the impulse response as FLAC (`HALL_IMPULSE_URL`). When
+  `decodeAudioData()` refuses it, the `Player` fetches the WAV file with the same samples
+  (`HALL_WAV_URL`, `#loadHall()` of `audio/player.ts`). Chromium and WebKit decode the two files
+  to the same floats. Firefox scales a positive sample of the WAV file by 1 / 32767 and of the
+  FLAC file by 1 / 32768, so its hall changes by at most 1.8e-5 of full scale
+  ([`hall-flac.md`](../research/2026-10-21-load-performance/hall-flac.md)).
 - A failed fetch or decode of the impulse response is a failed start, so the next load tries
   again. After a failure of the engine, the new worklet node connects to the same chain.
 - A render ahead in a Worker (`research/webkit-audio.md` section 7) gives a stereo output too, and
