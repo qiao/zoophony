@@ -327,8 +327,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Add the chair as an obstacle to the sweeps of the seated roles, with the legs and the haunch as
       parts, as the sweep of the harpist has the stool (`SEATED_PARTS`, `seatSurface()` of
       `pose/test-sweep-roles.ts`). Then add the accepted contact of each haunch.
-- [ ] Deer: dark faces show under the right armpit in the play, and points stand out at the
-      shoulders in the back view. Look at the zoomed views of `pnpm close-views harpist`.
+- [ ] Deer: dark faces show under the right armpit in the play. The points at the shoulders in
+      the back view are gone (round `deer-dog-seams`). Look at the zoomed views of `pnpm
+      close-views harpist`.
 - [ ] Deer: 2 to 14 faces of the arms fold in each sample of the harpist, under the limit of the
       arm gate (`app/fold-probe.txt`). A fold round with rings or rigid weights.
 - [x] Deer: the seated deer was lower than the parametric deer (skull top 1.125 m against 1.311 m).
@@ -1051,12 +1052,26 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
             `arm-roots`: a `hull` fill of the 7 front lips (`tools/arm-roots/panda.json`) at half
             makes the V smaller, a full fill puts the lips in the free arm with gray streaks, and a
             fill along +z changes nothing. Next: move the body run of the cut (787, 793, 800).
-      - [ ] Deer shards: faces from the trunk (x 0.08 u) to the arm (x 0.11 u) at the back of each
-            arm root turn down when the arms reach the harp. A `smooth` of the web makes the left
-            shard smaller, but it moves 3.4 cm (`deer-d1-d2-back.webp` of the arm roots round).
-            Next: a cut of the seam with a free arm, as the bear, or a round patch.
-      - [ ] Dog shards at both shoulders from the back: no variant yet. The arm skin joins the
-            trunk to 0.81 of the upper arm, as on the deer.
+      - [x] Deer shards: the rig reads a copy with a round patch on each inner arm and cuts the
+            seam above the back notch (round `deer-dog-seams`,
+            `docs/research/2026-10-22-deer-dog-seams.md`).
+      - [ ] Deer upper arms in the body: with the cut, the sweep gives 4.9 cm in the play (limit
+            3.5 cm, 15.5% of the samples), 3.7 cm at rest, and 4.5 cm in the lowering, against
+            3.2, 1.9, and 3.1 cm on the base. The caps of the body close the notches, so the
+            closed trunk takes in the arm root. Check that no view shows it, or lower the caps.
+      - [ ] Deer marks after the cut: at az150, a dark area with a light jagged line on the back
+            of the right upper arm root, most at rest from 40°, and a small dark V under the left
+            root at az-150 (`deer-root-rest-e40.webp` of the round `deer-dog-seams`).
+      - [ ] Deer arm gate: the right twist p95 rises from 40° to 55° (`FAIL`, limit 55°), because
+            the free root turns with the bone and the measure starts at the chest. The twist along
+            the upper arm falls from 17° to 6°. Accept it as a decision row, or let the twist of
+            `tools/arm-shape.ts` start at the shoulder ring for a cut arm.
+      - [ ] Dog shards at both shoulders from the back: six variants of round `deer-dog-seams`
+            gave no clean root with the folds of the base. The best, a cut at 0.64 with a round
+            patch (step 0.02), softens the wedge, but face 342 at the top of the right shoulder
+            folds in 5.3% of the lift (16.1% to 17.5%), and the upper arms go 5.5 cm into the
+            body. Next: a `raise` shape of the lift for face 342 (`pnpm raise-fit cellist --faces
+            342 --side R --sets lift --glb <rig>`), then the audit.
       - [ ] Rhino flat forearm: the flat cap of the cut over the whole inner side of the arm. A
             round patch in a copy (`arm_patch.py` of `docs/research/2026-10-22-panda-armpit/`,
             step 0.03, `weights.armIslands`, `cut.low` 0.17) lifts the left section from 0.39 to
