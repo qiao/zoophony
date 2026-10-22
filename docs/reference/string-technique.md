@@ -335,6 +335,16 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
   so that the bow points up at the ceiling, and the left hand rests on the left knee [61]. No
   source of this file gives the rest of an orchestral cellist between pieces.
 
+### 2.8 The standing double bass player
+
+- **The contacts.** The player turns the bass slightly to the right and tilts it back, so that it
+  rests against the left side of the hip. Some bassists rest the bass against the stomach [69].
+  A lean of the bass against the leg is the most common way to stand, and the left knee against
+  the bottom of the instrument controls its turn [70] (abstract). The bass thus touches the body,
+  and it does not go into the body.
+- **The height and the feet.** The end pin is set so that the nut is at the level of the
+  eyebrows. The feet are shoulder width apart [69].
+
 ## 3. Use in the app
 
 Since 2026-10-17 (round `left-hand`), the left hand of the app follows this reference: the position
@@ -674,3 +684,9 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
     https://www.simonfischeronline.com/uploads/5/7/7/9/57796211/046thumb.pdf
 68. S. Fischer, "Basics: Freeing the left hand", The Strad.
     https://www.simonfischeronline.com/uploads/5/7/7/9/57796211/210_dec_freeing_the_left_hand.pdf
+69. String Bass Online, "How to hold the bass", standing position. Opened on 2026-10-21.
+    https://stringbassonline.com/howtoholdthebass.htm
+70. Double Bass Blog, a post on the standing position (2492), and the transcript of the
+    interview with Andrew Anderson, Contrabass Conversations. Neither page opened on 2026-10-21,
+    and the facts come from the search summary of the agent of the session.
+    https://doublebassblog.org/?p=2492
