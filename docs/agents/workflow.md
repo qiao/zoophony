@@ -150,6 +150,19 @@ file, because both checks still read it.
   a lasting edit of code with the Edit tool: a `|` or a `/` in TypeScript text can break the
   delimiter of a `perl` substitution and give a red commit.
 
+## Performance rounds
+
+- Run each timed measure through `tools/measure-lock.sh run --owner <name> -- <cmd>`: a trace,
+  `pnpm load-probe`, `pnpm frame`, and each timed probe. The lock serves the tickets in their
+  order, so two agents on one machine do not measure at the same time. `--gate <load>` also waits
+  for a quiet CPU. `tools/measure-lock.sh status` shows the owner and the queue.
+- A load round measures with `pnpm load-probe`. The Lighthouse tool of the chrome-devtools MCP
+  server has no performance category.
+- An ablation of a GPU cost reads the Metal trace of `pnpm frame`. With no frame cap, the main
+  thread limits the frame rate, so the frame time alone does not show a GPU change.
+- A change of the material IDs can change the order of the draws, and thus the pixels. Run
+  `pnpm frozen` after such a change.
+
 ## Images of a mesh
 
 Each image set that checks a mesh, a hold, or a clip shows four directions: the front, the back,

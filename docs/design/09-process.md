@@ -248,6 +248,9 @@ machine. The measures of each target are in the research reports of its step, su
 | Camera | `cameraAt()` at most 0.01 ms for each call | the same timed Vitest test | 6b |
 | Model shading | `shadeMesh()` (4.5, materials) of the player models and the props of `perf-60.mid` at most 90 ms on the development Mac | a timed Vitest test (`models/shading-speed.test.ts`), as a ratio to the reference work | 8 |
 
+- Each timed measure of this section runs through the fair lock `tools/measure-lock.sh`, so
+  that two agents on one machine do not measure at the same time. `pnpm load-probe` measures the
+  load of the default demo ([`agents/workflow.md`](../agents/workflow.md), "Performance rounds").
 - The frame target also holds in Cinematic mode (2.5). The first sound target measures from the
   downbeat, because a play starts with the count-in of the conductor (5.4, 6.5).
 - A timed test fails when the ratio of its work to the reference work is more than 2 times its
