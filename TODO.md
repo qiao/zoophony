@@ -947,6 +947,15 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] `pnpm close-views --camera-at <bone>`: crop pairs from four directions around a bone, after
       the arm form round merges (`cams.ts` and `sheet.py` of
       `docs/research/2026-10-21-hippo-bass-arms/`).
+- [ ] Tools of a mesh edit (retro of the arm form rounds 3 and 4, 2026-10-21):
+      - Add `pnpm arm-variants <animal> --edit <script> --opts <json>...`. For each option set,
+        it makes the copy, rigs it with `rig-mesh --check --keep`, runs `pnpm studio-body`, and
+        prints one row: the section, the crease, the folds of each set, the stretch p95, the
+        flat p5, the area that faces down, and the faces that the shapes leave turned.
+      - Add `--no-shadows` to `pnpm close-views`, and save `round4/shade-probe.ts` of
+        `docs/research/2026-10-21-arm-form/` as `pnpm shade-probe`. Then add a trap: a dark patch
+        from one side renders with `--no-shadows` first, and `shade-probe` maps its largest face
+        to source vertices through `s` of `<name>.corners.json`.
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 - [x] Sway of a fast notated beat: the file of the user notates a ballad at 241 BPM in 4/4, and
