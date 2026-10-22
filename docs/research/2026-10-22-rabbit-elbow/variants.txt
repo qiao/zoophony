@@ -1,0 +1,37 @@
+Variants of rabbit_elbows.py (options JSON of the run), round rabbit-elbow 2026-10-22.
+Columns: play p50 R / L of elbow-look.ts (above, mid, outer), flat cm2 p95 R, folds play / lift of
+pnpm rig-mesh rabbit --check, and the section of pnpm arm-look violinist (L / R).
+main 7c1747ed: above 0.57 / 0.65, mid 0.63 / 0.79, outer 0.73 / 0.82, flat 40.7, folds 0% / 5.8%, section 0.82 / 0.74.
+
+e1: {"target":"circle","scale":1.0}
+  above 0.67 / 0.76, mid 0.93 / 0.99, outer 0.90 / 0.92, flat 42.46, folds 0.0% / 5.5%, section 0.81 / 0.62
+e2: {"target":"ellipse","depth":1.0}
+  above 0.63 / 0.77, mid 0.77 / 0.74, outer 0.65 / 0.85, flat 33.77, folds 0.0% / 6.2%, section -
+e3: {"target":"ellipse","depth":0.7,"fade":[0.6,0.9]}
+  above 0.60 / 0.77, mid 0.81 / 0.89, outer 0.56 / 0.87, flat 31.36, folds 0.0% / 5.8%, section 0.82 / 0.71
+e4: {"target":"circle","scale":0.85}
+  above 0.73 / 0.77, mid 0.92 / 0.96, outer 0.88 / 0.92, flat 51.97, folds 1.7% / 5.8%, section 0.81 / 0.63
+e5: {"target":"circle","center":"axis","free":true}
+  above 0.60 / 0.74, mid 0.86 / 0.90, outer NaN / 0.90, flat 37.94, folds 0.0% / 3.2%, section 0.73 / 0.82
+e6: {"target":"circle","scale":0.85,"free":true}
+  above 0.93 / 0.71, mid 0.94 / 0.84, outer 0.93 / 0.79, flat 43.89, folds 0.0% / 3.2%, section -
+e7: {"target":"circle","scale":0.85,"freeR":true} (chosen, the defaults)
+  above 0.93 / 0.77, mid 0.94 / 0.96, outer 0.93 / 0.92, flat 43.89, folds 0.0% / 5.8%, section 0.81 / 0.60
+e8: e7 + {"freeFrom":0.7,"fade":[0.7,0.95]}
+  above 0.71 / 0.77, mid 0.92 / 0.96, outer 0.94 / 0.92, flat 43.63, folds 0.0% / 5.8%, section 0.81 / 0.61
+e9: e7 + {"center":"blend"} on both sides
+  above 0.81 / 0.77, mid 0.94 / 0.95, outer 0.91 / 0.92, flat 94.96, folds 0.0% / 5.8%, section 0.81 / 0.70
+e10: e9 + {"freeFrom":0.7,"fade":[0.65,0.9]}
+  above 0.68 / 0.77, mid 0.94 / 0.95, outer 1.03 / 0.92, flat 69.08, folds 0.0% / 5.8%, section 0.81 / 0.55
+e11: e7 + {"scaleR":1.0,"centerR":"blend","blend":[0.85,1.05],"fade":[0.45,0.7]}
+  above 0.42 / 0.77, mid 0.61 / 0.96, outer NaN / 0.92, flat 69.92, folds 50.3% / 5.8%, section 0.81 / 0.65
+e12: e7 + {"centerR":"blend"} with scaleAxis 1.0
+  above 0.84 / 0.77, mid 0.94 / 0.96, outer 1.01 / 0.92, flat 43.57, folds 0.0% / 5.8%, section 0.81 / 0.58
+e13: e7 + {"freeFrom":0.7,"fade":[0.6,0.85],"rounds":200}
+  above 0.80 / 0.77, mid 0.93 / 0.96, outer 0.89 / 0.92, flat 48.81, folds 0.0% / 5.8%, section 0.81 / 0.63
+e14: e13 + {"gridFrom":0.62}
+  above 0.80 / 0.77, mid 0.93 / 0.96, outer 0.89 / 0.92, flat 48.81, folds 0.0% / 5.8%, section 0.81 / 0.63
+e15: e7 + {"centerR":"blend","blend":[0.85,1.0]}
+  above 0.80 / 0.77, mid 0.95 / 0.96, outer 0.93 / 0.92, flat 91.50, folds 0.0% / 5.8%, section 0.81 / 0.69
+f0: flat patch: {"fade":[5,6],"rounds":300}
+  above 0.57 / 0.73, mid 0.76 / 0.76, outer 0.54 / 0.78, flat 58.84, folds 100.0% / 80.6%, section 0.82 / 0.79
