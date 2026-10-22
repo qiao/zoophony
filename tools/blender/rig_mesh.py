@@ -29,7 +29,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    optional bone `tail_tip` for a tail of two bones and the optional bone `jaw` for a beak that
    opens, and give the weights with bone heat. Then the rules of the config: the free arm (beyond a plane, which `armFree` turns around the vertical
    for a thick arm that joins the trunk, with each island inside the plane that only the free arm
-   surrounds with `armIslands`), the clavicles below the shoulders and the arms up the neck,
+   surrounds with `armIslands`), the chest share of the inner root of a cut arm (`armRoot`),
+   the clavicles below the shoulders and the arms up the neck,
    the clavicles over the top of the shoulders (`shoulderRamp`), the paw, the head and the
    shoulders, the ears, the lower beak on the jaw (`jaw`), a long nose in front of the chest
    (`noseFront`), the tail (a ball on one
@@ -1566,6 +1567,32 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
                 w[v, target] += taken.sum()
                 w[v, arm] -= taken
             log(f'arm below {side}: {len(moved)} vertices of the trunk give arm weight to the trunk')
+
+        # The inner root of the free arm (`armRoot`): bone heat gives an arm that a cut parts
+        # from the trunk only arm weights, so the inner side of its root swings deep into the
+        # chest with the upper arm. Near the shoulder joint, a vertex of the free arm on the side
+        # toward the trunk gives the share `share` of its arm weight to the chest. The share fades
+        # out along the upper arm from the place `along[0]` to `along[1]` (upper arm lengths from
+        # the shoulder joint), and in from the bone axis from the direction `inner[1]` to
+        # `inner[0]` (1 straight toward the middle plane, 0 forward or back).
+        if 'armRoot' in rules:
+            rule = rules['armRoot']
+            left = verts * [sign, 1.0, 1.0]
+            start = np.asarray(heads['upper_arm_L'], float)
+            bone = np.asarray(heads['forearm_L'], float) - start
+            length = float(np.linalg.norm(bone))
+            axis = bone / length
+            rel = left - start
+            along = rel @ axis / length
+            radial = rel - np.outer(rel @ axis, axis)
+            inward = -radial[:, 0] / np.maximum(np.linalg.norm(radial, axis=1), 1e-9)
+            share = (rule['share'] * (1.0 - smoothstep(along, *rule['along']))
+                     * smoothstep(inward, *rule['inner']) * free)
+            taken = w[:, arm] * share[:, None]
+            w[:, arm] -= taken
+            w[:, col['chest']] += taken.sum(axis=1)
+            log(f'arm root {side}: {int((share > 0).sum())} vertices of the free arm give '
+                f'arm weight to the chest, at most {share.max():.2f}')
 
     # The chest below the clavicles: the clavicle weight fades out downward, so that the turn of
     # a shoulder does not shear the faces of the chest.
