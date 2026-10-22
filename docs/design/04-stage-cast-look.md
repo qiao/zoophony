@@ -204,8 +204,8 @@ trunk (`docs/research/2026-10-11-short-legs.md`):
   the foxes, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the
   pig, the wolf, the monkey, the badger, the rhino, the deer, and the penguin, which
   `models/species.ts` reads from their studio bodies. The hippo stands at its contrabass, the
-  elephant at its timpani, the badger at each percussion instrument, the rhino at its tuba, and
-  the penguin on its riser.
+  elephant at its timpani, the badger at each percussion instrument, the rhino at its tuba, the
+  penguin on its riser, and the bear on its podium. The bear reads only its head height `H`.
 
 A height map moves the torso of the parametric body with the joints of the table, and the head
 keeps its form:
@@ -270,15 +270,17 @@ parts of 4.5 (body proportions) on the skeleton of 4.3, and a species with a `bo
 its own from `buildBiped()` in its place.
 
 The user chose each body of its own, and the table "Bodies and roles" of
-`docs/agents/model-work.md` lists them with their decision files. The bear conductor and the polar
-bear pianist have the studio bodies of `lowpoly-studio/` (user, 2026-10-12). The rabbit violinist,
+`docs/agents/model-work.md` lists them with their decision files. The polar bear pianist has the
+studio body of `lowpoly-studio/` (user, 2026-10-12). The bear conductor, the rabbit violinist,
 the red violin fox, the viola cat, the cello dog, the trombone panda, the contrabass hippo, the
 oboe mouse, the timpani elephant, the bassoon beaver, the horn pig, the clarinet wolf, the trumpet
 monkey, the percussion badger, the tuba rhino, the harp deer, and the choir penguin have meshes of
 the user that the app rigs itself (studio bodies, below). The tan flute fox has the rig of the red
 fox with a tan palette. The mesh of the penguin replaces its egg body of 2026-10-11, by the newest
 decision of the user (`docs/decisions/2026-10-21-mesh-penguin.md`). The meshes of the rhino and the deer replace their parametric bodies
-(`docs/decisions/2026-10-21-mesh-rhino.md`, `docs/decisions/2026-10-21-mesh-deer.md`).
+(`docs/decisions/2026-10-21-mesh-rhino.md`, `docs/decisions/2026-10-21-mesh-deer.md`). The mesh of
+the bear replaces its studio body of `lowpoly-studio/` near the same size, by the newest decision
+of the user (`docs/decisions/2026-10-22-mesh-bear.md`).
 
 Each body follows these rules:
 
@@ -309,7 +311,7 @@ A studio body is the GLB file of an animal of `lowpoly-studio/`, or of a mesh of
 `pnpm rig-mesh` rigs into the same format: one mesh of faces with one color each, a skeleton of the
 biped template with twist bones of the forearms, a skin of up to four bones for each vertex, and
 corrective shapes. The studio bodies are the bear conductor
-(`docs/decisions/2026-10-12-studio-bear.md`), the polar bear pianist
+(`docs/decisions/2026-10-22-mesh-bear.md`), the polar bear pianist
 (`docs/decisions/2026-10-12-studio-polar-bear.md`), the rabbit violinist
 (`docs/decisions/2026-10-13-mesh-rabbit.md`), the red violin fox
 (`docs/decisions/2026-10-14-mesh-fox.md`), the tan flute fox
@@ -329,8 +331,9 @@ percussion badger (`docs/decisions/2026-10-20-mesh-badger.md`), the tuba rhino
 (`docs/decisions/2026-10-21-mesh-penguin.md`).
 
 The app keeps its own motion (5.3, 5.4), so it drives the bones of the studio from the pose of the
-player each frame: the retarget. It gave about a quarter of the folded faces of a skin on the bones
-of the player (`docs/research/2026-10-12-studio-bear.md`).
+player each frame: the retarget (`docs/decisions/2026-10-12-studio-bear.md`). It gave about a
+quarter of the folded faces of a skin on the bones of the player
+(`docs/research/2026-10-12-studio-bear.md`).
 
 The plane of the arm sets the roll of the one upper arm bone. A hold with the elbow out and level
 rolls it by about 90°, and the linear blend at the shoulder then twists the skin like a wrung
@@ -347,10 +350,10 @@ twist bone, and `pnpm studio-body` writes the share into the body. A body with n
 twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
 
 ```text
- lowpoly-studio/animals/bear/out/bear.glb
-        | pnpm studio-body bear (tools/studio-body.ts, no Blender)
+ lowpoly-studio/animals/polar-bear/out/polar-bear.glb
+        | pnpm studio-body polar-bear (tools/studio-body.ts, no Blender)
         v
- src/models/studio/bear.ts: StudioBody (packed mesh, heads, palms, sheet arms)
+ src/models/studio/polar-bear.ts: StudioBody (packed mesh, heads, palms, sheet arms)
         | studioRig() (models/studio-rig.ts)
         v
  StudioRig: the skeleton of the player (arms straight down), the constants of the arms
@@ -390,9 +393,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   0.004 H out of the oval in each view (user, 2026-10-20). An old eye of a mesh can lie on an
   edge of the face that runs across the diagonal of the oval. A bent oval there folds along that
   diagonal and reads as a bean, and a flat oval stands out as a bead. So a body can move its eye
-  places to a part of the face with less fold (`eyeShift` of `ANIMALS`, the bear). The eyes of
-  the bear also turn halfway from their direction toward the normal of the face (`eyeNormal`,
-  user, 2026-10-20, `docs/decisions/2026-10-20-bear-eyes.md`).
+  places to a part of the face with less fold (`eyeShift` of `ANIMALS`), and turn its eyes toward
+  the normal of the face (`eyeNormal`, `docs/research/2026-10-20-bear-eyes.md`). No body takes
+  them now.
 - **Mesh rig.** `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format
   of a studio body with Blender. The config `tools/mesh-rigs/<animal>.json` gives the joints,
   measured on cuts of the mesh, and the rules below, each with a note. The decision files of the
@@ -611,7 +614,7 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
 - **Render.** The scene draws the body with four bones for each vertex and the shapes as morph
   targets. The colors hold the baked occlusion of the studio. The fur gets smooth normals within
   the crease angle of the body (`crease` of `ANIMALS`, `studioNormals()`). The angle of a bear has
-  the facet contrast of its reference images. The red fox, the cat, the dog, the panda, the hippo,
+  the facet contrast of its reference images, and the mesh bear keeps it. The red fox, the cat, the dog, the panda, the hippo,
   the mouse, the elephant, the beaver, the pig, the wolf, the monkey, the badger, the rhino, the
   deer, and the penguin take the angle of the rabbit, which the manager chose from the play frames,
   because the sixteen are meshes of image models (`docs/research/2026-10-14-rabbit-smooth.md`).
@@ -946,8 +949,8 @@ back (`chairForward()`). Each species moves toward the anatomy of its reference 
   cat in the violas, the dog in the cellos, the tan fox in the flutes, the mouse in the oboes, the
   beaver in the bassoons, the wolf in the clarinets, the monkey in the trumpets, the panda in the
   trombones, the pig in the horns, the hippo in the contrabasses, the elephant at the timpani, the
-  badger in the percussion, the rhino at the tuba, the deer at the harp, and the penguin in the
-  choir, so many
+  badger in the percussion, the rhino at the tuba, the deer at the harp, the penguin in the
+  choir, and the bear on the podium, so many
   studio bodies share the scene. The pea eyes add their triangles to a studio body
   (`docs/decisions/2026-10-15-pea-eyes.md`).
 - An instrument has at most 800 triangles, except the timpani (1,200) and the piano (2,000). A
@@ -1176,6 +1179,9 @@ part "with mallet" (`SpeciesParams.cymbalForm`, `SUSPENDED_CYMBAL`,
 xylophone of the app, so the xylophone stays open for a choice of the user
 (`docs/decisions/2026-10-20-mesh-badger.md`). A species can also play smaller hand cymbals
 (`SpeciesParams.cymbalScale`).
+The bear keeps the arms of its mesh (reach 0.47 m) and the baton of the app (0.51 m). The baton
+lies along its index finger, and the tip of beat 1 stands in front of the right shoulder, so that
+the wrist stays below the chin (5.4, `docs/decisions/2026-10-22-mesh-bear.md`).
 The chairs, the stands,
 and the podium keep their sizes in meters.
 
@@ -1206,10 +1212,12 @@ of each instrument (`models/instruments/`) holds its sizes and the offsets of it
 | Timpani                          | Two to four kettles of the real size, by the highest timpani note (`kettleCount()`).                                    | In an arc around the player, the outer kettles further out, with a mallet in each hand.                                                                                                                                     |
 | Bass drum, snare drum, xylophone | Drums on stands, and 30 bars from C5 to F7.                                                                             | In front of the player, below the shoulders of the badger, within the reach of its short arms where they reach.                                                                                                             |
 | Cymbals, small percussion        | Two crash cymbals, or one suspended cymbal level on a stand with two yarn mallets. A triangle and a tambourine.         | The crash cymbals in the hands, above the floor. The suspended cymbal in front of the player, below its wrists. The beater strikes the tambourine for key 54.                                                               |
-| Baton                            | A straight white stick that tapers to the tip (user, 2026-10-13).                                                       | In the right hand.                                                                                                                                                                                                          |
+| Baton                            | A straight white stick that tapers to the tip (user, 2026-10-13).                                                       | In the right hand, along the index finger, with its grip in the palm.                                                                                                                                                       |
 
-In the bind pose, each mallet, stick, beater, the triangle, and the baton lies in the hanging
-hand in front of the palm, and points forward. The timpani mallets, the snare sticks, the
+In the bind pose, each mallet, stick, beater, and the triangle lies in the hanging hand in front
+of the palm, and points forward. The baton lies along the fingers, 15° toward the thumb, because
+a conductor holds it along the index finger with its grip in the palm, so that it extends the hand
+(`BATON_ALONG`, `docs/research/2026-10-22-mesh-bear.md`). The timpani mallets, the snare sticks, the
 xylophone mallets, and the triangle beater slant down toward the line of the forearm, as a real
 player holds the shaft along the thumb (`malletTilt` of `TIMPANI`, `SNARE_DRUM`, `XYLOPHONE`, and
 `TRIANGLE`). No vertex of a player model is below the floor.
@@ -1283,7 +1291,7 @@ of three.js always blends four bones, so the second bone adds no shader work.
   the beaver, the wolf, and the monkey), and the jaw of a beak that opens (`jaw`: the penguin).
   The optional bones come after the other bones, so that a new one keeps each other index. The rabbit, the panda,
   the hippo, the pig, the badger, the rhino, the deer, and the penguin have a tail
-  ball on one tail bone, with no tip. Each vertex follows up to four of them. The
+  ball on one tail bone, with no tip, and so does the bear. Each vertex follows up to four of them. The
   scene gives the mesh the studio bones and the bones of the player, and `poseStudioBones()`
   writes their matrices from the pose of the player. So the pose code drives a studio body as
   each other body. A pose also holds the matrices of the twist bones of the upper arms
