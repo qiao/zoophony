@@ -279,3 +279,4 @@ The decision files:
 - [`2026-10-21-load-performance.md`](decisions/2026-10-21-load-performance.md): the dense pack of the studio meshes, the decode Workers and their start, and the preload of the default demo.
 - [`2026-10-21-hall-flac.md`](decisions/2026-10-21-hall-flac.md): the FLAC file of the hall impulse response, its fallback to the WAV file, and its one-time encoder.
 - [`2026-10-21-frame-performance.md`](decisions/2026-10-21-frame-performance.md): the end of the pause of the frame rule, the cuts of the frame time with the same pixels (one pose of the bones in each frame, a material for each program variant, and the culling of the players), the options that change the look, and the missed frames of a capped window.
+- [`2026-10-21-perf-retro.md`](decisions/2026-10-21-perf-retro.md): the decisions of the performance retro: the fair lock of the measures, the tools of the load and the frame rounds, and the facts of the docs.
