@@ -369,9 +369,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Rabbit: the dark wedge on the chest under the bow arm is the shadow of the arm (4.5).
 - [x] Rabbit: the left upper arm kept a section of 0.47. It moves its inner side and the arm run of
       its cut, and its section is 0.82 (`2026-10-21-arm-form.md`, round `arm-form-2`).
-- [ ] Rabbit: the right upper arm keeps a section of 0.60 (0.93 on the red fox), because a move of
-      the arm run of the right cut folds the caps of the body in the notch. A rig round on the
-      caps of the right cut.
+- [x] Rabbit: the right upper arm kept a section of 0.60 (0.93 on the red fox). Its arm run moves
+      except vertex 1003, and its section is 0.78 (`2026-10-21-rabbit-right-arm.md`).
+- [ ] Rabbit: from the right side at the frog, a dark band shows under the rounder right upper arm
+      (`rabbit-armpit-frog-3x.webp` of `2026-10-21-arm-form/round3/`).
+- [ ] Rabbit: face 224 at the back of the right armpit folds at the start of the lift in 14
+      samples, each of which also folds at the left wrist (`2026-10-21-rabbit-right-arm.md`).
 - [x] Pig: a thin dark line and dark spikes showed at the top of each shoulder. The wall around
       each tube is smooth, and the right dome is higher (round `arm-form-2`).
 - [x] `pnpm arm-check --views` stopped when the worst sample lay at the end of a demo. A frame past
