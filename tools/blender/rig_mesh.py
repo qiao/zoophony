@@ -15,7 +15,9 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    head keeps its form, and a blend zone at the neck joins it to the scaled body
    (`proportioned()`). The head keeps its size, or takes the factor `head` of the rule on each
    axis. With `cut` of the config, the faces that join each hanging
-   forearm to the belly go, and new faces close both holes (`cut_seam()`). With `skinNormals` of
+   forearm to the belly go, and new faces close both holes (`cut_seam()`). A copy of the mesh
+   that removed these faces and closed the arm itself leaves only the hole of the trunk open,
+   and the cut closes that hole (`open_loop()`). With `skinNormals` of
    the cut, the file names the caps of the arm, and the app gives them the normals of the skin.
    With `bodyNormals`, the sides of the cut such as "R", the file also names the caps of the body,
    the quads at the top, and the skin faces of their rim (`cut_rim()`) of these sides, which take
@@ -1067,6 +1069,42 @@ def cut_loop(tris, removed):
     return loop
 
 
+def open_loop(verts, tris, sign, top):
+    """Gives the loop of the open edges of one side below the height `top`, in the order of
+    `cut_loop()`: each loop edge runs against its face. An open edge has one face. A flap face
+    with an edge of three faces, as face 612 of the rabbit source beside the hole, has two open
+    edges of its own, and these are no part of the loop."""
+    faces = {}
+    for k, t in enumerate(tris):
+        for i in range(3):
+            a, b = int(t[i]), int(t[(i + 1) % 3])
+            faces.setdefault((min(a, b), max(a, b)), []).append((a, b, k))
+    shared = {k for edge in faces.values() if len(edge) > 2 for _, _, k in edge}
+    single = {}
+    for edge in faces.values():
+        if len(edge) == 1:
+            single[edge[0][2]] = single.get(edge[0][2], 0) + 1
+    flaps = {k for k in shared if single.get(k, 0) >= 2}
+    after = {}
+    for edge in faces.values():
+        if len(edge) != 1 or edge[0][2] in flaps:
+            continue
+        a, b, _ = edge[0]
+        if (verts[a, 0] * sign > 0 and verts[b, 0] * sign > 0
+                and max(verts[a, 1], verts[b, 1]) < top):
+            if b in after:
+                raise SystemExit('The open loop of the cut has a vertex with two loop edges.')
+            after[b] = a
+    if not after:
+        raise SystemExit('The cut finds no faces to remove and no open loop.')
+    loop = [next(iter(after))]
+    while after[loop[-1]] != loop[0]:
+        loop.append(after[loop[-1]])
+    if len(loop) != len(after):
+        raise SystemExit('The open edges of the cut form more than one loop.')
+    return loop
+
+
 def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
     """Cuts the mesh where each hanging forearm touches the belly (`cut` of the config). Each face
     below the height `top` with a corner in the free arm (`free_arm()`) and a corner outside it
@@ -1083,7 +1121,9 @@ def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
         mixed = [k for k, t in enumerate(tris)
                  if arm[t].any() and (~arm[t]).any() and (verts[t, 0] * sign > 0).all()
                  and verts[t, 1].max() < rule['top']]
-        loop = cut_loop(tris, mixed)
+        # A copy of the mesh that removed these faces itself and closed the arm, as the remodel
+        # of the rabbit elbows, leaves only the hole of the trunk open (`open_loop()`).
+        loop = cut_loop(tris, mixed) if mixed else open_loop(verts, tris, sign, rule['top'])
         start = next(k for k in range(len(loop)) if arm[loop[k]] and not arm[loop[k - 1]])
         loop = loop[start:] + loop[:start]
         count = int(arm[loop].sum())
@@ -1095,8 +1135,10 @@ def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
             bridge = [[ak, b1, bm], [ak, bm, a1]]
         else:
             bridge = [[ak, b1, a1], [b1, bm, a1]]
-        faces = (flip_caps(verts, clip_polygon(verts, arm_run))
-                 + flip_caps(verts, clip_polygon(verts, body_run)) + bridge)
+        # An arm run of two vertices is the edge of an arm that the copy of the mesh closed, and
+        # needs no cap.
+        arm_cap = flip_caps(verts, clip_polygon(verts, arm_run)) if len(arm_run) > 2 else []
+        faces = arm_cap + flip_caps(verts, clip_polygon(verts, body_run)) + bridge
         keep[mixed] = False
         # Each new face takes the UVs of the kept face across its loop edge, so that the cap
         # continues the fur at its edge. A new face with no loop edge takes the UVs of the nearest
