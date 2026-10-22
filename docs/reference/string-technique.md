@@ -344,6 +344,17 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
   and it does not go into the body.
 - **The height and the feet.** The end pin is set so that the nut is at the level of the
   eyebrows. The feet are shoulder width apart [69].
+- **The left hand on the neck.** The hand forms a C, and the fingers are curved. The thumb gently
+  touches the back of the neck, behind the first or the second finger. The elbow is relaxed and
+  not held high, so that the forearm and the wrist form a straight line [71]. Thus only the thumb
+  and the fingers touch the neck, and the wrist does not (derived).
+- **The high positions.** In the thumb position, the fingers point down the fingerboard, the hand
+  is a little pronated, and the knuckles are raised. The elbow rises just enough to bring the
+  inside of the wrist up off the shoulder of the instrument [71].
+- **Pizzicato.** The right hand comes up from the side, relaxed, and the wrist is a little bent
+  (pronated), so that the hand hangs from the arm. The thumb may rest on the edge of the
+  fingerboard. Many bassists strike with the side of the index finger. For fast passages, some
+  pluck higher on the fingerboard, nearer to the left hand [72].
 
 ## 3. Use in the app
 
@@ -694,3 +705,7 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
     interview with Andrew Anderson, Contrabass Conversations. Neither page opened on 2026-10-21,
     and the facts come from the search summary of the agent of the session.
     https://doublebassblog.org/?p=2492
+71. "Elements of Double Bass Shifting", The Instrumentalist, April 2015. Opened on 2026-10-21.
+    https://theinstrumentalist.com/april-2015/elements-of-double-bass-shifting/
+72. No Treble, "Right-hand technique for upright bass: pizzicato" (2009). Opened on 2026-10-21.
+    https://www.notreble.com/buzz/2009/11/09/right-hand-technique-for-upright-bass-pizzicato/
