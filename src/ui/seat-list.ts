@@ -5,20 +5,20 @@ import { createButton, createElement, setAttribute } from './dom.ts';
 import type { Tooltips } from './tooltip.ts';
 
 /**
- * The least level at which the ring of a dot shows with reduced motion, where the ring is on or
- * off with no fade (design 2.8). The ring then stays on for nearly all of its fade of 0.3 s, so
- * that short notes do not make it flicker.
+ * The least level at which a dot shows with reduced motion, where the dot is on or off with no
+ * fade (design 2.8). The dot then stays on for nearly all of its fade of 0.3 s, so that short
+ * notes do not make it flicker.
  */
 const GLOW_ON = 0.05;
 
-/** The least change of a level that the ring shows. A frame writes the DOM only on a change. */
+/** The least change of a level that the dot shows. A frame writes the DOM only on a change. */
 const GLOW_STEP = 0.01;
 
 /** The controls of one row of the seat list. */
 interface SeatRow {
   /** The row. */
   readonly item: HTMLLIElement;
-  /** The dot in the fur color, which holds the ring while the seat plays. */
+  /** The dot in the fur color, which shows with a glow while the seat plays. */
   readonly dot: HTMLSpanElement;
   /** The button "M". */
   readonly mute: HTMLButtonElement;
@@ -54,7 +54,7 @@ export class SeatList {
   readonly #tooltips: Tooltips;
   readonly #keepFocus: () => void;
   #rows: SeatRow[] = [];
-  /** The level of the ring that each row shows, or -1 before the first frame. */
+  /** The level of the dot that each row shows, or -1 before the first frame. */
   #shown = new Float32Array(0);
 
   /**
@@ -135,9 +135,9 @@ export class SeatList {
   }
 
   /**
-   * Shows the ring on the dot of each seat that plays (design 2.8). The level sets the opacity
-   * and the size of the ring through `--glow`, and the class `playing` turns the ring on with
-   * reduced motion. The ring shows only after the piece starts, as the meter of the demo row.
+   * Shows the dot of each seat that plays (design 2.8). The level sets the opacity, the size, and
+   * the glow of the dot through `--glow`, and the class `playing` turns the dot on with reduced
+   * motion. The dot shows only after the piece starts, as the meter of the demo row.
    *
    * @param levels The level of each seat, from 0 to 1, from `seatLevels()`.
    * @param started True while the piece plays, or after it has left its start.
