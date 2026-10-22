@@ -287,3 +287,4 @@ The decision files:
 - [`2026-10-22-seam-gate.md`](decisions/2026-10-22-seam-gate.md): the search for a measure of the arm seams with no result, the audit sheet of `pnpm close-views audit` at two camera heights, and the intake check of the arm joins and gaps of `pnpm rig-mesh --check`.
 - [`2026-10-22-panda-armpit.md`](decisions/2026-10-22-panda-armpit.md): the back lips of the panda arm roots in the free arm, two shapes of its right arm, and the candidate round patch of the rhino arms.
 - [`2026-10-22-arm-roots.md`](decisions/2026-10-22-arm-roots.md): the bear copy with raised shoulder balls, and the edit script of the arm roots.
+- [`2026-10-22-polar-legs.md`](decisions/2026-10-22-polar-legs.md): the longer legs of the polar bear pianist with its size kept, and the bench that fits them.
