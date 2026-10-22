@@ -1228,7 +1228,9 @@ def arm_side(verts, rules, heads, ends, sign):
     front edge lies nearer to the middle plane than its back edge, as the notches where a thick
     arm joins the side of the trunk. A vertex then also lies within `radius` of the chain of the
     arm joints, from the shoulder to the finger tip, and above the height `floor`, so that the
-    side of the trunk and the thigh beside the arm are not a part of it."""
+    side of the trunk and the thigh beside the arm are not a part of it. With `shift`, the chain
+    moves by that vector of the left side before the distance, for an arm whose section is not
+    round around its joints, such as the bear arm, whose root reaches farther back than forward."""
     left = verts * [sign, 1.0, 1.0]
     rule = rules.get('armFree')
     if rule is None:
@@ -1236,7 +1238,7 @@ def arm_side(verts, rules, heads, ends, sign):
     turn = math.radians(rule['turn'])
     across = left[:, 0] * math.cos(turn) + left[:, 2] * math.sin(turn)
     chain = [heads[f'{bone}_L'] for bone in ARM if bone != 'forearm_twist'] + [ends['fingers_L']]
-    chain = np.asarray(chain, float)
+    chain = np.asarray(chain, float) + np.asarray(rule.get('shift', [0.0, 0.0, 0.0]), float)
     gap = np.full(len(verts), np.inf)
     for a, b in zip(chain[:-1], chain[1:]):
         ab = b - a
