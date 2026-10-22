@@ -482,6 +482,16 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     below its root, so the plane frees it with no cut. The upper arm of its bind points far down
     (`studio.bindArms`), because the large turn from the hanging flipper to the bind arm of the
     other meshes turned the faces at the root of the flipper over.
+  - Upper arm form. A mesh whose arm is free of the trunk only from the elbow down has no upper
+    arm of its own: the upper arm is a bulge of the trunk wall, and each turn of the arm crumples
+    the wall into flaps. No weight rule, cut, ring, or shape fixes it. The rig of the pig reads a
+    copy of the mesh in which each upper arm is a round tube with rings of edges, free of the
+    trunk up to a dome around the shoulder joint (`pig-arms.glb`), so the free arm needs no cut
+    (`weights.armFree`). A flat upper arm reads as a plank when its broad side faces the front, so
+    the copy of the rabbit also makes its upper arms rounder (`rabbit-4-arms.glb`), and its bow
+    elbow points out and forward (5.3). `pnpm arm-look` measures the crease of the arm skin
+    against the source and the section of the upper arm, with limits from the red fox
+    (`docs/decisions/2026-10-21-arm-form.md`).
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
     raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
