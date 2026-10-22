@@ -883,7 +883,7 @@ export function poseBowed(
   ).multiply(bowAlign.fromArray(rig.bowAlign));
   onInstrument(rig, place, pluckPalm.fromArray(rig.pluck))
     .addScaledVector(strings.top, h.pluckHeight)
-    .addScaledVector(strings.across, state.pluck * h.pluck * state.gesture);
+    .addScaledVector(strings.across, state.pluck * h.pluck * state.gesture - rig.hold.pluckSide);
   pluckBow.grip.copy(pluckPalm);
 
   // The right shoulder turns forward while the player plays.

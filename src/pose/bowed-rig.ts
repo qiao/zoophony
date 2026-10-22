@@ -175,6 +175,12 @@ export interface BowedHold {
    */
   readonly pluckPlace: number;
   /**
+   * The move of the plucking palm from the strings toward the frog side, in meters: a real
+   * bassist brings the hand up from the side and rests the thumb on the edge of the fingerboard
+   * (`docs/reference/string-technique.md`, section 2.8). 0 keeps the palm above the strings.
+   */
+  readonly pluckSide: number;
+  /**
    * The rest pose of the instrument: its axis, the side of its top plate, and the place of its
    * bone (the tail end) on the left thigh. `null` keeps the instrument in its playing place, with
    * {@link BowedHold.playShift} and {@link BowedHold.playTurn}, as the cello and the contrabass
@@ -305,6 +311,7 @@ const CHIN_HOLD = {
   lean: 0,
   restPlace: 0.4,
   pluckPlace: 0.9,
+  pluckSide: 0,
   rest: {
     axis: [-0.17, 0.95, -0.26],
     top: [0, 0, -1],
@@ -368,6 +375,7 @@ const FLOOR_HOLD = {
   lean: 10 * MathUtils.DEG2RAD,
   restPlace: 0.4,
   pluckPlace: 0.3,
+  pluckSide: 0,
   rest: null,
   liftReach: [0, 0, 0],
   restAtSide: false,
