@@ -2,6 +2,11 @@
 interface AssetCredit {
   /** The credit line, with the changes to the file. */
   readonly text: string;
+  /**
+   * The end of the credit line after the name of the file: the source, the authors, the license,
+   * and the changes.
+   */
+  readonly attribution: string;
   /** The page of the source. */
   readonly sourceUrl: string;
   /** The name of the license. */
@@ -10,6 +15,12 @@ interface AssetCredit {
   readonly licenseUrl: string;
 }
 
+/** The source, the authors, the license, and the changes of the hall impulse response. */
+const HALL_ATTRIBUTION =
+  "St Paul's Hall, University of Huddersfield, from the 360° BRIR and FOA database by Bogdan " +
+  'Ioan Bacila and Hyunkook Lee (Applied Psychoacoustics Lab, University of Huddersfield), CC BY ' +
+  '4.0. Changed: decoded to stereo, direct sound removed, shortened.';
+
 /**
  * The credit of the hall impulse response, `assets/hall/st-pauls-hall-c8m.wav` (design 2.8, 7.3).
  * CC BY 4.0 asks for the credit, a link to the license, and a note of the changes. The credits
@@ -17,11 +28,8 @@ interface AssetCredit {
  * it at a small cost.
  */
 export const HALL_CREDIT: AssetCredit = {
-  text:
-    "Hall reverb: impulse response of St Paul's Hall, University of Huddersfield, from the 360° " +
-    'BRIR and FOA database by Bogdan Ioan Bacila and Hyunkook Lee (Applied Psychoacoustics Lab, ' +
-    'University of Huddersfield), CC BY 4.0. Changed: decoded to stereo, direct sound removed, ' +
-    'shortened.',
+  text: `Hall reverb: impulse response of ${HALL_ATTRIBUTION}`,
+  attribution: HALL_ATTRIBUTION,
   sourceUrl: 'https://doi.org/10.5281/zenodo.2641166',
   license: 'CC BY 4.0',
   licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
