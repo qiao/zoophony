@@ -182,8 +182,15 @@ export async function soundFontEntries(root: string): Promise<LicenseEntry[]> {
   ];
 }
 
-async function main(): Promise<void> {
-  const root = join(import.meta.dirname, '..');
+/**
+ * Reads all entries of the third-party license file (design 7.3): the bundled packages, the
+ * sources of the SoundFont, the hall impulse response, and the GitHub mark.
+ *
+ * @param root The folder of the root package.json.
+ * @returns The entries, in the order of the file.
+ * @throws Error if a dependency is not in `BUNDLED_PACKAGES`, or if a license file is missing.
+ */
+export async function licenseEntries(root: string): Promise<LicenseEntry[]> {
   const rootManifest = await readManifest(join(root, 'package.json'));
   const unlisted = Object.keys(rootManifest.dependencies ?? {}).filter(
     (name) => !BUNDLED_PACKAGES.includes(name),
@@ -197,6 +204,12 @@ async function main(): Promise<void> {
   entries.push(...(await soundFontEntries(root)));
   entries.push(await hallEntry(root));
   entries.push(await githubMarkEntry(root));
+  return entries;
+}
+
+async function main(): Promise<void> {
+  const root = join(import.meta.dirname, '..');
+  const entries = await licenseEntries(root);
   const out = join(root, 'dist', LICENSES_FILE);
   await writeFile(out, licenseDocument(entries));
   console.log(`Wrote ${out}: ${entries.map((entry) => entry.title).join(', ')}.`);
