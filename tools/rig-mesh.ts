@@ -19,6 +19,7 @@ import {
 import type { FaceRecord, FoldCounts } from './fold-probe.ts';
 import { faceList, faceShares, foldShareText } from './face-shares.ts';
 import type { FaceShare } from './face-shares.ts';
+import { armGaps, gapLines } from './arm-gap.ts';
 import { animalSpecies, runTool, scratchSettings, withGlbBody } from './glb-swap.ts';
 import { measureLines, measureRig, triangleLine } from './rig-mesh-check.ts';
 import { FORM_FORMAT, readFormJson } from './rig-form.ts';
@@ -28,7 +29,7 @@ import { checkFormat, formatVersion, runChild, withProbeTree } from './ref-tree.
 import { trackChild, trackFolder } from './stop-cleanup.ts';
 import { gzipSize } from './studio-budgets.ts';
 import type { ThinRule } from './rig-mesh-check.ts';
-import { ANIMALS, writeStudioModule } from './studio-body.ts';
+import { ANIMALS, studioBody, writeStudioModule } from './studio-body.ts';
 import type { AnimalSettings } from './studio-body.ts';
 
 /** The repository root. */
@@ -2039,6 +2040,9 @@ async function checkRig(
     const module = join(dir, `${animal}.ts`);
     await writeStudioModule(module, animal, settings.constant, measures.body);
     console.log(measureLines(measures, await readFile(module, 'utf8'), thin).join('\n'));
+    // The intake check of the seams: a role that only sits gets the standing pose of the export.
+    const stance = studioBody(bytes, config.output, { ...settings, seated: true, soloist: true });
+    console.log(gapLines(animal, armGaps(stance.body)).join('\n'));
     const result = {
       triangles: measures.triangles,
       meshGzip: gzipSize(measures.body.mesh),
