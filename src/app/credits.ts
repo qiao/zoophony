@@ -27,6 +27,18 @@ export interface LinkedCredit {
   readonly links: readonly CreditLink[];
 }
 
+/** The text before the name of the author, on the first line of the credits dialog. */
+export const AUTHOR_TEXT = 'Made by';
+
+/**
+ * The author of Zoophony, on the first line of the credits dialog (design 2.8). The name is the
+ * name of `LICENSE`, and the link goes to the owner of `REPOSITORY_URL`.
+ */
+export const AUTHOR_LINK: CreditLink = {
+  text: 'Xueqiao Xu',
+  href: 'https://github.com/qiao',
+};
+
 /**
  * The credit of the hall reverb (design 2.8, 6.8): the line of `HALL_CREDIT`, and links to its
  * source and to its license. CC BY 4.0 asks for the credit, a link to the license, and a note of

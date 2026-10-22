@@ -1,4 +1,6 @@
 import {
+  AUTHOR_LINK,
+  AUTHOR_TEXT,
   DEMO_SOURCES_LABEL,
   HALL_REVERB_CREDIT,
   LICENSES_TEXT,
@@ -10,9 +12,9 @@ import type { DemoId } from '../app/demos.ts';
 import { createElement, setText } from './dom.ts';
 
 /**
- * The content of the credits dialog (design 2.8, 7.3, 8.1): the credit line of the current demo,
- * the SoundFont credit, the credit of the hall reverb, the link "Third-party licenses", and the
- * sources of the other demos.
+ * The content of the credits dialog (design 2.8, 7.3, 8.1): the author line, the credit line of
+ * the current demo, the SoundFont credit, the credit of the hall reverb, the link "Third-party
+ * licenses", and the sources of the other demos.
  */
 export class Credits {
   /** The element that holds the credits. */
@@ -29,12 +31,15 @@ export class Credits {
    */
   constructor(licensesHref: string) {
     this.element = createElement('div', 'credits');
+    const author = createElement('p', 'author', `${AUTHOR_TEXT} `);
+    author.append(newTabLink(AUTHOR_LINK.text, AUTHOR_LINK.href));
     this.#current = createElement('p');
     const licenses = createElement('p', 'licenses');
     licenses.append(newTabLink(LICENSES_TEXT, licensesHref));
     this.#sources = createElement('ul', 'list sources');
     this.#sources.setAttribute('aria-label', DEMO_SOURCES_LABEL);
     this.element.append(
+      author,
       this.#current,
       ...SOUND_CREDITS.map(linkedLine),
       linkedLine(HALL_REVERB_CREDIT),

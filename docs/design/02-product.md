@@ -260,7 +260,8 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   - Credits: the link "Credits" at the end of the tab "Settings" (user, 2026-10-07: "hide credits
     behind a link, which when clicked would popup a modal"; user, 2026-10-20: "move credit to
     settings") opens a native `<dialog>` with `showModal()` (`ui/modal-dialog.ts`). It
-    holds the credit of the current demo (8.2), the SoundFont credits (6.2), the hall reverb credit
+    starts with the author line "Made by Xueqiao Xu" (user, 2026-10-21: "add myself to the top").
+    Then it holds the credit of the current demo (8.2), the SoundFont credits (6.2), the hall reverb credit
     (6.8), the link "Third-party licenses", and the credit of each other demo (7.3, 8.1)
     (`creditTexts()` in `app/credits.ts`). Each link opens in a new tab, so that the music does
     not stop.
