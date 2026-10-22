@@ -1,0 +1,14 @@
+
+> zoophony@0.0.0 arm-look /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/deer-dog-seams
+> node tools/arm-look.ts harpist cellist fox-violinist
+
+Arm look of 3 roles, play step 1 s. Limits: crease share 14.6% (twice the worst arm of the red fox (7.3%)), section 0.44 (0.6 of the worst arm of the red fox (0.74)).
+
+| Role | Arm | Play samples | Crease share p50 | Section p50 |
+|---|---|---:|---:|---:|
+| harpist | L | 283 | 8.2% | 0.72 |
+| harpist | R | 283 | 9.8% | 0.83 |
+| cellist | L | 4454 | 10.3% | 0.76 |
+| cellist | R | 4454 | 4.7% | 0.76 |
+| fox-violinist | L | 4454 | 3.5% | 0.74 |
+| fox-violinist | R | 4454 | 7.3% | 0.93 |
