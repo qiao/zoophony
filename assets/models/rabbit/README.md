@@ -88,3 +88,24 @@ vertex moves half of the way to a quadratic surface that fits 28 trunk vertices 
 notch, at most 0.008 units of the studio axes (1.6 cm in the file, 1.2 cm in the app). No other
 vertex, face, UV, or texture changes. `fair.py` of `docs/research/2026-10-21-rabbit-notch/` gives
 the moves.
+
+## rabbit-4-arms.glb
+
+`rabbit-4-arms.glb` is `rabbit-4-armpit.glb` with a second local edit in Blender (MCP), which the
+user chose on 2026-10-21 ("the rabbit and pig's arms are still very deformed"). The rig of the
+rabbit (`source` of `tools/mesh-rigs/rabbit.json`) reads this file. `rabbit-4.glb` stays the
+file of the user, byte for byte.
+
+| Item | Value |
+|---|---|
+| File | `rabbit-4-arms.glb`, 12,219,892 bytes |
+| SHA-256 | `bb3ea28e9d8eef8afb89ae7673715e3e0579f27c0fa3f1e5afe0e610ae4de345` |
+| Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `rabbit-4-armpit.glb` |
+| License | As `rabbit-4.glb` |
+
+The edit: the upper arm of the source is flat, with a narrow axis of 0.45 to 0.48 of the wide
+axis at its middle. 9 vertices of the left upper arm and 8 of the right upper arm move toward
+the axis of the bone along the wide axis of the arm, at most 0.036 units of the studio axes
+(5.3 cm in the app). The vertices of the arm run of the cut of the rig keep their places. No other
+vertex, face, UV, or texture changes. `rabbit_arms.py` of `docs/research/2026-10-21-arm-form/`
+gives the moves.
