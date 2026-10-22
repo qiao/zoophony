@@ -336,8 +336,18 @@ function applyStudioPose(mesh: SkinnedMesh, pose: AnimalPose): boolean {
     eyeScale,
     player.pose,
   );
-  for (const [i, bone] of mesh.skeleton.bones.entries()) {
-    bone.matrix.fromArray(matrices, i * 16);
+  // A copy by index: an iterator of entries with Matrix4.fromArray() took twice the time.
+  const bones = mesh.skeleton.bones;
+  for (let b = 0; b < bones.length; b++) {
+    const bone = bones[b];
+    if (!bone) {
+      continue;
+    }
+    const elements = bone.matrix.elements;
+    const offset = b * 16;
+    for (let k = 0; k < 16; k++) {
+      elements[k] = matrices[offset + k] ?? 0;
+    }
     bone.matrixWorldNeedsUpdate = true;
   }
   const influences = mesh.morphTargetInfluences;
