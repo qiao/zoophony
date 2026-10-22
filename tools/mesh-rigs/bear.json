@@ -1,5 +1,6 @@
 {
-  "source": "assets/models/bear/bear-mesh.glb",
+  "source": "assets/models/bear/bear-mesh-roots.glb",
+  "sourceNote": "A copy of the mesh of the user (assets/models/bear/bear-mesh.glb, SHA-256 5196b757...) with the shoulder ball of each arm root moved out and the longest edge across each shoulder joint split (assets/models/bear/README.md, SHA-256 0b3c74ea...). The user said on 2026-10-22: \"the bear is not fixed. there's still visible dent there in the arms\". The turns of the arm sank the shoulder ball 2 to 3 cm below the surface around it, as a sharp V at the top back of the arm root (docs/research/2026-10-22-arm-roots.md). tools/blender/arm_root.py with tools/arm-roots/bear.json writes the copy.",
   "output": "assets/models/bear/bear-mesh.rig.glb",
   "name": "Bear",
   "weld": 1e-05,
