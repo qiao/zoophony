@@ -19,35 +19,36 @@ import type { ArmRig } from './ik.ts';
 
 /**
  * The hold of the baton and of the left hand of the conductor (design 5.4). The places are in
- * head heights `H` of the bear of the cast, the studio bear (0.313 m), in the model axes of the
- * bind pose: the bear faces -z, and its left is -x. The places of the left hand and the elbows
- * keep their values of the parametric bear (0.513 m). The point and the pivot of the baton are
- * new for the studio bear, because its arms are shorter for its baton of 0.51 m. The values of
- * the history below are in the `H` of the bear of their time. `CUE_MOTION` of `cues.ts` gives the
+ * head heights `H` of the bear of the cast, the mesh bear (0.43 m), in the model axes of the bind
+ * pose: the bear faces -z, and its left is -x. The places of the left hand and the elbows keep
+ * their values in `H`. The point and the pivot of the baton are new for the mesh bear, whose
+ * baton lies along the index finger (`docs/research/2026-10-22-mesh-bear.md`). The values of the
+ * history below are in the `H` of the bear of their time. `CUE_MOTION` of `cues.ts` gives the
  * directions of a cue.
  */
 export const CONDUCTOR_HOLD = {
   /**
    * The point of the tip of the baton at beat 1 of each pattern, from the right shoulder joint.
-   * With the pivot, it puts the wrist of a soft beat 1 about 0.35 H up, 0.9 H forward, and 0.85 H
+   * With the pivot, it puts the wrist of a soft beat 1 about 0.35 H up, 0.7 H forward, and 0.35 H
    * out: a little below the chin, in front of the shoulder, and beside the head from behind, as in
-   * `mockup.png`. The point of the parametric bear, 0.89 H up and 1.56 H forward, put the wrist
-   * of the studio bear 0.1 H below its shoulder and 0.4 H forward, because the baton keeps its
-   * length. A wrist at the height of the shoulder and 0.45 H out hid the right paw behind the body
-   * from behind. A wrist 0.15 H further in than now put the claws of the right paw 2 cm into the
-   * long muzzle when the head turned to a section on the right (Mozart K. 525). Before the studio
+   * `mockup.png`. The tip is in front of the shoulder, so that the baton points in. With the
+   * point of the studio bear (0.39, 1.48, -2.0), the baton of the mesh bear pointed up 55°. A
+   * wrist 0.15 H further in than the wrist of the studio bear put its claws 2 cm into the long
+   * muzzle when the head turned to a section on the right (Mozart K. 525). Before the studio
    * bear: the first point, 0.9 H up and 1.2 H forward, kept the hand next to the head (UX audit
    * 2026-10-05, AM1).
    */
-  beatPoint: [0.39, 1.48, -2.0],
+  beatPoint: [-0.016, 0.966, -1.703],
   /**
-   * The baton points from this place to its tip, from the right shoulder joint: up 49° and 22°
-   * inward at beat 1, and nearly upright in the ready gesture, as in `bear-views.png`. The pivot is
-   * 1.03 m from the tip and 0.47 m behind the wrist, as for the parametric bear, so that the wrist
-   * follows about half of the motion of the tip in the beat plane, and the arm beats with the
-   * baton.
+   * The baton points from this place to its tip, from the right shoulder joint: forward, up 30°,
+   * and 20° inward at beat 1, as a conductor points it at the players. The pivot is 1.03 m from
+   * the tip and 0.5 m behind the wrist, as for the parametric bear, so that the wrist follows
+   * about half of the motion of the tip in the beat plane, and the arm beats with the baton. In
+   * the play, the baton points up 38° and in 12° on the median. With the baton up 22°, a fast
+   * turn of the paw (4,249° per second) jumped in the lowering of the arms, and the arm gate
+   * failed.
    */
-  batonPivot: [1.21, -1.01, 0.0],
+  batonPivot: [0.694, -0.233, 0.249],
   /**
    * The beat plane turns this part of the turn of the upper body to a cued section on the left.
    * Thus the arm opens to the right in a turn to the left, and the hand stays beside the head from
