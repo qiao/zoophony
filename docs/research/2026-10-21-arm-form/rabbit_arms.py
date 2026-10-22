@@ -1,11 +1,14 @@
 """Rounds the upper arms of a copy of the rabbit mesh, in Blender (MCP or batch).
 
 The upper arm of the source is flat: the narrow axis of its middle section is 0.45 to 0.48 of the
-wide axis, which points to the front. For each side, each vertex of the free arm (beyond
-|x| = armSplit) moves toward the axis of the upper arm along the wide axis, by the factor K at the
-middle of the upper arm, with a fade to no move at the shoulder joint and before the elbow joint.
-The vertices of the arm run of the cut of the seam (`cut` of `tools/mesh-rigs/rabbit.json`) keep
-their places, so that the quad at the top of the cut and the caps of the body keep their form.
+wide axis, which points to the front. For each side, each vertex near the upper arm moves toward
+the axis of the upper arm along the wide axis, by the factor `k` at the middle of the upper arm,
+with a fade to no move at the shoulder joint and before the elbow joint. The left arm also moves
+its vertices up to `innerL` inside the plane |x| = armSplit and the arm run of its cut, so that its
+inner side is round too. The right arm keeps the arm run of its cut (`cut` of
+`tools/mesh-rigs/rabbit.json`) in place: a move of it folded the caps of the body of the right
+cut, which lie in the shallow notch of `rabbit-4-armpit.glb` (rounds `arm-form` and `arm-form-2`).
+The script reads `rabbit-4-armpit.glb`.
 
     exec(open('<this file>').read()); run(<config>, <out.glb>)    # in the live Blender, MCP
     blender -b --python <this file> -- <config.json> <out.glb>    # in a batch run
@@ -21,6 +24,13 @@ from mathutils import Vector
 
 #: The factor of the wide axis at the middle of the upper arm.
 K = 0.4
+
+#: The source of the copy, from the root of the tree.
+SOURCE = 'assets/models/rabbit/rabbit-4-armpit.glb'
+
+#: The options of the edit: the factor `k` of each side, the reach inside the plane of each side,
+#: and the arm runs that keep their places (`armL`, `armR`).
+OPTIONS = {'k': K, 'innerL': 0.03, 'innerR': 0.0, 'armL': False, 'armR': True}
 
 #: The fade of the move along the upper arm, from the shoulder joint (0) to the elbow joint (1):
 #: it grows from T0 to T1 and falls from T2 to T3.
@@ -41,8 +51,18 @@ def smooth(x, a, b):
     return t * t * (3 - 2 * t)
 
 
-def round_arms(bm, config):
+#: The vertices of the body runs of the cut of both sides, as `ARM_RUNS`.
+BODY_RUNS = (934, 905, 938, 891, 939, 941, 902, 961, 958, 956, 953, 949,
+             1020, 1025, 1008, 1012, 1011, 1018, 984, 982)
+
+
+def round_arms(bm, config, opts=None):
     """Rounds both upper arms of a welded mesh in place. Gives the report lines."""
+    opts = {**OPTIONS, **(opts or {})}
+    k_factor = opts.get('k', K)
+    inner = opts.get('inner', 0.0)
+    t0, t1, t2, t3 = opts.get('fade', (T0, T1, T2, T3))
+    reach = opts.get('reach', REACH)
     zs = [v.co.z for v in bm.verts]
     floor, top = min(zs), max(zs)
     scale = 1.0 / (top - floor)
@@ -56,7 +76,11 @@ def round_arms(bm, config):
     joints = config['joints']
     split = config['weights']['armSplit']
     bm.verts.ensure_lookup_table()
-    pinned = {bm.verts[i] for i in ARM_RUNS}
+    arm_l, arm_r = ARM_RUNS[:9], ARM_RUNS[9:]
+    pins = ((arm_l if opts.get('armL', opts.get('arm', True)) else ())
+            + (arm_r if opts.get('armR', opts.get('arm', True)) else ())
+            + (BODY_RUNS if opts.get('body', False) else ()))
+    pinned = {bm.verts[i] for i in pins}
     lines = []
     for side, sign in (('L', 1.0), ('R', -1.0)):
         s = np.array(joints['upper_arm_L']['head']) * [sign, 1, 1]
@@ -78,17 +102,17 @@ def round_arms(bm, config):
         q = r - r.mean(axis=0)
         w, vec = np.linalg.eigh(q.T @ q / len(q))
         wide = vec[:, np.argmax(w)]
-        radius = REACH * np.sqrt(w.max())
+        radius = reach * np.sqrt(w.max())
         moved, biggest = 0, 0.0
         for v, p in pts.items():
-            if p[0] * sign <= split or v in pinned:
+            if p[0] * sign <= split - opts.get(f'inner{side}', inner) or v in pinned:
                 continue
             t = (p - s) @ axis / length
-            fade = smooth(t, T0, T1) * (1.0 - smooth(t, T2, T3))
+            fade = smooth(t, t0, t1) * (1.0 - smooth(t, t2, t3))
             off = p - (s + t * length * axis)
             if fade <= 0 or np.linalg.norm(off) > radius:
                 continue
-            p2 = p - (1.0 - K) * fade * (off @ wide) * wide
+            p2 = p - (1.0 - opts.get(f'k{side}', k_factor)) * fade * (off @ wide) * wide
             v.co = to_world(p2)
             moved += 1
             biggest = max(biggest, float(np.linalg.norm(p2 - p)))
@@ -98,14 +122,14 @@ def round_arms(bm, config):
     return lines
 
 
-def run(config_path, out, name='rabbit_arms'):
+def run(config_path, out, name='rabbit_arms', opts=None):
     """Imports the source of the config as the object `name`, rounds its arms, and exports the
     copy. Gives the report lines."""
     config = json.load(open(config_path))
     for o in list(bpy.data.objects):
         if o.type == 'MESH':
             bpy.data.objects.remove(o, do_unlink=True)
-    bpy.ops.import_scene.gltf(filepath=config['source'])
+    bpy.ops.import_scene.gltf(filepath=SOURCE)
     ob = next(o for o in bpy.context.scene.objects if o.type == 'MESH')
     ob.name = name
     mw = ob.matrix_world.copy()
@@ -113,7 +137,7 @@ def run(config_path, out, name='rabbit_arms'):
     bm.from_mesh(ob.data)
     bm.transform(mw)
     bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=config['weld'])
-    lines = round_arms(bm, config)
+    lines = round_arms(bm, config, opts)
     bm.transform(mw.inverted())
     bm.to_mesh(ob.data)
     bm.free()
@@ -127,4 +151,4 @@ def run(config_path, out, name='rabbit_arms'):
 
 if __name__ == '__main__' and '--' in sys.argv:
     argv = sys.argv[sys.argv.index('--') + 1:]
-    print('\n'.join(run(argv[0], argv[1])))
+    print('\n'.join(run(argv[0], argv[1], opts=json.loads(argv[2]) if len(argv) > 2 else None)))

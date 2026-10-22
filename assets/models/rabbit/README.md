@@ -99,13 +99,14 @@ file of the user, byte for byte.
 | Item | Value |
 |---|---|
 | File | `rabbit-4-arms.glb`, 12,219,892 bytes |
-| SHA-256 | `bb3ea28e9d8eef8afb89ae7673715e3e0579f27c0fa3f1e5afe0e610ae4de345` |
+| SHA-256 | `f102f698e01e0bc20b9ba218d437ef793400cd1451b19eb366fbf59214b1a1dd` |
 | Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `rabbit-4-armpit.glb` |
 | License | As `rabbit-4.glb` |
 
 The edit: the upper arm of the source is flat, with a narrow axis of 0.45 to 0.48 of the wide
-axis at its middle. 9 vertices of the left upper arm and 8 of the right upper arm move toward
+axis at its middle. 43 vertices of the left upper arm and 8 of the right upper arm move toward
 the axis of the bone along the wide axis of the arm, at most 0.036 units of the studio axes
-(5.3 cm in the app). The vertices of the arm run of the cut of the rig keep their places. No other
-vertex, face, UV, or texture changes. `rabbit_arms.py` of `docs/research/2026-10-21-arm-form/`
+(5.3 cm in the app). The left arm also moves its inner side and the arm run of its cut. The right
+arm keeps the arm run of its cut in place, because a move of it folded the caps of the body of the
+right cut. No other vertex, face, UV, or texture changes. `rabbit_arms.py` of `docs/research/2026-10-21-arm-form/`
 gives the moves.
