@@ -1018,6 +1018,21 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       dog (shoulders at `frog`). The other roles are clean from the back at their play moment
       (`pnpm close-views <role> <dir> --lineup --views back,150,-150,front,left,right --crop 2`).
       Fix the panda, rhino, deer, and dog in one round after the cause of the bear is known.
+      - [x] Panda: the back lips of the notches join the free arm (round `panda-armpit`,
+            `docs/research/2026-10-22-panda-armpit.md`). The down area falls from 34.7 / 32.5 to
+            18.7 / 22.2 cm².
+      - [ ] Panda arm gate: the flat p5 of the lift falls from 0.80 / 0.84 to 0.69 / 0.71, and
+            `pnpm arm-check trombonist --base c5fae22c` gives `FAIL` (limit 0.55). Accept it as
+            a decision row, or revert `2ae168dc`.
+      - [ ] Panda front notch: a small gray dent below each arm from the left side. Try a fair
+            surface in a copy of the mesh (`fair.py` of `docs/research/2026-10-21-rabbit-notch/`).
+      - [ ] Rhino flat forearm: the flat cap of the cut over the whole inner side of the arm. A
+            round patch in a copy (`arm_patch.py` of `docs/research/2026-10-22-panda-armpit/`,
+            step 0.03, `weights.armIslands`, `cut.low` 0.17) lifts the left section from 0.39 to
+            0.44, but the crease share stays 15.7% (`FAIL`). Next: a finer patch on the forearm
+            only, within 3,200 triangles.
+      - [ ] Body probe of the panda round: 18 pose sets of other players change at the start of
+            brahms-2 and beethoven-9. Find the shared input that the panda rig moves.
 - [ ] Tools of a mesh round (retro of the bear mesh round, 2026-10-22):
       - Let `pnpm close-views` use the build again when the tree hash is the same, and take more
         than one `--glb` in one run, each variant into its own folder. The bear round made about
