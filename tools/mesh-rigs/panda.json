@@ -127,7 +127,18 @@
     "note": "The studio has no panda. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it (docs/research/2026-10-18-panda-mesh/leg_turns.py <config> 25 8 0). The posture is the posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, 8 degrees out, and the shin is vertical, so that the knee angle from the side is 115 degrees. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The source shin slants 14.6 degrees back. The bind arms are the bind arms of the fox, the rabbit, the cat, and the dog. The tail has one bone, as the tail ball of the rabbit, so it needs no bind direction."
   },
   "weights": {
-    "armSplit": 0.185,
+    "armSplit": 0.16,
+    "armFree": {
+      "turn": 0,
+      "radius": 0.11,
+      "floor": 0.3,
+      "root": {
+        "split": 0.185,
+        "heights": [0.47, 0.6],
+        "depths": [-1, 0]
+      },
+      "note": "The arm hangs apart from the body from x 0.18 out, and its root joins the side of the trunk with a notch at its front and its back from y 0.47 to 0.58 (the lips at x 0.16 to 0.18). Bone heat gave the lips 0.2 to 0.46 of arm weight, and a raised arm pulled the back lips out as a black flap under the arm at az150 and the front lips as white wedges into the black arm (docs/research/2026-10-22-panda-armpit.md). A vertex of the free arm lies beyond the plane |x| = armSplit, within radius of the chain of the arm joints, and above the floor. Between armSplit and root.split, only the back lips (z below 0, y 0.47 to 0.6) join the free arm. With the front lips too, the caps of the arm took their white, and a white tag showed under the elbow. With no root band, the side of the trunk beside the forearm (y 0.41 to 0.47) and the top of the shoulder joined the arm."
+    },
     "stretchRamp": 0,
     "headFrom": 0.72,
     "earBase": [1.1, 1.2],
@@ -154,11 +165,13 @@
       "height": [0.145, 0.195],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the cat and the dog, moved with the joints of the panda: it starts 0.03 units above the knee and ends 0.03 units above the thigh joint."
     },
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.18 out, and the free left arm has 178 vertices. Above headFrom, each vertex follows the head only: the chin starts at y 0.72. The ears stay on the head: their roots (y 0.90 to 0.93) lie below the top of the skull (0.986), so the height rule of earBase would also take the top of the head, and earBase lies above the head, as for the dog. clavicleFrom, armTop, and shoulderHead are the rules of the cat and the dog, moved with the shoulder joint (y 0.609) and the neck (x ±0.155) of the panda. The tail ball holds the round tail: the vertices within radius of center and behind the plane z = behind follow the tail bone only (measures.txt: the tail from z -0.19 to -0.238, y 0.22 to 0.33)."
+    "note": "Beyond the plane |x| = armSplit, only the free arm (armFree) follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.18 out, and the free left arm has 185 vertices. Above headFrom, each vertex follows the head only: the chin starts at y 0.72. The ears stay on the head: their roots (y 0.90 to 0.93) lie below the top of the skull (0.986), so the height rule of earBase would also take the top of the head, and earBase lies above the head, as for the dog. clavicleFrom, armTop, and shoulderHead are the rules of the cat and the dog, moved with the shoulder joint (y 0.609) and the neck (x ±0.155) of the panda. The tail ball holds the round tail: the vertices within radius of center and behind the plane z = behind follow the tail bone only (measures.txt: the tail from z -0.19 to -0.238, y 0.22 to 0.33)."
   },
   "raise": [
     {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.1897, 0.428, -0.0195, 0.8834], "forearm": [-0.0478, 0.0271, -0.0623, 0.9965]}, "fade": [10, 20], "below": 0.0, "note": "The shape of the right arm on the slide of the trombone, with the mean turns of the play samples (keys-read.ts of docs/research/2026-10-18-panda-mesh/): the clavicle turns 45 degrees forward, as the reach of the trombone hold. Face 467 at the front of the right shoulder folded in each play sample. In the pose of the rule, it turns over and relaxes in 1 round."},
-    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.2075, 0.5231, -0.2535, 0.7868], "forearm": [-0.0048, 0.0027, -0.0062, 1.0]}, "fade": [10, 20], "below": 0.0, "note": "The shape of the right arm in the rest pose, with the mean turns of the rest samples. Faces 466 and 467 folded in each rest sample and in 18% of the lift samples. In the pose of the rule, face 467 relaxes in 2 rounds."}
+    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.2075, 0.5231, -0.2535, 0.7868], "forearm": [-0.0048, 0.0027, -0.0062, 1.0]}, "fade": [10, 20], "below": 0.0, "note": "The shape of the right arm in the rest pose, with the mean turns of the rest samples. Faces 466 and 467 folded in each rest sample and in 18% of the lift samples. In the pose of the rule, face 467 relaxes in 2 rounds."},
+    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.2231, 0.485, -0.1638, 0.8296], "forearm": [-0.0095, 0.0054, -0.0124, 0.9999]}, "fade": [10, 20], "below": 0, "note": "The shape of the right arm in the lift, with the mean turns of the folded lift samples (pnpm raise-fit trombonist --faces 90,103 --side R --sets lift). With the back lips in the free arm (armFree.root), faces 90 and 103 at the back lip folded in 5.4% of the lift samples of brahms-2 (docs/research/2026-10-22-panda-armpit.md)."},
+    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.2157, 0.4565, -0.1036, 0.857], "forearm": [0.0115, -0.0065, 0.015, 0.9998]}, "fade": [10, 20], "below": 0, "note": "The shape of the right arm in the lift for face 292 at the front of the right shoulder, which folded in 1.1% of the lift samples with the shape above (pnpm raise-fit trombonist --faces 292 --side R --sets lift)."}
   ],
   "refine": {
     "rings": [],
@@ -241,7 +254,9 @@
   },
   "cut": {
     "top": 0.58,
-    "note": "The user chose \"Cut the mesh (Recommended)\" on 2026-10-18 (docs/decisions/2026-10-18-panda-marks.md). Each hanging forearm of the source touches the belly, and short faces join the two. When the arm lifts, either those faces turn over and show, or the belly faces under them turn from the light (the gray streaks). Below the height top (source units), the faces with a corner in the free arm and a corner in the body go: 20 on the left, 17 on the right. The same number of new faces close the forearm and the belly, and no vertex moves. The bone heat of the cut mesh gives the belly side to the trunk. At top 0.56, the lift folded face 86 in 5.4% of the samples, and at 0.6, the rest folded faces 86 and 404 in each sample (docs/research/2026-10-18-panda-seam.md)."
+    "fins": true,
+    "finsNote": "With the back lips of the arm root in the free arm, a face of the trunk at each notch sticks into the hole with two edges, and the cap repeats it with the opposite winding. The rule removes two such faces on the left and one on the right (docs/research/2026-10-22-panda-armpit.md).",
+    "note": "The user chose \"Cut the mesh (Recommended)\" on 2026-10-18 (docs/decisions/2026-10-18-panda-marks.md). Each hanging forearm of the source touches the belly, and short faces join the two. When the arm lifts, either those faces turn over and show, or the belly faces under them turn from the light (the gray streaks). Below the height top (source units), the faces with a corner in the free arm and a corner in the body go: 26 on the left and 28 on the right with the free arm of armFree (20 and 17 before). New faces close the forearm and the belly, and no vertex moves. The bone heat of the cut mesh gives the belly side to the trunk. At top 0.56, the lift folded face 86 in 5.4% of the samples, and at 0.6, the rest folded faces 86 and 404 in each sample (docs/research/2026-10-18-panda-seam.md)."
   },
   "chair": {
     "halfWidth": 0.22,
