@@ -50,15 +50,15 @@ export interface PieceCredit {
 export const AUTHOR_TEXT = 'Created by';
 
 /**
- * The author of Zoophony, on the title card of the credits dialog (design 2.8). The name is the
- * name of `LICENSE`, and the link goes to the owner of `REPOSITORY_URL`.
+ * The author of Zoophony, on the title card of the credits dialog (design 2.8). The link goes to
+ * the owner of `REPOSITORY_URL`.
  */
 export const AUTHOR_LINK: CreditLink = {
-  text: 'Xueqiao Xu',
+  text: 'Xueqiao (Joe) Xu',
   href: 'https://github.com/qiao',
 };
 
-/** The copyright line at the end of the credits dialog, as the copyright line of `LICENSE`. */
+/** The copyright line at the end of the credits dialog, with the year of `LICENSE`. */
 export const COPYRIGHT_TEXT = `© 2026 ${AUTHOR_LINK.text}`;
 
 /** The heading of the group of the current demo (design 2.8, 8.2). */
