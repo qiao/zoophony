@@ -140,7 +140,7 @@ The decision files:
 - [`2026-10-11-low-seats.md`](decisions/2026-10-11-low-seats.md): the low seats and the stools that the user decided.
 - [`2026-10-11-penguin-body.md`](decisions/2026-10-11-penguin-body.md): the beak snout that left the biped, and the gallery views of `pnpm choir-check`.
 - [`2026-10-11-short-legs.md`](decisions/2026-10-11-short-legs.md): the short legs of the reference images.
-- [`2026-10-12-studio-bear.md`](decisions/2026-10-12-studio-bear.md): the studio bear of `lowpoly-studio/` as the conductor.
+- [`2026-10-12-studio-bear.md`](decisions/2026-10-12-studio-bear.md): the retarget of the studio bodies, first for the studio bear of `lowpoly-studio/` as the conductor, which the mesh bear replaced on 2026-10-22.
 - [`2026-10-12-studio-polar-bear.md`](decisions/2026-10-12-studio-polar-bear.md): the studio polar bear of `lowpoly-studio/` as the pianist.
 - [`2026-10-13-frame-time.md`](decisions/2026-10-13-frame-time.md): the GPU time of the frame target in a Metal System Trace.
 - [`2026-10-13-frame-tools.md`](decisions/2026-10-13-frame-tools.md): the guards and the checks of `pnpm frame`.
@@ -255,7 +255,7 @@ The decision files:
 - [`2026-10-20-camera-lower.md`](decisions/2026-10-20-camera-lower.md): the default view and the Cinematic shots that the user asked to be slightly lower, and the conflict with the camera of `orchestra-latest.png`.
 - [`2026-10-20-armpits.md`](decisions/2026-10-20-armpits.md): the cut of the arm seams of the rabbit with its trunk weights and its shape of the bow arm, the wider play shape of the right arm of the pig, and the right palm of the hornist just inside the bell.
 - [`2026-10-20-pea-eyes.md`](decisions/2026-10-20-pea-eyes.md): the pea eyes of the studio bodies bent to the head surface, their middle on the surface, and the light on the front of a bent eye.
-- [`2026-10-20-bear-eyes.md`](decisions/2026-10-20-bear-eyes.md): the bear pea eyes moved out and down to a part of the face with less fold, bent to the head, and the end of the flat pea eyes.
+- [`2026-10-20-bear-eyes.md`](decisions/2026-10-20-bear-eyes.md): the end of the flat pea eyes.
 - [`2026-10-20-cat-left-arm.md`](decisions/2026-10-20-cat-left-arm.md): the left paw of the cat violist tilted further over the neck, so that it curls around the neck and the wrist skin does not twist into a band, the rigid faces of its wrist, and the open fifth position.
 - [`2026-10-20-mesh-monkey.md`](decisions/2026-10-20-mesh-monkey.md): the monkey mesh of the user as the trumpet player, at 1.1 times the size of the parametric monkey, its arms, colors, the smile line of its face, no chair, and its trumpet hold with a smaller trumpet.
 - [`2026-10-21-monkey-stand.md`](decisions/2026-10-21-monkey-stand.md): the stand of the trumpet monkey with no chair, with its center of mass over the middle of its soles: the legs under the hips, the forward lean of the trunk, the round haunch with no sit rule, and the tail on the floor.
@@ -281,3 +281,4 @@ The decision files:
 - [`2026-10-21-frame-performance.md`](decisions/2026-10-21-frame-performance.md): the end of the pause of the frame rule, the cuts of the frame time with the same pixels (one pose of the bones in each frame, a material for each program variant, and the culling of the players), the options that change the look, and the missed frames of a capped window.
 - [`2026-10-21-perf-retro.md`](decisions/2026-10-21-perf-retro.md): the decisions of the performance retro: the fair lock of the measures, the tools of the load and the frame rounds, and the facts of the docs.
 - [`2026-10-22-rabbit-elbow.md`](decisions/2026-10-22-rabbit-elbow.md): the copy of the rabbit mesh with a round inner side of each arm, the islands of the free arm, the open trunk hole of the cut, and the section of the right upper arm.
+- [`2026-10-22-mesh-bear.md`](decisions/2026-10-22-mesh-bear.md): the bear mesh of the user as the conductor in place of the studio bear, near its size, with the arms of the mesh and a cut of each arm seam, the brown of the reference image, a smile line, the baton along the index finger, and the smaller bow at the song end.
