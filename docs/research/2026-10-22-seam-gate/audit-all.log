@@ -1,0 +1,719 @@
+
+> zoophony@0.0.0 close-views /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/seam-gate
+> sh -c 'node tools/close-views.ts --check "$@" && pnpm build && node tools/close-views.ts "$@"' close-views audit scratch/audit-all
+
+
+> zoophony@0.0.0 build /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/seam-gate
+> node tools/split-soundfont.ts && node tools/patch-demos.ts && vite build && node tools/licenses.ts
+
+Wrote 274 preset files (53,834,004 B) and sf/index.json.
+Wrote 14 demo files to public/demos/.
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 232 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/views.html                                     1.30 kB │ gzip:   0.51 kB
+dist/gallery.html                                   1.54 kB │ gzip:   0.68 kB
+dist/spike.html                                     1.58 kB │ gzip:   0.69 kB
+dist/index.html                                     4.09 kB │ gzip:   1.56 kB
+dist/.vite/manifest.json                            4.39 kB │ gzip:   0.87 kB
+dist/assets/st-pauls-hall-c8m-i-GBZJep.flac       127.98 kB
+dist/assets/decode-worker-DMtyWeMQ.js             207.44 kB
+dist/assets/processor-B80axH8l.js                 350.01 kB
+dist/assets/st-pauls-hall-c8m-BSpSsUY_.wav        480.04 kB
+dist/assets/views-I9dnNPhD.css                      0.35 kB │ gzip:   0.23 kB
+dist/assets/gallery-D3zlOYAu.css                    0.83 kB │ gzip:   0.47 kB
+dist/assets/index-C3vzfIPj.css                     22.39 kB │ gzip:   5.54 kB
+dist/assets/score-B9H2kGgv.js                       0.06 kB │ gzip:   0.07 kB
+dist/assets/fetch-ok-CaAbW7On.js                    0.13 kB │ gzip:   0.13 kB
+dist/assets/synth-C2pyjh8y.js                       0.35 kB │ gzip:   0.26 kB
+dist/assets/clock-BcXityS4.js                       0.48 kB │ gzip:   0.27 kB
+dist/assets/drum-map--rjToQku.js                    0.63 kB │ gzip:   0.25 kB
+dist/assets/modulepreload-polyfill-P2Xu9kJm.js      0.67 kB │ gzip:   0.38 kB
+dist/assets/plan-C6Wt88CV.js                        1.24 kB │ gzip:   0.68 kB
+dist/assets/soundfont-info-CYIG9x6g.js              1.50 kB │ gzip:   0.81 kB
+dist/assets/preload-helper-Ba9bsDxq.js              1.80 kB │ gzip:   0.97 kB
+dist/assets/demos-K8bpQi2S.js                       3.76 kB │ gzip:   1.21 kB
+dist/assets/spike-3nVD1N4O.js                       5.51 kB │ gzip:   2.27 kB
+dist/assets/player-DfeJ5D7x.js                      7.45 kB │ gzip:   3.19 kB
+dist/assets/gallery-Boi3cWKc.js                    10.62 kB │ gzip:   4.78 kB
+dist/assets/views-BzKRIFFe.js                      11.65 kB │ gzip:   4.71 kB
+dist/assets/layout-scene-DUqRaiDO.js               16.13 kB │ gzip:   6.15 kB
+dist/assets/score-CkWITP8q.js                      18.51 kB │ gzip:   7.19 kB
+dist/assets/OrbitControls-BgYzoYHL.js              19.85 kB │ gzip:   4.40 kB
+dist/assets/index-BBxJEjOw.js                     135.94 kB │ gzip:  49.56 kB
+dist/assets/renderer-DyW22WqG.js                1,658.06 kB │ gzip: 631.94 kB
+
+✓ built in 672ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 700 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+Wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/seam-gate/dist/third-party-licenses.txt: three 0.186.1, spessasynth_core 4.3.22, stb-vorbis 0.0.6, GeneralUser GS 2.0.3, by S. Christian Collins, VS Chamber Orchestra 2: Community Edition 1.1.0, by Versilian Studios (Sam Gossner) and Ivy Audio (Simon Dalzell), Versilian Community Sample Library, by Versilian Studios, Hall impulse response, St Paul's Hall (360° BRIR and FOA database), GitHub mark, icons/mark-github-24.svg of Primer Octicons.
+Camera: zoom 1.4, 20°, cells of 720 × 900 px.
+scratch/audit-all/conductor/e20/conductor-views.png
+scratch/audit-all/conductor/e20/conductor-lineup-beat-1.png
+scratch/audit-all/conductor/e20/conductor-lineup-beat-1-crop2.png
+scratch/audit-all/conductor/e20/conductor-lineup-between.png
+scratch/audit-all/conductor/e20/conductor-lineup-between-crop2.png
+scratch/audit-all/conductor/e20/conductor-lineup-beat-2.png
+scratch/audit-all/conductor/e20/conductor-lineup-beat-2-crop2.png
+scratch/audit-all/conductor/e20/conductor-lineup-beat-3.png
+scratch/audit-all/conductor/e20/conductor-lineup-beat-3-crop2.png
+scratch/audit-all/conductor/e20/conductor-lineup-beat-4.png
+scratch/audit-all/conductor/e20/conductor-lineup-beat-4-crop2.png
+scratch/audit-all/conductor/e20/conductor-lineup-rest.png
+scratch/audit-all/conductor/e20/conductor-lineup-rest-crop2.png
+scratch/audit-all/conductor-e20.png
+Camera: zoom 1.4, 40°, cells of 720 × 900 px.
+scratch/audit-all/conductor/e40/conductor-views.png
+scratch/audit-all/conductor/e40/conductor-lineup-beat-1.png
+scratch/audit-all/conductor/e40/conductor-lineup-beat-1-crop2.png
+scratch/audit-all/conductor/e40/conductor-lineup-between.png
+scratch/audit-all/conductor/e40/conductor-lineup-between-crop2.png
+scratch/audit-all/conductor/e40/conductor-lineup-beat-2.png
+scratch/audit-all/conductor/e40/conductor-lineup-beat-2-crop2.png
+scratch/audit-all/conductor/e40/conductor-lineup-beat-3.png
+scratch/audit-all/conductor/e40/conductor-lineup-beat-3-crop2.png
+scratch/audit-all/conductor/e40/conductor-lineup-beat-4.png
+scratch/audit-all/conductor/e40/conductor-lineup-beat-4-crop2.png
+scratch/audit-all/conductor/e40/conductor-lineup-rest.png
+scratch/audit-all/conductor/e40/conductor-lineup-rest-crop2.png
+scratch/audit-all/conductor-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/pianist/e20/pianist-views.png
+scratch/audit-all/pianist/e20/pianist-lineup-chord.png
+scratch/audit-all/pianist/e20/pianist-lineup-chord-crop2.png
+scratch/audit-all/pianist/e20/pianist-lineup-between.png
+scratch/audit-all/pianist/e20/pianist-lineup-between-crop2.png
+scratch/audit-all/pianist/e20/pianist-lineup-rest.png
+scratch/audit-all/pianist/e20/pianist-lineup-rest-crop2.png
+scratch/audit-all/pianist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/pianist/e40/pianist-views.png
+scratch/audit-all/pianist/e40/pianist-lineup-chord.png
+scratch/audit-all/pianist/e40/pianist-lineup-chord-crop2.png
+scratch/audit-all/pianist/e40/pianist-lineup-between.png
+scratch/audit-all/pianist/e40/pianist-lineup-between-crop2.png
+scratch/audit-all/pianist/e40/pianist-lineup-rest.png
+scratch/audit-all/pianist/e40/pianist-lineup-rest-crop2.png
+scratch/audit-all/pianist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/harpist/e20/harpist-views.png
+scratch/audit-all/harpist/e20/harpist-lineup-chord.png
+scratch/audit-all/harpist/e20/harpist-lineup-chord-crop2.png
+scratch/audit-all/harpist/e20/harpist-lineup-pluck.png
+scratch/audit-all/harpist/e20/harpist-lineup-pluck-crop2.png
+scratch/audit-all/harpist/e20/harpist-lineup-rest.png
+scratch/audit-all/harpist/e20/harpist-lineup-rest-crop2.png
+scratch/audit-all/harpist/e20/harpist-lineup-lift50.png
+scratch/audit-all/harpist/e20/harpist-lineup-lift50-crop2.png
+scratch/audit-all/harpist/e20/harpist-lineup-lower50.png
+scratch/audit-all/harpist/e20/harpist-lineup-lower50-crop2.png
+scratch/audit-all/harpist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/harpist/e40/harpist-views.png
+scratch/audit-all/harpist/e40/harpist-lineup-chord.png
+scratch/audit-all/harpist/e40/harpist-lineup-chord-crop2.png
+scratch/audit-all/harpist/e40/harpist-lineup-pluck.png
+scratch/audit-all/harpist/e40/harpist-lineup-pluck-crop2.png
+scratch/audit-all/harpist/e40/harpist-lineup-rest.png
+scratch/audit-all/harpist/e40/harpist-lineup-rest-crop2.png
+scratch/audit-all/harpist/e40/harpist-lineup-lift50.png
+scratch/audit-all/harpist/e40/harpist-lineup-lift50-crop2.png
+scratch/audit-all/harpist/e40/harpist-lineup-lower50.png
+scratch/audit-all/harpist/e40/harpist-lineup-lower50-crop2.png
+scratch/audit-all/harpist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/violinist/e20/violinist-views.png
+scratch/audit-all/violinist/e20/violinist-lineup-frog.png
+scratch/audit-all/violinist/e20/violinist-lineup-frog-crop2.png
+scratch/audit-all/violinist/e20/violinist-lineup-tip.png
+scratch/audit-all/violinist/e20/violinist-lineup-tip-crop2.png
+scratch/audit-all/violinist/e20/violinist-lineup-crossing.png
+scratch/audit-all/violinist/e20/violinist-lineup-crossing-crop2.png
+scratch/audit-all/violinist/e20/violinist-lineup-rest.png
+scratch/audit-all/violinist/e20/violinist-lineup-rest-crop2.png
+scratch/audit-all/violinist/e20/violinist-lineup-lift50.png
+scratch/audit-all/violinist/e20/violinist-lineup-lift50-crop2.png
+scratch/audit-all/violinist/e20/violinist-lineup-lower50.png
+scratch/audit-all/violinist/e20/violinist-lineup-lower50-crop2.png
+scratch/audit-all/violinist/e20/violinist-lineup-stand.png
+scratch/audit-all/violinist/e20/violinist-lineup-stand-crop2.png
+scratch/audit-all/violinist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/violinist/e40/violinist-views.png
+scratch/audit-all/violinist/e40/violinist-lineup-frog.png
+scratch/audit-all/violinist/e40/violinist-lineup-frog-crop2.png
+scratch/audit-all/violinist/e40/violinist-lineup-tip.png
+scratch/audit-all/violinist/e40/violinist-lineup-tip-crop2.png
+scratch/audit-all/violinist/e40/violinist-lineup-crossing.png
+scratch/audit-all/violinist/e40/violinist-lineup-crossing-crop2.png
+scratch/audit-all/violinist/e40/violinist-lineup-rest.png
+scratch/audit-all/violinist/e40/violinist-lineup-rest-crop2.png
+scratch/audit-all/violinist/e40/violinist-lineup-lift50.png
+scratch/audit-all/violinist/e40/violinist-lineup-lift50-crop2.png
+scratch/audit-all/violinist/e40/violinist-lineup-lower50.png
+scratch/audit-all/violinist/e40/violinist-lineup-lower50-crop2.png
+scratch/audit-all/violinist/e40/violinist-lineup-stand.png
+scratch/audit-all/violinist/e40/violinist-lineup-stand-crop2.png
+scratch/audit-all/violinist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/fox-violinist/e20/fox-violinist-views.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-frog.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-frog-crop2.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-tip.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-tip-crop2.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-crossing.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-crossing-crop2.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-rest.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-rest-crop2.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-lift50.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-lift50-crop2.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-lower50.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-lower50-crop2.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-stand.png
+scratch/audit-all/fox-violinist/e20/fox-violinist-lineup-stand-crop2.png
+scratch/audit-all/fox-violinist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/fox-violinist/e40/fox-violinist-views.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-frog.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-frog-crop2.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-tip.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-tip-crop2.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-crossing.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-crossing-crop2.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-rest.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-rest-crop2.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-lift50.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-lift50-crop2.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-lower50.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-lower50-crop2.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-stand.png
+scratch/audit-all/fox-violinist/e40/fox-violinist-lineup-stand-crop2.png
+scratch/audit-all/fox-violinist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/violist/e20/violist-views.png
+scratch/audit-all/violist/e20/violist-lineup-frog.png
+scratch/audit-all/violist/e20/violist-lineup-frog-crop2.png
+scratch/audit-all/violist/e20/violist-lineup-tip.png
+scratch/audit-all/violist/e20/violist-lineup-tip-crop2.png
+scratch/audit-all/violist/e20/violist-lineup-crossing.png
+scratch/audit-all/violist/e20/violist-lineup-crossing-crop2.png
+scratch/audit-all/violist/e20/violist-lineup-rest.png
+scratch/audit-all/violist/e20/violist-lineup-rest-crop2.png
+scratch/audit-all/violist/e20/violist-lineup-lift50.png
+scratch/audit-all/violist/e20/violist-lineup-lift50-crop2.png
+scratch/audit-all/violist/e20/violist-lineup-lower50.png
+scratch/audit-all/violist/e20/violist-lineup-lower50-crop2.png
+scratch/audit-all/violist/e20/violist-lineup-stand.png
+scratch/audit-all/violist/e20/violist-lineup-stand-crop2.png
+scratch/audit-all/violist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/violist/e40/violist-views.png
+scratch/audit-all/violist/e40/violist-lineup-frog.png
+scratch/audit-all/violist/e40/violist-lineup-frog-crop2.png
+scratch/audit-all/violist/e40/violist-lineup-tip.png
+scratch/audit-all/violist/e40/violist-lineup-tip-crop2.png
+scratch/audit-all/violist/e40/violist-lineup-crossing.png
+scratch/audit-all/violist/e40/violist-lineup-crossing-crop2.png
+scratch/audit-all/violist/e40/violist-lineup-rest.png
+scratch/audit-all/violist/e40/violist-lineup-rest-crop2.png
+scratch/audit-all/violist/e40/violist-lineup-lift50.png
+scratch/audit-all/violist/e40/violist-lineup-lift50-crop2.png
+scratch/audit-all/violist/e40/violist-lineup-lower50.png
+scratch/audit-all/violist/e40/violist-lineup-lower50-crop2.png
+scratch/audit-all/violist/e40/violist-lineup-stand.png
+scratch/audit-all/violist/e40/violist-lineup-stand-crop2.png
+scratch/audit-all/violist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/cellist/e20/cellist-views.png
+scratch/audit-all/cellist/e20/cellist-lineup-frog.png
+scratch/audit-all/cellist/e20/cellist-lineup-frog-crop2.png
+scratch/audit-all/cellist/e20/cellist-lineup-tip.png
+scratch/audit-all/cellist/e20/cellist-lineup-tip-crop2.png
+scratch/audit-all/cellist/e20/cellist-lineup-crossing.png
+scratch/audit-all/cellist/e20/cellist-lineup-crossing-crop2.png
+scratch/audit-all/cellist/e20/cellist-lineup-rest.png
+scratch/audit-all/cellist/e20/cellist-lineup-rest-crop2.png
+scratch/audit-all/cellist/e20/cellist-lineup-lift50.png
+scratch/audit-all/cellist/e20/cellist-lineup-lift50-crop2.png
+scratch/audit-all/cellist/e20/cellist-lineup-lower50.png
+scratch/audit-all/cellist/e20/cellist-lineup-lower50-crop2.png
+scratch/audit-all/cellist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/cellist/e40/cellist-views.png
+scratch/audit-all/cellist/e40/cellist-lineup-frog.png
+scratch/audit-all/cellist/e40/cellist-lineup-frog-crop2.png
+scratch/audit-all/cellist/e40/cellist-lineup-tip.png
+scratch/audit-all/cellist/e40/cellist-lineup-tip-crop2.png
+scratch/audit-all/cellist/e40/cellist-lineup-crossing.png
+scratch/audit-all/cellist/e40/cellist-lineup-crossing-crop2.png
+scratch/audit-all/cellist/e40/cellist-lineup-rest.png
+scratch/audit-all/cellist/e40/cellist-lineup-rest-crop2.png
+scratch/audit-all/cellist/e40/cellist-lineup-lift50.png
+scratch/audit-all/cellist/e40/cellist-lineup-lift50-crop2.png
+scratch/audit-all/cellist/e40/cellist-lineup-lower50.png
+scratch/audit-all/cellist/e40/cellist-lineup-lower50-crop2.png
+scratch/audit-all/cellist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/bassist/e20/bassist-views.png
+scratch/audit-all/bassist/e20/bassist-lineup-frog.png
+scratch/audit-all/bassist/e20/bassist-lineup-frog-crop2.png
+scratch/audit-all/bassist/e20/bassist-lineup-tip.png
+scratch/audit-all/bassist/e20/bassist-lineup-tip-crop2.png
+scratch/audit-all/bassist/e20/bassist-lineup-crossing.png
+scratch/audit-all/bassist/e20/bassist-lineup-crossing-crop2.png
+scratch/audit-all/bassist/e20/bassist-lineup-rest.png
+scratch/audit-all/bassist/e20/bassist-lineup-rest-crop2.png
+scratch/audit-all/bassist/e20/bassist-lineup-lift50.png
+scratch/audit-all/bassist/e20/bassist-lineup-lift50-crop2.png
+scratch/audit-all/bassist/e20/bassist-lineup-lower50.png
+scratch/audit-all/bassist/e20/bassist-lineup-lower50-crop2.png
+scratch/audit-all/bassist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/bassist/e40/bassist-views.png
+scratch/audit-all/bassist/e40/bassist-lineup-frog.png
+scratch/audit-all/bassist/e40/bassist-lineup-frog-crop2.png
+scratch/audit-all/bassist/e40/bassist-lineup-tip.png
+scratch/audit-all/bassist/e40/bassist-lineup-tip-crop2.png
+scratch/audit-all/bassist/e40/bassist-lineup-crossing.png
+scratch/audit-all/bassist/e40/bassist-lineup-crossing-crop2.png
+scratch/audit-all/bassist/e40/bassist-lineup-rest.png
+scratch/audit-all/bassist/e40/bassist-lineup-rest-crop2.png
+scratch/audit-all/bassist/e40/bassist-lineup-lift50.png
+scratch/audit-all/bassist/e40/bassist-lineup-lift50-crop2.png
+scratch/audit-all/bassist/e40/bassist-lineup-lower50.png
+scratch/audit-all/bassist/e40/bassist-lineup-lower50-crop2.png
+scratch/audit-all/bassist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/flutist/e20/flutist-views.png
+scratch/audit-all/flutist/e20/flutist-lineup-note.png
+scratch/audit-all/flutist/e20/flutist-lineup-note-crop2.png
+scratch/audit-all/flutist/e20/flutist-lineup-between.png
+scratch/audit-all/flutist/e20/flutist-lineup-between-crop2.png
+scratch/audit-all/flutist/e20/flutist-lineup-rest.png
+scratch/audit-all/flutist/e20/flutist-lineup-rest-crop2.png
+scratch/audit-all/flutist/e20/flutist-lineup-lift50.png
+scratch/audit-all/flutist/e20/flutist-lineup-lift50-crop2.png
+scratch/audit-all/flutist/e20/flutist-lineup-lower50.png
+scratch/audit-all/flutist/e20/flutist-lineup-lower50-crop2.png
+scratch/audit-all/flutist/e20/flutist-lineup-stand.png
+scratch/audit-all/flutist/e20/flutist-lineup-stand-crop2.png
+scratch/audit-all/flutist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/flutist/e40/flutist-views.png
+scratch/audit-all/flutist/e40/flutist-lineup-note.png
+scratch/audit-all/flutist/e40/flutist-lineup-note-crop2.png
+scratch/audit-all/flutist/e40/flutist-lineup-between.png
+scratch/audit-all/flutist/e40/flutist-lineup-between-crop2.png
+scratch/audit-all/flutist/e40/flutist-lineup-rest.png
+scratch/audit-all/flutist/e40/flutist-lineup-rest-crop2.png
+scratch/audit-all/flutist/e40/flutist-lineup-lift50.png
+scratch/audit-all/flutist/e40/flutist-lineup-lift50-crop2.png
+scratch/audit-all/flutist/e40/flutist-lineup-lower50.png
+scratch/audit-all/flutist/e40/flutist-lineup-lower50-crop2.png
+scratch/audit-all/flutist/e40/flutist-lineup-stand.png
+scratch/audit-all/flutist/e40/flutist-lineup-stand-crop2.png
+scratch/audit-all/flutist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/trombonist/e20/trombonist-views.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-first.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-first-crop2.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-seventh.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-seventh-crop2.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-rest.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-rest-crop2.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-lift50.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-lift50-crop2.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-lower50.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-lower50-crop2.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-stand.png
+scratch/audit-all/trombonist/e20/trombonist-lineup-stand-crop2.png
+scratch/audit-all/trombonist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/trombonist/e40/trombonist-views.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-first.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-first-crop2.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-seventh.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-seventh-crop2.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-rest.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-rest-crop2.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-lift50.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-lift50-crop2.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-lower50.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-lower50-crop2.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-stand.png
+scratch/audit-all/trombonist/e40/trombonist-lineup-stand-crop2.png
+scratch/audit-all/trombonist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/oboist/e20/oboist-views.png
+scratch/audit-all/oboist/e20/oboist-lineup-note.png
+scratch/audit-all/oboist/e20/oboist-lineup-note-crop2.png
+scratch/audit-all/oboist/e20/oboist-lineup-between.png
+scratch/audit-all/oboist/e20/oboist-lineup-between-crop2.png
+scratch/audit-all/oboist/e20/oboist-lineup-rest.png
+scratch/audit-all/oboist/e20/oboist-lineup-rest-crop2.png
+scratch/audit-all/oboist/e20/oboist-lineup-lift50.png
+scratch/audit-all/oboist/e20/oboist-lineup-lift50-crop2.png
+scratch/audit-all/oboist/e20/oboist-lineup-lower50.png
+scratch/audit-all/oboist/e20/oboist-lineup-lower50-crop2.png
+scratch/audit-all/oboist/e20/oboist-lineup-stand.png
+scratch/audit-all/oboist/e20/oboist-lineup-stand-crop2.png
+scratch/audit-all/oboist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/oboist/e40/oboist-views.png
+scratch/audit-all/oboist/e40/oboist-lineup-note.png
+scratch/audit-all/oboist/e40/oboist-lineup-note-crop2.png
+scratch/audit-all/oboist/e40/oboist-lineup-between.png
+scratch/audit-all/oboist/e40/oboist-lineup-between-crop2.png
+scratch/audit-all/oboist/e40/oboist-lineup-rest.png
+scratch/audit-all/oboist/e40/oboist-lineup-rest-crop2.png
+scratch/audit-all/oboist/e40/oboist-lineup-lift50.png
+scratch/audit-all/oboist/e40/oboist-lineup-lift50-crop2.png
+scratch/audit-all/oboist/e40/oboist-lineup-lower50.png
+scratch/audit-all/oboist/e40/oboist-lineup-lower50-crop2.png
+scratch/audit-all/oboist/e40/oboist-lineup-stand.png
+scratch/audit-all/oboist/e40/oboist-lineup-stand-crop2.png
+scratch/audit-all/oboist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/timpanist/e20/timpanist-views.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-left.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-left-crop2.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-between.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-between-crop2.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-right.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-right-crop2.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-rest.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-rest-crop2.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-lift50.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-lift50-crop2.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-lower50.png
+scratch/audit-all/timpanist/e20/timpanist-lineup-lower50-crop2.png
+scratch/audit-all/timpanist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/timpanist/e40/timpanist-views.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-left.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-left-crop2.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-between.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-between-crop2.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-right.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-right-crop2.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-rest.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-rest-crop2.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-lift50.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-lift50-crop2.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-lower50.png
+scratch/audit-all/timpanist/e40/timpanist-lineup-lower50-crop2.png
+scratch/audit-all/timpanist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/bassoonist/e20/bassoonist-views.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-note.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-note-crop2.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-between.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-between-crop2.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-rest.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-rest-crop2.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-lift50.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-lift50-crop2.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-lower50.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-lower50-crop2.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-stand.png
+scratch/audit-all/bassoonist/e20/bassoonist-lineup-stand-crop2.png
+scratch/audit-all/bassoonist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/bassoonist/e40/bassoonist-views.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-note.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-note-crop2.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-between.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-between-crop2.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-rest.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-rest-crop2.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-lift50.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-lift50-crop2.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-lower50.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-lower50-crop2.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-stand.png
+scratch/audit-all/bassoonist/e40/bassoonist-lineup-stand-crop2.png
+scratch/audit-all/bassoonist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/hornist/e20/hornist-views.png
+scratch/audit-all/hornist/e20/hornist-lineup-note.png
+scratch/audit-all/hornist/e20/hornist-lineup-note-crop2.png
+scratch/audit-all/hornist/e20/hornist-lineup-between.png
+scratch/audit-all/hornist/e20/hornist-lineup-between-crop2.png
+scratch/audit-all/hornist/e20/hornist-lineup-rest.png
+scratch/audit-all/hornist/e20/hornist-lineup-rest-crop2.png
+scratch/audit-all/hornist/e20/hornist-lineup-lift50.png
+scratch/audit-all/hornist/e20/hornist-lineup-lift50-crop2.png
+scratch/audit-all/hornist/e20/hornist-lineup-lower50.png
+scratch/audit-all/hornist/e20/hornist-lineup-lower50-crop2.png
+scratch/audit-all/hornist/e20/hornist-lineup-stand.png
+scratch/audit-all/hornist/e20/hornist-lineup-stand-crop2.png
+scratch/audit-all/hornist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/hornist/e40/hornist-views.png
+scratch/audit-all/hornist/e40/hornist-lineup-note.png
+scratch/audit-all/hornist/e40/hornist-lineup-note-crop2.png
+scratch/audit-all/hornist/e40/hornist-lineup-between.png
+scratch/audit-all/hornist/e40/hornist-lineup-between-crop2.png
+scratch/audit-all/hornist/e40/hornist-lineup-rest.png
+scratch/audit-all/hornist/e40/hornist-lineup-rest-crop2.png
+scratch/audit-all/hornist/e40/hornist-lineup-lift50.png
+scratch/audit-all/hornist/e40/hornist-lineup-lift50-crop2.png
+scratch/audit-all/hornist/e40/hornist-lineup-lower50.png
+scratch/audit-all/hornist/e40/hornist-lineup-lower50-crop2.png
+scratch/audit-all/hornist/e40/hornist-lineup-stand.png
+scratch/audit-all/hornist/e40/hornist-lineup-stand-crop2.png
+scratch/audit-all/hornist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/clarinetist/e20/clarinetist-views.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-note.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-note-crop2.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-between.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-between-crop2.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-rest.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-rest-crop2.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-lift50.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-lift50-crop2.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-lower50.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-lower50-crop2.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-stand.png
+scratch/audit-all/clarinetist/e20/clarinetist-lineup-stand-crop2.png
+scratch/audit-all/clarinetist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/clarinetist/e40/clarinetist-views.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-note.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-note-crop2.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-between.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-between-crop2.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-rest.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-rest-crop2.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-lift50.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-lift50-crop2.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-lower50.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-lower50-crop2.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-stand.png
+scratch/audit-all/clarinetist/e40/clarinetist-lineup-stand-crop2.png
+scratch/audit-all/clarinetist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/trumpeter/e20/trumpeter-views.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-note.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-note-crop2.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-between.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-between-crop2.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-rest.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-rest-crop2.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-lift50.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-lift50-crop2.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-lower50.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-lower50-crop2.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-stand.png
+scratch/audit-all/trumpeter/e20/trumpeter-lineup-stand-crop2.png
+scratch/audit-all/trumpeter-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/trumpeter/e40/trumpeter-views.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-note.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-note-crop2.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-between.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-between-crop2.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-rest.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-rest-crop2.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-lift50.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-lift50-crop2.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-lower50.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-lower50-crop2.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-stand.png
+scratch/audit-all/trumpeter/e40/trumpeter-lineup-stand-crop2.png
+scratch/audit-all/trumpeter-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/tubist/e20/tubist-views.png
+scratch/audit-all/tubist/e20/tubist-lineup-note.png
+scratch/audit-all/tubist/e20/tubist-lineup-note-crop2.png
+scratch/audit-all/tubist/e20/tubist-lineup-between.png
+scratch/audit-all/tubist/e20/tubist-lineup-between-crop2.png
+scratch/audit-all/tubist/e20/tubist-lineup-rest.png
+scratch/audit-all/tubist/e20/tubist-lineup-rest-crop2.png
+scratch/audit-all/tubist/e20/tubist-lineup-lift50.png
+scratch/audit-all/tubist/e20/tubist-lineup-lift50-crop2.png
+scratch/audit-all/tubist/e20/tubist-lineup-lower50.png
+scratch/audit-all/tubist/e20/tubist-lineup-lower50-crop2.png
+scratch/audit-all/tubist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/tubist/e40/tubist-views.png
+scratch/audit-all/tubist/e40/tubist-lineup-note.png
+scratch/audit-all/tubist/e40/tubist-lineup-note-crop2.png
+scratch/audit-all/tubist/e40/tubist-lineup-between.png
+scratch/audit-all/tubist/e40/tubist-lineup-between-crop2.png
+scratch/audit-all/tubist/e40/tubist-lineup-rest.png
+scratch/audit-all/tubist/e40/tubist-lineup-rest-crop2.png
+scratch/audit-all/tubist/e40/tubist-lineup-lift50.png
+scratch/audit-all/tubist/e40/tubist-lineup-lift50-crop2.png
+scratch/audit-all/tubist/e40/tubist-lineup-lower50.png
+scratch/audit-all/tubist/e40/tubist-lineup-lower50-crop2.png
+scratch/audit-all/tubist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/singer/e20/singer-views.png
+scratch/audit-all/singer/e20/singer-lineup-note.png
+scratch/audit-all/singer/e20/singer-lineup-note-crop2.png
+scratch/audit-all/singer/e20/singer-lineup-between.png
+scratch/audit-all/singer/e20/singer-lineup-between-crop2.png
+scratch/audit-all/singer/e20/singer-lineup-rest.png
+scratch/audit-all/singer/e20/singer-lineup-rest-crop2.png
+scratch/audit-all/singer-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/singer/e40/singer-views.png
+scratch/audit-all/singer/e40/singer-lineup-note.png
+scratch/audit-all/singer/e40/singer-lineup-note-crop2.png
+scratch/audit-all/singer/e40/singer-lineup-between.png
+scratch/audit-all/singer/e40/singer-lineup-between-crop2.png
+scratch/audit-all/singer/e40/singer-lineup-rest.png
+scratch/audit-all/singer/e40/singer-lineup-rest-crop2.png
+scratch/audit-all/singer-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/bass-drummer/e20/bass-drummer-views.png
+scratch/audit-all/bass-drummer/e20/bass-drummer-lineup-strike.png
+scratch/audit-all/bass-drummer/e20/bass-drummer-lineup-strike-crop2.png
+scratch/audit-all/bass-drummer/e20/bass-drummer-lineup-between.png
+scratch/audit-all/bass-drummer/e20/bass-drummer-lineup-between-crop2.png
+scratch/audit-all/bass-drummer/e20/bass-drummer-lineup-rest.png
+scratch/audit-all/bass-drummer/e20/bass-drummer-lineup-rest-crop2.png
+scratch/audit-all/bass-drummer/e20/bass-drummer-lineup-lift50.png
+scratch/audit-all/bass-drummer/e20/bass-drummer-lineup-lift50-crop2.png
+scratch/audit-all/bass-drummer/e20/bass-drummer-lineup-lower50.png
+scratch/audit-all/bass-drummer/e20/bass-drummer-lineup-lower50-crop2.png
+scratch/audit-all/bass-drummer-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/bass-drummer/e40/bass-drummer-views.png
+scratch/audit-all/bass-drummer/e40/bass-drummer-lineup-strike.png
+scratch/audit-all/bass-drummer/e40/bass-drummer-lineup-strike-crop2.png
+scratch/audit-all/bass-drummer/e40/bass-drummer-lineup-between.png
+scratch/audit-all/bass-drummer/e40/bass-drummer-lineup-between-crop2.png
+scratch/audit-all/bass-drummer/e40/bass-drummer-lineup-rest.png
+scratch/audit-all/bass-drummer/e40/bass-drummer-lineup-rest-crop2.png
+scratch/audit-all/bass-drummer/e40/bass-drummer-lineup-lift50.png
+scratch/audit-all/bass-drummer/e40/bass-drummer-lineup-lift50-crop2.png
+scratch/audit-all/bass-drummer/e40/bass-drummer-lineup-lower50.png
+scratch/audit-all/bass-drummer/e40/bass-drummer-lineup-lower50-crop2.png
+scratch/audit-all/bass-drummer-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/snare-drummer/e20/snare-drummer-views.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-right.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-right-crop2.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-left.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-left-crop2.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-between.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-between-crop2.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-rest.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-rest-crop2.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-lift50.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-lift50-crop2.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-lower50.png
+scratch/audit-all/snare-drummer/e20/snare-drummer-lineup-lower50-crop2.png
+scratch/audit-all/snare-drummer-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/snare-drummer/e40/snare-drummer-views.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-right.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-right-crop2.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-left.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-left-crop2.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-between.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-between-crop2.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-rest.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-rest-crop2.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-lift50.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-lift50-crop2.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-lower50.png
+scratch/audit-all/snare-drummer/e40/snare-drummer-lineup-lower50-crop2.png
+scratch/audit-all/snare-drummer-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/cymbalist/e20/cymbalist-views.png
+scratch/audit-all/cymbalist/e20/cymbalist-lineup-crash.png
+scratch/audit-all/cymbalist/e20/cymbalist-lineup-crash-crop2.png
+scratch/audit-all/cymbalist/e20/cymbalist-lineup-open.png
+scratch/audit-all/cymbalist/e20/cymbalist-lineup-open-crop2.png
+scratch/audit-all/cymbalist/e20/cymbalist-lineup-rest.png
+scratch/audit-all/cymbalist/e20/cymbalist-lineup-rest-crop2.png
+scratch/audit-all/cymbalist/e20/cymbalist-lineup-lift50.png
+scratch/audit-all/cymbalist/e20/cymbalist-lineup-lift50-crop2.png
+scratch/audit-all/cymbalist/e20/cymbalist-lineup-lower50.png
+scratch/audit-all/cymbalist/e20/cymbalist-lineup-lower50-crop2.png
+scratch/audit-all/cymbalist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/cymbalist/e40/cymbalist-views.png
+scratch/audit-all/cymbalist/e40/cymbalist-lineup-crash.png
+scratch/audit-all/cymbalist/e40/cymbalist-lineup-crash-crop2.png
+scratch/audit-all/cymbalist/e40/cymbalist-lineup-open.png
+scratch/audit-all/cymbalist/e40/cymbalist-lineup-open-crop2.png
+scratch/audit-all/cymbalist/e40/cymbalist-lineup-rest.png
+scratch/audit-all/cymbalist/e40/cymbalist-lineup-rest-crop2.png
+scratch/audit-all/cymbalist/e40/cymbalist-lineup-lift50.png
+scratch/audit-all/cymbalist/e40/cymbalist-lineup-lift50-crop2.png
+scratch/audit-all/cymbalist/e40/cymbalist-lineup-lower50.png
+scratch/audit-all/cymbalist/e40/cymbalist-lineup-lower50-crop2.png
+scratch/audit-all/cymbalist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/percussionist/e20/percussionist-views.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-triangle.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-triangle-crop2.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-between.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-between-crop2.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-tambourine.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-tambourine-crop2.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-rest.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-rest-crop2.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-lift50.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-lift50-crop2.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-lower50.png
+scratch/audit-all/percussionist/e20/percussionist-lineup-lower50-crop2.png
+scratch/audit-all/percussionist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/percussionist/e40/percussionist-views.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-triangle.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-triangle-crop2.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-between.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-between-crop2.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-tambourine.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-tambourine-crop2.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-rest.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-rest-crop2.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-lift50.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-lift50-crop2.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-lower50.png
+scratch/audit-all/percussionist/e40/percussionist-lineup-lower50-crop2.png
+scratch/audit-all/percussionist-e40.png
+Camera: zoom 1, 20°, cells of 720 × 900 px.
+scratch/audit-all/xylophonist/e20/xylophonist-views.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-lowest.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-lowest-crop2.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-highest.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-highest-crop2.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-between.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-between-crop2.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-rest.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-rest-crop2.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-lift50.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-lift50-crop2.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-lower50.png
+scratch/audit-all/xylophonist/e20/xylophonist-lineup-lower50-crop2.png
+scratch/audit-all/xylophonist-e20.png
+Camera: zoom 1, 40°, cells of 720 × 900 px.
+scratch/audit-all/xylophonist/e40/xylophonist-views.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-lowest.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-lowest-crop2.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-highest.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-highest-crop2.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-between.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-between-crop2.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-rest.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-rest-crop2.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-lift50.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-lift50-crop2.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-lower50.png
+scratch/audit-all/xylophonist/e40/xylophonist-lineup-lower50-crop2.png
+scratch/audit-all/xylophonist-e40.png
+real 1636.78
+user 1476.07
+sys 284.04
