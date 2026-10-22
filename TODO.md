@@ -376,6 +376,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       lift fold of face 224 is gone too (`2026-10-21-rabbit-right-arm.md`, section 4).
 - [ ] Rabbit: a small dark sliver stays under the right elbow from the right side at the frog
       (2,625 band pixels with no shadows, 740 on `main`, `band-measures.txt` of `round4/`).
+- [ ] Rabbit: each bent elbow shows the flat cap of the arm cut as a sheet with a straight end
+      (right faces 92 and 93, mid section 0.63, 0.91 on the red fox). A dome of the cap failed
+      the look. Give each arm a round inner side in a copy of the mesh, as the pig tubes do
+      (`2026-10-21-rabbit-elbow.md`, section 5).
 - [x] Pig: a thin dark line and dark spikes showed at the top of each shoulder. The wall around
       each tube is smooth, and the right dome is higher (round `arm-form-2`).
 - [x] `pnpm arm-check --views` stopped when the worst sample lay at the end of a demo. A frame past
