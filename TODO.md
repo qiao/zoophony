@@ -368,6 +368,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       accepted depth after the test pause. Small dark facets show at the top of the shoulders.
 - [ ] Rabbit: the dark wedge on the chest under the bow arm is the shadow of the arm (4.5), and
       the left upper arm keeps a section of 0.47, near the limit 0.44 of `pnpm arm-look`.
+- [ ] Pig: a thin dark line shows at the top of each shoulder, where the tube of the upper arm
+      enters the trunk, in the side views of the crop pairs of `2026-10-21-arm-form.md`.
+- [ ] `pnpm arm-check --views` stops when the worst sample lies at the end of a demo: the time
+      280.63 s of boulanger-matin is past its end of 280 s for `close-views play`.
 - [x] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
 - [x] Remove the unused code of the face pattern `eye-patches`: no species has it since the panda
       mesh (`2026-10-18-mesh-panda.md`).
