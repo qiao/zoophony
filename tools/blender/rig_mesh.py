@@ -15,7 +15,9 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    head keeps its form, and a blend zone at the neck joins it to the scaled body
    (`proportioned()`). The head keeps its size, or takes the factor `head` of the rule on each
    axis. With `cut` of the config, the faces that join each hanging
-   forearm to the belly go, and new faces close both holes (`cut_seam()`). A copy of the mesh
+   forearm to the belly go, and new faces close both holes (`cut_seam()`). With `fins` of the
+   cut, each kept face that sticks into the hole with two edges also goes (`cut_fins()`), so
+   that no cap repeats it. A copy of the mesh
    that removed these faces and closed the arm itself leaves only the hole of the trunk open,
    and the cut closes that hole (`open_loop()`). With `skinNormals` of
    the cut, the file names the caps of the arm, and the app gives them the normals of the skin.
@@ -1106,6 +1108,45 @@ def open_loop(verts, tris, sign, top):
     return loop
 
 
+def cut_fins(verts, tris, removed, sign, top):
+    """Finds the fins of a cut (`fins` of the cut): each kept face of one side below the height
+    `top` with two edges against removed faces, whose corner between these edges has no other
+    kept face. Such a face sticks into the hole, and the cap of the hole repeats it with the
+    opposite winding. Each fin goes, and the next face can then be a fin, until none is left.
+    Gives the indices of the fin faces."""
+    gone = set(int(k) for k in removed)
+    fins = []
+    faces_of = {}
+    for k, t in enumerate(tris):
+        for v in t:
+            faces_of.setdefault(int(v), []).append(k)
+    edge_faces = {}
+    for k, t in enumerate(tris):
+        for i in range(3):
+            a, b = int(t[i]), int(t[(i + 1) % 3])
+            edge_faces.setdefault((min(a, b), max(a, b)), []).append(k)
+    changed = True
+    while changed:
+        changed = False
+        for k, t in enumerate(tris):
+            if (k in gone or not (verts[t, 0] * sign > 0).all()
+                    or verts[t, 1].max() >= top):
+                continue
+            open_edges = []
+            for i in range(3):
+                a, b = int(t[i]), int(t[(i + 1) % 3])
+                if any(m in gone for m in edge_faces[(min(a, b), max(a, b))] if m != k):
+                    open_edges.append({a, b})
+            if len(open_edges) != 2:
+                continue
+            middle = (open_edges[0] & open_edges[1]).pop()
+            if all(m in gone for m in faces_of[middle] if m != k):
+                gone.add(k)
+                fins.append(k)
+                changed = True
+    return fins
+
+
 def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
     """Cuts the mesh where each hanging forearm touches the belly (`cut` of the config). Each face
     below the height `top` with a corner in the free arm (`free_arm()`) and a corner outside it
@@ -1122,6 +1163,10 @@ def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
         mixed = [k for k, t in enumerate(tris)
                  if arm[t].any() and (~arm[t]).any() and (verts[t, 0] * sign > 0).all()
                  and verts[t, 1].max() < rule['top']]
+        if rule.get('fins') and mixed:
+            fins = cut_fins(verts, tris, mixed, sign, rule['top'])
+            mixed += fins
+            log(f'cut {side}: {len(fins)} fins go {fins}')
         # A copy of the mesh that removed these faces itself and closed the arm, as the remodel
         # of the rabbit elbows, leaves only the hole of the trunk open (`open_loop()`).
         loop = cut_loop(tris, mixed) if mixed else open_loop(verts, tris, sign, rule['top'])
