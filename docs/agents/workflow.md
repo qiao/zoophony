@@ -150,6 +150,14 @@ file, because both checks still read it.
   a lasting edit of code with the Edit tool: a `|` or a `/` in TypeScript text can break the
   delimiter of a `perl` substitution and give a red commit.
 
+## Images of a mesh
+
+Each image set that checks a mesh, a hold, or a clip shows four directions: the front, the back,
+the left side, and the right side (azimuth 0, 180, -90, and 90). This rule applies to a lineup,
+a crop set, and the crop pairs of a report (user, 2026-10-21). Add other views, such as ±35°,
+only after these four. Look at all four images before you report: a clip, a fold, or a dark line
+that shows only from the back or from one side is a fail.
+
 ## Audits
 
 - Write a codebase audit in `docs/audits/`, in a file whose name starts with the date. Give the
