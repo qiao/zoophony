@@ -11,7 +11,7 @@ import type { SpeciesColors } from '../src/models/colors.ts';
 import { EYE, addEye } from '../src/models/eyes.ts';
 import type { EyeBend } from '../src/models/eyes.ts';
 import type { SurfacePoint } from '../src/models/head.ts';
-import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
+import { PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
@@ -193,17 +193,18 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/bear/bear-mesh.rig.glb',
     },
   ],
-  // The polar bear pianist: decisions/2026-10-14-polar-bench.md and 2026-10-14-polar-fix.md.
+  // The polar bear pianist: decisions/2026-10-22-mesh-polar-bear.md. It sits on the piano bench,
+  // which fits its legs.
   [
     'polar-bear',
     {
-      landmark: 'keys',
-      height: PIANO.keyTop + 0.13,
+      landmark: 'shoulders',
+      height: 1.1574,
       seated: true,
       soloist: false,
-      seat: 0.25,
       constant: 'STUDIO_POLAR_BEAR',
       crease: 15,
+      glb: 'assets/models/polar-bear/polar-bear.rig.glb',
     },
   ],
   // The violinist rabbit: decisions/2026-10-14-fox-rabbit-form.md, 2026-10-14-neck-violin.md,
