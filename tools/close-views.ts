@@ -1019,6 +1019,103 @@ export interface CloseViewsArgs {
   readonly probes: readonly GalleryProbe[] | null;
   /** The target of `--target`: `head` for the face crops ({@link headViews}), or `null`. */
   readonly target: 'head' | null;
+  /** The views of `--views` ({@link viewList}), or `null` for the views of the role. */
+  readonly views: readonly CloseViewAngle[] | null;
+  /** The names of the moments of `--moments`, or `null` for the moments of the role. */
+  readonly moments: readonly string[] | null;
+  /**
+   * The lineup of `--lineup` ({@link lineupImage}), or `null` for none: the rows of the commit, the
+   * working tree, and each role of `--with`, one image for each moment.
+   */
+  readonly lineup: RoleLineup | null;
+}
+
+/** The lineup of the close views of a role (`--lineup`). */
+export interface RoleLineup {
+  /** The other roles of `--with`, one row each, from the working tree. */
+  readonly roles: readonly CloseRole[];
+  /** The factor of `--crop <n>`: 1 for the whole cells, or 2 or 3 for crops of the box at n times. */
+  readonly crop: number;
+  /** The box of the crops of `--box`, as shares of the cell ({@link cropOf}). */
+  readonly box: CropBox;
+}
+
+/** The views of the lineup with no `--views`: the front, the back, and each side (user, 2026-10-21). */
+export const LINEUP_VIEWS: readonly string[] = ['front', 'back', 'left', 'right'];
+
+/** The box of the crops of the lineup with no `--box`: the arms and the upper body at zoom 1.5. */
+export const LINEUP_BOX: CropBox = { x: 0.1, y: 0.25, width: 0.8, height: 0.5 };
+
+/** The views that each role has by name in `--views`, with their turns of the camera. */
+export const NAMED_VIEWS: readonly CloseViewAngle[] = [
+  { name: 'front', azimuth: 0 },
+  { name: 'back', azimuth: 180 },
+  { name: 'left', azimuth: -90 },
+  { name: 'right', azimuth: 90 },
+];
+
+/**
+ * Reads the views of `--views <view,...>`: a view of the role or of {@link NAMED_VIEWS} by its
+ * name, or a turn of the camera in degrees, such as `35` or `-35`, which takes the name `az35`.
+ *
+ * @param role The views of the role.
+ * @param value The text of the option.
+ * @returns The views, in their order.
+ * @throws Error for an unknown name or a view that comes two times.
+ */
+export function viewList(role: RoleViews, value: string): CloseViewAngle[] {
+  const views = value.split(',').map((name): CloseViewAngle => {
+    const own = [...role.views, ...NAMED_VIEWS].find((view) => view.name === name);
+    if (own) {
+      return own;
+    }
+    const azimuth = Number(name);
+    if (name.trim() === '' || !Number.isInteger(azimuth) || Math.abs(azimuth) > 180) {
+      throw new Error(
+        `The option --views takes the views ${[...new Set([...role.views, ...NAMED_VIEWS].map((view) => view.name))].join(', ')} or a whole turn in degrees from -180 to 180, such as 35, and not "${name}".`,
+      );
+    }
+    return { name: `az${azimuth}`, azimuth };
+  });
+  const names = views.map((view) => view.name);
+  const twice = names.find((name, i) => names.indexOf(name) !== i);
+  if (twice !== undefined) {
+    throw new Error(`The view "${twice}" comes two times in --views.`);
+  }
+  return views;
+}
+
+/**
+ * Gives the moments of the lineup with no `--moments`: the first moment of the role and its rest.
+ *
+ * @param role The close view of the role.
+ * @returns The names of the moments.
+ */
+export function lineupMoments(role: RoleViews): string[] {
+  const [first] = role.moments;
+  const rest = role.moments.find((moment) => moment.rest);
+  return [first, rest].flatMap((moment, i, all) =>
+    moment && all.indexOf(moment) === i ? [moment.name] : [],
+  );
+}
+
+/**
+ * Gives the moment of another role of the lineup for a moment of the role: the moment of the same
+ * name, else the rest for a rest and the first moment for each other moment.
+ *
+ * @param role The other role.
+ * @param moment The moment of the role.
+ * @returns The moment of the other role.
+ */
+export function partnerMoment(role: RoleViews, moment: CloseMoment): CloseMoment {
+  const same = role.moments.find((own) => own.name === moment.name);
+  const rest = role.moments.find((own) => own.rest);
+  const [first] = role.moments;
+  const found = same ?? (moment.rest ? rest : first) ?? first;
+  if (!found) {
+    throw new Error('The role has no moment.');
+  }
+  return found;
 }
 
 /**
@@ -1134,15 +1231,20 @@ export function scaleOf(value: string | null): number {
 }
 
 /**
- * Reads the command line of the close views: `<role> <dir> [--target head] [--zoom <n>] [--elevation <deg>]
- * [--scale <n>] [--probe <probe,...>] [--url <url>] [--glb <file>] [--set <changes>] [--base
- * <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`.
+ * Reads the command line of the close views: `<role> <dir> [--target head] [--views <view|deg,...>]
+ * [--moments <moment,...>] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <probe,...>]
+ * [--url <url>] [--glb <file>] [--set <changes>] [--lineup [--with <role,...>] [--crop <n>] [--box
+ * <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`. With
+ * `--lineup`, the views are {@link LINEUP_VIEWS} and the moments {@link lineupMoments} unless
+ * `--views` and `--moments` give others.
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when it is not correct.
- * @throws Error if a target, a zoom, an elevation, a scale, a probe, a pair, or a crop does not fit, if `--pairs`
- *   comes with no `--base`, or `--crop` with no `--pairs`, if `--set` comes more than one time,
- *   or if `--glb` or `--set` comes with `--url`.
+ * @throws Error if a target, a zoom, an elevation, a scale, a probe, a pair, a view, a moment, a
+ *   role of `--with`, or a crop does not fit, if `--pairs` comes with no `--base`, `--crop` with
+ *   no `--pairs` or `--lineup`, or `--with`, `--box`, or a factor of `--crop` with no `--lineup`,
+ *   if `--lineup` comes with `--probe`, `--target`, or `--pairs`, if `--set` comes more than one
+ *   time, or if `--glb` or `--set` comes with `--url`.
  */
 export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const role = roleOf(args[0]);
@@ -1158,10 +1260,46 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const holds = optionValue(args, '--set');
   const probe = optionValue(args, '--probe');
   const target = optionValue(args, '--target');
+  const views = optionValue(args, '--views');
+  const moments = optionValue(args, '--moments');
+  const withRoles = optionValue(args, '--with');
+  const box = optionValue(args, '--box');
+  const lineup = args.includes('--lineup');
   const given = [url, base, zoom, elevation, scale, pairs, crop, glb, holds, probe, target];
-  if (!role || !out || out.startsWith('--') || given.includes(undefined)) {
+  if (
+    !role ||
+    !out ||
+    out.startsWith('--') ||
+    [...given, views, moments, withRoles, box].includes(undefined)
+  ) {
     return null;
   }
+  const factor = crop !== null && crop !== undefined && /^\d$/.test(crop) ? Number(crop) : null;
+  if (!lineup && (withRoles || box || factor !== null)) {
+    throw new Error('The options --with, --box, and --crop <n> need --lineup.');
+  }
+  if (lineup && (probe || target || pairs)) {
+    throw new Error('The option --lineup takes no --probe, --target, or --pairs.');
+  }
+  if (factor !== null && (factor < 1 || factor > MAX_SCALE)) {
+    throw new Error(`The option --crop of --lineup takes 1 to ${MAX_SCALE}, and not "${crop}".`);
+  }
+  if (lineup && crop !== null && factor === null) {
+    throw new Error(`The option --crop of --lineup takes a factor, such as 2, and not "${crop}".`);
+  }
+  const ownViews = ROLE_VIEWS[role];
+  const momentNames = moments
+    ? moments.split(',').map((name) => namedItem(name, ownViews.moments, 'moment').name)
+    : null;
+  const partners = (withRoles?.split(',') ?? []).map((name) => {
+    const other = roleOf(name);
+    if (!other) {
+      throw new Error(
+        `The option --with takes the roles ${CLOSE_ROLES.join(', ')}, and not "${name}".`,
+      );
+    }
+    return other;
+  });
   if (target !== null && target !== 'head') {
     throw new Error(`The option --target takes head, and not "${target}".`);
   }
@@ -1174,8 +1312,8 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   if (pairs && !base) {
     throw new Error('The option --pairs needs --base, because each pair holds the base cell.');
   }
-  if (crop && !pairs) {
-    throw new Error('The option --crop needs --pairs.');
+  if (crop && !pairs && !lineup) {
+    throw new Error('The option --crop needs --pairs or --lineup.');
   }
   return {
     role,
@@ -1188,11 +1326,20 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
     pairs: pairs
       ? pairCells(target ? headViews(ROLE_VIEWS[role]) : ROLE_VIEWS[role], pairs.split(','))
       : null,
-    crop: crop ? cropOf(crop) : null,
+    crop: crop && !lineup ? cropOf(crop) : null,
     glb: glb ? resolve(glb) : null,
     holds: holds ?? null,
     probes: probe ? probesOf(probe) : null,
     target: target ?? null,
+    views: views
+      ? viewList(ownViews, views)
+      : lineup
+        ? viewList(ownViews, LINEUP_VIEWS.join(','))
+        : null,
+    moments: momentNames ?? (lineup ? lineupMoments(ownViews) : null),
+    lineup: lineup
+      ? { roles: partners, crop: factor ?? 1, box: box ? cropOf(box) : LINEUP_BOX }
+      : null,
   };
 }
 
@@ -1408,22 +1555,36 @@ async function pairImage(
 
 /**
  * Gives the close view of a role with the camera of the command line: the face crops of
- * `--target head` ({@link headViews}), then the zoom of `--zoom` and the elevation of
- * `--elevation` for each view, in place of the values of the role.
+ * `--target head` ({@link headViews}), the views of `--views` and the moments of `--moments`,
+ * then the zoom of `--zoom` and the elevation of `--elevation` for each view, in place of the
+ * values of the role.
  *
  * @param role The close view of the role.
- * @param args The zoom, the elevation, and the target of the command line.
+ * @param args The zoom, the elevation, the target, the views, and the moments of the command line.
  * @returns The close view.
  */
 export function roleCamera(
   role: RoleViews,
-  args: Pick<CloseViewsArgs, 'zoom' | 'elevation' | 'target'>,
+  args: Pick<CloseViewsArgs, 'zoom' | 'elevation' | 'target'> &
+    Partial<Pick<CloseViewsArgs, 'views' | 'moments'>>,
 ): RoleViews {
   const { zoom, elevation } = args;
   const aimed = args.target === 'head' ? headViews(role) : role;
+  const views = args.views ?? aimed.views;
+  const names = args.moments;
   return {
     ...aimed,
-    views: elevation === null ? aimed.views : aimed.views.map((view) => ({ ...view, elevation })),
+    views:
+      elevation === null
+        ? views
+        : views.map((view): CloseViewAngle => ({
+            name: view.name,
+            azimuth: view.azimuth,
+            elevation,
+          })),
+    moments: names
+      ? names.flatMap((name) => aimed.moments.filter((m) => m.name === name))
+      : aimed.moments,
     camera: zoom === null ? aimed.camera : { ...aimed.camera, zoom },
   };
 }
@@ -1603,6 +1764,109 @@ async function roleViews(args: CloseViewsArgs, site: TreeSite): Promise<CommitRe
   };
 }
 
+/** One row of a lineup: the name of its tree or role, and its cells, moment by moment. */
+interface LineupRow {
+  /** The name of the row, such as `working tree`. */
+  readonly label: string;
+  /** The cells, row by row of the role: the views of each moment. */
+  readonly cells: readonly Buffer[];
+}
+
+/**
+ * Cuts a box out of each cell, at the pixels of the cell.
+ *
+ * @param browser The browser.
+ * @param cells The PNG image of each cell.
+ * @param box The box, as shares of the cell.
+ * @returns The PNG image of each crop.
+ */
+async function cropCells(
+  browser: Browser,
+  cells: readonly Buffer[],
+  box: CropBox,
+): Promise<Buffer[]> {
+  const page = await browser.newPage();
+  try {
+    const urls = await page.evaluate(
+      async ({ images, crop }) =>
+        Promise.all(
+          images.map(async (source) => {
+            const image = new Image();
+            image.src = source;
+            await image.decode();
+            const sx = Math.round(crop.x * image.naturalWidth);
+            const sy = Math.round(crop.y * image.naturalHeight);
+            const width = Math.round(crop.width * image.naturalWidth);
+            const height = Math.round(crop.height * image.naturalHeight);
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext('2d')?.drawImage(image, sx, sy, width, height, 0, 0, width, height);
+            return canvas.toDataURL('image/png');
+          }),
+        ),
+      {
+        images: cells.map((cell) => `data:image/png;base64,${cell.toString('base64')}`),
+        crop: box,
+      },
+    );
+    return urls.map((url) => Buffer.from(url.slice(url.indexOf(',') + 1), 'base64'));
+  } finally {
+    await page.close();
+  }
+}
+
+/**
+ * Writes the lineup of a role (`--lineup`): for each moment, one image with a row for each tree
+ * or role and a column for each view, as `<prefix>-<moment>.png` and `.webp` with the cells of
+ * {@link CELL}. With `--crop <n>` above 1, the cells of the factor n also give
+ * `<prefix>-<moment>-crop<n>.png` and `.webp`: the box of `--box` of each cell at its pixels,
+ * which is n times the box at the factor 1.
+ *
+ * @param browser The browser.
+ * @param role The views and the moments of the role.
+ * @param rows The rows, each with the cells of all moments of the role.
+ * @param lineup The lineup of the command line.
+ * @param size The size of the cells of the rows, in CSS pixels.
+ * @param prefix The start of the file paths, such as `out/violinist-lineup`.
+ */
+async function writeLineups(
+  browser: Browser,
+  role: RoleViews,
+  rows: readonly LineupRow[],
+  lineup: RoleLineup,
+  size: CellSize,
+  prefix: string,
+): Promise<void> {
+  const columns = role.views.length;
+  for (const [m, moment] of role.moments.entries()) {
+    const cells = rows.flatMap((row) => row.cells.slice(m * columns, (m + 1) * columns));
+    const labels = rows.flatMap((row) =>
+      role.views.map((view) => `${row.label}: ${moment.name}, ${view.name}`),
+    );
+    const sheet = await grid(browser, cells, labels, columns, size);
+    await writeFile(`${prefix}-${moment.name}.png`, sheet);
+    await writeFile(
+      `${prefix}-${moment.name}.webp`,
+      await toWebp(browser, await grid(browser, cells, labels, columns)),
+    );
+    console.log(`${prefix}-${moment.name}.png`);
+    if (lineup.crop > 1) {
+      const crops = await cropCells(browser, cells, lineup.box);
+      const cropSize = {
+        width: Math.round(lineup.box.width * size.width),
+        height: Math.round(lineup.box.height * size.height),
+      };
+      const cropLabels = labels.map((text) => `${text}, ${lineup.crop}x`);
+      const cropSheet = await grid(browser, crops, cropLabels, columns, cropSize);
+      const file = `${prefix}-${moment.name}-crop${lineup.crop}`;
+      await writeFile(`${file}.png`, cropSheet);
+      await writeFile(`${file}.webp`, await toWebp(browser, cropSheet));
+      console.log(`${file}.png`);
+    }
+  }
+}
+
 /**
  * Renders the close view of a role into `<dir>`: each cell as `<role>-<moment>-<view>.png`, and
  * the grid of all cells as `<role>-views.png` and `.webp`. The renders of the commit write each
@@ -1632,8 +1896,9 @@ async function probeViews(
   const target = args.target ? `${args.role}-${args.target}` : args.role;
   const name = probe ? `${target}-${probe}` : target;
   const role = roleCamera(ROLE_VIEWS[args.role], args);
-  const size = roleCell(args.scale);
-  if (args.zoom !== null || args.elevation !== null || args.scale !== 1) {
+  const scale = args.lineup ? Math.max(args.scale, args.lineup.crop) : args.scale;
+  const size = roleCell(scale);
+  if (args.zoom !== null || args.elevation !== null || scale !== 1) {
     console.log(
       `Camera: zoom ${role.camera.zoom}, ${args.elevation === null ? 'the elevation of each view' : `${args.elevation}°`}, cells of ${size.width} × ${size.height} px.`,
     );
@@ -1644,15 +1909,31 @@ async function probeViews(
     cells: readonly Buffer[],
     labels: readonly string[],
   ): Promise<Buffer> =>
-    toWebp(browser, args.scale === 1 ? png : await grid(browser, cells, labels, role.views.length));
+    toWebp(browser, scale === 1 ? png : await grid(browser, cells, labels, role.views.length));
   const views = await renderViews(browser, site.base, role, out, `${name}-`, size, probe);
   const sheet = await grid(browser, views.cells, views.labels, role.views.length, size);
   await writeFile(join(out, `${name}-views.png`), sheet);
   await writeFile(join(out, `${name}-views.webp`), await webp(sheet, views.cells, views.labels));
   console.log(join(out, `${name}-views.png`));
 
+  const lineup = args.lineup;
+  const rows: LineupRow[] = [{ label: 'working tree', cells: views.cells }];
+  for (const other of lineup?.roles ?? []) {
+    const own = roleCamera(ROLE_VIEWS[other], { ...args, target: null, moments: null });
+    const partner = { ...own, moments: role.moments.map((m) => partnerMoment(own, m)) };
+    const cells = await renderViews(browser, site.base, partner, out, `${other}-`, size);
+    rows.push({ label: `${other}, working tree`, cells: cells.cells });
+  }
+  if (lineup && args.base === null) {
+    await writeLineups(browser, role, rows, lineup, size, join(out, `${name}-lineup`));
+  }
+
   return async (other, label) => {
     const before = await renderViews(browser, other, role, out, `${name}-base-`, size, probe);
+    if (lineup) {
+      const all = [{ label, cells: before.cells }, ...rows];
+      await writeLineups(browser, role, all, lineup, size, join(out, `${name}-lineup`));
+    }
     const cells = [...before.cells, ...views.cells];
     const labels = baseGridLabels(views.labels, label);
     const both = await grid(browser, cells, labels, role.views.length, size);
@@ -4455,7 +4736,7 @@ async function renderModes(
 
 /** The usage text of the tool. */
 const USAGE = [
-  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
+  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--views <view|deg,...>] [--moments <moment,...>] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--lineup [--with <role,...>] [--crop <n>] [--box <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id> | --midi <path>] [--time <s>]... [--strip <from>:<step>:<count>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>|<JSON>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
