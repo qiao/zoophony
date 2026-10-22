@@ -112,29 +112,30 @@ type RestingHand =
 export const HANDS_HOLDS = {
   // The polar bear mesh has a round belly in front of short arms (arm factor 1.25 of
   // `tools/mesh-rigs/polar-bear.json`). The keys stand in front of the belly (`PIANO_FRONT_H`),
-  // and the spine leans 28° forward, so that the paws reach each key of the demos. The legs 1.6
-  // times as long as the mesh legs put the shoulders 13 cm higher above the keys. With 24°, the
-  // paws missed the far keys by up to 39 mm, and with 27°, the upper arms went 12.3 cm into the
-  // belly in a lowering (`docs/research/2026-10-22-polar-legs.md`). The palm is 0.12 m in front
-  // of the front edge of the keys and 0.12 m above them, and the curled claws lie on the keys
-  // (`pianoKeyFront()`). With 0.09 m, the upper arms went up to 11.8 cm into the belly.
-  // With 0.14 m, 68% of the play samples folded.
-  // The elbows point out and a little up: with the poles of the studio polar bear (out, down, and
+  // and the spine leans 27° forward, so that the paws reach the keys of the demos. The legs 1.6
+  // times as long as the mesh legs put the shoulders 11 cm higher above the keys. With 24°, the
+  // paws missed the far keys by up to 39 mm, and with 28°, 43% of the play samples folded
+  // (`docs/research/2026-10-22-polar-legs.md`). The palm is 0.12 m in front of the front edge of
+  // the keys and 0.105 m above them, and the curled claws lie on the keys (`pianoKeyFront()`).
+  // The manager accepted the worst note target of 10 mm of this hold.
+  // The elbows point out and 0.05 down: with the poles of the studio polar bear (out, down, and
   // back), the inner elbows went up to 16 cm into the sides of the belly. A real pianist holds
   // the elbows a little out from the body and a little in front of it
-  // (`docs/research/2026-10-22-mesh-polar-bear.md`). The paws reach from A0 to B♭4 with the
+  // (`docs/research/2026-10-22-mesh-polar-bear.md`). On the longer legs, the poles trade the paw
+  // twist of the moves against the paw swing, and 0.05 down misses each limit of the arm gate by
+  // the least (`docs/decisions/2026-10-22-polar-legs.md`). The paws reach from A0 to B♭4 with the
   // left paw and from C4 to C8 with the right paw, so a melody changes paws between them. The
   // wrists go up and a little forward over the case between the lap and the keys (`restArc`).
   piano: {
     action: 'strike',
     keyPoint: pianoKeyFront,
-    palmL: [0, 0.12, 0.12],
-    palmR: [0, 0.12, 0.12],
+    palmL: [0, 0.105, 0.12],
+    palmR: [0, 0.105, 0.12],
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
     aimL: null,
     aimR: null,
-    lean: 28 * MathUtils.DEG2RAD,
+    lean: 27 * MathUtils.DEG2RAD,
     restLean: 8 * MathUtils.DEG2RAD,
     restHeadLift: 8 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
@@ -144,8 +145,8 @@ export const HANDS_HOLDS = {
     // (`docs/research/2026-10-21-pirates-clip.md`). At 25 and more, the right paw turned more
     // than 15° further from its accepted grip than on `main` (`pnpm arm-check pianist`).
     apart: 24,
-    poleL: [-1, -0.2, 0],
-    poleR: [1, -0.2, 0],
+    poleL: [-1, -0.05, 0],
+    poleR: [1, -0.05, 0],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
     restArc: [0, 0.4, 0.1],
@@ -163,18 +164,18 @@ export const HANDS_HOLDS = {
     // (review of 2026-10-13). With the trunk of the studio rest clip, the bear slumped forward over
     // its knees, and the paws hung beside them (user report of 2026-10-13). The longer thighs of
     // the polar bear mesh stand out in front of the belly, so the lap places lie at 0.7 of the
-    // thighs, 0.2 H up and 0.6 H forward. At the knees, the upper arms went 7.8 cm into the belly
-    // (`docs/research/2026-10-22-polar-legs.md`).
+    // thighs, 0.14 H up and 0.6 H forward. At the knees, the upper arms went 7.8 cm into the
+    // belly, and lower places put them up to 11 cm into it (`docs/research/2026-10-22-polar-legs.md`).
     restL: {
       kind: 'lap',
-      lap: { along: 0.7, offset: [0.03, 0.2, -0.6] },
+      lap: { along: 0.7, offset: [0.03, 0.14, -0.6] },
       palm: [0.06, -0.57, 0.79],
       fingers: [1.18, -0.09, -0.92],
       pole: [-1, -1, 0.77],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 0.7, offset: [-0.03, 0.2, -0.6] },
+      lap: { along: 0.7, offset: [-0.03, 0.14, -0.6] },
       palm: [-0.06, -0.57, 0.79],
       fingers: [-1.18, -0.09, -0.92],
       pole: [1, -1, 0.77],
